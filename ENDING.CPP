@@ -7,6 +7,9 @@
 //  Ending code for Zelda Classic.
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -19,6 +22,7 @@
 
 #include "ending.h"
 #include "zelda.h"
+#include "zc_sys.h"
 #include "zsys.h"
 #include "sprite.h"
 #include "items.h"
@@ -29,6 +33,7 @@
 #include "subscr.h"
 #include "init.h"
 #include "gamedata.h"
+#include "sound.h"
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -258,7 +263,6 @@ void ending()
         if(Quit) return;
     }
     
-    clear_bitmap(msgdisplaybuf);
     draw_screen(tmpscr);
     advanceframe(true);
     
@@ -445,6 +449,7 @@ void ending()
         
     case 3:
     case 4:
+	case 5:
         endText=quest34End;
         numEndTextLines=numQuest34EndLines;
         deathsYPos=792;
@@ -614,10 +619,21 @@ void inc_quest()
     if(game->get_quest()==2 && game->get_maxlife()>=HP_PER_HEART*16)
         quest = 4;
     else
-        quest = zc_min(game->get_quest()+1,4);
+        quest = zc_min(game->get_quest()+1,5);
+
+	if(game->get_quest()==3 && game->get_maxlife()>=HP_PER_HEART*16)
+		quest = 4;
         
     int deaths = game->get_deaths();
-    
+
+	// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
+	if(game->get_quest()==3 && deaths == 0)
+		quest = 5;
+
+	// Likewise, if you beat the 5th but died, go back to the 4th.
+	if(game->get_quest()==5 && deaths > 0)
+		quest = 4;
+
     game->Clear();
     
     game->set_name(name);

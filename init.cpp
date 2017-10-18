@@ -7,6 +7,9 @@
 //  Main code for the quest editor.
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -29,6 +32,7 @@
 #include "init.h"
 #include "zelda.h"
 #include "mem_debug.h"
+#include "zq_custom.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -850,7 +854,6 @@ int d_bombratioedit_proc(int msg,DIALOG *d,int c)
     return ret;
 }
 
-enum { ws_2_frame, ws_3_frame, ws_max };
 const char *walkstyles[]= { "2-frame", "3-frame" };
 
 char *walkstylelist(int index, int *list_size)

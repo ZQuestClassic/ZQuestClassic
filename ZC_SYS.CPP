@@ -8,6 +8,9 @@
 //  for Zelda Classic.
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 // to prevent <map> from generating errors
 #define __GTHREAD_HIDE_WIN32API 1
@@ -50,9 +53,10 @@
 #include "link.h"
 #include "title.h"
 #include "particles.h"
+#include "screenWipe.h"
+#include "sound.h"
 #include "mem_debug.h"
 
-static int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
 
 extern FONT *lfont;
@@ -63,7 +67,7 @@ byte disable_direct_updating;
 byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
-bool midi_paused=false;
+
 //extern movingblock mblock2; //mblock[4]?
 //extern int db;
 
@@ -613,1121 +617,6 @@ void init_NES_mode()
 
 //----------------------------------------------------------------
 
-qword trianglelines[16]=
-{
-    0x0000000000000000ULL,
-    0xFD00000000000000ULL,
-    0xFDFD000000000000ULL,
-    0xFDFDFD0000000000ULL,
-    0xFDFDFDFD00000000ULL,
-    0xFDFDFDFDFD000000ULL,
-    0xFDFDFDFDFDFD0000ULL,
-    0xFDFDFDFDFDFDFD00ULL,
-    0xFDFDFDFDFDFDFDFDULL,
-    0x00FDFDFDFDFDFDFDULL,
-    0x0000FDFDFDFDFDFDULL,
-    0x000000FDFDFDFDFDULL,
-    0x00000000FDFDFDFDULL,
-    0x0000000000FDFDFDULL,
-    0x000000000000FDFDULL,
-    0x00000000000000FDULL,
-};
-
-word screen_triangles[28][32];
-/*
-  qword triangles[4][16]= //[direction][value]
-  {
-  {
-  0x00000000, 0x10000000, 0x21000000, 0x32100000, 0x43210000, 0x54321000, 0x65432100, 0x76543210, 0x87654321, 0x88765432, 0x88876543, 0x88887654, 0x88888765, 0x88888876, 0x88888887, 0x88888888
-  },
-  {
-  0x00000000, 0xF0000000, 0xEF000000, 0xFDF00000, 0xCFDF0000, 0xBCFDF000, 0xABCFDF00, 0x9ABCFDF0, 0x89ABCFDF, 0x889ABCFD, 0x8889ABCD, 0x88889ABC, 0x888889AB, 0x8888889A, 0x88888889, 0x88888888
-  },
-  {
-  0x00000000, 0x00000001, 0x00000012, 0x00000123, 0x00001234, 0x00012345, 0x00123456, 0x01234567, 0x12345678, 0x23456788, 0x34567888, 0x45678888, 0x56788888, 0x67888888, 0x78888888, 0x88888888
-  },
-  {
-  0x00000000, 0x0000000F, 0x000000FE, 0x00000FED, 0x0000FEDC, 0x000FEDCB, 0x00FEDCBA, 0x0FEDCBA9, 0xFEDCBA98, 0xEDCBA988, 0xDCBA9888, 0xCBA98888, 0xBA988888, 0xA9888888, 0x98888888, 0x88888888
-  }
-  };
-  */
-
-
-/*
-  byte triangles[4][16][8]= //[direction][value][line]
-  {
-  {
-  {
-  0,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  1,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  2,  1,  0,  0,  0,  0,  0,  0
-  },
-  {
-  3,  2,  1,  0,  0,  0,  0,  0
-  },
-  {
-  4,  3,  2,  1,  0,  0,  0,  0
-  },
-  {
-  5,  4,  3,  2,  1,  0,  0,  0
-  },
-  {
-  6,  5,  4,  3,  2,  1,  0,  0
-  },
-  {
-  7,  6,  5,  4,  3,  2,  1,  0
-  },
-  {
-  8,  7,  6,  5,  4,  3,  2,  1
-  },
-  {
-  8,  8,  7,  6,  5,  4,  3,  2
-  },
-  {
-  8,  8,  8,  7,  6,  5,  4,  3
-  },
-  {
-  8,  8,  8,  8,  7,  6,  5,  4
-  },
-  {
-  8,  8,  8,  8,  8,  7,  6,  5
-  },
-  {
-  8,  8,  8,  8,  8,  8,  7,  6
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  7
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  8
-  }
-  },
-  {
-  {
-  0,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  15,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  14, 15,  0,  0,  0,  0,  0,  0
-  },
-  {
-  13, 14, 15,  0,  0,  0,  0,  0
-  },
-  {
-  12, 13, 14, 15,  0,  0,  0,  0
-  },
-  {
-  11, 12, 13, 14, 15,  0,  0,  0
-  },
-  {
-  10, 11, 12, 13, 14, 15,  0,  0
-  },
-  {
-  9, 10, 11, 12, 13, 14, 15,  0
-  },
-  {
-  8,  9, 10, 11, 12, 13, 14, 15
-  },
-  {
-  8,  8,  9, 10, 11, 12, 13, 14
-  },
-  {
-  8,  8,  8,  9, 10, 11, 12, 13
-  },
-  {
-  8,  8,  8,  8,  9, 10, 11, 12
-  },
-  {
-  8,  8,  8,  8,  8,  9, 10, 11
-  },
-  {
-  8,  8,  8,  8,  8,  8,  9, 10
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  9
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  8
-  }
-  },
-  {
-  {
-  0,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  0,  0,  0,  0,  0,  0,  0,  1
-  },
-  {
-  0,  0,  0,  0,  0,  0,  1,  2
-  },
-  {
-  0,  0,  0,  0,  0,  1,  2,  3
-  },
-  {
-  0,  0,  0,  0,  1,  2,  3,  4
-  },
-  {
-  0,  0,  0,  1,  2,  3,  4,  5
-  },
-  {
-  0,  0,  1,  2,  3,  4,  5,  6
-  },
-  {
-  0,  1,  2,  3,  4,  5,  6,  7
-  },
-  {
-  1,  2,  3,  4,  5,  6,  7,  8
-  },
-  {
-  2,  3,  4,  5,  6,  7,  8,  8
-  },
-  {
-  3,  4,  5,  6,  7,  8,  8,  8
-  },
-  {
-  4,  5,  6,  7,  8,  8,  8,  8
-  },
-  {
-  5,  6,  7,  8,  8,  8,  8,  8
-  },
-  {
-  6,  7,  8,  8,  8,  8,  8,  8
-  },
-  {
-  7,  8,  8,  8,  8,  8,  8,  8
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  8
-  }
-  },
-  {
-  {
-  0,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  0,  0,  0,  0,  0,  0,  0, 15
-  },
-  {
-  0,  0,  0,  0,  0,  0, 15, 14
-  },
-  {
-  0,  0,  0,  0,  0, 15, 14, 13
-  },
-  {
-  0,  0,  0,  0, 15, 14, 13, 12
-  },
-  {
-  0,  0,  0, 15, 14, 13, 12, 11
-  },
-  {
-  0,  0, 15, 14, 13, 12, 11, 10
-  },
-  {
-  0, 15, 14, 13, 12, 11, 10,  9
-  },
-  {
-  15, 14, 13, 12, 11, 10,  9,  8
-  },
-  {
-  14, 13, 12, 11, 10,  9,  8,  8
-  },
-  {
-  13, 12, 11, 10,  9,  8,  8,  8
-  },
-  {
-  12, 11, 10,  9,  8,  8,  8,  8
-  },
-  {
-  11, 10,  9,  8,  8,  8,  8,  8
-  },
-  {
-  10,  9,  8,  8,  8,  8,  8,  8
-  },
-  {
-  9,  8,  8,  8,  8,  8,  8,  8
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  8
-  }
-  }
-  };
-  */
-
-
-
-/*
-  for (int blockrow=0; blockrow<30; ++i)
-  {
-  for (int linerow=0; linerow<8; ++i)
-  {
-  qword *triangleline=(qword*)(tmp_scr->line[(blockrow*8+linerow)]);
-  for (int blockcolumn=0; blockcolumn<40; ++i)
-  {
-  triangleline=triangles[0][screen_triangles[blockrow][blockcolumn]][linerow];
-  ++triangleline;
-  }
-  }
-  }
-  */
-
-// the ULL suffixes are to prevent this warning:
-// warning: integer constant is too large for "long" type
-
-qword triangles[4][16][8]= //[direction][value][line]
-{
-    {
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0xFD00000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0xFDFD000000000000ULL,
-            0xFD00000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0xFDFDFD0000000000ULL,
-            0xFDFD000000000000ULL,
-            0xFD00000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFD0000000000ULL,
-            0xFDFD000000000000ULL,
-            0xFD00000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFD0000000000ULL,
-            0xFDFD000000000000ULL,
-            0xFD00000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFD0000000000ULL,
-            0xFDFD000000000000ULL,
-            0xFD00000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFD0000000000ULL,
-            0xFDFD000000000000ULL,
-            0xFD00000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFD0000000000ULL,
-            0xFDFD000000000000ULL,
-            0xFD00000000000000ULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFD0000000000ULL,
-            0xFDFD000000000000ULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFD0000000000ULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFD00000000ULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFD000000ULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFD0000ULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFD00ULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        }
-    },
-    {
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0x00000000000000FDULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0x000000000000FDFDULL,
-            0x00000000000000FDULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0x0000000000FDFDFDULL,
-            0x000000000000FDFDULL,
-            0x00000000000000FDULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0x00000000FDFDFDFDULL,
-            0x0000000000FDFDFDULL,
-            0x000000000000FDFDULL,
-            0x00000000000000FDULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0x000000FDFDFDFDFDULL,
-            0x00000000FDFDFDFDULL,
-            0x0000000000FDFDFDULL,
-            0x000000000000FDFDULL,
-            0x00000000000000FDULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0x0000FDFDFDFDFDFDULL,
-            0x000000FDFDFDFDFDULL,
-            0x00000000FDFDFDFDULL,
-            0x0000000000FDFDFDULL,
-            0x000000000000FDFDULL,
-            0x00000000000000FDULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0x00FDFDFDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL,
-            0x000000FDFDFDFDFDULL,
-            0x00000000FDFDFDFDULL,
-            0x0000000000FDFDFDULL,
-            0x000000000000FDFDULL,
-            0x00000000000000FDULL,
-            0x0000000000000000ULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL,
-            0x000000FDFDFDFDFDULL,
-            0x00000000FDFDFDFDULL,
-            0x0000000000FDFDFDULL,
-            0x000000000000FDFDULL,
-            0x00000000000000FDULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL,
-            0x000000FDFDFDFDFDULL,
-            0x00000000FDFDFDFDULL,
-            0x0000000000FDFDFDULL,
-            0x000000000000FDFDULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL,
-            0x000000FDFDFDFDFDULL,
-            0x00000000FDFDFDFDULL,
-            0x0000000000FDFDFDULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL,
-            0x000000FDFDFDFDFDULL,
-            0x00000000FDFDFDFDULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL,
-            0x000000FDFDFDFDFDULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        }
-    },
-    {
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0xFD00000000000000ULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0xFD00000000000000ULL,
-            0xFDFD000000000000ULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0xFD00000000000000ULL,
-            0xFDFD000000000000ULL,
-            0xFDFDFD0000000000ULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0xFD00000000000000ULL,
-            0xFDFD000000000000ULL,
-            0xFDFDFD0000000000ULL,
-            0xFDFDFDFD00000000ULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0xFD00000000000000ULL,
-            0xFDFD000000000000ULL,
-            0xFDFDFD0000000000ULL,
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFDFDFD000000ULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0xFD00000000000000ULL,
-            0xFDFD000000000000ULL,
-            0xFDFDFD0000000000ULL,
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFDFDFD0000ULL
-        },
-        {
-            0x0000000000000000ULL,
-            0xFD00000000000000ULL,
-            0xFDFD000000000000ULL,
-            0xFDFDFD0000000000ULL,
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFDFDFD00ULL
-        },
-        {
-            0xFD00000000000000ULL,
-            0xFDFD000000000000ULL,
-            0xFDFDFD0000000000ULL,
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0xFDFD000000000000ULL,
-            0xFDFDFD0000000000ULL,
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0xFDFDFD0000000000ULL,
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0xFDFDFDFD00000000ULL,
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0xFDFDFDFDFD000000ULL,
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0xFDFDFDFDFDFD0000ULL,
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0xFDFDFDFDFDFDFD00ULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        }
-    },
-    {
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x00000000000000FDULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x00000000000000FDULL,
-            0x000000000000FDFDULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x00000000000000FDULL,
-            0x000000000000FDFDULL,
-            0x0000000000FDFDFDULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x00000000000000FDULL,
-            0x000000000000FDFDULL,
-            0x0000000000FDFDFDULL,
-            0x00000000FDFDFDFDULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x00000000000000FDULL,
-            0x000000000000FDFDULL,
-            0x0000000000FDFDFDULL,
-            0x00000000FDFDFDFDULL,
-            0x000000FDFDFDFDFDULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x0000000000000000ULL,
-            0x00000000000000FDULL,
-            0x000000000000FDFDULL,
-            0x0000000000FDFDFDULL,
-            0x00000000FDFDFDFDULL,
-            0x000000FDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL
-        },
-        {
-            0x0000000000000000ULL,
-            0x00000000000000FDULL,
-            0x000000000000FDFDULL,
-            0x0000000000FDFDFDULL,
-            0x00000000FDFDFDFDULL,
-            0x000000FDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL
-        },
-        {
-            0x00000000000000FDULL,
-            0x000000000000FDFDULL,
-            0x0000000000FDFDFDULL,
-            0x00000000FDFDFDFDULL,
-            0x000000FDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0x000000000000FDFDULL,
-            0x0000000000FDFDFDULL,
-            0x00000000FDFDFDFDULL,
-            0x000000FDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0x0000000000FDFDFDULL,
-            0x00000000FDFDFDFDULL,
-            0x000000FDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0x00000000FDFDFDFDULL,
-            0x000000FDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0x000000FDFDFDFDFDULL,
-            0x0000FDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0x0000FDFDFDFDFDFDULL,
-            0x00FDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0x00FDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        },
-        {
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL,
-            0xFDFDFDFDFDFDFDFDULL
-        }
-    }
-};
-
-int black_opening_count=0;
-int black_opening_x,black_opening_y;
-int black_opening_shape;
-
-int choose_opening_shape()
-{
-    // First, count how many bits are set
-    int numBits=0;
-    int bitCounter;
-    
-    for(int i=0; i<4; i++)
-    {
-        if(COOLSCROLL&(1<<i))
-            numBits++;
-    }
-    
-    // Shouldn't happen...
-    if(numBits==0)
-        return bosCIRCLE;
-        
-    // Pick a bit
-    bitCounter=rand()%numBits+1;
-    
-    for(int i=0; i<4; i++)
-    {
-        // If this bit is set, decrement the bit counter
-        if(COOLSCROLL&(1<<i))
-            bitCounter--;
-            
-        // When the counter hits 0, return a value based on
-        // which bit it stopped on.
-        // Reminder: enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosMAX};
-        if(bitCounter==0)
-            return i;
-    }
-    
-    // Shouldn't be necessary, but the compiler might complain, at least
-    return bosCIRCLE;
-}
-
-void close_black_opening(int x, int y, bool wait)
-{
-    black_opening_shape=choose_opening_shape();
-    
-    int w=256, h=224;
-    int blockrows=28, blockcolumns=32;
-    int xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
-    
-    for(int blockrow=0; blockrow<blockrows; ++blockrow)  //30
-    {
-        for(int blockcolumn=0; blockcolumn<blockcolumns; ++blockcolumn)  //40
-        {
-            screen_triangles[blockrow][blockcolumn]=zc_max(abs(int(double(blockcolumns-1)/2-blockcolumn+xoffset)),abs(int(double(blockrows-1)/2-blockrow+yoffset)))|0x0100|((blockrow-yoffset<blockrows/2)?0:0x8000)|((blockcolumn-xoffset<blockcolumns/2)?0x4000:0);
-        }
-    }
-    
-    black_opening_count = 66;
-    black_opening_x = x;
-    black_opening_y = y;
-    lensclk = 0;
-    //black_opening_shape=(black_opening_shape+1)%bosMAX;
-    
-    if(wait)
-    {
-        for(int i=0; i<66; i++)
-        {
-            draw_screen(tmpscr);
-            put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-            syskeys();
-            advanceframe(true);
-            
-            if(Quit)
-            {
-                break;
-            }
-        }
-    }
-}
-
-void open_black_opening(int x, int y, bool wait)
-{
-    black_opening_shape=choose_opening_shape();
-    
-    int w=256, h=224;
-    int blockrows=28, blockcolumns=32;
-    int xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
-    
-    for(int blockrow=0; blockrow<blockrows; ++blockrow)  //30
-    {
-        for(int blockcolumn=0; blockcolumn<blockcolumns; ++blockcolumn)  //40
-        {
-            screen_triangles[blockrow][blockcolumn]=zc_max(abs(int(double(blockcolumns-1)/2-blockcolumn+xoffset)),abs(int(double(blockrows-1)/2-blockrow+yoffset)))|0x0100|((blockrow-yoffset<blockrows/2)?0:0x8000)|((blockcolumn-xoffset<blockcolumns/2)?0x4000:0);
-        }
-    }
-    
-    black_opening_count = -66;
-    black_opening_x = x;
-    black_opening_y = y;
-    lensclk = 0;
-    
-    if(wait)
-    {
-        for(int i=0; i<66; i++)
-        {
-            draw_screen(tmpscr);
-            put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-            syskeys();
-            advanceframe(true);
-            
-            if(Quit)
-            {
-                break;
-            }
-        }
-    }
-}
-
-void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
-{
-    clear_to_color(tmp_scr,BLACK);
-    int w=256, h=224;
-    
-    switch(black_opening_shape)
-    {
-    case bosOVAL:
-    {
-        double new_w=(w/2)+abs(w/2-x);
-        double new_h=(h/2)+abs(h/2-y);
-        double b=sqrt(((new_w*new_w)/4)+(new_h*new_h));
-        ellipsefill(tmp_scr,x,y,int(2*a*b/max_a)/8*8,int(a*b/max_a)/8*8,0);
-        break;
-    }
-    
-    case bosTRIANGLE:
-    {
-        double new_w=(w/2)+abs(w/2-x);
-        double new_h=(h/2)+abs(h/2-y);
-        double r=a*(new_w*sqrt((double)3)+new_h)/max_a;
-        double P2= (PI/2);
-        double P23=(2*PI/3);
-        double P43=(4*PI/3);
-        double Pa= (-4*PI*a/(3*max_a));
-        double angle=P2+Pa;
-        double a0=angle;
-        double a2=angle+P23;
-        double a4=angle+P43;
-        triangle(tmp_scr, x+int(cos(a0)*r), y-int(sin(a0)*r),
-                 x+int(cos(a2)*r), y-int(sin(a2)*r),
-                 x+int(cos(a4)*r), y-int(sin(a4)*r),
-                 0);
-        break;
-    }
-    
-    case bosSMAS:
-    {
-        int distance=zc_max(abs(w/2-x),abs(h/2-y))/8;
-        
-        for(int blockrow=0; blockrow<28; ++blockrow)  //30
-        {
-            for(int linerow=0; linerow<8; ++linerow)
-            {
-                qword *triangleline=(qword*)(tmp_scr->line[(blockrow*8+linerow)]);
-                
-                for(int blockcolumn=0; blockcolumn<32; ++blockcolumn)  //40
-                {
-                    *triangleline=triangles[(screen_triangles[blockrow][blockcolumn]&0xC000)>>14]
-                                  [zc_min(zc_max((((31+distance)*(max_a-a)/max_a)+((screen_triangles[blockrow][blockcolumn]&0x0FFF)-0x0100)-(15+distance)),0),15)]
-                                  [linerow];
-                    ++triangleline;
-                    
-                    if(linerow==0)
-                    {
-                    }
-                }
-            }
-        }
-        
-        break;
-    }
-    
-    case bosCIRCLE:
-    default:
-    {
-        double new_w=(w/2)+abs(w/2-x);
-        double new_h=(h/2)+abs(h/2-y);
-        int r=int(sqrt((new_w*new_w)+(new_h*new_h))*a/max_a);
-        //circlefill(tmp_scr,x,y,a<<3,0);
-        circlefill(tmp_scr,x,y,r,0);
-        break;
-    }
-    }
-    
-    masked_blit(tmp_scr,dest,0,0,0,0,320,240);
-}
-
-//----------------------------------------------------------------
-
 bool item_disabled(int item)                 //is this item disabled?
 {
     return (item>=0 && game->items_off[item] != 0);
@@ -1904,15 +793,6 @@ bool has_item(int item_type, int it)                        //does Link possess 
     }
     
     default:
-        //it=(1<<(it-1));
-        /*if (item_type>=itype_max)
-        {
-          system_pal();
-          jwin_alert("Error","has_item exception",NULL,NULL,"O&K",NULL,'k',0,lfont);
-          game_pal();
-        
-          return false;
-        }*/
         int itemid = getItemID(itemsbuf, item_type, it);
         
         if(itemid == -1)
@@ -2010,12 +890,6 @@ int current_item(int item_type)           //item currently being used
 }
 
 std::map<int, int> itemcache;
-
-// Not actually used by anything at the moment...
-void removeFromItemCache(int itemid)
-{
-    itemcache.erase(itemid);
-}
 
 void flushItemCache()
 {
@@ -3311,26 +2185,10 @@ void updatescr(bool allowwavy)
         dump_pal(framebuf);
         
     if(!Playing)
-        black_opening_count=0;
-        
-    if(black_opening_count<0) //shape is opening up
-    {
-        black_opening(framebuf,black_opening_x,black_opening_y,(66+black_opening_count),66);
-        
-        if(Advance||(!Paused))
-        {
-            ++black_opening_count;
-        }
-    }
-    else if(black_opening_count>0) //shape is closing
-    {
-        black_opening(framebuf,black_opening_x,black_opening_y,black_opening_count,66);
-        
-        if(Advance||(!Paused))
-        {
-            --black_opening_count;
-        }
-    }
+        abortScreenWipe();
+    
+    if(screenWipeIsActive())
+        updateScreenWipe(Advance || !Paused);
     
     if(refreshpal)
     {
@@ -3374,11 +2232,6 @@ void updatescr(bool allowwavy)
         wavy = 0; // Wavy was set by a DMap flag. Clear it.
     else if(Playing && !Paused)
         wavy--; // Wavy was set by a script. Decrement it.
-        
-    if(!(msgdisplaybuf->clip) && Playing && msgpos && !screenscrolling)
-    {
-        masked_blit(msgdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
-    }
     
     bool nosubscr = (tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET));
     
@@ -3389,7 +2242,6 @@ void updatescr(bool allowwavy)
         blit(wavybuf,panorama,0,playing_field_offset,0,passive_subscreen_height/2,256,224-passive_subscreen_height);
     }
     
-    //TODO: Optimize blit 'overcalls' -Gleeok
     BITMAP *source = nosubscr ? panorama : wavybuf;
     BITMAP *target = NULL;
     
@@ -4064,7 +2916,6 @@ void syskeys()
     
     if(ReadKey(KEY_P))   Paused=!Paused;
     
-    //if(ReadKey(KEY_P))   centerLink();
     if(ReadKey(KEY_A))
     {
         Paused=true;
@@ -4212,7 +3063,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup)
         }
     }
     
-    if(Quit)
+    if(Quit && Quit!=qGAMEOVER)
         return;
         
     if(Playing && game->get_time()<MAXTIME)
@@ -4443,11 +3294,24 @@ void blackscr(int fcnt,bool showsubscr)
 void openscreen()
 {
     reset_pal_cycling();
-    black_opening_count=0;
+    abortScreenWipe();
     
     if(COOLSCROLL)
     {
-        open_black_opening(LinkX()+8, (LinkY()-LinkZ())+8+playing_field_offset, true);
+        beginScreenWipeIn(LinkX()+8, (LinkY()-LinkZ())+8+playing_field_offset);
+        while(screenWipeIsActive())
+        {
+            draw_screen(tmpscr);
+            put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+            syskeys();
+            advanceframe(true);
+            
+            if(Quit)
+            {
+                // Abort wipe? Probably doesn't matter.
+                break;
+            }
+        }
         return;
     }
     else
@@ -6045,13 +4909,7 @@ int onSound()
     if(ret==2)
     {
         master_volume(digi_volume,midi_volume);
-        
-        for(int i=0; i<WAV_COUNT; ++i)
-        {
-            //allegro assertion fails when passing in -1 as voice -DD
-            if(sfx_voice[i] > 0)
-                voice_set_volume(sfx_voice[i], sfx_volume);
-        }
+        set_all_voice_volume(sfx_volume);
     }
     else
     {
@@ -6099,14 +4957,6 @@ int onQuit()
         {
             disableClickToFreeze=false;
             Quit=qQUIT;
-            
-            // Trying to evade a door repair charge?
-            if(repaircharge)
-            {
-                game->change_drupy(-repaircharge);
-                repaircharge=0;
-            }
-            
             return D_CLOSE;
         }
     }
@@ -7367,7 +6217,7 @@ void switch_out_callback()
 	if(midi_patch_fix==0 || currmidi==0)
         return;
         
-    bool was_paused=midi_paused;
+    bool was_paused=get_midi_paused();
     long pos=midi_pos;
     int digi_vol, midi_vol;
 	
@@ -7380,7 +6230,7 @@ void switch_out_callback()
     if(was_paused)
     {
         midi_pause();
-        midi_paused=true;
+        set_midi_paused(true);
     }
 }
 
@@ -7389,7 +6239,7 @@ void switch_in_callback()
 	if(midi_patch_fix==0 || currmidi==0)
         return;
         
-    bool was_paused=midi_paused;
+    bool was_paused=get_midi_paused();
     long pos=midi_pos;
     int digi_vol, midi_vol;
 	
@@ -7402,7 +6252,7 @@ void switch_in_callback()
     if(was_paused)
     {
         midi_pause();
-        midi_paused=true;
+        set_midi_paused(true);
     }
 }
 #else // Not Windows
@@ -7422,35 +6272,6 @@ void game_pal()
 }
 
 static char bar_str[] = "";
-
-void music_pause()
-{
-    //al_pause_duh(tmplayer);
-    zcmusic_pause(zcmusic, ZCM_PAUSE);
-    midi_pause();
-    midi_paused=true;
-}
-
-void music_resume()
-{
-    //al_resume_duh(tmplayer);
-    zcmusic_pause(zcmusic, ZCM_RESUME);
-    midi_resume();
-    midi_paused=false;
-}
-
-void music_stop()
-{
-    //al_stop_duh(tmplayer);
-    //unload_duh(tmusic);
-    //tmusic=NULL;
-    //tmplayer=NULL;
-    zcmusic_stop(zcmusic);
-    zcmusic_unload_file(zcmusic);
-    stop_midi();
-    midi_paused=false;
-    currmidi=0;
-}
 
 void System()
 {
@@ -7661,449 +6482,6 @@ void fix_dialogs()
     sfx_dp[2]  += scry;
 }
 
-/*****************************/
-/**** Custom Sound System ****/
-/*****************************/
-
-INLINE int mixvol(int v1,int v2)
-{
-    return (zc_min(v1,255)*zc_min(v2,255)) >> 8;
-}
-
-// Run an NSF, or a MIDI if the NSF is missing somehow.
-bool try_zcmusic(char *filename, int track, int midi)
-{
-    ZCMUSIC *newzcmusic = NULL;
-    
-    // Try the ZC directory first
-    {
-        char exepath[2048];
-        char musicpath[2048];
-        get_executable_name(exepath, 2048);
-        replace_filename(musicpath, exepath, filename, 2048);
-        newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
-    }
-    
-    // Not in ZC directory, try the quest directory
-    if(newzcmusic==NULL)
-    {
-        char musicpath[2048];
-        replace_filename(musicpath, qstpath, filename, 2048);
-        newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
-    }
-    
-    // Found it
-    if(newzcmusic!=NULL)
-    {
-        zcmusic_stop(zcmusic);
-        zcmusic_unload_file(zcmusic);
-        stop_midi();
-        
-        zcmusic=newzcmusic;
-        zcmusic_play(zcmusic, emusic_volume);
-        
-        if(track>0)
-            zcmusic_change_track(zcmusic,track);
-            
-        return true;
-    }
-    
-    // Not found, play MIDI - unless this was called by a script (yay, magic numbers)
-    else if(midi>-1000)
-        jukebox(midi);
-        
-    return false;
-}
-
-void jukebox(int index,int loop)
-{
-    music_stop();
-    
-    if(index<0)         index=MAXMIDIS-1;
-    
-    if(index>=MAXMIDIS) index=0;
-    
-    music_stop();
-    
-    // Allegro's DIGMID driver (the one normally used on on Linux) gets
-    // stuck notes when a song stops. This fixes it.
-    if(strcmp(midi_driver->name, "DIGMID")==0)
-        set_volume(0, 0);
-        
-    set_volume(-1, mixvol(tunes[index].volume,midi_volume>>1));
-    play_midi((MIDI*)tunes[index].data,loop);
-    
-    if(tunes[index].start>0)
-        midi_seek(tunes[index].start);
-        
-    midi_loop_end = tunes[index].loop_end;
-    midi_loop_start = tunes[index].loop_start;
-    
-    currmidi=index;
-    master_volume(digi_volume,midi_volume);
-    midi_paused=false;
-}
-
-void jukebox(int index)
-{
-    if(index<0)         index=MAXMIDIS-1;
-    
-    if(index>=MAXMIDIS) index=0;
-    
-    // do nothing if it's already playing
-    if(index==currmidi && midi_pos>=0)
-    {
-        midi_paused=false;
-        return;
-    }
-    
-    jukebox(index,tunes[index].loop);
-}
-
-void play_DmapMusic()
-{
-    static char tfile[2048];
-    static int ttrack=0;
-    bool domidi=false;
-    
-    // Seems like this ought to call try_zcmusic()...
-    
-    if(DMaps[currdmap].tmusic[0]!=0)
-    {
-        if(zcmusic==NULL ||
-           strcmp(zcmusic->filename,DMaps[currdmap].tmusic)!=0 ||
-           (zcmusic->type==ZCMF_GME && zcmusic->track != DMaps[currdmap].tmusictrack))
-        {
-            if(zcmusic != NULL)
-            {
-                zcmusic_stop(zcmusic);
-                zcmusic_unload_file(zcmusic);
-                zcmusic = NULL;
-            }
-            
-            // Try the ZC directory first
-            {
-                char exepath[2048];
-                char musicpath[2048];
-                get_executable_name(exepath, 2048);
-                replace_filename(musicpath, exepath, DMaps[currdmap].tmusic, 2048);
-                zcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
-            }
-            
-            // Not in ZC directory, try the quest directory
-            if(zcmusic==NULL)
-            {
-                char musicpath[2048];
-                replace_filename(musicpath, qstpath, DMaps[currdmap].tmusic, 2048);
-                zcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
-            }
-            
-            if(zcmusic!=NULL)
-            {
-                stop_midi();
-                strcpy(tfile,DMaps[currdmap].tmusic);
-                zcmusic_play(zcmusic, emusic_volume);
-                int temptracks=0;
-                temptracks=zcmusic_get_tracks(zcmusic);
-                temptracks=(temptracks<2)?1:temptracks;
-                ttrack = vbound(DMaps[currdmap].tmusictrack,0,temptracks-1);
-                zcmusic_change_track(zcmusic,ttrack);
-            }
-            else
-            {
-                tfile[0] = 0;
-                domidi=true;
-            }
-        }
-    }
-    else
-    {
-        domidi=true;
-    }
-    
-    if(domidi)
-    {
-        int m=DMaps[currdmap].midi;
-        
-        switch(m)
-        {
-        case 1:
-            jukebox(ZC_MIDI_OVERWORLD);
-            break;
-            
-        case 2:
-            jukebox(ZC_MIDI_DUNGEON);
-            break;
-            
-        case 3:
-            jukebox(ZC_MIDI_LEVEL9);
-            break;
-            
-        default:
-            if(m>=4 && m<4+MAXCUSTOMMIDIS)
-                jukebox(m-4+ZC_MIDI_COUNT);
-            else
-                music_stop();
-        }
-    }
-}
-
-void playLevelMusic()
-{
-    int m=tmpscr->screen_midi;
-    
-    switch(m)
-    {
-    case -2:
-        music_stop();
-        break;
-        
-    case -1:
-        play_DmapMusic();
-        break;
-        
-    case 1:
-        jukebox(ZC_MIDI_OVERWORLD);
-        break;
-        
-    case 2:
-        jukebox(ZC_MIDI_DUNGEON);
-        break;
-        
-    case 3:
-        jukebox(ZC_MIDI_LEVEL9);
-        break;
-        
-    default:
-        if(m>=4 && m<4+MAXCUSTOMMIDIS)
-            jukebox(m-4+ZC_MIDI_COUNT);
-        else
-            music_stop();
-    }
-}
-
-void master_volume(int dv,int mv)
-{
-    if(dv>=0) digi_volume=zc_max(zc_min(dv,255),0);
-    
-    if(mv>=0) midi_volume=zc_max(zc_min(mv,255),0);
-    
-    int i = zc_min(zc_max(currmidi,0),MAXMIDIS-1);
-    set_volume(digi_volume,mixvol(tunes[i].volume,midi_volume));
-}
-
-/*****************/
-/*****  SFX  *****/
-/*****************/
-
-// array of voices, one for each sfx sample in the data file
-// 0+ = voice #
-// -1 = voice not allocated
-void Z_init_sound()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        sfx_voice[i]=-1;
-        
-    for(int i=0; i<ZC_MIDI_COUNT; i++)
-        tunes[i].data = (MIDI*)mididata[i].dat;
-        
-    for(int j=0; j<MAXCUSTOMMIDIS; j++)
-        tunes[ZC_MIDI_COUNT+j].data=NULL;
-        
-    master_volume(digi_volume,midi_volume);
-}
-
-// returns number of voices currently allocated
-int sfx_count()
-{
-    int c=0;
-    
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-            ++c;
-            
-    return c;
-}
-
-// clean up finished samples
-void sfx_cleanup()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1 && voice_get_position(sfx_voice[i])<0)
-        {
-            deallocate_voice(sfx_voice[i]);
-            sfx_voice[i]=-1;
-        }
-}
-
-// allocates a voice for the sample "wav_index" (index into zelda.dat)
-// if a voice is already allocated (and/or playing), then it just returns true
-// Returns true:  voice is allocated
-//         false: unsuccessful
-bool sfx_init(int index)
-{
-    // check index
-    if(index<=0 || index>=WAV_COUNT)
-        return false;
-        
-    if(sfx_voice[index]==-1)
-    {
-        if(sfxdat)
-        {
-            if(index<Z35)
-            {
-                sfx_voice[index]=allocate_voice((SAMPLE*)sfxdata[index].dat);
-            }
-            else
-            {
-                sfx_voice[index]=allocate_voice((SAMPLE*)sfxdata[Z35].dat);
-            }
-        }
-        else
-        {
-            sfx_voice[index]=allocate_voice(&customsfxdata[index]);
-        }
-        
-        voice_set_volume(sfx_voice[index], sfx_volume);
-    }
-    
-    return sfx_voice[index] != -1;
-}
-
-// plays an sfx sample
-void sfx(int index,int pan,bool loop, bool restart)
-{
-    if(!sfx_init(index))
-        return;
-        
-    voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-    voice_set_pan(sfx_voice[index],pan);
-    
-    int pos = voice_get_position(sfx_voice[index]);
-    
-    if(restart) voice_set_position(sfx_voice[index],0);
-    
-    if(pos<=0)
-        voice_start(sfx_voice[index]);
-}
-
-// true if sfx is allocated
-bool sfx_allocated(int index)
-{
-    return (index>0 && index<WAV_COUNT && sfx_voice[index]!=-1);
-}
-
-// start it (in loop mode) if it's not already playing,
-// otherwise adjust it to play in loop mode -DD
-void cont_sfx(int index)
-{
-    if(!sfx_init(index))
-    {
-        return;
-    }
-    
-    if(voice_get_position(sfx_voice[index])<=0)
-    {
-        voice_set_position(sfx_voice[index],0);
-        voice_set_playmode(sfx_voice[index],PLAYMODE_LOOP);
-        voice_start(sfx_voice[index]);
-    }
-    else
-    {
-        adjust_sfx(index, 128, true);
-    }
-}
-
-// adjust parameters while playing
-void adjust_sfx(int index,int pan,bool loop)
-{
-    if(index<=0 || index>=WAV_COUNT || sfx_voice[index]==-1)
-        return;
-        
-    voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-    voice_set_pan(sfx_voice[index],pan);
-}
-
-// pauses a voice
-void pause_sfx(int index)
-{
-    if(index>0 && index<WAV_COUNT && sfx_voice[index]!=-1)
-        voice_stop(sfx_voice[index]);
-}
-
-// resumes a voice
-void resume_sfx(int index)
-{
-    if(index>0 && index<WAV_COUNT && sfx_voice[index]!=-1)
-        voice_start(sfx_voice[index]);
-}
-
-// pauses all active voices
-void pause_all_sfx()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-            voice_stop(sfx_voice[i]);
-}
-
-// resumes all paused voices
-void resume_all_sfx()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-            voice_start(sfx_voice[i]);
-}
-
-// stops an sfx and deallocates the voice
-void stop_sfx(int index)
-{
-    if(index<=0 || index>=WAV_COUNT)
-        return;
-        
-    if(sfx_voice[index]!=-1)
-    {
-        deallocate_voice(sfx_voice[index]);
-        sfx_voice[index]=-1;
-    }
-}
-
-// Stops SFX played by Link's item of the given family
-void stop_item_sfx(int family)
-{
-    int id=current_item_id(family);
-    
-    if(id<0)
-        return;
-        
-    stop_sfx(itemsbuf[id].usesound);
-}
-
-void kill_sfx()
-{
-    for(int i=0; i<WAV_COUNT; i++)
-        if(sfx_voice[i]!=-1)
-        {
-            deallocate_voice(sfx_voice[i]);
-            sfx_voice[i]=-1;
-        }
-}
-
-int pan(int x)
-{
-    switch(pan_style)
-    {
-    case 0:
-        return 128;
-        
-    case 1:
-        return vbound((x>>1)+68,0,255);
-        
-    case 2:
-        return vbound(((x*3)>>2)+36,0,255);
-    }
-    
-    return vbound(x,0,255);
-}
 
 /*******************************/
 /******* Input Handlers ********/
@@ -8613,110 +6991,28 @@ void zc_putpixel(int layer, int x, int y, int cset, int color, int timer)
 }
 
 // these are here so that copy_dialog won't choke when compiling zelda
-int d_alltriggerbutton_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_comboa_radio_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_comboabutton_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_ssdn_btn_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_ssdn_btn2_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_ssdn_btn3_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_ssdn_btn4_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_sslt_btn_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_sslt_btn2_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_sslt_btn3_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_sslt_btn4_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_ssrt_btn_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_ssrt_btn2_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_ssrt_btn3_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_ssrt_btn4_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_ssup_btn_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_ssup_btn2_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_ssup_btn3_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_ssup_btn4_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_tri_edit_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
-
-int d_triggerbutton_proc(int, DIALOG*, int)
-{
-    return D_O_K;
-}
+#define DUMMY(name) int name(int, DIALOG*, int) { return D_O_K; }
+DUMMY(d_alltriggerbutton_proc)
+DUMMY(d_comboa_radio_proc)
+DUMMY(d_comboabutton_proc)
+DUMMY(d_ssdn_btn_proc)
+DUMMY(d_ssdn_btn2_proc)
+DUMMY(d_ssdn_btn3_proc)
+DUMMY(d_ssdn_btn4_proc)
+DUMMY(d_sslt_btn_proc)
+DUMMY(d_sslt_btn2_proc)
+DUMMY(d_sslt_btn3_proc)
+DUMMY(d_sslt_btn4_proc)
+DUMMY(d_ssrt_btn_proc)
+DUMMY(d_ssrt_btn2_proc)
+DUMMY(d_ssrt_btn3_proc)
+DUMMY(d_ssrt_btn4_proc)
+DUMMY(d_ssup_btn_proc)
+DUMMY(d_ssup_btn2_proc)
+DUMMY(d_ssup_btn3_proc)
+DUMMY(d_ssup_btn4_proc)
+DUMMY(d_tri_edit_proc)
+DUMMY(d_triggerbutton_proc)
 
 /*** end of zc_sys.cc ***/
 

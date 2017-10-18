@@ -434,28 +434,23 @@ namespace Link
 
 	/**
 	* The X position of Link's stepladder, or 0 if no ladder is onscreen.
-	* This is read-only; while setting it is not syntactically incorrect, it does nothing.
+	* This is read-only; while setting it is not syntactically incorrect,
+	* it does nothing.
 	*/
 	int LadderX;
 
 	/**
 	* The Y position of Link's stepladder, or 0 if no ladder is onscreen.
-	* This is read-only; while setting it is not syntactically incorrect, it does nothing.
-	*** Input Functions ***
+	* This is read-only; while setting it is not syntactically incorrect,
+	* it does nothing.
+		int LadderY;
+
+	*** Input Variables ***
+	/*
 	* The following Input* boolean values return true if the player is pressing
-	* the corresponding button, analog stick, or key. Writing to this variable simulates
-	* the press or release of that referenced button, analog stick, or key.
+	* the corresponding button, analog stick, or key. Writing to this variable
+	* simulating the press or release of that button, analog stick, or key.
 	*/
-	int LadderY;
-
-	*** Press Functions ***
-	/**
-	* The following Press* boolean values return true if the player activated
-	* the corresponding button, analog stick, or key this frame. Writing to this
-	* variable simulates the press or release of that referenced button, analog stick,
-	* or keys input press state.
-	*/
-
 	bool InputStart;
 	bool InputMap;
 	bool InputUp;
@@ -475,6 +470,13 @@ namespace Link
 	bool InputAxisLeft;
 	bool InputAxisRight;
 
+    *** Press Variables ***
+    /*
+	* The following Press* boolean values return true if the player pressed
+	* the corresponding button, analog stick, or key this frame. Writing to this
+	* variable simulates the press or release of that button, analog stick,
+	* or keys input press state.
+	*/
 	bool PressStart;
 	bool PressMap;
 	bool PressUp;
@@ -507,15 +509,17 @@ namespace Link
 	int InputMouseY;
 
 	/**
-	* Whether the left or right mouse buttons are pressed, as two flags OR'd (|) together;
-	* use the MB_ constants or the Input'X'Click functions in std.zh to check the button states.
-	* InputMouseB is read only; while setting it is not syntactically incorrect, it does nothing
-	* If you are not comfortable with binary, you can use the InputMouse'x' functions in std.zh
+	* Whether the left or right mouse buttons are pressed as two flags
+	* OR'd (|) together; use the MB_ constants or the InputLeftClick() and
+	* InputRightClick() functions in std.zh to check the button states.
+	* InputMouseB is read only; while setting it is not syntactically incorrect,
+	* it does nothing.
 	*/
 	int InputMouseB;
 
 	/**
-	* The current state of the mouse's scroll wheel, negative for scrolling down and positive for scrolling up.
+	* The current state of the mouse's scroll wheel. The value is negative when
+	* scrolling down and positive when scrolling up.
 	*/
 	int InputMouseZ;
 
@@ -758,7 +762,7 @@ namespace Screen
 	/**
 	* The door type for each of the four doors on a screen. Doors are counted
 	* using the first four DIR_ constants in std.zh. Use the D_ constants in
-	* std.zh to compare these values.
+	* std.zh to get or set these values.
 	*/
 	int Door[];
 
@@ -972,11 +976,14 @@ namespace Screen
 	/**
 	* Clears all of a certain kind of sprite from the screen. Use the SL_
 	* constants in std.zh to pass into this method.
+	*/
+	void ClearSprites(int spritelist);
+
+	/*
 	* Please note: For all draw primitives, if the quest rule 'Subscreen Appears
 	* Above Sprites' is set,passing the layer argument as 7 will allow drawing
 	* on top of the subscreen
 	*/
-	void ClearSprites(int spritelist);
 
 	/**
 	* Draws a rectangle on the specified layer of the current screen, using
@@ -1063,6 +1070,7 @@ namespace Screen
 	* Then scales the line uniformly by a factor of scale about the line's
 	* midpoint.
 	* Finally, performs a rotation counterclockwise, centered about the
+
 	* point (rx, ry), using an angle of rangle degrees.
 	* The line is drawn using the specified index into the entire
 	* 256-element palette: for instance, passing in a color of 17 would
@@ -1195,9 +1203,10 @@ namespace Screen
 	* int format tells the engine how to format the string. (see std.zh for TF_* list to pass to this method)
 	* Opacity controls how transparent the message is.
 	* Values other than OP_OPAQUE and OP_TRANS are currently undefined.
-	// (Psuedo) 3D drawing
 	*/
 	void DrawString( int layer, int x, int y, int font,int color, int background_color,int format, int ptr[], int opacity );
+
+	// (Psuedo) 3D drawing
 
 	/**
 	* Draws a quad on the specified layer with the corners x1,y1 through x4,y4.
@@ -1211,7 +1220,6 @@ namespace Screen
 	* whereas a negative value will be drawn from the combo page. 0 will draw combo number 0.
 	* Both w and h are undefined unless 1 <= blockh, blockw <= 16, and it is a power of
 	* two. ie: 1, 2 are acceptable, but 2, 15 are not.
-
 
 	* Flip specifies how the tiles/combos should be flipped when drawn:
 	* 0: No flip
@@ -1251,15 +1259,16 @@ namespace Screen
 	void Quad3D( int layer, int pos[], int uv[], int cset[], int size[], int flip, int texture, int render_mode );
 
 	/**
-	* Draws a Quad on the specified layer similar to Quad.
-	* [9]pos - x, y, z positions of the 4 corners.
+	* Draws a triangle on the specified layer similar to Triangle.
+	* [9]pos - x, y, z positions of the 3 corners.
 	* [6]uv - x, y texture coordinates of the given texture.
 	* [3]csets - of the corners to interpolate between.
 	* [2]size - w, h, of the texture.
 	*** See std.zh for a list of all available render_mode arguments.
-	// Bitmap Drawing
 	*/
-	void Quad3D( int layer, int pos[], int uv[], int cset[], int size[], int flip, int texture, int render_mode );
+	void Triangle3D( int layer, int pos[], int uv[], int csets[], int size[], int flip, int texture, int render_mode );
+
+	// Bitmap Drawing
 
 	/**
 	* Sets the target bitmap for all succesive drawing commands.
@@ -1743,6 +1752,12 @@ typedef weapon eweapon;
 class itemdata
 {
 	/**
+	* The original values of the item's 8 D input values are they are stored in the
+	* .qst file, regardles of whether they have been modified by ZScript.
+	*/
+	float InitD[];
+	
+	/**
 	* Loads the item this itemdata is attributed to's name into 'buffer'
 	*/
 	void GetName(int buffer[]);
@@ -1781,8 +1796,20 @@ class itemdata
 	int Amount;
 
 	/**
-	* Corresponds to the "Full Max" entry in the Item Editor.
-	* In conjunction with MaxIncrement (see below) this value controls how
+	* Corresponds to the "Increase Counter Max" entry in the Item Editor.
+	* In conjunction with Max (see below) this value controls how the
+	* maximum value of the counter of this item (see Counter below) is
+	* modified when the item is picked up. If MaxIncrement is nonzero at that
+	* time, the counter's new maximum value is at that time set to the
+	* minimum of its current value plus MaxIncrement, and Max.
+	* If Max is less than the current maximum of the counter, Max is ignored
+	* and that maximum is used instead.
+	*/
+	int MaxIncrement;
+	
+	/**
+	* Corresponds to the "But Not Above" entry in the Item Editor.
+	* In conjunction with MaxIncrement (see above) this value controls how
 	* the maximum value of the counter of this item (see Counter below) is
 	* modified when the item is picked up. If MaxIncrement is nonzero at that
 	* time, the counter's new maximum value is at that time set to the
@@ -1793,18 +1820,6 @@ class itemdata
 	* maximum value will be forced equal to Max.
 	*/
 	int Max;
-
-	/**
-	* Corresponds to the "+Max" entry in the Item Editor.
-	* In conjunction with Max (see above) this value controls how the
-	* maximum value of the counter of this item (see Counter below) is
-	* modified when the item is picked up. If MaxIncrement is nonzero at that
-	* time, the counter's new maximum value is at that time set to the
-	* minimum of its current value plus MaxIncrement, and Max.
-	* If Max is less than the current maximum of the counter, Max is ignored
-	* and that maximum is used instead.
-	*/
-	int MaxIncrement;
 
 	/**
 	* Corresponds to the "Equipment Item" checkbox in the Item Editor.
@@ -1838,13 +1853,6 @@ class itemdata
 
 namespace Game
 {
-
-	/**
-	* The original values of the item's 8 D input values are they are stored in the
-	* .qst file, regardles of whether they have been modified by ZScript.
-	*/
-	float InitD[];
-
 	/**
 	* Retrieves the number of the current screen within the current map.
 	*/

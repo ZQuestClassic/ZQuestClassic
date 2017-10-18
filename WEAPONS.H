@@ -17,6 +17,7 @@
 
 #include "zdefs.h"
 #include "sprite.h"
+#include "sfxClass.h"
 
 /**************************************/
 /***********  Weapon Class  ***********/
@@ -30,7 +31,6 @@ class weapon : public sprite
 private:
     void seekLink();
     void seekEnemy(int j);
-    int seekEnemy2(int j);
     
 public:
     int power,type,dead,clk2,misc2,ignorecombo;
@@ -44,6 +44,7 @@ public:
     int o_tile, o_cset, o_speed, o_type, frames, o_flip;
     int temp1;
     bool behind;
+    bool aimedBrang;
     
     weapon(weapon const & other);
     weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
@@ -61,8 +62,38 @@ public:
     virtual bool hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
     virtual void draw(BITMAP *dest);
     virtual void update_weapon_frame(int change, int orig);
+    void setAngle(double angle);
+    
+    // Bombs only
+    void activateRemoteBomb();
+    
+    // Boomerangs and hookshots only
+    // Shift dragged item index after an item with a lower index is collected
+    void adjustDraggedItem(int removed);
+    
+    // Wind only
+    inline void pickUpLink() { misc=999; }
+    inline bool hasLink() { return misc==999; }
+    
+    inline void setSparkleFunc(void (*sf)(const weapon&)) { sparkleFunc=sf; }
+    
+private:
+    SFX sfxLoop;
+    
+    // How close the weapon can get to the edge of the screen before
+    // being deleted (or bouncing, in the case of boomerangs)
+    int minX, maxX, minY, maxY;
+    
+    // If set, this function will be called every frame to add sparkles.
+    void (*sparkleFunc)(const weapon&);
+    
+    // Set dir to the appropriate value for angle.
+    void matchDirToAngle();
+    
+    friend void setScreenLimits(weapon&);
 };
 
+void putMiscSprite(BITMAP *dest, int spr, int x, int y);
 void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &aclk, int &aframe,
                int parentid);
 #endif

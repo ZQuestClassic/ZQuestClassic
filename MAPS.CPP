@@ -7,6 +7,9 @@
 //  Map and screen scrolling stuff for zelda.cc
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -22,8 +25,10 @@
 #include <string>
 
 //#include "zc_math.h"
+#include "ffc.h"
 #include "maps.h"
 #include "zelda.h"
+#include "zc_sys.h"
 #include "tiles.h"
 #include "sprite.h"
 #include "jwin.h"
@@ -35,7 +40,9 @@
 #include "ffscript.h"
 #include "particles.h"
 #include "mem_debug.h"
-
+#include "messageManager.h"
+#include "room.h"
+#include "sound.h"
 
 #define EPSILON 0.01 // Define your own tolerance
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
@@ -57,24 +64,12 @@ float log2(float n)
 
 FONT *get_zc_font(int index);
 
+extern MessageManager messageMgr;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 extern movingblock mblock2;                                 //mblock[4]?
 extern zinitdata zinit;
 extern LinkClass Link;
 int current_ffcombo=-1;
-
-short ffposx[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
-                   -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000
-                  };
-short ffposy[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
-                   -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000
-                  };
-long ffprvx[32]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
-                  -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000
-                 };
-long ffprvy[32]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
-                  -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000
-                 };
 
 int draw_screen_clip_rect_x1=0;
 int draw_screen_clip_rect_x2=255;
@@ -177,30 +172,12 @@ int MAPCOMBO(int x,int y)
     return tmpscr->data[combo];                               // entire combo code
 }
 
-// True if the FFC covers x, y and is not ethereal or a changer.
-// Used by MAPFFCOMBO(), MAPFFCOMBOFLAG, and getFFCAt().
-inline bool ffcIsAt(int index, int x, int y)
-{
-    int fx=tmpscr->ffx[index]/10000;
-    if(x<fx || x>fx+(tmpscr->ffwidth[index]&63)) // FFC sizes are weird.
-        return false;
-    
-    int fy=tmpscr->ffy[index]/10000;
-    if(y<fy || y>fy+(tmpscr->ffheight[index]&63))
-        return false;
-    
-    if((tmpscr->ffflags[index]&(ffCHANGER|ffETHEREAL))!=0)
-        return false;
-    
-    return true;
-}
-
 int MAPFFCOMBO(int x,int y)
 {
-    for(int i=0; i<32; i++)
+    for(int i=0; i<MAXFFCS; i++)
     {
-        if(ffcIsAt(i, x, y))
-            return tmpscr->ffdata[i];
+        if(tmpscr->ffcs[i].isUnderPoint(x, y))
+            return tmpscr->ffcs[i].getCombo();
     }
     
     return 0;
@@ -245,12 +222,12 @@ int MAPCOMBOFLAG(int x,int y)
 
 int MAPFFCOMBOFLAG(int x,int y)
 {
-    for(int i=0; i<32; i++)
+    for(int i=0; i<MAXFFCS; i++)
     {
-        if(ffcIsAt(i, x, y))
+        if(tmpscr->ffcs[i].isUnderPoint(x, y))
         {
             current_ffcombo = i;
-            return combobuf[tmpscr->ffdata[i]].flag;
+            return combobuf[tmpscr->ffcs[i].getCombo()].flag;
         }
     }
     
@@ -260,9 +237,9 @@ int MAPFFCOMBOFLAG(int x,int y)
 
 int getFFCAt(int x, int y)
 {
-    for(int i=0; i<32; i++)
+    for(int i=0; i<MAXFFCS; i++)
     {
-        if(ffcIsAt(i, x, y))
+        if(tmpscr->ffcs[i].isUnderPoint(x, y))
             return i;
     }
     
@@ -614,9 +591,9 @@ void update_combo_cycling()
         newcset[i]=-1;
     }
     
-    for(int i=0; i<32; i++)
+    for(int i=0; i<MAXFFCS; i++)
     {
-        x=tmpscr->ffdata[i];
+        x=tmpscr->ffcs[i].getCombo();
         y=animated_combo_table[x][0];
         
         if(combobuf[x].animflags & AF_FRESH) continue;
@@ -637,9 +614,9 @@ void update_combo_cycling()
         }
     }
     
-    for(int i=0; i<32; i++)
+    for(int i=0; i<MAXFFCS; i++)
     {
-        x=tmpscr->ffdata[i];
+        x=tmpscr->ffcs[i].getCombo();
         y=animated_combo_table2[x][0];
         
         if(!(combobuf[x].animflags & AF_FRESH)) continue;
@@ -660,13 +637,13 @@ void update_combo_cycling()
         }
     }
     
-    for(int i=0; i<32; i++)
+    for(int i=0; i<MAXFFCS; i++)
     {
         if(newdata[i]==-1)
             continue;
             
-        tmpscr->ffdata[i]=newdata[i];
-        tmpscr->ffcset[i]=newcset[i];
+        tmpscr->ffcs[i].setCombo(newdata[i]);
+        tmpscr->ffcs[i].setCSet(newcset[i]);
         
         newdata[i]=-1;
         newcset[i]=-1;
@@ -954,11 +931,11 @@ int findtrigger(int scombo, bool ff)
     int iter;
     int ret = 0;
     
-    for(int j=0; j<(ff?32:176); j++)
+    for(int j=0; j<(ff?MAXFFCS:176); j++)
     {
         if(ff)
         {
-            checkflag=combobuf[tmpscr->ffdata[j]].flag;
+            checkflag=combobuf[tmpscr->ffcs[j].getCombo()].flag;
             iter=1;
         }
         else iter=2;
@@ -1352,7 +1329,7 @@ void hidden_entrance(int tmp,bool , bool high16only,int single) //Perhaps better
         }
     }
     
-    for(int i=0; i<32; i++) //FFC 'trigger flags'
+    for(int i=0; i<MAXFFCS; i++) //FFC 'trigger flags'
     {
         if(single>=0) if(i+176!=single) continue;
         
@@ -1363,7 +1340,7 @@ void hidden_entrance(int tmp,bool , bool high16only,int single) //Perhaps better
             //for (int iter=0; iter<1; ++iter) // Only one kind of FFC flag now.
             {
                 putit=true;
-                int checkflag=combobuf[s->ffdata[i]].flag; //Inherent
+                int checkflag=combobuf[s->ffcs[i].getCombo()].flag; //Inherent
                 
                 //No placed flags yet
                 switch(checkflag)
@@ -1483,8 +1460,8 @@ void hidden_entrance(int tmp,bool , bool high16only,int single) //Perhaps better
                 
                 if(putit)  //Change the ffc's combo
                 {
-                    s->ffdata[i] = s->secretcombo[ft];
-                    s->ffcset[i] = s->secretcset[ft];
+                    s->ffcs[i].setCombo(s->secretcombo[ft]);
+                    s->ffcs[i].setCSet(s->secretcset[ft]);
                 }
             }
         }
@@ -1570,19 +1547,19 @@ void hidden_entrance(int tmp,bool , bool high16only,int single) //Perhaps better
           */
     }
     
-    for(int i=0; i<32; i++) // FFCs
+    for(int i=0; i<MAXFFCS; i++) // FFCs
     {
         if((!(s->flags2&fCLEARSECRET) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM)
         {
             for(int iter=0; iter<1; ++iter)  // Only one kind of FFC flag now.
             {
-                int checkflag=combobuf[s->ffdata[i]].flag; //Inherent
+                int checkflag=combobuf[s->ffcs[i].getCombo()].flag; //Inherent
                 
                 //No placed flags yet
                 if((checkflag > 15)&&(checkflag < 32)) //If we find a flag, change the combo
                 {
-                    s->ffdata[i] = s->secretcombo[checkflag-16+4];
-                    s->ffcset[i] = s->secretcset[checkflag-16+4];
+                    s->ffcs[i].setCombo(s->secretcombo[checkflag-16+4]);
+                    s->ffcs[i].setCSet(s->secretcset[checkflag-16+4]);
                 }
             }
         }
@@ -1791,212 +1768,7 @@ bool findentrance(int x, int y, int flag, bool setflag)
 void update_freeform_combos()
 {
     ffscript_engine(false);
-    
-    for(int i=0; i<32; i++)
-    {
-        // Combo 0?
-        if(tmpscr->ffdata[i]==0)
-            continue;
-            
-        // Changer?
-        if(tmpscr->ffflags[i]&ffCHANGER)
-            continue;
-            
-        // Stationary?
-        if(tmpscr->ffflags[i]&ffSTATIONARY)
-            continue;
-            
-        // Frozen because Link's holding up an item?
-        if(Link.getHoldClk()>0 && (tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0)
-            continue;
-            
-        // Check for changers
-        if(tmpscr->fflink[i]==0)
-        {
-            for(int j=0; j<32; j++)
-            {
-                // Combo 0?
-                if(tmpscr->ffdata[j]==0)
-                    continue;
-                    
-                // Not a changer?
-                if(!(tmpscr->ffflags[j]&ffCHANGER))
-                    continue;
-                    
-                // Ignore this changer? (ffposx and ffposy are last changer position)
-                if(tmpscr->ffx[j]/10000==ffposx[i]&&tmpscr->ffy[j]/10000==ffposy[i])
-                    continue;
-                    
-                if((isonline(tmpscr->ffx[i], tmpscr->ffy[i], ffprvx[i],ffprvy[i], tmpscr->ffx[j], tmpscr->ffy[j]) || // Along the line, or...
-                        (tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) && // At exactly the same position, and...
-                        (ffprvx[i]>-10000000 && ffprvy[i]>-10000000)) // Whatever this means
-                {
-                    if(tmpscr->ffflags[j]&ffCHANGETHIS)
-                    {
-                        tmpscr->ffdata[i] = tmpscr->ffdata[j];
-                        tmpscr->ffcset[i] = tmpscr->ffcset[j];
-                    }
-                    
-                    if(tmpscr->ffflags[j]&ffCHANGENEXT)
-                        tmpscr->ffdata[i]++;
-                        
-                    if(tmpscr->ffflags[j]&ffCHANGEPREV)
-                        tmpscr->ffdata[i]--;
-                        
-                    tmpscr->ffdelay[i]=tmpscr->ffdelay[j];
-                    tmpscr->ffx[i]=tmpscr->ffx[j];
-                    tmpscr->ffy[i]=tmpscr->ffy[j];
-                    tmpscr->ffxdelta[i]=tmpscr->ffxdelta[j];
-                    tmpscr->ffydelta[i]=tmpscr->ffydelta[j];
-                    tmpscr->ffxdelta2[i]=tmpscr->ffxdelta2[j];
-                    tmpscr->ffydelta2[i]=tmpscr->ffydelta2[j];
-                    tmpscr->fflink[i]=tmpscr->fflink[j];
-                    tmpscr->ffwidth[i]=tmpscr->ffwidth[j];
-                    tmpscr->ffheight[i]=tmpscr->ffheight[j];
-                    
-                    if(tmpscr->ffflags[i]&ffCARRYOVER)
-                        tmpscr->ffflags[i]=tmpscr->ffflags[j]|ffCARRYOVER;
-                    else
-                        tmpscr->ffflags[i]=tmpscr->ffflags[j];
-                        
-                    tmpscr->ffflags[i]&=~ffCHANGER;
-                    ffposx[i]=(short)(tmpscr->ffx[j]/10000);
-                    ffposy[i]=(short)(tmpscr->ffy[j]/10000);
-                    
-                    if(combobuf[tmpscr->ffdata[j]].flag>15 && combobuf[tmpscr->ffdata[j]].flag<32)
-                        tmpscr->ffdata[j]=tmpscr->secretcombo[combobuf[tmpscr->ffdata[j]].flag-16+4];
-                        
-                    if((tmpscr->ffflags[j]&ffSWAPNEXT)||(tmpscr->ffflags[j]&ffSWAPPREV))
-                    {
-                        int k=0;
-                        
-                        if(tmpscr->ffflags[j]&ffSWAPNEXT)
-                            k=j<31?j+1:0;
-                            
-                        if(tmpscr->ffflags[j]&ffSWAPPREV)
-                            k=j>0?j-1:31;
-                            
-                        zc_swap(tmpscr->ffdata[j],tmpscr->ffdata[k]);
-                        zc_swap(tmpscr->ffcset[j],tmpscr->ffcset[k]);
-                        zc_swap(tmpscr->ffdelay[j],tmpscr->ffdelay[k]);
-                        zc_swap(tmpscr->ffxdelta[j],tmpscr->ffxdelta[k]);
-                        zc_swap(tmpscr->ffydelta[j],tmpscr->ffydelta[k]);
-                        zc_swap(tmpscr->ffxdelta2[j],tmpscr->ffxdelta2[k]);
-                        zc_swap(tmpscr->ffydelta2[j],tmpscr->ffydelta2[k]);
-                        zc_swap(tmpscr->fflink[j],tmpscr->fflink[k]);
-                        zc_swap(tmpscr->ffwidth[j],tmpscr->ffwidth[k]);
-                        zc_swap(tmpscr->ffheight[j],tmpscr->ffheight[k]);
-                        zc_swap(tmpscr->ffflags[j],tmpscr->ffflags[k]);
-                    }
-                    
-                    break;
-                }
-            }
-        }
-        
-        if(tmpscr->fflink[i] ? !tmpscr->ffdelay[tmpscr->fflink[i]] : !tmpscr->ffdelay[i])
-        {
-            if(tmpscr->fflink[i]&&(tmpscr->fflink[i]-1)!=i)
-            {
-                ffprvx[i] = tmpscr->ffx[i];
-                ffprvy[i] = tmpscr->ffy[i];
-                tmpscr->ffx[i]+=tmpscr->ffxdelta[tmpscr->fflink[i]-1];
-                tmpscr->ffy[i]+=tmpscr->ffydelta[tmpscr->fflink[i]-1];
-            }
-            else
-            {
-                ffprvx[i] = tmpscr->ffx[i];
-                ffprvy[i] = tmpscr->ffy[i];
-                tmpscr->ffx[i]+=tmpscr->ffxdelta[i];
-                tmpscr->ffy[i]+=tmpscr->ffydelta[i];
-                tmpscr->ffxdelta[i]+=tmpscr->ffxdelta2[i];
-                tmpscr->ffydelta[i]+=tmpscr->ffydelta2[i];
-                
-                if(tmpscr->ffxdelta[i]>1280000) tmpscr->ffxdelta[i]=1280000;
-                
-                if(tmpscr->ffxdelta[i]<-1280000) tmpscr->ffxdelta[i]=-1280000;
-                
-                if(tmpscr->ffydelta[i]>1280000) tmpscr->ffydelta[i]=1280000;
-                
-                if(tmpscr->ffydelta[i]<-1280000) tmpscr->ffydelta[i]=-1280000;
-            }
-        }
-        else
-        {
-            if(!tmpscr->fflink[i] || (tmpscr->fflink[i]-1)==i)
-                tmpscr->ffdelay[i]--;
-        }
-        
-        // Check if the FFC's off the side of the screen
-        
-        // Left
-        if(tmpscr->ffx[i]<-320000)
-        {
-            if(tmpscr->flags6&fWRAPAROUNDFF)
-            {
-                tmpscr->ffx[i] = 2880000+(tmpscr->ffx[i]+320000);
-                ffprvy[i] = tmpscr->ffy[i];
-                ffposx[i]=-1000; // Re-enable previous changer
-                ffposy[i]=-1000;
-            }
-            else if(tmpscr->ffx[i]<-640000)
-            {
-                tmpscr->ffdata[i]=0;
-                tmpscr->ffflags[i]&=~ffCARRYOVER;
-            }
-        }
-        
-        // Right
-        else if(tmpscr->ffx[i]>=2880000)
-        {
-            if(tmpscr->flags6&fWRAPAROUNDFF)
-            {
-                tmpscr->ffx[i] = tmpscr->ffx[i]-2880000-320000;
-                ffprvy[i] = tmpscr->ffy[i];
-                ffposx[i]=-1000;
-                ffposy[i]=-1000;
-            }
-            else
-            {
-                tmpscr->ffdata[i]=0;
-                tmpscr->ffflags[i]&=~ffCARRYOVER;
-            }
-        }
-        
-        // Top
-        if(tmpscr->ffy[i]<-320000)
-        {
-            if(tmpscr->flags6&fWRAPAROUNDFF)
-            {
-                tmpscr->ffy[i] = 2080000+(tmpscr->ffy[i]+320000);
-                ffprvx[i] = tmpscr->ffx[i];
-                ffposx[i]=-1000;
-                ffposy[i]=-1000;
-            }
-            else if(tmpscr->ffy[i]<-640000)
-            {
-                tmpscr->ffdata[i]=0;
-                tmpscr->ffflags[i]&=~ffCARRYOVER;
-            }
-        }
-        
-        // Bottom
-        else if(tmpscr->ffy[i]>=2080000)
-        {
-            if(tmpscr->flags6&fWRAPAROUNDFF)
-            {
-                tmpscr->ffy[i] = tmpscr->ffy[i]-2080000-320000;
-                ffprvy[i] = tmpscr->ffy[i];
-                ffposx[i]=-1000;
-                ffposy[i]=-1000;
-            }
-            else
-            {
-                tmpscr->ffdata[i]=0;
-                tmpscr->ffflags[i]&=~ffCARRYOVER;
-            }
-        }
-    }
+    tmpscr->ffcs.updateMovement(tmpscr, Link.isHoldingItem());
 }
 
 bool hitcombo(int x, int y, int combotype)
@@ -2037,27 +1809,29 @@ int nextscr(int dir)
     
     int index = (tmpscr->sidewarpindex >> (dir*2))&3;
     
+    // Fun fact: when a scrolling warp is triggered, this function
+    // is never even called! - Saf
     if(tmpscr->sidewarptype[index] == 3)                                // scrolling warp
     {
         switch(dir)
         {
         case up:
-            if(!(tmpscr->flags2&wfUP))    goto skip;
+            if(!(tmpscr->flags2&wfUP))    goto nowarp;
             
             break;
             
         case down:
-            if(!(tmpscr->flags2&wfDOWN))  goto skip;
+            if(!(tmpscr->flags2&wfDOWN))  goto nowarp;
             
             break;
             
         case left:
-            if(!(tmpscr->flags2&wfLEFT))  goto skip;
+            if(!(tmpscr->flags2&wfLEFT))  goto nowarp;
             
             break;
             
         case right:
-            if(!(tmpscr->flags2&wfRIGHT)) goto skip;
+            if(!(tmpscr->flags2&wfRIGHT)) goto nowarp;
             
             break;
         }
@@ -2066,10 +1840,9 @@ int nextscr(int dir)
         s = tmpscr->sidewarpscr[index] + DMaps[tmpscr->sidewarpdmap[index]].xoff;
     }
     
+nowarp:
     if(s<0||s>=128)
         return 0xFFFF;
-        
-skip:
 
     return (m<<7) + s;
 }
@@ -2140,31 +1913,33 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
     switch(type)
     {
     case -4: //overhead FFCs
-    case -3:                                                //freeform combos
-        for(int i = 31; i >= 0; i--)
+    case -3: //freeform combos
+        for(int i=MAXFFCS-1; i>=0; i--)
         {
-            if(layer->ffdata[i])
+            const FFC& ffc=layer->ffcs[i];
+            if(ffc.isVisible(lensclk!=0))
             {
-                if(!(layer->ffflags[i]&ffCHANGER) && (!(layer->ffflags[i]&ffLENSVIS) || lensclk))
+                // If scrolling, only draw carryover ffcs from newscr,
+                // not oldscr; otherwise, we'll draw the same one twice
+                if(scrolling && ffc.carriesOver() && tempscreen == 3)
+                    continue; 
+                
+                if(ffc.overlay()==(type==-4))
                 {
-                    if(scrolling && (layer->ffflags[i] & ffCARRYOVER) != 0 && tempscreen == 3)
-                        continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
-                        
-                    //otherwise we'll draw the same one twice
+                    int tx=ffc.getXInt();
+                    int ty=ffc.getYInt()+playing_field_offset;
                     
-                    if(!!(layer->ffflags[i]&ffOVERLAY) == (type==-4)) //what exactly is this supposed to mean?
+                    if((ffc.getFlags()&ffTRANS)!=0)
                     {
-                        int tx=((layer->ffx[i]/10000));
-                        int ty=((layer->ffy[i]/10000))+playing_field_offset;
-                        
-                        if(layer->ffflags[i]&ffTRANS)
-                        {
-                            overcomboblocktranslucent(bmp, tx-x, ty-y, layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6),128);
-                        }
-                        else
-                        {
-                            overcomboblock(bmp, tx-x, ty-y, layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6));
-                        }
+                        overcomboblocktranslucent(bmp, tx-x, ty-y,
+                          ffc.getCombo(), ffc.getCSet(),
+                          ffc.getTileWidth(), ffc.getTileHeight(), 128);
+                    }
+                    else
+                    {
+                        overcomboblock(bmp, tx-x, ty-y,
+                          ffc.getCombo(), ffc.getCSet(),
+                          ffc.getTileWidth(), ffc.getTileHeight());
                     }
                 }
             }
@@ -3007,11 +2782,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     
     //3. Draw some sprites onto framebuf
     set_clip_rect(framebuf,0,0,256,224);
-    
-    if(!(pricesdisplaybuf->clip))
-    {
-        masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
-    }
+    roomItems.drawPrices(framebuf, playing_field_offset);
     
     if(showlink && ((Link.getAction()!=climbcovertop)&&(Link.getAction()!=climbcoverbottom)))
     {
@@ -3269,11 +3040,8 @@ void draw_screen(mapscr* this_screen, bool showlink)
     set_clip_rect(framebuf,0,0,256,224);
     set_clip_rect(scrollbuf,0,0,256,224);
     
-    if(!(msgdisplaybuf->clip))
-    {
-        masked_blit(msgdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
-        masked_blit(msgdisplaybuf,scrollbuf,0,0,0,playing_field_offset,256,168);
-    }
+    messageMgr.drawToScreen(framebuf, playing_field_offset);
+    messageMgr.drawToScreen(scrollbuf, playing_field_offset);
     
     //12. Draw the subscreen, without clipping
     
@@ -3773,7 +3541,6 @@ void openshutters()
 
 void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 {
-    //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
     for(word x=0; x<animated_combos; x++)
     {
         if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
@@ -3843,72 +3610,26 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     
     if(tmp==0)
     {
-        // Before loading new FFCs, deallocate the arrays used by those that aren't carrying over
-        for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+        // Before loading new FFCs, deallocate the arrays the current ones own
+        // except those that carry over without resetting.
+        // TODO: It would be nice if the FFCs handled this themselves...
+        for(long i=1; i<MAX_ZCARRAY_SIZE; i++)
         {
-            if(arrayOwner[i]<32 && (!(ffscr.ffflags[arrayOwner[i]]&ffCARRYOVER) || ffscr.flags5&fNOFFCARRYOVER))
-                deallocateArray(i);
+            if(arrayOwner[i]<MAXFFCS)
+            {
+                dword flags=ffscr.ffcs[arrayOwner[i]].getFlags();
+                if((flags&(ffCARRYOVER|ffSCRIPTRESET))!=ffCARRYOVER ||
+                  (ffscr.flags5&fNOFFCARRYOVER)!=0)
+                    deallocateArray(i);
+            }
         }
         
-        for(int i = 0; i < 32; i++)
+        for(int i=0; i<MAXFFCS; i++)
         {
-            // If these aren't reset, changers may not work right
-            ffposx[i]=-1000;
-            ffposy[i]=-1000;
-            ffprvx[i]=-1000;
-            ffprvy[i]=-1000;
-            
-            if((ffscr.ffflags[i]&ffCARRYOVER) && !(ffscr.flags5&fNOFFCARRYOVER))
-            {
-                tmpscr[tmp].ffdata[i] = ffscr.ffdata[i];
-                tmpscr[tmp].ffx[i] = ffscr.ffx[i];
-                tmpscr[tmp].ffy[i] = ffscr.ffy[i];
-                tmpscr[tmp].ffxdelta[i] = ffscr.ffxdelta[i];
-                tmpscr[tmp].ffydelta[i] = ffscr.ffydelta[i];
-                tmpscr[tmp].ffxdelta2[i] = ffscr.ffxdelta2[i];
-                tmpscr[tmp].ffydelta2[i] = ffscr.ffydelta2[i];
-                tmpscr[tmp].fflink[i] = ffscr.fflink[i];
-                tmpscr[tmp].ffdelay[i] = ffscr.ffdelay[i];
-                tmpscr[tmp].ffcset[i] = ffscr.ffcset[i];
-                tmpscr[tmp].ffwidth[i] = ffscr.ffwidth[i];
-                tmpscr[tmp].ffheight[i] = ffscr.ffheight[i];
-                tmpscr[tmp].ffflags[i] = ffscr.ffflags[i];
-                tmpscr[tmp].ffscript[i] = ffscr.ffscript[i];
-                
-                for(int j=0; j<16; j++)
-                    tmpscr[tmp].ffmisc[i][j] = ffscr.ffmisc[i][j];
-                    
-                for(int j=0; j<2; ++j)
-                {
-                    tmpscr[tmp].inita[i][j] = ffscr.inita[i][j];
-                }
-                
-                for(int j=0; j<8; ++j)
-                {
-                    tmpscr[tmp].initd[i][j] = ffscr.initd[i][j];
-                }
-                
-                tmpscr[tmp].scriptData[i] = ffscr.scriptData[i];
-                
-                if(!(ffscr.ffflags[i]&ffSCRIPTRESET))
-                {
-                    tmpscr[tmp].ffscript[i] = ffscr.ffscript[i]; // Restart script if it has halted.
-                    tmpscr[tmp].initialized[i] = ffscr.initialized[i];
-                }
-                else
-                {
-                    tmpscr[tmp].initialized[i] = false;
-                    
-                    tmpscr[tmp].scriptData[i].pc = 0;
-                    tmpscr[tmp].scriptData[i].sp = 0;
-                    tmpscr[tmp].scriptData[i].ffcref = 0;
-                }
-            }
+            if(ffscr.ffcs[i].carriesOver() && !(ffscr.flags5&fNOFFCARRYOVER))
+                tmpscr[tmp].ffcs[i].copy(ffscr.ffcs[i], FFC::copy_carryOver);
             else
-            {
-                memset(tmpscr[tmp].ffmisc[i], 0, 16 * sizeof(long));
                 clear_ffc_stack(i);
-            }
         }
     }
     

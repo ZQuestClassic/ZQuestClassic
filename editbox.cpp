@@ -21,6 +21,9 @@
   *     Allegro version: 3.1x  (don't know if it works with WIP)
   *
   */
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 /* This code is not fully tested */
 

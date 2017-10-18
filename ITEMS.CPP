@@ -11,6 +11,9 @@
 //   - item:        items class
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 /**********************************/
 /**********  Item Class  **********/
@@ -23,6 +26,7 @@
 #include "zelda.h"
 #include "zdefs.h"
 #include "mem_debug.h"
+#include "sound.h"
 
 #include <queue>
 
@@ -38,44 +42,73 @@ item::~item()
         killfairy(misc);
 }
 
-bool item::animate(int)
+void item::setPickupFlags(int newPickup)
 {
-    if(is_side_view())
+    pickup=newPickup;
+    
+    if(pickup&ipBIGRANGE)
     {
-        if(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
-        {
-            y+=fall/100;
-            
-            if((fall/100)==0 && fall>0)
-                fall*=(fall>0 ? 2 : 0.5); // That oughta do something about the floatiness.
-                
-            if(fall <= (int)zinit.terminalv)
-            {
-                fall += zinit.gravity;
-            }
-        }
-        else if(!can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
-        {
-            fall = -fall/2; // LA key bounce.
-        }
+        hxofs=-8;
+        hxsz=17;
+        hyofs=-4;
+        hysz=20;
+    }
+    else if(pickup&ipBIGTRI)
+    {
+        hxofs=-8;
+        hxsz=28;
+        hyofs=-4;
+        hysz=20;
     }
     else
     {
-        z-=fall/100;
-        
-        if(z<0)
+        hxsz=1;
+        hyofs=4;
+        hysz=12;
+    }
+}
+
+bool item::animate(int)
+{
+    if(!screenIsScrolling()) // Because subscreen items are items, too. :p
+    {
+        if(is_side_view())
         {
-            z = 0;
-            fall = -fall/2;
+            if(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
+            {
+                y+=fall/100;
+                
+                if((fall/100)==0 && fall>0)
+                    fall*=(fall>0 ? 2 : 0.5); // That oughta do something about the floatiness.
+                    
+                if(fall <= (int)zinit.terminalv)
+                {
+                    fall += zinit.gravity;
+                }
+            }
+            else if(!can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
+            {
+                fall = -fall/2; // LA key bounce.
+            }
         }
-        else if(z <= 1 && abs(fall) < (int)zinit.gravity)
+        else
         {
-            z=0;
-            fall=0;
-        }
-        else if(fall <= (int)zinit.terminalv)
-        {
-            fall += zinit.gravity;
+            z-=fall/100;
+            
+            if(z<0)
+            {
+                z = 0;
+                fall = -fall/2;
+            }
+            else if(z <= 1 && abs(fall) < (int)zinit.gravity)
+            {
+                z=0;
+                fall=0;
+            }
+            else if(fall <= (int)zinit.terminalv)
+            {
+                fall += zinit.gravity;
+            }
         }
     }
     
@@ -170,7 +203,22 @@ void item::draw(BITMAP *dest)
     }
 }
 
-item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
+item::item(int id):
+    sprite(),
+    price(0)
+{
+	init(fix(0), fix(0), fix(0), id, 0, 0, false);
+}
+
+item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy):
+    sprite(),
+    price(0)
+{
+	init(X, Y, Z, i, p, c, isDummy);
+}
+
+
+void item::init(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy)
 {
     x=X;
     y=Y;
@@ -181,7 +229,9 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     misc=clk2=0;
     aframe=aclk=0;
     anim=flash=twohand=subscreenItem=false;
-    dummy_int[0]=PriceIndex=-1;
+    PriceIndex=-1;
+    
+    alsoHaveBow=false;
     
     if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
         return;

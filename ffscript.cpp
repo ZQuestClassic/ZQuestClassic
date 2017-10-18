@@ -1,3 +1,6 @@
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
@@ -15,6 +18,7 @@
 #include "zc_array.h"
 #include "ffscript.h"
 #include "zelda.h"
+#include "zc_sys.h"
 #include "link.h"
 #include "guys.h"
 #include "gamedata.h"
@@ -24,6 +28,10 @@
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "rendertarget.h"
+#include "linkZScriptInterface.h"
+#include "messageManager.h"
+#include "sfxManager.h"
+#include "sound.h"
 
 #ifdef _FFDEBUG
 #include "ffdebug.h"
@@ -47,6 +55,9 @@ T zc_max(T a, T b)
 
 using std::string;
 
+extern MessageManager messageMgr;
+extern SFXManager sfxMgr;
+
 extern sprite_list particles;
 extern LinkClass Link;
 extern char *guy_string[];
@@ -59,6 +70,10 @@ long sarg2 = 0;
 refInfo *ri = NULL;
 ffscript *curscript = NULL;
 
+static bool scriptCanSave = true;
+byte curScriptType;
+word curScriptNum;
+
 //Global script data
 refInfo globalScriptData;
 word g_doscript = 1;
@@ -66,6 +81,8 @@ bool global_wait = false;
 
 //Item script data
 refInfo itemScriptData;
+
+LinkZScriptInterface linkIF;
 
 //The stacks
 long(*stack)[256] = NULL;
@@ -870,14 +887,7 @@ void deallocateArray(const long ptrval)
         if(localRAM[ptrval].Size() == 0)
             Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
         else
-        {
-            word size = localRAM[ptrval].Size();
             localRAM[ptrval].Clear();
-            
-            // If this happens once per frame, it can drown out every other message. -L
-            //Z_eventlog("Deallocated local array with address %ld, size %d\n", ptrval, size);
-            size = size;
-        }
     }
 }
 
@@ -994,67 +1004,67 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //FFC Variables
     case DATA:
-        ret = tmpscr->ffdata[ri->ffcref]*10000;
+        ret = tmpscr->ffcs[ri->ffcref].data*10000;
         break;
         
     case FFSCRIPT:
-        ret = tmpscr->ffscript[ri->ffcref]*10000;
+        ret = tmpscr->ffcs[ri->ffcref].script*10000;
         break;
         
     case FCSET:
-        ret = tmpscr->ffcset[ri->ffcref]*10000;
+        ret = tmpscr->ffcs[ri->ffcref].cset*10000;
         break;
         
     case DELAY:
-        ret = tmpscr->ffdelay[ri->ffcref]*10000;
+        ret = tmpscr->ffcs[ri->ffcref].delay*10000;
         break;
         
     case FX:
-        ret = tmpscr->ffx[ri->ffcref];
+        ret = tmpscr->ffcs[ri->ffcref].x;
         break;
         
     case FY:
-        ret = tmpscr->ffy[ri->ffcref];
+        ret = tmpscr->ffcs[ri->ffcref].y;
         break;
         
     case XD:
-        ret = tmpscr->ffxdelta[ri->ffcref];
+        ret = tmpscr->ffcs[ri->ffcref].xVel;
         break;
         
     case YD:
-        ret = tmpscr->ffydelta[ri->ffcref];
+        ret = tmpscr->ffcs[ri->ffcref].yVel;
         break;
         
     case XD2:
-        ret = tmpscr->ffxdelta2[ri->ffcref];
+        ret = tmpscr->ffcs[ri->ffcref].xAccel;
         break;
         
     case YD2:
-        ret = tmpscr->ffydelta2[ri->ffcref];
+        ret = tmpscr->ffcs[ri->ffcref].yAccel;
         break;
         
     case FFFLAGSD:
-        ret=((tmpscr->ffflags[ri->ffcref] >> (ri->d[0] / 10000))&1) ? 10000 : 0;
+        ret=((tmpscr->ffcs[ri->ffcref].flags >> (ri->d[0] / 10000))&1) ? 10000 : 0;
         break;
         
     case FFCWIDTH:
-        ret=((tmpscr->ffwidth[ri->ffcref]&0x3F)+1)*10000;
+        ret=tmpscr->ffcs[ri->ffcref].getEffectWidth()*10000;
         break;
         
     case FFCHEIGHT:
-        ret=((tmpscr->ffheight[ri->ffcref]&0x3F)+1)*10000;
+        ret=tmpscr->ffcs[ri->ffcref].getEffectHeight()*10000;
         break;
         
     case FFTWIDTH:
-        ret=((tmpscr->ffwidth[ri->ffcref]>>6)+1)*10000;
+        ret=(tmpscr->ffcs[ri->ffcref].getTileWidth())*10000;
         break;
         
     case FFTHEIGHT:
-        ret=((tmpscr->ffheight[ri->ffcref]>>6)+1)*10000;
+        ret=(tmpscr->ffcs[ri->ffcref].getTileHeight())*10000;
         break;
         
     case FFLINK:
-        ret=(tmpscr->fflink[ri->ffcref])*10000;
+        ret=(tmpscr->ffcs[ri->ffcref].link)*10000;
         break;
         
     case FFMISCD:
@@ -1064,7 +1074,7 @@ long get_register(const long arg)
         if(BC::checkMisc(a, "ffc->Misc") != SH::_NoError)
             ret = -10000;
         else
-            ret = tmpscr->ffmisc[ri->ffcref][a];
+            ret = tmpscr->ffcs[ri->ffcref].misc[a];
     }
     break;
     
@@ -1075,30 +1085,31 @@ long get_register(const long arg)
         if(BC::checkBounds(a, 0, 7, "ffc->InitD") != SH::_NoError)
             ret = -10000;
         else
-            ret = tmpscr->initd[ri->ffcref][a];
+            ret = tmpscr->ffcs[ri->ffcref].initd[a];
     }
     break;
     
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        ret = long(Link.getX()) * 10000;
+        ret = long(linkIF.getX()) * 10000;
         break;
         
     case LINKY:
-        ret = long(Link.getY()) * 10000;
+        ret = long(linkIF.getY()) * 10000;
         break;
         
     case LINKZ:
-        ret = long(Link.getZ()) * 10000;
+        ret = long(linkIF.getZ()) * 10000;
         break;
         
     case LINKJUMP:
-        ret = long((-Link.getFall() / fix(100.0)) * 10000);
+        // -fall/100*10000, but doing it that way screwed up the result
+        ret = long(-Link.getFall()) * 100;
         break;
         
     case LINKDIR:
-        ret=(int)(Link.dir)*10000;
+        ret=(int)(linkIF.getDir())*10000;
         break;
         
     case LINKHITDIR:
@@ -1130,7 +1141,7 @@ long get_register(const long arg)
         break;
         
     case LINKITEMD:
-        ret = game->item[ri->d[0]/10000] ? 10000 : 0;
+        ret = game->item[vbound(ri->d[0]/10000, 0, MAXITEMS-1)] ? 10000 : 0;
         break;
         
     case LINKEQUIP:
@@ -1146,11 +1157,11 @@ long get_register(const long arg)
         break;
         
     case LINKLADDERX:
-        ret=(int)(Link.getLadderX())*10000;
+        ret=(int)(linkIF.getLadderX())*10000;
         break;
         
     case LINKLADDERY:
-        ret=(int)(Link.getLadderY())*10000;
+        ret=(int)(linkIF.getLadderY())*10000;
         break;
         
     case LINKSWORDJINX:
@@ -2833,8 +2844,8 @@ else \
 //Most of this is deprecated I believe ~Joe123
     default:
     {
-        if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
-        else if(arg >= A(0) && arg <= A(1))		ret = ri->a[arg - A(0)];
+        if(arg >= REG_D(0) && arg <= REG_D(7))			ret = ri->d[arg - REG_D(0)];
+        else if(arg >= REG_A(0) && arg <= REG_A(1))		ret = ri->a[arg - REG_A(0)];
         else if(arg >= GD(0) && arg <= GD(255))	ret = game->global_d[arg - GD(0)];
         
         break;
@@ -2854,7 +2865,7 @@ void set_register(const long arg, const long value)
 ///----------------------------------------------------------------------------------------------------//
 //FFC Variables
     case DATA:
-        tmpscr->ffdata[ri->ffcref] = vbound(value/10000,0,MAXCOMBOS-1);
+        tmpscr->ffcs[ri->ffcref].data = vbound(value/10000,0,MAXCOMBOS-1);
         break;
         
     case FFSCRIPT:
@@ -2864,113 +2875,116 @@ void set_register(const long arg, const long value)
                 deallocateArray(i);
         }
         
-        tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
+        tmpscr->ffcs[ri->ffcref].script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
         
         for(int i=0; i<16; i++)
-            tmpscr->ffmisc[ri->ffcref][i] = 0;
+            tmpscr->ffcs[ri->ffcref].misc[i] = 0;
             
         for(int i=0; i<2; i++)
-            tmpscr->inita[ri->ffcref][i] = 0;
+            tmpscr->ffcs[ri->ffcref].inita[i] = 0;
             
         for(int i=0; i<8; i++)
-            tmpscr->initd[ri->ffcref][i] = 0;
+            tmpscr->ffcs[ri->ffcref].initd[i] = 0;
             
-        tmpscr->scriptData[ri->ffcref].Clear();
-        tmpscr->initialized[ri->ffcref] = false;
+        tmpscr->ffcs[ri->ffcref].scriptData.Clear();
+        tmpscr->ffcs[ri->ffcref].initialized = false;
         break;
         
     case FCSET:
-        tmpscr->ffcset[ri->ffcref] = (value/10000)&15;
+        tmpscr->ffcs[ri->ffcref].cset = (value/10000)&15;
         break;
         
     case DELAY:
-        tmpscr->ffdelay[ri->ffcref] = value/10000;
+        tmpscr->ffcs[ri->ffcref].delay = value/10000;
         break;
         
     case FX:
-        tmpscr->ffx[ri->ffcref] = value;
+        tmpscr->ffcs[ri->ffcref].x = value;
         break;
         
     case FY:
-        tmpscr->ffy[ri->ffcref]=value;
+        tmpscr->ffcs[ri->ffcref].y=value;
         break;
         
     case XD:
-        tmpscr->ffxdelta[ri->ffcref]=value;
+        tmpscr->ffcs[ri->ffcref].xVel=value;
         break;
         
     case YD:
-        tmpscr->ffydelta[ri->ffcref]=value;
+        tmpscr->ffcs[ri->ffcref].yVel=value;
         break;
         
     case XD2:
-        tmpscr->ffxdelta2[ri->ffcref]=value;
+        tmpscr->ffcs[ri->ffcref].xAccel=value;
         break;
         
     case YD2:
-        tmpscr->ffydelta2[ri->ffcref]=value;
+        tmpscr->ffcs[ri->ffcref].yAccel=value;
         break;
         
     case FFFLAGSD:
-        value ? tmpscr->ffflags[ri->ffcref] |=   1<<((ri->d[0])/10000)
-                : tmpscr->ffflags[ri->ffcref] &= ~(1<<((ri->d[0])/10000));
+        value ? tmpscr->ffcs[ri->ffcref].flags |=   1<<((ri->d[0])/10000)
+                : tmpscr->ffcs[ri->ffcref].flags &= ~(1<<((ri->d[0])/10000));
         break;
         
     case FFCWIDTH:
-        tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
+        tmpscr->ffcs[ri->ffcref].setEffectWidth(vbound(value/10000, 1, 64));
         break;
         
     case FFCHEIGHT:
-        tmpscr->ffheight[ri->ffcref]= (tmpscr->ffheight[ri->ffcref] & ~63) | (((value/10000)-1)&63);
+        tmpscr->ffcs[ri->ffcref].setEffectHeight(vbound(value/10000, 1, 64));
         break;
         
     case FFTWIDTH:
-        tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
+        tmpscr->ffcs[ri->ffcref].setTileWidth(vbound(value/10000, 1, 4));
         break;
         
     case FFTHEIGHT:
-        tmpscr->ffheight[ri->ffcref]=(tmpscr->ffheight[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
+        tmpscr->ffcs[ri->ffcref].setTileHeight(vbound(value/10000, 1, 4));
         break;
         
     case FFLINK:
-        (tmpscr->fflink[ri->ffcref])=vbound(value/10000, 1, 32);
+        (tmpscr->ffcs[ri->ffcref].link)=vbound(value/10000, 1, 32); // Shouldn't 0 be allowed...?
         break;
         
     case FFMISCD:
     {
         int a = vbound(ri->d[0]/10000,0,15);
-        (tmpscr->ffmisc[ri->ffcref][a])=value;
+        (tmpscr->ffcs[ri->ffcref].misc[a])=value;
         break;
     }
     
     case FFINITDD:
-        (tmpscr->initd[ri->ffcref][vbound(ri->d[0]/10000,0,7)])=value;
+        (tmpscr->ffcs[ri->ffcref].initd[vbound(ri->d[0]/10000,0,7)])=value;
         break;
         
         
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        Link.setX(value/10000);
+        linkIF.setX(value/10000);
         break;
         
     case LINKY:
-        Link.setY(value/10000);
+        linkIF.setY(value/10000);
         break;
         
     case LINKZ:
-        Link.setZ(value/10000);
+        linkIF.setZ(value/10000);
         break;
         
     case LINKJUMP:
-        Link.setFall(fix((-value * (100.0)) / 10000.0));
+        linkIF.setJump(fix((value * (100.0)) / 10000.0));
         break;
         
     case LINKDIR:
     {
         //Link.setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
-        if(Link.getAction() == attacking) Link.dir = (value/10000);
-        else Link.setDir(value/10000);
+        //if(Link.getAction() == attacking) Link.dir = (value/10000);
+        //else Link.setDir(value/10000);
+        
+        // Meh, let it. It'll get fixed later.
+        linkIF.setDir(value/10000);
         
         break;
     }
@@ -2996,7 +3010,7 @@ void set_register(const long arg, const long value)
         break;
         
     case LINKACTION:
-        Link.setAction((actiontype)(value/10000));
+        linkIF.setAction((actiontype)(value/10000));
         break;
         
     case LINKHELD:
@@ -4115,7 +4129,7 @@ void set_register(const long arg, const long value)
                 GuyH::getNPC()->fall = -fix(value * 100.0 / 10000.0);
                 
             if(GuyH::hasLink())
-                Link.setFall(value / fix(10000.0));
+                linkIF.setJump(-value / fix(10000.0));
         }
     }
     break;
@@ -4193,14 +4207,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         {
             enemy *en=GuyH::getNPC();
             int newSFX = value / 10000;
-            
-            // Stop the old sound and start the new one
-            if(en->bgsfx != newSFX)
-            {
-                en->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
-                cont_sfx(newSFX);
-                en->bgsfx = newSFX;
-            }
+            en->setBGSFX(sfxMgr.getSFX(newSFX));
         }
         
         break;
@@ -4792,8 +4799,8 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         
     default:
     {
-        if(arg >= D(0) && arg <= D(7))			ri->d[arg - D(0)] = value;
-        else if(arg >= A(0) && arg <= A(1))		ri->a[arg - A(0)] = value;
+        if(arg >= REG_D(0) && arg <= REG_D(7))			ri->d[arg - REG_D(0)] = value;
+        else if(arg >= REG_A(0) && arg <= REG_A(1))		ri->a[arg - REG_A(0)] = value;
         else if(arg >= GD(0) && arg <= GD(255))	game->global_d[arg-GD(0)] = value;
         
         break;
@@ -4952,12 +4959,12 @@ void do_loada(const byte a)
         
     long reg = get_register(sarg2); //Register in FFC 2
     
-    if(reg >= D(0) || reg <= D(7))
-        set_register(sarg1, tmpscr->scriptData[ffcref].d[reg - D(0)]); //get back the info into *sarg1
-    else if(reg == A(0) || reg == A(1))
-        set_register(sarg1, tmpscr->scriptData[ffcref].a[reg - A(0)]);
+    if(reg >= REG_D(0) || reg <= REG_D(7))
+        set_register(sarg1, tmpscr->ffcs[ffcref].scriptData.d[reg - REG_D(0)]); //get back the info into *sarg1
+    else if(reg == REG_A(0) || reg == REG_A(1))
+        set_register(sarg1, tmpscr->ffcs[ffcref].scriptData.a[reg - REG_A(0)]);
     else if(reg == SP)
-        set_register(sarg1, tmpscr->scriptData[ffcref].sp * 10000);
+        set_register(sarg1, tmpscr->ffcs[ffcref].scriptData.sp * 10000);
         
     //Can get everything else using REFFFC
 }
@@ -4977,12 +4984,12 @@ void do_seta(const byte a)
         
     long reg = get_register(sarg2); //Register in FFC 2
     
-    if(reg >= D(0) || reg <= D(7))
-        tmpscr->scriptData[ffcref].d[reg - D(0)] = get_register(sarg1); //Set it to *sarg1
-    else if(reg == A(0) || reg == A(1))
-        tmpscr->scriptData[ffcref].a[reg - A(0)] = get_register(sarg1);
+    if(reg >= REG_D(0) || reg <= REG_D(7))
+        tmpscr->ffcs[ffcref].scriptData.d[reg - REG_D(0)] = get_register(sarg1); //Set it to *sarg1
+    else if(reg == REG_A(0) || reg == REG_A(1))
+        tmpscr->ffcs[ffcref].scriptData.a[reg - REG_A(0)] = get_register(sarg1);
     else if(reg == SP)
-        tmpscr->scriptData[ffcref].sp = get_register(sarg1) / 10000;
+        tmpscr->ffcs[ffcref].scriptData.sp = get_register(sarg1) / 10000;
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -5309,21 +5316,9 @@ void do_rshift(const bool v)
 ///----------------------------------------------------------------------------------------------------//
 //Gameplay functions
 
-void do_warp(bool v)
+void do_warp(bool v, bool pit)
 {
-    tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
-    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
-    tmpscr->sidewarptype[0] = wtIWARP;
-    Link.ffwarp = true;
-}
-
-void do_pitwarp(bool v)
-{
-    tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
-    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
-    tmpscr->sidewarptype[0] = wtIWARP;
-    Link.ffwarp = true;
-    Link.ffpit = true;
+    linkIF.warp(SH::get_arg(sarg1, v)/10000, SH::get_arg(sarg2, v)/10000, pit);
 }
 
 void do_breakshield()
@@ -5779,8 +5774,12 @@ void do_createeweapon(const bool v)
     
     if(BC::checkWeaponID(ID, "Screen->CreateEWeapon") != SH::_NoError)
         return;
-        
-    addEwpn(0, 0, 0, ID, 0, 0, 0, -1);
+    
+    if(ID>wEnemyWeapons || (ID >= wScript1 && ID <= wScript10))
+    {
+        weapon* w=new weapon(fix(0), fix(0), fix(0), ID, 0, 0, 0, -1, -1);
+        Ewpns.add(w);
+    }
     
     if(Ewpns.Count() < 1)
     {
@@ -5854,13 +5853,12 @@ void do_message(const bool v)
         
     if(ID == 0)
     {
-        dismissmsg();
-        msgfont = zfont;
+        messageMgr.clear(true);
         blockpath = false;
         Link.finishedmsg();
     }
     else
-        donewmsg(ID);
+        messageMgr.showMessage(ID);
 }
 
 INLINE void set_drawing_command_args(const int j, const word numargs)
@@ -6022,8 +6020,8 @@ void do_sfx(const bool v)
     
     if(BC::checkSFXID(ID, "Game->PlaySound") != SH::_NoError)
         return;
-        
-    sfx(ID);
+    
+    sfxMgr.playSFX(ID);
 }
 
 void do_midi(bool v)
@@ -6089,9 +6087,9 @@ void do_set_dmap_enh_music(const bool v)
         return;
         
         
-    ArrayH::getString(arrayptr, filename_str, 256);
-    strncpy(DMaps[ID].tmusic, filename_str.c_str(), 255);
-    DMaps[ID].tmusic[255]='\0';
+    ArrayH::getString(arrayptr, filename_str, 56);
+    strncpy(DMaps[ID].tmusic, filename_str.c_str(), 55);
+    DMaps[ID].tmusic[55]='\0';
     DMaps[ID].tmusictrack=track;
 }
 
@@ -6446,6 +6444,9 @@ INLINE void check_quit()
 // Let's do this
 int run_script(const byte type, const word script, const byte i)
 {
+    curScriptType=type;
+    curScriptNum=script;
+    
 #ifdef _SCRIPT_COUNTER
     dword script_timer[NUMCOMMANDS];
     dword script_execount[NUMCOMMANDS];
@@ -6465,15 +6466,15 @@ int run_script(const byte type, const word script, const byte i)
     {
     case SCRIPT_FFC:
     {
-        ri = &(tmpscr->scriptData[i]);
+        ri = &(tmpscr->ffcs[i].scriptData);
         
         curscript = ffscripts[script];
         stack = &(ffc_stack[i]);
         
-        if(!tmpscr->initialized[i])
+        if(!tmpscr->ffcs[i].initialized)
         {
-            memcpy(ri->d, tmpscr->initd[i], 8 * sizeof(long));
-            memcpy(ri->a, tmpscr->inita[i], 2 * sizeof(long));
+            memcpy(ri->d, tmpscr->ffcs[i].initd, 8 * sizeof(long));
+            memcpy(ri->a, tmpscr->ffcs[i].inita, 2 * sizeof(long));
         }
         
         ri->ffcref = i; //'this' pointer
@@ -6972,19 +6973,19 @@ int run_script(const byte type, const word script, const byte i)
             break;
             
         case WARP:
-            do_warp(true);
+            do_warp(true, false);
             break;
             
         case WARPR:
-            do_warp(false);
+            do_warp(false, false);
             break;
             
         case PITWARP:
-            do_pitwarp(true);
+            do_warp(true, true);
             break;
             
         case PITWARPR:
-            do_pitwarp(false);
+            do_warp(false, true);
             break;
             
         case BREAKSHIELD:
@@ -7390,7 +7391,11 @@ int run_script(const byte type, const word script, const byte i)
             break;
             
         case SAVE:
-            save_game(false);
+            if(scriptCanSave)
+            {
+                save_game(false);
+                scriptCanSave=false;
+            }
             break;
             
         case SAVESCREEN:
@@ -7446,6 +7451,9 @@ int run_script(const byte type, const word script, const byte i)
         }
     }
     
+    if(!scriptCanSave)
+        scriptCanSave=true;
+    
     if(scommand == WAITDRAW)
     {
         switch(type)
@@ -7465,7 +7473,7 @@ int run_script(const byte type, const word script, const byte i)
         switch(type)
         {
         case SCRIPT_FFC:
-            tmpscr->ffscript[i] = 0;
+            tmpscr->ffcs[i].script = 0;
             break;
             
         case SCRIPT_GLOBAL:
@@ -7500,17 +7508,17 @@ int ffscript_engine(const bool preload)
 {
     for(byte i = 0; i < MAXFFCS; i++)
     {
-        if(tmpscr->ffscript[i] == 0)
+        if(tmpscr->ffcs[i].script == 0)
             continue;
             
-        if(preload && !(tmpscr->ffflags[i]&ffPRELOAD))
+        if(preload && !(tmpscr->ffcs[i].flags&ffPRELOAD))
             continue;
             
-        if((tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0 && Link.getHoldClk()>0)
+        if((tmpscr->ffcs[i].flags&ffIGNOREHOLDUP)==0 && Link.isHoldingItem())
             continue;
             
-        ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
-        tmpscr->initialized[i] = true;
+        ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffcs[i].script, i);
+        tmpscr->ffcs[i].initialized = true;
     }
     
     return 0;

@@ -11,6 +11,9 @@
 //   - item:        items class
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -22,16 +25,20 @@
 
 #include "weapons.h"
 #include "zelda.h"
+#include "zc_sys.h"
 #include "zsys.h"
 #include "maps.h"
 #include "tiles.h"
 #include "pal.h"
 #include "link.h"
+#include "sfxManager.h"
+#include "sound.h"
 #include "mem_debug.h"
 
 extern LinkClass Link;
 extern zinitdata zinit;
 extern int directWpn;
+extern SFXManager sfxMgr;
 
 /**************************************/
 /***********  Weapon Class  ***********/
@@ -82,15 +89,7 @@ void weapon::seekLink()
 {
     angular = true;
     angle = atan2(double(LinkY()-y),double(LinkX()-x));
-    
-    if(angle==-PI || angle==PI) dir=left;
-    else if(angle==-PI/2) dir=up;
-    else if(angle==PI/2)  dir=down;
-    else if(angle==0)     dir=right;
-    else if(angle<-PI/2)  dir=l_up;
-    else if(angle<0)      dir=r_up;
-    else if(angle>(PI/2))   dir=l_down;
-    else                  dir=r_down;
+    matchDirToAngle();
     
     if(z>LinkZ()) z--;
     else if(z<LinkZ()) z++;
@@ -125,58 +124,34 @@ void weapon::seekEnemy(int j)
     }
     
     angle = atan2(double(GuyY(j)-y),double(GuyX(j)-x));
-    
-    if(angle==-PI || angle==PI) dir=left;
-    else if(angle==-PI/2) dir=up;
-    else if(angle==PI/2)  dir=down;
-    else if(angle==0)     dir=right;
-    else if(angle<-PI/2)  dir=l_up;
-    else if(angle<0)      dir=r_up;
-    else if(angle>PI/2)   dir=l_down;
-    else                  dir=r_down;
+    matchDirToAngle();
 }
 
-int weapon::seekEnemy2(int j)
+void weapon::matchDirToAngle()
 {
-    angular = true;
-    fix mindistance=(fix)1000000;
-    fix tempdistance;
-    
-    if((j==-1)||(j>=GuyCount()))
-    {
-        j=-1;
-        
-        for(int i=0; i<GuyCount(); i++)
-        {
-            //        tempdistance=sqrt(pow(abs(x-GuyX(i)),2)+pow(abs(y-GuyY(i)),2));
-            tempdistance=distance(dummy_fix[0],dummy_fix[1],GuyX(i),GuyY(i));
-            
-            if((tempdistance<mindistance)&&(GuyID(i)>=10) && !GuySuperman(i))
-            {
-                mindistance=tempdistance;
-                j=i;
-            }
-        }
-    }
-    
-    if(j==-1)
-    {
-        return j;
-    }
-    
-    //al_trace("Guy: %d, gx: %f, gy: %f, x: %f, y: %f\n", j, float(GuyX(j)), float(GuyY(j)), float(dummy_fix[0]), float(dummy_fix[1]));
-    angle = atan2(double(GuyY(j)-dummy_fix[1]),double(GuyX(j)-dummy_fix[0]));
-    
-    if(angle==-PI || angle==PI) dir=left;
-    else if(angle==-PI/2) dir=up;
-    else if(angle==PI/2)  dir=down;
-    else if(angle==0)     dir=right;
-    else if(angle<-PI/2)  dir=l_up;
-    else if(angle<0)      dir=r_up;
-    else if(angle>PI/2)   dir=l_down;
-    else                  dir=r_down;
-    
-    return j;
+    if(angle==-PI || angle==PI)
+        dir=left;
+    else if(angle==-PI/2)
+        dir=up;
+    else if(angle==PI/2)
+        dir=down;
+    else if(angle==0)
+        dir=right;
+    else if(angle<-PI/2)
+        dir=l_up;
+    else if(angle<0)
+        dir=r_up;
+    else if(angle>(PI/2))
+        dir=l_down;
+    else
+        dir=r_down;
+}
+
+void weapon::setAngle(double a)
+{
+    angular=true;
+    angle=a;
+    matchDirToAngle();
 }
 
 weapon::weapon(weapon const & other):
@@ -205,25 +180,15 @@ weapon::weapon(weapon const & other):
     frames(other.frames),
     o_flip(other.o_flip),
     temp1(other.temp1),
-    behind(other.behind)
-
+    behind(other.behind),
+    sfxLoop(other.sfxLoop),
+    minX(other.minX),
+    maxX(other.maxX),
+    minY(other.minY),
+    maxY(other.maxY),
+    aimedBrang(other.aimedBrang),
+    sparkleFunc(other.sparkleFunc)
 {
-    for(int i=0; i<10; ++i)
-    {
-        dummy_int[i]=other.dummy_int[i];
-        dummy_fix[i]=other.dummy_fix[i];
-        dummy_float[i]=other.dummy_float[i];
-        dummy_bool[i]=other.dummy_bool[i];
-    }
-    
-    /*for (int i=0; i<8; ++i)
-    {
-      d[i]=other.d[i];
-    }
-    for (int i=0; i<2; ++i)
-    {
-      a[i]=other.a[i];
-    }*/
 }
 
 // Let's dispose of some sound effects!
@@ -266,16 +231,7 @@ weapon::~weapon()
     
     switch(id)
     {
-    case wWind:
-        stop_sfx(WAV_ZN1WHIRLWIND);
-        break;
-        
-    case ewBrang:
-        //stop_sfx(WAV_BRANG); //causes a bug -L
-        break;
-        
     case wBrang:
-    case wCByrna:
         if(parentitem>=0)
         {
             stop_sfx(itemsbuf[parentitem].usesound);
@@ -294,8 +250,78 @@ weapon::~weapon()
     }
 }
 
-weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy) : sprite(), parentid(prntid)
+// This should be done elsewhere
+void setScreenLimits(weapon& w)
 {
+    bool isDgn=isdungeon();
+    int border=get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
+    
+    if(w.id>wEnemyWeapons && w.id!=ewBrang)
+    {
+        w.minY=isDgn ? 32 : (16-border);
+        w.maxY=isDgn ? 128 : (144+border);
+        w.minX=isDgn ? 32 : (16-border);
+        w.maxX=isDgn ? 208 : (224+border);
+    }
+    else if(w.id==wHookshot || w.id==wHSChain)
+    {
+        w.minY=isDgn ? 8 : 0;
+        w.maxY=isDgn ? 152 : 160;
+        w.minX=isDgn ? 8 : 0;
+        w.maxX=isDgn ? 248 : 256;
+    }
+    else
+    {
+        w.minY=isDgn ? 18 : 2;
+        w.maxY=isDgn ? 144 : 160;
+        w.minX=isDgn ? 20 : 4;
+        w.maxX=isDgn ? 220 : 236;
+    }
+    
+    if(w.id==wSSparkle || w.id==wFSparkle)
+    {
+        w.minY=0;
+        w.maxY=176;
+        w.minX=0;
+        w.maxX=256;
+    }
+    else if(w.id==ewFlame)
+    {
+        w.minY=isDgn ? 32 : (16-border);
+        w.maxY=isDgn ? 128 : (144+border);
+        w.minX=isDgn ? 32 : (16-border);
+        w.maxX=isDgn ? 208 : (224+border);
+    }
+    else if(w.id==ewFireTrail)
+    {
+        w.minY=isDgn ? 32 : (16-border);
+        w.maxY=isDgn ? 128 : (144+border);
+        w.minX=isDgn ? 32 : (16-border);
+        w.maxX=isDgn ? 208 : (224+border);
+    }
+    
+    else if(w.id==ewWind)
+    {
+        w.minY=isDgn ? 32 : (16-border);
+        w.maxY=isDgn ? 128 : (144+border);
+        w.minX=isDgn ? 32 : (16-border);
+        w.maxX=isDgn ? 208 : (224+border);
+    }
+}
+
+weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy):
+    sprite(),
+    parentid(prntid),
+    sparkleFunc(0)
+{
+    /*
+     * Type:
+     * 0x01: Boss fireball
+     * 0x02: Seeks Link
+     * 0x04: Fast projectile
+     * 0x00-0x30: If 0x02, slants toward (type>>3)-1
+     */
+    
     x=X;
     y=Y;
     z=Z;
@@ -316,6 +342,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     hysz=15;
     hzsz=8;
     isLit = false;
+    aimedBrang=false;
+    setScreenLimits(*this);
     
     int defaultw, itemid = parentitem;
     
@@ -412,7 +440,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
         if(parentitem>-1)
         {
-            cont_sfx(itemsbuf[parentitem].usesound);
+            sfxLoop=sfxMgr.getSFX(itemsbuf[parentitem].usesound);
+            sfxLoop.startLooping();
         }
         
         break;
@@ -439,7 +468,10 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         LOADGFX(defaultw);
         
         if(get_bit(quest_rules,qr_MORESOUNDS))
-            cont_sfx(WAV_ZN1WHIRLWIND);
+        {
+            sfxLoop=sfxMgr.getSFX(WAV_ZN1WHIRLWIND);
+            sfxLoop.startLooping();
+        }
             
         clk=-14;
         step=2;
@@ -717,7 +749,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         hxsz=7;
         hyofs=2;
         hysz=11;
-        dummy_bool[0]=false;                                  //grenade armed?
+        aimedBrang=false;
         break;
         
     case wHookshot:
@@ -872,7 +904,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         LOADGFX(ewBOMB);
         hxofs=0;
         hxsz=16;
-        
+
+		if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+		{
+			hyofs=0;
+			hysz=16;
+		}
+
         if(id==ewBomb)
             misc=2;
         else
@@ -901,7 +939,12 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         LOADGFX(ewSBOMB);
         hxofs=0;
         hxsz=16;
-        
+		if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+		{
+			hyofs=0;
+			hysz=16;
+		}
+
         if(id==ewSBomb)
             misc=2;
         else
@@ -926,10 +969,12 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewBrang:
-        if(!get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+        if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
         {
             hxofs=0;
-            hxsz=15;
+            hxsz=16;
+			hyofs=0;
+			hysz=16;
         }
         else
         {
@@ -966,10 +1011,12 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case ewRock:
         LOADGFX(ewROCK);
         
-        if(!get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+        if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
         {
             hxofs=0;
-            hxsz=15;
+            hxsz=16;
+			hyofs=0;
+			hysz=16;
         }
         else
         {
@@ -1008,10 +1055,12 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case ewSword:
         LOADGFX(ewSWORD);
         
-        if(!get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+        if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
         {
             hxofs=0;
-            hxsz=15;
+            hxsz=16;
+			hyofs=0;
+			hysz=16;
         }
         else
         {
@@ -1044,10 +1093,12 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case ewMagic:
         LOADGFX(ewMAGIC);
         
-        if(!get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+        if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
         {
             hxofs=0;
-            hxsz=15;
+            hxsz=16;
+			hyofs=0;
+			hysz=16;
         }
         else
         {
@@ -1108,9 +1159,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
                 step = 1;
             }
         }
-        
-        hxofs = hyofs=1;
-        hxsz = hysz = 14;
+
+		if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+		{
+			hxofs=hyofs=0;
+			hxsz=hysz=16;
+		}
+		else
+		{
+			hxofs = hyofs=1; // hof of 1 means that link can use the 'half-tile trick'.
+			hxsz = hysz = 14;
+		}
         
         if(BSZ)
             yofs+=2;
@@ -1121,8 +1180,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         LOADGFX(ewFIRETRAIL);
         step=0;
         dir=-1;
-        hxofs = hyofs=1;
-        hxsz = hysz = 15;
+
+		if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+		{
+			hxofs=hyofs=0;
+			hxsz=hysz=16;
+		}
+		else
+		{
+			hxofs = hyofs=1; // hof of 1 means that link can use the 'half-tile trick'.
+			hxsz = hysz = 15;
+		}
         
         if(BSZ)
             yofs+=2;
@@ -1130,6 +1198,12 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewWind:
+		if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+		{
+			hxofs=hyofs=0;
+			hxsz=hysz=16;
+		}
+		
         LOADGFX(ewWIND);
         clk=0;
         step=3;
@@ -1139,19 +1213,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(type)
         {
         case pDINSFIREROCKET:
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETUP,(int)x);
-                
-            LOADGFX(itemsbuf[parentitem].wpn);
-            step = 4;
-            break;
-            
         case pDINSFIREROCKETRETURN:
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETDOWN,(int)x);
-                
-            LOADGFX(itemsbuf[parentitem].wpn2);
-            step = 4;
             break;
             
         case pDINSFIREROCKETTRAIL:
@@ -1167,22 +1229,9 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
             
         case pNAYRUSLOVEROCKET1:
-            LOADGFX(itemsbuf[parentitem].wpn);
-            
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETUP,(int)x);
-                
-            step = 4;
-            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
-            break;
-            
         case pNAYRUSLOVEROCKETRETURN1:
-            LOADGFX(itemsbuf[parentitem].wpn2);
-            
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETDOWN,(int)x);
-                
-            step = 4;
+        case pNAYRUSLOVEROCKET2:
+        case pNAYRUSLOVEROCKETRETURN2:
             drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
             break;
             
@@ -1193,18 +1242,6 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             
         case pNAYRUSLOVEROCKETTRAILRETURN1:
             LOADGFX(itemsbuf[parentitem].wpn4);
-            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
-            break;
-            
-        case pNAYRUSLOVEROCKET2:
-            LOADGFX(itemsbuf[parentitem].wpn6);
-            step = 4;
-            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
-            break;
-            
-        case pNAYRUSLOVEROCKETRETURN2:
-            LOADGFX(itemsbuf[parentitem].wpn7);
-            step = 4;
             drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
             break;
             
@@ -1262,90 +1299,33 @@ bool weapon::Dead()
 
 bool weapon::clip()
 {
-    int c[4];
-    int d2=isdungeon();
-    int nb1 = get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
-    int nb2 = get_bit(quest_rules,qr_NOBORDER) ? 8 : 0;
-    
-    if(id>wEnemyWeapons && id!=ewBrang)
-    {
-        c[0] = d2?32:(16-nb1);
-        c[1] = d2?128:(144+nb1);
-        c[2] = d2?32:(16-nb1);
-        c[3] = d2?208:(224+nb1);
-    }
-    else if(id==wHookshot||id==wHSChain)
-    {
-        c[0] = d2?8:0;
-        c[1] = d2?152:160;
-        c[2] = d2?8:0;
-        c[3] = d2?248:256;
-    }
-    else
-    {
-        c[0] = d2?18:2;
-        c[1] = d2?144:160;
-        c[2] = d2?20:4;
-        c[3] = d2?220:236;
-    }
-    
-    if(id==wSSparkle || id==wFSparkle)
-    {
-        c[0] = 0;
-        c[1] = 176;
-        c[2] = 0;
-        c[3] = 256;
-    }
-    
-    if(id==ewFlame)
-    {
-        c[0] = d2?32:(16-nb1);
-        c[1] = d2?128:(144+nb1);
-        c[2] = d2?32:(16-nb1);
-        c[3] = d2?208:(224+nb1);
-    }
-    
-    if(id==ewFireTrail)
-    {
-        c[0] = d2?32:(16-nb1);
-        c[1] = d2?128:(144+nb1);
-        c[2] = d2?32:(16-nb1);
-        c[3] = d2?208:(224+nb1);
-    }
-    
-    if(id==ewWind)
-    {
-        c[0] = d2?32:(16-nb1);
-        c[1] = d2?128:(144+nb1);
-        c[2] = d2?32:(16-nb1);
-        c[3] = d2?208:(224+nb1);
-    }
-    
-    if(x < c[2])
+    if(x<minX)
         if(dir==left || dir==l_up || dir==l_down)
             return true;
-            
-    if(x > c[3])
+    
+    if(x>maxX)
         if(dir==right || dir==r_up || dir==r_down)
             return true;
-            
-    if(y < c[0])
+    
+    if(y<minY)
         if(dir==up || dir==l_up || dir==r_up)
             return true;
-            
-    if(y > c[1])
+    
+    if(y>maxY)
         if(dir==down || dir==l_down || dir==r_down)
             return true;
-            
+    
     if(id>wEnemyWeapons)
     {
-        if((x<(8-nb2) && dir==left)
-                || (y<(8-nb2) && dir==up)
-                || (x>(232+nb2) && dir==right)
-                || (y>(168+nb2) && dir==down))
+        int border=get_bit(quest_rules,qr_NOBORDER) ? 8 : 0;
+        if((x<(8-border) && dir==left) || // Not checking diagonals?
+          (y<(8-border) && dir==up) ||
+          (x>(232+border) && dir==right) ||
+          (y>(168+border) && dir==down))
             return true;
     }
     
+    // This doesn't do anything useful, does it?
     if(x<0||y<0||x>240||y>176)
         return true;
         
@@ -1411,6 +1391,9 @@ bool weapon::blocked(int xOffset, int yOffset)
 
 bool weapon::animate(int)
 {
+    if(sparkleFunc)
+        sparkleFunc(*this);
+    
     // do special timing stuff
     bool hooked=false;
     
@@ -2260,11 +2243,6 @@ bool weapon::animate(int)
                 if(Lwpns.idCount(wBrang)<=1 && (!get_bit(quest_rules, qr_MORESOUNDS) || !Ewpns.idCount(ewBrang)))
                     stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
                     
-                /*if (dummy_bool[0])
-                {
-                    add_grenade(x,y,z,0,-1); //TODO: Super bombs as well?
-                    dummy_bool[0]=false;
-                }*/
                 if(dragging!=-1)
                 {
                     getdraggeditem(dragging);
@@ -2478,21 +2456,12 @@ bool weapon::animate(int)
         switch(type)
         {
         case pDINSFIREROCKET:
-            if(y <= -200)
-                dead = 1;
-                
+        case pDINSFIREROCKETRETURN:   
+        case pNAYRUSLOVEROCKETRETURN1:
+        case pNAYRUSLOVEROCKETRETURN2:
             break;
             
-        case pDINSFIREROCKETRETURN:                                             //Din's Fire Rocket return
-            if(y>=casty)
-            {
-                dead=1;
-                castnext=true;
-            }
-            
-            break;
-            
-        case pDINSFIREROCKETTRAIL:                                             //Din's Fire Rocket trail
+        case pDINSFIREROCKETTRAIL:
             if(clk>=(((wpnsbuf[wDINSFIRES1A].frames) * (wpnsbuf[wDINSFIRES1A].speed))-1))
             {
                 dead=0;
@@ -2500,7 +2469,7 @@ bool weapon::animate(int)
             
             break;
             
-        case pDINSFIREROCKETTRAILRETURN:                                             //Din's Fire Rocket return trail
+        case pDINSFIREROCKETTRAILRETURN:
             if(clk>=(((wpnsbuf[wDINSFIRES1B].frames) * (wpnsbuf[wDINSFIRES1B].speed))-1))
             {
                 dead=0;
@@ -2508,16 +2477,7 @@ bool weapon::animate(int)
             
             break;
             
-        case pNAYRUSLOVEROCKETRETURN1:                                             //Nayru's Love Rocket return
-            if(x>=castx)
-            {
-                dead=1;
-                castnext=true;
-            }
-            
-            break;
-            
-        case pNAYRUSLOVEROCKETTRAIL1:                                             //Nayru's Love Rocket trail
+        case pNAYRUSLOVEROCKETTRAIL1:
             if(clk>=(((wpnsbuf[wNAYRUSLOVES1A].frames) * (wpnsbuf[wNAYRUSLOVES1A].speed))-1))
             {
                 dead=0;
@@ -2525,7 +2485,7 @@ bool weapon::animate(int)
             
             break;
             
-        case pNAYRUSLOVEROCKETTRAILRETURN1:                                             //Nayru's Love Rocket return trail
+        case pNAYRUSLOVEROCKETTRAILRETURN1:
             if(clk>=(((wpnsbuf[wNAYRUSLOVES1B].frames) * (wpnsbuf[wNAYRUSLOVES1B].speed))-1))
             {
                 dead=0;
@@ -2533,16 +2493,7 @@ bool weapon::animate(int)
             
             break;
             
-        case pNAYRUSLOVEROCKETRETURN2:                                             //Nayru's Love Rocket return
-            if(x<=castx)
-            {
-                dead=0;
-                castnext=true;
-            }
-            
-            break;
-            
-        case pNAYRUSLOVEROCKETTRAIL2:                                             //Nayru's Love Rocket trail
+        case pNAYRUSLOVEROCKETTRAIL2:
             if(clk>=(((wpnsbuf[wNAYRUSLOVES2A].frames) * (wpnsbuf[wNAYRUSLOVES2A].speed))-1))
             {
                 dead=0;
@@ -2550,7 +2501,7 @@ bool weapon::animate(int)
             
             break;
             
-        case pNAYRUSLOVEROCKETTRAILRETURN2:                                             //Nayru's Love Rocket return trail
+        case pNAYRUSLOVEROCKETTRAILRETURN2:
             if(clk>=(((wpnsbuf[wNAYRUSLOVES2B].frames) * (wpnsbuf[wNAYRUSLOVES2B].speed))-1))
             {
                 dead=0;
@@ -2982,7 +2933,7 @@ mirrors:
         {
             misc2=(dir<left)?y:x;                               // save home position
             
-            if(dummy_bool[0]==true)
+            if(aimedBrang)
             {
                 seekLink();
             }
@@ -2998,13 +2949,13 @@ mirrors:
         
         ++clk2;
         
-        if(clk2==45&&!dummy_bool[0])
+        if(clk2==45 && !aimedBrang)
         {
             misc=1;
             dir^=1;
         }
         
-        if(dummy_bool[0])
+        if(aimedBrang)
         {
             step=5;
         }
@@ -3028,7 +2979,7 @@ mirrors:
         
         if(misc==1)                                           // returning
         {
-            if(dummy_bool[0]==true)
+            if(aimedBrang)
             {
                 //no parent
                 if(parentid < 0)
@@ -3185,8 +3136,9 @@ void weapon::onhit(bool clipped, int special, int linkdir)
 {
     if((scriptcoldet&1) == 0)
     {
-        // These won't hit anything, but they can still go too far offscreen
-        if(!clipped)
+        // These won't hit anything, but they can still go too far offscreen...
+        // Unless the compatibility rule is set.
+        if(get_bit(quest_rules, qr_OFFSCREENWEAPONS) || !clipped)
             return;
         goto offscreenCheck;
     }
@@ -3387,14 +3339,6 @@ offscreenCheck:
                 }
                 
                 misc=1;
-                /*
-                  if (current_item(itype_brang,true)>1) {
-                  if (dummy_bool[0]) {
-                  add_grenade(x,y,z,current_item(itype_brang,true)>2);
-                  dummy_bool[0]=false;
-                  }
-                  }
-                  */
             }
         }
         
@@ -3789,6 +3733,29 @@ void weapon::draw(BITMAP *dest)
     
     // draw it
     sprite::draw(dest);
+}
+
+void weapon::activateRemoteBomb()
+{
+    misc=50;
+    clk=47;
+    id=(id==wLitBomb) ? wBomb : wLitSBomb;
+}
+
+void weapon::adjustDraggedItem(int removed)
+{
+    if(dragging==removed)
+        dragging=-1;
+    else if(dragging>removed)
+        dragging--;
+}
+
+// Uses putweapon() to draw a misc. sprite. I'm not certain it's exactly right.
+// And it should really be moved...
+void putMiscSprite(BITMAP *dest, int spr, int x, int y)
+{
+    if(wpnsbuf[spr].tile!=0)
+        putweapon(dest, x, y, wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1], -1);
 }
 
 void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &aclk, int &aframe, int parentid)

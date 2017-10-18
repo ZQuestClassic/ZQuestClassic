@@ -7,6 +7,9 @@
 //  Code for loading '.qst' files in ZC and ZQuest.
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -21,6 +24,7 @@
 #include <vector>
 #include <assert.h>
 
+#include "encryption.h"
 #include "mem_debug.h"
 #include "zc_alleg.h"
 #include "zdefs.h"
@@ -35,6 +39,8 @@
 #include "zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
+#include "scoped_ptr.h"
+
 
 #ifndef _AL_MALLOC
 #define _AL_MALLOC(a) _al_malloc(a)
@@ -664,7 +670,12 @@ PACKFILE *open_quest_file(int *open_error, const char *filename, char *deletefil
         box_start(1, "Loading Quest", lfont, font, true);
     }
     
-    box_out("Loading Quest...");
+	box_out("Loading Quest: ");
+	if(strncasecmp(filename, "qst.dat", 7)!=0)
+        box_out(filename);
+    else
+        box_out("new quest"); // Or whatever
+	box_out("...");
     box_eol();
     box_eol();
     
@@ -2379,6 +2390,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     
     //Now, do any updates...
+    
     if((tempheader.zelda_version < 0x211)||((tempheader.zelda_version == 0x211)&&(tempheader.build<18)))
     {
         set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING,1);
@@ -2437,6 +2449,15 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(quest_rules,qr_NOSOLIDDAMAGECOMBOS, 1);
     }
     
+    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
+    {
+        // qr_OFFSETEWPNCOLLISIONFIX
+        // All 'official' quests need this disabled.
+        // All 2.10 and lower quests need this enabled to preseve compatability.
+        // All 2.11 - 2.5.1 quests should have it set also, due to a bug in about half of all the betas.
+		set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 0);
+    }
+        
     if(tempheader.zelda_version < 0x250) // version<0x250 checks for beta 18; build was set to 18 prematurely
     {
         set_bit(quest_rules,qr_HOOKSHOTDOWNBUG, 1);
@@ -2445,6 +2466,20 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     if(tempheader.zelda_version == 0x250 && tempheader.build == 24) // Annoying...
     {
         set_bit(quest_rules,qr_PEAHATCLOCKVULN, 1);
+    }
+    
+    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<28))
+    {
+        set_bit(quest_rules, qr_OFFSCREENWEAPONS, 1);
+    }
+    
+    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
+    {
+        // qr_OFFSETEWPNCOLLISIONFIX
+        // All 'official' quests need this disabled.
+        // All 2.10 and lower quests need this enabled to preseve compatability.
+        // All 2.11 - 2.5.1 quests should have it set also, due to a bug in about half of all the betas.
+		set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 0);
     }
     
     if(s_version < 3)
@@ -3346,16 +3381,6 @@ void clear_screen(mapscr *temp_scr)
     for(int j=0; j<6; j++)
     {
         temp_scr->layeropacity[j]=255;
-    }
-    
-    for(int j=0; j<32; j++)
-    {
-        temp_scr->ffwidth[j] = 15;
-        temp_scr->ffheight[j] = 15;
-        temp_scr->scriptData[j].a[0] = 10000;
-        temp_scr->scriptData[j].a[1] = 10000;
-        //temp_scr->a[j][0] = 10000;
-        //temp_scr->a[j][1] = 10000;
     }
 }
 
@@ -6679,11 +6704,10 @@ int readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s_version, word)
 {
-    GarbageCollector gc;
-    
     int numsub=0;
     byte temp_ss=0;
-    subscreen_object *temp_sub = gc(new subscreen_object);
+    subscreen_object *temp_sub = new subscreen_object;
+	scoped_ptr<subscreen_object> tempSubPtr(temp_sub);
     
     char tempname[64];
     
@@ -10481,7 +10505,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     if(version>6)
     {
-        if(!p_igetl(&(temp_mapscr->numff),f,true))
+        if(!p_igetl(&(temp_mapscr->ffcsUsed),f,true))
         {
             return qe_invalid;
         }
@@ -10491,19 +10515,19 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         
         for(m=0; m<MAXFFCS; m++)
         {
-            if((temp_mapscr->numff>>m)&1)
+            if((temp_mapscr->ffcsUsed>>m)&1)
             {
-                if(!p_igetw(&(temp_mapscr->ffdata[m]),f,true))
+                if(!p_igetw(&(temp_mapscr->ffcs[m].data),f,true))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_getc(&(temp_mapscr->ffcset[m]),f,true))
+                if(!p_getc(&(temp_mapscr->ffcs[m].cset),f,true))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetw(&(temp_mapscr->ffdelay[m]),f,true))
+                if(!p_igetw(&(temp_mapscr->ffcs[m].delay),f,true))
                 {
                     return qe_invalid;
                 }
@@ -10515,162 +10539,130 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffx[m]=int(tempfloat*10000);
+                    temp_mapscr->ffcs[m].x=int(tempfloat*10000);
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffy[m]=int(tempfloat*10000);
+                    temp_mapscr->ffcs[m].y=int(tempfloat*10000);
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffxdelta[m]=int(tempfloat*10000);
+                    temp_mapscr->ffcs[m].xVel=int(tempfloat*10000);
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffydelta[m]=int(tempfloat*10000);
+                    temp_mapscr->ffcs[m].yVel=int(tempfloat*10000);
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffxdelta2[m]=int(tempfloat*10000);
+                    temp_mapscr->ffcs[m].xAccel=int(tempfloat*10000);
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffydelta2[m]=int(tempfloat*10000);
+                    temp_mapscr->ffcs[m].yAccel=int(tempfloat*10000);
                 }
                 else
                 {
-                    if(!p_igetl(&(temp_mapscr->ffx[m]),f,true))
+                    if(!p_igetl(&(temp_mapscr->ffcs[m].x),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->ffy[m]),f,true))
+                    if(!p_igetl(&(temp_mapscr->ffcs[m].y),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->ffxdelta[m]),f,true))
+                    if(!p_igetl(&(temp_mapscr->ffcs[m].xVel),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->ffydelta[m]),f,true))
+                    if(!p_igetl(&(temp_mapscr->ffcs[m].yVel),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->ffxdelta2[m]),f,true))
+                    if(!p_igetl(&(temp_mapscr->ffcs[m].xAccel),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->ffydelta2[m]),f,true))
+                    if(!p_igetl(&(temp_mapscr->ffcs[m].yAccel),f,true))
                     {
                         return qe_invalid;
                     }
                 }
                 
-                if(!p_getc(&(temp_mapscr->fflink[m]),f,true))
+                if(!p_getc(&(temp_mapscr->ffcs[m].link),f,true))
                 {
                     return qe_invalid;
                 }
                 
                 if(version>7)
                 {
-                    if(!p_getc(&(temp_mapscr->ffwidth[m]),f,true))
+                    if(!p_getc(&(temp_mapscr->ffcs[m].width),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_getc(&(temp_mapscr->ffheight[m]),f,true))
+                    if(!p_getc(&(temp_mapscr->ffcs[m].height),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->ffflags[m]),f,true))
+                    if(!p_igetl(&(temp_mapscr->ffcs[m].flags),f,true))
                     {
                         return qe_invalid;
                     }
                 }
                 else
                 {
-                    temp_mapscr->ffwidth[m]=15;
-                    temp_mapscr->ffheight[m]=15;
-                    temp_mapscr->ffflags[m]=0;
+                    temp_mapscr->ffcs[m].width=15;
+                    temp_mapscr->ffcs[m].height=15;
+                    temp_mapscr->ffcs[m].flags=0;
                 }
                 
                 if(Header->zelda_version == 0x211 || (Header->zelda_version == 0x250 && Header->build<20))
                 {
-                    temp_mapscr->ffflags[m]|=ffIGNOREHOLDUP;
+                    temp_mapscr->ffcs[m].flags|=ffIGNOREHOLDUP;
                 }
                 
                 if(version>9)
                 {
-                    if(!p_igetw(&(temp_mapscr->ffscript[m]),f,true))
+                    if(!p_igetw(&(temp_mapscr->ffcs[m].script),f,true))
                     {
                         return qe_invalid;
                     }
                 }
                 else
                 {
-                    temp_mapscr->ffscript[m]=0;
+                    temp_mapscr->ffcs[m].script=0;
                 }
                 
                 if(version>10)
                 {
-                    if(!p_igetl(&(temp_mapscr->initd[m][0]),f,true))
+                    for(int i=0; i<8; i++)
                     {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_igetl(&(temp_mapscr->initd[m][1]),f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_igetl(&(temp_mapscr->initd[m][2]),f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_igetl(&(temp_mapscr->initd[m][3]),f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_igetl(&(temp_mapscr->initd[m][4]),f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_igetl(&(temp_mapscr->initd[m][5]),f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_igetl(&(temp_mapscr->initd[m][6]),f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_igetl(&(temp_mapscr->initd[m][7]),f,true))
-                    {
-                        return qe_invalid;
+                        if(!p_igetl(&(temp_mapscr->ffcs[m].initd[i]),f,true))
+                        {
+                            return qe_invalid;
+                        }
                     }
                     
                     if(!p_getc(&(tempbyte),f,true))
@@ -10678,22 +10670,23 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->inita[m][0]=tempbyte*10000;
+                    temp_mapscr->ffcs[m].inita[0]=tempbyte*10000;
                     
                     if(!p_getc(&(tempbyte),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->inita[m][1]=tempbyte*10000;
+                    temp_mapscr->ffcs[m].inita[1]=tempbyte*10000;
                 }
                 else
                 {
-                    temp_mapscr->inita[m][0] = 10000;
-                    temp_mapscr->inita[m][1] = 10000;
+                    temp_mapscr->ffcs[m].inita[0] = 10000;
+                    temp_mapscr->ffcs[m].inita[1] = 10000;
                 }
                 
-                temp_mapscr->initialized[m] = false;
+                // Unnecessary?
+                temp_mapscr->ffcs[m].initialized = false;
                 
                 if(version <= 11)
                 {
@@ -10701,27 +10694,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
                 }
             }
             else
-            {
-                temp_mapscr->ffdata[m]=0;
-                temp_mapscr->ffcset[m]=0;
-                temp_mapscr->ffdelay[m]=0;
-                temp_mapscr->ffx[m]=0;
-                temp_mapscr->ffy[m]=0;
-                temp_mapscr->ffxdelta[m]=0;
-                temp_mapscr->ffydelta[m]=0;
-                temp_mapscr->ffxdelta2[m]=0;
-                temp_mapscr->ffydelta2[m]=0;
-                temp_mapscr->ffdata[m]=0;
-                temp_mapscr->ffwidth[m]=15;
-                temp_mapscr->ffheight[m]=15;
-                temp_mapscr->ffflags[m]=0;
-                temp_mapscr->ffscript[m]=0;
-                temp_mapscr->scriptData[m].a[0] = 10000;
-                temp_mapscr->scriptData[m].a[1] = 10000;
-                //temp_mapscr->a[m][0] = 10000;
-                //temp_mapscr->a[m][1] = 10000;
-                temp_mapscr->initialized[m] = false;
-            }
+                temp_mapscr->ffcs[m].clear();
         }
     }
     
@@ -10912,7 +10885,6 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
             if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<137)))
             {
                 int index = (i*MAPSCRS+132);
-                //.....hmmm. todo: test this. >_>
                 
 //		delete_theMaps_data(index);
                 TheMaps[index]=TheMaps[index-1];
@@ -11260,7 +11232,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
     }
     
     //Now for the new combo alias reset
-    if(section_version<2)
+    if(section_version<2 && keepdata)
     {
         for(int j=0; j<MAXCOMBOALIASES; j++)
         {
@@ -14178,8 +14150,8 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
             {
                 for(int m=0; m<32; m++)
                 {
-                    if(combobuf[TheMaps[(i*MAPSCRS)+j].ffdata[m]].type == cCHANGE)
-                        TheMaps[(i*MAPSCRS)+j].ffflags[m]|=ffCHANGER;
+                    if(combobuf[TheMaps[(i*MAPSCRS)+j].ffcs[m].data].type == cCHANGE)
+                        TheMaps[(i*MAPSCRS)+j].ffcs[m].flags|=ffCHANGER;
                 }
             }
         }
@@ -14190,6 +14162,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         set_bit(quest_rules, qr_CONTFULL_DEP, 0);
         set_bit(zinit.misc, idM_CONTPERCENT, 1);
         zinit.cont_heart=100;
+        zinit.start_heart=zinit.hc;
     }
     
     box_out("Done.");

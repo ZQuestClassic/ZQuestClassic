@@ -1,3 +1,6 @@
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 
 #include "precompiled.h" //always first
@@ -1961,12 +1964,15 @@ void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffS
     const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
     
-    if(!m || index >= TheMaps.size())
-    {
-        al_trace("DrawLayer: invalid map, layer, or screen index. \n");
+    if(!m) //no need to log it.
         return;
-    }
-    
+
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		return;
+	}
+
     const mapscr & l = *m;
     
     BITMAP* b = bmp;
@@ -2077,7 +2083,7 @@ void do_drawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOff
 // do primitives
 ////////////////////////////////////////////////////////
 
-void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoffset, int yoffset)
+void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
 {
     color_map = &trans_table2;
     
@@ -2100,6 +2106,8 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoffset, int yo
     
     for(int i(0); i < numDrawCommandsToProcess; ++i)
     {
+		int xoffset = 0;
+		int yoffset = 0;
         int *sdci = &script_drawing_commands[i][0];
         
         if(sdci[1] != type_mul_10000)
@@ -2110,13 +2118,16 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoffset, int yo
         
         if(!bmp)
         {
+			// draw to screen with subscreen offset
+			xoffset = xoff;
+			yoffset = yoff;
             bmp = targetBitmap;
         }
         else
         {
             //not drawing to screen, so no subscreen offset
-            xoffset = 0;
-            yoffset = 0;
+            //xoffset = 0;
+            //yoffset = 0;
             isTargetOffScreenBmp = true;
         }
         

@@ -8,11 +8,15 @@
 //  SPHINX C--, now rewritten in DJGPP with Allegro.
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 #include "precompiled.h" //always first
 
 #include <stdio.h>
 #include "zc_alleg.h"
+#include "zc_sys.h"
 #include "zdefs.h"
 #include "zelda.h"
 #include "items.h"

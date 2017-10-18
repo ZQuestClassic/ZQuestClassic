@@ -53,7 +53,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;..\..\include\jpgalleg-2.5;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include\pthread;..\..\include\zlib123;..\..\include\lpng1212;..\..\include\loadpng;..\..\include\jpgalleg-2.5;..\..\include\gme;..\..\include\dumb;..\..\include\alogg;..\..\include\almp3;..\..\allegro;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ZQUEST_SCALE_;PTW32_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -130,6 +130,7 @@
     <ClCompile Include="..\..\midi.cpp" />
     <ClCompile Include="..\..\particles.cpp" />
     <ClCompile Include="..\..\qst.cpp" />
+    <ClCompile Include="..\..\questReport.cpp" />
     <ClCompile Include="..\..\save_gif.cpp" />
     <ClCompile Include="..\..\sprite.cpp" />
     <ClCompile Include="..\..\Subscr.cpp" />
@@ -149,6 +150,7 @@
     <ClCompile Include="..\..\zq_misc.cpp" />
     <ClCompile Include="..\..\zq_rules.cpp" />
     <ClCompile Include="..\..\zq_sprite.cpp" />
+    <ClCompile Include="..\..\zq_strings.cpp" />
     <ClCompile Include="..\..\zq_subscr.cpp" />
     <ClCompile Include="..\..\zq_tiles.cpp" />
     <ClCompile Include="..\..\zqscale.cpp" />
@@ -212,6 +214,7 @@
     <ClInclude Include="..\..\pal.h" />
     <ClInclude Include="..\..\particles.h" />
     <ClInclude Include="..\..\qst.h" />
+    <ClInclude Include="..\..\questReport.h" />
     <ClInclude Include="..\..\resource.h" />
     <ClInclude Include="..\..\save_gif.h" />
     <ClInclude Include="..\..\sfx.h" />
@@ -239,6 +242,7 @@
     <ClInclude Include="..\..\zq_init.h" />
     <ClInclude Include="..\..\zq_misc.h" />
     <ClInclude Include="..\..\zq_rules.h" />
+    <ClInclude Include="..\..\zq_strings.h" />
     <ClInclude Include="..\..\zq_subscr.h" />
     <ClInclude Include="..\..\zq_tiles.h" />
     <ClInclude Include="..\..\zqscale.h" />

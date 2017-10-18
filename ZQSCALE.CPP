@@ -1,3 +1,6 @@
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 // ROUTINES TO SCALE WINDOWED ZQUEST BY AN INTEGER FACTOR
 // SHOULD WORK FOR ALL WINDOWED DRIVERS ON ANY SYSTEM
 //
@@ -6,6 +9,7 @@
 #include "precompiled.h" //always first
 
 #include "allegro.h"
+#include "zqscale.h"
 
 extern int zq_screen_w, zq_screen_h;
 extern void Z_message(char *format,...);
@@ -16,8 +20,6 @@ BITMAP *proxy_screen = NULL;
 GFX_VTABLE *orig_vtable = NULL;
 GFX_VTABLE *proxy_vtable = NULL;
 int zqwin_scale = 1;
-
-bool zqwin_set_scale(int scale, bool defer = false);
 
 void clip_and_stretch_blit(BITMAP *src, BITMAP *dest, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, bool masked=false)
 {

@@ -1,3 +1,6 @@
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
@@ -275,8 +278,8 @@ script_command command_list[NUMCOMMANDS+1]=
 script_variable variable_list[]=
 {
     //name                id                maxcount       multiple
-    { "D",                 D(0),                 8,             0 },
-    { "A",                 A(0),                 2,             0 },
+    { "D",                 REG_D(0),             8,             0 },
+    { "A",                 REG_A(0),             2,             0 },
     { "DATA",              DATA,                 0,             0 },
     { "CSET",              FCSET,                0,             0 },
     { "DELAY",             DELAY,                0,             0 },

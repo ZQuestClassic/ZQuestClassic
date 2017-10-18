@@ -7,6 +7,8 @@
 //  Tile editor stuff, etc., for ZQuest.
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -34,9 +36,14 @@
 #include "questReport.h"
 #include "mem_debug.h"
 
+#include "dialog/zquest/tileSelector.h"
+#include "gui/manager.h"
+
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif
+
+extern GUI::GUIManager* gui;
 
 extern void large_dialog(DIALOG *d);
 
@@ -7613,9 +7620,9 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
             
             for(int k=0; k<MAXFFCS; k++)
             {
-                if((TheMaps[i*MAPSCRS+j].ffdata[k] >= copy) && (TheMaps[i*MAPSCRS+j].ffdata[k] < copy+copycnt) && (TheMaps[i*MAPSCRS+j].ffdata[k] != 0))
+                if((TheMaps[i*MAPSCRS+j].ffcs[k].data >= copy) && (TheMaps[i*MAPSCRS+j].ffcs[k].data < copy+copycnt) && (TheMaps[i*MAPSCRS+j].ffcs[k].data != 0))
                 {
-                    TheMaps[i*MAPSCRS+j].ffdata[k] = TheMaps[i*MAPSCRS+j].ffdata[k]-copy+tile;
+                    TheMaps[i*MAPSCRS+j].ffcs[k].data = TheMaps[i*MAPSCRS+j].ffcs[k].data-copy+tile;
                 }
             }
         }
@@ -10914,12 +10921,22 @@ int d_ctile_proc(int msg,DIALOG *d,int c)
         int t=curr_combo.tile;
         int f=curr_combo.flip;
         
+        TileSelector ts(t, edit_combo_cset, f);
+        gui->showDialog(ts);
+        if(!ts.userCanceled())
+        {
+            curr_combo.tile=ts.getTile();
+            curr_combo.flip=ts.getOrientation();
+            return D_REDRAW;
+        }
+        /*
         if(select_tile(t,f,1,edit_combo_cset,true,0,true))
         {
             curr_combo.tile=t;
             curr_combo.flip=f;
             return D_REDRAW;
         }
+        */
     }
     
     return D_O_K;

@@ -44,6 +44,8 @@ char msgbuf[MSGSIZE*3];
 int bistringcat[256]; // A dropdown menu containing all strings which begin with '--', which serves as a quick shortcut to large string blocks.
 int bistringcat_cnt=-1;
 
+extern int zqwin_scale;
+
 // Dialogs
 
 static int editmsg_string_list[] =
@@ -162,7 +164,7 @@ static MENU strlist_rclick_menu[] =
     { NULL,                       NULL,  NULL, 0, NULL }
 };
 
-static int propCopySrc=-1;
+static int g_strPropCopySrc=-1;
 void strlist_rclick_func(int index, int x, int y)
 {
     // Don't do anything on (none) or <New String>
@@ -170,7 +172,7 @@ void strlist_rclick_func(int index, int x, int y)
         return;
     
     // Disable "Paste Properties" if the copy source is invalid
-    if(propCopySrc<=0 || propCopySrc>=msg_count)
+    if(g_strPropCopySrc<=0 || g_strPropCopySrc>=msg_count)
         strlist_rclick_menu[1].flags|=D_DISABLED;
     else
         strlist_rclick_menu[1].flags&=~D_DISABLED;
@@ -180,11 +182,11 @@ void strlist_rclick_func(int index, int x, int y)
     switch(ret)
     {
     case 0: // Copy properties
-        propCopySrc=msg_at_pos(index);
+        g_strPropCopySrc=msg_at_pos(index);
         break;
         
     case 1: // Paste properties
-        MsgStrings[msg_at_pos(index)].copyStyle(MsgStrings[propCopySrc]);
+        MsgStrings[msg_at_pos(index)].copyStyle(MsgStrings[g_strPropCopySrc]);
         break;
 
     case 2: // Set as template

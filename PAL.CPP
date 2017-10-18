@@ -7,6 +7,9 @@
 //  Palette code for ZC.
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 
 #include "precompiled.h" //always first
@@ -15,11 +18,13 @@
 #include "zdefs.h"
 #include "maps.h"
 #include "zelda.h"
+#include "zc_sys.h"
 #include "link.h"
 #include "colors.h"
 #include "zsys.h"
 #include "pal.h"
 #include "subscr.h"
+#include "sound.h"
 
 extern LinkClass Link;
 

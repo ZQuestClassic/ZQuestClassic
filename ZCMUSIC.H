@@ -5,8 +5,11 @@
 
 #ifndef _ZCMUSIC_H_
 #define _ZCMUSIC_H_
-#ifdef ZCM_DLL
+
+#if defined ZCM_DLL
 #define ZCM_EXTERN extern __declspec(dllexport)
+#elif defined ZCM_DLL_IMPORT
+#define ZCM_EXTERN extern __declspec(dllimport)
 #else
 #define ZCM_EXTERN extern
 #endif

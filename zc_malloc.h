@@ -4,6 +4,7 @@
 #ifndef _zc_malloc_h
 #define _zc_malloc_h
 
+#include <cstddef>
 #include <assert.h>
 
 // This should catch the following:

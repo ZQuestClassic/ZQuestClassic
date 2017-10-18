@@ -18,7 +18,7 @@
 #include "zquest.h"
 
 extern int bie_cnt;
-extern std::map<int, pair<std::string,std::string> > ffcmap;
+extern std::map<int, std::pair<std::string,std::string> > ffcmap;
 
 std::string quest_report_str;
 
@@ -934,7 +934,7 @@ void integrityCheckSaveCombo()
             for(int c=0; c< MAXFFCS; c++)
             {
                 // Checks both combos and secret combos.
-                if(integrityBoolSaveCombo(ts,combobuf[ts->ffdata[c]].type))
+                if(integrityBoolSaveCombo(ts,combobuf[ts->ffcs[c].data].type))
                     case_found = true;
             }
             
@@ -2118,9 +2118,9 @@ void scriptLocationReport()
             
             for(int i=0; i<32; i++)
             {
-                int script = ts->ffscript[i];
+                int script = ts->ffcs[i].script;
                 
-                if(!script || !ts->ffdata[i]) continue;
+                if(!script || !ts->ffcs[i].data) continue;
                 
                 tempnode=&(script_location_grid[script]);
                 
@@ -2138,7 +2138,7 @@ void scriptLocationReport()
                 newnode->pal=ts->color;
                 
                 for(int j=0; j<8; ++j)
-                    newnode->d[j] = ts->initd[i][j];
+                    newnode->d[j] = ts->ffcs[i].initd[j];
                     
                 newnode->next=NULL;
                 tempnode->next=newnode;
@@ -2256,7 +2256,7 @@ void ComboLocationReport()
                 }
                 else if(c<336)
                 {
-                    if(ts->ffdata[c-304] == Combo && Combo > 0) ffuses++;
+                    if(ts->ffcs[c-304].data == Combo && Combo > 0) ffuses++;
                 }
                 else if(ts->undercombo == Combo) undercombouses = true;
             }
@@ -2384,7 +2384,7 @@ void ComboTypeLocationReport()
                     }
                     else if(c<336)
                     {
-                        if(combobuf[ts->ffdata[c-304]].type == Type) ffuses++;
+                        if(combobuf[ts->ffcs[c-304].data].type == Type) ffuses++;
                     }
                     else if(combobuf[ts->undercombo].type == Type) undercombouses = true;
                 }

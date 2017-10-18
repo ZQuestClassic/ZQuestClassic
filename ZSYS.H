@@ -50,10 +50,6 @@ extern char zcheat[4][8];
 
 void resolve_password(char *pwd);
 
-bool decode_007(byte *buf, dword size, dword key, word check1, word check2, int method);
-void encode_007(byte *buf, dword size, dword key, word *check1, word *check2, int method);
-int encode_file_007(const char *srcfile, const char *destfile, int key, const char *header, int method);
-int decode_file_007(const char *srcfile, const char *destfile, const char *header, int method, bool packed, const char *password);
 void copy_file(const char *src, const char *dest);
 
 int  get_bit(byte *bitstr,int bit);

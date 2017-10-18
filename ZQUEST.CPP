@@ -7,6 +7,8 @@
 //  Main code for the quest editor.
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
 
 /*
   #define  INTERNAL_VERSION  0xA721
@@ -34,6 +36,7 @@ void setZScriptVersion(int) { } //bleh...
 #include <loadpng.h>
 #include <jpgalleg.h>
 
+#include "ffc.h"
 #include "gui.h"
 #include "load_gif.h"
 #include "save_gif.h"
@@ -112,15 +115,23 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 
 #include "zq_init.h"
 #include "zq_doors.h"
-#include "zq_rules.h"
 #include "zq_cset.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define stricmp _stricmp
 #define unlink _unlink
-
+#define snprintf _snprintf
 #endif
+
+#include "dialog/zquest/cheatEditor.h"
+#include "dialog/zquest/paletteViewer.h"
+#include "dialog/zquest/questRules.h"
+#include "dialog/zquest/zscriptMain.h"
+#include "gui/gtk/manager.h"
+GUI::GUIManager* gui;
+
+
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
@@ -146,12 +157,12 @@ bool show_sprites=true;
 bool show_hitboxes = false;
 
 // Used to find FFC script names
-extern std::map<int, pair<string,string> > ffcmap;
-vector<string> asffcscripts;
-extern std::map<int, pair<string,string> > globalmap;
-vector<string> asglobalscripts;
-extern std::map<int, pair<string, string> > itemmap;
-vector<string> asitemscripts;
+extern std::map<int, std::pair<std::string,std::string> > ffcmap;
+std::vector<std::string> asffcscripts;
+extern std::map<int, std::pair<std::string,std::string> > globalmap;
+std::vector<std::string> asglobalscripts;
+extern std::map<int, std::pair<std::string, std::string> > itemmap;
+std::vector<std::string> asitemscripts;
 
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
@@ -364,7 +375,7 @@ int fill_type=1;
 bool first_save=false;
 char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
 char *helpbuf;
-string helpstr;
+std::string helpstr;
 
 ZCMUSIC *zcmusic = NULL;
 int midi_volume = 255;
@@ -610,22 +621,10 @@ static MENU script_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-static MENU rules_menu[] =
-{
-    { (char *)"&Animation",                 onAnimationRules,          NULL,                     0,            NULL   },
-    { (char *)"&Combos",                    onComboRules,              NULL,                     0,            NULL   },
-    { (char *)"&Items",                     onItemRules,               NULL,                     0,            NULL   },
-    { (char *)"&Enemies",                   onEnemyRules,              NULL,                     0,            NULL   },
-    { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
-    { (char *)"&Other",                     onMiscRules,               NULL,                     0,            NULL   },
-    { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
-
 static MENU quest_menu[] =
 {
     { (char *)"&Header",                    onHeader,                  NULL,                     0,            NULL   },
-    { (char *)"&Rules\t ",                  NULL,                      rules_menu,               0,            NULL   },
+    { (char *)"&Rules",                     onQuestRules,              NULL,                     0,            NULL   },
     { (char *)"Ma&p Count",                 onMapCount,                NULL,                     0,            NULL   },
     { (char *)"Ch&eats",                    onCheats,                  NULL,                     0,            NULL   },
     { (char *)"&Items",                     onCustomItems,             NULL,                     0,            NULL   },
@@ -831,7 +830,7 @@ int onResetTransparency()
 {
     restore_mouse();
     rebuild_trans_table();
-    jwin_alert("Notice","Translucency Table Rebuilt",NULL,NULL,"OK",NULL,13,27,lfont);
+    gui->alert("Notice", "Translucency table rebuilt");
     
     refresh(rALL);
     return D_O_K;
@@ -1170,7 +1169,10 @@ bool layers_valid(mapscr *tempscr)
 
 void fix_layers(mapscr *tempscr, bool showwarning)
 {
-    char buf[80]="layers have been changed: ";
+    char buf[256]=
+      "One or more layers on this screen used "
+      "maps that do not exist. The settings of these"
+      "layers have been changed: ";
     
     for(int i=0; i<6; i++)
     {
@@ -1183,12 +1185,7 @@ void fix_layers(mapscr *tempscr, bool showwarning)
     }
     
     if(showwarning)
-    {
-        jwin_alert("Invalid layers detected",
-                   "One or more layers on this screen used",
-                   "maps that do not exist. The settings of these",
-                   buf, "O&K", NULL, 'o', 0, lfont);
-    }
+        gui->alert("Invalid layers detected", buf);
 }
 
 /***********************/
@@ -1519,7 +1516,10 @@ int onDrawingModeAlias()
 
 int onReTemplate()
 {
-    if(jwin_alert("Confirm Overwrite","Apply NES Dungeon template to","all screens on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
+    int ret=gui->alert("Confirm overwrite",
+      "Apply NES dungeon template to all screens on this map?",
+      "&Yes", "&No", 2);
+    if(ret==1)
     {
         Map.TemplateAll();
         refresh(rALL);
@@ -1535,25 +1535,11 @@ int onUndo()
     return D_O_K;
 }
 
-extern short ffposx[32];
-extern short ffposy[32];
-extern long ffprvx[32];
-extern long ffprvy[32];
-
 int onCopy()
 {
     if(prv_mode)
     {
         Map.set_prvcmb(Map.get_prvcmb()==0?1:0);
-        
-        for(int i=0; i<32; i++)
-        {
-            ffposx[i]=-1000;
-            ffposy[i]=-1000;
-            ffprvx[i]=-10000000;
-            ffprvy[i]=-10000000;
-        }
-        
         return D_O_K;
     }
     
@@ -1686,7 +1672,10 @@ int onDelete()
     
     if(Map.CurrScr()->valid&mVALID)
     {
-        if(jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+        int ret=gui->alert("Confirm Delete",
+          "Delete this screen?",
+          "&Yes", "&No", 2);
+        if(ret==1)
         {
             Map.Ugo();
             Map.clearscr(Map.getCurrScr());
@@ -1702,7 +1691,10 @@ int onDelete()
 
 int onDeleteMap()
 {
-    if(jwin_alert("Confirm Delete","Clear this entire map?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    int ret=gui->alert("Confirm delete",
+      "Clear this entire map?",
+      "&Yes", "&No", 2);
+    if(ret==1)
     {
         Map.clearmap(false);
         refresh(rALL);
@@ -1767,14 +1759,15 @@ int onDecMap()
 
 int onDefault_Pals()
 {
-    if(jwin_alert("Confirm Reset","Reset all palette data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    int ret=gui->alert("Confirm reset",
+      "Reset all palette data?",
+      "&Yes", "&No", 2);
+    if(ret==1)
     {
         saved=false;
         
         if(!init_colordata(true, &header, &misc))
-        {
-            jwin_alert("Error","Palette reset failed.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-        }
+            gui->alert("Error", "Palette reset failed.");
         
         refresh_pal();
     }
@@ -1784,14 +1777,15 @@ int onDefault_Pals()
 
 int onDefault_Combos()
 {
-    if(jwin_alert("Confirm Reset","Reset combo data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    int ret=gui->alert("Confirm reset",
+      "Reset combo data?",
+      "&Yes", "&No", 2);
+    if(ret==1)
     {
         saved=false;
         
         if(!init_combos(true, &header))
-        {
-            jwin_alert("Error","Combo reset failed.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-        }
+            gui->alert("Error", "Combo reset failed.");
         
         refresh(rALL);
     }
@@ -1801,7 +1795,10 @@ int onDefault_Combos()
 
 int onDefault_Items()
 {
-    if(jwin_alert("Confirm Reset","Reset all items?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    int ret=gui->alert("Confirm reset",
+      "Reset all items?",
+      "&Yes", "&No", 2);
+    if(ret==1)
     {
         saved=false;
         reset_items(true, &header);
@@ -1812,7 +1809,10 @@ int onDefault_Items()
 
 int onDefault_Weapons()
 {
-    if(jwin_alert("Confirm Reset","Reset weapon/misc. sprite data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    int ret=gui->alert("Confirm reset",
+      "Reset weapon/misc. sprite data?",
+      "&Yes", "&No", 2);
+    if(ret==1)
     {
         saved=false;
         reset_wpns(true, &header);
@@ -1823,7 +1823,10 @@ int onDefault_Weapons()
 
 int onDefault_Guys()
 {
-    if(jwin_alert("Confirm Reset","Reset all enemy/NPC data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    int ret=gui->alert("Confirm reset",
+      "Reset all enemy/NPC data?",
+      "&Yes", "&No", 2);
+    if(ret==1)
     {
         saved=false;
         reset_guys();
@@ -1835,14 +1838,15 @@ int onDefault_Guys()
 
 int onDefault_Tiles()
 {
-    if(jwin_alert("Confirm Reset","Reset all tiles?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    int ret=gui->alert("Confirm reset",
+      "Reset all tiles?",
+      "&Yes", "&No", 2);
+    if(ret==1)
     {
         saved=false;
         
         if(!init_tiles(true, &header))
-        {
-            jwin_alert("Error","Tile reset failed.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-        }
+            gui->alert("Error", "Tile reset failed.");
         
         refresh(rALL);
     }
@@ -1854,7 +1858,10 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2);
 
 int onDefault_SFX()
 {
-    if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    int ret=gui->alert("Confirm reset",
+      "Reset all sound effects?",
+      "&Yes", "&No", 2);
+    if(ret==1)
     {
         saved=false;
         SAMPLE *temp_sample;
@@ -1878,7 +1885,10 @@ int onDefault_SFX()
 
 int onDefault_MapStyles()
 {
-    if(jwin_alert("Confirm Reset","Reset all map styles?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    int ret=gui->alert("Confirm reset",
+      "Reset all map styles?",
+      "&Yes", "&No", 2);
+    if(ret==1)
     {
         saved=false;
         reset_mapstyles(true, &misc);
@@ -4675,9 +4685,9 @@ void refresh(int flags)
         int ypos = ShowFPS ? 28 : 18;
         
         for(int i=0; i< MAXFFCS; i++)
-            if(Map.CurrScr()->ffscript[i] && Map.CurrScr()->ffdata[i])
+            if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].data)
             {
-                textout_shadowed_ex(menu1,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffscript[i]-1].second.c_str(),2,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
+                textout_shadowed_ex(menu1,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffcs[i].script-1].second.c_str(),2,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
                 ypos+=16;
             }
     }
@@ -4916,7 +4926,7 @@ void refresh(int flags)
 //Fixme:
             int ctype =
                 combobuf[vbound(
-                             (c>=305 ? Map.CurrScr()->ffdata[c-305] :
+                             (c>=305 ? Map.CurrScr()->ffcs[c-305].data :
                               c>=304 ? Map.CurrScr()->undercombo :
                               c>=176 ? Map.CurrScr()->secretcombo[c-176] :
                               Map.CurrScr()->data.empty() ? 0 : // Sanity check: does room combo data exist?
@@ -6225,15 +6235,15 @@ finished:
 // Drag FFCs around
 void moveffc(int i, int cx, int cy)
 {
-    int ffx = int(Map.CurrScr()->ffx[i]/10000.0);
-    int ffy = int(Map.CurrScr()->ffy[i]/10000.0);
+    int ffx = int(Map.CurrScr()->ffcs[i].x/10000.0);
+    int ffy = int(Map.CurrScr()->ffcs[i].y/10000.0);
     showxypos_ffc = i;
-    doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,((1+(Map.CurrScr()->ffwidth[i]>>6))*16),((1+(Map.CurrScr()->ffheight[i]>>6))*16));
+    doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,((Map.CurrScr()->ffcs[i].getTileWidth())*16),((Map.CurrScr()->ffcs[i].getTileHeight())*16));
     
-    if((ffx != int(Map.CurrScr()->ffx[i]/10000.0)) || (ffy != int(Map.CurrScr()->ffy[i]/10000.0)))
+    if((ffx != int(Map.CurrScr()->ffcs[i].x/10000.0)) || (ffy != int(Map.CurrScr()->ffcs[i].y/10000.0)))
     {
-        Map.CurrScr()->ffx[i] = ffx*10000;
-        Map.CurrScr()->ffy[i] = ffy*10000;
+        Map.CurrScr()->ffcs[i].x = ffx*10000;
+        Map.CurrScr()->ffcs[i].y = ffy*10000;
         saved = false;
     }
 }
@@ -7073,14 +7083,14 @@ void domouse()
     if(isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1)))
     {
         for(int i=MAXFFCS-1; i>=0; i--)
-            if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
+            if(Map.CurrScr()->ffcs[i].data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
             {
-                int ffx = int(Map.CurrScr()->ffx[i]/10000.0);
-                int ffy = int(Map.CurrScr()->ffy[i]/10000.0);
+                int ffx = int(Map.CurrScr()->ffcs[i].x/10000.0);
+                int ffy = int(Map.CurrScr()->ffcs[i].y/10000.0);
                 int cx2 = (x-startxint)/mapscreensize;
                 int cy2 = (y-startyint)/mapscreensize;
                 
-                if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
+                if(cx2 >= ffx && cx2 < ffx+((Map.CurrScr()->ffcs[i].getTileWidth())*16) && cy2 >= ffy && cy2 < ffy+((Map.CurrScr()->ffcs[i].getTileHeight())*16))
                 {
                     // FFC tooltip
                     if(tooltip_current_ffc != i)
@@ -7091,9 +7101,9 @@ void domouse()
                     tooltip_current_ffc = i;
                     char msg[288];
                     sprintf(msg,"FFC: %d Combo: %d\nCSet: %d Type: %s\nScript: %s",
-                            i+1, Map.CurrScr()->ffdata[i],Map.CurrScr()->ffcset[i],
-                            combo_class_buf[combobuf[Map.CurrScr()->ffdata[i]].type].name,
-                            Map.CurrScr()->ffscript[i]<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffscript[i]-1].second.c_str());
+                            i+1, Map.CurrScr()->ffcs[i].data,Map.CurrScr()->ffcs[i].cset,
+                            combo_class_buf[combobuf[Map.CurrScr()->ffcs[i].data].type].name,
+                            Map.CurrScr()->ffcs[i].script<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffcs[i].script-1].second.c_str());
                     update_tooltip(x, y, startxint, startyint, int(256*mapscreensize),int(176*mapscreensize), msg);
                     break;
                 }
@@ -7245,12 +7255,12 @@ void domouse()
             
             // Move FFCs
             for(int i=MAXFFCS-1; i>=0; i--)
-                if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
+                if(Map.CurrScr()->ffcs[i].data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
                 {
-                    int ffx = int(Map.CurrScr()->ffx[i]/10000.0);
-                    int ffy = int(Map.CurrScr()->ffy[i]/10000.0);
+                    int ffx = int(Map.CurrScr()->ffcs[i].x/10000.0);
+                    int ffy = int(Map.CurrScr()->ffcs[i].y/10000.0);
                     
-                    if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
+                    if(cx2 >= ffx && cx2 < ffx+((Map.CurrScr()->ffcs[i].getTileWidth())*16) && cy2 >= ffy && cy2 < ffy+((Map.CurrScr()->ffcs[i].getTileHeight())*16))
                     {
                         moveffc(i,cx2,cy2);
                         break;
@@ -7349,9 +7359,12 @@ void domouse()
             if(isinRect(x,y,panel[8].x+16+(32*2),panel[8].y+14,panel[8].x+16+(32*2)+15,panel[8].y+14+15))
             {
                 if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-                    jwin_alert("Obsolete Square","The arrival square is obsolete if you use the recommended",
-                               "quest rule, 'Use Warp Return Points Only' It is included",
-                               "only for backwards-compatibility purposes.","O&K",NULL,'k',0,lfont);
+                {
+                    gui->alert("Obsolete square",
+                      "The arrival square is ignored if the quest rule "
+                      "\"Use Warp Return Points Only\" is enabled. It is included "
+                      "only for backwards-compatibility purposes.");
+                }
                                
                 doxypos(Map.CurrScr()->warparrivalx,Map.CurrScr()->warparrivaly,10,0xF8);
             }
@@ -7781,20 +7794,20 @@ void domouse()
             // This loop also serves to find the free ffc with the smallest slot number.
             for(int i=MAXFFCS-1; i>=0; i--)
             {
-                if(Map.CurrScr()->ffdata[i]==0 && i < earliestfreeffc)
+                if(Map.CurrScr()->ffcs[i].data==0 && i < earliestfreeffc)
                     earliestfreeffc = i;
                     
                 if(clickedffc || !(Map.CurrScr()->valid&mVALID))
                     continue;
                     
-                if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
+                if(Map.CurrScr()->ffcs[i].data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
                 {
-                    int ffx = int(Map.CurrScr()->ffx[i]/10000.0);
-                    int ffy = int(Map.CurrScr()->ffy[i]/10000.0);
+                    int ffx = int(Map.CurrScr()->ffcs[i].x/10000.0);
+                    int ffy = int(Map.CurrScr()->ffcs[i].y/10000.0);
                     int cx2 = (x-startxint)/mapscreensize;
                     int cy2 = (y-startyint)/mapscreensize;
                     
-                    if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
+                    if(cx2 >= ffx && cx2 < ffx+((Map.CurrScr()->ffcs[i].getTileWidth())*16) && cy2 >= ffy && cy2 < ffy+((Map.CurrScr()->ffcs[i].getTileHeight())*16))
                     {
                         draw_ffc_rc_menu[1].flags = (Map.getCopyFFC()>-1) ? 0 : D_DISABLED;
                         
@@ -7823,16 +7836,13 @@ void domouse()
                         case 3:
                             if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
                             {
-                                Map.CurrScr()->ffdata[i] = Map.CurrScr()->ffcset[i] = Map.CurrScr()->ffx[i] = Map.CurrScr()->ffy[i] = Map.CurrScr()->ffxdelta[i] =
-                                                               Map.CurrScr()->ffydelta[i] = Map.CurrScr()->ffxdelta2[i] = Map.CurrScr()->ffydelta2[i] = Map.CurrScr()->ffflags[i] = Map.CurrScr()->ffscript[i] =
-                                                                       Map.CurrScr()->fflink[i] = Map.CurrScr()->ffdelay[i] = 0;
-                                Map.CurrScr()->ffwidth[i] = Map.CurrScr()->ffheight[i] = 15;
+                                Map.CurrScr()->ffcs[i].clear();
                                 
                                 for(int j=0; j<8; j++)
-                                    Map.CurrScr()->initd[i][j] = 0;
+                                    Map.CurrScr()->ffcs[i].initd[j] = 0;
                                     
                                 for(int j=0; j<2; j++)
-                                    Map.CurrScr()->inita[i][j] = 10000;
+                                    Map.CurrScr()->ffcs[i].inita[j] = 10000;
                                     
                                 saved = false;
                             }
@@ -8003,18 +8013,18 @@ void domouse()
                 
                 case 13:
                 {
-                    Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
-                    Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
-                    Map.CurrScr()->ffdata[earliestfreeffc] = Combo;
-                    Map.CurrScr()->ffcset[earliestfreeffc] = CSet;
+                    Map.CurrScr()->ffcs[earliestfreeffc].x = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
+                    Map.CurrScr()->ffcs[earliestfreeffc].y = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
+                    Map.CurrScr()->ffcs[earliestfreeffc].data = Combo;
+                    Map.CurrScr()->ffcs[earliestfreeffc].cset = CSet;
                     onEditFFCombo(earliestfreeffc);
                 }
                 break;
                 
                 case 14:
                 {
-                    Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
-                    Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
+                    Map.CurrScr()->ffcs[earliestfreeffc].x = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
+                    Map.CurrScr()->ffcs[earliestfreeffc].y = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
                     Map.PasteOneFFC(earliestfreeffc);
                 }
                 break;
@@ -8311,36 +8321,10 @@ void domouse()
     }
 }
 
-static DIALOG showpal_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     24,   68,   272,  119,   vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "View Palette", NULL, NULL },
-    { jwin_frame_proc,   30,   76+16,   260,  68,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_bitmap_proc,     32,   76+18,   256,  64,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     130,  144+18,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 int onShowPal()
 {
-    float palscale = is_large ? 1.5 : 1;
-    
-    BITMAP *palbmp = create_bitmap_ex(8,(int)(256*palscale),(int)(64*palscale));
-    
-    if(!palbmp)
-        return D_O_K;
-        
-    showpal_dlg[0].dp2=lfont;
-    
-    for(int i=0; i<256; i++)
-        rectfill(palbmp,(int)(((i&31)<<3)*palscale),(int)(((i&0xE0)>>2)*palscale), (int)((((i&31)<<3)+7)*palscale),(int)((((i&0xE0)>>2)+7)*palscale),i);
-    showpal_dlg[2].dp=(void *)palbmp;
-    
-    if(is_large)
-        large_dialog(showpal_dlg);
-    zc_popup_dialog(showpal_dlg,2);
-    destroy_bitmap(palbmp);
+    PaletteViewer pv;
+    gui->showDialog(pv);
     return D_O_K;
 }
 
@@ -10886,6 +10870,13 @@ int onMapCount()
     return D_O_K;
 }
 
+int onQuestRules()
+{
+    QuestRulesEditor qre;
+    gui->showDialog(qre);
+    return D_O_K;
+}
+
 int onGotoMap()
 {
     int ret = select_data("Goto Map",Map.getCurrMap(),gotomaplist,lfont);
@@ -13002,11 +12993,26 @@ int onDmaps()
         
     ret=zc_popup_dialog(selectdmap_dlg,2);
     
+	dmap* pSelectedDmap = 0;
+
     while(ret!=4&&ret!=0)
     {
         int d=selectdmap_dlg[2].d1;
         
-        if(ret==5)
+		if( key[KEY_C] ) //copy
+		{
+			pSelectedDmap = &DMaps[d];
+		}
+		else if( key[KEY_V] && pSelectedDmap != 0 ) //paste
+		{
+			dmap* srcDmap = &DMaps[d];
+			if( pSelectedDmap != srcDmap )
+			{
+				::memcpy(pSelectedDmap, &DMaps[d], sizeof(dmap));
+				saved=false;
+			}
+		}
+        else if(ret==5)
         {
             sprintf(buf,"Delete DMap %d?",d);
             
@@ -16728,52 +16734,10 @@ int onHeader()
     return D_O_K;
 }
 
-
-static ZCHEATS tmpcheats;
-
-
-static DIALOG cheats_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,      32,   44,   256,  142,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Cheat Codes", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    // 2
-    { jwin_button_proc,     90,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,       0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    // 5
-    { jwin_check_proc,      104,  72,   0,    9,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enable Cheats", NULL, NULL },
-    { jwin_text_proc,       40,   72,   0,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Lvl  Code", NULL, NULL },
-    { jwin_text_proc,       48,   90,   8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "1", NULL, NULL },
-    { jwin_text_proc,       48,   108,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "2", NULL, NULL },
-    { jwin_text_proc,       48,   126,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "3", NULL, NULL },
-    { jwin_text_proc,       48,   144,  8,    8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "4", NULL, NULL },
-    // 11
-    { jwin_edit_proc,       61,   86,   210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[0], NULL, NULL },
-    { jwin_edit_proc,       61,   104,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[1], NULL, NULL },
-    { jwin_edit_proc,       61,   122,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[2], NULL, NULL },
-    { jwin_edit_proc,       61,   140,  210,  16,    vc(12),  vc(1),  0,       0,          40,            0,       tmpcheats.codes[3], NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 int onCheats()
 {
-    cheats_dlg[0].dp2=lfont;
-    tmpcheats = zcheats;
-    cheats_dlg[5].flags = zcheats.flags ? D_SELECTED : 0;
-    
-    if(is_large)
-        large_dialog(cheats_dlg);
-        
-    int ret = zc_popup_dialog(cheats_dlg, 3);
-    
-    if(ret == 2)
-    {
-        saved = false;
-        zcheats = tmpcheats;
-        zcheats.flags = (cheats_dlg[5].flags & D_SELECTED) ? 1 : 0;
-    }
-    
+    CheatEditor ce;
+    gui->showDialog(ce);
     return D_O_K;
 }
 
@@ -18157,7 +18121,7 @@ int d_ffcombolist_proc(int msg,DIALOG *d,int c)
         if(buf)
         {
             clear_bitmap(buf);
-            putcombo(buf,0,0,Map.CurrScr()->ffdata[d1],Map.CurrScr()->ffcset[d1]);
+            putcombo(buf,0,0,Map.CurrScr()->ffcs[d1].data,Map.CurrScr()->ffcs[d1].cset);
             stretch_blit(buf, ffcur, 0,0, 16, 16, 0, 0, ffcur->w, ffcur->h);
             destroy_bitmap(buf);
         }
@@ -18171,46 +18135,46 @@ int d_ffcombolist_proc(int msg,DIALOG *d,int c)
         rectfill(screen,xd,y2,x+196*int(is_large?1.5:1),y+127*int(is_large?1.5:1),jwin_pal[jcBOX]);
         
         textprintf_ex(screen,tempfont,xd,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo #:");
-        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffdata[d1]);
+        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].data);
         
         textprintf_ex(screen,tempfont,xd,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet #:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcset[d1]);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].cset);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Pos:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffx[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].x/10000.0);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Pos:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffy[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].y/10000.0);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Speed:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffxdelta[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].xVel/10000.0);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Speed:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffydelta[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].yVel/10000.0);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Accel:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffxdelta2[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].xAccel/10000.0);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Accel:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffydelta2[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].yAccel/10000.0);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Linked To:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->fflink[d1]);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].link);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Move Delay:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffdelay[d1]);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].delay);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo W:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffwidth[d1]&63)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffcs[d1].width&63)+1);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo H:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffheight[d1]&63)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffcs[d1].height&63)+1);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile W:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffwidth[d1]>>6)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].getTileWidth());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile H:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffheight[d1]>>6)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].getTileHeight());
         
         break;
     }
@@ -18225,7 +18189,7 @@ int onSelectFFCombo()
     
     if(!ffcur) return D_O_K;
     
-    putcombo(ffcur,0,0,Map.CurrScr()->ffdata[ff_combo],Map.CurrScr()->ffcset[ff_combo]);
+    putcombo(ffcur,0,0,Map.CurrScr()->ffcs[ff_combo].data,Map.CurrScr()->ffcs[ff_combo].cset);
     ffcombo_sel_dlg[5].dp = ffcur;
     
     if(is_large)
@@ -18381,21 +18345,21 @@ static DIALOG ffcombo_dlg[] =
 };
 
 
-char *strip_decimals(char *string)
+char *strip_decimals(char *str)
 {
-    int len=(int)strlen(string);
+    int len=(int)strlen(str);
     char *src=(char *)zc_malloc(len+1);
     char *tmpsrc=src;
-    memcpy(src,string,len+1);
+    memcpy(src,str,len+1);
     memset(src,0,len+1);
     
-    for(unsigned int i=0; string[i]&&i<=strlen(string); i++)
+    for(unsigned int i=0; str[i]&&i<=strlen(str); i++)
     {
-        *tmpsrc=string[i];
+        *tmpsrc=str[i];
         
         if(*tmpsrc=='.')
         {
-            while(string[i+1]=='.'&&i<=strlen(string))
+            while(str[i+1]=='.'&&i<=strlen(str))
             {
                 i++;
             }
@@ -18404,26 +18368,26 @@ char *strip_decimals(char *string)
         tmpsrc++;
     }
     
-    memcpy(string,src,len);
+    memcpy(str,src,len);
     zc_free(src);
-    return string;
+    return str;
 }
 
 // Unused??? -L 6/6/11
-char *clean_numeric_string(char *string)
+char *clean_numeric_string(char *str)
 {
     bool found_sign=false;
     bool found_decimal=false;
-    int len=(int)strlen(string);
+    int len=(int)strlen(str);
     char *src=(char *)zc_malloc(len+1);
     char *tmpsrc=src;
-    memcpy(src,string,len+1);
+    memcpy(src,str,len+1);
     memset(src,0,len+1);
     
     // strip out non-numerical characters
-    for(unsigned int i=0; string[i]&&i<=strlen(string); i++)
+    for(unsigned int i=0; str[i]&&i<=strlen(str); i++)
     {
-        *tmpsrc=string[i];
+        *tmpsrc=str[i];
         
         if(*tmpsrc!='.'&&*tmpsrc!='-'&&*tmpsrc!='+'&&!isdigit(*tmpsrc))
         {
@@ -18476,10 +18440,10 @@ char *clean_numeric_string(char *string)
         tmpsrc++;
     }
     
-    sprintf(string, "%s", src2);
+    sprintf(str, "%s", src2);
     zc_free(src);
     zc_free(src2);
-    return string;
+    return str;
 }
 
 script_struct biffs[NUMSCRIPTFFC]; //ff script
@@ -18803,38 +18767,6 @@ static DIALOG assignscript_dlg[] =
     
 };
 
-//editbox_data zscript_edit_data;
-
-static DIALOG edit_zscript_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Edit ZScript", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-12,  240-6-25,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,        NULL, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void doEditZScript(int bg,int fg)
-{
-    string old = zScript;
-    EditboxModel *em = new EditboxModel(zScript, new EditboxScriptView(&edit_zscript_dlg[2],(is_large?sfont3:sfont2),fg,bg,BasicEditboxView::HSTYLE_EOTEXT), false, (char *)"zscript.txt");
-    edit_zscript_dlg[0].dp2= lfont;
-    edit_zscript_dlg[2].dp = em;
-    edit_zscript_dlg[2].bg = bg;
-    
-    zc_popup_dialog(edit_zscript_dlg,2);
-    
-    if(jwin_alert("ZScript Buffer","Save changes to buffer?",NULL,NULL,"Yes","No",'y','n',lfont)==2)
-        zScript = old;
-    else
-        saved=false;
-        
-    delete em;
-}
-
 static ListData ffscript_sel_dlg_list(ffscriptlist2, &font);
 
 static DIALOG ffscript_sel_dlg[] =
@@ -18880,417 +18812,330 @@ static DIALOG gscript_sel_dlg[] =
 
 int onCompileScript()
 {
-    compile_dlg[0].dp2 = lfont;
-    
-    if(is_large)
-        large_dialog(compile_dlg);
+    ZScriptMainDialog dlg(*gui);
+    gui->showDialog(dlg);
+    return D_O_K;
+}
+
+void compileZScript()
+{
+    FILE *tempfile = fopen("tmp","w");
+
+    if(!tempfile)
+    {
+        jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+        return;
+    }
+
+    fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
+    fclose(tempfile);
+    box_start(1, "Compile Progress", lfont, sfont,true);
+    gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
+    ScriptsData *result = compile("tmp");
+    unlink("tmp");
+    box_end(true);
+    refresh(rALL);
+
+    if(result == NULL)
+    {
+        jwin_alert("Error","There were compile errors.","Compilation halted.",NULL,"O&K",NULL,'k',0,lfont);
+        return;
+    }
+
+    std::map<std::string, int> stypes = result->scriptTypes;
+    std::map<std::string, std::vector<Opcode *> > scripts = result->theScripts;
+    delete result;
+    asffcscripts.clear();
+    asffcscripts.push_back("<none>");
+    asglobalscripts.clear();
+    asglobalscripts.push_back("<none>");
+    asitemscripts.clear();
+    asitemscripts.push_back("<none>");
+
+    for(std::map<std::string, int>::iterator it = stypes.begin(); it != stypes.end(); it++)
+    {
+        switch(it->second)
+        {
+        case ScriptParser::TYPE_FFC:
+        {
+            asffcscripts.push_back(it->first);
+            break;
+        }
         
+        case ScriptParser::TYPE_GLOBAL:
+        {
+            if(it->first != "~Init") //Don't allow assigning the allocate memory script, bad things could happen
+                asglobalscripts.push_back(it->first);
+                
+            break;
+        }
+        
+        case ScriptParser::TYPE_ITEMCLASS: //Technically they're now itemclass scripts
+        {
+            asitemscripts.push_back(it->first);
+            break;
+        }
+        }
+    }
+
+    assignscript_dlg[0].dp2 = lfont;
+    assignscript_dlg[4].d1 = -1;
+    assignscript_dlg[5].d1 = -1;
+    assignscript_dlg[7].d1 = -1;
+    assignscript_dlg[8].d1 = -1;
+    assignscript_dlg[10].d1 = -1;
+    assignscript_dlg[11].d1 = -1;
+    assignscript_dlg[13].flags = 0;
+
+    //assign scripts to slots
     for(;;) //while(true)
     {
-        sprintf(zScriptBytes, "%d Bytes in Buffer", (int)(zScript.size()));
-        int ret = zc_popup_dialog(compile_dlg,5);
+        char temp[100];
         
-        switch(ret)
+        for(int i = 0; i < NUMSCRIPTFFC-1; i++)
+        {
+            sprintf(temp, "Slot %d: %s", i+1,(ffcmap[i].second == "" ? "<none>" : ffcmap[i].second.c_str()));
+            ffcmap[i].first = temp;
+        }
+        
+        for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
+        {
+            globalmap[i].first = gscriptlist2(i, NULL); //nicked this function from the ASM list
+        }
+        
+        for(int i = 0; i < NUMSCRIPTITEM-1; i++)
+        {
+            sprintf(temp, "Slot %d: %s", i+1, (itemmap[i].second == "" ? "<none>" : itemmap[i].second.c_str()));
+            itemmap[i].first = temp;
+        }
+        
+        if(is_large)
+            large_dialog(assignscript_dlg);
+            
+        int ret2 = zc_popup_dialog(assignscript_dlg,3);
+        
+        switch(ret2)
         {
         case 0:
-        case 1:
-            //Cancel
-            return D_O_K;
-            
         case 2:
-            //Edit
-            doEditZScript(vc(15),vc(0));
-            break;
+            //Cancel
+            return;
             
         case 3:
         {
-            //Load from File
-            if(zScript.size() > 0)
+        
+            //OK
+            bool output = (assignscript_dlg[13].flags == D_SELECTED);
+            
+            for(std::map<int, std::pair<std::string,std::string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
             {
-                if(jwin_alert("Confirm Overwrite","Loading will erase the current buffer.","Proceed anyway?",NULL,"Yes","No",'y','n',lfont)==2)
-                    break;
+                if(it->second.second != "")
+                {
+                    tempfile = fopen("tmp","w");
                     
-                zScript.clear();
+                    if(!tempfile)
+                    {
+                        jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                        return;
+                    }
+                    
+                    if(output)
+                    {
+                        al_trace("\n");
+                        al_trace("%s",it->second.second.c_str());
+                        al_trace("\n");
+                    }
+                    
+                    for(std::vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                    {
+                        std::string theline = (*line)->printLine();
+                        fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                        
+                        if(output)
+                        {
+                            al_trace("%s",theline.c_str());
+                        }
+                    }
+                    
+                    fclose(tempfile);
+                    parse_script_file(&ffscripts[it->first+1],"tmp",false);
+                }
+                else if(ffscripts[it->first+1])
+                {
+                    delete[] ffscripts[it->first+1];
+                    ffscripts[it->first+1] = new ffscript[1];
+                    ffscripts[it->first+1][0].command = 0xFFFF;
+                }
             }
             
-            if(!getname("Load ZScript (.z)","z",NULL,datapath,false))
-                break;
-                
-            FILE *zscript = fopen(temppath,"r");
-            
-            if(zscript == NULL)
+            for(std::map<int, std::pair<std::string,std::string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
             {
-                jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
+                if(it->second.second != "")
+                {
+                    tempfile = fopen("tmp","w");
+                    
+                    if(!tempfile)
+                    {
+                        jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                        return;
+                    }
+                    
+                    if(output)
+                    {
+                        al_trace("\n");
+                        al_trace("%s",it->second.second.c_str());
+                        al_trace("\n");
+                    }
+                    
+                    for(std::vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                    {
+                        std::string theline = (*line)->printLine();
+                        fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                        
+                        if(output)
+                        {
+                            al_trace("%s",theline.c_str());
+                        }
+                    }
+                    
+                    fclose(tempfile);
+                    parse_script_file(&globalscripts[it->first],"tmp",false);
+                }
+                else if(globalscripts[it->first])
+                {
+                    delete[] globalscripts[it->first];
+                    globalscripts[it->first] = new ffscript[1];
+                    globalscripts[it->first][0].command = 0xFFFF;
+                }
             }
             
-            char c = fgetc(zscript);
-            
-            while(!feof(zscript))
+            for(std::map<int, std::pair<std::string,std::string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
             {
-                zScript += c;
-                c = fgetc(zscript);
+                if(it->second.second != "")
+                {
+                    tempfile = fopen("tmp","w");
+                    
+                    if(!tempfile)
+                    {
+                        jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                        return;
+                    }
+                    
+                    if(output)
+                    {
+                        al_trace("\n");
+                        al_trace("%s",it->second.second.c_str());
+                        al_trace("\n");
+                    }
+                    
+                    for(std::vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                    {
+                        std::string theline = (*line)->printLine();
+                        fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                        
+                        if(output)
+                        {
+                            al_trace("%s",theline.c_str());
+                        }
+                    }
+                    
+                    fclose(tempfile);
+                    parse_script_file(&itemscripts[it->first+1],"tmp",false);
+                }
+                else if(itemscripts[it->first+1])
+                {
+                    delete[] itemscripts[it->first+1];
+                    itemscripts[it->first+1] = new ffscript[1];
+                    itemscripts[it->first+1][0].command = 0xFFFF;
+                }
             }
             
-            fclose(zscript);
-            saved = false;
-            break;
+            unlink("tmp");
+            jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
+            build_biffs_list();
+            build_biitems_list();
+            
+            for(map<std::string, std::vector<Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
+            {
+                for(std::vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+                {
+                    delete *it2;
+                }
+            }
+            
+            return;
         }
         
         case 6:
-            //Export
+            //<<, FFC
         {
-            if(!getname("Save ZScript (.z)", "z", NULL,datapath,false))
+            int lind = assignscript_dlg[4].d1;
+            int rind = assignscript_dlg[5].d1;
+            
+            if(lind < 0 || rind < 0)
                 break;
                 
-            if(exists(temppath))
+            if(asffcscripts[rind] == "<none>")
             {
-                if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',lfont)==2)
-                    break;
+                ffcmap[lind].second = "";
+            }
+            else
+            {
+                ffcmap[lind].second = asffcscripts[rind];
             }
             
-            FILE *zscript = fopen(temppath,"w");
-            
-            if(!zscript)
-            {
-                jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                break;
-            }
-            
-            int written = (int)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
-            
-            if(written != (int)zScript.size())
-                jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                
-            fclose(zscript);
             break;
         }
         
-        case 5:
-            //Compile!
-            FILE *tempfile = fopen("tmp","w");
+        case 9:
+            //<<, Global
+        {
+            int lind = assignscript_dlg[7].d1;
+            int rind = assignscript_dlg[8].d1;
             
-            if(!tempfile)
+            if(lind < 0 || rind < 0)
+                break;
+                
+            if(lind == 0)
             {
-                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                return D_O_K;
-            }
-            
-            fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
-            fclose(tempfile);
-            box_start(1, "Compile Progress", lfont, sfont,true);
-            gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
-            ScriptsData *result = compile("tmp");
-            unlink("tmp");
-            box_end(true);
-            refresh(rALL);
-            
-            if(result == NULL)
-            {
-                jwin_alert("Error","There were compile errors.","Compilation halted.",NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert("Error","ZScript reserves this slot.",NULL,NULL,"O&K",NULL,'k',0,lfont);
                 break;
             }
             
-            std::map<string, int> stypes = result->scriptTypes;
-            std::map<string, vector<Opcode *> > scripts = result->theScripts;
-            delete result;
-            asffcscripts.clear();
-            asffcscripts.push_back("<none>");
-            asglobalscripts.clear();
-            asglobalscripts.push_back("<none>");
-            asitemscripts.clear();
-            asitemscripts.push_back("<none>");
-            
-            for(std::map<string, int>::iterator it = stypes.begin(); it != stypes.end(); it++)
+            if(asglobalscripts[rind] == "<none>")
             {
-                switch(it->second)
-                {
-                case ScriptParser::TYPE_FFC:
-                {
-                    asffcscripts.push_back(it->first);
-                    break;
-                }
-                
-                case ScriptParser::TYPE_GLOBAL:
-                {
-                    if(it->first != "~Init") //Don't allow assigning the allocate memory script, bad things could happen
-                        asglobalscripts.push_back(it->first);
-                        
-                    break;
-                }
-                
-                case ScriptParser::TYPE_ITEMCLASS: //Technically they're now itemclass scripts
-                {
-                    asitemscripts.push_back(it->first);
-                    break;
-                }
-                }
+                globalmap[lind].second = "";
             }
-            
-            assignscript_dlg[0].dp2 = lfont;
-            assignscript_dlg[4].d1 = -1;
-            assignscript_dlg[5].d1 = -1;
-            assignscript_dlg[7].d1 = -1;
-            assignscript_dlg[8].d1 = -1;
-            assignscript_dlg[10].d1 = -1;
-            assignscript_dlg[11].d1 = -1;
-            assignscript_dlg[13].flags = 0;
-            
-            //assign scripts to slots
-            for(;;) //while(true)
+            else
             {
-                char temp[100];
-                
-                for(int i = 0; i < NUMSCRIPTFFC-1; i++)
-                {
-                    sprintf(temp, "Slot %d: %s", i+1,(ffcmap[i].second == "" ? "<none>" : ffcmap[i].second.c_str()));
-                    ffcmap[i].first = temp;
-                }
-                
-                for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
-                {
-                    globalmap[i].first = gscriptlist2(i, NULL); //nicked this function from the ASM list
-                }
-                
-                for(int i = 0; i < NUMSCRIPTITEM-1; i++)
-                {
-                    sprintf(temp, "Slot %d: %s", i+1, (itemmap[i].second == "" ? "<none>" : itemmap[i].second.c_str()));
-                    itemmap[i].first = temp;
-                }
-                
-                if(is_large)
-                    large_dialog(assignscript_dlg);
-                    
-                int ret2 = zc_popup_dialog(assignscript_dlg,3);
-                
-                switch(ret2)
-                {
-                case 0:
-                case 2:
-                    //Cancel
-                    return D_O_K;
-                    
-                case 3:
-                {
-                
-                    //OK
-                    bool output = (assignscript_dlg[13].flags == D_SELECTED);
-                    
-                    for(std::map<int, pair<string,string> >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
-                    {
-                        if(it->second.second != "")
-                        {
-                            tempfile = fopen("tmp","w");
-                            
-                            if(!tempfile)
-                            {
-                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                                return D_O_K;
-                            }
-                            
-                            if(output)
-                            {
-                                al_trace("\n");
-                                al_trace("%s",it->second.second.c_str());
-                                al_trace("\n");
-                            }
-                            
-                            for(vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
-                            {
-                                string theline = (*line)->printLine();
-                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-                                
-                                if(output)
-                                {
-                                    al_trace("%s",theline.c_str());
-                                }
-                            }
-                            
-                            fclose(tempfile);
-                            parse_script_file(&ffscripts[it->first+1],"tmp",false);
-                        }
-                        else if(ffscripts[it->first+1])
-                        {
-                            delete[] ffscripts[it->first+1];
-                            ffscripts[it->first+1] = new ffscript[1];
-                            ffscripts[it->first+1][0].command = 0xFFFF;
-                        }
-                    }
-                    
-                    for(std::map<int, pair<string,string> >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
-                    {
-                        if(it->second.second != "")
-                        {
-                            tempfile = fopen("tmp","w");
-                            
-                            if(!tempfile)
-                            {
-                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                                return D_O_K;
-                            }
-                            
-                            if(output)
-                            {
-                                al_trace("\n");
-                                al_trace("%s",it->second.second.c_str());
-                                al_trace("\n");
-                            }
-                            
-                            for(vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
-                            {
-                                string theline = (*line)->printLine();
-                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-                                
-                                if(output)
-                                {
-                                    al_trace("%s",theline.c_str());
-                                }
-                            }
-                            
-                            fclose(tempfile);
-                            parse_script_file(&globalscripts[it->first],"tmp",false);
-                        }
-                        else if(globalscripts[it->first])
-                        {
-                            delete[] globalscripts[it->first];
-                            globalscripts[it->first] = new ffscript[1];
-                            globalscripts[it->first][0].command = 0xFFFF;
-                        }
-                    }
-                    
-                    for(std::map<int, pair<string,string> >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
-                    {
-                        if(it->second.second != "")
-                        {
-                            tempfile = fopen("tmp","w");
-                            
-                            if(!tempfile)
-                            {
-                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                                return D_O_K;
-                            }
-                            
-                            if(output)
-                            {
-                                al_trace("\n");
-                                al_trace("%s",it->second.second.c_str());
-                                al_trace("\n");
-                            }
-                            
-                            for(vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
-                            {
-                                string theline = (*line)->printLine();
-                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-                                
-                                if(output)
-                                {
-                                    al_trace("%s",theline.c_str());
-                                }
-                            }
-                            
-                            fclose(tempfile);
-                            parse_script_file(&itemscripts[it->first+1],"tmp",false);
-                        }
-                        else if(itemscripts[it->first+1])
-                        {
-                            delete[] itemscripts[it->first+1];
-                            itemscripts[it->first+1] = new ffscript[1];
-                            itemscripts[it->first+1][0].command = 0xFFFF;
-                        }
-                    }
-                    
-                    unlink("tmp");
-                    jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                    build_biffs_list();
-                    build_biitems_list();
-                    
-                    for(map<string, vector<Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
-                    {
-                        for(vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
-                        {
-                            delete *it2;
-                        }
-                    }
-                    
-                    return D_O_K;
-                }
-                
-                case 6:
-                    //<<, FFC
-                {
-                    int lind = assignscript_dlg[4].d1;
-                    int rind = assignscript_dlg[5].d1;
-                    
-                    if(lind < 0 || rind < 0)
-                        break;
-                        
-                    if(asffcscripts[rind] == "<none>")
-                    {
-                        ffcmap[lind].second = "";
-                    }
-                    else
-                    {
-                        ffcmap[lind].second = asffcscripts[rind];
-                    }
-                    
-                    break;
-                }
-                
-                case 9:
-                    //<<, Global
-                {
-                    int lind = assignscript_dlg[7].d1;
-                    int rind = assignscript_dlg[8].d1;
-                    
-                    if(lind < 0 || rind < 0)
-                        break;
-                        
-                    if(lind == 0)
-                    {
-                        jwin_alert("Error","ZScript reserves this slot.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                        break;
-                    }
-                    
-                    if(asglobalscripts[rind] == "<none>")
-                    {
-                        globalmap[lind].second = "";
-                    }
-                    else
-                    {
-                        globalmap[lind].second = asglobalscripts[rind];
-                    }
-                    
-                    break;
-                }
-                
-                case 12:
-                    //<<, ITEM
-                {
-                    int lind = assignscript_dlg[10].d1;
-                    int rind = assignscript_dlg[11].d1;
-                    
-                    if(lind < 0 || rind < 0)
-                        break;
-                        
-                    if(asitemscripts[rind] == "<none>")
-                    {
-                        itemmap[lind].second = "";
-                    }
-                    else
-                    {
-                        itemmap[lind].second = asitemscripts[rind];
-                    }
-                    
-                    break;
-                }
-                }
+                globalmap[lind].second = asglobalscripts[rind];
             }
             
             break;
         }
+        
+        case 12:
+            //<<, ITEM
+        {
+            int lind = assignscript_dlg[10].d1;
+            int rind = assignscript_dlg[11].d1;
+            
+            if(lind < 0 || rind < 0)
+                break;
+                
+            if(asitemscripts[rind] == "<none>")
+            {
+                itemmap[lind].second = "";
+            }
+            else
+            {
+                itemmap[lind].second = asitemscripts[rind];
+            }
+            
+            break;
+        }
+        }
     }
-    
-// return D_O_K;//unreachable
 }
 
 int onImportFFScript()
@@ -19383,29 +19228,29 @@ int onEditFFCombo(int ffcombo)
     char xystring[8][10];
     char wstring[4][10];
     char dastring[10][13];
-    sprintf(xystring[0],"%.4f",Map.CurrScr()->ffx[ffcombo]/10000.0);
-    sprintf(xystring[1],"%.4f",Map.CurrScr()->ffy[ffcombo]/10000.0);
-    sprintf(xystring[2],"%.4f",Map.CurrScr()->ffxdelta[ffcombo]/10000.0);
-    sprintf(xystring[3],"%.4f",Map.CurrScr()->ffydelta[ffcombo]/10000.0);
-    sprintf(xystring[4],"%.4f",Map.CurrScr()->ffxdelta2[ffcombo]/10000.0);
-    sprintf(xystring[5],"%.4f",Map.CurrScr()->ffydelta2[ffcombo]/10000.0);
-    sprintf(xystring[6],"%d",Map.CurrScr()->ffdelay[ffcombo]);
+    sprintf(xystring[0],"%.4f",Map.CurrScr()->ffcs[ffcombo].x/10000.0);
+    sprintf(xystring[1],"%.4f",Map.CurrScr()->ffcs[ffcombo].y/10000.0);
+    sprintf(xystring[2],"%.4f",Map.CurrScr()->ffcs[ffcombo].xVel/10000.0);
+    sprintf(xystring[3],"%.4f",Map.CurrScr()->ffcs[ffcombo].yVel/10000.0);
+    sprintf(xystring[4],"%.4f",Map.CurrScr()->ffcs[ffcombo].xAccel/10000.0);
+    sprintf(xystring[5],"%.4f",Map.CurrScr()->ffcs[ffcombo].yAccel/10000.0);
+    sprintf(xystring[6],"%d",Map.CurrScr()->ffcs[ffcombo].delay);
     
-    sprintf(wstring[0],"%d",(Map.CurrScr()->ffwidth[ffcombo]&63)+1);
-    sprintf(wstring[1],"%d",(Map.CurrScr()->ffheight[ffcombo]&63)+1);
-    sprintf(wstring[2],"%d",(Map.CurrScr()->ffwidth[ffcombo]>>6)+1);
-    sprintf(wstring[3],"%d",(Map.CurrScr()->ffheight[ffcombo]>>6)+1);
+    sprintf(wstring[0],"%d",(Map.CurrScr()->ffcs[ffcombo].width&63)+1);
+    sprintf(wstring[1],"%d",(Map.CurrScr()->ffcs[ffcombo].height&63)+1);
+    sprintf(wstring[2],"%d",Map.CurrScr()->ffcs[ffcombo].getTileWidth());
+    sprintf(wstring[3],"%d",Map.CurrScr()->ffcs[ffcombo].getTileHeight());
     
-    sprintf(dastring[0],"%.4f",Map.CurrScr()->initd[ffcombo][0]/10000.0);
-    sprintf(dastring[1],"%.4f",Map.CurrScr()->initd[ffcombo][1]/10000.0);
-    sprintf(dastring[2],"%.4f",Map.CurrScr()->initd[ffcombo][2]/10000.0);
-    sprintf(dastring[3],"%.4f",Map.CurrScr()->initd[ffcombo][3]/10000.0);
-    sprintf(dastring[4],"%.4f",Map.CurrScr()->initd[ffcombo][4]/10000.0);
-    sprintf(dastring[5],"%.4f",Map.CurrScr()->initd[ffcombo][5]/10000.0);
-    sprintf(dastring[6],"%.4f",Map.CurrScr()->initd[ffcombo][6]/10000.0);
-    sprintf(dastring[7],"%.4f",Map.CurrScr()->initd[ffcombo][7]/10000.0);
-    sprintf(dastring[8],"%ld",Map.CurrScr()->inita[ffcombo][0]/10000);
-    sprintf(dastring[9],"%ld",Map.CurrScr()->inita[ffcombo][1]/10000);
+    sprintf(dastring[0],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[0]/10000.0);
+    sprintf(dastring[1],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[1]/10000.0);
+    sprintf(dastring[2],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[2]/10000.0);
+    sprintf(dastring[3],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[3]/10000.0);
+    sprintf(dastring[4],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[4]/10000.0);
+    sprintf(dastring[5],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[5]/10000.0);
+    sprintf(dastring[6],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[6]/10000.0);
+    sprintf(dastring[7],"%.4f",Map.CurrScr()->ffcs[ffcombo].initd[7]/10000.0);
+    sprintf(dastring[8],"%ld",Map.CurrScr()->ffcs[ffcombo].inita[0]/10000);
+    sprintf(dastring[9],"%ld",Map.CurrScr()->ffcs[ffcombo].inita[1]/10000);
     
     char wtitle[80];
     sprintf(wtitle,"Edit Freeform Combo (#%d)", ffcombo+1);
@@ -19413,10 +19258,10 @@ int onEditFFCombo(int ffcombo)
     ffcombo_dlg[0].dp = wtitle;
     ffcombo_dlg[4].dp2 = spfont;
     
-    ffcombo_dlg[6].d1 = Map.CurrScr()->ffdata[ffcombo];
-    ffcombo_dlg[6].fg = Map.CurrScr()->ffcset[ffcombo];
+    ffcombo_dlg[6].d1 = Map.CurrScr()->ffcs[ffcombo].data;
+    ffcombo_dlg[6].fg = Map.CurrScr()->ffcs[ffcombo].cset;
     
-    ffcombo_dlg[15].d1 = Map.CurrScr()->fflink[ffcombo];
+    ffcombo_dlg[15].d1 = Map.CurrScr()->ffcs[ffcombo].link;
     ffcombo_dlg[16].dp = xystring[0];
     ffcombo_dlg[17].dp = xystring[1];
     ffcombo_dlg[18].dp = xystring[2];
@@ -19446,7 +19291,7 @@ int onEditFFCombo(int ffcombo)
     
     for(int j = 0; j < biffs_cnt; j++)
     {
-        if(biffs[j].second == Map.CurrScr()->ffscript[ffcombo] - 1)
+        if(biffs[j].second == Map.CurrScr()->ffcs[ffcombo].script - 1)
         {
             index = j;
         }
@@ -19454,7 +19299,7 @@ int onEditFFCombo(int ffcombo)
     
     ffcombo_dlg[55].d1 = index;
     
-    int f=Map.CurrScr()->ffflags[ffcombo];
+    int f=Map.CurrScr()->ffcs[ffcombo].flags;
     ffcombo_dlg[33].flags = (f&ffOVERLAY) ? D_SELECTED : 0;
     ffcombo_dlg[34].flags = (f&ffTRANS) ? D_SELECTED : 0;
     ffcombo_dlg[35].flags = (f&ffCARRYOVER) ? D_SELECTED : 0;
@@ -19491,36 +19336,36 @@ int onEditFFCombo(int ffcombo)
     if(ret==2)
     {
         saved=false;
-        Map.CurrScr()->ffdata[ffcombo] = ffcombo_dlg[6].d1;
-        Map.CurrScr()->ffcset[ffcombo] = ffcombo_dlg[6].fg;
-        Map.CurrScr()->fflink[ffcombo] = ffcombo_dlg[15].d1;
-        Map.CurrScr()->ffx[ffcombo] = vbound(ffparse(xystring[0]),-320000, 2880000);
-        Map.CurrScr()->ffy[ffcombo] = vbound(ffparse(xystring[1]),-320000, 2080000);
-        Map.CurrScr()->ffxdelta[ffcombo] = vbound(ffparse(xystring[2]),-1280000, 1280000);
-        Map.CurrScr()->ffydelta[ffcombo] = vbound(ffparse(xystring[3]),-1280000, 1280000);
-        Map.CurrScr()->ffxdelta2[ffcombo] = vbound(ffparse(xystring[4]),-1280000, 1280000);
-        Map.CurrScr()->ffydelta2[ffcombo] = vbound(ffparse(xystring[5]),-1280000, 1280000);
-        Map.CurrScr()->ffdelay[ffcombo] = atoi(xystring[6])<10000?zc_max(0,atoi(xystring[6])):9999;
-        Map.CurrScr()->ffscript[ffcombo] = biffs[ffcombo_dlg[55].d1].second + 1;
+        Map.CurrScr()->ffcs[ffcombo].data = ffcombo_dlg[6].d1;
+        Map.CurrScr()->ffcs[ffcombo].cset = ffcombo_dlg[6].fg;
+        Map.CurrScr()->ffcs[ffcombo].link = ffcombo_dlg[15].d1;
+        Map.CurrScr()->ffcs[ffcombo].x = vbound(ffparse(xystring[0]),-320000, 2880000);
+        Map.CurrScr()->ffcs[ffcombo].y = vbound(ffparse(xystring[1]),-320000, 2080000);
+        Map.CurrScr()->ffcs[ffcombo].xVel= vbound(ffparse(xystring[2]),-1280000, 1280000);
+        Map.CurrScr()->ffcs[ffcombo].yVel = vbound(ffparse(xystring[3]),-1280000, 1280000);
+        Map.CurrScr()->ffcs[ffcombo].xAccel = vbound(ffparse(xystring[4]),-1280000, 1280000);
+        Map.CurrScr()->ffcs[ffcombo].yAccel = vbound(ffparse(xystring[5]),-1280000, 1280000);
+        Map.CurrScr()->ffcs[ffcombo].delay = atoi(xystring[6])<10000?zc_max(0,atoi(xystring[6])):9999;
+        Map.CurrScr()->ffcs[ffcombo].script = biffs[ffcombo_dlg[55].d1].second + 1;
         
         int cw = atoi(wstring[0])<65?zc_max(1,atoi(wstring[0])):64;
         int ch = atoi(wstring[1])<65?zc_max(1,atoi(wstring[1])):64;
         int tw = atoi(wstring[2])<5?zc_max(1,atoi(wstring[2])):4;
         int th = atoi(wstring[3])<5?zc_max(1,atoi(wstring[3])):4;
-        Map.CurrScr()->ffwidth[ffcombo] = (cw-1)+((tw-1)<<6);
-        Map.CurrScr()->ffheight[ffcombo] = (ch-1)+((th-1)<<6);
+        Map.CurrScr()->ffcs[ffcombo].width = (cw-1)+((tw-1)<<6);
+        Map.CurrScr()->ffcs[ffcombo].height = (ch-1)+((th-1)<<6);
         
-        Map.CurrScr()->initd[ffcombo][0] = vbound(ffparse(dastring[0]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][1] = vbound(ffparse(dastring[1]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][2] = vbound(ffparse(dastring[2]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][3] = vbound(ffparse(dastring[3]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][4] = vbound(ffparse(dastring[4]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][5] = vbound(ffparse(dastring[5]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][6] = vbound(ffparse(dastring[6]),-2147483647, 2147483647);
-        Map.CurrScr()->initd[ffcombo][7] = vbound(ffparse(dastring[7]),-2147483647, 2147483647);
+        Map.CurrScr()->ffcs[ffcombo].initd[0] = vbound(ffparse(dastring[0]),-2147483647, 2147483647);
+        Map.CurrScr()->ffcs[ffcombo].initd[1] = vbound(ffparse(dastring[1]),-2147483647, 2147483647);
+        Map.CurrScr()->ffcs[ffcombo].initd[2] = vbound(ffparse(dastring[2]),-2147483647, 2147483647);
+        Map.CurrScr()->ffcs[ffcombo].initd[3] = vbound(ffparse(dastring[3]),-2147483647, 2147483647);
+        Map.CurrScr()->ffcs[ffcombo].initd[4] = vbound(ffparse(dastring[4]),-2147483647, 2147483647);
+        Map.CurrScr()->ffcs[ffcombo].initd[5] = vbound(ffparse(dastring[5]),-2147483647, 2147483647);
+        Map.CurrScr()->ffcs[ffcombo].initd[6] = vbound(ffparse(dastring[6]),-2147483647, 2147483647);
+        Map.CurrScr()->ffcs[ffcombo].initd[7] = vbound(ffparse(dastring[7]),-2147483647, 2147483647);
         
-        Map.CurrScr()->inita[ffcombo][0] = vbound(atoi(dastring[8])*10000,0,320000);
-        Map.CurrScr()->inita[ffcombo][1] = vbound(atoi(dastring[9])*10000,0,320000);
+        Map.CurrScr()->ffcs[ffcombo].inita[0] = vbound(atoi(dastring[8])*10000,0,320000);
+        Map.CurrScr()->ffcs[ffcombo].inita[1] = vbound(atoi(dastring[9])*10000,0,320000);
         
         f=0;
         f |= (ffcombo_dlg[33].flags&D_SELECTED) ? ffOVERLAY : 0;
@@ -19539,15 +19384,15 @@ int onEditFFCombo(int ffcombo)
         f |= (ffcombo_dlg[51].flags&D_SELECTED) ? ffCHANGENEXT : 0;
         f |= (ffcombo_dlg[52].flags&D_SELECTED) ? ffCHANGEPREV : 0;
         f |= (ffcombo_dlg[53].flags&D_SELECTED) ? ffCHANGETHIS : 0;
-        Map.CurrScr()->ffflags[ffcombo] = f;
+        Map.CurrScr()->ffcs[ffcombo].flags = f;
         
-        if(Map.CurrScr()->ffdata[ffcombo]!=0)
+        if(Map.CurrScr()->ffcs[ffcombo].data!=0)
         {
-            Map.CurrScr()->numff|=(1<<ffcombo);
+            Map.CurrScr()->ffcsUsed|=(1<<ffcombo);
         }
         else
         {
-            Map.CurrScr()->numff&=~(1<<ffcombo);
+            Map.CurrScr()->ffcsUsed&=~(1<<ffcombo);
         }
     }
     
@@ -21130,6 +20975,8 @@ sprite_list Sitems, Lwpns;
 
 int main(int argc,char **argv)
 {
+    gui=new GUI::GtkGUIManager();
+    
     switch(IS_BETA)
     {
     case -1:
@@ -21777,13 +21624,6 @@ int main(int argc,char **argv)
         help_dlg[1].h=600-27;
         help_dlg[2].w=800-8-4;
         help_dlg[2].h=600-27-4;
-        
-        edit_zscript_dlg[0].w=800;
-        edit_zscript_dlg[0].h=600;
-        edit_zscript_dlg[1].w=800-8;
-        edit_zscript_dlg[1].h=600-27;
-        edit_zscript_dlg[2].w=800-8-4;
-        edit_zscript_dlg[2].h=600-27-4;
         
         editmsg_help_dlg[0].w=800;
         editmsg_help_dlg[0].h=600;
@@ -22475,7 +22315,11 @@ int main(int argc,char **argv)
     
     if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
     {
-        if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',lfont)==1)
+        int ret=gui->alert("ZQuest",
+          "It appears that ZQuest crashed last time. "
+          "Would you like to load the last timed save?",
+          "&Yes", "&No", 1);
+        if(ret==1)
         {
             int ret = load_quest(last_timed_save,true,true);
             
@@ -22486,9 +22330,7 @@ int main(int argc,char **argv)
                 saved=false;
             }
             else
-            {
-                jwin_alert("Error","Unable to reload the last timed save.",NULL,NULL,"OK",NULL,13,27,lfont);
-            }
+                gui->alert("Error", "Unable to reload the last timed save.");
         }
     }
     
@@ -22735,7 +22577,6 @@ int main(int argc,char **argv)
     
     
     quit_game();
-    
     if(ForceExit) //last resort fix to the allegro process hanging bug.
         exit(0);
         
@@ -22967,13 +22808,14 @@ void quit_game()
     destroy_bitmaps_on_exit();
     __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debugging for it defined.
     
+    delete gui;
+    
 }
 
 void center_zquest_dialogs()
 {
     jwin_center_dialog(assignscript_dlg);
     jwin_center_dialog(autolayer_dlg);
-    jwin_center_dialog(cheats_dlg);
     jwin_center_dialog(clist_dlg);
     jwin_center_dialog(cpage_dlg);
     center_zq_cset_dialogs();
@@ -23014,7 +22856,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(password_dlg);
     jwin_center_dialog(pattern_dlg);
     jwin_center_dialog(rlist_dlg);
-    center_zq_rules_dialog();
     jwin_center_dialog(scrdata_dlg);
     jwin_center_dialog(screen_pal_dlg);
     jwin_center_dialog(secret_dlg);
@@ -23023,7 +22864,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(selectmusic_dlg);
     jwin_center_dialog(sfxlist_dlg);
     jwin_center_dialog(sfx_edit_dlg);
-    jwin_center_dialog(showpal_dlg);
     jwin_center_dialog(strlist_dlg);
     jwin_center_dialog(subscreen_type_dlg);
     jwin_center_dialog(template_dlg);
@@ -23130,56 +22970,6 @@ int d_nbmenu_proc(int msg,DIALOG *d,int c)
     rest(4);
     ret = jwin_menu_proc(msg,d,c);
     
-    /*
-        static int counter=0;
-        // Copy allegro_screen to sdl_screen
-    
-        if ( SDL_LockSurface(sdl_screen) == 0 )
-        {
-          al_trace("Locking SDL surface! (%d)\n", counter);
-    //      Uint32 black;
-          Uint8 *pixels;
-    
-    //      black = SDL_MapRGB(sdl_screen->format, 0, 0, 0);
-          pixels = (Uint8 *)sdl_screen->pixels;
-          for ( int y=0; y<sdl_screen->h; ++y )
-          {
-    //        memset(pixels, black, sdl_screen->w*sdl_screen->format->BytesPerPixel);
-            memcpy(pixels, screen->line[y], sdl_screen->w*sdl_screen->format->BytesPerPixel);
-            pixels += sdl_screen->pitch;
-          }
-          SDL_UnlockSurface(sdl_screen);
-          SDL_UpdateRect(sdl_screen, 0, 0, 0, 0);
-        }
-        else
-        {
-          al_trace("Unable to lock SDL surface! (%d)\n", counter);
-        }
-    
-        ++counter;
-        // Create a display surface with a grayscale palette
-        SDL_Color colors[256];
-        PALETTE tp;
-        get_palette(tp);
-        int i;
-        // Fill colors with color information
-        for(i=0;i<256;i++){
-          colors[i].r=tp[i].r;
-          colors[i].g=tp[i].g;
-          colors[i].b=tp[i].b;
-        }
-    
-        // Set palette
-        SDL_SetColors(sdl_screen, colors, 0, 256);
-    */
-    //if(zqwin_scale > 1)
-    {
-        //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-    }
-    //else
-    {
-        //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-    }
     return ret;
 }
 
@@ -23548,6 +23338,11 @@ bool is_zquest()
     return true;
 }
 
+bool screenIsScrolling()
+{
+    return false;
+}
+
 int save_config_file()
 {
     char cmdnametitle[20];
@@ -23788,6 +23583,12 @@ int onCmdExit()
     return 0;
 }
 
+int disabledCommand()
+{
+    gui->alert("Command deleted", "This command has been deleted.");
+    return D_O_K;
+}
+
 //remember to adjust this number in zquest.h if it changes here!
 //P.S: Must be listed in the same order as the enum in zquest.h. No exceptions! -L
 command_pair commands[cmdMAX]=
@@ -23813,7 +23614,7 @@ command_pair commands[cmdMAX]=
     { "Dungeon Carving Mode",               0, (intF) onDrawingModeDungeon                             },
     { "End String",                         0, (intF) onEndString                                      },
     { "Enemy Editor",                       0, (intF) onCustomEnemies                                  },
-    { "Default Enemies",				  0, (intF) onDefault_Guys                                   },
+    { "Default Enemies",                    0, (intF) onDefault_Guys                                   },
     { "Set Enemies",                        0, (intF) onEnemies                                        },
     { "Paste Enemies",                      0, (intF) onPasteEnemies                                   },
     { "Enhanced Music ",                    0, (intF) onEnhancedMusic                                  },
@@ -23891,7 +23692,7 @@ command_pair commands[cmdMAX]=
     { "Revert",                             0, (intF) onRevert                                         },
     { "Room Type",                          0, (intF) onRType                                          },
     { "Paste Room Type Data",               0, (intF) onPasteRoom                                      },
-    { "Rules - Animation",                  0, (intF) onAnimationRules                                 },
+    { "DELETED",                            0, (intF) disabledCommand                                  },
     { "Save",                               0, (intF) onSave                                           },
     { "Save as",                            0, (intF) onSaveAs                                         },
     { "Paste Screen Data",                  0, (intF) onPasteScreenData                                },
@@ -23931,15 +23732,15 @@ command_pair commands[cmdMAX]=
     { "Toggle Flags",                       0, (intF) onShowFlags                                      },
     { "Toggle CSets",                       0, (intF) onShowCSet                                       },
     { "Toggle Types",                       0, (intF) onShowCType                                      },
-    { "Rules - Combos",                     0, (intF) onComboRules                                     },
-    { "Rules - Items",                      0, (intF) onItemRules                                      },
-    { "Rules - Enemies",                    0, (intF) onEnemyRules                                     },
-    { "Rules - NES Fixes",                  0, (intF) onFixesRules                                     },
-    { "Rules - Other",                      0, (intF) onMiscRules                                      },
-    { "Item Drop Set Editor",               0, (intF) onItemDropSets                                   },
+    { "DELETED",                            0, (intF) disabledCommand                                  },
+    { "DELETED",                            0, (intF) disabledCommand                                  },
+    { "DELETED",                            0, (intF) disabledCommand                                  },
+    { "DELETED",                            0, (intF) disabledCommand                                  },
+    { "DELETED",                            0, (intF) disabledCommand                                  },
+    { "DELETED",                            0, (intF) disabledCommand                                  },
     { "Default Items",                      0, (intF) onDefault_Items                                  },
     { "Paste Palette",                      0, (intF) onPastePalette                                   },
-    { "Rules - Compatibility",              0, (intF) onCompatRules                                    }
+    { "DELETED",                            0, (intF) disabledCommand                                  }
 };
 
 /********************************/

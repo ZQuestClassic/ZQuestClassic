@@ -7,11 +7,15 @@
 //  Subscreen code for zelda.cc
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 #include "precompiled.h" //always first
 
 #include "subscr.h"
 #include "zelda.h"
+#include "zc_sys.h"
 #include "tiles.h"
 #include "zsys.h"
 #include "guys.h"
@@ -20,7 +24,6 @@
 #include "items.h"
 #include <stdio.h>
 #include <string.h>
-#include "gc.h"
 
 bool show_subscreen_dmap_dots=true;
 bool show_subscreen_numbers=true;
@@ -2939,14 +2942,14 @@ void update_subscr_items()
         if(Bwpn > 0)
         {
             Bitem = new item((fix)0, (fix)0, (fix)0, Bwpn&0x0FFF, 0, 0);
-            Bitem->dummy_bool[0]=false;
+            Bitem->alsoHaveBow=false;
             
             switch(itemsbuf[Bwpn&0x0FFF].family)
             {
             case itype_arrow:
                 if((Bwpn&0xF000)==0xF000)
                 {
-                    Bitem->dummy_bool[0]=true;
+                    Bitem->alsoHaveBow=true;
                 }
                 
                 break;
@@ -2981,7 +2984,7 @@ void update_subscr_items()
             case itype_arrow:
                 if((Awpn&0xF000)==0xF000)
                 {
-                    Aitem->dummy_bool[0]=true;
+                    Aitem->alsoHaveBow=true;
                 }
                 
                 break;
@@ -3626,7 +3629,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                 switch(itemsbuf[itemid].family)
                 {
                 case itype_arrow:
-                    if(Bitem->dummy_bool[0]==true)  //if we also have a bow
+                    if(Bitem->alsoHaveBow)
                     {
                         if(current_item_id(itype_bow))
                         {
@@ -3814,7 +3817,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
             switch(itemsbuf[Aitem->id].family)
             {
             case itype_arrow:
-                if(Aitem->dummy_bool[0]==true)
+                if(Aitem->alsoHaveBow)
                 {
                     if(current_item_id(itype_bow)>-1)
                     {
@@ -3846,7 +3849,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
             switch(itemsbuf[Bitem->id].family)
             {
             case itype_arrow:
-                if(Bitem->dummy_bool[0]==true)
+                if(Bitem->alsoHaveBow)
                 {
                     if(current_item_id(itype_bow)>-1)
                     {

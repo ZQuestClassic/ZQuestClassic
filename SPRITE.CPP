@@ -11,6 +11,9 @@
 //   - item:        items class
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -18,8 +21,9 @@
 
 #include "precompiled.h" //always first
 
-#include "zdefs.h"
 #include "sprite.h"
+#include "entityPtr.h"
+#include "zdefs.h"
 #include "tiles.h"
 
 extern bool get_debug();
@@ -33,7 +37,9 @@ extern void debugging_box(int x1, int y1, int x2, int y2);
 /******* Sprite Base Class ********/
 /**********************************/
 
-sprite::sprite()
+sprite::sprite():
+    toBeDeleted(false),
+    ref(new EntityRef())
 {
     uid = getNextUID();
     x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=zofs=hxofs=hyofs=fall=0;
@@ -59,14 +65,6 @@ sprite::sprite()
     lasthit=0;
     angle=0;
     misc=0;
-    
-    for(int i=0; i<10; i++)
-    {
-        dummy_int[i]=0;
-        dummy_fix[i]=0;
-        dummy_float[i]=0;
-        dummy_bool[i]=0;
-    }
     
     /*for(int i=0;i<8;i++)
     {
@@ -115,7 +113,9 @@ sprite::sprite(sprite const & other):
     lasthit(other.lasthit),
     lasthitclk(other.lasthitclk),
     drawstyle(other.drawstyle),
-    extend(other.extend)
+    extend(other.extend),
+    toBeDeleted(false),
+    ref(new EntityRef())
     //scriptData(other.scriptData),
 /*ffcref(other.ffcref),
 itemref(other.itemref),
@@ -133,14 +133,6 @@ ewpnclass(other.ewpnclass)*/
 {
     uid = getNextUID();
     
-    for(int i=0; i<10; ++i)
-    {
-        dummy_int[i]=other.dummy_int[i];
-        dummy_fix[i]=other.dummy_fix[i];
-        dummy_float[i]=other.dummy_float[i];
-        dummy_bool[i]=other.dummy_bool[i];
-    }
-    
     /*for (int i=0; i<8; ++i)
     {
       d[i]=other.d[i];
@@ -155,7 +147,9 @@ ewpnclass(other.ewpnclass)*/
 }
 
 sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
-    x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs)
+    x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs),
+    toBeDeleted(false),
+    ref(new EntityRef())
 {
     uid = getNextUID();
     hxsz=hysz=16;
@@ -202,6 +196,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
 
 sprite::~sprite()
 {
+    ref->onEntityDelete();
 }
 
 long sprite::getNextUID()
@@ -729,7 +724,7 @@ bool sprite_list::swap(int a,int b)
     if(a<0 || a>=count || b<0 || b>=count)
         return false;
         
-    sprite *c = sprites[a];
+    sprite* c=sprites[a];
     sprites[a] = sprites[b];
     sprites[b] = c;
     containedUIDs[sprites[a]->getUID()] = a;
@@ -749,6 +744,26 @@ bool sprite_list::add(sprite *s)
     containedUIDs[s->getUID()] = count;
     sprites[count++]=s;
     //checkConsistency();
+    return true;
+}
+
+bool sprite_list::addAtFront(sprite *s)
+{
+    if(count>=SLMAX)
+    {
+        delete s;
+        return false;
+    }
+    
+    for(int i=count-1; i>=0; i--)
+    {
+        containedUIDs[sprites[i]->getUID()]=i+1;
+        sprites[i+1]=sprites[i];
+    }
+    
+    containedUIDs[s->getUID()]=0;
+    sprites[0]=s;
+    count++;
     return true;
 }
 
@@ -927,6 +942,12 @@ void sprite_list::animate()
     
     while(i<count)
     {
+        if(sprites[i]->isMarkedForDeletion())
+        {
+            del(i);
+            continue;
+        }
+        
         if(!(freeze_guys && sprites[i]->canfreeze))
         {
             if(sprites[i]->animate(i))

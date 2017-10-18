@@ -7,6 +7,8 @@
 //  Main code for the quest editor.
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -29,6 +31,9 @@
 #include "zq_tiles.h"
 #include "zq_misc.h"
 #include "zq_cset.h"
+
+#define edc  208 //246
+#define edi  209 //247
 
 extern int d_dummy_proc(int msg,DIALOG *d,int c);
 extern int d_dropdmaplist_proc(int msg,DIALOG *d,int c);

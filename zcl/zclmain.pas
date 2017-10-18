@@ -377,11 +377,11 @@ begin
     else
     begin
       zqwinmode.Text := 'Window';
+      scaletext.Visible := True;
+      scalemode.Visible := True;
 
       if agcfg.ReadString('zquest', 'small', '') = '1' then
       begin
-        scaletext.Visible := True;
-        scalemode.Visible := True;
         if agcfg.ReadString('zquest', 'scale', '') = '1' then
         begin
           scalemode.Text := '1x';
@@ -395,6 +395,25 @@ begin
           scalemode.Text := '3x';
         end;
         if agcfg.ReadString('zquest', 'scale', '') = '4' then
+        begin
+          scalemode.Text := '4x';
+        end;
+      end
+      else
+      begin
+        if agcfg.ReadString('zquest', 'scale_large', '') = '1' then
+        begin
+          scalemode.Text := '1x';
+        end;
+        if agcfg.ReadString('zquest', 'scale_large', '') = '2' then
+        begin
+          scalemode.Text := '2x';
+        end;
+        if agcfg.ReadString('zquest', 'scale_large', '') = '3' then
+        begin
+          scalemode.Text := '3x';
+        end;
+        if agcfg.ReadString('zquest', 'scale_large', '') = '4' then
         begin
           scalemode.Text := '4x';
         end;
@@ -1166,23 +1185,44 @@ end;
 
 procedure TForm1.scalemodeChange(Sender: TObject);
 begin
-  if scalemode.Text = '1x' then
+  if agcfg.ReadString('zquest', 'small', '') = '1' then
   begin
-    agcfg.writeString('zquest', 'scale', '1');
-  end;
-  if scalemode.Text = '2x' then
+    if scalemode.Text = '1x' then
+    begin
+      agcfg.writeString('zquest', 'scale', '1');
+    end;
+    if scalemode.Text = '2x' then
+    begin
+      agcfg.writeString('zquest', 'scale', '2');
+    end;
+    if scalemode.Text = '3x' then
+    begin
+      agcfg.writeString('zquest', 'scale', '3');
+    end;
+    if scalemode.Text = '4x' then
+    begin
+      agcfg.writeString('zquest', 'scale', '4');
+    end;
+  end
+  else
   begin
-    agcfg.writeString('zquest', 'scale', '2');
+    if scalemode.Text = '1x' then
+    begin
+      agcfg.writeString('zquest', 'scale_large', '1');
+    end;
+    if scalemode.Text = '2x' then
+    begin
+      agcfg.writeString('zquest', 'scale_large', '2');
+    end;
+    if scalemode.Text = '3x' then
+    begin
+      agcfg.writeString('zquest', 'scale_large', '3');
+    end;
+    if scalemode.Text = '4x' then
+    begin
+      agcfg.writeString('zquest', 'scale_large', '4');
+    end;
   end;
-  if scalemode.Text = '3x' then
-  begin
-    agcfg.writeString('zquest', 'scale', '3');
-  end;
-  if scalemode.Text = '4x' then
-  begin
-    agcfg.writeString('zquest', 'scale', '4');
-  end;
-
 end;
 
 procedure TForm1.uncompChange(Sender: TObject);
@@ -1490,21 +1530,86 @@ end;
 
 procedure TForm1.zinterfaceChange(Sender: TObject);
 begin
+  if agcfg.ReadString('zquest', 'small', '') = '1' then
+  begin
+    if scalemode.Text = '1x' then
+    begin
+      agcfg.writeString('zquest', 'scale', '1');
+    end;
+    if scalemode.Text = '2x' then
+    begin
+      agcfg.writeString('zquest', 'scale', '2');
+    end;
+    if scalemode.Text = '3x' then
+    begin
+      agcfg.writeString('zquest', 'scale', '3');
+    end;
+    if scalemode.Text = '4x' then
+    begin
+      agcfg.writeString('zquest', 'scale', '4');
+    end;
+  end
+  else
+  begin
+    if scalemode.Text = '1x' then
+    begin
+      agcfg.writeString('zquest', 'scale_large', '1');
+    end;
+    if scalemode.Text = '2x' then
+    begin
+      agcfg.writeString('zquest', 'scale_large', '2');
+    end;
+    if scalemode.Text = '3x' then
+    begin
+      agcfg.writeString('zquest', 'scale_large', '3');
+    end;
+    if scalemode.Text = '4x' then
+    begin
+      agcfg.writeString('zquest', 'scale_large', '4');
+    end;
+  end;
+
+  scalemode.Text := '';
+
   if zinterface.Text = 'Classic' then
   begin
     agcfg.writestring('zquest', 'small', '1');
-    scaletext.Visible := True;
-    scalemode.Visible := True;
     if agcfg.ReadString('zquest', 'scale', '') = '1' then
     begin
       scalemode.Text := '1x';
+    end;
+    if agcfg.ReadString('zquest', 'scale', '') = '2' then
+    begin
+      scalemode.Text := '2x';
+    end;
+    if agcfg.ReadString('zquest', 'scale', '') = '3' then
+    begin
+      scalemode.Text := '3x';
+    end;
+    if agcfg.ReadString('zquest', 'scale', '') = '4' then
+    begin
+      scalemode.Text := '4x';
     end;
   end;
   if zinterface.Text = 'New (2.5)' then
   begin
     agcfg.writestring('zquest', 'small', '0');
-    scaletext.Visible := False;
-    scalemode.Visible := False;
+    if agcfg.ReadString('zquest', 'scale_large', '') = '1' then
+    begin
+      scalemode.Text := '1x';
+    end;
+    if agcfg.ReadString('zquest', 'scale_large', '') = '2' then
+    begin
+      scalemode.Text := '2x';
+    end;
+    if agcfg.ReadString('zquest', 'scale_large', '') = '3' then
+    begin
+      scalemode.Text := '3x';
+    end;
+    if agcfg.ReadString('zquest', 'scale_large', '') = '4' then
+    begin
+      scalemode.Text := '4x';
+    end;
   end;
 end;
 
@@ -1609,6 +1714,7 @@ begin
   begin
     agcfg.writestring('zquest', 'fullscreen', '1');
     agcfg.writestring('zquest', 'scale', '1');
+    agcfg.writestring('zquest', 'scale_large', '1');
     scaletext.Visible := False;
     scalemode.Visible := False;
   end;
@@ -1618,13 +1724,10 @@ begin
     agcfg.writestring('zquest', 'fullscreen', '0');
     scaletext.Visible := True;
     scalemode.Visible := True;
+    scalemode.Text := '1x';
 
-    if agcfg.readstring('zquest', 'small', '') = '1' then
+    if agcfg.ReadString('zquest', 'small', '') = '1' then
     begin
-      scaletext.Visible := True;
-      scalemode.Visible := True;
-      scalemode.Text := '1x';
-
       if agcfg.ReadString('zquest', 'scale', '') = '1' then
       begin
         scalemode.Text := '1x';
@@ -1644,8 +1747,22 @@ begin
     end
     else
     begin
-      scaletext.Visible := False;
-      scalemode.Visible := False;
+      if agcfg.ReadString('zquest', 'scale_large', '') = '1' then
+      begin
+        scalemode.Text := '1x';
+      end;
+      if agcfg.ReadString('zquest', 'scale_large', '') = '2' then
+      begin
+        scalemode.Text := '2x';
+      end;
+      if agcfg.ReadString('zquest', 'scale_large', '') = '3' then
+      begin
+        scalemode.Text := '3x';
+      end;
+      if agcfg.ReadString('zquest', 'scale_large', '') = '4' then
+      begin
+        scalemode.Text := '4x';
+      end;
     end;
   end;
 end;
@@ -1720,4 +1837,4 @@ initialization
 
 end.
 
-
+

@@ -1,3 +1,6 @@
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
@@ -38,7 +41,7 @@ void EditboxView::initialize(EditboxModel *new_model)
     model = new_model;
     //add a "ghost newline" to the buffer if necessary
     
-    string nl = "";
+    std::string nl = "";
     Unicode::insertAtIndex(nl,'\n',0);
     unsigned int nlsize = (unsigned int)nl.size();
     
@@ -65,7 +68,7 @@ EditboxView::~EditboxView()
 void EditboxView::lineUp()
 {
     CursorPos cp = model->findCursor();
-    list<LineData>::reverse_iterator it = list<LineData>::reverse_iterator(cp.it);
+    std::list<LineData>::reverse_iterator it = std::list<LineData>::reverse_iterator(cp.it);
     
     if(it != model->getLines().rend())
     {
@@ -78,7 +81,7 @@ void EditboxView::lineUp()
 void EditboxView::lineDown()
 {
     CursorPos cp = model->findCursor();
-    list<LineData>::iterator it = cp.it;
+    std::list<LineData>::iterator it = cp.it;
     it++;
     int startindex = model->getCursor().getPosition()+cp.it->numchars-cp.index;
     
@@ -215,7 +218,7 @@ void BasicEditboxView::enforceHardLimits()
 
 BasicEditboxView::~BasicEditboxView()
 {
-    for(list<LineData>::iterator it = model->getLines().begin(); it != model->getLines().end(); it++)
+    for(std::list<LineData>::iterator it = model->getLines().begin(); it != model->getLines().end(); it++)
     {
         destroy_bitmap(it->strip);
     }
@@ -232,7 +235,7 @@ CharPos BasicEditboxView::findCharacter(int x, int y)
     lineno = zc_min(lineno, (int)(model->getLines().size())-1);
     int totalindex = 0;
     //NOTE: future optimization opportunity
-    list<LineData>::iterator it = model->getLines().begin();
+    std::list<LineData>::iterator it = model->getLines().begin();
     
     for(int i=0; i<lineno; i++)
     {
@@ -281,7 +284,7 @@ void BasicEditboxView::draw()
     int textheight = text_height(textfont);
     int y = -view_y;
     
-    for(list<LineData>::iterator it = model->getLines().begin(); it != model->getLines().end(); it++)
+    for(std::list<LineData>::iterator it = model->getLines().begin(); it != model->getLines().end(); it++)
     {
         if(y >= area_ystart-host->y-textheight && y <= area_ystart+host->y + area_height)
             blit((*it).strip, dbuf, 0, 0, area_xstart-host->x-view_x, area_ystart-host->y+y, view_width, textheight);
@@ -306,7 +309,7 @@ void BasicEditboxView::draw()
     
     if(model->getSelection().hasSelection())
     {
-        pair<int, int> selection = model->getSelection().getSelection();
+        std::pair<int, int> selection = model->getSelection().getSelection();
         CursorPos selstart = model->findIndex(selection.first);
         CursorPos selend = model->findIndex(selection.second);
         
@@ -336,7 +339,7 @@ void BasicEditboxView::draw()
             
             invertRectangle(startx,starty,endx,starty+textheight);
             //do intermediate lines
-            list<LineData>::iterator it = selstart.it;
+            std::list<LineData>::iterator it = selstart.it;
             it++;
             
             for(int line = selstart.lineno+1; line < selend.lineno; line++,it++)
@@ -404,7 +407,7 @@ bool BasicEditboxView::mouseDrag(int x, int y)
     
     if(model->getSelection().isSelecting())
     {
-        pair<int, int> oldsel = model->getSelection().getSelection();
+        std::pair<int, int> oldsel = model->getSelection().getSelection();
         CharPos cp = findCharacter(x,y);
         model->getCursor().updateCursor(cp.totalIndex);
         model->getSelection().adjustSelection(model->getCursor());
@@ -446,7 +449,7 @@ bool BasicEditboxView::mouseRelease(int x, int y)
     return false;
 }
 
-void BasicEditboxView::createStripBitmap(list<LineData>::iterator it, int width)
+void BasicEditboxView::createStripBitmap(std::list<LineData>::iterator it, int width)
 {
     //now create the bitmap
     int textheight = text_height(textfont);
@@ -661,13 +664,13 @@ bool EditboxVScrollView::mouseRelease(int x, int y)
 void EditboxWordWrapView::layoutPage()
 {
     //check all lines
-    for(list<LineData>::iterator it = model->getLines().begin(); it != model->getLines().end(); it++)
+    for(std::list<LineData>::iterator it = model->getLines().begin(); it != model->getLines().end(); it++)
     {
         if(!it->dirtyflag)
             continue;
             
         int numchars = (*it).numchars;
-        string &s = (*it).line;
+        std::string &s = (*it).line;
         //accumulate up until the maximum line width
         int totalwidth=0;
         int i;
@@ -690,7 +693,7 @@ void EditboxWordWrapView::layoutPage()
                 else
                 {
                     //word
-                    pair<int, int> offandwidth = Unicode::munchWord(s,i,textfont);
+                    std::pair<int, int> offandwidth = Unicode::munchWord(s,i,textfont);
                     totalwidth += offandwidth.second;
                     i += offandwidth.first-1;
                     continue;
@@ -710,7 +713,7 @@ void EditboxWordWrapView::layoutPage()
                 }
                 else
                 {
-                    pair<int, int> offandwidth = Unicode::munchWord(s,i,textfont);
+                    std::pair<int, int> offandwidth = Unicode::munchWord(s,i,textfont);
                     totalwidth += offandwidth.second;
                     
                     if(totalwidth > area_width)
@@ -724,9 +727,9 @@ void EditboxWordWrapView::layoutPage()
         if(i < numchars)
         {
             //we have wrapped early.
-            string newline = s.substr(i,s.size()-i);
+            std::string newline = s.substr(i,s.size()-i);
             LineData newdata = {newline, numchars-i, true, true,NULL};
-            list<LineData>::iterator it2 = it;
+            std::list<LineData>::iterator it2 = it;
             it2++;
             model->getLines().insert(it2,newdata);
             (*it).line = s.substr(0,i);
@@ -754,7 +757,7 @@ void EditboxNoWrapView::layoutPage()
 {
     view_width = area_width;
     
-    for(list<LineData>::iterator it = model->getLines().begin(); it != model->getLines().end(); it++)
+    for(std::list<LineData>::iterator it = model->getLines().begin(); it != model->getLines().end(); it++)
     {
         int length = Unicode::getLength(it->line);
         int totalwidth=0;

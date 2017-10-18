@@ -6,6 +6,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zquest", "zquest.vcproj", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "romview", "romview.vcproj", "{EF810A76-BA22-41A6-AEDF-C19E50969355}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "soundlib", "soundlib.vcproj", "{435B52F1-524D-4A5A-88E6-0C7B319A4892}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -23,6 +25,10 @@ Global
 		{EF810A76-BA22-41A6-AEDF-C19E50969355}.Debug|Win32.ActiveCfg = Debug|Win32
 		{EF810A76-BA22-41A6-AEDF-C19E50969355}.Release|Win32.ActiveCfg = Release|Win32
 		{EF810A76-BA22-41A6-AEDF-C19E50969355}.Release|Win32.Build.0 = Release|Win32
+		{435B52F1-524D-4A5A-88E6-0C7B319A4892}.Debug|Win32.ActiveCfg = Debug|Win32
+		{435B52F1-524D-4A5A-88E6-0C7B319A4892}.Debug|Win32.Build.0 = Debug|Win32
+		{435B52F1-524D-4A5A-88E6-0C7B319A4892}.Release|Win32.ActiveCfg = Release|Win32
+		{435B52F1-524D-4A5A-88E6-0C7B319A4892}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

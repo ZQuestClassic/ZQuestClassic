@@ -15,6 +15,8 @@
 #ifndef _DECORATIONS_H_
 #define _DECORATIONS_H_
 
+#include "sprite.h"
+
 /***************************************/
 /*******  Decoration Base Class  *******/
 /***************************************/
@@ -98,11 +100,16 @@ public:
 class dNayrusLoveShield : public decoration
 {
 public:
-    dNayrusLoveShield(fix X,fix Y,int Id,int Clk);
+    dNayrusLoveShield(fix X,fix Y, const int& timer);
     virtual bool animate(int index);
     virtual void realdraw(BITMAP *dest, int draw_what);
     virtual void draw(BITMAP *dest);
     virtual void draw2(BITMAP *dest);
+    
+private:
+    bool flickering;
+    bool translucent;
+    const int& timer;
 };
 #endif
 /*** end of sprite.cc ***/

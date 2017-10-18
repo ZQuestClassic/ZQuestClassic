@@ -125,8 +125,6 @@ bool DrunkrPbtn();
 
 int after_time();
 
-enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosMAX};
-
 void go();
 void comeback();
 void dump_pal(BITMAP *dest);
@@ -136,18 +134,11 @@ void show_saving(BITMAP *target);
 bool game_vid_mode(int mode,int wait);
 void init_NES_mode();
 
-extern int black_opening_count;
-extern int black_opening_x,black_opening_y;
-extern int black_opening_shape;
-
 void zapout();
 void zapin();
 void wavyout(bool showlink);
 void wavyin();
 void blackscr(int fcnt,bool showsubscr);
-void black_opening(BITMAP *dest,int x,int y,int a,int max_a);
-void close_black_opening(int x, int y, bool wait);
-void open_black_opening(int x, int y, bool wait);
 void openscreen();
 int  TriforceCount();
 
@@ -160,33 +151,9 @@ int current_item(int item_type, bool checkenabled);
 int current_item_power(int item_type);
 int current_item_id(int item_type, bool checkmagic = true);
 int high_flag(int i, int item_type, bool consecutive);
-int item_tile_mod(bool);
+int item_tile_mod(bool unusedArg=true);
 int dmap_tile_mod();
 
-bool try_zcmusic(char *filename, int track, int midi);
-void jukebox(int index);
-void jukebox(int index,int loop);
-void play_DmapMusic();
-void music_pause();
-void music_resume();
-void music_stop();
-void master_volume(int dv,int mv);
-int  sfx_count();
-void sfx_cleanup();
-bool sfx_init(int index);
-void sfx(int index,int pan,bool loop, bool restart = true);
-bool sfx_allocated(int index);
-void cont_sfx(int index);
-void stop_sfx(int index);
-void adjust_sfx(int index,int pan,bool loop);
-void pause_sfx(int index);
-void resume_sfx(int index);
-void pause_all_sfx();
-void resume_all_sfx();
-void stop_sfx(int index);
-void stop_item_sfx(int family);
-void kill_sfx();
-int  pan(int x);
 int  onSetSnapshotFormat();
 void zc_putpixel(int layer, int x, int y, int cset, int color, int timer);
 int onKeyboardEntry();

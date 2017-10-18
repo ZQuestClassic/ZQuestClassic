@@ -16,8 +16,10 @@
 #include <string.h>
 #include "zc_alleg.h"
 
+#include "encryption.h"
 #include "zdefs.h"
 #include "zelda.h"
+#include "zc_sys.h"
 #include "zsys.h"
 #include "qst.h"
 #include "tiles.h"
@@ -32,6 +34,7 @@
 #include "gamedata.h"
 #include "link.h"
 #include "mem_debug.h"
+#include "sound.h"
 
 #ifdef _MSC_VER
 #define strupr _strupr
@@ -2060,7 +2063,13 @@ static void list_save(int save_num, int ypos)
             overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
             overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
         }
-        
+
+		if(saves[save_num].get_quest()==5)
+		{
+			overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+			overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+		}
+
         textprintf_ex(framebuf,zfont,72,ypos+16,1,0,"%s",saves[save_num].get_name());
     }
     
@@ -2506,6 +2515,9 @@ static bool register_name()
             
         if(!stricmp(buf,"GANON"))
             quest=4;
+
+		if(!stricmp(buf,"JEAN")) // This is what BigJoe wanted. I have no problem with it.
+			quest=5;
             
         saves[s].set_quest(quest);
         

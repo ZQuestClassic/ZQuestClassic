@@ -17,7 +17,9 @@
 
 #include "sprite.h"
 #include "zdefs.h"
+#include <boost/function.hpp>
 
+class LinkClass;
 
 extern char *item_string[ITEMCNT];
 
@@ -38,10 +40,42 @@ public:
     char PriceIndex;
     bool flash,twohand,anim, subscreenItem;
     int o_tile,o_cset, o_speed, o_delay, frames;
+    
+    bool alsoHaveBow; // Used in subscreens
+    
+    item(int id);
     item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy = false);
     virtual ~item();
+    void setPickupFlags(int newPickup);
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
+    
+    /// Determines whether Link is able to collect an item.
+    /** \note ZC only
+     */
+    bool canPickUp(LinkClass* link);
+    
+    /// Finds the item that will be added when an upgrading item is collected.
+    /** \return The ID of the resulting item, or -1 if this is not
+     *          an upgrade item or no suitable upgrade could be found.
+     *  \note ZC only
+     */
+    int getUpgradeResult() const;
+    
+    // public for now...
+    boost::function<void()> onGetDummyMoney;
+    boost::function<void()> onPickUp;
+    
+    inline void setPrice(int newPrice)
+    {
+        price=newPrice;
+    }
+    
+protected:
+	void init(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy = false);
+
+private:
+    int price;
 };
 
 // easy way to draw an item

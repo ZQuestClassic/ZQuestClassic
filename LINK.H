@@ -16,7 +16,6 @@
 #include "zc_alleg.h"
 #include "zcmusic.h"
 #include "zdefs.h"
-#include "zelda.h"
 #include "maps.h"
 #include "tiles.h"
 #include "colors.h"
@@ -32,6 +31,8 @@
 #include "sprite.h"
 #include "zc_custom.h"
 #include "subscr.h"
+#include "item/itemEffect.h"
+class ItemAction;
 
 extern movingblock mblock2;                                 //mblock[4]?
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -84,34 +85,13 @@ class LinkClass : public sprite
         static const int CLEARCHARGEATTACK = 32;
         static const int SETHOPDIR = 64;
         
-        int getHopClk()
-        {
-            return newhopclk;
-        }
-        int getHopDir()
-        {
-            return newhopdir;
-        }
-        int getDir()
-        {
-            return newdir;
-        }
-        int getLadderdir()
-        {
-            return newladderdir;
-        }
-        int getLadderx()
-        {
-            return newladderx;
-        }
-        int getLaddery()
-        {
-            return newladdery;
-        }
-        int getLadderstart()
-        {
-            return newladderstart;
-        }
+        inline int getHopClk() const { return newhopclk; }
+        inline int getHopDir() const { return newhopdir; }
+        inline int getDir() const { return newdir; }
+        inline int getLadderdir() const { return newladderdir; }
+        inline int getLadderx() const { return newladderx; }
+        inline int getLaddery() const { return newladdery; }
+        inline int getLadderstart() const { return newladderstart; }
         
         void setUnwalkable(bool val)
         {
@@ -189,7 +169,6 @@ class LinkClass : public sprite
         fairyclk, //fairy circle timeout.
         refillclk,//life refill timeout.
         drunkclk, //intoxication timeout.
-        NayrusLoveShieldClk, // Nayru's Love timeout.
         hoverclk, //hover boots timeout.
         hclk,     //damage blinking timeout.
         holdclk,  //"hold up item" timeout.
@@ -217,6 +196,7 @@ class LinkClass : public sprite
          lastdir[4], // used in Maze Path screens
          ladderstart, // starting direction of ladder...?
          inlikelike; // 1 = Like Like. 2 = Taking damage while trapped
+    bool nayrusLoveActive;
     int shiftdir; // shift direction when walking into corners of solid combos
     int sdir; // scrolling direction
     int hopdir;  // direction to hop out of water (diagonal movement only)
@@ -276,24 +256,18 @@ public:
     void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames);
 private:
     void scrollscr(int dir,int destscr = -1, int destdmap = -1);
-    void walkdown(bool opening);
-    void walkup(bool opening);
-    void walkdown2(bool opening);
-    void walkup2(bool opening);
+    void walkdown(bool opening, bool cave2);
+    void walkup(bool opening, bool cave2);
     
     void exitcave();
     void stepout();
     void masked_draw(BITMAP *dest);
-    void getTriforce(int id);
     int weaponattackpower();
     void positionSword(weapon* w,int itemid);
     void checkstab();
     void fairycircle(int type);
-    void StartRefill(int refillWhat);
     int  EwpnHit();
     int  LwpnHit();
-    void gameover();
-    void ganon_intro();
     void saved_Zelda();
     void check_slash_block(int bx, int by);
     void check_wand_block(int bx, int by);
@@ -302,11 +276,9 @@ private:
     bool sideviewhammerpound();
     bool agonyflag(int flag);
     int ringpower(int dmg);
-    void addsparkle(int wpn);
-    void addsparkle2(int type1, int type2);
     
 public:
-
+    void StartRefill(int refillWhat);
     void checkitems(int index = -1);
     int DrunkClock();
     void setDrunkClock(int newdrunkclk);
@@ -330,42 +302,21 @@ public:
     void Drown();
     int getEaten();
     void setEaten(int i);
-    fix  getX();
-    fix  getY();
-    fix  getZ();
     fix  getFall();
     fix  getXOfs();
     fix  getYOfs();
     void setXOfs(int newxofs);
     void setYOfs(int newyofs);
-    int  getHXOfs();
-    int  getHYOfs();
-    int  getHXSz();
-    int  getHYSz();
     fix  getClimbCoverX();
     fix  getClimbCoverY();
-    int  getLadderX();
-    int  getLadderY();
-    void setX(int new_x);
-    void setY(int new_y);
-    void setZ(int new_Z);
-    void setFall(fix new_fall);
-    void setClimbCoverX(int new_x);
-    void setClimbCoverY(int new_y);
     int  getLStep();
     int  getCharging();
-    void setCharging(int new_charging);
     bool isCharged();
-    int  getAttackClk();
-    void  setAttackClk(int new_clk);
+    void cancelAttack();
     int  getSwordClk();
     int  getItemClk();
     void  setSwordClk(int newclk);
     void  setItemClk(int newclk);
-    fix  getModifiedX();
-    fix  getModifiedY();
-    int  getDir();
-    void setDir(int new_dir);
     int  getHitDir();
     void setHitDir(int new_dir);
     int  getClk();
@@ -386,17 +337,32 @@ public:
     bool isSwimming();
     void setDontDraw(bool new_dontdraw);
     bool getDontDraw();
-    void setHClk(int newhclk);
+    void setHitTimer(int newhclk);
     int getHClk();
-    void setNayrusLoveShieldClk(int newclk);
-    int getNayrusLoveShieldClk();
-    int getHoverClk();
-    int getHoldClk();
+    void setScrollDir(int sd);
+    void setInvincible(bool inv);
     int getSpecialCave(); // used only by maps.cpp
-    bool ffwarp;
-    bool ffpit;
-    void setscriptnohit(bool);
-    bool getscriptnohit();
+    
+    inline bool isHoldingItem() const { return holdclk>0; }
+    inline void addItemEffect(ItemEffect* newEffect) { itemEffects.add(newEffect); }
+    inline void setNayrusLoveActive(bool nl) { nayrusLoveActive=nl; } // Eh.
+    
+    // This'll be moved...
+    inline void modWhistleCounter(int amt) { blowcnt+=amt; }
+    
+//private: // sigh
+    ItemAction* currentItemAction;
+    ItemEffectList itemEffects;
+    
+    // Cancels charging when the wand or sword hits an enemy.
+    void onMeleeWeaponHit();
+    
+private:
+    void updateGravity();
+    void checkLadderRemoval();
+    
+    friend class LinkHandler;
+    friend class LinkZScriptInterface;
 };
 
 bool isRaftFlag(int flag);
@@ -404,7 +370,6 @@ void do_lens();
 int touchcombo(int x,int y);
 extern bool did_secret;
 int selectWlevel(int d);
-void computeMaxArrows();
 
 /************************************/
 /********  More Items Code  *********/
@@ -433,10 +398,8 @@ void verifyBothWeapons();
 void verifyAWpn();
 void verifyBWpn();
 bool canget(int id);
-void dospecialmoney(int index);
 void getitem(int id, bool nosound=false);
 void takeitem(int id);
-void red_shift();
-void slide_in_color(int color);
+
 #endif
 /*** end of link.cc ***/

@@ -18,6 +18,12 @@
 #include "sprite.h"
 #include "weapons.h"
 
+#include "enemyAttack.h"
+#include "sfxClass.h"
+#include "scoped_ptr.h"
+
+class item;
+
 extern int repaircharge;
 extern bool adjustmagic;
 extern bool learnslash;
@@ -27,8 +33,6 @@ extern int sle_x,sle_y,sle_cnt,sle_clk;
 extern int vhead;
 extern int guycarryingitem;
 
-int random_layer_enemy();
-int count_layer_enemies();
 bool can_do_clock();
 int link_on_wall();
 bool tooclose(int x,int y,int d);
@@ -61,7 +65,7 @@ class enemy : public sprite
 public:
     guydata *d;
     // Approximately all of these variables are accessed by either ffscript.cpp or inherited classes
-    int o_tile, frate, hp, hclk, clk3, stunclk, timer, fading, superman, mainguy, did_armos;
+    int o_tile, frate, hp, hclk, clk3, stunclk, fading, superman, mainguy, did_armos;
     byte movestatus, item_set, grumble, posframe;
     bool itemguy, count_enemy, dying, ceiling, leader, scored, script_spawned;
     fix  step, floor_y;
@@ -78,11 +82,10 @@ public:
     long dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, dmisc11, dmisc12, dmisc13, dmisc14, dmisc15;
     short bgsfx, bosspal;
     byte defense[edefLAST];
-    byte hitsfx,deadsfx;
     
-    fix  getX();
-    fix  getY();
-    int  getID();
+    int dummy_int[10];
+    bool dummy_bool[10];
+    
     enemy(fix X,fix Y,int Id,int Clk);                      // : sprite()
     virtual ~enemy();
     
@@ -118,7 +121,6 @@ protected:
     word  s_tile; //secondary (additional) tile(s)
     
     // to allow for different sfx on defeating enemy
-    virtual void death_sfx();
     virtual void move(fix dx,fix dy);
     virtual void removearmos(int ax,int ay);
     virtual void move(fix s);
@@ -194,10 +196,6 @@ protected:
     int lined_up(int range, bool dir8);
     // returns true if Link is within 'range' pixels of the enemy
     bool LinkInRange(int range);
-    // Breathe fire
-    void FireBreath(bool seeklink);
-    // Shoot weapons
-    void FireWeapon();
     // place the enemy in line with Link (red wizzrobes)
     void place_on_axis(bool floater, bool solid_ok);
     void update_enemy_frame();
@@ -211,6 +209,16 @@ protected:
     
 private:
     bool shieldCanBlock;
+    
+protected:
+    SFX bgSFX, hitSFX, deathSFX;
+    scoped_ptr<EnemyAttack> attack;
+    
+public:
+    void setBGSFX(SFX newBG);
+    inline int getDir() const { return dir; }
+    
+    virtual void setAttack(EnemyAttack* att);
 };
 
 /********************************/
@@ -386,7 +394,6 @@ class eTrigger : public enemy
 public:
     eTrigger(fix X,fix Y,int Id,int Clk);                   // : enemy(X,Y,Id,Clk)
     virtual void draw(BITMAP *dest);
-    virtual void death_sfx();
 };
 
 class eNPC : public enemy
@@ -440,6 +447,10 @@ public:
     void vire_hop();
     virtual void drawshadow(BITMAP *dest, bool translucent);
     virtual void break_shield();
+    void setDeathAttack(EnemyAttack* att);
+    
+private:
+    scoped_ptr<EnemyAttack> deathAttack;
 };
 
 class eKeese : public enemy
@@ -462,7 +473,6 @@ public:
     eWizzrobe(fix X,fix Y,int Id,int Clk);                  // : enemy(X,Y,Id,Clk)
     virtual bool animate(int index);
     void wizzrobe_attack();
-    void wizzrobe_attack_for_real();
     void wizzrobe_newdir(int homing);
     virtual void draw(BITMAP *dest);
 };
@@ -508,6 +518,7 @@ public:
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
     virtual int takehit(weapon *w);
+    void setAttack(EnemyAttack* att);
 };
 
 class eLilDig : public enemy
@@ -538,8 +549,6 @@ public:
     void draw_guts(BITMAP *dest);
     void draw_flash(BITMAP *dest);
 };
-
-void getBigTri(int id2);
 
 /**********************************/
 /***  Multiple-Segment Enemies  ***/
@@ -647,6 +656,7 @@ public:
     virtual int takehit(weapon *w);
     virtual void draw(BITMAP *dest);
     virtual void draw2(BITMAP *dest);
+    void startBreath();
 };
 
 class ePatra : public enemy
@@ -695,13 +705,12 @@ public:
 /**********************************/
 /**********  Misc Code  ***********/
 /**********************************/
-void addEwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid);
 // Used by Link's swords & stomp boots
 int hit_enemy(int index,int wpnId,int power,int wpnx,int wpny,int dir, int enemyHitWeapon);
 void enemy_scored(int index);
 void addguy(int x,int y,int id,int clk,bool mainguy);
-void additem(int x,int y,int id,int pickup);
-void additem(int x,int y,int id,int pickup,int clk);
+item* additem(int x,int y,int id,int pickup);
+item* additem(int x,int y,int id,int pickup,int clk);
 void kill_em_all();
 // For Link's hit detection. Don't count them if they are stunned or are guys.
 int GuyHit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
@@ -732,14 +741,9 @@ int next_side_pos(bool random);
 bool can_side_load(int id);
 void side_load_enemies();
 void loadenemies();
-void moneysign();
-void putprices(bool sign);
 void setupscreen();
-FONT *setmsgfont();
-bool parsemsgcode();
-void putmsg();
-int message_more_y();
 int wpnsfx(int wpn);
+bool m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000);
 
 /***  Collision detection & handling  ***/
 

@@ -7,6 +7,9 @@
 //  Subscreen code for zelda.cc
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -17,11 +20,13 @@
 #include <string.h>
 
 #include "zelda.h"
+#include "zc_sys.h"
 #include "subscr.h"
 #include "zc_subscr.h"
 #include "link.h"
 #include "gamedata.h"
 #include "guys.h"
+#include "sound.h"
 
 extern LinkClass   Link;
 extern int directItem;

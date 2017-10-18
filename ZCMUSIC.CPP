@@ -1,3 +1,6 @@
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 /* Zelda Classic Music Library         */
 /* ------------------------------------*/
 /* Wrapper for transparently extending */
@@ -7,7 +10,8 @@
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
 
-#include "precompiled.h" //always first
+//#include "precompiled.h" //always first
+
 
 #include "zc_alleg.h" // Has to be there or else OS X Universal 10.4 complains of fix overload - Taku
 #include <string.h>
@@ -18,12 +22,7 @@
 #include "zsys.h"
 #include "zcmusic.h"
 #include "zc_malloc.h"
-
-#ifdef ALLEGRO_DOS
-#include "nothread.h"
-#else
-#include "pthread.h"
-#endif
+#include "mutex.h"
 
 #undef	int8_t
 #undef	uint8_t
@@ -61,7 +60,7 @@
 int zcmusic_bufsz = 64;
 static int zcmusic_bufsz_private = 64;
 
-pthread_mutex_t playlistmutex;
+mutex playlistmutex;
 
 typedef struct DUHFILE : public ZCMUSICBASE
 {
@@ -124,6 +123,34 @@ int gme_play(GMEFILE *gme, int vol);
 
 extern "C"
 {
+	void zcm_extract_name(char *path,char *name,int type)
+	{
+		int l=(int)strlen(path);
+		int i=l;
+
+		while(i>0 && path[i-1]!='/' && path[i-1]!='\\')
+			--i;
+
+		int n=0;
+
+		if(type==FILENAME8__)
+		{
+			while(i<l && n<8 && path[i]!='.')
+				name[n++]=path[i++];
+		}
+		else if(type==FILENAME8_3)
+		{
+			while(i<l && n<12)
+				name[n++]=path[i++];
+		}
+		else
+		{
+			while(i<l)
+				name[n++]=path[i++];
+		}
+
+		name[n]=0;
+	}
 
     void zcmusic_autopoll()
     {
@@ -156,7 +183,7 @@ extern "C"
             libflags |= ZCMF_GME;
         }
         
-        pthread_mutex_init(&playlistmutex,NULL);
+        mutex_init(&playlistmutex);
         
         install_int_ex(zcmusic_autopoll, MSEC_TO_TIMER(25));
         return true;
@@ -165,7 +192,7 @@ extern "C"
     bool zcmusic_poll(int flags)                              /* = -1 */
     {
         //lock mutex
-        pthread_mutex_lock(&playlistmutex);
+        mutex_lock(&playlistmutex);
         //do all kinds of gymnastics to get around Allegro stupidity
 //	char *oldpwd = getCurPackfilePassword();
 //	setPackfilePassword(NULL);
@@ -211,7 +238,7 @@ extern "C"
             }
         }
         
-        pthread_mutex_unlock(&playlistmutex);
+        mutex_unlock(&playlistmutex);
 //	setPackfilePassword(oldpwd);
 //	if(oldpwd != NULL)
 //		delete[] oldpwd;
@@ -221,7 +248,7 @@ extern "C"
     void zcmusic_exit()
     {
         //lock mutex
-        pthread_mutex_lock(&playlistmutex);
+        mutex_lock(&playlistmutex);
         std::vector<ZCMUSIC*>::iterator b = playlist.begin();
         
         while(b != playlist.end())
@@ -231,7 +258,7 @@ extern "C"
         }
         
         playlist.clear();
-        pthread_mutex_unlock(&playlistmutex);
+        mutex_unlock(&playlistmutex);
         
         if(libflags & ZCMF_DUH)
         {
@@ -294,7 +321,7 @@ extern "C"
             p->type = ZCMF_OGG;
             p->playing = ZCM_STOPPED;
             ZCMUSIC *music=(ZCMUSIC*)p;
-            extract_name(filename, music->filename, FILENAMEALL);
+            zcm_extract_name(filename, music->filename, FILENAMEALL);
             music->filename[255]='\0';
             music->track=0;
             return music;
@@ -322,7 +349,7 @@ extern "C"
             p->type = ZCMF_MP3;
             p->playing = ZCM_STOPPED;
             ZCMUSIC *music=(ZCMUSIC*)p;
-            extract_name(filename, music->filename, FILENAMEALL);
+            zcm_extract_name(filename, music->filename, FILENAMEALL);
             music->filename[255]='\0';
             music->track=0;
             return music;
@@ -372,7 +399,7 @@ extern "C"
                 p->s = d;
                 p->p = NULL;
                 ZCMUSIC *music=(ZCMUSIC*)p;
-                extract_name(filename, music->filename, FILENAMEALL);
+                zcm_extract_name(filename, music->filename, FILENAMEALL);
                 music->filename[255]='\0';
                 music->track=0;
                 return music;
@@ -398,7 +425,7 @@ extern "C"
                     p->playing = ZCM_STOPPED;
                     p->emu = emu;
                     ZCMUSIC *music=(ZCMUSIC*)p;
-                    extract_name(filename, music->filename, FILENAMEALL);
+                    zcm_extract_name(filename, music->filename, FILENAMEALL);
                     music->filename[255]='\0';
                     music->track=0;
                     return music;
@@ -519,9 +546,9 @@ error:
             {
                 zcm->position=0;
                 zcm->playing = ZCM_PLAYING;
-                pthread_mutex_lock(&playlistmutex);
+                mutex_lock(&playlistmutex);
                 playlist.push_back(zcm);
-                pthread_mutex_unlock(&playlistmutex);
+                mutex_unlock(&playlistmutex);
             }
         }
         
@@ -536,7 +563,7 @@ error:
         // toggle the current state; passing 1 will pause.
         if(zcm == NULL) return FALSE;
         
-        pthread_mutex_lock(&playlistmutex);
+        mutex_lock(&playlistmutex);
         
         if(zcm->playing != ZCM_STOPPED)
         {
@@ -609,7 +636,7 @@ error:
             }
         }
         
-        pthread_mutex_unlock(&playlistmutex);
+        mutex_unlock(&playlistmutex);
         return TRUE;
     }
     
@@ -619,7 +646,7 @@ error:
         // the stream position to the beginning.
         if(zcm == NULL) return FALSE;
         
-        pthread_mutex_lock(&playlistmutex);
+        mutex_lock(&playlistmutex);
         
         switch(zcm->type & libflags)
         {
@@ -653,7 +680,7 @@ error:
             
         }
         
-        pthread_mutex_unlock(&playlistmutex);
+        mutex_unlock(&playlistmutex);
         return TRUE;
     }
     
@@ -669,7 +696,7 @@ error:
         // don't want to leave an soon-to-be invalid pointers
         // lying around to cause crashes.
         {
-            pthread_mutex_lock(&playlistmutex);
+            mutex_lock(&playlistmutex);
             std::vector<ZCMUSIC*>::iterator b = playlist.begin();
             
             while(b != playlist.end())
@@ -684,7 +711,7 @@ error:
                 }
             }
             
-            pthread_mutex_unlock(&playlistmutex);
+            mutex_unlock(&playlistmutex);
         }
         
         switch(zcm->type & libflags)
@@ -766,7 +793,7 @@ error:
         case ZCMF_GME:
             if(((GMEFILE*)zcm)->emu != NULL)
             {
-                pthread_mutex_lock(&playlistmutex);
+                mutex_lock(&playlistmutex);
                 int t=((GMEFILE*)zcm)->emu->track_count();
                 
                 if(tracknum<0 || tracknum>=t)
@@ -776,7 +803,7 @@ error:
                 
                 ((GMEFILE*)zcm)->emu->start_track(tracknum);
                 zcm->track=tracknum;
-                pthread_mutex_unlock(&playlistmutex);
+                mutex_unlock(&playlistmutex);
                 return tracknum;
             }
             else

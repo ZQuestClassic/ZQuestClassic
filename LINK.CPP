@@ -9,6 +9,9 @@
 //  movement, attacking, etc.
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -21,23 +24,29 @@
 #include <stdio.h>
 
 #include "link.h"
+#include "ffc.h"
 #include "guys.h"
-#include "subscr.h"
 #include "zc_subscr.h"
+#include "zelda.h"
+#include "zc_sys.h"
 #include "decorations.h"
 #include "gamedata.h"
 #include "zc_custom.h"
 #include "title.h"
-#include "ffscript.h"
-#include "mem_debug.h"
-#include "zscriptversion.h"
+#include "messageManager.h"
+#include "screenWipe.h"
+#include "sequence.h"
+#include "sound.h"
+
+#include "item/dinsFire.h"
+#include "item/faroresWind.h"
+#include "item/hookshot.h"
+#include "item/nayrusLove.h"
 
 using std::set;
 
-extern int draw_screen_clip_rect_x1;
-extern int draw_screen_clip_rect_x2;
-extern int draw_screen_clip_rect_y1;
-extern int draw_screen_clip_rect_y2;
+extern MessageManager messageMgr;
+
 //extern bool draw_screen_clip_rect_show_link;
 extern bool global_wait;
 
@@ -60,6 +69,32 @@ void playLevelMusic();
 
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
+extern LinkClass Link;
+void showCurrentDMapIntro()
+{
+    if(game->visited[currdmap]!=1 || (DMaps[currdmap].flags&dmfALWAYSMSG)!=0)
+    {
+        game->visited[currdmap]=1;
+        
+        // Only show the intro if it isn't blank
+        bool showIntro=false;
+        const char* intro=DMaps[currdmap].intro;
+        for(int i=0; intro[i]!=0; i++)
+        {
+            if(intro[i]!=' ')
+            {
+                showIntro=true;
+                break;
+            }
+        }
+        
+        if(showIntro)
+        {
+            Link.Freeze();
+            messageMgr.showDMapIntro(currdmap);
+        }
+    }
+}
 
 int LinkClass::DrunkClock()
 {
@@ -70,7 +105,7 @@ void LinkClass::setDrunkClock(int newdrunkclk)
     drunkclk=newdrunkclk;
 }
 
-LinkClass::LinkClass() : sprite()
+LinkClass::LinkClass(): sprite()
 {
     init();
 }
@@ -101,15 +136,7 @@ void LinkClass::resetflags(bool all)
         
     if(all)
     {
-        NayrusLoveShieldClk=0;
-        
-        if(nayruitem != -1)
-        {
-            stop_sfx(itemsbuf[nayruitem].usesound);
-            stop_sfx(itemsbuf[nayruitem].usesound+1);
-        }
-        
-        nayruitem = -1;
+        itemEffects.clear();
         hoverclk=jumping=0;
     }
     
@@ -121,7 +148,6 @@ void LinkClass::resetflags(bool all)
     diveclk=drownclk=0;
     action=none;
     conveyor_flags=0;
-    magiccastclk=0;
     magicitem=-1;
 }
 
@@ -174,22 +200,17 @@ int LinkClass::getEaten()
 {
     return inlikelike;
 }
-fix  LinkClass::getX()
-{
-    return x;
-}
-fix  LinkClass::getY()
-{
-    return y;
-}
-fix  LinkClass::getZ()
-{
-    return z;
-}
+
 fix  LinkClass::getFall()
 {
     return fall;
 }
+
+int LinkClass::getHitDir()
+{
+    return hitdir;
+}
+
 fix  LinkClass::getXOfs()
 {
     return xofs;
@@ -206,22 +227,6 @@ void LinkClass::setYOfs(int newyofs)
 {
     yofs=newyofs;
 }
-int  LinkClass::getHXOfs()
-{
-    return hxofs;
-}
-int  LinkClass::getHYOfs()
-{
-    return hyofs;
-}
-int  LinkClass::getHXSz()
-{
-    return hxsz;
-}
-int  LinkClass::getHYSz()
-{
-    return hysz;
-}
 fix  LinkClass::getClimbCoverX()
 {
     return climb_cover_x;
@@ -230,122 +235,26 @@ fix  LinkClass::getClimbCoverY()
 {
     return climb_cover_y;
 }
-int  LinkClass::getLadderX()
-{
-    return ladderx;
-}
-int  LinkClass::getLadderY()
-{
-    return laddery;
-}
-void LinkClass::setX(int new_x)
-{
-    if(Lwpns.idFirst(wHookshot)>-1)
-    {
-        Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=(new_x-x);
-    }
-    
-    if(Lwpns.idFirst(wHSHandle)>-1)
-    {
-        Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=(new_x-x);
-    }
-    
-    x=new_x;
-    
-    // A kludge
-    if(!diagonalMovement && dir<=down)
-        is_on_conveyor=true;
-}
-void LinkClass::setY(int new_y)
-{
-    if(Lwpns.idFirst(wHookshot)>-1)
-    {
-        Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=(new_y-y);
-    }
-    
-    if(Lwpns.idFirst(wHSHandle)>-1)
-    {
-        Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=(new_y-y);
-    }
-    
-    y=new_y;
-    
-    // A kludge
-    if(!diagonalMovement && dir>=left)
-        is_on_conveyor=true;
-}
-void LinkClass::setZ(int new_z)
-{
-    if(tmpscr->flags7&fSIDEVIEW)
-        return;
-        
-    if(z==0 && new_z > 0)
-    {
-        switch(action)
-        {
-        case swimming:
-            diveclk=0;
-            action=walking;
-            break;
-            
-        case waterhold1:
-            action=landhold1;
-            break;
-            
-        case waterhold2:
-            action=landhold2;
-            break;
-            
-        default:
-            if(charging)
-            {
-                reset_swordcharge();
-                attackclk=0;
-            }
-            
-            break;
-        }
-    }
-    
-    z=(new_z>0 ? new_z : 0);
-}
-void LinkClass::setFall(fix new_fall)
-{
-    fall=new_fall;
-    jumping=-1;
-}
-void LinkClass::setClimbCoverX(int new_x)
-{
-    climb_cover_x=new_x;
-}
-void LinkClass::setClimbCoverY(int new_y)
-{
-    climb_cover_y=new_y;
-}
+
 int  LinkClass::getLStep()
 {
     return lstep;
 }
-int  LinkClass::getCharging()
+void LinkClass::onMeleeWeaponHit()
 {
-    return charging;
+    if(charging>0)
+        attackclk=attackclk+1; //Cancel charging
 }
 bool LinkClass::isCharged()
 {
     return spins>0;
 }
-int  LinkClass::getAttackClk()
+
+void  LinkClass::cancelAttack()
 {
-    return attackclk;
+    attackclk=0;
 }
-void  LinkClass::setAttackClk(int new_clk)
-{
-    attackclk=new_clk;
-}
-void LinkClass::setCharging(int new_charging)
-{
-    charging=new_charging;
-}
+
 int  LinkClass::getSwordClk()
 {
     return swordclk;
@@ -362,43 +271,7 @@ void LinkClass::setItemClk(int newclk)
 {
     itemclk=newclk;
 }
-fix  LinkClass::getModifiedX()
-{
-    fix tempx=x;
-    
-    if(screenscrolling&&(dir==left))
-    {
-        tempx=tempx+256;
-    }
-    
-    return tempx;
-}
 
-fix  LinkClass::getModifiedY()
-{
-    fix tempy=y;
-    
-    if(screenscrolling&&(dir==up))
-    {
-        tempy=tempy+176;
-    }
-    
-    return tempy;
-}
-
-int  LinkClass::getDir()
-{
-    return dir;
-}
-void LinkClass::setDir(int newdir)
-{
-    dir=newdir;
-    reset_hookshot();
-}
-int  LinkClass::getHitDir()
-{
-    return hitdir;
-}
 void LinkClass::setHitDir(int newdir)
 {
     hitdir = newdir;
@@ -441,24 +314,13 @@ int  LinkClass::getAction() // Used by ZScript
     return action;
 }
 
-void LinkClass::setAction(actiontype new_action) // Used by ZScript
+void LinkClass::setAction(actiontype new_action)
 {
-    if(new_action==dying || new_action==won || new_action==scrolling ||
-       new_action==inwind || new_action==rafting || new_action==ischarging)
-        return; // Can't use these actions.
-    
-    if(magicitem>-1 && itemsbuf[magicitem].family==itype_faroreswind)
+    if(currentItemAction)
     {
-        // Using Farore's Wind
-        if(magiccastclk<96)
-        {
-            // Not cast yet; cancel it
-            magicitem=-1;
-            magiccastclk=0;
-        }
-        else
-            // Already activated; don't do anything
-            return;
+        currentItemAction->abort();
+        delete currentItemAction;
+        currentItemAction=0;
     }
     
     if(action==inwind) // Remove from whirlwind
@@ -475,7 +337,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         for(int i=0; i<Ewpns.Count(); i++)
         {
             wind=Ewpns.spr(i);
-            if(wind->id==ewWind && wind->misc==999)
+            if(wind->id==ewWind && ((weapon*)wind)->hasLink())
             {
                 foundWind=true;
                 break;
@@ -586,7 +448,7 @@ bool LinkClass::getDontDraw()
     return dontdraw;
 }
 
-void LinkClass::setHClk(int newhclk)
+void LinkClass::setHitTimer(int newhclk)
 {
     hclk=newhclk;
 }
@@ -603,6 +465,7 @@ int LinkClass::getSpecialCave()
 
 void LinkClass::init()
 {
+    currentItemAction=0;
     hookshot_used=false;
     hookshot_frozen=false;
     dir = up;
@@ -656,15 +519,13 @@ void LinkClass::init()
     conveyor_flags=0;
     drunkclk=0;
     drawstyle=3;
-    ffwarp = false;
     stepoutindex=stepoutwr=stepoutdmap=stepoutscr=0;
     stepnext=stepsecret=-1;
-    ffpit = false;
     entry_x=x;
     entry_y=y;
     falling_oldy = y;
-    magiccastclk=0;
-    magicitem = nayruitem = -1;
+    magicitem = -1;
+    nayrusLoveActive=false;
     
     for(int i=0; i<16; i++) miscellaneous[i] = 0;
     
@@ -1110,7 +971,7 @@ void LinkClass::draw(BITMAP* dest)
         {
             cs += (((~frame)>>1)&3);
         }
-        else if(hclk&&(NayrusLoveShieldClk<=0))
+        else if(hclk && !nayrusLoveActive)
         {
             cs += ((hclk>>1)&3);
         }
@@ -1981,15 +1842,7 @@ void LinkClass::checkstab()
                         for(int i=0; i<Lwpns.Count(); i++)
                         {
                             weapon *w2 = (weapon*)Lwpns.spr(i);
-                            
-                            if(w2->dragging==j)
-                            {
-                                w2->dragging=-1;
-                            }
-                            else if(w2->dragging>j)
-                            {
-                                w2->dragging-=1;
-                            }
+                            w2->adjustDraggedItem(j);
                         }
                         
                         --j;
@@ -2163,10 +2016,6 @@ void LinkClass::check_slash_block(int bx, int by)
     int fx=vbound(bx, 0, 255);
     int fy=vbound(by, 0, 176);
     
-    //first things first
-    if(attack!=wSword)
-        return;
-        
     if(z>8 || attackclk==SWORDCHARGEFRAME  // is not charging>0, as tapping a wall reduces attackclk but retains charging
             || (attackclk>SWORDTAPFRAME && tapping))
         return;
@@ -2291,13 +2140,11 @@ void LinkClass::check_slash_block(int bx, int by)
     else if(!ignoreffc)
     {
         if(isCuttableNextType(type2))
-        {
-            s->ffdata[current_ffcombo]++;
-        }
+            s->ffcs[current_ffcombo].modCombo(1);
         else
         {
-            s->ffdata[current_ffcombo] = s->undercombo;
-            s->ffcset[current_ffcombo] = s->undercset;
+            s->ffcs[current_ffcombo].setCombo(s->undercombo);
+            s->ffcs[current_ffcombo].setCSet(s->undercset);
         }
     }
     
@@ -2391,12 +2238,6 @@ void LinkClass::check_slash_block(int bx, int by)
     }
 }
 
-//TODO: Boomerang that cuts bushes. -L
-/*void LinkClass::slash_bush()
-{
-
-}*/
-
 void LinkClass::check_wand_block(int bx, int by)
 {
     //keep things inside the screen boundaries
@@ -2433,11 +2274,7 @@ void LinkClass::check_wand_block(int bx, int by)
         
     if(i > 175)
         return;
-        
-    //mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
     
-    //findentrance(bx,by,mfWAND,true);
-    //findentrance(bx,by,mfSTRIKE,true);
     if((findentrance(bx,by,mfWAND,true)==false)&&(findentrance(bx,by,mfSTRIKE,true)==false))
     {
         if(flag3==mfWAND||flag3==mfSTRIKE)
@@ -2446,8 +2283,6 @@ void LinkClass::check_wand_block(int bx, int by)
             findentrance(fx,fy,mfSTRIKE,true);
         }
     }
-    
-    //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
 void LinkClass::check_pound_block(int bx, int by)
@@ -2548,7 +2383,7 @@ void LinkClass::check_pound_block(int bx, int by)
         }
         else
         {
-            s->ffdata[current_ffcombo]+=1;
+            s->ffcs[current_ffcombo].modCombo(1);
         }
     }
     
@@ -2598,7 +2433,7 @@ int LinkClass::EwpnHit()
             {
                 xofs=1000;
                 action=freeze;
-                ew->misc=999;                                         // in enemy wind
+                ew->pickUpLink();
                 attackclk=0;
                 return -1;
             }
@@ -2857,30 +2692,8 @@ int LinkClass::LwpnHit()                                    //only here to check
 
 void LinkClass::checkhit()
 {
-    if(checklink==true)
-    {
-        if(hclk>0)
-        {
-            --hclk;
-        }
-        
-        if(NayrusLoveShieldClk>0)
-        {
-            --NayrusLoveShieldClk;
-            
-            if(NayrusLoveShieldClk == 0 && nayruitem != -1)
-            {
-                stop_sfx(itemsbuf[nayruitem].usesound);
-                stop_sfx(itemsbuf[nayruitem].usesound+1);
-                nayruitem = -1;
-            }
-            else if(get_bit(quest_rules,qr_MORESOUNDS) && !(NayrusLoveShieldClk&0xF00) && nayruitem != -1)
-            {
-                stop_sfx(itemsbuf[nayruitem].usesound);
-                cont_sfx(itemsbuf[nayruitem].usesound+1);
-            }
-        }
-    }
+    if(checklink && hclk>0)
+        hclk--;
     
     if(hclk<39 && action==gothit)
         action=none;
@@ -2940,7 +2753,7 @@ void LinkClass::checkhit()
             if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
                         (itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
             {
-                if(NayrusLoveShieldClk<=0)
+                if(!nayrusLoveActive)
                 {
                     int ringpow = ringpower(lwpn_dp(i));
                     game->set_life(zc_max(game->get_life()-ringpow,0));
@@ -3052,11 +2865,7 @@ killweapon:
                             int oldid = ew->id;
                             ew->onhit(true, reflect ? 2 : 1, s->dir);
                             
-                            /*if (s->dummy_bool[0])
-                            {
-                              add_grenade(s->x,s->y,s->z,0,-1);
-                              s->dummy_bool[0]=false;
-                            }*/
+                            
                             if(ew->id != oldid || (ew->id>=wScript1 && ew->id<=wScript10)) // changed type from ewX to wX... Except for script weapons
                             {
                                 Lwpns.add(ew);
@@ -3083,7 +2892,7 @@ killweapon:
             //     if(((s->id==wBomb)||(s->id==wSBomb)) && (superman ? s->hit(x+7,y+7,z,2,2,1) : s->hit(this)))
             if(((s->id==wBomb)||(s->id==wSBomb)) && s->hit(this) && !superman && (scriptcoldet&1))
             {
-                if(NayrusLoveShieldClk<=0)
+                if(!nayrusLoveActive)
                 {
                     int ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *HP_PER_HEART));
                     game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-ringpow,0)));
@@ -3146,7 +2955,7 @@ killweapon:
     
     if(hit2!=-1)
     {
-        if(NayrusLoveShieldClk<=0)
+        if(!nayrusLoveActive)
         {
             int ringpow = ringpower(lwpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
@@ -3177,7 +2986,7 @@ killweapon:
     
     if(hit2!=-1)
     {
-        if(NayrusLoveShieldClk<=0)
+        if(!nayrusLoveActive)
         {
             int ringpow = ringpower(ewpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
@@ -3280,7 +3089,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
     {
         if((itemid<0) || (tmpscr->flags5&fDAMAGEWITHBOOTS) || (4<<current_item_power(itype_boots)<(abs(hp_modmin))) || (solid && bootsnosolid) || !checkmagiccost(itemid))
         {
-            if(NayrusLoveShieldClk<=0)
+            if(!nayrusLoveActive)
             {
                 int ringpow = ringpower(-hp_modmin);
                 game->set_life(zc_max(game->get_life()-(global_ring!=current_ring ? ringpow:-hp_modmin),0));
@@ -3314,7 +3123,6 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
 
 void LinkClass::hitlink(int hit2)
 {
-//printf("Stomp check: %d <= 12, %d < %d\n", int((y+16)-(((enemy*)guys.spr(hit2))->y)), (int)falling_oldy, (int)y);
     if(current_item(itype_stompboots) && checkmagiccost(current_item(itype_stompboots)) && (stomping ||
             (z > (((enemy*)guys.spr(hit2))->z)) ||
             (((tmpscr->flags7&fSIDEVIEW) && (y+16)-(((enemy*)guys.spr(hit2))->y)<=14) && falling_oldy<y)))
@@ -3336,7 +3144,7 @@ void LinkClass::hitlink(int hit2)
     }
     else if(superman || !(scriptcoldet&1))
         return;
-    else if(NayrusLoveShieldClk<=0)
+    else if(!nayrusLoveActive)
     {
         int ringpow = ringpower(enemy_dp(hit2));
         game->set_life(zc_max(game->get_life()-ringpow,0));
@@ -3438,140 +3246,86 @@ void LinkClass::hitlink(int hit2)
     }
 }
 
-void LinkClass::addsparkle(int wpn)
+static void byrnaSparkle(const weapon& wpn)
 {
-    weapon *w = (weapon*)Lwpns.spr(wpn);
-    int itemid = w->parentitem;
+    const itemdata& data=itemsbuf[wpn.parentitem];
     
-    if(itemid<0)
-        return;
-        
-    int itemtype = itemsbuf[itemid].family;
-    
-    if(itemtype!=itype_cbyrna && frame%4)
-        return;
-        
-    int wpn2 = (itemtype==itype_cbyrna) ? itemsbuf[itemid].wpn4 : itemsbuf[itemid].wpn2;
-    int wpn3 = (itemtype==itype_cbyrna) ? itemsbuf[itemid].wpn5 : itemsbuf[itemid].wpn3;
+    int wpn2=data.wpn4;
+    int wpn3=data.wpn5;
+    int newWpn;
     // Either one (wpn2) or the other (wpn3). If both are present, randomise.
-    int sparkle_type = (!wpn2 ? (!wpn3 ? 0 : wpn3) : (!wpn3 ? wpn2 : (rand()&1 ? wpn2 : wpn3)));
-    int direction=w->dir;
+    if(wpn2!=0)
+    {
+        if(wpn3==0)
+            newWpn=wpn2;
+        else
+            newWpn=((rand()&1)==0) ? wpn2 : wpn3;
+    }
+    else
+        newWpn=wpn3;
     
-    if(sparkle_type)
+    Lwpns.add(new weapon(
+      fix(wpn.getX()+2), fix(wpn.getY()+2), wpn.getZ(),
+      newWpn==wpn3 ? wFSparkle : wSSparkle,
+      newWpn, 0, wpn.getDir(), wpn.parentitem, -1));
+}
+
+static void standardSparkle(const weapon& wpn)
+{
+    if((frame&3)!=0)
+        return;
+        
+    const itemdata& data=itemsbuf[wpn.parentitem];
+    int wpn2=data.wpn2;
+    int wpn3=data.wpn3;
+    int newWpn;
+    // Either one (wpn2) or the other (wpn3). If both are present, randomise.
+    if(wpn2!=0)
+    {
+        if(wpn3==0)
+            newWpn=wpn2;
+        else
+            newWpn=((rand()&1)==0) ? wpn2 : wpn3;
+    }
+    else
+        newWpn=wpn3;
+    
+    if(newWpn)
     {
         int h=0;
         int v=0;
+        int dir=wpn.getDir();
         
-        if(w->dir==right||w->dir==r_up||w->dir==r_down)
-        {
-            h=-1;
-        }
+        if(dir==right || dir==r_up || dir==r_down)
+            h=-4;
         
-        if(w->dir==left||w->dir==l_up||w->dir==l_down)
-        {
-            h=1;
-        }
+        if(dir==left || dir==l_up || dir==l_down)
+            h=4;
         
-        if(w->dir==down||w->dir==l_down||w->dir==r_down)
-        {
-            v=-1;
-        }
+        if(dir==down || dir==l_down || dir==r_down)
+            v=-4;
         
-        if(w->dir==up||w->dir==l_up||w->dir==r_up)
-        {
-            v=1;
-        }
+        if(dir==up || dir==l_up || dir==r_up)
+            v=4;
         
         // Damaging boomerang sparkle?
-        if(wpn3 && itemtype==itype_brang)
+        if(newWpn==wpn3 && data.family==itype_brang)
         {
             // If the boomerang just bounced, flip the sparkle direction so it doesn't hit
             // whatever it just bounced off of if it's shielded from that direction.
-            if(w->misc==1 && w->clk2>256 && w->clk2<272)
-                direction=oppositeDir[direction];
+            if(wpn.misc==1 && wpn.clk2>256 && wpn.clk2<272)
+                dir=oppositeDir[dir];
         }
         
-        Lwpns.add(new weapon((fix)(w->x+(itemtype==itype_cbyrna ? 2 : rand()%4)+(h*4)),
-                             (fix)(w->y+(itemtype==itype_cbyrna ? 2 : rand()%4)+(v*4)),
-                             w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,sparkle_type,0,direction,itemid,getUID()));
+        Lwpns.add(new weapon(
+          fix(wpn.getX()+rand()%4)+h, fix(wpn.getY()+rand()%4)+v, wpn.getZ(),
+          newWpn==wpn3 ? wFSparkle : wSSparkle,
+          newWpn, 0, dir, wpn.parentitem, -1));
     }
 }
 
-// For wPhantoms
-void LinkClass::addsparkle2(int type1, int type2)
+void LinkClass::updateGravity()
 {
-    if(frame%4) return;
-    
-    int arrow = -1;
-    
-    for(int i=0; i<Lwpns.Count(); i++)
-    {
-        weapon *w = (weapon*)Lwpns.spr(i);
-        
-        if(w->id == wPhantom && w->type == type1)
-        {
-            arrow = i;
-            break;
-        }
-    }
-    
-    if(arrow==-1)
-    {
-        return;
-    }
-    
-    Lwpns.add(new weapon((fix)((Lwpns.spr(arrow)->x-3)+(rand()%7)),
-                         (fix)((Lwpns.spr(arrow)->y-3)+(rand()%7)),
-                         Lwpns.spr(arrow)->z, wPhantom, type2,0,0,((weapon*)Lwpns.spr(arrow))->parentitem,-1));
-}
-
-// returns true when game over
-bool LinkClass::animate(int)
-{
-    int lsave=0;
-    
-    if(do_cheat_goto)
-    {
-        didpit=true;
-        pitx=x;
-        pity=y;
-        dowarp(3,0);
-        do_cheat_goto=false;
-        return false;
-    }
-    
-    if(do_cheat_light)
-    {
-        naturaldark = !naturaldark;
-        lighting(false, false);
-        do_cheat_light = false;
-    }
-    
-    if(action!=climbcovertop&&action!=climbcoverbottom)
-    {
-        climb_cover_x=-1000;
-        climb_cover_y=-1000;
-    }
-    
-    if(isGrassType(COMBOTYPE(x,y+15)) && isGrassType(COMBOTYPE(x+15,y+15))&& z<=8)
-    {
-        if(decorations.idCount(dTALLGRASS)==0)
-        {
-            decorations.add(new dTallGrass(x, y, dTALLGRASS, 0));
-        }
-    }
-    
-    if((COMBOTYPE(x,y+15)==cSHALLOWWATER)&&(COMBOTYPE(x+15,y+15)==cSHALLOWWATER) && z==0)
-    {
-        if(decorations.idCount(dRIPPLES)==0)
-        {
-            decorations.add(new dRipples(x, y, dRIPPLES, 0));
-        }
-    }
-    
-    if(stomping)
-        stomping = false;
-        
     if(tmpscr->flags7&fSIDEVIEW)  // Sideview gravity
     {
         // Fall, unless on a ladder, rafting, using the hookshot, drowning or cheating.
@@ -3653,11 +3407,6 @@ bool LinkClass::animate(int)
                 fall = jumping = 0;
                 int itemid = current_item_id(itype_hoverboots);
                 hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
-                
-                if(itemsbuf[itemid].wpn)
-                    decorations.add(new dHover(x, y, dHOVER, 0));
-                    
-                sfx(itemsbuf[itemid].usesound,pan(int(x)));
             }
             else if(!ladderx && !laddery)
             {
@@ -3740,12 +3489,70 @@ bool LinkClass::animate(int)
                 fall = 0;
                 int itemid = current_item_id(itype_hoverboots);
                 hoverclk = itemsbuf[itemid].misc1 ? itemsbuf[itemid].misc1 : -1;
-                decorations.add(new dHover(x, y, dHOVER, 0));
-                sfx(itemsbuf[current_item_id(itype_hoverboots)].usesound,pan(int(x)));
             }
             else fall += zinit.gravity;
         }
     }
+}
+
+void LinkClass::checkLadderRemoval()
+{
+    if(diagonalMovement)
+    {
+        if(ladderx+laddery)
+        {
+            if(ladderdir==up)
+            {
+                if((laddery-int(y)>=(16+(ladderstart==dir?ladderstart==down?1:0:0))) || (laddery-int(y)<=(-16-(ladderstart==dir?ladderstart==up?1:0:0))) || (abs(ladderx-int(x))>8))
+                {
+                    reset_ladder();
+                }
+            }
+            else
+            {
+                if((abs(laddery-int(y))>8) || (ladderx-int(x)>=(16+(ladderstart==dir?ladderstart==right?1:0:0))) || (ladderx-int(x)<=(-16-(ladderstart==dir?ladderstart==left?1:0:0))))
+                {
+                    reset_ladder();
+                }
+            }
+        }
+    }
+    else
+    {
+        if((abs(laddery-int(y))>=16) || (abs(ladderx-int(x))>=16))
+        {
+            reset_ladder();
+        }
+    }
+}
+
+// returns true when game over
+bool LinkClass::animate(int)
+{
+    itemEffects.update();
+    int lsave=0;
+    
+    if(action!=climbcovertop&&action!=climbcoverbottom)
+    {
+        climb_cover_x=-1000;
+        climb_cover_y=-1000;
+    }
+    
+    if(stomping)
+        stomping = false;
+    
+    if(currentItemAction)
+    {
+        currentItemAction->update();
+        if(currentItemAction->isFinished())
+        {
+            delete currentItemAction;
+            currentItemAction=0;
+        }
+        return false;
+    }
+    
+    updateGravity();
     
     if(drunkclk)
     {
@@ -3767,174 +3574,6 @@ bool LinkClass::animate(int)
             y=(int(y)+4)&0xFFF8;
             break;
         }
-    }
-    
-    if((watch==true) && clockclk)
-    {
-        --clockclk;
-        
-        if(!clockclk)
-        {
-            if(cheat_superman==false)
-            {
-                setClock(false);
-            }
-            
-            watch=false;
-            
-            for(int i=0; i<eMAXGUYS; i++)
-            {
-                for(int zoras=0; zoras<clock_zoras[i]; zoras++)
-                {
-                    addenemy(0,0,i,0);
-                }
-            }
-        }
-    }
-    
-    if(hookshot_frozen==true)
-    {
-        if(hookshot_used==true)
-        {
-            action=freeze;
-            
-            if(pull_link==true)
-            {
-                sprite *t;
-                int i;
-                
-                for(i=0; i<Lwpns.Count() && (Lwpns.spr(i)->id!=wHSHandle); i++)
-                {
-                    /* do nothing */
-                }
-                
-                t = Lwpns.spr(i);
-                
-                for(i=0; i<Lwpns.Count(); i++)
-                {
-                    sprite *s = Lwpns.spr(i);
-                    
-                    if(s->id==wHookshot)
-                    {
-                        if((s->y)>y)
-                        {
-                            y+=4;
-                            
-                            if(Lwpns.idFirst(wHSHandle)!=-1)
-                            {
-                                t->y+=4;
-                            }
-                            
-                            hs_starty+=4;
-                        }
-                        
-                        if((s->y)<y)
-                        {
-                            y-=4;
-                            
-                            if(Lwpns.idFirst(wHSHandle)!=-1)
-                            {
-                                t->y-=4;
-                            }
-                            
-                            hs_starty-=4;
-                        }
-                        
-                        if((s->x)>x)
-                        {
-                            x+=4;
-                            
-                            if(Lwpns.idFirst(wHSHandle)!=-1)
-                            {
-                                t->x+=4;
-                            }
-                            
-                            hs_startx+=4;
-                        }
-                        
-                        if((s->x)<x)
-                        {
-                            x-=4;
-                            
-                            if(Lwpns.idFirst(wHSHandle)!=-1)
-                            {
-                                t->x-=4;
-                            }
-                            
-                            hs_startx-=4;
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            Lwpns.del(Lwpns.idFirst(wHSHandle));
-            reset_hookshot();
-        }
-        
-        if(hs_fix)
-        {
-            if(dir==up)
-            {
-                y=int(y+7)&0xF0;
-            }
-            
-            if(dir==down)
-            {
-                y=int(y+7)&0xF0;
-            }
-            
-            if(dir==left)
-            {
-                x=int(x+7)&0xF0;
-            }
-            
-            if(dir==right)
-            {
-                x=int(x+7)&0xF0;
-            }
-            
-            hs_fix=false;
-        }
-        
-    }
-    
-    if(DrunkrLbtn() && !get_bit(quest_rules,qr_SELECTAWPN))
-        selectNextBWpn(SEL_LEFT);
-    else if(DrunkrRbtn() && !get_bit(quest_rules,qr_SELECTAWPN))
-        selectNextBWpn(SEL_RIGHT);
-        
-    if(rPbtn())
-    
-        // #define PBUTTONDEBUG
-        
-#ifndef PBUTTONDEBUG
-        onViewMap();
-        
-#else
-        /* This is here to allow me to output something to allegro.log on demand. */
-    {
-        al_trace("**********\n");
-    }
-#endif
-        
-    for(int i=0; i<Lwpns.Count(); i++)
-    {
-        weapon *w = ((weapon*)Lwpns.spr(i));
-        
-        if(w->id == wArrow || w->id == wBrang || w->id == wCByrna)
-            addsparkle(i);
-    }
-    
-    if(Lwpns.idCount(wPhantom))
-    {
-        addsparkle2(pDINSFIREROCKET,pDINSFIREROCKETTRAIL);
-        addsparkle2(pDINSFIREROCKETRETURN,pDINSFIREROCKETTRAILRETURN);
-        addsparkle2(pNAYRUSLOVEROCKET1,pNAYRUSLOVEROCKETTRAIL1);
-        addsparkle2(pNAYRUSLOVEROCKET2,pNAYRUSLOVEROCKETTRAIL2);
-        addsparkle2(pNAYRUSLOVEROCKETRETURN1,pNAYRUSLOVEROCKETTRAILRETURN1);
-        addsparkle2(pNAYRUSLOVEROCKETRETURN2,pNAYRUSLOVEROCKETTRAILRETURN2);
     }
     
     // Pay magic cost for Byrna beams
@@ -3964,12 +3603,11 @@ bool LinkClass::animate(int)
         if(false == (last_hurrah = !last_hurrah))
         {
             drunkclk=0;
-            gameover();
-            
             return true;
         }
     }
-    else last_hurrah=false;
+    else
+        last_hurrah=false;
     
     if(swordclk>0)
         --swordclk;
@@ -3987,17 +3625,6 @@ bool LinkClass::animate(int)
             
         return false;
     }
-    
-    if(ewind_restart)
-    {
-        attackclk=0;
-        restart_level();
-        xofs=0;
-        action=none;
-        ewind_restart=false;
-        return false;
-    }
-    
     
     if(hopclk)
         action = hopping;
@@ -4156,60 +3783,13 @@ bool LinkClass::animate(int)
         movelink();                                           // call the main movement routine
     }
     
-    // check for ladder removal
-    if(diagonalMovement)
-    {
-        if(ladderx+laddery)
-        {
-            if(ladderdir==up)
-            {
-                if((laddery-int(y)>=(16+(ladderstart==dir?ladderstart==down?1:0:0))) || (laddery-int(y)<=(-16-(ladderstart==dir?ladderstart==up?1:0:0))) || (abs(ladderx-int(x))>8))
-                {
-                    reset_ladder();
-                }
-            }
-            else
-            {
-                if((abs(laddery-int(y))>8) || (ladderx-int(x)>=(16+(ladderstart==dir?ladderstart==right?1:0:0))) || (ladderx-int(x)<=(-16-(ladderstart==dir?ladderstart==left?1:0:0))))
-                {
-                    reset_ladder();
-                }
-            }
-        }
-    }
-    else
-    {
-        if((abs(laddery-int(y))>=16) || (abs(ladderx-int(x))>=16))
-        {
-            reset_ladder();
-        }
-    }
+    checkLadderRemoval();
     
     if(ilswim)
         landswim++;
     else landswim=0;
     
     if(hopclk!=0xFF) ilswim=false;
-    
-    if((!loaded_guys) && (frame - newscr_clk >= 1))
-    {
-        if(tmpscr->room==rGANON)
-        {
-            ganon_intro();
-        }
-        else
-        {
-            loadguys();
-        }
-    }
-    
-    if((!loaded_enemies) && (frame - newscr_clk >= 2))
-    {
-        loadenemies();
-    }
-    
-    // check lots of other things
-    checkscroll();
     
     if(action!=inwind && action!=drowning)
     {
@@ -4324,30 +3904,16 @@ bool LinkClass::animate(int)
         
         if(!awarp)
         {
-            if(combobuf[tmpscr->ffdata[i]].type==cAWARPA)
+            byte ffcType=combobuf[tmpscr->ffcs[i].getCombo()].type;
+            if(ffcType>=cAWARPA && ffcType<=cAWARPD)
             {
                 awarp=true;
-                ind=0;
+                ind=ffcType-cAWARPA; // 0..3
             }
-            else if(combobuf[tmpscr->ffdata[i]].type==cAWARPB)
+            else if(ffcType==cAWARPR)
             {
                 awarp=true;
-                ind=1;
-            }
-            else if(combobuf[tmpscr->ffdata[i]].type==cAWARPC)
-            {
-                awarp=true;
-                ind=2;
-            }
-            else if(combobuf[tmpscr->ffdata[i]].type==cAWARPD)
-            {
-                awarp=true;
-                ind=3;
-            }
-            else if(combobuf[tmpscr->ffdata[i]].type==cAWARPR)
-            {
-                awarp=true;
-                ind=rand()%4;
+                ind=rand()&3;
             }
             
             if(awarp)
@@ -4364,20 +3930,6 @@ bool LinkClass::animate(int)
             }
         }
         
-    }
-    
-    if(ffwarp)
-    {
-        if(ffpit)
-        {
-            ffpit=false;
-            didpit=true;
-            pitx=x;
-            pity=y;
-        }
-        
-        ffwarp=false;
-        dowarp(1,0);
     }
     
     // walk through bombed doors and fake walls
@@ -4427,36 +3979,6 @@ bool LinkClass::animate(int)
         stepforward(29, true);
         action=scrolling;
         pushing=false;
-    }
-    
-    if(game->get_life()<=(HP_PER_HEART) && !(game->get_maxlife()<=(HP_PER_HEART)))
-    {
-        if(heart_beep)
-        {
-            cont_sfx(WAV_ER);
-        }
-        else
-        {
-            if(heart_beep_timer==-1)
-            {
-                heart_beep_timer=70;
-            }
-            
-            if(heart_beep_timer>0)
-            {
-                --heart_beep_timer;
-                cont_sfx(WAV_ER);
-            }
-            else
-            {
-                stop_sfx(WAV_ER);
-            }
-        }
-    }
-    else
-    {
-        heart_beep_timer=-1;
-        stop_sfx(WAV_ER);
     }
     
     if(rSbtn())
@@ -4523,6 +4045,7 @@ bool LinkClass::startwpn(int itemid)
     int wz=z;
     bool ret = true;
     
+    
     switch(dir)
     {
     case up:
@@ -4551,27 +4074,8 @@ bool LinkClass::startwpn(int itemid)
             return false;
             
         paymagiccost(itemid);
-        
-        if(itemsbuf[itemid].misc1 || itemsbuf[itemid].misc2)
-        {
-            refill_what=REFILL_ALL;
-            refill_why=itemid;
-            StartRefill(REFILL_ALL);
-            potion_life = game->get_life();
-            potion_magic = game->get_magic();
-            
-            //add a quest rule or an item option that lets you specify whether or not to pause music during refilling
-            //music_pause();
-            while(refill())
-            {
-                put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-                advanceframe(true);
-            }
-            
-            //add a quest rule or an item option that lets you specify whether or not to pause music during refilling
-            //music_resume();
-            ret = false;
-        }
+        beginSpecialSequence(seq_potion, itemid);
+        ret=false;
         
         break;
         
@@ -4619,60 +4123,17 @@ bool LinkClass::startwpn(int itemid)
     break;
     
     case itype_whistle:
-    {
-        bool whistleflag;
-        
-        if(!checkmagiccost(itemid))
-            return false;
-            
-        paymagiccost(itemid);
-        sfx(itemsbuf[itemid].usesound);
-        
-        if(dir==up || dir==right)
-            ++blowcnt;
-        else
-            --blowcnt;
-            
-        while(sfx_allocated(itemsbuf[itemid].usesound))
         {
-            advanceframe(true);
+            bool whistleflag;
             
-            if(Quit)
+            if(!checkmagiccost(itemid))
                 return false;
+                
+            paymagiccost(itemid);
+            beginSpecialSequence(seq_whistle, itemid);
         }
-        
-        Lwpns.add(new weapon(x,y,z,wWhistle,0,0,dir,itemid,getUID()));
-        
-        if(whistleflag=findentrance(x,y,mfWHISTLE,false))
-            didstuff |= did_whistle;
-            
-        if((didstuff&did_whistle && itemsbuf[itemid].flags&ITEM_FLAG1) || currscr>=128)
-            return false;
-            
-        if(itemsbuf[itemid].flags&ITEM_FLAG1) didstuff |= did_whistle;
-        
-        if((tmpscr->flags&fWHISTLE) || (tmpscr->flags7 & fWHISTLEWATER)
-                || (tmpscr->flags7&fWHISTLEPAL))
-        {
-            whistleclk=0;                                       // signal to start drying lake or doing other stuff
-        }
-        else
-        {
-            int where = itemsbuf[itemid].misc1;
-            
-            if(where>right) where=dir^1;
-            
-            if(((DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount()) || DMaps[currdmap].flags&dmfWHIRLWINDRET) &&
-                    itemsbuf[itemid].misc2 >= 0 && itemsbuf[itemid].misc2 <= 8 && !whistleflag)
-                Lwpns.add(new weapon((fix)(where==left?240:where==right?0:x),(fix)(where==down?0:where==up?160:y),
-                                     (fix)0,wWind,0,0,where,itemid,getUID()));
-                                     
-            whistleitem=itemid;
-        }
-        
-        ret = false;
-    }
-    break;
+        ret=false;
+        break;
     
     case itype_bomb:
     {
@@ -4683,9 +4144,7 @@ bool LinkClass::startwpn(int itemid)
             
             while(Lwpns.idCount(wLitBomb) && ew->misc == 0)
             {
-                ew->misc=50;
-                ew->clk=ew->misc-3;
-                ew->id=wBomb;
+                ew->activateRemoteBomb();
                 ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitBomb)));
             }
             
@@ -4730,9 +4189,7 @@ bool LinkClass::startwpn(int itemid)
             
             while(Lwpns.idCount(wLitSBomb) && ew->misc == 0)
             {
-                ew->misc=50;
-                ew->clk=ew->misc-3;
-                ew->id=wSBomb;
+                ew->activateRemoteBomb();
                 ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitSBomb)));
             }
             
@@ -4799,32 +4256,6 @@ bool LinkClass::startwpn(int itemid)
         else
             sfx(itemsbuf[itemid].usesound,pan(wx));
     }
-    /*
-    //    Fireball Wand
-    Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wRefFireball,0,2*DAMAGE_MULTIPLIER,dir));
-    switch (dir)
-    {
-    case up:
-      Lwpns.spr(Lwpns.Count()-1)->angle=-PI/2;
-      Lwpns.spr(Lwpns.Count()-1)->dir=up;
-      break;
-    case down:
-      Lwpns.spr(Lwpns.Count()-1)->angle=PI/2;
-      Lwpns.spr(Lwpns.Count()-1)->dir=down;
-      break;
-    case left:
-      Lwpns.spr(Lwpns.Count()-1)->angle=PI;
-      Lwpns.spr(Lwpns.Count()-1)->dir=left;
-      break;
-    case right:
-      Lwpns.spr(Lwpns.Count()-1)->angle=0;
-      Lwpns.spr(Lwpns.Count()-1)->dir=right;
-      break;
-    }
-    Lwpns.spr(Lwpns.Count()-1)->clk=16;
-    ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step=3.5;
-    Lwpns.spr(Lwpns.Count()-1)->dummy_bool[0]=true; //homing
-    */
     break;
     
     case itype_sword:
@@ -4908,7 +4339,10 @@ bool LinkClass::startwpn(int itemid)
             game->change_drupy(-1);
         }
         
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        weapon* wpn=new weapon((fix)wx,(fix)wy,(fix)wz,wArrow,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID());
+        if(itemsbuf[itemid].wpn2!=0 || itemsbuf[itemid].wpn3!=0)
+            wpn->setSparkleFunc(standardSparkle);
+        Lwpns.add(wpn);
         ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step*=(current_item_power(itype_bow)+1)/2;
         sfx(itemsbuf[itemid].usesound,pan(wx));
     }
@@ -4928,9 +4362,7 @@ bool LinkClass::startwpn(int itemid)
         {
             items.add(new item((fix)wx,(fix)wy,(fix)0,iBait,ipDUMMY+ipFADE,0));
             fadeclk=66;
-            dismissmsg();
-            clear_bitmap(pricesdisplaybuf);
-            set_clip_state(pricesdisplaybuf, 1);
+            messageMgr.clear(true);
             //    putscr(scrollbuf,0,0,tmpscr);
             setmapflag();
             removeItemsOfFamily(game,itemsbuf,itype_bait);
@@ -4952,11 +4384,19 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         current_item_power(itype_brang);
-        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBrang,itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*DAMAGE_MULTIPLIER),dir,itemid,getUID()));
+        weapon* wpn=new weapon((fix)wx,(fix)wy,(fix)wz,wBrang,
+          itemsbuf[itemid].fam_type,(itemsbuf[itemid].power*DAMAGE_MULTIPLIER),
+          dir,itemid,getUID());
+        if(itemsbuf[itemid].wpn2!=0 || itemsbuf[itemid].wpn3!=0)
+            wpn->setSparkleFunc(standardSparkle);
+        Lwpns.add(wpn);
     }
     break;
     
     case itype_hookshot:
+        if(!HookshotAction::canUse(*this))
+            break;
+        
         if(inlikelike || Lwpns.idCount(wHookshot))
             return false;
             
@@ -4964,103 +4404,7 @@ bool LinkClass::startwpn(int itemid)
             return false;
             
         paymagiccost(itemid);
-        
-        for(int i=-1; i<2; i++)
-        {
-            if(dir==up)
-            {
-                if((combobuf[MAPCOMBO2(i,x,y-7)].type==cHSGRAB)||
-                        (_walkflag(x+2,y+4,1) && !ishookshottable(int(x),int(y+4))))
-                {
-                    use_hookshot=false;
-                }
-            }
-            else if(dir==down)
-            {
-                if((combobuf[MAPCOMBO2(i,x+12,y+23)].type==cHSGRAB))
-                {
-                    use_hookshot=false;
-                }
-            }
-            else if(dir==left)
-            {
-                if((combobuf[MAPCOMBO2(i,x-7,y+12)].type==cHSGRAB))
-                {
-                    use_hookshot=false;
-                }
-            }
-            else if(dir==right)
-            {
-                if((combobuf[MAPCOMBO2(i,x+23,y+12)].type==cHSGRAB))
-                {
-                    use_hookshot=false;
-                }
-            }
-        }
-        
-        if(use_hookshot)
-        {
-            int hookitem = itemsbuf[itemid].fam_type;
-            int hookpower = itemsbuf[itemid].power;
-            
-            if(Lwpns.Count()>=SLMAX)
-            {
-                Lwpns.del(0);
-            }
-            
-            if(Lwpns.Count()>=SLMAX-1)
-            {
-                Lwpns.del(0);
-            }
-            
-            if(dir==up)
-            {
-                hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                Lwpns.add(new weapon((fix)wx,(fix)wy-4,(fix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                hs_startx=wx;
-                hs_starty=wy-4;
-            }
-            
-            if(dir==down)
-            {
-                int offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
-                hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy+offset,(fix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                Lwpns.add(new weapon((fix)wx,(fix)wy+offset,(fix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                hs_startx=wx;
-                hs_starty=wy;
-            }
-            
-            if(dir==left)
-            {
-                hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                Lwpns.add(new weapon((fix)(wx-4),(fix)wy,(fix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                hs_startx=wx-4;
-                hs_starty=wy;
-            }
-            
-            if(dir==right)
-            {
-                hookshot_used=true;
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wHSHandle,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                Lwpns.add(new weapon((fix)(wx+4),(fix)wy,(fix)wz,wHookshot,hookitem,
-                                     hookpower*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
-                hs_startx=wx+4;
-                hs_starty=wy;
-            }
-            
-            hookshot_frozen=true;
-        }
-        
+        currentItemAction=new HookshotAction(itemid, *this);
         break;
         
     case itype_dinsfire:
@@ -5072,7 +4416,7 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         action=casting;
-        magicitem=itemid;
+        currentItemAction=new DinsFireAction(itemid, *this);
         break;
         
     case itype_faroreswind:
@@ -5084,7 +4428,7 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         action=casting;
-        magicitem=itemid;
+        currentItemAction=new FaroresWindAction(itemid, *this);
         break;
         
     case itype_nayruslove:
@@ -5096,7 +4440,7 @@ bool LinkClass::startwpn(int itemid)
             
         paymagiccost(itemid);
         action=casting;
-        magicitem=itemid;
+        currentItemAction=new NayrusLoveAction(itemid, *this);
         break;
         
     case itype_cbyrna:
@@ -5114,7 +4458,13 @@ bool LinkClass::startwpn(int itemid)
         paymagiccost(itemid);
         
         for(int i=0; i<itemsbuf[itemid].misc3; i++)
-            Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+        {
+            weapon* wpn=new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,
+              itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID());
+            if(itemsbuf[itemid].wpn4!=0 || itemsbuf[itemid].wpn5!=0)
+                wpn->setSparkleFunc(byrnaSparkle);
+            Lwpns.add(wpn);
+        }
     }
     break;
     
@@ -9618,7 +8968,7 @@ void LinkClass::checkspecial2(int *ls)
     // Special case for step combos; otherwise, they act oddly in some cases
     if((types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])||(types[1]==cSTEP&&types[3]==cSTEP))
     {
-        if(action!=freeze&&(!msg_active || !get_bit(quest_rules,qr_MSGFREEZE)))
+        if(action!=freeze&&(!messageMgr.messageIsActive() || !get_bit(quest_rules,qr_MSGFREEZE)))
             type = types[1];
     }
     
@@ -9745,7 +9095,7 @@ void LinkClass::checkspecial2(int *ls)
     }
     
     if(types[0]==cPIT||types[1]==cPIT||types[2]==cPIT||types[3]==cPIT)
-        if(action!=freeze&& (!msg_active || !get_bit(quest_rules,qr_MSGFREEZE)))
+        if(action!=freeze&& (!messageMgr.messageIsActive() || !get_bit(quest_rules,qr_MSGFREEZE)))
             type=cPIT;
             
     //
@@ -9756,7 +9106,7 @@ void LinkClass::checkspecial2(int *ls)
         
     if(type==cSAVE2&&currscr<128)
         *ls=2;
-        
+    
     if(refilling==REFILL_LIFE || flag==mfFAIRY||flag2==mfFAIRY||flag3==mfFAIRY)
     {
         fairycircle(REFILL_LIFE);
@@ -10031,7 +9381,7 @@ void LinkClass::checkspecial2(int *ls)
                 music_stop();
         }
         
-        stop_sfx(WAV_ER);
+        //stop_sfx(WAV_ER);
         bool opening = (tmpscr[t].tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && tmpscr[t].tilewarptype[index]==wtCAVE)
                         ? false : COOLSCROLL);
                         
@@ -10040,8 +9390,8 @@ void LinkClass::checkspecial2(int *ls)
         
         skippedaframe=true;
         
-        if(type==cCAVE2) walkup2(opening);
-        else if(type==cCAVE) walkdown(opening);
+        if(type==cCAVE2) walkup(opening, true);
+        else if(type==cCAVE) walkdown(opening, false);
     }
     
     if(type==cPIT)
@@ -10157,16 +9507,6 @@ int selectWlevel(int d)
     
     game->set_wlevel(l);
     return l;
-}
-
-// Would someone tell the Dodongos to shut their yaps?!
-void kill_enemy_sfx()
-{
-    for(int i=0; i<guys.Count(); i++)
-    {
-        if(((enemy*)guys.spr(i))->bgsfx)
-            stop_sfx(((enemy*)guys.spr(i))->bgsfx);
-    }
 }
 
 void LinkClass::setEntryPoints(int x2, int y2)
@@ -10313,7 +9653,6 @@ bool LinkClass::dowarp(int type, int index)
         {
             specialcave = ITEMCELLAR;
             map_bkgsfx(false);
-            kill_enemy_sfx();
             draw_screen(tmpscr,false);
             
             //unless the room is already dark, fade to black
@@ -10354,7 +9693,6 @@ bool LinkClass::dowarp(int type, int index)
     case wtPASS:                                            // passageway
     {
         map_bkgsfx(false);
-        kill_enemy_sfx();
         ALLOFF();
         homescr=currscr;
         currscr=0x81;
@@ -10544,14 +9882,14 @@ bool LinkClass::dowarp(int type, int index)
                 reset_pal_cycling();
                 putscr(scrollbuf,0,0,tmpscr);
                 putscrdoors(scrollbuf,0,0,tmpscr);
-                walkup(COOLSCROLL);
+                walkup(COOLSCROLL, false);
             }
             else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
             {
                 reset_pal_cycling();
                 putscr(scrollbuf,0,0,tmpscr);
                 putscrdoors(scrollbuf,0,0,tmpscr);
-                walkdown2(COOLSCROLL);
+                walkdown(COOLSCROLL, true);
             }
             else if(COOLSCROLL)
             {
@@ -10563,7 +9901,7 @@ bool LinkClass::dowarp(int type, int index)
         show_subscreen_numbers=true;
         playLevelMusic();
         currcset=DMaps[currdmap].color;
-        dointro();
+        showCurrentDMapIntro();
         setEntryPoints(x,y);
         
         for(int i=0; i<6; i++)
@@ -10628,7 +9966,7 @@ bool LinkClass::dowarp(int type, int index)
         
         playLevelMusic();
         currcset=DMaps[currdmap].color;
-        dointro();
+        showCurrentDMapIntro();
     }
     break;
     
@@ -10644,7 +9982,7 @@ bool LinkClass::dowarp(int type, int index)
         
         playLevelMusic();
         currcset=DMaps[currdmap].color;
-        dointro();
+        showCurrentDMapIntro();
         action=inwind;
         int wry;
         
@@ -10772,14 +10110,14 @@ bool LinkClass::dowarp(int type, int index)
             reset_pal_cycling();
             putscr(scrollbuf,0,0,tmpscr);
             putscrdoors(scrollbuf,0,0,tmpscr);
-            walkup(COOLSCROLL);
+            walkup(COOLSCROLL, false);
         }
         else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
         {
             reset_pal_cycling();
             putscr(scrollbuf,0,0,tmpscr);
             putscrdoors(scrollbuf,0,0,tmpscr);
-            walkdown2(COOLSCROLL);
+            walkdown(COOLSCROLL, true);
         }
         else if(wtype==wtIWARPZAP)
         {
@@ -10798,7 +10136,7 @@ bool LinkClass::dowarp(int type, int index)
         show_subscreen_numbers=true;
         playLevelMusic();
         currcset=DMaps[currdmap].color;
-        dointro();
+        showCurrentDMapIntro();
         setEntryPoints(x,y);
     }
     break;
@@ -10961,7 +10299,7 @@ bool LinkClass::dowarp(int type, int index)
 
 void LinkClass::exitcave()
 {
-    stop_sfx(WAV_ER);
+    //stop_sfx(WAV_ER);
     currscr=homescr;
     loadscr(0,currdmap,currscr,255,false);                                   // bogus direction
     x = tmpscr->warpreturnx[0];
@@ -10997,18 +10335,18 @@ void LinkClass::exitcave()
     
     if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
     {
-        walkup(COOLSCROLL);
+        walkup(COOLSCROLL, false);
     }
     else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
     {
-        walkdown2(COOLSCROLL);
+        walkdown(COOLSCROLL, true);
     }
     
     show_subscreen_life=true;
     show_subscreen_numbers=true;
     playLevelMusic();
     currcset=DMaps[currdmap].color;
-    dointro();
+    showCurrentDMapIntro();
     newscr_clk=frame;
     activated_timed_warp=false;
     dir=down;
@@ -11153,26 +10491,40 @@ void LinkClass::stepforward(int steps, bool adjust)
     shiftdir=sh;
 }
 
-void LinkClass::walkdown(bool opening) //entering cave
+void LinkClass::walkdown(bool opening, bool cave2) //exiting cave
 {
-    if(opening)
+    // Fix Link's position to the grid
+    y=int(y)&0xF0;
+    z=fall=0;
+    
+    if(cave2)
     {
-        close_black_opening(x+8, y+8+playing_field_offset, false);
+        dir=down;
+        int type = combobuf[MAPCOMBO(x,y)].type;
+        
+        // Wait, isn't this why cave2 is true in the first place?
+        if((type==cCAVE2)||(type>=cCAVE2B && type<=cCAVE2D))
+            y-=16;
+        
+        if(opening)
+            beginScreenWipeIn(x+8, y+8+playing_field_offset+16);
+    }
+    else
+    {
+        if(opening)
+            beginScreenWipeOut(x+8, y+8+playing_field_offset);
     }
     
     hclk=0;
     stop_item_sfx(itype_brang);
     sfx(WAV_STAIRS,pan(int(x)));
     clk=0;
-    //  int cmby=(int(y)&0xF0)+16;
-    // Fix Link's position to the grid
-    y=int(y)&0xF0;
-    action=climbcoverbottom;
+    action=cave2 ? climbcovertop : climbcoverbottom;
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
     climb_cover_x=int(x)&0xF0;
-    climb_cover_y=(int(y)&0xF0)+16;
+    climb_cover_y=(int(y)&0xF0)+(cave2 ? 0 : 16);
     
     guys.clear();
     chainlinks.clear();
@@ -11200,21 +10552,28 @@ void LinkClass::walkdown(bool opening) //entering cave
     action=none;
 }
 
-void LinkClass::walkdown2(bool opening) //exiting cave 2
+void LinkClass::walkup(bool opening, bool cave2) //exiting cave
 {
-    int type = combobuf[MAPCOMBO(x,y)].type;
-    
-    if((type==cCAVE2)||(type>=cCAVE2B && type<=cCAVE2D))
-        y-=16;
-        
-    dir=down;
     // Fix Link's position to the grid
     y=int(y)&0xF0;
     z=fall=0;
     
-    if(opening)
+    if(cave2)
     {
-        open_black_opening(x+8, y+8+playing_field_offset+16, false);
+        dir=up;
+        if(opening)
+            beginScreenWipeOut(x+8, y+8+playing_field_offset);
+    }
+    else
+    {
+        int type = combobuf[MAPCOMBO(x,y)].type;
+        
+        // ...
+        if((type==cCAVE)||(type>=cCAVEB && type<=cCAVED))
+            y+=16;
+        
+        if(opening)
+            beginScreenWipeIn(x+8, y+8+playing_field_offset-16);
     }
     
     hclk=0;
@@ -11222,115 +10581,12 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
     sfx(WAV_STAIRS,pan(int(x)));
     clk=0;
     //  int cmby=int(y)&0xF0;
-    action=climbcovertop;
+    action=cave2 ? climbcovertop : climbcoverbottom;
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
     climb_cover_x=int(x)&0xF0;
-    climb_cover_y=int(y)&0xF0;
-    
-    guys.clear();
-    chainlinks.clear();
-    Lwpns.clear();
-    Ewpns.clear();
-    items.clear();
-    
-    for(int i=0; i<64; i++)
-    {
-        linkstep();
-        
-        if(zinit.linkanimationstyle==las_zelda3 || zinit.linkanimationstyle==las_zelda3slow)
-            link_count=(link_count+1)%16;
-            
-        if((i&3)==3)
-            ++y;
-            
-        draw_screen(tmpscr);
-        advanceframe(true);
-        
-        if(Quit)
-            break;
-    }
-    
-    action=none;
-}
-
-void LinkClass::walkup(bool opening) //exiting cave
-{
-    int type = combobuf[MAPCOMBO(x,y)].type;
-    
-    if((type==cCAVE)||(type>=cCAVEB && type<=cCAVED))
-        y+=16;
-        
-    // Fix Link's position to the grid
-    y=int(y)&0xF0;
-    z=fall=0;
-    
-    if(opening)
-    {
-        open_black_opening(x+8, y+8+playing_field_offset-16, false);
-    }
-    
-    hclk=0;
-    stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(int(x)));
-    dir=down;
-    clk=0;
-    //  int cmby=int(y)&0xF0;
-    action=climbcoverbottom;
-    attack=wNone;
-    attackid=-1;
-    reset_swordcharge();
-    climb_cover_x=int(x)&0xF0;
-    climb_cover_y=int(y)&0xF0;
-    
-    guys.clear();
-    chainlinks.clear();
-    Lwpns.clear();
-    Ewpns.clear();
-    items.clear();
-    
-    for(int i=0; i<64; i++)
-    {
-        linkstep();
-        
-        if(zinit.linkanimationstyle==las_zelda3 || zinit.linkanimationstyle==las_zelda3slow)
-            link_count=(link_count+1)%16;
-            
-        if((i&3)==0)
-            --y;
-            
-        draw_screen(tmpscr);
-        advanceframe(true);
-        
-        if(Quit)
-            break;
-    }
-    
-    map_bkgsfx(true);
-    loadside=dir^1;
-    action=none;
-}
-
-void LinkClass::walkup2(bool opening) //entering cave2
-{
-    if(opening)
-    {
-        close_black_opening(x+8, y+8+playing_field_offset, false);
-    }
-    
-    hclk=0;
-    stop_item_sfx(itype_brang);
-    sfx(WAV_STAIRS,pan(int(x)));
-    dir=up;
-    clk=0;
-    //  int cmby=int(y)&0xF0;
-    action=climbcovertop;
-    attack=wNone;
-    attackid=-1;
-    reset_swordcharge();
-    climb_cover_x=int(x)&0xF0;
-    climb_cover_y=(int(y)&0xF0)-16;
+    climb_cover_y=(int(y)&0xF0)-(cave2 ? 16 : 0);
     
     guys.clear();
     chainlinks.clear();
@@ -11364,9 +10620,8 @@ void LinkClass::stepout() // Step out of item cellars and passageways
 {
     int sc = specialcave; // This gets erased by ALLOFF()
     ALLOFF();
-    stop_sfx(WAV_ER);
+    //stop_sfx(WAV_ER);
     map_bkgsfx(false);
-    kill_enemy_sfx();
     draw_screen(tmpscr,false);
     fade(sc>=GUYCAVE?10:11,true,false);
     blackscr(30,true);
@@ -11430,11 +10685,11 @@ void LinkClass::stepout() // Step out of item cellars and passageways
     
     if((type==cCAVE)||(type>=cCAVEB && type<=cCAVED))
     {
-        walkup(false);
+        walkup(false, false);
     }
     else if((type==cCAVE2)||(type>=cCAVE2B && type<=cCAVE2D))
     {
-        walkdown2(false);
+        walkdown(false, true);
     }
     
     newscr_clk=frame;
@@ -12166,6 +11421,10 @@ bool LinkClass::maze_enabled_sizewarp(int scrolldir)
 
 int LinkClass::get_scroll_step(int scrolldir)
 {
+	// For side-scrollers, where the reletive speed of 'fast' scrolling is a bit slow.
+	if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
+		return 16;
+
     if(get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) != 0)
     {
         return (isdungeon() && !get_bit(quest_rules,qr_FASTDNGN)) ? 2 : 4;
@@ -12185,10 +11444,11 @@ int LinkClass::get_scroll_step(int scrolldir)
 
 int LinkClass::get_scroll_delay(int scrolldir)
 {
-    if(get_bit(quest_rules,qr_NOSCROLL))
+    if(get_bit(quest_rules, qr_NOSCROLL))
         return 0;
         
-    if(get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) != 0)
+	if( (get_bit(quest_rules, qr_VERYFASTSCROLLING) != 0) ||
+		(get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) != 0) )
     {
         return 1;
     }
@@ -12234,9 +11494,8 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     
     if(maze_enabled_sizewarp(scrolldir))  // dowarp() was called
         return;
-        
-    kill_enemy_sfx();
-    stop_sfx(WAV_ER);
+    
+    //stop_sfx(WAV_ER);
     screenscrolling = true;
     
     tmpscr[1] = tmpscr[0];
@@ -12263,7 +11522,9 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     int step = get_scroll_step(scrolldir);
     int delay = get_scroll_delay(scrolldir);
     
-    int scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
+    int scx = get_bit(quest_rules, qr_FASTDNGN) ? 30 : 0;
+	if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
+		scx = 32;
     
     actiontype lastaction = action;
     ALLOFF(false, false);
@@ -12698,8 +11959,9 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         do_layer(framebuf,-4, newscr, tx, ty, 2, true); //overhead FFCs
         do_layer(framebuf, 5, newscr, tx, ty, 2, false, true); //layer 5
         
-        if(msgdisplaybuf->clip == 0)
-            masked_blit(msgdisplaybuf, framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
+        // Pretty sure this isn't even possible...
+        //if(msgdisplaybuf->clip == 0)
+            //masked_blit(msgdisplaybuf, framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
             
         put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
         
@@ -12709,12 +11971,10 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         //end drawing
         
         advanceframe(true);
-    }//end main scrolling loop (2 spaces tab width makes me sad =( )
+    }//end main scrolling loop
     
     
-    
-    clear_bitmap(msgdisplaybuf);
-    set_clip_state(msgdisplaybuf, 1);
+    messageMgr.clear(true);
     
     //Move link to the other side of the screen if scrolling's not turned on
     if(get_bit(quest_rules, qr_NOSCROLL))
@@ -13414,143 +12674,6 @@ bool canget(int id)
     return id>=0 && (game->get_maxlife()>=(itemsbuf[id].pickup_hearts*HP_PER_HEART));
 }
 
-void dospecialmoney(int index)
-{
-    int tmp=currscr>=128?1:0;
-    int priceindex = ((item*)items.spr(index))->PriceIndex;
-    
-    switch(tmpscr[tmp].room)
-    {
-    case rINFO:                                             // pay for info
-        if(prices[priceindex]!=100000) // 100000 is a placeholder price for free items
-        {
-            if(game->get_spendable_rupies() < abs(prices[priceindex]))
-                return;
-                
-            if(!current_item_power(itype_wallet))
-                game->change_drupy(-abs(prices[priceindex]));
-        }
-        rectfill(msgdisplaybuf, 0, 0, msgdisplaybuf->w, 80, 0);
-        donewmsg(QMisc.info[tmpscr[tmp].catchall].str[priceindex]);
-        clear_bitmap(pricesdisplaybuf);
-        set_clip_state(pricesdisplaybuf, 1);
-        items.del(0);
-        
-        for(int i=0; i<items.Count(); i++)
-            ((item*)items.spr(i))->pickup=ipDUMMY;
-            
-        // Prevent the prices from being displayed anymore
-        for(int i=0; i<3; i++)
-        {
-            prices[i] = 0;
-        }
-        
-        break;
-        
-    case rMONEY:                                            // secret money
-        ((item*)items.spr(0))->pickup=ipDUMMY;
-        
-        if(!current_item_power(itype_wallet))
-            game->change_drupy((prices[0]=tmpscr[tmp].catchall));
-            
-        putprices(false);
-        setmapflag();
-        break;
-        
-    case rGAMBLE:                                           // gamble
-    {
-        if(game->get_spendable_rupies()<10 && !current_item_power(itype_wallet)) return;
-        
-        unsigned si=(rand()%24)*3;
-        
-        for(int i=0; i<3; i++)
-            prices[i]=gambledat[si++];
-            
-        game->change_drupy(prices[priceindex]);
-        putprices(true);
-        
-        for(int i=1; i<4; i++)
-            ((item*)items.spr(i))->pickup=ipDUMMY;
-    }
-    break;
-    
-    case rBOMBS:
-        if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
-            return;
-            
-        game->change_drupy(-abs(tmpscr[tmp].catchall));
-        setmapflag();
-        game->change_maxbombs(4);
-        game->set_bombs(game->get_maxbombs());
-        {
-            int div = zinit.bomb_ratio;
-            
-            if(div > 0)
-                game->change_maxcounter(4/div, 6);
-        }
-        
-        //also give Link an actual Bomb item
-        for(int i=0; i<MAXITEMS; i++)
-        {
-            if(itemsbuf[i].family == itype_bomb && itemsbuf[i].fam_type == 1)
-                getitem(i, true);
-        }
-        
-        ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
-        fadeclk=66;
-        dismissmsg();
-        clear_bitmap(pricesdisplaybuf);
-        set_clip_state(pricesdisplaybuf, 1);
-        //    putscr(scrollbuf,0,0,tmpscr);
-        verifyBothWeapons();
-        break;
-        
-    case rARROWS:
-        if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
-            return;
-            
-        game->change_drupy(-abs(tmpscr[tmp].catchall));
-        setmapflag();
-        game->change_maxarrows(10);
-        game->set_arrows(game->get_maxarrows());
-        ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
-        fadeclk=66;
-        dismissmsg();
-        clear_bitmap(pricesdisplaybuf);
-        set_clip_state(pricesdisplaybuf, 1);
-        //    putscr(scrollbuf,0,0,tmpscr);
-        verifyBothWeapons();
-        break;
-        
-    case rSWINDLE:
-        if(items.spr(index)->id==iRupy)
-        {
-            if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
-                return;
-                
-            game->change_drupy(-abs(tmpscr[tmp].catchall));
-        }
-        else
-        {
-            if(game->get_maxlife()<=HP_PER_HEART)
-                return;
-                
-            game->set_life(zc_max(game->get_life()-HP_PER_HEART,0));
-            game->set_maxlife(zc_max(game->get_maxlife()-HP_PER_HEART,(HP_PER_HEART)));
-        }
-        
-        setmapflag();
-        ((item*)items.spr(0))->pickup=ipDUMMY+ipFADE;
-        ((item*)items.spr(1))->pickup=ipDUMMY+ipFADE;
-        fadeclk=66;
-        dismissmsg();
-        clear_bitmap(pricesdisplaybuf);
-        set_clip_state(pricesdisplaybuf, 1);
-        //    putscr(scrollbuf,0,0,tmpscr);
-        break;
-    }
-}
-
 void getitem(int id, bool nosound)
 {
     if(id<0)
@@ -13661,15 +12784,8 @@ void getitem(int id, bool nosound)
     switch(itemsbuf[id&0xFF].family)
     {
     case itype_clock:
-    {
-        setClock(watch=true);
-        
-        for(int i=0; i<eMAXGUYS; i++)
-            clock_zoras[i]=0;
-            
-        clockclk=itemsbuf[id&0xFF].misc1;
-    }
-    break;
+        Link.addItemEffect(getItemEffect(id&0xFF));
+        break;
     
     case itype_lkey:
         if(game->lvlkeys[dlevel]<255) game->lvlkeys[dlevel]++;
@@ -13840,101 +12956,43 @@ void LinkClass::checkitems(int index)
     // if (tmpscr[tmp].room==rSHOP && boughtsomething==true)
     //   return;
     
-    int pickup = ((item*)items.spr(index))->pickup;
-    int PriceIndex = ((item*)items.spr(index))->PriceIndex;
-    int id2 = ((item*)items.spr(index))->id;
+    item* theItem=(item*)items.spr(index);
     
-    if((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))
-        if((items.spr(index)->id!=iFairyMoving)&&(items.spr(index)->id!=iFairyMoving))
-            // wait for it to stop flashing, doesn't check for other items yet
-            return;
-            
-    if(pickup&ipENEMY)                                        // item was being carried by enemy
-        if(more_carried_items()<=1)  // 1 includes this own item.
-            hasitem &= ~2;
-            
-    if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)
-    {
-        if(pickup&ipMONEY)
-            dospecialmoney(index);
-            
+    if(!theItem->canPickUp(this))
         return;
-    }
     
-    if(get_bit(quest_rules,qr_HEARTSREQUIREDFIX) && !canget(id2))
-        return;
-        
-    if((itemsbuf[id2].flags & ITEM_COMBINE) && current_item(itemsbuf[id2].family)==itemsbuf[id2].fam_type)
-        // Item upgrade routine.
+    int pickup=theItem->pickup;
+    int PriceIndex=theItem->PriceIndex;
+    int itemID=theItem->id;
+    
+    int id2=theItem->getUpgradeResult();
+    if(id2>=0)
     {
-        int nextitem = -1;
-        
-        for(int i=0; i<MAXITEMS; i++)
+        // Not quite sure how this is going to work. When picking up
+        // an upgrade item, Link has to have enough hearts for both
+        // the item itself and the upgrade result.
+        if(get_bit(quest_rules,qr_HEARTSREQUIREDFIX) ||
+          (theItem->pickup&ipSPECIAL))
         {
-            // Find the item which is as close to this item's fam_type as possible.
-            if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
-                    && (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
-            {
-                nextitem = i;
-            }
+            if(game->get_maxlife()<itemsbuf[id2].pickup_hearts*HP_PER_HEART)
+                return;
         }
-        
-        if(nextitem>-1)
-            id2 = nextitem;
     }
+    else
+        id2=itemID;
     
-    if(pickup&ipCHECK)                                        // check restrictions
-        switch(tmpscr[tmp].room)
-        {
-        case rSP_ITEM:                                        // special item
-            if(!canget(id2)) // These ones always need the Hearts Required check
-                return;
-                
-            break;
-            
-        case rP_SHOP:                                         // potion shop
-            if(msg_active)
-                return;
-                
-        case rSHOP:                                           // shop
-            if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
-            {
-                if(game->get_spendable_rupies()<abs(prices[PriceIndex]) && !current_item_power(itype_wallet))
-                    return;
-                
-                game->change_drupy(-abs(prices[PriceIndex]));
-            }
-            boughtsomething=true;
-            //make the other shop items untouchable after
-            //you buy something
-            int count = 0;
-            
-            for(int i=0; i<3; i++)
-            {
-                if(QMisc.shop[tmpscr[tmp].catchall].hasitem[i] != 0)
-                {
-                    ++count;
-                }
-            }
-            
-            for(int i=0; i<items.Count(); i++)
-            {
-                if(((item*)items.spr(i))->PriceIndex >-1 && i!=index)
-                    ((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
-            }
-            
-            break;
-        }
-        
     if(pickup&ipONETIME)                                      // set mITEM for one-time-only items
         setmapflag(mITEM);
     else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
-        setmapflag();
-        
+        setmapflag(mBELOW);
+    
     if(itemsbuf[id2].collect_script)
     {
         ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, id2 & 0xFFF);
     }
+    
+    if(theItem->onPickUp)
+        theItem->onPickUp();
     
     getitem(id2);
     
@@ -13945,14 +13003,10 @@ void LinkClass::checkitems(int index)
         
         if(action!=swimming)
             reset_hookshot();
-            
-        if(msg_onscreen)
-        {
-            dismissmsg();
-        }
         
-        clear_bitmap(pricesdisplaybuf);
+        messageMgr.clear(true);
         
+        // Not sure yet what should be done with this...
         if(get_bit(quest_rules, qr_OLDPICKUP) || ((tmpscr[tmp].room==rSP_ITEM || tmpscr[tmp].room==rRP_HC || tmpscr[tmp].room==rTAKEONE) && (pickup&ipONETIME2)))
         {
             fadeclk=66;
@@ -14002,15 +13056,7 @@ void LinkClass::checkitems(int index)
         for(int i=0; i<Lwpns.Count(); i++)
         {
             weapon *w = (weapon*)Lwpns.spr(i);
-            
-            if(w->dragging==index)
-            {
-                w->dragging=-1;
-            }
-            else if(w->dragging>index)
-            {
-                w->dragging-=1;
-            }
+            w->adjustDraggedItem(index);
         }
         
         // clear up shop stuff
@@ -14026,25 +13072,11 @@ void LinkClass::checkitems(int index)
                 for(int i=0; i<Lwpns.Count(); i++)
                 {
                     weapon *w = (weapon*)Lwpns.spr(i);
-                    
-                    if(w->dragging==0)
-                    {
-                        w->dragging=-1;
-                    }
-                    else if(w->dragging>0)
-                    {
-                        w->dragging-=1;
-                    }
+                    w->adjustDraggedItem(0);
                 }
             }
             
-            if(msg_onscreen)
-            {
-                dismissmsg();
-            }
-            
-            clear_bitmap(pricesdisplaybuf);
-            set_clip_state(pricesdisplaybuf, 1);
+            messageMgr.clear(true);
         }
         
         //   items.del(index);
@@ -14056,32 +13088,19 @@ void LinkClass::checkitems(int index)
         for(int i=0; i<Lwpns.Count(); i++)
         {
             weapon *w = (weapon*)Lwpns.spr(i);
-            
-            if(w->dragging==index)
-            {
-                w->dragging=-1;
-            }
-            else if(w->dragging>index)
-            {
-                w->dragging-=1;
-            }
+            w->adjustDraggedItem(index);
         }
         
-        if(msg_onscreen)
-        {
-            dismissmsg();
-        }
-        
-        clear_bitmap(pricesdisplaybuf);
-        set_clip_state(pricesdisplaybuf, 1);
+        messageMgr.clear(true);
     }
     
     if(itemsbuf[id2].family==itype_triforcepiece)
     {
         if(itemsbuf[id2].misc2==1)
-            getTriforce(id2);
+            beginSpecialSequence(seq_getTriforce, id2);
         else
-            getBigTri(id2);
+            //getBigTri(id2);
+            beginSpecialSequence(seq_getBigTriforce, id2);
     }
 }
 
@@ -14090,7 +13109,7 @@ void LinkClass::StartRefill(int refillWhat)
     if(!refilling)
     {
         refillclk=21;
-        stop_sfx(WAV_ER);
+        //stop_sfx(WAV_ER);
         sfx(WAV_REFILL,128,true);
         refilling=refillWhat;
         
@@ -14189,737 +13208,6 @@ bool LinkClass::refill()
     return true;
 }
 
-void LinkClass::getTriforce(int id2)
-{
-    PALETTE flash_pal;
-    
-    for(int i=0; i<256; i++)
-    {
-        flash_pal[i] = get_bit(quest_rules,qr_FADE) ? _RGB(63,63,0) : _RGB(63,63,63);
-    }
-    
-    //get rid off all sprites but Link
-    guys.clear();
-    items.clear();
-    Ewpns.clear();
-    Lwpns.clear();
-    Sitems.clear();
-    chainlinks.clear();
-    
-    //decorations.clear();
-    if(!COOLSCROLL)
-    {
-        show_subscreen_items=false;
-    }
-    
-    sfx(itemsbuf[id2].playsound);
-    music_stop();
-    
-    if(itemsbuf[id2].misc1)
-        jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
-    else
-        try_zcmusic((char*)"zelda.nsf",5, ZC_MIDI_TRIFORCE);
-        
-    if(itemsbuf[id2].flags & ITEM_GAMEDATA)
-    {
-        game->lvlitems[dlevel]|=liTRIFORCE;
-    }
-    
-    int f=0;
-    int x2=0;
-    int curtain_x=0;
-    int c=0;
-    
-    do
-    {
-        if(f==40)
-        {
-            actiontype oldaction = action;
-            ALLOFF(true, false);
-            action=oldaction;                                      // have to reset this flag
-        }
-        
-        if(f>=40 && f<88)
-        {
-            if(get_bit(quest_rules,qr_FADE))
-            {
-                if((f&3)==0)
-                {
-                    fade_interpolate(RAMpal,flash_pal,RAMpal,42,0,CSET(6)-1);
-                    refreshpal=true;
-                }
-                
-                if((f&3)==2)
-                {
-                    loadpalset(0,0);
-                    loadpalset(1,1);
-                    loadpalset(5,5);
-                    
-                    if(currscr<128) loadlvlpal(DMaps[currdmap].color);
-                    else loadlvlpal(0xB); // TODO: Cave/Item Cellar distinction?
-                }
-            }
-            else
-            {
-                if((f&7)==0)
-                {
-                    for(int cs2=2; cs2<5; cs2++)
-                    {
-                        for(int i=1; i<16; i++)
-                        {
-                            RAMpal[CSET(cs2)+i]=flash_pal[CSET(cs2)+i];
-                        }
-                    }
-                    
-                    refreshpal=true;
-                }
-                
-                if((f&7)==4)
-                {
-                    if(currscr<128) loadlvlpal(DMaps[currdmap].color);
-                    else loadlvlpal(0xB);
-                    
-                    loadpalset(5,5);
-                }
-            }
-        }
-        
-        if(itemsbuf[id2].flags & ITEM_GAMEDATA)
-        {
-            if(f==88)
-            {
-                refill_what=REFILL_ALL;
-                refill_why=id2;
-                StartRefill(REFILL_ALL);
-                refill();
-            }
-            
-            if(f==89)
-            {
-                if(refill())
-                {
-                    --f;
-                }
-            }
-        }
-        
-        if(itemsbuf[id2].flags & ITEM_FLAG1) // Warp out flag
-        {
-            if(f>=208 && f<288)
-            {
-                ++x2;
-                
-                switch(++c)
-                {
-                case 5:
-                    c=0;
-                    
-                case 0:
-                case 2:
-                case 3:
-                    ++x2;
-                    break;
-                }
-            }
-            
-            do_dcounters();
-            
-            if(f<288)
-            {
-                curtain_x=x2&0xF8;
-                draw_screen_clip_rect_x1=curtain_x;
-                draw_screen_clip_rect_x2=255-curtain_x;
-                draw_screen_clip_rect_y1=0;
-                draw_screen_clip_rect_y2=223;
-                //draw_screen_clip_rect_show_link=true;
-                //draw_screen(tmpscr);
-            }
-        }
-        
-        draw_screen(tmpscr);
-        //this causes bugs
-        //the subscreen appearing over the curtain effect should now be fixed in draw_screen
-        //so this is not necessary -DD
-        //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,false);
-        
-        advanceframe(true);
-        ++f;
-    }
-    while(f<408 || midi_pos > 0 || (zcmusic!=NULL && zcmusic->position<800));   // 800 may not be just right, but it works
-    
-    action=none;
-    holdclk=0;
-    draw_screen_clip_rect_x1=0;
-    draw_screen_clip_rect_x2=255;
-    draw_screen_clip_rect_y1=0;
-    draw_screen_clip_rect_y2=223;
-    //draw_screen_clip_rect_show_link=true;
-    show_subscreen_items=true;
-    
-    if(itemsbuf[id2].flags & ITEM_FLAG1 && currscr < 128)
-    {
-        sdir=dir;
-        dowarp(1,0); //side warp
-    }
-    else
-        playLevelMusic();
-}
-
-void red_shift()
-{
-    int tnum=176;
-    
-    // set up the new palette
-    for(int i=CSET(2); i < CSET(4); i++)
-    {
-        int r = (i-CSET(2)) << 1;
-        RAMpal[i+tnum].r = r;
-        RAMpal[i+tnum].g = r >> 3;
-        RAMpal[i+tnum].b = r >> 4;
-    }
-    
-    // color scale the game screen
-    for(int y=0; y<168; y++)
-    {
-        for(int x=0; x<256; x++)
-        {
-            int c = framebuf->line[y+playing_field_offset][x];
-            int r = zc_min(int(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
-            framebuf->line[y+playing_field_offset][x] = (c ? (r+tnum+CSET(2)) : 0);
-        }
-    }
-    
-    refreshpal = true;
-}
-
-
-
-void setup_red_screen_old()
-{
-    clear_bitmap(framebuf);
-    rectfill(scrollbuf, 0, 0, 255, 167, 0);
-    
-    if(tmpscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, tmpscr, 0, playing_field_offset, 2);
-    
-    if(tmpscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, tmpscr, 0, playing_field_offset, 2);
-    
-    putscr(scrollbuf, 0, 0, tmpscr);
-    putscrdoors(scrollbuf,0,0,tmpscr);
-    blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
-    do_layer(framebuf,0, tmpscr, 0, 0, 2);
-    
-    if(!(tmpscr->flags7&fLAYER2BG)) do_layer(framebuf,1, tmpscr, 0, 0, 2);
-    
-    do_layer(framebuf,-2, tmpscr, 0, 0, 2);
-    
-    if(!(msgdisplaybuf->clip))
-    {
-        masked_blit(msgdisplaybuf, framebuf,0,0,0,playing_field_offset, 256,168);
-    }
-    
-    if(!(pricesdisplaybuf->clip))
-    {
-        masked_blit(pricesdisplaybuf, framebuf,0,0,0,playing_field_offset, 256,168);
-    }
-    
-    //red shift
-    // color scale the game screen
-    for(int y=0; y<168; y++)
-    {
-        for(int x=0; x<256; x++)
-        {
-            int c = framebuf->line[y+playing_field_offset][x];
-            int r = zc_min(int(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
-            framebuf->line[y+playing_field_offset][x] = (c ? (r+CSET(2)) : 0);
-        }
-    }
-    
-    //  Link->draw(framebuf);
-    blit(framebuf,scrollbuf, 0, playing_field_offset, 256, playing_field_offset, 256, 168);
-    
-    clear_bitmap(framebuf);
-    
-    if(!((tmpscr->layermap[2]==0||(tmpscr->flags7&fLAYER3BG))
-            && tmpscr->layermap[3]==0
-            && tmpscr->layermap[4]==0
-            && tmpscr->layermap[5]==0
-            && !overheadcombos(tmpscr)))
-    {
-        if(!(tmpscr->flags7&fLAYER3BG)) do_layer(framebuf,2, tmpscr, 0, 0, 2);
-        
-        do_layer(framebuf,3, tmpscr, 0, 0, 2);
-        do_layer(framebuf,-1, tmpscr, 0, 0, 2);
-        do_layer(framebuf,4, tmpscr, 0, 0, 2);
-        do_layer(framebuf,5, tmpscr, 0, 0, 2);
-        
-        //do an AND masked blit for messages on top of layers
-        if(!(msgdisplaybuf->clip) || !(pricesdisplaybuf->clip))
-        {
-            for(int y=0; y<168; y++)
-            {
-                for(int x=0; x<256; x++)
-                {
-                    int c1 = framebuf->line[y+playing_field_offset][x];
-                    int c2 = msgdisplaybuf->line[y][x];
-                    int c3 = pricesdisplaybuf->line[y][x];
-                    
-                    if(c1 && c3)
-                    {
-                        framebuf->line[y+playing_field_offset][x] = c3;
-                    }
-                    else if(c1 && c2)
-                    {
-                        framebuf->line[y+playing_field_offset][x] = c2;
-                    }
-                }
-            }
-        }
-        
-        //red shift
-        // color scale the game screen
-        for(int y=0; y<168; y++)
-        {
-            for(int x=0; x<256; x++)
-            {
-                int c = framebuf->line[y+playing_field_offset][x];
-                int r = zc_min(int(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
-                framebuf->line[y+playing_field_offset][x] = r+CSET(2);
-            }
-        }
-    }
-    
-    blit(framebuf,scrollbuf, 0, playing_field_offset, 0, playing_field_offset, 256, 168);
-    
-    // set up the new palette
-    for(int i=CSET(2); i < CSET(4); i++)
-    {
-        int r = (i-CSET(2)) << 1;
-        RAMpal[i].r = r;
-        RAMpal[i].g = r >> 3;
-        RAMpal[i].b = r >> 4;
-    }
-    
-    refreshpal = true;
-}
-
-
-
-void slide_in_color(int color)
-{
-    for(int i=1; i<16; i+=3)
-    {
-        RAMpal[CSET(2)+i+2] = RAMpal[CSET(2)+i+1];
-        RAMpal[CSET(2)+i+1] = RAMpal[CSET(2)+i];
-        RAMpal[CSET(2)+i]   = NESpal(color);
-    }
-    
-    refreshpal=true;
-}
-
-void LinkClass::gameover()
-{
-    int f=0;
-    
-    action=none;
-    Playing=false;
-    
-    if(!debug_enabled)
-    {
-        Paused=false;
-    }
-    
-    game->set_deaths(zc_min(game->get_deaths()+1,999));
-    dir=down;
-    music_stop();
-    kill_sfx();
-    attackclk=hclk=superman=0;
-    scriptcoldet = 1;
-    
-    for(int i=0; i<16; i++) miscellaneous[i] = 0;
-    
-    //get rid off all sprites but Link
-    guys.clear();
-    items.clear();
-    Ewpns.clear();
-    Lwpns.clear();
-    Sitems.clear();
-    chainlinks.clear();
-    decorations.clear();
-    
-    playing_field_offset=56; // otherwise, red_shift() may go past the bottom of the screen
-    quakeclk=wavy=0;
-    
-    //in original Z1, Link marker vanishes at death.
-    //code in subscr.cpp, put_passive_subscr checks the following value.
-    //color 255 is a GUI color, so quest makers shouldn't be using this value.
-    //Also, subscreen is static after death in Z1.
-    int tmp_link_dot = QMisc.colors.link_dot;
-    QMisc.colors.link_dot = 255;
-    //doesn't work
-    //scrollbuf is tampered with by draw_screen()
-    //put_passive_subscr(scrollbuf, &QMisc, 256, passive_subscreen_offset, false, false);//save this and reuse it.
-    BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
-    clear_bitmap(subscrbmp);
-    put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, false, sspUP);
-    QMisc.colors.link_dot = tmp_link_dot;
-    
-    do
-    {
-        if(f<254)
-        {
-            if(f<=32)
-            {
-                hclk=(32-f);
-            }
-            
-            if(f>=62 && f<138)
-            {
-                switch((f-62)%20)
-                {
-                case 0:
-                    dir=right;
-                    break;
-                    
-                case 5:
-                    dir=up;
-                    break;
-                    
-                case 10:
-                    dir=left;
-                    break;
-                    
-                case 15:
-                    dir=down;
-                    break;
-                }
-                
-                linkstep();
-            }
-            
-            if(f>=194 && f<208)
-            {
-                if(f==194)
-                    action = dying;
-                    
-                extend = 0;
-                cs = wpnsbuf[iwDeath].csets&15;
-                tile = wpnsbuf[iwDeath].tile;
-                
-                if(BSZ)
-                {
-                    tile += (f-194)/3;
-                }
-                else if(f>=204)
-                {
-                    ++tile;
-                }
-            }
-            
-            if(f==208)
-                dontdraw = true;
-                
-            if(get_bit(quest_rules,qr_FADE))
-            {
-                if(f < 170)
-                {
-                    if(f<60)
-                    {
-                        draw_screen(tmpscr);
-                        //reuse our static subscreen
-                        set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-                        blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-                    }
-                    
-                    if(f==60)
-                    {
-                        red_shift();
-                        create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
-                        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-                        memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-                        
-                        for(int q=0; q<PAL_SIZE; q++)
-                        {
-                            trans_table2.data[0][q] = q;
-                            trans_table2.data[q][q] = q;
-                        }
-                    }
-                    
-                    if(f>=60 && f<=169)
-                    {
-                        draw_screen(tmpscr);
-                        //reuse our static subscreen
-                        blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-                        red_shift();
-                        
-                    }
-                    
-                    if(f>=139 && f<=169)//fade from red to black
-                    {
-                        fade_interpolate(RAMpal,black_palette,RAMpal, (f-138)<<1, 224, 255);
-                        create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
-                        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-                        memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-                        
-                        for(int q=0; q<PAL_SIZE; q++)
-                        {
-                            trans_table2.data[0][q] = q;
-                            trans_table2.data[q][q] = q;
-                        }
-                        
-                        refreshpal=true;
-                    }
-                }
-                else //f>=170
-                {
-                    if(f==170)//make Link grayish
-                    {
-                        fade_interpolate(RAMpal,black_palette,RAMpal,64, 224, 255);
-                        
-                        for(int i=CSET(6); i < CSET(7); i++)
-                        {
-                            int g = (RAMpal[i].r + RAMpal[i].g + RAMpal[i].b)/3;
-                            RAMpal[i] = _RGB(g,g,g);
-                        }
-                        
-                        refreshpal = true;
-                    }
-                    
-                    //draw only link. otherwise black layers might cover him.
-                    rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
-                    draw(framebuf);
-                    blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-                }
-            }
-            else //!qr_FADE
-            {
-                if(f==58)
-                {
-                    for(int i = 0; i < 96; i++)
-                        tmpscr->cset[i] = 3;
-                        
-                    for(int j=0; j<6; j++)
-                        if(tmpscr->layermap[j]>0)
-                            for(int i=0; i<96; i++)
-                                tmpscr2[j].cset[i] = 3;
-                }
-                
-                if(f==59)
-                {
-                    for(int i = 96; i < 176; i++)
-                        tmpscr->cset[i] = 3;
-                        
-                    for(int j=0; j<6; j++)
-                        if(tmpscr->layermap[j]>0)
-                            for(int i=96; i<176; i++)
-                                tmpscr2[j].cset[i] = 3;
-                }
-                
-                if(f==60)
-                {
-                    for(int i=0; i<176; i++)
-                    {
-                        tmpscr->cset[i] = 2;
-                    }
-                    
-                    for(int j=0; j<6; j++)
-                        if(tmpscr->layermap[j]>0)
-                            for(int i=0; i<176; i++)
-                                tmpscr2[j].cset[i] = 2;
-                                
-                    for(int i=1; i<16; i+=3)
-                    {
-                        RAMpal[CSET(2)+i]   = NESpal(0x17);
-                        RAMpal[CSET(2)+i+1] = NESpal(0x16);
-                        RAMpal[CSET(2)+i+2] = NESpal(0x26);
-                    }
-                    
-                    refreshpal=true;
-                }
-                
-                if(f==139)
-                    slide_in_color(0x06);
-                    
-                if(f==149)
-                    slide_in_color(0x07);
-                    
-                if(f==159)
-                    slide_in_color(0x0F);
-                    
-                if(f==169)
-                {
-                    slide_in_color(0x0F);
-                    slide_in_color(0x0F);
-                }
-                
-                if(f==170)
-                {
-                    for(int i=1; i<16; i+=3)
-                    {
-                        RAMpal[CSET(6)+i]   = NESpal(0x10);
-                        RAMpal[CSET(6)+i+1] = NESpal(0x30);
-                        RAMpal[CSET(6)+i+2] = NESpal(0x00);
-                        refreshpal = true;
-                    }
-                }
-                
-                if(f < 169)
-                {
-                    draw_screen(tmpscr);
-                    //reuse our static subscreen
-                    blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-                }
-                else
-                {
-                    //draw only link. otherwise black layers might cover him.
-                    rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
-                    draw(framebuf);
-                    blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-                }
-            }
-        }
-        else if(f<350)//draw 'GAME OVER' text
-        {
-            clear_bitmap(framebuf);
-            blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-            textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,1,-1);
-        }
-        else
-        {
-            clear_bitmap(framebuf);
-        }
-        
-        //SFX... put them all here
-        switch(f)
-        {
-        case   0:
-            sfx(WAV_OUCH,pan(int(x)));
-            break;
-            
-        case  60:
-            sfx(WAV_SPIRAL);
-            break;
-            
-        case 194:
-            sfx(WAV_MSG);
-            break;
-        }
-        
-        advanceframe(true);
-        ++f;
-    }
-    while(f<353 && !Quit);
-    
-    destroy_bitmap(subscrbmp);
-    action=none;
-    dontdraw=false;
-}
-
-
-void LinkClass::ganon_intro()
-{
-    /*
-    ************************
-    * GANON INTRO SEQUENCE *
-    ************************
-    -25 DOT updates
-    -24 LINK in
-    0 TRIFORCE overhead - code begins at this point (f == 0)
-    47 GANON in
-    58 LIGHT step
-    68 LIGHT step
-    78 LIGHT step
-    255 TRIFORCE out
-    256 TRIFORCE in
-    270 TRIFORCE out
-    271 GANON out, LINK face up
-    */
-    loaded_guys=true;
-    loaditem();
-    
-    if(game->lvlitems[dlevel]&liBOSS)
-    {
-        return;
-    }
-    
-    dir=down;
-    action=landhold2;
-    holditem=getItemID(itemsbuf,itype_triforcepiece, 1);
-    //not good, as this only returns the highest level that Link possesses. -DD
-    //getHighestLevelOfFamily(game, itemsbuf, itype_triforcepiece, false));
-    
-    for(int f=0; f<271 && !Quit; f++)
-    {
-        if(f==47)
-        {
-            music_stop();
-            stop_sfx(WAV_ROAR);
-            sfx(WAV_GASP);
-            sfx(WAV_GANON);
-            int Id=0;
-            
-            for(int i=0; i<eMAXGUYS; i++)
-            {
-                if(guysbuf[i].flags2&eneflag_ganon)
-                {
-                    Id=i;
-                    break;
-                }
-            }
-            
-            if(current_item(itype_ring))
-            {
-                addenemy(160,96,Id,0);
-            }
-            else
-            {
-                addenemy(80,32,Id,0);
-            }
-        }
-        
-        if(f==48)
-        {
-            lighting(true,true); // Hmm. -L
-            f += 30;
-        }
-        
-        //NES Z1, the triforce vanishes for one frame in two cases
-        //while still showing Link's two-handed overhead sprite.
-        if(f==255 || f==270)
-        {
-            holditem=-1;
-        }
-        
-        if(f==256)
-        {
-            holditem=getItemID(itemsbuf,itype_triforcepiece,1);
-        }
-        
-        draw_screen(tmpscr);
-        advanceframe(true);
-        
-        if(rSbtn())
-        {
-            conveyclk=3;
-            int tmp_subscr_clk = frame;
-            dosubscr(&QMisc);
-            newscr_clk += frame - tmp_subscr_clk;
-        }
-        
-    }
-    
-    action=none;
-    dir=up;
-    
-    if(!getmapflag() && (tunes[MAXMIDIS-1].data))
-        jukebox(MAXMIDIS-1);
-    else
-        playLevelMusic();
-        
-    currcset=DMaps[currdmap].color;
-    dointro();
-    cont_sfx(WAV_ROAR);
-}
-
 void LinkClass::saved_Zelda()
 {
     Playing=Paused=false;
@@ -14947,8 +13235,6 @@ void LinkClass::reset_hookshot()
     hookshot_frozen=false;
     hookshot_used=false;
     pull_link=false;
-    add_chainlink=false;
-    del_chainlink=false;
     hs_fix=false;
     Lwpns.del(Lwpns.idFirst(wHSHandle));
     Lwpns.del(Lwpns.idFirst(wHookshot));
@@ -15193,34 +13479,14 @@ void LinkClass::check_conveyor()
     }
 }
 
-void LinkClass::setNayrusLoveShieldClk(int newclk)
+void LinkClass::setScrollDir(int sd)
 {
-    NayrusLoveShieldClk=newclk;
-    
-    if(decorations.idCount(dNAYRUSLOVESHIELD)==0)
-    {
-        decoration *dec;
-        decorations.add(new dNayrusLoveShield(LinkX(), LinkY(), dNAYRUSLOVESHIELD, 0));
-        decorations.spr(decorations.Count()-1)->misc=0;
-        decorations.add(new dNayrusLoveShield(LinkX(), LinkY(), dNAYRUSLOVESHIELD, 0));
-        dec=(decoration *)decorations.spr(decorations.Count()-1);
-        decorations.spr(decorations.Count()-1)->misc=1;
-    }
+    sdir=sd;
 }
 
-int LinkClass::getNayrusLoveShieldClk()
+void LinkClass::setInvincible(bool inv)
 {
-    return NayrusLoveShieldClk;
-}
-
-int LinkClass::getHoverClk()
-{
-    return hoverclk;
-}
-
-int LinkClass::getHoldClk()
-{
-    return holdclk;
+    superman=inv;
 }
 
 void LinkClass::execute(LinkClass::WalkflagInfo info)

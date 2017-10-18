@@ -7,6 +7,9 @@
 //  Main code for the quest editor.
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 /*
   #include "zq_custom.h"
   */
@@ -28,6 +31,7 @@
 #include "zquest.h"
 #include "gamedata.h"
 #include "link.h"
+#include "zelda.h"
 #include "zc_init.h"
 
 int onCheatConsole()

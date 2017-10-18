@@ -347,10 +347,10 @@ string VarArgument::toString()
         return "IDATAMAX";
         
     case ITEMCLASSSETMAX:
-        return "IDATAKEEP";
+        return "IDATASETMAX";
         
-    case ITEMCLASSSETGAME: //What's this meant to do exactly? ~Joe123
-        return "IDATASETGAME";
+    case ITEMCLASSSETGAME:
+        return "IDATAKEEP";
         
     case ITEMCLASSCOUNTER:
         return "IDATACOUNTER";

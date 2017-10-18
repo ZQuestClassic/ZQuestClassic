@@ -26,17 +26,15 @@ Array<*>{
 		)
 	)
 }
-ArrayIterator<*>{
-	preview		( #(*$e._ptr))
-	children	( #(ptr: *$e._ptr))
-}
 */
 #if defined (_MSC_VER) && defined (USING_ARRAY)
 #define ZCArray Array
 #define ZCArrayIterator ArrayIterator
 #endif
 
-
+// ZScript arrays were planned on having multi-dimensional support at one time, but
+// were never finished, hence the x,y,z components. 
+// TODO: Should either finish them or make array dimensions use templates.
 #include "zdefs.h"
 
 #ifndef __zc_array_h_
@@ -45,129 +43,12 @@ ArrayIterator<*>{
 //#define _DEBUGZCARRAY
 
 
-template <typename T> class ZCArrayIterator;
-template <typename T> class ZCArray;
-
-template <class T>
-class ZCArrayIterator
-{
-public:
-    friend class ZCArray<T>;
-    typedef unsigned int size_type;
-    typedef const T& const_reference;
-    typedef const T* const_pointer;
-    typedef T& reference;
-    typedef T* pointer;
-    
-    ZCArrayIterator() : _ptr(0) {}
-    ZCArrayIterator(T *_Tptr) : _ptr(_Tptr) {}
-    ZCArrayIterator(const ZCArrayIterator& _It) : _ptr(_It._ptr) {}
-    ~ZCArrayIterator() {}
-    
-    bool operator == (const ZCArrayIterator& v) const
-    {
-        return (_ptr == v._ptr);
-    }
-    bool operator != (const ZCArrayIterator& v) const
-    {
-        return (_ptr != v._ptr);
-    }
-    bool operator < (const ZCArrayIterator& v) const
-    {
-        return (_ptr <  v._ptr);
-    }
-    bool operator > (const ZCArrayIterator& v) const
-    {
-        return (_ptr >  v._ptr);
-    }
-    bool operator <= (const ZCArrayIterator& v) const
-    {
-        return (_ptr <= v._ptr);
-    }
-    bool operator >= (const ZCArrayIterator& v) const
-    {
-        return (_ptr >= v._ptr);
-    }
-    
-    pointer		     operator ->()
-    {
-        return &(*_ptr);
-    }
-    const_pointer    operator ->() const
-    {
-        return &(*_ptr);
-    }
-    reference		 operator  *()
-    {
-        return (*_ptr);
-    }
-    const_reference  operator  *() const
-    {
-        return (*_ptr);
-    }
-    reference		 operator [](size_type _Index)
-    {
-        return(*(_ptr + _Index));
-    }
-    const_reference  operator [](size_type _Index) const
-    {
-        return(*(_ptr + _Index));
-    }
-    
-    ZCArrayIterator &operator ++ ()
-    {
-        ++_ptr;
-        return *this;
-    }
-    ZCArrayIterator &operator -- ()
-    {
-        --_ptr;
-        return *this;
-    }
-    ZCArrayIterator  operator ++ (int)
-    {
-        pointer _Tmp = _ptr;
-        _ptr++;
-        return ZCArrayIterator(_Tmp);
-    }
-    ZCArrayIterator  operator -- (int)
-    {
-        pointer _Tmp = _ptr;
-        _ptr--;
-        return ZCArrayIterator(_Tmp);
-    }
-    
-    ZCArrayIterator &operator += (int _Offset)
-    {
-        _ptr += _Offset;
-        return *this;
-    }
-    ZCArrayIterator &operator -= (int _Offset)
-    {
-        _ptr -= _Offset;
-        return *this;
-    }
-    ZCArrayIterator  operator + (int _Offset) const
-    {
-        return ZCArrayIterator(_ptr + _Offset);
-    }
-    ZCArrayIterator  operator - (int _Offset) const
-    {
-        return ZCArrayIterator(_ptr - _Offset);
-    }
-    
-protected:
-    pointer _ptr;
-};
-
-
 template <typename T>
 class ZCArray
 {
 public:
-    friend class ZCArrayIterator<T>;
-    typedef const ZCArrayIterator<T> const_iterator;
-    typedef ZCArrayIterator<T> iterator;
+    typedef const T* const_iterator;
+    typedef T* iterator;
     typedef unsigned int size_type;
     typedef const T& const_reference;
     typedef const T* const_pointer;

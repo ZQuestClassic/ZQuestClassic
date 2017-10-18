@@ -24,8 +24,11 @@
 #define rtgxo 2
 #define rtgyo 2
 
-#define edc  208 //246
-#define edi  209 //247
+// These cause problems in gtk.h
+//#define edc  208 //246
+//#define edi  209 //247
+
+// And these are just unused, I guess
 //#define ed0  248
 //#define ed1  249
 //#define ed7  250
@@ -470,6 +473,7 @@ int d_comboalist_proc(int msg,DIALOG *d,int c);
 int onSecretF();
 int onSecretCombo();
 int onUnderCombo();
+void compileZScript();
 int onImportFFScript();
 int onImportItemScript();
 int onImportGScript();
@@ -714,6 +718,7 @@ const char *screenmidilist(int index, int *list_size);
 const char *custommidilist(int index, int *list_size);
 const char *enhancedmusiclist(int index, int *list_size);
 const char *levelnumlist(int index, int *list_size);
+int onQuestRules();
 int onMapCount();
 int onGotoMap();
 int onFlags();

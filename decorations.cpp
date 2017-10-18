@@ -11,6 +11,9 @@
 //   - item:        items class
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 #include "precompiled.h" //always first
 
@@ -18,6 +21,7 @@
 #include "decorations.h"
 #include "zc_custom.h"
 #include "zelda.h"
+#include "zc_sys.h"
 #include "maps.h"
 #include "zsys.h"
 
@@ -490,14 +494,11 @@ void dHammerSmack::draw(BITMAP *dest)
 
 dTallGrass::dTallGrass(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 {
-    id=Id;
-    clk=Clk;
 }
 
-bool dTallGrass::animate(int index)
+bool dTallGrass::animate(int)
 {
-    index=index;  //this is here to bypass compiler warnings about unused arguments
-    return (!isGrassType(COMBOTYPE(LinkX(),LinkY()+15)) || !isGrassType(COMBOTYPE(LinkX()+15,LinkY()+15)) || LinkZ()>8);
+    return false;
 }
 
 void dTallGrass::draw(BITMAP *dest)
@@ -529,16 +530,12 @@ void dTallGrass::draw(BITMAP *dest)
 
 dRipples::dRipples(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 {
-    id=Id;
-    clk=Clk;
 }
 
-bool dRipples::animate(int index)
+bool dRipples::animate(int)
 {
-    index=index;  //this is here to bypass compiler warnings about unused arguments
     clk++;
-    return ((COMBOTYPE(LinkX(),LinkY()+15)!=cSHALLOWWATER)||
-            (COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER) || LinkZ() != 0);
+    return false;
 }
 
 void dRipples::draw(BITMAP *dest)
@@ -560,8 +557,6 @@ void dRipples::draw(BITMAP *dest)
 
 dHover::dHover(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 {
-    id=Id;
-    clk=Clk;
     wpnid = itemsbuf[current_item_id(itype_hoverboots)].wpn;
 }
 
@@ -579,27 +574,25 @@ void dHover::draw(BITMAP *dest)
     decoration::draw8(dest);
 }
 
-bool dHover::animate(int index)
+bool dHover::animate(int)
 {
-    index=index;  //this is here to bypass compiler warnings about unused arguments
     clk++;
-    return LinkHoverClk()<=0;
+    return false;
 }
 
-dNayrusLoveShield::dNayrusLoveShield(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
+dNayrusLoveShield::dNayrusLoveShield(fix X,fix Y, const int& t):
+    decoration(X, Y, dNAYRUSLOVESHIELD, 0),
+    flickering((itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG4) != 0),
+    translucent((itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG3) != 0),
+    timer(t)
 {
-    id=Id;
-    clk=Clk;
 }
 
-bool dNayrusLoveShield::animate(int index)
+bool dNayrusLoveShield::animate(int)
 {
-    index=index;  //this is here to bypass compiler warnings about unused arguments
     clk++;
-    return LinkNayrusLoveShieldClk()<=0;
+    return false;
 }
-
-
 
 void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
 {
@@ -607,6 +600,19 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
     {
         return;
     }
+    
+    bool doDraw=true;
+    if(timer<256 && (timer&0x20)==0)
+        doDraw=false;
+    if(flickering)
+    {
+        if(misc==1)
+            doDraw=(frame&1)==0;
+        else
+            doDraw=(frame&1)==1;
+    }
+    if(!doDraw)
+        return;
     
     int fb=(misc==0?
             (itemsbuf[current_item_id(itype_nayruslove)].wpn5 ?
@@ -618,11 +624,9 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
     int spd=wpnsbuf[fb].speed;
     cs=wpnsbuf[fb].csets&15;
     flip=0;
-    bool flickering = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG4) != 0;
-    bool translucent = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG3) != 0;
     
-    if(((LinkNayrusLoveShieldClk()&0x20)||(LinkNayrusLoveShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
-{
+    //if(((LinkNayrusLoveShieldClk()&0x20)||(LinkNayrusLoveShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
+    {
         drawstyle=translucent?1:0;
         x=LinkX()-8;
         y=LinkY()-8-LinkZ();

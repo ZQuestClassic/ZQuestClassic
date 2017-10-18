@@ -35,6 +35,9 @@ extern int conveyclk;
 /******* Sprite Base Class ********/
 /**********************************/
 
+template<typename T> class EntityPtr;
+class EntityRef;
+
 class sprite
 {
 private:
@@ -65,10 +68,6 @@ public:
     bool angular,canfreeze;
     double angle;
     int lasthit, lasthitclk;
-    int dummy_int[10];
-    fix dummy_fix[10];
-    float dummy_float[10];
-    bool dummy_bool[10];
     int drawstyle;                                          //0=normal, 1=translucent, 2=cloaked
     int extend;
     // Scripting additions
@@ -95,7 +94,6 @@ public:
     //byte lwpnclass;
     //byte ewpnclass;
     
-    
     sprite();
     sprite(sprite const & other);
     sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs);
@@ -119,7 +117,28 @@ public:
     virtual int hitdir(int tx,int ty,int txsz,int tysz,int dir);
     virtual void move(fix dx,fix dy);
     virtual void move(fix s);
+    
+    inline fix getX() const { return x; }
+    inline fix getY() const { return y; }
+    inline fix getZ() const { return z; }
+    
+    inline void setX(fix newX) { x=newX; }
+    inline void setY(fix newY) { y=newY; }
+    inline void setZ(fix newZ) { z=newZ; }
+    
+    inline int getDir() const { return dir; }
+    inline void setDir(int newDir) { dir=(newDir<0) ? 0 : (newDir>7) ? 7 : newDir; }
+    
+    inline void markForDeletion() { toBeDeleted=true; }
+    inline bool isMarkedForDeletion() const { return toBeDeleted; }
+    
+private:
+    bool toBeDeleted;
+    EntityRef* ref;
+    
+    template<typename T> friend class EntityPtr;
 };
+
 
 /***************************************************************************/
 
@@ -143,6 +162,7 @@ public:
     sprite *spr(int index);
     bool swap(int a,int b);
     bool add(sprite *s);
+    bool addAtFront(sprite *s);
     // removes pointer from list but doesn't delete it
     bool remove(sprite *s);
     fix getX(int j);

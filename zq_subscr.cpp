@@ -7,6 +7,8 @@
 //  Subscreen code for zelda.cc
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -47,7 +49,7 @@ int curr_subscreen_object;
 char *str_oname;
 subscreen_group *css;
 bool sso_selection[MAXSUBSCREENITEMS];
-static int propCopySrc=-1;
+static int g_ssPropCopySrc=-1;
 
 void replacedp(DIALOG &d, const char *newdp, size_t size=256);
 
@@ -4075,10 +4077,10 @@ int onDeleteSubscreenObject()
     css->objects[objs-1].type=ssoNULL;
     sso_selection[objs-1]=false;
     
-    if(propCopySrc==curr_subscreen_object)
-        propCopySrc=-1;
-    else if(propCopySrc>curr_subscreen_object)
-        propCopySrc--;
+    if(g_ssPropCopySrc==curr_subscreen_object)
+        g_ssPropCopySrc=-1;
+    else if(g_ssPropCopySrc>curr_subscreen_object)
+        g_ssPropCopySrc--;
     
     if(curr_subscreen_object==objs-1)
     {
@@ -4263,7 +4265,7 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
             object_message(d,MSG_DRAW,0);
             
             // Disable "Paste Properties" if the copy source is invalid
-            if(propCopySrc<0 || css->objects[propCopySrc].type==ssoNULL)
+            if(g_ssPropCopySrc<0 || css->objects[g_ssPropCopySrc].type==ssoNULL)
                 subscreen_rc_menu[3].flags|=D_DISABLED;
             else
                 subscreen_rc_menu[3].flags&=~D_DISABLED;
@@ -4281,19 +4283,19 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
                 break;
             
             case 2: // Copy Properties
-                propCopySrc=curr_subscreen_object;
+                g_ssPropCopySrc=curr_subscreen_object;
                 break;
                 
             case 3: // Paste Properties
-                if(propCopySrc>=0) // Hopefully unnecessary)
+                if(g_ssPropCopySrc>=0) // Hopefully unnecessary)
                 {
-                    copySSOProperties(css->objects[propCopySrc], css->objects[curr_subscreen_object]);
+                    copySSOProperties(css->objects[g_ssPropCopySrc], css->objects[curr_subscreen_object]);
                     for(int i=0; i<MAXSUBSCREENITEMS; i++)
                     {
                         if(!sso_selection[i])
                             continue;
                         
-                        copySSOProperties(css->objects[propCopySrc], css->objects[i]);
+                        copySSOProperties(css->objects[g_ssPropCopySrc], css->objects[i]);
                     }
                 }
                 break;
@@ -6595,7 +6597,7 @@ void edit_subscreen()
     subscreen_dlg[0].dp2=lfont;
     load_Sitems(&misc);
     curr_subscreen_object=0;
-    propCopySrc=-1;
+    g_ssPropCopySrc=-1;
     subscreen_group tempss;
     memset(&tempss, 0, sizeof(subscreen_group));
     int i;
@@ -7269,24 +7271,6 @@ void doCopySSOProperties(subscreen_object& src, subscreen_object& dest, int what
         dest.speed=src.speed;
     if(what&DELAY)
         dest.delay=src.delay;
-}
-
-// Copies text from one SSO to another. Not many h
-void copySSOText(subscreen_object& src, subscreen_object& dest)
-{
-    if(dest.dp1)
-    {
-        delete[] static_cast<char*>(dest.dp1);
-        dest.dp1=0;
-    }
-    
-    if(src.dp1)
-    {
-        char* srcStr=static_cast<char*>(src.dp1);
-        char* destStr=new char[strlen(srcStr)+1];
-        strcpy(destStr, srcStr);
-        dest.dp1=destStr;
-    }
 }
 
 // Copies one object's properties to another. Selects properties depending on

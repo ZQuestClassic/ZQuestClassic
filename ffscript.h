@@ -290,8 +290,8 @@ enum ASM_DEFINE
 
 //ZASM registers
 //When adding indexed variables the index will be loaded into ri.d[0], don't add a register for each one!
-#define D(n)               ((0x0000)+(n)) //8
-#define A(n)               ((0x0008)+(n)) //2
+#define REG_D(n)           ((0x0000)+(n)) //8
+#define REG_A(n)           ((0x0008)+(n)) //2
 #define DATA                 0x000A
 #define FCSET                0x000B
 #define DELAY                0x000C

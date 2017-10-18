@@ -8,6 +8,9 @@
 //  for Zelda Classic.
 //
 //--------------------------------------------------------
+// This program is free software; you can redistribute it and/or modify it under the terms of the
+// modified version 3 of the GNU General Public License. See License.txt for details.
+
 
 #include "precompiled.h" //always first
 
@@ -231,6 +234,7 @@ int popup_zqdialog(DIALOG *dialog, int focus_obj)
     int ret;
     ASSERT(dialog);
     
+	// I know we're in editor mode here, but shouldn't this be cached somehow?
     bmp = create_bitmap_ex(8, dialog->w, dialog->h);
     gui_bmp = screen;
     

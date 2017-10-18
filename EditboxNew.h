@@ -5,9 +5,6 @@
 #include <list>
 #include <map>
 
-using std::string;
-using std::list;
-using std::pair;
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4355)
@@ -23,18 +20,18 @@ class Unicode
 {
 public:
     static const int TABSIZE = 4;
-    static int indexToOffset(string &s, int i);
-    static void insertAtIndex(string &s, int c, int i);
-    static void extractRange(string &s, string &dest, int first, int last);
-    static void removeRange(string &s, int first, int last);
-    static int getCharAtIndex(string &s, int i);
+    static int indexToOffset(std::string &s, int i);
+    static void insertAtIndex(std::string &s, int c, int i);
+    static void extractRange(std::string &s, std::string &dest, int first, int last);
+    static void removeRange(std::string &s, int first, int last);
+    static int getCharAtIndex(std::string &s, int i);
     static int getCharWidth(int c, FONT *f);
-    static pair<int, int> munchWord(string &s, int startoffset, FONT *f);
+    static std::pair<int, int> munchWord(std::string &s, int startoffset, FONT *f);
     static int getCharWidth(const char *s, int offset);
     static int getCharAtOffset(const char *s, int offset);
-    static void textout_ex_nonstupid(BITMAP *bmp, FONT *f, string &s, int x, int y, int fg, int bg);
-    static int getIndexOfWidth(string &s, int x, FONT *f);
-    static int getLength(string &s);
+    static void textout_ex_nonstupid(BITMAP *bmp, FONT *f, std::string &s, int x, int y, int fg, int bg);
+    static int getIndexOfWidth(std::string &s, int x, FONT *f);
+    static int getLength(std::string &s);
 };
 
 class TextSelection
@@ -50,7 +47,7 @@ public:
         return isselecting;
     }
     void clearSelection();
-    pair<int, int> getSelection();
+    std::pair<int, int> getSelection();
     void doneSelection()
     {
         isselecting=false;
@@ -63,7 +60,7 @@ private:
 
 struct LineData
 {
-    string line;
+    std::string line;
     int numchars;
     bool newlineterminated;
     bool dirtyflag;
@@ -124,7 +121,7 @@ struct CursorPos
     int lineno;
     int index;
     int x;
-    list<LineData>::iterator it;
+    std::list<LineData>::iterator it;
 };
 
 class EditboxCursor
@@ -132,7 +129,7 @@ class EditboxCursor
 public:
     EditboxCursor(EditboxModel &model) : visible(true), host(model), index(0), preferredX(0) {}
     void insertChar(int c);
-    void insertString(string s);
+    void insertString(std::string s);
     void updateCursor(int new_index)
     {
         index = new_index;
@@ -171,7 +168,7 @@ private:
 class EditboxModel
 {
 public:
-    EditboxModel(string &Buffer, EditboxView *View, bool ReadOnly = false, char *hf = NULL) : helpfile(hf), lines(), buffer(Buffer), view(View), readonly(ReadOnly), cursor(*this), clipboard(""), s() {}
+    EditboxModel(std::string &Buffer, EditboxView *View, bool ReadOnly = false, char *hf = NULL) : helpfile(hf), lines(), buffer(Buffer), view(View), readonly(ReadOnly), cursor(*this), clipboard(""), s() {}
     TextSelection &getSelection()
     {
         return s;
@@ -184,7 +181,7 @@ public:
     {
         return view;
     }
-    string &getBuffer()
+    std::string &getBuffer()
     {
         return buffer;
     }
@@ -192,18 +189,18 @@ public:
     {
         delete view;
     }
-    list<LineData> &getLines()
+    std::list<LineData> &getLines()
     {
         return lines;
     }
     CursorPos findCursor();
     CursorPos findIndex(int totalindex);
-    void markAsDirty(list<LineData>::iterator line);
+    void markAsDirty(std::list<LineData>::iterator line);
     bool isReadonly()
     {
         return readonly;
     }
-    void makeLines(list<LineData> &target, string &source);
+    void makeLines(std::list<LineData> &target, std::string &source);
     void copy();
     void cut();
     void clear();
@@ -211,12 +208,12 @@ public:
     void doHelp();
 private:
     char *helpfile;
-    list<LineData> lines;
-    string &buffer;
+    std::list<LineData> lines;
+    std::string &buffer;
     EditboxView *view;
     bool readonly;
     EditboxCursor cursor;
-    string clipboard;
+    std::string clipboard;
     TextSelection s;
     //NOT IMPLEMENTED; DO NOT USE
     EditboxModel &operator=(EditboxModel &);
@@ -224,7 +221,7 @@ private:
 
 struct CharPos
 {
-    list<LineData>::iterator it;
+    std::list<LineData>::iterator it;
     int lineIndex;
     int totalIndex;
 };
@@ -255,7 +252,7 @@ public:
         return bgcolor;
     }
 protected:
-    void createStripBitmap(list<LineData>::iterator it, int width);
+    void createStripBitmap(std::list<LineData>::iterator it, int width);
     virtual void drawExtraComponents()=0;
     void init();
     int getAreaHeight()
