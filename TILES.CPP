@@ -1458,6 +1458,10 @@ void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset,
 	  for(int hoff = 0; hoff<h; hoff++)
 	  {
 		  int tiletodraw = drawtile + 20*hoff+woff;
+          // If this block goes past the edge of the tile page and
+          // animation skip Y is used, skip rows accordingly
+          if(tiletodraw%TILES_PER_ROW<woff) // Past the end?
+            tiletodraw+=TILES_PER_ROW*combobuf[cmbdat].skipanimy;
 		  if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[tiletodraw].format>tf4Bit))
 			overtiletranslucent16(dest,tiletodraw,x+16*woff,y+16*hoff,cset,c.flip,opacity);
 		  else
@@ -2242,6 +2246,10 @@ void overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int
 	  for(int hoff =0; hoff < h; hoff++)
 	  {
 		  int tiletodraw = drawtile + 20*hoff+woff;
+          // If this block goes past the edge of the tile page and
+          // animation skip Y is used, skip rows accordingly
+          if(tiletodraw%TILES_PER_ROW<woff) // Past the end?
+            tiletodraw+=TILES_PER_ROW*combobuf[cmbdat].skipanimy;
 		  if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[tiletodraw].format>tf4Bit))
 			overtile16(dest,tiletodraw,x+16*woff,y+16*hoff,cset,c.flip);
 		  else

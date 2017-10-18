@@ -18,7 +18,7 @@
 #include "sprite.h"
 #include "weapons.h"
 
-extern bool repaircharge;
+extern int repaircharge;
 extern bool adjustmagic;
 extern bool learnslash;
 extern int itemindex;
@@ -253,7 +253,7 @@ void removearmos(int ax,int ay);
 class eGhini : public enemy
 {
 public:
-  int ox, oy, c;
+  int clk4, ox, oy, c;
   eGhini(fix X,fix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
@@ -480,7 +480,7 @@ public:
 class eAquamentus : public enemy
 {
 public:
-  int fbx; //fireball x position
+  int clk4, fbx; //fireball x position
   eAquamentus(fix X,fix Y,int Id,int Clk); // : enemy((fix)176,(fix)64,Id,Clk)
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);

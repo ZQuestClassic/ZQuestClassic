@@ -276,6 +276,7 @@ enum ASM_DEFINE
   GETTILEWARPDMAP,      //0x00E5
   GETTILEWARPSCR,       //0x00E6
   GETTILEWARPTYPE,      //0x00E7
+  GETFFCSCRIPT,         //0x00E8
 /* ..sorry, forgot about these ...for now. -Gleeok
   CALCSPLINE,           //0x00
   COLLISIONRECT,  ?      //0x00
@@ -285,7 +286,7 @@ enum ASM_DEFINE
   CLEARBITMAPBUFFER,
   RENDERBITMAPBUFFER,
 */
-  NUMCOMMANDS           //0x00E8
+  NUMCOMMANDS           //0x00E9
 };
 
 //ZASM registers
@@ -769,8 +770,9 @@ enum ASM_DEFINE
 #define UNDERCOMBO           0x10B5
 #define UNDERCSET            0x10B6
 #define DMAPOFFSET           0x10B7
+#define DMAPMAP              0x10B8
 
-#define NUMVARIABLES         0x10B8
+#define NUMVARIABLES         0x10B9
 
 // Script types
 

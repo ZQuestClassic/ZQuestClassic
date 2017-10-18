@@ -183,12 +183,12 @@ void gamedata::set_counter(word change, byte c)
   if (c>=32) // Sanity check
     return;
 
-  if (c==4 && game!=NULL)
+  if (game!=NULL)
   {
     int ringID=current_item_id(itype_ring, true);
     _counter[c]=zc_max(change, 0);
 
-    // This is very slow, so make sure the ring has actually changed
+    // ringcolor is very slow, so make sure the ring has actually changed
     if(ringID!=current_item_id(itype_ring, true))
       ringcolor(false);
   }
@@ -206,7 +206,7 @@ void gamedata::change_counter(short change, byte c)
   if (c>=32) // Sanity check
     return;
 
-  if (c==4 && game!=NULL)
+  if(game!=NULL)
   {
     int ringID=current_item_id(itype_ring, true);
     _counter[c]=vbound(_counter[c]+change, 0, _maxcounter[c]);
@@ -274,7 +274,18 @@ void gamedata::set_dcounter(short change, byte c)
 
   if (c>=32) // Sanity check
    return;
-  _dcounter[c]=change;
+   
+  if(game!=NULL)
+  {
+    int ringID=current_item_id(itype_ring, true);
+    _dcounter[c]=change;
+
+    if(ringID!=current_item_id(itype_ring, true))
+      ringcolor(false);
+  }
+  else
+    _dcounter[c]=change;
+  
   return;
 }
 
@@ -285,7 +296,18 @@ void gamedata::change_dcounter(short change, byte c)
 #endif
   if (c>=32) // Sanity check
    return;
-  _dcounter[c]+=change;
+   
+  if(game!=NULL)
+  {
+    int ringID=current_item_id(itype_ring, true);
+    _dcounter[c]+=change;
+
+    if(ringID!=current_item_id(itype_ring, true))
+      ringcolor(false);
+  }
+  else
+    _dcounter[c]+=change;
+  
   return;
 }
 
@@ -356,6 +378,13 @@ void gamedata::change_drupy(short d)
 word gamedata::get_rupies()
 {
   return get_counter(1);
+}
+word gamedata::get_spendable_rupies()
+{
+  if(get_bit(quest_rules, qr_SHOPCHEAT) || get_dcounter(1)>=0)
+    return get_counter(1);
+  else
+    return get_counter(1)+get_dcounter(1);
 }
 void gamedata::set_rupies(word r)
 {

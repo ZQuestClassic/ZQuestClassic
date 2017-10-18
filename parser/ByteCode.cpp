@@ -324,6 +324,8 @@ string VarArgument::toString()
 		return "DMAPMIDID";
 	case DMAPOFFSET:
 		return "DMAPOFFSET";
+	case DMAPMAP:
+		return "DMAPMAP";
 	case SDDD:
 		return "SDDD";
 	case SDDDD:
@@ -1503,6 +1505,11 @@ string OSelectAWeaponRegister::toString()
 string OSelectBWeaponRegister::toString()
 {
 	return "SELECTBWPNR " + getArgument()->toString();
+}
+
+string OGetFFCScript::toString()
+{
+	return "GETFFCSCRIPT " + getArgument()->toString();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

@@ -95,9 +95,9 @@
 #include "zc_array.h"
 
 #define ZELDA_VERSION       0x0250                          //version of the program
-#define VERSION_BUILD       22                              //build number of this version
-#define IS_BETA             1                               //is this a beta?
-#define DATE_STR            "August 18, 2012"
+#define VERSION_BUILD       24                              //build number of this version
+#define IS_BETA             0                               //is this a beta?
+#define DATE_STR            "December 21, 2012"
 
 #define MIN_VERSION         0x0184
 
@@ -164,7 +164,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 
 //Version number of the different section types
 #define V_HEADER           3
-#define V_RULES           12
+#define V_RULES           13
 #define V_STRINGS          5
 #define V_MISC             7
 #define V_TILES            1
@@ -179,7 +179,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            23
+#define V_GUYS            24
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -600,7 +600,7 @@ enum
   qr_REPLACEOPENDOORS /* Compatibility only */, qr_OLDLENSORDER /* Compatibility only */, qr_NOFAIRYGUYFIRES /* Compatibility only */, qr_SCRIPTERRLOG,
   qr_TRIGGERSREPEAT /* Compatibility only */, qr_ENEMIESFLICKER, qr_OVALWIPE, qr_TRIANGLEWIPE,
   // 19
-  qr_SMASWIPE, qr_NOSOLIDDAMAGECOMBOS /* Compatibility only */,
+  qr_SMASWIPE, qr_NOSOLIDDAMAGECOMBOS /* Compatibility only */, qr_SHOPCHEAT,
   qr_MAX
 };
 
@@ -2333,6 +2333,7 @@ struct gamedata
 	void change_drupy(short d);
 
 	word get_rupies();
+	word get_spendable_rupies();
 	void set_rupies(word r);
 	void change_rupies(short r);
 

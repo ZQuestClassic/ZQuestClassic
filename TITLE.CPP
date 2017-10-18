@@ -1226,7 +1226,8 @@ int readsaves(gamedata *savedata, PACKFILE *f)
 
 void set_up_standalone_save()
 {
-  saves[0].set_name(standalone_quest);
+  char *fn=get_filename(standalone_quest);
+  saves[0].set_name(fn);
   
   qstpath=(char*)zc_malloc(2048);
   strncpy(qstpath, standalone_quest, 2047);
@@ -1236,8 +1237,8 @@ void set_up_standalone_save()
   
   // Why does the continue screen need set when
   // everything else gets set automatically?
-  saves[0].set_continue_dmap( 0);
-  saves[0].set_continue_scrn( 0xFF);
+  saves[0].set_continue_dmap(0);
+  saves[0].set_continue_scrn(0xFF);
   saves[0].set_hasplayed(false);
   
   load_game_icon_to_buffer(false, 0);
@@ -1252,10 +1253,8 @@ int load_savedgames()
   int ret;
   PACKFILE *f=NULL;
   FILE *f2=NULL;
-  //char tmpbuf[L_tmpnam];
-  //char *tmpfilename = (char*)zc_malloc(L_tmpnam);
-  //sprintf(tmpfilename, "%s", tmpbuf);
-   char *tmpfilename = temp_name(NULL);
+  char tmpfilename[32];
+  temp_name(tmpfilename);
 //  const char *passwd = datapwd;
 
   if(saves == NULL)
@@ -1614,7 +1613,8 @@ int save_savedgames()
   if(saves==NULL)
     return 1;
 
-  char *tmpfilename = temp_name(NULL);
+  char tmpfilename[32];
+  temp_name(tmpfilename);
 
   PACKFILE *f = pack_fopen_password(tmpfilename, F_WRITE_PACKED, "");
   if(!f)
@@ -2332,7 +2332,8 @@ static int get_quest_info(zquestheader *header,char *str)
   // default error
   strcpy(str,"Error: Invalid quest file");
 
-  char *tmpfilename = temp_name(NULL);
+  char tmpfilename[32];
+  temp_name(tmpfilename);
   int ret;
   PACKFILE *f;
 
@@ -2414,7 +2415,7 @@ static int get_quest_info(zquestheader *header,char *str)
     break;
   }
 
-  if(false &&header->quest_number > 0)
+  if(header->quest_number > 0)
   {
 	  strcpy(str,
 	    (header->quest_number == 4) ? "Error: Not a custom quest! Clear the Second Quest with all 16 Heart Containers to play this." :

@@ -59,6 +59,7 @@ extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, 
 extern int loadlast;
 byte disable_direct_updating;
 byte use_dwm_flush;
+bool midi_paused=false;
 //extern movingblock mblock2; //mblock[4]?
 //extern int db;
 
@@ -3412,13 +3413,6 @@ void syskeys()
   {
     oldtitle_version=title_version;
     System();
-    if (oldtitle_version!=title_version&&(Quit!=qEXIT))
-    {
-      Quit=qRESET;
-      kill_sfx();
-      music_stop();
-      clear_to_color(screen,BLACK);
-    }
   }
 
   mouse_down=gui_mouse_b();
@@ -3627,8 +3621,10 @@ bottom:
     game_pal();
   }
 
-  while(Playing && keypressed())
-    readkey();
+  //while(Playing && keypressed())
+    //readkey();
+    // What's the Playing check for?
+  clear_keybuf();
 }
 
 // 99*360 + 59*60
@@ -4652,10 +4648,7 @@ int onGoTo()
   goto_dlg[4].d2=cheat_goto_dmap;
   goto_dlg[6].dp=cheat_goto_screen_str;
 
-  while (keypressed())
-  {
-    readkey();
-  }
+  clear_keybuf();
 
   if (is_large)
     large_dialog(goto_dlg);
@@ -5317,6 +5310,13 @@ int onQuit()
     {
       disableClickToFreeze=false;
       Quit=qQUIT;
+      
+      // Trying to evade a door repair charge?
+      if(repaircharge)
+      {
+        game->change_drupy(-repaircharge);
+        repaircharge=0;
+      }
       return D_CLOSE;
     }
   }
@@ -5635,8 +5635,7 @@ int onScreenSaver()
   if(ret == 9)
     // preview Screen Saver
   {
-    while(keypressed())
-      readkey();
+    clear_keybuf();
     scare_mouse();
     Matrix(ss_speed, ss_density, 30);
     system_pal();
@@ -6477,15 +6476,59 @@ void system_pal2()
   memcpy(sys_pal,RAMpal2,sizeof(RAMpal2));
 }
 
+#ifdef _WIN32
 void switch_out_callback()
 {
-	music_pause();
+    if(currmidi==0)
+        return;
+    
+    bool was_paused=midi_paused;
+    long pos=midi_pos;
+    
+    stop_midi();
+    jukebox(currmidi);
+    midi_seek(pos);
+    
+    if(was_paused)
+    {
+        midi_pause();
+        midi_paused=true;
+    }
+    
+    clear_keybuf();
 }
 
 void switch_in_callback()
 {
-
+    if(currmidi==0)
+        return;
+    
+    bool was_paused=midi_paused;
+    long pos=midi_pos;
+    
+    stop_midi();
+    jukebox(currmidi);
+    midi_seek(pos);
+    
+    if(was_paused)
+    {
+        midi_pause();
+        midi_paused=true;
+    }
+    
+    clear_keybuf();
 }
+#else // Not Windows
+void switch_out_callback()
+{
+    clear_keybuf();
+}
+
+void switch_in_callback()
+{
+    clear_keybuf();
+}
+#endif
 
 void game_pal()
 {
@@ -6500,6 +6543,7 @@ void music_pause()
   //al_pause_duh(tmplayer);
   zcmusic_pause(zcmusic, ZCM_PAUSE);
   midi_pause();
+  midi_paused=true;
 }
 
 void music_resume()
@@ -6507,6 +6551,7 @@ void music_resume()
   //al_resume_duh(tmplayer);
   zcmusic_pause(zcmusic, ZCM_RESUME);
   midi_resume();
+  midi_paused=false;
 }
 
 void music_stop()
@@ -6518,6 +6563,8 @@ void music_stop()
   zcmusic_stop(zcmusic);
   zcmusic_unload_file(zcmusic);
   stop_midi();
+  midi_paused=false;
+  currmidi=0;
 }
 
 void System()
@@ -6627,8 +6674,7 @@ void System()
       if(input_idle(true) > after_time())
         // run Screeen Saver
       {
-        while(keypressed())
-          readkey();
+        clear_keybuf();
         scare_mouse();
         Matrix(ss_speed, ss_density, 0);
         system_pal();
@@ -6787,6 +6833,7 @@ void jukebox(int index,int loop)
 
   currmidi=index;
   master_volume(digi_volume,midi_volume);
+  midi_paused=false;
 }
 
 void jukebox(int index)
@@ -6796,7 +6843,10 @@ void jukebox(int index)
 
   // do nothing if it's already playing
   if(index==currmidi && midi_pos>=0)
+  {
+    midi_paused=false;
     return;
+  }
 
   jukebox(index,tunes[index].loop);
 }

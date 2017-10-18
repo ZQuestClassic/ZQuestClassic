@@ -2249,6 +2249,9 @@ static AccessorTable gameTable[] =
   { "setClickToFreezeEnabled",ScriptParser::TYPE_VOID,          SETTER,       GAMECLICKFREEZE,      1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_BOOL,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "getDMapOffset[]",        ScriptParser::TYPE_FLOAT,         GETTER,       DMAPOFFSET,         512,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "setDMapOffset[]",        ScriptParser::TYPE_VOID,          SETTER,       DMAPOFFSET,         512,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+  { "getDMapMap[]",           ScriptParser::TYPE_FLOAT,         GETTER,       DMAPMAP,            512,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+  { "setDMapMap[]",           ScriptParser::TYPE_VOID,          SETTER,       DMAPMAP,            512,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+  { "GetFFCScript",           ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "",                       -1,                               -1,           -1,                  -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
@@ -2936,6 +2939,22 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 		rval[label]=code;
 	}
 	
+	//int GetFFCScript(game, int)
+	{
+		int id = memberids["GetFFCScript"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OGetFFCScript(new VarArgument(EXP1)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
 	return rval;
 }
 

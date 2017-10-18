@@ -3220,7 +3220,7 @@ void tile_warp_notification(int which, char *buf)
 void side_warp_notification(int which, int dir, char *buf)
 {
     char letter = 'A'+which;
-    char buf3[12];
+    char buf3[16];
 	if (dir==0 && Map.CurrScr()->timedwarptics)
 	  sprintf(buf3,"%s, Timed",dirstr[dir]);
 	else if (dir==4)
@@ -4106,7 +4106,7 @@ void refresh(int flags)
   if (is_large && !prv_mode && ShowInfo)
   {
 	int i=0;
-	char buf[255];
+	char buf[2048];
 
 	// Start with general information
 	if (Map.CurrScr()->flags3&fINVISLINK)
@@ -9354,33 +9354,40 @@ int msg_code_operands(int cc)
 // Don't actually use this to strip spaces.
 char *strip_extra_spaces(char *string)
 {
-  int len=(int)strlen(string);
-  char *src=(char *)zc_malloc(len+1);
-  char *tmpsrc=src;
-  memcpy(src,string,len+1);
-  memset(src,0,len+1);
+    int len=(int)strlen(string);
+    char *src=(char *)zc_malloc(len+1);
+    char *tmpsrc=src;
+    memcpy(src,string,len+1);
+    memset(src,0,len+1);
 
-  for (unsigned int i=0; string[i]&&i<strlen(string); i++)
-  {
-    *tmpsrc=string[i];
-    if (*tmpsrc==' ')
+    for (unsigned int i=0; string[i]&&i<strlen(string); i++)
     {
-      while(string[i+1]==' '&&i<strlen(string))
-      {
-        i++;
-      }
+        *tmpsrc=string[i];
+        if (*tmpsrc==' ')
+        {
+            while(string[i+1]==' '&&i<strlen(string))
+            {
+                i++;
+            }
+        }
+        else if (*tmpsrc && (*tmpsrc < 32 || *tmpsrc > 126))
+        {
+            for(int numops=msg_code_operands(*tmpsrc-1); numops>0; numops--)
+            {
+                tmpsrc++;
+                if((byte)(*tmpsrc)==255)
+                {
+                    tmpsrc+=2;
+                }
+            }
+        }
+        tmpsrc++;
     }
-	else if (*tmpsrc && (*tmpsrc < 32 || *tmpsrc > 126))
-	{
-	  tmpsrc += msg_code_operands(*tmpsrc-1);
-	}
-    tmpsrc++;
-  }
-  *tmpsrc=0;
-//  memcpy(string,src,len);
-  strcpy(string,src);
-  zc_free(src);
-  return string;
+    *tmpsrc=0;
+    //  memcpy(string,src,len);
+    strcpy(string,src);
+    zc_free(src);
+    return string;
 }
 
 char *MsgString(int index, bool show_number, bool pad_number)
@@ -9401,7 +9408,14 @@ char *MsgString(int index, bool show_number, bool pad_number)
   for(; i<length && (MsgStrings[index].s[i]==' ' || MsgStrings[index].s[i]<32 || MsgStrings[index].s[i]>126); ++i)
   {
     if (MsgStrings[index].s[i]!=' ') // Is it a control code?
-	  i+=msg_code_operands(MsgStrings[index].s[i]-1);
+    {
+      for(int numops=msg_code_operands(MsgStrings[index].s[i]-1); numops>0; numops--)
+      {
+        i++;
+        if((byte)(MsgStrings[index].s[i])==255)
+          i+=2;
+      }
+    }
   }
   int msgptr=0;
   for(; msgptr<70 && i<MSGSIZE; i++)
@@ -9411,7 +9425,14 @@ char *MsgString(int index, bool show_number, bool pad_number)
       t[msgptr++]=MsgStrings[index].s[i];
     }
 	else if (i<length && MsgStrings[index].s[i])
-	  i+=msg_code_operands(MsgStrings[index].s[i]-1);
+	{
+      for(int numops=msg_code_operands(MsgStrings[index].s[i]-1); numops>0; numops--)
+      {
+        i++;
+        if((byte)(MsgStrings[index].s[i])==255)
+          i+=2;
+      }
+    }
   }
   for(;msgptr<=70;msgptr++)
     t[msgptr]=0;
@@ -10185,7 +10206,7 @@ char *parse_msg_str(char *s)
       byte digits = 0;
 
       // Read the entire number
-      while (i+1<MSGSIZE*3 && *(s+i+1)>='0' && *(s+i+1)<='9' && ++digits <= 4)
+      while (i+1<MSGSIZE*3 && *(s+i+1)>='0' && *(s+i+1)<='9' && ++digits <= 5)
       {
         i++;
         msgcc*=10; // Move the current number one decimal place right.
@@ -10650,7 +10671,14 @@ void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
 						cursor_x += hspace;
 					  }
 					  else
-					    i += msg_code_operands(s3[k]-1);
+					  {
+					    for(int numops=msg_code_operands(s3[k]-1); numops>0; numops--)
+					    {
+					      i++;
+					      if((byte)s2[i]==255)
+                            i+=2;
+					    }
+					  }
 					  break;
 				  }
 			  }
@@ -10827,33 +10855,31 @@ void encode_msg_str(int index)
     {
         nextChar=str[strPos];
         
-        // End of the string
         if(nextChar=='\0')
             return;
             
-        // Regular text character other than backslash
+        // Regular text character other than backslash get put
+        // directly into msgbuf
         if(nextChar>=32 && nextChar<=126 && nextChar!='\\')
         {
-            // Put it directly into msgbuf.
             msgbuf[msgbufPos]=nextChar;
             msgbufPos++;
             strPos++;
         }
-        // String control code
+        
+        // String control codes...
         else
         {
-            // First, load the code into the sccBuf.
-            
+            // Backslash is a special case
             if(nextChar=='\\')
             {
-                // Backslashes are easy.
                 sprintf(sccBuf, "\\91");
                 strPos++;
             }
             else
             {
-                // The code is stored one higher than its actual value
-                // to ensure it's not null, so it needs fixed here.
+                // Load the code into sccBuf. The code is stored one higher
+                // than its actual value to ensure that it's not null.
                 nextChar--;
                 sprintf(sccBuf, "\\%hu", (word)nextChar);
                 strPos++;
@@ -10861,15 +10887,13 @@ void encode_msg_str(int index)
                 // One at a time, read arguments and append them to sccBuf
                 for(sccNumArgs=msg_code_operands(nextChar); sccNumArgs>0; sccNumArgs--)
                 {
-                    // Before reading any more characters, make sure strPos
-                    // hasn't gone past the end of the string. If it has,
-                    // just return, dropping the control code entirely.
+                    // If strPos hasn't gone past the end of the string,
+                    // just drop the control code.
                     if(strPos>MSGSIZE)
                         return;
                     
-                    // The encoding is a bit tricky... If it's 253 or less,
-                    // it's stored in one byte, with one added so that it's
-                    // not null.
+                    // If the argument is 253 or less, it's stored in one byte
+                    // with one added so that it's not null.
                     nextChar=str[strPos];
                     sccArg=nextChar-1;
                     strPos++;
@@ -14604,14 +14628,14 @@ static DIALOG editinfo_dlg[] =
   { jwin_text_proc,     56,  106,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0,       (void *) "Price:", NULL, NULL },
   { jwin_text_proc,     56,  152,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0,       (void *) "Price:", NULL, NULL },
   // 8
-  { jwin_edit_proc,     86,   56,   32,   16,  vc(12),              vc(1),                  0,           0,     3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,     86,   56,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
   { d_ndroplist_proc,   56,   74,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
-  { jwin_edit_proc,     86,  102,   32,   16,  vc(12),              vc(1),                  0,           0,     3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,     86,  102,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
   { d_ndroplist_proc,   56,  120,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
-  { jwin_edit_proc,     86,  148,   32,   16,  vc(12),              vc(1),                  0,           0,     3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,     86,  148,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
   { d_ndroplist_proc,   56,  166,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
   { jwin_text_proc,     24,   42,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0,       (void *) "Name:", NULL, NULL },
-  { jwin_edit_proc,     56,   38,  137,   16,  vc(12),              vc(1),                  0,           0,    32,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,     56,   38,  137,   16,  vc(12),              vc(1),                  0,           0,    31,             0,       NULL, NULL, NULL },
   // 16
   { jwin_button_proc,   34,  188,   61,   21,  vc(14),              vc(1),                 13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
   { jwin_button_proc,  114,  188,   61,   21,  vc(14),              vc(1),                 27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
@@ -14620,8 +14644,8 @@ static DIALOG editinfo_dlg[] =
 
 void EditInfoType(int index)
 {
-  char ps1[4],ps2[4],ps3[4];
-  char infoname[33];
+  char ps1[6],ps2[6],ps3[6];
+  char infoname[32];
   char caption[40];
 
   sprintf(caption,"Info Data %d",index);
@@ -14631,7 +14655,7 @@ void EditInfoType(int index)
   sprintf(ps1,"%d",misc.info[index].price[0]);
   sprintf(ps2,"%d",misc.info[index].price[1]);
   sprintf(ps3,"%d",misc.info[index].price[2]);
-  sprintf(infoname,"%s",misc.info[index].name);
+  snprintf(infoname,32,"%s",misc.info[index].name);
   editinfo_dlg[8].dp  = ps1;
   editinfo_dlg[10].dp = ps2;
   editinfo_dlg[12].dp = ps3;
@@ -14652,10 +14676,10 @@ void EditInfoType(int index)
   if(ret==16)
   {
     saved=false;
-    misc.info[index].price[0] = atoi(ps1);
-    misc.info[index].price[1] = atoi(ps2);
-    misc.info[index].price[2] = atoi(ps3);
-    sprintf(misc.info[index].name,"%s",infoname);
+    misc.info[index].price[0] = vbound(atoi(ps1), 0, 65535);
+    misc.info[index].price[1] = vbound(atoi(ps2), 0, 65535);
+    misc.info[index].price[2] = vbound(atoi(ps3), 0, 65535);
+    snprintf(misc.info[index].name,32,"%s",infoname);
     misc.info[index].str[0] = editinfo_dlg[9].d1;
     misc.info[index].str[1] = editinfo_dlg[11].d1;
     misc.info[index].str[2] = editinfo_dlg[13].d1;
@@ -14733,14 +14757,14 @@ static DIALOG editshop_dlg[] =
   { jwin_text_proc,     56,  106,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0,       (void *) "Price:", NULL, NULL },
   { jwin_text_proc,     56,  152,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0,       (void *) "Price:", NULL, NULL },
   // 8
-  { jwin_edit_proc,     86,   56,   32,   16,  vc(12),              vc(1),                  0,           0,     3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,     86,   56,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
   { d_nidroplist_proc,  56,   74,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
-  { jwin_edit_proc,     86,  102,   32,   16,  vc(12),              vc(1),                  0,           0,     3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,     86,  102,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
   { d_nidroplist_proc,  56,  120,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
-  { jwin_edit_proc,     86,  148,   32,   16,  vc(12),              vc(1),                  0,           0,     3,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,     86,  148,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
   { d_nidroplist_proc,  56,  166,  137,   16,  jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],     0,           0,     0,             0,       NULL, NULL, NULL },
   { jwin_text_proc,     24,   42,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0,       (void *) "Name:", NULL, NULL },
-  { jwin_edit_proc,     56,   38,  137,   16,  vc(12),              vc(1),                  0,           0,    32,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,     56,   38,  137,   16,  vc(12),              vc(1),                  0,           0,    31,             0,       NULL, NULL, NULL },
 
   // 16
   { jwin_button_proc,   40,  188,   61,   21,  vc(14),              vc(1),                 13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
@@ -14752,8 +14776,8 @@ void EditShopType(int index)
 {
 
   build_bii_list(true);
-  char ps1[4],ps2[4],ps3[4];
-  char shopname[33];
+  char ps1[6],ps2[6],ps3[6];
+  char shopname[32];
   char caption[40];
 
   sprintf(caption,"Shop Data %d",index);
@@ -14801,10 +14825,10 @@ void EditShopType(int index)
   if(ret==16)
   {
     saved=false;
-    misc.shop[index].price[0] = atoi(ps1);
-    misc.shop[index].price[1] = atoi(ps2);
-    misc.shop[index].price[2] = atoi(ps3);
-    sprintf(misc.shop[index].name,"%s",shopname);
+    misc.shop[index].price[0] = vbound(atoi(ps1), 0, 65535);
+    misc.shop[index].price[1] = vbound(atoi(ps2), 0, 65535);
+    misc.shop[index].price[2] = vbound(atoi(ps3), 0, 65535);
+    snprintf(misc.shop[index].name, 32, "%s",shopname);
 
     for (int i=0; i<3; ++i)
     {
@@ -21382,7 +21406,7 @@ int main(int argc,char **argv)
   set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
   show_mouse(screen);
     //Display annoying beta warning message
-#ifdef IS_BETA
+#if IS_BETA
   char *curcontrol = getBetaControlString();
   const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
   if(strcmp(curcontrol, oldcontrol))

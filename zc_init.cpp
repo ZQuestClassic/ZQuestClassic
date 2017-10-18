@@ -55,6 +55,7 @@ int onCheatConsole()
   int rval = doInit(zinit2);
   resetItems(game, zinit2, false);
   delete zinit2;
+  ringcolor(false);
   return rval;
 }
 

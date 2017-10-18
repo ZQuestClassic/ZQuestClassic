@@ -265,6 +265,7 @@ script_command command_list[NUMCOMMANDS+1]=
   { "GETTILEWARPDMAP",     1,   0,   0,   0},
   { "GETTILEWARPSCR",      1,   0,   0,   0},
   { "GETTILEWARPTYPE",     1,   0,   0,   0},
+  { "GETFFCSCRIPT",        1,   0,   0,   0},
   { "",                    0,   0,   0,   0}
 };
 
@@ -609,6 +610,7 @@ script_variable variable_list[]=
   { "UNDERCOMBO",         UNDERCOMBO,          0,             0 },
   { "UNDERCSET",          UNDERCSET,           0,             0 },
   { "DMAPOFFSET",         DMAPOFFSET,          0,             0 },
+  { "DMAPMAP",            DMAPMAP,             0,             0 },
   { " ",                       -1,             0,             0 }
 };
 

@@ -112,19 +112,13 @@ void extract_name(char *path,char *name,int type)
   name[n]=0;
 }
 
-// Don't free() the passed tempname... -L
-char *temp_name(char *s)
+void temp_name(char temporaryname[])
 {
   int tempnum;
-  static char *temporaryname;
-  if (!temporaryname)
-    temporaryname=(char*)zc_malloc(L_tmpnam);
-  //  sprintf(temporaryname, "tempfile.qsu");
-  //  return temporaryname;
 
   for (int i=0; i<1000; ++i)
   {
-    sprintf(temporaryname, "00000000.tmp");
+    sprintf(temporaryname, "%s", "00000000.tmp");
     for (int j=0; j<8; ++j)
     {
       tempnum=rand()%62;
@@ -143,14 +137,9 @@ char *temp_name(char *s)
     }
     if (!exists(temporaryname))
     {
-      break;
+      return;
     }
   }
-  if (s!=NULL)
-  {
-    sprintf(s, "%s", temporaryname);
-  }
-  return temporaryname;
 }
 
 int bound(int &x,int low,int high)

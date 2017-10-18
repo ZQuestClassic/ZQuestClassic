@@ -224,10 +224,11 @@ class ffc
 	/**
 	* The number of the script assigned to the FFC. This will be automatically
 	* set to 0 when the FFC's script halts. A script cannot change the script of
-	* the FFC running it; in other words, anFFC->Script is read-only when anFFC==this.
-	* When an FFC's script is changed, its arguments, Misc[], and registers will all
-	* be set to 0, and it will start running from the beginning. Set ffc->InitD[]
-	* before the script starts running to pass arguments to it.
+	* the FFC running it; in other words, f->Script is read-only when f==this.
+	* When an FFC's script is changed, its arguments, Misc[], and registers will
+	* all be set to 0, and it will start running from the beginning. Set
+	* ffc->InitD[] after setting the script before the script starts running
+	* to pass arguments to it.
 	*/
 	int Script;
 
@@ -303,8 +304,8 @@ class ffc
 	int Link;
 
 	/**
-	* The original values of the FFC's 8 D input values are they are stored in the
-	* .qst file, regardles of whether they have been modified by ZScript.
+	* The original values of the FFC's 8 D input values as they are stored in
+	* the .qst file, regardless of whether they have been modified by ZScript.
 	*/
 	float InitD[];
 
@@ -1894,6 +1895,13 @@ namespace Game
 	int DMapOffset[];
 
 	/**
+	* An array of 512 integers containing the map used by each DMap.
+	* Game->DMapOffset is read-only; while setting it is not syntactically
+	* incorrect, it does nothing.
+	*/
+	int DMapOffset[];
+
+	/**
 	* The number of times Link has perished during this quest.
 	*/
 	int NumDeaths;
@@ -2259,12 +2267,17 @@ namespace Game
 	void GetMessage(int string, int buffer[]);
 	
 	/**
+	* Returns the number of the script with the given name or -1 if there is
+	* no such script.
+	*/
+	int GetFFCScript(int[] name);
+	
+	/**
 	* If this is false, the "Click to Freeze" setting will not function, ensuring
 	* that the script can use the mouse freely. This overrides the setting rather
 	* than changing it, so remembering and restoring the initial value is unnecessary.
 	*/
 	bool ClickToFreezeEnabled;
-	
 }; //Game
 
 

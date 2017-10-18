@@ -1133,6 +1133,21 @@ const int CR_SCRIPT7            = 13;
 const int CR_SCRIPT8            = 14;
 const int CR_SCRIPT9            = 15;
 const int CR_SCRIPT10           = 16;
+const int CR_SCRIPT11           = 17;
+const int CR_SCRIPT12           = 18;
+const int CR_SCRIPT13           = 19;
+const int CR_SCRIPT14           = 20;
+const int CR_SCRIPT15           = 21;
+const int CR_SCRIPT16           = 22;
+const int CR_SCRIPT17           = 23;
+const int CR_SCRIPT18           = 24;
+const int CR_SCRIPT19           = 25;
+const int CR_SCRIPT20           = 26;
+const int CR_SCRIPT21           = 27;
+const int CR_SCRIPT22           = 28;
+const int CR_SCRIPT23           = 29;
+const int CR_SCRIPT24           = 30;
+const int CR_SCRIPT25           = 31;
 
 
 //Generic data indices. Use this with Game->Generic[]

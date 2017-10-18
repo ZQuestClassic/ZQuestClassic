@@ -2434,6 +2434,7 @@ reflect:
           case down:  angle = -angle;                   break;
           case left:  angle += ((-PI/2) - angle) * 2.0; break;
           case right: angle += (( PI/2) - angle) * 2.0; break;
+          default:    angle += PI;                      break;
         }
         else
 		{

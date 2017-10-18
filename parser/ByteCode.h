@@ -338,26 +338,27 @@ using namespace std;
 #define DMAPLEVELD			310 //512 of these
 #define DMAPCOMPASSD		311 //512 of these
 #define DMAPCONTINUED		312 //512 of these
-#define DMAPMIDID		    313 //512 of these
+#define DMAPMIDID			313 //512 of these
 #define ITEMCLASSINITDD		314 //8 of these
-#define LINKHITDIR          315
-#define ROOMTYPE            316
-#define ROOMDATA            317
-#define LINKTILE            318
-#define LINKFLIP            319
-#define INPUTPRESSMAP       320
-#define NPCHUNGER           321
-#define GAMESTANDALONE      322
-#define GAMEENTRSCR         323
-#define GAMEENTRDMAP        324
-#define GAMECLICKFREEZE     325
-#define PUSHBLOCKX          326
-#define PUSHBLOCKY          327
-#define PUSHBLOCKCOMBO      328
-#define PUSHBLOCKCSET       329
-#define UNDERCOMBO          330
-#define UNDERCSET           331
+#define LINKHITDIR			315
+#define ROOMTYPE			316
+#define ROOMDATA			317
+#define LINKTILE			318
+#define LINKFLIP			319
+#define INPUTPRESSMAP		320
+#define NPCHUNGER			321
+#define GAMESTANDALONE		322
+#define GAMEENTRSCR			323
+#define GAMEENTRDMAP		324
+#define GAMECLICKFREEZE		325
+#define PUSHBLOCKX			326
+#define PUSHBLOCKY			327
+#define PUSHBLOCKCOMBO		328
+#define PUSHBLOCKCSET		329
+#define UNDERCOMBO			330
+#define UNDERCSET			331
 #define DMAPOFFSET			332 //512 of these
+#define DMAPMAP				333 //512 of these
 //#define FFDD			    309 //8 of these
 
 class LiteralArgument;
@@ -1719,6 +1720,14 @@ public:
 	OSelectBWeaponRegister(Argument *A) : UnaryOpcode(A) {}
 	string toString();
 	Opcode *clone() {return new OSelectBWeaponRegister(a->clone());}
+};
+
+class OGetFFCScript : public UnaryOpcode
+{
+public:
+	OGetFFCScript(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OGetFFCScript(a->clone());}
 };
 
 #endif

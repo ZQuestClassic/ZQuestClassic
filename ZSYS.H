@@ -35,7 +35,7 @@ char *time_str_med(dword time);
 char *time_str_long(dword time);
 
 void extract_name(char *path,char *name,int type);
-char *temp_name(char *s);
+void temp_name(char temporaryname[]);
 char *zc_make_relative_filename(char *dest, const char *path, const char *filename, int size);
 void chop_path(char *path);
 int  vbound(int x,int low,int high);

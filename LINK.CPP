@@ -2447,7 +2447,7 @@ killweapon:
                 ((weapon*)s)->dead=1;
                 weapon *ew = ((weapon*)t);
                 int oldid = ew->id;
-				ew->onhit(true, reflect ? 2 : 1, ew->dir);
+				ew->onhit(true, reflect ? 2 : 1, s->dir);
                 /*if (s->dummy_bool[0])
                 {
                   add_grenade(s->x,s->y,s->z,0,-1);
@@ -3052,7 +3052,7 @@ bool LinkClass::animate(int)
   {
     --drunkclk;
   }
-  if (!is_on_conveyor && !(get_bit(quest_rules,qr_LTTPWALK)) && fall==0 && charging==0 && spins<=5
+  if (!is_on_conveyor && !(get_bit(quest_rules,qr_LTTPWALK)) && (fall==0 || z>0) && charging==0 && spins<=5
 	  && action != gothit)
   {
     switch (dir)
@@ -3579,7 +3579,7 @@ bool LinkClass::animate(int)
   int dtype=dBOMBED;
   if(pushing>=24) dtype=dWALK;
 
-  if(isdungeon() && action!=freeze && loaded_guys && !inlikelike && !diveclk)
+  if(isdungeon() && action!=freeze && loaded_guys && !inlikelike && !diveclk && action!=rafting)
   {
     if(((dtype==dBOMBED)?DrunkUp():dir==up) && (get_bit(quest_rules,qr_LTTPWALK)?x>112&&x<128:x==120) && y<=32 && tmpscr->door[0]==dtype)
     {
@@ -3777,6 +3777,7 @@ bool LinkClass::startwpn(int itemid)
       break;
     case itype_whistle:
       {
+        bool whistleflag;
         if(!checkmagiccost(itemid))
           return false;
         paymagiccost(itemid);
@@ -3794,7 +3795,7 @@ bool LinkClass::startwpn(int itemid)
         }
         Lwpns.add(new weapon(x,y,z,wWhistle,0,0,dir,itemid,getUID()));
 
-        if(findentrance(x,y,mfWHISTLE,false))
+        if(whistleflag=findentrance(x,y,mfWHISTLE,false))
           didstuff |= did_whistle;
 
         if((didstuff&did_whistle && itemsbuf[itemid].flags&ITEM_FLAG1) || currscr>=128)
@@ -3811,7 +3812,8 @@ bool LinkClass::startwpn(int itemid)
         {
           int where = itemsbuf[itemid].misc1;
           if (where>right) where=dir^1;
-          if(DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount() && itemsbuf[itemid].misc2 >= 0 && itemsbuf[itemid].misc2 <= 8)
+          if(((DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount()) || DMaps[currdmap].flags&dmfWHIRLWINDRET) &&
+             itemsbuf[itemid].misc2 >= 0 && itemsbuf[itemid].misc2 <= 8 && !whistleflag)
             Lwpns.add(new weapon((fix)(where==left?240:where==right?0:x),(fix)(where==down?0:where==up?160:y),
               (fix)0,wWind,0,0,where,itemid,getUID()));
           whistleitem=itemid;
@@ -6460,32 +6462,54 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
   }
   else if(ladderx+laddery)                                  // ladder is being used
   {
+    int lx = !(get_bit(quest_rules, qr_DROWN)&&iswater(MAPCOMBO(x+4,y+11))&&!_walkflag(x+4,y+11,1)) ? wx : x;
+	int ly = !(get_bit(quest_rules, qr_DROWN)&&iswater(MAPCOMBO(x+4,y+11))&&!_walkflag(x+4,y+11,1)) ? wy : y;
     if(get_bit(quest_rules, qr_LTTPWALK))
     {
-      // There used to be a bunch of weird conditions here determining whether
-      // Link could move to the sides with a regular ladder out based on his
-      // position relative to it. It didn't make sense, and it didn't work right,
-      // so now he just can't go sideways, period. I'm not too sure that's the
-      // right way to handle it, though... - Saf
       if(ladderdir==up)
       {
-        if(current_item_power(itype_ladder)<2 && (d2==left || d2==right || d2>4) && !(tmpscr->flags7&fSIDEVIEW))
-          ret.setUnwalkable(true);
-        else
-          ret.setUnwalkable(false);
-        
-        return ret;
+        if(abs(ly-(laddery+8))<=8) // ly is between laddery (laddery+8-8) and laddery+16 (laddery+8+8)
+        {
+          bool temp = false;
+          if(!(abs(lx-(ladderx+8))<=8))
+            temp = true;
+          if(cnt==2)
+            if(!(abs((lx+8)-(ladderx+8))<=8))
+              temp=true;
+          if(!temp)
+		  {
+			  ret.setUnwalkable(false);
+			  return ret;
+		  }
+          if (current_item_power(itype_ladder)<2 && (d2==left || d2==right) && !(tmpscr->flags7&fSIDEVIEW))
+		  {
+			  ret.setUnwalkable(true);
+			  return ret;
+		  }
+        }
       }
       else
       {
-          if(current_item_power(itype_ladder)<2 &&  (d2==up || d2==down || d2>4))
-            ret.setUnwalkable(true);
-          else
-            ret.setUnwalkable(false);
-          
-          return ret;
+        if(abs(lx-(ladderx+8))<=8)
+        {
+          if(abs(ly-(laddery+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:12)))<=(get_bit(quest_rules,qr_LTTPCOLLISION)?8:4))
+		  {
+			  ret.setUnwalkable(false);
+			  return ret;
+		  }
+		  if (current_item_power(itype_ladder)<2 && (d2==up || d2==down))
+		  {
+			  ret.setUnwalkable(true);
+			  return ret;
+		  }
+          if((abs(ly-laddery+8)<=8) && d2<=down)
+		  {
+			  ret.setUnwalkable(false);
+			  return ret;
+		  }
+        }
       }
-    } // end LTTPWALK
+    } // qr_LTTPWALK
     else
     {
       if((d2&2)==ladderdir)                                    // same direction
@@ -6522,7 +6546,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
 			ret.setUnwalkable(_walkflag(ladderx,wy,1) || _walkflag(ladderx+8,wy,1));
 			return ret;
 		}
-		ret.setUnwalkable(_walkflag((wx&0xF8),wy,1) && _walkflag((wx&0xF8)+8,wy,1));
+		ret.setUnwalkable(_walkflag((wx&0xF0),wy,1) || _walkflag((wx&0xF0)+8,wy,1));
 		return ret;
       }
       // different dir
@@ -7328,6 +7352,8 @@ void LinkClass::fairycircle(int type)
 
   if(!refill() && ++holdclk>80)
   {
+    reset_swordcharge();
+    attackclk=0; 
     action=none;
     fairyclk=0;
     holdclk=0;
@@ -10303,7 +10329,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 	else if(!darkroom)
 		lighting(false, false); // NES behaviour: fade to dark before scrolling
 
-	if (action != rafting)
+	if (action != rafting) // Is this supposed to be here?!
 
 	cx++; //This was the easiest way to re-arrange the loop so drawing is in the middle
 	cx *= delay; //so we can have drawing re-done every frame,
@@ -10566,10 +10592,21 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
   putscr(scrollbuf,0,0,newscr);
   putscrdoors(scrollbuf,0,0,newscr);
 
-  if((MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT) && action!=rafting && hopclk==0 && !toogam)
+  // Check for raft flags
+  if(action!=rafting && hopclk==0 && !toogam)
   {
-    sfx(tmpscr->secretsfx);
-    action=rafting;
+    if(MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT)
+    {
+      sfx(tmpscr->secretsfx);
+      action=rafting;
+    }
+    
+    // Half a tile off?
+    else if((dir==left || dir==right) && (MAPFLAG(x,y+8)==mfRAFT||MAPCOMBOFLAG(x,y+8)==mfRAFT))
+    {
+      sfx(tmpscr->secretsfx);
+      action=rafting;
+    }
   }
 
   opendoors=0;
@@ -10583,19 +10620,22 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     case dUNLOCKED:
     case dOPENBOSS:
       dir = scrolldir;
-      stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
+      if(action!=rafting)
+        stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
       break;
     case dSHUTTER:
     case d1WAYSHUTTER:
       dir = scrolldir;
-      stepforward(get_bit(quest_rules,qr_LTTPWALK)?21:24, false);
+      if(action!=rafting)
+        stepforward(get_bit(quest_rules,qr_LTTPWALK)?21:24, false);
       putdoor(scrollbuf,0,scrolldir^1,tmpscr->door[scrolldir^1]);
       opendoors=-4;
       sfx(WAV_DOOR);
       break;
     default:
       dir = scrolldir;
-      stepforward(get_bit(quest_rules,qr_LTTPWALK)?21:24, false);
+      if(action!=rafting)
+        stepforward(get_bit(quest_rules,qr_LTTPWALK)?21:24, false);
     }
   }
 
@@ -11095,7 +11135,7 @@ void dospecialmoney(int index)
   switch(tmpscr[tmp].room)
   {
   case rINFO:                                             // pay for info
-    if(game->get_rupies() < abs(prices[priceindex]))
+    if(game->get_spendable_rupies() < abs(prices[priceindex]))
       return;
     if(!current_item_power(itype_wallet))
       game->change_drupy( -abs(prices[priceindex]));
@@ -11123,7 +11163,7 @@ void dospecialmoney(int index)
 
   case rGAMBLE:                                           // gamble
     {
-      if(game->get_rupies()<10 && !current_item_power(itype_wallet)) return;
+      if(game->get_spendable_rupies()<10 && !current_item_power(itype_wallet)) return;
       unsigned si=(rand()%24)*3;
       for(int i=0; i<3; i++)
         prices[i]=gambledat[si++];
@@ -11135,7 +11175,7 @@ void dospecialmoney(int index)
 	break;
 
   case rBOMBS:
-    if(game->get_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
+    if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
       return;
     game->change_drupy( -abs(tmpscr[tmp].catchall));
     setmapflag();
@@ -11162,7 +11202,7 @@ void dospecialmoney(int index)
     break;
 
   case rARROWS:
-    if(game->get_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
+    if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
       return;
     game->change_drupy( -abs(tmpscr[tmp].catchall));
     setmapflag();
@@ -11180,7 +11220,7 @@ void dospecialmoney(int index)
   case rSWINDLE:
     if(items.spr(index)->id==iRupy)
     {
-      if(game->get_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
+      if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
         return;
       game->change_drupy( -abs(tmpscr[tmp].catchall));
     }
@@ -11472,7 +11512,7 @@ void LinkClass::checkitems(int index)
       if(msg_active)
         return;
     case rSHOP:                                           // shop
-      if(game->get_rupies()+game->get_drupy()<abs(prices[PriceIndex]) && !current_item_power(itype_wallet))
+      if(game->get_spendable_rupies()<abs(prices[PriceIndex]) && !current_item_power(itype_wallet))
         return;
       game->change_drupy( -abs(prices[PriceIndex]));
       boughtsomething=true;

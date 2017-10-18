@@ -95,8 +95,7 @@ void Matrix(int speed, int density, int mousedelay)
   if(linebmp != NULL)
     destroy_bitmap(linebmp);
 
-  while(keypressed())
-    readkey();
+  clear_keybuf();
 
   clear_to_color(screen, BLACK);
 }
@@ -133,9 +132,7 @@ static void InitMatrix()
     activecol[i] = 0;
   }
 
-  //  text_mode(BLACK);
-  while(keypressed())
-    readkey();
+  clear_keybuf();
 }
 
 static void AddTracer()

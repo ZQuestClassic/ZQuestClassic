@@ -388,7 +388,7 @@ static char counterlist_str_buf[12];
 const char *counterlist(int index, int *list_size)
 {
 	if (index >= 0) {
-	  bound(index,0,17);
+	  bound(index,0,32);
 	  switch(index) {
 		case 0: return "None";
 		case 1: return "Life";
@@ -401,7 +401,7 @@ const char *counterlist(int index, int *list_size)
 		default: sprintf(counterlist_str_buf,"Script %d",index-7); return counterlist_str_buf;
 	  }
 	}
-	*list_size = 18;
+	*list_size = 33;
 	return NULL;
 }
 
@@ -2180,10 +2180,10 @@ static EnemyNameInfo enameinf[]=
 			{ (void*)&aquamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
   { eeMANHAN, { "Frame rate:",  "Size:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
 			{ NULL, (void*)&manhandlamisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
-  { eeLANM, { "Segments:",  "Segment Lag:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-			{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
-  { eeMOLD, { "Segments:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-			{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
+  { eeLANM, { "Segments:",  "Segment Lag:", "Item per segment:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+			{ NULL, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
+  { eeMOLD, { "Segments:",  "Item per segment:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+			{ NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
   { eeWIZZ, { "Walk Style:",  "Shot Type:", "Shot Attr. 1:", "Solid Combos OK:", "Teleport Delay:", NULL, NULL, NULL, NULL, NULL  },
 			{ (void*)&wizzrobemisc1_list, (void*)&wizzrobemisc2_list, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL } },
   { eeDONGO,{ NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Type :"  },

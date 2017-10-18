@@ -284,14 +284,16 @@ namespace ffdebug
 				return "DMAPFLAGSD";
 			case DMAPLEVELD:
 				return "DMAPLEVELD";
-			case DMAPOFFSET:
-				return "DMAPOFFSET";
 			case DMAPCOMPASSD:
 				return "DMAPCOMPASSD";
 			case DMAPCONTINUED:
 				return "DMAPCONTINUED";
 			case DMAPMIDID:
 				return "DMAPMIDID";
+			case DMAPOFFSET:
+				return "DMAPOFFSET";
+			case DMAPMAP:
+				return "DMAPMAP";
 			case SDDD:
 				return "SDDD";
 			case SDDDD:

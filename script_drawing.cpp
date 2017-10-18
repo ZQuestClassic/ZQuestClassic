@@ -65,8 +65,17 @@ class TileHelper
 {
 public:
 
-   static void OldPutTile( BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip )
+   static void OldPutTile( BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, byte skiprows=0 )
    {
+      // Past the end of the tile page?
+      if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
+      {
+          byte w2=(tile+w)%TILES_PER_ROW;
+          OldPutTile(_Dest, tile, x, y, w-w2, h, color, flip);
+          OldPutTile(_Dest, tile+(w-w2)+(skiprows*TILES_PER_ROW), x+16*(w-w2), y, w2, h, color, flip);
+          return;
+      }
+      
       switch (flip)
       {
          case 1:
@@ -93,8 +102,16 @@ public:
       }
    }
 
-   static void OverTile( BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip )
+   static void OverTile( BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, byte skiprows=0 )
    {
+      if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
+      {
+          byte w2=(tile+w)%TILES_PER_ROW;
+          OverTile(_Dest, tile, x, y, w-w2, h, color, flip);
+          OverTile(_Dest, tile+(w-w2)+(skiprows*TILES_PER_ROW), x+16*(w-w2), y, w2, h, color, flip);
+          return;
+      }
+       
       switch (flip)
       {
          case 1:
@@ -120,8 +137,16 @@ public:
       }
    }
 
-   static void OverTileTranslucent( BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, int opacity )
+   static void OverTileTranslucent( BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, int opacity, byte skiprows=0 )
    {
+      if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
+      {
+          byte w2=(tile+w)%TILES_PER_ROW;
+          OverTileTranslucent(_Dest, tile, x, y, w-w2, h, color, flip, opacity);
+          OverTileTranslucent(_Dest, tile+(w-w2)+(skiprows*TILES_PER_ROW), x+16*(w-w2), y, w2, h, color, flip, opacity);
+          return;
+      }
+      
       switch (flip)
       {
          case 1:
@@ -147,8 +172,15 @@ public:
       }
    }
 
-   static void PutTileTranslucent( BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, int opacity )
+   static void PutTileTranslucent( BITMAP* _Dest, int tile, int x, int y, int w, int h, int color, int flip, int opacity, byte skiprows=0 )
    {
+      if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
+      {
+          byte w2=(tile+w)%TILES_PER_ROW;
+          PutTileTranslucent(_Dest, tile, x, y, w-w2, h, color, flip, opacity);
+          PutTileTranslucent(_Dest, tile+(w-w2)+(skiprows*TILES_PER_ROW), x+16*(w-w2), y, w2, h, color, flip, opacity);
+          return;
+      }
       switch (flip)
       {
          case 1:
@@ -859,8 +891,8 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 	const newcombo & c = combobuf[(sdci[4]/10000)];
 	int tiletodraw = combo_tile(c, x1, y1);
-
 	int flip = ((sdci[14]/10000) & 3) ^ c.flip;
+	int skiprows=combobuf[(sdci[4]/10000)].skipanimy;
 
 
 	//don't scale if it's not safe to do so
@@ -878,11 +910,11 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 		if(transparency)
 		{
-		  TileHelper::OverTile( pbitty, tiletodraw, 0, 0, w, h, color, flip );
+		  TileHelper::OverTile( pbitty, tiletodraw, 0, 0, w, h, color, flip, skiprows );
 		}
 		else //no transparency
 		{
-		  TileHelper::OldPutTile( pbitty, tiletodraw, 0, 0, w, h, color, flip );
+		  TileHelper::OldPutTile( pbitty, tiletodraw, 0, 0, w, h, color, flip, skiprows );
 		}
 		if(rotation != 0) // rotate
 		{
@@ -968,16 +1000,16 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		if(transparency)
 		{
 		   if(opacity<=127)
-			  TileHelper::OverTileTranslucent( bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, color, flip, opacity );
+			  TileHelper::OverTileTranslucent( bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, color, flip, opacity, skiprows );
 		   else
-			  TileHelper::OverTile( bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, color, flip );
+			  TileHelper::OverTile( bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, color, flip, skiprows );
 		}
 		else
 		{
 		   if(opacity<=127)
-			  TileHelper::PutTileTranslucent( bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, color, flip, opacity );
+			  TileHelper::PutTileTranslucent( bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, color, flip, opacity, skiprows );
 		   else
-			  TileHelper::OldPutTile( bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, color, flip);
+			  TileHelper::OldPutTile( bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, color, flip, skiprows );
 		}
 	}
 }

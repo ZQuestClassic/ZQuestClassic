@@ -27,9 +27,9 @@ extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern zinitdata    zinit;
 
-bool repaircharge;
-bool adjustmagic;
-bool learnslash;
+int repaircharge=0;
+bool adjustmagic=false;
+bool learnslash=false;
 int wallm_load_clk=0;
 int sle_x,sle_y,sle_cnt,sle_clk;
 int vhead=0;
@@ -135,10 +135,14 @@ bool groundblocked(int dx, int dy)
 // Returns true iff enemy is floating and blocked by a combo type or flag.
 bool flyerblocked(int dx, int dy, int special)
 {
-	return ((special==spw_floater)&&((COMBOTYPE(dx,dy)==cNOFLYZONE)||(combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&4)||(MAPFLAG(dx,dy)==mfNOENEMY)||(MAPCOMBOFLAG(dx,dy)==mfNOENEMY)));
+	return ((special==spw_floater)&&
+            ((COMBOTYPE(dx,dy)==cNOFLYZONE)||
+             (combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&4)||
+             (MAPFLAG(dx,dy)==mfNOENEMY)||
+             (MAPCOMBOFLAG(dx,dy)==mfNOENEMY)));
 }
 
-bool m_walkflag(int dx,int dy,int special)
+bool m_walkflag(int dx,int dy,int special, int x=-1000, int y=-1000)
 {
 	int yg = (special==spw_floater)?8:0;
 	int nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
@@ -148,9 +152,9 @@ bool m_walkflag(int dx,int dy,int special)
 
 	if(isdungeon() || special==spw_wizzrobe)
 	{
-		if(dy<32-yg || dy>=144)
+		if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
 			return true;
-		if(dx<32 || dx>=224)
+		if((x>=32 && dx<32) || (x>-1000 && x<224 && dx>=224))
 			if(special!=spw_door)                                 // walk in door way
 				return true;
 	}
@@ -407,6 +411,7 @@ bool enemy::animate(int index)
   return Dead(index);
 }
 
+// Stops playing the given sound only if there are no enemies left to play it
 void enemy::stop_bgsfx(int index)
 {
     if(bgsfx<=0)
@@ -1298,51 +1303,55 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
        return false;
 	 dy = dy1-s;
 	 special = (special==spw_clipbottomright)?spw_none:special;
-     ok = !m_walkflag(x,y+dy,special) && !flyerblocked(x,y+dy, special);
+     ok = !m_walkflag(x,y+dy,special, x, y) && !flyerblocked(x,y+dy, special);
      break;
     case 12:
     case down:
      if (canfall(id) && tmpscr->flags7&fSIDEVIEW)
        return false;
 	 dy = dy2+s;
-     ok = !m_walkflag(x,y+dy,special) && !flyerblocked(x,y+dy, special);
+     ok = !m_walkflag(x,y+dy,special, x, y) && !flyerblocked(x,y+dy, special);
      break;
     case 14:
     case left:
 	  dx = dx1-s;
 	  sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
 	  special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
-      ok = !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x+dx,y+8, special);
+      ok = !m_walkflag(x+dx,y+sv,special, x, y) && !flyerblocked(x+dx,y+8, special);
       break;
     case 10:
     case right:
 	  dx = dx2+s;
 	  sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
-      ok = !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x+dx,y+8, special);
+      ok = !m_walkflag(x+dx,y+sv,special, x, y) && !flyerblocked(x+dx,y+8, special);
       break;
     case 9:
     case r_up:
 	  dx = dx2+s;
 	  dy = dy1-s;
-      ok = !m_walkflag(x,y+dy,special) && !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+      ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
+           !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
       break;
     case 11:
     case r_down:
 	  dx = dx2+s;
 	  dx = dy2+s;
-      ok = !m_walkflag(x,y+dy,special) && !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+      ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
+           !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
       break;
     case 13:
     case l_down:
 	  dx = dx1-s;
 	  dy = dy2+s;
-      ok = !m_walkflag(x,y+dy,special) && !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+      ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
+           !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
       break;
     case 15:
     case l_up:
 	  dx = dx1-s;
 	  dy = dy1-s;
-      ok = !m_walkflag(x,y+dy,special) && !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
+      ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
+           !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
       break;
     default:
       db=99;
@@ -3334,22 +3343,24 @@ eGhini::eGhini(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
   movestatus=1;
   step=0;
   clk=0;
+  clk4=0;
 }
 
 bool eGhini::animate(int index)
 {
   if(dying)
     return Dead(index);
+  
   if(dmisc1)
   {
     if(misc)
     {
-      if(clk>160)
+      if(clk4>160)
         misc=2;
       floater_walk((misc==1)?0:rate,hrate,dstep/100.0,dstep/1000.0,10,120,10);
       removearmos(x,y);
     }
-    else if(clk>=60)
+    else if(clk4>=60)
     {
       misc=1;
       clk3=32;
@@ -3358,7 +3369,9 @@ bool eGhini::animate(int index)
       removearmos(x,y);
     }
   }
-
+  
+  clk4++;
+  
   return enemy::animate(index);
 }
 
@@ -3692,7 +3705,7 @@ int ePeahat::takehit(weapon *w)
 
   if(dying || clk<0 || hclk>0)
     return 0;
-  if(superman && !(wpnId==wSBomb)            // vulnerable to super bombs
+  if(superman && !Link.getClock() && !(wpnId==wSBomb)            // vulnerable to super bombs
      // fire boomerang, for nailing peahats
      && !(wpnId==wBrang && (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))>0))
     return 0;
@@ -5021,7 +5034,7 @@ bool eStalfos::animate(int index)
   }
   else if ((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide())) //Split into enemies
   {
-      stop_sfx(bgsfx);
+      stop_bgsfx(index);
       int kids = guys.Count();
 	  int id2=dmisc3;
 	  for(int i=0; i < dmisc4; i++)
@@ -6406,6 +6419,7 @@ eAquamentus::eAquamentus(fix X,fix Y,int Id,int Clk) : enemy((fix)176,(fix)64,Id
   yofs=playing_field_offset+1;
   clk3=32;
   clk2=0;
+  clk4=clk;
   dir=left;
 }
 
@@ -6439,7 +6453,7 @@ bool eAquamentus::animate(int index)
   {
     clk3=32;
   }
-  if(!((clk+1)&63))
+  if(!((clk4+1)&63))
   {
     int d2=(rand()%3)+1;
     if(d2>=left)
@@ -6469,7 +6483,7 @@ bool eAquamentus::animate(int index)
       }
     }
   }
-  if(clk>=-1 && !((clk+1)&7))
+  if(clk4>=-1 && !((clk4+1)&7))
   {
     if(dir==left)
     {
@@ -6480,7 +6494,8 @@ bool eAquamentus::animate(int index)
       x+=1;
     }
   }
-
+  clk4=(clk4+1)%256;
+  
   return enemy::animate(index);
 }
 
@@ -7169,8 +7184,10 @@ bool eMoldorm::animate(int index)
   {
     if(--clk2 == 0)
     {
-      if (flags&guy_neverret) never_return(index);
-      leave_item();
+      if (flags&guy_neverret)
+        never_return(index);
+      if(!dmisc2)
+        leave_item();
       stop_bgsfx(index);
       return true;
     }
@@ -7232,8 +7249,8 @@ esMoldorm::esMoldorm(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
   hxofs=1000;
   mainguy=count_enemy=false;
   parentclk = 0;
-  item_set=0;
   bgsfx=-1;
+  flags&=~guy_neverret;
   //deadsfx = WAV_EDEAD;
 }
 
@@ -7241,7 +7258,8 @@ bool esMoldorm::animate(int index)
 {
   if(dying)
   {
-	item_set = 0;
+    if(!dmisc2)
+      item_set=0;
     return Dead(index);
   }
   if(clk>=0)
@@ -7352,7 +7370,8 @@ bool eLanmola::animate(int index)
   {
     if(--clk2 == 0)
     {
-      leave_item();
+      if(!dmisc3)
+        leave_item();
 	  stop_bgsfx(index);
       return true;
     }
@@ -7409,11 +7428,11 @@ esLanmola::esLanmola(fix X,fix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
   hxsz=8;
   mainguy=false;
   count_enemy=(id<0x2000)?true:false;
-  item_set=0;
   //set up move history
   for(int i=0; i <= (1<<dmisc2); i++)
 	  prevState.push_back(std::pair<std::pair<fix, fix>, int>( std::pair<fix,fix>(x,y), dir ));
   bgsfx = -1;
+  flags&=~guy_neverret;
 }
 
 bool esLanmola::animate(int index)
@@ -7421,6 +7440,8 @@ bool esLanmola::animate(int index)
   if(dying)
   {
     xofs=0;
+    if(!dmisc3)
+      item_set=0;
     return Dead(index);
   }
   if(clk>=0)
@@ -9443,7 +9464,7 @@ void loadguys()
 	int mf = (currscr>=128) ? mBELOW : mITEM;
 	int onetime = (currscr>=128) ? ipONETIME2 : ipONETIME;
 
-	repaircharge=false;
+	repaircharge=0;
 	adjustmagic=false;
 	learnslash=false;
 	for(int i=0; i<3; i++)
@@ -10340,7 +10361,13 @@ void loadenemies()
             c=-15*(i+1);
 
         if(BSZ)
-          c=-15;
+        {
+          // Special case for blue leevers
+          if(guysbuf[tmpscr->enemy[i]].family==eeLEV && guysbuf[tmpscr->enemy[i]].misc1==1)
+            c=-15*(i+1);
+          else
+            c=-15;
+        }
 
         if(!ok2add(tmpscr->enemy[i]))
           ++loadcnt;
@@ -10500,7 +10527,7 @@ void setupscreen()
     case rREPAIR:                                           // door repair
     setmapflag();
     //  }
-    repaircharge=true;
+    repaircharge=tmpscr[t].catchall;
     break;
 
     case rMUPGRADE:                                         // upgrade magic
@@ -11112,7 +11139,7 @@ disappear:
         //         fixed_door=true;
         //       }
         game->change_drupy( -tmpscr[currscr<128?0:1].catchall);
-		repaircharge = false;
+		repaircharge = 0;
       }
       if(adjustmagic)
       {

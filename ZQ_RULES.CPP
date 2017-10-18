@@ -407,43 +407,63 @@ int onFixesRules()
   return D_O_K;
 }
 
+static int miscrules1_list[] =
+{
+  6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,-1
+};
+
+static int miscrules2_list[] =
+{
+  22,23,-1
+};
+
+static TABPANEL miscrules_tabs[] =
+{
+  // (text)
+  { (char *)" 1 ",     D_SELECTED,  miscrules1_list, 0, NULL },
+  { (char *)" 2 ",     0,           miscrules2_list, 0, NULL },
+  { NULL,              0,           NULL,             0, NULL }
+};
 
 static DIALOG miscrules_dlg[] =
 {
   /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
   { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0,       (void *) "Quest Rules - Other", NULL, NULL },
   { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-  { d_dummy_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+  { jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) miscrules_tabs, NULL, (void *)miscrules_dlg },
   // 3
   { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
   { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
   { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0,       (void *) onHelp, NULL, NULL },
 
   // rules
-  { jwin_check_proc,      10, 23+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Can Select A-Button Weapon On Subscreen", NULL, NULL },
-  { jwin_check_proc,      10, 23+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "More Sound Effects", NULL, NULL },
-  { jwin_check_proc,      10, 23+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Fast Heart Refill", NULL, NULL },
-  { jwin_check_proc,      10, 23+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Enable 1/4 Heart Life Bar", NULL, NULL },
-  { jwin_check_proc,      10, 23+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Messages Can Be Sped Up With The A Button", NULL, NULL },
-  { jwin_check_proc,      10, 23+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Messages Can Be Bypassed With The B Button", NULL, NULL },
-  { jwin_check_proc,      10, 23+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Messages Freeze All Action", NULL, NULL },
-  { jwin_check_proc,      10, 23+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Messages Disappear", NULL, NULL },
-  { jwin_check_proc,      10, 23+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Show Time On Subscreen", NULL, NULL },
-  { jwin_check_proc,      10, 23+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Healing Fairy Heart Circle Is Centered Around Link", NULL, NULL },
-  { jwin_check_proc,      10, 23+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Healing Fairy Heart Circle", NULL, NULL },
-  { jwin_check_proc,      10, 23+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Saving When Continuing", NULL, NULL },
-  { jwin_check_proc,      10, 23+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Skip Continue Screen", NULL, NULL },
-  { jwin_check_proc,      10, 23+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Fires In Special Rooms", NULL, NULL },
-  { jwin_check_proc,      10, 23+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Special Room Guys Don't Create A Puff When Appearing", NULL, NULL },
-  { jwin_check_proc,      10, 23+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Log Game Events To Allegro.log", NULL, NULL },
-  { jwin_check_proc,      10, 23+170, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Log Script Errors To Allegro.log", NULL, NULL },
+  { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Can Select A-Button Weapon On Subscreen", NULL, NULL },
+  { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "More Sound Effects", NULL, NULL },
+  { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Fast Heart Refill", NULL, NULL },
+  { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Enable 1/4 Heart Life Bar", NULL, NULL },
+  { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Messages Can Be Sped Up With The A Button", NULL, NULL },
+  { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Messages Can Be Bypassed With The B Button", NULL, NULL },
+  { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Messages Freeze All Action", NULL, NULL },
+  { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Messages Disappear", NULL, NULL },
+  { jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Show Time On Subscreen", NULL, NULL },
+  { jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Healing Fairy Heart Circle Is Centered Around Link", NULL, NULL },
+  { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Healing Fairy Heart Circle", NULL, NULL },
+  { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Saving When Continuing", NULL, NULL },
+  { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Skip Continue Screen", NULL, NULL },
+  { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Fires In Special Rooms", NULL, NULL },
+  { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Special Room Guys Don't Create A Puff When Appearing", NULL, NULL },
+  { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Log Game Events To Allegro.log", NULL, NULL },
+  
+  // rules 2
+  { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Log Script Errors To Allegro.log", NULL, NULL },
+  { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Draining Rupees Can Still Be Spent", NULL, NULL },
   { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 static int miscrules[] = {
   qr_SELECTAWPN, qr_MORESOUNDS, qr_FASTFILL, qr_QUARTERHEART, qr_ALLOWFASTMSG, qr_ALLOWMSGBYPASS,
   qr_MSGFREEZE, qr_MSGDISAPPEAR, qr_TIME, qr_HEARTRINGFIX, qr_NOHEARTRING, qr_NOSAVE,
-  qr_NOCONTINUE, qr_NOGUYFIRES, qr_NOGUYPOOF, qr_LOG, qr_SCRIPTERRLOG, -1
+  qr_NOCONTINUE, qr_NOGUYFIRES, qr_NOGUYPOOF, qr_LOG, qr_SCRIPTERRLOG, qr_SHOPCHEAT, -1
 };
 
 int onMiscRules()

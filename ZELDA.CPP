@@ -1192,7 +1192,7 @@ int init_game()
 	activated_timed_warp=false;
 	newscr_clk = frame;
 
-	if(isdungeon() /*&& currdmap>0*/)
+	if(isdungeon() && currdmap>0) // currdmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it
 	{
 		Link.stepforward(get_bit(quest_rules,qr_LTTPWALK) ? 11: 12, false);
 	}
@@ -2993,8 +2993,10 @@ int main(int argc, char* argv[])
   }
 
   Z_message("OK\n");
-
-
+  
+  set_display_switch_callback(SWITCH_IN,switch_in_callback);
+  set_display_switch_callback(SWITCH_OUT,switch_out_callback);
+  
   // AG logo
   if(!fast_start)
   {

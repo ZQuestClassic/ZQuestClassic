@@ -418,7 +418,9 @@ const char *icounter_str[sscMAX] =
 {
   "Rupees", "Bombs", "Super Bombs", "Arrows", "Gen. Keys w/Magic", "Gen. Keys w/o Magic", "Level Keys w/Magic",
   "Level Keys w/o Magic", "Any Keys w/Magic", "Any Keys w/o Magic", "Script 1", "Script 2", "Script 3", "Script 4",
-  "Script 5", "Script 6", "Script 7", "Script 8", "Script 9", "Script 10"
+  "Script 5", "Script 6", "Script 7", "Script 8", "Script 9", "Script 10", "Script 11", "Script 12", "Script 13",
+  "Script 14", "Script 15", "Script 16", "Script 17", "Script 18", "Script 19", "Script 20", "Script 21",
+  "Script 22", "Script 23", "Script 24", "Script 25"
 };
 
 const char *icounterlist(int index, int *list_size)

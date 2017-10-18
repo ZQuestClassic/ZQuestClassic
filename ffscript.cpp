@@ -231,7 +231,13 @@ public:
 
 	static INLINE int checkMapID(const long ID, const char * const str)
 	{
-	    return checkBounds(ID, 0, map_count-1, str);
+	    //return checkBounds(ID, 0, map_count-1, str);
+	    if(ID < 0 || ID > map_count-1)
+        {
+            Z_scripterrlog("Invalid value (%i) passed to '%s'\n", ID+1, str);
+            return _OutOfBounds;
+        }
+        return _NoError;
 	}
 
 	static INLINE int checkDMapID(const long ID, const char * const str)
@@ -1051,27 +1057,17 @@ long get_register(const long arg)
     case INPUTAXISRIGHT:
       ret=control_state[17]?10000:0; break;
     case INPUTMOUSEX:
-	  ret = (gui_mouse_x() - scrx - 32 + ((screen_scale-1) * 128)) / (resx / 320) * 10000;
-	  //ret = (gui_mouse_x() - scrx - 32 + (sbig ? 128 : (sbig2 ? 192 : 0))) / (resx / 320) * 10000;
+    {
+      int leftOffset=(resx/2)-(128*screen_scale);
+      ret=((gui_mouse_x()-leftOffset)/screen_scale)*10000;
 	  break;
-	  //ret=gui_mouse_x() - scrx - 32;
-	  //if(sbig) {
-	  //	ret += 128;
-  	  //} else if(sbig2) {
-	  //	ret += 192;
-	  //}
-	  //ret /= (resx / 320);
-	  //ret *= 10000; break;
-      //ret=int((gui_mouse_x()-7)/(resx/320))*10000; break;
+    }
     case INPUTMOUSEY:
-	  ret = (gui_mouse_y() - scry - 8 - passive_subscreen_height + ((screen_scale-1) * 112)) / (resy / 240) * 10000;
-	 // ret = ((gui_mouse_y() - scry - 8 + (sbig ? 112 : (sbig2 ? 168 : 0))) / (resy / 240) - passive_subscreen_height) * 10000;
+    {
+      int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+      ret=((gui_mouse_y()-topOffset)/screen_scale)*10000;
 	  break;
-	  //ret /= (resy / 240);
-	  //ret -= passive_subscreen_height;
-	  //ret *= 10000; break;
-      //ret=int((gui_mouse_y()-7)/(resx/240))*10000; break;
-
+    }
     case INPUTMOUSEZ:
       ret=(gui_mouse_z())*10000; break;
     case INPUTMOUSEB:
@@ -1730,11 +1726,16 @@ long get_register(const long arg)
 	} break;
     case SCREENSTATEDD:
     {
-      // Gah! >:(  Map flags are stored in game->maps, which uses 128 screens per map, but
-      // the compiler multiplies the map number by 136, so it has to be corrected here.
+      // Gah! >:(  Screen state is stored in game->maps, which uses 128 screens per map,
+      // but the compiler multiplies the map number by 136, so it has to be corrected here.
+      // Yeah, the compiler could be fixed, but that wouldn't cover existing quests...
       int mi = ri->d[0] / 10000;
       mi -= 8*((ri->d[0] / 10000) / MAPSCRS);
-      ret=(game->maps[mi] >> (ri->d[1] / 10000) & 1) ? 10000 : 0; break;
+      if(BC::checkMapID(mi>>7, "Game->GetScreenState") == SH::_NoError)
+        ret=(game->maps[mi] >> (ri->d[1] / 10000) & 1) ? 10000 : 0;
+      else
+        ret=0;
+      break;
     }
     case GAMEGUYCOUNTD:
       ret=game->guys[(currmap * MAPSCRSNORMAL) + (ri->d[0] / 10000)]*10000; break;
@@ -1755,6 +1756,7 @@ long get_register(const long arg)
       ret=DMaps[get_currdmap()].level*10000; break;
     case GAMECLICKFREEZE:
       ret=disableClickToFreeze?0:10000; break;
+    
 
 ///----------------------------------------------------------------------------------------------------//
 //DMap Information
@@ -1772,6 +1774,18 @@ long get_register(const long arg)
     case DMAPCOMPASSD:  GET_DMAP_VAR(compass, "Game->DMapCompass")  break;
     case DMAPCONTINUED: GET_DMAP_VAR(cont,    "Game->DMapContinue") break;
     case DMAPOFFSET:    GET_DMAP_VAR(xoff,    "Game->DMapOffset")   break;
+    
+    case DMAPMAP:
+    {
+        int ID = ri->d[0] / 10000;
+        if(BC::checkDMapID(ID, "Game->DMapMap") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = (DMaps[ID].map+1) * 10000;
+        
+        break;
+    }
+    
     case DMAPMIDID:
     {
       int ID = ri->d[0] / 10000;
@@ -2242,14 +2256,17 @@ void set_register(const long arg, const long value)
     case INPUTPRESSAXISRIGHT:
 	  button_press[17]=((value/10000)!=0)?true:false; break;
     case INPUTMOUSEX:
-	  // this fixes the origin to the top-left corner of the playing field (tile 0)
-	  position_mouse(32 + scrx + (value / 10000 * (resx / 320)) - ((screen_scale-1) * 128), gui_mouse_y()); break;
-	//  position_mouse(32 + scrx + (value / 10000 * (resx / 320)) - sbig ? 128 : (sbig2 ? 192 : 0), gui_mouse_y()); break;
-	  //position_mouse(((value/10000)+3)*(resx/320), gui_mouse_y()); break;
+    {
+      int leftOffset=(resx/2)-(128*screen_scale);
+      position_mouse((value/10000)*screen_scale+leftOffset, gui_mouse_y());
+	  break;
+    }
     case INPUTMOUSEY:
-	  position_mouse(gui_mouse_x(), 8 + scry + (value / 10000 * (resy / 240)) - ((screen_scale-1) * 112)); break;
-	//  position_mouse(gui_mouse_x(), 8 + scry + (value / 10000 * (resy / 240)) - sbig ? 112 : (sbig2 ? 168 : 0)); break;
-	  //position_mouse(gui_mouse_x(),((value/10000)+3)*(resy/240)); break;
+    {
+      int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+      position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
+	  break;
+    }
     case INPUTMOUSEZ:
       position_mouse_z(value/10000); break;
 
@@ -3011,7 +3028,8 @@ void set_register(const long arg, const long value)
     {
       int mi2 = ri->d[0]/10000;
       mi2 -= 8*(mi2/MAPSCRS);
-      (value)?setmapflag(mi2, 1<<(ri->d[1]/10000)) : unsetmapflag(mi2, 1 << (ri->d[1] / 10000), true);
+      if(BC::checkMapID(mi2>>7, "Game->SetScreenState") == SH::_NoError)
+        (value)?setmapflag(mi2, 1<<(ri->d[1]/10000)) : unsetmapflag(mi2, 1 << (ri->d[1] / 10000), true);
 	} break;
     case GAMEGUYCOUNTD:
       game->guys[(currmap*MAPSCRSNORMAL)+(ri->d[0]/10000)] = value / 10000; break;
@@ -4666,6 +4684,24 @@ void do_getnpcname()
         Z_scripterrlog("Array supplied to 'npc->GetName' not large enough\n");
 }
 
+void do_getffcscript()
+{
+    long arrayptr = get_register(sarg1) / 10000;
+    string name;
+    int num=-1;
+    ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
+    
+    for(int i=0; i<512; i++)
+    {
+        if(strcmp(name.c_str(), ffcmap[i].second.c_str())==0)
+        {
+            num=i+1;
+            break;
+        }
+    }
+    
+    set_register(sarg1, num * 10000);
+}
 
 ///----------------------------------------------------------------------------------------------------//
 //Tile Manipulation
@@ -4934,6 +4970,7 @@ int run_script(const byte type, const word script, const byte i)
 			case ALLOCATEMEMV:		do_allocatemem(true, true, type==SCRIPT_FFC?i:255); break;
 			case DEALLOCATEMEMR:	do_deallocatemem(); break;
 			case ARRAYSIZE:			do_arraysize(); break;
+			case GETFFCSCRIPT:      do_getffcscript(); break;
 
 
 			case ADDV:				do_add(true); break;

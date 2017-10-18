@@ -6332,7 +6332,7 @@ bool copy_tiles_united(int &tile,int &tile2,int &copy,int &copycnt, bool rect, b
         {
             if (move_weapons_list[u])
             {
-                wpnsbuf[bii[u].i].tile+=diff;
+                wpnsbuf[biw[u].i].tile+=diff;
             }
         }
         for(int u=0; u<41; u++)

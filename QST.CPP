@@ -601,7 +601,8 @@ bool valid_zqt(const char *filename)
 
 PACKFILE *open_quest_file(int *open_error, const char *filename, char *deletefilename, bool compressed,bool encrypted, bool show_progress)
 {
-  char *tmpfilename = temp_name(NULL);
+  char tmpfilename[32];
+  temp_name(tmpfilename);
   char percent_done[30];
   int current_method=0;
 
@@ -701,7 +702,7 @@ PACKFILE *open_quest_file(int *open_error, const char *filename, char *deletefil
   if(!oldquest)
   {
     if(deletefilename)
-    sprintf(deletefilename, "%s", tmpfilename);
+        sprintf(deletefilename, "%s", tmpfilename);
   }
 
   box_out("okay.");
@@ -2203,6 +2204,11 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
   {
     set_bit(quest_rules,qr_BRKBLSHLDS_DEP,0);
     set_bit(quest_rules, qr_OLDTRIBBLES_DEP,0);
+  }
+  //if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build < 24))
+  if(s_version < 13)
+  {
+    set_bit(quest_rules,qr_SHOPCHEAT, 1);
   }
   if (keepdata==true)
   {
@@ -5982,15 +5988,13 @@ int read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int i, word s
     break;
 
     case ssoLIFEMETER:
-    if(get_bit(deprecated_rules, 12) != 0)
+    if(get_bit(deprecated_rules, 12) != 0) // qr_24HC
       temp_sub->d3 = 1;
-    else
-      temp_sub->d3 = 0;
-        if(!p_getc(&(temp_sub->dp1),f,keepdata))
-        {
-          return qe_invalid;
-        }
-        break;
+    if(!p_getc(&(temp_sub->dp1),f,keepdata))
+    {
+      return qe_invalid;
+    }
+    break;
 
 
     case ssoCURRENTITEM:
@@ -7142,6 +7146,21 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eSUMMONER].misc4 = 1;
         guysbuf[eWWIZ].misc4 = 1;
     }
+    
+    // The versions here may not be correct
+    // zelda_version>=0x211 handled at guyversion<24
+    if(Header->zelda_version <= 0x190)
+    {
+        guysbuf[eCENT1].misc3 = 0;
+        guysbuf[eCENT2].misc3 = 0;
+        guysbuf[eMOLDORM].misc2 = 0;
+    }
+    else if(Header->zelda_version <= 0x210)
+    {
+        guysbuf[eCENT1].misc3 = 1;
+        guysbuf[eCENT2].misc3 = 1;
+        guysbuf[eMOLDORM].misc2 = 0;
+    }
 
   if (guyversion<=2)
   {
@@ -7712,6 +7731,13 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		  if (tempguy.family==eeDIG && tempguy.misc10==1) {
 			tempguy.rate = 2;
 		  }
+	  }
+	  if(guyversion < 24) // November 2012
+	  {
+	      if(tempguy.family==eeLANM)
+            tempguy.misc3 = 1;
+          else if(tempguy.family==eeMOLD)
+            tempguy.misc2 = 0;
 	  }
       if(keepdata)
       {
@@ -11530,7 +11556,8 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
   }
 
   //  show_progress=true;
-  char *tmpfilename = temp_name(NULL);
+  char tmpfilename[32];
+  temp_name(tmpfilename);
 //  char percent_done[30];
   bool catchup=false;
   byte tempbyte;
@@ -11576,7 +11603,8 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
   // oldquest flag is set when an unencrypted qst file is suspected.
   bool oldquest = false;
   int open_error=0;
-  PACKFILE *f=open_quest_file(&open_error, filename, NULL, compressed, encrypted, show_progress);
+  char deletefilename[1024];
+  PACKFILE *f=open_quest_file(&open_error, filename, deletefilename, compressed, encrypted, show_progress);
   if(!f)
     return open_error;
   int ret=0;
@@ -12181,6 +12209,10 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
   {
     memcpy(midi_flags, old_midi_flags, MIDIFLAGS_SIZE);
   }
+  if(deletefilename[0] && exists(deletefilename))
+  {
+    delete_file(deletefilename);
+  }
   return qe_OK;
 
 invalid:
@@ -12194,6 +12226,10 @@ invalid:
     if (exists(tmpfilename))
     {
       delete_file(tmpfilename);
+    }
+    if(deletefilename[0] && exists(deletefilename))
+    {
+        delete_file(deletefilename);
     }
   }
   return qe_invalid;

@@ -3745,6 +3745,9 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
         break;
 	 case sscSCRIPT1: case sscSCRIPT2: case sscSCRIPT3: case sscSCRIPT4: case sscSCRIPT5:
 	 case sscSCRIPT6: case sscSCRIPT7: case sscSCRIPT8: case sscSCRIPT9: case sscSCRIPT10:
+	 case sscSCRIPT11: case sscSCRIPT12: case sscSCRIPT13: case sscSCRIPT14: case sscSCRIPT15:
+	 case sscSCRIPT16: case sscSCRIPT17: case sscSCRIPT18: case sscSCRIPT19: case sscSCRIPT20:
+	 case sscSCRIPT21: case sscSCRIPT22: case sscSCRIPT23: case sscSCRIPT24: case sscSCRIPT25:
 		 value += game->get_counter(itemtype-3);
       default:
         break;

@@ -9965,9 +9965,11 @@ int save_quest(const char *filename, bool timed_save)
   }
 
   char *tmpfilename;
+  char tempfilestr[32]; // This is stupid...
   if(compress)
   {
-    tmpfilename=temp_name(NULL);
+    temp_name(tempfilestr);
+    tmpfilename=tempfilestr;
   }
   else
   {
@@ -9993,7 +9995,6 @@ int save_quest(const char *filename, bool timed_save)
     }
 
     delete_file(tmpfilename);
-    //zc_free(tmpfilename); // Double zc_free() error - L
   }
 
   return ret;
