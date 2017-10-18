@@ -256,7 +256,7 @@ extern int gui_colorset;
 extern int fullscreen;
 extern byte disable_triplebuffer, can_triplebuffer_in_windowed_mode;
 extern byte zc_color_depth;
-extern byte use_debug_console, use_win7_keyboard_fix, use_win32_proc; //windows only
+extern byte use_debug_console, use_win32_proc; //windows only
 
 #ifdef _SCRIPT_COUNTER
 void update_script_counter();
@@ -288,12 +288,14 @@ extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
 extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
 extern bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down,Ex2down,Ex3down,Ex4down,AUdown,ADdown,ALdown,ARdown,F12,F11,F5,keyI, keyQ;
 extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
-extern bool fixed_door, darkroom,naturaldark,BSZ,COOLSCROLL;            //,NEWSUBSCR;
+extern bool fixed_door, darkroom,naturaldark,BSZ;            //,NEWSUBSCR;
 extern bool hookshot_used, hookshot_frozen, pull_link, add_chainlink;
 extern bool del_chainlink, hs_fix, cheat_superman, gofast, checklink;
 extern bool ewind_restart, didpit, heart_beep, pausenow, castnext;
 extern bool add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle;
 extern bool is_on_conveyor, activated_timed_warp;
+
+extern byte COOLSCROLL;
 
 extern int SnapshotFormat, NameEntryMode;
 
@@ -331,6 +333,8 @@ dword getNumGlobalArrays();
 extern int  resx,resy,scrx,scry;
 extern bool sbig;                                           // big screen
 extern bool sbig2;	//BIGGER SCREEN!!!!
+extern int screen_scale; //user adjustable screen size.
+
 extern bool scanlines;                                      //do scanlines if sbig==1
 extern bool toogam;
 

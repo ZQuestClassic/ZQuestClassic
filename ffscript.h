@@ -257,6 +257,12 @@ enum ASM_DEFINE
   ALLOCATEGMEMR,        //0x00D2
   BITMAPR,         		//0x00D3
   SETRENDERTARGET,      //0x00D4
+  PLAYENHMUSIC,         //0x00D5
+  GETMUSICFILE,         //0x00D6
+  GETMUSICTRACK,        //0x00D7
+  SETDMAPENHMUSIC,      //0x00D8
+  DRAWLAYERR,           //0x00D9
+  DRAWSCREENR,          //0x00DA
 
 /* ..sorry, forgot about these ...for now. -Gleeok
   CALCSPLINE,           //0x00
@@ -267,7 +273,7 @@ enum ASM_DEFINE
   CLEARBITMAPBUFFER,
   RENDERBITMAPBUFFER,
 */
-  NUMCOMMANDS           //0x00D5
+  NUMCOMMANDS           //0x00D9
 };
 
 //ZASM registers

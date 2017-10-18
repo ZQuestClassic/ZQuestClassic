@@ -1173,7 +1173,7 @@ YY_RULE_SETUP
 #line 115 "ffscript.lpp"
 {
 	char temp[512];
-	sprintf(temp, "Scanner: lexical error '%s'.\n", yytext); 
+	sprintf(temp, "Scanner, line %d: lexical error '%s'.\n", yylineno, yytext); 
 	box_out(temp);
 	box_eol();
 	}

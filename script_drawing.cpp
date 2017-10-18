@@ -8,10 +8,20 @@
 #include "ffscript.h"
 #include <stdio.h>
 
+#define DegtoFix(d)     ((d)*0.7111111111111)
+#define RadtoFix(d)     ((d)*40.743665431525)
 
-#define DegtoFix(d)     ((d)*0.71111111)
+template<class T> inline
+fixed degrees_to_fixed( T d ) {
+	return ftofix(DegtoFix(d));
+}
+template<class T> inline
+fixed radians_to_fixed( T d ) {
+	return ftofix(RadtoFix(d));
+}
 
 BITMAP* ScriptDrawingBitmapPool::_parent_bmp = 0;
+
 
 
 
@@ -427,7 +437,7 @@ void do_arcr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	  arc(bmp, cx+xoffset, cy+yoffset, sa, ea, int(r), color);
 	  drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	}
-}		
+}
 
 
 void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
@@ -483,13 +493,13 @@ void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	  {
 		  clear_bitmap(prim_bmp);
 		  ellipsefill(bitty, radx, rady, radx, rady, color);
-		  rotate_sprite(prim_bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, ftofix(DegtoFix(rotation)));
+		  rotate_sprite(prim_bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, degrees_to_fixed(rotation));
 		  draw_trans_sprite(bmp, prim_bmp, 0, 0);
 	  }
 	  else // no opacity
 	  {
 		  ellipsefill(bitty, radx, rady, radx, rady, color);
-		  rotate_sprite(bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, ftofix(DegtoFix(rotation)));
+		  rotate_sprite(bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, degrees_to_fixed(rotation));
 	  }
 	}
 	else //not filled
@@ -498,13 +508,13 @@ void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	  {
 		  clear_bitmap(prim_bmp);
 		  ellipse(bitty, radx, rady, radx, rady, color);
-		  rotate_sprite(prim_bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, ftofix(DegtoFix(rotation)));
+		  rotate_sprite(prim_bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, degrees_to_fixed(rotation));
 		  draw_trans_sprite(bmp, prim_bmp, 0, 0);
 	  }
 	  else // no opacity
 	  {
 		  ellipse(bitty, radx, rady, radx, rady, color);
-		  rotate_sprite(bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, ftofix(DegtoFix(rotation)));
+		  rotate_sprite(bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, degrees_to_fixed(rotation));
 	  }
 	}
 
@@ -716,12 +726,12 @@ void do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 			 if(opacity < 128)
 			 {
 				clear_bitmap(prim_bmp);
-				rotate_sprite(prim_bmp, tempbit, 0, 0, ftofix(DegtoFix(rotation)) );
+				rotate_sprite(prim_bmp, tempbit, 0, 0, degrees_to_fixed(rotation) );
 				draw_trans_sprite(bmp, prim_bmp, x1+xoffset, y1+yoffset);
 			 }
 			 else
 			 {
-				rotate_sprite(bmp, tempbit, x1+xoffset, y1+yoffset, ftofix(DegtoFix(rotation)) );
+				rotate_sprite(bmp, tempbit, x1+xoffset, y1+yoffset, degrees_to_fixed(rotation) );
 			 }
 
 			 destroy_bitmap(tempbit);
@@ -731,12 +741,12 @@ void do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 			 if(opacity < 128)
 			 {
 				clear_bitmap(prim_bmp);
-				rotate_sprite(prim_bmp, pbitty, 0, 0, ftofix(DegtoFix(rotation)) );
+				rotate_sprite(prim_bmp, pbitty, 0, 0, degrees_to_fixed(rotation) );
 				draw_trans_sprite(bmp, prim_bmp, x1+xoffset, y1+yoffset);
 			 }
 			 else
 			 {
-				rotate_sprite(bmp, pbitty, x1+xoffset, y1+yoffset, ftofix(DegtoFix(rotation)) );
+				rotate_sprite(bmp, pbitty, x1+xoffset, y1+yoffset, degrees_to_fixed(rotation) );
 			 }
 		  }
 		}
@@ -816,7 +826,6 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	{
 		return;
 	}
-	int flip=(sdci[14]/10000)&3;
 
 	int xscale=sdci[8]/10000;
 	int yscale=sdci[9]/10000;
@@ -829,7 +838,12 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	int color=sdci[7]/10000;
 	int x1=sdci[2]/10000;
 	int y1=sdci[3]/10000;
-	int tiletodraw = combo_tile(sdci[4]/10000, x1, y1);
+
+	const newcombo & c = combobuf[(sdci[4]/10000)];
+	int tiletodraw = combo_tile(c, x1, y1);
+
+	int flip = ((sdci[14]/10000) & 3) ^ c.flip;
+
 
 	//don't scale if it's not safe to do so
 	bool canscale = true;
@@ -838,7 +852,7 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		return;
 	}
 	if (xscale<0||yscale<0)
-	canscale = false; //default size
+		canscale = false; //default size
 
 	if ( (xscale>0 && yscale>0) || rotation) //scaled or rotated
 	{
@@ -877,12 +891,12 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 			 if(opacity < 128)
 			 {
 				clear_bitmap(prim_bmp);
-				rotate_sprite(prim_bmp, tempbit, 0, 0, ftofix(DegtoFix(rotation)) );
+				rotate_sprite(prim_bmp, tempbit, 0, 0, degrees_to_fixed(rotation) );
 				draw_trans_sprite(bmp, prim_bmp, x1+xoffset, y1+yoffset);
 			 }
 			 else
 			 {
-				rotate_sprite(bmp, tempbit, x1+xoffset, y1+yoffset, ftofix(DegtoFix(rotation)) );
+				rotate_sprite(bmp, tempbit, x1+xoffset, y1+yoffset, degrees_to_fixed(rotation) );
 			 }
 
 			 destroy_bitmap(tempbit);
@@ -892,12 +906,12 @@ void do_drawcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 			 if(opacity < 128)
 			 {
 				clear_bitmap(prim_bmp);
-				rotate_sprite(prim_bmp, pbitty, 0, 0, ftofix(DegtoFix(rotation)) );
+				rotate_sprite(prim_bmp, pbitty, 0, 0, degrees_to_fixed(rotation) );
 				draw_trans_sprite(bmp, prim_bmp, x1+xoffset, y1+yoffset);
 			 }
 			 else
 			 {
-				rotate_sprite(bmp, pbitty, x1+xoffset, y1+yoffset, ftofix(DegtoFix(rotation)) );
+				rotate_sprite(bmp, pbitty, x1+xoffset, y1+yoffset, degrees_to_fixed(rotation) );
 			 }
 		  }
 		}
@@ -971,11 +985,15 @@ void do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	int opacity = sdci[6] / 10000;
 	int x1 = sdci[2] / 10000;
 	int y1 = sdci[3] / 10000;
+	int index = sdci[4]/10000;
+
+	//if( index >= MAXCOMBOS ) return; //bleh.
+	const newcombo & c = combobuf[index];
 
 	if( opacity < 128 )
-		overtiletranslucent16(bmp, combo_tile(sdci[4]/10000, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, 0, opacity);
+		overtiletranslucent16(bmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int)c.flip, opacity);
 	else
-		overtile16(bmp, combo_tile(sdci[4]/10000, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, 0);
+		overtile16(bmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int)c.flip);
 }
 
 
@@ -1010,8 +1028,7 @@ void do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//undone
 	if(w>0&&h>0)//stretch the character
 	{
-		BITMAP *pbmp = create_bitmap_ex(8,16,16);
-		clear_bitmap(pbmp);
+		BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
 
 		if(opacity < 128)
 		{
@@ -1040,7 +1057,6 @@ void do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		   stretch_sprite(bmp, pbmp, x+xoffset, y+yoffset, w, h);
 		}
 
-		destroy_bitmap(pbmp);
 	}
 	else //no stretch
 	{
@@ -1105,8 +1121,7 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 	if(w>0&&h>0)//stretch
 	{
-		BITMAP *pbmp = create_bitmap_ex(8,16,16);
-		clear_bitmap(pbmp);
+		BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
 
 		if(opacity < 128)
 		{
@@ -1136,7 +1151,6 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		   stretch_sprite(bmp, pbmp, x+xoffset, y+yoffset, w, h);
 		}
 
-		destroy_bitmap(pbmp);
 	}
 	else //no stretch
 	{
@@ -1262,9 +1276,23 @@ void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	POLYTYPE_PTEX_MASK_TRANS
 	*/
 	polytype = vbound(polytype, 0, 14);
-	if( ((w-1) & w) != 0 || ((h-1) & h) != 0 ) return; //non power of two error
+	if( ((w-1) & w) != 0 || ((h-1) & h) != 0 )
+	{
+		Z_message( "Quad() : PO2 error with %i, %i.", w, h );
+		return; //non power of two error
+	}
 
-	BITMAP *tex = script_drawing_commands.AquireSubBitmap(16*w,16*h);
+	int tex_width = w*16;
+	int tex_height = h*16;
+
+	bool mustDestroyBmp = false;
+	BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+	if(!tex)
+	{
+		mustDestroyBmp = true;
+		tex = create_bitmap_ex( 8, tex_width, tex_height );
+		clear_bitmap(tex);
+	}
 
 	int col[4];
 	/*
@@ -1286,12 +1314,12 @@ void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	}
 	else        // COMBO
 	{
-		const int tiletodraw = combo_tile( abs(tile), x1, y1 );
+		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+		const int tiletodraw = combo_tile( c, x1, y1 );
+		flip = flip ^ c.flip;
+
 		TileHelper::OldPutTile( tex, tiletodraw, 0, 0, w, h, color, flip );
 	}
-
-	int tex_width = w*16;
-	int tex_height = h*16;
 
 	V3D_f V1 = { x1+xoffset, y1+yoffset, 0,        0,          0, col[0] };
 	V3D_f V2 = { x2+xoffset, y2+yoffset, 0,        0, tex_height, col[1] };
@@ -1300,7 +1328,9 @@ void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 	quad3d_f(bmp, polytype, tex, &V1, &V2, &V3, &V4);
 
-	script_drawing_commands.ReleaseSubBitmap(tex);
+	if(mustDestroyBmp)
+		destroy_bitmap(tex);
+
 }
 
 
@@ -1336,7 +1366,17 @@ void do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	polytype = vbound(polytype, 0, 14);
 	if( ((w-1) & w) != 0 || ((h-1) & h) != 0 ) return; //non power of two error
 
-	BITMAP *tex = script_drawing_commands.AquireSubBitmap(16*w,16*h);
+	int tex_width = w*16;
+	int tex_height = h*16;
+
+	bool mustDestroyBmp = false;
+	BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+	if(!tex)
+	{
+		mustDestroyBmp = true;
+		tex = create_bitmap_ex( 8, tex_width, tex_height );
+		clear_bitmap(tex);
+	}
 
 	int col[3];
 	/*
@@ -1357,12 +1397,12 @@ void do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	}
 	else        // COMBO
 	{
-		const int tiletodraw = combo_tile( abs(tile), x1, y1 );
+		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+		const int tiletodraw = combo_tile( c, x1, y1 );
+		flip = flip ^ c.flip;
+
 		TileHelper::OldPutTile( tex, tiletodraw, 0, 0, w, h, color, flip );
 	}
-
-	int tex_width = w*16;
-	int tex_height = h*16;
 
 	V3D_f V1 = { x1+xoffset, y1+yoffset, 0,    0 ,          0 , col[0] };
 	V3D_f V2 = { x2+xoffset, y2+yoffset, 0,    0 , tex_height , col[1] };
@@ -1370,7 +1410,9 @@ void do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 
 	triangle3d_f(bmp, polytype, tex, &V1, &V2, &V3);
-	script_drawing_commands.ReleaseSubBitmap(tex);
+
+	if(mustDestroyBmp)
+		destroy_bitmap(tex);
 }
 
 
@@ -1386,7 +1428,8 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//sdci[8]=desty
 	//sdci[9]=destw
 	//sdci[10]=desth
-	//sdci[11]=mask
+	//sdci[11]=rotation
+	//sdci[12]=mask
 
 	int bitmapIndex = sdci[2]/10000;
 	int sx = sdci[3]/10000;
@@ -1397,7 +1440,8 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	int dy = sdci[8]/10000;
 	int dw = sdci[9]/10000;
 	int dh = sdci[10]/10000;
-	bool masked = (sdci[11] != 0);
+	float rot = sdci[11]/10000;
+	bool masked = (sdci[12] != 0);
 
 	if(sx >= ZScriptDrawingRenderTarget::BitmapWidth || sy >= ZScriptDrawingRenderTarget::BitmapHeight)
 	 return;
@@ -1412,6 +1456,16 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		return;
 	}
 
+	BITMAP* subBmp = 0;
+	if( rot != 0 )
+	{
+		subBmp = script_drawing_commands.AquireSubBitmap( dw, dh );
+		if( !subBmp)
+		{
+		}
+	}
+
+
 	dx = dx + xoffset;
 	dy = dy + yoffset;
 
@@ -1419,34 +1473,329 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	{
 		if( masked )
 		{
-			masked_stretch_blit(sourceBitmap, bmp, sx, sy, sw, sh, dx, dy, dw, dh);
+			if( rot != 0 )
+			{
+				masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+				rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot) );
+			}
+			else
+				masked_stretch_blit(sourceBitmap, bmp, sx, sy, sw, sh, dx, dy, dw, dh);
 		}
 		else
 		{
-			stretch_blit(sourceBitmap, bmp, sx, sy, sw, sh, dx, dy, dw, dh);
+			if( rot != 0 )
+			{
+				stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+				rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot) );
+			}
+			else
+				stretch_blit(sourceBitmap, bmp, sx, sy, sw, sh, dx, dy, dw, dh);
 		}
 	}
 	else
 	{
 		if( masked )
 		{
-			masked_blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
+			if( rot != 0 )
+			{
+				masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+				rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot) );
+			}
+			else
+				masked_blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
 		}
 		else
 		{
-			blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
+			if( rot != 0 )
+			{
+				blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
+				rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot) );
+			}
+			else
+				blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
 		}
+	}
+
+	//cleanup
+	if( subBmp )
+	{
+		script_drawing_commands.ReleaseSubBitmap( subBmp );
 	}
 }
 
 
+void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+{
+	//sdci[1]=layer
+	//sdci[2]=pos[12]
+	//sdci[3]=uv[8]
+	//sdci[4]=color[4]
+	//sdci[5]=size[2]
+	//sdci[6]=flip
+	//sdci[7]=tile/combo
+	//sdci[8]=polytype
+
+	std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+	if( !v_ptr )
+	{
+		al_trace( "Quad3d: Vector pointer is null! Internal error. \n");
+		return;
+	}
+
+	std::vector<long> &v = *v_ptr;
+	if( v.empty() )
+		return;
+
+	long* pos = &v[0];
+	long* uv = &v[12];
+	long* col = &v[20];
+	long* size = &v[24];
+
+	int w = size[0]; //magic numerical constants... yuck.
+	int h = size[1];
+	int flip = (sdci[6]/10000)&3;
+	int tile = sdci[7]/10000;
+	int polytype = sdci[8]/10000;
+
+	polytype = vbound(polytype, 0, 14);
+	if( ((w-1) & w) != 0 || ((h-1) & h) != 0 ) return; //non power of two error
+
+	int tex_width = w*16;
+	int tex_height = h*16;
+
+	bool mustDestroyBmp = false;
+	BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+	if(!tex)
+	{
+		mustDestroyBmp = true;
+		tex = create_bitmap_ex( 8, tex_width, tex_height );
+		clear_bitmap(tex);
+	}
+
+	if(tile > 0)   // TILE
+	{
+		TileHelper::OverTile( tex, tile, 0, 0, w, h, col[0], flip );
+	}
+	else        // COMBO
+	{
+		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+		const int tiletodraw = combo_tile( c, 0, 0 );
+		flip = flip ^ c.flip;
+
+		TileHelper::OldPutTile( tex, tiletodraw, 0, 0, w, h, col[0], flip );
+	}
+
+	V3D_f V1 = { pos[0]+xoffset, pos[1] +yoffset, pos[2] , uv[0], uv[1], col[0] };
+	V3D_f V2 = { pos[3]+xoffset, pos[4] +yoffset, pos[5] , uv[2], uv[3], col[1] };
+	V3D_f V3 = { pos[6]+xoffset, pos[7] +yoffset, pos[8] , uv[4], uv[5], col[2] };
+	V3D_f V4 = { pos[9]+xoffset, pos[10]+yoffset, pos[11], uv[6], uv[7], col[3] };
+
+	quad3d_f(bmp, polytype, tex, &V1, &V2, &V3, &V4);
+
+	if(mustDestroyBmp)
+		destroy_bitmap(tex);
+
+}
 
 
 
+void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
+{
+	//sdci[1]=layer
+	//sdci[2]=pos[9]
+	//sdci[3]=uv[6]
+	//sdci[4]=color[3]
+	//sdci[5]=size[2]
+	//sdci[6]=flip
+	//sdci[7]=tile/combo
+	//sdci[8]=polytype
+
+	std::vector<long>* v_ptr = (std::vector<long>*)script_drawing_commands[i].GetPtr();
+	if( !v_ptr )
+	{
+		al_trace( "Quad3d: Vector pointer is null! Internal error. \n");
+		return;
+	}
+
+	std::vector<long> &v = *v_ptr;
+	if( v.empty() )
+		return;
+
+	long* pos = &v[0];
+	long* uv = &v[9];
+	long* col = &v[15];
+	long* size = &v[18];
+
+	int w = size[0]; //magic numerical constants... yuck.
+	int h = size[1];
+	int flip = (sdci[6]/10000)&3;
+	int tile = sdci[7]/10000;
+	int polytype = sdci[8]/10000;
+
+	polytype = vbound(polytype, 0, 14);
+	if( ((w-1) & w) != 0 || ((h-1) & h) != 0 ) return; //non power of two error
+
+	int tex_width = w*16;
+	int tex_height = h*16;
+
+	bool mustDestroyBmp = false;
+	BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+	if(!tex)
+	{
+		mustDestroyBmp = true;
+		tex = create_bitmap_ex( 8, tex_width, tex_height );
+		clear_bitmap(tex);
+	}
+
+	if(tile > 0)   // TILE
+	{
+		TileHelper::OverTile( tex, tile, 0, 0, w, h, col[0], flip );
+	}
+	else        // COMBO
+	{
+		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+		const int tiletodraw = combo_tile( c, 0, 0 );
+		flip = flip ^ c.flip;
+
+		TileHelper::OldPutTile( tex, tiletodraw, 0, 0, w, h, col[0], flip );
+	}
+
+	V3D_f V1 = { pos[0]+xoffset, pos[1] +yoffset, pos[2] , uv[0], uv[1], col[0] };
+	V3D_f V2 = { pos[3]+xoffset, pos[4] +yoffset, pos[5] , uv[2], uv[3], col[1] };
+	V3D_f V3 = { pos[6]+xoffset, pos[7] +yoffset, pos[8] , uv[4], uv[5], col[2] };
+
+	triangle3d_f(bmp, polytype, tex, &V1, &V2, &V3);
+
+	if(mustDestroyBmp)
+		destroy_bitmap(tex);
+
+}
+
+
+void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+	//sdci[1]=layer
+	//sdci[2]=map
+	//sdci[3]=screen
+	//sdci[4]=layer
+	//sdci[5]=x
+	//sdci[6]=y
+	//sdci[7]=rotation
+	//sdci[8]=opacity
+
+	int map = sdci[2]/10000;
+	int scrn = sdci[3]/10000;
+	int sourceLayer = vbound( sdci[4]/10000, 0, 6);
+	int x = sdci[5]/10000;
+	int y = sdci[6]/10000;
+	int x1 = x + xoffset;
+	int y1 = y + yoffset;
+	int rotation = sdci[7]/10000;
+	int opacity = sdci[8]/10000;
+
+	const int index = map * MAPSCRS + scrn;
+	if( index >= (int)TheMaps.size() )
+	{
+		al_trace( "DrawLayer: invalid map or screen index. \n");
+		return;
+	}
+
+
+	const mapscr & m = TheMaps[index];
+	const mapscr & l = TheMaps[ m.layermap[sourceLayer] * MAPSCRS + m.layerscreen[sourceLayer] ];
+
+	BITMAP* b = bmp;
+	if(rotation != 0)
+		b = script_drawing_commands.AquireSubBitmap( 256, 176 );
+
+
+	const int maxX = isOffScreen ? 512 : 256;
+	const int maxY = isOffScreen ? 512 : 176;
+
+	if(rotation != 0) // rotate
+	{
+		for( int i(0); i < 176; ++i )
+		{
+			const int x2 = ((i&15)<<4) + x;
+			const int y2 = (i&0xF0) + y;
+
+			const newcombo & c = combobuf[ l.data[i] ];
+			const int tile = combo_tile(c, x2, y2);
+
+			if( opacity < 128 )
+			   TileHelper::OverTileTranslucent( b, tile, x2, y2, 16, 16, l.cset[i], c.flip, opacity );
+			else
+			   TileHelper::OverTile( b, tile, x2, y2, 16, 16, l.cset[i], c.flip );
+
+			//putcombo( b, xx, yy, l.data[i], l.cset[i] );
+		}
+
+		rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation) );
+		script_drawing_commands.ReleaseSubBitmap(b);
+	}
+	else
+	{
+		for( int i(0); i < 176; ++i )
+		{
+			const int x2 = ((i&15)<<4) + x;
+			const int y2 = (i&0xF0) + y;
+
+			if( x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY ) //in clipping rect
+			{
+				const newcombo & c = combobuf[ l.data[i] ];
+				const int tile = combo_tile(c, x2, y2);
+
+				if( opacity < 128 )
+				   TileHelper::OverTileTranslucent( b, tile, x2, y2, 16, 16, l.cset[i], c.flip, opacity );
+				else
+				   TileHelper::OverTile( b, tile, x2, y2, 16, 16, l.cset[i], c.flip );
+
+				//putcombo( b, xx, yy, l.data[i], l.cset[i] );
+			}
+		}
+	}
+
+	//putscr
+}
 
 
 
+void do_drawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
+{
+	//sdci[1]=layer
+	//sdci[2]=map
+	//sdci[3]=screen
+	//sdci[4]=x
+	//sdci[5]=y
+	//sdci[6]=rotation
 
+	int map = sdci[2]/10000;
+	int scrn = sdci[3]/10000;
+	int x = sdci[4]/10000;
+	int y = sdci[5]/10000;
+	int x1 = x + xoffset;
+	int y1 = y + yoffset;
+	int rotation = sdci[6]/10000;
+
+	const int index = map * MAPSCRS + scrn;
+	if( index >= (int)TheMaps.size() )
+	{
+		al_trace( "DrawScreen: invalid map or screen index. \n");
+		return;
+	}
+
+	BITMAP* b = bmp;
+	if(rotation != 0)
+		b = script_drawing_commands.AquireSubBitmap( 256, 176 );
+
+	putscr( b, x, y, &TheMaps[index] );
+
+	if(rotation != 0) // rotate
+	{
+		rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation) );
+		script_drawing_commands.ReleaseSubBitmap(b);
+	}
+}
 
 
 
@@ -1471,6 +1820,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoffset, int yo
 	//[][18]: rendertarget
 	//[][19]: unused
 
+	bool isTargetOffScreenBmp = false;
 	const int type_mul_10000 = type * 10000;
 	const int numDrawCommandsToProcess = script_drawing_commands.Count();
 
@@ -1492,6 +1842,7 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoffset, int yo
 			//not drawing to screen, so no subscreen offset
 			xoffset = 0;
 			yoffset = 0;
+			isTargetOffScreenBmp = true;
 		}
 
 	  switch(sdci[0])
@@ -1582,66 +1933,11 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoffset, int yo
 		}
 		break;
 
-      case QUAD3DR:
-      {
-         //sdci[1]=layer
-         //sdci[2]=pos[12]
-         //sdci[3]=uv[8]
-         //sdci[4]=color[4]
-         //sdci[5]=size[2]
-         //sdci[6]=tile/combo
-         //sdci[7]=polytype
-
-		  /*
-         if( draw_container.quad3D.empty() )
-         {
-            return;
-         }
-
-         std::deque< quad3Dstruct > ::iterator q3d_it
-         = draw_container.getQuad3dIterator( sdci[19] );
-
-         // dereferenced, for her pleasure. :p
-         const quad3Dstruct *q = & (*q3d_it);
-
-         int w = q->size[0];
-         int h = q->size[1];
-         int flip = (sdci[6]/10000)&3;
-         int tile = sdci[7]/10000;
-         int polytype = sdci[8]/10000;
-
-         polytype = vbound(polytype, 0, 14);
-         if( !(zc::math::IsPowerOfTwo(w) && zc::math::IsPowerOfTwo(h)) )
-         {
-            draw_container.quad3D.erase( q3d_it );
-            break;
-         }
-
-         BITMAP *tex = create_bitmap_ex(8,16*w,16*h);
-         clear_bitmap(tex);
-
-         if(tile > 0)   // TILE
-         {
-            TileHelper::OverTile( tex, tile, 0, 0, w, h, q->color[0], flip );
-         }
-         else        // COMBO
-         {
-            const int tiletodraw = combo_tile( abs(tile), int(q->pos[0]), int(q->pos[1]) );
-            TileHelper::OldPutTile( tex, tiletodraw, 0, 0, w, h, q->color[0], flip );
-         }
-
-         V3D_f V1 = { q->pos[0]+xoffset, q->pos[1] +yoffset, q->pos[2] , q->uv[0], q->uv[1], q->color[0] };
-         V3D_f V2 = { q->pos[3]+xoffset, q->pos[4] +yoffset, q->pos[5] , q->uv[2], q->uv[3], q->color[1] };
-         V3D_f V3 = { q->pos[6]+xoffset, q->pos[7] +yoffset, q->pos[8] , q->uv[4], q->uv[5], q->color[2] };
-         V3D_f V4 = { q->pos[9]+xoffset, q->pos[10]+yoffset, q->pos[11], q->uv[6], q->uv[7], q->color[3] };
-
-         quad3d_f(bmp, polytype, tex, &V1, &V2, &V3, &V4);
-         destroy_bitmap(tex);
-
-         draw_container.quad3D.erase( q3d_it );
-		 */
-      }
-      break;
+		case QUAD3DR:
+		{
+			do_drawquad3dr(bmp, i, sdci, xoffset, yoffset);
+		}
+		break;
 
 		case TRIANGLER:
 		{
@@ -1649,62 +1945,27 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoffset, int yo
 		}
 		break;
 
-      case TRIANGLE3DR:
-      {
-         //sdci[1]=layer
-         //sdci[6]=flip
-         //sdci[7]=tile/combo
-         //sdci[8]=polytype
-
-		  /*
-         if( draw_container.triangle3D.empty() )
-         {
-            return;
-         }
-         std::deque< triangle3Dstruct > ::iterator t3d_it
-            = draw_container.getTriangle3dIterator( sdci[19] );
-
-         // dereferenced, for her pleasure. :p
-         const triangle3Dstruct *q = & (*t3d_it);
-
-         int w = q->size[0];
-         int h = q->size[1];
-         int flip = (sdci[6]/10000)&3;
-         int tile = sdci[7]/10000;
-         int polytype = sdci[8]/10000;
-
-         polytype = vbound(polytype, 0, 14);
-         if( !(zc::math::IsPowerOfTwo(w) && zc::math::IsPowerOfTwo(h)) )
-            break;
-
-         BITMAP *tex = create_bitmap_ex(8,16*w,16*h);
-         clear_bitmap(tex);
-
-         if(tile > 0)   // TILE
-         {
-            TileHelper::OverTile( tex, tile, 0, 0, w, h, q->color[0], flip );
-         }
-         else        // COMBO
-         {
-            const int tiletodraw = combo_tile( abs(tile), int(q->pos[0]), int(q->pos[1]) );
-            TileHelper::OldPutTile( tex, tiletodraw, 0, 0, w, h, q->color[0], flip );
-         }
-
-         V3D_f V1 = { q->pos[0]+xoffset, q->pos[1] +yoffset, q->pos[2] ,   q->uv[0], q->uv[1], q->color[0] };
-         V3D_f V2 = { q->pos[3]+xoffset, q->pos[4] +yoffset, q->pos[5] ,   q->uv[2], q->uv[3], q->color[1] };
-         V3D_f V3 = { q->pos[6]+xoffset, q->pos[7] +yoffset, q->pos[8] , q->uv[4], q->uv[5], q->color[2] };
-
-         triangle3d_f(bmp, polytype, tex, &V1, &V2, &V3);
-         destroy_bitmap(tex);
-
-         draw_container.triangle3D.erase(t3d_it);
-		 */
-      }
-      break;
+		case TRIANGLE3DR:
+		{
+			do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset);
+		}
+		break;
 
 		case BITMAPR:
 		{
 			do_drawbitmapr(bmp, sdci, xoffset, yoffset);
+		}
+		break;
+
+		case DRAWLAYERR:
+		{
+			do_drawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
+		}
+		break;
+
+		case DRAWSCREENR:
+		{
+			do_drawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
 		}
 		break;
 

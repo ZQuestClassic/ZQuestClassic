@@ -260,7 +260,11 @@ extern "C"
       strcpy(p->fname, filename);
       p->type = ZCMF_OGG;
       p->playing = ZCM_STOPPED;
-      return (ZCMUSIC*)p;
+      ZCMUSIC *music=(ZCMUSIC*)p;
+      extract_name(filename, music->filename, FILENAMEALL);
+      music->filename[55]='\0';
+      music->track=0;
+      return music;
     }
 
     if ((stricmp(ext,"mp3")==0) && (libflags & ZCMF_MP3))
@@ -280,7 +284,11 @@ extern "C"
       strcpy(p->fname, filename);
       p->type = ZCMF_MP3;
       p->playing = ZCM_STOPPED;
-      return (ZCMUSIC*)p;
+      ZCMUSIC *music=(ZCMUSIC*)p;
+      extract_name(filename, music->filename, FILENAMEALL);
+      music->filename[55]='\0';
+      music->track=0;
+      return music;
     }
 
     if (libflags & ZCMF_DUH)
@@ -318,7 +326,11 @@ extern "C"
         p->playing = ZCM_STOPPED;
         p->s = d;
         p->p = NULL;
-        return (ZCMUSIC*)p;
+        ZCMUSIC *music=(ZCMUSIC*)p;
+        extract_name(filename, music->filename, FILENAMEALL);
+        music->filename[55]='\0';
+        music->track=0;
+        return music;
       }
     }
 
@@ -335,7 +347,11 @@ extern "C"
 				p->type = ZCMF_GME;
 				p->playing = ZCM_STOPPED;
 				p->emu = emu;
-				return (ZCMUSIC*)p;
+				ZCMUSIC *music=(ZCMUSIC*)p;
+                extract_name(filename, music->filename, FILENAMEALL);
+                music->filename[55]='\0';
+                music->track=0;
+                return music;
 			} else al_trace("%s file '%s' not found.\n",ext,filename);
 
 		}
@@ -647,6 +663,7 @@ extern "C"
             tracknum=0;
           }
           ((GMEFILE*)zcm)->emu->start_track( tracknum );
+          zcm->track=tracknum;
           return tracknum;
         }
         else

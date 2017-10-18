@@ -107,10 +107,10 @@ static int fs_dummy_proc(int msg, DIALOG *d, int c)
   return D_O_K;
 }
 
-static ListData fs_flist__getter(fs_flist_getter, is_large ? &lfont_l : &font);
-static ListData fs_elist__getter(fs_elist_getter, is_large ? &lfont_l : &font);
+static ListData fs_flist__getter(fs_flist_getter, &font);
+static ListData fs_elist__getter(fs_elist_getter, &font);
 #ifdef HAVE_DIR_LIST //Needed to compile. -L
-static ListData fs_dlist__getter(fs_dlist_getter, is_large ? &lfont_l : &font);
+static ListData fs_dlist__getter(fs_dlist_getter, &font);
 #endif
 
 static DIALOG file_selector[] =

@@ -10,6 +10,80 @@
 #define SCRIPT_DRAWING_COMMAND_VARIABLES 20
 
 
+// For Quad and Triangle. *allegro Bug-Fix* -Gleeok
+class SmallBitmapTextureCache
+{
+public:
+	SmallBitmapTextureCache()
+	{
+		is_init = false;
+		for( int i(0); i < 4; ++i )
+			for( int j(0); j < 4; ++j )
+				_bmp[i][j] = 0;
+	}
+
+	void Init()
+	{
+		if(is_init)
+			return;
+
+        int size[4] = { 16, 32, 64, 128 };
+		for( int i(0); i < 4; ++i )
+		{
+			for( int j(0); j < 4; ++j )
+                _bmp[i][j] = create_bitmap_ex(8, size[i], size[j]);
+		}
+
+		is_init = true;
+	}
+
+	~SmallBitmapTextureCache()
+	{
+		Dispose();
+	}
+
+	void Dispose()
+	{
+		for( int i(0); i < 4; ++i )
+			for( int j(0); j < 4; ++j )
+			{
+				if(_bmp[i][j])
+					destroy_bitmap(_bmp[i][j]);
+				_bmp[i][j] = 0;
+			}
+
+		is_init = false;
+	}
+
+	inline BITMAP* GetTexture( int bw, int bh )
+	{
+		BITMAP* ret = 0;
+
+		if(!is_init)
+			Init();
+
+		if(bw == 1 || bw == 2 || bw == 4 || bw == 8 )
+		{
+			int x = bw >> 1;
+			if( x > 3 ) x = 3;
+			if(bh == 1) ret = _bmp[x][0];
+			if(bh == 2) ret = _bmp[x][1];
+			if(bh == 4) ret = _bmp[x][2];
+			if(bh == 8) ret = _bmp[x][3];
+		}
+
+		if(ret)
+			clear_bitmap(ret);
+
+		return ret;
+	}
+
+protected:
+	BITMAP* _bmp[4][4];
+	bool is_init;
+};
+
+
 //simple class that manages allegro bitmaps for script drawing
 class ScriptDrawingBitmapPool
 {
@@ -32,7 +106,7 @@ public:
 			_parent_bmp  = create_bitmap_ex(8,512,512);
 
 		BITMAP* bmp = _parent_bmp;
-		if( w <= 256 && h <= 256 )
+		if( w <= 512 && h <= 512 )
 			bmp = create_sub_bitmap(_parent_bmp, x, y, w, h);
 
 		clear_bitmap(bmp);
@@ -56,7 +130,11 @@ protected:
 class DrawingContainer
 {
 public:
-	DrawingContainer() : drawstring(), current_string_count(0) {}
+	DrawingContainer() : 
+		drawstring(), current_string_count(0),
+		drawdata(), current_drawdata_count(0)
+	  {}
+
 	~DrawingContainer()
 	{
 		this->Dispose();
@@ -66,13 +144,18 @@ public:
 	{
 		for( size_t i(0); i < drawstring.size(); ++i )
 			delete drawstring[i];
-
 		drawstring.clear();
+
+
+		for( size_t i(0); i < drawdata.size(); ++i )
+			delete drawdata[i];
+		drawdata.clear();
 	}
 
 	void Clear()
 	{
 		current_string_count = 0;
+		current_drawdata_count = 0;
 	}
 
 	std::string* GetString()
@@ -94,9 +177,34 @@ public:
 		return str;
 	}
 
+	std::vector<long>* GetVector()
+	{
+		std::vector<long>* v;
+		if( drawdata.size() > current_drawdata_count )
+		{
+			v = drawdata[current_drawdata_count];
+			v->clear();
+		}
+		else
+		{
+			v = new std::vector<long>();
+			drawdata.push_back(v);
+		}
+
+		current_drawdata_count++;
+
+		return v;
+	}
+
 protected:
+	//for drawstring
 	std::vector<std::string*> drawstring;
 	size_t current_string_count;
+
+	//for other dynamic drawing (quad3d etc..)
+	std::vector<std::vector<long>*> drawdata;
+	size_t current_drawdata_count;
+
 };
 
 
@@ -118,6 +226,11 @@ public:
 	void SetString( std::string* str )
 	{
 		ptr = (void*)str;
+	}
+
+	void SetVector( std::vector<long>* v )
+	{
+		ptr = (void*)v;
 	}
 
 	void* GetPtr()
@@ -145,7 +258,7 @@ public:
 	typedef vec_type ::iterator vec_type_iter;
 
 	// Unlikely people will be using all 1000 commands.
-	const static int DefaultCapacity = 196;
+	const static int DefaultCapacity = 256; //176 + some extra
 
 	CScriptDrawingCommands() : commands(), count(0) {}
 	~CScriptDrawingCommands(){}
@@ -153,6 +266,7 @@ public:
 	void Dispose()
 	{
 		bitmap_pool.Dispose();
+		small_tex_cache.Dispose();
 	}
 
 	void Init()
@@ -162,6 +276,7 @@ public:
 		// do that when zc first queries for a valid command index. -Gleeok
 
 		//commands.resize(DefaultCapacity);
+		//small_tex_cache.Init();
 	}
 
 	void Clear()
@@ -178,6 +293,7 @@ public:
 
 	int Count() const { return count; }
 	std::string* GetString() { return draw_container.GetString(); }
+	std::vector<long>* GetVector() { return draw_container.GetVector(); }
 
 	int GetNext()
 	{
@@ -222,12 +338,19 @@ public:
 		bitmap_pool.ReleaseSubBitmap(b);
 	}
 
+	inline BITMAP* GetSmallTextureBitmap( int bw, int bh )
+	{
+		return small_tex_cache.GetTexture(bw, bh);
+	}
+
+
 protected:
 	vec_type commands;
 	int count;
 
 	DrawingContainer draw_container;
 	ScriptDrawingBitmapPool bitmap_pool;
+	SmallBitmapTextureCache small_tex_cache;
 
 private:
 	CScriptDrawingCommands(const CScriptDrawingCommands&) {}

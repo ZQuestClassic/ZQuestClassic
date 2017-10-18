@@ -36,7 +36,7 @@ public:
   int pickup,clk2;
   int aclk,aframe;
   char PriceIndex;
-  bool flash,twohand,anim;
+  bool flash,twohand,anim, subscreenItem;
   int o_tile,o_cset, o_speed, o_delay, frames;
   item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy = false);
   virtual ~item();
@@ -49,4 +49,4 @@ void putitem(BITMAP *dest,int x,int y,int item_id);
 void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int flash);
 #endif
 /*** end of sprite.cc ***/
- 
+

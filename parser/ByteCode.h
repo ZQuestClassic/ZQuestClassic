@@ -1123,6 +1123,37 @@ public:
 	Opcode *clone() {return new OPlayMIDIRegister(a->clone());}
 };
 
+class OPlayEnhancedMusic : public BinaryOpcode
+{
+public:
+	OPlayEnhancedMusic(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+	string toString();
+	Opcode *clone() {return new OPlayEnhancedMusic(a->clone(), b->clone());}
+};
+
+class OGetDMapMusicFilename : public BinaryOpcode
+{
+public:
+	OGetDMapMusicFilename(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+	string toString();
+	Opcode *clone() {return new OGetDMapMusicFilename(a->clone(), b->clone());}
+};
+
+class OGetDMapMusicTrack : public UnaryOpcode
+{
+public:
+	OGetDMapMusicTrack(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OGetDMapMusicTrack(a->clone());}
+};
+
+class OSetDMapEnhancedMusic : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new OSetDMapEnhancedMusic();}
+};
+
 class OGetSaveName : public UnaryOpcode
 {
 public:
@@ -1420,6 +1451,20 @@ class ODrawStringRegister : public Opcode
 public:
 	string toString();
 	Opcode *clone() {return new ODrawStringRegister();}
+};
+
+class ODrawLayerRegister : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new ODrawLayerRegister();}
+};
+
+class ODrawScreenRegister : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new ODrawScreenRegister();}
 };
 
 class ODrawBitmapRegister : public Opcode

@@ -750,36 +750,32 @@ void LinkClass::draw(BITMAP* dest)
 	}*/
   int oxofs, oyofs;
   bool shieldModify = false;
-  if (tmpscr->flags3&fINVISLINK)
-  {
-    return;
-  }
+
+  bool invisible=dontdraw || (tmpscr->flags3&fINVISLINK);
 
   if(action==dying)
   {
-    if(!dontdraw)
+    if(!invisible)
     {
       sprite::draw(dest);
     }
     return;
-  }
-  else
-  {
-    if (dontdraw)
-    {
-      return;
-    }
   }
 
   bool useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
 
   oxofs=xofs;
   oyofs=yofs;
-  yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)) ? 2 : 0);
+  if(!invisible)
+    yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)) ? 2 : 0);
 
   // Stone of Agony
   bool agony=false;
   int agonyid = current_item_id(itype_agony);
+
+  if(invisible)
+    goto attack;
+
   if (agonyid>-1)
   {
     // Stolen some code from checkdamagecombos()...
@@ -808,6 +804,7 @@ void LinkClass::draw(BITMAP* dest)
     }
   }
 
+  attack:
   if(attackclk || action==attacking)
   {
     /* Spaghetti code constants!
@@ -862,31 +859,35 @@ void LinkClass::draw(BITMAP* dest)
       || ((attack==wWand || attack==wFire || attack==wCByrna) && attackclk<13)
       || (attack==wHammer && attackclk<=30))
     {
-      linktile(&tile, &flip, &extend, ls_stab, dir, zinit.linkanimationstyle);
+      if(!invisible)
+      {
+        linktile(&tile, &flip, &extend, ls_stab, dir, zinit.linkanimationstyle);
 
-      if((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7))
-      {
-        linktile(&tile, &flip, &extend, ls_slash, dir, zinit.linkanimationstyle);
-      }
-      if((attack==wHammer) && (attackclk<13))
-      {
-        linktile(&tile, &flip, &extend, ls_pound, dir, zinit.linkanimationstyle);
-      }
+        if((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7))
+        {
+          linktile(&tile, &flip, &extend, ls_slash, dir, zinit.linkanimationstyle);
+        }
+        if((attack==wHammer) && (attackclk<13))
+        {
+          linktile(&tile, &flip, &extend, ls_pound, dir, zinit.linkanimationstyle);
+        }
 
-      if (useltm)
-      {
-        tile+=item_tile_mod(shieldModify);
-      }
+        if (useltm)
+        {
+          tile+=item_tile_mod(shieldModify);
+        }
 
-      tile+=dmap_tile_mod();
-      // Stone of Agony
-      if (agony)
-      {
-        yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
-      }
-      if (!(get_bit(quest_rules,qr_LINKFLICKER)&&((superman||hclk)&&(frame&1))))
-      {
-        masked_draw(dest);
+        tile+=dmap_tile_mod();
+
+        // Stone of Agony
+        if (agony)
+        {
+          yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
+        }
+        if (!(get_bit(quest_rules,qr_LINKFLICKER)&&((superman||hclk)&&(frame&1))))
+        {
+          masked_draw(dest);
+        }
       }
       if (attack!=wHammer)
       {
@@ -1021,13 +1022,16 @@ void LinkClass::draw(BITMAP* dest)
     }
   }
 
+  if(invisible)
+    return;
+
   if (action != casting)
   {
 	// Keep this consistent with checkspecial2, line 7800-ish...
 	bool inwater = iswater(MAPCOMBO(x+4,y+9))  && iswater(MAPCOMBO(x+4,y+15)) &&  iswater(MAPCOMBO(x+11,y+9)) && iswater(MAPCOMBO(x+11,y+15));
 
 	int jumping2 = int(jumping*(zinit.gravity/16.0));
-	if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
+	//if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
     switch (zinit.linkanimationstyle)
     {
       case las_original:                                               //normal
@@ -2134,6 +2138,14 @@ int LinkClass::EwpnHit()
         if (!(itemsbuf[itemid].misc1 & shBRANG))
           return i;
         break;
+      default: // Just throw the script weapons in here...
+        if(ew->id>=wScript1 && ew->id<=wScript10)
+        {
+          if (!(itemsbuf[itemid].misc1 & shSCRIPT))
+            return i;
+          reflect = ((itemsbuf[itemid].misc2 & shSCRIPT) != 0);
+        }
+		break;
       }
       int oldid = ew->id;
       ew->onhit(false, reflect ? 2 : 1, dir);
@@ -2288,8 +2300,9 @@ void LinkClass::checkhit()
 
     if (!get_bit(quest_rules,qr_FIREPROOFLINK) && (scriptcoldet&1) && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
     {
+	  int itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
       if(s->id==wFire && (superman ? (get_bit(quest_rules,qr_LTTPWALK)?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
-        ((weapon*)(Lwpns.spr(i)))->type<3)
+        (itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
       {
         if(NayrusLoveShieldClk<=0)
         {
@@ -2358,6 +2371,19 @@ void LinkClass::checkhit()
                 if (!(itemsbuf[itemid].misc3 & shMAGIC)) break;
                 reflect = ((itemsbuf[itemid].misc4 & shMAGIC) != 0);
                 goto killweapon;
+              case wScript1:
+              case wScript2:
+              case wScript3:
+              case wScript4:
+              case wScript5:
+              case wScript6:
+              case wScript7:
+              case wScript8:
+              case wScript9:
+              case wScript10:
+                if (!(itemsbuf[itemid].misc3 & shSCRIPT)) break;
+                reflect = ((itemsbuf[itemid].misc4 & shSCRIPT) != 0);
+                goto killweapon;
               case ewLitBomb:
               case ewLitSBomb:
 killweapon:
@@ -2370,7 +2396,7 @@ killweapon:
                   add_grenade(s->x,s->y,s->z,0,-1);
                   s->dummy_bool[0]=false;
                 }*/
-                if(ew->id != oldid)                     // changed type from ewX to wX
+                if(ew->id != oldid || (ew->id>=wScript1 && ew->id<=wScript10)) // changed type from ewX to wX... Except for script weapons
                 {
                   Lwpns.add(ew);
                   Ewpns.remove(ew);
@@ -4980,14 +5006,6 @@ void LinkClass::movelink()
 		  if(!info.isUnwalkable())
         {
           move(up);
-          /* Probably just gets optimized out, but still...
-          if((COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE) && z==0)
-          {
-          }
-          else
-          {
-          }
-          */
         }
         else
         {
@@ -5002,14 +5020,6 @@ void LinkClass::movelink()
 		  if(!info.isUnwalkable())
         {
           move(down);
-          /*
-          if((COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE) && z==0)
-          {
-          }
-          else
-          {
-          }
-          */
         }
         else
         {
@@ -5024,14 +5034,6 @@ void LinkClass::movelink()
       if(!info.isUnwalkable())
         {
           move(left);
-          /*
-          if((COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE) && z==0)
-          {
-          }
-          else
-          {
-          }
-          */
         }
         else
         {
@@ -5046,14 +5048,6 @@ void LinkClass::movelink()
       if(!info.isUnwalkable())
         {
           move(right);
-          /*
-          if((COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE) && z==0)
-          {
-          }
-          else
-          {
-          }
-          */
         }
         else
         {
@@ -5786,7 +5780,12 @@ void LinkClass::movelink()
     {
       if(action==swimming)
       {
-	    info = walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up) || walkflag(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up);
+	    info = walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up);
+
+	    if(_walkflag(x+15, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]), 1) &&
+           !(iswater(MAPCOMBO(x, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]))) &&
+             iswater(MAPCOMBO(x+15, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7])))))
+            info.setUnwalkable(true);
       }
       else
       {
@@ -5855,7 +5854,12 @@ void LinkClass::movelink()
     {
       if(action==swimming)
       {
-	    info=walkflag(x,y+15+int(lsteps[int(y)&7]),2,down) || walkflag(x+15,y+15+int(lsteps[int(y)&7]),2,down);
+	    info=walkflag(x,y+15+int(lsteps[int(y)&7]),2,down);
+
+	    if(_walkflag(x+15, y+15+int(lsteps[int(y)&7]), 1) &&
+           !(iswater(MAPCOMBO(x, y+15+int(lsteps[int(y)&7]))) &&
+             iswater(MAPCOMBO(x+15, y+15+int(lsteps[int(y)&7])))))
+            info.setUnwalkable(true);
       }
       else
       {
@@ -5927,7 +5931,7 @@ LEFTRIGHT:
     else
     {
 	  info = walkflag(x-int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left) ||
-				walkflag(x-int(lsteps[int(x)&7]),y+(tmpscr->flags7&fSIDEVIEW ?0:8),             1,left);
+				walkflag(x-int(lsteps[int(x)&7]),y+(tmpscr->flags7&fSIDEVIEW ?0:8), 1,left);
 	  execute(info);
 	  if(!info.isUnwalkable())
       {
@@ -6240,11 +6244,6 @@ void LinkClass::move(int d2)
 	  linkstep();
   }
 
-  /*
-  if((COMBOTYPE(x+8,y+15)==cICE||MAPFLAG(x+8,y+15)==mfICE||MAPCOMBOFLAG(x+8,y+15)==mfICE) && z==0)
-  {
-  }
-  */
   if (charging==0 || attack!=wHammer)
   {
     sprite::move((fix)dx,(fix)dy);
@@ -6544,23 +6543,35 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
     if(can_deploy_ladder())
       // laddersetup
     {
+      // Check if there's water to use the ladder over
 	  bool wtrx = iswater(MAPCOMBO(wx,wy));
 	  bool wtrx8 = iswater(MAPCOMBO(x+8,wy));
-      // add ladder
-      if (tmpscr->flags7&fSIDEVIEW)
+      if(wtrx || wtrx8)
       {
-        wtrx  = !_walkflag(wx, wy+8, 1) && !_walkflag(wx, wy, 1) && dir!=down;
-        wtrx8 = !_walkflag(wx+8, wy+8, 1) && !_walkflag(wx+8, wy, 1) && dir!=down;
+          if (tmpscr->flags7&fSIDEVIEW)
+          {
+            wtrx  = !_walkflag(wx, wy+8, 1) && !_walkflag(wx, wy, 1) && dir!=down;
+            wtrx8 = !_walkflag(wx+8, wy+8, 1) && !_walkflag(wx+8, wy, 1) && dir!=down;
+          }
+          // * walk on half-water using the ladder instead of using flippers.
+          // * otherwise, walk on ladder(+hookshot) combos.
+          else if(wtrx==wtrx8 && (isstepable(MAPCOMBO(wx, wy)) || isstepable(MAPCOMBO(wx+8,wy)) || wtrx==true))
+          {
+              //if Link could swim on a tile instead of using the ladder,
+              //refuse to use the ladder to step over that tile. -DD
+            wtrx  = isstepable(MAPCOMBO(wx, wy)) && unwalkablex;
+            wtrx8 = isstepable(MAPCOMBO(wx+8,wy)) && unwalkablex8;
+          }
       }
-	  // * walk on half-water using the ladder instead of using flippers.
-	  // * otherwise, walk on ladder(+hookshot) combos.
-      else if(wtrx==wtrx8 && (isstepable(MAPCOMBO(wx, wy)) || isstepable(MAPCOMBO(wx+8,wy)) || wtrx==true))
+      // No water; how about ladder combos?
+      else
       {
-		  //if Link could swim on a tile instead of using the ladder,
-		  //refuse to use the ladder to step over that tile. -DD
-        wtrx  = isstepable(MAPCOMBO(wx, wy)) && unwalkablex;
-        wtrx8 = isstepable(MAPCOMBO(wx+8,wy)) && unwalkablex8;
+          int combo=combobuf[MAPCOMBO(wx, wy)].type;
+          wtrx=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
+          combo=combobuf[MAPCOMBO(wx+8, wy)].type;
+          wtrx8=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
       }
+      
 	  bool walkwater = get_bit(quest_rules, qr_DROWN) && !iswater(MAPCOMBO(wx,wy));
 
       if(get_bit(quest_rules,qr_LTTPWALK))
@@ -8137,13 +8148,25 @@ void LinkClass::checkspecial2(int *ls)
       // * warping to a DMap whose music is different.
 
       int tdm = tmpscr[t].tilewarpdmap[index];
-      if (tmpscr[t].tilewarptype[index]<=wtPASS
-          ? (DMaps[currdmap].flags&dmfCAVES && tmpscr[t].tilewarptype[index]==wtCAVE)
-          : (DMaps[tmpscr->tilewarpdmap[index]].midi !=(currmidi-ZC_MIDI_COUNT+4) &&
-          TheMaps[(DMaps[tdm].map*MAPSCRS + (tmpscr[t].tilewarpscr[index] + DMaps[tdm].xoff))].screen_midi != (currmidi-ZC_MIDI_COUNT+4)))
+      
+      if(tmpscr[t].tilewarptype[index]<=wtPASS)
       {
-        music_stop();
+        if((DMaps[currdmap].flags&dmfCAVES) && tmpscr[t].tilewarptype[index] == wtCAVE)
+          music_stop();
       }
+      else
+      {          
+          if(zcmusic!=NULL)
+          {
+            if(strcmp(zcmusic->filename, DMaps[tdm].tmusic) != 0 ||
+               zcmusic->track!=DMaps[tdm].tmusictrack)
+              music_stop();
+          }
+          else if(DMaps[tmpscr->tilewarpdmap[index]].midi != (currmidi-ZC_MIDI_COUNT+4) &&
+                  TheMaps[(DMaps[tdm].map*MAPSCRS + (tmpscr[t].tilewarpscr[index] + DMaps[tdm].xoff))].screen_midi != (currmidi-ZC_MIDI_COUNT+4))
+            music_stop();
+      }
+      
       stop_sfx(WAV_ER);
       bool opening = (tmpscr[t].tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && tmpscr[t].tilewarptype[index]==wtCAVE)
             ? false : COOLSCROLL);
@@ -8285,7 +8308,7 @@ bool LinkClass::dowarp(int type, int index)
   byte wscr=0,wtype=0,t=0;
   bool overlay=false;
   t=(currscr<128)?0:1;
-  int wrindex = (tmpscr->warpreturnc>>(index*2))&3;
+  int wrindex = 0;
   //int lastent_org = lastentrance;
   //int lastdmap_org = lastentrance_dmap;
   int whistleitem = directWpn>=0 && itemsbuf[directWpn].family==itype_whistle ? directWpn : current_item_id(itype_whistle);
@@ -8301,12 +8324,14 @@ bool LinkClass::dowarp(int type, int index)
       wdmap = tmpscr[t].tilewarpdmap[index];
       wscr = tmpscr[t].tilewarpscr[index];
       overlay = get_bit(&tmpscr[t].tilewarpoverlayflags,index)?1:0;
+      wrindex=(tmpscr->warpreturnc>>(index*2))&3;
       break;
     case 1:                                                 // side warp
       wtype = tmpscr[t].sidewarptype[index];
       wdmap = tmpscr[t].sidewarpdmap[index];
       wscr = tmpscr[t].sidewarpscr[index];
       overlay = get_bit(&tmpscr[t].sidewarpoverlayflags,index)?1:0;
+      wrindex=(tmpscr->warpreturnc>>(8+(index*2)))&3;
       break;
     case 2:                                                 // whistle warp
       {
@@ -8907,6 +8932,10 @@ bool LinkClass::dowarp(int type, int index)
           game->set_continue_scrn( homescr);
           //Z_message("continue_scrn = %02X e/e\n",game->get_continue_scrn());
         }
+        else if (currdmap != game->get_continue_dmap())
+        {
+          game->set_continue_scrn( DMaps[currdmap].cont + (((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff));
+        }
       }
       else
       {
@@ -8943,10 +8972,10 @@ bool LinkClass::dowarp(int type, int index)
   memset(ffprvx,0xFF,sizeof(float)*32);
   memset(ffprvy,0xFF,sizeof(float)*32);
   if (wtype==wtCAVE) {
-    if (DMaps[currdmap].flags&dmfGUYCAVES) 
+    if (DMaps[currdmap].flags&dmfGUYCAVES)
 	  Z_eventlog("Entered %s containing %s.\n",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar",
 	    roomtype_string[tmpscr[1].room]);
-	else 
+	else
       Z_eventlog("Entered %s.",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar");
   }
   else Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,currscr,
@@ -10842,10 +10871,15 @@ int selectWpn_new(int type, int startpos, int forbiddenpos)
 
   int p=-1;
   int curpos = startpos;
+  int firstValidPos=-1;
   for (int i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
   {
     if (current_subscreen_active->objects[i].type==ssoCURRENTITEM)
     {
+      if(firstValidPos==-1 && current_subscreen_active->objects[i].d3>=0)
+      {
+        firstValidPos=i;
+      }
       if (current_subscreen_active->objects[i].d3==curpos)
       {
         p=i;
@@ -10856,8 +10890,17 @@ int selectWpn_new(int type, int startpos, int forbiddenpos)
   if(p == -1)
   {
     //can't find the current position
+    // Switch to a valid weapon if there is one; otherwise,
+    // the selector can simply disappear
+    if(firstValidPos>=0)
+    {
+      return current_subscreen_active->objects[firstValidPos].d3;
+    }
     //FAILURE
-    return failpos;
+    else
+    {
+      return failpos;
+    }
   }
   //remember we've been here
   set<int> oldPositions;
@@ -11095,9 +11138,19 @@ void getitem(int id, bool nosound)
     {
       if(itemsbuf[id].setmax)
       {
-        int max = game->get_maxcounter( itemsbuf[id].count);
-        if(max<itemsbuf[id].max) max=itemsbuf[id].max;
-        game->set_maxcounter( zc_min(game->get_maxcounter( itemsbuf[id].count)+itemsbuf[id].setmax,max), itemsbuf[id].count);
+        // Bomb bags are a special case; they may be set not to increase super bombs
+        if(itemsbuf[id].family==itype_bombbag && itemsbuf[id].count==2 && (itemsbuf[id].flags&16)==0)
+        {
+          int max = game->get_maxbombs();
+          if(max<itemsbuf[id].max) max=itemsbuf[id].max;
+          game->set_maxbombs( zc_min(game->get_maxbombs()+itemsbuf[id].setmax,max), false);
+        }
+        else
+        {
+          int max = game->get_maxcounter( itemsbuf[id].count);
+          if(max<itemsbuf[id].max) max=itemsbuf[id].max;
+          game->set_maxcounter( zc_min(game->get_maxcounter( itemsbuf[id].count)+itemsbuf[id].setmax,max), itemsbuf[id].count);
+        }
       }
       // Amount is an unsigned short, but the range is -9999 to 16383
       // -1 is actually 16385 ... -9999 is 26383, and 0x8000 means use the drain counter
@@ -11146,6 +11199,7 @@ void getitem(int id, bool nosound)
   case itype_lkey:		if(game->lvlkeys[dlevel]<255) game->lvlkeys[dlevel]++; break;
 
   case itype_ring:
+  case itype_magicring:
     if( (get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
     {
       ringcolor(false);

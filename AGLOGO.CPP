@@ -17,6 +17,10 @@
 
 extern DATAFILE* data;
 
+extern bool sbig;
+extern int screen_scale;
+
+
 static void SetCols(RGB* pal)
 {
 
@@ -131,7 +135,12 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
     blit(firebuf,frame,8,0,0,0,320,198);
     draw_rle_sprite(frame,(RLE_SPRITE*)data[RLE_AGTEXT].dat,24,90);
     vsync();
-    blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
+
+	if(sbig)
+		stretch_blit(frame,screen, 0,0,320,198, (resx-(320*screen_scale))>>1, (resy-(198*screen_scale))>>1, 320*screen_scale,198*screen_scale);
+	else
+		blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
+
     poll_joystick();
     if((keypressed()||joy[0].button[0].b||joy[0].button[1].b)&&fadecnt>=32)
       blackout=true;

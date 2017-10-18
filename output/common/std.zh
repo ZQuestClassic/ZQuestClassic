@@ -535,6 +535,7 @@ const int LW_WAND               = 12; // This cannot be created
 const int LW_CANDLE             = 12; // This cannot be created
 const int LW_HAMMER             = 19; // This cannot be created
 const int LW_HOOKSHOT           = 20; // This cannot be created
+const int LW_CANEOFBYRNA        = 27; // This cannot be created
 const int LW_ARROW              = 8;
 const int LW_BEAM               = 2; // Sword beam
 const int LW_BRANG              = 3;
@@ -612,7 +613,8 @@ const int FFCF_CHANGER          = 5; // Is A Changer
 const int FFCF_PRELOAD          = 6; // Run Script On Screen Init
 const int FFCF_LENSVIS          = 7; // Only Visible to Lens of Truth
 const int FFCF_RESET            = 8; // Script Resets When Carried Over
-const int FFCF_ETHEREAL		= 9; // The FFC's Combo Type is ignored.
+const int FFCF_ETHEREAL         = 9; // The FFC's Combo Type is ignored.
+const int FFCF_IGNOREHOLDUP     = 10; // The FFC is updated while Link is holding up an item
 
 //Directions. Use with Link->Dir, etc.
 const int DIR_UP                = 0; //000b
@@ -721,7 +723,7 @@ const int CF_ALLFAIRY           = 93;
 const int CF_SINGLE             = 94;
 const int CF_SINGLE16           = 95;
 const int CF_NOENEMY            = 96;
-const int CF_ICE                = 97; // This combo flag is not implemented
+const int CF_NOGROUNDENEMY      = 97;
 const int CF_SCRIPT1            = 98;
 const int CF_SCRIPT2            = 99;
 const int CF_SCRIPT3            = 100;
@@ -790,7 +792,6 @@ const int CT_GRAVE              = 5;
 const int CT_HOOKSHOTONLY       = 42;
 const int CT_HSBRIDGE           = 30;
 const int CT_HSGRAB             = 29;
-const int CT_ICE                = 128; // This combo type is not implemented
 const int CT_LADDERHOOKSHOT     = 20;
 const int CT_LADDERONLY         = 63;
 const int CT_LEFTSTATUE         = 11;
@@ -805,6 +806,7 @@ const int CT_MIRRORBACKSLASH    = 47;
 const int CT_MIRRORSLASH        = 46;
 const int CT_NOENEMY            = 110;
 const int CT_NOFLYZONE          = 44;
+const int CT_NOGROUNDENEMY      = 128;
 const int CT_NOJUMPZONE         = 54;
 const int CT_NONE               = 0;
 const int CT_OVERHEAD           = 43;
@@ -1083,22 +1085,22 @@ const int TF_NORMAL             = 0; // treats the left-most char as (x)
 const int TF_CENTERED           = 1; // prints the string centered on (x)
 const int TF_RIGHT              = 2; // treats the right-most char as (x)
 
-// Texture mapping rendering modes. Use with Screen->"*3D" drawing routines
+// Texture mapping rendering modes. Use with Screen->"Psuedo 3D" or "*3D" drawing routines. ie; Polygon, Quad, or Triangle
 const int PT_FLAT               = 0; // single color shading
-const int PT_FLATSHADED         = 1; // not implemented
-const int PT_COLSHADED          = 2; // not implemented
+const int PT_FLATSHADED         = 1; // "" with flat shading (*3D only)
+const int PT_COLSHADED          = 2; // "" with color shading (*3D only)
 const int PT_TEXTURE            = 3; // texture mapped polygon using 2d linear interpolation
-const int PT_PTEXTURE           = 4; // not implemented
+const int PT_PTEXTURE           = 4; // "" 
 const int PT_MASKTEXTURE        = 5; // transparent texture mapped polygon using 2d linear interpolation
-const int PT_MASKPTEXTURE       = 6; // not implemented
-const int PT_LITTEXTURE         = 7; // not implemented
-const int PT_LITPTEXTURE        = 8; // not implemented
-const int PT_MASKLITTEXTURE     = 9; // not implemented
-const int PT_MASKLITPTEXTURE    = 10; // not implemented
+const int PT_MASKPTEXTURE       = 6; // "" 
+const int PT_LITTEXTURE         = 7; // "" with lighting (*3D only)
+const int PT_LITPTEXTURE        = 8; // "" (*3D only)
+const int PT_MASKLITTEXTURE     = 9; // "" with transparency
+const int PT_MASKLITPTEXTURE    = 10; // "" 
 const int PT_TRANSTEXTURE       = 11; // translucent texture mapped polygon using 2d linear interpolation
-const int PT_TRANSPTEXTURE      = 12; // not implemented
+const int PT_TRANSPTEXTURE      = 12; // "" 
 const int PT_MASKTRANSTEXTURE   = 13; // translucent and transparent texture mapped polygon using 2d linear interpolation
-const int PT_MASKTRANSPTEXTURE  = 14; // not implemented
+const int PT_MASKTRANSPTEXTURE  = 14; // "" 
 
 // Render Targets. Use with Screen->"*RenderTarget" and Screen->"Bitmap" drawing routines.
 const int RT_SCREEN             = -1; // draws to screen
@@ -1720,6 +1722,45 @@ float VectorX(int len, float angle) {
 float VectorY(int len, float angle) {
   return Sin(angle)*len;
 }
+
+//rotates X about a center point by an amount of degrees
+float RotatePointX(float x, float y, float centerX, float centerY, float degrees) {
+  float dx = x - centerX;
+  float dy = y - centerY;
+  return (Cos(degrees) * dx) - (Sin(degrees) * dy) + centerX;
+}
+
+//rotates Y about a center point by an amount of degrees
+float RotatePointY(float x, float y, float centerX, float centerY, float degrees) {
+  float dx = x - centerX;
+  float dy = y - centerY;
+  return (Sin(degrees) * dx) - (Cos(degrees) * dy) + centerY;
+}
+
+//scales X to centerX by a given scale
+float ScalePointX(float x, float centerX, float scale) {
+  return (scale * (x - centerX)) + centerX; 
+}
+
+//scales Y to centerY by a given scale
+float ScalePointY(float y, float centerY, float scale) {
+  return (scale * (y - centerY)) + centerY; 
+}
+
+//rotates and scales X about a center point by an amount of degrees
+float RotateScalePointX(float x, float y, float centerX, float centerY, float degrees, float scaleX, float scaleY) {
+  float dx = (x - centerX) * scaleX;
+  float dy = (y - centerY) * scaleY;
+  return (Cos(degrees) * dx) - (Sin(degrees) * dy) + centerX;
+}
+
+//rotates and scales Y about a center point by an amount of degrees
+float RotateScalePointY(float x, float y, float centerX, float centerY, float degrees, float scaleX, float scaleY) {
+  float dx = (x - centerX) * scaleX;
+  float dy = (y - centerY) * scaleY;
+  return (Sin(degrees) * dx) - (Cos(degrees) * dy) + centerY;
+}
+
 
 // Interpolates between p1 and p2 given 't' clamped within range 0,1.
 float Lerp(float p1, float p2, float t) {

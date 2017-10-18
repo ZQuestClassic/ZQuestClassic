@@ -1299,19 +1299,20 @@ void overblocktranslucent8(BITMAP *dest,int tile,int x,int y,int csets[],int fli
 //  cmbdat: fffffsss cccccccc
 //          (f:flags, s:cset, c:combo)
 
-int combo_tile(newcombo c, int x, int y)
+int combo_tile(const newcombo &c, int x, int y)
 {
   int drawtile=c.tile;
   int tframes=zc_max(1, c.frames);
-  double ddir=0;
-//  switch (c.type)
-  double arg1 = y-LinkModifiedY()-playing_field_offset;
-  double arg2 = LinkModifiedX()-x;
-  ddir=atan2(arg1,arg2);
+
   switch (combo_class_buf[c.type].directional_change_type)
   {
+    default:
+	  break;
+
     case 1: //cOLD_EYEBALL_A
     {
+      double ddir=atan2((double)(y-LinkModifiedY()-playing_field_offset), (double)(LinkModifiedX()-x));
+
       if ((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
       {
         drawtile+=tframes*5;                                //dl
@@ -1348,7 +1349,9 @@ int combo_tile(newcombo c, int x, int y)
     }
 	case 3: // 4-way Eyeball (up-down-left-right)
 	{
-      if ((ddir<=(((-2)*PI)/8))&&(ddir>(((-6)*PI)/8)))
+      double ddir=atan2((double)(y-LinkModifiedY()-playing_field_offset), (double)(LinkModifiedX()-x));
+
+	  if ((ddir<=(((-2)*PI)/8))&&(ddir>(((-6)*PI)/8)))
       {
         drawtile+=tframes*1;                                //d
       }
@@ -1368,7 +1371,9 @@ int combo_tile(newcombo c, int x, int y)
 	}
     case 2: //cOLD_EYEBALL_B
     {
-      if ((ddir<=(((-6)*PI)/8))&&(ddir>(((-8)*PI)/8)))
+      double ddir=atan2((double)(y-LinkModifiedY()-playing_field_offset), (double)(LinkModifiedX()-x));
+
+	  if ((ddir<=(((-6)*PI)/8))&&(ddir>(((-8)*PI)/8)))
       {
         drawtile+=tframes*5;                                //dl
       }
@@ -1408,7 +1413,7 @@ int combo_tile(newcombo c, int x, int y)
 
 int combo_tile(int cmbdat, int x, int y)
 {
-  newcombo c = combobuf[cmbdat];
+  const newcombo & c = combobuf[cmbdat];
   return combo_tile(c, x, y);
 }
 

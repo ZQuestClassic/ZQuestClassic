@@ -57,6 +57,9 @@ extern "C"
   /* read only flag for jwin_edit_proc */
 #define D_READONLY      D_USER
 
+  /* Disable click to select combo for d_combo_proc */
+#define D_NOCLICK       D_USER
+
   /* frame styles */
   enum { FR_WIN, FR_BOX, FR_INV, FR_DEEP, FR_DARK, FR_ETCHED, FR_MEDDARK };
 
@@ -161,4 +164,4 @@ extern "C"
 }
 #endif
 #endif                                                      // _JWIN_H_
- 
+

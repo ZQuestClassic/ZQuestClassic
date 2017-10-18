@@ -684,7 +684,6 @@ extern int d_ssup_btn2_proc(int msg,DIALOG *d,int c);
 extern int d_ssup_btn3_proc(int msg,DIALOG *d,int c);
 extern int d_ssup_btn4_proc(int msg,DIALOG *d,int c);
 extern int d_triggerbutton_proc(int msg,DIALOG *d,int c);
-extern int dcs_auto_button_proc(int msg,DIALOG *d,int c);
 
 void dummy_dialog_proc(DIALOG *d)
 {
@@ -1218,7 +1217,6 @@ void replacedp(DIALOG &d, const char *newdp, size_t size)
       (d.proc==d_text_proc)||
       (d.proc==d_tri_edit_proc)||
       (d.proc==d_triggerbutton_proc)||
-      (d.proc==dcs_auto_button_proc)||
       (d.proc==jwin_button_proc)||
       (d.proc==jwin_check_proc)||
       (d.proc==jwin_ctext_proc)||

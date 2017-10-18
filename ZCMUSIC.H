@@ -41,6 +41,8 @@ extern "C"
     int type;                                               // uses ZCMF defines
     int playing;                                            // -1 = paused, 0 = stopped, 1 = playing
     int position;                                           // Only needed to sync Triforce jingle
+    char filename[56];
+    int track;
   } ZCMUSIC;
 
   ZCM_EXTERN ZCMUSIC const * zcmusic_load_file(char *filename);

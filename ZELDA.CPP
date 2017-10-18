@@ -88,6 +88,8 @@ extern int directItemA;
 extern int directItemB;
 
 bool is_large=false;
+int favorite_combos[MAXFAVORITECOMBOS];
+int favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 
 void playLevelMusic();
 
@@ -228,7 +230,7 @@ int gui_colorset=0;
 int fullscreen;
 byte disable_triplebuffer=0,can_triplebuffer_in_windowed_mode=0;
 byte zc_color_depth=8;
-byte use_debug_console=0, use_win7_keyboard_fix=0, use_win32_proc=1; //windows-build configs
+byte use_debug_console=0, use_win32_proc=1; //windows-build configs
 int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
@@ -258,7 +260,7 @@ bool Playing, FrameSkip=false, TransLayers;
 bool __debug=false,debug_enabled;
 bool refreshpal,blockpath,loaded_guys,freeze_guys,
   loaded_enemies,drawguys,details=false,watch;
-bool darkroom=false,naturaldark=false,BSZ,COOLSCROLL;                         //,NEWSUBSCR;
+bool darkroom=false,naturaldark=false,BSZ;                         //,NEWSUBSCR;
 bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down,Ex2down,Ex3down,Ex4down,AUdown,ADdown,ALdown,ARdown,F12,F11, F5,keyI, keyQ,
   SystemKeys=true,NESquit,volkeys,useCD=false,boughtsomething=false,
   fixed_door=false, hookshot_used=false, hookshot_frozen=false,
@@ -266,6 +268,8 @@ bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down
   cheat_superman=false, gofast=false, checklink=true, didpit=false, heart_beep=true,
   pausenow=false, castnext=false, add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle,
   is_on_conveyor, activated_timed_warp=false;
+
+byte COOLSCROLL;
 
 int  add_asparkle=0, add_bsparkle=0;
 int SnapshotFormat, NameEntryMode=0;
@@ -303,30 +307,7 @@ byte arrayOwner[MAX_ZCARRAY_SIZE];
 //script bitmap drawing
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
 
-#ifdef _WIN32 //windows 7/vista/laptop keyboard fix callbacks
-DebugConsole DebugConsole::singleton;
-void win7fix_KeyPressCallback(unsigned char* scancode)
-{
-	//fix by Colossal
-	if (*scancode == 0x94) *scancode = 0x29; // For tilde
-	else if (*scancode == 0x90) *scancode = 0x0D; // For equals
-	else if (*scancode == 0x91) *scancode = 0x1A; // For openbrace
-	else if (*scancode == 0x1A) *scancode = 0x1B; // For closebrace
-	else if (*scancode == 0x1B) *scancode = 0x2B; // For backslash
-	else if (*scancode == 0x92) *scancode = 0x28; // For quote
-} END_OF_FUNCTION(win7fix_KeyPressCallback)
-
-void win7fix_KeyReleaseCallback(unsigned char* scancode)
-{
-	//fix by Colossal
-	if (*scancode == 0x94) return; // For tilde
-	else if (*scancode == 0x90) *scancode = 0x0D; // For equals
-	else if (*scancode == 0x91) *scancode = 0x1A; // For openbrace
-	else if (*scancode == 0x1A) *scancode = 0x1B; // For closebrace
-	else if (*scancode == 0x1B) *scancode = 0x2B; // For backslash
-	else if (*scancode == 0x92) *scancode = 0x28; // For quote
-} END_OF_FUNCTION(win7fix_KeyReleaseCallback)
-#endif
+DebugConsole DebugConsole::singleton = DebugConsole();
 
 
 void setZScriptVersion(int s_version)
@@ -399,6 +380,7 @@ dword getNumGlobalArrays()
 int resx,resy,scrx,scry;
 bool sbig;                                                  // big screen
 bool sbig2;													// bigger screen
+int screen_scale = 2; //default = 2 (640x480)
 bool scanlines;                                             //do scanlines if sbig==1
 bool toogam=false;
 
@@ -647,17 +629,7 @@ void Z_eventlog(const char *format,...)
     al_trace("%s",buf);
 
 	if(zconsole)
-		printf("%s",buf);  
-  }
-  else if(zconsole)
-  {
-    char buf[2048];
-
-    va_list ap;
-    va_start(ap, format);
-    vsprintf(buf, format, ap);
-    va_end(ap);
-	printf("%s",buf);
+		printf("%s",buf);
   }
 }
 
@@ -674,17 +646,7 @@ void Z_scripterrlog(const char * const format,...)
     al_trace("%s",buf);
 
 	if(zconsole)
-		printf("%s",buf);  
-  }
-  else if(zconsole)
-  {
-    char buf[2048];
-
-    va_list ap;
-    va_start(ap, format);
-    vsprintf(buf, format, ap);
-    va_end(ap);
-	printf("%s",buf);
+		printf("%s",buf);
   }
 }
 
@@ -1040,7 +1002,13 @@ int init_game()
 
 	BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
 	//setuplinktiles(zinit.linkanimationstyle);
-	COOLSCROLL = get_bit(quest_rules,qr_COOLSCROLL)!=0;
+	
+	COOLSCROLL = ( get_bit(quest_rules,qr_COOLSCROLL)!=0 ? 1 : 0) |
+                 ( get_bit(quest_rules,qr_OVALWIPE)!=0 ? 2 : 0) |
+                 ( get_bit(quest_rules,qr_TRIANGLEWIPE)!=0 ? 4 : 0) |
+                 ( get_bit(quest_rules,qr_SMASWIPE)!=0 ? 8 : 0);
+	
+	
 	//  NEWSUBSCR = get_bit(quest_rules,qr_NEWSUBSCR);
 
 	//  homescr = currscr = DMaps[0].cont;
@@ -1947,6 +1915,13 @@ void game_loop()
   bool freezeff = freezemsg;
 
   bool freeze = false;
+
+  for(int i=0; i<32; i++)
+  {
+      if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZE) freeze=true;
+      if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZEFF) freezeff=true;
+  }
+
   for(int i=0;i<176;i++)
   {
     if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
@@ -2170,9 +2145,6 @@ bool no_subscreen()
 /********** Main **********/
 /**************************/
 
-char cfg_error[] =
-  "\"ag.cfg\" not found. Please run \"agsetup.exe\"";
-
 void PopulateInitDialog();
 
 bool is_zquest()
@@ -2344,7 +2316,6 @@ int main(int argc, char* argv[])
   }
 #endif
 
-
   PopulateInitDialog();
 
   memrequested += 4096;
@@ -2374,7 +2345,10 @@ int main(int argc, char* argv[])
   // initialize Allegro
 
   Z_message("Initializing Allegro... ");
-  allegro_init();
+  if (allegro_init() != 0) {
+	Z_error("Failed Init!");
+	quit_game();
+  }
   three_finger_flag=false;
   //atexit(&dumb_exit);
   //dumb_register_stdfiles();
@@ -2385,7 +2359,15 @@ int main(int argc, char* argv[])
 
   // set and load game configurations
   set_config_file("ag.cfg");
-  load_game_configs();
+
+  if( exists("ag.cfg") != 0 ) {
+	  load_game_configs();
+  }
+  else {
+	load_game_configs();
+	save_game_configs();
+  }
+
 
 #ifdef _WIN32
   //launch debug console if requested.
@@ -2393,13 +2375,6 @@ int main(int argc, char* argv[])
   {
 	  DebugConsole::Open();
 	  zconsole = true;
-  }
-
-  //win7 fix
-  if( use_win7_keyboard_fix != FALSE || used_switch(argc, argv, "-win7_keyfix") )
-  {
-	 // al_zc_win_key_press_fix = win7fix_KeyPressCallback;
-	  //al_zc_win_key_release_fix = win7fix_KeyReleaseCallback;
   }
 #endif
 
@@ -2488,6 +2463,7 @@ int main(int argc, char* argv[])
 		  case 24: set_color_depth(24); break;
 		  case 32: set_color_depth(32); break;
 		  default:
+			  zc_color_depth = 8; //invalid configuration, set to default in config file.
 			  set_color_depth(8);
 			  break;
 	  }
@@ -2775,7 +2751,7 @@ int main(int argc, char* argv[])
   }
 
   const int wait_ms_on_set_graphics = 20; //formerly 250. -Gleeok
-	
+
   // quick quit
   if(used_switch(argc,argv,"-q"))
   {
@@ -2789,8 +2765,9 @@ int main(int argc, char* argv[])
   {
     resx = atoi(argv[res_arg+1]);
     resy = atoi(argv[res_arg+2]);
-    sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
-    sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
+    bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
+    bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
+
 //    mode = GFX_AUTODETECT;
   }
   if(resx>=640 && resy>=480)
@@ -2812,65 +2789,64 @@ int main(int argc, char* argv[])
     tempmode=GFX_AUTODETECT_WINDOWED;
   }
 
+  //set scale
+  if(resx < 320) resx = 320;
+  if(resy < 240) resy = 240;
+  screen_scale = zc_max( zc_min( resx / 320, resy / 240 ), 1 );
+
   if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
   {
-    //what we need here is not rightousness but madness!!!
+	//what we need here is not rightousness but madness!!!
 
-    Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-    sbig=1;
-    resx=640;
-    resy=480;
-    if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-    {
-      Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-      sbig2=1;
-      resx=800;
-      resy=600;
-      if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-      {
-        sbig2=0;
-        Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-        if(tempmode != GFX_AUTODETECT_WINDOWED)
-        {
-          tempmode=GFX_AUTODETECT_WINDOWED;
-          al_trace("-fullscreen not supported by your video driver! setting -windowed switch\n");
-          sbig=1;
-          resx=640;
-          resy=480;
-          if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-          {
-            Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-            sbig=0;
-            resx=320;
-            resy=240;
-            if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-            {
-              Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-              al_trace("Fatal Error...Zelda Classic could not be initialized. Have a nice day :) \n");
-              Z_error(allegro_error);
-              quit_game();
-            }
-            else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-          }
-          else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-        }
-        else
-        {
-          al_trace("Fatal Error: could not create a window for Zelda Classic.\n"); 
-          Z_error(allegro_error);
-          quit_game();
-        }
-      }
-      else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-    }
-    else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
+#define TRY_SET_VID_MODE(scale) \
+	Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy); \
+	screen_scale=scale; \
+	resx=320*scale; \
+	resy=240*scale
+
+	TRY_SET_VID_MODE(2);
+	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
+	{
+		TRY_SET_VID_MODE(1);
+		if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
+		{
+			if(tempmode != GFX_AUTODETECT_WINDOWED)
+			{
+				tempmode=GFX_AUTODETECT_WINDOWED;
+				al_trace("-fullscreen not supported by your video driver! setting -windowed switch\n");
+				TRY_SET_VID_MODE(2);
+				if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
+				{
+					TRY_SET_VID_MODE(1);
+					if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
+					{
+						Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
+						al_trace("Fatal Error...Zelda Classic could not be initialized. Have a nice day :) \n");
+						Z_error(allegro_error);
+						quit_game();
+					}
+					else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
+				}
+				else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
+			}
+			else
+			{
+				al_trace("Fatal Error: could not create a window for Zelda Classic.\n");
+				Z_error(allegro_error);
+				quit_game();
+			}
+		}
+		else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
+	}
+	else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
   }
   else
   {
     Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
   }
-  set_display_switch_mode(is_windowed_mode()?SWITCH_BACKGROUND:SWITCH_BACKAMNESIA);
 
+  sbig = (screen_scale > 1);
+  set_display_switch_mode(is_windowed_mode()?SWITCH_BACKGROUND:SWITCH_BACKAMNESIA);
   zq_screen_w = resx;
   zq_screen_h = resy;
 
@@ -2939,8 +2915,15 @@ int main(int argc, char* argv[])
     while(!Quit)
     {
 #ifdef _WIN32
-		if(use_win32_proc != FALSE)
-			win32data.Update(0);
+		try { // I *think* it might throw here.
+			if(use_win32_proc != FALSE)
+				win32data.Update(0);
+		}
+		catch(...) {
+			set_gfx_mode(GFX_TEXT,0,0,0,0);
+			allegro_message("ZC-Windows Fatal Error: Set \"zc_win_proc_fix = 0\" in config file." );
+			exit(1);
+		}
 #endif
         game_loop();
         advanceframe(true);

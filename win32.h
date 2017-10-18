@@ -26,6 +26,7 @@ public:
 	static int zcSetCustomCallbackProc(HWND hWnd);
 
 	bool hasFocus;
+	bool isValid;
 
 	//call from main thread.
 	void Update(int frameskip);

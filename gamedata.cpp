@@ -181,9 +181,19 @@ void gamedata::set_counter(word change, byte c)
 #endif
   if (c>=32) // Sanity check
     return;
-  _counter[c]=change;
+
   if (c==4 && game!=NULL)
-    ringcolor(false);
+  {
+    int ringID=current_item_id(itype_ring, true);
+    _counter[c]=zc_max(change, 0);
+
+    // This is very slow, so make sure the ring has actually changed
+    if(ringID!=current_item_id(itype_ring, true))
+      ringcolor(false);
+  }
+  else
+    _counter[c]=zc_max(change, 0);
+
   return;
 }
 
@@ -194,9 +204,17 @@ void gamedata::change_counter(short change, byte c)
 #endif
   if (c>=32) // Sanity check
     return;
-  _counter[c]=zc_max(0, _counter[c]+change);
+
   if (c==4 && game!=NULL)
-    ringcolor(false);
+  {
+    int ringID=current_item_id(itype_ring, true);
+    _counter[c]=vbound(_counter[c]+change, 0, _maxcounter[c]);
+
+    if(ringID!=current_item_id(itype_ring, true))
+      ringcolor(false);
+  }
+  else
+    _counter[c]=vbound(_counter[c]+change, 0, _maxcounter[c]);
   return;
 }
 
@@ -218,7 +236,7 @@ void gamedata::set_maxcounter(word change, byte c)
 	return;
   }
   if (c>=32) // Sanity check
-   return;
+    return;
   _maxcounter[c]=change;
   return;
 }
@@ -234,7 +252,7 @@ void gamedata::change_maxcounter(short change, byte c)
 	return;
   }
   if (c>=32) // Sanity check
-   return;
+    return;
   _maxcounter[c]=zc_max(0, _maxcounter[c]+change);
   return;
 }
@@ -426,11 +444,11 @@ byte gamedata::get_maxbombs()
 {
   return get_maxcounter(2);
 }
-void gamedata::set_maxbombs(byte b)
+void gamedata::set_maxbombs(byte b, bool setSuperBombs)
 {
   _maxcounter[2]=b;
   int div = zinit.bomb_ratio;
-  if(div != 0)
+  if(div != 0 && setSuperBombs)
 	set_maxcounter(b/div,6);
   return;
 }

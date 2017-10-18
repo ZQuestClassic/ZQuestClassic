@@ -72,7 +72,8 @@ public:
 
   short  rate, hrate, homing;
   fix dstep;
-  short  dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, dmisc11, dmisc12, dmisc13, dmisc14, dmisc15, bgsfx, bosspal;
+  long dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, dmisc11, dmisc12, dmisc13, dmisc14, dmisc15;
+  short bgsfx, bosspal;
   byte defense[edefLAST];
   byte hitsfx,deadsfx;
 
@@ -81,7 +82,7 @@ public:
   int  getID();
   enemy(fix X,fix Y,int Id,int Clk);                      // : sprite()
   virtual ~enemy();
-	
+
   // Supplemental animation code that all derived classes should call
   // as a return value for animate().
   // Handles the death animation and returns true when enemy is finished.
@@ -90,7 +91,7 @@ public:
   // The one with an index is the one that is called by
   // the guys sprite list; index is the enemy's index in the list.
   virtual bool animate(int index);
-	
+
   // auomatically kill off enemy (for rooms with ringleaders)
   virtual void kickbucket();
   // Stop BG SFX only if no other enemy is playing it
@@ -101,13 +102,13 @@ public:
   virtual bool hit(sprite *s);
   virtual bool hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
   virtual bool hit(weapon *w);
-	
+
 protected:
   int  clk2,sclk;
   int  starting_hp;
-  int  ox, oy;	
+  int  ox, oy;
   word  s_tile; //secondary (additional) tile(s)
-	
+
   // to allow for different sfx on defeating enemy
   virtual void death_sfx();
   virtual void move(fix dx,fix dy);
@@ -223,15 +224,23 @@ public:
 class eFire : public enemy
 {
 public:
+  int clk4;
+  bool shield;
   eFire(fix X,fix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
+  virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
+  virtual int takehit(weapon *w);
 };
 
 class eOther : public enemy
 {
 public:
+  int clk4;
+  bool shield;
   eOther(fix X,fix Y,int Id,int Clk);                      // : enemy(X,Y,Id,Clk)
+  virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
+  virtual int takehit(weapon *w);
 };
 
 void removearmos(int ax,int ay);

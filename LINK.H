@@ -73,8 +73,8 @@ class LinkClass : public sprite
 {
 	class WalkflagInfo {
 	public:
-		WalkflagInfo() : flags(0) {}
-
+		WalkflagInfo() : flags(0), newhopclk(0), newhopdir(0), newdir(0), newladderdir(0),
+		                 newladderx(0), newladdery(0), newladderstart(0) {}
 		static const int UNWALKABLE = 1;
 		static const int SETILSWIM = 2;
 		static const int CLEARILSWIM = 4;
@@ -82,7 +82,7 @@ class LinkClass : public sprite
 		static const int SETDIR = 16;
 		static const int CLEARCHARGEATTACK = 32;
 		static const int SETHOPDIR = 64;
-		
+
 		int getHopClk() {return newhopclk;}
 		int getHopDir() {return newhopdir;}
 		int getDir() {return newdir;}
@@ -105,7 +105,7 @@ class LinkClass : public sprite
 			flags |= SETHOPCLK;
 			newhopclk = val;
 		}
-		
+
 		void setHopDir(int val) {
 			al_trace("sethopdir: %d\n",val);
 			flags |= SETHOPDIR;

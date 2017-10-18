@@ -188,6 +188,7 @@ var
   zqsound:   string;
   LoadQuest: string;
   ZQopen:    string;
+  ZCResY:    string;
 
   //This is to launch ZC
   ZCLaunch: TProcess;
@@ -215,6 +216,7 @@ begin
   if fileexists('ag.cfg') then
   begin
     agcfg := Tinifile.Create('ag.cfg');
+    ZCResY := agcfg.readstring('zeldadx', 'resy', '240');
 
     //ZC Name Entry Mode
     if agcfg.readstring('zeldadx', 'name_entry_mode', '') = '0' then
@@ -264,23 +266,30 @@ begin
     end;
 
     //ZC Resolutions
-    if agcfg.readstring('ZCL', 'zcres1', '') = '1' then
+    if ZCResY = '480' then
     begin
       scrreszc.Text := '640x480';
-      Res1 := '-res 640 480 big ';
-    end;
-
-    if agcfg.readstring('ZCL', 'zcres2', '') = '1' then
+      Res1 := '-res 640 480 ';
+    end
+    else if ZCResY = '720' then
+    begin
+      scrreszc.Text := '960x720';
+      Res1 := '-res 960 720 ';
+    end
+    else if ZCResY = '960' then
+    begin
+      scrreszc.Text := '1280x960';
+      Res1 := '-res 1280 960 ';
+    end
+    else if ZCResY = '1200' then
+    begin
+      scrreszc.Text := '1600x1200';
+      Res1 := '-res 1600 1200 ';
+    end
+    else
     begin
       scrreszc.Text := '320x240';
       Res1 := '-res 320 240 ';
-
-    end;
-
-    if agcfg.readstring('ZCL', 'zcres3', '') = '1' then
-    begin
-      scrreszc.Text := '800x600';
-      Res1 := '-res 800 600 big2 ';
     end;
 
     //ZC Fps
@@ -714,6 +723,12 @@ begin
       tehscheme.Text := 'Pink';
       currentscheme.Picture := image6.Picture;
     end;
+{$IFDEF WIN32}
+    if agcfg.ReadString('graphics', 'disable_direct_updating', 'unset') = 'unset' then
+    begin
+      agcfg.WriteString('graphics', 'disable_direct_updating', '1');
+    end
+{$ENDIF}
   end;
 
 {$ifdef LINUX}
@@ -904,7 +919,7 @@ procedure TForm1.BitBtn2Click(Sender: TObject);
 begin
 {$IFDEF LINUX}
   try
-    unix.shell('./zquest-l ' + ZQFull + ZQWin + ZQLarge + zqsoundmode + ' & ');
+    unix.shell('./zquest-l ' + zqsound + ' & ');
   except
   end;
   //memo3.Lines.LoadFromFile('allegro.log');
@@ -1564,32 +1579,35 @@ end;
 
 procedure TForm1.scrreszcChange(Sender: TObject);
 begin
-  if scrreszc.Text = '320x240' then
-  begin
-    Res1 := '-res 320 240 ';
-    agcfg.writestring('ZCL', 'zcres2', '1');
-  end
-  else
-  begin
-    agcfg.writestring('ZCL', 'zcres2', '0');
-  end;
   if scrreszc.Text = '640x480' then
   begin
-    Res1 := '-res 640 480 big ';
-    agcfg.writestring('ZCL', 'zcres1', '1');
+    Res1 := '-res 640 480 ';
+    agcfg.writestring('zeldadx', 'resx', '640');
+    agcfg.writestring('zeldadx', 'resy', '480');
+  end
+  else if scrreszc.Text = '960x720' then
+  begin
+    Res1 := '-res 960 720 ';
+    agcfg.writestring('zeldadx', 'resx', '960');
+    agcfg.writestring('zeldadx', 'resy', '720');
+  end
+  else if scrreszc.Text = '1280x960' then
+  begin
+    Res1 := '-res 1280 960 ';
+    agcfg.writestring('zeldadx', 'resx', '1280');
+    agcfg.writestring('zeldadx', 'resy', '960');
+  end
+  else if scrreszc.Text = '1600x1200' then
+  begin
+    Res1 := '-res 1600 1200 ';
+    agcfg.writestring('zeldadx', 'resx', '1600');
+    agcfg.writestring('zeldadx', 'resy', '1200');
   end
   else
   begin
-    agcfg.writestring('ZCL', 'zcres1', '0');
-  end;
-  if scrreszc.Text = '800x600' then
-  begin
-    Res1 := '-res 800 600 big2 ';
-    agcfg.writestring('ZCL', 'zcres3', '1');
-  end
-  else
-  begin
-    agcfg.writestring('ZCL', 'zcres3', '0');
+    Res1 := '-res 320 240 ';
+    agcfg.writestring('zeldadx', 'resx', '320');
+    agcfg.writestring('zeldadx', 'resy', '240');
   end;
 end;
 

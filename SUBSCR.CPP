@@ -2854,6 +2854,12 @@ void update_subscr_items()
     Aitem->animate(0);
 }
 
+void add_subscr_item(item *newItem)
+{
+    newItem->subscreenItem=true;
+    Sitems.add(newItem);
+}
+
 /****/
 int stripspaces(char *source, char *target, int stop)
 {
@@ -2930,7 +2936,7 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
 	{
 		if(overridecheck == 0xFFFF)
 		{
-			Sitems.add(new item((fix)x,(fix)y,(fix)0,(itemtype&0xFFF),0,0));
+			add_subscr_item(new item((fix)x,(fix)y,(fix)0,(itemtype&0xFFF),0,0));
 			overridecheck = Sitems.Count()-1;
 			Sitems.spr(overridecheck)->misc = -1;
 		}
@@ -3346,31 +3352,17 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
         break;
         case ssoSELECTEDITEMNAME:
         {
-          if(Bitem==NULL && (!get_bit(quest_rules,qr_SELECTAWPN) || Aitem==NULL))
-			break;
+          int itemid=Bweapon(Bpos);
 
-          item *Bitem2=NULL;
-          if(get_bit(quest_rules,qr_SELECTAWPN))
-          {
-            if(Bitem && Bitem->id!=0)
-              Bitem2 = new item((fix)0, (fix)0, (fix)0, Bitem->id, 0, 0);
-            else if(Aitem && Aitem->id!=0)
-              Bitem2 = new item((fix)0, (fix)0, (fix)0, Aitem->id, 0, 0);
-          }
-          else if(Bitem && Bitem->id!=0)
-          {
-            Bitem2 = new item((fix)0, (fix)0, (fix)0, Bitem->id, 0, 0);
-          }
-
-          if (!Bitem2)
-          {
+          // 0 can mean either the item with index 0 is selected or there's no
+          // valid item to select, so be sure Link has whatever it would be.
+          if(!game->get_item(itemid))
             break;
-          }
 
-          char itemname[80];
-          sprintf(itemname, "%s", item_string[Bitem2->id]);
+          char itemname[140]="";
+          sprintf(itemname, "%s", item_string[itemid]);
 
-          switch (itemsbuf[Bitem2->id].family)
+          switch (itemsbuf[itemid].family)
           {
             case itype_arrow:
             if (Bitem->dummy_bool[0]==true) //if we also have a bow
@@ -3392,7 +3384,6 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
             }
             break;
           }
-		  delete Bitem2;
           draw_textbox(dest, x, y, css->objects[i].w, css->objects[i].h, tempfont, itemname, css->objects[i].d4!=0, css->objects[i].d5, css->objects[i].d2, css->objects[i].d3, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
        // draw_textbox(dest, x, y, w,                 h,                 tempfont, thetext,  wword,                 tabsize,            alignment,          textstyle,          color,                                             shadowcolor,                                       backcolor);
         }
@@ -4149,20 +4140,20 @@ void load_Sitems(miscQdata *misc)
       HCP->o_tile = HCP->tile;
       HCP->cs     = misc->colors.HCpieces_cset;
       HCP->frames = 0;
-      Sitems.add(HCP);
+      add_subscr_item(HCP);
     }
   }
   if(has_item(itype_map, get_dlevel()))
   {
-    Sitems.add(new item((fix)0,(fix)0,(fix)0,iMap,0,0));
+    add_subscr_item(new item((fix)0,(fix)0,(fix)0,iMap,0,0));
   }
   if(has_item(itype_compass, get_dlevel()))
   {
-    Sitems.add(new item((fix)0,(fix)0,(fix)0,iCompass,0,0));
+    add_subscr_item(new item((fix)0,(fix)0,(fix)0,iCompass,0,0));
   }
   if(has_item(itype_bosskey, get_dlevel()))
   {
-    Sitems.add(new item((fix)0,(fix)0,(fix)0,iBossKey,0,0));
+    add_subscr_item(new item((fix)0,(fix)0,(fix)0,iBossKey,0,0));
   }
   for(int i=0; i<itype_max; i++)
   {
@@ -4175,7 +4166,7 @@ void load_Sitems(miscQdata *misc)
     {
 		int j = current_item_id(i,false);
 		if(itemsbuf[j].tile)
-			Sitems.add(new item((fix)0, (fix)0,(fix)0,j,0,0));
+			add_subscr_item(new item((fix)0, (fix)0,(fix)0,j,0,0));
 	}
   }
   new_sel=true;

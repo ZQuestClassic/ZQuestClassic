@@ -57,6 +57,7 @@ extern FONT *lfont;
 extern LinkClass Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 extern int loadlast;
+byte disable_direct_updating;
 //extern movingblock mblock2; //mblock[4]?
 //extern int db;
 
@@ -150,6 +151,8 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
   }
   for (int i=1; d[i].proc!=NULL; i++)
   {
+	if (d[i].proc==jwin_slider_proc) 
+	  continue;
     // Bigger font
     bool bigfontproc = (d[i].proc != jwin_initlist_proc && d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc);
 
@@ -228,14 +231,12 @@ void load_game_configs()
   NESquit = get_config_int(cfg_sect,"fastquit",0)!=0;
   ClickToFreeze = get_config_int(cfg_sect,"clicktofreeze",1)!=0;
   title_version = get_config_int(cfg_sect,"title",2);
+
+  //default - scale x2, 640 x 480
   resx = get_config_int(cfg_sect,"resx",640);
   resy = get_config_int(cfg_sect,"resy",480);
+  //screen_scale = get_config_int(cfg_sect,"screen_scale",2);
 
-#ifdef ALLEGRO_MACOSX
-	sbig = get_config_int(cfg_sect,"sbig",1);
-#else
-  sbig = get_config_int(cfg_sect,"sbig",1)!=0;
-#endif
   scanlines = get_config_int(cfg_sect,"scanlines",0)!=0;
   loadlast = get_config_int(cfg_sect,"load_last",0);
   fullscreen = get_config_int(cfg_sect,"fullscreen",1);
@@ -243,13 +244,15 @@ void load_game_configs()
   can_triplebuffer_in_windowed_mode = (byte) get_config_int(cfg_sect,"triplebuffer",0);
 
   zc_color_depth = (byte) get_config_int(cfg_sect,"color_depth",8);
-  if(zc_color_depth != 0 || zc_color_depth != 8 || zc_color_depth != 15 || zc_color_depth != 16 || zc_color_depth != 24 || zc_color_depth != 32)
-      zc_color_depth = 8;
+
 
   #ifdef _WIN32
     use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
-    use_win7_keyboard_fix = (byte) get_config_int(cfg_sect,"use_win7_key_fix",0);
+    //use_win7_keyboard_fix = (byte) get_config_int(cfg_sect,"use_win7_key_fix",0);
 	use_win32_proc = (byte) get_config_int(cfg_sect,"zc_win_proc_fix",1);
+	
+	// This seems to fix some problems on Windows 7
+    disable_direct_updating = (byte) get_config_int("graphics","disable_direct_updating",1);
   #endif
 
 #ifdef ALLEGRO_MACOSX
@@ -330,8 +333,10 @@ void save_game_configs()
 
   set_config_int(cfg_sect,"resx",resx);
   set_config_int(cfg_sect,"resy",resy);
-  set_config_int(cfg_sect,"sbig",sbig);
-  set_config_int(cfg_sect,"sbig2",sbig2);
+  //set_config_int(cfg_sect,"screen_scale",screen_scale);
+  //set_config_int(cfg_sect,"sbig",sbig);
+  //set_config_int(cfg_sect,"sbig2",sbig2);
+
   set_config_int(cfg_sect,"scanlines",scanlines);
   set_config_int(cfg_sect,"load_last",loadlast);
   chop_path(qstdir);
@@ -349,13 +354,16 @@ void save_game_configs()
 
   #ifdef _WIN32
    set_config_int(cfg_sect,"debug_console",use_debug_console);
-   set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
+   //set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
    set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc);
+   set_config_int("graphics","disable_direct_updating",disable_direct_updating);
   #endif
 
   #ifdef ALLEGRO_LINUX
   set_config_string("sound","patches",samplepath); // set to sample sound path set for DIGMIDI driver in Linux ~ Takuya
   #endif
+
+  flush_config_file();
 }
 
 //----------------------------------------------------------------
@@ -431,9 +439,11 @@ void show_paused(BITMAP *target)
 
   //  text_mode(-1);
   if(sbig)
-    textout_ex(target,zfont,buf,scrx+40-120,scry+224+104,-1,-1);
-  else if(sbig2)
-    textout_ex(target,zfont,buf,scrx+40-120,scry+224+104,-1,-1);
+  {
+	int x = scrx+40-((screen_scale-1)*120);
+	int y = scry+224+((screen_scale-1)*104);
+    textout_ex(target,zfont,buf,x,y,-1,-1);
+  }
   else
     textout_ex(target,zfont,buf,scrx+40,scry+224,-1,-1);
 }
@@ -449,13 +459,12 @@ void show_fps(BITMAP *target)
     if(buf[i]!=' ')
       buf[i]+=0x60;
 
-    if(sbig)
+  if(sbig)
   {
-    textout_ex(target,zfont,buf,scrx+40-120,scry+216+104,-1,-1);
-  }
-  else if(sbig2)
-  {
-    textout_ex(target,zfont,buf,scrx+40-120,scry+216+104,-1,-1);
+	int x = scrx+40-((screen_scale-1)*120);
+	int y = scry+216+((screen_scale-1)*104);
+    textout_ex(target,zfont,buf,x,y,-1,-1);
+   // textout_ex(target,zfont,buf,scrx+40-120,scry+216+104,-1,-1);
   }
   else
   {
@@ -1418,13 +1427,47 @@ qword triangles[4][16][8]= //[direction][value][line]
 
 int black_opening_count=0;
 int black_opening_x,black_opening_y;
-//int black_opening_shape=bosCIRCLE;
-//int black_opening_shape=bosOVAL;
-int black_opening_shape=bosSMAS;
-//int black_opening_shape=bosTRIANGLE;
+int black_opening_shape;
+
+int choose_opening_shape()
+{
+  // First, count how many bits are set
+  int numBits=0;
+  int bitCounter;
+  for(int i=0; i<4; i++)
+  {
+    if(COOLSCROLL&(1<<i))
+      numBits++;
+  }
+  
+  // Shouldn't happen...
+  if(numBits==0)
+    return bosCIRCLE;
+  
+  // Pick a bit
+  bitCounter=rand()%numBits+1;
+  
+  for(int i=0; i<4; i++)
+  {
+    // If this bit is set, decrement the bit counter
+    if(COOLSCROLL&(1<<i))
+      bitCounter--;
+    
+    // When the counter hits 0, return a value based on
+    // which bit it stopped on.
+    // Reminder: enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosMAX};
+    if(bitCounter==0)
+      return i;
+  }
+  
+  // Shouldn't be necessary, but the compiler might complain, at least
+  return bosCIRCLE;
+}
 
 void close_black_opening(int x, int y, bool wait)
 {
+  black_opening_shape=choose_opening_shape();
+  
   int w=256, h=224;
   int blockrows=28, blockcolumns=32;
   int xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
@@ -1459,6 +1502,8 @@ void close_black_opening(int x, int y, bool wait)
 
 void open_black_opening(int x, int y, bool wait)
 {
+  black_opening_shape=choose_opening_shape();
+  
   int w=256, h=224;
   int blockrows=28, blockcolumns=32;
   int xoffset=(x-(w/2))/8, yoffset=(y-(h/2))/8;
@@ -1563,7 +1608,7 @@ void black_opening(BITMAP *dest,int x,int y,int a,int max_a)
 
 bool item_disabled(int item)                 //is this item disabled?
 {
-  return (game->items_off[item] != 0);
+  return (item>=0 && game->items_off[item] != 0);
 }
 
 bool can_use_item(int item_type, int item)                  //can Link use this item?
@@ -1857,7 +1902,13 @@ int item_tile_mod(bool)
   switch(ret)
   {
     case 0: ret=0; break;
-    default: ret=itemsbuf[current_item_id(itype_bomb,false)].ltm; break;
+    default:
+    if(current_item_id(itype_bomb,false)>=0)
+        ret=itemsbuf[current_item_id(itype_bomb,false)].ltm;
+    else
+        ret=0;
+    break;
+
   }
   tile+=ret;
 
@@ -1865,7 +1916,12 @@ int item_tile_mod(bool)
   switch(ret)
   {
     case 0: ret=0; break;
-    default: ret=itemsbuf[current_item_id(itype_sbomb,false)].ltm; break;
+    default:
+    if(current_item_id(itype_sbomb,false)>=0)
+        ret=itemsbuf[current_item_id(itype_sbomb,false)].ltm;
+    else
+        ret=0;
+    break;
   }
   tile+=ret;
 
@@ -2021,7 +2077,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
           case mfTRAP_4:
           case mfTRAP_LR:
           case mfTRAP_UD:
-          case mfICE:
+          case mfNOGROUNDENEMY:
           case mfNOBLOCKS:
           case mfSCRIPT1:
           case mfSCRIPT2:
@@ -2885,9 +2941,10 @@ void updatescr(bool allowwavy)
 		blit(wavybuf,panorama,0,playing_field_offset,0,passive_subscreen_height/2,256,224-passive_subscreen_height);
 	}
 
-	//TODO: Drawing any of these to target = screen is ridiculous slow (9% inclusive!) and needs to be fixed at some point.
-	// Also, stretch blit and sbig are huge performance hogs... post 2.5 I guess. -Gleeok.
-	BITMAP *target;
+	//TODO: Optimize blit 'overcalls' -Gleeok
+	BITMAP *source = NULL;
+	BITMAP *target = NULL;
+
 	bool dontusetb = triplebuffer_not_available ||
 		!(Throttlefps ^ (true && key[KEY_TILDE]));
 	if(dontusetb)
@@ -2898,55 +2955,72 @@ void updatescr(bool allowwavy)
 //  static BITMAP *tempscreen=NULL;
 	static BITMAP *scanlinesbmp=NULL;
 
+	if( resx != SCREEN_W || resy != SCREEN_H )
+	{
+		Z_message( "Conflicting variables warning: screen_scale %i, resx %i, resy %i, w, h\n", screen_scale, resx, resy, SCREEN_W, SCREEN_H );
+		resx = SCREEN_W;
+		resy = SCREEN_H;
+		screen_scale = zc_max( zc_min( resx / 320, resy / 240 ), 1 );
+	}
+	if (!sbig && screen_scale > 1)
+		sbig = true;
+
+	const int sx = 256 * screen_scale;
+	const int sy = 224 * screen_scale;
+	const int scale_mul = screen_scale - 1;
+	const int mx = scale_mul * 128;
+	const int my = scale_mul * 112;
+
 	if (scanlines && sbig)
 	{
-		//Reallocate the framebuffer? Every frame?!! *has heart attack* -DD
-		//BITMAP *scanlinesbmp = create_bitmap_ex(8,512,448);
 		if(!scanlinesbmp)
-			scanlinesbmp = create_bitmap_ex(8,512,448);
-		stretch_blit(nosubscr?panorama:wavybuf,scanlinesbmp,0,0,256,224,0,0,512,448);
+			scanlinesbmp = create_bitmap_ex(8, sx, sy);
+
+		stretch_blit(nosubscr?panorama:wavybuf,scanlinesbmp,0,0,256,224,0,0,sx,sy);
+
 		for (int i=0; i<224; ++i)
-		{
-			_allegro_hline(scanlinesbmp, 0, i*2+1, 512, BLACK);
-		}
-		blit(scanlinesbmp,target,0,0,scrx+32-128,scry+8-112,512,448);
-		if(quakeclk>0)
-		  rectfill(target,scrx+32-128,scry+8-112+448,scrx+32-128+512,scry+8-112+456,0);
+			_allegro_hline(scanlinesbmp, 0, (i*screen_scale)+1, sx, BLACK);
 
-		//destroy_bitmap(scanlinesbmp);
-	}
-	else if (sbig)
-	{
-		stretch_blit(nosubscr?panorama:wavybuf,target,0,0,256,224,scrx+32-128,scry+8-112,512,448);
-		if(quakeclk>0)
-		  rectfill(target,scrx+32-128,scry+8-112+448,scrx+32-128+512,scry+8-112+456,0);
-	}
-
-//BIG 2
-    else if (scanlines && sbig2)
-	{
-		if(!scanlinesbmp)
-			scanlinesbmp = create_bitmap_ex(8,640,560);
-		stretch_blit(nosubscr?panorama:wavybuf,scanlinesbmp,0,0,256,224,0,0,640,560);
-		for (int i=0; i<224; ++i)
-		{
-			_allegro_hline(scanlinesbmp, 0, i*2+1, 512, BLACK);
-		}
-		blit(scanlinesbmp,target,0,0,scrx+32-192,scry+8-168,640,560);
-		if(quakeclk>0) rectfill(target,scrx+32-192,scry+8-168+560,scrx+32-192+640,scry+8-168+570,0);
-
-		//destroy_bitmap(scanlinesbmp);
-	}
-	else if (sbig2)
-	{
-
-		stretch_blit(nosubscr?panorama:wavybuf,target,0,0,256,224,scrx+32-192,scry+8-168,640,560);
-		if(quakeclk>0) rectfill(target,scrx+32-192,scry+8-168+560,scrx+32-192+640,scry+8-168+570,0);
-
+		source = scanlinesbmp;
 	}
 	else
 	{
-    	blit(nosubscr?panorama:wavybuf,target,0,0,scrx+32,scry+8,256,224);
+		source = nosubscr?panorama:wavybuf;
+	}
+
+	/* //old version
+	if (scanlines && sbig)
+	{
+		if(!scanlinesbmp)
+			scanlinesbmp = create_bitmap_ex(8,512,448);
+		stretch_blit(nosubscr?panorama:wavybuf,scanlinesbmp,0,0,256,224,0,0,512,448);
+
+		for (int i=0; i<224; ++i)
+			_allegro_hline(scanlinesbmp, 0, i*2+1, 512, BLACK);
+
+		blit(scanlinesbmp,target,0,0,scrx+32-128,scry+8-112,512,448);
+		if(quakeclk>0)
+		  rectfill(target,scrx+32-128,scry+8-112+448,scrx+32-128+512,scry+8-112+456,0);
+	}
+	*/
+
+	if (sbig)
+	{
+		stretch_blit(source, target, 0, 0, 256, 224, scrx+32-mx, scry+8-my, sx, sy);
+		if(quakeclk>0)
+		  rectfill(target, // I don't know if these are right...
+			  scrx+32 - mx, //x1
+			  scry+8 - my + sy, //y1
+			  scrx+32 - mx + sx, //x2
+			  scry+8 - my + sy + (16 * scale_mul), //y2
+			  0);
+
+		//stretch_blit(nosubscr?panorama:wavybuf,target,0,0,256,224,scrx+32-128,scry+8-112,512,448);
+		//if(quakeclk>0) rectfill(target,scrx+32-128,scry+8-112+448,scrx+32-128+512,scry+8-112+456,0);
+	}
+	else
+	{
+     	blit(source,target,0,0,scrx+32,scry+8,256,224);
 		if(quakeclk>0) rectfill(target,scrx+32,scry+8+224,scrx+32+256,scry+8+232,0);
 	}
 
@@ -3853,8 +3927,6 @@ int onShowFPS()
 
   if(sbig)
       stretch_blit(fps_undo,screen,0,0,64,16,scrx+40-120,scry+216+96,128,32);
-  else if(sbig2)
-      stretch_blit(fps_undo,screen,0,0,64,16,scrx+0,scry+500+96,128,32);
     else
       blit(fps_undo,screen,0,0,scrx+40,scry+216,64,16);
   if(Paused)
@@ -4922,59 +4994,59 @@ int onKeyboard()
   int ex2 = Exkey2;
   int ex3 = Exkey3;
   int ex4 = Exkey4;
+  bool done=false;
+  int ret;
 
   key_dlg[0].dp2=lfont;
   if (is_large)
     large_dialog(key_dlg);
-  int ret = zc_popup_dialog (key_dlg,27);
-  // not OK'd
-  if(ret != 27)
+
+  while(!done)
   {
-	Akey = a;
-	Bkey = b;
-	Skey = s;
-	Lkey = l;
-	Rkey = r;
-	Pkey = p;
-	Exkey1 = ex1;
-	Exkey2 = ex2;
-	Exkey3 = ex3;
-	Exkey4 = ex4;
- }
-  else
-  {
-	std::map<int,bool> *keyhash = new std::map<int,bool>();
-	bool unique = true;
-	addToHash(A,unique,keyhash);
-	addToHash(B,unique,keyhash);
-	addToHash(S,unique,keyhash);
-	addToHash(L,unique,keyhash);
-	addToHash(R,unique,keyhash);
-	addToHash(P,unique,keyhash);
-	addToHash(DU,unique,keyhash);
-	addToHash(DD,unique,keyhash);
-	addToHash(DL,unique,keyhash);
-	addToHash(DR,unique,keyhash);
-	if(keyhash->find(Exkey1) == keyhash->end()) {(*keyhash)[Exkey1]=true;} else {unique = false;}
-	if(keyhash->find(Exkey2) == keyhash->end()) {(*keyhash)[Exkey2]=true;} else {unique = false;}
-	if(keyhash->find(Exkey3) == keyhash->end()) {(*keyhash)[Exkey3]=true;} else {unique = false;}
-	if(keyhash->find(Exkey4) == keyhash->end()) {(*keyhash)[Exkey4]=true;} else {unique = false;}
-	delete keyhash;
-	if(!unique)
-	{
-		jwin_alert("Error", "Key bindings must be unique!", "", "", "OK",NULL,'o',0,lfont);
-		Akey = a;
-		Bkey = b;
-		Skey = s;
-		Lkey = l;
-		Rkey = r;
-		Pkey = p;
-		Exkey1 = ex1;
-		Exkey2 = ex2;
-		Exkey3 = ex3;
-		Exkey4 = ex4;
-	}
+    ret = zc_popup_dialog (key_dlg,27);
+
+    if(ret==27) // OK
+    {
+      std::map<int,bool> *keyhash = new std::map<int,bool>();
+      bool unique = true;
+      addToHash(A,unique,keyhash);
+      addToHash(B,unique,keyhash);
+      addToHash(S,unique,keyhash);
+      addToHash(L,unique,keyhash);
+      addToHash(R,unique,keyhash);
+      addToHash(P,unique,keyhash);
+      addToHash(DU,unique,keyhash);
+      addToHash(DD,unique,keyhash);
+      addToHash(DL,unique,keyhash);
+      addToHash(DR,unique,keyhash);
+      if(keyhash->find(Exkey1) == keyhash->end()) {(*keyhash)[Exkey1]=true;} else {unique = false;}
+      if(keyhash->find(Exkey2) == keyhash->end()) {(*keyhash)[Exkey2]=true;} else {unique = false;}
+      if(keyhash->find(Exkey3) == keyhash->end()) {(*keyhash)[Exkey3]=true;} else {unique = false;}
+      if(keyhash->find(Exkey4) == keyhash->end()) {(*keyhash)[Exkey4]=true;} else {unique = false;}
+      delete keyhash;
+
+      if(unique)
+        done=true;
+      else
+        jwin_alert("Error", "Key bindings must be unique!", "", "", "OK",NULL,'o',0,lfont);
+    }
+    else // Cancel
+    {
+      Akey = a;
+      Bkey = b;
+      Skey = s;
+      Lkey = l;
+      Rkey = r;
+      Pkey = p;
+      Exkey1 = ex1;
+      Exkey2 = ex2;
+      Exkey3 = ex3;
+      Exkey4 = ex4;
+      done=true;
+    }
   }
+
+  save_game_configs();
   return D_O_K;
 }
 
@@ -4988,42 +5060,52 @@ int onKeyboardDir()
   keydir_dlg[0].dp2=lfont;
   if (is_large)
     large_dialog(keydir_dlg);
-  int ret = zc_popup_dialog (keydir_dlg,14);
-  if(ret != 14)
+  bool done=false;
+  int ret;
+
+  key_dlg[0].dp2=lfont;
+  if (is_large)
+    large_dialog(key_dlg);
+
+  while(!done)
   {
-    DUkey = u;
-    DDkey = d;
-    DLkey = l;
-    DRkey = r;
+    ret = zc_popup_dialog (keydir_dlg,14);
+
+    if(ret==14) // OK
+    {
+      std::map<int,bool> *keyhash = new std::map<int,bool>();
+      bool unique = true;
+      addToHash(A,unique,keyhash);
+      addToHash(B,unique,keyhash);
+      addToHash(S,unique,keyhash);
+      addToHash(L,unique,keyhash);
+      addToHash(R,unique,keyhash);
+      addToHash(P,unique,keyhash);
+      addToHash(DU,unique,keyhash);
+      addToHash(DD,unique,keyhash);
+      addToHash(DL,unique,keyhash);
+      addToHash(DR,unique,keyhash);
+      if(keyhash->find(Exkey1) == keyhash->end()) {(*keyhash)[Exkey1]=true;} else {unique = false;}
+      if(keyhash->find(Exkey2) == keyhash->end()) {(*keyhash)[Exkey2]=true;} else {unique = false;}
+      if(keyhash->find(Exkey3) == keyhash->end()) {(*keyhash)[Exkey3]=true;} else {unique = false;}
+      if(keyhash->find(Exkey4) == keyhash->end()) {(*keyhash)[Exkey4]=true;} else {unique = false;}
+      delete keyhash;
+
+      if(unique)
+        done=true;
+      else
+        jwin_alert("Error", "Key bindings must be unique!", "", "", "OK",NULL,'o',0,lfont);
+    }
+    else // Cancel
+    {
+      DUkey = u;
+      DDkey = d;
+      DLkey = l;
+      DRkey = r;
+      done=true;
+    }
   }
-  else
-  {
-	  std::map<int,bool> *keyhash = new std::map<int,bool>();
-	bool unique = true;
-	addToHash(A,unique,keyhash);
-	addToHash(B,unique,keyhash);
-	addToHash(S,unique,keyhash);
-	addToHash(L,unique,keyhash);
-	addToHash(R,unique,keyhash);
-	addToHash(P,unique,keyhash);
-	addToHash(DU,unique,keyhash);
-	addToHash(DD,unique,keyhash);
-	addToHash(DL,unique,keyhash);
-	addToHash(DR,unique,keyhash);
-	if(keyhash->find(Exkey1) == keyhash->end()) {(*keyhash)[Exkey1]=true;} else {unique = false;}
-	if(keyhash->find(Exkey2) == keyhash->end()) {(*keyhash)[Exkey2]=true;} else {unique = false;}
-	if(keyhash->find(Exkey3) == keyhash->end()) {(*keyhash)[Exkey3]=true;} else {unique = false;}
-	if(keyhash->find(Exkey4) == keyhash->end()) {(*keyhash)[Exkey4]=true;} else {unique = false;}
-	delete keyhash;
-	if(!unique)
-	{
-		jwin_alert("Error", "Key bindings must be unique!", "", "", "OK",NULL,'o',0,lfont);
-		DDkey = d;
-		DUkey = u;
-		DLkey = l;
-		DRkey = r;
-	}
-  }
+  save_game_configs();
   return D_O_K;
 }
 
@@ -5052,6 +5134,7 @@ int onJoystick()
     Mbtn = m;
     Pbtn = p;
   }
+  save_game_configs();
   return D_O_K;
 }
 
@@ -5074,6 +5157,7 @@ int onEXJoystick()
 	Exbtn3 = ex3;
 	Exbtn4 = ex4;
   }
+  save_game_configs();
   return D_O_K;
 }
 
@@ -5141,10 +5225,21 @@ int queding(const char *s1,char *s2,char *s3)
 
 int onQuit()
 {
-  if(Playing && queding("End current game?",NULL,NULL)==1)
+  if(Playing)
   {
-    Quit=qQUIT;
-    return D_CLOSE;
+    int ret=0;
+    if(get_bit(quest_rules, qr_NOCONTINUE))
+      ret=queding("End current game?",
+                  "The continue screen is disabled. You will",
+                  "be returned to the file select screen.");
+    else
+      ret=queding("End current game?",NULL,NULL);
+    
+    if(ret==1)
+    {
+      Quit=qQUIT;
+      return D_CLOSE;
+    }
   }
   return D_O_K;
 }
@@ -5446,6 +5541,8 @@ int onScreenSaver()
   scrsaver_dlg[6].d2 = ss_speed;
   scrsaver_dlg[7].d2 = ss_density;
 
+  if (is_large) 
+	large_dialog(scrsaver_dlg);
   int ret = zc_popup_dialog (scrsaver_dlg,-1);
 
   if(ret == 8 || ret == 9)
@@ -6065,9 +6162,7 @@ void system_pal()
   set_palette_range(pal,0,255,false);
 
   if(sbig)
-    stretch_blit(tmp_scr,screen,0,0,320,240,scrx-160,scry-120,640,480);
-  else if(sbig2)
-    stretch_blit(tmp_scr,screen,0,0,320,240,scrx-240,scry-180,800,600);
+    stretch_blit(tmp_scr,screen,0,0,320,240,scrx-(160*(screen_scale-1)),scry-(120*(screen_scale-1)),screen_scale*320,screen_scale*240);
   else
     blit(tmp_scr,screen,0,0,scrx,scry,320,240);
 
@@ -6288,10 +6383,8 @@ void system_pal2()
   set_palette_range(RAMpal2,0,255,false);
 
   if(sbig)
-    stretch_blit(tmp_scr,screen,0,0,320,240,scrx-160,scry-120,640,480);
-
-else if(sbig2)
-    stretch_blit(tmp_scr,screen,0,0,320,240,scrx-240,scry-180,800,600);
+    //stretch_blit(tmp_scr,screen,0,0,320,240,scrx-160,scry-120,640,480);
+    stretch_blit(tmp_scr,screen,0,0,320,240,scrx-(160*(screen_scale-1)),scry-(120*(screen_scale-1)),screen_scale*320,screen_scale*240);
   else
     blit(tmp_scr,screen,0,0,scrx,scry,320,240);
 
@@ -6559,26 +6652,36 @@ INLINE int mixvol(int v1,int v2)
 }
 
 // Run an NSF, or a MIDI if the NSF is missing somehow.
-void try_zcmusic(char *filename, int track, int midi)
+bool try_zcmusic(char *filename, int track, int midi)
 {
-  zcmusic = (ZCMUSIC*)zcmusic_load_file(filename);
+  ZCMUSIC *newzcmusic = (ZCMUSIC*)zcmusic_load_file(filename);
 
   // Not in ZC directory, try quest directory
-  if(zcmusic==NULL)
+  if(newzcmusic==NULL)
   {
     char musicpath[2048];
     replace_filename(musicpath, game->qstpath, get_filename(filename), 2048);
-    zcmusic = (ZCMUSIC*)zcmusic_load_file(musicpath);
+    newzcmusic = (ZCMUSIC*)zcmusic_load_file(musicpath);
   }
 
   // Found it
-  if (zcmusic!=NULL) {
+  if (newzcmusic!=NULL) {
+    zcmusic_stop(zcmusic);
+    zcmusic_unload_file(zcmusic);
+    stop_midi();
+    
+    zcmusic=newzcmusic;
     zcmusic_play(zcmusic, emusic_volume);
-	if (track>0) zcmusic_change_track(zcmusic,track);
+	if (track>0)
+      zcmusic_change_track(zcmusic,track);
+    return true;
   }
 
-  // Not found, play MIDI
-  else jukebox(midi);
+  // Not found, play MIDI - unless this was called by a script (yay, magic numbers)
+  else if(midi>-1000)
+    jukebox(midi);
+  
+  return false;
 }
 
 void jukebox(int index,int loop)
@@ -6589,17 +6692,11 @@ void jukebox(int index,int loop)
 
   music_stop();
 
-  // Allegro's DIGMID driver (the one normally used on on Linux) gets stuck notes
-  // if you stop one song and start another right away. Waiting seems to be the
-  // only solution, aside from rewriting the driver.
+  // Allegro's DIGMID driver (the one normally used on on Linux) gets
+  // stuck notes when a song stops. This fixes it.
   if(strcmp(midi_driver->name, "DIGMID")==0)
-  {
-    throttleFPS();
-    throttleFPS();
-    throttleFPS();
-    throttleFPS();
-    throttleFPS();
-  }
+    set_volume(0, 0);
+  
   set_volume(-1, mixvol(tunes[index].volume,midi_volume>>1));
   play_midi((MIDI*)tunes[index].data,loop);
   if(tunes[index].start>0)
@@ -6631,8 +6728,8 @@ void play_DmapMusic()
   bool domidi=false;
   if (DMaps[currdmap].tmusic[0]!=0)
   {
-    if((zcmusic==NULL) || (strcmp(tfile,DMaps[currdmap].tmusic)!=0)
-	    || (ttrack != DMaps[currdmap].tmusictrack) )
+    if((zcmusic==NULL) || (strcmp(zcmusic->filename,DMaps[currdmap].tmusic)!=0)
+	    || (zcmusic->track != DMaps[currdmap].tmusictrack) )
     {
       char tmfname[2048];
 
@@ -7281,9 +7378,5 @@ int d_triggerbutton_proc(int, DIALOG*, int)
   return D_O_K;
 }
 
-int dcs_auto_button_proc(int, DIALOG*, int)
-{
-  return D_O_K;
-}
 /*** end of zc_sys.cc ***/
 

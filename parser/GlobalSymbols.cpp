@@ -5,6 +5,25 @@
 
 const int radsperdeg = 572958;
 
+
+//sanity underflow
+#define typeVOID ScriptParser::TYPE_VOID
+#define S ScriptParser::TYPE_SCREEN
+#define F ScriptParser::TYPE_FLOAT
+
+#define ARGS_4(t, arg1, arg2, arg3, arg4) \
+	{ t, arg1, arg2, arg3, arg4, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
+#define ARGS_6(t, arg1, arg2, arg3, arg4, arg5, arg6) \
+	{ t, arg1, arg2, arg3, arg4, arg5, arg6, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
+#define ARGS_8(t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
+	{ t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
+
+#define POP_ARGS(num_args, t) \
+	for(int _i(0); _i < num_args; ++_i) \
+		code.push_back(new OPopRegister(new VarArgument(t)))
+
+
+
 void LibrarySymbols::addSymbolsToScope(Scope *scope, SymbolTable *t)
 {
 	//waste an ID, OH WELL
@@ -1143,7 +1162,9 @@ static AccessorTable ScreenTable[] =
   { "FastTile",               ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     -1,                           -1,                          -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
   { "FastCombo",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     -1,                           -1,                          -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
   { "DrawString",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
-  { "DrawBitmap",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,       ScriptParser::TYPE_FLOAT,   ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_BOOL,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
+  { "DrawLayer",     typeVOID, FUNCTION, 0, 1, ARGS_8(S,F,F,F,F,F,F,F,F) },
+  { "DrawScreen",    typeVOID, FUNCTION, 0, 1, ARGS_6(S,F,F,F,F,F,F) },
+  { "DrawBitmap",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,       ScriptParser::TYPE_FLOAT,   ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_BOOL,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
   { "SetRenderTarget",        ScriptParser::TYPE_VOID,		    FUNCTION,	  0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,		  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1							 } },
   { "Message",                ScriptParser::TYPE_VOID,		    FUNCTION,	   0,                   1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,		  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1							 } },
   { "NumLWeapons",            ScriptParser::TYPE_FLOAT,         GETTER,       LWPNCOUNT,            1,      {  ScriptParser::TYPE_SCREEN,       -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -1371,18 +1392,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new ORectangleRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(12, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
@@ -1398,17 +1408,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OCircleRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(11, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1424,20 +1424,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OArcRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(14, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1453,18 +1440,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OEllipseRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(12, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1480,17 +1456,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OLineRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(11, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1506,17 +1472,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OSplineRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(11, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1532,14 +1488,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OPutPixelRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1555,16 +1504,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new ODrawCharRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(10, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1580,17 +1520,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new ODrawIntRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(11, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1606,21 +1536,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new ODrawTileRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(15, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1636,22 +1552,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new ODrawComboRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(16, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1667,21 +1568,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OQuadRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(15, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1697,19 +1584,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OTriangleRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(13, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1726,15 +1601,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OQuad3DRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1750,15 +1617,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OTriangle3DRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(8, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1775,12 +1634,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OFastTileRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1796,12 +1650,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new OFastComboRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1817,15 +1666,39 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new ODrawStringRegister();
 		first->setLabel(label);
 		code.push_back(first);
+		POP_ARGS(9, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
+	//void DrawLayer(screen, float, float, float, float, float, float, float, float)
+	{
+		int id = memberids["DrawLayer"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new ODrawLayerRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(8, EXP2);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
+	//void DrawScreen(screen, float, float, float, float, float, float)
+	{
+		int id = memberids["DrawScreen"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new ODrawScreenRegister();
+		first->setLabel(label);
+		code.push_back(first);
+		POP_ARGS(6, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -1841,17 +1714,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 		Opcode *first = new ODrawBitmapRegister();
 		first->setLabel(label);
 		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		POP_ARGS(12, EXP2);
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 
@@ -2005,8 +1868,8 @@ static AccessorTable itemTable[] =
   { "setZ",                   ScriptParser::TYPE_VOID,          SETTER,       ITEMZ,                1,      {  ScriptParser::TYPE_ITEM,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "getJump",                ScriptParser::TYPE_FLOAT,         GETTER,       ITEMJUMP,             1,      {  ScriptParser::TYPE_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "setJump",                ScriptParser::TYPE_VOID,          SETTER,       ITEMJUMP,             1,      {  ScriptParser::TYPE_ITEM,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-  { "getDrawType",            ScriptParser::TYPE_FLOAT,         GETTER,       ITEMDRAWTYPE,         1,      {  ScriptParser::TYPE_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-  { "setDrawType",            ScriptParser::TYPE_VOID,          SETTER,       ITEMDRAWTYPE,         1,      {  ScriptParser::TYPE_ITEM,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+  { "getDrawStyle",           ScriptParser::TYPE_FLOAT,         GETTER,       ITEMDRAWTYPE,         1,      {  ScriptParser::TYPE_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+  { "setDrawStyle",           ScriptParser::TYPE_VOID,          SETTER,       ITEMDRAWTYPE,         1,      {  ScriptParser::TYPE_ITEM,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "getID",                  ScriptParser::TYPE_FLOAT,         GETTER,       ITEMID,               1,      {  ScriptParser::TYPE_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "setID",                  ScriptParser::TYPE_VOID,          SETTER,       ITEMID,               1,      {  ScriptParser::TYPE_ITEM,          ScriptParser::TYPE_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "getTile",                ScriptParser::TYPE_FLOAT,         GETTER,       ITEMTILE,             1,      {  ScriptParser::TYPE_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -2187,6 +2050,10 @@ static AccessorTable gameTable[] =
   { "LoadItemData",           ScriptParser::TYPE_ITEMCLASS,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "PlaySound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "PlayMIDI",               ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+  { "PlayEnhancedMusic",      ScriptParser::TYPE_BOOL,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+  { "GetDMapMusicFilename",   ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+  { "GetDMapMusicTrack",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+  { "SetDMapEnhancedMusic",   ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "GetComboData",           ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "SetComboData",           ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   { "GetComboCSet",           ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -2408,6 +2275,73 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
 		rval[label] = code;
+	}
+	//void PlayEnhancedMusic(game, int, int)
+	{
+		int id = memberids["PlayEnhancedMusic"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		//pop off the params
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OPlayEnhancedMusic(new VarArgument(EXP2), new VarArgument(EXP1)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label] = code;
+	}	
+	//void GetDMapMusicFilename(game, int, int)
+	{
+		int id = memberids["GetDMapMusicFilename"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		//pop off the params
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OGetDMapMusicFilename(new VarArgument(EXP2), new VarArgument(EXP1)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label] = code;
+	}
+	//int GetDMapMusicTrack(game, int)
+	{
+		int id = memberids["GetDMapMusicTrack"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OGetDMapMusicTrack(new VarArgument(EXP1)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
+	}
+	//void SetDMapEnhancedMusic(game, int,int,int)
+	{
+		int id = memberids["SetDMapEnhancedMusic"];
+		int label = lt.functionToLabel(id);
+		vector<Opcode *> code;
+		Opcode *first = new OSetDMapEnhancedMusic();
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		rval[label]=code;
 	}
 	//int GetComboData(int,int,int)
 	{

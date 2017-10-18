@@ -63,6 +63,7 @@ char *VerStr(int version)
 
 int scale_arg;
 int zq_scale;
+byte disable_direct_updating=0;
 char temppath[2048];
 bool close_button_quit=false;
 void hit_close_button()
@@ -1582,8 +1583,12 @@ int main(int argc, char **argv)
 #ifndef ALLEGRO_DOS
   zq_scale = get_config_int("romview","scale",1);
   scale_arg = used_switch(argc,argv,"-scale");
-
   scale_arg = false; // What!?
+  
+#ifdef _WIN32
+  // This seems to fix some problems on Windows 7
+  disable_direct_updating = (byte) get_config_int("graphics","disable_direct_updating",1);
+#endif
 
   if(scale_arg && (argc>(scale_arg+1)))
   {

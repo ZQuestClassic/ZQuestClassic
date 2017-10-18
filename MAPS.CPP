@@ -39,6 +39,14 @@
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 #define DegtoFix(d)     ((d)*0.71111111)
 
+
+//MSVC does not provide a log2 funcion in <cmath>
+#ifdef _MSC_VER
+	double log2( double n ) { return log( n ) / log( 2.0 ); }
+	float log2( float n ) { return log( n ) / log( 2.f ); }
+#endif
+
+
 FONT *get_zc_font(int index);
 
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
@@ -343,7 +351,7 @@ void setmapflag(int mi2, int flag)
   game->maps[mi2] |= flag;
   Z_eventlog("%s's State was set: %s\n",
     mi2 != (currmap<<7)+homescr ? buf : "Current screen",
-    flag>0 ? screenstate_string[(int)log2(flag)] : "<Unknown>");
+    flag>0 ? screenstate_string[(int)log2((float)flag)] : "<Unknown>");
   if(flag==mSECRET||flag==mITEM||flag==mBELOW||flag==mLOCKBLOCK||
      flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
   {
@@ -396,7 +404,7 @@ void unsetmapflag(int mi2, int flag, bool anyflag)
 
   Z_eventlog("%s's State was unset: %s\n",
     mi2 != (currmap<<7)+homescr ? buf : "Current screen",
-    flag>0 ? screenstate_string[(int)log2(flag)] : "<Unknown>");
+    flag>0 ? screenstate_string[(int)log2((float)flag)] : "<Unknown>");
 
   if(flag==mSECRET||flag==mITEM||flag==mBELOW||flag==mLOCKBLOCK||
      flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)

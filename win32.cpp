@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <assert.h>
 
 #include "win32.h"
 
@@ -12,14 +13,19 @@ WNDPROC hAllegroProc = 0;
 
 
 /* 
-	allegro is having numurous problems on newer windows platforms
-	and is likely to only get worse as time goes by, so the following 
-	needs to be aggresive. -Gleeok.
+	These are unfinished, though the windows stuff is here if it is needed. -Gleeok.
+	//todo* The return values and pointers NEED to be checked. 
 */
+
+
+#define Z_WIN32NOUPDATE
 
 
 void Win32Data::Update(int frameskip)
 {
+	if(!isValid)
+		return;
+
 	if(frameskip > 0)
 	{
 		//this hack doesn't really do anything useful.. :(
@@ -39,6 +45,8 @@ void Win32Data::Update(int frameskip)
 // Should be called from winmain, and alleg-event threads.
 int Win32Data::zqSetDefaultThreadPriority(HANDLE _thread)
 {
+	(void*)_thread;
+	/*
 	if(!_thread)
 		_thread = ::GetCurrentThread();
 
@@ -54,6 +62,7 @@ int Win32Data::zqSetDefaultThreadPriority(HANDLE _thread)
 			return 1;
 		}
 	}
+	*/
 
 	return 0;
 }
@@ -65,15 +74,34 @@ int Win32Data::zqSetCustomCallbackProc(HWND hWnd)
 	win32data.hasFocus = true;
 
 	win32data.hWnd = hWnd;
+	if( win32data.hWnd )
+		win32data.isValid = true;
+	else return -1;
+
 	hAllegroProc = (WNDPROC)::GetWindowLongPtr(hWnd, GWLP_WNDPROC);
 	if(!hAllegroProc)
+	{
+		win32data.isValid = false;
 		return -1;
+	}
 
 	win32data.hInstance = ::GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
+	if(!win32data.hInstance)
+	{
+		win32data.isValid = false;
+		return -1;
+	}
+
 	win32data.hId = ::GetWindowLongPtr(hWnd, GWLP_ID);
 
 	//assign a new callback
-	::SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)Win32Data::zqWindowsProc);
+	LONG_PTR pcb = ::SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)Win32Data::zqWindowsProc);
+	if( !pcb )
+	{
+		printf("Error: Cannot Set Windows Procedure.");
+		win32data.isValid = false;
+		return -1;
+	}
 
 	return 0;
 }
@@ -82,6 +110,8 @@ int Win32Data::zqSetCustomCallbackProc(HWND hWnd)
 
 LRESULT CALLBACK Win32Data::zqWindowsProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	assert( win32data.isValid && "ZQuest-Windows Fatal Error: Set \"zq_win_proc_fix = 0\" in config file." );
+
 	static bool initPriority = false;
 
 	if( !initPriority )
@@ -119,15 +149,34 @@ int Win32Data::zcSetCustomCallbackProc(HWND hWnd)
 	win32data.hasFocus = true;
 
 	win32data.hWnd = hWnd;
+	if( win32data.hWnd )
+		win32data.isValid = true;
+	else return -1;
+
 	hAllegroProc = (WNDPROC)::GetWindowLongPtr(hWnd, GWLP_WNDPROC);
 	if(!hAllegroProc)
+	{
+		win32data.isValid = false;
 		return -1;
+	}
 
 	win32data.hInstance = ::GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
+	if(!win32data.hInstance)
+	{
+		win32data.isValid = false;
+		return -1;
+	}
+
 	win32data.hId = ::GetWindowLongPtr(hWnd, GWLP_ID);
 
 	//assign a new callback
-	::SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)Win32Data::zcWindowsProc);
+	LONG_PTR pcb = ::SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)Win32Data::zcWindowsProc);
+	if( !pcb )
+	{
+		printf("Error: Cannot Set Windows Procedure.");
+		win32data.isValid = false;
+		return -1;
+	}
 
 	return 0;
 }
@@ -136,6 +185,8 @@ int Win32Data::zcSetCustomCallbackProc(HWND hWnd)
 
 LRESULT CALLBACK Win32Data::zcWindowsProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	assert( win32data.isValid && "ZC-Win32 Fatal Error: Set \"zc_win_proc_fix = 0\" in config file." );
+
 	switch(uMsg)
 	{
 		case WM_SETFOCUS:

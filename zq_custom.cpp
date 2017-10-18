@@ -203,6 +203,8 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 	  }
   for (int i=1; d[i].proc != NULL; i++)
   {
+	if (d[i].proc==jwin_slider_proc) 
+	  continue;
     // Bigger font
     bool bigfontproc = (d[i].proc != jwin_initlist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != d_ilist_proc && d[i].proc != d_wlist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_dmaplist_proc
 	  && d[i].proc != d_dropdmaplist_proc && d[i].proc != d_xmaplist_proc && d[i].proc != d_dropdmaptypelist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_wclist_proc && d[i].proc != d_ndroplist_proc
@@ -295,7 +297,7 @@ static ItemNameInfo inameinf[]=
   { itype_bomb,                        (char *)"Damage:",                         (char *)"Fuse Duration (0 = Remote):",       (char *)"Max. On Screen:",                 (char *)"Damage to Link:",	     NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              (char *)"Use 1.92 Timing",                 NULL,                              NULL,                              NULL,                              NULL,                              (char *)"Bomb Sprite:",            (char *)"Explosion Sprite:",               NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Explosion Sound:"                 },
   { itype_nayruslove,                  NULL,                                      (char *)"Duration:",                         NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              (char *)"Rocket Flickers",                 (char *)"Translucent Rocket",      (char *)"Translucent Shield",      (char *)"Shield Flickers",         NULL,                              (char *)"Left Rocket Sprite:",     (char *)"L. Rocket Return Sprite:",        (char *)"L. Rocket Sparkle Sprite:",       (char *)"L. Return Sparkle Sprite:",       (char *)"Shield Sprite (2x2, Over):",      (char *)"Right Rocket Sprite:",            (char *)"R. Rocket Return Sprite:",       (char *)"R. Rocket Sparkle Sprite:",        (char *)"R. Return Sparkle Sprite:",       (char *)"Shield Sprite (2x2, Under):",     (char *)"Shield Sound:"                    },
   { itype_faroreswind,                 NULL,                                      (char *)"Warp Animation (0-2):",             NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Wind Sound:"                      },
-  { itype_dinsfire,                    (char *)"Damage:",                         (char *)"Number of Flames:",                 (char *)"Circle Width:",                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      (char *)"Don't Provide Light",     NULL,                              NULL,                              NULL,                              (char *)"Rocket Up Sprite:",       (char *)"Rocket Down Sprite:",             (char *)"R. Up Sparkle Sprite:",           (char *)"R. Down Sparkle Sprite:",         (char *)"Flame Sprite:",                   NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Ring Sound:"                      },
+  { itype_dinsfire,                    (char *)"Damage:",                         (char *)"Number of Flames:",                 (char *)"Circle Width:",                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      (char *)"Don't Provide Light",     (char *)"Falls in Sideview",       NULL,                              NULL,                              (char *)"Rocket Up Sprite:",       (char *)"Rocket Down Sprite:",             (char *)"R. Up Sparkle Sprite:",           (char *)"R. Down Sparkle Sprite:",         (char *)"Flame Sprite:",                   NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Ring Sound:"                      },
   { itype_hammer,                      (char *)"Damage:",                         NULL,                                        NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              (char *)"Hammer Sprite:",          (char *)"Smack Sprite:",                   NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Pound Sound:"                     },
   { itype_lens,                        NULL,                                      (char *)"Lens Width:",                       NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Activation Sound:"                },
   { itype_hookshot,                    (char *)"Damage:",                         (char *)"Chain Length:",                     (char *)"Chain Links:",                    (char *)"Block Flags:",            (char *)"Reflect Flags:",          NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              (char *)"No Handle Damage",                 NULL,                              NULL,                              NULL,                              NULL,                              (char *)"Tip Sprite:",             (char *)"Chain Sprite (H):",               (char *)"Chain Sprite (V):",               (char *)"Handle Sprite:",                  NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      NULL,                                      (char *)"Firing Sound:"                    },
@@ -401,7 +403,7 @@ const char *counterlist(int index, int *list_size)
 	*list_size = 18;
 	return NULL;
 }
-	
+
 static ListData counter_list(counterlist, &pfont);
 
 int jwin_nbutton_proc(int msg, DIALOG *d, int c)
@@ -415,7 +417,7 @@ int jwin_nbutton_proc(int msg, DIALOG *d, int c)
   {
     case MSG_DRAW:
       tfont=font;
-      font=nfont;
+      font=is_large?lfont_l:nfont;
       jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
       font=tfont;
       return D_O_K;
@@ -1029,7 +1031,7 @@ void setLabels(int iclass)
 void itemdata_help(int id)
 {
 	if (id < 0 || id > itype_max) return;
-	
+
 	if (id >= itype_custom1 && id <= itype_custom20)
 	{
 		jwin_alert(itype_names[id],"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","","O&K",NULL,'k',0,lfont);
@@ -1440,13 +1442,22 @@ void edit_itemdata(int index)
 
       itemdata_dlg[11].dp = cll;
       itemdata_dlg[13].dp = pow;
-      itemdata_dlg[14].flags = (test.flags&ITEM_GAMEDATA) ? D_SELECTED : 0;
-      itemdata_dlg[15].flags = (test.flags&ITEM_FLAG1) ? D_SELECTED : 0;
-      itemdata_dlg[16].flags = (test.flags&ITEM_FLAG2) ? D_SELECTED : 0;
-      itemdata_dlg[18].dp = ms1;
-      itemdata_dlg[20].dp = ms2;
-      itemdata_dlg[22].dp = ms3;
-      itemdata_dlg[24].dp = ms4;
+	  itemdata_dlg[14].flags = (itemsbuf[index].flags&ITEM_GAMEDATA) ? D_SELECTED : 0;
+	  itemdata_dlg[15].flags = (itemsbuf[index].flags&ITEM_FLAG1) ? D_SELECTED : 0;
+	  itemdata_dlg[16].flags = (itemsbuf[index].flags&ITEM_FLAG2) ? D_SELECTED : 0;
+	  itemdata_dlg[17].flags = (itemsbuf[index].flags&ITEM_FLAG3) ? D_SELECTED : 0;
+	  itemdata_dlg[18].flags = (itemsbuf[index].flags&ITEM_FLAG4) ? D_SELECTED : 0;
+	  itemdata_dlg[19].flags = (itemsbuf[index].flags&ITEM_FLAG5) ? D_SELECTED : 0;
+	  itemdata_dlg[21].dp = ms1;
+	  itemdata_dlg[23].dp = ms2;
+	  itemdata_dlg[25].dp = ms3;
+	  itemdata_dlg[27].dp = ms4;
+	  itemdata_dlg[29].dp = ms5;
+	  itemdata_dlg[31].dp = ms6;
+	  itemdata_dlg[33].dp = ms7;
+	  itemdata_dlg[35].dp = ms8;
+	  itemdata_dlg[37].dp = ms9;
+	  itemdata_dlg[39].dp = ms10;
 
       itemdata_dlg[58].dp = fcs;
       itemdata_dlg[60].dp = frm;
@@ -2295,12 +2306,12 @@ static DIALOG enedata_dlg[] =
   {  d_dummy_proc,             6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Unused",											   NULL,   NULL                 },
   {  d_dummy_proc,             6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Unused",											   NULL,   NULL                 },
   //98
-  {  jwin_check_proc,          6,    130,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Shielded In Front (Walker)",                          NULL,   NULL                 },
-  {  jwin_check_proc,          6,    140,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Shielded On Left (Walker)",						   NULL,   NULL                 },
-  {  jwin_check_proc,          6,    150,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Shielded On Right (Walker)",                          NULL,   NULL                 },
-  {  jwin_check_proc,          6,    160,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Shielded In Back (Walker)",                           NULL,   NULL                 },
-  {  jwin_check_proc,          6,    170,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Hammer Can Break Shield",						       NULL,   NULL                 },
-  {  d_dummy_proc,             6,    190,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Shield Is Mirrored",								   NULL,   NULL                 },
+  {  jwin_check_proc,          6,    130,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Shielded In Front",                                   NULL,   NULL                 },
+  {  jwin_check_proc,          6,    140,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Shielded On Left",                                    NULL,   NULL                 },
+  {  jwin_check_proc,          6,    150,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Shielded On Right",                                   NULL,   NULL                 },
+  {  jwin_check_proc,          6,    160,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Shielded In Back",                                    NULL,   NULL                 },
+  {  jwin_check_proc,          6,    170,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Hammer Can Break Shield",                             NULL,   NULL                 },
+  {  d_dummy_proc,             6,    190,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Shield Is Mirrored",                                  NULL,   NULL                 },
   {  d_dummy_proc,             6,    200,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Unused",											   NULL,   NULL                 },
   {  jwin_check_proc,          6,     90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0,  (void *) "Can Only Be Seen By Lens Of Truth",                   NULL,   NULL                 },
   //106
@@ -2391,7 +2402,7 @@ static DIALOG enedata_dlg[] =
   {  jwin_droplist_proc,      86,    158,     140,     16,   jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0,  (void *) &sfx__list,                                           NULL,   NULL                 },
   {  jwin_droplist_proc,      86,    176,     140,     16,   jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0,  (void *) &sfx__list,                                           NULL,   NULL                 },
   {  jwin_droplist_proc,      86,    194,     140,     16,   jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0,  (void *) &sfx__list,                                           NULL,   NULL                 },
-  {  jwin_text_proc,          6,     184,     95,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Spawn Anim. (Walker):",                               NULL,   NULL                 },
+  {  jwin_text_proc,          6,     184,     95,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Spawn Animation:",                               NULL,   NULL                 },
   {  jwin_droplist_proc,      86,    180,     85,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0,  (void *) &walkerspawn_list,                                     NULL,   NULL                 },
   {  jwin_text_proc,         160,    126,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Misc Attr. 11:",                                  NULL,   NULL                 },
   {  jwin_text_proc,         160,    144,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  (void *) "Misc Attr. 12:",                                  NULL,   NULL                 },
@@ -2479,7 +2490,7 @@ void setEnemyLabels(int family)
     for(int j=0; j <= edefBYRNA+1 /* + the Set All button*/; j++) enedata_dlg[j+161].flags &= ~D_DISABLED;
     enedata_dlg[192].flags &= ~D_DISABLED;
   }
-  if (family!=eeWALK)
+  if (!(family==eeWALK || family==eeFIRE || family==eeOTHER))
   {
     enedata_dlg[98].flags |= D_DISABLED;
 	enedata_dlg[99].flags |= D_DISABLED;
@@ -2659,18 +2670,18 @@ void edit_enemydata(int index)
   sprintf(name,"%s",guy_string[index]);
   enedata_dlg[36].dp = name;
 
-  sprintf(ms[0],"%d",guysbuf[index].misc1);
-  sprintf(ms[1],"%d",guysbuf[index].misc2);
-  sprintf(ms[2],"%d",guysbuf[index].misc3);
-  sprintf(ms[3],"%d",guysbuf[index].misc4);
-  sprintf(ms[4],"%d",guysbuf[index].misc5);
-  sprintf(ms[5],"%d",guysbuf[index].misc6);
-  sprintf(ms[6],"%d",guysbuf[index].misc7);
-  sprintf(ms[7],"%d",guysbuf[index].misc8);
-  sprintf(ms[8],"%d",guysbuf[index].misc9);
-  sprintf(ms[9],"%d",guysbuf[index].misc10);
-  sprintf(ms[10],"%d",guysbuf[index].misc11);
-  sprintf(ms[11],"%d",guysbuf[index].misc12);
+  sprintf(ms[0],"%ld",guysbuf[index].misc1);
+  sprintf(ms[1],"%ld",guysbuf[index].misc2);
+  sprintf(ms[2],"%ld",guysbuf[index].misc3);
+  sprintf(ms[3],"%ld",guysbuf[index].misc4);
+  sprintf(ms[4],"%ld",guysbuf[index].misc5);
+  sprintf(ms[5],"%ld",guysbuf[index].misc6);
+  sprintf(ms[6],"%ld",guysbuf[index].misc7);
+  sprintf(ms[7],"%ld",guysbuf[index].misc8);
+  sprintf(ms[8],"%ld",guysbuf[index].misc9);
+  sprintf(ms[9],"%ld",guysbuf[index].misc10);
+  sprintf(ms[10],"%ld",guysbuf[index].misc11);
+  sprintf(ms[11],"%ld",guysbuf[index].misc12);
 
   for(int j=0; j <= edefBYRNA; j++)
   {
@@ -2773,18 +2784,18 @@ void edit_enemydata(int index)
 	test.hitsfx = enedata_dlg[183].d1;
 	test.deadsfx = enedata_dlg[184].d1;
 
-	test.misc1 = (enedata_dlg[64].proc==jwin_droplist_proc) ? enedata_dlg[64].d1 : (short) atoi(ms[0]);
-	test.misc2 = (enedata_dlg[65].proc==jwin_droplist_proc) ? enedata_dlg[65].d1 : (short) atoi(ms[1]);
-	test.misc3 = (enedata_dlg[66].proc==jwin_droplist_proc) ? enedata_dlg[66].d1 : (short) atoi(ms[2]);
-	test.misc4 = (enedata_dlg[67].proc==jwin_droplist_proc) ? enedata_dlg[67].d1 : (short) atoi(ms[3]);
-	test.misc5 = (enedata_dlg[68].proc==jwin_droplist_proc) ? enedata_dlg[68].d1 : (short) atoi(ms[4]);
-	test.misc6 = (enedata_dlg[69].proc==jwin_droplist_proc) ? enedata_dlg[69].d1 : (short) atoi(ms[5]);
-	test.misc7 = (enedata_dlg[70].proc==jwin_droplist_proc) ? enedata_dlg[70].d1 : (short) atoi(ms[6]);
-	test.misc8 = (enedata_dlg[71].proc==jwin_droplist_proc) ? enedata_dlg[71].d1 : (short) atoi(ms[7]);
-	test.misc9 = (enedata_dlg[72].proc==jwin_droplist_proc) ? enedata_dlg[72].d1 : (short) atoi(ms[8]);
-	test.misc10 = (enedata_dlg[73].proc==jwin_droplist_proc) ? enedata_dlg[73].d1 : (short) atoi(ms[9]);
-	test.misc11 = (short) atoi(ms[10]);
-	test.misc12 = (short) atoi(ms[11]);
+	test.misc1 = (enedata_dlg[64].proc==jwin_droplist_proc) ? enedata_dlg[64].d1 : atol(ms[0]);
+	test.misc2 = (enedata_dlg[65].proc==jwin_droplist_proc) ? enedata_dlg[65].d1 : atol(ms[1]);
+	test.misc3 = (enedata_dlg[66].proc==jwin_droplist_proc) ? enedata_dlg[66].d1 : atol(ms[2]);
+	test.misc4 = (enedata_dlg[67].proc==jwin_droplist_proc) ? enedata_dlg[67].d1 : atol(ms[3]);
+	test.misc5 = (enedata_dlg[68].proc==jwin_droplist_proc) ? enedata_dlg[68].d1 : atol(ms[4]);
+	test.misc6 = (enedata_dlg[69].proc==jwin_droplist_proc) ? enedata_dlg[69].d1 : atol(ms[5]);
+	test.misc7 = (enedata_dlg[70].proc==jwin_droplist_proc) ? enedata_dlg[70].d1 : atol(ms[6]);
+	test.misc8 = (enedata_dlg[71].proc==jwin_droplist_proc) ? enedata_dlg[71].d1 : atol(ms[7]);
+	test.misc9 = (enedata_dlg[72].proc==jwin_droplist_proc) ? enedata_dlg[72].d1 : atol(ms[8]);
+	test.misc10 = (enedata_dlg[73].proc==jwin_droplist_proc) ? enedata_dlg[73].d1 : atol(ms[9]);
+	test.misc11 = atol(ms[10]);
+	test.misc12 = atol(ms[11]);
     for(int j=0; j <= edefBYRNA; j++)
     {
       test.defense[j] = enedata_dlg[j+161].d1;

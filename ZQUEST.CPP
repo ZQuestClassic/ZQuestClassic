@@ -200,10 +200,6 @@ int command_buttonheight = 19;
 int layerpanel_buttonwidth = 58;
 int layerpanel_buttonheight = 16;
 
-#define MAXFAVORITECOMMANDS 8
-#define MAXFAVORITECOMBOS 100
-#define MAXFAVORITECOMBOALIASES 100
-
 int favorite_combos[MAXFAVORITECOMBOS];
 int favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 int favorite_commands[MAXFAVORITECOMMANDS];
@@ -371,6 +367,7 @@ int alias_origin=0;
 
 int Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1;
 int zqColorDepth = 8;
+byte disable_direct_updating = 0;
 
 char *getBetaControlString();
 
@@ -1434,8 +1431,8 @@ int onDrawingModeNormal()
 
 int onDrawingModeRelational()
 {
-  if (draw_mode==dm_relational) 
-  { 
+  if (draw_mode==dm_relational)
+  {
     return onDrawingModeNormal();
   }
   draw_mode=dm_relational;
@@ -1447,8 +1444,8 @@ int onDrawingModeRelational()
 
 int onDrawingModeDungeon()
 {
-  if (draw_mode==dm_dungeon) 
-  { 
+  if (draw_mode==dm_dungeon)
+  {
     return onDrawingModeNormal();
   }
   draw_mode=dm_dungeon;
@@ -1460,8 +1457,8 @@ int onDrawingModeDungeon()
 
 int onDrawingModeAlias()
 {
-  if (draw_mode==dm_alias) 
-  { 
+  if (draw_mode==dm_alias)
+  {
     return onDrawingModeNormal();
   }
   draw_mode=dm_alias;
@@ -2996,7 +2993,7 @@ int load_the_map()
       stretch_blit(screen2, bmap, 0, 0, 256, 176, x<<(8-res), (y*176)>>res, 256>>res,176>>res);
     }
   }
-	
+
   memcpy(mappal,RAMpal,sizeof(RAMpal));
   vp_showpal = false;
   get_bw(picpal,pblack,pwhite);
@@ -3143,19 +3140,19 @@ void drawpanel(int pnl)
 		// Coords2
         for (int i=0; i<4; i++)
         {
-          jwin_draw_frame(menu1,panel[7].x+14+(32*i),panel[7].y+54,20,20,FR_DEEP);
-          blit(icon_bmp[ICON_BMP_RETURN_A+i][coord_frame], menu1, 0, 0, panel[7].x+16+(32*i),panel[7].y+56, 16, 16);
+          jwin_draw_frame(menu1,panel[8].x+14+(32*i),panel[8].y+54,20,20,FR_DEEP);
+          blit(icon_bmp[ICON_BMP_RETURN_A+i][coord_frame], menu1, 0, 0, panel[8].x+16+(32*i),panel[8].y+56, 16, 16);
         }
 
-        textprintf_centre_ex(menu1,font,panel[7].x+24+0*32,panel[7].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[0]);
-        textprintf_centre_ex(menu1,font,panel[7].x+24+1*32,panel[7].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[1]);
-        textprintf_centre_ex(menu1,font,panel[7].x+24+2*32,panel[7].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[2]);
-        textprintf_centre_ex(menu1,font,panel[7].x+24+3*32,panel[7].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[3]);
+        textprintf_centre_ex(menu1,font,panel[8].x+24+0*32,panel[8].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[0]);
+        textprintf_centre_ex(menu1,font,panel[8].x+24+1*32,panel[8].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[1]);
+        textprintf_centre_ex(menu1,font,panel[8].x+24+2*32,panel[8].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[2]);
+        textprintf_centre_ex(menu1,font,panel[8].x+24+3*32,panel[8].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[3]);
 
-        textprintf_centre_ex(menu1,font,panel[7].x+24+0*32,panel[7].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[0]);
-        textprintf_centre_ex(menu1,font,panel[7].x+24+1*32,panel[7].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[1]);
-        textprintf_centre_ex(menu1,font,panel[7].x+24+2*32,panel[7].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[2]);
-        textprintf_centre_ex(menu1,font,panel[7].x+24+3*32,panel[7].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[3]);
+        textprintf_centre_ex(menu1,font,panel[8].x+24+0*32,panel[8].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[0]);
+        textprintf_centre_ex(menu1,font,panel[8].x+24+1*32,panel[8].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[1]);
+        textprintf_centre_ex(menu1,font,panel[8].x+24+2*32,panel[8].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[2]);
+        textprintf_centre_ex(menu1,font,panel[8].x+24+3*32,panel[8].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[3]);
 
 		// Enemies
 		int epx = 2+panel[8].x+14+4*32;
@@ -3241,8 +3238,8 @@ void drawpanel(int pnl)
 		  jwin_draw_frame(menu1,panel[1].x+14+(32*i),panel[1].y+4,20,20,FR_DEEP);
 		  if (i==0 && scr->hasitem && scr->item > 0)
 		  {
-			rectfill(menu1,panel[8].x+16+(32*i),panel[1].y+4,panel[1].x+31+(32*i),panel[1].y+29,0);
-		    overtile16(menu1, itemsbuf[scr->item].tile,panel[1].x+16+(32*i),panel[1].y+14,itemsbuf[scr->item].csets&15,0);
+			rectfill(menu1,panel[8].x+16+(32*i),panel[1].y+6,panel[1].x+31+(32*i),panel[1].y+21,0);
+		    overtile16(menu1, itemsbuf[scr->item].tile,panel[1].x+16+(32*i),panel[1].y+6,itemsbuf[scr->item].csets&15,0);
 		  }
           else
 		    blit(icon_bmp[i][coord_frame], menu1, 0, 0, panel[1].x+16+(32*i),panel[1].y+6, 16, 16);
@@ -4042,10 +4039,8 @@ void refresh(int flags)
         {
           for(int i=0; i<(comboaliaslist[j].w*comboaliaslist[j].h); i++)
           {
-            //        put_combo(menu1,(i&(combolist[0].w-1))*16+combolist[0].x,(i/combolist[0].w)*16+combolist[0].y,combo_aliases[combo_alistpos[current_comboalist]+i].combos[0],combo_aliases[combo_alistpos[current_comboalist]+i].csets[0],0,0);
-            draw_combo_alias_thumbnail(menu1, &combo_aliases[combo_alistpos[j]+i], (i%comboaliaslist[j].w)*16+comboaliaslist[j].x,(i/comboaliaslist[j].w)*16+comboaliaslist[j].y);
+            draw_combo_alias_thumbnail(menu1, &combo_aliases[combo_alistpos[j]+i], (i%comboaliaslist[j].w)*16+comboaliaslist[j].x,(i/comboaliaslist[j].w)*16+comboaliaslist[j].y,1);
           }
-          //      int i=0;
           if((combo_aliases[combo_apos].width>7)||(combo_aliases[combo_apos].height>7))
           {
             scalefactor=4;
@@ -4157,7 +4152,7 @@ void refresh(int flags)
   {
     drawpanel(is_large?-1:menutype);
     set_clip_rect(menu1,0,0,zq_screen_w-1,zq_screen_h-1);
-  }                                                         //if(flags&rMENU)
+  }
   if(flags&rFAVORITES)
   {
     if(is_large)
@@ -4223,7 +4218,7 @@ void refresh(int flags)
           }
           else
           {
-            draw_combo_alias_thumbnail(menu1, &combo_aliases[favorite_comboaliases[i]], (i%favorites_list.w)*16+favorites_list.x,(i/favorites_list.w)*16+favorites_list.y);
+            draw_combo_alias_thumbnail(menu1, &combo_aliases[favorite_comboaliases[i]], (i%favorites_list.w)*16+favorites_list.x,(i/favorites_list.w)*16+favorites_list.y,1);
           }
         }
       }
@@ -4256,19 +4251,22 @@ void refresh(int flags)
       font=tfont;
     }
   }
-  //if(true)//?
-  //{
     if(is_large) // Layer panels
     {
       jwin_draw_frame(menu1,layer_panel.x-2,layer_panel.y,layer_panel.w+2,layer_panel.h,FR_DEEP);
       rectfill(menu1,layer_panel.x+2,layer_panel.y+2,layer_panel.x+layer_panel.w-3,layer_panel.y+layer_panel.h-3,jwin_pal[jcBOX]);
-      //jwin_draw_frame(menu1,layer_panel.x+2, layer_panel.y+2, layer_panel.w-3, layer_panel.h-3,FR_DEEP);
 
+	  bool groundlayers = false;
+	  bool overheadlayers = false;
+	  bool flyinglayers = false;
       for(int i=0; i<=6; ++i)
       {
         char tbuf[15];
         if (i>0 && Map.CurrScr()->layermap[i-1])
         {
+		  if (i<3) groundlayers = true;
+		  else if (i<5) overheadlayers = true;
+		  else if (i<7) flyinglayers = true;
           sprintf(tbuf, "%s%d (%d:%02X)", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
         }
         else
@@ -4286,9 +4284,18 @@ void refresh(int flags)
           _allegro_vline(menu1, rx-5, layer_panel.y+3, layer_panel.y+36, jwin_pal[jcMEDDARK]);
         }
       }
-      textprintf_disabled(menu1,font,layer_panel.x+60,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Ground (Walkable) Layers");
-      textprintf_disabled(menu1,font,layer_panel.x+268,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Overhead Layers (Ground)");
-      textprintf_disabled(menu1,font,layer_panel.x+434,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Overhead Layers (Flying)");
+	  if (groundlayers) 
+		  textprintf_ex(menu1,font,layer_panel.x+60,layer_panel.y+4,jwin_pal[jcBOXFG],-1,"Ground (Walkable) Layers");
+      else 
+		  textprintf_disabled(menu1,font,layer_panel.x+60,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Ground (Walkable) Layers");
+	  if (overheadlayers)
+		  textprintf_ex(menu1,font,layer_panel.x+268,layer_panel.y+4,jwin_pal[jcBOXFG],-1,"Overhead Layers (Ground)");
+	  else
+		  textprintf_disabled(menu1,font,layer_panel.x+268,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Overhead Layers (Ground)");
+      if (flyinglayers)
+		  textprintf_ex(menu1,font,layer_panel.x+434,layer_panel.y+4,jwin_pal[jcBOXFG],-1,"Overhead Layers (Flying)");
+	  else
+		  textprintf_disabled(menu1,font,layer_panel.x+434,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Overhead Layers (Flying)");
       //font=tfont;
     }
   //} //if(true)
@@ -4514,18 +4521,12 @@ void refresh(int flags)
 //Fixme:
 	  int ctype =
 	combobuf[vbound(
-		(c>=305 ?
-			Map.CurrScr()->ffdata[c-305] :
-			c>=304 ?
-				Map.CurrScr()->undercombo :
-				c>=176 ?
-					Map.CurrScr()->secretcombo[c-176] :
-					// ???
-					Map.CurrScr()->data.empty() ?//
-						0 ://
-						Map.CurrScr()->data[c])
-
-	, 0, MAXCOMBOS-1)].type;
+		(c>=305 ? Map.CurrScr()->ffdata[c-305] :
+		 c>=304 ? Map.CurrScr()->undercombo :
+		 c>=176 ? Map.CurrScr()->secretcombo[c-176] :
+		 Map.CurrScr()->data.empty() ? 0 : // Sanity check: does room combo data exist?
+		 Map.CurrScr()->data[c]
+	), 0, MAXCOMBOS-1)].type;
 
 	  if (!undercombo && integrityBoolUnderCombo(Map.CurrScr(),ctype))
 	  {
@@ -6316,6 +6317,39 @@ void domouse()
     update_tooltip(x, y, startxint, startyint, int(256*mapscreensize),int(176*mapscreensize), msg);
   }
 
+  if (is_large) {
+	for(int j=0; j<4; j++) {
+	    int xx = panel[8].x+14+(32*j);
+	    int yy = panel[8].y+12;
+	    if (isinRect(x,y,xx,yy,xx+20,yy+20)) {
+		  char msg[160];
+		  sprintf(msg,
+		    j==0 ? "Item Location" :
+			j==1 ? "Stairs Secret\nTriggered when a Trigger Push Block is pushed." : 
+			j==2 ? "Arrival Square\nLink's location when he begins/resumes the game." : 
+			"Combo Flags");
+		  update_tooltip(x,y,xx,yy,20,20,msg);
+	   }
+	}
+	// Warp Returns
+	for(int j=0; j<4; j++) {
+	  int xx = panel[8].x+14+(32*j);
+	  int yy = panel[8].y+54;
+	  if (isinRect(x,y,xx,yy,xx+20,yy+20)) {
+		char msg[160];
+		sprintf(msg,"Warp Return Square %c\nLink's destination after warping to this screen.",(char)('A'+j));
+		update_tooltip(x,y,xx,yy,20,20,msg);
+	  }
+    }
+	// Enemies
+	int epx = 2+panel[8].x+14+4*32;
+	int epy = 2+panel[8].y+12;
+	if (isinRect(x,y,epx,epy,epx+16*4+4,epy+16*3+4)) {
+	  char msg[160];
+	  sprintf(msg,"Enemies that appear on this screen.");
+	  update_tooltip(x,y,epx,epy,16*4+4,16*3+4,msg);
+	}
+  }
   if(draw_mode!=dm_alias)
   {
     for(int j=0; j<3; ++j)
@@ -6370,14 +6404,14 @@ void domouse()
 	  int cx2 = (x-startxint)/mapscreensize;
       int cy2 = (y-startyint)/mapscreensize;
 	  // Move items
-	  if (Map.CurrScr()->hasitem) 
+	  if (Map.CurrScr()->hasitem)
 	  {
 	    int ix = Map.CurrScr()->itemx;
 		int iy = Map.CurrScr()->itemy;
 		if (cx2 >= ix && cx2 < ix+16 && cy2 >= iy && cy2 < iy+16)
 		  doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8,true,0,0,16,16);
 	  }
-	  
+
 	  // Move FFCs
       for (int i=MAXFFCS-1; i>=0; i--)
       if (Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
@@ -6460,7 +6494,7 @@ void domouse()
 		  }
 		  if(isinRect(x,y,panel[8].x+16+(32*2),panel[8].y+14,panel[8].x+16+(32*2)+15,panel[8].y+14+15))
 		  {
-			if (get_bit(quest_rules,qr_NOARRIVALPOINT)) 
+			if (get_bit(quest_rules,qr_NOARRIVALPOINT))
 			    jwin_alert("Obsolete Square","The arrival square is obsolete if you use the recommended",
 			        "quest rule, 'Use Warp Return Points Only' It is included",
 					"only for backwards-compatibility purposes.","O&K",NULL,'k',0,lfont);
@@ -6500,7 +6534,7 @@ void domouse()
 		  if(isinRect(x,y,panel[0].x+16,panel[0].y+6,panel[0].x+16+15,panel[0].y+6+15))
 		  {
 		  	onItem();
-			if (Map.CurrScr()->hasitem) 
+			if (Map.CurrScr()->hasitem)
 			  doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8);
 		  }
 		  if(isinRect(x,y,panel[0].x+48,panel[0].y+6,panel[0].x+48+15,panel[0].y+6+15))
@@ -6509,7 +6543,7 @@ void domouse()
 		  }
 		  if(isinRect(x,y,panel[0].x+80,panel[0].y+6,panel[0].x+80+15,panel[0].y+6+15))
 		  {
-		  	if (get_bit(quest_rules,qr_NOARRIVALPOINT)) 
+		  	if (get_bit(quest_rules,qr_NOARRIVALPOINT))
 			    jwin_alert("Obsolete Square","The arrival square is obsolete if you use the",
 			        "'Use Warp Return Points Only' quest rule. It is included",
 					"only for backwards-compatibility purposes.","O&K",NULL,'k',0,lfont);
@@ -6903,7 +6937,7 @@ void domouse()
 			  draw_rc_menu[11].text = follow_warp_menu_text2;
 			  draw_rc_menu[10].flags = draw_rc_menu[11].flags = 0;
 		  }
-		  else 
+		  else
 		  {
 			draw_rc_menu[10].text = (char*)"Follow Tile Warp";
 			draw_rc_menu[11].text = (char*)"Edit Tile Warp";
@@ -6963,7 +6997,7 @@ void domouse()
 			case 4: replace(c);                       break;
 			case 10: // Follow Tile Warp
 			{
-				if (warpindex>=4) 
+				if (warpindex>=4)
 				{
 					jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
 					warpindex=rand()&3;
@@ -6971,7 +7005,7 @@ void domouse()
 				int tm = Map.getCurrMap();
 				int ts = Map.getCurrScr();
 				int wt = Map.CurrScr()->tilewarptype[warpindex];
-				if (wt==wtCAVE || wt==wtNOWARP) 
+				if (wt==wtCAVE || wt==wtNOWARP)
 				{
 					char buf[56];
 					sprintf(buf,"This screen's Tile Warp %c is set to %s,",'A'+warpindex,warptype_string[wt]);
@@ -6988,12 +7022,12 @@ void domouse()
 			}
 			case 11: // Edit Tile Warp
 			{
-				if (warpindex>=4) 
+				if (warpindex>=4)
 				{
 					jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
 					warpindex=0;
 				}
-				if (warpindex > -1 && warpindex < 4) 
+				if (warpindex > -1 && warpindex < 4)
 					onTileWarpIndex(warpindex);
 				break;
 			}
@@ -7078,7 +7112,7 @@ void domouse()
         }
       }
     }
-	
+
 	// Right click main panel
 	if (is_large)
 	{
@@ -7087,7 +7121,7 @@ void domouse()
 		  	onItem();
 		  }
 	}
-	else 
+	else
 	{
 		if(menutype==m_coords)
 		{
@@ -7097,7 +7131,7 @@ void domouse()
 		  }
 		}
 	}
-	
+
     if((isinRect(x,y,panel[0].x+panel[0].w-28,panel[0].y+32,panel[0].x+panel[0].w-28+24,panel[0].y+32+5) && menutype==m_block && !mouse_down) ||
        (isinRect(x,y,panel[6].x+panel[6].w-28,panel[6].y+36,panel[6].x+panel[6].w-28+24,panel[6].y+36+5) && menutype==m_layers && !mouse_down))
     {
@@ -8214,8 +8248,14 @@ int onSecretCombo()
     secret_dlg[120+i].d2 = s->secretflag[sSECRET01+i];
   }
 
-  if (is_large)
-    large_dialog(secret_dlg,2);
+  if (is_large) 
+  {
+    large_dialog(secret_dlg,1.75);
+	  for(int i=48; i<92; i++) 
+	  {
+		  secret_dlg[i].w = secret_dlg[i].h = 36;
+	  }
+  }
   go();
   if(zc_do_dialog(secret_dlg,3) == 2)
   {
@@ -8307,48 +8347,52 @@ int onSecretCombo()
 static DIALOG under_dlg[] =
 {
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-  { jwin_win_proc, 72,   60,   176+1,  120+1,  vc(14),  vc(1),  0,       D_EXIT,        0,             0,       (void *) "Under Combo", NULL, NULL },
-  { d_comboframe_proc,   152,  92,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-  { d_combo_proc,     154,  94,   16,   16,   0,       0,      0,       0,             0,             0,       NULL, NULL, NULL },
-  { d_dummy_proc,   192,  92,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-  { d_dummy_proc,     194,  94,   16,   16,   0,       0,      0,       0,             0,             0,       NULL, NULL, NULL },
-  { jwin_button_proc,     90,   124,  61,   21,   vc(14),  vc(1),  's',     D_EXIT,     0,             0,       (void *) "&Set", NULL, NULL },
-  { jwin_button_proc,     170,  124,  61,   21,   vc(14),  vc(1),  'c',     D_EXIT,     0,             0,       (void *) "&Cancel", NULL, NULL },
-  { jwin_button_proc,     90,   152,  61,   21,   vc(14),  vc(1),  'a',     D_EXIT,     0,             0,       (void *) "Set &All", NULL, NULL },
+  { jwin_win_proc,     72,   60,   176+1,120+1,vc(14),  vc(1),  0,       D_EXIT,     0,             0,       (void *) "Under Combo", NULL, NULL },
+  { jwin_text_proc,    115,  83,   20,   20,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "Current", NULL, NULL },
+  { d_comboframe_proc, 122,  92,   20,   20,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_combo_proc,      124,  94,   16,   16,   0,       0,      0,       D_NOCLICK,  0,             0,       NULL, NULL, NULL },
+  { jwin_text_proc,    184,  83,   20,   20,   vc(14),  vc(1),  0,       0,          0,             0,       (void *) "New", NULL, NULL },
+  { d_comboframe_proc, 182,  92,   20,   20,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_combo_proc,      184,  94,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
+  { jwin_button_proc,  90,   124,  61,   21,   vc(14),  vc(1),  's',     D_EXIT,     0,             0,       (void *) "&Set", NULL, NULL },
+  { jwin_button_proc,  170,  124,  61,   21,   vc(14),  vc(1),  'c',     D_EXIT,     0,             0,       (void *) "&Cancel", NULL, NULL },
+  { jwin_button_proc,  90,   152,  61,   21,   vc(14),  vc(1),  'a',     D_EXIT,     0,             0,       (void *) "Set &All", NULL, NULL },
   { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0,       (void *) onHelp, NULL, NULL },
-  { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+  { d_timer_proc,      0,    0,    0,    0,    0,       0,      0,       0,          0,             0,         NULL, NULL, NULL },
+  { NULL,              0,    0,    0,    0,    0,       0,      0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 int onUnderCombo()
 {
   under_dlg[0].dp2 = lfont;
 
-  under_dlg[2].d1=Map.CurrScr()->undercombo;
-  under_dlg[2].fg=Map.CurrScr()->undercset;
+  under_dlg[3].d1=Map.CurrScr()->undercombo;
+  under_dlg[3].fg=Map.CurrScr()->undercset;
 
-  if(under_dlg[2].d1==0 && under_dlg[2].fg==0)
-  {
-    under_dlg[2].d1=Combo;
-    under_dlg[2].fg=CSet;
-  }
+  under_dlg[6].d1=Combo;
+  under_dlg[6].fg=CSet;
 
   if (is_large)
-   large_dialog(under_dlg);
+  {
+    large_dialog(under_dlg);
+    // Doesn't place "New" and "Current" text too well
+    under_dlg[1].x=342;
+    under_dlg[4].x=438;
+  }
   int ret = zc_popup_dialog(under_dlg,-1);
-  if(ret==5)
+  if(ret==7)
   {
     saved=false;
-    Map.CurrScr()->undercombo = under_dlg[2].d1;
-    Map.CurrScr()->undercset = under_dlg[2].fg;
+    Map.CurrScr()->undercombo = under_dlg[6].d1;
+    Map.CurrScr()->undercset = under_dlg[6].fg;
   }
-  if(ret==7 && jwin_alert("Confirm Overwrite","Set all Under Combos","on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
+  if(ret==9 && jwin_alert("Confirm Overwrite","Set all Under Combos","on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
   {
     saved=false;
     for(int i=0; i<128; i++)
     {
-      Map.Scr(i)->undercombo = under_dlg[2].d1;
-      Map.Scr(i)->undercset = under_dlg[2].fg;
+      Map.Scr(i)->undercombo = under_dlg[6].d1;
+      Map.Scr(i)->undercset = under_dlg[6].fg;
     }
   }
   return D_O_K;
@@ -10357,6 +10401,7 @@ char *parse_msg_str(char *s)
 {
   //if(smsg!=NULL) delete [] smsg;
   char *smsg = new char[MSGSIZE+1];
+  memset(smsg, 0, MSGSIZE+1);
   int msgptr=0;
   for(int i=0; msgptr<MSGSIZE; msgptr++, i++) // But what about long CCs?
   {
@@ -10966,70 +11011,101 @@ int d_msg_edit_proc(int msg,DIALOG *d,int c)
   return ret;
 }
 
-void msg_int_to_chars(int cc, int *i, char **si)
-{
-      if ((unsigned char)*((*si)+1) == 255) // if next char is 255
-      {
-        cc+=(*((*si)+2))*254;
-        (*si)+=2;
-      }
-      // Converting int to chars...
-      if (cc>=1000)
-      {
-        msgbuf[++*i] = (cc/1000)+48;
-      }
-      if (cc>=100)
-      {
-        msgbuf[++*i] = ((cc%1000)/100)+48;
-      }
-      if (cc>=10)
-      {
-        msgbuf[++*i] = ((cc%100)/10)+48;
-      }
-      msgbuf[++*i] = (cc%10)+48;
-}
-
-//loads msgbuf with encoded string.
+// Load a stored string into msgbuf for editing.
 void encode_msg_str(int index)
 {
-  char *si=MsgStrings[index].s;
-  int msgptr = 0;
-
-  for(int i=0; i<MSGSIZE*3; i++)
-  {
-    msgbuf[i]='\0';
-  }
-  for(int i=0; i<MSGSIZE*3 && msgptr<=MSGSIZE+1; i++)
-  {
-    int cc = *(si);
-    // Dialogue code encoding
-    if ((cc<32 || cc>126) && cc!=0)
+    memset(msgbuf, 0, MSGSIZE*3);
+    
+    // Adding a new string?
+    if(index==msg_count)
+        return;
+    
+    char *str=MsgStrings[index].s;
+    int strPos=0;
+    int msgbufPos=0;
+    byte nextChar;
+    char sccBuf[30]; // For string control codes
+    char sccArgBuf[10];
+    word sccArg;
+    int sccNumArgs;
+    
+    while(msgbufPos<MSGSIZE*3 && strPos<MSGSIZE+1)
     {
-      cc--;
-      msgbuf[i] = '\\';
-
-      int j=msg_code_operands(cc);
-
-      msg_int_to_chars(cc, &i, &si);
-
-      // Now read the arguments!
-      cc = (unsigned char)((*(++si))-1);
-      msgptr++;
-      for (;j>0;j--)
-      {
-        msgbuf[++i] = '\\';
-        msg_int_to_chars(cc, &i, &si);
-        cc = (unsigned char)((*(++si))-1);
-        msgptr++;
-      }
+        nextChar=str[strPos];
+        
+        // End of the string
+        if(nextChar=='\0')
+            return;
+            
+        // Regular text character other than backslash
+        if(nextChar>=32 && nextChar<=126 && nextChar!='\\')
+        {
+            // Put it directly into msgbuf.
+            msgbuf[msgbufPos]=nextChar;
+            msgbufPos++;
+            strPos++;
+        }
+        // String control code
+        else
+        {
+            // First, load the code into the sccBuf.
+            
+            if(nextChar=='\\')
+            {
+                // Backslashes are easy.
+                sprintf(sccBuf, "\\91");
+                strPos++;
+            }
+            else
+            {
+                // The code is stored one higher than its actual value
+                // to ensure it's not null, so it needs fixed here.
+                nextChar--;
+                sprintf(sccBuf, "\\%hu", (word)nextChar);
+                strPos++;
+                
+                // One at a time, read arguments and append them to sccBuf
+                for(sccNumArgs=msg_code_operands(nextChar); sccNumArgs>0; sccNumArgs--)
+                {
+                    // Before reading any more characters, make sure strPos
+                    // hasn't gone past the end of the string. If it has,
+                    // just return, dropping the control code entirely.
+                    if(strPos>MSGSIZE)
+                        return;
+                    
+                    // The encoding is a bit tricky... If it's 253 or less,
+                    // it's stored in one byte, with one added so that it's
+                    // not null.
+                    nextChar=str[strPos];
+                    sccArg=nextChar-1;
+                    strPos++;
+                    
+                    // If there are at least two more bytes to read, they may
+                    // be part of the same argument.
+                    if(strPos<=MSGSIZE-2)
+                    {
+                        // If the next byte is 255, add the byte after that
+                        // times 254 to the argument.
+                        nextChar=str[strPos];
+                        if(nextChar==255)
+                        {
+                            nextChar=str[strPos+1];
+                            sccArg+=254*nextChar;
+                            strPos+=2;
+                        }
+                    }
+                    
+                    // Append the argument to sccBuf.
+                    sprintf(sccArgBuf, "\\%hu", sccArg);
+                    strcat(sccBuf, sccArgBuf);
+                }
+            }
+            
+            // Finally, copy the control code into msgbuf
+            strcat(msgbuf, sccBuf);
+            msgbufPos+=strlen(sccBuf);
+        }
     }
-    else
-    {
-      msgbuf[i] = index<msg_count ? *(si) : '\0';
-      ++si;
-      ++msgptr;
-    }
-  }
 }
 
 const char *msgfont_str[font_max] =
@@ -11298,7 +11374,7 @@ int onStrings()
 
   char tempbuf[50];
   sprintf(tempbuf, "0");
-	
+
   strlist_dlg[17].d1=0;
   build_bistringcat_list();
 
@@ -11451,10 +11527,19 @@ int onStrings()
         saved=false;
         break;
       }
-	  case 16: if (index && index<msg_count-1) { duplicate=index; index=msg_count-1; strlist_dlg[2].d1 = index; } //fallthrough
+	  case 16:
+	  if (index && index<msg_count-1)
+	  {
+        duplicate=index;
+        index=msg_count-1;
+        strlist_dlg[2].d1 = index;
+      } //fallthrough
       case 2:
-      case 3: doedit=true; break;
-      case 0:
+      case 3:
+      doedit=true;
+      break;
+
+      case 0: // ???
       case 4:
 
       index=-1;
@@ -11467,7 +11552,8 @@ int onStrings()
         saved=false;
       }
       break;
-      case 5:
+
+      case 5: // Delete
       char buf[73], shortbuf[73];
       memset(buf, 0, 73);
       memset(shortbuf, 0, 73);
@@ -11477,11 +11563,14 @@ int onStrings()
       if(jwin_alert("Confirm Clear","Clear this message string?"," ",shortbuf,"Yes","No",'y',27,lfont)==1)
       {
         saved=false;
+        word pos=MsgStrings[index].listpos;
 		memset((void*)(&MsgStrings[index]), 0, sizeof(MsgStr));
 		MsgStrings[index].x=24;
 		MsgStrings[index].y=32;
 		MsgStrings[index].w=24*8;
 		MsgStrings[index].h=3*8;
+		MsgStrings[index].listpos=pos; // Since the stuff below isn't being run, do this instead
+
 
         /*// Go through strings with higher listpos and decrement listpos
         for(int j=MsgStrings[index].listpos; j<msg_count; j++)
@@ -11512,7 +11601,7 @@ int onStrings()
 		// Fix the quick-category menu
 		strlist_dlg[17].d1=0;
 		build_bistringcat_list();
-		  
+
         refresh(rMENU);
         break;
       }
@@ -14239,7 +14328,7 @@ int onTileWarp()
   warp_dlg[65].flags = get_bit(&Map.CurrScr()->tilewarpoverlayflags,2)?D_SELECTED:0;
   warp_dlg[66].flags = get_bit(&Map.CurrScr()->tilewarpoverlayflags,3)?D_SELECTED:0;
 
-  int j=Map.CurrScr()->warpreturnc;
+  word j=Map.CurrScr()->warpreturnc;
   warp_dlg[54].d1=(j&3);
   warp_dlg[56].d1=((j>>2)&3);
   warp_dlg[58].d1=((j>>4)&3);
@@ -14330,11 +14419,13 @@ int onTileWarp()
     set_bit(&Map.CurrScr()->tilewarpoverlayflags,2,(warp_dlg[65].flags & D_SELECTED)?1:0);
     set_bit(&Map.CurrScr()->tilewarpoverlayflags,3,(warp_dlg[66].flags & D_SELECTED)?1:0);
 
-    j=0;
-    j|=warp_dlg[60].d1; j<<=2;
-    j|=warp_dlg[58].d1; j<<=2;
-    j|=warp_dlg[56].d1; j<<=2;
-    j|=warp_dlg[54].d1;
+    j=Map.CurrScr()->warpreturnc&0xFF00;
+    word newWarpReturns=0;
+    newWarpReturns|=warp_dlg[60].d1; newWarpReturns<<=2;
+    newWarpReturns|=warp_dlg[58].d1; newWarpReturns<<=2;
+    newWarpReturns|=warp_dlg[56].d1; newWarpReturns<<=2;
+    newWarpReturns|=warp_dlg[54].d1;
+    j|=newWarpReturns;
     Map.CurrScr()->warpreturnc = j;
     refresh(rMENU);
 
@@ -14435,7 +14526,7 @@ int onSideWarp()
   warp_dlg[65].flags = get_bit(&Map.CurrScr()->sidewarpoverlayflags,2)?D_SELECTED:0;
   warp_dlg[66].flags = get_bit(&Map.CurrScr()->sidewarpoverlayflags,3)?D_SELECTED:0;
 
-  int j=Map.CurrScr()->warpreturnc;
+  word j=Map.CurrScr()->warpreturnc>>8;
   warp_dlg[54].d1=(j&3);
   warp_dlg[56].d1=((j>>2)&3);
   warp_dlg[58].d1=((j>>4)&3);
@@ -14569,11 +14660,13 @@ int onSideWarp()
     Map.CurrScr()->flags2 = f;
     Map.CurrScr()->sidewarpindex = h;
 
-    j=0;
-    j|=warp_dlg[60].d1; j<<=2;
-    j|=warp_dlg[58].d1; j<<=2;
-    j|=warp_dlg[56].d1; j<<=2;
-    j|=warp_dlg[54].d1;
+    j=Map.CurrScr()->warpreturnc&0x00FF;
+    word newWarpReturns=0;
+    newWarpReturns|=warp_dlg[60].d1; newWarpReturns<<=2;
+    newWarpReturns|=warp_dlg[58].d1; newWarpReturns<<=2;
+    newWarpReturns|=warp_dlg[56].d1; newWarpReturns<<=2;
+    newWarpReturns|=warp_dlg[54].d1; newWarpReturns<<=8;
+    j|=newWarpReturns;
     Map.CurrScr()->warpreturnc = j;
     refresh(rMENU);
   }
@@ -14592,7 +14685,7 @@ int onSideWarp()
     Map.dowarp(1,index);
     if ((ts!=Map.getCurrScr() || tm!=Map.getCurrMap()) && thistype != wtSCROLL)
     {
-      FlashWarpSquare = (TheMaps[tm*MAPSCRS+ts].warpreturnc>>(index*2))&3;
+      FlashWarpSquare = (TheMaps[tm*MAPSCRS+ts].warpreturnc>>(8+index*2))&3;
       FlashWarpClk = 0x20;
     }
     refresh(rALL);
@@ -15745,7 +15838,7 @@ int enelist_proc(int msg,DIALOG *d,int c,bool use_abc_list)
   	ret= jwin_abclist_proc(msg,d,c); // This one's better for the full list
   else
 	ret= jwin_list_proc(msg,d,c);
-	
+
   if (msg==MSG_DRAW||msg==MSG_CHAR)
   {
     int id;
@@ -16431,18 +16524,20 @@ int d_comboa_proc(int msg,DIALOG *d,int c)
   int position;
   int cur_layer, temp_layer;
   int lay_count=0;
-
+  int size = 1+is_large;
+  
   int cx1=(gui_mouse_x()-d->x-(120-(combo->width*8)));
   int cy1=(gui_mouse_y()-d->y-(80-(combo->height*8)));
-  int cx=cx1/16;
-  int cy=cy1/16;
+  int cx=cx1/(16*size);
+  int cy=cy1/(16*size);
 
   int co,cs;
+
 
   switch(msg)
   {
     case MSG_CLICK:
-    //Z_message("click (%d, %d) (%d, %d)\n", cx1, cy1, cx, cy);
+    Z_message("click (%d, %d) (%d, %d)\n", cx1, cy1, cx, cy);
     if ((cx>combo->width)||(cx1<0))
       return D_O_K;
     if ((cy>combo->height)||(cy1<0))
@@ -16526,15 +16621,14 @@ int d_comboa_proc(int msg,DIALOG *d,int c)
         }
       }
       rectfill(screen, d->x-2,d->y-2,d->x+256+2,d->y+176+2,jwin_pal[jcBOX]);
-	  /* // Will enable soon. -L
 		int dx = 120-(combo->width*8)+d->x;
 		int dy = 80-(combo->height*8)+d->y;
-      stretch_blit(buf,screen,0,0,(combo->width+1)*16,(combo->height+1)*16,dx,dy,(combo->width+1)*16*(is_large+1),(combo->height+1)*16*(is_large+1));*/
-	  blit(buf,screen,0,0,120-(combo->width*8)+d->x,80-(combo->height*8)+d->y,(combo->width+1)*16,(combo->height+1)*16);
-      (d-11)->w = (combo->width+1)*16+2+2;
-      (d-11)->h = (combo->height+1)*16+2+2;
-      (d-11)->x = 120-(combo->width*8)+4+(d-14)->x;
-      (d-11)->y = 80-(combo->height*8)+25+(d-14)->y;
+      stretch_blit(buf,screen,0,0,(combo->width+1)*16,(combo->height+1)*16,dx,dy,(combo->width+1)*16*size,(combo->height+1)*16*size);
+	  //blit(buf,screen,0,0,120-(combo->width*8)+d->x,80-(combo->height*8)+d->y,(combo->width+1)*16,(combo->height+1)*16);
+      (d-11)->w = (combo->width+1)*16*size+2+(is_large?0:2);
+      (d-11)->h = (combo->height+1)*16*size+2+(is_large?0:2);
+      (d-11)->x = 120-(combo->width*8)+4*size+(is_large?2:0)+(d-14)->x;
+      (d-11)->y = 80-(combo->height*8)+25*size+(is_large?2:0)+(d-14)->y;
       object_message((d-11),MSG_DRAW,0);
 
       destroy_bitmap(buf);
@@ -16544,7 +16638,7 @@ int d_comboa_proc(int msg,DIALOG *d,int c)
   return D_O_K;
 }
 
-void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int x, int y)
+void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int x, int y, int size)
 {
   if (!combo->combo)
   {
@@ -16555,19 +16649,19 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int x, int y)
     int dw=cw<<4;
     int dh=ch<<4;
     int sw=16, sh=16, sx=0, sy=0;
-
+	
     if (cw<ch)
     {
-      sw=(cw<<4)/ch;
-      sx=(16-sw)>>1;
+      sw=((cw<<4)/ch);
+      sx=((16-sw)>>1);
     }
     else
     {
-      sh=(ch<<4)/cw;
-      sy=(16-sh)>>1;
+      sh=((ch<<4)/cw);
+      sy=((16-sh)>>1);
     }
     BITMAP *buf = create_bitmap_ex(8,dw,dh);
-    BITMAP *buf2 = create_bitmap_ex(8, 16, 16);
+    BITMAP *buf2 = create_bitmap_ex(8, 16*size, 16*size);
     clear_bitmap(buf);
     clear_bitmap(buf2);
     if(buf&&(combo->width>0||combo->height>0||combo->combos[0]>0))
@@ -16606,13 +16700,13 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int x, int y)
           }
         }
       }
-      stretch_blit(buf, buf2, 0, 0, cw<<4, ch<<4, sx, sy, sw, sh);
-      blit(buf2, dest, 0, 0, x, y, 16, 16);
+      stretch_blit(buf, buf2, 0, 0, (cw*16), (ch*16), sx*size, sy*size, sw*size, sh*size);
+      blit(buf2, dest, 0, 0, x, y, 16*size, 16*size);
     }
     else
     {
-      rectfill(dest,x,y,x+15,y+15,0);
-      rectfill(dest,x+3,y+3,x+12,y+12,vc(4));
+      rectfill(dest,x,y,x+16*size-1,y+16*size-1,0);
+      rectfill(dest,x+3*size,y+3*size,x+12*size,y+12*size,vc(4));
     }
 	if(buf)
 	  destroy_bitmap(buf);
@@ -16627,8 +16721,8 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int x, int y)
     }
     else
     {
-      rectfill(dest,x,y,x+15,y+15,0);
-      rectfill(dest,x+3,y+3,x+12,y+12,vc(4));
+      rectfill(dest,x,y,x+16*size-1,y+16*size-1,0);
+      rectfill(dest,x+3*size,y+3*size,x+12*size,y+12*size,vc(4));
     }
   }
 }
@@ -16668,7 +16762,7 @@ int d_comboat_proc(int msg,DIALOG *d,int)
     }
     break;
     case MSG_DRAW:
-    draw_combo_alias_thumbnail(screen, &temp_aliases[comboa_cnt], d->x, d->y);
+    draw_combo_alias_thumbnail(screen, &temp_aliases[comboa_cnt], d->x-is_large, d->y-is_large,(is_large+1));
     break;
     default:
     break;
@@ -16815,6 +16909,9 @@ int onOrgComboAliases()
   orgcomboa_dlg[6].dp= cSrc;
   orgcomboa_dlg[7].dp= cDest;
 
+  if (is_large) 
+	large_dialog(orgcomboa_dlg);
+  
   int ret = zc_popup_dialog(orgcomboa_dlg,-1);
 
   if (ret!=1) return ret;
@@ -16899,11 +16996,8 @@ int onNewComboAlias()
   newcomboa_dlg[12].flags = (combo->layermask&16)? D_SELECTED : 0;
   newcomboa_dlg[13].flags = (combo->layermask&32)? D_SELECTED : 0;
 
-  /*sprintf(cp,"%d",0);
-  newcomboa_dlg[15].dp = cp;
-  newcomboa_dlg[16].flags = 0;
-  */
-
+  if (is_large) large_dialog(newcomboa_dlg);
+  
   int ret = zc_popup_dialog(newcomboa_dlg,-1);
 
   if(ret==1)
@@ -17094,8 +17188,13 @@ int d_orgcomboa_proc(int msg, DIALOG *d, int c)
   switch (msg)
   {
 
-    case MSG_DRAW:
-    jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
+    case MSG_DRAW: 
+	{
+      FONT *tfont=font;
+      font=is_large?lfont_l:nfont;
+      jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
+      font=tfont;
+	}
     break;
 
     case MSG_WANTFOCUS:
@@ -17173,8 +17272,13 @@ int d_comboabutton_proc(int msg, DIALOG *d, int c)
   switch (msg)
   {
 
-    case MSG_DRAW:
-    jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
+    case MSG_DRAW: 
+	{
+      FONT *tfont=font;
+      font=is_large?lfont_l:nfont;
+      jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
+      font=tfont;
+	}
     break;
 
     case MSG_WANTFOCUS:
@@ -17369,7 +17473,27 @@ int onEditComboAlias()
   set_comboaradio(temp_aliases[comboa_cnt].layermask);
   editcomboa_dlg[5].d1 = comboa_cnt;
 
-  //if (is_large) large_dialog(editcomboa_dlg,2);
+  if (is_large) 
+  {
+	bool small_d1 = editcomboa_dlg[0].d1==0;
+	large_dialog(editcomboa_dlg,2);
+	if (small_d1) 
+	{
+	  for(int i=6; i<=12; i++)
+	  {
+		editcomboa_dlg[i].w=30*1.5;
+		editcomboa_dlg[i].h=9*1.5;
+	  }
+	  editcomboa_dlg[13].w=17*1.5;
+	  editcomboa_dlg[13].h=9*1.5;
+	  editcomboa_dlg[4].w=81*1.5;
+	  editcomboa_dlg[4].h=21*1.5;
+	  editcomboa_dlg[4].dp2=lfont_l;
+	  editcomboa_dlg[21].w=21*1.5;
+	  editcomboa_dlg[21].h=21*1.5;
+	  editcomboa_dlg[21].dp2=lfont_l;
+	}
+  }
   int ret=zc_popup_dialog(editcomboa_dlg,-1);
 
   if(ret==1)
@@ -20576,6 +20700,9 @@ int main(int argc,char **argv)
 
 #ifdef _WIN32
   zqUseWin32Proc                 = get_config_int("zquest","zq_win_proc_fix",1);
+  
+  // This seems to fix some problems on Windows 7
+  disable_direct_updating = (byte) get_config_int("graphics","disable_direct_updating",1);
 #endif
 
   if(RequestedFPS < 12) RequestedFPS = 12;
@@ -20806,9 +20933,19 @@ int main(int argc,char **argv)
     integrity_report_dlg[0].w=800;
     integrity_report_dlg[0].h=600;
     integrity_report_dlg[1].w=800-8;
-    integrity_report_dlg[1].h=600-27;
+    integrity_report_dlg[1].h=(600-27)-40;
     integrity_report_dlg[2].w=800-8-4;
-    integrity_report_dlg[2].h=600-27-4;
+    integrity_report_dlg[2].h=((600-27)-40)-4;
+	integrity_report_dlg[5].x=200-48;
+	integrity_report_dlg[5].y=600-38;
+	integrity_report_dlg[5].w=61*1.5;
+	integrity_report_dlg[5].h=21*1.5;
+	integrity_report_dlg[5].dp2 = lfont_l;
+	integrity_report_dlg[6].x=600-48;
+	integrity_report_dlg[6].y=600-38;
+	integrity_report_dlg[6].w=61*1.5;
+	integrity_report_dlg[6].h=21*1.5;
+	integrity_report_dlg[6].dp2 = lfont_l;
   }
   else
   {
@@ -21551,8 +21688,15 @@ int main(int argc,char **argv)
   {
 
 #ifdef _WIN32
+	try { // I *think* it might throw here.
 	if(zqUseWin32Proc != FALSE)
 		win32data.Update(Frameskip); //experimental win32 fixes
+	}
+	catch(...) {
+		set_gfx_mode(GFX_TEXT,0,0,0,0);
+		allegro_message("ZQ-Windows Fatal Error: Set \"zq_win_proc_fix = 0\" in config file." );
+		exit(1);
+	}
 #endif
 
     check_autosave();
@@ -21649,28 +21793,6 @@ int main(int argc,char **argv)
     maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;
 
     etc_menu[4].flags=(isFullScreen()==1)?D_SELECTED:0;
-
-    // Check for enemy data corruption...
-    static bool ed_corrupt=false;
-    if(!ed_corrupt && framecnt==0)
-    {
-      for(int i=0; i<MAXGUYS; i++)
-      {
-        // Just check a couple of random fields
-        if(guysbuf[i].hp<0 || guysbuf[i].dp<0 ||
-           guysbuf[i].step<0 || guysbuf[i].step>1000 ||
-           guysbuf[i].hrate<0 || guysbuf[i].hrate>999)
-        {
-          jwin_alert("Enemy data corrupted",
-                     "Your enemy data has become corrupted. Please report this",
-                     "as soon as possible, and note what you were doing when it happened.",
-                     "If you just opened the quest, keep a copy of it as it is.","OK",NULL,13,27,lfont);
-          ed_corrupt=true;
-          break;
-        }
-      }
-    }
-
 
     quit = !update_dialog(player2);
     //clear_keybuf();
@@ -22343,10 +22465,12 @@ DIALOG integrity_report_dlg[] =
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
 //  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
   { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0,        (void *) "Quest Report", NULL, NULL },
-  { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-  { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
+  { jwin_frame_proc,   4,   23,   320-8,  (240-27)-24,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
+  { d_editbox_proc,    6,   25,   320-8-4,  (240-27)-24-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
   { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC,  (void *) close_dlg, NULL, NULL },
   { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12,  (void *) onSnapshot, NULL, NULL },
+  { jwin_button_proc,  64,   240-25,  61,   21, vc(0), vc(11),     13,   D_EXIT,         0,             0,       (void *) "OK", NULL, NULL },
+  { jwin_button_proc,  192,  240-25,   61,   21, vc(0), vc(11),     27,   D_EXIT,         0,             0,       (void *) "Save", NULL, NULL },
   { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
   { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -22354,10 +22478,41 @@ DIALOG integrity_report_dlg[] =
 void showQuestReport(int bg,int fg)
 {
   integrity_report_dlg[0].dp2= lfont;
-  integrity_report_dlg[2].dp = new EditboxModel(quest_report_str, new EditboxWordWrapView(&help_dlg[2], is_large? sfont3 : sfont2, fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+  integrity_report_dlg[2].dp = new EditboxModel(quest_report_str, new EditboxWordWrapView(&integrity_report_dlg[2], is_large? sfont3 : sfont2, fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
   integrity_report_dlg[2].bg = bg;
-  zc_popup_dialog(integrity_report_dlg,2);
+  int ret=zc_popup_dialog(integrity_report_dlg,2);
   delete (EditboxModel*)(integrity_report_dlg[2].dp);
+  if (ret==6) 
+  {
+	  if(!getname("Save Quest Report (.txt)","txt",NULL,datapath,false))
+		  return;
+	  if(exists(temppath))
+	  {
+          if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',lfont)==2)
+			  return;
+	  }
+	  FILE *report = fopen(temppath,"w");
+	  if(!report)
+	  {
+          jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+          return;
+	  }
+	  int written = (int)fwrite(quest_report_str.c_str(), sizeof(char), quest_report_str.size(), report);
+	  if(written != (int)quest_report_str.size())
+          jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+	  fclose(report);
+  }
+}
+
+char *palname_spaced(int pal) 
+{
+	static char buf[17];
+	sprintf(buf,"%s",palnames[pal]);
+	for(int i=strlen(buf); i<17; i+=1)
+	{
+		strcat(buf," ");
+	}
+	return buf;
 }
 
 bool integrityBoolSpecialItem(mapscr *ts)
@@ -22382,7 +22537,7 @@ void integrityCheckSpecialItem()
           quest_report_str+="The following screens' Room Type is set to Special Item but have no special item assigned:\n";
         type_found=true;
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+        sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
         quest_report_str+=buf;
       }
     }
@@ -22451,7 +22606,7 @@ void integrityCheckEnemiesItem()
             type_found = true;
           }
           buf[0]=0;
-          sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+          sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
           quest_report_str+=buf;
       }
     }
@@ -22519,7 +22674,7 @@ void integrityCheckEnemiesSecret()
             type_found = true;
           }
           buf[0]=0;
-          sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+          sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
           quest_report_str+=buf;
       }
     }
@@ -22590,7 +22745,7 @@ void integrityCheckTileWarpDestSquare()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X (%3d:%02X)\n", palnames[ts->color], m+1, s, ((warp_check[i]-1)/MAPSCRS)+1, (warp_check[i]-1)%MAPSCRS);
+        sprintf(buf, "%s %3d:%02X (%3d:%02X)\n", palname_spaced(ts->color), m+1, s, ((warp_check[i]-1)/MAPSCRS)+1, (warp_check[i]-1)%MAPSCRS);
         quest_report_str+=buf;
       }
     }
@@ -22695,7 +22850,7 @@ void integrityCheckTileWarpDest()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X %s%s%s%s%s\n", palnames[ts->color], m+1, s, warpa ? "[A] ":"", warpb ? "[B] ":"",
+        sprintf(buf, "%s %3d:%02X %s%s%s%s%s\n", palname_spaced(ts->color), m+1, s, warpa ? "[A] ":"", warpb ? "[B] ":"",
             warpc ? "[C] ":"", warpd ? "[D] ":"", warpr ? "[Random]":"");
         quest_report_str+=buf;
       }
@@ -22788,7 +22943,7 @@ void integrityCheckSideWarpDest()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X %s%s%s%s%s%s\n", palnames[ts->color], m+1, s, warpa ? "[A] ":"", warpb ? "[B] ":"",
+        sprintf(buf, "%s %3d:%02X %s%s%s%s%s%s\n", palname_spaced(ts->color), m+1, s, warpa ? "[A] ":"", warpb ? "[B] ":"",
             warpc ? "[C] ":"", warpd ? "[D] ":"", warpr ? "[Random]":"", warpt ? "[Triforce]" : "");
         quest_report_str+=buf;
       }
@@ -22860,7 +23015,7 @@ void integrityCheckUnderCombo()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+        sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
         quest_report_str+=buf;
       }
     }
@@ -22927,7 +23082,7 @@ void integrityCheckSaveCombo()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+        sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
         quest_report_str+=buf;
       }
     }
@@ -22984,7 +23139,7 @@ void TileWarpsReport()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+        sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
         quest_report_str+=buf;
       }
     }
@@ -23042,7 +23197,7 @@ void SideWarpsReport()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+        sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
         quest_report_str+=buf;
       }
     }
@@ -23098,7 +23253,7 @@ void LayersReport()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X (layer %d)\n", palnames[ts->color], m+1, s, layer_check[i]);
+        sprintf(buf, "%s %3d:%02X (layer %d)\n", palname_spaced(ts->color), m+1, s, layer_check[i]);
         quest_report_str+=buf;
       }
     }
@@ -23135,7 +23290,7 @@ void integrityCheckStringNoGuy()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+        sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
         quest_report_str+=buf;
       }
     }
@@ -23171,7 +23326,7 @@ void integrityCheckGuyNoString()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+        sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
         quest_report_str+=buf;
       }
     }
@@ -23235,7 +23390,7 @@ void integrityCheckRoomNoGuy()
               type_found=true;
             }
             buf[0]=0;
-            sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+            sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
             quest_report_str+=buf;
 	  }
     }
@@ -23299,7 +23454,7 @@ void integrityCheckRoomNoString()
               type_found=true;
             }
             buf[0]=0;
-            sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+            sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
             quest_report_str+=buf;
             type_found=true;
       }
@@ -23364,7 +23519,7 @@ void integrityCheckRoomNoGuyNoString()
               type_found=true;
             }
             buf[0]=0;
-            sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+            sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
             quest_report_str+=buf;
             type_found=true;
       }
@@ -23407,7 +23562,7 @@ void integrityCheckItemWalkability()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+        sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
         quest_report_str+=buf;
       }
     }
@@ -23469,7 +23624,7 @@ void integrityCheckTileWarpDestSquareWalkability()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X (%3d:%02X)\n", palnames[ts->color], m+1, s, ((warp_check[i]-1)/MAPSCRS)+1, (warp_check[i]-1)%MAPSCRS);
+        sprintf(buf, "%s %3d:%02X (%3d:%02X)\n", palname_spaced(ts->color), m+1, s, ((warp_check[i]-1)/MAPSCRS)+1, (warp_check[i]-1)%MAPSCRS);
         quest_report_str+=buf;
       }
     }
@@ -23515,7 +23670,7 @@ void integrityCheckTileWarpDestScreenInvalid()
             type_found=true;
           }
           buf[0]=0;
-          sprintf(buf, "%s %3d:%02X\n", palnames[ts->color], m+1, s);
+          sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
           quest_report_str+=buf;
           type_found=true;
         }
@@ -23909,23 +24064,23 @@ void itemLocationReport()
           switch(type)
           {
             case 1:
-              sprintf(buf, "%s %3d:%02X (special item)\n", palnames[tempnode->pal], tempnode->map, tempnode->screen);
+              sprintf(buf, "%s %3d:%02X (special item)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen);
               break;
             case 2:
-              sprintf(buf, "%s %3d:%02X (Heart Container / Red Potion room)\n", palnames[tempnode->pal], tempnode->map, tempnode->screen);
+              sprintf(buf, "%s %3d:%02X (Heart Container / Red Potion room)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen);
               break;
             case 3:
-              sprintf(buf, "%s %3d:%02X (shop %d @ %d rupees)\n", palnames[tempnode->pal], tempnode->map, tempnode->screen, tempnode->extra1, tempnode->extra2);
+              sprintf(buf, "%s %3d:%02X (shop %d @ %d rupees)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen, tempnode->extra1, tempnode->extra2);
               break;
             case 4:
-              sprintf(buf, "%s %3d:%02X (potion shop %d @ %d rupees)\n", palnames[tempnode->pal], tempnode->map, tempnode->screen, tempnode->extra1, tempnode->extra2);
+              sprintf(buf, "%s %3d:%02X (potion shop %d @ %d rupees)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen, tempnode->extra1, tempnode->extra2);
               break;
             case 5:
-              sprintf(buf, "%s %3d:%02X (take one item room)\n", palnames[tempnode->pal], tempnode->map, tempnode->screen);
+              sprintf(buf, "%s %3d:%02X (take one item room)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen);
               break;
             case 0:
             default:
-              sprintf(buf, "%s %3d:%02X (room item%s%s)\n", palnames[tempnode->pal], tempnode->map, tempnode->screen,
+              sprintf(buf, "%s %3d:%02X (room item%s%s)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen,
                             tempnode->enemy==-1 ? ", enemies -> item" : tempnode->enemy ? ", carried by " : "",
                             tempnode->enemy>0 ? guy_string[tempnode->enemy] : "");
               break;
@@ -24085,7 +24240,7 @@ void enemyLocationReport()
         //add it to the list
         buf[0]=0;
         sprintf(buf, "%s %3d:%02X (%d)\n",
-		  palnames[tempnode->pal],
+		  palname_spaced(tempnode->pal),
 		  tempnode->map,
 		  tempnode->screen,
 		  tempnode->list /* Possibly add more details later/never */);
@@ -24217,7 +24372,7 @@ void scriptLocationReport()
         tempnode=tempnode->next;
         //add it to the list
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X (Args: %ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld)\n", palnames[tempnode->pal], tempnode->map, tempnode->screen,
+        sprintf(buf, "%s %3d:%02X (Args: %ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen,
                           tempnode->d[0]/10000,tempnode->d[1]/10000,tempnode->d[2]/10000,tempnode->d[3]/10000,
                           tempnode->d[4]/10000,tempnode->d[5]/10000,tempnode->d[6]/10000,tempnode->d[7]/10000);
         quest_report_str+=buf;
@@ -24308,18 +24463,18 @@ void ComboLocationReport()
           type_found=true;
         }
         buf[0]=0;
-        sprintf(buf, "%s %3d:%02X (%d uses", palnames[ts->color], m+1, s, uses);
+		sprintf(buf, "%s %3d:%02X (%d use%s", palname_spaced(ts->color), m+1, s, uses, uses>1 ? "s" : "");
         quest_report_str+=buf;
         if (secretuses>0)
         {
           buf[0]=0;
-          sprintf(buf, ", %d secrets", secretuses);
+		  sprintf(buf, ", %d secret%s", secretuses, secretuses>1 ? "s" : "");
           quest_report_str+=buf;
         }
         if (ffuses>0)
         {
           buf[0]=0;
-          sprintf(buf, ", %d FFCs", ffuses);
+			sprintf(buf, ", %d FFC%s", ffuses, ffuses>1 ? "s" : "");
           quest_report_str+=buf;
         }
         buf[0]=0;
@@ -24458,18 +24613,18 @@ void ComboTypeLocationReport()
         tempnode=tempnode->next;
         //add it to the list
 		buf[0]=0;
-        sprintf(buf, "%s %3d:%02X (%d uses", palnames[tempnode->pal], tempnode->map, tempnode->screen, tempnode->uses);
+        sprintf(buf, "%s %3d:%02X (%d uses", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen, tempnode->uses);
         quest_report_str+=buf;
         if (tempnode->secretuses>0)
         {
           buf[0]=0;
-          sprintf(buf, ", %d secrets", tempnode->secretuses);
+		  sprintf(buf, ", %d secret%s", tempnode->secretuses, tempnode->secretuses > 1 ? "s" : "");
           quest_report_str+=buf;
         }
         if (tempnode->ffuses>0)
         {
           buf[0]=0;
-          sprintf(buf, ", %d FFCs", tempnode->ffuses);
+		  sprintf(buf, ", %d FFC%s", tempnode->ffuses, tempnode->ffuses > 1 ? "s" : "");
           quest_report_str+=buf;
         }
         buf[0]=0;
@@ -24526,7 +24681,7 @@ int onWhatWarpsReport()
   if (quest_report_str!="")
     showQuestReport(vc(15),vc(0));
   else
-    jwin_alert("What Links Here", "No other screens link to this screen.", NULL,NULL,"OK",NULL,13,27,lfont);
+    jwin_alert("What Links Here", "No other screens warp to this screen", "or use this screen as a layer.",NULL,"OK",NULL,13,27,lfont);
   return D_O_K;
 }
 
@@ -24650,6 +24805,7 @@ int save_config_file()
 
 #ifdef _WIN32
   set_config_int("zquest","zq_win_proc_fix",zqUseWin32Proc);
+  set_config_int("graphics","disable_direct_updating",disable_direct_updating);
 #endif
 
 
@@ -25015,7 +25171,7 @@ void update_tooltip(int x, int y, int trigger_x, int trigger_y, int trigger_w, i
     }
     if(tooltip_box.y+tooltip_box.h>=zq_screen_h)
     {
-      tooltip_box.y=(zq_screen_h - tooltip_box.y);
+      tooltip_box.y=(zq_screen_h - tooltip_box.h);
     }
     rectfill(tooltipbmp, 1, 1, tooltip_box.w-3, tooltip_box.h-3, jwin_pal[jcTEXTBG]);
     rect(tooltipbmp, 0, 0, tooltip_box.w-2, tooltip_box.h-2, jwin_pal[jcTEXTFG]);

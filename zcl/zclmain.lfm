@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 495
+  Left = 930
   Height = 399
-  Top = 281
+  Top = 393
   Width = 586
   HorzScrollBar.Page = 585
   HorzScrollBar.Range = 585
@@ -10,7 +10,7 @@ object Form1: TForm1
   VertScrollBar.Visible = False
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  Caption = 'Zelda Classic Launcher 2.5.4'
+  Caption = 'Zelda Classic Launcher 2.5.5'
   ClientHeight = 399
   ClientWidth = 586
   Color = clForm
@@ -2342,7 +2342,7 @@ object Form1: TForm1
   }
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '0.9.28.2'
+  LCLVersion = '0.9.30.2'
   object Image7: TImage
     Left = 0
     Height = 42
@@ -4760,8 +4760,6 @@ object Form1: TForm1
     Top = 360
     Width = 112
     Caption = 'Launch ZC'
-    Color = clBtnFace
-    Font.Color = clDefault
     Font.Height = -13
     Font.Name = 'Arial'
     Glyph.Data = {
@@ -4907,8 +4905,6 @@ object Form1: TForm1
     Top = 360
     Width = 112
     Caption = 'Launch ZQ'
-    Color = clBtnFace
-    Font.Color = clDefault
     Font.Height = -13
     Font.Name = 'Arial'
     Glyph.Data = {
@@ -5053,7 +5049,7 @@ object Form1: TForm1
     Left = 0
     Height = 15
     Top = 0
-    Width = 380
+    Width = 381
     Caption = 'Zelda Classic was not detected. Please place ZCL in the ZC directory.'
     Color = clRed
     Font.Color = clWhite
@@ -10585,7 +10581,6 @@ object Form1: TForm1
     Top = 64
     Width = 586
     Align = alTop
-    Font.Color = clDefault
     Font.Height = -11
     Font.Name = 'Arial'
     Images = ImageList1
@@ -10603,7 +10598,6 @@ object Form1: TForm1
         Top = 1
         Width = 89
         Caption = 'Screen Mode:'
-        Font.Color = clDefault
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -10616,7 +10610,6 @@ object Form1: TForm1
         Top = 25
         Width = 121
         Caption = 'Screen Resolution:'
-        Font.Color = clDefault
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -10629,7 +10622,6 @@ object Form1: TForm1
         Top = 49
         Width = 67
         Caption = 'Limit FPS:'
-        Font.Color = clDefault
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -10642,7 +10634,6 @@ object Form1: TForm1
         Top = 73
         Width = 71
         Caption = 'Show FPS:'
-        Font.Color = clDefault
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -10655,7 +10646,6 @@ object Form1: TForm1
         Top = 121
         Width = 69
         Caption = 'Skip Logo:'
-        Font.Color = clDefault
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -10668,7 +10658,6 @@ object Form1: TForm1
         Top = 145
         Width = 114
         Caption = 'Load Quest Icons:'
-        Font.Color = clDefault
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -10681,7 +10670,6 @@ object Form1: TForm1
         Top = 169
         Width = 169
         Caption = 'Enable Heart Beep Sound:'
-        Font.Color = clDefault
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -10694,7 +10682,6 @@ object Form1: TForm1
         Top = 193
         Width = 97
         Caption = 'Disable Sound:'
-        Font.Color = clDefault
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -10707,7 +10694,6 @@ object Form1: TForm1
         Top = 217
         Width = 122
         Caption = 'Screenshot Output:'
-        Font.Color = clDefault
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -10720,7 +10706,6 @@ object Form1: TForm1
         Top = 1
         Width = 78
         Caption = 'Title Screen'
-        Font.Color = clDefault
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -10741,7 +10726,6 @@ object Form1: TForm1
         Top = 97
         Width = 117
         Caption = 'Name Entry Mode:'
-        Font.Color = clDefault
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]
@@ -10771,7 +10755,9 @@ object Form1: TForm1
         Items.Strings = (
           '320x240'
           '640x480'
-          '800x600'
+          '960x720'
+          '1280x960'
+          '1600x1200'
         )
         OnChange = scrreszcChange
         Style = csDropDownList
@@ -10977,7 +10963,6 @@ object Form1: TForm1
             Top = 1
             Width = 89
             Caption = 'Screen Mode:'
-            Font.Color = clDefault
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
@@ -10990,7 +10975,6 @@ object Form1: TForm1
             Top = 1
             Width = 37
             Caption = 'Scale'
-            Font.Color = clDefault
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
@@ -11004,7 +10988,6 @@ object Form1: TForm1
             Top = 50
             Width = 67
             Caption = 'Limit FPS:'
-            Font.Color = clDefault
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
@@ -11017,7 +11000,6 @@ object Form1: TForm1
             Top = 26
             Width = 61
             Caption = 'Interface:'
-            Font.Color = clDefault
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
@@ -11030,7 +11012,6 @@ object Form1: TForm1
             Top = 98
             Width = 97
             Caption = 'Disable Sound:'
-            Font.Color = clDefault
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
@@ -11043,7 +11024,6 @@ object Form1: TForm1
             Top = 74
             Width = 71
             Caption = 'Show FPS:'
-            Font.Color = clDefault
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
@@ -11056,7 +11036,6 @@ object Form1: TForm1
             Top = 122
             Width = 122
             Caption = 'Screenshot Output:'
-            Font.Color = clDefault
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
@@ -11069,7 +11048,6 @@ object Form1: TForm1
             Top = 146
             Width = 132
             Caption = 'Auto Backup Copies:'
-            Font.Color = clDefault
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
@@ -11082,7 +11060,6 @@ object Form1: TForm1
             Top = 194
             Width = 122
             Caption = 'Auto Save Interval:'
-            Font.Color = clDefault
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
@@ -11095,7 +11072,6 @@ object Form1: TForm1
             Top = 170
             Width = 117
             Caption = 'Auto Save Copies:'
-            Font.Color = clDefault
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
@@ -23728,7 +23704,6 @@ object Form1: TForm1
         Top = 9
         Width = 235
         Caption = 'Color Scheme (Applies to ZC and ZQ)'
-        Font.Color = clDefault
         Font.Height = -13
         Font.Name = 'Arial'
         Font.Style = [fsBold]

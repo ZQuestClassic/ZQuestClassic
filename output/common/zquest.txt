@@ -151,6 +151,7 @@ Additionally, right-clicking an FFC brings up a menu with these items:
 - The green square affects where Link appears when he continues or starts the game if the 'Use Warp Return Points Only' rule is NOT set. Otherwise, it does nothing and its functionality is handled by warp return A.
 - The flag lets you place a combo flag in addition to using the Combo Flag menu item in the Tools menu. Press / or * to increment/decrement the combo flag.
 - The blue squares let you place the screen's Warp Returns. Warp Returns are the locations Link appears at when he is warped to this screen from other places. If placed directly on top of Cave combos, Link will climb out of the combo when he appears. (And, for compatability with Whistle Warps, they will also do this if placed 16 pixels below the Cave combo.)
+- The large black pane visually lists all of the enemies in the Enemy List for this screen.
 
     If you are in Large Mode, there are two more panes: Commands and Favorites. Commands allows you to allocate commonly used menu items (such as 'Tiles' or 'Compile ZScript') to a convenient button. Click a button labelled '(None)' to edit the command, or control-click a button to remove its command. 
 
@@ -625,7 +626,7 @@ To create a new map, increase the Map Count number by one.
 
 There are four levels of cheats, each with a separate code (a 40 character string) that enables them. You can disable cheats altogether, or disable certain ones by leaving the code empty (be sure there are no spaces). It's helpful to use the cheats when designing a quest. You can also choose to give out the cheat codes. It's up to you. 
 
- - Level 1: Refill life, bombs, or rupees any time you want. 
+ - Level 1: Refill life, bombs, arrows, or rupees any time you want. 
  - Level 2: Lets you to set your number of heart containers, your maximum bombs, and make Link invincible.
  - Level 3: Allows you to choose what items, equipment, and triforce pieces Link has. 
  - Level 4: Quest debugging. Allows Link to walk through walls, display sprite hitboxes, warp directly to specific screens and DMaps, hide or show specific layers, and toggle darkness.
@@ -1446,9 +1447,9 @@ Wand magic or enemy magic that hits this combo is duplicated twice. The two dupl
  - Magic Prism (4-Way)
 Wand magic or enemy magic that hits this combo is duplicated three times. The three magic shots are fired from all 4 directions. 
 
-+-----------------------------+
-| 4.13b.2  WEAPON COMBO TYPES |
-+-----------------------------+
++--------------------------------+
+| 4.13b.2  ENEMY PLACEMENT TYPES |
++--------------------------------+
 
  - Armos
 When touched, the combo produces an Armos enemy. The Armos combo can be safely activated from the East, North or West sides of the combo, but if activated from the south the player will take damage (but this NES behaviour can be removed with a quest rule). When activated, the Armos combo changes to the screen's Under Combo. The Armos combo can also be set to work with flags 'Armos->Secret' and 'Armos->Item'. The 'Armos->Secret' flag will display the corresponding secret combo set in the screen's secret combo editor when the Armos is activated, and the 'Armos->Item' flag will put the screen's Secret Item beneath the Armos when it is activated. 
@@ -1481,7 +1482,7 @@ If the 'Statues Shoot Fire' Screen Data flag is checked, a "Shooter (Fireball)" 
 This combo spawns a 'Spinning Tile (Combo)' enemy as soon as it appears on the screen. The Spinning Tile will take its graphics from the tile page tiles preceding this combo's tile - thus, you can have different-looking Spinning Tiles spawn from different-looking combos.
 
 +-----------------------------+
-| 4.13b.3  WEAPON COMBO TYPES |
+| 4.13b.3  WARP TYPES         |
 +-----------------------------+
 
 These combos transport Link to a different screen in a certain manner when he steps on them. 

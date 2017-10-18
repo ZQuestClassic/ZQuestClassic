@@ -95,9 +95,9 @@
 #include "zc_array.h"
 
 #define ZELDA_VERSION       0x0250                          //version of the program
-#define VERSION_BUILD       20                              //build number of this version
+#define VERSION_BUILD       21                              //build number of this version
 #define IS_BETA             1                               //is this a beta?
-#define DATE_STR            "July 1, 2011"
+#define DATE_STR            "Februrary 26, 2012"
 
 #define MIN_VERSION         0x0184
 
@@ -158,6 +158,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_LINKSPRITES    ZC_ID('L','I','N','K')              //Link sprites
 #define ID_SUBSCREEN      ZC_ID('S','U','B','S')              //subscreen data
 #define ID_ITEMDROPSETS   ZC_ID('D','R','O','P')              //item drop set tables
+#define ID_FAVORITES      ZC_ID('F','A','V','S')              //favorite combos and combo aliases
 #define ID_FFSCRIPT       ZC_ID('F','F','S','C')              //ff scripts data
 #define ID_SFX            ZC_ID('S','F','X',' ')              //sfx data
 
@@ -169,16 +170,16 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES            1
 #define V_COMBOS           7
 #define V_CSETS            4
-#define V_MAPS            17
+#define V_MAPS            18
 #define V_DMAPS            9
 #define V_DOORS            1
-#define V_ITEMS           23
+#define V_ITEMS           25
 #define V_WEAPONS          6
 #define V_COLORS           2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            21
+#define V_GUYS            22
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -188,6 +189,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         6
 #define V_SFX              6
+#define V_FAVORITES        1
 
 /*
   * Compatible version number of the different section types
@@ -224,6 +226,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define CV_ITEMDROPSETS    1
 #define CV_FFSCRIPT        1
 #define CV_SFX             5
+#define CV_FAVORITES       1
 
 extern int curr_tb_page;
 extern bool triplebuffer_not_available;
@@ -314,6 +317,10 @@ extern bool fake_pack_writing;
 #define MAXSUBSCREENITEMS	256
 #define MAXCUSTOMSUBSCREENS 128
 #define MAXFFCS			 32
+
+#define MAXFAVORITECOMMANDS 8
+#define MAXFAVORITECOMBOS 100
+#define MAXFAVORITECOMBOALIASES 100
 
 #define MAGICPERBLOCK   32
 #define PALNAMESIZE     17
@@ -498,7 +505,7 @@ enum
   mfMSWORD, mfXSWORD, mfSWORDBEAM, mfWSWORDBEAM, mfMSWORDBEAM,
   mfXSWORDBEAM, mfHOOKSHOT, mfWAND, mfHAMMER, mfSTRIKE, mfBLOCKHOLE,
   mfMAGICFAIRY, mfALLFAIRY, mfSINGLE, mfSINGLE16,
-  mfNOENEMY, mfICE, mfSCRIPT1, mfSCRIPT2, mfSCRIPT3, mfSCRIPT4, mfSCRIPT5,
+  mfNOENEMY, mfNOGROUNDENEMY, mfSCRIPT1, mfSCRIPT2, mfSCRIPT3, mfSCRIPT4, mfSCRIPT5,
   mfRAFT_BOUNCE, mfMAX, mfPUSHED
 };
 
@@ -526,7 +533,7 @@ enum
   cSTEP, cSTEPSAME, cSTEPALL, cSTEPCOPY, cNOENEMY, cBLOCKARROW1, cBLOCKARROW2,
   cBLOCKARROW3, cBLOCKBRANG1, cBLOCKBRANG2, cBLOCKBRANG3, cBLOCKSBEAM, cBLOCKALL,
   cBLOCKFIREBALL, cDAMAGE5, cDAMAGE6, cDAMAGE7, cCHANGE/**DEPRECATED**/, cSPINTILE1, cSPINTILE2,
-  cSCREENFREEZE, cSCREENFREEZEFF, cICE, cSLASHNEXT, cSLASHNEXTITEM, cBUSHNEXT,
+  cSCREENFREEZE, cSCREENFREEZEFF, cNOGROUNDENEMY, cSLASHNEXT, cSLASHNEXTITEM, cBUSHNEXT,
   cSLASHTOUCHY, cSLASHITEMTOUCHY, cBUSHTOUCHY, cFLOWERSTOUCHY, cTALLGRASSTOUCHY,
   cSLASHNEXTTOUCHY, cSLASHNEXTITEMTOUCHY, cBUSHNEXTTOUCHY, cEYEBALL_4, cTALLGRASSNEXT,
   cSCRIPT1, cSCRIPT2, cSCRIPT3, cSCRIPT4, cSCRIPT5, cMAX
@@ -579,9 +586,10 @@ enum
   qr_MSGDISAPPEAR, qr_SUBSCREENOVERSPRITES, qr_BOMBDARKNUTFIX, qr_LONGBOMBBOOM_DEP/*DEPRECATED*/,
   qr_OFFSETEWPNCOLLISIONFIX, qr_DMGCOMBOLAYERFIX, qr_ITEMSINPASSAGEWAYS, qr_LOG,
   //9
-  qr_FIREPROOFLINK2,qr_NOITEMOFFSET,qr_ITEMBUBBLE,qr_GOTOLESSNOTEQUAL /* Not for questmakers' use (yet?) */,
-  qr_LADDERANYWHERE, qr_HOOKSHOTLAYERFIX, qr_REPLACEOPENDOORS /* Not for questmakers' use */, qr_OLDLENSORDER /* Not for questmakers' use */,
-  qr_NOFAIRYGUYFIRES /* Not for questmakers' use (yet?) */, qr_SCRIPTERRLOG, qr_TRIGGERSREPEAT /* Not for questmakers' use */,
+  qr_FIREPROOFLINK2, qr_NOITEMOFFSET, qr_ITEMBUBBLE, qr_GOTOLESSNOTEQUAL /* Compatibility only */,
+  qr_LADDERANYWHERE, qr_HOOKSHOTLAYERFIX, qr_REPLACEOPENDOORS /* Compatibility only */, qr_OLDLENSORDER /* Compatibility only */,
+  qr_NOFAIRYGUYFIRES /* Compatibility only */, qr_SCRIPTERRLOG, qr_TRIGGERSREPEAT /* Compatibility only */, qr_ENEMIESFLICKER,
+  qr_OVALWIPE, qr_TRIANGLEWIPE, qr_SMASWIPE,
   qr_MAX
 };
 
@@ -669,7 +677,7 @@ enum                                                        // value matters bec
 #define shSWORD		0x010
 #define shMAGIC		0x020
 #define shFLAME		0x040
-#define shICE		0x080
+#define shSCRIPT	0x080
 #define shFIREBALL2	0x100 // Boss fireball, not ewFireball2
 
 // item sets
@@ -845,7 +853,7 @@ enum { e1tNORMAL, e1tEACHTILE, e1tCONSTANT, e1tHOMINGBRANG=2, e1tFAST, e1tSLANT,
 // Enemy misc2 types
 enum { e2tNORMAL, e2tSPLITHIT, e2tSPLIT, e2tFIREOCTO, e2tBOMBCHU, e2tTRIBBLE, e2tLAST };
 #define e2tKEESETRIB 1
-	
+
 // Enemy misc7 types
 enum { e7tNORMAL, e7tTEMPJINX, e7tPERMJINX, e7tUNJINX, e7tTAKEMAGIC, e7tTAKERUPEES, e7tDRUNK,
 // all from this point involve engulfing
@@ -1132,8 +1140,9 @@ struct guydata
   short  family, cset, anim, e_anim, frate, e_frate;
   short  dp, wdp, weapon;
 
-  short  rate, hrate, step, homing, grumble;
-  short  item_set, misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, misc11, misc12, misc13, misc14, misc15, bgsfx, bosspal, extend;
+  short  rate, hrate, step, homing, grumble, item_set;
+  long   misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, misc11, misc12, misc13, misc14, misc15;
+  short  bgsfx, bosspal, extend;
   byte defense[edefLAST];
   //  short  startx, starty;
   //  short  foo1,foo2,foo3,foo4,foo5,foo6;
@@ -1144,7 +1153,7 @@ class refInfo
 {
 public:
 	//word script; //script number
-	word pc; //current command offset
+	dword pc; //current command offset
 
 	long d[8]; //d registers
 	long a[2]; //a regsisters (reference to another ffc on screen)
@@ -1199,7 +1208,7 @@ struct mapscr
   word door_combo_set;
   byte warpreturnx[4];
   byte warpreturny[4];
-  byte warpreturnc;
+  word warpreturnc;
   byte stairx;
   byte stairy;
   byte itemx;
@@ -2216,7 +2225,7 @@ struct gamedata
   std::vector< ZCArray <long> > globalRAM;
 
   byte awpn, bwpn;											// Currently selected weapon slots
-  
+
   bool isclearing; // The gamedata is being cleared
   //115456 (260)
 
@@ -2296,7 +2305,7 @@ struct gamedata
 	void change_bombs(short k);
 
 	byte get_maxbombs();
-	void set_maxbombs(byte b);
+	void set_maxbombs(byte b, bool setSuperBombs=true);
 	void change_maxbombs(short b);
 
 	byte get_sbombs();

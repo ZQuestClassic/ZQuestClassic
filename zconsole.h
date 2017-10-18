@@ -106,6 +106,7 @@ class DebugConsole
 public:
 	static void Open(){}
 	static void Close(){}
+	static DebugConsole singleton;
 };
 
 #endif //_WIN32

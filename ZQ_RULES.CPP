@@ -35,26 +35,30 @@ static DIALOG animationrules_dlg[] =
 
   // rules
   { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "BS-Zelda Animation", NULL, NULL },
-  { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Cool Opening/Closing Wipes", NULL, NULL },
-  { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Expanded Link Tile Modifiers", NULL, NULL },
-  { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Screen Scrolling", NULL, NULL },
-  { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Fast Dungeon Scrolling", NULL, NULL },
-  { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Smooth Vertical Scrolling", NULL, NULL },
-  { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "FFCs Are Visible While The Screen Is Scrolling", NULL, NULL },
-  { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Interpolated Fading", NULL, NULL },
-  { jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Fade CSet 5", NULL, NULL },
-  { jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Invincible Link Flickers", NULL, NULL },
-  { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Items Held Above Link's Head Continue To Animate", NULL, NULL },
-  { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Bomb Explosions Don't Flash Palette", NULL, NULL },
-  { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Layers 1 and 2 Are Drawn Under Caves", NULL, NULL },
+  { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Circle Opening/Closing Wipes", NULL, NULL },
+  { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Oval Opening/Closing Wipes", NULL, NULL },
+  { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Triangle Opening/Closing Wipes", NULL, NULL },
+  { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Super Mario All-Stars Opening/Closing Wipes", NULL, NULL },
+  { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Expanded Link Tile Modifiers", NULL, NULL },
+  { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "No Screen Scrolling", NULL, NULL },
+  { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Fast Dungeon Scrolling", NULL, NULL },
+  { jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Smooth Vertical Scrolling", NULL, NULL },
+  { jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "FFCs Are Visible While The Screen Is Scrolling", NULL, NULL },
+  { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Interpolated Fading", NULL, NULL },
+  { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Fade CSet 5", NULL, NULL },
+  { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Invincible Link Flickers", NULL, NULL },
+  { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Items Held Above Link's Head Continue To Animate", NULL, NULL },
+  { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Bomb Explosions Don't Flash Palette", NULL, NULL },
+  { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Layers 1 and 2 Are Drawn Under Caves", NULL, NULL },
   { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
 static int animationrules[] = {
-  qr_BSZELDA, qr_COOLSCROLL, qr_EXPANDEDLTM, qr_NOSCROLL,
-  qr_FASTDNGN, qr_SMOOTHVERTICALSCROLLING, qr_FFCSCROLL,
-  qr_FADE, qr_FADECS5, qr_LINKFLICKER,
-  qr_HOLDITEMANIMATION, qr_NOBOMBPALFLASH, qr_LAYER12UNDERCAVE, -1
+  qr_BSZELDA, qr_COOLSCROLL, qr_OVALWIPE, qr_TRIANGLEWIPE,
+  qr_SMASWIPE, qr_EXPANDEDLTM, qr_NOSCROLL, qr_FASTDNGN,
+  qr_SMOOTHVERTICALSCROLLING, qr_FFCSCROLL, qr_FADE, qr_FADECS5,
+  qr_LINKFLICKER, qr_HOLDITEMANIMATION, qr_NOBOMBPALFLASH, qr_LAYER12UNDERCAVE,
+  -1
 };
 
 int onAnimationRules()
@@ -275,6 +279,7 @@ static DIALOG enemyrules_dlg[] =
   { jwin_check_proc,      10, 33+130,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Show Shadows", NULL, NULL },
   { jwin_check_proc,      10, 33+140,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Translucent Shadows", NULL, NULL },
   { jwin_check_proc,      10, 33+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Shadows Flicker", NULL, NULL },
+  { jwin_check_proc,      10, 33+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Enemies Flicker When Hit", NULL, NULL },
   { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -284,7 +289,7 @@ static int enemyrules[] =
   qr_HIDECARRIEDITEMS, qr_ALWAYSRET, qr_NOTMPNORET, qr_KILLALL,
   qr_MEANTRAPS, qr_MEANPLACEDTRAPS, qr_PHANTOMPLACEDTRAPS, qr_WALLFLIERS,
   qr_BRKNSHLDTILES, qr_NOFLASHDEATH, qr_SHADOWS, qr_TRANSSHADOWS,
-  qr_SHADOWSFLICKER,
+  qr_SHADOWSFLICKER, qr_ENEMIESFLICKER,
   -1
 };
 

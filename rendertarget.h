@@ -20,8 +20,11 @@ class ZScriptDrawingRenderTarget
 {
 public:
 	static const int MaxBuffers = 7;
-	static const int BitmapWidth = 320;
-	static const int BitmapHeight = 240;
+
+	//These aren't allocated unless requested by the user, 
+	//so we can handle sizes up to 512x512 with script drawing.
+	static const int BitmapWidth = 512;
+	static const int BitmapHeight = 512;
 
 protected:
 	BITMAP* _bitmap[ MaxBuffers ];

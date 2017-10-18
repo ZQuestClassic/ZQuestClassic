@@ -836,6 +836,10 @@ namespace ffdebug
       { "ARRAYSIZE",           1,   0,   0,   0},
       { "ITEMNAMER",           1,   0,   0,   0},
       { "SETSAVENAMER",        1,   0,   0,   0},
+      { "PLAYENHMUSIC",        2,   0,   0,   0},
+      { "GETMUSICFILE",        2,   0,   0,   0},
+      { "GETMUSICTRACK",       1,   0,   0,   0},
+      { "SETDMAPENHMUSIC",     0,   0,   0,   0},
       { "",                    0,   0,   0,   0}
     };
 

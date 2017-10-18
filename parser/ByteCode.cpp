@@ -1091,6 +1091,26 @@ string OPlayMIDIRegister::toString()
 	return "PLAYMIDIR " + getArgument()->toString();
 }
 
+string OPlayEnhancedMusic::toString()
+{
+	return "PLAYENHMUSIC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OGetDMapMusicFilename::toString()
+{
+	return "GETMUSICFILE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OGetDMapMusicTrack::toString()
+{
+	return "GETMUSICTRACK " + getArgument()->toString();
+}
+
+string OSetDMapEnhancedMusic::toString()
+{
+	return "SETDMAPENHMUSIC";
+}
+
 string OGetSaveName::toString()
 {
 	return "GETSAVENAME " + getArgument()->toString();
@@ -1257,6 +1277,15 @@ string OTriangle3DRegister::toString()
 	return "TRIANGLE3D";
 }
 
+string ODrawLayerRegister::toString()
+{
+	return "DRAWLAYER";
+}
+
+string ODrawScreenRegister::toString()
+{
+	return "DRAWSCREEN";
+}
 
 string OMessageRegister::toString()
 {

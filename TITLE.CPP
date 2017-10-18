@@ -1011,6 +1011,21 @@ int readsaves(gamedata *savedata, PACKFILE *f)
     {
       return 39;
     }
+    // Convert path separators so save files work across platforms (hopefully)
+    for(int j=0; j<qstpath_len; j++)
+    {
+        #ifdef _ALLEGRO_WINDOWS
+        if(savedata[i].qstpath[j]=='/')
+        {
+            savedata[i].qstpath[j]='\\';
+        }
+        #else
+        if(savedata[i].qstpath[j]=='\\')
+        {
+            savedata[i].qstpath[j]='/';
+        }
+        #endif
+    }
     savedata[i].qstpath[qstpath_len]=0;
     if(!pfread(savedata[i].icon,sizeof(savedata[i].icon),f,true))
     {
@@ -1190,23 +1205,27 @@ int load_savedgames()
   }
 
   // see if it's there
+  if(!exists(fname))
+  {
+      goto newdata;
+  }
   if (file_size_ex_password(fname, "") == 0)
   {
-    goto newdata;
+    goto cantopen;
   }
 
   // decode to temp file
   ret = decode_file_007(fname, tmpfilename, SAVE_HEADER, ENC_METHOD_MAX-1, strstr(fname, ".dat#")!=NULL, "");
   if(ret)
   {
-    goto reset;
+    goto cantopen;
   }
   fname = tmpfilename;
 
   // load the games
   f = pack_fopen_password(fname, F_READ_PACKED, "");
   if(!f)
-    goto newdata;
+    goto cantopen;
 
   if(readsaves(saves,f)!=0)
     goto reset;
@@ -1267,7 +1286,11 @@ int load_savedgames()
 
 newdata:
   system_pal();
-  if(jwin_alert("Can't Find Saved Game File","It may be in use by another instance of ZC.","Create a new file from scratch?","Warning: Doing so will erase any previous saved games!","OK","Cancel",13,27,lfont)!=1)
+  if(jwin_alert("Can't Find Saved Game File",
+                "The save file could not be found.",
+                "Create a new file from scratch?",
+                "Warning: Doing so will erase any previous saved games!",
+                "OK","Cancel",13,27,lfont)!=1)
   {
 	exit(1);
   }
@@ -1275,9 +1298,22 @@ newdata:
   Z_message("Save file not found.  Creating new save file.");
   goto init;
 
+cantopen:
+  system_pal();
+  jwin_alert("Can't Open Saved Game File",
+             "The save file was found, but could not be opened. Wait a moment",
+             "and try again. If this problem persists, reboot. If the file",
+             "still can't be opened, you'll need to delete zc.sav.",
+             "OK",NULL,'o',0,lfont);
+  exit(1);
+
 reset:
   system_pal();
-  if(jwin_alert("Can't Open Saved Game File","It may be in use by another instance of ZC.","Create a new file from scratch?","Warning: Doing so will erase any previous saved games!","OK","Cancel",13,27,lfont)!=1)
+  if(jwin_alert("Can't Open Saved Game File",
+                "Unable to read the save file.",
+                "Create a new file from scratch?",
+                "Warning: Doing so will erase any previous saved games!",
+                "OK","Cancel",13,27,lfont)!=1)
   {
 	exit(1);
   }

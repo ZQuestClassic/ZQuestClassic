@@ -52,12 +52,20 @@ enum
 
 enum
 {
-  skip_header, skip_rules, skip_strings, skip_misc, skip_tiles, skip_combos, skip_comboaliases, skip_csets, skip_maps, skip_dmaps, skip_doors, skip_items, skip_weapons, skip_colors, skip_icons, skip_initdata, skip_guys, skip_linksprites, skip_subscreens, skip_ffscript, skip_sfx, skip_midis, skip_cheats, skip_itemdropsets, skip_max
+  skip_header, skip_rules, skip_strings, skip_misc,
+  skip_tiles, skip_combos, skip_comboaliases, skip_csets,
+  skip_maps, skip_dmaps, skip_doors, skip_items,
+  skip_weapons, skip_colors, skip_icons, skip_initdata,
+  skip_guys, skip_linksprites, skip_subscreens, skip_ffscript,
+  skip_sfx, skip_midis, skip_cheats, skip_itemdropsets,
+  skip_favorites, skip_max
 };
 
 extern const char *qst_error[];
 extern word msg_count;
 extern word door_combo_set_count;
+extern int favorite_combos[MAXFAVORITECOMBOS];
+extern int favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 
 char *VerStr(int version);
 char *ordinal(int num);
@@ -133,6 +141,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata);
 int read_one_ffscript(PACKFILE *f, zquestheader *Header, bool keepdata, int i, word s_version, word s_cversion, ffscript **script);
 int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readitemdropsets(PACKFILE *f, word version, word build, bool keepdata);
+int readfavorites(PACKFILE *f, int, word, bool keepdata);
 
 
 int get_version_and_build(PACKFILE *f, word *version, word *build);
@@ -178,6 +187,8 @@ void reset_itembuf(itemdata *item, int id);
 void reset_itemname(int id);
 void reset_weaponname(int i);
 void init_guys(int guyversion);
+void init_item_drop_sets();
+void init_favorites();
 
 #endif                                                      // _ZC_QST_H_
 

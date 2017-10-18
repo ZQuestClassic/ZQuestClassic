@@ -245,6 +245,12 @@ script_command command_list[NUMCOMMANDS+1]=
   { "ALLOCATEGMEMR",       2,   0,   0,   0},
   { "DRAWBITMAP",          0,   0,   0,   0},
   { "SETRENDERTARGET",     0,   0,   0,   0},
+  { "PLAYENHMUSIC",        2,   0,   0,   0},
+  { "GETMUSICFILE",        2,   0,   0,   0},
+  { "GETMUSICTRACK",       1,   0,   0,   0},
+  { "SETDMAPENHMUSIC",     0,   0,   0,   0},
+  { "DRAWLAYER",           0,   0,   0,   0},
+  { "DRAWSCREEN",          0,   0,   0,   0},
   { "",                    0,   0,   0,   0}
 };
 

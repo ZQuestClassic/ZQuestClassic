@@ -128,7 +128,7 @@ bool item::animate(int)
     movefairy(x,y,misc);
   }
 
-  if(fadeclk==0)
+  if(fadeclk==0 && !subscreenItem)
   {
     return true;
   }
@@ -160,7 +160,7 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
   x=X; y=Y; z=Z; id=i; pickup=p; clk=c;
   misc=clk2=0;
   aframe=aclk=0;
-  anim=flash=twohand=false;
+  anim=flash=twohand=subscreenItem=false;
   dummy_int[0]=PriceIndex=-1;
 
   if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
@@ -314,7 +314,7 @@ int getHighestLevelOfFamily(gamedata *source, itemdata *items, int family, bool 
 int getItemID(itemdata *items, int family, int level)
 {
 	if (level<0) return getCanonicalItemID(items, family);
-	
+
 	for(int i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && items[i].fam_type == level)

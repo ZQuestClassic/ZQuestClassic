@@ -27,6 +27,7 @@
 #include "link.h"
 #include "mem_debug.h"
 
+extern LinkClass Link;
 extern zinitdata zinit;
 extern int directWpn;
 
@@ -62,9 +63,12 @@ void checkLightSources()
 
 void getdraggeditem(int j)
 {
-  items.spr(j)->x = LinkX();
-  items.spr(j)->y = LinkY();
-  items.spr(j)->z = LinkZ();
+  item *it=(item*)items.spr(j);
+  if(it==NULL)
+    return;
+  it->x = LinkX();
+  it->y = LinkY();
+  it->z = LinkZ();
   LinkCheckItems();
 }
 
@@ -249,6 +253,13 @@ weapon::~weapon()
       if (parentitem>=0)
       {
         stop_sfx(itemsbuf[parentitem].usesound);
+      }
+      break;
+    case wSSparkle:
+    case wFSparkle:
+      if(parentitem>=0 && itemsbuf[parentitem].family==itype_cbyrna)
+      {
+          stop_sfx(itemsbuf[parentitem].usesound);
       }
       break;
   }
@@ -446,9 +457,9 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		  break;
 		case 2: // Wand
 		  if (itemid>-1 && !isDummy)
-			defaultw = itemsbuf[itemid].wpn2; 
+			defaultw = itemsbuf[itemid].wpn2;
 		  else defaultw = wFIRE;
-		  break;	  
+		  break;
         case 0:
         case 1: // Candles
           if (itemid>-1 && !isDummy)
@@ -1021,7 +1032,10 @@ bool weapon::animate(int )
   {
     case wFire:
     // Din's Fire shouldn't fall
-      if(type>3) break;
+      if(parentitem>=0 && itemsbuf[parentitem].family==itype_dinsfire && !(itemsbuf[parentitem].flags & ITEM_FLAG3)) 
+	  {
+	    break;
+	  }
     case wLitBomb:
     case wLitSBomb:
     case wBait:
@@ -1338,12 +1352,12 @@ bool weapon::animate(int )
       {
         dead=1;
       }
-      if(parentitem<0 || itemsbuf[parentitem].family!=itype_book)
+      if(parentitem<0 || (parentitem>-1 && itemsbuf[parentitem].family!=itype_book))
       {
         if(clk==32)
         {
           step=0;
-          if (!(itemsbuf[parentitem].flags & ITEM_FLAG2))
+          if (parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG2))
           {
             isLit = true;
             checkLightSources();
@@ -1391,6 +1405,14 @@ bool weapon::animate(int )
           }
         }
       }
+
+      // Killed by script?
+      if(dead==0 && get_bit(quest_rules,qr_TEMPCANDLELIGHT) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+      {
+          isLit=false;
+          checkLightSources();
+      }
+
       break;
     }
     case wLitBomb:
@@ -1687,6 +1709,10 @@ bool weapon::animate(int )
               add_grenade(x,y,z,0,-1); //TODO: Super bombs as well?
               dummy_bool[0]=false;
           }*/
+          if (dragging!=-1)
+          {
+            getdraggeditem(dragging);
+          }
           return true;
         }
         seekLink();
@@ -2160,6 +2186,14 @@ mirrors:
       {
         dead=1;
       }
+
+      // Killed by script?
+      if(dead==0 && get_bit(quest_rules,qr_TEMPCANDLELIGHT) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+      {
+          isLit=false;
+          checkLightSources();
+      }
+
       break;
 		}
     case ewFireTrail:
@@ -2367,6 +2401,19 @@ void weapon::onhit(bool clipped, int special, int linkdir)
 		  //otherwise he can get hit by the newly-created projectile if he's walking into it fast enough -DD
 		  ignoreLink=true;
         id = ((id==ewMagic || id==wRefMagic) ? wRefMagic : id==ewRock ? wRefRock : wRefBeam);
+        goto reflect;
+      case wScript1:
+      case wScript2:
+      case wScript3:
+      case wScript4:
+      case wScript5:
+      case wScript6:
+      case wScript7:
+      case wScript8:
+      case wScript9:
+      case wScript10:
+      	// If this isn't set, the weapon may reflect repeatedly
+        ignoreLink=true;
 reflect:
         if (angular) switch(linkdir)
         {
@@ -2576,7 +2623,7 @@ void weapon::draw(BITMAP *dest)
 
   if(frames)
   {
-    if (id!=wBrang) // Brangs use clk2 for adjusting boomerang's flight range.
+    if (id!=wBrang && id!=ewBrang) // Brangs use clk2 for adjusting boomerang's flight range.
     {
       if(++clk2 >= o_speed)
       {
@@ -2606,7 +2653,8 @@ void weapon::draw(BITMAP *dest)
   {
     case wSword:
     case wHammer:
-      if (get_bit(quest_rules,qr_LINKFLICKER)&&((getClock()||LinkHClk())&&(frame&1)))
+      if (get_bit(quest_rules,qr_LINKFLICKER)&&((getClock()||LinkHClk())&&(frame&1)) ||
+          Link.getDontDraw() || tmpscr->flags3&fINVISLINK)
       return;
     case wBeam:
     case wRefBeam:

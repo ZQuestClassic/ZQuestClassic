@@ -779,6 +779,7 @@ bool init_section(zquestheader *Header, long section_id, miscQdata *Misc, zctune
     case ID_MIDIS:
     case ID_CHEATS:
     case ID_ITEMDROPSETS:
+    case ID_FAVORITES:
       break;
     default:
       return false;
@@ -907,7 +908,12 @@ bool init_section(zquestheader *Header, long section_id, miscQdata *Misc, zctune
       break;
     case ID_ITEMDROPSETS:
       //item drop sets
+      // Why is this one commented out?
       //ret=readitemdropsets(f, (int)version, (word)build, true);
+      break;
+    case ID_FAVORITES:
+      // favorite combos and aliases
+      ret=readfavorites(f, version, build, true);
       break;
     default:
       ret=-1;
@@ -2228,7 +2234,7 @@ void init_msgstrings(int start, int end)
 		init_msgstr(&MsgStrings[i]);
 		MsgStrings[i].listpos=i;
 	}
-	if (start==0) 
+	if (start==0)
 	{
 		strcpy(MsgStrings[0].s,"(None)");
 	    MsgStrings[0].listpos = 0;
@@ -2268,7 +2274,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
         return qe_invalid;
       }
       strings_to_read=temp_msg_count;
-	  if (temp_msg_count >= msg_strings_size) 
+	  if (temp_msg_count >= msg_strings_size)
 	  {
 		Z_message("Reallocating string buffer...\n");
 		if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
@@ -2277,7 +2283,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 		msg_strings_size = MAXMSGS;
 	  }
     }
-	  
+
 	//reset the message strings
 	if (keepdata)
 	{
@@ -2367,8 +2373,8 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
       return qe_invalid;
     }
-	  
-	  if (temp_msg_count >= msg_strings_size) 
+
+	  if (temp_msg_count >= msg_strings_size)
 	  {
 		  Z_message("Reallocating string buffer...\n");
 		  if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
@@ -2376,13 +2382,13 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 		  memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
 	      msg_strings_size = MAXMSGS;
 	  }
-	  
+
 	  //reset the message strings
 	  if (keepdata)
 	  {
 		  init_msgstrings(0,msg_strings_size);
-	  }	  
-	  
+	  }
+
     int string_length=(s_version<2)?73:145;
     for (int i=0; i<temp_msg_count; i++)
     {
@@ -4364,6 +4370,14 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
             {
               return qe_invalid;
             }
+            // Version 24: shICE -> shSCRIPT; previously, all shields could block script weapons
+            if(s_version<24)
+            {
+              if(tempitem.family==itype_shield)
+              {
+                tempitem.misc1|=shSCRIPT;
+              }
+            }
           }
           if(!p_getc(&tempitem.magic,f,true))
           {
@@ -4682,7 +4696,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
         switch(i)
         {
           case iMShield:
-            tempitem.misc1|=shFLAME|shICE;
+            tempitem.misc1|=shFLAME;
             tempitem.misc2|=shFIREBALL|shMAGIC;
             if (get_bit(quest_rules, qr_SWORDMIRROR))
             {
@@ -4693,7 +4707,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
             tempitem.misc1|=shFIREBALL|shSWORD|shMAGIC;
             // fallthrough
           case iSShield:
-            tempitem.misc1|=shROCK|shARROW|shBRANG;
+            tempitem.misc1|=shROCK|shARROW|shBRANG|shSCRIPT;
             if (get_bit(deprecated_rules,102)) //qr_REFLECTROCKS
             {
               tempitem.misc2 |= shROCK;
@@ -4895,6 +4909,16 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 		else if (tempitem.family == itype_book)
 			  tempitem.wpn2 = wFIRE;
 	  }
+	  // Version 25: Bomb bags were acting as though "super bombs also" was checked
+	  // whether it was or not, and a lot of existing quests depended on the
+	  // incorrect behavior.
+	  if (s_version < 25) { // January 2012
+	    if (tempitem.family == itype_bombbag)
+          tempitem.flags |= 16;
+	    if (tempitem.family == itype_dinsfire)
+          tempitem.flags |= ITEM_FLAG3; // Sideview gravity flag
+	  }
+	  
 	  if (tempitem.fam_type==0) // Always do this
 	    tempitem.fam_type=1;
       memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
@@ -5208,6 +5232,18 @@ void init_item_drop_sets()
   }
 }
 
+void init_favorites()
+{
+    for(int i=0; i<MAXFAVORITECOMBOS; i++)
+    {
+        favorite_combos[i]=-1;
+    }
+    for(int i=0; i<MAXFAVORITECOMBOALIASES; i++)
+    {
+        favorite_comboaliases[i]=-1;
+    }
+}
+
 const char *ctype_name[cMAX]=
 {
   "cNONE", "cSTAIR", "cCAVE", "cWATER", "cARMOS", "cGRAVE", "cDOCK",
@@ -5231,7 +5267,7 @@ const char *ctype_name[cMAX]=
   "cSTEP", "cSTEPSAME", "cSTEPALL", "cSTEPCOPY", "cNOENEMY", "cBLOCKARROW1", "cBLOCKARROW2",
   "cBLOCKARROW3", "cBLOCKBRANG1", "cBLOCKBRANG2", "cBLOCKBRANG3", "cBLOCKSBEAM", "cBLOCKALL",
   "cBLOCKFIREBALL", "cDAMAGE5", "cDAMAGE6", "cDAMAGE7", "cCHANGE", "cSPINTILE1", "cSPINTILE2",
-  "cSCREENFREEZE", "cSCREENFREEZEFF", "cICE", "cSLASHNEXT", "cSLASHNEXTITEM", "cBUSHNEXT"
+  "cSCREENFREEZE", "cSCREENFREEZEFF", "cNOGROUNDENEMY", "cSLASHNEXT", "cSLASHNEXTITEM", "cBUSHNEXT"
   "cSLASHTOUCHY", "cSLASHITEMTOUCHY", "cBUSHTOUCHY", "cFLOWERSTOUCHY", "cTALLGRASSTOUCHY",
   "cSLASHNEXTTOUCHY", "cSLASHNEXTITEMTOUCHY", "cBUSHNEXTTOUCHY", "cEYEBALL_4", "cTALLGRASSNEXT"
 };
@@ -6735,7 +6771,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
   temp_sample.loop_start=0;
   temp_sample.loop_end=0;
   temp_sample.param=0;
-	
+
   //section version info
   if(!p_igetw(&s_version,f,true))
   {
@@ -7052,6 +7088,14 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eDODONGO].bosspal=spDIG;
       }
     }
+    // Not sure when this first changed, but it's necessary for 2.10, at least
+    if(Header->zelda_version <= 0x210)
+    {
+        guysbuf[eGLEEOK1F].misc6 = 16;
+        guysbuf[eGLEEOK2F].misc6 = 16;
+        guysbuf[eGLEEOK3F].misc6 = 16;
+        guysbuf[eGLEEOK4F].misc6 = 16;
+    }
 
   if (guyversion<=2)
   {
@@ -7248,50 +7292,107 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
       {
         return qe_invalid;
       }
-      if(!p_igetw(&(tempguy.misc1),f,keepdata))
+      if(guyversion>=22) // Version 22: Expand misc attributes to 32 bits
       {
-        return qe_invalid;
+        if(!p_igetl(&(tempguy.misc1),f,keepdata))
+        {
+          return qe_invalid;
+        }
+        if(!p_igetl(&(tempguy.misc2),f,keepdata))
+        {
+          return qe_invalid;
+        }
+        if(!p_igetl(&(tempguy.misc3),f,keepdata))
+        {
+          return qe_invalid;
+        }
+        if(!p_igetl(&(tempguy.misc4),f,keepdata))
+        {
+          return qe_invalid;
+        }
+        if(!p_igetl(&(tempguy.misc5),f,keepdata))
+        {
+          return qe_invalid;
+        }
+        if(!p_igetl(&(tempguy.misc6),f,keepdata))
+        {
+          return qe_invalid;
+        }
+        if(!p_igetl(&(tempguy.misc7),f,keepdata))
+        {
+          return qe_invalid;
+        }
+        if(!p_igetl(&(tempguy.misc8),f,keepdata))
+        {
+          return qe_invalid;
+        }
+         if(!p_igetl(&(tempguy.misc9),f,keepdata))
+        {
+          return qe_invalid;
+        }
+        if(!p_igetl(&(tempguy.misc10),f,keepdata))
+        {
+          return qe_invalid;
+        }
       }
-      if(!p_igetw(&(tempguy.misc2),f,keepdata))
+      else
       {
-        return qe_invalid;
-      }
-      if(!p_igetw(&(tempguy.misc3),f,keepdata))
-      {
-        return qe_invalid;
-      }
-      if(!p_igetw(&(tempguy.misc4),f,keepdata))
-      {
-        return qe_invalid;
-      }
-      if(!p_igetw(&(tempguy.misc5),f,keepdata))
-      {
-        return qe_invalid;
-      }
-	  if (guyversion < 13) // April 2009 - a tiny Wizzrobe update
-	  {
-	    if (tempguy.family == eeWIZZ && !(tempguy.misc1))
-		  tempguy.misc5 = 74;
-	  }
-      if(!p_igetw(&(tempguy.misc6),f,keepdata))
-      {
-        return qe_invalid;
-      }
-      if(!p_igetw(&(tempguy.misc7),f,keepdata))
-      {
-        return qe_invalid;
-      }
-      if(!p_igetw(&(tempguy.misc8),f,keepdata))
-      {
-        return qe_invalid;
-      }
-      if(!p_igetw(&(tempguy.misc9),f,keepdata))
-      {
-        return qe_invalid;
-      }
-      if(!p_igetw(&(tempguy.misc10),f,keepdata))
-      {
-        return qe_invalid;
+        short tempMisc;
+        if(!p_igetw(&tempMisc,f,keepdata))
+        {
+          return qe_invalid;
+        }
+        tempguy.misc1=tempMisc;
+        if(!p_igetw(&tempMisc,f,keepdata))
+        {
+          return qe_invalid;
+        }
+        tempguy.misc2=tempMisc;
+        if(!p_igetw(&tempMisc,f,keepdata))
+        {
+          return qe_invalid;
+        }
+        tempguy.misc3=tempMisc;
+        if(!p_igetw(&tempMisc,f,keepdata))
+        {
+          return qe_invalid;
+        }
+        tempguy.misc4=tempMisc;
+        if(!p_igetw(&tempMisc,f,keepdata))
+        {
+          return qe_invalid;
+        }
+        tempguy.misc5=tempMisc;
+	    if (guyversion < 13) // April 2009 - a tiny Wizzrobe update
+	    {
+	      if (tempguy.family == eeWIZZ && !(tempguy.misc1))
+		    tempguy.misc5 = 74;
+	    }
+        if(!p_igetw(&tempMisc,f,keepdata))
+        {
+          return qe_invalid;
+        }
+        tempguy.misc6=tempMisc;
+        if(!p_igetw(&tempMisc,f,keepdata))
+        {
+          return qe_invalid;
+        }
+        tempguy.misc7=tempMisc;
+        if(!p_igetw(&tempMisc,f,keepdata))
+        {
+          return qe_invalid;
+        }
+        tempguy.misc8=tempMisc;
+        if(!p_igetw(&tempMisc,f,keepdata))
+        {
+          return qe_invalid;
+        }
+        tempguy.misc9=tempMisc;
+        if(!p_igetw(&tempMisc,f,keepdata))
+        {
+          return qe_invalid;
+        }
+        tempguy.misc10=tempMisc;
       }
       if(!p_igetw(&(tempguy.bgsfx),f,keepdata))
       {
@@ -7326,17 +7427,31 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         return qe_invalid;
       }
 	  }
-	  if(guyversion >= 19)
+	  if(guyversion >= 22)
 	  {
-      if(!p_igetw(&(tempguy.misc11),f,keepdata))
-      {
-        return qe_invalid;
+        if(!p_igetl(&(tempguy.misc11),f,keepdata))
+        {
+          return qe_invalid;
+        }
+        if(!p_igetl(&(tempguy.misc12),f,keepdata))
+        {
+          return qe_invalid;
+        }
       }
-      if(!p_igetw(&(tempguy.misc12),f,keepdata))
-      {
-        return qe_invalid;
+      else if(guyversion >= 19)
+	  {
+        short tempMisc;
+        if(!p_igetw(&tempMisc,f,keepdata))
+        {
+          return qe_invalid;
+        }
+        tempguy.misc11=tempMisc;
+        if(!p_igetw(&tempMisc,f,keepdata))
+        {
+          return qe_invalid;
+        }
+        tempguy.misc12=tempMisc;
       }
-  }
       //miscellaneous other corrections
       //fix the mirror wizzrobe -DD
       if(guyversion < 7)
@@ -7505,9 +7620,9 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	  }
 	  if (guyversion < 21) // September 2011
 	  {
-		  if (tempguy.family == eeKEESE || tempguy.family == eeKEESETRIB) 
+		  if (tempguy.family == eeKEESE || tempguy.family == eeKEESETRIB)
 		  {
-			  if (tempguy.family == eeKEESETRIB) 
+			  if (tempguy.family == eeKEESETRIB)
 			  {
 				  tempguy.family = eeKEESE;
 				  tempguy.misc2 = e2tKEESETRIB;
@@ -7515,26 +7630,26 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			  }
 			  tempguy.rate = 2; tempguy.hrate = 8; tempguy.homing = 0; tempguy.step= (tempguy.family == eeKEESE && tempguy.misc1 ? 100:62);
 		  }
-		  else if (tempguy.family == eePEAHAT || tempguy.family==eePATRA) 
+		  else if (tempguy.family == eePEAHAT || tempguy.family==eePATRA)
 		  {
 		      if (tempguy.family == eePEAHAT) {
-				tempguy.rate = 4; 
+				tempguy.rate = 4;
 				tempguy.step = 62;
 			  } else
 				tempguy.step = 25;
 			  tempguy.hrate = 8; tempguy.homing = 0;
 		  }
-		  else if (tempguy.family == eeDIG || tempguy.family == eeMANHAN) 
+		  else if (tempguy.family == eeDIG || tempguy.family == eeMANHAN)
 		  {
-			if (tempguy.family == eeMANHAN) 
+			if (tempguy.family == eeMANHAN)
 			  tempguy.step=50;
 			tempguy.hrate = 16; tempguy.homing = 0;
 		  }
-		  else if (tempguy.family == eeGLEEOK) 
+		  else if (tempguy.family == eeGLEEOK)
 		  {
 			tempguy.rate = 2; tempguy.homing = 0; tempguy.hrate = 9; tempguy.step=89;
 		  }
-		  else if (tempguy.family == eeGHINI) 
+		  else if (tempguy.family == eeGHINI)
 		  {
 			tempguy.rate = 4; tempguy.hrate = 12; tempguy.step=62; tempguy.homing = 0;
 		  }
@@ -7878,9 +7993,21 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         return qe_invalid;
       }
     }
-    if(!p_getc(&(temp_mapscr->warpreturnc),f,true))
+    if(version>=18)
     {
-      return qe_invalid;
+      if(!p_igetw(&temp_mapscr->warpreturnc,f,true))
+      {
+        return qe_invalid;
+      }
+    }
+    else
+    {
+      byte temp;
+      if(!p_getc(&temp,f,true))
+      {
+        return qe_invalid;
+      }
+      temp_mapscr->warpreturnc=temp<<8|temp;
     }
   }
   if(!p_getc(&(temp_mapscr->stairx),f,true))
@@ -8808,6 +8935,10 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
           temp_mapscr->ffwidth[m]=15;
           temp_mapscr->ffheight[m]=15;
           temp_mapscr->ffflags[m]=0;
+        }
+        if(Header->zelda_version == 0x211 || (Header->zelda_version == 0x250 && Header->build<20))
+        {
+            temp_mapscr->ffflags[m]|=ffIGNOREHOLDUP;
         }
         if(version>9)
         {
@@ -11227,6 +11358,68 @@ int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
   return 0;
 }
 
+int readfavorites(PACKFILE *f, int, word, bool keepdata)
+{
+  int temp_num;
+  dword dummy_dword;
+  word num_favorite_combos;
+  word num_favorite_combo_aliases;
+  word s_version=0, s_cversion=0;
+
+  //section version info
+  if(!p_igetw(&s_version,f,true))
+  {
+    return qe_invalid;
+  }
+  
+  if(!p_igetw(&s_cversion,f,true))
+  {
+    return qe_invalid;
+  }
+  
+  //section size
+  if(!p_igetl(&dummy_dword,f,true))
+  {
+    return qe_invalid;
+  }
+  
+  //finally...  section data
+  if(!p_igetw(&num_favorite_combos,f,true))
+  {
+    return qe_invalid;
+  }
+  
+  for(int i=0; i<num_favorite_combos; i++)
+  {
+    if(!p_igetl(&temp_num,f,true))
+    {
+      return qe_invalid;
+    }
+    if(keepdata)
+    {
+      favorite_combos[i]=temp_num;
+    }
+  }
+  
+  if(!p_igetw(&num_favorite_combo_aliases,f,true))
+  {
+    return qe_invalid;
+  }
+  
+  for(int i=0; i<num_favorite_combo_aliases; i++)
+  {
+    if(!p_igetl(&temp_num,f,true))
+    {
+      return qe_invalid;
+    }
+    if(keepdata)
+    {
+      favorite_comboaliases[i]=temp_num;
+    }
+  }
+  
+  return 0;
+}
 
 /*
   switch (ret) {
@@ -11247,7 +11440,13 @@ int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
 
 const char *skip_text[skip_max]=
 {
-  "skip_header", "skip_rules", "skip_strings", "skip_misc", "skip_tiles", "skip_combos", "skip_comboaliases", "skip_csets", "skip_maps", "skip_dmaps", "skip_doors", "skip_items", "skip_weapons", "skip_colors", "skip_icons", "skip_initdata", "skip_guys", "skip_linksprites", "skip_subscreens", "skip_ffscript", "skip_sfx", "skip_midis", "skip_cheats", "skip_itemdropsets"
+  "skip_header", "skip_rules", "skip_strings", "skip_misc",
+  "skip_tiles", "skip_combos", "skip_comboaliases", "skip_csets",
+  "skip_maps", "skip_dmaps", "skip_doors", "skip_items",
+  "skip_weapons", "skip_colors", "skip_icons", "skip_initdata",
+  "skip_guys", "skip_linksprites", "skip_subscreens", "skip_ffscript",
+  "skip_sfx", "skip_midis", "skip_cheats", "skip_itemdropsets",
+  "skip_favorites"
 };
 
 int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags)
@@ -11562,9 +11761,13 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
           {
             setupsfx();
           }
-	  if (keepall&&!get_bit(skip_flags, skip_itemdropsets))
+	      if (keepall&&!get_bit(skip_flags, skip_itemdropsets))
           {
-	    init_item_drop_sets();
+	        init_item_drop_sets();
+          }
+          if (keepall&&!get_bit(skip_flags, skip_favorites))
+          {
+	        init_favorites();
           }
           break;
         case ID_GUYS:
@@ -11675,6 +11878,20 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
           }
           box_out("Reading Item Drop Sets...");
           ret=readitemdropsets(f, tempheader.zelda_version, tempheader.build, keepall&&!get_bit(skip_flags, skip_itemdropsets));
+          checkstatus(ret);
+          box_out("okay.");
+          box_eol();
+          break;
+        case ID_FAVORITES:
+          //favorite combos and combo aliases
+          if (catchup)
+          {
+            box_out("found.");
+            box_eol();
+            catchup=false;
+          }
+          box_out("Reading Favorite Combos...");
+          ret=readfavorites(f, tempheader.zelda_version, tempheader.build, keepall&&!get_bit(skip_flags, skip_favorites));
           checkstatus(ret);
           box_out("okay.");
           box_eol();
@@ -11849,8 +12066,6 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     ret=readitemdropsets(f, -1, 0, keepall&&!get_bit(skip_flags, skip_itemdropsets));
     box_out("okay.");
     box_eol();
-
-
   }
 
   // check data

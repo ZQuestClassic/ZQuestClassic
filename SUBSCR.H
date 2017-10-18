@@ -238,6 +238,7 @@ const byte bmaptiles_bs[5][6] =
 
 void reset_subscr_items();
 void update_subscr_items();
+void add_subscr_item(item *newItem);
 int stripspaces(char *source, char *target, int stop);
 void put_passive_subscr(BITMAP *dest,miscQdata *misc,int x,int y,bool showtime,int pos2);
 void puttriframe(BITMAP *dest, miscQdata *misc, int x, int y, int triframecolor, int numbercolor, int triframetile, int triframecset, int triforcetile, int triforcecset, bool showframe, bool showpieces, bool largepieces);

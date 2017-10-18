@@ -250,6 +250,7 @@ int used_switch(int argc,char *argv[],const char *s)
 //There is some hardcore constant truncation here...
 #ifdef _MSC_VER
 #pragma warning(disable: 4309)
+#pragma warning(disable: 4310)
 #endif
 
 
@@ -1916,7 +1917,6 @@ extern int d_ssup_btn2_proc(int msg,DIALOG *d,int c);
 extern int d_ssup_btn3_proc(int msg,DIALOG *d,int c);
 extern int d_tri_edit_proc(int msg,DIALOG *d,int c);
 extern int d_triggerbutton_proc(int msg,DIALOG *d,int c);
-extern int dcs_auto_button_proc(int msg,DIALOG *d,int c);
 extern int jwin_button_proc(int msg,DIALOG *d,int c);
 extern int jwin_check_proc(int msg,DIALOG *d,int c);
 extern int jwin_ctext_proc(int msg,DIALOG *d,int c);
@@ -1962,7 +1962,6 @@ void copy_dialog(DIALOG **to, DIALOG *from)
         (from[i].proc==d_text_proc)||
         (from[i].proc==d_tri_edit_proc)||
         (from[i].proc==d_triggerbutton_proc)||
-        (from[i].proc==dcs_auto_button_proc)||
         (from[i].proc==jwin_button_proc)||
         (from[i].proc==jwin_check_proc)||
         (from[i].proc==jwin_ctext_proc)||
@@ -2090,7 +2089,6 @@ void free_dialog(DIALOG **dlg)
         ((*dlg)[i].proc==d_text_proc)||
         ((*dlg)[i].proc==d_tri_edit_proc)||
         ((*dlg)[i].proc==d_triggerbutton_proc)||
-        ((*dlg)[i].proc==dcs_auto_button_proc)||
         ((*dlg)[i].proc==jwin_button_proc)||
         ((*dlg)[i].proc==jwin_check_proc)||
         ((*dlg)[i].proc==jwin_ctext_proc)||

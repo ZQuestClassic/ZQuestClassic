@@ -98,7 +98,7 @@ zmap::zmap()
   currscr=0;
   copymap=0;
   currmap=0;
-  layer_target_map = 0; 
+  layer_target_map = 0;
   layer_target_scr = 0;
   layer_target_multiple = 0;
   can_undo_map=false;
@@ -842,14 +842,14 @@ bool zmap::ishookshottable(int bx, int by, int i)
 {
 	// Hookshots can be blocked by solid combos on all 3 ground layers.
 	newcombo c = combobuf[MAPCOMBO(bx,by)];
-	if (c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i)) 
+	if (c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i))
 	{
 		return false;
 	}
 	for(int k=0;k<2;k++)
 	{
 		c = combobuf[MAPCOMBO2(k+1,bx,by)];
-		if (c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i)) 
+		if (c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i))
 		{
 		    return false;
 		}
@@ -923,13 +923,13 @@ void zmap::put_walkflags_layered(BITMAP *dest,int x,int y,int pos,int layer)
 		if(layer==0 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
 			rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
 		if(c.walk&(1<<i)) {
-			if (c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO(cx,cy)) && ishookshottable(cx,cy,i)) 
-			{		
+			if (c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO(cx,cy)) && ishookshottable(cx,cy,i))
+			{
 				for(int k=0; k<8; k+=2)
 					for(int j=0;j<8; j+=2)
-						rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2)); 
-			} 
-			else 
+						rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2));
+			}
+			else
 			{
 				int color = vc(12);
 				if (isstepable(MAPCOMBO(cx,cy)))
@@ -964,13 +964,13 @@ void put_walkflags(BITMAP *dest,int x,int y,word cmbdat,int layer)
     if(layer==0 && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
       rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
 	if(c.walk&(1<<i)) {
-	  if (c.type==cLADDERHOOKSHOT) 
+	  if (c.type==cLADDERHOOKSHOT)
 	  {
 		for(int k=0; k<8; k+=2)
 			for(int j=0;j<8; j+=2)
-				rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2)); 
-	  } 
-	  else 
+				rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2));
+	  }
+	  else
 	  {
 	    int color = vc(12);
         if (c.type==cLADDERONLY)
@@ -1791,13 +1791,13 @@ int zmap::MAPCOMBO2(int lyr,int x,int y, int map, int scr)
 	int layermap;
 	layermap=screen1->layermap[lyr]-1;
 	if (layermap<0 || layermap >= map_count) return 0;
-	
+
 	mapscr *layer;
 	if (prv_mode)
 		layer = &prvlayers[lyr];
 	else
 		layer = AbsoluteScr(layermap,screen1->layerscreen[lyr]);
-	
+
 	int combo = COMBOPOS(x,y);
 	if(combo>175 || combo < 0)
 		return 0;
@@ -2321,7 +2321,7 @@ void zmap::draw(BITMAP* dest,int x,int y,int flags,int map,int scr)
   resize_mouse_pos=false;
 
 }
-										 
+
 void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
 {
   if(map<0)
@@ -5043,11 +5043,21 @@ int reverse_string(char* str)
 
 int quest_access(const char *filename, zquestheader *hdr, bool compressed)
 {
+	//Protection against compiling a release version with password protection off.
+	static bool passguard = false;
 
-//#define MSVCD_NOFUSSNOMUSS
-//#if _DEBUG && (defined MSVCD_NOFUSSNOMUSS || defined _SKIPPASSWORDCHECK)
-	return 1;
-//#endif
+#if ( !(defined _DEBUG) || (defined _RELEASE || defined NDEBUG || defined _NDEBUG) )
+	#define MUST_HAVE_PASSWORD
+	passguard = true;
+#endif
+
+#if ( !(defined MUST_HAVE_PASSWORD) || defined _NPASS )
+	#if (defined _MSC_VER || defined _NPASS)
+		assert(!passguard);
+		return 1;
+	#endif
+#endif
+
 
   char hash_string[33];
   if (!compressed)
@@ -6663,7 +6673,7 @@ int writemapscreen(PACKFILE *f, int i, int j)
             return qe_invalid;
 		}
 	}
-	if(!p_putc(screen.warpreturnc,f))
+	if(!p_iputw(screen.warpreturnc,f))
 	{
 		return qe_invalid;
 	}
@@ -8079,43 +8089,43 @@ int writeguys(PACKFILE *f, zquestheader *Header)
       {
         new_return(32);
       }
-      if(!p_iputw(guysbuf[i].misc1,f))
+      if(!p_iputl(guysbuf[i].misc1,f))
       {
         new_return(33);
       }
-      if(!p_iputw(guysbuf[i].misc2,f))
+      if(!p_iputl(guysbuf[i].misc2,f))
       {
         new_return(34);
       }
-      if(!p_iputw(guysbuf[i].misc3,f))
+      if(!p_iputl(guysbuf[i].misc3,f))
       {
         new_return(35);
       }
-      if(!p_iputw(guysbuf[i].misc4,f))
+      if(!p_iputl(guysbuf[i].misc4,f))
       {
         new_return(36);
       }
-      if(!p_iputw(guysbuf[i].misc5,f))
+      if(!p_iputl(guysbuf[i].misc5,f))
       {
         new_return(37);
       }
-      if(!p_iputw(guysbuf[i].misc6,f))
+      if(!p_iputl(guysbuf[i].misc6,f))
       {
         new_return(38);
       }
-      if(!p_iputw(guysbuf[i].misc7,f))
+      if(!p_iputl(guysbuf[i].misc7,f))
       {
         new_return(39);
       }
-      if(!p_iputw(guysbuf[i].misc8,f))
+      if(!p_iputl(guysbuf[i].misc8,f))
       {
         new_return(40);
       }
-      if(!p_iputw(guysbuf[i].misc9,f))
+      if(!p_iputl(guysbuf[i].misc9,f))
       {
         new_return(41);
       }
-      if(!p_iputw(guysbuf[i].misc10,f))
+      if(!p_iputl(guysbuf[i].misc10,f))
       {
         new_return(42);
       }
@@ -8146,11 +8156,11 @@ int writeguys(PACKFILE *f, zquestheader *Header)
       {
         new_return(48);
       }
-      if(!p_iputw(guysbuf[i].misc11,f))
+      if(!p_iputl(guysbuf[i].misc11,f))
       {
         new_return(49);
       }
-      if(!p_iputw(guysbuf[i].misc12,f))
+      if(!p_iputl(guysbuf[i].misc12,f))
       {
         new_return(50);
       }
@@ -9386,6 +9396,82 @@ int writeitemdropsets(PACKFILE *f, zquestheader *Header)
   new_return(0);
 }
 
+int writefavorites(PACKFILE *f, zquestheader*)
+{
+  dword section_id=ID_FAVORITES;
+  dword section_version=V_FAVORITES;
+  dword section_cversion=CV_FAVORITES;
+  dword section_size = 0;
+  
+  //section id
+  if(!p_mputl(section_id,f))
+  {
+    new_return(1);
+  }
+  
+  //section version info
+  if(!p_iputw(section_version,f))
+  {
+    new_return(2);
+  }
+  if(!p_iputw(section_cversion,f))
+  {
+    new_return(3);
+  }
+
+  for (int writecycle=0; writecycle<2; ++writecycle)
+  {
+    fake_pack_writing=(writecycle==0);
+
+    //section size
+    if(!p_iputl(section_size,f))
+    {
+      new_return(4);
+    }
+
+    writesize=0;
+
+    //finally...  section data
+    if(!p_iputw(MAXFAVORITECOMBOS,f)) // This'll probably never change, huh?
+    {
+      new_return(5);
+    }
+
+    for(int i=0; i<MAXFAVORITECOMBOS; i++)
+    {
+      if(!p_iputl(favorite_combos[i],f))
+      {
+        new_return(6);
+      }
+    }
+    
+    if(!p_iputw(MAXFAVORITECOMBOALIASES,f))
+    {
+      new_return(7);
+    }
+    for(int i=0; i<MAXFAVORITECOMBOALIASES; i++)
+    {
+      if(!p_iputl(favorite_comboaliases[i],f))
+      {
+        new_return(8);
+      }
+    }
+
+    if (writecycle==0)
+    {
+      section_size=writesize;
+    }
+  }
+
+  if (writesize!=int(section_size) && save_warn)
+  {
+    char ebuf[80];
+    sprintf(ebuf, "%d != %d", writesize, int(section_size));
+    jwin_alert("Error:  writeitemdropsets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  new_return(0);
+}
 
 int save_unencoded_quest(const char *filename, bool compressed)
 {
@@ -9613,6 +9699,14 @@ int save_unencoded_quest(const char *filename, bool compressed)
   if (writeitemdropsets(f, &header)!=0)
   {
     new_return(25);
+  }
+  box_out("okay.");
+  box_eol();
+
+  box_out("Writing Favorite Combos...");
+  if (writefavorites(f, &header)!=0)
+  {
+    new_return(26);
   }
   box_out("okay.");
   box_eol();

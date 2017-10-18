@@ -268,7 +268,11 @@ void lightingInstant()
 	{
 		int level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;
 		if(darkroom) // Old room dark, new room lit
+		{
 			loadlvlpal(level);
+			if(get_bit(quest_rules,qr_FADECS5))
+			    loadpalset(5,5);
+		}
 		else // Old room lit, new room dark
 		{
 		    if(get_bit(quest_rules,qr_FADE))

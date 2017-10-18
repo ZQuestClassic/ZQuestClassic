@@ -333,7 +333,7 @@ public:
     {
         if(index < 0 || index >= long(size))
         {
-            Z_scripterrlog("Invalid index (%ld) to local array of size %ld", index, size);
+            Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
             return _OutOfBounds;
         }
         return _NoError;
@@ -352,14 +352,7 @@ class GuyH : public SH
 public:
 	static int loadNPC(const long eid, const char * const funcvar)
     {
-    	//Should speed up re-loading last pointer
-    	if(tempenemy != NULL)
-    	{
-    		if(tempenemy->getUID() == eid)
-				return _NoError;
-    	}
-
-        tempenemy = (enemy *) guys.getByUID(eid);
+    	tempenemy = (enemy *) guys.getByUID(eid);
         if(tempenemy == NULL)
         {
             Z_scripterrlog("Invalid NPC with UID %ld passed to %s\nNPCs on screen have UIDs ", eid, funcvar);
@@ -636,6 +629,20 @@ public:
 		{
 			str += char(a[i] / 10000);
 			num_chars--;
+		}
+	}
+
+	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
+	static void getValues(const long ptr, long* arrayPtr, word num_values)
+	{
+		ZScriptArray& a = getArray(ptr);
+		if(a == INVALIDARRAY)
+			return;
+
+		for(word i = 0; BC::checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
+		{
+			arrayPtr[i] = (a[i] / 10000);
+			num_values--;
 		}
 	}
 
@@ -1040,7 +1047,8 @@ long get_register(const long arg)
     case INPUTAXISRIGHT:
       ret=control_state[17]?10000:0; break;
     case INPUTMOUSEX:
-	  ret = (gui_mouse_x() - scrx - 32 + (sbig ? 128 : (sbig2 ? 192 : 0))) / (resx / 320) * 10000;
+	  ret = (gui_mouse_x() - scrx - 32 + ((screen_scale-1) * 128)) / (resx / 320) * 10000;
+	  //ret = (gui_mouse_x() - scrx - 32 + (sbig ? 128 : (sbig2 ? 192 : 0))) / (resx / 320) * 10000;
 	  break;
 	  //ret=gui_mouse_x() - scrx - 32;
 	  //if(sbig) {
@@ -1052,7 +1060,8 @@ long get_register(const long arg)
 	  //ret *= 10000; break;
       //ret=int((gui_mouse_x()-7)/(resx/320))*10000; break;
     case INPUTMOUSEY:
-	  ret = ((gui_mouse_y() - scry - 8 + (sbig ? 112 : (sbig2 ? 168 : 0))) / (resy / 240) - passive_subscreen_height) * 10000;
+	  ret = (gui_mouse_y() - scry - 8 - passive_subscreen_height + ((screen_scale-1) * 112)) / (resy / 240) * 10000;
+	 // ret = ((gui_mouse_y() - scry - 8 + (sbig ? 112 : (sbig2 ? 168 : 0))) / (resy / 240) - passive_subscreen_height) * 10000;
 	  break;
 	  //ret /= (resy / 240);
 	  //ret -= passive_subscreen_height;
@@ -1319,7 +1328,12 @@ long get_register(const long arg)
 		ret = GuyH::getNPC()->member * 10000; \
 }
 
-    case NPCDIR:       GET_NPC_VAR_INT(dir, "npc->Dir") break;
+    case NPCDIR:
+        if(GuyH::loadNPC(ri->guyref, "npc->Dir") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = zc_max(GuyH::getNPC()->dir * 10000, 0);
+        break;
     case NPCRATE:      GET_NPC_VAR_INT(rate, "npc->Rate") break;
     case NPCHOMING:    GET_NPC_VAR_INT(homing, "npc->Homing") break;
     case NPCFRAMERATE: GET_NPC_VAR_INT(frate, "npc->ASpeed") break;
@@ -1457,7 +1471,7 @@ long get_register(const long arg)
 	  if(0!=(s=checkLWpn(ri->lwpn,"Behind")))
 		ret=((weapon*)(s))->behind*10000; break;
     case LWPNDRAWTYPE:
-	  if(0!=(s=checkLWpn(ri->lwpn,"DrawType")))
+	  if(0!=(s=checkLWpn(ri->lwpn,"DrawStyle")))
 		ret=((weapon*)(s))->drawstyle*10000; break;
     case LWPNPOWER:
 	  if(0!=(s=checkLWpn(ri->lwpn,"Damage")))
@@ -1574,7 +1588,7 @@ long get_register(const long arg)
 	  if(0!=(s=checkEWpn(ri->ewpn,"Behind")))
 		ret=((weapon*)(s))->behind*10000; break;
     case EWPNDRAWTYPE:
-	  if(0!=(s=checkEWpn(ri->ewpn,"DrawType")))
+	  if(0!=(s=checkEWpn(ri->ewpn,"DrawStyle")))
 		ret=((weapon*)(s))->drawstyle*10000; break;
     case EWPNPOWER:
 	  if(0!=(s=checkEWpn(ri->ewpn,"Damage")))
@@ -2185,10 +2199,12 @@ void set_register(const long arg, const long value)
 	  button_press[17]=((value/10000)!=0)?true:false; break;
     case INPUTMOUSEX:
 	  // this fixes the origin to the top-left corner of the playing field (tile 0)
-	  position_mouse(32 + scrx + (value / 10000 * (resx / 320)) - sbig ? 128 : (sbig2 ? 192 : 0), gui_mouse_y()); break;
+	  position_mouse(32 + scrx + (value / 10000 * (resx / 320)) - ((screen_scale-1) * 128), gui_mouse_y()); break;
+	//  position_mouse(32 + scrx + (value / 10000 * (resx / 320)) - sbig ? 128 : (sbig2 ? 192 : 0), gui_mouse_y()); break;
 	  //position_mouse(((value/10000)+3)*(resx/320), gui_mouse_y()); break;
     case INPUTMOUSEY:
-	  position_mouse(gui_mouse_x(), 8 + scry + (value / 10000 * (resy / 240)) - sbig ? 112 : (sbig2 ? 168 : 0)); break;
+	  position_mouse(gui_mouse_x(), 8 + scry + (value / 10000 * (resy / 240)) - ((screen_scale-1) * 112)); break;
+	//  position_mouse(gui_mouse_x(), 8 + scry + (value / 10000 * (resy / 240)) - sbig ? 112 : (sbig2 ? 168 : 0)); break;
 	  //position_mouse(gui_mouse_x(),((value/10000)+3)*(resy/240)); break;
     case INPUTMOUSEZ:
       position_mouse_z(value/10000); break;
@@ -2496,7 +2512,7 @@ void set_register(const long arg, const long value)
 	  if(0!=(s=checkLWpn(ri->lwpn,"Behind")))
       ((weapon*)s)->behind=(value/10000) != 0; break;
     case LWPNDRAWTYPE:
-	  if(0!=(s=checkLWpn(ri->lwpn,"DrawType")))
+	  if(0!=(s=checkLWpn(ri->lwpn,"DrawStyle")))
       ((weapon*)s)->drawstyle=(value/10000); break;
     case LWPNPOWER:
 	  if(0!=(s=checkLWpn(ri->lwpn,"Damage")))
@@ -2612,7 +2628,7 @@ void set_register(const long arg, const long value)
 	  if(0!=(s=checkEWpn(ri->ewpn,"Behind")))
       ((weapon*)s)->behind=(value/10000) != 0; break;
     case EWPNDRAWTYPE:
-	  if(0!=(s=checkEWpn(ri->ewpn,"DrawType")))
+	  if(0!=(s=checkEWpn(ri->ewpn,"DrawStyle")))
       ((weapon*)s)->drawstyle=(value/10000); break;
     case EWPNPOWER:
 	  if(0!=(s=checkEWpn(ri->ewpn,"Damage")))
@@ -4108,46 +4124,47 @@ void do_drawing_command(const int script_command)
         case SPLINER:       set_drawing_command_args(j, 11); break;
         case QUADR:         set_drawing_command_args(j, 15); break;
         case TRIANGLER:     set_drawing_command_args(j, 13); break;
-        case BITMAPR:       set_drawing_command_args(j, 11); break;
+        case BITMAPR:       set_drawing_command_args(j, 12); break;
+        case DRAWLAYERR:    set_drawing_command_args(j, 8); break;
+        case DRAWSCREENR:   set_drawing_command_args(j, 6); break;
 
         case QUAD3DR:
         {
-			/*
-            set_drawing_command_args(j, 8);
-            quad3Dstruct *q = new quad3Dstruct;
-            q->index = script_drawing_commands[j][19] = j;
+			std::vector<long> *v = script_drawing_commands.GetVector();
+			v->resize(26, 0);
 
-            if( ArrayH::getArray( script_drawing_commands[j][2] / 10000, 12, &q->pos[0] )  != SH::_NoError ||
-                ArrayH::getArray( script_drawing_commands[j][3] / 10000, 8,  &q->uv[0] )    != SH::_NoError ||
-                ArrayH::getArray( script_drawing_commands[j][4] / 10000, 2,  &q->size[0] )  != SH::_NoError ||
-                ArrayH::getArray( script_drawing_commands[j][5] / 10000, 4,  &q->color[0] ) != SH::_NoError )
-            {	//poop. nothing to do but ship out a dud. we'll handle it from the other end.
-                memset( q, 0, sizeof(quad3Dstruct) );
-                al_trace( "Invalid array pointer used for Quad3D. \n" );
-            }
-            draw_container.quad3D.push_back( *q );
-            delete q;
-			*/
+			long* pos = &v->at(0);
+			long* uv = &v->at(12);
+			long* col = &v->at(20);
+			long* size = &v->at(24);
+
+            set_drawing_command_args(j, 8);
+            ArrayH::getValues( script_drawing_commands[j][2] / 10000, pos, 12 );
+            ArrayH::getValues( script_drawing_commands[j][3] / 10000, uv, 8 );
+            ArrayH::getValues( script_drawing_commands[j][4] / 10000, col, 4 );
+            ArrayH::getValues( script_drawing_commands[j][5] / 10000, size, 2 );
+
+			script_drawing_commands[j].SetVector(v);
         }
         break;
 
         case TRIANGLE3DR:
         {
-			/*
+			std::vector<long> *v = script_drawing_commands.GetVector();
+			v->resize(20, 0);
+
+			long* pos = &v->at(0);
+			long* uv = &v->at(9);
+			long* col = &v->at(15);
+			long* size = &v->at(18);
+
             set_drawing_command_args(j, 8);
-            triangle3Dstruct *q = new triangle3Dstruct;
-            q->index = script_drawing_commands[j][19] = j;
-            if( ArrayH::getArray( script_drawing_commands[j][2] / 10000, 9, &q->pos[0] )   != SH::_NoError ||
-                ArrayH::getArray( script_drawing_commands[j][3] / 10000, 6, &q->uv[0] )    != SH::_NoError ||
-                ArrayH::getArray( script_drawing_commands[j][4] / 10000, 2, &q->size[0] )  != SH::_NoError ||
-                ArrayH::getArray( script_drawing_commands[j][5] / 10000, 3, &q->color[0] ) != SH::_NoError )
-            {	// oh well.
-                memset( q, 0, sizeof(triangle3Dstruct) );
-                al_trace( "Invalid array pointer used for Triangle3D. \n" );
-            }
-            draw_container.triangle3D.push_back( *q );
-            delete q;
-			*/
+            ArrayH::getValues( script_drawing_commands[j][2] / 10000, pos, 8 );
+            ArrayH::getValues( script_drawing_commands[j][3] / 10000, uv, 6 );
+            ArrayH::getValues( script_drawing_commands[j][4] / 10000, col, 3 );
+            ArrayH::getValues( script_drawing_commands[j][5] / 10000, size, 2 );
+
+			script_drawing_commands[j].SetVector(v);
         }
         break;
 
@@ -4188,6 +4205,65 @@ void do_midi(bool v)
         music_stop();
     else
         jukebox(MIDI + (ZC_MIDI_COUNT - 1));
+}
+
+void do_enh_music(bool v)
+{
+    long arrayptr = SH::get_arg(sarg1, v) / 10000;
+    long track = (SH::get_arg(sarg2, v) / 10000)-1;
+
+    if(arrayptr == 0)
+        music_stop();
+    else // Pointer to a string..
+    {
+        string filename_str;
+        char filename_char[56];
+        bool ret;
+        ArrayH::getString(arrayptr, filename_str, 56);
+        strncpy(filename_char, filename_str.c_str(), 55);
+        filename_char[55]='\0';
+        ret=try_zcmusic(filename_char, track, -1000);
+        set_register(sarg2, ret ? 10000 : 0);
+    }
+}
+
+void do_get_enh_music_filename(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+
+	if(BC::checkDMapID(ID, "Game->GetDMapMusicFilename") != SH::_NoError)
+		return;
+
+    if(ArrayH::setArray(arrayptr, string(DMaps[ID].tmusic)) == SH::_Overflow)
+		Z_scripterrlog("Array supplied to 'Game->GetDMapMusicFilename' not large enough\n");
+}
+
+void do_get_enh_music_track(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+
+	if(BC::checkDMapID(ID, "Game->GetDMapMusicTrack") != SH::_NoError)
+		return;
+
+    set_register(sarg1, (DMaps[ID].tmusictrack+1)*10000);
+}
+
+void do_set_dmap_enh_music(const bool v)
+{
+    long ID   = SH::read_stack(ri->sp + 2) / 10000;
+    long arrayptr = SH::read_stack(ri->sp + 1) / 10000;
+    long track = (SH::read_stack(ri->sp + 0) / 10000)-1;
+    string filename_str;
+    
+	if(BC::checkDMapID(ID, "Game->SetDMapEnhancedMusic") != SH::_NoError)
+		return;
+    
+    
+    ArrayH::getString(arrayptr, filename_str, 56);
+    strncpy(DMaps[ID].tmusic, filename_str.c_str(), 55);
+    DMaps[ID].tmusic[55]='\0';
+    DMaps[ID].tmusictrack=track;
 }
 
 void do_warp(bool v)
@@ -4576,7 +4652,7 @@ int run_script(const byte type, const word script, const byte i)
 		default:	al_trace("No other scripts are currently supported\n"); return 1; break;
 	}
 
-	word pc = ri->pc; //this is (marginally) quicker than dereferencing ri each time
+	dword pc = ri->pc; //this is (marginally) quicker than dereferencing ri each time
 	word scommand = curscript[pc].command;
 	sarg1 = curscript[pc].arg1;
 	sarg2 = curscript[pc].arg2;
@@ -4750,6 +4826,10 @@ int run_script(const byte type, const word script, const byte i)
 			case PLAYSOUNDV:		do_sfx(true); break;
 			case PLAYMIDIR:			do_midi(false); break;
 			case PLAYMIDIV:			do_midi(true); break;
+			case PLAYENHMUSIC:		do_enh_music(false); break;
+			case GETMUSICFILE:      do_get_enh_music_filename(false); break;
+			case GETMUSICTRACK:     do_get_enh_music_track(false); break;
+			case SETDMAPENHMUSIC:   do_set_dmap_enh_music(false); break;
 			case MSGSTRR:			do_message(false); break;
 			case MSGSTRV:			do_message(true); break;
 
@@ -4805,7 +4885,8 @@ int run_script(const byte type, const word script, const byte i)
 			case LINER:	 		case PUTPIXELR:		case DRAWTILER:	case DRAWCOMBOR:
 			case DRAWCHARR: 	case DRAWINTR:		case QUADR:		case TRIANGLER:
 			case QUAD3DR:		case TRIANGLE3DR:	case FASTTILER:	case FASTCOMBOR:
-			case DRAWSTRINGR:	case SPLINER:		case BITMAPR:
+			case DRAWSTRINGR:	case SPLINER:		case BITMAPR:	case DRAWLAYERR:
+			case DRAWSCREENR:
 									do_drawing_command(scommand); break;
 
 			case COPYTILEVV:		do_copytile(true, true); break;

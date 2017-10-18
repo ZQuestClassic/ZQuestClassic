@@ -887,6 +887,23 @@ void Triangle( int layer, int x1, int y1, int x2, int y2, int x3, int y3,
  * 3: Both (180 degree rotation)
  *** See std.zh for a list of all available render_mode arguments.
 
+void Quad3D( int layer, int[] pos, int[] uv, int[] cset, int[] size, int flip, int texture, int render_mode )
+ * Draws a Quad on the specified layer similar to Quad.
+ * [12]pos - x, y, z positions of the 4 corners.
+ * [8]uv - x, y texture coordinates of the given texture.
+ * [4]csets - of the corners to interpolate between.
+ * [2]size - w, h, of the texture.
+ *** See std.zh for a list of all available render_mode arguments.
+
+void Quad3D( int layer, int[] pos, int[] uv, int[] cset, int[] size, int flip, int texture, int render_mode )
+ * Draws a Quad on the specified layer similar to Quad.
+ * [9]pos - x, y, z positions of the 4 corners.
+ * [6]uv - x, y texture coordinates of the given texture.
+ * [3]csets - of the corners to interpolate between.
+ * [2]size - w, h, of the texture.
+ *** See std.zh for a list of all available render_mode arguments.
+
+
 // Bitmap Drawing
 
 
@@ -896,13 +913,13 @@ void SetRenderTarget( int bitmap_id )
  * which are generally categorized as -1(screen) or 0-bitmapNumber(off-screen).
  *** See std.zh for a complete list of valid render targets (RT_*).
 
-void Bitmap( int layer, int bitmap_id, int source_x, int source_y, int source_w, int source_h, 
-               int dest_x, int dest_y, int dest_w, int dest_h, bool mask
+void DrawBitmap( int layer, int bitmap_id, int source_x, int source_y, int source_w, int source_h, 
+               int dest_x, int dest_y, int dest_w, int dest_h, float rotation, bool mask
 		)
  * Draws a source rect from off-screen Bitmap with id of bitmap_id onto
  * an area of the screen described by dest rect at the given layer.
  * *Example:
- *   Screen->Bitmap( 6, myBitmapId, 0, 0, 16, 16, 79, 57, 32, 32, true );
+ *   Screen->Bitmap( 6, myBitmapId, 0, 0, 16, 16, 79, 57, 32, 32, 0, true );
  *   //Would draw a 16x16 area starting at the upper-left corner of source bitmap to
  *   //layer 6 of the current screen at coordinates 79,57 with a width and height of 32.
 
@@ -910,6 +927,23 @@ void Bitmap( int layer, int bitmap_id, int source_x, int source_y, int source_w,
           based on the order of which layer they need to be drawn to. Drawing to or from
           seperate render tagets or bitmaps is no exception! So keep in mind in order to 
           eliminate unwanted drawing orders or bugs.
+
+
+// Screen/Layer Drawing
+
+void DrawLayer(int layer, int source_map, int source_screen, int source_layer, int x, int y, float rotation, int opacity)
+ * Draws an entire Layer from source_screen on source_map on the specified layer of the current screen at (x,y).
+ * If rotation is not zero, it(the entire layer) will rotate about its center.
+ * Opacity controls how transparent the solid portions of the tiles will
+ * be. Values other than 128 (solid) and 64 (translucent) are currently
+ * undefined.
+
+void DrawScreen(int layer, int map, int source_screen, int x, int y, float rotation)
+ * Draws an entire screen from screen on map on the specified layer of the current screen at (x,y).
+ * If rotation is not zero, it(the entire screen) will rotate about its center.
+
+
+
 
 ====================================
 --- Item Functions and Variables ---
@@ -1439,7 +1473,30 @@ void PlayMIDI(int MIDIid)
 
 int GetMIDI()
  * Returns the current screen MIDI that is playing.
- * Positive numbers are for custom MIDIs, and negative values are used for the built-in game MIDIs.
+ * Positive numbers are for custom MIDIs, and negative values are used
+ * for the built-in game MIDIs.
+
+bool PlayEnhancedMusic(int[] filename, int track)
+ * Play the specified enhanced music if it's available. If the music
+ * cannot be played, the current music will continue. The music will
+ * revert to normal upon leaving the screen.
+ * Returns true if the music file was loaded successfully.
+ * The filename cannot be more than 55 characters. If the music format
+ * does not support multiple tracks, the track argument will be ignored.
+
+void GetDMapMusicFilename(int dmap, int[] buf)
+ * Load the filename of the given DMap's enhanced music into buf.
+ * buf should be at least 56 elements in size.
+
+int GetDMapMusicTrack(int dmap)
+ * Returns the given DMap's enhanced music track. This is valid but
+ * meaningless if the music format doesn't support multiple tracks.
+
+void SetDMapEnhancedMusic(int dmap, int[] filename, int track)
+ * Sets the specified DMap's enhanced music to the given filename and
+ * track number. If the music format does not support multiple tracks,
+ * the track argument will be ignored. The filename must not be more
+ * than 55 characters.
 
 int GetComboData(int map, int screen, int position)
  * Grabs a particular combo reference from anywhere in the game

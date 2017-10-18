@@ -693,7 +693,7 @@ static DIALOG doorcomboset_dlg[] =
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
   //  { d_dummy_proc,      0,    0,      0,    0,    0,       0,      0,       0,          0,             0,       0, NULL, NULL },
   { jwin_win_proc,     32-8,   3,   256+16,  235,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       (void *) "Door Combos", NULL, NULL },
-  { dcs_auto_button_proc,     60,   213,  61,   21,   vc(14),  vc(1),  13,      0,     0,             0,       (void *) "Auto", NULL, NULL },
+  { jwin_button_proc,     60,   213,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "Auto", NULL, NULL },
   { jwin_button_proc,     130,  213,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
   { jwin_button_proc,     200,  213,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
   { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0,       (void *) onHelp, NULL, NULL },
@@ -1278,104 +1278,6 @@ void extract_dcs_dlg()
   working_dcs.walkthroughcset[3] = doorcomboset_dlg[293].fg;
 }
 
-
-int dcs_auto_button_proc(int msg, DIALOG *d, int c)
-{
-  int down=0;
-  int last_draw;
-
-  switch (msg)
-  {
-    case MSG_DRAW:
-    jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
-    break;
-
-    case MSG_WANTFOCUS:
-    return D_WANTFOCUS;
-
-    case MSG_KEY:
-		{
-			/* close dialog? */
-			extract_dcs_dlg();
-			int selected = -1;
-			for(int i=0; door_tabs[i].text; i++)
-			{
-			  if(door_tabs[i].flags&D_SELECTED)
-			  {
-				  selected = i;
-				  break;
-			  }
-			}
-			fix_dcs(selected);
-			fill_dcs_dlg();
-			object_message(doorcomboset_dlg+7,MSG_DRAW,0);
-			if (d->flags & D_EXIT)
-			{
-			  return D_CLOSE;
-			}
-			break;
-		}
-
-    case MSG_CLICK:
-    last_draw = 0;
-
-    /* track the mouse until it is released */
-    while (gui_mouse_b())
-    {
-      down = mouse_in_rect(d->x, d->y, d->w, d->h);
-
-      /* redraw? */
-      if (last_draw != down)
-      {
-        if(down)
-          d->flags |= D_SELECTED;
-        else
-          d->flags &= ~D_SELECTED;
-        scare_mouse();
-        object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
-        last_draw = down;
-      }
-
-      /* let other objects continue to animate */
-      broadcast_dialog_message(MSG_IDLE, 0);
-    }
-
-    /* redraw in normal state */
-    if(down)
-    {
-      d->flags &= ~D_SELECTED;
-      scare_mouse();
-      object_message(d, MSG_DRAW, 0);
-      extract_dcs_dlg();
-	  int selected = -1;
-	  for(int i=0; door_tabs[i].text; i++)
-	  {
-		  if(door_tabs[i].flags&D_SELECTED)
-		  {
-			  selected = i;
-			  break;
-		  }
-	  }
-      fix_dcs(selected);
-      fill_dcs_dlg();
-      object_message(doorcomboset_dlg+7,MSG_DRAW,0);
-      unscare_mouse();
-    }
-
-    /* should we close the dialog? */
-    if(down && (d->flags & D_EXIT))
-      return D_CLOSE;
-
-    break;
-    default:
-    jwin_button_proc(msg, d, c);
-    break;
-  }
-
-  return D_O_K;
-}
-
 int edit_dcs(int index)
 {
   char door_combo_set_name[sizeof(DoorComboSets[0].name)];
@@ -1388,10 +1290,31 @@ int edit_dcs(int index)
 
   doorcomboset_dlg[294].flags = get_bit(working_dcs.flags,df_walktrans) ? D_SELECTED : 0;
 
-  if (is_large)
+  if (is_large) 
+  {
     large_dialog(doorcomboset_dlg, 2.0);
+  }
 
-  int ret = zc_popup_dialog(doorcomboset_dlg,4);
+  int ret;
+  do {
+	ret = zc_popup_dialog(doorcomboset_dlg,4);
+	if(ret==1) 
+	{
+	  extract_dcs_dlg();
+	  int selected = -1;
+	  for(int i=0; door_tabs[i].text; i++)
+	  {
+		if(door_tabs[i].flags&D_SELECTED)
+		{
+		  selected = i;
+		  break;
+		}
+	  }
+	  fix_dcs(selected);
+	  fill_dcs_dlg();
+	  object_message(doorcomboset_dlg+7,MSG_DRAW,0);
+	}
+  } while(ret==1);
 
   if (ret==2)
   {

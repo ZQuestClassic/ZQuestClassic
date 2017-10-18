@@ -9353,7 +9353,7 @@ bool edit_combo(int c,bool freshen,int cs)
   }
 
   int ret;
-	
+
   do
   {
     ret=zc_popup_dialog(combo_dlg,4);
@@ -9362,7 +9362,7 @@ bool edit_combo(int c,bool freshen,int cs)
 	else if(ret==43)
 		cflag_help(combo_dlg[33].d1);
   } while (ret == 42 || ret == 43);
-	
+
   if(freshen)
   {
     refresh(rALL);
@@ -9429,11 +9429,8 @@ bool edit_combo(int c,bool freshen,int cs)
   return (ret==1);
 }
 
-int d_itile_proc(int msg,DIALOG *d,int c)
+int d_itile_proc(int msg,DIALOG *d,int)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  c=c;
-
   switch(msg)
   {
     case MSG_CLICK:
@@ -9441,7 +9438,17 @@ int d_itile_proc(int msg,DIALOG *d,int c)
       int cs = d->d2;
       int f  = 0;
       if(select_tile(d->d1,f,1,cs,true))
+      {
+        int ok=1;
+        if(newtilebuf[d->d1].format==tf8Bit)
+            jwin_alert("Warning",
+                       "You have selected an 8-bit tile.",
+                       "It will not be drawn correctly",
+                       "on the file select screen.",
+                       "&OK",NULL,'o',0,lfont);
+        
         return D_REDRAW;
+      }
     }
     break;
 
@@ -9554,6 +9561,11 @@ int d_combo_proc(int msg,DIALOG *d,int c)
   {
     case MSG_CLICK:
     {
+      if(d->flags&D_NOCLICK)
+      {
+        break;
+      }
+
       int combo2;
       int cs;
       if(key[KEY_LSHIFT])
