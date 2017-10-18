@@ -82,7 +82,6 @@ void Matrix(int speed, int density, int mousedelay)
         UpdateColumns();
         
         poll_joystick();
-        load_control_state();
         
         int idle;
         

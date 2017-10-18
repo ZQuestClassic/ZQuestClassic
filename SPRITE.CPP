@@ -376,19 +376,6 @@ void sprite::draw(BITMAP* dest)
     
     if(clk>=0)
     {
-        /*switch (drawstyle)
-        {
-          case 0:                                               //normal
-          case 3:												//link
-            overtile16(dest,tile,sx,sy,cs,flip);
-            break;
-          case 1:                                               //phantom
-            overtiletranslucent16(dest,tile,sx,sy,cs,flip,128);
-            break;
-          case 2:                                               //cloaked
-            overtilecloaked16(dest,tile,sx,sy,flip);
-            break;
-        }*/
         switch(e)
         {
             BITMAP *temp;
@@ -574,30 +561,30 @@ void sprite::draw(BITMAP* dest)
         }
         else
         {
-            sprite *w = new sprite((fix)sx,(fix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
-            w->xofs = xofs;
-            w->yofs = yofs;
-            w->zofs = zofs;
-            w->txsz = txsz;
-            w->tysz = tysz;
-            w->extend = 3;
+            sprite w((fix)sx,(fix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
+            w.xofs = xofs;
+            w.yofs = yofs;
+            w.zofs = zofs;
+            w.txsz = txsz;
+            w.tysz = tysz;
+            w.extend = 3;
             
             if(BSZ)
             {
                 if(clk>=-10)
                 {
                     if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
-                        w->tile+=txsz;
+                        w.tile+=txsz;
                     else
-                        w->tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
                 }
                 
                 if(clk>=-5)
                 {
                     if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
-                        w->tile+=txsz;
+                        w.tile+=txsz;
                     else
-                        w->tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
                 }
             }
             else
@@ -605,22 +592,21 @@ void sprite::draw(BITMAP* dest)
                 if(clk>=-12)
                 {
                     if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
-                        w->tile+=txsz;
+                        w.tile+=txsz;
                     else
-                        w->tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
                 }
                 
                 if(clk>=-6)
                 {
                     if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
-                        w->tile+=txsz;
+                        w.tile+=txsz;
                     else
-                        w->tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
                 }
             }
             
-            w->draw(dest);
-            delete w;
+            w.draw(dest);
         }
     }
     

@@ -4129,18 +4129,18 @@ void minimaptitle(BITMAP *dest, int x, int y, FONT *tempfont, int color, int sha
     {
         if((title_len1>0)&&(title_len2>0))
         {
-            textprintf_styled_aligned_ex(dest,tempfont,x,y+8,textstyle,alignment,color,shadowcolor,bgcolor,dmaptitle[1]);
-            textprintf_styled_aligned_ex(dest,tempfont,x,y,textstyle,alignment,color,shadowcolor,bgcolor,dmaptitle[0]);
+            textprintf_styled_aligned_ex(dest,tempfont,x,y+8,textstyle,alignment,color,shadowcolor,bgcolor,"%s",dmaptitle[1]);
+            textprintf_styled_aligned_ex(dest,tempfont,x,y,textstyle,alignment,color,shadowcolor,bgcolor,"%s",dmaptitle[0]);
         }
         else
         {
             if(title_len1>0)
             {
-                textprintf_styled_aligned_ex(dest,tempfont,x,y+8,textstyle,alignment,color,shadowcolor,bgcolor,dmaptitle[0]);
+                textprintf_styled_aligned_ex(dest,tempfont,x,y+8,textstyle,alignment,color,shadowcolor,bgcolor,"%s",dmaptitle[0]);
             }
             else
             {
-                textprintf_styled_aligned_ex(dest,tempfont,x,y+8,textstyle,alignment,color,shadowcolor,bgcolor,dmaptitle[1]);
+                textprintf_styled_aligned_ex(dest,tempfont,x,y+8,textstyle,alignment,color,shadowcolor,bgcolor,"%s",dmaptitle[1]);
             }
         }
     }

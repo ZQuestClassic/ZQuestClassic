@@ -39,6 +39,77 @@ extern int draw_screen_clip_rect_y2;
 //extern bool draw_screen_clip_rect_show_link;
 //extern bool draw_screen_clip_rect_show_guys;
 
+namespace
+{
+    const int white = WHITE;
+    const int red   = CSET(csBOSS)+4;
+    const int blue  = CSET(csBOSS)+5;
+    const int green = CSET(csBOSS)+6;
+    
+    struct EndingTextLine
+    {
+        const char* text;
+        int xPos, yPos; // yPos determines when this line appears
+        int color;
+    };
+    
+    const int numCreditsLines = 12;
+    const EndingTextLine credits[]={
+        { " STAFF ",                104, 240, white },
+        { "EXECUTIVE",              40,  272, blue  },
+        { "PRODUCER... H.YAMAUCHI", 40,  280, blue  },
+        { "PRODUCER.... S.MIYAHON", 40,  320, green },
+        { "DIRECTOR.... S.MIYAHON", 40,  360, red   },
+        { "        ...... TEN TEN", 40,  384, red   },
+        { "DESIGNER...... TEN TEN", 40,  424, blue  },
+        { "PROGRAMMER.. T.NAKAZOO", 40,  464, green },
+        { "          ..... YACHAN", 40,  488, green },
+        { "          ... MARUMARU", 40,  512, green },
+        { "SOUND",                  40,  552, red   },
+        { "COMPOSER...... KONCHAN", 40,  560, red   }
+    };
+    
+    const int numQuest1EndLines = 4;
+    const EndingTextLine quest1End[]={
+        { "ANOTHER QUEST WILL START", 32, 656, white },
+        { "FROM HERE.",               88, 672, white },
+        { "PRESS THE START BUTTON.",  40, 696, white },
+        { "\2731986 NINTENDO",        72, 760, white }
+    };
+    
+    const int numQuest2EndLines = 4;
+    const EndingTextLine quest2End[]={
+        { "YOU ARE GREAT.",      72, 768, white },
+        /* name - deaths */
+        { "YOU HAVE AN AMAZING", 48, 816, white },
+        { "WISDOM AND POWER.",   64, 832, white },
+        { "\2731986 NINTENDO",   72, 912, blue  }
+    };
+    
+    const int numQuest34EndLines = 6;
+    const EndingTextLine quest34End[]={
+        { "YOU ARE GREAT.",            72,  768, white },
+        /* name - deaths */
+        { "YOU HAVE AN AMAZING",       48,  816, white },
+        { "WISDOM AND POWER.",         64,  832, white },
+        { "END OF",                    104, 880, white },
+        { "\"THE LEGEND OF ZELDA 1\"", 32,  896, white },
+        { "\2731986 NINTENDO",         72,  912, blue  }
+    };
+    
+    const int numCustomQuestEndLines = 6;
+    const EndingTextLine customQuestEnd[]={
+        { "Congratulations!", 64, 768, white },
+        /* name - deaths */
+        /* time */
+        { "You finished a",   72, 816, white },
+        { "custom quest.",    76, 832, white },
+        { "ZELDA CLASSIC",    76, 880, white },
+        { "\2741999-2014",    88, 896, white },
+        { "Armageddon Games", 64, 912, blue }
+    };
+}
+
 void noproc() {}
 
 void put_triforce()
@@ -129,10 +200,6 @@ void ending()
       1461 LINK out, ZELDA out
       1493 begin SCROLL
       */
-    const int white = WHITE;
-    const int red   = CSET(csBOSS)+4;
-    const int blue  = CSET(csBOSS)+5;
-    const int green = CSET(csBOSS)+6;
     
     //get rid off all sprites but Link and Zelda
     items.clear();
@@ -355,6 +422,42 @@ void ending()
         len=720*2;
     }
     
+    int creditsLine=0;
+    int endTextLine=0;
+    
+    const EndingTextLine* endText;
+    int numEndTextLines=0;
+    int deathsYPos=-1;
+    int timeYPos=-1;
+    
+    switch(game->get_quest())
+    {
+    case 1:
+        endText=quest1End;
+        numEndTextLines=numQuest1EndLines;
+        break;
+        
+    case 2:
+        endText=quest2End;
+        numEndTextLines=numQuest2EndLines;
+        deathsYPos=792;
+        break;
+        
+    case 3:
+    case 4:
+        endText=quest34End;
+        numEndTextLines=numQuest34EndLines;
+        deathsYPos=792;
+        break;
+        
+    default:
+        endText=customQuestEnd;
+        numEndTextLines=numCustomQuestEndLines;
+        deathsYPos=784;
+        timeYPos=800;
+        break;
+    }
+    
     for(int f=0; f<len; f++)
     {
         if(!(f&15))
@@ -375,185 +478,42 @@ void ending()
                 }
             }
             
-            switch(y)
+            if(creditsLine<numCreditsLines)
             {
-            case 240:
-                textout_ex(scrollbuf,zfont," STAFF ",104,224,white,0);
-                break;
-                
-            case 272:
-                textout_ex(scrollbuf,zfont,"EXECUTIVE",40,224,blue,0);
-                break;
-                
-            case 280:
-                textout_ex(scrollbuf,zfont,"PRODUCER... H.YAMAUCHI",40,224,blue,0);
-                break;
-                
-            case 320:
-                textout_ex(scrollbuf,zfont,"PRODUCER.... S.MIYAHON",40,224,green,0);
-                break;
-                
-            case 360:
-                textout_ex(scrollbuf,zfont,"DIRECTOR.... S.MIYAHON",40,224,red,0);
-                break;
-                
-            case 384:
-                textout_ex(scrollbuf,zfont,"        ...... TEN TEN",40,224,red,0);
-                break;
-                
-            case 424:
-                textout_ex(scrollbuf,zfont,"DESIGNER...... TEN TEN",40,224,blue,0);
-                break;
-                
-            case 464:
-                textout_ex(scrollbuf,zfont,"PROGRAMMER.. T.NAKAZOO",40,224,green,0);
-                break;
-                
-            case 488:
-                textout_ex(scrollbuf,zfont,"          ..... YACHAN",40,224,green,0);
-                break;
-                
-            case 512:
-                textout_ex(scrollbuf,zfont,"          ... MARUMARU",40,224,green,0);
-                break;
-                
-            case 552:
-                textout_ex(scrollbuf,zfont,"SOUND",40,224,red,0);
-                break;
-                
-            case 560:
-                textout_ex(scrollbuf,zfont,"COMPOSER...... KONCHAN",40,224,red,0);
-                break;
+                if(y==credits[creditsLine].yPos)
+                {
+                    textout_ex(scrollbuf,
+                               zfont,
+                               credits[creditsLine].text,
+                               credits[creditsLine].xPos,
+                               224,
+                               credits[creditsLine].color,
+                               0);
+                    creditsLine++;
+                }
             }
-            
-            switch(game->get_quest())
+            else
             {
-            case 1:
-                switch(y)
+                if(endTextLine<numEndTextLines &&
+                   y==endText[endTextLine].yPos)
                 {
-                case 656:
-                    textout_ex(scrollbuf,zfont,"ANOTHER QUEST WILL START",32,224,white,0);
-                    break;
-                    
-                case 672:
-                    textout_ex(scrollbuf,zfont,"FROM HERE.",88,224,white,0);
-                    break;
-                    
-                case 696:
-                    textout_ex(scrollbuf,zfont,"PRESS THE START BUTTON.",40,224,white,0);
-                    break;
-                    
-                case 760:
-                    textprintf_ex(scrollbuf,zfont,72,224,white,0,"%c1986 NINTENDO",0xBB);
-                    break;
+                    textout_ex(scrollbuf,
+                               zfont,
+                               endText[endTextLine].text,
+                               endText[endTextLine].xPos,
+                               224,
+                               endText[endTextLine].color,
+                               0);
+                    endTextLine++;
                 }
-                
-                break;
-                
-            case 2:
-                switch(y)
+                else if(y==deathsYPos)
+                    textprintf_ex(scrollbuf, zfont, 72, 224, red, 0,
+                                  "%-8s -%3d", game->get_name(), game->get_deaths());
+                else if(y==timeYPos)
                 {
-                case 768:
-                    textout_ex(scrollbuf,zfont,"YOU ARE GREAT.",72,224,white,0);
-                    break;
-                    
-                case 792:
-                    textprintf_ex(scrollbuf,zfont,72,224,red,0,"%-8s -%3d",game->get_name(),game->get_deaths());
-                    break;
-                    
-                case 816:
-                    textout_ex(scrollbuf,zfont,"YOU HAVE AN AMAZING",48,224,white,0);
-                    break;
-                    
-                case 832:
-                    textout_ex(scrollbuf,zfont,"WISDOM AND POWER.",64,224,white,0);
-                    break;
-                    
-                    /*
-                      case 880: textout_ex(scrollbuf,zfont,"END OF",104,224,white); break;
-                      case 896: textout_ex(scrollbuf,zfont,"\"THE LEGEND OF ZELDA 1\"",32,224,white); break;
-                      */
-                case 912:
-                    textprintf_ex(scrollbuf,zfont,72,224,blue,0,"%c1986 NINTENDO",0xBB);
-                    break;
-                }
-                
-                break;
-                
-            case 3:
-            case 4:
-                switch(y)
-                {
-                case 768:
-                    textout_ex(scrollbuf,zfont,"YOU ARE GREAT.",72,224,white,0);
-                    break;
-                    
-                case 792:
-                    textprintf_ex(scrollbuf,zfont,72,224,red,0,"%-8s -%3d",game->get_name(),game->get_deaths());
-                    break;
-                    
-                case 816:
-                    textout_ex(scrollbuf,zfont,"YOU HAVE AN AMAZING",48,224,white,0);
-                    break;
-                    
-                case 832:
-                    textout_ex(scrollbuf,zfont,"WISDOM AND POWER.",64,224,white,0);
-                    break;
-                    
-                case 880:
-                    textout_ex(scrollbuf,zfont,"END OF",104,224,white,0);
-                    break;
-                    
-                case 896:
-                    textout_ex(scrollbuf,zfont,"\"THE LEGEND OF ZELDA 1\"",32,224,white,0);
-                    break;
-                    
-                case 912:
-                    textprintf_ex(scrollbuf,zfont,72,224,blue,0,"%c1986 NINTENDO",0xBB);
-                    break;
-                }
-                
-                break;
-                
-            default:
-                switch(y)
-                {
-                case 768:
-                    textout_centre_ex(scrollbuf,zfont,"Congratulations!",128,224,white,0);
-                    break;
-                    
-                case 784:
-                    textprintf_ex(scrollbuf,zfont,72,224,red,0,"%-8s -%3d",game->get_name(),game->get_deaths());
-                    break;
-                    
-                case 800:
                     if(game->get_timevalid() && !game->get_cheat())
-                        textout_centre_ex(scrollbuf,zfont,time_str_med(game->get_time()),128,224,blue,0);
-                        
-                    break;
-                    
-                case 816:
-                    textout_centre_ex(scrollbuf,zfont,"You finished a",128,224,white,0);
-                    break;
-                    
-                case 832:
-                    textout_centre_ex(scrollbuf,zfont,"custom quest.",128,224,white,0);
-                    break;
-                    
-                case 880:
-                    textout_centre_ex(scrollbuf,zfont,"ZELDA CLASSIC",128,224,white,0);
-                    break;
-                    
-                case 896:
-                    textprintf_ex(scrollbuf,zfont,88,224,white,0,"%c1999-2012",0xBC);
-                    break;
-                    
-                case 912:
-                    textout_centre_ex(scrollbuf,zfont,"Armageddon Games",128,224,blue,0);
-                    break;
+                        textout_centre_ex(scrollbuf, zfont, time_str_med(game->get_time()), 128, 224, blue, 0);
                 }
-                
-                break;
             }
         }
         

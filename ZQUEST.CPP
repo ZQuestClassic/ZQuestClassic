@@ -7601,7 +7601,8 @@ void domouse()
             int col=vbound(((x-favorites_list.x)>>4),0,favorites_list.w-1);
             int f=(row*favorites_list.w)+col;
             
-            if(key[KEY_LSHIFT] || key[KEY_RSHIFT] || favorite_combos[f]==-1)
+            if(key[KEY_LSHIFT] || key[KEY_RSHIFT] ||
+               (draw_mode==dm_alias?favorite_comboaliases:favorite_combos)[f]==-1)
             {
                 int tempcb=ComboBrush;
                 ComboBrush=0;
@@ -7613,11 +7614,19 @@ void domouse()
                     
                     if(draw_mode != dm_alias)
                     {
-                        favorite_combos[f]=Combo;
+                        if(favorite_combos[f]!=Combo)
+                        {
+                            favorite_combos[f]=Combo;
+                            saved=false;
+                        }
                     }
                     else
                     {
-                        favorite_comboaliases[f]=combo_apos;
+                        if(favorite_comboaliases[f]!=combo_apos)
+                        {
+                            favorite_comboaliases[f]=combo_apos;
+                            saved=false;
+                        }
                     }
                     
                     do_animations();
@@ -7646,11 +7655,19 @@ void domouse()
                     
                     if(draw_mode != dm_alias)
                     {
-                        favorite_combos[f]=-1;
+                        if(favorite_combos[f]!=-1)
+                        {
+                            favorite_combos[f]=-1;
+                            saved=false;
+                        }
                     }
                     else
                     {
-                        favorite_comboaliases[f]=-1;
+                        if(favorite_comboaliases[f]!=-1)
+                        {
+                            favorite_comboaliases[f]=-1;
+                            saved=false;
+                        }
                     }
                     
                     do_animations();
@@ -25351,10 +25368,13 @@ void check_autosave()
         if(auto_save_time_diff>AutoSaveInterval*60)
         {
             set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-            replace_extension(last_timed_save, filepath, "qt0", 2047);
+            if(first_save)
+                replace_extension(last_timed_save, filepath, "qt0", 2047);
+            else
+                strcpy(last_timed_save, "untitled.qt0");
             go();
             
-            if(header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD)
+            if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD) && first_save)
             {
                 jwin_alert("Auto Save","This quest was saved in an older version of ZQuest.","If you wish to use the autosave feature, you must manually","save the files in this version first.","OK",NULL,13,27,lfont);
                 time(&auto_save_time_start);

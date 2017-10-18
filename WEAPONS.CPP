@@ -1354,8 +1354,13 @@ bool weapon::clip()
 
 bool weapon::blocked()
 {
-    int wx = x+8;
-    int wy = y+8;
+    return blocked(8, 8);
+}
+
+bool weapon::blocked(int xOffset, int yOffset)
+{
+    int wx = x+xOffset;
+    int wy = y+yOffset;
     
     if(id == wPhantom || id == wHSHandle || id == wHSChain)  // Sanity check
     {
@@ -2832,7 +2837,7 @@ mirrors:
                 dead=0;
             }
             
-            if(blocked())
+            if(blocked(0, 0))
             {
                 dead=0;
             }

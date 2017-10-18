@@ -2401,7 +2401,7 @@ There are also integrity checks. These are used to find possible problems in the
 | 8.1 SCREEN DATA            |
 +----------------------------+
 
-  Screen flags affect how a particular screen behaves. They can be divided into Room Type, View, Secrets, War, Items, Combos, Save, FFC, Whistle and Misc. Flags.
+  Screen flags affect how a particular screen behaves. They can be divided into Room Type, View, Secrets, Warp, Items, Combos, Save, FFC, Whistle and Misc. Flags.
 
 +--------------------------------+
 | 8.1a SCREEN FLAGS -> ROOM TYPE |

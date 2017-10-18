@@ -95,9 +95,9 @@
 #include "zc_array.h"
 
 #define ZELDA_VERSION       0x0250                          //version of the program
-#define VERSION_BUILD       26                              //build number of this version
+#define VERSION_BUILD       27                              //build number of this version
 #define IS_BETA             0                               //is this a beta?
-#define DATE_STR            "February 4, 2014"
+#define DATE_STR            "August 26, 2014"
 
 #define MIN_VERSION         0x0184
 
@@ -553,7 +553,7 @@ enum
     qr_EXPLICIT_RAFTING, qr_FASTFILL, qr_CAVEEXITNOSTOPMUSIC, qr_3TRI,
     // 3
     qr_TIME, qr_FREEFORM, qr_KILLALL, qr_NOFLICKER,
-    qr_CONTFULL, qr_RLFIX, qr_LENSHINTS, qr_LINKDUNGEONPOSFIX,
+    qr_CONTFULL_DEP/*DEPRECATED*/, qr_RLFIX, qr_LENSHINTS, qr_LINKDUNGEONPOSFIX,
     // 4
     qr_HOLDITEMANIMATION, qr_HESITANTPUSHBLOCKS, qr_HIDECARRIEDITEMS, qr_FFCSCROLL,
     qr_RAFTLENS, qr_SMOOTHVERTICALSCROLLING, qr_WHIRLWINDMIRROR, qr_NOFLASHDEATH,

@@ -1274,8 +1274,8 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int bg_color=sdci[6]/10000; //-1 = transparent
     int w=sdci[7]/10000;
     int h=sdci[8]/10000;
-    float number =(sdci[9]/10000);
-    int decplace = sdci[10]/10000;
+    float number=static_cast<float>(sdci[9])/10000.0f;
+    int decplace=sdci[10]/10000;
     int opacity=sdci[11]/10000;
     
     //safe check
@@ -1639,6 +1639,13 @@ void do_drawbitmapr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int dh = sdci[10]/10000;
     float rot = sdci[11]/10000;
     bool masked = (sdci[12] != 0);
+
+	//bugfix
+	sx = vbound(sx, 0, 512);
+	sy = vbound(sy, 0, 512);
+	sw = vbound(sw, 0, 512 - sx); //keep the w/h within range as well
+	sh = vbound(sh, 0, 512 - sy);
+
     
     if(sx >= ZScriptDrawingRenderTarget::BitmapWidth || sy >= ZScriptDrawingRenderTarget::BitmapHeight)
         return;

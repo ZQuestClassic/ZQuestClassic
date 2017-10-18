@@ -3004,11 +3004,18 @@ void set_register(const long arg, const long value)
         break;
         
     case LINKITEMD:
-        game->set_item(vbound(ri->d[0]/10000,0,MAXITEMS-1),(value != 0));
-        
-        //resetItems(game); - Is this really necessary? ~Joe123
-        if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) ringcolor(false);
-        
+        {
+            int itemID=vbound(ri->d[0]/10000,0,MAXITEMS-1);
+            
+            // If the Cane of Byrna is being removed, cancel its effect.
+            if(value==0 && itemID==current_item_id(itype_cbyrna))
+                stopCaneOfByrna();
+            
+            game->set_item(itemID,(value != 0));
+                    
+            //resetItems(game); - Is this really necessary? ~Joe123
+            if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) ringcolor(false);
+        }
         break;
         
         /*case LINKEQUIP:

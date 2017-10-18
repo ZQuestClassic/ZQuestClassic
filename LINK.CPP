@@ -39,10 +39,6 @@ extern int draw_screen_clip_rect_x2;
 extern int draw_screen_clip_rect_y1;
 extern int draw_screen_clip_rect_y2;
 //extern bool draw_screen_clip_rect_show_link;
-extern short ffposx[32];
-extern short ffposy[32];
-extern long ffprvx[32];
-extern long ffprvy[32];
 extern bool global_wait;
 
 int link_count = -1;
@@ -1874,8 +1870,8 @@ void LinkClass::checkstab()
         {
             // Checking the whimsical ring for every collision check causes
             // an odd bug. It's much more likely to activate on a 0-damage
-            // weapon, since a 0-damage hit won't make the enemy vulnerable to
-            // damaging hits in the following frames.
+            // weapon, since a 0-damage hit won't make the enemy invulnerable
+            // to damaging hits in the following frames.
             
             int whimsyid = current_item_id(itype_whimsicalring);
             int whimsypower = 0;
@@ -3592,7 +3588,10 @@ bool LinkClass::animate(int)
                                                !(tmpscr->flags2&wfUP)) && (nextcombo_solid(up))))))
                     && fall < 0)
             {
-                fall = 0; //bumped his head
+                fall = 0; // Bumped his head
+                
+                // ... maybe on spikes
+                checkdamagecombos(x+4, x+12, y-1, y-1);
             }
             
             if(hoverclk)
@@ -5063,14 +5062,7 @@ bool LinkClass::startwpn(int itemid)
         //Beams already deployed
         if(Lwpns.idCount(wCByrna))
         {
-            for(int i=0; i<Lwpns.Count(); i++)
-            {
-                weapon *w = ((weapon*)Lwpns.spr(i));
-                
-                if(w->id==wCByrna)
-                    w->dead=1;
-            }
-            
+            stopCaneOfByrna();
             return false;
         }
         
@@ -5258,11 +5250,13 @@ bool LinkClass::doattack()
                 attackclk=1;
                 sfx(itemsbuf[current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(int(x)));
             }
+            /*
             else if(attack==wWand)
             {
                 //Not reachable.. yet
                 spins=1;
             }
+            */
             else if(attack==wHammer && sideviewhammerpound())
             {
                 spins=1; //signifies the quake hammer
@@ -7572,7 +7566,7 @@ void LinkClass::move(int d2)
         }
     }
     
-    if((charging==0 || attack==wHammer) && spins==0)
+    if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME)
     {
         dir=d2;
     }
@@ -8052,8 +8046,11 @@ void LinkClass::checkpushblock()
     
     if(z!=0) return;
     
+    // Return early in some cases..
+    bool earlyReturn=false;
+    
     if(!get_bit(quest_rules,qr_LTTPWALK) || dir==left)
-        if(int(x)&15) return;
+        if(int(x)&15) earlyReturn=true;
         
     // if(y<16) return;
     if(tmpscr->flags7&fSIDEVIEW && !ON_SIDEPLATFORM) return;
@@ -8066,7 +8063,8 @@ void LinkClass::checkpushblock()
     case up:
         if(y<16)
         {
-            return;
+            earlyReturn=true;
+            break;
         }
         
         if(!((int)y&15)&&y!=0) by-=get_bit(quest_rules, qr_LTTPCOLLISION)*16;
@@ -8078,7 +8076,8 @@ void LinkClass::checkpushblock()
     case down:
         if(y>128)
         {
-            return;
+            earlyReturn=true;
+            break;
         }
         else
         {
@@ -8092,7 +8091,8 @@ void LinkClass::checkpushblock()
     case left:
         if(x<32)
         {
-            return;
+            earlyReturn=true;
+            break;
         }
         else
         {
@@ -8109,7 +8109,8 @@ void LinkClass::checkpushblock()
     case right:
         if(x>208)
         {
-            return;
+            earlyReturn=true;
+            break;
         }
         else
         {
@@ -8124,6 +8125,10 @@ void LinkClass::checkpushblock()
         break;
     }
     
+    // In sideview, we still have to check for damage combos.
+    if(earlyReturn && (tmpscr->flags7&fSIDEVIEW)==0)
+        return;
+    
     int f = MAPFLAG(bx,by);
     int f2 = MAPCOMBOFLAG(bx,by);
     int t = combobuf[MAPCOMBO(bx,by)].type;
@@ -8137,27 +8142,22 @@ void LinkClass::checkpushblock()
         if(combo_class_buf[t].modify_hp_amount && _walkflag(bx,by,1) && pushing>0 && hclk<1 && action!=casting && !get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS))
         {
             // Bite Link
-            (void) checkdamagecombos(bx+8-(tmpscr->csensitive),
-                                     bx+8+(zc_max(tmpscr->csensitive-1,0)),
-                                     by+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:12)-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
-                                     by+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
+            checkdamagecombos(bx+8-(tmpscr->csensitive),
+                              bx+8+(zc_max(tmpscr->csensitive-1,0)),
+                              by+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:12)-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
+                              by+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
             return;
         }
-        else if(tmpscr->flags7&fSIDEVIEW && ON_SIDEPLATFORM && _walkflag(x+8,y+17,0))  // Standing on a solid combo in sideview?
+        if((tmpscr->flags7&fSIDEVIEW) && // Check for sideview damage combos
+                hclk<1 && action!=casting) // ... but only if Link could be hurt
         {
-            int t2=(combobuf[i==0 ? MAPCOMBO(x+8,y+17) : MAPCOMBO2(i-1,x+8,y+17)].type);
-            
-            if(combo_class_buf[t2].modify_hp_amount && hclk<1 && action!=casting)
-            {
-                // Bite Link
-                (void) checkdamagecombos(x+8-(fix)(tmpscr->csensitive),
-                                         x+8+(zc_max(tmpscr->csensitive-1,0)),
-                                         y+17-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
-                                         y+17+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
+            if(checkdamagecombos(x+4, x+12, y+16, y+24))
                 return;
-            }
         }
     }
+    
+    if(earlyReturn)
+        return;
     
     int itemid=current_item_id(itype_bracelet);
     
@@ -10901,10 +10901,6 @@ bool LinkClass::dowarp(int type, int index)
     
     update_subscreens();
     verifyBothWeapons();
-    memset(ffposx,0xFF,sizeof(short)*32);
-    memset(ffposy,0xFF,sizeof(short)*32);
-    memset(ffprvx,0xFF,sizeof(float)*32);
-    memset(ffprvy,0xFF,sizeof(float)*32);
     
     if(wtype==wtCAVE)
     {
@@ -12811,10 +12807,6 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
     }
     
     playLevelMusic();
-    memset(ffposx,0xFF,sizeof(short)*32);
-    memset(ffposy,0xFF,sizeof(short)*32);
-    memset(ffprvx,0xFF,sizeof(float)*32);
-    memset(ffprvy,0xFF,sizeof(float)*32);
     
     newscr_clk = frame;
     activated_timed_warp=false;
@@ -13161,6 +13153,17 @@ int Bweapon(int pos)
     return 0;
 }
 
+void stopCaneOfByrna()
+{
+    for(int i=0; i<Lwpns.Count(); i++)
+    {
+        weapon *w = ((weapon*)Lwpns.spr(i));
+        
+        if(w->id==wCByrna)
+            w->dead=1;
+    }
+}
+
 // Used to find out if an item family is attached to one of the buttons currently pressed.
 bool isWpnPressed(int wpn)
 {
@@ -13381,12 +13384,14 @@ void dospecialmoney(int index)
     switch(tmpscr[tmp].room)
     {
     case rINFO:                                             // pay for info
-        if(game->get_spendable_rupies() < abs(prices[priceindex]))
-            return;
-            
-        if(!current_item_power(itype_wallet))
-            game->change_drupy(-abs(prices[priceindex]));
-            
+        if(prices[priceindex]!=100000) // 100000 is a placeholder price for free items
+        {
+            if(game->get_spendable_rupies() < abs(prices[priceindex]))
+                return;
+                
+            if(!current_item_power(itype_wallet))
+                game->change_drupy(-abs(prices[priceindex]));
+        }
         rectfill(msgdisplaybuf, 0, 0, msgdisplaybuf->w, 80, 0);
         donewmsg(QMisc.info[tmpscr[tmp].catchall].str[priceindex]);
         clear_bitmap(pricesdisplaybuf);
@@ -13854,10 +13859,13 @@ void LinkClass::checkitems(int index)
                 return;
                 
         case rSHOP:                                           // shop
-            if(game->get_spendable_rupies()<abs(prices[PriceIndex]) && !current_item_power(itype_wallet))
-                return;
+            if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
+            {
+                if(game->get_spendable_rupies()<abs(prices[PriceIndex]) && !current_item_power(itype_wallet))
+                    return;
                 
-            game->change_drupy(-abs(prices[PriceIndex]));
+                game->change_drupy(-abs(prices[PriceIndex]));
+            }
             boughtsomething=true;
             //make the other shop items untouchable after
             //you buy something

@@ -32,8 +32,10 @@ int Rand(int maxvalue);
 void Quit();
 
 /**
-* Temporarily halts execution of the current script. This function returns at the beginning of the next frame of gameplay.
-* Slots 1, 3 and 4 Global scripts and item scripts only execute for one frame, so in those scripts Waitframe() is essentially Quit().
+* Temporarily halts execution of the current script. This function returns at
+* the beginning of the next frame of gameplay.
+* Slots 1, 3 and 4 Global scripts and item scripts only execute for one frame,
+* so in those scripts Waitframe() is essentially Quit().
 * It is safe to call Waitframe in the active global script.
 */
 void Waitframe();
@@ -63,7 +65,8 @@ void TraceB(bool state);
 void TraceS(int s[]);
 
 /**
-* Prints a line in allegro.log representing 'val' in numerical base 'base', * where 2 <= base <= 36, with minimum digits 'mindigits'.
+* Prints a line in allegro.log representing 'val' in numerical base 'base',
+* where 2 <= base <= 36, with minimum digits 'mindigits'.
 * Can be useful for checking hex values or flags ORed together, or just to trace
 * an integer value, as Trace() always traces to four decimal places.
 */
@@ -289,12 +292,14 @@ class ffc
 	int TileHeight;
 
 	/**
-	* The width of the area of effect of the combo associated with the FFC, * in pixels.
+	* The width of the area of effect of the combo associated with the FFC,
+	* in pixels.
 	*/
 	int EffectWidth;
 
 	/**
-	* The height of the area of effect of the combo associated with the FFC, * in pixels.
+	* The height of the area of effect of the combo associated with the FFC,
+	* in pixels.
 	*/
 	int EffectHeight;
 
@@ -372,14 +377,16 @@ namespace Link
 	/**
 	* The time, in frames, that Link will be 'drunk'. If positive, the player's
 	* controls are randomly interfered with, causing Link to move erratically.
-	* This value is decremented once per frame. As the value of Drunk approaches 0, * the intensity of the effect decreases.
+	* This value is decremented once per frame. As the value of Drunk approaches 0,
+	* the intensity of the effect decreases.
 	*/
 	int Drunk;
 
 	/**
 	* The direction Link is facing. Use the DIR_ constants in std.zh to set
 	* or compare this variable. Note: even though Link can move diagonally if the
-	* quest allows it, his sprite doesn't ever use any of the diagonal directions, * which are intended for enemies only.
+	* quest allows it, his sprite doesn't ever use any of the diagonal directions,
+	* which are intended for enemies only.
 	*/
 	int Dir;
 
@@ -445,7 +452,8 @@ namespace Link
 	/**
 	* The following Press* boolean values return true if the player activated
 	* the corresponding button, analog stick, or key this frame. Writing to this
-	* variable simulates the press or release of that referenced button, analog stick, * or keys input press state.
+	* variable simulates the press or release of that referenced button, analog stick,
+	* or keys input press state.
 	*/
 
 	bool InputStart;
@@ -521,7 +529,8 @@ namespace Link
 	* Contains the item IDs of what is currently equiped to Link's A and B buttons.
 	* The first 8 bits contain the A button item, and the second 8 bits contain the B button item.
 	* Currently it is only possible to retrieve this value and not to set it.
-	* If you are not comfortable with performing binary operations, * you can use the GetLinkEquipment'X' functions from std.zh.
+	* If you are not comfortable with performing binary operations,
+	* you can use the GetLinkEquipment'X' functions from std.zh.
 	*/
 	int Equipment;
 
@@ -662,7 +671,8 @@ namespace Screen
 
 	/**
 	* The CSet of the tile used by the ith combo on the screen, where i is
-	* the index used to access this array. Combos are counted left to right, * top to bottom.
+	* the index used to access this array. Combos are counted left to right,
+	* top to bottom.
 	*/
 	int ComboC[];
 
@@ -783,7 +793,8 @@ namespace Screen
 
 	/**
 	* The time, in frames, that the 'wave' screen effect will be in effect.
-	* This value is decremented once per frame. As the value of Wavy approaches 0, * the intensity of the waves decreases.
+	* This value is decremented once per frame. As the value of Wavy approaches 0,
+	* the intensity of the waves decreases.
 	*/
 	int Wavy;
 
@@ -961,8 +972,9 @@ namespace Screen
 	/**
 	* Clears all of a certain kind of sprite from the screen. Use the SL_
 	* constants in std.zh to pass into this method.
-	*Please note:
-	For all draw primitives, if the quest rule 'Subscreen Appears Above Sprites' is set,passing the layer argument as 7 will allow drawing on top of the subscreen
+	* Please note: For all draw primitives, if the quest rule 'Subscreen Appears
+	* Above Sprites' is set,passing the layer argument as 7 will allow drawing
+	* on top of the subscreen
 	*/
 	void ClearSprites(int spritelist);
 
@@ -1074,13 +1086,15 @@ namespace Screen
 	void PutPixel(int layer, int x, int y, int color, int rx, int ry, int rangle, int opacity);
 
 	/**
-	* Draws a block of tiles on the specified layer of the current screen, * starting at (x,y), using the specified cset.
+	* Draws a block of tiles on the specified layer of the current screen,
+	* starting at (x,y), using the specified cset.
 	* Starting with the specified tile, this method copies a block of size
 	* blockh x blockw from the tile sheet to the screen. This method's
 	* behavior is undefined unless 1 <= blockh, blockw <= 20.
 	* Scale specifies the actual size in pixels! So scale 1 would mean it is
 	* only one pixel in size. To use the default sizes of block w,h you must
-	* set xscale and yscale to -1. These values are not independant of one another, * so you cannot set xscale and leave yscale at -1.
+	* set xscale and yscale to -1. These values are not independant of one another,
+	* so you cannot set xscale and leave yscale at -1.
 	* rx, ry : these work now, just like the other primitives.
 	* rangle performs a rotation clockwise using an angle of rangle degrees.
 	* Flip specifies how the tiles should be flipped when drawn:
@@ -1103,13 +1117,16 @@ namespace Screen
 	void FastTile( int layer, int x, int y, int tile, int cset, int opacity );
 
 	/**
-	* Draws a combo on the specified layer of the current screen, * starting at (x,y), using the specified cset.
-	* Starting with the specified tile referenced by the combo, * this method copies a block of size
+	* Draws a combo on the specified layer of the current screen,
+	* starting at (x,y), using the specified cset.
+	* Starting with the specified tile referenced by the combo,
+	* this method copies a block of size
 	* blockh x blockw from the tile sheet to the screen. This method's
 	* behavior is undefined unless 1 <= blockh, blockw <= 20.
 	* Scale specifies the actual size in pixels! So scale 1 would mean it is
 	* only one pixel in size. To use the default sizes of block w,h you must
-	* set xscale and yscale to -1. These values are not independant of one another, * so you cannot set xscale and leave yscale at -1.
+	* set xscale and yscale to -1. These values are not independant of one another,
+	* so you cannot set xscale and leave yscale at -1.
 	* rx, ry : works now :
 	* rangle performs a rotation clockwise using an angle of rangle degrees.
 	* Flip specifies how the tiles should be flipped when drawn:
@@ -1140,7 +1157,9 @@ namespace Screen
 	void Message(int string);
 
 	/**
-	* Draws a single ASCII character 'glyph' on the specified layer of the current screen, * using the specified font index (see std.zh for FONT_* list to pass to this method), * starting at (x,y), using the specified color as the foreground color
+	* Draws a single ASCII character 'glyph' on the specified layer of the current screen,
+	* using the specified font index (see std.zh for FONT_* list to pass to this method),
+	* starting at (x,y), using the specified color as the foreground color
 	* and background_color as the background color. * NOTE * Use -1 for a transparent background.
 	* The arguments width and height may be used to draw the glyph
 	* of any arbitrary size begining at 1 pixel up to 512 pixels large. (more than four times the size of the screen)
@@ -1151,7 +1170,9 @@ namespace Screen
 	void DrawCharacter(int layer, int x, int y, int font,int color, int background_color,int width, int height, int glyph, int opacity );
 
 	/**
-	* Draws a zscript 'int' or 'float' on the specified layer of the current screen, * using the specified font index (see std.zh for FONT_* list to pass to this method), * starting at (x,y), using the specified color as the foreground color
+	* Draws a zscript 'int' or 'float' on the specified layer of the current screen,
+	* using the specified font index (see std.zh for FONT_* list to pass to this method),
+	* starting at (x,y), using the specified color as the foreground color
 	* and background_color as the background color. * NOTE * Use -1 for a transparent background.
 	* The arguments width and height may be used to draw the number
 	* of any arbitrary size begining at 1 pixel up to 512 pixels large.
@@ -1165,7 +1186,9 @@ namespace Screen
 
 	/**
 	* Prints a NULL terminated string up to 256 characters from an int array
-	* containing ASCII data (*ptr) on the specified layer of the current screen, * using the specified font index (see std.zh for FONT_* list to pass to this method), * using the specified color as the foreground color
+	* containing ASCII data (*ptr) on the specified layer of the current screen,
+	* using the specified font index (see std.zh for FONT_* list to pass to this method),
+	* using the specified color as the foreground color
 	* and background_color as the background color. * NOTE * Use -1 for a transparent background.
 	* The array pointer should be passed as the argument for '*ptr', ie.
 	* int string[] = "Example String"; Screen->DrawString(l,x,y,f,c,b_c,fo,o,string);
@@ -1184,9 +1207,11 @@ namespace Screen
 	* quad so it appears upside-down. -yes, these are rotatable. )
 	* From there a single or block of tiles or combos is then texture mapped
 	* onto the quad using the arguments w, h, cset, flip, and render_mode.
-	* A positive vale in texture will draw the image from the tilesheet pages, * whereas a negative value will be drawn from the combo page. 0 will draw combo number 0.
+	* A positive vale in texture will draw the image from the tilesheet pages,
+	* whereas a negative value will be drawn from the combo page. 0 will draw combo number 0.
 	* Both w and h are undefined unless 1 <= blockh, blockw <= 16, and it is a power of
 	* two. ie: 1, 2 are acceptable, but 2, 15 are not.
+
 
 	* Flip specifies how the tiles/combos should be flipped when drawn:
 	* 0: No flip
@@ -1202,7 +1227,8 @@ namespace Screen
 	* Corners are drawn in a counterclockwise order starting from x1,y1.
 	* From there a single or block of tiles or combos is then texture mapped
 	* onto the triangle using the arguments w, h, cset, flip, and render_mode.
-	* A positive vale in texture will draw the image from the tilesheet pages, * whereas a negative value will be drawn from the combo page. 0 will draw combo number 0.
+	* A positive vale in texture will draw the image from the tilesheet pages,
+	* whereas a negative value will be drawn from the combo page. 0 will draw combo number 0.
 	* Both w and h are undefined unless 1 <= blockh, blockw <= 16, and it is a power of
 	* two. ie: 1, 2 are acceptable, but 2, 15 are not.
 	* Flip specifies how the tiles/combos should be flipped when drawn:
@@ -1237,7 +1263,8 @@ namespace Screen
 
 	/**
 	* Sets the target bitmap for all succesive drawing commands.
-	* These can be directly to the screen or any one of the available off-screen bitmaps, * which are generally categorized as -1(screen) or 0-bitmapNumber(off-screen).
+	* These can be directly to the screen or any one of the available off-screen bitmaps,
+	* which are generally categorized as -1(screen) or 0-bitmapNumber(off-screen).
 	*** See std.zh for a complete list of valid render targets (RT_*).
 	*/
 	void SetRenderTarget( int bitmap_id );
@@ -1283,7 +1310,8 @@ class item
 {
 	/**
 	* Returns whether this item pointer is still valid. An item pointer
-	* becomes invalid when Link picks up the item, the item fades away, * or Link leaves the screen. Accessing any variables using an
+	* becomes invalid when Link picks up the item, the item fades away,
+	* or Link leaves the screen. Accessing any variables using an
 	* invalid item pointer prints an error message to allegro.log and
 	* does nothing.
 	*/
@@ -1352,7 +1380,8 @@ class item
 	int ASpeed;
 
 	/**
-	* The amount of time the animation is suspended after the last frame, * before the animation restarts, in item frames. That is, the total
+	* The amount of time the animation is suspended after the last frame,
+	* before the animation restarts, in item frames. That is, the total
 	* number of screen frames of extra wait is Delay*ASpeed.
 	*/
 	int Delay;
@@ -1449,7 +1478,8 @@ class item
 
 	/**
 	* An array of 16 miscellaneous variables for you to use as you please.
-	* Note that lweapons and eweapons possess exactly the same attributes, * although their designation affects how they are treated by the engine.
+	* Note that lweapons and eweapons possess exactly the same attributes,
+	* although their designation affects how they are treated by the engine.
 	* The values here correspond to both the lweapon and eweapon type.
 	*/
 	float Misc[];
@@ -1474,7 +1504,8 @@ class weapon
 
 	/**
 	* Reads a 'Weapons/Misc' sprite entry in your quest file, and assigns
-	* the OriginalTile, Tile, OriginalCSet, CSet, FlashCSet, NumFrames, * Frame, ASpeed, Flip and Flash variables of this weapon based on
+	* the OriginalTile, Tile, OriginalCSet, CSet, FlashCSet, NumFrames,
+	* Frame, ASpeed, Flip and Flash variables of this weapon based on
 	* this entry's data. Passing negative values, and values greater than
 	* 255, will do nothing.
 	*/
@@ -1717,7 +1748,8 @@ class itemdata
 	void GetName(int buffer[]);
 
 	/**
-	* The kind of item to which this class belongs (swords, boomerangs, * potions, etc.) Use the IC_ constants in std.zh to set or compare this
+	* The kind of item to which this class belongs (swords, boomerangs,
+	* potions, etc.) Use the IC_ constants in std.zh to set or compare this
 	* value.
 	*/
 	int Family;
@@ -1979,7 +2011,8 @@ namespace Game
 	/**
 	* The current value of the game drain counters. Use the CR_ constants
 	* in std.zh to index into this array.
-	* Note that if the player hasn't acquired the '1/2 Magic Upgrade' yet, * then setting the CR_MAGIC drain counter to a negative value will
+	* Note that if the player hasn't acquired the '1/2 Magic Upgrade' yet,
+	* then setting the CR_MAGIC drain counter to a negative value will
 	* drain the magic counter by 2 per frame rather than 1.
 	*/
 	int DCounter[];
@@ -2007,17 +2040,20 @@ namespace Game
 	int LKeys[];
 
 	/**
-	* Returns the screen flags from screen 'screen' on map 'map', * interpreted in the same way as Screen->Flags
+	* Returns the screen flags from screen 'screen' on map 'map',
+	* interpreted in the same way as Screen->Flags
 	*/
 	int GetScreenFlags(int map, int screen, int flagset);
 
 	/**
-	* Returns the enemy flags from screen 'screen' on map 'map', * interpreted in the same way as Screen->EFlags
+	* Returns the enemy flags from screen 'screen' on map 'map',
+	* interpreted in the same way as Screen->EFlags
 	*/
 	int GetScreenEFlags(int map, int screen, int flagset);
 
 	/**
-	* As with State, but retrieves the miscellaneous flags of any screen, * not just the current one. This function is undefined if map is less
+	* As with State, but retrieves the miscellaneous flags of any screen,
+	* not just the current one. This function is undefined if map is less
 	* than 1 or greater than the maximum map number of your quest, or if
 	* screen is greater than 127.
 	* Note: Screen numbers in ZQuest are usually displayed in hexadecimal.
@@ -2215,7 +2251,8 @@ namespace Game
 	int GetComboSolid(int map, int screen, int position);
 
 	/**
-	* Sets a particular combo's solidity anywhere in the game world, * based on map (NOT DMap), screen number, and position. Position
+	* Sets a particular combo's solidity anywhere in the game world,
+	* based on map (NOT DMap), screen number, and position. Position
 	* is considered an index, treated the same way as in Screen->ComboS[].
 	* Note that you are grabbing an actual combo attribute as referenced
 	* by the combo on screen you're referring to, which means that
@@ -2297,7 +2334,8 @@ class npc
 	bool isValid();
 
 	/**
-	* Loads the npc's name into 'buffer'. To load an NPC from an ID rather than a pointer, * use 'GetNPCName' from std.zh
+	* Loads the npc's name into 'buffer'. To load an NPC from an ID rather than a pointer,
+	* use 'GetNPCName' from std.zh
 	*/
 	void GetName(int buffer[]);
 
@@ -2341,7 +2379,8 @@ class npc
 	int Dir;
 
 	/**
-	* The rate at which the NPC changes direction. For a point of reference, * the "Octorok (Magic)" enemy has a rate of 16. The effect of writing to
+	* The rate at which the NPC changes direction. For a point of reference,
+	* the "Octorok (Magic)" enemy has a rate of 16. The effect of writing to
 	* this field is currently undefined.
 	*/
 	int Rate;
@@ -2530,7 +2569,8 @@ class npc
 	int Attributes[];
 
 	/**
-	* The npc's Misc. Flags as 14 bits ORed together, starting with 'Damaged by Power 0 Weapons', * and working down the flags in the order they are shown in the Enemy Editor.
+	* The npc's Misc. Flags as 14 bits ORed together, starting with 'Damaged by Power 0 Weapons',
+	* and working down the flags in the order they are shown in the Enemy Editor.
 	* npc->MiscFlags is read-only; while setting it is not syntactically incorrect, it does nothing.
 	* If you are not comfortable with binary operations, you can use 'GetNPCMiscFlag' from std.zh
 	*/

@@ -177,14 +177,30 @@ int MAPCOMBO(int x,int y)
     return tmpscr->data[combo];                               // entire combo code
 }
 
+// True if the FFC covers x, y and is not ethereal or a changer.
+// Used by MAPFFCOMBO(), MAPFFCOMBOFLAG, and getFFCAt().
+inline bool ffcIsAt(int index, int x, int y)
+{
+    int fx=tmpscr->ffx[index]/10000;
+    if(x<fx || x>fx+(tmpscr->ffwidth[index]&63)) // FFC sizes are weird.
+        return false;
+    
+    int fy=tmpscr->ffy[index]/10000;
+    if(y<fy || y>fy+(tmpscr->ffheight[index]&63))
+        return false;
+    
+    if((tmpscr->ffflags[index]&(ffCHANGER|ffETHEREAL))!=0)
+        return false;
+    
+    return true;
+}
+
 int MAPFFCOMBO(int x,int y)
 {
     for(int i=0; i<32; i++)
     {
-        if(x>=(tmpscr->ffx[i]/10000)&&x<(tmpscr->ffx[i]/10000)+(tmpscr->ffwidth[i]&63)+1)
-            if(y>=(tmpscr->ffy[i]/10000)&&y<(tmpscr->ffy[i]/10000)+(tmpscr->ffheight[i]&63)+1)
-                if(!(tmpscr->ffflags[i]&ffCHANGER) && !(tmpscr->ffflags[i]&ffETHEREAL))
-                    return tmpscr->ffdata[i];
+        if(ffcIsAt(i, x, y))
+            return tmpscr->ffdata[i];
     }
     
     return 0;
@@ -231,15 +247,11 @@ int MAPFFCOMBOFLAG(int x,int y)
 {
     for(int i=0; i<32; i++)
     {
-        if(x>=(tmpscr->ffx[i]/10000)&&x<((tmpscr->ffx[i]/10000)+(tmpscr->ffwidth[i]&63)+1))
-            if(y>=(tmpscr->ffy[i]/10000)&&y<((tmpscr->ffy[i]/10000)+(tmpscr->ffheight[i]&63)+1))
-            {
-                if(!(tmpscr->ffflags[i]&ffCHANGER) && !(tmpscr->ffflags[i]&ffETHEREAL))
-                {
-                    current_ffcombo = i;
-                    return combobuf[tmpscr->ffdata[i]].flag;
-                }
-            }
+        if(ffcIsAt(i, x, y))
+        {
+            current_ffcombo = i;
+            return combobuf[tmpscr->ffdata[i]].flag;
+        }
     }
     
     current_ffcombo=-1;
@@ -250,14 +262,8 @@ int getFFCAt(int x, int y)
 {
     for(int i=0; i<32; i++)
     {
-        if(x>=(tmpscr->ffx[i]/10000)&&x<((tmpscr->ffx[i]/10000)+(tmpscr->ffwidth[i]&63)+1))
-            if(y>=(tmpscr->ffy[i]/10000)&&y<((tmpscr->ffy[i]/10000)+(tmpscr->ffheight[i]&63)+1))
-            {
-                if(!(tmpscr->ffflags[i]&ffCHANGER) && !(tmpscr->ffflags[i]&ffETHEREAL))
-                {
-                    return i;
-                }
-            }
+        if(ffcIsAt(i, x, y))
+            return i;
     }
     
     return -1;
@@ -4552,6 +4558,23 @@ void map_bkgsfx(bool on)
 //BITMAP *mappic = NULL;
 int mapres = 0;
 
+bool displayOnMap(int x, int y)
+{
+    int s = (y<<4) + x;
+    if(!(game->maps[(currmap*MAPSCRSNORMAL)+s]&mVISITED))
+        return false;
+
+    // Don't display if not part of DMap
+    if(((DMaps[currdmap].flags&dmfDMAPMAP) &&
+       (DMaps[currdmap].type != dmOVERW) &&
+       !(x >= DMaps[currdmap].xoff &&
+         x < DMaps[currdmap].xoff+8 &&
+         DMaps[currdmap].grid[y]&(128>>(x-DMaps[currdmap].xoff)))))
+        return false;
+    else
+        return true;
+}
+
 void ViewMap()
 {
     mapscr tmpscr_b[2];
@@ -4603,42 +4626,30 @@ void ViewMap()
     {
         for(int x=0; x<16; x++)
         {
-            int s = (y<<4) + x;
-            
-            if(!(game->maps[(currmap*MAPSCRSNORMAL)+s]&mVISITED) ||
-                    // Don't display if not part of DMap
-                    ((DMaps[currdmap].flags&dmfDMAPMAP)
-                     && (DMaps[currdmap].type != dmOVERW)
-                     && !(x >= DMaps[currdmap].xoff
-                          && x < DMaps[currdmap].xoff+8
-                          && DMaps[currdmap].grid[y]&(128>>(x-DMaps[currdmap].xoff)))))
+            if(!displayOnMap(x, y))
             {
                 rectfill(scrollbuf, 256, 0, 511, 223, WHITE);
             }
             else
             {
+                int s = (y<<4) + x;
                 loadscr2(1,s,-1);
                 
                 for(int i=0; i<6; i++)
                 {
-                    if(tmpscr[1].layermap[i]>0)
+                    if(tmpscr[1].layermap[i]<=0)
+                        continue;
+                    
+                    if((ZCMaps[tmpscr[1].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
+                       (ZCMaps[tmpscr[1].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
                     {
-                        if((ZCMaps[tmpscr[1].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[1].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
-                        {
-                            const int _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
-                            
-                            tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
-                            
-                            tmpscr2[i].data.resize(_mapsSize, 0);
-                            tmpscr2[i].sflag.resize(_mapsSize, 0);
-                            tmpscr2[i].cset.resize(_mapsSize, 0);
-                        }
-                        else
-                        {
-                        }
-                    }
-                    else
-                    {
+                        const int _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
+                        
+                        tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
+                        
+                        tmpscr2[i].data.resize(_mapsSize, 0);
+                        tmpscr2[i].sflag.resize(_mapsSize, 0);
+                        tmpscr2[i].cset.resize(_mapsSize, 0);
                     }
                 }
                 

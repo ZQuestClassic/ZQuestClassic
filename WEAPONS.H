@@ -51,7 +51,8 @@ public:
     void LOADGFX(int wpn);
     bool Dead();
     bool clip();
-    virtual bool blocked();
+    bool blocked();
+    virtual bool blocked(int xOffset, int yOffset);
     virtual bool animate(int index);
     virtual void onhit(bool clipped);
     virtual void onhit(bool clipped, int special, int linkdir);

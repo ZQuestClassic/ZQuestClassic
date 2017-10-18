@@ -413,6 +413,7 @@ int lwpn_dp(int index);
 bool checkmagiccost(int itemid);
 void paymagiccost(int itemid);
 int Bweapon(int pos);
+void stopCaneOfByrna();
 //void selectWpn(int xstep, int ystep, bool b);
 const int SEL_UP = 0;
 const int SEL_LEFT = 1;

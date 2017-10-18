@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 907
-  Height = 408
-  Top = 326
+  Left = 477
+  Height = 431
+  Top = 185
   Width = 586
   HorzScrollBar.Page = 585
   HorzScrollBar.Range = 585
@@ -10,8 +10,8 @@ object Form1: TForm1
   VertScrollBar.Visible = False
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  Caption = 'Zelda Classic Launcher 2.5.5'
-  ClientHeight = 408
+  Caption = 'Zelda Classic Launcher 2.5.6'
+  ClientHeight = 431
   ClientWidth = 586
   Color = clForm
   Font.Color = clWhite
@@ -9301,11 +9301,11 @@ object Form1: TForm1
   }
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '0.9.30.2'
+  LCLVersion = '1.2.4.0'
   object Image7: TImage
     Left = 0
     Height = 42
-    Top = 366
+    Top = 389
     Width = 586
     Align = alBottom
     Picture.Data = {
@@ -10099,10 +10099,11 @@ object Form1: TForm1
   end
   object Image1: TImage
     Left = 0
-    Height = 64
+    Height = 65
     Top = 0
     Width = 586
     Align = alTop
+    AutoSize = True
     Picture.Data = {
       1754506F727461626C654E6574776F726B477261706869638DC8000089504E47
       0D0A1A0A0000000D494844520000020000000041080200000028818B4D000000
@@ -11716,7 +11717,7 @@ object Form1: TForm1
   object SpeedButton1: TSpeedButton
     Left = 0
     Height = 40
-    Top = 368
+    Top = 389
     Width = 112
     Caption = 'Launch ZC'
     Font.Height = -13
@@ -11853,15 +11854,14 @@ object Form1: TForm1
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000
     }
-    NumGlyphs = 0
     Transparent = False
     OnClick = BitBtn1Click
     ParentFont = False
   end
   object SpeedButton2: TSpeedButton
-    Left = 474
+    Left = 472
     Height = 40
-    Top = 368
+    Top = 389
     Width = 112
     Caption = 'Launch ZQ'
     Font.Height = -13
@@ -11999,16 +11999,15 @@ object Form1: TForm1
       0000000000000000000000000000000000000000000000000000
     }
     Layout = blGlyphRight
-    NumGlyphs = 0
     Transparent = False
     OnClick = BitBtn2Click
     ParentFont = False
   end
   object Label23: TLabel
     Left = 0
-    Height = 15
+    Height = 14
     Top = 0
-    Width = 381
+    Width = 379
     Caption = 'Zelda Classic was not detected. Please place ZCL in the ZC directory.'
     Color = clRed
     Font.Color = clWhite
@@ -17534,28 +17533,26 @@ object Form1: TForm1
     Stretch = True
     Visible = False
   end
-  object Notebook1: TNotebook
+  object PageControl1: TPageControl
     Left = 0
-    Height = 304
-    Top = 64
+    Height = 324
+    Top = 65
     Width = 586
-    Align = alTop
-    Font.Height = -11
-    Font.Name = 'Arial'
+    ActivePage = TabSheet1
+    Align = alClient
     Images = ImageList1
-    PageIndex = 0
-    ParentFont = False
+    TabIndex = 0
     TabOrder = 0
-    object Page2: TPage
+    object TabSheet1: TTabSheet
       Caption = 'Zelda Classic'
+      ClientHeight = 297
       ClientWidth = 578
-      ClientHeight = 277
       ImageIndex = 5
       object Label1: TLabel
         Left = 4
-        Height = 17
+        Height = 16
         Top = 1
-        Width = 89
+        Width = 88
         Caption = 'Screen Mode:'
         Font.Height = -13
         Font.Name = 'Arial'
@@ -17565,9 +17562,9 @@ object Form1: TForm1
       end
       object Label2: TLabel
         Left = 4
-        Height = 17
+        Height = 16
         Top = 25
-        Width = 121
+        Width = 120
         Caption = 'Screen Resolution:'
         Font.Height = -13
         Font.Name = 'Arial'
@@ -17577,9 +17574,9 @@ object Form1: TForm1
       end
       object Label3: TLabel
         Left = 4
-        Height = 17
+        Height = 16
         Top = 49
-        Width = 67
+        Width = 66
         Caption = 'Limit FPS:'
         Font.Height = -13
         Font.Name = 'Arial'
@@ -17589,9 +17586,9 @@ object Form1: TForm1
       end
       object Label4: TLabel
         Left = 4
-        Height = 17
+        Height = 16
         Top = 73
-        Width = 71
+        Width = 70
         Caption = 'Show FPS:'
         Font.Height = -13
         Font.Name = 'Arial'
@@ -17601,9 +17598,9 @@ object Form1: TForm1
       end
       object Label5: TLabel
         Left = 4
-        Height = 17
+        Height = 16
         Top = 121
-        Width = 69
+        Width = 68
         Caption = 'Skip Logo:'
         Font.Height = -13
         Font.Name = 'Arial'
@@ -17613,9 +17610,9 @@ object Form1: TForm1
       end
       object Label6: TLabel
         Left = 4
-        Height = 17
+        Height = 16
         Top = 145
-        Width = 114
+        Width = 113
         Caption = 'Load Quest Icons:'
         Font.Height = -13
         Font.Name = 'Arial'
@@ -17625,9 +17622,9 @@ object Form1: TForm1
       end
       object Label7: TLabel
         Left = 4
-        Height = 17
+        Height = 16
         Top = 169
-        Width = 169
+        Width = 168
         Caption = 'Enable Heart Beep Sound:'
         Font.Height = -13
         Font.Name = 'Arial'
@@ -17637,9 +17634,9 @@ object Form1: TForm1
       end
       object Label8: TLabel
         Left = 4
-        Height = 17
+        Height = 16
         Top = 193
-        Width = 97
+        Width = 96
         Caption = 'Disable Sound:'
         Font.Height = -13
         Font.Name = 'Arial'
@@ -17649,9 +17646,9 @@ object Form1: TForm1
       end
       object Label9: TLabel
         Left = 4
-        Height = 17
+        Height = 16
         Top = 217
-        Width = 122
+        Width = 121
         Caption = 'Screenshot Output:'
         Font.Height = -13
         Font.Name = 'Arial'
@@ -17661,9 +17658,9 @@ object Form1: TForm1
       end
       object Label10: TLabel
         Left = 404
-        Height = 17
+        Height = 16
         Top = 1
-        Width = 78
+        Width = 77
         Caption = 'Title Screen'
         Font.Height = -13
         Font.Name = 'Arial'
@@ -17681,9 +17678,9 @@ object Form1: TForm1
       end
       object Label11: TLabel
         Left = 4
-        Height = 17
+        Height = 16
         Top = 97
-        Width = 117
+        Width = 116
         Caption = 'Name Entry Mode:'
         Font.Height = -13
         Font.Name = 'Arial'
@@ -17693,11 +17690,11 @@ object Form1: TForm1
       end
       object scrmodezc: TComboBox
         Left = 180
-        Height = 22
+        Height = 21
         Top = 1
         Width = 136
         Constraints.MaxHeight = 24
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           'Full Screen'
           'Window'
@@ -17708,11 +17705,11 @@ object Form1: TForm1
       end
       object scrreszc: TComboBox
         Left = 180
-        Height = 22
+        Height = 21
         Top = 25
         Width = 136
         Constraints.MaxHeight = 24
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           '320x240'
           '640x480'
@@ -17726,11 +17723,11 @@ object Form1: TForm1
       end
       object zclimfps: TComboBox
         Left = 180
-        Height = 22
+        Height = 21
         Top = 49
         Width = 136
         Constraints.MaxHeight = 24
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           'Yes'
           'No'
@@ -17741,11 +17738,11 @@ object Form1: TForm1
       end
       object zcshowfps: TComboBox
         Left = 180
-        Height = 22
+        Height = 21
         Top = 73
         Width = 136
         Constraints.MaxHeight = 24
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           'Yes'
           'No'
@@ -17756,11 +17753,11 @@ object Form1: TForm1
       end
       object zcskiplogo: TComboBox
         Left = 180
-        Height = 22
+        Height = 21
         Top = 121
         Width = 136
         Constraints.MaxHeight = 24
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           'Yes'
           'No'
@@ -17771,11 +17768,11 @@ object Form1: TForm1
       end
       object zcqicons: TComboBox
         Left = 180
-        Height = 22
+        Height = 21
         Top = 145
         Width = 136
         Constraints.MaxHeight = 24
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           'Yes'
           'No'
@@ -17786,11 +17783,11 @@ object Form1: TForm1
       end
       object zcbeep: TComboBox
         Left = 180
-        Height = 22
+        Height = 21
         Top = 169
         Width = 136
         Constraints.MaxHeight = 24
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           'Yes'
           'No'
@@ -17801,11 +17798,11 @@ object Form1: TForm1
       end
       object zcsound: TComboBox
         Left = 180
-        Height = 22
+        Height = 21
         Top = 193
         Width = 136
         Constraints.MaxHeight = 24
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           'Yes'
           'No'
@@ -17816,11 +17813,11 @@ object Form1: TForm1
       end
       object zcsshot: TComboBox
         Left = 180
-        Height = 22
+        Height = 21
         Top = 217
         Width = 136
         Constraints.MaxHeight = 24
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           'BMP'
           'GIF'
@@ -17836,7 +17833,7 @@ object Form1: TForm1
       object CheckBox2: TCheckBox
         Left = 4
         Height = 20
-        Top = 241
+        Top = 240
         Width = 176
         Caption = 'Enable Quickload Quest:'
         Font.Height = -13
@@ -17848,12 +17845,12 @@ object Form1: TForm1
       end
       object zcqld: TComboBox
         Left = 180
-        Height = 22
+        Height = 21
         Top = 241
         Width = 136
         Constraints.MaxHeight = 24
         Enabled = False
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           'Slot 1'
           'Slot 2'
@@ -17877,11 +17874,11 @@ object Form1: TForm1
       end
       object zctitle: TComboBox
         Left = 388
-        Height = 22
+        Height = 21
         Top = 17
         Width = 120
         Constraints.MaxHeight = 24
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           'Classic'
           'Modern'
@@ -17893,11 +17890,11 @@ object Form1: TForm1
       end
       object zcentrymode: TComboBox
         Left = 180
-        Height = 22
+        Height = 21
         Top = 97
         Width = 136
         Constraints.MaxHeight = 24
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           'Keyboard'
           'Letter Grid'
@@ -17907,32 +17904,48 @@ object Form1: TForm1
         Style = csDropDownList
         TabOrder = 12
       end
+      object multiinstance: TCheckBox
+        Left = 4
+        Height = 20
+        Top = 264
+        Width = 163
+        Caption = 'Run Multiple Instances'
+        Color = clNone
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        OnChange = multiinstanceChange
+        ParentColor = False
+        ParentFont = False
+        TabOrder = 13
+      end
     end
-    object Page3: TPage
+    object TabSheet2: TTabSheet
       Caption = 'Zquest'
-      ClientWidth = 582
-      ClientHeight = 272
+      ClientHeight = 297
+      ClientWidth = 578
       ImageIndex = 4
-      object PageControl2: TPageControl
+      object PageControl3: TPageControl
         Left = 0
-        Height = 272
+        Height = 297
         Top = 0
-        Width = 582
-        ActivePage = TabSheet5
+        Width = 578
+        ActivePage = TabSheet7
         Align = alClient
         Images = ImageList1
         TabIndex = 0
         TabOrder = 0
-        object TabSheet5: TTabSheet
+        object TabSheet7: TTabSheet
           Caption = 'Option Set 1'
-          ClientHeight = 268
-          ClientWidth = 578
-          ImageIndex = -1
+          ClientHeight = 270
+          ClientWidth = 570
+          ImageIndex = 0
           object Label12: TLabel
             Left = 4
             Height = 16
             Top = 1
-            Width = 86
+            Width = 88
             Caption = 'Screen Mode:'
             Font.Height = -13
             Font.Name = 'Arial'
@@ -17944,7 +17957,7 @@ object Form1: TForm1
             Left = 328
             Height = 16
             Top = 1
-            Width = 35
+            Width = 36
             Caption = 'Scale'
             Font.Height = -13
             Font.Name = 'Arial'
@@ -17957,7 +17970,7 @@ object Form1: TForm1
             Left = 4
             Height = 16
             Top = 50
-            Width = 67
+            Width = 66
             Caption = 'Limit FPS:'
             Font.Height = -13
             Font.Name = 'Arial'
@@ -17969,7 +17982,7 @@ object Form1: TForm1
             Left = 4
             Height = 16
             Top = 26
-            Width = 58
+            Width = 60
             Caption = 'Interface:'
             Font.Height = -13
             Font.Name = 'Arial'
@@ -18029,7 +18042,7 @@ object Form1: TForm1
             Left = 4
             Height = 16
             Top = 194
-            Width = 118
+            Width = 121
             Caption = 'Auto Save Interval:'
             Font.Height = -13
             Font.Name = 'Arial'
@@ -18041,7 +18054,7 @@ object Form1: TForm1
             Left = 4
             Height = 16
             Top = 170
-            Width = 115
+            Width = 116
             Caption = 'Auto Save Copies:'
             Font.Height = -13
             Font.Name = 'Arial'
@@ -18051,11 +18064,12 @@ object Form1: TForm1
           end
           object zqwinmode: TComboBox
             Left = 180
-            Height = 22
+            Height = 21
             Top = 1
             Width = 136
+            Color = clNone
             Constraints.MaxHeight = 24
-            ItemHeight = 14
+            ItemHeight = 13
             Items.Strings = (
               'Full Screen'
               'Window'
@@ -18066,11 +18080,12 @@ object Form1: TForm1
           end
           object scalemode: TComboBox
             Left = 376
-            Height = 22
+            Height = 21
             Top = 1
             Width = 56
+            Color = clNone
             Constraints.MaxHeight = 24
-            ItemHeight = 14
+            ItemHeight = 13
             Items.Strings = (
               '1x'
               '2x'
@@ -18084,11 +18099,12 @@ object Form1: TForm1
           end
           object zqfpslimit: TComboBox
             Left = 180
-            Height = 22
+            Height = 21
             Top = 50
             Width = 136
+            Color = clNone
             Constraints.MaxHeight = 24
-            ItemHeight = 14
+            ItemHeight = 13
             Items.Strings = (
               'Yes'
               'No'
@@ -18099,11 +18115,12 @@ object Form1: TForm1
           end
           object zinterface: TComboBox
             Left = 180
-            Height = 22
+            Height = 21
             Top = 26
             Width = 136
+            Color = clNone
             Constraints.MaxHeight = 24
-            ItemHeight = 14
+            ItemHeight = 13
             Items.Strings = (
               'Classic'
               'New (2.5)'
@@ -18114,11 +18131,12 @@ object Form1: TForm1
           end
           object zqsoundmode: TComboBox
             Left = 180
-            Height = 22
+            Height = 21
             Top = 98
             Width = 136
+            Color = clNone
             Constraints.MaxHeight = 24
-            ItemHeight = 14
+            ItemHeight = 13
             Items.Strings = (
               'Yes'
               'No'
@@ -18129,11 +18147,12 @@ object Form1: TForm1
           end
           object zqshowfps: TComboBox
             Left = 180
-            Height = 22
+            Height = 21
             Top = 74
             Width = 136
+            Color = clNone
             Constraints.MaxHeight = 24
-            ItemHeight = 14
+            ItemHeight = 13
             Items.Strings = (
               'Yes'
               'No'
@@ -18144,11 +18163,12 @@ object Form1: TForm1
           end
           object zqsshot: TComboBox
             Left = 180
-            Height = 22
+            Height = 21
             Top = 122
             Width = 136
+            Color = clNone
             Constraints.MaxHeight = 24
-            ItemHeight = 14
+            ItemHeight = 13
             Items.Strings = (
               'BMP'
               'GIF'
@@ -18163,11 +18183,12 @@ object Form1: TForm1
           end
           object bcopy: TComboBox
             Left = 180
-            Height = 22
+            Height = 21
             Top = 146
             Width = 136
+            Color = clNone
             Constraints.MaxHeight = 24
-            ItemHeight = 14
+            ItemHeight = 13
             Items.Strings = (
               '0'
               '1'
@@ -18187,11 +18208,12 @@ object Form1: TForm1
           end
           object bcminute: TComboBox
             Left = 180
-            Height = 22
+            Height = 21
             Top = 194
             Width = 136
+            Color = clNone
             Constraints.MaxHeight = 24
-            ItemHeight = 14
+            ItemHeight = 13
             Items.Strings = (
               'Disabled'
               '1 minute'
@@ -18211,11 +18233,12 @@ object Form1: TForm1
           end
           object scopy: TComboBox
             Left = 180
-            Height = 22
+            Height = 21
             Top = 170
             Width = 136
+            Color = clNone
             Constraints.MaxHeight = 24
-            ItemHeight = 14
+            ItemHeight = 13
             Items.Strings = (
               '1'
               '2'
@@ -18233,203 +18256,231 @@ object Form1: TForm1
             TabOrder = 9
           end
         end
-        object TabSheet6: TTabSheet
+        object TabSheet8: TTabSheet
           Caption = 'Option Set 2'
-          ClientHeight = 268
-          ClientWidth = 578
-          ImageIndex = -1
+          ClientHeight = 270
+          ClientWidth = 570
+          ImageIndex = 1
           object CheckBox38: TCheckBox
             Left = 184
-            Height = 21
+            Height = 20
             Top = 2
-            Width = 153
+            Width = 151
             Caption = 'Show Misalignments'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = CheckBox38Change
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 0
           end
           object CheckBox37: TCheckBox
             Left = 0
-            Height = 21
+            Height = 20
             Top = 194
-            Width = 92
+            Width = 91
             Caption = 'Save Paths'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = CheckBox37Change
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 1
           end
           object CheckBox36: TCheckBox
             Left = 0
-            Height = 21
+            Height = 20
             Top = 98
-            Width = 105
+            Width = 102
             Caption = 'Mouse Scroll'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = CheckBox36Change
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 2
           end
           object CheckBox34: TCheckBox
             Left = 0
-            Height = 21
+            Height = 20
             Top = 170
-            Width = 136
+            Width = 135
             Caption = 'Reload Last Quest'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = CheckBox34Change
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 3
           end
           object CheckBox35: TCheckBox
             Left = 0
-            Height = 21
+            Height = 20
             Top = 2
-            Width = 130
+            Width = 128
             Caption = 'Animate Combos'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = CheckBox35Change
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 4
           end
           object ttips: TCheckBox
             Left = 0
-            Height = 21
+            Height = 20
             Top = 50
-            Width = 120
+            Width = 118
             Caption = 'Enable Tooltips'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = ttipsChange
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 5
           end
           object combobrush: TCheckBox
             Left = 0
-            Height = 21
+            Height = 20
             Top = 26
-            Width = 109
+            Width = 105
             Caption = 'Combo Brush'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = combobrushChange
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 6
           end
           object floatbrush: TCheckBox
             Left = 0
-            Height = 21
+            Height = 20
             Top = 74
-            Width = 115
+            Width = 112
             Caption = 'Floating Brush'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = floatbrushChange
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 7
           end
           object owriteprotect: TCheckBox
             Left = 0
-            Height = 21
+            Height = 20
             Top = 122
-            Width = 150
+            Width = 151
             Caption = 'Overwrite Protection'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = owriteprotectChange
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 8
           end
           object palcyc: TCheckBox
             Left = 0
-            Height = 21
+            Height = 20
             Top = 146
-            Width = 103
+            Width = 104
             Caption = 'Palette Cycle'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = palcycChange
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 9
           end
           object ruleset: TCheckBox
             Left = 184
-            Height = 21
+            Height = 20
             Top = 26
-            Width = 324
+            Width = 329
             Caption = 'Show Ruleset Dialog When Creating New Quests'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = rulesetChange
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 10
           end
           object tprotect: TCheckBox
             Left = 184
-            Height = 21
+            Height = 20
             Top = 50
-            Width = 114
+            Width = 113
             Caption = 'Tile Protection'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = tprotectChange
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 11
           end
           object uncomp: TCheckBox
             Left = 184
-            Height = 21
+            Height = 20
             Top = 74
-            Width = 190
+            Width = 188
             Caption = 'Uncompressed Auto Saves'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = uncompChange
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 12
           end
           object usestatic: TCheckBox
             Left = 184
-            Height = 21
+            Height = 20
             Top = 98
-            Width = 183
+            Width = 184
             Caption = 'Use Static for Invalid Data'
+            Color = clNone
             Font.Height = -13
             Font.Name = 'Arial'
             Font.Style = [fsBold]
             OnChange = usestaticChange
+            ParentColor = False
             ParentFont = False
             ParentShowHint = False
             TabOrder = 13
@@ -18437,11 +18488,11 @@ object Form1: TForm1
         end
       end
     end
-    object Page5: TPage
+    object TabSheet3: TTabSheet
       Caption = 'Set Color Scheme'
-      ClientWidth = 582
-      ClientHeight = 272
-      ImageIndex = 2
+      ClientHeight = 297
+      ClientWidth = 578
+      ImageIndex = 6
       object Image2: TImage
         Left = 504
         Height = 42
@@ -30695,11 +30746,11 @@ object Form1: TForm1
       end
       object tehscheme: TComboBox
         Left = 220
-        Height = 22
+        Height = 21
         Top = 25
         Width = 120
         Constraints.MaxHeight = 24
-        ItemHeight = 14
+        ItemHeight = 13
         Items.Strings = (
           'Default'
           'Windows 98'
@@ -30776,10 +30827,10 @@ object Form1: TForm1
         WordWrap = False
       end
     end
-    object Page4: TPage
+    object TabSheet4: TTabSheet
       Caption = 'Notepad'
-      ClientWidth = 582
-      ClientHeight = 272
+      ClientHeight = 297
+      ClientWidth = 578
       ImageIndex = 10
       object Memo4: TMemo
         Left = 6
@@ -30815,6 +30866,7 @@ object Form1: TForm1
     Active = False
     ApplicationName = 'zelda-w.exe'
     CommandLine = 'zelda-w.exe'
+    Executable = 'zelda-w.exe'
     ConsoleTitle = 'zelda-w.exe'
     CurrentDirectory = './'
     Options = []
@@ -30834,6 +30886,7 @@ object Form1: TForm1
     Active = False
     ApplicationName = 'zquest-w.exe'
     CommandLine = 'zquest-w.exe'
+    Executable = 'zquest-w.exe'
     ConsoleTitle = 'zquest-w.exe'
     CurrentDirectory = './'
     Options = []

@@ -106,6 +106,7 @@ void map_bkgsfx(bool on);
 //extern FONT *lfont;
 /****  View Map  ****/
 extern int mapres;
+bool displayOnMap(int x, int y);
 void ViewMap();
 int onViewMap();
 

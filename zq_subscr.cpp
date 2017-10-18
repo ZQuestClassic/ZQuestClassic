@@ -4649,6 +4649,14 @@ int Bweapon(int pos)
         
         break;
         
+    case itype_letterpotion:
+        if(current_item(itype_potion))
+            family=itype_potion;
+        else if(current_item(itype_letter))
+            family=itype_letter;
+        
+        break;
+        
     case itype_sword:
     {
         if(!get_bit(quest_rules,qr_SELECTAWPN))

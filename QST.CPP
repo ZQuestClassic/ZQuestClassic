@@ -14185,6 +14185,13 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         }
     }
     
+    if(get_bit(quest_rules, qr_CONTFULL_DEP))
+    {
+        set_bit(quest_rules, qr_CONTFULL_DEP, 0);
+        set_bit(zinit.misc, idM_CONTPERCENT, 1);
+        zinit.cont_heart=100;
+    }
+    
     box_out("Done.");
     box_eol();
     box_end(false);

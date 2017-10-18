@@ -15,7 +15,7 @@ uses
   {$ifdef linux}
   unix,
   {$endif}
-  inifiles, RTTICtrls;
+  inifiles, RTTICtrls, Classes;
 
 type
 
@@ -24,6 +24,7 @@ type
   TForm1 = class(TForm)
     Button2: TButton;
     Button3: TButton;
+    multiinstance: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox34: TCheckBox;
     CheckBox35: TCheckBox;
@@ -40,8 +41,16 @@ type
     Label19: TLabel;
     Label20: TLabel;
     Label21: TLabel;
-    Memo1:  TMemo;
-    ttips:  TCheckBox;
+    Memo1: TMemo;
+    PageControl1: TPageControl;
+    PageControl3: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    TabSheet3: TTabSheet;
+    TabSheet4: TTabSheet;
+    TabSheet7: TTabSheet;
+    TabSheet8: TTabSheet;
+    ttips: TCheckBox;
     combobrush: TCheckBox;
     floatbrush: TCheckBox;
     owriteprotect: TCheckBox;
@@ -59,9 +68,9 @@ type
     Label17: TLabel;
     Label18: TLabel;
     scrmodezc: TComboBox;
-    bcopy:  TComboBox;
+    bcopy: TComboBox;
     bcminute: TComboBox;
-    scopy:  TComboBox;
+    scopy: TComboBox;
     tehscheme: TComboBox;
     zqwinmode: TComboBox;
     scalemode: TComboBox;
@@ -70,7 +79,7 @@ type
     zqsoundmode: TComboBox;
     zqshowfps: TComboBox;
     zclassic: TImage;
-    zcqld:  TComboBox;
+    zcqld: TComboBox;
     zcentrymode: TComboBox;
     zqsshot: TComboBox;
     zctitle: TComboBox;
@@ -95,10 +104,10 @@ type
     Label7: TLabel;
     Label8: TLabel;
     Label9: TLabel;
-    rez1:   TComboBox;
+    rez1: TComboBox;
     Image1: TImage;
-    Memo4:  TMemo;
-    Notebook1: TNotebook;
+    Memo4: TMemo;
+    Notebook1: TPageControl;
     SpeedButton1: TSpeedButton;
     SpeedButton2: TSpeedButton;
     TIButton1: TTIButton;
@@ -107,17 +116,17 @@ type
     zeldanew: TImage;
     zquestopen: TOpenDialog;
     opennow: TOpenDialog;
-    Page2:  TPage;
-    Page3:  TPage;
-    Page4:  TPage;
-    Page5:  TPage;
+    Page2: TPage;
+    Page3: TPage;
+    Page4: TPage;
+    Page5: TPage;
     PageControl2: TPageControl;
     saveme: TSaveDialog;
     Process1: TProcess;
     Process2: TProcess;
     SCCheckbox8: TCheckbox;
-    dx1:    TCheckbox;
-    ss1:    TCheckbox;
+    dx1: TCheckbox;
+    ss1: TCheckbox;
     TabSheet5: TTabSheet;
     TabSheet6: TTabSheet;
     vsync1: TCheckbox;
@@ -127,6 +136,9 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure floatbrushChange(Sender: TObject);
+    procedure multiinstanceChange(Sender: TObject);
+    procedure Page3BeforeShow(ASender: TObject; ANewPage: TPage;
+      ANewIndex: integer);
     procedure rulesetChange(Sender: TObject);
     procedure palcycChange(Sender: TObject);
     procedure owriteprotectChange(Sender: TObject);
@@ -181,18 +193,18 @@ var
 
   //New way it uses variables instead of TEdits XD
   ZCFullWindow: string;
-  Res1:      string;
-  Sound1:    string;
-  Logo1:     string;
+  Res1: string;
+  Sound1: string;
+  Logo1: string;
   Quickload: string;
-  zqsound:   string;
+  zqsound: string;
   LoadQuest: string;
-  ZQopen:    string;
-  ZCResX:    string;
-  ZCResY:    string;
+  ZQopen: string;
+  ZCResX: string;
+  ZCResY: string;
   ZCProcFix: string;
   ZQProcFix: string;
-  MultiZC:   string;
+  MultiZC: string;
 
   //This is to launch ZC
   ZCLaunch: TProcess;
@@ -243,19 +255,19 @@ begin
     //ZC Title Screen
     if agcfg.readstring('zeldadx', 'title', '') = '0' then
     begin
-      zctitle.Text    := 'Classic';
+      zctitle.Text := 'Classic';
       tscreen.picture := zclassic.picture;
     end;
 
     if agcfg.readstring('zeldadx', 'title', '') = '1' then
     begin
-      zctitle.Text    := 'Modern';
+      zctitle.Text := 'Modern';
       tscreen.picture := zelda20.picture;
     end;
 
     if agcfg.readstring('zeldadx', 'title', '') = '2' then
     begin
-      zctitle.Text    := 'New (2.5)';
+      zctitle.Text := 'New (2.5)';
       tscreen.picture := zeldanew.picture;
     end;
 
@@ -263,12 +275,12 @@ begin
     if agcfg.readstring('ZCL', 'zcfullscreen', '') = '1' then
     begin
       scrmodezc.Text := 'Full Screen';
-      ZCFullWindow   := '-fullscreen ';
+      ZCFullWindow := '-fullscreen ';
     end
     else
     begin
       scrmodezc.Text := 'Window';
-      ZCFullWindow   := '-windowed ';
+      ZCFullWindow := '-windowed ';
     end;
 
     //ZC Resolutions
@@ -336,20 +348,21 @@ begin
     if agcfg.readstring('ZCL', 'quickload', '') = '1' then
     begin
       zcqicons.Text := 'No';
-      Quickload     := '-quickload ';
-      LoadQuest     := '-load 1 ';
+      Quickload := '-quickload ';
+      LoadQuest := '-load 1 ';
     end
     else
     begin
       zcqicons.Text := 'Yes';
-      Quickload     := ' ';
-      LoadQuest     := ' ';
+      Quickload := ' ';
+      LoadQuest := ' ';
     end;
 
     //ZC Multiple instances
     if agcfg.readstring('ZCL', 'multiple_instances', '') = '1' then
     begin
       MultiZC := '-multiple ';
+      multiinstance.Checked := True;
     end
     else
     begin
@@ -363,7 +376,7 @@ begin
     end
     else
     begin
-      zqwinmode.Text    := 'Window';
+      zqwinmode.Text := 'Window';
 
       if agcfg.ReadString('zquest', 'small', '') = '1' then
       begin
@@ -774,7 +787,7 @@ begin
   end
   else
   begin
-    label23.Visible      := True;
+    label23.Visible := True;
     speedbutton1.Enabled := False;
     speedbutton2.Enabled := False;
   end;
@@ -786,7 +799,7 @@ begin
   end
   else
   begin
-    label23.Visible      := True;
+    label23.Visible := True;
     speedbutton1.Enabled := False;
     speedbutton2.Enabled := False;
   end;
@@ -798,14 +811,14 @@ begin
   if checkbox2.Checked then
   begin
     zcqld.Enabled := True;
-    zcqld.Text    := 'Slot 1';
-    LoadQuest     := '-load 1';
+    zcqld.Text := 'Slot 1';
+    LoadQuest := '-load 1';
   end
   else
   begin
-    LoadQuest     := ' ';
+    LoadQuest := ' ';
     zcqld.Enabled := False;
-    zcqld.Text    := '';
+    zcqld.Text := '';
   end;
 end;
 
@@ -882,8 +895,8 @@ memo3.Lines.LoadFromFile('allegro.log');
 
 
   try
-    unix.Shell('./zelda-l ' + MultiZC + ZCFullWindow + Res1 + Sound1 + Logo1 +
-      Quickload + LoadQuest + ' & ')
+    unix.Shell('./zelda-l ' + MultiZC + ZCFullWindow + Res1 + Sound1 +
+      Logo1 + Quickload + LoadQuest + ' & ')
   except
   end;
   //memo3.Lines.LoadFromFile('allegro.log');
@@ -893,7 +906,7 @@ memo3.Lines.LoadFromFile('allegro.log');
 {$IFDEF WIN32}
   {This fixes the ZCL Freezing on launching ZC}
   process1.CommandLine := './zelda-w.exe ' + ZCFullWindow + Res1 +
-    Sound1 + Logo1 + Quickload + LoadQuest;
+    Sound1 + Logo1 + multizc + Quickload + LoadQuest;
   process1.Execute;
 
   //memo3.Lines.LoadFromFile('allegro.log');
@@ -964,20 +977,13 @@ begin
     unix.shell('./zquest-l ' + zqsound + ' & ');
   except
   end;
-  //memo3.Lines.LoadFromFile('allegro.log');
+
 {$ENDIF}
 
 {$IFDEF WIN32}
   process2.CommandLine := './zquest-w.exe' + zqsound;
   process2.Execute;
 
-{Old Code
-try
-   sysutils.ExecuteProcess('./zquest-w' , edit1.caption + edit2.caption + edit3.caption );
-      except
-      end;
-memo3.Lines.LoadFromFile('allegro.log');
-}
 {$ENDIF}
 
 end;
@@ -1021,6 +1027,25 @@ begin
   begin
     agcfg.writestring('zquest', 'float_brush', '0');
   end;
+end;
+
+procedure TForm1.multiinstanceChange(Sender: TObject);
+begin
+  if multiinstance.Checked then
+  begin
+    agcfg.writestring('ZCL', 'multiple_instances', '1');
+    multizc := '-multiple ';
+  end
+  else
+  begin
+    agcfg.writestring('ZCL', 'multiple_instances', '0');
+    multizc := '-multiple ';
+  end;
+end;
+
+procedure TForm1.Page3BeforeShow(ASender: TObject; ANewPage: TPage; ANewIndex: integer);
+begin
+
 end;
 
 procedure TForm1.rulesetChange(Sender: TObject);
@@ -1598,7 +1623,7 @@ begin
     begin
       scaletext.Visible := True;
       scalemode.Visible := True;
-      scalemode.Text    := '1x';
+      scalemode.Text := '1x';
 
       if agcfg.ReadString('zquest', 'scale', '') = '1' then
       begin
@@ -1694,4 +1719,5 @@ initialization
 
 
 end.
+
 

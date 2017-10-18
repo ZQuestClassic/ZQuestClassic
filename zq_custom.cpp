@@ -4237,6 +4237,30 @@ int onCustomLink()
     if(is_large)
         large_dialog(linktile_dlg, 2.0);
         
+    int oldWalkSpr[4][3];
+    int oldStabSpr[4][3];
+    int oldSlashSpr[4][3];
+    int oldFloatSpr[4][3];
+    int oldSwimSpr[4][3];
+    int oldDiveSpr[4][3];
+    int oldPoundSpr[4][3];
+    int oldJumpSpr[4][3];
+    int oldChargeSpr[4][3];
+    int oldCastSpr[3];
+    int oldHoldSpr[2][2][3];
+    memcpy(oldWalkSpr, walkspr, 4*3*sizeof(int));
+    memcpy(oldStabSpr, stabspr, 4*3*sizeof(int));
+    memcpy(oldSlashSpr, slashspr, 4*3*sizeof(int));
+    memcpy(oldFloatSpr, floatspr, 4*3*sizeof(int));
+    memcpy(oldSwimSpr, swimspr, 4*3*sizeof(int));
+    memcpy(oldDiveSpr, divespr, 4*3*sizeof(int));
+    memcpy(oldPoundSpr, poundspr, 4*3*sizeof(int));
+    memcpy(oldJumpSpr, jumpspr, 4*3*sizeof(int));
+    memcpy(oldChargeSpr, chargespr, 4*3*sizeof(int));
+    memcpy(oldCastSpr, castingspr, 3*sizeof(int));
+    memcpy(oldHoldSpr, holdspr, 2*2*3*sizeof(int));
+    
+    
     int ret = popup_dialog_through_bitmap(screen2,linktile_dlg,3);
     
     if(ret==3)
@@ -4245,6 +4269,20 @@ int onCustomLink()
         set_bit(quest_rules, qr_LTTPCOLLISION, (linktile_dlg[5].flags&D_SELECTED)?1:0);
         set_bit(quest_rules, qr_LTTPWALK, (linktile_dlg[76].flags&D_SELECTED)?1:0);
         zinit.link_swim_speed=(linktile_dlg[95].d1==0)?50:67;
+    }
+    else
+    {
+        memcpy(walkspr, oldWalkSpr, 4*3*sizeof(int));
+        memcpy(stabspr, oldStabSpr, 4*3*sizeof(int));
+        memcpy(slashspr, oldSlashSpr, 4*3*sizeof(int));
+        memcpy(floatspr, oldFloatSpr, 4*3*sizeof(int));
+        memcpy(swimspr, oldSwimSpr, 4*3*sizeof(int));
+        memcpy(divespr, oldDiveSpr, 4*3*sizeof(int));
+        memcpy(poundspr, oldPoundSpr, 4*3*sizeof(int));
+        memcpy(jumpspr, oldJumpSpr, 4*3*sizeof(int));
+        memcpy(chargespr, oldChargeSpr, 4*3*sizeof(int));
+        memcpy(castingspr, oldCastSpr, 3*sizeof(int));
+        memcpy(holdspr, oldHoldSpr, 2*2*3*sizeof(int));
     }
     
     ret=ret;

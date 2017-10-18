@@ -7611,6 +7611,12 @@ void move_combos(int &tile,int &tile2,int &copy,int &copycnt)
         }
     }
     
+    for(int i=0; i<MAXFAVORITECOMBOS; i++)
+    {
+        if(favorite_combos[i]>=copy && favorite_combos[i]<copy+copycnt)
+            favorite_combos[i]+=(-copy+tile);
+    }
+    
     copy=-1;
     tile2=tile;
     setup_combo_animations();

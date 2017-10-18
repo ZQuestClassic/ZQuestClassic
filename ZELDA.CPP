@@ -1304,9 +1304,6 @@ int init_game()
     if(firstplay)
         game->set_hasplayed(1);
         
-    if(get_bit(quest_rules,qr_CONTFULL))
-        game->set_life(game->get_maxlife());
-        
     update_subscreens();
     
     load_Sitems(&QMisc);
@@ -1464,9 +1461,6 @@ int cont_game()
     {
         game->set_life(game->get_cont_hearts()*HP_PER_HEART);
     }
-    
-    if(get_bit(quest_rules,qr_CONTFULL))
-        game->set_life(game->get_maxlife());
         
     /*
       else
@@ -3394,8 +3388,11 @@ int main(int argc, char* argv[])
     
     Z_message("OK\n");
     
+#ifdef _WIN32
+    // Nothing for them to do on other platforms
     set_display_switch_callback(SWITCH_IN,switch_in_callback);
     set_display_switch_callback(SWITCH_OUT,switch_out_callback);
+#endif
     
     // AG logo
     if(!fast_start)

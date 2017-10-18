@@ -90,6 +90,7 @@ bool rF5();
 bool rF11();
 bool rI();
 bool rQ();
+bool zc_key_pressed();
 
 #ifdef _WIN32
 
@@ -3095,7 +3096,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     break;
                     
                 default:
-                    if(layer && ((checkflag!=mfRAFT && checkflag!=mfRAFT_BRANCH) || get_bit(quest_rules,qr_RAFTLENS)))
+                    if(layer && ((checkflag!=mfRAFT && checkflag!=mfRAFT_BRANCH&& checkflag!=mfRAFT_BOUNCE) || get_bit(quest_rules,qr_RAFTLENS)))
                     {
                         if((!(get_debug() && key[KEY_N]) && (lensclk&1)) || ((get_debug() && key[KEY_N]) && (frame&1)))
                         {
@@ -3612,7 +3613,7 @@ int onSaveMapPic()
         {
             int s = (y<<4) + x;
             
-            if(!(game->maps[(currmap*MAPSCRSNORMAL)+s]&mVISITED))
+            if(!displayOnMap(x, y))
             {
                 rectfill(temp_buf, 0, 0, 255, 223, WHITE);
             }
@@ -3763,9 +3764,8 @@ int input_idle(bool checkmouse)
 {
     static int mx, my, mz, mb;
     
-    if(keypressed() || Up() || Down() || Left() || Right() || cAbtn()
-            || cBbtn() || cSbtn() || cMbtn() || cLbtn() || cRbtn() || cPbtn()
-            || (checkmouse && (mx != gui_mouse_x() || my != gui_mouse_y() || mz != gui_mouse_z() || mb != gui_mouse_b())))
+    if(keypressed() || zc_key_pressed() ||
+       (checkmouse && (mx != gui_mouse_x() || my != gui_mouse_y() || mz != gui_mouse_z() || mb != gui_mouse_b())))
     {
         idle_count = 0;
         
@@ -3940,10 +3940,15 @@ void syskeys()
     
     if(ReadKey(KEY_F6))    if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
     
+#ifndef ALLEGRO_MACOSX
     if(ReadKey(KEY_F9))    f_Quit(qRESET);
     
     if(ReadKey(KEY_F10))   f_Quit(qEXIT);
+#else
+    if(ReadKey(KEY_F7))    f_Quit(qRESET);
     
+    if(ReadKey(KEY_F8))   f_Quit(qEXIT);
+#endif
     if(rF5()&&(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP))    onSaveMapPic();
     
     if(rF12())
@@ -4077,7 +4082,7 @@ void syskeys()
     }
     
     if(ReadKey(KEY_G))   db=(db==999)?0:999;
-    
+#ifndef ALLEGRO_MACOSX
     if(ReadKey(KEY_F8))  Showpal=!Showpal;
     
     if(ReadKey(KEY_F7))
@@ -4085,7 +4090,17 @@ void syskeys()
         Matrix(ss_speed, ss_density, 0);
         game_pal();
     }
+#else
+    // The reason these are different on Mac in the first place is that
+    // the OS doesn't let us use F9 and F10...
+    if(ReadKey(KEY_F10))  Showpal=!Showpal;
     
+    if(ReadKey(KEY_F9))
+    {
+        Matrix(ss_speed, ss_density, 0);
+        game_pal();
+    }
+#endif
     if(ReadKey(KEY_PLUS_PAD) || ReadKey(KEY_EQUALS))
     {
         //change containers
@@ -6352,7 +6367,7 @@ int onCheat()
                 cheat   = i + 1;
                 game->set_cheat(game->get_cheat() | cheat);
                 sprintf(str, "Cheat level %d enabled", i+1);
-                jwin_alert("ZQuest",NULL,str,NULL,"OK",NULL,13,27,lfont);
+                jwin_alert("Cheats enabled",NULL,str,NULL,"OK",NULL,13,27,lfont);
                 goto done;
             }
         }
@@ -6489,8 +6504,13 @@ static MENU game_menu[] =
     { (char *)"L&oad Quest...",            onCustomGame,             NULL,                      0, NULL },
     { (char *)"&End Game\tF6",             onQuit,                   NULL,                      0, NULL },
     { (char *)"",                          NULL,                     NULL,                      0, NULL },
+#ifndef ALLEGRO_MACOSX
     { (char *)"&Reset\tF9",                onReset,                  NULL,                      0, NULL },
     { (char *)"&Quit\tF10",                onExit,                   NULL,                      0, NULL },
+#else
+    { (char *)"&Reset\tF7",                onReset,                  NULL,                      0, NULL },
+    { (char *)"&Quit\tF8",                onExit,                   NULL,                      0, NULL },
+#endif
     { NULL,                                NULL,                     NULL,                      0, NULL }
 };
 
@@ -6676,8 +6696,13 @@ static DIALOG system_dlg[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onVsync, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onQuit, NULL,  NULL },
+#ifndef ALLEGRO_MACOSX
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F9,   0, (void *) onReset, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F10,  0, (void *) onExit, NULL,  NULL },
+#else
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F7,   0, (void *) onReset, NULL,  NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F8,   0, (void *) onExit, NULL,  NULL },
+#endif
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,  0, (void *) onSnapshot, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_TAB,  0, (void *) onDebug, NULL,  NULL },
     { d_timer_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,        0,       NULL,             NULL, NULL },
@@ -6691,8 +6716,13 @@ static DIALOG system_dlg2[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onVsync, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,   0, (void *) onQuit, NULL,  NULL },
+#ifndef ALLEGRO_MACOSX
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F9,   0, (void *) onReset, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F10,  0, (void *) onExit, NULL,  NULL },
+#else
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F7,   0, (void *) onReset, NULL,  NULL },
+    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F8,   0, (void *) onExit, NULL,  NULL },
+#endif
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,  0, (void *) onSnapshot, NULL,  NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_TAB,  0, (void *) onDebug, NULL,  NULL },
     { d_timer_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,        0,       NULL,             NULL, NULL },
@@ -7344,9 +7374,7 @@ void system_pal2()
 #ifdef _WIN32
 void switch_out_callback()
 {
-	clear_keybuf();
-	
-    if(midi_patch_fix==0 || currmidi==0)
+	if(midi_patch_fix==0 || currmidi==0)
         return;
         
     bool was_paused=midi_paused;
@@ -7368,9 +7396,7 @@ void switch_out_callback()
 
 void switch_in_callback()
 {
-	clear_keybuf();
-	
-    if(midi_patch_fix==0 || currmidi==0)
+	if(midi_patch_fix==0 || currmidi==0)
         return;
         
     bool was_paused=midi_paused;
@@ -7392,12 +7418,10 @@ void switch_in_callback()
 #else // Not Windows
 void switch_out_callback()
 {
-    clear_keybuf();
 }
 
 void switch_in_callback()
 {
-    clear_keybuf();
 }
 #endif
 
@@ -7550,16 +7574,13 @@ void System()
             if(input_idle(true) > after_time())
                 // run Screeen Saver
             {
-				// Removing the screen saver over menus for now to either
-				// fix or track down the long-standing ZC idle-freeze bug. -Gleeok
-				/*
-                clear_keybuf();
+				// Screen saver enabled for now.
+				clear_keybuf();
                 scare_mouse();
                 Matrix(ss_speed, ss_density, 0);
                 system_pal();
                 unscare_mouse();
                 broadcast_dialog_message(MSG_DRAW, 0);
-				*/
             }
         }
         
@@ -8246,6 +8267,29 @@ void load_control_state()
     button_press[16]=rButton(AxisLeft,button_hold[16]);
     button_press[17]=rButton(AxisRight,button_hold[17]);
     
+}
+
+// Returns true if any game key is pressed. This is needed because keypressed()
+// doesn't detect modifier keys and control_state[] can be modified by scripts.
+bool zc_key_pressed()
+{
+    if((key[DUkey]||joy[joystick_index].stick[0].axis[1].d1||joy[joystick_index].stick[0].axis[1].pos< -STICK_PRECISION) ||
+       (key[DDkey]||joy[joystick_index].stick[0].axis[1].d2||joy[joystick_index].stick[0].axis[1].pos > STICK_PRECISION) ||
+       (key[DLkey]||joy[joystick_index].stick[0].axis[0].d1||joy[joystick_index].stick[0].axis[0].pos< -STICK_PRECISION) ||
+       (key[DRkey]||joy[joystick_index].stick[0].axis[0].d2||joy[joystick_index].stick[0].axis[0].pos > STICK_PRECISION) ||
+       (key[Akey]||joybtn(Abtn)) ||
+       (key[Bkey]||joybtn(Bbtn)) ||
+       (key[Skey]||joybtn(Sbtn)) ||
+       (key[Lkey]||joybtn(Lbtn)) ||
+       (key[Rkey]||joybtn(Rbtn)) ||
+       (key[Pkey]||joybtn(Pbtn)) ||
+       (key[Exkey1]||joybtn(Exbtn1)) ||
+       (key[Exkey2]||joybtn(Exbtn2)) ||
+       (key[Exkey3]||joybtn(Exbtn3)) ||
+       (key[Exkey4]||joybtn(Exbtn4))) // Skipping joystick axes
+        return true;
+    
+    return false;
 }
 
 bool Up()

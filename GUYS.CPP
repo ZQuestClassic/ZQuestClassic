@@ -4537,7 +4537,7 @@ bool ePeahat::animate(int index)
         z=int(step*1.1/(fix)((dstep/1000.0)*1.1));
     }
     
-    if(get_bit(quest_rules,qr_PEAHATCLOCKVULN))
+    if(watch && get_bit(quest_rules,qr_PEAHATCLOCKVULN))
         superman=0;
     else
         superman=(movestatus && !get_bit(quest_rules,qr_ENEMIESZAXIS)) ? 1 : 0;
@@ -12648,7 +12648,7 @@ void loadenemies()
             do
             {
                 // NES positions
-                pos%=10;
+                pos%=9;
                 x=stx[loadside][pos];
                 y=sty[loadside][pos];
                 ++pos;
@@ -12709,7 +12709,13 @@ void loadenemies()
         }                                                     // if(t < 20)
         
 placed_enemy:
-
+        
+        // I don't like this, but it seems to work...
+        static bool foundCarrier;
+        
+        if(i==0)
+            foundCarrier=false;
+        
         if(placed)
         {
             if(i==0 && tmpscr->enemyflags&efLEADER)
@@ -12722,13 +12728,14 @@ placed_enemy:
                 }
             }
             
-            if(i==0 && (hasitem)>1)
+            if(!foundCarrier && (hasitem)>1)
             {
                 int index = guys.idFirst(tmpscr->enemy[i],0xFFF);
                 
-                if(index!=-1)
+                if(index!=-1 && (((enemy*)guys.spr(index))->flags&guy_doesntcount)==0)
                 {
                     ((enemy*)guys.spr(index))->itemguy = true;
+                    foundCarrier=true;
                 }
             }
         }
