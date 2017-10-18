@@ -6790,7 +6790,7 @@ static MENU draw_rc_menu[] =
 static MENU draw_ffc_rc_menu[] =
 {
     { (char *)"Copy FFC",            NULL,  NULL,              0, NULL },
-    { (char *)"Paste FFC",           NULL,  NULL,              0, NULL },
+    { (char *)"Paste FFC data",           NULL,  NULL,              0, NULL },
     { (char *)"Edit FFC",            NULL,  NULL,              0, NULL },
     { (char *)"Clear FFC",           NULL,  NULL,              0, NULL },
     { NULL,                          NULL,  NULL,              0, NULL }
@@ -7986,10 +7986,8 @@ void domouse()
                 
                 case 13:
                 {
-                    Map.CurrScr()->ffx[earliestfreeffc] = ((((x-startxint)>>4)<<4)/mapscreensize)*10000;
-                    Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&240)/mapscreensize)*10000;
-                    // Map.CurrScr()->ffx[earliestfreeffc] = ((x-startxint)/mapscreensize)*10000;
-                    // Map.CurrScr()->ffy[earliestfreeffc] = ((y-startyint)/mapscreensize)*10000;
+                    Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
+                    Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
                     Map.CurrScr()->ffdata[earliestfreeffc] = Combo;
                     Map.CurrScr()->ffcset[earliestfreeffc] = CSet;
                     onEditFFCombo(earliestfreeffc);
@@ -7998,10 +7996,8 @@ void domouse()
                 
                 case 14:
                 {
-                    Map.CurrScr()->ffx[earliestfreeffc] = ((((x-startxint)>>4)<<4)/mapscreensize)*10000;
-                    Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&240)/mapscreensize)*10000;
-                    //Map.CurrScr()->ffx[earliestfreeffc] = ((x-startxint)/mapscreensize)*10000;
-                    //Map.CurrScr()->ffy[earliestfreeffc] = ((y-startyint)/mapscreensize)*10000;
+                    Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
+                    Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
                     Map.PasteOneFFC(earliestfreeffc);
                 }
                 break;

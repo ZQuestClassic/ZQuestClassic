@@ -2442,6 +2442,11 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(quest_rules,qr_HOOKSHOTDOWNBUG, 1);
     }
     
+    if(tempheader.zelda_version == 0x250 && tempheader.build == 24) // Annoying...
+    {
+        set_bit(quest_rules,qr_PEAHATCLOCKVULN, 1);
+    }
+    
     if(s_version < 3)
     {
         set_bit(quest_rules, qr_HOLDNOSTOPMUSIC, 1);

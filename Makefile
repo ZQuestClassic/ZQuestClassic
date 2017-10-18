@@ -41,7 +41,6 @@ ifdef COMPILE_FOR_WIN
   CC = g++
   CFLAG = $(CFLAGBASE) -pedantic -I./include/dumb/ -I./include/alogg/ -I./include/almp3 -I./include/lpng1212/ -I./include/loadpng/ -I./include/lpng1212/ -I./include/jpgalleg-2.5/ -I./include/zlib123/  -I./include/pthread/ -I./gme
   LIBDIR = -L./libs/mingw
-  SINGLE_INSTANCE_CPP = single_instance_win.cpp
 else
 ifdef COMPILE_FOR_LINUX
   PLATEXT = -l
@@ -60,7 +59,7 @@ ifdef COMPILE_FOR_LINUX
   CC = g++ 
   CFLAG = -I./include -I../include -I./include/alogg -I./include/almp3
   LIBDIR = -L./libs/linux
-  SINGLE_INSTANCE_CPP = single_instance_unix.cpp
+  SINGLE_INSTANCE_O = single_instance.o
 else
 ifdef COMPILE_FOR_DOS
   ALLEG_LIB = -lalleg
@@ -80,7 +79,7 @@ ifdef COMPILE_FOR_MACOSX
   CC = g++
   LIBDIR= -L./libs/osx
   DATA = output/common/
-  SINGLE_INSTANCE_CPP = single_instance_unix.cpp
+  SINGLE_INSTANCE_O = single_instance.o
 else
 ifdef COMPILE_FOR_MACOSX_UNIVERSAL
   ECHO_HELPER = \
@@ -93,7 +92,7 @@ ifdef COMPILE_FOR_MACOSX_UNIVERSAL
   LIBDIR= -L./libs/osx
   DATA = output/common/
   LINKOPTS = -arch i386 -arch ppc
-  SINGLE_INSTANCE_CPP = single_instance_unix.cpp
+  SINGLE_INSTANCE_O = single_instance.o
 else
 ifdef COMPILE_FOR_MACOSX_SNOW_LEOPARD
   PLATEXT = -msl
@@ -104,7 +103,7 @@ ifdef COMPILE_FOR_MACOSX_SNOW_LEOPARD
   LIBDIR= -L./libs/osx
   DATA = output/common/
   LINKOPTS = -arch i386 -arch ppc
-  SINGLE_INSTANCE_CPP = single_instance_unix.cpp
+  SINGLE_INSTANCE_O = single_instance.o
 else
 ifdef COMPILE_FOR_GP2X
   PLATEXT = -g
@@ -115,7 +114,7 @@ ifdef COMPILE_FOR_GP2X
   CC = arm-linux-g++
   AUDIO_LIBS = -L/devkitGP2X/lib -lalspc -lalogg -lalmp3 -laldmb -ldumb
   IMAGE_LIBS = -L/devkitGP2X/lib -ljpgal -lldpng -lpng -lz
-  SINGLE_INSTANCE_CPP = single_instance_unix.cpp
+  SINGLE_INSTANCE_O = single_instance.o
 endif
 endif
 endif
@@ -132,8 +131,8 @@ ZELDA_EXE = $(ZELDA_PREFIX)$(PLATEXT)$(EXEEXT)
 ZQUEST_EXE = $(ZQUEST_PREFIX)$(PLATEXT)$(EXEEXT)
 ROMVIEW_EXE = $(ROMVIEW_PREFIX)$(PLATEXT)$(EXEEXT)
 
-ZELDA_OBJECTS = aglogo.o colors.o debug.o decorations.o defdata.o editbox.o EditboxModel.o EditboxView.o ending.o ffscript.o gamedata.o gui.o guys.o init.o items.o jwin.o jwinfsel.o link.o load_gif.o maps.o matrix.o md5.o midi.o pal.o particles.o qst.o questReport.o save_gif.o script_drawing.o single_instance.o sprite.o subscr.o tab_ctl.o tiles.o title.o weapons.o win32.o zc_custom.o zc_init.o zc_items.o zc_sprite.o zc_subscr.o zc_sys.o zcmusic.o zelda.o zscriptversion.o zsys.o $(ZC_ICON)
-ZQUEST_OBJECTS = zquest.o colors.o defdata.o editbox.o EditboxModel.o EditboxView.o gamedata.o gui.o init.o items.o jwin.o jwinfsel.o load_gif.o md5.o midi.o particles.o qst.o save_gif.o sprite.o subscr.o tab_ctl.o tiles.o win32.o zc_custom.o zcmusic.o zcmusicd.o zq_class.o zq_cset.o zq_custom.o zq_doors.o zq_files.o zq_items.o zq_init.o zq_misc.o zq_rules.o zq_sprite.o zq_subscr.o zq_tiles.o zqscale.o zsys.o ffasm.o parser/AST.o parser/BuildVisitors.o parser/ByteCode.o parser/DataStructs.o parser/GlobalSymbols.o parser/lex.yy.o parser/ParseError.o parser/ScriptParser.o parser/SymbolVisitors.o parser/TypeChecker.o parser/UtilVisitors.o parser/y.tab.o $(ZQ_ICON)
+ZELDA_OBJECTS = aglogo.o colors.o debug.o decorations.o defdata.o editbox.o EditboxModel.o EditboxView.o ending.o ffscript.o gamedata.o gui.o guys.o init.o items.o jwin.o jwinfsel.o link.o load_gif.o maps.o matrix.o md5.o midi.o pal.o particles.o qst.o save_gif.o script_drawing.o SINGLE_INSTANCE_O sprite.o subscr.o tab_ctl.o tiles.o title.o weapons.o win32.o zc_custom.o zc_init.o zc_items.o zc_sprite.o zc_subscr.o zc_sys.o zcmusic.o zelda.o zscriptversion.o zsys.o $(ZC_ICON)
+ZQUEST_OBJECTS = zquest.o colors.o defdata.o editbox.o EditboxModel.o EditboxView.o gamedata.o gui.o init.o items.o jwin.o jwinfsel.o load_gif.o md5.o midi.o particles.o qst.o questReport.o save_gif.o sprite.o subscr.o tab_ctl.o tiles.o win32.o zc_custom.o zcmusic.o zcmusicd.o zq_class.o zq_cset.o zq_custom.o zq_doors.o zq_files.o zq_items.o zq_init.o zq_misc.o zq_rules.o zq_sprite.o zq_subscr.o zq_tiles.o zqscale.o zsys.o ffasm.o parser/AST.o parser/BuildVisitors.o parser/ByteCode.o parser/DataStructs.o parser/GlobalSymbols.o parser/lex.yy.o parser/ParseError.o parser/ScriptParser.o parser/SymbolVisitors.o parser/TypeChecker.o parser/UtilVisitors.o parser/y.tab.o $(ZQ_ICON)
 ROMVIEW_OBJECTS = editbox.o EditboxModel.o EditboxView.o gui.o jwin.o jwinfsel.o load_gif.o romview.o save_gif.o tab_ctl.o zqscale.o zsys.o $(RV_ICON)
 
 .PHONY: default veryclean clean all msg dos win windows linux gp2x test done
@@ -427,7 +426,7 @@ save_gif.o: save_gif.cpp save_gif.h zc_alleg.h
 	$(CC) $(OPTS) $(CFLAG) -c save_gif.cpp -o save_gif.o $(SFLAG) $(WINFLAG)
 script_drawing.o: script_drawing.cpp ffscript.h maps.h rendertarget.h script_drawing.h tiles.h zc_alleg.h zelda.h
 	$(CC) $(OPTS) $(CFLAG) -c script_drawing.cpp -o script_drawing.o $(SFLAG) $(WINFLAG)
-single_instance.o: $(SINGLE_INSTANCE_CPP) single_instance.h
+single_instance.o: single_instance_unix.cpp single_instance.h
 	$(CC) $(OPTS) $(CFLAG) -c $(SINGLE_INSTANCE_CPP) -o single_instance.o $(SFLAG) $(WINFLAG)
 sprite.o: sprite.cpp gamedata.h sprite.h tiles.h zc_alleg.h zdefs.h
 	$(CC) $(OPTS) $(CFLAG) -c sprite.cpp -o sprite.o $(SFLAG) $(WINFLAG)

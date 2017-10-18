@@ -95,9 +95,9 @@
 #include "zc_array.h"
 
 #define ZELDA_VERSION       0x0250                          //version of the program
-#define VERSION_BUILD       25                              //build number of this version
+#define VERSION_BUILD       26                              //build number of this version
 #define IS_BETA             0                               //is this a beta?
-#define DATE_STR            "July 29, 2013"
+#define DATE_STR            "February 4, 2014"
 
 #define MIN_VERSION         0x0184
 
@@ -595,13 +595,13 @@ enum
     qr_BOMBDARKNUTFIX, qr_LONGBOMBBOOM_DEP/*DEPRECATED*/, qr_OFFSETEWPNCOLLISIONFIX, qr_DMGCOMBOLAYERFIX,
     // 17
     qr_ITEMSINPASSAGEWAYS, qr_LOG, qr_FIREPROOFLINK2, qr_NOITEMOFFSET,
-    qr_ITEMBUBBLE, qr_GOTOLESSNOTEQUAL /* Compatibility only */, qr_LADDERANYWHERE, qr_HOOKSHOTLAYERFIX,
+    qr_ITEMBUBBLE, qr_GOTOLESSNOTEQUAL /* Compatibility */, qr_LADDERANYWHERE, qr_HOOKSHOTLAYERFIX,
     // 18
-    qr_REPLACEOPENDOORS /* Compatibility only */, qr_OLDLENSORDER /* Compatibility only */, qr_NOFAIRYGUYFIRES /* Compatibility only */, qr_SCRIPTERRLOG,
-    qr_TRIGGERSREPEAT /* Compatibility only */, qr_ENEMIESFLICKER, qr_OVALWIPE, qr_TRIANGLEWIPE,
+    qr_REPLACEOPENDOORS /* Compatibility */, qr_OLDLENSORDER /* Compatibility */, qr_NOFAIRYGUYFIRES /* Compatibility */, qr_SCRIPTERRLOG,
+    qr_TRIGGERSREPEAT /* Compatibility */, qr_ENEMIESFLICKER, qr_OVALWIPE, qr_TRIANGLEWIPE,
     // 19
-    qr_SMASWIPE, qr_NOSOLIDDAMAGECOMBOS /* Compatibility only */, qr_SHOPCHEAT, qr_HOOKSHOTDOWNBUG /* Compatibility only */,
-    qr_OLDHOOKSHOTGRAB /* Compatibility only */,
+    qr_SMASWIPE, qr_NOSOLIDDAMAGECOMBOS /* Compatibility */, qr_SHOPCHEAT, qr_HOOKSHOTDOWNBUG /* Compatibility */,
+    qr_OLDHOOKSHOTGRAB /* Compatibility */, qr_PEAHATCLOCKVULN /* Compatibility */,
     qr_MAX
 };
 

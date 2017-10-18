@@ -1272,7 +1272,7 @@ do_action:	/* This label is used only to access EOF actions. */
 #line 115 "ffscript.lpp"
             {
                 char temp[512];
-                sprintf(temp, "Scanner, line %d: lexical error '%s'.\n", yylineno, yytext);
+                sprintf(temp, "%s, line %d: lexical error '%s'.\n", curfilename.c_str(), yylineno, yytext);
                 box_out(temp);
                 box_eol();
             }

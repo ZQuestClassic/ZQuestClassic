@@ -1478,6 +1478,13 @@ int sso_properties(subscreen_object *tempsso)
     {
     case ssoNONE:
     {
+        // I'd just disable it entirely if I knew how...
+        dummy_dialog_proc(sso_properties_dlg+6);
+        
+        for(int i=11; i<=213; ++i)
+        {
+            dummy_dialog_proc(sso_properties_dlg+i);
+        }
     }
     break;
     

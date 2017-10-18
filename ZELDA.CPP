@@ -2607,8 +2607,15 @@ int onFullscreen()
 
 int main(int argc, char* argv[])
 {
+    bool onlyInstance=true;
+    
     if(!is_only_instance("zc.lck"))
-        exit(1);
+    {
+        if(used_switch(argc, argv, "-multiple"))
+            onlyInstance=false;
+        else
+            exit(1);
+    }
     
     switch(IS_BETA)
     {
@@ -3356,6 +3363,25 @@ int main(int argc, char* argv[])
     fix_dialogs();
     gui_mouse_focus = FALSE;
     position_mouse(resx-16,resy-16);
+    
+    if(!onlyInstance)
+    {
+        clear_to_color(screen,BLACK);
+        system_pal();
+        int ret=jwin_alert3("Multiple Instances",
+                            "Another instance of ZC is already running.",
+                            "Running multiple instances may cause your",
+                            "save file to be deleted. Continue anyway?",
+                            "&No","&Yes", 0, 'n', 'y', 0, lfont);
+        if(ret!=2)
+        {
+            if(forceExit)
+                exit(0);
+                
+            allegro_exit();
+            return 0;
+        }
+    }
     
 // load saved games
     Z_message("Loading saved games... ");

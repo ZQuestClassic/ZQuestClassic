@@ -992,7 +992,7 @@ int enemy::takehit(weapon *w)
         return 0;
     }
     
-    int ret = 1;
+    int ret = -1;
     
     // This obscure quest rule...
     if(get_bit(quest_rules,qr_BOMBDARKNUTFIX) && (wpnId==wBomb || wpnId==wSBomb))
@@ -4528,15 +4528,19 @@ bool ePeahat::animate(int index)
     
     if(stunclk==0 && clk>96)
         misc=1;
-        
-    floater_walk(misc?rate:0,      hrate, dstep/100.0,dstep/1000.0, 10,  80, 16);
+    
+    if(!watch)
+        floater_walk(misc?rate:0,      hrate, dstep/100.0,dstep/1000.0, 10,  80, 16);
     
     if(get_bit(quest_rules,qr_ENEMIESZAXIS) && !(tmpscr->flags7&fSIDEVIEW))
     {
         z=int(step*1.1/(fix)((dstep/1000.0)*1.1));
     }
     
-    superman = (movestatus && !get_bit(quest_rules,qr_ENEMIESZAXIS)) ? 1 : 0;
+    if(get_bit(quest_rules,qr_PEAHATCLOCKVULN))
+        superman=0;
+    else
+        superman=(movestatus && !get_bit(quest_rules,qr_ENEMIESZAXIS)) ? 1 : 0;
     stunclk=0;
     
     if(x<16) dir=right; //this is ugly, but so is moving or creating these guys with scripts.
@@ -10595,7 +10599,7 @@ esPatra::esPatra(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     yofs=playing_field_offset;
     hyofs=2;
     hxsz=hysz=12;
-    hxofs=1000;
+    hxofs=2;
     mainguy=count_enemy=false;
     bgsfx=-1;
     //o_tile=0;
@@ -10609,7 +10613,6 @@ bool esPatra::animate(int index)
     if(dying)
         return Dead(index);
         
-    hxofs=4;
     return enemy::animate(index);
 }
 
@@ -10931,7 +10934,6 @@ esPatraBS::esPatraBS(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     yofs=playing_field_offset;
     hyofs=2;
     hxsz=hysz=16;
-    hxofs=1000;
     bgsfx=-1;
     mainguy=count_enemy=false;
     deadsfx = WAV_EDEAD;
@@ -10943,8 +10945,7 @@ bool esPatraBS::animate(int index)
 {
     if(dying)
         return Dead(index);
-        
-    hxofs=4;
+    
     return enemy::animate(index);
 }
 

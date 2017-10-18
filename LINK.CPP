@@ -1872,6 +1872,11 @@ void LinkClass::checkstab()
                 || (attack==wWand && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !get_bit(quest_rules,qr_NOWANDMELEE))
                 || (attack==wHammer && guys.spr(i)->hit(wx,wy-8,z,16,24,z>0?16:8)))
         {
+            // Checking the whimsical ring for every collision check causes
+            // an odd bug. It's much more likely to activate on a 0-damage
+            // weapon, since a 0-damage hit won't make the enemy vulnerable to
+            // damaging hits in the following frames.
+            
             int whimsyid = current_item_id(itype_whimsicalring);
             int whimsypower = 0;
             
@@ -1879,12 +1884,14 @@ void LinkClass::checkstab()
             {
                 whimsypower = rand()%zc_max(itemsbuf[current_item_id(itype_whimsicalring)].misc1,1) ?
                               0 : current_item_power(itype_whimsicalring);
-                              
-                if(whimsypower > 0)
-                    sfx(itemsbuf[whimsyid].usesound);
             }
             
             int h = hit_enemy(i,attack,(weaponattackpower() + whimsypower)*DAMAGE_MULTIPLIER,wx,wy,dir,directWpn);
+            
+            if(h<0 && whimsypower)
+            {
+                sfx(itemsbuf[whimsyid].usesound);
+            }
             
             if(h && charging>0)
             {
