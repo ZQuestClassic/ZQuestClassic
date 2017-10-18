@@ -28,7 +28,6 @@ void save_game_configs();
 
 void draw_lens_under(BITMAP *dest, bool layer);
 void draw_lens_over();
-void draw_wavy(int amplitude, bool interpol);
 void fix_menu();
 int onFullscreenMenu();
 void f_Quit(int type);

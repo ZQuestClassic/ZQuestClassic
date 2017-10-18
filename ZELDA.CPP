@@ -1195,7 +1195,7 @@ int init_game()
                  (get_bit(quest_rules,qr_OVALWIPE)!=0 ? 2 : 0) |
                  (get_bit(quest_rules,qr_TRIANGLEWIPE)!=0 ? 4 : 0) |
                  (get_bit(quest_rules,qr_SMASWIPE)!=0 ? 8 : 0);
-                 
+    identifyCFEnemies();
                  
     //  NEWSUBSCR = get_bit(quest_rules,qr_NEWSUBSCR);
     
@@ -1622,12 +1622,10 @@ void putintro()
 //use detail_int[x] for global detail info
 void show_details()
 {
-    if(details)
-    {
-        //textprintf_ex(framebuf,font,-3,-5,WHITE,BLACK,"%-4d",whistleclk);
-        textprintf_ex(framebuf,font,0,8,WHITE,BLACK,"dlvl:%-2d dngn:%d", dlevel, isdungeon());
-        textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%ld %s",game->get_time(),time_str_long(game->get_time()));
-        
+    //textprintf_ex(framebuf,font,-3,-5,WHITE,BLACK,"%-4d",whistleclk);
+    textprintf_ex(framebuf,font,0,8,WHITE,BLACK,"dlvl:%-2d dngn:%d", dlevel, isdungeon());
+    textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%ld %s",game->get_time(),time_str_long(game->get_time()));
+    
 //    textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Link.getPushing());
 //    for(int i=0; i<Lwpns.Count(); i++)
 //      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d",items.spr(i)->id);
@@ -1638,31 +1636,27 @@ void show_details()
 //    for(int i=0; i<items.Count(); i++)
 //      textprintf_ex(framebuf,font,90,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d",((weapon*)Lwpns.spr(i))->tile, ((weapon*)Lwpns.spr(i))->dir, ((weapon*)Lwpns.spr(i))->flip);
 
-        for(int i=0; i<guys.Count(); i++)
-            textprintf_ex(framebuf,font,90,(i<<3)+16,WHITE,BLACK,"%d",(int)((enemy*)guys.spr(i))->id);
-            
+    for(int i=0; i<guys.Count(); i++)
+        textprintf_ex(framebuf,font,90,(i<<3)+16,WHITE,BLACK,"%d",(int)((enemy*)guys.spr(i))->id);
+        
 //      textprintf_ex(framebuf,font,90,16,WHITE,BLACK,"%3d, %3d",int(LinkModifiedX()),int(LinkModifiedY()));
-        //textprintf_ex(framebuf,font,90,24,WHITE,BLACK,"%3d, %3d",detail_int[0],detail_int[1]);
+    //textprintf_ex(framebuf,font,90,24,WHITE,BLACK,"%3d, %3d",detail_int[0],detail_int[1]);
 //      textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Link.getAction());
 
-        /*
-          for(int i=0; i<Ewpns.Count(); i++)
-          {
-          sprite *s=Ewpns.spr(i);
-          textprintf_ex(framebuf,font,100,(i<<3)+16,WHITE,BLACK,"%3d>%3d %3d>%3d %3d<%3d %3d<%3d ",
-          int(Link.getX()+0+16), int(s->x+s->hxofs),  int(Link.getY()+0+16), int(s->y+s->hyofs),
-          int(Link.getX()+0), int(s->x+s->hxofs+s->hxsz), int(Link.getY()+0), int(s->y+s->hyofs+s->hysz));
-          }
-          */
+    /*
+      for(int i=0; i<Ewpns.Count(); i++)
+      {
+      sprite *s=Ewpns.spr(i);
+      textprintf_ex(framebuf,font,100,(i<<3)+16,WHITE,BLACK,"%3d>%3d %3d>%3d %3d<%3d %3d<%3d ",
+      int(Link.getX()+0+16), int(s->x+s->hxofs),  int(Link.getY()+0+16), int(s->y+s->hyofs),
+      int(Link.getX()+0), int(s->x+s->hxofs+s->hxsz), int(Link.getY()+0), int(s->y+s->hyofs+s->hysz));
+      }
+      */
 //        textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"gi=%3d",guycarryingitem);
-    }
 }
 
 void show_ffscript_names()
 {
-    if(!show_ff_scripts)
-        return;
-        
     int ypos = 8;
     
     for(int i=0; i< MAXFFCS; i++)
@@ -2279,7 +2273,7 @@ void game_loop()
         global_wait=false;
     }
     
-    draw_screen(tmpscr, 0, 0);
+    draw_screen(tmpscr);
     
     if(linkedmsgclk==1)
     {

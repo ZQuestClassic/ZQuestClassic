@@ -781,7 +781,8 @@ void setLabels(int iclass)
     if((iclass >= itype_rupee && iclass <= itype_bombammo) ||
             (iclass >= itype_key && iclass <= itype_magiccontainer) ||
             (iclass >= itype_map && iclass <= itype_bosskey) || iclass == itype_clock ||
-            iclass==itype_lkey || iclass==itype_misc)
+            iclass==itype_lkey || iclass==itype_misc ||
+            iclass==itype_bowandarrow || iclass==itype_letterpotion)
     {
         itemdata_dlg[14].dp = (void *)"<Unused>";
         itemdata_dlg[14].flags |= D_DISABLED;
@@ -1644,6 +1645,37 @@ void edit_itemdata(int index)
     
 }
 
+extern DIALOG ilist_dlg[];
+static int copiedItem;
+static MENU ilist_rclick_menu[] =
+{
+    { (char *)"Copy",  NULL, NULL, 0, NULL },
+    { (char *)"Paste", NULL, NULL, 0, NULL },
+    { NULL,            NULL, NULL, 0, NULL }
+};
+
+void ilist_rclick_func(int index, int x, int y)
+{
+    if(index==0)
+        return;
+    
+    if(copiedItem<=0)
+        ilist_rclick_menu[1].flags|=D_DISABLED;
+    else
+        ilist_rclick_menu[1].flags&=~D_DISABLED;
+    
+    int ret=popup_menu(ilist_rclick_menu, x, y);
+    
+    if(ret==0) // copy
+        copiedItem=bii[index].i;
+    else if(ret==1) // paste
+    {
+        itemsbuf[bii[index].i]=itemsbuf[copiedItem];
+        ilist_dlg[2].flags|=D_DIRTY;
+        saved=false;
+    }
+}
+
 int onCustomItems()
 {
     /*
@@ -1654,6 +1686,7 @@ int onCustomItems()
     build_bii_list(false);
     int foo;
     int index = select_item("Select Item",bii[0].i,true,foo);
+    copiedItem=-1;
     
     while(index >= 0)
     {
@@ -3139,6 +3172,37 @@ void edit_enemydata(int index)
     
 }
 
+extern DIALOG elist_dlg[];
+static int copiedGuy;
+static MENU elist_rclick_menu[] =
+{
+    { (char *)"Copy",  NULL, NULL, 0, NULL },
+    { (char *)"Paste", NULL, NULL, 0, NULL },
+    { NULL,            NULL, NULL, 0, NULL }
+};
+
+void elist_rclick_func(int index, int x, int y)
+{
+    if(index==0)
+        return;
+    
+    if(copiedGuy<=0)
+        elist_rclick_menu[1].flags|=D_DISABLED;
+    else
+        elist_rclick_menu[1].flags&=~D_DISABLED;
+    
+    int ret=popup_menu(elist_rclick_menu, x, y);
+    
+    if(ret==0) // copy
+        copiedGuy=bie[index].i;
+    else if(ret==1) // paste
+    {
+        guysbuf[bie[index].i]=guysbuf[copiedGuy];
+        elist_dlg[2].flags|=D_DIRTY;
+        saved=false;
+    }
+}
+
 int onCustomEnemies()
 {
     /*
@@ -3148,7 +3212,6 @@ int onCustomEnemies()
     
     int foo;
     int index = select_enemy("Select Enemy",bie[0].i,true,true,foo);
-    guydata g = guysbuf[0];
     
     while(index >= 0)
     {
@@ -3158,11 +3221,16 @@ int onCustomEnemies()
         //-Two cents worth. -Gleeok
         if(key[KEY_OPENBRACE])   //copy
         {
-            g = guysbuf[index];
+            if(index != 0)
+                copiedGuy=index;
         }
         else if(key[KEY_CLOSEBRACE])   //paste
         {
-            guysbuf[index] = g;
+            if(copiedGuy>0 && index!=0)
+            {
+                guysbuf[index]=guysbuf[copiedGuy];
+                saved=false;
+            }
         }
         else
         {

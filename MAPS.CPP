@@ -2815,7 +2815,7 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen)
     }
 }
 
-void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x2, int y2, bool showlink)
+void draw_screen(mapscr* this_screen, bool showlink)
 {
 
     //The Plan:
@@ -2845,16 +2845,9 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
     //1. Draw some layers onto temp_buf
     clear_bitmap(scrollbuf);
     
-    if(next_screen!=NULL)
-    {
-        if(next_screen->flags7&fLAYER2BG) do_layer(scrollbuf,1, next_screen, x2, y2+playing_field_offset, 3);
-        
-        if(next_screen->flags7&fLAYER3BG) do_layer(scrollbuf,2, next_screen, x2, y2+playing_field_offset, 3);
-    }
-    
     if(this_screen->flags7&fLAYER2BG)
     {
-        do_layer(scrollbuf,1, this_screen, x1, y1, 2, false, true);
+        do_layer(scrollbuf,1, this_screen, 0, 0, 2, false, true);
         
         for(pcounter=0; pcounter<particles.Count(); pcounter++)
         {
@@ -2867,7 +2860,7 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
     
     if(this_screen->flags7&fLAYER3BG)
     {
-        do_layer(scrollbuf,2, this_screen, x1, y1, 2, false, true);
+        do_layer(scrollbuf,2, this_screen, 0, 0, 2, false, true);
         
         for(pcounter=0; pcounter<particles.Count(); pcounter++)
         {
@@ -2878,12 +2871,7 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
         }
     }
     
-    if(next_screen!=NULL)
-    {
-        putscr(scrollbuf,x2,y2,next_screen);
-    }
-    
-    putscr(scrollbuf,x1,y1+playing_field_offset,this_screen);
+    putscr(scrollbuf,0,playing_field_offset,this_screen);
     
     // Lens hints, then primitives, then particles.
     if((lensclk || (get_debug() && key[KEY_L])) && !get_bit(quest_rules, qr_OLDLENSORDER))
@@ -2935,19 +2923,7 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
         }
     }
     
-    if(next_screen!=NULL)
-    {
-        do_layer(scrollbuf,0, next_screen, x2, y2, 3);
-        
-        if(!(next_screen->flags7&fLAYER2BG))
-        {
-            do_layer(scrollbuf,1, next_screen, x2, y2, 3);
-        }
-        
-        do_layer(scrollbuf,-2, next_screen, x2, y2, 3);
-    }
-    
-    do_layer(scrollbuf,0, this_screen, x1, y1, 2, false, true); // LAYER 1
+    do_layer(scrollbuf,0, this_screen, 0, 0, 2, false, true); // LAYER 1
     
     for(pcounter=0; pcounter<particles.Count(); pcounter++)
     {
@@ -2957,11 +2933,11 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
         }
     }
     
-    do_layer(scrollbuf,-3, this_screen, x1, y1, 2); // freeform combos!
+    do_layer(scrollbuf,-3, this_screen, 0, 0, 2); // freeform combos!
     
     if(!(this_screen->flags7&fLAYER2BG))
     {
-        do_layer(scrollbuf,1, this_screen, x1, y1, 2, false, true); // LAYER 2
+        do_layer(scrollbuf,1, this_screen, 0, 0, 2, false, true); // LAYER 2
         
         for(pcounter=0; pcounter<particles.Count(); pcounter++)
         {
@@ -3003,24 +2979,13 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
         }
     }
     
-    do_layer(scrollbuf,-2, this_screen, x1, y1, 2); // push blocks!
+    do_layer(scrollbuf,-2, this_screen, 0, 0, 2); // push blocks!
     
     //Show walkflags cheat
-    do_walkflags(temp_buf,this_screen,x1,y1,2);
-    do_walkflags(scrollbuf,this_screen,x1,y1,2);
+    do_walkflags(temp_buf,this_screen,0,0,2);
+    do_walkflags(scrollbuf,this_screen,0,0,2);
     
-    if(next_screen!=NULL)
-    {
-        do_walkflags(temp_buf,next_screen,x2,y2,3);
-        do_walkflags(scrollbuf,next_screen,x2,y2,3);
-    }
-    
-    if(next_screen!=NULL)
-    {
-        putscrdoors(scrollbuf,x2,y2,next_screen);
-    }
-    
-    putscrdoors(scrollbuf,x1,y1+playing_field_offset,this_screen);
+    putscrdoors(scrollbuf,0,playing_field_offset,this_screen);
     
     // Lens hints, doors etc.
     if(lensclk || (get_debug() && key[KEY_L]))
@@ -3166,29 +3131,10 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
     
     //5. Draw some layers onto temp_buf and scrollbuf
     
-    if(next_screen!=NULL)
-    {
-        if(!(next_screen->flags7&fLAYER3BG))
-        {
-            do_layer(temp_buf,2, next_screen, x2, y2, 3);
-            do_layer(scrollbuf, 2, next_screen, x2, y2, 3);
-        }
-        
-        //why do both?
-        do_layer(temp_buf,3, next_screen, x2, y2, 3);
-        do_layer(scrollbuf, 3, next_screen, x2, y2, 3);
-        do_layer(temp_buf,-1, next_screen, x2, y2, 3);
-        do_layer(scrollbuf, 3, next_screen, x2, y2, 3); //???
-        
-        //do_primitives(scrollbuf, 3, next_screen, x1,y1+playing_field_offset);//don't uncomment me
-        
-    }
-    
-    
     if(!(this_screen->flags7&fLAYER3BG))
     {
-        do_layer(temp_buf,2, this_screen, x1, y1, 2, false, true);
-        do_layer(scrollbuf, 2, this_screen, x1, y1, 2);
+        do_layer(temp_buf,2, this_screen, 0, 0, 2, false, true);
+        do_layer(scrollbuf, 2, this_screen, 0, 0, 2);
         
         for(pcounter=0; pcounter<particles.Count(); pcounter++)
         {
@@ -3199,9 +3145,9 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
         }
     }
     
-    do_layer(temp_buf,3, this_screen, x1, y1, 2, false, true);
-    do_layer(scrollbuf, 3, this_screen, x1, y1, 2);
-    //do_primitives(temp_buf, 3, this_screen, x1,y1+playing_field_offset);//don't uncomment me
+    do_layer(temp_buf,3, this_screen, 0, 0, 2, false, true);
+    do_layer(scrollbuf, 3, this_screen, 0, 0, 2);
+    //do_primitives(temp_buf, 3, this_screen, 0,playing_field_offset);//don't uncomment me
     
     for(pcounter=0; pcounter<particles.Count(); pcounter++)
     {
@@ -3211,8 +3157,8 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
         }
     }
     
-    do_layer(temp_buf,-1, this_screen, x1, y1, 2);
-    do_layer(scrollbuf,-1, this_screen, x1, y1, 2);
+    do_layer(temp_buf,-1, this_screen, 0, 0, 2);
+    do_layer(scrollbuf,-1, this_screen, 0, 0, 2);
     
     for(pcounter=0; pcounter<particles.Count(); pcounter++)
     {
@@ -3261,15 +3207,7 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
             if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > (fix)zinit.jump_link_layer_threshold)
             {
                 guys.spr(i)->draw(framebuf);
-            }/*
-            
-    if(guys.spr(i)->id == eCEILINGM)
-    {
-      if (((eCEILINGM*)guys.spr(i))->haslink)
-      {
-        guys.spr(i)->draw(temp_buf2);
-      }
-    }*/
+            }
         }
     else
     {
@@ -3295,18 +3233,8 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
     
     set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
     
-    if(next_screen!=NULL)
-    {
-        do_layer(temp_buf,4, next_screen, x2, y2, 3);
-        do_layer(scrollbuf, 4, next_screen, x2, y2, 3);
-        do_layer(temp_buf,-4, this_screen, x2, y2, 3); // overhead freeform combos!
-        do_layer(scrollbuf, -4, this_screen, x2, y2, 3);
-        do_layer(temp_buf,5, next_screen, x2, y2, 3);
-        do_layer(scrollbuf, 5, next_screen, x2, y2, 3);
-    }
-    
-    do_layer(temp_buf,4, this_screen, x1, y1, 2, false, true);
-    do_layer(scrollbuf, 4, this_screen, x1, y1, 2);
+    do_layer(temp_buf,4, this_screen, 0, 0, 2, false, true);
+    do_layer(scrollbuf, 4, this_screen, 0, 0, 2);
     
     for(pcounter=0; pcounter<particles.Count(); pcounter++)
     {
@@ -3316,11 +3244,11 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
         }
     }
     
-    do_layer(temp_buf,-4, this_screen, x1, y1, 2); // overhead freeform combos!
-    do_layer(scrollbuf, -4, this_screen, x1, y1, 2);
+    do_layer(temp_buf,-4, this_screen, 0, 0, 2); // overhead freeform combos!
+    do_layer(scrollbuf, -4, this_screen, 0, 0, 2);
     
-    do_layer(temp_buf,5, this_screen, x1, y1, 2, false, true);
-    do_layer(scrollbuf, 5, this_screen, x1, y1, 2);
+    do_layer(temp_buf,5, this_screen, 0, 0, 2, false, true);
+    do_layer(scrollbuf, 5, this_screen, 0, 0, 2);
     
     for(pcounter=0; pcounter<particles.Count(); pcounter++)
     {

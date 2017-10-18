@@ -1516,10 +1516,10 @@ void do_drawquadr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
     }
     
-    V3D_f V1 = { x1+xoffset, y1+yoffset, 0,        0,          0, col[0] };
-    V3D_f V2 = { x2+xoffset, y2+yoffset, 0,        0, tex_height, col[1] };
-    V3D_f V3 = { x3+xoffset, y3+yoffset, 0, tex_width,tex_height, col[2] };
-    V3D_f V4 = { x4+xoffset, y4+yoffset, 0, tex_width,         0, col[3] };
+    V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
+    V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
+    V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
+    V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(tex_width), 0,                              col[3] };
     
     quad3d_f(bmp, polytype, tex, &V1, &V2, &V3, &V4);
     
@@ -1601,9 +1601,9 @@ void do_drawtriangler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
     }
     
-    V3D_f V1 = { x1+xoffset, y1+yoffset, 0,    0 ,          0 , col[0] };
-    V3D_f V2 = { x2+xoffset, y2+yoffset, 0,    0 , tex_height , col[1] };
-    V3D_f V3 = { x3+xoffset, y3+yoffset, 0, tex_width, tex_height , col[2] };
+    V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
+    V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
+    V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
     
     
     triangle3d_f(bmp, polytype, tex, &V1, &V2, &V3);
@@ -1796,10 +1796,10 @@ void do_drawquad3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
     }
     
-    V3D_f V1 = { pos[0]+xoffset, pos[1] +yoffset, pos[2] , uv[0], uv[1], col[0] };
-    V3D_f V2 = { pos[3]+xoffset, pos[4] +yoffset, pos[5] , uv[2], uv[3], col[1] };
-    V3D_f V3 = { pos[6]+xoffset, pos[7] +yoffset, pos[8] , uv[4], uv[5], col[2] };
-    V3D_f V4 = { pos[9]+xoffset, pos[10]+yoffset, pos[11], uv[6], uv[7], col[3] };
+    V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
+    V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
+    V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]),  static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
+    V3D_f V4 = { static_cast<float>(pos[9]+xoffset), static_cast<float>(pos[10]+yoffset), static_cast<float>(pos[11]), static_cast<float>(uv[6]), static_cast<float>(uv[7]), col[3] };
     
     quad3d_f(bmp, polytype, tex, &V1, &V2, &V3, &V4);
     
@@ -1875,9 +1875,9 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
     }
     
-    V3D_f V1 = { pos[0]+xoffset, pos[1] +yoffset, pos[2] , uv[0], uv[1], col[0] };
-    V3D_f V2 = { pos[3]+xoffset, pos[4] +yoffset, pos[5] , uv[2], uv[3], col[1] };
-    V3D_f V3 = { pos[6]+xoffset, pos[7] +yoffset, pos[8] , uv[4], uv[5], col[2] };
+    V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
+    V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]), static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
+    V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]), static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
     
     triangle3d_f(bmp, polytype, tex, &V1, &V2, &V3);
     

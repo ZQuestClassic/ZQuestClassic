@@ -95,9 +95,9 @@
 #include "zc_array.h"
 
 #define ZELDA_VERSION       0x0250                          //version of the program
-#define VERSION_BUILD       27                              //build number of this version
+#define VERSION_BUILD       28                              //build number of this version
 #define IS_BETA             0                               //is this a beta?
-#define DATE_STR            "August 26, 2014"
+#define DATE_STR            "October 4, 2014"
 
 #define MIN_VERSION         0x0184
 
@@ -1797,6 +1797,13 @@ struct MsgStr
     {
         strncpy(s, other.s, MSGSIZE+1);
         nextstring=other.nextstring;
+        copyStyle(other);
+        return *this;
+    }
+    
+    // Copy style data - everything except s, nextstring, and listpos
+    void copyStyle(MsgStr& other)
+    {
         tile=other.tile;
         cset=other.cset;
         trans=other.trans;
@@ -1809,7 +1816,6 @@ struct MsgStr
         vspace=other.vspace;
         hspace=other.hspace;
         stringflags=other.stringflags;
-        return *this;
     }
 };
 

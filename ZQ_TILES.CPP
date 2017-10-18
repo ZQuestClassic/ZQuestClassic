@@ -15,6 +15,7 @@
 #include "precompiled.h" //always first
 
 #include <string.h>
+#include <cmath>
 
 #include "gui.h"
 #include "zquestdat.h"
@@ -1144,7 +1145,10 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar)
 //  textprintf_ex(screen2,font,224,112,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"tile: %d",tile);
 //  textprintf_ex(screen2,font,224,120,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"cset: %d",cs);
     textprintf_ex(screen2,font,status_info_x,status_info_y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"tile: %d",tile);
-    textprintf_ex(screen2,font,status_info_x,status_info_y+8,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"cset: %d",cs);
+    if(newtilebuf[tile].format==tf8Bit)
+            textprintf_ex(screen2,font,status_info_x,status_info_y+8,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"8-bit");
+    else
+        textprintf_ex(screen2,font,status_info_x,status_info_y+8,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"cset: %d",cs);
     
     PALETTE temppal;
     
@@ -2524,6 +2528,8 @@ void edit_tile(int tile,int flip,int &cs)
 
 /*  Grab Tile Code  */
 
+enum recolorState { rcNone, rc4Bit, rc8Bit };
+
 void *imagebuf=NULL;
 long imagesize=0;
 long tilecount=0;
@@ -2532,7 +2538,7 @@ int imagex,imagey,selx,sely;
 int bp=4,grabmode=16,romofs=0,romtilemode=0, romtilecols=8;
 bool nesmode=false;
 int grabmask=0;
-bool reduce=false;
+recolorState recolor=rcNone;
 PALETTE imagepal;
 
 /* bestfit_color:
@@ -2540,11 +2546,9 @@ PALETTE imagepal;
   */
 int bestfit_cset_color(int cs, int r, int g, int b)
 {
-    int totalDiff; // Total difference between requested and current color
-    int highDiff; // Greatest difference of R, G, B between requested and current color
     int bestMatch = 0; // Color with the lowest total difference so far
-    int bestTotalDiff = INT_MAX; // Total difference between requested color and bestMatch
-    int bestHighDiff = INT_MAX; // Greatest difference of R, G, B between requested color and bestMatch
+    float bestTotalDiff = 100000; // Total difference between requested color and bestMatch
+    float bestHighDiff = 100000; // Greatest difference of R, G, B between requested color and bestMatch
     
     for(int i = 0; i < CSET_SIZE; i++)
     {
@@ -2559,17 +2563,17 @@ int bestfit_cset_color(int cs, int r, int g, int b)
         else
             rgbByte = colordata + (CSET(cs)+i)*3;
             
-        rgb.r = *rgbByte;
-        rgb.g = *(rgbByte+1);
-        rgb.b = *(rgbByte+2);
+        int dr=r-*rgbByte;
+        int dg=g-*(rgbByte+1);
+        int db=b-*(rgbByte+2);
         
         // Track both the total color difference and the single greatest
         // difference of R, G, B. The idea is that it's better to have
         // two or three small differences than one big one.
         // The differences are multiplied by different numbers to account
         // for the differences in perceived brightness of the three colors.
-        totalDiff = abs(rgb.r - r)*3 + abs(rgb.g - g)*5 + abs(rgb.b - b)*2;
-        highDiff = zc_max(zc_max(abs(rgb.r - r)*3, abs(rgb.g - g)*5), abs(rgb.b - b)*2);
+        float totalDiff = sqrt(dr*dr*0.241 + dg*dg*0.691 + db*db*0.068);
+        float highDiff = zc_max(zc_max(sqrt(dr*dr*0.241), sqrt(dg*dg*0.691)), sqrt(db*db*0.068));
         
         // Perfect match? Just stop here.
         if(totalDiff==0)
@@ -2587,6 +2591,47 @@ int bestfit_cset_color(int cs, int r, int g, int b)
     return bestMatch;
 }
 
+// Same as the above, but draws from all colors in CSets 0-11.
+int bestfit_cset_color_8bit(int r, int g, int b)
+{
+    int bestMatch = 0;
+    float bestTotalDiff = 100000;
+    float bestHighDiff = 100000;
+    
+    for(int i = 0; i < 192; i++) // 192 colors in CSets 0-11
+    {
+        byte *rgbByte;
+        RGB rgb;
+        
+        int cs=i>>4;
+        if(cs==2 || cs==3 || cs==4)
+            rgbByte = colordata + (CSET((Map.CurrScr()->color+1) * pdLEVEL + cs) + (i%16)) * 3;
+        else if(cs==9)
+            rgbByte = colordata + (CSET((Map.CurrScr()->color+1) * pdLEVEL + 5) + (i%16)) * 3;
+        else
+            rgbByte = colordata + i * 3;
+            
+        int dr=r-*rgbByte;
+        int dg=g-*(rgbByte+1);
+        int db=b-*(rgbByte+2);
+        
+        float totalDiff = sqrt(dr*dr*0.241 + dg*dg*0.691 + db*db*0.068);
+        float highDiff = zc_max(zc_max(sqrt(dr*dr*0.241), sqrt(dg*dg*0.691)), sqrt(db*db*0.068));
+        
+        if(totalDiff==0) // Perfect match?
+            return i;
+            
+        if(totalDiff < bestTotalDiff || // Best match so far?
+           (totalDiff == bestTotalDiff && highDiff < bestHighDiff)) // Equally good match with lower high difference?
+        {
+            bestMatch=i;
+            bestTotalDiff=totalDiff;
+            bestHighDiff=highDiff;
+        }
+    }
+    
+    return bestMatch;
+}
 
 byte cset_reduce_table[PAL_SIZE];
 
@@ -2595,6 +2640,14 @@ void calc_cset_reduce_table(PALETTE pal, int cs)
     for(int i=0; i<PAL_SIZE; i++)
     {
         cset_reduce_table[i]=(bestfit_cset_color(cs, pal[i].r, pal[i].g, pal[i].b)&0x0F);
+    }
+}
+
+void calc_cset_reduce_table_8bit(PALETTE pal)
+{
+    for(int i=0; i<PAL_SIZE; i++)
+    {
+        cset_reduce_table[i]=bestfit_cset_color_8bit(pal[i].r, pal[i].g, pal[i].b);
     }
 }
 
@@ -2623,7 +2676,6 @@ void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs)
     
     ++src;
     
-    ///*
     for(int p=1; p<bp; p++)
     {
         for(int line=0; line<(nesmode?4:8); line++)
@@ -2656,7 +2708,6 @@ void puttileROM(BITMAP *dest,int x,int y,byte *src,int cs)
         }
     }
     
-    //*/
     
     if(nesmode)
     {
@@ -2766,7 +2817,7 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     switch(imagetype)
     {
     case ftBMP:
-        if(!reduce)
+        if(recolor==rcNone)
         {
             blit((BITMAP*)imagebuf,screen2,imagex<<4,imagey<<4,0,0,320,160);
         }
@@ -2789,7 +2840,10 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
                         break;
                     }
                     
-                    screen2->line[y][x]=(cset_reduce_table[((BITMAP*)imagebuf)->line[(imagey<<4)+y][(imagex<<4)+x]])+(cs<<4);
+                    if(recolor==rc8Bit)
+                        screen2->line[y][x]=cset_reduce_table[((BITMAP*)imagebuf)->line[(imagey<<4)+y][(imagex<<4)+x]];
+                    else
+                        screen2->line[y][x]=(cset_reduce_table[((BITMAP*)imagebuf)->line[(imagey<<4)+y][(imagex<<4)+x]])+(cs<<4);
                 }
             }
         }
@@ -3089,7 +3143,11 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
     
     textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(168+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"sel: %d %d",selx,sely);
     textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(176+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"pos: %d %d",imagex,imagey);
-    textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(192+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"cset: %d",cs);
+    
+    if(bp==8)
+        textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(192+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"8-bit");
+    else
+        textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(192+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"cset: %d",cs);
     textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(200+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"step: %d",grabmode);
     
     if(imagetype==ftBIN)
@@ -3515,7 +3573,7 @@ bool leech_tiles(tiledata *dest,int start,int cs)
     {
         for(int tx=0; tx<width; tx++)                           //for every column (tile)
         {
-            if((((ty*width)+tx)%zc_min(LeechUpdate, 1))==0)                  //update status
+            if((((ty*width)+tx)%zc_max(LeechUpdate, 1))==0)                  //update status
             {
                 FONT *oldfont = font;
                 static BITMAP *tbar = create_bitmap_ex(8,240-6, 18);
@@ -3815,7 +3873,9 @@ bool leech_tiles(tiledata *dest,int start,int cs)
 
 void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *newformat)
 {
-    byte format=tf4Bit;
+    // Not too sure what's going on with the format stuff here...
+    byte defFormat=(bp==8) ? tf8Bit : tf4Bit;
+    byte format=defFormat;
     int stile = ((imagey*TILES_PER_ROW)+imagex)+(((sely/16)*TILES_PER_ROW)+(selx/16));
     
     switch(imagetype)
@@ -3831,7 +3891,7 @@ void grab(byte(*dest)[256],byte *def, int width, int height, int oformat, byte *
         {
             for(int tx=0; tx<width; tx++)
             {
-                format=tf4Bit;
+                format=defFormat;
                 
                 switch(imagetype)
                 {
@@ -4113,6 +4173,7 @@ void grab_tile(int tile,int &cs)
         load_imagebuf();
         
     calc_cset_reduce_table(imagepal, cs);
+    calc_cset_reduce_table_8bit(imagepal);
     draw_grab_window();
     draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
     grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
@@ -4146,7 +4207,7 @@ void grab_tile(int tile,int &cs)
                 if(imagetype==ftBMP)
                 {
                     dopal=true;
-                    reduce=false;
+                    recolor=rcNone;
                     calc_cset_reduce_table(imagepal, cs);
                 }
                 
@@ -4200,13 +4261,15 @@ void grab_tile(int tile,int &cs)
             case KEY_EQUALS:
             case KEY_PLUS_PAD:
                 cs = (cs<11) ? cs+1:0;
-                calc_cset_reduce_table(imagepal, cs);
+                if(recolor==rc4Bit)
+                    calc_cset_reduce_table(imagepal, cs);
                 break;
                 
             case KEY_MINUS:
             case KEY_MINUS_PAD:
                 cs = (cs>0)  ? cs-1:11;
-                calc_cset_reduce_table(imagepal, cs);
+                if(recolor==rc4Bit)
+                    calc_cset_reduce_table(imagepal, cs);
                 break;
                 
             case KEY_S:
@@ -4217,35 +4280,43 @@ void grab_tile(int tile,int &cs)
                 break;
                 
             case KEY_1:
-                imagex=(imagex*bp)>>3;
+                if(recolor==rc8Bit)
+                    recolor=rcNone;
+                //imagex=(imagex*bp)>>3;
                 bp=1;
-                imagex<<=3;
+                //imagex<<=3;
                 nesmode=false;
                 break;
                 
             case KEY_2:
-                imagex=(imagex*bp)>>3;
+                if(recolor==rc8Bit)
+                    recolor=rcNone;
+                //imagex=(imagex*bp)>>3;
                 bp=2;
-                imagex<<=2;
+                //imagex<<=2;
                 nesmode=false;
                 break;
                 
             case KEY_N:
-                imagex=(imagex*bp)>>3;
+                if(recolor==rc8Bit)
+                    recolor=rcNone;
+                //imagex=(imagex*bp)>>3;
                 bp=2;
-                imagex<<=2;
+                //imagex<<=2;
                 nesmode=true;
                 break;
                 
             case KEY_4:
-                imagex=(imagex*bp)>>3;
+                if(recolor==rc8Bit)
+                    recolor=rcNone;
+                //imagex=(imagex*bp)>>3;
                 bp=4;
-                imagex<<=1;
+                //imagex<<=1;
                 nesmode=false;
                 break;
                 
             case KEY_8:
-                imagex=(imagex*bp)>>3;
+                //imagex=(imagex*bp)>>3;
                 bp=8;
                 break;
                 
@@ -4262,11 +4333,11 @@ void grab_tile(int tile,int &cs)
                     if(bp==16)
                     {
                         bp=1;
-                        imagex<<=3;
+                        //imagex<<=3;
                     }
                     else
                     {
-                        imagex>>=1;
+                        //imagex>>=1;
                     }
                 }
                 
@@ -4291,8 +4362,21 @@ void grab_tile(int tile,int &cs)
                     dopal=true;
                 }
                 
-                reduce=!reduce;
-                calc_cset_reduce_table(imagepal, cs);
+                if(recolor!=rcNone)
+                    recolor=rcNone;
+                else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+                {
+                    bp=8;
+                    recolor=rc8Bit;
+                    calc_cset_reduce_table_8bit(imagepal);
+                }
+                else
+                {
+                    if(bp==8)
+                        bp=4;
+                    recolor=rc4Bit;
+                    calc_cset_reduce_table(imagepal, cs);
+                }
                 break;
                 
             default:
@@ -4425,8 +4509,21 @@ void grab_tile(int tile,int &cs)
                             dopal = true;
                         }
                         
-                        reduce=!reduce;
-                        calc_cset_reduce_table(imagepal, cs); //break;
+                        if(recolor!=rcNone)
+                            recolor=rcNone;
+                        else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+                        {
+                            bp=8;
+                            recolor=rc8Bit;
+                            calc_cset_reduce_table_8bit(imagepal);
+                        }
+                        else
+                        {
+                            if(bp==8)
+                                bp=4;
+                            recolor=rc4Bit;
+                            calc_cset_reduce_table(imagepal, cs);
+                        }
                         redraw=true;
                     }
                 }
@@ -4604,28 +4701,31 @@ void grab_tile(int tile,int &cs)
     {
         go_tiles();
         saved=false;
-        
+            
         //   usetiles=true;
         for(int y=0; y<selheight; y++)
         {
             for(int x=0; x<selwidth; x++)
             {
                 word temptile=tile+((TILES_PER_ROW*y)+x);
-                newtilebuf[temptile].format=newformat[(TILES_PER_ROW*y)+x];
+                int format=(bp==8) ? tf8Bit : tf4Bit;
                 
                 if(newtilebuf[temptile].data!=NULL)
-                {
                     zc_free(newtilebuf[temptile].data);
-                }
                 
-                newtilebuf[temptile].data=(byte *)zc_malloc(tilesize(newtilebuf[temptile].format));
+                newtilebuf[temptile].format=format;
+                newtilebuf[temptile].data=(byte *)zc_malloc(tilesize(format));
+                
+                //newtilebuf[temptile].format=newformat[(TILES_PER_ROW*y)+x];
+                
                 
                 if(newtilebuf[temptile].data==NULL)
                 {
                     Z_error("Unable to initialize tile #%d.\n", temptile);
+                    break;
                 }
                 
-                for(int i=0; i<128*newtilebuf[temptile].format; i++)
+                for(int i=0; i<((format==tf8Bit) ? 256 : 128); i++)
                 {
                     newtilebuf[temptile].data[i] = newtile[(TILES_PER_ROW*y)+x][i];
                 }
@@ -4637,8 +4737,8 @@ void grab_tile(int tile,int &cs)
     
     if(pal)
         set_palette(RAMpal);
-        
-    reduce=false;
+    
+    recolor=rcNone;
     calc_cset_reduce_table(imagepal, cs);
     register_blank_tiles();
 }
@@ -4893,6 +4993,7 @@ void tile_info_1(int oldtile,int oldflip,int oldcs,int tile,int flip,int cs,int 
     
     textprintf_right_ex(screen2,tfont,56*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old Tile:");
     textprintf_ex(screen2,tfont,60*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",oldtile);
+    
     textprintf_right_ex(screen2,tfont,56*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet:");
     textprintf_ex(screen2,tfont,60*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",oldcs);
     
@@ -8194,7 +8295,10 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                                 {
                                     if(pixelrow==15*bitcheck)
                                     {
-                                        src_pixelrow=(qword*)(newtilebuf[temptile+TILES_PER_ROW].data);
+                                        int srctile=temptile+TILES_PER_ROW;
+                                        if(srctile>=NEWMAXTILES)
+                                            srctile-=rows*TILES_PER_ROW;
+                                        src_pixelrow=(qword*)(newtilebuf[srctile].data);
                                     }
                                     
                                     *dest_pixelrow=*src_pixelrow;
@@ -8272,7 +8376,10 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow, boo
                                 {
                                     if(pixelrow<bitcheck)
                                     {
-                                        qword *tempsrc=(qword*)(newtilebuf[temptile-TILES_PER_ROW].data+(120*bitcheck)+(8*pixelrow));
+                                        int srctile=temptile-TILES_PER_ROW;
+                                        if(srctile<0)
+                                            srctile+=rows*TILES_PER_ROW;
+                                        qword *tempsrc=(qword*)(newtilebuf[srctile].data+(120*bitcheck)+(8*pixelrow));
                                         *dest_pixelrow=*tempsrc;
                                         //*dest_pixelrow=0;
                                     }

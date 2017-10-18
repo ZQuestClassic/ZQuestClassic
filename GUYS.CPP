@@ -45,6 +45,63 @@ void playLevelMusic();
 // If an enemy is this far out of the playing field, just remove it.
 #define OUTOFBOUNDS ((int)y>((tmpscr->flags7&fSIDEVIEW && canfall(id))?192:352) || y<-176 || x<-256 || x > 512)
 
+namespace
+{
+    int trapConstantHorizontalID;
+    int trapConstantVerticalID;
+    int trapLOSHorizontalID;
+    int trapLOSVerticalID;
+    int trapLOS4WayID;
+    
+    int cornerTrapID;
+    int centerTrapID;
+    
+    int rockID;
+    int zoraID;
+    int statueID;
+}
+
+void identifyCFEnemies()
+{
+    trapConstantHorizontalID=-1;
+    trapConstantVerticalID=-1;
+    trapLOSHorizontalID=-1;
+    trapLOSVerticalID=-1;
+    trapLOS4WayID=-1;
+    cornerTrapID=-1;
+    centerTrapID=-1;
+    rockID=-1;
+    zoraID=-1;
+    statueID=-1;
+    
+    for(int i=0; i<eMAXGUYS; i++)
+    {
+        if((guysbuf[i].flags2&cmbflag_trph) && trapLOSHorizontalID==-1)
+            trapLOSHorizontalID=i;
+        if((guysbuf[i].flags2&cmbflag_trpv) && trapLOSVerticalID==-1)
+            trapLOSVerticalID=i;
+        if((guysbuf[i].flags2&cmbflag_trp4) && trapLOS4WayID==-1)
+            trapLOS4WayID=i;
+        if((guysbuf[i].flags2&cmbflag_trplr) && trapConstantHorizontalID==-1)
+            trapConstantHorizontalID=i;
+        if((guysbuf[i].flags2&cmbflag_trpud) && trapConstantVerticalID==-1)
+            trapConstantVerticalID=i;
+        
+        if((guysbuf[i].flags2&eneflag_trap) && cornerTrapID==-1)
+            cornerTrapID=i;
+        if((guysbuf[i].flags2&eneflag_trp2) && centerTrapID==-1)
+            centerTrapID=i;
+        
+        if((guysbuf[i].flags2&eneflag_rock) && rockID==-1)
+            rockID=i;
+        if((guysbuf[i].flags2&eneflag_zora) && zoraID==-1)
+            zoraID=i;
+        
+        if((guysbuf[i].flags2 & eneflag_fire) && statueID==-1)
+            statueID=i;
+    }
+}
+
 int random_layer_enemy()
 {
     int cnt=count_layer_enemies();
@@ -6884,7 +6941,7 @@ void eStalfos::vire_hop()
 {
     if(dmisc9!=e9tPOLSVOICE)
     {
-        if(slide())
+        if(sclk!=0)
             return;
     }
     else sclk=0;
@@ -8725,7 +8782,7 @@ void getBigTri(int id2)
         game->lvlitems[dlevel]|=liTRIFORCE;
     }
     
-    draw_screen(tmpscr, 0, 0);
+    draw_screen(tmpscr);
     
     for(int f=0; f<24*8 && !Quit; f++)
     {
@@ -11762,6 +11819,7 @@ void loadguys()
         case rLEARNSLASH:
         case rTAKEONE:
         case rREPAIR:
+        case rRP_HC:
             if(getmapflag())
                 Guy=0;
                 
@@ -11939,28 +11997,18 @@ bool ok2add(int id)
 
 void activate_fireball_statue(int pos)
 {
-    if(!(tmpscr->enemyflags&efFIREBALLS))
+    if(!(tmpscr->enemyflags&efFIREBALLS) || statueID<0)
     {
         return;
     }
     
-    int Id=0;
     int cx=-1000, cy=-1000;
     int x = (pos&15)<<4;
     int y = pos&0xF0;
     
-    for(int i=0; i<eMAXGUYS; i++)
-    {
-        if(guysbuf[i].flags2 & eneflag_fire)
-        {
-            Id = i;
-            break;
-        }
-    }
-    
     int ctype = combobuf[MAPCOMBO(x,y)].type;
     
-    if(!isfixedtogrid(Id))
+    if(!isfixedtogrid(statueID))
     {
         if(ctype==cL_STATUE)
         {
@@ -11990,14 +12038,14 @@ void activate_fireball_statue(int pos)
         {
             if((int(guys.spr(j)->x)==cx)&&(int(guys.spr(j)->y)==cy))
             {
-                if((guys.spr(j)->id&0xFFF) == Id)  // There's already a matching enemy here!
+                if((guys.spr(j)->id&0xFFF) == statueID)  // There's already a matching enemy here!
                     return; // No point deleting it. A script might be toying with it in some way.
                 else
                     guys.del(j);
             }
         }
         
-        addenemy(cx,cy,Id, !isfixedtogrid(Id) ? 24 : 0);
+        addenemy(cx, cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
     }
 }
 
@@ -12021,33 +12069,19 @@ void load_default_enemies()
     
     if(tmpscr->enemyflags&efZORA)
     {
-        for(int i=0; i<eMAXGUYS; i++)
-        {
-            if(guysbuf[i].flags2 & eneflag_zora)
-            {
-                Id = i;
-                break;
-            }
-        }
-        
-        addenemy(-16,-16,Id,0);
+        if(zoraID>=0)
+            addenemy(-16, -16, zoraID, 0);
     }
     
     if(tmpscr->enemyflags&efTRAP4)
     {
-        for(int i=0; i<eMAXGUYS; i++)
+        if(cornerTrapID>=0)
         {
-            if(guysbuf[i].flags2 & eneflag_trap)
-            {
-                Id = i;
-                break;
-            }
+            addenemy(32, 32, cornerTrapID, -14);
+            addenemy(208, 32, cornerTrapID, -14);
+            addenemy(32, 128, cornerTrapID, -14);
+            addenemy(208, 128, cornerTrapID, -14);
         }
-        
-        addenemy(32,32,Id,-14);
-        addenemy(208,32,Id,-14);
-        addenemy(32,128,Id,-14);
-        addenemy(208,128,Id,-14);
     }
     
     for(int y=0; y<176; y+=16)
@@ -12058,77 +12092,34 @@ void load_default_enemies()
             int cflag = MAPFLAG(x, y);
             int cflag2 = MAPCOMBOFLAG(x, y);
             
-            if((ctype==cTRAP_H)||(cflag==mfTRAP_H)||(cflag2==mfTRAP_H))
+            if(ctype==cTRAP_H || cflag==mfTRAP_H || cflag2==mfTRAP_H)
             {
-                for(int i=0; i<eMAXGUYS; i++)
-                {
-                    if(guysbuf[i].flags2 & cmbflag_trph)
-                    {
-                        Id = i;
-                        break;
-                    }
-                }
-                
-                addenemy(x,y,Id,-14);
+                if(trapLOSHorizontalID>=0)
+                    addenemy(x, y, trapLOSHorizontalID, -14);
             }
-            
-            if((ctype==cTRAP_V)||(cflag==mfTRAP_V)||(cflag2==mfTRAP_V))
+            else if(ctype==cTRAP_V || cflag==mfTRAP_V || cflag2==mfTRAP_V)
             {
-                for(int i=0; i<eMAXGUYS; i++)
-                {
-                    if(guysbuf[i].flags2 & cmbflag_trpv)
-                    {
-                        Id = i;
-                        break;
-                    }
-                }
-                
-                addenemy(x,y,Id,-14);
+                if(trapLOSVerticalID>=0)
+                    addenemy(x, y, trapLOSVerticalID, -14);
             }
-            
-            if((ctype==cTRAP_4)||(cflag==mfTRAP_4)||(cflag2==mfTRAP_4))
+            else if(ctype==cTRAP_4 || cflag==mfTRAP_4 || cflag2==mfTRAP_4)
             {
-                for(int i=0; i<eMAXGUYS; i++)
+                if(trapLOS4WayID>=0)
                 {
-                    if(guysbuf[i].flags2 & cmbflag_trp4)
-                    {
-                        Id = i;
-                        break;
-                    }
-                }
-                
-                if(addenemy(x,y,Id,-14))
-                {
-                    guys.spr(guys.Count()-1)->dummy_int[1]=2;
+                    if(addenemy(x, y, trapLOS4WayID, -14))
+                        guys.spr(guys.Count()-1)->dummy_int[1]=2;
                 }
             }
             
-            if((ctype==cTRAP_LR)||(cflag==mfTRAP_LR)||(cflag2==mfTRAP_LR))
+            else if(ctype==cTRAP_LR || cflag==mfTRAP_LR || cflag2==mfTRAP_LR)
             {
-                for(int i=0; i<eMAXGUYS; i++)
-                {
-                    if(guysbuf[i].flags2 & cmbflag_trplr)
-                    {
-                        Id = i;
-                        break;
-                    }
-                }
-                
-                addenemy(x,y,Id,-14);
+                if(trapConstantHorizontalID>=0)
+                    addenemy(x, y, trapConstantHorizontalID, -14);
             }
-            
-            if((ctype==cTRAP_UD)||(cflag==mfTRAP_UD)||(cflag2==mfTRAP_UD))
+            else if(ctype==cTRAP_UD || cflag==mfTRAP_UD || cflag2==mfTRAP_UD)
             {
-                for(int i=0; i<eMAXGUYS; i++)
-                {
-                    if(guysbuf[i].flags2 & cmbflag_trpud)
-                    {
-                        Id = i;
-                        break;
-                    }
-                }
-                
-                addenemy(x,y,Id,-14);
+                if(trapConstantVerticalID>=0)
+                    addenemy(x, y, trapConstantVerticalID, -14);
             }
             
             if(ctype==cSPINTILE1)
@@ -12141,40 +12132,24 @@ void load_default_enemies()
     
     if(tmpscr->enemyflags&efTRAP2)
     {
-        for(int i=0; i<eMAXGUYS; i++)
+        if(centerTrapID>=-1)
         {
-            if(guysbuf[i].flags2 & eneflag_trp2)
-            {
-                Id = i;
-                break;
-            }
-        }
-        
-        if(addenemy(64,80,Id,-14))
-        {
-            guys.spr(guys.Count()-1)->dummy_int[1]=1;
-        }
-        
-        if(addenemy(176,80,Id,-14))
-        {
-            guys.spr(guys.Count()-1)->dummy_int[1]=1;
+            if(addenemy(64, 80, centerTrapID, -14))
+                guys.spr(guys.Count()-1)->dummy_int[1]=1;
+            
+            if(addenemy(176, 80, centerTrapID, -14))
+                guys.spr(guys.Count()-1)->dummy_int[1]=1;
         }
     }
     
     if(tmpscr->enemyflags&efROCKS)
     {
-        for(int i=0; i<eMAXGUYS; i++)
+        if(rockID>=0)
         {
-            if(guysbuf[i].flags2 & eneflag_rock)
-            {
-                Id = i;
-                break;
-            }
+            addenemy(rand()&0xF0, 0, rockID, 0);
+            addenemy(rand()&0xF0, 0, rockID, 0);
+            addenemy(rand()&0xF0, 0, rockID, 0);
         }
-        
-        addenemy(rand()&0xF0,0,Id,0);
-        addenemy(rand()&0xF0,0,Id,0);
-        addenemy(rand()&0xF0,0,Id,0);
     }
     
     activate_fireball_statues();

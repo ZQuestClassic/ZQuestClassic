@@ -165,7 +165,7 @@ static void mainscreen(int f)
         char tbuf[80];
         sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
         textout_ex(framebuf,zfont,tbuf,104,128,13,-1);
-        sprintf(tbuf, "%c2011 AG", 0xBC);
+        sprintf(tbuf, "%c2014 AG", 0xBC);
         //tbuf[0]=(char)0xBC;
         textout_ex(framebuf,zfont,tbuf,104,136,13,-1);
     }
@@ -572,12 +572,11 @@ static void NES_titlescreen()
 /********  DX title screen  *********/
 /************************************/
 
-static int pic=0;
-
 static void DX_mainscreen(int f)
 {
     set_uformat(U_ASCII);
     
+    static int pic=0;
     char tbuf[80];
     
     if(f>=1010)
@@ -601,7 +600,7 @@ static void DX_mainscreen(int f)
         sprintf(tbuf, "%c1986 Nintendo",0xBB);
         //tbuf[0]=0xBB;
         textout_ex(framebuf,font,tbuf,46,138,255,-1);
-        sprintf(tbuf, "%c2011 Armageddon Games",0xBC);
+        sprintf(tbuf, "%c2014 Armageddon Games",0xBC);
         //tbuf[0]=0xBC;
         textout_ex(framebuf,font,tbuf,46,146,255,-1);
         //    text_mode(0);
@@ -688,6 +687,7 @@ static void v25_mainscreen(int f)
 {
     set_uformat(U_ASCII);
     
+    static int pic=0;
     char tbuf[80];
     
     if(f>=1010)
@@ -711,7 +711,7 @@ static void v25_mainscreen(int f)
         sprintf(tbuf, "%c1986 Nintendo",0xBB);
         //tbuf[0]=0xBB;
         textout_ex(framebuf,font,tbuf,80,134,255,-1);
-        sprintf(tbuf, "%c2011 Armageddon Games",0xBC);
+        sprintf(tbuf, "%c2014 Armageddon Games",0xBC);
         //tbuf[0]=0xBC;
         textout_ex(framebuf,font,tbuf,80,142,255,-1);
         //    text_mode(0);

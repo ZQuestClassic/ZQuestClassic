@@ -3183,7 +3183,13 @@ void weapon::onhit(bool clipped)
 
 void weapon::onhit(bool clipped, int special, int linkdir)
 {
-    if((scriptcoldet&1) == 0) return;
+    if((scriptcoldet&1) == 0)
+    {
+        // These won't hit anything, but they can still go too far offscreen
+        if(!clipped)
+            return;
+        goto offscreenCheck;
+    }
     
     if(special==2)                                            // hit Link's mirror shield
     {
@@ -3279,6 +3285,7 @@ reflect:
         }
     }
     
+offscreenCheck:
     switch(id)
     {
     case wSword:

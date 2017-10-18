@@ -432,7 +432,7 @@ extern byte *colordata;
   *  callback function is not NULL, it will be called 256 times during the
   *  calculation, allowing you to display a progress indicator.
   */
-void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, int b, void (*callback)(int pos))
+void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, int b)
 {
     int tmp[768], *q;
     int x, y, i, j, k;
@@ -444,11 +444,6 @@ void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g,
         tmp[x*3]   = pal[x].r * (255-r) / 255;
         tmp[x*3+1] = pal[x].g * (255-g) / 255;
         tmp[x*3+2] = pal[x].b * (255-b) / 255;
-    }
-    
-    if(callback)
-    {
-        (*callback)(0);
     }
     
     for(x=0; x<PAL_SIZE; x++)
@@ -479,11 +474,6 @@ void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g,
                 c.b = k + *(q++);
                 p[y] = bestfit_color(pal, c.r, c.g, c.b);
             }
-        }
-        
-        if(callback)
-        {
-            (*callback)(x);
         }
     }
 }

@@ -341,7 +341,7 @@ void load_game_configs()
     
     strcpy(qstpath,qstdir); //qstpath is the local (for this run of ZC) quest path, qstdir is the universal quest dir.
 	ss_enable = get_config_int(cfg_sect,"ss_enable",1) ? 1 : 0;
-    ss_after = vbound(get_config_int(cfg_sect,"ss_after",5), 0, 14);
+    ss_after = vbound(get_config_int(cfg_sect,"ss_after",14), 0, 14);
     ss_speed = vbound(get_config_int(cfg_sect,"ss_speed",2), 0, 6);
     ss_density = vbound(get_config_int(cfg_sect,"ss_density",3), 0, 6);
     heart_beep = get_config_int(cfg_sect,"heart_beep",1)!=0;
@@ -1597,7 +1597,7 @@ void close_black_opening(int x, int y, bool wait)
     {
         for(int i=0; i<66; i++)
         {
-            draw_screen(tmpscr, 0, 0);
+            draw_screen(tmpscr);
             put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
             syskeys();
             advanceframe(true);
@@ -1635,7 +1635,7 @@ void open_black_opening(int x, int y, bool wait)
     {
         for(int i=0; i<66; i++)
         {
-            draw_screen(tmpscr, 0, 0);
+            draw_screen(tmpscr);
             put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
             syskeys();
             advanceframe(true);
@@ -3202,12 +3202,7 @@ void draw_lens_over()
 void draw_wavy(BITMAP *source, BITMAP *target, int amplitude, bool interpol)
 {
     //recreating a big bitmap every frame is highly sluggish.
-    static BITMAP *wavebuf = NULL;
-    
-    if(wavebuf == NULL)
-    {
-        wavebuf = create_bitmap_ex(8,288,240-original_playing_field_offset);
-    }
+    static BITMAP *wavebuf = create_bitmap_ex(8,288,240-original_playing_field_offset);
     
     clear_to_color(wavebuf,0);
     blit(source,wavebuf,0,original_playing_field_offset,16,0,256,224-original_playing_field_offset);
@@ -3304,15 +3299,8 @@ void draw_fuzzy(int fuzz)
 
 void updatescr(bool allowwavy)
 {
-    static BITMAP *wavybuf = NULL;
-    
-    if(wavybuf == NULL)
-        wavybuf = create_bitmap_ex(8,256,224);
-        
-    static BITMAP *panorama = NULL;
-    
-    if(panorama == NULL)
-        panorama = create_bitmap_ex(8,256,224);
+    static BITMAP *wavybuf = create_bitmap_ex(8,256,224);
+    static BITMAP *panorama = create_bitmap_ex(8,256,224);
         
     if(toogam)
     {
@@ -3352,7 +3340,7 @@ void updatescr(bool allowwavy)
         set_palette_range(RAMpal,0,255,false);
         
         create_rgb_table(&rgb_table, RAMpal, NULL);
-        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128, NULL);
+        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
         memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
         
         for(int q=0; q<PAL_SIZE; q++)
@@ -3362,8 +3350,10 @@ void updatescr(bool allowwavy)
         }
     }
     
-    show_details();
-    show_ffscript_names();
+    if(details)
+        show_details();
+    if(show_ff_scripts)
+        show_ffscript_names();
     
     bool clearwavy = (wavy <= 0);
     
@@ -3416,7 +3406,7 @@ void updatescr(bool allowwavy)
     
     if(resx != SCREEN_W || resy != SCREEN_H)
     {
-        Z_message("Conflicting variables warning: screen_scale %i, resx %i, resy %i, w, h\n", screen_scale, resx, resy, SCREEN_W, SCREEN_H);
+        Z_message("Conflicting variables warning: screen_scale %i, resx %i, resy %i, w %i, h %i\n", screen_scale, resx, resy, SCREEN_W, SCREEN_H);
         resx = SCREEN_W;
         resy = SCREEN_H;
         screen_scale = zc_max(zc_min(resx / 320, resy / 240), 1);
@@ -4273,7 +4263,7 @@ void zapout()
 
 void zapin()
 {
-    draw_screen(tmpscr, 0, 0);
+    draw_screen(tmpscr);
     set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
     put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
     blit(framebuf,scrollbuf,0,0,256,0,256,224);
@@ -4295,7 +4285,7 @@ void zapin()
 
 void wavyout(bool showlink)
 {
-    draw_screen(tmpscr, 0, 0, showlink);
+    draw_screen(tmpscr, showlink);
     put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
     
     BITMAP *wavebuf = create_bitmap_ex(8,288,224);
@@ -4358,7 +4348,7 @@ void wavyout(bool showlink)
 
 void wavyin()
 {
-    draw_screen(tmpscr, 0, 0);
+    draw_screen(tmpscr);
     put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
     
     BITMAP *wavebuf = create_bitmap_ex(8,288,224);
@@ -4473,7 +4463,7 @@ void openscreen()
     
     for(int i=0; i<80; i++)
     {
-        draw_screen(tmpscr, 0, 0);
+        draw_screen(tmpscr);
         //? draw_screen already draws the subscreen -DD
         //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
         x=128-(((i*128/80)/8)*8);
@@ -7683,14 +7673,23 @@ INLINE int mixvol(int v1,int v2)
 // Run an NSF, or a MIDI if the NSF is missing somehow.
 bool try_zcmusic(char *filename, int track, int midi)
 {
-    ZCMUSIC *newzcmusic = (ZCMUSIC*)zcmusic_load_file(filename);
+    ZCMUSIC *newzcmusic = NULL;
     
-    // Not in ZC directory, try quest directory
+    // Try the ZC directory first
+    {
+        char exepath[2048];
+        char musicpath[2048];
+        get_executable_name(exepath, 2048);
+        replace_filename(musicpath, exepath, filename, 2048);
+        newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
+    }
+    
+    // Not in ZC directory, try the quest directory
     if(newzcmusic==NULL)
     {
         char musicpath[2048];
-        replace_filename(musicpath, game->qstpath, get_filename(filename), 2048);
-        newzcmusic = (ZCMUSIC*)zcmusic_load_file(musicpath);
+        replace_filename(musicpath, qstpath, filename, 2048);
+        newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
     }
     
     // Found it
@@ -7767,14 +7766,14 @@ void play_DmapMusic()
     static int ttrack=0;
     bool domidi=false;
     
+    // Seems like this ought to call try_zcmusic()...
+    
     if(DMaps[currdmap].tmusic[0]!=0)
     {
         if(zcmusic==NULL ||
            strcmp(zcmusic->filename,DMaps[currdmap].tmusic)!=0 ||
            (zcmusic->type==ZCMF_GME && zcmusic->track != DMaps[currdmap].tmusictrack))
         {
-            char tmfname[2048];
-            
             if(zcmusic != NULL)
             {
                 zcmusic_stop(zcmusic);
@@ -7782,23 +7781,21 @@ void play_DmapMusic()
                 zcmusic = NULL;
             }
             
-            byte tries = 0;
-            
-            while(zcmusic==NULL && tries++<2)
+            // Try the ZC directory first
             {
-                sprintf(tmfname, "%s",tries?qstdir:qstpath);
-                chop_path(tmfname);
-                strcat(tmfname, DMaps[currdmap].tmusic);
-                
-                zcmusic = (ZCMUSIC*)zcmusic_load_file(tmfname);
-                
-                // Not found in ZC directory, try quest directory
-                if(zcmusic==NULL)
-                {
-                    char musicpath[2048];
-                    replace_filename(musicpath, game->qstpath, get_filename(tmfname), 2048);
-                    zcmusic = (ZCMUSIC*)zcmusic_load_file(musicpath);
-                }
+                char exepath[2048];
+                char musicpath[2048];
+                get_executable_name(exepath, 2048);
+                replace_filename(musicpath, exepath, DMaps[currdmap].tmusic, 2048);
+                zcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
+            }
+            
+            // Not in ZC directory, try the quest directory
+            if(zcmusic==NULL)
+            {
+                char musicpath[2048];
+                replace_filename(musicpath, qstpath, DMaps[currdmap].tmusic, 2048);
+                zcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
             }
             
             if(zcmusic!=NULL)

@@ -69,10 +69,12 @@ void LinkClass::setDrunkClock(int newdrunkclk)
 {
     drunkclk=newdrunkclk;
 }
+
 LinkClass::LinkClass() : sprite()
 {
     init();
 }
+
 //void LinkClass::linkstep() { lstep = lstep<(BSZ?27:11) ? lstep+1 : 0; }
 void LinkClass::linkstep()
 {
@@ -251,7 +253,7 @@ void LinkClass::setX(int new_x)
     x=new_x;
     
     // A kludge
-    if(!get_bit(quest_rules,qr_LTTPWALK) && dir<=down)
+    if(!diagonalMovement && dir<=down)
         is_on_conveyor=true;
 }
 void LinkClass::setY(int new_y)
@@ -269,7 +271,7 @@ void LinkClass::setY(int new_y)
     y=new_y;
     
     // A kludge
-    if(!get_bit(quest_rules,qr_LTTPWALK) && dir>=left)
+    if(!diagonalMovement && dir>=left)
         is_on_conveyor=true;
 }
 void LinkClass::setZ(int new_z)
@@ -441,6 +443,55 @@ int  LinkClass::getAction() // Used by ZScript
 
 void LinkClass::setAction(actiontype new_action) // Used by ZScript
 {
+    if(new_action==dying || new_action==won || new_action==scrolling ||
+       new_action==inwind || new_action==rafting || new_action==ischarging)
+        return; // Can't use these actions.
+    
+    if(magicitem>-1 && itemsbuf[magicitem].family==itype_faroreswind)
+    {
+        // Using Farore's Wind
+        if(magiccastclk<96)
+        {
+            // Not cast yet; cancel it
+            magicitem=-1;
+            magiccastclk=0;
+        }
+        else
+            // Already activated; don't do anything
+            return;
+    }
+    
+    if(action==inwind) // Remove from whirlwind
+    {
+        xofs=0;
+        whirlwind=0;
+        lstep=0;
+        dontdraw=false;
+    }
+    else if(action==freeze) // Might be in enemy wind
+    {
+        sprite* wind=0;
+        bool foundWind=false;
+        for(int i=0; i<Ewpns.Count(); i++)
+        {
+            wind=Ewpns.spr(i);
+            if(wind->id==ewWind && wind->misc==999)
+            {
+                foundWind=true;
+                break;
+            }
+        }
+        
+        if(foundWind)
+        {
+            xofs=0;
+            dontdraw=false;
+            wind->misc=-1;
+            x=wind->x;
+            y=wind->y;
+        }
+    }
+    
     if(new_action != attacking)
     {
         attackclk=0;
@@ -465,13 +516,11 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
             if(spins==0)
                 spins = 5;
         }
-        
         return;
         
     case isdiving:
         if(action==swimming && diveclk==0)
             diveclk = 80; // Who cares about qr_NODIVING? It's the questmaker's business.
-            
         return;
         
     case drowning:
@@ -500,14 +549,6 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
     case attacking:
         attack=none;
         break;
-        
-    case dying:
-    case won:
-    case scrolling:
-    case inwind:
-    case rafting:
-    case ischarging:
-        return; // Can't use these actions.
         
     default:
         break;
@@ -626,6 +667,9 @@ void LinkClass::init()
     magicitem = nayruitem = -1;
     
     for(int i=0; i<16; i++) miscellaneous[i] = 0;
+    
+    bigHitbox=get_bit(quest_rules, qr_LTTPCOLLISION);
+    diagonalMovement=get_bit(quest_rules,qr_LTTPWALK);
 }
 
 void LinkClass::draw_under(BITMAP* dest)
@@ -1049,8 +1093,8 @@ void LinkClass::draw(BITMAP* dest)
         int power = itemsbuf[agonyid].power;
         int dx1 = (int)x+8-power;
         int dx2 = (int)x+8+(power-1);
-        int dy1 = (int)y+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:12)-(get_bit(quest_rules,qr_LTTPCOLLISION)?power:(power+1)/2);
-        int dy2 = (int)y+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:12)+(get_bit(quest_rules,qr_LTTPCOLLISION)?power:(power+1)/2)-1;
+        int dy1 = (int)y+(bigHitbox?8:12)-(bigHitbox?power:(power+1)/2);
+        int dy2 = (int)y+(bigHitbox?8:12)+(bigHitbox?power:(power+1)/2)-1;
         
         agony = (agonyflag(MAPFLAG(dx1,dy1))      || agonyflag(MAPFLAG(dx1,dy2))
                  || agonyflag(MAPFLAG(dx2,dy1))      || agonyflag(MAPFLAG(dx2,dy2))
@@ -1973,7 +2017,7 @@ void LinkClass::checkstab()
             check_slash_block(wx,wy);
             check_slash_block(wx,wy+8);
         }
-        else if(dir==up && ((int(x)&15)==8||get_bit(quest_rules,qr_LTTPWALK)))
+        else if(dir==up && ((int(x)&15)==8||diagonalMovement))
         {
             check_slash_block(wx,wy);
             check_slash_block(wx,wy+8);
@@ -1986,7 +2030,7 @@ void LinkClass::checkstab()
             check_slash_block(wx,wy+wysz-8);
             check_slash_block(wx,wy+wysz);
         }
-        else if(dir==down && ((int(x)&15)==8||get_bit(quest_rules,qr_LTTPWALK)))
+        else if(dir==down && ((int(x)&15)==8||diagonalMovement))
         {
             check_slash_block(wx,wy+wysz-8);
             check_slash_block(wx,wy+wysz);
@@ -2025,7 +2069,7 @@ void LinkClass::checkstab()
             check_wand_block(wx,wy);
             check_wand_block(wx,wy+8);
         }
-        else if(dir==up && ((int(x)&15)==8||get_bit(quest_rules,qr_LTTPWALK)))
+        else if(dir==up && ((int(x)&15)==8||diagonalMovement))
         {
             check_wand_block(wx,wy);
             check_wand_block(wx,wy+8);
@@ -2038,7 +2082,7 @@ void LinkClass::checkstab()
             check_wand_block(wx,wy+wysz-8);
             check_wand_block(wx,wy+wysz);
         }
-        else if(dir==down && ((int(x)&15)==8||get_bit(quest_rules,qr_LTTPWALK)))
+        else if(dir==down && ((int(x)&15)==8||diagonalMovement))
         {
             check_wand_block(wx,wy+wysz-8);
             check_wand_block(wx,wy+wysz);
@@ -2074,7 +2118,7 @@ void LinkClass::checkstab()
             check_pound_block(wx,wy);
             check_pound_block(wx,wy+8);
         }
-        else if(dir==up && ((int(x)&15)==8||get_bit(quest_rules,qr_LTTPWALK)))
+        else if(dir==up && ((int(x)&15)==8||diagonalMovement))
         {
             check_pound_block(wx,wy);
             check_pound_block(wx,wy+8);
@@ -2087,7 +2131,7 @@ void LinkClass::checkstab()
             check_pound_block(wx,wy+wysz-8);
             check_pound_block(wx,wy+wysz);
         }
-        else if(dir==down && ((int(x)&15)==8||get_bit(quest_rules,qr_LTTPWALK)))
+        else if(dir==down && ((int(x)&15)==8||diagonalMovement))
         {
             check_pound_block(wx,wy+wysz-8);
             check_pound_block(wx,wy+wysz);
@@ -2850,12 +2894,10 @@ void LinkClass::checkhit()
         {
             for(int i=0; i<4; i++)
             {
-                byte lttpcol = get_bit(quest_rules, qr_LTTPCOLLISION);
-                
                 switch(hitdir)
                 {
                 case up:
-                    if(hit_walkflag(x,y+(lttpcol?-1:7),2)||(int(x)&7?hit_walkflag(x+16,y+(lttpcol?-1:7),1):0))    action=none;
+                    if(hit_walkflag(x,y+(bigHitbox?-1:7),2)||(int(x)&7?hit_walkflag(x+16,y+(bigHitbox?-1:7),1):0))    action=none;
                     else --y;
                     
                     break;
@@ -2867,13 +2909,13 @@ void LinkClass::checkhit()
                     break;
                     
                 case left:
-                    if(hit_walkflag(x-1,y+(lttpcol?0:8),1)||hit_walkflag(x-1,y+8,1)||(int(y)&7?hit_walkflag(x-1,y+16,1):0))  action=none;
+                    if(hit_walkflag(x-1,y+(bigHitbox?0:8),1)||hit_walkflag(x-1,y+8,1)||(int(y)&7?hit_walkflag(x-1,y+16,1):0))  action=none;
                     else --x;
                     
                     break;
                     
                 case right:
-                    if(hit_walkflag(x+16,y+(lttpcol?0:8),1)||hit_walkflag(x+16,y+8,1)||(int(y)&7?hit_walkflag(x+16,y+16,1):0)) action=none;
+                    if(hit_walkflag(x+16,y+(bigHitbox?0:8),1)||hit_walkflag(x+16,y+8,1)||(int(y)&7?hit_walkflag(x+16,y+16,1):0)) action=none;
                     else ++x;
                     
                     break;
@@ -2895,7 +2937,7 @@ void LinkClass::checkhit()
         {
             int itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
             
-            if(s->id==wFire && (superman ? (get_bit(quest_rules,qr_LTTPWALK)?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
+            if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
                         (itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
             {
                 if(NayrusLoveShieldClk<=0)
@@ -3092,7 +3134,7 @@ killweapon:
             action==casting || action==drowning || superman || !(scriptcoldet&1))
         return;
         
-    int hit2 = get_bit(quest_rules,qr_LTTPWALK)?GuyHit(x+4,y+4,z,8,8,hzsz):GuyHit(x+7,y+7,z,2,2,hzsz);
+    int hit2 = diagonalMovement?GuyHit(x+4,y+4,z,8,8,hzsz):GuyHit(x+7,y+7,z,2,2,hzsz);
     
     if(hit2!=-1)
     {
@@ -3167,8 +3209,8 @@ killweapon:
     
     int dx1 = (int)x+8-(tmpscr->csensitive);
     int dx2 = (int)x+8+(tmpscr->csensitive-1);
-    int dy1 = (int)y+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:12)-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2);
-    int dy2 = (int)y+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:12)+(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive-1:((tmpscr->csensitive+1)/2)-1);
+    int dy1 = (int)y+(bigHitbox?8:12)-(bigHitbox?tmpscr->csensitive:(tmpscr->csensitive+1)/2);
+    int dy2 = (int)y+(bigHitbox?8:12)+(bigHitbox?tmpscr->csensitive-1:((tmpscr->csensitive+1)/2)-1);
     
     for(int i=get_bit(quest_rules, qr_DMGCOMBOLAYERFIX) ? 1 : -1; i>=-1; i--)  // Layers 0, 1 and 2!!
         (void)checkdamagecombos(dx1,dx2,dy1,dy2,i);
@@ -3581,10 +3623,10 @@ bool LinkClass::animate(int)
                 jumping++;
                 
             // Bump head if: hit a solid combo from beneath, or hit a solid combo in the screen above this one.
-            if((_walkflag(x+4,y-(get_bit(quest_rules, qr_LTTPCOLLISION)?9:1),0)
-                    || (y<=(get_bit(quest_rules, qr_LTTPCOLLISION)?9:1) &&
-                        // Extra checks if Smart Screen Scrolling is enabled
-                        (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
+            if((_walkflag(x+4,y-(bigHitbox?9:1),0)
+                || (y<=(bigHitbox?9:1) &&
+                // Extra checks if Smart Screen Scrolling is enabled
+                 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
                                                !(tmpscr->flags2&wfUP)) && (nextcombo_solid(up))))))
                     && fall < 0)
             {
@@ -3710,7 +3752,7 @@ bool LinkClass::animate(int)
         --drunkclk;
     }
     
-    if(!is_on_conveyor && !(get_bit(quest_rules,qr_LTTPWALK)) && (fall==0 || z>0) && charging==0 && spins<=5
+    if(!is_on_conveyor && !diagonalMovement && (fall==0 || z>0) && charging==0 && spins<=5
             && action != gothit)
     {
         switch(dir)
@@ -4115,7 +4157,7 @@ bool LinkClass::animate(int)
     }
     
     // check for ladder removal
-    if(get_bit(quest_rules,qr_LTTPWALK))
+    if(diagonalMovement)
     {
         if(ladderx+laddery)
         {
@@ -4346,25 +4388,25 @@ bool LinkClass::animate(int)
     
     if(isdungeon() && action!=freeze && loaded_guys && !inlikelike && !diveclk && action!=rafting)
     {
-        if(((dtype==dBOMBED)?DrunkUp():dir==up) && (get_bit(quest_rules,qr_LTTPWALK)?x>112&&x<128:x==120) && y<=32 && tmpscr->door[0]==dtype)
+        if(((dtype==dBOMBED)?DrunkUp():dir==up) && (diagonalMovement?x>112&&x<128:x==120) && y<=32 && tmpscr->door[0]==dtype)
         {
             walk=true;
             dir=up;
         }
         
-        if(((dtype==dBOMBED)?DrunkDown():dir==down) && (get_bit(quest_rules,qr_LTTPWALK)?x>112&&x<128:x==120) && y>=128 && tmpscr->door[1]==dtype)
+        if(((dtype==dBOMBED)?DrunkDown():dir==down) && (diagonalMovement?x>112&&x<128:x==120) && y>=128 && tmpscr->door[1]==dtype)
         {
             walk=true;
             dir=down;
         }
         
-        if(((dtype==dBOMBED)?DrunkLeft():dir==left) && x<=32 && (get_bit(quest_rules,qr_LTTPWALK)?y>72&&y<88:y==80) && tmpscr->door[2]==dtype)
+        if(((dtype==dBOMBED)?DrunkLeft():dir==left) && x<=32 && (diagonalMovement?y>72&&y<88:y==80) && tmpscr->door[2]==dtype)
         {
             walk=true;
             dir=left;
         }
         
-        if(((dtype==dBOMBED)?DrunkRight():dir==right) && x>=208 && (get_bit(quest_rules,qr_LTTPWALK)?y>72&&y<88:y==80) && tmpscr->door[3]==dtype)
+        if(((dtype==dBOMBED)?DrunkRight():dir==right) && x>=208 && (diagonalMovement?y>72&&y<88:y==80) && tmpscr->door[3]==dtype)
         {
             walk=true;
             dir=right;
@@ -5433,7 +5475,7 @@ void LinkClass::do_hopping()
                 diveclk=80;
         }
         
-        if((!(int(x)&7) && !(int(y)&7)) || get_bit(quest_rules,qr_LTTPWALK))
+        if((!(int(x)&7) && !(int(y)&7)) || diagonalMovement)
         {
             action = swimming;
             hopclk = 0;
@@ -5469,13 +5511,12 @@ void LinkClass::do_hopping()
     }
     else                                                      // hopping in or out (need to separate the cases...)
     {
-        if(get_bit(quest_rules,qr_LTTPWALK))
+        if(diagonalMovement)
         {
             if(hopclk==1) //hopping out
             {
                 if(hopdir!=-1) dir=hopdir;
                 
-                int lc = get_bit(quest_rules, qr_LTTPCOLLISION);
                 landswim=0;
                 
                 if(dir==up)
@@ -5484,16 +5525,16 @@ void LinkClass::do_hopping()
                     linkstep();
                     int sidestep=0;
                     
-                    if(iswater(MAPCOMBO(x,y+(lc?0:8)-1)) && !iswater(MAPCOMBO(x+8,y+(lc?0:8)-1)) && !iswater(MAPCOMBO(x+15,y+(lc?0:8)-1)))
+                    if(iswater(MAPCOMBO(x,y+(bigHitbox?0:8)-1)) && !iswater(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1)) && !iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1)))
                         sidestep=1;
-                    else if(!iswater(MAPCOMBO(x,y+(lc?0:8)-1)) && !iswater(MAPCOMBO(x+7,y+(lc?0:8)-1)) && iswater(MAPCOMBO(x+15,y+(lc?0:8)-1)))
+                    else if(!iswater(MAPCOMBO(x,y+(bigHitbox?0:8)-1)) && !iswater(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1)) && iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1)))
                         sidestep=2;
                         
                     if(sidestep==1) x++;
                     else if(sidestep==2) x--;
                     else y--;
                     
-                    if(!iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&!iswater(MAPCOMBO(int(x),int(y)+15)))
+                    if(!iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(int(x),int(y)+15)))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -5517,7 +5558,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) x--;
                     else y++;
                     
-                    if(!iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&!iswater(MAPCOMBO(int(x),int(y)+15)))
+                    if(!iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(int(x),int(y)+15)))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -5532,16 +5573,16 @@ void LinkClass::do_hopping()
                     linkstep();
                     int sidestep=0;
                     
-                    if(iswater(MAPCOMBO(x-1,y+(lc?0:8))) && !iswater(MAPCOMBO(x-1,y+(lc?8:12))) && !iswater(MAPCOMBO(x-1,y+15)))
+                    if(iswater(MAPCOMBO(x-1,y+(bigHitbox?0:8))) && !iswater(MAPCOMBO(x-1,y+(bigHitbox?8:12))) && !iswater(MAPCOMBO(x-1,y+15)))
                         sidestep=1;
-                    else if(!iswater(MAPCOMBO(x-1,y+(lc?0:8))) && !iswater(MAPCOMBO(x-1,y+(lc?7:11))) && iswater(MAPCOMBO(x-1,y+15)))
+                    else if(!iswater(MAPCOMBO(x-1,y+(bigHitbox?0:8))) && !iswater(MAPCOMBO(x-1,y+(bigHitbox?7:11))) && iswater(MAPCOMBO(x-1,y+15)))
                         sidestep=2;
                         
                     if(sidestep==1) y++;
                     else if(sidestep==2) y--;
                     else x--;
                     
-                    if(!iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&!iswater(MAPCOMBO(int(x)+15,int(y)+8)))
+                    if(!iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(int(x)+15,int(y)+8)))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -5556,16 +5597,16 @@ void LinkClass::do_hopping()
                     linkstep();
                     int sidestep=0;
                     
-                    if(iswater(MAPCOMBO(x+16,y+(lc?0:8))) && !iswater(MAPCOMBO(x+16,y+(lc?8:12))) && !iswater(MAPCOMBO(x+16,y+15)))
+                    if(iswater(MAPCOMBO(x+16,y+(bigHitbox?0:8))) && !iswater(MAPCOMBO(x+16,y+(bigHitbox?8:12))) && !iswater(MAPCOMBO(x+16,y+15)))
                         sidestep=1;
-                    else if(!iswater(MAPCOMBO(x+16,y+(lc?0:8))) && !iswater(MAPCOMBO(x+16,y+(lc?7:11))) && iswater(MAPCOMBO(x+16,y+15)))
+                    else if(!iswater(MAPCOMBO(x+16,y+(bigHitbox?0:8))) && !iswater(MAPCOMBO(x+16,y+(bigHitbox?7:11))) && iswater(MAPCOMBO(x+16,y+15)))
                         sidestep=2;
                         
                     if(sidestep==1) y++;
                     else if(sidestep==2) y--;
                     else x++;
                     
-                    if(!iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&!iswater(MAPCOMBO(int(x)+15,int(y)+8)))
+                    if(!iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&!iswater(MAPCOMBO(int(x)+15,int(y)+8)))
                     {
                         hopclk=0;
                         diveclk=0;
@@ -5577,7 +5618,6 @@ void LinkClass::do_hopping()
             
             if(hopclk==2) //hopping in
             {
-                int lc=get_bit(quest_rules,qr_LTTPCOLLISION);
                 landswim=0;
                 
                 if(dir==up)
@@ -5586,16 +5626,16 @@ void LinkClass::do_hopping()
                     linkstep();
                     int sidestep=0;
                     
-                    if(!iswater(MAPCOMBO(x,y+(lc?0:8)-1)) && iswater(MAPCOMBO(x+8,y+(lc?0:8)-1)) && iswater(MAPCOMBO(x+15,y+(lc?0:8)-1)))
+                    if(!iswater(MAPCOMBO(x,y+(bigHitbox?0:8)-1)) && iswater(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1)) && iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1)))
                         sidestep=1;
-                    else if(iswater(MAPCOMBO(x,y+(lc?0:8)-1)) && iswater(MAPCOMBO(x+7,y+(lc?0:8)-1)) && !iswater(MAPCOMBO(x+15,y+(lc?0:8)-1)))
+                    else if(iswater(MAPCOMBO(x,y+(bigHitbox?0:8)-1)) && iswater(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1)) && !iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1)))
                         sidestep=2;
                         
                     if(sidestep==1) x++;
                     else if(sidestep==2) x--;
                     else y--;
                     
-                    if(iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&iswater(MAPCOMBO(int(x),int(y)+15)))
+                    if(iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(int(x),int(y)+15)))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -5618,7 +5658,7 @@ void LinkClass::do_hopping()
                     else if(sidestep==2) x--;
                     else y++;
                     
-                    if(iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&iswater(MAPCOMBO(int(x),int(y)+15)))
+                    if(iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(int(x),int(y)+15)))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -5633,16 +5673,16 @@ void LinkClass::do_hopping()
                     linkstep();
                     int sidestep=0;
                     
-                    if(!iswater(MAPCOMBO(x-1,y+(lc?0:8))) && iswater(MAPCOMBO(x-1,y+(lc?8:12))) && iswater(MAPCOMBO(x-1,y+15)))
+                    if(!iswater(MAPCOMBO(x-1,y+(bigHitbox?0:8))) && iswater(MAPCOMBO(x-1,y+(bigHitbox?8:12))) && iswater(MAPCOMBO(x-1,y+15)))
                         sidestep=1;
-                    else if(iswater(MAPCOMBO(x-1,y+(lc?0:8))) && iswater(MAPCOMBO(x-1,y+(lc?7:11))) && !iswater(MAPCOMBO(x-1,y+15)))
+                    else if(iswater(MAPCOMBO(x-1,y+(bigHitbox?0:8))) && iswater(MAPCOMBO(x-1,y+(bigHitbox?7:11))) && !iswater(MAPCOMBO(x-1,y+15)))
                         sidestep=2;
                         
                     if(sidestep==1) y++;
                     else if(sidestep==2) y--;
                     else x--;
                     
-                    if(iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&iswater(MAPCOMBO(int(x)+15,int(y)+8)))
+                    if(iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(int(x)+15,int(y)+8)))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -5657,16 +5697,16 @@ void LinkClass::do_hopping()
                     
                     int sidestep=0;
                     
-                    if(!iswater(MAPCOMBO(x+16,y+(lc?0:8))) && iswater(MAPCOMBO(x+16,y+(lc?8:12))) && iswater(MAPCOMBO(x+16,y+15)))
+                    if(!iswater(MAPCOMBO(x+16,y+(bigHitbox?0:8))) && iswater(MAPCOMBO(x+16,y+(bigHitbox?8:12))) && iswater(MAPCOMBO(x+16,y+15)))
                         sidestep=1;
-                    else if(iswater(MAPCOMBO(x+16,y+(lc?0:8))) && iswater(MAPCOMBO(x+16,y+(lc?7:11))) && !iswater(MAPCOMBO(x+16,y+15)))
+                    else if(iswater(MAPCOMBO(x+16,y+(bigHitbox?0:8))) && iswater(MAPCOMBO(x+16,y+(bigHitbox?7:11))) && !iswater(MAPCOMBO(x+16,y+15)))
                         sidestep=2;
                         
                     if(sidestep==1) y++;
                     else if(sidestep==2) y--;
                     else x++;
                     
-                    if(iswater(MAPCOMBO(int(x),int(y)+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)))&&iswater(MAPCOMBO(int(x)+15,int(y)+8)))
+                    if(iswater(MAPCOMBO(int(x),int(y)+(bigHitbox?0:8)))&&iswater(MAPCOMBO(int(x)+15,int(y)+8)))
                     {
                         hopclk=0xFF;
                         diveclk=0;
@@ -6059,14 +6099,14 @@ void LinkClass::movelink()
         // This section below interferes with script-setting Link->Dir, so it comes after doattack
         if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0)
         {
-            if((xoff==0)||(get_bit(quest_rules, qr_LTTPWALK)))
+            if((xoff==0)||diagonalMovement)
             {
                 if(DrunkUp()) dir=up;
                 
                 if(DrunkDown()) dir=down;
             }
             
-            if((yoff==0)||(get_bit(quest_rules, qr_LTTPWALK)))
+            if((yoff==0)||diagonalMovement)
             {
                 if(DrunkLeft()) dir=left;
                 
@@ -6133,13 +6173,13 @@ void LinkClass::movelink()
         
         autostep=false;
         
-        if(!(get_bit(quest_rules, qr_LTTPWALK)))
+        if(!diagonalMovement)
         {
             if(dir==up&&yoff)
             {
-                info = walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up);
+                info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[int(y)&7]),2,up);
                 if(blockmoving)
-                    info = info || walkflagMBlock(x+8,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]));
+                    info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int(lsteps[int(y)&7]));
                 execute(info);
                 
                 if(!info.isUnwalkable())
@@ -6175,7 +6215,7 @@ void LinkClass::movelink()
             
             if(dir==left&&xoff)
             {
-                info = walkflag(x-int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left) || walkflag(x-int(lsteps[int(x)&7]),y+8,1,left);
+                info = walkflag(x-int(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,left) || walkflag(x-int(lsteps[int(x)&7]),y+8,1,left);
                 execute(info);
                 
                 if(!info.isUnwalkable())
@@ -6192,7 +6232,7 @@ void LinkClass::movelink()
             
             if(dir==right&&xoff)
             {
-                info = walkflag(x+15+int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right) || walkflag(x+15+int(lsteps[int(x)&7]),y+8,1,right);
+                info = walkflag(x+15+int(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,right) || walkflag(x+15+int(lsteps[int(x)&7]),y+8,1,right);
                 execute(info);
                 
                 if(!info.isUnwalkable())
@@ -6214,7 +6254,7 @@ void LinkClass::movelink()
         action=none;
     }
     
-    if(get_bit(quest_rules, qr_LTTPWALK))
+    if(diagonalMovement)
     {
         switch(holddir)
         {
@@ -6288,12 +6328,12 @@ void LinkClass::movelink()
                 }
                 else
                 {
-                    info = walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,2,up);
+                    info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
                     
                     if(int(x) & 7)
-                        info = info || walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,1,up);
+                        info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
                     else if(blockmoving)
-                        info = info || walkflagMBlock(x+16, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step);
+                        info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
                         
                     execute(info);
                     
@@ -6302,12 +6342,12 @@ void LinkClass::movelink()
                         if(z3step==2)
                         {
                             z3step=1;
-                            info = walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,2,up);
+                            info = walkflag(x,y+(bigHitbox?0:8)-z3step,2,up);
                             
                             if(int(x)&7)
-                                info = info || walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step,1,up);
+                                info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
                             else if(blockmoving)
-                                info = info || walkflagMBlock(x+16, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-z3step);
+                                info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
                                 
                             execute(info);
                             
@@ -6341,7 +6381,7 @@ void LinkClass::movelink()
                 {
                     if(s==left)
                     {
-                        info = (walkflag(x-1,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left)||walkflag(x-1,y+15,1,left));
+                        info = (walkflag(x-1,y+(bigHitbox?0:8),1,left)||walkflag(x-1,y+15,1,left));
                         execute(info);
                         
                         if(info.isUnwalkable())
@@ -6350,7 +6390,7 @@ void LinkClass::movelink()
                         }
                         else if(walkable)
                         {
-                            info = walkflag(x-1,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,left);
+                            info = walkflag(x-1,y+(bigHitbox?0:8)-1,1,left);
                             execute(info);
                             
                             if(info.isUnwalkable())
@@ -6361,7 +6401,7 @@ void LinkClass::movelink()
                     }
                     else if(s==right)
                     {
-                        info = walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+16,y+15,1,right);
+                        info = walkflag(x+16,y+(bigHitbox?0:8),1,right)||walkflag(x+16,y+15,1,right);
                         execute(info);
                         
                         if(info.isUnwalkable())
@@ -6370,7 +6410,7 @@ void LinkClass::movelink()
                         }
                         else if(walkable)
                         {
-                            info = walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,right);
+                            info = walkflag(x+16,y+(bigHitbox?0:8)-1,1,right);
                             execute(info);
                             
                             if(info.isUnwalkable())
@@ -6388,20 +6428,20 @@ void LinkClass::movelink()
                 {
                     if(shiftdir==-1)
                     {
-                        if(!_walkflag(x,   y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1) &&
-                                !_walkflag(x+8, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1) &&
-                                _walkflag(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1))
+                        if(!_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
+                                !_walkflag(x+8, y+(bigHitbox?0:8)-1,1) &&
+                                _walkflag(x+15,y+(bigHitbox?0:8)-1,1))
                         {
-                            if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1))
+                            if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
                                 sprite::move((fix)-1,(fix)0);
                         }
                         else
                         {
-                            if(_walkflag(x,   y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1) &&
-                                    !_walkflag(x+7, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1) &&
-                                    !_walkflag(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1))
+                            if(_walkflag(x,   y+(bigHitbox?0:8)-1,1) &&
+                                    !_walkflag(x+7, y+(bigHitbox?0:8)-1,1) &&
+                                    !_walkflag(x+15,y+(bigHitbox?0:8)-1,1))
                             {
-                                if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1))
+                                if(hclk || (z>0 && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
                                     sprite::move((fix)1,(fix)0);
                             }
                             else
@@ -6510,7 +6550,7 @@ void LinkClass::movelink()
                 {
                     if(s==left)
                     {
-                        info = walkflag(x-1,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left)||walkflag(x-1,y+15,1,left);
+                        info = walkflag(x-1,y+(bigHitbox?0:8),1,left)||walkflag(x-1,y+15,1,left);
                         execute(info);
                         
                         if(info.isUnwalkable())
@@ -6530,7 +6570,7 @@ void LinkClass::movelink()
                     }
                     else if(s==right)
                     {
-                        info = walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+16,y+15,1,right);
+                        info = walkflag(x+16,y+(bigHitbox?0:8),1,right)||walkflag(x+16,y+15,1,right);
                         execute(info);
                         
                         if(info.isUnwalkable())
@@ -6626,7 +6666,7 @@ void LinkClass::movelink()
                 }
                 
                 //bool walkable;
-                info = walkflag(x-z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,left)||walkflag(x-z3step,y+8,1,left);
+                info = walkflag(x-z3step,y+(bigHitbox?0:8),1,left)||walkflag(x-z3step,y+8,1,left);
                 
                 if(int(y)&7)
                     info = info || walkflag(x-z3step,y+16,1,left);
@@ -6638,7 +6678,7 @@ void LinkClass::movelink()
                     if(z3step==2)
                     {
                         z3step=1;
-                        info = walkflag(x-z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,left)||walkflag(x-z3step,y+8,1,left);
+                        info = walkflag(x-z3step,y+(bigHitbox?0:8),1,left)||walkflag(x-z3step,y+8,1,left);
                         
                         if(int(y)&7)
                             info = info || walkflag(x-z3step,y+16,1,left);
@@ -6674,7 +6714,7 @@ void LinkClass::movelink()
                 {
                     if(s==up)
                     {
-                        info = walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,2,up)||walkflag(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up);
+                        info = walkflag(x,y+(bigHitbox?0:8)-1,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-1,1,up);
                         execute(info);
                         
                         if(info.isUnwalkable())
@@ -6683,7 +6723,7 @@ void LinkClass::movelink()
                         }
                         else if(walkable)
                         {
-                            info = walkflag(x-1,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up);
+                            info = walkflag(x-1,y+(bigHitbox?0:8)-1,1,up);
                             execute(info);
                             
                             if(info.isUnwalkable())
@@ -6721,8 +6761,8 @@ void LinkClass::movelink()
                 {
                     if(shiftdir==-1)
                     {
-                        int v1=get_bit(quest_rules,qr_LTTPCOLLISION)?0:8;
-                        int v2=get_bit(quest_rules,qr_LTTPCOLLISION)?8:12;
+                        int v1=bigHitbox?0:8;
+                        int v2=bigHitbox?8:12;
                         
                         if(!_walkflag(x-1,y+v1,1)&&
                                 !_walkflag(x-1,y+v2,1)&&
@@ -6793,7 +6833,7 @@ void LinkClass::movelink()
                 }
                 
                 //bool walkable;
-                info = walkflag(x+15+z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right);
+                info = walkflag(x+15+z3step,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right);
                 
                 if(int(y)&7)
                     info = info || walkflag(x+15+z3step,y+16,1,right);
@@ -6805,7 +6845,7 @@ void LinkClass::movelink()
                     if(z3step==2)
                     {
                         z3step=1;
-                        info = walkflag(x+15+z3step,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right);
+                        info = walkflag(x+15+z3step,y+(bigHitbox?0:8),1,right)||walkflag(x+15+z3step,y+8,1,right);
                         
                         if(int(y)&7)
                             info = info || walkflag(x+15+z3step,y+16,1,right);
@@ -6841,7 +6881,7 @@ void LinkClass::movelink()
                 {
                     if(s==up)
                     {
-                        info = walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,2,up)||walkflag(x+15,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up);
+                        info = walkflag(x,y+(bigHitbox?0:8)-1,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-1,1,up);
                         execute(info);
                         
                         if(info.isUnwalkable())
@@ -6850,7 +6890,7 @@ void LinkClass::movelink()
                         }
                         else if(walkable)
                         {
-                            info = walkflag(x+16,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-1,1,up);
+                            info = walkflag(x+16,y+(bigHitbox?0:8)-1,1,up);
                             execute(info);
                             
                             if(info.isUnwalkable())
@@ -6888,8 +6928,8 @@ void LinkClass::movelink()
                 {
                     if(shiftdir==-1)
                     {
-                        int v1=get_bit(quest_rules,qr_LTTPCOLLISION)?0:8;
-                        int v2=get_bit(quest_rules,qr_LTTPCOLLISION)?8:12;
+                        int v1=bigHitbox?0:8;
+                        int v2=bigHitbox?8:12;
                         
                         info = !walkflag(x+16,y+v1,1,right)&&
                                !walkflag(x+16,y+v2,1,right)&&
@@ -6943,8 +6983,8 @@ void LinkClass::movelink()
         
         bool wtry  = iswater(MAPCOMBO(x,y+15));
         bool wtry8 = iswater(MAPCOMBO(x+15,y+15));
-        bool wtrx = iswater(MAPCOMBO(x,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)));
-        bool wtrx8 = iswater(MAPCOMBO(x+15,y+(get_bit(quest_rules,qr_LTTPCOLLISION)?0:8)));
+        bool wtrx = iswater(MAPCOMBO(x,y+(bigHitbox?0:8)));
+        bool wtrx8 = iswater(MAPCOMBO(x+15,y+(bigHitbox?0:8)));
         
         if(can_use_item(itype_flippers,i_flippers)&&!(ladderx+laddery)&&z==0)
         {
@@ -6971,7 +7011,7 @@ void LinkClass::movelink()
     //ignore ladder for this part. sigh sigh sigh -DD
     oldladderx = ladderx;
     oldladdery = laddery;
-    info = walkflag(x-int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left) ||
+    info = walkflag(x-int(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,left) ||
            walkflag(x-int(lsteps[int(x)&7]),y+8,1,left);
     
     if(isdungeon() && DrunkLeft() && x==32 && y==80 && !info.isUnwalkable())
@@ -6983,7 +7023,7 @@ void LinkClass::movelink()
         return;
     }
     
-    info = walkflag(x+15+int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right) ||
+    info = walkflag(x+15+int(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,right) ||
            walkflag(x+15+int(lsteps[int(x)&7]),y+8,1,right);
     
     if(isdungeon() && DrunkRight() && x==208 && y==80 && !info.isUnwalkable())
@@ -7031,18 +7071,18 @@ void LinkClass::movelink()
         {
             if(action==swimming)
             {
-                info = walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up);
+                info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[int(y)&7]),2,up);
                 
-                if(_walkflag(x+15, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]), 1) &&
-                        !(iswater(MAPCOMBO(x, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]))) &&
-                          iswater(MAPCOMBO(x+15, y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7])))))
+                if(_walkflag(x+15, y+(bigHitbox?0:8)-int(lsteps[int(y)&7]), 1) &&
+                        !(iswater(MAPCOMBO(x, y+(bigHitbox?0:8)-int(lsteps[int(y)&7]))) &&
+                          iswater(MAPCOMBO(x+15, y+(bigHitbox?0:8)-int(lsteps[int(y)&7])))))
                     info.setUnwalkable(true);
             }
             else
             {
-                info = walkflag(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]),2,up);
+                info = walkflag(x,y+(bigHitbox?0:8)-int(lsteps[int(y)&7]),2,up);
                 if(blockmoving)
-                    info = info || walkflagMBlock(x+8,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8)-int(lsteps[int(y)&7]));
+                    info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int(lsteps[int(y)&7]));
             }
             
             execute(info);
@@ -7197,7 +7237,7 @@ LEFTRIGHT:
         }
         else
         {
-            info = walkflag(x-int(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,left) ||
+            info = walkflag(x-int(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,left) ||
                    walkflag(x-int(lsteps[int(x)&7]),y+(tmpscr->flags7&fSIDEVIEW ?0:8), 1,left);
             execute(info);
             
@@ -7261,7 +7301,7 @@ LEFTRIGHT:
         }
         else
         {
-            info = walkflag((int)x+15+(lsteps[int(x)&7]),y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),1,right) || walkflag((int)x+15+(lsteps[int(x)&7]),y+(tmpscr->flags7&fSIDEVIEW ?0:8),             1,right);
+            info = walkflag((int)x+15+(lsteps[int(x)&7]),y+(bigHitbox?0:8),1,right) || walkflag((int)x+15+(lsteps[int(x)&7]),y+(tmpscr->flags7&fSIDEVIEW ?0:8),             1,right);
             execute(info);
             
             if(!info.isUnwalkable())
@@ -7320,7 +7360,7 @@ void LinkClass::move(int d2)
     {
         totalskip = false;
         
-        if(get_bit(quest_rules,qr_LTTPWALK))
+        if(diagonalMovement)
         {
             skipstep=(skipstep+1)%6;
             
@@ -7359,7 +7399,7 @@ void LinkClass::move(int d2)
         //swimming, or charging on a slow combo, moves at 1/2 speed
         totalskip = !totalskip;
         
-        if(get_bit(quest_rules,qr_LTTPWALK))
+        if(diagonalMovement)
         {
             skipstep=0;
         }
@@ -7368,7 +7408,7 @@ void LinkClass::move(int d2)
     {
         totalskip = false;
         
-        if(get_bit(quest_rules,qr_LTTPWALK))
+        if(diagonalMovement)
         {
             skipstep=0;
         }
@@ -7376,7 +7416,7 @@ void LinkClass::move(int d2)
     
     if(!totalskip)
     {
-        if(get_bit(quest_rules,qr_LTTPWALK))
+        if(diagonalMovement)
         {
             switch(d2)
             {
@@ -7603,7 +7643,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         return ret;
     }
     
-    if(blockpath && wy<((get_bit(quest_rules,qr_LTTPCOLLISION))?80:88))
+    if(blockpath && wy<(bigHitbox?80:88))
     {
         ret.setUnwalkable(true);
         return ret;
@@ -7615,7 +7655,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         return ret;
     }
     
-    if(isdungeon() && currscr<128 && wy<(get_bit(quest_rules,qr_LTTPCOLLISION)?32:40) && ((get_bit(quest_rules,qr_LTTPWALK)?(x<=112||x>=128):x!=120) || _walkflag(120,24,2))
+    if(isdungeon() && currscr<128 && wy<(bigHitbox?32:40) && ((diagonalMovement?(x<=112||x>=128):x!=120) || _walkflag(120,24,2))
             && !get_bit(quest_rules,qr_FREEFORM))
     {
         ret.setUnwalkable(true);
@@ -7626,7 +7666,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
     
     if(isdungeon() && currscr<128 && !get_bit(quest_rules,qr_FREEFORM))
     {
-        if(get_bit(quest_rules,qr_LTTPWALK))
+        if(diagonalMovement)
         {
             if(wx>=112&&wx<120&&wy<40&&wy>=32) wf=true;
             
@@ -7639,12 +7679,12 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         if(!wf)
         {
             if(landswim>= (get_bit(quest_rules,qr_DROWN) && isSwimming() ? 1
-                           : (!get_bit(quest_rules,qr_LTTPWALK)) ? 1 : 22))
+                           : (!diagonalMovement) ? 1 : 22))
             {
                 //Check for out of bounds for swimming
                 bool changehop = true;
                 
-                if(get_bit(quest_rules,qr_LTTPWALK))
+                if(diagonalMovement)
                 {
                     if(wx<0||wy<0)
                         changehop = false;
@@ -7666,12 +7706,10 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                 {
                     //int vx=((int)x+4)&0xFFF8;
                     //int vy=((int)y+4)&0xFFF8;
-                    int lc = get_bit(quest_rules,qr_LTTPCOLLISION);
-                    
                     if(d2==left)
                     {
-                        if(!iswater(MAPCOMBO(x-1,y+(lc?7:11)))&&!iswater(MAPCOMBO(x-1,y+(lc?8:12)))
-                                && !_walkflag(x-1,y+(lc?7:11),1) && !_walkflag(x-1,y+(lc?8:12),1))
+                        if(!iswater(MAPCOMBO(x-1,y+(bigHitbox?7:11)))&&!iswater(MAPCOMBO(x-1,y+(bigHitbox?8:12)))
+                                && !_walkflag(x-1,y+(bigHitbox?7:11),1) && !_walkflag(x-1,y+(bigHitbox?8:12),1))
                         {
                             ret.setHopDir(d2);
                             ret.setIlswim(true);
@@ -7680,8 +7718,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     }
                     else if(d2==right)
                     {
-                        if(!iswater(MAPCOMBO(x+16,y+(lc?7:11)))&&!iswater(MAPCOMBO(x+16,y+(lc?8:12)))
-                                && !_walkflag(x+16,y+(lc?7:11),1) && !_walkflag(x+16,y+(lc?8:12),1))
+                        if(!iswater(MAPCOMBO(x+16,y+(bigHitbox?7:11)))&&!iswater(MAPCOMBO(x+16,y+(bigHitbox?8:12)))
+                                && !_walkflag(x+16,y+(bigHitbox?7:11),1) && !_walkflag(x+16,y+(bigHitbox?8:12),1))
                         {
                             ret.setHopDir(d2);
                             ret.setIlswim(true);
@@ -7690,8 +7728,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     }
                     else if(d2==up)
                     {
-                        if(!iswater(MAPCOMBO(x+7,y+(lc?0:8)-1))&&!iswater(MAPCOMBO(x+8,y+(lc?0:8)-1))
-                                && !_walkflag(x+7,y+(lc?0:8)-1,1) && !_walkflag(x+8,y+(lc?0:8)-1,1))
+                        if(!iswater(MAPCOMBO(x+7,y+(bigHitbox?0:8)-1))&&!iswater(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1))
+                                && !_walkflag(x+7,y+(bigHitbox?0:8)-1,1) && !_walkflag(x+8,y+(bigHitbox?0:8)-1,1))
                         {
                             ret.setHopDir(d2);
                             ret.setIlswim(true);
@@ -7744,7 +7782,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         int lx = !(get_bit(quest_rules, qr_DROWN)&&iswater(MAPCOMBO(x+4,y+11))&&!_walkflag(x+4,y+11,1)) ? wx : x;
         int ly = !(get_bit(quest_rules, qr_DROWN)&&iswater(MAPCOMBO(x+4,y+11))&&!_walkflag(x+4,y+11,1)) ? wy : y;
         
-        if(get_bit(quest_rules, qr_LTTPWALK))
+        if(diagonalMovement)
         {
             if(ladderdir==up)
             {
@@ -7776,7 +7814,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             {
                 if(abs(lx-(ladderx+8))<=8)
                 {
-                    if(abs(ly-(laddery+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:12)))<=(get_bit(quest_rules,qr_LTTPCOLLISION)?8:4))
+                    if(abs(ly-(laddery+(bigHitbox?8:12)))<=(bigHitbox?8:4))
                     {
                         ret.setUnwalkable(false);
                         return ret;
@@ -7795,7 +7833,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
                     }
                 }
             }
-        } // qr_LTTPWALK
+        } // diagonalMovement
         else
         {
             if((d2&2)==ladderdir)                                    // same direction
@@ -7886,7 +7924,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             }
             else if((d2>=left && wtrx) || (d2<=down && wtrx && wtrx8))
             {
-                if(!get_bit(quest_rules,qr_LTTPWALK))
+                if(!diagonalMovement)
                 {
                     ret.setHopClk(2);
                     
@@ -7948,7 +7986,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
             
             bool walkwater = get_bit(quest_rules, qr_DROWN) && !iswater(MAPCOMBO(wx,wy));
             
-            if(get_bit(quest_rules,qr_LTTPWALK))
+            if(diagonalMovement)
             {
                 if(d2==dir)
                 {
@@ -8049,7 +8087,7 @@ void LinkClass::checkpushblock()
     // Return early in some cases..
     bool earlyReturn=false;
     
-    if(!get_bit(quest_rules,qr_LTTPWALK) || dir==left)
+    if(!diagonalMovement || dir==left)
         if(int(x)&15) earlyReturn=true;
         
     // if(y<16) return;
@@ -8067,7 +8105,7 @@ void LinkClass::checkpushblock()
             break;
         }
         
-        if(!((int)y&15)&&y!=0) by-=get_bit(quest_rules, qr_LTTPCOLLISION)*16;
+        if(!((int)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
         
         if((int)x&8) bx+=16;
         
@@ -8144,8 +8182,8 @@ void LinkClass::checkpushblock()
             // Bite Link
             checkdamagecombos(bx+8-(tmpscr->csensitive),
                               bx+8+(zc_max(tmpscr->csensitive-1,0)),
-                              by+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:12)-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
-                              by+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
+                              by+(bigHitbox?8:12)-(bigHitbox?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
+                              by+zc_max((bigHitbox?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
             return;
         }
         if((tmpscr->flags7&fSIDEVIEW) && // Check for sideview damage combos
@@ -8319,7 +8357,7 @@ void LinkClass::checklockblock()
     switch(dir)
     {
     case up:
-        if(!((int)y&15)&&y!=0) by-=get_bit(quest_rules, qr_LTTPCOLLISION)*16;
+        if(!((int)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
         
         break;
         
@@ -8396,7 +8434,7 @@ void LinkClass::checkbosslockblock()
     switch(dir)
     {
     case up:
-        if(!((int)y&15)&&y!=0) by-=get_bit(quest_rules, qr_LTTPCOLLISION)*16;
+        if(!((int)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
         
         break;
         
@@ -8474,7 +8512,7 @@ void LinkClass::checkchest(int type)
     case up:
         if(tmpscr->flags7&fSIDEVIEW) return;
         
-        if(!((int)y&15)&&y!=0) by-=get_bit(quest_rules, qr_LTTPCOLLISION)*16;
+        if(!((int)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
         
         break;
         
@@ -8572,7 +8610,7 @@ void LinkClass::checklocked()
     switch(dir)
     {
     case up:
-        if(y>32 || (get_bit(quest_rules,qr_LTTPWALK)?(x<=112||x>=128):x!=120)) return;
+        if(y>32 || (diagonalMovement?(x<=112||x>=128):x!=120)) return;
         
         if(tmpscr->door[dir]==dLOCKED)
         {
@@ -8604,7 +8642,7 @@ void LinkClass::checklocked()
         break;
         
     case down:
-        if(y<128 || (get_bit(quest_rules,qr_LTTPWALK)?(x<=112||x>=128):x!=120)) return;
+        if(y<128 || (diagonalMovement?(x<=112||x>=128):x!=120)) return;
         
         if(tmpscr->door[dir]==dLOCKED)
         {
@@ -8636,7 +8674,7 @@ void LinkClass::checklocked()
         break;
         
     case left:
-        if((get_bit(quest_rules,qr_LTTPWALK)?(y<=72||y>=88):y!=80) || x>32) return;
+        if((diagonalMovement?(y<=72||y>=88):y!=80) || x>32) return;
         
         if(tmpscr->door[dir]==dLOCKED)
         {
@@ -8668,7 +8706,7 @@ void LinkClass::checklocked()
         break;
         
     case right:
-        if((get_bit(quest_rules,qr_LTTPWALK)?(y<=72||y>=88):y!=80) || x<208) return;
+        if((diagonalMovement?(y<=72||y>=88):y!=80) || x<208) return;
         
         if(tmpscr->door[dir]==dLOCKED)
         {
@@ -8882,15 +8920,15 @@ void LinkClass::checktouchblk()
     switch(tdir)
     {
     case up:
-        if(touchcombo(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:7)))
+        if(touchcombo(x,y+(bigHitbox?0:7)))
         {
             tx=x;
-            ty=y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:7);
+            ty=y+(bigHitbox?0:7);
         }
-        else if(touchcombo(x+8,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:7)))
+        else if(touchcombo(x+8,y+(bigHitbox?0:7)))
         {
             tx=x+8;
-            ty=y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:7);
+            ty=y+(bigHitbox?0:7);
         }
         
         break;
@@ -9235,7 +9273,7 @@ void LinkClass::checkspecial()
 
 void LinkClass::checkspecial2(int *ls)
 {
-    if(get_bit(quest_rules,qr_OLDSTYLEWARP) && !get_bit(quest_rules, qr_LTTPWALK))
+    if(get_bit(quest_rules,qr_OLDSTYLEWARP) && !diagonalMovement)
     {
         if(int(y)&7)
             return;
@@ -9248,7 +9286,7 @@ void LinkClass::checkspecial2(int *ls)
     
     bool didstrig = false;
     
-    for(int i=get_bit(quest_rules,qr_LTTPCOLLISION)?0:8; i<16; i+=get_bit(quest_rules,qr_LTTPCOLLISION)?15:7)
+    for(int i=bigHitbox?0:8; i<16; i+=bigHitbox?15:7)
     {
         for(int j=0; j<16; j+=15) for(int k=0; k<2; k++)
         {
@@ -9382,7 +9420,7 @@ void LinkClass::checkspecial2(int *ls)
     y1 = ty;
     y2 = ty+15;
     
-    if(get_bit(quest_rules, qr_LTTPWALK))
+    if(diagonalMovement)
     {
         x1 = tx+4;
         x2 = tx+11;
@@ -9663,8 +9701,8 @@ void LinkClass::checkspecial2(int *ls)
     // Pits have a bigger 'hitbox' than stairs...
     x1 = tx+7;
     x2 = tx+8;
-    y1 = ty+7+((get_bit(quest_rules,qr_LTTPCOLLISION))?0:4);
-    y2 = ty+8+((get_bit(quest_rules,qr_LTTPCOLLISION))?0:4);
+    y1 = ty+7+(bigHitbox?0:4);
+    y2 = ty+8+(bigHitbox?0:4);
     
     types[0] = COMBOTYPE(x1,y1);
     
@@ -9961,7 +9999,7 @@ void LinkClass::checkspecial2(int *ls)
     //I have no idea why we do this skip, but I'll dutifully propagate it to all cases below...
     /*if(tmpscr[t].tilewarptype[index] != wtNOWARP)
     {
-    	draw_screen(tmpscr, 0, 0);
+    	draw_screen(tmpscr);
     	advanceframe(true);
     }*/
     
@@ -9997,7 +10035,7 @@ void LinkClass::checkspecial2(int *ls)
         bool opening = (tmpscr[t].tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && tmpscr[t].tilewarptype[index]==wtCAVE)
                         ? false : COOLSCROLL);
                         
-        draw_screen(tmpscr, 0, 0);
+        draw_screen(tmpscr);
         advanceframe(true);
         
         skippedaframe=true;
@@ -10018,7 +10056,7 @@ void LinkClass::checkspecial2(int *ls)
     {
         if(!skippedaframe)
         {
-            draw_screen(tmpscr, 0, 0);
+            draw_screen(tmpscr);
             advanceframe(true);
         }
         
@@ -10047,7 +10085,7 @@ void LinkClass::checkspecial2(int *ls)
     {
         if(!skippedaframe)
         {
-            draw_screen(tmpscr, 0, 0);
+            draw_screen(tmpscr);
             advanceframe(true);
         }
         
@@ -10090,7 +10128,7 @@ void LinkClass::checkspecial2(int *ls)
     {
         if(!skippedaframe && (tmpscr[t].tilewarptype[index]!=wtNOWARP))
         {
-            draw_screen(tmpscr, 0, 0);
+            draw_screen(tmpscr);
             advanceframe(true);
         }
         
@@ -10269,14 +10307,14 @@ bool LinkClass::dowarp(int type, int index)
             }
             
             reset_hookshot();
-            stepforward(get_bit(quest_rules,qr_LTTPWALK)?5:6, false);
+            stepforward(diagonalMovement?5:6, false);
         }
         else                                                  // item room
         {
             specialcave = ITEMCELLAR;
             map_bkgsfx(false);
             kill_enemy_sfx();
-            draw_screen(tmpscr, 0, 0,false);
+            draw_screen(tmpscr,false);
             
             //unless the room is already dark, fade to black
             if(!darkroom)
@@ -10289,7 +10327,7 @@ bool LinkClass::dowarp(int type, int index)
             loadscr(0,wdmap,currscr,down,false);
             loadscr(1,wdmap,homescr,-1,false);
             dontdraw=true;
-            draw_screen(tmpscr, 0, 0);
+            draw_screen(tmpscr);
             fade(11,true,true);
             darkroom = false;
             dir=down;
@@ -10307,7 +10345,7 @@ bool LinkClass::dowarp(int type, int index)
             reset_hookshot();
             lighting(false, true);
             dontdraw=false;
-            stepforward(get_bit(quest_rules,qr_LTTPWALK)?16:18, false);
+            stepforward(diagonalMovement?16:18, false);
         }
         
         break;
@@ -10322,7 +10360,7 @@ bool LinkClass::dowarp(int type, int index)
         currscr=0x81;
         specialcave = PASSAGEWAY;
         byte warpscr2 = wscr + DMaps[wdmap].xoff;
-        draw_screen(tmpscr, 0, 0,false);
+        draw_screen(tmpscr,false);
         
         if(!darkroom)
             fade(DMaps[currdmap].color,true,false);
@@ -10334,7 +10372,7 @@ bool LinkClass::dowarp(int type, int index)
         //preloaded freeform combos
         ffscript_engine(true);
         dontdraw=true;
-        draw_screen(tmpscr, 0, 0);
+        draw_screen(tmpscr);
         lighting(false, true);
         dir=down;
         x=48;
@@ -10363,7 +10401,7 @@ bool LinkClass::dowarp(int type, int index)
         setEntryPoints(x,y=0);
         reset_hookshot();
         dontdraw=false;
-        stepforward(get_bit(quest_rules,qr_LTTPWALK)?16:18, false);
+        stepforward(diagonalMovement?16:18, false);
         newscr_clk=frame;
         activated_timed_warp=false;
         stepoutindex=index;
@@ -10490,7 +10528,7 @@ bool LinkClass::dowarp(int type, int index)
         if(isdungeon())
         {
             openscreen();
-            stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
+            stepforward(diagonalMovement?11:12, false);
         }
         else
         {
@@ -10994,7 +11032,7 @@ void LinkClass::stepforward(int steps, bool adjust)
     
     for(int i=steps; i>0; --i)
     {
-        if(get_bit(quest_rules,qr_LTTPWALK))
+        if(diagonalMovement)
         {
             tstep=z3step;
             z3step=(z3step%2)+1;
@@ -11030,7 +11068,7 @@ void LinkClass::stepforward(int steps, bool adjust)
     
     while(s>=0)
     {
-        if(get_bit(quest_rules,qr_LTTPWALK))
+        if(diagonalMovement)
         {
             if((dir<left?int(x)&7:int(y)&7)&&adjust==true)
             {
@@ -11102,7 +11140,7 @@ void LinkClass::stepforward(int steps, bool adjust)
             }
         }
         
-        draw_screen(tmpscr, 0, 0);
+        draw_screen(tmpscr);
         advanceframe(true);
         
         if(Quit)
@@ -11110,7 +11148,7 @@ void LinkClass::stepforward(int steps, bool adjust)
     }
     
     setEntryPoints(x,y);
-    draw_screen(tmpscr, 0, 0);
+    draw_screen(tmpscr);
     eat_buttons();
     shiftdir=sh;
 }
@@ -11152,7 +11190,7 @@ void LinkClass::walkdown(bool opening) //entering cave
         if((i&3)==3)
             ++y;
             
-        draw_screen(tmpscr, 0, 0);
+        draw_screen(tmpscr);
         advanceframe(true);
         
         if(Quit)
@@ -11207,7 +11245,7 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
         if((i&3)==3)
             ++y;
             
-        draw_screen(tmpscr, 0, 0);
+        draw_screen(tmpscr);
         advanceframe(true);
         
         if(Quit)
@@ -11262,7 +11300,7 @@ void LinkClass::walkup(bool opening) //exiting cave
         if((i&3)==0)
             --y;
             
-        draw_screen(tmpscr, 0, 0);
+        draw_screen(tmpscr);
         advanceframe(true);
         
         if(Quit)
@@ -11310,7 +11348,7 @@ void LinkClass::walkup2(bool opening) //entering cave2
         if((i&3)==0)
             --y;
             
-        draw_screen(tmpscr, 0, 0);
+        draw_screen(tmpscr);
         advanceframe(true);
         
         if(Quit)
@@ -11329,7 +11367,7 @@ void LinkClass::stepout() // Step out of item cellars and passageways
     stop_sfx(WAV_ER);
     map_bkgsfx(false);
     kill_enemy_sfx();
-    draw_screen(tmpscr, 0, 0,false);
+    draw_screen(tmpscr,false);
     fade(sc>=GUYCAVE?10:11,true,false);
     blackscr(30,true);
     ringcolor(false);
@@ -11349,7 +11387,7 @@ void LinkClass::stepout() // Step out of item cellars and passageways
     
     currscr=homescr;
     loadscr(0,currdmap,currscr,255,false);                                   // bogus direction
-    draw_screen(tmpscr, 0, 0,false);
+    draw_screen(tmpscr,false);
     
     if((tmpscr->flags&fDARK) == 0)
     {
@@ -11533,11 +11571,11 @@ bool LinkClass::nextcombo_solid(int d2)
     
     if(d2==up) cy += 8;
     
-    if(d2==left||d2==right) cy+=get_bit(quest_rules,qr_LTTPCOLLISION)?0:8;
+    if(d2==left||d2==right) cy+=bigHitbox?0:8;
     
     // from MAPCOMBO()
     
-    for(int i=0; i<=(((get_bit(quest_rules,qr_LTTPCOLLISION))&&!(d2==up||d2==down))?((cy&7)?2:1):((cy&7)?1:0)); cy+=8,i++)
+    for(int i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((cy&7)?2:1):((cy&7)?1:0)); cy+=8,i++)
     {
         int cmb = (cy&0xF0)+(cx>>4);
         
@@ -12263,7 +12301,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     
     do
     {
-        draw_screen(tmpscr, 0, 0);
+        draw_screen(tmpscr);
         
         if(cx == scx)
             rehydratelake(false);
@@ -12766,7 +12804,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
             dir = scrolldir;
             
             if(action!=rafting)
-                stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
+                stepforward(diagonalMovement?11:12, false);
                 
             break;
             
@@ -12775,7 +12813,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
             dir = scrolldir;
             
             if(action!=rafting)
-                stepforward(get_bit(quest_rules,qr_LTTPWALK)?21:24, false);
+                stepforward(diagonalMovement?21:24, false);
                 
             putdoor(scrollbuf,0,scrolldir^1,tmpscr->door[scrolldir^1]);
             opendoors=-4;
@@ -12786,7 +12824,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
             dir = scrolldir;
             
             if(action!=rafting)
-                stepforward(get_bit(quest_rules,qr_LTTPWALK)?21:24, false);
+                stepforward(diagonalMovement?21:24, false);
         }
     }
     
@@ -13789,11 +13827,11 @@ void LinkClass::checkitems(int index)
     
     if(index==-1)
     {
-        if(get_bit(quest_rules,qr_LTTPWALK))
+        if(diagonalMovement)
         {
-            index=items.hit(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),z,6,6,1);
+            index=items.hit(x,y+(bigHitbox?0:8),z,6,6,1);
         }
-        else index=items.hit(x,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?0:8),z,1,1,1);
+        else index=items.hit(x,y+(bigHitbox?0:8),z,1,1,1);
     }
     
     if(index==-1)
@@ -13915,7 +13953,7 @@ void LinkClass::checkitems(int index)
         
         clear_bitmap(pricesdisplaybuf);
         
-        if(get_bit(quest_rules, qr_OLDPICKUP) || ((tmpscr[tmp].room==rRP_HC || tmpscr[tmp].room==rTAKEONE) && (pickup&ipONETIME2)))
+        if(get_bit(quest_rules, qr_OLDPICKUP) || ((tmpscr[tmp].room==rSP_ITEM || tmpscr[tmp].room==rRP_HC || tmpscr[tmp].room==rTAKEONE) && (pickup&ipONETIME2)))
         {
             fadeclk=66;
         }
@@ -14294,11 +14332,11 @@ void LinkClass::getTriforce(int id2)
                 draw_screen_clip_rect_y1=0;
                 draw_screen_clip_rect_y2=223;
                 //draw_screen_clip_rect_show_link=true;
-                //draw_screen(tmpscr, 0, 0);
+                //draw_screen(tmpscr);
             }
         }
         
-        draw_screen(tmpscr, 0, 0);
+        draw_screen(tmpscr);
         //this causes bugs
         //the subscreen appearing over the curtain effect should now be fixed in draw_screen
         //so this is not necessary -DD
@@ -14586,7 +14624,7 @@ void LinkClass::gameover()
                 {
                     if(f<60)
                     {
-                        draw_screen(tmpscr, 0, 0);
+                        draw_screen(tmpscr);
                         //reuse our static subscreen
                         set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
                         blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
@@ -14596,7 +14634,7 @@ void LinkClass::gameover()
                     {
                         red_shift();
                         create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
-                        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128, NULL);
+                        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
                         memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
                         
                         for(int q=0; q<PAL_SIZE; q++)
@@ -14608,7 +14646,7 @@ void LinkClass::gameover()
                     
                     if(f>=60 && f<=169)
                     {
-                        draw_screen(tmpscr, 0, 0);
+                        draw_screen(tmpscr);
                         //reuse our static subscreen
                         blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
                         red_shift();
@@ -14619,7 +14657,7 @@ void LinkClass::gameover()
                     {
                         fade_interpolate(RAMpal,black_palette,RAMpal, (f-138)<<1, 224, 255);
                         create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
-                        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128, NULL);
+                        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
                         memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
                         
                         for(int q=0; q<PAL_SIZE; q++)
@@ -14726,7 +14764,7 @@ void LinkClass::gameover()
                 
                 if(f < 169)
                 {
-                    draw_screen(tmpscr, 0, 0);
+                    draw_screen(tmpscr);
                     //reuse our static subscreen
                     blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
                 }
@@ -14856,7 +14894,7 @@ void LinkClass::ganon_intro()
             holditem=getItemID(itemsbuf,itype_triforcepiece,1);
         }
         
-        draw_screen(tmpscr, 0, 0);
+        draw_screen(tmpscr);
         advanceframe(true);
         
         if(rSbtn())
@@ -14955,7 +14993,7 @@ void LinkClass::check_conveyor()
     {
         is_on_conveyor=false;
         int ctype;
-        ctype=(combobuf[MAPCOMBO(x+7,y+(get_bit(quest_rules, qr_LTTPCOLLISION)?8:12))].type);
+        ctype=(combobuf[MAPCOMBO(x+7,y+(bigHitbox?8:12))].type);
         deltax=combo_class_buf[ctype].conveyor_x_speed;
         deltay=combo_class_buf[ctype].conveyor_y_speed;
         
@@ -14973,14 +15011,14 @@ void LinkClass::check_conveyor()
         
         if(deltay<0)
         {
-            info = walkflag(x,y+8-(get_bit(quest_rules, qr_LTTPCOLLISION)*8)-2,2,up);
+            info = walkflag(x,y+8-(bigHitbox*8)-2,2,up);
             execute(info);
             
             if(!info.isUnwalkable())
             {
                 int step=0;
                 
-                if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!get_bit(quest_rules,qr_LTTPWALK))
+                if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!diagonalMovement)
                 {
                     while(step<(abs(deltay)*((tmpscr->flags7&fSIDEVIEW)?2:1)))
                     {
@@ -15014,7 +15052,7 @@ void LinkClass::check_conveyor()
                     Lwpns.spr(Lwpns.idFirst(wHSHandle))->y-=step;
                 }
             }
-            else checkdamagecombos(x,y+8-(get_bit(quest_rules, qr_LTTPCOLLISION)*8)-2);
+            else checkdamagecombos(x,y+8-(bigHitbox ? 8 : 0)-2);
         }
         else if(deltay>0)
         {
@@ -15025,7 +15063,7 @@ void LinkClass::check_conveyor()
             {
                 int step=0;
                 
-                if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!get_bit(quest_rules,qr_LTTPWALK))
+                if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!diagonalMovement)
                 {
                     while(step<abs(deltay))
                     {
@@ -15064,14 +15102,14 @@ void LinkClass::check_conveyor()
         
         if(deltax<0)
         {
-            info = walkflag(x-int(lsteps[int(x)&7]),y+8-(get_bit(quest_rules, qr_LTTPCOLLISION)*8),1,left);
+            info = walkflag(x-int(lsteps[int(x)&7]),y+8-(bigHitbox ? 8 : 0),1,left);
             execute(info);
             
             if(!info.isUnwalkable())
             {
                 int step=0;
                 
-                if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!get_bit(quest_rules,qr_LTTPWALK))
+                if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!diagonalMovement)
                 {
                     while(step<abs(deltax))
                     {
@@ -15105,18 +15143,18 @@ void LinkClass::check_conveyor()
                     Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
                 }
             }
-            else checkdamagecombos(x-int(lsteps[int(x)&7]),y+8-(get_bit(quest_rules, qr_LTTPCOLLISION)*8));
+            else checkdamagecombos(x-int(lsteps[int(x)&7]),y+8-(bigHitbox ? 8 : 0));
         }
         else if(deltax>0)
         {
-            info = walkflag(x+15+2,y+8-(get_bit(quest_rules, qr_LTTPCOLLISION)*8),1,right);
+            info = walkflag(x+15+2,y+8-(bigHitbox ? 8 : 0),1,right);
             execute(info);
             
             if(!info.isUnwalkable())
             {
                 int step=0;
                 
-                if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!get_bit(quest_rules,qr_LTTPWALK))
+                if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!diagonalMovement)
                 {
                     while(step<abs(deltax))
                     {
@@ -15150,7 +15188,7 @@ void LinkClass::check_conveyor()
                     Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=step;
                 }
             }
-            else checkdamagecombos(x+15+2,y+8-(get_bit(quest_rules, qr_LTTPCOLLISION)*8));
+            else checkdamagecombos(x+15+2,y+8-(bigHitbox ? 8 : 0));
         }
     }
 }

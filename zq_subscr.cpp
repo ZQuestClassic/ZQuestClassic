@@ -47,6 +47,7 @@ int curr_subscreen_object;
 char *str_oname;
 subscreen_group *css;
 bool sso_selection[MAXSUBSCREENITEMS];
+static int propCopySrc=-1;
 
 void replacedp(DIALOG &d, const char *newdp, size_t size=256);
 
@@ -3990,7 +3991,7 @@ int sso_properties(subscreen_object *tempsso)
     //for(map<int, char *>::iterator it = itemclassnames.begin(); it != itemclassnames.end(); it++)
     //  delete[] it->second;
     //itemclassnames.clear();
-    return D_O_K;
+    return (ret==2) ? -1 : 0;
 }
 
 int onBringToFront();
@@ -4016,12 +4017,22 @@ int onGridSnapRight();
 int onGridSnapTop();
 int onGridSnapMiddle();
 int onGridSnapBottom();
+void copySSOProperties(subscreen_object& src, subscreen_object& dest);
 
 int onSubscreenObjectProperties()
 {
     if(curr_subscreen_object >= 0)
     {
-        sso_properties(&(css->objects[curr_subscreen_object]));
+        if(sso_properties(&(css->objects[curr_subscreen_object]))!=-1)
+        {
+            for(int i=0; i<MAXSUBSCREENITEMS; i++)
+            {
+                if(!sso_selection[i])
+                    continue;
+                
+                copySSOProperties(css->objects[curr_subscreen_object], css->objects[i]);
+            }
+        }
     }
     
     return D_O_K;
@@ -4051,6 +4062,7 @@ int onDeleteSubscreenObject()
     for(int i=curr_subscreen_object; i<objs-1; ++i)
     {
         css->objects[i]=css->objects[i+1];
+        sso_selection[i]=sso_selection[i+1];
     }
     
     if(css->objects[objs-1].dp1!=NULL)
@@ -4061,6 +4073,12 @@ int onDeleteSubscreenObject()
     }
     
     css->objects[objs-1].type=ssoNULL;
+    sso_selection[objs-1]=false;
+    
+    if(propCopySrc==curr_subscreen_object)
+        propCopySrc=-1;
+    else if(propCopySrc>curr_subscreen_object)
+        propCopySrc--;
     
     if(curr_subscreen_object==objs-1)
     {
@@ -4176,9 +4194,11 @@ int onShowHideGrid();
 
 static MENU subscreen_rc_menu[] =
 {
-    { (char *)"Properties ",    NULL,  NULL, 0, NULL },
-    { (char *)"Inspect ",       NULL,  NULL, 0, NULL },
-    { NULL,                     NULL,  NULL, 0, NULL }
+    { (char *)"Properties ",       NULL,  NULL, 0, NULL },
+    { (char *)"Inspect ",          NULL,  NULL, 0, NULL },
+    { (char *)"Copy Properties ",  NULL,  NULL, 0, NULL },
+    { (char *)"Paste Properties ", NULL,  NULL, 0, NULL },
+    { NULL,                        NULL,  NULL, 0, NULL }
 };
 
 
@@ -4241,16 +4261,41 @@ int d_subscreen_proc(int msg,DIALOG *d,int)
         if(gui_mouse_b()&2) //right mouse button
         {
             object_message(d,MSG_DRAW,0);
+            
+            // Disable "Paste Properties" if the copy source is invalid
+            if(propCopySrc<0 || css->objects[propCopySrc].type==ssoNULL)
+                subscreen_rc_menu[3].flags|=D_DISABLED;
+            else
+                subscreen_rc_menu[3].flags&=~D_DISABLED;
+            
             int m = popup_menu(subscreen_rc_menu,gui_mouse_x(),gui_mouse_y());
             
             switch(m)
             {
-            case 0:
+            case 0: // Properties
                 onSubscreenObjectProperties();
                 break;
                 
-            case 1:
+            case 1: // Inspect
                 onSubscreenObjectRawProperties();
+                break;
+            
+            case 2: // Copy Properties
+                propCopySrc=curr_subscreen_object;
+                break;
+                
+            case 3: // Paste Properties
+                if(propCopySrc>=0) // Hopefully unnecessary)
+                {
+                    copySSOProperties(css->objects[propCopySrc], css->objects[curr_subscreen_object]);
+                    for(int i=0; i<MAXSUBSCREENITEMS; i++)
+                    {
+                        if(!sso_selection[i])
+                            continue;
+                        
+                        copySSOProperties(css->objects[propCopySrc], css->objects[i]);
+                    }
+                }
                 break;
             }
         }
@@ -6550,6 +6595,7 @@ void edit_subscreen()
     subscreen_dlg[0].dp2=lfont;
     load_Sitems(&misc);
     curr_subscreen_object=0;
+    propCopySrc=-1;
     subscreen_group tempss;
     memset(&tempss, 0, sizeof(subscreen_group));
     int i;
@@ -7133,6 +7179,226 @@ void delete_subscreen(int subscreenidx)
             
         if(DMaps[i].passive_subscreen > subscreenidx)
             DMaps[i].passive_subscreen--;
+    }
+}
+
+// These were defined in ffscript.h; no need for them here
+#undef DELAY
+#undef WIDTH
+#undef HEIGHT
+
+#define D1        0x00000001
+#define D2        0x00000002
+#define D3        0x00000004
+#define D4        0x00000008
+#define D5        0x00000010
+#define D6        0x00000020
+#define D7        0x00000040
+#define D8        0x00000080
+#define D9        0x00000100
+#define D10       0x00000200
+#define D1_TO_D10 0x000002FF
+#define COLOR1    0x00000400
+#define COLOR2    0x00000800
+#define COLOR3    0x00001000
+#define FRAMES    0x00002000
+#define FRAME     0x00004000
+#define SPEED     0x00008000
+#define DELAY     0x00010000
+#define WIDTH     0x00020000
+#define HEIGHT    0x00040000
+
+// This function does the actual copying. Name sucks, but whatever.
+// what controls which properties are copied. Type, x, y, and dp1
+// are never copied. The active up/down/scrolling flags from pos
+// are always copied, but the rest of it is not.
+void doCopySSOProperties(subscreen_object& src, subscreen_object& dest, int what)
+{
+    dest.pos&=~(sspUP|sspDOWN|sspSCROLLING);
+    dest.pos|=src.pos&(sspUP|sspDOWN|sspSCROLLING);
+    
+    // Actually, I think pos is nothing but those three flags...
+    
+    if(what&WIDTH)
+        dest.w=src.w;
+    if(what&HEIGHT)
+        dest.h=src.h;
+    
+    if(what&D1)
+        dest.d1=src.d1;
+    if(what&D2)
+        dest.d2=src.d2;
+    if(what&D3)
+        dest.d3=src.d3;
+    if(what&D4)
+        dest.d4=src.d4;
+    if(what&D5)
+        dest.d5=src.d5;
+    if(what&D6)
+        dest.d6=src.d6;
+    if(what&D7)
+        dest.d7=src.d7;
+    if(what&D8)
+        dest.d8=src.d8;
+    if(what&D9)
+        dest.d9=src.d9;
+    if(what&D10)
+        dest.d10=src.d10;
+    
+    if(what&COLOR1)
+    {
+        dest.colortype1=src.colortype1;
+        dest.color1=src.color1;
+    }
+    if(what&COLOR2)
+    {
+        dest.colortype2=src.colortype2;
+        dest.color2=src.color2;
+    }
+    if(what&COLOR3)
+    {
+        dest.colortype3=src.colortype3;
+        dest.color3=src.color3;
+    }
+    
+    if(what&FRAMES)
+        dest.frames=src.frames;
+    if(what&FRAME)
+        dest.frame=src.frame;
+    if(what&SPEED)
+        dest.speed=src.speed;
+    if(what&DELAY)
+        dest.delay=src.delay;
+}
+
+// Copies text from one SSO to another. Not many h
+void copySSOText(subscreen_object& src, subscreen_object& dest)
+{
+    if(dest.dp1)
+    {
+        delete[] static_cast<char*>(dest.dp1);
+        dest.dp1=0;
+    }
+    
+    if(src.dp1)
+    {
+        char* srcStr=static_cast<char*>(src.dp1);
+        char* destStr=new char[strlen(srcStr)+1];
+        strcpy(destStr, srcStr);
+        dest.dp1=destStr;
+    }
+}
+
+// Copies one object's properties to another. Selects properties depending on
+// the object type; some things are deliberately skipped, like which heart
+// container a life gauge piece corresponds to.
+void copySSOProperties(subscreen_object& src, subscreen_object& dest)
+{
+    if(src.type!=dest.type || &src==&dest)
+        return;
+    
+    switch(src.type)
+    {
+        case sso2X2FRAME:
+            doCopySSOProperties(src, dest, D1|D2|D3|D4|COLOR1);
+            break;
+            
+        case ssoTEXT:
+            doCopySSOProperties(src, dest, D1|D2|D3|COLOR1|COLOR2|COLOR3);
+            break;
+            
+        case ssoLINE:
+            doCopySSOProperties(src, dest, D1|D2|COLOR1|WIDTH|HEIGHT);
+            break;
+            
+        case ssoRECT:
+            doCopySSOProperties(src, dest, D1|D2|COLOR1|COLOR2|WIDTH|HEIGHT);
+            break;
+            
+        case ssoBSTIME:
+        case ssoTIME:
+        case ssoSSTIME:
+            doCopySSOProperties(src, dest, D1|D2|D3|COLOR1|COLOR2|COLOR3);
+            break;
+            
+        case ssoMAGICMETER: // Full meter
+            // No properties but pos
+            doCopySSOProperties(src, dest, 0);
+            break;
+            
+        case ssoLIFEMETER:
+            doCopySSOProperties(src, dest, D2|D3);
+            break;
+            
+        case ssoBUTTONITEM:
+            doCopySSOProperties(src, dest, D2);
+            break;
+            
+        case ssoCOUNTER: // Single counter
+            doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|D6|COLOR1|COLOR2|COLOR3);
+            break;
+            
+        case ssoCOUNTERS: // Counter block
+            doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|COLOR1|COLOR2|COLOR3);
+            break;
+            
+        case ssoMINIMAPTITLE:
+            doCopySSOProperties(src, dest, D1|D2|D3|D4|COLOR1|COLOR2|COLOR3);
+            break;
+            
+        case ssoMINIMAP:
+            doCopySSOProperties(src, dest, D1|D2|D3|COLOR1|COLOR2|COLOR3);
+            break;
+            
+        case ssoLARGEMAP:
+            doCopySSOProperties(src, dest, D1|D2|D3|D10|COLOR1|COLOR2);
+            break;
+            
+        case ssoCLEAR:
+            doCopySSOProperties(src, dest, COLOR1);
+            break;
+            
+        case ssoCURRENTITEM:
+            // Only the invisible flag
+            doCopySSOProperties(src, dest, D2);
+            break;
+            
+        case ssoTRIFRAME:
+            doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|D6|D7|COLOR1|COLOR2);
+            break;
+            
+        case ssoTRIFORCE: // Single piece
+            doCopySSOProperties(src, dest, D1|D2|D3|D4|COLOR1);
+            break;
+            
+        case ssoTILEBLOCK:
+            doCopySSOProperties(src, dest, D1|D2|D3|D4|COLOR1|WIDTH|HEIGHT);
+            break;
+            
+        case ssoMINITILE:
+            // Does this one work at all?
+            doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|D6|COLOR1|WIDTH|HEIGHT);
+            break;
+            
+        case ssoSELECTOR1:
+        case ssoSELECTOR2:
+            doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|COLOR1);
+            break;
+            
+        case ssoMAGICGAUGE: // Single piece
+            // Skip magic container (d1)
+            doCopySSOProperties(src, dest, (D1_TO_D10&~D1)|COLOR1|COLOR2|WIDTH|HEIGHT);
+            break;
+            
+        case ssoLIFEGAUGE: // Single piece
+            // Skip heart container (d1)
+            doCopySSOProperties(src, dest, (D1_TO_D10&~D1)|COLOR1|COLOR2|WIDTH|HEIGHT);
+            break;
+            
+        case ssoTEXTBOX:
+        case ssoSELECTEDITEMNAME:
+            doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|COLOR1|COLOR2|COLOR3|WIDTH|HEIGHT);
+            break;
     }
 }
 

@@ -73,12 +73,7 @@ void do_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, int tempscreen
 void put_walkflags(BITMAP *dest,int x,int y,int xofs,int yofs, word cmbdat,int lyr);
 void do_walkflags(BITMAP *dest,mapscr* layer,int x, int y, int tempscreen);
 void do_primitives(BITMAP *bmp, int type, mapscr *layer, int x, int y);
-void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x2, int y2, bool showlink=true);
-
-INLINE void draw_screen(mapscr* layer, int x, int y, bool showlink = true)
-{
-    draw_screen(layer, NULL, x, y, 0, 0, showlink);
-}
+void draw_screen(mapscr* this_screen, bool showlink=true);
 /*
   INLINE void do_scrolling_layer(int type, mapscr* layer, int x, int y, bool scrolling, int tempscreen)
   {

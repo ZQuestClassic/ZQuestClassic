@@ -21,8 +21,8 @@
 //========================
 
 /**
-* Computes and returns a random integer i such that 0 <= i < maxvalue.
-* The return value is undefined if maxvalue is 0 or negative.
+* Computes and returns a random integer between 0 and maxvalue,
+* or a negative value between maxvalue and 0 if maxvalue is negative.
 */
 int Rand(int maxvalue);
 

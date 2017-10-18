@@ -39,6 +39,7 @@
 #include "md5.h"
 #include "zc_custom.h"
 #include "subscr.h"
+#include "zq_strings.h"
 #include "zq_subscr.h"
 #include "mem_debug.h"
 

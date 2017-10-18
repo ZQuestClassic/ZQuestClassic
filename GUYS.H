@@ -46,6 +46,9 @@ void awaken_spinning_tile(mapscr *s, int pos);
 void screen_combo_modify_preroutine(mapscr *s, int pos);
 void screen_combo_modify_postroutine(mapscr *s, int pos);
 
+// Find the IDs of enemies spawned by combos and flags. Called once on loading a quest.
+void identifyCFEnemies();
+
 // Let's make sure this check is consistent, shall we?
 #define ON_SIDEPLATFORM (_walkflag(x+4,y+16,0) || (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)))
 

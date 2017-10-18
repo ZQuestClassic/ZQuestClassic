@@ -231,6 +231,9 @@ class LinkClass : public sprite
     fix entry_x, entry_y; // When drowning, re-create Link here
     fix falling_oldy; // Used by the Stomp Boots in sideview
     bool dontdraw;
+    bool diagonalMovement;
+    bool bigHitbox;
+    
     // Methods below here.
     void movelink();
     void move(int d);

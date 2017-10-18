@@ -1113,7 +1113,7 @@ int jwin_edit_proc(int msg, DIALOG *d, int c)
         for(; p<b; p++)
         {
             buf[0] = s[p];
-            x += text_length(font, buf);
+            x += text_length((d->dp2) ? (FONT*)d->dp2 : font, buf);
             
             if(x > gui_mouse_x())
                 break;
@@ -1768,6 +1768,7 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
             
             _handle_jwin_listbox_click(d);
             
+            bool rightClicked=(gui_mouse_b()&2)!=0;
             while(gui_mouse_b())
             {
                 broadcast_dialog_message(MSG_IDLE, 0);
@@ -1796,6 +1797,13 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
                 //	#endif
             }
             
+            if(rightClicked && (d->flags&(D_USER<<1))!=0 && d->dp3)
+            {
+                typedef void (*funcType)(int /* index */, int /* x */, int /* y */);
+                funcType func=reinterpret_cast<funcType>(d->dp3);
+                func(d->d1, gui_mouse_x(), gui_mouse_y());
+            }
+            
             if(d->flags & D_USER)
             {
                 if(listsize)
@@ -1813,6 +1821,10 @@ int jwin_list_proc(int msg, DIALOG *d, int c)
         break;
         
     case MSG_DCLICK:
+        // Ignore double right-click
+        if((gui_mouse_b()&2)!=0)
+            break;
+        
         (*data->listFunc)(-1, &listsize);
         height = (d->h-3) / text_height(*data->font);
         bar = (listsize > height);

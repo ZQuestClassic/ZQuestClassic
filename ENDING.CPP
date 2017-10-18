@@ -252,14 +252,14 @@ void ending()
             //draw_screen_clip_rect_show_guys=true;
         }
         
-        draw_screen(tmpscr, 0, 0);
+        draw_screen(tmpscr);
         advanceframe(true);
         
         if(Quit) return;
     }
     
     clear_bitmap(msgdisplaybuf);
-    draw_screen(tmpscr, 0, 0);
+    draw_screen(tmpscr);
     advanceframe(true);
     
     draw_screen_clip_rect_x1=0;

@@ -275,10 +275,18 @@ static void UpdateColumns()
             for(int j=0; j<maxtracers; j++)
             {
                 if(tracer[j].x == i)
+                {
                     tracer[j].y++;
+                    if(tracer[j].y >= rows)
+                        tracer[j].speed = 0;
+                }
                     
                 if(eraser[j].x == i)
+                {
                     eraser[j].y++;
+                    if(eraser[j].y >= rows)
+                        eraser[j].speed = 0;
+                }
             }
             
             blit(screen, linebmp, i*8, 0, 0, 0, 8, rows*8 - 8);

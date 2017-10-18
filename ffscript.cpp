@@ -5156,12 +5156,14 @@ void do_max(const bool v)
 
 void do_rnd(const bool v)
 {
-    long temp = SH::get_arg(sarg2, v) / 10000;
-    
-    if(temp<=0)
-        set_register(sarg1, 0);
-    else
-        set_register(sarg1, (rand() % temp) * 10000);
+	long temp = SH::get_arg(sarg2, v) / 10000;
+
+	if(temp > 0)
+		set_register(sarg1, (rand() % temp) * 10000);
+	else if(temp < 0)
+		set_register(sarg1, (rand() % (-temp)) * -10000);
+	else
+		set_register(sarg1, 0); // Just return 0. (Do not log an error)
 }
 
 void do_factorial(const bool v)

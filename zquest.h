@@ -186,6 +186,7 @@ extern int fill_type;
 extern bool first_save;
 extern char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
 extern char *helpbuf;
+extern std::string helpstr;
 
 extern int rules_page, rules_pages;
 extern int init_page, init_pages;
@@ -254,7 +255,6 @@ int gethexnumber(const char *prompt,int initialval);
 
 void update_combo_cycling();
 
-char *strip_extra_spaces(char *string);
 int onSelectSFX();
 int onOptions();
 void fix_drawing_mode_menu();
@@ -734,14 +734,6 @@ int onToggleShowScripts();
 int onToggleShowSquares();
 int onToggleShowInfo();
 
-//bool edit_ins_mode=true;
-char *MsgString(int index, bool show_number, bool pad_number);
-char *parse_msg_str(char *s);
-void encode_msg_str(int index);
-void put_msg_str(char *s,int x,int y,int fg,int bg,int pos, int start_x, int start_y);
-int d_msg_preview_proc(int msg,DIALOG *d,int c);
-int d_msg_edit_proc(int msg,DIALOG *d,int c);
-
 //char msgbuf[MSGSTRS*3];
 
 int d_ndroplist_proc(int msg,DIALOG *d,int c);
@@ -758,10 +750,6 @@ INLINE int d_enelistnoabc_proc(int msg,DIALOG *d,int c)
 {
     return enelist_proc(msg,d,c,false);
 }
-void editmsg(int index, int duplicate);
-int strlist_del();
-void fix_string(word &str, word index);
-int onStrings();
 
 
 /**********************************/

@@ -110,7 +110,7 @@ void loadlvlpal(int level)
         RAMpal[CSET(6)+2] = NESpal(0x37);
         
     create_rgb_table(&rgb_table, RAMpal, NULL);
-    create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128, NULL);
+    create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
     memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
     
     for(int q=0; q<PAL_SIZE; q++)
@@ -341,7 +341,7 @@ int level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 
             RAMpal[CSET(6)+2] = NESpal(0x37);
             
         create_rgb_table(&rgb_table, RAMpal, NULL);
-        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128, NULL);
+        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
         memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
         
         for(int q=0; q<PAL_SIZE; q++)
