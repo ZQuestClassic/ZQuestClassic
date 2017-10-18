@@ -102,6 +102,8 @@ public:
   virtual bool hit(sprite *s);
   virtual bool hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
   virtual bool hit(weapon *w);
+  virtual void break_shield() {}; // Overridden by types that can have shields
+  virtual bool ignore_msg_freeze() { return false; }
 
 protected:
   int  clk2,sclk;
@@ -215,6 +217,7 @@ public:
   guy(fix X,fix Y,int Id,int Clk,bool mg);                // : enemy(X,Y,Id,Clk)
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
+  virtual bool ignore_msg_freeze() { return true; }
 };
 
 /*******************************/
@@ -230,6 +233,7 @@ public:
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
   virtual int takehit(weapon *w);
+  virtual void break_shield();
 };
 
 class eOther : public enemy
@@ -241,6 +245,7 @@ public:
   virtual bool animate(int index);
   virtual void draw(BITMAP *dest);
   virtual int takehit(weapon *w);
+  virtual void break_shield();
 };
 
 void removearmos(int ax,int ay);
@@ -422,6 +427,7 @@ public:
   virtual int takehit(weapon *w);
   void vire_hop();
   virtual void drawshadow(BITMAP *dest, bool translucent);
+  virtual void break_shield();
 };
 
 class eKeese : public enemy

@@ -92,6 +92,7 @@ void putcombotranslucent(BITMAP* dest,int x,int y,int cmbdat,int cset,int opacit
 void overcombotranslucent(BITMAP* dest,int x,int y,int cmbdat,int cset,int opacity);
 void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity);
 
+bool is_valid_format(byte format);
 int tilesize(byte format);
 int comboa_lmasktotal(byte layermask);
 #endif                                                      // _ZC_TILES_H_

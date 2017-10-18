@@ -30,6 +30,7 @@
 #include "init.h"
 #include "ffasm.h"
 #include "defdata.h"
+#include "zc_malloc.h"
 
 extern int ex;
 extern void reset_itembuf(itemdata *item, int id);
@@ -567,24 +568,24 @@ static DIALOG itemdata_dlg[] =
   { d_dummy_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                 },
 
   //92
-  { jwin_text_proc,           8,     48,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0,  (void *) "Increase Amount:",                    NULL,   NULL                  },
-  { jwin_edit_proc,         107,     44,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+  { jwin_text_proc,           8,     66,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0,  (void *) "Increase Amount:",                    NULL,   NULL                  },
+  { jwin_edit_proc,         107,     62,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
 
-  { jwin_check_proc,        147,     48,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0,  (void *) "Drain Counter",                       NULL,   NULL                  },
+  { jwin_check_proc,        147,     66,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0,  (void *) "Gradual",                       NULL,   NULL                  },
 
-  { jwin_text_proc,           8,     66,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0,  (void *) "Counter Reference:",                  NULL,   NULL                  },
-  { jwin_droplist_proc,      107,    62,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0,  (void *) &counter_list,						 NULL,   NULL 				   },
-  { jwin_text_proc,           8,     84,     60,      8,    vc(14),                 vc(1),                   0,       0,           0,    0,  (void *) "Refill Max:",                           NULL,   NULL                  },
-  { jwin_edit_proc,          55,     80,     28,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
-  { jwin_text_proc,          87,     84,     60,      8,    vc(14),                 vc(1),                   0,       0,           0,    0,  (void *) "+Max:",                               NULL,   NULL                  },
-  { jwin_edit_proc,         125,     80,     28,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+  { jwin_text_proc,           8,     48,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0,  (void *) "Counter Reference:",                  NULL,   NULL                  },
+  { jwin_droplist_proc,     107,     44,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0,  (void *) &counter_list,						 NULL,   NULL 				   },
+  { jwin_text_proc,         147,     84,     60,      8,    vc(14),                 vc(1),                   0,       0,           0,    0,  (void *) "But Not Above:",                           NULL,   NULL                  },
+  { jwin_edit_proc,         204,     80,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+  { jwin_text_proc,           8,     84,     60,      8,    vc(14),                 vc(1),                   0,       0,           0,    0,  (void *) "Increase Counter Max:",                               NULL,   NULL                  },
+  { jwin_edit_proc,         107,     80,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
 
   //101
   { jwin_text_proc,          112+10,    47+38,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0,  (void *) "Pickup Script:",                            NULL,   NULL                  },
   { jwin_droplist_proc,      112+10,    47+38+10,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0,  (void *) &itemscript_list,                   NULL,   NULL 				   },
   //{ jwin_edit_proc,          55,     98,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-  { jwin_text_proc,          87,    102,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0,  (void *) "Sound:",                              NULL,   NULL                  },
-  { jwin_edit_proc,         125,     98,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+  { jwin_text_proc,          8,    102,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0,  (void *) "Sound:",                              NULL,   NULL                  },
+  { jwin_edit_proc,         107,     98,     35,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
 
   { jwin_text_proc,           8,    120,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0,  (void *) "Hearts Required:",                    NULL,   NULL                  },
   { jwin_edit_proc,         107,    116,     35,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
@@ -2001,17 +2002,6 @@ const char *dodongomisc10list(int index, int *list_size)
   return NULL;
 }
 
-const char *nonemisc10list(int index, int *list_size)
-{
-	if(index>=0)
-	{
-		return (index ? "Yes" : "No");
-	}
-	*list_size = 2;
-	return NULL;
-}
-
-
 const char *digdoggermisc10list(int index, int *list_size)
 {
   if(index>=0)
@@ -2092,6 +2082,53 @@ const char *trapmisc1list(int index, int *list_size)
   return NULL;
 }
 
+const char *leevermisc1list(int index, int *list_size)
+{
+  if(index>=0)
+  {
+    if(index==0)
+        return "Link's path";
+    else if(index==1)
+        return "In place";
+    else if(index==2)
+        return "Link's path + second";
+  }
+  *list_size = 3;
+  return NULL;
+}
+
+const char *rockmisc1list(int index, int *list_size)
+{
+	if(index>=0)
+	{
+		return (index ? "2x2" : "1x1");
+	}
+	*list_size = 2;
+	return NULL;
+}
+
+// 0: no, 1: yes
+const char *yesnomisclist(int index, int *list_size)
+{
+	if(index>=0)
+	{
+		return (index ? "Yes" : "No");
+	}
+	*list_size = 2;
+	return NULL;
+}
+
+// 0: yes, 1: no
+const char *noyesmisclist(int index, int *list_size)
+{
+	if(index>=0)
+	{
+		return (index ? "No" : "Yes");
+	}
+	*list_size = 2;
+	return NULL;
+}
+
 static ListData walkmisc1_list(walkmisc1list, is_large? &lfont_l : &font);
 static ListData walkmisc2_list(walkmisc2list, is_large? &lfont_l : &font);
 static ListData walkmisc7_list(walkmisc7list, is_large? &lfont_l : &font);
@@ -2107,7 +2144,6 @@ static ListData patramisc5_list(patramisc5list, is_large? &lfont_l : &font);
 static ListData patramisc10_list(patramisc10list, is_large? &lfont_l : &font);
 
 static ListData dodongomisc10_list(dodongomisc10list, is_large? &lfont_l : &font);
-static ListData nonemisc10_list(nonemisc10list, is_large? &lfont_l : &font);
 
 static ListData keesemisc1_list(keesemisc1list, is_large? &lfont_l : &font);
 static ListData keesemisc2_list(keesemisc2list, is_large? &lfont_l : &font);
@@ -2119,6 +2155,12 @@ static ListData wizzrobemisc2_list(wizzrobemisc2list, is_large? &lfont_l : &font
 
 static ListData trapmisc1_list(trapmisc1list, is_large? &lfont_l : &font);
 static ListData trapmisc2_list(trapmisc2list, is_large? &lfont_l : &font);
+
+static ListData leevermisc1_list(leevermisc1list, is_large? &lfont_l : &font);
+static ListData rockmisc1_list(rockmisc1list, is_large? &lfont_l : &font);
+
+static ListData yesnomisc_list(yesnomisclist, is_large? &lfont_l : &font);
+static ListData noyesmisc_list(noyesmisclist, is_large? &lfont_l : &font);
 
 static EnemyNameInfo enameinf[]=
 {
@@ -2136,7 +2178,7 @@ static EnemyNameInfo enameinf[]=
 			{ (void*)&gohmamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
   { eeAQUA, { "Side:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
 			{ (void*)&aquamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
-  { eeMANHAN, { NULL,  "Size:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+  { eeMANHAN, { "Frame rate:",  "Size:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
 			{ NULL, (void*)&manhandlamisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
   { eeLANM, { "Segments:",  "Segment Lag:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
 			{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
@@ -2146,16 +2188,22 @@ static EnemyNameInfo enameinf[]=
 			{ (void*)&wizzrobemisc1_list, (void*)&wizzrobemisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
   { eeDONGO,{ NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Type :"  },
 			{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&dodongomisc10_list } },
-  { eeTRAP, { "Direction:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-			{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
   { eeKEESE, { "Walk Style:",  "Death Type:", "Enemy ID:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
 			{ (void*)&keesemisc1_list, (void*)&keesemisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
+  { eeTEK,  { "1/n jump start:",  "1/n jump cont.:", "Jump Z velocity:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+			{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
+  { eeLEV,  { "Emerge style:",  "Submerged CSet:", "Emerging step:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+			{ (void*)&leevermisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
+  { eeWALLM,{ "Fixed distance:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+			{ (void*)&noyesmisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
   { eeTRAP, { "Direction:",  "Move Style:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
 			{ (void*)&trapmisc1_list, (void*)&trapmisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
+  { eeROCK, { "Rock size:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+			{ (void*)&rockmisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } },
   { eeNONE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-		    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&nonemisc10_list } },
+		    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list } },
   { eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-			{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&nonemisc10_list } },
+			{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list } },
   { -1,		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 			{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL } }
 };
@@ -2843,13 +2891,31 @@ int onCustomEnemies()
     char *hold = item_string[0];
     item_string[0] = "rupee (1)";
     */
+
   int foo;
   int index = select_enemy("Select Enemy",bie[0].i,true,true,foo);
+ 	guydata g = guysbuf[0];
+
   while(index >= 0)
   {
-    if (index != 0)
-      edit_enemydata(index);
-    index = select_enemy("Select Enemy",index,true,true,foo);
+    //I can't get the fucking dialog to handle a simple copy paste so I stuck it here else I'm going to rage kill something.
+	  //,,.Someone feel free to fix the thing properly later on.
+	  //Right now creating custom enemies remains a long painful process, but it shouldn't be this hard for users to use.
+	  //-Two cents worth. -Gleeok
+	if( key[KEY_OPENBRACE] ) //copy
+	{
+		g = guysbuf[index];
+	}
+	else if( key[KEY_CLOSEBRACE] ) //paste
+	{
+		guysbuf[index] = g;
+	}
+	else
+	{
+		if (index != 0)
+			edit_enemydata(index);
+	}
+	index = select_enemy("Select Enemy",index,true,true,foo);
   }
 
   refresh(rMAP+rCOMBOS);
@@ -2880,7 +2946,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
   {
     case MSG_START:
     {
-      d->dp3=(int*)malloc(sizeof(int)*4);
+      d->dp3=(int*)zc_malloc(sizeof(int)*4);
       p=(int*)d->dp3;
       p[lt_clock]=0;
       p[lt_tile]=0;
@@ -3454,7 +3520,7 @@ int d_ltile_proc(int msg,DIALOG *d,int c)
 
     case MSG_END:
     {
-      free(d->dp3);
+      zc_free(d->dp3);
       break;
     }
   }

@@ -887,11 +887,6 @@ const int IP_ENEMYCARRIED		= 0x080; //The item-carrying NPC carries it. If no NP
 const int IP_TIMEOUT			= 0x100; //Disappears after 512 frames. Can be collected by melee weapons if the related quest rule is not set.
 const int IP_ST_SPECIALITEM		= 0x800; //Sets the screen state "Special Item" when collected.
 
-//Screen Freeze Types
-const int SFT_NONE       	     = 0;
-const int SFT_FREEZE  		     = 1;
-const int SFT_FREEZEFF		     = 2;
-
 //Screen Flag categories. Flags from each category are ORed together, starting with the first flag
 //See Screen Data dialog for what flags are contained in each category. Use in Screen->Flags
 const int SF_ROOMTYPE			= 0;
@@ -1101,6 +1096,10 @@ const int PT_TRANSTEXTURE       = 11; // translucent texture mapped polygon usin
 const int PT_TRANSPTEXTURE      = 12; // "" 
 const int PT_MASKTRANSTEXTURE   = 13; // translucent and transparent texture mapped polygon using 2d linear interpolation
 const int PT_MASKTRANSPTEXTURE  = 14; // "" 
+
+// Opacity options. Use with drawing commands.
+const int OP_TRANS              = 64;
+const int OP_OPAQUE             = 128;
 
 // Render Targets. Use with Screen->"*RenderTarget" and Screen->"Bitmap" drawing routines.
 const int RT_SCREEN             = -1; // draws to screen
@@ -1355,12 +1354,32 @@ int Ceiling(float x) {
 }
 
 //Rounds x to the nearest integer
-int Round(float x) {
-	return Floor(x + 0.5);
+float Round(float x) {
+	if(x < 0)
+		return (x-.5)<<0;
+	return (x+.5)<<0;
 }
 
-//Bounds x between two values
-int VBound(int x, int high, int low){
+//Returns true if the integer is odd (or even in IsEven)
+bool IsOdd(int x)
+{
+	return ((x & 1) == 1);
+}
+
+bool IsEven(int x)
+{
+	return ((x & 1) == 0);
+}
+
+//Clamps x to the range of low, high.
+int Clamp(int x, int low, int high) {
+    if(x<low) x=low;
+    else if(x>high) x=high;
+    return x;
+}
+
+//same as Clamp, but with reversed values.
+int VBound(int x, int high, int low) {
     if(x<low) x=low;
     else if(x>high) x=high;
     return x;
@@ -1518,74 +1537,74 @@ bool GetScreenDBit(int d, int bit){
 
 //A shorthand way to get a combo on the current layer.
 //Layer 0 is the screen itself.
-int GetLayerComboD(int layer, int combo) {
+int GetLayerComboD(int layer, int pos) {
   if (layer==0)
-    return Screen->ComboD[combo];
+    return Screen->ComboD[pos];
   else
-    return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), combo);
+    return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 }
 
 //A shorthand way to set a combo on the current layer.
 //Layer 0 is the screen itself.
-void SetLayerComboD(int layer, int combo, int d) {
+void SetLayerComboD(int layer, int pos, int combo) {
   if (layer == 0)
-    Screen->ComboD[combo] = d;
+    Screen->ComboD[pos] = combo;
   else
-    Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), combo, d);
+    Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
 }
 
 //A shorthand way to get a combo flag on the current layer.
 //Layer 0 is the screen itself.
-int GetLayerComboF(int layer, int flag) {
+int GetLayerComboF(int layer, int pos) {
   if (layer==0)
-    return Screen->ComboF[flag];
+    return Screen->ComboF[pos];
   else
-    return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), flag);
+    return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 }
 
 //A shorthand way to set a combo flag on the current layer.
 //Layer 0 is the screen itself.
-void SetLayerComboF(int layer, int flag, int d) {
+void SetLayerComboF(int layer, int pos, int flag) {
   if (layer == 0)
-    Screen->ComboD[flag] = d;
+    Screen->ComboD[pos] = flag;
   else
-    Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), flag, d);
+    Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, flag);
 }
 
 //A shorthand way to get a combo type on the current layer.
 //Layer 0 is the screen itself.
-int GetLayerComboT(int layer, int combo) {
+int GetLayerComboT(int layer, int pos) {
   if (layer==0)
-    return Screen->ComboT[combo];
+    return Screen->ComboT[pos];
   else
-    return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), combo);
+    return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 }
 
 //A shorthand way to set a combo type on the current layer.
 //Layer 0 is the screen itself.
-void SetLayerComboT(int layer, int combo, int d) {
+void SetLayerComboT(int layer, int pos, int type) {
   if (layer == 0)
-    Screen->ComboT[combo] = d;
+    Screen->ComboT[pos] = type;
   else
-    Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), combo, d);
+    Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, type);
 }
 
 //A shorthand way to get a combo's solidity on the current layer.
 //Layer 0 is the screen itself.
-int GetLayerComboS(int layer, int combo) {
+int GetLayerComboS(int layer, int pos) {
   if (layer==0)
-    return Screen->ComboS[combo];
+    return Screen->ComboS[pos];
   else
-    return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), combo);
+    return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
 }
 
 //A shorthand way to set a combo's solidity on the current layer.
 //Layer 0 is the screen itself.
-void SetLayerComboS(int layer, int combo, int s) {
+void SetLayerComboS(int layer, int pos, int solidity) {
   if (layer == 0)
-    Screen->ComboS[combo] = s;
+    Screen->ComboS[pos] = solidity;
   else
-    Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), combo, s);
+    Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
 }
 
 //Copies the combos and csets from one screen to another.
@@ -2294,7 +2313,7 @@ int ScreenEFlag(int category, int flag) {
 
 //Returns true if DMap Flag 'flag' is set on dmap 'dmap'
 bool GetDMapFlag(int dmap, int flag){
-	return Game->DMapFlags[dmap]&(1<<flag);
+	return (Game->DMapFlags[dmap]&flag)!=0;
 }
 
 //Sets a certain DMap flag to 'state'
@@ -2502,26 +2521,26 @@ int WeaponTypeToID(int wpnt)
 void Remove(lweapon l){
 	if(!l->isValid()) return;
 	l->DeadState = WDS_DEAD;
-	l->X = 256;
+	l->X = 32768;
 }
 
 //Removes EWeapon 'e' from the screen
 void Remove(eweapon e){
 	if(!e->isValid()) return;
 	e->DeadState = WDS_DEAD;
-	e->X = 256;
+	e->X = 32768;
 }
 
 //Removes Item 'i' from the screen
 void Remove(item i){
 	if(!i->isValid()) return;
-	i->X = 256;
+	i->X = 32768;
 }
 
 //Removes NPC 'n' from the screen
 void Remove(npc n){
 	if(!n->isValid()) return;
-	n->X = 256;
+	n->X = 32768;
 	n->HP = -1000;
 }
 
@@ -2903,7 +2922,7 @@ void GetMessage(int ID, int string)
 {
 	Game->GetMessage(ID, string);
 	int i;
-	for(i = MAX_MESSAGELENGTH-1; string[i] == ' '; i--);
+	for(i = MAX_MESSAGELENGTH-2; string[i] == ' '; i--);
 	string[i+1] = 0;
 }
 

@@ -22,10 +22,12 @@
 
 #include <png.h>
 #include <pngconf.h>
+#include <stdlib.h>
 
 #include <loadpng.h>
 #include <jpgalleg.h>
 
+#include "zc_malloc.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "zcmusic.h"
@@ -52,6 +54,7 @@
 #include "rendertarget.h"
 #include "zconsole.h"
 #include "win32.h"
+#include "vectorset.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -88,6 +91,11 @@ extern int directItemA;
 extern int directItemB;
 
 bool is_large=false;
+
+bool standalone_mode=false;
+char *standalone_quest=NULL;
+bool skip_title=false;
+
 int favorite_combos[MAXFAVORITECOMBOS];
 int favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 
@@ -111,8 +119,15 @@ void update_script_counter()
 void throttleFPS() {
   if(Throttlefps ^ (key[KEY_TILDE]!=0))
   {
-    while(logic_counter < 1)
-      rest(1);
+	  if(zc_vsync == FALSE)
+	  {
+		while(logic_counter < 1)
+			rest(frame_rest_suggest);
+	  }
+	  else
+	  {
+		  vsync();
+	  }
   }
   logic_counter = 0;
 }
@@ -228,6 +243,7 @@ int zqwin_scale;
 int jwin_pal[jcMAX];
 int gui_colorset=0;
 int fullscreen;
+byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
 byte disable_triplebuffer=0,can_triplebuffer_in_windowed_mode=0;
 byte zc_color_depth=8;
 byte use_debug_console=0, use_win32_proc=1; //windows-build configs
@@ -235,7 +251,7 @@ int homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr;
 int newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int lastentrance=0,lastentrance_dmap=0,prices[3],loadside, Bwpn, Awpn;
 int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
-int Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit=0;
+int joystick_index=0,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit=0;
 int DUkey, DDkey, DLkey, DRkey, ss_after, ss_speed, ss_density;
 int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
 int cheat_goto_dmap=0, cheat_goto_screen=0, currcset;
@@ -255,7 +271,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
 show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false;
 
 
-bool Throttlefps, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS, Showpal=false;
+bool Throttlefps, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS, Showpal=false, disableClickToFreeze=false;
 bool Playing, FrameSkip=false, TransLayers;
 bool __debug=false,debug_enabled;
 bool refreshpal,blockpath,loaded_guys,freeze_guys,
@@ -876,6 +892,10 @@ int load_quest(gamedata *g, bool report)
     sprintf(buf1,"Error loading %s:",get_filename(qstpath));
     sprintf(buf2,"%s",qst_error[ret]);
     jwin_alert("File error",buf1,buf2,qstpath,"OK",NULL,13,27,lfont);
+    if(standalone_mode)
+    {
+      exit(1);
+    }
     game_pal();
   }
 
@@ -940,11 +960,11 @@ int init_game()
 	if(game != NULL)
 		delete game;
 
-	char *dummy = (char *) malloc((rand()%(RAND_MAX/2))+32);
+	char *dummy = (char *) zc_malloc((rand()%(RAND_MAX/2))+32);
 	game = new gamedata;
 	game->Clear();
 
-	free(dummy);
+	zc_free(dummy);
 
 //Copy saved data to RAM data (but not global arrays)
 	game->Copy(saves[currgame]);
@@ -1046,7 +1066,7 @@ int init_game()
 	fadeclk=-1;
 	if(DMaps[currdmap].flags&dmfVIEWMAP)
 	{
-        game->maps[(currmap<<7)+currscr] |= mVISITED;              // mark as visited
+        game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;              // mark as visited
 	}
 
 	for(int i=0; i<6; i++)
@@ -1121,20 +1141,27 @@ int init_game()
 //load the previous weapons -DD
 	bool usesaved = (game->get_quest() == 0xFF); //What was wrong with firstplay?
 	int apos = 0;
+	int bpos = 0;
 	if (!get_bit(quest_rules,qr_SELECTAWPN))
 	{
 		Awpn = selectSword();
 		apos = -1;
+		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
 	}
 	else
 	{
 		apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+		bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+		if(bpos==0xFF)
+		{
+		    bpos=apos;
+		    apos=0;
+		}
 		Awpn = Bweapon(apos);
 		directItemA = directItem;
 	}
+	
 	game->awpn = apos;
-
-	int bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
 	game->bwpn = bpos;
 	Bwpn = Bweapon(bpos);
 	directItemB = directItem;
@@ -1618,7 +1645,9 @@ void do_magic_casting()
       if ((magiccastclk++)>=226)
       {
         //attackclk=0;
+        int nayrutemp=nayruitem;
         restart_level();
+        nayruitem=nayrutemp;
         //xofs=0;
         //action=none;
         magicitem=-1;
@@ -1986,6 +2015,12 @@ void game_loop()
     dryuplake();
     cycle_palette();
   }
+  else if(freezemsg)
+  {
+    for(int i=0; i<guys.Count(); i++)
+      if(((enemy*)guys.spr(i))->ignore_msg_freeze())
+        guys.spr(i)->animate(i);
+  }
   if(global_wait)
   {
 	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
@@ -2285,15 +2320,56 @@ int onFullscreen()
 
 int main(int argc, char* argv[])
 {
-
   switch (IS_BETA)
   {
+      
     case -1:
     Z_title("Zelda Classic %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);break;
     case 1:
     Z_title("Zelda Classic %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);break;
     case 0:
     Z_title("Zelda Classic %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+  }
+
+  if(used_switch(argc, argv, "-standalone"))
+  {
+	standalone_mode=true;
+	
+	int arg=used_switch(argc, argv, "-standalone");
+	if(arg==argc-1)
+	{
+      Z_error("-standalone requires a quest file, e.g.\n" \
+              "  -standalone MyQuest.qst\n" \
+              "  -standalone \"Name with spaces.qst\"");
+      exit(1);
+	}
+    
+    standalone_quest=argv[arg+1];
+    
+	if(stricmp(standalone_quest, "1st.qst")==0 ||
+       stricmp(standalone_quest, "2nd.qst")==0 ||
+       stricmp(standalone_quest, "3rd.qst")==0 ||
+       stricmp(standalone_quest, "4th.qst")==0)
+	{
+      Z_error("Standalone mode can only be used with custom quests.");
+      exit(1);
+	}
+	
+	int len=strlen(standalone_quest);
+    for(int i=0; i<len; i++)
+    {
+        #ifdef _ALLEGRO_WINDOWS
+        if(standalone_quest[i]=='/')
+        {
+            standalone_quest[i]='\\';
+        }
+        #else
+        if(standalone_quest[i]=='\\')
+        {
+            standalone_quest[i]='/';
+        }
+        #endif
+    }
   }
 
   //turn on MSVC memory checks
@@ -2320,8 +2396,8 @@ int main(int argc, char* argv[])
 
   memrequested += 4096;
   Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
-  qstdir = (char*)malloc(2048);
-  qstpath = (char*)malloc(2048);
+  qstdir = (char*)zc_malloc(2048);
+  qstpath = (char*)zc_malloc(2048);
   if(!qstdir || !qstpath)
   {
     Z_error("Allocation error");
@@ -2421,30 +2497,43 @@ int main(int argc, char* argv[])
   }
   Z_message("OK\n");
 
+  // check for the included quest files
+  if(!standalone_mode)
+  {  
+    Z_message("Checking Files... ");
+    
+    char path[2048];
+    
+    append_filename(path, qstdir, "1st.qst", 2048);
+    if(!exists(path))
+    {
+      Z_error("\"1st.qst\" not found.");
+      quit_game();
+    }
+    append_filename(path, qstdir, "2nd.qst", 2048);
+    if(!exists(path))
+    {
+      Z_error("\"2nd.qst\" not found.");
+      quit_game();
+    }
+    append_filename(path, qstdir, "3rd.qst", 2048);
+    if(!exists(path))
+    {
+      Z_error("\"3rd.qst\" not found.");
+      quit_game();
+    }
+    append_filename(path, qstdir, "4th.qst", 2048);
+    if(!exists(path))
+    {
+      Z_error("\"4th.qst\" not found.");
+      quit_game();
+    }
+    Z_message("OK\n");
+  }
+  
   // allocate bitmap buffers
-  // check for the ag.cfg file and 1st.qst
-  Z_message("Checking Files... ");
-
-  if(!exists("1st.qst"))
-  {
-    Z_error("\"1st.qst\" not found.");
-    quit_game();
-  }
-  if(!exists("2nd.qst"))
-  {
-    Z_error("\"2nd.qst\" not found.");
-    quit_game();
-  }
-  if(!exists("3rd.qst"))
-  {
-    Z_error("\"3rd.qst\" not found.");
-    quit_game();
-  }
-  Z_message("OK\n");
-
-
   Z_message("Allocating bitmap buffers... ");
-
+  
   //Turns out color depth can be critical. -Gleeok
   if(used_switch(argc,argv,"-0bit")) set_color_depth(desktop_color_depth());
   else if(used_switch(argc,argv,"-15bit")) set_color_depth(15);
@@ -2511,17 +2600,17 @@ int main(int argc, char* argv[])
   debug_enabled = used_switch(argc,argv,"-d") && !strcmp(get_config_string("zeldadx","debug",""),zeldapwd);
   set_debug(debug_enabled);
 
-  skipicon = used_switch(argc,argv,"-quickload");
+  skipicon = standalone_mode || used_switch(argc,argv,"-quickload");
 
   int load_save=0;
-
+  
   load_save = used_switch(argc,argv,"-load");
   load_save = load_save?(argc>load_save+1)?atoi(argv[load_save+1]):0:0;
-
+  
   if(!(used_switch(	argc,argv,"-load")))
     if(used_switch(argc,argv,"-loadlast"))
       load_save = loadlast;
-
+  
   slot_arg = used_switch(argc,argv,"-slot");
   if (argc <= (slot_arg+1))
   {
@@ -2529,14 +2618,39 @@ int main(int argc, char* argv[])
   }
   else
   {
-    slot_arg2 = atoi(argv[slot_arg+1]);
+    slot_arg2 = vbound(atoi(argv[slot_arg+1]), 1, MAXSAVES);
   }
-  int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || load_save || (slot_arg && (argc>(slot_arg+1)));
+  
+  if(standalone_mode)
+  {
+    load_save=1;
+    slot_arg=1;
+    slot_arg2=1;
+  }
+  
+  int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
+  skip_title = used_switch(argc, argv, "-notitle") > 0;
   int save_arg = used_switch(argc,argv,"-savefile");
   if(save_arg && (argc>(save_arg+1)))
   {
-    SAVE_FILE = (char *)malloc(2048);
+    SAVE_FILE = (char *)zc_malloc(2048);
     sprintf(SAVE_FILE, "%s", argv[save_arg+1]);
+    
+	int len=strlen(SAVE_FILE);
+    for(int i=0; i<len; i++)
+    {
+        #ifdef _ALLEGRO_WINDOWS
+        if(SAVE_FILE[i]=='/')
+        {
+            SAVE_FILE[i]='\\';
+        }
+        #else
+        if(SAVE_FILE[i]=='\\')
+        {
+            SAVE_FILE[i]='/';
+        }
+        #endif
+    }
   }
 
 
@@ -2887,8 +3001,9 @@ int main(int argc, char* argv[])
   // play the game
   fix_menu();
   reset_items(true, &QHeader);
-
-  Quit = fast_start ? qQUIT : qRESET;
+  
+  clear_to_color(screen,BLACK);
+  Quit = (fast_start||skip_title) ? qQUIT : qRESET;
 
   rgb_map = &rgb_table;
 
@@ -2898,7 +3013,13 @@ int main(int argc, char* argv[])
 
 #ifdef _WIN32
   if(use_win32_proc != FALSE)
-	win32data.zcSetCustomCallbackProc( win_get_window() );
+  {
+	al_trace("Config file warning: \"zc_win_proc_fix\" enabled switch found. This can cause crashes on some computers.\n");
+	if( win32data.zcSetCustomCallbackProc( win_get_window() ) != 0 )
+	{
+		use_win32_proc = FALSE;
+	}
+  }
 #endif
 
   while(Quit!=qEXIT)
@@ -2915,14 +3036,9 @@ int main(int argc, char* argv[])
     while(!Quit)
     {
 #ifdef _WIN32
-		try { // I *think* it might throw here.
-			if(use_win32_proc != FALSE)
-				win32data.Update(0);
-		}
-		catch(...) {
-			set_gfx_mode(GFX_TEXT,0,0,0,0);
-			allegro_message("ZC-Windows Fatal Error: Set \"zc_win_proc_fix = 0\" in config file." );
-			exit(1);
+		if(use_win32_proc != FALSE)
+		{
+			win32data.Update(0);
 		}
 #endif
         game_loop();
@@ -2987,6 +3103,12 @@ quick_quit:
   Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
   Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
   Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
+
+  __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
+
+  if(forceExit) //fix for the allegro at_exit() hang.
+	  exit(0);
+
   allegro_exit();
   return 0;
 }
@@ -3068,7 +3190,7 @@ void quit_game()
     if(customsfxdata[i].data!=NULL)
     {
 //      delete [] customsfxdata[i].data;
-      free(customsfxdata[i].data);
+      zc_free(customsfxdata[i].data);
     }
   }
   al_trace("Misc... \n");
@@ -3127,10 +3249,10 @@ void quit_game()
 
   al_trace("Deleting quest buffers... \n");
   del_qst_buffers();
-  if(qstdir) free(qstdir);
-  if(qstpath) free(qstpath);
-  //if(TheMaps != NULL) free(TheMaps);
-  //if(ZCMaps != NULL) free(ZCMaps);
+  if(qstdir) zc_free(qstdir);
+  if(qstpath) zc_free(qstpath);
+  //if(TheMaps != NULL) zc_free(TheMaps);
+  //if(ZCMaps != NULL) zc_free(ZCMaps);
   //  dumb_exit();
 }
 
@@ -3139,6 +3261,126 @@ int d_timer_proc(int, DIALOG *, int)
 {
   return D_O_K;
 }
+
+
+
+
+
+
+/////////////////////////////////////////////////
+// zc_malloc
+/////////////////////////////////////////////////
+
+//Want Logging: 
+//Set this to 1 to allow zc_malloc/zc_free to track pointers and
+//write logging data to allegro.log
+#define ZC_DEBUG_MALLOC_WANT_LOGGING_INFO 0
+
+
+#include "vectorset.h"
+
+#if (defined(NDEBUG) || !defined(_DEBUG)) && (ZC_DEBUG_MALLOC_ENABLED) && (ZC_DEBUG_MALLOC_WANT_LOGGING_INFO) //this is not fun with debug
+	#define ZC_WANT_DETAILED_MALLOC_LOGGING 1
+#endif
+
+
+#if ZC_WANT_DETAILED_MALLOC_LOGGING
+	size_t totalBytesAllocated = 0;
+	typedef vectorset<void*> debug_malloc_pool_type;
+	debug_malloc_pool_type debug_zc_malloc_allocated_pool;
+#endif
+
+void* __zc_debug_malloc( size_t numBytes, const char* file, int line )
+{
+#if ZC_WANT_DETAILED_MALLOC_LOGGING
+	static bool zcDbgMallocInit = false;
+	if(!zcDbgMallocInit)
+	{
+		zcDbgMallocInit = true;
+		debug_zc_malloc_allocated_pool.reserve(1 << 17);
+		//yeah. completely ridiculous... there's no reason zc should ever need this many..
+		//BUT it does... go figure
+	}
+
+	totalBytesAllocated += numBytes;
+
+	//char buf[1024];
+	//sprintf(buf, "%i : %s, line %i, %u bytes allocated.\n", 0, file, line, numBytes);
+	//al_trace("%s", buf);
+
+	al_trace("info: %i : %s, line %i, %u bytes, pool size %u, total %u,",
+		0,
+		file,
+		line,
+		numBytes,
+		debug_zc_malloc_allocated_pool.size(),
+		totalBytesAllocated / 1024
+	);
+#endif
+
+	ZC_MALLOC_ALWAYS_ASSERT(numBytes != 0);
+	void* p = malloc(numBytes);
+
+#if ZC_WANT_DETAILED_MALLOC_LOGGING
+	al_trace("at address %x\n", (int)p);
+	if(!p)
+		al_trace("____________ ERROR: __zc_debug_malloc: returned null. out of memory.\n");
+
+	debug_malloc_pool_type::insert_iterator_type it = debug_zc_malloc_allocated_pool.insert(p);
+	if( !it.second )
+		al_trace("____________ ERROR: malloc returned identical address to one in use... No way Jose!\n");
+#endif
+
+	return p;
+}
+
+
+void __zc_debug_free( void* p, const char* file, int line )
+{
+	ZC_MALLOC_ALWAYS_ASSERT(p != 0);
+
+#if ZC_WANT_DETAILED_MALLOC_LOGGING
+	al_trace("alloc info: %i : %s line %i, freeing memory at address %x\n", 0, file, line, (int)p);
+
+	size_t numErased = debug_zc_malloc_allocated_pool.erase(p);
+	if(numErased == 0)
+		al_trace("____________ ERROR: __zc_debug_free: no known ptr to memory exists. ..attempting to free it anyways.\n");
+#endif
+
+	free(p);
+}
+
+
+void __zc_debug_malloc_free_print_memory_leaks()
+{
+#if ZC_WANT_DETAILED_MALLOC_LOGGING
+	al_trace("LOGGING INFO FROM debug_zc_malloc_allocated_pool:\n" );
+	for( debug_malloc_pool_type::iterator it = debug_zc_malloc_allocated_pool.begin();
+		it != debug_zc_malloc_allocated_pool.end();
+		++it
+		)
+	{
+		al_trace("block at address %x.\n", (int)*it);
+	}
+#endif
+}
+
+
+void __zc_always_assert( bool e, const char* expression, const char* file, int line )
+{
+	if(!e)
+	{
+		//for best results set a breakpoint in here.
+		char buf[1024];
+		sprintf("ASSERTION FAILED! : %s, %s line %i\n", expression, file, line);
+
+		al_trace("%s", buf);
+		set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+		allegro_message("%s", buf);
+		//exit(-1); //flashing lights are probably enough.
+	}
+}
+
 
   /*** end of zelda.cc ***/
 

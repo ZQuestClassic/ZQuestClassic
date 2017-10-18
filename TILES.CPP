@@ -234,10 +234,11 @@ void animate_combos()
     int y=animated_combo_table4[x][0];                      //combo number
 	if (animated_combo_table4[x][1]>=combobuf[y].speed)     //time to animate
     {
-      if (combobuf[y].tile-
-		  (combobuf[y].frames+((combobuf[y].frames-1)*combobuf[y].skipanim)+
-		  ((combobuf[y].frames-1)*combobuf[y].skipanimy*TILES_PER_ROW))
-		  >=animated_combo_table[y][1]-1)
+		//this is a mess.
+		if (combobuf[y].tile-
+			(combobuf[y].frames+((combobuf[y].frames-1)*combobuf[y].skipanim)+
+			(combobuf[y].skipanimy*TILES_PER_ROW))
+			>=animated_combo_table[y][1]-1)
       {
         combobuf[y].tile=animated_combo_table[y][1];        //reset tile
       }
@@ -340,10 +341,10 @@ void clear_tile(tiledata *buf, word tile)
   buf[tile].format=tf4Bit;
   if (buf[tile].data!=NULL)
   {
-    free(buf[tile].data);
+    zc_free(buf[tile].data);
     buf[tile].data = NULL;
   }
-  buf[tile].data=(byte *)malloc(tilesize(buf[tile].format));
+  buf[tile].data=(byte *)zc_malloc(tilesize(buf[tile].format));
   if (buf[tile].data==NULL)
   {
     Z_error("Unable to initialize tile #%d.\n", tile);
@@ -358,9 +359,9 @@ void reset_tile(tiledata *buf, int t, int format=1)
   buf[t].format=format;
   if (buf[t].data!=NULL)
   {
-    free(buf[t].data);
+    zc_free(buf[t].data);
   }
-  buf[t].data=(byte *)malloc(tilesize(buf[t].format));
+  buf[t].data=(byte *)zc_malloc(tilesize(buf[t].format));
   if (buf[t].data==NULL)
   {
     quit_game();
@@ -433,7 +434,12 @@ void overlay_tile(tiledata *buf,int dest,int src,int cs,bool backwards)
       }
     }
   }
-
+  
+  if(!blank_tile_table[src])
+  {
+    blank_tile_table[dest]=false;
+  }
+  
   pack_tile(buf, upbuf,dest);
 }
 
@@ -444,7 +450,7 @@ bool copy_tile(tiledata *buf, int src, int dest, bool swap)
     return true;
   }
   int tempformat=buf[dest].format;
-  byte *temptiledata=(byte *)malloc(tilesize(tempformat));
+  byte *temptiledata=(byte *)zc_malloc(tilesize(tempformat));
   if (swap)
   {
     for(int j=0; j<tilesize(tempformat); j++)
@@ -465,7 +471,7 @@ bool copy_tile(tiledata *buf, int src, int dest, bool swap)
       buf[src].data[j]=temptiledata[j];
     }
   }
-  free(temptiledata);
+  zc_free(temptiledata);
 
   return true;
 }
@@ -600,10 +606,10 @@ void unpack_tile(tiledata *buf, int tile, int flip, bool force)
     }
     break;
     default: //none or invalid
-    si = buf[tile].data+tilesize(buf[tile].format);
     switch(buf[tile].format)
     {
       case tf4Bit:
+      si = buf[tile].data+tilesize(buf[tile].format);
       di = unpackbuf + 256;
       for(i=127; i>=0; --i)
       {
@@ -612,6 +618,7 @@ void unpack_tile(tiledata *buf, int tile, int flip, bool force)
       }
       break;
       case tf8Bit:
+      si = buf[tile].data+tilesize(buf[tile].format);
       di = unpackbuf + 256;
       for(i=31; i>=0; --i)
       {
@@ -2261,23 +2268,41 @@ void overcombo2(BITMAP* dest,int x,int y,int cmbdat,int cset)
   }
 }
 
+bool is_valid_format(byte format)
+{
+   switch (format)
+  {
+    case tf32Bit:
+    case tf24Bit:
+    case tf16Bit:
+    case tf8Bit:
+    case tf4Bit:
+        return true;
+    default:
+        return false;
+  }
+}
+
 int tilesize(byte format)
 {
   switch (format)
   {
     case tf32Bit:
     return 1024;
-    break;
     case tf24Bit:
     return 768;
-    break;
     case tf16Bit:
     case tf8Bit:
     case tf4Bit:
     return (64<<format);
-    break;
   }
-  return 0;
+  al_trace("Invalid tile format encountered.\n");
+
+  // BUG: This is triggered by the 'grab' option, and certainly others as well.
+  // if at any point a selected tile is 'blank' (newtilebuf[0] for example), then we have might a problem.
+  // These should probably be dealt with where they really occur, however simply returning a 
+  // sane amount right now should fix any crashes associated with this. -Gleeok
+  return 256;
 }
 
 int comboa_lmasktotal(byte layermask)

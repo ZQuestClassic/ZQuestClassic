@@ -1007,6 +1007,10 @@ long get_register(const long arg)
       ret = (int)(Link.txsz)*10000; break;
     case LINKTYSZ:
       ret = (int)(Link.tysz)*10000; break;
+    case LINKTILE:
+      ret = (int)(Link.tile)*10000; break;
+    case LINKFLIP:
+      ret = (int)(Link.flip)*10000; break;
 
 ///----------------------------------------------------------------------------------------------------//
 //Input States
@@ -1074,6 +1078,8 @@ long get_register(const long arg)
       ret=(gui_mouse_b())*10000; break;
     case INPUTPRESSSTART:
       ret=button_press[6]?10000:0; break;
+    case INPUTPRESSMAP:
+      ret=button_press[9]?10000:0; break;
     case INPUTPRESSUP:
       ret=button_press[0]?10000:0; break;
     case INPUTPRESSDOWN:
@@ -1342,6 +1348,7 @@ long get_register(const long arg)
     case NPCHP:        GET_NPC_VAR_INT(hp, "npc->HP") break;
     case NPCCOLLDET:   GET_NPC_VAR_INT(scriptcoldet, "npc->ColDetection") break;
     case NPCSTUN:      GET_NPC_VAR_INT(stunclk, "npc->Stun") break;
+    case NPCHUNGER:    GET_NPC_VAR_INT(grumble, "npc->Hunger") break;
     case NPCTYPE:      GET_NPC_VAR_INT(family, "npc->Type") break;
     case NPCDP:        GET_NPC_VAR_INT(dp, "npc->Damage") break;
     case NPCWDP:       GET_NPC_VAR_INT(wdp, "npc->WeaponDamage") break;
@@ -1687,15 +1694,21 @@ long get_register(const long arg)
       ret=game->get_timevalid()?10000:0; break;
     case GAMEHASPLAYED:
       ret=game->get_hasplayed()?10000:0; break;
+    case GAMESTANDALONE:
+      ret=standalone_mode?10000:0; break;
     case GAMEGUYCOUNT:
     {
-      int mi = (currmap*MAPSCRSNORMAL)+currscr;
+      int mi = (currmap*MAPSCRSNORMAL)+(ri->d[0]/10000);
       ret=game->guys[mi]*10000;
 	} break;
     case GAMECONTSCR:
       ret=game->get_continue_scrn()*10000; break;
     case GAMECONTDMAP:
       ret=game->get_continue_dmap()*10000; break;
+    case GAMEENTRSCR:
+      ret=lastentrance*10000; break;
+    case GAMEENTRDMAP:
+      ret=lastentrance_dmap*10000; break;
     case GAMECOUNTERD:
       ret=game->get_counter((ri->d[0])/10000)*10000; break;
     case GAMEMCOUNTERD:
@@ -1713,12 +1726,18 @@ long get_register(const long arg)
     case SCREENSTATED:
     {
       int mi =(currmap*MAPSCRSNORMAL)+currscr;
-      ret=((game->maps[mi]>>((ri->d[0])/10000))&1)?10000:0;
+      ret=((game->maps[mi]>>((ri->d[0]/10000)))&1)?10000:0;
 	} break;
     case SCREENSTATEDD:
-      ret=(game->maps[ri->d[0] / 10000 - 8*((ri->d[0]/10000)/136)] >> (ri->d[1] / 10000) & 1) ? 10000 : 0; break;
+    {
+      // Gah! >:(  Map flags are stored in game->maps, which uses 128 screens per map, but
+      // the compiler multiplies the map number by 136, so it has to be corrected here.
+      int mi = ri->d[0] / 10000;
+      mi -= 8*((ri->d[0] / 10000) / MAPSCRS);
+      ret=(game->maps[mi] >> (ri->d[1] / 10000) & 1) ? 10000 : 0; break;
+    }
     case GAMEGUYCOUNTD:
-      ret=game->guys[ri->d[0] / 10000]*10000; break;
+      ret=game->guys[(currmap * MAPSCRSNORMAL) + (ri->d[0] / 10000)]*10000; break;
     case CURMAP:
       ret=(1+currmap)*10000; break;
     case CURSCR:
@@ -1734,6 +1753,8 @@ long get_register(const long arg)
       ret=currdmap*10000; break;
     case CURLEVEL:
       ret=DMaps[get_currdmap()].level*10000; break;
+    case GAMECLICKFREEZE:
+      ret=disableClickToFreeze?0:10000; break;
 
 ///----------------------------------------------------------------------------------------------------//
 //DMap Information
@@ -1955,6 +1976,18 @@ long get_register(const long arg)
      ret = tmpscr->catchall*10000; break;
     case ROOMTYPE:
      ret = tmpscr->room*10000; break;
+    case PUSHBLOCKX:
+     ret = blockmoving ? int(mblock2.x)*10000 : -10000; break;
+    case PUSHBLOCKY:
+     ret = blockmoving ? int(mblock2.y)*10000 : -10000; break;
+    case PUSHBLOCKCOMBO:
+     ret = mblock2.bcombo*10000; break;
+    case PUSHBLOCKCSET:
+     ret = mblock2.cs*10000; break;
+    case UNDERCOMBO:
+     ret = tmpscr->undercombo*10000; break;
+    case UNDERCSET:
+     ret = tmpscr->undercset*10000; break;
 
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
@@ -2061,7 +2094,12 @@ void set_register(const long arg, const long value)
     case LINKJUMP:
       Link.setFall( fix((-value * (100.0) ) / 10000.0)); break;
     case LINKDIR:
-      Link.setDir(value/10000); break;
+		{
+			//Link.setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
+			if(Link.getAction() == attacking) Link.dir = (value/10000);
+			else Link.setDir(value/10000);
+			break;
+		}
     case LINKHITDIR:
       Link.setHitDir(value / 10000); break;
     case LINKHP:
@@ -2124,7 +2162,10 @@ void set_register(const long arg, const long value)
       (Link.txsz)=(fix)(value/10000); break;
     case LINKTYSZ:
       (Link.tysz)=(fix)(value/10000); break;
-
+    case LINKTILE:
+      (Link.tile)=(fix)(value/10000); break;
+    case LINKFLIP:
+      (Link.flip)=(fix)(value/10000); break;
 ///----------------------------------------------------------------------------------------------------//
 //Input States
     case INPUTSTART:
@@ -2165,6 +2206,8 @@ void set_register(const long arg, const long value)
 	  control_state[17]=((value/10000)!=0)?true:false; break;
     case INPUTPRESSSTART:
       button_press[6]=((value/10000)!=0)?true:false; break;
+    case INPUTPRESSMAP:
+      button_press[9]=((value/10000)!=0)?true:false; break;
     case INPUTPRESSUP:
       button_press[0]=((value/10000)!=0)?true:false; break;
     case INPUTPRESSDOWN:
@@ -2842,7 +2885,8 @@ void set_register(const long arg, const long value)
     case NPCHZSZ:      SET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
     case NPCCOLLDET:   SET_NPC_VAR_INT(scriptcoldet, "npc->CollDetection") break;
     case NPCSTUN:      SET_NPC_VAR_INT(stunclk, "npc->Stun") break;
-
+    case NPCHUNGER:    SET_NPC_VAR_INT(grumble, "npc->Hunger") break;
+    
     case NPCCSET:
     {
 		if(GuyH::loadNPC(ri->guyref, "npc->CSet") == SH::_NoError)
@@ -2914,6 +2958,7 @@ void set_register(const long arg, const long value)
 			GuyH::getNPC()->miscellaneous[a] = value;
 
     }
+    
 	break;
 
 ///----------------------------------------------------------------------------------------------------//
@@ -2930,13 +2975,17 @@ void set_register(const long arg, const long value)
       game->set_hasplayed((value/10000)?1:0); break;
     case GAMEGUYCOUNT:
     {
-      int mi2 = (currmap*MAPSCRSNORMAL)+currscr;
+      int mi2 = (currmap*MAPSCRSNORMAL)+(ri->d[0]/10000);
       game->guys[mi2]=value/10000;
 	} break;
     case GAMECONTSCR:
       game->set_continue_scrn(value/10000); break;
     case GAMECONTDMAP:
       game->set_continue_dmap(value/10000); break;
+    case GAMEENTRSCR:
+      lastentrance=value/10000; break;
+    case GAMEENTRDMAP:
+      lastentrance_dmap=value/10000; break;
     case GAMECOUNTERD:
       game->set_counter(value/10000, (ri->d[0])/10000); break;
     case GAMEMCOUNTERD:
@@ -2955,16 +3004,18 @@ void set_register(const long arg, const long value)
     case SCREENSTATED:
     {
       int mi2 = (currmap*MAPSCRSNORMAL)+currscr;
-      (value)?setmapflag(mi2,(1)<<((ri->d[0])/10000)) : unsetmapflag(mi2,1 << ((ri->d[0]) / 10000));
+      (value)?setmapflag(mi2, 1<<((ri->d[0])/10000)) : unsetmapflag(mi2, 1 << ((ri->d[0]) / 10000));
 	} break;
     case SCREENSTATEDD:
     {
       int mi2 = ri->d[0]/10000;
-      mi2 -= 8*(mi2/136);
-      (value)?setmapflag(mi2,(1)<<(ri->d[1]/10000)) : unsetmapflag(mi2,1 << (ri->d[1] / 10000), true);
+      mi2 -= 8*(mi2/MAPSCRS);
+      (value)?setmapflag(mi2, 1<<(ri->d[1]/10000)) : unsetmapflag(mi2, 1 << (ri->d[1] / 10000), true);
 	} break;
     case GAMEGUYCOUNTD:
-      game->guys[ri->d[0]/10000] = value / 10000; break;
+      game->guys[(currmap*MAPSCRSNORMAL)+(ri->d[0]/10000)] = value / 10000; break;
+    case GAMECLICKFREEZE:
+      disableClickToFreeze=value==0; break;
 
 ///----------------------------------------------------------------------------------------------------//
 //DMap Information
@@ -3210,6 +3261,14 @@ void set_register(const long arg, const long value)
     //  tmpscr->room=value/10000; break; //this probably doesn't work too well...
     case ROOMDATA:
       tmpscr->catchall=value/10000; break;
+    case PUSHBLOCKCOMBO:
+      mblock2.bcombo=value/10000; break;
+    case PUSHBLOCKCSET:
+      mblock2.cs=value/10000; mblock2.oldcset=value/10000; break;
+    case UNDERCOMBO:
+      tmpscr->undercombo=value/10000; break;
+    case UNDERCSET:
+      tmpscr->undercset=value/10000; break;
 
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
@@ -3305,7 +3364,7 @@ void do_allocatemem(const bool v, const bool local, const byte i)
 
 	if(size <= 0)
 	{
-		Z_scripterrlog("Array initilazied to invalid size of %d\n", size);
+		Z_scripterrlog("Array initialized to invalid size of %d\n", size);
 		set_register(sarg1, 0); //Pass back NULL
 		return;
 	}
@@ -3574,8 +3633,11 @@ void do_max(const bool v)
 void do_rnd(const bool v)
 {
     long temp = SH::get_arg(sarg2, v) / 10000;
-
-    set_register(sarg1, (rand() % temp) * 10000);
+    
+    if(temp<=0)
+        set_register(sarg1, 0);
+    else
+        set_register(sarg1, (rand() % temp) * 10000);
 }
 
 void do_factorial(const bool v)
@@ -3716,6 +3778,44 @@ void do_rshift(const bool v)
 }
 
 ///----------------------------------------------------------------------------------------------------//
+//Gameplay functions
+
+void do_warp(bool v)
+{
+	tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
+    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
+    tmpscr->sidewarptype[0] = wtIWARP;
+    Link.ffwarp = true;
+}
+
+void do_pitwarp(bool v)
+{
+	tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
+    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
+    tmpscr->sidewarptype[0] = wtIWARP;
+    Link.ffwarp = true;
+    Link.ffpit = true;
+}
+
+void do_breakshield()
+{
+	long UID = get_register(sarg1);
+	
+	for(int j = 0; j < guys.Count(); j++)
+		if(guys.spr(j)->getUID() == UID)
+		{
+		    ((enemy*)guys.spr(j))->break_shield();
+            return;
+		}
+}
+
+void do_showsavescreen()
+{
+    bool saved = save_game(false, 0);
+    set_register(sarg1, saved ? 10000 : 0);
+}
+
+///----------------------------------------------------------------------------------------------------//
 //Screen Information
 
 void do_issolid()
@@ -3797,7 +3897,7 @@ void do_triggersecrets()
 
 void do_getscreenflags()
 {
-    long map     = ri->d[2] / 10000;
+    long map     = (ri->d[2] / 10000) - 1;
     long scrn  = ri->d[1] / 10000;
     long flagset = ri->d[0] / 10000;
 
@@ -3811,7 +3911,7 @@ void do_getscreenflags()
 
 void do_getscreeneflags()
 {
-    long map     = ri->d[2] / 10000;
+    long map     = (ri->d[2] / 10000) - 1;
     long scrn  = ri->d[1] / 10000;
     long flagset = ri->d[0] / 10000;
 
@@ -4094,7 +4194,6 @@ INLINE void set_drawing_command_args(const int j, const word numargs)
         script_drawing_commands[j][k] = SH::read_stack(ri->sp + (numargs - k));
 }
 
-
 void do_drawing_command(const int script_command)
 {
 	int j = script_drawing_commands.GetNext();
@@ -4266,23 +4365,6 @@ void do_set_dmap_enh_music(const bool v)
     DMaps[ID].tmusictrack=track;
 }
 
-void do_warp(bool v)
-{
-	tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
-    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
-    tmpscr->sidewarptype[0] = wtIWARP;
-    Link.ffwarp = true;
-}
-
-void do_pitwarp(bool v)
-{
-	tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
-    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
-    tmpscr->sidewarptype[0] = wtIWARP;
-    Link.ffwarp = true;
-    Link.ffpit = true;
-}
-
 ///----------------------------------------------------------------------------------------------------//
 //Tracing
 
@@ -4422,7 +4504,7 @@ void do_getmessage(const bool v)
 	if(BC::checkMessage(ID, "Game->GetMessage") != SH::_NoError)
 		return;
 
-    if(ArrayH::setArray(arrayptr, string(MsgStrings[ID].s)) != SH::_Overflow)
+    if(ArrayH::setArray(arrayptr, string(MsgStrings[ID].s)) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'Game->GetMessage' not large enough\n");
 }
 
@@ -4817,11 +4899,13 @@ int run_script(const byte type, const word script, const byte i)
 			case TRACE4:			do_cleartrace(); break;
 			case TRACE5:			do_tracetobase(); break;
 			case TRACE6:			do_tracestring(); break;
-
+			
 			case WARP:				do_warp(true); break;
 			case WARPR:				do_warp(false); break;
 			case PITWARP:			do_pitwarp(true); break;
 			case PITWARPR:			do_pitwarp(false); break;
+			case BREAKSHIELD:       do_breakshield(); break;
+			
 			case PLAYSOUNDR:		do_sfx(false); break;
 			case PLAYSOUNDV:		do_sfx(true); break;
 			case PLAYMIDIR:			do_midi(false); break;
@@ -4870,7 +4954,7 @@ int run_script(const byte type, const word script, const byte i)
 			case EWPNUSESPRITEV:	do_ewpnusesprite(true); break;
 			case CLEARSPRITESR:		do_clearsprites(false); break;
 			case CLEARSPRITESV:		do_clearsprites(true); break;
-
+			
 			case ISSOLID:			do_issolid(); break;
 			case SETSIDEWARP:		do_setsidewarp(); break;
 			case SETTILEWARP:		do_settilewarp(); break;
@@ -4920,6 +5004,8 @@ int run_script(const byte type, const word script, const byte i)
 
 			case GAMEEND:			Quit = qQUIT; skipcont = 1; scommand = 0xFFFF; break;
 			case SAVE:				save_game(false); break;
+			case SAVESCREEN:        do_showsavescreen(); break;
+			case SAVEQUITSCREEN:    save_game(false, 1); break;
 
 			//Not Implemented
 			case ELLIPSE2:  case FLOODFILL: break;

@@ -38,6 +38,7 @@
 #include "fontsdat.h"
 #include "zdefs.h"
 #include "zqscale.h"
+#include "zc_malloc.h"
 
 //Yeah, not really zquest.
 //Just here for scaling purposes.
@@ -50,6 +51,7 @@ int tempmode=GFX_AUTODETECT_FULLSCREEN;
 int palbmpx=0;
 int palbmpy=0;
 bool is_large=false;
+int joystick_index=0;
 
 volatile int myvsync=0;
 BITMAP *hw_screen;
@@ -683,7 +685,7 @@ void load_sta_pal(byte *si)
 
   if(palbmp)
   {
-    free(palbmp);
+    zc_free(palbmp);
     palbmp = NULL;
   }
 
@@ -709,7 +711,7 @@ void load_zst_pal(byte *src)
 
   if(palbmp)
   {
-    free(palbmp);
+    zc_free(palbmp);
     palbmp = NULL;
   }
 
@@ -737,15 +739,15 @@ void load_rom(char *path)
   fsize = size;
 
   if(rombuf)
-    free(rombuf);
+    zc_free(rombuf);
   if(sel)
-    free(sel);
+    zc_free(sel);
 
   // make sel big enough for one byte per tile in 1-bitplane mode
   // then a row of 16 tiles takes 128 bytes
   selsize = (fsize>>7)<<4;
-  rombuf = (byte*)malloc(fsize);
-  sel    = (byte*)malloc(selsize);
+  rombuf = (byte*)zc_malloc(fsize);
+  sel    = (byte*)zc_malloc(selsize);
 
   if(!sel || !rombuf)
   {
@@ -834,32 +836,32 @@ void load_pal(char *path)
     }
     else if((ext[0]&0xDF)=='S' && (ext[1]&0xDF)=='T')
     {
-      byte *buf = (byte*)malloc(size);
+      byte *buf = (byte*)zc_malloc(size);
       if(buf)
       {
         if(readfile(path,buf,size)!=size)
         {
           jwin_alert("Load error","Error reading",path,NULL,"OK",NULL,13,27,lfont);
-          free(buf);
+          zc_free(buf);
           return;
         }
         load_sta_pal(buf+STA_PAL);
-        free(buf);
+        zc_free(buf);
       }
     }
     else if((ext[0]&0xDF)=='Z' && (ext[1]&0xDF)=='S')
     {
-      byte *buf = (byte*)malloc(size);
+      byte *buf = (byte*)zc_malloc(size);
       if(buf)
       {
         if(readfile(path,buf,size)!=size)
         {
           jwin_alert("Load error","Error reading",path,NULL,"OK",NULL,13,27,lfont);
-          free(buf);
+          zc_free(buf);
           return;
         }
         load_zst_pal(buf+ZST_PAL);
-        free(buf);
+        zc_free(buf);
       }
     }
     else
@@ -912,7 +914,7 @@ void load_pal(char *path)
 //      pal[0] = p;
       memcpy(pal[0], p, sizeof(PALETTE));
       if(palbmp)
-        free(palbmp);
+        zc_free(palbmp);
       palbmp = bmp;
 
       setup_colors();
@@ -1681,7 +1683,7 @@ int main(int argc, char **argv)
   }
   else
   {
-    helpbuf=(char*)malloc(helpsize+1);
+    helpbuf=(char*)zc_malloc(helpsize+1);
     if(!helpbuf)
       helpsize=0;
     else
@@ -1897,8 +1899,8 @@ int main(int argc, char **argv)
 
   shutdown_dialog(player);
 
-  free(rombuf);
-  free(sel);
+  zc_free(rombuf);
+  zc_free(sel);
   destroy_bitmap(tmp_scr);
   destroy_bitmap(scr_buf);
   allegro_exit();

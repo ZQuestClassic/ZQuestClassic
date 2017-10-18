@@ -188,7 +188,10 @@ var
   zqsound:   string;
   LoadQuest: string;
   ZQopen:    string;
+  ZCResX:    string;
   ZCResY:    string;
+  ZCProcFix: string;
+  ZQProcFix: string;
 
   //This is to launch ZC
   ZCLaunch: TProcess;
@@ -216,7 +219,8 @@ begin
   if fileexists('ag.cfg') then
   begin
     agcfg := Tinifile.Create('ag.cfg');
-    ZCResY := agcfg.readstring('zeldadx', 'resy', '240');
+    ZCResX := agcfg.readstring('zeldadx', 'resx', '640');
+    ZCResY := agcfg.readstring('zeldadx', 'resy', '480');
 
     //ZC Name Entry Mode
     if agcfg.readstring('zeldadx', 'name_entry_mode', '') = '0' then
@@ -266,30 +270,30 @@ begin
     end;
 
     //ZC Resolutions
-    if ZCResY = '480' then
+    if (ZCResX = '320') and (ZCResY = '240') then
+    begin
+      scrreszc.Text := '320x240';
+      Res1 := '-res 320 240 ';
+    end
+    else if (ZCResX = '640') and (ZCResY = '480') then
     begin
       scrreszc.Text := '640x480';
       Res1 := '-res 640 480 ';
     end
-    else if ZCResY = '720' then
+    else if (ZCResX = '960') and (ZCResY = '720') then
     begin
       scrreszc.Text := '960x720';
       Res1 := '-res 960 720 ';
     end
-    else if ZCResY = '960' then
+    else if (ZCResX = '1280') and (ZCResY = '960') then
     begin
       scrreszc.Text := '1280x960';
       Res1 := '-res 1280 960 ';
     end
-    else if ZCResY = '1200' then
+    else if (ZCResX = '1600') and (ZCResY = '1200') then
     begin
       scrreszc.Text := '1600x1200';
       Res1 := '-res 1600 1200 ';
-    end
-    else
-    begin
-      scrreszc.Text := '320x240';
-      Res1 := '-res 320 240 ';
     end;
 
     //ZC Fps
@@ -571,6 +575,10 @@ begin
     end;
 
     //ZQ Auto Backup Copies
+    if agcfg.ReadString('zquest', 'auto_backup_retention', '') = '0' then
+    begin
+      bcopy.Text := '0';
+    end;
     if agcfg.ReadString('zquest', 'auto_backup_retention', '') = '1' then
     begin
       bcopy.Text := '1';
@@ -655,11 +663,14 @@ begin
     end;
 
     //ZQ Auto Save Copies
+    if agcfg.readstring('zquest', 'auto_save_interval', '') = '0' then
+    begin
+      bcminute.Text := 'Disabled';
+    end;
     if agcfg.readstring('zquest', 'auto_save_interval', '') = '1' then
     begin
       bcminute.Text := '1 minute';
     end;
-
     if agcfg.readstring('zquest', 'auto_save_interval', '') = '2' then
     begin
       bcminute.Text := '2 minutes';
@@ -727,7 +738,19 @@ begin
     if agcfg.ReadString('graphics', 'disable_direct_updating', 'unset') = 'unset' then
     begin
       agcfg.WriteString('graphics', 'disable_direct_updating', '1');
-    end
+    end;
+    if agcfg.ReadString('zeldadx', 'use_dwm_flush', 'unset') = 'unset' then
+    begin
+      agcfg.WriteString('zeldadx', 'use_dwm_flush', '0');
+    end;
+    if agcfg.ReadString('zeldadx', 'zc_win_proc_fix', 'unset') = 'unset' then
+    begin
+      agcfg.WriteString('zeldadx', 'zc_win_proc_fix', '0');
+    end;
+    if agcfg.ReadString('zquest', 'zq_win_proc_fix', 'unset') = 'unset' then
+    begin
+      agcfg.WriteString('zquest', 'zq_win_proc_fix', '0');
+    end;
 {$ENDIF}
   end;
 
@@ -873,6 +896,10 @@ end;
 
 procedure TForm1.bcminuteChange(Sender: TObject);
 begin
+  if bcminute.Text = 'Disabled' then
+  begin
+    agcfg.writestring('zquest', 'auto_save_interval', '0');
+  end;
   if bcminute.Text = '1 minute' then
   begin
     agcfg.writestring('zquest', 'auto_save_interval', '1');
@@ -1457,6 +1484,10 @@ end;
 
 procedure TForm1.bcopyChange(Sender: TObject);
 begin
+  if bcopy.Text = '0' then
+  begin
+    agcfg.writestring('zquest', 'auto_backup_retention', '0');
+  end;
   if bcopy.Text = '1' then
   begin
     agcfg.writestring('zquest', 'auto_backup_retention', '1');
@@ -1579,7 +1610,13 @@ end;
 
 procedure TForm1.scrreszcChange(Sender: TObject);
 begin
-  if scrreszc.Text = '640x480' then
+  if scrreszc.Text = '320x240' then
+  begin
+    Res1 := '-res 320 240 ';
+    agcfg.writestring('zeldadx', 'resx', '320');
+    agcfg.writestring('zeldadx', 'resy', '240');
+  end
+  else if scrreszc.Text = '640x480' then
   begin
     Res1 := '-res 640 480 ';
     agcfg.writestring('zeldadx', 'resx', '640');
@@ -1602,12 +1639,6 @@ begin
     Res1 := '-res 1600 1200 ';
     agcfg.writestring('zeldadx', 'resx', '1600');
     agcfg.writestring('zeldadx', 'resy', '1200');
-  end
-  else
-  begin
-    Res1 := '-res 320 240 ';
-    agcfg.writestring('zeldadx', 'resx', '320');
-    agcfg.writestring('zeldadx', 'resy', '240');
   end;
 end;
 

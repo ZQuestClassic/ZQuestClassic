@@ -95,9 +95,9 @@
 #include "zc_array.h"
 
 #define ZELDA_VERSION       0x0250                          //version of the program
-#define VERSION_BUILD       21                              //build number of this version
+#define VERSION_BUILD       22                              //build number of this version
 #define IS_BETA             1                               //is this a beta?
-#define DATE_STR            "Februrary 26, 2012"
+#define DATE_STR            "August 18, 2012"
 
 #define MIN_VERSION         0x0184
 
@@ -179,11 +179,11 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            22
+#define V_GUYS            23
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
-#define V_COMBOALIASES     1
+#define V_COMBOALIASES     2
 #define V_LINKSPRITES      5
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
@@ -309,7 +309,8 @@ extern bool fake_pack_writing;
 #define OLDMAXDMAPS		 256
 #define MAXITEMS         256
 #define MAXWPNS          256
-#define MAXGUYS          256
+#define OLDBETAMAXGUYS   256								//max 2.5 guys through beta 20
+#define MAXGUYS          512
 #define MAXITEMDROPSETS  256
 #define COMBOS_PER_PAGE  256
 #define COMBO_PAGES      255
@@ -486,7 +487,7 @@ enum
 {
   mfNONE, mfPUSHUD, mfPUSH4, mfWHISTLE, mfBCANDLE, mfARROW, mfBOMB, mfFAIRY,
   mfRAFT, mfARMOS_SECRET, mfARMOS_ITEM, mfSBOMB, mfRAFT_BRANCH, mfDIVE_ITEM,
-  mfNONAME, mfZELDA,
+  mfLENSMARKER, mfZELDA,
   mfSECRETS01, mfSECRETS02, mfSECRETS03, mfSECRETS04,       /*16*/
   mfSECRETS05, mfSECRETS06, mfSECRETS07, mfSECRETS08,
   mfSECRETS09, mfSECRETS10, mfSECRETS11, mfSECRETS12,
@@ -808,7 +809,7 @@ enum
   eMPOLSV, eWPOLSV, eDKNUT4, eFGHINI, eMGHINI,
   eGRAPBUGHP, eGRAPBUGMP, e177,
 
-  eMAXGUYS=256
+  eMAXGUYS = MAXGUYS
 };
 
 #define OLDMAXGUYS	e177
@@ -1761,6 +1762,26 @@ struct MsgStr
   byte vspace;
   byte hspace;
   byte stringflags;
+  
+  // Copy everything except listpos
+  MsgStr& operator=(MsgStr &other)
+  {
+      strncpy(s, other.s, MSGSIZE+1);
+      nextstring=other.nextstring;
+      tile=other.tile;
+      cset=other.cset;
+      trans=other.trans;
+      font=other.font;
+      x=other.x;
+      y=other.y;
+      w=other.w;
+      h=other.h;
+      sfx=other.sfx;
+      vspace=other.vspace;
+      hspace=other.hspace;
+      stringflags=other.stringflags;
+      return *this;
+  }
 };
 
 enum {dt_pass=0, dt_lock, dt_shut, dt_boss, dt_olck, dt_osht, dt_obos, dt_wall, dt_bomb, dt_walk, dt_max};
@@ -1861,10 +1882,20 @@ struct dmap
 #define dmfSCRIPT4 			0x4000
 #define dmfSCRIPT5 			0x8000
 
-#define MAXCOMBOALIASES 256
+#define OLDMAXCOMBOALIASES 256
+#define MAXCOMBOALIASES 2048
 
 struct combo_alias
 {
+  combo_alias()
+  {
+	  memset(this, 0, sizeof(combo_alias));
+	  combos = new word[1];
+	  csets = new byte[1];
+	  combos[0] = 0;
+	  csets[0] = 0;
+  }
+
   byte width;      // Max 15
   byte height;     // Max 10
   byte layermask;  // Specifies layers to be drawn
@@ -2514,6 +2545,8 @@ static INLINE bool is_between(T a, T b, T c, bool inclusive)
   {
     return true;
   }
+  
+  return false;
 }
 
 #define NEWALLEGRO

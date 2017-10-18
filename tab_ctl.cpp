@@ -27,6 +27,7 @@
 #define ALLEGRO_NO_COMPATIBILITY
 #include <allegro.h>
 #include "tab_ctl.h"
+#include "zc_malloc.h"
 
 //#ifdef _ZQUEST_SCALE_
 extern volatile int myvsync;
@@ -336,7 +337,7 @@ int d_tab_proc(int msg, DIALOG *d, int c)
         //because the -1 is counted, drop back one
         (panel[i].objects)--;
         //allocate space to store the x and y coordinates for them
-        panel[i].xy=(int*)malloc(panel[i].objects*2*sizeof(int));
+        panel[i].xy=(int*)zc_malloc(panel[i].objects*2*sizeof(int));
         //what dialog is this tab control in (programmer must set manually)
         panel_dialog=(DIALOG *)d->dp3;
         //for each object handled by this tab...

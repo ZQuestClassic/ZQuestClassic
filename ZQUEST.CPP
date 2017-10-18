@@ -276,6 +276,10 @@ extern void deallocate_biic_list();
 
 zinitdata zinit;
 
+int onImport_ComboAlias();
+int onExport_ComboAlias();
+
+
 typedef struct map_and_screen
 {
   int map;
@@ -344,7 +348,9 @@ int gui_colorset=0;
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
 static int combo_apos=0; //currently selected combo
-static int combo_alistpos[3]={0,0,0}; //first diaplayed combo alias
+static int combo_alistpos[3]={0,0,0}; //first displayed combo alias
+int alias_origin=0;
+int alias_cset_mod=0;
 
 bool trip=false;
 
@@ -363,11 +369,10 @@ int prv_warp = 0;
 int prv_twon = 0;
 int ff_combo = 0;
 
-int alias_origin=0;
-
-int Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1;
+int Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1, ForceExit = 0;
 int zqColorDepth = 8;
 byte disable_direct_updating = 0;
+int joystick_index=0;
 
 char *getBetaControlString();
 
@@ -470,10 +475,12 @@ static MENU import_menu[] =
   { (char *)"&Map",                       onImport_Map,              NULL,                     0,            NULL   },
   { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
   { (char *)"&Tiles",                     onImport_Tiles,            NULL,                     0,            NULL   },
+  { (char *)"&Guys",                      onImport_Guys,             NULL,                     0,            NULL   },
   { (char *)"Su&bscreen",                 onImport_Subscreen,        NULL,                     0,            NULL   },
   { (char *)"&Palettes",                  onImport_Pals,             NULL,                     0,            NULL   },
   { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
   { (char *)"&Combo Table",               onImport_Combos,           NULL,                     0,            NULL   },
+  { (char *)"&Combo Alias",               onImport_ComboAlias,       NULL,                     0,            NULL   },
   { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
   { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
   { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
@@ -485,11 +492,13 @@ static MENU export_menu[] =
   { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
   { (char *)"&DMaps",                     onExport_DMaps,            NULL,                     0,            NULL   },
   { (char *)"&Tiles",                     onExport_Tiles,            NULL,                     0,            NULL   },
+  { (char *)"&Guys",                      onExport_Guys,             NULL,                     0,            NULL   },
   { (char *)"Su&bscreen",                 onExport_Subscreen,        NULL,                     0,            NULL   },
   { (char *)"&Palettes",                  onExport_Pals,             NULL,                     0,            NULL   },
   { (char *)"&String Table",              onExport_Msgs,             NULL,                     0,            NULL   },
   { (char *)"Text Dump",                  onExport_MsgsText,         NULL,                     0,            NULL   },
   { (char *)"&Combo Table",               onExport_Combos,           NULL,                     0,            NULL   },
+  { (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
   { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
   { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
   { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
@@ -1462,6 +1471,7 @@ int onDrawingModeAlias()
     return onDrawingModeNormal();
   }
   draw_mode=dm_alias;
+  alias_cset_mod=0;
   memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
   fix_drawing_mode_menu();
   restore_mouse();
@@ -2276,8 +2286,15 @@ int onIncreaseCSet()
      !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
      !key[KEY_ALT] && !key[KEY_ALTGR])
   {
-    CSet=wrap(CSet+1,0,11);
-    refresh(rCOMBOS+rMENU+rCOMBO);
+    if(draw_mode!=dm_alias)
+    {
+      CSet=wrap(CSet+1,0,11);
+      refresh(rCOMBOS+rMENU+rCOMBO);
+    }
+    else
+    {
+        alias_cset_mod=wrap(alias_cset_mod+1,0,11);
+    }
   }
   else if (key[KEY_LSHIFT] || key[KEY_RSHIFT])
     {
@@ -2334,8 +2351,15 @@ int onDecreaseCSet()
      !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
      !key[KEY_ALT] && !key[KEY_ALTGR])
   {
-    CSet=wrap(CSet-1,0,11);
-    refresh(rCOMBOS+rMENU+rCOMBO);
+    if(draw_mode!=dm_alias)
+    {
+      CSet=wrap(CSet-1,0,11);
+      refresh(rCOMBOS+rMENU+rCOMBO);
+    }
+    else
+    {
+        alias_cset_mod=wrap(alias_cset_mod-1,0,11);
+    }
   }
   else if (key[KEY_LSHIFT] || key[KEY_RSHIFT])
     {
@@ -2769,15 +2793,16 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
 
 int mapMaker(BITMAP * _map, PALETTE _mappal)
 {
-  char buf[20];
+  char buf[50];
   int num=0;
   do
   {
 #ifdef ALLEGRO_MACOSX
-    sprintf(buf, "../../../zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+    snprintf(buf, 50, "../../../zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-    sprintf(buf, "zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+    snprintf(buf, 50, "zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
+    buf[49]='\0';
   } while(num<999 && exists(buf));
 
   save_bitmap(buf,_map,_mappal);
@@ -4070,7 +4095,7 @@ void refresh(int flags)
 	  static BITMAP *combo_preview_bmp=create_bitmap_ex(8,32,32);
 	  static BITMAP *cycle_preview_bmp=create_bitmap_ex(8,32,32);
 	  // Combo
-      put_combo(combo_preview_bmp,0,0,(draw_mode==dm_alias)?combo_aliases[combo_apos].combos[0]:Combo,(draw_mode==dm_alias)?combo_aliases[combo_apos].csets[0]:CSet,Flags&(cFLAGS|cWALK),0);
+      put_combo(combo_preview_bmp,0,0,(draw_mode==dm_alias)?combo_aliases[combo_apos].combos[0]:Combo,(draw_mode==dm_alias)?wrap(combo_aliases[combo_apos].csets[0]+alias_cset_mod, 0, 11):CSet,Flags&(cFLAGS|cWALK),0);
       jwin_draw_frame(menu1,combo_preview.x-2,combo_preview.y-2,combo_preview.w+4,combo_preview.h+4, FR_DEEP);
       stretch_blit(combo_preview_bmp, menu1, 0, 0, 16, 16, combo_preview.x, combo_preview.y, combo_preview.w, combo_preview.h);
       if (draw_mode!=dm_alias)
@@ -4145,7 +4170,7 @@ void refresh(int flags)
     }
     else
     {
-      put_combo(menu1,combo_preview.x,combo_preview.y,(draw_mode==dm_alias)?combo_aliases[combo_apos].combos[0]:Combo,(draw_mode==dm_alias)?combo_aliases[combo_apos].csets[0]:CSet,Flags&(cFLAGS|cWALK),0);
+      put_combo(menu1,combo_preview.x,combo_preview.y,(draw_mode==dm_alias)?combo_aliases[combo_apos].combos[0]:Combo,(draw_mode==dm_alias)?wrap(combo_aliases[combo_apos].csets[0]+alias_cset_mod, 0, 11):CSet,Flags&(cFLAGS|cWALK),0);
     }
   }
   if(flags&rMENU)
@@ -4782,6 +4807,7 @@ void select_comboa(int clist)
   current_comboalist=clist;
   int tempcb=ComboBrush;
   ComboBrush=0;
+  alias_cset_mod=0;
   while(gui_mouse_b())
   {
     int x=gui_mouse_x(); if(x<comboaliaslist[current_comboalist].x) x=comboaliaslist[current_comboalist].x; if(x>comboaliaslist[current_comboalist].x+(comboaliaslist[current_comboalist].w*16)-1) x=comboaliaslist[current_comboalist].x+(comboaliaslist[current_comboalist].w*16)-1;
@@ -4810,11 +4836,11 @@ void update_combobrush()
           {
             if(z==0)
             {
-              putcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],combo_aliases[combo_apos].csets[position]);
+              putcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],wrap(combo_aliases[combo_apos].csets[position]+alias_cset_mod, 0, 11));
             }
             else
             {
-              overcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],combo_aliases[combo_apos].csets[position]);
+              overcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],wrap(combo_aliases[combo_apos].csets[position]+alias_cset_mod, 0, 11));
             }
           }
         }
@@ -5126,7 +5152,7 @@ void draw(bool justcset)
                 if(combo->combos[p])
                 {
                   Map.AbsoluteScr(drawmap, drawscr)->data[c]=combo->combos[p];
-                  Map.AbsoluteScr(drawmap, drawscr)->cset[c]=combo->csets[p];
+                  Map.AbsoluteScr(drawmap, drawscr)->cset[c]=wrap(combo->csets[p]+alias_cset_mod, 0, 11);
                 }
               }
             }
@@ -5180,7 +5206,7 @@ void draw(bool justcset)
                       int p=((cy*(combo->width+1))+cx)+((combo->width+1)*(combo->height+1)*laypos);
                       if((combo->combos[p])&&(amap>=0)) {
                         Map.AbsoluteScr(amap, ascr)->data[c]=combo->combos[p];
-                        Map.AbsoluteScr(amap, ascr)->cset[c]=combo->csets[p];
+                        Map.AbsoluteScr(amap, ascr)->cset[c]=wrap(combo->csets[p]+alias_cset_mod, 0, 11);
                       }
                     }
                   }
@@ -7033,8 +7059,10 @@ void domouse()
 			}
 			case 13:
 			{
-			  Map.CurrScr()->ffx[earliestfreeffc] = ((x-startxint)/mapscreensize)*10000;
-			  Map.CurrScr()->ffy[earliestfreeffc] = ((y-startyint)/mapscreensize)*10000;
+			  Map.CurrScr()->ffx[earliestfreeffc] = ((((x-startxint)>>4)<<4)/mapscreensize)*10000;
+			  Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&240)/mapscreensize)*10000;
+			 // Map.CurrScr()->ffx[earliestfreeffc] = ((x-startxint)/mapscreensize)*10000;
+			 // Map.CurrScr()->ffy[earliestfreeffc] = ((y-startyint)/mapscreensize)*10000;
 			  Map.CurrScr()->ffdata[earliestfreeffc] = Combo;
 			  Map.CurrScr()->ffcset[earliestfreeffc] = CSet;
 			  onEditFFCombo(earliestfreeffc);
@@ -7042,8 +7070,10 @@ void domouse()
 			break;
 			case 14:
 			{
-			  Map.CurrScr()->ffx[earliestfreeffc] = ((x-startxint)/mapscreensize)*10000;
-			  Map.CurrScr()->ffy[earliestfreeffc] = ((y-startyint)/mapscreensize)*10000;
+			  Map.CurrScr()->ffx[earliestfreeffc] = ((((x-startxint)>>4)<<4)/mapscreensize)*10000;
+			  Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&240)/mapscreensize)*10000;
+			  //Map.CurrScr()->ffx[earliestfreeffc] = ((x-startxint)/mapscreensize)*10000;
+			  //Map.CurrScr()->ffy[earliestfreeffc] = ((y-startyint)/mapscreensize)*10000;
 			  Map.PasteOneFFC(earliestfreeffc);
 			}
 			break;
@@ -9583,7 +9613,7 @@ int msg_code_operands(int cc)
 char *strip_extra_spaces(char *string)
 {
   int len=(int)strlen(string);
-  char *src=(char *)malloc(len+1);
+  char *src=(char *)zc_malloc(len+1);
   char *tmpsrc=src;
   memcpy(src,string,len+1);
   memset(src,0,len+1);
@@ -9607,7 +9637,7 @@ char *strip_extra_spaces(char *string)
   *tmpsrc=0;
 //  memcpy(string,src,len);
   strcpy(string,src);
-  free(src);
+  zc_free(src);
   return string;
 }
 
@@ -11284,7 +11314,7 @@ void build_bistringcat_list()
 	for (int i = 0; i < msg_count && bistringcat_cnt<256; i++)
 	{
 		int m =  addtomsglist(i);
-		if (MsgStrings[m].s[0]==MsgStrings[m].s[1] && MsgStrings[m].s[1]==MsgStrings[m].s[2] && MsgStrings[m].s[2]=='-')
+		if (MsgStrings[m].s[0]=='-' && MsgStrings[m].s[1]=='-')
 		{
 			bistringcat[bistringcat_cnt]=m;
 			++bistringcat_cnt;
@@ -11336,8 +11366,10 @@ static DIALOG strlist_dlg[] =
   { jwin_check_proc,     180,    168,     0,      9,   vc(14),  vc(1),   0,       0,        1,             0,       (void *) "Y is Offset", NULL, NULL },
   { jwin_button_proc,    120, 163+36,     71,     21,   vc(14),  vc(1),  13,  D_EXIT,       0,             0,       (void *) "Duplicate", NULL, NULL },
   //17
-  { jwin_droplist_proc,  34,   16,   161,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],0,D_EXIT,0,       0,      (void *) &stringcat_dlg_list, NULL, NULL },
+  { jwin_droplist_proc,  34,   16,   161,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],0,D_EXIT,0,       0,       (void *) &stringcat_dlg_list, NULL, NULL },
   { jwin_button_proc,    34+161+2,   18,     12,     12,   vc(14),  vc(1),  13,     D_EXIT, 0,             0,       (void *) "?", NULL, NULL },
+  { d_keyboard_proc,       0,      0,      0,      0,        0,     0,   'c',      0,       0,             0,       (void *) close_dlg, NULL, NULL },
+  { d_keyboard_proc,       0,      0,      0,      0,        0,     0,   'v',      0,       0,             0,       (void *) close_dlg, NULL, NULL },
   { NULL,                  0,      0,      0,      0,        0,     0,     0,      0,       0,             0,       NULL,  NULL,  NULL }
 };
 
@@ -11368,6 +11400,7 @@ int onStrings()
   int morex=zinit.msg_more_x;
   int morey=zinit.msg_more_y;
   int msgspeed = zinit.msg_speed;
+  word copysrc=0;
   sprintf(msgmore_xstring, "%d", zinit.msg_more_x);
   sprintf(msgmore_ystring, "%d", zinit.msg_more_y);
   sprintf(msgspeed_string, "%d", zinit.msg_speed);
@@ -11603,8 +11636,23 @@ int onStrings()
 		build_bistringcat_list();
 
         refresh(rMENU);
-        break;
       }
+      break;
+      
+      case 19: // copy
+        if(index==msg_count-1)
+          copysrc=0;
+        else
+          copysrc=index;
+        break;
+      case 20: // paste
+        if(copysrc>0)
+        {
+          if(index==msg_count-1)
+            msg_count++;
+          MsgStrings[index]=MsgStrings[copysrc];
+        }
+        break;
     }
     if(hasroom)
 	{
@@ -15741,6 +15789,17 @@ const char *guylist(int index, int *list_size)
   return guy_type ? cg[index].s : big[index].s;
 }
 
+
+int do_copy_custom_enemy()
+{
+	return 0;
+}
+
+int do_paste_custom_enemy()
+{
+	return 0;
+}
+
 static DIALOG elist_dlg[] =
 {
   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
@@ -15750,7 +15809,10 @@ static DIALOG elist_dlg[] =
   { jwin_button_proc,     90,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "Edit", NULL, NULL },
   { jwin_button_proc,     170,  160,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Done", NULL, NULL },
   { jwin_button_proc,     220,   160,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "Edit", NULL, NULL },
+//  { d_keyboard_proc,    0,      0,      0,      0,    0,   0,      'c',     0,          0,           0,      (void *) do_copy_custom_enemy, NULL,   NULL  },
+//  { d_keyboard_proc,    0,      0,      0,      0,    0,   0,      'v',     0,          0,           0,      (void *) do_paste_custom_enemy, NULL,   NULL  },
   { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+
 };
 
 static DIALOG glist_dlg[] =
@@ -16504,7 +16566,7 @@ const char *comboalist(int index, int *list_size)
 {
   if(index>=0)
   {
-    bound(index,0,255);
+    bound(index,0,MAXCOMBOALIASES-1);
     sprintf(comboa_str_buf,"%d",index);
     return comboa_str_buf;
   }
@@ -16783,8 +16845,8 @@ static DIALOG orgcomboa_dlg[] =
   { jwin_text_proc,     10,   50,   33,		9,       0,       0,      0,       0,          0,             0,       (void *) "", NULL, NULL },
   // { jwin_radio_proc,		10,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				0,			0,			(void*) "Move", NULL, NULL },
   { jwin_radio_proc,		10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				0,			0,			(void*) "Swap", NULL, NULL },
-  /* 6 */  { jwin_edit_proc,      110,   35,   28-6,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-  { jwin_edit_proc,      110,   55,   28-6,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+  /* 6 */  { jwin_edit_proc,      110,   35,   32,   16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
+  { jwin_edit_proc,      110,   55,   32,   16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
   { jwin_text_proc,     60,   40,   80,   8,       0,       0,      0,       0,          0,             0,       (void *) "Source", NULL, NULL },
   { jwin_text_proc,     60,   60,   80,   8,       0,       0,      0,       0,          0,             0,       (void *) "Dest", NULL, NULL},
   { jwin_radio_proc,		10,	   80,		60,		9,	vc(14),	 vc(1),	  0,		0,				0,			0,			(void*) "Insert new (before source)", NULL, NULL },
@@ -16919,22 +16981,25 @@ int onOrgComboAliases()
   iSrc=atoi((char*) orgcomboa_dlg[6].dp);
   iDest=atoi((char*) orgcomboa_dlg[7].dp);
 
-  if (iSrc<0 || iSrc > 255 )
+  if (iSrc<0 || iSrc > MAXCOMBOALIASES-1 )
   {
-    jwin_alert("Error","Invalid source range (0-255)",NULL,NULL,"O&K",NULL,'k',0,lfont);
+    char buf[60];
+    snprintf(buf, 60, "Invalid source (range 0-%d)", MAXCOMBOALIASES-1);
+    buf[59]='\0';
+    jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     return ret;
   }
 
   // 10,11=ins, del
   if (orgcomboa_dlg[10].flags & D_SELECTED) //insert
   {
-    for (int j=255;j>iSrc;--j)  copyComboAlias(j-1,j);
+    for (int j=MAXCOMBOALIASES-1;j>iSrc;--j)  copyComboAlias(j-1,j);
     return ret;
   }
 
   if (orgcomboa_dlg[11].flags & D_SELECTED) //delete
   {
-    for (int j=iSrc;j<255;++j)  copyComboAlias(j+1,j);
+    for (int j=iSrc;j<MAXCOMBOALIASES-1;++j)  copyComboAlias(j+1,j);
     return ret;
   }
 
@@ -16944,9 +17009,13 @@ int onOrgComboAliases()
     return ret;
   }
 
-  if (iDest < 0 || iDest > 255)
+  if (iDest < 0 || iDest > MAXCOMBOALIASES-1)
   {
-    jwin_alert("Error","Invalid dest range (0-255)",NULL,NULL,"O&K",NULL,'k',0,lfont);
+      char buf[60];
+    snprintf(buf, 60, "Invalid dest (range 0-%d)", MAXCOMBOALIASES-1);
+    buf[59]='\0';
+
+    jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     return ret;
   }
 
@@ -17453,6 +17522,7 @@ int onEditComboAlias()
     {
       delete[] temp_aliases[i].csets;
     }
+
     temp_aliases[i].width=combo_aliases[i].width;
     temp_aliases[i].height=combo_aliases[i].height;
     temp_aliases[i].layermask=combo_aliases[i].layermask;
@@ -17812,7 +17882,7 @@ static DIALOG ffcombo_dlg[] =
 char *strip_decimals(char *string)
 {
   int len=(int)strlen(string);
-  char *src=(char *)malloc(len+1);
+  char *src=(char *)zc_malloc(len+1);
   char *tmpsrc=src;
   memcpy(src,string,len+1);
   memset(src,0,len+1);
@@ -17830,7 +17900,7 @@ char *strip_decimals(char *string)
     tmpsrc++;
   }
   memcpy(string,src,len);
-  free(src);
+  zc_free(src);
   return string;
 }
 
@@ -17840,7 +17910,7 @@ char *clean_numeric_string(char *string)
   bool found_sign=false;
   bool found_decimal=false;
   int len=(int)strlen(string);
-  char *src=(char *)malloc(len+1);
+  char *src=(char *)zc_malloc(len+1);
   char *tmpsrc=src;
   memcpy(src,string,len+1);
   memset(src,0,len+1);
@@ -17858,7 +17928,7 @@ char *clean_numeric_string(char *string)
     tmpsrc++;
   }
   len=(int)strlen(src);
-  char *src2=(char *)malloc(len+1);
+  char *src2=(char *)zc_malloc(len+1);
   tmpsrc=src2;
   memcpy(src,src2,len+1);
   memset(src2,0,len+1);
@@ -17891,8 +17961,8 @@ char *clean_numeric_string(char *string)
     tmpsrc++;
   }
   sprintf(string, "%s", src2);
-  free(src);
-  free(src2);
+  zc_free(src);
+  zc_free(src2);
   return string;
 }
 
@@ -17908,14 +17978,16 @@ void build_biffs_list()
   biffs[0].second = -1;
   biffs_cnt = 1;
 
-  for(int i = 0; i < NUMSCRIPTFFC - 1; i++, biffs_cnt++)
+  for(int i = 0; i < NUMSCRIPTFFC - 1; i++)
   {
+  	if(ffcmap[i].second.length()==0)
+  	    continue;
+  	
   	std::stringstream ss;
-    if(ffcmap[i].second != "")
-    	ss << ffcmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
-
+    ss << ffcmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
     biffs[biffs_cnt].first = ss.str();
     biffs[biffs_cnt].second = i;
+    biffs_cnt++;
   }
 
   //Bubble sort! (doesn't account for gaps between scripts)
@@ -19075,14 +19147,14 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
   sfx1->param = sfx2->param;
   if(sfx1->data != NULL)
   {
-	  free(sfx1->data);
+	  zc_free(sfx1->data);
   }
   if(sfx2->data == NULL)
 	  sfx1->data = NULL;
   else
   {
 	int len = (sfx2->bits==8?1:2)*(sfx2->stereo == 0 ? 1 : 2)*sfx2->len;
-	sfx1->data = malloc(len);
+	sfx1->data = zc_malloc(len);
 	memcpy(sfx1->data, sfx2->data, len);
   }
 }
@@ -19141,7 +19213,7 @@ int onEditSFX(int index)
         {
           if(templist[i].data != NULL)
           {
-            free(templist[i].data);
+            zc_free(templist[i].data);
             templist[i].data = NULL;
           }
         }
@@ -20355,7 +20427,7 @@ int main(int argc,char **argv)
 
   memrequested+=sizeof(zctune)*MAXCUSTOMMIDIS_ZQ;
   Z_message("Allocating tunes buffer (%s)... ", byte_conversion2(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ,memrequested,-1,-1));
-  customtunes = (zctune*)malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
+  customtunes = (zctune*)zc_malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
   memset(customtunes, 0, sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
 
   if(!customtunes)
@@ -20367,7 +20439,7 @@ int main(int argc,char **argv)
 
   /*memrequested+=sizeof(emusic)*MAXMUSIC;
   Z_message("Allocating Enhanced Music buffer (%s)... ", byte_conversion2(sizeof(emusic)*MAXMUSIC,memrequested,-1,-1));
-  enhancedMusic = (emusic*)malloc(sizeof(emusic)*MAXMUSIC);
+  enhancedMusic = (emusic*)zc_malloc(sizeof(emusic)*MAXMUSIC);
   if(!enhancedMusic)
   {
     Z_error("Error");
@@ -20382,7 +20454,7 @@ int main(int argc,char **argv)
 
   memrequested+=sizeof(newcombo)*MAXCOMBOS;
   Z_message("Allocating combo undo buffer (%s)... ", byte_conversion2(sizeof(newcombo)*MAXCOMBOS,memrequested,-1,-1));
-  undocombobuf = (newcombo*)malloc(sizeof(newcombo)*MAXCOMBOS);
+  undocombobuf = (newcombo*)zc_malloc(sizeof(newcombo)*MAXCOMBOS);
   if(!undocombobuf)
   {
     Z_error("Error: no memory for combo undo buffer!");
@@ -20392,7 +20464,7 @@ int main(int argc,char **argv)
 
   memrequested+=(NEWMAXTILES*sizeof(tiledata));
   Z_message("Allocating new tile undo buffer (%s)... ", byte_conversion2(NEWMAXTILES*sizeof(tiledata),memrequested,-1,-1));
-  if((newundotilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
+  if((newundotilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
   {
     Z_error("Error: no memory for tile undo buffer!"); quit_game();
   }
@@ -20400,20 +20472,20 @@ int main(int argc,char **argv)
   Z_message("OK\n");                                        // Allocating new tile buffer...
 
   Z_message("Resetting new tile buffer...");
-  newtilebuf = (tiledata*)malloc(NEWMAXTILES*sizeof(tiledata));
+  newtilebuf = (tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata));
   for(int j=0;j<NEWMAXTILES;j++)
     newtilebuf[j].data=NULL;
   Z_message("OK\n");
 
   memrequested+=(2048*5);
   Z_message("Allocating file path buffers (%s)... ", byte_conversion2(2048*7,memrequested,-1,-1));
-  filepath=(char*)malloc(2048);
-  temppath=(char*)malloc(2048);
-  datapath=(char*)malloc(2048);
-  midipath=(char*)malloc(2048);
-  imagepath=(char*)malloc(2048);
-  tmusicpath=(char*)malloc(2048);
-  last_timed_save=(char*)malloc(2048);
+  filepath=(char*)zc_malloc(2048);
+  temppath=(char*)zc_malloc(2048);
+  datapath=(char*)zc_malloc(2048);
+  midipath=(char*)zc_malloc(2048);
+  imagepath=(char*)zc_malloc(2048);
+  tmusicpath=(char*)zc_malloc(2048);
+  last_timed_save=(char*)zc_malloc(2048);
   if(!filepath || !datapath || !temppath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
   {
     Z_error("Error: no memory for file paths!");
@@ -20610,7 +20682,7 @@ int main(int argc,char **argv)
     quit_game();
   }
 
-  helpbuf = (char*)malloc(helpsize<65536?65536:helpsize*2+1);
+  helpbuf = (char*)zc_malloc(helpsize<65536?65536:helpsize*2+1);
   if(!helpbuf)
   {
     Z_error("Error allocating help buffer.");
@@ -20692,14 +20764,15 @@ int main(int argc,char **argv)
   KeyboardRepeatDelay           = get_config_int("zquest","keyboard_repeat_delay",300);
   KeyboardRepeatRate            = get_config_int("zquest","keyboard_repeat_rate",80);
 
-  Frameskip                     = get_config_int("zquest","frameskip",0); //todo: this is not actually supported yet.
+//  Frameskip                     = get_config_int("zquest","frameskip",0); //todo: this is not actually supported yet.
   RequestedFPS                  = get_config_int("zquest","fps",60);
+  ForceExit                     = get_config_int("zquest","force_exit",0);
 
   //This is too much work to fix for 2.5. :| -Gleeok
   //zqColorDepth                  = get_config_int("zquest","zq_color_depth",8);
 
 #ifdef _WIN32
-  zqUseWin32Proc                 = get_config_int("zquest","zq_win_proc_fix",1);
+  zqUseWin32Proc                 = get_config_int("zquest","zq_win_proc_fix",0);
   
   // This seems to fix some problems on Windows 7
   disable_direct_updating = (byte) get_config_int("graphics","disable_direct_updating",1);
@@ -21678,6 +21751,7 @@ int main(int argc,char **argv)
 #ifdef _WIN32
   if(zqUseWin32Proc != FALSE)
   {
+	al_trace("Config file warning: \"zq_win_proc_fix\" enabled switch found. This can cause crashes on some computers.\n");
 	win32data.zqSetDefaultThreadPriority(0);
 	win32data.zqSetCustomCallbackProc( win_get_window() );
   }
@@ -21812,6 +21886,10 @@ int main(int argc,char **argv)
 
 
   quit_game();
+
+  if(ForceExit) //last resort fix to the allegro process hanging bug.
+	  exit(0);
+
   allegro_exit();
 
   return 0;
@@ -21923,7 +22001,7 @@ void quit_game()
     if(customsfxdata[i].data!=NULL)
     {
 //      delete [] customsfxdata[i].data;
-      free(customsfxdata[i].data);
+      zc_free(customsfxdata[i].data);
     }
     delete [] sfx_string[i];
   }
@@ -21979,27 +22057,28 @@ void quit_game()
   {
 	for(int i=0;i<MAXCUSTOMMIDIS_ZQ;i++)
 		customtunes[i].reset();
-	free(customtunes);
+	zc_free(customtunes);
   }
 
   al_trace("Cleaning undotilebuf. \n");
-  if(undocombobuf) free(undocombobuf);
+  if(undocombobuf) zc_free(undocombobuf);
   if(newundotilebuf)
   {
 	for(int i=0;i<NEWMAXTILES;i++)
-		if(newundotilebuf[i].data) free(newundotilebuf[i].data);
-	free(newundotilebuf);
+		if(newundotilebuf[i].data) zc_free(newundotilebuf[i].data);
+	zc_free(newundotilebuf);
   }
-  if(filepath) free(filepath);
-  if(temppath) free(temppath);
-  if(datapath) free(datapath);
-  if(midipath) free(midipath);
-  if(imagepath) free(imagepath);
-  if(tmusicpath) free(tmusicpath);
-  if(last_timed_save) free(last_timed_save);
+  if(filepath) zc_free(filepath);
+  if(temppath) zc_free(temppath);
+  if(datapath) zc_free(datapath);
+  if(midipath) zc_free(midipath);
+  if(imagepath) zc_free(imagepath);
+  if(tmusicpath) zc_free(tmusicpath);
+  if(last_timed_save) zc_free(last_timed_save);
 
   cleanup_datafiles_on_exit();
   destroy_bitmaps_on_exit();
+  __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debugging for it defined.
 
 }
 
@@ -22695,7 +22774,7 @@ void integrityCheckTileWarpDestSquare()
 
   int *warp_check;
   mapscr *wscr;
-  warp_check=(int *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
+  warp_check=(int *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
   for(int i=0; i<Map.getMapCount()*MAPSCRS; ++i)
   {
     warp_check[i]=0;
@@ -22755,7 +22834,7 @@ void integrityCheckTileWarpDestSquare()
     quest_report_str += '\n';
   }
 
-  free(warp_check);
+  zc_free(warp_check);
 }
 
 // does not check cycling combos
@@ -23102,7 +23181,7 @@ void TileWarpsReport()
   bool type_found=false;
 
   int *warp_check;
-  warp_check=(int *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
+  warp_check=(int *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
   for(int i=0; i<Map.getMapCount()*MAPSCRS; ++i)
   {
     warp_check[i]=0;
@@ -23149,7 +23228,7 @@ void TileWarpsReport()
     quest_report_str += '\n';
   }
 
-  free(warp_check);
+  zc_free(warp_check);
 }
 
 void SideWarpsReport()
@@ -23160,7 +23239,7 @@ void SideWarpsReport()
   bool type_found=false;
 
   int *warp_check;
-  warp_check=(int *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
+  warp_check=(int *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
   for(int i=0; i<Map.getMapCount()*MAPSCRS; ++i)
   {
     warp_check[i]=0;
@@ -23207,7 +23286,7 @@ void SideWarpsReport()
     quest_report_str += '\n';
   }
 
-  free(warp_check);
+  zc_free(warp_check);
 }
 
 void LayersReport()
@@ -23218,7 +23297,7 @@ void LayersReport()
   bool type_found=false;
 
   int *layer_check;
-  layer_check =(int *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
+  layer_check =(int *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
   for(int i=0; i<Map.getMapCount()*MAPSCRS; ++i)
   {
     layer_check[i]=0;
@@ -23263,7 +23342,7 @@ void LayersReport()
     quest_report_str += '\n';
   }
 
-  free(layer_check);
+  zc_free(layer_check);
 }
 
 bool integrityBoolStringNoGuy(mapscr *ts)
@@ -23582,7 +23661,7 @@ void integrityCheckTileWarpDestSquareWalkability()
 
   int *warp_check;
   mapscr *wscr;
-  warp_check=(int *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
+  warp_check=(int *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
   for(int i=0; i<Map.getMapCount()*MAPSCRS; ++i)
   {
     warp_check[i]=0;
@@ -23634,7 +23713,7 @@ void integrityCheckTileWarpDestSquareWalkability()
     quest_report_str += '\n';
   }
 
-  free(warp_check);
+  zc_free(warp_check);
 }
 
 void integrityCheckTileWarpDestScreenInvalid()
@@ -23646,7 +23725,7 @@ void integrityCheckTileWarpDestScreenInvalid()
 
   int *warp_check;
   mapscr *wscr;
-  warp_check=(int *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
+  warp_check=(int *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int));
   for(int i=0; i<Map.getMapCount()*MAPSCRS; ++i)
   {
     warp_check[i]=0;
@@ -23682,7 +23761,7 @@ void integrityCheckTileWarpDestScreenInvalid()
     quest_report_str += '\n';
   }
 
-  free(warp_check);
+  zc_free(warp_check);
 }
 
 int onIntegrityCheckSpecialItem()
@@ -23928,7 +24007,7 @@ void itemLocationReport()
           tempnode=tempnode->next;
         }
         //make a new node
-        newnode=(item_location_node*)malloc(sizeof(item_location_node));
+        newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
         //insert the map and screen data
         newnode->map=m+1;
         newnode->screen=s;
@@ -23950,7 +24029,7 @@ void itemLocationReport()
           tempnode=tempnode->next;
         }
         //make a new node
-        newnode=(item_location_node*)malloc(sizeof(item_location_node));
+        newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
         //insert the map and screen data
         newnode->map=m+1;
         newnode->screen=s;
@@ -23972,7 +24051,7 @@ void itemLocationReport()
           tempnode=tempnode->next;
         }
         //make a new node
-        newnode=(item_location_node*)malloc(sizeof(item_location_node));
+        newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
         //insert the map and screen data
         newnode->map=m+1;
         newnode->screen=s;
@@ -23990,7 +24069,7 @@ void itemLocationReport()
           tempnode=tempnode->next;
         }
         //make a new node
-        newnode=(item_location_node*)malloc(sizeof(item_location_node));
+        newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
         //insert the map and screen data
         newnode->map=m+1;
         newnode->screen=s;
@@ -24017,7 +24096,7 @@ void itemLocationReport()
               tempnode=tempnode->next;
             }
             //make a new node
-            newnode=(item_location_node*)malloc(sizeof(item_location_node));
+            newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
             //insert the map and screen data
             newnode->map=m+1;
             newnode->screen=s;
@@ -24101,12 +24180,12 @@ void itemLocationReport()
         while(tempnode!=NULL)
         {
           tempnode2=tempnode->next;
-		  free(tempnode);
+		  zc_free(tempnode);
 		  tempnode=tempnode2;
         }
       }
     }
-	//don't forget to free this too -DD
+	//don't forget to zc_free this too -DD
 	delete[] item_location_grid[i];
   }
   if (!type_found)
@@ -24200,7 +24279,7 @@ void enemyLocationReport()
           tempnode=tempnode->next;
         }
         //make a new node
-        newnode=(enemy_location_node*)malloc(sizeof(enemy_location_node));
+        newnode=(enemy_location_node*)zc_malloc(sizeof(enemy_location_node));
         //insert the map and screen data
         newnode->map=m+1;
         newnode->screen=s;
@@ -24257,7 +24336,7 @@ void enemyLocationReport()
       while(tempnode!=NULL)
       {
         tempnode2=tempnode->next;
-		  free(tempnode);
+		  zc_free(tempnode);
 	tempnode=tempnode2;
       }
     }
@@ -24338,7 +24417,7 @@ void scriptLocationReport()
           tempnode=tempnode->next;
         }
         //make a new node
-        newnode=(script_location_node*)malloc(sizeof(script_location_node));
+        newnode=(script_location_node*)zc_malloc(sizeof(script_location_node));
         //insert the map and screen data
         newnode->map=m+1;
         newnode->screen=s;
@@ -24388,7 +24467,7 @@ void scriptLocationReport()
       while(tempnode!=NULL)
       {
         tempnode2=tempnode->next;
-		  free(tempnode);
+		  zc_free(tempnode);
 	tempnode=tempnode2;
       }
     }
@@ -24577,7 +24656,7 @@ void ComboTypeLocationReport()
           tempnode=tempnode->next;
         }
         //make a new node
-        newnode=(combotype_location_node*)malloc(sizeof(combotype_location_node));
+        newnode=(combotype_location_node*)zc_malloc(sizeof(combotype_location_node));
         //insert the map and screen data
         newnode->map=m+1;
         newnode->screen=s;
@@ -24642,7 +24721,7 @@ void ComboTypeLocationReport()
       while(tempnode!=NULL)
       {
         tempnode2=tempnode->next;
-		  free(tempnode);
+		  zc_free(tempnode);
 	tempnode=tempnode2;
       }
     }
@@ -24691,10 +24770,10 @@ int save_config_file()
   char cmdnametitle[20];
   char qtnametitle[20];
   char qtpathtitle[20];
-  char *datapath2=(char *)malloc(2048);
-  char *midipath2=(char *)malloc(2048);
-  char *imagepath2=(char *)malloc(2048);
-  char *tmusicpath2=(char *)malloc(2048);
+  char *datapath2=(char *)zc_malloc(2048);
+  char *midipath2=(char *)zc_malloc(2048);
+  char *imagepath2=(char *)zc_malloc(2048);
+  char *tmusicpath2=(char *)zc_malloc(2048);
   strcpy(datapath2, datapath);
   strcpy(midipath2, midipath);
   strcpy(imagepath2, imagepath);
@@ -24802,6 +24881,7 @@ int save_config_file()
   set_config_int("zquest","fps",RequestedFPS);
   set_config_int("zquest","frameskip",Frameskip);
  // set_config_int("zquest","zq_color_depth",zqColorDepth);
+  set_config_int("zquest","force_exit",ForceExit);
 
 #ifdef _WIN32
   set_config_int("zquest","zq_win_proc_fix",zqUseWin32Proc);
@@ -24810,10 +24890,10 @@ int save_config_file()
 
 
   flush_config_file();
-  free(datapath2);
-  free(midipath2);
-  free(imagepath2);
-  free(tmusicpath2);
+  zc_free(datapath2);
+  zc_free(midipath2);
+  zc_free(imagepath2);
+  zc_free(tmusicpath2);
   return 0;
 }
 
@@ -24859,11 +24939,7 @@ void check_autosave()
         return;
       }
       int ret = save_quest(last_timed_save, true);
-      if(!ret)
-      {
-        jwin_alert("ZQuest","Timed save completed successfully.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-      }
-      else
+      if(ret)
       {
         jwin_alert("Error","Timed save did not complete successfully.",NULL,NULL,"O&K",NULL,'k',0,lfont);
         last_timed_save[0]=0;
@@ -25113,7 +25189,7 @@ int get_longest_line_length(FONT *f, char *str)
       tmpstr+=new_t;
     }
   }
-  //free(kill);
+  //zc_free(kill);
   return maxlen;
 }
 
@@ -25213,7 +25289,7 @@ void update_tooltip(int x, int y, int trigger_x, int trigger_y, int trigger_w, i
         t=0;
       }
     }
-    //free(kill);
+    //zc_free(kill);
   }
   return;
 }
@@ -25222,5 +25298,127 @@ void clear_tooltip()
 {
   update_tooltip(-1, -1, -1, -1, 0, 0, NULL);
 }
+
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////
+// zc_malloc
+/////////////////////////////////////////////////
+
+//Want Logging: 
+//Set this to 1 to allow zc_malloc/zc_free to track pointers and
+//write logging data to allegro.log
+#define ZC_DEBUG_MALLOC_WANT_LOGGING_INFO 0
+
+
+#include <set>
+#include "vectorset.h"
+
+#if (defined(NDEBUG) || !defined(_DEBUG)) && (ZC_DEBUG_MALLOC_ENABLED) && (ZC_DEBUG_MALLOC_WANT_LOGGING_INFO) //this is not fun with debug
+	#define ZC_WANT_DETAILED_MALLOC_LOGGING 1
+#endif
+
+#if ZC_WANT_DETAILED_MALLOC_LOGGING
+	size_t totalBytesAllocated = 0;
+	//typedef vectorset<void*> debug_malloc_pool_type; //to slow for zquest (size is huge)
+	typedef std::set<void*> debug_malloc_pool_type;
+	debug_malloc_pool_type debug_zc_malloc_allocated_pool;
+#endif
+
+void* __zc_debug_malloc( size_t numBytes, const char* file, int line )
+{
+#ifdef ZC_WANT_DETAILED_MALLOC_LOGGING
+	static bool zcDbgMallocInit = false;
+	if(!zcDbgMallocInit)
+	{
+		zcDbgMallocInit = true;
+		//debug_zc_malloc_allocated_pool.reserve(1 << 17);
+		//yeah. completely ridiculous... there's no reason zc should ever need this many..
+		//BUT it does... go figure
+	}
+
+	totalBytesAllocated += numBytes;
+
+	al_trace("INFO: %i : %s, line %i, %u bytes, pool size %u, total %u,",
+		0,
+		file,
+		line,
+		numBytes,
+		debug_zc_malloc_allocated_pool.size(),
+		totalBytesAllocated / 1024
+	);
+#endif
+
+	ZC_MALLOC_ALWAYS_ASSERT(numBytes != 0);
+	void* p = malloc(numBytes);
+
+#ifdef ZC_WANT_DETAILED_MALLOC_LOGGING
+	al_trace("at address %x\n", (int)p);
+	if(!p)
+		al_trace("____________ ERROR: __zc_debug_malloc: returned null. out of memory.\n");
+
+	//debug_malloc_pool_type::insert_iterator_type it = debug_zc_malloc_allocated_pool.insert(p);
+	std::pair< std::set<void*>::iterator, bool > it = debug_zc_malloc_allocated_pool.insert(p);
+	if( !it.second )
+		al_trace("____________ ERROR: malloc returned identical address to one in use... No way Jose!\n");
+#endif
+
+	return p;
+}
+
+
+void __zc_debug_free( void* p, const char* file, int line )
+{
+	ZC_MALLOC_ALWAYS_ASSERT(p != 0);
+
+#ifdef ZC_WANT_DETAILED_MALLOC_LOGGING
+	al_trace("INFO: %i : %s line %i, freeing memory at address %x\n", 0, file, line, (int)p);
+
+	size_t numErased = debug_zc_malloc_allocated_pool.erase(p);
+	if(numErased == 0)
+		al_trace("____________ ERROR: __zc_debug_free: no known ptr to memory exists. ..attempting to free it anyways.\n");
+#endif
+
+	free(p);
+}
+
+
+void __zc_debug_malloc_free_print_memory_leaks()
+{
+#if ZC_WANT_DETAILED_MALLOC_LOGGING
+	al_trace("LOGGING INFO FROM debug_zc_malloc_allocated_pool:\n" );
+	for( debug_malloc_pool_type::iterator it = debug_zc_malloc_allocated_pool.begin();
+		it != debug_zc_malloc_allocated_pool.end();
+		++it
+		)
+	{
+		al_trace("block at address %x.\n", (int)*it);
+	}
+#endif
+}
+
+
+void __zc_always_assert( bool e, const char* expression, const char* file, int line )
+{
+	//for best results set a breakpoint in here.
+	if(!e)
+	{
+		char buf[1024];
+		sprintf("ASSERTION FAILED! : %s, %s line %i\n", expression, file, line);
+
+		al_trace("%s", buf);
+		set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+		allegro_message("%s", buf);
+		//...
+	}
+}
+
+
 /* end */
 

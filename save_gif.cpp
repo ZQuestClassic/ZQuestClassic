@@ -7,6 +7,7 @@
 #endif
 #include "zc_alleg.h"
 #include "save_gif.h"
+#include "zc_malloc.h"
 
 typedef struct
 {
@@ -175,7 +176,7 @@ int save_gif(const char *filename, BITMAP *bmp, const RGB *pal)
 
   output(&buffer, bit_size, 1 << bpp, f);                   /* clear code */
 
-  speed_buffer = (short*)malloc(256 * 4096 * 2);
+  speed_buffer = (short*)zc_malloc(256 * 4096 * 2);
   clear_speed_buffer(speed_buffer);
 
   for(;;)
@@ -230,7 +231,7 @@ int save_gif(const char *filename, BITMAP *bmp, const RGB *pal)
     }
   }
 
-  free(speed_buffer);
+  zc_free(speed_buffer);
 
   pack_putc(0x3b, f);                                       /* trailer (end of gif) */
   pack_fclose(f);

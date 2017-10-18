@@ -45,6 +45,7 @@ extern int zqwin_scale;
 extern BITMAP *hw_screen;
 //#endif
 extern int zq_screen_w, zq_screen_h;
+extern int joystick_index;
 
 extern bool is_zquest();
 
@@ -2689,9 +2690,9 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
   int c, c2;
   int ret = -1;
   int mouse_on = gui_mouse_b();
-  int joy_on = joy[0].stick[0].axis[0].d1 + joy[0].stick[0].axis[0].d2 +
-    joy[0].stick[0].axis[1].d1 + joy[0].stick[0].axis[1].d2 +
-    joy[0].button[0].b + joy[0].button[1].b;
+  int joy_on = joy[joystick_index].stick[0].axis[0].d1 + joy[joystick_index].stick[0].axis[0].d2 +
+    joy[joystick_index].stick[0].axis[1].d1 + joy[joystick_index].stick[0].axis[1].d2 +
+    joy[joystick_index].button[0].b + joy[joystick_index].button[1].b;
   int old_sel;
   int mouse_sel;
   int cur_sel=0;
@@ -2762,9 +2763,9 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
       mouse_on = FALSE;
 
       poll_joystick();
-      if (joy[0].stick[0].axis[0].d1 + joy[0].stick[0].axis[0].d2 +
-          joy[0].stick[0].axis[1].d1 + joy[0].stick[0].axis[1].d2 +
-          joy[0].button[0].b + joy[0].button[1].b == 0)
+      if (joy[joystick_index].stick[0].axis[0].d1 + joy[joystick_index].stick[0].axis[0].d2 +
+          joy[joystick_index].stick[0].axis[1].d1 + joy[joystick_index].stick[0].axis[1].d2 +
+          joy[joystick_index].button[0].b + joy[joystick_index].button[1].b == 0)
         joy_on = FALSE;
 
       c = 0;
@@ -2773,11 +2774,11 @@ int _jwin_do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repo
         c = readkey();
       else if (!joy_on)                                     /* joystick input */
         {
-          if (joy[0].stick[0].axis[1].d1)               { c = KEY_UP    << 8; joy_on = TRUE; }
-          if (joy[0].stick[0].axis[1].d2)               { c = KEY_DOWN  << 8; joy_on = TRUE; }
-          if (joy[0].stick[0].axis[0].d1)               { c = KEY_LEFT  << 8; joy_on = TRUE; }
-          if (joy[0].stick[0].axis[0].d2)               { c = KEY_RIGHT << 8; joy_on = TRUE; }
-          if (joy[0].button[0].b | joy[0].button[1].b)  { c = KEY_ENTER << 8; joy_on = TRUE; }
+          if (joy[joystick_index].stick[0].axis[1].d1)               { c = KEY_UP    << 8; joy_on = TRUE; }
+          if (joy[joystick_index].stick[0].axis[1].d2)               { c = KEY_DOWN  << 8; joy_on = TRUE; }
+          if (joy[joystick_index].stick[0].axis[0].d1)               { c = KEY_LEFT  << 8; joy_on = TRUE; }
+          if (joy[joystick_index].stick[0].axis[0].d2)               { c = KEY_RIGHT << 8; joy_on = TRUE; }
+          if (joy[joystick_index].button[0].b | joy[joystick_index].button[1].b)  { c = KEY_ENTER << 8; joy_on = TRUE; }
         }
 
         if (c)

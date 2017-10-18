@@ -724,6 +724,10 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
       {
         hxofs=0; hxsz=15;
       }
+      else
+      {
+        hxofs=4; hxsz=8;
+      }
       step=3;
       switch(dir)
       {
@@ -739,6 +743,10 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
       if(!get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
       {
         hxofs=0; hxsz=15;
+      }
+      else
+      {
+        hxofs=4; hxsz=8;
       }
       step=3;
       switch(dir)
@@ -1613,6 +1621,11 @@ bool weapon::animate(int )
       {
 	    stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
 	    break;
+      }
+      
+      else if(dead==1) // Set by ZScript
+      {
+          onhit(false);
       }
 
       int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:1;

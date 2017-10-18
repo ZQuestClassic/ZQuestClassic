@@ -249,7 +249,7 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
 void load_Sitems(miscQdata *misc);
 void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int x, int y, int textstyle, int alignment, int color, int shadow, int bg);
 void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int x, int y, int textstyle, int alignment, int color, int shadow, int bg, const char *format, ...);
-void update_subscreens();
+void update_subscreens(int dmap=-1);
 void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, int xofs, int yofs, bool showtime, int pos2);
 FONT *ss_font(int fontnum);
 int ss_objects(subscreen_group *tempss);

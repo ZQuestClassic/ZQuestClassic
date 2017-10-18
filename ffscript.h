@@ -263,6 +263,9 @@ enum ASM_DEFINE
   SETDMAPENHMUSIC,      //0x00D8
   DRAWLAYERR,           //0x00D9
   DRAWSCREENR,          //0x00DA
+  BREAKSHIELD,          //0x00DB
+  SAVESCREEN,           //0x00DC
+  SAVEQUITSCREEN,       //0x00DD
 
 /* ..sorry, forgot about these ...for now. -Gleeok
   CALCSPLINE,           //0x00
@@ -273,7 +276,7 @@ enum ASM_DEFINE
   CLEARBITMAPBUFFER,
   RENDERBITMAPBUFFER,
 */
-  NUMCOMMANDS           //0x00D9
+  NUMCOMMANDS           //0x00DE
 };
 
 //ZASM registers
@@ -330,10 +333,10 @@ enum ASM_DEFINE
 #define LINKLADDERX          0x0243
 #define LINKLADDERY          0x0244
 #define LINKHITDIR           0x0245
-//0x0246-0x0258 are reserved for future Link variables
-#define UNUSED22             0x0246
-#define UNUSED23             0x0247
-#define UNUSED24             0x0248
+#define LINKTILE             0x0246
+#define LINKFLIP             0x0247
+#define INPUTPRESSMAP        0x0248
+//0x0249-0x0258 are reserved for future Link variables
 #define UNUSED25             0x0249
 #define UNUSED26             0x024A
 #define UNUSED27             0x024B
@@ -430,9 +433,9 @@ enum ASM_DEFINE
 #define ITEMJUMP             0x02A3
 #define ITEMOTILE            0x02A4
 #define IDATAUSESOUND        0x02A5
-
-//0x02A6-0x02B9 are reserved for future item variables
 #define IDATAPOWER           0x02A6
+
+//0x02A7-0x02B9 are reserved for future item variables
 #define UNUSED86             0x02A7
 #define UNUSED87             0x02A8
 #define UNUSED88             0x02A9
@@ -484,7 +487,8 @@ enum ASM_DEFINE
 #define NPCMFLAGS            0x02DF
 #define NPCCOLLDET           0x02E0
 #define NPCSTUN              0x02E1
-//0x02E2-0x02EB are reserved for future NPC variables
+#define NPCHUNGER            0x02E2
+//0x02E3-0x02EB are reserved for future NPC variables
 #define UNUSED126            0x02E2
 #define UNUSED127            0x02E3
 #define UNUSED128            0x02E4
@@ -742,7 +746,21 @@ enum ASM_DEFINE
 #define DMAPMIDID            0x10AB
 #define IDATAINITDD      	 0x10AC //8
 
-#define NUMVARIABLES         0x10AD
+#define GAMESTANDALONE       0x10AD
+
+#define GAMEENTRSCR          0x10AE
+#define GAMEENTRDMAP         0x10AF
+
+#define GAMECLICKFREEZE      0x10B0
+
+#define PUSHBLOCKX           0x10B1
+#define PUSHBLOCKY           0x10B2
+#define PUSHBLOCKCOMBO       0x10B3
+#define PUSHBLOCKCSET        0x10B4
+#define UNDERCOMBO           0x10B5
+#define UNDERCSET            0x10B6
+
+#define NUMVARIABLES         0x10B7
 
 // Script types
 

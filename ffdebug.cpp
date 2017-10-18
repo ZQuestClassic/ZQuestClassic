@@ -378,6 +378,8 @@ namespace ffdebug
 				return "NPCCOLLDET";
 			case NPCSTUN:
 				return "NPCSTUN";
+			case NPCHUNGER:
+				return "NPCHUNGER";
 			case SCRDOORD:
 				return "SCRDOORD";
 			case LIT:
@@ -620,6 +622,32 @@ namespace ffdebug
                 return "ROOMTYPE";
             case ROOMDATA:
                 return "ROOMDATA";
+            case LINKTILE:
+                return "LINKTILE";
+            case LINKFLIP:
+                return "LINKFLIP";
+			case INPUTPRESSMAP:
+				return "INPUTPRESSMAP";
+			case GAMESTANDALONE:
+				return "GAMESTANDALONE";
+		    case GAMEENTRSCR:
+		        return "GAMEENTRSCREEN";
+		    case GAMEENTRDMAP:
+		        return "GAMEENTRDMAP";
+		    case GAMECLICKFREEZE:
+		        return "GAMECLICKFREEZE";
+		    case PUSHBLOCKX:
+		        return "PUSHBLOCKX";
+		    case PUSHBLOCKY:
+		        return "PUSHBLOCKY";
+		    case PUSHBLOCKCOMBO:
+		        return "PUSHBLOCKCOMBO";
+		    case PUSHBLOCKCSET:
+		        return "PUSHBLOCKCSET";
+		    case UNDERCOMBO:
+		        return "UNDERCOMBO";
+		    case UNDERCSET:
+		        return "UNDERCSET";
 			default:
 			{
 				sprintf(varToStringTemp, "d%d", ID);
@@ -840,6 +868,9 @@ namespace ffdebug
       { "GETMUSICFILE",        2,   0,   0,   0},
       { "GETMUSICTRACK",       1,   0,   0,   0},
       { "SETDMAPENHMUSIC",     0,   0,   0,   0},
+      { "BREAKSHIELD",         1,   0,   0,   0},
+      { "SAVESCREEN",          1,   0,   0,   0},
+      { "SAVEQUITSCREEN",      0,   0,   0,   0},
       { "",                    0,   0,   0,   0}
     };
 

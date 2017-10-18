@@ -4112,7 +4112,7 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
 
   if (showlink)
   {
-    if(get_currscr()<128)
+    if(get_currscr()<MAPSCRSNORMAL)
     {
       if (linkcolor==-1)
       {
@@ -4172,9 +4172,12 @@ void load_Sitems(miscQdata *misc)
   new_sel=true;
 }
 
-void update_subscreens()
+void update_subscreens(int dmap)
 {
-  int index=DMaps[get_currdmap()].active_subscreen;
+  if(dmap<0)
+    dmap=get_currdmap();
+  
+  int index=DMaps[dmap].active_subscreen;
 
   int i=-1, j=0;
   while (custom_subscreen[j].objects[0].type!=ssoNULL&&i!=index)
@@ -4187,7 +4190,7 @@ void update_subscreens()
   }
   current_subscreen_active=&custom_subscreen[j-1];
 
-  index=DMaps[get_currdmap()].passive_subscreen;
+  index=DMaps[dmap].passive_subscreen;
 
   i=-1, j=0;
   while (custom_subscreen[j].objects[0].type!=ssoNULL&&i!=index)

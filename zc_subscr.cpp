@@ -73,7 +73,15 @@ void dosubscr(miscQdata *misc)
   miny = 6;
 
   //Set the selector to the correct position before bringing up the subscreen -DD
-  Bpos = zc_max(game->bwpn,0);
+  if (get_bit(quest_rules,qr_SELECTAWPN))
+  {
+    if(Bwpn==0 && Awpn!=0)
+      Bpos = zc_max(game->awpn,0);
+    else
+      Bpos = zc_max(game->bwpn,0);
+  }
+  else
+    Bpos = zc_max(game->bwpn,0);
 
   for(int y=176-2; y>=6; y-=3)
   {
@@ -252,7 +260,10 @@ void markBmap(int dir, int sc)
       // mark the map
       game->bmaps[di] = code|128;
       break;
-
+    
+    case dmOVERW:
+        break;
+    
     default:
       game->bmaps[di] |= 128;
       if(dir>=0)

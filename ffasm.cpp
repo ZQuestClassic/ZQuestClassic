@@ -7,6 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "zc_malloc.h"
 #include "ffasm.h"
 #include "zquest.h"
 #include "zsys.h"
@@ -251,6 +252,9 @@ script_command command_list[NUMCOMMANDS+1]=
   { "SETDMAPENHMUSIC",     0,   0,   0,   0},
   { "DRAWLAYER",           0,   0,   0,   0},
   { "DRAWSCREEN",          0,   0,   0,   0},
+  { "BREAKSHIELD",         1,   0,   0,   0},
+  { "SAVESCREEN",          1,   0,   0,   0},
+  { "SAVEQUITSCREEN",      0,   0,   0,   0},
   { "",                    0,   0,   0,   0}
 };
 
@@ -580,8 +584,20 @@ script_variable variable_list[]=
   { "IDATAINITDD",        IDATAINITDD,         0,             0 },
   { "ROOMTYPE",           ROOMTYPE,            0,             0 },
   { "ROOMDATA",           ROOMDATA,            0,             0 },
-
-
+  { "LINKTILE",           LINKTILE,            0,             0 },
+  { "LINKFLIP",           LINKFLIP,            0,             0 },
+  { "INPUTPRESSMAP",      INPUTPRESSMAP,       0,             0 },
+  { "NPCHUNGER",          NPCHUNGER,           0,             0 },
+  { "GAMESTANDALONE",     GAMESTANDALONE,      0,             0 },
+  { "GAMEENTRSCR",        GAMEENTRSCR,         0,             0 },
+  { "GAMEENTRDMAP",       GAMEENTRDMAP,        0,             0 },
+  { "GAMECLICKFREEZE",    GAMECLICKFREEZE,     0,             0 },
+  { "PUSHBLOCKX",         PUSHBLOCKX,          0,             0 },
+  { "PUSHBLOCKY",         PUSHBLOCKY,          0,             0 },
+  { "PUSHBLOCKCOMBO",     PUSHBLOCKCOMBO,      0,             0 },
+  { "PUSHBLOCKCSET",      PUSHBLOCKCSET,       0,             0 },
+  { "UNDERCOMBO",         UNDERCOMBO,          0,             0 },
+  { "UNDERCSET",          UNDERCSET,           0,             0 },
   { " ",                       -1,             0,             0 }
 };
 
@@ -602,7 +618,7 @@ long ffparse(char *string)
 
   long ret=0;
   char *tempstring1;
-  tempstring1=(char *)malloc(strlen(string)+5);
+  tempstring1=(char *)zc_malloc(strlen(string)+5);
   sprintf(tempstring1, string);
   for (int i=0; i<4; ++i)
   {
@@ -621,7 +637,7 @@ long ffparse(char *string)
     ret-=atoi(ptr);
   else ret+=atoi(ptr);
 
-  free(tempstring1);
+  zc_free(tempstring1);
   return ret;
 }
 

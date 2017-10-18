@@ -40,6 +40,8 @@ extern int loadlast;
 extern int skipcont;
 extern int skipicon;
 
+bool load_custom_game(int file);
+
 struct savedicon
 {
 	byte loaded;
@@ -49,6 +51,8 @@ struct savedicon
 };
 
 savedicon iconbuffer[15];
+
+static bool chosecustomquest = false;
 
 /********************************/
 /*****   NES title screen   *****/
@@ -771,6 +775,31 @@ int readsaves(gamedata *savedata, PACKFILE *f)
   {
     return 5;
   }
+  
+  // Excess saves would get deleted, so...
+  if(standalone_mode && save_count>1)
+  {
+    system_pal();
+    jwin_alert("Invalid save file",
+             "This save file cannot be",
+             "used in standalone mode.",
+             "",
+             "OK",NULL,'o',0,lfont);
+    exit(0);
+  }
+  else if(!standalone_mode && save_count==1)
+  {
+    system_pal();
+    if(jwin_alert3("Standalone save file",
+             "This save file was created in standalone mode.",
+             "If you continue, you will no longer be able",
+             "to use it in standalone mode. Continue anyway?",
+             "No","Yes",NULL, 'n','y', 0, lfont)!=2)
+    {
+      exit(0);
+    }
+  }
+  
   for (int i=0; i<save_count; i++)
   {
     if(!pfread(name,9,f,true))
@@ -1011,6 +1040,18 @@ int readsaves(gamedata *savedata, PACKFILE *f)
     {
       return 39;
     }
+    
+    if(standalone_mode && strcmp(savedata[i].qstpath, standalone_quest)!=0)
+    {
+      system_pal();
+      jwin_alert("Invalid save file",
+               "This save file is for",
+               "a different quest.",
+               "",
+               "OK",NULL,'o',0,lfont);
+      exit(0);
+    }
+    
     // Convert path separators so save files work across platforms (hopefully)
     for(int j=0; j<qstpath_len; j++)
     {
@@ -1183,16 +1224,36 @@ int readsaves(gamedata *savedata, PACKFILE *f)
   return 0;
 }
 
+void set_up_standalone_save()
+{
+  saves[0].set_name(standalone_quest);
+  
+  qstpath=(char*)zc_malloc(2048);
+  strncpy(qstpath, standalone_quest, 2047);
+  qstpath[2047]='\0';
+  chosecustomquest=true;
+  load_custom_game(0);
+  
+  // Why does the continue screen need set when
+  // everything else gets set automatically?
+  saves[0].set_continue_dmap( 0);
+  saves[0].set_continue_scrn( 0xFF);
+  saves[0].set_hasplayed(false);
+  
+  load_game_icon_to_buffer(false, 0);
+  load_game_icon(saves, true, 0);
+}
+
 // call once at startup
 int load_savedgames()
 {
   char *fname = SAVE_FILE;
-  char *iname = (char *)malloc(2048);
+  char *iname = (char *)zc_malloc(2048);
   int ret;
   PACKFILE *f=NULL;
   FILE *f2=NULL;
   //char tmpbuf[L_tmpnam];
-  //char *tmpfilename = (char*)malloc(L_tmpnam);
+  //char *tmpfilename = (char*)zc_malloc(L_tmpnam);
   //sprintf(tmpfilename, "%s", tmpbuf);
    char *tmpfilename = temp_name(NULL);
 //  const char *passwd = datapwd;
@@ -1211,7 +1272,14 @@ int load_savedgames()
   }
   if (file_size_ex_password(fname, "") == 0)
   {
-    goto cantopen;
+    if(errno==0) // No error, file's empty
+    {
+      goto init;
+    }
+    else // Error...
+    {
+      goto cantopen;
+    }
   }
 
   // decode to temp file
@@ -1281,11 +1349,13 @@ int load_savedgames()
 
   pack_fclose(f);
   delete_file(tmpfilename);
-  free(iname);
+  zc_free(iname);
   return 0;
 
 newdata:
   system_pal();
+  if(standalone_mode)
+    goto init;
   if(jwin_alert("Can't Find Saved Game File",
                 "The save file could not be found.",
                 "Create a new file from scratch?",
@@ -1299,21 +1369,25 @@ newdata:
   goto init;
 
 cantopen:
-  system_pal();
-  jwin_alert("Can't Open Saved Game File",
-             "The save file was found, but could not be opened. Wait a moment",
-             "and try again. If this problem persists, reboot. If the file",
-             "still can't be opened, you'll need to delete zc.sav.",
-             "OK",NULL,'o',0,lfont);
+  {
+    system_pal();
+    char buf[256];
+    snprintf(buf, 256, "still can't be opened, you'll need to delete %s.", SAVE_FILE);
+    jwin_alert("Can't Open Saved Game File",
+               "The save file was found, but could not be opened. Wait a moment",
+               "and try again. If this problem persists, reboot. If the file",
+               buf,
+               "OK",NULL,'o',0,lfont);
+  }
   exit(1);
 
 reset:
   system_pal();
-  if(jwin_alert("Can't Open Saved Game File",
-                "Unable to read the save file.",
-                "Create a new file from scratch?",
-                "Warning: Doing so will erase any previous saved games!",
-                "OK","Cancel",13,27,lfont)!=1)
+  if(jwin_alert3("Can't Open Saved Game File",
+                 "Unable to read the save file.",
+                 "Create a new file from scratch?",
+                 "Warning: Doing so will erase any previous saved games!",
+                 "No","Yes",NULL,'n','y',0,lfont)!=2)
   {
 	exit(1);
   }
@@ -1328,7 +1402,10 @@ init:
 	  saves[i].Clear();
   memset(iconbuffer, 0, sizeof(savedicon)*MAXSAVES);
 
-  free(iname);
+  if(standalone_mode)
+    set_up_standalone_save();
+
+  zc_free(iname);
   return 0;
 
 }
@@ -1560,7 +1637,7 @@ int save_savedgames()
   delete_file(tmpfilename);
 
   FILE *f2=NULL;
-  char *iname = (char *)malloc(2048);
+  char *iname = (char *)zc_malloc(2048);
   strcpy(iname, SAVE_FILE);
   for(int i=0; iname[i]!='\0';iname[i]=='.'?iname[i]='\0':i++) { /* do nothing */ }
   strcat(iname,".icn");
@@ -1570,7 +1647,7 @@ int save_savedgames()
   for(dword i=0; (i<sizeof(savedicon)*MAXSAVES);i++)
     fputc(*(di2++),f2);
   fclose(f2);
-  free(iname);
+  zc_free(iname);
   return ret;
 }
 
@@ -2337,7 +2414,7 @@ static int get_quest_info(zquestheader *header,char *str)
     break;
   }
 
-  if(header->quest_number > 0)
+  if(false &&header->quest_number > 0)
   {
 	  strcpy(str,
 	    (header->quest_number == 4) ? "Error: Not a custom quest! Clear the Second Quest with all 16 Heart Containers to play this." :
@@ -2355,8 +2432,6 @@ static int get_quest_info(zquestheader *header,char *str)
 
   return 1;
 }
-
-static bool chosecustomquest = false;
 
 bool load_custom_game(int file)
 {
@@ -2578,6 +2653,9 @@ int getsaveslot() {
 
 static void select_game()
 {
+  if(standalone_mode)
+    return;
+  
   int pos = zc_max(zc_min(currgame-listpos,3),0);
   int mode = 0;
 
@@ -2735,7 +2813,7 @@ void titlescreen(int lsave)
     return;
   }
 
-  if(q==qRESET)
+  if(q==qRESET && !skip_title)
   {
     show_subscreen_dmap_dots=true;
     show_subscreen_numbers=true;
@@ -2867,7 +2945,22 @@ void game_over(int type)
 
   if(done)
   {
-    Quit = pos ? qQUIT : qCONT;
+    if(pos)
+    {
+        if(standalone_mode && !skip_title)
+        {
+            Quit=qRESET;
+        }
+        else
+        {
+            Quit=qQUIT;
+        }
+    }
+    else
+    {
+        Quit=qCONT;
+    }
+    //Quit = pos ? ((standalone_mode && skip_title) ? qRESET : qQUIT) : qCONT;
     if(pos==1&&(!type))
     {
       game->set_cheat(game->get_cheat() | cheat);
@@ -2917,7 +3010,7 @@ void save_game(bool savepoint)
   save_savedgames();
 }
 
-void save_game(bool savepoint, int type)
+bool save_game(bool savepoint, int type)
 {
   kill_sfx();
   //music_stop();
@@ -2927,6 +3020,7 @@ void save_game(bool savepoint, int type)
   //  int htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
   int htile = 2;
   bool done=false;
+  bool saved=false;
   do
   {
     int pos = 0;
@@ -2996,9 +3090,9 @@ void save_game(bool savepoint, int type)
           lastentrance = game->get_continue_scrn();
         }
         game->set_cheat( game->get_cheat() | cheat);
-
+        
         saves[currgame]=*game;
-
+        
 		int ring=0;
 	    flushItemCache();
 	    int maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
@@ -3011,6 +3105,7 @@ void save_game(bool savepoint, int type)
         iconbuffer[currgame].ring = zc_min(ring, 3);
         load_game_icon(saves+currgame,false,currgame);
         save_savedgames();
+        saved=true;
         if(type) {Quit = qQUIT; done=true; skipcont=1;}
       }
 
@@ -3074,6 +3169,8 @@ void save_game(bool savepoint, int type)
 	  loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
 	}
   }
+  
+  return saved;
 }
 
 

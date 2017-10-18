@@ -1023,7 +1023,11 @@ void LinkClass::draw(BITMAP* dest)
   }
 
   if(invisible)
+  {
+    xofs=oxofs;
+    yofs=oyofs;
     return;
+  }
 
   if (action != casting)
   {
@@ -1042,7 +1046,12 @@ void LinkClass::draw(BITMAP* dest)
           linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_dive, dir, zinit.linkanimationstyle);
           tile+=((frame>>3) & 1)*(extend==2?2:1);
         }
-        else return;
+        else
+        {
+            xofs=oxofs;
+            yofs=oyofs;
+            return;
+        }
       }
         else if(action==swimming || action==swimhit || hopclk==0xFF)
         {
@@ -1113,7 +1122,12 @@ void LinkClass::draw(BITMAP* dest)
           linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_dive, dir, zinit.linkanimationstyle);
           tile += anim_3_4(lstep,7)*(extend==2?2:1);
         }
-        else return;
+        else
+        {
+            xofs=oxofs;
+            yofs=oyofs;
+            return;
+        }
       }
         else if(action==swimming || action==swimhit || hopclk==0xFF)
         {
@@ -1162,7 +1176,12 @@ void LinkClass::draw(BITMAP* dest)
             linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_dive, dir, zinit.linkanimationstyle);
             tile += anim_3_4(lstep,7)*(extend==2?2:1);
           }
-          else return;
+          else
+          {
+              xofs=oxofs;
+              yofs=oyofs;
+              return;
+          }
         }
 		else if(action == swimming || action==swimhit || hopclk==0xFF)
         {
@@ -1386,50 +1405,59 @@ void LinkClass::checkstab()
   int itype = (attack==wWand ? itype_wand : itype_sword);
   int itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
   itemid = vbound(itemid, 0, MAXITEMS-1);
+  
+  // The sword offsets aren't based on anything other than what felt about right
+  // compared to the NES game and what mostly kept it from hitting things that
+  // should clearly be out of range. They could probably still use more tweaking.
+  // Don't use 2.10 for reference; it's pretty far off.
+  // - Saf
+  
   if (game->get_canslash() && (attack==wSword || attack==wWand) && itemsbuf[itemid].flags & ITEM_FLAG4)
   {
     switch(w->dir)
     {
     case up:
-      if(attackclk>=8)
+      if(attackclk<8)
       {
-        wy+=4;
+        wy-=4;
       }
       break;
     case down:
-      if(attackclk>=8)
+      //if(attackclk<8)
       {
-        wy+=1;
+        wy-=2;
       }
       break;
     case left:
 
-      if(attackclk>=8)
+      //if(attackclk<8)
       {
-        wx+=4;
-	//wy+=4;
+        wx+=2;
       }
 
       break;
     case right:
-      if(attackclk>=8)
+    
+      //if(attackclk<8)
       {
         wx-=2;
 	//wy+=((spins>0 || get_bit(quest_rules, qr_SLASHFLIPFIX)) ? -4 : 4);
       }
+      
       break;
     }
   }
+  
   switch(w->dir)
   {
-    case up:   wx+=2;  wy-=5; break;
-    case down: wx-=0;  wy-=5; break;
-    case left: wx-=1;  wy-=3; break;
-    case right:wx-=3;  wy-=3; break;
+    case up:   wx+=2; break;
+    case down: break;
+    case left: wy-=3; break;
+    case right: wy-=3; break;
   }
 
   wx+=w->hxofs; wy+=w->hyofs;
-
+  
   for(int i=0; i<guys.Count(); i++)
   {
     // So that Link can actually hit peahats while jumping, his weapons' hzsz becomes 16 in midair.
@@ -1437,11 +1465,16 @@ void LinkClass::checkstab()
       || (attack==wWand && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !get_bit(quest_rules,qr_NOWANDMELEE))
       || (attack==wHammer && guys.spr(i)->hit(wx,wy-8,z,16,24,z>0?16:8)))
     {
-      int whimsypower = (current_item_id(itype_whimsicalring)<0 ||
-                              rand()%zc_max(itemsbuf[current_item_id(itype_whimsicalring)].misc1,1) ? 0
-                              : current_item_power(itype_whimsicalring));
-      if (whimsypower > 0)
-          sfx(itemsbuf[current_item_id(itype_whimsicalring)].usesound);
+      int whimsyid = current_item_id(itype_whimsicalring);
+      int whimsypower = 0;
+      
+      if(whimsyid>-1)
+      {
+        whimsypower = rand()%zc_max(itemsbuf[current_item_id(itype_whimsicalring)].misc1,1) ?
+                      0 : current_item_power(itype_whimsicalring);
+        if (whimsypower > 0)
+          sfx(itemsbuf[whimsyid].usesound);
+      }
 
       int h = hit_enemy(i,attack,(weaponattackpower() + whimsypower)*DAMAGE_MULTIPLIER,wx,wy,dir,directWpn);
 
@@ -2196,12 +2229,14 @@ int LinkClass::LwpnHit()                                    //only here to check
           hitshield=true;
         break;
       }
-
+      
       int itemid = current_item_id(itype_shield);
       bool reflect = false;
       switch(lw->id)
       {
       case wRefFireball:
+        if(itemid<0)
+          return i;
         if (lw->type & 1) //Boss fireball
           return i;
         if (!(itemsbuf[itemid].misc1 & (shFIREBALL)))
@@ -2209,22 +2244,28 @@ int LinkClass::LwpnHit()                                    //only here to check
         reflect = ((itemsbuf[itemid].misc2 & shFIREBALL) != 0);
         break;
       case wRefMagic:
+        if(itemid<0)
+          return i;
         if (!(itemsbuf[itemid].misc1 & shMAGIC))
           return i;
         reflect = ((itemsbuf[itemid].misc2 & shMAGIC) != 0);
         break;
       case wRefBeam:
+        if(itemid<0)
+          return i;
         if (!(itemsbuf[itemid].misc1 & shSWORD))
           return i;
         reflect = ((itemsbuf[itemid].misc2 & shSWORD) != 0);
         break;
       case wRefRock:
+        if(itemid<0)
+          return i;
         if (!(itemsbuf[itemid].misc1 & shROCK))
           return i;
         reflect = (itemsbuf[itemid].misc2 & shROCK);
         break;
-                        default:
-                                return -1;
+      default:
+        return -1;
       }
 
       if(!hitshield || action==attacking || action==swimming || hopclk==0xFF)
@@ -2445,7 +2486,7 @@ killweapon:
       xofs=1000;
       action=inwind;
       dir=s->dir;
-      attackclk=0;
+      spins = charging = attackclk = 0;
       return;
     }
   }
@@ -2624,7 +2665,7 @@ void LinkClass::hitlink(int hit2)
       if (itemsbuf[itemid].flags & ITEM_DOWNGRADE)
         game->set_item(itemid,false);
 	  // Stomp Boots script
-      if(itemid>=0 && itemsbuf[itemid].script != 0)
+      if(itemsbuf[itemid].script != 0)
       {
         ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
       }
@@ -3415,18 +3456,23 @@ bool LinkClass::animate(int)
     fairyclk = holdclk = refill_why = 0;
   }
 
-  if((!activated_timed_warp) && (tmpscr->timedwarptics>0) &&
-    (frame - newscr_clk >= tmpscr->timedwarptics))
+  if((!activated_timed_warp) && (tmpscr->timedwarptics>0))
   {
-    activated_timed_warp=true;
-    if(tmpscr->flags4 & fTIMEDDIRECT) {
-      didpit=true;
-      pitx=x;
-      pity=y;
+      tmpscr->timedwarptics--;
+      if(tmpscr->timedwarptics==0)
+      {
+        activated_timed_warp=true;
+        if(tmpscr->flags4 & fTIMEDDIRECT)
+        {
+          didpit=true;
+          pitx=x;
+          pity=y;
+        }
+      
+      int index2 = 0;
+      if(tmpscr->flags5 & fRANDOMTIMEDWARP) index2=rand()%4;
+      sdir = dir; dowarp(1,index2);
     }
-    int index2 = 0;
-    if(tmpscr->flags5 & fRANDOMTIMEDWARP) index2=rand()%4;
-    sdir = dir; dowarp(1,index2);
   }
 
   bool awarp = false;
@@ -5705,7 +5751,7 @@ void LinkClass::movelink()
       if(wtrx&&wtrx8&&wtry&&wtry8 && !DRIEDLAKE)
       {
         //action=swimming;
-	    if(action != swimming)
+	    if(action !=none && action != swimming)
 		{
 			hopclk = 0xFF;
 		}
@@ -6364,6 +6410,11 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
         else if(wx>240&&cnt==2);
         else if(wy>168);
         else if (get_bit(quest_rules, qr_DROWN) && !ilswim);
+        else if(iswater(MAPCOMBO(wx,wy)) && iswater(MAPCOMBO(wx,wy)))
+        {
+            ret.setUnwalkable(false);
+            return ret;
+        }
         else
 		{
 			ret.setUnwalkable(true);
@@ -8365,8 +8416,10 @@ bool LinkClass::dowarp(int type, int index)
       wscr = homescr-(((DMaps[currdmap].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[currdmap].xoff);
       break;
   }
+  
   bool intradmap = (wdmap == currdmap);
   rehydratelake(type!=wtSCROLL);
+  
   switch(wtype)
   {
     case wtCAVE:
@@ -8511,6 +8564,7 @@ bool LinkClass::dowarp(int type, int index)
         dlevel=DMaps[currdmap].level;
         currmap=DMaps[currdmap].map;
         init_dmap();
+        update_subscreens(wdmap);
         loadfullpal();
         ringcolor(false);
         loadlvlpal(DMaps[currdmap].color);
@@ -8590,8 +8644,8 @@ bool LinkClass::dowarp(int type, int index)
           // reset enemy kill counts
           for(int i=0; i<128; i++)
           {
-            game->guys[(currmap<<7)+i] = 0;
-            game->maps[(currmap<<7)+i] &= ~mTMPNORET;
+            game->guys[(currmap*MAPSCRSNORMAL)+i] = 0;
+            game->maps[(currmap*MAPSCRSNORMAL)+i] &= ~mTMPNORET;
           }
         }
         markBmap(dir^1);
@@ -8766,6 +8820,7 @@ bool LinkClass::dowarp(int type, int index)
         dlevel = DMaps[currdmap].level;
         currmap = DMaps[currdmap].map;
         init_dmap();
+        update_subscreens(wdmap);
 
         ringcolor(false);
         if(DMaps[currdmap].color != c)
@@ -9088,10 +9143,6 @@ void LinkClass::stepforward(int steps, bool adjust)
       else {s-=z3step; walkable=true;}
       move(dir);
       shiftdir=-1;
-      draw_screen(tmpscr, 0, 0);
-      advanceframe(true);
-      if(Quit)
-        return;
     }
     else
     {
@@ -9104,12 +9155,25 @@ void LinkClass::stepforward(int steps, bool adjust)
         s-=lsteps[int(x)&7];
       }
       move(dir);
-      draw_screen(tmpscr, 0, 0);
-      advanceframe(true);
-      if(Quit)
-        return;
     }
+    
+    if(s<0)
+    {
+      switch(dir)
+      {
+        case up: y-=s; break;
+        case down: y+=s; break;
+        case left: x-=s; break;
+        case right: x+=s; break;
+      }
+    }
+    
+    draw_screen(tmpscr, 0, 0);
+    advanceframe(true);
+    if(Quit)
+      return;
   }
+  
   setEntryPoints(x,y);
   draw_screen(tmpscr, 0, 0);
   eat_buttons();

@@ -72,9 +72,6 @@ const int CT_*
 const int IP_*
  * Item Pickup Flags, can be used with item->Pickup, GetItemPickup, SetItemPickup
 
-const int SFT_*
- * Screen Freeze Types, can be used to set or compare against Screen->Freeze
-
 const int SF_*
  * Screen Flag Categories, can be used with Screen->Flags, GetScreenFlags
 
@@ -107,6 +104,12 @@ const int TF_*
 
 const int PT_*
  * Texture Mapping Rendering Modes, can be used with Screen->*3D
+
+const int OP_*
+ * Opacity options, can be used with all shape and tile drawing commands.
+
+const int RT_*
+ * Render targets, can be used with Screen->SetRenderTarget and Screen->DrawBitmap.
 
 const int EXT_*
  * Sprite Extend Types, can be used with Link->Extend, npc->Extend, *weapon->Extend, item->Extend
@@ -526,35 +529,35 @@ bool ComboFI(int loc, int flag)
  * Returns true if the combo at '(x, y)' or 'loc' has either an
  * inherent or placed flag of type 'flag'
 
-int GetLayerComboD(int layer, int combo)
+int GetLayerComboD(int layer, int pos)
  * A shorthand way to get a combo on the current layer.
  * Layer 0 is the screen itself.
 
-void SetLayerComboD(int layer, int combo, int d)
+void SetLayerComboD(int layer, int pos, int combo)
  * A shorthand way to set a combo on the current layer.
  * Layer 0 is the screen itself.
 
-int GetLayerComboF(int layer, int flag)
+int GetLayerComboF(int layer, int pos)
  * A shorthand way to get a combo flag on the current layer.
  * Layer 0 is the screen itself.
 
-void SetLayerComboF(int layer, int flag, int d)
+void SetLayerComboF(int layer, int pos, int flag)
  * A shorthand way to set a combo flag on the current layer.
  * Layer 0 is the screen itself.
 
-int GetLayerComboT(int layer, int combo)
+int GetLayerComboT(int layer, int pos)
  * A shorthand way to get a combo type on the current layer.
  * Layer 0 is the screen itself.
 
-void SetLayerComboT(int layer, int combo, int d)
+void SetLayerComboT(int layer, int pos, int type)
  * A shorthand way to set a combo type on the current layer.
  * Layer 0 is the screen itself.
 
-int GetLayerComboS(int layer, int combo)
+int GetLayerComboS(int layer, int pos)
  * A shorthand way to get a combo's solidity on the current layer.
  * Layer 0 is the screen itself.
 
-void SetLayerComboS(int layer, int combo, int s)
+void SetLayerComboS(int layer, int pos, int solidity)
  * A shorthand way to set a combo's solidity on the current layer.
  * Layer 0 is the screen itself.
 

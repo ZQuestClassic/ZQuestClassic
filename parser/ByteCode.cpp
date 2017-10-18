@@ -82,6 +82,10 @@ string VarArgument::toString()
 		return "LINKINVINC";
      case LINKMISCD:
 		return "LINKMISCD";
+    case LINKTILE:
+        return "LINKTILE";
+    case LINKFLIP:
+        return "LINKFLIP";
 	case INPUTSTART:
 		return "INPUTSTART";
 	case INPUTMAP:
@@ -120,6 +124,8 @@ string VarArgument::toString()
 		return "INPUTAXISRIGHT";
 	case INPUTPRESSSTART:
 		return "INPUTPRESSSTART";
+	case INPUTPRESSMAP:
+		return "INPUTPRESSMAP";
 	case INPUTPRESSUP:
 		return "INPUTPRESSUP";
 	case INPUTPRESSDOWN:
@@ -274,6 +280,8 @@ string VarArgument::toString()
 		return "GAMETIME";
 	case GAMEHASPLAYED:
 		return "GAMEHASPLAYED";
+	case GAMESTANDALONE:
+		return "GAMESTANDALONE";
 	case GAMETIMEVALID:
 		return "GAMETIMEVALID";
 	case GAMEGUYCOUNT:
@@ -282,6 +290,10 @@ string VarArgument::toString()
 		return "GAMECONTSCR";
 	case GAMECONTDMAP:
 		return "GAMECONTDMAP";
+	case GAMEENTRSCR:
+		return "GAMEENTRSCR";
+	case GAMEENTRDMAP:
+		return "GAMEENTRDMAP";
 	case GAMECOUNTERD:
 		return "GAMECOUNTERD";
 	case GAMEMCOUNTERD:
@@ -314,6 +326,8 @@ string VarArgument::toString()
 		return "SDDD";
 	case SDDDD:
 		return "SDDDD";
+    case GAMECLICKFREEZE:
+		return "GAMECLICKFREEZE";
 	case FFFLAGSD:
 		return "FFFLAGSD";
 	case FFTWIDTH:
@@ -398,6 +412,8 @@ string VarArgument::toString()
 		return "NPCCOLLDET";
 	case NPCSTUN:
 		return "NPCSTUN";
+	case NPCHUNGER:
+		return "NPCHUNGER";
 	case SCRDOORD:
 		return "SCRDOORD";
 	case LIT:
@@ -640,6 +656,18 @@ string VarArgument::toString()
         return "ROOMTYPE";
     case ROOMDATA:
         return "ROOMDATA";
+    case PUSHBLOCKX:
+        return "PUSHBLOCKX";
+    case PUSHBLOCKY:
+        return "PUSHBLOCKY";
+    case PUSHBLOCKCOMBO:
+        return "PUSHBLOCKCOMBO";
+    case PUSHBLOCKCSET:
+        return "PUSHBLOCKCSET";
+    case UNDERCOMBO:
+        return "UNDERCOMBO";
+    case UNDERCSET:
+        return "UNDERCSET";
 	default:
 		{
 			sprintf(temp, "d%d", ID);
@@ -1419,6 +1447,20 @@ string OEnd::toString()
 string OComboTile::toString()
 {
 	return "COMBOTILE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+}
+
+string OBreakShield::toString(){
+	return "BREAKSHIELD " + getArgument()->toString();
+}
+
+string OShowSaveScreen::toString()
+{
+	return "SAVESCREEN " + getArgument()->toString();
+}
+
+string OShowSaveQuitScreen::toString()
+{
+	return "SAVEQUITSCREEN";
 }
 
 

@@ -4,6 +4,7 @@
 #define __trapperkeeper_h_
 
 #include "gc.h"
+#include "zc_malloc.h"
 
 
 #ifndef TK_NO_CRTDBG

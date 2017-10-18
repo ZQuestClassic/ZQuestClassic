@@ -107,7 +107,6 @@ class LinkClass : public sprite
 		}
 
 		void setHopDir(int val) {
-			al_trace("sethopdir: %d\n",val);
 			flags |= SETHOPDIR;
 			newhopdir = val;
 		}

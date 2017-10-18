@@ -415,7 +415,7 @@ void ending()
           case 816: textout_centre_ex(scrollbuf,zfont,"You finished a",128,224,white,0); break;
           case 832: textout_centre_ex(scrollbuf,zfont,"custom quest.",128,224,white,0); break;
           case 880: textout_centre_ex(scrollbuf,zfont,"ZELDA CLASSIC",128,224,white,0); break;
-          case 896: textprintf_ex(scrollbuf,zfont,88,224,white,0,"%c1999-2010",0xBC); break;
+          case 896: textprintf_ex(scrollbuf,zfont,88,224,white,0,"%c1999-2012",0xBC); break;
           case 912: textout_centre_ex(scrollbuf,zfont,"Armageddon Games",128,224,blue,0); break;
         }
         break;

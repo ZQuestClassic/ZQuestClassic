@@ -719,7 +719,7 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
 
   if (Header->templatepath[0]==0)
   {
-    filename=(char *)malloc(23);
+    filename=(char *)zc_malloc(23);
     sprintf(filename, "qst.dat#NESQST_NEW_QST");
   }
   else
@@ -730,7 +730,7 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
   f=open_quest_file(&open_error, filename, deletefilename, true, true,false);
   if (Header->templatepath[0]==0)
   {
-    free(filename);
+    zc_free(filename);
   }
   if (!f)
   {
@@ -1001,7 +1001,7 @@ int get_qst_buffers()
 
   memrequested+=(sizeof(zcmap)*MAXMAPS2);
   Z_message("Allocating combo buffer (%s)... ", byte_conversion2(sizeof(zcmap)*MAXMAPS2,memrequested,-1,-1));
-  if((ZCMaps=(zcmap*)malloc(sizeof(zcmap)*MAXMAPS2))==NULL)
+  if((ZCMaps=(zcmap*)zc_malloc(sizeof(zcmap)*MAXMAPS2))==NULL)
     return 0;
 
   Z_message("OK\n");
@@ -1015,41 +1015,41 @@ int get_qst_buffers()
   msg_strings_size = 4096;
   memrequested+=(sizeof(MsgStr)*msg_strings_size);
   Z_message("Allocating string buffer (%s)... ", byte_conversion2(sizeof(MsgStr)*msg_strings_size,memrequested,-1,-1));
-  if((MsgStrings=(MsgStr*)malloc(sizeof(MsgStr)*msg_strings_size))==NULL)
+  if((MsgStrings=(MsgStr*)zc_malloc(sizeof(MsgStr)*msg_strings_size))==NULL)
     return 0;
   memset(MsgStrings, 0, sizeof(MsgStr)*msg_strings_size);
   Z_message("OK\n");                                        // Allocating string buffer...
 
   memrequested+=(sizeof(DoorComboSet)*MAXDOORCOMBOSETS);
   Z_message("Allocating door combo buffer (%s)... ", byte_conversion2(sizeof(DoorComboSet)*MAXDOORCOMBOSETS,memrequested,-1,-1));
-  if((DoorComboSets=(DoorComboSet*)malloc(sizeof(DoorComboSet)*MAXDOORCOMBOSETS))==NULL)
+  if((DoorComboSets=(DoorComboSet*)zc_malloc(sizeof(DoorComboSet)*MAXDOORCOMBOSETS))==NULL)
     return 0;
   Z_message("OK\n");                                        // Allocating door combo buffer...
 
   memrequested+=(sizeof(dmap)*MAXDMAPS);
   Z_message("Allocating dmap buffer (%s)... ", byte_conversion2(sizeof(dmap)*MAXDMAPS,memrequested,-1,-1));
-  if((DMaps=(dmap*)malloc(sizeof(dmap)*MAXDMAPS))==NULL)
+  if((DMaps=(dmap*)zc_malloc(sizeof(dmap)*MAXDMAPS))==NULL)
     return 0;
   memset(DMaps, 0, sizeof(dmap)*MAXDMAPS);
   Z_message("OK\n");                                        // Allocating dmap buffer...
 
   memrequested+=(sizeof(newcombo)*MAXCOMBOS);
   Z_message("Allocating combo buffer (%s)... ", byte_conversion2(sizeof(newcombo)*MAXCOMBOS,memrequested,-1,-1));
-  if((combobuf=(newcombo*)malloc(sizeof(newcombo)*MAXCOMBOS))==NULL)
+  if((combobuf=(newcombo*)zc_malloc(sizeof(newcombo)*MAXCOMBOS))==NULL)
     return 0;
   memset(combobuf, 0, sizeof(newcombo)*MAXCOMBOS);
   Z_message("OK\n");                                        // Allocating combo buffer...
 
   memrequested+=(newerpsTOTAL);
   Z_message("Allocating color data buffer (%s)... ", byte_conversion2(newerpsTOTAL,memrequested,-1,-1));
-  if((colordata=(byte*)malloc(newerpsTOTAL))==NULL)
+  if((colordata=(byte*)zc_malloc(newerpsTOTAL))==NULL)
     return 0;
   Z_message("OK\n");                                        // Allocating color data buffer...
 
   memrequested+=(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)));
   Z_message("Allocating tile buffer (%s)... ", byte_conversion2(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)),memrequested,-1,-1));
 
-  if((newtilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
+  if((newtilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
     return 0;
   memset(newtilebuf, 0, NEWMAXTILES*sizeof(tiledata));
   clear_tiles(newtilebuf);
@@ -1059,7 +1059,7 @@ int get_qst_buffers()
   {
     memrequested+=(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)));
     Z_message("Allocating tile grab buffer (%s)... ", byte_conversion2(NEWMAXTILES*sizeof(tiledata),memrequested,-1,-1));
-    if((grabtilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
+    if((grabtilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
       return 0;
     memset(grabtilebuf, 0, NEWMAXTILES*sizeof(tiledata));
     clear_tiles(grabtilebuf);
@@ -1068,34 +1068,40 @@ int get_qst_buffers()
 
   memrequested+=(100000);
   Z_message("Allocating trash buffer (%s)... ", byte_conversion2(100000,memrequested,-1,-1));
-  if((trashbuf=(byte*)malloc(100000))==NULL)
+  if((trashbuf=(byte*)zc_malloc(100000))==NULL)
     return 0;
   Z_message("OK\n");                                        // Allocating trash buffer...
-
-  memrequested+=(sizeof(itemdata)*MAXITEMS);
-  Z_message("Allocating item buffer (%s)... ", byte_conversion2(sizeof(itemdata)*MAXITEMS,memrequested,-1,-1));
-  if((itemsbuf=(itemdata*)malloc(sizeof(itemdata)*MAXITEMS))==NULL)
+  
+  // Big, ugly band-aid here. Perhaps the most common cause of random crashes
+  // has been inadvertently accessing itemsbuf[-1]. All such crashes should be
+  // fixed by ensuring there's actually itemdata there.
+  // If you change this, be sure to update del_qst_buffers, too.
+  
+  memrequested+=(sizeof(itemdata)*(MAXITEMS+1));
+  Z_message("Allocating item buffer (%s)... ", byte_conversion2(sizeof(itemdata)*(MAXITEMS+1),memrequested,-1,-1));
+  if((itemsbuf=(itemdata*)zc_malloc(sizeof(itemdata)*(MAXITEMS+1)))==NULL)
     return 0;
-  memset(itemsbuf,0,sizeof(itemdata)*MAXITEMS);
+  memset(itemsbuf,0,sizeof(itemdata)*(MAXITEMS+1));
+  itemsbuf++;
   Z_message("OK\n");                                        // Allocating item buffer...
 
   memrequested+=(sizeof(wpndata)*MAXWPNS);
   Z_message("Allocating weapon buffer (%s)... ", byte_conversion2(sizeof(wpndata)*MAXWPNS,memrequested,-1,-1));
-  if((wpnsbuf=(wpndata*)malloc(sizeof(wpndata)*MAXWPNS))==NULL)
+  if((wpnsbuf=(wpndata*)zc_malloc(sizeof(wpndata)*MAXWPNS))==NULL)
     return 0;
   memset(wpnsbuf,0,sizeof(wpndata)*MAXWPNS);
   Z_message("OK\n");                                        // Allocating weapon buffer...
 
   memrequested+=(sizeof(guydata)*MAXGUYS);
   Z_message("Allocating guy buffer (%s)... ", byte_conversion2(sizeof(guydata)*MAXGUYS,memrequested,-1,-1));
-  if((guysbuf=(guydata*)malloc(sizeof(guydata)*MAXGUYS))==NULL)
+  if((guysbuf=(guydata*)zc_malloc(sizeof(guydata)*MAXGUYS))==NULL)
     return 0;
   memset(guysbuf,0,sizeof(guydata)*MAXGUYS);
   Z_message("OK\n");                                        // Allocating guy buffer...
 
   memrequested+=(sizeof(comboclass)*cMAX);
   Z_message("Allocating combo class buffer (%s)... ", byte_conversion2(sizeof(comboclass)*cMAX,memrequested,-1,-1));
-  if((combo_class_buf=(comboclass*)malloc(sizeof(comboclass)*cMAX))==NULL)
+  if((combo_class_buf=(comboclass*)zc_malloc(sizeof(comboclass)*cMAX))==NULL)
     return 0;
   Z_message("OK\n");										// Allocating combo class buffer...
 
@@ -1109,8 +1115,8 @@ void free_newtilebuf()
   {
 		for(int i=0;i<NEWMAXTILES;i++)
 			if(newtilebuf[i].data)
-				free(newtilebuf[i].data);
-		free(newtilebuf);
+				zc_free(newtilebuf[i].data);
+		zc_free(newtilebuf);
   }
 }
 
@@ -1121,8 +1127,8 @@ void free_grabtilebuf()
     if(grabtilebuf)
     {
 	  for(int i=0;i<NEWMAXTILES;i++)
-		if(grabtilebuf[i].data) free(grabtilebuf[i].data);
-	  free(grabtilebuf);
+		if(grabtilebuf[i].data) zc_free(grabtilebuf[i].data);
+	  zc_free(grabtilebuf);
     }
   }
 }
@@ -1131,23 +1137,24 @@ void del_qst_buffers()
 {
 	al_trace("Cleaning maps. \n");
 
-  if(ZCMaps) free(ZCMaps);
-  if(MsgStrings) free(MsgStrings);
-  if(DoorComboSets) free(DoorComboSets);
-  if(DMaps) free(DMaps);
-  if(combobuf) free(combobuf);
-  if(colordata) free(colordata);
+  if(ZCMaps) zc_free(ZCMaps);
+  if(MsgStrings) zc_free(MsgStrings);
+  if(DoorComboSets) zc_free(DoorComboSets);
+  if(DMaps) zc_free(DMaps);
+  if(combobuf) zc_free(combobuf);
+  if(colordata) zc_free(colordata);
 
   al_trace("Cleaning tile buffers. \n");
   free_newtilebuf();
   free_grabtilebuf();
 
   al_trace("Cleaning misc. \n");
-  if(trashbuf) free(trashbuf);
-  if(itemsbuf) free(itemsbuf);
-  if(wpnsbuf) free(wpnsbuf);
-  if(guysbuf) free(guysbuf);
-  if(combo_class_buf) free(combo_class_buf);
+  if(trashbuf) zc_free(trashbuf);
+  // See get_qst_buffers
+  if(itemsbuf) { itemsbuf--; zc_free(itemsbuf); }
+  if(wpnsbuf) zc_free(wpnsbuf);
+  if(guysbuf) zc_free(guysbuf);
+  if(combo_class_buf) zc_free(combo_class_buf);
 }
 
 bool init_palnames()
@@ -2099,11 +2106,6 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
   }
 
   //Now, do any updates...
-
-  if ((tempheader.zelda_version < 0x211)||((tempheader.zelda_version == 0x211)&&(tempheader.build<18)))
-  {
-    set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX,1);
-  }
   if ((tempheader.zelda_version < 0x211)||((tempheader.zelda_version == 0x211)&&(tempheader.build<18)))
   {
     set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING,1);
@@ -2261,6 +2263,12 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
       strings_to_read=128;
       temp_msg_count=Header->old_str_count;
+      
+      // Some sort of string count corruption seems to be common in old quests
+      if(temp_msg_count>128)
+      {
+        temp_msg_count=128;
+      }
     }
     else if ((Header->zelda_version == 0x192)&&(Header->build<140))
     {
@@ -2373,7 +2381,6 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
       return qe_invalid;
     }
-
 	  if (temp_msg_count >= msg_strings_size)
 	  {
 		  Z_message("Reallocating string buffer...\n");
@@ -6729,7 +6736,7 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
     // I'll comment this out until the whole routine is finished using ptr
         //if(is_string_command(temp_script.command))
         //{
-          //(*script)[j].ptr=(char *)malloc(256);
+          //(*script)[j].ptr=(char *)zc_malloc(256);
           //memcpy((*script)[j].ptr, temp_script.ptr, 256);
         //}
       }
@@ -6932,7 +6939,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
       if(customsfxdata[i].data!=NULL)
       {
 //        delete [] customsfxdata[i].data;
-        free(customsfxdata[i].data);
+        zc_free(customsfxdata[i].data);
       }
 //      customsfxdata[i].data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
     int len2 = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
@@ -6955,7 +6962,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 
     }
-    free(temp_sample.data);
+    zc_free(temp_sample.data);
   }
   sfxdat=0;
   return 0;
@@ -6981,7 +6988,7 @@ void setupsfx()
     if(customsfxdata[j].data!=NULL)
     {
 //    delete [] customsfxdata[j].data;
-      free(customsfxdata[j].data);
+      zc_free(customsfxdata[j].data);
     }
 //    customsfxdata[j].data = new byte[(temp_sample->bits==8?1:2)*temp_sample->len];
     customsfxdata[j].data = calloc((temp_sample->bits==8?1:2)*(temp_sample->stereo == 0 ? 1 : 2)*temp_sample->len,1);
@@ -7032,14 +7039,44 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     for(int i=0; i<eMAXGUYS; i++)
     {
       char tempname[64];
+
+	  // rev. 1511 : guyversion = 23. upped to 512 editable enemies. -Gleeok
+	  // if guyversion < 23 then there is only 256 enemies in the packfile, so default the rest.
+	  if(guyversion < 23 && i >= OLDBETAMAXGUYS)
+	  {
+		  memset(tempname, 0, sizeof(char)*64);
+		  sprintf(tempname, "e%03d", i);
+		  strcpy(guy_string[i], tempname);
+
+		  continue;
+	  }
+
       if(!pfread(tempname, 64, f, keepdata))
       {
         return qe_invalid;
       }
-      // Don't retain names of uneditable enemy entries!
+
+	  // Don't retain names of uneditable enemy entries!
       if(keepdata)
       {
-        if(i >= OLDMAXGUYS || strlen(tempname)<1 || tempname[strlen(tempname)-1]!=' ')
+		  // for version upgrade to 2.5
+		  if(guyversion < 23 && i >= 177)
+		  {
+			  // some of the older builds have names such as 'zz123',
+			  // (this order gets messed up with some eXXX and some zzXXX)
+			  // so let's update to the newer naming convection. -Gleeok
+			  char tmpbuf[64];
+			  memset(tmpbuf, 0, sizeof(char)*64);
+			  sprintf(tmpbuf, "zz%03d", i);
+
+			  if( memcmp(tempname, tmpbuf, size_t(5)) == 0 )
+			  {
+				  memset(tempname, 0, sizeof(char)*64);
+				  sprintf(tempname, "e%03d", i);
+			  }
+		  }
+
+	    if(i >= OLDMAXGUYS || strlen(tempname)<1 || tempname[strlen(tempname)-1]!=' ')
         {
           strcpy(guy_string[i], tempname);
         }
@@ -7107,6 +7144,15 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     guydata tempguy;
     for(int i=0; i<eMAXGUYS; i++)
     {
+		if( guyversion < 23 ) // May 2012 : 512 max enemies
+		{
+			if(i >= 256)
+			{
+				memset(&guysbuf[i], 0, sizeof(guydata));
+				continue;
+			}
+		}
+
       memset(&tempguy, 0, sizeof(guydata));
       if(!p_igetl(&(tempguy.flags),f,keepdata))
       {
@@ -9481,6 +9527,14 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
       }
     }
 
+	//June 3 2012; ladder only is broken in 2.10 and allows the hookshot also. -Gleeok
+    if(version == 0x210 && !is_zquest() )
+    {
+		for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			if (combobuf[tmpcounter].type == cLADDERONLY)
+				combobuf[tmpcounter].type = cLADDERHOOKSHOT;
+    }
+
     if(section_version<7)
     {
       for(int tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
@@ -9572,7 +9626,13 @@ int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build
     return qe_invalid;
   }
 
-  for(int j=0;j<MAXCOMBOALIASES;j++)
+  int max_num_combo_aliases = MAXCOMBOALIASES;
+  if(sversion < 2) // max saved combo alias' upped from 256 to 2048.
+  {
+	  max_num_combo_aliases = OLDMAXCOMBOALIASES;
+  }
+
+  for(int j=0;j<max_num_combo_aliases;j++)
   {
     byte width,height,mask,tempcset;
     int count;
@@ -9920,10 +9980,10 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         buf[start_tile+i].format=format;
         if (buf[start_tile+i].data)
         {
-          free(buf[start_tile+i].data);
+          zc_free(buf[start_tile+i].data);
           buf[start_tile+i].data=NULL;
         }
-        buf[start_tile+i].data=(byte *)malloc(tilesize(buf[start_tile+i].format));
+        buf[start_tile+i].data=(byte *)zc_malloc(tilesize(buf[start_tile+i].format));
         memcpy(buf[start_tile+i].data,temp_tile,tilesize(buf[start_tile+i].format));
       }
     }

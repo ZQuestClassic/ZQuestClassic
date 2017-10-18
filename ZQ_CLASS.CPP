@@ -161,7 +161,7 @@ bool zmap::reset_templates(bool validate)
   }
 
   char *deletefilename;
-  deletefilename=(char *)malloc(1);
+  deletefilename=(char *)zc_malloc(1);
   deletefilename[0]=0;
 
   //int ret;
@@ -3795,8 +3795,19 @@ void zmap::update_combo_cycling()
     return;
   }
   int x,y;
+  int newdata[176];
+  int newcset[176];
+  bool restartanim[MAXCOMBOS];
+  bool restartanim2[MAXCOMBOS];
+  
+  memset(restartanim, 0, MAXCOMBOS);
+  memset(restartanim2, 0, MAXCOMBOS);
+  
   for (int i=0; i<176; i++)
   {
+    newdata[i]=-1;
+    newcset[i]=-1;
+    
     x=prvscr.data[i];
 	y=animated_combo_table[x][0];
 	//time to restart
@@ -3804,13 +3815,12 @@ void zmap::update_combo_cycling()
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
     {
-      prvscr.data[i]=combobuf[x].nextcombo;
-      prvscr.cset[i]=combobuf[x].nextcset;
-	  int c = prvscr.data[i];
+      newdata[i]=combobuf[x].nextcombo;
+      newcset[i]=combobuf[x].nextcset;
+	  int c = newdata[i];
 	  if(combobuf[c].animflags & AF_CYCLE)
 	  {
-		  combobuf[c].tile = animated_combo_table[c][1];
-		  animated_combo_table4[animated_combo_table[c][0]][1]=0;
+		  restartanim[c]=true;
 	  }
     }
   }
@@ -3824,19 +3834,30 @@ void zmap::update_combo_cycling()
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
     {
-      prvscr.data[i]=combobuf[x].nextcombo;
-      prvscr.cset[i]=combobuf[x].nextcset;
-	  int c = prvscr.data[i];
+      newdata[i]=combobuf[x].nextcombo;
+      newcset[i]=combobuf[x].nextcset;
+	  int c = newdata[i];
 	  if(combobuf[c].animflags & AF_CYCLE)
 	  {
-		  combobuf[c].tile = animated_combo_table2[c][1];;
-		  animated_combo_table4[animated_combo_table[c][0]][1]=0;
+		  restartanim2[c]=true;
 	  }
     }
   }
 
+  for(int i=0; i<176; i++)
+  {
+    if(newdata[i]==-1)
+      continue;
+    
+    prvscr.data[i]=newdata[i];
+    prvscr.cset[i]=newcset[i];
+  }
+
   for(int i=0;i<32;i++)
   {
+    newdata[i]=-1;
+    newcset[i]=-1;
+    
     x=prvscr.ffdata[i];
     y=animated_combo_table[x][0];
     //time to restart
@@ -3844,13 +3865,12 @@ void zmap::update_combo_cycling()
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
       {
-        prvscr.ffdata[i]=combobuf[x].nextcombo;
-        prvscr.ffcset[i]=combobuf[x].nextcset;
-		int c = prvscr.ffdata[i];
+        newdata[i]=combobuf[x].nextcombo;
+        newcset[i]=combobuf[x].nextcset;
+		int c = newdata[i];
 	    if(combobuf[c].animflags & AF_CYCLE)
 	    {
-		    combobuf[c].tile = animated_combo_table[c][1];;
-            animated_combo_table4[animated_combo_table[c][0]][1]=0;
+		    restartanim[c]=true;
 	    }
       }
   }
@@ -3864,15 +3884,23 @@ void zmap::update_combo_cycling()
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
       {
-        prvscr.ffdata[i]=combobuf[x].nextcombo;
-        prvscr.ffcset[i]=combobuf[x].nextcset;
-		int c = prvscr.ffdata[i];
+        newdata[i]=combobuf[x].nextcombo;
+        newcset[i]=combobuf[x].nextcset;
+		int c = newdata[i];
 	    if(combobuf[c].animflags & AF_CYCLE)
 	    {
-		  combobuf[c].tile = animated_combo_table2[c][1];
-  		  animated_combo_table4[animated_combo_table[c][0]][1]=0;
+		  restartanim2[c]=true;
 	    }
       }
+  }
+
+  for(int i=0; i<32; i++)
+  {
+    if(newdata[i]==-1)
+      continue;
+    
+    prvscr.ffdata[i]=newdata[i];
+    prvscr.ffcset[i]=newcset[i];
   }
 
   if(get_bit(quest_rules,qr_CMBCYCLELAYERS))
@@ -3883,6 +3911,9 @@ void zmap::update_combo_cycling()
 			  continue;
 		  for (int i=0;	i<176; i++)
 		  {
+              newdata[i]=-1;
+              newcset[i]=-1;
+              
 			  x=(prvlayers[j]).data[i];
 			  y=animated_combo_table[x][0];
 			  //time to restart
@@ -3890,13 +3921,12 @@ void zmap::update_combo_cycling()
 				  (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1)	&&
 				  (combobuf[x].nextcombo!=0))
 			  {
-				  (prvlayers[j]).data[i]=combobuf[x].nextcombo;
-				  (prvlayers[j]).cset[i]=combobuf[x].nextcset;
-				  int c = (prvlayers[j]).data[i];
+				  newdata[i]=combobuf[x].nextcombo;
+                  newcset[i]=combobuf[x].nextcset;
+				  int c = newdata[i];
 				  if(combobuf[c].animflags & AF_CYCLE)
 				  {
-					combobuf[c].tile = animated_combo_table[c][1];;
-					animated_combo_table4[animated_combo_table[c][0]][1]=0;
+					restartanim[c]=true;
 				  }
 			  }
 		  }
@@ -3909,17 +3939,39 @@ void zmap::update_combo_cycling()
 				  (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
 				  (combobuf[x].nextcombo!=0))
 			  {
-				  (prvlayers[j]).data[i]=combobuf[x].nextcombo;
-				  (prvlayers[j]).cset[i]=combobuf[x].nextcset;
-				  int c = (prvlayers[j]).data[i];
+				  newdata[i]=combobuf[x].nextcombo;
+                  newcset[i]=combobuf[x].nextcset;
+				  int c = newdata[i];
 				  if(combobuf[c].animflags & AF_CYCLE)
 				  {
-					combobuf[c].tile = animated_combo_table2[c][1];
-					animated_combo_table4[animated_combo_table[c][0]][1]=0;
+					restartanim2[c]=true;
 				  }
 			  }
 		  }
+		  
+          for(int i=0; i<176; i++)
+          {
+            if(newdata[i]==-1)
+              continue;
+            
+            prvlayers[j].data[i]=newdata[i];
+            prvlayers[j].cset[i]=newcset[i];
+          }
 	  }
+  }
+  
+  for(int i=0; i<MAXCOMBOS; i++)
+  {
+    if(restartanim[i])
+    {
+      combobuf[i].tile = animated_combo_table[i][1];
+      animated_combo_table4[animated_combo_table[i][0]][1]=0;
+    }
+    if(restartanim2[i])
+    {
+      combobuf[i].tile = animated_combo_table2[i][1];
+      animated_combo_table4[animated_combo_table[i][0]][1]=0;
+    }
   }
   return;
 }
@@ -4442,6 +4494,122 @@ bool load_tiles(const char *path, int starttile)
       return false;
     }
   }
+  return false;
+}
+
+int writeguys(PACKFILE *f, zquestheader *Header);
+bool save_guys(const char *path)
+{
+  PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
+  if (!f)
+  {
+    return false;
+  }
+  /*
+  int id = ID_GUYS;
+  if(!p_mputl(id,f))
+  {
+    return false;
+  }
+  */
+
+  zquestheader h;
+  h.zelda_version = 0x250;
+  h.build = 21;
+
+  if( writeguys(f, &h)==0 )
+  {
+    pack_fclose(f);
+    return true;
+  }
+
+  pack_fclose(f);
+  return false;
+}
+
+bool load_guys(const char *path)
+{
+  dword section_id;
+  PACKFILE *f = pack_fopen_password(path,F_READ, "");
+  if (!f)
+  {
+    return false;
+  }
+  if(!p_mgetl(&section_id,f,true))
+  {
+	pack_fclose(f);
+	return false;
+  }
+
+  zquestheader h;
+  h.zelda_version = 0x250;
+  h.build = 21;
+
+ if(section_id==ID_GUYS)
+  {
+    if (readguys(f, &h, true)==0)
+    {
+      pack_fclose(f);
+      return true;
+    }
+  }
+
+  pack_fclose(f);
+  return false;
+}
+
+
+//int writeguys(PACKFILE *f, zquestheader *Header);
+bool save_combo_alias(const char *path)
+{
+  PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
+  if (!f)
+  {
+    return false;
+  }
+
+  zquestheader h;
+  h.zelda_version = 0x250;
+  h.build = 21;
+
+  if( writecomboaliases(f, 0, 0)==0 )
+  {
+    pack_fclose(f);
+    return true;
+  }
+
+  pack_fclose(f);
+  return false;
+}
+
+bool load_combo_alias(const char *path)
+{
+  dword section_id;
+  PACKFILE *f = pack_fopen_password(path,F_READ, "");
+  if (!f)
+  {
+    return false;
+  }
+  if(!p_mgetl(&section_id,f,true))
+  {
+	pack_fclose(f);
+	return false;
+  }
+
+  zquestheader h;
+  h.zelda_version = 0x250;
+  h.build = 21;
+
+ if(section_id==ID_COMBOALIASES)
+  {
+    if (readcomboaliases(f, &h, 0, 0, true)==0)
+    {
+      pack_fclose(f);
+      return true;
+    }
+  }
+
+  pack_fclose(f);
   return false;
 }
 
@@ -5038,7 +5206,6 @@ int reverse_string(char* str)
   }
   return 0;
 }
-
 
 
 int quest_access(const char *filename, zquestheader *hdr, bool compressed)
@@ -7971,7 +8138,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
     writesize=0;
 
     //finally...  section data
-    for(int i=0; i<eMAXGUYS; i++)
+    for(int i=0; i<MAXGUYS; i++)
     {
       if(!pfwrite((char *)guy_string[i], 64, f))
       {
@@ -7979,7 +8146,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
       }
     }
 
-    for(int i=0; i<eMAXGUYS; i++)
+    for(int i=0; i<MAXGUYS; i++)
     {
       if(!p_iputl(guysbuf[i].flags,f))
       {
@@ -9803,7 +9970,7 @@ int save_quest(const char *filename, bool timed_save)
     }
 
     delete_file(tmpfilename);
-    //free(tmpfilename); // Double free() error - L
+    //zc_free(tmpfilename); // Double zc_free() error - L
   }
 
   return ret;

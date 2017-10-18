@@ -113,8 +113,10 @@ void dump_pal()
 
 int wrap(int x,int low,int high)
 {
-  if(x<low) x=high;
-  if(x>high) x=low;
+  while(x<low)
+    x+=high-low+1;
+  while(x>high)
+    x-=high-low+1;
   return x;
 }
 

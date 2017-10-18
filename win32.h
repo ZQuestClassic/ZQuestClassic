@@ -14,9 +14,9 @@
 class Win32Data
 {
 public:
-	HWND hWnd;
-	LONG_PTR hInstance;
-	LONG_PTR hId;
+	volatile HWND hWnd;
+	volatile LONG_PTR hInstance;
+	volatile LONG_PTR hId;
 
 	static LRESULT CALLBACK zqWindowsProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static int zqSetDefaultThreadPriority(HANDLE _thread);
@@ -25,13 +25,64 @@ public:
 	static LRESULT CALLBACK zcWindowsProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static int zcSetCustomCallbackProc(HWND hWnd);
 
-	bool hasFocus;
-	bool isValid;
+	volatile bool hasFocus;
+	volatile bool isValid;
 
 	//call from main thread.
 	void Update(int frameskip);
 };
 extern Win32Data win32data;
+
+
+
+class Win32Mutex
+{
+public:
+	Win32Mutex(bool lock = false) : m_locked(false)
+	{
+		::InitializeCriticalSection (&m_criticalSection);
+		if(lock)
+			Lock();
+	}
+
+	~Win32Mutex()
+	{
+		Unlock();
+		::DeleteCriticalSection (&m_criticalSection);
+	}
+
+	void Lock()
+	{
+		if(!m_locked)
+		{
+			m_locked = true;
+			::EnterCriticalSection (&m_criticalSection);
+		}
+	}
+
+	void Unlock()
+	{
+		if(m_locked)
+		{
+			m_locked = false;
+			::LeaveCriticalSection (&m_criticalSection);
+		}
+	}
+
+protected:
+	CRITICAL_SECTION m_criticalSection;
+	bool m_locked;
+};
+
+
+
+
+
+
+
+
+
+
 
 
 

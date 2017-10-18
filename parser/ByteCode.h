@@ -343,6 +343,20 @@ using namespace std;
 #define LINKHITDIR          315
 #define ROOMTYPE            316
 #define ROOMDATA            317
+#define LINKTILE            318
+#define LINKFLIP            319
+#define INPUTPRESSMAP       320
+#define NPCHUNGER           321
+#define GAMESTANDALONE      322
+#define GAMEENTRSCR         323
+#define GAMEENTRDMAP        324
+#define GAMECLICKFREEZE     325
+#define PUSHBLOCKX          326
+#define PUSHBLOCKY          327
+#define PUSHBLOCKCOMBO      328
+#define PUSHBLOCKCSET       329
+#define UNDERCOMBO          330
+#define UNDERCSET           331
 //#define FFDD			    309 //8 of these
 
 class LiteralArgument;
@@ -1617,6 +1631,29 @@ public:
 	OComboTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 	string toString();
 	Opcode *clone() {return new OComboTile(a->clone(), b->clone());}
+};
+
+class OBreakShield : public UnaryOpcode
+{
+public:
+	OBreakShield(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OBreakShield(a->clone());}
+};
+
+class OShowSaveScreen : public UnaryOpcode
+{
+public:
+    OShowSaveScreen(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OShowSaveScreen(a->clone());}
+};
+
+class OShowSaveQuitScreen : public Opcode
+{
+public:
+	string toString();
+	Opcode *clone() {return new OShowSaveQuitScreen();}
 };
 
 #endif

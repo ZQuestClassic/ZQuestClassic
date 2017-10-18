@@ -12,6 +12,12 @@ Win32Data win32data;
 WNDPROC hAllegroProc = 0;
 
 
+#define FATAL_ERROR(message) \
+	set_gfx_mode(GFX_TEXT,0,0,0,0); \
+	allegro_message(message); \
+	exit(1)
+
+
 /* 
 	These are unfinished, though the windows stuff is here if it is needed. -Gleeok.
 	//todo* The return values and pointers NEED to be checked. 
@@ -23,19 +29,14 @@ WNDPROC hAllegroProc = 0;
 
 void Win32Data::Update(int frameskip)
 {
-	if(!isValid)
+	if(!win32data.isValid)
 		return;
 
 	if(frameskip > 0)
 	{
-		//this hack doesn't really do anything useful.. :(
-		//to get actual frameskipping we need to ..uhh, bad thoughts, nvrmd. 
-		int fs = frameskip > 10 ? 10 : frameskip;
-		unsigned int val = (unsigned int)ceil(1.67f * (float)fs);
-		rest(val);
 	}
 
-	while(!hasFocus)
+	while(!win32data.hasFocus)
 	{
 		rest(17);
 	}
@@ -70,6 +71,9 @@ int Win32Data::zqSetDefaultThreadPriority(HANDLE _thread)
 
 int Win32Data::zqSetCustomCallbackProc(HWND hWnd)
 {
+	Win32Mutex mutex;
+	mutex.Lock();
+
 	memset((void*)&win32data, 0, sizeof(Win32Data));
 	win32data.hasFocus = true;
 
@@ -98,7 +102,7 @@ int Win32Data::zqSetCustomCallbackProc(HWND hWnd)
 	LONG_PTR pcb = ::SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)Win32Data::zqWindowsProc);
 	if( !pcb )
 	{
-		printf("Error: Cannot Set Windows Procedure.");
+		al_trace("Error: Cannot Set Windows Procedure.");
 		win32data.isValid = false;
 		return -1;
 	}
@@ -145,6 +149,9 @@ LRESULT CALLBACK Win32Data::zqWindowsProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
 
 int Win32Data::zcSetCustomCallbackProc(HWND hWnd)
 {
+	Win32Mutex mutex;
+	mutex.Lock();
+
 	memset((void*)&win32data, 0, sizeof(Win32Data));
 	win32data.hasFocus = true;
 
@@ -173,7 +180,7 @@ int Win32Data::zcSetCustomCallbackProc(HWND hWnd)
 	LONG_PTR pcb = ::SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)Win32Data::zcWindowsProc);
 	if( !pcb )
 	{
-		printf("Error: Cannot Set Windows Procedure.");
+		al_trace("Error: Cannot Set Windows Procedure.");
 		win32data.isValid = false;
 		return -1;
 	}
@@ -187,6 +194,14 @@ LRESULT CALLBACK Win32Data::zcWindowsProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
 {
 	assert( win32data.isValid && "ZC-Win32 Fatal Error: Set \"zc_win_proc_fix = 0\" in config file." );
 
+	/*
+	HWND tmp_hwnd = win_get_window();
+	if( win32data.hWnd != hwnd || win32data.hWnd != tmp_hwnd )
+	{
+		win32data.hWnd = hwnd; //happens at shutdown
+	}
+	*/
+
 	switch(uMsg)
 	{
 		case WM_SETFOCUS:
@@ -199,9 +214,27 @@ LRESULT CALLBACK Win32Data::zcWindowsProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
 				win32data.hasFocus = false;
 			}
 			break;
+
+		case WM_SYSCOMMAND:
+		{
+			switch (wParam)
+			{
+				// *Don't let the monitor enter screen-save mode.*
+				// -this is actually an annoying bug on my laptop: what happens is if allegro
+				// is running and we go into powersave, (joystick input is not considered activity),
+				// the damn thing locks up sometimes and I have to enter stand-by mode... :/ -Gleeok
+				case SC_SCREENSAVE:
+				case SC_MONITORPOWER:
+				//fall through
+				return 0;
+			}
+			break;
+		}
 	}
 
 	//ship the rest for allegro to handle
-	return hAllegroProc(hwnd, uMsg, wParam, lParam);
+	LRESULT result = hAllegroProc(hwnd, uMsg, wParam, lParam);
+
+	return result;
 }
 #endif //_WIN32

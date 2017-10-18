@@ -58,6 +58,7 @@ extern LinkClass Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 extern int loadlast;
 byte disable_direct_updating;
+byte use_dwm_flush;
 //extern movingblock mblock2; //mblock[4]?
 //extern int db;
 
@@ -84,6 +85,33 @@ bool rF5();
 bool rF11();
 bool rI();
 bool rQ();
+
+#ifdef _WIN32
+
+// This should only be necessary for MinGW, since it doesn't have a dwmapi.h. Add another #ifdef if you like.
+extern "C"
+{
+    typedef HRESULT (WINAPI *t_DwmFlush)();
+	typedef HRESULT (WINAPI *t_DwmIsCompositionEnabled)(BOOL *pfEnabled);
+}
+
+void do_DwmFlush()
+{
+  static HMODULE shell = LoadLibrary("dwmapi.dll");
+  if(!shell)
+    return;
+  
+  static t_DwmFlush flush=reinterpret_cast<t_DwmFlush>(GetProcAddress(shell, "DwmFlush"));
+  static t_DwmIsCompositionEnabled isEnabled=reinterpret_cast<t_DwmIsCompositionEnabled>(GetProcAddress(shell, "DwmIsCompositionEnabled"));
+  
+  BOOL enabled;
+  isEnabled(&enabled);
+  
+  if(isEnabled)
+	flush();
+}
+
+#endif // _WIN32
 
 // Dialogue largening
 void large_dialog(DIALOG *d)
@@ -222,7 +250,7 @@ void load_game_configs()
   // 1 <= zcmusic_bufsz <= 128
   zcmusic_bufsz = vbound(get_config_int(cfg_sect,"zcmusic_bufsz",64),1,128);
   volkeys = get_config_int(cfg_sect,"volkeys",0)!=0;
-  //Vsync = get_config_int(cfg_sect,"vsync",0)!=0;
+  zc_vsync = get_config_int(cfg_sect,"vsync",0);
   Throttlefps = get_config_int(cfg_sect,"throttlefps",1)!=0;
   TransLayers = get_config_int(cfg_sect,"translayers",1)!=0;
   SnapshotFormat = get_config_int(cfg_sect,"snapshot_format",3);
@@ -245,14 +273,26 @@ void load_game_configs()
 
   zc_color_depth = (byte) get_config_int(cfg_sect,"color_depth",8);
 
+  //workaround for the 100% CPU bug. -Gleeok
+#ifdef ALLEGRO_MACOSX //IIRC rest(0) was a mac issue fix.
+  frame_rest_suggest = (byte) get_config_int(cfg_sect,"frame_rest_suggest",0);
+#else
+  frame_rest_suggest = (byte) get_config_int(cfg_sect,"frame_rest_suggest",1);
+#endif
+  frame_rest_suggest = zc_min(2, frame_rest_suggest);
+
+    forceExit = (byte) get_config_int(cfg_sect,"force_exit",0);
 
   #ifdef _WIN32
     use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
     //use_win7_keyboard_fix = (byte) get_config_int(cfg_sect,"use_win7_key_fix",0);
-	use_win32_proc = (byte) get_config_int(cfg_sect,"zc_win_proc_fix",1);
+	use_win32_proc = (byte) get_config_int(cfg_sect,"zc_win_proc_fix",0); //buggy
 	
 	// This seems to fix some problems on Windows 7
     disable_direct_updating = (byte) get_config_int("graphics","disable_direct_updating",1);
+	
+	// This one's for Aero
+	use_dwm_flush = (byte) get_config_int("zeldadx","use_dwm_flush",0);
   #endif
 
 #ifdef ALLEGRO_MACOSX
@@ -321,7 +361,7 @@ void save_game_configs()
   set_config_int(cfg_sect,"pan",pan_style);
   set_config_int(cfg_sect,"zcmusic_bufsz",zcmusic_bufsz);
   set_config_int(cfg_sect,"volkeys",(int)volkeys);
-  //set_config_int(cfg_sect,"vsync",(int)Vsync);
+  set_config_int(cfg_sect,"vsync",zc_vsync);
   set_config_int(cfg_sect,"throttlefps", (int)Throttlefps);
   set_config_int(cfg_sect,"translayers",(int)TransLayers);
   set_config_int(cfg_sect,"snapshot_format",SnapshotFormat);
@@ -333,6 +373,8 @@ void save_game_configs()
 
   set_config_int(cfg_sect,"resx",resx);
   set_config_int(cfg_sect,"resy",resy);
+
+  //sbig depricated as of 2.5 RC3. handled exclusively by resx, resy now. 
   //set_config_int(cfg_sect,"screen_scale",screen_scale);
   //set_config_int(cfg_sect,"sbig",sbig);
   //set_config_int(cfg_sect,"sbig2",sbig2);
@@ -351,12 +393,15 @@ void save_game_configs()
   set_config_int(cfg_sect,"doublebuffer",disable_triplebuffer);
   set_config_int(cfg_sect,"triplebuffer",can_triplebuffer_in_windowed_mode);
   set_config_int(cfg_sect,"color_depth",zc_color_depth);
+  set_config_int(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
+  set_config_int(cfg_sect,"force_exit",forceExit);
 
   #ifdef _WIN32
    set_config_int(cfg_sect,"debug_console",use_debug_console);
    //set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
    set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc);
    set_config_int("graphics","disable_direct_updating",disable_direct_updating);
+   set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
   #endif
 
   #ifdef ALLEGRO_LINUX
@@ -2747,14 +2792,30 @@ void draw_lens_under(BITMAP *dest, bool layer)
   }
 }
 
+BITMAP *lens_scr_d; // The "d" is for "destructible"!
+
 void draw_lens_over()
 {
-  clear_to_color(tmp_scr, BLACK);
-  int width = (itemsbuf[current_item_id(itype_lens,true)].misc1);
-  circlefill(tmp_scr, LinkX()+8, LinkY()+8+playing_field_offset, width, 0);
-  circle(tmp_scr, LinkX()+8, LinkY()+8+playing_field_offset, width+2, 0);
-  circle(tmp_scr, LinkX()+8, LinkY()+8+playing_field_offset, width+5, 0);
-  masked_blit(tmp_scr, framebuf, 0, playing_field_offset, 0, playing_field_offset, 256, 168);
+  // Oh, what the heck.
+  static BITMAP *lens_scr = NULL;
+  static int last_width = -1;
+  int width = itemsbuf[current_item_id(itype_lens,true)].misc1;
+    
+  // Only redraw the circle if the size has changed
+  if(width != last_width)
+  {
+    if(lens_scr == NULL)
+    {
+      lens_scr = create_bitmap_ex(8,2*288,2*(240-playing_field_offset));
+    }
+    
+    clear_to_color(lens_scr, BLACK);
+    circlefill(lens_scr, 288, 240-playing_field_offset, width, 0);
+    circle(lens_scr, 288, 240-playing_field_offset, width+2, 0);
+    circle(lens_scr, 288, 240-playing_field_offset, width+5, 0);
+    last_width=width;
+  }
+  masked_blit(lens_scr, framebuf, 288-(LinkX()+8), 240-playing_field_offset-(LinkY()+8), 0, playing_field_offset, 256, 168);
 }
 
 //----------------------------------------------------------------
@@ -3155,7 +3216,7 @@ int onSaveMapPic()
     {
       int s = (y<<4) + x;
 
-      if(!(game->maps[(currmap<<7)+s]&mVISITED))
+      if(!(game->maps[(currmap*MAPSCRSNORMAL)+s]&mVISITED))
       {
         rectfill(temp_buf, 0, 0, 255, 223, WHITE);
       }
@@ -3359,7 +3420,7 @@ void syskeys()
   }
   poll_joystick();
 
-  if(rMbtn() || (gui_mouse_b() && !mouse_down && ClickToFreeze))
+  if(rMbtn() || (gui_mouse_b() && !mouse_down && ClickToFreeze &&!disableClickToFreeze))
   {
     oldtitle_version=title_version;
     System();
@@ -3392,6 +3453,9 @@ void syskeys()
     if(ReadKey(KEY_F1))    set_bit(QHeader.rules4,qr4_NEWENEMYTILES,
     1-((get_bit(QHeader.rules4,qr4_NEWENEMYTILES))));
     */
+
+  if(ReadKey(KEY_OPENBRACE))    if(frame_rest_suggest > 0) frame_rest_suggest--;
+  if(ReadKey(KEY_CLOSEBRACE))    if(frame_rest_suggest <= 2) frame_rest_suggest++;
 
   if(ReadKey(KEY_F2))    ShowFPS=!ShowFPS;
   if(ReadKey(KEY_F3) && Playing)    Paused=!Paused;
@@ -3595,6 +3659,14 @@ void advanceframe(bool allowwavy, bool sfxcleanup)
     // to keep fps constant
     updatescr(allowwavy);
 	throttleFPS();
+	
+#ifdef _WIN32
+    if(use_dwm_flush)
+    {
+	  do_DwmFlush();
+	}
+#endif
+	
     // to keep music playing
     if (zcmusic!=NULL)
     {
@@ -3614,6 +3686,13 @@ void advanceframe(bool allowwavy, bool sfxcleanup)
   // Someday... maybe install a Turbo button here?
   updatescr(allowwavy);
   throttleFPS();
+  
+#ifdef _WIN32
+  if(use_dwm_flush)
+  {
+    do_DwmFlush();
+  }
+#endif
 
   //textprintf_ex(screen,font,0,72,254,BLACK,"%d %d", lastentrance, lastentrance_dmap);
   if (sfxcleanup)
@@ -4857,8 +4936,8 @@ void get_info(int index)
 
 int onMIDICredits()
 {
-  text = (char*)malloc(4096);
-  zmi = (midi_info*)malloc(sizeof(midi_info));
+  text = (char*)zc_malloc(4096);
+  zmi = (midi_info*)zc_malloc(sizeof(midi_info));
 
   if(!text || !zmi)
   {
@@ -4885,8 +4964,8 @@ int onMIDICredits()
   if(listening)
     music_stop();
 
-  free(text);
-  free(zmi);
+  zc_free(text);
+  zc_free(zmi);
   return D_O_K;
 }
 
@@ -5229,14 +5308,26 @@ int onQuit()
   {
     int ret=0;
     if(get_bit(quest_rules, qr_NOCONTINUE))
-      ret=queding("End current game?",
-                  "The continue screen is disabled. You will",
-                  "be returned to the file select screen.");
+    {
+      if(standalone_mode)
+      {
+        ret=queding("End current game?",
+                    "The continue screen is disabled; the game",
+                    "will be reloaded from the last save.");
+      }
+      else
+      {
+        ret=queding("End current game?",
+                    "The continue screen is disabled. You will",
+                    "be returned to the file select screen.");
+      }
+    }
     else
       ret=queding("End current game?",NULL,NULL);
     
     if(ret==1)
     {
+      disableClickToFreeze=false;
       Quit=qQUIT;
       return D_CLOSE;
     }
@@ -5248,6 +5339,7 @@ int onReset()
 {
   if(queding("  Reset system?  ",NULL,NULL)==1)
   {
+    disableClickToFreeze=false;
     Quit=qRESET;
     return D_CLOSE;
   }
@@ -5362,14 +5454,14 @@ int onLife()
 
 int onHeartC()
 {
-  game->set_maxlife( vbound(getnumber("Heart Containers",game->get_maxlife()/HP_PER_HEART),1,128) * HP_PER_HEART);
+  game->set_maxlife( vbound(getnumber("Heart Containers",game->get_maxlife()/HP_PER_HEART),1,4096) * HP_PER_HEART);
   game->set_life( vbound(getnumber("Life",game->get_life()/HP_PER_HEART),1,game->get_maxlife()/HP_PER_HEART)*HP_PER_HEART);
   return D_O_K;
 }
 
 int onMagicC()
 {
-  game->set_maxmagic( vbound(getnumber("Magic Containers",game->get_maxmagic()/MAGICPERBLOCK),0,16) * MAGICPERBLOCK);
+  game->set_maxmagic( vbound(getnumber("Magic Containers",game->get_maxmagic()/MAGICPERBLOCK),0,4096) * MAGICPERBLOCK);
   game->set_magic( vbound(getnumber("Magic",game->get_magic()/MAGICPERBLOCK),0,game->get_maxmagic()/MAGICPERBLOCK)*MAGICPERBLOCK);
   return D_O_K;
 }

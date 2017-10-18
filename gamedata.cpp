@@ -148,7 +148,8 @@ char *gamedata::get_name()
 }
 void gamedata::set_name(char *n)
 {
-  strcpy(_name, n);
+  strncpy(_name, n, 8);
+  _name[8]='\0';
   return;
 }
 

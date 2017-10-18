@@ -67,6 +67,7 @@ void draw_edit_scr(int tile,int flip,int cs,byte *oldtile, bool create_tbar);
 void normalize(int tile,int tile2, bool rect_sel, int flip);
 void rotate_tile(int tile, bool backward);
 void wrap_tile(int tile, int offset);
+void shift_tile_colors(int tile, int amount, bool ignore_transparent);
 void edit_tile(int tile,int flip,int &cs);
 
 /*  Grab Tile Code  */

@@ -262,32 +262,15 @@ void go_tiles()
     newundotilebuf[i].format=newtilebuf[i].format;
     if (newundotilebuf[i].data!=NULL)
     {
-      free(newundotilebuf[i].data);
+      zc_free(newundotilebuf[i].data);
     }
-    newundotilebuf[i].data=(byte *)malloc(tilesize(newundotilebuf[i].format));
+    newundotilebuf[i].data=(byte *)zc_malloc(tilesize(newundotilebuf[i].format));
     if (newundotilebuf[i].data==NULL)
     {
       Z_error("Unable to initialize undo tile #%ld.\n", i);
       exit(1);
     }
-    //memcpy(newundotilebuf[i].data,newtilebuf[i].data,tilesize(newundotilebuf[i].format));
-    int count = tilesize(newundotilebuf[i].format);
-    byte *to = newundotilebuf[i].data;
-    byte *from = newtilebuf[i].data;
-    register int n = (count + 7) / 8;      /* count > 0 assumed */
-
-    switch (count % 8)
-    {
-        case 0:        do {  *to++ = *from++;
-        case 7:              *to++ = *from++;
-        case 6:              *to++ = *from++;
-        case 5:              *to++ = *from++;
-        case 4:              *to++ = *from++;
-        case 3:              *to++ = *from++;
-        case 2:              *to++ = *from++;
-        case 1:              *to++ = *from++;
-      } while (--n > 0);
-    }
+    memcpy(newundotilebuf[i].data,newtilebuf[i].data,tilesize(newundotilebuf[i].format));
   }
   /*
     int *si = (int*)tilebuf;
@@ -307,9 +290,9 @@ void go_slide_tiles(int columns, int rows, int top, int left)
       newundotilebuf[t].format=newtilebuf[t].format;
       if (newundotilebuf[t].data!=NULL)
       {
-        free(newundotilebuf[t].data);
+        zc_free(newundotilebuf[t].data);
       }
-      newundotilebuf[t].data=(byte *)malloc(tilesize(newundotilebuf[t].format));
+      newundotilebuf[t].data=(byte *)zc_malloc(tilesize(newundotilebuf[t].format));
       if (newundotilebuf[t].data==NULL)
       {
         Z_error("Unable to initialize undo tile #%ld.\n", t);
@@ -327,9 +310,9 @@ void comeback_tiles()
     newtilebuf[i].format=newundotilebuf[i].format;
     if (newtilebuf[i].data!=NULL)
     {
-      free(newtilebuf[i].data);
+      zc_free(newtilebuf[i].data);
     }
-    newtilebuf[i].data=(byte *)malloc(tilesize(newtilebuf[i].format));
+    newtilebuf[i].data=(byte *)zc_malloc(tilesize(newtilebuf[i].format));
     if (newtilebuf[i].data==NULL)
     {
       Z_error("Unable to initialize tile #%ld.\n", i);
@@ -1204,9 +1187,17 @@ void normalize(int tile,int tile2, bool rect_sel, int flip)
 
   int left=zc_min(tile_col(tile), tile_col(tile2));
   int columns=zc_max(tile_col(tile), tile_col(tile2))-left+1;
+  
+  int start=tile;
+  int end=tile2;
+  // Might have top-right and bottom-left corners selected...
+  if(rect_sel && tile_col(tile)>tile_col(tile2))
+  {
+      start=tile-(tile_col(tile)-tile_col(tile2));
+      end=tile2+(tile_col(tile)-tile_col(tile2));
+  }
 
-
-  for (int temptile=tile; temptile<=tile2; temptile++)
+  for (int temptile=start; temptile<=end; temptile++)
   {
     if (!rect_sel || ((tile_col(temptile)>=left) && (tile_col(temptile)<=left+columns-1)))
     {
@@ -1314,6 +1305,33 @@ void wrap_tile(int tile, int vertical, int horizontal, bool clear)
   pack_tile(newtilebuf,buf,tile);
 }
 
+void shift_tile_colors(int tile, int amount, bool ignore_transparent)
+{
+    byte buf[256];
+    
+    unpack_tile(newtilebuf, tile, 0, true);
+    
+    for(int i=0; i<256; i++)
+    {
+        buf[i]=unpackbuf[i];
+        
+        if(!is_in_selection(i&0x0F, (i&0xF0)>>4))
+            continue;
+        
+        if(ignore_transparent)
+        {
+            if(buf[i]==0)
+                continue;
+            
+            buf[i]=wrap(buf[i]+amount, 1, newtilebuf[tile].format==tf8Bit ? 191 : 15);
+        }
+        else // Don't ignore transparent
+            buf[i]=wrap(buf[i]+amount, 0, newtilebuf[tile].format==tf8Bit ? 191 : 15);
+    }
+    
+    pack_tile(newtilebuf,buf,tile);
+}
+
 void clear_selection_grid()
 {
   for(int x=0; x<18; ++x)
@@ -1356,6 +1374,10 @@ void edit_tile(int tile,int flip,int &cs)
   set_palette(tpal);
   */
   byte oldtile[256];
+  
+  memset(&tpal, 0, sizeof(PALETTE));
+  memset(oldtile, 0, 256);
+  
   for(int i=0; i<undocount; i++)
   {
     oldtile[i]=undotile[i]=newtilebuf[tile].data[i];
@@ -1498,9 +1520,42 @@ void edit_tile(int tile,int flip,int &cs)
 				break;
 			}
         case KEY_EQUALS:
-        case KEY_PLUS_PAD:  cs = (cs<11) ? cs+1:0;  redraw=true; break;
+        case KEY_PLUS_PAD:
+        {
+            if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+               key[KEY_ALT] || key[KEY_ALTGR])
+            {
+                for(int i=0; i<undocount; i++)
+                    undotile[i]=newtilebuf[tile].data[i];
+                
+                if(key[KEY_ALT] || key[KEY_ALTGR])
+                    shift_tile_colors(tile, 16, false);
+                else
+                    shift_tile_colors(tile, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+            }
+            else
+                cs = (cs<11) ? cs+1:0;
+            redraw=true;
+            break;
+        }
         case KEY_MINUS:
-        case KEY_MINUS_PAD: cs = (cs>0)  ? cs-1:11; redraw=true; break;
+        case KEY_MINUS_PAD:
+        {
+            if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+               key[KEY_ALT] || key[KEY_ALTGR])
+            {
+                for(int i=0; i<undocount; i++)
+                    undotile[i]=newtilebuf[tile].data[i];
+                if(key[KEY_ALT] || key[KEY_ALTGR])
+                    shift_tile_colors(tile, -16, false);
+                else
+                    shift_tile_colors(tile, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+            }
+            else
+                cs = (cs>0) ? cs-1:11;
+            redraw=true;
+            break;
+        }
         case KEY_SPACE: gridmode=(gridmode+1)%gm_max; redraw=true; break;
         case KEY_U:     for(int i=0; i<undocount; i++) zc_swap(undotile[i],newtilebuf[tile].data[i]); redraw=true; break;
         case KEY_S:
@@ -1518,9 +1573,9 @@ void edit_tile(int tile,int flip,int &cs)
               unpackbuf[i]=c2;
             }
             else if (unpackbuf[i]==c2)
-              {
-                unpackbuf[i]=c1;
-              }
+            {
+              unpackbuf[i]=c1;
+            }
           }
           pack_tile(newtilebuf, unpackbuf,tile);
         }
@@ -1531,6 +1586,7 @@ void edit_tile(int tile,int flip,int &cs)
         if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
         {
           tile=zc_max(0,tile-TILES_PER_ROW);
+          undocount = tilesize(newtilebuf[tile].format);
           for(int i=0; i<undocount; i++)
           {
             undotile[i]=newtilebuf[tile].data[i];
@@ -1552,6 +1608,7 @@ void edit_tile(int tile,int flip,int &cs)
         if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
         {
           tile=zc_min(tile+TILES_PER_ROW,NEWMAXTILES-1);
+          undocount = tilesize(newtilebuf[tile].format);
           for(int i=0; i<undocount; i++)
           {
             undotile[i]=newtilebuf[tile].data[i];
@@ -1573,6 +1630,7 @@ void edit_tile(int tile,int flip,int &cs)
         if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
         {
           tile=zc_max(0,tile-1);
+          undocount = tilesize(newtilebuf[tile].format);
           for(int i=0; i<undocount; i++)
           {
             undotile[i]=newtilebuf[tile].data[i];
@@ -1594,6 +1652,7 @@ void edit_tile(int tile,int flip,int &cs)
         if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
         {
           tile=zc_min(tile+1, NEWMAXTILES-1);
+          undocount = tilesize(newtilebuf[tile].format);
           for(int i=0; i<undocount; i++)
           {
             undotile[i]=newtilebuf[tile].data[i];
@@ -2146,6 +2205,7 @@ void edit_tile(int tile,int flip,int &cs)
 
   } while(!done);
 
+  clear_selection_grid();
   while(gui_mouse_b()) { /* do nothing */ }
 
   if(done==1)
@@ -2203,69 +2263,56 @@ int grabmask=0;
 bool reduce=false;
 PALETTE imagepal;
 
-/* 1.5k lookup table for color matching */
-//unsigned int col_diff[3*128];
-
-/* bestfit_init:
-  *  Color matching is done with weighted squares, which are much faster
-  *  if we pregenerate a little lookup table...
-  */
-static void bestfit_cset_init(void)
-{
-  int i;
-
-  for (i=1; i<64; i++)
-  {
-    int k = i * i;
-    col_diff[0  +i] = col_diff[0  +128-i] = k * (59 * 59);
-    col_diff[128+i] = col_diff[128+128-i] = k * (30 * 30);
-    col_diff[256+i] = col_diff[256+128-i] = k * (11 * 11);
-  }
-}
-
 /* bestfit_color:
   *  Searches a palette for the color closest to the requested R, G, B value.
   */
 int bestfit_cset_color(int cs, int r, int g, int b)
 {
-  int i, coldiff, lowest, bestfit;
-
-  if (col_diff[1] == 0)
-    bestfit_cset_init();
-
-  bestfit = 0;
-  lowest = INT_MAX;
-
-  /* only the transparent (pink) color can be mapped to index 0 */
-  i = 0;
-
-  while (i<CSET_SIZE)
-  {
-    byte *rgb_byte= &colordata[((cs<<4)+i)*3];
-    RGB rgb;
-    rgb.r = *rgb_byte; rgb_byte++;
-    rgb.g = *rgb_byte; rgb_byte++;
-    rgb.b = *rgb_byte;
-    coldiff = (col_diff + 0) [ (rgb.g - g) & 0x7F ];
-    if (coldiff < lowest)
+    int totalDiff; // Total difference between requested and current color
+    int highDiff; // Greatest difference of R, G, B between requested and current color
+    int bestMatch = 0; // Color with the lowest total difference so far
+    int bestTotalDiff = INT_MAX; // Total difference between requested color and bestMatch
+    int bestHighDiff = INT_MAX; // Greatest difference of R, G, B between requested color and bestMatch
+    
+    for(int i = 0; i < CSET_SIZE; i++)
     {
-      coldiff += (col_diff + 128) [ (rgb.r - r) & 0x7F ];
-      if (coldiff < lowest)
-      {
-        coldiff += (col_diff + 256) [ (rgb.b - b) & 0x7F ];
-        if (coldiff < lowest)
+        byte *rgbByte;
+        RGB rgb;
+        
+        // This seems to be right...
+        if(cs==2 || cs==3 || cs==4)
+            rgbByte = colordata + (CSET((Map.CurrScr()->color+1) * pdLEVEL + cs) + i) * 3;
+        else if(cs==9)
+            rgbByte = colordata + (CSET((Map.CurrScr()->color+1) * pdLEVEL + 5) + i) * 3;
+        else
+            rgbByte = colordata + (CSET(cs)+i)*3;
+        
+        rgb.r = *rgbByte;
+        rgb.g = *(rgbByte+1);
+        rgb.b = *(rgbByte+2);
+        
+        // Track both the total color difference and the single greatest
+        // difference of R, G, B. The idea is that it's better to have
+        // two or three small differences than one big one.
+        // The differences are multiplied by different numbers to account
+        // for the differences in perceived brightness of the three colors.
+        totalDiff = abs(rgb.r - r)*3 + abs(rgb.g - g)*5 + abs(rgb.b - b)*2;
+        highDiff = zc_max(zc_max(abs(rgb.r - r)*3, abs(rgb.g - g)*5), abs(rgb.b - b)*2);
+        
+        // Perfect match? Just stop here.
+        if(totalDiff==0)
+            return i;
+        
+        if(totalDiff < bestTotalDiff || // Best match so far?
+           (totalDiff == bestTotalDiff && highDiff < bestHighDiff)) // Equally good match with lower high difference?
         {
-          bestfit = i;                                      /* faster than `bestfit = i;' */
-          if (coldiff == 0)
-            return bestfit;
-          lowest = coldiff;
+            bestMatch=i;
+            bestTotalDiff=totalDiff;
+            bestHighDiff=highDiff;
         }
-      }
     }
-    i++;
-  }
-
-  return bestfit;
+    
+    return bestMatch;
 }
 
 
@@ -2597,33 +2644,58 @@ void draw_grab_scr(int tile,int cs,byte *newtile,int black,int white, int width,
   }
 
   tiledata hold;
-  hold.format = newtilebuf[0].format;
-  hold.data = (byte *)malloc(tilesize(hold.format));
-  memcpy(hold.data, newtilebuf[0].data, tilesize(hold.format));
+  if(is_valid_format(newtilebuf[0].format))
+  {
+    hold.format = newtilebuf[0].format;
+    hold.data = (byte *)zc_malloc(tilesize(hold.format));
+    memcpy(hold.data, newtilebuf[0].data, tilesize(hold.format));
+  }
+  else
+  {
+    hold.format=tfInvalid;
+    hold.data=NULL;
+  }
 
   newtilebuf[0].format=newformat[0];
   if(newtilebuf[0].data!=NULL)
   {
-    free(newtilebuf[0].data);
+    zc_free(newtilebuf[0].data);
   }
-  newtilebuf[0].data = (byte *)malloc(tilesize(newtilebuf[0].format));
-  for(int i=0;i<tilesize(newtilebuf[0].format);i++)
+  if(is_valid_format(newtilebuf[0].format))
   {
-    newtilebuf[0].data[i]=newtile[i];
+    newtilebuf[0].data = (byte *)zc_malloc(tilesize(newtilebuf[0].format));
+    for(int i=0;i<tilesize(newtilebuf[0].format);i++)
+    {
+      newtilebuf[0].data[i]=newtile[i];
+    }
+  }
+  else
+  {
+    newtilebuf[0].data=NULL;
   }
   puttile16(screen2,0,208,168+yofs,cs,0);
   overtile16(screen2,0,232,168+yofs,cs,0);
   newtilebuf[0].format=hold.format;
   if(newtilebuf[0].data!=NULL)
   {
-    free(newtilebuf[0].data);
+    zc_free(newtilebuf[0].data);
   }
-  newtilebuf[0].data = (byte *)malloc(tilesize(newtilebuf[0].format));
-  for(int i=0;i<newtilebuf[0].format*128;i++)
+  if(is_valid_format(newtilebuf[0].format))
   {
-    newtilebuf[0].data[i]=hold.data[i];
+    newtilebuf[0].data = (byte *)zc_malloc(tilesize(newtilebuf[0].format));
+    for(int i=0;i<newtilebuf[0].format*128;i++)
+    {
+      newtilebuf[0].data[i]=hold.data[i];
+    }
   }
-  free(hold.data);
+  else
+  {
+    newtilebuf[0].data=NULL;
+  }
+  if(hold.data!=NULL)
+  {
+    zc_free(hold.data);
+  }
 
   puttile16(screen2,tile,208,192+yofs,cs,0);
   overtile16(screen2,tile,232,192+yofs,cs,0);
@@ -2756,7 +2828,7 @@ void load_imagebuf()
         clear_tiles(grabtilebuf);
         break;
       case ftBIN:
-        free(imagebuf);
+        zc_free(imagebuf);
         break;
     }
     imagebuf=NULL;
@@ -2789,10 +2861,10 @@ void load_imagebuf()
       tilecount=0;
       if(imagesize)
       {
-        imagebuf = malloc(imagesize);
+        imagebuf = zc_malloc(imagesize);
         if(!readfile(imagepath,imagebuf,imagesize))
         {
-          free(imagebuf);
+          zc_free(imagebuf);
           imagesize=0;
           imagetype=0;
         }
@@ -3305,9 +3377,9 @@ bool leech_tiles(tiledata *dest,int start,int cs)
       dest[currtile].format=newformat;
       if (dest[currtile].data!=NULL)
       {
-        free(dest[currtile].data);
+        zc_free(dest[currtile].data);
       }
-      dest[currtile].data=(byte *)malloc(tilesize(dest[currtile].format));
+      dest[currtile].data=(byte *)zc_malloc(tilesize(dest[currtile].format));
       if (dest[currtile].data==NULL)
       {
         Z_error("Unable to initialize tile #%d.\n", currtile);
@@ -3925,9 +3997,9 @@ void grab_tile(int tile,int &cs)
         newtilebuf[temptile].format=newformat[(TILES_PER_ROW*y)+x];
         if (newtilebuf[temptile].data!=NULL)
         {
-          free(newtilebuf[temptile].data);
+          zc_free(newtilebuf[temptile].data);
         }
-        newtilebuf[temptile].data=(byte *)malloc(tilesize(newtilebuf[temptile].format));
+        newtilebuf[temptile].data=(byte *)zc_malloc(tilesize(newtilebuf[temptile].format));
         if (newtilebuf[temptile].data==NULL)
         {
           Z_error("Unable to initialize tile #%d.\n", temptile);
@@ -4240,9 +4312,9 @@ void reset_tile(tiledata *buf, int t, int format=1)
   buf[t].format=format;
   if (buf[t].data!=NULL)
   {
-    free(buf[t].data);
+    zc_free(buf[t].data);
   }
-  buf[t].data=(byte *)malloc(tilesize(buf[t].format));
+  buf[t].data=(byte *)zc_malloc(tilesize(buf[t].format));
   if (buf[t].data==NULL)
   {
     Z_error("Unable to initialize tile #%d.\n", t);
@@ -6728,50 +6800,65 @@ void mass_overlay_tile(int dest1, int dest2, int src, int cs, bool backwards, bo
             {
                 if(!backwards)
                 {
-                  if(!buf[i])
-                  {
-                    buf[i] = unpackbuf[i] + cs;
-                  }
+                    if(!buf[i])
+                    {
+                        buf[i] = unpackbuf[i] + cs;
+                    }
                 }
                 else
                 {
-                  if(unpackbuf[i])
-                  {
-                    buf[i] = unpackbuf[i] + cs;
-                  }
+                    if(unpackbuf[i])
+                    {
+                        buf[i] = unpackbuf[i] + cs;
+                    }
                 }
             }
             pack_tile(newtilebuf, buf,d);
+            
+            if(!blank_tile_table[src])
+            {
+                blank_tile_table[d]=false;
+            }
         }
     }
     else
     {
-        int rmin=zc_min(tile_row(dest1),tile_row(dest2)), rmax=zc_max(tile_row(dest1),tile_row(dest2)), cmin=zc_min(tile_col(dest1),tile_col(dest2)), cmax=zc_max(tile_col(dest1),tile_col(dest2)), d=0;
+        int rmin=zc_min(tile_row(dest1),tile_row(dest2));
+        int rmax=zc_max(tile_row(dest1),tile_row(dest2));
+        int cmin=zc_min(tile_col(dest1),tile_col(dest2));
+        int cmax=zc_max(tile_col(dest1),tile_col(dest2));
+        int d=0;
+        
         for (int j=cmin; j<=cmax; ++j)
         {
             for (int k=rmin; k<=rmax; ++k)
             {
                 d=j+TILES_PER_ROW*k;
                 unpack_tile(newtilebuf, d, 0, false);
-        for(int i=0; i<256; i++)
-        {
-          if(!backwards)
-            {
-              if(!buf[i])
-              {
-                buf[i] = unpackbuf[i] + cs;
-              }
+                for(int i=0; i<256; i++)
+                {
+                    if(!backwards)
+                    {
+                        if(!buf[i])
+                        {
+                            buf[i] = unpackbuf[i] + cs;
+                        }
+                    }
+                    else
+                    {
+                        if(unpackbuf[i])
+                        {
+                            buf[i] = unpackbuf[i] + cs;
+                        }
+                    }
+                }
+                
+                pack_tile(newtilebuf, buf,d);
+                if(!blank_tile_table[src])
+                {
+                    blank_tile_table[d]=false;
+                }
             }
-            else
-            {
-              if(unpackbuf[i])
-              {
-                buf[i] = unpackbuf[i] + cs;
-              }
-            }
-        }
-        pack_tile(newtilebuf, buf,d);
-      }
         }
     }
     return;
@@ -7013,9 +7100,83 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
         case KEY_ESC:   done=1; break;
         case KEY_F1:    onHelp(); break;
         case KEY_EQUALS:
-        case KEY_PLUS_PAD:  if (edit_cs) {cs = (cs<11) ? cs+1:0;  redraw=true;} break;
+        case KEY_PLUS_PAD:
+        {
+          if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+             key[KEY_ALT] || key[KEY_ALTGR])
+          {
+            if(is_rect)
+            {
+              for (int col=0; col<columns;col++)
+              {
+                for (int row=0; row<rows; row++)
+                {
+                  int t=((top+row)*TILES_PER_ROW)+left+col;
+                  if(key[KEY_ALT] || key[KEY_ALTGR])
+                    shift_tile_colors(t, 16, false);
+                  else
+                    shift_tile_colors(t, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+                }
+              }
+            }
+            else
+            {
+              for(int i=zc_min(tile, tile2); i<=zc_max(tile, tile2); i++)
+              {
+                if(key[KEY_ALT] || key[KEY_ALTGR])
+                  shift_tile_colors(i, 16, false);
+                else
+                  shift_tile_colors(i, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+              }
+            }
+            
+            register_blank_tiles();
+          }
+          else if (edit_cs)
+            cs = (cs<11) ? cs+1:0;
+             
+          redraw=true;
+          break;
+        }
         case KEY_MINUS:
-        case KEY_MINUS_PAD: if (edit_cs) {cs = (cs>0)  ? cs-1:11; redraw=true;} break;
+        case KEY_MINUS_PAD:
+        {
+          if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] ||
+             key[KEY_ALT] || key[KEY_ALTGR])
+          {
+            if(is_rect)
+            {
+              for (int col=0; col<columns;col++)
+              {
+                for (int row=0; row<rows; row++)
+                {
+                  int t=((top+row)*TILES_PER_ROW)+left+col;
+                  if(key[KEY_ALT] || key[KEY_ALTGR])
+                    shift_tile_colors(t, -16, false);
+                  else
+                    shift_tile_colors(t, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+                }
+              }
+            }
+            else
+            {
+              for(int i=zc_min(tile, tile2); i<=zc_max(tile, tile2); i++)
+              {
+                if(key[KEY_ALT] || key[KEY_ALTGR])
+                  shift_tile_colors(i, -16, false);
+                else
+                  shift_tile_colors(i, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+              }
+            }
+            
+            register_blank_tiles();
+          }
+          else if (edit_cs)
+            cs = (cs>0)  ? cs-1:11;
+          
+          redraw=true;
+          break;
+        }
         case KEY_UP:
         {
           switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
@@ -7384,17 +7545,18 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
 		case KEY_O:
           if(type==0 && copy>=0)
           {
+            go_tiles();
+            
             if (key[KEY_LSHIFT] ||key[KEY_RSHIFT])
             {
               mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]), rect_sel);
             }
             else
             {
-              go_tiles();
               overlay_tile(newtilebuf,tile,copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
-              saved=false;
-              redraw=true;
             }
+            saved=false;
+            redraw=true;
           }
           break;
         case KEY_E:     if(type==0) { edit_tile(tile,flip,cs); draw_tile_list_window(); redraw=true; } break;
@@ -7406,7 +7568,23 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
 			if(type==2)
 				break;
 			go_tiles();
-			rotate_tile(tile,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
+			
+            if(is_rect)
+            {
+              for (int col=0; col<columns;col++)
+              {
+                for (int row=0; row<rows; row++)
+                {
+                  int t=((top+row)*TILES_PER_ROW)+left+col;
+                  rotate_tile(t,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
+                }
+              }
+            }
+            else
+            {
+              for(int i=zc_min(tile, tile2); i<=zc_max(tile, tile2); i++)
+                rotate_tile(i,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
+            }
 			redraw=true;
 			saved=false;
 			break;
@@ -7560,6 +7738,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
           bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
 
 		  do_convert_tile(tile, tile2, cs, rect_sel, control, shift, alt);
+		  register_blank_tiles();
         }
         break;
       }
@@ -7648,6 +7827,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
           font = tf;
           grab_tile(tile,cs);
           draw_tile_list_window();
+          position_mouse_z(0);
           redraw=true;
         }
         font = tf;
@@ -7714,7 +7894,9 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
 
     if(gui_mouse_b()==0)
       bdown=false;
-
+    
+    position_mouse_z(0);
+    
  REDRAW:
 
     if ((f%16)==0 || InvalidStatic)
@@ -7786,7 +7968,7 @@ int select_tile(int &tile,int &flip,int type,int &cs,bool edit_cs,int exnow)
 		{
 		  do_convert_tile(tile,tile2,cs,rect_sel,(newtilebuf[tile].format!=tf4Bit),false,false); break;
 		}
-        case 6: grab_tile(tile,cs); draw_tile_list_window(); break;
+        case 6: grab_tile(tile,cs); draw_tile_list_window(); position_mouse_z(0); break;
         case 9: show_blank_tile(tile); break;
         default: redraw=false; break;
       }
@@ -8394,7 +8576,7 @@ int advpaste(int tile, int tile2, int copy)
         if (advpaste_dlg[4].flags & D_SELECTED)  // cset2
             { combobuf[i].csets=combo.csets;}
         if (advpaste_dlg[5].flags & D_SELECTED)  // walk
-            { combobuf[i].csets=combo.csets;}
+            { combobuf[i].walk=combo.walk;}
         if (advpaste_dlg[6].flags & D_SELECTED)  // anim
             { combobuf[i].frames=combo.frames; combobuf[i].speed=combo.speed; combobuf[i].nextcombo=combo.nextcombo;combobuf[i].nextcset=combo.nextcset;combobuf[i].skipanim=combo.skipanim;combobuf[i].nexttimer=combo.nexttimer;combobuf[i].skipanimy=combo.skipanimy;}
         if (advpaste_dlg[7].flags & D_SELECTED)  // type
@@ -8498,15 +8680,10 @@ int combo_screen(int pg, int tl)
           {
             for (int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
             {
-              if(combobuf[i].tile==NEWMAXTILES-1)
-              {
-                combobuf[i].tile=0;
-              }
-              else
-              {
-                ++combobuf[i].tile;
-              }
+              combobuf[i].tile = wrap(combobuf[i].tile + ((key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? 20 : 1),
+                                      0, NEWMAXTILES-1);
             }
+            setup_combo_animations();
             redraw=true;
           }
           else
@@ -8521,15 +8698,10 @@ int combo_screen(int pg, int tl)
           {
             for (int i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
             {
-              if(combobuf[i].tile==0)
-              {
-                combobuf[i].tile=NEWMAXTILES-1;
-              }
-              else
-              {
-                --combobuf[i].tile;
-              }
+              combobuf[i].tile = wrap(combobuf[i].tile - ((key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? 20 : 1),
+                                      0, NEWMAXTILES-1);
             }
+            setup_combo_animations();
             redraw=true;
           }
           else
@@ -8630,39 +8802,54 @@ int combo_screen(int pg, int tl)
           break;
         case KEY_I:
           {
-            // insert 1 combo
+			// rev.1509; Can now insert/remove all selected combos
             int z=tile;
+            int numSelected = abs(tile-tile2) + 1;
             tile=zc_min(tile,tile2);
             tile2=MAXCOMBOS;
-            copy=tile+1;
-            copycnt=MAXCOMBOS-tile;
+			copy = tile + numSelected; // copy=tile+1; 
+			copycnt = MAXCOMBOS-tile-numSelected; // copycnt=MAXCOMBOS-tile;
 
             if (key[KEY_LSHIFT]||key[KEY_RSHIFT])
             {
-			  char buf[40];
-              sprintf(buf,"Remove combo %d?",tile);
-
-             if(jwin_alert("Confirm Remove",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',lfont)==1)
-              {
-                move_combos(tile,tile2,copy, copycnt);
-              } else break;
+			  char buf[64];
+			  if(numSelected>1)
+                sprintf(buf,"Remove combos %d - %d?",tile, copy-1);
+              else
+                sprintf(buf,"Remove combo %d?",tile);
+              
+			  if(jwin_alert("Confirm Remove",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',lfont)==1)
+			  {
+			    move_combos(tile,tile2,copy, copycnt);
+			    //don't allow the user to undo; quest combo references are incorrect -DD
+                go_combos();
+                redraw=true;
+                saved=false;
+			  }
             }
             else
             {
-              move_combos(copy,tile2,tile, copycnt);
+			  char buf[64];
+			  if(numSelected>1)
+                sprintf(buf,"Insert %d blank combos?",numSelected);
+              else
+                sprintf(buf,"Insert a blank combo?");
+              
+			  if(jwin_alert("Confirm Insert",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',lfont)==1)
+			  {
+			    move_combos(copy,tile2,tile, copycnt);
+			    go_combos();
+			    redraw=true;
+                saved=false;
+			  }
             }
 
             copy=-1;
             tile2=tile=z;
 
-            //don't allow the user to undo; quest combo references are incorrect -DD
-            go_combos();
-
             //thse next 2 lines are handled by the move_combos function now
             //setup_combo_animations();
             //setup_combo_animations2();
-            redraw=true;
-            saved=false;
           }
           break;
         case KEY_DEL:
@@ -8866,6 +9053,7 @@ int combo_screen(int pg, int tl)
     }
     ++f;
 
+	//Seriously? There is duplicate code for the r-click menu? -Gleeok
     if(r_click)
     {
       int m = popup_menu(select_combo_rc_menu,gui_mouse_x(),gui_mouse_y());
@@ -9401,12 +9589,16 @@ bool edit_combo(int c,bool freshen,int cs)
 
     curr_combo.skipanim = zc_max(0,atoi(skip));
     curr_combo.skipanimy = zc_max(0,atoi(skipy));
+
     //lastframe = frames+(frames-1)*skip+(frames-1)*TILES_PER_ROW*skipy
     //frames+frames*skip+frames*skipy*TILES_PER_ROW = lastframe + skip + TILES_PER_ROW*skipy
     //frames = (lastframe+skip+TILES_PER_ROW*skipy)/(1+skip+TILES_PER_ROW*skipy)
     int bound = (NEWMAXTILES-curr_combo.tile+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy)/
         (1+curr_combo.skipanim+TILES_PER_ROW*curr_combo.skipanimy);
-    curr_combo.frames = vbound(atoi(frm),0,bound);
+
+    //curr_combo.frames = vbound(atoi(frm),0,bound); //frames is stored as byte.
+    curr_combo.frames = vbound(atoi(frm),0,zc_min(bound,255));
+
     curr_combo.speed = atoi(spd);
     curr_combo.type = bict[combo_dlg[24].d1].i;
     curr_combo.nextcombo = combo_dlg[31].d1;

@@ -23,6 +23,6 @@ void load_game_icon_to_buffer(bool forceDefault, int index);
 void titlescreen(int lsave);
 void game_over(int type);
 void save_game(bool savepoint);
-void save_game(bool savepoint, int type);
+bool save_game(bool savepoint, int type);
 #endif
 

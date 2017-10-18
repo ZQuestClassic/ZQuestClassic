@@ -26,6 +26,7 @@
 #include "tiles.h"
 #include "zq_tiles.h"
 #include "zq_custom.h"
+#include "zc_malloc.h"
 
 #ifdef _MSC_VER
 #define getcwd _getcwd
@@ -208,7 +209,7 @@ int ListQTs(bool edit)
 {
   qtlist_dlg[0].dp2=lfont;
   int index=0;
-  quest_template *BackupQTs = (quest_template*)malloc(sizeof(quest_template)*MAXQTS);
+  quest_template *BackupQTs = (quest_template*)zc_malloc(sizeof(quest_template)*MAXQTS);
 
   memcpy(BackupQTs,QuestTemplates,sizeof(quest_template)*qt_count);
 
@@ -328,7 +329,7 @@ int ListQTs(bool edit)
       edit_qt(index);
     }
   }
-  free(BackupQTs);
+  zc_free(BackupQTs);
   return index;
 }
 
@@ -1092,6 +1093,83 @@ int onExport_Tiles()
   char buf[80],buf2[80],name[13];
   extract_name(temppath,name,FILENAME8_3);
   if(save_tiles(temppath))
+  {
+    sprintf(buf,"ZQuest");
+    sprintf(buf2,"Saved %s",name);
+  }
+  else
+  {
+    sprintf(buf,"Error");
+    sprintf(buf2,"Error saving %s",name);
+  }
+  jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+  return D_O_K;
+}
+
+int onImport_Guys()
+{
+  if(!getname("Import Guys (.guy)","guy",NULL,datapath,false))
+    return D_O_K;
+
+  if(!load_guys(temppath))
+  {
+    char buf[80],name[13];
+    extract_name(temppath,name,FILENAME8_3);
+    sprintf(buf,"Unable to load %s",name);
+    jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  refresh(rALL);
+  return D_O_K;
+}
+
+int onExport_Guys()
+{
+  if(!getname("Export Guys (.guy)","guy",NULL,datapath,false))
+    return D_O_K;
+  char buf[80],buf2[80],name[13];
+  extract_name(temppath,name,FILENAME8_3);
+  if(save_guys(temppath))
+  {
+    sprintf(buf,"ZQuest");
+    sprintf(buf2,"Saved %s",name);
+  }
+  else
+  {
+    sprintf(buf,"Error");
+    sprintf(buf2,"Error saving %s",name);
+  }
+  jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+  return D_O_K;
+}
+
+
+bool save_combo_alias(const char *path);
+bool load_combo_alias(const char *path);
+int onImport_ComboAlias()
+{
+  if(!getname("Import Combo Alias (.zca)","zca",NULL,datapath,false))
+    return D_O_K;
+
+  if(!load_combo_alias(temppath))
+  {
+    char buf[80],name[13];
+    extract_name(temppath,name,FILENAME8_3);
+    sprintf(buf,"Unable to load %s",name);
+    jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+  }
+
+  refresh(rALL);
+  return D_O_K;
+}
+
+int onExport_ComboAlias()
+{
+  if(!getname("Export Combo Alias (.zca)","zca",NULL,datapath,false))
+    return D_O_K;
+  char buf[80],buf2[80],name[13];
+  extract_name(temppath,name,FILENAME8_3);
+  if(save_combo_alias(temppath))
   {
     sprintf(buf,"ZQuest");
     sprintf(buf2,"Saved %s",name);

@@ -592,7 +592,7 @@ bool zqwin_set_scale(int scale, bool defer)
   if ((!proxy_screen) && (scale > 1))
   {
     proxy_screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
-    proxy_vtable = (GFX_VTABLE*)malloc(sizeof(GFX_VTABLE));
+    proxy_vtable = (GFX_VTABLE*)zc_malloc(sizeof(GFX_VTABLE));
     if (!proxy_screen || !proxy_vtable)
     {
       zqwin_scale = 1;

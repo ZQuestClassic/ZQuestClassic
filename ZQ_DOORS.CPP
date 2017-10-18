@@ -652,6 +652,55 @@ void fix_dcs(int dir)
   }
 }
 
+void auto_generate_dcs(int dir)
+{
+	DoorComboSet & d = working_dcs;
+
+	switch(dir)
+	{
+		case up:
+		{
+			for( int i(1); i < 9; ++i )
+				for( int j(0); j < 4; ++j )
+				{
+					d.doorcombo_u[i][j] = d.doorcombo_u[0][j];
+					d.doorcset_u[i][j] = d.doorcset_u[0][j];
+				}
+		}
+		break;
+		case down:
+		{
+			for( int i(1); i < 9; ++i )
+				for( int j(0); j < 4; ++j )
+				{
+					d.doorcombo_d[i][j] = d.doorcombo_d[0][j];
+					d.doorcset_d[i][j] = d.doorcset_d[0][j];
+				}
+		}
+		break;
+		case left:
+		{
+			for( int i(1); i < 9; ++i )
+				for( int j(0); j < 6; ++j )
+				{
+					d.doorcombo_l[i][j] = d.doorcombo_l[0][j];
+					d.doorcset_l[i][j] = d.doorcset_l[0][j];
+				}
+		}
+		break;
+		case right:
+		{
+			for( int i(1); i < 9; ++i )
+				for( int j(0); j < 6; ++j )
+				{
+					d.doorcombo_r[i][j] = d.doorcombo_r[0][j];
+					d.doorcset_r[i][j] = d.doorcset_r[0][j];
+				}
+		}
+		break;
+	}
+}
+
 static int door_top_list[] =
 {
   // dialog control number
@@ -1310,6 +1359,14 @@ int edit_dcs(int index)
 		  break;
 		}
 	  }
+
+	  // shortcut: (Shift + Auto), will *mostly* automate a dcs by duplicating the first door.
+	  // this isn't perfect, but it an indespensible tool for users putting together tilesets.
+	  if( key[KEY_RSHIFT] || key[KEY_LSHIFT] )
+	  {
+		  auto_generate_dcs(selected);
+	  }
+
 	  fix_dcs(selected);
 	  fill_dcs_dlg();
 	  object_message(doorcomboset_dlg+7,MSG_DRAW,0);

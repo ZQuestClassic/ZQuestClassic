@@ -14,11 +14,13 @@
 #include "zc_alleg.h"
 #include "zdefs.h"
 #include "zeldadat.h"
+#include "zc_malloc.h"
 
 extern DATAFILE* data;
 
 extern bool sbig;
 extern int screen_scale;
+extern int joystick_index;
 
 
 static void SetCols(RGB* pal)
@@ -142,7 +144,7 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
 		blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
 
     poll_joystick();
-    if((keypressed()||joy[0].button[0].b||joy[0].button[1].b)&&fadecnt>=32)
+    if((keypressed()||joy[joystick_index].button[0].b||joy[joystick_index].button[1].b)&&fadecnt>=32)
       blackout=true;
     if(!blackout)
     {

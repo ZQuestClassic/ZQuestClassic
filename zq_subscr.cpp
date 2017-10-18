@@ -1227,11 +1227,11 @@ void replacedp(DIALOG &d, const char *newdp, size_t size)
 	  (d.proc==jwin_edit_proc))
 	{
 		if(d.dp != NULL)
-			free(d.dp);
+			zc_free(d.dp);
 		if(newdp != NULL)
 		{
 			size = zc_max(size, strlen((char *)newdp)+1);
-			d.dp = malloc(size);
+			d.dp = zc_malloc(size);
 			strcpy((char*)d.dp, newdp);
 		}
 		else
@@ -3183,10 +3183,10 @@ int sso_properties(subscreen_object *tempsso)
       tempsso->d2=sso_properties_dlg[121].d1;
       if (tempsso->dp1!=NULL)
       {
-        //free((char *)(tempsso->dp1));
+        //zc_free((char *)(tempsso->dp1));
         delete[] ((char *)(tempsso->dp1));
       }
-      //(tempsso->dp1)=(char *)malloc(strlen((char *)sso_properties_dlg[bufi].dp)+1);
+      //(tempsso->dp1)=(char *)zc_malloc(strlen((char *)sso_properties_dlg[bufi].dp)+1);
 	  tempsso->dp1 = new char[strlen((char *)sso_properties_dlg[bufi].dp)+1];
       strcpy((char *)tempsso->dp1, (char *)sso_properties_dlg[bufi].dp);
     }
@@ -3668,10 +3668,10 @@ int sso_properties(subscreen_object *tempsso)
       tempsso->d2=sso_properties_dlg[121].d1;
       if (tempsso->dp1!=NULL)
       {
-        //free((char *)(tempsso->dp1));
+        //zc_free((char *)(tempsso->dp1));
         delete[] ((char *)(tempsso->dp1));
       }
-      //(tempsso->dp1)=(char *)malloc(strlen((char *)sso_properties_dlg[bufi].dp)+1);
+      //(tempsso->dp1)=(char *)zc_malloc(strlen((char *)sso_properties_dlg[bufi].dp)+1);
       tempsso->dp1 = new char[strlen((char *)sso_properties_dlg[bufi].dp)+1];
       strcpy((char *)tempsso->dp1, (char *)sso_properties_dlg[bufi].dp);
       tempsso->d4=sso_properties_dlg[125].d1;
@@ -3887,13 +3887,13 @@ int onDuplicateSubscreenObject()
       }
       if (css->objects[i].dp1!=NULL)
       {
-        //css->objects[c].dp1=malloc(strlen((char *)css->objects[i].dp1)+1);
+        //css->objects[c].dp1=zc_malloc(strlen((char *)css->objects[i].dp1)+1);
 		  css->objects[c].dp1= new char[strlen((char *)css->objects[i].dp1)+1];
         strcpy((char *)css->objects[c].dp1,(char *)css->objects[i].dp1);
       }
       else
       {
-        //css->objects[c].dp1=malloc(2);
+        //css->objects[c].dp1=zc_malloc(2);
 		  css->objects[c].dp1 = new char[2];
         ((char *)css->objects[c].dp1)[0]=0;
       }
@@ -5169,13 +5169,13 @@ int onActivePassive()
   if(css->ss_type == sstACTIVE)
   {
     css->ss_type = sstPASSIVE;
-    subscreen_dlg[3].h=60*(1+is_large);
+    subscreen_dlg[3].h=60*(1+is_large)-(is_large?4:0);
     subscreen_dlg[4].h=subscreen_dlg[3].h-4;
   }
   else if(css->ss_type == sstPASSIVE)
   {
     css->ss_type = sstACTIVE;
-	subscreen_dlg[3].h=172*(1+is_large);
+	subscreen_dlg[3].h=172*(1+is_large)-(is_large?4:0);
 	subscreen_dlg[4].h=subscreen_dlg[3].h-4;
   }
   return D_REDRAW;
@@ -5251,7 +5251,7 @@ const char *sso_str[ssoMAX]=
 char *sso_name(int type)
 {
   char *tempname;
-  tempname=(char*)malloc(255);
+  tempname=(char*)zc_malloc(255);
   if (type>=0 && type <ssoMAX)
   {
     sprintf(tempname, "%s", sso_str[type]);
@@ -5333,7 +5333,7 @@ int onNewSubscreenObject()
   if (ret!=0&&ret!=4)
   {
     memset(&tempsso,0,sizeof(subscreen_object));
-    //tempsso.dp1=(char *)malloc(2);
+    //tempsso.dp1=(char *)zc_malloc(2);
 	tempsso.dp1 = new char[2];
     ((char *)tempsso.dp1)[0]=0;
     tempsso.type=bisso[ssolist_dlg[2].d1].i;
@@ -6099,7 +6099,7 @@ void edit_subscreen()
   subscreen_dlg[4].dp=(void *)css;
   subscreen_dlg[5].fg=jwin_pal[jcBOX];
   subscreen_dlg[5].bg=jwin_pal[jcBOX];
-  str_oname=(char *)malloc(255);
+  str_oname=(char *)zc_malloc(255);
   subscreen_dlg[6].dp=(void *)str_oname;
   subscreen_dlg[8].dp=(void *)(css->name);
   update_sso_name();
@@ -6128,9 +6128,9 @@ void edit_subscreen()
 	  subscreen_dlg[3].y-=31;
 	  subscreen_dlg[3].x+=1;
 	  if(css->ss_type == sstPASSIVE)
-	    subscreen_dlg[3].h=60*(1+is_large);
+	    subscreen_dlg[3].h=60*(1+is_large)-(is_large?4:0);
       else if(css->ss_type == sstACTIVE)
-	    subscreen_dlg[3].h=172*(1+is_large);
+	    subscreen_dlg[3].h=172*(1+is_large)-(is_large?4:0);
 	  subscreen_dlg[4].h=subscreen_dlg[3].h-4;
 	}
   }
@@ -6396,13 +6396,14 @@ int onEditSubscreens()
     {
       if(custom_subscreen[sslist_dlg[2].d1].ss_type==sstACTIVE)
       {
-        subscreen_dlg[3].h=172*(1+is_large);
+        subscreen_dlg[3].h=172*(1+is_large)-(is_large?4:0);
         subscreen_dlg[4].h=subscreen_dlg[3].h-4;
       }
       else if(custom_subscreen[sslist_dlg[2].d1].ss_type==sstPASSIVE)
       {
-        subscreen_dlg[3].h=60*(1+is_large);
+        subscreen_dlg[3].h=60*(1+is_large)-(is_large?4:0);
         subscreen_dlg[4].h=subscreen_dlg[3].h-4;
+        //iu;hukl;kh;
       }
       else
       {

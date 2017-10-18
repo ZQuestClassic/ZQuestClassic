@@ -150,8 +150,8 @@ int isdungeon(int dmap, int scr) // The arg is only used by loadscr2 and loadscr
 int MAPCOMBO(int x,int y)
 {
    //extend combos outwards if out of bounds -DD
-   x = vbound(x, 0, 16*16);
-   y = vbound(y, 0, 11*16);
+   x = vbound(x, 0, (16*16)-1);
+   y = vbound(y, 0, (11*16)-1);
 	int combo = COMBOPOS(x,y);
   if(combo>175 || combo < 0)
     return 0;
@@ -172,17 +172,19 @@ int MAPFFCOMBO(int x,int y)
 
 int MAPCSET(int x,int y)
 {
-  int combo = COMBOPOS(x,y);
-  if(combo>175 || combo < 0)
+  if(x<0 || x>255 || y<0 || y>175)
     return 0;
+  
+  int combo = COMBOPOS(x,y);
   return tmpscr->cset[combo];                               // entire combo code
 }
 
 int MAPFLAG(int x,int y)
 {
-  int combo = COMBOPOS(x,y);
-  if(combo>175 || combo < 0)
+  if(x<0 || x>255 || y<0 || y>175)
     return 0;
+  
+  int combo = COMBOPOS(x,y);
   return tmpscr->sflag[combo];                              // flag
 }
 
@@ -198,9 +200,10 @@ int FFCOMBOTYPE(int x,int y)
 
 int MAPCOMBOFLAG(int x,int y)
 {
-  int combo = COMBOPOS(x,y);
-  if(combo>175)
+  if(x<0 || x>255 || y<0 || y>175)
     return 0;
+    
+  int combo = COMBOPOS(x,y);
   return combobuf[tmpscr->data[combo]].flag;                               // entire combo code
 }
 
@@ -298,7 +301,7 @@ int MAPCOMBOFLAG2(int layer,int x,int y)
 
 void setmapflag(int flag)
 {
-  setmapflag((currmap<<7)+homescr,flag);
+  setmapflag((currmap*MAPSCRSNORMAL)+homescr,flag);
 }
 
 const char *screenstate_string[15] = 
@@ -319,7 +322,7 @@ void eventlog_mapflag_line(word* g, word flag, int ss_s_index)
 
 void eventlog_mapflags()
 {
-  word g = game->maps[(currmap<<7)+homescr] &0x3FFF;
+  word g = game->maps[(currmap*MAPSCRSNORMAL)+homescr] &0x3FFF;
   word g2 = g;
   Z_eventlog("Screen (%d, %02x) %s", currmap+1, homescr, (g2) != 0 ? "[":"");
   // Print them in order of importance.
@@ -350,7 +353,7 @@ void setmapflag(int mi2, int flag)
 
   game->maps[mi2] |= flag;
   Z_eventlog("%s's State was set: %s\n",
-    mi2 != (currmap<<7)+homescr ? buf : "Current screen",
+    mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
     flag>0 ? screenstate_string[(int)log2((float)flag)] : "<Unknown>");
   if(flag==mSECRET||flag==mITEM||flag==mBELOW||flag==mLOCKBLOCK||
      flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
@@ -359,7 +362,7 @@ void setmapflag(int mi2, int flag)
     byte nscr=TheMaps[((cmap)*MAPSCRS)+cscr].nextscr;
 
     std::vector<int> done;
-    bool looped = (nmap==cmap && nscr==cscr);
+    bool looped = (nmap==cmap+1 && nscr==cscr);
     while((nmap!=0) && !looped && !(nscr>=128))
     {
       if((tmpscr->nocarry&flag)!=flag)
@@ -384,7 +387,7 @@ void setmapflag(int mi2, int flag)
 
 void unsetmapflag(int flag)
 {
-  unsetmapflag((currmap<<7)+homescr,flag);
+  unsetmapflag((currmap*MAPSCRSNORMAL)+homescr,flag);
 }
 
 void unsetmapflag(int mi2, int flag, bool anyflag)
@@ -395,7 +398,7 @@ void unsetmapflag(int mi2, int flag, bool anyflag)
     if(!(tmpscr->flags4&fNOITEMRESET))
       game->maps[mi2] &= ~flag;
   }
-  else game->maps[(currmap<<7)+homescr] &= ~flag;
+  else game->maps[(currmap*MAPSCRSNORMAL)+homescr] &= ~flag;
 
   byte cscr = mi2&((1<<7)-1);
   byte cmap = (mi2>>7);
@@ -403,7 +406,7 @@ void unsetmapflag(int mi2, int flag, bool anyflag)
   sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
 
   Z_eventlog("%s's State was unset: %s\n",
-    mi2 != (currmap<<7)+homescr ? buf : "Current screen",
+    mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
     flag>0 ? screenstate_string[(int)log2((float)flag)] : "<Unknown>");
 
   if(flag==mSECRET||flag==mITEM||flag==mBELOW||flag==mLOCKBLOCK||
@@ -413,7 +416,7 @@ void unsetmapflag(int mi2, int flag, bool anyflag)
     byte nscr=TheMaps[((cmap)*MAPSCRS)+cscr].nextscr;
 
     std::vector<int> done;
-    bool looped = (nmap==cmap && nscr==cscr);
+    bool looped = (nmap==cmap+1 && nscr==cscr);
     while((nmap!=0) && !looped && !(nscr>=128))
     {
       if((tmpscr->nocarry&flag)!=flag)
@@ -438,7 +441,7 @@ void unsetmapflag(int mi2, int flag, bool anyflag)
 
 bool getmapflag(int flag)
 {
-  return (game->maps[(currmap<<7)+homescr] & flag) != 0;
+  return (game->maps[(currmap*MAPSCRSNORMAL)+homescr] & flag) != 0;
 }
 
 int WARPCODE(int dmap,int scr,int dw)
@@ -470,6 +473,30 @@ int WARPCODE(int dmap,int scr,int dw)
 void update_combo_cycling()
 {
   int x,y;
+  static int newdata[176];
+  static int newcset[176];
+  static int newdata2[176];
+  static int newcset2[176];
+  static bool restartanim[MAXCOMBOS];
+  static bool restartanim2[MAXCOMBOS];
+  static bool initialized=false;
+  
+  // Just a simple bit of optimization
+  if(!initialized)
+  {
+    for(int i=0; i<176; i++)
+    {
+        newdata[i]=-1;
+        newcset[i]=-1;
+        newdata2[i]=-1;
+        newcset2[i]=-1;
+    }
+    
+    memset(restartanim, 0, MAXCOMBOS);
+    memset(restartanim2, 0, MAXCOMBOS);
+    initialized=true;
+  }
+  
   for (int i=0; i<176; i++)
   {
     x=tmpscr->data[i];
@@ -480,16 +507,13 @@ void update_combo_cycling()
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
     {
-     screen_combo_modify_preroutine(tmpscr,i);
-      tmpscr->data[i]=combobuf[x].nextcombo;
-      tmpscr->cset[i]=combobuf[x].nextcset;
-      int c=tmpscr->data[i];
+      newdata[i]=combobuf[x].nextcombo;
+      newcset[i]=combobuf[x].nextcset;
+      int c=newdata[i];
       if(combobuf[c].animflags & AF_CYCLE)
       {
-        combobuf[c].tile = animated_combo_table[c][1];
-        animated_combo_table4[animated_combo_table[c][0]][1]=0;
+        restartanim[c]=true;
       }
-     screen_combo_modify_postroutine(tmpscr,i);
     }
   }
 
@@ -503,17 +527,28 @@ void update_combo_cycling()
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
     {
-     screen_combo_modify_preroutine(tmpscr,i);
-      tmpscr->data[i]=combobuf[x].nextcombo;
-      tmpscr->cset[i]=combobuf[x].nextcset;
-      int c=tmpscr->data[i];
+      newdata[i]=combobuf[x].nextcombo;
+      newcset[i]=combobuf[x].nextcset;
+      int c=newdata[i];
       if(combobuf[c].animflags & AF_CYCLE)
       {
-        combobuf[c].tile = animated_combo_table2[c][1];
-        animated_combo_table4[animated_combo_table[c][0]][1]=0;
+        restartanim2[c]=true;
       }
-      screen_combo_modify_postroutine(tmpscr,i);
     }
+  }
+
+  for(int i=0; i<176; i++)
+  {
+    if(newdata[i]==-1)
+      continue;
+    
+    screen_combo_modify_preroutine(tmpscr,i);
+    tmpscr->data[i]=newdata[i];
+    tmpscr->cset[i]=newcset[i];
+    screen_combo_modify_postroutine(tmpscr,i);
+    
+    newdata[i]=-1;
+    newcset[i]=-1;
   }
 
   for(int i=0;i<32;i++)
@@ -526,15 +561,46 @@ void update_combo_cycling()
         (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
         (combobuf[x].nextcombo!=0))
     {
-      tmpscr->ffdata[i]=combobuf[x].nextcombo;
-      tmpscr->ffcset[i]=combobuf[x].nextcset;
-      int c=tmpscr->ffdata[i];
+      newdata[i]=combobuf[x].nextcombo;
+      newcset[i]=combobuf[x].nextcset;
+      int c=newdata[i];
       if(combobuf[c].animflags & AF_CYCLE)
       {
-        combobuf[c].tile = animated_combo_table[c][1];
-        animated_combo_table4[animated_combo_table[c][0]][1]=0;
+        restartanim[c]=true;
       }
     }
+  }
+  
+  for(int i=0;i<32;i++)
+  {
+    x=tmpscr->ffdata[i];
+    y=animated_combo_table2[x][0];
+    if(!(combobuf[x].animflags & AF_FRESH)) continue;
+    //time to restart
+    if ((animated_combo_table24[y][1]>=combobuf[x].speed) &&
+        (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
+        (combobuf[x].nextcombo!=0))
+    {
+      newdata[i]=combobuf[x].nextcombo;
+      newcset[i]=combobuf[x].nextcset;
+      int c=newdata[i];
+      if(combobuf[c].animflags & AF_CYCLE)
+      {
+        restartanim2[c]=true;
+      }
+    }
+  }
+  
+  for(int i=0; i<32; i++)
+  {
+    if(newdata[i]==-1)
+      continue;
+    
+    tmpscr->ffdata[i]=newdata[i];
+    tmpscr->ffcset[i]=newcset[i];
+    
+    newdata[i]=-1;
+    newcset[i]=-1;
   }
 
   if(get_bit(quest_rules,qr_CMBCYCLELAYERS))
@@ -552,17 +618,14 @@ void update_combo_cycling()
             (combobuf[x].tile-combobuf[x].frames>=animated_combo_table[x][1]-1) &&
             (combobuf[x].nextcombo!=0))
         {
-        screen_combo_modify_preroutine(tmpscr2+j,i);
-          (tmpscr2+j)->data[i]=combobuf[x].nextcombo;
-          (tmpscr2+j)->cset[i]=combobuf[x].nextcset;
-          int c=(tmpscr2+j)->data[i];
+          newdata[i]=combobuf[x].nextcombo;
+          newcset[i]=combobuf[x].nextcset;
+          int c=newdata[i];
           if(combobuf[c].animflags & AF_CYCLE)
-         {
-            combobuf[c].tile = animated_combo_table[c][1];
-             animated_combo_table4[animated_combo_table[c][0]][1]=0;
+          {
+            restartanim[c]=true;
           }
-        screen_combo_modify_postroutine(tmpscr2+j,i);
-      }
+        }
       }
       for (int i=0; i<176; i++)
       {
@@ -574,14 +637,13 @@ void update_combo_cycling()
             (combobuf[x].tile-combobuf[x].frames>=animated_combo_table2[x][1]-1) &&
             (combobuf[x].nextcombo!=0))
         {
-          (tmpscr2+j)->data[i]=combobuf[x].nextcombo;
-          (tmpscr2+j)->cset[i]=combobuf[x].nextcset;
-          int c=(tmpscr2+j)->data[i];
-          int cs=(tmpscr2+j)->cset[i];
+          newdata2[i]=combobuf[x].nextcombo;
+          newcset2[i]=combobuf[x].nextcset;
+          int c=newdata2[i];
+          int cs=newcset2[i];
           if(combobuf[c].animflags & AF_CYCLE)
           {
-            combobuf[c].tile = animated_combo_table2[c][1];
-            animated_combo_table4[animated_combo_table[c][0]][1]=0;
+            restartanim2[c]=true;
           }
           if (combobuf[c].type==cSPINTILE1)
           {
@@ -590,6 +652,43 @@ void update_combo_cycling()
           }
         }
       }
+      
+      for(int i=0; i<176; i++)
+      {
+        if(newdata[i]!=-1)
+        {
+          screen_combo_modify_preroutine(tmpscr2+j,i);
+          (tmpscr2+j)->data[i]=newdata[i];
+          (tmpscr2+j)->cset[i]=newcset[i];
+          screen_combo_modify_postroutine(tmpscr2+j,i);
+          
+          newdata[i]=-1;
+          newcset[i]=-1;
+        }
+        if(newdata2[i]!=-1)
+        {
+          (tmpscr2+j)->data[i]=newdata2[i];
+          (tmpscr2+j)->cset[i]=newcset2[i];
+          newdata2[i]=-1;
+          newcset2[i]=-1;
+        }
+      }
+    }
+  }
+  
+  for(int i=0; i<MAXCOMBOS; i++)
+  {
+    if(restartanim[i])
+    {
+      combobuf[i].tile = animated_combo_table[i][1];
+      animated_combo_table4[animated_combo_table[i][0]][1]=0;
+      restartanim[i]=false;
+    }
+    if(restartanim2[i])
+    {
+      combobuf[i].tile = animated_combo_table2[i][1];
+      animated_combo_table4[animated_combo_table[i][0]][1]=0;
+      restartanim2[i]=false;
     }
   }
 }
@@ -637,7 +736,7 @@ bool hiddenstair(int tmp,bool redraw)                       // tmp = index of tm
 {
   mapscr *s = tmpscr + tmp;
 
-  if(s->stairx || s->stairy)
+  if((s->stairx || s->stairy ) && s->secretcombo[sSTAIRS])
   {
 	int di = COMBOPOS(s->stairx,s->stairy);
     s->data[di] = s->secretcombo[sSTAIRS];
@@ -1152,28 +1251,28 @@ bool findentrance(int x, int y, int flag, bool setflag)
 
   if(MAPFFCOMBOFLAG(x,y)==flag)
   {
-  foundflag=true;
+    foundflag=true;
     foundfflag=true;
   }
   ffcombos[0] = current_ffcombo;
 
   if(MAPFFCOMBOFLAG(x+15,y)==flag)
   {
-  foundflag=true;
+    foundflag=true;
     foundfflag=true;
   }
   ffcombos[1] = current_ffcombo;
 
   if(MAPFFCOMBOFLAG(x,y+15)==flag)
   {
-  foundflag=true;
+    foundflag=true;
     foundfflag=true;
   }
   ffcombos[2] = current_ffcombo;
 
   if(MAPFFCOMBOFLAG(x+15,y+15)==flag)
   {
-  foundflag=true;
+    foundflag=true;
     foundfflag=true;
   }
   ffcombos[3] = current_ffcombo;
@@ -1197,33 +1296,34 @@ bool findentrance(int x, int y, int flag, bool setflag)
         single16=true;
       }
       else if((MAPCOMBOFLAG2(i,x+15,y)==mfSINGLE)&&(MAPFLAG2(i,x+15,y)==flag))
-        {
-          scombo=COMBOPOS(x+15,y);
-        }
-        else if((MAPCOMBOFLAG2(i,x+15,y)==mfSINGLE16)&&(MAPFLAG2(i,x+15,y)==flag))
-          {
-            scombo=COMBOPOS(x+15,y);
-            single16=true;
-          }
-          else if((MAPCOMBOFLAG2(i,x,y+15)==mfSINGLE)&&(MAPFLAG2(i,x,y+15)==flag))
-            {
-              scombo=COMBOPOS(x,y+15);
-            }
-            else if((MAPCOMBOFLAG2(i,x,y+15)==mfSINGLE16)&&(MAPFLAG2(i,x,y+15)==flag))
-              {
-                scombo=COMBOPOS(x,y+15);
-                single16=true;
-              }
-              else if((MAPCOMBOFLAG2(i,x+15,y+15)==mfSINGLE)&&(MAPFLAG2(i,x+15,y+15)==flag))
-                {
-                  scombo=COMBOPOS(x+15,y+15);
-                }
-                else if((MAPCOMBOFLAG2(i,x+15,y+15)==mfSINGLE16)&&(MAPFLAG2(i,x+15,y+15)==flag))
-                  {
-                    scombo=COMBOPOS(x+15,y+15);
-                    single16=true;
-                  }
+      {
+        scombo=COMBOPOS(x+15,y);
+      }
+      else if((MAPCOMBOFLAG2(i,x+15,y)==mfSINGLE16)&&(MAPFLAG2(i,x+15,y)==flag))
+      {
+        scombo=COMBOPOS(x+15,y);
+        single16=true;
+      }
+      else if((MAPCOMBOFLAG2(i,x,y+15)==mfSINGLE)&&(MAPFLAG2(i,x,y+15)==flag))
+      {
+        scombo=COMBOPOS(x,y+15);
+      }
+      else if((MAPCOMBOFLAG2(i,x,y+15)==mfSINGLE16)&&(MAPFLAG2(i,x,y+15)==flag))
+      {
+        scombo=COMBOPOS(x,y+15);
+        single16=true;
+      }
+      else if((MAPCOMBOFLAG2(i,x+15,y+15)==mfSINGLE)&&(MAPFLAG2(i,x+15,y+15)==flag))
+      {
+        scombo=COMBOPOS(x+15,y+15);
+      }
+      else if((MAPCOMBOFLAG2(i,x+15,y+15)==mfSINGLE16)&&(MAPFLAG2(i,x+15,y+15)==flag))
+      {
+        scombo=COMBOPOS(x+15,y+15);
+        single16=true;
+      }
     }
+    
     if(foundcflag) // Trigger->Self (a.k.a Singular) is non-inherent
     {
       if((MAPFLAG2(i,x,y)==mfSINGLE)&&(MAPCOMBOFLAG2(i,x,y)==flag))
@@ -1236,32 +1336,32 @@ bool findentrance(int x, int y, int flag, bool setflag)
         single16=true;
       }
       else if((MAPFLAG2(i,x+15,y)==mfSINGLE)&&(MAPCOMBOFLAG2(i,x+15,y)==flag))
-        {
-          scombo=COMBOPOS(x+15,y);
-        }
-        else if((MAPFLAG2(i,x+15,y)==mfSINGLE16)&&(MAPCOMBOFLAG2(i,x+15,y)==flag))
-          {
-            scombo=COMBOPOS(x+15,y);
-            single16=true;
-          }
-          else if((MAPFLAG2(i,x,y+15)==mfSINGLE)&&(MAPCOMBOFLAG2(i,x,y+15)==flag))
-            {
-              scombo=COMBOPOS(x,y+15);
-            }
-            else if((MAPFLAG2(i,x,y+15)==mfSINGLE16)&&(MAPCOMBOFLAG2(i,x,y+15)==flag))
-              {
-                scombo=COMBOPOS(x,y+15);
-                single16=true;
-              }
-              else if((MAPFLAG2(i,x+15,y+15)==mfSINGLE)&&(MAPCOMBOFLAG2(i,x+15,y+15)==flag))
-                {
-                  scombo=COMBOPOS(x+15,y+15);
-                }
-                else if((MAPFLAG2(i,x+15,y+15)==mfSINGLE16)&&(MAPCOMBOFLAG2(i,x+15,y+15)==flag))
-                  {
-                    scombo=COMBOPOS(x+15,y+15);
-                    single16=true;
-                  }
+      {
+        scombo=COMBOPOS(x+15,y);
+      }
+      else if((MAPFLAG2(i,x+15,y)==mfSINGLE16)&&(MAPCOMBOFLAG2(i,x+15,y)==flag))
+      {
+        scombo=COMBOPOS(x+15,y);
+        single16=true;
+      }
+      else if((MAPFLAG2(i,x,y+15)==mfSINGLE)&&(MAPCOMBOFLAG2(i,x,y+15)==flag))
+      {
+        scombo=COMBOPOS(x,y+15);
+      }
+      else if((MAPFLAG2(i,x,y+15)==mfSINGLE16)&&(MAPCOMBOFLAG2(i,x,y+15)==flag))
+      {
+        scombo=COMBOPOS(x,y+15);
+        single16=true;
+      }
+      else if((MAPFLAG2(i,x+15,y+15)==mfSINGLE)&&(MAPCOMBOFLAG2(i,x+15,y+15)==flag))
+      {
+        scombo=COMBOPOS(x+15,y+15);
+      }
+      else if((MAPFLAG2(i,x+15,y+15)==mfSINGLE16)&&(MAPCOMBOFLAG2(i,x+15,y+15)==flag))
+      {
+        scombo=COMBOPOS(x+15,y+15);
+        single16=true;
+      }
     }
   }
   if(scombo<0)
@@ -1298,167 +1398,202 @@ bool findentrance(int x, int y, int flag, bool setflag)
 
 void update_freeform_combos()
 {
-   ffscript_engine(false);
-   for(int i=0;i<32;i++)
-   {
-      if(!(tmpscr->ffflags[i]&ffCHANGER) &&
-         tmpscr->ffdata[i]!=0 &&
-         !(tmpscr->ffflags[i]&ffSTATIONARY) &&
-         !((tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0 && Link.getHoldClk()>0))
+  ffscript_engine(false);
+  for(int i=0;i<32;i++)
+  {
+    // Combo 0?
+    if(tmpscr->ffdata[i]==0)
+      continue;
+    
+    // Changer?
+    if(tmpscr->ffflags[i]&ffCHANGER)
+      continue;
+    
+    // Stationary?
+    if(tmpscr->ffflags[i]&ffSTATIONARY)
+      continue;
+    
+    // Frozen because Link's holding up an item?
+    if(Link.getHoldClk()>0 && (tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0)
+      continue;
+    
+    // Check for changers
+    if(tmpscr->fflink[i]==0)
+    {
+      for(int j=0; j<32; j++)
       {
-         for(int j=0;j<32;j++)
-         {
-            if(i!=j)
-            {
-               if(tmpscr->ffflags[j]&ffCHANGER && tmpscr->ffdata[j] != 0)
-               {
-                  if((((tmpscr->ffx[j]/10000)!=ffposx[i])||((tmpscr->ffy[j]/10000)!=ffposy[i]))&&(tmpscr->fflink[i]==0))
-                  {
-                     if((isonline(tmpscr->ffx[i],tmpscr->ffy[i],ffprvx[i],ffprvy[i],tmpscr->ffx[j],tmpscr->ffy[j])||
-                        ((tmpscr->ffx[i]==tmpscr->ffx[j])&&(tmpscr->ffy[i]==tmpscr->ffy[j])))&&(ffprvx[i]>-10000000&&ffprvy[i]>-10000000))
-                     {
-                        //tmpscr->ffdata[i]=tmpscr->ffdata[j];
-                        //tmpscr->ffcset[i]=tmpscr->ffcset[j];
-                        if(tmpscr->ffflags[j]&ffCHANGETHIS)
-                        {
-                           tmpscr->ffdata[i] = tmpscr->ffdata[j];
-                           tmpscr->ffcset[i] = tmpscr->ffcset[j];
-                        }
-                        if(tmpscr->ffflags[j]&ffCHANGENEXT)
-                           tmpscr->ffdata[i]++;
-                        if(tmpscr->ffflags[j]&ffCHANGEPREV)
-                           tmpscr->ffdata[i]--;
-                        tmpscr->ffdelay[i]=tmpscr->ffdelay[j];
-                        tmpscr->ffx[i]=tmpscr->ffx[j];
-                        tmpscr->ffy[i]=tmpscr->ffy[j];
-                        tmpscr->ffxdelta[i]=tmpscr->ffxdelta[j];
-                        tmpscr->ffydelta[i]=tmpscr->ffydelta[j];
-                        tmpscr->ffxdelta2[i]=tmpscr->ffxdelta2[j];
-                        tmpscr->ffydelta2[i]=tmpscr->ffydelta2[j];
-                        tmpscr->fflink[i]=tmpscr->fflink[j];
-                        tmpscr->ffwidth[i]=tmpscr->ffwidth[j];
-                        tmpscr->ffheight[i]=tmpscr->ffheight[j];
-                        if(tmpscr->ffflags[i]&ffCARRYOVER)
-                           tmpscr->ffflags[i]=tmpscr->ffflags[j]|ffCARRYOVER;
-                        else
-                        {
-                           tmpscr->ffflags[i]=tmpscr->ffflags[j];
-                        }
-                        tmpscr->ffflags[i]&=~ffCHANGER;
-                        ffposx[i]=(short)(tmpscr->ffx[j]/10000);
-                        ffposy[i]=(short)(tmpscr->ffy[j]/10000);
-
-                        if(combobuf[tmpscr->ffdata[j]].flag>15 && combobuf[tmpscr->ffdata[j]].flag<32)
-                        {
-                           tmpscr->ffdata[j]=tmpscr->secretcombo[combobuf[tmpscr->ffdata[j]].flag-16+4];
-                        }
-                        if((tmpscr->ffflags[j]&ffSWAPNEXT)||(tmpscr->ffflags[j]&ffSWAPPREV))
-                        {
-                           int k=0;
-                           if(tmpscr->ffflags[j]&ffSWAPNEXT)
-                              k=j<31?j+1:0;
-                           if(tmpscr->ffflags[j]&ffSWAPPREV)
-                              k=j>0?j-1:31;
-                           zc_swap(tmpscr->ffdata[j],tmpscr->ffdata[k]);
-                           zc_swap(tmpscr->ffcset[j],tmpscr->ffcset[k]);
-                           zc_swap(tmpscr->ffdelay[j],tmpscr->ffdelay[k]);
-                           zc_swap(tmpscr->ffxdelta[j],tmpscr->ffxdelta[k]);
-                           zc_swap(tmpscr->ffydelta[j],tmpscr->ffydelta[k]);
-                           zc_swap(tmpscr->ffxdelta2[j],tmpscr->ffxdelta2[k]);
-                           zc_swap(tmpscr->ffydelta2[j],tmpscr->ffydelta2[k]);
-                           zc_swap(tmpscr->fflink[j],tmpscr->fflink[k]);
-                           zc_swap(tmpscr->ffwidth[j],tmpscr->ffwidth[k]);
-                           zc_swap(tmpscr->ffheight[j],tmpscr->ffheight[k]);
-                           zc_swap(tmpscr->ffflags[j],tmpscr->ffflags[k]);
-                        }
-                     }
-                  }
-               }
-            }
-         }
-
-         if(tmpscr->fflink[i] ? !tmpscr->ffdelay[tmpscr->fflink[i]] : !tmpscr->ffdelay[i])
-         {
-            if(tmpscr->fflink[i]&&(tmpscr->fflink[i]-1)!=i)
-            {
-               ffprvx[i] = tmpscr->ffx[i];
-               ffprvy[i] = tmpscr->ffy[i];
-               tmpscr->ffx[i]+=tmpscr->ffxdelta[tmpscr->fflink[i]-1];
-               tmpscr->ffy[i]+=tmpscr->ffydelta[tmpscr->fflink[i]-1];
-            }
-            else
-            {
-               ffprvx[i] = tmpscr->ffx[i];
-               ffprvy[i] = tmpscr->ffy[i];
-               tmpscr->ffx[i]+=tmpscr->ffxdelta[i];
-               tmpscr->ffy[i]+=tmpscr->ffydelta[i];
-               tmpscr->ffxdelta[i]+=tmpscr->ffxdelta2[i];
-               tmpscr->ffydelta[i]+=tmpscr->ffydelta2[i];
-               if(tmpscr->ffxdelta[i]>1280000) tmpscr->ffxdelta[i]=1280000;
-               if(tmpscr->ffxdelta[i]<-1280000) tmpscr->ffxdelta[i]=-1280000;
-               if(tmpscr->ffydelta[i]>1280000) tmpscr->ffydelta[i]=1280000;
-               if(tmpscr->ffydelta[i]<-1280000) tmpscr->ffydelta[i]=-1280000;
-            }
-         }
-         else
-         {
-            if(!tmpscr->fflink[i] || (tmpscr->fflink[i]-1)==i)
-               tmpscr->ffdelay[i]--;
-         }
-         if(tmpscr->ffx[i]<-320000)
-         {
-            if(tmpscr->flags6&fWRAPAROUNDFF)
-            {
-               tmpscr->ffx[i] = 2880000+(tmpscr->ffx[i]+320000);
-               ffprvy[i] = tmpscr->ffy[i];
-            }
-            else if(tmpscr->ffx[i]<-640000)
-            {
-               tmpscr->ffdata[i]=0;
-               tmpscr->ffflags[i]&=~ffCARRYOVER;
-            }
-         }
-         if(tmpscr->ffy[i]<-320000)
-         {
-            if(tmpscr->flags6&fWRAPAROUNDFF)
-            {
-               tmpscr->ffy[i] = 2080000+(tmpscr->ffy[i]+320000);
-               ffprvx[i] = tmpscr->ffx[i];
-            }
-            else if(tmpscr->ffy[i]<-640000)
-            {
-               tmpscr->ffdata[i]=0;
-               tmpscr->ffflags[i]&=~ffCARRYOVER;
-            }
-         }
-         if(tmpscr->ffx[i]>=2880000)
-         {
-            if(tmpscr->flags6&fWRAPAROUNDFF)
-            {
-               tmpscr->ffx[i] = tmpscr->ffx[i]-2880000-320000;
-               ffprvy[i] = tmpscr->ffy[i];
-            }
-            else
-            {
-               tmpscr->ffdata[i]=0;
-               tmpscr->ffflags[i]&=~ffCARRYOVER;
-            }
-         }
-         if(tmpscr->ffy[i]>=2080000)
-         {
-            if(tmpscr->flags6&fWRAPAROUNDFF)
-            {
-               tmpscr->ffy[i] = tmpscr->ffy[i]-2080000-320000;
-               ffprvy[i] = tmpscr->ffy[i];
-            }
-            else
-            {
-               tmpscr->ffdata[i]=0;
-               tmpscr->ffflags[i]&=~ffCARRYOVER;
-            }
-         }
+        // Combo 0?
+        if(tmpscr->ffdata[j]==0)
+          continue;
+        
+        // Not a changer?
+        if(!(tmpscr->ffflags[j]&ffCHANGER))
+          continue;
+        
+        // Ignore this changer? (ffposx and ffposy are last changer position)
+        if(tmpscr->ffx[j]/10000==ffposx[i]&&tmpscr->ffy[j]/10000==ffposy[i])
+          continue;
+        
+        if((isonline(tmpscr->ffx[i], tmpscr->ffy[i], ffprvx[i],ffprvy[i], tmpscr->ffx[j], tmpscr->ffy[j]) || // Along the line, or...
+            (tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) && // At exactly the same position, and...
+           (ffprvx[i]>-10000000 && ffprvy[i]>-10000000)) // Whatever this means
+        {
+          if(tmpscr->ffflags[j]&ffCHANGETHIS)
+          {
+            tmpscr->ffdata[i] = tmpscr->ffdata[j];
+            tmpscr->ffcset[i] = tmpscr->ffcset[j];
+          }
+          if(tmpscr->ffflags[j]&ffCHANGENEXT)
+            tmpscr->ffdata[i]++;
+          if(tmpscr->ffflags[j]&ffCHANGEPREV)
+            tmpscr->ffdata[i]--;
+          
+          tmpscr->ffdelay[i]=tmpscr->ffdelay[j];
+          tmpscr->ffx[i]=tmpscr->ffx[j];
+          tmpscr->ffy[i]=tmpscr->ffy[j];
+          tmpscr->ffxdelta[i]=tmpscr->ffxdelta[j];
+          tmpscr->ffydelta[i]=tmpscr->ffydelta[j];
+          tmpscr->ffxdelta2[i]=tmpscr->ffxdelta2[j];
+          tmpscr->ffydelta2[i]=tmpscr->ffydelta2[j];
+          tmpscr->fflink[i]=tmpscr->fflink[j];
+          tmpscr->ffwidth[i]=tmpscr->ffwidth[j];
+          tmpscr->ffheight[i]=tmpscr->ffheight[j];
+          
+          if(tmpscr->ffflags[i]&ffCARRYOVER)
+            tmpscr->ffflags[i]=tmpscr->ffflags[j]|ffCARRYOVER;
+          else
+            tmpscr->ffflags[i]=tmpscr->ffflags[j];
+          
+          tmpscr->ffflags[i]&=~ffCHANGER;
+          ffposx[i]=(short)(tmpscr->ffx[j]/10000);
+          ffposy[i]=(short)(tmpscr->ffy[j]/10000);
+          
+          if(combobuf[tmpscr->ffdata[j]].flag>15 && combobuf[tmpscr->ffdata[j]].flag<32)
+            tmpscr->ffdata[j]=tmpscr->secretcombo[combobuf[tmpscr->ffdata[j]].flag-16+4];
+          if((tmpscr->ffflags[j]&ffSWAPNEXT)||(tmpscr->ffflags[j]&ffSWAPPREV))
+          {
+            int k=0;
+            if(tmpscr->ffflags[j]&ffSWAPNEXT)
+              k=j<31?j+1:0;
+            if(tmpscr->ffflags[j]&ffSWAPPREV)
+              k=j>0?j-1:31;
+            zc_swap(tmpscr->ffdata[j],tmpscr->ffdata[k]);
+            zc_swap(tmpscr->ffcset[j],tmpscr->ffcset[k]);
+            zc_swap(tmpscr->ffdelay[j],tmpscr->ffdelay[k]);
+            zc_swap(tmpscr->ffxdelta[j],tmpscr->ffxdelta[k]);
+            zc_swap(tmpscr->ffydelta[j],tmpscr->ffydelta[k]);
+            zc_swap(tmpscr->ffxdelta2[j],tmpscr->ffxdelta2[k]);
+            zc_swap(tmpscr->ffydelta2[j],tmpscr->ffydelta2[k]);
+            zc_swap(tmpscr->fflink[j],tmpscr->fflink[k]);
+            zc_swap(tmpscr->ffwidth[j],tmpscr->ffwidth[k]);
+            zc_swap(tmpscr->ffheight[j],tmpscr->ffheight[k]);
+            zc_swap(tmpscr->ffflags[j],tmpscr->ffflags[k]);
+          }
+          
+          break;
+        }
       }
-   }
+    }
+
+    if(tmpscr->fflink[i] ? !tmpscr->ffdelay[tmpscr->fflink[i]] : !tmpscr->ffdelay[i])
+    {
+      if(tmpscr->fflink[i]&&(tmpscr->fflink[i]-1)!=i)
+      {
+        ffprvx[i] = tmpscr->ffx[i];
+        ffprvy[i] = tmpscr->ffy[i];
+        tmpscr->ffx[i]+=tmpscr->ffxdelta[tmpscr->fflink[i]-1];
+        tmpscr->ffy[i]+=tmpscr->ffydelta[tmpscr->fflink[i]-1];
+      }
+      else
+      {
+        ffprvx[i] = tmpscr->ffx[i];
+        ffprvy[i] = tmpscr->ffy[i];
+        tmpscr->ffx[i]+=tmpscr->ffxdelta[i];
+        tmpscr->ffy[i]+=tmpscr->ffydelta[i];
+        tmpscr->ffxdelta[i]+=tmpscr->ffxdelta2[i];
+        tmpscr->ffydelta[i]+=tmpscr->ffydelta2[i];
+        if(tmpscr->ffxdelta[i]>1280000) tmpscr->ffxdelta[i]=1280000;
+        if(tmpscr->ffxdelta[i]<-1280000) tmpscr->ffxdelta[i]=-1280000;
+        if(tmpscr->ffydelta[i]>1280000) tmpscr->ffydelta[i]=1280000;
+        if(tmpscr->ffydelta[i]<-1280000) tmpscr->ffydelta[i]=-1280000;
+      }
+    }
+    else
+    {
+      if(!tmpscr->fflink[i] || (tmpscr->fflink[i]-1)==i)
+        tmpscr->ffdelay[i]--;
+    }
+    
+    // Check if the FFC's off the side of the screen
+    
+    // Left
+    if(tmpscr->ffx[i]<-320000)
+    {
+      if(tmpscr->flags6&fWRAPAROUNDFF)
+      {
+        tmpscr->ffx[i] = 2880000+(tmpscr->ffx[i]+320000);
+        ffprvy[i] = tmpscr->ffy[i];
+        ffposx[i]=-1000; // Re-enable previous changer
+        ffposy[i]=-1000;
+      }
+      else if(tmpscr->ffx[i]<-640000)
+      {
+        tmpscr->ffdata[i]=0;
+        tmpscr->ffflags[i]&=~ffCARRYOVER;
+      }
+    }
+    
+    // Right
+    else if(tmpscr->ffx[i]>=2880000)
+    {
+      if(tmpscr->flags6&fWRAPAROUNDFF)
+      {
+        tmpscr->ffx[i] = tmpscr->ffx[i]-2880000-320000;
+        ffprvy[i] = tmpscr->ffy[i];
+        ffposx[i]=-1000;
+        ffposy[i]=-1000;
+      }
+      else
+      {
+        tmpscr->ffdata[i]=0;
+        tmpscr->ffflags[i]&=~ffCARRYOVER;
+      }
+    }
+    
+    // Top
+    if(tmpscr->ffy[i]<-320000)
+    {
+      if(tmpscr->flags6&fWRAPAROUNDFF)
+      {
+        tmpscr->ffy[i] = 2080000+(tmpscr->ffy[i]+320000);
+        ffprvx[i] = tmpscr->ffx[i];
+        ffposx[i]=-1000;
+        ffposy[i]=-1000;
+      }
+      else if(tmpscr->ffy[i]<-640000)
+      {
+        tmpscr->ffdata[i]=0;
+        tmpscr->ffflags[i]&=~ffCARRYOVER;
+      }
+    }
+    
+    // Bottom
+    else if(tmpscr->ffy[i]>=2080000)
+    {
+      if(tmpscr->flags6&fWRAPAROUNDFF)
+      {
+        tmpscr->ffy[i] = tmpscr->ffy[i]-2080000-320000;
+        ffprvy[i] = tmpscr->ffy[i];
+        ffposx[i]=-1000;
+        ffposy[i]=-1000;
+      }
+      else
+      {
+        tmpscr->ffdata[i]=0;
+        tmpscr->ffflags[i]&=~ffCARRYOVER;
+      }
+    }
+  }
 }
 
 bool hitcombo(int x, int y, int combotype)
@@ -2321,6 +2456,7 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
       particles.spr(pcounter)->draw(scrollbuf);
     }
   }
+  do_layer(scrollbuf,-3, this_screen, x1, y1, 2); // freeform combos!
   if(!(this_screen->flags7&fLAYER2BG))
   {
     do_layer(scrollbuf,1, this_screen, x1, y1, 2, false, true); // LAYER 2
@@ -2371,7 +2507,6 @@ void draw_screen(mapscr* this_screen, mapscr* next_screen, int x1, int y1, int x
 		do_walkflags(scrollbuf,next_screen,x2,y2,3);
   }
 
-  do_layer(scrollbuf,-3, this_screen, x1, y1, 2); // freeform combos!
   if (next_screen!=NULL)
   {
     putscrdoors(scrollbuf,x2,y2,next_screen);
@@ -3292,7 +3427,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
 
   if(!isdungeon(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
   {
-    if(game->maps[(currmap<<7)+scr]&mSECRET)               // if special stuff done before
+    if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)               // if special stuff done before
     {
       hiddenstair(tmp,false);
       hidden_entrance(tmp,false,false,-3);
@@ -3300,27 +3435,27 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
   }
 
 
-  if(game->maps[(currmap<<7)+scr]&mLOCKBLOCK)              // if special stuff done before
+  if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)              // if special stuff done before
   {
     remove_lockblocks(tmp);
   }
 
-  if(game->maps[(currmap<<7)+scr]&mBOSSLOCKBLOCK)          // if special stuff done before
+  if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSLOCKBLOCK)          // if special stuff done before
   {
     remove_bosslockblocks(tmp);
   }
 
-  if(game->maps[(currmap<<7)+scr]&mCHEST)              // if special stuff done before
+  if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mCHEST)              // if special stuff done before
   {
     remove_chests(tmp);
   }
 
-  if(game->maps[(currmap<<7)+scr]&mLOCKEDCHEST)              // if special stuff done before
+  if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKEDCHEST)              // if special stuff done before
   {
     remove_lockedchests(tmp);
   }
 
-  if(game->maps[(currmap<<7)+scr]&mBOSSCHEST)              // if special stuff done before
+  if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSCHEST)              // if special stuff done before
   {
     remove_bosschests(tmp);
   }
@@ -3346,7 +3481,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
         break;
 
         case dLOCKED:
-        if(game->maps[(currmap<<7)+scr]&(1<<i))
+        if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
         {
           tmpscr[tmp].door[i]=dUNLOCKED;
           //          putit=false;
@@ -3354,7 +3489,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
         break;
 
         case dBOSS:
-        if(game->maps[(currmap<<7)+scr]&(1<<i))
+        if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
         {
           tmpscr[tmp].door[i]=dOPENBOSS;
           //          putit=false;
@@ -3362,7 +3497,7 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
         break;
 
         case dBOMB:
-        if(game->maps[(currmap<<7)+scr]&(1<<i))
+        if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
         {
           tmpscr[tmp].door[i]=dBOMBED;
         }
@@ -3454,34 +3589,34 @@ void loadscr2(int tmp,int scr,int )
   }
   if(!isdungeon(scr))
   {
-    if(game->maps[(currmap<<7)+scr]&mSECRET)               // if special stuff done before
+    if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)               // if special stuff done before
     {
       hiddenstair(tmp,false);
       hidden_entrance(tmp,false,false,-3);
     }
   }
 
-  if(game->maps[(currmap<<7)+scr]&mLOCKBLOCK)              // if special stuff done before
+  if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)              // if special stuff done before
   {
     remove_lockblocks(tmp);
   }
 
-  if(game->maps[(currmap<<7)+scr]&mBOSSLOCKBLOCK)          // if special stuff done before
+  if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSLOCKBLOCK)          // if special stuff done before
   {
     remove_bosslockblocks(tmp);
   }
 
-  if(game->maps[(currmap<<7)+scr]&mCHEST)              // if special stuff done before
+  if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mCHEST)              // if special stuff done before
   {
     remove_chests(tmp);
   }
 
-  if(game->maps[(currmap<<7)+scr]&mLOCKEDCHEST)              // if special stuff done before
+  if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKEDCHEST)              // if special stuff done before
   {
     remove_lockedchests(tmp);
   }
 
-  if(game->maps[(currmap<<7)+scr]&mBOSSCHEST)              // if special stuff done before
+  if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSCHEST)              // if special stuff done before
   {
     remove_bosschests(tmp);
   }
@@ -3508,7 +3643,7 @@ void loadscr2(int tmp,int scr,int )
       break;
 
         case dLOCKED:
-        if(game->maps[(currmap<<7)+scr]&(1<<i))
+        if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
         {
           tmpscr[tmp].door[i]=dUNLOCKED;
           //          putit=false;
@@ -3516,7 +3651,7 @@ void loadscr2(int tmp,int scr,int )
         break;
 
         case dBOSS:
-        if(game->maps[(currmap<<7)+scr]&(1<<i))
+        if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
         {
           tmpscr[tmp].door[i]=dOPENBOSS;
           //          putit=false;
@@ -3524,7 +3659,7 @@ void loadscr2(int tmp,int scr,int )
         break;
 
         case dBOMB:
-        if(game->maps[(currmap<<7)+scr]&(1<<i))
+        if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
         {
           tmpscr[tmp].door[i]=dBOMBED;
         }
@@ -3816,7 +3951,7 @@ void ViewMap()
     {
       int s = (y<<4) + x;
 
-      if(!(game->maps[(currmap<<7)+s]&mVISITED) ||
+      if(!(game->maps[(currmap*MAPSCRSNORMAL)+s]&mVISITED) ||
         // Don't display if not part of DMap
         ((DMaps[currdmap].flags&dmfDMAPMAP)
         && (DMaps[currdmap].type != dmOVERW)

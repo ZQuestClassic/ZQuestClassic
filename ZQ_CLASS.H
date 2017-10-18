@@ -207,6 +207,9 @@ bool load_dmaps(const char *path, int startdmap);
 bool save_dmaps(const char *path);
 int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_dmaps);
 
+bool save_guys(const char *path);
+bool load_guys(const char *path);
+
 bool load_zgp(const char *path);
 bool save_zgp(const char *path);
 

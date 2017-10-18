@@ -1672,6 +1672,54 @@ void do_drawtriangle3dr(BITMAP *bmp, int i, int *sdci, int xoffset, int yoffset)
 }
 
 
+bool is_layer_transparent( const mapscr& m, int layer )
+{
+	layer = vbound( layer, 0, 5 );
+	return m.layeropacity[layer] == 128;
+}
+
+mapscr *getmapscreen( int map_index, int screen_index, int layer ) //returns NULL for invalid or non-existent layer
+{
+    mapscr *base_screen;
+    int index = map_index*MAPSCRS+screen_index;
+
+    if( (unsigned int)layer > 5 || (unsigned int)index >= TheMaps.size())
+        return NULL;
+
+	if(layer != 0)
+	{
+		layer = layer - 1;
+
+		base_screen=&(TheMaps[index]);
+		if(base_screen->layermap[layer]==0)
+			return NULL;
+
+		index=(base_screen->layermap[layer]-1)*MAPSCRS+base_screen->layerscreen[layer];
+		if( (unsigned int)index >= TheMaps.size() ) // Might as well make sure
+			return NULL;
+	}
+    
+    return &(TheMaps[index]);
+}
+
+void draw_mapscr( BITMAP *b, const mapscr& m, int x, int y, bool transparent )
+{
+	for( int i(0); i < 176; ++i )
+	{
+		const int x2 = ((i&15)<<4) + x;
+		const int y2 = (i&0xF0) + y;
+
+		const newcombo & c = combobuf[ m.data[i] ];
+		const int tile = combo_tile(c, x2, y2);
+
+		if( transparent )
+			overtiletranslucent16( b, tile, x2, y2, m.cset[i], c.flip, 128 );
+		else
+			overtile16( b, tile, x2, y2, m.cset[i], c.flip );
+	}
+}
+
+
 void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffScreen)
 {
 	//sdci[1]=layer
@@ -1683,7 +1731,7 @@ void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffS
 	//sdci[7]=rotation
 	//sdci[8]=opacity
 
-	int map = sdci[2]/10000;
+	int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
 	int scrn = sdci[3]/10000;
 	int sourceLayer = vbound( sdci[4]/10000, 0, 6);
 	int x = sdci[5]/10000;
@@ -1693,16 +1741,15 @@ void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffS
 	int rotation = sdci[7]/10000;
 	int opacity = sdci[8]/10000;
 
-	const int index = map * MAPSCRS + scrn;
-	if( index >= (int)TheMaps.size() )
+	const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+	const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+	if(!m || index >= TheMaps.size() )
 	{
-		al_trace( "DrawLayer: invalid map or screen index. \n");
+		al_trace( "DrawLayer: invalid map, layer, or screen index. \n");
 		return;
 	}
 
-
-	const mapscr & m = TheMaps[index];
-	const mapscr & l = TheMaps[ m.layermap[sourceLayer] * MAPSCRS + m.layerscreen[sourceLayer] ];
+	const mapscr & l = *m;
 
 	BITMAP* b = bmp;
 	if(rotation != 0)
@@ -1710,25 +1757,12 @@ void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffS
 
 
 	const int maxX = isOffScreen ? 512 : 256;
-	const int maxY = isOffScreen ? 512 : 176;
+	const int maxY = isOffScreen ? 512 : 176 + yoffset;
+	bool transparent = opacity <= 128;
 
 	if(rotation != 0) // rotate
 	{
-		for( int i(0); i < 176; ++i )
-		{
-			const int x2 = ((i&15)<<4) + x;
-			const int y2 = (i&0xF0) + y;
-
-			const newcombo & c = combobuf[ l.data[i] ];
-			const int tile = combo_tile(c, x2, y2);
-
-			if( opacity < 128 )
-			   TileHelper::OverTileTranslucent( b, tile, x2, y2, 16, 16, l.cset[i], c.flip, opacity );
-			else
-			   TileHelper::OverTile( b, tile, x2, y2, 16, 16, l.cset[i], c.flip );
-
-			//putcombo( b, xx, yy, l.data[i], l.cset[i] );
-		}
+		draw_mapscr( b, l, x1, y1, transparent );
 
 		rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation) );
 		script_drawing_commands.ReleaseSubBitmap(b);
@@ -1737,18 +1771,18 @@ void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffS
 	{
 		for( int i(0); i < 176; ++i )
 		{
-			const int x2 = ((i&15)<<4) + x;
-			const int y2 = (i&0xF0) + y;
+			const int x2 = ((i&15)<<4) + x1;
+			const int y2 = (i&0xF0) + y1;
 
 			if( x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY ) //in clipping rect
 			{
 				const newcombo & c = combobuf[ l.data[i] ];
 				const int tile = combo_tile(c, x2, y2);
 
-				if( opacity < 128 )
-				   TileHelper::OverTileTranslucent( b, tile, x2, y2, 16, 16, l.cset[i], c.flip, opacity );
-				else
-				   TileHelper::OverTile( b, tile, x2, y2, 16, 16, l.cset[i], c.flip );
+			if( opacity < 128 )
+				overtiletranslucent16( b, tile, x2, y2, l.cset[i], c.flip, opacity );
+			else
+				overtile16( b, tile, x2, y2, l.cset[i], c.flip );
 
 				//putcombo( b, xx, yy, l.data[i], l.cset[i] );
 			}
@@ -1769,7 +1803,7 @@ void do_drawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOff
 	//sdci[5]=y
 	//sdci[6]=rotation
 
-	int map = sdci[2]/10000;
+	int map = (sdci[2]/10000)-1; //zscript map indices start at 1.
 	int scrn = sdci[3]/10000;
 	int x = sdci[4]/10000;
 	int y = sdci[5]/10000;
@@ -1777,18 +1811,36 @@ void do_drawscreenr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOff
 	int y1 = y + yoffset;
 	int rotation = sdci[6]/10000;
 
-	const int index = map * MAPSCRS + scrn;
-	if( index >= (int)TheMaps.size() )
+	const unsigned int index = (unsigned int)(map * MAPSCRS + scrn);
+	if( index >= TheMaps.size() )
 	{
 		al_trace( "DrawScreen: invalid map or screen index. \n");
 		return;
 	}
 
+	const mapscr & m = TheMaps[index];
+
+
 	BITMAP* b = bmp;
 	if(rotation != 0)
 		b = script_drawing_commands.AquireSubBitmap( 256, 176 );
 
-	putscr( b, x, y, &TheMaps[index] );
+	//draw layer 0
+	draw_mapscr( b, m, x1, y1, false );
+
+	for( int i(0); i < 6; ++i )
+	{
+		if( m.layermap[i] == 0 ) continue;
+
+		unsigned int layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+		if( layer_screen_index >= TheMaps.size() )
+			continue;
+
+		bool trans = m.layeropacity[i] == 128;
+
+		//draw valid layers
+		draw_mapscr( b, TheMaps[ layer_screen_index ], x1, y1, trans );
+	}
 
 	if(rotation != 0) // rotate
 	{

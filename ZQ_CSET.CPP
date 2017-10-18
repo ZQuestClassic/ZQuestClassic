@@ -116,9 +116,9 @@ void colormixer(int color,int gray,int ratio)
   {
     window_xofs=int(zq_screen_w-320*(is_large?1.5:1))>>1;
     window_yofs=int(zq_screen_h-240*(is_large?1.5:1))>>1;
-	color = int(color*.666);
-	ratio = int(ratio*.666);
-	gray = int(gray*.666);
+	color /= 1.5;
+	ratio /= 1.5;
+	gray /= 1.5;
   }
   custom_vsync();
   scare_mouse();
@@ -140,9 +140,9 @@ void colormixer(int color,int gray,int ratio)
   rectfill(screen,color_x,color_y,color_x+color_w-1,color_y+color_h-1,edc);
   if(is_large)
   {
-	color = int(color/.666);
-	ratio = int(color/.666);
-	gray = int(gray/.666);
+	color *=1.5;
+	ratio *=1.5;
+	gray *=1.5;
   }
   _allegro_hline(screen,color_x,gray+color_y,color_x+color_w-1,edi);
   _allegro_vline(screen,color+color_x,color_y,color_y+color_h-1,edi);
@@ -187,6 +187,8 @@ void edit_dataset(int dataset)
   int insert_button_x=130, insert_button_y=140, insert_button_w=61, insert_button_h=21;
   int window_xofs=0;
   int window_yofs=0;
+  bool just_clicked=false;
+  
   if(is_large)
   {
     window_xofs=(zq_screen_w-480)>>1;
@@ -293,6 +295,8 @@ void edit_dataset(int dataset)
     int y=gui_mouse_y();
     if(gui_mouse_b()==1 && !bdown)
     {
+      just_clicked=true;
+      
       if(isinRect(x,y,color_x,color_y,color_x+color_w-1,color_y+color_h-1))
       {
         doing=1; //hue/lightness (color)
@@ -312,7 +316,7 @@ void edit_dataset(int dataset)
           done=2;
         }
       }
-      if(isinRect(x,y,cancel_button_x,cancel_button_y,cancel_button_x+cancel_button_w-1,cancel_button_y+cancel_button_h-1))
+      if(!doing && isinRect(x,y,cancel_button_x,cancel_button_y,cancel_button_x+cancel_button_w-1,cancel_button_y+cancel_button_h-1))
       {
         if(do_text_button(cancel_button_x,cancel_button_y,cancel_button_w,cancel_button_h,"Cancel",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
         {
@@ -333,27 +337,46 @@ void edit_dataset(int dataset)
           RAMpal[14*16+index] = RAMpal[edc];
           setpal=true;
         }
-        bdown=true;
       }
+      bdown=true;
     }
 
     if(gui_mouse_b()==1)
     {
       switch(doing)
       {
-        case 1:
-        color = vbound(x-color_x,0,int(127*(is_large?1.5:1)));
-        gray = vbound(y-light_y,0,int(63*(is_large?1.5:1)));
+        case 1: // hue/lightness
+        color = vbound(x-color_x,0,is_large?191:127);
+        gray = vbound(y-light_y,0,is_large?95:63);
         break;
-        case 2:
-        index = vbound((int)((x-cset_x)/(is_large?1.5:1))>>3,0,15);
-        break;
-        case 3:
-        ratio = vbound(y-sat_y,0,int(63*(is_large?1.5:1)));
+        case 2: // color index
+        {
+          int new_index=vbound((int)((x-cset_x)/(is_large?1.5:1))>>3,0,15);
+          
+          if(index!=new_index && !just_clicked)
+          {
+              if(index<new_index)
+              {
+                for(int i=index; i<new_index; i++)
+                  zc_swap(RAMpal[14*16+i], RAMpal[14*16+i+1]);
+              }
+              else
+              {
+                for(int i=index; i>new_index; i--)
+                  zc_swap(RAMpal[14*16+i], RAMpal[14*16+i-1]);
+              }
+              setpal=true;
+          }
+          index = new_index;
+          break;
+        }
+        case 3: // saturation
+        ratio = vbound(y-sat_y,0,is_large?95:63);
         break;
       }
     }
-
+    
+    just_clicked=false;
     if(gui_mouse_b()==0)
     {
       bdown=false;
@@ -367,8 +390,26 @@ void edit_dataset(int dataset)
       {
         case KEY_ESC:   done=1; break;
         case KEY_ENTER: done=2; break;
-        case KEY_LEFT:  index=(index-1)&15; break;
-        case KEY_RIGHT: index=(index+1)&15; break;
+        case KEY_LEFT:
+        {
+          if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+          {
+            zc_swap(RAMpal[14*16+index], RAMpal[14*16+((index-1)&15)]);
+            setpal=true;
+          }
+          index=(index-1)&15;
+          break;
+        }
+        case KEY_RIGHT:
+        {
+          if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+          {
+            zc_swap(RAMpal[14*16+index], RAMpal[14*16+((index+1)&15)]);
+            setpal=true;
+          }
+          index=(index+1)&15;
+          break;
+        }
         case KEY_HOME:  ++RAMpal[14*16+index].r; RAMpal[14*16+index].r&=0x3F; setpal=true; break;
         case KEY_END:   --RAMpal[14*16+index].r; RAMpal[14*16+index].r&=0x3F; setpal=true; break;
         case KEY_UP:    ++RAMpal[14*16+index].g; RAMpal[14*16+index].g&=0x3F; setpal=true; break;
@@ -385,8 +426,26 @@ void edit_dataset(int dataset)
         default:
         switch(k&255)
         {
-          case '4':  index=(index-1)&15; break;
-          case '6':  index=(index+1)&15; break;
+          case '4':
+          {
+            if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+            {
+              zc_swap(RAMpal[14*16+index], RAMpal[14*16+((index-1)&15)]);
+              setpal=true;
+            }
+            index=(index-1)&15;
+            break;
+          }
+          case '6':
+          {
+            if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+            {
+              zc_swap(RAMpal[14*16+index], RAMpal[14*16+((index+1)&15)]);
+              setpal=true;
+            }
+            index=(index+1)&15;
+            break;
+          }
           case '7':  ++RAMpal[14*16+index].r; RAMpal[14*16+index].r&=0x3F; setpal=true; break;
           case '1':  --RAMpal[14*16+index].r; RAMpal[14*16+index].r&=0x3F; setpal=true; break;
           case '8':  ++RAMpal[14*16+index].g; RAMpal[14*16+index].g&=0x3F; setpal=true; break;
@@ -400,7 +459,6 @@ void edit_dataset(int dataset)
     if(gui_mouse_b() && (doing==1 || doing==3))
     {
       colormixer(color,gray,ratio);
-
     }
     else
     {
@@ -833,11 +891,30 @@ int d_cset_proc(int msg,DIALOG *d,int c)
 
     case MSG_CLICK:
     {
+      bool dragging=false;
+      int src=0;
+      int x;
+      int y;
+      
+      // Start dragging?
+      if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+      {
+        x=gui_mouse_x();
+        y=gui_mouse_y();
+        
+        if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
+        {
+          dragging=true;
+          src=vbound((int)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
+              vbound((int)((x-d->x) / (is_large?1.5:1))>>3,0,15);
+        }
+      }
+      
       do
       {
-        int x=gui_mouse_x();
-        int y=gui_mouse_y();
-        if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
+        x=gui_mouse_x();
+        y=gui_mouse_y();
+        if(!dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
         {
           d->d2 = vbound((int)((y-d->y)/(is_large?1.5:1))>>3,0,15);
           if(!(key_shifts&KB_SHIFT_FLAG))
@@ -861,6 +938,32 @@ int d_cset_proc(int msg,DIALOG *d,int c)
 		   //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
 	   }
       } while(gui_mouse_b());
+      
+      if(dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
+      {
+        int dest=vbound((int)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
+                 vbound((int)((x-d->x) / (is_large?1.5:1))>>3,0,15);
+        if(src!=dest)
+        {
+          memcpy(undopal,pal,sizeof(pal));
+          
+          if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+          {
+            for(int i=0; i<3; i++)
+              zc_swap(*(((byte*)d->dp2)+dest*3+i), *(((byte*)d->dp2)+src*3+i));
+          }
+          else
+          {
+            for(int i=0; i<3; i++)
+              *(((byte*)d->dp2)+dest*3+i) = *(((byte*)d->dp2)+src*3+i);
+          }
+          
+          for(int i=0; i<cset_count; i++)
+            load_cset(pal,i,cset_first+i);
+          set_palette(pal);
+          saved=false;
+        }
+      }
     }
     break;
 
@@ -871,10 +974,11 @@ int d_cset_proc(int msg,DIALOG *d,int c)
       switch(k)
       {
         case KEY_UP:    if(d->d2>0) --d->d2;             if(!shift) d->d1 = d->d2; break;
-        case KEY_DOWN:  if(d->d2<((int)ceil((d->h)/(is_large?1.5:1))>>3)-1)
+        case KEY_DOWN:
+          if(d->d2<((int)ceil((d->h)/(is_large?1.5:1))>>3)-1)
 												++d->d2; if(!shift) d->d1 = d->d2; break;
         case KEY_PGUP:  d->d2=0;                         if(!shift) d->d1 = d->d2; break;
-        case KEY_PGDN:  d->d2=((d->h)>>3)-1;             if(!shift) d->d1 = d->d2; break;
+        case KEY_PGDN:  d->d2=((int)ceil((d->h)/(is_large?1.5:1))>>3)-1; if(!shift) d->d1 = d->d2; break;
 
         case KEY_C:
         cset_hold_cnt=0;

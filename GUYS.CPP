@@ -193,7 +193,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
   did_armos=true;
   script_spawned=false;
 
-  d = guysbuf + (id & 255);
+  d = guysbuf + (id & 0xFFF);
   hp = d->hp;
   starting_hp = hp;
 //  cs = d->cset;
@@ -928,12 +928,12 @@ int enemy::takehit(weapon *w)
 		power = DAMAGE_MULTIPLIER>>1;
 		goto fsparkle;
 		break;
-	case wBrang:
+    case wBrang:
 	{
 	    int def = defend(wpnId, &power, edefBRANG);
 		if (def >= 0) return def;
-
-
+		
+		// Not hurt by 0-damage weapons
 		if(!(flags & guy_bhit))
 		{
 			stunclk=160;
@@ -941,6 +941,7 @@ int enemy::takehit(weapon *w)
 			if (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))
 			{
 				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))*DAMAGE_MULTIPLIER;
+				goto hitclock;
 			}
 			break;
 		}
@@ -962,6 +963,7 @@ int enemy::takehit(weapon *w)
 			if (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))
 			{
 				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))*DAMAGE_MULTIPLIER;
+				goto hitclock;
 			}
 			break;
 		}
@@ -1012,9 +1014,11 @@ fsparkle:
 	  else hp-=power;
 hitclock:
 	  hclk=33;
-	  if((dir&2)==(wpnDir&2))
+	  
+	  // Use w->dir instead of wpnDir to make sure boomerangs don't push enemies the wrong way
+	  if((dir&2)==(w->dir&2))
 	  {
-	  	sclk=(wpnDir<<8)+16;
+	  	sclk=(w->dir<<8)+16;
 	  }
 	}
 
@@ -3179,6 +3183,17 @@ int eFire::takehit(weapon *w)
   return ret;
 }
 
+void eFire::break_shield()
+{
+    if(!shield)
+        return;
+    
+    flags&=~(inv_front | inv_back | inv_left | inv_right);
+    shield=false;
+    if (get_bit(quest_rules,qr_BRKNSHLDTILES))
+        o_tile=s_tile;
+}
+
 eOther::eOther(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
   clk4=0;
@@ -3249,6 +3264,17 @@ int eOther::takehit(weapon *w)
   }
   int ret = enemy::takehit(w);
   return ret;
+}
+
+void eOther::break_shield()
+{
+    if(!shield)
+        return;
+    
+    flags&=~(inv_front | inv_back | inv_left | inv_right);
+    shield=false;
+    if (get_bit(quest_rules,qr_BRKNSHLDTILES))
+        o_tile=s_tile;
 }
 
 void enemy::removearmos(int ax,int ay)
@@ -5016,11 +5042,8 @@ bool eStalfos::animate(int index)
       if (flags2&cmbflag_armos && z==0)
 		removearmos(x,y);
       clk2=0;
-      if(!canmove(down,(fix)8,spw_none))
-      {
-        dir=0;
-        y.v&=0xF00000;
-      }
+      
+      newdir();
     }
     else return enemy::animate(index);
   }
@@ -5249,7 +5272,7 @@ bool eStalfos::animate(int index)
   }
 
   // Fire Zol
-  if (wpn && dmisc1==e1tEACHTILE && clk2==1)
+  if (wpn && dmisc1==e1tEACHTILE && clk2==1 && !hclk)
   {
       addEwpn(x,y,z,wpn,0,wdp,dir, getUID());
       sfx(wpnsfx(wpn),pan(int(x)));
@@ -5631,6 +5654,17 @@ void eStalfos::KillWeapon()
   {
     stop_sfx(WAV_BRANG);
   }
+}
+
+void eStalfos::break_shield()
+{
+    if(!shield)
+        return;
+    
+    flags&=~(inv_front | inv_back | inv_left | inv_right);
+    shield=false;
+    if (get_bit(quest_rules,qr_BRKNSHLDTILES))
+        o_tile=s_tile;
 }
 
 eKeese::eKeese(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
@@ -6651,7 +6685,7 @@ int eGohma::takehit(weapon *w)
 
 eLilDig::eLilDig(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
-  count_enemy=(id==(id&0xFF));
+  count_enemy=(id==(id&0xFFF));
   //nets+4360+(((id&0xFF)-eDIGPUP2)*40);
 }
 
@@ -7139,6 +7173,12 @@ bool eMoldorm::animate(int index)
 
     for(int i=index+1; i<index+segcnt+1; i++)
     {
+      if(i==index+1)
+      {
+        x=((enemy*)guys.spr(i))->x;
+        y=((enemy*)guys.spr(i))->y;
+      }
+      
       ((enemy*)guys.spr(i))->o_tile=tile;
       if ((i==index+segcnt)&&(i!=index+1))                  //tail
       {
@@ -8587,6 +8627,7 @@ ePatraBS::ePatraBS(fix ,fix ,int Id,int Clk) : enemy((fix)128,(fix)48,Id,Clk)
   flycnt2=0; // PatraBS doesn't have inner rings!
   loopcnt=0;
   hxsz = 32;
+  hxofs=-8;
   if(dmisc6<short(1))dmisc6=1; // ratio cannot be 0!
   //nets+4480;
 }
@@ -9029,8 +9070,7 @@ int addenemy(int x,int y,int z,int id,int clk)
   sprite *e=NULL;
   switch(guysbuf[id&0xFFF].family)
   {
-	  //Fixme: Hey L the walkers are leaking memory somewhere.
-	  //-revision to the above; They ALL are. I *think* it happens on death, quit, retry, or reload. -Gleeok
+	  //Fixme: possible enemy memory leak. (minor)
     case eeWALK:		e = new eStalfos((fix)x,(fix)y,id,clk); break;
     case eeLEV:           e = new eLeever((fix)x,(fix)y,id,clk); break;
     case eeTEK:           e = new eTektite((fix)x,(fix)y,id,clk); break;
@@ -9412,7 +9452,7 @@ void loadguys()
 	{
 		Guy=tmpscr->guy;
 		if(DMaps[currdmap].flags&dmfVIEWMAP)
-            game->maps[(currmap<<7)+currscr] |= mVISITED;          // mark as visited
+            game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;          // mark as visited
 	}
 
 	// The Guy appears if 'Link is in cave' equals 'Guy is in cave'.
@@ -9444,6 +9484,7 @@ void loadguys()
 		case rMUPGRADE:
 		case rLEARNSLASH:
 		case rTAKEONE:
+		case rREPAIR:
 			if(getmapflag())
 				Guy=0;
 			break;
@@ -9777,7 +9818,7 @@ void load_default_enemies()
 	  if (ctype==cSPINTILE1)
 	  {
 		// Awaken spinning tile
-		awaken_spinning_tile(tmpscr,MAPCOMBO(x,y));
+		awaken_spinning_tile(tmpscr,COMBOPOS(x,y));
 	  }
     }
   }
@@ -10873,17 +10914,34 @@ void putmsg()
 		  break;
 
 		wrapmsgstr(s3);
-
-	    tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
-	    if(cursor_x+tlength > msg_w && ((cursor_x > msg_w || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)) ? 1 : strcmp(s3," ")!=0))
-	    {
-		  cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
-		  cursor_x=0;
-	    }
-		textprintf_ex(msgbmpbuf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
-          "%c",MsgStrings[msgstr].s[msgptr]);
-
-		cursor_x+=tlength;
+		
+		if(MsgStrings[msgstr].s[msgptr]==' ')
+		{
+	      tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
+	      if(cursor_x+tlength > msg_w && ((cursor_x > msg_w || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)) ? true : strcmp(s3," ")!=0))
+          {
+            cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+            cursor_x=0;
+	      }
+		  textprintf_ex(msgbmpbuf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
+                        "%c",MsgStrings[msgstr].s[msgptr]);
+          cursor_x+=tlength;
+		}
+		else
+		{
+	      tlength = text_length(msgfont, s3) + ((int)strlen(s3)*MsgStrings[msgstr].hspace);
+	      if(cursor_x+tlength > msg_w && ((cursor_x > msg_w || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)) ? true : strcmp(s3," ")!=0))
+	      {
+		    cursor_y += text_height(msgfont) + MsgStrings[msgstr].vspace;
+		    cursor_x=0;
+	      }
+          sfx(MsgStrings[msgstr].sfx);
+          textprintf_ex(msgbmpbuf,msgfont,cursor_x+8,cursor_y+8,msgcolour,-1,
+                        "%c",MsgStrings[msgstr].s[msgptr]);
+	      cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
+	      cursor_x += MsgStrings[msgstr].hspace;
+		}
+		
 	    msgpos++;
       }
 	  ++msgptr;

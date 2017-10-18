@@ -36,8 +36,7 @@ int onFullscreen();
 #define MAX_ACTIVE    72000                                 // 20 minutes
 
 // saved games
-//#define MAXSAVES      24
-#define MAXSAVES      15
+#define MAXSAVES      (standalone_mode?1:15) // It's constant enough... :p
 
 // game.maps[] flags
 #define mSECRET             8192                                 // only overworld and caves use this
@@ -214,6 +213,10 @@ extern char     palnames[MAXLEVELS][17];
 
 extern bool is_large;
 
+extern bool standalone_mode;
+extern char *standalone_quest;
+extern bool skip_title;
+
 /*
 extern tiledata *newtilebuf, *grabtilebuf;
 extern newcombo *combobuf;
@@ -255,6 +258,7 @@ extern int jwin_pal[jcMAX];
 extern int gui_colorset;
 extern int fullscreen;
 extern byte disable_triplebuffer, can_triplebuffer_in_windowed_mode;
+extern byte frame_rest_suggest, forceExit, zc_vsync;
 extern byte zc_color_depth;
 extern byte use_debug_console, use_win32_proc; //windows only
 
@@ -272,7 +276,7 @@ extern int homescr,currscr,frame,currmap,dlevel,warpscr,worldscr;
 extern int newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
 extern int lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn;
 extern int digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
-extern int Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
+extern int joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
 extern int DUkey, DDkey, DLkey, DRkey, ss_after, ss_speed, ss_density;
 extern int hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
 extern int swordhearts[4], currcset, gfc, gfc2, pitx, pity, refill_what, refill_why;
@@ -283,7 +287,7 @@ extern float avgfps;
 
 extern bool do_cheat_goto, do_cheat_light;
 extern bool blockmoving;
-extern bool Throttlefps, ClickToFreeze, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers;
+extern bool Throttlefps, ClickToFreeze, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers, disableClickToFreeze;
 extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
 extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
 extern bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down,Ex2down,Ex3down,Ex4down,AUdown,ADdown,ALdown,ARdown,F12,F11,F5,keyI, keyQ;

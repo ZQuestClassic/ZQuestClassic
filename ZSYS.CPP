@@ -118,7 +118,7 @@ char *temp_name(char *s)
   int tempnum;
   static char *temporaryname;
   if (!temporaryname)
-    temporaryname=(char*)malloc(L_tmpnam);
+    temporaryname=(char*)zc_malloc(L_tmpnam);
   //  sprintf(temporaryname, "tempfile.qsu");
   //  return temporaryname;
 
@@ -227,15 +227,15 @@ void chop_path(char *path)
 int vbound(int x,int low,int high)
 {
 	assert(low <= high);
-  if(x<low) x=low;
-  if(x>high) x=high;
+  if(x<low) return low;
+  if(x>high) return high;
   return x;
 }
 
 float vbound(float x,float low,float high)
 {
-  if(x<low) x=low;
-  if(x>high) x=high;
+  if(x<low) return low;
+  if(x>high) return high;
   return x;
 }
 
@@ -1931,7 +1931,7 @@ void copy_dialog(DIALOG **to, DIALOG *from)
 {
   int count=0;
   for (count=1; from[count].proc!=NULL; ++count) { /* do nothing */ }
-  (*to)=(DIALOG*)malloc((count+1)*sizeof(DIALOG));
+  (*to)=(DIALOG*)zc_malloc((count+1)*sizeof(DIALOG));
   memcpy((*to),from,sizeof(DIALOG)*(count+1));
   for (int i=0; i<count; ++i)
   {
@@ -1971,7 +1971,7 @@ void copy_dialog(DIALOG **to, DIALOG *from)
         (from[i].proc==jwin_text_proc)||
         (from[i].proc==jwin_win_proc)))
     {
-	  (*to)[i].dp=malloc(strlen((char *)from[i].dp)+1);
+	  (*to)[i].dp=zc_malloc(strlen((char *)from[i].dp)+1);
       strcpy((char *)(*to)[i].dp,(char *)from[i].dp);
     }
     if ((from[i].proc==d_tab_proc)||
@@ -2098,7 +2098,7 @@ void free_dialog(DIALOG **dlg)
         ((*dlg)[i].proc==jwin_text_proc)||
         ((*dlg)[i].proc==jwin_win_proc)))
     {
-      free((*dlg)[i].dp);
+      zc_free((*dlg)[i].dp);
     }
 
 
@@ -2175,7 +2175,7 @@ void free_dialog(DIALOG **dlg)
 */
   }
   memset((*dlg),0,sizeof(DIALOG)*(count+1));
-  free((*dlg));
+  zc_free((*dlg));
 }
 
 /*static char * packpasswrd = NULL;
