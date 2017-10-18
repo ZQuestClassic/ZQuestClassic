@@ -214,6 +214,10 @@ int d_dummy_proc(int msg,DIALOG *d,int c) { msg=msg; d=d; c=c; /*these are here 
 
 void load_game_configs()
 {
+  joystick_index = get_config_int(cfg_sect,"joystick_index",0);
+  if((unsigned int)joystick_index > 4)
+	  joystick_index = 0; // 4 is the max number supported by allegro
+  
   Akey = get_config_int(cfg_sect,"key_a",KEY_ALT);
   Bkey = get_config_int(cfg_sect,"key_b",KEY_ZC_LCONTROL);
   Skey = get_config_int(cfg_sect,"key_s",KEY_ENTER);
@@ -326,6 +330,7 @@ void load_game_configs()
 
 void save_game_configs()
 {
+  set_config_int(cfg_sect,"joystick_index",joystick_index);
   set_config_int(cfg_sect,"key_a",Akey);
   set_config_int(cfg_sect,"key_b",Bkey);
   set_config_int(cfg_sect,"key_s",Skey);
@@ -3003,7 +3008,7 @@ void updatescr(bool allowwavy)
 	}
 
 	//TODO: Optimize blit 'overcalls' -Gleeok
-	BITMAP *source = NULL;
+	BITMAP *source = nosubscr ? panorama : wavybuf;
 	BITMAP *target = NULL;
 
 	bool dontusetb = triplebuffer_not_available ||
@@ -3032,42 +3037,25 @@ void updatescr(bool allowwavy)
 	const int mx = scale_mul * 128;
 	const int my = scale_mul * 112;
 
-	if (scanlines && sbig)
-	{
-		if(!scanlinesbmp)
-			scanlinesbmp = create_bitmap_ex(8, sx, sy);
-
-		stretch_blit(nosubscr?panorama:wavybuf,scanlinesbmp,0,0,256,224,0,0,sx,sy);
-
-		for (int i=0; i<224; ++i)
-			_allegro_hline(scanlinesbmp, 0, (i*screen_scale)+1, sx, BLACK);
-
-		source = scanlinesbmp;
-	}
-	else
-	{
-		source = nosubscr?panorama:wavybuf;
-	}
-
-	/* //old version
-	if (scanlines && sbig)
-	{
-		if(!scanlinesbmp)
-			scanlinesbmp = create_bitmap_ex(8,512,448);
-		stretch_blit(nosubscr?panorama:wavybuf,scanlinesbmp,0,0,256,224,0,0,512,448);
-
-		for (int i=0; i<224; ++i)
-			_allegro_hline(scanlinesbmp, 0, i*2+1, 512, BLACK);
-
-		blit(scanlinesbmp,target,0,0,scrx+32-128,scry+8-112,512,448);
-		if(quakeclk>0)
-		  rectfill(target,scrx+32-128,scry+8-112+448,scrx+32-128+512,scry+8-112+456,0);
-	}
-	*/
-
 	if (sbig)
 	{
-		stretch_blit(source, target, 0, 0, 256, 224, scrx+32-mx, scry+8-my, sx, sy);
+		if (scanlines)
+		{
+			if(!scanlinesbmp)
+				scanlinesbmp = create_bitmap_ex(8, sx, sy);
+
+			stretch_blit(source, scanlinesbmp, 0, 0, 256, 224, 0, 0, sx, sy);
+
+			for (int i=0; i<224; ++i)
+				_allegro_hline(scanlinesbmp, 0, (i*screen_scale)+1, sx, BLACK);
+
+			blit(scanlinesbmp, target, 0, 0, scrx+32-mx, scry+8-my, sx, sy);
+		}
+		else
+		{
+			stretch_blit(source, target, 0, 0, 256, 224, scrx+32-mx, scry+8-my, sx, sy);
+		}
+
 		if(quakeclk>0)
 		  rectfill(target, // I don't know if these are right...
 			  scrx+32 - mx, //x1
@@ -7120,7 +7108,7 @@ bool joybtn(int b)
 {
   if(b == 0)
 	  return false;
-  return joy[0].button[b-1].b !=0;
+  return joy[joystick_index].button[b-1].b !=0;
 }
 
 int next_press_key()
@@ -7210,10 +7198,10 @@ void load_control_state()
 {
 #define STICK_PRECISION   56 //define your own sensitivity
 
-  control_state[0]=key[DUkey]||joy[0].stick[0].axis[1].d1||joy[0].stick[0].axis[1].pos< -STICK_PRECISION;
-  control_state[1]=key[DDkey]||joy[0].stick[0].axis[1].d2||joy[0].stick[0].axis[1].pos > STICK_PRECISION;
-  control_state[2]=key[DLkey]||joy[0].stick[0].axis[0].d1||joy[0].stick[0].axis[0].pos< -STICK_PRECISION;
-  control_state[3]=key[DRkey]||joy[0].stick[0].axis[0].d2||joy[0].stick[0].axis[0].pos > STICK_PRECISION;
+  control_state[0]=key[DUkey]||joy[joystick_index].stick[0].axis[1].d1||joy[joystick_index].stick[0].axis[1].pos< -STICK_PRECISION;
+  control_state[1]=key[DDkey]||joy[joystick_index].stick[0].axis[1].d2||joy[joystick_index].stick[0].axis[1].pos > STICK_PRECISION;
+  control_state[2]=key[DLkey]||joy[joystick_index].stick[0].axis[0].d1||joy[joystick_index].stick[0].axis[0].pos< -STICK_PRECISION;
+  control_state[3]=key[DRkey]||joy[joystick_index].stick[0].axis[0].d2||joy[joystick_index].stick[0].axis[0].pos > STICK_PRECISION;
   control_state[4]=key[Akey]||joybtn(Abtn);
   control_state[5]=key[Bkey]||joybtn(Bbtn);
   control_state[6]=key[Skey]||joybtn(Sbtn);
@@ -7226,10 +7214,10 @@ void load_control_state()
   control_state[13]=key[Exkey4]||joybtn(Exbtn4);
   if(num_joysticks != 0)
   { //this is a workaround to a really stupid allegro bug.
-    control_state[14]= joy[0].stick[1].axis[0].pos - 128 < -STICK_PRECISION;
-    control_state[15]= joy[0].stick[1].axis[0].pos - 128 > STICK_PRECISION;
-    control_state[16]= joy[0].stick[0].axis[2].pos < -STICK_PRECISION;
-    control_state[17]= joy[0].stick[0].axis[2].pos > STICK_PRECISION;
+    control_state[14]= joy[joystick_index].stick[1].axis[0].pos - 128 < -STICK_PRECISION;
+    control_state[15]= joy[joystick_index].stick[1].axis[0].pos - 128 > STICK_PRECISION;
+    control_state[16]= joy[joystick_index].stick[0].axis[2].pos < -STICK_PRECISION;
+    control_state[17]= joy[joystick_index].stick[0].axis[2].pos > STICK_PRECISION;
   }
   button_press[0]=rButton(Up,button_hold[0]);
   button_press[1]=rButton(Down,button_hold[1]);

@@ -72,6 +72,7 @@ public:
   void PasteLayers();
   void PasteRoom();
   void PasteGuy();
+  void PastePalette();
   void PasteEnemies();
   void setCanPaste(bool _set);
   void setCanUndo(bool _set);

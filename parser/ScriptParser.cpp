@@ -265,6 +265,16 @@ bool ScriptParser::preprocess(AST *theAST, int reclimit, map<string,long> *const
 	for(vector<ASTImportDecl *>::iterator it = imports.begin(); it != imports.end(); it++)
 	{
 		string fn = trimQuotes((*it)->getFilename());
+		for(int i=0; fn[i]; i++)
+		{
+		    #ifdef _ALLEGRO_WINDOWS
+            if(fn[i]=='/')
+                fn[i]='\\';
+		    #else
+		    if(fn[i]=='\\')
+                fn[i]='/';
+		    #endif
+		}
 		if(go(fn.c_str()) != 0 || !resAST)
 		{
 			printErrorMsg(*it,CANTOPENIMPORT, fn);

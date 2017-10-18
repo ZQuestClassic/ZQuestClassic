@@ -411,11 +411,11 @@ void gamedata::change_deaths(short d)
   return;
 }
 
-byte gamedata::get_keys()
+word gamedata::get_keys()
 {
-  return (byte)get_counter(5);
+  return get_counter(5);
 }
-void gamedata::set_keys(byte k)
+void gamedata::set_keys(word k)
 {
   set_counter(k, 5);
   return;
@@ -426,11 +426,11 @@ void gamedata::change_keys(short k)
   return;
 }
 
-byte gamedata::get_bombs()
+word gamedata::get_bombs()
 {
-  return (byte)get_counter(2);
+  return get_counter(2);
 }
-void gamedata::set_bombs(byte k)
+void gamedata::set_bombs(word k)
 {
   set_counter(k, 2);
   return;
@@ -441,11 +441,11 @@ void gamedata::change_bombs(short k)
   return;
 }
 
-byte gamedata::get_maxbombs()
+word gamedata::get_maxbombs()
 {
   return get_maxcounter(2);
 }
-void gamedata::set_maxbombs(byte b, bool setSuperBombs)
+void gamedata::set_maxbombs(word b, bool setSuperBombs)
 {
   _maxcounter[2]=b;
   int div = zinit.bomb_ratio;
@@ -462,11 +462,11 @@ void gamedata::change_maxbombs(short b)
   return;
 }
 
-byte gamedata::get_sbombs()
+word gamedata::get_sbombs()
 {
-  return (byte)get_counter(6);
+  return get_counter(6);
 }
-void gamedata::set_sbombs(byte k)
+void gamedata::set_sbombs(word k)
 {
   set_counter(k, 6);
   return;

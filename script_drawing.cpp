@@ -492,13 +492,13 @@ void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	  if(sdci[12]/10000<128) //translucent
 	  {
 		  clear_bitmap(prim_bmp);
-		  ellipsefill(bitty, radx, rady, radx, rady, color);
+		  ellipsefill(bitty, radx, rady, radx, rady, color==0?255:color);
 		  rotate_sprite(prim_bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, degrees_to_fixed(rotation));
 		  draw_trans_sprite(bmp, prim_bmp, 0, 0);
 	  }
 	  else // no opacity
 	  {
-		  ellipsefill(bitty, radx, rady, radx, rady, color);
+		  ellipsefill(bitty, radx, rady, radx, rady, color==0?255:color);
 		  rotate_sprite(bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, degrees_to_fixed(rotation));
 	  }
 	}
@@ -507,17 +507,35 @@ void do_ellipser(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	  if(sdci[12]/10000<128) //translucent
 	  {
 		  clear_bitmap(prim_bmp);
-		  ellipse(bitty, radx, rady, radx, rady, color);
+		  ellipse(bitty, radx, rady, radx, rady, color==0?255:color);
 		  rotate_sprite(prim_bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, degrees_to_fixed(rotation));
 		  draw_trans_sprite(bmp, prim_bmp, 0, 0);
 	  }
 	  else // no opacity
 	  {
-		  ellipse(bitty, radx, rady, radx, rady, color);
+		  ellipse(bitty, radx, rady, radx, rady, color==0?255:color);
 		  rotate_sprite(bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, degrees_to_fixed(rotation));
 	  }
 	}
-
+	
+	// Since 0 is the transparent color, the stuff above will fail if the ellipse color is also 0.
+	// Instead, it uses color 255 and replaces it afterward. That'll also screw up color 255 around
+	// the ellipse, but it shouldn't be used anyway.
+	if(color==0)
+	{
+		int x;
+		int y;
+		
+		// This is very slow, so check the smallest possible square
+		int endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
+		int endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));
+		
+		for(int y=zc_max(0, y1-zc_max(radx, rady)); y<=endy; y++)
+			for(int x=zc_max(0, x1-zc_max(radx, rady)); x<=endx; x++)
+				if(getpixel(bmp, x, y)==255)
+					putpixel(bmp, x, y, 0);
+	}
+	
 	script_drawing_commands.ReleaseSubBitmap(bitty);
 }
 
@@ -1683,7 +1701,7 @@ mapscr *getmapscreen( int map_index, int screen_index, int layer ) //returns NUL
     mapscr *base_screen;
     int index = map_index*MAPSCRS+screen_index;
 
-    if( (unsigned int)layer > 5 || (unsigned int)index >= TheMaps.size())
+    if( (unsigned int)layer > 6 || (unsigned int)index >= TheMaps.size())
         return NULL;
 
 	if(layer != 0)

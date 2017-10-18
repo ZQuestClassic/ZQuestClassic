@@ -1260,8 +1260,13 @@ bool enemy::hit(weapon *w)
 
 //                         --==**==--
 
-void enemy::fix_coords()
+void enemy::fix_coords(bool bound)
 {
+  if(bound)
+  {
+      x=vbound(x, 0, 240);
+      y=vbound(y, 0, 160);
+  }
   if (!OUTOFBOUNDS)
   {
     x=(fix)((int(x)&0xF0)+((int(x)&8)?16:0));
@@ -1293,51 +1298,51 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
        return false;
 	 dy = dy1-s;
 	 special = (special==spw_clipbottomright)?spw_none:special;
-     ok = !m_walkflag(x,y+dy,special) && !flyerblocked(x,y+dy1-s, special);
+     ok = !m_walkflag(x,y+dy,special) && !flyerblocked(x,y+dy, special);
      break;
     case 12:
     case down:
      if (canfall(id) && tmpscr->flags7&fSIDEVIEW)
        return false;
 	 dy = dy2+s;
-     ok = !m_walkflag(x,y+dy,special) && !flyerblocked(x,y+dy2+s, special);
+     ok = !m_walkflag(x,y+dy,special) && !flyerblocked(x,y+dy, special);
      break;
     case 14:
     case left:
 	  dx = dx1-s;
 	  sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
 	  special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
-      ok = !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x+dx1-s,y+8, special);
+      ok = !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x+dx,y+8, special);
       break;
     case 10:
     case right:
 	  dx = dx2+s;
 	  sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
-      ok = !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x+dx2+s,y+8, special);
+      ok = !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x+dx,y+8, special);
       break;
     case 9:
     case r_up:
 	  dx = dx2+s;
 	  dy = dy1-s;
-      ok = !m_walkflag(x,y+dy,special) && !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x,y+dy1-s, special) && !flyerblocked(x+dx2+s,y+8, special);
+      ok = !m_walkflag(x,y+dy,special) && !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
       break;
     case 11:
     case r_down:
 	  dx = dx2+s;
 	  dx = dy2+s;
-      ok = !m_walkflag(x,y+dy,special) && !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x,y+dy2+s, special) && !flyerblocked(x+dx2+s,y+8, special);
+      ok = !m_walkflag(x,y+dy,special) && !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
       break;
     case 13:
     case l_down:
 	  dx = dx1-s;
 	  dy = dy2+s;
-      ok = !m_walkflag(x,y+dy,special) && !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x,y+dy2+s, special) && !flyerblocked(x+dx1-s,y+8, special);
+      ok = !m_walkflag(x,y+dy,special) && !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
       break;
     case 15:
     case l_up:
 	  dx = dx1-s;
 	  dy = dy1-s;
-      ok = !m_walkflag(x,y+dy,special) && !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x,y+dy1-s, special) && !flyerblocked(x+dx1-s,y+8, special);
+      ok = !m_walkflag(x,y+dy,special) && !m_walkflag(x+dx,y+sv,special) && !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
       break;
     default:
       db=99;
@@ -1671,7 +1676,7 @@ void enemy::constant_walk(int newrate,int newhoming,int special)
     return;
   if(clk3<=0)
   {
-    fix_coords();
+    fix_coords(true);
     newdir(newrate,newhoming,special);
 	if(step==0)
 		clk3=0;
@@ -1755,7 +1760,7 @@ void enemy::halting_walk(int newrate,int newhoming,int special,int newhrate, int
   }
   if(clk3<=0)
   {
-    fix_coords();
+    fix_coords(true);
     newdir(newrate,newhoming,special);
     clk3=int(16.0/step);
     if(clk2<0)
@@ -1983,7 +1988,7 @@ bool enemy::LinkInRange(int range)
 }
 
 // place the enemy in line with Link (red wizzrobes)
-void enemy::place_on_axis(bool floater)
+void enemy::place_on_axis(bool floater, bool solid_ok)
 {
   int lx=zc_min(zc_max(int(Link.getX())&0xF0,32),208);
   int ly=zc_min(zc_max(int(Link.getY())&0xF0,32),128);
@@ -2008,8 +2013,10 @@ void enemy::place_on_axis(bool floater)
 
     if(abs(lx-int(x))>16 || abs(ly-int(y))>16)
     {
-	  // Red Wizzrobes can stand over water but not solid combos.
-      if(!m_walkflag(x,y,floater ? spw_water : spw_door)
+	  // Red Wizzrobes should be able to appear on water, but not other
+	  // solid combos; however, they could appear on solid combos in 2.10,
+	  // and at least one quest depends on that.
+      if((solid_ok || !m_walkflag(x,y,floater ? spw_water : spw_door))
 	      && !flyerblocked(x,y,floater ? spw_floater : spw_door))
         placed=true;
     }
@@ -5014,6 +5021,7 @@ bool eStalfos::animate(int index)
   }
   else if ((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide())) //Split into enemies
   {
+      stop_sfx(bgsfx);
       int kids = guys.Count();
 	  int id2=dmisc3;
 	  for(int i=0; i < dmisc4; i++)
@@ -5503,7 +5511,7 @@ void eStalfos::charge_attack()
 
   if(clk3<=0)
   {
-    fix_coords();
+    fix_coords(true);
     if(!dashing)
     {
       int ldir = lined_up(7,false);
@@ -5517,14 +5525,15 @@ void eStalfos::charge_attack()
     }
     if(!canmove(dir))
     {
+      step=dstep/100.0;
       newdir();
       dashing=false;
-      step=dstep/100.0;
     }
 	fix div = step;
 	if(div == 0)
 		div = 1;
 	clk3=(int)(16.0/div);
+	return;
   }
 
   move(step);
@@ -5786,11 +5795,11 @@ bool eWizzrobe::animate(int index)
   {
     removearmos(x,y);
   }
-  if(dmisc1)                                              //walking wizzrobe
+  if(dmisc1) // Floating
   {
     wizzrobe_attack();
   }
-  else
+  else // Teleporting
   {
     if(watch)
     {
@@ -5802,7 +5811,7 @@ bool eWizzrobe::animate(int index)
       case 0:
         if (!dmisc2)
         {
-          place_on_axis(true);
+          place_on_axis(true, dmisc4!=0);
         }
         else
         {
@@ -5820,7 +5829,7 @@ bool eWizzrobe::animate(int index)
               x=((rand()%14)+1)*16;
               y=((rand()%9)+1)*16;
             }
-            if((!m_walkflag(x,y,spw_door))&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
+            if(!m_walkflag(x,y,spw_door)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
             {
               placed=true;
             }
@@ -5852,7 +5861,7 @@ bool eWizzrobe::animate(int index)
           if(!placed)                                       // can't place him, he's gone
             return true;
         }
-        //         place_on_axis(true);
+        
         fading=fade_flicker;
         hxofs=0;
         break;
@@ -9342,7 +9351,6 @@ bool isfixedtogrid(int id)
 		case eeAQUA:
 		case eeLANM:
 			return true;
-			break;
 	}
 	return false;
 }
@@ -9404,6 +9412,9 @@ bool canfall(int id)
         default:
           return false;
       }
+      case eeGHOMA:
+      case eeDIG:
+        return false;
     }
   }
   return !never_in_air(id) && !isflier(id) && !isjumper(id);
@@ -9617,6 +9628,12 @@ bool ok2add(int id)
     return false;
   switch(guysbuf[id].family)
   {
+    // I added a special case for shooters because having traps on the same screen
+    // was preventing them from spawning due to TMPNORET. This means they will
+    // never stay dead, though, so it may not be the best solution. - Saf
+    case eePROJECTILE:
+      return true;
+    
     case eeGANON:
     case eeTRAP:
       return false;
@@ -9801,7 +9818,7 @@ void load_default_enemies()
             break;
           }
         }
-          addenemy(x,y,eTRAP_LR,-14);
+          addenemy(x,y,Id,-14);
       }
       if((ctype==cTRAP_UD)||(cflag==mfTRAP_UD)||(cflag2==mfTRAP_UD))
       {
@@ -9813,7 +9830,7 @@ void load_default_enemies()
             break;
           }
         }
-          addenemy(x,y,eTRAP_UD,-14);
+          addenemy(x,y,Id,-14);
       }
 	  if (ctype==cSPINTILE1)
 	  {
@@ -10858,6 +10875,17 @@ void wrapmsgstr(char *s3)
   }
 }
 
+// Returns true if the pointer is at a string's
+// null terminator or a trailing space
+bool atend(char *str)
+{
+    int i=0;
+    while(str[i]==' ')
+        i++;
+    
+    return str[i]=='\0';
+}
+
 void putmsg()
 {
   if(!msgorig) msgorig=msgstr;
@@ -10904,7 +10932,7 @@ void putmsg()
   if( ((cBbtn())&&(get_bit(quest_rules,qr_ALLOWMSGBYPASS))) || msgspeed==0 )
   {
     //finish writing out the string
-    while(msgptr<MSGSIZE && MsgStrings[msgstr].s[msgptr]!=0)
+    while(msgptr<MSGSIZE && !atend(MsgStrings[msgstr].s+msgptr))
     {
       if (msgspeed && !(cBbtn() && get_bit(quest_rules,qr_ALLOWMSGBYPASS)))
         goto breakout; // break out if message speed was changed to non-zero
@@ -10945,7 +10973,7 @@ void putmsg()
 	    msgpos++;
       }
 	  ++msgptr;
-	  if(!MsgStrings[msgstr].s[msgptr])
+	  if(atend(MsgStrings[msgstr].s+msgptr))
 	  {
 	    if(MsgStrings[msgstr].nextstring)
 	    {
@@ -10983,7 +11011,7 @@ breakout:
       ++msgptr;
       ++msgpos;
 	  // The "Continue From Previous" feature
-	  if(!MsgStrings[msgstr].s[msgptr])
+	  if(atend(MsgStrings[msgstr].s+msgptr))
 	  {
 	    if(MsgStrings[msgstr].nextstring)
 	    {
@@ -10999,7 +11027,7 @@ breakout:
   }
 
   // Continue printing the string!
-  if (MsgStrings[msgstr].s[msgptr]!=0 && cursor_y < msg_h)
+  if (!atend(MsgStrings[msgstr].s+msgptr) && cursor_y < msg_h)
   {
     if (!parsemsgcode())
     {
@@ -11020,7 +11048,7 @@ breakout:
       msgpos++;
     }
     msgptr++;
-	if(!MsgStrings[msgstr].s[msgptr])
+	if(atend(MsgStrings[msgstr].s+msgptr))
 	  {
 	    if(MsgStrings[msgstr].nextstring)
 	    {
@@ -11045,7 +11073,7 @@ breakout:
 	  cursor_x+=tlength;
         ++msgpos;
         ++msgptr;
-		if(!MsgStrings[msgstr].s[msgptr])
+		if(atend(MsgStrings[msgstr].s+msgptr))
 	  {
 	    if(MsgStrings[msgstr].nextstring)
 	    {
@@ -11061,7 +11089,7 @@ breakout:
   }
 
   // Done printing the string
-  if((msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h || MsgStrings[msgstr].s[msgptr]==0) && !linkedmsgclk)
+  if((msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h || atend(MsgStrings[msgstr].s+msgptr)) && !linkedmsgclk)
   {
     while(parsemsgcode()) // Finish remaining control codes
       ;

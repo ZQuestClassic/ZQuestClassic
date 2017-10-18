@@ -1771,6 +1771,7 @@ long get_register(const long arg)
     case DMAPLEVELD:    GET_DMAP_VAR(level,   "Game->DMapLevel")    break;
     case DMAPCOMPASSD:  GET_DMAP_VAR(compass, "Game->DMapCompass")  break;
     case DMAPCONTINUED: GET_DMAP_VAR(cont,    "Game->DMapContinue") break;
+    case DMAPOFFSET:    GET_DMAP_VAR(xoff,    "Game->DMapOffset")   break;
     case DMAPMIDID:
     {
       int ID = ri->d[0] / 10000;
@@ -3815,6 +3816,29 @@ void do_showsavescreen()
     set_register(sarg1, saved ? 10000 : 0);
 }
 
+void do_selectweapon(bool v, bool Abtn)
+{
+    if(Abtn && !get_bit(quest_rules,qr_SELECTAWPN))
+        return;
+    
+    byte dir=(byte)(SH::get_arg(sarg1, v)/10000);
+    
+    // Selection directions don't match the normal ones...
+    switch(dir)
+    {
+        case 0: dir=SEL_UP; break;
+        case 1: dir=SEL_DOWN; break;
+        case 2: dir=SEL_LEFT; break;
+        case 3: dir=SEL_RIGHT; break;
+        default: return;
+    }
+    
+    if(Abtn)
+        selectNextAWpn(dir);
+    else
+        selectNextBWpn(dir);
+}
+
 ///----------------------------------------------------------------------------------------------------//
 //Screen Information
 
@@ -3866,6 +3890,84 @@ void do_settilewarp()
         tmpscr->tilewarpdmap[warp] = dmap;
     if(type > -1)
         tmpscr->tilewarptype[warp] = type;
+}
+
+void do_getsidewarpdmap(const bool v)
+{
+    long warp = SH::get_arg(sarg1, v) / 10000;
+
+	if(BC::checkBounds(warp, -1, 3, "Screen->GetSideWarpDMap") != SH::_NoError)
+	{
+	    set_register(sarg1, -10000);
+		return;
+	}
+
+    set_register(sarg1, tmpscr->sidewarpdmap[warp]*10000);
+}
+
+void do_getsidewarpscr(const bool v)
+{
+    long warp = SH::get_arg(sarg1, v) / 10000;
+
+	if(BC::checkBounds(warp, -1, 3, "Screen->GetSideWarpScreen") != SH::_NoError)
+	{
+	    set_register(sarg1, -10000);
+		return;
+	}
+
+    set_register(sarg1, tmpscr->sidewarpscr[warp]*10000);
+}
+
+void do_getsidewarptype(const bool v)
+{
+    long warp = SH::get_arg(sarg1, v) / 10000;
+
+	if(BC::checkBounds(warp, -1, 3, "Screen->GetSideWarpType") != SH::_NoError)
+	{
+	    set_register(sarg1, -10000);
+		return;
+	}
+
+    set_register(sarg1, tmpscr->sidewarptype[warp]*10000);
+}
+
+void do_gettilewarpdmap(const bool v)
+{
+    long warp = SH::get_arg(sarg1, v) / 10000;
+
+	if(BC::checkBounds(warp, -1, 3, "Screen->GetTileWarpDMap") != SH::_NoError)
+	{
+	    set_register(sarg1, -10000);
+		return;
+	}
+
+    set_register(sarg1, tmpscr->tilewarpdmap[warp]*10000);
+}
+
+void do_gettilewarpscr(const bool v)
+{
+    long warp = SH::get_arg(sarg1, v) / 10000;
+
+	if(BC::checkBounds(warp, -1, 3, "Screen->GetTileWarpScreen") != SH::_NoError)
+	{
+	    set_register(sarg1, -10000);
+		return;
+	}
+
+    set_register(sarg1, tmpscr->tilewarpscr[warp]*10000);
+}
+
+void do_gettilewarptype(const bool v)
+{
+    long warp = SH::get_arg(sarg1, v) / 10000;
+
+	if(BC::checkBounds(warp, -1, 3, "Screen->GetTileWarpType") != SH::_NoError)
+	{
+	    set_register(sarg1, -10000);
+		return;
+	}
+
+    set_register(sarg1, tmpscr->tilewarptype[warp]*10000);
 }
 
 void do_layerscreen()
@@ -4316,11 +4418,11 @@ void do_enh_music(bool v)
     else // Pointer to a string..
     {
         string filename_str;
-        char filename_char[56];
+        char filename_char[256];
         bool ret;
-        ArrayH::getString(arrayptr, filename_str, 56);
-        strncpy(filename_char, filename_str.c_str(), 55);
-        filename_char[55]='\0';
+        ArrayH::getString(arrayptr, filename_str, 256);
+        strncpy(filename_char, filename_str.c_str(), 255);
+        filename_char[255]='\0';
         ret=try_zcmusic(filename_char, track, -1000);
         set_register(sarg2, ret ? 10000 : 0);
     }
@@ -4359,9 +4461,9 @@ void do_set_dmap_enh_music(const bool v)
 		return;
     
     
-    ArrayH::getString(arrayptr, filename_str, 56);
-    strncpy(DMaps[ID].tmusic, filename_str.c_str(), 55);
-    DMaps[ID].tmusic[55]='\0';
+    ArrayH::getString(arrayptr, filename_str, 256);
+    strncpy(DMaps[ID].tmusic, filename_str.c_str(), 255);
+    DMaps[ID].tmusic[255]='\0';
     DMaps[ID].tmusictrack=track;
 }
 
@@ -4906,6 +5008,11 @@ int run_script(const byte type, const word script, const byte i)
 			case PITWARPR:			do_pitwarp(false); break;
 			case BREAKSHIELD:       do_breakshield(); break;
 			
+			case SELECTAWPNV:		do_selectweapon(true, true); break;
+			case SELECTAWPNR:		do_selectweapon(false, true); break;
+			case SELECTBWPNV:		do_selectweapon(true, false); break;
+			case SELECTBWPNR:		do_selectweapon(false, false); break;
+			
 			case PLAYSOUNDR:		do_sfx(false); break;
 			case PLAYSOUNDV:		do_sfx(true); break;
 			case PLAYMIDIR:			do_midi(false); break;
@@ -4958,6 +5065,12 @@ int run_script(const byte type, const word script, const byte i)
 			case ISSOLID:			do_issolid(); break;
 			case SETSIDEWARP:		do_setsidewarp(); break;
 			case SETTILEWARP:		do_settilewarp(); break;
+			case GETSIDEWARPDMAP:   do_getsidewarpdmap(false); break;
+			case GETSIDEWARPSCR:    do_getsidewarpscr(false); break;
+			case GETSIDEWARPTYPE:   do_getsidewarptype(false); break;
+			case GETTILEWARPDMAP:   do_gettilewarpdmap(false); break;
+			case GETTILEWARPSCR:    do_gettilewarpscr(false); break;
+			case GETTILEWARPTYPE:   do_gettilewarptype(false); break;
 			case LAYERSCREEN:		do_layerscreen(); break;
 			case LAYERMAP:			do_layermap(); break;
 			case SECRETS:			do_triggersecrets(); break;
@@ -5004,8 +5117,8 @@ int run_script(const byte type, const word script, const byte i)
 
 			case GAMEEND:			Quit = qQUIT; skipcont = 1; scommand = 0xFFFF; break;
 			case SAVE:				save_game(false); break;
-			case SAVESCREEN:        do_showsavescreen(); break;
-			case SAVEQUITSCREEN:    save_game(false, 1); break;
+			case SAVESCREEN:		do_showsavescreen(); break;
+			case SAVEQUITSCREEN:	save_game(false, 1); break;
 
 			//Not Implemented
 			case ELLIPSE2:  case FLOODFILL: break;

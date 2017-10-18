@@ -545,52 +545,62 @@ enum
 // "quest rules" flags (bit numbers in bit string)
 enum
 {
-  //1
+  //1st byte out of 20
   qr_SOLIDBLK, qr_NOTMPNORET, qr_ALWAYSRET, qr_MEANTRAPS,
   qr_BSZELDA, qr_FADE, qr_FADECS5, qr_FASTDNGN,
+  // 2
   qr_NOLEVEL3FIX, qr_COOLSCROLL, qr_NOSCROLL, qr_4TRI,
   qr_EXPLICIT_RAFTING, qr_FASTFILL, qr_CAVEEXITNOSTOPMUSIC, qr_3TRI,
-  //2
+  // 3
   qr_TIME, qr_FREEFORM, qr_KILLALL, qr_NOFLICKER,
   qr_CONTFULL, qr_RLFIX, qr_LENSHINTS, qr_LINKDUNGEONPOSFIX,
+  // 4
   qr_HOLDITEMANIMATION, qr_HESITANTPUSHBLOCKS, qr_HIDECARRIEDITEMS, qr_FFCSCROLL,
   qr_RAFTLENS, qr_SMOOTHVERTICALSCROLLING, qr_WHIRLWINDMIRROR, qr_NOFLASHDEATH,
-  //3
+  // 5
   qr_HOLDNOSTOPMUSIC, qr_FIREPROOFLINK, qr_OUCHBOMBS, qr_NOCLOCKS_DEP/*DEPRECATED*/,
   qr_TEMPCLOCKS_DEP/*DEPRECATED*/, qr_BRKBLSHLDS_DEP/*DEPRECATED*/, qr_BRKNSHLDTILES, qr_MEANPLACEDTRAPS,
+  // 6
   qr_PHANTOMPLACEDTRAPS, qr_ALLOWFASTMSG, qr_LINKEDCOMBOS/*DEPRECATED*/, qr_NOGUYFIRES,
   qr_HEARTRINGFIX, qr_NOHEARTRING, qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX,
-  //4
+  // 7
   qr_ENABLEMAGIC, qr_MAGICWAND_DEP/*DEPRECATED*/, qr_MAGICCANDLE_DEP/*DEPRECATED*/, qr_MAGICBOOTS_DEP/*DEPRECATED*/,
   qr_NONBUBBLEMEDICINE, qr_NONBUBBLEFAIRIES, qr_NONBUBBLETRIFORCE, qr_NEWENEMYTILES,
+  // 8
   qr_NOROPE2FLASH_DEP/*DEPRECATED*/, qr_NOBUBBLEFLASH_DEP/*DEPRECATED*/, qr_GHINI2BLINK_DEP, qr_WPNANIMFIX,
   qr_PHANTOMGHINI2_DEP/*DEPRECATED*/, qr_Z3BRANG_HSHOT, qr_NOITEMMELEE, qr_SHADOWS,
-  //5
+  // 9
   qr_TRANSSHADOWS, qr_QUICKSWORD, qr_BOMBHOLDFIX, qr_EXPANDEDLTM,
   qr_NOPOTIONCOMBINE_DEP/*DEPRECATED*/, qr_LINKFLICKER, qr_SHADOWSFLICKER, qr_WALLFLIERS,
+  // 10
   qr_NOBOMBPALFLASH, qr_HEARTSREQUIREDFIX, qr_PUSHBLOCKCSETFIX, qr_TRANSLUCENTNAYRUSLOVEROCKET_DEP/*DEPRECATED*/,
   qr_FLICKERINGNAYRUSLOVEROCKET_DEP/*DEPRECATED*/, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI, qr_WARPSIGNOREARRIVALPOINT,
-  qr_LTTPCOLLISION, qr_LTTPWALK,
-  //6
-  qr_SLOWENEMYANIM_DEP/*DEPRECATED*/, qr_TRUEARROWS, qr_NOSAVE, qr_NOCONTINUE,
-  qr_QUARTERHEART, qr_NOARRIVALPOINT, qr_NOGUYPOOF, qr_ALLOWMSGBYPASS,
-  qr_NODIVING, qr_LAYER12UNDERCAVE, qr_NOSCROLLCONTINUE, qr_SMARTSCREENSCROLL,
-  qr_RINGAFFECTDAMAGE, qr_ALLOW10RUPEEDROPS_DEP/*DEPRECATED*/, qr_TRAPPOSFIX, qr_TEMPCANDLELIGHT,
-  //7
-  qr_REDPOTIONONCE_DEP/*DEPRECATED*/, qr_OLDSTYLEWARP, qr_NOBORDER,qr_OLDTRIBBLES_DEP/*DEPRECATED*/,
-  qr_REFLECTROCKS /*DEPRECATED*/, qr_OLDPICKUP, qr_ENEMIESZAXIS, qr_SAFEENEMYFADE,
-  qr_MORESOUNDS, qr_BRANGPICKUP, qr_HEARTPIECEINCR_DEP/*DEPRECATED*/, qr_ITEMSONEDGES,
-  qr_EATSMALLSHIELD_DEP/*DEPRECATED*/, qr_MSGFREEZE, qr_SLASHFLIPFIX, qr_FIREMAGICSPRITE_DEP/*DEPRECATED*/,
-  //8
-  qr_SLOWCHARGINGWALK, qr_NOWANDMELEE, qr_SLOWBOMBFUSES_DEP/*DEPRECATED*/, qr_SWORDMIRROR,
-  qr_SELECTAWPN, qr_LENSSEESENEMIES, qr_INSTABURNFLAGS, qr_DROWN,
-  qr_MSGDISAPPEAR, qr_SUBSCREENOVERSPRITES, qr_BOMBDARKNUTFIX, qr_LONGBOMBBOOM_DEP/*DEPRECATED*/,
-  qr_OFFSETEWPNCOLLISIONFIX, qr_DMGCOMBOLAYERFIX, qr_ITEMSINPASSAGEWAYS, qr_LOG,
-  //9
-  qr_FIREPROOFLINK2, qr_NOITEMOFFSET, qr_ITEMBUBBLE, qr_GOTOLESSNOTEQUAL /* Compatibility only */,
-  qr_LADDERANYWHERE, qr_HOOKSHOTLAYERFIX, qr_REPLACEOPENDOORS /* Compatibility only */, qr_OLDLENSORDER /* Compatibility only */,
-  qr_NOFAIRYGUYFIRES /* Compatibility only */, qr_SCRIPTERRLOG, qr_TRIGGERSREPEAT /* Compatibility only */, qr_ENEMIESFLICKER,
-  qr_OVALWIPE, qr_TRIANGLEWIPE, qr_SMASWIPE,
+  // 11
+  qr_LTTPCOLLISION, qr_LTTPWALK, qr_SLOWENEMYANIM_DEP/*DEPRECATED*/, qr_TRUEARROWS,
+  qr_NOSAVE, qr_NOCONTINUE, qr_QUARTERHEART, qr_NOARRIVALPOINT,
+  // 12
+  qr_NOGUYPOOF, qr_ALLOWMSGBYPASS, qr_NODIVING, qr_LAYER12UNDERCAVE,
+  qr_NOSCROLLCONTINUE, qr_SMARTSCREENSCROLL, qr_RINGAFFECTDAMAGE, qr_ALLOW10RUPEEDROPS_DEP/*DEPRECATED*/,
+  // 13
+  qr_TRAPPOSFIX, qr_TEMPCANDLELIGHT, qr_REDPOTIONONCE_DEP/*DEPRECATED*/, qr_OLDSTYLEWARP,
+  qr_NOBORDER, qr_OLDTRIBBLES_DEP/*DEPRECATED*/, qr_REFLECTROCKS /*DEPRECATED*/, qr_OLDPICKUP,
+  // 14
+  qr_ENEMIESZAXIS, qr_SAFEENEMYFADE, qr_MORESOUNDS, qr_BRANGPICKUP,
+  qr_HEARTPIECEINCR_DEP/*DEPRECATED*/, qr_ITEMSONEDGES, qr_EATSMALLSHIELD_DEP/*DEPRECATED*/, qr_MSGFREEZE,
+  // 15
+  qr_SLASHFLIPFIX, qr_FIREMAGICSPRITE_DEP/*DEPRECATED*/, qr_SLOWCHARGINGWALK, qr_NOWANDMELEE,
+  qr_SLOWBOMBFUSES_DEP/*DEPRECATED*/, qr_SWORDMIRROR, qr_SELECTAWPN, qr_LENSSEESENEMIES,
+  // 16
+  qr_INSTABURNFLAGS, qr_DROWN, qr_MSGDISAPPEAR, qr_SUBSCREENOVERSPRITES,
+  qr_BOMBDARKNUTFIX, qr_LONGBOMBBOOM_DEP/*DEPRECATED*/, qr_OFFSETEWPNCOLLISIONFIX, qr_DMGCOMBOLAYERFIX,
+  // 17
+  qr_ITEMSINPASSAGEWAYS, qr_LOG, qr_FIREPROOFLINK2, qr_NOITEMOFFSET,
+  qr_ITEMBUBBLE, qr_GOTOLESSNOTEQUAL /* Compatibility only */, qr_LADDERANYWHERE, qr_HOOKSHOTLAYERFIX,
+  // 18
+  qr_REPLACEOPENDOORS /* Compatibility only */, qr_OLDLENSORDER /* Compatibility only */, qr_NOFAIRYGUYFIRES /* Compatibility only */, qr_SCRIPTERRLOG,
+  qr_TRIGGERSREPEAT /* Compatibility only */, qr_ENEMIESFLICKER, qr_OVALWIPE, qr_TRIANGLEWIPE,
+  // 19
+  qr_SMASWIPE, qr_NOSOLIDDAMAGECOMBOS /* Compatibility only */,
   qr_MAX
 };
 
@@ -724,21 +734,32 @@ enum
 // weapon types in game engine
 enum
 {
-  // 1
-  wNone,wSword,wBeam,wBrang,wBomb,wSBomb,wLitBomb,wLitSBomb,
-  // 2
-  wArrow,wFire,wWhistle,wBait,wWand,wMagic,wCatching,wWind,
-  // 3
-  wRefMagic,wRefFireball,wRefRock, wHammer,wHookshot, wHSHandle, wHSChain, wSSparkle,
-  // 4
-  wFSparkle, wSmack, wPhantom, wCByrna, wRefBeam, wStomp, lwMax,
+  // 0
+  wNone,wSword,wBeam,wBrang,
+  wBomb,wSBomb,wLitBomb,wLitSBomb,
+  // 8
+  wArrow,wFire,wWhistle,wBait,
+  wWand,wMagic,wCatching,wWind,
+  // 16
+  wRefMagic,wRefFireball,wRefRock, wHammer,
+  wHookshot, wHSHandle, wHSChain, wSSparkle,
+  // 24
+  wFSparkle, wSmack, wPhantom, wCByrna,
+  wRefBeam, wStomp,
+  lwMax,
   // Dummy weapons - must be between lwMax and wEnemyWeapons!
-  wScript1, wScript2, wScript3, wScript4, wScript5, wScript6, wScript7, wScript8,
+  wScript1, wScript2, wScript3, wScript4,
+  wScript5, wScript6, wScript7, wScript8,
   wScript9, wScript10,
   // Enemy weapons
   wEnemyWeapons=128,
-  ewFireball,ewArrow,ewBrang,ewSword,ewRock,ewMagic,ewBomb,ewSBomb,
-  ewLitBomb,ewLitSBomb,ewFireTrail,ewFlame,ewWind,ewFlame2,ewFlame2Trail,
+  //129
+  ewFireball,ewArrow,ewBrang,ewSword,
+  ewRock,ewMagic,ewBomb,ewSBomb,
+  //137
+  ewLitBomb,ewLitSBomb,ewFireTrail,ewFlame,
+  ewWind,ewFlame2,ewFlame2Trail,
+  //145
   ewIce,ewFireball2,
   wMax
 };
@@ -2327,20 +2348,20 @@ struct gamedata
 	void set_deaths(word d);
 	void change_deaths(short d);
 
-	byte get_keys();
-	void set_keys(byte k);
+	word get_keys();
+	void set_keys(word k);
 	void change_keys(short k);
 
-	byte get_bombs();
-	void set_bombs(byte k);
+	word get_bombs();
+	void set_bombs(word k);
 	void change_bombs(short k);
 
-	byte get_maxbombs();
-	void set_maxbombs(byte b, bool setSuperBombs=true);
+	word get_maxbombs();
+	void set_maxbombs(word b, bool setSuperBombs=true);
 	void change_maxbombs(short b);
 
-	byte get_sbombs();
-	void set_sbombs(byte k);
+	word get_sbombs();
+	void set_sbombs(word k);
 	void change_sbombs(short k);
 
 	word get_wlevel();

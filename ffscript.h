@@ -266,7 +266,16 @@ enum ASM_DEFINE
   BREAKSHIELD,          //0x00DB
   SAVESCREEN,           //0x00DC
   SAVEQUITSCREEN,       //0x00DD
-
+  SELECTAWPNR,          //0x00DE
+  SELECTAWPNV,          //0x00DF
+  SELECTBWPNR,          //0x00E0
+  SELECTBWPNV,          //0x00E1
+  GETSIDEWARPDMAP,      //0x00E2
+  GETSIDEWARPSCR,       //0x00E3
+  GETSIDEWARPTYPE,      //0x00E4
+  GETTILEWARPDMAP,      //0x00E5
+  GETTILEWARPSCR,       //0x00E6
+  GETTILEWARPTYPE,      //0x00E7
 /* ..sorry, forgot about these ...for now. -Gleeok
   CALCSPLINE,           //0x00
   COLLISIONRECT,  ?      //0x00
@@ -276,7 +285,7 @@ enum ASM_DEFINE
   CLEARBITMAPBUFFER,
   RENDERBITMAPBUFFER,
 */
-  NUMCOMMANDS           //0x00DE
+  NUMCOMMANDS           //0x00E8
 };
 
 //ZASM registers
@@ -759,8 +768,9 @@ enum ASM_DEFINE
 #define PUSHBLOCKCSET        0x10B4
 #define UNDERCOMBO           0x10B5
 #define UNDERCSET            0x10B6
+#define DMAPOFFSET           0x10B7
 
-#define NUMVARIABLES         0x10B7
+#define NUMVARIABLES         0x10B8
 
 // Script types
 

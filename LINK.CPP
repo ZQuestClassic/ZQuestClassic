@@ -55,6 +55,7 @@ int directItem = -1; //Is set if Link is currently using an item directly
 int directItemA = -1;
 int directItemB = -1;
 int directWpn = -1;
+int whistleitem=-1;
 extern word g_doscript;
 
 void playLevelMusic();
@@ -105,9 +106,24 @@ void LinkClass::resetflags(bool all)
   magicitem=-1;
 }
 
-void LinkClass::Freeze() { action=freeze; }
-void LinkClass::Drown() { action=drowning; attackclk=0; attack=wNone; attackid=-1; reset_swordcharge(); drownclk=64; z=fall=0;}
+void LinkClass::Freeze() { if(action!=inwind) action=freeze; }
 void LinkClass::unfreeze() { if(action==freeze && fairyclk<1) action=none; }
+
+void LinkClass::Drown()
+{
+    // Link should never drown if the ladder is out
+    if(ladderx+laddery)
+        return;
+    
+    action=drowning;
+    attackclk=0;
+    attack=wNone;
+    attackid=-1;
+    reset_swordcharge();
+    drownclk=64;
+    z=fall=0;
+}
+
 void LinkClass::finishedmsg() {
   //these are to cancel out any keys that Link may
   //be pressing so he doesn't attack at the end of
@@ -1440,7 +1456,7 @@ void LinkClass::checkstab()
     
       //if(attackclk<8)
       {
-        wx-=2;
+        wx-=3;
 	//wy+=((spins>0 || get_bit(quest_rules, qr_SLASHFLIPFIX)) ? -4 : 4);
       }
       
@@ -2487,6 +2503,14 @@ killweapon:
       action=inwind;
       dir=s->dir;
       spins = charging = attackclk = 0;
+      
+      // In case Link used two whistles in a row, summoning two whirlwinds,
+      // check which whistle's whirlwind picked him up so the correct
+      // warp ring will be used
+      int whistle=((weapon*)s)->parentitem;
+      if(whistle>-1 && itemsbuf[whistle].family==itype_whistle)
+        whistleitem=whistle;
+      
       return;
     }
   }
@@ -3790,6 +3814,7 @@ bool LinkClass::startwpn(int itemid)
           if(DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount() && itemsbuf[itemid].misc2 >= 0 && itemsbuf[itemid].misc2 <= 8)
             Lwpns.add(new weapon((fix)(where==left?240:where==right?0:x),(fix)(where==down?0:where==up?160:y),
               (fix)0,wWind,0,0,where,itemid,getUID()));
+          whistleitem=itemid;
         }
         ret = false;
       }
@@ -6435,54 +6460,32 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int wx,int wy,int cnt,byte d2)
   }
   else if(ladderx+laddery)                                  // ladder is being used
   {
-    int lx = !(get_bit(quest_rules, qr_DROWN)&&iswater(MAPCOMBO(x+4,y+11))&&!_walkflag(x+4,y+11,1)) ? wx : x;
-	int ly = !(get_bit(quest_rules, qr_DROWN)&&iswater(MAPCOMBO(x+4,y+11))&&!_walkflag(x+4,y+11,1)) ? wy : y;
     if(get_bit(quest_rules, qr_LTTPWALK))
     {
+      // There used to be a bunch of weird conditions here determining whether
+      // Link could move to the sides with a regular ladder out based on his
+      // position relative to it. It didn't make sense, and it didn't work right,
+      // so now he just can't go sideways, period. I'm not too sure that's the
+      // right way to handle it, though... - Saf
       if(ladderdir==up)
       {
-        if(abs(ly-(laddery+8))<=8) // ly is between laddery (laddery+8-8) and laddery+16 (laddery+8+8)
-        {
-          bool temp = false;
-          if(!(abs(lx-(ladderx+8))<=8))
-            temp = true;
-          if(cnt==2)
-            if(!(abs((lx+8)-(ladderx+8))<=8))
-              temp=true;
-          if(!temp)
-		  {
-			  ret.setUnwalkable(false);
-			  return ret;
-		  }
-          if (current_item_power(itype_ladder)<2 && (d2==left || d2==right) && !(tmpscr->flags7&fSIDEVIEW))
-		  {
-			  ret.setUnwalkable(true);
-			  return ret;
-		  }
-        }
+        if(current_item_power(itype_ladder)<2 && (d2==left || d2==right || d2>4) && !(tmpscr->flags7&fSIDEVIEW))
+          ret.setUnwalkable(true);
+        else
+          ret.setUnwalkable(false);
+        
+        return ret;
       }
       else
       {
-        if(abs(lx-(ladderx+8))<=8)
-        {
-          if(abs(ly-(laddery+(get_bit(quest_rules,qr_LTTPCOLLISION)?8:12)))<=(get_bit(quest_rules,qr_LTTPCOLLISION)?8:4))
-		  {
-			  ret.setUnwalkable(false);
-			  return ret;
-		  }
-		  if (current_item_power(itype_ladder)<2 && (d2==up || d2==down))
-		  {
-			  ret.setUnwalkable(true);
-			  return ret;
-		  }
-          if((abs(ly-laddery+8)<=8) && d2<=down)
-		  {
-			  ret.setUnwalkable(false);
-			  return ret;
-		  }
-        }
+          if(current_item_power(itype_ladder)<2 &&  (d2==up || d2==down || d2>4))
+            ret.setUnwalkable(true);
+          else
+            ret.setUnwalkable(false);
+          
+          return ret;
       }
-    }
+    } // end LTTPWALK
     else
     {
       if((d2&2)==ladderdir)                                    // same direction
@@ -6775,7 +6778,7 @@ void LinkClass::checkpushblock()
   for (int i=(get_bit(quest_rules,qr_DMGCOMBOLAYERFIX) ? 2 : 0); i>=0; i--) {
     t = combobuf[i==0 ? MAPCOMBO(bx,by) : MAPCOMBO2(i-1,bx,by)].type;
     // Solid damage combos use pushing>0, hence the code is here.
-    if(combo_class_buf[t].modify_hp_amount && _walkflag(bx,by,1) && pushing>0 && hclk<1 && action!=casting)
+    if(combo_class_buf[t].modify_hp_amount && _walkflag(bx,by,1) && pushing>0 && hclk<1 && action!=casting && !get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS))
     {
       // Bite Link
       (void) checkdamagecombos(bx+8-(tmpscr->csensitive),
@@ -8362,7 +8365,6 @@ bool LinkClass::dowarp(int type, int index)
   int wrindex = 0;
   //int lastent_org = lastentrance;
   //int lastdmap_org = lastentrance_dmap;
-  int whistleitem = directWpn>=0 && itemsbuf[directWpn].family==itype_whistle ? directWpn : current_item_id(itype_whistle);
   bool wasSideview = (tmpscr[t].flags7 & fSIDEVIEW) > 0 ? true :false;
 
   // Drawing commands probably shouldn't carry over...
@@ -8771,6 +8773,7 @@ bool LinkClass::dowarp(int type, int index)
         Lwpns.add(new weapon((fix)(index==left?240:index==right?0:wrx),(fix)(index==down?0:index==up?160:wry),
           (fix)0,wWind,1,0,index,whistleitem,getUID()));
         whirlwind=255;
+        whistleitem=-1;
       } break;
 
     case wtIWARP:
@@ -8863,20 +8866,8 @@ bool LinkClass::dowarp(int type, int index)
 
 		putscr(scrollbuf,0,0,tmpscr);
 		putscrdoors(scrollbuf,0,0,tmpscr);
-
-        if(wtype==wtIWARPZAP)
-        {
-          zapin();
-        }
-        else if (wtype==wtIWARPWAVE)
-        {
-          wavyin();
-        }
-	else if(wtype==wtIWARPOPEN)
-	{
-	    openscreen();
-	}
-        else if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
+		
+        if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
         {
             reset_pal_cycling();
             putscr(scrollbuf,0,0,tmpscr);
@@ -8889,6 +8880,18 @@ bool LinkClass::dowarp(int type, int index)
           putscr(scrollbuf,0,0,tmpscr);
           putscrdoors(scrollbuf,0,0,tmpscr);
           walkdown2(COOLSCROLL);
+        }
+        else if(wtype==wtIWARPZAP)
+        {
+          zapin();
+        }
+        else if (wtype==wtIWARPWAVE)
+        {
+          wavyin();
+        }
+        else if(wtype==wtIWARPOPEN)
+        {
+            openscreen();
         }
 
 	show_subscreen_life=true;
@@ -9061,8 +9064,11 @@ void LinkClass::exitcave()
   int type1 = combobuf[MAPCOMBO(x,y-16)].type;
   int type2 = combobuf[MAPCOMBO(x,y)].type;
   int type3 = combobuf[MAPCOMBO(x,y+16)].type;
-  bool b = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED) ||
-(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D)) && COOLSCROLL;
+  bool b = COOLSCROLL &&
+           ((type1==cCAVE) || (type1>=cCAVEB && type1<=cCAVED) ||
+            (type2==cCAVE) || (type2>=cCAVEB && type2<=cCAVED) ||
+            (type3==cCAVE2) || (type3>=cCAVE2B && type3<=cCAVE2D) ||
+            (type2==cCAVE2) || (type2>=cCAVE2B && type2<=cCAVE2D));
   ALLOFF();
   blackscr(30,b?false:true);
   ringcolor(false);
@@ -9159,12 +9165,36 @@ void LinkClass::stepforward(int steps, bool adjust)
     
     if(s<0)
     {
+      // Not quite sure how this is actually supposed to work.
+      // There have to be two cases for each direction or Link
+      // either walks too far onto the screen or may get stuck
+      // going through walk-through walls.
       switch(dir)
       {
-        case up: y-=s; break;
-        case down: y+=s; break;
-        case left: x-=s; break;
-        case right: x+=s; break;
+        case up:
+            if(y<8) // Leaving the screen
+                y+=s;
+            else // Entering the screen
+                y-=s;
+            break;
+        case down:
+            if(y>152)
+                y-=s;
+            else
+                y+=s;
+            break;
+        case left:
+            if(x<8)
+                x+=s;
+            else
+                x-=s;
+            break;
+        case right:
+            if(x>=232)
+                x-=s;
+            else
+                x+=s;
+            break;
       }
     }
     
@@ -10346,8 +10376,12 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 
 			if(ladderx > 0 || laddery > 0)
 			{
-				ladderx = int(x);
-				laddery = int(y);
+			    // If the ladder moves on both axes, the player can
+			    // gradually shift it by going back and forth
+			    if(scrolldir==up || scrolldir==down)
+                    laddery = int(y);
+			    else
+                    ladderx = int(x);
 			}
 		}
 
@@ -10871,6 +10905,16 @@ bool isWpnPressed(int wpn)
   if ((wpn==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true;
   if ((wpn==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return true;
   return false;
+}
+
+void selectNextAWpn(int type)
+{
+    if(!get_bit(quest_rules,qr_SELECTAWPN))
+        return;
+	int ret = selectWpn_new(type, game->awpn, game->bwpn);
+	Awpn = Bweapon(ret);
+	directItemA = directItem;
+	game->awpn = ret;
 }
 
 void selectNextBWpn(int type)
@@ -11428,7 +11472,7 @@ void LinkClass::checkitems(int index)
       if(msg_active)
         return;
     case rSHOP:                                           // shop
-      if(game->get_rupies()<abs(prices[PriceIndex]) && !current_item_power(itype_wallet))
+      if(game->get_rupies()+game->get_drupy()<abs(prices[PriceIndex]) && !current_item_power(itype_wallet))
         return;
       game->change_drupy( -abs(prices[PriceIndex]));
       boughtsomething=true;

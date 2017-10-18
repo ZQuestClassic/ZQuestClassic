@@ -285,6 +285,7 @@ int onPasteScreenData();
 int onPasteWarpLocations();
 int onPasteDoors();
 int onPasteLayers();
+int onPastePalette();
 int onPasteRoom();
 int onPasteGuy();
 int onPasteEnemies();
@@ -668,6 +669,7 @@ enum
   cmdMiscRules,
   cmdDefault_Items,
   cmdItemDropSets,
+  cmdPastePalette,
   cmdMAX
 };
 

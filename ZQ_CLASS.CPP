@@ -2539,7 +2539,7 @@ void zmap::drawrow(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
           layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
           for(int i=c; i<(c&0xF0)+16; i++)
           {
-			put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?i:c, k);
+			put_walkflags_layered(dest,((i&15)<<4)+x,y,i, k);
           }
         }
       }
@@ -2823,7 +2823,7 @@ void zmap::drawcolumn(BITMAP* dest,int x,int y,int flags,int c,int map,int scr)
           layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
 		  for(int i=c; i<(c&0xF0)+16; i++)
 		  {
-		    put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k);
+		    put_walkflags_layered(dest,x,(i&0xF0)+y,i, k);
 		  }
 		}
       }
@@ -3684,6 +3684,28 @@ void zmap::PasteGuy()
   }
 }
 
+void zmap::PastePalette()
+{
+  if(can_paste)
+  {
+    Ugo();
+    int oldcolor=getcolor();
+    screens[currscr].color = copymapscr.color;
+    int newcolor=getcolor();
+    loadlvlpal(newcolor);
+    if (!(screens[currscr].valid&mVALID))
+    {
+      newcolor=-1;
+    }
+    if (newcolor!=oldcolor)
+    {
+      rebuild_trans_table();
+    }
+    
+    saved=false;
+  }
+}
+
 void zmap::PasteAll()
 {
   if(can_paste)
@@ -3723,6 +3745,7 @@ void zmap::PasteToAll()
       for(int i=0; i<176; i++)
       {
         screens[x].data[i] = copymapscr.data[i];
+        screens[x].cset[i] = copymapscr.cset[i];
         screens[x].sflag[i] = copymapscr.sflag[i];
       }
       if(isDungeon(x))

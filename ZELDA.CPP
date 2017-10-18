@@ -843,7 +843,12 @@ int load_quest(gamedata *g, bool report)
 
   if(g->get_quest()<255)
   {
-    sprintf(qstpath,"%s%s.qst",tempdir,ordinal(g->get_quest()));
+    // Check the ZC directory first for 1st-4th quests; check qstdir if they're not there
+    sprintf(qstpath, "%s.qst", ordinal(g->get_quest()));
+    if(!exists(qstpath))
+    {
+      sprintf(qstpath,"%s%s.qst",tempdir,ordinal(g->get_quest()));
+    }
   }
   else
   {
@@ -2505,25 +2510,25 @@ int main(int argc, char* argv[])
     char path[2048];
     
     append_filename(path, qstdir, "1st.qst", 2048);
-    if(!exists(path))
+    if(!exists("1st.qst") && !exists(path))
     {
       Z_error("\"1st.qst\" not found.");
       quit_game();
     }
     append_filename(path, qstdir, "2nd.qst", 2048);
-    if(!exists(path))
+    if(!exists("2nd.qst") && !exists(path))
     {
       Z_error("\"2nd.qst\" not found.");
       quit_game();
     }
     append_filename(path, qstdir, "3rd.qst", 2048);
-    if(!exists(path))
+    if(!exists("3rd.qst") && !exists(path))
     {
       Z_error("\"3rd.qst\" not found.");
       quit_game();
     }
     append_filename(path, qstdir, "4th.qst", 2048);
-    if(!exists(path))
+    if(!exists("4th.qst") && !exists(path))
     {
       Z_error("\"4th.qst\" not found.");
       quit_game();

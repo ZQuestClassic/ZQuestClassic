@@ -284,6 +284,8 @@ namespace ffdebug
 				return "DMAPFLAGSD";
 			case DMAPLEVELD:
 				return "DMAPLEVELD";
+			case DMAPOFFSET:
+				return "DMAPOFFSET";
 			case DMAPCOMPASSD:
 				return "DMAPCOMPASSD";
 			case DMAPCONTINUED:
@@ -871,6 +873,16 @@ namespace ffdebug
       { "BREAKSHIELD",         1,   0,   0,   0},
       { "SAVESCREEN",          1,   0,   0,   0},
       { "SAVEQUITSCREEN",      0,   0,   0,   0},
+      { "SELECTAWPNR",         1,   0,   0,   0},
+      { "SELECTAWPNV",         1,   1,   0,   0},
+      { "SELECTBWPNR",         1,   0,   0,   0},
+      { "SELECTBWPNV",         1,   1,   0,   0},
+      { "GETSIDEWARPDMAP",     1,   0,   0,   0},
+      { "GETSIDEWARPSCR",      1,   0,   0,   0},
+      { "GETSIDEWARPTYPE",     1,   0,   0,   0},
+      { "GETTILEWARPDMAP",     1,   0,   0,   0},
+      { "GETTILEWARPSCR",      1,   0,   0,   0},
+      { "GETTILEWARPTYPE",     1,   0,   0,   0},
       { "",                    0,   0,   0,   0}
     };
 

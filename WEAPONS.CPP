@@ -1482,12 +1482,12 @@ bool weapon::animate(int )
 			  f2 = f1;
 			for (int ty=-f2; ty<=f2; ty+=32)
             {
-			  findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:0),mfBOMB,true);
+			  findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfBOMB,true);
 			  if (id==wSBomb || id==wLitSBomb)
 			  {
-				findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:0),mfSBOMB,true);
+				findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSBOMB,true);
 			  }
-			  findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:0),mfSTRIKE,true);
+			  findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSTRIKE,true);
             }
           }
         }
@@ -2593,10 +2593,8 @@ void weapon::update_weapon_frame(int change, int orig)
 {
 	if(extend > 2)
 	{
-    if(orig/TILES_PER_ROW==(orig+txsz*change)/TILES_PER_ROW)
-      tile=orig+txsz*change;
-    else
-      tile=orig+(txsz*change)+((tysz-1)*TILES_PER_ROW)*((orig+txsz*change)/TILES_PER_ROW)-(orig/TILES_PER_ROW);
+	  byte extra_rows=(tysz-1)*(((orig%TILES_PER_ROW)+(txsz*change))/TILES_PER_ROW);
+	  tile=orig+(txsz*change)+(extra_rows*TILES_PER_ROW);
 	}
 	else
 	  tile=orig+change;

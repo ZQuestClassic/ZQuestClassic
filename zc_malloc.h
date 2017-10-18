@@ -13,7 +13,7 @@
 // -unanswered prayers to babylonian gods.
 
 
-#define ZC_DEBUG_MALLOC_ENABLED 1
+#define ZC_DEBUG_MALLOC_ENABLED 0
 
 
 #if defined(NDEBUG) && (ZC_DEBUG_MALLOC_ENABLED)

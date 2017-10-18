@@ -242,7 +242,8 @@ extern "C"
       return NULL;
     }
     
-    if(strlen(filename)>55)
+    al_trace("Trying to load %s\n", filename);
+    if(strlen(filename)>255)
     {
       al_trace("Music file '%s' not loaded: filename too long\n", filename);
       return NULL;
@@ -269,7 +270,7 @@ extern "C"
       p->playing = ZCM_STOPPED;
       ZCMUSIC *music=(ZCMUSIC*)p;
       extract_name(filename, music->filename, FILENAMEALL);
-      music->filename[55]='\0';
+      music->filename[255]='\0';
       music->track=0;
       return music;
     }
@@ -293,7 +294,7 @@ extern "C"
       p->playing = ZCM_STOPPED;
       ZCMUSIC *music=(ZCMUSIC*)p;
       extract_name(filename, music->filename, FILENAMEALL);
-      music->filename[55]='\0';
+      music->filename[255]='\0';
       music->track=0;
       return music;
     }
@@ -335,7 +336,7 @@ extern "C"
         p->p = NULL;
         ZCMUSIC *music=(ZCMUSIC*)p;
         extract_name(filename, music->filename, FILENAMEALL);
-        music->filename[55]='\0';
+        music->filename[255]='\0';
         music->track=0;
         return music;
       }
@@ -356,7 +357,7 @@ extern "C"
 				p->emu = emu;
 				ZCMUSIC *music=(ZCMUSIC*)p;
                 extract_name(filename, music->filename, FILENAMEALL);
-                music->filename[55]='\0';
+                music->filename[255]='\0';
                 music->track=0;
                 return music;
 			} else al_trace("%s file '%s' not found.\n",ext,filename);

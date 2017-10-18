@@ -1866,6 +1866,10 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
       set_bit(quest_rules,qr_BRKNSHLDTILES,(get_bit(quest_rules,qr_BRKBLSHLDS_DEP)));
       set_bit(deprecated_rules,qr_BRKBLSHLDS_DEP,1);
     }
+    if(tempheader.zelda_version < 0x211 || (tempheader.zelda_version == 0x211 && tempheader.build < 18))
+    {
+        set_bit(quest_rules,qr_NOSOLIDDAMAGECOMBOS, 1);
+    }
 
     if(tempheader.zelda_version >= 0x192)                       //  lacks newer header stuff...
     {
@@ -7132,6 +7136,11 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eGLEEOK2F].misc6 = 16;
         guysbuf[eGLEEOK3F].misc6 = 16;
         guysbuf[eGLEEOK4F].misc6 = 16;
+        
+        guysbuf[eWIZ1].misc4 = 1;
+        guysbuf[eBATROBE].misc4 = 1;
+        guysbuf[eSUMMONER].misc4 = 1;
+        guysbuf[eWWIZ].misc4 = 1;
     }
 
   if (guyversion<=2)

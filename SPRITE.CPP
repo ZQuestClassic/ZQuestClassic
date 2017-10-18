@@ -385,6 +385,7 @@ void sprite::draw(BITMAP* dest)
           break;
 		  case 3:
 		  {
+		    int tileToDraw;
 		    switch(flip)
 		    {
 		      case 1:
@@ -392,9 +393,13 @@ void sprite::draw(BITMAP* dest)
 				{
 				  for(int j=txsz-1; j>=0; j--)
 				  {
-					  if(drawstyle==0 || drawstyle==3) overtile16(dest,tile+(i*TILES_PER_ROW)+j,sx+(txsz-j-1)*16,sy+i*16,cs,flip);
-					  else if(drawstyle==1) overtiletranslucent16(dest,tile+(i*TILES_PER_ROW)+j,sx+(txsz-j-1)*16,sy+i*16,cs,flip,128);
-					  else if(drawstyle==2) overtilecloaked16(dest,tile+(i*TILES_PER_ROW)+j,sx+(txsz-j-1)*16,sy+i*16,flip);
+				      tileToDraw=tile+(i*TILES_PER_ROW)+j;
+				      if(tileToDraw%TILES_PER_ROW<j) // Wrapped around
+                          tileToDraw+=TILES_PER_ROW*(tysz-1);
+				      
+					  if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,flip);
+					  else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,flip,128);
+					  else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,flip);
 				  }
 				}
 				break;
@@ -403,9 +408,13 @@ void sprite::draw(BITMAP* dest)
 				{
 				  for(int j=0; j<txsz; j++)
 				  {
-					  if(drawstyle==0 || drawstyle==3) overtile16(dest,tile+(i*TILES_PER_ROW)+j,sx+j*16,sy+(tysz-i-1)*16,cs,flip);
-					  else if(drawstyle==1) overtiletranslucent16(dest,tile+(i*TILES_PER_ROW)+j,sx+j*16,sy+(tysz-i-1)*16,cs,flip,128);
-					  else if(drawstyle==2) overtilecloaked16(dest,tile+(i*TILES_PER_ROW)+j,sx+j*16,sy+(tysz-i-1)*16,flip);
+				      tileToDraw=tile+(i*TILES_PER_ROW)+j;
+				      if(tileToDraw%TILES_PER_ROW<j)
+                          tileToDraw+=TILES_PER_ROW*(tysz-1);
+                      
+					  if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,flip);
+					  else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,flip,128);
+					  else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,flip);
 				  }
 				}
 				break;
@@ -414,9 +423,13 @@ void sprite::draw(BITMAP* dest)
 				{
 				  for(int j=txsz-1; j>=0; j--)
 				  {
-					  if(drawstyle==0 || drawstyle==3) overtile16(dest,tile+(i*TILES_PER_ROW)+j,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip);
-					  else if(drawstyle==1) overtiletranslucent16(dest,tile+(i*TILES_PER_ROW)+j,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip,128);
-					  else if(drawstyle==2) overtilecloaked16(dest,tile+(i*TILES_PER_ROW)+j,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,flip);
+				      tileToDraw=tile+(i*TILES_PER_ROW)+j;
+				      if(tileToDraw%TILES_PER_ROW<j)
+                          tileToDraw+=TILES_PER_ROW*(tysz-1);
+                      
+					  if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip);
+					  else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip,128);
+					  else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,flip);
 				  }
 				}
 				break;
@@ -425,9 +438,13 @@ void sprite::draw(BITMAP* dest)
 				{
 				  for(int j=0; j<txsz; j++)
 				  {
-					  if(drawstyle==0 || drawstyle==3) overtile16(dest,tile+(i*TILES_PER_ROW)+j,sx+j*16,sy+i*16,cs,flip);
-					  else if(drawstyle==1) overtiletranslucent16(dest,tile+(i*TILES_PER_ROW)+j,sx+j*16,sy+i*16,cs,flip,128);
-					  else if(drawstyle==2) overtilecloaked16(dest,tile+(i*TILES_PER_ROW)+j,sx+j*16,sy+i*16,flip);
+				      tileToDraw=tile+(i*TILES_PER_ROW)+j;
+				      if(tileToDraw%TILES_PER_ROW<j)
+                          tileToDraw+=TILES_PER_ROW*(tysz-1);
+                      
+					  if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+i*16,cs,flip);
+					  else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+i*16,cs,flip,128);
+					  else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+i*16,flip);
 				  }
 				}
 				break;

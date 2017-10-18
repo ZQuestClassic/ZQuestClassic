@@ -322,6 +322,8 @@ string VarArgument::toString()
 		return "DMAPCONTINUED";
 	case DMAPMIDID:
 		return "DMAPMIDID";
+	case DMAPOFFSET:
+		return "DMAPOFFSET";
 	case SDDD:
 		return "SDDD";
 	case SDDDD:
@@ -1330,6 +1332,36 @@ string OSetSideWarpRegister::toString()
 	return "SETSIDEWARP";
 }
 
+string OGetSideWarpDMap::toString()
+{
+	return "GETSIDEWARPDMAP " + getArgument()->toString();
+}
+
+string OGetSideWarpScreen::toString()
+{
+	return "GETSIDEWARPSCR " + getArgument()->toString();
+}
+
+string OGetSideWarpType::toString()
+{
+	return "GETSIDEWARPTYPE " + getArgument()->toString();
+}
+
+string OGetTileWarpDMap::toString()
+{
+	return "GETTILEWARPDMAP " + getArgument()->toString();
+}
+
+string OGetTileWarpScreen::toString()
+{
+	return "GETTILEWARPSCR " + getArgument()->toString();
+}
+
+string OGetTileWarpType::toString()
+{
+	return "GETTILEWARPTYPE " + getArgument()->toString();
+}
+
 string OSetTileWarpRegister::toString()
 {
 	return "SETTILEWARP";
@@ -1463,6 +1495,15 @@ string OShowSaveQuitScreen::toString()
 	return "SAVEQUITSCREEN";
 }
 
+string OSelectAWeaponRegister::toString()
+{
+	return "SELECTAWPNR " + getArgument()->toString();
+}
+
+string OSelectBWeaponRegister::toString()
+{
+	return "SELECTBWPNR " + getArgument()->toString();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////
 

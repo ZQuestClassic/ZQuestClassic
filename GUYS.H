@@ -136,7 +136,7 @@ protected:
   //                         --==**==--
   //   Movement routines that can be used by derived classes as needed
   //                         --==**==--
-  void fix_coords();
+  void fix_coords(bool bound=false);
   // returns true if next step is ok, false if there is something there
   bool canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2);
   bool canmove(int ndir,fix s,int special);
@@ -193,7 +193,7 @@ protected:
   // Shoot weapons
   void FireWeapon();
   // place the enemy in line with Link (red wizzrobes)
-  void place_on_axis(bool floater);
+  void place_on_axis(bool floater, bool solid_ok);
   void update_enemy_frame();
   void n_frame_n_dir(int frames, int dir, int f4);
   void tiledir_small(int ndir, bool fourdir);

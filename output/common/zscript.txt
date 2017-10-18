@@ -598,6 +598,22 @@ namespace Link
 	*/
 	void PitWarp(int DMap, int screen);
 	
+	/**
+	* Sets the A button item to the next one in the given direction based on
+	* the indices set in the subscreen. This will skip over items if A and B
+	* would be set to the same item.
+	* If the quest rule "Can Select A-Button Weapon On Subscreen" is disabled,
+	* this function does nothing.
+	*/
+	SelectAWeapon(int dir);
+	
+	/**
+	* Sets the B button item to the next one in the given direction based on
+	* the indices set in the subscreen. This will skip over items if A and B
+	* would be set to the same item.
+	*/
+	SelectBWeapon(int dir);
+	
 }; //Link
 
 //======================================
@@ -778,28 +794,68 @@ namespace Screen
 	int Quake;
 
 	/**
-	* Sets the current screen's side warp 'warp' to the destination screen, dmap and type.
-	* If any of the parameters screen, dmap or type are equal to -1, they will remain unchanged.
-	* If warp is not between 0 and 3 the function does nothing.
+	* Sets the current screen's side warp 'warp' to the destination screen,
+	* DMap and type. If any of the parameters screen, dmap or type are equal
+	* to -1, they will remain unchanged. If warp is not between 0 and 3, the
+	* function does nothing.
 	*/
 	void SetSideWarp(int warp, int screen, int dmap, int type);
 
 	/**
-	* Sets the current screen's tile warp 'warp' to the destination screen, dmap and type.
-	* If any of the parameters screen, dmap or type are equal to -1, they will remain unchanged.
-	* If warp is not between 0 and 3 the function does nothing.
+	* Sets the current screen's tile warp 'warp' to the destination screen,
+	* DMap and type. If any of the parameters screen, dmap or type are equal
+	* to -1, they will remain unchanged. If warp is not between 0 and 3, the
+	* function does nothing.
 	*/
 	void SetTileWarp(int warp, int screen, int dmap, int type);
 
 	/**
+	* Returns the destination DMap of the given side warp on the current screen.
+	* Returns -1 if warp is not between 0 and 3.
+	*/
+	void GetSideWarpDMap(int warp);
+	
+	/**
+	* Returns the destination screen of the given side warp on the current
+	* screen. Returns -1 if warp is not between 0 and 3.
+	*/
+	void GetSideWarpScreen(int warp);
+
+	/**
+	* Returns the warp type of the given side warp on the current screen.
+	* Returns -1 if warp is not between 0 and 3.
+	*/
+	void GetSideWarpType(int warp);
+
+	/**
+	* Returns the destination DMap of the given tile warp on the current screen.
+	* Returns -1 if warp is not between 0 and 3.
+	*/
+	void GetTileWarpDMap(int warp);
+	
+	/**
+	* Returns the destination screen of the given tile warp on the current
+	* screen. Returns -1 if warp is not between 0 and 3.
+	*/
+	void GetTileWarpScreen(int warp);
+
+	/**
+	* Returns the warp type of the given tile warp on the current screen.
+	* Returns -1 if warp is not between 0 and 3.
+	*/
+	void GetTileWarpType(int warp);
+
+	/**
 	* Returns the map of the screen currently being used as the nth layer.
-	* Values of n less than 1 or greater than 6, or layers that are not set up, return -1.
+	* Values of n less than 1 or greater than 6, or layers that are not set up,
+	* returns -1.
 	*/
 	int LayerMap(int n);
 
 	/**
 	* Returns the number of the screen currently being used as the nth layer.
-	* Values of n less than 1 or greater than 6, or layers that are not set up, return -1.
+	* Values of n less than 1 or greater than 6, or layers that are not set up,
+	* returns -1.
 	*/
 	int LayerScreen(int n);
 
@@ -1805,9 +1861,10 @@ namespace Game
 
 	/**
 	* An array of 512 integers containing each DMap's MIDI.
-	* Positive numbers are for custom MIDIs, and negative values are used for the built-in game MIDIs.
-	* Because of the way DMap MIDIs are handled internally, however, built-in MIDIs besides the
-	* overworld, dungeon, and level 9 songs won't match up with Game->PlayMIDI() and Game->GetMIDI().
+	* Positive numbers are for custom MIDIs, and negative values are used for
+	* the built-in game MIDIs. Because of the way DMap MIDIs are handled
+	* internally, however, built-in MIDIs besides the overworld, dungeon, and
+	* level 9 songs won't match up with Game->PlayMIDI() and Game->GetMIDI().
 	*/
 	int DMapMIDI[];
 
@@ -1828,6 +1885,13 @@ namespace Game
 	* See std.zh for appropriate buffer size.
 	*/
 	void GetDMapIntro(int DMap, int buffer[]);
+
+	/**
+	* An array of 512 integers containing the X offset of each DMap.
+	* Game->DMapOffset is read-only; while setting it is not syntactically
+	* incorrect, it does nothing.
+	*/
+	int DMapOffset[];
 
 	/**
 	* The number of times Link has perished during this quest.
@@ -2014,14 +2078,14 @@ namespace Game
 	* cannot be played, the current music will continue. The music will
 	* revert to normal upon leaving the screen.
 	* Returns true if the music file was loaded successfully.
-	* The filename cannot be more than 55 characters. If the music format
+	* The filename cannot be more than 255 characters. If the music format
 	* does not support multiple tracks, the track argument will be ignored.
 	*/
 	bool PlayEnhancedMusic(int[] filename, int track);
 
 	/**
 	* Load the filename of the given DMap's enhanced music into buf.
-	* buf should be at least 56 elements in size.
+	* buf should be at least 256 elements in size.
 	*/
 	void GetDMapMusicFilename(int dmap, int[] buf);
 
@@ -2033,23 +2097,27 @@ namespace Game
 
 	/**
 	* Sets the specified DMap's enhanced music to the given filename and
-	* track number. If the music format does not support multiple tracks, * the track argument will be ignored. The filename must not be more
-	* than 55 characters.
+	* track number. If the music format does not support multiple tracks,
+	* the track argument will be ignored. The filename must not be more
+	* than 255 characters.
 	*/
 	void SetDMapEnhancedMusic(int dmap, int[] filename, int track);
 
 	/**
 	* Grabs a particular combo reference from anywhere in the game
 	* world, based on map (NOT DMap), screen number, and position.
-	* Don't forget that the screen index should be in hexadecimal, * and that maps are counted from 1 upwards.
+	* Don't forget that the screen index should be in hexadecimal,
+	* and that maps are counted from 1 upwards.
 	* Position is considered an index, treated the same way as in
 	* Screen->ComboD[].
 	*/
 	int GetComboData(int map, int screen, int position);
 
 	/**
-	* Sets a particular combo reference anywhere in the game world, * based on map (NOT DMap), screen number, and position.
-	* Don't forget that the screen index should be in hexadecimal, * and that maps are counted from 1 upwards.
+	* Sets a particular combo reference anywhere in the game world,
+	* based on map (NOT DMap), screen number, and position.
+	* Don't forget that the screen index should be in hexadecimal,
+	* and that maps are counted from 1 upwards.
 	* Position is considered an index, treated the same way as in
 	* Screen->ComboD[].
 	*/
@@ -2064,7 +2132,8 @@ namespace Game
 	int GetComboCSet(int map, int screen, int position);
 
 	/**
-	* Sets a particular combo's CSet anywhere in the game world, * based on map (NOT DMap), screen number, and position. Position
+	* Sets a particular combo's CSet anywhere in the game world,
+	* based on map (NOT DMap), screen number, and position. Position
 	* is considered an index, treated the same way as in Screen->ComboC[].
 	*/
 	void SetComboCSet(int map, int screen, int position, int value);
@@ -2078,7 +2147,8 @@ namespace Game
 	int GetComboFlag(int map, int screen, int position);
 
 	/**
-	* Sets a particular combo's placed flag anywhere in the game world, * based on map (NOT DMap), screen number, and position. Position
+	* Sets a particular combo's placed flag anywhere in the game world,
+	* based on map (NOT DMap), screen number, and position. Position
 	* is considered an index, treated the same way as in Screen->ComboF[].
 	*/
 	void SetComboFlag(int map, int screen, int position, int value);
@@ -2094,7 +2164,8 @@ namespace Game
 	int GetComboType(int map, int screen, int position);
 
 	/**
-	* Sets a particular combo's type anywhere in the game world, * based on map (NOT DMap), screen number, and position. Position
+	* Sets a particular combo's type anywhere in the game world,
+	* based on map (NOT DMap), screen number, and position. Position
 	* is considered an index, treated the same way as in Screen->ComboT[].
 	* Note that you are grabbing an actual combo attribute as referenced
 	* by the combo on screen you're referring to, which means that
@@ -2114,7 +2185,8 @@ namespace Game
 	int GetComboInherentFlag(int map, int screen, int position);
 
 	/**
-	* Sets a particular combo's inherent flag anywhere in the game world, * based on map (NOT DMap), screen number, and position. Position
+	* Sets a particular combo's inherent flag anywhere in the game world,
+	* based on map (NOT DMap), screen number, and position. Position
 	* is considered an index, treated the same way as in Screen->ComboI[].
 	* Note that you are grabbing an actual combo attribute as referenced
 	* by the combo on screen you're referring to, which means that

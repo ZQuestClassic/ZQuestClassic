@@ -357,6 +357,7 @@ using namespace std;
 #define PUSHBLOCKCSET       329
 #define UNDERCOMBO          330
 #define UNDERCSET           331
+#define DMAPOFFSET			332 //512 of these
 //#define FFDD			    309 //8 of these
 
 class LiteralArgument;
@@ -1270,6 +1271,54 @@ public:
 	Opcode *clone() {return new OSetTileWarpRegister();}
 };
 
+class OGetSideWarpDMap : public UnaryOpcode
+{
+public:
+	OGetSideWarpDMap(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OGetSideWarpDMap(a->clone());}
+};
+
+class OGetSideWarpScreen : public UnaryOpcode
+{
+public:
+	OGetSideWarpScreen(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OGetSideWarpScreen(a->clone());}
+};
+
+class OGetSideWarpType : public UnaryOpcode
+{
+public:
+	OGetSideWarpType(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OGetSideWarpType(a->clone());}
+};
+
+class OGetTileWarpDMap : public UnaryOpcode
+{
+public:
+	OGetTileWarpDMap(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OGetTileWarpDMap(a->clone());}
+};
+
+class OGetTileWarpScreen : public UnaryOpcode
+{
+public:
+	OGetTileWarpScreen(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OGetTileWarpScreen(a->clone());}
+};
+
+class OGetTileWarpType : public UnaryOpcode
+{
+public:
+	OGetTileWarpType(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OGetTileWarpType(a->clone());}
+};
+
 class OLayerScreenRegister : public BinaryOpcode
 {
 public:
@@ -1654,6 +1703,22 @@ class OShowSaveQuitScreen : public Opcode
 public:
 	string toString();
 	Opcode *clone() {return new OShowSaveQuitScreen();}
+};
+
+class OSelectAWeaponRegister : public UnaryOpcode
+{
+public:
+	OSelectAWeaponRegister(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OSelectAWeaponRegister(a->clone());}
+};
+
+class OSelectBWeaponRegister : public UnaryOpcode
+{
+public:
+	OSelectBWeaponRegister(Argument *A) : UnaryOpcode(A) {}
+	string toString();
+	Opcode *clone() {return new OSelectBWeaponRegister(a->clone());}
 };
 
 #endif

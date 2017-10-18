@@ -527,8 +527,6 @@ static MENU maps_menu[] =
   { (char *)"Next Map\t.",                onIncMap,                  NULL,                     0,            NULL   },
   { (char *)"Previous Map\t,",            onDecMap,                  NULL,                     0,            NULL   },
   { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-  { (char *)"Flip Map Vertically",        onFlipMapVertical,         NULL,                     0,            NULL   },
-  { (char *)"Flip Map Horizontally,",     onFlipMapHorizontal,       NULL,                     0,            NULL   },
   { (char *)"D&elete Map",                onDeleteMap,               NULL,                     0,            NULL   },
   {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -661,6 +659,7 @@ static MENU paste_item_menu[] =
   { (char *)"&Guy/String",                onPasteGuy,                NULL,                     0,            NULL   },
   { (char *)"Doo&rs",                     onPasteDoors,              NULL,                     0,            NULL   },
   { (char *)"&Layers",                    onPasteLayers,             NULL,                     0,            NULL   },
+  { (char *)"&Palette",                   onPastePalette,            NULL,                     0,            NULL   },
   {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -673,9 +672,6 @@ static MENU edit_menu[] =
   { (char *)"&Adv. Paste\t ",             NULL,                      paste_menu,               0,            NULL   },
   { (char *)"Paste &Spec.\t ",            NULL,                      paste_item_menu,          0,            NULL   },
   { (char *)"&Delete\tDel",               onDelete,                  NULL,                     0,            NULL   },
-  { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-  { (char *)"Flip Vertically",            onFlipScreenVertical,      NULL,                     0,            NULL   },
-  { (char *)"Flip Horizontally",          onFlipScreenHorizontal,    NULL,                     0,            NULL   },
   { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
   { (char *)"&Maps\t ",                   NULL,                      maps_menu,                0,            NULL   },
   {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1518,267 +1514,6 @@ int onCopy()
   return D_O_K;
 }
 
-int onFlipDMapHorizontal(int d)
-{
-  mapscr *ts=NULL;
-  if (DMaps[d].type!=dmOVERW)
-  {
-    DMaps[d].xoff=8-DMaps[d].xoff;
-    DMaps[d].compass=(DMaps[d].compass&0x70)+(7-(DMaps[d].compass&0x07));
-    DMaps[d].cont=(DMaps[d].cont&0x70)+(7-(DMaps[d].cont&0x07));
-    for (int w=0; w<9; w++)
-    {
-      for (int ww=0; ww<9; ww++)
-      {
-        if(misc.warp[w].dmap[ww]==d)
-        {
-          misc.warp[w].scr[ww]=(0x70-(misc.warp[w].scr[ww]&0x70))+(7-(misc.warp[w].scr[ww]&0x07));
-        }
-      }
-    }
-  }
-  else
-  {
-    DMaps[d].compass=(DMaps[d].compass&0x70)+(15-(DMaps[d].compass&0x0F));
-    DMaps[d].cont=(DMaps[d].cont&0x70)+(15-(DMaps[d].cont&0x0F));
-    for (int w=0; w<9; w++)
-    {
-      for (int ww=0; ww<9; ww++)
-      {
-        if(misc.warp[w].dmap[ww]==d)
-        {
-          misc.warp[w].scr[ww]=(misc.warp[w].scr[ww]&0x70)+(15-(misc.warp[w].scr[ww]&0x0F));
-        }
-      }
-    }
-  }
-  for (int i=0; i<8; ++i)
-  {
-    byte temp=0;
-    temp+=(DMaps[d].grid[i]&  1)?128:0;
-    temp+=(DMaps[d].grid[i]&  2)? 64:0;
-    temp+=(DMaps[d].grid[i]&  4)? 32:0;
-    temp+=(DMaps[d].grid[i]&  8)? 16:0;
-    temp+=(DMaps[d].grid[i]& 16)?  8:0;
-    temp+=(DMaps[d].grid[i]& 32)?  4:0;
-    temp+=(DMaps[d].grid[i]& 64)?  2:0;
-    temp+=(DMaps[d].grid[i]&128)?  1:0;
-    DMaps[d].grid[i]=temp;
-  }
-  for(int m=0; m<Map.getMapCount(); ++m)
-  {
-    for(int s=0; s<MAPSCRS; ++s)
-    {
-      ts=&TheMaps[m*MAPSCRS+s];
-      for (int j=0; j<4; ++j)
-      {
-        if (DMaps[d].type!=dmOVERW)
-        {
-          DMaps[d].cont=(DMaps[d].cont&0x70)+(7-(DMaps[d].cont&0x07));
-          if (ts->tilewarpdmap[j]==d)
-          {
-            ts->tilewarpscr[j]=(ts->tilewarpscr[j]&0x70)+(7-(ts->tilewarpscr[j]&0x07));
-          }
-          if (ts->sidewarpdmap[j]==d)
-          {
-            ts->sidewarpscr[j]=(ts->sidewarpscr[j]&0x70)+(7-(ts->sidewarpscr[j]&0x07));
-          }
-        }
-        else
-        {
-          if (ts->tilewarpdmap[j]==d)
-          {
-            ts->tilewarpscr[j]=(ts->tilewarpscr[j]&0x70)+(15-(ts->tilewarpscr[j]&0x0F));
-          }
-          if (ts->sidewarpdmap[j]==d)
-          {
-            ts->sidewarpscr[j]=(ts->sidewarpscr[j]&0x70)+(15-(ts->sidewarpscr[j]&0x0F));
-          }
-        }
-      }
-    }
-  }
-  return D_O_K;
-}
-
-int onFlipDMapVertical(int d)
-{
-  mapscr *ts=NULL;
-  for (int i=0; i<4; ++i)
-  {
-    zc_swap(DMaps[d].grid[i],DMaps[d].grid[7-i]);
-  }
-  DMaps[d].compass=(0x70-(DMaps[d].compass&0x70))+(DMaps[d].compass&0x07);
-  DMaps[d].cont=(0x70-(DMaps[d].cont&0x70))+(DMaps[d].cont&0x07);
-  for (int w=0; w<9; w++)
-  {
-    for (int ww=0; ww<9; ww++)
-    {
-      if(misc.warp[w].dmap[ww]==d)
-      {
-        misc.warp[w].scr[ww]=(0x70-(misc.warp[w].scr[ww]&0x70))+(misc.warp[w].scr[ww]&0x07);
-      }
-    }
-  }
-  for(int m=0; m<Map.getMapCount(); ++m)
-  {
-    for(int s=0; s<MAPSCRS; ++s)
-    {
-      ts=&TheMaps[m*MAPSCRS+s];
-      for (int j=0; j<4; ++j)
-      {
-        if (ts->tilewarpdmap[j]==d)
-        {
-          ts->tilewarpscr[j]=(0x70-(ts->tilewarpscr[j]&0x70))+(ts->tilewarpscr[j]);
-        }
-        if (ts->sidewarpdmap[j]==d)
-        {
-          ts->sidewarpscr[j]=(0x70-(ts->sidewarpscr[j]&0x70))+(ts->sidewarpscr[j]);
-        }
-      }
-    }
-  }
-  return D_O_K;
-}
-
-int onFlipMapHorizontal()
-{
-  Map.Ugo();
-  saved=false;
-  int m = Map.getCurrMap();
-  mapscr ts;
-  for(int y=0; y<8; ++y)
-  {
-    for(int x=0; x<8; ++x)
-    {
-      copy_mapscr(&ts, &TheMaps[(m*MAPSCRS)+(y*16+x)]);
-      copy_mapscr(&TheMaps[(m*MAPSCRS)+(y*16+x)], &TheMaps[(m*MAPSCRS)+(y*16+15-x)]);
-      copy_mapscr(&TheMaps[(m*MAPSCRS)+(y*16+15-x)], &ts);
-    }
-  }
-  for(int d=0; d<MAXDMAPS; ++d)
-  {
-    if(DMaps[d].map==m)
-    {
-      onFlipDMapHorizontal(d);
-    }
-  }
-  return D_O_K;
-}
-
-int onFlipMapVertical()
-{
-  Map.Ugo();
-  saved=false;
-  int m = Map.getCurrMap();
-  mapscr ts;
-  for(int y=0; y<4; ++y)
-  {
-    for(int x=0; x<16; ++x)
-    {
-      copy_mapscr(&ts, &TheMaps[(m*MAPSCRS)+(y*16+x)]);
-      copy_mapscr(&TheMaps[(m*MAPSCRS)+(y*16+x)], &TheMaps[(m*MAPSCRS)+((7-y)*16+x)]);
-      copy_mapscr(&TheMaps[(m*MAPSCRS)+((7-y)*16+x)], &ts);
-    }
-  }
-  for(int d=0; d<MAXDMAPS; ++d)
-  {
-    if(DMaps[d].map==m)
-    {
-      onFlipDMapVertical(d);
-    }
-  }
-  return D_O_K;
-}
-
-int onFlipScreenHorizontal()
-{
-  Map.Ugo();
-  saved=false;
-  int m = Map.getCurrMap();
-  int s = Map.getCurrScr();
-  for(int y=0; y<11; ++y)
-  {
-    for(int x=0; x<16; ++x)
-    {
-      if (x<8)
-      {
-        zc_swap(Map.AbsoluteScr(m,s)->data[y*16+x],Map.AbsoluteScr(m,s)->data[y*16+15-x]);
-        zc_swap(Map.AbsoluteScr(m,s)->cset[y*16+x],Map.AbsoluteScr(m,s)->cset[y*16+15-x]);
-        zc_swap(Map.AbsoluteScr(m,s)->sflag[y*16+x],Map.AbsoluteScr(m,s)->sflag[y*16+15-x]);
-      }
-/*
-      for(int l=0; l<6; ++l)
-      {
-        if (Map.AbsoluteScr(m,s)->layermap[l]!=0)
-        {
-          onFlipScreenHorizontal(Map.AbsoluteScr(m,s)->layermap[l]-1,Map.AbsoluteScr(m,s)->layerscreen[l]);
-        }
-      }
-*/
-    }
-  }
-  Map.AbsoluteScr(m,s)->itemx=240-Map.AbsoluteScr(m,s)->itemx;
-  if ((Map.AbsoluteScr(m,s)->stairx!=0)||(Map.AbsoluteScr(m,s)->stairy!=0))
-  {
-    Map.AbsoluteScr(m,s)->stairx=240-Map.AbsoluteScr(m,s)->stairx;
-  }
-  Map.AbsoluteScr(m,s)->warparrivalx=240-Map.AbsoluteScr(m,s)->warparrivalx;
-  for (int i=0; i<4; ++i)
-  {
-    Map.AbsoluteScr(m,s)->warpreturnx[i]=240-Map.AbsoluteScr(m,s)->warpreturnx[i];
-  }
-  zc_swap(Map.AbsoluteScr(m,s)->door[2],Map.AbsoluteScr(m,s)->door[3]);
-  zc_swap(Map.AbsoluteScr(m,s)->sidewarptype[2],Map.AbsoluteScr(m,s)->sidewarptype[3]);
-  zc_swap(Map.AbsoluteScr(m,s)->sidewarpdmap[2],Map.AbsoluteScr(m,s)->sidewarpdmap[3]);
-  zc_swap(Map.AbsoluteScr(m,s)->sidewarpscr[2],Map.AbsoluteScr(m,s)->sidewarpscr[3]);
-  return D_O_K;
-}
-
-int onFlipScreenVertical()
-{
-  Map.Ugo();
-  saved=false;
-  int m = Map.getCurrMap();
-  int s = Map.getCurrScr();
-  for(int y=0; y<11; ++y)
-  {
-    for(int x=0; x<16; ++x)
-    {
-      if(y<5)
-      {
-        zc_swap(Map.AbsoluteScr(m,s)->data[y*16+x],Map.AbsoluteScr(m,s)->data[(10-y)*16+x]);
-        zc_swap(Map.AbsoluteScr(m,s)->cset[y*16+x],Map.AbsoluteScr(m,s)->cset[(10-y)*16+x]);
-        zc_swap(Map.AbsoluteScr(m,s)->sflag[y*16+x],Map.AbsoluteScr(m,s)->sflag[(10-y)*16+x]);
-      }
-/*
-      for(int l=0; l<6; ++l)
-      {
-        if (Map.AbsoluteScr(m,s)->layermap[l]!=0)
-        {
-          onFlipScreenHorizontal(Map.AbsoluteScr(m,s)->layermap[l]-1,Map.AbsoluteScr(m,s)->layerscreen[l]);
-        }
-      }
-*/
-    }
-  }
-  Map.AbsoluteScr(m,s)->itemy=160-Map.AbsoluteScr(m,s)->itemy;
-  if ((Map.AbsoluteScr(m,s)->stairx!=0)||(Map.AbsoluteScr(m,s)->stairy!=0))
-  {
-    Map.AbsoluteScr(m,s)->stairy=160-Map.AbsoluteScr(m,s)->stairy;
-  }
-  Map.AbsoluteScr(m,s)->warparrivaly=160-Map.AbsoluteScr(m,s)->warparrivaly;
-  for (int i=0; i<4; ++i)
-  {
-    Map.AbsoluteScr(m,s)->warpreturny[i]=160-Map.AbsoluteScr(m,s)->warpreturny[i];
-  }
-  zc_swap(Map.AbsoluteScr(m,s)->door[0],Map.AbsoluteScr(m,s)->door[1]);
-  zc_swap(Map.AbsoluteScr(m,s)->sidewarptype[0],Map.AbsoluteScr(m,s)->sidewarptype[1]);
-  zc_swap(Map.AbsoluteScr(m,s)->sidewarpdmap[0],Map.AbsoluteScr(m,s)->sidewarpdmap[1]);
-  zc_swap(Map.AbsoluteScr(m,s)->sidewarpscr[0],Map.AbsoluteScr(m,s)->sidewarpscr[1]);
-  return D_O_K;
-}
-
 int onH()
 {
   return D_O_K;
@@ -1866,6 +1601,13 @@ int onPasteDoors()
 int onPasteLayers()
 {
   Map.PasteLayers();
+  refresh(rALL);
+  return D_O_K;
+}
+
+int onPastePalette()
+{
+  Map.PastePalette();
   refresh(rALL);
   return D_O_K;
 }
@@ -10755,12 +10497,34 @@ int msg_x = 0;
 int msg_y = 0;
 MsgStr *curmsgstr = NULL;
 
-//Make sure this is synchronised with parsemsgcode in guys.cpp!
-void put_msg_str(char *s,int x,int y,int fg,int ,int pos, int start_x, int start_y)
+void strip_trailing_spaces(char *str)
 {
-  //these are here to bypass compiler warnings about unused arguments
-  fg=fg;
-  pos=pos;
+    for(int i=0; str[i]; i++)
+    {
+        if(str[i]==' ')
+        {
+            for(int k=i+1; true; k++)
+            {
+                // End of the string, just spaces so far; end at i
+                if(str[k]=='\0')
+                {
+                    str[i]='\0';
+                    return;
+                }
+                // Found a non-space character
+                else if(str[k]!=' ')
+                {
+                    i=k;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+//Make sure this is synchronised with parsemsgcode in guys.cpp!
+void put_msg_str(char *s,int x,int y,int, int ,int, int start_x, int start_y)
+{
   int cursor_x = 0;
   int cursor_y = 0;
   int w = vbound((int)strtol((char*)editmsg_dlg[19].dp, (char **)NULL, 10),0,512);
@@ -10779,7 +10543,8 @@ void put_msg_str(char *s,int x,int y,int fg,int ,int pos, int start_x, int start
   FONT *workfont = getfont(fonta);
 
   char *s2 = parse_msg_str(s);
-
+  strip_trailing_spaces(s2);
+  
   BITMAP *buf = create_bitmap_ex(8,zc_max(w+16,256+16),zc_max(h+16,32+16));
   clear_bitmap(buf);
   if(buf)
@@ -10890,23 +10655,22 @@ void put_msg_str(char *s,int x,int y,int fg,int ,int pos, int start_x, int start
 				  }
 			  }
 		  }
-		  if(nextstring)
+		  if(nextstring && MsgStrings[nextstring].stringflags & STRINGFLAG_CONT)
 		  {
-			  if(MsgStrings[nextstring].stringflags & STRINGFLAG_CONT)
-			  {
-				  workfont = getfont(MsgStrings[nextstring].font);
-				  flags = MsgStrings[nextstring].stringflags;
-				  hspace = MsgStrings[nextstring].hspace;
-				  vspace = MsgStrings[nextstring].vspace;
-				  if(s2!=NULL) delete [] s2;
-				  s2 = new char[MSGSIZE+1];
-				  strcpy(s2, MsgStrings[nextstring].s);
-				  nextstring = MsgStrings[nextstring].nextstring;
-			  }
-			  else
-			  {
-				  break;
-			  }
+              workfont = getfont(MsgStrings[nextstring].font);
+              flags = MsgStrings[nextstring].stringflags;
+              hspace = MsgStrings[nextstring].hspace;
+              vspace = MsgStrings[nextstring].vspace;
+              if(s2!=NULL) delete [] s2;
+              s2 = new char[MSGSIZE+1];
+              strcpy(s2, MsgStrings[nextstring].s);
+              strip_trailing_spaces(s2);
+              
+              // Prevent an infinite loop...
+              if(MsgStrings[nextstring].nextstring!=nextstring)
+                  nextstring = MsgStrings[nextstring].nextstring;
+              else
+                  nextstring=0;
 		  }
 		  else
 		  {
@@ -13167,7 +12931,7 @@ void edit_tune(int i)
         set_volume(-1,volume);
         midi_loop_end = loop_end;
         midi_loop_start = loop_start;
-        if(midi_loop_end<0)
+        if(midi_loop_end<=0)
         {
           pos = zc_min(pos+16,Midi_Info.len_beats);
         }
@@ -19625,9 +19389,8 @@ void reset_pal_cycling()
 
 void cycle_palette()
 {
-  //  if(!(Map.CurrScr()->valid&mVALID))
-  //    return;
-
+  if(!get_bit(quest_rules,qr_FADE))
+    return;
   int level = Map.CurrScr()->color;
   bool refreshpal = false;
 
@@ -25138,7 +24901,8 @@ command_pair commands[cmdMAX]=
   { "Rules - NES Fixes",                  0,                     (intF) onFixesRules                                     },
   { "Rules - Other",                      0,                     (intF) onMiscRules                                      },
   { "Item Drop Set Editor",               0,                     (intF) onItemDropSets                                   },
-  { "Default Items",				  0,					(intF) onDefault_Items							 },
+  { "Default Items",                      0,                     (intF) onDefault_Items                                  },
+  { "Paste Palette",                      0,                     (intF) onPastePalette                                   },
 };
 
 /********************************/

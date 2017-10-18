@@ -3149,7 +3149,7 @@ bool leech_tiles(tiledata *dest,int start,int cs)
   {
     for (int tx=0; tx<width; tx++)                          //for every column (tile)
     {
-      if ((((ty*width)+tx)%LeechUpdate)==0)                 //update status
+      if ((((ty*width)+tx)%zc_min(LeechUpdate, 1))==0)                 //update status
       {
         FONT *oldfont = font;
         static BITMAP *tbar = create_bitmap_ex(8,240-6, 18);

@@ -651,4 +651,7 @@ int GetHighestLevelItem(item i)
 bool IsSideview()
  * Returns true if Link is on a sideview screen
 
+int DMapToMap(int screen, int dmap)
+int MapToDMap(int screen, int dmap)
+ * Convert between map and DMap screen coordinates
 
