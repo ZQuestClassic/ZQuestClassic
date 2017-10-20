@@ -11,19 +11,26 @@
 #include <math.h>
 #include <cstdio>
 
+#include "ffasm.h"
+#include "zc_sys.h"
 #include "zc_math.h"
 #include "zc_array.h"
 #include "ffscript.h"
 #include "zelda.h"
 #include "link.h"
 #include "guys.h"
+
 #include "gamedata.h"
 #include "zc_init.h"
 #include "zsys.h"
 #include "title.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
-#include "rendertarget.h"
+
+#include "pal.h"
+#include "zdefs.h"
+#include "zq_class.h"
+#include "rendertarget.h" //Needed for LoadBitmap
 
 #ifdef _FFDEBUG
 #include "ffdebug.h"
