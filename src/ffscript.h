@@ -4,7 +4,7 @@
 #include <utility>
 #include <string>
 #include <list>
-#include "zelda.h"
+#include "zelda.h" //This is probably the source of the duplication of BMP_MOUSE. -Z
 
 
 #define ZS_BYTE 255
