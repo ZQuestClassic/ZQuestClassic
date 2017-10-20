@@ -4655,7 +4655,7 @@ extern const char *old_item_string[iLast];
 extern char *weapon_string[WPNCNT];
 extern const char *old_weapon_string[wLast];
 
-int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode)
+int readitems(PACKFILE *f, word version, word build, zquestheader *Header, bool keepdata, bool zgpmode)
 {
     byte padding;
     int  dummy;
@@ -4736,6 +4736,8 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                                                             itemsbuf[i].misc2=itemsbuf[i].magic=tempitem.usesound=0;
             itemsbuf[i].count=-1;
             itemsbuf[i].playsound=WAV_SCALE;
+		itemsbuf[i].useweapon = itemsbuf[i].usedefence = itemsbuf[i].weaprange = itemsbuf[i].weapduration = 0;
+		for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) itemsbuf[i].weap_pattern[q] = 0;
             reset_itembuf(&itemsbuf[i],i);
         }
     }
@@ -4744,6 +4746,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
     {
         memset(&tempitem, 0, sizeof(itemdata));
         reset_itembuf(&tempitem,i);
+	
         
         if(!p_igetw(&tempitem.tile,f,true))
         {
@@ -5123,7 +5126,36 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                         return qe_invalid;
                     }
                 }
+		
+		
             }
+	    if ( s_version >= 26 )  //! New itemdata vars for weapon editor. -Z
+		{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
+			if(!p_getc(&tempitem.useweapon,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_getc(&tempitem.usedefence,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weaprange,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weapduration,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+				
+				if(!p_igetl(&tempitem.weap_pattern[q],f,true))
+				{
+				    return qe_invalid;
+				}
+			}
+		
+		}
         }
         else
         {
@@ -8481,17 +8513,16 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     
     // Not sure when this first changed, but it's necessary for 2.10, at least
-    // @TODO: @BUG:1.92 - 1.84? Figure this out exactly for the final 2.50 release.
     if(Header->zelda_version <= 0x210)
     {
         guysbuf[eGLEEOK1F].misc6 = 16;
         guysbuf[eGLEEOK2F].misc6 = 16;
         guysbuf[eGLEEOK3F].misc6 = 16;
         guysbuf[eGLEEOK4F].misc6 = 16;
-	    
-        guysbuf[eWIZ1].misc4 = 1; //only set the enemy that needs backward compat, not all of them.
+        
+        guysbuf[eWIZ1].misc4 = 1;
         guysbuf[eBATROBE].misc4 = 1;
-        //guysbuf[eSUMMONER].misc4 = 1;
+        guysbuf[eSUMMONER].misc4 = 1;
         guysbuf[eWWIZ].misc4 = 1;
     }
     
@@ -8902,7 +8933,10 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
-            if(guyversion >= 16)  // November 2009 - Super Enemy Editor
+	    //! Enemy Defences
+	    
+	    //If a 2.50 quest, use only the 2.5 defences. 
+            if(guyversion >= 16 )  // November 2009 - Super Enemy Editor
             {
                 for(int j=0; j<edefLAST; j++)
                 {
@@ -8911,7 +8945,12 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                         return qe_invalid;
                     }
                 }
+		//then copy the generic script defence to all the new script defences
+		
             }
+	    
+	    
+	    
             
             if(guyversion >= 18)
             {
@@ -8956,7 +8995,105 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 tempguy.misc12=tempMisc;
             }
-            
+	    
+	    //If a 2.54 or later quest, use all of the defences. 
+	    if(guyversion > 24) // Add new guyversion conditional statement 
+            {
+		for(int j=edefLAST; j<edefLAST255; j++)
+                {
+                    if(!p_getc(&(tempguy.defense[j]),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+                }
+            }
+	    
+	    if(guyversion <= 24) // Port over generic script settings from old quests in the new editor. 
+            {
+		for(int j=edefSCRIPT01; j<=edefSCRIPT10; j++)
+                {
+                    tempguy.defense[j] = tempguy.defense[edefSCRIPT] ;
+                }
+            }
+	    
+	    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+	    if(guyversion > 25)
+	    {
+		    if(!p_igetl(&(tempguy.txsz),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.tysz),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.hxsz),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.hysz),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.hzsz),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    /* Is it safe to read a fixed with getl, or do I need to typecast it? -Z
+		   
+		    */
+	    }
+	    //More Enemy Editor vars for 2.60
+	    if(guyversion > 26)
+	    {
+		    if(!p_igetl(&(tempguy.hxofs),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.hyofs),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.xofs),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.yofs),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+		    if(!p_igetl(&(tempguy.zofs),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+	    }
+	    
+	    if(guyversion <= 27) // Port over generic script settings from old quests in the new editor. 
+            {
+		tempguy.wpnsprite = 0;
+            }
+	    
+	    if(guyversion > 27)
+	    {
+	        if(!p_igetl(&(tempguy.wpnsprite),f,keepdata))
+                    {
+                        return qe_invalid;
+                    }
+	    }
+	    if(guyversion <= 28) // Port over generic script settings from old quests in the new editor. 
+            {
+		tempguy.SIZEflags = 0;
+            }
+	    if(guyversion > 28)
+	    {
+		if(!p_igetl(&(tempguy.SIZEflags),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+		
+	    }
+	    
+	    
             //miscellaneous other corrections
             //fix the mirror wizzrobe -DD
             if(guyversion < 7)
@@ -9214,6 +9351,8 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 else if(tempguy.family==eeMOLD)
                     tempguy.misc2 = 0;
             }
+	    
+	    
             
             if(keepdata)
             {
