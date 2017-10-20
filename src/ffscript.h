@@ -4,9 +4,679 @@
 #include <utility>
 #include <string>
 #include <list>
+#include "zelda.h"
+
+
+#define ZS_BYTE 255
+#define ZS_CHAR 255
+#define ZS_WORD 65535
+#define ZS_SHORT 32767
+#define ZS_LONG 214747
+#define ZS_INT 214747
+#define ZS_FIX 214748
+#define ZS_DWORD 65535
+
+
+class FFScript
+{
+private:
+    long sid;
+    
+public:
+    byte rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
+
+
+    int screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
+    int screen_dimensions[4]; //height, width, displaywidth, displayheight
+    int subscreen_dimensions[4];
+    int eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
+    int lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
+    int linktile, linkaction; //Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
+		//This way, we can make safe replicas of internal Link actions to be set by script. 
+#define FFSCRIPTCLASS_CLOCKS 10
+    int clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
+
+    #define SCRIPT_DRAWING_RULES 20
+    bool ScriptDrawingRules[SCRIPT_DRAWING_RULES];
+	//Allow or forbid drawing during specific game events. 
+	enum{
+		scdrDRAW_WHILE_SCROLLING, scdrDRAW_DURING_SCREEN_TRANSITION, scdrDRAW_DURING_WARP,
+		scdrDRAW_DURING_WIPES, scdrLAST
+	};
+#define NUM_USER_MIDI_OVERRIDES 6
+	int UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
+    
+    virtual ~FFScript();
+    virtual int getrule(int rule);   
+    virtual void setrule(int rule, bool state); 
+	
+	
+
+
+	static INLINE int ZSbound_byte(int val)
+	{
+		return vbound(val,0,ZS_BYTE);
+	}
+	static INLINE int ZSbound_char(int val)
+	{
+		return vbound(val,0,ZS_CHAR);
+	}
+	static INLINE int ZSbound_word(int val)
+	{
+		return vbound(val,0,ZS_WORD);
+	}
+	static INLINE int ZSbound_short(int val)
+	{
+		return vbound(val,0,ZS_SHORT);
+	}
+	static INLINE int ZSbound_long(int val)
+	{
+		return vbound(val,0,ZS_LONG);
+	}
+	static INLINE int ZSbound_fix(int val)
+	{
+		return vbound(val,0,ZS_FIX);
+	}
+	
+static void set_screenwarpReturnY(mapscr *m, int d, int value);
+static void set_screendoor(mapscr *m, int d, int value);
+static void set_screenenemy(mapscr *m, int index, int value);
+static void set_screenlayeropacity(mapscr *m, int d, int value);
+static void set_screensecretcombo(mapscr *m, int d, int value);
+static void set_screensecretcset(mapscr *m, int d, int value);
+static void set_screensecretflag(mapscr *m, int d, int value);
+static void set_screenlayermap(mapscr *m, int d, int value);
+static void set_screenlayerscreen(mapscr *m, int d, int value);
+static void set_screenpath(mapscr *m, int d, int value);
+static void set_screenwarpReturnX(mapscr *m, int d, int value);
+static void set_screenWidth(mapscr *m, int value);
+static void set_screenHeight(mapscr *m, int value);
+static void set_screenViewX(mapscr *m, int value);
+static void set_screenViewY(mapscr *m, int value);
+static void set_screenGuy(mapscr *m, int value);
+static void set_screenString(mapscr *m, int value);
+static void set_screenRoomtype(mapscr *m, int value);
+static void set_screenEntryX(mapscr *m, int value);
+static void set_screenEntryY(mapscr *m, int value);
+static void set_screenitem(mapscr *m, int value);
+static void set_screenundercombo(mapscr *m, int value);
+static void set_screenundercset(mapscr *m, int value);
+static void set_screenatchall(mapscr *m, int value);
+static long get_screenWidth(mapscr *m);
+static long get_screenHeight(mapscr *m);
+static void deallocateZScriptArray(const long ptrval);
+static int get_screen_d(long index1, long index2);
+static void set_screen_d(long index1, long index2, int val);
+static int whichlayer(long scr);
+static void clear_ffc_stack(const byte i);
+static void clear_global_stack();
+static void do_zapout();
+static void do_zapin();
+static void do_openscreen();
+static void do_wavyin();
+static void do_wavyout();
+static void do_triggersecret(const bool v);
+static void do_changeffcscript(const bool v);
+
+static void setLinkDiagonal(bool v);
+static bool getLinkDiagonal();
+static bool getLinkBigHitbox();
+static void setLinkBigHitbox(bool v);
+
+
+//NPCData getters One Input, One Return
+	static void getNPCData_flags(); //word
+	static void getNPCData_flags2();
+	static void getNPCData_width();
+	static void getNPCData_height();
+	static void getNPCData_s_tile();
+	static void getNPCData_s_width();
+	static void getNPCData_s_height();
+	static void getNPCData_e_tile();
+	static void getNPCData_e_width();
+	static void getNPCData_hp();
+	static void getNPCData_family();
+	static void getNPCData_cset();
+	static void getNPCData_anim();
+	static void getNPCData_e_anim();
+	static void getNPCData_frate();
+	static void getNPCData_e_frate();
+	static void getNPCData_dp();
+	static void getNPCData_wdp();
+	static void getNPCData_weapon();
+	static void getNPCData_rate();
+	static void getNPCData_hrate();
+	static void getNPCData_step();
+	static void getNPCData_homing();
+	static void getNPCData_grumble();
+	static void getNPCData_item_set();
+	static void getNPCData_bgsfx();
+	static void getNPCData_hitsfx();
+	static void getNPCData_deadsfx();
+	static void getNPCData_xofs();
+	static void getNPCData_yofs();
+	static void getNPCData_zofs();
+	static void getNPCData_hxofs();
+	static void getNPCData_hyofs();
+	static void getNPCData_hxsz();
+	static void getNPCData_hysz();
+	static void getNPCData_hzsz();
+	static void getNPCData_txsz();
+	static void getNPCData_tysz();
+	static void getNPCData_wpnsprite();
+
+	//NPCData Getters, two inouts, one return
+
+
+
+	//static void getNPCData_scriptdefence();
+	static void getNPCData_misc();//switch-case
+	static void getNPCData_defense(); //extra arg
+	static void getNPCData_SIZEflags();
+
+
+	//NPCData Setters, two inputs, no return.
+
+	static void setNPCData_flags(); //word
+	static void setNPCData_flags2();
+	static void setNPCData_width();
+	static void setNPCData_height();
+	static void setNPCData_s_tile();
+	static void setNPCData_s_width();
+	static void setNPCData_s_height();
+	static void setNPCData_e_tile();
+	static void setNPCData_e_width();
+	static void setNPCData_hp();
+	static void setNPCData_family();
+	static void setNPCData_cset();
+	static void setNPCData_anim();
+	static void setNPCData_e_anim();
+	static void setNPCData_frate();
+	static void setNPCData_e_frate();
+	static void setNPCData_dp();
+	static void setNPCData_wdp();
+	static void setNPCData_weapon();
+	static void setNPCData_rate();
+	static void setNPCData_hrate();
+	static void setNPCData_step();
+	static void setNPCData_homing();
+	static void setNPCData_grumble();
+	static void setNPCData_item_set();
+	static void setNPCData_bgsfx();
+	static void setNPCData_hitsfx();
+	static void setNPCData_deadsfx();
+	static void setNPCData_xofs();
+	static void setNPCData_yofs();
+	static void setNPCData_zofs();
+	static void setNPCData_hxofs();
+	static void setNPCData_hyofs();
+	static void setNPCData_hxsz();
+	static void setNPCData_hysz();
+	static void setNPCData_hzsz();
+	static void setNPCData_txsz();
+	static void setNPCData_tysz();
+	static void setNPCData_wpnsprite();
+
+	//NPCData Setters, three inputs, no return.
+	//static void setNPCData_scriptdefence();
+	static void setNPCData_defense(int v); //extra arg
+	static void setNPCData_SIZEflags(int v);
+	static void setNPCData_misc(int val);
+	
+	static void setNPCData_tile();
+	static void setNPCData_e_height();
+	static void getNPCData_tile();
+	static void getNPCData_e_height();
+	
+	//one input, one return
+	static void getComboData_block_enemies();
+	static void getComboData_block_hole();
+	static void getComboData_block_trigger();
+	static void getComboData_conveyor_x_speed();
+	static void getComboData_conveyor_y_speed();
+	static void getComboData_create_enemy();
+	static void getComboData_create_enemy_when();
+	static void getComboData_create_enemy_change();
+	static void getComboData_directional_change_type();
+	static void getComboData_distance_change_tiles();
+	static void getComboData_dive_item();
+	static void getComboData_dock();
+	static void getComboData_fairy();
+	static void getComboData_ff_combo_attr_change();
+	static void getComboData_foot_decorations_tile();
+	static void getComboData_foot_decorations_type();
+	static void getComboData_hookshot_grab_point();
+	static void getComboData_ladder_pass();
+	static void getComboData_lock_block_type();
+	static void getComboData_lock_block_change();
+	static void getComboData_magic_mirror_type();
+	static void getComboData_modify_hp_amount();
+	static void getComboData_modify_hp_delay();
+	static void getComboData_modify_hp_type();
+	static void getComboData_modify_mp_amount();
+	static void getComboData_modify_mp_delay();
+	static void getComboData_modify_mp_type();
+	static void getComboData_no_push_blocks();
+	static void getComboData_overhead();
+	static void getComboData_place_enemy();
+	static void getComboData_push_direction();
+	static void getComboData_push_weight();
+	static void getComboData_push_wait();
+	static void getComboData_pushed();
+	static void getComboData_raft();
+	static void getComboData_reset_room();
+	static void getComboData_save_point_type();
+	static void getComboData_screen_freeze_type();
+
+	static void getComboData_secret_combo();
+	static void getComboData_singular();
+	static void getComboData_slow_movement();
+	static void getComboData_statue_type();
+	static void getComboData_step_type();
+	static void getComboData_step_change_to();
+	static void getComboData_strike_remnants();
+	static void getComboData_strike_remnants_type();
+	static void getComboData_strike_change();
+	static void getComboData_strike_item();
+	static void getComboData_touch_item();
+	static void getComboData_touch_stairs();
+	static void getComboData_trigger_type();
+	static void getComboData_trigger_sensitive();
+	static void getComboData_warp_type();
+	static void getComboData_warp_sensitive();
+	static void getComboData_warp_direct();
+	static void getComboData_warp_location();
+	static void getComboData_water();
+	static void getComboData_whistle();
+	static void getComboData_win_game();
+	static void getComboData_block_weapon_lvl();
+
+	static void getComboData_tile();
+	static void getComboData_flip();
+
+	static void getComboData_walk();
+	static void getComboData_type();
+	static void getComboData_csets();
+	static void getComboData_foo();
+	static void getComboData_frames();
+	static void getComboData_speed();
+	static void getComboData_nextcombo();
+	static void getComboData_nextcset();
+	static void getComboData_flag();
+	static void getComboData_skipanim();
+	static void getComboData_nexttimer();
+	static void getComboData_skipanimy();
+	static void getComboData_animflags();
+
+	//two inputs, one return
+	static void getComboData_block_weapon();
+	static void getComboData_expansion();
+	static void getComboData_strike_weapons();
+
+	//two inputs, no return
+	static void setComboData_block_enemies();
+	static void setComboData_block_hole();
+	static void setComboData_block_trigger();
+	static void setComboData_conveyor_x_speed();
+	static void setComboData_conveyor_y_speed();
+	static void setComboData_create_enemy();
+	static void setComboData_create_enemy_when();
+	static void setComboData_create_enemy_change();
+	static void setComboData_directional_change_type();
+	static void setComboData_distance_change_tiles();
+	static void setComboData_dive_item();
+	static void setComboData_dock();
+	static void setComboData_fairy();
+	static void setComboData_ff_combo_attr_change();
+	static void setComboData_foot_decorations_tile();
+	static void setComboData_foot_decorations_type();
+	static void setComboData_hookshot_grab_point();
+	static void setComboData_ladder_pass();
+	static void setComboData_lock_block_type();
+	static void setComboData_lock_block_change();
+	static void setComboData_magic_mirror_type();
+	static void setComboData_modify_hp_amount();
+	static void setComboData_modify_hp_delay();
+	static void setComboData_modify_hp_type();
+	static void setComboData_modify_mp_amount();
+	static void setComboData_modify_mp_delay();
+	static void setComboData_modify_mp_type();
+	static void setComboData_no_push_blocks();
+	static void setComboData_overhead();
+	static void setComboData_place_enemy();
+	static void setComboData_push_direction();
+	static void setComboData_push_weight();
+	static void setComboData_push_wait();
+	static void setComboData_pushed();
+	static void setComboData_raft();
+	static void setComboData_reset_room();
+	static void setComboData_save_point_type();
+	static void setComboData_screen_freeze_type();
+
+	static void setComboData_secret_combo();
+	static void setComboData_singular();
+	static void setComboData_slow_movement();
+	static void setComboData_statue_type();
+	static void setComboData_step_type();
+	static void setComboData_step_change_to();
+	static void setComboData_strike_remnants();
+	static void setComboData_strike_remnants_type();
+	static void setComboData_strike_change();
+	static void setComboData_strike_item();
+	static void setComboData_touch_item();
+	static void setComboData_touch_stairs();
+	static void setComboData_trigger_type();
+	static void setComboData_trigger_sensitive();
+	static void setComboData_warp_type();
+	static void setComboData_warp_sensitive();
+	static void setComboData_warp_direct();
+	static void setComboData_warp_location();
+	static void setComboData_water();
+	static void setComboData_whistle();
+	static void setComboData_win_game();
+	static void setComboData_block_weapon_lvl();
+
+	static void setComboData_tile();
+	static void setComboData_flip();
+
+	static void setComboData_walk();
+	static void setComboData_type();
+	static void setComboData_csets();
+	static void setComboData_foo();
+	static void setComboData_frames();
+	static void setComboData_speed();
+	static void setComboData_nextcombo();
+	static void setComboData_nextcset();
+	static void setComboData_flag();
+	static void setComboData_skipanim();
+	static void setComboData_nexttimer();
+	static void setComboData_skipanimy();
+	static void setComboData_animflags();
+
+	//three inputs, no return
+	static void setComboData_block_weapon(int v);
+	static void setComboData_expansion(int v);
+	static void setComboData_strike_weapons(int v);
+	
+	//SpriteData
+	static void getSpriteDataTile();
+	static void getSpriteDataMisc();
+	static void getSpriteDataCSets();
+	static void getSpriteDataFrames();
+	static void getSpriteDataSpeed();
+	static void getSpriteDataType();
+	static void getSpriteDataString();
+	static void setSpriteDataTile();
+	static void setSpriteDataMisc();
+	static void setSpriteDataCSets();
+	static void setSpriteDataFrames();
+	static void setSpriteDataSpeed();
+	static void setSpriteDataType();
+	static void setSpriteDataString();
+
+
+#define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
+
+enum __Error
+    {
+        _NoError, //OK!
+        _Overflow, //script array too small
+        _InvalidPointer, //passed NULL pointer or similar
+        _OutOfBounds, //library array out of bounds
+        _InvalidSpriteUID //bad npc, ffc, etc.
+    };
+    
+    
+    static INLINE int checkUserArrayIndex(const long index, const dword size)
+    {
+        if(index < 0 || index >= long(size))
+        {
+          //  Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
+            return _OutOfBounds;
+        }
+        
+        return _NoError;
+    }
+
+    
+    
+    //only if the player is messing with their pointers...
+    static ZScriptArray& InvalidError(const long ptr)
+    {
+        //Z_scripterrlog("Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
+        return INVALIDARRAY;
+    }
+    
+    //Returns a reference to the correct array based on pointer passed
+    static ZScriptArray& getArray(const long ptr)
+    {
+        if(ptr <= 0)
+            return InvalidError(ptr);
+            
+        if(ptr >= MAX_ZCARRAY_SIZE) //Then it's a global
+        {
+            dword gptr = ptr - MAX_ZCARRAY_SIZE;
+            
+            if(gptr > game->globalRAM.size())
+                return InvalidError(ptr);
+                
+            return game->globalRAM[gptr];
+        }
+        else
+        {
+            if(localRAM[ptr].Size() == 0)
+                return InvalidError(ptr);
+                
+            return localRAM[ptr];
+        }
+    }
+    
+    static size_t getSize(const long ptr)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return size_t(-1);
+            
+        return a.Size();
+    }
+    
+    //Can't you get the std::string and then check its length?
+    static int strlen(const long ptr)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return -1;
+            
+        word count;
+        
+        for(count = 0; checkUserArrayIndex(count, a.Size()) == _NoError && a[count] != '\0'; count++) ;
+        
+        return count;
+    }
+    
+    //Returns values of a zscript array as an std::string.
+    static void getString(const long ptr, std::string &str, word num_chars = 256)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+        {
+            str.clear();
+            return;
+        }
+        
+        str.clear();
+        
+        for(word i = 0; checkUserArrayIndex(i, a.Size()) == _NoError && a[i] != '\0' && num_chars != 0; i++)
+        {
+            str += char(a[i] / 10000);
+            num_chars--;
+        }
+    }
+    
+    //Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
+    static void getValues(const long ptr, long* arrayPtr, word num_values)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return;
+            
+        for(word i = 0; checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
+        {
+            arrayPtr[i] = (a[i] / 10000);
+            num_values--;
+        }
+    }
+    
+    //Get element from array
+    static INLINE long getElement(const long ptr, const long offset)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return -10000;
+            
+        if(checkUserArrayIndex(offset, a.Size()) == _NoError)
+            return a[offset];
+        else
+            return -10000;
+    }
+    
+    //Set element in array
+    static INLINE void setElement(const long ptr, const long offset, const long value)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return;
+            
+        if(checkUserArrayIndex(offset, a.Size()) == _NoError)
+            a[offset] = value;
+    }
+    
+    //Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
+    template <typename T>
+    static int getArray(const long ptr, T *refArray)
+    {
+        return getArray(ptr, getArray(ptr).Size(), 0, 0, 0, refArray);
+    }
+    
+    template <typename T>
+    static int getArray(const long ptr, const word size, T *refArray)
+    {
+        return getArray(ptr, size, 0, 0, 0, refArray);
+    }
+    
+    template <typename T>
+    static int getArray(const long ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return _InvalidPointer;
+            
+        word j = 0, k = userStride;
+        
+        for(word i = 0; j < size; i++)
+        {
+            if(i >= a.Size())
+                return _Overflow;
+                
+            if(userOffset-- > 0)
+                continue;
+                
+            if(k > 0)
+                k--;
+            else if (checkUserArrayIndex(i, a.Size()) == _NoError)
+            {
+                refArray[j + refArrayOffset] = T(a[i]);
+                k = userStride;
+                j++;
+            }
+        }
+        
+        return _NoError;
+    }
+    
+    
+    static int setArray(const long ptr, const std::string s2)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return _InvalidPointer;
+            
+        word i;
+        
+        for(i = 0; i < s2.size(); i++)
+        {
+            if(i >= a.Size())
+            {
+                a.Back() = '\0';
+                return _Overflow;
+            }
+            
+            if(checkUserArrayIndex(i, a.Size()) == _NoError)
+                a[i] = s2[i] * 10000;
+        }
+        
+        if(checkUserArrayIndex(i, a.Size()) == _NoError)
+            a[i] = '\0';
+            
+        return _NoError;
+    }
+    
+    
+    //Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
+    template <typename T>
+    static int setArray(const long ptr, const word size, T *refArray)
+    {
+        return setArray(ptr, size, 0, 0, 0, refArray);
+    }
+    
+    template <typename T>
+    static int setArray(const long ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
+    {
+        ZScriptArray& a = getArray(ptr);
+        
+        if(a == INVALIDARRAY)
+            return _InvalidPointer;
+            
+        word j = 0, k = userStride;
+        
+        for(word i = 0; j < size; i++)
+        {
+            if(i >= a.Size())
+                return _Overflow; //Resize?
+                
+            if(userOffset-- > 0)
+                continue;
+                
+            if(k > 0)
+                k--;
+            else if(checkUserArrayIndex(i, a.Size()) == _NoError)
+            {
+                a[i] = long(refArray[j + refArrayOffset]) * 10000;
+                k = userStride;
+                j++;
+            }
+        }
+        
+        return _NoError;
+    }
+    
+    
+  
+    
+};
 
 extern long ffmisc[32][16];
 extern refInfo ffcScriptData[32];
+
+extern PALETTE tempgreypal; //script greyscale
 
 long get_register(const long arg);
 int run_script(const byte type, const word script, const byte i = -1); //Global scripts don't need 'i'
@@ -17,9 +687,59 @@ void clear_global_stack();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 
+void do_getscreenflags();
+void do_getscreeneflags();
+long get_screendoor(mapscr *m, int d);
+long get_screenlayeropacity(mapscr *m, int d);
+long get_screensecretcombo(mapscr *m, int d);
+long get_screensecretcset(mapscr *m, int d);
+long get_screensecretflag(mapscr *m, int d);
+long get_screenlayermap(mapscr *m, int d);
+long get_screenlayerscreen(mapscr *m, int d);
+long get_screenpath(mapscr *m, int d);
+long get_screenwarpReturnX(mapscr *m, int d);
+long get_screenwarpReturnY(mapscr *m, int d);
+
+long get_screenViewX(mapscr *m);
+long get_screenGuy(mapscr *m);
+long get_screenString(mapscr *m);
+long get_screenRoomtype(mapscr *m);
+long get_screenViewY(mapscr *m);
+long get_screenEntryX(mapscr *m);
+long get_screenEntryY(mapscr *m);
+long get_screenitem(mapscr *m);
+long get_screenundercombo(mapscr *m);
+long get_screenundercset(mapscr *m);
+long get_screenatchall(mapscr *m);
+void do_getscreenLayerOpacity();
+void do_getscreenSecretCombo();
+void do_getscreenSecretCSet();
+void do_getscreenSecretFlag();
+void do_getscreenLayerMap();
+void do_getscreenLayerscreen();
+void do_getscreenPath();
+void do_getscreenWarpReturnX();
+void do_getscreenWarpReturnY();
+void do_getscreenatchall();
+void do_getscreenUndercombo();
+void do_getscreenUnderCSet();
+void do_getscreenWidth();
+void do_getscreenHeight();
+void do_getscreenViewX();
+void do_getscreenGuy();
+void do_getscreenString();
+void do_getscreenRoomType();
+void do_getscreenEntryX();
+void do_getscreenEntryY();
+void do_getscreenItem();
+void do_getscreendoor();
+long get_screennpc(mapscr *m, int index);
+void do_getscreennpc();
+
+
 struct script_command
 {
-    char name[16];
+    char name[64];
     byte args;
     byte arg1_type; //0=reg, 1=val;
     byte arg2_type; //0=reg, 1=val;
@@ -28,10 +748,25 @@ struct script_command
 
 struct script_variable
 {
-    char name[16];
+    char name[64];
     long id;
     word maxcount;
     byte multiple;
+};
+
+//Should these be here in this engine version? -Z
+struct quad3Dstruct
+{
+    int index;
+    float pos[12], uv[8];
+    int size[2], color[4];
+};
+
+struct triangle3Dstruct
+{
+    int index;
+    float pos[9], uv[6];
+    int size[2], color[3];
 };
 
 // Defines for script flags
@@ -46,250 +781,596 @@ struct script_variable
 // Defines for the ASM operations
 enum ASM_DEFINE
 {
-    SETV,                 //0x0000
-    SETR,                 //0x0001
-    ADDR,                 //0x0002
-    ADDV,                 //0x0003
-    SUBR,                 //0x0004
-    SUBV,                 //0x0005
-    MULTR,                //0x0006
-    MULTV,                //0x0007
-    DIVR,                 //0x0008
-    DIVV,                 //0x0009
-    WAITFRAME,            //0x000A
-    GOTO,                 //0x000B
-    CHECKTRIG,            //0x000C //NOT IMPLEMENTED
-    WARP,                 //0x000D
-    COMPARER,             //0x000E
-    COMPAREV,             //0x000F
-    GOTOTRUE,             //0x0010
-    GOTOFALSE,            //0x0011
-    GOTOLESS,             //0x0012
-    GOTOMORE,             //0x0013
-    LOAD1,                //0x0014
-    LOAD2,                //0x0015
-    SETA1,                //0x0016
-    SETA2,                //0x0017
-    QUIT,                 //0x0018
-    SINR,                 //0x0019
-    SINV,                 //0x001A
-    COSR,                 //0x001B
-    COSV,                 //0x001C
-    TANR,                 //0x001D
-    TANV,                 //0x001E
-    MODR,                 //0x001F
-    MODV,                 //0x0020
-    ABSR,                 //0x0021
-    MINR,                 //0x0022
-    MINV,                 //0x0023
-    MAXR,                 //0x0024
-    MAXV,                 //0x0025
-    RNDR,                 //0x0026
-    RNDV,                 //0x0027
-    FACTORIAL,            //0x0028
-    POWERR,               //0x0029
-    POWERV,               //0x002A
-    IPOWERR,              //0x002B
-    IPOWERV,              //0x002C
-    ANDR,                 //0x002D
-    ANDV,                 //0x002E
-    ORR,                  //0x002F
-    ORV,                  //0x0030
-    XORR,                 //0x0031
-    XORV,                 //0x0032
-    NANDR,                //0x0033
-    NANDV,                //0x0034
-    NORR,                 //0x0035
-    NORV,                 //0x0036
-    XNORR,                //0x0037
-    XNORV,                //0x0038
-    NOT,                  //0x0039
-    LSHIFTR,              //0x003A
-    LSHIFTV,              //0x003B
-    RSHIFTR,              //0x003C
-    RSHIFTV,              //0x003D
-    TRACER,               //0x003E
-    TRACEV,               //0x003F
-    TRACE3,               //0x0040
-    LOOP,                 //0x0041
-    PUSHR,                //0x0042
-    PUSHV,                //0x0043
-    POP,                  //0x0044
-    ENQUEUER,             //0x0045 //NOT IMPLEMENTED
-    ENQUEUEV,             //0x0046 //NOT IMPLEMENTED
-    DEQUEUE,              //0x0047 //NOT IMPLEMENTED
-    PLAYSOUNDR,           //0x0048
-    PLAYSOUNDV,           //0x0049
-    LOADLWEAPONR,          //0x004A
-    LOADLWEAPONV,          //0x004B
-    LOADITEMR,             //0x004C
-    LOADITEMV,             //0x004D
-    LOADNPCR,              //0x004E
-    LOADNPCV,              //0x004F
-    CREATELWEAPONR,        //0x0050
-    CREATELWEAPONV,        //0x0051
-    CREATEITEMR,           //0x0052
-    CREATEITEMV,           //0x0053
-    CREATENPCR,            //0x0054
-    CREATENPCV,            //0x0055
-    LOADI,                 //0x0056
-    STOREI,                //0x0057
-    GOTOR,                 //0x0058
-    SQROOTV,               //0x0059
-    SQROOTR,               //0x005A
-    CREATEEWEAPONR,        //0x005B
-    CREATEEWEAPONV,        //0x005C
-    PITWARP,               //0x005D
-    WARPR,                 //0x005E
-    PITWARPR,              //0x005F
-    CLEARSPRITESR,         //0x0060
-    CLEARSPRITESV,         //0x0061
-    RECTR,                 //0x0062
-    CIRCLER,               //0x0063
-    ARCR,                  //0x0064
-    ELLIPSER,              //0x0065
-    LINER,                 //0x0066
-    PUTPIXELR,             //0x0067
-    DRAWTILER,             //0x0068
-    DRAWCOMBOR,            //0x0069
-    ELLIPSE2,              //0x006A
-    SPLINER,               //0x006B
-    FLOODFILL,             //0x006C
-    COMPOUNDR,             //0x006D
-    COMPOUNDV,             //0x006E
-    MSGSTRR,               //0x006F
-    MSGSTRV,               //0x0070
-    ISVALIDITEM,           //0x0071
-    ISVALIDNPC,            //0x0072
-    PLAYMIDIR,             //0x0073
-    PLAYMIDIV,             //0x0074
-    COPYTILEVV,            //0x0075
-    COPYTILEVR,            //0x0076
-    COPYTILERV,            //0x0077
-    COPYTILERR,            //0x0078
-    SWAPTILEVV,            //0x0079
-    SWAPTILEVR,            //0x007A
-    SWAPTILERV,            //0x007B
-    SWAPTILERR,            //0x007C
-    CLEARTILEV,            //0x007D
-    CLEARTILER,            //0x007E
-    OVERLAYTILEVV,         //0x007F
-    OVERLAYTILEVR,         //0x0080
-    OVERLAYTILERV,         //0x0081
-    OVERLAYTILERR,         //0x0082
-    FLIPROTTILEVV,         //0x0083
-    FLIPROTTILEVR,         //0x0084
-    FLIPROTTILERV,         //0x0085
-    FLIPROTTILERR,         //0x0086
-    GETTILEPIXELV,         //0x0087
-    GETTILEPIXELR,         //0x0088
-    SETTILEPIXELV,         //0x0089
-    SETTILEPIXELR,         //0x008A
-    SHIFTTILEVV,           //0x008B
-    SHIFTTILEVR,           //0x008C
-    SHIFTTILERV,           //0x008D
-    SHIFTTILERR,           //0x008E
-    ISVALIDLWPN,           //0x008F
-    ISVALIDEWPN,           //0x0090
-    LOADEWEAPONR,          //0x0091
-    LOADEWEAPONV,          //0x0092
-    ALLOCATEMEMR,          //0x0093
-    ALLOCATEMEMV,          //0x0094
-    ALLOCATEGMEMV,         //0x0095
-    DEALLOCATEMEMR,		 //0x0096
-    DEALLOCATEMEMV,		 //0x0097 //Pointless, can't deallocate a value
-    WAITDRAW,				 //0x0098
-    ARCTANR,				 //0x0099
-    LWPNUSESPRITER,		 //0x09A
-    LWPNUSESPRITEV,		 //0x09B
-    EWPNUSESPRITER,		 //0x09C
-    EWPNUSESPRITEV,		 //0x09D
-    LOADITEMDATAR,		 //0x09E
-    LOADITEMDATAV,		 //0x09F
-    BITNOT,				 //0x00A0
-    LOG10,				 //0x00A1
-    LOGE,                  //0x00A2
-    ISSOLID,               //0x00A3
-    LAYERSCREEN,           //0x00A4
-    LAYERMAP,              //0x00A5
-    TRACE2R,		    //0x00A6
-    TRACE2V,		    //0x00A7
-    TRACE4,			    //0x00A8
-    TRACE5,			    //0x00A9
-    SECRETS,		    //0x00AA
-    DRAWCHARR,		    //0x00AB
-    GETSCREENFLAGS,	    //0x00AC
-    QUADR,              //0X00AD
-    TRIANGLER,          //0X00AE
-    ARCSINR,              //0x00AF
-    ARCSINV,              //0x00B0
-    ARCCOSR,              //0x00B1
-    ARCCOSV,              //0x00B2
-    GAMEEND,              //0x00B3
-    DRAWINTR,             //0x00B4
-    SETTRUE,              //0x00B5
-    SETFALSE,             //0x00B6
-    SETMORE,              //0x00B7
-    SETLESS,              //0x00B8
-    FASTTILER,            //0x00B9
-    FASTCOMBOR,           //0x00BA
-    DRAWSTRINGR,          //0x00BB
-    SETSIDEWARP,			//0x00BC
-    SAVE,				    //0x00BD
-    TRACE6,				//0x00BE
-    WHATNO0x00BF, //PTROFF,//0x00BF
-    QUAD3DR,              //0x00C0
-    TRIANGLE3DR,          //0x00C1
-    SETCOLORB,        	//0x00C2 for 2.6
-    SETDEPTHB,        	//0x00C3 '
-    GETCOLORB,        	//0x00C4 '
-    GETDEPTHB,        	//0x00C5 '
-    COMBOTILE,			//0x00C6
-    SETTILEWARP,			//0x00C7
-    GETSCREENEFLAGS,		//0x00C8
-    GETSAVENAME,          //0x00C9
-    ARRAYSIZE,            //0x00CA
-    ITEMNAME,             //0x00CB
-    SETSAVENAME,          //0x00CC
-    NPCNAME,         		//0x00CD
-    GETMESSAGE,			//0x00CE
-    GETDMAPNAME,			//0x00CF
-    GETDMAPTITLE,			//0x00D0
-    GETDMAPINTRO,			//0x00D1
-    ALLOCATEGMEMR,        //0x00D2
-    BITMAPR,         		//0x00D3
-    SETRENDERTARGET,      //0x00D4
-    PLAYENHMUSIC,         //0x00D5
-    GETMUSICFILE,         //0x00D6
-    GETMUSICTRACK,        //0x00D7
-    SETDMAPENHMUSIC,      //0x00D8
-    DRAWLAYERR,           //0x00D9
-    DRAWSCREENR,          //0x00DA
-    BREAKSHIELD,          //0x00DB
-    SAVESCREEN,           //0x00DC
-    SAVEQUITSCREEN,       //0x00DD
-    SELECTAWPNR,          //0x00DE
-    SELECTAWPNV,          //0x00DF
-    SELECTBWPNR,          //0x00E0
-    SELECTBWPNV,          //0x00E1
-    GETSIDEWARPDMAP,      //0x00E2
-    GETSIDEWARPSCR,       //0x00E3
-    GETSIDEWARPTYPE,      //0x00E4
-    GETTILEWARPDMAP,      //0x00E5
-    GETTILEWARPSCR,       //0x00E6
-    GETTILEWARPTYPE,      //0x00E7
-    GETFFCSCRIPT,         //0x00E8
-    /* ..sorry, forgot about these ...for now. -Gleeok
-      CALCSPLINE,           //0x00
-      COLLISIONRECT,  ?      //0x00
-      COLLISIONBOX,   ?      //0x00
-      SETBITMAPBUFFER,
-      GETBITMAPBUFFER,
-      CLEARBITMAPBUFFER,
-      RENDERBITMAPBUFFER,
-    */
-    NUMCOMMANDS           //0x00E9
+	SETV,                 //0x0000
+	SETR,                 //0x0001
+	ADDR,                 //0x0002
+	ADDV,                 //0x0003
+	SUBR,                 //0x0004
+	SUBV,                 //0x0005
+	MULTR,                //0x0006
+	MULTV,                //0x0007
+	DIVR,                 //0x0008
+	DIVV,                 //0x0009
+	WAITFRAME,            //0x000A
+	GOTO,                 //0x000B
+	CHECKTRIG,            //0x000C //NOT IMPLEMENTED
+	WARP,                 //0x000D
+	COMPARER,             //0x000E
+	COMPAREV,             //0x000F
+	GOTOTRUE,             //0x0010
+	GOTOFALSE,            //0x0011
+	GOTOLESS,             //0x0012
+	GOTOMORE,             //0x0013
+	LOAD1,                //0x0014
+	LOAD2,                //0x0015
+	SETA1,                //0x0016
+	SETA2,                //0x0017
+	QUIT,                 //0x0018
+	SINR,                 //0x0019
+	SINV,                 //0x001A
+	COSR,                 //0x001B
+	COSV,                 //0x001C
+	TANR,                 //0x001D
+	TANV,                 //0x001E
+	MODR,                 //0x001F
+	MODV,                 //0x0020
+	ABSR,                 //0x0021
+	MINR,                 //0x0022
+	MINV,                 //0x0023
+	MAXR,                 //0x0024
+	MAXV,                 //0x0025
+	RNDR,                 //0x0026
+	RNDV,                 //0x0027
+	FACTORIAL,            //0x0028
+	POWERR,               //0x0029
+	POWERV,               //0x002A
+	IPOWERR,              //0x002B
+	IPOWERV,              //0x002C
+	ANDR,                 //0x002D
+	ANDV,                 //0x002E
+	ORR,                  //0x002F
+	ORV,                  //0x0030
+	XORR,                 //0x0031
+	XORV,                 //0x0032
+	NANDR,                //0x0033
+	NANDV,                //0x0034
+	NORR,                 //0x0035
+	NORV,                 //0x0036
+	XNORR,                //0x0037
+	XNORV,                //0x0038
+	NOT,                  //0x0039
+	LSHIFTR,              //0x003A
+	LSHIFTV,              //0x003B
+	RSHIFTR,              //0x003C
+	RSHIFTV,              //0x003D
+	TRACER,               //0x003E
+	TRACEV,               //0x003F
+	TRACE3,               //0x0040
+	LOOP,                 //0x0041
+	PUSHR,                //0x0042
+	PUSHV,                //0x0043
+	POP,                  //0x0044
+	ENQUEUER,             //0x0045 //NOT IMPLEMENTED
+	ENQUEUEV,             //0x0046 //NOT IMPLEMENTED
+	DEQUEUE,              //0x0047 //NOT IMPLEMENTED
+	PLAYSOUNDR,           //0x0048
+	PLAYSOUNDV,           //0x0049
+	LOADLWEAPONR,          //0x004A
+	LOADLWEAPONV,          //0x004B
+	LOADITEMR,             //0x004C
+	LOADITEMV,             //0x004D
+	LOADNPCR,              //0x004E
+	LOADNPCV,              //0x004F
+	CREATELWEAPONR,        //0x0050
+	CREATELWEAPONV,        //0x0051
+	CREATEITEMR,           //0x0052
+	CREATEITEMV,           //0x0053
+	CREATENPCR,            //0x0054
+	CREATENPCV,            //0x0055
+	LOADI,                 //0x0056
+	STOREI,                //0x0057
+	GOTOR,                 //0x0058
+	SQROOTV,               //0x0059
+	SQROOTR,               //0x005A
+	CREATEEWEAPONR,        //0x005B
+	CREATEEWEAPONV,        //0x005C
+	PITWARP,               //0x005D
+	WARPR,                 //0x005E
+	PITWARPR,              //0x005F
+	CLEARSPRITESR,         //0x0060
+	CLEARSPRITESV,         //0x0061
+	RECTR,                 //0x0062
+	CIRCLER,               //0x0063
+	ARCR,                  //0x0064
+	ELLIPSER,              //0x0065
+	LINER,                 //0x0066
+	PUTPIXELR,             //0x0067
+	DRAWTILER,             //0x0068
+	DRAWCOMBOR,            //0x0069
+	ELLIPSE2,              //0x006A
+	SPLINER,               //0x006B
+	FLOODFILL,             //0x006C
+	COMPOUNDR,             //0x006D
+	COMPOUNDV,             //0x006E
+	MSGSTRR,               //0x006F
+	MSGSTRV,               //0x0070
+	ISVALIDITEM,           //0x0071
+	ISVALIDNPC,            //0x0072
+	PLAYMIDIR,             //0x0073
+	PLAYMIDIV,             //0x0074
+	COPYTILEVV,            //0x0075
+	COPYTILEVR,            //0x0076
+	COPYTILERV,            //0x0077
+	COPYTILERR,            //0x0078
+	SWAPTILEVV,            //0x0079
+	SWAPTILEVR,            //0x007A
+	SWAPTILERV,            //0x007B
+	SWAPTILERR,            //0x007C
+	CLEARTILEV,            //0x007D
+	CLEARTILER,            //0x007E
+	OVERLAYTILEVV,         //0x007F
+	OVERLAYTILEVR,         //0x0080
+	OVERLAYTILERV,         //0x0081
+	OVERLAYTILERR,         //0x0082
+	FLIPROTTILEVV,         //0x0083
+	FLIPROTTILEVR,         //0x0084
+	FLIPROTTILERV,         //0x0085
+	FLIPROTTILERR,         //0x0086
+	GETTILEPIXELV,         //0x0087
+	GETTILEPIXELR,         //0x0088
+	SETTILEPIXELV,         //0x0089
+	SETTILEPIXELR,         //0x008A
+	SHIFTTILEVV,           //0x008B
+	SHIFTTILEVR,           //0x008C
+	SHIFTTILERV,           //0x008D
+	SHIFTTILERR,           //0x008E
+	ISVALIDLWPN,           //0x008F
+	ISVALIDEWPN,           //0x0090
+	LOADEWEAPONR,          //0x0091
+	LOADEWEAPONV,          //0x0092
+	ALLOCATEMEMR,          //0x0093
+	ALLOCATEMEMV,          //0x0094
+	ALLOCATEGMEMV,         //0x0095
+	DEALLOCATEMEMR,		 //0x0096
+	DEALLOCATEMEMV,		 //0x0097 //Pointless, can't deallocate a value
+	WAITDRAW,				 //0x0098
+	ARCTANR,				 //0x0099
+	LWPNUSESPRITER,		 //0x09A
+	LWPNUSESPRITEV,		 //0x09B
+	EWPNUSESPRITER,		 //0x09C
+	EWPNUSESPRITEV,		 //0x09D
+	LOADITEMDATAR,		 //0x09E
+	LOADITEMDATAV,		 //0x09F
+	BITNOT,				 //0x00A0
+	LOG10,				 //0x00A1
+	LOGE,                  //0x00A2
+	ISSOLID,               //0x00A3
+	LAYERSCREEN,           //0x00A4
+	LAYERMAP,              //0x00A5
+	TRACE2R,		    //0x00A6
+	TRACE2V,		    //0x00A7
+	TRACE4,			    //0x00A8
+	TRACE5,			    //0x00A9
+	SECRETS,		    //0x00AA
+	DRAWCHARR,		    //0x00AB
+	GETSCREENFLAGS,	    //0x00AC
+	QUADR,              //0X00AD
+	TRIANGLER,          //0X00AE
+	ARCSINR,              //0x00AF
+	ARCSINV,              //0x00B0
+	ARCCOSR,              //0x00B1
+	ARCCOSV,              //0x00B2
+	GAMEEND,              //0x00B3
+	DRAWINTR,             //0x00B4
+	SETTRUE,              //0x00B5
+	SETFALSE,             //0x00B6
+	SETMORE,              //0x00B7
+	SETLESS,              //0x00B8
+	FASTTILER,            //0x00B9
+	FASTCOMBOR,           //0x00BA
+	DRAWSTRINGR,          //0x00BB
+	SETSIDEWARP,			//0x00BC
+	SAVE,				    //0x00BD
+	TRACE6,				//0x00BE
+	WHATNO0x00BF, //PTROFF,//0x00BF
+	QUAD3DR,              //0x00C0
+	TRIANGLE3DR,          //0x00C1
+	SETCOLORB,        	//0x00C2 for 2.6
+	SETDEPTHB,        	//0x00C3 '
+	GETCOLORB,        	//0x00C4 '
+	GETDEPTHB,        	//0x00C5 '
+	COMBOTILE,			//0x00C6
+	SETTILEWARP,			//0x00C7
+	GETSCREENEFLAGS,		//0x00C8
+	GETSAVENAME,          //0x00C9
+	ARRAYSIZE,            //0x00CA
+	ITEMNAME,             //0x00CB
+	SETSAVENAME,          //0x00CC
+	NPCNAME,         		//0x00CD
+	GETMESSAGE,			//0x00CE
+	GETDMAPNAME,			//0x00CF
+	GETDMAPTITLE,			//0x00D0
+	GETDMAPINTRO,			//0x00D1
+	ALLOCATEGMEMR,        //0x00D2
+	BITMAPR,         		//0x00D3
+	SETRENDERTARGET,      //0x00D4
+	PLAYENHMUSIC,         //0x00D5
+	GETMUSICFILE,         //0x00D6
+	GETMUSICTRACK,        //0x00D7
+	SETDMAPENHMUSIC,      //0x00D8
+	DRAWLAYERR,           //0x00D9
+	DRAWSCREENR,          //0x00DA
+	BREAKSHIELD,          //0x00DB
+	SAVESCREEN,           //0x00DC
+	SAVEQUITSCREEN,       //0x00DD
+	SELECTAWPNR,          //0x00DE
+	SELECTAWPNV,          //0x00DF
+	SELECTBWPNR,          //0x00E0
+	SELECTBWPNV,          //0x00E1
+	GETSIDEWARPDMAP,      //0x00E2
+	GETSIDEWARPSCR,       //0x00E3
+	GETSIDEWARPTYPE,      //0x00E4
+	GETTILEWARPDMAP,      //0x00E5
+	GETTILEWARPSCR,       //0x00E6
+	GETTILEWARPTYPE,      //0x00E7
+	GETFFCSCRIPT,         //0x00E8
+	BITMAPEXR,	//0x00E9
+	__RESERVED_FOR_QUAD2R, //0x00EA
+	WAVYIN, //0x00EB
+	WAVYOUT, //0x00EC
+	ZAPIN, //0x00ED
+	ZAPOUT, //0x00EF
+	OPENWIPE, //0x00F0
+	FREE0x00F1, //0x00F1 was SETLINKTILE
+	FREE0x00F2, //0x00F2 was SETLINKEXTEND
+	FREE0x00F3, //0x00F3 was GETLINKEXTEND
+	SETMESSAGE,			//0x00F4
+	SETDMAPNAME,			//0x00F5
+	SETDMAPTITLE,			//0x00F5
+	SETDMAPINTRO,			//0x00F7
+	GREYSCALEON,			//0x00F8
+	GREYSCALEOFF,			//0x00F9
+	ENDSOUNDR,           //0x00FA
+	ENDSOUNDV,           //0x00FB
+	PAUSESOUNDR, 	//0x00FC
+	PAUSESOUNDV,	//0x00FD
+	RESUMESOUNDR,	//0x00FE
+	RESUMESOUNDV,	//0x00FF
+	PAUSEMUSIC,		//0x0100
+	RESUMEMUSIC,	//0x0101
+	LWPNARRPTR,	//0x0102
+	EWPNARRPTR,	//0x0103
+	ITEMARRPTR,	//0x0104
+	IDATAARRPTR,	//0x0105
+	FFCARRPTR,	//0x0106
+	BOOLARRPTR,	//0x0107
+	NPCARRPTR,	//0x0108
+	LWPNARRPTR2,	//0x0109
+	EWPNARRPTR2,	//0x0110
+	ITEMARRPTR2,	//0x0111
+	IDATAARRPTR2,	//0x0112
+	FFCARRPTR2,	//0x0113
+	BOOLARRPTR2,	//0x0114
+	NPCARRPTR2,	//0x0115
+	ARRAYSIZEB,            //0x0116
+	ARRAYSIZEF,            //0x0117 
+	ARRAYSIZEN,            //0x0118
+	ARRAYSIZEL,            //0x0119
+	ARRAYSIZEE,            //0x011A
+	ARRAYSIZEI,            //0x011B
+	ARRAYSIZEID,            //0x011C
+	POLYGONR,		//0x011D
+	__RESERVED_FOR_POLYGON3DR,		//0x011E
+	__RESERVED_FOR_SETRENDERSOURCE,	//0x011F
+	__RESERVED_FOR_CREATEBITMAP,	//0x0120
+	__RESERVED_FOR_PIXELARRAYR,	//0x0121
+	__RESERVED_FOR_TILEARRAYR,		//0x0122
+	__RESERVED_FOR_COMBOARRAYR,	//0x0123
+	RES0000,		//0x0124
+	RES0001,		//0x0125
+	RES0002,		//0x0126
+	RES0003,		//0x0127
+	RES0004,		//0x0128
+	RES0005,		//0x0129
+	RES0006,		//0x012A
+	RES0007,		//0x012B
+	RES0008,		//0x012C
+	RES0009,		//0x012D
+	RES000A,		//0x012E
+	RES000B,		//0x012F
+	RES000C,		//0x0130
+	RES000D,		//0x0131
+	RES000E,		//0x0132
+	RES000F,		//0x0133
+	__RESERVED_FOR_CREATELWPN2VV,            //0x0134
+	__RESERVED_FOR_CREATELWPN2VR,            //0x0135
+	__RESERVED_FOR_CREATELWPN2RV,            //0x0136
+	__RESERVED_FOR_CREATELWPN2RR,            //0x0137
+	GETSCREENDOOR, //0x0138
+	GETSCREENENEMY, //0x0139
+	PAUSESFX,
+	RESUMESFX,
+	CONTINUESFX,
+	ADJUSTSFX,
+	//__RESERVED_FOR_GETSCREENFLAG, //0x013A
+	GETITEMSCRIPT,
+	GETSCREENLAYOP,
+	GETSCREENSECCMB,
+	GETSCREENSECCST,
+	GETSCREENSECFLG,
+	GETSCREENLAYMAP,
+	GETSCREENLAYSCR,
+	GETSCREENPATH,
+	GETSCREENWARPRX,
+	GETSCREENWARPRY,
+	TRIGGERSECRETR,
+	TRIGGERSECRETV,
+	CHANGEFFSCRIPTR,
+	CHANGEFFSCRIPTV,
+	
+	//NPCData
+	GETNPCDATAFLAGS,
+	GETNPCDATAFLAGS2,
+	GETNPCDATAWIDTH,
+	GETNPCDATAHEIGHT,
+	GETNPCDATASTILE,
+	GETNPCDATASWIDTH,
+	GETNPCDATASHEIGHT,
+	GETNPCDATAETILE,
+	GETNPCDATAEWIDTH,
+	GETNPCDATAHP,
+	GETNPCDATAFAMILY,
+	GETNPCDATACSET,
+	GETNPCDATAANIM,
+	GETNPCDATAEANIM,
+	GETNPCDATAFRAMERATE,
+	GETNPCDATAEFRAMERATE,
+	GETNPCDATATOUCHDMG,
+	GETNPCDATAWPNDAMAGE,
+	GETNPCDATAWEAPON,
+	GETNPCDATARANDOM,
+	GETNPCDATAHALT,
+	GETNPCDATASTEP,
+	GETNPCDATAHOMING,
+	GETNPCDATAHUNGER,
+	GETNPCDATADROPSET,
+	GETNPCDATABGSFX,
+	GETNPCDATADEATHSFX,
+	GETNPCDATAXOFS,
+	GETNPCDATAYOFS,
+	GETNPCDATAZOFS,
+	GETNPCDATAHXOFS,
+	GETNPCDATAHYOFS,
+	GETNPCDATAHITWIDTH,
+	GETNPCDATAHITHEIGHT,
+	GETNPCDATAHITZ,
+	GETNPCDATATILEWIDTH,
+	GETNPCDATATILEHEIGHT,
+	GETNPCDATAWPNSPRITE,
+	//TWO INPUTS, ONE RETURN
+	GETNPCDATASCRIPTDEF,
+	GETNPCDATADEFENSE,
+	GETNPCDATASIZEFLAG,
+	GETNPCDATAATTRIBUTE,
+
+	//TWO INPUTS, ONE RETURN
+	SETNPCDATAFLAGS,
+	SETNPCDATAFLAGS2,
+	SETNPCDATAWIDTH,
+	SETNPCDATAHEIGHT,
+	SETNPCDATASTILE,
+	SETNPCDATASWIDTH,
+	SETNPCDATASHEIGHT,
+	SETNPCDATAETILE,
+	SETNPCDATAEWIDTH,
+	SETNPCDATAHP,
+	SETNPCDATAFAMILY,
+	SETNPCDATACSET,
+	SETNPCDATAANIM,
+	SETNPCDATAEANIM,
+	SETNPCDATAFRAMERATE,
+	SETNPCDATAEFRAMERATE,
+	SETNPCDATATOUCHDMG,
+	SETNPCDATAWPNDAMAGE,
+	SETNPCDATAWEAPON,
+	SETNPCDATARANDOM,
+	SETNPCDATAHALT,
+	SETNPCDATASTEP,
+	SETNPCDATAHOMING,
+	SETNPCDATAHUNGER,
+	SETNPCDATADROPSET,
+	SETNPCDATABGSFX,
+	SETNPCDATADEATHSFX,
+	SETNPCDATAXOFS,
+	SETNPCDATAYOFS,
+	SETNPCDATAZOFS,
+	SETNPCDATAHXOFS,
+	SETNPCDATAHYOFS,
+	SETNPCDATAHITWIDTH,
+	SETNPCDATAHITHEIGHT,
+	SETNPCDATAHITZ,
+	SETNPCDATATILEWIDTH,
+	SETNPCDATATILEHEIGHT,
+	SETNPCDATAWPNSPRITE,
+	SETNPCDATAHITSFX,
+	GETNPCDATAHITSFX,
+	//ComboData
+	GCDBLOCKENEM,
+	GCDBLOCKHOLE,
+	GCDBLOCKTRIG,
+	GCDCONVEYSPDX,
+	GCDCONVEYSPDY,
+	GCDCREATEENEM,
+	GCDCREATEENEMWH,
+	GCDCREATEENEMCH,
+	GCDDIRCHTYPE,
+	GCDDISTCHTILES,
+	GCDDIVEITEM,
+	GCDDOCK,
+	GCDFAIRY,
+	GCDFFCOMBOATTRIB,
+	GCDFOOTDECOTILE,
+	GCDFOOTDECOTYPE,
+	GCDHOOKSHOTGRAB,
+	GCDLADDERPASS,
+	GCDLOCKBLOCKTYPE,
+	GCDLOCKBLOCKCHANGE,
+	GCDMAGICMIRRORTYPE,
+	GCDMODIFYHPAMOUNT,
+	GCDMODIFYHPDELAY,
+	GCDMODIFYHPTYPE,
+	GCDMODIFYMPAMOUNT,
+	GCDMODIFYMPDELAY,
+	GCDMODIFYMPTYPE,
+	GCDNOPUSHBLOCKS,
+	GCDOVERHEAD,
+	GCDPLACEENEMY,
+	GCDPUSHDIR,
+	GCDPUSHWEIGHT,
+	GCDPUSHWAIT,
+	GCDPUSHED,
+	GCDRAFT,
+	GCDRESETROOM,
+	GCDSAVEPOINT,
+	GCDSCREENFREEZE,
+	GCDSECRETCOMBO,
+	GCDSINGULAR,
+	GCDSLOWMOVE,
+	GCDSTATUE,
+	GCDSTEPTYPE,
+	GCDSTEPCHANGETO,
+	GCDSTRIKEREMNANTS,
+	GCDSTRIKEREMNANTSTYPE,
+	GCDSTRIKECHANGE,
+	GCDSTRIKECHANGEITEM,
+	GCDTOUCHITEM,
+	GCDTOUCHSTAIRS,
+	GCDTRIGGERTYPE,
+	GCDTRIGGERSENS,
+	GCDWARPTYPE,
+	GCDWARPSENS,
+	GCDWARPDIRECT,
+	GCDWARPLOCATION,
+	GCDWATER,
+	GCDWHISTLE,
+	GCDWINGAME,
+	GCDBLOCKWEAPLVL,
+	GCDTILE,
+	GCDFLIP,
+	GCDWALK,
+	GCDTYPE,
+	GCDCSETS,
+	GCDFOO,
+	GCDFRAMES,
+	GCDSPEED,
+	GCDNEXTCOMBO,
+	GCDNEXTCSET,
+	GCDFLAG,
+	GCDSKIPANIM,
+	GCDNEXTTIMER,
+	GCDSKIPANIMY,
+	GCDANIMFLAGS,
+	GCDBLOCKWEAPON,
+	GCDEXPANSION,
+	GCDSTRIKEWEAPONS,
+	SCDBLOCKENEM,
+	SCDBLOCKHOLE,
+	SCDBLOCKTRIG,
+	SCDCONVEYSPDX,
+	SCDCONVEYSPDY,
+	SCDCREATEENEM,
+	SCDCREATEENEMWH,
+	SCDCREATEENEMCH,
+	SCDDIRCHTYPE,
+	SCDDISTCHTILES,
+	SCDDIVEITEM,
+	SCDDOCK,
+	SCDFAIRY,
+	SCDFFCOMBOATTRIB,
+	SCDFOOTDECOTILE,
+	SCDFOOTDECOTYPE,
+	SCDHOOKSHOTGRAB,
+	SCDLADDERPASS,
+	SCDLOCKBLOCKTYPE,
+	SCDLOCKBLOCKCHANGE,
+	SCDMAGICMIRRORTYPE,
+	SCDMODIFYHPAMOUNT,
+	SCDMODIFYHPDELAY,
+	SCDMODIFYHPTYPE,
+	SCDMODIFYMPAMOUNT,
+	SCDMODIFYMPDELAY,
+	SCDMODIFYMPTYPE,
+	SCDNOPUSHBLOCKS,
+	SCDOVERHEAD,
+	SCDPLACEENEMY,
+	SCDPUSHDIR,
+	SCDPUSHWEIGHT,
+	SCDPUSHWAIT,
+	SCDPUSHED,
+	SCDRAFT,
+	SCDRESETROOM,
+	SCDSAVEPOINT,
+	SCDSCREENFREEZE,
+	SCDSECRETCOMBO,
+	SCDSINGULAR,
+	SCDSLOWMOVE,
+	SCDSTATUE,
+	SCDSTEPTYPE,
+	SCDSTEPCHANGETO,
+	SCDSTRIKEREMNANTS,
+	SCDSTRIKEREMNANTSTYPE,
+	SCDSTRIKECHANGE,
+	SCDSTRIKECHANGEITEM,
+	SCDTOUCHITEM,
+	SCDTOUCHSTAIRS,
+	SCDTRIGGERTYPE,
+	SCDTRIGGERSENS,
+	SCDWARPTYPE,
+	SCDWARPSENS,
+	SCDWARPDIRECT,
+	SCDWARPLOCATION,
+	SCDWATER,
+	SCDWHISTLE,
+	SCDWINGAME,
+	SCDBLOCKWEAPLVL,
+	SCDTILE,
+	SCDFLIP,
+	SCDWALK,
+	SCDTYPE,
+	SCDCSETS,
+	SCDFOO,
+	SCDFRAMES,
+	SCDSPEED,
+	SCDNEXTCOMBO,
+	SCDNEXTCSET,
+	SCDFLAG,
+	SCDSKIPANIM,
+	SCDNEXTTIMER,
+	SCDSKIPANIMY,
+	SCDANIMFLAGS,
+	GETNPCDATATILE,
+	GETNPCDATAEHEIGHT,
+	SETNPCDATATILE,
+	SETNPCDATAEHEIGHT,
+	//SpriteData
+	GETSPRITEDATASTRING,
+	GETSPRITEDATATILE,
+	GETSPRITEDATAMISC,
+	GETSPRITEDATACGETS,
+	GETSPRITEDATAFRAMES,
+	GETSPRITEDATASPEED,
+	GETSPRITEDATATYPE,
+	SETSPRITEDATASTRING,
+	SETSPRITEDATATILE,
+	SETSPRITEDATAMISC,
+	SETSPRITEDATACSETS,
+	SETSPRITEDATAFRAMES,
+	SETSPRITEDATASPEED,
+	SETSPRITEDATATYPE,
+	
+	NUMCOMMANDS           //0x013B
 };
+
 
 //ZASM registers
 //When adding indexed variables the index will be loaded into ri.d[0], don't add a register for each one!
@@ -349,18 +1430,19 @@ enum ASM_DEFINE
 #define LINKFLIP             0x0247
 #define INPUTPRESSMAP        0x0248
 //0x0249-0x0258 are reserved for future Link variables
-#define UNUSED25             0x0249
-#define UNUSED26             0x024A
-#define UNUSED27             0x024B
-#define UNUSED28             0x024C
-#define UNUSED29             0x024D
-#define UNUSED30             0x024E
-#define UNUSED31             0x024F
-#define UNUSED32             0x0250
-#define UNUSED33             0x0251
-#define UNUSED34             0x0252
-#define UNUSED35             0x0253
-#define UNUSED36             0x0254
+#define LINKDIAG             0x0249
+#define LINKBIGHITBOX             0x024A
+#define __RESERVED_FOR_LINKRETSQUARE             0x024B
+#define __RESERVED_FOR_LINKWARPSOUND             0x024C
+//LINKWARPMUSIC
+#define LINKUSINGITEM             0x024D
+#define LINKUSINGITEMA             0x024E
+#define LINKUSINGITEMB             0x024F
+#define __RESERVED_FOR_PLAYWARPSOUND             0x0250
+#define __RESERVED_FOR_WARPEFFECT             0x0251
+#define __RESERVED_FOR_PLAYPITWARPSFX             0x0252
+#define LINKEATEN             0x0253
+#define __RESERVED_FOR_LINKEXTEND             0x0254
 #define UNUSED37             0x0255
 #define UNUSED38             0x0256
 #define UNUSED39             0x0257
@@ -392,7 +1474,7 @@ enum ASM_DEFINE
 #define LWPNJUMP             0x0270
 #define LWPNCOLLDET          0x0271
 //   0x0272-   0x028B are reserved for future weapon variables
-#define UNUSED47             0x0272
+#define LWPNRANGE             0x0272
 #define UNUSED48             0x0273
 #define UNUSED49             0x0274
 #define UNUSED50             0x0275
@@ -448,24 +1530,24 @@ enum ASM_DEFINE
 #define IDATAPOWER           0x02A6
 
 //0x02A7-0x02B9 are reserved for future item variables
-#define UNUSED86             0x02A7
-#define UNUSED87             0x02A8
-#define UNUSED88             0x02A9
-#define UNUSED89             0x02AA
-#define UNUSED90             0x02AB
-#define UNUSED91             0x02AC
-#define UNUSED92             0x02AD
-#define UNUSED93             0x02AE
-#define UNUSED94             0x02AF
-#define UNUSED95             0x02B0
-#define UNUSED96             0x02B1
-#define UNUSED97             0x02B2
-#define UNUSED98             0x02B3
-#define UNUSED99             0x02B4
-#define UNUSED100            0x02B5
-#define UNUSED101            0x02B6
-#define UNUSED102            0x02B7
-#define UNUSED103            0x02B8
+#define IDATAID             0x02A7
+#define IDATALTM             0x02A8
+#define IDATAPSCRIPT             0x02A9
+#define IDATASCRIPT             0x02AA
+#define IDATAMAGCOST             0x02AB
+#define IDATAMINHEARTS             0x02AC
+#define IDATATILE             0x02AD
+#define IDATAMISC             0x02AE
+#define IDATACSET             0x02AF
+#define IDATAFRAMES             0x02B0
+#define IDATAASPEED             0x02B1
+#define IDATADELAY             0x02B2
+#define IDATAWPN             0x02B3
+#define IDATAFRAME             0x02B4
+#define __RESERVED_FOR_ITEMACLK            0x02B5
+#define IDATAFLAGS            0x02B6
+#define IDATASPRITE            0x02B7
+#define IDATAATTRIB            0x02B8
 #define UNUSED104            0x02B9
 
 #define NPCX                 0x02BA
@@ -501,11 +1583,11 @@ enum ASM_DEFINE
 #define NPCSTUN              0x02E1
 #define NPCHUNGER            0x02E2
 //0x02E3-0x02EB are reserved for future NPC variables
-#define UNUSED126            0x02E2
-#define UNUSED127            0x02E3
-#define UNUSED128            0x02E4
-#define UNUSED129            0x02E5
-#define UNUSED130            0x02E6
+//#define             0x02E2 //This was a duplicate define value in the old source. 
+#define NPCSUPERMAN            0x02E3
+#define NPCHASITEM            0x02E4
+#define NPCRINGLEAD            0x02E5
+#define NPCINVINC            0x02E6
 #define UNUSED131            0x02E7
 #define UNUSED132            0x02E8
 #define UNUSED133            0x02E9
@@ -774,7 +1856,221 @@ enum ASM_DEFINE
 #define DMAPOFFSET           0x10B7
 #define DMAPMAP              0x10B8
 
-#define NUMVARIABLES         0x10B9
+#define __RESERVED_FOR_GAMETHROTTLE	     0x10B9
+
+//! ItemData Misc# and Wpn#
+
+#define RESVD001 0x10BA
+#define RESVD002 0x10BB
+#define RESVD003 0x10BC
+#define RESVD004 0x10BD
+#define RESVD005 0x10BE
+#define RESVD006 0x10BF
+#define RESVD007 0x10C0
+#define RESVD008 0x10C1
+#define RESVD009 0x10C2
+#define RESVD010 0x10C3
+
+#define RESVD011 0x10C4
+#define RESVD012 0x10C5
+#define RESVD013 0x10C6
+#define RESVD014 0x10C7
+#define RESVD015 0x10C8
+#define RESVD016 0x10C9
+#define RESVD017 0x10CA
+#define RESVD018 0x10CB
+#define RESVD019 0x10CC
+#define RESVD020 0x10CD
+
+//Itemdata Flags
+#define IDATACOMBINE 0x10CE
+#define IDATADOWNGRADE 0x10CF
+#define RESVD021 0x10D0
+#define RESVD022 0x10D1
+#define IDATAKEEPOLD 0x10D2
+#define IDATARUPEECOST 0x10D3
+#define IDATAEDIBLE 0x10D4
+#define IDATAFLAGUNUSED 0x10D5
+#define IDATAGAINLOWER 0x10D6
+#define RESVD023 0x10D7
+#define RESVD024 0x10D8
+#define RESVD025 0x10D9
+
+#define NPCSCRDEFENSED 0x10DA
+
+#define __RESERVED_FOR_SETLINKEXTEND 0x10DB
+#define __RESERVED_FOR_SETLINKTILE 0x10DC
+#define __RESERVED_FOR_SIDEWARPSFX 0x10DD
+#define __RESERVED_FOR_PITWARPSFX 0x10DE
+#define __RESERVED_FOR_SIDEWARPVISUAL 0x10DF
+#define __RESERVED_FOR_PITWARPVISUAL 0x10F0
+#define GAMESETA 0x10F1
+#define GAMESETB 0x10F2
+#define SETITEMSLOT 0x10F3
+#define BUTTONPRESS 0x10F4
+#define BUTTONINPUT 0x10F5
+#define BUTTONHELD 0x10F6
+#define KEYPRESS 0x10F7
+#define READKEY 0x10F8
+#define JOYPADPRESS 0x10F9
+#define DISABLEDITEM 0x10FA
+#define RESVD026 0x10FB
+#define UNUSED10FC 0x10FC
+#define UNUSED10FD 0x10FD
+#define UNUSED10FE 0x10FE
+#define UNUSED10FF 0x10FF
+#define UNUSED1100 0x1100
+#define UNUSED1101 0x1101
+#define UNUSED1102 0x1102
+#define UNUSED1103 0x1103
+#define LINKITEMB 0x1104
+#define LINKITEMA 0x1105
+#define __RESERVED_FOR_LINKWALKTILE 0x1106
+#define 	__RESERVED_FOR_LINKFLOATTILE 0x1107
+#define 	__RESERVED_FOR_LINKSWIMTILE 0x1108
+#define 	__RESERVED_FOR_LINKDIVETILE 0x1109
+#define 	__RESERVED_FOR_LINKSLASHTILE 0x110A
+#define 	__RESERVED_FOR_LINKJUMPTILE 0x110B
+#define 	__RESERVED_FOR_LINKCHARGETILE 0x110C
+#define 	__RESERVED_FOR_LINKSTABTILE 0x110D
+#define 	__RESERVED_FOR_LINKCASTTILE 0x110E
+#define 	__RESERVED_FOR_LINKHOLD1LTILE 0x110F
+#define 	__RESERVED_FOR_LINKHOLD2LTILE 0x1110
+#define 	__RESERVED_FOR_LINKHOLD1WTILE 0x1111
+#define 	__RESERVED_FOR_LINKHOLD2WTILE 0x1112
+#define 	__RESERVED_FOR_LINKPOUNDTILE 0x1113
+#define __RESERVED_FOR_LINKSWIMSPD 0x1114
+#define __RESERVED_FOR_LINKWALKANMSPD 0x1115
+#define __RESERVED_FOR_LINKANIMTYPE 0x1116
+#define LINKINVFRAME 0x1117
+#define LINKCANFLICKER 0x1118
+#define LINKHURTSFX 0x1119
+#define NOACTIVESUBSC 0x111A
+#define ZELDAVERSION 0x111B
+#define ZELDABUILD 0x111C
+#define ZELDABETA 0x111D
+#define FFCID 0x111E
+#define DMAPLEVELPAL 0x111F
+#define __RESERVED_FOR_ITEMINDEX 0x1120
+#define __RESERVED_FOR_LWPNINDEX 0x1121
+#define __RESERVED_FOR_EWPNINDEX 0x1122
+#define __RESERVED_FOR_NPCINDEX 0x1123
+#define __RESERVED_FOR_ITEMPTR 0x1124
+#define __RESERVED_FOR_NPCPTR 0x1125
+#define __RESERVED_FOR_LWPNPTR 0x1126
+#define __RESERVED_FOR_EWPNPTR 0x1127
+
+
+#define SETSCREENDOOR 0x1128
+#define SETSCREENENEMY 0x1129
+#define GAMEMAXMAPS 0x112A
+#define CREATELWPNDX 0x112B
+#define __RESERVED_FOR_SCREENFLAG 0x112C
+#define RESVD112D 0x112D
+#define RESVD112E 0x112E
+
+//Reserved values to use for cooperative editing. 
+#define RESVD112F 0x112F
+#define RESVD1130 0x1130
+#define RESVD1131 0x1131
+#define RESVD1132 0x1132
+#define RESVD1133 0x1133
+#define RESVD1134 0x1134
+#define RESVD1135 0x1135
+#define RESVD1136 0x1136
+#define RESVD1137 0x1137
+#define RESVD1138 0x1138
+#define RESVD1139 0x1139
+#define RESVD113A 0x113A
+#define RESVD113B 0x113B
+#define RESVD113C 0x113C
+#define RESVD113D 0x113D
+#define RESVD113E 0x113E
+#define RESVD113F 0x113F
+#define RESVD1140 0x1140
+#define RESVD1141 0x1141
+#define RESVD1142 0x1142
+#define RESVD1143 0x1143
+#define RESVD1144 0x1144
+#define RESVD1145 0x1145
+#define RESVD1146 0x1146
+#define RESVD1147 0x1147
+#define RESVD1148 0x1148
+#define RESVD1149 0x1149
+#define RESVD114A 0x114A
+#define RESVD114B 0x114B
+#define RESVD114C 0x114C
+#define RESVD114D 0x114D
+#define RESVD114E 0x114E
+#define RESVD114F 0x114F
+
+#define IDATAUSEWPN 0x1150
+#define IDATAUSEDEF 0x1151
+#define IDATAWRANGE 0x1152
+#define IDATAUSEMVT 0x1153
+#define IDATADURATION 0x1154
+
+#define IDATADUPLICATES 0x1155
+#define IDATADRAWLAYER 0x1156
+#define IDATACOLLECTFLAGS 0x1157
+#define IDATAWEAPONSCRIPT 0x1158
+#define IDATAMISCD 0x1159
+#define IDATAWEAPHXOFS 0x115A
+#define IDATAWEAPHYOFS 0x115B
+#define IDATAWEAPHYSZ 0x115C
+#define IDATAWEAPHXSZ 0x115D
+#define IDATAWEAPHZSZ 0x115E
+#define IDATAWEAPXOFS 0x115F
+#define IDATAWEAPYOFS 0x1160
+#define IDATAWEAPZOFS 0x1161
+#define NPCWEAPSPRITE 0x1162
+#define IDATAWPNINITD 0x1163
+#define DEBUGREFFFC 0x1164
+#define DEBUGREFITEM 0x1165
+#define DEBUGREFNPC 0x1166
+#define DEBUGREFITEMDATA 0x1167
+#define DEBUGREFLWEAPON 0x1168
+#define DEBUGREFEWEAPON 0x1169
+#define DEBUGSP 0x116A
+#define DEBUGGDR 0x116B
+#define SETSCREENWIDTH 0x116C
+#define SETSCREENHEIGHT 0x116D
+#define SETSCREENVIEWX 0x116E
+#define SETSCREENVIEWY 0x116F
+#define SETSCREENGUY 0x1170
+#define SETSCREENSTRING 0x1171
+#define SETSCREENROOM 0x1172
+#define SETSCREENENTX 0x1173
+#define SETSCREENENTY 0x1174
+#define SETSCREENITEM 0x1175
+#define SETSCREENUNDCMB 0x1176
+#define SETSCREENUNDCST 0x1177
+#define SETSCREENCATCH 0x1178
+#define SETSCREENLAYOP 0x1179
+#define SETSCREENSECCMB 0x117A
+#define SETSCREENSECCST 0x117B
+#define SETSCREENSECFLG 0x117C
+#define SETSCREENLAYMAP 0x117D
+#define SETSCREENLAYSCR 0x117E
+#define SETSCREENPATH 0x117F
+#define SETSCREENWARPRX 0x1180
+#define SETSCREENWARPRY 0x1181
+#define GAMENUMMESSAGES 0x1182
+#define GAMESUBSCHEIGHT 0x1183
+#define GAMEPLAYFIELDOFS 0x1184
+#define PASSSUBOFS 0x1185
+
+//NPCData
+#define SETNPCDATASCRIPTDEF  0x1186
+#define SETNPCDATADEFENSE 0x1187
+#define SETNPCDATASIZEFLAG 0x118 
+#define SETNPCDATAATTRIBUTE 0x1189
+
+#define SCDBLOCKWEAPON 0x118A
+#define SCDSTRIKEWEAPONS 0x118B
+#define SCDEXPANSION 0x118C
+
+#define NUMVARIABLES         0x118D
 
 // Script types
 
