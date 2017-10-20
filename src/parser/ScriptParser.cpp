@@ -253,6 +253,15 @@ const int ScriptParser::TYPE_GAME;
 const int ScriptParser::TYPE_NPC;
 const int ScriptParser::TYPE_LWPN;
 const int ScriptParser::TYPE_EWPN;
+//New Types
+const int ScriptParser::TYPE_NPCDATA;
+const int ScriptParser::TYPE_DEBUG;
+const int ScriptParser::TYPE_AUDIO;
+const int ScriptParser::TYPE_COMBOS;
+const int ScriptParser::TYPE_SPRITEDATA;
+const int ScriptParser::TYPE_GRAPHICS;
+const int ScriptParser::TYPE_TEXT;
+
 #endif
 
 string ScriptParser::trimQuotes(string quoteds)
@@ -392,6 +401,15 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     NPCSymbols::getInst().addSymbolsToScope(globalScope,t);
     LinkWeaponSymbols::getInst().addSymbolsToScope(globalScope,t);
     EnemyWeaponSymbols::getInst().addSymbolsToScope(globalScope,t);
+	
+    //New Types
+	TextPtrSymbols::getInst().addSymbolsToScope(globalScope,t);
+	GfxPtrSymbols::getInst().addSymbolsToScope(globalScope,t);
+	SpriteDataSymbols::getInst().addSymbolsToScope(globalScope,t);
+	CombosPtrSymbols::getInst().addSymbolsToScope(globalScope,t);
+	AudioSymbols::getInst().addSymbolsToScope(globalScope,t);
+	DebugSymbols::getInst().addSymbolsToScope(globalScope,t);
+	NPCDataSymbols::getInst().addSymbolsToScope(globalScope,t);
     
     //strip the global functions from the AST
     GetGlobalFuncs gc;
@@ -468,6 +486,36 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     //add a Game global variable
     vid2 = globalScope->getVarSymbols().addVariable("Game", ScriptParser::TYPE_GAME);
     t->putVar(vid2, ScriptParser::TYPE_GAME);
+    t->addGlobalPointer(vid2);
+    
+    //New Pointers
+    
+    vid2 = globalScope->getVarSymbols().addVariable("Debug", ScriptParser::TYPE_DEBUG);
+    t->putVar(vid2, ScriptParser::TYPE_DEBUG);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("Audio", ScriptParser::TYPE_AUDIO);
+    t->putVar(vid2, ScriptParser::TYPE_AUDIO);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("Text", ScriptParser::TYPE_TEXT);
+    t->putVar(vid2, ScriptParser::TYPE_TEXT);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("NPCData", ScriptParser::TYPE_NPCDATA);
+    t->putVar(vid2, ScriptParser::TYPE_NPCDATA);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("ComboData", ScriptParser::TYPE_COMBOS);
+    t->putVar(vid2, ScriptParser::TYPE_COMBOS);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("SpriteData", ScriptParser::TYPE_SPRITEDATA);
+    t->putVar(vid2, ScriptParser::TYPE_SPRITEDATA);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("Graphics", ScriptParser::TYPE_GRAPHICS);
+    t->putVar(vid2, ScriptParser::TYPE_GRAPHICS);
     t->addGlobalPointer(vid2);
     
     //strip the global variables from the AST
@@ -975,6 +1023,51 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     }
     
     globalcode = EnemyWeaponSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    //New Types
+    
+    globalcode = TextPtrSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    globalcode = GfxPtrSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    globalcode = SpriteDataSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    globalcode = CombosPtrSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    globalcode = AudioSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    globalcode = DebugSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    globalcode = NPCDataSymbols::getInst().addSymbolsCode(lt);
     
     for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
     {

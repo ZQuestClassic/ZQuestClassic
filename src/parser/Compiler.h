@@ -105,6 +105,17 @@ public:
     static const int TYPE_NPC = 10;
     static const int TYPE_LWPN = 11;
     static const int TYPE_EWPN = 12;
+    
+    //New Types
+    static const int TYPE_NPCDATA = 13;
+    static const int TYPE_DEBUG = 14;
+    static const int TYPE_AUDIO = 15;
+    static const int TYPE_COMBOS = 16;
+    static const int TYPE_SPRITEDATA = 17;
+    static const int TYPE_GRAPHICS = 18;
+    static const int TYPE_TEXT = 19;
+    
+    
     static bool preprocess(AST *theAST, int reclevel, std::map<string,long> *constants);
     static SymbolData *buildSymbolTable(AST *theAST, std::map<string, long> *constants);
     static FunctionData *typeCheck(SymbolData *sdata);
@@ -161,6 +172,13 @@ public:
         case TYPE_EWPN:
             return "eweapon";
             
+	case  TYPE_NPCDATA: return "NPCData";
+	case  TYPE_DEBUG: return "Debug";
+	case  TYPE_AUDIO: return "Audio";
+	case  TYPE_COMBOS: return "ComboData";
+	case  TYPE_SPRITEDATA: return "SpriteData";
+	case  TYPE_GRAPHICS: return "Graphics";
+	case  TYPE_TEXT: return "Text->";
         default:
             return "wtf";
         }
