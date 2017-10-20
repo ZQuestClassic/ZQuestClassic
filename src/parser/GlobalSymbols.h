@@ -279,6 +279,21 @@ private:
     NPCDataSymbols();
 };
 
+//Text->
+class TextPtrSymbols : public LibrarySymbols
+{
+public:
+    static TextPtrSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static TextPtrSymbols singleton;
+    TextPtrSymbols();
+};
+
 #endif
 
 

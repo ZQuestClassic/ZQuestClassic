@@ -58,6 +58,8 @@ void eat_buttons();
 extern bool control_state[18];
 extern bool button_press[18];
 
+extern bool button_hold[18];
+
 void load_control_state();
 
 bool Up();

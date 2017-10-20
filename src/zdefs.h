@@ -95,9 +95,11 @@
 #include "zc_array.h"
 
 #define ZELDA_VERSION       0x0254                          //version of the program
+#define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       31                              //build number of this version
 #define ZELDA_VERSION_STR   "2.54 Alpha 1"                    //version of the program as presented in text
 #define IS_BETA             -1                              //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        00010
 #define DATE_STR            "19th October, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
