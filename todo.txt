@@ -1,7 +1,6 @@
-Script Drawing
-Quest Loading Code
-Saving Code
+To-Do
 Guys
+Enemy Defence Code (new defence outcomes, only!)
 Greyscale code
 DMAp Palette Code
 Weapons
@@ -13,3 +12,11 @@ New fonts.
 //Done (Probably)
 New ZScript Vars, Functions, and Types
 ZDefs merge
+Quest Loading Code
+Saving Code
+Script Drawing ( BitmapEx )
+
+Might Do:
+Weapon -> Defence Redirection / Weapon Editor Stuff
+ -> THis requires some changes that I am not sure that we are keeping, so I may leave it out of 2.54. 
+Enemy Editor Enemy Sizing (Seems as if it should be fine.)
