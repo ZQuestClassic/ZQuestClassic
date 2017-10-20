@@ -9265,14 +9265,26 @@ int run_script(const byte type, const word script, const byte i)
 	break;	
 
 	
+	/*
+	case STOPITEMSOUND:
+		void stop_item_sfx(int family)
+	*/
+	
 	case PAUSEMUSIC:
 		//What was the instruction prior to adding backends?
+	//! The pauseAll() function pauses sfx, not music, so this instruction is not doing what I intended. -Z
 		//Check AllOff() -Z
+	//zcmusic_pause(ZCMUSIC* zcm, int pause); is in zcmusic.h
+		midi_paused = true; 
+		//pause_all_sfx();
+	
 		//Backend::sfx->pauseAll();
 		break;
 	case RESUMEMUSIC:
 		//What was the instruction prior to adding backends?
 		//Check AllOff() -Z
+		//resume_all_sfx();
+		midi_paused = false; 
 		//Backend::sfx->resumeAll();
 		break;
             

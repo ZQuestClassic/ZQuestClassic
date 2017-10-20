@@ -4911,6 +4911,9 @@ map<int, vector<Opcode *> > EnemyWeaponSymbols::addSymbolsCode(LinkTable &lt)
 
 /////// New Types
 
+
+TextPtrSymbols TextPtrSymbols::singleton = TextPtrSymbols();
+
 static AccessorTable TextTable[] =
 {
     //name,                     rettype,                        setorget,     var,              numindex,      params
@@ -5881,8 +5884,8 @@ static AccessorTable AudioTable[] =
     { "ResumeSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "ContinueSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "AdjustSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           ScriptParser::TYPE_BOOL,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "PauseMusic",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_AUDIO,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "ResumeMusic",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_AUDIO,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "PauseCurMIDI",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_AUDIO,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "ResumeCurMIDI",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_AUDIO,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
    
     { "PlayMIDI",               ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "PlayEnhancedMusic",      ScriptParser::TYPE_BOOL,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -6006,9 +6009,9 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
         rval[label] = code;
     }
     
-    //void PauseMusic(game)
+    //void PauseCurMIDI(game)
     {
-        int id = memberids["PauseMusic"];
+        int id = memberids["PauseCurMIDI"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -6021,9 +6024,9 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
         rval[label]=code;
     }
     
-    //void ResumeMusic(game)
+    //void ResumeCurMIDI(game)
     {
-        int id = memberids["ResumeMusic"];
+        int id = memberids["ResumeCurMIDI"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it

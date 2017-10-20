@@ -26,6 +26,8 @@ void Z_init_sound();
 void load_game_configs();
 void save_game_configs();
 
+extern bool midi_paused;
+
 void draw_lens_under(BITMAP *dest, bool layer);
 void draw_lens_over();
 void fix_menu();
