@@ -169,6 +169,11 @@ bool screenIsScrolling();
 //void quit_game();
 int d_timer_proc(int msg, DIALOG *d, int c);
 
+//2.54
+void setMonochrome(bool state); //GFX are monochrome. 
+bool isMonochrome();
+
+
 INLINE void sfx(int index)
 {
     sfx(index,128,false);

@@ -635,6 +635,7 @@ int LinkClass::getSpecialCave()
 
 void LinkClass::init()
 {
+    setMonochrome(false);
     hookshot_used=false;
     hookshot_frozen=false;
     dir = up;
