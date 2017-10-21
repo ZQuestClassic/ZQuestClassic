@@ -1407,6 +1407,28 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
         case ScriptParser::TYPE_EWPN:
             fidtype = EnemyWeaponSymbols::getInst().matchFunction(name->getName(), st);
             break;
+	
+	case ScriptParser::TYPE_NPCDATA:
+            fidtype = NPCDataSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_DEBUG:
+            fidtype = DebugSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_AUDIO:
+            fidtype = AudioSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_COMBOS:
+            fidtype = CombosPtrSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_SPRITEDATA:
+            fidtype = SpriteDataSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_GRAPHICS:
+            fidtype = GfxPtrSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_TEXT:
+            fidtype = TextPtrSymbols::getInst().matchFunction(name->getName(), st);
+            break;
             
         default:
             assert(false);
