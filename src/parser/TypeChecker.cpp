@@ -1242,7 +1242,11 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
         if(!(lvaltype == ScriptParser::TYPE_FFC || lvaltype == ScriptParser::TYPE_LINK
                 || lvaltype == ScriptParser::TYPE_SCREEN || lvaltype == ScriptParser::TYPE_ITEM
                 || lvaltype == ScriptParser::TYPE_ITEMCLASS || lvaltype == ScriptParser::TYPE_GAME || lvaltype == ScriptParser::TYPE_NPC
-                || lvaltype == ScriptParser::TYPE_LWPN || lvaltype == ScriptParser::TYPE_EWPN))
+                || lvaltype == ScriptParser::TYPE_LWPN || lvaltype == ScriptParser::TYPE_EWPN
+	|| lvaltype == ScriptParser::TYPE_NPCDATA || lvaltype == ScriptParser::TYPE_DEBUG
+	|| lvaltype == ScriptParser::TYPE_AUDIO || lvaltype == ScriptParser::TYPE_COMBOS
+	|| lvaltype == ScriptParser::TYPE_SPRITEDATA || lvaltype == ScriptParser::TYPE_GRAPHICS
+	|| lvaltype == ScriptParser::TYPE_TEXT ))
         {
             printErrorMsg(lval, ARROWNOTPOINTER);
             failure = true;
