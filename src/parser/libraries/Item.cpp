@@ -2,12 +2,11 @@
 #include "../Library.h"
 #include "../LibraryHelper.h"
 
-#include "../ByteCode.h"
-#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
 using namespace ZScript::Libraries;
+using namespace ZAsm;
 
 Item const& Item::singleton()
 {
@@ -35,43 +34,43 @@ void Item::addTo(Scope& scope) const
 	DataType tEWpn = typeStore.getEWpn();
 
 	typedef VectorBuilder<DataType> P;
-	typedef VectorBuilder<int> R;
+	typedef VectorBuilder<ZAsm::Variable> R;
 	
-	LibraryHelper lh(scope, REFITEM, tItem);
+	LibraryHelper lh(scope, varREFITEM(), tItem);
 
-	addPair(lh, ITEMX, tFloat, "X");
-	addPair(lh, ITEMY, tFloat, "Y");
-	addPair(lh, ITEMZ, tFloat, "Z");
-	addPair(lh, ITEMJUMP, tFloat, "Jump");
-	addPair(lh, ITEMDRAWTYPE, tFloat, "DrawStyle");
-	addPair(lh, ITEMID, tFloat, "ID");
-	addPair(lh, ITEMTILE, tFloat, "Tile");
-	addPair(lh, ITEMOTILE, tFloat, "OriginalTile");
-	addPair(lh, ITEMCSET, tFloat, "CSet");
-	addPair(lh, ITEMFLASHCSET, tFloat, "FlashCSet");
-	addPair(lh, ITEMFRAMES, tFloat, "NumFrames");
-	addPair(lh, ITEMFRAME, tFloat, "Frame");
-	addPair(lh, ITEMASPEED, tFloat, "ASpeed");
-	addPair(lh, ITEMDELAY, tFloat, "Delay");
-	addPair(lh, ITEMFLASH, tBool, "Flash");
-	addPair(lh, ITEMFLIP, tFloat, "Flip");
-	addPair(lh, ITEMEXTEND, tFloat, "Extend");
-	addPair(lh, ITEMHXSZ, tFloat, "HitWidth");
-	addPair(lh, ITEMHYSZ, tFloat, "HitHeight");
-	addPair(lh, ITEMHZSZ, tFloat, "HitZHeight");
-	addPair(lh, ITEMTXSZ, tFloat, "TileWidth");
-	addPair(lh, ITEMTYSZ, tFloat, "TileHeight");
-	addPair(lh, ITEMXOFS, tFloat, "DrawXOffset");
-	addPair(lh, ITEMYOFS, tFloat, "DrawYOffset");
-	addPair(lh, ITEMZOFS, tFloat, "DrawZOffset");
-	addPair(lh, ITEMHXOFS, tFloat, "HitXOffset");
-	addPair(lh, ITEMHYOFS, tFloat, "HitYOffset");
-	addPair(lh, ITEMPICKUP, tFloat, "Pickup");
-	addPair(lh, ITEMMISCD, tFloat, "Misc", 32);
+	addPair(lh, varITEMX(), tFloat, "X");
+	addPair(lh, varITEMY(), tFloat, "Y");
+	addPair(lh, varITEMZ(), tFloat, "Z");
+	addPair(lh, varITEMJUMP(), tFloat, "Jump");
+	addPair(lh, varITEMDRAWTYPE(), tFloat, "DrawStyle");
+	addPair(lh, varITEMID(), tFloat, "ID");
+	addPair(lh, varITEMTILE(), tFloat, "Tile");
+	addPair(lh, varITEMOTILE(), tFloat, "OriginalTile");
+	addPair(lh, varITEMCSET(), tFloat, "CSet");
+	addPair(lh, varITEMFLASHCSET(), tFloat, "FlashCSet");
+	addPair(lh, varITEMFRAMES(), tFloat, "NumFrames");
+	addPair(lh, varITEMFRAME(), tFloat, "Frame");
+	addPair(lh, varITEMASPEED(), tFloat, "ASpeed");
+	addPair(lh, varITEMDELAY(), tFloat, "Delay");
+	addPair(lh, varITEMFLASH(), tBool, "Flash");
+	addPair(lh, varITEMFLIP(), tFloat, "Flip");
+	addPair(lh, varITEMEXTEND(), tFloat, "Extend");
+	addPair(lh, varITEMHXSZ(), tFloat, "HitWidth");
+	addPair(lh, varITEMHYSZ(), tFloat, "HitHeight");
+	addPair(lh, varITEMHZSZ(), tFloat, "HitZHeight");
+	addPair(lh, varITEMTXSZ(), tFloat, "TileWidth");
+	addPair(lh, varITEMTYSZ(), tFloat, "TileHeight");
+	addPair(lh, varITEMXOFS(), tFloat, "DrawXOffset");
+	addPair(lh, varITEMYOFS(), tFloat, "DrawYOffset");
+	addPair(lh, varITEMZOFS(), tFloat, "DrawZOffset");
+	addPair(lh, varITEMHXOFS(), tFloat, "HitXOffset");
+	addPair(lh, varITEMHYOFS(), tFloat, "HitYOffset");
+	addPair(lh, varITEMPICKUP(), tFloat, "Pickup");
+	addPair(lh, varITEMMISCD(), tFloat, "Misc", 32);
 
     // bool Item->isValid()
 	defineFunction(
-			lh, tBool, "isValid", P(), R() << EXP1,
-			new OIsValidItem(new VarArgument(EXP1)));
+			lh, tBool, "isValid", P(), R() << varExp1(),
+			opISVALIDITEM(varExp1()));
 }
 

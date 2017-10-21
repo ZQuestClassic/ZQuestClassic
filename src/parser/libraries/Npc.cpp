@@ -2,12 +2,11 @@
 #include "../Library.h"
 #include "../LibraryHelper.h"
 
-#include "../ByteCode.h"
-#include "../CompilerUtils.h"
 #include "../Scope.h"
 
 using namespace ZScript;
 using namespace ZScript::Libraries;
+using namespace ZAsm;
 
 Npc const& Npc::singleton()
 {
@@ -35,73 +34,73 @@ void Npc::addTo(Scope& scope) const
 	DataType tEWpn = typeStore.getEWpn();
 
 	typedef VectorBuilder<DataType> P;
-	typedef VectorBuilder<int> R;
+	typedef VectorBuilder<ZAsm::Variable> R;
 	
-	LibraryHelper lh(scope, REFNPC, tNpc);
+	LibraryHelper lh(scope, varREFNPC(), tNpc);
 
-	addPair(lh, NPCX, tFloat, "X");
-	addPair(lh, NPCY, tFloat, "Y");
-	addPair(lh, NPCZ, tFloat, "Z");
-	addPair(lh, NPCJUMP, tFloat, "Jump");
-	addPair(lh, NPCDIR, tFloat, "Dir");
-	addPair(lh, NPCRATE, tFloat, "Rate");
-	addPair(lh, NPCHOMING, tFloat, "Homing");
-	addPair(lh, NPCSTEP, tFloat, "Step");
-	addPair(lh, NPCFRAMERATE, tFloat, "ASpeed");
-	addPair(lh, NPCHALTRATE, tFloat, "Haltrate");
-	addPair(lh, NPCDRAWTYPE, tFloat, "DrawStyle");
-	addPair(lh, NPCHP, tFloat, "HP");
-	addPair(lh, NPCID, tFloat, "ID");
-	addPair(lh, NPCTYPE, tFloat, "Type");
-	addPair(lh, NPCDP, tFloat, "Damage");
-	addPair(lh, NPCWDP, tFloat, "WeaponDamage");
-	addPair(lh, NPCTILE, tFloat, "Tile");
-	addPair(lh, NPCOTILE, tFloat, "OriginalTile");
-	addPair(lh, NPCWEAPON, tFloat, "Weapon");
-	addPair(lh, NPCITEMSET, tFloat, "ItemSet");
-	addPair(lh, NPCCSET, tFloat, "CSet");
-	addPair(lh, NPCBOSSPAL, tFloat, "BossPal");
-	addPair(lh, NPCBGSFX, tFloat, "SFX");
-	addPair(lh, NPCEXTEND, tFloat, "Extend");
-	addPair(lh, NPCHXSZ, tFloat, "HitWidth");
-	addPair(lh, NPCHYSZ, tFloat, "HitHeight");
-	addPair(lh, NPCHZSZ, tFloat, "HitZHeight");
-	addPair(lh, NPCTXSZ, tFloat, "TileWidth");
-	addPair(lh, NPCTYSZ, tFloat, "TileHeight");
-	addPair(lh, NPCXOFS, tFloat, "DrawXOffset");
-	addPair(lh, NPCYOFS, tFloat, "DrawYOffset");
-	addPair(lh, NPCZOFS, tFloat, "DrawZOffset");
-	addPair(lh, NPCHXOFS, tFloat, "HitXOffset");
-	addPair(lh, NPCHYOFS, tFloat, "HitYOffset");
-	addPair(lh, NPCMISCD, tFloat, "Misc", 32);
-	addPair(lh, NPCDD, tFloat, "Attributes", 15);
-	addPair(lh, NPCMFLAGS, tFloat, "MiscFlags");
-	addPair(lh, NPCCOLLDET, tBool, "CollDetection"); // XXX Getter was float?
-	addPair(lh, NPCSTUN, tFloat, "Stun");
-	addPair(lh, NPCDEFENSED, tFloat, "Defense", 40);
-	addPair(lh, NPCHUNGER, tFloat, "Hunger");
-	addPair(lh, NPCWEAPSPRITE, tFloat, "WeaponSprite");
+	addPair(lh, varNPCX(), tFloat, "X");
+	addPair(lh, varNPCY(), tFloat, "Y");
+	addPair(lh, varNPCZ(), tFloat, "Z");
+	addPair(lh, varNPCJUMP(), tFloat, "Jump");
+	addPair(lh, varNPCDIR(), tFloat, "Dir");
+	addPair(lh, varNPCRATE(), tFloat, "Rate");
+	addPair(lh, varNPCHOMING(), tFloat, "Homing");
+	addPair(lh, varNPCSTEP(), tFloat, "Step");
+	addPair(lh, varNPCFRAMERATE(), tFloat, "ASpeed");
+	addPair(lh, varNPCHALTRATE(), tFloat, "Haltrate");
+	addPair(lh, varNPCDRAWTYPE(), tFloat, "DrawStyle");
+	addPair(lh, varNPCHP(), tFloat, "HP");
+	addPair(lh, varNPCID(), tFloat, "ID");
+	addPair(lh, varNPCTYPE(), tFloat, "Type");
+	addPair(lh, varNPCDP(), tFloat, "Damage");
+	addPair(lh, varNPCWDP(), tFloat, "WeaponDamage");
+	addPair(lh, varNPCTILE(), tFloat, "Tile");
+	addPair(lh, varNPCOTILE(), tFloat, "OriginalTile");
+	addPair(lh, varNPCWEAPON(), tFloat, "Weapon");
+	addPair(lh, varNPCITEMSET(), tFloat, "ItemSet");
+	addPair(lh, varNPCCSET(), tFloat, "CSet");
+	addPair(lh, varNPCBOSSPAL(), tFloat, "BossPal");
+	addPair(lh, varNPCBGSFX(), tFloat, "SFX");
+	addPair(lh, varNPCEXTEND(), tFloat, "Extend");
+	addPair(lh, varNPCHXSZ(), tFloat, "HitWidth");
+	addPair(lh, varNPCHYSZ(), tFloat, "HitHeight");
+	addPair(lh, varNPCHZSZ(), tFloat, "HitZHeight");
+	addPair(lh, varNPCTXSZ(), tFloat, "TileWidth");
+	addPair(lh, varNPCTYSZ(), tFloat, "TileHeight");
+	addPair(lh, varNPCXOFS(), tFloat, "DrawXOffset");
+	addPair(lh, varNPCYOFS(), tFloat, "DrawYOffset");
+	addPair(lh, varNPCZOFS(), tFloat, "DrawZOffset");
+	addPair(lh, varNPCHXOFS(), tFloat, "HitXOffset");
+	addPair(lh, varNPCHYOFS(), tFloat, "HitYOffset");
+	addPair(lh, varNPCMISCD(), tFloat, "Misc", 32);
+	addPair(lh, varNPCDD(), tFloat, "Attributes", 15);
+	addPair(lh, varNPCMFLAGS(), tFloat, "MiscFlags");
+	addPair(lh, varNPCCOLLDET(), tBool, "CollDetection"); // XXX Getter was float?
+	addPair(lh, varNPCSTUN(), tFloat, "Stun");
+	addPair(lh, varNPCDEFENSED(), tFloat, "Defense", 40);
+	addPair(lh, varNPCHUNGER(), tFloat, "Hunger");
+	addPair(lh, varNPCWEAPSPRITE(), tFloat, "WeaponSprite");
 	// 2.future srit compatibility. -Z
-	addPair(lh, NPCSCRDEFENSED, tFloat, "ScriptDefense", 10);
-	addPair(lh, NPCINVINC, tFloat, "InvFrames");
-	addPair(lh, NPCSUPERMAN, tFloat, "Invincible");
-	addPair(lh, NPCRINGLEAD, tBool, "Ringleader");
-	addPair(lh, NPCHASITEM, tBool, "HasItem");
+	addPair(lh, varNPCSCRDEFENSED(), tFloat, "ScriptDefense", 10);
+	addPair(lh, varNPCINVINC(), tFloat, "InvFrames");
+	addPair(lh, varNPCSUPERMAN(), tFloat, "Invincible");
+	addPair(lh, varNPCRINGLEAD(), tBool, "Ringleader");
+	addPair(lh, varNPCHASITEM(), tBool, "HasItem");
 	
     // bool Npc->isValid()
 	defineFunction(
-			lh, tBool, "isValid", P(), R() << EXP1,
-			new OIsValidNPC(new VarArgument(EXP1)));
+			lh, tBool, "isValid", P(), R() << varExp1(),
+			opISVALIDNPC(varExp1()));
     
     // void Npc->GetName(float bufferId)
 	defineFunction(
 			lh, tVoid, "GetName",
-			P() << tFloat, R() << EXP1,
-			new OGetNPCName(new VarArgument(EXP1)));
+			P() << tFloat, R() << varExp1(),
+			opNPCNAME(varExp1()));
     
     // void Npc->BreakShield()
 	defineFunction(
 			lh, tVoid, "BreakShield",
-			P(), R() << EXP1,
-			new OBreakShield(new VarArgument(EXP1)));
+			P(), R() << varExp1(),
+			opBREAKSHIELD(varExp1()));
 }

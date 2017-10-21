@@ -78,7 +78,7 @@ namespace ZScript
 	class Script
 	{
 	public:
-		virtual ~Script();
+		virtual ~Script() {}
 				
 		virtual ScriptType getType() const = 0;
 		virtual string const& getName() const = 0;
@@ -86,7 +86,7 @@ namespace ZScript
 		virtual ScriptScope& getScope() = 0;
 		virtual ScriptScope const& getScope() const = 0;
 
-		vector<Opcode*> code;
+		vector<Opcode> code;
 		
 	protected:
 		Script(Program& program);
@@ -302,7 +302,6 @@ namespace ZScript
 		
 		Function(DataType const& returnType, string const& name,
 				 vector<DataType> const& paramTypes, int id);
-		~Function();
 		
 		DataType returnType;
 		string name;
@@ -313,13 +312,8 @@ namespace ZScript
 		FunctionScope* internalScope;
 		BuiltinVariable* thisVar;
 
-		// Get the opcodes.
-		vector<Opcode*> const& getCode() const {return ownedCode;}
-		// Get and remove the code for this function.
-		vector<Opcode*> takeCode();
-		// Add code for this function, transferring ownership.
-		// Clears the input vector.
-		void giveCode(vector<Opcode*>& code);
+		vector<Opcode> const& getCode() const {return code_;}
+		void setCode(vector<Opcode> const& code);
 		
 		Signature getSignature() const {return Signature(*this);}
 		
@@ -329,10 +323,10 @@ namespace ZScript
 		int getLabel() const;
 		
 	private:
-		mutable optional<int> label;
+		mutable optional<int> label_;
 
 		// Code implementing this function.
-		vector<Opcode*> ownedCode;
+		vector<Opcode> code_;
 	};
 
 	// Is this function a "run" function?

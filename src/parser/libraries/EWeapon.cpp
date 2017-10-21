@@ -2,12 +2,14 @@
 #include "../Library.h"
 #include "../LibraryHelper.h"
 
-#include "../ByteCode.h"
+#include "../../scripting/ZAsmVariables.h"
 #include "../CompilerUtils.h"
+#include "../Opcode.h"
 #include "../Scope.h"
 
 using namespace ZScript;
 using namespace ZScript::Libraries;
+using namespace ZAsm;
 
 EWeapon const& EWeapon::singleton()
 {
@@ -35,60 +37,59 @@ void EWeapon::addTo(Scope& scope) const
 	DataType tEWpn = typeStore.getEWpn();
 
 	typedef VectorBuilder<DataType> P;
-	typedef VectorBuilder<int> R;
-	typedef VectorBuilder<Opcode*> O;
+	typedef VectorBuilder<ZAsm::Variable> R;
+	typedef VectorBuilder<Opcode> O;
 
-	int const refVar = REFEWPN;
+	ZAsm::Variable refVar = varREFEWPN();
 	LibraryHelper lh(scope, refVar, tEWpn);	
 
-	addPair(lh, EWPNX, tFloat, "X");
-	addPair(lh, EWPNY, tFloat, "Y");
-	addPair(lh, EWPNZ, tFloat, "Z");
-	addPair(lh, EWPNJUMP, tFloat, "Jump");
-	addPair(lh, EWPNDIR, tFloat, "Dir");
-	addPair(lh, EWPNANGLE, tFloat, "Angle");
-	addPair(lh, EWPNSTEP, tFloat, "Step");
-	addPair(lh, EWPNFRAMES, tFloat, "NumFrames");
-	addPair(lh, EWPNFRAME, tFloat, "Frame");
-	addPair(lh, EWPNDRAWTYPE, tFloat, "DrawStyle");
-	addPair(lh, EWPNPOWER, tFloat, "Damage");
-	addPair(lh, EWPNID, tFloat, "ID");
-	addPair(lh, EWPNANGULAR, tBool, "Angular");
-	addPair(lh, EWPNBEHIND, tBool, "Behind");
-	addPair(lh, EWPNASPEED, tFloat, "ASpeed");
-	addPair(lh, EWPNTILE, tFloat, "Tile");
-	addPair(lh, EWPNFLASHCSET, tFloat, "FlashCSet");
-	addPair(lh, EWPNDEAD, tFloat, "DeadState");
-	addPair(lh, EWPNCSET, tFloat, "CSet");
-	addPair(lh, EWPNFLASH, tBool, "Flash");
-	addPair(lh, EWPNFLIP, tFloat, "Flip");
-	addPair(lh, EWPNOTILE, tFloat, "OriginalTile");
-	addPair(lh, EWPNOCSET, tFloat, "OriginalCSet");
-	addPair(lh, EWPNEXTEND, tFloat, "Extend");
-	addPair(lh, EWPNHXSZ, tFloat, "HitWidth");
-	addPair(lh, EWPNHYSZ, tFloat, "HitHeight");
-	addPair(lh, EWPNHZSZ, tFloat, "HitZHeight");
-	addPair(lh, EWPNTXSZ, tFloat, "TileWidth");
-	addPair(lh, EWPNTYSZ, tFloat, "TileHeight");
-	addPair(lh, EWPNXOFS, tFloat, "DrawXOffset");
-	addPair(lh, EWPNYOFS, tFloat, "DrawYOffset");
-	addPair(lh, EWPNZOFS, tFloat, "DrawZOffset");
-	addPair(lh, EWPNHXOFS, tFloat, "HitXOffset");
-	addPair(lh, EWPNHYOFS, tFloat, "HitYOffset");
-	addPair(lh, EWPNMISCD, tFloat, "Misc", 32);
-	addPair(lh, EWPNCOLLDET, tBool, "CollDetection");
+	addPair(lh, varEWPNX(), tFloat, "X");
+	addPair(lh, varEWPNY(), tFloat, "Y");
+	addPair(lh, varEWPNZ(), tFloat, "Z");
+	addPair(lh, varEWPNJUMP(), tFloat, "Jump");
+	addPair(lh, varEWPNDIR(), tFloat, "Dir");
+	addPair(lh, varEWPNANGLE(), tFloat, "Angle");
+	addPair(lh, varEWPNSTEP(), tFloat, "Step");
+	addPair(lh, varEWPNFRAMES(), tFloat, "NumFrames");
+	addPair(lh, varEWPNFRAME(), tFloat, "Frame");
+	addPair(lh, varEWPNDRAWTYPE(), tFloat, "DrawStyle");
+	addPair(lh, varEWPNPOWER(), tFloat, "Damage");
+	addPair(lh, varEWPNID(), tFloat, "ID");
+	addPair(lh, varEWPNANGULAR(), tBool, "Angular");
+	addPair(lh, varEWPNBEHIND(), tBool, "Behind");
+	addPair(lh, varEWPNASPEED(), tFloat, "ASpeed");
+	addPair(lh, varEWPNTILE(), tFloat, "Tile");
+	addPair(lh, varEWPNFLASHCSET(), tFloat, "FlashCSet");
+	addPair(lh, varEWPNDEAD(), tFloat, "DeadState");
+	addPair(lh, varEWPNCSET(), tFloat, "CSet");
+	addPair(lh, varEWPNFLASH(), tBool, "Flash");
+	addPair(lh, varEWPNFLIP(), tFloat, "Flip");
+	addPair(lh, varEWPNOTILE(), tFloat, "OriginalTile");
+	addPair(lh, varEWPNOCSET(), tFloat, "OriginalCSet");
+	addPair(lh, varEWPNEXTEND(), tFloat, "Extend");
+	addPair(lh, varEWPNHXSZ(), tFloat, "HitWidth");
+	addPair(lh, varEWPNHYSZ(), tFloat, "HitHeight");
+	addPair(lh, varEWPNHZSZ(), tFloat, "HitZHeight");
+	addPair(lh, varEWPNTXSZ(), tFloat, "TileWidth");
+	addPair(lh, varEWPNTYSZ(), tFloat, "TileHeight");
+	addPair(lh, varEWPNXOFS(), tFloat, "DrawXOffset");
+	addPair(lh, varEWPNYOFS(), tFloat, "DrawYOffset");
+	addPair(lh, varEWPNZOFS(), tFloat, "DrawZOffset");
+	addPair(lh, varEWPNHXOFS(), tFloat, "HitXOffset");
+	addPair(lh, varEWPNHYOFS(), tFloat, "HitYOffset");
+	addPair(lh, varEWPNMISCD(), tFloat, "Misc", 32);
+	addPair(lh, varEWPNCOLLDET(), tBool, "CollDetection");
 	
     // bool eweapon->isValid()
 	defineFunction(
-			lh, tBool, "isValid", P(), R() << EXP1,
-			new OIsValidEWpn(new VarArgument(EXP1)));
+			lh, tBool, "isValid", P(), R() << varExp1(),
+			opISVALIDEWPN(varExp1()));
     
     // void eweapon->UseSprite(float spriteId)
 	defineFunction(
 			lh, tVoid, "UseSprite",
-			P() /*this*/ << tFloat,
-			R() <<  EXP2 <<   EXP1,
-			O() << new OSetRegister(new VarArgument(refVar),
-			                        new VarArgument(EXP2))
-			    << new OUseSpriteEWpn(new VarArgument(EXP1)));
+			P() /* this   */ << tFloat,
+			R() << varExp2() << varExp1(),
+			O() << opSETR(refVar, varExp2())
+			    << opEWPNUSESPRITER(varExp1()));
 }

@@ -2,7 +2,8 @@
 #define BUILDVISITORS_H
 
 #include "ASTVisitors.h"
-#include "ByteCode.h"
+#include "DataStructs.h"
+#include "Opcode.h"
 #include "ZScript.h"
 #include <algorithm>
 #include <vector>
@@ -73,13 +74,13 @@ public:
 	// Types
 	void caseVarType(ASTVarType& host, void* param) {}
 
-    vector<Opcode *> getResult() const {return result;}
+	vector<ZScript::Opcode> getResult() const {return result;}
     int getReturnLabelID() const {return returnlabelid;}
     list<long> *getArrayRefs() {return &arrayRefs;}
     list<long> const *getArrayRefs() const {return &arrayRefs;}
-    void castFromBool(vector<Opcode *> &result, int reg);
+	void castFromBool(vector<ZScript::Opcode>& result, ZAsm::Variable const& reg);
 private:
-	void addOpcode(Opcode* code);
+	void addOpcode(ZScript::Opcode const& code);
 
 	template <class Container>
 	void addOpcodes(Container const& container);
@@ -88,7 +89,7 @@ private:
 	void deallocateRefsUntilCount(int count);
 
 	TypeStore& typeStore;
-    vector<Opcode*> result;
+	vector<ZScript::Opcode> result;
     int returnlabelid;
 	int returnRefCount;
     int continuelabelid;
@@ -97,7 +98,7 @@ private:
 	int breakRefCount;
     list<long> arrayRefs;
 	// Stack of opcode targets. Only the latest is used.
-	vector<vector<Opcode*>*> opcodeTargets;
+	vector<vector<ZScript::Opcode>*> opcodeTargets;
 
 	// Helper Functions.
 
@@ -119,54 +120,15 @@ public:
     virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
     virtual void caseExprIndex(ASTExprIndex &host, void *param);
-    vector<Opcode *> getResult() {return result;}
+	vector<ZScript::Opcode> getResult() {return result;}
 private:
 	TypeStore& typeStore;
-    vector<Opcode *> result;
+	vector<ZScript::Opcode> result;
 
-	void addOpcode(Opcode* code);
+	void addOpcode(ZScript::Opcode const& code);
 
 	template <class Container>
 	void addOpcodes(Container const& container);
-};
-
-
-
-class GetLabels : public ArgumentVisitor
-{
-public:
-	GetLabels(std::set<int>& usedLabels) : usedLabels(usedLabels) {}
-
-	std::set<int>& usedLabels;
-	std::vector<int> newLabels;
-			
-	void caseLabel(LabelArgument& host, void*)
-    {
-	    int id = host.getID();
-	    if (find<int>(usedLabels, id)) return;
-	    usedLabels.insert(id);
-	    newLabels.push_back(id);
-    }
-};
-
-class SetLabels : public ArgumentVisitor
-{
-public:
-    void caseLabel(LabelArgument &host, void *param)
-    {
-        map<int, int> *labels = (map<int, int> *)param;
-        int lineno = (*labels)[host.getID()];
-        
-        if(lineno==0)
-        {
-            char temp[200];
-            sprintf(temp,"Internal error: couldn't find function label %d", host.getID());
-            box_out(temp);
-            box_eol();
-        }
-        
-        host.setLineNo(lineno);
-    }
 };
 
 #endif

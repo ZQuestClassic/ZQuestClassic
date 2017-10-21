@@ -4,6 +4,8 @@ set(ZELDA_SCRIPTING_SOURCES
 ################################
 # Add or remove files here
 ################################
+src/scripting/ZAsmCommands.cpp
+src/scripting/ZAsmVariables.cpp
 src/scripting/ObjectPool.cpp
 src/scripting/bindings/IEnemy.cpp
 src/scripting/bindings/IItem.cpp

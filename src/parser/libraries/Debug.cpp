@@ -8,6 +8,7 @@
 
 using namespace ZScript;
 using namespace ZScript::Libraries;
+using namespace ZAsm;
 
 Debug const& Debug::singleton()
 {
@@ -35,26 +36,25 @@ void Debug::addTo(Scope& scope) const
 	DataType tEWpn = typeStore.getEWpn();
 
 	typedef VectorBuilder<DataType> P;
-	typedef VectorBuilder<int> R;
-	typedef VectorBuilder<Opcode*> O;
+	typedef VectorBuilder<ZAsm::Variable> R;
+	typedef VectorBuilder<Opcode> O;
 	
-	LibraryHelper lh(scope, NUL, tDebug);
+	LibraryHelper lh(scope, varNull(), tDebug);
 
 	// All of these return a function label error when used
-	addPair(lh, DEBUGREFFFC, tFloat, "RefFFC");
-	addPair(lh, DEBUGREFITEM, tFloat, "RefItem");
-	addPair(lh, DEBUGREFITEMDATA, tFloat, "RefItemdata");
-	addPair(lh, DEBUGREFNPC, tFloat, "RefNPC");
-	addPair(lh, DEBUGREFLWEAPON, tFloat, "RefLWeapon");
-	addPair(lh, DEBUGREFEWEAPON, tFloat, "RefEWeapon");
-	addPair(lh, DEBUGSP, tFloat, "SP");
-	addPair(lh, DEBUGGDR, tFloat, "GDR", 256);
+	addPair(lh, varDEBUGREFFFC(), tFloat, "RefFFC");
+	addPair(lh, varDEBUGREFITEM(), tFloat, "RefItem");
+	addPair(lh, varDEBUGREFITEMDATA(), tFloat, "RefItemdata");
+	addPair(lh, varDEBUGREFNPC(), tFloat, "RefNPC");
+	addPair(lh, varDEBUGREFLWEAPON(), tFloat, "RefLWeapon");
+	addPair(lh, varDEBUGREFEWEAPON(), tFloat, "RefEWeapon");
+	addPair(lh, varDEBUGSP(), tFloat, "SP");
+	addPair(lh, varDEBUGGDR(), tFloat, "GDR", 256);
 
 	// Changing the subscreen and screen offsets seems to do nothing.
-	addPair(lh, PASSSUBOFS, tFloat, "SubscreenOffset");
-	addPair(lh, GAMESUBSCHEIGHT, tFloat, "SubscreenHeight");
-	addPair(lh, GAMEPLAYFIELDOFS, tFloat, "PlayfieldOffset");
-	
+	addPair(lh, varPASSSUBOFS(), tFloat, "SubscreenOffset");
+	addPair(lh, varGAMESUBSCHEIGHT(), tFloat, "SubscreenHeight");
+	addPair(lh, varGAMEPLAYFIELDOFS(), tFloat, "PlayfieldOffset");
 
 	// These all work, but may not be permitted by the rest of the dev team.
 	// At least they are now in a pointer class that denotes that they can
@@ -63,97 +63,97 @@ void Debug::addTo(Scope& scope) const
 		// float Debug->GetItemdataPointer(itemclass)
 		defineFunction(
 				lh, tFloat, "GetItemdataPointer",
-				P() << tItemClass, R() << EXP1,
-				new OGetItemDataPointer(new VarArgument(EXP1)));
+				P() << tItemClass, R() << varExp1(),
+				opIDATAARRPTR(varExp1()));
     
 		// itemclass Debug->SetItemdataPointer(float)
 		defineFunction(
 				lh, tItemClass, "SetItemdataPointer",
-				P() << tFloat, R() << EXP1,
-				new OSetItemDataPointer(new VarArgument(EXP1)));
+				P() << tFloat, R() << varExp1(),
+				opIDATAARRPTR2(varExp1()));
 
 		// float Debug->GetItemPointer(item)
 		defineFunction(
 				lh, tFloat, "GetItemPointer",
-				P() << tItem, R() << EXP1,
-				new OGetItemPointer(new VarArgument(EXP1)));
+				P() << tItem, R() << varExp1(),
+				opITEMARRPTR(varExp1()));
     
 		// item Debug->SetItemPointer(float)
 		defineFunction(
 				lh, tItem, "SetItemPointer",
-				P() << tFloat, R() << EXP1,
-				new OSetItemPointer(new VarArgument(EXP1)));
+				P() << tFloat, R() << varExp1(),
+				opITEMARRPTR2(varExp1()));
     
 		// float Debug->GetPointer(ffc)
 		defineFunction(
 				lh, tFloat, "GetFFCPointer",
-				P() << tFfc, R() << EXP1,
-				new OGetFFCPointer(new VarArgument(EXP1)));
+				P() << tFfc, R() << varExp1(),
+				opFFCARRPTR(varExp1()));
     
 		// ffc Debug->SetFFCPointer(float)
 		defineFunction(
 				lh, tFfc, "SetFFCPointer",
-				P() << tFloat, R() << EXP1,
-				new OSetFFCPointer(new VarArgument(EXP1)));
+				P() << tFloat, R() << varExp1(),
+				opFFCARRPTR2(varExp1()));
 
 		// float Debug->GetEWeaponPointer(eweapon)
 		defineFunction(
 				lh, tFloat, "GetEWeaponPointer",
-				P() << tEWpn, R() << EXP1,
-				new OGetEWeaponPointer(new VarArgument(EXP1)));
+				P() << tEWpn, R() << varExp1(),
+				opEWPNARRPTR(varExp1()));
     
 		// eweapon Debug->SetEWeaponPointer(float)
 		defineFunction(
 				lh, tEWpn, "SetEWeaponPointer",
-				P() << tFloat, R() << EXP1,
-				new OSetEWeaponPointer(new VarArgument(EXP1)));
+				P() << tFloat, R() << varExp1(),
+				opEWPNARRPTR2(varExp1()));
 
 		// float Debug->GetLWeaponPointer(lweapon)
 		defineFunction(
 				lh, tFloat, "GetLWeaponPointer",
-				P() << tLWpn, R() << EXP1,
-				new OGetLWeaponPointer(new VarArgument(EXP1)));
+				P() << tLWpn, R() << varExp1(),
+				opLWPNARRPTR(varExp1()));
     
 		// lweapon Debug->SetLWeaponPointer(float)
 		defineFunction(
 				lh, tLWpn, "SetLWeaponPointer",
-				P() << tFloat, R() << EXP1,
-				new OSetLWeaponPointer(new VarArgument(EXP1)));
+				P() << tFloat, R() << varExp1(),
+				opLWPNARRPTR2(varExp1()));
 
 		// float Debug->GetNPCPointer(npc)
 		defineFunction(
 				lh, tFloat, "GetNPCPointer",
-				P() << tNpc, R() << EXP1,
-				new OGetNPCPointer(new VarArgument(EXP1)));
+				P() << tNpc, R() << varExp1(),
+				opNPCARRPTR(varExp1()));
     
 		// npc Debug->SetNPCPointer(float)
 		defineFunction(
 				lh, tNpc, "SetNPCPointer",
-				P() << tFloat, R() << EXP1,
-				new OSetNPCPointer(new VarArgument(EXP1)));
+				P() << tFloat, R() << varExp1(),
+				opNPCARRPTR2(varExp1()));
 
 		// float Debug->GetBoolPointer(bool)
 		defineFunction(
 				lh, tFloat, "GetBoolPointer",
-				P() << tBool, R() << EXP1,
-				new OGetBoolPointer(new VarArgument(EXP1)));
+				P() << tBool, R() << varExp1(),
+				opBOOLARRPTR(varExp1()));
     
 		// bool Debug->SetBoolPointer(float)
 		defineFunction(
 				lh, tBool, "SetBoolPointer",
-				P() << tFloat, R() << EXP1,
-				new OSetBoolPointer(new VarArgument(EXP1)));
+				P() << tFloat, R() << varExp1(),
+				opBOOLARRPTR2(varExp1()));
 	}
 
 	// void Debug->TriggerSecret(float)
 	defineFunction(
 			lh, tVoid, "TriggerSecret",
-			P() << tFloat, R() << EXP1,
-			new OTriggerSecretRegister(new VarArgument(EXP1)));
+			P() << tFloat, R() << varExp1(),
+			opTRIGGERSECRETR(varExp1()));
     
     // void Debug->ChangeFFCScript(float)
 	defineFunction(
 			lh, tVoid, "ChangeFFCScript",
-			P() << tFloat, R() << EXP1,
-			new OChangeFFCScriptRegister(new VarArgument(EXP1)));
+			P() << tFloat, R() << varExp1(),
+			opCHANGEFFSCRIPTR(varExp1()));
 }

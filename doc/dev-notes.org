@@ -1,0 +1,220 @@
+#+options: ^:nil _:nil
+* Adding a ZAsm Command
+** scripting/ZAsmCommandTable.h
+Add an entry to ZASM_COMMAND_TABLE for the new command, following the
+documentation there. Be sure to update ZASM_COMMAND_COUNT at the top
+as well.
+
+Note: ZAsm command names must be no longer than 15 characters.
+LINKPLAYWARPSOUND will error during compilation, but PLAYWARPSOUND is
+fine.
+
+** ffscript.cpp
+Add a case entry to the giant switch (scommand) statement in int
+run_script(...). (Search for RUN_SCRIPT_GIANT_SWITCH.) It should be of
+the form case CmdId_NAME:, where NAME is the name field from the
+command table.
+
+Drawing commands in the above switch directly fall through to
+do_drawing_command(...) instead. If you're adding a drawing command,
+you should probably do so as well, and add the actual implementation
+to do_drawing_command(...) instead.
+
+* Adding a ZAsm Variable
+  :PROPERTIES:
+  :CUSTOM_ID: adding-a-zasm-variable
+  :END:
+** scripting/ZAsmVariableTable.h
+Add an entry to ZASM_VARIABLE_TABLE for the new variable, following
+the documentation there. Make sure that the ids used don't overlap
+with anything else.
+** ffscript.cpp
+*** long get_register(const long arg)
+Add a case for VarId_NAME, where NAME is the name field from the
+variable table. Please group it with the rest of its related variable
+cases.
+
+Example:
+#+BEGIN_SRC C++
+case VarId_LINKDOTHING:
+	// Be sure to work with the ZScript 10,000 multplier!
+	ret = Link.getLinkDoingThing() * 10000;
+	break;
+#+END_SRC
+*** long set_register(const long arg, const long value)
+Add a case for VarId_NAME, where NAME is the name field from the
+variable table. Please group it with the rest of its related variable
+cases.
+
+Example:
+#+BEGIN_SRC C++
+case VarId_LINKDOTHING:
+	// Be sure to work with the ZScript 10,000 multplier!
+	Link.setLinkDoingThing(value / 10000); 
+	break;
+#+END_SRC
+* Adding a Link Variable
+First, create the appropriate ZAsm variable in [[#adding-a-zasm-variable][Adding a ZAsm Variable]].
+The rest is from Zoria:
+
+Link.h
+
+Add a new public variable if needed, suc as:
+	int linkdointhing
+(or)
+Find a public variable to use
+Add an empty function set (getter, setter) with the identifier that you desire, such as
+	int getLinkDoingThing()
+	void setLinkDoingThing(int value)
+
+Add a clear instruction in the Init function:
+	linkdointhing = 0;
+
+Link.cpp
+Create a pair of setter/getter functions tied to the link class, such as:
+
+	//Return the variable using a getter.
+	int LinkClass::getLinkDoingThing()
+	{
+	    return linkdointhing;
+	}
+
+	//Set the variable using a setter
+	void LinkClass::setLinkDoingThing(int value)
+	{
+	    linkdointhing=value;
+
+	}
+
+! You can constrain the min and max values written with: vbound(int value, int min, int max)
+
+	//Set the variable using a setter
+	void LinkClass::setLinkDoingThing(int value)
+	{
+	    linkdointhing=vbound(value,0,3);
+
+	}
+
+
+* Adding a ZScript Function
+Your function _may_ need new ZAsm commands or variables. To create
+them, follow the instructions in their own sections.
+** DarkDragon on the Stack
+the ZScript calling convention is more or less equivalent to C's.  The
+caller first pushes the return address onto the stack, then all of the
+function's explicit argument, and finally, if the function is a member
+function, the "this" pointer is implicitly pushed as the last
+argument.
+
+The return value of the function is by convention stored in EXP1.
+
+The callee, then, before it can return, must pop all of the arguments
+(including the "this" pointer) off of the stack. That's what the lines
+are doing that you've commented about. The ZASM instruction uses the
+top 4 entries of the stack, but leaves them untouched, so ZScript pops
+them off, then pops off the return address and jumps to it. You could
+use NUL instead of EXP2 for these pops if you wanted.
+
+The reason EXP2 is used as scratch space instead of EXP1 is simply to
+avoid accidentally tampering with the return value of the function.
+** parser/libaries/*.cpp
+Find the proper library file in the parser/libraries/ directory to add
+your function to. The following are the primary ways to add
+functions. These are all defined in parser/LibraryHelper.cpp.
+
+All of the addTo library functions have a rather large amount of
+boilerplate at the top purely to make typing things out shorter, which
+may be inconsistent between the different files. If something works in
+one library but not another, you may need to update this.
+*** Getters/Setters
+addGetter(...) and addSetter(...) may be used to add a simple
+getter/setter that just reads/writes to/from the given ZAsm
+variable. addPair(...) is a convenient way to do both at
+once.
+
+An optional last argument can be used to specify an array of
+getters/setters. In this case, INDEX1 is set to the array index before
+performing normally.
+
+Examples:
+#+BEGIN_SRC C++
+// bool Game->DisableItem[256], read/write.
+addPair(lh, varDISABLEDITEM(), tBool, "DisableItem", 256);
+// float Game->DMapPalette[512], read/write.
+addPair(lh, varDMAPLEVELPAL(), tFloat, "DMapPalette", 512);
+// float Game->Version, read only.
+lh.addGetter(varZELDAVERSION(), tFloat, "Version");
+// float Game->Build, read only.
+lh.addGetter(varZELDABUILD(), tFloat, "Build");
+// float Game->Beta, read only.
+lh.addGetter(varZELDABETA(), tFloat, "Beta");
+#+END_SRC
+*** Normal Function
+defineFunction(...) is used to define most of the library
+functions. It takes care of variable assignment, and returning from
+the function. There are a number of simplified forms. See
+parser/LibraryHelper.h for the different variants.
+
+Examples:
+#+BEGIN_SRC C++
+// itemclass Game->LoadItemData(float id)
+defineFunction(
+		lh, tItemClass, "LoadItemData",
+		P() << tFloat, R() << varExp1(),
+		O() << opSUBV(varExp1(), 10000)
+		    << opLOADITEMDATAR(varExp1())
+		    << opSETR(varExp1(), varREFITEMCLASS()));
+#+END_SRC
+#+BEGIN_SRC C++
+// void eweapon->UseSprite(float spriteId)
+defineFunction(
+		lh, tVoid, "UseSprite",
+		P() /* this   */ << tFloat,
+		R() << varExp2() << varExp1(),
+		O() << opSETR(refVar, varExp2())
+		    << opEWPNUSESPRITER(varExp1()));
+#+END_SRC
+
+Note the convention of using the P(), R(), and O() commands to create
+vectors of types, zasm variables, and opcodes respectively.
+
+- The first argument is the helper object.
+- The second argument is the return type of the function.
+- The third argument is the name.
+- The fourth argument is a vector of parameter types for the function.
+- The fifth argument is a vector of zasm variables to pop the function
+  parameters into.
+- The last argument is the vector of opcodes to perform in the middle
+  of the function.
+
+The parameter vector grabs the "this" type from the helper object, so
+it does not need to be listed.
+
+The last element of the variable vector corresponds to the last
+parameter, with each previous pair matching up until there are no more
+variables. Any left over parameters (including this) are ignored.
+
+The function is generated as follows:
+- The corresponding parameters are popped into the provided registers.
+- The vector of opcodes (last argument) is run.
+- Any ignored parameters are popped.
+- The function returns.
+*** Weird Function
+Functions that don't follow any of the above patterns must be
+specified directly:
+
+#+BEGIN_SRC C++
+// void Quit()
+{
+	// First, define the function signature.
+	Function& function = lh.addFunction(tVoid, "Quit", P());
+	// Then, manually set the code.
+	vector<Opcode> code;
+	code.push_back(opPOP(varExp2()));
+	code.push_back(opQUIT());
+	function.setCode(code);
+}
+#+END_SRC
+
+Define the function signature directly with lh.addFunction(...), and
+then set the actual opcodes directly.
