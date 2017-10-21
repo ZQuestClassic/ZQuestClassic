@@ -486,7 +486,7 @@ volatile int myvsync=0;
 //SAVESC_TEXT_CONTINUE_COLOUR, SAVESC_TEXT_SAVE_COLOUR, SAVESC_TEXT_RETRY_COLOUR, SAVESC_MISC };
 #define SAVESC_DEF_TILE 2
 long SaveScreenSettings[12] = {BLACK, WHITE, SAVESC_DEF_TILE, 1, WAV_CHINK, QMisc.colors.msgtext,QMisc.colors.msgtext,
-	QMisc.colors.msgtext,QMisc.colors.caption,QMisc.colors.caption,QMisc.colors.caption,0  }; //BG, Text, Cursor CSet, Sound, UseTile, Misc
+	QMisc.colors.msgtext,QMisc.colors.caption,QMisc.colors.caption,QMisc.colors.caption,ZC_MIDI_GAMEOVER  }; //BG, Text, Cursor CSet, Sound, UseTile, Misc
 char SaveScreenText[3][32]={"CONTINUE", "SAVE", "RETRY" };
 
 void SetSaveScreenSetting(int indx, int value)

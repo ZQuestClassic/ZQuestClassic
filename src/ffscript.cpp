@@ -6246,7 +6246,14 @@ break;
     
     //Game Over Screen
     case SETGAMEOVERELEMENT:
-	SetSaveScreenSetting(vbound(ri->d[0]/10000,0,11), value);
+    {
+	long colour = value/10000;
+	int index = ri->d[0]/10000;
+	index = vbound(index,0,11);
+	al_trace("GameOverScreen Index: %d/n",index);
+	    al_trace("GameOverScreen Value: %d/n",colour);
+	SetSaveScreenSetting(index,colour);
+    }
         break;
 
 	case SETGAMEOVERSTRING:
@@ -6257,7 +6264,6 @@ break;
 		ArrayH::getString(arrayptr, filename_str, 73);
 		ChangeSubscreenText(index,filename_str.c_str());
 		
-		SetSaveScreenSetting(vbound(ri->d[0]/10000,0,11), value);
 	}
         break;
 
