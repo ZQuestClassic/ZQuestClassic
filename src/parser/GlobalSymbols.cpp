@@ -47,6 +47,80 @@ const int radsperdeg = 572958;
 
 #define ARGS_17(t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) { t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17,-1,-1 }
 
+
+
+//Dataclass member with three inputs
+#define SET_DATACLASS_MEMBER(flabel, ffins) \
+{ \
+	int id = memberids[flabel]; \
+	int label = lt.functionToLabel(id); \
+	vector<Opcode *> code; \
+	Opcode *first = new OPopRegister(new VarArgument(SFTEMP)); \
+	first->setLabel(label); \
+	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX))); \
+	code.push_back(new OPopRegister(new VarArgument(NUL))); \
+	code.push_back(new OSetRegister(new VarArgument(ffins), new VarArgument(SFTEMP))); \
+	code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+	code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+	rval[label] = code; \
+} \
+
+//Dataclass Member with four inputs (int, int, int, int)
+#define SET_DATACLASS_ARRAY(flabel, ffins) \
+{ \
+	int id = memberids[flabel]; \
+	int label = lt.functionToLabel(id); \
+	vector<Opcode *> code; \
+	Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
+	first->setLabel(label); \
+	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX))); \
+	code.push_back(new OPopRegister(new VarArgument(EXP1))); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
+	code.push_back(new OPopRegister(new VarArgument(NUL))); \
+	code.push_back(new OSetRegister(new VarArgument(ffins), new VarArgument(EXP2))); \
+	code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+	code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+	rval[label] = code; \
+} \
+
+//Dataclass member with two inputs, one return 
+#define GET_DATACLASS_MEMBER(flabel, ffins) \
+{ \
+	int id = memberids[flabel]; \
+	int label = lt.functionToLabel(id); \
+	vector<Opcode *> code; \
+	Opcode *first = new OPopRegister(new VarArgument(INDEX2)); \
+	first->setLabel(label); \
+	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX))); \
+	code.push_back(new OPopRegister(new VarArgument(NUL))); \
+	code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(ffins))); \
+	code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+	code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+	rval[label] = code; \
+} \
+
+//Dataclass member with three inputs, one return
+#define GET_DATACLASS_ARRAY(flabel, ocode) \
+{ \
+	int id = memberids[flabel]; \
+	int label = lt.functionToLabel(id); \
+	vector<Opcode *> code; \
+	Opcode *first = new OPopRegister(new VarArgument(INDEX)); \
+	first->setLabel(label); \
+	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
+	code.push_back(new OPopRegister(new VarArgument(EXP1))); \
+	code.push_back(new OPopRegister(new VarArgument(NUL))); \
+	code.push_back(new ocode(new VarArgument(EXP1))); \
+	code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+	code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+	rval[label] = code; \
+} \
+
 #define ONE_INPUT_ONE_RETURN(flabel, ocode) \
 { \
 	int id = memberids[flabel]; \
@@ -4959,8 +5033,57 @@ static AccessorTable MapDataTable[] =
 {
     //name,                     rettype,                        setorget,     var,              numindex,      params
 	//All of these return a function label error when used:
-	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_MAPDATA,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	
+	{ "GetEnemy",        ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetEnemy",          ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetDoor",        ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetDoor",          ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
+    { "SetWidth",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetWidth",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetHeight",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetHeight",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetViewX",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetViewX",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetViewY",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetViewY",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetGuy",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetGuy",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetString",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetString",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetRoomType",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetRoomType",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetEntryX",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetEntryX",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
+    { "SetEntryY",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetEntryY",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetItem",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetItem",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetUndercombo",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetUndercombo",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetUnderCSet",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetUnderCSet",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetCatchall",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetCatchall",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetLayerOpacity",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetLayerOpacity",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetSecretCombo",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetSecretCombo",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetSecretCSet",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetSecretCSet",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetSecretFlag",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetSecretFlag",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetLayerMap",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetLayerMap",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetLayerScreen",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetLayerScreen",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetPath",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetPath",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetWarpReturnX",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetWarpReturnX",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetWarpReturnY",             ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,						                -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "GetWarpReturnY",             ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_MAPDATA,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+   
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
@@ -4970,12 +5093,207 @@ MapDataSymbols::MapDataSymbols()
     refVar = NUL;
 }
 
+
 map<int, vector<Opcode *> > MapDataSymbols::addSymbolsCode(LinkTable &lt)
 {
-    map<int, vector<Opcode *> > rval;
-    int id=-1;
+	map<int, vector<Opcode *> > rval;
+	int id=-1;
+	
 	
 
+	//int GetEnemy(game,int,int,int)
+	{
+		GET_DATACLASS_ARRAY("GetEnemy",OGetScreenEnemy);
+	}
+	//int GetDoor(game,int,int,int)
+	{
+		GET_DATACLASS_ARRAY("GetDoor",OGetScreenDoor);
+	}
+	//void SetEnemy(int,int,int,int)
+	{
+		SET_DATACLASS_ARRAY("SetEnemy", SETSCREENENEMY);
+	}
+	//void SetDoor(int,int,int,int)
+	{
+		SET_DATACLASS_ARRAY("SetDoor", SETSCREENDOOR);
+	}
+	//void SetWidth(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetWidth",SETSCREENWIDTH);
+	}
+	//int GetWidth(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetWidth",SETSCREENWIDTH);
+	}
+	//void SetHeight(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetHeight",SETSCREENHEIGHT);
+	}
+	//int GetHeight(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetHeight",SETSCREENHEIGHT);
+	}
+	//void SetViewX(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetViewX",SETSCREENVIEWX);
+	}
+	//int GetViewX(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetViewX",SETSCREENVIEWX);
+	}
+	//void SetViewY(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetViewY",SETSCREENVIEWY);
+	}
+	//int GetViewY(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetViewY",SETSCREENVIEWY);
+	}
+	//void SetGuy(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetGuy",SETSCREENGUY);
+	}
+	//int GetGuy(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetGuy",SETSCREENGUY);
+	}
+	//void SetString(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetString",SETSCREENSTRING);
+	}
+	//int GetString(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetString",SETSCREENSTRING);
+	}
+	//void SetRoomType(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetRoomType",SETSCREENROOM);
+	}
+	//int GetRoomType(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetRoomType",SETSCREENROOM);
+	}
+	//void SetEntryX(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetEntryX",SETSCREENENTX);
+	}
+	//int GetEntryX(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetEntryX",SETSCREENENTX);
+	}
+	//void SetEntryY(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetEntryY",SETSCREENENTY);
+	}
+	//int GetEntryY(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetEntryY",SETSCREENENTY);
+	}
+	//void SetItem(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetItem",SETSCREENITEM);
+	}
+	//int GetItem(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetItem",SETSCREENITEM);
+	}
+	//void SetUndercombo(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetUndercombo",SETSCREENUNDCMB);
+	}
+	//int GetUndercombo(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetUndercombo",SETSCREENUNDCMB);
+	}
+	//void SetUnderCSet(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetUnderCSet",SETSCREENUNDCST);
+	}
+	//int GetUnderCSet(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetUnderCSet",SETSCREENUNDCST);
+	}
+	//void SetCatchall(game, int,int,int)
+	{
+		SET_DATACLASS_MEMBER("SetCatchall",SETSCREENCATCH);
+	}
+	//int GetCatchall(game, int,int)
+	{
+		GET_DATACLASS_MEMBER("GetCatchall",SETSCREENCATCH);
+	}
+	//void SetLayerOpacity(int,int,int,int)
+	{
+		SET_DATACLASS_ARRAY("SetLayerOpacity",SETSCREENLAYOP); 
+	}
+	//int GetLayerOpacity(game,int,int,int)
+	{
+		GET_DATACLASS_ARRAY("GetLayerOpacity",OGetScreenLayerOpacity);
+	}
+	//void SetSecretCombo(int,int,int,int)
+	{
+		SET_DATACLASS_ARRAY("SetSecretCombo",SETSCREENSECCMB); 
+	}
+	//int GetSecretCombo(game,int,int,int)
+	{
+		GET_DATACLASS_ARRAY("GetSecretCombo",OGetScreenSecretCombo);
+	}
+	//void SetSecretCSet(int,int,int,int)
+	{
+		SET_DATACLASS_ARRAY("SetSecretCSet",SETSCREENSECCST);
+	}
+	//int GetSecretCSet(game,int,int,int)
+	{
+		GET_DATACLASS_ARRAY("GetSecretCSet",OGetScreenSecretCSet);
+	}
+	//void SetSecretFlag(int,int,int,int)
+	{
+		SET_DATACLASS_ARRAY("SetSecretFlag",SETSCREENSECFLG);
+	}
+	//int GetSecretFlag(game,int,int,int)
+	{
+		GET_DATACLASS_ARRAY("GetSecretFlag",OGetScreenSecretFlag);
+	}
+	//void SetLayerMap(int,int,int,int)
+	{
+		SET_DATACLASS_ARRAY("SetLayerMap",SETSCREENLAYMAP);
+	}
+	//int GetLayerMap(game,int,int,int)
+	{
+		GET_DATACLASS_ARRAY("GetLayerMap",OGetScreenLayerMap);
+	}
+	//void SetLayerScreen(int,int,int,int)
+	{
+		SET_DATACLASS_ARRAY("SetLayerScreen",SETSCREENLAYSCR);
+	}
+	//int GetLayerScreen(game,int,int,int)
+	{
+		GET_DATACLASS_ARRAY("GetLayerScreen",OGetScreenLayerScreen);
+	}
+
+	//void SetPath(int,int,int,int)
+	{
+		SET_DATACLASS_ARRAY("SetPath",SETSCREENPATH);
+	}
+	//int GetPath(game,int,int,int)
+	{
+		GET_DATACLASS_ARRAY("GetPath",OGetScreenPath);
+	}
+	//void SetWarpReturnX(int,int,int,int)
+	{
+		SET_DATACLASS_ARRAY("SetWarpReturnX",SETSCREENWARPRX);
+	}
+	//int GetWarpReturnX(game,int,int,int)
+	{
+		GET_DATACLASS_ARRAY("GetWarpReturnX",OGetScreenWarpReturnX);
+	}
+	//void SetWarpReturnY(int,int,int,int)
+	{
+		SET_DATACLASS_ARRAY("SetWarpReturnY",SETSCREENWARPRY);
+	}
+	//int GetWarpReturnY(game,int,int,int)
+	{
+		GET_DATACLASS_ARRAY("GetWarpReturnY",OGetScreenWarpReturnY);
+	}
     return rval;
 }
 
@@ -4987,8 +5305,25 @@ static AccessorTable InputTable[] =
 {
     //name,                     rettype,                        setorget,     var,              numindex,      params
 	//All of these return a function label error when used:
-	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_INPUT,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	
+	{ "getJoypad[]",             ScriptParser::TYPE_FLOAT,         GETTER,       JOYPADPRESS,         18,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getPress[]",             ScriptParser::TYPE_BOOL,         GETTER,       BUTTONPRESS,         18,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setPress[]",             ScriptParser::TYPE_VOID,          SETTER,       BUTTONPRESS,         18,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getButton[]",             ScriptParser::TYPE_BOOL,         GETTER,       BUTTONINPUT,         18,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setButton[]",             ScriptParser::TYPE_VOID,          SETTER,       BUTTONINPUT,         18,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getHold[]",             ScriptParser::TYPE_BOOL,         GETTER,       BUTTONHELD,         18,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setHold[]",             ScriptParser::TYPE_VOID,          SETTER,       BUTTONHELD,         18,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getReadKey[]",             ScriptParser::TYPE_BOOL,         GETTER,       READKEY,         127,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getKey[]",             ScriptParser::TYPE_BOOL,         GETTER,       KEYPRESS,         127,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setKey[]",             ScriptParser::TYPE_VOID,          SETTER,       KEYPRESS,         127,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getMouseX",         ScriptParser::TYPE_FLOAT,         GETTER,       INPUTMOUSEX,          1,      {  ScriptParser::TYPE_INPUT,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setMouseX",         ScriptParser::TYPE_VOID,          SETTER,       INPUTMOUSEX,          1,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getMouseY",         ScriptParser::TYPE_FLOAT,         GETTER,       INPUTMOUSEY,          1,      {  ScriptParser::TYPE_INPUT,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setMouseY",         ScriptParser::TYPE_VOID,          SETTER,       INPUTMOUSEY,          1,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getMouseZ",         ScriptParser::TYPE_FLOAT,         GETTER,       INPUTMOUSEZ,          1,      {  ScriptParser::TYPE_INPUT,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setMouseZ",         ScriptParser::TYPE_VOID,          SETTER,       INPUTMOUSEZ,          1,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getMouseB",         ScriptParser::TYPE_FLOAT,         GETTER,       INPUTMOUSEB,          1,      {  ScriptParser::TYPE_INPUT,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setMouseB",         ScriptParser::TYPE_VOID,          SETTER,       INPUTMOUSEB,          1,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
