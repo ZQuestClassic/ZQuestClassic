@@ -114,6 +114,7 @@ public:
     static const int TYPE_SPRITEDATA = 17;
     static const int TYPE_GRAPHICS = 18;
     static const int TYPE_TEXT = 19;
+    static const int TYPE_INPUT = 20;
     
     
     static bool preprocess(AST *theAST, int reclevel, std::map<string,long> *constants);
@@ -179,6 +180,7 @@ public:
 	case  TYPE_SPRITEDATA: return "SpriteData";
 	case  TYPE_GRAPHICS: return "Graphics";
 	case  TYPE_TEXT: return "Text->";
+	case  TYPE_INPUT: return "Input->";
         default:
             return "wtf";
         }

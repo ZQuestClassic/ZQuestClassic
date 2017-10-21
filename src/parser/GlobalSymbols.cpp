@@ -4951,6 +4951,33 @@ map<int, vector<Opcode *> > TextPtrSymbols::addSymbolsCode(LinkTable &lt)
 }
 
 
+InputSymbols InputSymbols::singleton = InputSymbols();
+
+static AccessorTable InputTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_INPUT,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+InputSymbols::InputSymbols()
+{
+    table = InputTable;
+    refVar = NUL;
+}
+
+map<int, vector<Opcode *> > InputSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+
+
 
 GfxPtrSymbols GfxPtrSymbols::singleton = GfxPtrSymbols();
 

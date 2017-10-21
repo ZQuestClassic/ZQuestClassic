@@ -113,6 +113,9 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
     case ScriptParser::TYPE_TEXT:
         fidparam = TextPtrSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
+    case ScriptParser::TYPE_INPUT:
+        fidparam = InputSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
         
     default:
         p->first.first->fail();
@@ -408,6 +411,17 @@ bool TypeCheck::standardCheck(int firsttype, int secondtype, AST *toblame)
     case ScriptParser::TYPE_TEXT:
     {
         if(secondtype == ScriptParser::TYPE_TEXT)
+            return true;
+            
+        if(toblame)
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Text");
+            
+        return false;
+    }
+    
+    case ScriptParser::TYPE_INPUT:
+    {
+        if(secondtype == ScriptParser::TYPE_INPUT)
             return true;
             
         if(toblame)
@@ -1246,7 +1260,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
 	|| lvaltype == ScriptParser::TYPE_NPCDATA || lvaltype == ScriptParser::TYPE_DEBUG
 	|| lvaltype == ScriptParser::TYPE_AUDIO || lvaltype == ScriptParser::TYPE_COMBOS
 	|| lvaltype == ScriptParser::TYPE_SPRITEDATA || lvaltype == ScriptParser::TYPE_GRAPHICS
-	|| lvaltype == ScriptParser::TYPE_TEXT ))
+	|| lvaltype == ScriptParser::TYPE_TEXT || lvaltype == ScriptParser::TYPE_INPUT ))
         {
             printErrorMsg(lval, ARROWNOTPOINTER);
             failure = true;
@@ -1428,6 +1442,10 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
             break;
 	case ScriptParser::TYPE_TEXT:
             fidtype = TextPtrSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	
+	case ScriptParser::TYPE_INPUT:
+            fidtype = InputSymbols::getInst().matchFunction(name->getName(), st);
             break;
             
         default:
@@ -1634,6 +1652,11 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host, void *param)
     case ScriptParser::TYPE_TEXT:
     {
         fidparam = TextPtrSymbols::getInst().matchFunction(name,st);
+        break;
+    }
+    case ScriptParser::TYPE_INPUT:
+    {
+        fidparam = InputSymbols::getInst().matchFunction(name,st);
         break;
     }
     

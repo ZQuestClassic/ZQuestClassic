@@ -294,6 +294,21 @@ private:
     TextPtrSymbols();
 };
 
+//Input->
+class InputSymbols : public LibrarySymbols
+{
+public:
+    static InputSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static InputSymbols singleton;
+    InputSymbols();
+};
+
 #endif
 
 
