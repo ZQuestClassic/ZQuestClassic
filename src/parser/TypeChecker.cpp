@@ -1242,7 +1242,11 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
         if(!(lvaltype == ScriptParser::TYPE_FFC || lvaltype == ScriptParser::TYPE_LINK
                 || lvaltype == ScriptParser::TYPE_SCREEN || lvaltype == ScriptParser::TYPE_ITEM
                 || lvaltype == ScriptParser::TYPE_ITEMCLASS || lvaltype == ScriptParser::TYPE_GAME || lvaltype == ScriptParser::TYPE_NPC
-                || lvaltype == ScriptParser::TYPE_LWPN || lvaltype == ScriptParser::TYPE_EWPN))
+                || lvaltype == ScriptParser::TYPE_LWPN || lvaltype == ScriptParser::TYPE_EWPN
+	|| lvaltype == ScriptParser::TYPE_NPCDATA || lvaltype == ScriptParser::TYPE_DEBUG
+	|| lvaltype == ScriptParser::TYPE_AUDIO || lvaltype == ScriptParser::TYPE_COMBOS
+	|| lvaltype == ScriptParser::TYPE_SPRITEDATA || lvaltype == ScriptParser::TYPE_GRAPHICS
+	|| lvaltype == ScriptParser::TYPE_TEXT ))
         {
             printErrorMsg(lval, ARROWNOTPOINTER);
             failure = true;
@@ -1402,6 +1406,28 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
             
         case ScriptParser::TYPE_EWPN:
             fidtype = EnemyWeaponSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	
+	case ScriptParser::TYPE_NPCDATA:
+            fidtype = NPCDataSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_DEBUG:
+            fidtype = DebugSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_AUDIO:
+            fidtype = AudioSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_COMBOS:
+            fidtype = CombosPtrSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_SPRITEDATA:
+            fidtype = SpriteDataSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_GRAPHICS:
+            fidtype = GfxPtrSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_TEXT:
+            fidtype = TextPtrSymbols::getInst().matchFunction(name->getName(), st);
             break;
             
         default:

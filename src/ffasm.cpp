@@ -9,8 +9,11 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "zc_malloc.h"
+#include "ffscript.h"
 #include "ffasm.h"
+
+#include "zc_malloc.h"
+//#include "ffasm.h"
 #include "zquest.h"
 #include "zsys.h"
 #ifdef ALLEGRO_MACOSX

@@ -4,8 +4,7 @@
 #include <utility>
 #include <string>
 #include <list>
-#include "zelda.h"
-
+#include "zelda.h" //This is probably the source of the duplication of BMP_MOUSE. -Z
 
 #define ZS_BYTE 255
 #define ZS_CHAR 255
@@ -16,6 +15,11 @@
 #define ZS_FIX 214748
 #define ZS_DWORD 65535
 
+#define MAX_ZQ_LAYER 6
+#define MAX_DRAW_LAYER 7
+#define MIN_ZQ_LAYER 0
+#define MIN_DRAW_LAYER 0
+#define MAX_FLAGS 512
 
 class FFScript
 {
@@ -754,20 +758,6 @@ struct script_variable
     byte multiple;
 };
 
-//Should these be here in this engine version? -Z
-struct quad3Dstruct
-{
-    int index;
-    float pos[12], uv[8];
-    int size[2], color[4];
-};
-
-struct triangle3Dstruct
-{
-    int index;
-    float pos[9], uv[6];
-    int size[2], color[3];
-};
 
 // Defines for script flags
 #define TRUEFLAG          0x0001

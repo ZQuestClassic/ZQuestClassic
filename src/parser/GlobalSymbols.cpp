@@ -31,13 +31,7 @@ const int radsperdeg = 572958;
 
 //New Types
 
-#define ScriptParser::TYPE_NPCDATA ScriptParser::TYPE_NPCDATA
-#define ZVARTYPEID_DEBUG ScriptParser::TYPE_DEBUG
-#define ZVARTYPEID_AUDIO ScriptParser::TYPE_AUDIO
-#define ZVARTYPEID_COMBOS ScriptParser::TYPE_COMBOS
-#define ZVARTYPEID_SPRITEDATA ScriptParser::TYPE_SPRITEDATA
-#define ZVARTYPEID_GRAPHICS ScriptParser::TYPE_GRAPHICS
-#define ZVARTYPEID_TEXT ScriptParser::TYPE_TEXT
+
 
 #define ARGS_4(t, arg1, arg2, arg3, arg4) \
 	{ t, arg1, arg2, arg3, arg4, -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
@@ -372,8 +366,8 @@ static AccessorTable GlobalTable[] =
     { "SizeOfArrayBool",            ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_BOOL,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "SizeOfArrayFFC",            ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_FFC,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "SizeOfArrayItem",            ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_ITEM,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "SizeOfArrayLWeapon",            ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_LWPN,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "SizeOfArrayEWeapon",            ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_EWPN,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SizeOfArrayLWeapon",            ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_LWPN,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SizeOfArrayEWeapon",            ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_EWPN,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "SizeOfArrayNPC",            ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_NPC,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "SizeOfArrayItemdata",            ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_ITEMCLASS,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "OverlayTile",               ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -1538,11 +1532,11 @@ static AccessorTable ScreenTable[] =
     { "SetRenderTarget",        ScriptParser::TYPE_VOID,		    FUNCTION,	  0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,		  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1							 } },
     { "Message",                ScriptParser::TYPE_VOID,		    FUNCTION,	   0,                   1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,		  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1,							  -1,							-1							 } },
     { "NumLWeapons",            ScriptParser::TYPE_FLOAT,         GETTER,       LWPNCOUNT,            1,      {  ScriptParser::TYPE_SCREEN,       -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "LoadLWeapon",            ZVARTYPEID_LWPN,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,        ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "CreateLWeapon",          ZVARTYPEID_LWPN,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,        ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "LoadLWeapon",            ScriptParser::TYPE_LWPN,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,        ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "CreateLWeapon",          ScriptParser::TYPE_LWPN,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,        ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "NumEWeapons",            ScriptParser::TYPE_FLOAT,         GETTER,       EWPNCOUNT,            1,      {  ScriptParser::TYPE_SCREEN,       -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "LoadEWeapon",            ZVARTYPEID_EWPN,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,        ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "CreateEWeapon",          ZVARTYPEID_EWPN,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,        ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "LoadEWeapon",            ScriptParser::TYPE_EWPN,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,        ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "CreateEWeapon",          ScriptParser::TYPE_EWPN,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,        ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "isSolid",                ScriptParser::TYPE_BOOL,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,        ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "SetSideWarp",            ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,     -1,     -1,                           -1,                          -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
     { "SetTileWarp",            ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,    -1,     -1,     -1,                           -1,                          -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,							  } },
@@ -1580,7 +1574,7 @@ static AccessorTable ScreenTable[] =
     { "WavyIn",         	ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_SCREEN,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "WavyOut",         	ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_SCREEN,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "OpeningWipe",         	ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_SCREEN,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "CreateLWeaponDx",              ZVARTYPEID_LWPN,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,        ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "CreateLWeaponDx",              ScriptParser::TYPE_LWPN,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,        ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     //{ "Polygon",                   ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,		 ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,     ScriptParser::TYPE_FLOAT,  ScriptParser::TYPE_FLOAT,                         -1,                           -1,                           -1,                           -1,                           } },
     { "TriggerSecret",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SCREEN,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
  
@@ -2529,8 +2523,8 @@ static AccessorTable itemclassTable[] =
 
     
     
-    { "getMovement[]",              ScriptParser::TYPE_FLOAT,         GETTER,       IDATAUSEMVT,             ITEM_MOVEMENT_PATTERNS,     {  ScriptParser::TYPE_ITEMCLASS,           ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "setMovement[]",              ScriptParser::TYPE_VOID,          SETTER,       IDATAUSEMVT,              ITEM_MOVEMENT_PATTERNS,     {  ScriptParser::TYPE_ITEMCLASS,           ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+//    { "getMovement[]",              ScriptParser::TYPE_FLOAT,         GETTER,       IDATAUSEMVT,             ITEM_MOVEMENT_PATTERNS,     {  ScriptParser::TYPE_ITEMCLASS,           ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+//    { "setMovement[]",              ScriptParser::TYPE_VOID,          SETTER,       IDATAUSEMVT,              ITEM_MOVEMENT_PATTERNS,     {  ScriptParser::TYPE_ITEMCLASS,           ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
     { "getWeaponD[]",              ScriptParser::TYPE_FLOAT,         GETTER,       IDATAWPNINITD,             8,     {  ScriptParser::TYPE_ITEMCLASS,           ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setWeaponD[]",              ScriptParser::TYPE_VOID,          SETTER,       IDATAWPNINITD,              8,     {  ScriptParser::TYPE_ITEMCLASS,           ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -2802,7 +2796,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     map<int,vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     //itemclass LoadItemData(game, int)
     {
-        int id = functions["LoadItemData"];
+        int id = memberids["LoadItemData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -2819,7 +2813,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //bool GetScreenState(game, int,int,int)
     {
-        int id = functions["GetScreenState"];
+        int id = memberids["GetScreenState"];
         int label = lt.functionToLabel(id);
         int done = ScriptParser::getUniqueLabelID();
         vector<Opcode *> code;
@@ -2847,7 +2841,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenState(game, int,int,int,bool)
     {
-        int id = functions["SetScreenState"];
+        int id = memberids["SetScreenState"];
         int label = lt.functionToLabel(id);
         int done = ScriptParser::getUniqueLabelID();
         vector<Opcode *> code;
@@ -2875,7 +2869,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenD(game, int,int)
     {
-        int id = functions["GetScreenD"];
+        int id = memberids["GetScreenD"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -2892,7 +2886,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenD(game, int,int,int)
     {
-        int id = functions["SetScreenD"];
+        int id = memberids["SetScreenD"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -2910,7 +2904,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetDMapScreenD(game, int,int,int)
     {
-        int id = functions["GetDMapScreenD"];
+        int id = memberids["GetDMapScreenD"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -2928,7 +2922,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetDMapScreenD(game, int,int,int,int)
     {
-        int id = functions["SetDMapScreenD"];
+        int id = memberids["SetDMapScreenD"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -2947,7 +2941,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PlaySound(game, int)
     {
-        int id = functions["PlaySound"];
+        int id = memberids["PlaySound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -2963,7 +2957,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PlayMIDI(game, int)
     {
-        int id = functions["PlayMIDI"];
+        int id = memberids["PlayMIDI"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -2979,7 +2973,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PlayEnhancedMusic(game, int, int)
     {
-        int id = functions["PlayEnhancedMusic"];
+        int id = memberids["PlayEnhancedMusic"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -2996,7 +2990,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void GetDMapMusicFilename(game, int, int)
     {
-        int id = functions["GetDMapMusicFilename"];
+        int id = memberids["GetDMapMusicFilename"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3013,7 +3007,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetDMapMusicTrack(game, int)
     {
-        int id = functions["GetDMapMusicTrack"];
+        int id = memberids["GetDMapMusicTrack"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -3028,7 +3022,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetDMapEnhancedMusic(game, int,int,int)
     {
-        int id = functions["SetDMapEnhancedMusic"];
+        int id = memberids["SetDMapEnhancedMusic"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OSetDMapEnhancedMusic();
@@ -3046,7 +3040,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetComboData(int,int,int)
     {
-        int id = functions["GetComboData"];
+        int id = memberids["GetComboData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3064,7 +3058,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetComboData(int,int,int,int)
     {
-        int id = functions["SetComboData"];
+        int id = memberids["SetComboData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3083,7 +3077,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetComboCSet(int,int,int)
     {
-        int id = functions["GetComboCSet"];
+        int id = memberids["GetComboCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3101,7 +3095,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetComboCSet(int,int,int,int)
     {
-        int id = functions["SetComboCSet"];
+        int id = memberids["SetComboCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3120,7 +3114,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetComboFlag(int,int,int)
     {
-        int id = functions["GetComboFlag"];
+        int id = memberids["GetComboFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3138,7 +3132,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetComboFlag(int,int,int,int)
     {
-        int id = functions["SetComboFlag"];
+        int id = memberids["SetComboFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3157,7 +3151,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetComboType(int,int,int)
     {
-        int id = functions["GetComboType"];
+        int id = memberids["GetComboType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3175,7 +3169,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetComboType(int,int,int,int)
     {
-        int id = functions["SetComboType"];
+        int id = memberids["SetComboType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3194,7 +3188,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetComboInherentFlag(int,int,int)
     {
-        int id = functions["GetComboInherentFlag"];
+        int id = memberids["GetComboInherentFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3212,7 +3206,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetComboInherentFlag(int,int,int,int)
     {
-        int id = functions["SetComboInherentFlag"];
+        int id = memberids["SetComboInherentFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3231,7 +3225,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetComboCollision(int,int,int)
     {
-        int id = functions["GetComboSolid"];
+        int id = memberids["GetComboSolid"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3249,7 +3243,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetComboCollision(int,int,int,int)
     {
-        int id = functions["SetComboSolid"];
+        int id = memberids["SetComboSolid"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3268,7 +3262,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenFlags(game,int,int,int)
     {
-        int id = functions["GetScreenFlags"];
+        int id = memberids["GetScreenFlags"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3286,7 +3280,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenEFlags(game,int,int,int)
     {
-        int id = functions["GetScreenEFlags"];
+        int id = memberids["GetScreenEFlags"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3304,7 +3298,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Save(game)
     {
-        int id = functions["Save"];
+        int id = memberids["Save"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -3318,7 +3312,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void End(game)
     {
-        int id = functions["End"];
+        int id = memberids["End"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -3332,7 +3326,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int ComboTile(game,int)
     {
-        int id = functions["ComboTile"];
+        int id = memberids["ComboTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -3347,7 +3341,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void GetSaveName(game, int)
     {
-        int id = functions["GetSaveName"];
+        int id = memberids["GetSaveName"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3363,7 +3357,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void GetSaveName(game, int)
     {
-        int id = functions["SetSaveName"];
+        int id = memberids["SetSaveName"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3379,7 +3373,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetMessage(game, int, int)
     {
-        int id = functions["GetMessage"];
+        int id = memberids["GetMessage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3396,7 +3390,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDMapName(game, int, int)
     {
-        int id = functions["GetDMapName"];
+        int id = memberids["GetDMapName"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3413,7 +3407,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDMapTitle(game, int, int)
     {
-        int id = functions["GetDMapTitle"];
+        int id = memberids["GetDMapTitle"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3430,7 +3424,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDMapIntro(game, int, int)
     {
-        int id = functions["GetDMapIntro"];
+        int id = memberids["GetDMapIntro"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3450,7 +3444,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void GreyscaleOn(game)
     {
-        int id = functions["GreyscaleOn"];
+        int id = memberids["GreyscaleOn"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -3465,7 +3459,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
             
 	//void GreyscaleOff(game)
     {
-        int id = functions["GreyscaleOff"];
+        int id = memberids["GreyscaleOff"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -3481,7 +3475,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
    // SetMessage(game, int, int)
     {
-        int id = functions["SetMessage"];
+        int id = memberids["SetMessage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3498,7 +3492,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDMapName(game, int, int)
     {
-        int id = functions["SetDMapName"];
+        int id = memberids["SetDMapName"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3515,7 +3509,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDMapTitle(game, int, int)
     {
-        int id = functions["SetDMapTitle"];
+        int id = memberids["SetDMapTitle"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3532,7 +3526,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDMapIntro(game, int, int)
     {
-        int id = functions["SetDMapIntro"];
+        int id = memberids["SetDMapIntro"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3550,7 +3544,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //bool ShowSaveScreen(game)
     {
-        int id = functions["ShowSaveScreen"];
+        int id = memberids["ShowSaveScreen"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -3565,7 +3559,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void ShowSaveQuitScreen(game)
     {
-        int id = functions["ShowSaveQuitScreen"];
+        int id = memberids["ShowSaveQuitScreen"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -3580,7 +3574,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //int GetFFCScript(game, int)
     {
-        int id = functions["GetFFCScript"];
+        int id = memberids["GetFFCScript"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3598,7 +3592,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
      //int GetItemScript(game, int)
     {
-        int id = functions["GetItemScript"];
+        int id = memberids["GetItemScript"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3615,7 +3609,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
      //int GetScreenEnemy(game,int,int,int)
     {
-        int id = functions["GetScreenEnemy"];
+        int id = memberids["GetScreenEnemy"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3633,7 +3627,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
      //int GetScreenDoor(game,int,int,int)
     {
-        int id = functions["GetScreenDoor"];
+        int id = memberids["GetScreenDoor"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3651,7 +3645,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenEnemy(int,int,int,int)
     {
-        int id = functions["SetScreenEnemy"];
+        int id = memberids["SetScreenEnemy"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3670,7 +3664,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenDoor(int,int,int,int)
     {
-        int id = functions["SetScreenDoor"];
+        int id = memberids["SetScreenDoor"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3690,7 +3684,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void SetScreenWidth(game, int,int,int)
     {
-        int id = functions["SetScreenWidth"];
+        int id = memberids["SetScreenWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3708,7 +3702,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenWidth(game, int,int)
     {
-        int id = functions["GetScreenWidth"];
+        int id = memberids["GetScreenWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3726,7 +3720,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void SetScreenHeight(game, int,int,int)
     {
-        int id = functions["SetScreenHeight"];
+        int id = memberids["SetScreenHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3744,7 +3738,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenHeight(game, int,int)
     {
-        int id = functions["GetScreenHeight"];
+        int id = memberids["GetScreenHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3761,7 +3755,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenViewX(game, int,int,int)
     {
-        int id = functions["SetScreenViewX"];
+        int id = memberids["SetScreenViewX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3779,7 +3773,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenViewX(game, int,int)
     {
-        int id = functions["GetScreenViewX"];
+        int id = memberids["GetScreenViewX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3796,7 +3790,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
      //void SetScreenViewY(game, int,int,int)
     {
-        int id = functions["SetScreenViewY"];
+        int id = memberids["SetScreenViewY"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3814,7 +3808,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenViewY(game, int,int)
     {
-        int id = functions["GetScreenViewY"];
+        int id = memberids["GetScreenViewY"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3831,7 +3825,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenGuy(game, int,int,int)
     {
-        int id = functions["SetScreenGuy"];
+        int id = memberids["SetScreenGuy"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3849,7 +3843,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenGuy(game, int,int)
     {
-        int id = functions["GetScreenGuy"];
+        int id = memberids["GetScreenGuy"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3866,7 +3860,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenString(game, int,int,int)
     {
-        int id = functions["SetScreenString"];
+        int id = memberids["SetScreenString"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3884,7 +3878,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenString(game, int,int)
     {
-        int id = functions["GetScreenString"];
+        int id = memberids["GetScreenString"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3901,7 +3895,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenRoomType(game, int,int,int)
     {
-        int id = functions["SetScreenRoomType"];
+        int id = memberids["SetScreenRoomType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3919,7 +3913,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenRoomType(game, int,int)
     {
-        int id = functions["GetScreenRoomType"];
+        int id = memberids["GetScreenRoomType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3936,7 +3930,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenEntryX(game, int,int,int)
     {
-        int id = functions["SetScreenEntryX"];
+        int id = memberids["SetScreenEntryX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3954,7 +3948,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenEntryX(game, int,int)
     {
-        int id = functions["GetScreenEntryX"];
+        int id = memberids["GetScreenEntryX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3971,7 +3965,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenEntryY(game, int,int,int)
     {
-        int id = functions["SetScreenEntryY"];
+        int id = memberids["SetScreenEntryY"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3989,7 +3983,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenEntryY(game, int,int)
     {
-        int id = functions["GetScreenEntryY"];
+        int id = memberids["GetScreenEntryY"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4006,7 +4000,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
      //void SetScreenItem(game, int,int,int)
     {
-        int id = functions["SetScreenItem"];
+        int id = memberids["SetScreenItem"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4024,7 +4018,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenItem(game, int,int)
     {
-        int id = functions["GetScreenItem"];
+        int id = memberids["GetScreenItem"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4041,7 +4035,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
      //void SetScreenUndercombo(game, int,int,int)
     {
-        int id = functions["SetScreenUndercombo"];
+        int id = memberids["SetScreenUndercombo"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4059,7 +4053,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenUndercombo(game, int,int)
     {
-        int id = functions["GetScreenUndercombo"];
+        int id = memberids["GetScreenUndercombo"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4076,7 +4070,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenUnderCSet(game, int,int,int)
     {
-        int id = functions["SetScreenUnderCSet"];
+        int id = memberids["SetScreenUnderCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4094,7 +4088,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenUnderCSet(game, int,int)
     {
-        int id = functions["GetScreenUnderCSet"];
+        int id = memberids["GetScreenUnderCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4111,7 +4105,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenCatchall(game, int,int,int)
     {
-        int id = functions["SetScreenCatchall"];
+        int id = memberids["SetScreenCatchall"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4129,7 +4123,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenCatchall(game, int,int)
     {
-        int id = functions["GetScreenCatchall"];
+        int id = memberids["GetScreenCatchall"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4147,7 +4141,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void SetScreenLayerOpacity(int,int,int,int)
     {
-        int id = functions["SetScreenLayerOpacity"];
+        int id = memberids["SetScreenLayerOpacity"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4166,7 +4160,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenLayerOpacity(game,int,int,int)
     {
-        int id = functions["GetScreenLayerOpacity"];
+        int id = memberids["GetScreenLayerOpacity"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4185,7 +4179,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 
      //void SetScreenSecretCombo(int,int,int,int)
     {
-        int id = functions["SetScreenSecretCombo"];
+        int id = memberids["SetScreenSecretCombo"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4204,7 +4198,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenSecretCombo(game,int,int,int)
     {
-        int id = functions["GetScreenSecretCombo"];
+        int id = memberids["GetScreenSecretCombo"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4223,7 +4217,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 
      //void SetScreenSecretCSet(int,int,int,int)
     {
-        int id = functions["SetScreenSecretCSet"];
+        int id = memberids["SetScreenSecretCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4242,7 +4236,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenSecretCSet(game,int,int,int)
     {
-        int id = functions["GetScreenSecretCSet"];
+        int id = memberids["GetScreenSecretCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4260,7 +4254,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenSecretFlag(int,int,int,int)
     {
-        int id = functions["SetScreenSecretFlag"];
+        int id = memberids["SetScreenSecretFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4279,7 +4273,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenSecretFlag(game,int,int,int)
     {
-        int id = functions["GetScreenSecretFlag"];
+        int id = memberids["GetScreenSecretFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4298,7 +4292,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 
      //void SetScreenLayerMap(int,int,int,int)
     {
-        int id = functions["SetScreenLayerMap"];
+        int id = memberids["SetScreenLayerMap"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4317,7 +4311,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenLayerMap(game,int,int,int)
     {
-        int id = functions["GetScreenLayerMap"];
+        int id = memberids["GetScreenLayerMap"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4337,7 +4331,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void SetScreenLayerScreen(int,int,int,int)
     {
-        int id = functions["SetScreenLayerScreen"];
+        int id = memberids["SetScreenLayerScreen"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4356,7 +4350,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenLayerScreen(game,int,int,int)
     {
-        int id = functions["GetScreenLayerScreen"];
+        int id = memberids["GetScreenLayerScreen"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4375,7 +4369,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 
     //void SetScreenPath(int,int,int,int)
     {
-        int id = functions["SetScreenPath"];
+        int id = memberids["SetScreenPath"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4394,7 +4388,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenPath(game,int,int,int)
     {
-        int id = functions["GetScreenPath"];
+        int id = memberids["GetScreenPath"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4412,7 +4406,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenWarpReturnX(int,int,int,int)
     {
-        int id = functions["SetScreenWarpReturnX"];
+        int id = memberids["SetScreenWarpReturnX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4431,7 +4425,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenWarpReturnX(game,int,int,int)
     {
-        int id = functions["GetScreenWarpReturnX"];
+        int id = memberids["GetScreenWarpReturnX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4449,7 +4443,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenWarpReturnY(int,int,int,int)
     {
-        int id = functions["SetScreenWarpReturnY"];
+        int id = memberids["SetScreenWarpReturnY"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4468,7 +4462,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenWarpReturnY(game,int,int,int)
     {
-        int id = functions["GetScreenWarpReturnY"];
+        int id = memberids["GetScreenWarpReturnY"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4736,8 +4730,8 @@ static AccessorTable lwpnTable[] =
     { "setMisc[]",              ScriptParser::TYPE_VOID,          SETTER,       LWPNMISCD,           32,      {  ScriptParser::TYPE_LWPN,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getCollDetection", 	  ScriptParser::TYPE_BOOL,         GETTER,       LWPNCOLLDET,          1,      {  ScriptParser::TYPE_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setCollDetection", 	  ScriptParser::TYPE_VOID,          SETTER,       LWPNCOLLDET,          1,      {  ScriptParser::TYPE_LWPN,          ScriptParser::TYPE_BOOL,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    //{ "getRange",          ScriptParser::TYPE_FLOAT,         GETTER,       LWPNRANGE,            1,      {  ZVARTYPEID_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    //{ "setRange",          ScriptParser::TYPE_VOID,          SETTER,       LWPNRANGE,            1,      {  ZVARTYPEID_LWPN,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    //{ "getRange",          ScriptParser::TYPE_FLOAT,         GETTER,       LWPNRANGE,            1,      {  ScriptParser::TYPE_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    //{ "setRange",          ScriptParser::TYPE_VOID,          SETTER,       LWPNRANGE,            1,      {  ScriptParser::TYPE_LWPN,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
    
 
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
@@ -4917,11 +4911,14 @@ map<int, vector<Opcode *> > EnemyWeaponSymbols::addSymbolsCode(LinkTable &lt)
 
 /////// New Types
 
+
+TextPtrSymbols TextPtrSymbols::singleton = TextPtrSymbols();
+
 static AccessorTable TextTable[] =
 {
     //name,                     rettype,                        setorget,     var,              numindex,      params
 	//All of these return a function label error when used:
-	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ZVARTYPEID_TEXT,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_TEXT,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -4949,7 +4946,7 @@ static AccessorTable GraphicsTable[] =
 {
     //name,                     rettype,                        setorget,     var,              numindex,      params
 	//All of these return a function label error when used:
-	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ZVARTYPEID_GRAPHICS,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_GRAPHICS,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -4975,19 +4972,19 @@ static AccessorTable SpriteDataTable[] =
 {
     //name,                     rettype,                        setorget,     var,              numindex,      params
 	//All of these return a function label error when used:
-	{ "GetTile",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetMisc",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetCSets",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetFrames",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetSpeed",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetTile",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetMisc",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetCSets",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetFrames",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetSpeed",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 		
-	{ "SetTile",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetMisc",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetCSets",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetFrames",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetSpeed",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetTile",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetMisc",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetCSets",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetFrames",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetSpeed",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 		
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -5007,7 +5004,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
 
 //GetTile(SpriteData, int)
     {
-        int id = functions["GetTile"];
+        int id = memberids["GetTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5024,7 +5021,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetMisc(SpriteData, int)
     {
-        int id = functions["GetMisc"];
+        int id = memberids["GetMisc"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5041,7 +5038,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetCSets(SpriteData, int)
     {
-        int id = functions["GetCSets"];
+        int id = memberids["GetCSets"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5058,7 +5055,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetFrames(SpriteData, int)
     {
-        int id = functions["GetFrames"];
+        int id = memberids["GetFrames"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5075,7 +5072,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetSpeed(SpriteData, int)
     {
-        int id = functions["GetSpeed"];
+        int id = memberids["GetSpeed"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5092,7 +5089,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetType(SpriteData, int)
     {
-        int id = functions["GetType"];
+        int id = memberids["GetType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5109,7 +5106,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetTile(SpriteData, int, int)
     {
-        int id = functions["SetTile"];
+        int id = memberids["SetTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5126,7 +5123,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetMisc(SpriteData, int, int)
     {
-        int id = functions["SetMisc"];
+        int id = memberids["SetMisc"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5143,7 +5140,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetCSets(SpriteData, int, int)
     {
-        int id = functions["SetCSets"];
+        int id = memberids["SetCSets"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5160,7 +5157,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetFrames(SpriteData, int, int)
     {
-        int id = functions["SetFrames"];
+        int id = memberids["SetFrames"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5177,7 +5174,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetSpeed(SpriteData, int, int)
     {
-        int id = functions["SetSpeed"];
+        int id = memberids["SetSpeed"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5194,7 +5191,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetType(SpriteData, int, int)
     {
-        int id = functions["SetType"];
+        int id = memberids["SetType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5218,168 +5215,168 @@ static AccessorTable CombosTable[] =
 {
     //name,                     rettype,                        setorget,     var,              numindex,      params
 	//one input, one return
-	{ "GetBlockEnemies",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetBlockHole",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetBlockTrigger",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetConveyorSpeedX",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetConveyorSpeedY",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetCreateEnemy",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetCreateEnemyWhen",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetCreateEnemyChnge",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetDirChangeType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetDistanceChangeTiles",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetDiveItem",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetDock",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetFairy",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetFFComboChangeAttrib",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetFootDecorationsTile",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetFootDecorationsType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetHookshotGrab",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetLadderPass",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetLockBlockType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetLockBlockChange",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetMagicMirror",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetModifyHPAmount",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetModifyHPDelay",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetModifyHPType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetModifyMPAmount",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetModifyMPDelay",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetModifyMPType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetNoPushBlocks",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetOverhead",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetPlaceEnemy",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetPushDirection",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetPushWeight",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetPushWait",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetPushed",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetRaft",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetResetRoom",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetSavePoint",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetScreenFreeze",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetSecretCombo",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetSingular",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetSlowMove",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetStatue",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetStepType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetStepChangeTo",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetStrikeRemnants",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetStrikeRemnantsType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetStrikeChange",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetStrikeItem",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetTouchItem",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetTouchStairs",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetTriggerType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetTriggerSens",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetWarpType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetWarpSens",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetWarpDirect",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetWarpLocation",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetWater",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetWhistle",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetWinGame",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetBlockWeaponLevel",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetTile",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetFlip",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetWalkability",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetCSets",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetFoo",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetFrames",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetSpeed",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetNextCombo",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetNextCSet",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetFlag",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetSkipAnim",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetNextTimer",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetSkipAnimY",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetAnimFlags",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetBlockEnemies",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetBlockHole",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetBlockTrigger",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetConveyorSpeedX",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetConveyorSpeedY",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetCreateEnemy",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetCreateEnemyWhen",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetCreateEnemyChnge",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetDirChangeType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetDistanceChangeTiles",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetDiveItem",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetDock",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetFairy",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetFFComboChangeAttrib",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetFootDecorationsTile",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetFootDecorationsType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetHookshotGrab",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetLadderPass",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetLockBlockType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetLockBlockChange",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetMagicMirror",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetModifyHPAmount",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetModifyHPDelay",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetModifyHPType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetModifyMPAmount",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetModifyMPDelay",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetModifyMPType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetNoPushBlocks",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetOverhead",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetPlaceEnemy",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetPushDirection",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetPushWeight",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetPushWait",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetPushed",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetRaft",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetResetRoom",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetSavePoint",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetScreenFreeze",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetSecretCombo",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetSingular",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetSlowMove",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetStatue",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetStepType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetStepChangeTo",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetStrikeRemnants",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetStrikeRemnantsType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetStrikeChange",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetStrikeItem",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetTouchItem",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetTouchStairs",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetTriggerType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetTriggerSens",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetWarpType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetWarpSens",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetWarpDirect",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetWarpLocation",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetWater",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetWhistle",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetWinGame",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetBlockWeaponLevel",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetTile",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetFlip",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetWalkability",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetType",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetCSets",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetFoo",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetFrames",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetSpeed",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetNextCombo",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetNextCSet",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetFlag",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetSkipAnim",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetNextTimer",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetSkipAnimY",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetAnimFlags",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 
 	//two inputs, one return
-	{ "GetBlockWeapon",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_NPCDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetExpansion",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_NPCDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetStrikeWeapons",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_NPCDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetBlockWeapon",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetExpansion",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetStrikeWeapons",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 		
 	//two inputs, no return
-	{ "SetBlockEnemies",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetBlockHole",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetBlockTrigger",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetConveyorSpeedX",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetConveyorSpeedY",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetCreateEnemy",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetCreateEnemyWhen",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetCreateEnemyChnge",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetDirChangeType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetDistanceChangeTiles",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetDiveItem",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetDock",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetFairy",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetFFComboChangeAttrib",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetFootDecorationsTile",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetFootDecorationsType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetHookshotGrab",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetLadderPass",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetLockBlockType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetLockBlockChange",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetMagicMirror",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetModifyHPAmount",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetModifyHPDelay",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetModifyHPType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetModifyMPAmount",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetModifyMPDelay",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetModifyMPType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetNoPushBlocks",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetOverhead",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetPlaceEnemy",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetPushDirection",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetPushWeight",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetPushWait",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetPushed",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetRaft",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetResetRoom",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetSavePoint",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetScreenFreeze",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetSecretCombo",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetSingular",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetSlowMove",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetStatue",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetStepType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetStepChangeTo",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetStrikeRemnants",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetStrikeRemnantsType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetStrikeChange",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetStrikeItem",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetTouchItem",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetTouchStairs",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetTriggerType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetTriggerSens",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetWarpType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetWarpSens",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetWarpDirect",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetWarpLocation",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetWater",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetWhistle",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetWinGame",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetBlockWeaponLevel",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetTile",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetFlip",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetWalkability",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetCSets",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetFoo",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetFrames",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetSpeed",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetNextCombo",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetNextCSet",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetFlag",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetSkipAnim",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetNextTimer",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetSkipAnimY",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetAnimFlags",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetBlockEnemies",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetBlockHole",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetBlockTrigger",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetConveyorSpeedX",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetConveyorSpeedY",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetCreateEnemy",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetCreateEnemyWhen",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetCreateEnemyChnge",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetDirChangeType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetDistanceChangeTiles",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetDiveItem",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetDock",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetFairy",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetFFComboChangeAttrib",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetFootDecorationsTile",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetFootDecorationsType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetHookshotGrab",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetLadderPass",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetLockBlockType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetLockBlockChange",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetMagicMirror",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetModifyHPAmount",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetModifyHPDelay",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetModifyHPType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetModifyMPAmount",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetModifyMPDelay",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetModifyMPType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetNoPushBlocks",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetOverhead",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetPlaceEnemy",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetPushDirection",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetPushWeight",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetPushWait",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetPushed",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetRaft",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetResetRoom",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetSavePoint",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetScreenFreeze",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetSecretCombo",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetSingular",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetSlowMove",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetStatue",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetStepType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetStepChangeTo",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetStrikeRemnants",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetStrikeRemnantsType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetStrikeChange",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetStrikeItem",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetTouchItem",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetTouchStairs",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetTriggerType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetTriggerSens",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetWarpType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetWarpSens",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetWarpDirect",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetWarpLocation",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetWater",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetWhistle",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetWinGame",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetBlockWeaponLevel",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetTile",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetFlip",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetWalkability",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetCSets",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetFoo",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetFrames",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetSpeed",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetNextCombo",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetNextCSet",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetFlag",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetSkipAnim",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetNextTimer",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetSkipAnimY",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetAnimFlags",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 
 	//three inputs, no return
-	{ "SetBlockWeapon",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetExpansion",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetStrikeWeapons",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_COMBOS,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetBlockWeapon",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetExpansion",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetStrikeWeapons",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_COMBOS,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 
 
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
@@ -5881,17 +5878,17 @@ AudioSymbols AudioSymbols::singleton = AudioSymbols();
 static AccessorTable AudioTable[] =
 {
     //name,                     rettype,                        setorget,     var,              numindex,      params
-    { "PlaySound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "EndSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      { ZVARTYPEID_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "PauseSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "ResumeSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "ContinueSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "AdjustSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           ScriptParser::TYPE_BOOL,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "PauseMusic",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ZVARTYPEID_AUDIO,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "ResumeMusic",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ZVARTYPEID_AUDIO,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "PlaySound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "EndSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      { ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "PauseSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "ResumeSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "ContinueSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "AdjustSound",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           ScriptParser::TYPE_BOOL,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "PauseCurMIDI",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_AUDIO,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "ResumeCurMIDI",         ScriptParser::TYPE_VOID,          FUNCTION,     0,       		        1,      {  ScriptParser::TYPE_AUDIO,        -1,    					   -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
    
-    { "PlayMIDI",               ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "PlayEnhancedMusic",      ScriptParser::TYPE_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_AUDIO,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "PlayMIDI",               ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "PlayEnhancedMusic",      ScriptParser::TYPE_BOOL,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_AUDIO,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -5911,7 +5908,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     
     //void AdjustSound(game, int,int,bool)
     {
-        int id = functions["AdjustSound"];
+        int id = memberids["AdjustSound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5929,7 +5926,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PlaySound(game, int)
     {
-        int id = functions["PlaySound"];
+        int id = memberids["PlaySound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -5946,7 +5943,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     
     //void EndSound(game, int)
     {
-        int id = functions["EndSound"];
+        int id = memberids["EndSound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -5963,7 +5960,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     
     //void PauseSound(game, int)
     {
-        int id = functions["PauseSound"];
+        int id = memberids["PauseSound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -5980,7 +5977,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     
     //void ContinueSound(game, int)
     {
-        int id = functions["ContinueSound"];
+        int id = memberids["ContinueSound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -5997,7 +5994,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     
     //void ResumeSound(game, int)
     {
-        int id = functions["ResumeSound"];
+        int id = memberids["ResumeSound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -6012,9 +6009,9 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
         rval[label] = code;
     }
     
-    //void PauseMusic(game)
+    //void PauseCurMIDI(game)
     {
-        int id = functions["PauseMusic"];
+        int id = memberids["PauseCurMIDI"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -6027,9 +6024,9 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
         rval[label]=code;
     }
     
-    //void ResumeMusic(game)
+    //void ResumeCurMIDI(game)
     {
-        int id = functions["ResumeMusic"];
+        int id = memberids["ResumeCurMIDI"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -6043,7 +6040,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PlayMIDI(game, int)
     {
-        int id = functions["PlayMIDI"];
+        int id = memberids["PlayMIDI"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -6059,7 +6056,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PlayEnhancedMusic(game, int, int)
     {
-        int id = functions["PlayEnhancedMusic"];
+        int id = memberids["PlayEnhancedMusic"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6084,51 +6081,51 @@ static AccessorTable DebugTable[] =
 {
     //name,                     rettype,                        setorget,     var,              numindex,      params
 	//All of these return a function label error when used:
-	{ "getRefFFC",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "getRefItem",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFITEM,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "getRefItemdata",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFITEMDATA,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "getRefNPC",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFNPC,            1,      { ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "getRefLWeapon",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFLWEAPON,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "getRefEWeapon",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFEWEAPON,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "getSP",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGSP,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "setRefFFC",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGREFFFC,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "setRefItem",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGREFITEM,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "setRefItemdata",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGREFITEMDATA,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "setRefNPC",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGREFNPC,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "setRefLWeapon",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGREFLWEAPON,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "setRefEWeapon",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGREFEWEAPON,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "setSP",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGSP,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "getGDR[]",              ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGGDR,              256,     {  ZVARTYPEID_DEBUG,           ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "setGDR[]",              ScriptParser::TYPE_VOID,          SETTER,       DEBUGGDR,              256,     {  ZVARTYPEID_DEBUG,           ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getRefFFC",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getRefItem",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFITEM,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getRefItemdata",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFITEMDATA,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getRefNPC",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFNPC,            1,      { ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getRefLWeapon",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFLWEAPON,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getRefEWeapon",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFEWEAPON,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getSP",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGSP,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setRefFFC",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setRefItem",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGREFITEM,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setRefItemdata",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGREFITEMDATA,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setRefNPC",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGREFNPC,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setRefLWeapon",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGREFLWEAPON,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setRefEWeapon",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGREFEWEAPON,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setSP",               ScriptParser::TYPE_FLOAT,         SETTER,       DEBUGSP,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getGDR[]",              ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGGDR,              256,     {  ScriptParser::TYPE_DEBUG,           ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setGDR[]",              ScriptParser::TYPE_VOID,          SETTER,       DEBUGGDR,              256,     {  ScriptParser::TYPE_DEBUG,           ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
 	//These all work, but may not be permitted by the rest of the dev team. 
 	//At least they are now in a pointer class that denotes that they can be dangerous. 
-	{ "GetBoolPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_BOOL,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetBoolPointer",      ScriptParser::TYPE_BOOL,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetNPCPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_NPC,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetNPCPointer",      ScriptParser::TYPE_NPC,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetLWeaponPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ZVARTYPEID_LWPN,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetLWeaponPointer",      ZVARTYPEID_LWPN,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetEWeaponPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ZVARTYPEID_EWPN,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetEWeaponPointer",      ZVARTYPEID_EWPN,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetFFCPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_FFC,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetFFCPointer",      ScriptParser::TYPE_FFC,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetItemPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_ITEM,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetItemPointer",      ScriptParser::TYPE_ITEM,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "GetItemdataPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_ITEMCLASS,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "SetItemdataPointer",      ScriptParser::TYPE_ITEMCLASS,         FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetBoolPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_BOOL,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetBoolPointer",      ScriptParser::TYPE_BOOL,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetNPCPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_NPC,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetNPCPointer",      ScriptParser::TYPE_NPC,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetLWeaponPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_LWPN,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetLWeaponPointer",      ScriptParser::TYPE_LWPN,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetEWeaponPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_EWPN,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetEWeaponPointer",      ScriptParser::TYPE_EWPN,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetFFCPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_FFC,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetFFCPointer",      ScriptParser::TYPE_FFC,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetItemPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_ITEM,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetItemPointer",      ScriptParser::TYPE_ITEM,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "GetItemdataPointer",      ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_ITEMCLASS,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "SetItemdataPointer",      ScriptParser::TYPE_ITEMCLASS,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	//Changing the subscreen and screen offsets seems to do nothing. 
-	 { "getSubscreenOffset",               ScriptParser::TYPE_FLOAT,         GETTER,       PASSSUBOFS,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "setSubscreenOffset",               ScriptParser::TYPE_VOID,          SETTER,       PASSSUBOFS,            1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	 { "getSubscreenOffset",               ScriptParser::TYPE_FLOAT,         GETTER,       PASSSUBOFS,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "setSubscreenOffset",               ScriptParser::TYPE_VOID,          SETTER,       PASSSUBOFS,            1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
-    { "getSubscreenHeight",               ScriptParser::TYPE_FLOAT,         GETTER,       GAMESUBSCHEIGHT,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "getSubscreenHeight",               ScriptParser::TYPE_FLOAT,         GETTER,       GAMESUBSCHEIGHT,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setSubscreenHeight",               ScriptParser::TYPE_VOID,          SETTER,       GAMESUBSCHEIGHT,            1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
-    { "getPlayfieldOffset",               ScriptParser::TYPE_FLOAT,         GETTER,       GAMEPLAYFIELDOFS,            1,      {  ZVARTYPEID_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "setPlayfieldOffset",               ScriptParser::TYPE_VOID,          SETTER,       GAMEPLAYFIELDOFS,            1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "TriggerSecret",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
- { "ChangeFFCScript",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "getPlayfieldOffset",               ScriptParser::TYPE_FLOAT,         GETTER,       GAMEPLAYFIELDOFS,            1,      {  ScriptParser::TYPE_DEBUG,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "setPlayfieldOffset",               ScriptParser::TYPE_VOID,          SETTER,       GAMEPLAYFIELDOFS,            1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "TriggerSecret",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+ { "ChangeFFCScript",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_DEBUG,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
  
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -6147,7 +6144,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
 	
      //int GetPointer(itemclass, itemclass)
     {
-        int id = functions["GetItemdataPointer"];
+        int id = memberids["GetItemdataPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6163,7 +6160,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(itemclass, float)
     {
-        int id = functions["SetItemdataPointer"];
+        int id = memberids["SetItemdataPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6178,7 +6175,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetPointer(item, item)
     {
-        int id = functions["GetItemPointer"];
+        int id = memberids["GetItemPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6194,7 +6191,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(item, float)
     {
-        int id = functions["SetItemPointer"];
+        int id = memberids["SetItemPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6209,7 +6206,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     }    
     //int GetPointer(ffc, ffc)
     {
-        int id = functions["GetFFCPointer"];
+        int id = memberids["GetFFCPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6225,7 +6222,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(ffc, float)
     {
-        int id = functions["SetFFCPointer"];
+        int id = memberids["SetFFCPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6240,7 +6237,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     }
           //int GetPointer(eweapon, eweapon)
     {
-        int id = functions["GetEWeaponPointer"];
+        int id = memberids["GetEWeaponPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6256,7 +6253,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(eweapon, float)
     {
-        int id = functions["SetEWeaponPointer"];
+        int id = memberids["SetEWeaponPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6271,7 +6268,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     }
        //int GetPointer(lweapon, lweapon)
     {
-        int id = functions["GetLWeaponPointer"];
+        int id = memberids["GetLWeaponPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6287,7 +6284,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(lweapon, float)
     {
-        int id = functions["SetLWeaponPointer"];
+        int id = memberids["SetLWeaponPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6302,7 +6299,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     }
 	 //int GetPointer(npc, ffc)
     {
-        int id = functions["GetNPCPointer"];
+        int id = memberids["GetNPCPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6318,7 +6315,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(npc, float)
     {
-        int id = functions["SetNPCPointer"];
+        int id = memberids["SetNPCPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6333,7 +6330,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetPointer(game, bool)
     {
-        int id = functions["GetBoolPointer"];
+        int id = memberids["GetBoolPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6349,7 +6346,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(game, float)
     {
-        int id = functions["SetBoolPointer"];
+        int id = memberids["SetBoolPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -6366,7 +6363,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
 //void TriggerSecret(game, int)
     {
-        int id = functions["TriggerSecret"];
+        int id = memberids["TriggerSecret"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -6384,7 +6381,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
 //void ChangeFFCScript(game, int)
     {
-        int id = functions["ChangeFFCScript"];
+        int id = memberids["ChangeFFCScript"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -6529,7 +6526,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
 	
 	//GetTile(NPCData, int)
     {
-        int id = functions["GetTile"];
+        int id = memberids["GetTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6546,7 +6543,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetEHeight(NPCData, int)
      {
-        int id = functions["GetEHeight"];
+        int id = memberids["GetEHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6565,7 +6562,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
 
 	//int GetScriptDefense((NPCData, int, int)
     {
-        int id = functions["GetScriptDefense"];
+        int id = memberids["GetScriptDefense"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6582,7 +6579,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetDefense(NPCData, int, int)
     {
-        int id = functions["GetDefense"];
+        int id = memberids["GetDefense"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6599,7 +6596,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetSizeFlag(NPCData, int, int)
     {
-        int id = functions["GetSizeFlag"];
+        int id = memberids["GetSizeFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6616,7 +6613,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetAttribute(NPCData, int, int)
     {
-        int id = functions["GetAttribute"];
+        int id = memberids["GetAttribute"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6637,7 +6634,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     
       //void SetScriptDefense(NPCData, int,int,int)
     {
-        int id = functions["SetScriptDefense"];
+        int id = memberids["SetScriptDefense"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6657,7 +6654,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     
       //void SetDefense(NPCData, int,int,int)
     {
-        int id = functions["SetDefense"];
+        int id = memberids["SetDefense"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6677,7 +6674,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     
       //void SetSizeFlag(NPCData, int,int,int)
     {
-        int id = functions["SetSizeFlag"];
+        int id = memberids["SetSizeFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6697,7 +6694,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     
       //void SetAttribute(NPCData, int,int,int)
     {
-        int id = functions["SetAttribute"];
+        int id = memberids["SetAttribute"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6715,7 +6712,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
 	//GetFlags(NPCData, int)
     {
-        int id = functions["GetFlags"];
+        int id = memberids["GetFlags"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6732,7 +6729,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetFlags2(NPCData, int)
     {
-        int id = functions["GetFlags2"];
+        int id = memberids["GetFlags2"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6749,7 +6746,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetWidth(game, int, int)
     {
-        int id = functions["GetWidth"];
+        int id = memberids["GetWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6766,7 +6763,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHeight(NPCData, int)
     {
-        int id = functions["GetHeight"];
+        int id = memberids["GetHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6783,7 +6780,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetSTile(NPCData, int)
     {
-        int id = functions["GetSTile"];
+        int id = memberids["GetSTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6800,7 +6797,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetSWidth(NPCData, int)
     {
-        int id = functions["GetSWidth"];
+        int id = memberids["GetSWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6817,7 +6814,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetSHeight(NPCData, int)
     {
-        int id = functions["GetSHeight"];
+        int id = memberids["GetSHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6834,7 +6831,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetETile(NPCData, int)
     {
-        int id = functions["GetETile"];
+        int id = memberids["GetETile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6851,7 +6848,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetEWidth(NPCData, int)
     {
-        int id = functions["GetEWidth"];
+        int id = memberids["GetEWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6868,7 +6865,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHP(NPCData, int)
     {
-        int id = functions["GetHP"];
+        int id = memberids["GetHP"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6885,7 +6882,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetFamily(NPCData, int)
     {
-        int id = functions["GetFamily"];
+        int id = memberids["GetFamily"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6902,7 +6899,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetCSet(NPCData, int)
     {
-        int id = functions["GetCSet"];
+        int id = memberids["GetCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6919,7 +6916,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDMapIntro(NPCData, int)
     {
-        int id = functions["GetAnim"];
+        int id = memberids["GetAnim"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6936,7 +6933,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetEAnim(NPCData, int)
     {
-        int id = functions["GetEAnim"];
+        int id = memberids["GetEAnim"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6953,7 +6950,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetFramerate(NPCData, int)
     {
-        int id = functions["GetFramerate"];
+        int id = memberids["GetFramerate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6970,7 +6967,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetEFramerate(NPCData, int)
     {
-        int id = functions["GetEFramerate"];
+        int id = memberids["GetEFramerate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6987,7 +6984,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetTouchDamage(NPCData,, int)
     {
-        int id = functions["GetTouchDamage"];
+        int id = memberids["GetTouchDamage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7004,7 +7001,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetWeaponDamage(NPCData, int)
     {
-        int id = functions["GetWeaponDamage"];
+        int id = memberids["GetWeaponDamage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7021,7 +7018,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetWeapon(NPCData, int)
     {
-        int id = functions["GetWeapon"];
+        int id = memberids["GetWeapon"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7038,7 +7035,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetRandom(NPCData, int)
     {
-        int id = functions["GetRandom"];
+        int id = memberids["GetRandom"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7055,7 +7052,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHaltRate(NPCData, int)
     {
-        int id = functions["GetHaltRate"];
+        int id = memberids["GetHaltRate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7072,7 +7069,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetStep(NPCData, int)
     {
-        int id = functions["GetStep"];
+        int id = memberids["GetStep"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7089,7 +7086,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHoming(NPCData, int)
     {
-        int id = functions["GetHoming"];
+        int id = memberids["GetHoming"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7106,7 +7103,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHunger(NPCData, int)
     {
-        int id = functions["GetHunger"];
+        int id = memberids["GetHunger"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7123,7 +7120,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDropset(NPCData, int)
     {
-        int id = functions["GetDropset"];
+        int id = memberids["GetDropset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7140,7 +7137,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetBGSFX(NPCData, int)
     {
-        int id = functions["GetBGSFX"];
+        int id = memberids["GetBGSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7157,7 +7154,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHitSFX(NPCData, int)
     {
-        int id = functions["GetHitSFX"];
+        int id = memberids["GetHitSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7174,7 +7171,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDeathSFX(NPCData, int)
     {
-        int id = functions["GetDeathSFX"];
+        int id = memberids["GetDeathSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7191,7 +7188,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDrawXOffset(NPCData, int)
     {
-        int id = functions["GetDrawXOffset"];
+        int id = memberids["GetDrawXOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7208,7 +7205,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDrawYOffset(NPCData, int)
     {
-        int id = functions["GetDrawYOffset"];
+        int id = memberids["GetDrawYOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7225,7 +7222,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDrawZOffset(NPCData,int)
     {
-        int id = functions["GetDrawZOffset"];
+        int id = memberids["GetDrawZOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7242,7 +7239,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHitXOffset(NPCData, int)
     {
-        int id = functions["GetHitXOffset"];
+        int id = memberids["GetHitXOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7259,7 +7256,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHitYOffset(NPCData, int)
     {
-        int id = functions["GetHitYOffset"];
+        int id = memberids["GetHitYOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7276,7 +7273,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHitWidth(NPCData, int)
     {
-        int id = functions["GetHitWidth"];
+        int id = memberids["GetHitWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7293,7 +7290,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHitHeight(NPCData, int)
     {
-        int id = functions["GetHitHeight"];
+        int id = memberids["GetHitHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7310,7 +7307,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHitZHeight(NPCData, int)
     {
-        int id = functions["GetHitZHeight"];
+        int id = memberids["GetHitZHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7327,7 +7324,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetTileWidth(NPCData, int)
     {
-        int id = functions["GetTileWidth"];
+        int id = memberids["GetTileWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7344,7 +7341,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetTileHeight(NPCData, int)
     {
-        int id = functions["GetTileHeight"];
+        int id = memberids["GetTileHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7361,7 +7358,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetWeaponSprite(NPCData, int)
     {
-        int id = functions["GetWeaponSprite"];
+        int id = memberids["GetWeaponSprite"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7378,7 +7375,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
 	//SetFlags(NPCData, int, int)
     {
-        int id = functions["SetFlags"];
+        int id = memberids["SetFlags"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7395,7 +7392,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
      //SetTile(NPCData, int, int)
     {
-        int id = functions["SetTile"];
+        int id = memberids["SetTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7412,7 +7409,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
      //SetEHeight(NPCData, int, int)
     {
-        int id = functions["SetEHeight"];
+        int id = memberids["SetEHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7429,7 +7426,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetFlags2(NPCData, int, int)
     {
-        int id = functions["SetFlags2"];
+        int id = memberids["SetFlags2"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7446,7 +7443,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetWidth(NPCData, int, int)
     {
-        int id = functions["SetWidth"];
+        int id = memberids["SetWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7463,7 +7460,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHeight(NPCData, int, int)
     {
-        int id = functions["SetHeight"];
+        int id = memberids["SetHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7480,7 +7477,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetSTile(NPCData, int, int)
     {
-        int id = functions["SetSTile"];
+        int id = memberids["SetSTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7497,7 +7494,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetSWidth(NPCData, int, int)
     {
-        int id = functions["SetSWidth"];
+        int id = memberids["SetSWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7514,7 +7511,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetSHeight(NPCData, int, int)
     {
-        int id = functions["SetSHeight"];
+        int id = memberids["SetSHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7531,7 +7528,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetETile(NPCData, int, int)
     {
-        int id = functions["SetETile"];
+        int id = memberids["SetETile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7548,7 +7545,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetEWidth(NPCData, int, int)
     {
-        int id = functions["SetEWidth"];
+        int id = memberids["SetEWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7565,7 +7562,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHP(NPCData, int, int)
     {
-        int id = functions["SetHP"];
+        int id = memberids["SetHP"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7582,7 +7579,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetFamily(NPCData, int, int)
     {
-        int id = functions["SetFamily"];
+        int id = memberids["SetFamily"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7599,7 +7596,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetCSet(NPCData, int, int)
     {
-        int id = functions["SetCSet"];
+        int id = memberids["SetCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7616,7 +7613,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDMapIntro(NPCData, int, int)
     {
-        int id = functions["SetAnim"];
+        int id = memberids["SetAnim"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7633,7 +7630,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetEAnim(NPCData, int, int)
     {
-        int id = functions["SetEAnim"];
+        int id = memberids["SetEAnim"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7650,7 +7647,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetFramerate(NPCData, int, int)
     {
-        int id = functions["SetFramerate"];
+        int id = memberids["SetFramerate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7667,7 +7664,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetEFramerate(NPCData, int, int)
     {
-        int id = functions["SetEFramerate"];
+        int id = memberids["SetEFramerate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7684,7 +7681,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetTouchDamage(NPCData, int, int)
     {
-        int id = functions["SetTouchDamage"];
+        int id = memberids["SetTouchDamage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7701,7 +7698,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetWeaponDamage(NPCData, int, int)
     {
-        int id = functions["SetWeaponDamage"];
+        int id = memberids["SetWeaponDamage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7718,7 +7715,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetWeapon(NPCData, int, int)
     {
-        int id = functions["SetWeapon"];
+        int id = memberids["SetWeapon"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7735,7 +7732,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetRandom(NPCData, int, int)
     {
-        int id = functions["SetRandom"];
+        int id = memberids["SetRandom"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7752,7 +7749,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHaltRate(NPCData, int, int)
     {
-        int id = functions["SetHaltRate"];
+        int id = memberids["SetHaltRate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7769,7 +7766,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetStep(NPCData, int, int)
     {
-        int id = functions["SetStep"];
+        int id = memberids["SetStep"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7786,7 +7783,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHoming(NPCData, int, int)
     {
-        int id = functions["SetHoming"];
+        int id = memberids["SetHoming"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7803,7 +7800,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHunger(NPCData, int, int)
     {
-        int id = functions["SetHunger"];
+        int id = memberids["SetHunger"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7820,7 +7817,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDropset(NPCData, int, int)
     {
-        int id = functions["SetDropset"];
+        int id = memberids["SetDropset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7837,7 +7834,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetBGSFX(NPCData, int, int)
     {
-        int id = functions["SetBGSFX"];
+        int id = memberids["SetBGSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7854,7 +7851,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHitSFX(NPCData, int, int)
     {
-        int id = functions["SetHitSFX"];
+        int id = memberids["SetHitSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7871,7 +7868,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDeathSFX(NPCData, int, int)
     {
-        int id = functions["SetDeathSFX"];
+        int id = memberids["SetDeathSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7888,7 +7885,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDrawXOffset(NPCData, int, int)
     {
-        int id = functions["SetDrawXOffset"];
+        int id = memberids["SetDrawXOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7905,7 +7902,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDrawYOffset(NPCData, int, int)
     {
-        int id = functions["SetDrawYOffset"];
+        int id = memberids["SetDrawYOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7922,7 +7919,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDrawZOffset(NPCData, int, int)
     {
-        int id = functions["SetDrawZOffset"];
+        int id = memberids["SetDrawZOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7939,7 +7936,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHitXOffset(NPCData, int, int)
     {
-        int id = functions["SetHitXOffset"];
+        int id = memberids["SetHitXOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7956,7 +7953,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHitYOffset(NPCData, int, int)
     {
-        int id = functions["SetHitYOffset"];
+        int id = memberids["SetHitYOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7973,7 +7970,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHitWidth(NPCData, int, int)
     {
-        int id = functions["SetHitWidth"];
+        int id = memberids["SetHitWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7990,7 +7987,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHitHeight(NPCData, int, int)
     {
-        int id = functions["SetHitHeight"];
+        int id = memberids["SetHitHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -8007,7 +8004,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHitZHeight(NPCData, int, int)
     {
-        int id = functions["SetHitZHeight"];
+        int id = memberids["SetHitZHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -8024,7 +8021,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetTileWidth(NPCData, int, int)
     {
-        int id = functions["SetTileWidth"];
+        int id = memberids["SetTileWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -8041,7 +8038,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetTileHeight(NPCData, int, int)
     {
-        int id = functions["SetTileHeight"];
+        int id = memberids["SetTileHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -8058,7 +8055,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetWeaponSprite(NPCData, int, int)
     {
-        int id = functions["SetWeaponSprite"];
+        int id = memberids["SetWeaponSprite"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
