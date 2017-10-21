@@ -47,6 +47,80 @@ const int radsperdeg = 572958;
 
 #define ARGS_17(t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) { t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17,-1,-1 }
 
+
+
+//Dataclass member with three inputs
+#define SET_DATACLASS_MEMBER(flabel, ffins) \
+{ \
+	int id = memberids[flabel]; \
+	int label = lt.functionToLabel(id); \
+	vector<Opcode *> code; \
+	Opcode *first = new OPopRegister(new VarArgument(SFTEMP)); \
+	first->setLabel(label); \
+	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX))); \
+	code.push_back(new OPopRegister(new VarArgument(NUL))); \
+	code.push_back(new OSetRegister(new VarArgument(ffins), new VarArgument(SFTEMP))); \
+	code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+	code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+	rval[label] = code; \
+} \
+
+//Dataclass Member with four inputs (int, int, int, int)
+#define SET_DATACLASS_ARRAY(flabel, ffins) \
+{ \
+	int id = memberids[flabel]; \
+	int label = lt.functionToLabel(id); \
+	vector<Opcode *> code; \
+	Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
+	first->setLabel(label); \
+	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX))); \
+	code.push_back(new OPopRegister(new VarArgument(EXP1))); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
+	code.push_back(new OPopRegister(new VarArgument(NUL))); \
+	code.push_back(new OSetRegister(new VarArgument(ffins), new VarArgument(EXP2))); \
+	code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+	code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+	rval[label] = code; \
+} \
+
+//Dataclass member with two inputs, one return 
+#define GET_DATACLASS_MEMBER(flabel, ffins) \
+{ \
+	int id = memberids[flabel]; \
+	int label = lt.functionToLabel(id); \
+	vector<Opcode *> code; \
+	Opcode *first = new OPopRegister(new VarArgument(INDEX2)); \
+	first->setLabel(label); \
+	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX))); \
+	code.push_back(new OPopRegister(new VarArgument(NUL))); \
+	code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(ffins))); \
+	code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+	code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+	rval[label] = code; \
+} \
+
+//Dataclass member with three inputs, one return
+#define GET_DATACLASS_ARRAY(flabel, ocode) \
+{ \
+	int id = memberids[flabel]; \
+	int label = lt.functionToLabel(id); \
+	vector<Opcode *> code; \
+	Opcode *first = new OPopRegister(new VarArgument(INDEX)); \
+	first->setLabel(label); \
+	code.push_back(first); \
+	code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
+	code.push_back(new OPopRegister(new VarArgument(EXP1))); \
+	code.push_back(new OPopRegister(new VarArgument(NUL))); \
+	code.push_back(new ocode(new VarArgument(EXP1))); \
+	code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+	code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+	rval[label] = code; \
+} \
+
 #define ONE_INPUT_ONE_RETURN(flabel, ocode) \
 { \
 	int id = memberids[flabel]; \
@@ -5029,874 +5103,196 @@ map<int, vector<Opcode *> > MapDataSymbols::addSymbolsCode(LinkTable &lt)
 
 	//int GetEnemy(game,int,int,int)
 	{
-		int id = memberids["GetEnemy"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OGetEnemy(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_ARRAY("GetEnemy",OGetScreenEnemy);
 	}
 	//int GetDoor(game,int,int,int)
 	{
-		int id = memberids["GetDoor"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OGetDoor(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_ARRAY("GetDoor",OGetScreenDoor);
 	}
 	//void SetEnemy(int,int,int,int)
 	{
-		int id = memberids["SetEnemy"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENENEMY), new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_ARRAY("SetEnemy", SETSCREENENEMY);
 	}
 	//void SetDoor(int,int,int,int)
 	{
-		int id = memberids["SetDoor"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENDOOR), new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_ARRAY("SetDoor", SETSCREENDOOR);
 	}
-
 	//void SetWidth(game, int,int,int)
 	{
-		int id = memberids["SetWidth"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENWIDTH), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetWidth",SETSCREENWIDTH);
 	}
 	//int GetWidth(game, int,int)
 	{
-		int id = memberids["GetWidth"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENWIDTH)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetWidth",SETSCREENWIDTH);
 	}
-
 	//void SetHeight(game, int,int,int)
 	{
-		int id = memberids["SetHeight"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENHEIGHT), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetHeight",SETSCREENHEIGHT);
 	}
 	//int GetHeight(game, int,int)
 	{
-		int id = memberids["GetHeight"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENHEIGHT)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetHeight",SETSCREENHEIGHT);
 	}
 	//void SetViewX(game, int,int,int)
 	{
-		int id = memberids["SetViewX"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENVIEWX), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetViewX",SETSCREENVIEWX);
 	}
 	//int GetViewX(game, int,int)
 	{
-		int id = memberids["GetViewX"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENVIEWX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetViewX",SETSCREENVIEWX);
 	}
 	//void SetViewY(game, int,int,int)
 	{
-		int id = memberids["SetViewY"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENVIEWY), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetViewY",SETSCREENVIEWY);
 	}
 	//int GetViewY(game, int,int)
 	{
-		int id = memberids["GetViewY"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENVIEWY)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetViewY",SETSCREENVIEWY);
 	}
 	//void SetGuy(game, int,int,int)
 	{
-		int id = memberids["SetGuy"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENGUY), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetGuy",SETSCREENGUY);
 	}
 	//int GetGuy(game, int,int)
 	{
-		int id = memberids["GetGuy"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENGUY)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetGuy",SETSCREENGUY);
 	}
 	//void SetString(game, int,int,int)
 	{
-		int id = memberids["SetString"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENSTRING), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetString",SETSCREENSTRING);
 	}
 	//int GetString(game, int,int)
 	{
-		int id = memberids["GetString"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENSTRING)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetString",SETSCREENSTRING);
 	}
 	//void SetRoomType(game, int,int,int)
 	{
-		int id = memberids["SetRoomType"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENROOM), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetRoomType",SETSCREENROOM);
 	}
 	//int GetRoomType(game, int,int)
 	{
-		int id = memberids["GetRoomType"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENROOM)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetRoomType",SETSCREENROOM);
 	}
 	//void SetEntryX(game, int,int,int)
 	{
-		int id = memberids["SetEntryX"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENENTX), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetEntryX",SETSCREENENTX);
 	}
 	//int GetEntryX(game, int,int)
 	{
-		int id = memberids["GetEntryX"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENENTX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetEntryX",SETSCREENENTX);
 	}
 	//void SetEntryY(game, int,int,int)
 	{
-		int id = memberids["SetEntryY"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENENTY), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetEntryY",SETSCREENENTY);
 	}
 	//int GetEntryY(game, int,int)
 	{
-		int id = memberids["GetEntryY"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENENTY)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetEntryY",SETSCREENENTY);
 	}
 	//void SetItem(game, int,int,int)
 	{
-		int id = memberids["SetItem"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENITEM), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetItem",SETSCREENITEM);
 	}
 	//int GetItem(game, int,int)
 	{
-		int id = memberids["GetItem"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENITEM)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetItem",SETSCREENITEM);
 	}
 	//void SetUndercombo(game, int,int,int)
 	{
-		int id = memberids["SetUndercombo"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENUNDCMB), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetUndercombo",SETSCREENUNDCMB);
 	}
 	//int GetUndercombo(game, int,int)
 	{
-		int id = memberids["GetUndercombo"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENUNDCMB)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetUndercombo",SETSCREENUNDCMB);
 	}
 	//void SetUnderCSet(game, int,int,int)
 	{
-		int id = memberids["SetUnderCSet"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENUNDCST), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetUnderCSet",SETSCREENUNDCST);
 	}
 	//int GetUnderCSet(game, int,int)
 	{
-		int id = memberids["GetUnderCSet"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENUNDCST)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetUnderCSet",SETSCREENUNDCST);
 	}
 	//void SetCatchall(game, int,int,int)
 	{
-		int id = memberids["SetCatchall"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENCATCH), new VarArgument(SFTEMP)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_MEMBER("SetCatchall",SETSCREENCATCH);
 	}
 	//int GetCatchall(game, int,int)
 	{
-		int id = memberids["GetCatchall"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENCATCH)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_MEMBER("GetCatchall",SETSCREENCATCH);
 	}
-
 	//void SetLayerOpacity(int,int,int,int)
 	{
-		int id = memberids["SetLayerOpacity"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENLAYOP), new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_ARRAY("SetLayerOpacity",SETSCREENLAYOP); 
 	}
 	//int GetLayerOpacity(game,int,int,int)
 	{
-		int id = memberids["GetLayerOpacity"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OGetLayerOpacity(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_ARRAY("GetLayerOpacity",OGetScreenLayerOpacity);
 	}
-
 	//void SetSecretCombo(int,int,int,int)
 	{
-		int id = memberids["SetSecretCombo"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENSECCMB), new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_ARRAY("SetSecretCombo",SETSCREENSECCMB); 
 	}
 	//int GetSecretCombo(game,int,int,int)
 	{
-		int id = memberids["GetSecretCombo"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OGetSecretCombo(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_ARRAY("GetSecretCombo",OGetScreenSecretCombo);
 	}
-
 	//void SetSecretCSet(int,int,int,int)
 	{
-		int id = memberids["SetSecretCSet"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENSECCST), new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_ARRAY("SetSecretCSet",SETSCREENSECCST);
 	}
 	//int GetSecretCSet(game,int,int,int)
 	{
-		int id = memberids["GetSecretCSet"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OGetSecretCSet(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_ARRAY("GetSecretCSet",OGetScreenSecretCSet);
 	}
 	//void SetSecretFlag(int,int,int,int)
 	{
-		int id = memberids["SetSecretFlag"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENSECFLG), new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_ARRAY("SetSecretFlag",SETSCREENSECFLG);
 	}
 	//int GetSecretFlag(game,int,int,int)
 	{
-		int id = memberids["GetSecretFlag"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OGetSecretFlag(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_ARRAY("GetSecretFlag",OGetScreenSecretFlag);
 	}
-
 	//void SetLayerMap(int,int,int,int)
 	{
-		int id = memberids["SetLayerMap"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENLAYMAP), new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_ARRAY("SetLayerMap",SETSCREENLAYMAP);
 	}
 	//int GetLayerMap(game,int,int,int)
 	{
-		int id = memberids["GetLayerMap"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OGetLayerMap(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_ARRAY("GetLayerMap",OGetScreenLayerMap);
 	}
-
-
 	//void SetLayerScreen(int,int,int,int)
 	{
-		int id = memberids["SetLayerScreen"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENLAYSCR), new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_ARRAY("SetLayerScreen",SETSCREENLAYSCR);
 	}
 	//int GetLayerScreen(game,int,int,int)
 	{
-		int id = memberids["GetLayerScreen"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OGetLayerScreen(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_ARRAY("GetLayerScreen",OGetScreenLayerScreen);
 	}
 
 	//void SetPath(int,int,int,int)
 	{
-		int id = memberids["SetPath"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENPATH), new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_ARRAY("SetPath",SETSCREENPATH);
 	}
 	//int GetPath(game,int,int,int)
 	{
-		int id = memberids["GetPath"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OGetPath(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_ARRAY("GetPath",OGetScreenPath);
 	}
 	//void SetWarpReturnX(int,int,int,int)
 	{
-		int id = memberids["SetWarpReturnX"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENWARPRX), new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_ARRAY("SetWarpReturnX",SETSCREENWARPRX);
 	}
 	//int GetWarpReturnX(game,int,int,int)
 	{
-		int id = memberids["GetWarpReturnX"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OGetWarpReturnX(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_ARRAY("GetWarpReturnX",OGetScreenWarpReturnX);
 	}
 	//void SetWarpReturnY(int,int,int,int)
 	{
-		int id = memberids["SetWarpReturnY"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(EXP2));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(SETSCREENWARPRY), new VarArgument(EXP2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		SET_DATACLASS_ARRAY("SetWarpReturnY",SETSCREENWARPRY);
 	}
 	//int GetWarpReturnY(game,int,int,int)
 	{
-		int id = memberids["GetWarpReturnY"];
-		int label = lt.functionToLabel(id);
-		vector<Opcode *> code;
-		//pop off the params
-		Opcode *first = new OPopRegister(new VarArgument(INDEX));
-		first->setLabel(label);
-		code.push_back(first);
-		code.push_back(new OPopRegister(new VarArgument(INDEX2)));
-		code.push_back(new OPopRegister(new VarArgument(EXP1)));
-		//pop pointer, and ignore it
-		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OGetWarpReturnY(new VarArgument(EXP1)));
-		code.push_back(new OPopRegister(new VarArgument(EXP2)));
-		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-		rval[label] = code;
+		GET_DATACLASS_ARRAY("GetWarpReturnY",OGetScreenWarpReturnY);
 	}
     return rval;
 }
