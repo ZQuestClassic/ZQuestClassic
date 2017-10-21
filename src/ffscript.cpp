@@ -3673,6 +3673,7 @@ void set_register(const long arg, const long value)
     case FFINITDD:
         (tmpscr->initd[ri->ffcref][vbound(ri->d[0]/10000,0,7)])=value;
         break;
+    
         
         
 ///----------------------------------------------------------------------------------------------------//
@@ -6242,6 +6243,26 @@ break;
         ri->guyref = vbound((value / 10000),0,255);
         break;
         
+    
+    //Game Over Screen
+    case SETGAMEOVERELEMENT:
+	SetSaveScreenSetting(vbound(ri->d[0]/10000,0,11), value);
+        break;
+
+	case SETGAMEOVERSTRING:
+	{
+		long arrayptr = value/10000;
+		int index = ri->d[0]/10000;
+		string filename_str;
+		ArrayH::getString(arrayptr, filename_str, 73);
+		ChangeSubscreenText(index,filename_str.c_str());
+		
+		SetSaveScreenSetting(vbound(ri->d[0]/10000,0,11), value);
+	}
+        break;
+
+
+    
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
     case SP:

@@ -1169,6 +1169,8 @@ script_variable variable_list[]=
 	{"SCDBLOCKWEAPON", SCDBLOCKWEAPON, 0, 0 },
 	{"SCDSTRIKEWEAPONS", SCDSTRIKEWEAPONS, 0, 0 },
 	{"SCDEXPANSION", SCDEXPANSION, 0, 0 },
+	{"SETGAMEOVERELEMENT", SETGAMEOVERELEMENT, 0, 0 },
+	{"SETGAMEOVERSTRING", SETGAMEOVERSTRING, 0, 0 },
 	
 	    { " ",                       -1,             0,             0 }
 };

@@ -1177,6 +1177,11 @@ string VarArgument::toString()
 	case SCDBLOCKWEAPON: return "SCDBLOCKWEAPON";
 	case SCDEXPANSION: return "SCDEXPANSION";
 	case SCDSTRIKEWEAPONS: return "SCDSTRIKEWEAPONS";
+	
+	//Game Over Screen
+	case SETGAMEOVERELEMENT: return "SETGAMEOVERELEMENT";
+	case SETGAMEOVERSTRING: return "SETGAMEOVERSTRING";
+	
 
     default:
     {
