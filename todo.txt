@@ -1,7 +1,6 @@
 To-Do
 Guys
 Enemy Defence Code (new defence outcomes, only!)
-Greyscale code
 DMAp Palette Code
 Weapons
 ZQuest Editors: Enemy Editor Defences
@@ -15,6 +14,10 @@ ZDefs merge
 Quest Loading Code
 Saving Code
 Script Drawing ( BitmapEx )
+Greyscale code
+Link No FLicker
+Link Hurt Sound
+Prevent Active Subscreen
 
 Might Do:
 Weapon -> Defence Redirection / Weapon Editor Stuff

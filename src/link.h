@@ -234,6 +234,10 @@ class LinkClass : public sprite
     bool diagonalMovement;
     bool bigHitbox;
     
+     bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
+    int hurtsfx; //Link's Hurt SOund
+    int walkspeed; //Link's walking speed.
+    
     // Methods below here.
     void movelink();
     void move(int d);
@@ -397,6 +401,25 @@ public:
     bool ffpit;
     void setscriptnohit(bool);
     bool getscriptnohit();
+    
+     bool getCanLinkFlicker(); //enable or disable flicker or flash
+    void setCanLinkFlicker(bool v);
+    
+    void setHurtSFX(int sfx); //Set Link;s hurt sfx
+    int getHurtSFX();
+    
+      //Prevent the subscreen from falling by script.
+    bool stopSubscreenFalling();
+    void stopSubscreenFalling(bool v);
+    
+    //Set the button items by brute force
+    void setAButtonItem(int subscreenslot);
+    void setBButtonItem(int subscreenslot);
+    
+    bool getDiagMove(); //Diagonal movement.
+    void setDiagMove(bool newdiag);
+    bool getBigHitbox(); //Large H-itbox
+    void setBigHitbox(bool newbighitbox);
 };
 
 bool isRaftFlag(int flag);
