@@ -3445,9 +3445,12 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
     
     dmapstoread=zc_min(dmapstoread, max_dmaps);
     dmapstoread=zc_min(dmapstoread, MAXDMAPS-start_dmap);
+
+    al_trace("Reading %d dmaps\n", dmapstoread);
     
     for(int i=start_dmap; i<dmapstoread+start_dmap; i++)
     {
+        al_trace("Reading dmap %d\n", i);
         tempDMap = dmap();
         sprintf(tempDMap.title,"                    ");
         sprintf(tempDMap.intro,"                                                                        ");
@@ -3572,7 +3575,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
             {
                 if(keepdata==true)
                 {
-                    memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
+                    DMaps[i] = tempDMap;
                 }
                 
                 continue;
@@ -3679,6 +3682,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
         {
             if (s_version < 10)
             {
+                al_trace("Setting disabled items\n");
                 // disabled items used to be a bitfield
 
                 byte di[32];
@@ -3692,6 +3696,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                         tempDMap.disabledItems.push_back(ItemDefinitionRef("CORE",j));
                     }
                 }
+                al_trace("done\n");
             }
             else
             {
@@ -3775,6 +3780,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
         
         if(keepdata==true)
         {
+            al_trace("saving dmap %d\n",i);
             DMaps[i] = tempDMap;
         }
     }
@@ -4792,6 +4798,7 @@ int readitems(PACKFILE *f, word version, word build, zquestheader *Header, std::
 
         std::vector<string> names;
     
+        al_trace("Reading names\n");
         // names used to be in a separate array at the beginning
         if (s_version < 27)
         {
