@@ -322,7 +322,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     dmisc14=d->misc14;
     dmisc15=d->misc15;
     
-    for(int i=0; i<edefLAST; i++)
+    for(int i=0; i<edefLAST255; i++)
         defense[i]=d->defense[i];
         
     bgsfx=d->bgsfx;
