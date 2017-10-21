@@ -12422,10 +12422,10 @@ int LinkClass::lookahead(int d2)                       // Helper for scrollscr t
     // Can use destscr for scrolling warps,
     // but assumes currmap is correct.
     
-	int cx = x;
-    int cy = y + 8;
-	bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
-	bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	int cx = vbound(x,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
+	int cy = vbound(y + 8,0,160);
+	//bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	//bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
 	//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
     switch(d2)
     {
