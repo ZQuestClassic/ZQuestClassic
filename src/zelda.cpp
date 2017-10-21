@@ -58,6 +58,7 @@
 #include "win32.h"
 #include "vectorset.h"
 #include "single_instance.h"
+#include "zeldadat.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>

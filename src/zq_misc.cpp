@@ -82,7 +82,7 @@ void load_mice()
         for(int j=0; j<4; j++)
         {
             mouse_bmp[i][j] = create_bitmap_ex(8,16,16);
-            blit((BITMAP*)zcdata[BMP_MOUSE].dat,mouse_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
+            blit((BITMAP*)zcdata[BMP_MOUSEZQ].dat,mouse_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
         }
     }
 }
