@@ -1,0 +1,15 @@
+Script Drawing
+Quest Loading Code
+Saving Code
+Guys
+Greyscale code
+DMAp Palette Code
+Weapons
+ZQuest Editors: Enemy Editor Defences
+Item Editor Weapons?
+Combo editor map flags lists, types lists
+New fonts.
+
+//Done (Probably)
+New ZScript Vars, Functions, and Types
+ZDefs merge

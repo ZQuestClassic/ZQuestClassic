@@ -90,6 +90,29 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
     case ScriptParser::TYPE_EWPN:
         fidparam = EnemyWeaponSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
+    
+    
+    case ScriptParser::TYPE_NPCDATA:
+        fidparam = NPCDataSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_DEBUG:
+        fidparam = DebugSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_AUDIO:
+        fidparam = AudioSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_COMBOS:
+        fidparam = CombosPtrSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_SPRITEDATA:
+        fidparam = SpriteDataSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_GRAPHICS:
+        fidparam = GfxPtrSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_TEXT:
+        fidparam = TextPtrSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
         
     default:
         p->first.first->fail();
@@ -318,6 +341,77 @@ bool TypeCheck::standardCheck(int firsttype, int secondtype, AST *toblame)
             
         if(toblame)
             printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to eweapon");
+            
+        return false;
+    }
+    case ScriptParser::TYPE_NPCDATA:
+    {
+        if(secondtype == ScriptParser::TYPE_NPCDATA)
+            return true;
+            
+        if(toblame)
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to npcdata");
+            
+        return false;
+    }
+    
+    case ScriptParser::TYPE_DEBUG:
+    {
+        if(secondtype == ScriptParser::TYPE_DEBUG)
+            return true;
+            
+        if(toblame)
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Debug");
+            
+        return false;
+    }
+    case ScriptParser::TYPE_AUDIO:
+    {
+        if(secondtype == ScriptParser::TYPE_AUDIO)
+            return true;
+            
+        if(toblame)
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Audio");
+            
+        return false;
+    }
+    case ScriptParser::TYPE_COMBOS:
+    {
+        if(secondtype == ScriptParser::TYPE_COMBOS)
+            return true;
+            
+        if(toblame)
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to ComboData");
+            
+        return false;
+    }
+    case ScriptParser::TYPE_SPRITEDATA:
+    {
+        if(secondtype == ScriptParser::TYPE_SPRITEDATA)
+            return true;
+            
+        if(toblame)
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to SpriteData");
+            
+        return false;
+    }
+    case ScriptParser::TYPE_GRAPHICS:
+    {
+        if(secondtype == ScriptParser::TYPE_GRAPHICS)
+            return true;
+            
+        if(toblame)
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Graphics");
+            
+        return false;
+    }
+    case ScriptParser::TYPE_TEXT:
+    {
+        if(secondtype == ScriptParser::TYPE_TEXT)
+            return true;
+            
+        if(toblame)
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Text");
             
         return false;
     }
@@ -1477,6 +1571,43 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host, void *param)
     case ScriptParser::TYPE_EWPN:
     {
         fidparam = EnemyWeaponSymbols::getInst().matchFunction(name,st);
+        break;
+    }
+    
+    //New Types
+    case ScriptParser::TYPE_NPCDATA:
+    {
+        fidparam = NPCDataSymbols::getInst().matchFunction(name,st);
+        break;
+    }
+    case ScriptParser::TYPE_DEBUG:
+    {
+        fidparam = DebugSymbols::getInst().matchFunction(name,st);
+        break;
+    }
+    case ScriptParser::TYPE_AUDIO:
+    {
+        fidparam = AudioSymbols::getInst().matchFunction(name,st);
+        break;
+    }
+    case ScriptParser::TYPE_COMBOS:
+    {
+        fidparam = CombosPtrSymbols::getInst().matchFunction(name,st);
+        break;
+    }
+    case ScriptParser::TYPE_SPRITEDATA:
+    {
+        fidparam = SpriteDataSymbols::getInst().matchFunction(name,st);
+        break;
+    }
+    case ScriptParser::TYPE_GRAPHICS:
+    {
+        fidparam = GfxPtrSymbols::getInst().matchFunction(name,st);
+        break;
+    }
+    case ScriptParser::TYPE_TEXT:
+    {
+        fidparam = TextPtrSymbols::getInst().matchFunction(name,st);
         break;
     }
     

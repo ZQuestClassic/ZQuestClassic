@@ -11,19 +11,26 @@
 #include <math.h>
 #include <cstdio>
 
+#include "ffasm.h"
+#include "zc_sys.h"
 #include "zc_math.h"
 #include "zc_array.h"
 #include "ffscript.h"
 #include "zelda.h"
 #include "link.h"
 #include "guys.h"
+
 #include "gamedata.h"
 #include "zc_init.h"
 #include "zsys.h"
 #include "title.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
-#include "rendertarget.h"
+
+#include "pal.h"
+#include "zdefs.h"
+#include "zq_class.h"
+#include "rendertarget.h" //Needed for LoadBitmap
 
 #ifdef _FFDEBUG
 #include "ffdebug.h"
@@ -1031,6 +1038,9 @@ long get_register(const long arg)
     case YD:
         ret = tmpscr->ffydelta[ri->ffcref];
         break;
+    case FFCID:
+        ret=(ri->ffcref*10000)+10000;
+        break;
         
     case XD2:
         ret = tmpscr->ffxdelta2[ri->ffcref];
@@ -1089,28 +1099,28 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        ret = long(Link.getX()) * 10000;
+        ret = long(Link->getX()) * 10000;
         break;
         
     case LINKY:
-        ret = long(Link.getY()) * 10000;
+        ret = long(Link->getY()) * 10000;
         break;
         
     case LINKZ:
-        ret = long(Link.getZ()) * 10000;
+        ret = long(Link->getZ()) * 10000;
         break;
         
     case LINKJUMP:
         // -fall/100*10000, but doing it that way screwed up the result
-        ret = long(-Link.getFall()) * 100;
+        ret = long(-Link->getFall()) * 100;
         break;
         
     case LINKDIR:
-        ret=(int)(Link.dir)*10000;
+        ret=(int)(Link->dir)*10000;
         break;
         
     case LINKHITDIR:
-        ret=(int)(Link.getHitDir())*10000;
+        ret=(int)(Link->getHitDir())*10000;
         break;
         
     case LINKHP:
@@ -1130,11 +1140,11 @@ long get_register(const long arg)
         break;
         
     case LINKACTION:
-        ret=(int)(Link.getAction())*10000;
+        ret=(int)(Link->getAction())*10000;
         break;
         
     case LINKHELD:
-        ret = (int)(Link.getHeldItem())*10000;
+        ret = (int)(Link->getHeldItem())*10000;
         break;
         
     case LINKITEMD:
@@ -1146,85 +1156,133 @@ long get_register(const long arg)
         break;
         
     case LINKINVIS:
-        ret = (int)(Link.getDontDraw())*10000;
+        ret = (int)(Link->getDontDraw())*10000;
         break;
         
     case LINKINVINC:
-        ret = (int)(Link.scriptcoldet)*10000;
+        ret = (int)(Link->scriptcoldet)*10000;
         break;
         
     case LINKLADDERX:
-        ret=(int)(Link.getLadderX())*10000;
+        ret=(int)(Link->getLadderX())*10000;
         break;
         
     case LINKLADDERY:
-        ret=(int)(Link.getLadderY())*10000;
+        ret=(int)(Link->getLadderY())*10000;
         break;
         
     case LINKSWORDJINX:
-        ret = (int)(Link.getSwordClk())*10000;
+        ret = (int)(Link->getSwordClk())*10000;
         break;
         
     case LINKITEMJINX:
-        ret = (int)(Link.getItemClk())*10000;
+        ret = (int)(Link->getItemClk())*10000;
         break;
         
     case LINKDRUNK:
-        ret = (int)(Link.DrunkClock())*10000;
+        ret = (int)(Link->DrunkClock())*10000;
         break;
         
     case LINKMISCD:
-        ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,15)]);
+        ret = (int)(Link->miscellaneous[vbound(ri->d[0]/10000,0,31)]);
         break;
         
     case LINKHXOFS:
-        ret = (int)(Link.hxofs)*10000;
+        ret = (int)(Link->hxofs)*10000;
         break;
         
     case LINKHYOFS:
-        ret = (int)(Link.hyofs)*10000;
+        ret = (int)(Link->hyofs)*10000;
         break;
         
     case LINKXOFS:
-        ret = (int)(Link.xofs)*10000;
+        ret = (int)(Link->xofs)*10000;
         break;
         
     case LINKYOFS:
-        ret = (int)(Link.yofs-playing_field_offset)*10000;
+        ret = (int)(Link->yofs-playing_field_offset)*10000;
         break;
         
     case LINKZOFS:
-        ret = (int)(Link.zofs)*10000;
+        ret = (int)(Link->zofs)*10000;
         break;
         
     case LINKHXSZ:
-        ret = (int)(Link.hxsz)*10000;
+        ret = (int)(Link->hxsz)*10000;
         break;
         
     case LINKHYSZ:
-        ret = (int)(Link.hysz)*10000;
+        ret = (int)(Link->hysz)*10000;
         break;
         
     case LINKHZSZ:
-        ret = (int)(Link.hzsz)*10000;
+        ret = (int)(Link->hzsz)*10000;
         break;
         
     case LINKTXSZ:
-        ret = (int)(Link.txsz)*10000;
+        ret = (int)(Link->txsz)*10000;
         break;
         
     case LINKTYSZ:
-        ret = (int)(Link.tysz)*10000;
+        ret = (int)(Link->tysz)*10000;
         break;
         
     case LINKTILE:
-        ret = (int)(Link.tile)*10000;
+        ret = (int)(Link->tile)*10000;
         break;
         
     case LINKFLIP:
-        ret = (int)(Link.flip)*10000;
+        ret = (int)(Link->flip)*10000;
+        break;
+    
+    case LINKINVFRAME:
+	ret = (int)Link->getHClk()*10000;
+	break;
+    
+    case LINKCANFLICKER:
+        ret= Link->getCanLinkFlicker()?10000:0;
+        break;
+    case LINKHURTSFX:
+	ret = (int)Link->getHurtSFX()*10000;
+	break;
+    
+    
+    case LINKUSINGITEM:
+	ret = (int)Link->getDirectItem()*10000;
+        break;
+    
+    case LINKUSINGITEMA:
+	ret = (int)Link->getDirectItemA()*10000;
+        break;
+    
+    case LINKUSINGITEMB:
+	ret = (int)Link->getDirectItemB()*10000;
         break;
         
+    case LINKEATEN:
+	ret=(int)Link->getEaten()*10000;
+	break;
+        
+        
+    case LINKITEMB:
+	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	ret = Bwpn*10000;
+	break;
+    
+    case LINKITEMA:
+	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	ret = Awpn *10000;
+	break;
+    
+    case LINKDIAG:
+	ret=Link->getDiagMove()?10000:0;
+	break;
+    
+    case LINKBIGHITBOX:
+	ret=Link->getBigHitbox()?10000:0;
+	break;
+    
+    
 ///----------------------------------------------------------------------------------------------------//
 //Input States
     case INPUTSTART:
@@ -1301,24 +1359,28 @@ long get_register(const long arg)
         
     case INPUTMOUSEX:
     {
-        int leftOffset=(resx/2)-(128*screen_scale);
-        ret=((gui_mouse_x()-leftOffset)/screen_scale)*10000;
+        int leftOffset=(Backend::graphics->virtualScreenW()/2)-(128* virtualScreenScale());
+        ret=((Backend::mouse->getVirtualScreenX()-leftOffset)/ virtualScreenScale())*10000;
         break;
     }
     
     case INPUTMOUSEY:
     {
-        int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
-        ret=((gui_mouse_y()-topOffset)/screen_scale)*10000;
+        int topOffset=(Backend::graphics->virtualScreenH()/2)-((112-playing_field_offset)*virtualScreenScale());
+        ret=((Backend::mouse->getVirtualScreenY()-topOffset)/ virtualScreenScale())*10000;
         break;
     }
     
     case INPUTMOUSEZ:
-        ret=(gui_mouse_z())*10000;
+        ret=(Backend::mouse->getWheelPosition())*10000;
         break;
         
     case INPUTMOUSEB:
-        ret=(gui_mouse_b())*10000;
+        ret=(
+			(Backend::mouse->leftButtonClicked() ? 1 : 0)
+			+ (Backend::mouse->rightButtonClicked() ? 2 : 0)
+			+ (Backend::mouse->middleButtonClicked() ? 4 : 0)
+			)*10000;
         break;
         
     case INPUTPRESSSTART:
@@ -1393,6 +1455,60 @@ long get_register(const long arg)
         ret=button_press[17]?10000:0;
         break;
         
+    case BUTTONPRESS:
+		// DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
+	{
+		//Read-only
+		int button = vbound((ri->d[0]/10000),0,17);
+		ret = button_press[button]?10000:0;
+		
+	}
+	break;
+
+	case BUTTONINPUT:
+	{
+		//Read-only
+		int button = vbound((ri->d[0]/10000),0,17);
+		ret=control_state[button]?10000:0;
+		
+	}
+	break;
+
+	case BUTTONHELD:
+	{
+		//Read-only
+		int button = vbound((ri->d[0]/10000),0,17);
+		ret = button_hold[button]?10000:0;
+	}
+	break;
+
+	case KEYPRESS:
+	{	//Game->KeyPressed[], read-only
+		//if ( !keypressed() ) break; //Don;t return values set by setting Link->Input/Press
+		//hmm...no, this won;t return properly for modifier keys. 
+		int keyid = ri->d[0]/10000;
+		//key = vbound(key,0,n);
+		bool pressed = key[keyid] != 0;
+		ret = pressed?10000:0;
+	}
+	break;
+
+	case READKEY:
+	{
+		//Game->ReadKey(int key), also clears it. 
+		int keyid = ri->d[0]/10000;
+		bool pressed = ReadKey(keyid);
+		ret = pressed?10000:0;
+	}
+	break;
+
+	case JOYPADPRESS:
+	{
+		//Checks if a press is from the joypad, not keyboard. 
+		int button = ri->d[0]/10000;
+		ret = joybtn(button)?10000:0;
+	}
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //Item Variables
@@ -1627,13 +1743,87 @@ long get_register(const long arg)
     case ITEMMISCD:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            int a = vbound(ri->d[0]/10000,0,15);
+            int a = vbound(ri->d[0]/10000,0,31);
             ret=(((item*)(s))->miscellaneous[a]);
             break;
         }
         
 ///----------------------------------------------------------------------------------------------------//
 //Itemdata Variables
+	
+	
+    case IDATAUSEWPN:
+        ret=(itemsbuf[ri->idata].useweapon)*10000;
+        break;
+    case IDATAUSEDEF:
+        ret=(itemsbuf[ri->idata].usedefence)*10000;
+        break;
+    case IDATAWRANGE:
+        ret=(itemsbuf[ri->idata].weaprange)*10000;
+        break;
+    case IDATAUSEMVT:
+    {
+	long a = vbound((ri->d[0] / 10000),0,(ITEM_MOVEMENT_PATTERNS-1));
+	    
+        ret=(itemsbuf[ri->idata].weap_pattern[a])*10000;
+        
+    }
+    break;
+    
+    case IDATADURATION:
+        ret=(itemsbuf[ri->idata].weapduration)*10000;
+        break;
+    
+    case IDATADUPLICATES:
+        ret=(itemsbuf[ri->idata].duplicates)*10000;
+        break;
+    case IDATADRAWLAYER:
+        ret=(itemsbuf[ri->idata].drawlayer)*10000;
+        break;
+    case IDATACOLLECTFLAGS:
+        ret=(itemsbuf[ri->idata].collectflags)*10000;
+        break;
+    case IDATAWEAPONSCRIPT:
+        ret=(itemsbuf[ri->idata].weaponscript)*10000;
+        break;
+    case IDATAMISCD:
+    {
+	    
+	int a = vbound((ri->d[0] / 10000),0,31);
+        ret=(itemsbuf[ri->idata].wpn_misc_d[a])*10000;
+    }
+    break;
+    case IDATAWPNINITD:
+    {
+	    
+	int a = vbound((ri->d[0] / 10000),0,7);
+        ret=(itemsbuf[ri->idata].weap_initiald[a])*10000;
+    }
+    break;
+    case IDATAWEAPHXOFS:
+        ret=(itemsbuf[ri->idata].weap_hxofs)*10000;
+        break;
+    case IDATAWEAPHYOFS:
+        ret=(itemsbuf[ri->idata].weap_yxofs)*10000;
+        break;
+    case IDATAWEAPHXSZ:
+        ret=(itemsbuf[ri->idata].weap_hxsz)*10000;
+        break;
+    case IDATAWEAPHYSZ:
+        ret=(itemsbuf[ri->idata].weap_hysz)*10000;
+        break;
+    case IDATAWEAPHZSZ:
+        ret=(itemsbuf[ri->idata].weap_hzsz)*10000;
+        break;
+    case IDATAWEAPXOFS:
+        ret=(itemsbuf[ri->idata].weap_xofs)*10000;
+        break;
+    case IDATAWEAPYOFS:
+        ret=(itemsbuf[ri->idata].weap_yofs)*10000;
+        break;
+    
+    
+    
     case IDATAFAMILY:
         ret=(itemsbuf[ri->idata].family)*10000;
         break;
@@ -1670,6 +1860,177 @@ long get_register(const long arg)
         ret=(itemsbuf[ri->idata].power)*10000;
         break;
         
+    //2.54
+	//Get the ID of an item.
+        case IDATAID:
+        ret=ri->idata*10000;
+        break;
+    
+	//Get the script assigned to an item (active)
+    case IDATASCRIPT:
+        ret=(itemsbuf[ri->idata].script)*10000;
+        break;
+    //Get the ->Attributes[] of an item
+    case IDATAATTRIB:
+    {
+	    int index = vbound(ri->d[0]/10000,0,9);
+		switch(index){
+		    case 0:
+			ret=(itemsbuf[ri->idata].misc1)*10000;
+		    break;
+		    case 1:
+			ret=(itemsbuf[ri->idata].misc2)*10000; break;
+		    case 2:
+			ret=(itemsbuf[ri->idata].misc3)*10000; break;
+		    case 3:
+			ret=(itemsbuf[ri->idata].misc4)*10000; break;
+		    case 4:
+			ret=(itemsbuf[ri->idata].misc5)*10000; break;
+		    case 5:
+			ret=(itemsbuf[ri->idata].misc6)*10000; break;
+		    case 6:
+			ret=(itemsbuf[ri->idata].misc7)*10000; break;
+		    case 7:
+			ret=(itemsbuf[ri->idata].misc8)*10000; break;
+		    case 8:
+			ret=(itemsbuf[ri->idata].misc9)*10000; break;
+		    case 9:
+			ret=(itemsbuf[ri->idata].misc10)*10000; break;
+		    default: 
+			   ret = -10000; break;
+		}
+		   
+        break;
+	
+	}
+		//Get the ->Sprite[] of an item.
+	case IDATASPRITE: {
+	    int index = vbound(ri->d[0]/10000,0,9);
+		switch(index){
+		    case 0:
+			ret=(itemsbuf[ri->idata].wpn)*10000;
+		    break;
+		    case 1:
+			ret=(itemsbuf[ri->idata].wpn2)*10000; break;
+		    case 2:
+			ret=(itemsbuf[ri->idata].wpn3)*10000; break;
+		    case 3:
+			ret=(itemsbuf[ri->idata].wpn4)*10000; break;
+		    case 4:
+			ret=(itemsbuf[ri->idata].wpn5)*10000; break;
+		    case 5:
+			ret=(itemsbuf[ri->idata].wpn6)*10000; break;
+		    case 6:
+			ret=(itemsbuf[ri->idata].wpn7)*10000; break;
+		    case 7:
+			ret=(itemsbuf[ri->idata].wpn8)*10000; break;
+		    case 8:
+			ret=(itemsbuf[ri->idata].wpn9)*10000; break;
+		    case 9:
+			ret=(itemsbuf[ri->idata].wpn10)*10000; break;
+		    default: 
+			   ret = -10000; break;
+		}
+		   
+		break;
+	}
+	//Link TIle modifier
+    case IDATALTM:
+        ret=(itemsbuf[ri->idata].ltm)*10000;
+        break;
+    //Pickup script
+    case IDATAPSCRIPT:
+        ret=(itemsbuf[ri->idata].collect_script)*10000;
+        break;
+    //Magic cost
+     case IDATAMAGCOST:
+        ret=(itemsbuf[ri->idata].magic)*10000;
+        break;
+     //Min Hearts to Pick Up
+     case IDATAMINHEARTS:
+        ret=(itemsbuf[ri->idata].pickup_hearts)*10000;
+        break;
+     //Tile used by the item
+     case IDATATILE:
+        ret=(itemsbuf[ri->idata].tile)*10000;
+        break;
+     //itemdata->Flash
+     case IDATAMISC:
+        ret=(itemsbuf[ri->idata].misc)*10000;
+        break;
+     //->CSet
+     case IDATACSET:
+        ret=(itemsbuf[ri->idata].csets)*10000;
+        break;
+     //->A.Frames
+     case IDATAFRAMES:
+        ret=(itemsbuf[ri->idata].frames)*10000;
+        break;
+     /*
+     case IDATAFRAME:
+        ret=(itemsbuf[ri->idata].frame)*10000;
+        break;
+    */ 
+     //->A.Speed
+     case IDATAASPEED:
+        ret=(itemsbuf[ri->idata].speed)*10000;
+        break;
+     //->Delay
+     case IDATADELAY:
+        ret=(itemsbuf[ri->idata].delay)*10000;
+        break;
+     // teo of this item upgrades
+      case IDATACOMBINE:
+        ret=(itemsbuf[ri->idata].flags & ITEM_COMBINE)?10000:0;
+        break;
+      //Use item, and get the lower level one
+      case IDATADOWNGRADE:
+        ret=(itemsbuf[ri->idata].flags & ITEM_DOWNGRADE)?10000:0;
+        break;
+      //->Flags[5]
+      case IDATAFLAGS: {
+	    int index = vbound(ri->d[0]/10000,0,4);
+		switch(index){
+		    case 0:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG1)?10000:0;
+		    break;
+		    case 1:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG2)?10000:0; break;
+		    case 2:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG3)?10000:0; break;
+		    case 3:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG4)?10000:0; break;
+		    case 4:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG5)?10000:0; break;
+		   
+		    default: 
+			   ret = 0; break;
+		}
+		   
+		break;
+	}
+		
+	//->Keep Old
+      case IDATAKEEPOLD:
+        ret=(itemsbuf[ri->idata].flags & ITEM_KEEPOLD)?10000:0;
+        break;
+      //Use rupees instead of magic
+      case IDATARUPEECOST:
+        ret=(itemsbuf[ri->idata].flags & ITEM_RUPEE_MAGIC)?10000:0;
+        break;
+      //Can be eaten
+      case IDATAEDIBLE:
+        ret=(itemsbuf[ri->idata].flags & ITEM_EDIBLE)?10000:0;
+        break;
+      //Not int he editor, could become flags[6], but I'm reserving this one for other item uses. 
+      case IDATAFLAGUNUSED:
+        ret=(itemsbuf[ri->idata].flags & ITEM_UNUSED)?10000:0;
+        break;
+      //Gain lower level items when collected
+      case IDATAGAINLOWER:
+        ret=(itemsbuf[ri->idata].flags & ITEM_GAINOLD)?10000:0;
+        break;
+	//Unchanged from master
     case IDATAINITDD:
     {
         int a = ri->d[0] / 10000;
@@ -1727,6 +2088,9 @@ long get_register(const long arg)
         
     case NPCHUNGER:
         GET_NPC_VAR_INT(grumble, "npc->Hunger") break;
+    
+    case NPCWEAPSPRITE:
+        GET_NPC_VAR_INT(wpnsprite, "npc->WeaponSprite") break;
         
     case NPCTYPE:
         GET_NPC_VAR_INT(family, "npc->Type") break;
@@ -1849,36 +2213,84 @@ long get_register(const long arg)
         int a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Defense") != SH::_NoError ||
-                BC::checkBounds(a, 0, edefSCRIPT, "npc->Defense") != SH::_NoError)
+                BC::checkBounds(a, 0, (edefLAST255-1), "npc->Defense") != SH::_NoError)
             ret = -10000;
         else
             ret = GuyH::getNPC()->defense[a] * 10000;
     }
     break;
     
+    //2.fuure compat.
+    
+    case NPCSCRDEFENSED:
+    {
+        int a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->ScriptDefense") != SH::_NoError ||
+                BC::checkBounds(a, 0, edefSCRIPTDEFS_MAX, "npc->ScriptDefense") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = GuyH::getNPC()->defense[a+edefSCRIPT01] * 10000;
+    }
+    break;
+    
+    
     case NPCMISCD:
     {
         int a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Misc") != SH::_NoError ||
-                BC::checkMisc(a, "npc->Misc") != SH::_NoError)
+                BC::checkMisc32(a, "npc->Misc") != SH::_NoError)
             ret = -10000;
         else
             ret = GuyH::getNPC()->miscellaneous[a];
     }
     break;
     
-    case NPCDD:
+    case NPCDD: //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
     {
         int a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Attributes") != SH::_NoError ||
-                BC::checkBounds(a, 0, 11, "npc->Attributes") != SH::_NoError)
+                BC::checkBounds(a, 0, 15, "npc->Attributes") != SH::_NoError)
             ret = -10000;
         else
             ret = GuyH::getNPCDMisc(a) * 10000;
     }
     break;
+    
+        case NPCINVINC:
+        if(GuyH::loadNPC(ri->guyref, "npc->InvFrames") != SH::_NoError)
+            ret = -10000;
+        else
+	ret = (int)GuyH::getNPC()->hclk * 10000;
+            
+        break;
+	
+    case NPCHASITEM:
+        if(GuyH::loadNPC(ri->guyref, "npc->HasItem") != SH::_NoError)
+            ret = 0;
+        else
+	ret = GuyH::getNPC()->itemguy?10000:0;
+            
+        break;
+	
+    case NPCRINGLEAD:
+        if(GuyH::loadNPC(ri->guyref, "npc->Ringleader") != SH::_NoError)
+            ret = 0;
+        else
+	ret = GuyH::getNPC()->leader?10000:0;
+            
+        break;
+	
+	case NPCSUPERMAN:
+        if(GuyH::loadNPC(ri->guyref, "npc->Invincible") != SH::_NoError)
+            ret = -10000;
+        else
+	ret = (int)GuyH::getNPC()->superman * 10000;
+            
+        break;
+    
     
     
 ///----------------------------------------------------------------------------------------------------//
@@ -1946,6 +2358,12 @@ long get_register(const long arg)
     case LWPNPOWER:
         if(0!=(s=checkLWpn(ri->lwpn,"Damage")))
             ret=((weapon*)(s))->power*10000;
+            
+        break;
+	
+    case LWPNRANGE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Range")))
+            ret=((weapon*)(s))->scriptrange*10000;
             
         break;
         
@@ -2094,7 +2512,7 @@ long get_register(const long arg)
     case LWPNMISCD:
         if(0!=(s=checkLWpn(ri->lwpn,"Misc")))
         {
-            int a = vbound(ri->d[0]/10000,0,15);
+            int a = vbound(ri->d[0]/10000,0,31);
             ret=(((weapon*)(s))->miscellaneous[a]);
         }
         
@@ -2319,7 +2737,7 @@ long get_register(const long arg)
     case EWPNMISCD:
         if(0!=(s=checkEWpn(ri->ewpn,"Misc")))
         {
-            int a = vbound(ri->d[0]/10000,0,15);
+            int a = vbound(ri->d[0]/10000,0,31);
             ret=(((weapon*)(s))->miscellaneous[a]);
         }
         
@@ -2333,6 +2751,32 @@ long get_register(const long arg)
         
 ///----------------------------------------------------------------------------------------------------//
 //Game Info
+	
+	
+    case GAMESUBSCHEIGHT:
+    {
+	ret = passive_subscreen_height*10000;    
+    }
+    break;
+    
+    case GAMEPLAYFIELDOFS:
+	ret = playing_field_offset*10000;
+    break;
+    
+    case PASSSUBOFS:
+	ret = passive_subscreen_offset * 10000;
+    break;
+
+    
+    case ZELDAVERSION:
+        ret = ZC_VERSION; //Do *not* multiply by 10,000!
+        break;
+    case ZELDABUILD:
+	ret = (int)VERSION_BUILD*10000;
+	break;
+    case ZELDABETA:
+	ret = (int)VERSION_BETA*10000;
+	break;
     case GAMEDEATHS:
         ret=game->get_deaths()*10000;
         break;
@@ -2399,14 +2843,17 @@ long get_register(const long arg)
     case GAMEITEMSD:
         ret=(game->item[(ri->d[0])/10000] ? 10000 : 0);
         break;
+    case DISABLEDITEM:
+	ret = (game->items_off[(ri->d[0])/10000] ? 10000 : 0);
+	break;
         
     case GAMELITEMSD:
         ret=game->lvlitems[(ri->d[0])/10000]*10000;
         break;
-    
+        
     case GAMELKEYSD:
-        ret=game->lvlkeys[((ri->d[0])/10000)]*10000;
-    break; 
+        ret=game->lvlkeys[(ri->d[0])/10000]*10000;
+        break;
         
     case SCREENSTATED:
     {
@@ -2454,6 +2901,13 @@ long get_register(const long arg)
     }
     break;
     
+    case GAMEMAXMAPS:
+	ret = (map_count-1)*10000;
+	break;
+    case GAMENUMMESSAGES:
+	ret = (msg_count-1) * 10000; 
+	break;
+    
     case CURDMAP:
         ret=currdmap*10000;
         break;
@@ -2466,6 +2920,10 @@ long get_register(const long arg)
         ret=disableClickToFreeze?0:10000;
         break;
         
+    
+    case NOACTIVESUBSC:
+	ret=Link->stopSubscreenFalling()?10000:0;
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //DMap Information
@@ -2490,6 +2948,9 @@ long get_register(const long arg)
         
     case DMAPCONTINUED:
         GET_DMAP_VAR(cont,    "Game->DMapContinue") break;
+    
+    case DMAPLEVELPAL:
+	GET_DMAP_VAR(color,   "Game->DMapPalette")    break; 
         
     case DMAPOFFSET:
         GET_DMAP_VAR(xoff,    "Game->DMapOffset")   break;
@@ -2716,6 +3177,53 @@ else \
             ret = -10000;
     }
     break;
+    
+//screendata and mapdata
+    case SETSCREENENEMY:
+    { //void SetScreenEnemy(int map, int screen, int index, int value);
+	
+	    
+		long map     = (ri->d[1] / 10000) - 1; 
+		long scrn  = ri->d[2] / 10000; 
+		long index = ri->d[0] / 10000; 
+		int nn = ri->d[3]/10000; 
+	
+	   // int x;
+	    
+	   // Z_scripterrlog("rid->[3] is (%i), trying to use for '%s'\n", nn, "nn");
+	   // Z_scripterrlog("rid->[2] is (%i), trying to use for '%s'\n", scrn, "scrn");
+	   // Z_scripterrlog("rid->[1] is (%i), trying to use for '%s'\n", map, "map");
+	   // Z_scripterrlog("rid->[0] is (%i), trying to use for '%s'\n", index, "index");
+		
+		if(BC::checkMapID(map, "Game->SetScreenEnemy(...map...)") != SH::_NoError ||
+			BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenEnemy(...screen...)") != SH::_NoError ||
+			BC::checkBounds(index, 0, 9, "Game->SetScreenEnemy(...index...)") != SH::_NoError)
+			return -10000;
+		
+	//	if ( BC::checkBounds(nn, 0, 2, "Game->SetScreenEnemy(...enemy...)") != SH::_NoError) x = 1;
+	//	if ( BC::checkBounds(map, 20, 21, "Game->SetScreenEnemy(...map...)") != SH::_NoError) x = 2;
+		FFScript::set_screenenemy(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+		
+		
+		
+    }
+    break;
+    
+    case SETSCREENDOOR:
+    { //void SetScreenDoor(int map, int screen, int index, int value);
+	long map     = (ri->d[1] / 10000) - 1; 
+	long scrn  = ri->d[2] / 10000; 
+	long index = ri->d[0] / 10000; 
+	int nn = ri->d[3]/10000; 
+		
+		if(BC::checkMapID(map, "Game->SetScreenDoor(...map...)") != SH::_NoError ||
+			BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenDoor(...screen...)") != SH::_NoError ||
+			BC::checkBounds(index, 0, 3, "Game->SetScreenDoor(...doorindex...)") != SH::_NoError)
+			return -10000;
+      
+		FFScript::set_screendoor(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+		
+    }
    
     
 ///----------------------------------------------------------------------------------------------------//
@@ -2723,21 +3231,76 @@ else \
     case SDD:
     {
         int di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-        ret=get_screen_d(di, ri->d[0]/10000);
+        ret=FFScript::get_screen_d(di, ri->d[0]/10000);
     }
     break;
     
     case SDDD:
-        ret=get_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1] / 10000);
+        ret=FFScript::get_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1] / 10000);
         break;
         
     case SDDDD:
-        ret=get_screen_d(ri->d[1] / 10000 + ((ri->d[0]/10000)<<7), ri->d[2] / 10000);
+        ret=FFScript::get_screen_d(ri->d[1] / 10000 + ((ri->d[0]/10000)<<7), ri->d[2] / 10000);
         break;
         
     case SCRDOORD:
         ret=tmpscr->door[ri->d[0]/10000]*10000;
         break;
+    
+    
+    //These use the same method as GetScreenD -Z
+    case SETSCREENWIDTH:
+        ret=FFScript::get_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+
+case SETSCREENHEIGHT:
+        ret=FFScript::get_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+
+case SETSCREENVIEWX:
+        ret=get_screenViewX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+
+case SETSCREENVIEWY:
+        ret=get_screenViewY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+
+case SETSCREENGUY:
+        ret=get_screenGuy(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+
+case SETSCREENSTRING:
+        ret=get_screenString(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+
+case SETSCREENROOM:
+        ret=get_screenRoomtype(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+
+case SETSCREENENTX:
+        ret=get_screenEntryX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+
+case SETSCREENENTY:
+        ret=get_screenEntryY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+
+case SETSCREENITEM:
+        ret=get_screenitem(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+
+case SETSCREENUNDCMB:
+        ret=get_screenundercombo(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+
+case SETSCREENUNDCST:
+        ret=get_screenundercset(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+
+case SETSCREENCATCH:
+        ret=get_screenatchall(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
+        break;
+ 
         
     case LIT:
         ret= darkroom ? 0 : 10000;
@@ -2772,19 +3335,19 @@ else \
         break;
         
     case PUSHBLOCKX:
-        ret = blockmoving ? int(mblock2.x)*10000 : -10000;
+        ret = blockmoving ? int(mblock2->x)*10000 : -10000;
         break;
         
     case PUSHBLOCKY:
-        ret = blockmoving ? int(mblock2.y)*10000 : -10000;
+        ret = blockmoving ? int(mblock2->y)*10000 : -10000;
         break;
         
     case PUSHBLOCKCOMBO:
-        ret = mblock2.bcombo*10000;
+        ret = mblock2->bcombo*10000;
         break;
         
     case PUSHBLOCKCSET:
-        ret = mblock2.cs*10000;
+        ret = mblock2->cs*10000;
         break;
         
     case UNDERCOMBO:
@@ -2794,7 +3357,140 @@ else \
     case UNDERCSET:
         ret = tmpscr->undercset*10000;
         break;
+    
+    //Creates an lweapon using an iemdata struct values to generate its properties.
+	//Useful in conjunction with the new weapon editor. 
+        case CREATELWPNDX:
+	{
+		//Z_message("Trying to get Link->SetExtend().\n");
+		long ID = (ri->d[0] / 10000);
+		int itemid = (ri->d[1]/10000);
+		itemid = vbound(itemid,0,(MAXITEMS-1));
+		
+		//Z_scripterrlog("GetLinkExtend rid->[2] is (%i), trying to use for '%s'\n", ri->d[2], "ri->d[2]");
+	    //Z_scripterrlog("GetLinkExtend rid->[1] is (%i), trying to use for '%s'\n", state, "state");
+	    //Z_scripterrlog("GetLinkExtend rid->[0] is (%i), trying to use for '%s'\n", dir, "dir");
+	
+		Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,itemid,Link->getUID()));
+		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+		
+		/* Z_scripterrlog("CreateLWeaponDx ri->d[0] is (%i), trying to use for '%s'\n", ID, "ID");
+	    Z_scripterrlog("CreateLWeaponDx ri->d[1] is (%i), trying to use for '%s'\n", itemid, "itemid");
+	Z_scripterrlog("CreateLWeaponDx ri->lwpn is (%i), trying to use for '%s'\n", ri->lwpn, "ri->lwpn"); */
+		
+		ret = ri->lwpn; 
+	}
+	break;
+	
+	/*
+	//Screen->CollisionDx(int enemy_index, int lweapon_type, int power, int x, int y, int weapon_dir, int parent_item);
+	//Handles collision between an npc at screen index 'enemy_index', and an arbitrary lweapon that may or may not exist.
+	//Does damage, and returns true a value collision is valid. Returns a different value otherwise. 
+	
+	// take damage or ignore it
+	// -1: damage (if any) dealt
+	// 1: blocked
+	// 0: weapon passes through unhindered
+	// 2: heal enemy? -ZoriaRPG
+	
+	//THis function should automatically check for shields blocking the weapon, and calculate enemy defences.
+	//In theory, scritped swords, and other melee weapons could use this, as coudl any weapon, and it may simplify
+	//collision routines. 
+	case COLLISIONDX:
+	{
+		//Z_message("Trying to get Link->SetExtend().\n");
+		int index = (ri->d[0] / 10000);
+		long lweapon_type = (ri->d[1] / 10000);
+		int power = (ri->d[2]/10000);
+		
+		int wpnx = ri->4[3]/10000, wpny = ri->d[4]/10000;
+		int dir = ri->d[5]/10000;
+		int parentitem = (ri->d[6]/10000);
+		lweapon_type = vbound(lweapon_type,0,40); //Are we at 40, or higher now>
+		parentitem = vbound(itemid,0,255);
+		
+		//Log the stack events:
+		Z_scripterrlog("CollisionDx ri->d[0] is (%i), trying to use for '%s'\n", index, "index");
+		Z_scripterrlog("CollisionDx ri->d[1] is (%i), trying to use for '%s'\n", lweapon_type, "lweapon_type");
+		Z_scripterrlog("CollisionDx ri->d[2] is (%i), trying to use for '%s'\n", power, "power");
+		Z_scripterrlog("CollisionDx ri->d[3] is (%i), trying to use for '%s'\n", wpnx, "wpnx");
+		Z_scripterrlog("CollisionDx ri->d[4] is (%i), trying to use for '%s'\n", wpny, "wpny");
+		Z_scripterrlog("CollisionDx ri->d[5] is (%i), trying to use for '%s'\n", dir, "dir");
+		Z_scripterrlog("CollisionDx ri->d[0] is (%i), trying to use for '%s'\n", parentitem, "parentitem");
+		
+		weapon *w = new weapon((fix)wpnx,(fix)wpny,(fix)0,lweapon_type,0,power,dir,parentitem,-1,false);
+		int retval = ((enemy*)guys.spr(index))->takehit(w); 
+			//TakeHit, as I recall, applies damage and returns the hit status. Gold.
+		delete w;
+		ret = retval;
+	}
+	break;
+	
+	*/
+    case DEBUGREFFFC:
+    {
+	int r = -1;
+	if ( ri->ffcref ) r = ri->ffcref;
+        ret = r * 10000;
+    }
+        break;
         
+    case DEBUGREFITEM:
+    {
+	int r = -1;
+	if ( ri->itemref ) r = ri->itemref;
+        ret = r * 10000;
+    }
+        break;
+        
+    case DEBUGREFITEMDATA:
+    {
+	int r = -1;
+	if ( ri->idata ) r = ri->idata;
+        ret = r * 10000;
+    }
+        break;
+        
+    case DEBUGREFLWEAPON:
+    {
+	int r = -1;
+	if ( ri->lwpn ) r = ri->lwpn;
+        ret = r * 10000;
+    }
+        break;
+        
+    case DEBUGREFEWEAPON:
+    {
+	int r = -1;
+	if ( ri->ewpn ) r = ri->ewpn;
+        ret = r * 10000;
+    }
+        break;
+        
+    case DEBUGREFNPC:
+    {
+	int r = -1;
+	if ( ri->guyref ) r = ri->guyref;
+        ret = r * 10000;
+    }    
+        break;
+        
+    case DEBUGSP:
+    {
+	int r = -1;
+	if ( ri->sp ) r = ri->sp;
+        ret = r * 10000;
+    }   
+        break;
+    case DEBUGGDR:
+    {
+	int a = vbound(ri->d[0]/10000,0,15);
+	int r = -1;
+	if ( game->global_d[a] ) r = game->global_d[a];
+        ret = r * 10000;
+    }
+        break;
+    
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
     case REFFFC:
@@ -2854,6 +3550,7 @@ else \
     return ret;
 }
 
+//Setter Instructions
 
 
 void set_register(const long arg, const long value)
@@ -2867,14 +3564,22 @@ void set_register(const long arg, const long value)
         tmpscr->ffdata[ri->ffcref] = vbound(value/10000,0,MAXCOMBOS-1);
         break;
         
+     case CHANGEFFSCRIPTR:
+        FFScript::do_changeffcscript(false);
+        break;
+    
+    case CHANGEFFSCRIPTV:
+        FFScript::do_changeffcscript(true);
+        break;
+    
     case FFSCRIPT:
         for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
         {
             if(arrayOwner[i]==ri->ffcref)
-                deallocateArray(i);
+                FFScript::deallocateZScriptArray(i);
         }
         
-        tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
+        tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, scripts.ffscripts.size()-1);
         
         for(int i=0; i<16; i++)
             ffmisc[ri->ffcref][i] = 0;
@@ -2912,6 +3617,10 @@ void set_register(const long arg, const long value)
     case YD:
         tmpscr->ffydelta[ri->ffcref]=value;
         break;
+    
+    case FFCID:
+        ri->ffcref = vbound((value-10000)/10000, 0, 31);
+        break;
         
     case XD2:
         tmpscr->ffxdelta2[ri->ffcref]=value;
@@ -2943,7 +3652,8 @@ void set_register(const long arg, const long value)
         break;
         
     case FFLINK:
-        (tmpscr->fflink[ri->ffcref])=vbound(value/10000, 0, 32); //Needs to be 0 to be able to clear it. 
+        (tmpscr->fflink[ri->ffcref])=vbound(value/10000, 0, 32); // Allow "ffc->Link = 0" to unlink ffc.
+	//0 is none, setting this before made it impssible to clear it. -Z
         break;
         
     case FFMISCD:
@@ -2961,32 +3671,32 @@ void set_register(const long arg, const long value)
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        Link.setX(value/10000);
+        Link->setX(value/10000);
         break;
         
     case LINKY:
-        Link.setY(value/10000);
+        Link->setY(value/10000);
         break;
         
     case LINKZ:
-        Link.setZ(value/10000);
+        Link->setZ(value/10000);
         break;
         
     case LINKJUMP:
-        Link.setFall(fix((-value * (100.0)) / 10000.0));
+        Link->setFall(fix((-value * (100.0)) / 10000.0));
         break;
         
     case LINKDIR:
     {
-        //Link.setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
-        if(Link.getAction() == attacking) Link.dir = (value/10000);
-        else Link.setDir(value/10000);
+        //Link->setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
+        if(Link->getAction() == attacking) Link->dir = (value/10000);
+        else Link->setDir(value/10000);
         
         break;
     }
     
     case LINKHITDIR:
-        Link.setHitDir(value / 10000);
+        Link->setHitDir(value / 10000);
         break;
         
     case LINKHP:
@@ -3006,16 +3716,16 @@ void set_register(const long arg, const long value)
         break;
         
     case LINKACTION:
-        Link.setAction((actiontype)(value/10000));
+        Link->setAction((actiontype)(value/10000));
         break;
         
     case LINKHELD:
-        Link.setHeldItem(vbound(value/10000,0,MAXITEMS-1));
+        Link->setHeldItem(vbound(value/10000,0,MAXITEMS-1));
         break;
         
     case LINKITEMD:
         {
-           int itemID=vbound(ri->d[0]/10000,0,MAXITEMS-1);
+            int itemID=vbound(ri->d[0]/10000,0,MAXITEMS-1);
             
             // If the Cane of Byrna is being removed, cancel its effect.
             if(value==0 && itemID==current_item_id(itype_cbyrna))
@@ -3031,89 +3741,222 @@ void set_register(const long arg, const long value)
         }
         break;
         
-        /*case LINKEQUIP:
+         case LINKEQUIP:
           {
         
         	int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
         	if(seta && get_bit(quest_rules,qr_SELECTAWPN) && game->item[seta]){
-        
+			Awpn = value/10000;
         	}
         	if(setb && game->item[setb]){
+			Bwpn = value/10000;
         	}
           }
-         break;*/
+         break;
+	  
+	  case SETITEMSLOT:
+	{
+		//ri->d[1] = 1st arg
+		//ri->d[0] = 2nd arg
+		//value = third arg
+		//int item, int slot, int force
+		int itm = ri->d[0]/10000;
+		
+		int slot = ri->d[1]/10000;
+		int force = ri->d[2]/10000;
+		
+	    Z_scripterrlog("SetItemSlot rid->[0] is (%i), trying to use for '%s'\n", itm, "itm");
+	    Z_scripterrlog("SetItemSlot rid->[1] is (%i), trying to use for '%s'\n", slot, "slot");
+		Z_scripterrlog("SetItemSlot rid->[2] is (%i), trying to use for '%s'\n", force, "force");
+		
+		//If we add more item buttons, slot should be an int
+		//and force shuld be an int
+		
+		/*
+			For zScript, 
+				const int ITM_REQUIRE_NONE = 0
+				const int ITM_REQUIRE_INVENTORY = 1
+				const int ITM_REQUIRE_A_SLOT_RULE = 2
+				//Combine as flags
+		
+		
+		*/
+		if ( force == 0 ) {
+			if ( slot == 1 ) {
+				Awpn = itm;
+			}
+			else Bwpn = itm;
+		}
+		if ( force == 1 ) {
+			if(slot == 1 && game->item[itm]){
+				Awpn = itm;
+			}
+			else { 
+				if ( game->item[itm] ) Bwpn = itm;
+			}
+		}
+
+		if ( force == 2 ) {
+			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) ){
+				Awpn = itm;
+			}
+			else { 
+				Bwpn = itm;
+			}
+		}
+		
+		if ( force == 3 ) { //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
+			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) && game->item[itm]){
+				Awpn = itm;
+			}
+			else { 
+				if ( game->item[itm] ) Bwpn = itm;
+			}
+		}
+	}
+	break;
+	  
     case LINKINVIS:
-        Link.setDontDraw(value/10000);
+        Link->setDontDraw(value/10000);
         break;
         
     case LINKINVINC:
-        Link.scriptcoldet=(value/10000);
+        Link->scriptcoldet=(value/10000);
         break;
         
     case LINKSWORDJINX:
-        Link.setSwordClk(value/10000);
+        Link->setSwordClk(value/10000);
         break;
         
     case LINKITEMJINX:
-        Link.setItemClk(value/10000);
+        Link->setItemClk(value/10000);
         break;
         
     case LINKDRUNK:
-        Link.setDrunkClock(value/10000);
+        Link->setDrunkClock(value/10000);
         break;
         
     case LINKMISCD:
-        Link.miscellaneous[vbound(ri->d[0]/10000,0,15)] = value;
+        Link->miscellaneous[vbound(ri->d[0]/10000,0,31)] = value;
         break;
         
     case LINKHXOFS:
-        (Link.hxofs)=(fix)(value/10000);
+        (Link->hxofs)=(fix)(value/10000);
         break;
         
     case LINKHYOFS:
-        (Link.hyofs)=(fix)(value/10000);
+        (Link->hyofs)=(fix)(value/10000);
         break;
         
     case LINKXOFS:
-        (Link.xofs)=(fix)(value/10000);
+        (Link->xofs)=(fix)(value/10000);
         break;
         
     case LINKYOFS:
-        (Link.yofs)=(fix)(value/10000)+playing_field_offset;
+        (Link->yofs)=(fix)(value/10000)+playing_field_offset;
         break;
         
     case LINKZOFS:
-        (Link.zofs)=(fix)(value/10000);
+        (Link->zofs)=(fix)(value/10000);
         break;
         
     case LINKHXSZ:
-        (Link.hxsz)=(fix)(value/10000);
+        (Link->hxsz)=(fix)(value/10000);
         break;
         
     case LINKHYSZ:
-        (Link.hysz)=(fix)(value/10000);
+        (Link->hysz)=(fix)(value/10000);
         break;
         
     case LINKHZSZ:
-        (Link.hzsz)=(fix)(value/10000);
+        (Link->hzsz)=(fix)(value/10000);
         break;
         
     case LINKTXSZ:
-        (Link.txsz)=(fix)(value/10000);
+        (Link->txsz)=(fix)(value/10000);
         break;
         
     case LINKTYSZ:
-        (Link.tysz)=(fix)(value/10000);
+        (Link->tysz)=(fix)(value/10000);
         break;
         
     case LINKTILE:
-        (Link.tile)=(fix)(value/10000);
+        (Link->tile)=(fix)(value/10000);
         break;
         
     case LINKFLIP:
-        (Link.flip)=(fix)(value/10000);
+        (Link->flip)=(fix)(value/10000);
         break;
+    
+    
+    
+    case LINKINVFRAME:
+	Link->setHClk( (int)vbound((value/10000), 0, 214747) );
+	break;
+    
+    case LINKCANFLICKER:
+	Link->setCanLinkFlicker((value/10000)?1:0);
+	break;
+    
+    case LINKHURTSFX:
+	Link->setHurtSFX( (int)vbound((value/10000), 0, 255) );
+	break;
         
+    
+     case LINKITEMB:
+	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+    /*
+	Link->directItem = vbound((value/10000),0,(MAXITEMS-1));
+	Link->directItemB = Link->directItem;
+	Bwpn = vbound((value/10000),0,(MAXITEMS-1));
+    */
+	Link->setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
+	Link->setDirectItemB(Link->getDirectItem());
+	Bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	game->bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	break;
+    
+    case LINKITEMA:
+	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	Link->setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
+	Link->setDirectItemA(Link->getDirectItem());
+	Awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	game->awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	break;
+    
+      case LINKEATEN:
+	Link->setEaten(value/10000);
+	break;
+    
+      case GAMESETA:
+	{
+		//int state   = (ri->d[1]/10000);
+		//int extend = (ri->d[1]/10000);
+		//int dir = (ri->d[0]/10000);
+		Z_message("Trying to force-set the A-button item().\n");
+		Link->setAButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	}
+	break;
+	
+	case GAMESETB:
+	{
+		//int state   = (ri->d[1]/10000);
+		//int extend = (ri->d[1]/10000);
+		//int dir = (ri->d[0]/10000);
+		Z_message("Trying to force-set the A-button item().\n");
+		Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+	}
+	break;
+	
+	//Set Link Diagonal
+        case LINKDIAG:
+	    Link->setDiagMove((value/10000)?1:0);
+	break;
+    
+    //Set Link Big Hitbox
+        case LINKBIGHITBOX:
+	    Link->setBigHitbox((value/10000)?1:0);
+	break;
 ///----------------------------------------------------------------------------------------------------//
 //Input States
     case INPUTSTART:
@@ -3262,20 +4105,20 @@ void set_register(const long arg, const long value)
         
     case INPUTMOUSEX:
     {
-        int leftOffset=(resx/2)-(128*screen_scale);
-        position_mouse((value/10000)*screen_scale+leftOffset, gui_mouse_y());
+        int leftOffset=(Backend::graphics->virtualScreenW()/2)-(128*virtualScreenScale());
+        position_mouse((value/10000)*virtualScreenScale() +leftOffset, Backend::mouse->getVirtualScreenY());
         break;
     }
     
     case INPUTMOUSEY:
     {
-        int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
-        position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
+        int topOffset=(Backend::graphics->virtualScreenH() /2)-((112-playing_field_offset)*virtualScreenScale());
+        position_mouse(Backend::mouse->getVirtualScreenX(), (value/10000)*virtualScreenScale() +topOffset);
         break;
     }
     
     case INPUTMOUSEZ:
-        position_mouse_z(value/10000);
+		Backend::mouse->setWheelPosition(value/10000);
         break;
         
 ///----------------------------------------------------------------------------------------------------//
@@ -3575,7 +4418,7 @@ void set_register(const long arg, const long value)
     case ITEMMISCD:
         if(0!=(s=checkItem(ri->itemref)))
         {
-            int a = vbound(ri->d[0]/10000,0,15);
+            int a = vbound(ri->d[0]/10000,0,31);
             (((item*)(s))->miscellaneous[a])=value;
         }
         
@@ -3583,20 +4426,94 @@ void set_register(const long arg, const long value)
         
 ///----------------------------------------------------------------------------------------------------//
 //Itemdata Variables
+	//not mine, but let;s guard some of them all the same -Z
+	//item class
     case IDATAFAMILY:
-        (itemsbuf[ri->idata].family)=value/10000;
+        (itemsbuf[ri->idata].family)=vbound(value/10000,0, 254);
         flushItemCache();
         break;
-        
+    
+    case IDATAUSEWPN:
+        (itemsbuf[ri->idata].useweapon)=vbound(value/10000, 0, 255);
+        break;
+    case IDATAUSEDEF:
+        (itemsbuf[ri->idata].usedefence)=vbound(value/10000, 0, 255);
+        break;
+    case IDATAWRANGE:
+        (itemsbuf[ri->idata].weaprange)=vbound(value/10000, 0, 255);
+        break;
+     case IDATADURATION:
+        (itemsbuf[ri->idata].weapduration)=vbound(value/10000, 0, 255);
+        break;
+     
+     case IDATADUPLICATES:
+	(itemsbuf[ri->idata].duplicates)=vbound(value/10000, 0, 255);
+        break;
+    case IDATADRAWLAYER:
+	(itemsbuf[ri->idata].drawlayer)=vbound(value/10000, 0, 7);
+        break;
+    case IDATACOLLECTFLAGS:
+	//int a = ri->d[0] / 10000;
+        (itemsbuf[ri->idata].collectflags)=vbound(value/10000, 0, 214747);
+        break;
+    case IDATAWEAPONSCRIPT:
+	(itemsbuf[ri->idata].weaponscript)=vbound(value/10000, 0, 255);
+        break;
+    case IDATAMISCD:
+    {
+	    
+	int a = vbound((ri->d[0] / 10000),0,31);
+	(itemsbuf[ri->idata].wpn_misc_d[a])=(value/10000);
+    }
+    break;
+    case IDATAWPNINITD:
+    {
+	    
+	int a = vbound((ri->d[0] / 10000),0,7);
+	(itemsbuf[ri->idata].weap_initiald[a])=(value/10000);
+    }
+    break;
+    case IDATAWEAPHXOFS:
+	(itemsbuf[ri->idata].weap_hxofs)=(value/10000);
+        break;
+    case IDATAWEAPHYOFS:
+	(itemsbuf[ri->idata].weap_yxofs)=(value/10000);
+        break;
+    case IDATAWEAPHXSZ:
+	(itemsbuf[ri->idata].weap_hxsz)=(value/10000);
+        break;
+    case IDATAWEAPHYSZ:
+	(itemsbuf[ri->idata].weap_hysz)=(value/10000);
+        break;
+    case IDATAWEAPHZSZ:
+	(itemsbuf[ri->idata].weap_hzsz)=(value/10000);
+        break;
+    case IDATAWEAPXOFS:
+	(itemsbuf[ri->idata].weap_xofs)=(value/10000);
+        break;
+    case IDATAWEAPYOFS:
+	(itemsbuf[ri->idata].weap_yofs)=(value/10000);
+        break;
+
+    
+    case IDATAUSEMVT:
+	{
+	    long a = vbound((ri->d[0] / 10000),0,(ITEM_MOVEMENT_PATTERNS-1));
+	    (itemsbuf[ri->idata].weap_pattern[a])=vbound(value/10000, 0, 255);
+	}
+        break;
+    
+    
+    //item level
     case IDATALEVEL:
-        (itemsbuf[ri->idata].fam_type)=value/10000;
+        (itemsbuf[ri->idata].fam_type)=vbound(value/10000, 0, 512);
         flushItemCache();
         break;
-        
+        //bool keep
     case IDATAKEEP:
         (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAMEDATA:0;
         break;
-        
+        //Need the legal range -Z
     case IDATAAMOUNT:
         (itemsbuf[ri->idata].amount)=value/10000;
         break;
@@ -3614,13 +4531,192 @@ void set_register(const long arg, const long value)
         break;
         
     case IDATACOUNTER:
-        (itemsbuf[ri->idata].count)=value/10000;
+        (itemsbuf[ri->idata].count)=vbound(value/10000,0,31);
         break;
         
     case IDATAUSESOUND:
-        (itemsbuf[ri->idata].usesound)=value/10000;
+        (itemsbuf[ri->idata].usesound)=vbound(value/10000, 0, 255);
         break;
+    
+    //2.54
+    //My additions begin here. -Z
+    //Stack item to gain next level
+    case IDATACOMBINE:
+		(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_COMBINE:0; 
+		break;
+    //using a level of an item downgrades to a lower one
+	case IDATADOWNGRADE:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_DOWNGRADE:0; 
+		break;
+
+	//Flags[5]
+	case IDATAFLAGS: {
+	    int index = vbound(ri->d[0]/10000,0,4);
+		switch(index){
+		    case 0:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG1:0; 
+		    break;
+		    case 1:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG2:0; 
+		    case 2:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG3:0; 
+		    case 3:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG4:0; 
+		    case 4:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG5:0; 
+		    
+		    
+		    default: 
+			    break;
+		}
+		   
+		break;
+	}
+	//Keep Old in editor
+	case IDATAKEEPOLD:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_KEEPOLD:0; 
+		break;
+	//Ruppes for magic
+	case IDATARUPEECOST:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_RUPEE_MAGIC:0; 
+		break;
+	//can be eaten
+	case IDATAEDIBLE:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_EDIBLE:0; 
+		break;
+	//Reserving this for item editor stuff. 
+	case IDATAFLAGUNUSED:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_UNUSED:0; 
+		break;
+	//gain lower level items
+	case IDATAGAINLOWER:
+	      (itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAINOLD:0; 
+		break;
+	//Set the action script
+	case IDATASCRIPT:
+        itemsbuf[ri->idata].script=vbound(value/10000,1,255);
+        break;
+    
+      /*
+      case ITEMMISCD:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            int a = vbound(ri->d[0]/10000,0,31);
+            (((item*)(s))->miscellaneous[a])=value;
+        }
         
+        break;*/
+	//Attributes[10]
+	case IDATAATTRIB: {
+	    int index = vbound(ri->d[0]/10000,0,9);
+		switch(index){
+		    case 0:
+			itemsbuf[ri->idata].misc1=value/10000;
+		    break;
+		    case 1:
+			itemsbuf[ri->idata].misc2=value/10000; break;
+		    case 2:
+			itemsbuf[ri->idata].misc3=value/10000; break;
+		    case 3:
+			itemsbuf[ri->idata].misc4=value/10000; break;
+		    case 4:
+			itemsbuf[ri->idata].misc5=value/10000; break;
+		    case 5:
+			itemsbuf[ri->idata].misc6=value/10000; break;
+		    case 6:
+			itemsbuf[ri->idata].misc7=value/10000; break;
+		    case 7:
+			itemsbuf[ri->idata].misc8=value/10000; break;
+		    case 8:
+			itemsbuf[ri->idata].misc9=value/10000; break;
+		    case 9:
+			itemsbuf[ri->idata].misc10=value/10000; break;
+
+		    default: 
+			    break;
+		}
+		   
+		break;
+	}
+	//Sprites[10]
+	case IDATASPRITE: {
+	    int index = vbound(ri->d[0]/10000,0,9);
+		switch(index){
+		    case 0:
+			itemsbuf[ri->idata].wpn=vbound(value/10000, 0, 255);
+		    break;
+		    case 1:
+			itemsbuf[ri->idata].wpn2=(value/10000, 0, 255); break;
+		    case 2:
+			itemsbuf[ri->idata].wpn3=(value/10000, 0, 255); break;
+		    case 3:
+			itemsbuf[ri->idata].wpn4=(value/10000, 0, 255); break;
+		    case 4:
+			itemsbuf[ri->idata].wpn5=(value/10000, 0, 255); break;
+		    case 5:
+			itemsbuf[ri->idata].wpn6=(value/10000, 0, 255); break;
+		    case 6:
+			itemsbuf[ri->idata].wpn7=(value/10000, 0, 255); break;
+		    case 7:
+			itemsbuf[ri->idata].wpn8=(value/10000, 0, 255); break;
+		    case 8:
+			itemsbuf[ri->idata].wpn9=(value/10000, 0, 255); break;
+		    case 9:
+			itemsbuf[ri->idata].wpn10=(value/10000, 0, 255); break;
+		    
+		    default: 
+			    break;
+		}
+		   
+		break;
+	}
+	//Link tile modifier. 
+	case IDATALTM:
+        itemsbuf[ri->idata].ltm=value/10000;
+        break;
+	//Pickup script
+    case IDATAPSCRIPT:
+        itemsbuf[ri->idata].collect_script=(value/10000, 1, 255);
+        break;
+    //magic cost
+     case IDATAMAGCOST:
+        itemsbuf[ri->idata].magic=value/10000;
+        break;
+     //min hearts to pick up
+     case IDATAMINHEARTS:
+        itemsbuf[ri->idata].pickup_hearts=vbound(value/10000, 0, 214748);
+        break;
+     //item tile
+     case IDATATILE:
+        itemsbuf[ri->idata].tile=vbound(value/10000, 0, 65519);
+        break;
+     //flash
+     case IDATAMISC:
+        itemsbuf[ri->idata].misc=value/10000;
+        break;
+     //cset
+     case IDATACSET:
+        itemsbuf[ri->idata].csets=vbound(value/10000,0,13);
+        break;
+     /*
+     case IDATAFRAME:
+        itemsbuf[ri->idata].frame=value/10000;
+        break;
+     */
+     //A.Frames
+     case IDATAFRAMES:
+	(itemsbuf[ri->idata].frames)=vbound(value/10000, 0, 214748);
+        break;
+	//A.speed
+     case IDATAASPEED:
+        itemsbuf[ri->idata].speed=vbound(value/10000, 0, 214748);
+        break;
+     //Anim delay
+     case IDATADELAY:
+        itemsbuf[ri->idata].delay=vbound(value/10000, 0, 214748);
+        break;
+     
+        //not one of mine. 
     case IDATAINITDD:
     {
         int a = ri->d[0] / 10000;
@@ -3696,6 +4792,11 @@ void set_register(const long arg, const long value)
         if(0!=(s=checkLWpn(ri->lwpn,"Damage")))
             ((weapon*)s)->power=(value/10000);
             
+        break;
+	
+    case LWPNRANGE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Range")))
+		((weapon*)s)->scriptrange=vbound((value/10000),0,512); //Allow it to move off-screen. -Z           
         break;
         
     case LWPNDEAD:
@@ -3839,7 +4940,7 @@ void set_register(const long arg, const long value)
     case LWPNMISCD:
         if(0!=(s=checkLWpn(ri->lwpn,"Misc")))
         {
-            int a = vbound(ri->d[0]/10000,0,15);
+            int a = vbound(ri->d[0]/10000,0,31);
             (((weapon*)(s))->miscellaneous[a])=value;
         }
         
@@ -4060,7 +5161,7 @@ void set_register(const long arg, const long value)
     case EWPNMISCD:
         if(0!=(s=checkEWpn(ri->ewpn,"Misc")))
         {
-            int a = vbound(ri->d[0]/10000,0,15);
+            int a = vbound(ri->d[0]/10000,0,31);
             (((weapon*)(s))->miscellaneous[a])=value;
         }
         
@@ -4083,7 +5184,7 @@ void set_register(const long arg, const long value)
             GuyH::getNPC()->x = fix(value / 10000);
             
             if(GuyH::hasLink())
-                Link.setX(fix(value / 10000));
+                Link->setX(fix(value / 10000));
         }
     }
     break;
@@ -4097,7 +5198,7 @@ void set_register(const long arg, const long value)
             GuyH::getNPC()->floor_y += ((value / 10000) - oldy);
             
             if(GuyH::hasLink())
-                Link.setY(fix(value / 10000));
+                Link->setY(fix(value / 10000));
         }
     }
     break;
@@ -4114,7 +5215,7 @@ void set_register(const long arg, const long value)
                     GuyH::getNPC()->z = fix(value / 10000);
                     
                 if(GuyH::hasLink())
-                    Link.setZ(fix(value / 10000));
+                    Link->setZ(fix(value / 10000));
             }
         }
     }
@@ -4128,7 +5229,7 @@ void set_register(const long arg, const long value)
                 GuyH::getNPC()->fall = -fix(value * 100.0 / 10000.0);
                 
             if(GuyH::hasLink())
-                Link.setFall(value / fix(10000.0));
+                Link->setFall(value / fix(10000.0));
         }
     }
     break;
@@ -4211,7 +5312,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
             if(en->bgsfx != newSFX)
             {
                 en->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
-                cont_sfx(newSFX);
+                Backend::sfx->loop(newSFX,128);
                 en->bgsfx = newSFX;
             }
         }
@@ -4244,6 +5345,9 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         
     case NPCHUNGER:
         SET_NPC_VAR_INT(grumble, "npc->Hunger") break;
+    
+    case NPCWEAPSPRITE:
+        SET_NPC_VAR_INT(wpnsprite, "npc->WeaponSprite") break;
         
     case NPCCSET:
     {
@@ -4309,8 +5413,21 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         long a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Defense") == SH::_NoError &&
-                BC::checkBounds(a, 0, edefSCRIPT, "npc->Defense") == SH::_NoError)
+                BC::checkBounds(a, 0, (edefLAST255-1), "npc->Defense") == SH::_NoError)
             GuyH::getNPC()->defense[a] = value / 10000;
+    }
+    break;
+    
+    //2.future compat. -Z
+    
+    
+     case NPCSCRDEFENSED:
+    {
+        long a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->ScriptDefense") == SH::_NoError &&
+                BC::checkBounds(a, 0, edefSCRIPTDEFS_MAX, "npc->ScriptDefense") == SH::_NoError)
+            GuyH::getNPC()->defense[a+edefSCRIPT01] = value / 10000;
     }
     break;
     
@@ -4319,15 +5436,97 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         long a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Misc") == SH::_NoError &&
-                BC::checkMisc(a, "npc->Misc") == SH::_NoError)
+                BC::checkMisc32(a, "npc->Misc") == SH::_NoError)
             GuyH::getNPC()->miscellaneous[a] = value;
             
     }
     
     break;
     
+    //npc->Attributes[] setter -Z
+    case NPCDD:
+    {
+        long a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->Attributes") == SH::_NoError &&
+                BC::checkBounds(a, 0, 15, "npc->Attributes") == SH::_NoError)
+	
+	switch(a){
+		case 0: GuyH::getNPC()->dmisc1 = value / 10000; break;
+		case 1: GuyH::getNPC()->dmisc2 = value / 10000; break;
+		case 2: GuyH::getNPC()->dmisc3 = value / 10000; break;
+		case 3: GuyH::getNPC()->dmisc4 = value / 10000; break;
+		case 4: GuyH::getNPC()->dmisc5 = value / 10000; break;
+		case 5: GuyH::getNPC()->dmisc6 = value / 10000; break;
+		case 6: GuyH::getNPC()->dmisc7 = value / 10000; break;
+		case 7: GuyH::getNPC()->dmisc8 = value / 10000; break;
+		case 8: GuyH::getNPC()->dmisc9 = value / 10000; break;
+		case 9: GuyH::getNPC()->dmisc10 = value / 10000; break;
+		case 10: GuyH::getNPC()->dmisc11 = value / 10000; break;
+		case 11: GuyH::getNPC()->dmisc12 = value / 10000; break;
+		case 12: GuyH::getNPC()->dmisc13 = value / 10000; break;
+		case 13: GuyH::getNPC()->dmisc14 = value / 10000; break;
+		case 14: GuyH::getNPC()->dmisc15 = value / 10000; break;
+		default: break;
+	}
+
+    }
+    break;
+    
+        
+    case NPCINVINC:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->InvFrames") == SH::_NoError)
+            GuyH::getNPC()->hclk = (int)value/10000;
+    }
+    break;
+    
+    case NPCSUPERMAN:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->Invincible") == SH::_NoError)
+            GuyH::getNPC()->superman = (int)value/10000;
+    }
+    break;
+    
+    case NPCHASITEM:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->HasItem") == SH::_NoError)
+            GuyH::getNPC()->itemguy = (value/10000)?1:0;
+    }
+    break;
+    
+    case NPCRINGLEAD:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->Ringleader") == SH::_NoError)
+            GuyH::getNPC()->leader = (value/10000)?1:0;
+    }
+    break;
+    
 ///----------------------------------------------------------------------------------------------------//
 //Game Information
+    
+    case GAMESUBSCHEIGHT:
+    {
+	int v = vbound(value,0,256);
+	passive_subscreen_height = (v/10000);   
+    }
+    break;
+    
+    case GAMEPLAYFIELDOFS:
+    {
+	int v = vbound(value,-256, 256);
+	playing_field_offset = (v/10000);
+    }
+    break;
+    
+    case PASSSUBOFS:
+    {
+	int v = vbound(value,-256, 256);
+	passive_subscreen_offset = (v/10000);
+    }
+    break;
+
+    
     case GAMEDEATHS:
         game->set_deaths(value/10000);
         break;
@@ -4391,17 +5590,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case GAMEITEMSD:
         game->set_item((ri->d[0])/10000,(value!=0));
         break;
-        
-    // LItems is a size of byte. -Z
-    case GAMELITEMSD:
-        game->lvlitems[(ri->d[0])/10000]=vbound(value/10000, 0, 255);
-        break;
-        
-    // LKeys is a size of byte. -Z
-    case GAMELKEYSD:
-	game->lvlkeys[((ri->d[0])/10000)]=vbound(value/10000, 0, 255);
-        break;
     
+    case DISABLEDITEM:
+	game->items_off[(ri->d[0])/10000]=value/10000;
+	break;
+        
+    case GAMELITEMSD:
+        game->lvlitems[(ri->d[0])/10000]=value/10000;
+        break;
+        
+    case GAMELKEYSD:
+        game->lvlkeys[(ri->d[0])/10000]=value/10000;
+        break;
+        
     case SCREENSTATED:
     {
         int mi2 = (currmap*MAPSCRSNORMAL)+currscr;
@@ -4426,6 +5627,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case GAMECLICKFREEZE:
         disableClickToFreeze=value==0;
         break;
+    
+    
+    case NOACTIVESUBSC:
+	Link->stopSubscreenFalling((value/10000)?1:0);
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //DMap Information
@@ -4449,6 +5655,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case DMAPCONTINUED:
         SET_DMAP_VAR(cont, "Game->DMapContinue") break;
         
+     case DMAPLEVELPAL:
+   {
+	int ID = ri->d[0] / 10000; 
+	int pal = value/10000;
+	pal = vbound(pal, 0, 0x1FF);
+	   
+	if(BC::checkDMapID(ID, "Game->DMapPalette") == SH::_NoError) 
+        DMaps[ID].color = pal;
+
+	loadlvlpal(DMaps[(ri->d[0] / 10000)].color);
+	break;
+   }
+   
     case DMAPMIDID:
     {
         int ID = ri->d[0] / 10000;
@@ -4705,11 +5924,220 @@ case COMBODDM:
     
 ///----------------------------------------------------------------------------------------------------//
 //Screen Variables
+    
+    //These use the same method as SetScreenD
+    case SETSCREENWIDTH:
+	FFScript::set_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
+
+    case SETSCREENHEIGHT:
+	FFScript::set_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
+
+    case SETSCREENVIEWX:
+	FFScript::set_screenViewX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
+
+    case SETSCREENVIEWY:
+	FFScript::set_screenViewY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
+
+    case SETSCREENGUY:
+	FFScript::set_screenGuy(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
+
+    case SETSCREENSTRING:
+    {
+	FFScript::set_screenString(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	    //should this be either
+	    //set_screenString(&TheMaps[((ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)])-1), value/10000);
+	    //or
+	    //set_screenString(&TheMaps[((ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)])-+1), value/10000);
+	    Z_message("Map ref is: %d\n",((ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)));
+    }
+	break;
+
+    case SETSCREENROOM:
+	FFScript::set_screenRoomtype(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
+
+    case SETSCREENENTX:
+	FFScript::set_screenEntryX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
+
+    case SETSCREENENTY:
+	FFScript::set_screenEntryY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
+
+    case SETSCREENITEM:
+	FFScript::set_screenitem(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
+
+    case SETSCREENUNDCMB:
+	FFScript::set_screenundercombo(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
+
+    case SETSCREENUNDCST:
+	FFScript::set_screenundercset(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
+
+    case SETSCREENCATCH:
+	FFScript::set_screenatchall(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
+	break;
+
+//These use the method of SetScreenEnemy
+
+
+//SetScreenLayerOpacity(int map, int scr, int layer, int v)
+case SETSCREENLAYOP:
+{ 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
+	long scrn  = ri->d[2] / 10000; 
+	long index = ri->d[0] / 10000; 
+	int nn = ri->d[3]/10000; 
+
+	if(BC::checkMapID(map, "Game->SetScreenLayerOpacity(...map...)") != SH::_NoError ||
+		BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenLayerOpacity(...screen...)") != SH::_NoError ||
+		BC::checkBounds(index, 0, 9, "Game->SetScreenLayerOpacity(...index...)") != SH::_NoError)
+		return;
+		
+	FFScript::set_screenlayeropacity(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+}
+break;
+
+case SETSCREENSECCMB:
+{ 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
+	long scrn  = ri->d[2] / 10000; 
+	long index = ri->d[0] / 10000; 
+	int nn = ri->d[3]/10000; 
+
+	if(BC::checkMapID(map, "Game->SetScreenSecretCombo(...map...)") != SH::_NoError ||
+		BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenSecretCombo(...screen...)") != SH::_NoError ||
+		BC::checkBounds(index, 0, 9, "Game->SetScreenSecretCombo(...index...)") != SH::_NoError)
+		return;
+		
+	FFScript::set_screensecretcombo(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+}
+break;
+
+case SETSCREENSECCST:
+{ 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
+	long scrn  = ri->d[2] / 10000; 
+	long index = ri->d[0] / 10000; 
+	int nn = ri->d[3]/10000; 
+
+	if(BC::checkMapID(map, "Game->SetScreenSecretCSet(...map...)") != SH::_NoError ||
+		BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenSecretCSet(...screen...)") != SH::_NoError ||
+		BC::checkBounds(index, 0, 9, "Game->SetScreenSecretCSet(...index...)") != SH::_NoError)
+		return;
+		
+	FFScript::set_screensecretcset(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+}
+break;
+
+case SETSCREENSECFLG:
+{ 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
+	long scrn  = ri->d[2] / 10000; 
+	long index = ri->d[0] / 10000; 
+	int nn = ri->d[3]/10000; 
+
+	if(BC::checkMapID(map, "Game->SetScreenSecretFlag(...map...)") != SH::_NoError ||
+		BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenSecretFlag(...screen...)") != SH::_NoError ||
+		BC::checkBounds(index, 0, 9, "Game->SetScreenSecretFlag(...index...)") != SH::_NoError)
+		return;
+		
+	FFScript::set_screensecretflag(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+}
+break;
+
+case SETSCREENLAYMAP:
+{ 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
+	long scrn  = ri->d[2] / 10000; 
+	long index = ri->d[0] / 10000; 
+	int nn = ri->d[3]/10000; 
+
+	if(BC::checkMapID(map, "Game->SetScreenLayerMap(...map...)") != SH::_NoError ||
+		BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenLayerMap(...screen...)") != SH::_NoError ||
+		BC::checkBounds(index, 0, 9, "Game->SetScreenLayerMap(...index...)") != SH::_NoError)
+		return;
+		
+	FFScript::set_screenlayermap(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+}
+break;
+
+case SETSCREENLAYSCR:
+{ 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
+	long scrn  = ri->d[2] / 10000; 
+	long index = ri->d[0] / 10000; 
+	int nn = ri->d[3]/10000; 
+
+	if(BC::checkMapID(map, "Game->SetScreenLayerScreen(...map...)") != SH::_NoError ||
+		BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenLayerScreen(...screen...)") != SH::_NoError ||
+		BC::checkBounds(index, 0, 9, "Game->SetScreenLayerScreen(...index...)") != SH::_NoError)
+		return;
+		
+	FFScript::set_screenlayerscreen(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+}
+break;
+
+case SETSCREENPATH:
+{ 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
+	long scrn  = ri->d[2] / 10000; 
+	long index = ri->d[0] / 10000; 
+	int nn = ri->d[3]/10000; 
+
+	if(BC::checkMapID(map, "Game->SetScreenPath(...map...)") != SH::_NoError ||
+		BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenPath(...screen...)") != SH::_NoError ||
+		BC::checkBounds(index, 0, 9, "Game->SetScreenPath(...index...)") != SH::_NoError)
+		return;
+		
+	FFScript::set_screenpath(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+}
+break;
+
+case SETSCREENWARPRX:
+{ 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
+	long scrn  = ri->d[2] / 10000; 
+	long index = ri->d[0] / 10000; 
+	int nn = ri->d[3]/10000; 
+
+	if(BC::checkMapID(map, "Game->SetScreenWarpReturnX(...map...)") != SH::_NoError ||
+		BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenWarpReturnX(...screen...)") != SH::_NoError ||
+		BC::checkBounds(index, 0, 9, "Game->SetScreenWarpReturnX(...index...)") != SH::_NoError)
+		return;
+		
+	FFScript::set_screenwarpReturnX(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+}
+break;
+
+case SETSCREENWARPRY:
+{ 
+	long map     = (ri->d[1] / 10000) - 1; //Should this be +1? -Z
+	long scrn  = ri->d[2] / 10000; 
+	long index = ri->d[0] / 10000; 
+	int nn = ri->d[3]/10000; 
+
+	if(BC::checkMapID(map, "Game->SetScreenWarpReturnY(...map...)") != SH::_NoError ||
+		BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenWarpReturnY(...screen...)") != SH::_NoError ||
+		BC::checkBounds(index, 0, 9, "Game->SetScreenWarpReturnY(...index...)") != SH::_NoError)
+		return;
+		
+	FFScript::set_screenwarpReturnY(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+}
+break;
+
     case SDD:
     {
         {
             int di2 = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-            set_screen_d(di2, ri->d[0]/10000, value);
+            FFScript::set_screen_d(di2, ri->d[0]/10000, value);
             break;
         }
     }
@@ -4720,11 +6148,11 @@ case COMBODDM:
         break;
         
     case SDDD:
-        set_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1]/10000, value);
+        FFScript::set_screen_d((ri->d[0])/10000 + ((get_currdmap())<<7), ri->d[1]/10000, value);
         break;
         
     case SDDDD:
-        set_screen_d(ri->d[1]/10000 + ((ri->d[0]/10000)<<7), ri->d[2]/10000, value);
+        FFScript::set_screen_d(ri->d[1]/10000 + ((ri->d[0]/10000)<<7), ri->d[2]/10000, value);
         break;
         
     case SCRDOORD:
@@ -4752,12 +6180,12 @@ case COMBODDM:
         break;
         
     case PUSHBLOCKCOMBO:
-        mblock2.bcombo=value/10000;
+        mblock2->bcombo=value/10000;
         break;
         
     case PUSHBLOCKCSET:
-        mblock2.cs=value/10000;
-        mblock2.oldcset=value/10000;
+        mblock2->cs=value/10000;
+        mblock2->oldcset=value/10000;
         break;
         
     case UNDERCOMBO:
@@ -4766,6 +6194,42 @@ case COMBODDM:
         
     case UNDERCSET:
         tmpscr->undercset=value/10000;
+        break;
+    
+    
+    case DEBUGGDR:
+    {
+	int a = vbound(ri->d[0]/10000,0,15);
+        game->global_d[a] = value / 10000;;
+    }
+        break;
+    
+    case DEBUGSP:
+        ri->sp = vbound((value / 10000),0,256);
+        break;
+        
+    case DEBUGREFFFC:
+        ri->ffcref = vbound((value / 10000),1,31);
+        break;
+        
+    case DEBUGREFITEM:
+        ri->itemref = vbound((value / 10000),0,255);
+        break;
+        
+    case DEBUGREFITEMDATA:
+        ri->idata = vbound((value / 10000),0,255);
+        break;
+        
+    case DEBUGREFLWEAPON:
+        ri->lwpn = vbound((value / 10000),0,255);
+        break;
+        
+    case DEBUGREFEWEAPON:
+        ri->ewpn = vbound((value / 10000),0,255);
+        break;
+        
+    case DEBUGREFNPC:
+        ri->guyref = vbound((value / 10000),0,255);
         break;
         
 ///----------------------------------------------------------------------------------------------------//
@@ -4817,7 +6281,7 @@ case COMBODDM:
         break;
     }
     }
-}
+} //end set_register
 
 ///----------------------------------------------------------------------------------------------------//
 //                                       ASM Functions                                                 //
@@ -4952,7 +6416,7 @@ void do_deallocatemem()
 {
     const long ptrval = get_register(sarg1) / 10000;
     
-    deallocateArray(ptrval);
+    FFScript::deallocateZScriptArray(ptrval);
 }
 
 void do_loada(const byte a)
@@ -5329,19 +6793,37 @@ void do_rshift(const bool v)
 
 void do_warp(bool v)
 {
-    tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
-    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
+    int dmap=SH::get_arg(sarg1, v) / 10000;
+    if(dmap<0 || dmap>=MAXDMAPS)
+        return;
+    int screen=SH::get_arg(sarg2, v) / 10000;
+    if(screen<0 || screen>=MAPSCRS) // Should this be MAPSCRSNORMAL?
+        return;
+    // A shifted DMap can still go past the end of the maps, so check that
+    if(DMaps[dmap].map*MAPSCRS+DMaps[dmap].xoff+screen>= (int)TheMaps.size())
+        return;
+    
+    tmpscr->sidewarpdmap[0] = dmap;
+    tmpscr->sidewarpscr[0]  = screen;
     tmpscr->sidewarptype[0] = wtIWARP;
-    Link.ffwarp = true;
+    Link->ffwarp = true;
 }
 
 void do_pitwarp(bool v)
 {
-    tmpscr->sidewarpdmap[0] = SH::get_arg(sarg1, v) / 10000;
-    tmpscr->sidewarpscr[0]  = SH::get_arg(sarg2, v) / 10000;
+    int dmap=SH::get_arg(sarg1, v) / 10000;
+    if(dmap<0 || dmap>=MAXDMAPS)
+        return;
+    int screen=SH::get_arg(sarg2, v) / 10000;
+    if(screen<0 || screen>=MAPSCRS)
+        return;
+    if(DMaps[dmap].map*MAPSCRS+DMaps[dmap].xoff+screen>= (int)TheMaps.size())
+        return;
+    tmpscr->sidewarpdmap[0] = dmap;
+    tmpscr->sidewarpscr[0]  = screen;
     tmpscr->sidewarptype[0] = wtIWARP;
-    Link.ffwarp = true;
-    Link.ffpit = true;
+    Link->ffwarp = true;
+    Link->ffpit = true;
 }
 
 void do_breakshield()
@@ -5555,10 +7037,19 @@ void do_layermap()
         set_register(sarg1, tmpscr->layermap[layer] * 10000);
 }
 
+
+	
+
 void do_triggersecrets()
 {
     hidden_entrance(0, true, false, -4);
+	//hidden_entrance(0,true,single16,scombo); 
+	//bool findentrance(int x, int y, int flag, bool setflag)
+	//We need a variation on these that triggers any combos with a given flag. -Z
 }
+
+
+
 
 void do_getscreenflags()
 {
@@ -5587,6 +7078,478 @@ void do_getscreeneflags()
         
     set_register(sarg1, get_screeneflags(&TheMaps[map * MAPSCRS + scrn], flagset));
 }
+
+//Some of these need to be reduced to two inputs. -Z
+
+long get_screendoor(mapscr *m, int d)
+{
+    int f = m->door[d];
+    return f*10000;
+}
+
+
+
+long get_screenlayeropacity(mapscr *m, int d)
+{
+    int f = m->layeropacity[d]; //6 of these
+    return f*10000;
+}
+
+long get_screensecretcombo(mapscr *m, int d)
+{
+    int f = m->secretcombo[d]; //128 of these
+    return f*10000;
+}
+
+long get_screensecretcset(mapscr *m, int d)
+{
+    int f = m->secretcset[d]; //128 of these
+    return f*10000;
+}
+
+long get_screensecretflag(mapscr *m, int d)
+{
+    int f = m->secretflag[d]; //128 of these
+    return f*10000;
+}
+
+long get_screenlayermap(mapscr *m, int d)
+{
+    int f = m->layermap[d]; //6 of these
+    return f*10000;
+}
+
+long get_screenlayerscreen(mapscr *m, int d)
+{
+    int f = m->layerscreen[d]; //6 of these
+    return f*10000;
+}
+
+long get_screenpath(mapscr *m, int d)
+{
+    int f = m->path[d]; //4 of these
+    return f*10000;
+}
+
+long get_screenwarpReturnX(mapscr *m, int d)
+{
+    int f = m->warpreturnx[d]; //4 of these
+    return f*10000;
+}
+
+long get_screenwarpReturnY(mapscr *m, int d)
+{
+    int f = m->warpreturny[d]; //4 of these
+    return f*10000;
+}
+//One too many inputs here. -Z
+long get_screenViewX(mapscr *m)
+{
+    int f = m->viewX;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long get_screenGuy(mapscr *m)
+{
+    int f = m->guy;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long get_screenString(mapscr *m)
+{
+    int f = m->str;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long get_screenRoomtype(mapscr *m)
+{
+    int f = m->room;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long get_screenViewY(mapscr *m)
+{
+    int f = m->viewY;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long get_screenEntryX(mapscr *m)
+{
+    int f = m->entry_x;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long get_screenEntryY(mapscr *m)
+{
+    int f = m->entry_y;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long get_screenitem(mapscr *m)
+{
+    int f = m->item;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long get_screenundercombo(mapscr *m)
+{
+    int f = m->undercombo;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long get_screenundercset(mapscr *m)
+{
+    int f = m->undercset;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long get_screenatchall(mapscr *m)
+{
+    int f = m->catchall;
+    return f*10000;
+}
+void do_getscreenLayerOpacity()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetLayerOpacity(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetLayerOpacity(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->GetLayerOpacity(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenlayeropacity(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenSecretCombo()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetSecretCombo(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetSecretCombo(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 127, "Game->GetSecretCombo(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screensecretcombo(&TheMaps[map * MAPSCRS + scrn], d));
+}
+
+void do_getscreenSecretCSet()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetSecretCSet(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetSecretCSet(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 127, "Game->GetSecretCSet(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screensecretcset(&TheMaps[map * MAPSCRS + scrn], d));
+}
+
+void do_getscreenSecretFlag()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetSecretFlag(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetSecretFlag(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0,127, "Game->GetSecretFlag(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screensecretflag(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenLayerMap()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetSreenLayerMap(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetSreenLayerMap(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->GetSreenLayerMap(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenlayermap(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenLayerscreen()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetSreenLayerScreen(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetSreenLayerScreen(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->GetSreenLayerScreen(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenlayerscreen(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenPath()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetSreenPath(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetSreenPath(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->GetSreenPath(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenpath(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenWarpReturnX()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenWarpReturnX(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenWarpReturnX(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->GetScreenWarpReturnX(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenwarpReturnX(&TheMaps[map * MAPSCRS + scrn], d));
+}
+void do_getscreenWarpReturnY()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenWarpReturnY(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenWarpReturnY(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 3, "Game->GetScreenWarpReturnY(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenwarpReturnY(&TheMaps[map * MAPSCRS + scrn], d));
+}
+
+/*
+//One too many inputs here. -Z
+void do_getscreenatchall()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenCatchall(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenCatchall(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->GetScreenCatchall(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenatchall(&TheMaps[map * MAPSCRS + scrn], d));
+}
+
+
+//One too many inputs here. -Z
+void do_getscreenUndercombo()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetcreenUndercombo(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetcreenUndercombo(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->GetcreenUndercombo(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenundercombo(&TheMaps[map * MAPSCRS + scrn], d));
+}
+//One too many inputs here. -Z
+void do_getscreenUnderCSet()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GeScreenUnderCSet(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GeScreenUnderCSet(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 6, "Game->GeScreenUnderCSet(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenundercset(&TheMaps[map * MAPSCRS + scrn], d));
+}
+
+//One too many inputs here. -Z
+void do_getscreenWidth()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenWidth(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenWidth(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenWidth(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenWidth(&TheMaps[map * MAPSCRS + scrn], d));
+}
+//One too many inputs here. -Z
+void do_getscreenHeight()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenHeight(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenHeight(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenHeight(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenHeight(&TheMaps[map * MAPSCRS + scrn], d));
+}
+//One too many inputs here. -Z
+void do_getscreenViewX()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenViewX(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenViewX(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenViewX(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenViewX(&TheMaps[map * MAPSCRS + scrn], d));
+}
+//One too many inputs here. -Z
+void do_getscreenViewY()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenViewY(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenViewY(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenViewY(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenViewY(&TheMaps[map * MAPSCRS + scrn], d));
+}
+//One too many inputs here. -Z
+void do_getscreenGuy()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenGuy(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenGuy(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenGuy(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenGuy(&TheMaps[map * MAPSCRS + scrn], d));
+}
+//One too many inputs here. -Z
+void do_getscreenString()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenString(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenString(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenString(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenString(&TheMaps[map * MAPSCRS + scrn], d));
+}
+//One too many inputs here. -Z
+void do_getscreenRoomType()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenRoomType(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenRoomType(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenRoomType(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenRoomtype(&TheMaps[map * MAPSCRS + scrn], d));
+}
+//One too many inputs here. -Z
+void do_getscreenEntryX()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenEntryX(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenEntryX(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenEntryX(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenEntryX(&TheMaps[map * MAPSCRS + scrn], d));
+}
+//One too many inputs here. -Z
+void do_getscreenEntryY()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenEntryY(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenEntryY(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 214747, "Game->GetScreenEntryY(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenEntryY(&TheMaps[map * MAPSCRS + scrn], d));
+}
+//One too many inputs here. -Z
+void do_getscreenItem()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long d = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenItem(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenItem(...screen...)") != SH::_NoError ||
+            BC::checkBounds(d, 0, 255, "Game->GetScreenItem(...val...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screenitem(&TheMaps[map * MAPSCRS + scrn], d));
+}
+*/
+void do_getscreendoor()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long door = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenDoor(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenDoor(...screen...)") != SH::_NoError ||
+            BC::checkBounds(door, 0, 3, "Game->GetScreenDoor(...doorindex...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screendoor(&TheMaps[map * MAPSCRS + scrn], door));
+}
+
+long get_screennpc(mapscr *m, int index)
+{
+    int f = m->enemy[index];
+    return f*10000;
+}
+
+
+void do_getscreennpc()
+{
+    long map     = (ri->d[2] / 10000) - 1;
+    long scrn  = ri->d[1] / 10000;
+    long enemy = ri->d[0] / 10000;
+    
+    if(BC::checkMapID(map, "Game->GetScreenEnemy(...map...)") != SH::_NoError ||
+            BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenEnemy(...screen...)") != SH::_NoError ||
+            BC::checkBounds(enemy, 0, 9, "Game->GetScreenEnemy(...enemy...)") != SH::_NoError)
+        return;
+        
+    set_register(sarg1, get_screennpc(&TheMaps[map * MAPSCRS + scrn], enemy));
+}
+
 
 ///----------------------------------------------------------------------------------------------------//
 //Pointer handling
@@ -5692,7 +7655,7 @@ void do_clearsprites(const bool v)
         
     case 3:
         Lwpns.clear();
-        Link.reset_hookshot();
+        Link->reset_hookshot();
         break;
         
     case 4:
@@ -5777,7 +7740,7 @@ void do_createlweapon(const bool v)
     if(BC::checkWeaponID(ID, "Screen->CreateLWeapon") != SH::_NoError)
         return;
         
-    addLwpn(0, 0, 0, ID, 0, 0, 0, Link.getUID());
+    addLwpn(0, 0, 0, ID, 0, 0, 0, Link->getUID());
     
     if(Lwpns.Count() < 1)
     {
@@ -5875,7 +7838,7 @@ void do_message(const bool v)
         dismissmsg();
         msgfont = zfont;
         blockpath = false;
-        Link.finishedmsg();
+        Link->finishedmsg();
     }
     else
         donewmsg(ID);
@@ -5965,6 +7928,10 @@ void do_drawing_command(const int script_command)
     case BITMAPR:
         set_drawing_command_args(j, 12);
         break;
+    
+    case BITMAPEXR:
+        set_drawing_command_args(j, 16);
+        break;
         
     case DRAWLAYERR:
         set_drawing_command_args(j, 8);
@@ -6041,7 +8008,7 @@ void do_sfx(const bool v)
     if(BC::checkSFXID(ID, "Game->PlaySound") != SH::_NoError)
         return;
         
-    sfx(ID);
+    Backend::sfx->play(ID,128);
 }
 
 void do_midi(bool v)
@@ -6053,6 +8020,36 @@ void do_midi(bool v)
     else
         jukebox(MIDI + (ZC_MIDI_COUNT - 1));
 }
+
+
+void stop_sfx(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    int sfx = (int)ID;
+    if(BC::checkSFXID(ID, "Game->EndSound") != SH::_NoError)
+        return;
+    Backend::sfx->stop(sfx);
+}
+
+void pause_sfx(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    int sfx = (int)ID;
+    if(BC::checkSFXID(ID, "Game->PauseSound") != SH::_NoError)
+        return;
+    Backend::sfx->pause(sfx);
+}
+
+void resume_sfx(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    int sfx = (int)ID;
+    if(BC::checkSFXID(ID, "Game->ResumeSound") != SH::_NoError)
+        return;
+    Backend::sfx->resume(sfx);
+}
+
+
 
 void do_enh_music(bool v)
 {
@@ -6112,6 +8109,10 @@ void do_set_dmap_enh_music(const bool v)
     DMaps[ID].tmusic[55]='\0';
     DMaps[ID].tmusictrack=track;
 }
+
+
+
+
 
 ///----------------------------------------------------------------------------------------------------//
 //Tracing
@@ -6275,6 +8276,26 @@ void do_getmessage(const bool v)
         Z_scripterrlog("Array supplied to 'Game->GetMessage' not large enough\n");
 }
 
+
+
+void do_setmessage(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    
+	if(BC::checkMessage(ID, "Game->SetMessage") != SH::_NoError)
+        return;
+	
+	string filename_str;
+
+        
+        
+    ArrayH::getString(arrayptr, filename_str, 73);
+    strncpy(MsgStrings[ID].s, filename_str.c_str(), 72);
+    MsgStrings[ID].s[72]='\0';
+}
+
+
 void do_getdmapname(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
@@ -6285,6 +8306,23 @@ void do_getdmapname(const bool v)
         
     if(ArrayH::setArray(arrayptr, string(DMaps[ID].name)) == SH::_Overflow)
         Z_scripterrlog("Array supplied to 'Game->GetDMapName' not large enough\n");
+}
+
+void do_setdmapname(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    
+
+    string filename_str;
+    
+    if(BC::checkDMapID(ID, "Game->Game->SetDMapName") != SH::_NoError)
+        return;
+        
+        
+    ArrayH::getString(arrayptr, filename_str, 73);
+    strncpy(DMaps[ID].name, filename_str.c_str(), 72);
+    DMaps[ID].name[72]='\0';
 }
 
 void do_getdmaptitle(const bool v)
@@ -6299,6 +8337,22 @@ void do_getdmaptitle(const bool v)
         Z_scripterrlog("Array supplied to 'Game->GetDMapTitle' not large enough\n");
 }
 
+
+void do_setdmaptitle(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    string filename_str;
+    
+    if(BC::checkDMapID(ID, "Game->Game->SetDMapTitle") != SH::_NoError)
+        return;
+        
+        
+    ArrayH::getString(arrayptr, filename_str, 21);
+    strncpy(DMaps[ID].title, filename_str.c_str(), 20);
+    DMaps[ID].title[20]='\0';
+}
+
 void do_getdmapintro(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
@@ -6310,6 +8364,24 @@ void do_getdmapintro(const bool v)
     if(ArrayH::setArray(arrayptr, string(DMaps[ID].intro)) == SH::_Overflow)
         Z_scripterrlog("Array supplied to 'Game->GetDMapIntro' not large enough\n");
 }
+
+
+void do_setdmapintro(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    string filename_str;
+    
+    if(BC::checkDMapID(ID, "Game->Game->SetDMapIntro") != SH::_NoError)
+        return;
+        
+        
+    ArrayH::getString(arrayptr, filename_str, 73);
+    strncpy(DMaps[ID].intro, filename_str.c_str(), 72);
+    DMaps[ID].intro[72]='\0';
+}
+
+//Set npc and item names t.b.a. -Z
 
 void do_getitemname()
 {
@@ -6342,6 +8414,26 @@ void do_getffcscript()
     for(int i=0; i<512; i++)
     {
         if(strcmp(name.c_str(), ffcmap[i].second.c_str())==0)
+        {
+            num=i+1;
+            break;
+        }
+    }
+    
+    set_register(sarg1, num * 10000);
+}
+
+
+void do_getitemscript()
+{
+	 long arrayptr = get_register(sarg1) / 10000;
+    string name;
+    int num=-1;
+    ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
+    
+    for(int i=0; i<512; i++)
+    {
+        if(strcmp(name.c_str(), itemmap[i].second.c_str())==0)
         {
             num=i+1;
             break;
@@ -6482,7 +8574,7 @@ int run_script(const byte type, const word script, const byte i)
     {
         ri = &(ffcScriptData[i]);
         
-        curscript = ffscripts[script];
+        curscript = &scripts.ffscripts[script];
         stack = &(ffc_stack[i]);
         
         if(!tmpscr->initialized[i])
@@ -6500,7 +8592,7 @@ int run_script(const byte type, const word script, const byte i)
         ri = &itemScriptData;
         ri->Clear(); //Only runs for one frame so we just zero it out
         
-        curscript = itemscripts[script];
+        curscript = &scripts.itemscripts[script];
         stack = &item_stack;
         memset(stack, 0, 256 * sizeof(long)); //zero here too
         
@@ -6516,7 +8608,7 @@ int run_script(const byte type, const word script, const byte i)
     {
         ri = &globalScriptData;
         
-        curscript = globalscripts[script];
+        curscript = &scripts.globalscripts[script];
         stack = &global_stack;
     }
     break;
@@ -6528,9 +8620,9 @@ int run_script(const byte type, const word script, const byte i)
     }
     
     dword pc = ri->pc; //this is (marginally) quicker than dereferencing ri each time
-    word scommand = curscript[pc].command;
-    sarg1 = curscript[pc].arg1;
-    sarg2 = curscript[pc].arg2;
+    word scommand = curscript->commands[pc].command;
+    sarg1 = curscript->commands[pc].arg1;
+    sarg2 = curscript->commands[pc].arg2;
     
     
 #ifdef _FFDISSASSEMBLY
@@ -6747,9 +8839,33 @@ int run_script(const byte type, const word script, const byte i)
         case ARRAYSIZE:
             do_arraysize();
             break;
-            
+         case ARRAYSIZEB:
+            do_arraysize();
+            break;
+	case ARRAYSIZEF:
+            do_arraysize();
+            break;
+	case ARRAYSIZEN:
+            do_arraysize();
+            break;
+	case ARRAYSIZEI:
+            do_arraysize();
+            break;
+	case ARRAYSIZEID:
+            do_arraysize();
+            break;
+	case ARRAYSIZEL:
+            do_arraysize();
+            break;
+	case ARRAYSIZEE:
+            do_arraysize();
+            break;
+	
         case GETFFCSCRIPT:
             do_getffcscript();
+            break;
+	case GETITEMSCRIPT:
+            do_getitemscript();
             break;
             
             
@@ -7036,6 +9152,14 @@ int run_script(const byte type, const word script, const byte i)
         case PLAYSOUNDV:
             do_sfx(true);
             break;
+	
+	case TRIGGERSECRETR:
+            FFScript::do_triggersecret(false);
+            break;
+            
+        case TRIGGERSECRETV:
+            FFScript::do_triggersecret(true);
+            break;
             
         case PLAYMIDIR:
             do_midi(false);
@@ -7060,6 +9184,83 @@ int run_script(const byte type, const word script, const byte i)
         case SETDMAPENHMUSIC:
             do_set_dmap_enh_music(false);
             break;
+	
+	// Audio->
+	
+	case ENDSOUNDR:
+            stop_sfx(false);
+            break;
+            
+        case ENDSOUNDV:
+            stop_sfx(true);
+            break;
+	
+	case PAUSESOUNDR:
+            pause_sfx(false);
+            break;
+            
+        case PAUSESOUNDV:
+            pause_sfx(true);
+            break;
+	
+	case RESUMESOUNDR:
+            resume_sfx(false);
+            break;
+            
+        case RESUMESOUNDV:
+            resume_sfx(true);
+            break;
+	
+	
+	
+	case PAUSESFX:
+	{
+		int sound = ri->d[0]/10000;
+		Backend::sfx->pause(sound);
+		
+	}
+	break;
+
+	case RESUMESFX:
+	{
+		int sound = ri->d[0]/10000;
+		Backend::sfx->resume(sound);
+	}
+	break;
+
+	case ADJUSTSFX:
+	{
+		int sound = ri->d[2]/10000;
+		int pan = ri->d[1];
+		// control_state[6]=((value/10000)!=0)?true:false;
+		bool loop = ((ri->d[0]/10000)!=0)?true:false;
+		//SFXBackend.adjust_sfx(sound,pan,loop);
+		
+		//! adjust_sfx was not ported to the new back end!!! -Z
+	}
+	break;
+
+
+	case CONTINUESFX:
+	{
+		int sound = ri->d[0]/10000;
+		//Backend::sfx->cont_sfx(sound);
+		
+		//! cont_sfx was not ported to the new back end!!!
+		// I believe this restarted the loop. 
+		
+		Backend::sfx->resume(sound);
+	}
+	break;	
+
+	
+	case PAUSEMUSIC:
+		Backend::sfx->pauseAll();
+		break;
+	case RESUMEMUSIC:
+		Backend::sfx->resumeAll();
+		break;
+            
             
         case MSGSTRR:
             do_message(false);
@@ -7088,6 +9289,9 @@ int run_script(const byte type, const word script, const byte i)
         case GETMESSAGE:
             do_getmessage(false);
             break;
+	case SETMESSAGE:
+            do_setmessage(false);
+            break;
             
         case GETDMAPNAME:
             do_getdmapname(false);
@@ -7101,6 +9305,18 @@ int run_script(const byte type, const word script, const byte i)
             do_getdmapintro(false);
             break;
             
+	case SETDMAPNAME:
+            do_setdmapname(false);
+            break;
+            
+        case SETDMAPTITLE:
+            do_setdmaptitle(false);
+            break;
+	
+        case SETDMAPINTRO:
+            do_setdmapintro(false);
+            break;
+	
         case LOADLWEAPONR:
             do_loadlweapon(false);
             break;
@@ -7268,7 +9484,43 @@ int run_script(const byte type, const word script, const byte i)
         case GETSCREENEFLAGS:
             do_getscreeneflags();
             break;
+	
+	case GETSCREENDOOR:
+            do_getscreendoor();
+            break;
+	
+	case GETSCREENENEMY:
+            do_getscreennpc();
+            break;
             
+	case GETSCREENLAYOP:
+            do_getscreenLayerOpacity();
+            break;
+	case GETSCREENSECCMB:
+	    do_getscreenSecretCombo();
+            break;
+	case GETSCREENSECCST:
+	    do_getscreenSecretCSet();
+            break;
+	case GETSCREENSECFLG:
+	    do_getscreenSecretFlag();
+            break;
+	case GETSCREENLAYMAP:
+	    do_getscreenLayerMap();
+            break;
+	case GETSCREENLAYSCR:
+	    do_getscreenLayerscreen();
+            break;
+	case GETSCREENPATH:
+	    do_getscreenPath();
+            break;
+	case GETSCREENWARPRX:
+	    do_getscreenWarpReturnX();
+            break;
+	case GETSCREENWARPRY:
+	    do_getscreenWarpReturnY();
+            break;
+
         case COMBOTILE:
             do_combotile(false);
             break;
@@ -7292,6 +9544,7 @@ int run_script(const byte type, const word script, const byte i)
         case DRAWSTRINGR:
         case SPLINER:
         case BITMAPR:
+	case BITMAPEXR:
         case DRAWLAYERR:
         case DRAWSCREENR:
             do_drawing_command(scommand);
@@ -7449,7 +9702,311 @@ int run_script(const byte type, const word script, const byte i)
         case DEQUEUE:
             do_dequeue(false);
             break;
-            
+	
+	//Visual Effects
+	case WAVYIN:
+		FFScript::do_wavyin();
+		break;
+	case WAVYOUT:
+		FFScript::do_wavyout();
+		break;
+	case ZAPIN:
+		FFScript::do_zapin();
+		break;
+	case ZAPOUT:
+		FFScript::do_zapout();
+		break;
+	case OPENWIPE:
+		FFScript::do_openscreen();
+		break;
+	
+	//Monochrome
+	case GREYSCALEON:
+		setMonochrome(true);
+		break;
+	case GREYSCALEOFF:
+		setMonochrome(false);
+		break;
+	
+	
+	//case NPCData
+	
+	case 	GETNPCDATATILE: FFScript::getNPCData_tile(); break;
+	case	GETNPCDATAEHEIGHT: FFScript::getNPCData_e_height(); break;
+	case 	GETNPCDATAFLAGS: FFScript::getNPCData_flags(); break;
+	case	GETNPCDATAFLAGS2: FFScript::getNPCData_flags2(); break;
+	case	GETNPCDATAWIDTH: FFScript::getNPCData_flags2(); break;
+	case	GETNPCDATAHEIGHT: FFScript::getNPCData_flags2(); break;
+	case	GETNPCDATASTILE: FFScript::getNPCData_s_tile(); break;
+	case	GETNPCDATASWIDTH: FFScript::getNPCData_s_width(); break;
+	case	GETNPCDATASHEIGHT: FFScript::getNPCData_s_height(); break;
+	case	GETNPCDATAETILE: FFScript::getNPCData_e_tile(); break;
+	case	GETNPCDATAEWIDTH: FFScript::getNPCData_e_width(); break;
+	case	GETNPCDATAHP: FFScript::getNPCData_hp(); break;
+	case	GETNPCDATAFAMILY: FFScript::getNPCData_family(); break;
+	case	GETNPCDATACSET: FFScript::getNPCData_cset(); break;
+	case	GETNPCDATAANIM: FFScript::getNPCData_anim(); break;
+	case	GETNPCDATAEANIM: FFScript::getNPCData_e_anim(); break;
+	case	GETNPCDATAFRAMERATE: FFScript::getNPCData_frate(); break;
+	case	GETNPCDATAEFRAMERATE: FFScript::getNPCData_e_frate(); break;
+	case	GETNPCDATATOUCHDMG: FFScript::getNPCData_dp(); break;
+	case	GETNPCDATAWPNDAMAGE: FFScript::getNPCData_wdp(); break;
+	case	GETNPCDATAWEAPON: FFScript::getNPCData_wdp(); break;
+	case	GETNPCDATARANDOM: FFScript::getNPCData_rate(); break;
+	case	GETNPCDATAHALT: FFScript::getNPCData_hrate(); break;
+	case	GETNPCDATASTEP: FFScript::getNPCData_step(); break;
+	case	GETNPCDATAHOMING: FFScript::getNPCData_homing(); break;
+	case	GETNPCDATAHUNGER: FFScript::getNPCData_grumble(); break;
+	case	GETNPCDATADROPSET: FFScript::getNPCData_item_set(); break;
+	case	GETNPCDATABGSFX: FFScript::getNPCData_bgsfx(); break;
+	case	GETNPCDATADEATHSFX: FFScript::getNPCData_deadsfx(); break; 
+	case	GETNPCDATAXOFS: FFScript::getNPCData_xofs(); break;
+	case	GETNPCDATAYOFS: FFScript::getNPCData_yofs(); break;
+	case	GETNPCDATAZOFS: FFScript::getNPCData_zofs(); break;
+	case	GETNPCDATAHXOFS: FFScript::getNPCData_hxofs(); break;
+	case	GETNPCDATAHYOFS: FFScript::getNPCData_hyofs(); break;
+	case	GETNPCDATAHITWIDTH: FFScript::getNPCData_hxsz(); break;
+	case	GETNPCDATAHITHEIGHT: FFScript::getNPCData_hysz(); break;
+	case	GETNPCDATAHITZ: FFScript::getNPCData_hzsz(); break;
+	case	GETNPCDATATILEWIDTH: FFScript::getNPCData_txsz(); break;
+	case	GETNPCDATATILEHEIGHT: FFScript::getNPCData_tysz(); break;
+	case	GETNPCDATAWPNSPRITE: FFScript::getNPCData_wpnsprite(); break;
+	//case	GETNPCDATASCRIPTDEF: FFScript::getNPCData_scriptdefence(); break; //2.future cross-compat. 
+	case	GETNPCDATADEFENSE: FFScript::getNPCData_defense(); break; 
+	case	GETNPCDATASIZEFLAG: FFScript::getNPCData_SIZEflags(); break;
+	case	GETNPCDATAATTRIBUTE: FFScript::getNPCData_misc(); break;
+	case	GETNPCDATAHITSFX: FFScript::getNPCData_hitsfx(); break;
+		
+	case	SETNPCDATAFLAGS: FFScript::setNPCData_flags(); break;
+	case	SETNPCDATAFLAGS2: FFScript::setNPCData_flags2(); break;
+	case	SETNPCDATAWIDTH: FFScript::setNPCData_width(); break;
+	case	SETNPCDATAHEIGHT: FFScript::setNPCData_height(); break;
+	case	SETNPCDATASTILE: FFScript::setNPCData_s_tile(); break;
+	case	SETNPCDATASWIDTH: FFScript::setNPCData_s_width(); break;
+	case	SETNPCDATASHEIGHT: FFScript::setNPCData_s_height(); break;
+	case	SETNPCDATAETILE: FFScript::setNPCData_e_tile(); break;
+	case	SETNPCDATAEWIDTH: FFScript::setNPCData_e_width(); break;
+	case	SETNPCDATAHP: FFScript::setNPCData_hp(); break;
+	case	SETNPCDATAFAMILY: FFScript::setNPCData_family(); break;
+	case	SETNPCDATACSET: FFScript::setNPCData_cset(); break;
+	case	SETNPCDATAANIM: FFScript::setNPCData_anim(); break;
+	case	SETNPCDATAEANIM: FFScript::setNPCData_e_anim(); break;
+	case	SETNPCDATAFRAMERATE: FFScript::setNPCData_frate(); break;
+	case	SETNPCDATAEFRAMERATE: FFScript::setNPCData_e_frate(); break;
+	case	SETNPCDATATOUCHDMG: FFScript::setNPCData_dp(); break;
+	case	SETNPCDATAWPNDAMAGE: FFScript::setNPCData_wdp(); break;
+	case	SETNPCDATAWEAPON: FFScript::setNPCData_weapon(); break;
+	case	SETNPCDATARANDOM: FFScript::setNPCData_rate(); break;
+	case	SETNPCDATAHALT: FFScript::setNPCData_hrate(); break;
+	case	SETNPCDATASTEP: FFScript::setNPCData_step(); break;
+	case	SETNPCDATAHOMING: FFScript::setNPCData_homing(); break;
+	case	SETNPCDATAHUNGER: FFScript::setNPCData_grumble(); break;
+	case	SETNPCDATADROPSET: FFScript::setNPCData_item_set(); break;
+	case	SETNPCDATABGSFX: FFScript::setNPCData_bgsfx(); break;
+	case	SETNPCDATADEATHSFX: FFScript::setNPCData_hitsfx(); break;
+	case	SETNPCDATAXOFS: FFScript::setNPCData_xofs(); break;
+	case	SETNPCDATAYOFS: FFScript::setNPCData_yofs(); break;
+	case	SETNPCDATAZOFS: FFScript::setNPCData_zofs(); break;
+	case	SETNPCDATAHXOFS: FFScript::setNPCData_hxofs(); break;
+	case	SETNPCDATAHYOFS: FFScript::setNPCData_hyofs(); break;
+	case	SETNPCDATAHITWIDTH: FFScript::setNPCData_hxsz(); break;
+	case	SETNPCDATAHITHEIGHT: FFScript::setNPCData_hysz(); break;
+	case	SETNPCDATAHITZ: FFScript::setNPCData_hzsz(); break;
+	case	SETNPCDATATILEWIDTH: FFScript::setNPCData_txsz(); break;
+	case	SETNPCDATATILEHEIGHT: FFScript::setNPCData_tysz(); break;
+	case	SETNPCDATAWPNSPRITE: FFScript::setNPCData_wpnsprite(); break;
+	case	SETNPCDATAHITSFX: FFScript::setNPCData_hitsfx(); break;
+	case	SETNPCDATATILE: FFScript::setNPCData_tile(); break;
+	case	SETNPCDATAEHEIGHT: FFScript::setNPCData_e_height(); break;
+	
+	
+	
+	
+
+		
+//	case	SETNPCDATASCRIPTDEF  : FFScript::setNPCData_scriptdefence(); break;
+	case 	SETNPCDATADEFENSE : FFScript::setNPCData_defense(ri->d[2]); break;
+	case 	SETNPCDATASIZEFLAG : FFScript::setNPCData_SIZEflags(ri->d[2]); break;
+	case 	SETNPCDATAATTRIBUTE : FFScript::setNPCData_misc(ri->d[2]); break;
+	
+	
+	//ComboData
+	
+	case	GCDBLOCKENEM:  FFScript::getComboData_block_enemies(); break;
+	case	GCDBLOCKHOLE:  FFScript::getComboData_block_hole(); break;
+	case	GCDBLOCKTRIG:  FFScript::getComboData_block_trigger(); break;
+	case	GCDCONVEYSPDX:  FFScript::getComboData_conveyor_x_speed(); break;
+	case	GCDCONVEYSPDY:  FFScript::getComboData_conveyor_y_speed(); break;
+	case	GCDCREATEENEM:  FFScript::getComboData_create_enemy(); break;
+	case	GCDCREATEENEMWH:  FFScript::getComboData_create_enemy_when(); break;
+	case	GCDCREATEENEMCH:  FFScript::getComboData_create_enemy_change(); break;
+	case	GCDDIRCHTYPE:  FFScript::getComboData_directional_change_type(); break;
+	case	GCDDISTCHTILES:  FFScript::getComboData_distance_change_tiles(); break;
+	case	GCDDIVEITEM:  FFScript::getComboData_dive_item(); break;
+	case	GCDDOCK:  FFScript::getComboData_dock(); break;
+	case	GCDFAIRY:  FFScript::getComboData_fairy(); break;
+	case	GCDFFCOMBOATTRIB:  FFScript::getComboData_ff_combo_attr_change(); break;
+	case	GCDFOOTDECOTILE:  FFScript::getComboData_foot_decorations_tile(); break;
+	case	GCDFOOTDECOTYPE:  FFScript::getComboData_foot_decorations_type(); break;
+	case	GCDHOOKSHOTGRAB:  FFScript::getComboData_hookshot_grab_point(); break;
+	case	GCDLADDERPASS:  FFScript::getComboData_ladder_pass(); break;
+	case	GCDLOCKBLOCKTYPE:  FFScript::getComboData_lock_block_type(); break;
+	case	GCDLOCKBLOCKCHANGE:  FFScript::getComboData_lock_block_change(); break;
+	case	GCDMAGICMIRRORTYPE:  FFScript::getComboData_magic_mirror_type(); break;
+	case	GCDMODIFYHPAMOUNT:  FFScript::getComboData_modify_hp_amount(); break;
+	case	GCDMODIFYHPDELAY:  FFScript::getComboData_modify_hp_delay(); break;
+	case	GCDMODIFYHPTYPE:  FFScript::getComboData_modify_hp_type(); break;
+	case	GCDMODIFYMPAMOUNT:  FFScript::getComboData_modify_mp_amount(); break;
+	case	GCDMODIFYMPDELAY:  FFScript::getComboData_modify_mp_delay(); break;
+	case	GCDMODIFYMPTYPE:  FFScript::getComboData_modify_mp_type(); break;
+	case	GCDNOPUSHBLOCKS:  FFScript::getComboData_no_push_blocks(); break;
+	case	GCDOVERHEAD:  FFScript::getComboData_overhead(); break;
+	case	GCDPLACEENEMY:  FFScript::getComboData_place_enemy(); break;
+	case	GCDPUSHDIR:  FFScript::getComboData_push_direction(); break;
+	case	GCDPUSHWEIGHT:  FFScript::getComboData_push_weight(); break;
+	case	GCDPUSHWAIT:  FFScript::getComboData_push_wait(); break;
+	case	GCDPUSHED:  FFScript::getComboData_pushed(); break;
+	case	GCDRAFT:  FFScript::getComboData_raft(); break;
+	case	GCDRESETROOM:  FFScript::getComboData_reset_room(); break;
+	case	GCDSAVEPOINT:  FFScript::getComboData_save_point_type(); break;
+	case	GCDSCREENFREEZE:  FFScript::getComboData_screen_freeze_type(); break;
+	case	GCDSECRETCOMBO:  FFScript::getComboData_secret_combo(); break;
+	case	GCDSINGULAR:  FFScript::getComboData_singular(); break;
+	case	GCDSLOWMOVE:  FFScript::getComboData_slow_movement(); break;
+	case	GCDSTATUE:  FFScript::getComboData_statue_type(); break;
+	case	GCDSTEPTYPE:  FFScript::getComboData_step_type(); break;
+	case	GCDSTEPCHANGETO:  FFScript::getComboData_step_change_to(); break;
+	case	GCDSTRIKEREMNANTS:  FFScript::getComboData_strike_remnants(); break;
+	case	GCDSTRIKEREMNANTSTYPE:  FFScript::getComboData_strike_remnants_type(); break;
+	case	GCDSTRIKECHANGE:  FFScript::getComboData_strike_change(); break;
+	case	GCDSTRIKECHANGEITEM:  FFScript::getComboData_strike_item(); break;
+	case	GCDTOUCHITEM:  FFScript::getComboData_touch_item(); break;
+	case	GCDTOUCHSTAIRS:  FFScript::getComboData_touch_stairs(); break;
+	case	GCDTRIGGERTYPE:  FFScript::getComboData_trigger_type(); break;
+	case	GCDTRIGGERSENS:  FFScript::getComboData_trigger_sensitive(); break;
+	case	GCDWARPTYPE:  FFScript::getComboData_warp_type(); break;
+	case	GCDWARPSENS:  FFScript::getComboData_warp_sensitive(); break;
+	case	GCDWARPDIRECT:  FFScript::getComboData_warp_direct(); break;
+	case	GCDWARPLOCATION:  FFScript::getComboData_warp_location(); break;
+	case	GCDWATER:  FFScript::getComboData_water(); break;
+	case	GCDWHISTLE:  FFScript::getComboData_whistle(); break;
+	case	GCDWINGAME:  FFScript::getComboData_win_game(); break;
+	case	GCDBLOCKWEAPLVL:  FFScript::getComboData_block_weapon_lvl(); break;
+	case	GCDTILE:  FFScript::getComboData_tile(); break;
+	case	GCDFLIP:  FFScript::getComboData_flip(); break;
+	case	GCDWALK:  FFScript::getComboData_walk(); break;
+	case	GCDTYPE:  FFScript::getComboData_type(); break;
+	case	GCDCSETS:  FFScript::getComboData_csets(); break;
+	case	GCDFOO:  FFScript::getComboData_foo(); break;
+	case	GCDFRAMES:  FFScript::getComboData_frames(); break;
+	case	GCDSPEED:  FFScript::getComboData_speed(); break;
+	case	GCDNEXTCOMBO:  FFScript::getComboData_nextcombo(); break;
+	case	GCDNEXTCSET:  FFScript::getComboData_nextcset(); break;
+	case	GCDFLAG:  FFScript::getComboData_flag(); break;
+	case	GCDSKIPANIM:  FFScript::getComboData_skipanim(); break;
+	case	GCDNEXTTIMER:  FFScript::getComboData_nexttimer(); break;
+	case	GCDSKIPANIMY:  FFScript::getComboData_skipanimy(); break;
+	case	GCDANIMFLAGS:  FFScript::getComboData_animflags(); break;
+	case	GCDBLOCKWEAPON:  FFScript::getComboData_block_weapon(); break;
+	case	GCDEXPANSION:  FFScript::getComboData_expansion(); break;
+	case	GCDSTRIKEWEAPONS:  FFScript::getComboData_strike_weapons(); break;
+	case	SCDBLOCKENEM:  FFScript::setComboData_block_enemies(); break;
+	case	SCDBLOCKHOLE:  FFScript::setComboData_block_hole(); break;
+	case	SCDBLOCKTRIG:  FFScript::setComboData_block_trigger(); break;
+	case	SCDCONVEYSPDX:  FFScript::setComboData_conveyor_x_speed(); break;
+	case	SCDCONVEYSPDY:  FFScript::setComboData_conveyor_y_speed(); break;
+	case	SCDCREATEENEM:  FFScript::setComboData_create_enemy(); break;
+	case	SCDCREATEENEMWH:  FFScript::setComboData_create_enemy_when(); break;
+	case	SCDCREATEENEMCH:  FFScript::setComboData_create_enemy_change(); break;
+	case	SCDDIRCHTYPE:  FFScript::setComboData_directional_change_type(); break;
+	case	SCDDISTCHTILES:  FFScript::setComboData_distance_change_tiles(); break;
+	case	SCDDIVEITEM:  FFScript::setComboData_dive_item(); break;
+	case	SCDDOCK:  FFScript::setComboData_dock(); break;
+	case	SCDFAIRY:  FFScript::setComboData_fairy(); break;
+	case	SCDFFCOMBOATTRIB:  FFScript::setComboData_ff_combo_attr_change(); break;
+	case	SCDFOOTDECOTILE:  FFScript::setComboData_foot_decorations_tile(); break;
+	case	SCDFOOTDECOTYPE:  FFScript::setComboData_foot_decorations_type(); break;
+	case	SCDHOOKSHOTGRAB:  FFScript::setComboData_hookshot_grab_point(); break;
+	case	SCDLADDERPASS:  FFScript::setComboData_ladder_pass(); break;
+	case	SCDLOCKBLOCKTYPE:  FFScript::setComboData_lock_block_type(); break;
+	case	SCDLOCKBLOCKCHANGE:  FFScript::setComboData_lock_block_change(); break;
+	case	SCDMAGICMIRRORTYPE:  FFScript::setComboData_magic_mirror_type(); break;
+	case	SCDMODIFYHPAMOUNT:  FFScript::setComboData_modify_hp_amount(); break;
+	case	SCDMODIFYHPDELAY:  FFScript::setComboData_modify_hp_delay(); break;
+	case	SCDMODIFYHPTYPE:  FFScript::setComboData_modify_hp_type(); break;
+	case	SCDMODIFYMPAMOUNT:  FFScript::setComboData_modify_mp_amount(); break;
+	case	SCDMODIFYMPDELAY:  FFScript::setComboData_modify_mp_delay(); break;
+	case	SCDMODIFYMPTYPE:  FFScript::setComboData_modify_mp_type(); break;
+	case	SCDNOPUSHBLOCKS:  FFScript::setComboData_no_push_blocks(); break;
+	case	SCDOVERHEAD:  FFScript::setComboData_overhead(); break;
+	case	SCDPLACEENEMY:  FFScript::setComboData_place_enemy(); break;
+	case	SCDPUSHDIR:  FFScript::setComboData_push_direction(); break;
+	case	SCDPUSHWEIGHT:  FFScript::setComboData_push_weight(); break;
+	case	SCDPUSHWAIT:  FFScript::setComboData_push_wait(); break;
+	case	SCDPUSHED:  FFScript::setComboData_pushed(); break;
+	case	SCDRAFT:  FFScript::setComboData_raft(); break;
+	case	SCDRESETROOM:  FFScript::setComboData_reset_room(); break;
+	case	SCDSAVEPOINT:  FFScript::setComboData_save_point_type(); break;
+	case	SCDSCREENFREEZE:  FFScript::setComboData_screen_freeze_type(); break;
+	case	SCDSECRETCOMBO:  FFScript::setComboData_secret_combo(); break;
+	case	SCDSINGULAR:  FFScript::setComboData_singular(); break;
+	case	SCDSLOWMOVE:  FFScript::setComboData_slow_movement(); break;
+	case	SCDSTATUE:  FFScript::setComboData_statue_type(); break;
+	case	SCDSTEPTYPE:  FFScript::setComboData_step_type(); break;
+	case	SCDSTEPCHANGETO:  FFScript::setComboData_step_change_to(); break;
+	case	SCDSTRIKEREMNANTS:  FFScript::setComboData_strike_remnants(); break;
+	case	SCDSTRIKEREMNANTSTYPE:  FFScript::setComboData_strike_remnants_type(); break;
+	case	SCDSTRIKECHANGE:  FFScript::setComboData_strike_change(); break;
+	case	SCDSTRIKECHANGEITEM:  FFScript::setComboData_strike_item(); break;
+	case	SCDTOUCHITEM:  FFScript::setComboData_touch_item(); break;
+	case	SCDTOUCHSTAIRS:  FFScript::setComboData_touch_stairs(); break;
+	case	SCDTRIGGERTYPE:  FFScript::setComboData_trigger_type(); break;
+	case	SCDTRIGGERSENS:  FFScript::setComboData_trigger_sensitive(); break;
+	case	SCDWARPTYPE:  FFScript::setComboData_warp_type(); break;
+	case	SCDWARPSENS:  FFScript::setComboData_warp_sensitive(); break;
+	case	SCDWARPDIRECT:  FFScript::setComboData_warp_direct(); break;
+	case	SCDWARPLOCATION:  FFScript::setComboData_warp_location(); break;
+	case	SCDWATER:  FFScript::setComboData_water(); break;
+	case	SCDWHISTLE:  FFScript::setComboData_whistle(); break;
+	case	SCDWINGAME:  FFScript::setComboData_win_game(); break;
+	case	SCDBLOCKWEAPLVL:  FFScript::setComboData_block_weapon_lvl(); break;
+	case	SCDTILE:  FFScript::setComboData_tile(); break;
+	case	SCDFLIP:  FFScript::setComboData_flip(); break;
+	case	SCDWALK:  FFScript::setComboData_walk(); break;
+	case	SCDTYPE:  FFScript::setComboData_type(); break;
+	case	SCDCSETS:  FFScript::setComboData_csets(); break;
+	case	SCDFOO:  FFScript::setComboData_foo(); break;
+	case	SCDFRAMES:  FFScript::setComboData_frames(); break;
+	case	SCDSPEED:  FFScript::setComboData_speed(); break;
+	case	SCDNEXTCOMBO:  FFScript::setComboData_nextcombo(); break;
+	case	SCDNEXTCSET:  FFScript::setComboData_nextcset(); break;
+	case	SCDFLAG:  FFScript::setComboData_flag(); break;
+	case	SCDSKIPANIM:  FFScript::setComboData_skipanim(); break;
+	case	SCDNEXTTIMER:  FFScript::setComboData_nexttimer(); break;
+	case	SCDSKIPANIMY:  FFScript::setComboData_skipanimy(); break;
+	case	SCDANIMFLAGS:  FFScript::setComboData_animflags(); break;
+	case	SCDBLOCKWEAPON:  FFScript::setComboData_block_weapon(ri->d[2]); break;
+	case	SCDEXPANSION:  FFScript::setComboData_expansion(ri->d[2]); break;
+	case	SCDSTRIKEWEAPONS:  FFScript::setComboData_strike_weapons(ri->d[2]); break;
+
+	//SpriteData
+	
+	//case	GETSPRITEDATASTRING: 
+	case	GETSPRITEDATATILE: FFScript::getSpriteDataTile();
+	case	GETSPRITEDATAMISC: FFScript::getSpriteDataCSets();
+	case	GETSPRITEDATACGETS: FFScript::getSpriteDataCSets();
+	case	GETSPRITEDATAFRAMES: FFScript::getSpriteDataFrames();
+	case	GETSPRITEDATASPEED: FFScript::getSpriteDataSpeed();
+	case	GETSPRITEDATATYPE: FFScript::getSpriteDataType();
+
+	//case	SETSPRITEDATASTRING:
+	case	SETSPRITEDATATILE: FFScript::setSpriteDataTile();
+	case	SETSPRITEDATAMISC: FFScript::setSpriteDataMisc();
+	case	SETSPRITEDATACSETS: FFScript::setSpriteDataCSets();
+	case	SETSPRITEDATAFRAMES: FFScript::setSpriteDataFrames();
+	case	SETSPRITEDATASPEED: FFScript::setSpriteDataSpeed();
+	case	SETSPRITEDATATYPE: FFScript::setSpriteDataType();
+	
         default:
             Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
             break;
@@ -7466,9 +10023,9 @@ int run_script(const byte type, const word script, const byte i)
         
         if(scommand != 0xFFFF)
         {
-            scommand = curscript[pc].command;
-            sarg1 = curscript[pc].arg1;
-            sarg2 = curscript[pc].arg2;
+            scommand = curscript->commands[pc].command;
+            sarg1 = curscript->commands[pc].arg1;
+            sarg2 = curscript->commands[pc].arg2;
         }
     }
     
@@ -7535,10 +10092,10 @@ int ffscript_engine(const bool preload)
         if(preload && !(tmpscr->ffflags[i]&ffPRELOAD))
             continue;
             
-        if((tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0 && Link.getHoldClk()>0)
+        if((tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0 && Link->getHoldClk()>0)
             continue;
             
-        ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
+		run_script(SCRIPT_FFC, tmpscr->ffscript[i], i);
         tmpscr->initialized[i] = true;
     }
     
@@ -7547,3 +10104,1031 @@ int ffscript_engine(const bool preload)
 
 
 ///----------------------------------------------------------------------------------------------------
+
+
+void FFScript::set_screenwarpReturnY(mapscr *m, int d, int value)
+{
+    int y = vbound(value, 0, 255); //should be screen hight max, except that we may be able to move the subscreen.
+    m->warpreturny[d] = y;
+}
+
+void FFScript::set_screendoor(mapscr *m, int d, int value)
+{
+    int dr = vbound(d,0,3);
+    int doortype = vbound(value,0,14);
+    m->door[dr] = doortype;
+}
+
+
+void FFScript::set_screenenemy(mapscr *m, int index, int value)
+{
+    int enem_indx = vbound(index,0,9);
+    m->enemy[enem_indx] = vbound(value,0,511);
+}
+void FFScript::set_screenlayeropacity(mapscr *m, int d, int value)
+{
+    int layer = vbound(d,0,6); int op;
+    if ( value <= 64 ) op = 64; 
+    else op = 128;
+    m->layeropacity[layer] = op;
+}
+void FFScript::set_screensecretcombo(mapscr *m, int d, int value)
+{
+    int indx = vbound(value,0,127);
+    int cmb = vbound(value,0,MAXCOMBOS);
+    m->secretcombo[indx] = cmb;
+}
+void FFScript::set_screensecretcset(mapscr *m, int d, int value)
+{
+    int indx = vbound(value,0,127);
+    int cs = vbound(value,0,15);
+    m->secretcset[indx] = cs;
+}
+void FFScript::set_screensecretflag(mapscr *m, int d, int value)
+{
+    int indx = vbound(d,0,127);
+    int flag = vbound(value,0,MAX_FLAGS);
+    m->secretflag[indx] = flag;
+}
+void FFScript::set_screenlayermap(mapscr *m, int d, int value)
+{
+    int layer = vbound(d, MIN_ZQ_LAYER, MAX_ZQ_LAYER);
+    int mp = vbound(value,0, (map_count-1));
+    m->layermap[layer] = mp;
+}
+void FFScript::set_screenlayerscreen(mapscr *m, int d, int value)
+{
+    int layer = vbound(d, MIN_ZQ_LAYER, MAX_ZQ_LAYER);
+    int sc = vbound(value,0, 0x87);
+    m->layerscreen[layer] = sc;
+}
+void FFScript::set_screenpath(mapscr *m, int d, int value)
+{
+    int indx = vbound(d,0,3);
+    m->path[indx] = value;
+}
+void FFScript::set_screenwarpReturnX(mapscr *m, int d, int value)
+{
+    int x = vbound(value,0,255);
+    m->warpreturnx[d] = x;
+}
+
+
+//Use as SetScreenD:
+void FFScript::set_screenWidth(mapscr *m, int value)
+{
+    int w = vbound(value,0,255); //value is char
+    m->scrWidth = w;
+}
+void FFScript::set_screenHeight(mapscr *m, int value)
+{
+    int h = vbound(value,0,255); //value is char
+    m->scrHeight = h;
+}
+void FFScript::set_screenViewX(mapscr *m, int value)
+{
+    int x = vbound(value, 0, 255); //value is char
+    m->viewX = x;
+}
+void FFScript::set_screenViewY(mapscr *m, int value)
+{
+    int y = vbound(value, 0, 255); //value is char
+    m->viewY = y;
+}
+void FFScript::set_screenGuy(mapscr *m, int value)
+{
+    int bloke = vbound(value,0,9); 
+    m->guy = bloke ;
+}
+void FFScript::set_screenString(mapscr *m, int value)
+{
+    int string = vbound(value, 0, msg_count-1); //Sanity check to keep it within the legal string IDs.
+    m->str = string;
+}
+void FFScript::set_screenRoomtype(mapscr *m, int value)
+{
+    int r = vbound(value, rNONE, (rMAX-1)); 
+    m->room = r;
+}
+void FFScript::set_screenEntryX(mapscr *m, int value)
+{
+    int x = vbound(value,0,255);
+    m->entry_x = x;
+}
+void FFScript::set_screenEntryY(mapscr *m, int value)
+{
+    int y = vbound(value,0,255);
+    m->entry_y = y;
+}
+void FFScript::set_screenitem(mapscr *m, int value)
+{
+    int itm = vbound(value,0,MAXITEMS);
+    m->item = itm;
+}
+void FFScript::set_screenundercombo(mapscr *m, int value)
+{
+    int cmb = vbound(value,0,MAXCOMBOS);
+    m->undercombo = cmb;
+}
+void FFScript::set_screenundercset(mapscr *m, int value)
+{
+    int cs = vbound(value,0,15);
+    m->undercset = cs;
+}
+void FFScript::set_screenatchall(mapscr *m, int value)
+{
+    //What are ALL of the catchalls and their max (used) values?
+    int ctch = vbound(value, 0, 65535); //It is a word type. 
+    m->catchall = ctch;
+}
+
+
+//One too many inputs here. -Z
+long FFScript::get_screenWidth(mapscr *m)
+{
+    long f = m->scrWidth;
+    return f*10000;
+}
+//One too many inputs here. -Z
+long FFScript::get_screenHeight(mapscr *m)
+{
+    int f = m->scrHeight;
+    return f*10000;
+}
+
+// Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
+void FFScript::deallocateZScriptArray(const long ptrval)
+{
+    if(ptrval<=0 || ptrval >= MAX_ZCARRAY_SIZE)
+        Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
+    else
+    {
+        arrayOwner[ptrval] = 255;
+        
+        if(localRAM[ptrval].Size() == 0)
+            Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
+        else
+        {
+            word size = localRAM[ptrval].Size();
+            localRAM[ptrval].Clear();
+            
+            // If this happens once per frame, it can drown out every other message. -L
+            //Z_eventlog("Deallocated local array with address %ld, size %d\n", ptrval, size);
+            size = size;
+        }
+    }
+}
+
+int FFScript::get_screen_d(long index1, long index2)
+{
+    if(index2 < 0 || index2 > 7)
+    {
+        Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
+        return 0;
+    }
+    
+    return game->screen_d[index1][index2];
+}
+
+void FFScript::set_screen_d(long index1, long index2, int val)
+{
+    if(index2 < 0 || index2 > 7)
+    {
+        Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", index1);
+        return;
+    }
+    
+    game->screen_d[index1][index2] = val;
+}
+
+// If scr is currently being used as a layer, return that layer no.
+int FFScript::whichlayer(long scr)
+{
+    for(int i = 0; i < 6; i++)
+    {
+        if(scr == (tmpscr->layermap[i] - 1) * MAPSCRS + tmpscr->layerscreen[i])
+            return i;
+    }
+    
+    return -1;
+}
+
+void FFScript::clear_ffc_stack(const byte i)
+{
+    memset(ffc_stack[i], 0, 256 * sizeof(long));
+}
+
+void FFScript::clear_global_stack()
+{
+    memset(global_stack, 0, 256 * sizeof(long));
+}
+
+void FFScript::do_zapout()
+{
+	zapout();
+}
+
+void FFScript::do_zapin(){ zapin(); }
+
+void FFScript::do_openscreen() { openscreen(); }
+void FFScript::do_wavyin() { wavyin(); }
+void FFScript::do_wavyout() { wavyout(false); }
+
+
+void FFScript::do_triggersecret(const bool v)
+{
+    long ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
+    mapscr *s = tmpscr;
+    int ft=0, checkflag; //Flag trigger, checked flag temp. 
+    bool putit = true;  //Is set false with a mismatch (illegal value input).
+    //Convert a flag type to a secret type. -Z
+	switch(ID)
+	{
+		case mfBCANDLE:
+		    ft=sBCANDLE;
+		    break;
+		    
+		case mfRCANDLE:
+		    ft=sRCANDLE;
+		    break;
+		    
+		case mfWANDFIRE:
+		    ft=sWANDFIRE;
+		    break;
+		    
+		case mfDINSFIRE:
+		    ft=sDINSFIRE;
+		    break;
+		    
+		case mfARROW:
+		    ft=sARROW;
+		    break;
+		    
+		case mfSARROW:
+		    ft=sSARROW;
+		    break;
+		    
+		case mfGARROW:
+		    ft=sGARROW;
+		    break;
+		    
+		case mfSBOMB:
+		    ft=sSBOMB;
+		    break;
+		    
+		case mfBOMB:
+		    ft=sBOMB;
+		    break;
+		    
+		case mfBRANG:
+		    ft=sBRANG;
+		    break;
+		    
+		case mfMBRANG:
+		    ft=sMBRANG;
+		    break;
+		    
+		case mfFBRANG:
+		    ft=sFBRANG;
+		    break;
+		    
+		case mfWANDMAGIC:
+		    ft=sWANDMAGIC;
+		    break;
+		    
+		case mfREFMAGIC:
+		    ft=sREFMAGIC;
+		    break;
+		    
+		case mfREFFIREBALL:
+		    ft=sREFFIREBALL;
+		    break;
+		    
+		case mfSWORD:
+		    ft=sSWORD;
+		    break;
+		    
+		case mfWSWORD:
+		    ft=sWSWORD;
+		    break;
+		    
+		case mfMSWORD:
+		    ft=sMSWORD;
+		    break;
+		    
+		case mfXSWORD:
+		    ft=sXSWORD;
+		    break;
+		    
+		case mfSWORDBEAM:
+		    ft=sSWORDBEAM;
+		    break;
+		    
+		case mfWSWORDBEAM:
+		    ft=sWSWORDBEAM;
+		    break;
+		    
+		case mfMSWORDBEAM:
+		    ft=sMSWORDBEAM;
+		    break;
+		    
+		case mfXSWORDBEAM:
+		    ft=sXSWORDBEAM;
+		    break;
+		    
+		case mfHOOKSHOT:
+		    ft=sHOOKSHOT;
+		    break;
+		    
+		case mfWAND:
+		    ft=sWAND;
+		    break;
+		    
+		case mfHAMMER:
+		    ft=sHAMMER;
+		    break;
+		    
+		case mfSTRIKE:
+		    ft=sSTRIKE;
+		    break;
+		    
+		default:
+		    putit = false;
+		    break;
+	}
+	if ( putit ) {		
+		for(int iter=0; iter<2; ++iter)
+		{
+			for ( int q = 0; q < 176; q++ ) 
+			{		
+				if(iter==1) checkflag=s->sflag[q]; //Placed
+				else checkflag=combobuf[s->data[q]].flag; //Inherent
+				Z_message("checkflag is: %d\n", checkflag);
+				al_trace("checkflag is: %d\n", checkflag);
+				
+				Z_message("ID is: %d\n", ID);
+				al_trace("ID is: %d\n", ID);
+				//cmbx = COMBOX(q);
+				////cmby = COMBOY(q);
+				
+				//Placed flags
+				if ( iter == 1 ) {
+					if ( s->sflag[q] == ID ) {
+						screen_combo_modify_preroutine(s,q);
+						s->data[q] = s->secretcombo[ft];
+						s->cset[q] = s->secretcset[ft];
+						s->sflag[q] = s->secretflag[ft];
+					   // newflag = s->secretflag[ft];
+						screen_combo_modify_postroutine(s,q);
+					}
+				}
+				//Inherent flags
+				else {
+					if ( combobuf[s->data[q]].flag == ID ) {
+						screen_combo_modify_preroutine(s,q);
+						s->data[q] = s->secretcombo[ft];
+						s->cset[q] = s->secretcset[ft];
+						//s->sflag[q] = s->secretflag[ft];
+						screen_combo_modify_postroutine(s,q);
+					}
+					
+				}
+			}
+		}
+	}
+	
+}
+
+void FFScript::do_changeffcscript(const bool v){
+	long ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
+	for(long i = 1; i < MAX_ZCARRAY_SIZE; i++)
+	{
+	    if(arrayOwner[i]==ri->ffcref)
+		FFScript::deallocateZScriptArray(i);
+	}
+	
+	tmpscr->ffscript[ri->ffcref] = vbound(ID/10000, 0, scripts.ffscripts.size()-1);
+	
+	for(int i=0; i<16; i++)
+	    ffmisc[ri->ffcref][i] = 0;
+	    
+	for(int i=0; i<2; i++)
+	    tmpscr->inita[ri->ffcref][i] = 0;
+	    
+	for(int i=0; i<8; i++)
+	    tmpscr->initd[ri->ffcref][i] = 0;
+	    
+	ffcScriptData[ri->ffcref].Clear();
+	tmpscr->initialized[ri->ffcref] = true;
+}
+
+
+//NPCData
+
+//NPCData Getter Macros
+
+#define GET_NPCDATA_VAR_INT(member) \
+{ \
+	long ID = get_register(sarg2) / 10000;\
+	if(ID < 1 || ID > (MAXGUYS-1)) \
+		set_register(sarg1, -10000); \
+	else \
+		set_register(sarg1, guysbuf[ID].member * 10000); \
+}
+
+#define GET_NPCDATA_VAR_INDEX(member, indexbound) \
+{ \
+	int ID = int(ri->d[0] / 10000);\
+	int indx = vbound((ri->d[1] / 10000), 0, indexbound); \
+	if(ID < 1 || ID > (MAXGUYS-1)) \
+		set_register(sarg1, -10000); \
+	else \
+		set_register(sarg1, guysbuf[ID].member[indx] * 10000); \
+}
+
+#define GET_NPCDATA_VAR_FLAG(member) \
+{ \
+	int ID = int(ri->d[0] / 10000);\
+	int flag = int(ri->d[1] / 10000);\
+	if(ID < 1 || ID > (MAXGUYS-1)) \
+		set_register(sarg1, -10000); \
+	else \
+		set_register(sarg1, (guysbuf[ID].member&flag) ? 10000 : 0); \
+}
+
+void FFScript::getNPCData_tile(){ GET_NPCDATA_VAR_INT(tile); } //word
+void FFScript::getNPCData_e_height(){ GET_NPCDATA_VAR_INT(e_height); } 
+void FFScript::getNPCData_flags(){ GET_NPCDATA_VAR_INT(flags); } //word
+void FFScript::getNPCData_flags2(){ GET_NPCDATA_VAR_INT(flags2); } 
+void FFScript::getNPCData_width(){ GET_NPCDATA_VAR_INT(width); } 
+void FFScript::getNPCData_height(){ GET_NPCDATA_VAR_INT(height); } 
+void FFScript::getNPCData_s_tile(){ GET_NPCDATA_VAR_INT(s_tile); } 
+void FFScript::getNPCData_s_width(){ GET_NPCDATA_VAR_INT(s_width); } 
+void FFScript::getNPCData_s_height(){ GET_NPCDATA_VAR_INT(s_height); } 
+void FFScript::getNPCData_e_tile(){ GET_NPCDATA_VAR_INT(e_tile); } 
+void FFScript::getNPCData_e_width(){ GET_NPCDATA_VAR_INT(e_width); } 
+void FFScript::getNPCData_hp(){ GET_NPCDATA_VAR_INT(hp); } 
+void FFScript::getNPCData_family(){ GET_NPCDATA_VAR_INT(family); } 
+void FFScript::getNPCData_cset(){ GET_NPCDATA_VAR_INT(cset); } 
+void FFScript::getNPCData_anim(){ GET_NPCDATA_VAR_INT(anim); } 
+void FFScript::getNPCData_e_anim(){ GET_NPCDATA_VAR_INT(e_anim); } 
+void FFScript::getNPCData_frate(){ GET_NPCDATA_VAR_INT(frate); } 
+void FFScript::getNPCData_e_frate(){ GET_NPCDATA_VAR_INT(e_frate); } 
+void FFScript::getNPCData_dp(){ GET_NPCDATA_VAR_INT(dp); } 
+void FFScript::getNPCData_wdp(){ GET_NPCDATA_VAR_INT(wdp); } 
+void FFScript::getNPCData_weapon(){ GET_NPCDATA_VAR_INT(weapon); } 
+void FFScript::getNPCData_rate(){ GET_NPCDATA_VAR_INT(rate); } 
+void FFScript::getNPCData_hrate(){ GET_NPCDATA_VAR_INT(hrate); } 
+void FFScript::getNPCData_step(){ GET_NPCDATA_VAR_INT(step); } 
+void FFScript::getNPCData_homing(){ GET_NPCDATA_VAR_INT(homing); } 
+void FFScript::getNPCData_grumble(){ GET_NPCDATA_VAR_INT(grumble); } 
+void FFScript::getNPCData_item_set(){ GET_NPCDATA_VAR_INT(item_set); } 
+void FFScript::getNPCData_bgsfx(){ GET_NPCDATA_VAR_INT(bgsfx); } 
+void FFScript::getNPCData_hitsfx(){ GET_NPCDATA_VAR_INT(hitsfx); } 
+void FFScript::getNPCData_deadsfx(){ GET_NPCDATA_VAR_INT(deadsfx); } 
+void FFScript::getNPCData_xofs(){ GET_NPCDATA_VAR_INT(xofs); } 
+void FFScript::getNPCData_yofs(){ GET_NPCDATA_VAR_INT(yofs); } 
+void FFScript::getNPCData_zofs(){ GET_NPCDATA_VAR_INT(zofs); } 
+void FFScript::getNPCData_hxofs(){ GET_NPCDATA_VAR_INT(hxofs); } 
+void FFScript::getNPCData_hyofs(){ GET_NPCDATA_VAR_INT(hyofs); } 
+void FFScript::getNPCData_hxsz(){ GET_NPCDATA_VAR_INT(hxsz); } 
+void FFScript::getNPCData_hysz(){ GET_NPCDATA_VAR_INT(hysz); } 
+void FFScript::getNPCData_hzsz(){ GET_NPCDATA_VAR_INT(hzsz); } 
+void FFScript::getNPCData_txsz(){ GET_NPCDATA_VAR_INT(txsz); } 
+void FFScript::getNPCData_tysz(){ GET_NPCDATA_VAR_INT(tysz); } 
+void FFScript::getNPCData_wpnsprite(){ GET_NPCDATA_VAR_INT(wpnsprite); } 
+
+//NPCData Getters, two inputs, one return, similar to ISSolid
+
+/*
+
+void do_issolid()
+{
+    int x = int(ri->d[0] / 10000);
+    int y = int(ri->d[1] / 10000);
+    
+    set_register(sarg1, (_walkflag(x, y, 1) ? 10000 : 0));
+}
+
+*/
+
+
+
+
+
+
+//void FFScript::getNPCData_scriptdefence(){GET_NPCDATA_VAR_INDEX(scriptdefence)};
+
+
+void FFScript::getNPCData_defense(){GET_NPCDATA_VAR_INDEX(defense,(edefLAST255-1))};
+
+
+void FFScript::getNPCData_SIZEflags(){GET_NPCDATA_VAR_FLAG(SIZEflags);}
+
+
+void FFScript::getNPCData_misc()
+{
+	int ID = int(ri->d[0] / 10000); //the enemy ID value
+	int indx = int(ri->d[1] / 10000); //the misc index ID
+	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > 15 ))
+		set_register(sarg1, -10000); 
+	switch ( indx )
+	{
+		case 0: set_register(sarg1, guysbuf[ID].misc1 * 10000); break;
+		case 1: set_register(sarg1, guysbuf[ID].misc2 * 10000); break;
+		case 2: set_register(sarg1, guysbuf[ID].misc3 * 10000); break;
+		case 3: set_register(sarg1, guysbuf[ID].misc4 * 10000); break;
+		case 4: set_register(sarg1, guysbuf[ID].misc5 * 10000); break;
+		case 5: set_register(sarg1, guysbuf[ID].misc6 * 10000); break;
+		case 6: set_register(sarg1, guysbuf[ID].misc7 * 10000); break;
+		case 7: set_register(sarg1, guysbuf[ID].misc8 * 10000); break;
+		case 8: set_register(sarg1, guysbuf[ID].misc9 * 10000); break;
+		case 9: set_register(sarg1, guysbuf[ID].misc10 * 10000); break;
+		case 10: set_register(sarg1, guysbuf[ID].misc11 * 10000); break;
+		case 11: set_register(sarg1, guysbuf[ID].misc12 * 10000); break;
+		case 12: set_register(sarg1, guysbuf[ID].misc13 * 10000); break;
+		case 13: set_register(sarg1, guysbuf[ID].misc14 * 10000); break;
+		case 14: set_register(sarg1, guysbuf[ID].misc15 * 10000); break;
+		default: set_register(sarg1, -10000); break;
+	}
+}
+
+//NPCData Setters, two inputs, no return; similar to void GetDMapIntro(int DMap, int buffer[]);
+
+/*
+
+void do_getdmapintro(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    
+    if(BC::checkDMapID(ID, "Game->GetDMapIntro") != SH::_NoError)
+        return;
+        
+    if(ArrayH::setArray(arrayptr, string(DMaps[ID].intro)) == SH::_Overflow)
+        Z_scripterrlog("Array supplied to 'Game->GetDMapIntro' not large enough\n");
+}
+
+*/
+
+//NPCData Setter Macros
+
+
+#define SET_NPCDATA_VAR_INT(member, bound) \
+{ \
+	long ID = get_register(sarg1) / 10000; \
+	long val = get_register(sarg2) / 10000; \
+	if(ID < 1 || ID > (MAXGUYS-1)) \
+		set_register(sarg1, -10000); \
+	else \
+		guysbuf[ID].member = vbound(val,0,bound); \
+}
+
+
+
+#define SET_NPCDATA_VAR_INT_NOBOUND(member) \
+{ \
+	long ID = get_register(sarg1) / 10000; \
+	long val = get_register(sarg2) / 10000; \
+	if(ID < 1 || ID > (MAXGUYS-1)) \
+		set_register(sarg1, -10000); \
+	else \
+		guysbuf[ID].member = val; \
+}
+
+
+//SET_NPC_VAR_INDEX(member,value)
+#define SET_NPCDATA_VAR_INDEX(member, val, bound, indexbound) \
+{ \
+	long ID = (ri->d[0]/10000);  \
+	long indx =  vbound((ri->d[1]/10000),0,indexbound);  \
+	if(ID < 1 || ID > (MAXGUYS-1)) \
+		return; \
+	else \
+		guysbuf[ID].member[indx] = vbound(val,0,bound); \
+}
+
+//Special case for flags, three inputs one return
+#define SET_NPCDATA_VAR_FLAG(member, val) \
+{ \
+	long ID = (ri->d[0]/10000);  \
+	long flag =  (ri->d[1]/10000);  \
+	if(ID < 1 || ID > (MAXGUYS-1)) \
+		return; \
+	else \
+	{ \
+		if ( val != 0 ) guysbuf[ID].member|=flag; \
+		else guysbuf[ID].member|= ~flag; \
+	}\
+}
+
+void FFScript::setNPCData_flags(){SET_NPCDATA_VAR_INT(flags,ZS_DWORD);} //word
+void FFScript::setNPCData_flags2(){SET_NPCDATA_VAR_INT(flags2,ZS_DWORD);}
+void FFScript::setNPCData_width(){SET_NPCDATA_VAR_INT(width,ZS_BYTE);}
+void FFScript::setNPCData_tile(){SET_NPCDATA_VAR_INT(tile,ZS_WORD);}
+void FFScript::setNPCData_e_height(){SET_NPCDATA_VAR_INT(e_height,ZS_BYTE);}
+void FFScript::setNPCData_height(){SET_NPCDATA_VAR_INT(height,ZS_BYTE);}
+void FFScript::setNPCData_s_tile(){SET_NPCDATA_VAR_INT(s_tile,ZS_WORD);}
+void FFScript::setNPCData_s_width(){SET_NPCDATA_VAR_INT(s_width,ZS_BYTE);}
+void FFScript::setNPCData_s_height(){SET_NPCDATA_VAR_INT(s_height,ZS_BYTE);}
+void FFScript::setNPCData_e_tile(){SET_NPCDATA_VAR_INT(e_tile,ZS_WORD);}
+void FFScript::setNPCData_e_width(){SET_NPCDATA_VAR_INT(e_width,ZS_BYTE);}
+void FFScript::setNPCData_hp(){SET_NPCDATA_VAR_INT(hp,ZS_SHORT);}
+void FFScript::setNPCData_family(){SET_NPCDATA_VAR_INT(family,ZS_SHORT);}
+void FFScript::setNPCData_cset(){SET_NPCDATA_VAR_INT(cset,ZS_SHORT);}
+void FFScript::setNPCData_anim(){SET_NPCDATA_VAR_INT(anim,ZS_SHORT);}
+void FFScript::setNPCData_e_anim(){SET_NPCDATA_VAR_INT(e_anim,ZS_SHORT);}
+void FFScript::setNPCData_frate(){SET_NPCDATA_VAR_INT(frate,ZS_SHORT);}
+void FFScript::setNPCData_e_frate(){SET_NPCDATA_VAR_INT(e_frate,ZS_SHORT);}
+void FFScript::setNPCData_dp(){SET_NPCDATA_VAR_INT(dp,ZS_SHORT);}
+void FFScript::setNPCData_wdp(){SET_NPCDATA_VAR_INT(wdp,ZS_SHORT);}
+void FFScript::setNPCData_weapon(){SET_NPCDATA_VAR_INT(weapon,ZS_SHORT);}
+void FFScript::setNPCData_rate(){SET_NPCDATA_VAR_INT(rate,ZS_SHORT);}
+void FFScript::setNPCData_hrate(){SET_NPCDATA_VAR_INT(hrate,ZS_SHORT);}
+void FFScript::setNPCData_step(){SET_NPCDATA_VAR_INT(step,ZS_SHORT);}
+void FFScript::setNPCData_homing(){SET_NPCDATA_VAR_INT(homing,ZS_SHORT);}
+void FFScript::setNPCData_grumble(){SET_NPCDATA_VAR_INT(grumble,ZS_SHORT);}
+void FFScript::setNPCData_item_set(){SET_NPCDATA_VAR_INT(item_set,ZS_SHORT);}
+void FFScript::setNPCData_bgsfx(){SET_NPCDATA_VAR_INT(bgsfx,ZS_SHORT);}
+void FFScript::setNPCData_hitsfx(){SET_NPCDATA_VAR_INT(hitsfx,ZS_BYTE);}
+void FFScript::setNPCData_deadsfx(){SET_NPCDATA_VAR_INT(deadsfx,ZS_BYTE);}
+void FFScript::setNPCData_xofs(){SET_NPCDATA_VAR_INT_NOBOUND(xofs);}
+void FFScript::setNPCData_yofs(){SET_NPCDATA_VAR_INT_NOBOUND(yofs);}
+void FFScript::setNPCData_zofs(){SET_NPCDATA_VAR_INT_NOBOUND(zofs);}
+void FFScript::setNPCData_hxofs(){SET_NPCDATA_VAR_INT_NOBOUND(hxofs);}
+void FFScript::setNPCData_hyofs(){SET_NPCDATA_VAR_INT_NOBOUND(hyofs);}
+void FFScript::setNPCData_hxsz(){SET_NPCDATA_VAR_INT_NOBOUND(hxsz);}
+void FFScript::setNPCData_hysz(){SET_NPCDATA_VAR_INT_NOBOUND(hysz);}
+void FFScript::setNPCData_hzsz(){SET_NPCDATA_VAR_INT_NOBOUND(hzsz);}
+void FFScript::setNPCData_txsz(){SET_NPCDATA_VAR_INT_NOBOUND(txsz);}
+void FFScript::setNPCData_tysz(){SET_NPCDATA_VAR_INT_NOBOUND(tysz);}
+void FFScript::setNPCData_wpnsprite(){SET_NPCDATA_VAR_INT(wpnsprite,511);}
+
+//NPCData Setters, three inputs, no return. works as SetDMapScreenD function
+
+
+
+
+
+
+
+//void FFScript::setNPCData_scriptdefence(){SET_NPCDATA_VAR_INDEX(scriptdefence);}
+void FFScript::setNPCData_defense(int v){SET_NPCDATA_VAR_INDEX(defense,v, ZS_INT, (edefLAST255-1) );}
+void FFScript::setNPCData_SIZEflags(int v){SET_NPCDATA_VAR_FLAG(SIZEflags,v);}
+void FFScript::setNPCData_misc(int val)
+{
+	int ID = int(ri->d[0] / 10000); //the enemy ID value
+	int indx = int(ri->d[1] / 10000); //the misc index ID
+	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > 15 )) return;
+	switch ( indx )
+	{
+		case 0: guysbuf[ID].misc1 = val; break;
+		case 1: guysbuf[ID].misc2 = val; break;
+		case 2: guysbuf[ID].misc3 = val; break;
+		case 3: guysbuf[ID].misc4 = val; break;
+		case 4: guysbuf[ID].misc5 = val; break;
+		case 5: guysbuf[ID].misc6 = val; break;
+		case 6: guysbuf[ID].misc7 = val; break;
+		case 7: guysbuf[ID].misc8 = val; break;
+		case 8: guysbuf[ID].misc9 = val; break;
+		case 9: guysbuf[ID].misc10 = val; break;
+		case 10: guysbuf[ID].misc11 = val; break;
+		case 11: guysbuf[ID].misc12 = val; break;
+		case 12: guysbuf[ID].misc13 = val; break;
+		case 13: guysbuf[ID].misc14 = val; break;
+		case 14: guysbuf[ID].misc15 = val; break;
+		default: break;
+	}
+	
+};
+
+//ComboData
+
+//Macros
+
+//Getters for ComboData 'Type' submembers. 
+#define GET_COMBODATA_TYPE_INT(member) \
+{ \
+	long ID = vbound((get_register(sarg2) / 10000),0,MAXCOMBOS);\
+	set_register(sarg1, combo_class_buf[combobuf[ID].type].member * 10000); \
+}
+
+//this may need additional macros. 
+//for combo_class_buf[ID].member ?
+//I'm not sure which it needs to be at present. 
+
+#define GET_COMBODATA_TYPE_INDEX(member, bound) \
+{ \
+	int ID = int(vbound((ri->d[0] / 10000),0,MAXCOMBOS));\
+	int indx = int(vbound((ri->d[1] / 10000), 0, bound));\
+	set_register(sarg1, combo_class_buf[combobuf[ID].type].member[indx] * 10000); \
+}
+
+#define GET_COMBODATA_TYPE_FLAG(member) \
+{ \
+	int ID = int(vbound(ri->d[0] / 10000),0,MAXCOMBOS);\
+	int flag = int(ri->d[1] / 10000);\
+	set_register(sarg1, (combo_class_buf[combobuf[ID].type].member&flag) ? 10000 : 0); \
+}
+
+
+
+//Getters for ComboData main members. 
+#define GET_COMBODATA_VAR_INT(member) \
+{ \
+	long ID = vbound( (get_register(sarg2) / 10000), 0, MAXCOMBOS);\
+	set_register(sarg1, combobuf[ID].member * 10000); \
+}
+
+#define GET_COMBODATA_VAR_INDEX(member, bound) \
+{ \
+	int ID = int( vbound( (ri->d[0] / 10000),0,MAXCOMBOS) );\
+	int indx = int ( vbound( (ri->d[1] / 10000),0,bound) );\
+	set_register(sarg1, combobuf[ID].member[indx] * 10000); \
+}
+
+#define GET_COMBODATA_VAR_FLAG(member) \
+{ \
+	int ID = int( vbound( ( ri->d[0] / 10000),0,MAXCOMBOS) );\
+	int flag = int(ri->d[1] / 10000);\
+	set_register(sarg1, (combobuf[ID].member&flag) ? 10000 : 0); \
+}
+
+
+
+//ComboData Setter Macros
+
+//Setters for ComboData 'type' submembers.
+#define SET_COMBODATA_TYPE_INT(member, bound) \
+{ \
+	long ID = get_register(sarg1) / 10000; \
+	long val = vbound( (get_register(sarg2) / 10000), 0, bound); \
+	if(ID < 1 || ID > 511) \
+		set_register(sarg1, -10000); \
+	else \
+		combo_class_buf[combobuf[ID].type].member = val; \
+}
+
+#define SET_COMBODATA_TYPE_INDEX(member, val, bound, indexbound) \
+{ \
+	long ID = vbound((ri->d[0]/10000),0,MAXCOMBOS);  \
+	long indx =  vbound((ri->d[1]/10000),0,indexbound);  \
+	combo_class_buf[combobuf[ID].type].member[indx] = vbound(val,0,bound); \
+}
+
+#define SET_COMBODATA_TYPE_FLAG(member, val, bound) \
+{ \
+	long ID = vbound((ri->d[0]/10000),0,MAXCOMBOS);  \
+	long flag =  (ri->d[1]/10000);  \
+	combo_class_buf[combobuf[ID].type].member&flag = ((vbound(val,0,bound))!=0); \
+ \
+
+
+//Setters for ComboData main members
+#define SET_COMBODATA_VAR_INT(member, bound) \
+{ \
+	long ID = vbound( (get_register(sarg1) / 10000), 0, MAXCOMBOS); \
+	long val = vbound((get_register(sarg2) / 10000),0,bound); \
+	combobuf[ID].member = val; \
+}
+
+//SET_NPC_VAR_INDEX(member,value)
+#define SET_COMBODATA_VAR_INDEX(member, val, bound, indexbound) \
+{ \
+	long ID = vbound((ri->d[0]/10000),0,MAXCOMBOS);  \
+	long indx =  vbound((ri->d[1]/10000),0,indexbound);  \
+	combobuf[ID].member[indx] = vbound(val,0,bound); \
+}
+
+//Special case for flags, three inputs one return
+#define SET_COMBODATA_VAR_FLAG(member, val, bound) \
+{ \
+	long ID = vbound((ri->d[0]/10000),0,MAXCOMBOS);  \
+	long flag =  (ri->d[1]/10000);  \
+	else \
+	{ \
+		combobuf[ID].member&flag = ((bvound(val,0,bound))!=0); \
+	}\
+}
+
+//Getters
+
+//one input, one return
+void FFScript::getComboData_block_enemies(){ GET_COMBODATA_TYPE_INT(block_enemies); } //byte a
+void FFScript::getComboData_block_hole(){ GET_COMBODATA_TYPE_INT(block_hole); } //byte b
+void FFScript::getComboData_block_trigger(){ GET_COMBODATA_TYPE_INT(block_trigger); } //byte c
+void FFScript::getComboData_conveyor_x_speed(){ GET_COMBODATA_TYPE_INT(conveyor_x_speed); } //short e
+void FFScript::getComboData_conveyor_y_speed(){ GET_COMBODATA_TYPE_INT(conveyor_y_speed); } //short f
+void FFScript::getComboData_create_enemy(){ GET_COMBODATA_TYPE_INT(create_enemy); } //word g
+void FFScript::getComboData_create_enemy_when(){ GET_COMBODATA_TYPE_INT(create_enemy_when); } //byte h
+void FFScript::getComboData_create_enemy_change(){ GET_COMBODATA_TYPE_INT(create_enemy_change); } //long i
+void FFScript::getComboData_directional_change_type(){ GET_COMBODATA_TYPE_INT(directional_change_type); } //byte j
+void FFScript::getComboData_distance_change_tiles(){ GET_COMBODATA_TYPE_INT(distance_change_tiles); } //long k
+void FFScript::getComboData_dive_item(){ GET_COMBODATA_TYPE_INT(dive_item); } //short l
+void FFScript::getComboData_dock(){ GET_COMBODATA_TYPE_INT(dock); } //byte m
+void FFScript::getComboData_fairy(){ GET_COMBODATA_TYPE_INT(fairy); } //byte n
+void FFScript::getComboData_ff_combo_attr_change(){ GET_COMBODATA_TYPE_INT(ff_combo_attr_change); } //byte o
+void FFScript::getComboData_foot_decorations_tile(){ GET_COMBODATA_TYPE_INT(foot_decorations_tile); } //long p
+void FFScript::getComboData_foot_decorations_type(){ GET_COMBODATA_TYPE_INT(foot_decorations_type); } //byte q
+void FFScript::getComboData_hookshot_grab_point(){ GET_COMBODATA_TYPE_INT(hookshot_grab_point); } //byte r
+void FFScript::getComboData_ladder_pass(){ GET_COMBODATA_TYPE_INT(ladder_pass); } //byte s
+void FFScript::getComboData_lock_block_type(){ GET_COMBODATA_TYPE_INT(lock_block_type); } //byte t
+void FFScript::getComboData_lock_block_change(){ GET_COMBODATA_TYPE_INT(lock_block_change); } //long u
+void FFScript::getComboData_magic_mirror_type(){ GET_COMBODATA_TYPE_INT(magic_mirror_type); } //byte v
+void FFScript::getComboData_modify_hp_amount(){ GET_COMBODATA_TYPE_INT(modify_hp_amount); } //short w
+void FFScript::getComboData_modify_hp_delay(){ GET_COMBODATA_TYPE_INT(modify_hp_delay); } //byte x
+void FFScript::getComboData_modify_hp_type(){ GET_COMBODATA_TYPE_INT(modify_hp_type); } //byte y
+void FFScript::getComboData_modify_mp_amount(){ GET_COMBODATA_TYPE_INT(modify_mp_amount); } //short z
+void FFScript::getComboData_modify_mp_delay(){ GET_COMBODATA_TYPE_INT(modify_mp_delay); } //byte aa
+void FFScript::getComboData_modify_mp_type(){ GET_COMBODATA_TYPE_INT(modify_mp_type); } //byte ab
+void FFScript::getComboData_no_push_blocks(){ GET_COMBODATA_TYPE_INT(no_push_blocks); } //byte ac
+void FFScript::getComboData_overhead(){ GET_COMBODATA_TYPE_INT(overhead); } //byte ad
+void FFScript::getComboData_place_enemy(){ GET_COMBODATA_TYPE_INT(place_enemy); } //byte ae
+void FFScript::getComboData_push_direction(){ GET_COMBODATA_TYPE_INT(push_direction); } //byte af
+void FFScript::getComboData_push_weight(){ GET_COMBODATA_TYPE_INT(push_weight); } //byte ag  heavy or not
+void FFScript::getComboData_push_wait(){ GET_COMBODATA_TYPE_INT(push_wait); } //byte ah
+void FFScript::getComboData_pushed(){ GET_COMBODATA_TYPE_INT(pushed); } //byte ai
+void FFScript::getComboData_raft(){ GET_COMBODATA_TYPE_INT(raft); } //byte aj
+void FFScript::getComboData_reset_room(){ GET_COMBODATA_TYPE_INT(reset_room); } //byte ak
+void FFScript::getComboData_save_point_type(){ GET_COMBODATA_TYPE_INT(save_point_type); } //byte al
+void FFScript::getComboData_screen_freeze_type(){ GET_COMBODATA_TYPE_INT(screen_freeze_type); } //byte am
+
+void FFScript::getComboData_secret_combo(){ GET_COMBODATA_TYPE_INT(secret_combo); } //byte an
+void FFScript::getComboData_singular(){ GET_COMBODATA_TYPE_INT(singular); } //byte ao
+void FFScript::getComboData_slow_movement(){ GET_COMBODATA_TYPE_INT(slow_movement); } //byte ap
+void FFScript::getComboData_statue_type(){ GET_COMBODATA_TYPE_INT(statue_type); } //byte aq
+void FFScript::getComboData_step_type(){ GET_COMBODATA_TYPE_INT(step_type); } //byte ar
+void FFScript::getComboData_step_change_to(){ GET_COMBODATA_TYPE_INT(step_change_to); } //long as
+void FFScript::getComboData_strike_remnants(){ GET_COMBODATA_TYPE_INT(strike_remnants); } //long au
+void FFScript::getComboData_strike_remnants_type(){ GET_COMBODATA_TYPE_INT(strike_remnants_type); } //byte av
+void FFScript::getComboData_strike_change(){ GET_COMBODATA_TYPE_INT(strike_change); } //long aw
+void FFScript::getComboData_strike_item(){ GET_COMBODATA_TYPE_INT(strike_item); } //short ax
+void FFScript::getComboData_touch_item(){ GET_COMBODATA_TYPE_INT(touch_item); } //short ay
+void FFScript::getComboData_touch_stairs(){ GET_COMBODATA_TYPE_INT(touch_stairs); } //byte az
+void FFScript::getComboData_trigger_type(){ GET_COMBODATA_TYPE_INT(trigger_type); } //byte ba
+void FFScript::getComboData_trigger_sensitive(){ GET_COMBODATA_TYPE_INT(trigger_sensitive); } //byte bb
+void FFScript::getComboData_warp_type(){ GET_COMBODATA_TYPE_INT(warp_type); } //byte bc
+void FFScript::getComboData_warp_sensitive(){ GET_COMBODATA_TYPE_INT(warp_sensitive); } //byte bd
+void FFScript::getComboData_warp_direct(){ GET_COMBODATA_TYPE_INT(warp_direct); } //byte be
+void FFScript::getComboData_warp_location(){ GET_COMBODATA_TYPE_INT(warp_location); } //byte bf
+void FFScript::getComboData_water(){ GET_COMBODATA_TYPE_INT(water); } //byte bg
+void FFScript::getComboData_whistle(){ GET_COMBODATA_TYPE_INT(whistle); } //byte bh
+void FFScript::getComboData_win_game(){ GET_COMBODATA_TYPE_INT(win_game); } //byte bi
+void FFScript::getComboData_block_weapon_lvl(){ GET_COMBODATA_TYPE_INT(block_weapon_lvl); } //byte bj - max level of weapon to block
+
+void FFScript::getComboData_tile(){ GET_COMBODATA_VAR_INT(tile); } //newcombo, word
+void FFScript::getComboData_flip(){ GET_COMBODATA_VAR_INT(flip); } //newcombo byte
+
+void FFScript::getComboData_walk(){ GET_COMBODATA_VAR_INT(walk); } //newcombo byte
+void FFScript::getComboData_type(){ GET_COMBODATA_VAR_INT(type); } //newcombo byte
+void FFScript::getComboData_csets(){ GET_COMBODATA_VAR_INT(csets); } //newcombo byte
+void FFScript::getComboData_foo(){ GET_COMBODATA_VAR_INT(foo); } //newcombo word
+void FFScript::getComboData_frames(){ GET_COMBODATA_VAR_INT(frames); } //newcombo byte
+void FFScript::getComboData_speed(){ GET_COMBODATA_VAR_INT(speed); } //newcombo byte
+void FFScript::getComboData_nextcombo(){ GET_COMBODATA_VAR_INT(nextcombo); } //newcombo word
+void FFScript::getComboData_nextcset(){ GET_COMBODATA_VAR_INT(nextcset); } //newcombo byte
+void FFScript::getComboData_flag(){ GET_COMBODATA_VAR_INT(flag); } //newcombo byte
+void FFScript::getComboData_skipanim(){ GET_COMBODATA_VAR_INT(skipanim); } //newcombo byte
+void FFScript::getComboData_nexttimer(){ GET_COMBODATA_VAR_INT(nexttimer); } //newcombo word
+void FFScript::getComboData_skipanimy(){ GET_COMBODATA_VAR_INT(skipanimy); } //newcombo byte
+void FFScript::getComboData_animflags(){ GET_COMBODATA_VAR_INT(animflags); } //newcombo byte
+
+
+//two inputs, one return
+void FFScript::getComboData_block_weapon(){ GET_COMBODATA_TYPE_INDEX(block_weapon,32); } //byte array[32] d (ID of LWeapon)
+void FFScript::getComboData_expansion(){ GET_COMBODATA_VAR_INDEX(expansion,6); } //newcombo byte, arr[6]
+void FFScript::getComboData_strike_weapons(){ GET_COMBODATA_TYPE_INDEX(strike_weapons,32); } //byte at, arr[32]
+
+//Setters, two inputs no returns
+
+void FFScript::setComboData_block_enemies(){ SET_COMBODATA_TYPE_INT(block_enemies,ZS_BYTE); } //byte a
+void FFScript::setComboData_block_hole(){ SET_COMBODATA_TYPE_INT(block_hole,ZS_BYTE); } //byte b
+void FFScript::setComboData_block_trigger(){ SET_COMBODATA_TYPE_INT(block_trigger,ZS_BYTE); } //byte c
+void FFScript::setComboData_conveyor_x_speed(){ SET_COMBODATA_TYPE_INT(conveyor_x_speed,ZS_SHORT); } //short e
+void FFScript::setComboData_conveyor_y_speed(){ SET_COMBODATA_TYPE_INT(conveyor_y_speed,ZS_SHORT); } //short f
+void FFScript::setComboData_create_enemy(){ SET_COMBODATA_TYPE_INT(create_enemy,ZS_WORD); } //word g
+void FFScript::setComboData_create_enemy_when(){ SET_COMBODATA_TYPE_INT(create_enemy_when,ZS_BYTE); } //byte h
+void FFScript::setComboData_create_enemy_change(){ SET_COMBODATA_TYPE_INT(create_enemy_change,ZS_LONG); } //long i
+void FFScript::setComboData_directional_change_type(){ SET_COMBODATA_TYPE_INT(directional_change_type,ZS_BYTE); } //byte j
+void FFScript::setComboData_distance_change_tiles(){ SET_COMBODATA_TYPE_INT(distance_change_tiles,ZS_LONG); } //long k
+void FFScript::setComboData_dive_item(){ SET_COMBODATA_TYPE_INT(dive_item,ZS_SHORT); } //short l
+void FFScript::setComboData_dock(){ SET_COMBODATA_TYPE_INT(dock,ZS_BYTE); } //byte m
+void FFScript::setComboData_fairy(){ SET_COMBODATA_TYPE_INT(fairy,ZS_BYTE); } //byte n
+void FFScript::setComboData_ff_combo_attr_change(){ SET_COMBODATA_TYPE_INT(ff_combo_attr_change,ZS_BYTE); } //byte o
+void FFScript::setComboData_foot_decorations_tile(){ SET_COMBODATA_TYPE_INT(foot_decorations_tile,ZS_LONG); } //long p
+void FFScript::setComboData_foot_decorations_type(){ SET_COMBODATA_TYPE_INT(foot_decorations_type,ZS_BYTE); } //byte q
+void FFScript::setComboData_hookshot_grab_point(){ SET_COMBODATA_TYPE_INT(hookshot_grab_point,ZS_BYTE); } //byte r
+void FFScript::setComboData_ladder_pass(){ SET_COMBODATA_TYPE_INT(ladder_pass,ZS_BYTE); } //byte s
+void FFScript::setComboData_lock_block_type(){ SET_COMBODATA_TYPE_INT(lock_block_type,ZS_BYTE); } //byte t
+void FFScript::setComboData_lock_block_change(){ SET_COMBODATA_TYPE_INT(lock_block_change,ZS_LONG); } //long u
+void FFScript::setComboData_magic_mirror_type(){ SET_COMBODATA_TYPE_INT(magic_mirror_type,ZS_BYTE); } //byte v
+void FFScript::setComboData_modify_hp_amount(){ SET_COMBODATA_TYPE_INT(modify_hp_amount,ZS_SHORT); } //short w
+void FFScript::setComboData_modify_hp_delay(){ SET_COMBODATA_TYPE_INT(modify_hp_delay,ZS_BYTE); } //byte x
+void FFScript::setComboData_modify_hp_type(){ SET_COMBODATA_TYPE_INT(modify_hp_type,ZS_BYTE); } //byte y
+void FFScript::setComboData_modify_mp_amount(){ SET_COMBODATA_TYPE_INT(modify_mp_amount,ZS_SHORT); } //short z
+void FFScript::setComboData_modify_mp_delay(){ SET_COMBODATA_TYPE_INT(modify_mp_delay,ZS_BYTE); } //byte aa
+void FFScript::setComboData_modify_mp_type(){ SET_COMBODATA_TYPE_INT(modify_mp_type,ZS_BYTE); } //byte ab
+void FFScript::setComboData_no_push_blocks(){ SET_COMBODATA_TYPE_INT(no_push_blocks,ZS_BYTE); } //byte ac
+void FFScript::setComboData_overhead(){ SET_COMBODATA_TYPE_INT(overhead,ZS_BYTE); } //byte ad
+void FFScript::setComboData_place_enemy(){ SET_COMBODATA_TYPE_INT(place_enemy,ZS_BYTE); } //byte ae
+void FFScript::setComboData_push_direction(){ SET_COMBODATA_TYPE_INT(push_direction,ZS_BYTE); } //byte af
+void FFScript::setComboData_push_weight(){ SET_COMBODATA_TYPE_INT(push_weight,ZS_BYTE); } //byte ag  heavy or not
+void FFScript::setComboData_push_wait(){ SET_COMBODATA_TYPE_INT(push_wait,ZS_BYTE); } //byte ah
+void FFScript::setComboData_pushed(){ SET_COMBODATA_TYPE_INT(pushed,ZS_BYTE); } //byte ai
+void FFScript::setComboData_raft(){ SET_COMBODATA_TYPE_INT(raft,ZS_BYTE); } //byte aj
+void FFScript::setComboData_reset_room(){ SET_COMBODATA_TYPE_INT(reset_room,ZS_BYTE); } //byte ak
+void FFScript::setComboData_save_point_type(){ SET_COMBODATA_TYPE_INT(save_point_type,ZS_BYTE); } //byte al
+void FFScript::setComboData_screen_freeze_type(){ SET_COMBODATA_TYPE_INT(screen_freeze_type,ZS_BYTE); } //byte am
+
+void FFScript::setComboData_secret_combo(){ SET_COMBODATA_TYPE_INT(secret_combo,ZS_BYTE); } //byte an
+void FFScript::setComboData_singular(){ SET_COMBODATA_TYPE_INT(singular,ZS_BYTE); } //byte ao
+void FFScript::setComboData_slow_movement(){ SET_COMBODATA_TYPE_INT(slow_movement,ZS_BYTE); } //byte ap
+void FFScript::setComboData_statue_type(){ SET_COMBODATA_TYPE_INT(statue_type,ZS_BYTE); } //byte aq
+void FFScript::setComboData_step_type(){ SET_COMBODATA_TYPE_INT(step_type,ZS_BYTE); } //byte ar
+void FFScript::setComboData_step_change_to(){ SET_COMBODATA_TYPE_INT(step_change_to,ZS_LONG); } //long as
+
+void FFScript::setComboData_strike_remnants(){ SET_COMBODATA_TYPE_INT(strike_remnants,ZS_LONG); } //long au
+void FFScript::setComboData_strike_remnants_type(){ SET_COMBODATA_TYPE_INT(strike_remnants_type,ZS_BYTE); } //byte av
+void FFScript::setComboData_strike_change(){ SET_COMBODATA_TYPE_INT(strike_change,ZS_LONG); } //long aw
+void FFScript::setComboData_strike_item(){ SET_COMBODATA_TYPE_INT(strike_item,ZS_SHORT); } //short ax
+void FFScript::setComboData_touch_item(){ SET_COMBODATA_TYPE_INT(touch_item,ZS_SHORT); } //short ay
+void FFScript::setComboData_touch_stairs(){ SET_COMBODATA_TYPE_INT(touch_stairs,ZS_BYTE); } //byte az
+void FFScript::setComboData_trigger_type(){ SET_COMBODATA_TYPE_INT(trigger_type,ZS_BYTE); } //byte ba
+void FFScript::setComboData_trigger_sensitive(){ SET_COMBODATA_TYPE_INT(trigger_sensitive,ZS_BYTE); } //byte bb
+void FFScript::setComboData_warp_type(){ SET_COMBODATA_TYPE_INT(warp_type,ZS_BYTE); } //byte bc
+void FFScript::setComboData_warp_sensitive(){ SET_COMBODATA_TYPE_INT(warp_sensitive,ZS_BYTE); } //byte bd
+void FFScript::setComboData_warp_direct(){ SET_COMBODATA_TYPE_INT(warp_direct,ZS_BYTE); } //byte be
+void FFScript::setComboData_warp_location(){ SET_COMBODATA_TYPE_INT(warp_location,ZS_BYTE); } //byte bf
+void FFScript::setComboData_water(){ SET_COMBODATA_TYPE_INT(water,ZS_BYTE); } //byte bg
+void FFScript::setComboData_whistle(){ SET_COMBODATA_TYPE_INT(whistle,ZS_BYTE); } //byte bh
+void FFScript::setComboData_win_game(){ SET_COMBODATA_TYPE_INT(win_game,ZS_BYTE); } //byte bi
+void FFScript::setComboData_block_weapon_lvl(){ SET_COMBODATA_TYPE_INT(block_weapon_lvl,ZS_BYTE); } //byte bj - max level of weapon to block
+
+//combosbuf
+void FFScript::setComboData_tile(){ SET_COMBODATA_VAR_INT(tile,ZS_WORD); } //newcombo, word
+void FFScript::setComboData_flip(){ SET_COMBODATA_VAR_INT(flip,ZS_BYTE); } //newcombo byte
+
+void FFScript::setComboData_walk(){ SET_COMBODATA_VAR_INT(walk,ZS_BYTE); } //newcombo byte
+void FFScript::setComboData_type(){ SET_COMBODATA_VAR_INT(type,ZS_BYTE); } //newcombo byte
+void FFScript::setComboData_csets(){ SET_COMBODATA_VAR_INT(csets,ZS_BYTE); } //newcombo byte
+void FFScript::setComboData_foo(){ SET_COMBODATA_VAR_INT(foo,ZS_WORD); } //newcombo word
+void FFScript::setComboData_frames(){ SET_COMBODATA_VAR_INT(frames,ZS_BYTE); } //newcombo byte
+void FFScript::setComboData_speed(){ SET_COMBODATA_VAR_INT(speed,ZS_BYTE); } //newcombo byte
+void FFScript::setComboData_nextcombo(){ SET_COMBODATA_VAR_INT(nextcombo,ZS_WORD); } //newcombo word
+void FFScript::setComboData_nextcset(){ SET_COMBODATA_VAR_INT(nextcset,ZS_BYTE); } //newcombo byte
+void FFScript::setComboData_flag(){ SET_COMBODATA_VAR_INT(flag,ZS_BYTE); } //newcombo byte
+void FFScript::setComboData_skipanim(){ SET_COMBODATA_VAR_INT(skipanim,ZS_BYTE); } //newcombo byte
+void FFScript::setComboData_nexttimer(){ SET_COMBODATA_VAR_INT(nexttimer,ZS_WORD); } //newcombo word
+void FFScript::setComboData_skipanimy(){ SET_COMBODATA_VAR_INT(skipanimy,ZS_BYTE); } //newcombo byte
+void FFScript::setComboData_animflags(){ SET_COMBODATA_VAR_INT(animflags,ZS_BYTE); } //newcombo byte
+
+//three inputs, no returns
+void FFScript::setComboData_block_weapon(int v){ SET_COMBODATA_TYPE_INDEX(block_weapon,v,ZS_BYTE,32); } //byte array[32] d (ID of LWeapon)
+void FFScript::setComboData_strike_weapons(int v){ SET_COMBODATA_TYPE_INDEX(strike_weapons,v,ZS_BYTE,32); } //byte at, arr[32]
+void FFScript::setComboData_expansion(int v){ SET_COMBODATA_VAR_INDEX(expansion,v,ZS_BYTE,6); } //newcombo byte, arr[6]
+
+//SpriteData Macros
+#define GET_SPRITEDATA_TYPE_INT(member) \
+{ \
+	long ID = vbound((get_register(sarg2) / 10000),0,255);\
+	set_register(sarg1, wpnsbuf[ID].member * 10000); \
+}
+
+#define SET_SPRITEDATA_TYPE_INT(member, bound) \
+{ \
+	long ID = get_register(sarg1) / 10000; \
+	long val = vbound( (get_register(sarg2) / 10000), 0, bound); \
+	if(ID < 1 || ID > 255) \
+		set_register(sarg1, -10000); \
+	else \
+		wpnsbuf[ID].member = val; \
+}
+
+#define SET_SPRITEDATA_TYPE_INT_NOBOUND(member) \
+{ \
+	long ID = get_register(sarg1) / 10000; \
+	long val = get_register(sarg2) / 10000; \
+	if(ID < 1 || ID > 255) \
+		set_register(sarg1, -10000); \
+	else \
+		wpnsbuf[ID].member = val; \
+}
+
+
+void FFScript::getSpriteDataTile(){GET_SPRITEDATA_TYPE_INT(tile);}
+void FFScript::getSpriteDataMisc(){GET_SPRITEDATA_TYPE_INT(misc);}
+void FFScript::getSpriteDataCSets(){GET_SPRITEDATA_TYPE_INT(csets);}
+void FFScript::getSpriteDataFrames(){GET_SPRITEDATA_TYPE_INT(frames);}
+void FFScript::getSpriteDataSpeed(){GET_SPRITEDATA_TYPE_INT(speed);}
+void FFScript::getSpriteDataType(){GET_SPRITEDATA_TYPE_INT(type);}
+//void FFScript::getSpriteDataString();
+
+
+
+void FFScript::setSpriteDataTile(){SET_SPRITEDATA_TYPE_INT(tile,ZS_WORD);}
+void FFScript::setSpriteDataMisc(){SET_SPRITEDATA_TYPE_INT(misc,ZS_CHAR);}
+void FFScript::setSpriteDataCSets(){SET_SPRITEDATA_TYPE_INT(csets,ZS_CHAR);}
+void FFScript::setSpriteDataFrames(){SET_SPRITEDATA_TYPE_INT(frames,ZS_CHAR);}
+void FFScript::setSpriteDataSpeed(){SET_SPRITEDATA_TYPE_INT(speed,ZS_CHAR);}
+void FFScript::setSpriteDataType(){SET_SPRITEDATA_TYPE_INT(type,ZS_CHAR);}
+//void FFScript::setSpriteDataString();
