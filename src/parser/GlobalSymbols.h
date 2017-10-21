@@ -309,6 +309,21 @@ private:
     InputSymbols();
 };
 
+//MapData->
+class MapDataSymbols : public LibrarySymbols
+{
+public:
+    static MapDataSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static MapDataSymbols singleton;
+    MapDataSymbols();
+};
+
 #endif
 
 

@@ -95,6 +95,9 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
     case ScriptParser::TYPE_NPCDATA:
         fidparam = NPCDataSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
+    case ScriptParser::TYPE_MAPDATA:
+        fidparam = MapDataSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
     case ScriptParser::TYPE_DEBUG:
         fidparam = DebugSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
@@ -353,7 +356,17 @@ bool TypeCheck::standardCheck(int firsttype, int secondtype, AST *toblame)
             return true;
             
         if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to npcdata");
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to NPCData");
+            
+        return false;
+    }
+     case ScriptParser::TYPE_MAPDATA:
+    {
+        if(secondtype == ScriptParser::TYPE_MAPDATA)
+            return true;
+            
+        if(toblame)
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to MapData");
             
         return false;
     }
@@ -1260,7 +1273,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
 	|| lvaltype == ScriptParser::TYPE_NPCDATA || lvaltype == ScriptParser::TYPE_DEBUG
 	|| lvaltype == ScriptParser::TYPE_AUDIO || lvaltype == ScriptParser::TYPE_COMBOS
 	|| lvaltype == ScriptParser::TYPE_SPRITEDATA || lvaltype == ScriptParser::TYPE_GRAPHICS
-	|| lvaltype == ScriptParser::TYPE_TEXT || lvaltype == ScriptParser::TYPE_INPUT ))
+	|| lvaltype == ScriptParser::TYPE_TEXT || lvaltype == ScriptParser::TYPE_INPUT || lvaltype == ScriptParser::TYPE_MAPDATA ))
         {
             printErrorMsg(lval, ARROWNOTPOINTER);
             failure = true;
@@ -1424,6 +1437,9 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
 	
 	case ScriptParser::TYPE_NPCDATA:
             fidtype = NPCDataSymbols::getInst().matchFunction(name->getName(), st);
+            break;
+	case ScriptParser::TYPE_MAPDATA:
+            fidtype = MapDataSymbols::getInst().matchFunction(name->getName(), st);
             break;
 	case ScriptParser::TYPE_DEBUG:
             fidtype = DebugSymbols::getInst().matchFunction(name->getName(), st);
@@ -1657,6 +1673,11 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host, void *param)
     case ScriptParser::TYPE_INPUT:
     {
         fidparam = InputSymbols::getInst().matchFunction(name,st);
+        break;
+    }
+    case ScriptParser::TYPE_MAPDATA:
+    {
+        fidparam = MapDataSymbols::getInst().matchFunction(name,st);
         break;
     }
     

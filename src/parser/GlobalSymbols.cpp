@@ -4951,6 +4951,36 @@ map<int, vector<Opcode *> > TextPtrSymbols::addSymbolsCode(LinkTable &lt)
 }
 
 
+//MapData
+
+MapDataSymbols MapDataSymbols::singleton = MapDataSymbols();
+
+static AccessorTable MapDataTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_MAPDATA,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+MapDataSymbols::MapDataSymbols()
+{
+    table = MapDataTable;
+    refVar = NUL;
+}
+
+map<int, vector<Opcode *> > MapDataSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+
+//Input
+
 InputSymbols InputSymbols::singleton = InputSymbols();
 
 static AccessorTable InputTable[] =

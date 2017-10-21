@@ -262,6 +262,7 @@ const int ScriptParser::TYPE_SPRITEDATA;
 const int ScriptParser::TYPE_GRAPHICS;
 const int ScriptParser::TYPE_TEXT;
 const int ScriptParser::TYPE_INPUT;
+const int ScriptParser::TYPE_MAPDATA;
 
 #endif
 
@@ -412,6 +413,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
 	DebugSymbols::getInst().addSymbolsToScope(globalScope,t);
 	NPCDataSymbols::getInst().addSymbolsToScope(globalScope,t);
 	InputSymbols::getInst().addSymbolsToScope(globalScope,t);
+	MapDataSymbols::getInst().addSymbolsToScope(globalScope,t);
     
     //strip the global functions from the AST
     GetGlobalFuncs gc;
@@ -522,6 +524,10 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     
     vid2 = globalScope->getVarSymbols().addVariable("Input", ScriptParser::TYPE_INPUT);
     t->putVar(vid2, ScriptParser::TYPE_INPUT);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("MapData", ScriptParser::TYPE_MAPDATA);
+    t->putVar(vid2, ScriptParser::TYPE_MAPDATA);
     t->addGlobalPointer(vid2);
     
     //strip the global variables from the AST
@@ -1081,6 +1087,13 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     }
     
     globalcode = InputSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = MapDataSymbols::getInst().addSymbolsCode(lt);
     
     for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
     {
