@@ -3304,7 +3304,8 @@ void game_over(int type)
     int pos = 0;
     int f=-1;
     //  int htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
-    int htile = 2;
+    int htile = SaveScreenSettings[SAVESC_USETILE];
+    int curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
     bool done=false;
     
     do load_control_state();
@@ -3372,7 +3373,7 @@ void game_over(int type)
         }
         
         rectfill(framebuf,72,72,79,127,0);
-        puttile8(framebuf,htile,72,pos*(type?12:24)+72,1,0);
+        puttile8(framebuf,htile,72,pos*(type?12:24)+72,curcset,0);
         advanceframe(true);
     }
     while(!Quit && !done);
@@ -3461,7 +3462,7 @@ bool save_game(bool savepoint, int type)
 {
     kill_sfx();
     //music_stop();
-    clear_to_color(screen,BLACK);
+    clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
     loadfullpal();
     
     //  int htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
@@ -3479,6 +3480,9 @@ bool save_game(bool savepoint, int type)
         //  text_mode(-1);
         if(type)
         {
+		//Migrate this to use SaveScreenColours[SAVESC_TEXT] and set that to a default
+		//of QMisc.colors.msgtext when loading the quest in the loadquest function
+		//for quests with a version < 0x254! -Z
             textout_ex(framebuf,zfont,"SAVE AND QUIT",88,72,QMisc.colors.msgtext,-1);
         }
         else
@@ -3497,13 +3501,13 @@ bool save_game(bool savepoint, int type)
             {
                 if(rUp())
                 {
-                    sfx(WAV_CHINK);
+                    sfx(SaveScreenSettings[SAVESC_CUR_SOUND]);
                     pos=(pos==0)?2:pos-1;
                 }
                 
                 if(rDown())
                 {
-                    sfx(WAV_CHINK);
+                    sfx(SaveScreenSettings[SAVESC_CUR_SOUND]);
                     pos=(pos+1)%3;
                 }
                 

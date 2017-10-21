@@ -308,6 +308,9 @@ int skipicon=0;
 
 bool monochrome = false; //GFX are monochrome.
 
+
+byte SaveScreenSettings[6] = {BLACK, WHITE, 2, 1, WAV_CHINK, 0 }; //BG, Text, Cursor CSet, Sound, UseTile, Misc
+
 bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true, show_layer_4=true, show_layer_5=true, show_layer_6=true,
 //oveheard combos     //pushblocks
      show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false;

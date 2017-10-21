@@ -142,7 +142,7 @@ void add_grenade(int wx, int wy, int wz, int size, int parentid);
 fix distance(int x1, int y1, int x2, int y2);
 bool getClock();
 void setClock(bool state);
-void CatchBrang();
+void CatchBrang();;
 int LinkAction();
 
 void do_dcounters();
@@ -172,6 +172,9 @@ int d_timer_proc(int msg, DIALOG *d, int c);
 //2.54
 void setMonochrome(bool state); //GFX are monochrome. 
 bool isMonochrome();
+
+enum { SAVESC_BACKGROUND, SAVESC_TEXT, SAVESC_USETILE, SAVESC_CURSOR_CSET, SAVESC_CUR_SOUND,  SAVESC_MISC };
+extern byte SaveScreenSettings[6]; //BG, Text, Cursor CSet, Misc
 
 
 INLINE void sfx(int index)
