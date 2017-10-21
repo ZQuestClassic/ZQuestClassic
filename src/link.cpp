@@ -12460,11 +12460,11 @@ int LinkClass::lookaheadflag(int d2)
     // Can use destscr for scrolling warps,
     // but assumes currmap is correct.
     
-    int cx = x;
-    int cy = y + 8;
+    int cx = vbound(x,0,240);
+    int cy = vbound(y + 8,0,160);
 	
-	bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
-	bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	//bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	//bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
 	//y+8 could be 168  //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
 	//Applying this here, too. -Z
     
