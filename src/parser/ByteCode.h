@@ -5813,5 +5813,29 @@ public:
     }
 };
 
+//Continue Screen
+
+
+class OSSetContinueScreen : public BinaryOpcode
+{
+public:
+    OSSetContinueScreen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSSetContinueScreen(a->clone(), b->clone());
+    }
+};
+class OSSetContinueString : public BinaryOpcode
+{
+public:
+    OSSetContinueString(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OSSetContinueString	(a->clone(), b->clone());
+    }
+};
+
 #endif
 

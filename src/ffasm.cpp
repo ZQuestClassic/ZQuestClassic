@@ -622,6 +622,10 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "SETSPRITEDATAFRAMES",           2,   0,   0,   0},  
 	{ "SETSPRITEDATASPEED",           2,   0,   0,   0},  
 	{ "SETSPRITEDATATYPE",           2,   0,   0,   0},  
+	//Game->SetContinueScreenSetting
+	{ "SETCONTINUESCREEN",           2,   0,   0,   0}, 
+	//Game->SetContinueScreenString
+	{ "SETCONTINUESTRING",           2,   0,   0,   0}, 
     { "",                    0,   0,   0,   0}
 };
 

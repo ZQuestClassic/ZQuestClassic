@@ -173,10 +173,18 @@ int d_timer_proc(int msg, DIALOG *d, int c);
 void setMonochrome(bool state); //GFX are monochrome. 
 bool isMonochrome();
 
-enum { SAVESC_BACKGROUND, SAVESC_TEXT, SAVESC_USETILE, SAVESC_CURSOR_CSET, SAVESC_CUR_SOUND,  SAVESC_MISC };
-extern byte SaveScreenSettings[6]; //BG, Text, Cursor CSet, Misc
+//Save screen settings. 
+enum { SAVESC_BACKGROUND, SAVESC_TEXT, SAVESC_USETILE, SAVESC_CURSOR_CSET, SAVESC_CUR_SOUND,  
+	SAVESC_TEXT_CONTINUE_COLOUR, SAVESC_TEXT_SAVE_COLOUR, SAVESC_TEXT_RETRY_COLOUR, 
+	SAVESC_TEXT_CONTINUE_FLASH, SAVESC_TEXT_SAVE_FLASH, SAVESC_TEXT_RETRY_FLASH,
+	SAVESC_MISC };
+extern long SaveScreenSettings[12]; //BG, Text, Cursor CSet, Misc
+//Save Screen text. 
+enum { SAVESC_CONTINUE, SAVESC_SAVE, SAVESC_RETRY, SAVESC_STRING_MISC1, SAVESC_STRING_MISC2, SAVESC_STRING_MISC3 };
+extern char SaveScreenText[3][32]; //(char *) "CONTINUE", (char *) "SAVE", (char*) "RETRY" 
 
-
+extern void SetSaveScreenSetting(int indx, int value);
+extern void ChangeSubscreenText(int index, const char *f);
 INLINE void sfx(int index)
 {
     sfx(index,128,false);

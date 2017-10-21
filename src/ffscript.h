@@ -418,6 +418,9 @@ static void setLinkBigHitbox(bool v);
 	static void setSpriteDataType();
 	static void setSpriteDataString();
 
+	//Change Save/Continue and Retry screen settings:
+	static void FFSetSaveScreenSetting();
+	static void FFChangeSubscreenText();
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
@@ -739,6 +742,7 @@ void do_getscreenItem();
 void do_getscreendoor();
 long get_screennpc(mapscr *m, int index);
 void do_getscreennpc();
+
 
 
 struct script_command
@@ -1357,6 +1361,8 @@ enum ASM_DEFINE
 	SETSPRITEDATAFRAMES,
 	SETSPRITEDATASPEED,
 	SETSPRITEDATATYPE,
+	SETCONTINUESCREEN,
+	SETCONTINUESTRING,
 	
 	NUMCOMMANDS           //0x013B
 };

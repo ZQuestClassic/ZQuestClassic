@@ -10034,6 +10034,12 @@ int run_script(const byte type, const word script, const byte i)
 	case	SETSPRITEDATASPEED: FFScript::setSpriteDataSpeed();
 	case	SETSPRITEDATATYPE: FFScript::setSpriteDataType();
 	
+	//Game over Screen
+	case	SETCONTINUESCREEN: FFScript::FFChangeSubscreenText();
+	case	SETCONTINUESTRING: FFScript::FFSetSaveScreenSetting();
+	
+	
+	
         default:
             Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
             break;
@@ -11163,3 +11169,42 @@ void FFScript::setSpriteDataFrames(){SET_SPRITEDATA_TYPE_INT(frames,ZS_CHAR);}
 void FFScript::setSpriteDataSpeed(){SET_SPRITEDATA_TYPE_INT(speed,ZS_CHAR);}
 void FFScript::setSpriteDataType(){SET_SPRITEDATA_TYPE_INT(type,ZS_CHAR);}
 //void FFScript::setSpriteDataString();
+
+//Change Game Over Screen Values
+void FFScript::FFSetSaveScreenSetting() 
+{
+	
+	long indx = get_register(sarg1) / 10000; 
+	long value = get_register(sarg2) / 10000; //bounded in zelda.cpp 
+	if(indx < 0 || indx > 11) 
+		set_register(sarg1, -10000); 
+	else 
+		SetSaveScreenSetting(indx, value); 
+}
+	
+	
+	
+void FFScript::FFChangeSubscreenText() 
+{ 
+	
+    long index = get_register(sarg1) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    
+	if ( index < 0 || index > 3 ) 
+	{
+		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %d /n", index);
+		return;
+	}
+
+	string filename_str;
+
+        
+        
+	ArrayH::getString(arrayptr, filename_str, 73);
+	ChangeSubscreenText(index,filename_str.c_str());
+	
+	//newtext[32]='\0';
+	
+    
+	
+}

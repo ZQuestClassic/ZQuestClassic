@@ -3291,8 +3291,10 @@ void game_over(int type)
     
     clear_bitmap(framebuf);
     //  text_mode(-1);
-    textout_ex(framebuf,zfont,"CONTINUE",88,72,QMisc.colors.msgtext,-1);
     
+    //Setting the colour via the array isn't working. Perhaps misc colours need to be assigned to the array in init.
+    textout_ex(framebuf,zfont,SaveScreenText[SAVESC_CONTINUE],88,72,( SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] : QMisc.colors.msgtext) ,-1);
+    //WTF! Setting this in zq Init() didn't work?! -Z
     if(!type)
     {
         textout_ex(framebuf,zfont,"SAVE",88,96,QMisc.colors.msgtext,-1);

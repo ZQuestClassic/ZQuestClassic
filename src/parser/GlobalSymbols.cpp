@@ -2780,6 +2780,9 @@ static AccessorTable gameTable[] =
     { "getHighestStringID",	ScriptParser::TYPE_FLOAT,          GETTER,       GAMENUMMESSAGES,      1,      {  ScriptParser::TYPE_GAME,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getNumMessages",	ScriptParser::TYPE_FLOAT,          GETTER,       GAMENUMMESSAGES,      1,      {  ScriptParser::TYPE_GAME,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
   
+    { "SetContinueScreen",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SetContinueString",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+
    
     
     { "",                       -1,                               -1,           -1,                  -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
@@ -4459,6 +4462,12 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
+    }
+    {
+        TWO_INPUT_NO_RETURN("SetContinueScreen",OSSetContinueScreen);
+    }
+    {
+        TWO_INPUT_NO_RETURN("SetContinueString",OSSetContinueString);
     }
     //int GetScreenWarpReturnY(game,int,int,int)
     {

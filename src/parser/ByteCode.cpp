@@ -3335,6 +3335,16 @@ string OSSetDataType::toString()
     return "SETSPRITEDATATYPE " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
 }
 
+//Continue Screen Settings
+string OSSetContinueScreen::toString()
+{
+    return "SETCONTINUESCREEN " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+}
+string OSSetContinueString::toString()
+{
+    return "SETCONTINUESTRING " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 int LinkTable::functionToLabel(int fid)

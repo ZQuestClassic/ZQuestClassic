@@ -290,7 +290,7 @@ extern bool fake_pack_writing;
 #define MAXSCREENS 128
 #define MAXCUSTOMMIDIS192b177 32                                  // uses bit string for midi flags, so 32 bytes
 #define MAXCUSTOMMIDIS        252                                 // uses bit string for midi flags, so 32 bytes
-#define MIDIFLAGS_SIZE  ((MAXCUSTOMMIDbIS+7)>>3)
+#define MIDIFLAGS_SIZE  ((MAXCUSTOMMIDIS+7)>>3)
 #define MAXCUSTOMTUNES        252
 
 #define MAXMUSIC              256                                 // uses bit string for music flags, so 32 bytes

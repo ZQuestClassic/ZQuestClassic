@@ -308,9 +308,6 @@ int skipicon=0;
 
 bool monochrome = false; //GFX are monochrome.
 
-
-byte SaveScreenSettings[6] = {BLACK, WHITE, 2, 1, WAV_CHINK, 0 }; //BG, Text, Cursor CSet, Sound, UseTile, Misc
-
 bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true, show_layer_4=true, show_layer_5=true, show_layer_6=true,
 //oveheard combos     //pushblocks
      show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false;
@@ -483,6 +480,64 @@ gamedata *saves=NULL;
 volatile int lastfps=0;
 volatile int framecnt=0;
 volatile int myvsync=0;
+
+
+//enum { SAVESC_BACKGROUND, SAVESC_TEXT, SAVESC_USETILE, SAVESC_CURSOR_CSET, SAVESC_CUR_SOUND,  
+//SAVESC_TEXT_CONTINUE_COLOUR, SAVESC_TEXT_SAVE_COLOUR, SAVESC_TEXT_RETRY_COLOUR, SAVESC_MISC };
+#define SAVESC_DEF_TILE 2
+long SaveScreenSettings[12] = {BLACK, WHITE, SAVESC_DEF_TILE, 1, WAV_CHINK, QMisc.colors.msgtext,QMisc.colors.msgtext,
+	QMisc.colors.msgtext,QMisc.colors.caption,QMisc.colors.caption,QMisc.colors.caption,0  }; //BG, Text, Cursor CSet, Sound, UseTile, Misc
+char SaveScreenText[3][32]={"CONTINUE", "SAVE", "RETRY" };
+
+void SetSaveScreenSetting(int indx, int value)
+{
+	switch(indx)
+	{
+		case SAVESC_BACKGROUND:
+			SaveScreenSettings[SAVESC_BACKGROUND] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT:
+			SaveScreenSettings[SAVESC_TEXT] = vbound(value,0,255);
+			break;
+		case SAVESC_USETILE:
+			SaveScreenSettings[SAVESC_USETILE] = vbound(value,0,NEWMAXTILES);
+			break; 
+		case SAVESC_CURSOR_CSET:
+			SaveScreenSettings[SAVESC_CURSOR_CSET] = vbound(value,0,14);
+			break;
+		case SAVESC_CUR_SOUND:
+			SaveScreenSettings[SAVESC_CUR_SOUND] = vbound(value,0,255); //MAX_SOUNDS
+			break;
+		case SAVESC_TEXT_CONTINUE_COLOUR:
+			SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_SAVE_COLOUR:
+			SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_RETRY_COLOUR:
+			SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_CONTINUE_FLASH:
+			SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_SAVE_FLASH:
+			SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH] = vbound(value,0,255);
+			break;
+		case SAVESC_TEXT_RETRY_FLASH:
+			SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] = vbound(value,0,255);
+			break;
+		default: break;
+	}
+}
+
+
+void ChangeSubscreenText(int index, const char *f)
+{
+	strncpy(SaveScreenText[index], f, 31);
+	SaveScreenText[index][32]='\0';
+}
+
+
 
 /**********************************/
 /*********** Misc Data ************/
@@ -1245,6 +1300,13 @@ int init_game()
     show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
     show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
     cheat_superman=do_cheat_light=do_cheat_goto=show_walkflags=show_ff_scripts=show_hitboxes=false;
+    
+	SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] = QMisc.colors.msgtext; 
+	SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] = QMisc.colors.msgtext; 
+	SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] = QMisc.colors.msgtext; 
+	SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] = QMisc.colors.caption; 
+	SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH] = QMisc.colors.caption; 
+	SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] = QMisc.colors.caption; 
     
     for(int x = 0; x < MAXITEMS; x++)
     {
