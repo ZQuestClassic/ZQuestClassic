@@ -121,6 +121,22 @@ const int radsperdeg = 572958;
 	rval[label] = code; \
 } \
 
+//void function(int) -- follows pattern of cleartile() and trace()
+#define ONE_INPUT_NO_RETURN(flabel, ocode) \
+{ \
+        id = memberids[flabel]; \
+        int label = lt.functionToLabel(id); \
+        vector<Opcode *> code; \
+        Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
+        first->setLabel(label); \
+        code.push_back(first); \
+        code.push_back(new ocode(new VarArgument(EXP2))); \
+        code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+        code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+        rval[label]=code; \
+} \
+
+//int function(int)
 #define ONE_INPUT_ONE_RETURN(flabel, ocode) \
 { \
 	int id = memberids[flabel]; \
@@ -138,7 +154,7 @@ const int radsperdeg = 572958;
 } \
 
 
-
+//void function(int, int)
 #define TWO_INPUT_NO_RETURN(flabel, ocode) \
 { \
 	int id = memberids[flabel]; \
@@ -157,7 +173,7 @@ const int radsperdeg = 572958;
     
 	
 	
-	 
+//int function(int, int)
 #define TWO_INPUT_ONE_RETURN(flabel, ocode) \
 { \
         int id = memberids[flabel]; \
@@ -174,6 +190,7 @@ const int radsperdeg = 572958;
         rval[label] = code; \
 } \
 
+//void function(int, int, int)
 #define THREE_INPUT_NO_RETURN(flabel,zasmid) \
 { \
         int id = memberids[flabel]; \
@@ -189,6 +206,39 @@ const int radsperdeg = 572958;
         code.push_back(new OPopRegister(new VarArgument(EXP2))); \
         code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
         rval[label] = code; \
+} \
+
+//Three Inputs, One Return -- based on int GetScreenEFlags(int map, int screen, int flagset);	
+#define THREE_INPUTS_ONE_RETURN(flabel, ocode) \
+{ \
+        int id = memberids[flabel]; \
+        int label = lt.functionToLabel(id); \
+        vector<Opcode *> code; \
+        Opcode *first = new OPopRegister(new VarArgument(INDEX)); \
+        first->setLabel(label); \
+        code.push_back(first); \
+        code.push_back(new OPopRegister(new VarArgument(INDEX2))); \
+        code.push_back(new OPopRegister(new VarArgument(EXP1))); \
+        code.push_back(new OPopRegister(new VarArgument(NUL))); \
+        code.push_back(new ocode(new VarArgument(EXP1))); \
+        code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+        code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+        rval[label] = code; \
+} \
+
+//This will trace the float value of any pointer type to allegro.log. 
+#define TRACING_FUNCTION(flabel) \
+{ \
+	int id = memberids[flabel]; \
+        int label = lt.functionToLabel(id); \
+        vector<Opcode *> code; \
+        Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
+        first->setLabel(label); \
+        code.push_back(first); \
+        code.push_back(new OTraceRegister(new VarArgument(EXP2))); \
+        code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+        code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+        rval[label]=code; \
 } \
 
 #define POP_ARGS(num_args, t) \
@@ -399,6 +449,12 @@ static AccessorTable GlobalTable[] =
     { "Waitframe",              ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "Waitdraw",               ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "Trace",                  ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "TraceLWeapon",                  ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_LWPN,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "TraceEWeapon",                  ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_EWPN,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "TraceNPC",                  ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_NPC,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "TraceFFC",                  ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_FFC,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "TraceItem",                  ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_ITEM,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "TraceItemData",                  ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_ITEMCLASS,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "TraceB",                 ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_BOOL,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "TraceS",                 ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "TraceNL",                ScriptParser::TYPE_VOID,          FUNCTION,     0,                    1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -520,6 +576,24 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label]=code;
+    }
+    {
+	 TRACING_FUNCTION("TraceLWeapon");   
+    }
+    {
+	 TRACING_FUNCTION("TraceEWeapon");   
+    }
+    {
+	 TRACING_FUNCTION("TraceNPC");   
+    }
+    {
+	 TRACING_FUNCTION("TraceFFC");   
+    }
+    {
+	 TRACING_FUNCTION("TraceItem");   
+    }
+    {
+	 TRACING_FUNCTION("TraceItemData");   
     }
     //void TraceB(bool val)
     {
@@ -1113,6 +1187,8 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label]=code;
     }
+    
+    //New Traces
     return rval;
 }
 
