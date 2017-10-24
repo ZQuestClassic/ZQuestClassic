@@ -5421,9 +5421,11 @@ InputSymbols::InputSymbols()
 	
 }
 
+
+
 map<int, vector<Opcode *> > InputSymbols::addSymbolsCode(LinkTable &lt)
 {
-    map<int, vector<Opcode *> > rval;
+     map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     int id=-1;
 	
  //SetType(SpriteData, int, int)
@@ -5483,7 +5485,7 @@ GfxPtrSymbols::GfxPtrSymbols()
 
 map<int, vector<Opcode *> > GfxPtrSymbols::addSymbolsCode(LinkTable &lt)
 {
-    map<int, vector<Opcode *> > rval;
+    dmap<int, vector<Opcode *> > rval;
     int id=-1;
 	
 
@@ -6662,7 +6664,7 @@ DebugSymbols::DebugSymbols()
 
 map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
 {
-    map<int, vector<Opcode *> > rval;
+     map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     int id=-1;
 	
 	
