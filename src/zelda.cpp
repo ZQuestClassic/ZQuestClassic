@@ -483,11 +483,20 @@ volatile int myvsync=0;
 
 
 //enum { SAVESC_BACKGROUND, SAVESC_TEXT, SAVESC_USETILE, SAVESC_CURSOR_CSET, SAVESC_CUR_SOUND,  
-//SAVESC_TEXT_CONTINUE_COLOUR, SAVESC_TEXT_SAVE_COLOUR, SAVESC_TEXT_RETRY_COLOUR, SAVESC_MISC };
+//SAVESC_TEXT_CONTINUE_COLOUR, SAVESC_TEXT_SAVE_COLOUR, SAVESC_TEXT_RETRY_COLOUR, SAVESC_MIDI
+//SAVESC_CUR_FLIP, SAVSC_TEXT_DONTSAVE_COLOUR, SAVESC_TEXT_SAVEQUIT_COLOUR, SAVESC_TEXT_SAVE2_COLOUR, 
+//	SAVESC_TEXT_QUIT_COLOUR, SAVESC_EXTRA1, SAVESC_EXTRA2};
 #define SAVESC_DEF_TILE 2
-long SaveScreenSettings[12] = {BLACK, WHITE, SAVESC_DEF_TILE, 1, WAV_CHINK, QMisc.colors.msgtext,QMisc.colors.msgtext,
-	QMisc.colors.msgtext,QMisc.colors.caption,QMisc.colors.caption,QMisc.colors.caption,ZC_MIDI_GAMEOVER  }; //BG, Text, Cursor CSet, Sound, UseTile, Misc
-char SaveScreenText[3][32]={"CONTINUE", "SAVE", "RETRY" };
+long SaveScreenSettings[24] = {
+	BLACK, 			WHITE, 			SAVESC_DEF_TILE, 
+	1, 			WAV_CHINK,	 	QMisc.colors.msgtext,
+	QMisc.colors.msgtext,	QMisc.colors.msgtext,	QMisc.colors.caption,
+	QMisc.colors.caption,	QMisc.colors.caption,	ZC_MIDI_GAMEOVER,
+	0, 			QMisc.colors.msgtext, 	QMisc.colors.msgtext, 
+	QMisc.colors.msgtext, 	QMisc.colors.msgtext,  	QMisc.colors.caption,
+	QMisc.colors.caption,	QMisc.colors.caption,	QMisc.colors.caption,
+	0, 			0, 			0 }; //BG, Text, Cursor CSet, Sound, UseTile, Misc
+char SaveScreenText[7][32]={"CONTINUE", "SAVE", "RETRY", "DON'T SAVE", "SAVE AND QUIT", "SAVE", "QUIT" };
 
 void SetSaveScreenSetting(int indx, int value)
 {
