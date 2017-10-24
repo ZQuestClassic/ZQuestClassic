@@ -22,6 +22,17 @@ public:
     virtual void caseTypeItemclass(ASTTypeItemclass &host, void *param);
     virtual void caseTypeGlobal(ASTTypeGlobal &host, void *param);
     virtual void caseTypeNPC(ASTTypeNPC &host, void *param);
+
+    virtual void caseTypeMapData(ASTTypeMapData &host, void *param);
+    virtual void caseTypeNPCData(ASTTypeNPCData &host, void *param);
+    virtual void caseTypeDebug(ASTTypeDebug &host, void *param);
+    virtual void caseTypeAudio(ASTTypeAudio &host, void *param);
+    virtual void caseTypeComboData(ASTTypeComboData &host, void *param);
+    virtual void caseTypeSpriteData(ASTTypeSpriteData &host, void *param);
+    virtual void caseTypeGraphics(ASTTypeGraphics &host, void *param);
+    virtual void caseTypeText(ASTTypeText &host, void *param);
+    virtual void caseTypeInput(ASTTypeInput &host, void *param);
+    
     virtual void caseTypeLWpn(ASTTypeLWpn &host, void *param);
     virtual void caseTypeEWpn(ASTTypeEWpn &host, void *param);
     virtual void caseVarDecl(ASTVarDecl &host, void *param);
@@ -457,6 +468,17 @@ public:
     virtual void caseTypeNPC(ASTTypeNPC &host, void *param);
     virtual void caseTypeLWpn(ASTTypeLWpn &host, void *param);
     virtual void caseTypeEWpn(ASTTypeEWpn &host, void *param);
+
+
+    virtual void caseTypeMapData(ASTTypeMapData &host, void *param);
+    virtual void caseTypeNPCData(ASTTypeNPCData &host, void *param);
+    virtual void caseTypeDebug(ASTTypeDebug &host, void *param);
+    virtual void caseTypeAudio(ASTTypeAudio &host, void *param);
+    virtual void caseTypeComboData(ASTTypeComboData &host, void *param);
+    virtual void caseTypeSpriteData(ASTTypeSpriteData &host, void *param);
+    virtual void caseTypeGraphics(ASTTypeGraphics &host, void *param);
+    virtual void caseTypeText(ASTTypeText &host, void *param);
+    virtual void caseTypeInput(ASTTypeInput &host, void *param);
 };
 
 class IsDotExpr : public ASTVisitor

@@ -438,7 +438,7 @@ bool TypeCheck::standardCheck(int firsttype, int secondtype, AST *toblame)
             return true;
             
         if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Text");
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Input");
             
         return false;
     }

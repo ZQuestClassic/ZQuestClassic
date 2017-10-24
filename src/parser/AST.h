@@ -51,6 +51,17 @@ class ASTTypeItem;
 class ASTTypeItemclass;
 class ASTTypeGlobal;
 class ASTTypeNPC;
+
+class ASTTypeNPCData;
+class ASTTypeMapData;
+class ASTTypeDebug;
+class ASTTypeAudio;
+class ASTTypeComboData;
+class ASTTypeSpriteData;
+class ASTTypeGraphics;
+class ASTTypeText;
+class ASTTypeInput;
+
 class ASTTypeLWpn;
 class ASTTypeEWpn;
 class ASTVarDeclInitializer;
@@ -177,6 +188,43 @@ public:
     {
         caseDefault(param);
     }
+    virtual void caseTypeNPCData(ASTTypeNPCData &, void *param)
+    {
+        caseDefault(param);
+    }
+    virtual void caseTypeMapData(ASTTypeMapData &, void *param)
+    {
+        caseDefault(param);
+    }
+    virtual void caseTypeDebug(ASTTypeDebug &, void *param)
+    {
+        caseDefault(param);
+    }
+    virtual void caseTypeAudio(ASTTypeAudio &, void *param)
+    {
+        caseDefault(param);
+    }
+    virtual void caseTypeComboData(ASTTypeComboData &, void *param)
+    {
+        caseDefault(param);
+    }
+    virtual void caseTypeSpriteData(ASTTypeSpriteData &, void *param)
+    {
+        caseDefault(param);
+    }
+    virtual void caseTypeGraphics(ASTTypeGraphics &, void *param)
+    {
+        caseDefault(param);
+    }
+    virtual void caseTypeText(ASTTypeText &, void *param)
+    {
+        caseDefault(param);
+    }
+    virtual void caseTypeInput(ASTTypeInput &, void *param)
+    {
+        caseDefault(param);
+    }
+    
     virtual void caseVarDecl(ASTVarDecl &, void *param)
     {
         caseDefault(param);
@@ -812,6 +860,132 @@ private:
     ASTTypeNPC(ASTTypeNPC &);
     ASTTypeNPC &operator=(ASTTypeNPC &);
 };
+class ASTTypeNPCData : public ASTType
+{
+public:
+    ASTTypeNPCData(LocationData Loc) : ASTType(Loc) {}
+    void execute(ASTVisitor &visitor, void *param)
+    {
+        visitor.caseTypeNPCData(*this,param);
+    }
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeNPCData(ASTTypeNPCData &);
+    ASTTypeNPCData &operator=(ASTTypeNPCData &);
+};
+
+class ASTTypeMapData : public ASTType
+{
+public:
+    ASTTypeMapData(LocationData Loc) : ASTType(Loc) {}
+    void execute(ASTVisitor &visitor, void *param)
+    {
+        visitor.caseTypeMapData(*this,param);
+    }
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeMapData(ASTTypeMapData &);
+    ASTTypeMapData &operator=(ASTTypeMapData &);
+};
+
+class ASTTypeDebug : public ASTType
+{
+public:
+    ASTTypeDebug(LocationData Loc) : ASTType(Loc) {}
+    void execute(ASTVisitor &visitor, void *param)
+    {
+        visitor.caseTypeDebug(*this,param);
+    }
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeDebug(ASTTypeDebug &);
+    ASTTypeDebug &operator=(ASTTypeDebug &);
+};
+
+class ASTTypeAudio : public ASTType
+{
+public:
+    ASTTypeAudio(LocationData Loc) : ASTType(Loc) {}
+    void execute(ASTVisitor &visitor, void *param)
+    {
+        visitor.caseTypeAudio(*this,param);
+    }
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeAudio(ASTTypeAudio &);
+    ASTTypeAudio &operator=(ASTTypeAudio &);
+};
+
+class ASTTypeComboData : public ASTType
+{
+public:
+    ASTTypeComboData(LocationData Loc) : ASTType(Loc) {}
+    void execute(ASTVisitor &visitor, void *param)
+    {
+        visitor.caseTypeComboData(*this,param);
+    }
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeComboData(ASTTypeComboData &);
+    ASTTypeComboData &operator=(ASTTypeComboData &);
+};
+
+class ASTTypeSpriteData : public ASTType
+{
+public:
+    ASTTypeSpriteData(LocationData Loc) : ASTType(Loc) {}
+    void execute(ASTVisitor &visitor, void *param)
+    {
+        visitor.caseTypeSpriteData(*this,param);
+    }
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeSpriteData(ASTTypeSpriteData &);
+    ASTTypeSpriteData &operator=(ASTTypeSpriteData &);
+};
+
+class ASTTypeGraphics : public ASTType
+{
+public:
+    ASTTypeGraphics(LocationData Loc) : ASTType(Loc) {}
+    void execute(ASTVisitor &visitor, void *param)
+    {
+        visitor.caseTypeGraphics(*this,param);
+    }
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeGraphics(ASTTypeGraphics &);
+    ASTTypeGraphics &operator=(ASTTypeGraphics &);
+};
+
+class ASTTypeText : public ASTType
+{
+public:
+    ASTTypeText(LocationData Loc) : ASTType(Loc) {}
+    void execute(ASTVisitor &visitor, void *param)
+    {
+        visitor.caseTypeText(*this,param);
+    }
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeText(ASTTypeText &);
+    ASTTypeText &operator=(ASTTypeText &);
+};
+
+class ASTTypeInput : public ASTType
+{
+public:
+    ASTTypeInput(LocationData Loc) : ASTType(Loc) {}
+    void execute(ASTVisitor &visitor, void *param)
+    {
+        visitor.caseTypeInput(*this,param);
+    }
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeInput(ASTTypeInput &);
+    ASTTypeInput &operator=(ASTTypeInput &);
+};
+
 
 class ASTTypeLWpn : public ASTType
 {

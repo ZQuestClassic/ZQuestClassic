@@ -144,7 +144,42 @@ void Clone::caseTypeEWpn(ASTTypeEWpn &host, void *)
 {
     result = new ASTTypeEWpn(host.getLocation());
 }
-
+void Clone::caseTypeNPCData(ASTTypeNPCData &host, void *)
+{
+    result = new ASTTypeNPCData(host.getLocation());
+}
+void Clone::caseTypeMapData(ASTTypeMapData &host, void *)
+{
+    result = new ASTTypeMapData(host.getLocation());
+}
+void Clone::caseTypeDebug(ASTTypeDebug &host, void *)
+{
+    result = new ASTTypeDebug(host.getLocation());
+}
+void Clone::caseTypeAudio(ASTTypeAudio &host, void *)
+{
+    result = new ASTTypeAudio(host.getLocation());
+}
+void Clone::caseTypeComboData(ASTTypeComboData &host, void *)
+{
+    result = new ASTTypeComboData(host.getLocation());
+}
+void Clone::caseTypeSpriteData(ASTTypeSpriteData &host, void *)
+{
+    result = new ASTTypeSpriteData(host.getLocation());
+}
+void Clone::caseTypeGraphics(ASTTypeGraphics &host, void *)
+{
+    result = new ASTTypeGraphics(host.getLocation());
+}
+void Clone::caseTypeText(ASTTypeText &host, void *)
+{
+    result = new ASTTypeText(host.getLocation());
+}
+void Clone::caseTypeInput(ASTTypeInput &host, void *)
+{
+    result = new ASTTypeInput(host.getLocation());
+}
 void Clone::caseVarDecl(ASTVarDecl &host, void *param)
 {
     host.getType()->execute(*this,param);
@@ -930,5 +965,41 @@ void ExtractType::caseTypeLWpn(ASTTypeLWpn &, void *param)
 void ExtractType::caseTypeEWpn(ASTTypeEWpn &, void *param)
 {
     *(int *)param = ScriptParser::TYPE_EWPN;
+}
+void ExtractType::caseTypeNPCData(ASTTypeNPCData &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_NPCDATA;
+}
+void ExtractType::caseTypeMapData(ASTTypeMapData &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_MAPDATA;
+}
+void ExtractType::caseTypeDebug(ASTTypeDebug &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_DEBUG;
+}
+void ExtractType::caseTypeAudio(ASTTypeAudio &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_AUDIO;
+}
+void ExtractType::caseTypeComboData(ASTTypeComboData &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_COMBOS;
+}
+void ExtractType::caseTypeSpriteData(ASTTypeSpriteData &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_SPRITEDATA;
+}
+void ExtractType::caseTypeGraphics(ASTTypeGraphics &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_GRAPHICS;
+}
+void ExtractType::caseTypeText(ASTTypeText &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_TEXT;
+}
+void ExtractType::caseTypeInput(ASTTypeInput &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_INPUT;
 }
 
