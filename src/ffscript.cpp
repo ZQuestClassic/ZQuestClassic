@@ -3255,55 +3255,55 @@ else \
     
     
     //These use the same method as GetScreenD -Z
-    case SETSCREENWIDTH:
+    case SCREENWIDTH:
         ret=FFScript::get_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENHEIGHT:
+case SCREENWIDTH:
         ret=FFScript::get_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENVIEWX:
+case SCREENVIEWX:
         ret=get_screenViewX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENVIEWY:
+case SCREENVIEWY:
         ret=get_screenViewY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENGUY:
+case SCREENGUY:
         ret=get_screenGuy(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENSTRING:
+case SCREENSTRING:
         ret=get_screenString(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENROOM:
+case SCREENROOM:
         ret=get_screenRoomtype(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENENTX:
+case SCREENENTX:
         ret=get_screenEntryX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENENTY:
+case SCREENENTY:
         ret=get_screenEntryY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENITEM:
+case SCREENITEM:
         ret=get_screenitem(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENUNDCMB:
+case SCREENUNDCMB:
         ret=get_screenundercombo(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENUNDCST:
+case SCREENUNDCST:
         ret=get_screenundercset(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SETSCREENCATCH:
+case SCREENCATCH:
         ret=get_screenatchall(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
  
@@ -5937,27 +5937,27 @@ case COMBODDM:
 //Screen Variables
     
     //These use the same method as SetScreenD
-    case SETSCREENWIDTH:
+    case SCREENWIDTH:
 	FFScript::set_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENHEIGHT:
+    case SCREENWIDTH:
 	FFScript::set_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENVIEWX:
+    case SCREENVIEWX:
 	FFScript::set_screenViewX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENVIEWY:
+    case SCREENVIEWY:
 	FFScript::set_screenViewY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENGUY:
+    case SCREENGUY:
 	FFScript::set_screenGuy(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENSTRING:
+    case SCREENSTRING:
     {
 	FFScript::set_screenString(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	    //should this be either
@@ -5968,31 +5968,31 @@ case COMBODDM:
     }
 	break;
 
-    case SETSCREENROOM:
+    case SCREENROOM:
 	FFScript::set_screenRoomtype(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENENTX:
+    case SCREENENTX:
 	FFScript::set_screenEntryX(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENENTY:
+    case SCREENENTY:
 	FFScript::set_screenEntryY(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENITEM:
+    case SCREENITEM:
 	FFScript::set_screenitem(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENUNDCMB:
+    case SCREENUNDCMB:
 	FFScript::set_screenundercombo(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENUNDCST:
+    case SCREENUNDCST:
 	FFScript::set_screenundercset(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SETSCREENCATCH:
+    case SCREENCATCH:
 	FFScript::set_screenatchall(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 

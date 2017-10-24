@@ -3868,7 +3868,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENWIDTH)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENWIDTH)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -5195,107 +5195,107 @@ map<int, vector<Opcode *> > MapDataSymbols::addSymbolsCode(LinkTable &lt)
 	}
 	//void SetWidth(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetWidth",SETSCREENWIDTH);
+		SET_DATACLASS_MEMBER("SetWidth",SCREENWIDTH);
 	}
 	//int GetWidth(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetWidth",SETSCREENWIDTH);
+		GET_DATACLASS_MEMBER("GetWidth",SCREENWIDTH);
 	}
 	//void SetHeight(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetHeight",SETSCREENHEIGHT);
+		SET_DATACLASS_MEMBER("SetHeight",SCREENHEIGHT);
 	}
 	//int GetHeight(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetHeight",SETSCREENHEIGHT);
+		GET_DATACLASS_MEMBER("GetHeight",SCREENHEIGHT);
 	}
 	//void SetViewX(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetViewX",SETSCREENVIEWX);
+		SET_DATACLASS_MEMBER("SetViewX",SCREENVIEWX);
 	}
 	//int GetViewX(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetViewX",SETSCREENVIEWX);
+		GET_DATACLASS_MEMBER("GetViewX",SCREENVIEWX);
 	}
 	//void SetViewY(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetViewY",SETSCREENVIEWY);
+		SET_DATACLASS_MEMBER("SetViewY",SCREENVIEWY);
 	}
 	//int GetViewY(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetViewY",SETSCREENVIEWY);
+		GET_DATACLASS_MEMBER("GetViewY",SCREENVIEWY);
 	}
 	//void SetGuy(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetGuy",SETSCREENGUY);
+		SET_DATACLASS_MEMBER("SetGuy",SCREENGUY);
 	}
 	//int GetGuy(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetGuy",SETSCREENGUY);
+		GET_DATACLASS_MEMBER("GetGuy",SCREENGUY);
 	}
 	//void SetString(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetString",SETSCREENSTRING);
+		SET_DATACLASS_MEMBER("SetString",SCREENSTRING);
 	}
 	//int GetString(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetString",SETSCREENSTRING);
+		GET_DATACLASS_MEMBER("GetString",SCREENSTRING);
 	}
 	//void SetRoomType(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetRoomType",SETSCREENROOM);
+		SET_DATACLASS_MEMBER("SetRoomType",SCREENROOM);
 	}
 	//int GetRoomType(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetRoomType",SETSCREENROOM);
+		GET_DATACLASS_MEMBER("GetRoomType",SCREENROOM);
 	}
 	//void SetEntryX(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetEntryX",SETSCREENENTX);
+		SET_DATACLASS_MEMBER("SetEntryX",SCREENENTX);
 	}
 	//int GetEntryX(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetEntryX",SETSCREENENTX);
+		GET_DATACLASS_MEMBER("GetEntryX",SCREENENTX);
 	}
 	//void SetEntryY(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetEntryY",SETSCREENENTY);
+		SET_DATACLASS_MEMBER("SetEntryY",SCREENENTY);
 	}
 	//int GetEntryY(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetEntryY",SETSCREENENTY);
+		GET_DATACLASS_MEMBER("GetEntryY",SCREENENTY);
 	}
 	//void SetItem(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetItem",SETSCREENITEM);
+		SET_DATACLASS_MEMBER("SetItem",SCREENITEM);
 	}
 	//int GetItem(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetItem",SETSCREENITEM);
+		GET_DATACLASS_MEMBER("GetItem",SCREENITEM);
 	}
 	//void SetUndercombo(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetUndercombo",SETSCREENUNDCMB);
+		SET_DATACLASS_MEMBER("SetUndercombo",SCREENUNDCMB);
 	}
 	//int GetUndercombo(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetUndercombo",SETSCREENUNDCMB);
+		GET_DATACLASS_MEMBER("GetUndercombo",SCREENUNDCMB);
 	}
 	//void SetUnderCSet(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetUnderCSet",SETSCREENUNDCST);
+		SET_DATACLASS_MEMBER("SetUnderCSet",SCREENUNDCST);
 	}
 	//int GetUnderCSet(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetUnderCSet",SETSCREENUNDCST);
+		GET_DATACLASS_MEMBER("GetUnderCSet",SCREENUNDCST);
 	}
 	//void SetCatchall(game, int,int,int)
 	{
-		SET_DATACLASS_MEMBER("SetCatchall",SETSCREENCATCH);
+		SET_DATACLASS_MEMBER("SetCatchall",SCREENCATCH);
 	}
 	//int GetCatchall(game, int,int)
 	{
-		GET_DATACLASS_MEMBER("GetCatchall",SETSCREENCATCH);
+		GET_DATACLASS_MEMBER("GetCatchall",SCREENCATCH);
 	}
 	//void SetLayerOpacity(int,int,int,int)
 	{
