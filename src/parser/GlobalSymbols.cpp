@@ -5485,7 +5485,7 @@ GfxPtrSymbols::GfxPtrSymbols()
 
 map<int, vector<Opcode *> > GfxPtrSymbols::addSymbolsCode(LinkTable &lt)
 {
-    dmap<int, vector<Opcode *> > rval;
+   map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     int id=-1;
 	
 
@@ -6664,7 +6664,7 @@ DebugSymbols::DebugSymbols()
 
 map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
 {
-     map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     int id=-1;
 	
 	
@@ -7047,7 +7047,7 @@ NPCDataSymbols::NPCDataSymbols()
 
 map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
 {
-    map<int, vector<Opcode *> > rval;
+    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     int id=-1;
 	
 	//GetTile(NPCData, int)
