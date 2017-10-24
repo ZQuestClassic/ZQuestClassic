@@ -1171,6 +1171,7 @@ script_variable variable_list[]=
 	{"SCDEXPANSION", SCDEXPANSION, 0, 0 },
 	{"SETGAMEOVERELEMENT", SETGAMEOVERELEMENT, 0, 0 },
 	{"SETGAMEOVERSTRING", SETGAMEOVERSTRING, 0, 0 },
+	{"MOUSEARR", MOUSEARR, 0, 0 },
 	
 	    { " ",                       -1,             0,             0 }
 };

@@ -3851,7 +3851,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENWIDTH), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENWIDTH), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -3887,7 +3887,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENHEIGHT), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENHEIGHT), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -3904,7 +3904,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENHEIGHT)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENHEIGHT)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -3922,7 +3922,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENVIEWX), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENVIEWX), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -3939,7 +3939,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENVIEWX)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENVIEWX)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -3957,7 +3957,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENVIEWY), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENVIEWY), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -3974,7 +3974,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENVIEWY)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENVIEWY)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -3992,7 +3992,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENGUY), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENGUY), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4009,7 +4009,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENGUY)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENGUY)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4027,7 +4027,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENSTRING), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENSTRING), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4044,7 +4044,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENSTRING)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENSTRING)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4062,7 +4062,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENROOM), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENROOM), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4079,7 +4079,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENROOM)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENROOM)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4097,7 +4097,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENENTX), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENENTX), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4114,7 +4114,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENENTX)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENENTX)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4132,7 +4132,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENENTY), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENENTY), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4149,7 +4149,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENENTY)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENENTY)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4167,7 +4167,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENITEM), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENITEM), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4184,7 +4184,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENITEM)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENITEM)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4202,7 +4202,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENUNDCMB), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENUNDCMB), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4219,7 +4219,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENUNDCMB)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENUNDCMB)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4237,7 +4237,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENUNDCST), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENUNDCST), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4254,7 +4254,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENUNDCST)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENUNDCST)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4272,7 +4272,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(SETSCREENCATCH), new VarArgument(SFTEMP)));
+        code.push_back(new OSetRegister(new VarArgument(SCREENCATCH), new VarArgument(SFTEMP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -4289,7 +4289,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SETSCREENCATCH)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENCATCH)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
@@ -5399,7 +5399,10 @@ static AccessorTable InputTable[] =
 	{ "setMouseZ",         ScriptParser::TYPE_VOID,          SETTER,       INPUTMOUSEZ,          1,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getMouseB",         ScriptParser::TYPE_FLOAT,         GETTER,       INPUTMOUSEB,          1,      {  ScriptParser::TYPE_INPUT,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setMouseB",         ScriptParser::TYPE_VOID,          SETTER,       INPUTMOUSEB,          1,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    
+	{ "getMouse[]",             ScriptParser::TYPE_FLOAT,         GETTER,       MOUSEARR,         6,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setMouse[]",             ScriptParser::TYPE_VOID,          SETTER,       MOUSEARR,         6,      {  ScriptParser::TYPE_INPUT,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+	
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 

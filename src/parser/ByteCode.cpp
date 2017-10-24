@@ -1182,6 +1182,9 @@ string VarArgument::toString()
 	case SETGAMEOVERELEMENT: return "SETGAMEOVERELEMENT";
 	case SETGAMEOVERSTRING: return "SETGAMEOVERSTRING";
 	
+	//Input->Mouse[]
+	case MOUSEARR: return "MOUSEARR";
+	
 
     default:
     {

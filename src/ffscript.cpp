@@ -1515,6 +1515,59 @@ long get_register(const long arg)
 		ret = joybtn(button)?10000:0;
 	}
 	break;
+	
+	case MOUSEARR:
+	{	
+		int indx = (ri->d[0]/10000);
+		int rv;
+		switch (indx)
+		{
+			case 0: //MouseX
+			{
+				int leftOffset=(resx/2)-(128*screen_scale);
+				rv=((gui_mouse_x()-leftOffset)/screen_scale)*10000;
+				break;	
+			}
+			case 1: //MouseY
+			{
+				int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+				rv=((gui_mouse_y()-topOffset)/screen_scale)*10000;
+				break;
+				
+			}
+			case 2: //MouseZ
+			{
+				rv=(gui_mouse_z())*10000;
+				break;
+			}
+			case 3: //Left Click
+			{
+				rv=((gui_mouse_b()&0x1))*10000;
+				break;
+			}
+			case 4: //Right Click
+			{
+				rv=((gui_mouse_b()&0x2))*10000;
+				break;
+			}
+			case 5: //Middle Click
+			{
+				rv=((gui_mouse_b()&0x4))*10000;
+				break;
+			}
+			default:
+			{
+				Z_scripterrlog("Invalid index passed to Input->Mouse[]: %d\n", indx);
+				rv = -10000;
+				break;
+			}
+		}
+			
+		//bool pressed = key[keyid] != 0;
+		//ret = pressed?10000:0;
+		ret = rv;
+	}
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //Item Variables
@@ -3259,7 +3312,7 @@ else \
         ret=FFScript::get_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
-case SCREENWIDTH:
+case SCREENHEIGHT:
         ret=FFScript::get_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)]);
         break;
 
@@ -4130,6 +4183,98 @@ void set_register(const long arg, const long value)
     case INPUTMOUSEZ:
         position_mouse_z(value/10000);
         break;
+    
+    case BUTTONPRESS:
+		// DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
+	{
+		//Read-only
+		int button = vbound((ri->d[0]/10000),0,17);
+		button_press[button]=((value/10000)!=0)?true:false;
+		
+	}
+	break;
+
+	case BUTTONINPUT:
+	{
+		//Read-only
+		int button = vbound((ri->d[0]/10000),0,17);
+		control_state[button]=((value/10000)!=0)?true:false;
+		
+	}
+	break;
+
+	case BUTTONHELD:
+	{
+		//Read-only
+		int button = vbound((ri->d[0]/10000),0,17);
+		button_hold[button]=((value/10000)!=0)?true:false;
+	}
+	break;
+
+	case KEYPRESS:
+	{	//Game->KeyPressed[], read-only
+		//if ( !keypressed() ) break; //Don;t return values set by setting Link->Input/Press
+		//hmm...no, this won;t return properly for modifier keys. 
+		int keyid = ri->d[0]/10000;
+		//key = vbound(key,0,n);
+		key[keyid]=((value/10000)!=0)?true:false;
+	}
+	break;
+	
+	case MOUSEARR:
+	{	
+		int indx = (ri->d[0]/10000);
+		switch (indx)
+		{
+			case 0: //MouseX
+			{
+				int leftOffset=(resx/2)-(128*screen_scale);
+				position_mouse((value/10000)*screen_scale+leftOffset, gui_mouse_y());
+				break;	
+			}
+			case 1: //MouseY
+			{
+				int topOffset=(resy/2)-((112-playing_field_offset)*screen_scale);
+				position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
+				break;
+				
+			}
+			case 2: //MouseZ
+			{
+				position_mouse_z(value/10000);
+				break;
+			}
+			case 3: //Left Click
+			{
+				int tmp = gui_mouse_b();
+				tmp |= 0x01;
+				mouse_b = tmp;
+				//rv=((gui_mouse_b()&0x1))*10000;
+				break;
+			}
+			case 4: //Right Click
+			{
+				int tmp = gui_mouse_b();
+				tmp |= 0x02;
+				mouse_b = tmp;
+				//rv=((gui_mouse_b()&0x2))*10000;
+				break;
+			}
+			case 5: //Middle Click
+			{
+				int tmp = gui_mouse_b();
+				tmp |= 0x04;
+				mouse_b = tmp;
+				break;
+			}
+			default:
+			{
+				Z_scripterrlog("Invalid index passed to Input->Mouse[]: %d\n", indx);
+			}
+		}
+			
+	}
+	break;
         
         
 ///----------------------------------------------------------------------------------------------------//
@@ -5941,7 +6086,7 @@ case COMBODDM:
 	FFScript::set_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 
-    case SCREENWIDTH:
+    case SCREENHEIGHT:
 	FFScript::set_screenHeight(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
 	break;
 

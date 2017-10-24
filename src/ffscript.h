@@ -2067,8 +2067,9 @@ enum ASM_DEFINE
 #define SCDEXPANSION 0x118C
 #define SETGAMEOVERELEMENT 0x118D
 #define SETGAMEOVERSTRING 0x118E
+#define MOUSEARR 0x118F
 
-#define NUMVARIABLES         0x118F
+#define NUMVARIABLES         0x1190
 
 // Script types
 
