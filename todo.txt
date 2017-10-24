@@ -23,3 +23,7 @@ Might Do:
 Weapon -> Defence Redirection / Weapon Editor Stuff
  -> THis requires some changes that I am not sure that we are keeping, so I may leave it out of 2.54. 
 Enemy Editor Enemy Sizing (Seems as if it should be fine.)
+
+Would be nice:
+snap ffcs to grid. Contextiual menu->Snap FFC To grid?
+display combo positions as overlay via zq menu option
