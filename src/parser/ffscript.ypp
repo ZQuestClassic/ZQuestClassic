@@ -130,6 +130,12 @@ GlobalStmt : Script {$$ = $1;}
 	| ArrayDecl SEMICOLON {$$ = $1;}
 	;
 
+//DefineDecl : PREPROCESS DEFINE IDENTIFIER WS NUMBER WS {ASTString *name = (ASTString *)$3;
+//															ASTFloat *val = (ASTFloat *)$5;
+//															$$ = new ASTConstDecl(name->getValue(), val,@1);
+//															delete name;}
+//	;
+	
 ConstDecl : ZCONST ZFLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
 															ASTFloat *val = (ASTFloat *)$5;
 															$$ = new ASTConstDecl(name->getValue(), val,@1);
@@ -139,6 +145,18 @@ ConstDecl : ZCONST ZFLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = 
 																  val->set_negative(true);
 																  $$ = new ASTConstDecl(name->getValue(), val,@1);
 																  delete name;}
+	//The following does not compile: error PRJ0019: A tool returned an error code from "[BISON][ZScriptParser] Building parser with bison 2.7"															
+//          | PREPROCESS DEFINE IDENTIFIER NUMBER WS {ASTString *name = (ASTString *)$3;
+//															ASTFloat *val = (ASTFloat *)$4;
+//															$$ = new ASTConstDecl(name->getValue(), val,@1);
+//															delete name;}
+//																  
+//	  | PREPROCESS DEFINE IDENTIFIER MINUS NUMBER WS {ASTString *name = (ASTString *)$3;
+//																  ASTFloat *val = (ASTFloat *)$5;
+//																  val->set_negative(true);
+//																  $$ = new ASTConstDecl(name->getValue(), val,@1);
+//																  delete name;}
+//          ;
 
 ArrayDecl : Type IDENTIFIER LBRACKET NUMBER RBRACKET {	ASTType *type = (ASTType *)$1;
 														ASTString *name = (ASTString *)$2;
