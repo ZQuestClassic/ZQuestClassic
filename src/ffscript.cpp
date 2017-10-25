@@ -9475,7 +9475,25 @@ int run_script(const byte type, const word script, const byte i)
 		midi_paused = false; 
 		//Backend::sfx->resumeAll();
 		break;
-            
+	
+	//!!! typecasting
+	case LWPNARRPTR:
+	case EWPNARRPTR:
+	case ITEMARRPTR:
+	case IDATAARRPTR:
+	case FFCARRPTR:
+	case BOOLARRPTR:
+	case NPCARRPTR:
+		
+	case LWPNARRPTR2:
+	case EWPNARRPTR2:
+	case ITEMARRPTR2:
+	case IDATAARRPTR2:
+	case FFCARRPTR2:
+	case BOOLARRPTR2:
+	case NPCARRPTR2:
+	FFScript::do_typedpointer_typecast(false);
+	break;
             
         case MSGSTRR:
             do_message(false);
@@ -11395,4 +11413,10 @@ void FFScript::FFChangeSubscreenText()
 	
     
 	
+}
+
+void FFScript::do_typedpointer_typecast(const bool v)
+{
+     long ptr = SH::get_arg(sarg1, v);
+     set_register(sarg1, ptr);
 }

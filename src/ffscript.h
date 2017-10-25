@@ -421,6 +421,9 @@ static void setLinkBigHitbox(bool v);
 	//Change Save/Continue and Retry screen settings:
 	static void FFSetSaveScreenSetting();
 	static void FFChangeSubscreenText();
+	
+	static void do_typedpointer_typecast(const bool v);
+
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
