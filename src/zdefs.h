@@ -98,8 +98,8 @@
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       40                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.54 Alpha 3"                    //version of the program as presented in text
-#define IS_BETA             -3                              //is this a beta? (1: beta, -1: alpha)
+#define ZELDA_VERSION_STR   "2.54 Alpha 4"                    //version of the program as presented in text
+#define IS_BETA             -4                              //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        00010
 #define DATE_STR            "25th October, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
@@ -110,8 +110,8 @@
 #define ZELDADAT_BUILD        17                            //build of zelda.dat
 #define SFXDAT_VERSION        0x0211                        //version of sfx.dat
 #define SFXDAT_BUILD          15                            //build of sfx.dat
-#define FONTSDAT_VERSION      0x0211                        //version of fonts.dat
-#define FONTSDAT_BUILD        18                            //build of fonts.dat
+#define FONTSDAT_VERSION      0x0253                        //version of fonts.dat
+#define FONTSDAT_BUILD        30                            //build of fonts.dat
 #define QSTDAT_VERSION        0x0253                        //version of qst.dat
 #define QSTDAT_BUILD          30                            //build of qst.dat
 #define ZQUESTDAT_VERSION     0x0211                        //version of zquest.dat
@@ -2108,6 +2108,52 @@ enum
     font_gboraclepfont,
     font_dsphantomfont,
     font_dsphantompfont,
+    
+     font_atari800font,   
+		 font_acornfont,   
+		 font_adosfont,   
+		 font_baseallegrofont,   
+		 font_apple2font,   
+		 font_apple280colfont,   
+		 font_apple2gsfont, 
+		 font_aquariusfont,   
+		 font_atari400font,   
+		 font_c64font,   
+		 font_c64hiresfont,   
+		 font_cgafont,   
+		 font_cocofont,
+		 font_coco2font, 
+		 font_coupefon, 
+		 font_cpcfon, 
+		 font_fantasyfon, 
+		 font_fdskanafon, 
+		 font_fdslikefon, 
+		 font_fdsromanfon, 
+		 font_finalffont, 
+		 font_futharkfont, 
+		 font_gaiafont, 
+		 font_hirafont, 
+		 font_jpfont, 
+		 font_kongfont, 
+		 font_manafont, 
+		 font_mlfont, 
+		 font_motfont, 
+		 font_msxmode0font, 
+		 font_msxmode1font, 
+		 font_petfont, 
+		 font_pstartfont, 
+		 font_saturnfont, 
+		 font_scififont, 
+		 font_sherwoodfont, 
+		 font_sinqlfont, 
+		 font_spectrumfont, 
+		 font_speclgfont, 
+		 font_ti99font, 
+		 font_trsfont, 
+		 font_z2font, 
+		 font_zxfont,
+		 font_lisafont,
+		 
     font_max
 };
 

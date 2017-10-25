@@ -3358,7 +3358,51 @@ FONT *ss_font(int fontnum)
     case ssfDSPHANTOMP:
         tempfont=dsphantompfont;
         break;
-        
+
+    case ssfAT800: tempfont=atari800font;
+	case ssfACORN: tempfont=acornfont;
+	case ssADOS: tempfont= adosfont;
+	case ssfALLEG: tempfont=  baseallegrofont;
+	case ssfAPL2: tempfont=  apple2font;
+	case ssfAPL280: tempfont=  apple280colfont;
+	case ssfAPL2GS: tempfont=  apple2gsfont;
+	case ssfAQUA: tempfont=  aquariusfont;
+	case ssfAT400: tempfont=  atari400font;
+	case ssfC64: tempfont=  c64font;
+	case ssfC64HR: tempfont= c64hiresfont;
+	case ssfCGA: tempfont=  cgafont;
+	case ssfCOCO: tempfont=  cocofont;
+	case ssfCOCO2: tempfont=  coco2font;
+	case ssfCOUPE: tempfont=  coupefont;
+	case ssfCPC: tempfont=  cpcfont;
+	case ssfFANTASY: tempfont=  fantasyfont;
+	case ssfFDSKANA: tempfont=  fdskanafont;
+	case ssfFDSLIKE: tempfont=  fdslikefont;
+	case ssfFDSROM: tempfont=  fdsromanfont;
+	case ssfFF: tempfont= finalffont;
+	case ssfFUTHARK: tempfont=  futharkfont;
+	case ssfGAIA: tempfont=  gaiafont;
+	case ssfHIRA: tempfont=  hirafont;
+	case ssfJP: tempfont=  jpfont;
+	case ssfKONG: tempfont=  kongfont;
+	case ssfMANA: tempfont=  manafont;
+	case ssfML: tempfont=  mlfont;
+	case ssfMOT: tempfont=  motfont;
+	case ssfMSX0: tempfont=  msxmode0font;
+	case ssfMSX1: tempfont=  msxmode1font;
+	case ssfPET: tempfont= petfont;
+	case ssfPSTART: tempfont=  pstartfont;
+	case ssfSATURN: tempfont=  saturnfont;
+	case ssfSCIFI: tempfont=  scififont;
+	case ssfSHERW: tempfont=  sherwoodfont;
+	case ssfSINQL: tempfont=  sinqlfont;
+	case ssfSPEC: tempfont=  spectrumfont;
+	case ssfSPECLG: tempfont=  speclgfont;
+	case ssfTI99: tempfont=  ti99font;
+	case ssfTRS: tempfont=  trsfont;
+	case ssfZ2: tempfont=  z2font;
+	case ssfZX: tempfont= zxfont;
+	case ssfLISA: tempfont= lisafont;
     default:
         fontnum=rand()%ssfMAX;
         tempfont=ss_font(fontnum);

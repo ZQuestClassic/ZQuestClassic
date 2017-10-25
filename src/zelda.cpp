@@ -209,7 +209,19 @@ COLOR_MAP trans_table, trans_table2;
 BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msgdisplaybuf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp;
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 FONT       *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
-           *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont;
+           *goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont,
+		*dsphantomfont, *dsphantompfont,
+	//#ifdef MOREFONTS_VERSION
+	//,
+		//New fonts for 2.54+
+		*atari800font, *acornfont, *adosfont, *baseallegrofont, *apple2font, *apple280colfont, *apple2gsfont,
+		*aquariusfont, *atari400font, *c64font, *c64hiresfont, *cgafont, *cocofont, *coco2font,
+		*coupefont, *cpcfont, *fantasyfont, *fdskanafont, *fdslikefont, *fdsromanfont, *finalffont,
+		*futharkfont, *gaiafont, *hirafont, *jpfont, *kongfont, *manafont, *mlfont, *motfont,
+		*msxmode0font, *msxmode1font, *petfont, *pstartfont, *saturnfont, *scififont, *sherwoodfont,
+		*sinqlfont, *spectrumfont, *speclgfont, *ti99font, *trsfont, *z2font, *zxfont, *lisafont
+	//#endif
+	;
 PALETTE    RAMpal;
 byte       *colordata, *trashbuf;
 //byte       *tilebuf;
@@ -678,6 +690,51 @@ FONT *setmsgfont()
         
     case font_dsphantompfont:
         return dsphantompfont;
+    
+     case font_atari800font: return atari800font;
+		 case font_acornfont: return acornfont;
+		 case font_adosfont: return adosfont;
+		 case font_baseallegrofont: return  baseallegrofont;  
+		 case font_apple2font: return apple2font;
+		 case font_apple280colfont: return apple280colfont;   
+		 case font_apple2gsfont: return  apple2gsfont;
+		 case font_aquariusfont: return  aquariusfont;  
+		 case font_atari400font: return  atari400font;  
+		 case font_c64font: return c64font;   
+		 case font_c64hiresfont: return c64hiresfont;   
+		 case font_cgafont: return cgafont;   
+		 case font_cocofont: return cocofont;
+		 case font_coco2font: return coco2font;
+		 case font_coupefon: return  coupefont;
+		 case font_cpcfon: return  cpcfont;
+		 case font_fantasyfon: return  fantasyfont;
+		 case font_fdskanafon: return  fdskanafont;
+		 case font_fdslikefon: return  fdslikefont;
+		 case font_fdsromanfon: return fdsromanfont; 
+		 case font_finalffont: return finalffont; 
+		 case font_futharkfont: return  futharkfont;
+		 case font_gaiafont: return gaiafont; 
+		 case font_hirafont: return hirafont; 
+		 case font_jpfont: return jpfont; 
+		 case font_kongfont: return  kongfont;
+		 case font_manafont: return manafont; 
+		 case font_mlfont: return  mlfont;
+		 case font_motfont: return motfont;
+		 case font_msxmode0font: return  msxmode0font;
+		 case font_msxmode1font: return  msxmode1font;
+		 case font_petfont: return  petfont;
+		 case font_pstartfont: return  pstartfont;
+		 case font_saturnfont: return  saturnfont;
+		 case font_scififont: return  scififont;
+		 case font_sherwoodfont: return sherwoodfont;
+		 case font_sinqlfont: return  sinqlfont;
+		 case font_spectrumfont: return  spectrumfont;
+		 case font_speclgfont: return  speclgfont;
+		 case font_ti99font: return  ti99font;
+		 case font_trsfont: return  trsfont;
+		 case font_z2font: return  z2font;
+		 case font_zxfont: return zxfont;
+		 case font_lisafont: return lisafont;
     }
 }
 
@@ -3369,6 +3426,51 @@ int main(int argc, char* argv[])
     gboraclepfont = (FONT*)fontsdata[FONT_GB_ORACLE_P].dat;
     dsphantomfont = (FONT*)fontsdata[FONT_DS_PHANTOM].dat;
     dsphantompfont = (FONT*)fontsdata[FONT_DS_PHANTOM_P].dat;
+    
+     atari800font=(FONT*)fontsdata[FONT_ZZ_ATARU800].dat;  
+		 acornfont=(FONT*)fontsdata[FONT_ZZ_ACORN].dat;  
+		 adosfont=(FONT*)fontsdata[FONT_ZZ_ADOS].dat;  
+		 baseallegrofont=(FONT*)fontsdata[FONT_ZZ_ALLEGRO].dat;  
+		 apple2font=(FONT*)fontsdata[FONT_ZZ_APPLE2].dat;  
+		 apple280colfont=(FONT*)fontsdata[FONT_ZZ_APPLE280].dat;  
+		 apple2gsfont=(FONT*)fontsdata[FONT_ZZ_APPLE2GS].dat;
+		 aquariusfont=(FONT*)fontsdata[FONT_ZZ_AQUA].dat;  
+		 atari400font=(FONT*)fontsdata[FONT_ZZ_ATARI400].dat;  
+		 c64font=(FONT*)fontsdata[FONT_ZZ_C64].dat;  
+		 c64hiresfont=(FONT*)fontsdata[FONT_ZZ_C64HI].dat;  
+		 cgafont=(FONT*)fontsdata[FONT_ZZ_CGA].dat;  
+		 cocofont=(FONT*)fontsdata[FONT_ZZ_COCO].dat; 
+		 coco2font=(FONT*)fontsdata[FONT_ZZ_COCO2].dat;
+		 coupefont=(FONT*)fontsdata[FONT_ZZ_COUPE].dat;  
+		 cpcfont=(FONT*)fontsdata[FONT_ZZ_CPC].dat;  
+		 fantasyfont=(FONT*)fontsdata[FONT_ZZ_FANTASY].dat;  
+		 fdskanafont=(FONT*)fontsdata[FONT_ZZ_FDS_KANA].dat;  
+		 fdslikefont=(FONT*)fontsdata[FONT_ZZ_FDSLIKE].dat;  
+		 fdsromanfont=(FONT*)fontsdata[FONT_ZZ_FDSROMAN].dat;  
+		 finalffont=(FONT*)fontsdata[FONT_ZZ_FF].dat;
+		 futharkfont=(FONT*)fontsdata[FONT_ZZ_FUTHARK].dat;  
+		 gaiafont=(FONT*)fontsdata[FONT_ZZ_GAIA].dat;  
+		 hirafont=(FONT*)fontsdata[FONT_ZZ_HIRA].dat;  
+		 jpfont=(FONT*)fontsdata[FONT_ZZ_JP].dat;  
+		 kongfont=(FONT*)fontsdata[FONT_ZZ_KONG].dat;  
+		 manafont=(FONT*)fontsdata[FONT_ZZ_MANA].dat;  
+		 mlfont=(FONT*)fontsdata[FONT_ZZ_MARIOLAND].dat;  
+		 motfont=(FONT*)fontsdata[FONT_ZZ_MOT].dat;
+		 msxmode0font=(FONT*)fontsdata[FONT_ZZ_MSX0].dat;  
+		 msxmode1font=(FONT*)fontsdata[FONT_ZZ_MSX1].dat;  
+		 petfont=(FONT*)fontsdata[FONT_ZZ_PET].dat;  
+		 pstartfont=(FONT*)fontsdata[FONT_ZZ_PRESTRT].dat;  
+		 saturnfont=(FONT*)fontsdata[FONT_ZZ_SATURN].dat;  
+		 scififont=(FONT*)fontsdata[FONT_ZZ_SCIFI].dat;  
+		 sherwoodfont=(FONT*)fontsdata[FONT_ZZ_SHERWOOD].dat;
+		 sinqlfont=(FONT*)fontsdata[FONT_ZZ_SINQL].dat;  
+		 spectrumfont=(FONT*)fontsdata[FONT_ZZ_SPEC].dat;  
+		 speclgfont=(FONT*)fontsdata[FONT_ZZ_SPECLG].dat;  
+		 ti99font=(FONT*)fontsdata[FONT_ZZ_TI99].dat;  
+		 trsfont=(FONT*)fontsdata[FONT_ZZ_TRS].dat;  
+		 z2font=(FONT*)fontsdata[FONT_ZZ_ZELDA2].dat;  
+		 zxfont=(FONT*)fontsdata[FONT_ZZ_ZX].dat; 
+		 lisafont=(FONT*)fontsdata[FONT_ZZZ_LISA].dat;
     
     for(int i=0; i<4; i++)
     {

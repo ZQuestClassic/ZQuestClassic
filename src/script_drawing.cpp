@@ -118,6 +118,50 @@ FONT *get_zc_font(int index)
         
     case font_dsphantompfont:
         return dsphantompfont;
+     case font_atari800font: return atari800font;
+		 case font_acornfont: return acornfont;
+		 case font_adosfont: return adosfont;
+		 case font_baseallegrofont: return  baseallegrofont;  
+		 case font_apple2font: return apple2font;
+		 case font_apple280colfont: return apple280colfont;   
+		 case font_apple2gsfont: return  apple2gsfont;
+		 case font_aquariusfont: return  aquariusfont;  
+		 case font_atari400font: return  atari400font;  
+		 case font_c64font: return c64font;   
+		 case font_c64hiresfont: return c64hiresfont;   
+		 case font_cgafont: return cgafont;   
+		 case font_cocofont: return cocofont;
+		 case font_coco2font: return coco2font;
+		 case font_coupefon: return  coupefont;
+		 case font_cpcfon: return  cpcfont;
+		 case font_fantasyfon: return  fantasyfont;
+		 case font_fdskanafon: return  fdskanafont;
+		 case font_fdslikefon: return  fdslikefont;
+		 case font_fdsromanfon: return fdsromanfont; 
+		 case font_finalffont: return finalffont; 
+		 case font_futharkfont: return  futharkfont;
+		 case font_gaiafont: return gaiafont; 
+		 case font_hirafont: return hirafont; 
+		 case font_jpfont: return jpfont; 
+		 case font_kongfont: return  kongfont;
+		 case font_manafont: return manafont; 
+		 case font_mlfont: return  mlfont;
+		 case font_motfont: return motfont;
+		 case font_msxmode0font: return  msxmode0font;
+		 case font_msxmode1font: return  msxmode1font;
+		 case font_petfont: return  petfont;
+		 case font_pstartfont: return  pstartfont;
+		 case font_saturnfont: return  saturnfont;
+		 case font_scififont: return  scififont;
+		 case font_sherwoodfont: return sherwoodfont;
+		 case font_sinqlfont: return  sinqlfont;
+		 case font_spectrumfont: return  spectrumfont;
+		 case font_speclgfont: return  speclgfont;
+		 case font_ti99font: return  ti99font;
+		 case font_trsfont: return  trsfont;
+		 case font_z2font: return  z2font;
+		 case font_zxfont: return zxfont;
+		 case font_lisafont: return lisafont;
     }
 }
 

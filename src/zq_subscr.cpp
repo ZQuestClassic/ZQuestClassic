@@ -341,7 +341,52 @@ const char *spectilelist(int index, int *list_size)
 const char *ssfont_str[ssfMAX] =
 {
     "Zelda NES", "SS 1", "SS 2", "SS 3", "SS 4", "BS Time", "Small", "Small Prop.", "LttP Small", "Link's Awakening", "Link to the Past",
-    "Goron", "Zoran", "Hylian 1", "Hylian 2", "Hylian 3", "Hylian 4", "Proportional", "Oracle", "Oracle Proportional", "Phantom", "Phantom Proportional"
+    "Goron", "Zoran", "Hylian 1", "Hylian 2", "Hylian 3", "Hylian 4", "Proportional", "Oracle", "Oracle Proportional", "Phantom", "Phantom Proportional",
+
+	"Atari 800", 
+	"Acorn",
+	"ADOS",
+	"Allegro",
+	"Apple II",
+	"Apple II 80 Column",
+	"Apple IIgs",
+	"Aquarius",
+	"Atari 400",
+	"C64",
+	"C64 HiRes",
+	"IBM CGA",
+	"COCO Mode I",
+	"COCO Mode II",
+	"Coupe",
+	"Amstrad CPC",
+	"Fantasy Letters",
+	"FDS Katakana",
+	"FDSesque",
+	"FDS Roman",
+	"FF",
+	"Elder Futhark",
+	"Gaia",
+	"Hira",
+	"JP Unsorted",
+	"Kong",
+	"Mana",
+	"Mario",
+	"Mot CPU",
+	"MSX Mode 0",
+	"MSX Mode 1",
+	"PET",
+	"Homebrew",
+	"Mr. Saturn",
+	"Sci-Fi",
+	"Sherwood",
+	"Sinclair QL",
+	"Spectrum",
+	"Spectrum Large",
+	"TI99",
+	"TRS",
+	"Zelda 2",
+	"ZX",	
+	"Lisa"
 };
 
 const char *ssfontlist(int index, int *list_size)
@@ -4875,7 +4920,13 @@ const char *sso_fontname[ssfMAX]=
 {
     "ssfZELDA", "ssfSS1", "ssfSS2", "ssfSS3", "ssfSS4", "ssfZTIME", "ssfSMALL", "ssfSMALLPROP", "ssfZ3SMALL", "ssfGBLA", "ssfZ3",
     "ssfGORON", "ssfZORAN", "ssfHYLIAN1", "ssfHYLIAN2", "ssfHYLIAN3", "ssfHYLIAN4", "ssfPROP", "ssfGBORACLE", "ssfGBORACLEP",
-    "ssfDSPHANTOM", "ssfDSPHANTOMP"
+    "ssfDSPHANTOM", "ssfDSPHANTOMP",
+	
+	"ssfAT800", "ssfACORN", "ssfALLEG", "ssfAPL2", "ssfAPL280", "ssfAPL2GS", "ssfAQUA", "ssfAT400", "ssfC64", "ssfC64HR",
+	"ssfCGA", "ssfCOCO", "ssfCOCO2", "ssfCOUPE", "ssfCPC", "ssfFANTASY", "ssfFDSKANA", "ssfFDSLIKE", "ssfFDSROM", "ssfFF",
+	"ssfFUTHARK", "ssfGAIA", "ssfHIRA", "ssfJP", "ssfKONG", "ssfMANA", "ssfML", "ssfMOT", "ssfMSX0", "ssfMSX1", "ssfPET",
+	"ssfPSTART", "ssfSATURN", "ssfSCIFI", "ssfSHERW", "ssfSINQL", "ssfSPEC", "ssfSPECLG", "ssfTI99", "ssfTRS", "ssfZ2", "ssfZX", "ssfLISA"
+	
 };
 
 const char *sso_colortype[2]=

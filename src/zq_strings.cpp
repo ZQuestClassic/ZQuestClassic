@@ -427,6 +427,52 @@ FONT* getfont(int fonta)
         
     case font_dsphantompfont:
         return dsphantompfont;
+    
+      //New fonts for 2.54+
+		 case font_atari800font: return atari800font;
+		 case font_acornfont: return acornfont;
+		 case font_adosfont: return adosfont;
+		 case font_baseallegrofont: return  baseallegrofont;  
+		 case font_apple2font: return apple2font;
+		 case font_apple280colfont: return apple280colfont;   
+		 case font_apple2gsfont: return  apple2gsfont;
+		 case font_aquariusfont: return  aquariusfont;  
+		 case font_atari400font: return  atari400font;  
+		 case font_c64font: return c64font;   
+		 case font_c64hiresfont: return c64hiresfont;   
+		 case font_cgafont: return cgafont;   
+		 case font_cocofont: return cocofont;
+		 case font_coco2font: return coco2font;
+		 case font_coupefon: return  coupefont;
+		 case font_cpcfon: return  cpcfont;
+		 case font_fantasyfon: return  fantasyfont;
+		 case font_fdskanafon: return  fdskanafont;
+		 case font_fdslikefon: return  fdslikefont;
+		 case font_fdsromanfon: return fdsromanfont; 
+		 case font_finalffont: return finalffont; 
+		 case font_futharkfont: return  futharkfont;
+		 case font_gaiafont: return gaiafont; 
+		 case font_hirafont: return hirafont; 
+		 case font_jpfont: return jpfont; 
+		 case font_kongfont: return  kongfont;
+		 case font_manafont: return manafont; 
+		 case font_mlfont: return  mlfont;
+		 case font_motfont: return motfont;
+		 case font_msxmode0font: return  msxmode0font;
+		 case font_msxmode1font: return  msxmode1font;
+		 case font_petfont: return  petfont;
+		 case font_pstartfont: return  pstartfont;
+		 case font_saturnfont: return  saturnfont;
+		 case font_scififont: return  scififont;
+		 case font_sherwoodfont: return sherwoodfont;
+		 case font_sinqlfont: return  sinqlfont;
+		 case font_spectrumfont: return  spectrumfont;
+		 case font_speclgfont: return  speclgfont;
+		 case font_ti99font: return  ti99font;
+		 case font_trsfont: return  trsfont;
+		 case font_z2font: return  z2font;
+		 case font_zxfont: return zxfont;
+		 case font_lisafont: return lisafont;
     }
 }
 
@@ -974,7 +1020,51 @@ const char *msgfont_str[font_max] =
 {
     "Zelda NES", "Link to the Past", "LttP Small", "Allegro Default", "GUI Font Bold", "GUI Font", "GUI Font Narrow", "Zelda NES (Matrix)", "BS Time (Incomplete)", "Small", "Small 2",
     "S. Proportional", "SS 1 (Numerals)", "SS 2 (Incomplete)", "SS 3", "SS 4 (Numerals)", "Link's Awakening", "Goron", "Zoran", "Hylian 1", "Hylian 2",
-    "Hylian 3", "Hylian 4", "Oracle", "Oracle Proportional", "Phantom", "Phantom Proportional"
+    "Hylian 3", "Hylian 4", "Oracle", "Oracle Proportional", "Phantom", "Phantom Proportional",
+	"Atari 800", 
+	"Acorn",
+	"ADOS",
+	"Allegro",
+	"Apple II",
+	"Apple II 80 Column",
+	"Apple IIgs",
+	"Aquarius",
+	"Atari 400",
+	"C64",
+	"C64 HiRes",
+	"IBM CGA",
+	"COCO Mode I",
+	"COCO Mode II",
+	"Coupe",
+	"Amstrad CPC",
+	"Fantasy Letters",
+	"FDS Katakana",
+	"FDSesque",
+	"FDS Roman",
+	"FF",
+	"Elder Futhark",
+	"Gaia",
+	"Hira",
+	"JP Unsorted",
+	"Kong",
+	"Mana",
+	"Mario",
+	"Mot CPU",
+	"MSX Mode 0",
+	"MSX Mode 1",
+	"PET",
+	"Homebrew",
+	"Mr. Saturn",
+	"Sci-Fi",
+	"Sherwood",
+	"Sinclair QL",
+	"Spectrum",
+	"Spectrum Large",
+	"TI99",
+	"TRS",
+	"Zelda 2",
+	"ZX",
+	"Lisa"
 };
 
 const char *msgfontlist(int index, int *list_size)
