@@ -146,7 +146,7 @@ elseif(LINUX)
 
 	set(IMAGELIBS algif ldpng jpgal png z)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
-	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm)
+	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
 
 	add_compile_options("-m32")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
@@ -193,7 +193,7 @@ target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWL
 
 if(MSVC)
 	list(APPEND ZELDAEXTRASOURCES zc_icon.rc)
-	
+
 elseif(LINUX)
 	list(APPEND ZELDAEXTRASOURCES zc_icon.c src/single_instance_unix.cpp)
 	set(ZELDALIBSEXTRA ${X11_LIBRARIES})
