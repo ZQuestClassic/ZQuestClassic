@@ -4,7 +4,7 @@ Enemy Defence Code (new defence outcomes, only!)
 Weapons
 ZQuest Editors: Enemy Editor Defences
 Item Editor Weapons?
-Combo editor map flags lists, types lists
+Combo editor , types lists
 New fonts.
 
 //Done (Probably)
@@ -18,6 +18,8 @@ Link No FLicker
 Link Hurt Sound
 Prevent Active Subscreen
 DMAp Palette Code
+editor map flags lists
+New fonts. 
 
 Might Do:
 Weapon -> Defence Redirection / Weapon Editor Stuff
