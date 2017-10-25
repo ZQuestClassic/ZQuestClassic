@@ -77,7 +77,7 @@ public:
     fix dstep;
     long dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, dmisc11, dmisc12, dmisc13, dmisc14, dmisc15;
     short bgsfx, bosspal;
-    byte defense[edefLAST];
+    byte defense[edefLAST255];
     byte hitsfx,deadsfx;
     
     fix  getX();
@@ -110,7 +110,9 @@ public:
     {
         return false;
     }
-    
+    int wpnsprite; //wpnsprite is new for 2.6 -Z
+    int SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults. 
+
 protected:
     int  clk2,sclk;
     int  starting_hp;

@@ -1,7 +1,14 @@
 //2.54 Changes
 
+
+//Alpha 7 
+Backported Enemy Editor 'Size' tab from 2.60 to 2.54. 
+Installed new enemy editor defence types and results. 
+Fixed Item editor fields for new itemdata script capabilities.
+
 //Alpha 6
 
+Fixed missing typecasting calls in ffscript.cpp. 
 Fixed ffc->ID and item->AClock
 
 //Alpha 5

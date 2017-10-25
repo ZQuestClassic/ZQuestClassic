@@ -301,7 +301,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     dp=d->dp;
     wdp=d->wdp;
     wpn=d->weapon;
-    
+    wpnsprite = d-> wpnsprite; //2.6 -Z
     rate=d->rate;
     hrate=d->hrate;
     dstep=d->step;
@@ -375,6 +375,26 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     canfreeze = count_enemy = true;
     mainguy = !(flags & guy_doesntcount);
     dir = rand()&3;
+    
+    //2.6 Enemy Editor Hit and TIle Sizes
+    if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+    //al_trace("->txsz:%i\n", d->txsz); Verified that this is setting the value. -Z
+   // al_trace("Enemy txsz:%i\n", txsz);
+    if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
+    if ( (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
+    if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
+//    if ( (d->SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = d->hzofs;
+    if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int)d->xofs;
+    if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
+    {
+	    yofs = (int)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
+	    yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+    }
+  
+    if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
     
     if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))
         wpn = 0;
@@ -914,7 +934,15 @@ int enemy::defend(int wpnId, int *power, int edef)
         
     case edCHINKL8:
         if(*power >= 8*DAMAGE_MULTIPLIER) break;
+    case edCHINKL10:
+	if(*power >= 10*DAMAGE_MULTIPLIER) break;
         
+    
+    case edTRIGGERSECRETS:
+ 	    hidden_entrance(0, true, false, -4);
+ 	break;
+    
+    
     case edCHINK:
         sfx(WAV_CHINK,pan(int(x)));
         return 1;
@@ -928,6 +956,56 @@ int enemy::defend(int wpnId, int *power, int edef)
     case ed1HKO:
         *power = hp;
         return -2;
+    
+    case ed2x:
+     {
+ 	    *power = zc_max(1,*power*2);
+ 	//int pow = *power;
+         //*power = vbound((pow*2),0,214747);
+ 	return -1; 
+     }
+     case ed3x:
+     {
+ 	    *power = zc_max(1,*power*3);
+ 	//int pow = *power;
+         //*power = vbound((pow*3),0,214747);
+ 	return -1;
+     }
+     
+     case ed4x:
+     {
+ 	    *power = zc_max(1,*power*4);
+ 	//int pow = *power;
+         //*power = vbound((pow*4),0,214747);
+ 	return -1;
+     }
+     
+     
+     case edHEAL:
+     { //Probably needs its own function, or  routine in the damage functuon to heal if power is negative. 
+ 	//int pow = *power;
+         //*power = vbound((pow*-1),0,214747);
+ 	//break;
+ 	    *power = zc_min(0,*power*-1);
+ 	    return -1;
+     }
+     /*
+     case edLEVELDAMAGE: 
+     {
+ 	int pow = *power;
+ 	int lvl  = *level;
+         *power = vbound((pow*lvl),0,214747);
+ 	break;
+     }
+     case edLEVELREDUCTION:
+     {
+ 	int pow = *power;
+ 	int lvl  = *level;
+         *power = vbound((pow/lvl),0,214747);
+ 	break;
+     }
+     */
+     
         
     case edQUARTDAMAGE:
         *power = zc_max(1,*power/2);
@@ -1018,11 +1096,68 @@ int enemy::defenditemclass(int wpnId, int *power)
         def = defend(wpnId, power, edefBYRNA);
         break;
         
+    case wScript1:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT01);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript2:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT02);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript3:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT03);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript4:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT04);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript5:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT05);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript6:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT06);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript7:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT07);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript8:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT08);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript9:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT09);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    case wScript10:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefSCRIPT10);
+	    else def = defend(wpnId, power,  edefSCRIPT);
+        break;
+    
+    
+    //!ZoriaRPG : We need some special cases here, to ensure that old script defs don;t break. 
+    //Probably best to do this from the qest file, loading the values of Script(generic) into each
+    //of the ten if the quest version is lower than N. 
+    //Either that, or we need a boolean flag to set int he enemy editor, or by ZScript that changes this behaviour. 
+    //such as bool UseSeparatedScriptDefences. hah.
     default:
-        if(wpnId>=wScript1 && wpnId<=wScript10)
-        {
-            def = defend(wpnId, power, edefSCRIPT);
-        }
+        //if(wpnId>=wScript1 && wpnId<=wScript10)
+        //{
+         //   def = defend(wpnId, power, edefSCRIPT);
+        //}
+        //}
         
         break;
     }
@@ -5557,8 +5692,27 @@ eRock::eRock(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     clk=0;
     mainguy=false;
     clk2=-14;
-    hxofs=hyofs=-2;
-    hxsz=hysz=20;
+    //Enemy Editor Size Tab
+	if (  (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
+	else hxofs = -2;
+	if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
+	else hyofs = -2;
+	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
+	else hxsz = 20;
+	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
+	else hysz=20;
+	
+	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+        if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
+        if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;    
+        if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int)d->xofs;
+        if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
+        {
+	    yofs = (int)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
+	    yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+        }
+  
+        if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;																
     //nets+1640;
 }
 
@@ -5673,9 +5827,28 @@ eBoulder::eBoulder(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     clk=0;
     mainguy=false;
     clk2=-14;
-    hxofs=hyofs=-10;
-    hxsz=hysz=36;
-    hzsz=16; //can't be jumped
+    if ( (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
+    else hxofs= -10; 
+    if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
+    else hyofs=-10;
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
+    else hxsz=36;
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
+    else hysz=36;
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
+    else hzsz=16; //can't be jumped
+	
+    if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+    if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
+    if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int)d->xofs;
+    if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
+    {
+	    yofs = (int)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
+	    yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+    }
+  
+    if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
     //nets+1680;
 }
 
@@ -7100,10 +7273,34 @@ eKeese::eKeese(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     step=0;
     movestatus=1;
     c=0;
-    hxofs=2;
-    hxsz=12;
-    hyofs=4;
-    hysz=8;
+    if ( !(SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ) hxofs=2;
+    if ( (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
+	
+    if ( !(d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ) hxsz=12;
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
+	
+    if ( !(SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ) hyofs=4;
+    if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
+	
+    if ( !(d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ) hysz=8;
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
+	
+    if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+    //al_trace("->txsz:%i\n", d->txsz); Verified that this is setting the value. -Z
+   // al_trace("Enemy txsz:%i\n", txsz);
+    if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
+    
+    
+    if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
+    
+    if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int)d->xofs;
+    if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
+    {
+	    yofs = (int)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
+	    yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+    }
+  
+    if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
     clk4=0;
     //nets;
     dummy_int[1]=0;

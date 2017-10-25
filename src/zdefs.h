@@ -98,8 +98,8 @@
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       40                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.54 Alpha 5"                    //version of the program as presented in text
-#define IS_BETA             -5                              //is this a beta? (1: beta, -1: alpha)
+#define ZELDA_VERSION_STR   "2.54 Alpha 7"                    //version of the program as presented in text
+#define IS_BETA             -7                              //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        00010
 #define DATE_STR            "25th October, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
@@ -1463,6 +1463,20 @@ struct item_drop_object
 #define ffCHANGEPREV    0x10000000 //Decrease combo ID
 #define ffCHANGETHIS    0x08000000 //Change combo/cset to this
 #define ffCHANGESPEED   0x04000000 //Change speed to this (default, not implemented yet)
+
+
+//Guydata Enemy Editor Size Panel FLags
+#define guyflagOVERRIDE_TILE_WIDTH	0x00000001
+#define guyflagOVERRIDE_TILE_HEIGHT	0x00000002
+#define guyflagOVERRIDE_HIT_WIDTH	0x00000004
+#define guyflagOVERRIDE_HIT_HEIGHT	0x00000008
+#define guyflagOVERRIDE_HIT_Z_HEIGHT	0x00000010
+#define guyflagOVERRIDE_HIT_X_OFFSET	0x00000020
+#define guyflagOVERRIDE_HIT_Y_OFFSET	0x00000040
+#define guyflagOVERRIDE_DRAW_X_OFFSET	0x00000080
+#define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
+#define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
+
 
 struct guydata
 {
