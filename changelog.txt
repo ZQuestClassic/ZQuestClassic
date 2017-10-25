@@ -1,6 +1,130 @@
+//2.54 Changes
+
+//Alpha 5
+Made global global declaration of special types and special-typed arrays legal. They give a compiler warning. 
+Added comment blocks to ZScript. ( ZoriaRPG, 25th October, 2017 )
+
+//Alpha 4
+Fixed ZScript pointers
+
+Added Input->Mouse[6]
+
+//Alpha 2
+* Added the ability to customise the Save screens.  ( ZoriaRPG, 21st October, 2017 )
+
+* ZDetail all new ZScript 
+
+Added Input-> Pointer with control over joysticks, button presses, keyboard, and mouse. 
+
+Added to ZScript:
+
+(Global->) SizeOfArrayBool(), SizeOfArrayFFC(), SizeOfArrayNPC(), SizeOfArrayItem(), SizeOfArrayItemdata(), SizeOfArrayLWeapon(),
+	SizeOfArrayEWeapon(), OverlayTile(), TraceFFC(), TraceNPC(), TraceLWeapon(), TraceEWeapon(), TraceItem(),
+	TraceItemdata()
+	
+Game->GetItemScript(), GetBoolPointer(), SetBoolPointer(), GreyscaleOn(), GreyscaleOff(), DMapPalette[], SetMessage(),
+	SetDMapName(), SetDMapTitle((), SetDMapIntro(), Version, Build, Beta, DisableActiveSubscreen, SetScreenFlag(),
+	NumMessages, MapCount(), GameOverScreen[], GameOverStrings[]
+	
+Audio->PauseSound(), ResumeSound(), EndSound(), PauseMusic(), ResumeMusic(), PlaySound()
+
+ffc-> ID ( Seems to be missing ?? )
+
+
+itemdata->Attributes[10], Sprites[10], Flags[5], 
+ID, Modifier, Tile, CSet, Flash, AFrames, ASpeed, Delay, Script, PScript, MagicCost, MinHearts, 
+Combine, Downgrade, KeepOld, RupeeCost, Edible, GainLower, InitD, GetName(), Family, Level, Power, Amount,
+Max, MaxIncrement, Keep, Counter, UseSound,
+//Unimplemented for Weapon Editor: Weapon, Defense, Range, Duration, WeaponD, Duplicates, DrawLayer, 
+CollectFlags, WeaponScript, WeapomnHitXOffset, WeaponHitYOffset, WeaponHitHeight, WeaponHitWidth, WeaponHitZHeight,
+WeaponDrawXOffset, WeaponDrawYOffset, WeaponDrawZOffset, 
+
+item->ACLock ( Seems to be missing? ), Misc[32]
+
+npc->InvFrames, Invincible, HasItem, Ringleader, Defense[42], Misc[32]
+
+lweapon->Range (unimplemented), Misc[32]
+eweapon->Misc[32]
+
+Screen->TriggerSecret(int secret), CreateLWeaponDx(), DrawBitmapEx()
+
+Link->Link->DisableItem[256], InvFrames, InvFlicker, HurtSound, SetItemSlot(), Eaten, Diagonal, BigHitbox, Misc[32]
+
+NPCData->GetFlags(), GetFlags2(), GetWidth(), GetHeight(), GetSTile(), GetSWidth(), GetSHeight()
+	GetETile(), GetEWidth(), GetHP(), GetFamily(), GetCSet(), GetAnim(), GetEAnim(), GetFramerate()
+	GetEFramerate(), GetTouchDamage(), GetWeaponDamage(), GetWeapon(), GetRandom(), GetHaltRate()
+	GetStep(), GetHoming(), GetHunger(), GetDropset(), GetBGSFX(), GetHitSFX(), GetDeathSFX()
+	GetDrawXOffset(), GetDrawYOffset(), GetDrawZOffset(), GetHitXOffset(), GetHitYOffset()
+	GetHitWidth(), GetHitHeight(), GetHitZHeight(), GetTileWidth(), GetTileHeight(), GetWeaponSprite()
+	GetDefense(), GetSizeFlag(), GetAttribute()
+	SetFlags(), SetFlags2(), SetWidth(), SetHeight(), SetSTile(), SetSWidth(), SetSHeight(), SetETile()
+	SetEWidth(), SetHP(), SetFamily(), SetCSet(), SetAnim(), SetEAnim(), SetFramerate(), SetEFramerate()
+	SetTouchDamage(), SetWeaponDamage(), SetWeapon(), SetRandom(), SetHaltRate(), SetStep(), SetHoming()
+	SetHunger(), SetDropset(), SetBGSFX(), SetHitSFX(), SetDeathSFX(), SetDrawXOffset(), SetDrawYOffset()
+	SetDrawZOffset(), SetHitXOffset(), SetHitYOffset(), SetHitWidth(), SetHitHeight(), SetHitZHeight()
+	SetTileWidth(), SetTileHeight(), SetWeaponSprite(), SetDefense(), SetSizeFlag(), SetAttribute()
+	
+Text-> (No attributes at this time.)
+Graphics-> (No attributes at this time.)
+
+ComboData-> GetBlockEnemies(), GetBlockHole(), GetBlockTrigger(), GetConveyorSpeedX(), GetConveyorSpeedY(),  
+	GetCreateEnemy(), GetCreateEnemyWhen(), GetCreateEnemyChange(), GetDirChangeType(), GetDistanceChangeTiles(),
+	GetDiveItem(), GetDock(), GetFairy(), GetFFComboChangeAttrib(), GetFootDecorationsTile(),  
+	GetFootDecorationsType(), GetHookshotGrab(), GetLadderPass(), GetLockBlockType(), GetLockBlockChange(),  
+	GetMagicMirror(), GetModifyHPAmount(), GetModifyHPDelay(), GetModifyHPType(), GetModifyMPAmount(),  
+	GetModifyMPDelay(), GetModifyMPType(), GetNoPushBlocks(), GetOverhead(), GetPlaceEnemy(), GetPushDirection(),  
+	GetPushWeight(), GetPushWait(), GetPushed(), GetRaft(), GetResetRoom(), GetSavePoint(), GetScreenFreeze(),  
+	GetSecretCombo(), GetSingular(), GetSlowMove(), GetStatue(), GetStepType(), GetStepChangeTo(),  
+	GetStrikeRemnants(), GetStrikeRemnantsType(), GetStrikeChange(), GetStrikeItem(), GetTouchItem(),  
+	GetTouchStairs(), GetTriggerType(), GetTriggerSens(), GetWarpType(), GetWarpSens(), GetWarpDirect(),  
+	GetWarpLocation(), GetWater(), GetWhistle(), GetWinGame(), GetBlockWeaponLevel(), GetTile(), GetFlip(),  
+	GetWalkability(), GetType(), GetCSets(), GetFoo(), GetFrames(), GetSpeed(), GetNextCombo(), GetNextCSet(),  
+	GetFlag(), GetSkipAnim(), GetNextTimer(), GetSkipAnimY(), GetAnimFlags(), GetBlockWeapon(),   //[32]          
+	GetExpansion(),   //[6] 
+	GetStrikeWeapons(),   //[32] 
+	
+	SetBlockEnemies(), SetBlockHole(), SetBlockTrigger(), SetConveyorSpeedX(), SetConveyorSpeedY(),  
+	SetCreateEnemy(), SetCreateEnemyWhen(), SetCreateEnemyChange(), SetDirChanSetype(), SetDistanceChanSetiles(),
+	SetDiveItem(), SetDock(), SetFairy(), SetFFComboChangeAttrib(), SetFootDecorationsTile(),  
+	SetFootDecorationsType(), SetHookshotGrab(), SetLadderPass(), SetLockBlockType(), SetLockBlockChange(),  
+	SetMagicMirror(), SetModifyHPAmount(), SetModifyHPDelay(), SetModifyHPType(), SetModifyMPAmount(),  
+	SetModifyMPDelay(), SetModifyMPType(), SetNoPushBlocks(), SetOverhead(), SetPlaceEnemy(), SetPushDirection(),  
+	SetPushWeight(), SetPushWait(), SetPushed(), SetRaft(), SetResetRoom(), SetSavePoint(), SetScreenFreeze(),  
+	SetSecretCombo(), SetSingular(), SetSlowMove(), SetStatue(), SetStepType(), SetStepChanSeto(),  
+	SetStrikeRemnants(), SetStrikeRemnantsType(), SetStrikeChange(), SetStrikeItem(), SetTouchItem(),  
+	SetTouchStairs(), SetTriggerType(), SetTriggerSens(), SetWarpType(), SetWarpSens(), SetWarpDirect(),  
+	SetWarpLocation(), SetWater(), SetWhistle(), SetWinGame(), SetBlockWeaponLevel(), SetTile(), SetFlip(),  
+	SetWalkability(), SetType(), SetCSets(), SetFoo(), SetFrames(), SetSpeed(), SetNextCombo(), SetNextCSet(),  
+	SetFlag(), SetSkipAnim(), SetNextTimer(), SetSkipAnimY(), SetAnimFlags(), SetBlockWeapon(),   //[32]          
+	SetExpansion(),   //[6] 
+	SetStrikeWeapons()   //[32] 
+	
+SpriteData->GetTile(), GetMisc(), GetCSets(), GetFrames(), GetSpeed(), GetType(),
+	SetTile(), SetMisc(), SetCSets(), SetFrames(), SetSpeed(), SetType()
+
+Input->Press[18], Button[18],  Hold[18], Key[127], ReadKey[127] ( should become a function ReadKey() )
+	Joypad[18], Mouse[6]
+
+MapData-> GetEnemy(), GetDoor(), GetWidth(), GetHeight(), GetViewX(), GetViewY(), GetGuy(), GetString(), 	
+	GetRoomType(), GetEntryX(), GetEntryY(), GetItem(), GetUndercombo(), GetUnderCSet(), GetCatchall(),
+	GetLayerOpacity(), GetSecretCombo(), GetSecretCSet(), GetSecretFlag(), GetLayerMap(), GetLayerScreen(), 
+	GetPath(), GetWarpReturnX(), GetWarpReturnY(), GetEnemy(), GetDoor(),				
+	SetEnemy(), SetDoor(), SetWidth(), SetHeight(), SetViewX(), SetViewY(), SetGuy(), SetString(), 	SetRoomType(),
+	SetEntryX(), SetEntryY(), SetItem(), SetUndercombo(), SetUnderCSet(), SetCatchall(), SetLayerOpacity(),
+	SetSecretCombo(), SetSecretCSet(), SetSecretFlag(), SetLayerMap(), SetLayerScreen(), SetPath(),
+	SetWarpReturnX(), SetWarpReturnY(), SetEnemy(),	SetDoor(),
+	
+Debug->GetFFCPointer(), SetFFCPointer(), GetItemPointer(), SetItemPointer(), GetItemdataPointer(), SetItemdataPointer()
+	GetNPCPointer(), SetNPCPointer(), GetLWeaponPointer(), SetLWeaponPointer(), GetEWeaponPointer(),
+	SetEWeaponPointer(), RefFFC, RefItem, RefItemdata, RefLWeapon, RefEWeapon, RefNPC, SP
+,
+
+//2.53 Changes
+
 ChangeLog for 2.53.0 Beta 11
 16-OCT-2017
 
+Optimised some functions in std.zh that returned boolean values and were comparing against != 0. 
 VBund ZQuest combo editor fields: Cset to -15/+15, Aframes (0,255), ASpeed (0,255) to prevent rollover from lack
 of sanity bounding. ( ZoriaRPG 16th october, 2017 )
 
@@ -147,6 +271,8 @@ ZScript Variables in scope are destroyed when their scope exits. ( DarkDragon, J
 
 Fixed long-standing keyboard issues with alt+tab, and hopefully) issues with the keyboard losing focus. (DD/Z, Dec 2016-Jan 2017)	
 
+//2.50.3RC1 (Abandoned) 
+
 Added a checkbox to disable analog stick movement.
 Changed joystick config dialogues to match keyboard config dialogues. 
 Added more joystick options to ag.cfg. 
@@ -241,7 +367,7 @@ Build 1793 - linux , windows
 
 * Users Choice Award winner of 2014 is in: "Dmaps Spam'd" - Now you have the ability to Copy/Paste Dmaps in the Dmap dialog with the usual keys 'C' and 'V' respectively. ( Gleeok, 2014-12-12 23:08:38 )
 
-
+//2.50.1
 
 Build 1703 - linux , macosx-Tiger-and-Leopard , windows
 * Let's try this again... ( Saffith, 2014-10-05 08:49:40 )
@@ -288,6 +414,7 @@ Build 1700 - linux , macosx-Tiger-and-Leopard , windows
 
 * Items of type Bow and Arrow and Letter or Potion can no longer be made equipment items.
 * Improved compatibility with ID3-tagged MP3s. ( Saffith, 2014-08-27 12:22:25 )
+
 
 
 
@@ -456,7 +583,7 @@ Build 1628 - windows
 Build 1608 - linux , macosx-Leopard , windows
 * 2.50.1 RC 1 ( Saffith, 2013-07-29 13:08:26 )
 
-
+//2.50.0
 
 Build 1606 - linux , macosx-Leopard , windows
 * Updated build number and date.
@@ -514,7 +641,7 @@ Build 1586 - linux
 
 * Unbroke the ladder.
 * Fixed splitting enemies background sounds. ( Saffith, 2012-11-15 07:24:32 )
-
+ 
 
 
 Build 1571 - linux , macosx-Leopard , windows
