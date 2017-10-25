@@ -1,5 +1,9 @@
 //2.54 Changes
 
+//Alpha 6
+
+Fixed ffc->ID and item->AClock
+
 //Alpha 5
 Made global global declaration of special types and special-typed arrays legal. They give a compiler warning. 
 Added comment blocks to ZScript. ( ZoriaRPG, 25th October, 2017 )
