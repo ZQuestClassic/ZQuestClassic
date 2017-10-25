@@ -408,7 +408,7 @@ static TABPANEL itemdata_tabs[] =
     { (char *)"Pickup",       0,             itemdata_pickup_list,        0, NULL },
     { (char *)"Action",       0,             itemdata_script_list,        0, NULL },
     { (char *)"Scripts",      0,             itemdata_scriptargs_list,    0, NULL },
-     { (char *)"Weapon",      0,             itemdata_weaponargs_list,    0, NULL },
+   //  { (char *)"Weapon",      0,             itemdata_weaponargs_list,    0, NULL },
     { NULL,                   0,             NULL,                        0, NULL }
 };
 
@@ -778,6 +778,7 @@ static DIALOG itemdata_special_dlg[] =
     { jwin_droplist_proc,     107,     44,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &weapon_list,						 NULL,   NULL 				   },
 };
 
+
 static DIALOG itemdata_dlg[] =
 {
     // (dialog proc)           (x)     (y)     (w)     (h)        (fg)                   (bg)                   (key)       (flags)     (d1)     (d2)    (dp)                                            (dp2)               (dp3)
@@ -971,27 +972,27 @@ static DIALOG itemdata_dlg[] =
     { jwin_check_proc,        161,     62,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Uses Rupees Instead Of Magic",        NULL,   NULL                  },
     
     //139
-    { jwin_text_proc,           8,     74,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon 1:",                           NULL,   NULL                  },
+    { jwin_text_proc,           8,     74,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[0]:",                           NULL,   NULL                  },
     { jwin_droplist_proc,       8,     83,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-    { jwin_text_proc,           8,    100,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon 2:",                           NULL,   NULL                  },
+    { jwin_text_proc,           8,    100,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[1]:",                           NULL,   NULL                  },
     { jwin_droplist_proc,       8,    109,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-    { jwin_text_proc,           8,    126,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon 3:",                           NULL,   NULL                  },
+    { jwin_text_proc,           8,    126,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[2]:",                           NULL,   NULL                  },
     { jwin_droplist_proc,       8,    135,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-    { jwin_text_proc,           8,    152,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon 4:",                           NULL,   NULL                  },
+    { jwin_text_proc,           8,    152,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[3]:",                           NULL,   NULL                  },
     { jwin_droplist_proc,       8,    161,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-    { jwin_text_proc,           8,    178,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon 5:",                           NULL,   NULL                  },
+    { jwin_text_proc,           8,    178,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[4]:",                           NULL,   NULL                  },
     { jwin_droplist_proc,       8,    187,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
     
     //149
-    { jwin_text_proc,         161,     74,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon 6:",                           NULL,   NULL                  },
+    { jwin_text_proc,         161,     74,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[5]:",                           NULL,   NULL                  },
     { jwin_droplist_proc,     161,     83,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-    { jwin_text_proc,         161,    100,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon 7:",                           NULL,   NULL                  },
+    { jwin_text_proc,         161,    100,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[6]:",                           NULL,   NULL                  },
     { jwin_droplist_proc,     161,    109,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-    { jwin_text_proc,         161,    126,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon 8:",                           NULL,   NULL                  },
+    { jwin_text_proc,         161,    126,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[7]:",                           NULL,   NULL                  },
     { jwin_droplist_proc,     161,    135,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-    { jwin_text_proc,         161,    152,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon 9:",                           NULL,   NULL                  },
+    { jwin_text_proc,         161,    152,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[8]:",                           NULL,   NULL                  },
     { jwin_droplist_proc,     161,    161,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-    { jwin_text_proc,         161,    178,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon 10:",                          NULL,   NULL                  },
+    { jwin_text_proc,         161,    178,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[9]:",                          NULL,   NULL                  },
     { jwin_droplist_proc,     161,    187,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
     
     //159
@@ -1037,49 +1038,13 @@ static DIALOG itemdata_dlg[] =
     { jwin_edit_proc,      34+10,  115+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      34+10,  133+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      34+10,  151+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    
-    { jwin_text_proc,       112+10,  29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A1:", NULL, NULL },
-    { jwin_text_proc,       112+10,  47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A2:", NULL, NULL },
     //195
     { jwin_text_proc,       112+10,  29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A1:", NULL, NULL },
     { jwin_text_proc,       112+10,  47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A2:", NULL, NULL },
-    //197
+    //74
     { jwin_edit_proc,      140+10,  25+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      140+10,  43+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
-    //199
-    { jwin_text_proc,           8,     50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     107,     48,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemdata_weapon_list,						 NULL,   NULL 				   },
-    //201
-    { jwin_text_proc,           8,     70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Default Defense",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     107,     68,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &defense_list,						 NULL,   NULL 				   },
-    //203
-    { jwin_text_proc,           8,     90,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Pattern",                  NULL,   NULL                  },
-    { jwin_droplist_proc,     107,     88,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &weapon_pattern_llist,						 NULL,   NULL 				   },
-    //205
-    { jwin_text_proc,           8,     110,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 1:",                              NULL,   NULL                  },
-    { jwin_edit_proc,         107,     108,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-    //207
-    { jwin_text_proc,           8,     130,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 2:",                              NULL,   NULL                  },
-    { jwin_edit_proc,         107,     128,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-    //209
-    { jwin_text_proc,           8,     150,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Range:",                              NULL,   NULL                  },
-    { jwin_edit_proc,         107,     148,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-    //211
-    { jwin_text_proc,           8,     170,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Duration:",                              NULL,   NULL                  },
-    { jwin_edit_proc,         107,     168,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-    //213
-     { jwin_text_proc,           177,     110,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 3:",                              NULL,   NULL                  },
-    { jwin_edit_proc,         276,     108,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-    //215
-    { jwin_text_proc,           177,     130,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 4:",                              NULL,   NULL                  },
-    { jwin_edit_proc,         276,     128,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-    //217
-    { jwin_text_proc,           177,     150,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Other 1:",                              NULL,   NULL                  },
-    { jwin_edit_proc,         276,     148,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-    //219
-    { jwin_text_proc,           177,     170,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Other 2:",                              NULL,   NULL                  },
-    { jwin_edit_proc,         276,     168,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-    
+    //200
     /*
     { jwin_text_proc,       6+10,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "Misc[0]:", NULL, NULL },
     { jwin_text_proc,       6+10,   47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "Misc[1]:", NULL, NULL },
@@ -1111,7 +1076,7 @@ void setLabels(int iclass)
         inf = it->second;
         
         
-   if(inf == NULL)
+    if(inf == NULL)
         itemdata_dlg[12].dp = (void *)"Power:";
     else if(inf->power == NULL)
     {
@@ -1419,38 +1384,7 @@ void setLabels(int iclass)
         itemdata_dlg[157].dp = inf->wpn10;
         itemdata_dlg[158].flags &= ~D_DISABLED;
     }
-/*
-    //!! New itemdata values. -Z
-    char wrange[8], wdur[8], wdef[8], wweap[8], wptrn[8], warg1[8], warg2[8];
-    sprintf(wrange,"%d",inf->weaprange);
-    sprintf(wdur,"%d",inf->weapduration);
-    sprintf(wdef,"%d",inf->usedefence);
-    sprintf(wweap,"%d",inf->useweapon);
-    sprintf(wptrn,"%d",inf->weap_pattern[0]);
-    sprintf(warg1,"%d",inf->weap_pattern[1]);
-    sprintf(warg2,"%d",inf->weap_pattern[2]);
-    
-    
-   //!  This is crashing ZQuest. Why? What is the proper way to populate these fields from the item buffer? -Z
-    itemdata_dlg[200].dp = wweap; //atoi(inf->useweapon);
-    itemdata_dlg[202].dp = wdef; //atoi(inf->usedefence);
-    itemdata_dlg[204].dp = wptrn; //atoi(inf->weap_pattern[0]);
-    itemdata_dlg[206].dp = warg1; //atoi(inf->weap_pattern[1]);
-    itemdata_dlg[208].dp = warg2; //atoi(inf->weap_pattern[2]);
-    itemdata_dlg[210].dp = wrange; // atoi(inf->weaprange);
-    itemdata_dlg[212].dp = wdur; //atoi(inf->weapduration);
-    */
-    
-    /* Also crashing...
-    itemdata_dlg[200].d1 = atoi(inf->useweapon);
-    itemdata_dlg[202].d1 = atoi(inf->usedefence);
-    itemdata_dlg[204].d1 = atoi(inf->weap_pattern[0]);
-    itemdata_dlg[206].d1 = atoi(inf->weap_pattern[1]);
-    itemdata_dlg[208].d1 = atoi(inf->weap_pattern[2]);
-    itemdata_dlg[210].d1 = atoi(inf->weaprange);
-    itemdata_dlg[212].d1 = atoi(inf->weapduration);
-    */
-}	
+}
 
 void itemdata_help(int id)
 {
@@ -1584,7 +1518,7 @@ void edit_itemdata(int index)
     sprintf(pow,"%d",itemsbuf[index].power);
     sprintf(asn,"%d",itemsbuf[index].usesound);
     sprintf(name,"%s",item_string[index]);
-    
+    /*
     //New itemdata vars
     sprintf(wrange,"%d",itemsbuf[index].weaprange);
     sprintf(wdur,"%d",itemsbuf[index].weapduration);
@@ -1597,7 +1531,7 @@ void edit_itemdata(int index)
     sprintf(warg4,"%d",itemsbuf[index].weap_pattern[4]);
     sprintf(warg5,"%d",itemsbuf[index].weap_pattern[5]);
     sprintf(warg6,"%d",itemsbuf[index].weap_pattern[6]);
-  
+  */
     
     sprintf(name,"%s",item_string[index]);
     
@@ -1734,7 +1668,7 @@ void edit_itemdata(int index)
     
     itemdata_dlg[102].d1 = pickupscript;
     itemdata_dlg[132].d1 = script;
-    
+    /*
     //These cannot be .dp. That crashes ZQuest; but they are not being retained when changed. -Z
      itemdata_dlg[200].d1 = itemsbuf[index].useweapon;
     itemdata_dlg[202].d1 = itemsbuf[index].usedefence;
@@ -1750,7 +1684,7 @@ void edit_itemdata(int index)
     itemdata_dlg[216].dp = warg4; //itemsbuf[index].weap_pattern[2];
     itemdata_dlg[218].dp = warg5; //itemsbuf[index].weaprange;
     itemdata_dlg[220].dp = warg6; //itemsbuf[index].weapduration;
-    
+    */
     int ret;
     itemdata test;
     memset(&test, 0, sizeof(itemdata));
@@ -1796,7 +1730,7 @@ void edit_itemdata(int index)
         test.family = vbound(biic[itemdata_dlg[9].d1].i, 0, 255);
         
 	//New itemdata vars -Z
-	
+	/*
 	//! These now store in the editor, but if you change the values, save the quest, and reload, 
 	//! ZQuest crashes on reading items (bad token)
 	test.usedefence =  itemdata_dlg[202].d1; //atoi(wdef);
@@ -1811,7 +1745,7 @@ void edit_itemdata(int index)
 	test.weap_pattern[4] =  vbound(atoi(warg4),-214747, 214747);
 	test.weap_pattern[5] =  vbound(atoi(warg5),-214747, 214747);
 	test.weap_pattern[6] =  vbound(atoi(warg6),-214747, 214747);
-        
+        */
         if(itemdata_dlg[14].flags & D_SELECTED)
             test.flags |= ITEM_GAMEDATA;
             
@@ -1937,7 +1871,7 @@ void edit_itemdata(int index)
             sprintf(asn,"%d",test.usesound);
 	    
 	    //New itemdata vars -Z
-	    
+	    /*
 	    sprintf(wrange,"%d",test.weaprange);
 	    sprintf(wdur,"%d",test.weapduration);
 	    sprintf(wdef,"%d",test.usedefence);
@@ -1945,7 +1879,7 @@ void edit_itemdata(int index)
 	    sprintf(wptrn,"%d",test.weap_pattern[0]);
 	    sprintf(warg1,"%d",test.weap_pattern[1]);
 	    sprintf(warg2,"%d",test.weap_pattern[2]);
-	    
+	    */
             sprintf(zname, "zz%03d", index);
             sprintf(name,"%s",index<iLast?old_item_string[index]:zname);
             
@@ -2025,7 +1959,7 @@ void edit_itemdata(int index)
             itemdata_dlg[136].dp = asn;
             itemdata_dlg[137].flags = (test.flags&ITEM_DOWNGRADE) ? D_SELECTED : 0;
             itemdata_dlg[138].flags = (test.flags&ITEM_RUPEE_MAGIC) ? D_SELECTED : 0;
-            
+            /*
 	    //! These now store in the editor, but if you change the values, save the quest, and reload, 
 	//! ZQuest crashes on reading items (bad token)
 			//string or int here? -Z
@@ -2040,7 +1974,7 @@ void edit_itemdata(int index)
 			    itemdata_dlg[216].dp = warg4; //test.weap_pattern[2]; //atoi(warg2);
 			    itemdata_dlg[218].dp = warg5; //test.weaprange; //atoi(wrange);
 			    itemdata_dlg[220].dp = warg6;// = test.weapduration; //atoi(wdur);
-			    
+	*/
             for(int j=0; j<biw_cnt; j++)
             {
                 if(biw[j].i == test.wpn)
