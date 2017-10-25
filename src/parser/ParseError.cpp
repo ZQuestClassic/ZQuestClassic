@@ -133,7 +133,8 @@ void printErrorMsg(AST *offender, int errorID, string param)
         break;
         
     case REFVAR:
-        oss << "Error S26: Pointer types (ffc, etc) cannot be declared as global variables." ;
+        oss << "WARNING: Pointer types (ffc, etc) declared at a global scope are legal, but unsupported!.";
+        //oss << "Error S26: Pointer types (ffc, etc) cannot be declared as global variables." ;
         break;
         
     case ARROWNOTPOINTER:
@@ -185,7 +186,8 @@ void printErrorMsg(AST *offender, int errorID, string param)
         break;
         
     case REFARR:
-        oss << "Error A40: Pointer types (ffc, etc) cannot be declared as global arrays." ;
+	    oss << "WARNING: Pointer types (ffc, etc) declared as global arrays are legal, but unsupported!." ;
+        //oss << "Error A40: Pointer types (ffc, etc) cannot be declared as global arrays." ;
         break;
         
     case ARRAYTOOSMALL:

@@ -74,11 +74,13 @@ void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
         printErrorMsg(&host, VOIDVAR, name);
     }
     
+    
+    //This code stops declaring special types t a global scope. -Z
     if(type == ScriptParser::TYPE_FFC || type == ScriptParser::TYPE_ITEM
             || type == ScriptParser::TYPE_ITEMCLASS || type == ScriptParser::TYPE_NPC
             || type == ScriptParser::TYPE_LWPN || type == ScriptParser::TYPE_EWPN)
     {
-        failure = true;
+        failure = false;
         printErrorMsg(&host, REFVAR, name);
     }
     
@@ -115,11 +117,12 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
         printErrorMsg(&host, VOIDARR, name);
     }
     
+    //This code prevents global arrays from being typed to special types. -Z
     if(type == ScriptParser::TYPE_FFC || type == ScriptParser::TYPE_ITEM
             || type == ScriptParser::TYPE_ITEMCLASS || type == ScriptParser::TYPE_NPC
             || type == ScriptParser::TYPE_LWPN || type == ScriptParser::TYPE_EWPN)
     {
-        failure = true;
+        failure = false;
         printErrorMsg(&host, REFARR, name);
     }
     
