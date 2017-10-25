@@ -102,6 +102,9 @@ extern YYLTYPE noloc;
 %left TIMES DIVIDE
 %left MODULO
 
+%token PREPROCESS
+%token DEFINE
+
 
 %%
 
@@ -135,7 +138,10 @@ ConstDecl : ZCONST ZFLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = 
 																  ASTFloat *val = (ASTFloat *)$6;
 																  val->set_negative(true);
 																  $$ = new ASTConstDecl(name->getValue(), val,@1);
-																  delete name;}
+																  delete name;
+															
+	
+																  }
 
 ArrayDecl : Type IDENTIFIER LBRACKET NUMBER RBRACKET {	ASTType *type = (ASTType *)$1;
 														ASTString *name = (ASTString *)$2;
