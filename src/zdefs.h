@@ -1464,6 +1464,20 @@ struct item_drop_object
 #define ffCHANGETHIS    0x08000000 //Change combo/cset to this
 #define ffCHANGESPEED   0x04000000 //Change speed to this (default, not implemented yet)
 
+
+//Guydata Enemy Editor Size Panel FLags
+#define guyflagOVERRIDE_TILE_WIDTH	0x00000001
+#define guyflagOVERRIDE_TILE_HEIGHT	0x00000002
+#define guyflagOVERRIDE_HIT_WIDTH	0x00000004
+#define guyflagOVERRIDE_HIT_HEIGHT	0x00000008
+#define guyflagOVERRIDE_HIT_Z_HEIGHT	0x00000010
+#define guyflagOVERRIDE_HIT_X_OFFSET	0x00000020
+#define guyflagOVERRIDE_HIT_Y_OFFSET	0x00000040
+#define guyflagOVERRIDE_DRAW_X_OFFSET	0x00000080
+#define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
+#define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
+
+
 struct guydata
 {
     dword flags;
