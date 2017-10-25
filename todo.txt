@@ -20,6 +20,8 @@ Prevent Active Subscreen
 DMAp Palette Code
 editor map flags lists
 New fonts. 
+Made global special types and arrays legal.
+Added comment blocks to ZScript. 
 
 Might Do:
 Weapon -> Defence Redirection / Weapon Editor Stuff
