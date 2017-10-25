@@ -530,6 +530,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     t->putVar(vid2, ScriptParser::TYPE_MAPDATA);
     t->addGlobalPointer(vid2);
     
+    
     //strip the global variables from the AST
     GetGlobalVars gv;
     theAST->execute(gv, NULL);

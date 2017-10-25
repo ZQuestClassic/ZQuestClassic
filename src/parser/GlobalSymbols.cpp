@@ -1250,7 +1250,6 @@ map<int, vector<Opcode *> > FFCSymbols::addSymbolsCode(LinkTable &lt)
 {
     map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
 	
-	
 //void ChangeFFCScript(ffc, int)
     {
         int id = memberids["ChangeFFCScript"];
