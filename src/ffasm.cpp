@@ -1061,7 +1061,7 @@ script_variable variable_list[]=
 	{ "NPCHASITEM",         NPCHASITEM,            0,             0 },
 	{ "NPCRINGLEAD",         NPCRINGLEAD,            0,             0 },
 	{ "IDATAFRAME",         IDATAFRAME,            0,             0 },
-	{ "__RESERVED_FOR_ITEMACLK",         __RESERVED_FOR_ITEMACLK,            0,             0 },
+	{ "ITEMACLK",         ITEMACLK,            0,             0 },
 	{ "FFCID",         FFCID,            0,             0 },
 	{ "IDATAATTRIB",         IDATAATTRIB,            0,             0 },
 	{ "IDATASPRITE",         IDATASPRITE,            0,             0 },

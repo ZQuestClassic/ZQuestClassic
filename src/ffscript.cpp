@@ -1666,7 +1666,15 @@ long get_register(const long arg)
         }
         
         break;
+	
+    case ITEMACLK:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((item*)(s))->aclk*10000;
+        }
         
+        break;    
+	
     case ITEMASPEED:
         if(0!=(s=checkItem(ri->itemref)))
         {
@@ -4395,7 +4403,15 @@ void set_register(const long arg, const long value)
         }
         
         break;
+	
+     case ITEMACLK:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (((item *)s)->aclk)=value/10000;
+        }
         
+        break;
+	
     case ITEMDELAY:
         if(0!=(s=checkItem(ri->itemref)))
         {

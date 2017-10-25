@@ -344,6 +344,9 @@ string VarArgument::toString()
         
     case ITEMASPEED:
         return "ITEMASPEED";
+    
+    case ITEMACLK:
+        return "ITEMACLK";
         
     case ITEMDELAY:
         return "ITEMDELAY";

@@ -1540,7 +1540,7 @@ enum ASM_DEFINE
 #define IDATADELAY             0x02B2
 #define IDATAWPN             0x02B3
 #define IDATAFRAME             0x02B4
-#define __RESERVED_FOR_ITEMACLK            0x02B5
+#define ITEMACLK            0x02B5
 #define IDATAFLAGS            0x02B6
 #define IDATASPRITE            0x02B7
 #define IDATAATTRIB            0x02B8
