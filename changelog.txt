@@ -9,14 +9,19 @@ Made global global declaration of special types and special-typed arrays legal. 
 Added comment blocks to ZScript. ( ZoriaRPG, 25th October, 2017 )
 
 //Alpha 4
+Fixed ZQuest combo editor flag lister (crashing). 
 Fixed ZScript pointers
 
 Added Input->Mouse[6]
 
-//Alpha 2
-* Added the ability to customise the Save screens.  ( ZoriaRPG, 21st October, 2017 )
 
-* ZDetail all new ZScript 
+
+//Alpha 2
+
+
+Added the ability to customise the Save screens.  ( ZoriaRPG, 21st October, 2017 )
+
+Added combo flags 104 through 255 to ZQuest, with temporary IDs
 
 Added Input-> Pointer with control over joysticks, button presses, keyboard, and mouse. 
 
