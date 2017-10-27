@@ -85,6 +85,7 @@ class ASTExprArray;
 class ASTNumConstant;
 class ASTFuncCall;
 class ASTBoolConstant;
+class ASTStringConstant;
 class ASTBlock;
 class ASTStmt;
 class ASTStmtAssign;
@@ -306,6 +307,10 @@ public:
         caseDefault(param);
     }
     virtual void caseBoolConstant(ASTBoolConstant &, void *param)
+    {
+        caseDefault(param);
+    }
+    virtual void caseStringConstant(ASTStringConstant &, void *param)
     {
         caseDefault(param);
     }
@@ -724,6 +729,7 @@ public:
         return exprs;
     }
     void addParam(ASTExpr *expr);
+	void addString(std::string const& str);
     bool isString()
     {
         return listIsString;
@@ -1549,6 +1555,26 @@ public:
     }
 private:
     bool value;
+};
+
+class ASTStringConstant : public ASTExpr
+{
+public:
+	ASTStringConstant(char const * Str, LocationData Loc)
+		: ASTExpr(Loc), str(Str) {}
+	ASTStringConstant(string const Str, LocationData Loc)
+		: ASTExpr(Loc), str(Str) {}
+	ASTStringConstant(ASTString& raw)
+		: ASTExpr(raw.getLocation()),
+		  str(raw.getValue().substr(1, raw.getValue().size() - 2))
+	{}
+
+	void execute (ASTVisitor& visitor, void* param) {
+		visitor.caseStringConstant(*this, param);}
+	bool isConstant() const {return true;}
+	string getValue() const {return str;}
+private:
+	std::string str;
 };
 
 class ASTBlock : public ASTStmt

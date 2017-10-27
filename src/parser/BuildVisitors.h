@@ -43,6 +43,7 @@ public:
     virtual void caseStmtEmpty(ASTStmtEmpty &host, void *param);
     virtual void caseNumConstant(ASTNumConstant &host, void *param);
     virtual void caseBoolConstant(ASTBoolConstant &host, void *param);
+    virtual void caseStringConstant(ASTStringConstant &host, void *param);
     virtual void caseStmtWhile(ASTStmtWhile &host, void *param);
     virtual void caseStmtDo(ASTStmtDo &host, void *param);
     virtual void caseExprBitOr(ASTExprBitOr &host, void *param);
@@ -70,19 +71,23 @@ public:
     {
         return &arrayRefs;
     }
-    BuildOpcodes() : continuelabelid(-1), breaklabelid(-1), failure(false) {}
+	BuildOpcodes() : continuelabelid(-1), breaklabelid(-1), failure(false),
+	                 breakRefCount(0) {}
     bool isOK()
     {
         return !failure;
     }
     void castFromBool(vector<Opcode *> &result, int reg);
 private:
+	void deallocateArrayRef(long arrayRef);
+	void deallocateBreakRefs();
+	
     vector<Opcode *> result;
     int returnlabelid;
     int continuelabelid;
     int breaklabelid;
-    list<long> *breakRef;
     list<long> arrayRefs;
+	int breakRefCount;
     bool failure;
 };
 
@@ -102,8 +107,11 @@ public:
 		curoffset += 10000;
 		highWaterOffset = std::max(highWaterOffset, curoffset);
     }
-    virtual void caseArrayDecl(ASTArrayDecl &host, void *)
-    {        
+    virtual void caseArrayDecl(ASTArrayDecl& host, void* param)
+    {
+	    ASTArrayList* list = host.getList();
+	    if (list) list->execute(*this, param);
+	    
         int vid = st->getID(&host);
 		sf->addToFrame(vid, curoffset);
 		curoffset += 10000;
@@ -111,6 +119,7 @@ public:
     }
     virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
     {
+	    host.getInitializer()->execute(*this, param);
         caseVarDecl(host, param);
     }
 
@@ -139,6 +148,15 @@ public:
 		prevframes.pop();
 	}
 
+	virtual void caseStringConstant(ASTStringConstant& host, void* param)
+	{
+		int vid = st->getID(&host);
+		sf->addToFrame(vid, curoffset);
+		curoffset += 10000;
+		if (highWaterOffset < curoffset)
+			highWaterOffset = curoffset;
+	}
+	
 	int getHighWaterOffset() { return highWaterOffset; }
 
 private:

@@ -204,6 +204,11 @@ void printErrorMsg(AST *offender, int errorID, string param)
         
     case NONINTEGERARRAYSIZE:
         oss << "Error A38: Arrays can only be initialized to numerical values" ;
+        break;
+
+    case ANONYMOUSGLOBALSTRING:
+	    oss << "Error G55: Anonymous strings cannot be global. Did you forget a []?";
+	    break;
         
     default:
         oss << "FATAL FATAL ERROR I0: bad internal error code" ;

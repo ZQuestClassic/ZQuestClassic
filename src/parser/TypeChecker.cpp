@@ -137,6 +137,11 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
     *(p->second) = fidparam.second[(isIndexed ? 2 : 1)];
 }
 
+void TypeCheck::caseStringConstant(ASTStringConstant& host, void*)
+{
+	host.setType(ScriptParser::TYPE_FLOAT);
+}
+
 void GetLValType::caseExprDot(ASTExprDot &host, void *param)
 {
     GLVT *p = (GLVT *)param;

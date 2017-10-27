@@ -62,6 +62,15 @@ ASTArrayList::~ASTArrayList()
     exprs.clear();
 }
 
+void ASTArrayList::addString(string const& str)
+{
+	LocationData& loc = getLocation();
+	for (unsigned int i = 1; i < str.length() - 1; ++i)
+		this->addParam(new ASTNumConstant(
+				               new ASTFloat(long(str[i]), 0, loc), loc));
+	this->addParam(new ASTNumConstant(new ASTFloat(0L, 0, loc), loc));
+}
+
 void ASTFuncDecl::addParam(ASTVarDecl *param)
 {
     params.push_front(param);

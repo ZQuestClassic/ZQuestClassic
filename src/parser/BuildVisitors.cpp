@@ -5,6 +5,25 @@
 #include <assert.h>
 #include "ParseError.h"
 
+void BuildOpcodes::deallocateArrayRef(long arrayRef)
+{
+	result.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+	result.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(arrayRef)));
+	result.push_back(new OLoadIndirect(new VarArgument(EXP2), new VarArgument(SFTEMP)));
+	result.push_back(new ODeallocateMemRegister(new VarArgument(EXP2)));
+}
+
+void BuildOpcodes::deallocateBreakRefs()
+{
+	int count = arrayRefs.size() - breakRefCount;
+    for (list<long>::reverse_iterator it = arrayRefs.rbegin();
+		 it != arrayRefs.rend() && count > 0;
+		 it++, count--)
+	{
+		deallocateArrayRef(*it);
+	}
+}
+
 void BuildOpcodes::caseDefault(void *)
 {
     //unreachable
@@ -68,7 +87,8 @@ void BuildOpcodes::caseArrayDecl(ASTArrayDecl &host, void *param)
     OpcodeContext *c = (OpcodeContext *) param;
     
     //Check if the array is global or not
-    int globalid = c->linktable->getGlobalID(c->symbols->getID(&host));
+    int id = c->symbols->getID(&host);
+    int globalid = c->linktable->getGlobalID(id);
     int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
     
     //Size is an expression
@@ -154,6 +174,13 @@ void BuildOpcodes::caseArrayDecl(ASTArrayDecl &host, void *param)
             result.push_back(new OSetRegister(new VarArgument(RAMtype), new VarArgument(EXP1)));
         }
     }
+
+	// Register for cleanup.
+	if (globalid == -1)
+	{
+		int offset = c->stackframe->getOffset(id);
+		arrayRefs.push_back(offset);
+	}
 }
 
 void BuildOpcodes::castFromBool(vector<Opcode *> &res, int reg)
@@ -831,35 +858,26 @@ void BuildOpcodes::caseExprArray(ASTExprArray &host, void *param)
 
 void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 {
-    list<ASTStmt *> l = host.getStatements();
-    
-    for(list<ASTStmt *>::iterator it = l.begin(); it != l.end(); it++)
+	OpcodeContext* c = (OpcodeContext*)param;
+    list<ASTStmt*> l = host.getStatements();
+
+    int startRefCount = arrayRefs.size();
+
+    for (list<ASTStmt*>::iterator it = l.begin(); it != l.end(); ++it)
     {
-        (*it)->execute(*this,param);
-        bool IsArray=false;
-        IsArrayDecl temp;
-        (*it)->execute(temp,&IsArray);
-        
-        if(IsArray)
-        {
-            OpcodeContext *c = (OpcodeContext *)param;
-            int globalid = c->linktable->getGlobalID(c->symbols->getID(*it));
-            
-            if(globalid == -1)
-            {
-                int offset = c->stackframe->getOffset(c->symbols->getID(*it));
-                host.getArrayRefs()->push_back(offset);
-                arrayRefs.push_back(offset);
-            }
-        }
+	    int initIndex = result.size();
+	    (*it)->execute(*this, param);
+
+	    result.insert(result.begin() + initIndex,
+	                  c->initCode.begin(), c->initCode.end());
+	    c->initCode.clear();
     }
-    
-    for(list<long>::reverse_iterator it = host.getArrayRefs()->rbegin(); it != host.getArrayRefs()->rend(); it++)
+
+    for (list<long>::reverse_iterator it = arrayRefs.rbegin();
+		 it != arrayRefs.rend() && arrayRefs.size() > startRefCount;
+		 ++it)
     {
-        result.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-        result.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(*it)));
-        result.push_back(new OLoadIndirect(new VarArgument(EXP2), new VarArgument(SFTEMP)));
-        result.push_back(new ODeallocateMemRegister(new VarArgument(EXP2)));
+	    deallocateArrayRef(*it);
         arrayRefs.pop_back();
     }
 }
@@ -883,19 +901,15 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     //save the old break and continue values
     int oldbreak = breaklabelid;
     int oldcontinue = continuelabelid;
-    list<long> *oldbRef = breakRef;
+    int oldBreakRefCount = breakRefCount;
+    breakRefCount = arrayRefs.size();
     breaklabelid = loopend;
     continuelabelid = loopincr;
-    bool IsB = false;
-    IsBlock temp;
-    host.getStmt()->execute(temp,&IsB);
-    
-    if(IsB) breakRef = (((ASTBlock *)host.getStmt())->getArrayRefs());
     
     host.getStmt()->execute(*this,param);
     breaklabelid = oldbreak;
     continuelabelid = oldcontinue;
-    breakRef = oldbRef;
+    breakRefCount = oldBreakRefCount;
     //run the increment
     //nop
     next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
@@ -938,19 +952,14 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
     result.push_back(new OGotoTrueImmediate(new LabelArgument(endlabel)));
     int oldbreak = breaklabelid;
     int oldcontinue = continuelabelid;
-    list<long> *oldbRef = breakRef;
+    int oldBreakRefCount = breakRefCount;
     breaklabelid = endlabel;
     continuelabelid = startlabel;
-    bool IsB = false;
-    IsBlock temp;
-    host.getStmt()->execute(temp,&IsB);
-    
-    if(IsB) breakRef = (((ASTBlock *)host.getStmt())->getArrayRefs());
     
     host.getStmt()->execute(*this,param);
     breaklabelid = oldbreak;
     continuelabelid = oldcontinue;
-    breakRef = oldbRef;
+    breakRefCount = oldBreakRefCount;
     result.push_back(new OGotoImmediate(new LabelArgument(startlabel)));
     //nop to end while
     Opcode *end = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
@@ -970,19 +979,14 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     
     int oldbreak = breaklabelid;
     int oldcontinue = continuelabelid;
-    list<long> *oldbRef = breakRef;
+    int oldBreakRefCount = breakRefCount;
     breaklabelid = endlabel;
     continuelabelid = continuelabel;
-    bool IsB = false;
-    IsBlock temp;
-    host.getStmt()->execute(temp,&IsB);
-    
-    if(IsB) breakRef = (((ASTBlock *)host.getStmt())->getArrayRefs());
     
     host.getStmt()->execute(*this,param);
     breaklabelid = oldbreak;
     continuelabelid = oldcontinue;
-    breakRef = oldbRef;
+    breakRefCount = oldBreakRefCount;
     
     start = new OSetImmediate(new VarArgument(NUL), new LiteralArgument(0));
     start->setLabel(continuelabel);
@@ -1017,36 +1021,16 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
     result.push_back(next);
 }
 
-void BuildOpcodes::caseStmtReturn(ASTStmtReturn &host, void *param)
+void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    void *temp;
-    temp=&host;
-    param=param;
-    
-    for(list<long>::reverse_iterator it = arrayRefs.rbegin(); it != arrayRefs.rend(); it++)
-    {
-        result.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-        result.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(*it)));
-        result.push_back(new OLoadIndirect(new VarArgument(EXP2), new VarArgument(SFTEMP)));
-        result.push_back(new ODeallocateMemRegister(new VarArgument(EXP2)));
-    }
-    
+	deallocateBreakRefs();
     result.push_back(new OGotoImmediate(new LabelArgument(returnlabelid)));
 }
 
-void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
+void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
 {
-    host.getReturnValue()->execute(*this,param);
-    
-    for(list<long>::reverse_iterator it = arrayRefs.rbegin(); it != arrayRefs.rend(); it++)
-    {
-        result.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-        result.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(*it)));
-        result.push_back(new OLoadIndirect(new VarArgument(EXP2), new VarArgument(SFTEMP)));
-        result.push_back(new ODeallocateMemRegister(new VarArgument(EXP2)));
-    }
-    
+    host.getReturnValue()->execute(*this, param);
+	deallocateBreakRefs();
     result.push_back(new OGotoImmediate(new LabelArgument(returnlabelid)));
 }
 
@@ -1075,43 +1059,102 @@ void BuildOpcodes::caseBoolConstant(ASTBoolConstant &host, void *)
     result.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
 }
 
+void BuildOpcodes::caseStringConstant(ASTStringConstant& host, void* param)
+{
+	OpcodeContext* c = (OpcodeContext*)param;
+	int id = c->symbols->getID(&host);
+    int globalid = c->linktable->getGlobalID(id);
+    int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
+
+    if (!c->stackframe)
+    {
+	    failure = true;
+	    printErrorMsg(&host, ANONYMOUSGLOBALSTRING, "");
+	    return;
+    }
+    
+	////////////////////////////////////////////////////////////////
+	// Initialization Code.
+
+	string data = host.getValue();
+	long size = (data.size() + 1) * 10000L;
+
+	// Allocate.
+	if (RAMtype == GLOBALRAM)
+	{
+		c->initCode.push_back(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
+		c->initCode.push_back(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
+	}
+	else
+	{
+		c->initCode.push_back(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
+		int offset = c->stackframe->getOffset(id);
+		c->initCode.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		c->initCode.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		c->initCode.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	}
+
+	// Initialize.
+	c->initCode.push_back(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
+	for (int i = 0; i < data.size(); ++i)
+	{
+		c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(i * 10000L)));
+		long value = data[i] * 10000L;
+		c->initCode.push_back(new OSetImmediate(new VarArgument(RAMtype), new LiteralArgument(value)));
+	}
+	c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(data.size() * 10000L)));
+	c->initCode.push_back(new OSetImmediate(new VarArgument(RAMtype), new LiteralArgument(0)));
+
+	////////////////////////////////////////////////////////////////
+	// Actual Code.
+
+	if (globalid != -1)
+	{
+        // Global variable, so just get its value.
+        result.push_back(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(globalid)));
+	}
+	else
+	{
+		// Local variable, get its value from the stack.
+		int offset = c->stackframe->getOffset(id);
+		result.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		result.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		result.push_back(new OLoadIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Register for cleanup.
+
+	if (globalid == -1)
+	{
+		int offset = c->stackframe->getOffset(id);
+		arrayRefs.push_back(offset);
+	}
+}
+
 void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 {
-    if(breaklabelid == -1)
+    if (breaklabelid == -1)
     {
         printErrorMsg(&host, BREAKBAD);
         failure = true;
         return;
     }
     
-    for(list<long>::reverse_iterator it = breakRef->rbegin(); it != breakRef->rend(); it++)
-    {
-        result.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-        result.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(*it)));
-        result.push_back(new OLoadIndirect(new VarArgument(EXP2), new VarArgument(SFTEMP)));
-        result.push_back(new ODeallocateMemRegister(new VarArgument(EXP2)));
-    }
-    
+    deallocateBreakRefs();
     result.push_back(new OGotoImmediate(new LabelArgument(breaklabelid)));
 }
 
 void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *)
 {
-    if(continuelabelid == -1)
+    if (continuelabelid == -1)
     {
         printErrorMsg(&host, CONTINUEBAD);
         failure = true;
         return;
     }
     
-    for(list<long>::reverse_iterator it = breakRef->rbegin(); it != breakRef->rend(); it++)
-    {
-        result.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-        result.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(*it)));
-        result.push_back(new OLoadIndirect(new VarArgument(EXP2), new VarArgument(SFTEMP)));
-        result.push_back(new ODeallocateMemRegister(new VarArgument(EXP2)));
-    }
-    
+    deallocateBreakRefs();
     result.push_back(new OGotoImmediate(new LabelArgument(continuelabelid)));
 }
 /////////////////////////////////////////////////////////////////////////////////
