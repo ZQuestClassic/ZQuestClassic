@@ -212,3 +212,22 @@ pair<string, string> ASTFloat::parseValue()
     return pair<string,string>(intpart, fpart);
 }
 
+// ASTStmtSwitch
+
+ASTStmtSwitch::~ASTStmtSwitch()
+{
+	delete key;
+	for (vector<ASTSwitchCases*>::iterator it = cases.begin(); it != cases.end(); ++it)
+		delete *it;
+}
+
+// ASTSwitchCases
+
+ASTSwitchCases::~ASTSwitchCases()
+{
+	for (vector<ASTExprConst*>::iterator it = cases.begin(); it != cases.end(); ++it)
+		delete *it;
+	delete block;
+}
+
+

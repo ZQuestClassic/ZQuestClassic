@@ -595,6 +595,33 @@ void Clone::caseStmtIfElse(ASTStmtIfElse &host, void *param)
     host.getElseStmt()->execute(*this,param);
     result = new ASTStmtIfElse(cond, block, (ASTBlock *)result,host.getLocation());
 }
+void Clone::caseStmtSwitch(ASTStmtSwitch& host, void* param)
+{
+	ASTStmtSwitch* c = new ASTStmtSwitch(host.getLocation());
+	for (vector<ASTSwitchCases*>::const_iterator it
+		     = host.getCases().begin();
+	     it != host.getCases().end(); ++it)
+	{
+		(*it)->execute(*this, param);
+		c->addCases((ASTSwitchCases*)result);
+	}
+	result = c;
+}
+void Clone::caseSwitchCases(ASTSwitchCases& host, void* param)
+{
+	ASTSwitchCases* c = new ASTSwitchCases(host.getLocation());
+	for (vector<ASTExprConst*>::const_iterator it = host.getCases().begin();
+	     it != host.getCases().end(); ++it)
+	{
+		(*it)->execute(*this, param);
+		c->addCase((ASTExprConst*)result);
+	}
+	if (host.isDefaultCase())
+		c->addDefaultCase();
+	host.getBlock()->execute(*this, param);
+	c->setBlock((ASTBlock*)result);
+	result = c;
+}
 
 void Clone::caseStmtReturn(ASTStmtReturn &host, void *param)
 {

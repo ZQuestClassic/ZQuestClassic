@@ -63,7 +63,9 @@ public:
     virtual void caseStmtFor(ASTStmtFor &host, void *param);
     virtual void caseStmtIf(ASTStmtIf &host, void *param);
     virtual void caseStmtIfElse(ASTStmtIfElse &host, void *param);
-    virtual void caseStmtReturn(ASTStmtReturn &host, void *param);
+	virtual void caseStmtSwitch(ASTStmtSwitch& host, void* param);
+	virtual void caseSwitchCases(ASTSwitchCases& host, void* param);
+	virtual void caseStmtReturn(ASTStmtReturn &host, void *param);
     virtual void caseStmtReturnVal(ASTStmtReturnVal &host, void *param);
     virtual void caseStmtEmpty(ASTStmtEmpty &host, void *param);
     virtual void caseScript(ASTScript &host, void *param);
@@ -322,6 +324,27 @@ public:
         host.getStmt()->execute(*this,param);
         host.getElseStmt()->execute(*this,param);
     }
+	virtual void caseStmtSwitch(ASTStmtSwitch & host, void* param)
+	{
+		host.getKey()->execute(*this, param);
+
+		vector<ASTSwitchCases*> & cases = host.getCases();
+		for (vector<ASTSwitchCases*>::iterator it = cases.begin();
+		     it != cases.end(); ++it)
+			(*it)->execute(*this, param);
+	}
+	virtual void caseSwitchCases(ASTSwitchCases & host, void* param)
+	{
+		vector<ASTExprConst*> & cases = host.getCases();
+		for (vector<ASTExprConst*>::iterator it = cases.begin();
+		     it != cases.end();
+		     ++it)
+		{
+			(*it)->execute(*this, param);
+		}
+		
+		host.getBlock()->execute(*this, param);
+	}
     virtual void caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
     {
         host.getReturnValue()->execute(*this,param);

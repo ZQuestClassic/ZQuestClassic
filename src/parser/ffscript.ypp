@@ -46,6 +46,9 @@ extern YYLTYPE noloc;
 %token ZVOID
 %token IF
 %token ELSE
+%token SWITCH
+%token CASE
+%token DEFAULT
 %token RETURN
 %token IMPORT
 %token ZTRUE
@@ -64,6 +67,7 @@ extern YYLTYPE noloc;
 %token EWEAPON
 
 %token ASSIGN
+%token COLON
 %token SEMICOLON
 %token COMMA
 %token LBRACKET
@@ -328,6 +332,7 @@ Stmt : VarDecl SEMICOLON {$$ = $1;}
 	| ShortcutAssignStmt SEMICOLON {$$=$1;}
 	| ForStmt {$$ = $1;}
 	| IfStmt {$$ = $1;}
+	| SwitchStmt {$$ = $1;}
 	| Block {$$ = $1;}
 	| ReturnStmt SEMICOLON {$$ = $1;}
 	| WhileStmt {$$ = $1;}
@@ -344,6 +349,7 @@ StmtNoSemi : VarDecl {$$ = $1;}
 	| ShortcutAssignStmt {$$=$1;}
 	| ForStmt {$$ = $1;}
 	| IfStmt {$$ = $1;}
+	| SwitchStmt {$$ = $1;}
 	| Block {$$ = $1;}
 	| ReturnStmt {$$ = $1;}
 	| WhileStmt {$$ = $1;}
@@ -616,6 +622,48 @@ IfStmt : IF LPAREN Expr RPAREN Stmt {ASTExpr *cond = (ASTExpr *)$3;
 										ASTStmt *elsestmt = (ASTStmt *)$7;
 										$$ = new ASTStmtIfElse(cond,ifstmt,elsestmt,@1);}
 	;
+
+SwitchStmt : SWITCH LPAREN Expr RPAREN LBRACE SwitchStmt1 RBRACE {
+		ASTExpr* key = (ASTExpr*)$3;
+		ASTStmtSwitch* sw = (ASTStmtSwitch*)$6;
+		sw->setKey(key);
+		$$ = sw;}
+	;
+SwitchStmt1 : SwitchCases StmtList {
+			ASTStmtSwitch* sw = new ASTStmtSwitch(@$);
+			ASTSwitchCases* cases = (ASTSwitchCases*)$1;
+			ASTBlock* block = (ASTBlock*)$2;
+			cases->setBlock(block);
+			sw->addCases(cases);
+			$$ = sw;}
+	| SwitchStmt1 SwitchCases StmtList {
+			ASTStmtSwitch* sw = (ASTStmtSwitch*)$1;
+			ASTSwitchCases* cases = (ASTSwitchCases*)$2;
+			ASTBlock* block = (ASTBlock*)$3;
+			cases->setBlock(block);
+			sw->addCases(cases);
+			$$ = sw;}
+	;
+SwitchCases : CASE ConstExpr COLON {
+			ASTSwitchCases* cases = new ASTSwitchCases(@$);
+			ASTExprConst* key = (ASTExprConst*)$2;
+			cases->addCase(key);
+			$$ = cases;}
+	| DEFAULT COLON {
+			ASTSwitchCases* cases = new ASTSwitchCases(@$);
+			cases->addDefaultCase();
+			$$ = cases;}
+	| SwitchCases CASE ConstExpr COLON {
+			ASTSwitchCases* cases = (ASTSwitchCases*)$1;
+			ASTExprConst* key = (ASTExprConst*)$3;
+			cases->addCase(key);
+			$$ = cases;}
+	| SwitchCases DEFAULT COLON {
+			ASTSwitchCases* cases = (ASTSwitchCases*)$1;
+			cases->addDefaultCase();
+			$$ = cases;}
+	;
+
 
 ReturnStmt : RETURN Expr {$$ = new ASTStmtReturnVal((ASTExpr *)$2,@1);}
 	| RETURN {$$ = new ASTStmtReturn(@1);}
