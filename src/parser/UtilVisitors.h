@@ -136,8 +136,7 @@ public:
     {
         host.getType()->execute(*this,param);
         
-        if(host.isRegister())
-            ((ASTExpr *) host.getSize())->execute(*this, param);
+        ((ASTExpr *) host.getSize())->execute(*this, param);
             
         if(host.getList() != NULL)
         {
@@ -276,6 +275,10 @@ public:
     {
         if(host.getIndex()) host.getIndex()->execute(*this,param);
     }
+	virtual void caseExprConst(ASTExprConst &host, void *param)
+	{
+		host.getContent()->execute(*this, param);
+	}
     virtual void caseNumConstant(ASTNumConstant &host, void *param)
     {
         host.getValue()->execute(*this,param);

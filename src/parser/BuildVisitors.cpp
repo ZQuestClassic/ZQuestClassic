@@ -92,6 +92,7 @@ void BuildOpcodes::caseArrayDecl(ASTArrayDecl &host, void *param)
     int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
     
     //Size is an expression
+    /*
     if(host.isRegister())
     {
         //Push size
@@ -112,50 +113,53 @@ void BuildOpcodes::caseArrayDecl(ASTArrayDecl &host, void *param)
             result.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
         }
     }
-    //Size is a number
-    else
-    {
-        //Get size
-        pair<long, bool> size = ScriptParser::parseLong(((ASTFloat *) host.getSize())->parseValue());
-        
-        if(!size.second)
-            printErrorMsg(&host, CONSTTRUNC, ((ASTFloat *) host.getSize())->getValue());
-            
-        if(size.first < 10000)
-        {
-            failure = true;
-            printErrorMsg(&host, ARRAYTOOSMALL, "");
-            return;
-        }
-        
-        //Check if we've allocated enough memory for the initialiser
-        if(host.getList() != NULL && host.getList()->getList().size() >= size_t(size.first))
-        {
-            failure = true;
-            
-            if(host.getList()->isString())
-                printErrorMsg(&host, ARRAYLISTSTRINGTOOLARGE, "");
-            else
-                printErrorMsg(&host, ARRAYLISTTOOLARGE, "");
-                
-            return;
-        }
-        
-        //Allocate
-        if(RAMtype == GLOBALRAM)
-        {
-            result.push_back(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(size.first)));
-            result.push_back(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
-        }
-        else
-        {
-            result.push_back(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size.first)));
-            int offset = c->stackframe->getOffset(c->symbols->getID(&host));
-            result.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-            result.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-            result.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
-        }
-    }
+    */
+    
+	// Get size.
+
+	if (!host.getSize()->hasIntValue())
+	{
+		failure = true;
+		printErrorMsg(&host, EXPRNOTCONSTANT);
+		return;
+	}
+
+	long size = host.getSize()->getIntValue();
+
+	if (size < 10000)
+	{
+		failure = true;
+		printErrorMsg(&host, ARRAYTOOSMALL, "");
+		return;
+	}
+	
+	// Check if we've allocated enough memory for the initialiser.
+	if(host.getList() != NULL && host.getList()->getList().size() >= size_t(size))
+	{
+		failure = true;
+
+		if(host.getList()->isString())
+			printErrorMsg(&host, ARRAYLISTSTRINGTOOLARGE, "");
+		else
+			printErrorMsg(&host, ARRAYLISTTOOLARGE, "");
+
+		return;
+	}
+
+	// Allocate.
+	if(RAMtype == GLOBALRAM)
+	{
+		result.push_back(new OAllocateGlobalMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
+		result.push_back(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
+	}
+	else
+	{
+		result.push_back(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
+		int offset = c->stackframe->getOffset(c->symbols->getID(&host));
+		result.push_back(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		result.push_back(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		result.push_back(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	}
     
     //Initialise
     if(host.getList() != NULL)
@@ -773,7 +777,8 @@ void BuildOpcodes::caseExprDot(ASTExprDot &host, void *param)
     {
         //constant, just load its value
         result.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(c->symbols->getConstantVal(host.getName()))));
-        return;
+		host.markConstant();
+		return;
     }
     
     int globalid = c->linktable->getGlobalID(vid);
@@ -1065,6 +1070,11 @@ void BuildOpcodes::caseBoolConstant(ASTBoolConstant &host, void *)
     result.push_back(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getIntValue())));
 }
 
+void BuildOpcodes::caseExprConst(ASTExprConst &host, void *param)
+{
+	host.getContent()->execute(*this, param);
+}
+	
 void BuildOpcodes::caseStringConstant(ASTStringConstant& host, void* param)
 {
 	OpcodeContext* c = (OpcodeContext*)param;

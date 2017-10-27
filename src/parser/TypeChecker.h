@@ -25,7 +25,8 @@ public:
     virtual void caseExprDivide(ASTExprDivide &host, void *param);
     virtual void caseExprNot(ASTExprNot &host, void *param);
     virtual void caseExprNegate(ASTExprNegate &host, void *param);
-    virtual void caseNumConstant(ASTNumConstant &host, void *param);
+	virtual void caseExprConst(ASTExprConst &host, void *param);
+	virtual void caseNumConstant(ASTNumConstant &host, void *param);
     virtual void caseFuncCall(ASTFuncCall &host, void *param);
     virtual void caseBoolConstant(ASTBoolConstant &host, void *param);
 	virtual void caseStringConstant(ASTStringConstant& host, void* param);

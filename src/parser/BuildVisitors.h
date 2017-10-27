@@ -41,7 +41,8 @@ public:
     virtual void caseStmtReturn(ASTStmtReturn &host, void *param);
     virtual void caseStmtReturnVal(ASTStmtReturnVal &host, void *param);
     virtual void caseStmtEmpty(ASTStmtEmpty &host, void *param);
-    virtual void caseNumConstant(ASTNumConstant &host, void *param);
+    virtual void caseExprConst(ASTExprConst &host, void *param);
+	virtual void caseNumConstant(ASTNumConstant &host, void *param);
     virtual void caseBoolConstant(ASTBoolConstant &host, void *param);
     virtual void caseStringConstant(ASTStringConstant &host, void *param);
     virtual void caseStmtWhile(ASTStmtWhile &host, void *param);

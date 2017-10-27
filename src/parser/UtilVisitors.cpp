@@ -203,20 +203,11 @@ void Clone::caseArrayDecl(ASTArrayDecl &host, void *param)
         }
     }
     
-    AST *s;
+    ASTExpr* s;
+    ((ASTExpr*)host.getSize())->execute(*this, param);
+    s = (ASTExpr*)result;
     
-    if(host.isRegister())
-    {
-        ((ASTExpr *) host.getSize())->execute(*this, param);
-        s = (ASTExpr *) result;
-    }
-    else
-    {
-        ((ASTFloat *) host.getSize())->execute(*this, param);
-        s = (ASTFloat *) result;
-    }
-    
-    result = new ASTArrayDecl(t,host.getName(),s,host.isRegister(),l,host.getLocation());
+    result = new ASTArrayDecl(t,host.getName(),s,l,host.getLocation());
 }
 
 void Clone::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)

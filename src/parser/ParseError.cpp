@@ -206,6 +206,10 @@ void printErrorMsg(AST *offender, int errorID, string param)
         oss << "Error A38: Arrays can only be initialized to numerical values" ;
         break;
 
+    case EXPRNOTCONSTANT:
+        oss << "Error T45: Expression not constant." ;
+        break;
+
     case ANONYMOUSGLOBALSTRING:
 	    oss << "Error G55: Anonymous strings cannot be global. Did you forget a []?";
 	    break;

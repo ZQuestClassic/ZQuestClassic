@@ -483,17 +483,15 @@ void TypeCheck::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
 
 void TypeCheck::caseArrayDecl(ASTArrayDecl &host, void *param)
 {
-    if(host.isRegister())
-    {
-        ((ASTExpr *) host.getSize())->execute(*this, param);
-        
-        if(((ASTExpr *) host.getSize())->getType() != ScriptParser::TYPE_FLOAT)
-        {
-            printErrorMsg(&host, NONINTEGERARRAYSIZE, "");
-            failure = true;
-            return;
-        }
-    }
+	ASTExpr *size = host.getSize();
+	size->execute(*this, param);
+
+	if (size->getType() != ScriptParser::TYPE_FLOAT)
+	{
+		printErrorMsg(&host, NONINTEGERARRAYSIZE, "");
+		failure = true;
+		return;
+	}
     
     SymbolTable * st = ((pair<SymbolTable *, int>*) param)->first;
     int arraytype = st->getVarType(&host);
@@ -1234,6 +1232,23 @@ void TypeCheck::caseExprPreDecrement(ASTExprPreDecrement &host, void *param)
     host.setType(ScriptParser::TYPE_FLOAT);
 }
 
+void TypeCheck::caseExprConst(ASTExprConst &host, void *param)
+{
+	ASTExpr *content = host.getContent();
+	content->execute(*this, param);
+
+	if (!host.isConstant())
+	{
+		failure = true;
+        printErrorMsg(&host, EXPRNOTCONSTANT);
+		return;
+	}
+
+	host.setType(content->getType());
+	if (content->hasIntValue())
+		host.setIntValue(content->getIntValue());
+}
+
 void TypeCheck::caseNumConstant(ASTNumConstant &host, void *)
 {
     host.setType(ScriptParser::TYPE_FLOAT);
@@ -1541,8 +1556,11 @@ void TypeCheck::caseExprDot(ASTExprDot &host, void *param)
 {
     SymbolTable *st = ((pair<SymbolTable *, int> *)param)->first;
     
-    if(st->isConstant(host.getName()))
+    if (st->isConstant(host.getName()))
+    {
         host.setType(ScriptParser::TYPE_FLOAT);
+		host.setIntValue(st->getConstantVal(host.getName()));
+    }
     else
     {
         int type  = st->getVarType(&host);
