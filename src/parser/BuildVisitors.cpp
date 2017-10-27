@@ -872,12 +872,18 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	                  c->initCode.begin(), c->initCode.end());
 	    c->initCode.clear();
     }
-
+/*
     for (list<long>::reverse_iterator it = arrayRefs.rbegin();
 		 it != arrayRefs.rend() && arrayRefs.size() > startRefCount;
 		 ++it)
     {
 	    deallocateArrayRef(*it);
+        arrayRefs.pop_back();
+    }
+    */
+    while (arrayRefs.size() > startRefCount)
+    {
+        deallocateArrayRef(arrayRefs.back());
         arrayRefs.pop_back();
     }
 }
