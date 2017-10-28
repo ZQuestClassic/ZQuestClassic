@@ -613,8 +613,9 @@ using namespace std;
 #define REFSPRITEDATA 573
 #define REFGRAPHICS 574
 #define REFNPCCLASS 575
+#define IDATAMAGICTIMER 576
 
-#define LAST_BYTECODE 576
+#define LAST_BYTECODE 577
 
 //END OF BYTECODE
 
