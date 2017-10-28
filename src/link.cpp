@@ -4087,7 +4087,8 @@ bool LinkClass::animate(int)
                     w->dead=1;
             }
         }
-        else paymagiccost(itemid);
+	else paymagiccost(itemid);
+	
     }
     
     checkhit();
@@ -5248,8 +5249,7 @@ bool LinkClass::startwpn(int itemid)
         
         if(!checkmagiccost(itemid))
             return false;
-            
-        paymagiccost(itemid);
+	paymagiccost(itemid);
         
         for(int i=0; i<itemsbuf[itemid].misc3; i++)
             Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
@@ -13452,21 +13452,42 @@ bool checkmagiccost(int itemid)
 void paymagiccost(int itemid)
 {
     if(itemid < 0)
+    {
         return;
-        
-    if(itemsbuf[itemid].magic <= 0)
+    }
+    else if(itemsbuf[itemid].magic <= 0)
+    {
+	    return;
+    }    
+    else if(current_item_power(itype_magicring) > 0)
+    {
         return;
+    }
         
     if(itemsbuf[itemid].flags & ITEM_RUPEE_MAGIC)
     {
-        game->change_drupy(-itemsbuf[itemid].magic);
-        return;
+	if ( itemsbuf[itemid].magiccosttimer > 0 ) 
+	{
+		if ( frame % itemsbuf[itemid].magiccosttimer == 0 )  game->change_drupy(-itemsbuf[itemid].magic);
+		return;
+	}
+	else 
+	{
+		game->change_drupy(-itemsbuf[itemid].magic);
+		return;
+	}
     }
-    
-    if(current_item_power(itype_magicring) > 0)
-        return;
-        
-    game->change_magic(-(itemsbuf[itemid].magic*game->get_magicdrainrate()));
+    else 
+    {
+	if ( itemsbuf[itemid].magiccosttimer > 0 ) 
+	{
+		if ( frame % itemsbuf[itemid].magiccosttimer == 0 )  game->change_magic(-(itemsbuf[itemid].magic*game->get_magicdrainrate()));
+	}
+	else 
+	{	game->change_magic(-(itemsbuf[itemid].magic*game->get_magicdrainrate()));
+		return;
+	}
+    }
 }
 
 int Bweapon(int pos)

@@ -180,32 +180,64 @@ int weapon::seekEnemy2(int j)
 }
 
 weapon::weapon(weapon const & other):
+     //Struct Element			Type		Purpose
     sprite(other),
-    power(other.power),
-    type(other.type),
-    dead(other.dead),
-    clk2(other.clk2),
-    misc2(other.misc2),
-    ignorecombo(other.ignorecombo),
-    isLit(other.isLit),
-    parentid(other.parentid),
-    parentitem(other.parentitem),
-    dragging(other.dragging),
-    step(other.step),
-    bounce(other.bounce),
-    ignoreLink(other.ignoreLink),
-    flash(other.flash),
-    wid(other.wid),
-    aframe(other.aframe),
-    csclk(other.csclk),
-    o_tile(other.o_tile),
-    o_cset(other.o_cset),
-    o_speed(other.o_speed),
-    o_type(other.o_type),
-    frames(other.frames),
-    o_flip(other.o_flip),
-    temp1(other.temp1),
-    behind(other.behind)
+    power(other.power), 		//int
+    type(other.type), 			//int
+    dead(other.dead),			//int
+    clk2(other.clk2),			//int
+    misc2(other.misc2),			//int
+    ignorecombo(other.ignorecombo),	//int
+    isLit(other.isLit),			//bool		Does it light the screen?
+    parentid(other.parentid),		//int		Enemy that created it. -1 for none. This is the Enemy POINTER, not the Enemy ID. 
+    parentitem(other.parentitem),	//int		Item that created it. -1 for none. 
+    dragging(other.dragging),		//int draggong		?
+    step(other.step),			//fix		Speed of movement
+    bounce(other.bounce),		//bool		Boomerang, or hookshot bounce. 
+    ignoreLink(other.ignoreLink),	//bool		?
+    flash(other.flash),			//word		Is it flashing?
+    wid(other.wid),			//word		ID
+    aframe(other.aframe),		//word		Anim frame
+    csclk(other.csclk),			//word		CSet flash clk (?)
+    o_tile(other.o_tile),		//int		The base item tile
+    o_cset(other.o_cset),		//int		The CSet		
+    o_speed(other.o_speed),		//int		Original anim (?) speed.
+    o_type(other.o_type),		//int		The weapon ID (type)
+    frames(other.frames),		//int		Frames of the anim cycle
+    o_flip(other.o_flip),		//int		The original flip/orientationn
+    temp1(other.temp1),			//int		Misc var.
+    behind(other.behind),		//bool		Should it be drawn behind Link, NPC, and other sprites?
+    minX(other.minX),			//int		How close can the weapon get tot he edge of the screen
+    maxX(other.maxX),			//int		...before being deleted or bouncing
+    minY(other.minY),			//int		...
+    maxY(other.maxY),			//int		...
+	
+    //! Dimentio Wand
+    /*
+    //!Dimentio: These 5 exist both here and in the header file. If you remove these, don't forget to
+    remove them over there as well.
+    */
+    count1(other.count1), 		//int		Dimentio Wand 
+    count2(other.count2), 		//int		Dimentio Wand 
+    count3(other.count3), 		//int		Dimentio Wand
+    count4(other.count4), 		//int		Dimentio Wand
+    count5(other.count5), 		//int		Dimentio Wand
+	
+    //Weapon Editor -Z
+    useweapon(other.useweapon),		//byte		The weapon editor weapon type.
+    usedefence(other.usedefence),	//byte		The defence type to evaluate in do_enemy_hit()
+    weaprange(other.weaprange),		//int		The range or distance of the weapon before removing it. 
+    weapduration(other.weapduration),	//int		The number of frames that must elapse before removing it
+    weaponscript(other.weaponscript),	//word		The weapon action script. 
+    tilemod(other.tilemod),		//long		The LTM to use when the weapon is active. 
+    drawlayer(other.drawlayer),		//byte		The layer onto which we draw the weapon.
+    family_class(other.family_class),	//byte		Item Class
+    family_level(other.family_level),	//byte		Item Level
+    flags(other.flags),			//word		A misc flagset. 
+    collectflags(other.collectflags)	//long		A flagset that determines of the weapon can collect an item.
+    
+	
+	//End Weapon editor non-arrays. 
 
 {
     for(int i=0; i<10; ++i)
@@ -216,6 +248,32 @@ weapon::weapon(weapon const & other):
         dummy_bool[i]=other.dummy_bool[i];
     }
     
+    //Weapon Editor Arrays
+    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
+    {
+	weap_pattern[q] = other.weap_pattern[q];	//int	The movement pattern and args.
+    }
+    for ( int q = 0; q < WEAPON_CLOCKS; q++ ) 
+    {
+	clocks[q] = other.clocks[q];		//long	An array of misc clocks. 
+    }
+    for ( int q = 0; q < INITIAL_A; q++ )
+    {
+	initiala[q] = other.initiala[q];		//byte	InitA[]
+    }
+    for ( int q = 0; q < INITIAL_D; q++ ) 
+    {
+	initiald[q] = other.initiald[q];		//long	InitD[]
+    }
+    for ( int q = 0; q < FFSCRIPT_MISC; q++ ) 
+    {
+	ffmisc[q] = other.ffmisc[q];		//long -The base wpn->Misc[32] set from the editor
+    }
+    
+   
+    
+	//! END Weapon Editor
+    
     /*for (int i=0; i<8; ++i)
     {
       d[i]=other.d[i];
@@ -224,6 +282,12 @@ weapon::weapon(weapon const & other):
     {
       a[i]=other.a[i];
     }*/
+    
+    //Enemy Editor Weapon Sprite
+    wpnsprite = other.wpnsprite;
+    magiccosttimer = other.magiccosttimer;
+    //if ( parentid > 0 ) wpnsprite = guysbuf[parentid].wpnsprite;
+    //else wpnsprite  = -1;
 }
 
 // Let's dispose of some sound effects!
@@ -869,7 +933,14 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     
     case ewLitBomb:
     case ewBomb:
-        LOADGFX(ewBOMB);
+        if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewBOMB);
+	}
+	
+	else LOADGFX(ewBOMB);
         hxofs=0;
         hxsz=16;
         
@@ -904,7 +975,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
     case ewLitSBomb:
     case ewSBomb:
-        LOADGFX(ewSBOMB);
+        if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewSBOMB);
+	}
+	else LOADGFX(ewSBOMB);
         hxofs=0;
         hxsz=16;
 		if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
@@ -951,7 +1028,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         }
         
         wid = zc_min(zc_max(current_item(itype_brang),1),3)-1+wBRANG;
-        LOADGFX(wid);
+        if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(wid);
+	}
+	else LOADGFX(wid);
         break;
         
     case ewFireball2:
@@ -965,7 +1048,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         //fallthrough
     case ewFireball:
     case wRefFireball:
-        LOADGFX(ewFIREBALL);
+        if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewFIREBALL);
+	}
+	else LOADGFX(ewFIREBALL);
         step=1.75;
         
         if(Type&2)
@@ -977,7 +1066,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewRock:
-        LOADGFX(ewROCK);
+        if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewROCK);
+	}
+	else LOADGFX(ewROCK);
         
         if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
         {
@@ -996,7 +1091,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewArrow:
-        LOADGFX(ewARROW);
+        if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewARROW);
+	}
+	else LOADGFX(ewARROW);
         step=2;
         
         switch(dir)
@@ -1021,7 +1122,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewSword:
-        LOADGFX(ewSWORD);
+        if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewSWORD);
+	}
+	else LOADGFX(ewSWORD);
         
         if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
         {
@@ -1059,7 +1166,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
     case wRefMagic:
     case ewMagic:
-        LOADGFX(ewMAGIC);
+        if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewMAGIC);
+	}
+	else LOADGFX(ewMAGIC);
         
         if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
         {
@@ -1102,11 +1215,26 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
     case ewFlame:
     case ewFlame2:
-        if(id==ewFlame)
-            LOADGFX(ewFLAME);
+	if(id==ewFlame)
+	{
+		if ( parentid > -1 )
+		{
+			sprite *e = guys.getByUID(parentid);
+			if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+			else LOADGFX(ewFLAME);
+		}
+		else LOADGFX(ewFLAME);
+	}
         else
-            LOADGFX(ewFLAME2);
-            
+	{
+		if ( parentid > -1 )
+		{
+			sprite *e = guys.getByUID(parentid);
+			if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+			else LOADGFX(ewFLAME2);
+		}
+		else LOADGFX(ewFLAME2);
+	}
         if(dir==255)
         {
             step=2;
@@ -1145,7 +1273,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewFireTrail:
-        LOADGFX(ewFIRETRAIL);
+        if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewFIRETRAIL);
+	}
+	else LOADGFX(ewFIRETRAIL);
         step=0;
         dir=-1;
         
@@ -1172,7 +1306,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			hxsz=hysz=16;
 		}
 		
-        LOADGFX(ewWIND);
+        if ( parentid > -1 )
+	{
+		sprite *e = guys.getByUID(parentid);
+		if ( guysbuf[e->id].wpnsprite > 0 ) LOADGFX(guysbuf[e->id].wpnsprite);
+		else LOADGFX(ewWIND);
+	}
+	else LOADGFX(ewWIND);
         clk=0;
         step=3;
         break;

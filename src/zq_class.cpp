@@ -7418,7 +7418,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
             }
 	    
 	    //New itemdata vars -Z
-	    //! I need help with this. THis should wori, but ZQuest is crashing on reading items. -Z
+	    //! version 27
 	    
 	    if(!p_putc(itemsbuf[i].useweapon,f))
             {
@@ -7442,6 +7442,101 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 			new_return(53);
 		    }
 	    }
+	    //version 28
+		if(!p_iputl(itemsbuf[i].duplicates,f))
+		{
+		    new_return(54);
+		}
+		for ( int q = 0; q < INITIAL_D; q++ )
+		{
+			if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
+			{
+				new_return(55);
+			}
+		}
+		for ( int q = 0; q < INITIAL_A; q++ )
+		{
+			if(!p_putc(itemsbuf[i].weap_initiala[q],f))
+			{
+				new_return(56);
+			}
+		}
+
+		if(!p_putc(itemsbuf[i].drawlayer,f))
+		{
+		    new_return(57);
+		}
+
+
+		if(!p_iputl(itemsbuf[i].hxofs,f))
+		{
+		    new_return(58);
+		}
+		if(!p_iputl(itemsbuf[i].yxofs,f))
+		{
+		    new_return(59);
+		}
+		if(!p_iputl(itemsbuf[i].hxsz,f))
+		{
+		    new_return(60);
+		}
+		if(!p_iputl(itemsbuf[i].hysz,f))
+		{
+		    new_return(61);
+		}
+		if(!p_iputl(itemsbuf[i].hzsz,f))
+		{
+		    new_return(62);
+		}
+		if(!p_iputl(itemsbuf[i].xofs,f))
+		{
+		    new_return(63);
+		}
+		if(!p_iputl(itemsbuf[i].yofs,f))
+		{
+		    new_return(64);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hxofs,f))
+		{
+		    new_return(65);
+		}
+		if(!p_iputl(itemsbuf[i].weap_yxofs,f))
+		{
+		    new_return(66);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hxsz,f))
+		{
+		    new_return(67);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hysz,f))
+		{
+		    new_return(68);
+		}
+		if(!p_iputl(itemsbuf[i].weap_hzsz,f))
+		{
+		    new_return(69);
+		}
+		if(!p_iputl(itemsbuf[i].weap_xofs,f))
+		{
+		    new_return(70);
+		}
+		if(!p_iputl(itemsbuf[i].weap_yofs,f))
+		{
+		    new_return(71);
+		}
+		if(!p_iputw(itemsbuf[i].weaponscript,f))
+		{
+		    new_return(72);
+		}
+		if(!p_iputl(itemsbuf[i].wpnsprite,f))
+		{
+		    new_return(73);
+		}
+		if(!p_iputl(itemsbuf[i].magiccosttimer,f))
+		{
+		    new_return(74);
+		}
+		
 	    
         }
         

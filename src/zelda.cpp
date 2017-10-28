@@ -1240,7 +1240,7 @@ int load_quest(gamedata *g, bool report)
 #ifdef _ALLEGRO_WINDOWS
 						_getcwd(cwdbuf, 260);
 #else
-                        getcwd(cwdbuf, 260);
+                        _getcwd(cwdbuf, 260); //getcwd() is deprecated in cpp08
 #endif
 
 						std::string path = cwdbuf;

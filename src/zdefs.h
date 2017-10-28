@@ -98,10 +98,10 @@
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       40                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.54 Alpha 9"                    //version of the program as presented in text
-#define IS_BETA             -9                              //is this a beta? (1: beta, -1: alpha)
+#define ZELDA_VERSION_STR   "2.54 Alpha 10"                    //version of the program as presented in text
+#define IS_BETA             -10                              //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        00010
-#define DATE_STR            "25th October, 2017"
+#define DATE_STR            "28th October, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -178,7 +178,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            18
 #define V_DMAPS            9
 #define V_DOORS            1
-#define V_ITEMS           26
+#define V_ITEMS           27
 #define V_WEAPONS          6
 #define V_COLORS           2
 #define V_ICONS            1
@@ -1341,6 +1341,7 @@ struct itemdata
     
     word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
     int wpnsprite; //enemy weapon sprite. 
+    int magiccosttimer; //TImer for timed magic costs. 
     
     
 };
