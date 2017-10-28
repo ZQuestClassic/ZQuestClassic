@@ -5152,6 +5152,104 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 		
 		}
+		
+		if ( s_version >= 27 )  //! New itemdata vars for weapon editor. -Z
+		{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
+			if(!p_igetl(&tempitem.duplicates,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			for ( int q = 0; q < INITIAL_D; q++ )
+			{
+				if(!p_igetl(&tempitem.weap_initiald[q],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			for ( int q = 0; q < INITIAL_A; q++ )
+			{
+				if(!p_getc(&tempitem.weap_initiala[q],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			
+			if(!p_getc(&tempitem.drawlayer,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			
+			
+			if(!p_igetl(&tempitem.hxofs,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.yxofs,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.hxsz,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.hysz,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.hzsz,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.xofs,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.yofs,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weap_hxofs,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weap_yxofs,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weap_hxsz,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weap_hysz,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weap_hzsz,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weap_xofs,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weap_yofs,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetw(&tempitem.weaponscript,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.wpnsprite,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.magiccosttimer,f,true))
+                        {
+                            return qe_invalid;
+                        }
+		
+		}
         }
         else
         {

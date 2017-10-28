@@ -25,12 +25,19 @@
 extern byte boomframe[16];
 extern byte bszboomflip[4];
 
+#define WEAPON_CLOCKS 10
+
 class weapon : public sprite
 {
 private:
     void seekLink();
     void seekEnemy(int j);
     int seekEnemy2(int j);
+
+// How close the weapon can get to the edge of the screen before
+	// being deleted (or bouncing, in the case of boomerangs)
+	int minX, maxX, minY, maxY;
+	friend void setScreenLimits(weapon&);
     
 public:
     int power,type,dead,clk2,misc2,ignorecombo;
@@ -44,6 +51,43 @@ public:
     int o_tile, o_cset, o_speed, o_type, frames, o_flip;
     int temp1;
     bool behind;
+
+	//!Dimentio: More variables? That suuuuuure won't break anything. Nope.
+    int count1; 
+    int count2;
+    int count3;
+    int count4;
+    int count5;
+    void bookfirecreate();
+
+    //Weapon Editor -Z
+    byte useweapon; //lweapon id type -Z
+    byte usedefence; //default defence type -Z
+    int weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
+    int weaprange; //default range -Z
+    int weapduration; //default duration, 0 = infinite. 
+    word weaponscript; //Running script. -Z
+    long initiald[8];
+    byte initiala[2];
+    long clocks[WEAPON_CLOCKS];
+    long tilemod;
+    byte drawlayer;
+    byte family_class;												
+    byte family_level;
+    word flags;
+    long collectflags; //items that this weapon can collect on contact.
+    long ffmisc[FFSCRIPT_MISC];
+    char weapname[128]; //Weapon Name, pulled from editor. 
+     int duplicates; //Number of duplicate weapons generated.
+     int wpn_misc_d[FFSCRIPT_MISC];
+    //! End weapon editor. -Z
+    
+    //2.6 ZScript -Z
+    int scriptrange,blastsfx;
+    
+    //2.6 enemy editor weapon sprite
+    int wpnsprite;
+    int magiccosttimer; ///Magic cost for byrna beam, boots. -Z
     
     weapon(weapon const & other);
     weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
