@@ -47,7 +47,21 @@ const int radsperdeg = 572958;
 
 #define ARGS_17(t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) { t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17,-1,-1 }
 
-
+//Guydata member with one input, one return
+#define GET_GUYDATA_MEMBER(flabel, ffins) \
+{ \
+	int id = memberids[flabel];\
+	int label = lt.functionToLabel(id); \
+        vector<Opcode *> code; \
+        Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
+        first->setLabel(label); \
+        code.push_back(first); \
+        code.push_back(new OPopRegister(new VarArgument(NUL))); \
+        code.push_back(new ffins(new VarArgument(EXP1),new VarArgument(EXP2))); \
+        code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+        code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+        rval[label] = code; \
+} \
 
 //Dataclass member with three inputs
 #define SET_DATACLASS_MEMBER(flabel, ffins) \
@@ -5181,7 +5195,7 @@ static AccessorTable MapDataTable[] =
 MapDataSymbols::MapDataSymbols()
 {
     table = MapDataTable;
-    refVar = NUL;
+    refVar = NUL; //REFMAPDATA;
 }
 
 
@@ -5483,7 +5497,7 @@ static AccessorTable GraphicsTable[] =
 GfxPtrSymbols::GfxPtrSymbols()
 {
     table = GraphicsTable;
-    refVar = NUL;
+    refVar = REFGRAPHICS;
 }
 
 map<int, vector<Opcode *> > GfxPtrSymbols::addSymbolsCode(LinkTable &lt)
@@ -5521,7 +5535,7 @@ static AccessorTable SpriteDataTable[] =
 SpriteDataSymbols::SpriteDataSymbols()
 {
     table = SpriteDataTable;
-    refVar = NUL;
+    refVar = NUL;// REFSPRITEDATA;
 }
 
 map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
@@ -5914,7 +5928,7 @@ static AccessorTable CombosTable[] =
 CombosPtrSymbols::CombosPtrSymbols()
 {
     table = CombosTable;
-    refVar = NUL;
+    refVar = NUL;//REFCOMBODATA;
 }
 
 map<int, vector<Opcode *> > CombosPtrSymbols::addSymbolsCode(LinkTable &lt)
@@ -7045,7 +7059,7 @@ static AccessorTable NPCDataTable[] =
 NPCDataSymbols::NPCDataSymbols()
 {
     table = NPCDataTable;
-    refVar = NUL;
+    refVar = NUL; //REFNPCCLASS;
 }
 
 map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
@@ -7055,38 +7069,26 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
 	
 	//GetTile(NPCData, int)
     {
+	
         int id = memberids["GetTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataBaseTile(new VarArgument(EXP1),new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
+    
+	//GET_GUYDATA_MEMBER("Tile", ONDataBaseTile);
     }
     //GetEHeight(NPCData, int)
      {
-        int id = memberids["GetEHeight"];
-        int label = lt.functionToLabel(id);
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new ONDataEHeight(new VarArgument(EXP1),new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
+	GET_GUYDATA_MEMBER("GetEHeight", ONDataEHeight);
+     }
 	
 
 	//int GetScriptDefense((NPCData, int, int)
@@ -7241,31 +7243,16 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
 	//GetFlags(NPCData, int)
     {
-        int id = memberids["GetFlags"];
-        int label = lt.functionToLabel(id);
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new ONDataFlags(new VarArgument(EXP1),new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
+	GET_GUYDATA_MEMBER("GetFlags", ONDataFlags);
     }
     //GetFlags2(NPCData, int)
     {
         int id = memberids["GetFlags2"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataFlags2(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7273,67 +7260,26 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
     }
-    //GetWidth(game, int, int)
+    //GetWidth(game, int)
     {
-        int id = memberids["GetWidth"];
-        int label = lt.functionToLabel(id);
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new ONDataWidth(new VarArgument(EXP1),new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
+	GET_GUYDATA_MEMBER("GetWidth", ONDataWidth);
     }
     //GetHeight(NPCData, int)
     {
-        int id = memberids["GetHeight"];
-        int label = lt.functionToLabel(id);
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new ONDataHeight(new VarArgument(EXP1),new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
+	GET_GUYDATA_MEMBER("GetHeight", ONDataHeight);
     }
     //GetSTile(NPCData, int)
     {
-        int id = memberids["GetSTile"];
-        int label = lt.functionToLabel(id);
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new ONDataTile(new VarArgument(EXP1),new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
+	GET_GUYDATA_MEMBER("GetSTile", ONDataTile);
     }
     //GetSWidth(NPCData, int)
     {
-        int id = memberids["GetSWidth"];
+	GET_GUYDATA_MEMBER("GetSTile", ONDataTile);
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataSWidth(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7346,11 +7292,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetSHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataSHeight(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7363,11 +7307,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetETile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataETile(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7380,11 +7322,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetEWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataEWidth(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7397,11 +7337,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetHP"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataHP(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7414,11 +7352,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetFamily"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataFamily(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7431,11 +7367,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataCSet(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7448,11 +7382,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetAnim"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataAnim(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7465,11 +7397,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetEAnim"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataEAnim(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7482,11 +7412,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetFramerate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataFramerate(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7499,11 +7427,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetEFramerate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataEFramerate(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7516,11 +7442,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetTouchDamage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataTouchDamage(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7533,11 +7457,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetWeaponDamage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataWeaponDamage(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7550,11 +7472,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetWeapon"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataWeapon(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7567,11 +7487,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetRandom"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataRandom(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7584,11 +7502,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetHaltRate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataHalt(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7601,11 +7517,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetStep"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataStep(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7618,11 +7532,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetHoming"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataHoming(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7635,11 +7547,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetHunger"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataHunger(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7652,11 +7562,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetDropset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataropset(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7669,11 +7577,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetBGSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataBGSound(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7686,11 +7592,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetHitSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataHitSound(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7703,13 +7607,11 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetDeathSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OPopRegister(new VarArgument(NUL))); 
         code.push_back(new ONDataDeathSound(new VarArgument(EXP1),new VarArgument(EXP2)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
@@ -7720,11 +7622,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetDrawXOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataXofs(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7737,11 +7637,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetDrawYOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataYofs(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7754,11 +7652,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetDrawZOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataZofs(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7771,11 +7667,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetHitXOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataHitXOfs(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7788,11 +7682,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetHitYOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataHYOfs(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7805,11 +7697,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetHitWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataHitWidth(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7822,11 +7712,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetHitHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataHitHeight(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7839,11 +7727,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetHitZHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataHitZ(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7856,11 +7742,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetTileWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataTileWidth(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7873,11 +7757,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetTileHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataTileHeight(new VarArgument(EXP1),new VarArgument(EXP2)));
@@ -7890,11 +7772,9 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         int id = memberids["GetWeaponSprite"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new ONDataWeapSprite(new VarArgument(EXP1),new VarArgument(EXP2)));
