@@ -1828,6 +1828,9 @@ long get_register(const long arg)
     case IDATAWRANGE:
         ret=(itemsbuf[ri->idata].weaprange)*10000;
         break;
+    case IDATAMAGICTIMER:
+        ret=(itemsbuf[ri->idata].magiccosttimer)*10000;
+        break;
     case IDATAUSEMVT:
     {
 	long a = vbound((ri->d[0] / 10000),0,(ITEM_MOVEMENT_PATTERNS-1));
@@ -4620,6 +4623,9 @@ void set_register(const long arg, const long value)
         break;
     case IDATAWRANGE:
         (itemsbuf[ri->idata].weaprange)=vbound(value/10000, 0, 255);
+        break;
+    case IDATAMAGICTIMER:
+        (itemsbuf[ri->idata].magiccosttimer)=vbound(value/10000, 0, 214747);
         break;
      case IDATADURATION:
         (itemsbuf[ri->idata].weapduration)=vbound(value/10000, 0, 255);

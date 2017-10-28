@@ -1101,6 +1101,7 @@ string VarArgument::toString()
     case IDATAUSEWPN: return "IDATAUSEWPN";
     case IDATAUSEDEF: return "IDATAUSEDEF";
     case IDATAWRANGE: return "IDATAWRANGE";
+    case IDATAMAGICTIMER: return "IDATAMAGICTIMER";
     case IDATAUSEMVT: return "IDATAUSEMVT";
     case IDATADURATION: return "IDATADURATION";
     case IDATADUPLICATES: return "IDATADUPLICATES";

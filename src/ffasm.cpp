@@ -993,7 +993,7 @@ script_variable variable_list[]=
 	{ "RESVD0018",         RESVD018,            0,             0 },
 	{ "RESVD0019",         RESVD019,            0,             0 },
 	{ "RESVD0020",         RESVD020,            0,             0 },
-	{ "RESVD0021",         RESVD021,            0,             0 },
+	{ "IDATAMAGICTIMER",         IDATAMAGICTIMER,            0,             0 },
 	{ "IDATALTM",         IDATALTM,            0,             0 },
 	{ "IDATASCRIPT",         IDATASCRIPT,            0,             0 },
 	{ "IDATAPSCRIPT",         IDATAPSCRIPT,            0,             0 },
