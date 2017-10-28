@@ -3583,6 +3583,13 @@ case SCREENCATCH:
     case REFNPC:
         ret = ri->guyref;
         break;
+    
+    case REFMAPDATA: ret = ri->mapsref; break;
+    case REFSCREENDATA: ret = ri->screenref; break;
+    case REFCOMBODATA: ret = ri->combosref; break;
+    case REFSPRITEDATA: ret = ri->spritesref; break;
+    case REFGRAPHICS: ret = ri->gfxref; break;
+    case REFNPCCLASS: ret = ri->npcdataref; break;
         
     case SP:
         ret = ri->sp * 10000;
@@ -6469,6 +6476,13 @@ break;
     case REFNPC:
         ri->guyref = value;
         break;
+    
+    case REFMAPDATA: ri->mapsref = value; break;
+    case REFSCREENDATA: ri->screenref = value; break;
+    case REFCOMBODATA: ri->combosref = value; break;
+    case REFSPRITEDATA: ri->spritesref = value; break;
+    case REFGRAPHICS: ri->gfxref = value; break;
+    case REFNPCCLASS: ri->npcdataref = value; break;
         
     default:
     {
@@ -10772,7 +10786,7 @@ void FFScript::do_changeffcscript(const bool v){
 
 #define GET_NPCDATA_VAR_INT(member) \
 { \
-	long ID = get_register(sarg2) / 10000;\
+	long ID = get_register(sarg2) / 10000; \
 	if(ID < 1 || ID > (MAXGUYS-1)) \
 		set_register(sarg1, -10000); \
 	else \
