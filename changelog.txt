@@ -1,5 +1,27 @@
 //2.54 Changes
 
+//Alpha 9
+
+Fixed all one-input, one-return NPCData functions. ( ZoriaRPG, 28th October, 2017 )
+
+Added switch-case to the ZScript syntax.
+Added constant experssions to the ZScript parser. 
+Added array declaration sizing with constant expressions. ( Grayswandir, 27th October, 2017 )
+
+//Alpha 8
+
+Disabled all new pointer types, except for bitmap. They seem to have a clash when sharing a table with a global pointer. ( ZoriaRPG, 27th October, 2017 )
+
+Added ZScript pointer objects and RefVars: bitmap, npcdata, spritedata, mapdata, combodata and screendata (unused). These
+correspond to Graphics->, NPCData->, SpriteData->, MapData->, and ComboData-> (respectively). 
+The screendata type would probably mate with Screen->. Declaring these types now works, and calling functions seems
+to work both from the typed pointer, and the global pointer for each, so BOTH of these work: 
+npcdata n; int x = n->GetVar();
+int x = NPCData->GetVar.
+Next, I'll need to add LoadData() functions for each class, and variables/indexed variables for them. ( ZoriaRPG, 27th October, 2017 )
+
+Fixed issue with ZQuest crashing when compiled with MSVC. ( Grayswandir, 27th october, 2017 )
+Added string literals. These work only at script/function scope. Global scope of string literals is forbidden. ( Grayswandir, 27th October, 2017 )
 
 //Alpha 7 
 Backported Enemy Editor 'Size' tab from 2.60 to 2.54. 
