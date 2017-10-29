@@ -1047,8 +1047,8 @@ static DIALOG itemdata_dlg[] =
     //200
     
     //Magic Cost Timer, 199
-    { jwin_text_proc,           81,     48,     30,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Timer:",                              NULL,   NULL                  },
-    { jwin_edit_proc,         110	,     44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,         83,     48,     30,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "M.Cost Timer:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         129,	44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
    //201
     /* Weapon Editor Goes Here
     { jwin_text_proc,       6+10,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "Misc[0]:", NULL, NULL },
