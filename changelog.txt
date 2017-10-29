@@ -1,6 +1,16 @@
 //2.54 Changes
 
+//Alpha 10
+
+Renamed 'Timer' to 'M.Cost TImer' in the item editor dialogue, and adjusted the positions of elements accordingly. ( ZoriaRPG, 29th October, 2017 )
+Changed 'Frames:' for magic cost timer, to 'Timer:' in Item Editor.
+Fixed Enemy Editor Weapon Sprite not forwarding to enemy weapons.
+Added itemdata->MagicCostTimer to ZScript
+Added 'Magic Cost Timer' to the Item Editor. ( ZoriaRPG, 28th October, 2017 )
+
 //Alpha 9
+
+Add4d std_keyboawrd.zh to std.zh, and made some minor adjustments. ( ZoriaRPG, 28th October, 2017 )
 
 Fixed all one-input, one-return NPCData functions. ( ZoriaRPG, 28th October, 2017 )
 
