@@ -3024,19 +3024,74 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //NPCData
     {
-	LOAD_REFDATA("LoadNPCData", OLoadNPCDataRegister, REFNPCCLASS);
+	    
+	int id = memberids["LoadNPCData"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OLoadNPCDataRegister(new VarArgument(EXP1)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFNPCCLASS)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code; 
     }
     //ComboData
     {
-	LOAD_REFDATA("LoadComboData", OLoadComboDataRegister, REFCOMBODATA);
+	int id = memberids["LoadComboData"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OLoadComboDataRegister(new VarArgument(EXP1)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFCOMBODATA)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code; 
     }
     //MapData
     {
-	LOAD_REFDATA("LoadMapData", OLoadMapDataRegister, REFMAPDATA);
+	int id = memberids["LoadMapData"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OLoadMapDataRegister(new VarArgument(EXP1)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFMAPDATA)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;    
+	//LOAD_REFDATA("LoadMapData", OLoadMapDataRegister, REFMAPDATA);
     }
     //SpriteData
     {
-	LOAD_REFDATA("LoadSpriteData", OLoadSpriteDataRegister, REFSPRITEDATA);
+	    
+	int id = memberids["LoadSpriteData"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OLoadSpriteDataRegister(new VarArgument(EXP1)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFSPRITEDATA)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;    
     }
     //ScreenData
     {
@@ -3044,7 +3099,20 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //Bitmap
     {
-	LOAD_REFDATA("LoadBitmapID", OLoadBitmapDataRegister, REFGRAPHICS);
+	int id = memberids["LoadBitmapID"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OLoadBitmapDataRegister(new VarArgument(EXP1)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFGRAPHICS)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;   
     }
     //bool GetScreenState(game, int,int,int)
     {
