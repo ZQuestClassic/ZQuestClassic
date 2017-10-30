@@ -301,6 +301,13 @@ string VarArgument::toString()
         
     case REFFFC:
         return "REFFFC";
+    
+    case REFMAPDATA: return "REFMAPDATA";
+    case REFSCREENDATA: return "REFSCREENDATA";
+    case REFCOMBODATA: return "REFCOMBODATA";
+    case REFSPRITEDATA: return "REFSPRITEDATA";
+    case REFGRAPHICS: return "REFGRAPHICS";
+    case REFNPCCLASS: return "REFNPCCLASS";
         
     case REFITEM:
         return "REFITEM";
