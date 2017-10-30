@@ -52,6 +52,7 @@ bitmap		{doLines(); return GRAPHICS;}
 spritedata		{doLines(); return SPRITEDATA;}
 mapdata		{doLines(); return MAPDATA;}
 npcdata		{doLines(); return NPCDATA;}
+combodata		{doLines(); return COMBODATA;}
 
 \-\>		{ doLines(); return ARROW;}
 \<\<=		{ doLines(); return LSHIFTASSIGN; }

@@ -5930,7 +5930,7 @@ static AccessorTable CombosTable[] =
 CombosPtrSymbols::CombosPtrSymbols()
 {
     table = CombosTable;
-    refVar = NUL;//REFCOMBODATA;
+    refVar = REFCOMBODATA; //NUL;
 }
 
 map<int, vector<Opcode *> > CombosPtrSymbols::addSymbolsCode(LinkTable &lt)

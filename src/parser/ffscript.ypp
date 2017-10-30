@@ -67,6 +67,7 @@ extern YYLTYPE noloc;
 %token SPRITEDATA
 %token MAPDATA
 %token NPCDATA
+%token COMBODATA
 
 %token ASSIGN
 %token COLON
@@ -276,7 +277,7 @@ Type : ZFLOAT {$$ = new ASTTypeFloat(@1);}
 	| SPRITEDATA	{$$ = new ASTTypeSpriteData(@1);}
 	| MAPDATA	{$$ = new ASTTypeMapData(@1);}
 	| NPCDATA	{$$ = new ASTTypeNPCData(@1);}
-//	| COMBODATA	{$$ = new ASTTypeComboData(@1);}
+	| COMBODATA	{$$ = new ASTTypeComboData(@1);}
 	| GRAPHICS	{$$ = new ASTTypeGraphics(@1);}
 	;
 	;
