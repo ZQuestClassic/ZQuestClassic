@@ -49,6 +49,7 @@ npc					{doLines(); return NPC;}
 lweapon					{doLines(); return LWEAPON;}
 eweapon					{doLines(); return EWEAPON;}
 bitmap		{doLines(); return GRAPHICS;}
+npcdata		{doLines(); return NPCDATA;}
 
 \-\>		{ doLines(); return ARROW;}
 \<\<=		{ doLines(); return LSHIFTASSIGN; }
