@@ -5197,7 +5197,7 @@ static AccessorTable MapDataTable[] =
 MapDataSymbols::MapDataSymbols()
 {
     table = MapDataTable;
-    refVar = NUL; //REFMAPDATA;
+    refVar = REFMAPDATA; //NUL; //
 }
 
 
