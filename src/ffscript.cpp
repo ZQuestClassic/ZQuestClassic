@@ -3248,52 +3248,7 @@ else \
     }
     break;
     
-//screendata and mapdata
-    case SETSCREENENEMY:
-    { //void SetScreenEnemy(int map, int screen, int index, int value);
-	
-	    
-		long map     = (ri->d[1] / 10000) - 1; 
-		long scrn  = ri->d[2] / 10000; 
-		long index = ri->d[0] / 10000; 
-		int nn = ri->d[3]/10000; 
-	
-	   // int x;
-	    
-	   // Z_scripterrlog("rid->[3] is (%i), trying to use for '%s'\n", nn, "nn");
-	   // Z_scripterrlog("rid->[2] is (%i), trying to use for '%s'\n", scrn, "scrn");
-	   // Z_scripterrlog("rid->[1] is (%i), trying to use for '%s'\n", map, "map");
-	   // Z_scripterrlog("rid->[0] is (%i), trying to use for '%s'\n", index, "index");
-		
-		if(BC::checkMapID(map, "Game->SetScreenEnemy(...map...)") != SH::_NoError ||
-			BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenEnemy(...screen...)") != SH::_NoError ||
-			BC::checkBounds(index, 0, 9, "Game->SetScreenEnemy(...index...)") != SH::_NoError)
-			return -10000;
-		
-	//	if ( BC::checkBounds(nn, 0, 2, "Game->SetScreenEnemy(...enemy...)") != SH::_NoError) x = 1;
-	//	if ( BC::checkBounds(map, 20, 21, "Game->SetScreenEnemy(...map...)") != SH::_NoError) x = 2;
-		FFScript::set_screenenemy(&TheMaps[map * MAPSCRS + scrn], index, nn); 
-		
-		
-		
-    }
-    break;
-    
-    case SETSCREENDOOR:
-    { //void SetScreenDoor(int map, int screen, int index, int value);
-	long map     = (ri->d[1] / 10000) - 1; 
-	long scrn  = ri->d[2] / 10000; 
-	long index = ri->d[0] / 10000; 
-	int nn = ri->d[3]/10000; 
-		
-		if(BC::checkMapID(map, "Game->SetScreenDoor(...map...)") != SH::_NoError ||
-			BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenDoor(...screen...)") != SH::_NoError ||
-			BC::checkBounds(index, 0, 3, "Game->SetScreenDoor(...doorindex...)") != SH::_NoError)
-			return -10000;
-      
-		FFScript::set_screendoor(&TheMaps[map * MAPSCRS + scrn], index, nn); 
-		
-    }
+
    
     
 ///----------------------------------------------------------------------------------------------------//
@@ -9745,6 +9700,53 @@ int run_script(const byte type, const word script, const byte i)
 	case GETSCREENENEMY:
             do_getscreennpc();
             break;
+	
+	//screendata and mapdata
+	    case SETSCREENENEMY:
+	    { //void SetScreenEnemy(int map, int screen, int index, int value);
+		
+		    
+			long map     = (ri->d[1] / 10000) - 1; 
+			long scrn  = ri->d[2] / 10000; 
+			long index = ri->d[0] / 10000; 
+			int nn = ri->d[3]/10000; 
+		
+		   // int x;
+		    
+		   // Z_scripterrlog("rid->[3] is (%i), trying to use for '%s'\n", nn, "nn");
+		   // Z_scripterrlog("rid->[2] is (%i), trying to use for '%s'\n", scrn, "scrn");
+		   // Z_scripterrlog("rid->[1] is (%i), trying to use for '%s'\n", map, "map");
+		   // Z_scripterrlog("rid->[0] is (%i), trying to use for '%s'\n", index, "index");
+			
+			if(BC::checkMapID(map, "Game->SetScreenEnemy(...map...)") != SH::_NoError ||
+				BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenEnemy(...screen...)") != SH::_NoError ||
+				BC::checkBounds(index, 0, 9, "Game->SetScreenEnemy(...index...)") != SH::_NoError)
+				return -10000;
+			
+		//	if ( BC::checkBounds(nn, 0, 2, "Game->SetScreenEnemy(...enemy...)") != SH::_NoError) x = 1;
+		//	if ( BC::checkBounds(map, 20, 21, "Game->SetScreenEnemy(...map...)") != SH::_NoError) x = 2;
+			FFScript::set_screenenemy(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+			
+			
+			
+	    }
+	    break;
+	    
+	    case SETSCREENDOOR:
+	    { //void SetScreenDoor(int map, int screen, int index, int value);
+		long map     = (ri->d[1] / 10000) - 1; 
+		long scrn  = ri->d[2] / 10000; 
+		long index = ri->d[0] / 10000; 
+		int nn = ri->d[3]/10000; 
+			
+			if(BC::checkMapID(map, "Game->SetScreenDoor(...map...)") != SH::_NoError ||
+				BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenDoor(...screen...)") != SH::_NoError ||
+				BC::checkBounds(index, 0, 3, "Game->SetScreenDoor(...doorindex...)") != SH::_NoError)
+				return -10000;
+	      
+			FFScript::set_screendoor(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+			
+	    }
             
 	case GETSCREENLAYOP:
             do_getscreenLayerOpacity();
