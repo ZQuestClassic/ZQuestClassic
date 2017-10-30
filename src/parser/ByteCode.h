@@ -1721,6 +1721,78 @@ public:
     }
 };
 
+
+class OLoadNPCDataRegister : public UnaryOpcode
+{
+public:
+    OLoadNPCDataRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OLoadNPCDataRegister(a->clone());
+    }
+};
+
+
+class OLoadComboDataRegister : public UnaryOpcode
+{
+public:
+    OLoadComboDataRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OLoadComboDataRegister(a->clone());
+    }
+};
+
+
+class OLoadMapDataRegister : public UnaryOpcode
+{
+public:
+    OLoadMapDataRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OLoadMapDataRegister(a->clone());
+    }
+};
+
+
+class OLoadSpriteDataRegister : public UnaryOpcode
+{
+public:
+    OLoadSpriteDataRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OLoadSpriteDataRegister(a->clone());
+    }
+};
+
+
+class OLoadScreenDataRegister : public UnaryOpcode
+{
+public:
+    OLoadScreenDataRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OLoadScreenDataRegister(a->clone());
+    }
+};
+
+
+class OLoadBitmapDataRegister : public UnaryOpcode
+{
+public:
+    OLoadBitmapDataRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OLoadBitmapDataRegister(a->clone());
+    }
+};
+
 class OLoadNPCRegister : public UnaryOpcode
 {
 public:

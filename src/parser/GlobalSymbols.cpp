@@ -47,6 +47,23 @@ const int radsperdeg = 572958;
 
 #define ARGS_17(t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) { t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17,-1,-1 }
 
+//LoadRefData
+#define LOAD_REFDATA(flabel, ffins, ref_var) \
+{ \
+        int id = memberids["flabel"]; \
+        int label = lt.functionToLabel(id); \
+        vector<Opcode *> code; \
+        Opcode *first = new OPopRegister(new VarArgument(EXP1)); \
+        first->setLabel(label); \
+        code.push_back(first); \
+        code.push_back(new OPopRegister(new VarArgument(NUL))); \
+        code.push_back(new ffins(new VarArgument(EXP1))); \
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(ref_var))); \
+        code.push_back(new OPopRegister(new VarArgument(EXP2))); \
+        code.push_back(new OGotoRegister(new VarArgument(EXP2))); \
+        rval[label] = code; \
+} \
+    
 //Guydata member with one input, one return
 #define GET_GUYDATA_MEMBER(flabel, ffins) \
 { \
@@ -2968,6 +2985,13 @@ static AccessorTable gameTable[] =
 	{ "getMouse[]",             ScriptParser::TYPE_FLOAT,         GETTER,       MOUSEARR,         6,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setMouse[]",             ScriptParser::TYPE_VOID,          SETTER,       MOUSEARR,         6,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,         ScriptParser::TYPE_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
+	//New Datatypes
+	{ "LoadNPCData",           ScriptParser::TYPE_ITEMCLASS,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadComboData",           ScriptParser::TYPE_ITEMCLASS,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadMapData",           ScriptParser::TYPE_ITEMCLASS,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadSpriteData",           ScriptParser::TYPE_ITEMCLASS,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadScreenData",           ScriptParser::TYPE_ITEMCLASS,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadBitmapID",           ScriptParser::TYPE_ITEMCLASS,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
     { "",                       -1,                               -1,           -1,                  -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -2997,6 +3021,30 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
+    }
+    //NPCData
+    {
+	LOAD_REFDATA("LoadNPCData", OLoadNPCDataRegister, REFNPCCLASS);
+    }
+    //ComboData
+    {
+	LOAD_REFDATA("LoadComboData", OLoadComboDataRegister, REFCOMBODATA);
+    }
+    //MapData
+    {
+	LOAD_REFDATA("LoadMapData", OLoadMapDataRegister, REFMAPDATA);
+    }
+    //SpriteData
+    {
+	LOAD_REFDATA("LoadSpriteData", OLoadSpriteDataRegister, REFSPRITEDATA);
+    }
+    //ScreenData
+    {
+	LOAD_REFDATA("LoadScreenData", OLoadScreenDataRegister, NUL); //Change when we set this up! -Z
+    }
+    //Bitmap
+    {
+	LOAD_REFDATA("LoadBitmapID", OLoadBitmapDataRegister, REFGRAPHICS);
     }
     //bool GetScreenState(game, int,int,int)
     {

@@ -1650,6 +1650,32 @@ string OLoadItemDataRegister::toString()
     return "LOADITEMDATAR " + getArgument()->toString();
 }
 
+//New Types
+string OLoadNPCDataRegister::toString()
+{
+    return "LOADNPCDATAR " + getArgument()->toString();
+}
+string OLoadComboDataRegister::toString()
+{
+    return "LOADCOMBODATAR " + getArgument()->toString();
+}
+string OLoadMapDataRegister::toString()
+{
+    return "LOADMAPDATAR " + getArgument()->toString();
+}
+string OLoadSpriteDataRegister::toString()
+{
+    return "LOADSPRITEDATAR " + getArgument()->toString();
+}
+string OLoadScreenDataRegister::toString()
+{
+    return "LOADSCREENDATAR " + getArgument()->toString();
+}
+string OLoadBitmapDataRegister::toString()
+{
+    return "LOADBITMAPDATAR " + getArgument()->toString();
+}
+
 string OLoadNPCRegister::toString()
 {
     return "LOADNPCR " + getArgument()->toString();
