@@ -5537,7 +5537,7 @@ static AccessorTable SpriteDataTable[] =
 SpriteDataSymbols::SpriteDataSymbols()
 {
     table = SpriteDataTable;
-    refVar = NUL;// REFSPRITEDATA;
+    refVar = REFSPRITEDATA; //NUL;// 
 }
 
 map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)

@@ -64,6 +64,7 @@ extern YYLTYPE noloc;
 %token LWEAPON
 %token EWEAPON
 %token GRAPHICS
+%token SPRITEDATA
 %token NPCDATA
 
 %token ASSIGN
