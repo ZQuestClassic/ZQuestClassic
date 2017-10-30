@@ -7061,7 +7061,7 @@ static AccessorTable NPCDataTable[] =
 NPCDataSymbols::NPCDataSymbols()
 {
     table = NPCDataTable;
-    refVar = NUL; //REFNPCCLASS;
+    refVar = REFNPCCLASS; // NUL; //
 }
 
 map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
