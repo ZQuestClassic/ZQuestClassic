@@ -626,6 +626,24 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "SETCONTINUESCREEN",           2,   0,   0,   0}, 
 	//Game->SetContinueScreenString
 	{ "SETCONTINUESTRING",           2,   0,   0,   0}, 
+	
+	{ "LOADNPCDATAR",       1,   0,   0,   0},
+    { "LOADNPCDATAV",       1,   1,   0,   0},
+    
+    { "LOADCOMBODATAR",       1,   0,   0,   0},
+    { "LOADCOMBODATAV",       1,   1,   0,   0},
+    
+    { "LOADMAPDATAR",       1,   0,   0,   0},
+    { "LOADMAPDATAV",       1,   1,   0,   0},
+    
+    { "LOADSPRITEDATAR",       1,   0,   0,   0},
+    { "LOADSPRITEDATAV",       1,   1,   0,   0},
+   
+    { "LOADSCREENDATAR",       1,   0,   0,   0},
+    { "LOADSCREENDATAV",       1,   1,   0,   0},
+
+    { "LOADBITMAPDATAR",       1,   0,   0,   0},
+    { "LOADBITMAPDATAV",       1,   1,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

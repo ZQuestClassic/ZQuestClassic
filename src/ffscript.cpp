@@ -4778,7 +4778,7 @@ void set_register(const long arg, const long value)
 		   
 		break;
 	}
-	//Sprites[10]
+	//SpriteSprites[10]
 	case IDATASPRITE: {
 	    int index = vbound(ri->d[0]/10000,0,9);
 		switch(index){
@@ -7904,6 +7904,91 @@ void do_loadnpc(const bool v)
         ri->guyref = guys.spr(index)->getUID();
         //Z_eventlog("Script loaded NPC with UID = %ld\n", ri->guyref);
     }
+}
+
+void FFScript::do_loadnpcdata(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    
+    if ( ID < 1 || ID > (MAXGUYS-1) )
+    {
+	Z_scripterrlog("Invalid NPC ID passed to Game->LoadNPCData: %d\n", ID);
+	return;
+    }
+        
+    ri->npcdataref = ID;
+    //Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
+}
+
+void FFScript::do_loadcombodata(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    
+    if ( ID < 1 || ID > (MAXCOMBOS-1) )
+    {
+	Z_scripterrlog("Invalid Combo ID passed to Game->LoadComboData: %d\n", ID);
+	return;
+    }
+
+    ri->combosref = ID;
+    //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
+}
+
+void FFScript::do_loadmapdata(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    
+    if ( ID < 0 || ID > (map_count-1) )
+    {
+	Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", ID);
+	return;
+    }
+
+    ri->mapsref = ID;
+    //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
+}
+
+void FFScript::do_loadspritedata(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    
+    if ( ID < 0 || ID > (MAXWPNS-1) )
+    {
+	Z_scripterrlog("Invalid Sprite ID passed to Game->LoadSpriteData: %d\n", ID);
+	return;
+    }
+
+    ri->spritesref = ID;
+    //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
+}
+
+
+void FFScript::do_loadscreendata(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    
+    if ( ID < 0 || ID > (MAXSCREENS-1) )
+    {
+	Z_scripterrlog("Invalid Map ID passed to Game->LoadScreenData: %d\n", ID);
+	return;
+    }
+
+    ri->screenref = ID;
+    //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
+}
+
+void FFScript::do_loadbitmapid(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    
+    if ( ID < MIN_INTERNAL_BITMAP || ID > MAX_INTERNAL_BITMAP )
+    {
+	Z_scripterrlog("Invalid Bitmap ID passed to Game->Load BitmapID: %d\n", ID);
+	return;
+    }
+
+    ri->gfxref = ID;
+    //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
 }
 
 void do_createlweapon(const bool v)
