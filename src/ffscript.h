@@ -21,6 +21,9 @@
 #define MIN_DRAW_LAYER 0
 #define MAX_FLAGS 512
 
+#define MIN_INTERNAL_BITMAP -1 //RT_SCREEN
+#define MAX_INTERNAL_BITMAP 6 //RT_BITMAP6
+
 class FFScript
 {
 private:
@@ -423,7 +426,14 @@ static void setLinkBigHitbox(bool v);
 	static void FFChangeSubscreenText();
 	
 	static void do_typedpointer_typecast(const bool v);
-
+	
+	//New Datatypes
+	static void do_loadnpcdata(const bool v);
+	static void do_loadcombodata(const bool v);
+	static void do_loadmapdata(const bool v);
+	static void do_loadspritedata(const bool v);
+	static void do_loadscreendata(const bool v);
+	static void do_loadbitmapid(const bool v);
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
@@ -1366,24 +1376,6 @@ enum ASM_DEFINE
 	SETSPRITEDATATYPE,
 	SETCONTINUESCREEN,
 	SETCONTINUESTRING,
-	
-	LOADNPCDATAR,		 //0x09E
-	LOADNPCDATAV,		 //0x09F
-	
-	LOADCOMBODATAR,		 //0x09E
-	LOADCOMBODATAV,		 //0x09F
-	
-	LOADMAPDATAR,		 //0x09E
-	LOADMAPDATAV,		 //0x09F
-	
-	LOADSPRITEDATAR,		 //0x09E
-	LOADSPRITEDATAV,		 //0x09F
-	
-	LOADSCREENDATAR,		 //0x09E
-	LOADSCREENDATAV,		 //0x09F
-	
-	LOADBITMAPDATAR,		 //0x09E
-	LOADBITMAPDATAV,		 //0x09F
 	
 	NUMCOMMANDS           //0x013B
 };
