@@ -9637,6 +9637,49 @@ int run_script(const byte type, const word script, const byte i)
         case LOADITEMDATAR:
             do_loaditemdata(false);
             break;
+	
+	//New Datatypes
+	case LOADNPCDATAR:
+            FFScript::do_loadnpcdata(false);
+            break;
+        case LOADNPCDATAV:
+            FFScript::do_loadnpcdata(true);
+            break;
+	
+	case LOADCOMBODATAR:
+            FFScript::do_loadcombodata(false);
+            break;
+        case LOADCOMBODATAV:
+            FFScript::do_loadcombodata(true);
+            break;
+	
+	case LOADMAPDATAR:
+            FFScript::do_loadmapdata(false);
+            break;
+        case LOADMAPDATAV:
+            FFScript::do_loadmapdata(true);
+            break;
+	
+	case LOADSPRITEDATAR:
+            FFScript::do_loadspritedata(false);
+            break;
+        case LOADSPRITEDATAV:
+            FFScript::do_loadspritedata(true);
+            break;
+	
+	case LOADSCREENDATAR:
+            FFScript::do_loadscreendata(false);
+            break;
+        case LOADSCREENDATAV:
+            FFScript::do_loadscreendata(true);
+            break;
+	
+	case LOADBITMAPDATAR:
+            FFScript::do_loadbitmapid(false);
+            break;
+        case LOADBITMAPDATAV:
+            FFScript::do_loadbitmapid(true);
+            break;
             
         case LOADITEMDATAV:
             do_loaditemdata(true);
