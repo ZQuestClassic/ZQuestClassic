@@ -1,5 +1,28 @@
 //2.54 Changes
 
+//Alpha 11
+
+Added Game->LoadNPCData(), LoadMapData(), LoadComboData(), LoadSpriteData(), LoadScreenData() (unused) and LoadBitmapID(). 
+
+Added 'npcdata' datatype. The user may now declare a type of
+npcdata in ZScript, and the declared pointer references NPCData-> functions,
+and more important, variables /t/b/a/ for the class.
+	
+Added 'spritedata' datatype. The user may now declare a type of
+spritedata in ZScript, and the declared pointer references SpriteData-> 
+functions, and more important, variables /t/b/a/ for the class.
+
+Added 'mapdata' datatype. The user may now declare a type of
+mapdata in ZScript, and the declared pointer references MapData-> 
+functions, and more important, variables /t/b/a/ for the class.
+	
+Added 'combodata' datatype. The user may now declare a type of
+combodata in ZScript, and the declared pointer references ComboData-> 
+functions, and more important, variables /t/b/a/ for the class.
+
+Fixed SetScreenGuy, GetScreenGuy, SetScreenDoor, GetScreenDoor positions in ffscript.cpp switches. ( ZoriaRPG, 30th October, 2017 )
+
+
 //Alpha 10
 
 Renamed 'Timer' to 'M.Cost TImer' in the item editor dialogue, and adjusted the positions of elements accordingly. ( ZoriaRPG, 29th October, 2017 )
