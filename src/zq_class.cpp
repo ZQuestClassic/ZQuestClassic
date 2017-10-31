@@ -7472,7 +7472,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		{
 		    new_return(58);
 		}
-		if(!p_iputl(itemsbuf[i].yxofs,f))
+		if(!p_iputl(itemsbuf[i].hyofs,f))
 		{
 		    new_return(59);
 		}
@@ -7500,7 +7500,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		{
 		    new_return(65);
 		}
-		if(!p_iputl(itemsbuf[i].weap_yxofs,f))
+		if(!p_iputl(itemsbuf[i].weap_hyofs,f))
 		{
 		    new_return(66);
 		}
@@ -7535,6 +7535,34 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		if(!p_iputl(itemsbuf[i].magiccosttimer,f))
 		{
 		    new_return(74);
+		}
+		if(!p_iputl(itemsbuf[i].overrideFLAGS,f))
+		{
+		    new_return(75);
+		}
+		if(!p_iputl(itemsbuf[i].tilew,f))
+		{
+		    new_return(76);
+		}
+		if(!p_iputl(itemsbuf[i].tileh,f))
+		{
+		    new_return(77);
+		}
+		if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
+		{
+		    new_return(78);
+		}
+		if(!p_iputl(itemsbuf[i].weap_tilew,f))
+		{
+		    new_return(79);
+		}
+		if(!p_iputl(itemsbuf[i].weap_tileh,f))
+		{
+		    new_return(80);
+		}
+		if(!p_iputl(itemsbuf[i].pickup,f))
+		{
+		    new_return(81);
 		}
 		
 	    

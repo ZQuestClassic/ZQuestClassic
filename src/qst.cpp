@@ -5184,7 +5184,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                         {
                             return qe_invalid;
                         }
-			if(!p_igetl(&tempitem.yxofs,f,true))
+			if(!p_igetl(&tempitem.hyofs,f,true))
                         {
                             return qe_invalid;
                         }
@@ -5212,7 +5212,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                         {
                             return qe_invalid;
                         }
-			if(!p_igetl(&tempitem.weap_yxofs,f,true))
+			if(!p_igetl(&tempitem.weap_hyofs,f,true))
                         {
                             return qe_invalid;
                         }
@@ -5248,7 +5248,49 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                         {
                             return qe_invalid;
                         }
+			
 		
+		}
+		if ( s_version >= 28 )  //! New itemdata vars for weapon editor. -Z
+		{
+			//Item Size FLags, TileWidth, TileHeight
+			if(!p_igetl(&tempitem.overrideFLAGS,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.tilew,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.tileh,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			
+		}
+		if ( s_version >= 29 )  //! More new vars. 
+		{
+			//Item Size FLags, TileWidth, TileHeight
+			if(!p_igetl(&tempitem.weapoverrideFLAGS,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weap_tilew,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weap_tileh,f,true))
+                        {
+                            return qe_invalid;
+                        }
+		}
+		if ( s_version >= 30 )  //! More new vars. 
+		{
+			//Pickup Type
+			if(!p_igetl(&tempitem.pickup,f,true))
+                        {
+                            return qe_invalid;
+                        }
 		}
         }
         else

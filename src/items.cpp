@@ -198,6 +198,8 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     frames = itemsbuf[id].frames;
     flip = itemsbuf[id].misc>>2;
     
+    //if ( itemsbuf[id].flags&itemdataOVERRIDE_PICKUP ) pickup = itemsbuf[id].pickup;
+    
     if(itemsbuf[id].misc&1)
         flash=true;
         
@@ -240,6 +242,17 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
       if(j<2) a[j]=itemsbuf[id].initiala[j]*10000;
       d[j]=itemsbuf[id].initiald[j];
     }*/
+    if ( itemsbuf[id].overrideFLAGS > 0 ) {extend = 3; }
+    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[id].tilew;}
+    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[id].tileh;}
+    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[id].hxsz;}
+    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[id].hysz;}
+    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[id].hzsz;}
+    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[id].hxofs;}
+    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[id].hyofs;}
+    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[id].xofs;}
+    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[id].yofs+56;} //Hack, until I figure out why yofs is -56.
+    //if ( itemsbuf[id].flags&itemdataOVERRIDE_DRAW_Z_OFFSET ) zofs = itemsbuf[id].zofs;
 }
 
 // easy way to draw an item
@@ -248,6 +261,19 @@ void putitem(BITMAP *dest,int x,int y,int item_id)
 {
     item temp((fix)x,(fix)y,(fix)0,item_id,0,0);
     temp.yofs=0;
+	
+    if ( itemsbuf[item_id].overrideFLAGS > 0 ) {temp.extend = 3; }
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { temp.txsz = itemsbuf[item_id].tilew;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){temp.tysz = itemsbuf[item_id].tileh;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) { temp.hxsz = itemsbuf[item_id].hxsz;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {temp.hysz = itemsbuf[item_id].hysz;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) { temp.hzsz = itemsbuf[item_id].hzsz;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) { temp.hxofs = itemsbuf[item_id].hxofs;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) {temp.xofs = itemsbuf[item_id].xofs;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs; }
+    
+	
     temp.animate(0);
     temp.draw(dest);
 }
@@ -263,6 +289,17 @@ void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int 
     {
         temp.flash=(flash != 0);
     }
+    if ( itemsbuf[item_id].overrideFLAGS > 0 ) {temp.extend = 3; }
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { temp.txsz = itemsbuf[item_id].tilew;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){temp.tysz = itemsbuf[item_id].tileh;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) { temp.hxsz = itemsbuf[item_id].hxsz;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {temp.hysz = itemsbuf[item_id].hysz;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) { temp.hzsz = itemsbuf[item_id].hzsz;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) { temp.hxofs = itemsbuf[item_id].hxofs;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) {temp.xofs = itemsbuf[item_id].xofs;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs; }
+    
     
     temp.animate(0);
     temp.draw(dest);
