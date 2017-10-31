@@ -2,6 +2,8 @@
 
 //Alpha 12
 
+Added ZScript variables to itemdata-> for all of the new item editor fields under the 'Size' and 'Weapon Size' tabs.
+
 Began adding a 'Weapon Size' tab to the item editor. The editor fields work, but they do not yet affect anything in-game.
 
 Added a 'Size' tab to the item editor. The user may now set the following mfields for items in ZQuest, without scripts:
