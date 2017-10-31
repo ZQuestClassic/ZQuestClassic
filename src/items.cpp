@@ -198,6 +198,8 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     frames = itemsbuf[id].frames;
     flip = itemsbuf[id].misc>>2;
     
+    if ( itemsbuf[id].flags&itemdataOVERRIDE_PICKUP ) pickup = itemsbuf[id].pickup;
+    
     if(itemsbuf[id].misc&1)
         flash=true;
         
@@ -240,6 +242,17 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
       if(j<2) a[j]=itemsbuf[id].initiala[j]*10000;
       d[j]=itemsbuf[id].initiald[j];
     }*/
+    
+    if ( itemsbuf[id].flags&itemdataOVERRIDE_TILEWIDTH ) txsz = itemsbuf[id].tilew;
+    if ( itemsbuf[id].flags&itemdataOVERRIDE_TILEHEIGHT ) tysz = itemsbuf[id].tileh;
+    if ( itemsbuf[id].flags&itemdataOVERRIDE_HIT_WIDTH ) hxsz = itemsbuf[id].hxsz;
+    if ( itemsbuf[id].flags&itemdataOVERRIDE_HIT_HEIGHT ) hysz = itemsbuf[id].hysz;
+    if ( itemsbuf[id].flags&itemdataOVERRIDE_HIT_Z_HEIGHT ) hzsz = itemsbuf[id].hzsz;
+    if ( itemsbuf[id].flags&itemdataOVERRIDE_HIT_X_OFFSET ) hxofs = itemsbuf[id].hxofs;
+    if ( itemsbuf[id].flags&itemdataOVERRIDE_HIT_Y_OFFSET ) hyofs = itemsbuf[id].hyofs;
+    if ( itemsbuf[id].flags&itemdataOVERRIDE_DRAW_X_OFFSET ) xofs = itemsbuf[id].xofs;
+    if ( itemsbuf[id].flags&itemdataOVERRIDE_DRAW_Y_OFFSET ) yofs = itemsbuf[id].yofs;
+    //if ( itemsbuf[id].flags&itemdataOVERRIDE_DRAW_Z_OFFSET ) zofs = itemsbuf[id].zofs;
 }
 
 // easy way to draw an item
