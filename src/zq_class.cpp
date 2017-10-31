@@ -7560,6 +7560,10 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		{
 		    new_return(80);
 		}
+		if(!p_iputl(itemsbuf[i].pickup,f))
+		{
+		    new_return(81);
+		}
 		
 	    
         }
