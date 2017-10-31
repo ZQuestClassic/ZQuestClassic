@@ -1088,16 +1088,16 @@ static DIALOG itemdata_dlg[] =
     { jwin_edit_proc,      198,  76+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      198,  93+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //219
-     { jwin_check_proc,        86,     29+19,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        86,     48+17,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  }, 
-     { jwin_check_proc,        86,     67+15,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  }, 
-     { jwin_check_proc,        86,     86+13,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+     { jwin_check_proc,        86,     29+19,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+     { jwin_check_proc,        86,     48+17,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  }, 
+     { jwin_check_proc,        86,     67+15,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  }, 
+     { jwin_check_proc,        86,     86+13,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
   
-     { jwin_check_proc,        242,     29+19,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        242,     48+17,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        242,     67+15,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        242,     86+13,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        242,     105+12,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     29+19,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     48+17,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     67+15,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     86+13,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     105+12,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
      
      //Item Editor Weapon Size
      //228
@@ -1123,20 +1123,20 @@ static DIALOG itemdata_dlg[] =
     { jwin_edit_proc,      198,  76+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      198,  93+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //246
-     { jwin_check_proc,        86,     29+19,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        86,     48+17,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  }, 
-     { jwin_check_proc,        86,     67+15,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  }, 
-     { jwin_check_proc,        86,     86+13,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+     { jwin_check_proc,        86,     29+19,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+     { jwin_check_proc,        86,     48+17,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  }, 
+     { jwin_check_proc,        86,     67+15,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  }, 
+     { jwin_check_proc,        86,     86+13,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
   //250
-     { jwin_check_proc,        242,     29+19,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        242,     48+17,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        242,     67+15,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        242,     86+13,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        242,     105+12,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     29+19,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     48+17,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     67+15,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     86+13,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     105+12,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//255
     { jwin_text_proc,           8,     187,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Pick-Up Flags:",                  NULL,   NULL                  },
     { jwin_edit_proc,      66,   182,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,        100,     186,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+    { jwin_check_proc,        100,     186,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
     //258
 
     /* Weapon Editor Goes Here
@@ -3610,25 +3610,25 @@ static DIALOG enedata_dlg[] =
 	//{  jwin_droplist_proc,      86, 189-4+12,    151,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
 	{  jwin_edit_proc,         86, 189-4+12,    151,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	//237 HitWidth Override
-	 { jwin_check_proc,        94+50,     83,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	 { jwin_check_proc,        94+50,     83,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//238 HitHeight override
-	 { jwin_check_proc,        94+50,    99,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	 { jwin_check_proc,        94+50,    99,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//239 HitZHeight Override
-	 { jwin_check_proc,        94+50,     115,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	 { jwin_check_proc,        94+50,     115,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//240 HitXOffset override
-	 { jwin_check_proc,        94+50,     131,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	 { jwin_check_proc,        94+50,     131,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//241 HitYOffset Override
-	 { jwin_check_proc,        94+50,    147,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	 { jwin_check_proc,        94+50,    147,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//242 DrawZOffset Override
-	 { jwin_check_proc,        94+50,     163,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	 { jwin_check_proc,        94+50,     163,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//243 DrawXOffset Override
-	 { jwin_check_proc,        94+50,    179,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	 { jwin_check_proc,        94+50,    179,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//244 DrawYOffset Overrife
-	 { jwin_check_proc,        94+50,     195,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	 { jwin_check_proc,        94+50,     195,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//245 TileWidth Overrife
-	 { jwin_check_proc,        94+50,     51,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	 { jwin_check_proc,        94+50,     51,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//246 TileHeight Overrife
-	 { jwin_check_proc,        94+50,     67,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+	 { jwin_check_proc,        94+50,     67,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	
     {  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
