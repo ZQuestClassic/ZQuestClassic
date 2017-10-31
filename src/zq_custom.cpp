@@ -1777,10 +1777,10 @@ void edit_itemdata(int index)
     //item size
     itemdata_dlg[210].dp = i_tilew;
     itemdata_dlg[211].dp = i_tileh;
-    itemdata_dlg[212].dp = i_hxofs;
-    itemdata_dlg[213].dp = i_hyofs;
-    itemdata_dlg[214].dp = i_hxsz;
-    itemdata_dlg[215].dp = i_hysz;
+    itemdata_dlg[212].dp = i_hxsz;
+    itemdata_dlg[213].dp = i_hysz;
+    itemdata_dlg[214].dp = i_hxofs;
+    itemdata_dlg[215].dp = i_hyofs;
     itemdata_dlg[216].dp = i_hzsz;
     itemdata_dlg[217].dp = i_xofs;
     itemdata_dlg[218].dp = i_yofs;
@@ -1788,10 +1788,10 @@ void edit_itemdata(int index)
     //weapon size
     itemdata_dlg[237].dp = i_weap_tilew;
     itemdata_dlg[238].dp = i_weap_tileh;
-    itemdata_dlg[239].dp = i_weap_hxofs;
-    itemdata_dlg[240].dp = i_weap_hyofs;
-    itemdata_dlg[241].dp = i_weap_hxsz;
-    itemdata_dlg[242].dp = i_weap_hysz;
+    itemdata_dlg[239].dp = i_weap_hxsz;
+    itemdata_dlg[240].dp = i_weap_hysz;
+    itemdata_dlg[241].dp = i_weap_hxofs;
+    itemdata_dlg[242].dp = i_weap_hyofs;
     itemdata_dlg[243].dp = i_weap_hzsz;
     itemdata_dlg[244].dp = i_weap_xofs;
     itemdata_dlg[245].dp = i_weap_yofs;
