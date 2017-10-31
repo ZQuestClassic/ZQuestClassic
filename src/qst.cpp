@@ -5268,6 +5268,22 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                         }
 			
 		}
+		if ( s_version >= 29 )  //! More new vars. 
+		{
+			//Item Size FLags, TileWidth, TileHeight
+			if(!p_igetl(&tempitem.weapoverrideFLAGS,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weap_tilew,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.weap_tileh,f,true))
+                        {
+                            return qe_invalid;
+                        }
+		}
         }
         else
         {
