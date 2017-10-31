@@ -5184,7 +5184,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                         {
                             return qe_invalid;
                         }
-			if(!p_igetl(&tempitem.yxofs,f,true))
+			if(!p_igetl(&tempitem.hyofs,f,true))
                         {
                             return qe_invalid;
                         }
@@ -5212,7 +5212,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                         {
                             return qe_invalid;
                         }
-			if(!p_igetl(&tempitem.weap_yxofs,f,true))
+			if(!p_igetl(&tempitem.weap_hyofs,f,true))
                         {
                             return qe_invalid;
                         }
@@ -5248,7 +5248,25 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                         {
                             return qe_invalid;
                         }
+			
 		
+		}
+		if ( s_version >= 28 )  //! New itemdata vars for weapon editor. -Z
+		{
+			//Item Size FLags, TileWidth, TileHeight
+			if(!p_igetl(&tempitem.overrideFLAGS,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.tilew,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			if(!p_igetl(&tempitem.tileh,f,true))
+                        {
+                            return qe_invalid;
+                        }
+			
 		}
         }
         else

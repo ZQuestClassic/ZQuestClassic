@@ -178,7 +178,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            18
 #define V_DMAPS            9
 #define V_DOORS            1
-#define V_ITEMS           27
+#define V_ITEMS           28
 #define V_WEAPONS          6
 #define V_COLORS           2
 #define V_ICONS            1
@@ -1336,8 +1336,27 @@ struct itemdata
     
     byte drawlayer;
     long collectflags;
-    int hxofs, yxofs, hxsz, hysz, hzsz, xofs, yofs; //item
-    int weap_hxofs, weap_yxofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
+    int hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs; //item
+    int weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
+    int tilew, tileh; //New for 2.54
+    //i_pickuptype
+
+    
+  
+//Guydata Enemy Editor Size Panel FLags
+
+#define itemdataOVERRIDE_TILEWIDTH	0x00000001
+#define itemdataOVERRIDE_TILEHEIGHT	0x00000002
+#define itemdataOVERRIDE_HIT_WIDTH	0x00000004
+#define itemdataOVERRIDE_HIT_HEIGHT	0x00000008
+#define itemdataOVERRIDE_HIT_Z_HEIGHT	0x00000010
+#define itemdataOVERRIDE_HIT_X_OFFSET	0x00000020
+#define itemdataOVERRIDE_HIT_Y_OFFSET	0x00000040
+#define itemdataOVERRIDE_DRAW_X_OFFSET	0x00000080
+#define itemdataOVERRIDE_DRAW_Y_OFFSET	0x00000100
+#define itemdataOVERRIDE_DRAW_Z_OFFSET	0x00000200
+
+    int overrideFLAGS; //Override flags.
     
     word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
     int wpnsprite; //enemy weapon sprite. 
