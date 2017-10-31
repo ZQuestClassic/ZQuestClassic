@@ -396,7 +396,7 @@ static int itemdata_scriptargs_list[] =
 static int itemdata_itemsize_list[] =
 {
     // dialog control number
-    201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215,216,217,218,219,220,221,222,223,224,225,226,227 -1
+    201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215,216,217,218,219,220,221,222,223,224,225,226,227, -1
 };
 
 static int itemdata_weaponsize_list[] =
@@ -422,7 +422,7 @@ static TABPANEL itemdata_tabs[] =
     { (char *)"Scripts",      0,             itemdata_scriptargs_list,    0, NULL },
     { (char *)"Size",      0,             itemdata_itemsize_list,    0, NULL },
    //  { (char *)"Weapon",      0,             itemdata_weaponargs_list,    0, NULL },
-    { (char *)"W.Size",      0,             itemdata_itemsize_list,    0, NULL },
+   // { (char *)"W.Size",      0,             itemdata_itemsize_list,    0, NULL },
     { NULL,                   0,             NULL,                        0, NULL }
 };
 
@@ -1063,35 +1063,38 @@ static DIALOG itemdata_dlg[] =
     { jwin_text_proc,         83,     48,     30,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "M.Cost Timer:",                              NULL,   NULL                  },
     { jwin_edit_proc,         129,	44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
    //201
-    { jwin_text_proc,       6,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "TileWidth:", NULL, NULL },
-    { jwin_text_proc,       6,   48+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "TileHeight:", NULL, NULL },
-    { jwin_text_proc,       6,   67+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "HitWidth:", NULL, NULL },
-    { jwin_text_proc,       6,   86+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "HitHeight:", NULL, NULL },
-    { jwin_text_proc,       6,   105+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "HitXOffset:", NULL, NULL },
-    { jwin_text_proc,       6,   124+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "HitYOffset:", NULL, NULL },
-    { jwin_text_proc,       6,  143+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "HitZHeight:", NULL, NULL },
-    { jwin_text_proc,       6,  162+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "DrawXOffset:", NULL, NULL },
-    { jwin_text_proc,       6,  191+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "DrawYOffset:", NULL, NULL },
+    { jwin_text_proc,       6,   29+19,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "TileWidth:", NULL, NULL },
+    { jwin_text_proc,       6,   48+17,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "TileHeight:", NULL, NULL },
+    { jwin_text_proc,       6,   67+15,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "HitWidth:", NULL, NULL },
+    { jwin_text_proc,       6,   86+13,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "HitHeight:", NULL, NULL },
+    
+    { jwin_text_proc,       148,   29+19,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "HitXOffset:", NULL, NULL },
+    { jwin_text_proc,       148,   48+17,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "HitYOffset:", NULL, NULL },
+    { jwin_text_proc,       148,  67+15,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "HitZHeight:", NULL, NULL },
+    { jwin_text_proc,       148,  86+13,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "DrawXOffset:", NULL, NULL },
+    { jwin_text_proc,       148,  105+12,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "DrawYOffset:", NULL, NULL },
     //210
-    { jwin_edit_proc,      34,   25+20,   48,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34,   42+20,   48,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34,   59+20,   48,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34,   76+20,   48,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34,   93+20,   48,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34,   110+20,   48,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34,   127+20,   48,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34,  144+20,   48,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34,  161+20,   48,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      50,   25+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      50,   42+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      50,   59+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      50,   76+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    
+    { jwin_edit_proc,      198,   25+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      198,   42+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      198,   59+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      198,  76+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      198,  93+20,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     //219
-     { jwin_check_proc,        84,     25+20,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        84,     42+20,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  }, 
-     { jwin_check_proc,        84,     59+20,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  }, 
-     { jwin_check_proc,        84,     76+20,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        84,     93+20,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        84,     110+20,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        84,     107+20,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        84,     144+20,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
-     { jwin_check_proc,        84,     161+20,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+     { jwin_check_proc,        86,     29+19,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+     { jwin_check_proc,        86,     48+17,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  }, 
+     { jwin_check_proc,        86,     67+15,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  }, 
+     { jwin_check_proc,        86,     86+13,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+  
+     { jwin_check_proc,        242,     29+19,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     48+17,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     67+15,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     86+13,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
+     { jwin_check_proc,        242,     105+12,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Override",                        NULL,   NULL                  },
 	//228
     
     
@@ -1543,7 +1546,7 @@ void edit_itemdata(int index)
     char mgtimer[8]; //timer for magic usage
 	char i_tilew[9], i_tileh[8], i_hxofs[8], i_hyofs[8], i_hxsz[8], i_hysz[8], i_hzsz[8], i_xofs[8], i_yofs[8]; //item sizing
 	char i_pickuptype[8]; //item pickup type
-    char i_weap_hxofs[8], i_weap_yxofs[8], i_weap_hxsz[8], i_weap_hysz[8], i_weap_hzsz[8], i_weap_xofs[8], i_weap_yofs[8]; //weapon sizing
+    char i_weap_hxofs[8], i_weap_hyofs[8], i_weap_hxsz[8], i_weap_hysz[8], i_weap_hzsz[8], i_weap_xofs[8], i_weap_yofs[8]; //weapon sizing
     
     
     sprintf(itemnumstr,"Item %d: %s", index, item_string[index]);
@@ -1590,13 +1593,14 @@ void edit_itemdata(int index)
      
      
     //Override flags for item size
+    
     itemdata_dlg[219].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH) ? D_SELECTED : 0;
     itemdata_dlg[220].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT) ? D_SELECTED : 0;
-    itemdata_dlg[221].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET) ? D_SELECTED : 0;
-    itemdata_dlg[222].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET) ? D_SELECTED : 0;
-    itemdata_dlg[223].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH) ? D_SELECTED : 0;
-    itemdata_dlg[223].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT) ? D_SELECTED : 0;
-    itemdata_dlg[224].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT) ? D_SELECTED : 0;
+    itemdata_dlg[221].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH) ? D_SELECTED : 0;
+    itemdata_dlg[222].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT) ? D_SELECTED : 0;
+    itemdata_dlg[223].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET) ? D_SELECTED : 0;
+    itemdata_dlg[224].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET) ? D_SELECTED : 0;
+    itemdata_dlg[225].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT) ? D_SELECTED : 0;
     itemdata_dlg[226].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET) ? D_SELECTED : 0;
     itemdata_dlg[227].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET) ? D_SELECTED : 0;
 
@@ -1710,10 +1714,10 @@ void edit_itemdata(int index)
     //item size flags
     itemdata_dlg[219].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH) ? D_SELECTED : 0;
     itemdata_dlg[220].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT) ? D_SELECTED : 0;
-    itemdata_dlg[221].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET) ? D_SELECTED : 0;
-    itemdata_dlg[222].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET) ? D_SELECTED : 0;
-    itemdata_dlg[223].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH) ? D_SELECTED : 0;
-    itemdata_dlg[224].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT) ? D_SELECTED : 0;
+    itemdata_dlg[221].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH) ? D_SELECTED : 0;
+    itemdata_dlg[222].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT) ? D_SELECTED : 0;
+    itemdata_dlg[223].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET) ? D_SELECTED : 0;
+    itemdata_dlg[224].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET) ? D_SELECTED : 0;
     itemdata_dlg[225].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT) ? D_SELECTED : 0;
     itemdata_dlg[226].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET) ? D_SELECTED : 0;
     itemdata_dlg[227].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET) ? D_SELECTED : 0;
@@ -1855,14 +1859,13 @@ void edit_itemdata(int index)
 	test.yofs = vbound(atoi(i_yofs),  -214747, 214747);
 	
 	
-	//item sizing override flags
 	if(itemdata_dlg[219].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_TILEWIDTH;
 	if(itemdata_dlg[220].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_TILEHEIGHT;
 	if(itemdata_dlg[221].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_HIT_WIDTH;
 	if(itemdata_dlg[222].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_HIT_HEIGHT;
-	if(itemdata_dlg[223].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_HIT_Z_HEIGHT;
-	if(itemdata_dlg[224].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_HIT_X_OFFSET;
-	if(itemdata_dlg[225].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_HIT_Y_OFFSET;
+	if(itemdata_dlg[223].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_HIT_X_OFFSET;
+	if(itemdata_dlg[224].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_HIT_Y_OFFSET;
+	if(itemdata_dlg[225].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_HIT_Z_HEIGHT;
 	if(itemdata_dlg[226].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_DRAW_X_OFFSET;
 	if(itemdata_dlg[227].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_DRAW_Y_OFFSET;
         
