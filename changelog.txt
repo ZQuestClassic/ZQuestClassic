@@ -1,5 +1,14 @@
 //2.54 Changes
 
+//Alpha 12
+
+Began adding a 'Weapon Size' tab to the item editor. The editor fields work, but they do not yet affect anything in-game.
+
+Added a 'Size' tab to the item editor. The user may now set the following mfields for items in ZQuest, without scripts:
+TileWidth, TileHeight, HotWidth, HitHeight, HitXOffset, HitYOffset, DrawXOffset, DrawYOffset, HitZHeight
+The editor has an 'Override' flag for each. The values will only work if the override flag is enabled, and this will
+override any other internal sizes and offsets normally applied by the engine. ( ZoriaRPG, 31st October, 2017 )
+
 //Alpha 11
 
 Added Game->LoadNPCData(), LoadMapData(), LoadComboData(), LoadSpriteData(), LoadScreenData() (unused) and LoadBitmapID(). 
