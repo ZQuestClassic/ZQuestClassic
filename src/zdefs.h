@@ -98,10 +98,10 @@
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       40                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.54 Alpha 11"                    //version of the program as presented in text
-#define IS_BETA             -11                              //is this a beta? (1: beta, -1: alpha)
+#define ZELDA_VERSION_STR   "2.54 Alpha 12"                    //version of the program as presented in text
+#define IS_BETA             -12                              //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        00010
-#define DATE_STR            "30th October, 2017"
+#define DATE_STR            "31sr October, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -178,7 +178,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            18
 #define V_DMAPS            9
 #define V_DOORS            1
-#define V_ITEMS           28
+#define V_ITEMS           29
 #define V_WEAPONS          6
 #define V_COLORS           2
 #define V_ICONS            1
@@ -1338,7 +1338,7 @@ struct itemdata
     long collectflags;
     int hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs; //item
     int weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
-    int tilew, tileh; //New for 2.54
+    int tilew, tileh, weap_tilew, weap_tileh; //New for 2.54
     //i_pickuptype
 
     
@@ -1357,6 +1357,7 @@ struct itemdata
 #define itemdataOVERRIDE_DRAW_Z_OFFSET	0x00000200
 
     int overrideFLAGS; //Override flags.
+    int weapoverrideFLAGS; 
     
     word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
     int wpnsprite; //enemy weapon sprite. 

@@ -7548,6 +7548,18 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		{
 		    new_return(77);
 		}
+		if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
+		{
+		    new_return(78);
+		}
+		if(!p_iputl(itemsbuf[i].weap_tilew,f))
+		{
+		    new_return(79);
+		}
+		if(!p_iputl(itemsbuf[i].weap_tileh,f))
+		{
+		    new_return(80);
+		}
 		
 	    
         }
