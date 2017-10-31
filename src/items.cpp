@@ -251,8 +251,7 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[id].hxofs;}
     if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[id].hyofs;}
     if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[id].xofs;}
-    Z_message("itemsbuf.yofs = : %d\n",itemsbuf[id].yofs);
-    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[id].yofs;}
+    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[id].yofs+56;} //Hack, until I figure out why yofs is -56.
     //if ( itemsbuf[id].flags&itemdataOVERRIDE_DRAW_Z_OFFSET ) zofs = itemsbuf[id].zofs;
 }
 
@@ -272,7 +271,8 @@ void putitem(BITMAP *dest,int x,int y,int item_id)
     if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) { temp.hxofs = itemsbuf[item_id].hxofs;}
     if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}
     if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) {temp.xofs = itemsbuf[item_id].xofs;}
-    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs; }
+    
 	
     temp.animate(0);
     temp.draw(dest);
@@ -298,7 +298,8 @@ void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int 
     if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) { temp.hxofs = itemsbuf[item_id].hxofs;}
     if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}
     if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) {temp.xofs = itemsbuf[item_id].xofs;}
-    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs;}
+    if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs; }
+    
     
     temp.animate(0);
     temp.draw(dest);
