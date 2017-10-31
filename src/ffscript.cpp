@@ -1874,7 +1874,7 @@ long get_register(const long arg)
         ret=(itemsbuf[ri->idata].weap_hxofs)*10000;
         break;
     case IDATAWEAPHYOFS:
-        ret=(itemsbuf[ri->idata].weap_yxofs)*10000;
+        ret=(itemsbuf[ri->idata].weap_hyofs)*10000;
         break;
     case IDATAWEAPHXSZ:
         ret=(itemsbuf[ri->idata].weap_hxsz)*10000;
@@ -4617,7 +4617,7 @@ void set_register(const long arg, const long value)
 	(itemsbuf[ri->idata].weap_hxofs)=(value/10000);
         break;
     case IDATAWEAPHYOFS:
-	(itemsbuf[ri->idata].weap_yxofs)=(value/10000);
+	(itemsbuf[ri->idata].weap_hyofs)=(value/10000);
         break;
     case IDATAWEAPHXSZ:
 	(itemsbuf[ri->idata].weap_hxsz)=(value/10000);
