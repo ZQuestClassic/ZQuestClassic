@@ -1891,7 +1891,50 @@ long get_register(const long arg)
     case IDATAWEAPYOFS:
         ret=(itemsbuf[ri->idata].weap_yofs)*10000;
         break;
-    
+     case IDATAHXOFS:
+        ret=(itemsbuf[ri->idata].hxofs)*10000;
+        break;
+    case IDATAHYOFS:
+        ret=(itemsbuf[ri->idata].hyofs)*10000;
+        break;
+    case IDATAHXSZ:
+        ret=(itemsbuf[ri->idata].hxsz)*10000;
+        break;
+    case IDATAHYSZ:
+        ret=(itemsbuf[ri->idata].hysz)*10000;
+        break;
+    case IDATAHZSZ:
+        ret=(itemsbuf[ri->idata].hzsz)*10000;
+        break;
+    case IDATADXOFS:
+        ret=(itemsbuf[ri->idata].xofs)*10000;
+        break;
+    case IDATADYOFS:
+        ret=(itemsbuf[ri->idata].yofs)*10000;
+        break;
+    case IDATATILEW:
+        ret=(itemsbuf[ri->idata].tilew)*10000;
+        break;
+    case IDATATILEH:
+        ret=(itemsbuf[ri->idata].tileh)*10000;
+        break;
+    case IDATAPICKUP:
+        ret=(itemsbuf[ri->idata].pickup)*10000;
+        break;
+    case IDATAOVERRIDEFL:
+        ret=(itemsbuf[ri->idata].overrideFLAGS)*10000;
+        break;
+
+    case IDATATILEWWEAP:
+        ret=(itemsbuf[ri->idata].weap_tilew)*10000;
+        break;
+    case IDATATILEHWEAP:
+        ret=(itemsbuf[ri->idata].weap_tileh)*10000;
+        break;
+    case IDATAOVERRIDEFLWEAP:
+        ret=(itemsbuf[ri->idata].weapoverrideFLAGS)*10000;
+        break;
+
     
     
     case IDATAFAMILY:
@@ -4635,6 +4678,50 @@ void set_register(const long arg, const long value)
 	(itemsbuf[ri->idata].weap_yofs)=(value/10000);
         break;
 
+    
+    case IDATAHXOFS:
+        (itemsbuf[ri->idata].hxofs)=(value/10000);
+        break;
+    case IDATAHYOFS:
+        (itemsbuf[ri->idata].hyofs)=(value/10000);
+        break;
+    case IDATAHXSZ:
+        (itemsbuf[ri->idata].hxsz)=(value/10000);
+        break;
+    case IDATAHYSZ:
+        (itemsbuf[ri->idata].hysz)=(value/10000);
+        break;
+    case IDATAHZSZ:
+        (itemsbuf[ri->idata].hzsz)=(value/10000);
+        break;
+    case IDATADXOFS:
+        (itemsbuf[ri->idata].xofs)=(value/10000);
+        break;
+    case IDATADYOFS:
+        (itemsbuf[ri->idata].yofs)=(value/10000);
+        break;
+    case IDATATILEW:
+        (itemsbuf[ri->idata].tilew)=(value/10000);
+        break;
+    case IDATATILEH:
+        (itemsbuf[ri->idata].tileh)=(value/10000);
+        break;
+    case IDATAPICKUP:
+        (itemsbuf[ri->idata].pickup)=(value/10000);
+        break;
+    case IDATAOVERRIDEFL:
+        (itemsbuf[ri->idata].overrideFLAGS)=(value/10000);
+        break;
+
+    case IDATATILEWWEAP:
+        (itemsbuf[ri->idata].weap_tilew)=(value/10000);
+        break;
+    case IDATATILEHWEAP:
+        (itemsbuf[ri->idata].weap_tileh)=(value/10000);
+        break;
+    case IDATAOVERRIDEFLWEAP:
+        (itemsbuf[ri->idata].weapoverrideFLAGS)=(value/10000);
+        break;
     
     case IDATAUSEMVT:
 	{

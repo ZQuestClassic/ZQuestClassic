@@ -1126,6 +1126,29 @@ string VarArgument::toString()
     case IDATAWEAPZOFS: return "IDATAWEAPZOFS";
     case IDATAWPNINITD: return "IDATAWPNINITD";
     
+    //Item Sizing
+    case IDATAOVERRIDEFLWEAP: return "IDATAOVERRIDEFLWEAP";
+    case IDATATILEHWEAP: return "IDATATILEHWEAP";
+    case IDATATILEWWEAP: return "IDATATILEWWEAP";
+    case IDATAHZSZWEAP: return "IDATAHZSZWEAP";
+    case IDATAHYSZWEAP: return "IDATAHYSZWEAP";
+    case IDATAHXSZWEAP: return "IDATAHXSZWEAP";
+    case IDATADYOFSWEAP: return "IDATADYOFSWEAP";
+    case IDATADXOFSWEAP: return "IDATADXOFSWEAP";
+    case IDATAHYOFSWEAP: return "IDATAHYOFSWEAP";
+    case IDATAHXOFSWEAP: return "IDATAHXOFSWEAP";
+    case IDATAOVERRIDEFL: return "IDATAOVERRIDEFL";
+    case IDATAPICKUP: return "IDATAPICKUP";
+    case IDATATILEH: return "IDATATILEH";
+    case IDATATILEW: return "IDATATILEW";
+    case IDATAHZSZ: return "IDATAHZSZ";
+    case IDATAHYSZ: return "IDATAHYSZ";
+    case IDATAHXSZ: return "IDATAHXSZ";
+    case IDATADYOFS: return "IDATADYOFS";
+    case IDATADXOFS: return "IDATADXOFS";
+    case IDATAHYOFS: return "IDATAHYOFS";
+    case IDATAHXOFS: return "IDATAHXOFS";
+    
     case NPCWEAPSPRITE: return "NPCWEAPSPRITE";
     
     //Debug->
