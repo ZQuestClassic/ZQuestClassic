@@ -178,7 +178,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            18
 #define V_DMAPS            9
 #define V_DOORS            1
-#define V_ITEMS           29
+#define V_ITEMS           30
 #define V_WEAPONS          6
 #define V_COLORS           2
 #define V_ICONS            1
@@ -1339,7 +1339,7 @@ struct itemdata
     int hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs; //item
     int weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
     int tilew, tileh, weap_tilew, weap_tileh; //New for 2.54
-    //i_pickuptype
+    int pickup; 
 
     
   
@@ -1355,6 +1355,7 @@ struct itemdata
 #define itemdataOVERRIDE_DRAW_X_OFFSET	0x00000080
 #define itemdataOVERRIDE_DRAW_Y_OFFSET	0x00000100
 #define itemdataOVERRIDE_DRAW_Z_OFFSET	0x00000200
+#define itemdataOVERRIDE_PICKUP		0x00000400
 
     int overrideFLAGS; //Override flags.
     int weapoverrideFLAGS; 
