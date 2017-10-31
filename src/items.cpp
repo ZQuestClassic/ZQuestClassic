@@ -252,9 +252,9 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
 	    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[id].hxofs;}
 	    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[id].hyofs;}
 	    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[id].xofs;}
-	    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[id].yofs+56;} 
-	    /* yofs+56 is a hack.
-		It is caused by the passive subscreen offset, and I'm not yet sure where to fix this.
+	    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[id].yofs+playing_field_offset;} 
+	    /* yofs+playing_field_offset == yofs+56.
+		It is needed for the passive subscreen offset.
 	    */
     }
     //if ( itemsbuf[id].flags&itemdataOVERRIDE_DRAW_Z_OFFSET ) zofs = itemsbuf[id].zofs;
