@@ -1212,7 +1212,13 @@ script_variable variable_list[]=
 	{"IDATADXOFS", IDATADXOFS, 0, 0 },
 	{"IDATAHYOFS", IDATAHYOFS, 0, 0 },
 	{"IDATAHXOFS", IDATAHXOFS, 0, 0 },
-	
+	//spritedata sd->
+	{"SPRITEDATATILE", SPRITEDATATILE, 0, 0 },
+	{"SPRITEDATAMISC", SPRITEDATAMISC, 0, 0 },
+	{"SPRITEDATACSETS", SPRITEDATACSETS, 0, 0 },
+	{"SPRITEDATAFRAMES", SPRITEDATAFRAMES, 0, 0 },
+	{"SPRITEDATASPEED", SPRITEDATASPEED, 0, 0 },
+	{"SPRITEDATATYPE", SPRITEDATATYPE, 0, 0 },
 	    { " ",                       -1,             0,             0 }
 };
 
