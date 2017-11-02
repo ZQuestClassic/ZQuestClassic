@@ -6,6 +6,10 @@ however the cap is realistically -214747 to 214747, for ZScript. This allows inv
 scaling to obscene levels. 
 Converted the 'family' attribute of itemdata from a byte to a long. This is in perparation for adding new classes (hardcoded),
 and allowing the user to create custom item classes.
+Begin adding mapdata variables. 
+Changed Game->LoadMapData(int map) to Game->LoadMapData(int map, int screen). 
+Fixed a bug that was causing spritedata variable to return 'Cannot find function label NNN': This is caused by not adding
+the instructions into the vector, in globalsymbols.cpp (LibrarySymbols::addSymbolsCode(LinkTable &lt)), on a given table.
 Added variables to the datatypes 'spritedata' and 'npcdata'. These have the same syntax as 'ffc', or 'npc' types. ( ZoriaRPG, 2nd November, 2017 )
 
 
