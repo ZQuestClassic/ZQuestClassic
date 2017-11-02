@@ -8448,16 +8448,16 @@ void FFScript::do_loadmapdata(const bool v)
     long _map = SH::get_arg(sarg1, v) / 10000;
 	
     long _scr = SH::get_arg(sarg2, v) / 10000;
-    int indx = (map * MAPSCRS + scrn);
+    int indx = (_map * MAPSCRS + _scr);
     if ( _map < 1 || _map > (map_count-1) )
     {
-	Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", ID);
+	Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", _map);
 	ri->mapsref = LONG_MAX;
 	
     }
-    else if ( _scr < 0 || ID > 129 ) //0x00 to 0x81 -Z
+    else if ( _scr < 0 || _scr > 129 ) //0x00 to 0x81 -Z
     {
-	Z_scripterrlog("Invalid Screen ID passed to Game->LoadMapData: %d\n", ID);
+	Z_scripterrlog("Invalid Screen ID passed to Game->LoadMapData: %d\n", _scr);
 	ri->mapsref = LONG_MAX;
     }
     else ri->mapsref = indx;
