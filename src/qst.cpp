@@ -4833,11 +4833,20 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
         
         if(s_version>1)
         {
-            if(!p_getc(&tempitem.family,f,true))
-            {
-                return qe_invalid;
+	    if ( s_version >= 31 )
+	    {
+		if(!p_igetl(&tempitem.family,f,true))
+                {
+                    return qe_invalid;
+		}    
+	    }
+            else
+	    {		    
+	        if(!p_getc(&tempitem.family,f,true))
+                {
+                    return qe_invalid;
+		}
             }
-            
             if(s_version < 16)
                 if(tempitem.family == 0xFF)
                     tempitem.family = itype_misc;
@@ -4849,10 +4858,20 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
             
             if(s_version>5)
             {
-                if(!p_getc(&tempitem.power,f,true))
-                {
-                    return qe_invalid;
-                }
+		if(s_version>=31)
+		{
+			if(!p_igetl(&tempitem.power,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			if(!p_getc(&tempitem.power,f,true))
+			{
+			return qe_invalid;
+			}
+		}
                 
                 if(!p_igetw(&tempitem.flags,f,true))
                 {

@@ -13345,10 +13345,10 @@ int LinkClass::ringpower(int dmg)
     }
     
     // Ring divisor of 0 = no damage. -L
-    if(usering && result<=0)
+    if(usering && result==0) //Change dto allow negative power rings. -Z
         return 0;
         
-    return dmg/zc_max(result, 1); // well, better safe...
+    return dmg/( result != 0 ? result : 1 ); //zc_max(result, 1); // well, better safe...
 }
 
 // Should swinging the hammer make the 'pound' sound?

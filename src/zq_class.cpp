@@ -7231,7 +7231,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
                 new_return(12);
             }
             
-            if(!p_putc(itemsbuf[i].family,f))
+            if(!p_iputl(itemsbuf[i].family,f))
             {
                 new_return(13);
             }
@@ -7241,7 +7241,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
                 new_return(14);
             }
             
-            if(!p_putc(itemsbuf[i].power,f))
+            if(!p_iputl(itemsbuf[i].power,f))
             {
                 new_return(14);
             }
