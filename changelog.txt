@@ -1,5 +1,18 @@
 //2.54 Changes
 
+//Alpha 14
+Converted the 'power' attribute of itemdata from a byte to a long. Item power now has a valid range of -LONG_MAX to +LONG_MAX, 
+however the cap is realistically -214747 to 214747, for ZScript. This allows inverting the effects of many items/weapons, and 
+scaling to obscene levels. 
+Converted the 'family' attribute of itemdata from a byte to a long. This is in perparation for adding new classes (hardcoded),
+and allowing the user to create custom item classes.
+Added variables to the datatypes 'spritedata' and 'npcdata'. These have the same syntax as 'ffc', or 'npc' types. ( ZoriaRPG, 2nd November, 2017 )
+
+
+//Alpha 13
+The 'Weapon Size' tab now works, but the values do not always make sense. (They need hardcoding wizardry.) ( ZoriaRPG, 31st October, 2017 )
+
+
 //Alpha 12
 
 Added ZScript variables to itemdata-> for all of the new item editor fields under the 'Size' and 'Weapon Size' tabs.
@@ -10,6 +23,7 @@ Added a 'Size' tab to the item editor. The user may now set the following mfield
 TileWidth, TileHeight, HotWidth, HitHeight, HitXOffset, HitYOffset, DrawXOffset, DrawYOffset, HitZHeight
 The editor has an 'Override' flag for each. The values will only work if the override flag is enabled, and this will
 override any other internal sizes and offsets normally applied by the engine. ( ZoriaRPG, 31st October, 2017 )
+
 
 //Alpha 11
 
