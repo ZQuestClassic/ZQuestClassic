@@ -1921,7 +1921,7 @@ void edit_itemdata(int index)
         test.setmax = atoi(max);
         test.max = atoi(fmx);
         test.script = biitems[itemdata_dlg[132].d1].second + 1;
-        test.playsound = vbound(atoi(snd), 0, 127);
+        test.playsound = vbound(atoi(snd), 0, 255); //Why was this clamped to 127? Someone dropped the ball. -Z
         test.collect_script = biitems[itemdata_dlg[102].d1].second + 1;
         test.misc1  = atoi(ms1);
         test.misc2  = atoi(ms2);
@@ -1933,14 +1933,14 @@ void edit_itemdata(int index)
         test.misc8  = atoi(ms8);
         test.misc9  = atoi(ms9);
         test.misc10 = atoi(ms10);
-        test.magic = vbound(atoi(mgc), 0, 255);
+        test.magic = vbound(atoi(mgc), 0, 255); //This could be reversed. Allow using an item to give magic. Would be silly. -Z
         test.pickup_hearts = vbound(atoi(hrt), 0, 255);
-        test.power = vbound(atoi(pow), 0, 255);
-        test.usesound = vbound(atoi(asn), 0, 127);
+        test.power = atoi(pow); //vbound(atoi(pow), 0, 255);
+        test.usesound = vbound(atoi(asn), 0, 255); //Why was this clamped to 127? Someone dropped the ball. -Z
         
-        test.family = vbound(biic[itemdata_dlg[9].d1].i, 0, 255);
+        test.family = vbound(biic[itemdata_dlg[9].d1].i, 0, 512); //vbound(biic[itemdata_dlg[9].d1].i, 0, 255); //Now a long, and 512 classes. 
 	//Magic cost timer
-	test.magiccosttimer = vbound(atoi(mgtimer), 0, 255);
+	test.magiccosttimer = vbound(atoi(mgtimer), 0, 255); //clamped for no good reason. It's a long. -Z
 	
 	//Pickup Flags
 	test.pickup = vbound(atoi(i_pickuptype), 0, 214747);

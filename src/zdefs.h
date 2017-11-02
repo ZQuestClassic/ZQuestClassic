@@ -98,10 +98,10 @@
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       40                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.54 Alpha 12"                    //version of the program as presented in text
-#define IS_BETA             -12                              //is this a beta? (1: beta, -1: alpha)
+#define ZELDA_VERSION_STR   "2.54 Alpha 14"                    //version of the program as presented in text
+#define IS_BETA             -14                              //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        00010
-#define DATE_STR            "31st October, 2017"
+#define DATE_STR            "2nd November, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -178,7 +178,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            18
 #define V_DMAPS            9
 #define V_DOORS            1
-#define V_ITEMS           30
+#define V_ITEMS           31
 #define V_WEAPONS          6
 #define V_COLORS           2
 #define V_ICONS            1
@@ -1267,9 +1267,9 @@ struct itemdata
     byte speed;                                               // animation speed
     byte delay;                                               // extra delay factor (-1) for first frame
     long ltm;                                                 // Link Tile Modifier
-    byte family;												// What family the item is in
+    long family;												// What family the item is in
     byte fam_type;	//level										// What type in this family the item is
-    byte power;	// Damage, height, etc.
+    long power;	// Damage, height, etc. //changed from byte to int in V_ITEMS 31
     word flags;
 #define ITEM_GAMEDATA    0x0001  // Whether this item sets the corresponding gamedata value or not
 #define ITEM_EDIBLE      0x0002  // can be eaten by Like Like
