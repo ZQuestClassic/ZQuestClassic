@@ -1818,15 +1818,14 @@ public:
     }
 };
 
-
-class OLoadMapDataRegister : public UnaryOpcode
+class OLoadMapDataRegister : public BinaryOpcode
 {
 public:
-    OLoadMapDataRegister(Argument *A) : UnaryOpcode(A) {}
+    OLoadMapDataRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
     string toString();
     Opcode *clone()
     {
-        return new OLoadMapDataRegister(a->clone());
+        return new OLoadMapDataRegister(a->clone(), b->clone());
     }
 };
 
