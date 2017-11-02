@@ -13348,6 +13348,7 @@ int LinkClass::ringpower(int dmg)
     if(usering && result==0) //Change dto allow negative power rings. -Z
         return 0;
         
+    if ( result < 0 ) return dmg * (result*-1);
     return dmg/( result != 0 ? result : 1 ); //zc_max(result, 1); // well, better safe...
 }
 
