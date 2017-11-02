@@ -3028,7 +3028,7 @@ static AccessorTable gameTable[] =
 	//New Datatypes
 	{ "LoadNPCData",           ScriptParser::TYPE_NPCDATA,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadComboData",           ScriptParser::TYPE_COMBOS,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "LoadMapData",           ScriptParser::TYPE_MAPDATA,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadMapData",           ScriptParser::TYPE_MAPDATA,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadSpriteData",           ScriptParser::TYPE_SPRITEDATA,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	//{ "LoadScreenData",           ScriptParser::TYPE_ITEMCLASS,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadBitmapID",           ScriptParser::TYPE_GRAPHICS,     FUNCTION,     0,                    1,      {  ScriptParser::TYPE_GAME,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -3098,7 +3098,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         rval[label] = code; 
     }
     //MapData
-    {
+    { //LoadMapData(int map, int screen)
 	int id = memberids["LoadMapData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
@@ -3106,13 +3106,14 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
         first->setLabel(label);
         code.push_back(first);
+	code.push_back(new OPopRegister(new VarArgument(INDEX)));
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OLoadMapDataRegister(new VarArgument(EXP1)));
+        code.push_back(new OLoadMapDataRegister(new VarArgument(EXP1), new VarArgument(INDEX)));
         code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFMAPDATA)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;    
+        rval[label] = code;     
 	//LOAD_REFDATA("LoadMapData", OLoadMapDataRegister, REFMAPDATA);
     }
     //SpriteData
