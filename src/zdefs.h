@@ -323,6 +323,7 @@ extern bool fake_pack_writing;
 #define MAXSUBSCREENITEMS	256
 #define MAXCUSTOMSUBSCREENS 128
 #define MAXFFCS			 32
+#define MAXNPCS	512
 
 #define MAXFAVORITECOMMANDS 8
 #define MAXFAVORITECOMBOS 100
