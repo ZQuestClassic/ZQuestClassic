@@ -5360,7 +5360,8 @@ MapDataSymbols::MapDataSymbols()
 
 map<int, vector<Opcode *> > MapDataSymbols::addSymbolsCode(LinkTable &lt)
 {
-	map<int, vector<Opcode *> > rval;
+	//map<int, vector<Opcode *> > rval; //This will cause 'Cannot find function label ***' for the variable members. 
+	map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
 	int id=-1;
 	
 	
@@ -5674,6 +5675,7 @@ static AccessorTable SpriteDataTable[] =
 {
     //name,                     rettype,                        setorget,     var,              numindex,      params
 	//All of these return a function label error when used:
+	/*
 	{ "GetTile",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetMisc",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetCSets",              ScriptParser::TYPE_FLOAT,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -5687,7 +5689,7 @@ static AccessorTable SpriteDataTable[] =
 	{ "SetFrames",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "SetSpeed",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "SetType",              ScriptParser::TYPE_VOID,         FUNCTION,     0,                    1,      {  ScriptParser::TYPE_SPRITEDATA,          ScriptParser::TYPE_FLOAT,        ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-		
+	*/
 	//Datatype variables spritedata sd->Var;
 	
 	{ "getTile",                  ScriptParser::TYPE_FLOAT,         GETTER,       SPRITEDATATILE,                   1,      {  ScriptParser::TYPE_SPRITEDATA,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -5715,7 +5717,8 @@ SpriteDataSymbols::SpriteDataSymbols()
 
 map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
 {
-    map<int, vector<Opcode *> > rval;
+    //map<int, vector<Opcode *> > rval; //This will cause 'Cannot find function label ***' for the variable members. 
+    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     int id=-1;
 	
 	
@@ -6108,7 +6111,8 @@ CombosPtrSymbols::CombosPtrSymbols()
 
 map<int, vector<Opcode *> > CombosPtrSymbols::addSymbolsCode(LinkTable &lt)
 {
-    map<int, vector<Opcode *> > rval;
+    //map<int, vector<Opcode *> > rval; //This will cause 'Cannot find function label ***' for the variable members. 
+    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     int id=-1;
 
     
