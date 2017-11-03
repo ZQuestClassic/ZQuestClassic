@@ -184,7 +184,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            29
+#define V_GUYS            30
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -1540,6 +1540,8 @@ struct guydata
     byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
     int wpnsprite; //wpnsprite is new for 2.6 -Z
     int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
+    int frozentile, frozencset, frozenclock;
+    short frozenmisc[10];
 };
 
 class refInfo

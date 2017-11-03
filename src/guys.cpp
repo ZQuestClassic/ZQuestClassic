@@ -330,6 +330,11 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     deadsfx=d->deadsfx;
     bosspal=d->bosspal;
     
+    
+    frozentile = d->frozentile;
+    frozencset = d->frozencset;
+    frozenclock = d->frozenclock;
+    for ( int q = 0; q < 10; q++ ) frozenmisc[q] = d->frozenmisc[q];
     if(bosspal>-1)
     {
         loadpalset(csBOSS,pSprite(bosspal));

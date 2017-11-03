@@ -9484,8 +9484,28 @@ int writeguys(PACKFILE *f, zquestheader *Header)
             }
 	    if(!p_iputl(guysbuf[i].SIZEflags,f))
             {
-                new_return(62);
+                new_return(63);
             }
+	    if(!p_iputl(guysbuf[i].frozentile,f))
+            {
+                new_return(64);
+            }
+	    if(!p_iputl(guysbuf[i].frozencset,f))
+            {
+                new_return(65);
+            }
+	    if(!p_iputl(guysbuf[i].frozenclock,f))
+            {
+                new_return(66);
+            }
+	    
+	    for ( int q = 0; q < 10; q++ ) 
+	    {
+		if(!p_iputw(guysbuf[i].frozenmisc[q],f))
+		{
+			new_return(67);
+		}
+	    }
 	    
         }
         
