@@ -1488,7 +1488,10 @@ const char *itype_names[itype_max] = { "Swords", "Boomerangs", "Arrows", "Candle
                                        "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", "Custom Itemclass 19", "Custom Itemclass 20",
                                        "Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)"
                                      };
-
+//New Item Classes dfor 2.54 andd above. 
+const char *itype_new_names[itype_max] = { "Script 1","Script 2","Script 3","Script 4","Script 5","Script 6","Script 7","Script 8","Script 9","Script 10", "Ice Rod"
+                                     };
+				     
 const char *familylist(int index, int *list_size);
 
 
@@ -1548,6 +1551,21 @@ void build_biic_list()
         fams[sname] = i;
         famnames.insert(sname);
         delete[] name;
+    }
+    //Set up new/special weapons for 2.54 and above. 
+    for(int i=itype_script1; i<itype_templast; i++)
+    {
+        std::string name = std::string(itype_new_names[i-itype_script1]);
+	    
+	    
+        
+        while(famnames.find(name) != famnames.end())
+        {
+            name += ' ';
+        }
+        
+        fams[name] = i;
+        famnames.insert(name);
     }
     
     for(std::set<std::string>::iterator it = famnames.begin(); it != famnames.end(); ++it)
