@@ -23,6 +23,7 @@ typedef struct item_class_struct
 
 extern item_class_struct biic[itype_max];
 extern const char *itype_names[itype_max];
+extern const char *itype_new_names[itype_max];
 
 extern int biic_cnt;
 void build_biic_list();
