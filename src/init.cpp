@@ -1472,6 +1472,7 @@ void PopulateInitDialog()
     initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
 }
 
+//Item Class (Itemclass, itemdata family names in ZQuest.)
 const char *itype_names[itype_max] = { "Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
                                        "Bait", "Letters", "Potions", "Wands", "Rings", "Wallets", "Amulets", "Shields", "Bows", "Rafts",
                                        "Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", "Boots", "Hookshots", "Lenses", "Hammers",
@@ -1500,9 +1501,14 @@ void build_biic_list()
     std::map<std::string, int> fams;
     std::set<std::string> famnames;
     
+	
+	
+
     for(int i=start; i<itype_last; i++)
     {
         std::string name = std::string(itype_names[i]);
+	    
+	    
         
         while(famnames.find(name) != famnames.end())
         {
@@ -1512,6 +1518,21 @@ void build_biic_list()
         fams[name] = i;
         famnames.insert(name);
     }
+    
+    /*
+    sprintf these in series. 
+    itype_names[itype_scripted_001] = "User-Scripted 001";
+	    itype_names[itype_scripted_002] = "User-Scripted 002";
+	    itype_names[itype_scripted_003] = "User-Scripted 003";
+	    itype_names[itype_scripted_004] = "User-Scripted 004";
+	    itype_names[itype_scripted_005] = "User-Scripted 005";
+	    itype_names[itype_scripted_006] = "User-Scripted 006";
+	    itype_names[itype_scripted_007] = "User-Scripted 007";
+	    itype_names[itype_scripted_008] = "User-Scripted 008";
+	    itype_names[itype_scripted_009] = "User-Scripted 009";
+	    itype_names[itype_scripted_010] = "User-Scripted 010";
+    
+    */
     
     for(int i=itype_last; i<itype_max; i++)
     {
@@ -1532,7 +1553,7 @@ void build_biic_list()
     for(std::set<std::string>::iterator it = famnames.begin(); it != famnames.end(); ++it)
     {
         biic[biic_cnt].s = new char[(*it).length() + 1];
-        strcpy(biic[biic_cnt].s, it->c_str());
+        strcpy(biic[biic_cnt].s, it->c_str()); //The user could do this, with an editor panel, to rename them, but saving the user strings would be an ordeal. -Z
         biic[biic_cnt].i = fams[*it];
         ++biic_cnt;
     }

@@ -2611,8 +2611,33 @@ enum // used for gamedata ITEMS
     itype_custom16, itype_custom17, itype_custom18, itype_custom19, itype_custom20,
     // 87
     itype_bowandarrow, itype_letterpotion,
-    itype_last, itype_max=255
+    itype_last, 
+    itype_reserved_001 = 256, 
+    itype_reserved_002,
+    itype_reserved_003,
+ itype_reserved_004,
+ itype_reserved_005,
+ itype_reserved_006,
+ itype_reserved_007,
+ itype_reserved_008,
+ itype_reserved_009,
+ itype_reserved_010,
+itype_scripted_001 = 400, 
+itype_scripted_002,
+itype_scripted_003,
+itype_scripted_004,
+itype_scripted_005,
+itype_scripted_006,
+itype_scripted_007,
+itype_scripted_008,
+itype_scripted_009,
+itype_scripted_010,
+    
+    
+    itype_max=512
 };
+
+#define itype_max_zc250 255 //Last in the 2.50.x lists. 
 
 enum {i_sword=1, i_wsword, i_msword, i_xsword, imax_sword};
 enum {i_wbrang=1, i_mbrang, i_fbrang, imax_brang};
