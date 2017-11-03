@@ -9248,7 +9248,35 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		    }
 		
 	    }
-	    
+	    if(guyversion < 30) // Port over generic script settings from old quests in the new editor. 
+            {
+		tempguy.frozentile = 0;
+		tempguy.frozencset = 0;
+		tempguy.frozenclock = 0;
+		for ( int q = 0; q < 10; q++ ) tempguy.frozenmisc[q] = 0;
+            }
+	    if(guyversion >= 30)
+	    {
+		if(!p_igetl(&(tempguy.frozentile),f,keepdata))
+		{
+			return qe_invalid;
+		}  
+		if(!p_igetl(&(tempguy.frozencset),f,keepdata))
+		{
+			return qe_invalid;
+		}  
+		if(!p_igetl(&(tempguy.frozenclock),f,keepdata))
+		{
+			return qe_invalid;
+		}  
+		for ( int q = 0; q < 10; q++ ) {
+			if(!p_igetw(&(tempguy.frozenmisc[q]),f,keepdata))
+			{
+				return qe_invalid;
+			}
+		}
+		
+	    }
 	    
             //miscellaneous other corrections
             //fix the mirror wizzrobe -DD
