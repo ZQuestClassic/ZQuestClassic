@@ -3057,7 +3057,8 @@ void LinkClass::checkhit()
     for(int i=0; i<Lwpns.Count(); i++)
     {
         sprite *s = Lwpns.spr(i);
-        
+        //if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Link
+	    //if ( itemsbuf[parentitem].misc1 > 0 ) //damages Link by this amount. 
         if(!get_bit(quest_rules,qr_FIREPROOFLINK) && (scriptcoldet&1) && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
         {
             int itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
