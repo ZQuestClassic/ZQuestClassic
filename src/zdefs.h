@@ -1500,6 +1500,7 @@ struct item_drop_object
 #define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
 #define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
 
+#define MAX_NPC_ATRIBUTES 15
 
 struct guydata
 {
