@@ -51,6 +51,10 @@ T zc_max(T a, T b)
 #pragma warning ( disable : 4800 ) //int to bool town. population: lots.
 #endif
 
+//! New datatype vars for 2.54:
+
+//spritedata sp->member
+
 
 using std::string;
 
@@ -1010,7 +1014,21 @@ sprite *s;
 
 long get_register(const long arg)
 {
+
     long ret = 0;
+	
+	//Macros
+	
+	#define GET_SPRITEDATA_VAR_INT(member, str) \
+	{ \
+		if(ri->spritesref < 0 || ri->spritesref > (MAXWPNS-1) )    \
+		{ \
+			ret = -10000; \
+			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), str);\
+		} \
+		else \
+			ret = (wpnsbuf[ri->spritesref].member * 10000); \
+	}
     
     switch(arg)
     {
@@ -3560,6 +3578,19 @@ case SCREENCATCH:
         break;
     
 ///----------------------------------------------------------------------------------------------------//
+//New Datatype Variables
+    
+///----------------------------------------------------------------------------------------------------//
+//spritedata sp-> Variables
+    
+case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(tile, "Tile") break;
+case SPRITEDATAMISC: GET_SPRITEDATA_VAR_INT(misc, "Misc") break;
+case SPRITEDATACSETS: GET_SPRITEDATA_VAR_INT(csets, "CSet") break;
+case SPRITEDATAFRAMES: GET_SPRITEDATA_VAR_INT(frames, "Frames") break;
+case SPRITEDATASPEED: GET_SPRITEDATA_VAR_INT(speed, "Speed") break;
+case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
+    
+///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
     case REFFFC:
         ret = ri->ffcref * 10000;
@@ -3630,7 +3661,32 @@ case SCREENCATCH:
 
 void set_register(const long arg, const long value)
 {
+	//Macros
+	
+	#define	SET_SPRITEDATA_VAR_INT(member, str) \
+	{ \
+		if(ri->spritesref < 0 || ri->spritesref > (MAXWPNS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), str); \
+		} \
+		else \
+		{ \
+			wpnsbuf[ri->spritesref].member = vbound((value / 10000),0,214747); \
+		} \
+	} \
 
+	#define	SET_SPRITEDATA_VAR_BYTE(member, str) \
+	{ \
+		if(ri->spritesref < 0 || ri->spritesref > (MAXWPNS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), str); \
+		} \
+		else \
+		{ \
+			wpnsbuf[ri->spritesref].member = vbound((value / 10000),0,255); \
+		} \
+	} \
+	
     switch(arg)
     {
 ///----------------------------------------------------------------------------------------------------//
@@ -6483,7 +6539,17 @@ break;
 	}
         break;
 
-
+///----------------------------------------------------------------------------------------------------//
+//New Datatype Variables
+    
+///----------------------------------------------------------------------------------------------------//
+//spritedata sp-> Variables
+case SPRITEDATATILE: SET_SPRITEDATA_VAR_INT(tile, "Tile"); break;
+case SPRITEDATAMISC: SET_SPRITEDATA_VAR_BYTE(misc, "Misc"); break;
+case SPRITEDATACSETS: SET_SPRITEDATA_VAR_BYTE(csets, "CSet"); break;
+case SPRITEDATAFRAMES: SET_SPRITEDATA_VAR_BYTE(frames, "Frames"); break;
+case SPRITEDATASPEED: SET_SPRITEDATA_VAR_BYTE(speed, "Speed"); break;
+case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
     
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
@@ -11022,11 +11088,13 @@ void FFScript::do_changeffcscript(const bool v){
 }
 
 
+
+
 //NPCData
 
 //NPCData Getter Macros
 
-#define GET_NPCDATA_VAR_INT(member) \
+#define GET_NPCDATA_FUNCTION_VAR_INT(member) \
 { \
 	long ID = get_register(sarg2) / 10000; \
 	if(ID < 1 || ID > (MAXGUYS-1)) \
@@ -11035,7 +11103,7 @@ void FFScript::do_changeffcscript(const bool v){
 		set_register(sarg1, guysbuf[ID].member * 10000); \
 }
 
-#define GET_NPCDATA_VAR_INDEX(member, indexbound) \
+#define GET_NPCDATA_FUNCTION_VAR_INDEX(member, indexbound) \
 { \
 	int ID = int(ri->d[0] / 10000);\
 	int indx = vbound((ri->d[1] / 10000), 0, indexbound); \
@@ -11045,7 +11113,7 @@ void FFScript::do_changeffcscript(const bool v){
 		set_register(sarg1, guysbuf[ID].member[indx] * 10000); \
 }
 
-#define GET_NPCDATA_VAR_FLAG(member) \
+#define GET_NPCDATA_FUNCTION_VAR_FLAG(member) \
 { \
 	int ID = int(ri->d[0] / 10000);\
 	int flag = int(ri->d[1] / 10000);\
@@ -11055,47 +11123,47 @@ void FFScript::do_changeffcscript(const bool v){
 		set_register(sarg1, (guysbuf[ID].member&flag) ? 10000 : 0); \
 }
 
-void FFScript::getNPCData_tile(){ GET_NPCDATA_VAR_INT(tile); } //word
-void FFScript::getNPCData_e_height(){ GET_NPCDATA_VAR_INT(e_height); } 
-void FFScript::getNPCData_flags(){ GET_NPCDATA_VAR_INT(flags); } //word
-void FFScript::getNPCData_flags2(){ GET_NPCDATA_VAR_INT(flags2); } 
-void FFScript::getNPCData_width(){ GET_NPCDATA_VAR_INT(width); } 
-void FFScript::getNPCData_height(){ GET_NPCDATA_VAR_INT(height); } 
-void FFScript::getNPCData_s_tile(){ GET_NPCDATA_VAR_INT(s_tile); } 
-void FFScript::getNPCData_s_width(){ GET_NPCDATA_VAR_INT(s_width); } 
-void FFScript::getNPCData_s_height(){ GET_NPCDATA_VAR_INT(s_height); } 
-void FFScript::getNPCData_e_tile(){ GET_NPCDATA_VAR_INT(e_tile); } 
-void FFScript::getNPCData_e_width(){ GET_NPCDATA_VAR_INT(e_width); } 
-void FFScript::getNPCData_hp(){ GET_NPCDATA_VAR_INT(hp); } 
-void FFScript::getNPCData_family(){ GET_NPCDATA_VAR_INT(family); } 
-void FFScript::getNPCData_cset(){ GET_NPCDATA_VAR_INT(cset); } 
-void FFScript::getNPCData_anim(){ GET_NPCDATA_VAR_INT(anim); } 
-void FFScript::getNPCData_e_anim(){ GET_NPCDATA_VAR_INT(e_anim); } 
-void FFScript::getNPCData_frate(){ GET_NPCDATA_VAR_INT(frate); } 
-void FFScript::getNPCData_e_frate(){ GET_NPCDATA_VAR_INT(e_frate); } 
-void FFScript::getNPCData_dp(){ GET_NPCDATA_VAR_INT(dp); } 
-void FFScript::getNPCData_wdp(){ GET_NPCDATA_VAR_INT(wdp); } 
-void FFScript::getNPCData_weapon(){ GET_NPCDATA_VAR_INT(weapon); } 
-void FFScript::getNPCData_rate(){ GET_NPCDATA_VAR_INT(rate); } 
-void FFScript::getNPCData_hrate(){ GET_NPCDATA_VAR_INT(hrate); } 
-void FFScript::getNPCData_step(){ GET_NPCDATA_VAR_INT(step); } 
-void FFScript::getNPCData_homing(){ GET_NPCDATA_VAR_INT(homing); } 
-void FFScript::getNPCData_grumble(){ GET_NPCDATA_VAR_INT(grumble); } 
-void FFScript::getNPCData_item_set(){ GET_NPCDATA_VAR_INT(item_set); } 
-void FFScript::getNPCData_bgsfx(){ GET_NPCDATA_VAR_INT(bgsfx); } 
-void FFScript::getNPCData_hitsfx(){ GET_NPCDATA_VAR_INT(hitsfx); } 
-void FFScript::getNPCData_deadsfx(){ GET_NPCDATA_VAR_INT(deadsfx); } 
-void FFScript::getNPCData_xofs(){ GET_NPCDATA_VAR_INT(xofs); } 
-void FFScript::getNPCData_yofs(){ GET_NPCDATA_VAR_INT(yofs); } 
-void FFScript::getNPCData_zofs(){ GET_NPCDATA_VAR_INT(zofs); } 
-void FFScript::getNPCData_hxofs(){ GET_NPCDATA_VAR_INT(hxofs); } 
-void FFScript::getNPCData_hyofs(){ GET_NPCDATA_VAR_INT(hyofs); } 
-void FFScript::getNPCData_hxsz(){ GET_NPCDATA_VAR_INT(hxsz); } 
-void FFScript::getNPCData_hysz(){ GET_NPCDATA_VAR_INT(hysz); } 
-void FFScript::getNPCData_hzsz(){ GET_NPCDATA_VAR_INT(hzsz); } 
-void FFScript::getNPCData_txsz(){ GET_NPCDATA_VAR_INT(txsz); } 
-void FFScript::getNPCData_tysz(){ GET_NPCDATA_VAR_INT(tysz); } 
-void FFScript::getNPCData_wpnsprite(){ GET_NPCDATA_VAR_INT(wpnsprite); } 
+void FFScript::getNPCData_tile(){ GET_NPCDATA_FUNCTION_VAR_INT(tile); } //word
+void FFScript::getNPCData_e_height(){ GET_NPCDATA_FUNCTION_VAR_INT(e_height); } 
+void FFScript::getNPCData_flags(){ GET_NPCDATA_FUNCTION_VAR_INT(flags); } //word
+void FFScript::getNPCData_flags2(){ GET_NPCDATA_FUNCTION_VAR_INT(flags2); } 
+void FFScript::getNPCData_width(){ GET_NPCDATA_FUNCTION_VAR_INT(width); } 
+void FFScript::getNPCData_height(){ GET_NPCDATA_FUNCTION_VAR_INT(height); } 
+void FFScript::getNPCData_s_tile(){ GET_NPCDATA_FUNCTION_VAR_INT(s_tile); } 
+void FFScript::getNPCData_s_width(){ GET_NPCDATA_FUNCTION_VAR_INT(s_width); } 
+void FFScript::getNPCData_s_height(){ GET_NPCDATA_FUNCTION_VAR_INT(s_height); } 
+void FFScript::getNPCData_e_tile(){ GET_NPCDATA_FUNCTION_VAR_INT(e_tile); } 
+void FFScript::getNPCData_e_width(){ GET_NPCDATA_FUNCTION_VAR_INT(e_width); } 
+void FFScript::getNPCData_hp(){ GET_NPCDATA_FUNCTION_VAR_INT(hp); } 
+void FFScript::getNPCData_family(){ GET_NPCDATA_FUNCTION_VAR_INT(family); } 
+void FFScript::getNPCData_cset(){ GET_NPCDATA_FUNCTION_VAR_INT(cset); } 
+void FFScript::getNPCData_anim(){ GET_NPCDATA_FUNCTION_VAR_INT(anim); } 
+void FFScript::getNPCData_e_anim(){ GET_NPCDATA_FUNCTION_VAR_INT(e_anim); } 
+void FFScript::getNPCData_frate(){ GET_NPCDATA_FUNCTION_VAR_INT(frate); } 
+void FFScript::getNPCData_e_frate(){ GET_NPCDATA_FUNCTION_VAR_INT(e_frate); } 
+void FFScript::getNPCData_dp(){ GET_NPCDATA_FUNCTION_VAR_INT(dp); } 
+void FFScript::getNPCData_wdp(){ GET_NPCDATA_FUNCTION_VAR_INT(wdp); } 
+void FFScript::getNPCData_weapon(){ GET_NPCDATA_FUNCTION_VAR_INT(weapon); } 
+void FFScript::getNPCData_rate(){ GET_NPCDATA_FUNCTION_VAR_INT(rate); } 
+void FFScript::getNPCData_hrate(){ GET_NPCDATA_FUNCTION_VAR_INT(hrate); } 
+void FFScript::getNPCData_step(){ GET_NPCDATA_FUNCTION_VAR_INT(step); } 
+void FFScript::getNPCData_homing(){ GET_NPCDATA_FUNCTION_VAR_INT(homing); } 
+void FFScript::getNPCData_grumble(){ GET_NPCDATA_FUNCTION_VAR_INT(grumble); } 
+void FFScript::getNPCData_item_set(){ GET_NPCDATA_FUNCTION_VAR_INT(item_set); } 
+void FFScript::getNPCData_bgsfx(){ GET_NPCDATA_FUNCTION_VAR_INT(bgsfx); } 
+void FFScript::getNPCData_hitsfx(){ GET_NPCDATA_FUNCTION_VAR_INT(hitsfx); } 
+void FFScript::getNPCData_deadsfx(){ GET_NPCDATA_FUNCTION_VAR_INT(deadsfx); } 
+void FFScript::getNPCData_xofs(){ GET_NPCDATA_FUNCTION_VAR_INT(xofs); } 
+void FFScript::getNPCData_yofs(){ GET_NPCDATA_FUNCTION_VAR_INT(yofs); } 
+void FFScript::getNPCData_zofs(){ GET_NPCDATA_FUNCTION_VAR_INT(zofs); } 
+void FFScript::getNPCData_hxofs(){ GET_NPCDATA_FUNCTION_VAR_INT(hxofs); } 
+void FFScript::getNPCData_hyofs(){ GET_NPCDATA_FUNCTION_VAR_INT(hyofs); } 
+void FFScript::getNPCData_hxsz(){ GET_NPCDATA_FUNCTION_VAR_INT(hxsz); } 
+void FFScript::getNPCData_hysz(){ GET_NPCDATA_FUNCTION_VAR_INT(hysz); } 
+void FFScript::getNPCData_hzsz(){ GET_NPCDATA_FUNCTION_VAR_INT(hzsz); } 
+void FFScript::getNPCData_txsz(){ GET_NPCDATA_FUNCTION_VAR_INT(txsz); } 
+void FFScript::getNPCData_tysz(){ GET_NPCDATA_FUNCTION_VAR_INT(tysz); } 
+void FFScript::getNPCData_wpnsprite(){ GET_NPCDATA_FUNCTION_VAR_INT(wpnsprite); } 
 
 //NPCData Getters, two inputs, one return, similar to ISSolid
 
@@ -11116,13 +11184,13 @@ void do_issolid()
 
 
 
-//void FFScript::getNPCData_scriptdefence(){GET_NPCDATA_VAR_INDEX(scriptdefence)};
+//void FFScript::getNPCData_scriptdefence(){GET_NPCDATA_FUNCTION_VAR_INDEX(scriptdefence)};
 
 
-void FFScript::getNPCData_defense(){GET_NPCDATA_VAR_INDEX(defense,(edefLAST255-1))};
+void FFScript::getNPCData_defense(){GET_NPCDATA_FUNCTION_VAR_INDEX(defense,(edefLAST255-1))};
 
 
-void FFScript::getNPCData_SIZEflags(){GET_NPCDATA_VAR_FLAG(SIZEflags);}
+void FFScript::getNPCData_SIZEflags(){GET_NPCDATA_FUNCTION_VAR_FLAG(SIZEflags);}
 
 
 void FFScript::getNPCData_misc()
@@ -11173,7 +11241,7 @@ void do_getdmapintro(const bool v)
 //NPCData Setter Macros
 
 
-#define SET_NPCDATA_VAR_INT(member, bound) \
+#define SET_NPCDATA_FUNCTION_VAR_INT(member, bound) \
 { \
 	long ID = get_register(sarg1) / 10000; \
 	long val = get_register(sarg2) / 10000; \
@@ -11185,7 +11253,7 @@ void do_getdmapintro(const bool v)
 
 
 
-#define SET_NPCDATA_VAR_INT_NOBOUND(member) \
+#define SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(member) \
 { \
 	long ID = get_register(sarg1) / 10000; \
 	long val = get_register(sarg2) / 10000; \
@@ -11197,7 +11265,7 @@ void do_getdmapintro(const bool v)
 
 
 //SET_NPC_VAR_INDEX(member,value)
-#define SET_NPCDATA_VAR_INDEX(member, val, bound, indexbound) \
+#define SET_NPCDATA_FUNCTION_VAR_INDEX(member, val, bound, indexbound) \
 { \
 	long ID = (ri->d[0]/10000);  \
 	long indx =  vbound((ri->d[1]/10000),0,indexbound);  \
@@ -11208,7 +11276,7 @@ void do_getdmapintro(const bool v)
 }
 
 //Special case for flags, three inputs one return
-#define SET_NPCDATA_VAR_FLAG(member, val) \
+#define SET_NPCDATA_FUNCTION_VAR_FLAG(member, val) \
 { \
 	long ID = (ri->d[0]/10000);  \
 	long flag =  (ri->d[1]/10000);  \
@@ -11221,47 +11289,47 @@ void do_getdmapintro(const bool v)
 	}\
 }
 
-void FFScript::setNPCData_flags(){SET_NPCDATA_VAR_INT(flags,ZS_DWORD);} //word
-void FFScript::setNPCData_flags2(){SET_NPCDATA_VAR_INT(flags2,ZS_DWORD);}
-void FFScript::setNPCData_width(){SET_NPCDATA_VAR_INT(width,ZS_BYTE);}
-void FFScript::setNPCData_tile(){SET_NPCDATA_VAR_INT(tile,ZS_WORD);}
-void FFScript::setNPCData_e_height(){SET_NPCDATA_VAR_INT(e_height,ZS_BYTE);}
-void FFScript::setNPCData_height(){SET_NPCDATA_VAR_INT(height,ZS_BYTE);}
-void FFScript::setNPCData_s_tile(){SET_NPCDATA_VAR_INT(s_tile,ZS_WORD);}
-void FFScript::setNPCData_s_width(){SET_NPCDATA_VAR_INT(s_width,ZS_BYTE);}
-void FFScript::setNPCData_s_height(){SET_NPCDATA_VAR_INT(s_height,ZS_BYTE);}
-void FFScript::setNPCData_e_tile(){SET_NPCDATA_VAR_INT(e_tile,ZS_WORD);}
-void FFScript::setNPCData_e_width(){SET_NPCDATA_VAR_INT(e_width,ZS_BYTE);}
-void FFScript::setNPCData_hp(){SET_NPCDATA_VAR_INT(hp,ZS_SHORT);}
-void FFScript::setNPCData_family(){SET_NPCDATA_VAR_INT(family,ZS_SHORT);}
-void FFScript::setNPCData_cset(){SET_NPCDATA_VAR_INT(cset,ZS_SHORT);}
-void FFScript::setNPCData_anim(){SET_NPCDATA_VAR_INT(anim,ZS_SHORT);}
-void FFScript::setNPCData_e_anim(){SET_NPCDATA_VAR_INT(e_anim,ZS_SHORT);}
-void FFScript::setNPCData_frate(){SET_NPCDATA_VAR_INT(frate,ZS_SHORT);}
-void FFScript::setNPCData_e_frate(){SET_NPCDATA_VAR_INT(e_frate,ZS_SHORT);}
-void FFScript::setNPCData_dp(){SET_NPCDATA_VAR_INT(dp,ZS_SHORT);}
-void FFScript::setNPCData_wdp(){SET_NPCDATA_VAR_INT(wdp,ZS_SHORT);}
-void FFScript::setNPCData_weapon(){SET_NPCDATA_VAR_INT(weapon,ZS_SHORT);}
-void FFScript::setNPCData_rate(){SET_NPCDATA_VAR_INT(rate,ZS_SHORT);}
-void FFScript::setNPCData_hrate(){SET_NPCDATA_VAR_INT(hrate,ZS_SHORT);}
-void FFScript::setNPCData_step(){SET_NPCDATA_VAR_INT(step,ZS_SHORT);}
-void FFScript::setNPCData_homing(){SET_NPCDATA_VAR_INT(homing,ZS_SHORT);}
-void FFScript::setNPCData_grumble(){SET_NPCDATA_VAR_INT(grumble,ZS_SHORT);}
-void FFScript::setNPCData_item_set(){SET_NPCDATA_VAR_INT(item_set,ZS_SHORT);}
-void FFScript::setNPCData_bgsfx(){SET_NPCDATA_VAR_INT(bgsfx,ZS_SHORT);}
-void FFScript::setNPCData_hitsfx(){SET_NPCDATA_VAR_INT(hitsfx,ZS_BYTE);}
-void FFScript::setNPCData_deadsfx(){SET_NPCDATA_VAR_INT(deadsfx,ZS_BYTE);}
-void FFScript::setNPCData_xofs(){SET_NPCDATA_VAR_INT_NOBOUND(xofs);}
-void FFScript::setNPCData_yofs(){SET_NPCDATA_VAR_INT_NOBOUND(yofs);}
-void FFScript::setNPCData_zofs(){SET_NPCDATA_VAR_INT_NOBOUND(zofs);}
-void FFScript::setNPCData_hxofs(){SET_NPCDATA_VAR_INT_NOBOUND(hxofs);}
-void FFScript::setNPCData_hyofs(){SET_NPCDATA_VAR_INT_NOBOUND(hyofs);}
-void FFScript::setNPCData_hxsz(){SET_NPCDATA_VAR_INT_NOBOUND(hxsz);}
-void FFScript::setNPCData_hysz(){SET_NPCDATA_VAR_INT_NOBOUND(hysz);}
-void FFScript::setNPCData_hzsz(){SET_NPCDATA_VAR_INT_NOBOUND(hzsz);}
-void FFScript::setNPCData_txsz(){SET_NPCDATA_VAR_INT_NOBOUND(txsz);}
-void FFScript::setNPCData_tysz(){SET_NPCDATA_VAR_INT_NOBOUND(tysz);}
-void FFScript::setNPCData_wpnsprite(){SET_NPCDATA_VAR_INT(wpnsprite,511);}
+void FFScript::setNPCData_flags(){SET_NPCDATA_FUNCTION_VAR_INT(flags,ZS_DWORD);} //word
+void FFScript::setNPCData_flags2(){SET_NPCDATA_FUNCTION_VAR_INT(flags2,ZS_DWORD);}
+void FFScript::setNPCData_width(){SET_NPCDATA_FUNCTION_VAR_INT(width,ZS_BYTE);}
+void FFScript::setNPCData_tile(){SET_NPCDATA_FUNCTION_VAR_INT(tile,ZS_WORD);}
+void FFScript::setNPCData_e_height(){SET_NPCDATA_FUNCTION_VAR_INT(e_height,ZS_BYTE);}
+void FFScript::setNPCData_height(){SET_NPCDATA_FUNCTION_VAR_INT(height,ZS_BYTE);}
+void FFScript::setNPCData_s_tile(){SET_NPCDATA_FUNCTION_VAR_INT(s_tile,ZS_WORD);}
+void FFScript::setNPCData_s_width(){SET_NPCDATA_FUNCTION_VAR_INT(s_width,ZS_BYTE);}
+void FFScript::setNPCData_s_height(){SET_NPCDATA_FUNCTION_VAR_INT(s_height,ZS_BYTE);}
+void FFScript::setNPCData_e_tile(){SET_NPCDATA_FUNCTION_VAR_INT(e_tile,ZS_WORD);}
+void FFScript::setNPCData_e_width(){SET_NPCDATA_FUNCTION_VAR_INT(e_width,ZS_BYTE);}
+void FFScript::setNPCData_hp(){SET_NPCDATA_FUNCTION_VAR_INT(hp,ZS_SHORT);}
+void FFScript::setNPCData_family(){SET_NPCDATA_FUNCTION_VAR_INT(family,ZS_SHORT);}
+void FFScript::setNPCData_cset(){SET_NPCDATA_FUNCTION_VAR_INT(cset,ZS_SHORT);}
+void FFScript::setNPCData_anim(){SET_NPCDATA_FUNCTION_VAR_INT(anim,ZS_SHORT);}
+void FFScript::setNPCData_e_anim(){SET_NPCDATA_FUNCTION_VAR_INT(e_anim,ZS_SHORT);}
+void FFScript::setNPCData_frate(){SET_NPCDATA_FUNCTION_VAR_INT(frate,ZS_SHORT);}
+void FFScript::setNPCData_e_frate(){SET_NPCDATA_FUNCTION_VAR_INT(e_frate,ZS_SHORT);}
+void FFScript::setNPCData_dp(){SET_NPCDATA_FUNCTION_VAR_INT(dp,ZS_SHORT);}
+void FFScript::setNPCData_wdp(){SET_NPCDATA_FUNCTION_VAR_INT(wdp,ZS_SHORT);}
+void FFScript::setNPCData_weapon(){SET_NPCDATA_FUNCTION_VAR_INT(weapon,ZS_SHORT);}
+void FFScript::setNPCData_rate(){SET_NPCDATA_FUNCTION_VAR_INT(rate,ZS_SHORT);}
+void FFScript::setNPCData_hrate(){SET_NPCDATA_FUNCTION_VAR_INT(hrate,ZS_SHORT);}
+void FFScript::setNPCData_step(){SET_NPCDATA_FUNCTION_VAR_INT(step,ZS_SHORT);}
+void FFScript::setNPCData_homing(){SET_NPCDATA_FUNCTION_VAR_INT(homing,ZS_SHORT);}
+void FFScript::setNPCData_grumble(){SET_NPCDATA_FUNCTION_VAR_INT(grumble,ZS_SHORT);}
+void FFScript::setNPCData_item_set(){SET_NPCDATA_FUNCTION_VAR_INT(item_set,ZS_SHORT);}
+void FFScript::setNPCData_bgsfx(){SET_NPCDATA_FUNCTION_VAR_INT(bgsfx,ZS_SHORT);}
+void FFScript::setNPCData_hitsfx(){SET_NPCDATA_FUNCTION_VAR_INT(hitsfx,ZS_BYTE);}
+void FFScript::setNPCData_deadsfx(){SET_NPCDATA_FUNCTION_VAR_INT(deadsfx,ZS_BYTE);}
+void FFScript::setNPCData_xofs(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(xofs);}
+void FFScript::setNPCData_yofs(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(yofs);}
+void FFScript::setNPCData_zofs(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(zofs);}
+void FFScript::setNPCData_hxofs(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(hxofs);}
+void FFScript::setNPCData_hyofs(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(hyofs);}
+void FFScript::setNPCData_hxsz(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(hxsz);}
+void FFScript::setNPCData_hysz(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(hysz);}
+void FFScript::setNPCData_hzsz(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(hzsz);}
+void FFScript::setNPCData_txsz(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(txsz);}
+void FFScript::setNPCData_tysz(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(tysz);}
+void FFScript::setNPCData_wpnsprite(){SET_NPCDATA_FUNCTION_VAR_INT(wpnsprite,511);}
 
 //NPCData Setters, three inputs, no return. works as SetDMapScreenD function
 
@@ -11271,9 +11339,9 @@ void FFScript::setNPCData_wpnsprite(){SET_NPCDATA_VAR_INT(wpnsprite,511);}
 
 
 
-//void FFScript::setNPCData_scriptdefence(){SET_NPCDATA_VAR_INDEX(scriptdefence);}
-void FFScript::setNPCData_defense(int v){SET_NPCDATA_VAR_INDEX(defense,v, ZS_INT, (edefLAST255-1) );}
-void FFScript::setNPCData_SIZEflags(int v){SET_NPCDATA_VAR_FLAG(SIZEflags,v);}
+//void FFScript::setNPCData_scriptdefence(){SET_NPCDATA_FUNCTION_VAR_INDEX(scriptdefence);}
+void FFScript::setNPCData_defense(int v){SET_NPCDATA_FUNCTION_VAR_INDEX(defense,v, ZS_INT, (edefLAST255-1) );}
+void FFScript::setNPCData_SIZEflags(int v){SET_NPCDATA_FUNCTION_VAR_FLAG(SIZEflags,v);}
 void FFScript::setNPCData_misc(int val)
 {
 	int ID = int(ri->d[0] / 10000); //the enemy ID value

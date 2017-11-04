@@ -1219,6 +1219,16 @@ string VarArgument::toString()
 	//Input->Mouse[]
 	case MOUSEARR: return "MOUSEARR";
 	
+	
+	//DataTypes
+	
+	//spritedata sd->
+	case SPRITEDATATILE: return "SPRITEDATATILE";
+	case SPRITEDATAMISC: return "SPRITEDATAMISC";
+	case SPRITEDATACSETS: return "SPRITEDATACSETS";
+	case SPRITEDATAFRAMES: return "SPRITEDATAFRAMES";
+	case SPRITEDATASPEED: return "SPRITEDATASPEED";
+	case SPRITEDATATYPE: return "SPRITEDATATYPE";
 
     default:
     {
