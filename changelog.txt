@@ -1,5 +1,11 @@
 //2.54 Changes
 
+//Alpha 15
+
+Added Weapon Classes for all ten script weapon types, and for the ice rod; plus cpntrol code for all of the script types.
+An item set to a Script *n class will generate a weapon with the script *d LW type, and will pull its power, step, and
+its graphics from the item editor. The user may set an item editor flag to disable automatic sprite flipping. ( ZoriaRPG, 4th November, 2017 )
+
 //Alpha 14
 Converted the 'power' attribute of itemdata from a byte to a long. Item power now has a valid range of -LONG_MAX to +LONG_MAX, 
 however the cap is realistically -214747 to 214747, for ZScript. This allows inverting the effects of many items/weapons, and 
