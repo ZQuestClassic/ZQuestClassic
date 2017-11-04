@@ -429,27 +429,28 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
 		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
 		
+		defaultw = itemsbuf[parentitem].wpn;
+		LOADGFX(defaultw);
 		switch(dir)
 		{
 			case up:
 			{
-				defaultw = itemsbuf[parentitem].wpn;
+				flip = 0; break;
 			}
 			case down:
 			{
-				defaultw = itemsbuf[parentitem].wpn2;
+				flip = 2; break;
 			}
 			case left:
 			{
-				defaultw = itemsbuf[parentitem].wpn3;
+				flip = 7; break;
 			}
 			case right:
 			{
-				defaultw = itemsbuf[parentitem].wpn4;
+				flip = 4; break;
 			}
-			default: defaultw = itemsbuf[parentitem].wpn;
+			default: flip = 0; break;
 		}
-		LOADGFX(defaultw);
 	}
 	
 	break;
