@@ -35,7 +35,7 @@
 #include "zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
-#include "ffscript.h"
+//FFSCript   FFEngine;
 
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp

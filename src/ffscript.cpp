@@ -68,6 +68,8 @@ extern std::map<int, std::pair<string,string> > globalmap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
 
+FFScript ffengine;
+
 //We gain some speed by not passing as arguments
 long sarg1 = 0;
 long sarg2 = 0;
@@ -12163,7 +12165,7 @@ void FFScript::setLinkTile(int t)
 
 void FFScript::setLinkAction(int a)
 {
-	link_action = vbound(t, 0, 255);
+	link_action = vbound(a, 0, 255);
 }
 
 int FFScript::getLinkTile()
@@ -12171,7 +12173,7 @@ int FFScript::getLinkTile()
 	return link_tile;
 }
 
-int FFScript::getLinkAction(int a)
+int FFScript::getLinkAction()
 {
 	return link_action;
 }
