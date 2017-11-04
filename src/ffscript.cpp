@@ -12132,3 +12132,47 @@ void FFScript::do_typedpointer_typecast(const bool v)
      long ptr = SH::get_arg(sarg1, v);
      set_register(sarg1, ptr);
 }
+
+void FFScript::setFFRules()
+{
+	for ( int q = 0; q < qr_MAX; q++ )
+	{
+		rules[q] = 1;//getQRBit(q);
+	}
+}
+
+void FFScript::setRule(int rule, bool s)
+{
+	rules[rule] = ( s ? 1 : 0 );
+}
+
+bool FFScript::getRule(int rule)
+{
+	return ( rules[rule] != 0 );
+}
+
+int FFScript::getQRBit(int rule)
+{
+	return ( get_bit(quest_rules,rule) ? 1 : 0 );
+}
+
+void FFScript::setLinkTile(int t)
+{
+	link_tile = vbound(t, 0, NEWMAXTILES);
+}
+
+void FFScript::setLinkAction(int a)
+{
+	link_action = vbound(t, 0, 255);
+}
+
+int FFScript::getLinkTile()
+{
+	return link_tile;
+}
+
+int FFScript::getLinkAction(int a)
+{
+	return link_action;
+}
+//get_bit

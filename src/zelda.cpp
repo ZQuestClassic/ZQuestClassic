@@ -1335,8 +1335,12 @@ void init_dmap()
     return;
 }
 
+
+
 int init_game()
 {
+	
+  //port250QuestRules();	
     srand(time(0));
     //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	draw_screen_clip_rect_x1=0; //Prevent the ending sequence from carrying over through 'Reset System' -Z

@@ -35,6 +35,7 @@
 #include "zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
+#include "ffscript.h"
 
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
@@ -13815,6 +13816,44 @@ const char *skip_text[skip_max]=
     "skip_favorites"
 };
 
+
+void port250QuestRules(){
+	
+	portCandleRules(); //Candle
+	portBombRules();
+	FFScript::setFFRules();
+
+}
+
+void portCandleRules()
+{
+	bool hurtslink = get_bit(quest_rules,qr_FIREPROOFLINK);
+	//itemdata itemsbuf;
+	for ( int q = 0; q < MAXITEMS; q++ ) 
+	{
+		if ( itemsbuf[q].family == itype_candle )
+		{
+			if ( hurtslink ) itemsbuf[q].flags |= ITEM_FLAG2;
+			else itemsbuf[q].flags &= ~ ITEM_FLAG2;
+		}
+	}
+}
+
+void portBombRules()
+{
+	bool hurtslink = get_bit(quest_rules,qr_OUCHBOMBS);
+	//itemdata itemsbuf;
+	for ( int q = 0; q < MAXITEMS; q++ ) 
+	{
+		if ( itemsbuf[q].family == itype_bomb )
+		{
+			if ( hurtslink ) itemsbuf[q].flags |= ITEM_FLAG2;
+			else itemsbuf[q].flags &= ~ ITEM_FLAG2;
+		}
+	}
+	
+}
+
 int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags)
 {
     combosread=false;
@@ -14368,6 +14407,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
                 break;
             }
             
+	    
             if(catchup)
             {
                 //section id
@@ -14602,6 +14642,12 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
     if(deletefilename[0] && exists(deletefilename))
     {
         delete_file(deletefilename);
+    }
+    
+    if ( tempheader.zelda_version <= 0x250 )
+    {
+	port250QuestRules(); //Port all old quest rules to item editor and enemy editor flags, or global vars.
+	//populate ffrules here. 
     }
     
     return qe_OK;
