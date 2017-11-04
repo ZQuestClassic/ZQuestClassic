@@ -98,10 +98,10 @@
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       40                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.54 Alpha 12"                    //version of the program as presented in text
-#define IS_BETA             -12                              //is this a beta? (1: beta, -1: alpha)
+#define ZELDA_VERSION_STR   "2.54 Alpha 15"                    //version of the program as presented in text
+#define IS_BETA             -15                              //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        00010
-#define DATE_STR            "31st October, 2017"
+#define DATE_STR            "4th November, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -178,13 +178,13 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            18
 #define V_DMAPS            9
 #define V_DOORS            1
-#define V_ITEMS           30
+#define V_ITEMS           31
 #define V_WEAPONS          6
 #define V_COLORS           2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            29
+#define V_GUYS            30
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -899,7 +899,7 @@ enum
     ewFIRETRAIL, ewFLAME2, ewFLAME2TRAIL, ewICE, iwHover,
     wFIREMAGIC, iwQuarterHearts, wCBYRNAORB, //iwSideLadder, iwSideRaft,
     
-    wLast, wMAX=256
+    wLast, wSCRIPT, wMAX=256
 };
 
 // weapon types in game engine
@@ -921,7 +921,10 @@ enum
     // Dummy weapons - must be between lwMax and wEnemyWeapons!
     wScript1, wScript2, wScript3, wScript4,
     wScript5, wScript6, wScript7, wScript8,
-    wScript9, wScript10,
+    wScript9, wScript10, wIce, //wSound // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
+	//wThrowRock, wPot //Thrown pot or rock -Z
+	//wLit //Lightning or Electric -Z
+	//wBombos, wEther, wQuake -Z
     // Enemy weapons
     wEnemyWeapons=128,
     //129
@@ -1267,9 +1270,9 @@ struct itemdata
     byte speed;                                               // animation speed
     byte delay;                                               // extra delay factor (-1) for first frame
     long ltm;                                                 // Link Tile Modifier
-    byte family;												// What family the item is in
+    long family;												// What family the item is in
     byte fam_type;	//level										// What type in this family the item is
-    byte power;	// Damage, height, etc.
+    long power;	// Damage, height, etc. //changed from byte to int in V_ITEMS 31
     word flags;
 #define ITEM_GAMEDATA    0x0001  // Whether this item sets the corresponding gamedata value or not
 #define ITEM_EDIBLE      0x0002  // can be eaten by Like Like
@@ -1540,6 +1543,8 @@ struct guydata
     byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
     int wpnsprite; //wpnsprite is new for 2.6 -Z
     int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
+    int frozentile, frozencset, frozenclock;
+    short frozenmisc[10];
 };
 
 class refInfo
@@ -1928,6 +1933,7 @@ struct ffscript
 #define SCRIPT_NPC             6
 #define SCRIPT_SUBSCREEN       7
 #define SCRIPT_EWPN            8
+
 
 enum
 {
@@ -2611,8 +2617,43 @@ enum // used for gamedata ITEMS
     itype_custom16, itype_custom17, itype_custom18, itype_custom19, itype_custom20,
     // 87
     itype_bowandarrow, itype_letterpotion,
-    itype_last, itype_max=255
+    itype_last, 
+    itype_script1 = 256, //Scripted Weapons
+    itype_script2, 
+    itype_script3,
+    itype_script4,
+    itype_script5,
+    itype_script6,
+    itype_script7,
+    itype_script8,
+    itype_script9,
+    itype_script10,
+    itype_icerod, //ice Rod
+
+    itype_templast,
+	 itype_ether, itype_bombos, itype_quake, 
+	 itype_powder,
+	 itype_trowel,
+	 itype_instrument,
+	 itype_sword180,
+	 itype_sword_gb,
+itype_scripted_001 = 400, 
+itype_scripted_002,
+itype_scripted_003,
+itype_scripted_004,
+itype_scripted_005,
+itype_scripted_006,
+itype_scripted_007,
+itype_scripted_008,
+itype_scripted_009,
+itype_scripted_010,
+
+    
+    
+    itype_max=512
 };
+
+#define itype_max_zc250 255 //Last in the 2.50.x lists. 
 
 enum {i_sword=1, i_wsword, i_msword, i_xsword, imax_sword};
 enum {i_wbrang=1, i_mbrang, i_fbrang, imax_brang};

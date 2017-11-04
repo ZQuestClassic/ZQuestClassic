@@ -5022,6 +5022,171 @@ bool LinkClass::startwpn(int itemid)
     }
     break;
     
+    case itype_script1:
+    {
+        if(Lwpns.idCount(wScript1))
+            return false;
+            
+        if(!checkmagiccost(itemid))
+            return false;
+	
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript1,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
+        sfx(itemsbuf[itemid].usesound,pan(wx));
+    }
+    
+    break;
+    
+    case itype_script2:
+    {
+        if(Lwpns.idCount(wScript2))
+            return false;
+            
+        if(!checkmagiccost(itemid))
+            return false;
+	
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript2,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
+        sfx(itemsbuf[itemid].usesound,pan(wx));
+    }
+    
+    break;
+    
+    case itype_script3:
+    {
+        if(Lwpns.idCount(wScript3))
+            return false;
+            
+        if(!checkmagiccost(itemid))
+            return false;
+	
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript3,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
+        sfx(itemsbuf[itemid].usesound,pan(wx));
+    }
+    
+    break;
+    
+    case itype_script4:
+    {
+        if(Lwpns.idCount(wScript4))
+            return false;
+            
+        if(!checkmagiccost(itemid))
+            return false;
+	
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript4,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
+        sfx(itemsbuf[itemid].usesound,pan(wx));
+    }
+    
+    break;
+    
+    case itype_script5:
+    {
+        if(Lwpns.idCount(wScript5))
+            return false;
+            
+        if(!checkmagiccost(itemid))
+            return false;
+	
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript5,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
+        sfx(itemsbuf[itemid].usesound,pan(wx));
+    }
+    
+    break;
+    
+    case itype_script6:
+    {
+        if(Lwpns.idCount(wScript6))
+            return false;
+            
+        if(!checkmagiccost(itemid))
+            return false;
+	
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript6,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
+        sfx(itemsbuf[itemid].usesound,pan(wx));
+    }
+    
+    break;
+    
+    case itype_script7:
+    {
+        if(Lwpns.idCount(wScript7))
+            return false;
+            
+        if(!checkmagiccost(itemid))
+            return false;
+	
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript7,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
+        sfx(itemsbuf[itemid].usesound,pan(wx));
+    }
+    
+    break;
+    
+    case itype_script8:
+    {
+        if(Lwpns.idCount(wScript8))
+            return false;
+            
+        if(!checkmagiccost(itemid))
+            return false;
+	
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript8,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
+        sfx(itemsbuf[itemid].usesound,pan(wx));
+    }
+    
+    break;
+    
+    case itype_script9:
+    {
+        if(Lwpns.idCount(wScript9))
+            return false;
+            
+        if(!checkmagiccost(itemid))
+            return false;
+	
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript9,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
+        sfx(itemsbuf[itemid].usesound,pan(wx));
+    }
+    
+    break;
+    
+    case itype_script10:
+    {
+        if(Lwpns.idCount(wScript10))
+            return false;
+            
+        if(!checkmagiccost(itemid))
+            return false;
+	
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wScript10,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
+        sfx(itemsbuf[itemid].usesound,pan(wx));
+    }
+    
+    break;
+    
+    case itype_icerod:
+    {
+        if(Lwpns.idCount(wIce))
+            return false;
+            
+        if(!checkmagiccost(itemid))
+            return false;
+	
+        Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wIce,itemsbuf[itemid].fam_type,DAMAGE_MULTIPLIER*itemsbuf[itemid].power,dir,itemid,getUID()));
+        ((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itemsbuf[itemid].misc1;
+        sfx(itemsbuf[itemid].usesound,pan(wx));
+    }
+    
+    break;
+    
     case itype_arrow:
     {
         if(Lwpns.idCount(wArrow) > itemsbuf[itemid].misc2)
@@ -13345,10 +13510,11 @@ int LinkClass::ringpower(int dmg)
     }
     
     // Ring divisor of 0 = no damage. -L
-    if(usering && result<=0)
+    if(usering && result==0) //Change dto allow negative power rings. -Z
         return 0;
         
-    return dmg/zc_max(result, 1); // well, better safe...
+    if ( result < 0 ) return dmg * (result*-1);
+    return dmg/( result != 0 ? result : 1 ); //zc_max(result, 1); // well, better safe...
 }
 
 // Should swinging the hammer make the 'pound' sound?
