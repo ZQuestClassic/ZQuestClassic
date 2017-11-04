@@ -103,13 +103,16 @@ int d_line_proc(int msg, DIALOG *d, int c)
 static int init_equipment_list[] =
 {
     // dialog control number
-    5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, -1
+    5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 
+	41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, -1
 };
 
 static int init_items_list[] =
 {
     // dialog control number
-    65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 1692, 1693, 1698, 1699, -1
+    65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 
+	100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 
+	128, 129, 130, 131, 132, 133, 134, 135, 136, 1692, 1693, 1698, 1699, -1
 };
 
 static int init_dmap_items_list[] =
@@ -898,6 +901,7 @@ void PopulateInitDialog()
     initPopulate(i, jwin_button_proc,          47,    209,     61,     21,    vc(14),                 vc(1),                  13,    D_EXIT,         0,             0, (void *) "OK",                                         NULL,   NULL);
     initPopulate(i, d_keyboard_proc,            0,      0,      0,      0,    0,                      0,                       0,    0,              KEY_F1,        0, (void *) onHelp,                                       NULL,   NULL);
     initPopulate(i, jwin_tab_proc,              6,     25,    284,    178,    vc(14),                 vc(1),                   0,    0,              1,             0, (void *) init_tabs,                                    NULL, (void *)init_dlg);
+    //5
     initPopulate(i, d_dummy_proc,              11,     47,    117,    152,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_frame_proc,          130,     47,    154,    152,    vc(0),                  vc(11),                  0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_check_proc,          134,     57,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "1",                                          NULL,   NULL);
@@ -924,21 +928,25 @@ void PopulateInitDialog()
     initPopulate(i, jwin_check_proc,          207,    127,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "21",                                         NULL,   NULL);
     initPopulate(i, jwin_check_proc,          207,    137,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "22",                                         NULL,   NULL);
     initPopulate(i, jwin_check_proc,          207,    147,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "23",                                         NULL,   NULL);
+    //30
     initPopulate(i, jwin_check_proc,          207,    157,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "24",                                         NULL,   NULL);
     initPopulate(i, jwin_check_proc,          207,    167,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "25",                                         NULL,   NULL);
     initPopulate(i, jwin_check_proc,          207,    177,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "26",                                         NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    //35
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    //40
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    //45
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
@@ -950,16 +958,19 @@ void PopulateInitDialog()
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    //55
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    //60
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    //65
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
@@ -1470,7 +1481,12 @@ void PopulateInitDialog()
     
     // 3264
     initPopulate(i, NULL,                       0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
-}
+
+    /*
+    initPopulate(i, jwin_check_proc,          207,    177,     74,      9,    vc(0),                  vc(11),                  0,    0,              1,             0, (void *) "26",                                         NULL,   NULL);
+    initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
+    */
+    }
 
 //Item Class (Itemclass, itemdata family names in ZQuest.)
 const char *itype_names[itype_max] = { "Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
@@ -1480,7 +1496,8 @@ const char *itype_names[itype_max] = { "Swords", "Boomerangs", "Arrows", "Candle
                                        "Triforce Pieces", "Maps", "Compasses", "Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", "Arrow Ammo",
                                        "Fairies", "Magic", "Hearts", "Heart Containers", "Heart Pieces", "Kill All Enemies",
                                        "Bomb Ammo", "Bomb Bags", "Roc Items", "Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer",
-                                       "Whisp Rings", "Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", "Scroll: Hurricane Spin", "Scroll: Super Quake",
+                                       "Whisp Rings", "Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", "Scroll: Hurricane Spin", 
+					"Scroll: Super Quake",
                                        "Stones of Agony", "Stomp Boots", "Whimsical Rings", "Peril Rings", "Non-gameplay Items",
                                        "Custom Itemclass 01", "Custom Itemclass 02", "Custom Itemclass 03", "Custom Itemclass 04", "Custom Itemclass 05",
                                        "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", "Custom Itemclass 09", "Custom Itemclass 10",
@@ -1539,10 +1556,24 @@ void build_biic_list()
     
     for(int i=itype_last; i<itype_max; i++)
     {
-        char *name = new char[6];
-        sprintf(name, "zz%03d", i);
+	char *name = new char[10];
+	    
+	if ( i == 256 ) sprintf(name, "Script 01");
+	    else if ( i == 257 ) sprintf(name, "Script 02");
+	     else if ( i == 258 ) sprintf(name, "Script 03");
+	     else if ( i == 259 ) sprintf(name, "Script 04");
+	     else if ( i == 260 ) sprintf(name, "Script 05");
+	     else if ( i == 261 ) sprintf(name, "Script 06");
+	     else if ( i == 262 ) sprintf(name, "Script 07");
+	     else if ( i == 263 ) sprintf(name, "Script 08");
+	     else if ( i == 264 ) sprintf(name, "Script 09");
+	     else if ( i == 265 ) sprintf(name, "Script 10");
+	     else if ( i == 266 ) sprintf(name, "Ice Rod");
+        else 
+	{
+	    sprintf(name, "zz%03d", i);
+	}
         std::string sname(name);
-        
         while(famnames.find(sname) != famnames.end())
         {
             sname += ' ';
@@ -1552,6 +1583,7 @@ void build_biic_list()
         famnames.insert(sname);
         delete[] name;
     }
+    /*
     //Set up new/special weapons for 2.54 and above. 
     for(int i=itype_script1; i<itype_templast; i++)
     {
@@ -1567,7 +1599,7 @@ void build_biic_list()
         fams[name] = i;
         famnames.insert(name);
     }
-    
+    */
     for(std::set<std::string>::iterator it = famnames.begin(); it != famnames.end(); ++it)
     {
         biic[biic_cnt].s = new char[(*it).length() + 1];
@@ -1604,7 +1636,7 @@ int doInit(zinitdata *local_zinit)
     {
         int family = itemsbuf[i].family;
         
-        if(family == 0xFF || family == itype_triforcepiece || !(itemsbuf[i].flags & ITEM_GAMEDATA))
+        if(family == 0x200 || family == itype_triforcepiece || !(itemsbuf[i].flags & ITEM_GAMEDATA))
         {
             continue;
         }
@@ -1643,10 +1675,10 @@ int doInit(zinitdata *local_zinit)
             listindex++;
         }
     }
-    
+    //Populate the list of biuilt-in weapon types. -Z
     ListData family_list(familylist, &pfont);
     init_dlg[5].proc = jwin_initlist_proc;
-    init_dlg[5].dp = (void *)&family_list;
+    init_dlg[5].dp = (void *)&family_list; //Stores the list inti the Init Data dialogue. 
     init_dlg[5].d1 = -1;
     
     zinitdata tempdata;
