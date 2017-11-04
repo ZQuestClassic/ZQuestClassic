@@ -41,7 +41,8 @@ static void setLinkTile(int t);
 static int getLinkTile();
 static void setLinkAction(int a);
 static int getLinkAction();
-FFScript();
+//FFScript();
+//static void init();
 
 
 	
