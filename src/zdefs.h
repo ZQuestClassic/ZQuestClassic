@@ -98,10 +98,10 @@
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       40                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.54 Alpha 14"                    //version of the program as presented in text
-#define IS_BETA             -14                              //is this a beta? (1: beta, -1: alpha)
+#define ZELDA_VERSION_STR   "2.54 Alpha 15"                    //version of the program as presented in text
+#define IS_BETA             -15                              //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        00010
-#define DATE_STR            "2nd November, 2017"
+#define DATE_STR            "4th November, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -921,7 +921,10 @@ enum
     // Dummy weapons - must be between lwMax and wEnemyWeapons!
     wScript1, wScript2, wScript3, wScript4,
     wScript5, wScript6, wScript7, wScript8,
-    wScript9, wScript10, wIce,
+    wScript9, wScript10, wIce, //wSound // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
+	//wThrowRock, wPot //Thrown pot or rock -Z
+	//wLit //Lightning or Electric -Z
+	//wBombos, wEther, wQuake -Z
     // Enemy weapons
     wEnemyWeapons=128,
     //129
@@ -2616,17 +2619,24 @@ enum // used for gamedata ITEMS
     itype_bowandarrow, itype_letterpotion,
     itype_last, 
     itype_script1 = 256, //Scripted Weapons
-    itype_script2, //ice Rod
+    itype_script2, 
     itype_script3,
- itype_script4,
- itype_script5,
- itype_script6,
- itype_script7,
- itype_script8,
- itype_script9,
- itype_script10,
- itype_icerod,
- itype_templast,
+    itype_script4,
+    itype_script5,
+    itype_script6,
+    itype_script7,
+    itype_script8,
+    itype_script9,
+    itype_script10,
+    itype_icerod, //ice Rod
+
+    itype_templast,
+	 itype_ether, itype_bombos, itype_quake, 
+	 itype_powder,
+	 itype_trowel,
+	 itype_instrument,
+	 itype_sword180,
+	 itype_sword_gb,
 itype_scripted_001 = 400, 
 itype_scripted_002,
 itype_scripted_003,
