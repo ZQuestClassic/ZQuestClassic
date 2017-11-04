@@ -899,7 +899,7 @@ enum
     ewFIRETRAIL, ewFLAME2, ewFLAME2TRAIL, ewICE, iwHover,
     wFIREMAGIC, iwQuarterHearts, wCBYRNAORB, //iwSideLadder, iwSideRaft,
     
-    wLast, wMAX=256
+    wLast, wSCRIPT, wMAX=256
 };
 
 // weapon types in game engine
@@ -921,7 +921,7 @@ enum
     // Dummy weapons - must be between lwMax and wEnemyWeapons!
     wScript1, wScript2, wScript3, wScript4,
     wScript5, wScript6, wScript7, wScript8,
-    wScript9, wScript10,
+    wScript9, wScript10, wIce,
     // Enemy weapons
     wEnemyWeapons=128,
     //129
@@ -1930,6 +1930,7 @@ struct ffscript
 #define SCRIPT_NPC             6
 #define SCRIPT_SUBSCREEN       7
 #define SCRIPT_EWPN            8
+
 
 enum
 {
