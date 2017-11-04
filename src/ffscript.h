@@ -26,13 +26,24 @@
 
 class FFScript
 {
-private:
-    long sid;
+	byte rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
+	long link_tile;
+	byte link_action;
+	int getQRBit(int rule);
+	void setRule(int rule, bool s);
+	bool getRule(int rule_bit);
+
+
     
 public:
-    byte rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
 
+static void setFFRules();
+static void setLinkTile(int t);
+static int getLinkTile();
+static void setLinkAction(int a);
+static int getLinkAction();
 
+	
     int screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
     int screen_dimensions[4]; //height, width, displaywidth, displayheight
     int subscreen_dimensions[4];
@@ -54,8 +65,7 @@ public:
 	int UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
     
     virtual ~FFScript();
-    virtual int getrule(int rule);   
-    virtual void setrule(int rule, bool state); 
+    
 	
 	
 
@@ -129,6 +139,8 @@ static void setLinkDiagonal(bool v);
 static bool getLinkDiagonal();
 static bool getLinkBigHitbox();
 static void setLinkBigHitbox(bool v);
+
+
 
 
 //NPCData getters One Input, One Return
@@ -688,7 +700,8 @@ enum __Error
         return _NoError;
     }
     
-    
+    private:
+    long sid;
   
     
 };
