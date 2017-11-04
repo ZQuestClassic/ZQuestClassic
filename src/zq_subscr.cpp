@@ -3736,11 +3736,11 @@ int sso_properties(subscreen_object *tempsso)
             tempsso->d5=atoi((char *)sso_properties_dlg[buf3i].dp);
             tempsso->d6=atoi((char *)sso_properties_dlg[buf4i].dp);
             tempsso->d7=atoi((char *)sso_properties_dlg[buf5i].dp);
-            tempsso->d8=vbound(bii[sso_properties_dlg[176].d1].i+1, 0, 255);
+            tempsso->d8=vbound(bii[sso_properties_dlg[176].d1].i+1, 0, 512);
             
-            tempsso->d1=vbound(biic[sso_properties_dlg[133].d1].i, 0, 255);
+            tempsso->d1=vbound(biic[sso_properties_dlg[133].d1].i, 0, 512);
             tempsso->d2=sso_properties_dlg[139].flags&D_SELECTED?0:1;
-            tempsso->d8=vbound(tempsso->d8,0,256);
+            tempsso->d8=vbound(tempsso->d8,0,512);
         }
         break;
         
