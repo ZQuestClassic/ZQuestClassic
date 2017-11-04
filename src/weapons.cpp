@@ -431,25 +431,29 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		
 		defaultw = itemsbuf[parentitem].wpn;
 		LOADGFX(defaultw);
-		switch(dir)
+		
+		if (!( itemsbuf[parentitem].flags & ITEM_FLAG1 ) )
 		{
-			case up:
+			switch(dir)
 			{
-				flip = 0; break;
+				case up:
+				{
+					flip = 0; break;
+				}
+				case down:
+				{
+					flip = 2; break;
+				}
+				case left:
+				{
+					flip = 7; break;
+				}
+				case right:
+				{
+					flip = 4; break;
+				}
+				default: flip = 0; break;
 			}
-			case down:
-			{
-				flip = 2; break;
-			}
-			case left:
-			{
-				flip = 7; break;
-			}
-			case right:
-			{
-				flip = 4; break;
-			}
-			default: flip = 0; break;
 		}
 	}
 	
