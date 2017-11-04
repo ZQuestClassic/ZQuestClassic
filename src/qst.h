@@ -15,6 +15,10 @@
 #include "subscr.h"
 #include "zscriptversion.h"
 
+
+#include "ffscript.h"
+extern FFScript ffengine;
+
 // define these in main code
 //extern bool init_tiles(bool validate);
 //extern bool init_combos(bool validate);

@@ -26,22 +26,23 @@
 
 class FFScript
 {
-	byte rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
-	long link_tile;
-	byte link_action;
-	int getQRBit(int rule);
-	void setRule(int rule, bool s);
-	bool getRule(int rule_bit);
-
-
+	
     
 public:
-
+	static byte rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
+	static long link_tile;
+	static byte link_action;
+	
+static int getQRBit(int rule);	
+static void setRule(int rule, bool s);
+static bool getRule(int rule_bit);
 static void setFFRules();
 static void setLinkTile(int t);
 static int getLinkTile();
 static void setLinkAction(int a);
 static int getLinkAction();
+FFScript();
+
 
 	
     int screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
@@ -2210,3 +2211,5 @@ struct triangle3Dstruct
 };
 
 #endif
+
+//extern FFCScript FFEngine;
