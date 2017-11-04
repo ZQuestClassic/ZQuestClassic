@@ -401,6 +401,59 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     
     switch(id)
     {
+	    
+	    
+	case wScript1:
+	case wScript2:
+	case wScript3:
+	case wScript4:
+	case wScript5:
+	case wScript6:
+	case wScript7:
+	case wScript8:
+	case wScript9:
+	case wScript10:
+	case wIce:
+    {
+	if(parentitem >-1)
+	{
+		
+		
+		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+		
+		switch(dir)
+		{
+			case up:
+			{
+				defaultw = itemsbuf[parentitem].wpn;
+			}
+			case down:
+			{
+				defaultw = itemsbuf[parentitem].wpn2;
+			}
+			case left:
+			{
+				defaultw = itemsbuf[parentitem].wpn3;
+			}
+			case right:
+			{
+				defaultw = itemsbuf[parentitem].wpn4;
+			}
+			default: defaultw = itemsbuf[parentitem].wpn;
+		}
+		LOADGFX(defaultw);
+	}
+	
+	break;
+    } 
     case wSword: // Link's sword
     {
         if(isDummy || itemid<0)
