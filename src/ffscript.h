@@ -23,50 +23,56 @@
 
 #define MIN_INTERNAL_BITMAP -1 //RT_SCREEN
 #define MAX_INTERNAL_BITMAP 6 //RT_BITMAP6
+#define FFRULES_SIZE 512
+
+extern byte FF_rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
+extern long FF_link_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
+extern byte FF_link_action; //This way, we can make safe replicas of internal Link actions to be set by script. 
+	
+extern long FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
+extern long FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
+extern long FF_subscreen_dimensions[4];
+extern long FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
+extern long FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
+
+#define FFSCRIPTCLASS_CLOCKS 10
+extern long FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
+
+#define SCRIPT_DRAWING_RULES 20
+extern byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
+
+	//Allow or forbid drawing during specific game events. 
+	enum{
+		scdrDRAW_WHILE_SCROLLING, scdrDRAW_DURING_SCREEN_TRANSITION, scdrDRAW_DURING_WARP,
+		scdrDRAW_DURING_WIPES, scdrLAST
+	};
+	
+#define NUM_USER_MIDI_OVERRIDES 6
+extern long FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
+    
 
 class FFScript
 {
 	
     
 public:
-	static byte rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
-	static long link_tile;
-	static byte link_action;
 	
-static int getQRBit(int rule);	
-static void setRule(int rule, bool s);
-static bool getRule(int rule_bit);
-static void setFFRules();
-static void setLinkTile(int t);
-static int getLinkTile();
-static void setLinkAction(int a);
-static int getLinkAction();
+void init();
+int getQRBit(int rule);	
+void setRule(int rule, bool s);
+bool getRule(int rule_bit);
+void setFFRules();
+void setLinkTile(int t);
+int getLinkTile();
+void setLinkAction(int a);
+int getLinkAction();
 //FFScript();
 //static void init();
 
 
 	
-    int screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
-    int screen_dimensions[4]; //height, width, displaywidth, displayheight
-    int subscreen_dimensions[4];
-    int eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
-    int lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
-    int linktile, linkaction; //Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
-		//This way, we can make safe replicas of internal Link actions to be set by script. 
-#define FFSCRIPTCLASS_CLOCKS 10
-    int clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
-
-    #define SCRIPT_DRAWING_RULES 20
-    bool ScriptDrawingRules[SCRIPT_DRAWING_RULES];
-	//Allow or forbid drawing during specific game events. 
-	enum{
-		scdrDRAW_WHILE_SCROLLING, scdrDRAW_DURING_SCREEN_TRANSITION, scdrDRAW_DURING_WARP,
-		scdrDRAW_DURING_WIPES, scdrLAST
-	};
-#define NUM_USER_MIDI_OVERRIDES 6
-	int UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
     
-    virtual ~FFScript();
+    //virtual ~FFScript();
     
 	
 	
