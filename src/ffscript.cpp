@@ -3335,6 +3335,53 @@ else \
     
 ///----------------------------------------------------------------------------------------------------//
 //Screen Information
+    
+    	#define	GET_SCREENDATAVAR_INT32(member, str) \
+	{ \
+		ret = (tmpscr->member *10000); \
+	} \
+
+	#define	GET_SCREENDATAVAR_INT16(member, str) \
+	{ \
+		ret = (tmpscr->member *10000); \
+	} \
+
+	#define	GET_SCREENDATAVAR_BYTE(member, str) \
+	{ \
+		ret = (tmpscr->member *10000); \
+	} \
+	
+	#define GET_SCREENDATAVAR_INDEX32(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		ret = (tmpscr->member[indx] *10000); \
+	} \
+	
+	#define GET_SCREENDATAVAR_INDEX16(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		ret = (tmpscr->member[indx] *10000); \
+	} \
+	
+	#define GET_SCREENDATABYTE_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		ret = (tmpscr->member[indx] *10000); \
+	} \
+	
+	#define GET_SCREENDATABOOL_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		ret = (tmpscr->member[indx]?10000:0); \
+	} \
+	
+	#define GET_SCREENDATAFLAG(member, str, indexbound) \
+	{ \
+		long flag =  (value/10000);  \
+		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		ret = (tmpscr->member&flag) ? 10000 : 0); \
+	} \
+	
     case SDD:
     {
         int di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
@@ -6469,6 +6516,49 @@ case COMBODDM:
     
 ///----------------------------------------------------------------------------------------------------//
 //Screen Variables
+    
+    	#define	SET_SCREENDATA_VAR_INT32(member, str) \
+	{ \
+		tmpscr->member = vbound((value / 10000),-214747,214747); \
+	} \
+	
+	#define	SET_SCREENDATA_VAR_INT16(member, str) \
+	{ \
+		tmpscr->member = vbound((value / 10000),0,32767); \
+	} \
+
+	#define	SET_SCREENDATA_VAR_BYTE(member, str) \
+	{ \
+		tmpscr->member = vbound((value / 10000),0,255); \
+	} \
+	
+	#define SET_SCREENDATA_VAR_INDEX32(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		tmpscr->member[indx] = vbound((value / 10000),-214747,214747); \
+	} \
+	
+	#define SET_SCREENDATA_VAR_INDEX16(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		tmpscr->member[indx] = vbound((value / 10000),-32767,32767); \
+	} \
+
+	#define SET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		tmpscr->member[indx] = vbound((value / 10000),0255); \
+	}
+	
+	#define SET_SCREENDATA_FLAG(member, str) \
+	{ \
+		long flag =  (value/10000);  \
+		if ( flag != 0 ) \
+		{ \
+			tmpscr->member|=flag; \
+		} \
+		else tmpscr->.member|= ~flag; \
+	} \
     
     //These use the same method as SetScreenD
     case SCREENWIDTH:
