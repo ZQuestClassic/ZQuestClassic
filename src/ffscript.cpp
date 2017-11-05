@@ -3612,6 +3612,62 @@ case SPRITEDATASPEED: GET_SPRITEDATA_VAR_INT(speed, "Speed") break;
 case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
     
 ///----------------------------------------------------------------------------------------------------//
+//mapdata m-> variables
+    #define	GET_MAPDATA_VAR_INT32(member, str) \
+	{ \
+		mapscreen *m = ri->mapsref; \
+		ret = (m->member *10000); \
+	} \
+
+	#define	GET_MAPDATA_VAR_INT16(member, str) \
+	{ \
+		mapscreen *m = ri->mapsref; \
+		ret = (m->member *10000); \
+	} \
+
+	#define	GET_MAPDATA_VAR_BYTE(member, str) \
+	{ \
+		mapscreen *m = ri->mapsref; \
+		ret = (m->member *10000); \
+	} \
+	
+	#define GET_MAPDATA_VAR_INDEX32(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		mapscreen *m = ri->mapsref; \
+		ret = (m->member[indx] *10000); \
+	} \
+	
+	#define GET_MAPDATA_VAR_INDEX16(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		mapscreen *m = ri->mapsref; \
+		ret = (m->member[indx] *10000); \
+	} \
+	
+	#define GET_MAPDATA_BYTE_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		mapscreen *m = ri->mapsref; \
+		ret = (m->member[indx] *10000); \
+	} \
+	
+	#define GET_MAPDATA_BOOL_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		mapscreen *m = ri->mapsref; \
+		ret = (m->member[indx]?10000:0); \
+	} \
+	
+	#define GET_MAPDATA_FLAG(member, str, indexbound) \
+	{ \
+		long flag =  (value/10000);  \
+		mapscreen *m = ri->mapsref; \
+		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		ret = (m->member&flag) ? 10000 : 0); \
+	} \
+    
+///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> variables
     
 //npcdata nd->member variable
@@ -6757,6 +6813,66 @@ case SPRITEDATAFRAMES: SET_SPRITEDATA_VAR_BYTE(frames, "Frames"); break;
 case SPRITEDATASPEED: SET_SPRITEDATA_VAR_BYTE(speed, "Speed"); break;
 case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
     
+///----------------------------------------------------------------------------------------------------//
+//mapdata m-> Variables
+	//mapdata m-> Variables
+	#define	SET_MAPDATA_VAR_INT32(member, str) \
+	{ \
+		mapscreen *m = ri->mapsref; \
+		m->member = vbound((value / 10000),-214747,214747); \
+	} \
+	
+	#define	SET_MAPDATA_VAR_INT16(member, str) \
+	{ \
+		mapscreen *m = ri->mapsref; \
+		m->member = vbound((value / 10000),0,32767); \
+	} \
+
+	#define	SET_MAPDATA_VAR_BYTE(member, str) \
+	{ \
+		mapscreen *m = ri->mapsref; \
+		m->member = vbound((value / 10000),0,255); \
+	} \
+	
+	#define SET_MAPDATA_VAR_INDEX32(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		mapscreen *m = ri->mapsref; \
+		m->member[indx] = vbound((value / 10000),-214747,214747); \
+	} \
+	
+	#define SET_MAPDATA_VAR_INDEX16(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		mapscreen *m = ri->mapsref; \
+		m->member[indx] = vbound((value / 10000),-32767,32767); \
+	} \
+
+	#define SET_MAPDATA_BYTE_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		mapscreen *m = ri->mapsref; \
+		m->member[indx] = vbound((value / 10000),0255); \
+	}
+	
+	#define SET_MAPDATA_BOOL_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		mapscreen *m = ri->mapsref; \
+		m->member[indx] =( (value/10000) ? 1 : 0 ); \
+	}
+	
+	#define SET_MAPDATA_FLAG(member, str) \
+	{ \
+		long flag =  (value/10000);  \
+		mapscreen *m = ri->mapsref; \
+		if ( flag != 0 ) \
+		{ \
+			m->member|=flag; \
+		} \
+		else m->.member|= ~flag; \
+	} \
+	
 ///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> Variables
 	
