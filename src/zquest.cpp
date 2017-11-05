@@ -21336,7 +21336,7 @@ int main(int argc,char **argv)
     	SDL_WM_SetCaption("SDL test window", "testwin");
     */
     PopulateInitDialog();
-    
+    //FFScript::init();
     memrequested+=sizeof(zctune)*MAXCUSTOMMIDIS_ZQ;
     Z_message("Allocating tunes buffer (%s)... ", byte_conversion2(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ,memrequested,-1,-1));
     customtunes = (zctune*)zc_malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
