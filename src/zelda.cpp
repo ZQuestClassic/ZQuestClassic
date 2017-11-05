@@ -3015,6 +3015,7 @@ int main(int argc, char* argv[])
 #endif
     
     PopulateInitDialog();
+    //FFScript::init();
     
     memrequested += 4096;
     Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));

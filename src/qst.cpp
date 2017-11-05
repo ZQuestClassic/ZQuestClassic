@@ -6008,6 +6008,41 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                     tempitem.flags |= ITEM_FLAG3; // Sideview gravity flag
             }
             
+	    //Port quest rules to items
+	    if( s_version <= 31) 
+	    {
+		if(tempitem.family == itype_candle)
+		{
+			if ( (!get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
+			else tempitem.flags &= ~ ITEM_FLAG3;
+			if ( (!get_bit(quest_rules,qr_TEMPCANDLELIGHT)) ) tempitem.flags |= ITEM_FLAG5;
+			else tempitem.flags &= ~ ITEM_FLAG5;
+			
+		}
+		else if(tempitem.family == itype_bomb)
+		{
+			if ( get_bit(quest_rules,qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
+			else tempitem.flags &= ~ ITEM_FLAG2;
+		}
+		else if(tempitem.family == itype_sbomb)
+		{
+			if ( get_bit(quest_rules,qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
+			else tempitem.flags &= ~ ITEM_FLAG2;
+		}
+		
+		else if(tempitem.family == itype_brang)
+		{
+			if ( get_bit(quest_rules,qr_BRANGPICKUP) )  tempitem.flags |= ITEM_FLAG4;
+			else tempitem.flags &= ~ ITEM_FLAG4;
+		}	
+		else if(tempitem.family == itype_wand)
+		{
+			if ( get_bit(quest_rules,qr_NOWANDMELEE) )  tempitem.flags |= ITEM_FLAG3;
+			else tempitem.flags &= ~ ITEM_FLAG3;
+		}
+		
+	    }
+	    
             if(tempitem.fam_type==0)  // Always do this
                 tempitem.fam_type=1;
                 
@@ -13821,7 +13856,7 @@ void port250QuestRules(){
 	
 	portCandleRules(); //Candle
 	portBombRules();
-	FFScript::setFFRules();
+	//FFScript::setFFRules();
 
 }
 
@@ -14644,11 +14679,7 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         delete_file(deletefilename);
     }
     
-    if ( tempheader.zelda_version <= 0x250 )
-    {
-	port250QuestRules(); //Port all old quest rules to item editor and enemy editor flags, or global vars.
-	//populate ffrules here. 
-    }
+    
     
     return qe_OK;
     
