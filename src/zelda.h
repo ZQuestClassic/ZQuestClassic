@@ -103,6 +103,8 @@ enum
   void hit_close_button();
   */
 
+void port250QuestRules();
+
 bool get_debug();
 void set_debug(bool d);
 

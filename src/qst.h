@@ -15,6 +15,10 @@
 #include "subscr.h"
 #include "zscriptversion.h"
 
+
+#include "ffscript.h"
+extern FFScript ffengine;
+
 // define these in main code
 //extern bool init_tiles(bool validate);
 //extern bool init_combos(bool validate);
@@ -90,6 +94,11 @@ int count_shops(miscQdata *Misc);
 int count_infos(miscQdata *Misc);
 int count_warprings(miscQdata *Misc);
 int count_palcycles(miscQdata *Misc);
+
+void port250QuestRules();
+void portCandleRules();
+void portBombRules();
+
 int loadquest(const char *filename, zquestheader *Header,
               miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags);
 

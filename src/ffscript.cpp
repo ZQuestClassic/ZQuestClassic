@@ -68,6 +68,22 @@ extern std::map<int, std::pair<string,string> > globalmap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
 
+FFScript ffengine;
+
+byte FF_rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
+long FF_link_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
+byte FF_link_action; //This way, we can make safe replicas of internal Link actions to be set by script. 
+	
+long FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
+long FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
+long FF_subscreen_dimensions[4];
+long FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
+long FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
+long FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
+byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
+long FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
+    
+
 //We gain some speed by not passing as arguments
 long sarg1 = 0;
 long sarg2 = 0;
@@ -12131,4 +12147,84 @@ void FFScript::do_typedpointer_typecast(const bool v)
 {
      long ptr = SH::get_arg(sarg1, v);
      set_register(sarg1, ptr);
+}
+
+/*
+byte FFScript::FF_rules[512]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //For Migration of Quest Rules, and Scritp Engine Rules
+long FFScript::link_tile = 0;
+byte FFScript::link_action = 0;
+*/
+
+void FFScript::setFFRules()
+{
+	for ( int q = 0; q < qr_MAX; q++ )
+	{
+		FF_rules[q] = 1;//getQRBit(q);
+	}
+}
+
+void FFScript::setRule(int rule, bool s)
+{
+	FF_rules[rule] = ( s ? 1 : 0 );
+}
+
+bool FFScript::getRule(int rule)
+{
+	return ( FF_rules[rule] != 0 );
+}
+
+int FFScript::getQRBit(int rule)
+{
+	return ( get_bit(quest_rules,rule) ? 1 : 0 );
+}
+
+void FFScript::setLinkTile(int t)
+{
+	FF_link_tile = vbound(t, 0, NEWMAXTILES);
+}
+
+void FFScript::setLinkAction(int a)
+{
+	FF_link_action = vbound(a, 0, 255);
+}
+
+int FFScript::getLinkTile()
+{
+	return FF_link_tile;
+}
+
+int FFScript::getLinkAction()
+{
+	return FF_link_action;
+}
+//get_bit
+
+/*
+FFScript::FFScript()
+{
+	init();
+}
+*/
+
+void FFScript::init()
+{
+	for ( int q = 0; q < FFRULES_SIZE; q++ ) FF_rules[q] = 0;
+	FF_link_tile = 0;
+	FF_link_action = 0;
+	for ( int q = 0; q < 4; q++ ) 
+	{
+		FF_screenbounds[q] = 0;
+		FF_screen_dimensions[q] = 0;
+		FF_subscreen_dimensions[q] = 0;
+		FF_eweapon_removal_bounds[q] = 0;
+		FF_lweapon_removal_bounds[q] = 0;
+		
+	}
+	for ( int q = 0; q < FFSCRIPTCLASS_CLOCKS; q++ ) FF_clocks[q] = 0;
+	for ( int q = 0; q < SCRIPT_DRAWING_RULES; q++ ) ScriptDrawingRules[q] = 0;
+	for ( int q = 0; q < NUM_USER_MIDI_OVERRIDES; q++ ) FF_UserMidis[q] = 0;
 }
