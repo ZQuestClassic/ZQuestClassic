@@ -1,4 +1,77 @@
 To-Do
+Forward QRs to Items
+qr_FIREPROOFLINK (candle, done; book fire, todo)
+qr_TEMPCANDLELIGHT (candle, done; book fire, todo)
+qr_OUCHBOMBS(bombs, done; sbombs done)
+qr_BRANGPICKUP(brangs done; hookshots, todo.)
+qr_NOWANDMELEE(wand done; canes, toto)
+qr_RAFTLENS
+qr_WHIRLWINDMIRROR
+qr_BRKNSHLDTILES
+qr_NONBUBBLEMEDICINE
+qr_NONBUBBLEFAIRIES (or should this be npcs?)
+qr_Z3BRANG_HSHOT
+qr_NOITEMMELEE
+qr_QUICKSWORD	
+qr_NOBOMBPALFLASH (may be better as a QR)
+qr_NODIVING 
+qr_RINGAFFECTDAMAGE
+qr_SLASHFLIPFIX
+qr_NOWANDMELEE
+qr_SWORDMIRROR
+qr_LENSSEESENEMIES(may be  better on a per-npc basis, 'Seen by Lens').
+qr_LADDERANYWHERE(perhaps better by per-dmap basis?)
+
+Implement Itemdata-based rule behaviour
+
+Forward QRs to enemeies
+qr_MEANTRAPS
+qr_MEANPLACEDTRAPS
+qr_PHANTOMPLACEDTRAPS
+qr_NONBUBBLEFAIRIES(or should this be items?)
+qr_SHADOWS
+qr_TRANSSHADOWS
+qr_SHADOWSFLICKER
+qr_NOGUYPOOF
+qr_WALLFLIERS
+qr_LENSSEESENEMIES
+qr_ENEMIESFLICKER
+qr_PEAHATCLOCKVULN
+qr_BROKENSTATUES
+
+Implement Enemy based QR behaviour
+
+
+Forward QRs to visual effects
+qr_FFCSCROLL
+qr_SMOOTHVERTICALSCROLLING
+qr_NOSCROLLCONTINUE
+qr_NOBORDER
+qr_SUBSCREENOVERSPRITES
+qr_OVALWIPE
+qr_TRIANGLEWIPE
+qr_SMASWIPE
+qr_VERYFASTSCROLLING
+
+Forward rules to ffscript or dmaps:
+qr_NOSAVE
+qr_NOCONTINUE
+qr_NOGUYPOOF
+qr_SELECTAWPN
+qr_DROWN
+qr_INSTABURNFLAGS
+qr_ITEMSINPASSAGEWAYS
+qr_LADDERANYWHERE(or per-item basis?)
+qr_NOFAIRYGUYFIRES
+qr_NOSOLIDDAMAGECOMBOS
+qr_OFFSCREENWEAPONS(should this be per-weapon?)
+qr_NOSCRIPTSDURINGSCROLL
+er_SHORTDGNWALK
+
+Misc
+qr_REFLECTROCKS
+qr_OFFSETEWPNCOLLISIONFIX
+qr_FIREPROOFLINK2 (Invincible Link is not hurt by his own fire)
 
 Weapons
 Item Editor Weapons?
