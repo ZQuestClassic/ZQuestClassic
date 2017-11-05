@@ -23,6 +23,8 @@ enum {spr_landhold, spr_waterhold};
 enum {spr_hold1, spr_hold2};
 enum { las_original, las_bszelda, las_zelda3, las_zelda3slow, las_max };
 
+extern int script_link_sprite;
+
 extern int old_floatspr, old_slashspr, linkspr;
 extern int walkspr[4][3];                                   //dir,                    tile/flip/extend
 extern int stabspr[4][3];                                   //dir,                    tile/flip/extend
