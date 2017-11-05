@@ -32,6 +32,8 @@
 #include "zq_class.h"
 #include "rendertarget.h" //Needed for LoadBitmap
 
+#include "zc_custom.h"
+
 #ifdef _FFDEBUG
 #include "ffdebug.h"
 #endif
@@ -1305,6 +1307,9 @@ long get_register(const long arg)
         
     case LINKEATEN:
 	ret=(int)Link.getEaten()*10000;
+	break;
+    case LINKSCRIPTTILE:
+	ret=script_link_sprite*10000;
 	break;
         
         
@@ -4259,6 +4264,9 @@ void set_register(const long arg, const long value)
 
       case LINKEATEN:
 	Link.setEaten(value/10000);
+	break;
+      case LINKSCRIPTTILE:
+	script_link_sprite=(value/10000);
 	break;
     
       case GAMESETA:

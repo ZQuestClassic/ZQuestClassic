@@ -1265,6 +1265,8 @@ script_variable variable_list[]=
 	{"NPCDATADEFENSE", NPCDATADEFENSE, 0, 0 },
 	{"NPCDATASIZEFLAG", NPCDATASIZEFLAG, 0, 0 },
 	{"NPCDATAATTRIBUTE", NPCDATAATTRIBUTE, 0, 0 },
+	{"LINKSCRIPTTILE", LINKSCRIPTTILE, 0, 0 },
+	
 	
 	    { " ",                       -1,             0,             0 }
 };

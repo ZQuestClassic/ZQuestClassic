@@ -2189,7 +2189,10 @@ enum ASM_DEFINE
 #define NPCDATARESERVED019 0x11D3
 
 
-#define NUMVARIABLES         0x11D4
+#define LINKSCRIPTTILE 0x11D4
+
+
+#define NUMVARIABLES         0x11D5
 
 // Script types
 

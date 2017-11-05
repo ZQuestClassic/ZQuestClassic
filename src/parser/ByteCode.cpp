@@ -1275,6 +1275,7 @@ string VarArgument::toString()
 	case NPCDATADEFENSE: return "NPCDATADEFENSE";
 	case NPCDATASIZEFLAG: return "NPCDATASIZEFLAG";
 	case NPCDATAATTRIBUTE: return "NPCDATAATTRIBUTE";
+	case LINKSCRIPTTILE: return "LINKSCRIPTTILE";
 
     default:
     {
