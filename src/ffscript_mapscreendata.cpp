@@ -65,19 +65,220 @@ case MAPDATAFFYDELTA2:	 	SET_MAPDATA_VAR_INDEX32(ffydelta2, "FFCAy");	//..
 case MAPDATAFFFLAGS: 		SET_MAPDATA_VAR_INDEX16(ffflags, "FFCFlags");	//INT16, 23 OF THESE
 //Height and With are Or'd together, and need to be separate:
 /*
- //Width ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
- //EffectWidth tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
-
+ //TileWidth ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
 */
-case MAPDATAFFWIDTH: 		SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");	//B, 32 OF THESE
-case MAPDATAFFHEIGHT:	 	SET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"	//B, 32 OF THESE
-case MAPDATAFFEFFECTWIDTH: 		SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");	//B, 32 OF THESE
-case MAPDATAFFEFFECTHEIGHT:	 	SET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"	//B, 32 OF THESE	
+case MAPDATAFFWIDTH: 		
+{
+	mapscreen *m = ri->mapsref;
+	int indx = ri->d[0] / 10000; 
+	if ( indx < 0 || index > 31 ) 
+	{
+		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileWidth[]: %d\n", indx);
+	}
+	if ( (value/10000) < 0 || (value/10000) > 4 ) 
+	{
+		Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileWidth[]: %d\n", value);
+	}
+	m->ffwidth[indx] = ( m->ffwidth[indx]&~63) | vbound( (((value/10000)-1)&63), (0&63), (214747&63) ); 
+	break;
+}	
+
+
+//SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");	//B, 32 OF THESE
+case MAPDATAFFHEIGHT:	 	
+{
+	mapscreen *m = ri->mapsref;
+	int indx = ri->d[0] / 10000; 
+	if ( indx < 0 || index > 31 ) 
+	{
+		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileHeight[]: %d\n", indx);
+	}
+	if ( (value/10000) < 0 || (value/10000) > 4 ) 
+	{
+		Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileHeight[]: %d\n", value);
+	}
+	m->ffheight[indx] = ( m->ffheight[indx]&~63) | vbound( (((value/10000)-1)&63), (0&63), (4&63) ); 
+	break;
+	
+}
+
+//EffectWidth tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
+
+//SET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"	//B, 32 OF THESE
+case MAPDATAFFEFFECTWIDTH: 		
+{ 
+	mapscreen *m = ri->mapsref;
+	int indx = ri->d[0] / 10000; 
+	if ( indx < 0 || index > 31 ) 
+	{
+		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectWidth[]: %d\n", indx);
+	}
+	if ( (value/10000) < 0 ) 
+	{
+		Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCEffectWidth[]: %d\n", value);
+	}
+	m->ffwidth[indx] = ( m->ffwidth[indx]&63) | vbound( ((((value/10000)-1)&3)<<6), ((((0)-1)&3)<<6), ((((214747)&3)<<6)) );
+	break;
+}
+
+
+//SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");	//B, 32 OF THESE
+case MAPDATAFFEFFECTHEIGHT:
+{ 
+	mapscreen *m = ri->mapsref;
+	int indx = ri->d[0] / 10000; 
+	if ( indx < 0 || index > 31 ) 
+	{
+		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectHeight[]: %d\n", indx);
+	}
+	if ( (value/10000) < 0 ) 
+	{
+		Z_scripterrlog("Invalid HEIGHT value passed to MapData->FFCEffectHeight[]: %d\n", value);
+	}
+	m->ffheight[indx] = ( m->ffheight[indx]&63) | vbound( ((((value/10000)-1)&3)<<6), ((((0)-1)&3)<<6), ((((214747)&3)<<6)) );
+	break;
+}	
+	
+//SET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"	//B, 32 OF THESE	
 
 case MAPDATAFFLINK: 		SET_MAPDATA_BYTE_INDEX(fflink, "FFCLink");	//B, 32 OF THESE
 case MAPDATAFFSCRIPT:	 	SET_MAPDATA_VAR_INDEX32(ffscript, "FFCScript");	//W, 32 OF THESE
-//case MAPDATAINTID: 		initd	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
-//case MAPDATAINITA: 		inita	//INT32, 32 OF THESE, EACH WITH 2
+case MAPDATAINTID: 	 //Same form as SetScreenD()
+	//SetFFCInitD(ffindex, d, value)
+{
+	mapscreen *m = ri->mapsref;
+	//int ffindex = ri->d[0]/10000;
+	//int d = ri->d[1]/10000;
+	//int v = (value/10000);
+	m->initd[(ri->d[0]/10000)][(ri->d[1]/10000)] = (value/10000);
+	break;
+}	
+	
+
+//initd	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
+
+
+case MAPDATAINITA: 		
+	//same form as SetScreenD
+{
+	mapscreen *m = ri->mapsref;
+	//int ffindex = ri->d[0]/10000;
+	//int d = ri->d[1]/10000;
+	//int v = (value/10000);
+	m->inita[(ri->d[0]/10000)][(ri->d[1]/10000)] = (value/10000);
+	break;
+}	
+	
+/* Getters
+case MAPDATAINTID: 	 //Same form as SetDMapScreenD()
+	//GetFFCInitD(ffindex, d)
+{
+	mapscreen *m = ri->mapsref;
+	//int ffindex = ri->d[0]/10000;
+	//int d = ri->d[1]/10000;
+	ret = (m->initd[(ri->d[0]/10000)][ri->d[1]/10000]);
+	break;
+}	
+	
+
+//initd	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
+
+
+case MAPDATAINITA: 		
+	//same form as SetDMapScreenD
+{
+	mapscreen *m = ri->mapsref;
+	//int ffindex = ri->d[0]/10000;
+	//int d = ri->d[1]/10000;
+	ret = (m->inita[(ri->d[0]/10000)][ri->d[1]/10000]);
+	break;
+}
+*
+
+/*
+
+//int GetFFCInitD(mapscr, int,int,int)
+    {
+        int id = memberids["GetFFCInitD"];
+	int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(MAPDATAINTID)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;
+	
+    }
+    
+     //void SetFFCInitD(mapsc, int,int,int,int)
+    {
+        int id = memberids["SetFFCInitD"];
+	int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OSetRegister(new VarArgument(MAPDATAINTID), new VarArgument(SFTEMP)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;
+    }
+    
+    
+    //int GetFFCInitA(mapscr, int,int,int)
+    {
+        int id = memberids["GetFFCInitD"];
+	int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(MAPDATAINTIA)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;
+	
+    }
+    
+     //void SetFFCInitA(mapsc, int,int,int,int)
+    {
+        int id = memberids["SetFFCInitD"];
+	int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(SFTEMP));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX2)));
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OSetRegister(new VarArgument(MAPDATAINTIA), new VarArgument(SFTEMP)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;
+    }
+    
+    
+    
+
+*/
+	//inita	//INT32, 32 OF THESE, EACH WITH 2
 case MAPDATAFFINITIALISED: 	SET_MAPDATA_BOOL_INDEX(initialized, "FFCRunning");	//BOOL, 32 OF THESE
 case MAPDATASCRIPTENTRY: 	SET_MAPDATA_VAR_INT32(script_entry, "ScriptEntry");	//W
 case MAPDATASCRIPTOCCUPANCY: 	SET_MAPDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy"); //W
