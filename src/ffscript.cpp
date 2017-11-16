@@ -3681,36 +3681,98 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 	#define GET_MAPDATA_VAR_INDEX32(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
-		mapscr *m = &TheMaps[ri->mapsref]; \
-		ret = (m->member[indx] *10000); \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			ret = (m->member[indx] *10000); \
+		} \
 	} \
 	
 	#define GET_MAPDATA_VAR_INDEX16(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
-		mapscr *m = &TheMaps[ri->mapsref]; \
-		ret = (m->member[indx] *10000); \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			ret = (m->member[indx] *10000); \
+		} \
 	} \
 	
 	#define GET_MAPDATA_BYTE_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			ret = (m->member[indx] *10000); \
+		} \
+	} \
+	
+	/*
+	#define GET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
 		mapscr *m = &TheMaps[ri->mapsref]; \
-		ret = (m->member[indx] *10000); \
+		if ( indx == 0 ) \
+		{ \
+			\
+		} \
+		else \
+		{ \
+			ret = (m->member[indx-1] *10000); \
+		} \
+	} \
+	*/
+	
+	#define GET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			ret = (m->member[indx] *10000); \
+		} \
 	} \
 	
 	#define GET_MAPDATA_BOOL_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
-		mapscr *m = &TheMaps[ri->mapsref]; \
-		ret = (m->member[indx]?10000:0); \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			ret = (m->member[indx]?10000:0); \
+		} \
 	} \
 	
-	#define GET_MAPDATA_FLAG(member, str, indexbound) \
+	#define GET_MAPDATA_FLAG(member, str) \
 	{ \
 		long flag =  (value/10000);  \
 		mapscr *m = &TheMaps[ri->mapsref]; \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 		ret = (m->member&flag) ? 10000 : 0); \
 	} \
 
@@ -3753,9 +3815,9 @@ case MAPDATACATCHALL:	 	GET_MAPDATA_VAR_INT32(catchall,	"Catchall"); break; //W
 case MAPDATACSENSITIVE: 	GET_MAPDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
 case MAPDATANORESET: 		GET_MAPDATA_VAR_INT32(noreset, "NoReset"); break;	//W
 case MAPDATANOCARRY: 		GET_MAPDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
-case MAPDATALAYERMAP:	 	GET_MAPDATA_BYTE_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
-case MAPDATALAYERSCREEN: 	GET_MAPDATA_BYTE_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
-case MAPDATALAYEROPACITY: 	GET_MAPDATA_BYTE_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case MAPDATALAYERMAP:	 	GET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
+case MAPDATALAYERSCREEN: 	GET_MAPDATA_LAYER_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
+case MAPDATALAYEROPACITY: 	GET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
 case MAPDATATIMEDWARPTICS: 	GET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case MAPDATANEXTMAP: 		GET_MAPDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case MAPDATANEXTSCREEN: 	GET_MAPDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
@@ -7150,6 +7212,11 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 	#define SET_MAPDATA_VAR_INDEX32(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			break; \
+		} \
 		mapscr *m = &TheMaps[ri->mapsref]; \
 		m->member[indx] = vbound((value / 10000),-214747,214747); \
 	} \
@@ -7157,6 +7224,11 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 	#define SET_MAPDATA_VAR_INDEX16(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			break; \
+		} \
 		mapscr *m = &TheMaps[ri->mapsref]; \
 		m->member[indx] = vbound((value / 10000),-32767,32767); \
 	} \
@@ -7164,6 +7236,11 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 	#define SET_MAPDATA_BYTE_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			break; \
+		} \
 		mapscr *m = &TheMaps[ri->mapsref]; \
 		m->member[indx] = vbound((value / 10000),0,255); \
 	}
@@ -7171,6 +7248,11 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 	#define SET_MAPDATA_BOOL_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			break; \
+		} \
 		mapscr *m = &TheMaps[ri->mapsref]; \
 		m->member[indx] =( (value/10000) ? 1 : 0 ); \
 	}
