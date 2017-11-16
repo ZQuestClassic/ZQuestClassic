@@ -4071,7 +4071,6 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 
 //initd	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
 
-
 case MAPDATAINITA: 		
 	//same form as SetScreenD
 {

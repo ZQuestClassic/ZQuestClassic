@@ -6088,7 +6088,7 @@ map<int, vector<Opcode *> > MapDataSymbols::addSymbolsCode(LinkTable &lt)
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(MAPDATAINTIA)));
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(MAPDATAINITA)));
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
 		rval[label] = code;
@@ -6108,7 +6108,7 @@ map<int, vector<Opcode *> > MapDataSymbols::addSymbolsCode(LinkTable &lt)
 		code.push_back(new OPopRegister(new VarArgument(INDEX)));
 		//pop pointer, and ignore it
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
-		code.push_back(new OSetRegister(new VarArgument(MAPDATAINTIA), new VarArgument(SFTEMP)));
+		code.push_back(new OSetRegister(new VarArgument(MAPDATAINITA), new VarArgument(SFTEMP)));
 		code.push_back(new OPopRegister(new VarArgument(EXP2)));
 		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
 		rval[label] = code;
