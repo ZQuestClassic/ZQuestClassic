@@ -4171,6 +4171,25 @@ case MAPDATAMISCD:
     }
     break;
     
+    case MAPDATASCREENSTATED:
+    {
+        ret=((game->maps[ri->mapsref]>>((ri->d[0]/10000)))&1)?10000:0;
+    }
+    break;
+    case MAPDATASCREENFLAGSD:
+    {
+	mapscr *m = &TheMaps[ri->mapsref];
+        ret = get_screenflags(m,vbound(ri->d[0] / 10000,0,9));
+        break;
+    }
+        
+    case MAPDATASCREENEFLAGSD:
+    {
+	mapscr *m = &TheMaps[ri->mapsref];
+        ret = get_screeneflags(m,vbound(ri->d[0] / 10000,0,2));
+        break;
+    }
+    
 ///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> variables
     
@@ -7874,6 +7893,11 @@ case MAPDATAMISCD:
     }
     break;
 
+    case MAPDATASCREENSTATED:
+    {
+        (value)?setmapflag(ri->mapsref, 1<<((ri->d[0])/10000)) : unsetmapflag(ri->mapsref, 1 << ((ri->d[0]) / 10000));
+    }
+    break;
 
 ///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> Variables
