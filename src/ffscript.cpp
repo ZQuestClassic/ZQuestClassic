@@ -3899,6 +3899,25 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		ret = (m->member&flag) ? 10000 : 0); \
 	} \
 	
+	#define GET_SCREENDATA_COMBO_VAR(member, str) \
+	{ \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		int pos = ri->d[0] / 10000; \
+		if(BC::checkComboPos(pos, str) != SH::_NoError) \
+		ret = -10000; \
+		else \
+			ret = m->member[pos]*10000; \
+	}
+
+	#define GET_MAPDATA_COMBO_VAR_BUF(member, str) \
+	{ \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		int pos = ri->d[0] / 10000; \
+		if(BC::checkComboPos(pos, str) != SH::_NoError) \
+			ret = -10000; \
+		else \
+			ret = combobuf[m->data[pos]].member * 10000; \
+	}
 
 case MAPDATAVALID:		GET_MAPDATA_VAR_BYTE(valid, "Valid"); break;		//b
 case MAPDATAGUY: 		GET_MAPDATA_VAR_BYTE(guy, "Guy"); break;		//b
@@ -4123,6 +4142,35 @@ case MAPDATAMISCD:
 	}
 }
 
+    case MAPDATACOMBODD:
+        GET_SCREENDATA_COMBO_VAR(data,  "mapdata->ComboD") break;
+        
+    case MAPDATACOMBOCD:
+        GET_SCREENDATA_COMBO_VAR(cset,  "mapdata->ComboC") break;
+        
+    case MAPDATACOMBOFD:
+        GET_SCREENDATA_COMBO_VAR(sflag, "mapdata->ComboF") break;
+        
+
+        
+    case MAPDATACOMBOTD:
+        GET_MAPDATA_COMBO_VAR_BUF(type, "mapdata->ComboT") break;
+        
+    case MAPDATACOMBOID:
+        GET_MAPDATA_COMBO_VAR_BUF(flag, "mapdata->ComboI") break;
+        
+    case MAPDATACOMBOSD:
+    {
+        int pos = ri->d[0] / 10000;
+	mapscr *m = &TheMaps[ri->mapsref];
+        
+        if(BC::checkComboPos(pos, "mapdata->ComboS") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = (combobuf[m->data[pos]].walk & 0xF) * 10000;
+    }
+    break;
+    
 ///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> variables
     
@@ -7743,6 +7791,89 @@ case MAPDATAMISCD:
 		break;
 	}
 }
+
+
+  case MAPDATACOMBODD:
+    {
+        int pos = (ri->d[0])/10000;
+        mapscr *m = &TheMaps[ri->mapsref];
+        if(pos >= 0 && pos < 176)
+        {
+            screen_combo_modify_preroutine(m,pos);
+            m->data[pos]=(value/10000);
+            screen_combo_modify_postroutine(m,pos);
+        }
+    }
+    break;
+    
+    case MAPDATACOMBOCD:
+    {
+        int pos = (ri->d[0])/10000;
+        mapscr *m = &TheMaps[ri->mapsref];
+        if(pos >= 0 && pos < 176)
+        {
+            screen_combo_modify_preroutine(m,pos);
+            m->cset[pos]=(value/10000)&15;
+            screen_combo_modify_postroutine(m,pos);
+        }
+    }
+    break;
+    
+    case MAPDATACOMBOFD:
+    {
+        int pos = (ri->d[0])/10000;
+        mapscr *m = &TheMaps[ri->mapsref];
+        if(pos >= 0 && pos < 176)
+            m->sflag[pos]=(value/10000);
+    }
+    break;
+    
+    case MAPDATACOMBOTD:
+    {
+        int pos = (ri->d[0])/10000;
+        mapscr *m = &TheMaps[ri->mapsref];
+        if(pos >= 0 && pos < 176)
+        {
+            // Preprocess each instance of the combo on the screen
+            for(int i = 0; i < 176; i++)
+            {
+                if(m->data[i] == m->data[pos])
+                {
+                    screen_combo_modify_preroutine(m,i);
+                }
+            }
+            
+            combobuf[m->data[pos]].type=value/10000;
+            
+            for(int i = 0; i < 176; i++)
+            {
+                if(m->data[i] == m->data[pos])
+                {
+                    screen_combo_modify_postroutine(m,i);
+                }
+            }
+        }
+    }
+    break;
+    
+    case MAPDATACOMBOID:
+    {
+        int pos = (ri->d[0])/10000;
+        mapscr *m = &TheMaps[ri->mapsref];
+        if(pos >= 0 && pos < 176)
+            combobuf[m->data[pos]].flag=value/10000;
+    }
+    break;
+    
+    case MAPDATACOMBOSD:
+    {
+        int pos = (ri->d[0])/10000;
+        mapscr *m = &TheMaps[ri->mapsref];
+        if(pos >= 0 && pos < 176)
+            combobuf[m->data[pos]].walk=(value/10000)&15;
+    }
+    break;
+
 
 ///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> Variables
