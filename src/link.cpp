@@ -1294,10 +1294,10 @@ attack:
                 
                 if(useltm)
                 {
-                    tile+=item_tile_mod(shieldModify);
+                    if ( script_link_sprite <= 0 ) tile+=item_tile_mod(shieldModify);
                 }
                 
-                tile+=dmap_tile_mod();
+                if ( script_link_sprite <= 0 ) tile+=dmap_tile_mod();
                 
                 // Stone of Agony
                 if(agony)
@@ -1511,7 +1511,7 @@ attack:
                 if(inwater)
                 {
                     linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_dive, dir, zinit.linkanimationstyle);
-                    tile+=((frame>>3) & 1)*(extend==2?2:1);
+                    if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
                 }
                 else
                 {
@@ -1528,18 +1528,18 @@ attack:
                 {
                     if(dir==up)
                     {
-                        ++flip;
+                        if ( script_link_sprite <= 0 ) ++flip;
                     }
                     else
                     {
-                        extend==2?tile+=2:++tile;
+                        if ( script_link_sprite <= 0 ) extend==2?tile+=2:++tile;
                     }
                 }
                 
                 if(diveclk>30)
                 {
                     linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-                    tile+=((frame>>3) & 1)*(extend==2?2:1);
+                    if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
                 }
             }
             else if(charging > 0 && attack != wHammer)
@@ -1550,18 +1550,18 @@ attack:
                 {
                     if(dir==up)
                     {
-                        ++flip;
+                        if ( script_link_sprite <= 0 ) ++flip;
                     }
                     else
                     {
-                        extend==2?tile+=2:++tile;
+                        if ( script_link_sprite <= 0 ) extend==2?tile+=2:++tile;
                     }
                 }
             }
             else if((z>0 || isSideview()) && jumping2>0 && jumping2<24 && game->get_life()>0 && action!=rafting)
             {
                 linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
-                tile+=((int)jumping2/8)*(extend==2?2:1);
+                if ( script_link_sprite <= 0 ) tile+=((int)jumping2/8)*(extend==2?2:1);
             }
             else
             {
@@ -1577,11 +1577,11 @@ attack:
                 {
                     if(dir==up)
                     {
-                        ++flip;
+                        if ( script_link_sprite <= 0 ) ++flip;
                     }
                     else
                     {
-                        extend==2?tile+=2:++tile;
+                        if ( script_link_sprite <= 0 ) extend==2?tile+=2:++tile;
                     }
                 }
             }
@@ -1594,7 +1594,7 @@ attack:
                 if(inwater)
                 {
                     linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_dive, dir, zinit.linkanimationstyle);
-                    tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                    if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
                 else
                 {
@@ -1606,23 +1606,23 @@ attack:
             else if(action==swimming || action==swimhit || hopclk==0xFF)
             {
                 linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
-                tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 
                 if(diveclk>30)
                 {
                     linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-                    tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                    if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
             }
             else if(charging > 0 && attack != wHammer)
             {
                 linktile(&tile, &flip, &extend, ls_charge, dir, zinit.linkanimationstyle);
-                tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
             }
             else if((z>0 || isSideview()) && jumping2>0 && jumping2<24 && game->get_life()>0)
             {
                 linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
-                tile+=((int)jumping2/8)*(extend==2?2:1);
+                if ( script_link_sprite <= 0 ) tile+=((int)jumping2/8)*(extend==2?2:1);
             }
             else
             {
@@ -1640,7 +1640,7 @@ attack:
                 useltm=true;
                 }
                 */
-                tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
             }
             
             break;
@@ -1652,7 +1652,7 @@ attack:
                 if(inwater)
                 {
                     linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_dive, dir, zinit.linkanimationstyle);
-                    tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                    if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
                 else
                 {
@@ -1664,28 +1664,28 @@ attack:
             else if(action == swimming || action==swimhit || hopclk==0xFF)
             {
                 linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
-                tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 
                 if(diveclk>30)
                 {
                     linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-                    tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                    if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
             }
             else if(charging > 0 && attack != wHammer)
             {
                 linktile(&tile, &flip, &extend, ls_charge, dir, zinit.linkanimationstyle);
-                tile+=(extend==2?2:1);
+                if ( script_link_sprite <= 0 ) tile+=(extend==2?2:1);
 //          int l=link_count/link_animation_speed;
                 int l=(link_count/link_animation_speed)&15;
                 //int l=((p[lt_clock]/link_animation_speed)&15);
                 l-=((l>3)?1:0)+((l>12)?1:0);
-                tile+=(l/2)*(extend==2?2:1);
+                if ( script_link_sprite <= 0 ) tile+=(l/2)*(extend==2?2:1);
             }
             else if((z>0 || isSideview()) && jumping2>0 && jumping2<24 && game->get_life()>0)
             {
                 linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
-                tile+=((int)jumping2/8)*(extend==2?2:1);
+                if ( script_link_sprite <= 0 ) tile+=((int)jumping2/8)*(extend==2?2:1);
             }
             else
             {
@@ -1693,7 +1693,7 @@ attack:
                 
                 if(action == walking || action == climbcoverbottom || action == climbcovertop)
                 {
-                    tile += (extend == 2 ? 2 : 1);
+                    if ( script_link_sprite <= 0 ) tile += (extend == 2 ? 2 : 1);
                 }
                 
                 if(dir>up)
@@ -1708,7 +1708,7 @@ attack:
                     //tile+=(((active_count>>2)%8)*(extend==2?2:1));
                     int l = link_count / link_animation_speed;
                     l -= ((l > 3) ? 1 : 0) + ((l > 12) ? 1 : 0);
-                    tile += (l / 2) * (extend == 2 ? 2 : 1);
+                    if ( script_link_sprite <= 0 ) tile += (l / 2) * (extend == 2 ? 2 : 1);
                 }
             }
             
@@ -1742,11 +1742,11 @@ attack:
     {
         if(useltm)
         {
-            tile+=item_tile_mod(shieldModify);
+            if ( script_link_sprite <= 0 ) tile+=item_tile_mod(shieldModify);
         }
     }
     
-    tile+=dmap_tile_mod();
+    if ( script_link_sprite <= 0 ) tile+=dmap_tile_mod();
     
     // Stone of Agony
     if(agony)
@@ -10774,6 +10774,11 @@ void kill_enemy_sfx()
 
 void LinkClass::setEntryPoints(int x2, int y2)
 {
+    mapscr *m = &tmpscr[0];
+	m->entry_x = x2;
+	m->entry_y = y2;
+	//m->entry_x = entry_x;
+	//m->entry_y = entry_y;
     entry_x=warpx=x2;
     entry_y=warpy=y2;
 }

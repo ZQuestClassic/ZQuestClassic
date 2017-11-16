@@ -1311,6 +1311,9 @@ long get_register(const long arg)
     case LINKSCRIPTTILE:
 	ret=script_link_sprite*10000;
 	break;
+    case LINKSCRIPFLIP:
+	ret=script_link_flip*10000;
+	break;
         
         
     case LINKITEMB:
@@ -4845,6 +4848,9 @@ void set_register(const long arg, const long value)
 	break;
       case LINKSCRIPTTILE:
 	script_link_sprite=(value/10000);
+	break;
+      case LINKSCRIPFLIP:
+	script_link_flip=(value/10000);
 	break;
     
       case GAMESETA:
