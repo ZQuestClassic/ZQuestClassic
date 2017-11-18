@@ -451,6 +451,7 @@ static void setLinkBigHitbox(bool v);
 	static void do_loadnpcdata(const bool v);
 	static void do_loadcombodata(const bool v);
 	static void do_loadmapdata(const bool v);
+	static long loadMapData();
 	static void do_loadspritedata(const bool v);
 	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
@@ -2372,8 +2373,11 @@ enum ASM_DEFINE
 #define MAPDATASCREENSTATED 0x1282
 #define MAPDATASCREENFLAGSD 0x1283
 #define MAPDATASCREENEFLAGSD 0x1284
+#define LINKSCRIPFLIP 0x1285
 
-#define NUMVARIABLES         0x1285
+#define LOADMAPDATA 0x1286
+
+#define NUMVARIABLES         0x1287
 
 // Script types
 

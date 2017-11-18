@@ -1311,6 +1311,9 @@ long get_register(const long arg)
     case LINKSCRIPTTILE:
 	ret=script_link_sprite*10000;
 	break;
+    case LINKSCRIPFLIP:
+	ret=script_link_flip*10000;
+	break;
         
         
     case LINKITEMB:
@@ -3919,6 +3922,11 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 			ret = combobuf[m->data[pos]].member * 10000; \
 	}
 
+case LOADMAPDATA:
+        ret=FFScript::loadMapData();
+        break;
+
+
 case MAPDATAVALID:		GET_MAPDATA_VAR_BYTE(valid, "Valid"); break;		//b
 case MAPDATAGUY: 		GET_MAPDATA_VAR_BYTE(guy, "Guy"); break;		//b
 case MAPDATASTRING:		GET_MAPDATA_VAR_INT32(str, "String"); break;		//w
@@ -4845,6 +4853,9 @@ void set_register(const long arg, const long value)
 	break;
       case LINKSCRIPTTILE:
 	script_link_sprite=(value/10000);
+	break;
+      case LINKSCRIPFLIP:
+	script_link_flip=(value/10000);
 	break;
     
       case GAMESETA:
@@ -9614,7 +9625,10 @@ void FFScript::do_loadmapdata(const bool v)
     long _map = SH::get_arg(sarg1, v) / 10000;
 	
     long _scr = SH::get_arg(sarg2, v) / 10000;
+	Z_scripterrlog("LoadMapData Map Value: %d\n", _map);
+	Z_scripterrlog("LoadMapData Screen Value: %d\n", _scr);
     int indx = (_map * MAPSCRS + _scr);
+	Z_scripterrlog("LoadMapData Indx Value: %d\n", indx);
     if ( _map < 1 || _map > (map_count-1) )
     {
 	Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", _map);
@@ -9627,6 +9641,7 @@ void FFScript::do_loadmapdata(const bool v)
 	ri->mapsref = LONG_MAX;
     }
     else ri->mapsref = indx;
+    Z_scripterrlog("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
     //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
 }
 
@@ -12362,6 +12377,31 @@ long FFScript::get_screenHeight(mapscr *m)
     int f = m->scrHeight;
     return f*10000;
 }
+
+long FFScript::loadMapData()
+{
+	long _map = (ri->d[0] / 10000);
+	long _scr = (ri->d[1]/10000);
+	int indx = (zc_max((_map)-1,0) * MAPSCRS + _scr);
+	//Z_scripterrlog("LoadMapData Map Value: %d\n", _map);
+	//Z_scripterrlog("LoadMapData Screen Value: %d\n", _scr);
+	//Z_scripterrlog("LoadMapData Indx Value: %d\n", indx);
+     if ( _map < 1 || _map > (map_count-1) )
+    {
+	Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", _map);
+	ri->mapsref = LONG_MAX;
+	
+    }
+    else if ( _scr < 0 || _scr > 129 ) //0x00 to 0x81 -Z
+    {
+	Z_scripterrlog("Invalid Screen ID passed to Game->LoadMapData: %d\n", _scr);
+	ri->mapsref = LONG_MAX;
+    }
+    else ri->mapsref = indx;
+    //Z_scripterrlog("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
+    return ri->mapsref;
+}
+
 
 // Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
 void FFScript::deallocateZScriptArray(const long ptrval)

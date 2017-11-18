@@ -22,6 +22,7 @@
 extern wpndata    *wpnsbuf;
 
 int script_link_sprite = 0;
+int script_link_flip = -1;
 
 int old_floatspr, old_slashspr, linkspr;
 int walkspr[4][3];                                   //dir,                    tile/flip/extend
@@ -208,76 +209,127 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 	    {
 	    case ls_float:
 		*tile=floatspr[dir][spr_tile];
-		*flip=floatspr[dir][spr_flip];
 		break;
 		
 	    case ls_swim:
 		*tile=swimspr[dir][spr_tile];
-		*flip=swimspr[dir][spr_flip];
 		break;
 		
 	    case ls_dive:
 		*tile=divespr[dir][spr_tile];
-		*flip=divespr[dir][spr_flip];
 		break;
 		
 	    case ls_slash:
 		*tile=slashspr[dir][spr_tile];
-		*flip=slashspr[dir][spr_flip];
 		break;
 		
 	    case ls_walk:
 		*tile=walkspr[dir][spr_tile];
-		*flip=walkspr[dir][spr_flip];
 		break;
 		
 	    case ls_stab:
 		*tile=stabspr[dir][spr_tile];
-		*flip=stabspr[dir][spr_flip];
 		break;
 		
 	    case ls_pound:
 		*tile=poundspr[dir][spr_tile];
-		*flip=poundspr[dir][spr_flip];
 		break;
 		
 	    case ls_jump:
 		*tile=jumpspr[dir][spr_tile];
-		*flip=jumpspr[dir][spr_flip];
 		break;
 		
 	    case ls_charge:
 		*tile=chargespr[dir][spr_tile];
-		*flip=chargespr[dir][spr_flip];
 		break;
 		
 	    case ls_cast:
 		*tile=castingspr[spr_tile];
-		*flip=castingspr[spr_flip];
 		break;
 		
 	    case ls_landhold1:
 		*tile=holdspr[spr_landhold][spr_hold1][spr_tile];
-		*flip=holdspr[spr_landhold][spr_hold1][spr_flip];
 		break;
 		
 	    case ls_landhold2:
 		*tile=holdspr[spr_landhold][spr_hold2][spr_tile];
-		*flip=holdspr[spr_landhold][spr_hold2][spr_flip];
 		break;
 		
 	    case ls_waterhold1:
 		*tile=holdspr[spr_waterhold][spr_hold1][spr_tile];
-		*flip=holdspr[spr_waterhold][spr_hold1][spr_flip];
 		break;
 		
 	    case ls_waterhold2:
 		*tile=holdspr[spr_waterhold][spr_hold2][spr_tile];
-		*flip=holdspr[spr_waterhold][spr_hold2][spr_flip];
 		break;
 		
 	    default:
 		*tile=0;
+		break;
+	    }
+	}
+	if ( script_link_flip > -1 ) *flip = script_link_flip;
+	else
+	{
+	    switch(state)
+	    {
+	    case ls_float:
+		*flip=floatspr[dir][spr_flip];
+		break;
+		
+	    case ls_swim:
+		*flip=swimspr[dir][spr_flip];
+		break;
+		
+	    case ls_dive:
+		*flip=divespr[dir][spr_flip];
+		break;
+		
+	    case ls_slash:
+		*flip=slashspr[dir][spr_flip];
+		break;
+		
+	    case ls_walk:
+		*flip=walkspr[dir][spr_flip];
+		break;
+		
+	    case ls_stab:
+		*flip=stabspr[dir][spr_flip];
+		break;
+		
+	    case ls_pound:
+		*flip=poundspr[dir][spr_flip];
+		break;
+		
+	    case ls_jump:
+		*flip=jumpspr[dir][spr_flip];
+		break;
+		
+	    case ls_charge:
+		*flip=chargespr[dir][spr_flip];
+		break;
+		
+	    case ls_cast:
+		*flip=castingspr[spr_flip];
+		break;
+		
+	    case ls_landhold1:
+		*flip=holdspr[spr_landhold][spr_hold1][spr_flip];
+		break;
+		
+	    case ls_landhold2:
+		*flip=holdspr[spr_landhold][spr_hold2][spr_flip];
+		break;
+		
+	    case ls_waterhold1:
+		*flip=holdspr[spr_waterhold][spr_hold1][spr_flip];
+		break;
+		
+	    case ls_waterhold2:
+		*flip=holdspr[spr_waterhold][spr_hold2][spr_flip];
+		break;
+		
+	    default:
 		*flip=0;
 		break;
 	    }

@@ -1514,6 +1514,8 @@ static AccessorTable LinkSTable[] =
     { "setEaten",            ScriptParser::TYPE_VOID,          SETTER,       LINKEATEN,         1,      {  ScriptParser::TYPE_LINK,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getScriptTile",            ScriptParser::TYPE_FLOAT,         GETTER,       LINKSCRIPTTILE,         1,      {  ScriptParser::TYPE_LINK,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setScriptTile",            ScriptParser::TYPE_VOID,          SETTER,       LINKSCRIPTTILE,         1,      {  ScriptParser::TYPE_LINK,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "getScriptFlip",            ScriptParser::TYPE_FLOAT,         GETTER,       LINKSCRIPFLIP,         1,      {  ScriptParser::TYPE_LINK,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "setScriptFlip",            ScriptParser::TYPE_VOID,          SETTER,       LINKSCRIPFLIP,         1,      {  ScriptParser::TYPE_LINK,          ScriptParser::TYPE_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getDiagonal",           ScriptParser::TYPE_BOOL,          GETTER,       LINKDIAG,        1,      {  ScriptParser::TYPE_LINK,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setDiagonal",           ScriptParser::TYPE_VOID,          SETTER,       LINKDIAG,        1,      {  ScriptParser::TYPE_LINK,          ScriptParser::TYPE_BOOL,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getBigHitbox",           ScriptParser::TYPE_BOOL,          GETTER,       LINKBIGHITBOX,        1,      {  ScriptParser::TYPE_LINK,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -1953,7 +1955,7 @@ static AccessorTable ScreenTable[] =
     
     { "getScreenFlags[]",              ScriptParser::TYPE_FLOAT,         GETTER,       SCREENDATAFLAGS,           10,      {  ScriptParser::TYPE_SCREEN,          ScriptParser::TYPE_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setScreenFlags[]",              ScriptParser::TYPE_VOID,         SETTER,       SCREENDATAFLAGS,           10,      {  ScriptParser::TYPE_SCREEN,          ScriptParser::TYPE_FLOAT,                               ScriptParser::TYPE_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-
+ 
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
@@ -3289,6 +3291,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         rval[label] = code; 
     }
     //MapData
+    /*
     { //LoadMapData(int map, int screen)
 	int id = memberids["LoadMapData"];
         int label = lt.functionToLabel(id);
@@ -3306,6 +3309,25 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;     
 	//LOAD_REFDATA("LoadMapData", OLoadMapDataRegister, REFMAPDATA);
+    }
+    */
+    
+    //int LoadMapData(mapdata, int map,int scr)
+    {
+        int id = memberids["LoadMapData"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop off the params
+        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(INDEX)));
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(LOADMAPDATA)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label] = code;
     }
     //SpriteData
     {
