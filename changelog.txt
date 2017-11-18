@@ -1,10 +1,115 @@
 //2.54 Changes
 
+//Alpha 16
+
+Added mapdata->variables, and matched them all to Screen->
+New variables are:
+int Valid
+int Guy
+int String
+int RoomType
+int Item
+int HasItem
+int TileWarpType[4]
+int TileWarpOverlayFlags
+int DoorComboSet
+int WarpReturnX[4]
+int WarpReturnY[4]
+int WarpReturnC
+int StairsX
+int StairsY
+int ItemX
+int ItemY
+int CSet
+int EnemyFlags
+int Door[4]
+int TileWarpDMap[4]
+int TileWarpScreen[4]
+int ExitDir
+int Enemy[10]
+int Pattern
+int SideWarpType[4]
+int SideWarpOverlayFlags
+int WarpArrivalX
+int WarpArrivalY
+int MazePath[4]
+int SideWarpScreen[4]
+int SideWarpDMap[4]
+int SideWarpIndex
+int UnderCombo
+int UnderCSet
+int Catchall
+int CSensitive
+int NoReset
+int NoCarry
+int LayerMap[6]
+int LayerScreen[6]
+int LayerOpacity[6]
+int TimedWarpTimer
+int NextMap
+int NextScreen
+int SecretCombo[128]
+int SecretCSet[128]
+int SecretFlags[128]
+int ViewX
+int ViewY
+int Width
+int Height
+int EntryX
+int EntryY
+int ScriptEntry
+int ScriptOccupancy
+int ExitScript
+int OceanSFX
+int BossSFX
+int SecretSFX
+int ItemSFX
+int MIDI
+int LensLayer
+int Flags[10]
+int D[8]
+int ComboD[176]
+int ComboC[176]
+int ComboF[176]
+int ComboI[176]
+int ComboT[176]
+int ComboS[176]
+int State[32]
+int Flags[10]
+int EFlags[3]
+int NumFFCs
+int FFCEffectWidth[32]
+int FFCEffectHeight[32]
+int FFCTileWidth[32]
+int FFCTileHeight[32]
+int FFCData[32]
+int FFCCSet[32]
+int FFCDelay[32]
+int FFCX[32]
+int FFCY[32]
+int FFCVx[32]
+int FFCVy[32]
+int FFCAx[32]
+int FFCAy[32]
+int FFCFlags[32]
+int FFCLink[32]
+int FFCScript[32]
+bool FFCRunning[32]
+ //Functions
+int GetFFCInitD(int ffc_index, int init_d)
+void SetFFCInitD(int ffc_index, int init_d, float value)
+int GetFFCInitA(int ffc_index, int init_a)
+void SetFFCIniA(int ffc_index, int init_a, float value)
+
+
+Added functions: mapdata->
+
 //Alpha 15
 
 Added Weapon Classes for all ten script weapon types, and for the ice rod; plus cpntrol code for all of the script types.
 An item set to a Script *n class will generate a weapon with the script *d LW type, and will pull its power, step, and
 its graphics from the item editor. The user may set an item editor flag to disable automatic sprite flipping. ( ZoriaRPG, 4th November, 2017 )
+
 
 //Alpha 14
 Converted the 'power' attribute of itemdata from a byte to a long. Item power now has a valid range of -LONG_MAX to +LONG_MAX, 

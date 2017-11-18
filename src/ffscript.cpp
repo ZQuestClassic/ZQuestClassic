@@ -3335,6 +3335,176 @@ else \
     
 ///----------------------------------------------------------------------------------------------------//
 //Screen Information
+    
+    	#define	GET_SCREENDATA_VAR_INT32(member, str) \
+	{ \
+		ret = (tmpscr->member *10000); \
+	} \
+
+	#define	GET_SCREENDATA_VAR_INT16(member, str) \
+	{ \
+		ret = (tmpscr->member *10000); \
+	} \
+
+	#define	GET_SCREENDATA_VAR_BYTE(member, str) \
+	{ \
+		ret = (tmpscr->member *10000); \
+	} \
+	
+	#define GET_SCREENDATA_VAR_INDEX32(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		ret = (tmpscr->member[indx] *10000); \
+	} \
+	
+	#define GET_SCREENDATA_VAR_INDEX16(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		ret = (tmpscr->member[indx] *10000); \
+	} \
+	
+	#define GET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		ret = (tmpscr->member[indx] *10000); \
+	} \
+	
+	//byte
+	#define GET_SCREENDATA_LAYER_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			ret = (tmpscr->member[indx] *10000); \
+		} \
+	} \
+	
+	
+	#define GET_SCREENDATA_BOOL_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			ret = (tmpscr->member[indx]?10000:0); \
+		} \
+	} \
+	
+	
+	#define GET_SCREENDATA_FLAG(member, str, indexbound) \
+	{ \
+		long flag =  (value/10000);  \
+		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		ret = (tmpscr->member&flag) ? 10000 : 0); \
+	} \
+
+
+case SCREENDATAVALID:		GET_SCREENDATA_VAR_BYTE(valid, "Valid"); break;		//b
+case SCREENDATAGUY: 		GET_SCREENDATA_VAR_BYTE(guy, "Guy"); break;		//b
+case SCREENDATASTRING:		GET_SCREENDATA_VAR_INT32(str, "String"); break;		//w
+case SCREENDATAROOM: 		GET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
+case SCREENDATAITEM: 		GET_SCREENDATA_VAR_BYTE(item, "Item"); break;		//b
+case SCREENDATAHASITEM: 		GET_SCREENDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
+case SCREENDATATILEWARPTYPE: 	GET_SCREENDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
+case SCREENDATATILEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
+case SCREENDATADOORCOMBOSET: 	GET_SCREENDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
+case SCREENDATAWARPRETX:	 	GET_SCREENDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
+case SCREENDATAWARPRETY:	 	GET_SCREENDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
+case SCREENDATAWARPRETURNC: 	GET_SCREENDATA_VAR_INT32(warpreturnc, "WarpReturnC"); break;	//w
+case SCREENDATASTAIRX: 		GET_SCREENDATA_VAR_BYTE(stairx, "StairsX"); break;	//b
+case SCREENDATASTAIRY: 		GET_SCREENDATA_VAR_BYTE(stairy, "StairsY"); break;	//b
+case SCREENDATAITEMX:		GET_SCREENDATA_VAR_BYTE(itemx, "ItemX"); break; //itemx
+case SCREENDATAITEMY:		GET_SCREENDATA_VAR_BYTE(itemy, "ItemY"); break;	//itemy
+case SCREENDATACOLOUR: 		GET_SCREENDATA_VAR_INT32(color, "CSet"); break;	//w
+case SCREENDATAENEMYFLAGS: 	GET_SCREENDATA_VAR_BYTE(enemyflags, "EnemyFlags");	break;	//b
+case SCREENDATADOOR: 		GET_SCREENDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
+case SCREENDATATILEWARPDMAP: 	GET_SCREENDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
+case SCREENDATATILEWARPSCREEN: 	GET_SCREENDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
+case SCREENDATAEXITDIR: 		GET_SCREENDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
+case SCREENDATAENEMY: 		GET_SCREENDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
+case SCREENDATAPATTERN: 		GET_SCREENDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
+case SCREENDATASIDEWARPTYPE: 	GET_SCREENDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
+case SCREENDATASIDEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
+case SCREENDATAWARPARRIVALX: 	GET_SCREENDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
+case SCREENDATAWARPARRIVALY: 	GET_SCREENDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
+case SCREENDATAPATH: 		GET_SCREENDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
+case SCREENDATASIDEWARPSC: 	GET_SCREENDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
+case SCREENDATASIDEWARPDMAP: 	GET_SCREENDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
+case SCREENDATASIDEWARPINDEX: 	GET_SCREENDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
+case SCREENDATAUNDERCOMBO: 	GET_SCREENDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
+case SCREENDATAUNDERCSET:	 	GET_SCREENDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
+case SCREENDATACATCHALL:	 	GET_SCREENDATA_VAR_INT32(catchall,	"Catchall"); break; //W
+
+case SCREENDATACSENSITIVE: 	GET_SCREENDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
+case SCREENDATANORESET: 		GET_SCREENDATA_VAR_INT32(noreset, "NoReset"); break;	//W
+case SCREENDATANOCARRY: 		GET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
+case SCREENDATALAYERMAP:	 	GET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
+case SCREENDATALAYERSCREEN: 	GET_SCREENDATA_LAYER_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
+case SCREENDATALAYEROPACITY: 	GET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case SCREENDATATIMEDWARPTICS: 	GET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
+case SCREENDATANEXTMAP: 		GET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
+case SCREENDATANEXTSCREEN: 	GET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
+case SCREENDATASECRETCOMBO: 	GET_SCREENDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
+case SCREENDATASECRETCSET: 	GET_SCREENDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
+case SCREENDATASECRETFLAG: 	GET_SCREENDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
+case SCREENDATAVIEWX: 		GET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+case SCREENDATAVIEWY: 		GET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
+case SCREENDATASCREENWIDTH: 	GET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
+case SCREENDATASCREENHEIGHT: 	GET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
+case SCREENDATAENTRYX: 		GET_SCREENDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
+case SCREENDATAENTRYY: 		GET_SCREENDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
+case SCREENDATANUMFF: 		GET_SCREENDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+
+	//inita	//INT32, 32 OF THESE, EACH WITH 2
+case SCREENDATAFFINITIALISED: 	GET_SCREENDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
+case SCREENDATASCRIPTENTRY: 	GET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
+case SCREENDATASCRIPTOCCUPANCY: 	GET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
+case SCREENDATASCRIPTEXIT: 	GET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
+case SCREENDATAOCEANSFX:	 	GET_SCREENDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;	//B
+case SCREENDATABOSSSFX: 		GET_SCREENDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
+case SCREENDATASECRETSFX:	 	GET_SCREENDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
+case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
+case SCREENDATASCREENMIDI: 	GET_SCREENDATA_VAR_INT16(screen_midi, "MIDI"); break;	//SHORT, OLD QUESTS ONLY?
+case SCREENDATALENSLAYER:	 	GET_SCREENDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
+	
+
+case SCREENDATAFLAGS: 
+{
+	int flagid = (ri->d[0])/10000;
+	//bool valtrue = ( value ? 10000 : 0);
+	switch(flagid)
+	{
+		case 0: ret = (tmpscr->flags * 10000); break;
+		case 1: ret = (tmpscr->flags2 * 10000); break;
+		case 2: ret = (tmpscr->flags3 * 10000); break;
+		case 3: ret = (tmpscr->flags4 * 10000); break;
+		case 4: ret = (tmpscr->flags5 * 10000); break;
+		case 5: ret = (tmpscr->flags6 * 10000); break;
+		case 6: ret = (tmpscr->flags7 * 10000); break;
+		case 7: ret = (tmpscr->flags8 * 10000); break;
+		case 8: ret = (tmpscr->flags9 * 10000); break;
+		case 9: ret = (tmpscr->flags10 * 10000); break;
+		default:
+		{
+			Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
+			ret = -10000;
+			break;
+			
+		}
+	}
+	break;
+	//GET_SCREENDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
+}
+
     case SDD:
     {
         int di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
@@ -3610,6 +3780,414 @@ case SPRITEDATACSETS: GET_SPRITEDATA_VAR_INT(csets, "CSet") break;
 case SPRITEDATAFRAMES: GET_SPRITEDATA_VAR_INT(frames, "Frames") break;
 case SPRITEDATASPEED: GET_SPRITEDATA_VAR_INT(speed, "Speed") break;
 case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
+    
+///----------------------------------------------------------------------------------------------------//
+//mapdata m-> variables
+    #define	GET_MAPDATA_VAR_INT32(member, str) \
+	{ \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		ret = (m->member *10000); \
+	} \
+
+	#define	GET_MAPDATA_VAR_INT16(member, str) \
+	{ \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		ret = (m->member *10000); \
+	} \
+
+	#define	GET_MAPDATA_VAR_BYTE(member, str) \
+	{ \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		ret = (m->member *10000); \
+	} \
+	
+	#define GET_MAPDATA_VAR_INDEX32(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			ret = (m->member[indx] *10000); \
+		} \
+	} \
+	
+	#define GET_MAPDATA_VAR_INDEX16(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			ret = (m->member[indx] *10000); \
+		} \
+	} \
+	
+	#define GET_MAPDATA_BYTE_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			ret = (m->member[indx] *10000); \
+		} \
+	} \
+	
+	/*
+	#define GET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		if ( indx == 0 ) \
+		{ \
+			\
+		} \
+		else \
+		{ \
+			ret = (m->member[indx-1] *10000); \
+		} \
+	} \
+	*/
+	
+	#define GET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			ret = (m->member[indx] *10000); \
+		} \
+	} \
+	
+	#define GET_MAPDATA_BOOL_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			ret = (m->member[indx]?10000:0); \
+		} \
+	} \
+	
+	#define GET_MAPDATA_FLAG(member, str) \
+	{ \
+		long flag =  (value/10000);  \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		ret = (m->member&flag) ? 10000 : 0); \
+	} \
+	
+	#define GET_SCREENDATA_COMBO_VAR(member, str) \
+	{ \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		int pos = ri->d[0] / 10000; \
+		if(BC::checkComboPos(pos, str) != SH::_NoError) \
+		ret = -10000; \
+		else \
+			ret = m->member[pos]*10000; \
+	}
+
+	#define GET_MAPDATA_COMBO_VAR_BUF(member, str) \
+	{ \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		int pos = ri->d[0] / 10000; \
+		if(BC::checkComboPos(pos, str) != SH::_NoError) \
+			ret = -10000; \
+		else \
+			ret = combobuf[m->data[pos]].member * 10000; \
+	}
+
+case MAPDATAVALID:		GET_MAPDATA_VAR_BYTE(valid, "Valid"); break;		//b
+case MAPDATAGUY: 		GET_MAPDATA_VAR_BYTE(guy, "Guy"); break;		//b
+case MAPDATASTRING:		GET_MAPDATA_VAR_INT32(str, "String"); break;		//w
+case MAPDATAROOM: 		GET_MAPDATA_VAR_BYTE(room, "RoomType");	break;		//b
+case MAPDATAITEM: 		GET_MAPDATA_VAR_BYTE(item, "Item"); break;		//b
+case MAPDATAHASITEM: 		GET_MAPDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
+case MAPDATATILEWARPTYPE: 	GET_MAPDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
+case MAPDATATILEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
+case MAPDATADOORCOMBOSET: 	GET_MAPDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
+case MAPDATAWARPRETX:	 	GET_MAPDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
+case MAPDATAWARPRETY:	 	GET_MAPDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
+case MAPDATAWARPRETURNC: 	GET_MAPDATA_VAR_INT32(warpreturnc, "WarpReturnC"); break;	//w
+case MAPDATASTAIRX: 		GET_MAPDATA_VAR_BYTE(stairx, "StairsX"); break;	//b
+case MAPDATASTAIRY: 		GET_MAPDATA_VAR_BYTE(stairy, "StairsY"); break;	//b
+case MAPDATAITEMX:		GET_MAPDATA_VAR_BYTE(itemx, "ItemX"); break; //itemx
+case MAPDATAITEMY:		GET_MAPDATA_VAR_BYTE(itemy, "ItemY"); break;	//itemy
+case MAPDATACOLOUR: 		GET_MAPDATA_VAR_INT32(color, "CSet"); break;	//w
+case MAPDATAENEMYFLAGS: 	GET_MAPDATA_VAR_BYTE(enemyflags, "EnemyFlags");	break;	//b
+case MAPDATADOOR: 		GET_MAPDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
+case MAPDATATILEWARPDMAP: 	GET_MAPDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
+case MAPDATATILEWARPSCREEN: 	GET_MAPDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
+case MAPDATAEXITDIR: 		GET_MAPDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
+case MAPDATAENEMY: 		GET_MAPDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
+case MAPDATAPATTERN: 		GET_MAPDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
+case MAPDATASIDEWARPTYPE: 	GET_MAPDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
+case MAPDATASIDEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
+case MAPDATAWARPARRIVALX: 	GET_MAPDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
+case MAPDATAWARPARRIVALY: 	GET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
+case MAPDATAPATH: 		GET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
+case MAPDATASIDEWARPSC: 	GET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
+case MAPDATASIDEWARPDMAP: 	GET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
+case MAPDATASIDEWARPINDEX: 	GET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
+case MAPDATAUNDERCOMBO: 	GET_MAPDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
+case MAPDATAUNDERCSET:	 	GET_MAPDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
+case MAPDATACATCHALL:	 	GET_MAPDATA_VAR_INT32(catchall,	"Catchall"); break; //W
+
+case MAPDATACSENSITIVE: 	GET_MAPDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
+case MAPDATANORESET: 		GET_MAPDATA_VAR_INT32(noreset, "NoReset"); break;	//W
+case MAPDATANOCARRY: 		GET_MAPDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
+case MAPDATALAYERMAP:	 	GET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
+case MAPDATALAYERSCREEN: 	GET_MAPDATA_LAYER_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
+case MAPDATALAYEROPACITY: 	GET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case MAPDATATIMEDWARPTICS: 	GET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
+case MAPDATANEXTMAP: 		GET_MAPDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
+case MAPDATANEXTSCREEN: 	GET_MAPDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
+case MAPDATASECRETCOMBO: 	GET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
+case MAPDATASECRETCSET: 	GET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
+case MAPDATASECRETFLAG: 	GET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
+case MAPDATAVIEWX: 		GET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+case MAPDATAVIEWY: 		GET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
+case MAPDATASCREENWIDTH: 	GET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
+case MAPDATASCREENHEIGHT: 	GET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
+case MAPDATAENTRYX: 		GET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
+case MAPDATAENTRYY: 		GET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
+case MAPDATANUMFF: 		GET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+case MAPDATAFFDATA: 		GET_MAPDATA_VAR_INDEX32(ffdata,	"FFCData", 31); break;	//W, 32 OF THESE
+case MAPDATAFFCSET: 		GET_MAPDATA_BYTE_INDEX(ffcset,	"FFCCSet", 31); break;	//B, 32
+case MAPDATAFFDELAY: 		GET_MAPDATA_VAR_INDEX32(ffdelay, "FFCDelay", 31); break;	//W, 32
+case MAPDATAFFX: 		GET_MAPDATA_VAR_INDEX32(ffx, "FFCX", 31); break;	//INT32, 32 OF THESE
+case MAPDATAFFY: 		GET_MAPDATA_VAR_INDEX32(ffy, "FFCY", 31); break;	//..
+case MAPDATAFFXDELTA:	 	GET_MAPDATA_VAR_INDEX32(ffxdelta, "FFCVx", 31); break;	//..
+case MAPDATAFFYDELTA: 		GET_MAPDATA_VAR_INDEX32(ffydelta, "FFCVy", 31); break;	//..
+case MAPDATAFFXDELTA2:	 	GET_MAPDATA_VAR_INDEX32(ffxdelta2, "FFCAx", 31); break;	//..
+case MAPDATAFFYDELTA2:	 	GET_MAPDATA_VAR_INDEX32(ffydelta2, "FFCAy", 31); break;	//..
+case MAPDATAFFFLAGS: 		GET_MAPDATA_VAR_INDEX16(ffflags, "FFCFlags", 31); break;	//INT16, 32 OF THESE
+//Height and With are Or'd together, and need to be separate:
+/*
+ //TileWidth ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
+*/
+case MAPDATAFFWIDTH: 		
+{
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	int indx = ri->d[0] / 10000; 
+	if ( indx < 0 || indx > 31 ) 
+	{
+		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileWidth[]: %d\n", indx);
+		ret = -10000;
+		break;
+	}
+	ret = ((m->ffwidth[indx]&0x3F)+1)*10000;
+	break;
+}	
+
+
+//GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");	//B, 32 OF THESE
+case MAPDATAFFHEIGHT:	 	
+{
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	int indx = ri->d[0] / 10000; 
+	if ( indx < 0 || indx > 31 ) 
+	{
+		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileHeight[]: %d\n", indx);
+		ret = -10000;
+		break;
+	}
+	ret=((m->ffheight[indx]&0x3F)+1)*10000;
+	break;
+	
+}
+
+//EffectWidth tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
+
+//GET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"	//B, 32 OF THESE
+case MAPDATAFFEFFECTWIDTH: 		
+{ 
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	int indx = ri->d[0] / 10000; 
+	if ( indx < 0 || indx > 31 ) 
+	{
+		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectWidth[]: %d\n", indx);
+		ret = -10000;
+		break;
+	}
+	ret=((m->ffwidth[indx]>>6)+1)*10000;
+	break;
+}
+
+
+//GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");	//B, 32 OF THESE
+case MAPDATAFFEFFECTHEIGHT:
+{ 
+	mapscr *m = &TheMaps[ri->mapsref];
+	int indx = ri->d[0] / 10000; 
+	if ( indx < 0 || indx > 31 ) 
+	{
+		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectHeight[]: %d\n", indx);
+		ret = -10000;
+		break;
+	}
+	ret=((m->ffheight[indx]>>6)+1)*10000;
+	break;
+}	
+	
+//GET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"	//B, 32 OF THESE	
+
+case MAPDATAFFLINK: 		GET_MAPDATA_BYTE_INDEX(fflink, "FFCLink", 31); break;	//B, 32 OF THESE
+case MAPDATAFFSCRIPT:	 	GET_MAPDATA_VAR_INDEX32(ffscript, "FFCScript", 31); break;	//W, 32 OF THESE
+
+case MAPDATAINTID: 	 //Same form as SetScreenD()
+	//SetFFCInitD(ffindex, d, value)
+{
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	//int ffindex = ri->d[0]/10000;
+	//int d = ri->d[1]/10000;
+	//int v = (value/10000);
+	ret = (m->initd[(ri->d[0]/10000)][(ri->d[1]/10000)]) * 10000;
+	break;
+}	
+	
+
+//initd	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
+
+case MAPDATAINITA: 		
+	//same form as SetScreenD
+{
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	//int ffindex = ri->d[0]/10000;
+	//int d = ri->d[1]/10000;
+	//int v = (value/10000);
+	ret = (m->inita[(ri->d[0]/10000)][(ri->d[1]/10000)]) * 10000;
+	break;
+}	
+
+	//inita	//INT32, 32 OF THESE, EACH WITH 2
+case MAPDATAFFINITIALISED: 	GET_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
+case MAPDATASCRIPTENTRY: 	GET_MAPDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
+case MAPDATASCRIPTOCCUPANCY: 	GET_MAPDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
+case MAPDATASCRIPTEXIT: 	GET_MAPDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
+case MAPDATAOCEANSFX:	 	GET_MAPDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;	//B
+case MAPDATABOSSSFX: 		GET_MAPDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
+case MAPDATASECRETSFX:	 	GET_MAPDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
+case MAPDATAHOLDUPSFX:	 	GET_MAPDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
+case MAPDATASCREENMIDI: 	GET_MAPDATA_VAR_INT16(screen_midi, "MIDI"); break;	//SHORT, OLD QUESTS ONLY?
+case MAPDATALENSLAYER:	 	GET_MAPDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
+	
+
+case MAPDATAFLAGS: 
+{
+	int flagid = (ri->d[0])/10000;
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	//bool valtrue = ( value ? 10000 : 0);
+	switch(flagid)
+	{
+		case 0: ret = (m->flags * 10000); break;
+		case 1: ret = (m->flags2 * 10000); break;
+		case 2: ret = (m->flags3 * 10000); break;
+		case 3: ret = (m->flags4 * 10000); break;
+		case 4: ret = (m->flags5 * 10000); break;
+		case 5: ret = (m->flags6 * 10000); break;
+		case 6: ret = (m->flags7 * 10000); break;
+		case 7: ret = (m->flags8 * 10000); break;
+		case 8: ret = (m->flags9 * 10000); break;
+		case 9: ret = (m->flags10 * 10000); break;
+		default:
+		{
+			Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
+			ret = -10000;
+			break;
+			
+		}
+	}
+	break;
+	//GET_MAPDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
+}
+
+case MAPDATAMISCD:
+{
+	int indx = (ri->d[0])/10000;
+	
+	if(indx < 0 || indx > 9)
+	{
+		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
+		ret = -10000;
+		break;
+	}
+	else 
+	{
+	    ret = (game->screen_d[ri->mapsref][indx]) * 10000;
+	    break;
+	}
+}
+
+    case MAPDATACOMBODD:
+        GET_SCREENDATA_COMBO_VAR(data,  "mapdata->ComboD") break;
+        
+    case MAPDATACOMBOCD:
+        GET_SCREENDATA_COMBO_VAR(cset,  "mapdata->ComboC") break;
+        
+    case MAPDATACOMBOFD:
+        GET_SCREENDATA_COMBO_VAR(sflag, "mapdata->ComboF") break;
+        
+
+        
+    case MAPDATACOMBOTD:
+        GET_MAPDATA_COMBO_VAR_BUF(type, "mapdata->ComboT") break;
+        
+    case MAPDATACOMBOID:
+        GET_MAPDATA_COMBO_VAR_BUF(flag, "mapdata->ComboI") break;
+        
+    case MAPDATACOMBOSD:
+    {
+        int pos = ri->d[0] / 10000;
+	mapscr *m = &TheMaps[ri->mapsref];
+        
+        if(BC::checkComboPos(pos, "mapdata->ComboS") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = (combobuf[m->data[pos]].walk & 0xF) * 10000;
+    }
+    break;
+    
+    case MAPDATASCREENSTATED:
+    {
+        ret=((game->maps[ri->mapsref]>>((ri->d[0]/10000)))&1)?10000:0;
+    }
+    break;
+    case MAPDATASCREENFLAGSD:
+    {
+	mapscr *m = &TheMaps[ri->mapsref];
+        ret = get_screenflags(m,vbound(ri->d[0] / 10000,0,9));
+        break;
+    }
+        
+    case MAPDATASCREENEFLAGSD:
+    {
+	mapscr *m = &TheMaps[ri->mapsref];
+        ret = get_screeneflags(m,vbound(ri->d[0] / 10000,0,2));
+        break;
+    }
     
 ///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> variables
@@ -6414,6 +6992,163 @@ case COMBODDM:
 ///----------------------------------------------------------------------------------------------------//
 //Screen Variables
     
+    	#define	SET_SCREENDATA_VAR_INT32(member, str) \
+	{ \
+		tmpscr->member = vbound((value / 10000),-214747,214747); \
+	} \
+	
+	#define	SET_SCREENDATA_VAR_INT16(member, str) \
+	{ \
+		tmpscr->member = vbound((value / 10000),0,32767); \
+	} \
+
+	#define	SET_SCREENDATA_VAR_BYTE(member, str) \
+	{ \
+		tmpscr->member = vbound((value / 10000),0,255); \
+	} \
+	
+	#define SET_SCREENDATA_VAR_INDEX32(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		tmpscr->member[indx] = vbound((value / 10000),-214747,214747); \
+	} \
+	
+	#define SET_SCREENDATA_VAR_INDEX16(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		tmpscr->member[indx] = vbound((value / 10000),-32767,32767); \
+	} \
+
+	#define SET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		tmpscr->member[indx] = vbound((value / 10000),0,255); \
+	}
+	#define SET_SCREENDATA_LAYER_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		tmpscr->member[indx] = vbound((value / 10000),0,255); \
+	}
+	
+	#define SET_SCREENDATA_FLAG(member, str) \
+	{ \
+		long flag =  (value/10000);  \
+		if ( flag != 0 ) \
+		{ \
+			tmpscr->member|=flag; \
+		} \
+		else tmpscr->.member|= ~flag; \
+	} \
+	
+	#define SET_SCREENDATA_BOOL_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
+			break; \
+		} \
+		tmpscr->member[indx] =( (value/10000) ? 1 : 0 ); \
+	}
+    
+
+case SCREENDATAVALID:		SET_SCREENDATA_VAR_BYTE(valid, "Valid"); break;		//b
+case SCREENDATAGUY: 		SET_SCREENDATA_VAR_BYTE(guy, "Guy"); break;		//b
+case SCREENDATASTRING:		SET_SCREENDATA_VAR_INT32(str, "String"); break;		//w
+case SCREENDATAROOM: 		SET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
+case SCREENDATAITEM: 		SET_SCREENDATA_VAR_BYTE(item, "Item"); break;		//b
+case SCREENDATAHASITEM: 		SET_SCREENDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
+case SCREENDATATILEWARPTYPE: 	SET_SCREENDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
+case SCREENDATATILEWARPOVFLAGS: 	SET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
+case SCREENDATADOORCOMBOSET: 	SET_SCREENDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
+case SCREENDATAWARPRETX:	 	SET_SCREENDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
+case SCREENDATAWARPRETY:	 	SET_SCREENDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
+case SCREENDATAWARPRETURNC: 	SET_SCREENDATA_VAR_INT32(warpreturnc, "WarpReturnC"); break;	//w
+case SCREENDATASTAIRX: 		SET_SCREENDATA_VAR_BYTE(stairx, "StairsX"); break;	//b
+case SCREENDATASTAIRY: 		SET_SCREENDATA_VAR_BYTE(stairy, "StairsY"); break;	//b
+case SCREENDATAITEMX:		SET_SCREENDATA_VAR_BYTE(itemx, "ItemX"); break; //itemx
+case SCREENDATAITEMY:		SET_SCREENDATA_VAR_BYTE(itemy, "ItemY"); break;	//itemy
+case SCREENDATACOLOUR: 		SET_SCREENDATA_VAR_INT32(color, "CSet"); break;	//w
+case SCREENDATAENEMYFLAGS: 	SET_SCREENDATA_VAR_BYTE(enemyflags, "EnemyFlags");	break;	//b
+case SCREENDATADOOR: 		SET_SCREENDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
+case SCREENDATATILEWARPDMAP: 	SET_SCREENDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
+case SCREENDATATILEWARPSCREEN: 	SET_SCREENDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
+case SCREENDATAEXITDIR: 		SET_SCREENDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
+case SCREENDATAENEMY: 		SET_SCREENDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
+case SCREENDATAPATTERN: 		SET_SCREENDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
+case SCREENDATASIDEWARPTYPE: 	SET_SCREENDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
+case SCREENDATASIDEWARPOVFLAGS: 	SET_SCREENDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
+case SCREENDATAWARPARRIVALX: 	SET_SCREENDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
+case SCREENDATAWARPARRIVALY: 	SET_SCREENDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
+case SCREENDATAPATH: 		SET_SCREENDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
+case SCREENDATASIDEWARPSC: 	SET_SCREENDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
+case SCREENDATASIDEWARPDMAP: 	SET_SCREENDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
+case SCREENDATASIDEWARPINDEX: 	SET_SCREENDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
+case SCREENDATAUNDERCOMBO: 	SET_SCREENDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
+case SCREENDATAUNDERCSET:	 	SET_SCREENDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
+case SCREENDATACATCHALL:	 	SET_SCREENDATA_VAR_INT32(catchall,	"Catchall"); break; //W
+
+case SCREENDATACSENSITIVE: 	SET_SCREENDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
+case SCREENDATANORESET: 		SET_SCREENDATA_VAR_INT32(noreset, "NoReset"); break;	//W
+case SCREENDATANOCARRY: 		SET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
+case SCREENDATALAYERMAP:	 	SET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
+case SCREENDATALAYERSCREEN: 	SET_SCREENDATA_LAYER_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
+case SCREENDATALAYEROPACITY: 	SET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case SCREENDATATIMEDWARPTICS: 	SET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
+case SCREENDATANEXTMAP: 		SET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
+case SCREENDATANEXTSCREEN: 	SET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
+case SCREENDATASECRETCOMBO: 	SET_SCREENDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
+case SCREENDATASECRETCSET: 	SET_SCREENDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
+case SCREENDATASECRETFLAG: 	SET_SCREENDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
+case SCREENDATAVIEWX: 		SET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+case SCREENDATAVIEWY: 		SET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
+case SCREENDATASCREENWIDTH: 	SET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
+case SCREENDATASCREENHEIGHT: 	SET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
+case SCREENDATAENTRYX: 		SET_SCREENDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
+case SCREENDATAENTRYY: 		SET_SCREENDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
+case SCREENDATANUMFF: 		SET_SCREENDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+
+	//inita	//INT32, 32 OF THESE, EACH WITH 2
+case SCREENDATAFFINITIALISED: 	SET_SCREENDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
+case SCREENDATASCRIPTENTRY: 	SET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
+case SCREENDATASCRIPTOCCUPANCY: 	SET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
+case SCREENDATASCRIPTEXIT: 	SET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
+case SCREENDATAOCEANSFX:	 	SET_SCREENDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;	//B
+case SCREENDATABOSSSFX: 		SET_SCREENDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
+case SCREENDATASECRETSFX:	 	SET_SCREENDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
+case SCREENDATAHOLDUPSFX:	 	SET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
+case SCREENDATASCREENMIDI: 	SET_SCREENDATA_VAR_INT16(screen_midi, "MIDI"); break;	//SHORT, OLD QUESTS ONLY?
+case SCREENDATALENSLAYER:	 	SET_SCREENDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
+	
+
+case SCREENDATAFLAGS: 
+{
+	int flagid = (ri->d[0])/10000;
+	//bool valtrue = ( value ? 10000 : 0);
+	switch(flagid)
+	{
+		case 0: tmpscr->flags = (value / 10000); break;
+		case 1: tmpscr->flags2 = (value / 10000); break;
+		case 2: tmpscr->flags3 = (value / 10000); break;
+		case 3: tmpscr->flags4 = (value / 10000); break;
+		case 4: tmpscr->flags5 = (value / 10000); break;
+		case 5: tmpscr->flags6 = (value / 10000); break;
+		case 6: tmpscr->flags7 = (value / 10000); break;
+		case 7: tmpscr->flags8 = (value / 10000); break;
+		case 8: tmpscr->flags9 = (value / 10000); break;
+		case 9: tmpscr->flags10 = (value / 10000); break;
+		default:
+		{
+			Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
+			break;
+			
+		}
+	}
+	break;
+	//GET_SCREENDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
+}
+
+
     //These use the same method as SetScreenD
     case SCREENWIDTH:
 	FFScript::set_screenWidth(&TheMaps[(ri->d[1] / 10000) * MAPSCRS + (ri->d[0]/10000)], value/10000);
@@ -6662,8 +7397,9 @@ break;
         quakeclk=value/10000;
         break;
         
-        //case ROOMTYPE:
-        //  tmpscr->room=value/10000; break; //this probably doesn't work too well...
+    case ROOMTYPE:
+        tmpscr->room=value/10000; break; //this probably doesn't work too well...
+    
     case ROOMDATA:
         tmpscr->catchall=value/10000;
         break;
@@ -6757,6 +7493,412 @@ case SPRITEDATAFRAMES: SET_SPRITEDATA_VAR_BYTE(frames, "Frames"); break;
 case SPRITEDATASPEED: SET_SPRITEDATA_VAR_BYTE(speed, "Speed"); break;
 case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
     
+///----------------------------------------------------------------------------------------------------//
+//mapdata m-> Variables
+	//mapdata m-> Variables
+	#define	SET_MAPDATA_VAR_INT32(member, str) \
+	{ \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		m->member = vbound((value / 10000),-214747,214747); \
+	} \
+	
+	#define	SET_MAPDATA_VAR_INT16(member, str) \
+	{ \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		m->member = vbound((value / 10000),0,32767); \
+	} \
+
+	#define	SET_MAPDATA_VAR_BYTE(member, str) \
+	{ \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		m->member = vbound((value / 10000),0,255); \
+	} \
+	
+	#define SET_MAPDATA_VAR_INDEX32(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			break; \
+		} \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		m->member[indx] = vbound((value / 10000),-214747,214747); \
+	} \
+	
+	#define SET_MAPDATA_VAR_INDEX16(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			break; \
+		} \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		m->member[indx] = vbound((value / 10000),-32767,32767); \
+	} \
+
+	#define SET_MAPDATA_BYTE_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			break; \
+		} \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		m->member[indx] = vbound((value / 10000),0,255); \
+	}
+	
+	#define SET_MAPDATA_BOOL_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if(indx < 0 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			break; \
+		} \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		m->member[indx] =( (value/10000) ? 1 : 0 ); \
+	}
+	
+	#define SET_MAPDATA_FLAG(member, str) \
+	{ \
+		long flag =  (value/10000);  \
+		mapscr *m = &TheMaps[ri->mapsref]; \
+		if ( flag != 0 ) \
+		{ \
+			m->member|=flag; \
+		} \
+		else m->.member|= ~flag; \
+	} \
+
+case MAPDATAVALID:		SET_MAPDATA_VAR_BYTE(valid, "Valid"); break;		//b
+case MAPDATAGUY: 		SET_MAPDATA_VAR_BYTE(guy, "Guy"); break;		//b
+case MAPDATASTRING:		SET_MAPDATA_VAR_INT32(str, "String"); break;		//w
+case MAPDATAROOM: 		SET_MAPDATA_VAR_BYTE(room, "RoomType");	break;		//b
+case MAPDATAITEM: 		SET_MAPDATA_VAR_BYTE(item, "Item"); break;		//b
+case MAPDATAHASITEM: 		SET_MAPDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
+case MAPDATATILEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
+case MAPDATATILEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
+case MAPDATADOORCOMBOSET: 	SET_MAPDATA_VAR_INT32(door_combo_set, "DoorComboSet"); break;	//w
+case MAPDATAWARPRETX:	 	SET_MAPDATA_BYTE_INDEX(warpreturnx, "WarpReturnX", 3); break;	//b, 4 of these
+case MAPDATAWARPRETY:	 	SET_MAPDATA_BYTE_INDEX(warpreturny, "WarpReturnY", 3); break;	//b, 4 of these
+case MAPDATAWARPRETURNC: 	SET_MAPDATA_VAR_INT32(warpreturnc, "WarpReturnC"); break;	//w
+case MAPDATASTAIRX: 		SET_MAPDATA_VAR_BYTE(stairx, "StairsX"); break;	//b
+case MAPDATASTAIRY: 		SET_MAPDATA_VAR_BYTE(stairy, "StairsY"); break;	//b
+case MAPDATAITEMX:		SET_MAPDATA_VAR_BYTE(itemx, "ItemX"); break; //itemx
+case MAPDATAITEMY:		SET_MAPDATA_VAR_BYTE(itemy, "ItemY"); break;	//itemy
+case MAPDATACOLOUR: 		SET_MAPDATA_VAR_INT32(color, "CSet"); break;	//w
+case MAPDATAENEMYFLAGS: 	SET_MAPDATA_VAR_BYTE(enemyflags, "EnemyFlags");	break;	//b
+case MAPDATADOOR: 		SET_MAPDATA_BYTE_INDEX(door, "Door", 3); break;	//b, 4 of these
+case MAPDATATILEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(tilewarpdmap, "TileWarpDMap", 3); break;	//w, 4 of these
+case MAPDATATILEWARPSCREEN: 	SET_MAPDATA_BYTE_INDEX(tilewarpscr, "TileWarpScreen", 3); break;	//b, 4 of these
+case MAPDATAEXITDIR: 		SET_MAPDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
+case MAPDATAENEMY: 		SET_MAPDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
+case MAPDATAPATTERN: 		SET_MAPDATA_VAR_BYTE(pattern, "Pattern"); break;	//b
+case MAPDATASIDEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(sidewarptype, "SideWarpType", 3); break;	//b, 4 of these
+case MAPDATASIDEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(sidewarpoverlayflags, "SideWarpOverlayFlags"); break;	//b
+case MAPDATAWARPARRIVALX: 	SET_MAPDATA_VAR_BYTE(warparrivalx, "WarpArrivalX"); break;	//b
+case MAPDATAWARPARRIVALY: 	SET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
+case MAPDATAPATH: 		SET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
+case MAPDATASIDEWARPSC: 	SET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
+case MAPDATASIDEWARPDMAP: 	SET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
+case MAPDATASIDEWARPINDEX: 	SET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
+case MAPDATAUNDERCOMBO: 	SET_MAPDATA_VAR_INT32(undercombo, "Undercombo"); break;	//w
+case MAPDATAUNDERCSET:	 	SET_MAPDATA_VAR_BYTE(undercset,	"UnderCSet"); break; //b
+case MAPDATACATCHALL:	 	SET_MAPDATA_VAR_INT32(catchall,	"Catchall"); break; //W
+
+case MAPDATACSENSITIVE: 	SET_MAPDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
+case MAPDATANORESET: 		SET_MAPDATA_VAR_INT32(noreset, "NoReset"); break;	//W
+case MAPDATANOCARRY: 		SET_MAPDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
+//! Layer arrays should be a size of 7, and return the current screen / map / and OP_OPAQUE 
+//! if you try to read 0, so that they correspond to actual layer IDs. 
+//! 
+case MAPDATALAYERMAP:	 	SET_MAPDATA_BYTE_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
+case MAPDATALAYERSCREEN: 	SET_MAPDATA_BYTE_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
+case MAPDATALAYEROPACITY: 	SET_MAPDATA_BYTE_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case MAPDATATIMEDWARPTICS: 	SET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
+case MAPDATANEXTMAP: 		SET_MAPDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
+case MAPDATANEXTSCREEN: 	SET_MAPDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
+case MAPDATASECRETCOMBO: 	SET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
+case MAPDATASECRETCSET: 	SET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
+case MAPDATASECRETFLAG: 	SET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
+case MAPDATAVIEWX: 		SET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+case MAPDATAVIEWY: 		SET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
+case MAPDATASCREENWIDTH: 	SET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
+case MAPDATASCREENHEIGHT: 	SET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
+case MAPDATAENTRYX: 		SET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
+case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
+case MAPDATANUMFF: 		SET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
+case MAPDATAFFDATA: 		SET_MAPDATA_VAR_INDEX32(ffdata,	"FFCData", 31); break;	//W, 32 OF THESE
+case MAPDATAFFCSET: 		SET_MAPDATA_BYTE_INDEX(ffcset,	"FFCCSet", 31); break;	//B, 32
+case MAPDATAFFDELAY: 		SET_MAPDATA_VAR_INDEX32(ffdelay, "FFCDelay", 31); break;	//W, 32
+case MAPDATAFFX: 		SET_MAPDATA_VAR_INDEX32(ffx, "FFCX", 31); break;	//INT32, 32 OF THESE
+case MAPDATAFFY: 		SET_MAPDATA_VAR_INDEX32(ffy, "FFCY", 31); break;	//..
+case MAPDATAFFXDELTA:	 	SET_MAPDATA_VAR_INDEX32(ffxdelta, "FFCVx", 31); break;	//..
+case MAPDATAFFYDELTA: 		SET_MAPDATA_VAR_INDEX32(ffydelta, "FFCVy", 31); break;	//..
+case MAPDATAFFXDELTA2:	 	SET_MAPDATA_VAR_INDEX32(ffxdelta2, "FFCAx", 31); break;	//..
+case MAPDATAFFYDELTA2:	 	SET_MAPDATA_VAR_INDEX32(ffydelta2, "FFCAy", 31); break;	//..
+case MAPDATAFFFLAGS: 		SET_MAPDATA_VAR_INDEX16(ffflags, "FFCFlags", 31); break;	//INT16, 32 OF THESE
+//Height and With are Or'd together, and need to be separate:
+/*
+ //TileWidth ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
+*/
+case MAPDATAFFWIDTH: 		
+{
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	int indx = ri->d[0] / 10000; 
+	if ( indx < 0 || indx > 31 ) 
+	{
+		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileWidth[]: %d\n", indx);
+		break;
+	}
+	if ( (value/10000) < 0 || (value/10000) > 4 ) 
+	{
+		Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileWidth[]: %d\n", value);
+		break;
+	}
+	m->ffwidth[indx] = ( m->ffwidth[indx]&~63) | vbound( (((value/10000)-1)&63), (0&63), (214747&63) ); 
+	break;
+}	
+
+
+//SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");	//B, 32 OF THESE
+case MAPDATAFFHEIGHT:	 	
+{
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	int indx = ri->d[0] / 10000; 
+	if ( indx < 0 || indx > 31 ) 
+	{
+		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileHeight[]: %d\n", indx);
+		break;
+	}
+	if ( (value/10000) < 0 || (value/10000) > 4 ) 
+	{
+		Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileHeight[]: %d\n", value);
+		break;
+	}
+	m->ffheight[indx] = ( m->ffheight[indx]&~63) | vbound( (((value/10000)-1)&63), (0&63), (4&63) ); 
+	break;
+	
+}
+
+//EffectWidth tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
+
+//SET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"	//B, 32 OF THESE
+case MAPDATAFFEFFECTWIDTH: 		
+{ 
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	int indx = ri->d[0] / 10000; 
+	if ( indx < 0 || indx > 31 ) 
+	{
+		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectWidth[]: %d\n", indx);
+		break;
+	}
+	if ( (value/10000) < 0 ) 
+	{
+		Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCEffectWidth[]: %d\n", value);
+		break;
+	}
+	m->ffwidth[indx] = ( m->ffwidth[indx]&63) | vbound( ((((value/10000)-1)&3)<<6), ((((0)-1)&3)<<6), ((((214747)&3)<<6)) );
+	break;
+}
+
+
+//SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");	//B, 32 OF THESE
+case MAPDATAFFEFFECTHEIGHT:
+{ 
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	int indx = ri->d[0] / 10000; 
+	if ( indx < 0 || indx > 31 ) 
+	{
+		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectHeight[]: %d\n", indx);
+		break;
+	}
+	if ( (value/10000) < 0 ) 
+	{
+		Z_scripterrlog("Invalid HEIGHT value passed to MapData->FFCEffectHeight[]: %d\n", value);
+		break;
+	}
+	m->ffheight[indx] = ( m->ffheight[indx]&63) | vbound( ((((value/10000)-1)&3)<<6), ((((0)-1)&3)<<6), ((((214747)&3)<<6)) );
+	break;
+}	
+	
+//SET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"	//B, 32 OF THESE	
+
+case MAPDATAFFLINK: 		SET_MAPDATA_BYTE_INDEX(fflink, "FFCLink", 31); break;	//B, 32 OF THESE
+case MAPDATAFFSCRIPT:	 	SET_MAPDATA_VAR_INDEX32(ffscript, "FFCScript", 31); break;	//W, 32 OF THESE
+
+case MAPDATAINTID: 	 //Same form as SetScreenD()
+	//SetFFCInitD(ffindex, d, value)
+{
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	//int ffindex = ri->d[0]/10000;
+	//int d = ri->d[1]/10000;
+	//int v = (value/10000);
+	m->initd[(ri->d[0]/10000)][(ri->d[1]/10000)] = (value/10000);
+	break;
+}	
+	
+
+//initd	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
+
+
+case MAPDATAINITA: 		
+	//same form as SetScreenD
+{
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	//int ffindex = ri->d[0]/10000;
+	//int d = ri->d[1]/10000;
+	//int v = (value/10000);
+	m->inita[(ri->d[0]/10000)][(ri->d[1]/10000)] = (value/10000);
+	break;
+}	
+	
+case MAPDATAFFINITIALISED: 	SET_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
+case MAPDATASCRIPTENTRY: 	SET_MAPDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
+case MAPDATASCRIPTOCCUPANCY: 	SET_MAPDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
+case MAPDATASCRIPTEXIT: 	SET_MAPDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
+case MAPDATAOCEANSFX:	 	SET_MAPDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;	//B
+case MAPDATABOSSSFX: 		SET_MAPDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
+case MAPDATASECRETSFX:	 	SET_MAPDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
+case MAPDATAHOLDUPSFX:	 	SET_MAPDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
+case MAPDATASCREENMIDI: 	SET_MAPDATA_VAR_INT16(screen_midi, "MIDI"); break;	//SHORT, OLD QUESTS ONLY?
+case MAPDATALENSLAYER:	 	SET_MAPDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
+	
+
+case MAPDATAFLAGS: 
+{
+	int flagid = (ri->d[0])/10000;
+	mapscr *m = &TheMaps[ri->mapsref]; 
+	//bool valtrue = ( value ? 10000 : 0);
+	switch(flagid)
+	{
+		case 0: m->flags = (value / 10000); break;
+		case 1: m->flags2 = (value / 10000); break;
+		case 2: m->flags3 = (value / 10000); break;
+		case 3: m->flags4 = (value / 10000); break;
+		case 4: m->flags5 = (value / 10000); break;
+		case 5: m->flags6 = (value / 10000); break;
+		case 6: m->flags7 = (value / 10000); break;
+		case 7: m->flags8 = (value / 10000); break;
+		case 8: m->flags9 = (value / 10000); break;
+		case 9: m->flags10 = (value / 10000); break;
+		default:
+		{
+			Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
+			break;
+			
+		}
+	}
+	break;
+	//SET_MAPDATA_BYTE_INDEX	//B, 11 OF THESE, flags, flags2-flags10
+}
+
+case MAPDATAMISCD:
+{
+	int indx = (ri->d[0])/10000;
+	if(indx < 0 || indx > 7)
+	{
+		Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
+		break;
+	}
+	else 
+	{
+		game->screen_d[ri->mapsref][indx] = value/10000;
+		break;
+	}
+}
+
+
+  case MAPDATACOMBODD:
+    {
+        int pos = (ri->d[0])/10000;
+        mapscr *m = &TheMaps[ri->mapsref];
+        if(pos >= 0 && pos < 176)
+        {
+            screen_combo_modify_preroutine(m,pos);
+            m->data[pos]=(value/10000);
+            screen_combo_modify_postroutine(m,pos);
+        }
+    }
+    break;
+    
+    case MAPDATACOMBOCD:
+    {
+        int pos = (ri->d[0])/10000;
+        mapscr *m = &TheMaps[ri->mapsref];
+        if(pos >= 0 && pos < 176)
+        {
+            screen_combo_modify_preroutine(m,pos);
+            m->cset[pos]=(value/10000)&15;
+            screen_combo_modify_postroutine(m,pos);
+        }
+    }
+    break;
+    
+    case MAPDATACOMBOFD:
+    {
+        int pos = (ri->d[0])/10000;
+        mapscr *m = &TheMaps[ri->mapsref];
+        if(pos >= 0 && pos < 176)
+            m->sflag[pos]=(value/10000);
+    }
+    break;
+    
+    case MAPDATACOMBOTD:
+    {
+        int pos = (ri->d[0])/10000;
+        mapscr *m = &TheMaps[ri->mapsref];
+        if(pos >= 0 && pos < 176)
+        {
+            // Preprocess each instance of the combo on the screen
+            for(int i = 0; i < 176; i++)
+            {
+                if(m->data[i] == m->data[pos])
+                {
+                    screen_combo_modify_preroutine(m,i);
+                }
+            }
+            
+            combobuf[m->data[pos]].type=value/10000;
+            
+            for(int i = 0; i < 176; i++)
+            {
+                if(m->data[i] == m->data[pos])
+                {
+                    screen_combo_modify_postroutine(m,i);
+                }
+            }
+        }
+    }
+    break;
+    
+    case MAPDATACOMBOID:
+    {
+        int pos = (ri->d[0])/10000;
+        mapscr *m = &TheMaps[ri->mapsref];
+        if(pos >= 0 && pos < 176)
+            combobuf[m->data[pos]].flag=value/10000;
+    }
+    break;
+    
+    case MAPDATACOMBOSD:
+    {
+        int pos = (ri->d[0])/10000;
+        mapscr *m = &TheMaps[ri->mapsref];
+        if(pos >= 0 && pos < 176)
+            combobuf[m->data[pos]].walk=(value/10000)&15;
+    }
+    break;
+
+    case MAPDATASCREENSTATED:
+    {
+        (value)?setmapflag(ri->mapsref, 1<<((ri->d[0])/10000)) : unsetmapflag(ri->mapsref, 1 << ((ri->d[0]) / 10000));
+    }
+    break;
+
 ///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> Variables
 	
