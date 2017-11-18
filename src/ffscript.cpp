@@ -12383,9 +12383,9 @@ long FFScript::loadMapData()
 	long _map = (ri->d[0] / 10000);
 	long _scr = (ri->d[1]/10000);
 	int indx = (zc_max((_map)-1,0) * MAPSCRS + _scr);
-	Z_scripterrlog("LoadMapData Map Value: %d\n", _map);
-	Z_scripterrlog("LoadMapData Screen Value: %d\n", _scr);
-	Z_scripterrlog("LoadMapData Indx Value: %d\n", indx);
+	//Z_scripterrlog("LoadMapData Map Value: %d\n", _map);
+	//Z_scripterrlog("LoadMapData Screen Value: %d\n", _scr);
+	//Z_scripterrlog("LoadMapData Indx Value: %d\n", indx);
      if ( _map < 1 || _map > (map_count-1) )
     {
 	Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", _map);
@@ -12398,7 +12398,7 @@ long FFScript::loadMapData()
 	ri->mapsref = LONG_MAX;
     }
     else ri->mapsref = indx;
-    Z_scripterrlog("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
+    //Z_scripterrlog("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
     return ri->mapsref;
 }
 
