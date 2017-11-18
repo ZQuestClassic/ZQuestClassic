@@ -1,5 +1,16 @@
 //2.54 Changes
 
+//Alpha 17
+Fixed Game->LoadMapData(int map, int scr)
+Added Link->ScriptFlip.
+Added extra padding for Link->ScriptTile to prevent the engine
+choosing the tile based on LTMs and other factors.
+Added a routine to Link::setEntryPoints(x,y) to store the entry points
+for a given screen in that screen's data (mapscr->entry_x, entry_y)
+This data should be available to ZScript, and (I hope) will be appropriate
+for all warps as well as screen scrolling entry points. 
+
+
 //Alpha 16
 
 Added mapdata->variables, and matched them all to Screen->
