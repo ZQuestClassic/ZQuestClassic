@@ -1463,7 +1463,7 @@ string VarArgument::toString()
 	case MAPDATAFFEFFECTHEIGHT: return "MAPDATAFFEFFECTHEIGHT";
 	case SCREENDATAFFEFFECTWIDTH: return "SCREENDATAFFEFFECTWIDTH";
 	case SCREENDATAFFEFFECTHEIGHT: return "SCREENDATAFFEFFECTHEIGHT";
-
+	case LOADMAPDATA: return "LOADMAPDATA";
     default:
     {
         sprintf(temp, "d%d", ID);
