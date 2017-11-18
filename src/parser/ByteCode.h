@@ -872,8 +872,9 @@ using namespace std;
 #define MAPDATASCREENFLAGSD 		820
 #define MAPDATASCREENEFLAGSD 		821
 #define LINKSCRIPFLIP	 		822
+#define LOADMAPDATA 			823
 
-#define LAST_BYTECODE 			823
+#define LAST_BYTECODE 			824
 
 //END OF BYTECODE
 

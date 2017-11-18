@@ -1450,6 +1450,8 @@ script_variable variable_list[]=
 	{"MAPDATAFFEFFECTHEIGHT", MAPDATAFFEFFECTHEIGHT, 0, 0 },
 	{"SCREENDATAFFEFFECTWIDTH", SCREENDATAFFEFFECTWIDTH, 0, 0 },
 	{"SCREENDATAFFEFFECTHEIGHT", SCREENDATAFFEFFECTHEIGHT, 0, 0 },
+	
+	{"LOADMAPDATA", LOADMAPDATA, 0, 0 },
 	    { " ",                       -1,             0,             0 }
 };
 
