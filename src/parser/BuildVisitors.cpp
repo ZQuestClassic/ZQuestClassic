@@ -49,18 +49,18 @@ void BuildOpcodes::deallocateRefsUntilCount(int count)
 void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 {
 	OpcodeContext *c = (OpcodeContext *)param;
-    list<ASTStmt *> l = host.getStatements();
-    
-	int initIndex = result.size();
+	list<ASTStmt*> l = host.getStatements();
+
 	int startRefCount = arrayRefs.size();
 
-    for(list<ASTStmt *>::iterator it = l.begin(); it != l.end(); it++)
-        (*it)->execute(*this,param);
+    for (list<ASTStmt*>::iterator it = l.begin(); it != l.end(); it++)
+	{
+		int initIndex = result.size();
+        (*it)->execute(*this, param);
+		result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
+		c->initCode.clear();
+	}
 
-	// Insert init code at start of block.
-	result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
-	c->initCode.clear();
-    
 	deallocateRefsUntilCount(startRefCount);
 	while (arrayRefs.size() > startRefCount)
         arrayRefs.pop_back();

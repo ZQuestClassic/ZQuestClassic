@@ -103,9 +103,10 @@ public:
         int vid = st->getID(&host);
 		sf->addToFrame(vid, curoffset);
 		curoffset += 10000;
-		highWaterOffset = std::max(highWaterOffset, curoffset);
+		if (highWaterOffset < curoffset)
+			highWaterOffset = curoffset;
     }
-    virtual void caseVarDecl(ASTVarDecl &host, void *param)
+    virtual void caseVarDecl(ASTVarDecl &host, void *)
     {        
         int vid = st->getID(&host);
 		sf->addToFrame(vid, curoffset);
@@ -114,6 +115,7 @@ public:
     }
     virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
     {
+		host.getInitializer()->execute(*this, param);
         caseVarDecl(host, param);
     }
 
