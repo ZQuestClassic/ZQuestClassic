@@ -63,6 +63,7 @@
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define stricmp _stricmp
+#define getcwd _getcwd
 #endif
 
 // MSVC fix
@@ -1237,11 +1238,7 @@ int load_quest(gamedata *g, bool report)
 					{
 						char cwdbuf[260];
 						memset(cwdbuf,0,260*sizeof(char));
-#ifdef _ALLEGRO_WINDOWS
-						_getcwd(cwdbuf, 260);
-#else
-                        _getcwd(cwdbuf, 260); //getcwd() is deprecated in cpp08
-#endif
+                        getcwd(cwdbuf, 260);
 
 						std::string path = cwdbuf;
 						std::string fn;
