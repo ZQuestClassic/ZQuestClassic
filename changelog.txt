@@ -1,5 +1,9 @@
 //2.54 Changes
 
+//Alpha 18
+Added new datatypes: dmapdata, messagedata, shopdata, nil.
+THe 'nil' type is untyped data. ( ZoriaRPG, 21st November, 2017 )
+
 //Alpha 17
 Fixed Game->LoadMapData(int map, int scr)
 Added Link->ScriptFlip.
@@ -8,7 +12,7 @@ choosing the tile based on LTMs and other factors.
 Added a routine to Link::setEntryPoints(x,y) to store the entry points
 for a given screen in that screen's data (mapscr->entry_x, entry_y)
 This data should be available to ZScript, and (I hope) will be appropriate
-for all warps as well as screen scrolling entry points. 
+for all warps as well as screen scrolling entry points.  ( ZoriaRPG, 17th November, 2017 )
 
 
 //Alpha 16
@@ -111,9 +115,7 @@ int GetFFCInitD(int ffc_index, int init_d)
 void SetFFCInitD(int ffc_index, int init_d, float value)
 int GetFFCInitA(int ffc_index, int init_a)
 void SetFFCIniA(int ffc_index, int init_a, float value)
-
-
-Added functions: mapdata->
+(ZoriaRPG, 15th November, 2017)
 
 //Alpha 15
 
