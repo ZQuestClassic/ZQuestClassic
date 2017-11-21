@@ -126,6 +126,10 @@ class ASTTypeSpriteData;
 class ASTTypeGraphics;
 class ASTTypeText;
 class ASTTypeInput;
+class ASTTypeDMap;
+class ASTTypeZMsg;
+class ASTTypeShopData;
+class ASTTypeUntyped;
 
 class ASTVisitor
 {
@@ -216,7 +220,10 @@ public:
     virtual void caseTypeGraphics(ASTTypeGraphics &, void *param) {caseDefault(param);}
     virtual void caseTypeText(ASTTypeText &, void *param) {caseDefault(param);}
     virtual void caseTypeInput(ASTTypeInput &, void *param) {caseDefault(param);}
-    
+	virtual void caseTypeDMap(ASTTypeDMap &, void *param) {caseDefault(param);}
+	virtual void caseTypeZMsg(ASTTypeZMsg &, void *param) {caseDefault(param);}
+	virtual void caseTypeShopData(ASTTypeShopData &, void *param) {caseDefault(param);}
+	virtual void caseTypeUntyped(ASTTypeUntyped &, void *param) {caseDefault(param);}
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1486,6 +1493,62 @@ private:
     //NOT IMPLEMENTED; DO NOT USE
     ASTTypeInput(ASTTypeInput &);
     ASTTypeInput &operator=(ASTTypeInput &);
+};
+
+class ASTTypeDMap : public ASTType
+{
+public:
+    ASTTypeDMap(LocationData Loc) : ASTType(Loc) {}
+	ASTTypeDMap* clone() const;
+
+	void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypeDMap(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeDMap(ASTTypeDMap &);
+    ASTTypeDMap &operator=(ASTTypeDMap &);
+};
+
+class ASTTypeZMsg : public ASTType
+{
+public:
+    ASTTypeZMsg(LocationData Loc) : ASTType(Loc) {}
+	ASTTypeZMsg* clone() const;
+
+	void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypeZMsg(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeZMsg(ASTTypeZMsg &);
+    ASTTypeZMsg &operator=(ASTTypeZMsg &);
+};
+
+class ASTTypeShopData : public ASTType
+{
+public:
+    ASTTypeShopData(LocationData Loc) : ASTType(Loc) {}
+	ASTTypeShopData* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypeShopData(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeShopData(ASTTypeShopData &);
+    ASTTypeShopData &operator=(ASTTypeShopData &);
+};
+
+class ASTTypeUntyped : public ASTType
+{
+public:
+    ASTTypeUntyped(LocationData Loc) : ASTType(Loc) {}
+	ASTTypeUntyped* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypeUntyped(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeUntyped(ASTTypeUntyped &);
+    ASTTypeUntyped &operator=(ASTTypeUntyped &);
 };
 
 class ASTShiftExpr : public ASTBinaryExpr

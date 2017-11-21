@@ -186,6 +186,10 @@ public:
     void caseTypeGraphics(ASTTypeGraphics &host, void *param);
     void caseTypeText(ASTTypeText &host, void *param);
     void caseTypeInput(ASTTypeInput &host, void *param);
+    void caseTypeDMap(ASTTypeDMap &host, void *param);
+    void caseTypeZMsg(ASTTypeZMsg &host, void *param);
+    void caseTypeShopData(ASTTypeShopData &host, void *param);
+    void caseTypeUntyped(ASTTypeUntyped &host, void *param);
 };
 
 class IsDotExpr : public ASTVisitor

@@ -215,6 +215,52 @@ private:
     SpriteDataSymbols();
 };
 
+//DMapData
+class DMapDataSymbols : public LibrarySymbols
+{
+public:
+    static DMapDataSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static DMapDataSymbols singleton;
+    DMapDataSymbols();
+};
+
+
+//MessageData
+class MessageDataSymbols : public LibrarySymbols
+{
+public:
+    static MessageDataSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static MessageDataSymbols singleton;
+    MessageDataSymbols();
+};
+
+//ShopData
+class ShopDataSymbols : public LibrarySymbols
+{
+public:
+    static ShopDataSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static ShopDataSymbols singleton;
+    ShopDataSymbols();
+};
+
 //ComboData->
 
 class CombosPtrSymbols : public LibrarySymbols
@@ -322,6 +368,23 @@ protected:
 private:
     static MapDataSymbols singleton;
     MapDataSymbols();
+};
+
+
+
+//nil
+class UntypedSymbols : public LibrarySymbols
+{
+public:
+    static UntypedSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static UntypedSymbols singleton;
+    UntypedSymbols();
 };
 
 #endif

@@ -1175,4 +1175,31 @@ ASTTypeInput* ASTTypeInput::clone() const
 	return new ASTTypeInput(getLocation());
 }
 
+// ASTTypeDMap
+
+ASTTypeDMap* ASTTypeDMap::clone() const
+{
+	return new ASTTypeDMap(getLocation());
+}
+
+// ASTTypeZMsg
+
+ASTTypeZMsg* ASTTypeZMsg::clone() const
+{
+	return new ASTTypeZMsg(getLocation());
+}
+
+// ASTTypeShopData
+
+ASTTypeShopData* ASTTypeShopData::clone() const
+{
+	return new ASTTypeShopData(getLocation());
+}
+
+// ASTTypeUntyped
+
+ASTTypeUntyped* ASTTypeUntyped::clone() const
+{
+	return new ASTTypeUntyped(getLocation());
+}
 

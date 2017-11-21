@@ -663,4 +663,19 @@ void ExtractType::caseTypeInput(ASTTypeInput &, void *param)
 {
     *(int *)param = ScriptParser::TYPE_INPUT;
 }
-
+void ExtractType::caseTypeDMap(ASTTypeDMap &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_DMAPDATA;
+}
+void ExtractType::caseTypeZMsg(ASTTypeZMsg &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_ZMESSAGE;
+}
+void ExtractType::caseTypeShopData(ASTTypeShopData &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_SHOPDATA;
+}
+void ExtractType::caseTypeUntyped(ASTTypeUntyped &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_UNTYPED;
+}

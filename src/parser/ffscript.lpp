@@ -53,6 +53,10 @@ spritedata		{doLines(); return SPRITEDATA;}
 mapdata		{doLines(); return MAPDATA;}
 npcdata		{doLines(); return NPCDATA;}
 combodata		{doLines(); return COMBODATA;}
+dmapdata		{doLines(); return DMAPDATA;}
+messagedata		{doLines(); return MESSAGEDATA;}
+shopdata		{doLines(); return SHOPDATA;}
+untyped		{doLines(); return UNTYPED;}
 
 \-\>		{ doLines(); return ARROW;}
 \<\<=		{ doLines(); return LSHIFTASSIGN; }

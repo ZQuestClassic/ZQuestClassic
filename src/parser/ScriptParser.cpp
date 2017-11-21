@@ -264,6 +264,11 @@ const int ScriptParser::TYPE_TEXT;
 const int ScriptParser::TYPE_INPUT;
 const int ScriptParser::TYPE_MAPDATA;
 
+const int ScriptParser::TYPE_DMAPDATA;
+const int ScriptParser::TYPE_ZMESSAGE;
+const int ScriptParser::TYPE_SHOPDATA;
+const int ScriptParser::TYPE_UNTYPED;
+
 #endif
 
 string ScriptParser::trimQuotes(string quoteds)
@@ -414,6 +419,11 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
 	NPCDataSymbols::getInst().addSymbolsToScope(globalScope,t);
 	InputSymbols::getInst().addSymbolsToScope(globalScope,t);
 	MapDataSymbols::getInst().addSymbolsToScope(globalScope,t);
+	
+	DMapDataSymbols::getInst().addSymbolsToScope(globalScope,t);
+	MessageDataSymbols::getInst().addSymbolsToScope(globalScope,t);
+	ShopDataSymbols::getInst().addSymbolsToScope(globalScope,t);
+	UntypedSymbols::getInst().addSymbolsToScope(globalScope,t);
     
     //strip the global functions from the AST
     GetGlobalFuncs gc;
@@ -528,6 +538,22 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     
     vid2 = globalScope->getVarSymbols().addVariable("MapData", ScriptParser::TYPE_MAPDATA);
     t->putVar(vid2, ScriptParser::TYPE_MAPDATA);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("DMapData", ScriptParser::TYPE_DMAPDATA);
+    t->putVar(vid2, ScriptParser::TYPE_DMAPDATA);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("MessageData", ScriptParser::TYPE_ZMESSAGE);
+    t->putVar(vid2, ScriptParser::TYPE_ZMESSAGE);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("ShopData", ScriptParser::TYPE_SHOPDATA);
+    t->putVar(vid2, ScriptParser::TYPE_SHOPDATA);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("Untyped", ScriptParser::TYPE_UNTYPED);
+    t->putVar(vid2, ScriptParser::TYPE_UNTYPED);
     t->addGlobalPointer(vid2);
     
     
@@ -1049,36 +1075,42 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     {
         rval->funcs[it->first] = it->second;
     }
+    
     globalcode = GfxPtrSymbols::getInst().addSymbolsCode(lt);
     
     for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
     {
         rval->funcs[it->first] = it->second;
     }
+    
     globalcode = SpriteDataSymbols::getInst().addSymbolsCode(lt);
     
     for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
     {
         rval->funcs[it->first] = it->second;
     }
+    
     globalcode = CombosPtrSymbols::getInst().addSymbolsCode(lt);
     
     for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
     {
         rval->funcs[it->first] = it->second;
     }
+    
     globalcode = AudioSymbols::getInst().addSymbolsCode(lt);
     
     for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
     {
         rval->funcs[it->first] = it->second;
     }
+    
     globalcode = DebugSymbols::getInst().addSymbolsCode(lt);
     
     for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
     {
         rval->funcs[it->first] = it->second;
     }
+    
     globalcode = NPCDataSymbols::getInst().addSymbolsCode(lt);
     
     for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
@@ -1094,6 +1126,35 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     }
     
     globalcode = MapDataSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = DMapDataSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = MessageDataSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = ShopDataSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    
+    globalcode = UntypedSymbols::getInst().addSymbolsCode(lt);
     
     for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
     {

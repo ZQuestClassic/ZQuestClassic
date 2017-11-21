@@ -1591,7 +1591,7 @@ public:
     
     byte ffcref, idata; //current object pointers
     dword itemref, guyref, lwpn, ewpn;
-	dword mapsref, screenref, npcdataref, gfxref, spritesref, combosref;
+	dword mapsref, screenref, npcdataref, gfxref, spritesref, combosref, dmapsref, zmsgref, shopsref, untypedref;
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     

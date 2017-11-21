@@ -9328,3 +9328,118 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     
     return rval;
 }
+
+
+DMapDataSymbols DMapDataSymbols::singleton = DMapDataSymbols();
+
+static AccessorTable DMapDataTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_DMAPDATA,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+DMapDataSymbols::DMapDataSymbols()
+{
+    table = DMapDataTable;
+    refVar = REFDMAPDATA;
+}
+
+map<int, vector<Opcode *> > DMapDataSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    int id=-1;
+	{
+		
+	}
+
+    return rval;
+}
+
+
+ShopDataSymbols ShopDataSymbols::singleton = ShopDataSymbols();
+
+static AccessorTable ShopDataTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_SHOPDATA,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+ShopDataSymbols::ShopDataSymbols()
+{
+    table = ShopDataTable;
+    refVar = REFSHOPDATA;
+}
+
+map<int, vector<Opcode *> > ShopDataSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    int id=-1;
+	{
+		
+	}
+
+    return rval;
+}
+
+
+MessageDataSymbols MessageDataSymbols::singleton = MessageDataSymbols();
+
+static AccessorTable MessageDataTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_ZMESSAGE,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+MessageDataSymbols::MessageDataSymbols()
+{
+    table = MessageDataTable;
+    refVar = REFMSGDATA;
+}
+
+map<int, vector<Opcode *> > MessageDataSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    int id=-1;
+	{
+		
+	}
+
+    return rval;
+}
+
+UntypedSymbols UntypedSymbols::singleton = UntypedSymbols();
+
+static AccessorTable NilTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_UNTYPED,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_UNTYPED,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+UntypedSymbols::UntypedSymbols()
+{
+    table = NilTable;
+    refVar = REFNIL;
+}
+
+map<int, vector<Opcode *> > UntypedSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    int id=-1;
+	{
+		
+	}
+
+    return rval;
+}

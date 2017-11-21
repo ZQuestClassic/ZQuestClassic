@@ -438,8 +438,8 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
         
     //if this is a simple function, we already have what we need
     //otherwise we need the type of the thing being arrowed
-    if(!isdotexpr)
-        {
+    if (!isdotexpr)
+    {
         ASTExprArrow *lval = (ASTExprArrow *)host.getName();
         lval->getLVal()->execute(*this,param);
             
@@ -448,14 +448,28 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
                 
         int lvaltype = lval->getLVal()->getType();
         
-        if(!(lvaltype == ScriptParser::TYPE_FFC || lvaltype == ScriptParser::TYPE_LINK
-             || lvaltype == ScriptParser::TYPE_SCREEN || lvaltype == ScriptParser::TYPE_ITEM
-             || lvaltype == ScriptParser::TYPE_ITEMCLASS || lvaltype == ScriptParser::TYPE_GAME || lvaltype == ScriptParser::TYPE_NPC
-             || lvaltype == ScriptParser::TYPE_LWPN || lvaltype == ScriptParser::TYPE_EWPN
-             || lvaltype == ScriptParser::TYPE_NPCDATA || lvaltype == ScriptParser::TYPE_DEBUG
-             || lvaltype == ScriptParser::TYPE_AUDIO || lvaltype == ScriptParser::TYPE_COMBOS
-             || lvaltype == ScriptParser::TYPE_SPRITEDATA || lvaltype == ScriptParser::TYPE_GRAPHICS
-             || lvaltype == ScriptParser::TYPE_TEXT || lvaltype == ScriptParser::TYPE_INPUT || lvaltype == ScriptParser::TYPE_MAPDATA ))
+        if(!(lvaltype == ScriptParser::TYPE_FFC
+             || lvaltype == ScriptParser::TYPE_LINK
+             || lvaltype == ScriptParser::TYPE_SCREEN
+             || lvaltype == ScriptParser::TYPE_ITEM
+             || lvaltype == ScriptParser::TYPE_ITEMCLASS
+             || lvaltype == ScriptParser::TYPE_GAME
+             || lvaltype == ScriptParser::TYPE_NPC
+             || lvaltype == ScriptParser::TYPE_LWPN
+             || lvaltype == ScriptParser::TYPE_EWPN
+             || lvaltype == ScriptParser::TYPE_NPCDATA
+             || lvaltype == ScriptParser::TYPE_DEBUG
+             || lvaltype == ScriptParser::TYPE_AUDIO
+             || lvaltype == ScriptParser::TYPE_COMBOS
+             || lvaltype == ScriptParser::TYPE_SPRITEDATA
+             || lvaltype == ScriptParser::TYPE_GRAPHICS
+             || lvaltype == ScriptParser::TYPE_TEXT
+             || lvaltype == ScriptParser::TYPE_INPUT
+             || lvaltype == ScriptParser::TYPE_MAPDATA
+             || lvaltype == ScriptParser::TYPE_DMAPDATA
+             || lvaltype == ScriptParser::TYPE_ZMESSAGE
+             || lvaltype == ScriptParser::TYPE_SHOPDATA 
+             || lvaltype == ScriptParser::TYPE_UNTYPED))
         {
 	        printErrorMsg(lval, ARROWNOTPOINTER);
 	        failure = true;
@@ -464,15 +478,15 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
         
         //prepend that type to the function parameters, as that is implicitly passed
         paramtypes.push_back(lvaltype);
-}
+    }
 
     //now add the normal parameters
     for(list<ASTExpr *>::iterator it = params.begin(); it != params.end(); it++)
-{
+    {
         (*it)->execute(*this, param);
     
-    if(failure)
-        return;
+        if(failure)
+	        return;
         
         paramtypes.push_back((*it)->getType());
     }
@@ -501,7 +515,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
         vector<pair<int, int> > matchedfuncs;
         
         for(vector<int>::iterator it = possible.begin(); it != possible.end(); it++)
-    {
+        {
             vector<int> stparams = st->getFuncParams(*it);
         
             //see if they match
@@ -512,7 +526,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
             int diffs = 0;
             
             for(unsigned int i=0; i<stparams.size(); i++)
-{
+            {
                 if(!standardCheck(stparams[i],paramtypes[i], NULL))
                 {
                     matched=false;
@@ -524,17 +538,17 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
             }
         
             if(matched)
-    {
+            {
                 matchedfuncs.push_back(pair<int,int>(*it, diffs));
             }
-    }
+        }
     
         //now find the closest match *sigh*
         vector<int> bestmatch;
         int bestdiffs = 10000;
     
         for(vector<pair<int, int> >::iterator it = matchedfuncs.begin(); it != matchedfuncs.end(); it++)
-    {
+        {
             if((*it).second < bestdiffs)
             {
                 bestdiffs = (*it).second;
@@ -544,8 +558,8 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
             else if((*it).second == bestdiffs)
             {
                 bestmatch.push_back((*it).first);
-    }
-}
+            }
+        }
 
         string fullname;
     
@@ -555,22 +569,22 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
             fullname = ((ASTExprDot *)host.getName())->getNamespace() + "." + ((ASTExprDot *)host.getName())->getName();
         
         if(bestmatch.size() == 0)
-    {
+        {
             printErrorMsg(&host, NOFUNCMATCH, fullname + paramstring);
-        failure = true;
-        return;
-    }
+            failure = true;
+            return;
+        }
         else if(bestmatch.size() > 1)
-    {
+        {
             printErrorMsg(&host, TOOFUNCMATCH, fullname+paramstring);
             failure = true;
             return;
-    }
+        }
         
         //WHEW!
         host.setType(st->getFuncType(bestmatch[0]));
         st->putAST(&host, bestmatch[0]);
-}
+    }
     else
     {
         //still have to deal with the (%&# arrow functions
@@ -620,24 +634,31 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
         case ScriptParser::TYPE_NPCDATA:
             fidtype = NPCDataSymbols::getInst().matchFunction(name->getName(), st);
             break;
+
         case ScriptParser::TYPE_MAPDATA:
             fidtype = MapDataSymbols::getInst().matchFunction(name->getName(), st);
             break;
+
         case ScriptParser::TYPE_DEBUG:
             fidtype = DebugSymbols::getInst().matchFunction(name->getName(), st);
             break;
+
         case ScriptParser::TYPE_AUDIO:
             fidtype = AudioSymbols::getInst().matchFunction(name->getName(), st);
             break;
+
         case ScriptParser::TYPE_COMBOS:
             fidtype = CombosPtrSymbols::getInst().matchFunction(name->getName(), st);
             break;
+
         case ScriptParser::TYPE_SPRITEDATA:
             fidtype = SpriteDataSymbols::getInst().matchFunction(name->getName(), st);
             break;
+
         case ScriptParser::TYPE_GRAPHICS:
             fidtype = GfxPtrSymbols::getInst().matchFunction(name->getName(), st);
             break;
+
         case ScriptParser::TYPE_TEXT:
             fidtype = TextPtrSymbols::getInst().matchFunction(name->getName(), st);
             break;
@@ -646,6 +667,22 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
             fidtype = InputSymbols::getInst().matchFunction(name->getName(), st);
             break;
             
+        case ScriptParser::TYPE_DMAPDATA:
+	        fidtype = DMapDataSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+
+        case ScriptParser::TYPE_ZMESSAGE:
+	        fidtype = MessageDataSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+
+        case ScriptParser::TYPE_SHOPDATA:
+	        fidtype = ShopDataSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+	
+        case ScriptParser::TYPE_UNTYPED:
+	        fidtype = UntypedSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+
         default:
             assert(false);
         }
@@ -1406,259 +1443,324 @@ void TypeCheck::caseExprRShift(ASTExprRShift &host, void *param)
 // Other
         
 bool TypeCheck::standardCheck(int firsttype, int secondtype, AST *toblame)
-        {
-    switch(firsttype)
-            {
-    case ScriptParser::TYPE_BOOL:
-            {
-        switch(secondtype)
-        {
-        case ScriptParser::TYPE_BOOL:
-            return true;
+{
+	switch(firsttype)
+	{
+	case ScriptParser::TYPE_BOOL:
+	{
+		switch(secondtype)
+		{
+		case ScriptParser::TYPE_BOOL:
+			return true;
             
-        case ScriptParser::TYPE_FLOAT:
-            //Seeing as we're using float as int, this fits better with C
-            /*{
-            	if(toblame)
-            		printErrorMsg(toblame, IMPLICITCAST, "float to bool");
-            }*/
-            return true;
+		case ScriptParser::TYPE_FLOAT:
+			//Seeing as we're using float as int, this fits better with C
+			/*{
+			  if(toblame)
+			  printErrorMsg(toblame, IMPLICITCAST, "float to bool");
+			  }*/
+			return true;
+
+		case ScriptParser::TYPE_UNTYPED: return true;
             
-        default:
-        {
-            if(toblame)
-                printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to bool");
+		default:
+		{
+			if(toblame)
+				printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to bool");
                 
-            return false;
-        }
-            }
-        }
+			return false;
+		}
+		}
+	}
         
-    case ScriptParser::TYPE_FLOAT:
-    {
-        switch(secondtype)
-        {
-        case ScriptParser::TYPE_BOOL:
-        {
-            if(toblame)
-                printErrorMsg(toblame, ILLEGALCAST, "bool to float");
+	case ScriptParser::TYPE_FLOAT:
+	{
+		switch(secondtype)
+		{
+		case ScriptParser::TYPE_BOOL:
+		{
+			if(toblame)
+				printErrorMsg(toblame, ILLEGALCAST, "bool to float");
         
-            return false;
-        }
+			return false;
+		}
             
-        case ScriptParser::TYPE_FLOAT:
-            return true;
+		case ScriptParser::TYPE_FLOAT:
+			return true;
             
-        default:
-        {
-            if(toblame)
-                printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to float");
+		case ScriptParser::TYPE_UNTYPED: return true;
+            
+		default:
+		{
+			if(toblame)
+				printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to float");
                 
-            return false;
-        }
-        }
-    }
+			return false;
+		}
+		}
+	}
         
-    case ScriptParser::TYPE_VOID:
-        {
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to void");
+	case ScriptParser::TYPE_VOID:
+	{
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to void");
             
-        return false;
-    }
+		return false;
+	}
             
-    case ScriptParser::TYPE_FFC:
-    {
-        if(secondtype == ScriptParser::TYPE_FFC)
-            return true;
+	case ScriptParser::TYPE_FFC:
+	{
+		if (secondtype == ScriptParser::TYPE_FFC
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
             
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to ffc");
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to ffc");
             
-        return false;
-    }
+		return false;
+	}
             
-    case ScriptParser::TYPE_LINK:
-    {
-        if(secondtype == ScriptParser::TYPE_LINK)
-            return true;
+	case ScriptParser::TYPE_LINK:
+	{
+		if (secondtype == ScriptParser::TYPE_LINK
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
             
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to link");
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to link");
             
-        return false;
-    }
+		return false;
+	}
             
-    case ScriptParser::TYPE_SCREEN:
-    {
-        if(secondtype == ScriptParser::TYPE_SCREEN)
-            return true;
+	case ScriptParser::TYPE_SCREEN:
+	{
+		if (secondtype == ScriptParser::TYPE_SCREEN
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
 	
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to screen");
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to screen");
             
-        return false;
-        }
+		return false;
+	}
         
-    case ScriptParser::TYPE_GAME:
-        {
-        if(secondtype == ScriptParser::TYPE_GAME)
-            return true;
+	case ScriptParser::TYPE_GAME:
+	{
+		if (secondtype == ScriptParser::TYPE_GAME
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
             
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to game");
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to game");
             
-        return false;
-        }
+		return false;
+	}
         
-    case ScriptParser::TYPE_ITEM:
-        {
-        if(secondtype == ScriptParser::TYPE_ITEM)
-            return true;
+	case ScriptParser::TYPE_ITEM:
+	{
+		if (secondtype == ScriptParser::TYPE_ITEM
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
             
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to item");
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to item");
             
-        return false;
-        }
+		return false;
+	}
         
-    case ScriptParser::TYPE_ITEMCLASS:
-            {
-        if(secondtype == ScriptParser::TYPE_ITEMCLASS)
-            return true;
+	case ScriptParser::TYPE_ITEMCLASS:
+	{
+		if (secondtype == ScriptParser::TYPE_ITEMCLASS
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
         
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to itemdata");
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to itemdata");
 
+		return false;
+	}
+
+	case ScriptParser::TYPE_NPC:
+	{
+		if (secondtype == ScriptParser::TYPE_NPC
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
+    
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to npc");
+            
+		return false;
+	}
+
+	case ScriptParser::TYPE_LWPN:
+	{
+		if (secondtype == ScriptParser::TYPE_LWPN
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
+    
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to lweapon");
+        
+		return false;
+	}
+    
+	case ScriptParser::TYPE_EWPN:
+	{
+		if (secondtype == ScriptParser::TYPE_EWPN
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
+        
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to eweapon");
+    
+		return false;
+	}
+    
+	case ScriptParser::TYPE_NPCDATA:
+	{
+		if (secondtype == ScriptParser::TYPE_NPCDATA
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
+            
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to NPCData");
+            
+		return false;
+	}
+	case ScriptParser::TYPE_MAPDATA:
+	{
+		if (secondtype == ScriptParser::TYPE_MAPDATA
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
+            
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to MapData");
+            
+		return false;
+	}
+    
+	case ScriptParser::TYPE_DEBUG:
+	{
+		if (secondtype == ScriptParser::TYPE_DEBUG
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
+            
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Debug");
+            
+		return false;
+	}
+
+	case ScriptParser::TYPE_AUDIO:
+	{
+		if (secondtype == ScriptParser::TYPE_AUDIO
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
+            
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Audio");
+            
+		return false;
+	}
+
+	case ScriptParser::TYPE_COMBOS:
+	{
+		if (secondtype == ScriptParser::TYPE_COMBOS
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
+            
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to ComboData");
+            
+		return false;
+	}
+
+	case ScriptParser::TYPE_SPRITEDATA:
+	{
+		if (secondtype == ScriptParser::TYPE_SPRITEDATA
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
+            
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to SpriteData");
+            
+		return false;
+	}
+
+	case ScriptParser::TYPE_GRAPHICS:
+	{
+		if (secondtype == ScriptParser::TYPE_GRAPHICS
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
+            
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Graphics");
+            
+		return false;
+	}
+
+	case ScriptParser::TYPE_TEXT:
+	{
+		if (secondtype == ScriptParser::TYPE_TEXT
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
+            
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Text");
+            
+		return false;
+	}
+    
+	case ScriptParser::TYPE_INPUT:
+	{
+		if (secondtype == ScriptParser::TYPE_INPUT
+		    || secondtype == ScriptParser::TYPE_UNTYPED)
+			return true;
+            
+		if(toblame)
+			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Input");
+            
+		return false;
+    }
+
+    case ScriptParser::TYPE_DMAPDATA:
+    {
+        if (secondtype == ScriptParser::TYPE_DMAPDATA
+            || secondtype == ScriptParser::TYPE_UNTYPED)
+            return true;
+            
+        if(toblame)
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to DMapData");
+            
+        return false;
+    }
+    
+    case ScriptParser::TYPE_ZMESSAGE:
+    {
+        if (secondtype == ScriptParser::TYPE_ZMESSAGE
+            || secondtype == ScriptParser::TYPE_UNTYPED)
+            return true;
+            
+        if(toblame)
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to MessageData");
+            
         return false;
     }
 
-    case ScriptParser::TYPE_NPC:
+	case ScriptParser::TYPE_SHOPDATA:
     {
-        if(secondtype == ScriptParser::TYPE_NPC)
+        if (secondtype == ScriptParser::TYPE_SHOPDATA
+            || secondtype == ScriptParser::TYPE_UNTYPED )
             return true;
-    
+            
         if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to npc");
+            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to ShopData");
             
         return false;
     }
 
-    case ScriptParser::TYPE_LWPN:
-    {
-        if(secondtype == ScriptParser::TYPE_LWPN)
-            return true;
-    
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to lweapon");
-        
-        return false;
-    }
-    
-    case ScriptParser::TYPE_EWPN:
-    {
-        if(secondtype == ScriptParser::TYPE_EWPN)
-            return true;
-        
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to eweapon");
-    
-        return false;
-    }
-    
-    case ScriptParser::TYPE_NPCDATA:
-    {
-        if(secondtype == ScriptParser::TYPE_NPCDATA)
-            return true;
-            
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to NPCData");
-            
-        return false;
-    }
-     case ScriptParser::TYPE_MAPDATA:
-    {
-        if(secondtype == ScriptParser::TYPE_MAPDATA)
-            return true;
-            
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to MapData");
-            
-        return false;
-    }
-    
-    case ScriptParser::TYPE_DEBUG:
-    {
-        if(secondtype == ScriptParser::TYPE_DEBUG)
-            return true;
-            
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Debug");
-            
-        return false;
-    }
-    case ScriptParser::TYPE_AUDIO:
-    {
-        if(secondtype == ScriptParser::TYPE_AUDIO)
-            return true;
-            
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Audio");
-            
-        return false;
-    }
-    case ScriptParser::TYPE_COMBOS:
-    {
-        if(secondtype == ScriptParser::TYPE_COMBOS)
-            return true;
-            
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to ComboData");
-            
-        return false;
-    }
-    case ScriptParser::TYPE_SPRITEDATA:
-    {
-        if(secondtype == ScriptParser::TYPE_SPRITEDATA)
-            return true;
-            
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to SpriteData");
-            
-        return false;
-    }
-    case ScriptParser::TYPE_GRAPHICS:
-    {
-        if(secondtype == ScriptParser::TYPE_GRAPHICS)
-            return true;
-            
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Graphics");
-            
-        return false;
-    }
-    case ScriptParser::TYPE_TEXT:
-    {
-        if(secondtype == ScriptParser::TYPE_TEXT)
-            return true;
-            
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Text");
-            
-        return false;
-    }
-    
-    case ScriptParser::TYPE_INPUT:
-    {
-        if(secondtype == ScriptParser::TYPE_INPUT)
-            return true;
-            
-        if(toblame)
-            printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Input");
-            
-        return false;
-    }
-    
+	case ScriptParser::TYPE_UNTYPED: return true;
+	
     default:
         assert(false);
     }
@@ -1723,39 +1825,30 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
     case ScriptParser::TYPE_FFC:
         fidparam = FFCSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
-    
     case ScriptParser::TYPE_LINK:
         fidparam = LinkSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
-    
     case ScriptParser::TYPE_SCREEN:
         fidparam = ScreenSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
-    
     case ScriptParser::TYPE_GAME:
         fidparam = GameSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
-    
     case ScriptParser::TYPE_ITEM:
         fidparam = ItemSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
-    
     case ScriptParser::TYPE_ITEMCLASS:
         fidparam = ItemclassSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
-    
     case ScriptParser::TYPE_NPC:
         fidparam = NPCSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
-    
     case ScriptParser::TYPE_LWPN:
         fidparam = LinkWeaponSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
-    
     case ScriptParser::TYPE_EWPN:
         fidparam = EnemyWeaponSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
-    
     case ScriptParser::TYPE_NPCDATA:
         fidparam = NPCDataSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
@@ -1783,8 +1876,19 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
     case ScriptParser::TYPE_INPUT:
         fidparam = InputSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
-        
-    //New Types
+    case ScriptParser::TYPE_DMAPDATA:
+        fidparam = DMapDataSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_ZMESSAGE:
+        fidparam = MessageDataSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_SHOPDATA:
+        fidparam = ShopDataSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_UNTYPED:
+        fidparam = UntypedSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+
     
     default:
         p->first.first->fail();

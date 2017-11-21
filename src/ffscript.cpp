@@ -4411,6 +4411,12 @@ case NPCDATAATTRIBUTE:
     case REFSPRITEDATA: ret = ri->spritesref; break;
     case REFGRAPHICS: ret = ri->gfxref; break;
     case REFNPCCLASS: ret = ri->npcdataref; break;
+    
+    
+    case REFDMAPDATA: ret = ri->dmapsref; break;
+    case REFSHOPDATA: ret = ri->shopsref; break;
+    case REFMSGDATA: ret = ri->zmsgref; break;
+    case REFUNTYPED: ret = ri->untypedref; break;
         
     case SP:
         ret = ri->sp * 10000;
@@ -8130,6 +8136,11 @@ case NPCDATAATTRIBUTE:
     case REFSPRITEDATA: ri->spritesref = value; break;
     case REFGRAPHICS: ri->gfxref = value; break;
     case REFNPCCLASS: ri->npcdataref = value; break;
+    
+    case REFDMAPDATA: ri->dmapsref = value; break;
+    case REFSHOPDATA: ri->shopsref = value; break;
+    case REFMSGDATA: ri->zmsgref = value; break;
+    case REFUNTYPED: ri->untypedref = value; break;
         
     default:
     {

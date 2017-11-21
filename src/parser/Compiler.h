@@ -118,6 +118,10 @@ public:
     static const int TYPE_TEXT = 19;
     static const int TYPE_INPUT = 20;
     static const int TYPE_MAPDATA = 21;
+    static const int TYPE_DMAPDATA = 22;
+    static const int TYPE_ZMESSAGE = 23;
+    static const int TYPE_SHOPDATA = 24;
+    static const int TYPE_UNTYPED = 25;
     
     
     static bool preprocess(AST *theAST, int reclevel, std::map<string,long> *constants);
@@ -198,6 +202,10 @@ public:
 	case  TYPE_TEXT: return "Text->";
 	case  TYPE_INPUT: return "Input->";
 	case  TYPE_MAPDATA: return "MapData->";
+	case  TYPE_DMAPDATA: return "DMapData->";
+	case  TYPE_ZMESSAGE: return "MessageData->";
+	case  TYPE_SHOPDATA: return "ShopData->";
+	case  TYPE_UNTYPED: return "Untyped->";
         default:
             return "wtf";
         }

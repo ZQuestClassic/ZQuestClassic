@@ -68,6 +68,10 @@ extern YYLTYPE noloc;
 %token MAPDATA
 %token NPCDATA
 %token COMBODATA
+%token DMAPDATA
+%token MESSAGEDATA
+%token SHOPDATA
+%token UNTYPED
 
 %token ASSIGN
 %token COLON
@@ -279,6 +283,10 @@ Type : ZFLOAT {$$ = new ASTTypeFloat(@1);}
 	| NPCDATA	{$$ = new ASTTypeNPCData(@1);}
 	| COMBODATA	{$$ = new ASTTypeComboData(@1);}
 	| GRAPHICS	{$$ = new ASTTypeGraphics(@1);}
+	| DMAPDATA	{$$ = new ASTTypeDMap(@1);}
+	| MESSAGEDATA	{$$ = new ASTTypeZMsg(@1);}
+	| SHOPDATA	{$$ = new ASTTypeShopData(@1);}
+//	| UNTYPED	{$$ = new ASTTypeUntyped(@1);}
 	;
 	;
 

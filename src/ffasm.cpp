@@ -996,10 +996,10 @@ script_variable variable_list[]=
 	{ "REFCOMBODATA",       REFCOMBODATA,          0,             0 },
 	{ "REFSPRITEDATA",       REFSPRITEDATA,          0,             0 },
 	{ "REFGRAPHICS",       REFGRAPHICS,          0,             0 },
-	{ "RESVD006",         RESVD006,            0,             0 },
-	{ "RESVD007",         RESVD007,            0,             0 },
-	{ "RESVD008",         RESVD008,            0,             0 },
-	{ "RESVD009",         RESVD009,            0,             0 },
+	{ "REFDMAPDATA",         REFDMAPDATA,            0,             0 },
+	{ "REFSHOPDATA",         REFSHOPDATA,            0,             0 },
+	{ "REFMSGDATA",         REFMSGDATA,            0,             0 },
+	{ "REFUNTYPED",         REFUNTYPED,            0,             0 },
 	{ "RESVD0010",         RESVD010,            0,             0 },
 	{ "RESVD0011",         RESVD011,            0,             0 },
 	{ "RESVD0012",         RESVD012,            0,             0 },
@@ -1452,7 +1452,9 @@ script_variable variable_list[]=
 	{"SCREENDATAFFEFFECTHEIGHT", SCREENDATAFFEFFECTHEIGHT, 0, 0 },
 	
 	{"LOADMAPDATA", LOADMAPDATA, 0, 0 },
-	    { " ",                       -1,             0,             0 }
+	
+	
+	{ " ",                       -1,             0,             0 }
 };
 
 long ffparse(char *string)

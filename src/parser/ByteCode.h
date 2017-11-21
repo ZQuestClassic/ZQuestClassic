@@ -874,7 +874,12 @@ using namespace std;
 #define LINKSCRIPFLIP	 		822
 #define LOADMAPDATA 			823
 
-#define LAST_BYTECODE 			824
+#define REFDMAPDATA 			824
+#define REFSHOPDATA 			825
+#define REFMSGDATA 			826
+#define REFNIL 				827
+
+#define LAST_BYTECODE 			828
 
 //END OF BYTECODE
 
