@@ -154,6 +154,16 @@ ConstDecl : ZCONST ZFLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = 
 																  val->set_negative(true);
 																  $$ = new ASTConstDecl(name->getValue(), val,@1);
 																  delete name;}
+																  
+	 | ZCONST NIL IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
+															ASTFloat *val = (ASTFloat *)$5;
+															$$ = new ASTConstDecl(name->getValue(), val,@1);
+															delete name;}
+          | ZCONST NIL IDENTIFIER ASSIGN MINUS NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
+																  ASTFloat *val = (ASTFloat *)$6;
+																  val->set_negative(true);
+																  $$ = new ASTConstDecl(name->getValue(), val,@1);
+																  delete name;}
 	//The following does not compile: error PRJ0019: A tool returned an error code from "[BISON][ZScriptParser] Building parser with bison 2.7"															
 //          | PREPROCESS DEFINE IDENTIFIER NUMBER WS {ASTString *name = (ASTString *)$3;
 //															ASTFloat *val = (ASTFloat *)$4;
@@ -287,7 +297,6 @@ Type : ZFLOAT {$$ = new ASTTypeFloat(@1);}
 	| MESSAGEDATA	{$$ = new ASTTypeZMsg(@1);}
 	| SHOPDATA	{$$ = new ASTTypeShopData(@1);}
 //	| UNTYPED	{$$ = new ASTTypeUntyped(@1);}
-	;
 	;
 
 FuncDecl : Type IDENTIFIER LPAREN ParamList RPAREN Block {ASTFuncDecl *fd = (ASTFuncDecl *)$4;
