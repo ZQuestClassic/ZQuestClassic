@@ -578,9 +578,9 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
         Opcode *first = new OPopRegister(new VarArgument(NUL));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OSetImmediate(new VarArgument(EXP1), new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        //code.push_back(new OSetImmediate(new VarArgument(EXP1), new VarArgument(EXP2)));
+        //code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP1))); //Just return it?
         rval[label]=code;
     }
 	
