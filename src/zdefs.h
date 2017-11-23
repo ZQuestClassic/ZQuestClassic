@@ -100,7 +100,7 @@
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
 #define ZELDA_VERSION_STR   "2.54 Alpha 19"                    //version of the program as presented in text
 #define IS_BETA             -19                              //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        00019
+#define VERSION_BETA        19
 #define DATE_STR            "32rd November, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
