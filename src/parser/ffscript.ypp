@@ -155,11 +155,11 @@ ConstDecl : ZCONST ZFLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = 
 																  $$ = new ASTConstDecl(name->getValue(), val,@1);
 																  delete name;}
 																  
-	 | ZCONST NIL IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
+	 | ZCONST UNTYPED IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
 															ASTFloat *val = (ASTFloat *)$5;
 															$$ = new ASTConstDecl(name->getValue(), val,@1);
 															delete name;}
-          | ZCONST NIL IDENTIFIER ASSIGN MINUS NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
+          | ZCONST UNTYPED IDENTIFIER ASSIGN MINUS NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
 																  ASTFloat *val = (ASTFloat *)$6;
 																  val->set_negative(true);
 																  $$ = new ASTConstDecl(name->getValue(), val,@1);
