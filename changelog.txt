@@ -1,6 +1,9 @@
 //2.54 Changes
 
 //Alpha 19
+Un-typed initD and SizeOfArray().
+Added preliminary, untyped Null() and an Untype() function to the global pointer. ( ZoriaRPG, 23rd November, 2017 )
+
 Rebased 2.54 while backporting fixes to switch-case from master.
 Renamed the 'nil' type to 'untyped'. ( Grayswandir, 22nd November, 2017 )
 
