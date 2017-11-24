@@ -2678,6 +2678,19 @@ long get_register(const long arg)
             ret=(((weapon*)(s))->scriptcoldet)*10000;
             
         break;
+	
+    case LWPNPARENT:
+        if(0!=(s=checkLWpn(ri->lwpn,"Family")))
+            ret=(((weapon*)(s))->parentitem)*10000;
+            
+        break;
+
+    case LWPNLEVEL:
+        if(0!=(s=checkLWpn(ri->lwpn,"Level")))
+            ret=(((weapon*)(s))->type)*10000;
+            
+        break;
+    
         
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables
@@ -6033,6 +6046,18 @@ void set_register(const long arg, const long value)
     case LWPNCOLLDET:
         if(0!=(s=checkLWpn(ri->lwpn,"CollDetection")))
             (((weapon*)(s))->scriptcoldet)=value/10000;
+            
+        break;
+	
+    case LWPNPARENT:
+        if(0!=(s=checkLWpn(ri->lwpn,"Family")))
+            (((weapon*)(s))->parentitem)=(vbound(value/10000,1,(MAXITEMS-1)));
+            
+        break;
+
+    case LWPNLEVEL:
+        if(0!=(s=checkLWpn(ri->lwpn,"Level")))
+            (((weapon*)(s))->type)=value/10000;
             
         break;
         

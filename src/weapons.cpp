@@ -2063,6 +2063,7 @@ bool weapon::blocked(int xOffset, int yOffset)
     if(get_bit(combo_class_buf[COMBOTYPE(wx,wy)].block_weapon,id)
             || get_bit(combo_class_buf[FFCOMBOTYPE(wx,wy)].block_weapon, id))
     {
+	    //Add lw->Level check here. -Z
         if(parentitem<0 || (combo_class_buf[COMBOTYPE(wx,wy)].block_weapon_lvl >=
                             itemsbuf[parentitem].fam_type))
         {
