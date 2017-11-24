@@ -31,16 +31,33 @@ struct miscQdata
 //Pay for info
 #define SHOPDATASTRING 
 
-#define LOADSHOP
+#define LOADSHOPR
+#define LOADSHOPV
 //Game->LoadShopData(int shop)
 //loads shop ID
-#define LOADINFO
+#define LOADINFOSHOPR
+#define LOADINFOSHOPV
 //Game->LoadInfoShopData(int id)
 //loads id+256 then if id > 255, we know it is an info shop type.
 //The pointer value for shops ia 0-255, for info shops 256-511
 
 
-
+//New Datatypes
+	case LOADSHOPR:
+            FFScript::do_loadshopdata(false);
+            break;
+        case LOADSHOPV:
+            FFScript::do_loadshopdata(true);
+            break;
+	
+	case LOADINFOSHOPR:
+            FFScript::do_loadinfoshopdata(false);
+            break;
+        case LOADINFOSHOPV:
+            FFScript::do_loadinfoshopdata(true);
+            break;
+	
+	
 void FFScript::do_loadshopdata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
