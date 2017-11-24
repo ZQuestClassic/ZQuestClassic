@@ -1,6 +1,9 @@
 //2.54 Changes
 
 //Alpha 19
+Changed lweapon->ParentItem to lweapon->Parent.
+Added eweapon->Parent (parent npc).
+Added lweapon->Level and lweapon->ParentItem. ( ZoriaRPG, 24th November 2017 )
 Un-typed initD and SizeOfArray().
 Added preliminary, untyped Null() and an Untype() function to the global pointer. ( ZoriaRPG, 23rd November, 2017 )
 
