@@ -4224,7 +4224,7 @@ case MAPDATAMISCD:
 	{ \
 		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			ret = -10000; \
 		} \
 		else \
@@ -4237,7 +4237,7 @@ case MAPDATAMISCD:
 	{ \
 		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			ret = -10000; \
 		} \
 		else \
@@ -4250,7 +4250,7 @@ case MAPDATAMISCD:
 	{ \
 		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			ret = -10000; \
 		} \
 		else \
@@ -4264,12 +4264,12 @@ case MAPDATAMISCD:
 			int indx = ri->d[0] / 10000; \
 			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Sprite ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 				ret = -10000; \
 			} \
 			else if ( indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 				ret = -10000; \
 			} \
 			else \
@@ -4283,12 +4283,12 @@ case MAPDATAMISCD:
 			int indx = ri->d[0] / 10000; \
 			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Sprite ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 				ret = -10000; \
 			} \
 			else if ( indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 				ret = -10000; \
 			} \
 			else \
@@ -4302,7 +4302,7 @@ case MAPDATAMISCD:
 		long flag =  (value/10000);  \
 		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
 		else \
 		{ \
@@ -7960,7 +7960,7 @@ case MAPDATAMISCD:
 	{ \
 		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
 		else \
 		{ \
@@ -7972,7 +7972,7 @@ case MAPDATAMISCD:
 	{ \
 		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
 		else \
 		{ \
@@ -7984,7 +7984,7 @@ case MAPDATAMISCD:
 	{ \
 		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
 		else \
 		{ \
@@ -7997,11 +7997,11 @@ case MAPDATAMISCD:
 			int indx = ri->d[0] / 10000; \
 			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Sprite ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			} \
 			else if ( indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 			} \
 			else \
 			{ \
@@ -8014,11 +8014,11 @@ case MAPDATAMISCD:
 			int indx = ri->d[0] / 10000; \
 			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid Sprite ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			} \
 			else if ( indx < 0 || indx > indexbound ) \
 			{ \
-				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 			} \
 			else \
 			{ \
@@ -8031,7 +8031,7 @@ case MAPDATAMISCD:
 		long flag =  (value/10000);  \
 		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
 		else \
 		{ \
