@@ -2365,6 +2365,13 @@ struct dmap
     byte disableditems[iMax];
     // 460
     long flags;
+    //byte sideview;
+    //byte gravity; //This is a byte (not a float!) in initdata -Z
+    //word terminalv; //This is a word  (not a float!) in initdata -Z
+    //long jump_z_layer_3;
+    //byte noF6;
+    //long init_d[8];
+    //long script;
 };
 
 // DMap flags
@@ -2384,6 +2391,8 @@ struct dmap
 #define dmfSCRIPT3 			0x2000
 #define dmfSCRIPT4 			0x4000
 #define dmfSCRIPT5 			0x8000
+#define dmfSIDEVIEW 			0x10000
+
 
 #define OLDMAXCOMBOALIASES 256
 #define MAXCOMBOALIASES 2048
