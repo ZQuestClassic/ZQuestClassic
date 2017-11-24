@@ -101,7 +101,7 @@
 #define ZELDA_VERSION_STR   "2.54 Alpha 19"                    //version of the program as presented in text
 #define IS_BETA             -19                              //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        19
-#define DATE_STR            "32rd November, 2017"
+#define DATE_STR            "24th November, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
