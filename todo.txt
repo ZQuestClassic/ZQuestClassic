@@ -1,5 +1,6 @@
 To-Do
-
+Add magic powder, and an npc var: transform.
+The 'transform' var can be an enemy defence (as can split, tribble)!
 
 Forward QRs to Items
 qr_FIREPROOFLINK (candle, done; book fire, todo)
