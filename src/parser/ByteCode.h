@@ -880,8 +880,9 @@ using namespace std;
 #define REFNIL 				827
 #define LWPNPARENT 			828
 #define LWPNLEVEL 			829
+#define EWPNPARENT 			830
 
-#define LAST_BYTECODE 			830
+#define LAST_BYTECODE 			831
 
 //END OF BYTECODE
 

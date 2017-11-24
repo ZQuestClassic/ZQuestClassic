@@ -1454,6 +1454,7 @@ script_variable variable_list[]=
 	{"LOADMAPDATA", LOADMAPDATA, 0, 0 },
 	{"LWPNPARENT", LWPNPARENT, 0, 0 },
 	{"LWPNLEVEL", LWPNLEVEL, 0, 0 },
+	{"EWPNPARENT", EWPNPARENT, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }

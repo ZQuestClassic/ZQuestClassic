@@ -793,6 +793,8 @@ string VarArgument::toString()
         return "LWPNPARENT";
     case LWPNLEVEL:
         return "LWPNLEVEL";
+    case EWPNPARENT:
+        return "EWPNPARENT";
         
     case REFEWPN:
         return "REFEWPN";
