@@ -881,8 +881,13 @@ using namespace std;
 #define LWPNPARENT 			828
 #define LWPNLEVEL 			829
 #define EWPNPARENT 			830
+#define SHOPDATANAME 			831
+#define SHOPDATAITEM 			832
+#define SHOPDATAHASITEM 		833
+#define SHOPDATAPRICE 			834
+#define SHOPDATASTRING 			835
 
-#define LAST_BYTECODE 			831
+#define LAST_BYTECODE 			836
 
 //END OF BYTECODE
 
@@ -1988,6 +1993,28 @@ public:
     }
 };
 
+class OLoadShopDataRegister : public UnaryOpcode
+{
+public:
+    OLoadShopDataRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OLoadShopDataRegister(a->clone());
+    }
+};
+
+
+class OLoadInfoShopDataRegister : public UnaryOpcode
+{
+public:
+    OLoadInfoShopDataRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OLoadInfoShopDataRegister(a->clone());
+    }
+};
 
 class OLoadNPCDataRegister : public UnaryOpcode
 {

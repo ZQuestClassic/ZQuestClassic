@@ -1476,6 +1476,11 @@ string VarArgument::toString()
 	case SCREENDATAFFEFFECTWIDTH: return "SCREENDATAFFEFFECTWIDTH";
 	case SCREENDATAFFEFFECTHEIGHT: return "SCREENDATAFFEFFECTHEIGHT";
 	case LOADMAPDATA: return "LOADMAPDATA";
+	case SHOPDATANAME: return "SHOPDATANAME";
+	case SHOPDATAITEM: return "SHOPDATAITEM";
+	case SHOPDATAHASITEM: return "SHOPDATAHASITEM";
+	case SHOPDATAPRICE: return "SHOPDATAPRICE";
+	case SHOPDATASTRING: return "SHOPDATASTRING";
     default:
     {
         sprintf(temp, "d%d", ID);
@@ -1937,6 +1942,16 @@ string OLoadItemDataRegister::toString()
 }
 
 //New Types
+
+string OLoadShopDataRegister::toString()
+{
+    return "LOADSHOPR " + getArgument()->toString();
+}
+string OLoadInfoShopDataRegister::toString()
+{
+    return "LOADINFOSHOPR " + getArgument()->toString();
+}
+
 string OLoadNPCDataRegister::toString()
 {
     return "LOADNPCDATAR " + getArgument()->toString();

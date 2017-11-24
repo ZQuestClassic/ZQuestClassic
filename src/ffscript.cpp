@@ -53,6 +53,9 @@ T zc_max(T a, T b)
 #pragma warning ( disable : 4800 ) //int to bool town. population: lots.
 #endif
 
+#define NUMSHOPS 256
+#define NUMINFOSHOPS 511
+
 //! New datatype vars for 2.54:
 
 //spritedata sp->member
@@ -85,6 +88,7 @@ long FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and 
 byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 long FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
     
+miscQdata *misc;
 
 //We gain some speed by not passing as arguments
 long sarg1 = 0;
@@ -4215,6 +4219,123 @@ case MAPDATAMISCD:
         ret = get_screeneflags(m,vbound(ri->d[0] / 10000,0,2));
         break;
     }
+
+///----------------------------------------------------------------------------------------------------//
+//shopdata sd-> variables
+  
+	
+	case SHOPDATAITEM:
+	{ 
+		
+		int ref = ri->shopsref; 
+		bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+		int indx = ri->d[0] / 10000; 
+		if ( indx < 0 || indx > 2 ) 
+		{ 
+			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Item"); 
+		} 
+		else 
+		{ 
+			if ( isInfo ) 
+			{ 
+				Z_scripterrlog("Attempted to load an 'item' from an infoshop, using shop ID: %d\n", ri->shopsref); 
+				ret = -10000;
+			} 
+			else 
+			{ 
+				ret = ((int)(misc->shop[ref].item[indx]) * 10000); 
+			} 
+		} 
+	} 
+	break;
+	
+		// GET_SHOPDATA_VAR_INDEX(item, "Item", 2); break;
+	case SHOPDATAHASITEM: 
+	{ 
+		
+		int ref = ri->shopsref; 
+		bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+		int indx = ri->d[0] / 10000; 
+		if ( indx < 0 || indx > 2 ) 
+		{ 
+			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+		} 
+		else 
+		{ 
+			if ( isInfo ) 
+			{ 
+				Z_scripterrlog("Attempted to load 'hasitem' from an infoshop, using shop ID: %d\n", ri->shopsref); 
+				ret = -10000;
+			} 
+			else 
+			{ 
+				ret = ((int)(misc->shop[ref].hasitem[indx]) * 10000); 
+			} 
+		} 
+	} 
+	break;
+		
+	//GET_SHOPDATA_VAR_INDEX(hasitem, "HasItem", 2); break;
+	case SHOPDATAPRICE: 
+	{ 
+		
+		int ref = ri->shopsref; 
+		bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+		int indx = ri->d[0] / 10000; 
+		if ( indx < 0 || indx > 2 ) 
+		{ 
+			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Price"); 
+		} 
+		else 
+		{ 
+			if ( isInfo ) 
+			{ 
+				ret = ((int)(misc->info[ref].price[indx]) * 10000); 
+			} 
+			else 
+			{ 
+				ret = ((int)(misc->shop[ref].price[indx]) * 10000); 
+			} 
+		} 
+	} 
+	break;
+		
+	//GET_SHOPDATA_VAR_INDEX(price, "Price", 2); break;
+	//Pay for info
+	case SHOPDATASTRING:
+	{
+		if ( ri->shopsref < NUMSHOPS || ri->shopsref > NUMINFOSHOPS )
+		{
+			Z_scripterrlog("Invalid Info Shop ID passed to shopdata->String[]: %d\n", ri->shopsref); 
+			break;
+		}
+		else 
+		{
+			int ref = ri->shopsref; 
+			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			int indx = ri->d[0] / 10000; 
+			if ( indx < 0 || indx > 2 ) 
+			{ 
+				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+			} 
+			else 
+			{ 
+				if ( isInfo ) 
+				{ 
+					ret = ((int)(misc->info[ref].str[indx]) * 10000); 
+				} 
+				else 
+				{ 
+					Z_scripterrlog("Attempted to load 'String' from an item shop, using shop ID: %d\n", ri->shopsref); 
+					ret = -10000;
+				} 
+			} 
+	
+	
+		}
+			
+		//GET_SHOPDATA_VAR_INDEX(str, String, 2); break;
+	} break;
     
 ///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> variables
@@ -7952,7 +8073,119 @@ case MAPDATAMISCD:
         (value)?setmapflag(ri->mapsref, 1<<((ri->d[0])/10000)) : unsetmapflag(ri->mapsref, 1 << ((ri->d[0]) / 10000));
     }
     break;
+    
+///----------------------------------------------------------------------------------------------------//
+//shopdata sd-> Variables
+	
+	case SHOPDATAITEM: 
+	{ 
+		
+		int ref = ri->shopsref; 
+		bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+		int indx = ri->d[0] / 10000; 
+		if ( indx < 0 || indx > 2 ) 
+		{ 
+			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Item"); 
+		} 
+		else 
+		{ 
+			if ( isInfo ) 
+			{ 
+				Z_scripterrlog("Attempted to write an 'item' to an infoshop, using shop ID: %d\n", ri->shopsref); 
+			} 
+			else 
+			{ 
+				misc->shop[ref].item[indx] = (byte)(vbound((value/10000), 0, 255)); 
+			} 
+		} 
+	} 
+	break;
+//SET_SHOPDATA_VAR_INDEX(item, "Item", 2); break;
+	case SHOPDATAHASITEM: 
+	{ 
+		
+		int ref = ri->shopsref; 
+		bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+		int indx = ri->d[0] / 10000; 
+		if ( indx < 0 || indx > 2 ) 
+		{ 
+			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+		} 
+		else 
+		{ 
+			if ( isInfo ) 
+			{ 
+				Z_scripterrlog("Attempted to write 'hasitem' to an infoshop, using shop ID: %d\n", ri->shopsref); 
+			} 
+			else 
+			{ 
+				misc->shop[ref].hasitem[indx] = (byte)(vbound((value/10000), 0, 255)); 
+			} 
+		} 
+	} 
+	break;
+//SET_SHOPDATA_VAR_INDEX(hasitem, "HasItem", 2); break;
+	case SHOPDATAPRICE: 
+	{ 
+		
+		int ref = ri->shopsref; 
+		bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+		int indx = ri->d[0] / 10000; 
+		if ( indx < 0 || indx > 2 ) 
+		{ 
+			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Price"); 
+		} 
+		else 
+		{ 
+			if ( isInfo ) 
+			{ 
+				misc->shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
+			} 
+			else 
+			{ 
+				misc->shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
+			} 
+		} 
+	} 
+//SET_SHOPDATA_VAR_INDEX(price, "Price", 2); break;
+//Pay for info
+case SHOPDATASTRING:
+{
+	{
+		if ( ri->shopsref < NUMSHOPS || ri->shopsref > NUMINFOSHOPS )
+		{
+			Z_scripterrlog("Invalid Info Shop ID passed to shopdata->String[]: %d\n", ri->shopsref); 
+			break;
+		}
+		else 
+		{
+			int ref = ri->shopsref; 
+			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			int indx = ri->d[0] / 10000; 
+			if ( indx < 0 || indx > 2 ) 
+			{ 
+				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+			} 
+			else 
+			{ 
+				if ( isInfo ) 
+				{ 
+					misc->info[ref].str[indx] = (word)(vbound((value/10000), 0, 32767));
+				} 
+				else 
+				{ 
+					Z_scripterrlog("Attempted to write an 'info string' to an item shop, using shop ID: %d\n", ri->shopsref); 
+				} 
+			} 
+	
+	
+		}
+			
+		//GET_SHOPDATA_VAR_INDEX(str, String, 2); break;
+	} break;
+}
 
+    
 ///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> Variables
 	
@@ -9693,6 +9926,36 @@ void FFScript::do_loadmapdata(const bool v)
     //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
 }
 
+	
+void FFScript::do_loadshopdata(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    
+    if ( ID < 0 || ID > 255 )
+    {
+	Z_scripterrlog("Invalid Shop ID passed to Game->LoadShopData: %d\n", ID);
+	ri->shopsref = LONG_MAX;
+    }
+        
+    else ri->shopsref = ID;
+    //Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
+}
+
+
+void FFScript::do_loadinfoshopdata(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    
+    if ( ID < 0 || ID > 255 )
+    {
+	Z_scripterrlog("Invalid Shop ID passed to Game->LoadShopData: %d\n", ID);
+	ri->shopsref = LONG_MAX;
+    }
+        
+    else ri->shopsref = ID+NUMSHOPS;
+    //Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
+}
+
 /*
 void FFScript::do_loadmapdata(const bool v)
 {
@@ -11419,6 +11682,19 @@ int run_script(const byte type, const word script, const byte i)
             break;
 	
 	//New Datatypes
+	case LOADSHOPR:
+            FFScript::do_loadshopdata(false);
+            break;
+        case LOADSHOPV:
+            FFScript::do_loadshopdata(true);
+            break;
+	
+	case LOADINFOSHOPR:
+            FFScript::do_loadinfoshopdata(false);
+            break;
+        case LOADINFOSHOPV:
+            FFScript::do_loadinfoshopdata(true);
+            break;
 	case LOADNPCDATAR:
             FFScript::do_loadnpcdata(false);
             break;

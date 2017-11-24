@@ -644,6 +644,12 @@ script_command command_list[NUMCOMMANDS+1]=
 
     { "LOADBITMAPDATAR",       1,   0,   0,   0},
     { "LOADBITMAPDATAV",       1,   1,   0,   0},
+    
+    { "LOADSHOPR",       1,   0,   0,   0},
+    { "LOADSHOPV",       1,   1,   0,   0},
+
+    { "LOADINFOSHOPR",       1,   0,   0,   0},
+    { "LOADINFOSHOPV",       1,   1,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 
@@ -1455,6 +1461,13 @@ script_variable variable_list[]=
 	{"LWPNPARENT", LWPNPARENT, 0, 0 },
 	{"LWPNLEVEL", LWPNLEVEL, 0, 0 },
 	{"EWPNPARENT", EWPNPARENT, 0, 0 },
+	
+	
+	{"SHOPDATANAME", SHOPDATANAME, 0, 0 },
+	{"SHOPDATAITEM", SHOPDATAITEM, 0, 0 },
+	{"SHOPDATAHASITEM", SHOPDATAHASITEM, 0, 0 },
+	{"SHOPDATAPRICE", SHOPDATAPRICE, 0, 0 },
+	{"SHOPDATASTRING", SHOPDATASTRING, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }

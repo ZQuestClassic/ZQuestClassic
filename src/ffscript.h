@@ -455,6 +455,8 @@ static void setLinkBigHitbox(bool v);
 	static void do_loadspritedata(const bool v);
 	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
+	static void do_loadshopdata(const bool v);
+	static void do_loadinfoshopdata(const bool v);
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
@@ -1410,6 +1412,10 @@ enum ASM_DEFINE
 	LOADSCREENDATAV,
 	LOADBITMAPDATAR,
 	LOADBITMAPDATAV,
+	LOADSHOPR,
+	LOADSHOPV,
+	LOADINFOSHOPR,
+	LOADINFOSHOPV,
 	
 	NUMCOMMANDS           //0x013B
 };
@@ -2377,7 +2383,15 @@ enum ASM_DEFINE
 
 #define LOADMAPDATA 0x1286
 
-#define NUMVARIABLES         0x1287
+#define SHOPDATANAME	0x1287
+#define SHOPDATAITEM	0x1288
+#define SHOPDATAHASITEM	0x1289
+#define SHOPDATAPRICE	0x128A
+//Pay for info
+#define SHOPDATASTRING  0x128B
+
+
+#define NUMVARIABLES         0x128C
 
 // Script types
 
