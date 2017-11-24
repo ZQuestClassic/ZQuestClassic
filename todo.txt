@@ -1,4 +1,6 @@
 To-Do
+
+
 Forward QRs to Items
 qr_FIREPROOFLINK (candle, done; book fire, todo)
 qr_TEMPCANDLELIGHT (candle, done; book fire, todo)
@@ -41,7 +43,6 @@ qr_BROKENSTATUES
 
 Implement Enemy based QR behaviour
 
-
 Forward QRs to visual effects
 qr_FFCSCROLL
 qr_SMOOTHVERTICALSCROLLING
@@ -66,7 +67,7 @@ qr_NOFAIRYGUYFIRES
 qr_NOSOLIDDAMAGECOMBOS
 qr_OFFSCREENWEAPONS(should this be per-weapon?)
 qr_NOSCRIPTSDURINGSCROLL
-er_SHORTDGNWALK
+qr_SHORTDGNWALK
 
 Misc
 qr_REFLECTROCKS
@@ -76,6 +77,7 @@ qr_FIREPROOFLINK2 (Invincible Link is not hurt by his own fire)
 Weapons
 Item Editor Weapons?
 Combo editor types lists
+lw->, ew->, npc->Scale : Scale sprites and hitboxes around a specific value.
 
 //Done (Probably)
 New ZScript Vars, Functions, and Types
