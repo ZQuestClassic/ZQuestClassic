@@ -1518,8 +1518,8 @@ enum ASM_DEFINE
 #define LWPNCOLLDET          0x0271
 //   0x0272-   0x028B are reserved for future weapon variables
 #define LWPNRANGE             0x0272
-#define UNUSED48             0x0273
-#define UNUSED49             0x0274
+#define LWPNPARENT             0x0273
+#define LWPNLEVEL             0x0274
 #define UNUSED50             0x0275
 #define UNUSED51             0x0276
 #define UNUSED52             0x0277

@@ -788,6 +788,11 @@ string VarArgument::toString()
         
     case LWPNCOLLDET:
         return "LWPNCOLLDET";
+    
+    case LWPNPARENT:
+        return "LWPNPARENT";
+    case LWPNLEVEL:
+        return "LWPNLEVEL";
         
     case REFEWPN:
         return "REFEWPN";

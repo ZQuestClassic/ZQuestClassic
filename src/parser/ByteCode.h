@@ -878,8 +878,10 @@ using namespace std;
 #define REFSHOPDATA 			825
 #define REFMSGDATA 			826
 #define REFNIL 				827
+#define LWPNPARENT 			828
+#define LWPNLEVEL 			829
 
-#define LAST_BYTECODE 			828
+#define LAST_BYTECODE 			830
 
 //END OF BYTECODE
 
