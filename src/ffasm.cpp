@@ -1469,6 +1469,10 @@ script_variable variable_list[]=
 	{"SHOPDATAPRICE", SHOPDATAPRICE, 0, 0 },
 	{"SHOPDATASTRING", SHOPDATASTRING, 0, 0 },
 	
+	{"NPCDATASHIELD", NPCDATASHIELD, 0, 0 },
+	{"NPCSHIELD", NPCSHIELD, 0, 0 },
+	//end ffscript vars
+	
 	
 	{ " ",                       -1,             0,             0 }
 };

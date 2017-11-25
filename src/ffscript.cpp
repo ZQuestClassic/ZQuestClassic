@@ -2450,7 +2450,46 @@ long get_register(const long arg)
             
         break;
     
-    
+    case NPCSHIELD:
+{
+	int indx = ri->d[0];
+	if(GuyH::loadNPC(ri->guyref, "npc->Shield[]") == SH::_NoError)
+	{
+		switch(indx)
+		{
+			case 0:
+			{
+				ret = ((GuyH::getNPC()->flags&inv_front) ? 10000 : 0);
+				break;
+			}
+			case 1:
+			{
+				ret = ((GuyH::getNPC()->flags&inv_left) ? 10000 : 0);
+				break;
+			}
+			case 2:
+			{
+				ret = ((GuyH::getNPC()->flags&inv_right) ? 10000 : 0);
+				break;
+			}
+			case 3:
+			{
+				ret = ((GuyH::getNPC()->flags&inv_back) ? 10000 : 0);
+				break;
+			}
+			case 4: //shield can be broken
+			{
+				ret = ((GuyH::getNPC()->flags&guy_bkshield) ? 10000 : 0);
+				break;
+			}
+			default:
+			{
+				Z_scripterrlog("Invalid Array Index passed to npc->Shield[]: %d\n", indx); 
+				break;
+			}
+		}
+	}
+}
     
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
@@ -4516,6 +4555,53 @@ case NPCDATAATTRIBUTE:
 			
 	} 
 	break;
+}
+
+case NPCDATASHIELD:
+{
+	int indx = ri->d[0] / 10000; 
+	if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+	{ 
+		Z_scripterrlog("Invalid NPC ID passed to npcdata->Shield[]: %d\n", (ri->npcdataref*10000)); 
+		ret = -10000; 
+	} 
+	else 
+	{ 
+		switch(indx)
+		{
+			case 0:
+			{
+				ret = ((guysbuf[ri->npcdataref].flags&inv_front) ? 10000 : 0);
+				break;
+			}
+			case 1:
+			{
+				ret = ((guysbuf[ri->npcdataref].flags&inv_left) ? 10000 : 0);
+				break;
+			}
+			case 2:
+			{
+				ret = ((guysbuf[ri->npcdataref].flags&inv_right) ? 10000 : 0);
+				break;
+			}
+			case 3:
+			{
+				ret = ((guysbuf[ri->npcdataref].flags&inv_back) ? 10000 : 0);
+				break;
+			}
+			case 4:
+			{
+				ret = ((guysbuf[ri->npcdataref].flags&guy_bkshield) ? 10000 : 0);
+				break;
+			}
+			default:
+			{
+				Z_scripterrlog("Invalid Array Index passed to npcdata->Shield[]: %d\n", indx); 
+				ret = -10000; 
+				break;
+			}
+		}
+	} 
 }
     
     
@@ -6744,6 +6830,47 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
+    case NPCSHIELD:
+{
+	int indx = ri->d[0];
+	if(GuyH::loadNPC(ri->guyref, "npc->Shield[]") == SH::_NoError)
+	{
+		switch(indx)
+		{
+			case 0:
+			{
+				(ri->d[1])? (GuyH::getNPC()->flags |= inv_front) : (GuyH::getNPC()->flags &= ~inv_front);
+				break;
+			}
+			case 1:
+			{
+				(ri->d[1])? (GuyH::getNPC()->flags |= inv_left) : (GuyH::getNPC()->flags &= ~inv_left);
+				break;
+			}
+			case 2:
+			{
+				(ri->d[1])? (GuyH::getNPC()->flags |= inv_right) : (GuyH::getNPC()->flags &= ~inv_right);
+				break;
+			}
+			case 3:
+			{
+				(ri->d[1])? (GuyH::getNPC()->flags |= inv_back) : (GuyH::getNPC()->flags &= ~inv_back);
+				break;
+			}
+			case 4: //shield can be broken
+			{
+				(ri->d[1])? (GuyH::getNPC()->flags |= guy_bkshield) : (GuyH::getNPC()->flags &= ~guy_bkshield);
+				break;
+			}
+			default:
+			{
+				Z_scripterrlog("Invalid Array Index passed to npc->Shield[]: %d\n", indx); 
+				break;
+			}
+		}
+	}
+}
+    
 ///----------------------------------------------------------------------------------------------------//
 //Game Information
     
@@ -8359,6 +8486,52 @@ case NPCDATAATTRIBUTE:
 	} 
 	break;
 }
+
+case NPCDATASHIELD:
+{
+	int indx = ri->d[0] / 10000; 
+	if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+	{ 
+		Z_scripterrlog("Invalid NPC ID passed to npcdata->Shield[]: %d\n", (ri->npcdataref*10000));
+	} 
+	else 
+	{ 
+		switch(indx)
+		{
+			case 0:
+			{
+				(ri->d[1])? (guysbuf[ri->npcdataref].flags |= inv_front) : (guysbuf[ri->npcdataref].flags &= ~inv_front);
+				break;
+			}
+			case 1:
+			{
+				(ri->d[1])? (guysbuf[ri->npcdataref].flags |= inv_left) : (guysbuf[ri->npcdataref].flags &= ~inv_left);
+				break;
+			}
+			case 2:
+			{
+				(ri->d[1])? (guysbuf[ri->npcdataref].flags |= inv_right) : (guysbuf[ri->npcdataref].flags &= ~inv_right);
+				break;
+			}
+			case 3:
+			{
+				(ri->d[1])? (guysbuf[ri->npcdataref].flags |= inv_back) : (guysbuf[ri->npcdataref].flags &= ~inv_back);
+				break;
+			}
+			case 4:
+			{
+				(ri->d[1])? (guysbuf[ri->npcdataref].flags |= guy_bkshield) : (guysbuf[ri->npcdataref].flags &= ~guy_bkshield);
+				break;
+			}
+			default:
+			{
+				Z_scripterrlog("Invalid Array Index passed to npcdata->Shield[]: %d\n", indx); 
+				break;
+			}
+		}
+	} 
+}
+
 	
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal

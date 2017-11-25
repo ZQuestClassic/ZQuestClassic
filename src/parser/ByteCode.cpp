@@ -691,6 +691,8 @@ string VarArgument::toString()
         return "NPCHASITEM";
     case NPCRINGLEAD:
         return "NPCRINGLEAD";
+    case NPCSHIELD:
+        return "NPCSHIELD";
         
         
     case SCRDOORD:
@@ -1287,7 +1289,7 @@ string VarArgument::toString()
 	case NPCDATADEFENSE: return "NPCDATADEFENSE";
 	case NPCDATASIZEFLAG: return "NPCDATASIZEFLAG";
 	case NPCDATAATTRIBUTE: return "NPCDATAATTRIBUTE";
-	
+	case NPCDATASHIELD: return "NPCDATASHIELD";
 		
 	case MAPDATAVALID: return "MAPDATAVALID";
 	case MAPDATAGUY: return "MAPDATAGUY";
