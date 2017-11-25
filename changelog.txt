@@ -1,6 +1,8 @@
 //2.54 Changes
 
 //Alpha 19
+Added bool SHield[5] to npc-> and npcdata->
+	The indices are { up, left, right, back, can_break } ( ZoriaRPG, 25th November, 2017 )
 Added shopdata for item shops, and info shops.
 Both types use the same ref, and thus, the same pointer type, called using:
 shopdata shop = Game->LoadShopData(shop_id);
