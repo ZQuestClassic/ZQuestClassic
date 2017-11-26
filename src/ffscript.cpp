@@ -4606,6 +4606,53 @@ case NPCDATASHIELD:
     
     
 ///----------------------------------------------------------------------------------------------------//
+//Audio Variables
+
+case AUDIOVOLUME:
+{
+	int indx = ri->d[0] / 10000;
+	int r;
+	switch(indx)
+	{
+		
+		case 0: //midi volume
+		{
+			r = FFScript::do_getMIDI_volume() * 10000;
+			break;
+		}
+		case 1: //digi volume
+		{
+			r = FFScript::do_getDIGI_volume() * 10000;
+			break;
+		}
+		case 2: //emh music volume
+		{
+			r = FFScript::do_getMusic_volume() * 10000;
+			break;
+		}
+		case 3: //sfx volume
+		{
+			r = FFScript::do_getSFX_volume() * 10000;
+			break;
+		}
+		default:
+		{
+			Z_scripterrlog("Attempted to access an invalid index of Audio->Volume[]", indx); 
+			ret = -10000;
+			break;
+		}
+	}
+	ret = r; break;
+}
+
+case AUDIOPAN:
+{
+	ret = FFScript::do_getSFX_pan() * 10000;
+	break;
+}
+
+
+///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
     case REFFFC:
         ret = ri->ffcref * 10000;
@@ -8533,6 +8580,53 @@ case NPCDATASHIELD:
 }
 
 	
+///----------------------------------------------------------------------------------------------------//
+//Audio Variables
+
+case AUDIOVOLUME:
+{
+	int indx = ri->d[0] / 10000;
+	//Z_scripterrlog("Volume[index] is: %d", indx);
+	//int vol = value / 10000;
+	//Z_scripterrlog("Attempted to change volume to: %d", vol);
+	switch(indx)
+	{
+		
+		case 0: //midi volume
+		{
+			FFScript::do_setMIDI_volume(value / 10000);
+			break;
+		}
+		case 1: //digi volume
+		{
+			FFScript::do_setDIGI_volume(value / 10000);
+			break;
+		}
+		case 2: //emh music volume
+		{
+			FFScript::do_setMusic_volume(value / 10000);
+			break;
+		}
+		case 3: //sfx volume
+		{
+			FFScript::do_setSFX_volume(value / 10000);
+			break;
+		}
+		default:
+		{
+			Z_scripterrlog("Attempted to access an invalid index of Audio->Volume[]", indx); 
+			break;
+		}
+	}
+	break;
+}
+
+case AUDIOPAN:
+{
+	FFScript::do_setSFX_pan(value/10000);
+	break;
+}
+
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
     case SP:
@@ -13790,6 +13884,49 @@ void FFScript::setSpriteDataFrames(){SET_SPRITEDATA_TYPE_INT(frames,ZS_CHAR);}
 void FFScript::setSpriteDataSpeed(){SET_SPRITEDATA_TYPE_INT(speed,ZS_CHAR);}
 void FFScript::setSpriteDataType(){SET_SPRITEDATA_TYPE_INT(type,ZS_CHAR);}
 //void FFScript::setSpriteDataString();
+
+
+void FFScript::do_setMIDI_volume(int m)
+{
+	master_volume(-1,(vbound(m,0,255)));
+}
+void FFScript::do_setMusic_volume(int m)
+{
+	emusic_volume = vbound(m,0,255);
+}
+void FFScript::do_setDIGI_volume(int m)
+{
+	master_volume((vbound(m,0,255)),-1);
+}
+void FFScript::do_setSFX_volume(int m)
+{
+	sfx_volume = m;
+}
+void FFScript::do_setSFX_pan(int m)
+{
+	pan_style = vbound(m,0,3);
+}
+int FFScript::do_getMIDI_volume()
+{
+	return ((int)midi_volume);
+}
+int FFScript::do_getMusic_volume()
+{
+	return ((int)emusic_volume);
+}
+int FFScript::do_getDIGI_volume()
+{
+	return ((int)digi_volume);
+}
+int FFScript::do_getSFX_volume()
+{
+	return ((int)sfx_volume);
+}
+int FFScript::do_getSFX_pan()
+{
+	return ((int)pan_style);
+}
+
 
 //Change Game Over Screen Values
 void FFScript::FFSetSaveScreenSetting() 

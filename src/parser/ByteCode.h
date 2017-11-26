@@ -887,8 +887,10 @@ using namespace std;
 #define SHOPDATAPRICE 			834
 #define SHOPDATASTRING 			835
 #define NPCSHIELD 			836
+#define AUDIOVOLUME 			837
+#define AUDIOPAN 			838
 
-#define LAST_BYTECODE 			837
+#define LAST_BYTECODE 			839
 
 //END OF BYTECODE
 

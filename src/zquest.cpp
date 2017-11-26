@@ -19769,7 +19769,7 @@ static DIALOG sfx_edit_dlg[] =
 // array of voices, one for each sfx sample in the data file
 // 0+ = voice #
 // -1 = voice not allocated
-static int sfx_voice[WAV_COUNT];
+int sfx_voice[WAV_COUNT];
 
 void Z_init_sound()
 {

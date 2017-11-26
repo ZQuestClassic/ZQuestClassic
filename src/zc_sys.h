@@ -63,6 +63,7 @@ extern bool button_press[18];
 extern bool button_hold[18];
 
 void load_control_state();
+extern int sfx_voice[WAV_COUNT];
 
 bool Up();
 bool Down();

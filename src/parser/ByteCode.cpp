@@ -1483,6 +1483,9 @@ string VarArgument::toString()
 	case SHOPDATAHASITEM: return "SHOPDATAHASITEM";
 	case SHOPDATAPRICE: return "SHOPDATAPRICE";
 	case SHOPDATASTRING: return "SHOPDATASTRING";
+	
+	case AUDIOVOLUME: return "AUDIOVOLUME";
+	case AUDIOPAN: return "AUDIOPAN";
     default:
     {
         sprintf(temp, "d%d", ID);

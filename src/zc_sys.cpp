@@ -53,7 +53,7 @@
 #include "mem_debug.h"
 #include "zconsole.h"
 
-static int sfx_voice[WAV_COUNT];
+int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
 
 extern FONT *lfont;

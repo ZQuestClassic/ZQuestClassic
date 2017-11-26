@@ -457,6 +457,17 @@ static void setLinkBigHitbox(bool v);
 	static void do_loadbitmapid(const bool v);
 	static void do_loadshopdata(const bool v);
 	static void do_loadinfoshopdata(const bool v);
+	static void do_setMIDI_volume(int m);
+	static void do_setMusic_volume(int m);
+	static void do_setDIGI_volume(int m);
+	static void do_setSFX_volume(int m);
+	static void do_setSFX_pan(int m);
+	
+	static int do_getMIDI_volume();
+	static int do_getMusic_volume();
+	static int do_getDIGI_volume();
+	static int do_getSFX_volume();
+	static int do_getSFX_pan();
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
@@ -2390,8 +2401,10 @@ enum ASM_DEFINE
 //Pay for info
 #define SHOPDATASTRING  0x128B
 
+#define AUDIOVOLUME	0x128C
+#define AUDIOPAN	0x128D
 
-#define NUMVARIABLES         0x128C
+#define NUMVARIABLES         0x128E
 
 // Script types
 

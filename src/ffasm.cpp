@@ -1471,6 +1471,8 @@ script_variable variable_list[]=
 	
 	{"NPCDATASHIELD", NPCDATASHIELD, 0, 0 },
 	{"NPCSHIELD", NPCSHIELD, 0, 0 },
+	{"AUDIOVOLUME", AUDIOVOLUME, 0, 0 },
+	{"AUDIOPAN", AUDIOPAN, 0, 0 },
 	//end ffscript vars
 	
 	
