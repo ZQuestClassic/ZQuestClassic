@@ -6455,9 +6455,13 @@ void set_register(const long arg, const long value)
         break;
 	
     case LWPNPARENT:
-        if(0!=(s=checkLWpn(ri->lwpn,"Family")))
+    {
+	    int pitm = (vbound(value/10000,1,(MAXITEMS-1)));
+	    Z_scripterrlog("Attempting to set ParentItem to: %d\n", pitm); 
+				
+        if(0!=(s=checkLWpn(ri->lwpn,"Parent")))
             (((weapon*)(s))->parentitem)=(vbound(value/10000,1,(MAXITEMS-1)));
-            
+    }
         break;
 
     case LWPNLEVEL:
