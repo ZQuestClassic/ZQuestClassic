@@ -12,7 +12,7 @@ DMAPDATAPALETTE //word
 DMAPDATAMIDI //byte
 DMAPDATACONTINUE //byte
 DMAPDATATYPE //byte
-DMAPDATAGRID //byte[8]
+DMAPDATAGRID //byte[8] --array
 DMAPDATAMINIMAPTILE //word - two of these, so let's do MinimapTile[2]
 DMAPDATAMINIMAPCSET //byte - two of these, so let's do MinimapCSet[2]
 DMAPDATALARGEMAPTILE //word -- two of these, so let's to LargemapTile[2]
@@ -24,6 +24,82 @@ DMAPDATADISABLEDITEMS //byte[iMax]
 DMAPDATAFLAGS //long
 DMAPDATAGRAVITY //unimplemented
 DMAPDATAJUMPLAYER //unimplemented
+
+//functions
+case LOADDMAPDATA: //command
+case DMAPDATANAME: //command
+case DMAPDATATITLE: //command
+case DMAPDATAINTRO: //command
+case DMAPDATAMUSIC: //command, string to load a music file
+
+//vars
+case DMAPDATAMAP: 	//byte
+case DMAPDATALEVEL:	//word
+case DMAPDATAOFFSET:	//char
+case DMAPDATACOMPASS:	//byte
+case DMAPDATAPALETTE:	//word
+case DMAPDATAMIDI:	//byte
+case DMAPDATACONTINUE:	//byte
+case DMAPDATATYPE:	//byte
+case DMAPDATAGRID:	//byte[8] --array
+case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
+case DMAPDATAMINIMAPCSET:	//byte - two of these, so let's do MinimapCSet[2]
+case DMAPDATALARGEMAPTILE:	//word -- two of these, so let's to LargemapTile[2]
+case DMAPDATALARGEMAPCSET:	//word -- two of these, so let's to LargemaCSet[2]
+case DMAPDATAMUISCTRACK:	//byte
+case DMAPDATASUBSCRA:	 //byte, active subscreen
+case DMAPDATASUBSCRP:	 //byte, passive subscreen
+case DMAPDATADISABLEDITEMS:	 //byte[iMax]
+case DMAPDATAFLAGS:	 //long
+case DMAPDATAGRAVITY:	 //unimplemented
+case DMAPDATAJUMPLAYER:	 //unimplemented
+	
+//getter
+case DMAPDATAMAP: 	//byte
+{
+	ret = ((byte)DMaps[ri->dmapsref].map) * 10000
+}
+case DMAPDATALEVEL:	//word
+case DMAPDATAOFFSET:	//char
+case DMAPDATACOMPASS:	//byte
+case DMAPDATAPALETTE:	//word
+case DMAPDATAMIDI:	//byte
+case DMAPDATACONTINUE:	//byte
+case DMAPDATATYPE:	//byte
+case DMAPDATAGRID:	//byte[8] --array
+case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
+case DMAPDATAMINIMAPCSET:	//byte - two of these, so let's do MinimapCSet[2]
+case DMAPDATALARGEMAPTILE:	//word -- two of these, so let's to LargemapTile[2]
+case DMAPDATALARGEMAPCSET:	//word -- two of these, so let's to LargemaCSet[2]
+case DMAPDATAMUISCTRACK:	//byte
+case DMAPDATASUBSCRA:	 //byte, active subscreen
+case DMAPDATASUBSCRP:	 //byte, passive subscreen
+case DMAPDATADISABLEDITEMS:	 //byte[iMax]
+case DMAPDATAFLAGS:	 //long
+case DMAPDATAGRAVITY:	 //unimplemented
+case DMAPDATAJUMPLAYER:	 //unimplemented
+	
+
+#define DMAPDATAMAP 		//byte
+#define DMAPDATALEVEL 		//word
+#define DMAPDATAOFFSET 		//char
+#define DMAPDATACOMPASS 	//byte
+#define DMAPDATAPALETTE 	//word
+#define DMAPDATAMIDI 		//byte
+#define DMAPDATACONTINUE 	//byte
+#define DMAPDATATYPE 		//byte
+#define DMAPDATAGRID 		//byte[8] --array
+#define DMAPDATAMINIMAPTILE 	//word - two of these, so let's do MinimapTile[2]
+#define DMAPDATAMINIMAPCSET 	//byte - two of these, so let's do MinimapCSet[2]
+#define DMAPDATALARGEMAPTILE 	//word -- two of these, so let's to LargemapTile[2]
+#define DMAPDATALARGEMAPCSET 	//word -- two of these, so let's to LargemaCSet[2]
+#define DMAPDATAMUISCTRACK 	//byte
+#define DMAPDATASUBSCRA 	//byte, active subscreen
+#define DMAPDATASUBSCRP 	//byte, passive subscreen
+#define DMAPDATADISABLEDITEMS 	//byte[iMax]
+#define DMAPDATAFLAGS 		//long
+#define DMAPDATAGRAVITY 	//unimplemented
+#define DMAPDATAJUMPLAYER 	//unimplemented
 
 static void do_loaddmapdata(const bool v);
 void FFScript::do_loaddmapdata(const bool v)
