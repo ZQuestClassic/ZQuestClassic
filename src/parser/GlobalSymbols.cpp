@@ -47,6 +47,39 @@ const int radsperdeg = 572958;
 
 #define ARGS_17(t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) { t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17,-1,-1 }
 
+
+#define AddArgument(register_index) \
+{ \
+	code.push_back(new OPopRegister(new VarArgument(register_index))); \
+} \
+
+#define IgnorePointer() \
+{ \
+	code.push_back(new OPopRegister(new VarArgument(NUL))); \
+} \
+
+#define InstructionToRegister(instruction, reg_index) \
+{ \
+	code.push_back(new OSetRegister(new VarArgument(instruction), new VarArgument(reg_index))); \
+} \
+
+#deine OpcodeToRegister(ocode, reg_index) \
+{ \
+	code.push_back(new ocode(new VarArgument(reg_index))); \
+} \
+
+#define SetReturnIndex(reg_index) \
+{ \
+	code.push_back(new OGotoRegister(new VarArgument(reg_index))); \
+} \
+
+//Loads a refvaar to reg_index, then pops it to reg_index2
+#define SetRefVar(reg_index, ref_index2, ref_var) \
+{ \
+	code.push_back(new OSetRegister(new VarArgument(reg_index), new VarArgument(ref_var))); \
+	code.push_back(new OPopRegister(new VarArgument(ref_index2))); \
+} \
+
 //LoadRefData
 #define LOAD_REFDATA(flabel, ffins, ref_var) \
 { \
@@ -2746,6 +2779,81 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new OGetTileWarpType(new VarArgument(EXP1)));
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+    
+    //void ZapIn(screen)
+    {
+        int id = memberids["ZapIn"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OZapIn());
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+      
+
+	//void ZapOut(screen)
+    {
+        int id = memberids["ZapOut"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OZapOut());
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+
+	//void WavyIn(screen)
+    {
+        int id = memberids["WavyIn"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OWavyIn());
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+            
+	//void WavyOut(screen)
+    {
+        int id = memberids["WavyOut"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OWavyOut());
+        code.push_back(new OPopRegister(new VarArgument(EXP2)));
+        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+        rval[label]=code;
+    }
+     //void OpeningWipe(screen)
+    {
+        int id = memberids["OpeningWipe"];
+        int label = lt.functionToLabel(id);
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(NUL));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OOpenWipe());
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label]=code;
