@@ -472,6 +472,16 @@ static void setLinkBigHitbox(bool v);
 	static void do_loadmessagedata(const bool v);
 	static void do_messagedata_setstring(const bool v);
 	static void do_messagedata_getstring(const bool v);
+	
+	static void do_loaddmapdata(const bool v);
+	static void do_getDMapData_dmapname(const bool v);
+	static void do_setDMapData_dmapname(const bool v);
+	static void do_getDMapData_dmaptitle(const bool v);
+	static void do_setDMapData_dmaptitle(const bool v);
+	static void do_getDMapData_dmapintro(const bool v);
+	static void do_setDMapData_dmapintro(const bool v);
+	static void do_getDMapData_music(const bool v);
+	static void do_setDMapData_music(const bool v);
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
@@ -1439,6 +1449,25 @@ enum ASM_DEFINE
 	MESSAGEDATASETSTRINGV, //command
 	MESSAGEDATAGETSTRINGR, //command
 	MESSAGEDATAGETSTRINGV, //command
+	
+	LOADDMAPDATAR,
+	LOADDMAPDATAV,
+	DMAPDATAGETNAMER,
+	DMAPDATAGETNAMEV,
+	DMAPDATASETNAMER,
+	DMAPDATASETNAMEV,
+	DMAPDATAGETTITLER,
+	DMAPDATAGETTITLEV,
+	DMAPDATASETTITLER,
+	DMAPDATASETTITLEV,
+	DMAPDATAGETINTROR,
+	DMAPDATAGETINTROV,
+	DMAPDATANSETITROR,
+	DMAPDATASETINTROV,
+	DMAPDATAGETMUSICR,
+	DMAPDATAGETMUSICV,
+	DMAPDATASETMUSICR,
+	DMAPDATASETMUSICV,
 	
 	NUMCOMMANDS           //0x013B
 };
@@ -2431,9 +2460,30 @@ enum ASM_DEFINE
 #define MESSAGEDATAHSPACE 	0x129A	//BYTE
 #define MESSAGEDATAFLAGS 	0x129B	//BYTE
 
+
+#define DMAPDATAMAP 		0x129C	//byte
+#define DMAPDATALEVEL 		0x129D	//word
+#define DMAPDATAOFFSET 		0x129E	//char
+#define DMAPDATACOMPASS 	0x129F //byte
+#define DMAPDATAPALETTE 	0x12A0 //word
+#define DMAPDATAMIDI 		0x12A1 //byte
+#define DMAPDATACONTINUE 	0x12A2 //byte
+#define DMAPDATATYPE 		0x12A3 //byte
+#define DMAPDATAGRID 		0x12A4 //byte[8] --array
+#define DMAPDATAMINIMAPTILE 	0x12A5 //word - two of these, so let's do MinimapTile[2]
+#define DMAPDATAMINIMAPCSET 	0x12A6 //byte - two of these, so let's do MinimapCSet[2]
+#define DMAPDATALARGEMAPTILE 	0x12A7 //word -- two of these, so let's to LargemapTile[2]
+#define DMAPDATALARGEMAPCSET 	0x12A8 //word -- two of these, so let's to LargemaCSet[2]
+#define DMAPDATAMUISCTRACK 	0x12A9 //byte
+#define DMAPDATASUBSCRA 	0x12AA //byte, active subscreen
+#define DMAPDATASUBSCRP 	0x12AB //byte, passive subscreen
+#define DMAPDATADISABLEDITEMS 	0x12AC //byte[iMax]
+#define DMAPDATAFLAGS 		0x12AD //long
+//#define DMAPDATAGRAVITY 	//unimplemented
+//#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x129C
+#define NUMVARIABLES         0x12AE
 
 // Script types
 

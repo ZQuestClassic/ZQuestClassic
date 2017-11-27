@@ -1,13 +1,26 @@
-LOADDMAPDATAR //command
-LOADDMAPDATAV //command
-DMAPDATANAMER //command
-DMAPDATANAMEV //command
-DMAPDATATITLER //command
-DMAPDATATITLEV //command
-DMAPDATAINTROR //command
-DMAPDATAINTROV //command
-DMAPDATAMUSICR //command, string to load a music file
-DMAPDATAMUSICV //command, string to load a music file
+LOADDMAPDATAR
+LOADDMAPDATAV
+
+DMAPDATAGETNAMER
+DMAPDATAGETNAMEV
+
+DMAPDATASETNAMER
+DMAPDATASETNAMEV
+
+DMAPDATAGETTITLER
+DMAPDATAGETTITLEV
+DMAPDATASETTITLER
+DMAPDATASETTITLEV
+
+DMAPDATAGETINTROR
+DMAPDATAGETINTROV
+DMAPDATANSETITROR
+DMAPDATASETINTROV
+
+DMAPDATAGETMUSICR
+DMAPDATAGETMUSICV
+DMAPDATASETMUSICR
+DMAPDATASETMUSICV
 
 DMAPDATAMAP //byte
 DMAPDATALEVEL //word
@@ -388,6 +401,27 @@ case DMAPDATAFLAGS:	 //long
 }
 //case DMAPDATAGRAVITY:	 //unimplemented
 //case DMAPDATAJUMPLAYER:	 //unimplemented
+
+#define DMAPDATAMAP 		//byte
+#define DMAPDATALEVEL 		//word
+#define DMAPDATAOFFSET 		//char
+#define DMAPDATACOMPASS 	//byte
+#define DMAPDATAPALETTE 	//word
+#define DMAPDATAMIDI 		//byte
+#define DMAPDATACONTINUE 	//byte
+#define DMAPDATATYPE 		//byte
+#define DMAPDATAGRID 		//byte[8] --array
+#define DMAPDATAMINIMAPTILE 	//word - two of these, so let's do MinimapTile[2]
+#define DMAPDATAMINIMAPCSET 	//byte - two of these, so let's do MinimapCSet[2]
+#define DMAPDATALARGEMAPTILE 	//word -- two of these, so let's to LargemapTile[2]
+#define DMAPDATALARGEMAPCSET 	//word -- two of these, so let's to LargemaCSet[2]
+#define DMAPDATAMUISCTRACK 	//byte
+#define DMAPDATASUBSCRA 	//byte, active subscreen
+#define DMAPDATASUBSCRP 	//byte, passive subscreen
+#define DMAPDATADISABLEDITEMS 	//byte[iMax]
+#define DMAPDATAFLAGS 		//long
+#define DMAPDATAGRAVITY 	//unimplemented
+#define DMAPDATAJUMPLAYER 	//unimplemented
 
 #define DMAPDATAMAP 		//byte
 #define DMAPDATALEVEL 		//word

@@ -905,7 +905,28 @@ using namespace std;
 #define MESSAGEDATAHSPACE 	851	//BYTE
 #define MESSAGEDATAFLAGS 	852	//BYTE
 
-#define LAST_BYTECODE 			853
+#define DMAPDATAMAP 		383	//byte
+#define DMAPDATALEVEL 		854	//word
+#define DMAPDATAOFFSET 		855	//char
+#define DMAPDATACOMPASS 	856	//byte
+#define DMAPDATAPALETTE 	857	//word
+#define DMAPDATAMIDI 		858	//byte
+#define DMAPDATACONTINUE 	859	//byte
+#define DMAPDATATYPE 		860	//byte
+#define DMAPDATAGRID 		861	//byte[8] --array
+#define DMAPDATAMINIMAPTILE 	862	//word - two of these, so let's do MinimapTile[2]
+#define DMAPDATAMINIMAPCSET 	863	//byte - two of these, so let's do MinimapCSet[2]
+#define DMAPDATALARGEMAPTILE 	864	//word -- two of these, so let's to LargemapTile[2]
+#define DMAPDATALARGEMAPCSET 	865	//word -- two of these, so let's to LargemaCSet[2]
+#define DMAPDATAMUISCTRACK 	866	//byte
+#define DMAPDATASUBSCRA 	867	//byte, active subscreen
+#define DMAPDATASUBSCRP 	868	//byte, passive subscreen
+#define DMAPDATADISABLEDITEMS 	869	//byte[iMax]
+#define DMAPDATAFLAGS 		870	//long
+//#define DMAPDATAGRAVITY 	871	//unimplemented
+//#define DMAPDATAJUMPLAYER 	872	//unimplemented
+
+#define LAST_BYTECODE 			871
 
 //END OF BYTECODE
 
@@ -2054,6 +2075,106 @@ public:
     Opcode *clone()
     {
         return new OLoadMessageDataRegister(a->clone());
+    }
+};
+
+
+class OLoadDMapDataRegister : public UnaryOpcode
+{
+public:
+    OLoadDMapDataRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OLoadDMapDataRegister(a->clone());
+    }
+};
+
+class ODMapDataGetNameRegister : public UnaryOpcode
+{
+public:
+    ODMapDataGetNameRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new ODMapDataGetNameRegister(a->clone());
+    }
+};
+
+class ODMapDataSetNameRegister : public UnaryOpcode
+{
+public:
+    ODMapDataSetNameRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new ODMapDataSetNameRegister(a->clone());
+    }
+};
+
+class ODMapDataGetTitleRegister : public UnaryOpcode
+{
+public:
+    ODMapDataGetTitleRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new ODMapDataGetTitleRegister(a->clone());
+    }
+};
+
+class ODMapDataSetTitleRegister : public UnaryOpcode
+{
+public:
+    ODMapDataSetTitleRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new ODMapDataSetTitleRegister(a->clone());
+    }
+};
+
+class ODMapDataGetIntroRegister : public UnaryOpcode
+{
+public:
+    ODMapDataGetIntroRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new ODMapDataGetIntroRegister(a->clone());
+    }
+};
+
+class ODMapDataSetIntroRegister : public UnaryOpcode
+{
+public:
+    ODMapDataSetIntroRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new ODMapDataSetIntroRegister(a->clone());
+    }
+};
+
+class ODMapDataGetMusicRegister : public UnaryOpcode
+{
+public:
+    ODMapDataGetMusicRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new ODMapDataGetMusicRegister(a->clone());
+    }
+};
+
+class ODMapDataSetMusicRegister : public UnaryOpcode
+{
+public:
+    ODMapDataSetMusicRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new ODMapDataSetMusicRegister(a->clone());
     }
 };
 

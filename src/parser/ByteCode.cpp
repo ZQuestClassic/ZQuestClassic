@@ -1501,6 +1501,27 @@ string VarArgument::toString()
 	case MESSAGEDATAVSPACE: return "MESSAGEDATAVSPACE";
 	case MESSAGEDATAHSPACE: return "MESSAGEDATAHSPACE";
 	case MESSAGEDATAFLAGS: return "MESSAGEDATAFLAGS";
+	
+	case DMAPDATAMAP: return "DMAPDATAMAP";
+	case DMAPDATALEVEL: return "DMAPDATALEVEL";
+	case DMAPDATAOFFSET: return "DMAPDATAOFFSET";
+	case DMAPDATACOMPASS: return "DMAPDATACOMPASS";
+	case DMAPDATAPALETTE: return "DMAPDATAPALETTE";
+	case DMAPDATAMIDI: return "DMAPDATAMIDI";
+	case DMAPDATACONTINUE: return "DMAPDATACONTINUE";
+	case DMAPDATATYPE: return "DMAPDATATYPE";
+	case DMAPDATAGRID: return "DMAPDATAGRID";
+	case DMAPDATAMINIMAPTILE: return "DMAPDATAMINIMAPTILE";
+	case DMAPDATAMINIMAPCSET: return "DMAPDATAMINIMAPCSET";
+	case DMAPDATALARGEMAPTILE: return "DMAPDATALARGEMAPTILE";
+	case DMAPDATALARGEMAPCSET: return "DMAPDATALARGEMAPCSET";
+	case DMAPDATAMUISCTRACK: return "DMAPDATAMUISCTRACK";
+	case DMAPDATASUBSCRA: return "DMAPDATASUBSCRA";
+	case DMAPDATASUBSCRP: return "DMAPDATASUBSCRP";
+	case DMAPDATADISABLEDITEMS: return "DMAPDATADISABLEDITEMS";
+	case DMAPDATAFLAGS: return "DMAPDATAFLAGS";
+//	case DMAPDATAGRAVITY: return "DMAPDATAGRAVITY";
+//	case DMAPDATAJUMPLAYER: return "DMAPDATAJUMPLAYER";
     default:
     {
         sprintf(temp, "d%d", ID);
@@ -1975,6 +1996,52 @@ string OLoadMessageDataRegister::toString()
 {
     return "LOADMESSAGEDATAR " + getArgument()->toString();
 }
+
+string OLoadDMapDataRegister::toString()
+{
+    return "LOADDMAPDATAR " + getArgument()->toString();
+}
+
+string ODMapDataGetNameRegister::toString()
+{
+    return "DMAPDATAGETNAMER " + getArgument()->toString();
+}
+
+string ODMapDataSetNameRegister::toString()
+{
+    return "DMAPDATASETNAMER " + getArgument()->toString();
+}
+
+string ODMapDataGetTitleRegister::toString()
+{
+    return "DMAPDATAGETTITLER " + getArgument()->toString();
+}
+
+string ODMapDataSetTitleRegister::toString()
+{
+    return "DMAPDATASETTITLER " + getArgument()->toString();
+}
+
+string ODMapDataGetIntroRegister::toString()
+{
+    return "DMAPDATAGETINTROR " + getArgument()->toString();
+}
+
+string ODMapDataSetIntroRegister::toString()
+{
+    return "DMAPDATANSETITROR " + getArgument()->toString();
+}
+
+string ODMapDataGetMusicRegister::toString()
+{
+    return "DMAPDATAGETMUSICR " + getArgument()->toString();
+}
+
+string ODMapDataSetMusicRegister::toString()
+{
+    return "DMAPDATASETMUSICR " + getArgument()->toString();
+}
+
 string OMessageDataSetStringRegister::toString()
 {
     return "MESSAGEDATASETSTRINGR " + getArgument()->toString();
