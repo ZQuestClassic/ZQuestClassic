@@ -650,6 +650,13 @@ script_command command_list[NUMCOMMANDS+1]=
 
     { "LOADINFOSHOPR",       1,   0,   0,   0},
     { "LOADINFOSHOPV",       1,   1,   0,   0},
+    
+    { "LOADMESSAGEDATAR",       1,   1,   0,   0},
+    { "LOADMESSAGEDATAV",       1,   1,   0,   0},
+    { "MESSAGEDATASETSTRINGR",       1,   1,   0,   0},
+    { "MESSAGEDATASETSTRINGV",       1,   1,   0,   0},
+    { "MESSAGEDATAGETSTRINGR",       1,   1,   0,   0},
+    { "MESSAGEDATAGETSTRINGV",       1,   1,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 
@@ -1473,7 +1480,23 @@ script_variable variable_list[]=
 	{"NPCSHIELD", NPCSHIELD, 0, 0 },
 	{"AUDIOVOLUME", AUDIOVOLUME, 0, 0 },
 	{"AUDIOPAN", AUDIOPAN, 0, 0 },
+	
+	{"MESSAGEDATANEXT", MESSAGEDATANEXT, 0, 0 },
+	{"MESSAGEDATATILE", MESSAGEDATATILE, 0, 0 },
+	{"MESSAGEDATACSET", MESSAGEDATACSET, 0, 0 },
+	{"MESSAGEDATATRANS", MESSAGEDATATRANS, 0, 0 },
+	{"MESSAGEDATAFONT", MESSAGEDATAFONT, 0, 0 },
+	{"MESSAGEDATAX", MESSAGEDATAX, 0, 0 },
+	{"MESSAGEDATAY", MESSAGEDATAY, 0, 0 },
+	{"MESSAGEDATAW", MESSAGEDATAW, 0, 0 },
+	{"MESSAGEDATAH", MESSAGEDATAH, 0, 0 },
+	{"MESSAGEDATASFX", MESSAGEDATASFX, 0, 0 },
+	{"MESSAGEDATALISTPOS", MESSAGEDATALISTPOS, 0, 0 },
+	{"MESSAGEDATAVSPACE", MESSAGEDATAVSPACE, 0, 0 },
+	{"MESSAGEDATAHSPACE", MESSAGEDATAHSPACE, 0, 0 },
+	{"MESSAGEDATAFLAGS", MESSAGEDATAFLAGS, 0, 0 },
 	//end ffscript vars
+	//END VARS END OF BYTECODE
 	
 	
 	{ " ",                       -1,             0,             0 }

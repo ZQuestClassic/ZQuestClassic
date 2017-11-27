@@ -1486,6 +1486,21 @@ string VarArgument::toString()
 	
 	case AUDIOVOLUME: return "AUDIOVOLUME";
 	case AUDIOPAN: return "AUDIOPAN";
+	
+	case MESSAGEDATANEXT: return "MESSAGEDATANEXT";
+	case MESSAGEDATATILE: return "MESSAGEDATATILE";
+	case MESSAGEDATACSET: return "MESSAGEDATACSET";
+	case MESSAGEDATATRANS: return "MESSAGEDATATRANS";
+	case MESSAGEDATAFONT: return "MESSAGEDATAFONT";
+	case MESSAGEDATAX: return "MESSAGEDATAX";
+	case MESSAGEDATAY: return "MESSAGEDATAY";
+	case MESSAGEDATAW: return "MESSAGEDATAW";
+	case MESSAGEDATAH: return "MESSAGEDATAH";
+	case MESSAGEDATASFX: return "MESSAGEDATASFX";
+	case MESSAGEDATALISTPOS: return "MESSAGEDATALISTPOS";
+	case MESSAGEDATAVSPACE: return "MESSAGEDATAVSPACE";
+	case MESSAGEDATAHSPACE: return "MESSAGEDATAHSPACE";
+	case MESSAGEDATAFLAGS: return "MESSAGEDATAFLAGS";
     default:
     {
         sprintf(temp, "d%d", ID);
@@ -1956,7 +1971,18 @@ string OLoadInfoShopDataRegister::toString()
 {
     return "LOADINFOSHOPR " + getArgument()->toString();
 }
-
+string OLoadMessageDataRegister::toString()
+{
+    return "LOADMESSAGEDATAR " + getArgument()->toString();
+}
+string OMessageDataSetStringRegister::toString()
+{
+    return "MESSAGEDATASETSTRINGR " + getArgument()->toString();
+}
+string OMessageDataGetStringRegister::toString()
+{
+    return "MESSAGEDATAGETSTRINGR " + getArgument()->toString();
+}
 string OLoadNPCDataRegister::toString()
 {
     return "LOADNPCDATAR " + getArgument()->toString();

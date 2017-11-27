@@ -4377,6 +4377,151 @@ case MAPDATAMISCD:
 	} break;
     
 ///----------------------------------------------------------------------------------------------------//
+//messagedata msgd-> variables
+case MESSAGEDATANEXT: //W
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Next") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].nextstring;
+	break;
+}	
+
+case MESSAGEDATATILE: //W
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Tile") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].tile;
+	break;
+}	
+
+case MESSAGEDATACSET: //b
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->CSet") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].cset;
+	break;
+}	
+case MESSAGEDATATRANS: //BOOL
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Transparent") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = ((MsgStrings[ID].trans)?10000:0);
+	break;
+}	
+case MESSAGEDATAFONT: //B
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Font") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].font;
+	break;
+}	
+case MESSAGEDATAX: //SHORT
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->X") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].x;
+	break;
+}	
+case MESSAGEDATAY: //SHORT
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Y") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].y;
+	break;
+}	
+case MESSAGEDATAW: //UNSIGNED SHORT
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Width") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].w;
+	break;
+}	
+case MESSAGEDATAH: //UNSIGNED SHORT
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Height") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].h;
+	break;
+}	
+case MESSAGEDATASFX: //BYTE
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Sound") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].sfx;
+	break;
+}	
+case MESSAGEDATALISTPOS: //WORD
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->ListPosition") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].listpos;
+	break;
+}	
+case MESSAGEDATAVSPACE: //BYTE
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->VSpace") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].vspace;
+	break;
+}	
+case MESSAGEDATAHSPACE: //BYTE
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->HSpace") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].hspace;
+	break;
+}	
+case MESSAGEDATAFLAGS: //BYTE
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Flags") != SH::_NoError)
+		ret = -10000;
+	else 
+		ret = (int)MsgStrings[ID].stringflags;
+	break;
+}
+	
+///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> variables
     
 //npcdata nd->member variable
@@ -8359,7 +8504,153 @@ case SHOPDATASTRING:
 	} break;
 }
 
-    
+///----------------------------------------------------------------------------------------------------//
+//messagedata msgd-> Variables
+ 
+
+case MESSAGEDATANEXT: //W
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Next") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].nextstring = vbound((value/10000), 0, (msg_count-1));
+	break;
+}	
+
+case MESSAGEDATATILE: //W
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Tile") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].tile = vbound((value/10000), 0, (NEWMAXTILES));
+	break;
+}	
+
+case MESSAGEDATACSET: //b
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->CSet") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].cset = ((byte)vbound((value/10000), 0, 255));
+	break;
+}	
+case MESSAGEDATATRANS: //BOOL
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Transparent") != SH::_NoError)
+		break;
+	else 
+		(MsgStrings[ID].trans) = ((value)?true:false);
+	break;
+}	
+case MESSAGEDATAFONT: //B
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Font") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].font = ((byte)vbound((value/10000), 0, 255));
+	break;
+}	
+case MESSAGEDATAX: //SHORT
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->X") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].x = ((short)vbound((value/10000), SHRT_MIN, SHRT_MAX));
+	break;
+}	
+case MESSAGEDATAY: //SHORT
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Y") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].y = ((short)vbound((value/10000), SHRT_MIN, SHRT_MAX));
+	break;
+}	
+case MESSAGEDATAW: //UNSIGNED SHORT
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Width") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].w = ((unsigned short)vbound((value/10000), 0, USHRT_MAX));
+	break;
+}	
+case MESSAGEDATAH: //UNSIGNED SHORT
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Height") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].h = ((unsigned short)vbound((value/10000), 0, USHRT_MAX));
+	break;
+}	
+case MESSAGEDATASFX: //BYTE
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Sound") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].sfx = ((byte)vbound((value/10000), 0, 255));
+	break;
+}	
+case MESSAGEDATALISTPOS: //WORD
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->ListPosition") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].listpos = vbound((value/10000), 1, (msg_count-1));
+	break;
+}	
+case MESSAGEDATAVSPACE: //BYTE
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->VSpace") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].vspace = ((byte)vbound((value/10000), 0, 255));
+	break;
+}	
+case MESSAGEDATAHSPACE: //BYTE
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->HSpace") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].hspace = ((byte)vbound((value/10000), 0, 255));
+	break;
+}	
+case MESSAGEDATAFLAGS: //BYTE
+{
+	long ID = ri->zmsgref;	
+
+	if(BC::checkMessage(ID, "messagedata->Flags") != SH::_NoError)
+		break;
+	else 
+		MsgStrings[ID].stringflags = ((byte)vbound((value/10000), 0, 255));
+	break;
+}	
+
 ///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> Variables
 	
@@ -10152,6 +10443,48 @@ void FFScript::do_loadnpcdata(const bool v)
         
     else ri->npcdataref = ID;
     //Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
+}
+void FFScript::do_loadmessagedata(const bool v)
+{
+    long ID = SH::get_arg(sarg1, v) / 10000;
+    
+    if ( ID < 1 || ID > (msg_count-1) )
+    {
+	Z_scripterrlog("Invalid Message ID passed to Game->LoadMessageData: %d\n", ID);
+	ri->zmsgref = LONG_MAX;
+    }
+        
+    else ri->zmsgref = ID;
+    //Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
+}
+//same syntax as loadmessage data
+//the input is an array
+void FFScript::do_messagedata_setstring(const bool v)
+{
+
+    long arrayptr = get_register(sarg1) / 10000;
+    long ID = ri->zmsgref;
+	if(BC::checkMessage(ID, "messagesata->Set()") != SH::_NoError)
+        return;
+	
+	string filename_str;
+
+        
+        
+    ArrayH::getString(arrayptr, filename_str, 73);
+    strncpy(MsgStrings[ID].s, filename_str.c_str(), 72);
+    MsgStrings[ID].s[72]='\0';
+}
+void FFScript::do_messagedata_getstring(const bool v)
+{
+    long ID = ri->zmsgref;
+    long arrayptr = get_register(sarg1) / 10000;
+    
+    if(BC::checkMessage(ID, "messagedata->Get()") != SH::_NoError)
+        return;
+        
+    if(ArrayH::setArray(arrayptr, string(MsgStrings[ID].s)) == SH::_Overflow)
+        Z_scripterrlog("Array supplied to 'messagedata->Get()' not large enough\n");
 }
 
 void FFScript::do_loadcombodata(const bool v)
@@ -12004,6 +12337,27 @@ int run_script(const byte type, const word script, const byte i)
             FFScript::do_loadbitmapid(true);
             break;
             
+	case LOADMESSAGEDATAR: //COMMAND
+	FFScript::do_loadmessagedata(false);
+            break;
+	case LOADMESSAGEDATAV: //COMMAND
+	FFScript::do_loadmessagedata(false);
+            break;
+	
+
+	case MESSAGEDATASETSTRINGR: //command
+	FFScript::do_messagedata_setstring(false);
+            break;
+	case MESSAGEDATASETSTRINGV: //command
+	FFScript::do_messagedata_setstring(false);
+            break;
+	
+	case MESSAGEDATAGETSTRINGR: //command
+	FFScript::do_messagedata_getstring(false);
+            break;
+	case MESSAGEDATAGETSTRINGV: //command
+	FFScript::do_messagedata_getstring(false);
+            break;	
         case LOADITEMDATAV:
             do_loaditemdata(true);
             break;

@@ -468,6 +468,10 @@ static void setLinkBigHitbox(bool v);
 	static int do_getDIGI_volume();
 	static int do_getSFX_volume();
 	static int do_getSFX_pan();
+	
+	static void do_loadmessagedata(const bool v);
+	static void do_messagedata_setstring(const bool v);
+	static void do_messagedata_getstring(const bool v);
 
 #define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
 
@@ -1427,6 +1431,14 @@ enum ASM_DEFINE
 	LOADSHOPV,
 	LOADINFOSHOPR,
 	LOADINFOSHOPV,
+	
+	LOADMESSAGEDATAR, //COMMAND
+	LOADMESSAGEDATAV,//COMMAND
+
+	MESSAGEDATASETSTRINGR, //command
+	MESSAGEDATASETSTRINGV, //command
+	MESSAGEDATAGETSTRINGR, //command
+	MESSAGEDATAGETSTRINGV, //command
 	
 	NUMCOMMANDS           //0x013B
 };
@@ -2404,7 +2416,24 @@ enum ASM_DEFINE
 #define AUDIOVOLUME	0x128C
 #define AUDIOPAN	0x128D
 
-#define NUMVARIABLES         0x128E
+#define MESSAGEDATANEXT 	0x128E	//W
+#define MESSAGEDATATILE 	0x128F	//W
+#define MESSAGEDATACSET 	0x1290	//b
+#define MESSAGEDATATRANS 	0x1291	//BOOL
+#define MESSAGEDATAFONT 	0x1292	//B
+#define MESSAGEDATAX 		0x1293	//SHORT
+#define MESSAGEDATAY 		0x1294	//SHORT
+#define MESSAGEDATAW 		0x1295	//UNSIGNED SHORT
+#define MESSAGEDATAH 		0x1296	//UNSIGNED SHORT
+#define MESSAGEDATASFX 		0x1297	//BYTE
+#define MESSAGEDATALISTPOS 	0x1298	//WORD
+#define MESSAGEDATAVSPACE 	0x1299	//BYTE
+#define MESSAGEDATAHSPACE 	0x129A	//BYTE
+#define MESSAGEDATAFLAGS 	0x129B	//BYTE
+
+//end vars
+
+#define NUMVARIABLES         0x129C
 
 // Script types
 

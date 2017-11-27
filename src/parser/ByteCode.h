@@ -890,7 +890,22 @@ using namespace std;
 #define AUDIOVOLUME 			837
 #define AUDIOPAN 			838
 
-#define LAST_BYTECODE 			839
+#define MESSAGEDATANEXT 	839	//W
+#define MESSAGEDATATILE 	840	//W
+#define MESSAGEDATACSET 	841	//b
+#define MESSAGEDATATRANS 	842	//BOOL
+#define MESSAGEDATAFONT 	843	//B
+#define MESSAGEDATAX 		844	//SHORT
+#define MESSAGEDATAY 		845	//SHORT
+#define MESSAGEDATAW 		846	//UNSIGNED SHORT
+#define MESSAGEDATAH 		847	//UNSIGNED SHORT
+#define MESSAGEDATASFX 		848	//BYTE
+#define MESSAGEDATALISTPOS 	849	//WORD
+#define MESSAGEDATAVSPACE 	850	//BYTE
+#define MESSAGEDATAHSPACE 	851	//BYTE
+#define MESSAGEDATAFLAGS 	852	//BYTE
+
+#define LAST_BYTECODE 			853
 
 //END OF BYTECODE
 
@@ -2030,6 +2045,41 @@ public:
     }
 };
 
+
+class OLoadMessageDataRegister : public UnaryOpcode
+{
+public:
+    OLoadMessageDataRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OLoadMessageDataRegister(a->clone());
+    }
+};
+
+
+class OMessageDataSetStringRegister : public UnaryOpcode
+{
+public:
+    OMessageDataSetStringRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OMessageDataSetStringRegister(a->clone());
+    }
+};
+
+
+class OMessageDataGetStringRegister : public UnaryOpcode
+{
+public:
+    OMessageDataGetStringRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OMessageDataGetStringRegister(a->clone());
+    }
+};
 
 class OLoadComboDataRegister : public UnaryOpcode
 {
