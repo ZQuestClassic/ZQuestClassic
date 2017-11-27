@@ -47,10 +47,11 @@ const int radsperdeg = 572958;
 
 #define ARGS_17(t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) { t, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16,arg17,-1,-1 }
 
-
-#define AddArgument(register_index) \
+#define SetIdentifier(label) \
 { \
-	code.push_back(new OPopRegister(new VarArgument(register_index))); \
+	int id = memberids[label]; \
+        int label = lt.functionToLabel(id); \
+        vector<Opcode *> code; \
 } \
 
 #define IgnorePointer() \
@@ -58,12 +59,30 @@ const int radsperdeg = 572958;
 	code.push_back(new OPopRegister(new VarArgument(NUL))); \
 } \
 
+#define PopFirstArg(reg_index) \
+{ \
+	Opcode *first = new OPopRegister(new VarArgument(reg_index)); \
+        first->setLabel(label); \
+        code.push_back(first); \
+} \
+
+#define SetRefVar(reg_index, ref_index2, ref_var) \
+{ \
+	code.push_back(new OSetRegister(new VarArgument(reg_index), new VarArgument(ref_var))); \
+	code.push_back(new OPopRegister(new VarArgument(ref_index2))); \
+} \
+
+#define AddArgument(register_index) \
+{ \
+	code.push_back(new OPopRegister(new VarArgument(register_index))); \
+} \
+
 #define InstructionToRegister(instruction, reg_index) \
 { \
 	code.push_back(new OSetRegister(new VarArgument(instruction), new VarArgument(reg_index))); \
 } \
 
-#deine OpcodeToRegister(ocode, reg_index) \
+#define OpcodeToRegister(ocode, reg_index) \
 { \
 	code.push_back(new ocode(new VarArgument(reg_index))); \
 } \
@@ -74,11 +93,6 @@ const int radsperdeg = 572958;
 } \
 
 //Loads a refvaar to reg_index, then pops it to reg_index2
-#define SetRefVar(reg_index, ref_index2, ref_var) \
-{ \
-	code.push_back(new OSetRegister(new VarArgument(reg_index), new VarArgument(ref_var))); \
-	code.push_back(new OPopRegister(new VarArgument(ref_index2))); \
-} \
 
 //LoadRefData
 #define LOAD_REFDATA(flabel, ffins, ref_var) \
