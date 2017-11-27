@@ -386,6 +386,23 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host, void *param)
         fidparam = MapDataSymbols::getInst().matchFunction(name,st);
         break;
     }
+    
+    case ScriptParser::TYPE_DMAPDATA:
+    {
+        fidparam = DMapDataSymbols::getInst().matchFunction(name,st);
+        break;
+    }
+    
+    case ScriptParser::TYPE_SHOPDATA:
+    {
+        fidparam = ShopDataSymbols::getInst().matchFunction(name,st);
+        break;
+    }
+    case ScriptParser::TYPE_ZMESSAGE:
+    {
+        fidparam = MessageDataSymbols::getInst().matchFunction(name,st);
+        break;
+    }
     default:
         failure = true;
         printErrorMsg(&host, ARROWNOTPOINTER);
