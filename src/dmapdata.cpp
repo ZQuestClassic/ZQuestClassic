@@ -1,8 +1,13 @@
-LOADDMAPDATA //command
-DMAPDATANAME //command
-DMAPDATATITLE //command
-DMAPDATAINTRO //command
-DMAPDATAMUSIC //command, string to load a music file
+LOADDMAPDATAR //command
+LOADDMAPDATAV //command
+DMAPDATANAMER //command
+DMAPDATANAMEV //command
+DMAPDATATITLER //command
+DMAPDATATITLEV //command
+DMAPDATAINTROR //command
+DMAPDATAINTROV //command
+DMAPDATAMUSICR //command, string to load a music file
+DMAPDATAMUSICV //command, string to load a music file
 
 DMAPDATAMAP //byte
 DMAPDATALEVEL //word
@@ -26,11 +31,16 @@ DMAPDATAGRAVITY //unimplemented
 DMAPDATAJUMPLAYER //unimplemented
 
 //functions
-case LOADDMAPDATA: //command
-case DMAPDATANAME: //command
-case DMAPDATATITLE: //command
-case DMAPDATAINTRO: //command
-case DMAPDATAMUSIC: //command, string to load a music file
+case LOADDMAPDATAR: //command
+case LOADDMAPDATAV: //command
+case DMAPDATANAMER: //command
+case DMAPDATANAMEV: //command
+case DMAPDATATITLER: //command
+case DMAPDATATITLEV: //command
+case DMAPDATAINTROR: //command
+case DMAPDATAINTROV: //command
+case DMAPDATAMUSICR: //command, string to load a music file
+case DMAPDATAMUSICV: //command, string to load a music file
 
 //vars
 case DMAPDATAMAP: 	//byte
@@ -54,6 +64,58 @@ case DMAPDATAFLAGS:	 //long
 case DMAPDATAGRAVITY:	 //unimplemented
 case DMAPDATAJUMPLAYER:	 //unimplemented
 	
+
+//functions
+
+
+//functions
+case LOADDMAPDATAR: //command
+	FFScript::do_loaddmapdata(false); break;
+case LOADDMAPDATAV: //command
+	FFScript::do_loaddmapdata(true); break;
+
+
+case DMAPDATAGETNAMER: //command
+	FFScript::do_getDMapData_dmapname(false); break;
+case DMAPDATAGETNAMEV: //command
+	FFScript::do_getDMapData_dmapname(true); break;
+
+case DMAPDATASETNAMER: //command
+	FFScript::do_setDMapData_dmapname(false); break;
+case DMAPDATASETNAMEV: //command
+	FFScript::do_setDMapData_dmapname(true); break;
+
+
+
+case DMAPDATAGETTITLER: //command
+	FFScript::do_getDMapData_dmaptitle(false); break;
+case DMAPDATAGETTITLEV: //command
+	FFScript::do_getDMapData_dmaptitle(true); break;
+case DMAPDATASETTITLER: //command
+	FFScript::do_setDMapData_dmaptitle(false); break;
+case DMAPDATASETTITLEV: //command
+	FFScript::do_setDMapData_dmaptitle(true); break;
+
+
+case DMAPDATAGETINTROR: //command
+	FFScript::do_getDMapData_dmapintro(false); break;
+case DMAPDATAGETINTROV: //command
+	FFScript::do_getDMapData_dmapintro(true); break;
+case DMAPDATANSETITROR: //command
+	FFScript::do_setDMapData_dmapintro(false); break;
+case DMAPDATASETINTROV: //command
+	FFScript::do_setDMapData_dmapintro(true); break;
+
+
+case DMAPDATAGETMUSICR: //command, string to load a music file
+	FFScript::do_getDMapData_music(false); break;
+case DMAPDATAGETMUSICV: //command, string to load a music file
+	FFScript::do_getDMapData_music(true); break;
+case DMAPDATASETMUSICR: //command, string to load a music file
+	FFScript::do_setDMapData_music(false); break;
+case DMAPDATASETMUSICV: //command, string to load a music file
+	FFScript::do_setDMapData_music(true); break;
+
 //getter
 case DMAPDATAMAP: 	//byte
 {
@@ -355,7 +417,7 @@ void FFScript::do_loaddmapdata(const bool v)
     
     if ( ID < 0 || ID > 511 )
     {
-	Z_scripterrlog("Invalid DMap ID passed to Game->LoadDMapData: %d\n", ID);
+	Z_scripterrlog("Invalid DMap ID passed to Game->LoadDMapData(): %d\n", ID);
 	ri->dmapsref = LONG_MAX;
     }
         
@@ -369,11 +431,11 @@ void FFScript::do_getDMapData_dmapname(const bool v)
     long ID = ri->zmsgref;
     long arrayptr = get_register(sarg2) / 10000;
     
-    if(BC::checkDMapID(ID, "Game->GetDMapName") != SH::_NoError)
+    if(BC::checkDMapID(ID, "dmapdata->GetName()") != SH::_NoError)
         return;
         
     if(ArrayH::setArray(arrayptr, string(DMaps[ID].name)) == SH::_Overflow)
-        Z_scripterrlog("Array supplied to 'Game->GetDMapName' not large enough\n");
+        Z_scripterrlog("Array supplied to 'dmapdata->GetName()' not large enough\n");
 }
 
 static void do_setDMapData_dmapname(const bool v);
@@ -384,7 +446,7 @@ void FFScript::do_setDMapData_dmapname(const bool v)
 
     string filename_str;
     
-    if(BC::checkDMapID(ID, "Game->Game->SetDMapName") != SH::_NoError)
+    if(BC::checkDMapID(ID, "dmapdata->SetName()") != SH::_NoError)
         return;
         
         
@@ -399,11 +461,11 @@ void FFScript::do_getDMapData_dmaptitle(const bool v)
     long ID = ri->zmsgref;
     long arrayptr = get_register(sarg2) / 10000;
     
-    if(BC::checkDMapID(ID, "Game->GetDMapTitle") != SH::_NoError)
+    if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
         return;
         
     if(ArrayH::setArray(arrayptr, string(DMaps[ID].title)) == SH::_Overflow)
-        Z_scripterrlog("Array supplied to 'Game->GetDMapTitle' not large enough\n");
+        Z_scripterrlog("Array supplied to 'dmapdata->GetIntro()' not large enough\n");
 }
 
 static void do_setDMapData_dmaptitle(const bool v);
@@ -413,7 +475,7 @@ void FFScript::do_setDMapData_dmaptitle(const bool v)
     long arrayptr = get_register(sarg2) / 10000;
     string filename_str;
     
-    if(BC::checkDMapID(ID, "Game->Game->SetDMapTitle") != SH::_NoError)
+    if(BC::checkDMapID(ID, "dmapdata->SetTitle()") != SH::_NoError)
         return;
         
         
@@ -428,11 +490,11 @@ void FFScript::do_getDMapData_dmapintro(const bool v)
     long ID = ri->zmsgref;
     long arrayptr = get_register(sarg2) / 10000;
     
-    if(BC::checkDMapID(ID, "Game->GetDMapIntro") != SH::_NoError)
+    if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
         return;
         
     if(ArrayH::setArray(arrayptr, string(DMaps[ID].intro)) == SH::_Overflow)
-        Z_scripterrlog("Array supplied to 'Game->GetDMapIntro' not large enough\n");
+        Z_scripterrlog("Array supplied to 'dmapdata->GetIntro()' not large enough\n");
 }
 
 static void do_setDMapData_dmapintro(const bool v);
@@ -442,13 +504,43 @@ void FFScript::do_setDMapData_dmapintro(const bool v)
     long arrayptr = get_register(sarg2) / 10000;
     string filename_str;
     
-    if(BC::checkDMapID(ID, "Game->Game->SetDMapIntro") != SH::_NoError)
+    if(BC::checkDMapID(ID, "dmapdata->SetIntro()") != SH::_NoError)
         return;
         
         
     ArrayH::getString(arrayptr, filename_str, 73);
     strncpy(DMaps[ID].intro, filename_str.c_str(), 72);
     DMaps[ID].intro[72]='\0';
+}
+
+
+static void do_getDMapData_music(const bool v);
+void FFScript::do_getDMapData_music(const bool v)
+{
+    long ID = ri->zmsgref;
+    long arrayptr = get_register(sarg2) / 10000;
+    
+    if(BC::checkDMapID(ID, "dmapdata->GetMusic()") != SH::_NoError)
+        return;
+        
+    if(ArrayH::setArray(arrayptr, string(DMaps[ID].tmusic)) == SH::_Overflow)
+        Z_scripterrlog("Array supplied to 'dmapdata->GetMusic()' not large enough\n");
+}
+
+static void do_setDMapData_music(const bool v);
+void FFScript::do_setDMapData_music(const bool v)
+{
+    long ID = ri->zmsgref;
+    long arrayptr = get_register(sarg2) / 10000;
+    string filename_str;
+    
+    if(BC::checkDMapID(ID, "dmapdata->SetMusic()") != SH::_NoError)
+        return;
+        
+        
+    ArrayH::getString(arrayptr, filename_str, 56);
+    strncpy(DMaps[ID].tmusic, filename_str.c_str(), 55);
+    DMaps[ID].tmusic[55]='\0';
 }
 
 
