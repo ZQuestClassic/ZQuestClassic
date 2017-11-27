@@ -1,6 +1,18 @@
 //2.54 Changes
 
 //Alpha 19
+
+Added dmapdata with the following syntax.
+	dmapdata dmd = Game->LoadDMapData(id);
+	Functions:
+	SetName(), GetName(), SetTitle(), GetTitle(), SetIntro(), GetIntro()
+	SetMusic(), GetMusic();
+	Variables:
+	int Map, Level, Offset, Compass, Palette, MIDI, Continue, Type;
+	int MusicTrack, ActiveSubscreen, PassiveSubscreen, Grid[8];
+	int MiniMapTile[2], MiniMapCSet[2], MapTile[2], MapCSet[2];
+	int DisabledItems[256], Flags
+
 Fixed missing Screen->WavtIn, WavyOut, ZapIn, and ZapOut.
 Added messagedata vars and functions:
 messagedata msgd = Game->LoadMessageData(msg_id);
