@@ -1,8 +1,24 @@
 //2.54 Changes
 
 //Alpha 19
-Added bool SHield[5] to npc-> and npcdata->
+Added messagedata vars and functions:
+messagedata msgd = Game->LoadMessageData(msg_id);
+	msgd->Set("String");
+	int buffer_str[80];
+	msgd->Get(buffer_str);
+	Vars:
+	msgd-> 
+		int Next, Tile, CSet, Font, X, Y, Width, Height;
+		int SoundListPosition, VSpace, HSpace, Flags;
+		bool Transparent; (unused at this time).
+	
+( ZoriaRPG, 27th November, 2017 )	
+
+Added Audio->Volume[4] and Audio->PanStyle ( ZoriaRPG 26th November, 2017 )
+
+Added bool Shield[5] to npc-> and npcdata->
 	The indices are { up, left, right, back, can_break } ( ZoriaRPG, 25th November, 2017 )
+
 Added shopdata for item shops, and info shops.
 Both types use the same ref, and thus, the same pointer type, called using:
 shopdata shop = Game->LoadShopData(shop_id);
