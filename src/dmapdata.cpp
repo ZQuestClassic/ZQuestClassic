@@ -57,35 +57,35 @@ case DMAPDATAJUMPLAYER:	 //unimplemented
 //getter
 case DMAPDATAMAP: 	//byte
 {
-	ret = ((byte)DMaps[ri->dmapsref].map) * 10000;
+	ret = ((byte)DMaps[ri->dmapsref].map) * 10000; break;
 }
 case DMAPDATALEVEL:	//word
 {
-	ret = ((word)DMaps[ri->dmapsref].level) * 10000;
+	ret = ((word)DMaps[ri->dmapsref].level) * 10000; break;
 }
 case DMAPDATAOFFSET:	//char
 {
-	ret = ((char)DMaps[ri->dmapsref].xoff) * 10000;
+	ret = ((char)DMaps[ri->dmapsref].xoff) * 10000; break;
 }
 case DMAPDATACOMPASS:	//byte
 {
-	ret = ((byte)DMaps[ri->dmapsref].compass) * 10000;
+	ret = ((byte)DMaps[ri->dmapsref].compass) * 10000; break;
 }
 case DMAPDATAPALETTE:	//word
 {
-	ret = ((word)DMaps[ri->dmapsref].color) * 10000;
+	ret = ((word)DMaps[ri->dmapsref].color) * 10000; break;
 }
 case DMAPDATAMIDI:	//byte
 {
-	ret = ((byte)DMaps[ri->dmapsref].midi) * 10000;
+	ret = ((byte)DMaps[ri->dmapsref].midi) * 10000; break;
 }
 case DMAPDATACONTINUE:	//byte
 {
-	ret = ((byte)DMaps[ri->dmapsref].cont) * 10000;
+	ret = ((byte)DMaps[ri->dmapsref].cont) * 10000; break;
 }
 case DMAPDATATYPE:	//byte
 {
-	ret = ((byte)DMaps[ri->dmapsref].type) * 10000;
+	ret = ((byte)DMaps[ri->dmapsref].type) * 10000; break;
 }
 case DMAPDATAGRID:	//byte[8] --array
 {
@@ -93,9 +93,12 @@ case DMAPDATAGRID:	//byte[8] --array
 	if ( indx < 0 || indx > 7 ) 
 	{
 		Z_scripterrlog("Invalid index supplied to dmapdata->Grid[]: %d\n", indx);
+		ret = -10000;
 	}
 	else
-		ret = ((byte)DMaps[ri->dmapsref].grid[indx]) * 10000;
+	{
+		ret = ((byte)DMaps[ri->dmapsref].grid[indx]) * 10000;  break;
+	}
 }
 case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
 {
@@ -159,15 +162,15 @@ case DMAPDATALARGEMAPCSET:	//word -- two of these, so let's to LargemaCSet[2]
 }
 case DMAPDATAMUISCTRACK:	//byte
 {
-	ret = ((byte)DMaps[ri->dmapsref].tmusictrack) * 10000;
+	ret = ((byte)DMaps[ri->dmapsref].tmusictrack) * 10000; break;
 }
 case DMAPDATASUBSCRA:	 //byte, active subscreen
 {
-	ret = ((byte)DMaps[ri->dmapsref].active_subscreen) * 10000;
+	ret = ((byte)DMaps[ri->dmapsref].active_subscreen) * 10000; break;
 }
 case DMAPDATASUBSCRP:	 //byte, passive subscreen
 {
-	ret = ((byte)DMaps[ri->dmapsref].passive_subscreen) * 10000;
+	ret = ((byte)DMaps[ri->dmapsref].passive_subscreen) * 10000; break;
 }
 case DMAPDATADISABLEDITEMS:	 //byte[iMax]
 {
@@ -175,17 +178,154 @@ case DMAPDATADISABLEDITEMS:	 //byte[iMax]
 	if ( indx < 0 || indx > (iMax-1) ) 
 	{
 		Z_scripterrlog("Invalid index supplied to dmapdata->Grid[]: %d\n", indx);
+		ret = -10000;
+		break;
 	}
 	else
-		ret = ((byte)DMaps[ri->dmapsref].disableditems[indx]) * 10000;
+	{
+		ret = ((byte)DMaps[ri->dmapsref].disableditems[indx]) * 10000; break;
+	}
 }
 case DMAPDATAFLAGS:	 //long
 {
-	ret = (DMaps[ri->dmapsref].flags) * 10000;
+	ret = (DMaps[ri->dmapsref].flags) * 10000; break;
 }
 //case DMAPDATAGRAVITY:	 //unimplemented
 //case DMAPDATAJUMPLAYER:	 //unimplemented
 	
+
+//setter ------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
+case DMAPDATAMAP: 	//byte
+{
+	DMaps[ri->dmapsref].map = ((byte)(value / 10000)); break;
+}
+case DMAPDATALEVEL:	//word
+{
+	DMaps[ri->dmapsref].level = ((word)(value / 10000)); break;
+}
+case DMAPDATAOFFSET:	//char
+{
+	DMaps[ri->dmapsref].xoff = ((char)(value / 10000)); break;
+}
+case DMAPDATACOMPASS:	//byte
+{
+	DMaps[ri->dmapsref].compass = ((byte)(value / 10000)); break;
+}
+case DMAPDATAPALETTE:	//word
+{
+	DMaps[ri->dmapsref].color= ((word)(value / 10000)); break;
+}
+case DMAPDATAMIDI:	//byte
+{
+	DMaps[ri->dmapsref].midi = ((byte)(value / 10000)); break;
+}
+case DMAPDATACONTINUE:	//byte
+{
+	DMaps[ri->dmapsref].cont= ((byte)(value / 10000)); break;
+}
+case DMAPDATATYPE:	//byte
+{
+	DMaps[ri->dmapsref].type = ((byte)(value / 10000)); break;
+}
+case DMAPDATAGRID:	//byte[8] --array
+{
+	int indx = ri->d[0] / 10000;
+	if ( indx < 0 || indx > 7 ) 
+	{
+		Z_scripterrlog("Invalid index supplied to dmapdata->Grid[]: %d\n", indx); break;
+	}
+	else
+	{
+		DMaps[ri->dmapsref].grid[indx] = ((byte)(value / 10000)); break;
+	}
+}
+case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
+{
+	int indx = ri->d[0] / 10000;
+	switch(indx)
+	{
+		case 0: { DMaps[ri->dmapsref].minimap_1_tile = ((word)(value / 10000)); break; }
+		case 1: { DMaps[ri->dmapsref].minimap_2_tile = ((word)(value / 10000)); break; }
+		default: 
+		{
+			Z_scripterrlog("Invalid index supplied to dmapdata->MiniMapTile[]: %d\n", indx);
+			break;
+		}
+	}
+}
+case DMAPDATAMINIMAPCSET:	//byte - two of these, so let's do MinimapCSet[2]
+{
+	int indx = ri->d[0] / 10000;
+	switch(indx)
+	{
+		case 0: { DMaps[ri->dmapsref].minimap_1_cset= ((byte)(value / 10000)); break; }
+		case 1: { DMaps[ri->dmapsref].minimap_2_cset= ((byte)(value / 10000)); break; }
+		default: 
+		{
+			Z_scripterrlog("Invalid index supplied to dmapdata->MiniMapCSet[]: %d\n", indx);
+			break;
+		}
+	}
+}
+case DMAPDATALARGEMAPTILE:	//word -- two of these, so let's to LargemapTile[2]
+{
+	int indx = ri->d[0] / 10000;
+	switch(indx)
+	{
+		case 0: { DMaps[ri->dmapsref].largemap_1_tile = ((word)(value / 10000)); break; }
+		case 1: { DMaps[ri->dmapsref].largemap_2_tile = ((word)(value / 10000)); break; }
+		default: 
+		{
+			Z_scripterrlog("Invalid index supplied to dmapdata->LargeMapTile[]: %d\n", indx);
+			break;
+		}
+	}
+}
+case DMAPDATALARGEMAPCSET:	//word -- two of these, so let's to LargemaCSet[2]
+{
+	int indx = ri->d[0] / 10000;
+	switch(indx)
+	{
+		case 0: { DMaps[ri->dmapsref].largemap_1_cset= ((byte)(value / 10000)); break; }
+		case 1: { DMaps[ri->dmapsref].largemap_2_cset= ((byte)(value / 10000)); break; }
+		default: 
+		{
+			Z_scripterrlog("Invalid index supplied to dmapdata->LargeMapCSet[]: %d\n", indx);
+			break;
+		}
+	}
+}
+case DMAPDATAMUISCTRACK:	//byte
+{
+	DMaps[ri->dmapsref].tmusictrack= ((byte)(value / 10000)); break;
+}
+case DMAPDATASUBSCRA:	 //byte, active subscreen
+{
+	DMaps[ri->dmapsref].active_subscreen= ((byte)(value / 10000)); break;
+}
+case DMAPDATASUBSCRP:	 //byte, passive subscreen
+{
+	DMaps[ri->dmapsref].passive_subscreen= ((byte)(value / 10000)); break;
+}
+case DMAPDATADISABLEDITEMS:	 //byte[iMax]
+{
+	int indx = ri->d[0] / 10000;
+	if ( indx < 0 || indx > (iMax-1) ) 
+	{
+		Z_scripterrlog("Invalid index supplied to dmapdata->Grid[]: %d\n", indx); break;
+	}
+	else
+	{
+		DMaps[ri->dmapsref].disableditems[indx] = ((byte)(value / 10000)); break;
+	}
+}
+case DMAPDATAFLAGS:	 //long
+{
+	DMaps[ri->dmapsref].flags= ((byte)(value / 10000)); break;
+}
+//case DMAPDATAGRAVITY:	 //unimplemented
+//case DMAPDATAJUMPLAYER:	 //unimplemented
 
 #define DMAPDATAMAP 		//byte
 #define DMAPDATALEVEL 		//word
