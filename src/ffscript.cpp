@@ -4385,7 +4385,7 @@ case MESSAGEDATANEXT: //W
 	if(BC::checkMessage(ID, "messagedata->Next") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].nextstring;
+		ret = ((int)MsgStrings[ID].nextstring) * 10000;
 	break;
 }	
 
@@ -4396,7 +4396,7 @@ case MESSAGEDATATILE: //W
 	if(BC::checkMessage(ID, "messagedata->Tile") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].tile;
+		ret = ((int)MsgStrings[ID].tile) * 10000;
 	break;
 }	
 
@@ -4407,7 +4407,7 @@ case MESSAGEDATACSET: //b
 	if(BC::checkMessage(ID, "messagedata->CSet") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].cset;
+		ret = ((int)MsgStrings[ID].cset) * 10000;
 	break;
 }	
 case MESSAGEDATATRANS: //BOOL
@@ -4437,7 +4437,7 @@ case MESSAGEDATAX: //SHORT
 	if(BC::checkMessage(ID, "messagedata->X") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].x;
+		ret = ((int)MsgStrings[ID].x) * 10000;
 	break;
 }	
 case MESSAGEDATAY: //SHORT
@@ -4447,7 +4447,7 @@ case MESSAGEDATAY: //SHORT
 	if(BC::checkMessage(ID, "messagedata->Y") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].y;
+		ret = ((int)MsgStrings[ID].y) * 10000;
 	break;
 }	
 case MESSAGEDATAW: //UNSIGNED SHORT
@@ -4457,7 +4457,7 @@ case MESSAGEDATAW: //UNSIGNED SHORT
 	if(BC::checkMessage(ID, "messagedata->Width") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].w;
+		ret = ((int)MsgStrings[ID].w) * 10000;
 	break;
 }	
 case MESSAGEDATAH: //UNSIGNED SHORT
@@ -4467,7 +4467,7 @@ case MESSAGEDATAH: //UNSIGNED SHORT
 	if(BC::checkMessage(ID, "messagedata->Height") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].h;
+		ret = ((int)MsgStrings[ID].h) * 10000;
 	break;
 }	
 case MESSAGEDATASFX: //BYTE
@@ -4477,7 +4477,7 @@ case MESSAGEDATASFX: //BYTE
 	if(BC::checkMessage(ID, "messagedata->Sound") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].sfx;
+		ret = ((int)MsgStrings[ID].sfx) * 10000;
 	break;
 }	
 case MESSAGEDATALISTPOS: //WORD
@@ -4487,7 +4487,7 @@ case MESSAGEDATALISTPOS: //WORD
 	if(BC::checkMessage(ID, "messagedata->ListPosition") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].listpos;
+		ret = ((int)MsgStrings[ID].listpos) * 10000;
 	break;
 }	
 case MESSAGEDATAVSPACE: //BYTE
@@ -4497,7 +4497,7 @@ case MESSAGEDATAVSPACE: //BYTE
 	if(BC::checkMessage(ID, "messagedata->VSpace") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].vspace;
+		ret = ((int)MsgStrings[ID].vspace) * 10000;
 	break;
 }	
 case MESSAGEDATAHSPACE: //BYTE
@@ -4507,7 +4507,7 @@ case MESSAGEDATAHSPACE: //BYTE
 	if(BC::checkMessage(ID, "messagedata->HSpace") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].hspace;
+		ret = ((int)MsgStrings[ID].hspace) * 10000;
 	break;
 }	
 case MESSAGEDATAFLAGS: //BYTE
@@ -4517,7 +4517,7 @@ case MESSAGEDATAFLAGS: //BYTE
 	if(BC::checkMessage(ID, "messagedata->Flags") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].stringflags;
+		ret = ((int)MsgStrings[ID].stringflags) * 10000;
 	break;
 }
 	
