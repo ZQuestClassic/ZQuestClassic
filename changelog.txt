@@ -1,6 +1,7 @@
 //2.54 Changes
 
 //Alpha 19
+Fixed missing Screen->WavtIn, WavyOut, ZapIn, and ZapOut.
 Added messagedata vars and functions:
 messagedata msgd = Game->LoadMessageData(msg_id);
 	msgd->Set("String");
