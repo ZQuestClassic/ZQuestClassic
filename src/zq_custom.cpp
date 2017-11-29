@@ -753,6 +753,9 @@ const char *defenselist(int index, int *list_size)
 	case edTRIGGERSECRETS: //Triggers screen secrets. 
 		return "Trigger Screen Secrets";
 	
+	case edFREEZE: //Hit by ice.. 
+		return "Freeze Solid";
+	
 	
         }
     }

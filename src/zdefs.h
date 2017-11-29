@@ -1174,11 +1174,12 @@ enum
 	ed4x, //4x damage : IMPLEMENTED -Z
 	edHEAL, //recover the weapon damage in HP : IMPLEMENTED -Z
 	edTRIGGERSECRETS, //Triggers screen secrets. : IMPLEMENTED -Z
+	edFREEZE, //Freeze solid
 	edMSG_NOT_ENABLED, //A message for 'The following are not yet enabled.
 	edMSG_LINE, //An entry for the hiriz line in THE zq PULLDOWN
 	edLEVELDAMAGE, //Damage * item level
 	edLEVELREDUCTION, //Damage / item level
-	edFREEZE, //Freeze solid
+	
 	edSPLIT, //causes the enemy to split if it has a split attribute
 	edREPLACE, //replaced by next in list?
 	edLEVELCHINK2, //If item level is < 2: This needs a weapon variable that is set by 
