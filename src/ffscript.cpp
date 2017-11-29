@@ -4813,6 +4813,11 @@ case NPCDATATILEHEIGHT: GET_NPCDATA_VAR_INT32(tysz, "TileHeight"); break;
 case NPCDATAWPNSPRITE: GET_NPCDATA_VAR_INT32(wpnsprite, "WeaponSprite"); break;
 case NPCDATADEFENSE: GET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
 case NPCDATASIZEFLAG: GET_NPCDATA_VAR_INT32(SIZEflags, "SizeFlags"); break;
+
+case NPCDATAFROZENTILE: GET_NPCDATA_VAR_INT32(frozentile, "FrozenTile"); break;
+case NPCDATAFROZENCSET: GET_NPCDATA_VAR_INT32(frozencset, "FrozenCSet"); break;
+
+
 case NPCDATAATTRIBUTE: 
 {
 	int indx = ri->d[0] / 10000; 
@@ -9084,6 +9089,10 @@ case NPCDATATILEHEIGHT: SET_NPCDATA_VAR_INT(tysz, "TileHeight"); break;
 case NPCDATAWPNSPRITE: SET_NPCDATA_VAR_INT(wpnsprite, "WeaponSprite"); break;
 case NPCDATADEFENSE: SET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
 case NPCDATASIZEFLAG: SET_NPCDATA_VAR_INT(SIZEflags, "SizeFlags"); break;
+
+case NPCDATAFROZENTILE: SET_NPCDATA_VAR_INT32(frozentile, "FrozenTile"); break;
+case NPCDATAFROZENCSET: SET_NPCDATA_VAR_INT32(frozencset, "FrozenCSet"); break;
+
 case NPCDATAATTRIBUTE: 
 {
 	int indx = ri->d[0] / 10000; 
