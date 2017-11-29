@@ -14869,7 +14869,25 @@ FFScript::FFScript()
 void FFScript::init()
 {
 	coreflags = 0;
-	
+	for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
+	long usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
+	FF_link_tile = 0; FF_link_action = 0;
+	for ( int q = 0; q < 4; q++ ) 
+	{
+		FF_screenbounds[q] = 0;
+		FF_screen_dimensions[q] = 0;
+		FF_subscreen_dimensions[q] = 0;
+		FF_eweapon_removal_bounds[q] = 0; 
+		FF_lweapon_removal_bounds[q] = 0;
+	}
+	for ( int q = 0; q < FFSCRIPTCLASS_CLOCKS; q++ )
+	{
+		FF_clocks[q] = 0;
+	}
+	for ( int q = 0; q < SCRIPT_DRAWING_RULES; q++ )
+	{
+		ScriptDrawingRules[q] = 0;
+	}
 }
 
 

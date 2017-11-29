@@ -34,21 +34,7 @@ enum {
 	FFCORE_SCRIPTED_PANSTYLE 	= 0x0010
 };
 
-extern byte FF_rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
-extern long FF_link_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
-extern byte FF_link_action; //This way, we can make safe replicas of internal Link actions to be set by script. 
-	
-extern long FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
-extern long FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
-extern long FF_subscreen_dimensions[4];
-extern long FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
-extern long FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
 
-#define FFSCRIPTCLASS_CLOCKS 10
-extern long FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
-
-#define SCRIPT_DRAWING_RULES 20
-extern byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 
 	//Allow or forbid drawing during specific game events. 
 	enum{
@@ -80,6 +66,21 @@ int getLinkAction();
 
 long coreflags;
 long usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
+byte FF_rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
+long FF_link_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
+byte FF_link_action; //This way, we can make safe replicas of internal Link actions to be set by script. 
+	
+long FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
+long FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
+long FF_subscreen_dimensions[4];
+long FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
+long FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
+
+#define FFSCRIPTCLASS_CLOCKS 10
+long FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
+
+#define SCRIPT_DRAWING_RULES 20
+byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 
 
 void SetFFEngineFlag(int flag, bool v);
