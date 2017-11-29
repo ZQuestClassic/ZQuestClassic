@@ -2351,6 +2351,7 @@ long get_register(const long arg)
             ret = long(GuyH::getNPC()->step * fix(100.0)) * 10000;
             
         break;
+	
         
     case NPCID:
         if(GuyH::loadNPC(ri->guyref, "npc->ID") != SH::_NoError)
@@ -2453,45 +2454,54 @@ long get_register(const long arg)
         break;
     
     case NPCSHIELD:
-{
-	int indx = ri->d[0];
-	if(GuyH::loadNPC(ri->guyref, "npc->Shield[]") == SH::_NoError)
 	{
-		switch(indx)
+		int indx = ri->d[0];
+		if(GuyH::loadNPC(ri->guyref, "npc->Shield[]") == SH::_NoError)
 		{
-			case 0:
+			switch(indx)
 			{
-				ret = ((GuyH::getNPC()->flags&inv_front) ? 10000 : 0);
-				break;
-			}
-			case 1:
-			{
-				ret = ((GuyH::getNPC()->flags&inv_left) ? 10000 : 0);
-				break;
-			}
-			case 2:
-			{
-				ret = ((GuyH::getNPC()->flags&inv_right) ? 10000 : 0);
-				break;
-			}
-			case 3:
-			{
-				ret = ((GuyH::getNPC()->flags&inv_back) ? 10000 : 0);
-				break;
-			}
-			case 4: //shield can be broken
-			{
-				ret = ((GuyH::getNPC()->flags&guy_bkshield) ? 10000 : 0);
-				break;
-			}
-			default:
-			{
-				Z_scripterrlog("Invalid Array Index passed to npc->Shield[]: %d\n", indx); 
-				break;
+				case 0:
+				{
+					ret = ((GuyH::getNPC()->flags&inv_front) ? 10000 : 0);
+					break;
+				}
+				case 1:
+				{
+					ret = ((GuyH::getNPC()->flags&inv_left) ? 10000 : 0);
+					break;
+				}
+				case 2:
+				{
+					ret = ((GuyH::getNPC()->flags&inv_right) ? 10000 : 0);
+					break;
+				}
+				case 3:
+				{
+					ret = ((GuyH::getNPC()->flags&inv_back) ? 10000 : 0);
+					break;
+				}
+				case 4: //shield can be broken
+				{
+					ret = ((GuyH::getNPC()->flags&guy_bkshield) ? 10000 : 0);
+					break;
+				}
+				default:
+				{
+					Z_scripterrlog("Invalid Array Index passed to npc->Shield[]: %d\n", indx); 
+					break;
+				}
 			}
 		}
 	}
-}
+	
+	case NPCFROZENTILE:
+        GET_NPC_VAR_INT(frozentile, "npc->FrozenTile") break;
+	
+	case NPCFROZENCSET:
+        GET_NPC_VAR_INT(frozencset, "npc->FrozenCSet") break;
+	
+	case NPCFROZEN:
+        GET_NPC_VAR_INT(frozenclock, "npc->Frozen") break;
     
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
@@ -7172,46 +7182,53 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
-    case NPCSHIELD:
-{
-	int indx = ri->d[0];
-	if(GuyH::loadNPC(ri->guyref, "npc->Shield[]") == SH::_NoError)
+	case NPCSHIELD:
 	{
-		switch(indx)
+		int indx = ri->d[0];
+		if(GuyH::loadNPC(ri->guyref, "npc->Shield[]") == SH::_NoError)
 		{
-			case 0:
+			switch(indx)
 			{
-				(ri->d[1])? (GuyH::getNPC()->flags |= inv_front) : (GuyH::getNPC()->flags &= ~inv_front);
-				break;
-			}
-			case 1:
-			{
-				(ri->d[1])? (GuyH::getNPC()->flags |= inv_left) : (GuyH::getNPC()->flags &= ~inv_left);
-				break;
-			}
-			case 2:
-			{
-				(ri->d[1])? (GuyH::getNPC()->flags |= inv_right) : (GuyH::getNPC()->flags &= ~inv_right);
-				break;
-			}
-			case 3:
-			{
-				(ri->d[1])? (GuyH::getNPC()->flags |= inv_back) : (GuyH::getNPC()->flags &= ~inv_back);
-				break;
-			}
-			case 4: //shield can be broken
-			{
-				(ri->d[1])? (GuyH::getNPC()->flags |= guy_bkshield) : (GuyH::getNPC()->flags &= ~guy_bkshield);
-				break;
-			}
-			default:
-			{
-				Z_scripterrlog("Invalid Array Index passed to npc->Shield[]: %d\n", indx); 
-				break;
+				case 0:
+				{
+					(ri->d[1])? (GuyH::getNPC()->flags |= inv_front) : (GuyH::getNPC()->flags &= ~inv_front);
+					break;
+				}
+				case 1:
+				{
+					(ri->d[1])? (GuyH::getNPC()->flags |= inv_left) : (GuyH::getNPC()->flags &= ~inv_left);
+					break;
+				}
+				case 2:
+				{
+					(ri->d[1])? (GuyH::getNPC()->flags |= inv_right) : (GuyH::getNPC()->flags &= ~inv_right);
+					break;
+				}
+				case 3:
+				{
+					(ri->d[1])? (GuyH::getNPC()->flags |= inv_back) : (GuyH::getNPC()->flags &= ~inv_back);
+					break;
+				}
+				case 4: //shield can be broken
+				{
+					(ri->d[1])? (GuyH::getNPC()->flags |= guy_bkshield) : (GuyH::getNPC()->flags &= ~guy_bkshield);
+					break;
+				}
+				default:
+				{
+					Z_scripterrlog("Invalid Array Index passed to npc->Shield[]: %d\n", indx); 
+					break;
+				}
 			}
 		}
 	}
-}
+	
+	case NPCFROZENTILE:
+        SET_NPC_VAR_INT(frozentile, "npc->FrozenTile") break;
+	case NPCFROZENCSET:
+        SET_NPC_VAR_INT(frozencset, "npc->FrozenCSet") break;
+	case NPCFROZEN:
+        SET_NPC_VAR_INT(frozenclock, "npc->Frozen") break;
     
 ///----------------------------------------------------------------------------------------------------//
 //Game Information

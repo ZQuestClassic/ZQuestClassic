@@ -923,10 +923,13 @@ using namespace std;
 #define DMAPDATASUBSCRP 	868	//byte, passive subscreen
 #define DMAPDATADISABLEDITEMS 	869	//byte[iMax]
 #define DMAPDATAFLAGS 		870	//long
+#define NPCFROZEN 		871	//long
+#define NPCFROZENTILE 		872	//long
+#define NPCFROZENCSET 		873	//long
 //#define DMAPDATAGRAVITY 	871	//unimplemented
 //#define DMAPDATAJUMPLAYER 	872	//unimplemented
 
-#define LAST_BYTECODE 			871
+#define LAST_BYTECODE 			874
 
 //END OF BYTECODE
 

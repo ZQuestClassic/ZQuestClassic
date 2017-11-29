@@ -693,7 +693,13 @@ string VarArgument::toString()
         return "NPCRINGLEAD";
     case NPCSHIELD:
         return "NPCSHIELD";
-        
+    
+    case NPCFROZEN:
+        return "NPCFROZEN";   
+    case NPCFROZENTILE:
+        return "NPCFROZENTILE";
+    case NPCFROZENCSET:
+        return "NPCFROZENCSET"; 
         
     case SCRDOORD:
         return "SCRDOORD";

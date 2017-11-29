@@ -333,7 +333,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     
     frozentile = d->frozentile;
     frozencset = d->frozencset;
-    frozenclock = d->frozenclock;
+    frozenclock = 0;
     for ( int q = 0; q < 10; q++ ) frozenmisc[q] = d->frozenmisc[q];
     if(bosspal>-1)
     {
@@ -499,6 +499,8 @@ bool enemy::animate(int index)
         
     if(stunclk>0)
         --stunclk;
+    if ( frozenclock > 0 ) 
+	    --frozenclock;
         
     if(ceiling && z<=0)
         ceiling = false;
@@ -923,6 +925,11 @@ int enemy::defend(int wpnId, int *power, int edef)
             
         stunclk=160;
         sfx(WAV_EHIT,pan(int(x)));
+        return 1;
+	
+    case edFREEZE:
+        frozenclock=-1;
+        //sfx(WAV_FREEZE,pan(int(x)));
         return 1;
         
     case edCHINKL1:
@@ -1554,6 +1561,7 @@ void enemy::draw(BITMAP *dest)
         
         flip = 0;
         tile = wpnsbuf[iwDeath].tile;
+	//The scale of this tile shouldx be based on the enemy size. -Z
         
         if(BSZ)
             tile += zc_min((15-clk2)/3,4);
@@ -1595,6 +1603,11 @@ void enemy::draw(BITMAP *dest)
     }
     else
     {
+	    if ( frozenclock < 0 )
+	    {
+		if ( frozentile > 0 ) tile = frozentile;
+		loadpalset(csBOSS,frozencset);
+	    }
         if(family !=eeGANON && hclk>0 && get_bit(quest_rules,qr_ENEMIESFLICKER))
         {
             if((frame&1)==1)
@@ -2339,7 +2352,7 @@ void enemy::constant_walk(int newrate,int newhoming,int special)
     if(slide())
         return;
         
-    if(clk<0 || dying || stunclk || watch || ceiling)
+    if(clk<0 || dying || stunclk || watch || ceiling || frozenclock )
         return;
         
     if(clk3<=0)
@@ -2378,7 +2391,7 @@ void enemy::variable_walk(int newrate,int newhoming,int special)
     if(slide())
         return;
         
-    if(clk<0 || dying || stunclk || watch || step == 0 || ceiling)
+    if(clk<0 || dying || stunclk || watch || step == 0 || ceiling || frozenclock )
         return;
         
     fix dx = (fix)0;
@@ -2450,7 +2463,7 @@ void enemy::halting_walk(int newrate,int newhoming,int special,int newhrate, int
         clk3=0;
     }
     
-    if(slide() || clk<0 || dying || stunclk || watch || ceiling)
+    if(slide() || clk<0 || dying || stunclk || watch || ceiling || frozenclock)
     {
         return;
     }
@@ -2491,7 +2504,7 @@ void enemy::halting_walk(int newrate,int newhoming,int special,int newhrate, int
 // 8-directional movement, aligns to 8 pixels
 void enemy::constant_walk_8(int newrate,int newhoming,int special)
 {
-    if(clk<0 || dying || stunclk || watch || ceiling)
+    if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
         return;
         
     if(clk3<=0)
@@ -2506,7 +2519,7 @@ void enemy::constant_walk_8(int newrate,int newhoming,int special)
 
 void enemy::halting_walk_8(int newrate,int newhoming, int newclk,int special,int newhrate, int haltcnt)
 {
-    if(clk<0 || dying || stunclk || watch)
+    if(clk<0 || dying || stunclk || watch || frozenclock)
         return;
         
     if(!canmove(dir,step,special))
@@ -2542,7 +2555,7 @@ void enemy::halting_walk_8(int newrate,int newhoming, int newclk,int special,int
 // 8-directional movement, no alignment
 void enemy::variable_walk_8(int newrate,int newhoming, int newclk,int special)
 {
-    if(clk<0 || dying || stunclk || watch || ceiling)
+    if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
         return;
         
     if(!canmove(dir,step,special))
@@ -2561,7 +2574,7 @@ void enemy::variable_walk_8(int newrate,int newhoming, int newclk,int special)
 // same as above but with variable enemy size
 void enemy::variable_walk_8(int newrate,int newhoming, int newclk,int special,int dx1,int dy1,int dx2,int dy2)
 {
-    if(clk<0 || dying || stunclk || watch || ceiling)
+    if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
         return;
         
     if(!canmove(dir,step,special,dx1,dy1,dx2,dy2))
@@ -4456,7 +4469,7 @@ bool eTektite::animate(int index)
         y=floor_y;
     }
     
-    if(clk>=0 && !stunclk && (!watch || misc==0))
+    if(clk>=0 && !stunclk && !frozenclock && (!watch || misc==0))
     {
         switch(misc)
         {
@@ -4916,7 +4929,7 @@ bool eLeever::animate(int index)
                 
 //        case 3: if(stunclk) break; if(scored) dir^=1; if(!canmove(dir)) misc=4; else move((fix)(d->step/100.0)); break;
             case 3:
-                if(stunclk) break;
+                if(stunclk || frozenclock) break;
                 
                 if(scored) dir^=1;
                 
@@ -5164,7 +5177,7 @@ void eWallM::wallm_crawl()
     }
     
     //  if(dying || watch || (!haslink && stunclk))
-    if(dying || (!haslink && stunclk))
+    if(dying || (!haslink && ( stunclk || frozenclock )))
     {
         return;
     }
@@ -6648,7 +6661,7 @@ bool eStalfos::animate(int index)
                 }
                 else if(dmisc9==e9tROPE) //Rope charge
                 {
-                    if(!fired && dashing && !stunclk && !watch)
+                    if(!fired && dashing && !stunclk && !watch && !frozenclock)
                     {
                         if(dmisc2==e2tBOMBCHU && LinkInRange(16) && wpn+dmisc3 > wEnemyWeapons) //Bombchu
                         {
@@ -6835,7 +6848,7 @@ bool eStalfos::animate(int index)
         }
     }
     // Goriya
-    else if(wpn==ewBrang && clk2==1 && sclk==0 && !stunclk && !watch && wpn && !WeaponOut())
+    else if(wpn==ewBrang && clk2==1 && sclk==0 && !stunclk && !frozenclock && !watch && wpn && !WeaponOut())
     {
         misc=index+100;
         Ewpns.add(new weapon(x,y,z,wpn,misc,wdp,dir, -1,getUID(),false));
@@ -6879,7 +6892,7 @@ bool eStalfos::animate(int index)
             }
         }
     }
-    else if((clk2==16 || dmisc1==e1tCONSTANT) &&  dmisc1!=e1tEACHTILE && wpn && wpn!=ewBrang && sclk==0 && !stunclk && !watch)
+    else if((clk2==16 || dmisc1==e1tCONSTANT) &&  dmisc1!=e1tEACHTILE && wpn && wpn!=ewBrang && sclk==0 && !stunclk && !frozenclock && !watch)
         switch(dmisc1)
         {
         case e1tCONSTANT: //Deathnut
@@ -7079,7 +7092,7 @@ void eStalfos::charge_attack()
     if(slide())
         return;
         
-    if(clk<0 || dir<0 || stunclk || watch || ceiling)
+    if(clk<0 || dir<0 || stunclk || watch || ceiling || frozenclock )
         return;
         
     if(clk3<=0)
@@ -7128,7 +7141,7 @@ void eStalfos::vire_hop()
     }
     else sclk=0;
     
-    if(clk<0 || dying || stunclk || watch || ceiling)
+    if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
         return;
         
     int jump_width;
@@ -7644,7 +7657,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 
 void eWizzrobe::wizzrobe_attack()
 {
-    if(clk<0 || dying || stunclk || watch || ceiling)
+    if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
         return;
         
     if(clk3<=0 || ((clk3&31)==0 && !canmove(dir,(fix)1,spw_door) && !misc))
@@ -7823,7 +7836,7 @@ void eWizzrobe::wizzrobe_newdir(int homing)
 void eWizzrobe::draw(BITMAP *dest)
 {
 //  if(d->misc1 && (misc==1 || misc==3) && (clk3&1) && hp>0 && !watch && !stunclk)                          // phasing
-    if(dmisc1 && (misc==1 || misc==3) && (clk3&1) && hp>0 && !watch && !stunclk)                          // phasing
+    if(dmisc1 && (misc==1 || misc==3) && (clk3&1) && hp>0 && !watch && !stunclk && !frozenclock)                          // phasing
         return;
         
     int tempint=dummy_int[1];
@@ -11338,14 +11351,14 @@ int GuyHit(int tx,int ty,int tz,int txsz,int tysz,int tzsz)
     {
         if(guys.spr(i)->hit(tx,ty,tz,txsz,tysz,tzsz))
         {
-            if(((enemy*)guys.spr(i))->stunclk==0 && (!get_bit(quest_rules, qr_SAFEENEMYFADE) || ((enemy*)guys.spr(i))->fading != fade_flicker)
+            if(((enemy*)guys.spr(i))->stunclk==0 &&  ((enemy*)guys.spr(i))->frozenclock==0 && (!get_bit(quest_rules, qr_SAFEENEMYFADE) || ((enemy*)guys.spr(i))->fading != fade_flicker)
                     &&(((enemy*)guys.spr(i))->d->family != eeGUY || ((enemy*)guys.spr(i))->dmisc1))
             {
                 return i;
             }
         }
     }
-    
+   
     return -1;
 }
 

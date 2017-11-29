@@ -1714,9 +1714,9 @@ enum ASM_DEFINE
 #define NPCRINGLEAD            0x02E5
 #define NPCINVINC            0x02E6
 #define NPCSHIELD            0x02E7
-#define UNUSED132            0x02E8
-#define UNUSED133            0x02E9
-#define UNUSED134            0x02EA
+#define NPCFROZEN            0x02E8
+#define NPCFROZENTILE            0x02E9
+#define NPCFROZENCSET            0x02EA
 #define UNUSED135            0x02EB
 //I'm stealing this one for the stack pointer -DD
 #define SP                   0x02EC
