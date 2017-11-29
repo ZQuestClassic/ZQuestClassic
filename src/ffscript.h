@@ -25,6 +25,12 @@
 #define MAX_INTERNAL_BITMAP 6 //RT_BITMAP6
 #define FFRULES_SIZE 512
 
+//unum FFCoreFlags[] { 
+enum {
+	FFCORE_SCRIPTED_VOLUME 	= 0x0001,
+	FFCORE_FLAGS_MISC 	= 0x0002 
+};
+
 extern byte FF_rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
 extern long FF_link_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
 extern byte FF_link_action; //This way, we can make safe replicas of internal Link actions to be set by script. 
@@ -56,7 +62,7 @@ class FFScript
 	
     
 public:
-	
+//FFScript();
 void init();
 int getQRBit(int rule);	
 void setRule(int rule, bool s);
@@ -69,7 +75,11 @@ int getLinkAction();
 //FFScript();
 //static void init();
 
+long coreflags;
 
+
+
+void SetFFEngineFlag(int flag, bool v);
 	
     
     //virtual ~FFScript();

@@ -16,6 +16,8 @@
 #include "zc_math.h"
 #include "zc_array.h"
 #include "ffscript.h"
+FFScript FFCore;
+
 #include "zelda.h"
 #include "link.h"
 #include "guys.h"
@@ -4930,6 +4932,7 @@ case AUDIOVOLUME:
 			break;
 		}
 	}
+	
 	ret = r; break;
 }
 
@@ -9166,21 +9169,25 @@ case AUDIOVOLUME:
 		case 0: //midi volume
 		{
 			FFScript::do_setMIDI_volume(value / 10000);
+			FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_VOLUME,true);
 			break;
 		}
 		case 1: //digi volume
 		{
 			FFScript::do_setDIGI_volume(value / 10000);
+			FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_VOLUME,true);
 			break;
 		}
 		case 2: //emh music volume
 		{
 			FFScript::do_setMusic_volume(value / 10000);
+			FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_VOLUME,true);
 			break;
 		}
 		case 3: //sfx volume
 		{
 			FFScript::do_setSFX_volume(value / 10000);
+			FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_VOLUME,true);
 			break;
 		}
 		default:
@@ -14838,7 +14845,21 @@ FFScript::FFScript()
 	init();
 }
 */
+void FFScript::init()
+{
+	coreflags = 0;
+	
+}
 
+
+void FFScript::SetFFEngineFlag(int flag, bool state)
+{
+	if ( state ) { coreflags |= flag; }
+	else coreflags &= ~flag;
+}
+
+
+/*
 void FFScript::init()
 {
 	for ( int q = 0; q < FFRULES_SIZE; q++ ) FF_rules[q] = 0;
@@ -14857,3 +14878,4 @@ void FFScript::init()
 	for ( int q = 0; q < SCRIPT_DRAWING_RULES; q++ ) ScriptDrawingRules[q] = 0;
 	for ( int q = 0; q < NUM_USER_MIDI_OVERRIDES; q++ ) FF_UserMidis[q] = 0;
 }
+*/

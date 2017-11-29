@@ -50,6 +50,7 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "ffscript.h"
+FFScript ffcore; //the core script engine.
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -1539,7 +1540,7 @@ int init_game()
     
     //preloaded freeform combos
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
-    
+    ffcore.init(); ///Initialise new ffscript engine core. 
     Link.init();
     Link.resetflags(true);
     Link.setEntryPoints(LinkX(),LinkY());
