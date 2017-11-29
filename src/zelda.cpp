@@ -50,7 +50,7 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "ffscript.h"
-FFScript ffcore; //the core script engine.
+extern FFScript FFCore; //the core script engine.
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -1540,7 +1540,7 @@ int init_game()
     
     //preloaded freeform combos
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
-    ffcore.init(); ///Initialise new ffscript engine core. 
+    FFCore.init(); ///Initialise new ffscript engine core. 
     Link.init();
     Link.resetflags(true);
     Link.setEntryPoints(LinkX(),LinkY());
@@ -3849,6 +3849,27 @@ int main(int argc, char* argv[])
             if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
             
             skipcont = 0;
+		//restore user volume settings
+		if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+		{
+			master_volume(-1,((long)FFCore.usr_midi_volume));
+		}
+		if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+		{
+			master_volume((long)(FFCore.usr_digi_volume),1);
+		}
+		if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+		{
+			emusic_volume = (long)FFCore.usr_music_volume;
+		}
+		if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+		{
+			sfx_volume = (long)FFCore.usr_sfx_volume;
+		}
+		if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+		{
+			pan_style = (long)FFCore.usr_panstyle;
+		}
         }
         break;
         
@@ -3862,6 +3883,8 @@ int main(int argc, char* argv[])
             
             initZScriptGlobalRAM();
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
+		
+		
             ending();
         }
         break;
@@ -3879,6 +3902,27 @@ int main(int argc, char* argv[])
     kill_sfx();
     
 quick_quit:
+    //restore user volume settings
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	{
+		master_volume(-1,((long)FFCore.usr_midi_volume));
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+	{
+		master_volume((long)(FFCore.usr_digi_volume),1);
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+	{
+		emusic_volume = (long)FFCore.usr_music_volume;
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+	{
+		sfx_volume = (long)FFCore.usr_sfx_volume;
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+	{
+		pan_style = (long)FFCore.usr_panstyle;
+	}
     show_saving(screen);
     save_savedgames();
     save_game_configs();

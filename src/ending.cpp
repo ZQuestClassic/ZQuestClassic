@@ -29,6 +29,8 @@
 #include "subscr.h"
 #include "init.h"
 #include "gamedata.h"
+#include "ffscript.h"
+extern FFScript FFCore;
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -580,7 +582,27 @@ void ending()
     
     
     stop_midi();
-    
+    //restore user volume if it was changed by script
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+    {
+	master_volume(-1,((long)FFCore.usr_midi_volume));
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
+    {
+	master_volume((long)(FFCore.usr_digi_volume),1);
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
+    {
+	emusic_volume = (long)FFCore.usr_music_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
+    {
+	sfx_volume = (long)FFCore.usr_sfx_volume;
+    }
+    if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+    {
+	pan_style = (long)FFCore.usr_panstyle;
+    }
     if(zcmusic != NULL)
     {
         zcmusic_stop(zcmusic);
