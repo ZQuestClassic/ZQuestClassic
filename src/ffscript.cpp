@@ -14826,6 +14826,13 @@ void FFScript::setFFRules()
 		passive_subscreen_offsets[q] = 0;
 	}
 	active_subscreen_scrollspeed_adjustment = 0;
+	//zinit.terminalv
+	FF_gravity = zinit.gravity;
+	FF_terminalv = zinit.terminalv;
+	FF_msg_speed = zinit.msg_speed;
+	FF_transition_type = zinit.transition_type; // Can't edit, yet.
+	FF_jump_link_layer_threshold = zinit.jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
+	FF_link_swim_speed = zinit.link_swim_speed;
 }
 
 void FFScript::setRule(int rule, bool s)

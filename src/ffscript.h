@@ -85,6 +85,14 @@ long FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and si
 short passive_subscreen_offsets[2];
 byte active_subscreen_scrollspeed_adjustment;
 
+byte FF_gravity;
+word FF_terminalv;
+byte FF_msg_speed;
+byte FF_transition_type; // Can't edit, yet.
+byte FF_jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
+byte FF_link_swim_speed;
+    
+
 void SetFFEngineFlag(int flag, bool v);
 	
     
