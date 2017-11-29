@@ -9090,8 +9090,8 @@ case NPCDATAWPNSPRITE: SET_NPCDATA_VAR_INT(wpnsprite, "WeaponSprite"); break;
 case NPCDATADEFENSE: SET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
 case NPCDATASIZEFLAG: SET_NPCDATA_VAR_INT(SIZEflags, "SizeFlags"); break;
 
-case NPCDATAFROZENTILE: SET_NPCDATA_VAR_INT32(frozentile, "FrozenTile"); break;
-case NPCDATAFROZENCSET: SET_NPCDATA_VAR_INT32(frozencset, "FrozenCSet"); break;
+case NPCDATAFROZENTILE: SET_NPCDATA_VAR_INT(frozentile, "FrozenTile"); break;
+case NPCDATAFROZENCSET: SET_NPCDATA_VAR_INT(frozencset, "FrozenCSet"); break;
 
 case NPCDATAATTRIBUTE: 
 {
