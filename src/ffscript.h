@@ -41,10 +41,6 @@ enum {
 		scdrDRAW_WHILE_SCROLLING, scdrDRAW_DURING_SCREEN_TRANSITION, scdrDRAW_DURING_WARP,
 		scdrDRAW_DURING_WIPES, scdrLAST
 	};
-	
-#define NUM_USER_MIDI_OVERRIDES 6
-extern long FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
-    
 
 class FFScript
 {
@@ -66,7 +62,8 @@ int getLinkAction();
 
 long coreflags;
 long usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
-byte FF_rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
+#define FFRULES_SIZE 512
+byte FF_rules[FFRULES_SIZE]; //For Migration of Quest Rules, and Scritp Engine Rules
 long FF_link_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
 byte FF_link_action; //This way, we can make safe replicas of internal Link actions to be set by script. 
 	
@@ -82,6 +79,11 @@ long FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and 
 #define SCRIPT_DRAWING_RULES 20
 byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 
+#define NUM_USER_MIDI_OVERRIDES 6
+long FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
+ 
+short passive_subscreen_offsets[2];
+byte active_subscreen_scrollspeed_adjustment;
 
 void SetFFEngineFlag(int flag, bool v);
 	

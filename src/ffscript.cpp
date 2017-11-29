@@ -14806,22 +14806,26 @@ void FFScript::do_typedpointer_typecast(const bool v)
      set_register(sarg1, ptr);
 }
 
-/*
-byte FFScript::FF_rules[512]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; //For Migration of Quest Rules, and Scritp Engine Rules
-long FFScript::link_tile = 0;
-byte FFScript::link_action = 0;
-*/
 
 void FFScript::setFFRules()
 {
-	for ( int q = 0; q < qr_MAX; q++ )
+	for ( int q = 0; q < QUESTRULES_SIZE; q++ )
 	{
-		FF_rules[q] = 1;//getQRBit(q);
+		FF_rules[q] = getQRBit(q);
 	}
+	for ( int q = QUESTRULES_SIZE; q < QUESTRULES_SIZE+EXTRARULES_SIZE; q++ ) 
+	{
+		FF_rules[q] = extra_rules[q-QUESTRULES_SIZE];
+	}
+	for ( int q = QUESTRULES_SIZE+EXTRARULES_SIZE; q < FFRULES_SIZE; q++ )
+	{
+		FF_rules[q] = 0; //wipe the rest.
+	}
+	for ( int q = 0; q < 2; q++ )
+	{
+		passive_subscreen_offsets[q] = 0;
+	}
+	active_subscreen_scrollspeed_adjustment = 0;
 }
 
 void FFScript::setRule(int rule, bool s)
@@ -14869,7 +14873,8 @@ FFScript::FFScript()
 void FFScript::init()
 {
 	coreflags = 0;
-	for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
+	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
+	setFFRules(); //copy the quest rules over. 
 	long usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
 	FF_link_tile = 0; FF_link_action = 0;
 	for ( int q = 0; q < 4; q++ ) 
@@ -14887,6 +14892,10 @@ void FFScript::init()
 	for ( int q = 0; q < SCRIPT_DRAWING_RULES; q++ )
 	{
 		ScriptDrawingRules[q] = 0;
+	}
+	for ( int q = 0; q < NUM_USER_MIDI_OVERRIDES; q++ ) 
+	{
+		FF_UserMidis[q] = 0;
 	}
 }
 
