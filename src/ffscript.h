@@ -27,8 +27,11 @@
 
 //unum FFCoreFlags[] { 
 enum {
-	FFCORE_SCRIPTED_VOLUME 	= 0x0001,
-	FFCORE_FLAGS_MISC 	= 0x0002 
+	FFCORE_SCRIPTED_MIDI_VOLUME 	= 0x0001,
+	FFCORE_SCRIPTED_DIGI_VOLUME 	= 0x0002,
+	FFCORE_SCRIPTED_MUSIC_VOLUME 	= 0x0004,
+	FFCORE_SCRIPTED_SFX_VOLUME 	= 0x0008,
+	FFCORE_SCRIPTED_PANSTYLE 	= 0x0010
 };
 
 extern byte FF_rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
@@ -76,7 +79,7 @@ int getLinkAction();
 //static void init();
 
 long coreflags;
-
+long usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
 
 
 void SetFFEngineFlag(int flag, bool v);

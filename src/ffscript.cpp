@@ -9168,26 +9168,42 @@ case AUDIOVOLUME:
 		
 		case 0: //midi volume
 		{
+			if ( !(FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME) ) 
+			{
+				FFCore.usr_midi_volume = FFScript::do_getMIDI_volume();
+				FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_MIDI_VOLUME,true);
+			}
 			FFScript::do_setMIDI_volume(value / 10000);
-			FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_VOLUME,true);
 			break;
 		}
 		case 1: //digi volume
 		{
+			if ( !(FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME) ) 
+			{
+				FFCore.usr_digi_volume = FFScript::do_getDIGI_volume();
+				FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_DIGI_VOLUME,true);
+			}
 			FFScript::do_setDIGI_volume(value / 10000);
-			FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_VOLUME,true);
 			break;
 		}
 		case 2: //emh music volume
 		{
+			if ( !(FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME) ) 
+			{
+				FFCore.usr_music_volume = FFScript::do_getMusic_volume();
+				FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_MUSIC_VOLUME,true);
+			}
 			FFScript::do_setMusic_volume(value / 10000);
-			FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_VOLUME,true);
 			break;
 		}
 		case 3: //sfx volume
 		{
+			if ( !(FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME) ) 
+			{
+				FFCore.usr_sfx_volume = FFScript::do_getSFX_volume();
+				FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_SFX_VOLUME,true);
+			}
 			FFScript::do_setSFX_volume(value / 10000);
-			FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_VOLUME,true);
 			break;
 		}
 		default:
@@ -9201,6 +9217,11 @@ case AUDIOVOLUME:
 
 case AUDIOPAN:
 {
+	if ( !(FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE) ) 
+	{
+		FFCore.usr_panstyle = FFScript::do_getSFX_pan();
+		FFCore.SetFFEngineFlag(FFCORE_SCRIPTED_PANSTYLE,true);
+	}
 	FFScript::do_setSFX_pan(value/10000);
 	break;
 }
