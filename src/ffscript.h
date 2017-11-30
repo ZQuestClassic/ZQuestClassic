@@ -2512,8 +2512,8 @@ enum ASM_DEFINE
 #define DMAPDATADISABLEDITEMS 	0x12AC //byte[iMax]
 #define DMAPDATAFLAGS 		0x12AD //long
 //Audio->Volume()
-#define ADJUSTSFXVOLUME		0x12AE
-#define ADJUSTVOLUME		0x12AF
+#define AUUDIOUNUSED0001		0x12AE
+#define AUUDIOUNUSED0002		0x12AF
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
