@@ -11748,6 +11748,10 @@ int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build
     
     int max_num_combo_aliases = MAXCOMBOALIASES;
     
+    if(sversion < 3) // max saved combo alias' upped from 256 to 2048.
+    {
+        max_num_combo_aliases = MAX250COMBOALIASES;
+    }
     if(sversion < 2) // max saved combo alias' upped from 256 to 2048.
     {
         max_num_combo_aliases = OLDMAXCOMBOALIASES;
