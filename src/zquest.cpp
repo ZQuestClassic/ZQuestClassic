@@ -15322,7 +15322,7 @@ int onInfoTypes()
 /********************************/
 /********* onShopTypes **********/
 /********************************/
-
+//This dialogie is self-contained, and does not use dialogue control numbers in a separate array to generate its fields.
 static DIALOG editshop_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
@@ -15348,9 +15348,9 @@ static DIALOG editshop_dlg[] =
     { jwin_button_proc,   40,  188,   61,   21,  vc(14),              vc(1),                 13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,  121,  188,   61,   21,  vc(14),              vc(1),                 27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     //18
-    { jwin_text_proc,    120,   60,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Info:", NULL, NULL },
-    { jwin_text_proc,    120,  106,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Info:", NULL, NULL },
-    { jwin_text_proc,    120,  152,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Info:", NULL, NULL },
+    { jwin_text_proc,    130,   60,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Info:", NULL, NULL },
+    { jwin_text_proc,    130,  106,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Info:", NULL, NULL },
+    { jwin_text_proc,    130,  152,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Info:", NULL, NULL },
     // 21
     { jwin_edit_proc,     155,   56,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,     155,   102,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
