@@ -2103,6 +2103,10 @@ long get_register(const long arg)
     case IDATAPSCRIPT:
         ret=(itemsbuf[ri->idata].collect_script)*10000;
         break;
+    //Pickup string
+    case IDATAPSTRING:
+        ret=(itemsbuf[ri->idata].pstring)*10000;
+        break;
     //Magic cost
      case IDATAMAGCOST:
         ret=(itemsbuf[ri->idata].magic)*10000;
@@ -6339,6 +6343,10 @@ void set_register(const long arg, const long value)
 	//Pickup script
     case IDATAPSCRIPT:
         itemsbuf[ri->idata].collect_script=(value/10000, 1, 255);
+        break;
+    //pickup string
+    case IDATAPSTRING:
+        itemsbuf[ri->idata].pstring=(value/10000, 1, 255);
         break;
     //magic cost
      case IDATAMAGCOST:

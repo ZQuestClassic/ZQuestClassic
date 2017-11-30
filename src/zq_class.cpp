@@ -7047,14 +7047,7 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                     new_return(9);
                 }
             }
-	    //V_MISC .= 8
-	    for(int j=0; j<3; j++)
-            {
-                if(!p_iputw(Misc->shop[i].str[j],f))
-                {
-                    new_return(10);
-                }
-            }
+	    
         }
         
         //infos
@@ -7131,6 +7124,19 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         {
             new_return(19);
         }
+	
+	//V_MISC >= 8
+	for(int i=0; i<shops; i++)
+	{
+	    for(int j=0; j<3; j++)
+            {
+                if(!p_iputw(Misc->shop[i].str[j],f))
+                {
+                    new_return(20);
+                }
+            }
+        }
+	
         
         if(writecycle==0)
         {
@@ -7571,6 +7577,10 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		if(!p_iputl(itemsbuf[i].pickup,f))
 		{
 		    new_return(81);
+		}
+		if(!p_iputw(itemsbuf[i].pstring,f))
+		{
+		    new_return(82);
 		}
 		
 	    

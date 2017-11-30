@@ -926,10 +926,11 @@ using namespace std;
 #define NPCFROZEN 		871	//long
 #define NPCFROZENTILE 		872	//long
 #define NPCFROZENCSET 		873	//long
+#define IDATAPSTRING 		874	//word
 //#define DMAPDATAGRAVITY 	871	//unimplemented
 //#define DMAPDATAJUMPLAYER 	872	//unimplemented
 
-#define LAST_BYTECODE 			874
+#define LAST_BYTECODE 			875
 
 //END OF BYTECODE
 

@@ -188,7 +188,7 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     
     if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
         return;
-        
+    pstring = itemsbuf[id].pstring;     
     o_tile = itemsbuf[id].tile;
     tile = itemsbuf[id].tile;
     cs = itemsbuf[id].csets&15;

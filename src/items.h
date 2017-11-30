@@ -38,6 +38,7 @@ public:
     char PriceIndex;
     bool flash,twohand,anim, subscreenItem;
     int o_tile,o_cset, o_speed, o_delay, frames;
+    word pstring; //pickup string
     item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy = false);
     virtual ~item();
     virtual bool animate(int index);

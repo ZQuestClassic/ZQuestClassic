@@ -14585,6 +14585,14 @@ void LinkClass::checkitems(int index)
             //make the other shop items untouchable after
             //you buy something
             int count = 0;
+	    
+	    
+	    //Show a message string, if set.
+	    if ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] < msg_count )
+	    {
+		    donewmsg(QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex]);
+	    }
+	    
             
             for(int i=0; i<3; i++)
             {
@@ -14633,6 +14641,15 @@ void LinkClass::checkitems(int index)
     
     if(pickup&ipHOLDUP)
     {
+	    
+	//show the info string
+	    
+	if (((item*)items.spr(index))->pstring > 0)
+	{
+		donewmsg(itemsbuf[index].pstring);
+		
+	}
+	    
         attackclk=0;
         reset_swordcharge();
         

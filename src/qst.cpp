@@ -4119,14 +4119,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
                     return qe_invalid;
             }
         }
-	if(s_version >= 8)
-        {
-            for(int j=0; j<3; j++)
-            {
-                if(!p_igetw(&temp_misc.shop[i].str[j],f,true))
-                    return qe_invalid;
-            }
-        }
+	
 	/*
 	if(s_version < 8)
         {
@@ -4656,6 +4649,19 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             if(!p_getc(&tempbyte,f,true))
             {
                 return qe_invalid;
+            }
+        }
+    }
+    //shops v8
+    
+    if(s_version >= 8)
+    {
+	for(int i=0; i<shops; i++)
+        {
+            for(int j=0; j<3; j++)
+            {
+                if(!p_igetw(&temp_misc.shop[i].str[j],f,true))
+                    return qe_invalid;
             }
         }
     }
@@ -5325,6 +5331,14 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 		{
 			//Pickup Type
 			if(!p_igetl(&tempitem.pickup,f,true))
+                        {
+                            return qe_invalid;
+                        }
+		}
+		if ( s_version >= 32 )  //! More new vars. 
+		{
+			//Pickup Type
+			if(!p_igetw(&tempitem.pstring,f,true))
                         {
                             return qe_invalid;
                         }

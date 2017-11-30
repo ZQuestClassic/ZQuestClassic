@@ -1119,6 +1119,7 @@ string VarArgument::toString()
     case IDATAEDIBLE: return "IDATAEDIBLE";
     case IDATAFLAGUNUSED: return "IDATAFLAGUNUSED";
     case IDATAGAINLOWER: return "IDATAGAINLOWER";
+    case IDATAPSTRING: return "IDATAPSTRING";
     
     //idata arrays
     case IDATAATTRIB: return "IDATAATTRIB";
