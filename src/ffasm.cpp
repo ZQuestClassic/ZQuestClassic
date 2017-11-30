@@ -677,6 +677,12 @@ script_command command_list[NUMCOMMANDS+1]=
     { "DMAPDATAGETMUSICV",       1,   1,   0,   0},
     { "DMAPDATASETMUSICR",       1,   0,   0,   0},
     { "DMAPDATASETMUSICV",       1,   1,   0,   0},
+    
+    { "ADJUSTSFXVOLUMER",          1,   0,   0,   0},
+    { "ADJUSTSFXVOLUMEV",          1,   1,   0,   0},
+    
+    { "ADJUSTVOLUMER",          1,   0,   0,   0},
+    { "ADJUSTVOLUMEV",          1,   1,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

@@ -11369,6 +11369,71 @@ void do_sfx(const bool v)
     sfx(ID);
 }
 
+
+void FFScript::do_adjustvolume(const bool v)
+{
+	long perc = SH::get_arg(sarg1, v) / 10000;
+	int temp_midi;
+	int temp_digi;
+	int temp_mus;
+	if ( !(coreflags&FFCORE_SCRIPTED_MIDI_VOLUME) ) 
+	{
+		temp_midi = do_getMIDI_volume();
+		usr_midi_volume = temp_midi;
+		SetFFEngineFlag(FFCORE_SCRIPTED_MIDI_VOLUME,true);
+	}
+	else 
+	{
+		temp_midi = usr_midi_volume;
+	}
+	if ( !(coreflags&FFCORE_SCRIPTED_DIGI_VOLUME) ) 
+	{
+		temp_digi = do_getDIGI_volume();
+		usr_digi_volume = temp_digi;
+		SetFFEngineFlag(FFCORE_SCRIPTED_DIGI_VOLUME,true);
+	}
+	else
+	{
+		temp_digi = usr_digi_volume;
+	}
+	if ( !(coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME) ) 
+	{
+		temp_mus = do_getMusic_volume();
+		usr_music_volume = temp_mus;
+		SetFFEngineFlag(FFCORE_SCRIPTED_MUSIC_VOLUME,true);
+	}
+	else
+	{
+		temp_mus = usr_music_volume;
+	}
+	temp_midi = ( (temp_midi / 100 ) * perc );
+	temp_digi = ( (temp_digi / 100 ) * perc );
+	temp_mus = ( (temp_mus / 100 ) * perc );
+	do_setMIDI_volume(temp_midi);
+	do_setDIGI_volume(temp_digi);
+	do_setMusic_volume(temp_mus);
+
+}
+
+void FFScript::do_adjustsfxvolume(const bool v)
+{
+	long perc = SH::get_arg(sarg1, v) / 10000;
+	int temp_sfx;
+	if ( !(coreflags&FFCORE_SCRIPTED_SFX_VOLUME) ) 
+	{
+		temp_sfx = do_getSFX_volume();
+		usr_sfx_volume = temp_sfx;
+		SetFFEngineFlag(FFCORE_SCRIPTED_SFX_VOLUME,true);
+	}
+	else 
+	{
+		temp_sfx = usr_sfx_volume;
+	}
+	temp_sfx = ( (temp_sfx / 100 ) * perc );
+	do_setSFX_volume(temp_sfx);
+}
+	
+
 void do_midi(bool v)
 {
     long MIDI = SH::get_arg(sarg1, v) / 10000;
@@ -12511,6 +12576,11 @@ int run_script(const byte type, const word script, const byte i)
             do_sfx(true);
             break;
 	
+	case ADJUSTSFXVOLUMER: FFCore.do_adjustsfxvolume(false); break;
+	case ADJUSTSFXVOLUMEV: FFCore.do_adjustsfxvolume(true); break;	
+	case ADJUSTVOLUMER: FFCore.do_adjustvolume(false); break;
+	case ADJUSTVOLUMEV: FFCore.do_adjustvolume(true); break;
+		
 	case TRIGGERSECRETR:
             FFScript::do_triggersecret(false);
             break;

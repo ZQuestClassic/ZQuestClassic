@@ -57,6 +57,9 @@ void setLinkTile(int t);
 int getLinkTile();
 void setLinkAction(int a);
 int getLinkAction();
+
+void do_adjustsfxvolume(const bool v);
+void do_adjustvolume(const bool v);
 //FFScript();
 //static void init();
 
@@ -1493,6 +1496,11 @@ enum ASM_DEFINE
 	DMAPDATASETMUSICR,
 	DMAPDATASETMUSICV,
 	
+	ADJUSTSFXVOLUMER,		
+	ADJUSTSFXVOLUMEV,		
+	ADJUSTVOLUMER,		
+	ADJUSTVOLUMEV,	
+		
 	NUMCOMMANDS           //0x013B
 };
 
@@ -2503,11 +2511,14 @@ enum ASM_DEFINE
 #define DMAPDATASUBSCRP 	0x12AB //byte, passive subscreen
 #define DMAPDATADISABLEDITEMS 	0x12AC //byte[iMax]
 #define DMAPDATAFLAGS 		0x12AD //long
+//Audio->Volume()
+#define ADJUSTSFXVOLUME		0x12AE
+#define ADJUSTVOLUME		0x12AF
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x12AE
+#define NUMVARIABLES         0x12B0
 
 // Script types
 

@@ -2097,7 +2097,14 @@ string OLoadEWpnRegister::toString()
 {
     return "LOADEWEAPONR " + getArgument()->toString();
 }
-
+string OAdjustVolumeRegister::toString()
+{
+    return "ADJUSTVOLUMER " + getArgument()->toString();
+}
+string OAdjustSFXVolumeRegister::toString()
+{
+    return "ADJUSTSFXVOLUMER " + getArgument()->toString();
+}
 string OPlaySoundRegister::toString()
 {
     return "PLAYSOUNDR " + getArgument()->toString();

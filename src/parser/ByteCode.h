@@ -2310,6 +2310,29 @@ public:
 // Audio->
 
 
+class OAdjustVolumeRegister : public UnaryOpcode
+{
+public:
+    OAdjustVolumeRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OAdjustVolumeRegister(a->clone());
+    }
+};
+
+
+class OAdjustSFXVolumeRegister : public UnaryOpcode
+{
+public:
+    OAdjustSFXVolumeRegister(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OAdjustSFXVolumeRegister(a->clone());
+    }
+};
+
 
 class OEndSoundRegister : public UnaryOpcode
 {
