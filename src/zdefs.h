@@ -171,7 +171,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           3
 #define V_RULES           14
 #define V_STRINGS          5
-#define V_MISC             7
+#define V_MISC             8
 #define V_TILES            1
 #define V_COMBOS           7
 #define V_CSETS            4
@@ -195,6 +195,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_FFSCRIPT         7
 #define V_SFX              7
 #define V_FAVORITES        1
+//= V_SHOPS is under V_MISC
 
 /*
   * Compatible version number of the different section types
@@ -2424,6 +2425,7 @@ struct shoptype
     byte item[3];
     byte hasitem[3];
     word price[3];
+    word str[3];  //item info string
     //10
 };
 

@@ -4377,8 +4377,7 @@ case MAPDATAMISCD:
 				} 
 				else 
 				{ 
-					Z_scripterrlog("Attempted to load 'String' from an item shop, using shop ID: %d\n", ri->shopsref); 
-					ret = -10000;
+					ret = ((int)(misc->shop[ref].str[indx]) * 10000); 
 				} 
 			} 
 	
@@ -8665,7 +8664,7 @@ case SHOPDATASTRING:
 				} 
 				else 
 				{ 
-					Z_scripterrlog("Attempted to write an 'info string' to an item shop, using shop ID: %d\n", ri->shopsref); 
+					misc->shop[ref].str[indx] = (word)(vbound((value/10000), 0, 32767));
 				} 
 			} 
 	

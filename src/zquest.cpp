@@ -15347,6 +15347,15 @@ static DIALOG editshop_dlg[] =
     // 16
     { jwin_button_proc,   40,  188,   61,   21,  vc(14),              vc(1),                 13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,  121,  188,   61,   21,  vc(14),              vc(1),                 27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    //18
+    { jwin_text_proc,    120,   60,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Info:", NULL, NULL },
+    { jwin_text_proc,    120,  106,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Info:", NULL, NULL },
+    { jwin_text_proc,    120,  152,   88,    8,  vc(14),              vc(1),                  0,           0,     0,             0, (void *) "Info:", NULL, NULL },
+    // 21
+    { jwin_edit_proc,     155,   56,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     155,   102,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,     155,   148,   32,   16,  vc(12),              vc(1),                  0,           0,     5,             0,       NULL, NULL, NULL },
+    
     { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -15355,6 +15364,7 @@ void EditShopType(int index)
 
     build_bii_list(true);
     char ps1[6],ps2[6],ps3[6];
+	char info1[6],info2[6],info3[6];
     char shopname[32];
     char caption[40];
     
@@ -15365,11 +15375,20 @@ void EditShopType(int index)
     sprintf(ps1,"%d",misc.shop[index].price[0]);
     sprintf(ps2,"%d",misc.shop[index].price[1]);
     sprintf(ps3,"%d",misc.shop[index].price[2]);
+	
+    sprintf(info1,"%d",misc.shop[index].str[0]);
+    sprintf(info2,"%d",misc.shop[index].str[1]);
+    sprintf(info3,"%d",misc.shop[index].str[2]);
+	
     sprintf(shopname,"%s",misc.shop[index].name);
     editshop_dlg[8].dp  = ps1;
     editshop_dlg[10].dp = ps2;
     editshop_dlg[12].dp = ps3;
     editshop_dlg[15].dp = shopname;
+    
+    editshop_dlg[21].dp  = info1;
+    editshop_dlg[22].dp = info2;
+    editshop_dlg[23].dp = info3;
     
 //  ListData item_list(itemlist, is_large ? &sfont3 : &font);
     ListData item_list(itemlist, is_large ? &lfont_l : &font);
@@ -15407,6 +15426,11 @@ void EditShopType(int index)
         misc.shop[index].price[0] = vbound(atoi(ps1), 0, 65535);
         misc.shop[index].price[1] = vbound(atoi(ps2), 0, 65535);
         misc.shop[index].price[2] = vbound(atoi(ps3), 0, 65535);
+	    
+	misc.shop[index].str[0] = vbound(atoi(info1), 0, 65535);
+        misc.shop[index].str[1] = vbound(atoi(info2), 0, 65535);
+        misc.shop[index].str[2] = vbound(atoi(info3), 0, 65535);
+	    
         snprintf(misc.shop[index].name, 32, "%s",shopname);
         
         for(int i=0; i<3; ++i)

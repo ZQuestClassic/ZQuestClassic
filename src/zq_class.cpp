@@ -7047,6 +7047,14 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                     new_return(9);
                 }
             }
+	    //V_MISC .= 8
+	    for(int j=0; j<3; j++)
+            {
+                if(!p_iputw(Misc->shop[i].str[j],f))
+                {
+                    new_return(10);
+                }
+            }
         }
         
         //infos

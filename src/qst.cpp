@@ -4119,6 +4119,23 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
                     return qe_invalid;
             }
         }
+	if(s_version >= 8)
+        {
+            for(int j=0; j<3; j++)
+            {
+                if(!p_igetw(&temp_misc.shop[i].str[j],f,true))
+                    return qe_invalid;
+            }
+        }
+	/*
+	if(s_version < 8)
+        {
+            for(int j=0; j<3; j++)
+            {
+                (&temp_misc.shop[i].str[j])=0; //initialise.
+            }
+        }
+	*/
     }
     
     //filter all the 0 items to the end (yeah, bubble sort; sue me)
