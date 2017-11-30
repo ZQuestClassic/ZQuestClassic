@@ -1,5 +1,10 @@
 //2.54 Changes
 
+//ALpha 20
+Added Audio->AdjustVolume(int percent) and AdjustSFXVolume(int percent)
+	 ( ZoriaRPG, 30th November, 2017 )
+Began implementing the FFCore class. ( ZoriaRPG, 29th November, 2017 )
+
 //Alpha 19
 
 Added dmapdata with the following syntax.
