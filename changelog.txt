@@ -1,6 +1,12 @@
 //2.54 Changes
 
-//ALpha 20
+//Alpha 20
+ZQuest Shops now have an info string. When you buy an item, if this is set to a valid string, ZC will display that string.
+I'm working on making that work from items, too.
+Increased combo aliases to 8192 (for Lut).
+Added an info string to the item shop editpr, and to the struct.
+I think that the default behaviour for this, should be to show the
+string when a player buys an item.
 Added Audio->AdjustVolume(int percent) and AdjustSFXVolume(int percent)
 	 ( ZoriaRPG, 30th November, 2017 )
 Began implementing the FFCore class. ( ZoriaRPG, 29th November, 2017 )
