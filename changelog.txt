@@ -1,6 +1,7 @@
 //2.54 Changes
 
 //Alpha 20
+Renamed Audio->AdjustVolume() to AdjustMusicVolume()
 Items now have info strings that the user may set int he item editor.
 These have a default behaviour, as follows:
 	1. If the user has never acquired the item in the current game session,
