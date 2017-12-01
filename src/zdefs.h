@@ -178,7 +178,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            18
 #define V_DMAPS            9
 #define V_DOORS            1
-#define V_ITEMS           32
+#define V_ITEMS           33
 #define V_WEAPONS          6
 #define V_COLORS           2
 #define V_ICONS            1
@@ -1377,7 +1377,11 @@ struct itemdata
     int weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
     int tilew, tileh, weap_tilew, weap_tileh; //New for 2.54
     int pickup; 
+    
+#define itemdataPSTRING_ALWAYS		0x00000001
+#define itemdataPSTRING_IP_HOLDUP		0x00000002
     word pstring;
+    word pickup_string_flags;
     
   
 //Guydata Enemy Editor Size Panel FLags

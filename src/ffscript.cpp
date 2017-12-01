@@ -1674,6 +1674,28 @@ long get_register(const long arg)
         }
         
         break;
+	
+    case ITEMPSTRING:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((item*)(s))->pstring*10000;
+        }
+        
+        break;
+    case ITEMPSTRINGFLAGS:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((item*)(s))->pickup_string_flags*10000;
+        }
+        
+        break;
+    case ITEMOVERRIDEFLAGS:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((item*)(s))->overrideFLAGS*10000;
+        }
+        
+        break;
         
     case ITEMOTILE:
         if(0!=(s=checkItem(ri->itemref)))
@@ -5798,6 +5820,30 @@ void set_register(const long arg, const long value)
         if(0!=(s=checkItem(ri->itemref)))
         {
             (((item *)s)->tile)=vbound(value/10000,0,NEWMAXTILES-1);
+        }
+        
+        break;
+	
+    case ITEMPSTRING:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (((item *)s)->pstring)=vbound(value/10000,0,(msg_count-1));
+        }
+        
+        break;
+	
+    case ITEMPSTRINGFLAGS:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (((item *)s)->pickup_string_flags)=vbound(value/10000,0,(msg_count-1));
+        }
+        
+        break;
+	
+    case ITEMOVERRIDEFLAGS:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (((item *)s)->overrideFLAGS)=vbound(value/10000,0,(msg_count-1));
         }
         
         break;

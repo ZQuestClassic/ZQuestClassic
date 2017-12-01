@@ -2514,11 +2514,15 @@ enum ASM_DEFINE
 //Audio->Volume()
 #define AUUDIOUNUSED0001		0x12AE
 #define AUUDIOUNUSED0002		0x12AF
+
+#define ITEMPSTRING			0x12B0
+#define ITEMPSTRINGFLAGS		0x12B1
+#define ITEMOVERRIDEFLAGS		0x12B2
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x12B0
+#define NUMVARIABLES         0x12B3
 
 // Script types
 

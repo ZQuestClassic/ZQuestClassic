@@ -7582,6 +7582,10 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		{
 		    new_return(82);
 		}
+		if(!p_iputw(itemsbuf[i].pickup_string_flags,f))
+		{
+		    new_return(83);
+		}
 		
 	    
         }

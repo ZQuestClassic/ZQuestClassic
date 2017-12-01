@@ -188,7 +188,7 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     
     if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
         return;
-    pstring = itemsbuf[id].pstring;     
+         
     o_tile = itemsbuf[id].tile;
     tile = itemsbuf[id].tile;
     cs = itemsbuf[id].csets&15;
@@ -198,7 +198,11 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     frames = itemsbuf[id].frames;
     flip = itemsbuf[id].misc>>2;
     
-    //if ( itemsbuf[id].flags&itemdataOVERRIDE_PICKUP ) pickup = itemsbuf[id].pickup;
+    overrideFLAGS = itemsbuf[id].overrideFLAGS; 
+    pstring = itemsbuf[id].pstring;
+    pickup_string_flags = itemsbuf[id].pickup_string_flags;
+    
+    if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itemsbuf[id].pickup;
     
     if(itemsbuf[id].misc&1)
         flash=true;

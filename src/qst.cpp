@@ -5343,6 +5343,14 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                             return qe_invalid;
                         }
 		}
+		if ( s_version >= 33 )  //! More new vars. 
+		{
+			//Pickup Type
+			if(!p_igetw(&tempitem.pickup_string_flags,f,true))
+                        {
+                            return qe_invalid;
+                        }
+		}
         }
         else
         {

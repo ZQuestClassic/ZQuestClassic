@@ -39,6 +39,13 @@ public:
     bool flash,twohand,anim, subscreenItem;
     int o_tile,o_cset, o_speed, o_delay, frames;
     word pstring; //pickup string
+    word pickup_string_flags;
+
+    int overrideFLAGS; //Override flags.
+    //int weapoverrideFLAGS; 
+    
+    //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
+
     item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy = false);
     virtual ~item();
     virtual bool animate(int index);

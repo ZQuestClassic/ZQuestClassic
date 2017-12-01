@@ -389,7 +389,7 @@ static int itemdata_gfx_list[] =
 static int itemdata_pickup_list[] =
 {
     // dialog control number
-    92, 93, 94, 95, 96, 97, 98, 99, 100, /*101, 102,*/ 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 255,256,257, -1
+    92, 93, 94, 95, 96, 97, 98, 99, 100, /*101, 102,*/ 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 255, 256, 257, 258, 259, 260, 261, -1
 };
 
 static int itemdata_action_list[] =
@@ -1149,11 +1149,17 @@ static DIALOG itemdata_dlg[] =
      { jwin_check_proc,        242,     105+12,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//255
     { jwin_text_proc,           8,     187,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Pick-Up Flags:",                  NULL,   NULL                  },
-    { jwin_edit_proc,      66,   182,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,        100,     186,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
-    //258
-
-    /* Weapon Editor Goes Here
+    { jwin_edit_proc,      60,   183,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_check_proc,        96,     186,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
+    //258 Pickup string
+     // (dialog proc)           (x)     (y)     (w)     (h)        (fg)                   (bg)                   (key)       (flags)     (d1)     (d2)    (dp)                                            (dp2)               (dp3)
+    { jwin_text_proc,           157,     186,     30,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "String:",                  NULL,   NULL                  },
+{ jwin_edit_proc,      180,   183,   32,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+{ jwin_check_proc,        219,     186,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Always",                        NULL,   NULL                  },
+   
+{ jwin_check_proc,        260,     186,     40,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Only Held",                        NULL,   NULL                  },
+   
+  /* Weapon Editor Goes Here
     { jwin_text_proc,       6+10,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "Misc[0]:", NULL, NULL },
     { jwin_text_proc,       6+10,   47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "Misc[1]:", NULL, NULL },
     { jwin_text_proc,       6+10,   65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "Misc[2]:", NULL, NULL },
@@ -1601,6 +1607,8 @@ void edit_itemdata(int index)
     char mgtimer[8]; //timer for magic usage
 	char i_tilew[9], i_tileh[8], i_hxofs[8], i_hyofs[8], i_hxsz[8], i_hysz[8], i_hzsz[8], i_xofs[8], i_yofs[8]; //item sizing
 	char i_pickuptype[8]; //item pickup type
+	char i_pickupstring[8]; //item pickup type
+	
     char i_weap_tileh[8], i_weap_tilew[8], i_weap_hxofs[8], i_weap_hyofs[8], i_weap_hxsz[8], i_weap_hysz[8], i_weap_hzsz[8], i_weap_xofs[8], i_weap_yofs[8]; //weapon sizing
     
     
@@ -1634,8 +1642,11 @@ void edit_itemdata(int index)
     //Magic cost timer
     sprintf(mgtimer, "%d", itemsbuf[index].magiccosttimer);
     
-    //Item Pickip Flags
+    //Item Pickup Flags
     sprintf(i_pickuptype, "%d", itemsbuf[index].pickup);
+    //pickup string
+    sprintf(i_pickupstring, "%d", itemsbuf[index].pstring);
+    
     
     //Item sizing tileh, tilew, hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs; //item
 
@@ -1687,7 +1698,9 @@ void edit_itemdata(int index)
     
     //Pickup Flags Override
     itemdata_dlg[257].flags = (itemsbuf[index].weapoverrideFLAGS&itemdataOVERRIDE_PICKUP) ? D_SELECTED : 0;
-    
+    //pickup string flaga
+    itemdata_dlg[260].flags = (itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS) ? D_SELECTED : 0;
+    itemdata_dlg[261].flags = (itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP) ? D_SELECTED : 0;
     /*
     //New itemdata vars
     sprintf(wrange,"%d",itemsbuf[index].weaprange);
@@ -1786,6 +1799,13 @@ void edit_itemdata(int index)
     itemdata_dlg[256].dp = i_pickuptype;
     itemdata_dlg[257].flags = (itemsbuf[index].overrideFLAGS&itemdataOVERRIDE_PICKUP) ? D_SELECTED : 0;
     
+    //Pickup string
+    itemdata_dlg[259].dp = i_pickupstring;
+   itemdata_dlg[260].flags = (itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS) ? D_SELECTED : 0;
+    itemdata_dlg[261].flags = (itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP) ? D_SELECTED : 0;
+    
+    
+    
     //item sizing
     
     //item size
@@ -1832,7 +1852,10 @@ void edit_itemdata(int index)
     itemdata_dlg[253].flags = (itemsbuf[index].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET) ? D_SELECTED : 0;
     itemdata_dlg[254].flags = (itemsbuf[index].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET) ? D_SELECTED : 0;
 
-    
+    //pickup string
+    itemdata_dlg[259].dp = i_pickupstring;
+    itemdata_dlg[260].flags = (itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS) ? D_SELECTED : 0;
+    itemdata_dlg[261].flags = (itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP) ? D_SELECTED : 0;
     
     for(int i=0; i<10; ++i)
     {
@@ -1959,6 +1982,11 @@ void edit_itemdata(int index)
 	//Pickup Flags
 	test.pickup = vbound(atoi(i_pickuptype), 0, 214747);
 	if(itemdata_dlg[257].flags & D_SELECTED) test.overrideFLAGS |= itemdataOVERRIDE_PICKUP;
+	
+	//pickup string
+	test.pstring = vbound(atoi(i_pickupstring), 0, (msg_count-1));
+	if(itemdata_dlg[260].flags & D_SELECTED) test.pickup_string_flags |= itemdataPSTRING_ALWAYS;
+	if(itemdata_dlg[261].flags & D_SELECTED) test.pickup_string_flags |= itemdataPSTRING_IP_HOLDUP;
 	
 	//item Sizing
 	
