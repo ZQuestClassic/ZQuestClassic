@@ -29,6 +29,7 @@
 #include "zc_custom.h"
 #include "title.h"
 #include "ffscript.h"
+extern FFScript FFCore;
 #include "mem_debug.h"
 #include "zscriptversion.h"
 
@@ -14513,6 +14514,8 @@ void LinkClass::checkitems(int index)
     int pickup = ((item*)items.spr(index))->pickup;
     int PriceIndex = ((item*)items.spr(index))->PriceIndex;
     int id2 = ((item*)items.spr(index))->id;
+    int pstr = ((item*)items.spr(index))->pstring;
+    int pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
     
     if((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))
         if((items.spr(index)->id!=iFairyMoving)&&(items.spr(index)->id!=iFairyMoving))
@@ -14642,13 +14645,7 @@ void LinkClass::checkitems(int index)
     if(pickup&ipHOLDUP)
     {
 	    
-	//show the info string
-	    
-	if (((item*)items.spr(index))->pstring > 0)
-	{
-		donewmsg(itemsbuf[index].pstring);
-		
-	}
+	
 	    
         attackclk=0;
         reset_swordcharge();
@@ -14700,6 +14697,15 @@ void LinkClass::checkitems(int index)
                 
             holditem=((item*)items.spr(index))->id; // NES consistency: when combining blue potions, hold up the blue potion.
             freeze_guys=true;
+	    //show the info string
+	     
+	    
+	    //if (pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP ) ) )
+	     if ( pstr > 0 && pstr < msg_count && ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_IP_HOLDUP ) ) )
+	    {
+		donewmsg(pstr);
+	    }
+	    FFCore.SetItemMessagePlayed(id2);
         }
         
         if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & ITEM_GAMEDATA))
@@ -14781,7 +14787,17 @@ void LinkClass::checkitems(int index)
         {
             dismissmsg();
         }
-        
+	
+	//general item pickup message
+        //show the info string
+	//non-held
+	//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
+	if ( pstr > 0 && pstr < msg_count && (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) )
+	{
+		donewmsg(pstr);
+	}
+	FFCore.SetItemMessagePlayed(id2);
+	
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
     }
