@@ -14701,7 +14701,7 @@ void LinkClass::checkitems(int index)
 	     
 	    
 	    //if (pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP ) ) )
-	     if ( pstr > 0 && pstr < msg_count && ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_IP_HOLDUP ) ) )
+	     if ( pstr > 0 && pstr < msg_count && ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) )
 	    {
 		donewmsg(pstr);
 	    }
