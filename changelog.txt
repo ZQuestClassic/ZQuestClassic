@@ -1,6 +1,20 @@
 //2.54 Changes
 
 //Alpha 20
+Items now have info strings that the user may set int he item editor.
+These have a default behaviour, as follows:
+	1. If the user has never acquired the item in the current game session,
+	the string plays, and a flag is set in FFCore that that item has
+	displayed its string.
+	2. These flags are cleared on a complete exit on the game (not just a continue).
+	3. The user may set an ALWAYS flag to cause the string to always appear.
+	4. The user may set a flag ON_IP_HOLDUP, so that the string is always shown, if
+	the item is held over Link's head.
+The string value, and the flags for it, are accessible in ZScript both from item, and 
+from itemdata.
+The string is clamped int he item editor to valid strings.
+If an invalid string ID is set, ZC does not play it. 
+		( ZoriaRPG, 1st December, 2017 )
 ZQuest Shops now have an info string. When you buy an item, if this is set to a valid string, ZC will display that string.
 I'm working on making that work from items, too.
 Increased combo aliases to 8192 (for Lut).
