@@ -95,8 +95,12 @@ byte FF_transition_type; // Can't edit, yet.
 byte FF_jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 byte FF_link_swim_speed;
     
+byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
+				//so that they do not play every time an item is collected, unless one of the flags is set for it.
 
 void SetFFEngineFlag(int flag, bool v);
+void SetItemMessagePlayed(int itm);
+bool GetItemMessagePlayed(int itm);
 	
     
     //virtual ~FFScript();

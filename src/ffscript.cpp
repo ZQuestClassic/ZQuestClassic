@@ -14982,6 +14982,19 @@ void FFScript::setFFRules()
 	FF_transition_type = zinit.transition_type; // Can't edit, yet.
 	FF_jump_link_layer_threshold = zinit.jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 	FF_link_swim_speed = zinit.link_swim_speed;
+	for ( int q = 0; q < MAXITEMS; q++ )
+	{
+		item_messages_played[q] = 0;
+	}
+}
+
+void FFScript::SetItemMessagePlayed(int itm)
+{
+	item_messages_played[itm] = 1;
+}
+bool FFScript::GetItemMessagePlayed(int itm)
+{
+	return (( item_messages_played[itm] ) ? true : false);
 }
 
 void FFScript::setRule(int rule, bool s)
