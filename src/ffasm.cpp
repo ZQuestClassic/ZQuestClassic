@@ -609,6 +609,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "GETNPCDATAEHEIGHT",           2,   0,   0,   0},
 	{ "SETNPCDATATILE",        2,   0,   0,   0},
 	{ "SETNPCDATAEHEIGHT",        2,   0,   0,   0},
+	{ "GETSPRITEDATASTRING",        2,   0,   0,   0},
 	//SpriteData
 	{ "GETSPRITEDATATILE",           2,   0,   0,   0},  
 	{ "GETSPRITEDATAMISC",           2,   0,   0,   0},  
@@ -616,6 +617,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "GETSPRITEDATAFRAMES",           2,   0,   0,   0},  
 	{ "GETSPRITEDATASPEED",           2,   0,   0,   0},  
 	{ "GETSPRITEDATATYPE",           2,   0,   0,   0},  
+	{ "SETSPRITEDATASTRING",           2,   0,   0,   0},  
 	{ "SETSPRITEDATATILE",           2,   0,   0,   0},  
 	{ "SETSPRITEDATAMISC",           2,   0,   0,   0},  
 	{ "SETSPRITEDATACSETS",           2,   0,   0,   0},  
