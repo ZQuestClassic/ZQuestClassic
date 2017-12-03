@@ -4607,7 +4607,7 @@ case MESSAGEDATAFONT: //B
 	if(BC::checkMessage(ID, "messagedata->Font") != SH::_NoError)
 		ret = -10000;
 	else 
-		ret = (int)MsgStrings[ID].font;
+		ret = (int)MsgStrings[ID].font * 10000;
 	break;
 }	
 case MESSAGEDATAX: //SHORT
