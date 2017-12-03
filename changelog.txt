@@ -1,6 +1,13 @@
 //2.54 Changes
 
 //Alpha 20
+Fixed a conflict with item messages in shops, and shop messages.
+The new behaviour is this:
+	1. Buying an item in a shop plays the shop string, not the item pickup string.
+	2. It does not set the FFCore flag for that item.
+	3. A placed or dropset item that is in a shop room will play the item string.
+	4. Placed / dropset items in shop rooms set the flag.
+	5. Shop items ignore if the flag for them is set.
 Fixed an error in messagedata->Font
 Fixed two missing commands in script_command command_list[]
 	( ZoriaRPG, 3rd December, 2017 )

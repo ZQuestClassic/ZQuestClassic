@@ -14516,6 +14516,7 @@ void LinkClass::checkitems(int index)
     int id2 = ((item*)items.spr(index))->id;
     int pstr = ((item*)items.spr(index))->pstring;
     int pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
+    int tempnextmsg;
     
     if((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))
         if((items.spr(index)->id!=iFairyMoving)&&(items.spr(index)->id!=iFairyMoving))
@@ -14701,11 +14702,38 @@ void LinkClass::checkitems(int index)
 	     
 	    
 	    //if (pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP ) ) )
-	     if ( pstr > 0 && pstr < msg_count && ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) )
+	     if ( pstr > 0 && pstr < msg_count )
 	    {
-		donewmsg(pstr);
+		switch(tmpscr[tmp].room)
+		{
+			case rSHOP: 
+			{
+				if ( PriceIndex >= 0 )
+					//if it is a shop item, and not another item type.
+					tempnextmsg = donew_shop_msg(pstr, QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex]);
+				else 
+				{
+					if ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) )
+					{	
+						donewmsg(pstr); //In case of placed items and drop items, that spawn in shop rooms.
+						FFCore.SetItemMessagePlayed(id2);
+					}
+				}
+				break;
+			}
+			default: 
+			{
+				if ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) )
+				{	
+					donewmsg(pstr); //In case of placed items and drop items, that spawn in shop rooms.
+					FFCore.SetItemMessagePlayed(id2);
+				}
+				break;
+			}
+		}																		
+		//donewmsg(pstr);
 	    }
-	    FFCore.SetItemMessagePlayed(id2);
+	    
         }
         
         if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & ITEM_GAMEDATA))
@@ -14792,11 +14820,38 @@ void LinkClass::checkitems(int index)
         //show the info string
 	//non-held
 	//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
-	if ( pstr > 0 && pstr < msg_count && (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) )
+	if ( pstr > 0 && pstr < msg_count )
 	{
-		donewmsg(pstr);
+		switch(tmpscr[tmp].room)
+		{
+			case rSHOP: 
+			{
+				if ( PriceIndex >= 0 )
+					//if it is a shop item, and not another item type.
+					tempnextmsg = donew_shop_msg(pstr, QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex]);
+				else 
+				{
+					if ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) )
+					{
+						donewmsg(pstr); //In case of placed items and drop items, that spawn in shop rooms.
+						FFCore.SetItemMessagePlayed(id2);
+					}
+				}
+				break;
+			}
+			default: 
+			{
+				if ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) )
+				{
+					donewmsg(pstr); //In case of placed items and drop items, that spawn in shop rooms.
+					FFCore.SetItemMessagePlayed(id2);
+				}
+				break;
+			}
+		}		
+		//donewmsg(pstr);
 	}
-	FFCore.SetItemMessagePlayed(id2);
+	
 	
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);

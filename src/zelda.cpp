@@ -740,11 +740,75 @@ FONT *setmsgfont()
     }
 }
 
+//This is not working, as expected. Is there a system method for enqueuing strings? -Z
+int donew_shop_msg(int itmstr, int shopstr)
+{
+	if(msg_onscreen || msg_active)
+			dismissmsg();
+	
+	int tempmsg;
+	int tempmsgnext = MsgStrings[shopstr].nextstring; //store the next string
+	//Disabling this for now.
+	/*
+	while ( tempmsgnext != 0 )
+	{
+		tempmsg = tempmsgnext; //change to the next message
+		tempmsgnext = MsgStrings[tempmsg].nextstring; //store the next message, for that
+		//find the end of the chain
+	}
+	//change the next string until we finish.
+	MsgStrings[tempmsgnext].nextstring = itmstr;
+	*/
+	
+    //al_trace("donewmsg %d\n",str);
+    
+        
+    linkedmsgclk=0;
+    msg_active = true;
+    // Don't set msg_onscreen - not onscreen just yet
+    msgstr = shopstr;
+    msgorig = msgstr;
+    msgfont = setmsgfont();
+    msgcolour=QMisc.colors.msgtext;
+    msgspeed=zinit.msg_speed;
+    
+    if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
+        clear_bitmap(msgdisplaybuf);
+        
+    clear_bitmap(msgdisplaybuf);
+    set_clip_state(msgdisplaybuf, 1);
+    clear_bitmap(msgbmpbuf);
+    
+    //transparency needs to occur here. -Z
+    if(MsgStrings[msgstr].tile!=0)
+    {
+        frame2x2(msgbmpbuf,&QMisc,0,0,MsgStrings[msgstr].tile,MsgStrings[msgstr].cset,
+                 (MsgStrings[msgstr].w>>3)+2,(MsgStrings[msgstr].h>>3)+2,0,true,0);
+    }
+    
+    msgclk=msgpos=msgptr=0;
+    msgspace=true;
+    msg_w=MsgStrings[msgstr].w;
+    msg_h=MsgStrings[msgstr].h;
+    msg_xpos=MsgStrings[msgstr].x;
+    msg_ypos=MsgStrings[msgstr].y;
+    cursor_x=0;
+    cursor_y=0;
+    return tempmsgnext;
+}
+
+void clearmsgnext(int str)
+{
+	MsgStrings[str].nextstring = 0;
+}
+
 void donewmsg(int str)
 {
+	if(msg_onscreen || msg_active)
+			dismissmsg();
+	
     //al_trace("donewmsg %d\n",str);
-    if(msg_onscreen || msg_active)
-        dismissmsg();
+    
         
     linkedmsgclk=0;
     msg_active = true;
@@ -762,6 +826,7 @@ void donewmsg(int str)
     set_clip_state(msgdisplaybuf, 1);
     clear_bitmap(msgbmpbuf);
     
+    //transparency needs to occur here. -Z
     if(MsgStrings[msgstr].tile!=0)
     {
         frame2x2(msgbmpbuf,&QMisc,0,0,MsgStrings[msgstr].tile,MsgStrings[msgstr].cset,

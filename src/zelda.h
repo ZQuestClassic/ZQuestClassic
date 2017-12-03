@@ -148,7 +148,10 @@ void CatchBrang();;
 int LinkAction();
 
 void do_dcounters();
+
+void clearmsgnext(int str);
 void donewmsg(int str);
+int donew_shop_msg(int itmstr, int shopstr);
 void dismissmsg();
 void dointro();
 void init_dmap();
