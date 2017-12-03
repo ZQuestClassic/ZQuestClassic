@@ -14709,8 +14709,11 @@ void LinkClass::checkitems(int index)
 			case rSHOP: 
 			{
 				if ( PriceIndex >= 0 )
+				{
 					//if it is a shop item, and not another item type.
-					tempnextmsg = donew_shop_msg(pstr, QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex]);
+					int shop_pstr = ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : pstr;
+					tempnextmsg = donew_shop_msg(pstr, shop_pstr);
+				}
 				else 
 				{
 					if ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) )
@@ -14827,8 +14830,12 @@ void LinkClass::checkitems(int index)
 			case rSHOP: 
 			{
 				if ( PriceIndex >= 0 )
+				{
 					//if it is a shop item, and not another item type.
-					tempnextmsg = donew_shop_msg(pstr, QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex]);
+					//if there is no shop string, use the item string
+					int shop_pstr = ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : pstr;
+					tempnextmsg = donew_shop_msg(pstr, shop_pstr);
+				}
 				else 
 				{
 					if ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) )
