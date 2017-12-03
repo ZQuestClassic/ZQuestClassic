@@ -1,6 +1,9 @@
 //2.54 Changes
 
 //Alpha 20
+Fixed an error in messagedata->Font
+Fixed two missing commands in script_command command_list[]
+	( ZoriaRPG, 3rd December, 2017 )
 Renamed Audio->AdjustVolume() to AdjustMusicVolume()
 Items now have info strings that the user may set int he item editor.
 These have a default behaviour, as follows:
