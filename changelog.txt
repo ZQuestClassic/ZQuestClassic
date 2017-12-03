@@ -1,5 +1,11 @@
 //2.54 Changes
 
+//Alpha 21
+Added an automatic shop script (untested) to /testscripts.
+Added a new path, /testscripts/* to the repo.
+Added a flag to items/itemdata->PickupFlags that prevents the engine from
+marking the string as having been played, as value 0x04, 'itemdataPSTRING_NOMARK'.
+	( ZoriaRPG, 3rd December, 2017 )
 //Alpha 20
 Fixed a conflict with item messages in shops, and shop messages.
 The new behaviour is this:
