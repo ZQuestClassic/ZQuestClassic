@@ -1379,7 +1379,8 @@ struct itemdata
     int pickup; 
     
 #define itemdataPSTRING_ALWAYS		0x00000001
-#define itemdataPSTRING_IP_HOLDUP		0x00000002
+#define itemdataPSTRING_IP_HOLDUP	0x00000002
+#define itemdataPSTRING_NOMARK		0x00000004
     word pstring;
     word pickup_string_flags;
     
