@@ -112,6 +112,8 @@ bool global_wait = false;
 refInfo itemScriptData;
 
 //The stacks
+//This is where we need to change the formula. These stacks need to be variable in some manner
+//to permit adding additional scripts to them, without manually sizing them in advance. - Z
 long(*stack)[256] = NULL;
 long ffc_stack[32][256];
 long global_stack[256];
