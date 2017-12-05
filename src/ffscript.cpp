@@ -12069,10 +12069,16 @@ int run_script(const byte type, const word script, const byte i)
     {
         ri = &itemScriptData;
         ri->Clear(); //Only runs for one frame so we just zero it out
+	    //What would happen if we don't do this? -Z
         
         curscript = itemscripts[script];
         stack = &item_stack;
-        memset(stack, 0, 256 * sizeof(long)); //zero here too
+        memset(stack, 0, 256 * sizeof(long)); //zero here too //and don't do this? -Z
+	    //If we can make item scripts capable of running for more than one frame, then we can
+	    //copy the behaviour to npcs, weapons, and items.
+	    //In theory, if we keep the screen caps on these, then we would have 256 or 512 stacks
+	    //for each type at all times. That's an awful lot of wasted RAM.
+	    //Suggestions? -Z
         
         memcpy(ri->d, itemsbuf[i].initiald, 8 * sizeof(long));
         memcpy(ri->a, itemsbuf[i].initiala, 2 * sizeof(long));
@@ -12081,6 +12087,9 @@ int run_script(const byte type, const word script, const byte i)
         
     }
     break;
+    //Only one global stack? -Z
+    //No curscript? -Z
+    //With two extra stacks, we could have dmap and screen scripts. -Z
     
     case SCRIPT_GLOBAL:
     {
@@ -12088,6 +12097,7 @@ int run_script(const byte type, const word script, const byte i)
         
         curscript = globalscripts[script];
         stack = &global_stack;
+	    //
     }
     break;
     
