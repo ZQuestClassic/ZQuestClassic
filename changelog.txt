@@ -1,6 +1,7 @@
 //2.54 Changes
 
 //Alpha 21
+Revised the priority of Init and Continue scripts, to run immediately prior to the opening wipe.
 Changed the priority of global Init and OnContinue scripts so that
 they can affect environmental values before the opening wipe. 
 Let's hope that this didn't break anything. (Tosses coin).  ( ZoriaRPG, 5th December, 2017 )
