@@ -1607,7 +1607,7 @@ int init_game()
     
     //Run the init script or the oncontinue script with the highest priority.
     //GLobal Script Init ~Init
-
+/*
     if(firstplay)
     {
         memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
@@ -1618,7 +1618,7 @@ int init_game()
 	    //Global script OnContinue
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
     }
-    
+*/
     global_wait=false;
     
     //loadscr(0,currscr,up);
@@ -1709,6 +1709,20 @@ int init_game()
     Playing=true;
     
     map_bkgsfx(true);
+    
+    
+    
+    if(firstplay)
+    {
+        memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+    }
+    else
+    {
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
+    }
+    
+    
     openscreen();
     show_subscreen_numbers=true;
     show_subscreen_life=true;
@@ -1726,17 +1740,6 @@ int init_game()
     if(!Quit)
         playLevelMusic();
         
-    /*
-    if(firstplay)
-    {
-        memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
-    }
-    else
-    {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
-    }
-    */
     
     initZScriptGlobalRAM(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     ffscript_engine(true);  //Here is a much safer place...
