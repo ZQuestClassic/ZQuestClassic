@@ -119,6 +119,9 @@ int draw_screen_clip_rect_x2=255;
 int draw_screen_clip_rect_y1=0;
 int draw_screen_clip_rect_y2=223;
 
+extern int script_link_sprite; 
+extern int script_link_flip; 
+
 volatile int logic_counter=0;
 bool trip=false;
 void update_logic_counter()
@@ -1403,6 +1406,7 @@ void init_dmap()
 int init_game()
 {
 	
+	
   //port250QuestRules();	
     srand(time(0));
     //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
@@ -1594,8 +1598,27 @@ int init_game()
     //Script-related nonsense
     script_drawing_commands.Clear();
     
+    //CLear the scripted Link sprites. 
+    script_link_sprite = 0; 
+    script_link_flip = -1; 
+    
     initZScriptArrayRAM(firstplay);
     initZScriptGlobalRAM();
+    
+    //Run the init script or the oncontinue script with the highest priority.
+    //GLobal Script Init ~Init
+
+    if(firstplay)
+    {
+        memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+    }
+    else
+    {
+	    //Global script OnContinue
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
+    }
+    
     global_wait=false;
     
     //loadscr(0,currscr,up);
@@ -1703,6 +1726,7 @@ int init_game()
     if(!Quit)
         playLevelMusic();
         
+    /*
     if(firstplay)
     {
         memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
@@ -1712,6 +1736,7 @@ int init_game()
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
     }
+    */
     
     initZScriptGlobalRAM(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     ffscript_engine(true);  //Here is a much safer place...
@@ -3909,11 +3934,17 @@ int main(int argc, char* argv[])
             introclk=intropos=0;
             
             initZScriptGlobalRAM();
+		
+	    //Run Global script OnExit
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
             
             if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
             
+		
+	    
             skipcont = 0;
+		
+		
 		//restore user volume settings
 		if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 		{
@@ -3947,6 +3978,7 @@ int main(int argc, char* argv[])
             show_subscreen_life=true;
             
             initZScriptGlobalRAM();
+	    //Run global script OnExit
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
 		
 		
