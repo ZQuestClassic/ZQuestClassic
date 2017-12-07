@@ -1,4 +1,12 @@
 To-Do
+
+Datatypes:
+rgbdata
+palette
+
+Link->Pushing
+Enemy flag to block brangs if the npc is already stunned.
+...or just a defence type, stun(no stunlock). 
 Add magic powder, and an npc var: transform.
 The 'transform' var can be an enemy defence (as can split, tribble)!
 
