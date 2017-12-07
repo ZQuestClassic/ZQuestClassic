@@ -45,9 +45,10 @@ enum actiontype
     none, walking, attacking, freeze, landhold1, landhold2,
     rafting, gothit, inwind, scrolling, won, swimming, hopping,
     swimhit, waterhold1, waterhold2, casting, climbcovertop,
-    climbcoverbottom, dying, drowning, climbing,
+    climbcoverbottom, dying, drowning, 
+	climbing, //not used -Z.
     // Fake actiontypes: used by ZScripts
-    ischarging, isspinning, isdiving, gameover, hookshotout, stunned
+    ischarging, isspinning, isdiving, gameover, hookshotout, stunned, ispushing
 };
 
 typedef struct tilesequence

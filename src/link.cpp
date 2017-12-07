@@ -526,6 +526,7 @@ int  LinkClass::getAction() // Used by ZScript
         return ischarging;
     else if(diveclk > 0)
         return isdiving;
+    //else if (pushing > 0) return ispushing; //Needs a QR? -Z or make it an instruction as Link->Pushing? Probably better, as that has a clk?? 
         
     return action;
 }

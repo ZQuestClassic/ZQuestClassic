@@ -1317,6 +1317,9 @@ long get_register(const long arg)
     case LINKEATEN:
 	ret=(int)Link.getEaten()*10000;
 	break;
+    //case LINKPUSH:
+//	ret=(int)Link.getPushing()*10000;
+//	break;
     case LINKSCRIPTTILE:
 	ret=script_link_sprite*10000;
 	break;
@@ -5251,8 +5254,16 @@ void set_register(const long arg, const long value)
         break;
         
     case LINKACTION:
-        Link.setAction((actiontype)(value/10000));
+    {
+	int act = value / 10000;
+	if ( act < 25 ) {
+		Link.setAction((actiontype)(act));
+	}
+	else FFCore.setLinkAction(act); //Protect from writing illegal actions to Link's raw variable. 
+	//in the future, we can move all scripted actions that are not possible
+	//to set in ZC into this mechanic. -Z
         break;
+    }
         
     case LINKHELD:
         Link.setHeldItem(vbound(value/10000,0,MAXITEMS-1));
