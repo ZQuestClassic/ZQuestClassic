@@ -1,6 +1,15 @@
 //2.54 Changes
 
 //Alpha 21
+Link.cpp now sets script-engine only actions. Reading Link->Action reads these
+rather than the actual, internal 'action' variable. 
+	This allows setting actions arbitrarily in Link.cpp to give scripts more useful access,
+	or adding arbitrary script actions, without affecting the hardcoded action stuff and 
+	general frame timing. 
+	I would prefer these set action bits, but then clearing them would be a mess. 
+	Link->Action == DYING is still never set, despite setting (the fake ffcore) var earlier 
+	than the engine variable. :(
+	( ZoriaRPG, 7th December, 2017 )
 Revised the priority of Init and Continue scripts, to run immediately prior to the opening wipe.
 Changed the priority of global Init and OnContinue scripts so that
 they can affect environmental values before the opening wipe. 
