@@ -181,24 +181,25 @@ void LinkClass::resetflags(bool all)
     stomping=false;
     reset_swordcharge();
     diveclk=drownclk=0;
-    action=none;
+    action=none; FFCore.setLinkAction(none);
     conveyor_flags=0;
     magiccastclk=0;
     magicitem=-1;
 }
 
+//Can use this for Link->Stun. -Z
 void LinkClass::Freeze()
 {
     if (action != inwind)
     {
-        action = freeze;
+        action=freeze; FFCore.setLinkAction(freeze);
         // also cancel Link's attack
         attackclk = 0;
     }
 }
 void LinkClass::unfreeze()
 {
-    if(action==freeze && fairyclk<1) action=none;
+    if(action==freeze && fairyclk<1) { action=none; FFCore.setLinkAction(none); }
 }
 
 void LinkClass::Drown()
@@ -207,7 +208,7 @@ void LinkClass::Drown()
     if(ladderx+laddery)
         return;
         
-    action=drowning;
+    action=drowning; FFCore.setLinkAction(drowning);
     attackclk=0;
     attack=wNone;
     attackid=-1;
@@ -373,15 +374,15 @@ void LinkClass::setZ(int new_z)
         {
         case swimming:
             diveclk=0;
-            action=walking;
+            action=walking; FFCore.setLinkAction(walking);
             break;
             
         case waterhold1:
-            action=landhold1;
+            action=landhold1; FFCore.setLinkAction(landhold1);
             break;
             
         case waterhold2:
-            action=landhold2;
+            action=landhold2; FFCore.setLinkAction(landhold2);
             break;
             
         default:
@@ -503,7 +504,7 @@ void LinkClass::Catch()
 {
     if(!inwallm && (action==none || action==walking))
     {
-        action=attacking;
+        action=attacking; FFCore.setLinkAction(attacking);
         attackclk=0;
         attack=wCatching;
     }
@@ -643,7 +644,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         break;
     }
     
-    action=new_action;
+    action=new_action; FFCore.setLinkAction(new_action);
 }
 
 void LinkClass::setHeldItem(int newitem)
@@ -731,7 +732,7 @@ void LinkClass::init()
     attackclk=holdclk=hoverclk=jumping=0;
     attack=wNone;
     attackid=-1;
-    action=none;
+    action=none; FFCore.setLinkAction(none);
     xofs=0;
     yofs=playing_field_offset;
     cs=6;
@@ -2723,7 +2724,7 @@ int LinkClass::EwpnHit()
             if(ew->id==ewWind)
             {
                 xofs=1000;
-                action=freeze;
+                action=freeze; FFCore.setLinkAction(freeze);
                 ew->misc=999;                                         // in enemy wind
                 attackclk=0;
                 return -1;
@@ -3009,10 +3010,10 @@ void LinkClass::checkhit()
     }
     
     if(hclk<39 && action==gothit)
-        action=none;
+        action=none; FFCore.setLinkAction(none);
         
     if(hclk<39 && action==swimhit)
-        action=swimming;
+        action=swimming; FFCore.setLinkAction(swimming);
         
     if(hclk>=40 && action==gothit)
     {
@@ -3023,25 +3024,37 @@ void LinkClass::checkhit()
                 switch(hitdir)
                 {
                 case up:
-                    if(hit_walkflag(x,y+(bigHitbox?-1:7),2)||(int(x)&7?hit_walkflag(x+16,y+(bigHitbox?-1:7),1):0))    action=none;
+                    if(hit_walkflag(x,y+(bigHitbox?-1:7),2)||(int(x)&7?hit_walkflag(x+16,y+(bigHitbox?-1:7),1):0))    
+		    {
+			    action=none; FFCore.setLinkAction(none);
+		    }
                     else --y;
                     
                     break;
                     
                 case down:
-                    if(hit_walkflag(x,y+16,2)||(int(x)&7?hit_walkflag(x+16,y+16,1):0))   action=none;
+                    if(hit_walkflag(x,y+16,2)||(int(x)&7?hit_walkflag(x+16,y+16,1):0))   
+		    {
+			    action=none; FFCore.setLinkAction(none);
+		    }
                     else ++y;
                     
                     break;
                     
                 case left:
-                    if(hit_walkflag(x-1,y+(bigHitbox?0:8),1)||hit_walkflag(x-1,y+8,1)||(int(y)&7?hit_walkflag(x-1,y+16,1):0))  action=none;
+                    if(hit_walkflag(x-1,y+(bigHitbox?0:8),1)||hit_walkflag(x-1,y+8,1)||(int(y)&7?hit_walkflag(x-1,y+16,1):0))  
+		    {
+			    action=none; FFCore.setLinkAction(none);
+		    }
                     else --x;
                     
                     break;
                     
                 case right:
-                    if(hit_walkflag(x+16,y+(bigHitbox?0:8),1)||hit_walkflag(x+16,y+8,1)||(int(y)&7?hit_walkflag(x+16,y+16,1):0)) action=none;
+                    if(hit_walkflag(x+16,y+(bigHitbox?0:8),1)||hit_walkflag(x+16,y+8,1)||(int(y)&7?hit_walkflag(x+16,y+16,1):0))
+		    {
+			    action=none; FFCore.setLinkAction(none);
+		    }
                     else ++x;
                     
                     break;
@@ -3078,9 +3091,13 @@ void LinkClass::checkhit()
                 if (action != rafting && action != freeze)
                 {
                     if (action == swimming || hopclk == 0xFF)
-                        action = swimhit;
+		    {
+                        action=swimhit; FFCore.setLinkAction(swimhit);
+		    }
                     else
-                        action = gothit;
+		    {
+                        action=gothit; FFCore.setLinkAction(gothit);
+		    }
                 }
                     
                 if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
@@ -3223,9 +3240,13 @@ killweapon:
                 if (action != rafting && action != freeze)
                 {
                     if (action == swimming || hopclk == 0xFF)
-                        action = swimhit;
+		    {
+                        action=swimhit; FFCore.setLinkAction(swimhit);
+		    }
                     else
-                        action = gothit;
+		    {
+                        action=gothit; FFCore.setLinkAction(gothit);
+		    }
                 }
                     
                 if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
@@ -3245,7 +3266,7 @@ killweapon:
         {
             reset_hookshot();
             xofs=1000;
-            action=inwind;
+            action=inwind; FFCore.setLinkAction(inwind);
             dir=s->dir;
             spins = charging = attackclk = 0;
             
@@ -3287,9 +3308,13 @@ killweapon:
         ((weapon*)Lwpns.spr(hit2))->onhit(false);
         
         if(action==swimming || hopclk==0xFF)
-            action=swimhit;
+	{
+            action=swimhit; FFCore.setLinkAction(swimhit);
+	}
         else
-            action=gothit;
+	{
+            action=gothit; FFCore.setLinkAction(gothit);
+	}
             
         hclk=48;
         
@@ -3318,9 +3343,13 @@ killweapon:
         ((weapon*)Ewpns.spr(hit2))->onhit(false);
         
         if(action==swimming || hopclk==0xFF)
-            action=swimhit;
+	{
+            action=swimhit; FFCore.setLinkAction(swimhit);
+	}
         else
-            action=gothit;
+	{
+            action=gothit; FFCore.setLinkAction(gothit);
+	}
             
         hclk=48;
         
@@ -3422,9 +3451,13 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
             if (action != rafting && action != freeze)
             {
                 if (action == swimming || hopclk == 0xFF)
-                    action = swimhit;
+		{
+                    action=swimhit; FFCore.setLinkAction(swimhit);
+		}
                 else
-                    action = gothit;
+		{
+                    action=gothit; FFCore.setLinkAction(gothit);
+		}
             }
                 
                 
@@ -3479,9 +3512,13 @@ void LinkClass::hitlink(int hit2)
     hitdir = guys.spr(hit2)->hitdir(x,y,16,16,dir);
     
     if(action==swimming || hopclk==0xFF)
-        action=swimhit;
+    {
+        action=swimhit; FFCore.setLinkAction(swimhit);
+    }
     else
-        action=gothit;
+    {
+        action=gothit; FFCore.setLinkAction(gothit);
+    }
         
     hclk=48;
     sfx(getHurtSFX(),pan(int(x)));
@@ -3504,7 +3541,7 @@ void LinkClass::hitlink(int hit2)
         {
             GrabLink(hit2);
             inwallm=true;
-            action=none;
+            action=none; FFCore.setLinkAction(none);
         }
         
         break;
@@ -3566,7 +3603,7 @@ void LinkClass::hitlink(int hit2)
         {
             EatLink(hit2);
             inlikelike=(dm7 == e7tEATHURT ? 2:1);
-            action=none;
+            action=none; FFCore.setLinkAction(none);
         }
     }
     }
@@ -3809,15 +3846,15 @@ bool LinkClass::animate(int)
             {
             case swimming:
                 diveclk=0;
-                action=walking;
+                action=walking; FFCore.setLinkAction(walking);
                 break;
                 
             case waterhold1:
-                action=landhold1;
+                action=landhold1; FFCore.setLinkAction(landhold1);
                 break;
                 
             case waterhold2:
-                action=landhold2;
+                action=landhold2; FFCore.setLinkAction(landhold2);
                 break;
                 
             default:
@@ -3930,7 +3967,7 @@ bool LinkClass::animate(int)
     {
         if(hookshot_used==true)
         {
-            action=freeze;
+            action=freeze; FFCore.setLinkAction(freeze); //could be LA_HOOKSHOT for FFCore. -Z
             
             if(pull_link==true)
             {
@@ -4101,6 +4138,7 @@ bool LinkClass::animate(int)
         if(false == (last_hurrah = !last_hurrah))
         {
             drunkclk=0;
+	    FFCore.setLinkAction(dying);
             gameover();
             
             return true;
@@ -4130,14 +4168,16 @@ bool LinkClass::animate(int)
         attackclk=0;
         restart_level();
         xofs=0;
-        action=none;
+        action=none; FFCore.setLinkAction(none);
         ewind_restart=false;
         return false;
     }
     
     
     if(hopclk)
-        action = hopping;
+    {
+        action=hopping; FFCore.setLinkAction(hopping);
+    }
         
     // get user input or do other animation
     freeze_guys=false;                                        // reset this flag, set it again if holding
@@ -4164,7 +4204,7 @@ bool LinkClass::animate(int)
         
         if(--drownclk==0)
         {
-            action=none;
+            action=none; FFCore.setLinkAction(none);
             x=entry_x;
             y=entry_y;
             warpx=x;
@@ -4183,7 +4223,7 @@ bool LinkClass::animate(int)
     case casting:
         if(magicitem==-1)
         {
-            action=none;
+            action=none; FFCore.setLinkAction(none);
         }
         
         break;
@@ -4196,7 +4236,7 @@ bool LinkClass::animate(int)
             if(get_bit(quest_rules, qr_HOLDNOSTOPMUSIC) == 0 && (specialcave < GUYCAVE))
                 playLevelMusic();
                 
-            action=none;
+            action=none; FFCore.setLinkAction(none);
         }
         else
             freeze_guys=true;
@@ -4213,7 +4253,7 @@ bool LinkClass::animate(int)
             if(get_bit(quest_rules, qr_HOLDNOSTOPMUSIC) == 0  && (specialcave < GUYCAVE))
                 playLevelMusic();
                 
-            action=swimming;
+            action=swimming; FFCore.setLinkAction(swimming);
         }
         else
             freeze_guys=true;
@@ -4223,7 +4263,7 @@ bool LinkClass::animate(int)
     case hopping:
         if(DRIEDLAKE)
         {
-            action = none;
+            action=none; FFCore.setLinkAction(none);
             hopclk = 0;
             diveclk = 0;
             break;
@@ -4252,7 +4292,7 @@ bool LinkClass::animate(int)
             
             if(exit)
             {
-                action=none;
+                action=none; FFCore.setLinkAction(none);
                 xofs=0;
                 whirlwind=0;
                 lstep=0;
@@ -4279,7 +4319,7 @@ bool LinkClass::animate(int)
     case swimming:
         if(DRIEDLAKE)
         {
-            action=none;
+            action=none; FFCore.setLinkAction(none);
             hopclk=0;
             break;
         }
@@ -4560,9 +4600,9 @@ bool LinkClass::animate(int)
             sfx(tmpscr->secretsfx);
         }
         
-        action=none;
+        action=none; FFCore.setLinkAction(none);
         stepforward(29, true);
-        action=scrolling;
+        action=scrolling; FFCore.setLinkAction(scrolling);
         pushing=false;
     }
     
@@ -4752,7 +4792,7 @@ bool LinkClass::startwpn(int itemid)
                 
             sfx(tmpscr[currscr<128?0:1].secretsfx);
             setupscreen();
-            action=none;
+            action=none; FFCore.setLinkAction(none);
         }
         
         ret = false;
@@ -5377,7 +5417,7 @@ bool LinkClass::startwpn(int itemid)
             return false;
             
         paymagiccost(itemid);
-        action=casting;
+        action=casting; FFCore.setLinkAction(casting);
         magicitem=itemid;
         break;
         
@@ -5389,7 +5429,7 @@ bool LinkClass::startwpn(int itemid)
             return false;
             
         paymagiccost(itemid);
-        action=casting;
+        action=casting; FFCore.setLinkAction(casting);
         magicitem=itemid;
         break;
         
@@ -5401,7 +5441,7 @@ bool LinkClass::startwpn(int itemid)
             return false;
             
         paymagiccost(itemid);
-        action=casting;
+        action=casting; FFCore.setLinkAction(casting);
         magicitem=itemid;
         break;
         
@@ -5807,7 +5847,7 @@ void LinkClass::do_hopping()
         
         if((!(int(x)&7) && !(int(y)&7)) || diagonalMovement)
         {
-            action = swimming;
+            action=swimming; FFCore.setLinkAction(swimming);
             hopclk = 0;
             charging = attackclk = 0;
             tapping = false;
@@ -5870,7 +5910,7 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0;
                         diveclk=0;
-                        action=none;
+                        action=none; FFCore.setLinkAction(none);
                         hopdir=-1;
                     }
                 }
@@ -5894,7 +5934,7 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0;
                         diveclk=0;
-                        action=none;
+                        action=none; FFCore.setLinkAction(none);
                         hopdir=-1;
                     }
                 }
@@ -5918,7 +5958,7 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0;
                         diveclk=0;
-                        action=none;
+                        action=none; FFCore.setLinkAction(none);
                         hopdir=-1;
                     }
                 }
@@ -5942,7 +5982,7 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0;
                         diveclk=0;
-                        action=none;
+                        action=none; FFCore.setLinkAction(none);
                         hopdir=-1;
                     }
                 }
@@ -5971,7 +6011,7 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0xFF;
                         diveclk=0;
-                        action=swimming;
+                        action=swimming; FFCore.setLinkAction(swimming);
                     }
                 }
                 
@@ -5995,7 +6035,7 @@ void LinkClass::do_hopping()
                         hopclk=0xFF;
                         diveclk=0;
                         reset_swordcharge();
-                        action=swimming;
+                        action=swimming; FFCore.setLinkAction(swimming);
                     }
                 }
                 
@@ -6018,7 +6058,7 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0xFF;
                         diveclk=0;
-                        action=swimming;
+                        action=swimming; FFCore.setLinkAction(swimming);
                     }
                 }
                 
@@ -6042,7 +6082,7 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0xFF;
                         diveclk=0;
-                        action=swimming;
+                        action=swimming; FFCore.setLinkAction(swimming);
                     }
                 }
             }
@@ -6052,7 +6092,7 @@ void LinkClass::do_hopping()
         {
             if(dir<left ? !(int(x)&7) && !(int(y)&15) : !(int(x)&15) && !(int(y)&7))
             {
-                action = none;
+                action=none; FFCore.setLinkAction(none);
                 hopclk = 0;
                 diveclk = 0;
                 
@@ -6060,7 +6100,7 @@ void LinkClass::do_hopping()
                 {
                     // hopped in
                     attackclk = charging = spins = 0;
-                    action = swimming;
+                    action=swimming; FFCore.setLinkAction(swimming);
                 }
             }
             else
@@ -6111,7 +6151,7 @@ void LinkClass::do_rafting()
 
     if(toogam)
     {
-        action=none;
+        action=none; FFCore.setLinkAction(none);
         return;
     }
     
@@ -6166,7 +6206,7 @@ void LinkClass::do_rafting()
                 else if((isRaftFlag(nextflag(x,y,left,false))||isRaftFlag(nextflag(x,y,left,true))))
                     dir=left;
                 else if(y>0 && y<160)
-                    action=none;
+                    action=none; FFCore.setLinkAction(none);
             }
             else //going left or right
             {
@@ -6175,7 +6215,7 @@ void LinkClass::do_rafting()
                 else if((isRaftFlag(nextflag(x,y,up,false))||isRaftFlag(nextflag(x,y,up,true))))
                     dir=up;
                 else if(x>0 && x<240)
-                    action=none;
+                    action=none; FFCore.setLinkAction(none);
             }
         }
     }
@@ -6294,7 +6334,7 @@ void LinkClass::movelink()
     
     if(can_attack() && (directWpn>-1 ? itemsbuf[directWpn].family==itype_sword : current_item(itype_sword)) && swordclk==0 && btnwpn==itype_sword && charging==0)
     {
-        action=attacking;
+        action=attacking; FFCore.setLinkAction(attacking);
         attack=wSword;
         attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
         attackclk=0;
@@ -6343,7 +6383,7 @@ void LinkClass::movelink()
         
         if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
         {
-            action=attacking;
+            action=attacking; FFCore.setLinkAction(attacking);
             attack=wWand;
             attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
             attackclk=0;
@@ -6353,7 +6393,7 @@ void LinkClass::movelink()
         {
             paymagiccost(dowpn);
             paidmagic = true;
-            action=attacking;
+            action=attacking; FFCore.setLinkAction(attacking);
             attack=wHammer;
             attackid=directWpn>-1 ? directWpn : current_item_id(itype_hammer);
             attackclk=0;
@@ -6361,7 +6401,7 @@ void LinkClass::movelink()
         else if((btnwpn==itype_candle)&&!(action==attacking && attack==wFire)
                 && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
         {
-            action=attacking;
+            action=attacking; FFCore.setLinkAction(attacking);
             attack=wFire;
             attackid=directWpn>-1 ? directWpn : current_item_id(itype_candle);
             attackclk=0;
@@ -6369,7 +6409,7 @@ void LinkClass::movelink()
         else if((btnwpn==itype_cbyrna)&&!(action==attacking && attack==wCByrna)
                 && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
         {
-            action=attacking;
+            action=attacking; FFCore.setLinkAction(attacking);
             attack=wCByrna;
             attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
             attackclk=0;
@@ -6386,7 +6426,7 @@ void LinkClass::movelink()
                 }
                 else
                 {
-                    action=attacking;
+                    action=attacking; FFCore.setLinkAction(attacking);
                     attackclk=0;
                     attack=none;
                     
@@ -6488,7 +6528,7 @@ void LinkClass::movelink()
                 spins=0;
             }
             
-            action=none;
+            action=none; FFCore.setLinkAction(none);
             attackclk=0;
             charging=0;
         }
@@ -6499,6 +6539,7 @@ void LinkClass::movelink()
         if(!DrunkUp() && !DrunkDown() && !DrunkLeft() && !DrunkRight() && !autostep)
         {
             action=(attackclk>0 ? attacking : none);
+		FFCore.setLinkAction(attackclk>0 ? attacking : none);
             link_count=-1;
             return;
         }
@@ -6520,7 +6561,7 @@ void LinkClass::movelink()
                 }
                 else
                 {
-                    action=none;
+                    action=none; FFCore.setLinkAction(none);
                 }
                 
                 return;
@@ -6539,7 +6580,7 @@ void LinkClass::movelink()
                 }
                 else
                 {
-                    action=none;
+                    action=none; FFCore.setLinkAction(none);
                 }
                 
                 return;
@@ -6556,7 +6597,7 @@ void LinkClass::movelink()
                 }
                 else
                 {
-                    action=none;
+                    action=none; FFCore.setLinkAction(none);
                 }
                 
                 return;
@@ -6573,7 +6614,7 @@ void LinkClass::movelink()
                 }
                 else
                 {
-                    action=none;
+                    action=none; FFCore.setLinkAction(none);
                 }
                 
                 return;
@@ -6584,7 +6625,7 @@ void LinkClass::movelink()
     
     if((action!=swimming)&&(action!=casting)&&(action!=drowning) && charging==0 && spins==0 && jumping<1)
     {
-        action=none;
+        action=none; FFCore.setLinkAction(none);
     }
     
     if(diagonalMovement)
@@ -7945,7 +7986,7 @@ void LinkClass::move(int d2)
         
         //ack... don't walk if in midair! -DD
         if(charging==0 && spins==0 && z==0 && !(isSideview() && !ON_SIDEPLATFORM))
-            action = walking;
+            action=walking; FFCore.setLinkAction(walking);
             
         if(++link_count > (16*link_animation_speed))
             link_count=0;
@@ -9445,7 +9486,7 @@ void LinkClass::fairycircle(int type)
         refill_what=type;
         refill_why=REFILL_FAIRY;
         StartRefill(type);
-        action=freeze;
+        action=freeze; FFCore.setLinkAction(freeze);
         holdclk=0;
         hopclk=0;
     }
@@ -9462,7 +9503,7 @@ void LinkClass::fairycircle(int type)
     {
         reset_swordcharge();
         attackclk=0;
-        action=none;
+        action=none; FFCore.setLinkAction(none);
         fairyclk=0;
         holdclk=0;
         refill_why = 0;
@@ -10436,7 +10477,7 @@ void LinkClass::checkspecial2(int *ls)
         else
         {
             attackclk = charging = spins = 0;
-            action=swimming;
+            action=swimming; FFCore.setLinkAction(swimming);
             landswim=0;
         }
         
@@ -10514,7 +10555,7 @@ void LinkClass::checkspecial2(int *ls)
                 if(isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true)))
                 {
                     reset_swordcharge();
-                    action=rafting;
+                    action=rafting; FFCore.setLinkAction(rafting);
                     sfx(tmpscr->secretsfx);
                 }
             }
@@ -10547,7 +10588,7 @@ void LinkClass::checkspecial2(int *ls)
                 if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
                 {
                     reset_swordcharge();
-                    action=rafting;
+                    action=rafting; FFCore.setLinkAction(rafting);
                     sfx(tmpscr->secretsfx);
                 }
             }
@@ -10580,7 +10621,7 @@ void LinkClass::checkspecial2(int *ls)
                 if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
                 {
                     reset_swordcharge();
-                    action=rafting;
+                    action=rafting; FFCore.setLinkAction(rafting);
                     sfx(tmpscr->secretsfx);
                 }
             }
@@ -11273,7 +11314,7 @@ bool LinkClass::dowarp(int type, int index)
         playLevelMusic();
         currcset=DMaps[currdmap].color;
         dointro();
-        action=inwind;
+        action=inwind; FFCore.setLinkAction(inwind);
         int wry;
         
         if(get_bit(quest_rules,qr_NOARRIVALPOINT))
@@ -11316,7 +11357,7 @@ bool LinkClass::dowarp(int type, int index)
             
             if(wasswimming)
             {
-                action = swimming;
+                action=swimming; FFCore.setLinkAction(swimming);
                 diveclk = olddiveclk;
             }
             
@@ -11384,10 +11425,10 @@ bool LinkClass::dowarp(int type, int index)
         {
             hopclk=0xFF;
             attackclk = charging = spins = 0;
-            action=swimming;
+            action=swimming; FFCore.setLinkAction(swimming);
         }
         else
-            action = none;
+            action=none; FFCore.setLinkAction(none);
             
         //preloaded freeform combos
         ffscript_engine(true);
@@ -11443,7 +11484,7 @@ bool LinkClass::dowarp(int type, int index)
     if(action==drowning)
     {
         drownclk=0;
-        action=none;
+        action=none; FFCore.setLinkAction(none);
     }
     
     // But keep him swimming if he ought to be!
@@ -11451,7 +11492,7 @@ bool LinkClass::dowarp(int type, int index)
             && (current_item(itype_flippers)) && (action!=inwind))
     {
         hopclk=0xFF;
-        action=swimming;
+        action=swimming; FFCore.setLinkAction(swimming);
     }
     
     newscr_clk=frame;
@@ -11795,7 +11836,7 @@ void LinkClass::walkdown(bool opening) //entering cave
     //  int cmby=(int(y)&0xF0)+16;
     // Fix Link's position to the grid
     y=int(y)&0xF0;
-    action=climbcoverbottom;
+    action=climbcoverbottom; FFCore.setLinkAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
@@ -11825,7 +11866,7 @@ void LinkClass::walkdown(bool opening) //entering cave
             break;
     }
     
-    action=none;
+    action=none; FFCore.setLinkAction(none);
 }
 
 void LinkClass::walkdown2(bool opening) //exiting cave 2
@@ -11850,7 +11891,7 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
     sfx(WAV_STAIRS,pan(int(x)));
     clk=0;
     //  int cmby=int(y)&0xF0;
-    action=climbcovertop;
+    action=climbcovertop; FFCore.setLinkAction(climbcovertop);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
@@ -11880,7 +11921,7 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
             break;
     }
     
-    action=none;
+    action=none; FFCore.setLinkAction(none);
 }
 
 void LinkClass::walkup(bool opening) //exiting cave
@@ -11905,7 +11946,7 @@ void LinkClass::walkup(bool opening) //exiting cave
     dir=down;
     clk=0;
     //  int cmby=int(y)&0xF0;
-    action=climbcoverbottom;
+    action=climbcoverbottom; FFCore.setLinkAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
@@ -11937,7 +11978,7 @@ void LinkClass::walkup(bool opening) //exiting cave
     
     map_bkgsfx(true);
     loadside=dir^1;
-    action=none;
+    action=none; FFCore.setLinkAction(none);
 }
 
 void LinkClass::walkup2(bool opening) //entering cave2
@@ -11953,7 +11994,7 @@ void LinkClass::walkup2(bool opening) //entering cave2
     dir=up;
     clk=0;
     //  int cmby=int(y)&0xF0;
-    action=climbcovertop;
+    action=climbcovertop; FFCore.setLinkAction(climbcovertop);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
@@ -11985,7 +12026,7 @@ void LinkClass::walkup2(bool opening) //entering cave2
     
     map_bkgsfx(true);
     loadside=dir^1;
-    action=none;
+    action=none; FFCore.setLinkAction(none);
 }
 
 void LinkClass::stepout() // Step out of item cellars and passageways
@@ -12325,7 +12366,7 @@ void LinkClass::checkscroll()
             {
                 if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
                 {
-                    action=none;
+                    action=none; FFCore.setLinkAction(none);
                     restart_level();
                 }
                 else
@@ -12382,7 +12423,7 @@ void LinkClass::checkscroll()
             {
                 if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
                 {
-                    action=none;
+                    action=none; FFCore.setLinkAction(none);
                     restart_level();
                 }
                 else
@@ -12440,7 +12481,7 @@ void LinkClass::checkscroll()
             {
                 if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
                 {
-                    action=none;
+                    action=none; FFCore.setLinkAction(none);
                     restart_level();
                 }
                 else
@@ -12498,7 +12539,7 @@ void LinkClass::checkscroll()
             {
                 if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
                 {
-                    action=none;
+                    action=none; FFCore.setLinkAction(none);
                     restart_level();
                 }
                 else
@@ -12891,7 +12932,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     actiontype lastaction = action;
     ALLOFF(false, false);
     // for now, restore Link's previous action
-    action = lastaction;
+    action=lastaction; FFCore.setLinkAction(lastaction);
     
     lstep = (lstep + 6) % 12;
     cx = scx;
@@ -13016,26 +13057,26 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     {
         if(lastaction == rafting && isRaftFlag(aheadflag))
         {
-            action = rafting;
+            action=rafting; FFCore.setLinkAction(rafting);
         }
         else if(iswater(ahead) && (current_item(itype_flippers)))
         {
             if(lastaction==swimming)
             {
-                action = swimming;
+                action=swimming; FFCore.setLinkAction(swimming);
                 hopclk = 0xFF;
                 nowinwater = true;
             }
             else
             {
-                action = hopping;
+                action=hopping; FFCore.setLinkAction(hopping);
                 hopclk = 2;
                 nowinwater = true;
             }
         }
         else
         {
-            action = none;
+            action=none; FFCore.setLinkAction(none);
         }
     }
     
@@ -13092,9 +13133,9 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         // Link's action should remain unchanged while scrolling,
         // but for the sake of scripts, here's an eye-watering kludge.
         lastaction = action;
-        action = scrolling;
+        action=scrolling; FFCore.setLinkAction(scrolling);
         ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames);
-        action = lastaction;
+        action=lastaction; FFCore.setLinkAction(lastaction);
         
         if(no_move > 0)
             no_move--;
@@ -13171,14 +13212,14 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
                     ladderx = int(x);
             }
         }
-        
+        //FFScript.OnWaitdraw()
         if(global_wait)
         {
             // And now to injure your other eye
-            lastaction = action;
-            action = scrolling;
+            lastaction=action;
+            action=scrolling; FFCore.setLinkAction(scrolling);
             ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames);
-            action = lastaction;
+            action=lastaction; FFCore.setLinkAction(lastaction);
             global_wait=false;
         }
         
@@ -13402,7 +13443,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
     
     if(nowinwater)
     {
-        action = swimming;
+        action=swimming; FFCore.setLinkAction(swimming);
         hopclk = 0xFF;
     }
     
@@ -13420,14 +13461,14 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         if(MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT)
         {
             sfx(tmpscr->secretsfx);
-            action=rafting;
+            action=rafting; FFCore.setLinkAction(rafting);
         }
         
         // Half a tile off?
         else if((dir==left || dir==right) && (MAPFLAG(x,y+8)==mfRAFT||MAPCOMBOFLAG(x,y+8)==mfRAFT))
         {
             sfx(tmpscr->secretsfx);
-            action=rafting;
+            action=rafting; FFCore.setLinkAction(rafting);
         }
     }
     
@@ -13469,7 +13510,9 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
     }
     
     if(action == scrolling)
-        action = none;
+    {
+        action=none; FFCore.setLinkAction(none);
+    }
         
     if(action != attacking)
     {
@@ -14671,22 +14714,22 @@ void LinkClass::checkitems(int index)
             // don't hold up bombs unless swimming or the bomb hold fix quest rule is on
             if(action==swimming)
             {
-                action=waterhold1;
+                action=waterhold1; FFCore.setLinkAction(waterhold1);
             }
             else
             {
-                action=landhold1;
+                action=landhold1; FFCore.setLinkAction(landhold1);
             }
             
             if(((item*)items.spr(index))->twohand)
             {
                 if(action==waterhold1)
                 {
-                    action=waterhold2;
+                    action=waterhold2; FFCore.setLinkAction(waterhold2);
                 }
                 else
                 {
-                    action=landhold2;
+                    action=landhold2; FFCore.setLinkAction(landhold2);
                 }
             }
             
@@ -15024,7 +15067,8 @@ void LinkClass::getTriforce(int id2)
         {
             actiontype oldaction = action;
             ALLOFF(true, false);
-            action=oldaction;                                      // have to reset this flag
+            action=oldaction;                                    // have to reset this flag
+		FFCore.setLinkAction(oldaction);
         }
         
         if(f>=40 && f<88)
@@ -15135,7 +15179,7 @@ void LinkClass::getTriforce(int id2)
     }
     while(f<408 || midi_pos > 0 || (zcmusic!=NULL && zcmusic->position<800));   // 800 may not be just right, but it works
     
-    action=none;
+    action=none; FFCore.setLinkAction(none);
     holdclk=0;
     draw_screen_clip_rect_x1=0;
     draw_screen_clip_rect_x2=255;
@@ -15308,7 +15352,7 @@ void LinkClass::gameover()
 {
     int f=0;
     
-    action=none;
+    action=none; FFCore.setLinkAction(dying); //mayhaps a new action of 'gameover'? -Z
     Playing=false;
     
     if(!debug_enabled)
@@ -15387,7 +15431,7 @@ void LinkClass::gameover()
             if(f>=194 && f<208)
             {
                 if(f==194)
-                    action = dying;
+                    action=dying; FFCore.setLinkAction(dying);
                     
                 extend = 0;
                 cs = wpnsbuf[iwDeath].csets&15;
@@ -15582,11 +15626,11 @@ void LinkClass::gameover()
         case   0:
             sfx(getHurtSFX(),pan(int(x)));
             break;
-            
+	//Death sound.
         case  60:
             sfx(WAV_SPIRAL);
             break;
-            
+	//Message sound. 
         case 194:
             sfx(WAV_MSG);
             break;
@@ -15598,7 +15642,7 @@ void LinkClass::gameover()
     while(f<353 && !Quit);
     
     destroy_bitmap(subscrbmp);
-    action=none;
+    action=none; FFCore.setLinkAction(none);
     dontdraw=false;
 }
 
@@ -15630,7 +15674,7 @@ void LinkClass::ganon_intro()
     }
     
     dir=down;
-    action=landhold2;
+    action=landhold2; FFCore.setLinkAction(landhold2);
     holditem=getItemID(itemsbuf,itype_triforcepiece, 1);
     //not good, as this only returns the highest level that Link possesses. -DD
     //getHighestLevelOfFamily(game, itemsbuf, itype_triforcepiece, false));
@@ -15695,7 +15739,7 @@ void LinkClass::ganon_intro()
         
     }
     
-    action=none;
+    action=none; FFCore.setLinkAction(none);
     dir=up;
     
     if(!getmapflag() && (tunes[MAXMIDIS-1].data))
@@ -15711,7 +15755,7 @@ void LinkClass::ganon_intro()
 void LinkClass::saved_Zelda()
 {
     Playing=Paused=false;
-    action=won;
+    action=won; FFCore.setLinkAction(won);
     Quit=qWON;
     hclk=0;
     x = 136;
@@ -15729,7 +15773,7 @@ void LinkClass::reset_hookshot()
 {
     if(action!=rafting && action!=landhold1 && action!=landhold2)
     {
-        action=none;
+        action=none; FFCore.setLinkAction(none);
     }
     
     hookshot_frozen=false;

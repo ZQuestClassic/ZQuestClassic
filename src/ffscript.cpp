@@ -1193,7 +1193,8 @@ long get_register(const long arg)
         break;
         
     case LINKACTION:
-        ret=(int)(Link.getAction())*10000;
+	ret = FFCore.getLinkAction() * 10000;
+        //ret=(int)(Link.getAction())*10000;
         break;
         
     case LINKHELD:
