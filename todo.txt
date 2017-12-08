@@ -1,5 +1,10 @@
 To-Do
 
+Tooltips for all new stuff. Try to improve extant tooltips
+and provide tooltip chains.
+
+Subscreen scrolling speed variable. 
+
 Datatypes:
 rgbdata
 palette
