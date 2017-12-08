@@ -94,6 +94,11 @@ byte FF_msg_speed;
 byte FF_transition_type; // Can't edit, yet.
 byte FF_jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
 byte FF_link_swim_speed;
+
+byte subscreen_scroll_speed;
+
+void setSubscreenScrollSpeed(byte n);
+int getSubscreenScrollSpeed();
     
 byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
 				//so that they do not play every time an item is collected, unless one of the flags is set for it.

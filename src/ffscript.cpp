@@ -15090,6 +15090,7 @@ void FFScript::init()
 	{
 		FF_UserMidis[q] = 0;
 	}
+	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 }
 
 
@@ -15099,7 +15100,15 @@ void FFScript::SetFFEngineFlag(int flag, bool state)
 	else coreflags &= ~flag;
 }
 
+void FFScript::setSubscreenScrollSpeed(byte n)
+{
+	subscreen_scroll_speed = n;
+}
 
+int FFScript::getSubscreenScrollSpeed()
+{
+	return (int)subscreen_scroll_speed;
+}
 /*
 void FFScript::init()
 {
