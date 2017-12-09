@@ -12588,6 +12588,27 @@ int run_script(const byte type, const word script, const byte i)
         case TRACE2R:
             do_tracebool(false);
             break;
+	
+	//Zap and Wavy Effects
+	case FXWAVYR:
+	    FFCore.do_fx_wavy(false);
+	    break;
+	case FXZAPR:
+	    FFCore.do_fx_zap(false);
+	    break;
+	//Zap and Wavy Effects
+	case FXWAVYV:
+	    FFCore.do_fx_wavy(true);
+	    break;
+	case FXZAPV:
+	    FFCore.do_fx_zap(true);
+	    break;
+	case GREYSCALER:
+		FFCore.do_greyscale(false);
+		break;
+	case GREYSCALEV:
+		FFCore.do_greyscale(true);
+		break;
             
         case TRACE2V:
             do_tracebool(true);
@@ -15108,6 +15129,27 @@ void FFScript::setSubscreenScrollSpeed(byte n)
 int FFScript::getSubscreenScrollSpeed()
 {
 	return (int)subscreen_scroll_speed;
+}
+
+void FFScript::do_greyscale(const bool v)
+{
+    bool on = (SH::get_arg(sarg1, v)) != 0;
+    setMonochrome(on);
+}
+void FFScript::do_fx_zap(const bool v)
+{
+    long out = SH::get_arg(sarg1, v);
+
+    if ( out ) { FFScript::do_zapout(); } 
+    else FFScript::do_zapin();
+}
+
+void FFScript::do_fx_wavy(const bool v)
+{
+    long out = SH::get_arg(sarg1, v);
+
+    if ( out ) { FFScript::do_wavyout(); } 
+    else FFScript::do_wavyin();
 }
 /*
 void FFScript::init()

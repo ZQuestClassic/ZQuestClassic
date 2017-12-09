@@ -3805,6 +3805,23 @@ string OSSetContinueString::toString()
     return "SETCONTINUESTRING " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
 }
 
+//Visual effects with one bool arg.
+
+string OWavyR::toString()
+{
+    return "FXWAVYR " + getArgument()->toString();
+}
+
+string OZapR::toString()
+{
+    return "FXZAPR " + getArgument()->toString();
+}
+
+string OGreyscaleR::toString()
+{
+    return "GREYSCALER " + getArgument()->toString();
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 int LinkTable::functionToLabel(int fid)

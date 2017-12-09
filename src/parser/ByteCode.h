@@ -6421,5 +6421,41 @@ public:
     }
 };
 
+//Visual effects with one bool input
+
+
+class OWavyR : public UnaryOpcode
+{
+public:
+    OWavyR(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OWavyR(a->clone());
+    }
+};
+
+class OZapR : public UnaryOpcode
+{
+public:
+    OZapR(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OZapR(a->clone());
+    }
+};
+
+class OGreyscaleR : public UnaryOpcode
+{
+public:
+    OGreyscaleR(Argument *A) : UnaryOpcode(A) {}
+    string toString();
+    Opcode *clone()
+    {
+        return new OGreyscaleR(a->clone());
+    }
+};
+
 #endif
 

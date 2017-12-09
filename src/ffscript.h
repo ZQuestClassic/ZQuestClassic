@@ -99,6 +99,9 @@ byte subscreen_scroll_speed;
 
 void setSubscreenScrollSpeed(byte n);
 int getSubscreenScrollSpeed();
+void do_fx_zap(const bool v);
+void do_fx_wavy(const bool v);
+void do_greyscale(const bool v);
     
 byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
 				//so that they do not play every time an item is collected, unless one of the flags is set for it.
@@ -1509,6 +1512,13 @@ enum ASM_DEFINE
 	ADJUSTSFXVOLUMEV,		
 	ADJUSTVOLUMER,		
 	ADJUSTVOLUMEV,	
+	
+	FXWAVYR,
+	FXWAVYV,
+	FXZAPR,
+	FXZAPV,
+	GREYSCALER,
+	GREYSCALEV,
 		
 	NUMCOMMANDS           //0x013B
 };

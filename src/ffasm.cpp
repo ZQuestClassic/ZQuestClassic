@@ -685,6 +685,15 @@ script_command command_list[NUMCOMMANDS+1]=
     
     { "ADJUSTVOLUMER",          1,   0,   0,   0},
     { "ADJUSTVOLUMEV",          1,   1,   0,   0},
+    
+    { "FXWAVYR",             1,   0,   0,   0},
+    { "FXWAVYV",             1,   1,   0,   0},
+    
+    { "FXZAPR",             1,   0,   0,   0},
+    { "FXZAPV",             1,   1,   0,   0},
+    
+    { "GREYSCALER",             1,   0,   0,   0},
+    { "GREYSCALEV",             1,   1,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 
