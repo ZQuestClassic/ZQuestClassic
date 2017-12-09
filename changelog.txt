@@ -1,8 +1,19 @@
 //2.54 Changes
 
 //Alpha 21
-Link.cpp now sets script-engine only actions. Reading Link->Action reads these
-rather than the actual, internal 'action' variable. 
+Added Graphics->Wavy(bool), Zap(bool), Greyscale(bool).
+These replace Screen->WavyIn(), WavyOut(), ZapIn(), ZapOut()
+GreyscaleOn(), and GreyscaleOff(). 
+
+Added Link->Pushing. This returns the number of frames for which Link has been 
+walking in place, pushing on a solid object.
+	Note: I decided that this was better than hacking
+	a real pushing action in, or adding a fake action, as the latter would conflict
+	with existing scripts that use LA_WALKING for /n/ frames, to determine if
+	Link is walking in place, and thus, pushing on an object.
+	Link.cpp now sets script-engine only actions. Reading Link->Action reads these
+	rather than the actual, internal 'action' variable. 
+		( ZoriaRPG, 9th December, 2017 )
 	This allows setting actions arbitrarily in Link.cpp to give scripts more useful access,
 	or adding arbitrary script actions, without affecting the hardcoded action stuff and 
 	general frame timing. 

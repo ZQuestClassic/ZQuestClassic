@@ -9,7 +9,6 @@ Datatypes:
 rgbdata
 palette
 
-Link->Pushing
 Enemy flag to block brangs if the npc is already stunned.
 ...or just a defence type, stun(no stunlock). 
 Add magic powder, and an npc var: transform.
@@ -94,6 +93,10 @@ Combo editor types lists
 lw->, ew->, npc->Scale : Scale sprites and hitboxes around a specific value.
 
 //Done (Probably)
+->GreyscaleOn() and GreyscaleOff() should be Greyscale(bool on)
+->WavyIn, WavyOut, ZapIn(), and ZapOut() shoul dbe Way(bool out), and Zap(bool out)
+
+Link->Pushing
 New ZScript Vars, Functions, and Types
 ZDefs merge
 Quest Loading Code
