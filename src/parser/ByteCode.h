@@ -931,10 +931,12 @@ using namespace std;
 #define ITEMPSTRING 		875	//word
 #define ITEMPSTRINGFLAGS 	876	//word
 #define ITEMOVERRIDEFLAGS 	877	//long
+
+#define LINKPUSH 		878	
 //#define DMAPDATAGRAVITY 	871	//unimplemented
 //#define DMAPDATAJUMPLAYER 	872	//unimplemented
 
-#define LAST_BYTECODE 			878
+#define LAST_BYTECODE 			879
 
 //END OF BYTECODE
 

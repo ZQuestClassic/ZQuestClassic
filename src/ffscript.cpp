@@ -1317,9 +1317,9 @@ long get_register(const long arg)
     case LINKEATEN:
 	ret=(int)Link.getEaten()*10000;
 	break;
-    //case LINKPUSH:
-//	ret=(int)Link.getPushing()*10000;
-//	break;
+    case LINKPUSH:
+	ret=(int)Link.getPushing()*10000;
+	break;
     case LINKSCRIPTTILE:
 	ret=script_link_sprite*10000;
 	break;

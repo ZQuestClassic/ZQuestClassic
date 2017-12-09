@@ -2527,11 +2527,12 @@ enum ASM_DEFINE
 #define ITEMPSTRING			0x12B0
 #define ITEMPSTRINGFLAGS		0x12B1
 #define ITEMOVERRIDEFLAGS		0x12B2
+#define LINKPUSH		0x12B3
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x12B3
+#define NUMVARIABLES         0x12B4
 
 // Script types
 

@@ -1533,6 +1533,9 @@ string VarArgument::toString()
 	case ITEMPSTRING: return "ITEMPSTRING";
 	case ITEMPSTRINGFLAGS: return "ITEMPSTRINGFLAGS";
 	case ITEMOVERRIDEFLAGS: return "ITEMOVERRIDEFLAGS";
+	
+	
+	case LINKPUSH: return "LINKPUSH";
 //	case DMAPDATAGRAVITY: return "DMAPDATAGRAVITY";
 //	case DMAPDATAJUMPLAYER: return "DMAPDATAJUMPLAYER";
     default:
