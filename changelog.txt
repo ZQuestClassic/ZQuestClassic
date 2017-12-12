@@ -1,6 +1,11 @@
 //2.54 Changes
 
 //Alpha 21
+Added a 32-index array of questmisc[] to the misc struct.
+	This is to be used in quest Init Data, to set up global quest
+	values for use by scripts. The Init Data dialogue is not yet done,
+	but the ZScript interface is, under Game->Misc[32].
+Added  char questmisc_strings[32][128] to store the user-defined names of each of the Game->Misc[] fields.
 Added subscreen counters Life, Max Life, Magic, Max Magic. ( ZoriaRPG, 12th December, 2017 )
 Added Graphics->Wavy(bool), Zap(bool), Greyscale(bool).
 These replace Screen->WavyIn(), WavyOut(), ZapIn(), ZapOut()
