@@ -500,6 +500,9 @@ string VarArgument::toString()
         
     case GAMEGENERICD:
         return "GAMEGENERICD";
+    
+    case GAMEMISC:
+        return "GAMEMISC";
         
     case GAMEITEMSD:
         return "GAMEITEMSD";

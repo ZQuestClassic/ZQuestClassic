@@ -2538,6 +2538,7 @@ enum ASM_DEFINE
 #define ITEMPSTRINGFLAGS		0x12B1
 #define ITEMOVERRIDEFLAGS		0x12B2
 #define LINKPUSH		0x12B3
+#define GAMEMISC		0x12B4 //long
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars

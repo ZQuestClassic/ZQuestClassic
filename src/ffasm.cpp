@@ -816,6 +816,7 @@ script_variable variable_list[]=
     { "GAMEMCOUNTERD",     GAMEMCOUNTERD,        0,             0 },
     { "GAMEDCOUNTERD",     GAMEDCOUNTERD,        0,             0 },
     { "GAMEGENERICD",      GAMEGENERICD,         0,             0 },
+    { "GAMEMISC",      GAMEMISC,         0,             0 },
     { "GAMEITEMSD",        GAMEITEMSD,           0,             0 },
     { "GAMELITEMSD",       GAMELITEMSD,          0,             0 },
     { "GAMELKEYSD",        GAMELKEYSD,           0,             0 },

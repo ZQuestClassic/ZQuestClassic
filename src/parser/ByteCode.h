@@ -1,3 +1,4 @@
+
 #ifndef BYTECODE_H //2.53 Updated to 16th Jan, 2017
 #define BYTECODE_H
 
@@ -933,10 +934,11 @@ using namespace std;
 #define ITEMOVERRIDEFLAGS 	877	//long
 
 #define LINKPUSH 		878	
+#define GAMEMISC 		879	//long
 //#define DMAPDATAGRAVITY 	871	//unimplemented
 //#define DMAPDATAJUMPLAYER 	872	//unimplemented
 
-#define LAST_BYTECODE 			879
+#define LAST_BYTECODE 			880
 
 //END OF BYTECODE
 

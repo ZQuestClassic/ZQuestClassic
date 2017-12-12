@@ -7136,6 +7136,18 @@ int writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
                 }
             }
         }
+	//V_MISC >= 9
+	for ( int q = 0; q < 32; q++ ) 
+	{
+		if(!p_iputl(Misc->questmisc[q],f))
+                    new_return(21);
+	}
+	for ( int q = 0; q < 32; q++ ) 
+	{
+		for ( int j = 0; j < 128; j++ )
+		if(!p_putc(Misc->questmisc_strings[q][j],f))
+                     new_return(22);
+	}
 	
         
         if(writecycle==0)

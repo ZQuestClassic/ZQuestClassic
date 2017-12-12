@@ -3100,6 +3100,21 @@ long get_register(const long arg)
     case GAMEGENERICD:
         ret=game->get_generic((ri->d[0])/10000)*10000;
         break;
+    
+    case GAMEMISC:
+    {
+	int indx = ri->d[0]/10000;
+	if ( indx < 0 || indx > 31 )
+	{
+		ret = -10000;
+		Z_scripterrlog("Invalud index used to access Game->Misc: %d\n", indx);
+	}
+	else
+	{
+		ret = misc->questmisc[indx] * 10000;
+	}
+	break;
+    }
         
     case GAMEITEMSD:
         ret=(game->item[(ri->d[0])/10000] ? 10000 : 0);
@@ -7386,7 +7401,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case GAMEGENERICD:
         game->set_generic(value/10000, (ri->d[0])/10000);
         break;
-        
+    case GAMEMISC:
+    {
+	int indx = ri->d[0]/10000/10000;
+	if ( indx < 0 || indx > 31 )
+	{
+		Z_scripterrlog("Invalud index used to access Game->Misc: %d\n", indx);
+	}
+	else 
+	{
+		misc->questmisc[indx] = value;
+	}
+	break;
+    }
     case GAMEITEMSD:
         game->set_item((ri->d[0])/10000,(value!=0));
         break;

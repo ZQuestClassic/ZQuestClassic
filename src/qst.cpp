@@ -4654,6 +4654,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
     }
     //shops v8
     
+    
     if(s_version >= 8)
     {
 	for(int i=0; i<shops; i++)
@@ -4664,6 +4665,25 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
                     return qe_invalid;
             }
         }
+    }
+    
+    memset(&temp_misc.questmisc, 0, sizeof(long)*32);
+    memset(&temp_misc.questmisc_strings, 0, sizeof(char)*4096);
+    
+    //v9 includes quest misc[32]
+    if(s_version >= 9)
+    {
+	for ( int q = 0; q < 32; q++ ) 
+	{
+		if(!p_igetl(&temp_misc.questmisc[q],f,true))
+                    return qe_invalid;
+	}
+	for ( int q = 0; q < 32; q++ ) 
+	{
+		for ( int j = 0; j < 128; j++ )
+		if(!p_getc(&temp_misc.questmisc_strings[q][j],f,true))
+                    return qe_invalid;
+	}
     }
     
     if(keepdata==true)

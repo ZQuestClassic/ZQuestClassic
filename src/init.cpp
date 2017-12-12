@@ -892,6 +892,8 @@ void initPopulate(int &i, DIALOG_PROC Proc, int X, int Y, int W, int H, int FG, 
 
 static ListData dmap_list(dmaplist, &font);
 
+//InitData
+
 void PopulateInitDialog()
 {
     int i=0;
@@ -1629,6 +1631,7 @@ const char *item_class_list(int index, int *list_size)
     return biic[index].s;
 }
 
+//InitData store values. -Z
 
 int doInit(zinitdata *local_zinit)
 {
@@ -1712,6 +1715,8 @@ int doInit(zinitdata *local_zinit)
     sprintf(arrowstring, "%d", local_zinit->arrows);
     sprintf(maxarrowstring, "%d", local_zinit->max_arrows);
     
+    
+    //This is the format for storing values into Init Data. -Z
     init_dlg[109].dp=bombstring;
     init_dlg[110].dp=maxbombstring;
     init_dlg[115].dp=sbombstring;
