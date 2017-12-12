@@ -1193,9 +1193,15 @@ long get_register(const long arg)
         break;
         
     case LINKACTION:
+    {
+	//Z_scripterrlog("The present FFCore action is: %d\n", FFCore.getLinkAction());
+	//int act = FFCore.getLinkAction() * 10000;
 	ret = FFCore.getLinkAction() * 10000;
+	//Z_scripterrlog("The present 'action' return value is: %d\n", act);
+	//ret = act;
         //ret=(int)(Link.getAction())*10000;
         break;
+    }
         
     case LINKHELD:
         ret = (int)(Link.getHeldItem())*10000;
