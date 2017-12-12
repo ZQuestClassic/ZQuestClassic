@@ -2539,11 +2539,12 @@ enum ASM_DEFINE
 #define ITEMOVERRIDEFLAGS		0x12B2
 #define LINKPUSH		0x12B3
 #define GAMEMISC		0x12B4 //long
+#define LINKSTUN		0x12B5 //int (32b)
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x12B4
+#define NUMVARIABLES         0x12B6
 
 // Script types
 

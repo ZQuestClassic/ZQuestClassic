@@ -208,16 +208,17 @@ class LinkClass : public sprite
         stepoutdmap, // which dmap the passageway exits to
         stepoutscr, // which screen the passageway exits to
         slashxofs, slashyofs; // used by positionSword() and draw()
-    byte skipstep,lstep,
-         hopclk, // hopping into water timeout.
-         diveclk, // diving timeout.
-         whirlwind, // is Link inside an arriving whirlwind? (yes = 255)
-         specialcave, // is Link inside a special cave?
-         hitdir, // direction from which damage was taken.
-         ladderdir, // direction of ladder
-         lastdir[4], // used in Maze Path screens
-         ladderstart, // starting direction of ladder...?
-         inlikelike; // 1 = Like Like. 2 = Taking damage while trapped
+	byte skipstep,lstep,
+	hopclk, // hopping into water timeout.
+	diveclk, // diving timeout.
+	whirlwind, // is Link inside an arriving whirlwind? (yes = 255)
+	specialcave, // is Link inside a special cave?
+	hitdir, // direction from which damage was taken.
+	ladderdir, // direction of ladder
+	lastdir[4], // used in Maze Path screens
+	ladderstart, // starting direction of ladder...?
+	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
+	link_is_stuned; //scripted stun from weapons; possibly for later eweapon effects in the future. 
     int shiftdir; // shift direction when walking into corners of solid combos
     int sdir; // scrolling direction
     int hopdir;  // direction to hop out of water (diagonal movement only)
@@ -225,7 +226,7 @@ class LinkClass : public sprite
     int landswim; // incremental time spent swimming against land
     bool ilswim; // is land swimming?
     bool walkable;
-    actiontype action; // current action
+    actiontype action, tempaction; // current action, cached action.
     int hshandle_id, hshead_id;
     byte conveyor_flags;
     fix climb_cover_x, climb_cover_y;
@@ -315,6 +316,8 @@ public:
     void checkitems(int index = -1);
     int DrunkClock();
     void setDrunkClock(int newdrunkclk);
+    int StunClock();
+    void setStunClock(int v);
     void setEntryPoints(int x, int y);
     LinkClass();
     void init();

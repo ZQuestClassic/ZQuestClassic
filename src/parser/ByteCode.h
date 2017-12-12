@@ -935,10 +935,11 @@ using namespace std;
 
 #define LINKPUSH 		878	
 #define GAMEMISC 		879	//long
+#define LINKSTUN 		880	//int (32b)
 //#define DMAPDATAGRAVITY 	871	//unimplemented
 //#define DMAPDATAJUMPLAYER 	872	//unimplemented
 
-#define LAST_BYTECODE 			880
+#define LAST_BYTECODE 			881
 
 //END OF BYTECODE
 

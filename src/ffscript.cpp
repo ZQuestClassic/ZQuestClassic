@@ -1320,6 +1320,9 @@ long get_register(const long arg)
     case LINKPUSH:
 	ret=(int)Link.getPushing()*10000;
 	break;
+    case LINKSTUN:
+	ret=(int)Link.StunClock()*10000;
+	break;
     case LINKSCRIPTTILE:
 	ret=script_link_sprite*10000;
 	break;
@@ -5489,6 +5492,9 @@ void set_register(const long arg, const long value)
 
       case LINKEATEN:
 	Link.setEaten(value/10000);
+	break;
+      case LINKSTUN:
+	Link.setStunClock(value/10000);
 	break;
       case LINKSCRIPTTILE:
 	script_link_sprite=(value/10000);

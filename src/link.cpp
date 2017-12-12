@@ -76,6 +76,15 @@ void LinkClass::setDrunkClock(int newdrunkclk)
     drunkclk=newdrunkclk;
 }
 
+int LinkClass::StunClock()
+{
+    return link_is_stuned;
+}
+void LinkClass::setStunClock(int v)
+{
+    link_is_stuned=v;
+}
+
 LinkClass::LinkClass() : sprite()
 {
     init();
@@ -733,7 +742,7 @@ void LinkClass::init()
     attackclk=holdclk=hoverclk=jumping=0;
     attack=wNone;
     attackid=-1;
-    action=none; FFCore.setLinkAction(none);
+    action=none; FFCore.setLinkAction(none); tempaction=none;
     xofs=0;
     yofs=playing_field_offset;
     cs=6;
@@ -747,6 +756,7 @@ void LinkClass::init()
     hopdir=-1;
     conveyor_flags=0;
     drunkclk=0;
+    link_is_stuned = 0;
     drawstyle=3;
     ffwarp = false;
     stepoutindex=stepoutwr=stepoutdmap=stepoutscr=0;
@@ -3924,6 +3934,31 @@ bool LinkClass::animate(int)
         --drunkclk;
     }
     
+    if(link_is_stuned > 0)
+    {
+	    actiontype lastaction = action; //cache the last action so that we can compare against it
+	    
+	    if( lastaction != freeze )  //stun sets freeze, so we only want to store a tempaction that was not freeze
+	    {
+		    tempaction=lastaction; //update so future checks won't do this
+		    //action=freeze; //setting this somehow makes the FFCore link action 'swimming' ?!
+		    FFCore.setLinkAction(stunned);
+		    Z_scripterrlog("The stunned action is: %d", (int)stunned);
+		    Z_scripterrlog("The present FFCore action is: %d", FFCore.getLinkAction());
+	    }
+	    --link_is_stuned;
+    }
+    //if the stun action is still set in FFCore, but he isn't stunned, then the timer reached 0
+    //, so we unfreeze him here, and return him to the action that he had when he was stunned. 
+    if ( FFCore.getLinkAction() == stunned && !link_is_stuned )
+    {
+	//action=tempaction; FFCore.setLinkAction(tempaction);
+	     Z_scripterrlog("Unfreezing link to action: %d", (int)action);
+       
+	action=none; FFCore.setLinkAction(none);
+	    
+    }
+    
     if(!is_on_conveyor && !diagonalMovement && (fall==0 || z>0) && charging==0 && spins<=5
             && action != gothit)
     {
@@ -4139,6 +4174,7 @@ bool LinkClass::animate(int)
         if(false == (last_hurrah = !last_hurrah))
         {
             drunkclk=0;
+	    link_is_stuned = 0;
 	    FFCore.setLinkAction(dying);
             gameover();
             
