@@ -145,7 +145,7 @@ enum { sscRUPEES, sscBOMBS, sscSBOMBS, sscARROWS,
        sscSCRIPT11, sscSCRIPT12, sscSCRIPT13, sscSCRIPT14,
        sscSCRIPT15, sscSCRIPT16, sscSCRIPT17, sscSCRIPT18,
        sscSCRIPT19, sscSCRIPT20, sscSCRIPT21, sscSCRIPT22,
-       sscSCRIPT23, sscSCRIPT24, sscSCRIPT25, sscMAX
+       sscSCRIPT23, sscSCRIPT24, sscSCRIPT25, sscLIFE, sscMAGIC, sscMAXHP, sscMAXMP, sscMAX
      };
 
 

@@ -4066,6 +4066,28 @@ void counter(BITMAP *dest, int x, int y, FONT *tempfont, int color, int shadowco
         break;
     }
     
+    case sscLIFE:
+    {
+	value+=game->get_life();
+        break;
+    }
+    case sscMAGIC:
+    {
+	value+=game->get_magic();
+        break;
+    }
+    
+    case sscMAXHP:
+    {
+	value+=game->get_maxlife();
+        break;
+    }
+    case sscMAXMP:
+    {
+	value+=game->get_maxmagic();
+        break;
+    }
+    
     case sscARROWS:
         if((!get_bit(quest_rules,qr_TRUEARROWS) && current_item_power(itype_wallet)) || current_item_power(itype_quiver))
             infinite=true;
