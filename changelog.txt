@@ -1,6 +1,7 @@
 //2.54 Changes
 
 //Alpha 21
+Added subscreen counters Life, Max Life, Magic, Max Magic. ( ZoriaRPG, 12th December, 2017 )
 Added Graphics->Wavy(bool), Zap(bool), Greyscale(bool).
 These replace Screen->WavyIn(), WavyOut(), ZapIn(), ZapOut()
 GreyscaleOn(), and GreyscaleOff(). 
