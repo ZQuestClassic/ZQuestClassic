@@ -1,5 +1,8 @@
 To-Do
 
+FFCore ButtonRules: A (use item), B (use item), 
+	L (inventory left), R (inventory right)
+	Disable / enable by script.
 Tooltips for all new stuff. Try to improve extant tooltips
 and provide tooltip chains.
 
