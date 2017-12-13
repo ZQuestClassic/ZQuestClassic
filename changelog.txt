@@ -1,7 +1,7 @@
 //2.54 Changes
 
 //Alpha 21
-Added Link->Stun
+Added Link->Stun (When Link is stunned he cannot move, or attack, but he can change direction)
 Added a 32-index array of questmisc[] to the misc struct.
 	This is to be used in quest Init Data, to set up global quest
 	values for use by scripts. The Init Data dialogue is not yet done,
