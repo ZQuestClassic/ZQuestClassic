@@ -1,5 +1,7 @@
 To-Do
 
+Extra dropsets: stun dropset, frozen dropset.
+
 FFCore ButtonRules: A (use item), B (use item), 
 	L (inventory left), R (inventory right)
 	Disable / enable by script.
