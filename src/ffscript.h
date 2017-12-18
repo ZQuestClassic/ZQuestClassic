@@ -466,7 +466,8 @@ enum ASM_DEFINE
 #define UNUSED101            0x02B6
 #define UNUSED102            0x02B7
 #define UNUSED103            0x02B8
-#define UNUSED104            0x02B9
+
+#define ZELDAVERSION            0x02B9
 
 #define NPCX                 0x02BA
 #define NPCY                 0x02BB

@@ -408,7 +408,9 @@ string VarArgument::toString()
         
     case GAMECHEAT:
         return "GAMECHEAT";
-        
+    
+    case ZELDAVERSION:
+	return "ZELDAVERSION";
     case GAMETIME:
         return "GAMETIME";
         

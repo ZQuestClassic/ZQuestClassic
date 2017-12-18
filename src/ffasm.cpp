@@ -614,6 +614,8 @@ script_variable variable_list[]=
     { "UNDERCSET",          UNDERCSET,           0,             0 },
     { "DMAPOFFSET",         DMAPOFFSET,          0,             0 },
     { "DMAPMAP",            DMAPMAP,             0,             0 },
+    { "ZELDAVERSION",         ZELDAVERSION,            0,             0 },
+	
     { " ",                       -1,             0,             0 }
 };
 
