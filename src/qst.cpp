@@ -11622,6 +11622,21 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
                 temp_combo.animflags = temp_combo.animflags ? AF_FRESH : 0;
         }
         
+	if(section_version>=8) //combo Attributes[4] and userflags.
+	{
+		for ( int q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+		{
+		    if(!p_igetl(&temp_combo.attributes[q],f,true))
+		    {
+			return qe_invalid;
+		    }
+		}
+		if(!p_igetl(&temp_combo.usrflags,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	
         if(version < 0x193)
         {
             for(int q=0; q<11; q++)
@@ -11754,6 +11769,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
             combo_aliases[j].csets[0] = 0;
         }
     }
+    
     
     setup_combo_animations();
     setup_combo_animations2();

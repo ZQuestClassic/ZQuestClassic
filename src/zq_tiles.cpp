@@ -11105,10 +11105,42 @@ int click_d_combo_proc();
 
 static ListData flag_list(flaglist, &font);
 
+static int combo_data_list[] =
+{
+    // dialog control number
+    2,3,4,
+	5,6,7,8,9,10,11,12,13,
+	14,
+	15,16,17,18,19,20,21,22,23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, -1
+};
+
+static int combo_attributes_list[] =
+{
+    // dialog control number
+     45,46,-1
+};
+
+static TABPANEL combo_tabs[] =
+{
+    // (text)
+    { (char *)"Data",         D_SELECTED,    combo_data_list,         0, NULL },
+    { (char *)"Attributes",          0,             combo_attributes_list,           0, NULL },
+
+    { NULL,                   0,             NULL,                        0, NULL }
+};
+
 static DIALOG combo_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     54,   21,   241,  184,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
+    { jwin_win_proc,     31,   11,   261,  195,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
+    //{  jwin_win_proc,                        0,      0,    320,    240,    vc(14),                 vc(1),                   0,    D_EXIT,     0,          0, NULL,         NULL,   NULL                   },
+    
+   // { d_timer_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_tab_proc,            35,     26,    254,    177,    0,                      0,                       0,       0,           0,    0, (void *) combo_tabs,                         NULL, (void *)combo_dlg  },
+  //{  jwin_tab_proc,               1,     25,    312,    220,    0,                      0,                       0,    0,          0,  0, (void *) combo_tabs,          NULL, (void *)combo_dlg   },
+    
+    //These are causing a crash, and I am not in the mood to figure out why today. -Z
+    //2
     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
@@ -11116,25 +11148,25 @@ static DIALOG combo_dlg[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'v',     0,          0,             0, (void *) onCmb_dlg_v, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      'r',     0,          0,             0, (void *) onCmb_dlg_r, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      't',     0,          0,             0, (void *) click_d_ctile_proc, NULL, NULL },
-    // 8
+    // 9
     { d_combo_loader,    60,   48,   0,    0,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       NULL, NULL, NULL },
     { d_comboframe_proc,   158,  46,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
     { d_combo_proc,    160,  48,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_ctile_proc,      160,  48,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { jwin_numedit_proc, 102+5,  68,   21,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    // 13
+    // 14
     { d_comboframe_proc,   190,  46,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
     { d_wflag_proc,      192,  48,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
     { d_wflag_proc,      192,  56,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
     { d_wflag_proc,      200,  48,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
     { d_wflag_proc,      200,  56,   8,    8,    vc(12),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    // 18
+    // 19
     { d_comboframe_proc,   222,  46,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
     { d_wflag_proc,      224,  48,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
     { d_wflag_proc,      232,  48,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
     { d_wflag_proc,      224,  56,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
     { d_wflag_proc,      232,  56,   8,    8,    vc(11),  vc(7),  0,       0,          0,             1,       NULL, NULL, NULL },
-    // 23
+    // 24
     { jwin_text_proc,       60,   126,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Type:", NULL, NULL },
     { jwin_droplist_proc,   89,   122,  180,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       60,   90,   72,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          2,             0, (void *) "A.Frames:", NULL, NULL },
@@ -11142,7 +11174,7 @@ static DIALOG combo_dlg[] =
     { jwin_numedit_proc,   102+5,  86,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
     { jwin_numedit_proc,   102+5,  104,   26,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       192,  71,   40,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Cycle:", NULL, NULL },
-    // 30
+    // 31
     { d_comboframe_proc,   190,  79,   20,   20,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
     { d_combo_proc,    192,  81,   16,   16,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       60,   144,  48,   8,    jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) "Flag:", NULL, NULL },
@@ -11155,9 +11187,14 @@ static DIALOG combo_dlg[] =
     { jwin_check_proc,       60,   160,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Refresh Animation on Room Entry", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { jwin_check_proc,       60,   169,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Restart Animation when Cycled To", NULL, NULL },
-    // 42
+    // 43
     { jwin_button_proc,     271,  125,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
     { jwin_button_proc,     271,  143,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
+    //Attributes tab
+    //45
+    { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -11181,13 +11218,13 @@ int onCmb_dlg_h()
 {
     curr_combo.flip^=1;
     
-    zc_swap(combo_dlg[14].flags, combo_dlg[16].flags);
     zc_swap(combo_dlg[15].flags, combo_dlg[17].flags);
-    zc_swap(combo_dlg[19].flags, combo_dlg[20].flags);
-    zc_swap(combo_dlg[21].flags, combo_dlg[22].flags);
+    zc_swap(combo_dlg[16].flags, combo_dlg[18].flags);
+    zc_swap(combo_dlg[20].flags, combo_dlg[21].flags);
+    zc_swap(combo_dlg[22].flags, combo_dlg[23].flags);
     
     for(int i=0; i<4; i++)
-        if(combo_dlg[i+14].flags & D_SELECTED)
+        if(combo_dlg[i+15].flags & D_SELECTED)
             curr_combo.walk |= 1<<i;
         else
             curr_combo.walk &= ~(1<<i);
@@ -11195,7 +11232,7 @@ int onCmb_dlg_h()
     curr_combo.csets &= 15;
     
     for(int i=0; i<4; i++)
-        if(combo_dlg[i+19].flags & D_SELECTED)
+        if(combo_dlg[i+20].flags & D_SELECTED)
             curr_combo.csets |= 16<<i;
             
     return D_REDRAW;
@@ -11205,13 +11242,13 @@ int onCmb_dlg_v()
 {
     curr_combo.flip^=2;
     
-    zc_swap(combo_dlg[14].flags, combo_dlg[15].flags);
-    zc_swap(combo_dlg[16].flags, combo_dlg[17].flags);
-    zc_swap(combo_dlg[19].flags, combo_dlg[21].flags);
+    zc_swap(combo_dlg[15].flags, combo_dlg[16].flags);
+    zc_swap(combo_dlg[17].flags, combo_dlg[18].flags);
     zc_swap(combo_dlg[20].flags, combo_dlg[22].flags);
+    zc_swap(combo_dlg[21].flags, combo_dlg[23].flags);
     
     for(int i=0; i<4; i++)
-        if(combo_dlg[i+14].flags & D_SELECTED)
+        if(combo_dlg[i+15].flags & D_SELECTED)
             curr_combo.walk |= 1<<i;
         else
             curr_combo.walk &= ~(1<<i);
@@ -11219,7 +11256,7 @@ int onCmb_dlg_v()
     curr_combo.csets &= 15;
     
     for(int i=0; i<4; i++)
-        if(combo_dlg[i+19].flags & D_SELECTED)
+        if(combo_dlg[i+20].flags & D_SELECTED)
             curr_combo.csets |= 16<<i;
             
     return D_REDRAW;
@@ -11229,15 +11266,15 @@ int onCmb_dlg_r()
 {
     curr_combo.flip=rotate_value(curr_combo.flip);
     
-    zc_swap(combo_dlg[14].flags, combo_dlg[16].flags);
-    zc_swap(combo_dlg[14].flags, combo_dlg[17].flags);
-    zc_swap(combo_dlg[14].flags, combo_dlg[15].flags);
-    zc_swap(combo_dlg[19].flags, combo_dlg[20].flags);
-    zc_swap(combo_dlg[19].flags, combo_dlg[22].flags);
-    zc_swap(combo_dlg[19].flags, combo_dlg[21].flags);
+    zc_swap(combo_dlg[15].flags, combo_dlg[17].flags);
+    zc_swap(combo_dlg[15].flags, combo_dlg[18].flags);
+    zc_swap(combo_dlg[15].flags, combo_dlg[16].flags);
+    zc_swap(combo_dlg[20].flags, combo_dlg[21].flags);
+    zc_swap(combo_dlg[20].flags, combo_dlg[23].flags);
+    zc_swap(combo_dlg[20].flags, combo_dlg[22].flags);
     
     for(int i=0; i<4; i++)
-        if(combo_dlg[i+14].flags & D_SELECTED)
+        if(combo_dlg[i+15].flags & D_SELECTED)
             curr_combo.walk |= 1<<i;
         else
             curr_combo.walk &= ~(1<<i);
@@ -11245,7 +11282,7 @@ int onCmb_dlg_r()
     curr_combo.csets &= 15;
     
     for(int i=0; i<4; i++)
-        if(combo_dlg[i+19].flags & D_SELECTED)
+        if(combo_dlg[i+20].flags & D_SELECTED)
             curr_combo.csets |= 16<<i;
             
     return D_REDRAW;
@@ -11274,8 +11311,8 @@ bool edit_combo(int c,bool freshen,int cs)
     char skipy[8];
     char combonumstr[25];
     
-    combo_dlg[10].d1 = -1;
-    combo_dlg[10].fg = cs;
+    combo_dlg[11].d1 = -1;
+    combo_dlg[11].fg = cs;
     
     char csets = curr_combo.csets & 15;
     
@@ -11290,29 +11327,29 @@ bool edit_combo(int c,bool freshen,int cs)
     sprintf(spd,"%d",curr_combo.speed);
     sprintf(skip,"%d",curr_combo.skipanim);
     sprintf(skipy,"%d",curr_combo.skipanimy);
-    combo_dlg[12].dp = cset_str;
+    combo_dlg[13].dp = cset_str;
     
     for(int i=0; i<4; i++)
     {
-        combo_dlg[i+14].flags = curr_combo.walk&(1<<i) ? D_SELECTED : 0;
+        combo_dlg[i+15].flags = curr_combo.walk&(1<<i) ? D_SELECTED : 0;
     }
     
     for(int i=0; i<4; i++)
     {
-        combo_dlg[i+19].flags = curr_combo.csets&(16<<i) ? D_SELECTED : 0;
+        combo_dlg[i+20].flags = curr_combo.csets&(16<<i) ? D_SELECTED : 0;
     }
     
     combo_dlg[0].dp = combonumstr;
-    combo_dlg[27].dp = frm;
-    combo_dlg[28].dp = spd;
-    combo_dlg[31].d1 = curr_combo.nextcombo;
-    combo_dlg[31].fg = curr_combo.nextcset;
-    combo_dlg[33].d1 = curr_combo.flag;
-    combo_dlg[36].dp = skip;
-    combo_dlg[38].dp = skipy;
+    combo_dlg[28].dp = frm;
+    combo_dlg[29].dp = spd;
+    combo_dlg[32].d1 = curr_combo.nextcombo;
+    combo_dlg[32].fg = curr_combo.nextcset;
+    combo_dlg[34].d1 = curr_combo.flag;
+    combo_dlg[37].dp = skip;
+    combo_dlg[39].dp = skipy;
     
-    combo_dlg[39].flags = (curr_combo.animflags & AF_FRESH) ? D_SELECTED : 0;
-    combo_dlg[41].flags = (curr_combo.animflags & AF_CYCLE) ? D_SELECTED : 0;
+    combo_dlg[40].flags = (curr_combo.animflags & AF_FRESH) ? D_SELECTED : 0;
+    combo_dlg[42].flags = (curr_combo.animflags & AF_CYCLE) ? D_SELECTED : 0;
     
     int index=0;
     
@@ -11324,8 +11361,8 @@ bool edit_combo(int c,bool freshen,int cs)
         }
     }
     
-    combo_dlg[24].d1 = index; //*
-    combo_dlg[24].dp = (void *) &combotype_list; //*
+    combo_dlg[25].d1 = index; //*
+    combo_dlg[25].dp = (void *) &combotype_list; //*
     //  combo_dlg[1].fg = cs;
     edit_combo_cset = cs;
     
@@ -11335,25 +11372,25 @@ bool edit_combo(int c,bool freshen,int cs)
         if(!combo_dlg[0].d1)
         {
             large_dialog(combo_dlg);
-            combo_dlg[11].w=32;
-            combo_dlg[11].h=32;
-            combo_dlg[14].x-=1;
-            combo_dlg[14].y-=1;
+            combo_dlg[12].w=32;
+            combo_dlg[12].h=32;
             combo_dlg[15].x-=1;
-            combo_dlg[15].y+=3;
-            combo_dlg[16].x+=3;
-            combo_dlg[16].y-=1;
+            combo_dlg[15].y-=1;
+            combo_dlg[16].x-=1;
+            combo_dlg[16].y+=3;
             combo_dlg[17].x+=3;
-            combo_dlg[17].y+=3;
+            combo_dlg[17].y-=1;
+            combo_dlg[18].x+=3;
+            combo_dlg[18].y+=3;
             
-            combo_dlg[19].x-=1;
-            combo_dlg[19].y-=1;
-            combo_dlg[21].x-=1;
-            combo_dlg[21].y+=3;
-            combo_dlg[20].x+=3;
+            combo_dlg[20].x-=1;
             combo_dlg[20].y-=1;
-            combo_dlg[22].x+=3;
+            combo_dlg[22].x-=1;
             combo_dlg[22].y+=3;
+            combo_dlg[21].x+=3;
+            combo_dlg[21].y-=1;
+            combo_dlg[23].x+=3;
+            combo_dlg[23].y+=3;
         }
     }
     
@@ -11364,9 +11401,9 @@ bool edit_combo(int c,bool freshen,int cs)
         ret=zc_popup_dialog(combo_dlg,4);
         
         if(ret==42)
-            ctype_help(bict[combo_dlg[24].d1].i);
+            ctype_help(bict[combo_dlg[25].d1].i);
         else if(ret==43)
-            cflag_help(combo_dlg[33].d1);
+            cflag_help(combo_dlg[34].d1);
     }
     while(ret == 42 || ret == 43);
     
@@ -11386,7 +11423,7 @@ bool edit_combo(int c,bool freshen,int cs)
         
         for(int i=0; i<4; i++)
         {
-            if(combo_dlg[i+14].flags & D_SELECTED)
+            if(combo_dlg[i+15].flags & D_SELECTED)
             {
                 curr_combo.walk |= 1<<i;
             }
@@ -11400,7 +11437,7 @@ bool edit_combo(int c,bool freshen,int cs)
         
         for(int i=0; i<4; i++)
         {
-            if(combo_dlg[i+19].flags & D_SELECTED)
+            if(combo_dlg[i+20].flags & D_SELECTED)
             {
                 curr_combo.csets |= 16<<i;
             }
@@ -11423,14 +11460,14 @@ bool edit_combo(int c,bool freshen,int cs)
         curr_combo.frames = vbound(atoi(frm),0,255); //bind to size of byte! -Z
         
         curr_combo.speed = vbound(atoi(spd),0,255);  //bind to size of byte! -Z
-        curr_combo.type = bict[combo_dlg[24].d1].i;
-        curr_combo.nextcombo = combo_dlg[31].d1;
-        curr_combo.nextcset = combo_dlg[31].fg;
-        curr_combo.flag = combo_dlg[33].d1;
+        curr_combo.type = bict[combo_dlg[25].d1].i;
+        curr_combo.nextcombo = combo_dlg[32].d1;
+        curr_combo.nextcset = combo_dlg[32].fg;
+        curr_combo.flag = combo_dlg[34].d1;
         
         curr_combo.animflags = 0;
-        curr_combo.animflags |= (combo_dlg[39].flags & D_SELECTED) ? AF_FRESH : 0;
-        curr_combo.animflags |= (combo_dlg[41].flags & D_SELECTED) ? AF_CYCLE : 0;
+        curr_combo.animflags |= (combo_dlg[40].flags & D_SELECTED) ? AF_FRESH : 0;
+        curr_combo.animflags |= (combo_dlg[42].flags & D_SELECTED) ? AF_CYCLE : 0;
         combobuf[c] = curr_combo;
     }
     

@@ -14624,6 +14624,8 @@ void FFScript::setNPCData_misc(int val)
 
 //Macros
 
+//Are these right? newcombo is *combo_class_buf and the others are *combobuf
+
 //Getters for ComboData 'Type' submembers. 
 #define GET_COMBODATA_TYPE_INT(member) \
 { \
