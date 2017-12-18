@@ -1,6 +1,8 @@
 //2.54 Changes
 
 //Alpha 21
+Added UI links to set the triggerflags[] and triggerlevel values from the Combo Editor. 
+Added combo vars long triggerflags[2] and long triggerlevel. 
 Finished the 'Attributes' tab of the Combo Editor. 
 Added mock-up 'Triggered by' (1) and (2) tabs for all weapon types, with a level requirement field. 
 Added mock-up 'Attributes' tab to the Combo Editor. (The fields are in place, but they do nothing.)
