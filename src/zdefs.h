@@ -948,11 +948,16 @@ enum
     wHookshot, wHSHandle, wHSChain, wSSparkle,
     // 24
     wFSparkle, wSmack, wPhantom, wCByrna,
+	//28
     wRefBeam, wStomp,
+	//30
     lwMax,
     // Dummy weapons - must be between lwMax and wEnemyWeapons!
+	//31
     wScript1, wScript2, wScript3, wScript4,
+	//35
     wScript5, wScript6, wScript7, wScript8,
+	//39
     wScript9, wScript10, wIce, //wSound // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
 	//wThrowRock, wPot //Thrown pot or rock -Z
 	//wLit //Lightning or Electric -Z
