@@ -11399,6 +11399,12 @@ bool edit_combo(int c,bool freshen,int cs)
     char spd[8];
     char skip[8];
     char skipy[8];
+    //Attributes[]
+    char attrib0[8];
+    char attrib1[8];
+    char attrib2[8];
+    char attrib3[8];
+    
     char combonumstr[25];
     
     combo_dlg[11].d1 = -1;
@@ -11417,6 +11423,12 @@ bool edit_combo(int c,bool freshen,int cs)
     sprintf(spd,"%d",curr_combo.speed);
     sprintf(skip,"%d",curr_combo.skipanim);
     sprintf(skipy,"%d",curr_combo.skipanimy);
+    //Attributes[]
+    sprintf(attrib0,"%d",curr_combo.attributes[0]);
+    sprintf(attrib1,"%d",curr_combo.attributes[1]);
+    sprintf(attrib2,"%d",curr_combo.attributes[2]);
+    sprintf(attrib3,"%d",curr_combo.attributes[3]);
+    
     combo_dlg[13].dp = cset_str;
     
     for(int i=0; i<4; i++)
@@ -11429,6 +11441,42 @@ bool edit_combo(int c,bool freshen,int cs)
         combo_dlg[i+20].flags = curr_combo.csets&(16<<i) ? D_SELECTED : 0;
     }
     
+    //userflags
+    combo_dlg[47].flags = curr_combo.usrflags&0x01 ? D_SELECTED : 0;
+    combo_dlg[48].flags = curr_combo.usrflags&0x02 ? D_SELECTED : 0;
+    combo_dlg[49].flags = curr_combo.usrflags&0x04 ? D_SELECTED : 0;
+    combo_dlg[50].flags = curr_combo.usrflags&0x08 ? D_SELECTED : 0;
+    combo_dlg[51].flags = curr_combo.usrflags&0x10 ? D_SELECTED : 0;
+    combo_dlg[52].flags = curr_combo.usrflags&0x20 ? D_SELECTED : 0;
+    combo_dlg[53].flags = curr_combo.usrflags&0x40 ? D_SELECTED : 0;
+    combo_dlg[54].flags = curr_combo.usrflags&0x80 ? D_SELECTED : 0;
+    /*
+    for(int i=0; i<8; i++)
+    {
+        combo_dlg[i+47].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
+    }
+    */
+    
+    /* item trigger flags
+    //userflags
+    for(int i=0; i<22; i++)
+    {
+    //starts at 63, through 85
+        combo_dlg[i+63].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
+    }
+    
+    //98 is the min level
+    
+    //then script weapons
+    for(int i=0; i<10; i++)
+    {
+    //starts at 100 through 109
+        combo_dlg[i+100].flags = curr_combo.usrflags&(1<<i) ? D_SELECTED : 0;
+    }
+    
+    //102 is the min level
+    */
+    
     combo_dlg[0].dp = combonumstr;
     combo_dlg[28].dp = frm;
     combo_dlg[29].dp = spd;
@@ -11440,6 +11488,13 @@ bool edit_combo(int c,bool freshen,int cs)
     
     combo_dlg[40].flags = (curr_combo.animflags & AF_FRESH) ? D_SELECTED : 0;
     combo_dlg[42].flags = (curr_combo.animflags & AF_CYCLE) ? D_SELECTED : 0;
+    
+    
+    //Attributes[]
+    combo_dlg[56].dp = attrib0;
+    combo_dlg[58].dp = attrib1;
+    combo_dlg[60].dp = attrib2;
+    combo_dlg[62].dp = attrib3;
     
     int index=0;
     
@@ -11490,23 +11545,23 @@ bool edit_combo(int c,bool freshen,int cs)
     {
         ret=zc_popup_dialog(combo_dlg,4);
         
-        if(ret==42)
+        if(ret==43)
             ctype_help(bict[combo_dlg[25].d1].i);
-        else if(ret==43)
+        else if(ret==44)
             cflag_help(combo_dlg[34].d1);
     }
-    while(ret == 42 || ret == 43);
+    while(ret == 43 || ret == 44);
     
     if(freshen)
     {
         refresh(rALL);
     }
     
-    if(ret==42)
+    if(ret==43)
     {
     }
     
-    if(ret==1)
+    if(ret==2 || ret == 45 || ret == 86 || ret == 100 ) //position of OK buttons
     {
         saved=false;
         curr_combo.csets = csets;
@@ -11523,6 +11578,73 @@ bool edit_combo(int c,bool freshen,int cs)
             }
         }
         
+	
+	//userflags
+	if(combo_dlg[47].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x01;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x01;
+	}
+	if(combo_dlg[48].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x02;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x02;
+	}
+	if(combo_dlg[49].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x04;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x04;
+	}
+	if(combo_dlg[49].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x08;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x08;
+	}
+	if(combo_dlg[50].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x10;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x10;
+	}
+	if(combo_dlg[51].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x20;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x20;
+	}
+	if(combo_dlg[52].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x40;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x40;
+	}
+	if(combo_dlg[53].flags & D_SELECTED) 
+	{
+		curr_combo.usrflags |= 0x80;
+	}
+	else
+	{
+		curr_combo.usrflags &= ~0x80;
+	}
+	
         curr_combo.csets = vbound(atoi(cset_str),-15,15) & 15; //Bound this to a size of csets, so that it does not wrap!
         
         for(int i=0; i<4; i++)
@@ -11554,6 +11676,13 @@ bool edit_combo(int c,bool freshen,int cs)
         curr_combo.nextcombo = combo_dlg[32].d1;
         curr_combo.nextcset = combo_dlg[32].fg;
         curr_combo.flag = combo_dlg[34].d1;
+	
+	//Attributes[]
+	curr_combo.attributes[0] = vbound(atoi(attrib0),-214747,214747);
+	curr_combo.attributes[1] = vbound(atoi(attrib1),-214747,214747);
+	curr_combo.attributes[2] = vbound(atoi(attrib2),-214747,214747);
+	curr_combo.attributes[3] = vbound(atoi(attrib3),-214747,214747);
+	
         
         curr_combo.animflags = 0;
         curr_combo.animflags |= (combo_dlg[40].flags & D_SELECTED) ? AF_FRESH : 0;
