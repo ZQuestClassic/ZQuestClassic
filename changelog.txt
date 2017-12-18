@@ -1,6 +1,12 @@
 //2.54 Changes
 
 //Alpha 21
+Changed combo editor dialogue to add tabs 'Data' and 'Attributes'
+Added long Attributes[4] and long usrflags to *newcombo 
+	combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
+	combodata->Flags and Screen->ComboFlags[pos] -- Maybe ComboMisc[pos] to avoid confusion?
+	Combo QR rules will become ComboMisc[] ! 
+		( ZoriaRPG, 18th December, 2017 )
 Added Link->Stun (When Link is stunned he cannot move, or attack, but he can change direction)
 Added a 32-index array of questmisc[] to the misc struct.
 	This is to be used in quest Init Data, to set up global quest
