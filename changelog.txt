@@ -1,6 +1,8 @@
 //2.54 Changes
 
 //Alpha 21
+Added mock-up 'Attributes' tab to the Combo Editor. (The fields are in place, but they do nothing.)
+Moved the ZASM label for Version (ZELDAVERSION) to a code that was accessible by 2.50.3 and earlier. 
 Changed combo editor dialogue to add tabs 'Data' and 'Attributes'
 Added long Attributes[4] and long usrflags to *newcombo 
 	combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
