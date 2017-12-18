@@ -1700,7 +1700,8 @@ enum ASM_DEFINE
 #define IDATAFLAGS            0x02B6
 #define IDATASPRITE            0x02B7
 #define IDATAATTRIB            0x02B8
-#define UNUSED104            0x02B9
+
+#define ZELDAVERSION            0x02B9
 
 #define NPCX                 0x02BA
 #define NPCY                 0x02BB
@@ -2098,7 +2099,7 @@ enum ASM_DEFINE
 #define LINKCANFLICKER 0x1118
 #define LINKHURTSFX 0x1119
 #define NOACTIVESUBSC 0x111A
-#define ZELDAVERSION 0x111B
+#define UNUSED111B 0x111B
 #define ZELDABUILD 0x111C
 #define ZELDABETA 0x111D
 #define FFCID 0x111E

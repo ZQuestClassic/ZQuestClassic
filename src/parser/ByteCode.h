@@ -33,7 +33,7 @@ using namespace std;
 #define SFTEMP                  6
 #define WHAT_NO_7               7 // What, no 7?
 #define WHAT_NO_8               8 // What, no 8?
-#define WHAT_NO_9               9 // What, no 9?
+#define ZELDAVERSION               9 // What, no 9?
 #define SP                     10
 #define DATA                   11
 #define FCSET                  12
@@ -473,7 +473,7 @@ using namespace std;
 #define LINKHURTSFX 441
 #define NOACTIVESUBSC 442
 #define LWPNRANGE 443
-#define ZELDAVERSION 444
+#define UNUSED444 444
 #define ZELDABUILD 445
 #define ZELDABETA 446
 #define NPCINVINC 447
