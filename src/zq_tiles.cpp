@@ -11117,7 +11117,7 @@ static int combo_data_list[] =
 static int combo_attributes_list[] =
 {
     // dialog control number
-     45,46,-1
+     45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,-1
 };
 
 static TABPANEL combo_tabs[] =
@@ -11194,6 +11194,32 @@ static DIALOG combo_dlg[] =
     //45
     { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    //47
+    { jwin_check_proc,        144+22,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag A",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag B",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag C",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag D",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag E",                      NULL,   NULL                  },
+    //52
+    { jwin_check_proc,        144+22,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag F",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag G",                      NULL,   NULL                  },
+    { jwin_check_proc,        144+22,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flag H",                      NULL,   NULL                  },
+    //55
+    { jwin_text_proc,           8+22+16,    30+16+4,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[0]:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    30-4+16+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    //57
+    { jwin_text_proc,           8+22+16,    45+16+4+4,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[1]:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    45-4+16+4+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    //59
+    { jwin_text_proc,           8+22+16,    60+16+4+8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[2]:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    60-4+16+4+8,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    //61
+    { jwin_text_proc,           8+22+16,    75+16+4+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
+    { jwin_edit_proc,         98,    75-4+16+4+12,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    //63
+
+    
+    
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
