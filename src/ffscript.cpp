@@ -2333,6 +2333,10 @@ long get_register(const long arg)
         
 ///----------------------------------------------------------------------------------------------------//
 //Game Info
+	
+    case ZELDAVERSION:
+        ret = ZC_VERSION; //Do *not* multiply by 10,000!
+        break;
     case GAMEDEATHS:
         ret=game->get_deaths()*10000;
         break;
