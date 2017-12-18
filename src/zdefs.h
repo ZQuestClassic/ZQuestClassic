@@ -173,7 +173,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          5
 #define V_MISC             9
 #define V_TILES            1
-#define V_COMBOS           8
+#define V_COMBOS           9
 #define V_CSETS            4
 #define V_MAPS            18
 #define V_DMAPS            9
@@ -2081,6 +2081,8 @@ struct newcombo
 	
 	long attributes[NUM_COMBO_ATTRIBUTES]; //combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
 	long usrflags; //combodata->Flags and Screen->ComboFlags[pos]
+	long triggerflags[2];
+	long triggerlevel;
     //24
 };
 

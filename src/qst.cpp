@@ -11636,7 +11636,21 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 			return qe_invalid;
 		}
 	}
-	
+	if(section_version>=9) //combo trigger flags
+	{
+		for ( int q = 0; q < 2; q++ )
+		{
+		    if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+		    {
+			return qe_invalid;
+		    }
+		}
+		if(!p_igetl(&temp_combo.triggerlevel,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	    
         if(version < 0x193)
         {
             for(int q=0; q<11; q++)

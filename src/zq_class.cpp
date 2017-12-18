@@ -8479,7 +8479,19 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 	    if(!p_iputl(combobuf[i].usrflags,f))
 	    {
 			new_return(21);
-	    }	    
+	    }	 
+	    for ( int q = 0; q < 2; q++ ) 
+	    {
+	        if(!p_iputl(combobuf[i].triggerflags[q],f))
+	        {
+			new_return(22);
+	        }
+	    }
+	   
+	    if(!p_iputl(combobuf[i].triggerlevel,f))
+	    {
+			new_return(23);
+	    }		    
 		    
         }
         
