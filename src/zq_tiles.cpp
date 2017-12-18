@@ -11123,7 +11123,14 @@ static int combo_attributes_list[] =
 static int combo_trigger_list[] =
 {
     // dialog control number
-	63,64,65,66,67,68,69,70,
+	63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86, 87,88,89,
+     -1
+};
+
+static int combo_trigger_list2[] =
+{
+    // dialog control number
+	90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103,
      -1
 };
 
@@ -11132,7 +11139,8 @@ static TABPANEL combo_tabs[] =
     // (text)
     { (char *)"Data",         D_SELECTED,    combo_data_list,         0, NULL },
     { (char *)"Attributes",          0,             combo_attributes_list,           0, NULL },
-    { (char *)"Triggered By",          0,             combo_trigger_list,           0, NULL },
+    { (char *)"Triggered By (1)",          0,             combo_trigger_list,           0, NULL },
+    { (char *)"Triggered By (2)",          0,             combo_trigger_list2,           0, NULL },
 
     { NULL,                   0,             NULL,                        0, NULL }
 };
@@ -11226,18 +11234,57 @@ static DIALOG combo_dlg[] =
     { jwin_edit_proc,         98,    75-4+16+4+12,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
     //63 Triggered By Weapon Types
     { jwin_check_proc,        8+22+16,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sword",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Boomerang",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Wand",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Beam",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Boomerang",                      NULL,   NULL                  },
     { jwin_check_proc,        8+22+16,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Bomb",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Magic",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Super Bomb",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Weapon X",                      NULL,   NULL                  },
-    { jwin_check_proc,        8+22+16,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Weapon Y",                      NULL,   NULL                  },
-    //71
-
-    
-    
-    
+    { jwin_check_proc,        8+22+16,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Super Bomb",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Lit Bomb",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Lit S.Bomb",                      NULL,   NULL                  },
+    //70
+    { jwin_check_proc,        100,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Arrow",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Fire",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Whistle",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Bait",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Wand",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Magic",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Wind",                      NULL,   NULL                  },
+    //77
+    { jwin_check_proc,        154,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Ref. Magic",                      NULL,   NULL                  },
+    { jwin_check_proc,        154,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Ref. Fireball",                      NULL,   NULL                  },
+    { jwin_check_proc,        154,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Ref. Rock",                      NULL,   NULL                  },
+    { jwin_check_proc,        154,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Hammer",                      NULL,   NULL                  },
+    { jwin_check_proc,        154,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Hookshot",                      NULL,   NULL                  },
+    { jwin_check_proc,        154,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sparkle",                      NULL,   NULL                  },
+    { jwin_check_proc,        154,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Byrna",			NULL,   NULL                  },
+    //84
+    { jwin_check_proc,        214,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Ref. Beam",                      NULL,   NULL                  },
+    { jwin_check_proc,        214,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Stomp",                      NULL,   NULL                  },
+    //86
+    { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    //98
+    { jwin_edit_proc,         8+22+16,    135+16+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           98,    135-4+16+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
+    //90 (triggered by 2)
+    { jwin_check_proc,        8+22+16,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 1",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 2",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 3",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 4",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 5",                      NULL,   NULL                  },
+    //95
+    { jwin_check_proc,        100,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 6",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 7",                      NULL,   NULL                  },
+    //97
+    { jwin_check_proc,        100,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 8",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 9",                      NULL,   NULL                  },
+    { jwin_check_proc,        100,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Script 10",                      NULL,   NULL                  },
+    //100
+    { jwin_button_proc,     105,  180,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     185,  180,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    //102
+    { jwin_edit_proc,         8+22+16,    135+16+4,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           98,    135-4+16+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Minimum Level (Applies to All)",                  NULL,   NULL                  },
+    //104
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
