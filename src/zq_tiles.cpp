@@ -11120,11 +11120,19 @@ static int combo_attributes_list[] =
      45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,-1
 };
 
+static int combo_trigger_list[] =
+{
+    // dialog control number
+	63,64,65,66,67,68,69,70,
+     -1
+};
+
 static TABPANEL combo_tabs[] =
 {
     // (text)
     { (char *)"Data",         D_SELECTED,    combo_data_list,         0, NULL },
     { (char *)"Attributes",          0,             combo_attributes_list,           0, NULL },
+    { (char *)"Triggered By",          0,             combo_trigger_list,           0, NULL },
 
     { NULL,                   0,             NULL,                        0, NULL }
 };
@@ -11216,7 +11224,16 @@ static DIALOG combo_dlg[] =
     //61
     { jwin_text_proc,           8+22+16,    75+16+4+12,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Attributes[3]:",                  NULL,   NULL                  },
     { jwin_edit_proc,         98,    75-4+16+4+12,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
-    //63
+    //63 Triggered By Weapon Types
+    { jwin_check_proc,        8+22+16,     30+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Sword",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     45+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Boomerang",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     60+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Wand",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     75+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Bomb",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     90+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Magic",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     105+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Super Bomb",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     120+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Weapon X",                      NULL,   NULL                  },
+    { jwin_check_proc,        8+22+16,     135+16+3,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Weapon Y",                      NULL,   NULL                  },
+    //71
 
     
     
