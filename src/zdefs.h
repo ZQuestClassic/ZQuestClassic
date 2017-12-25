@@ -101,7 +101,7 @@
 #define ZELDA_VERSION_STR   "2.54 Alpha 21"                    //version of the program as presented in text
 #define IS_BETA             -21                              //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        21
-#define DATE_STR            "12th December, 2017"
+#define DATE_STR            "25th December, 2017"
 #define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -172,7 +172,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_RULES           14
 #define V_STRINGS          5
 #define V_MISC             9
-#define V_TILES            1
+#define V_TILES            1 //2 will be either unsigned short, or long
 #define V_COMBOS           10
 #define V_CSETS            4
 #define V_MAPS            18
@@ -267,15 +267,26 @@ extern bool fake_pack_writing;
 #define TILE_ROWS_PER_PAGE  13
 #define TILES_PER_PAGE      (TILES_PER_ROW*TILE_ROWS_PER_PAGE)
 #define TILE_PAGES          252
+
 #define OLDMAXTILES         (TILES_PER_PAGE*6)              // 1560 tiles
 #define NEWMAXTILES         (TILES_PER_PAGE*TILE_PAGES)     // 32760 tiles
+
 #define NEWTILE_SIZE2       (NEWMAXTILES*SINGLE_TILE_SIZE)  // 4193280 bytes (new packed format, 6 pages)
+
 #define OLDTILE_SIZE2       (OLDMAXTILES*SINGLE_TILE_SIZE)  // 199680 bytes (new packed format, 6 pages)
 // 133120 bytes (new packed format, 4 pages)
 #define OLDTILE_SIZE        (TILES_PER_PAGE*4*SINGLE_TILE_SIZE)
 //#define NEWTILE_SIZE      (260*6*128) // 199680 bytes (new packed format, 6 pages)
 //#define OLDTILE_SIZE      (260*4*128) // 133120 bytes (new packed format, 4 pages)
 #define TILEBUF_SIZE        (320*480)                       // 153600 bytes (old unpacked format)
+
+
+//2.54 expanded tile pages
+//This is going to be fun, as absolutely every reference to tiles that expects a short needs to become a long. :( -Z
+#define TILE_PAGES_254      214747/(TILES_PER_ROW*TILE_ROWS_PER_PAGE)
+#define NEWMAXTILES254      214747 - ( 214747 % (TILES_PER_PAGE*TILE_PAGES) )     // 32760 tiles
+#define NEWTILE_SIZE254       (NEWMAXTILES254*SINGLE_TILE_SIZE)  // 4193280 bytes (new packed format, 6 pages)
+
 
 #define COMBOS_PER_ROW      20
 
