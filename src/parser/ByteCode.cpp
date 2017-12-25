@@ -1541,6 +1541,7 @@ string VarArgument::toString()
 	
 	case LINKPUSH: return "LINKPUSH";
 	case LINKSTUN: return "LINKSTUN";
+	case TYPINGMODE: return "TYPINGMODE";
 //	case DMAPDATAGRAVITY: return "DMAPDATAGRAVITY";
 //	case DMAPDATAJUMPLAYER: return "DMAPDATAJUMPLAYER";
     default:

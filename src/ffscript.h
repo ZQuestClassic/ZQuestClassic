@@ -69,7 +69,7 @@ long usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_pan
 byte FF_rules[FFRULES_SIZE]; //For Migration of Quest Rules, and Scritp Engine Rules
 long FF_link_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
 byte FF_link_action; //This way, we can make safe replicas of internal Link actions to be set by script. 
-	
+bool kb_typing_mode; //script only, for disbaling key presses affecting Link, etc. 
 long FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
 long FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
 long FF_subscreen_dimensions[4];
@@ -2541,11 +2541,12 @@ enum ASM_DEFINE
 #define LINKPUSH		0x12B3
 #define GAMEMISC		0x12B4 //long
 #define LINKSTUN		0x12B5 //int (32b)
+#define TYPINGMODE		0x12B6 //int (32b)
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x12B6
+#define NUMVARIABLES         0x12B7
 
 // Script types
 

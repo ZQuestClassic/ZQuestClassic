@@ -58,6 +58,7 @@ int d_stringloader(int msg,DIALOG *d,int c);
 
 extern FONT *lfont;
 extern LinkClass Link;
+extern FFScript FFCore;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 extern int loadlast;
 byte disable_direct_updating;
@@ -65,6 +66,9 @@ byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
 bool midi_paused=false;
+
+extern bool kb_typing_mode; //script only, for disbaling key presses affecting Link, etc. 
+
 //extern movingblock mblock2; //mblock[4]?
 //extern int db;
 
@@ -8523,177 +8527,177 @@ bool zc_key_pressed()
 
 bool Up()
 {
-    return control_state[0];
+    return (control_state[0] && !(FFCore.kb_typing_mode));
 }
 bool Down()
 {
-    return control_state[1];
+    return (control_state[1] && !(FFCore.kb_typing_mode));
 }
 bool Left()
 {
-    return control_state[2];
+    return (control_state[2] && !(FFCore.kb_typing_mode));
 }
 bool Right()
 {
-    return control_state[3];
+    return (control_state[3] && !(FFCore.kb_typing_mode));
 }
 bool cAbtn()
 {
-    return control_state[4];
+    return (control_state[4] && !(FFCore.kb_typing_mode));
 }
 bool cBbtn()
 {
-    return control_state[5];
+    return (control_state[5] && !(FFCore.kb_typing_mode));
 }
 bool cSbtn()
 {
-    return control_state[6];
+    return (control_state[6] && !(FFCore.kb_typing_mode));
 }
 bool cLbtn()
 {
-    return control_state[7];
+    return (control_state[7] && !(FFCore.kb_typing_mode));
 }
 bool cRbtn()
 {
-    return control_state[8];
+    return (control_state[8] && !(FFCore.kb_typing_mode));
 }
 bool cPbtn()
 {
-    return control_state[9];
+    return (control_state[9] && !(FFCore.kb_typing_mode));
 }
 bool cEx1btn()
 {
-    return control_state[10];
+    return (control_state[10] && !(FFCore.kb_typing_mode));
 }
 bool cEx2btn()
 {
-    return control_state[11];
+    return (control_state[11] && !(FFCore.kb_typing_mode));
 }
 bool cEx3btn()
 {
-    return control_state[12];
+    return (control_state[12] && !(FFCore.kb_typing_mode));
 }
 bool cEx4btn()
 {
-    return control_state[13];
+    return (control_state[13] && !(FFCore.kb_typing_mode));
 }
 bool AxisUp()
 {
-    return control_state[14];
+    return (control_state[14] && !(FFCore.kb_typing_mode));
 }
 bool AxisDown()
 {
-    return control_state[15];
+    return (control_state[15] && !(FFCore.kb_typing_mode));
 }
 bool AxisLeft()
 {
-    return control_state[16];
+    return (control_state[16] && !(FFCore.kb_typing_mode));
 }
 bool AxisRight()
 {
-    return control_state[17];
+    return (control_state[17] && !(FFCore.kb_typing_mode));
 }
 
 bool cMbtn()
 {
-    return key[KEY_ESC]||joybtn(Mbtn);
+    return ((key[KEY_ESC]||joybtn(Mbtn)) && !(FFCore.kb_typing_mode));
 }
 bool cF12()
 {
-    return key[KEY_F12] != 0;
+    return ((key[KEY_F12] != 0) && !(FFCore.kb_typing_mode));
 }
 bool cF11()
 {
-    return key[KEY_F11] != 0;
+    return ((key[KEY_F11] != 0) && !(FFCore.kb_typing_mode));
 }
 bool cF5()
 {
-    return key[KEY_F5]  != 0;
+    return ((key[KEY_F5]  != 0 ) && !(FFCore.kb_typing_mode));
 }
 bool cQ()
 {
-    return key[KEY_Q]   != 0;
+    return ((key[KEY_Q]   != 0) && !(FFCore.kb_typing_mode));
 }
 bool cI()
 {
-    return key[KEY_I]   != 0;
+    return ((key[KEY_I]   != 0) && !(FFCore.kb_typing_mode));
 }
 
 bool rUp()
 {
-    return rButton(Up,Udown);
+    return ((rButton(Up,Udown)) && !(FFCore.kb_typing_mode));
 }
 bool rDown()
 {
-    return rButton(Down,Ddown);
+    return ((rButton(Down,Ddown)) && !(FFCore.kb_typing_mode));
 }
 bool rLeft()
 {
-    return rButton(Left,Ldown);
+    return ((rButton(Left,Ldown)) && !(FFCore.kb_typing_mode));
 }
 bool rRight()
 {
-    return rButton(Right,Rdown);
+    return ((rButton(Right,Rdown)) && !(FFCore.kb_typing_mode));
 }
 bool rAbtn()
 {
-    return rButton(cAbtn,Adown);
+    return ((rButton(cAbtn,Adown)) && !(FFCore.kb_typing_mode));
 }
 bool rBbtn()
 {
-    return rButton(cBbtn,Bdown);
+    return ((rButton(cBbtn,Bdown)) && !(FFCore.kb_typing_mode));
 }
 bool rSbtn()
 {
-    return rButton(cSbtn,Sdown);
+    return ((rButton(cSbtn,Sdown)) && !(FFCore.kb_typing_mode));
 }
 bool rMbtn()
 {
-    return rButton(cMbtn,Mdown);
+    return ((rButton(cMbtn,Mdown)) && !(FFCore.kb_typing_mode));
 }
 bool rLbtn()
 {
-    return rButton(cLbtn,LBdown);
+    return ((rButton(cLbtn,LBdown)) && !(FFCore.kb_typing_mode));
 }
 bool rRbtn()
 {
-    return rButton(cRbtn,RBdown);
+    return ((rButton(cRbtn,RBdown)) && !(FFCore.kb_typing_mode));
 }
 bool rPbtn()
 {
-    return rButton(cPbtn,Pdown);
+    return ((rButton(cPbtn,Pdown)) && !(FFCore.kb_typing_mode));
 }
 bool rEx1btn()
 {
-    return rButton(cEx1btn,Ex1down);
+    return ((rButton(cEx1btn,Ex1down)) && !(FFCore.kb_typing_mode));
 }
 bool rEx2btn()
 {
-    return rButton(cEx2btn,Ex2down);
+    return ((rButton(cEx2btn,Ex2down)) && !(FFCore.kb_typing_mode));
 }
 bool rEx3btn()
 {
-    return rButton(cEx3btn,Ex3down);
+    return ((rButton(cEx3btn,Ex3down)) && !(FFCore.kb_typing_mode));
 }
 bool rEx4btn()
 {
-    return rButton(cEx4btn,Ex4down);
+    return ((rButton(cEx4btn,Ex4down)) && !(FFCore.kb_typing_mode));
 }
 bool rAxisUp()
 {
-    return rButton(AxisUp,AUdown);
+    return ((rButton(AxisUp,AUdown)) && !(FFCore.kb_typing_mode));
 }
 bool rAxisDown()
 {
-    return rButton(AxisDown,ADdown);
+    return ((rButton(AxisDown,ADdown)) && !(FFCore.kb_typing_mode));
 }
 bool rAxisLeft()
 {
-    return rButton(AxisLeft,ALdown);
+    return ((rButton(AxisLeft,ALdown)) && !(FFCore.kb_typing_mode));
 }
 bool rAxisRight()
 {
-    return rButton(AxisRight,ARdown);
+    return ((rButton(AxisRight,ARdown)) && !(FFCore.kb_typing_mode));
 }
 
 bool rF12()

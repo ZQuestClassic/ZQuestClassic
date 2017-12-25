@@ -102,6 +102,8 @@ extern int directItem;
 extern int directItemA;
 extern int directItemB;
 
+extern bool kb_typing_mode;
+
 bool is_large=false;
 
 bool standalone_mode=false;

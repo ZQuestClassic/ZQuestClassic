@@ -3070,6 +3070,10 @@ long get_register(const long arg)
     case GAMEHASPLAYED:
         ret=game->get_hasplayed()?10000:0;
         break;
+    
+    case TYPINGMODE:
+        ret=FFCore.kb_typing_mode?10000:0;
+        break;
         
     case GAMESTANDALONE:
         ret=standalone_mode?10000:0;
@@ -7381,6 +7385,10 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         
     case GAMEHASPLAYED:
         game->set_hasplayed((value/10000)?1:0);
+        break;
+    
+    case TYPINGMODE:
+        FFCore.kb_typing_mode = ((value/10000)?true:false);
         break;
         
     case GAMEGUYCOUNT:
@@ -15161,6 +15169,8 @@ void FFScript::init()
 		FF_UserMidis[q] = 0;
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
+	kb_typing_mode = false;
+	
 }
 
 

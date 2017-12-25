@@ -42,6 +42,7 @@
 extern int loadlast;
 extern int skipcont;
 extern int skipicon;
+extern FFScript FFCore;
 
 bool load_custom_game(int file);
 
@@ -3278,6 +3279,7 @@ void titlescreen(int lsave)
 
 void game_over(int type)
 {
+    FFCore.kb_typing_mode = false; 
     kill_sfx();
     music_stop();
     clear_to_color(screen,BLACK);
@@ -3471,7 +3473,7 @@ bool save_game(bool savepoint, int type)
     int htile = 2;
     bool done=false;
     bool saved=false;
-    
+    FFCore.kb_typing_mode = false;
     do
     {
         int pos = 0;
