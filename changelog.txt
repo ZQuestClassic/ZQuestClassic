@@ -1,6 +1,19 @@
 //2.54 Changes
 
 //Alpha 21
+
+TODO: Add the combodata member variables and arrays !!!
+
+Fixed a packfile error with loading combos (V_COMBOS was not set to 10).
+Renamed 'Script n' counters to 'Custom n'.
+Changed how item 'magic cost' works, allowing the user to set it to any counter. 
+Added this to ZScript as itemdata->CostCounter. 
+itemdata->MagicCost still exists, but I have added a second interface to it as itemdata->Cost 
+to reflect that Cost is no longer tied to magic.
+	( ZoriaRPG, 25th December, 2017 )
+
+Expanded triggerflags[2] to triggerflags[3] so that there is enough room for more weapons
+that we will be adding. V_COMBOS is now 10, and V9 only uses the lowest two.
 Added UI links to set the triggerflags[] and triggerlevel values from the Combo Editor. 
 Added combo vars long triggerflags[2] and long triggerlevel. 
 Finished the 'Attributes' tab of the Combo Editor. 
