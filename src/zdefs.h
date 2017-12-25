@@ -1411,7 +1411,7 @@ struct itemdata
     word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
     int wpnsprite; //enemy weapon sprite. 
     int magiccosttimer; //TImer for timed magic costs. 
-    word cost_counter; //replaces mp cost with a list
+    char cost_counter; //replaces mp cost with a list
     
 };
 

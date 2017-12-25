@@ -7599,7 +7599,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		    new_return(83);
 		}
 		
-		if(!p_iputw(itemsbuf[i].cost_counter,f))
+		if(!p_putc(itemsbuf[i].cost_counter,f))
 		{
 		    new_return(84);
 		}

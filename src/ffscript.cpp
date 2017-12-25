@@ -6445,7 +6445,7 @@ void set_register(const long arg, const long value)
         break;
      //cost counter ref
      case IDATACOSTCOUNTER:
-        itemsbuf[ri->idata].cost_counter=value/10000;
+        itemsbuf[ri->idata].cost_counter=(vbound(value/10000,0,255));
         break;
      //min hearts to pick up
      case IDATAMINHEARTS:

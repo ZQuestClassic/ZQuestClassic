@@ -5374,7 +5374,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 		if ( s_version >= 34 )  //! cost counter
 		{
 			//Pickup Type
-			if(!p_igetw(&tempitem.cost_counter,f,true))
+			if(!p_getc(&tempitem.cost_counter,f,true))
                         {
                             return qe_invalid;
                         }
