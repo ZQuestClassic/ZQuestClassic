@@ -4,6 +4,11 @@
 
 TODO: Add the combodata member variables and arrays !!!
 
+Added Game->TypingMode : This sets a flag in FFCore that disables KB input from
+	moving Link, or using his button items, and so forth, to ensure that all keypresses
+	are read as char keys, instead of controller keys. 
+	It is reset to false on every quest load, and on F6 (or death, save, etc.)
+
 Fixed a packfile error with loading combos (V_COMBOS was not set to 10).
 Renamed 'Script n' counters to 'Custom n'.
 Changed how item 'magic cost' works, allowing the user to set it to any counter. 
