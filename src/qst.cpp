@@ -5371,6 +5371,28 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
                             return qe_invalid;
                         }
 		}
+		if ( s_version >= 34 )  //! cost counter
+		{
+			//Pickup Type
+			if(!p_igetw(&tempitem.cost_counter,f,true))
+                        {
+                            return qe_invalid;
+                        }
+		}
+
+		if ( s_version < 34 )  //! set the default counter for older quests. 
+		{
+			if ( (tempitem.flags & ITEM_RUPEE_MAGIC) )
+			{
+				tempitem.cost_counter = 1;
+			}
+			else 
+			{
+				tempitem.cost_counter = 4;
+			}
+		}
+		
+		
         }
         else
         {
@@ -11636,7 +11658,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 			return qe_invalid;
 		}
 	}
-	if(section_version>=9) //combo trigger flags
+	if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
 	{
 		for ( int q = 0; q < 2; q++ )
 		{
@@ -11650,7 +11672,20 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
 			return qe_invalid;
 		}
 	}
-	    
+	if(section_version>=10) //combo trigger flags
+	{
+	    for ( int q = 0; q < 3; q++ )
+		{
+		    if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+		    {
+			return qe_invalid;
+		    }
+		}
+		if(!p_igetl(&temp_combo.triggerlevel,f,true))
+		{
+			return qe_invalid;
+		}
+	}
         if(version < 0x193)
         {
             for(int q=0; q<11; q++)

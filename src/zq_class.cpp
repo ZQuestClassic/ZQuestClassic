@@ -7599,6 +7599,12 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		    new_return(83);
 		}
 		
+		if(!p_iputw(itemsbuf[i].cost_counter,f))
+		{
+		    new_return(84);
+		}
+		
+		
 	    
         }
         
@@ -8480,7 +8486,7 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
 	    {
 			new_return(21);
 	    }	 
-	    for ( int q = 0; q < 2; q++ ) 
+	    for ( int q = 0; q < 3; q++ ) 
 	    {
 	        if(!p_iputl(combobuf[i].triggerflags[q],f))
 	        {

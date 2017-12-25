@@ -395,7 +395,10 @@ static int itemdata_pickup_list[] =
 static int itemdata_action_list[] =
 {
     // dialog control number
-    /*131, 132,*/ 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 199,200, -1
+    /*131, 132,*/ 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156,
+	157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 199,200, 
+	262,263,
+	-1
 };
 
 static int itemdata_scriptargs_list[] =
@@ -659,7 +662,58 @@ const char *counterlist(int index, int *list_size)
             return "Keys";
             
         case 7:
-            return "Super Bombs";
+            return "Super Bombs"; 
+	
+	case 8:
+            return "Custom 1";
+	case 9:
+            return "Custom 2";
+	case 10:
+            return "Custom 3";
+	case 11:
+            return "Custom 4";
+	case 12:
+            return "Custom 5";
+	case 13:
+            return "Custom 6";
+	case 14:
+            return "Custom 7";
+	case 15:
+            return "Custom 8";
+	case 16:
+            return "Custom 9";
+	case 17:
+            return "Custom 10";
+	case 18:
+            return "Custom 11";
+	case 19:
+            return "Custom 12";
+	case 20:
+            return "Custom 13";
+	case 21:
+            return "Custom 14";
+	case 22:
+            return "Custom 15";
+	case 23:
+            return "Custom 16";
+	case 24:
+            return "Custom 17";
+	case 25:
+            return "Custom 18";
+	case 26:
+            return "Custom 19";
+	case 27:
+            return "Custom 20";
+	case 28:
+            return "Custom 21";
+	case 29:
+            return "Custom 22";
+	case 30:
+            return "Custom 23";
+	case 31:
+            return "Custom 24";
+	case 32:
+            return "Custom 25";
             
         default:
             sprintf(counterlist_str_buf,"Script %d",index-7);
@@ -953,9 +1007,10 @@ static DIALOG itemdata_dlg[] =
     { jwin_text_proc,          112+10,    47+38,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Pickup Script:",                            NULL,   NULL                  },
     { jwin_droplist_proc,      112+10,    47+38+10,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemscript_list,                   NULL,   NULL 				   },
     //{ jwin_edit_proc,          55,     98,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //103
     { jwin_text_proc,          8,    102,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sound:",                              NULL,   NULL                  },
     { jwin_edit_proc,         107,     98,     35,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-    //105
+	//105
     { jwin_text_proc,           8,    120,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Hearts Required:",                    NULL,   NULL                  },
     { jwin_edit_proc,         107,    116,     35,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //107
@@ -994,13 +1049,16 @@ static DIALOG itemdata_dlg[] =
     { jwin_text_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
     { jwin_droplist_proc,       112+10,  47+38+10*2 + 18,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemscript_list,                   NULL,   NULL 				   },
     //{ jwin_edit_proc,          55,     44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-    { jwin_text_proc,           8,     48,     44,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Magic Cost:",                              NULL,   NULL                  },
-    { jwin_edit_proc,         50,     44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
-    { jwin_text_proc,         161,     48,     20,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sound:",                              NULL,   NULL                  },
-    { jwin_edit_proc,         204,     44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,           8,     48,     44,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Cost:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         32,     44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //135 Firing sound
+    { jwin_text_proc,         241,     48,     20,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sound:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         277,     44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //137
     { jwin_check_proc,          8,     62,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Remove Item When Used",               NULL,   NULL                  },
-    { jwin_check_proc,        161,     62,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Uses Rupees Instead Of Magic",        NULL,   NULL                  },
+    { d_dummy_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                 },
+    
+    //{ jwin_check_proc,        161,     62,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Uses Rupees Instead Of Magic",        NULL,   NULL                  },
     
     //139
     { jwin_text_proc,           8,     74,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sprites[0]:",                           NULL,   NULL                  },
@@ -1077,8 +1135,8 @@ static DIALOG itemdata_dlg[] =
     { jwin_edit_proc,      140+10,  43+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
     //199
     //Magic Cost Timer, 199
-    { jwin_text_proc,         83,     48,     30,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "M.Cost Timer:",                              NULL,   NULL                  },
-    { jwin_edit_proc,         129,	44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    { jwin_text_proc,         145,     48,     30,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Timer:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         171,	44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
    //201
     { jwin_text_proc,       6,   29+19,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "TileWidth:", NULL, NULL },
     { jwin_text_proc,       6,   48+17,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "TileHeight:", NULL, NULL },
@@ -1177,6 +1235,11 @@ static DIALOG itemdata_dlg[] =
     { jwin_edit_proc,      34+10,  133+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      34+10,  151+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     */
+//262
+ { jwin_text_proc,           60,     48,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) " ",                  NULL,   NULL                  },
+//263m--works as [96]   
+ { jwin_droplist_proc,    70,	42,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &counter_list,						 NULL,   NULL 				   },
+    
     { NULL,                     0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
 };
 
@@ -1777,6 +1840,9 @@ void edit_itemdata(int index)
     itemdata_dlg[93].dp = amt;
     itemdata_dlg[94].flags = (itemsbuf[index].amount & 0x8000)  ? D_SELECTED : 0;
     itemdata_dlg[96].d1 = itemsbuf[index].count+1;
+    //mp cost use counter
+    itemdata_dlg[263].d1 = itemsbuf[index].cost_counter+1;
+    
     itemdata_dlg[98].dp = fmx;
     itemdata_dlg[100].dp = max;
     itemdata_dlg[104].dp = snd;
@@ -1954,6 +2020,8 @@ void edit_itemdata(int index)
         
         test.fam_type = vbound(atoi(cll), 1, 255);
         test.count = itemdata_dlg[96].d1-1;
+	    //magic cost use counter
+        test.cost_counter = itemdata_dlg[263].d1-1;
         test.amount = atoi(amt)<0?-(vbound(atoi(amt), -0x3FFF, 0))|0x4000:vbound(atoi(amt), 0, 0x3FFF);
         test.setmax = atoi(max);
         test.max = atoi(fmx);
@@ -2245,6 +2313,8 @@ void edit_itemdata(int index)
             itemdata_dlg[93].dp = amt;
             itemdata_dlg[94].flags = (test.amount & 0x8000)  ? D_SELECTED : 0;
             itemdata_dlg[96].d1 = itemsbuf[index].count+1;
+	    //magic cost use counter
+            itemdata_dlg[96].d1 = itemsbuf[index].cost_counter+1;
             itemdata_dlg[98].dp = fmx;
             itemdata_dlg[100].dp = max;
             itemdata_dlg[102].d1 = pickupscript;

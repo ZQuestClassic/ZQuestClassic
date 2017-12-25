@@ -13688,16 +13688,51 @@ bool checkmagiccost(int itemid)
     {
         return false;
     }
-    else if(itemsbuf[itemid].flags & ITEM_RUPEE_MAGIC)
+    /*
+    else if(itemsbuf[itemid].cost_counter == 1)
     {
         return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
     }
+    
     else if(get_bit(quest_rules,qr_ENABLEMAGIC))
     {
         return (((current_item_power(itype_magicring) > 0)
                  ? game->get_maxmagic()
                  : game->get_magic()+game->get_dmagic())>=itemsbuf[itemid].magic*game->get_magicdrainrate());
     }
+    
+    */
+    //! New handling for custom cost counters int he item editor, 25th Dec 2017. -Z
+    switch (itemsbuf[itemid].cost_counter )
+    {
+	case 1: //rupees
+		return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
+		break;
+	case 4: //magic
+	{
+		if (get_bit(quest_rules,qr_ENABLEMAGIC))
+		{
+			return (((current_item_power(itype_magicring) > 0)
+				 ? game->get_maxmagic()
+				 : game->get_magic()+game->get_dmagic())>=itemsbuf[itemid].magic*game->get_magicdrainrate());
+		}
+		else 
+		{
+			return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
+		}
+		break;
+	}
+	
+	default:
+	{ 
+		//all other counters.
+		//no need for the QR here, as old quests could only use specific counters.
+		return (game->get_counter(itemsbuf[itemid].cost_counter)+game->get_dcounter(itemsbuf[itemid].cost_counter)>=itemsbuf[itemid].magic);
+		break;
+	}
+	    
+    }
+    
     
     return 1;
 }
@@ -13712,15 +13747,16 @@ void paymagiccost(int itemid)
     {
 	    return;
     }    
-    else if(current_item_power(itype_magicring) > 0)
+    else if(current_item_power(itype_magicring) > 0 && ( itemsbuf[itemid].cost_counter == 4 || itemsbuf[itemid].cost_counter == 1 ))
     {
         return;
     }
         
-    if(itemsbuf[itemid].flags & ITEM_RUPEE_MAGIC)
+    if(itemsbuf[itemid].cost_counter == 1) //rupees
     {
 	if ( itemsbuf[itemid].magiccosttimer > 0 ) 
 	{
+		//get_counter
 		if ( frame % itemsbuf[itemid].magiccosttimer == 0 )  game->change_drupy(-itemsbuf[itemid].magic);
 		return;
 	}
@@ -13730,7 +13766,7 @@ void paymagiccost(int itemid)
 		return;
 	}
     }
-    else 
+    else if (itemsbuf[itemid].cost_counter == 4) //magic
     {
 	if ( itemsbuf[itemid].magiccosttimer > 0 ) 
 	{
@@ -13738,6 +13774,19 @@ void paymagiccost(int itemid)
 	}
 	else 
 	{	game->change_magic(-(itemsbuf[itemid].magic*game->get_magicdrainrate()));
+		return;
+	}
+    }
+    else //other counters
+    {
+	    
+	if ( itemsbuf[itemid].magiccosttimer > 0 ) 
+	{
+		//game->set_counter
+		if ( frame % itemsbuf[itemid].magiccosttimer == 0 ) game->set_counter(-(itemsbuf[itemid].magic), itemsbuf[itemid].cost_counter);
+	}
+	else 
+	{	game->set_counter(-(itemsbuf[itemid].magic), itemsbuf[itemid].cost_counter);
 		return;
 	}
     }

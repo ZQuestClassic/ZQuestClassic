@@ -173,12 +173,12 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          5
 #define V_MISC             9
 #define V_TILES            1
-#define V_COMBOS           9
+#define V_COMBOS           10
 #define V_CSETS            4
 #define V_MAPS            18
 #define V_DMAPS            9
 #define V_DOORS            1
-#define V_ITEMS           33
+#define V_ITEMS           34
 #define V_WEAPONS          6
 #define V_COLORS           2
 #define V_ICONS            1
@@ -1389,6 +1389,7 @@ struct itemdata
     word pstring;
     word pickup_string_flags;
     
+    
   
 //Guydata Enemy Editor Size Panel FLags
 
@@ -1410,7 +1411,7 @@ struct itemdata
     word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
     int wpnsprite; //enemy weapon sprite. 
     int magiccosttimer; //TImer for timed magic costs. 
-    
+    word cost_counter; //replaces mp cost with a list
     
 };
 
@@ -2060,30 +2061,107 @@ enum {cfOFFSET, cfMAX};
 
 #define NUM_COMBO_ATTRIBUTES 4
 
+/*
+The following flags are for the weapons assigned to the 
+lower 18 bits (each) of the newcombo.triggerflags[] array
+indices. 
+
+The higher 14 bits are unused in each for *this* purpose,
+because ZScript needs to be able to cleanly set the flags
+via combodata.
+
+The upper 14 bits of each are free for other ENGINE use
+such as internal flags that the user will not need to access,
+or for which the user SCRIPT interface can be via another handler,
+such as a special Get/Set function that ffscript can manage
+without needing the user to have bit precision. -Z
+*/
+
+//triggerflags[0], only 18 bits are available to ZScript
+#define ctrigSWORD 		0x01
+#define ctrigBEAM 		0x02
+#define ctrigBRANG 		0x04
+#define ctrigBOMB 		0x08
+#define ctrigSBOMB		0x10
+#define ctrigLITBOMB		0x20
+#define ctrigLITSBOMB		0x40
+#define ctrigARROW		0x80
+#define ctrigFIRE		0x100
+#define ctrigWHISTLE		0x200
+#define ctrigBAIT		0x400
+#define ctrigWAND		0x800
+#define ctrigMAGIC		0x1000
+#define ctrigWIND		0x2000
+#define ctrigREFMAGIC		0x4000
+#define ctrigREFFBALL		0x8000
+#define ctrigREFFROCK		0x10000
+#define ctrigHAMMER		0x20000
+//triggerflags[1], only 18 bits are available to ZScript
+#define ctrigHOOKSHOT		0x01
+#define ctrigSPARKLE		0x02
+#define ctrigBYRNA		0x04
+#define ctrigREFBEAM		0x08
+#define ctrigSTOMP		0x10
+#define ctrigSCRIPT1		0x20
+#define ctrigSCRIPT2		0x40
+#define ctrigSCRIPT3		0x80
+#define ctrigSCRIPT4		0x100
+#define ctrigSCRIPT5		0x200
+#define ctrigSCRIPT6		0x400
+#define ctrigSCRIPT7		0x800
+#define ctrigSCRIPT8		0x1000
+#define ctrigSCRIPT9		0x2000
+#define ctrigSCRIPT10		0x4000
+#define ctrigUNUSED_2_16 	0x8000
+#define ctrigUNUSED_2_17	0x10000
+#define ctrigUNUSED_2_18	0x20000
+//triggerflags[2], only 18 bits are available to ZScript
+#define ctrigUNUSED_3_01	0x01
+#define ctrigUNUSED_3_02	0x02
+#define ctrigUNUSED_3_03	0x04
+#define ctrigUNUSED_3_04	0x08
+#define ctrigUNUSED_3_05	0x10
+#define ctrigUNUSED_3_06	0x20
+#define ctrigUNUSED_3_07	0x40
+#define ctrigUNUSED_3_08	0x80
+#define ctrigUNUSED_3_09	0x100
+#define ctrigUNUSED_3_10	0x200
+#define ctrigUNUSED_3_11	0x400
+#define ctrigUNUSED_3_12	0x800
+#define ctrigUNUSED_3_13	0x1000
+#define ctrigUNUSED_3_14	0x2000
+#define ctrigUNUSED_3_15	0x4000
+#define ctrigUNUSED_3_16 	0x8000
+#define ctrigUNUSED_3_17	0x10000
+#define ctrigUNUSED_3_18	0x20000
+
 struct newcombo
 {
-    word tile;
-    byte flip;
-    byte walk;
-    byte type;
-    byte csets;
-    word foo; // used in zq_tiles for some reason. May be redundant. -- L.
-    byte frames;
-    byte speed;
-    word nextcombo;
-    byte nextcset;
-    byte flag;
-    byte skipanim;
-    word nexttimer;
-    byte skipanimy;
-    byte animflags;
-    byte expansion[6];
+    word tile; //16 bits
+    byte flip; //8 bits
+    byte walk; //8 bits
+    byte type; //8 bits
+    byte csets; //8 bits
+    word foo; // 8 bits ;  used in zq_tiles for some reason. May be redundant. -- L.
+    byte frames; //8 bits
+    byte speed; //8 bits
+    word nextcombo; //16 bits
+    byte nextcset; //8 bits
+    byte flag; //8 bits
+    byte skipanim; //8 bits
+    word nexttimer; //16 bits
+    byte skipanimy; //8 bits
+    byte animflags; //8 bits
+    byte expansion[6]; //48 bits
 	
-	long attributes[NUM_COMBO_ATTRIBUTES]; //combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
-	long usrflags; //combodata->Flags and Screen->ComboFlags[pos]
-	long triggerflags[2];
-	long triggerlevel;
-    //24
+	long attributes[NUM_COMBO_ATTRIBUTES]; //32 bits; combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
+	long usrflags; //32 bits ; combodata->Flags and Screen->ComboFlags[pos]
+	long triggerflags[3]; //96 bits
+	long triggerlevel; //32 bits
+		//Only one of these per combo: Otherwise we would have 
+		//long triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
+		//Thus, a weapon level affects all triggers for that combo type. 
+    //384 bits total per object
 };
 
 #define AF_FRESH 1

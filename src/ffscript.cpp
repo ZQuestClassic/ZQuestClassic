@@ -2148,6 +2148,10 @@ long get_register(const long arg)
      case IDATAMAGCOST:
         ret=(itemsbuf[ri->idata].magic)*10000;
         break;
+     //cost counter ref
+     case IDATACOSTCOUNTER:
+        ret=(itemsbuf[ri->idata].cost_counter)*10000;
+        break;
      //Min Hearts to Pick Up
      case IDATAMINHEARTS:
         ret=(itemsbuf[ri->idata].pickup_hearts)*10000;
@@ -6438,6 +6442,10 @@ void set_register(const long arg, const long value)
     //magic cost
      case IDATAMAGCOST:
         itemsbuf[ri->idata].magic=value/10000;
+        break;
+     //cost counter ref
+     case IDATACOSTCOUNTER:
+        itemsbuf[ri->idata].cost_counter=value/10000;
         break;
      //min hearts to pick up
      case IDATAMINHEARTS:
