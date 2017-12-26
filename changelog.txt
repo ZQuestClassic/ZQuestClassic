@@ -4,6 +4,9 @@
 
 TODO: Add the combodata member variables and arrays !!!
 
+Fixed TypingMode not cleared on 'Reset System' from FKeys/menus.
+	( ZoriaRPG, 26th December, 2017 )
+
 Added Game->TypingMode : This sets a flag in FFCore that disables KB input from
 	moving Link, or using his button items, and so forth, to ensure that all keypresses
 	are read as char keys, instead of controller keys. 
