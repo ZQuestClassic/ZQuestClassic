@@ -1412,6 +1412,7 @@ int init_game()
   //port250QuestRules();	
     srand(time(0));
     //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
+	FFCore.kb_typing_mode = false;
 	draw_screen_clip_rect_x1=0; //Prevent the ending sequence from carrying over through 'Reset System' -Z
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;

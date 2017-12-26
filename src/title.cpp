@@ -508,6 +508,7 @@ static void treasures(int f)
 
 static void NES_titlescreen()
 {
+    FFCore.kb_typing_mode = false;
     int f=0;
     bool done=false;
     wave[0]=0;
@@ -575,6 +576,7 @@ static void NES_titlescreen()
 
 static void DX_mainscreen(int f)
 {
+    FFCore.kb_typing_mode = false;
     set_uformat(U_ASCII);
     
     static int pic=0;
@@ -627,6 +629,7 @@ static void DX_mainscreen(int f)
 static void DX_titlescreen()
 {
     //  JGMOD *yea;
+    FFCore.kb_typing_mode = false;
     int f=0;
     bool done=false;
     trstr=0;
@@ -686,6 +689,7 @@ static void DX_titlescreen()
 
 static void v25_mainscreen(int f)
 {
+    FFCore.kb_typing_mode = false;
     set_uformat(U_ASCII);
     
     static int pic=0;
@@ -737,6 +741,7 @@ static void v25_mainscreen(int f)
 
 static void v25_titlescreen()
 {
+    FFCore.kb_typing_mode = false;
     //  JGMOD *yea;
     int f=0;
     bool done=false;
@@ -802,6 +807,7 @@ extern char *SAVE_FILE;
 
 int readsaves(gamedata *savedata, PACKFILE *f)
 {
+    FFCore.kb_typing_mode = false;
     //word item_count;
     word qstpath_len;
     word save_count;
@@ -1406,6 +1412,7 @@ void set_up_standalone_save()
 // call once at startup
 int load_savedgames()
 {
+    FFCore.kb_typing_mode = false;
     char *fname = SAVE_FILE;
     char *iname = (char *)zc_malloc(2048);
     int ret;
@@ -2017,6 +2024,7 @@ static void delete_mode()
 
 static void selectscreen()
 {
+    FFCore.kb_typing_mode = false;
     //  text_mode(0);
     init_NES_mode();
     //  loadfullpal();
@@ -3201,6 +3209,7 @@ void titlescreen(int lsave)
     
     Quit=0;
     Playing=Paused=false;
+    FFCore.kb_typing_mode = false;
     
     if(q==qCONT)
     {
