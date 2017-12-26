@@ -1,6 +1,62 @@
+   static const int TYPE_DROPSET = 26;
+    static const int TYPE_PONDS = 27;
+    static const int TYPE_WARPRING = 28;
+    static const int TYPE_DOORSET = 29;
+    static const int TYPE_ZUICOLOURS = 30;
+    static const int TYPE_RGBDATA = 31;
+    static const int TYPE_PALETTE = 32;
+    static const int TYPE_TUNES = 33;
+    static const int TYPE_PALCYCLE = 34;
+    static const int TYPE_GAMEDATA = 35;
+    static const int TYPE_CHEATS = 36;  
 
+REFDROPS
+    REFPONDS
+    REFWARPRINGS
+    REFDOORS
+    REFUICOLOURS
+    REFRGB
+    REFPALETTE
+    REFTUNES
+    REFPALCYCLE
+    REFGAMEDATA
+    REFCHEATS
+    
+    
+	case  TYPE_DROPSET: return "dropdata->";
+	case  TYPE_PONDS: return "ponddata->";
+	case  TYPE_WARPRING: return "warpring->";
+	case  TYPE_DOORSET: return "doorset->";
+	case  TYPE_ZUICOLOURS: return "misccolors->";
+	case  TYPE_RGBDATA: return "rgbdata->";
+	case  TYPE_PALETTE: return "palette->";
+	case  TYPE_TUNES: return "musictrack->";
+	case  TYPE_PALCYCLE: return "palcycle->";
+	case  TYPE_GAMEDATA: return "gamedata->";
+	case  TYPE_CHEATS: return "cheats->";
+	
+		{ "REFDROPS",         REFDROPS,            0,             0 },
+	{ "REFPONDS",         REFPONDS,            0,             0 },
+	{ "REFWARPRINGS",         REFWARPRINGS,            0,             0 },
+	{ "REFDOORS",         REFDOORS,            0,             0 },
+	{ "REFUICOLOURS",         REFUICOLOURS,            0,             0 },
+	{ "REFRGB",         REFRGB,            0,             0 },
+	{ "REFPALETTE",         REFPALETTE,            0,             0 },
+	{ "REFTUNES",         REFTUNES,            0,             0 },
+	{ "REFPALCYCLE",         REFPALCYCLE,            0,             0 },
+	{ "REFGAMEDATA",         REFGAMEDATA,            0,             0 },
+	{ "REFCHEATS",         REFCHEATS,            0,             0 },
+	
+	
+	
+	
+    dword dropsetref, pondref, warpringref, doorsref, 
+    zcoloursref, rgbref, paletteref, palcycleref, 
+    tunesref;
+	dword gamedataref, cheatsref; 
 //shop names
 
+//item_drop_sets[MAXITEMDROPSETS];
 struct item_drop_object
 {
     char name[64];
@@ -20,6 +76,31 @@ struct pondtype
     //72
 };
 
+
+struct miscQdata
+{
+    shoptype shop[256];
+    //160 (160=10*16)
+    infotype info[256];
+    //384 (224=14*16)
+    warpring warp[9];
+    //528 (144=18*8)
+    palcycle cycles[256][3];
+    //2832 (2304=3*256*3)
+    //2850 (18=2*2)
+    byte     triforce[8];                                     // positions of triforce pieces on subscreen
+    //2858 (8)
+    zcolors  colors;
+    //3154 (296)
+    word     icons[4];
+    //3162 (8=2*4)
+    //pondtype pond[16];
+    //4314 (1152=72*16)
+    word endstring;
+    //  byte dummy;  // left over from a word
+    //word expansion[98];
+    //4512
+};
 
 struct warpring
 {
@@ -420,4 +501,169 @@ struct gamedata
         return item[id];
     }
     
+};
+
+//dropdata
+class DropsetSymbols : public LibrarySymbols
+{
+public:
+    static DropsetSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static DropsetSymbols singleton;
+    DropsetSymbols();
+};
+
+//ponddata
+class PondSymbols : public LibrarySymbols
+{
+public:
+    static PondSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static PondSymbols singleton;
+    PondSymbols();
+};
+
+//warpringdata
+class WarpringSymbols : public LibrarySymbols
+{
+public:
+    static WarpringSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static WarpringSymbols singleton;
+    WarpringSymbols();
+};
+
+//doorsetdata
+class DoorsetSymbols : public LibrarySymbols
+{
+public:
+    static DoorsetSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static DoorsetSymbols singleton;
+    DoorsetSymbols();
+};
+
+//misccolordata
+class MiscColourSymbols : public LibrarySymbols
+{
+public:
+    static MiscColourSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static MiscColourSymbols singleton;
+    MiscColourSymbols();
+};
+
+//rgbdata
+class RGBSymbols : public LibrarySymbols
+{
+public:
+    static RGBSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static RGBSymbols singleton;
+    RGBSymbols();
+};
+
+//palettedata
+class PaletteSymbols : public LibrarySymbols
+{
+public:
+    static PaletteSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static PaletteSymbols singleton;
+    PaletteSymbols();
+};
+
+//tunesdata
+class TunesSymbols : public LibrarySymbols
+{
+public:
+    static TunesSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static TunesSymbols singleton;
+    TunesSymbols();
+};
+
+//palcycledata
+class PalCycleSymbols : public LibrarySymbols
+{
+public:
+    static PalCycleSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static PalCycleSymbols singleton;
+    PalCycleSymbols();
+};
+
+//gamedata
+class GamedataSymbols : public LibrarySymbols
+{
+public:
+    static GamedataSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static GamedataSymbols singleton;
+    GamedataSymbols();
+};
+
+//cheatdata
+class CheatsSymbols : public LibrarySymbols
+{
+public:
+    static CheatsSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static CheatsSymbols singleton;
+    CheatsSymbols();
 };

@@ -387,6 +387,172 @@ private:
     UntypedSymbols();
 };
 
+//dropdata
+class DropsetSymbols : public LibrarySymbols
+{
+public:
+    static DropsetSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static DropsetSymbols singleton;
+    DropsetSymbols();
+};
+
+//ponddata
+class PondSymbols : public LibrarySymbols
+{
+public:
+    static PondSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static PondSymbols singleton;
+    PondSymbols();
+};
+
+//warpringdata
+class WarpringSymbols : public LibrarySymbols
+{
+public:
+    static WarpringSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static WarpringSymbols singleton;
+    WarpringSymbols();
+};
+
+//doorsetdata
+class DoorsetSymbols : public LibrarySymbols
+{
+public:
+    static DoorsetSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static DoorsetSymbols singleton;
+    DoorsetSymbols();
+};
+
+//misccolordata
+class MiscColourSymbols : public LibrarySymbols
+{
+public:
+    static MiscColourSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static MiscColourSymbols singleton;
+    MiscColourSymbols();
+};
+
+//rgbdata
+class RGBSymbols : public LibrarySymbols
+{
+public:
+    static RGBSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static RGBSymbols singleton;
+    RGBSymbols();
+};
+
+//palettedata
+class PaletteSymbols : public LibrarySymbols
+{
+public:
+    static PaletteSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static PaletteSymbols singleton;
+    PaletteSymbols();
+};
+
+//tunesdata
+class TunesSymbols : public LibrarySymbols
+{
+public:
+    static TunesSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static TunesSymbols singleton;
+    TunesSymbols();
+};
+
+//palcycledata
+class PalCycleSymbols : public LibrarySymbols
+{
+public:
+    static PalCycleSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static PalCycleSymbols singleton;
+    PalCycleSymbols();
+};
+
+//gamedata
+class GamedataSymbols : public LibrarySymbols
+{
+public:
+    static GamedataSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static GamedataSymbols singleton;
+    GamedataSymbols();
+};
+
+//cheatdata
+class CheatsSymbols : public LibrarySymbols
+{
+public:
+    static CheatsSymbols &getInst()
+    {
+        return singleton;
+    }
+    map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
+protected:
+private:
+    static CheatsSymbols singleton;
+    CheatsSymbols();
+};
+
+
 #endif
 
 

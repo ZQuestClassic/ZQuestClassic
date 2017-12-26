@@ -72,6 +72,17 @@ extern YYLTYPE noloc;
 %token MESSAGEDATA
 %token SHOPDATA
 %token UNTYPED
+%token DROPDATA
+%token PONDDATA
+%token WARPRING
+%token DOORSET
+%token MISCCOLORS
+%token RGBDATA
+%token PALETTE
+%token MUSICTRACK
+%token PALCYCLE
+%token GAMEDATA
+%token CHEATS
 
 %token ASSIGN
 %token COLON
@@ -297,6 +308,17 @@ Type : ZFLOAT {$$ = new ASTTypeFloat(@1);}
 	| MESSAGEDATA	{$$ = new ASTTypeZMsg(@1);}
 	| SHOPDATA	{$$ = new ASTTypeShopData(@1);}
 //	| UNTYPED	{$$ = new ASTTypeUntyped(@1);}
+	| DROPDATA	{$$ = new ASTTypeDropsets(@1);}
+	| PONDDATA	{$$ = new ASTTypePonds(@1);}
+	| WARPRING	{$$ = new ASTTypeWarprings(@1);}
+	| DOORSET	{$$ = new ASTTypeDoorsets(@1);}
+	| MISCCOLORS	{$$ = new ASTTypeZColours(@1);}
+	| RGBDATA	{$$ = new ASTTypeRGB(@1);}
+	| PALETTE	{$$ = new ASTTypePalette(@1);}
+	| MUSICTRACK	{$$ = new ASTTypeTunes(@1);}
+	| PALCYCLE	{$$ = new ASTTypePalCycle(@1);}
+	| GAMEDATA	{$$ = new ASTTypeGamedata(@1);}
+	| CHEATS	{$$ = new ASTTypeCheats(@1);}
 	;
 
 FuncDecl : Type IDENTIFIER LPAREN ParamList RPAREN Block {ASTFuncDecl *fd = (ASTFuncDecl *)$4;

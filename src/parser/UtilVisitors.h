@@ -190,6 +190,18 @@ public:
     void caseTypeZMsg(ASTTypeZMsg &host, void *param);
     void caseTypeShopData(ASTTypeShopData &host, void *param);
     void caseTypeUntyped(ASTTypeUntyped &host, void *param);
+    
+    void caseTypeDropsets(ASTTypeDropsets &host, void *param);
+    void caseTypePonds(ASTTypePonds &host, void *param);
+    void caseTypeWarprings(ASTTypeWarprings &host, void *param);
+    void caseTypeDoorsets(ASTTypeDoorsets &host, void *param);
+    void caseTypeZColours(ASTTypeZColours &host, void *param);
+    void caseTypeRGB(ASTTypeRGB &host, void *param);
+    void caseTypePalette(ASTTypePalette &host, void *param);
+    void caseTypeTunes(ASTTypeTunes &host, void *param);
+    void caseTypePalCycle(ASTTypePalCycle &host, void *param);
+    void caseTypeGamedata(ASTTypeGamedata &host, void *param);
+    void caseTypeCheats(ASTTypeCheats &host, void *param);
 };
 
 class IsDotExpr : public ASTVisitor

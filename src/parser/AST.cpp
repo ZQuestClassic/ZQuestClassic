@@ -1203,3 +1203,84 @@ ASTTypeUntyped* ASTTypeUntyped::clone() const
 	return new ASTTypeUntyped(getLocation());
 }
 
+// ASTTypeDropsets
+
+ASTTypeDropsets* ASTTypeDropsets::clone() const
+{
+	return new ASTTypeDropsets(getLocation());
+}
+
+// ASTTypePonds
+
+ASTTypePonds* ASTTypePonds::clone() const
+{
+	return new ASTTypePonds(getLocation());
+}
+
+// ASTTypeWarprings
+
+ASTTypeWarprings* ASTTypeWarprings::clone() const
+{
+	return new ASTTypeWarprings(getLocation());
+}
+
+// ASTTypeDoorsets
+
+ASTTypeDoorsets* ASTTypeDoorsets::clone() const
+{
+	return new ASTTypeDoorsets(getLocation());
+}
+
+// ASTTypeZColours //misc colours
+
+ASTTypeZColours* ASTTypeZColours::clone() const
+{
+	return new ASTTypeZColours(getLocation());
+}
+
+// ASTTypeRGB
+
+ASTTypeRGB* ASTTypeRGB::clone() const
+{
+	return new ASTTypeRGB(getLocation());
+}
+
+// ASTTypePalette
+
+ASTTypePalette* ASTTypePalette::clone() const
+{
+	return new ASTTypePalette(getLocation());
+}
+
+// ASTTypeTunes
+
+ASTTypeTunes* ASTTypeTunes::clone() const
+{
+	return new ASTTypeTunes(getLocation());
+}
+
+// ASTTypePalCycle
+
+ASTTypePalCycle* ASTTypePalCycle::clone() const
+{
+	return new ASTTypePalCycle(getLocation());
+}
+
+// ASTTypeGamedata
+
+ASTTypeGamedata* ASTTypeGamedata::clone() const
+{
+	return new ASTTypeGamedata(getLocation());
+}
+
+// ASTTypeCheats
+
+ASTTypeCheats* ASTTypeCheats::clone() const
+{
+	return new ASTTypeCheats(getLocation());
+}
+
+
+
+
+

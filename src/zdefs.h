@@ -1616,7 +1616,9 @@ public:
     byte ffcref, idata; //current object pointers
     dword itemref, guyref, lwpn, ewpn;
 	dword mapsref, screenref, npcdataref, gfxref, spritesref, combosref, dmapsref, zmsgref, shopsref, untypedref;
-    
+	//to implement
+	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
+	dword gamedataref, cheatsref; 
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented

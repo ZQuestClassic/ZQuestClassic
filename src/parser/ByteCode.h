@@ -1027,7 +1027,19 @@ using namespace std;
 #define COMBODBLOCKWPNLEVEL	963	//C
 #define COMBODNEXTTIMER		964	//W
 
-#define LAST_BYTECODE 			965
+#define REFDROPS		965
+#define REFPONDS 		966
+#define REFWARPRINGS 		967
+#define REFDOORS 		968
+#define REFUICOLOURS 		969
+#define REFRGB 			970
+#define REFPALETTE 		971
+#define REFTUNES 		972
+#define REFPALCYCLE 		973
+#define REFGAMEDATA 		974
+#define REFCHEATS 		975
+
+#define LAST_BYTECODE 			976
 
 //END OF BYTECODE
 

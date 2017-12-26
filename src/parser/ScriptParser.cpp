@@ -269,6 +269,18 @@ const int ScriptParser::TYPE_ZMESSAGE;
 const int ScriptParser::TYPE_SHOPDATA;
 const int ScriptParser::TYPE_UNTYPED;
 
+const int ScriptParser::TYPE_DROPSET;
+const int ScriptParser::TYPE_PONDS;
+const int ScriptParser::TYPE_WARPRING;
+const int ScriptParser::TYPE_DOORSET;
+const int ScriptParser::TYPE_ZUICOLOURS;
+const int ScriptParser::TYPE_RGBDATA;
+const int ScriptParser::TYPE_PALETTE;
+const int ScriptParser::TYPE_TUNES;
+const int ScriptParser::TYPE_PALCYCLE;
+const int ScriptParser::TYPE_GAMEDATA;
+const int ScriptParser::TYPE_CHEATS;
+
 #endif
 
 string ScriptParser::trimQuotes(string quoteds)
@@ -424,6 +436,18 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
 	MessageDataSymbols::getInst().addSymbolsToScope(globalScope,t);
 	ShopDataSymbols::getInst().addSymbolsToScope(globalScope,t);
 	UntypedSymbols::getInst().addSymbolsToScope(globalScope,t);
+	
+	DropsetSymbols::getInst().addSymbolsToScope(globalScope,t);
+	PondSymbols::getInst().addSymbolsToScope(globalScope,t);
+	WarpringSymbols::getInst().addSymbolsToScope(globalScope,t);
+	DoorsetSymbols::getInst().addSymbolsToScope(globalScope,t);
+	MiscColourSymbols::getInst().addSymbolsToScope(globalScope,t);
+	RGBSymbols::getInst().addSymbolsToScope(globalScope,t);
+	PaletteSymbols::getInst().addSymbolsToScope(globalScope,t);
+	TunesSymbols::getInst().addSymbolsToScope(globalScope,t);
+	PalCycleSymbols::getInst().addSymbolsToScope(globalScope,t);
+	GamedataSymbols::getInst().addSymbolsToScope(globalScope,t);
+	CheatsSymbols::getInst().addSymbolsToScope(globalScope,t);
     
     //strip the global functions from the AST
     GetGlobalFuncs gc;
@@ -554,6 +578,50 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     
     vid2 = globalScope->getVarSymbols().addVariable("Untyped", ScriptParser::TYPE_UNTYPED);
     t->putVar(vid2, ScriptParser::TYPE_UNTYPED);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("dropdata->", ScriptParser::TYPE_DROPSET);
+    t->putVar(vid2, ScriptParser::TYPE_DROPSET);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("ponddata->", ScriptParser::TYPE_PONDS);
+    t->putVar(vid2, ScriptParser::TYPE_PONDS);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("warpring->", ScriptParser::TYPE_WARPRING);
+    t->putVar(vid2, ScriptParser::TYPE_WARPRING);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("doorset->", ScriptParser::TYPE_DOORSET);
+    t->putVar(vid2, ScriptParser::TYPE_DOORSET);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("misccolors->", ScriptParser::TYPE_ZUICOLOURS);
+    t->putVar(vid2, ScriptParser::TYPE_ZUICOLOURS);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("rgbdata->", ScriptParser::TYPE_RGBDATA);
+    t->putVar(vid2, ScriptParser::TYPE_RGBDATA);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("palette->", ScriptParser::TYPE_PALETTE);
+    t->putVar(vid2, ScriptParser::TYPE_PALETTE);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("musictrack->", ScriptParser::TYPE_TUNES);
+    t->putVar(vid2, ScriptParser::TYPE_TUNES);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("palcycle->", ScriptParser::TYPE_PALCYCLE);
+    t->putVar(vid2, ScriptParser::TYPE_PALCYCLE);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("gamedata->", ScriptParser::TYPE_GAMEDATA);
+    t->putVar(vid2, ScriptParser::TYPE_GAMEDATA);
+    t->addGlobalPointer(vid2);
+    
+    vid2 = globalScope->getVarSymbols().addVariable("cheats->", ScriptParser::TYPE_CHEATS);
+    t->putVar(vid2, ScriptParser::TYPE_CHEATS);
     t->addGlobalPointer(vid2);
     
     
@@ -1160,6 +1228,84 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     {
         rval->funcs[it->first] = it->second;
     }
+    
+    globalcode = DropsetSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = PondSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = WarpringSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = DoorsetSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = MiscColourSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = RGBSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = PaletteSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = TunesSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = PalCycleSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = GamedataSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+    
+    globalcode = CheatsSymbols::getInst().addSymbolsCode(lt);
+    
+    for(map<int, vector<Opcode *> >::iterator it = globalcode.begin(); it != globalcode.end(); it++)
+    {
+        rval->funcs[it->first] = it->second;
+    }
+
     
     //Z_message("yes");
     

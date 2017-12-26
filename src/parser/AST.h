@@ -131,6 +131,18 @@ class ASTTypeZMsg;
 class ASTTypeShopData;
 class ASTTypeUntyped;
 
+class ASTTypeDropsets;
+class ASTTypePonds;
+class ASTTypeWarprings;
+class ASTTypeDoorsets;
+class ASTTypeZColours;
+class ASTTypeRGB;
+class ASTTypePalette;
+class ASTTypeTunes;
+class ASTTypePalCycle;
+class ASTTypeGamedata;
+class ASTTypeCheats;
+
 class ASTVisitor
 {
 public:
@@ -224,6 +236,18 @@ public:
 	virtual void caseTypeZMsg(ASTTypeZMsg &, void *param) {caseDefault(param);}
 	virtual void caseTypeShopData(ASTTypeShopData &, void *param) {caseDefault(param);}
 	virtual void caseTypeUntyped(ASTTypeUntyped &, void *param) {caseDefault(param);}
+	
+	virtual void caseTypeDropsets(ASTTypeDropsets &, void *param) {caseDefault(param);}
+	virtual void caseTypePonds(ASTTypePonds &, void *param) {caseDefault(param);}
+	virtual void caseTypeWarprings(ASTTypeWarprings &, void *param) {caseDefault(param);}
+	virtual void caseTypeDoorsets(ASTTypeDoorsets &, void *param) {caseDefault(param);}
+	virtual void caseTypeZColours(ASTTypeZColours &, void *param) {caseDefault(param);}
+	virtual void caseTypeRGB(ASTTypeRGB &, void *param) {caseDefault(param);}
+	virtual void caseTypePalette(ASTTypePalette &, void *param) {caseDefault(param);}
+	virtual void caseTypeTunes(ASTTypeTunes &, void *param) {caseDefault(param);}
+	virtual void caseTypePalCycle(ASTTypePalCycle &, void *param) {caseDefault(param);}
+	virtual void caseTypeGamedata(ASTTypeGamedata &, void *param) {caseDefault(param);}
+	virtual void caseTypeCheats(ASTTypeCheats &, void *param) {caseDefault(param);}
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1550,6 +1574,161 @@ private:
     ASTTypeUntyped(ASTTypeUntyped &);
     ASTTypeUntyped &operator=(ASTTypeUntyped &);
 };
+
+class ASTTypeDropsets : public ASTType
+{
+public:
+    ASTTypeDropsets(LocationData Loc) : ASTType(Loc) {}
+	ASTTypeDropsets* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypeDropsets(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeDropsets(ASTTypeDropsets &);
+    ASTTypeDropsets &operator=(ASTTypeDropsets &);
+};
+
+class ASTTypePonds : public ASTType
+{
+public:
+    ASTTypePonds(LocationData Loc) : ASTType(Loc) {}
+	ASTTypePonds* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypePonds(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypePonds(ASTTypePonds &);
+    ASTTypePonds &operator=(ASTTypePonds &);
+};
+
+class ASTTypeWarprings : public ASTType
+{
+public:
+    ASTTypeWarprings(LocationData Loc) : ASTType(Loc) {}
+	ASTTypeWarprings* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypeWarprings(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeWarprings(ASTTypeWarprings &);
+    ASTTypeWarprings &operator=(ASTTypeWarprings &);
+};
+
+class ASTTypeDoorsets : public ASTType
+{
+public:
+    ASTTypeDoorsets(LocationData Loc) : ASTType(Loc) {}
+	ASTTypeDoorsets* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypeDoorsets(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeDoorsets(ASTTypeDoorsets &);
+    ASTTypeDoorsets &operator=(ASTTypeDoorsets &);
+};
+
+class ASTTypeZColours : public ASTType
+{
+public:
+    ASTTypeZColours(LocationData Loc) : ASTType(Loc) {}
+	ASTTypeZColours* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypeZColours(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeZColours(ASTTypeZColours &);
+    ASTTypeZColours &operator=(ASTTypeZColours &);
+};
+
+class ASTTypeRGB : public ASTType
+{
+public:
+    ASTTypeRGB(LocationData Loc) : ASTType(Loc) {}
+	ASTTypeRGB* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypeRGB(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeRGB(ASTTypeRGB &);
+    ASTTypeRGB &operator=(ASTTypeRGB &);
+};
+
+class ASTTypePalette : public ASTType
+{
+public:
+    ASTTypePalette(LocationData Loc) : ASTType(Loc) {}
+	ASTTypePalette* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypePalette(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypePalette(ASTTypePalette &);
+    ASTTypePalette &operator=(ASTTypePalette &);
+};
+
+class ASTTypeTunes : public ASTType
+{
+public:
+    ASTTypeTunes(LocationData Loc) : ASTType(Loc) {}
+	ASTTypeTunes* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypeTunes(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeTunes(ASTTypeTunes &);
+    ASTTypeTunes &operator=(ASTTypeTunes &);
+};
+
+class ASTTypePalCycle : public ASTType
+{
+public:
+    ASTTypePalCycle(LocationData Loc) : ASTType(Loc) {}
+	ASTTypePalCycle* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypePalCycle(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypePalCycle(ASTTypePalCycle &);
+    ASTTypePalCycle &operator=(ASTTypePalCycle &);
+};
+
+class ASTTypeGamedata : public ASTType
+{
+public:
+    ASTTypeGamedata(LocationData Loc) : ASTType(Loc) {}
+	ASTTypeGamedata* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypeGamedata(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeGamedata(ASTTypeGamedata &);
+    ASTTypeGamedata &operator=(ASTTypeGamedata &);
+};
+
+class ASTTypeCheats : public ASTType
+{
+public:
+    ASTTypeCheats(LocationData Loc) : ASTType(Loc) {}
+	ASTTypeCheats* clone() const;
+	
+    void execute(ASTVisitor &visitor, void *param) {
+        visitor.caseTypeCheats(*this,param);}
+private:
+    //NOT IMPLEMENTED; DO NOT USE
+    ASTTypeCheats(ASTTypeCheats &);
+    ASTTypeCheats &operator=(ASTTypeCheats &);
+};
+
 
 class ASTShiftExpr : public ASTBinaryExpr
 {

@@ -123,6 +123,18 @@ public:
     static const int TYPE_SHOPDATA = 24;
     static const int TYPE_UNTYPED = 25;
     
+    static const int TYPE_DROPSET = 26;
+    static const int TYPE_PONDS = 27;
+    static const int TYPE_WARPRING = 28;
+    static const int TYPE_DOORSET = 29;
+    static const int TYPE_ZUICOLOURS = 30;
+    static const int TYPE_RGBDATA = 31;
+    static const int TYPE_PALETTE = 32;
+    static const int TYPE_TUNES = 33;
+    static const int TYPE_PALCYCLE = 34;
+    static const int TYPE_GAMEDATA = 35;
+    static const int TYPE_CHEATS = 36;
+    
     
     static bool preprocess(AST *theAST, int reclevel, std::map<string,long> *constants);
     static SymbolData *buildSymbolTable(AST *theAST, std::map<string, long> *constants);
@@ -206,6 +218,18 @@ public:
 	case  TYPE_ZMESSAGE: return "MessageData->";
 	case  TYPE_SHOPDATA: return "ShopData->";
 	case  TYPE_UNTYPED: return "Untyped->";
+	
+	case  TYPE_DROPSET: return "dropdata->";
+	case  TYPE_PONDS: return "ponddata->";
+	case  TYPE_WARPRING: return "warpring->";
+	case  TYPE_DOORSET: return "doorset->";
+	case  TYPE_ZUICOLOURS: return "misccolors->";
+	case  TYPE_RGBDATA: return "rgbdata->";
+	case  TYPE_PALETTE: return "palette->";
+	case  TYPE_TUNES: return "musictrack->";
+	case  TYPE_PALCYCLE: return "palcycle->";
+	case  TYPE_GAMEDATA: return "gamedata->";
+	case  TYPE_CHEATS: return "cheats->";
         default:
             return "wtf";
         }

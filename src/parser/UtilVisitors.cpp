@@ -679,3 +679,47 @@ void ExtractType::caseTypeUntyped(ASTTypeUntyped &, void *param)
 {
     *(int *)param = ScriptParser::TYPE_UNTYPED;
 }
+void ExtractType::caseTypeDropsets(ASTTypeDropsets &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_DROPSET;
+}
+void ExtractType::caseTypePonds(ASTTypePonds &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_PONDS;
+}
+void ExtractType::caseTypeWarprings(ASTTypeWarprings &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_WARPRING;
+}
+void ExtractType::caseTypeDoorsets(ASTTypeDoorsets &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_DOORSET;
+}
+void ExtractType::caseTypeZColours(ASTTypeZColours &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_ZUICOLOURS;
+}
+void ExtractType::caseTypeRGB(ASTTypeRGB &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_RGBDATA;
+}
+void ExtractType::caseTypePalette(ASTTypePalette &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_PALETTE;
+}
+void ExtractType::caseTypeTunes(ASTTypeTunes &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_TUNES;
+}
+void ExtractType::caseTypePalCycle(ASTTypePalCycle &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_PALCYCLE;
+}
+void ExtractType::caseTypeGamedata(ASTTypeGamedata &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_GAMEDATA;
+}
+void ExtractType::caseTypeCheats(ASTTypeCheats &, void *param)
+{
+    *(int *)param = ScriptParser::TYPE_CHEATS;
+}

@@ -2013,6 +2013,8 @@ enum ASM_DEFINE
 
 //! ItemData Misc# and Wpn#
 
+//here are all the new datatypes. I'm not adding more!!! -Z
+//(I may add fonts types, one day. -Z)
 #define REFMAPDATA 0x10BA
 #define REFSCREENDATA 0x10BB
 #define REFCOMBODATA 0x10BC
@@ -2022,18 +2024,19 @@ enum ASM_DEFINE
 #define REFSHOPDATA 0x10C0
 #define REFMSGDATA 0x10C1
 #define REFUNTYPED 0x10C2
-#define RESVD010 0x10C3
 
-#define RESVD011 0x10C4
-#define RESVD012 0x10C5
-#define RESVD013 0x10C6
-#define RESVD014 0x10C7
-#define RESVD015 0x10C8
-#define RESVD016 0x10C9
-#define RESVD017 0x10CA
-#define RESVD018 0x10CB
-#define RESVD019 0x10CC
-#define RESVD020 0x10CD
+#define REFDROPS 0x10C3
+#define REFPONDS 0x10C4
+#define REFWARPRINGS 0x10C5
+#define REFDOORS 0x10C6
+#define REFUICOLOURS 0x10C7
+#define REFRGB 0x10C8
+#define REFPALETTE 0x10C9
+#define REFTUNES 0x10CA
+#define REFPALCYCLE 0x10CB
+#define REFGAMEDATA 0x10CC
+#define REFCHEATS 0x10CD
+//These somehow magically all fit into the space that I reserved over a year ago! -Z
 
 //Itemdata Flags
 #define IDATACOMBINE 0x10CE

@@ -486,7 +486,21 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
              || lvaltype == ScriptParser::TYPE_DMAPDATA
              || lvaltype == ScriptParser::TYPE_ZMESSAGE
              || lvaltype == ScriptParser::TYPE_SHOPDATA 
-             || lvaltype == ScriptParser::TYPE_UNTYPED))
+             || lvaltype == ScriptParser::TYPE_UNTYPED
+	     
+             || lvaltype == ScriptParser::TYPE_DROPSET
+             || lvaltype == ScriptParser::TYPE_PONDS
+             || lvaltype == ScriptParser::TYPE_WARPRING
+             || lvaltype == ScriptParser::TYPE_DOORSET
+             || lvaltype == ScriptParser::TYPE_ZUICOLOURS
+             || lvaltype == ScriptParser::TYPE_RGBDATA
+             || lvaltype == ScriptParser::TYPE_PALETTE
+             || lvaltype == ScriptParser::TYPE_TUNES
+             || lvaltype == ScriptParser::TYPE_PALCYCLE
+             || lvaltype == ScriptParser::TYPE_GAMEDATA
+             || lvaltype == ScriptParser::TYPE_CHEATS
+	     
+	     ))
         {
 	        printErrorMsg(lval, ARROWNOTPOINTER);
 	        failure = true;
@@ -698,6 +712,39 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
 	
         case ScriptParser::TYPE_UNTYPED:
 	        fidtype = UntypedSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+	case ScriptParser::TYPE_DROPSET:
+	        fidtype = DropsetSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+	case ScriptParser::TYPE_PONDS:
+	        fidtype = PondSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+	case ScriptParser::TYPE_WARPRING:
+	        fidtype = WarpringSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+	case ScriptParser::TYPE_DOORSET:
+	        fidtype = DoorsetSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+	case ScriptParser::TYPE_ZUICOLOURS:
+	        fidtype = MiscColourSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+	case ScriptParser::TYPE_RGBDATA:
+	        fidtype = RGBSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+	case ScriptParser::TYPE_PALETTE:
+	        fidtype = PaletteSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+	case ScriptParser::TYPE_TUNES:
+	        fidtype = TunesSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+	case ScriptParser::TYPE_PALCYCLE:
+	        fidtype = PalCycleSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+	case ScriptParser::TYPE_GAMEDATA:
+	        fidtype = GamedataSymbols::getInst().matchFunction(name->getName(), st);
+	        break;
+	case ScriptParser::TYPE_CHEATS:
+	        fidtype = CheatsSymbols::getInst().matchFunction(name->getName(), st);
 	        break;
 
         default:
@@ -1738,7 +1785,7 @@ bool TypeCheck::standardCheck(int firsttype, int secondtype, AST *toblame)
 			printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to Input");
             
 		return false;
-    }
+	}
 
     case ScriptParser::TYPE_DMAPDATA:
     {
@@ -1765,7 +1812,7 @@ bool TypeCheck::standardCheck(int firsttype, int secondtype, AST *toblame)
     }
 
 	case ScriptParser::TYPE_SHOPDATA:
-    {
+        {
         if (secondtype == ScriptParser::TYPE_SHOPDATA
             || secondtype == ScriptParser::TYPE_UNTYPED )
             return true;
@@ -1776,6 +1823,137 @@ bool TypeCheck::standardCheck(int firsttype, int secondtype, AST *toblame)
         return false;
     }
 
+	case ScriptParser::TYPE_DROPSET:
+	{
+		if (secondtype == ScriptParser::TYPE_DROPSET
+		    || secondtype == ScriptParser::TYPE_UNTYPED )
+		    return true;
+		    
+		if(toblame)
+		    printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to dropdata");
+		    
+		return false;
+	}
+
+	case ScriptParser::TYPE_PONDS:
+	{
+		if (secondtype == ScriptParser::TYPE_PONDS
+		    || secondtype == ScriptParser::TYPE_UNTYPED )
+		    return true;
+		    
+		if(toblame)
+		    printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to ponddata");
+		    
+		return false;
+	}
+
+	case ScriptParser::TYPE_WARPRING:
+	{
+		if (secondtype == ScriptParser::TYPE_WARPRING
+		    || secondtype == ScriptParser::TYPE_UNTYPED )
+		    return true;
+		    
+		if(toblame)
+		    printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to warpring");
+		    
+		return false;
+	}
+
+	case ScriptParser::TYPE_DOORSET:
+	{
+		if (secondtype == ScriptParser::TYPE_DOORSET
+		    || secondtype == ScriptParser::TYPE_UNTYPED )
+		    return true;
+		    
+		if(toblame)
+		    printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to doorset");
+		    
+		return false;
+	}
+
+	case ScriptParser::TYPE_ZUICOLOURS:
+	{
+		if (secondtype == ScriptParser::TYPE_ZUICOLOURS
+		    || secondtype == ScriptParser::TYPE_UNTYPED )
+		    return true;
+		    
+		if(toblame)
+		    printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to misccolors");
+		    
+		return false;
+	}
+
+	case ScriptParser::TYPE_RGBDATA:
+	{
+		if (secondtype == ScriptParser::TYPE_RGBDATA
+		    || secondtype == ScriptParser::TYPE_UNTYPED )
+		    return true;
+		    
+		if(toblame)
+		    printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to rgbdata");
+		    
+		return false;
+	}
+
+	case ScriptParser::TYPE_PALETTE:
+	{
+		if (secondtype == ScriptParser::TYPE_PALETTE
+		    || secondtype == ScriptParser::TYPE_UNTYPED )
+		    return true;
+		    
+		if(toblame)
+		    printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to palette");
+		    
+		return false;
+	}
+
+	case ScriptParser::TYPE_TUNES:
+	{
+		if (secondtype == ScriptParser::TYPE_TUNES
+		    || secondtype == ScriptParser::TYPE_UNTYPED )
+		    return true;
+		    
+		if(toblame)
+		    printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to musictrack");
+		    
+		return false;
+	}
+
+	case ScriptParser::TYPE_PALCYCLE:
+	{
+		if (secondtype == ScriptParser::TYPE_PALCYCLE
+		    || secondtype == ScriptParser::TYPE_UNTYPED )
+		    return true;
+		    
+		if(toblame)
+		    printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to palcycle");
+		    
+		return false;
+	}
+
+	case ScriptParser::TYPE_GAMEDATA:
+	{
+		if (secondtype == ScriptParser::TYPE_GAMEDATA
+		    || secondtype == ScriptParser::TYPE_UNTYPED )
+		    return true;
+		    
+		if(toblame)
+		    printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to gamedata");
+		    
+		return false;
+	}
+
+	case ScriptParser::TYPE_CHEATS:
+	{
+		if (secondtype == ScriptParser::TYPE_CHEATS
+		    || secondtype == ScriptParser::TYPE_UNTYPED )
+		    return true;
+		    
+		if(toblame)
+		    printErrorMsg(toblame, ILLEGALCAST, ScriptParser::printType(secondtype) + " to cheatdata");
+		    
+		return false;
+	}
 	case ScriptParser::TYPE_UNTYPED: return true;
 	
     default:
@@ -1905,7 +2083,39 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
     case ScriptParser::TYPE_UNTYPED:
         fidparam = UntypedSymbols::getInst().matchFunction(name, p->first.second->first);
         break;
-
+    case ScriptParser::TYPE_DROPSET:
+        fidparam = DropsetSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_PONDS:
+        fidparam = PondSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_WARPRING:
+        fidparam = WarpringSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_DOORSET:
+        fidparam = DoorsetSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_ZUICOLOURS:
+        fidparam = MiscColourSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_RGBDATA:
+        fidparam = RGBSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_PALETTE:
+        fidparam = PaletteSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_TUNES:
+        fidparam = TunesSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_PALCYCLE:
+        fidparam = PalCycleSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_GAMEDATA:
+        fidparam = GamedataSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
+    case ScriptParser::TYPE_CHEATS:
+        fidparam = CheatsSymbols::getInst().matchFunction(name, p->first.second->first);
+        break;
     
     default:
         p->first.first->fail();

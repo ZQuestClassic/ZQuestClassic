@@ -10187,3 +10187,293 @@ map<int, vector<Opcode *> > UntypedSymbols::addSymbolsCode(LinkTable &lt)
 
     return rval;
 }
+
+
+////New DATATYPES 26th Dec 2017
+
+DropsetSymbols DropsetSymbols::singleton = DropsetSymbols();
+
+static AccessorTable DropsetTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_DROPSET,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+DropsetSymbols::DropsetSymbols()
+{
+    table = DropsetTable;
+    refVar = REFDROPS;
+}
+
+map<int, vector<Opcode *> > DropsetSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+
+PondSymbols PondSymbols::singleton = PondSymbols();
+
+static AccessorTable PondsTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_PONDS,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+PondSymbols::PondSymbols()
+{
+    table = PondsTable;
+    refVar = REFPONDS;
+}
+
+map<int, vector<Opcode *> > PondSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+
+WarpringSymbols WarpringSymbols::singleton = WarpringSymbols();
+
+static AccessorTable WarpringTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_WARPRING,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+WarpringSymbols::WarpringSymbols()
+{
+    table = WarpringTable;
+    refVar = REFWARPRINGS;
+}
+
+map<int, vector<Opcode *> > WarpringSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+
+DoorsetSymbols DoorsetSymbols::singleton = DoorsetSymbols();
+
+static AccessorTable DoorsetTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_DOORSET,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+DoorsetSymbols::DoorsetSymbols()
+{
+    table = DoorsetTable;
+    refVar = REFDOORS;
+}
+
+map<int, vector<Opcode *> > DoorsetSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+
+MiscColourSymbols MiscColourSymbols::singleton = MiscColourSymbols();
+
+static AccessorTable MiscColoursTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_ZUICOLOURS,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+MiscColourSymbols::MiscColourSymbols()
+{
+    table = MiscColoursTable;
+    refVar = REFUICOLOURS;
+}
+
+map<int, vector<Opcode *> > MiscColourSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+
+RGBSymbols RGBSymbols::singleton = RGBSymbols();
+
+static AccessorTable RGBTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_RGBDATA,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+RGBSymbols::RGBSymbols()
+{
+    table = RGBTable;
+    refVar = REFRGB;
+}
+
+map<int, vector<Opcode *> > RGBSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+
+PaletteSymbols PaletteSymbols::singleton = PaletteSymbols();
+
+static AccessorTable PaletteTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_PALETTE,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+PaletteSymbols::PaletteSymbols()
+{
+    table = PaletteTable;
+    refVar = REFPALETTE;
+}
+
+map<int, vector<Opcode *> > PaletteSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+
+TunesSymbols TunesSymbols::singleton = TunesSymbols();
+
+static AccessorTable TunesTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_TUNES,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+TunesSymbols::TunesSymbols()
+{
+    table = TunesTable;
+    refVar = REFTUNES;
+}
+
+map<int, vector<Opcode *> > TunesSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+
+PalCycleSymbols PalCycleSymbols::singleton = PalCycleSymbols();
+
+static AccessorTable PalCycleTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_PALCYCLE,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+PalCycleSymbols::PalCycleSymbols()
+{
+    table = PalCycleTable;
+    refVar = REFPALCYCLE;
+}
+
+map<int, vector<Opcode *> > PalCycleSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+
+GamedataSymbols GamedataSymbols::singleton = GamedataSymbols();
+
+static AccessorTable GameDataTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_GAMEDATA,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+GamedataSymbols::GamedataSymbols()
+{
+    table = GameDataTable;
+    refVar = REFGAMEDATA;
+}
+
+map<int, vector<Opcode *> > GamedataSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+
+CheatsSymbols CheatsSymbols::singleton = CheatsSymbols();
+
+static AccessorTable CheatTable[] =
+{
+    //name,                     rettype,                        setorget,     var,              numindex,      params
+	//All of these return a function label error when used:
+	{ "getTest",               ScriptParser::TYPE_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ScriptParser::TYPE_CHEATS,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	
+    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+};
+
+CheatsSymbols::CheatsSymbols()
+{
+    table = CheatTable;
+    refVar = REFCHEATS;
+}
+
+map<int, vector<Opcode *> > CheatsSymbols::addSymbolsCode(LinkTable &lt)
+{
+    map<int, vector<Opcode *> > rval;
+    int id=-1;
+	
+
+    return rval;
+}
+

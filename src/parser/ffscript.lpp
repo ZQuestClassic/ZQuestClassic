@@ -57,6 +57,17 @@ dmapdata		{doLines(); return DMAPDATA;}
 messagedata		{doLines(); return MESSAGEDATA;}
 shopdata		{doLines(); return SHOPDATA;}
 untyped		{doLines(); return UNTYPED;}
+dropdata	{doLines(); return DROPDATA;}
+ponddata	{doLines(); return PONDDATA;}
+warpring	{doLines(); return WARPRING;}
+doorset		{doLines(); return DOORSET;}
+misccolors	{doLines(); return MISCCOLORS;}
+rgbdata		{doLines(); return RGBDATA;}
+palette		{doLines(); return PALETTE;}
+zcmidi		{doLines(); return MUSICTRACK;}
+palcycle	{doLines(); return PALCYCLE;}
+gamedata	{doLines(); return GAMEDATA;}
+cheats		{doLines(); return CHEATS;}
 
 \-\>		{ doLines(); return ARROW;}
 \<\<=		{ doLines(); return LSHIFTASSIGN; }

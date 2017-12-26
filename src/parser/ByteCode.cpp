@@ -313,6 +313,18 @@ string VarArgument::toString()
      case REFSHOPDATA: return "REFSHOPDATA";
      case REFMSGDATA: return "REFMSGDATA";
      case REFNIL: return "REFNIL";
+    
+     case REFDROPS: return "REFDROPS";
+     case REFPONDS: return "REFPONDS";
+     case REFWARPRINGS: return "REFWARPRINGS";
+     case REFDOORS: return "REFDOORS";
+     case REFUICOLOURS: return "REFUICOLOURS";
+     case REFRGB: return "REFRGB";
+     case REFPALETTE: return "REFPALETTE";
+     case REFTUNES: return "REFTUNES";
+     case REFPALCYCLE: return "REFPALCYCLE";
+     case REFGAMEDATA: return "REFGAMEDATA";
+     case REFCHEATS: return "REFCHEATS";
         
     case REFITEM:
         return "REFITEM";

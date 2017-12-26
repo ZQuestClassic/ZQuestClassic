@@ -5335,6 +5335,19 @@ case AUDIOPAN:
     case REFSHOPDATA: ret = ri->shopsref; break;
     case REFMSGDATA: ret = ri->zmsgref; break;
     case REFUNTYPED: ret = ri->untypedref; break;
+    
+    case REFDROPS: ret = ri->dropsetref; break;
+    case REFPONDS: ret = ri->pondref; break;
+    case REFWARPRINGS: ret = ri->warpringref; break;
+    case REFDOORS: ret = ri->doorsref; break;
+    case REFUICOLOURS: ret = ri->zcoloursref; break;
+    case REFRGB: ret = ri->rgbref; break;
+    case REFPALETTE: ret = ri->paletteref; break;
+    case REFTUNES: ret = ri->tunesref; break;
+    case REFPALCYCLE: ret = ri->palcycleref; break;
+    case REFGAMEDATA: ret = ri->gamedataref; break;
+    case REFCHEATS: ret = ri->cheatsref; break;
+   
         
     case SP:
         ret = ri->sp * 10000;
@@ -9968,6 +9981,19 @@ case AUDIOPAN:
     case REFSHOPDATA: ri->shopsref = value; break;
     case REFMSGDATA: ri->zmsgref = value; break;
     case REFUNTYPED: ri->untypedref = value; break;
+    
+    
+    case REFDROPS:  ri->dropsetref = value; break;
+    case REFPONDS:  ri->pondref = value; break;
+    case REFWARPRINGS:  ri->warpringref = value; break;
+    case REFDOORS:  ri->doorsref = value; break;
+    case REFUICOLOURS:  ri->zcoloursref = value; break;
+    case REFRGB:  ri->rgbref = value; break;
+    case REFPALETTE:  ri->paletteref = value; break;
+    case REFTUNES:  ri->tunesref = value; break;
+    case REFPALCYCLE:  ri->palcycleref = value; break;
+    case REFGAMEDATA:  ri->gamedataref = value; break;
+    case REFCHEATS:  ri->cheatsref = value; break;
         
     default:
     {
