@@ -2,7 +2,31 @@
 
 //Alpha 21
 
-TODO: Add the combodata member variables and arrays !!!
+MISSING: npcdata->FireSound; npc->FireSound
+
+Fixed a bug in Game->LoadComboData that could crash ZC, and copied
+the fix to all of the other, new Game->Load functions, in the event that
+they also have this issue.
+
+The problem was caused by setting their ref to LONG_MAX, which could
+cause memory corruption; trying to access invalid memory areas.
+
+Added combodata variables and arrays:
+	Type, Tile, Flip, Walk, CSet, Foo, Frames, NextData,
+	NextCSet, Flag, SkipAnim, NextTimer, SkipAnimY, AnimFlags,
+	Expansion[6], Attributes[4], TriggerFlags[3], UserFlags,
+	TriggerLevel, BlockNPC, BlockHole, BlockTrigger, BlockWeapon[32],
+	ConveyorSpeedX, ConveyorSpeedY, SpawnNPC, SpawnNPCWhen, SpawnNPCChange,
+	DirChange, DistanceChangeTiles, DiveItem, Dock, Fairy, 
+	FFCAttributeChange, DecorationTile, DecorationType, Hookshot,
+	Ladder, LockBlock, LockBlockChange, Mirror, DamageAmount, DamageDelay,
+	DamageType, MagicAmount, MagicDelay, MagicType, NoPushBlocks,
+	Overhead, PlaceNPC, PushDir, PushDelay, PushHeavy, Pushed, Raft,
+	ResetRoom, SavePoint, FreezeScreen, SecretCombo, Singular (self-only),
+	SlowWalk, Statue, Step, StepChange, Strike[32], StrikeRemnants,
+	StrikeRemnantsType, StrikeChange, StrikeItem, TouchItem,
+	TouchStairs, TriggerType, TriggerSensitivity, Warp, WarpSensitivity,
+	WarpDirect, WarpLocation, Water, Whistle, WinGame, BlockWeaponLevel.
 
 Fixed TypingMode not cleared on 'Reset System' from FKeys/menus.
 	( ZoriaRPG, 26th December, 2017 )
