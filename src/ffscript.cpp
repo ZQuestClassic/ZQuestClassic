@@ -4738,6 +4738,282 @@ case MESSAGEDATAFLAGS: //BYTE
 		ret = ((int)MsgStrings[ID].stringflags) * 10000;
 	break;
 }
+
+
+///----------------------------------------------------------------------------------------------------//
+//combodata cd-> Getter variables
+	#define	GET_COMBO_VAR_INT(member, str) \
+	{ \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			ret = (combobuf[ri->combosref].member *10000); \
+		} \
+	} \
+
+	#define	GET_COMBO_VAR_BYTE(member, str) \
+	{ \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			ret = (combobuf[ri->combosref].member *10000); \
+		} \
+	} \
+	
+	#define	GET_COMBO_VAR_DWORD(member, str) \
+	{ \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			ret = (combobuf[ri->combosref].member *10000); \
+		} \
+	} \
+	
+	#define GET_COMBO_VAR_INDEX(member, str, indexbound) \
+	{ \
+			int indx = ri->d[0] / 10000; \
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+			{ \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				ret = -10000; \
+			} \
+			else if ( indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+				ret = -10000; \
+			} \
+			else \
+			{ \
+				ret = (combobuf[ri->combosref].member[indx] * 10000); \
+			} \
+	}
+
+	#define GET_COMBO_BYTE_INDEX(member, str, indexbound) \
+	{ \
+			int indx = ri->d[0] / 10000; \
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+			{ \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				ret = -10000; \
+			} \
+			else if ( indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+				ret = -10000; \
+			} \
+			else \
+			{ \
+				ret = (combobuf[ri->combosref].member[indx] * 100000); \
+			} \
+	}
+	
+	#define GET_COMBO_FLAG(member, str, indexbound) \
+	{ \
+		long flag =  (value/10000);  \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+		} \
+		else \
+		{ \
+			ret = (combobuf[ri->combosref].member&flag) ? 10000 : 0); \
+		} \
+	} \
+
+//comboclass macros
+
+#define	GET_COMBOCLASS_VAR_INT(member, str) \
+	{ \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			ret = (combo_class_buf[combobuf[ri->combosref].type].member *10000); \
+		} \
+	} \
+
+	#define	GET_COMBOCLASS_VAR_BYTE(member, str) \
+	{ \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			ret = (combo_class_buf[combobuf[ri->combosref].type].member *10000); \
+		} \
+	} \
+	
+	#define	GET_COMBOCLASS_VAR_DWORD(member, str) \
+	{ \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+			ret = -10000; \
+		} \
+		else \
+		{ \
+			ret = (combo_class_buf[combobuf[ri->combosref].type].member *10000); \
+		} \
+	} \
+	
+	#define GET_COMBOCLASS_VAR_INDEX(member, str, indexbound) \
+	{ \
+			int indx = ri->d[0] / 10000; \
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+			{ \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				ret = -10000; \
+			} \
+			else if ( indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+				ret = -10000; \
+			} \
+			else \
+			{ \
+				ret = (combo_class_buf[combobuf[ri->combosref].type].member[indx] * 10000); \
+			} \
+	}
+
+	#define GET_COMBOCLASS_BYTE_INDEX(member, str, indexbound) \
+	{ \
+			int indx = ri->d[0] / 10000; \
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+			{ \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+				ret = -10000; \
+			} \
+			else if ( indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+				ret = -10000; \
+			} \
+			else \
+			{ \
+				ret = (combo_class_buf[combobuf[ri->combosref].type].member[indx] * 100000); \
+			} \
+	}
+	
+	#define GET_COMBOCLASS_FLAG(member, str, indexbound) \
+	{ \
+		long flag =  (value/10000);  \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+		} \
+		else \
+		{ \
+			ret = (combo_class_buf[combobuf[ri->combosref].type].member&flag) ? 10000 : 0); \
+		} \
+	} \
+
+
+
+
+//NEWCOMBO STRUCT
+case COMBODTILE:		GET_COMBO_VAR_DWORD(tile, "Tile"); break;					//word
+case COMBODFLIP:		GET_COMBO_VAR_BYTE(flip, "Flip"); break;					//char
+case COMBODWALK:		GET_COMBO_VAR_BYTE(walk, "Walk"); break;					//char
+case COMBODTYPE:		GET_COMBO_VAR_BYTE(type, "Type"); break;					//char
+case COMBODCSET:		GET_COMBO_VAR_BYTE(csets, "CSet"); break;					//C
+case COMBODFOO:			GET_COMBO_VAR_DWORD(foo, "Foo"); break;						//W
+case COMBODFRAMES:		GET_COMBO_VAR_BYTE(frames, "Frames"); break;					//C
+case COMBODNEXTD:		GET_COMBO_VAR_DWORD(speed, "NextData"); break;					//W
+case COMBODNEXTC:		GET_COMBO_VAR_BYTE(nextcombo, "NextCSet"); break;				//C
+case COMBODFLAG:		GET_COMBO_VAR_BYTE(nextcset, "Flag"); break;					//C
+case COMBODSKIPANIM:		GET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;				//C
+case COMBODNEXTTIMER:		GET_COMBO_VAR_DWORD(nexttimer, "NextTimer"); break;				//W
+case COMBODAKIMANIMY:		GET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;				//C
+case COMBODANIMFLAGS:		GET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;				//C
+case COMBODEXPANSION:		GET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6);				//C , 6 INDICES
+case COMBODATTRIBUTES: 		GET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); 				//LONG, 4 INDICES, INDIVIDUAL VALUES
+case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
+case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);				//LONG 3 INDICES AS FLAGSETS
+case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
+
+//COMBOCLASS STRUCT
+//case COMBODNAME:		//CHAR[64], STRING
+case COMBODBLOCKNPC:		GET_COMBOCLASS_VAR_BYTE(block_enemies, "BlockNPC"); break;			//C
+case COMBODBLOCKHOLE:		GET_COMBOCLASS_VAR_BYTE(block_hole, "BlockHole"); break;			//C
+case COMBODBLOCKTRIG:		GET_COMBOCLASS_VAR_BYTE(block_trigger,	"BlockTrigger"); break; 		//C
+case COMBODBLOCKWEAPON:		GET_COMBOCLASS_BYTE_INDEX(block_weapon,	"BlockWeapon[]", 32); 			//C, 32 INDICES
+case COMBODCONVXSPEED:		GET_COMBOCLASS_VAR_DWORD(conveyor_x_speed, "ConveyorSpeedX"); break;		//SHORT
+case COMBODCONVYSPEED:		GET_COMBOCLASS_VAR_DWORD(conveyor_y_speed, "ConveyorSpeedY"); break;		//SHORT
+case COMBODSPAWNNPC:		GET_COMBOCLASS_VAR_DWORD(create_enemy, "SpawnNPC"); break;			//W
+case COMBODSPAWNNPCWHEN:	GET_COMBOCLASS_VAR_BYTE(create_enemy_when, "SpawnNPCWhen"); break;		//C
+case COMBODSPAWNNPCCHANGE:	GET_COMBOCLASS_VAR_INT(create_enemy_change, "SpawnNPCChange"); break;		//LONG
+case COMBODDIRCHANGETYPE:	GET_COMBOCLASS_VAR_BYTE(directional_change_type, "DirChange"); break;		//C
+case COMBODDISTANCECHANGETILES:	GET_COMBOCLASS_VAR_INT(distance_change_tiles, "DistanceChangeTiles"); break; 	//LONG
+case COMBODDIVEITEM:		GET_COMBOCLASS_VAR_DWORD(dive_item, "DiveItem"); break;				//SHORT
+case COMBODDOCK:		GET_COMBOCLASS_VAR_BYTE(dock, "Dock"); break;					//C
+case COMBODFAIRY:		GET_COMBOCLASS_VAR_BYTE(fairy, "Fairy"); break;					//C
+case COMBODFFATTRCHANGE:	GET_COMBOCLASS_VAR_BYTE(ff_combo_attr_change, "FFCAttributeChange"); break;	//C
+case COMBODFOORDECOTILE:	GET_COMBOCLASS_VAR_INT(foot_decorations_tile, "DecorationTile"); break;		//LONG
+case COMBODFOORDECOTYPE:	GET_COMBOCLASS_VAR_BYTE(foot_decorations_type, "DecorationType"); break;	//C
+case COMBODHOOKSHOTPOINT:	GET_COMBOCLASS_VAR_BYTE(hookshot_grab_point, "Hookshot"); break;		//C
+case COMBODLADDERPASS:		GET_COMBOCLASS_VAR_BYTE(ladder_pass, "Ladder"); break;				//C
+case COMBODLOCKBLOCK:		GET_COMBOCLASS_VAR_BYTE(lock_block_type, "LockBlock"); break;			//C
+case COMBODLOCKBLOCKCHANGE:	GET_COMBOCLASS_VAR_INT(lock_block_change, "LockBlockChange"); break;		//LONG
+case COMBODMAGICMIRROR:		GET_COMBOCLASS_VAR_BYTE(magic_mirror_type, "Mirror"); break;			//C
+case COMBODMODHPAMOUNT:		GET_COMBOCLASS_VAR_DWORD(modify_hp_amount, "DamageAmount"); break;		//SHORT
+case COMBODMODHPDELAY:		GET_COMBOCLASS_VAR_BYTE(modify_hp_delay, "DamageDelay"); break;			//C
+case COMBODMODHPTYPE:		GET_COMBOCLASS_VAR_BYTE(modify_hp_type,	"DamageType"); break; 			//C
+case COMBODNMODMPAMOUNT:	GET_COMBOCLASS_VAR_DWORD(modify_mp_amount, "MagicAmount"); break;		//SHORT
+case COMBODMODMPDELAY:		GET_COMBOCLASS_VAR_BYTE(modify_mp_delay, "MagicDelay"); break;			//C
+case COMBODMODMPTYPE:		GET_COMBOCLASS_VAR_BYTE(modify_mp_type,	"MagicType");				//C
+case COMBODNOPUSHBLOCK:		GET_COMBOCLASS_VAR_BYTE(no_push_blocks, "NoPushBlocks"); break;			//C
+case COMBODOVERHEAD:		GET_COMBOCLASS_VAR_BYTE(overhead, "Overhead"); break;				//C
+case COMBODPLACENPC:		GET_COMBOCLASS_VAR_BYTE(place_enemy, "PlaceNPC"); break;			//C
+case COMBODPUSHDIR:		GET_COMBOCLASS_VAR_BYTE(push_direction,	"PushDir"); break; 			//C
+case COMBODPUSHWAIT:		GET_COMBOCLASS_VAR_BYTE(push_wait, "PushDelay"); break;				//C
+case COMBODPUSHHEAVY:		GET_COMBOCLASS_VAR_BYTE(push_weight, "PushHeavy");				//C
+case COMBODPUSHED:		GET_COMBOCLASS_VAR_BYTE(pushed, "Pushed"); break;				//C
+case COMBODRAFT:		GET_COMBOCLASS_VAR_BYTE(raft, "Raft"); break;					//C
+case COMBODRESETROOM:		GET_COMBOCLASS_VAR_BYTE(reset_room, "ResetRoom"); break;			//C
+case COMBODSAVEPOINTTYPE:	GET_COMBOCLASS_VAR_BYTE(save_point_type, "SavePoint"); break;			//C
+case COMBODSCREENFREEZETYPE:	GET_COMBOCLASS_VAR_BYTE(screen_freeze_type, "FreezeScreen"); break;		//C
+case COMBODSECRETCOMBO:		GET_COMBOCLASS_VAR_BYTE(secret_combo, "SecretCombo"); break;			//C
+case COMBODSINGULAR:		GET_COMBOCLASS_VAR_BYTE(singular, "Singular"); break;				//C
+case COMBODSLOWWALK:		GET_COMBOCLASS_VAR_BYTE(slow_movement, "SlowWalk"); break;			//C
+case COMBODSTATUETYPE:		GET_COMBOCLASS_VAR_BYTE(statue_type, "Statue"); break;				//C
+case COMBODSTEPTYPE:		GET_COMBOCLASS_VAR_BYTE(step_type, "Step"); break;				//C
+case COMBODSTEPCHANGEINTO:	GET_COMBOCLASS_VAR_INT(step_change_to, "StepChange"); break;			//LONG
+case COMBODSTRIKEWEAPONS:	GET_COMBOCLASS_BYTE_INDEX(strike_weapons, "Strike[]", 32);			//BYTE, 32 INDICES. 
+case COMBODSTRIKEREMNANTS:	GET_COMBOCLASS_VAR_INT(strike_remnants,	"StrikeRemnants"); break;		//LONG
+case COMBODSTRIKEREMNANTSTYPE:	GET_COMBOCLASS_VAR_BYTE(strike_remnants_type, "StrikeRemnantsType"); break;	//C
+case COMBODSTRIKECHANGE:	GET_COMBOCLASS_VAR_INT(strike_change, "StrikeChange"); break;			//LONG
+case COMBODSTRIKEITEM:		GET_COMBOCLASS_VAR_DWORD(strike_item, "StrikeItem"); break;			//SHORT
+case COMBODTOUCHITEM:		GET_COMBOCLASS_VAR_DWORD(touch_item, "TouchItem"); break;			//SHORT
+case COMBODTOUCHSTAIRS:		GET_COMBOCLASS_VAR_BYTE(touch_stairs, "TouchStairs"); break;			//C
+case COMBODTRIGGERTYPE:		GET_COMBOCLASS_VAR_BYTE(trigger_type, "TriggerType"); break;			//C
+case COMBODTRIGGERSENS:		GET_COMBOCLASS_VAR_BYTE(trigger_sensitive, "TriggerSensitivity"); break;	//C
+case COMBODWARPTYPE:		GET_COMBOCLASS_VAR_BYTE(warp_type, "Warp"); break;				//C
+case COMBODWARPSENS:		GET_COMBOCLASS_VAR_BYTE(warp_sensitive,	"WarpSensitivity"); break; 		//C
+case COMBODWARPDIRECT:		GET_COMBOCLASS_VAR_BYTE(warp_direct, "WarpDirect"); break;			//C
+case COMBODWARPLOCATION:	GET_COMBOCLASS_VAR_BYTE(warp_location, "WarpLocation"); break;			//C
+case COMBODWATER:		GET_COMBOCLASS_VAR_BYTE(water, "Water"); break;					//C
+case COMBODWHISTLE:		GET_COMBOCLASS_VAR_BYTE(whistle, "Whistle"); break;				//C
+case COMBODWINGAME:		GET_COMBOCLASS_VAR_BYTE(win_game, "WinGame"); break; 				//C
+case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeaponLevel"); break;		//C
+
+
 	
 ///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> variables
@@ -9078,6 +9354,273 @@ case MESSAGEDATAFLAGS: //BYTE
 	break;
 }	
 
+
+///----------------------------------------------------------------------------------------------------//
+//combodata cd-> Setter Variables
+//newcombo	
+#define	SET_COMBO_VAR_INT(member, str) \
+	{ \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+		} \
+		else \
+		{ \
+			combobuf[ri->combosref].member = vbound((value / 10000),0,214747); \
+		} \
+	} \
+	
+	#define	SET_COMBO_VAR_DWORD(member, str) \
+	{ \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+		} \
+		else \
+		{ \
+			combobuf[ri->combosref].member = vbound((value / 10000),0,32767); \
+		} \
+	} \
+
+	#define	SET_COMBO_VAR_BYTE(member, str) \
+	{ \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+		} \
+		else \
+		{ \
+			combobuf[ri->combosref].member = vbound((value / 10000),0,255); \
+		} \
+	} \
+	
+	#define SET_COMBO_VAR_INDEX(member, str, indexbound) \
+	{ \
+			int indx = ri->d[0] / 10000; \
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+			{ \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+			} \
+			else if ( indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+			} \
+			else \
+			{ \
+				combobuf[ri->combosref].member[indx] = vbound((value / 10000),0,214747); \
+			} \
+	}
+
+	#define SET_COMBO_BYTE_INDEX(member, str, indexbound) \
+	{ \
+			int indx = ri->d[0] / 10000; \
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+			{ \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+			} \
+			else if ( indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+			} \
+			else \
+			{ \
+				combobuf[ri->combosref].member[indx] = vbound((value / 10000),0,255); \
+			} \
+	}
+	
+	#define SET_COMBO_FLAG(member, str) \
+	{ \
+		long flag =  (value/10000);  \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+		} \
+		else \
+		{ \
+			if ( flag != 0 ) \
+			{ \
+				combobuf[ri->combosref].member|=flag; \
+			} \
+			else combobuf[ri->combosref].member|= ~flag; \
+		} \
+	} \
+	
+	//comboclass
+#define	SET_COMBOCLASS_VAR_INT(member, str) \
+	{ \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+		} \
+		else \
+		{ \
+			combo_class_buf[combobuf[ri->combosref].type].member = vbound((value / 10000),0,214747); \
+		} \
+	} \
+	
+	#define	SET_COMBOCLASS_VAR_DWORD(member, str) \
+	{ \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+		} \
+		else \
+		{ \
+			combo_class_buf[combobuf[ri->combosref].type].member = vbound((value / 10000),0,32767); \
+		} \
+	} \
+
+	#define	SET_COMBOCLASS_VAR_BYTE(member, str) \
+	{ \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+		} \
+		else \
+		{ \
+			combo_class_buf[combobuf[ri->combosref].type].member = vbound((value / 10000),0,255); \
+		} \
+	} \
+	
+	#define SET_COMBOCLASS_VAR_INDEX(member, str, indexbound) \
+	{ \
+			int indx = ri->d[0] / 10000; \
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+			{ \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+			} \
+			else if ( indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+			} \
+			else \
+			{ \
+				combo_class_buf[combobuf[ri->combosref].type].member[indx] = vbound((value / 10000),0,214747); \
+			} \
+	}
+
+	#define SET_COMBOCLASS_BYTE_INDEX(member, str, indexbound) \
+	{ \
+			int indx = ri->d[0] / 10000; \
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+			{ \
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+			} \
+			else if ( indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
+			} \
+			else \
+			{ \
+				combo_class_buf[combobuf[ri->combosref].type].member[indx] = vbound((value / 10000),0,255); \
+			} \
+	}
+	
+	#define SET_COMBOCLASS_FLAG(member, str) \
+	{ \
+		long flag =  (value/10000);  \
+		if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) ) \
+		{ \
+			Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
+		} \
+		else \
+		{ \
+			if ( flag != 0 ) \
+			{ \
+				combo_class_buf[combobuf[ri->combosref].type].member|=flag; \
+			} \
+			else combo_class_buf[combobuf[ri->combosref].type].member|= ~flag; \
+		} \
+	} \
+	
+//NEWCOMBO STRUCT
+case COMBODTILE:	SET_COMBO_VAR_DWORD(tile, "Tile"); break;						//word
+case COMBODFLIP:	SET_COMBO_VAR_BYTE(flip, "Flip"); break;						//char
+case COMBODWALK:	SET_COMBO_VAR_BYTE(walk, "Walk"); break;						//char
+case COMBODTYPE:	SET_COMBO_VAR_BYTE(type, "Type"); break;						//char
+case COMBODCSET:	SET_COMBO_VAR_BYTE(csets, "CSet"); break;						//C
+case COMBODFOO:		SET_COMBO_VAR_DWORD(foo, "Foo"); break;							//W
+case COMBODFRAMES:	SET_COMBO_VAR_BYTE(frames, "Frames"); break;						//C
+case COMBODNEXTD:	SET_COMBO_VAR_DWORD(speed, "NextData"); break;						//W
+case COMBODNEXTC:	SET_COMBO_VAR_BYTE(nextcombo, "NextCSet"); break;					//C
+case COMBODFLAG:	SET_COMBO_VAR_BYTE(nextcset, "Flag"); break;						//C
+case COMBODSKIPANIM:	SET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;					//C
+case COMBODNEXTTIMER:	SET_COMBO_VAR_DWORD(nexttimer, "NextTimer"); break;					//W
+case COMBODAKIMANIMY:	SET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;					//C
+case COMBODANIMFLAGS:	SET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;					//C
+case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6);					//C , 6 INDICES
+case COMBODATTRIBUTES: 	SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); 					//LONG, 4 INDICES, INDIVIDUAL VALUES
+case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
+case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);				//LONG 3 INDICES AS FLAGSETS
+case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
+
+//COMBOCLASS STRUCT
+//case COMBODNAME:		//CHAR[64], STRING
+case COMBODBLOCKNPC:		SET_COMBOCLASS_VAR_BYTE(block_enemies, "BlockNPC"); break;			//C
+case COMBODBLOCKHOLE:		SET_COMBOCLASS_VAR_BYTE(block_hole, "BlockHole"); break;			//C
+case COMBODBLOCKTRIG:		SET_COMBOCLASS_VAR_BYTE(block_trigger,	"BlockTrigger"); break; 		//C
+case COMBODBLOCKWEAPON:		SET_COMBOCLASS_BYTE_INDEX(block_weapon,	"BlockWeapon[]", 32); 			//C, 32 INDICES
+case COMBODCONVXSPEED:		SET_COMBOCLASS_VAR_DWORD(conveyor_x_speed, "ConveyorSpeedX"); break;		//SHORT
+case COMBODCONVYSPEED:		SET_COMBOCLASS_VAR_DWORD(conveyor_y_speed, "ConveyorSpeedY"); break;		//SHORT
+case COMBODSPAWNNPC:		SET_COMBOCLASS_VAR_DWORD(create_enemy, "SpawnNPC"); break;			//W
+case COMBODSPAWNNPCWHEN:	SET_COMBOCLASS_VAR_BYTE(create_enemy_when, "SpawnNPCWhen"); break;		//C
+case COMBODSPAWNNPCCHANGE:	SET_COMBOCLASS_VAR_INT(create_enemy_change, "SpawnNPCChange"); break;		//LONG
+case COMBODDIRCHANGETYPE:	SET_COMBOCLASS_VAR_BYTE(directional_change_type, "DirChange"); break;		//C
+case COMBODDISTANCECHANGETILES:	SET_COMBOCLASS_VAR_INT(distance_change_tiles, "DistanceChangeTiles"); break; 	//LONG
+case COMBODDIVEITEM:		SET_COMBOCLASS_VAR_DWORD(dive_item, "DiveItem"); break;				//SHORT
+case COMBODDOCK:		SET_COMBOCLASS_VAR_BYTE(dock, "Dock"); break;					//C
+case COMBODFAIRY:		SET_COMBOCLASS_VAR_BYTE(fairy, "Fairy"); break;					//C
+case COMBODFFATTRCHANGE:	SET_COMBOCLASS_VAR_BYTE(ff_combo_attr_change, "FFCAttributeChange"); break;	//C
+case COMBODFOORDECOTILE:	SET_COMBOCLASS_VAR_INT(foot_decorations_tile, "DecorationTile"); break;		//LONG
+case COMBODFOORDECOTYPE:	SET_COMBOCLASS_VAR_BYTE(foot_decorations_type, "DecorationType"); break;	//C
+case COMBODHOOKSHOTPOINT:	SET_COMBOCLASS_VAR_BYTE(hookshot_grab_point, "Hookshot"); break;		//C
+case COMBODLADDERPASS:		SET_COMBOCLASS_VAR_BYTE(ladder_pass, "Ladder"); break;				//C
+case COMBODLOCKBLOCK:		SET_COMBOCLASS_VAR_BYTE(lock_block_type, "LockBlock"); break;			//C
+case COMBODLOCKBLOCKCHANGE:	SET_COMBOCLASS_VAR_INT(lock_block_change, "LockBlockChange"); break;		//LONG
+case COMBODMAGICMIRROR:		SET_COMBOCLASS_VAR_BYTE(magic_mirror_type, "Mirror"); break;			//C
+case COMBODMODHPAMOUNT:		SET_COMBOCLASS_VAR_DWORD(modify_hp_amount, "DamageAmount"); break;		//SHORT
+case COMBODMODHPDELAY:		SET_COMBOCLASS_VAR_BYTE(modify_hp_delay, "DamageDelay"); break;			//C
+case COMBODMODHPTYPE:		SET_COMBOCLASS_VAR_BYTE(modify_hp_type,	"DamageType"); break; 			//C
+case COMBODNMODMPAMOUNT:	SET_COMBOCLASS_VAR_DWORD(modify_mp_amount, "MagicAmount"); break;		//SHORT
+case COMBODMODMPDELAY:		SET_COMBOCLASS_VAR_BYTE(modify_mp_delay, "MagicDelay"); break;			//C
+case COMBODMODMPTYPE:		SET_COMBOCLASS_VAR_BYTE(modify_mp_type,	"MagicType"); 				//C
+case COMBODNOPUSHBLOCK:		SET_COMBOCLASS_VAR_BYTE(no_push_blocks, "NoPushBlocks"); break;			//C
+case COMBODOVERHEAD:		SET_COMBOCLASS_VAR_BYTE(overhead, "Overhead"); break;				//C
+case COMBODPLACENPC:		SET_COMBOCLASS_VAR_BYTE(place_enemy, "PlaceNPC"); break;			//C
+case COMBODPUSHDIR:		SET_COMBOCLASS_VAR_BYTE(push_direction,	"PushDir"); break; 			//C
+case COMBODPUSHWAIT:		SET_COMBOCLASS_VAR_BYTE(push_wait, "PushDelay"); break;				//C
+case COMBODPUSHHEAVY:		SET_COMBOCLASS_VAR_BYTE(push_weight, "PushHeavy");				//C
+case COMBODPUSHED:		SET_COMBOCLASS_VAR_BYTE(pushed, "Pushed"); break;				//C
+case COMBODRAFT:		SET_COMBOCLASS_VAR_BYTE(raft, "Raft"); break;					//C
+case COMBODRESETROOM:		SET_COMBOCLASS_VAR_BYTE(reset_room, "ResetRoom"); break;			//C
+case COMBODSAVEPOINTTYPE:	SET_COMBOCLASS_VAR_BYTE(save_point_type, "SavePoint"); break;			//C
+case COMBODSCREENFREEZETYPE:	SET_COMBOCLASS_VAR_BYTE(screen_freeze_type, "FreezeScreen"); break;		//C
+case COMBODSECRETCOMBO:		SET_COMBOCLASS_VAR_BYTE(secret_combo, "SecretCombo"); break;			//C
+case COMBODSINGULAR:		SET_COMBOCLASS_VAR_BYTE(singular, "Singular"); break;				//C
+case COMBODSLOWWALK:		SET_COMBOCLASS_VAR_BYTE(slow_movement, "SlowWalk"); break;			//C
+case COMBODSTATUETYPE:		SET_COMBOCLASS_VAR_BYTE(statue_type, "Statue"); break;				//C
+case COMBODSTEPTYPE:		SET_COMBOCLASS_VAR_BYTE(step_type, "Step"); break;				//C
+case COMBODSTEPCHANGEINTO:	SET_COMBOCLASS_VAR_INT(step_change_to, "StepChange"); break;			//LONG
+case COMBODSTRIKEWEAPONS:	SET_COMBOCLASS_BYTE_INDEX(strike_weapons, "Strike[]", 32);			//BYTE, 32 INDICES. 
+case COMBODSTRIKEREMNANTS:	SET_COMBOCLASS_VAR_INT(strike_remnants,	"StrikeRemnants"); break;		//LONG
+case COMBODSTRIKEREMNANTSTYPE:	SET_COMBOCLASS_VAR_BYTE(strike_remnants_type, "StrikeRemnantsType"); break;	//C
+case COMBODSTRIKECHANGE:	SET_COMBOCLASS_VAR_INT(strike_change, "StrikeChange"); break;			//LONG
+case COMBODSTRIKEITEM:		SET_COMBOCLASS_VAR_DWORD(strike_item, "StrikeItem"); break;			//SHORT
+case COMBODTOUCHITEM:		SET_COMBOCLASS_VAR_DWORD(touch_item, "TouchItem"); break;			//SHORT
+case COMBODTOUCHSTAIRS:		SET_COMBOCLASS_VAR_BYTE(touch_stairs, "TouchStairs"); break;			//C
+case COMBODTRIGGERTYPE:		SET_COMBOCLASS_VAR_BYTE(trigger_type, "TriggerType"); break;			//C
+case COMBODTRIGGERSENS:		SET_COMBOCLASS_VAR_BYTE(trigger_sensitive, "TriggerSensitivity"); break;	//C
+case COMBODWARPTYPE:		SET_COMBOCLASS_VAR_BYTE(warp_type, "Warp"); break;				//C
+case COMBODWARPSENS:		SET_COMBOCLASS_VAR_BYTE(warp_sensitive,	"WarpSensitivity"); break; 		//C
+case COMBODWARPDIRECT:		SET_COMBOCLASS_VAR_BYTE(warp_direct, "WarpDirect"); break;			//C
+case COMBODWARPLOCATION:	SET_COMBOCLASS_VAR_BYTE(warp_location, "WarpLocation"); break;			//C
+case COMBODWATER:		SET_COMBOCLASS_VAR_BYTE(water, "Water"); break;					//C
+case COMBODWHISTLE:		SET_COMBOCLASS_VAR_BYTE(whistle, "Whistle"); break;				//C
+case COMBODWINGAME:		SET_COMBOCLASS_VAR_BYTE(win_game, "WinGame"); break; 				//C
+case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeaponLevel"); break;		//C
+
+
+
 ///----------------------------------------------------------------------------------------------------//
 //npcdata nd-> Variables
 	
@@ -9147,7 +9690,7 @@ case MESSAGEDATAFLAGS: //BYTE
 			} \
 			else \
 			{ \
-				guysbuf[ri->npcdataref].member[indx] = vbound((value / 10000),0255); \
+				guysbuf[ri->npcdataref].member[indx] = vbound((value / 10000),0,255); \
 			} \
 	}
 	
@@ -11070,10 +11613,10 @@ void FFScript::do_loadcombodata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 1 || ID > (MAXCOMBOS-1) )
+    if ( ID < 0 || ID > (MAXCOMBOS-1) )
     {
 	Z_scripterrlog("Invalid Combo ID passed to Game->LoadComboData: %d\n", ID);
-	ri->combosref = LONG_MAX;
+	ri->combosref = 0;
     }
 
     else ri->combosref = ID;
@@ -11092,13 +11635,13 @@ void FFScript::do_loadmapdata(const bool v)
     if ( _map < 1 || _map > (map_count-1) )
     {
 	Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", _map);
-	ri->mapsref = LONG_MAX;
+	ri->mapsref = 0;
 	
     }
     else if ( _scr < 0 || _scr > 129 ) //0x00 to 0x81 -Z
     {
 	Z_scripterrlog("Invalid Screen ID passed to Game->LoadMapData: %d\n", _scr);
-	ri->mapsref = LONG_MAX;
+	ri->mapsref = 0;
     }
     else ri->mapsref = indx;
     Z_scripterrlog("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
@@ -11113,7 +11656,7 @@ void FFScript::do_loadshopdata(const bool v)
     if ( ID < 0 || ID > 255 )
     {
 	Z_scripterrlog("Invalid Shop ID passed to Game->LoadShopData: %d\n", ID);
-	ri->shopsref = LONG_MAX;
+	ri->shopsref = 0;
     }
         
     else ri->shopsref = ID;
@@ -11128,7 +11671,7 @@ void FFScript::do_loadinfoshopdata(const bool v)
     if ( ID < 0 || ID > 255 )
     {
 	Z_scripterrlog("Invalid Shop ID passed to Game->LoadShopData: %d\n", ID);
-	ri->shopsref = LONG_MAX;
+	ri->shopsref = 0;
     }
         
     else ri->shopsref = ID+NUMSHOPS;
@@ -11177,7 +11720,7 @@ void FFScript::do_loadspritedata(const bool v)
     if ( ID < 0 || ID > (MAXWPNS-1) )
     {
 	Z_scripterrlog("Invalid Sprite ID passed to Game->LoadSpriteData: %d\n", ID);
-	ri->spritesref = LONG_MAX; 
+	ri->spritesref = 0; 
     }
 
     else ri->spritesref = ID;
@@ -11192,7 +11735,7 @@ void FFScript::do_loadscreendata(const bool v)
     if ( ID < 0 || ID > (MAXSCREENS-1) )
     {
 	Z_scripterrlog("Invalid Map ID passed to Game->LoadScreenData: %d\n", ID);
-	ri->screenref = LONG_MAX; 
+	ri->screenref = 0; 
     }
 
     else ri->screenref = ID;
@@ -11206,7 +11749,7 @@ void FFScript::do_loadbitmapid(const bool v)
     if ( ID < MIN_INTERNAL_BITMAP || ID > MAX_INTERNAL_BITMAP )
     {
 	Z_scripterrlog("Invalid Bitmap ID passed to Game->Load BitmapID: %d\n", ID);
-	ri->gfxref = LONG_MAX; 
+	ri->gfxref = 0; 
     }
 
     else ri->gfxref = ID;
