@@ -3,6 +3,16 @@
 MISSING: npcdata->FireSound; npc->FireSound
 
 //Alpha 22
+
+Added the following datatypes:
+	dropdata, ponddata, warpring, doorset, misccolors, 
+	rgbdata, palette, zcmidi, palcycle, gamedata, cheats
+	
+	NOTE: 	None of these have any variables at this time. 
+		Some of these may later be discarded, or repurposed; or they
+		may not be used in 2,54, but instead will be implemented fully
+		in 2.55, or later. 
+
 Trace() now supports any datatype. (If you trace a bool, false will trace 0
 and true will trace 0.0001.) 
 
