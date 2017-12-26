@@ -1,9 +1,12 @@
 //2.54 Changes
 
-//Alpha 21
-
 MISSING: npcdata->FireSound; npc->FireSound
 
+//Alpha 22
+Trace() now supports any datatype. (If you trace a bool, false will trace 0
+and true will trace 0.0001.) 
+
+//Alpha 21
 Fixed a bug in Game->LoadComboData that could crash ZC, and copied
 the fix to all of the other, new Game->Load functions, in the event that
 they also have this issue.
@@ -106,7 +109,7 @@ Fixed an error in messagedata->Font
 Fixed two missing commands in script_command command_list[]
 	( ZoriaRPG, 3rd December, 2017 )
 Renamed Audio->AdjustVolume() to AdjustMusicVolume()
-Items now have info strings that the user may set int he item editor.
+Items now have info strings that the user may set in the item editor.
 These have a default behaviour, as follows:
 	1. If the user has never acquired the item in the current game session,
 	the string plays, and a flag is set in FFCore that that item has
@@ -117,13 +120,13 @@ These have a default behaviour, as follows:
 	the item is held over Link's head.
 The string value, and the flags for it, are accessible in ZScript both from item, and 
 from itemdata.
-The string is clamped int he item editor to valid strings.
+The string is clamped in the item editor to valid strings.
 If an invalid string ID is set, ZC does not play it. 
 		( ZoriaRPG, 1st December, 2017 )
 ZQuest Shops now have an info string. When you buy an item, if this is set to a valid string, ZC will display that string.
 I'm working on making that work from items, too.
 Increased combo aliases to 8192 (for Lut).
-Added an info string to the item shop editpr, and to the struct.
+Added an info string to the item shop editor, and to the struct.
 I think that the default behaviour for this, should be to show the
 string when a player buys an item.
 Added Audio->AdjustVolume(int percent) and AdjustSFXVolume(int percent)
