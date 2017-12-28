@@ -6032,7 +6032,8 @@ void set_register(const long arg, const long value)
 		//hmm...no, this won;t return properly for modifier keys. 
 		int keyid = ri->d[0]/10000;
 		//key = vbound(key,0,n);
-		key[keyid]=((value/10000)!=0)?true:false;
+		key[keyid]=((value/10000)!=0)?true:false; //It isn't possible to set keys true, because polling occurs before they are set?
+		//but they *can* be set false; ??? -Z
 	}
 	break;
 	
