@@ -1,3 +1,11 @@
+//Graphics->Colors[]
+#define GFXCOLOURS				//CHAR[]
+
+//drop an item: CreateDrop(int x, int y, int z)
+//item CreateItemDrop(int x, int y, int z) 
+//int CreateItemDrop() return -1 on no drop. 
+#define CREATEDROP
+
 //item_drop_sets[MAXITEMDROPSETS];
 #define DROPDATANAME				//CHAR[64]
 #define DROPDATAITEM				//W, 10 INDICES

@@ -1,3 +1,9 @@
+//Graphics->Colors[]
+GFXCOLOURS
+
+//drop an item: CreateDrop(int x, int y, int z)
+CREATEDROP:
+	
 //item_drop_sets[MAXITEMDROPSETS];
 DROPDATANAME	//CHAR[64]
 DROPDATAITEM	//W, 10 INDICES

@@ -1,3 +1,6 @@
+//Graphics->Colors[]
+{"GFXCOLOURS", GFXCOLOURS, 0, 0 },
+
 //drops
 {"DROPDATANAME", DROPDATANAME, 0, 0 },
 {"DROPDATAITEM", DROPDATAITEM, 0, 0 },

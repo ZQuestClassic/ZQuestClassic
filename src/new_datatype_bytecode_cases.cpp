@@ -1,3 +1,9 @@
+//Graphics->Colors[]
+case GFXCOLOURS: return "GFXCOLOURS";
+
+//drop an item: CreateDrop(int x, int y, int z)
+case CREATEDROP: return "CREATEDROP";
+
 //newcombo struct
 case DROPDATANAME: return "DROPDATANAME";
 case DROPDATAITEM: return "DROPDATAITEM";

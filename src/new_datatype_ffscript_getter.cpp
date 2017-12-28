@@ -1,3 +1,47 @@
+//Graphics->Colors[] Misc Colours, byte[29]
+case GFXCOLOURS:				
+{
+	switch(ri->d[0] / 10000)
+	{
+		case 0: ret = ((int)zcolors.text) * 10000; break;
+		case 1: ret = ((int)zcolors.caption) * 10000; break;
+		case 2: ret = ((int)zcolors.overw_bg) * 10000; break;
+		case 3: ret = ((int)zcolors.dngn_bg) * 10000; break;
+		case 4: ret = ((int)zcolors.dngn_fg) * 10000; break;
+		case 5: ret = ((int)zcolors.bs_dk) * 10000; break;
+		case 6: ret = ((int)zcolors.bs_goal) * 10000; break;
+		case 7: ret = ((int)zcolors.compass_lt) * 10000; break;
+		case 8: ret = ((int)zcolors.compass_dk) * 10000; break;
+		case 9: ret = ((int)zcolors.subscr_bg) * 10000; break;
+		case 10: ret = ((int)zcolors.subscr_shadow) * 10000; break;
+		case 11: ret = ((int)zcolors.triframe_color) * 10000; break;
+		case 12: ret = ((int)zcolors.bmap_bg) * 10000; break;
+		case 13: ret = ((int)zcolors.bmap_fg) * 10000; break;
+		case 14: ret = ((int)zcolors.link_dot) * 10000; break;
+		case 15: ret = ((int)zcolors.triforce_cset) * 10000; break;
+		case 16: ret = ((int)zcolors.triframe_cset) * 10000; break;
+		case 17: ret = ((int)zcolors.overworld_map_cset) * 10000; break;
+		case 18: ret = ((int)zcolors.dungeon_map_cset) * 10000; break;
+		case 19: ret = ((int)zcolors.blueframe_cset) * 10000; break;
+		case 20: ret = ((int)zcolors.triforce_tile) * 10000; break;
+		case 21: ret = ((int)zcolors.triframe_tile) * 10000; break;
+		case 22: ret = ((int)zcolors.overworld_map_tile) * 10000; break;
+		case 23: ret = ((int)zcolors.dungeon_map_tile) * 10000; break;
+		case 24: ret = ((int)zcolors.blueframe_tile) * 10000; break;
+		case 25: ret = ((int)zcolors.caption) * 10000; break;
+		case 26: ret = ((int)zcolors.HCpieces_tile) * 10000; break;
+		case 27: ret = ((int)zcolors.HCpieces_cset) * 10000; break;
+		case 18: ret = ((int)zcolors.msgtext) * 10000; break;
+		default: 
+		{
+			Z_scripterrlog("Invalid Array Index passed to Graphics->%s: %d\n", indx, "Colors[]");
+			ret = -1; 
+			break;
+		}
+	}
+	break;
+}
+
 //dropsets
 
 //item_drop_sets[MAXITEMDROPSETS];
