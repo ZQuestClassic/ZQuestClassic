@@ -4,6 +4,10 @@ MISSING: npcdata->FireSound; npc->FireSound
 
 //Alpha 22
 
+Applied Item Editor fix for InitD values. (They were clamped from -31768 to 327678, and
+	now they are clamped between -214748.3647 and 214748.3647.
+	Applied to 2.54 Alpha 22, and 2.53 Beta 12. 
+
 Added the following datatypes:
 	dropdata, ponddata, warpring, doorset, misccolors, 
 	rgbdata, palette, zcmidi, palcycle, gamedata, cheats
@@ -545,8 +549,15 @@ Debug->GetFFCPointer(), SetFFCPointer(), GetItemPointer(), SetItemPointer(), Get
 
 //2.53 Changes
 
-ChangeLog for 2.53.0 Beta 11
-16-OCT-2017
+ChangeLog for 2.53.0 Beta 12
+29th December, 2017
+
+Applied Item Editor fix for InitD values. (They were clamped from -31768 to 327678, and
+	now they are clamped between -214748.3647 and 214748.3647.
+	Applied to 2.54 Alpha 22, and 2.53 Beta 12. 
+	
+VBound ZQuest combo editor fields: Cset to -15/+15, Aframes (0,255), ASpeed (0,255) to prevent rollover from lack
+of sanity bounding. ( ZoriaRPG 16th october, 2017 )
 
 Optimised some functions in std.zh that returned boolean values and were comparing against != 0. 
 VBund ZQuest combo editor fields: Cset to -15/+15, Aframes (0,255), ASpeed (0,255) to prevent rollover from lack
