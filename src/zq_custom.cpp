@@ -1448,7 +1448,7 @@ void edit_itemdata(int index)
         test.wpn10 = biw[itemdata_dlg[158].d1].i;
         
         for(int j=0; j<8; j++)
-            test.initiald[j] = vbound(ffparse(da[j]),-21474836470, 2147483647);
+            test.initiald[j] = vbound(ffparse(da[j]),-2147483647, 2147483647);
             
         test.initiala[0] = vbound(atoi(da[8])*10000,0,320000);
         test.initiala[1] = vbound(atoi(da[9])*10000,0,320000);
