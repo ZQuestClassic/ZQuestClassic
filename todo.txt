@@ -6,7 +6,13 @@ sprites for npcs, into the quest loader.
 	so, the list can hav e NONE as case 0, which is translated
 	to a value of -1 for the field.
 	Read the field and adjust it by 1 when the dialogue opens. 
-	
+
+Set new refs to -1 on bad load, and wrap the macros so that if the
+ref is -1, they do not try to access data members.
+e.g. ri->shopsref = -1
+( if ri->shopsref != -1 ) 
+This will prevent the user from loading data from ref 0, without
+causing crashes. 
 
 npc defence stun, no stunlock
 
