@@ -7,6 +7,8 @@ sprites for npcs, into the quest loader.
 	to a value of -1 for the field.
 	Read the field and adjust it by 1 when the dialogue opens. 
 
+Add CORE attribute to npcs and flag it for multi-segment cores. 
+
 Set new refs to -1 on bad load, and wrap the macros so that if the
 ref is -1, they do not try to access data members.
 e.g. ri->shopsref = -1
