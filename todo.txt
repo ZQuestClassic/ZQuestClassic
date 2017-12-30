@@ -1,5 +1,13 @@
 To-Do
 
+MOVE the code from zq_custom.cpp that populates custom weapon
+sprites for npcs, into the quest loader.
+	THEN, make the weapon sprite a pulldown, offset by +1
+	so, the list can hav e NONE as case 0, which is translated
+	to a value of -1 for the field.
+	Read the field and adjust it by 1 when the dialogue opens. 
+	
+
 npc defence stun, no stunlock
 
 Extra dropsets: stun dropset, frozen dropset.
