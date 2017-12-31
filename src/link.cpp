@@ -624,6 +624,8 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         return;
         
     case drowning:
+	//I would add a sanity check to see if Link is in water, but I *KNOW* that quests have used this 
+	// INTENTIONALLY while Link is on Land, as a blink-out effect. :( -Z
         if(!drownclk)
             Drown();
             
