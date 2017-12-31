@@ -6192,6 +6192,8 @@ void LinkClass::do_rafting()
         return;
     }
     
+    FFCore.setLinkAction(rafting);
+    
     do_lens();
     
     linkstep();

@@ -4,6 +4,10 @@ MISSING: npcdata->FireSound; npc->FireSound
 
 //Alpha 22
 
+Fixed a bug where the return for Link->Action when rafting was only returning
+LA_RAFTING on the first frame of the action, and LA_SWIMMING during the rafting animation.
+	( 31st December, 2017 )
+	
 Applied Item Editor fix for InitD values. (They were clamped from -31768 to 327678, and
 	now they are clamped between -214748.3647 and 214748.3647.
 	Applied to 2.54 Alpha 22, and 2.53 Beta 12. 
