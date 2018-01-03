@@ -3185,7 +3185,7 @@ void LinkClass::checkhit()
                     if(s->hit(t->x+7,t->y+7,t->z,2,2,1))
                     {
                         bool reflect = false;
-                        sethitLinkUID(HIT_BY_EWEAPON,j); //set that Link was hit by a specific eweapon index. 
+                       // sethitLinkUID(HIT_BY_EWEAPON,j); //set that Link was hit by a specific eweapon index. 
                         switch(t->id)
                         {
                         case ewBrang:
@@ -3357,6 +3357,7 @@ killweapon:
         {
             int ringpow = ringpower(lwpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
+	    sethitLinkUID(HIT_BY_LWEAPON,hit2); 
         }
         
         hitdir = Lwpns.spr(hit2)->hitdir(x,y,16,16,dir);
@@ -3392,6 +3393,7 @@ killweapon:
         {
             int ringpow = ringpower(ewpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
+	    sethitLinkUID(HIT_BY_EWEAPON,hit2); 
         }
         
         hitdir = Ewpns.spr(hit2)->hitdir(x,y,16,16,dir);
@@ -3562,10 +3564,10 @@ void LinkClass::hitlink(int hit2)
     {
         int ringpow = ringpower(enemy_dp(hit2));
         game->set_life(zc_max(game->get_life()-ringpow,0));
+	sethitLinkUID(HIT_BY_NPC,hit2); 
     }
     
     hitdir = guys.spr(hit2)->hitdir(x,y,16,16,dir);
-    lastHitBy[HIT_BY_NPC] = hit2;
     if(action==swimming || hopclk==0xFF)
     {
         action=swimhit; FFCore.setLinkAction(swimhit);

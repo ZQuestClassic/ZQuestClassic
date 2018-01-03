@@ -4,6 +4,8 @@ MISSING: npcdata->FireSound; npc->FireSound
 
 //Alpha 22
 
+! THis should be set when damage is applied to Link !
+
 Added a pair of Link class arrays. The first, stores the last weapon or npc that hit Link.
 This is not yet cleared every frame. The values only change when Link is hit. 
 The ZScript interface for this is Link->HitBy[4], where index 0 is the last npc screen index that

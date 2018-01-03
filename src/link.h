@@ -244,6 +244,7 @@ class LinkClass : public sprite
     int lastHitBy[4]; //[enemy, eweapon, combo, flag
     #define HIT_BY_NPC 0
     #define HIT_BY_EWEAPON 1
+    #define HIT_BY_LWEAPON 2
     // Methods below here.
     void movelink();
     void move(int d);
