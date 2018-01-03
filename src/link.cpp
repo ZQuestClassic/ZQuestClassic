@@ -120,6 +120,27 @@ void LinkClass::setCanLinkFlicker(bool v){
 	flickerorflash = v;
 }
 
+void LinkClass::sethitLinkUID(int type, int screen_index)
+{
+	lastHitBy[type] = screen_index;
+}
+
+int LinkClass::gethitLinkUID(int type)
+{
+	return lastHitBy[type];
+}
+
+void LinkClass::set_defence(int type, int v)
+{
+	defence[type] = v;
+}
+
+int LinkClass::get_defence(int type)
+{
+	return defence[type];
+}
+
+
 //Set Link;s hurt sfx
 void LinkClass::setHurtSFX(int sfx){
 	hurtsfx = sfx;
@@ -779,6 +800,9 @@ void LinkClass::init()
 	preventsubscreenfalling = false;  //-Z
 	hurtsfx = getHurtSFX(); //Set the default sound. 
 	flickerorflash = true; //flicker or flash unless disabled externally.
+	
+	for ( int q = 0; q < 4; q++ ) lastHitBy[q] = 0; 
+	for ( int q = 0; q < wMax; q++ ) defence[q] = 0; //we will need to have a Link section in the quest load/save code! -Z
 }
 
 void LinkClass::draw_under(BITMAP* dest)
@@ -3143,7 +3167,7 @@ void LinkClass::checkhit()
                     if(s->hit(t->x+7,t->y+7,t->z,2,2,1))
                     {
                         bool reflect = false;
-                        
+                        sethitLinkUID(HIT_BY_EWEAPON,j); //set that Link was hit by a specific eweapon index. 
                         switch(t->id)
                         {
                         case ewBrang:
@@ -3523,7 +3547,7 @@ void LinkClass::hitlink(int hit2)
     }
     
     hitdir = guys.spr(hit2)->hitdir(x,y,16,16,dir);
-    
+    lastHitBy[HIT_BY_NPC] = hit2;
     if(action==swimming || hopclk==0xFF)
     {
         action=swimhit; FFCore.setLinkAction(swimhit);
@@ -5526,6 +5550,7 @@ bool LinkClass::startwpn(int itemid)
     
     return ret;
 }
+
 
 bool LinkClass::doattack()
 {

@@ -235,11 +235,15 @@ class LinkClass : public sprite
     bool dontdraw;
     bool diagonalMovement;
     bool bigHitbox;
+    byte defence[wMax];
+    
     
      bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
     int hurtsfx; //Link's Hurt SOund
     int walkspeed; //Link's walking speed.
-    
+    int lastHitBy[4]; //[enemy, eweapon, combo, flag
+    #define HIT_BY_NPC 0
+    #define HIT_BY_EWEAPON 1
     // Methods below here.
     void movelink();
     void move(int d);
@@ -286,7 +290,6 @@ private:
     void walkup(bool opening);
     void walkdown2(bool opening);
     void walkup2(bool opening);
-    
     void exitcave();
     void stepout();
     void masked_draw(BITMAP *dest);
@@ -408,6 +411,11 @@ public:
     
      bool getCanLinkFlicker(); //enable or disable flicker or flash
     void setCanLinkFlicker(bool v);
+    
+    void sethitLinkUID(int type, int screen_index);
+    void set_defence(int def, int v);
+    int get_defence(int def);
+    int gethitLinkUID(int type);
     
     void setHurtSFX(int sfx); //Set Link;s hurt sfx
     int getHurtSFX();

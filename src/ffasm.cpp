@@ -1662,6 +1662,8 @@ script_variable variable_list[]=
 
 	{"TYPINGMODE", TYPINGMODE, 0, 0 },
 	{"TYPINGMODE", TYPINGMODE, 0, 0 },
+	{"LINKHITBY", LINKHITBY, 0, 0 },
+	{"LINKDEFENCE", LINKDEFENCE, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

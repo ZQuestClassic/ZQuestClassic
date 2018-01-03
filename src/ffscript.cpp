@@ -1154,6 +1154,7 @@ long get_register(const long arg)
     case LINKX:
         ret = long(Link.getX()) * 10000;
         break;
+
         
     case LINKY:
         ret = long(Link.getY()) * 10000;
@@ -1246,6 +1247,14 @@ long get_register(const long arg)
     case LINKMISCD:
         ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,31)]);
         break;
+    
+    case LINKHITBY:
+        ret = (int)(Link.gethitLinkUID(vbound(ri->d[0]/10000,0,3)));
+        break;
+    case LINKDEFENCE:
+        ret = (int)(Link.get_defence(vbound(ri->d[0]/10000,0,255)));
+        break;
+        
         
     case LINKHXOFS:
         ret = (int)(Link.hxofs)*10000;
@@ -5705,6 +5714,13 @@ void set_register(const long arg, const long value)
         
     case LINKMISCD:
         Link.miscellaneous[vbound(ri->d[0]/10000,0,31)] = value;
+        break;
+    
+    case LINKHITBY:
+	Link.sethitLinkUID(vbound(ri->d[0]/10000,0,255), vbound(value, 0, 255));
+        break;
+    case LINKDEFENCE:
+	Link.set_defence(vbound(ri->d[0]/10000,0,255), ((char)vbound(value, 0, 255)));
         break;
         
     case LINKHXOFS:

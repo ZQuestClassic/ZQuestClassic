@@ -4,6 +4,17 @@ MISSING: npcdata->FireSound; npc->FireSound
 
 //Alpha 22
 
+Added a pair of Link class arrays. The first, stores the last weapon or npc that hit Link.
+This is not yet cleared every frame. The values only change when Link is hit. 
+The ZScript interface for this is Link->HitBy[4], where index 0 is the last npc screen index that
+hit him, and index [1] is the last eweapon.
+The second, is Link->Defense[256], and while the ZScript array is r/w. 
+there is no code to swet up defences in the quest, nor anything that makes use of them.
+They are not yet saved at all, and this will need an Init Data panel, plus code to save it
+with the quest, and to load it. Heck, it'll need new section info. :(
+It will also need code to modify the damage value of weapons that hit Link. 
+	( ZoriaRPG, 3rd January, 2018 )
+
 Fixed a bug where the return for Link->Action when rafting was only returning
 LA_RAFTING on the first frame of the action, and LA_SWIMMING during the rafting animation.
 	( 31st December, 2017 )
@@ -236,7 +247,7 @@ int HasItem
 int TileWarpType[4]
 int TileWarpOverlayFlags
 int DoorComboSet
-int WarpReturnX[4]
+int WarpReturnX[4] //2.50 warp return squares (blue). 
 int WarpReturnY[4]
 int WarpReturnC
 int StairsX
@@ -253,7 +264,7 @@ int Enemy[10]
 int Pattern
 int SideWarpType[4]
 int SideWarpOverlayFlags
-int WarpArrivalX
+int WarpArrivalX //old 2.10 warp arrival point (green). 
 int WarpArrivalY
 int MazePath[4]
 int SideWarpScreen[4]

@@ -1038,8 +1038,10 @@ using namespace std;
 #define REFPALCYCLE 		973
 #define REFGAMEDATA 		974
 #define REFCHEATS 		975
+#define LINKHITBY 		976
+#define LINKDEFENCE 		977
 
-#define LAST_BYTECODE 			976
+#define LAST_BYTECODE 			978
 
 //END OF BYTECODE
 

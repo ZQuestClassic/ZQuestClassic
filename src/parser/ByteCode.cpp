@@ -1643,6 +1643,8 @@ string VarArgument::toString()
 	case COMBODWHISTLE: return "COMBODWHISTLE";
 	case COMBODWINGAME: return "COMBODWINGAME";
 	case COMBODBLOCKWPNLEVEL: return "COMBODBLOCKWPNLEVEL";
+	case LINKHITBY: return "LINKHITBY";
+	case LINKDEFENCE: return "LINKDEFENCE";
     default:
     {
         sprintf(temp, "d%d", ID);
