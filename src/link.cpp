@@ -123,6 +123,24 @@ void LinkClass::setCanLinkFlicker(bool v){
 void LinkClass::sethitLinkUID(int type, int screen_index)
 {
 	lastHitBy[type] = screen_index;
+	/* Let's figure out how to clear this...
+	if ( global_wait ) lastHitBy[type] = screen_index;
+	else lastHitBy[type] = 0;
+	//No, we clear it in Zelda.cpp, with this:
+	    if(global_wait)
+	    {
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+		global_wait=false;
+	    }
+	    
+	    
+	    draw_screen(tmpscr);
+	    
+	    //clear Link's last hits 
+	    //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0);
+	    
+	*/
+	
 }
 
 int LinkClass::gethitLinkUID(int type)

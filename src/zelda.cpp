@@ -2655,7 +2655,11 @@ void game_loop()
         global_wait=false;
     }
     
+    
     draw_screen(tmpscr);
+    
+    //clear Link's last hits 
+    //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0);
     
     if(linkedmsgclk==1)
     {
