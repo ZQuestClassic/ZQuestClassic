@@ -3357,7 +3357,10 @@ killweapon:
         {
             int ringpow = ringpower(lwpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
-	    sethitLinkUID(HIT_BY_LWEAPON,hit2); 
+	    sethitLinkUID(HIT_BY_LWEAPON,(hit2+1)*10000); 
+		//Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
+		//Z_scripterrlog("Link->HitBy[LWPN] is: %d\n", gethitLinkUID(HIT_BY_LWEAPON));
+            
         }
         
         hitdir = Lwpns.spr(hit2)->hitdir(x,y,16,16,dir);
@@ -3393,7 +3396,9 @@ killweapon:
         {
             int ringpow = ringpower(ewpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
-	    sethitLinkUID(HIT_BY_EWEAPON,hit2); 
+	    sethitLinkUID(HIT_BY_EWEAPON,(hit2+1)*10000); 
+		//Z_scripterrlog("wweapon hit2 is: %d\n", hit2*10000);
+		//Z_scripterrlog("Link->HitBy[EWPN] is: %d\n", gethitLinkUID(HIT_BY_EWEAPON));
         }
         
         hitdir = Ewpns.spr(hit2)->hitdir(x,y,16,16,dir);
@@ -3564,7 +3569,10 @@ void LinkClass::hitlink(int hit2)
     {
         int ringpow = ringpower(enemy_dp(hit2));
         game->set_life(zc_max(game->get_life()-ringpow,0));
-	sethitLinkUID(HIT_BY_NPC,hit2); 
+	sethitLinkUID(HIT_BY_NPC,(hit2+1)*10000); 
+	    //Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
+		//Z_scripterrlog("Link->HitBy[NPC] is: %d\n", gethitLinkUID(HIT_BY_NPC));
+	    
     }
     
     hitdir = guys.spr(hit2)->hitdir(x,y,16,16,dir);
