@@ -2540,8 +2540,18 @@ void do_dcounters()
 
 void game_loop()
 {
-
-    //  walkflagx=0; walkflagy=0;
+    //clear Link's last hits 
+    //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing these here makes checking them fail both before and after waitdraw.
+    //Link.ClearhitLinkUIDs();
+	
+    //Why the flidd doesn't this work?! Clearing this to 0 in a way that doesn't demolish script access is impossible. -Z
+		//All I want, is to clear it at the end of a frame, or at the start of a frame, so that if it changes to non-0
+		//that a script can read it before Waitdraw(). --I want it to go stale at the end of a frame.
+		//I suppose I will need to do this inside the script engine, and not the game_loop() ? -Z
+	
+	
+	//  walkflagx=0; walkflagy=0;
+	
     if(fadeclk>=0)
     {
         if(fadeclk==0 && currscr<128)
@@ -2659,7 +2669,7 @@ void game_loop()
     draw_screen(tmpscr);
     
     //clear Link's last hits 
-    //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0);
+    //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
     
     if(linkedmsgclk==1)
     {
@@ -3924,6 +3934,10 @@ int main(int argc, char* argv[])
 #endif
             game_loop();
             advanceframe(true);
+		
+	     //clear Link's last hits 
+	     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible 
+									//to read before or after waitdraw in scripts. 
         }
         
         tmpscr->flags3=0;

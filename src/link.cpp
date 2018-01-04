@@ -120,9 +120,36 @@ void LinkClass::setCanLinkFlicker(bool v){
 	flickerorflash = v;
 }
 
+void LinkClass::ClearhitLinkUIDs()
+{ 		//Why the flidd doesn't this work?! Clearing this to 0 in a way that doesn't demolish script access is impossible. -Z
+		//All I want, is to clear it at the end of a frame, or at the start of a frame, so that if it changes to non-0
+		//that a script can read it before Waitdraw(). --I want it to go stale at the end of a frame.
+		//I suppose I will need to do this inside the script engine, and not the game_loop() ? -Z
+		//THis started out as a simple clear to 0 of lastHitBy[n], but that did not work:
+		//I added the second element to this, so that I could store the frame on which the hit is recorded, and 
+		//clear it on the next frame, but that had the SAME outcome.
+		//Where and how can I clear a value at the end of every frame, so that:
+		// 1. If set by internal mecanics, it has its value that you can read by script, before waitdraw--this part works at present.
+		// 2. FFCs can read it before Waitframe. --same.
+		// 3. After Waitframe(), it is wiped by the ZC Engine to 0. --I cannot get this to happen without breaking 1 and 2. 
+	for ( int q = 0; q < 4; q++ ) 	
+	{
+		/*
+		if ( lastHitBy[q][1] == (frame-1) ) //Verify if this is needed at all now. 
+		{
+			//Z_scripterrlog("frame is: %d\n", frame);
+			//Z_scripterrlog("Link->HitBy frame is: %d\n", lastHitBy[q][1]);
+			lastHitBy[q][0] = 0;
+		}
+		*/
+		lastHitBy[q][0] = 0;
+	}
+}
+
 void LinkClass::sethitLinkUID(int type, int screen_index)
 {
-	lastHitBy[type] = screen_index;
+	lastHitBy[type][0] = screen_index;
+	//lastHitBy[type][1] = frame;
 	/* Let's figure out how to clear this...
 	if ( global_wait ) lastHitBy[type] = screen_index;
 	else lastHitBy[type] = 0;
@@ -145,7 +172,7 @@ void LinkClass::sethitLinkUID(int type, int screen_index)
 
 int LinkClass::gethitLinkUID(int type)
 {
-	return lastHitBy[type];
+	return lastHitBy[type][0];
 }
 
 void LinkClass::set_defence(int type, int v)
@@ -819,7 +846,8 @@ void LinkClass::init()
 	hurtsfx = getHurtSFX(); //Set the default sound. 
 	flickerorflash = true; //flicker or flash unless disabled externally.
 	
-	for ( int q = 0; q < 4; q++ ) lastHitBy[q] = 0; 
+	for ( int q = 0; q < 4; q++ ) lastHitBy[q][0] = 0; 
+	for ( int q = 0; q < 4; q++ ) lastHitBy[q][1] = 0; 
 	for ( int q = 0; q < wMax; q++ ) defence[q] = 0; //we will need to have a Link section in the quest load/save code! -Z
 }
 
@@ -3343,6 +3371,8 @@ killweapon:
         
     int hit2 = diagonalMovement?GuyHit(x+4,y+4,z,8,8,hzsz):GuyHit(x+7,y+7,z,2,2,hzsz);
     
+    
+    
     if(hit2!=-1)
     {
         hitlink(hit2);
@@ -3357,7 +3387,7 @@ killweapon:
         {
             int ringpow = ringpower(lwpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
-	    sethitLinkUID(HIT_BY_LWEAPON,(hit2+1)); 
+	    sethitLinkUID(HIT_BY_LWEAPON,(hit2+1));  //this is first readable after waitdraw. 
 		//Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
 		//Z_scripterrlog("Link->HitBy[LWPN] is: %d\n", gethitLinkUID(HIT_BY_LWEAPON));
             
@@ -3388,6 +3418,8 @@ killweapon:
         return;
     }
     
+    //else  { sethitLinkUID(HIT_BY_LWEAPON,(0));  //fails to clear
+    
     hit2 = EwpnHit();
     
     if(hit2!=-1)
@@ -3396,7 +3428,7 @@ killweapon:
         {
             int ringpow = ringpower(ewpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
-	    sethitLinkUID(HIT_BY_EWEAPON,(hit2+1)); 
+	    sethitLinkUID(HIT_BY_EWEAPON,(hit2+1)); //this is first readable after waitdraw. 
 		//Z_scripterrlog("wweapon hit2 is: %d\n", hit2*10000);
 		//Z_scripterrlog("Link->HitBy[EWPN] is: %d\n", gethitLinkUID(HIT_BY_EWEAPON));
         }
@@ -3425,6 +3457,7 @@ killweapon:
         sfx(getHurtSFX(),pan(int(x)));
         return;
     }
+    //else { sethitLinkUID(HIT_BY_EWEAPON,(0)); } //fails to clear
     
     // The rest of this method deals with damage combos, which can be jumped over.
     if(z>0 && !(tmpscr->flags2&fAIRCOMBOS)) return;
@@ -3569,7 +3602,7 @@ void LinkClass::hitlink(int hit2)
     {
         int ringpow = ringpower(enemy_dp(hit2));
         game->set_life(zc_max(game->get_life()-ringpow,0));
-	sethitLinkUID(HIT_BY_NPC,(hit2+1)); 
+	sethitLinkUID(HIT_BY_NPC,(hit2+1)); //this is first readable after waitdraw. 
 	    //Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
 		//Z_scripterrlog("Link->HitBy[NPC] is: %d\n", gethitLinkUID(HIT_BY_NPC));
 	    
@@ -4220,6 +4253,8 @@ bool LinkClass::animate(int)
 	
     }
     
+    
+    ClearhitLinkUIDs(); //clear them before we advance. 
     checkhit();
     
     if(game->get_life()<=0)
@@ -13057,6 +13092,10 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     while(cx < 32);
     
     script_drawing_commands.Clear();
+    
+    
+    //clear Link's last hits 
+    //for ( int q = 0; q < 4; q++ ) sethitLinkUID(q, 0);
     
     if((DMaps[currdmap].type&dmfTYPE)==dmCAVE)
         markBmap(scrolldir);
