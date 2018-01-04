@@ -1174,7 +1174,7 @@ long get_register(const long arg)
         break;
         
     case LINKMISCD:
-        ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,15)]);
+        ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,15)]) *10000; //Why was this not multiplied by 10000 before? -Z
         break;
         
     case LINKHXOFS:
@@ -3067,7 +3067,7 @@ void set_register(const long arg, const long value)
         break;
         
     case LINKMISCD:
-        Link.miscellaneous[vbound(ri->d[0]/10000,0,15)] = value;
+        Link.miscellaneous[vbound(ri->d[0]/10000,0,15)] = value/10000; //Why was this not divided by 10000 before>
         break;
         
     case LINKHXOFS:
