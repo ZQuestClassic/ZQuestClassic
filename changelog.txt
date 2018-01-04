@@ -6,6 +6,12 @@ MISSING: npcdata->FireSound; npc->FireSound
 
 ! THis should be set when damage is applied to Link !
 
+Fixed Link->Misc[] not being divided or multiplied (internally) by 10000.
+--also applied to 2.53.0b12 at this date. 
+Fixed Link->HitBy[] and Link->Defense[], which were copy/pasted from Misc[]
+	and thus, were not doing div/mult by 1000.
+	( ZoriaRPG, 4th January., 2018 )
+
 Added a pair of Link class arrays. The first, stores the last weapon or npc that hit Link.
 This is not yet cleared every frame. The values only change when Link is hit. 
 The ZScript interface for this is Link->HitBy[4], where index 0 is the last npc screen index that
@@ -567,8 +573,11 @@ Debug->GetFFCPointer(), SetFFCPointer(), GetItemPointer(), SetItemPointer(), Get
 //2.53 Changes
 
 ChangeLog for 2.53.0 Beta 12
-29th December, 2017
+4th January, 2018
 
+Fixed Link->Misc[] not being divided or multiplied (internally) by 10000.
+	( ZoriaRPG, 4th January., 2018 )
+	
 Applied Item Editor fix for InitD values. (They were clamped from -31768 to 327678, and
 	now they are clamped between -214748.3647 and 214748.3647.
 	Applied to 2.54 Alpha 22, and 2.53 Beta 12. 
