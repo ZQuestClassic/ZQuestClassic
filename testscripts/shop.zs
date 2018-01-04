@@ -13,9 +13,9 @@ const int SHOP_STRING_FG_COLOUR = 0x01;
 
 ffc script Automatic_Z3_Shop
 {
-	void run(int shop__id)
+	void run(int shop_id)
 	{
-		shopitems[3]; 
+		item shopitems[3]; 
 		shopdata sd = Game->LoadShopData(shop_id);
 		for ( int q = 0; q < 176; ++q )
 		{
