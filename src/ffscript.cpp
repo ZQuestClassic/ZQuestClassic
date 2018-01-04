@@ -1245,14 +1245,14 @@ long get_register(const long arg)
         break;
         
     case LINKMISCD:
-        ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,31)]);
+        ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,31)])* 10000; //Was this buffed before? -Z
         break;
     
     case LINKHITBY:
-        ret = (int)(Link.gethitLinkUID(vbound(ri->d[0]/10000,0,3)));
+        ret = (int)(Link.gethitLinkUID(vbound(ri->d[0]/10000,0,3))) * 10000;
         break;
     case LINKDEFENCE:
-        ret = (int)(Link.get_defence(vbound(ri->d[0]/10000,0,255)));
+        ret = (int)(Link.get_defence(vbound(ri->d[0]/10000,0,255)))* 10000;
         break;
         
         
@@ -5713,14 +5713,14 @@ void set_register(const long arg, const long value)
         break;
         
     case LINKMISCD:
-        Link.miscellaneous[vbound(ri->d[0]/10000,0,31)] = value;
+        Link.miscellaneous[vbound(ri->d[0]/10000,0,31)] = value/10000; //Was this bugged before?
         break;
     
     case LINKHITBY:
-	Link.sethitLinkUID(vbound(ri->d[0]/10000,0,255), vbound(value, 0, 255));
+	Link.sethitLinkUID(vbound(ri->d[0]/10000,0,255), vbound((value/10000), 0, 255));
         break;
     case LINKDEFENCE:
-	Link.set_defence(vbound(ri->d[0]/10000,0,255), ((char)vbound(value, 0, 255)));
+	Link.set_defence(vbound(ri->d[0]/10000,0,255), ((char)vbound((value/10000), 0, 255)));
         break;
         
     case LINKHXOFS:
