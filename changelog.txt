@@ -4,13 +4,18 @@ MISSING: npcdata->FireSound; npc->FireSound
 
 //Alpha 22
 
-! THis should be set when damage is applied to Link !
+Link->HitBy[] is set non-zero, and only persists for one frame.
+Because it is set by Link.checkhit(), the timing is a bit bonkers...
+	Link->HitBy[] is valid AFTER WAITDRAW through to the next WAITDRAW.
+Why is ZC timing so bonkers?!
 
 Fixed Link->Misc[] not being divided or multiplied (internally) by 10000.
 --also applied to 2.53.0b12 at this date. 
 Fixed Link->HitBy[] and Link->Defense[], which were copy/pasted from Misc[]
 	and thus, were not doing div/mult by 1000.
 	( ZoriaRPG, 4th January., 2018 )
+
+! This should be set when damage is applied to Link ! --Now I forgot what this was intended to mean. -Z
 
 Added a pair of Link class arrays. The first, stores the last weapon or npc that hit Link.
 This is not yet cleared every frame. The values only change when Link is hit. 
