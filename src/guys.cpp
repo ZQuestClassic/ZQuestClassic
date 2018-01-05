@@ -1389,7 +1389,7 @@ int enemy::takehit(weapon *w)
     case wBrang:
     {
         int def = defend(wpnId, &power, edefBRANG);
-        
+        //preventing stunlock might be best, here. -Z
         if(def >= 0) return def;
         
         // Not hurt by 0-damage weapons
@@ -13890,7 +13890,8 @@ void check_collisions()
 				//because this only checks `if(dying || clk<0 || hclk>0 || superman)`
                 {//!(e->stunclk)
                     int h = e->takehit(w);
-                    if (h == -1) { e->hitby[HIT_BY_LWEAPON] = i+1; temp_hit = true; }
+                    if (h == -1) { e->hitby[HIT_BY_LWEAPON] = i+1; temp_hit = true; } //h can be the return of defend(), so 
+										      //we may need to handle this in special cases. -Z
                     // NOT FOR PUBLIC RELEASE
                     /*if(h==3) //Mirror shield
                     {
