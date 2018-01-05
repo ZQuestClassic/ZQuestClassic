@@ -1,6 +1,7 @@
 //2.54 Changes
 
 MISSING: npcdata->FireSound; npc->FireSound
+NEEDED: npc-Defence for LW_SPARKLE.
 
 //Alpha 22
 
