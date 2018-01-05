@@ -2631,8 +2631,10 @@ enum ASM_DEFINE
 #define COMBODWHISTLE		0x1307	//C
 #define COMBODWINGAME		0x1308	//C
 #define COMBODBLOCKWPNLEVEL	0x1309	//C
-#define LINKHITBY	0x130A	//LONG[4]
-#define LINKDEFENCE	0x130B	//LONG[256]
+#define LINKHITBY	0x130A	//byte[4]
+#define LINKDEFENCE	0x130B	//byte[256]
+#define NPCHITBY	0x130C	//byte[4]
+#define NPCISCORE	0x130D	//byte[4]
 
 //bytecode
 
@@ -2640,7 +2642,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x130C
+#define NUMVARIABLES         0x130E
 
 // Script types
 

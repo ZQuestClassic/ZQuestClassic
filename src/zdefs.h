@@ -945,6 +945,16 @@ enum
     wLast, wSCRIPT, wMAX=256
 };
 
+//Types of hit detection
+#define HIT_BY_NPC 0
+#define HIT_BY_EWEAPON 1
+#define HIT_BY_LWEAPON 2
+#define HIT_BY_COMBO 3
+#define HIT_BY_MAPFLAG 4
+#define HIT_BY_FFC 5
+
+#define NUM_HIT_TYPES_USED 4
+
 // weapon types in game engine
 enum
 {

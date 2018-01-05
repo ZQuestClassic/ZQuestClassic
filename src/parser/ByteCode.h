@@ -1040,8 +1040,10 @@ using namespace std;
 #define REFCHEATS 		975
 #define LINKHITBY 		976
 #define LINKDEFENCE 		977
+#define NPCHITBY 		978
+#define NPCISCORE 		979
 
-#define LAST_BYTECODE 			978
+#define LAST_BYTECODE 			980
 
 //END OF BYTECODE
 

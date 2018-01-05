@@ -335,6 +335,12 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     frozencset = d->frozencset;
     frozenclock = 0;
     for ( int q = 0; q < 10; q++ ) frozenmisc[q] = d->frozenmisc[q];
+   
+    for ( int q = 0; q < 4; q++ ) hitby[q] = 0;
+    firesfx = 0; //t.b.a -Z
+    isCore = true; //t.b.a
+    parentCore = 0; //t.b.a
+
     if(bosspal>-1)
     {
         loadpalset(csBOSS,pSprite(bosspal));
@@ -9197,6 +9203,7 @@ esMoldorm::esMoldorm(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     bgsfx=-1;
     flags&=~guy_neverret;
     //deadsfx = WAV_EDEAD;
+    isCore = false;
 }
 
 bool esMoldorm::animate(int index)
@@ -9440,6 +9447,7 @@ esLanmola::esLanmola(fix X,fix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
         prevState.push_back(std::pair<std::pair<fix, fix>, int>(std::pair<fix,fix>(x,y), dir));
         
     bgsfx = -1;
+    isCore = false;
     flags&=~guy_neverret;
 }
 
@@ -9921,6 +9929,7 @@ esManhandla::esManhandla(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     bgsfx=-1;
     deadsfx = WAV_EDEAD;
     flags &= (~guy_neverret);
+    isCore = false;
 }
 
 bool esManhandla::animate(int index)
@@ -10280,6 +10289,7 @@ esGleeok::esGleeok(fix X,fix Y,int Id,int Clk, sprite * prnt) : enemy(X,Y,Id,Clk
     clk3=((dir&2)>>1)+2;                                      // left or right
     dir&=1;                                                   // up or down
     dmisc5=vbound(dmisc5,1,255);
+    isCore = false;
     
     for(int i=0; i<dmisc5; i++)
     {
@@ -10887,6 +10897,7 @@ esPatra::esPatra(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     flags &= (~guy_neverret);
     deadsfx = WAV_EDEAD;
     hitsfx = WAV_EHIT;
+    isCore = false;
 }
 
 bool esPatra::animate(int index)
@@ -13845,8 +13856,18 @@ int message_more_y()
 
 /***  Collision detection & handling  ***/
 
+void clear_script_one_frame_conditions()
+{
+	for(int j=0; j<guys.Count(); j++)
+	{
+                enemy *e = (enemy*)guys.spr(j);
+		for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) e->hitby[q] = 0;
+	}
+}
+		
 void check_collisions()
 {
+    bool temp_hit = false;
     for(int i=0; i<Lwpns.Count(); i++)
     {
         weapon *w = (weapon*)Lwpns.spr(i);
@@ -13856,11 +13877,12 @@ void check_collisions()
             for(int j=0; j<guys.Count(); j++)
             {
                 enemy *e = (enemy*)guys.spr(j);
+		if ( !temp_hit ) e->hitby[HIT_BY_LWEAPON] = 0;
                 
                 if(e->hit(w))
                 {
                     int h = e->takehit(w);
-                    
+                    if (h == -1) { e->hitby[HIT_BY_LWEAPON] = i+1; temp_hit = true; }
                     // NOT FOR PUBLIC RELEASE
                     /*if(h==3) //Mirror shield
                     {

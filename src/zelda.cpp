@@ -2620,7 +2620,7 @@ void game_loop()
         dragging_item();
         Ewpns.animate();
         checklink = true;
-        
+        clear_script_one_frame_conditions(); //the timing on this may need adjustment. 
         for(int i = 0; i < (gofast ? 8 : 1); i++)
         {
             if(Link.animate(0))

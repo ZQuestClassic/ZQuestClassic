@@ -4,6 +4,13 @@ MISSING: npcdata->FireSound; npc->FireSound
 
 //Alpha 22
 
+Fixed swords and melee weapons conflicting with npc->HitBy[LWEAPON].
+Added preliminary bool npc->Core. Cores of segmented enemies should set this true, segments false.
+	parentCore will be a bit trickier, and I'll add it only once I verify that this component works.
+Added npc->HitBy[4]. Only lweapons attempt to set this at present, and link class weapons (e.g. swords) are, for some
+	reason, not doing it, but other lweapons work fine.
+	( ZoriaRPG, 5th January, 2018 )
+
 Link->HitBy[] is set non-zero, and only persists for one frame.
 Because it is set by Link.checkhit(), the timing is a bit bonkers...
 	Link->HitBy[] is valid AFTER WAITDRAW through to the next WAITDRAW.

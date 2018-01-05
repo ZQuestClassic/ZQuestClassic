@@ -2414,6 +2414,14 @@ long get_register(const long arg)
             ret = (GuyH::getNPC()->id & 0xFFF) * 10000;
             
         break;
+	
+    case NPCISCORE:
+        if(GuyH::loadNPC(ri->guyref, "npc->isCore") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = ((GuyH::getNPC()->isCore) ? 10000 : 0);
+            
+        break;
         
     case NPCMFLAGS:
         if(GuyH::loadNPC(ri->guyref, "npc->MiscFlags") != SH::_NoError)
@@ -2428,11 +2436,23 @@ long get_register(const long arg)
     {
         int a = ri->d[0] / 10000;
         
-        if(GuyH::loadNPC(ri->guyref, "npc->Defense") != SH::_NoError ||
-                BC::checkBounds(a, 0, (edefLAST255-1), "npc->Defense") != SH::_NoError)
+        if(GuyH::loadNPC(ri->guyref, "npc->Defense[]") != SH::_NoError ||
+                BC::checkBounds(a, 0, (edefLAST255-1), "npc->Defense[]") != SH::_NoError)
             ret = -10000;
         else
             ret = GuyH::getNPC()->defense[a] * 10000;
+    }
+    break;
+    
+    case NPCHITBY:
+    {
+        int a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->HitBy[]") != SH::_NoError ||
+                BC::checkBounds(a, 0, 3, "npc->HitBy[]") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = GuyH::getNPC()->hitby[a] * 10000;
     }
     break;
     
@@ -7365,6 +7385,13 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     GuyH::getNPC()->member = value / 10000; \
 }
     
+    
+    case NPCISCORE:
+        if(GuyH::loadNPC(ri->guyref, "npc->isCore") == SH::_NoError)
+	    GuyH::getNPC()->isCore = ( (value / 10000) ? true : false );
+        break;
+	
+	
     case NPCDIR:
         SET_NPC_VAR_INT(dir, "npc->Dir") break;
         
@@ -7511,8 +7538,18 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         
         if(GuyH::loadNPC(ri->guyref, "npc->Defense") == SH::_NoError &&
                 BC::checkBounds(a, 0, (edefLAST255-1), "npc->Defense") == SH::_NoError)
-            GuyH::getNPC()->defense[a] = value / 10000;
+            GuyH::getNPC()->defense[a] = vbound((value / 10000),0,255);
     }
+    break;
+    
+    case NPCHITBY:
+    {
+	long a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->HitBy[]") == SH::_NoError &&
+                BC::checkBounds(a, 0, (edefLAST255-1), "npc->HitBy[]") == SH::_NoError)
+            GuyH::getNPC()->hitby[a] = vbound((value / 10000),0,255);
+    }    
     break;
     
     //2.future compat. -Z

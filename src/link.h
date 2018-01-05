@@ -242,9 +242,7 @@ class LinkClass : public sprite
     int hurtsfx; //Link's Hurt SOund
     int walkspeed; //Link's walking speed.
     int lastHitBy[4][2]; //[enemy, eweapon, combo, flag
-    #define HIT_BY_NPC 0
-    #define HIT_BY_EWEAPON 1
-    #define HIT_BY_LWEAPON 2
+    
     // Methods below here.
     void movelink();
     void move(int d);

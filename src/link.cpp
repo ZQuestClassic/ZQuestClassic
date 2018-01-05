@@ -1951,6 +1951,7 @@ void LinkClass::checkstab()
     
     int wx=0,wy=0,wz=0,wxsz=0,wysz=0;
     bool found = false;
+    int melee_weapon_index;
     
     for(int i=0; i<Lwpns.Count(); i++)
     {
@@ -1959,7 +1960,7 @@ void LinkClass::checkstab()
         if(w->id == (attack==wCByrna || attack==wFire ? wWand : attack))  // Kludge: Byrna and Candle sticks are wWand-type.
         {
             found = true;
-            
+            melee_weapon_index = i+1;
             // Position the sword as Link slashes with it.
             if(w->id!=wHammer)
                 positionSword(w,w->parentitem);
@@ -2137,6 +2138,9 @@ void LinkClass::checkstab()
             }
             
             int h = hit_enemy(i,attack,(weaponattackpower() + whimsypower)*DAMAGE_MULTIPLIER,wx,wy,dir,directWpn);
+	    enemy *e = (enemy*)guys.spr(i);
+	    if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
+	    //melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
             
             if(h<0 && whimsypower)
             {

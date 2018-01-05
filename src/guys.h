@@ -80,6 +80,11 @@ public:
     byte defense[edefLAST255];
     byte hitsfx,deadsfx;
     
+    byte hitby[4];
+    short firesfx;
+    bool isCore;
+    short parentCore;
+    
     fix  getX();
     fix  getY();
     int  getID();
@@ -751,6 +756,7 @@ int wpnsfx(int wpn);
 /***  Collision detection & handling  ***/
 
 void check_collisions();
+void clear_script_one_frame_conditions();
 void dragging_item();
 void roaming_item();
 int more_carried_items();

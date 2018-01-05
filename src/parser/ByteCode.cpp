@@ -1645,6 +1645,8 @@ string VarArgument::toString()
 	case COMBODBLOCKWPNLEVEL: return "COMBODBLOCKWPNLEVEL";
 	case LINKHITBY: return "LINKHITBY";
 	case LINKDEFENCE: return "LINKDEFENCE";
+	case NPCHITBY: return "NPCHITBY";
+	case NPCISCORE: return "NPCISCORE";
     default:
     {
         sprintf(temp, "d%d", ID);
