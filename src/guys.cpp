@@ -1210,6 +1210,13 @@ int enemy::takehit(weapon *w)
         return 0;
     }
     
+    //Prevent boomerang from writing to hitby[] for more than one frame.
+    //This also prevents stunlock.
+    //if ( stunclk > 0 ) return 0; 
+    //this needs a rule for boomerangs that cannot stunlock!
+    //further, bouncing weapons should probably SFX_CHINK and bounce here.
+    //sigh.
+    
     int ret = -1;
     
     // This obscure quest rule...
@@ -13879,8 +13886,9 @@ void check_collisions()
                 enemy *e = (enemy*)guys.spr(j);
 		if ( !temp_hit ) e->hitby[HIT_BY_LWEAPON] = 0;
                 
-                if(e->hit(w))
-                {
+                if(e->hit(w)) //boomerangs and such that last for more than a frame can write hitby[] for more than one frame, 
+				//because this only checks `if(dying || clk<0 || hclk>0 || superman)`
+                {//!(e->stunclk)
                     int h = e->takehit(w);
                     if (h == -1) { e->hitby[HIT_BY_LWEAPON] = i+1; temp_hit = true; }
                     // NOT FOR PUBLIC RELEASE
