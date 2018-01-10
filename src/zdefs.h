@@ -175,7 +175,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES            1 //2 will be either unsigned short, or long
 #define V_COMBOS           10
 #define V_CSETS            4
-#define V_MAPS            18
+#define V_MAPS            19
 #define V_DMAPS            9
 #define V_DOORS            1
 #define V_ITEMS           34
@@ -1804,6 +1804,11 @@ struct mapscr
     short screen_midi;
     byte lens_layer;
     
+    //for future versions after 2.54 -Z
+    long npcstrings[10];
+    short new_items[10];
+    signed short new_item_x[10];
+    signed short new_item_y[10];
     
     void zero_memory()
     {
@@ -1954,6 +1959,11 @@ struct mapscr
         secretsfx=0;
         holdupsfx=0;
         lens_layer=0;
+	
+	for ( int q = 0; q < 10; q++ ) npcstrings[q] = 0;
+        for ( int q = 0; q < 10; q++ ) new_items[q] = 0;
+        for ( int q = 0; q < 10; q++ ) new_item_x[q] = 0;
+        for ( int q = 0; q < 10; q++ ) new_item_y[q] = 0;
         
         data.assign(176,0);
         sflag.assign(176,0);

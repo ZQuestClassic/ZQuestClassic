@@ -11222,6 +11222,38 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         ffcScriptData[m].a[1] = 10000;
     }
     
+    if ( version >= 19 )
+    {
+	for ( int q = 0; q < 10; q++ ) 
+	{
+		if(!p_igetl(&(temp_mapscr->npcstrings[q]),f,true))
+		{
+                        return qe_invalid;
+		} 
+	}
+	for ( int q = 0; q < 10; q++ ) 
+	{
+		if(!p_igetw(&(temp_mapscr->new_items[q]),f,true))
+		{
+                        return qe_invalid;
+		} 
+	}
+	for ( int q = 0; q < 10; q++ ) 
+	{
+		if(!p_igetw(&(temp_mapscr->new_item_x[q]),f,true))
+		{
+                        return qe_invalid;
+		} 
+	}
+	for ( int q = 0; q < 10; q++ ) 
+	{
+		if(!p_igetw(&(temp_mapscr->new_item_y[q]),f,true))
+		{
+                        return qe_invalid;
+		} 
+	}
+    }
+    
     return 0;
 }
 

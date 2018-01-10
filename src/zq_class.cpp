@@ -8281,6 +8281,36 @@ int writemapscreen(PACKFILE *f, int i, int j)
         }
     }
     
+    for ( int q = 0; q < 10; q++ ) 
+    {
+	if(!p_iputl(screen.npcstrings[q],f))
+	{
+		return qe_invalid;
+	} 
+    }
+    for ( int q = 0; q < 10; q++ ) 
+    {
+	if(!p_iputw(screen.new_items[q],f))
+	{
+		return qe_invalid;
+	} 
+    }
+    for ( int q = 0; q < 10; q++ ) 
+    {
+	if(!p_iputw(screen.new_item_x[q],f))
+	{
+		return qe_invalid;
+	} 
+    }
+    for ( int q = 0; q < 10; q++ ) 
+    {
+	if(!p_iputw(screen.new_item_y[q],f))
+	{
+		return qe_invalid;
+	} 
+    }
+    
+    
     return qe_OK;
 }
 

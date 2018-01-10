@@ -5,7 +5,9 @@ NEEDED: npc-Defence for LW_SPARKLE.
 
 //Alpha 22
 
-Corrected the tooltip for Slash->Item combos.Corrected the tooltip for Slash->Item combos.
+Reserved some mapscreen variables for future use. 
+
+Corrected the tooltip for Slash->Item combos (zq_misc.cpp). 
 
 Improved efficiency of string.zh functions, and updated the docs.
 	( ZoriaRPG, 10th January, 2018 )
