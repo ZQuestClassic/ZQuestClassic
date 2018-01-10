@@ -1,5 +1,7 @@
 ChangeLog for 2.53.0 Beta 12
 
+Corrected the tooltip for Slash->Item combos.
+
 Improved efficiency of string.zh functions, and updated the docs.
 	( ZoriaRPG, 10th January, 2018 )
 

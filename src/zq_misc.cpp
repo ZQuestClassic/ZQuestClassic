@@ -519,6 +519,8 @@ const char *itemclass_help_string[(itype_last-20)*3] =
     "Represents either the letter or a potion, whichever is","available at the moment. No item should use this class;","It is intended for use in subscreens only."
 };
 
+//combo editor tooltips
+
 const char *combotype_help_string[cMAX*3] =
 {
     "","","",
@@ -548,7 +550,7 @@ const char *combotype_help_string[cMAX*3] =
     "This triggers Screen Secrets when the bottom half","of this combo is stepped on, and sets the screen's","'Secret' Screen State, making the secrets permanent.",
     "","","", // Unused
     "When stabbed or slashed with a Sword, this", "combo changes into the screen's Under Combo.","",
-    "Identical to Slash, but an item","from Item Drop Set 10 is created","when this combo is slashed.",
+    "Identical to Slash, but an item","from Item Drop Set 12 is created","when this combo is slashed.",
     "A Bracelet with a Push Combo Level of 2","is needed to push this combo. Otherwise,","this is identical to Push (Heavy).",
     "A Bracelet with a Push Combo Level of 2","is needed to push this combo. Otherwise,","this is identical to Push (Heavy, Wait).",
     "When hit by a Hammer, this combo changes","into the next combo in the list.","",
