@@ -1,5 +1,8 @@
 To-Do
 
+------------
+*** NPCS ***
+------------
 MOVE the code from zq_custom.cpp that populates custom weapon
 sprites for npcs, into the quest loader.
 	THEN, make the weapon sprite a pulldown, offset by +1
@@ -7,16 +10,14 @@ sprites for npcs, into the quest loader.
 	to a value of -1 for the field.
 	Read the field and adjust it by 1 when the dialogue opens. 
 
-Add CORE attribute to npcs and flag it for multi-segment cores.  [[DONE]]
-
-Set new refs to -1 on bad load, and wrap the macros so that if the
-ref is -1, they do not try to access data members.
-e.g. ri->shopsref = -1
-( if ri->shopsref != -1 ) 
-This will prevent the user from loading data from ref 0, without
-causing crashes. 
 
 npc defence stun, no stunlock
+
+npc WEAPON Sizing
+
+npc hunger for floaters, fliers, wizzrobes, and such.
+
+npc->Parent (for segmented npcs that are not cores)
 
 Extra dropsets: stun dropset, frozen dropset.
 
@@ -28,23 +29,62 @@ NEEDED npc->FrozenTile offsets for facing dir, or something so that ZC chooses t
 	the frozen tile should be the same offset. 
 	NOT simply setting a static tile. 
 
-FFCore ButtonRules: A (use item), B (use item), 
-	L (inventory left), R (inventory right)
-	Disable / enable by script.
-Tooltips for all new stuff. Try to improve extant tooltips
-and provide tooltip chains.
-
-Subscreen scrolling speed variable. 
-
-Datatypes:
-rgbdata
-palette
 
 Enemy flag to block brangs if the npc is already stunned.
 ...or just a defence type, stun(no stunlock). 
 Add magic powder, and an npc var: transform.
 The 'transform' var can be an enemy defence (as can split, tribble)!
 
+------------
+*** LINK ***
+------------
+Link->HitWidth, HitHeight, HitZHeight (possibly)
+
+Link->WarpEx()
+
+---------------
+*** WEAPONS ***
+---------------
+Item Editor Weapons?
+
+Weapon -> Defence Redirection / Weapon Editor Stuff
+ -> THis requires some changes that I am not sure that we are keeping, so I may leave it out of 2.54. 
+
+--------------
+*** FFCORE ***
+--------------
+FFCore ButtonRules: A (use item), B (use item), 
+	L (inventory left), R (inventory right)
+	Disable / enable by script.
+Tooltips for all new stuff. Try to improve extant tooltips
+and provide tooltip chains.
+
+-----------------
+*** DATATYPES ***
+-----------------
+Set new refs to -1 on bad load, and wrap the macros so that if the
+ref is -1, they do not try to access data members.
+e.g. ri->shopsref = -1
+( if ri->shopsref != -1 ) 
+This will prevent the user from loading data from ref 0, without
+causing crashes. 
+
+Datatypes:
+rgbdata
+palette
+
+
+------------
+*** MISC ***
+------------
+Combo editor types lists
+lw->, ew->, npc->Scale : Scale sprites and hitboxes around a specific value.
+
+Subscreen scrolling speed variable. 
+
+-------------
+*** RULES ***
+-------------
 Forward QRs to Items
 qr_FIREPROOFLINK (candle, done; book fire, todo)
 qr_TEMPCANDLELIGHT (candle, done; book fire, todo)
@@ -118,16 +158,17 @@ qr_REFLECTROCKS
 qr_OFFSETEWPNCOLLISIONFIX
 qr_FIREPROOFLINK2 (Invincible Link is not hurt by his own fire)
 
-Weapons
-Item Editor Weapons?
-Combo editor types lists
-lw->, ew->, npc->Scale : Scale sprites and hitboxes around a specific value.
+------------
+*** DONE ***
+------------
+
+Add CORE attribute to npcs and flag it for multi-segment cores.  [[DONE]]
 
 //Done (Probably)
 ->GreyscaleOn() and GreyscaleOff() should be Greyscale(bool on)
 ->WavyIn, WavyOut, ZapIn(), and ZapOut() shoul dbe Way(bool out), and Zap(bool out)
 
-Link->Pushing
+Link->Pushing [[DONE]]
 New ZScript Vars, Functions, and Types
 ZDefs merge
 Quest Loading Code
@@ -149,5 +190,4 @@ Enemy Defence Code (new defence outcomes, only!)
 Enemy Editor Enemy Sizing (Seems as if it should be fine.)
 
 Might Do:
-Weapon -> Defence Redirection / Weapon Editor Stuff
- -> THis requires some changes that I am not sure that we are keeping, so I may leave it out of 2.54. 
+
