@@ -2,6 +2,11 @@
 
 MISSING: npcdata->FireSound; npc->FireSound
 NEEDED: npc-Defence for LW_SPARKLE.
+NEEDED npc->FrozenTile offsets for facing dir, or something so that ZC chooses the
+	tile based on the same tile offset as the npc has before being frozen.
+	e.g. If they are facing left, on the third tile of a 4-tile animation,
+	the frozen tile should be the same offset. 
+	NOT simply setting a static tile. 
 
 //Alpha 22
 
