@@ -3688,10 +3688,6 @@ int HitXOffset;				ZASM Instruction:
 /**
 * The X offset of Link's hitbox, or collision rectangle.
 * Setting it to positive or negative values will move Link's hitbox left or right.
-* Writing to this is ignored unless Extend is set to values >=3.
-* This is not usable, as Link->Extend cannot be set.
-* While setting it is not syntactically incorrect, it does nothing.
-* You can read a value that you assign to this (e.g. for custom collision functions).
 * This value is not preserved through sessions: Loading a saved game will reset it to the default. 
 *
 */ Example Use: !#!
@@ -3704,10 +3700,6 @@ int HitYOffset;				ZASM Instruction:
 /**
 * The Y offset of Link's hitbox, or collision rectangle.
 * Setting it to positive or negative values will move Link's hitbox up or down.
-* Writing to this is ignored unless Extend is set to values >=3.
-* This is not usable, as Link->Extend cannot be set.
-* While setting it is not syntactically incorrect, it does nothing.
-* You can read a value that you assign to this (e.g. for custom collision functions).
 * This value is not preserved through sessions: Loading a saved game will reset it to the default. 
 *
 */ Example Use: !#!
@@ -3720,10 +3712,6 @@ int DrawXOffset;			ZASM Instruction:
 /**
 * The X offset of Link's sprite.
 * Setting it to positive or negative values will move the sprite's tiles left or right relative to its position.
-* Writing to this is ignored unless Extend is set to values >=3.
-* This is not usable, as Link->Extend cannot be set.
-* While setting it is not syntactically incorrect, it does nothing.
-* You can read a value that you assign to this.
 * This value is not preserved through sessions: Loading a saved game will reset it to the default. 
 *
 */ Example Use: !#!
@@ -3736,10 +3724,6 @@ int DrawYOffset;			ZASM Instruction:
 /**
 * The Y offset of Link's sprite.
 * Setting it to positive or negative values will move the sprite's tiles up or down relative to its position.
-* Writing to this is ignored unless Extend is set to values >=3.
-* This is not usable, as Link->Extend cannot be set.
-* While setting it is not syntactically incorrect, it does nothing.
-* You can read a value that you assign to this.
 * This value is not preserved through sessions: Loading a saved game will reset it to the default. 
 *
 */ Example Use: !#!
@@ -3751,11 +3735,7 @@ int DrawZOffset;			ZASM Instruction:
 				
 /**
 * The Z offset of Link's sprite.
-* Writing to this is ignored unless Extend is set to values >=3.
 * The values of DrawZOffset and HitZHeight are linked. Setting one, also sets the other. 
-* This is not usable, as Link->Extend cannot be set.
-* While setting it is not syntactically incorrect, it does nothing.
-* You can read a value that you assign to this.
 * This value is not preserved through sessions: Loading a saved game will reset it to the default. 
 *
 */ Example Use: !#!
