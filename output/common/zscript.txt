@@ -1,5 +1,5 @@
 //Docs for 2.53.0
-//Rev. 0.7.3.2; 2nd october, 2017
+//Rev. 0.7.3.3; 10th January, 2018
 
 Search for !#! to find areas that require completion. 
 
@@ -31,7 +31,7 @@ Search for !#! to find areas that require completion.
 * 	function / command. Full (public) ZASM documentation is, sadly incomplete.
 *
 * 	Note: Functions and variables other than global functions are properties
-* 	of **objects**. Objects are divided into NAMESPACEs and CLASSes, and the 
+* 	of **objects**. Objects are divided into TYPED POINTER CLASSes, and the 
 * 	the syntax for using them is:
 *
 * 	[object name]->[property]
@@ -795,7 +795,7 @@ float Sqrt(float val);			ZASM Instruction:
 //--- Game Functions and Variables ---
 //====================================
 
-										namespace Game
+										class Game
 
 	
 
@@ -1572,7 +1572,7 @@ float Sqrt(float val);			ZASM Instruction:
 //--- Screen Functions and Variables ---
 //======================================
 
-										namespace Screen
+										class Screen
 
 float D[];				ZASM Instruction: 
 					SD
@@ -3182,7 +3182,7 @@ Address Argument		ZASM Instruction
 //--- Link Functions and Variables ---
 //====================================
 
-											namespace Link
+											class Link
 
 //Unimplemented?
 Invincibility: LINKINVINC<>
@@ -5859,7 +5859,7 @@ T28: That pointer type does not have a function 'foo'.
 You tried to use the dereference operator (->) to call a function that does not exist for the pointer type being dereferenced. 
 Check the list of member variables and functions and verify you have not mistyped the function you are trying to call.
 
-This generally occurs when calling internal functions, using the incorrect class, or namespace, such as:
+This generally occurs when calling internal functions, using the incorrect class, or pointer, such as:
 
 Game->Rectangle() instead of Screen->Rectangle()
 
