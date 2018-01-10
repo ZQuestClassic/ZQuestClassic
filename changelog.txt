@@ -5,6 +5,8 @@ NEEDED: npc-Defence for LW_SPARKLE.
 
 //Alpha 22
 
+Corrected the tooltip for Slash->Item combos.Corrected the tooltip for Slash->Item combos.
+
 Improved efficiency of string.zh functions, and updated the docs.
 	( ZoriaRPG, 10th January, 2018 )
 	
@@ -590,6 +592,8 @@ Debug->GetFFCPointer(), SetFFCPointer(), GetItemPointer(), SetItemPointer(), Get
 
 ChangeLog for 2.53.0 Beta 12
 10th January, 2018
+
+Corrected the tooltip for Slash->Item combos.
 
 Improved efficiency of string.zh functions, and updated the docs.
 	( ZoriaRPG, 10th January, 2018 )
