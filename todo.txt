@@ -49,6 +49,8 @@ Item Editor Weapons?
 
 Weapon -> Defence Redirection / Weapon Editor Stuff
  -> THis requires some changes that I am not sure that we are keeping, so I may leave it out of 2.54. 
+ 
+item editor wpnsprite size: adjust all hardcoded sprite usage so that they use += ( n * tilewidth ) and += ( n * tileheight )
 
 --------------
 *** FFCORE ***
