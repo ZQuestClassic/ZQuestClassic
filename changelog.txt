@@ -1,5 +1,7 @@
 ChangeLog for 2.53.0 Beta 12
-29th December, 2017
+
+Improved efficiency of string.zh functions, and updated the docs.
+	( ZoriaRPG, 10th January, 2018 )
 
 Fixed Link->Misc[] not being divided or multiplied (internally) by 10000.
 	( ZoriaRPG, 4th January., 2018 )
