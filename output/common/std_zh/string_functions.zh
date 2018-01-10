@@ -4,8 +4,34 @@
 
 //Returns the number of chracters of a given type in a specified string.
 int NumCharsOf(int str, int chr){
-	int chars;
-	for ( int q = 0; q < SizeOfArray(str)-1; q++ ) {
+	int chars; int sz = SizeOfArray(str)-1;
+	for ( int q = 0; q < sz; ++q ) {
+		if ( str[q] == chr ) chars++;
+	}
+	return chars;
+}
+
+int NumCharsOf(int str, int pos, int chr){
+	int chars; int sz = SizeOfArray(str)-1;
+	for ( int q = pos; q < sz; ++q ) {
+		if ( str[q] == chr ) chars++;
+	}
+	return chars;
+}
+
+//reversed
+//Returns the number of chracters of a given type in a specified string.
+int NumCharsOfRev(int str, int chr){
+	int chars; int sz = SizeOfArray(str)-1;
+	for ( int q = sz; q >= 0; --q ) {
+		if ( str[q] == chr ) chars++;
+	}
+	return chars;
+}
+
+int NumCharsOfRev(int str, int pos, int chr){
+	int chars; 
+	for ( int q = pos; q >= 0; --q ) {
 		if ( str[q] == chr ) chars++;
 	}
 	return chars;
@@ -65,16 +91,85 @@ bool isVowel(int chr){
 }
 
 //Returns true if the string contains a specific character.
-bool ContainsChar(int chr, int buffer){
-	for ( int q = 0; q <= SizeOfArray(buffer); q++ ){
+bool ContainsChar(int chr, int buffer)
+{
+	int sz = SizeOfArray(buffer);
+	for ( int q = 0; q < sz; ++q )
+	{
 		if ( buffer[q] == chr ) return true;
 	}
 	return false;
 }
 
 //Returns first character position if the string contains a specific character, else -1.
-bool ContainsCharPos(int chr, int buffer){
-	for ( int q = 0; q <= SizeOfArray(buffer); q++ ){
+int ContainsCharPos(int chr, int buffer){
+	int sz = SizeOfArray(buffer);
+	for ( int q = 0; q < sz; ++q )
+	{
+		if ( buffer[q] == chr ) return q;
+	}
+	return -1;
+}
+
+//Returns true if the string contains a specific character.
+bool ContainsChar(int chr, int pos, int buffer)
+{
+	int sz = SizeOfArray(buffer);
+	for ( int q = pos; q < sz; ++q )
+	{
+		if ( buffer[q] == chr ) return true;
+	}
+	return false;
+}
+
+//Returns first character position if the string contains a specific character, else -1.
+int ContainsCharPos(int chr, int pos, int buffer)
+{
+	int sz = SizeOfArray(buffer);
+	for ( int q = pos; q < sz; ++q )
+	{
+		if ( buffer[q] == chr ) return q;
+	}
+	return -1;
+}
+
+
+//Returns true if the string contains a specific character.
+bool ContainsCharRev(int chr, int buffer)
+{
+	for ( int q = (SizeOfArray(buffer)-1); q >= 0; --q )
+	{
+		if ( buffer[q] == chr ) return true;
+	}
+	return false;
+}
+
+//Returns first character position if the string contains a specific character, else -1.
+int ContainsCharPosRev(int chr, int buffer)
+{
+	for ( int q = (SizeOfArray(buffer)-1); q >= 0; --q )
+	{
+		if ( buffer[q] == chr ) return q;
+	}
+	return -1;
+}
+
+
+//Returns true if the string contains a specific character.
+bool ContainsCharRev(int chr, int pos, int buffer)
+{
+	for ( int q = pos; q >= 0; --q )
+	{
+		if ( buffer[q] == chr ) return true;
+	}
+	return false;
+}
+
+//Returns first character position if the string contains a specific character, else -1.
+int ContainsCharPosRev(int chr, int pos, int buffer)
+{
+	for ( int q = pos; q >= 0; --q )
+	{
 		if ( buffer[q] == chr ) return q;
 	}
 	return -1;
@@ -113,7 +208,7 @@ int ConvertCase(int chr)
 //Sets block of memory of size 'n' pointed by 'ptr' to 'value'
 void memset(int ptr, int pos, int value, int n)
 {
-	for(int i = 0; i < n; i++)
+	for(int i = 0; i < n; ++i)
 		ptr[pos + i] = value;
 }
 void memset(int ptr, int value, int n)
@@ -125,7 +220,7 @@ void memset(int ptr, int value, int n)
 //Copys block of memory pointed by 'src' of size 'n' to 'dest'
 void memcpy(int dest, int dpos, int src, int spos, int n)
 {
-	for(int i = 0; i < n; i++)
+	for(int i = 0; i < n; ++i)
 		dest[dpos + i] = src[spos + i];
 }
 void memcpy(int dest, int src, int n)
@@ -138,9 +233,9 @@ void memcpy(int dest, int src, int n)
 int memmove(int dest, int dpos, int src, int spos, int n)
 {
 	int buffer[0x100];
-	for(int i = 0; i < n; i++)
+	for(int i = 0; i < n; ++i)
 		buffer[i] = src[spos + i];
-	for(int i = 0; i < n; i++)
+	for(int i = 0; i < n; ++i)
 		dest[dpos + i] = buffer[i];
 	return dest;
 }
@@ -160,7 +255,7 @@ void arrayset(int a,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a7,
 //Copys string 'src' into string 'dest' without checking for overflow in 'dest'
 void strcpy(int dest, int dpos, int src, int spos)
 {
-	for(int i = 0; src[spos + i] != 0; i++)
+	for(int i = 0; src[spos + i] != 0; ++i)
 		dest[dpos + i] = src[spos + i];
 }
 void strcpy(int dest, int src)
@@ -171,7 +266,7 @@ void strcpy(int dest, int src)
 //As strcpy, but only takes the first 'n' characters from src
 void strncpy(int dest, int dpos, int src, int spos, int n)
 {
-	for(int i = 0; src[spos + i] != 0 && i < n; i++)
+	for(int i = 0; src[spos + i] != 0 && i < n; ++i)
 		dest[dpos + i] = src[spos + i];
 }
 void strncpy(int dest, int src, int n)
@@ -183,7 +278,7 @@ void strncpy(int dest, int src, int n)
 //Remove all characters starting from pointer 'string'
 void remchr(int string, int pos)
 {
-	for(int i = 0; string[pos + i] != 0; i++)
+	for(int i = 0; string[pos + i] != 0; ++i)
 		string[pos + i] = 0;
 }
 
@@ -192,7 +287,7 @@ void remnchr(int string, int pos, int n)
 {
 	int l = strlen(string);
 	int temp = n + pos;
-	for(int i = 0; string[pos + i] != 0; i++)
+	for(int i = 0; string[pos + i] != 0; ++i)
 		string[pos + i] = Cond(temp + i < l, string[temp + i] ,0);
 }
 
@@ -201,7 +296,7 @@ void remnchr(int string, int pos, int n)
 int strlen(int string)
 {
 	int l;
-	for(l = 0; string[l] != 0; l++);
+	for(l = 0; string[l] != 0; ++l);
 	return l;
 }
 
@@ -212,7 +307,7 @@ void strcat(int dest, int src, int spos)
 {
 	int i;
 	int l = strlen(dest);
-	for(i = 0; src[spos + i] != 0; i++)
+	for(i = 0; src[spos + i] != 0; ++i)
 		dest[l + i] = src[spos + i];
 	dest[l + i] = 0;
 }
@@ -226,7 +321,7 @@ void strncat(int dest, int src, int spos, int n)
 {
 	int i;
 	int l = strlen(dest);
-	for(i = 0; src[spos + i] != 0 && i < n; i++)
+	for(i = 0; src[spos + i] != 0 && i < n; ++i)
 		dest[l + i] = src[spos + i];
 	dest[l + i] = 0;
 }
@@ -242,7 +337,7 @@ void strncat(int dest, int src, int n)
 //or -1 if none are found
 int strchr(int string, int pos, int chr)
 {
-	for(int i = 0; string[pos + i] != 0; i++)
+	for(int i = 0; string[pos + i] != 0; ++i)
 		if(string[pos + i] == chr)
 			return pos + i;
 	return -1;
@@ -257,7 +352,7 @@ int strchr(int string, int chr)
 //starting from the end, or -1 if none are found
 int strrchr(int string, int pos, int chr)
 {
-	for(int i = strlen(string) - pos; i > 0; i--)
+	for(int i = strlen(string) - pos; i > 0; --i)
 		if(string[i] == chr)
 			return i;
 	return -1;
@@ -274,8 +369,8 @@ int strrchr(int string, int chr)
 int strstr(int string, int pos, int sub)
 {
 	int l = strlen(sub) - 1;
-	for(int i = 0; string[pos + i] != 0; i++)
-		for(int j = 0; sub[j] != 0 && string[pos + i + j] != 0 && string[pos + i + j] == sub[j]; j++)
+	for(int i = 0; string[pos + i] != 0; ++i)
+		for(int j = 0; sub[j] != 0 && string[pos + i + j] != 0 && string[pos + i + j] == sub[j]; ++j)
 			if(j == l)
 				return pos + i;
 	return -1;
@@ -292,10 +387,10 @@ int strspn(int str, int pos, int keys)
 {
 	int i;
 	bool found;
-	for(i = 0; str[pos + i] != 0; i++)
+	for(i = 0; str[pos + i] != 0; ++i)
 	{
 		found = false;
-		for(int j = 0; keys[j] != 0;j ++)
+		for(int j = 0; keys[j] != 0; ++j)
 			if(str[pos + i] == keys[j])
 				found = true;
 		if(!found)
@@ -314,8 +409,8 @@ int strspn(int str, int keys)
 int strcspn(int str, int pos, int keys)
 {
 	int i;
-	for(i = 0; str[pos + i] != 0; i++)
-		for(int j = 0; keys[j] != 0; j++)
+	for(i = 0; str[pos + i] != 0; ++i)
+		for(int j = 0; keys[j] != 0; ++j)
 			if(str[pos + i] == keys[j])
 				return pos + i;
 	return pos + i;
@@ -333,7 +428,7 @@ int strcspn(int str, int keys)
 int strcmp(int str1, int pos1, int str2, int pos2)
 {
 	int i;
-	for(i = 0; str1[pos1 + i] != 0 && str2[pos2 + i] != 0 && str1[pos1 + i] == str2[pos2 + i]; i++);
+	for(i = 0; str1[pos1 + i] != 0 && str2[pos2 + i] != 0 && str1[pos1 + i] == str2[pos2 + i]; ++i);
 	return str1[pos1 + i] - str2[pos2 + i];
 }
 int strcmp(int str1, int str2)
@@ -345,7 +440,7 @@ int strcmp(int str1, int str2)
 int strncmp(int str1, int pos1, int str2, int pos2, int n)
 {
 	int i;
-	for(i = 0; str1[pos1 + i] != 0 && str2[pos2 + i] != 0 && str1[pos1 + i] == str2[pos2 + i] && i < n; i++);
+	for(i = 0; str1[pos1 + i] != 0 && str2[pos2 + i] != 0 && str1[pos1 + i] == str2[pos2 + i] && i < n; ++i);
 	if(i == n)
 		i--;
 	return str1[pos1 + i] - str2[pos2 + i];
@@ -364,11 +459,11 @@ int atoi(int string, int pos)
 	int i=0;
 	bool neg = false;
 	if(string[pos + i] == '-'){
-		i++;
+		++i;
 		neg = true;
 	}
 	int ret;
-	for(ret = 0; isNumber(string[pos + i]); i++)
+	for(ret = 0; isNumber(string[pos + i]); ++i)
 		ret = ret*10 + (string[pos + i] - '0');
 	return ret*Cond(neg, -1, 1);
 }
@@ -384,7 +479,7 @@ int ilen(int string, int pos)
 	int ret = 0;
 	if(string[pos] == '-')
 		ret++;
-	for(; isNumber(string[pos + ret]); ret++);
+	for(; isNumber(string[pos + ret]); ++ret);
 	return ret;
 }
 int ilen(int string)
@@ -397,7 +492,7 @@ int ilen(int string)
 int xtoi(int string, int pos)
 {
 	int ret = 0;
-	for(int i = 0; isHex(string[pos + i]); i++)
+	for(int i = 0; isHex(string[pos + i]); ++i)
 		ret = ret*0x10 + Cond(isNumber(string[pos + i]), string[pos + i] - '0', LowerToUpper(string[pos + i]) - ('A' + 0xA));
 	return ret;
 }
@@ -411,7 +506,7 @@ int xtoi(int string)
 int xlen(int string, int pos)
 {
 	int ret = 0;
-	for(; isHex(string[pos + ret]); ret++);
+	for(; isHex(string[pos + ret]); ++ret);
 	return ret;
 }
 int xlen(int string)
@@ -427,12 +522,12 @@ float atof(int string, int pos)
 	bool neg = false;
 	if(string[pos + i] == '-')
 	{
-		i++;
+		++i;
 		neg = true;
 	}
 
 	int ret = 0;
-	for(; isNumber(string[pos + i]); i++)
+	for(; isNumber(string[pos + i]); ++i)
 		ret = ret*10 + (string[pos + i]-'0');
 
 	if(string[pos + i] != '.')
@@ -440,7 +535,7 @@ float atof(int string, int pos)
 	i++;
 
 	int decimal = 0;
-	for(int j = 0; j < 4; j++)
+	for(int j = 0; j < 4; ++j)
 		decimal = decimal*10 + Cond(isNumber(string[pos + i + j]), (string[pos + i + j] - '0'), 0);
 
 	return (ret + decimal / 10000) * Cond(neg, -1, 1);
@@ -458,7 +553,7 @@ int flen(int string, int pos)
 
 	if(string[pos + ret] != '.')
 		return ret;
-	ret++;
+	++ret;
 
 	return ret + ilen(string, pos + ret);
 }
@@ -474,7 +569,7 @@ int aton(int string, int pos)
 	int i = 0;
 	if(string[pos + i] == '-')
 		i++;
-	for(; isNumber(string[pos + i]); i++);
+	for(; isNumber(string[pos + i]); ++i);
 
 	if(string[pos + i] == '.')
 		return atof(string, pos);
@@ -493,7 +588,7 @@ int nlen(int string, int pos)
 	int i = 0;
 	if(string[pos + i] == '-')
 		i++;
-	for(; isNumber(string[pos + i]); i++);
+	for(; isNumber(string[pos + i]); ++i);
 
 	if(string[i] == '.')
 		return flen(string, pos);
@@ -514,7 +609,7 @@ int itoa(int string, int pos, int num)
 	if(num < 0)
 	{
 		string[pos] = '-';
-		ret++;
+		++ret;
 		num = -num;
 	}
 	else if(num == 0)
@@ -524,7 +619,7 @@ int itoa(int string, int pos, int num)
 	}
 
 	int digits = Floor(Log10(num) + 1);
-	for(int i = 0; i < digits; i++)
+	for(int i = 0; i < digits; ++i)
 		string[pos + ret + i] = (Floor(num / Pow(10, digits - i - 1)) % 10) + '0';
 	return ret + digits;
 }
@@ -551,9 +646,9 @@ int xtoa(int string, int pos, int num, bool upper)
 
 	int digits = Floor(LogToBase(num, 16) + 1);
 	int alphaoffset = Cond(upper, 'A' - 0xA, 'a' - 0xa);
-	for(int i = 0; i < digits; i++)
+	for(int i = 0; i < digits; ++i)
 	{
-        int coeff = (Floor(num / Pow(0x10, digits - i - 1)) % 0x10);
+		int coeff = (Floor(num / Pow(0x10, digits - i - 1)) % 0x10);
 		string[pos + ret + i] = Cond(coeff < 0xA, coeff + '0', coeff + alphaoffset);
 	}
 	return ret + digits;
@@ -582,12 +677,12 @@ int ftoa(int string, int pos, float num, bool printall)
     if(num<0)
     {
         string[pos]='-';
-        pos++;
+        ++pos;
         num=-num;
     }
         
     
-    for(int i=0; i<10; i++)
+    for(int i=0; i<10; ++i)
     {
         digit=((num/place)<<0)%10;
         
@@ -598,7 +693,7 @@ int ftoa(int string, int pos, float num, bool printall)
             if(digit>0 || printZero)
             {
                 string[pos]=digit+'0';
-                pos++;
+                ++pos;
                 
                 // Start printing 0 at the first non-zero digit.
                 printZero=true;
@@ -611,7 +706,7 @@ int ftoa(int string, int pos, float num, bool printall)
             // A zero isn't printed unless there's something else after it.
             // Don't print it, just keep count.
             if(digit==0)
-                storedZeroes++;
+                ++storedZeroes;
             
             // Any other digit flushes the zeroes and then is printed.
             else
@@ -619,11 +714,11 @@ int ftoa(int string, int pos, float num, bool printall)
                 for(; storedZeroes>0; storedZeroes--)
                 {
                     string[pos]='0';
-                    pos++;
+                    ++pos;
                 }
                 
                 string[pos]=digit+'0';
-                pos++;
+                ++pos;
             }
         }
         
@@ -636,7 +731,7 @@ int ftoa(int string, int pos, float num, bool printall)
         else if(place==0.1) // Reached the fractional part
         {
             string[pos]='.';
-            pos++;
+            ++pos;
         }
     }
     
@@ -645,7 +740,7 @@ int ftoa(int string, int pos, float num, bool printall)
         // printall is false and the number is an integer;
         // just add one zero to the end.
         string[pos]='0';
-        pos++;
+        ++pos;
     }
     
     return pos-oldPos;
@@ -797,7 +892,7 @@ int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int 
 	int a[0x10];
 	arrayset(a,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aa,ab,ac,ad,ae,af);
 
-	for(int i = 0; formatstr[i] != 0; i++)
+	for(int i = 0; formatstr[i] != 0; ++i)
 	{
 		int chr = formatstr[i];
 		if(chr == '\') //Control code
@@ -806,8 +901,8 @@ int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int 
 			if(nextchr == 'n')
 			{
 				ret[pos] = MSGC_LINEFEED;
-				pos++;
-				i++;
+				++pos;
+				++i;
 				continue;
 			}
 		}
@@ -817,15 +912,15 @@ int sprintf(int ret,int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int 
 			if(sprintf_isMFCode(nextchr))
 			{
 				strcatf(ret, a[currentarg], sprintf_MFCodeToInt(nextchr));
-				for(; ret[pos] != 0; pos++);
-				currentarg++;
-				i++;
+				for(; ret[pos] != 0; ++pos);
+				++currentarg;
+				++i;
 				continue;
 			}
 		}
 
 		ret[pos] = chr;
-		pos++;
+		++pos;
 	}
 
 	return pos;
@@ -1032,8 +1127,37 @@ void arrayset(int a,int a0){
 }
 
 
-int ReturnStringCharPos(int str, int chr){
-	for ( int q = 0; q <= strlen(str-1); q ++ ) {
+int ReturnStringCharPos(int str, int chr)
+{
+	int sz = strlen(str-1);
+	for ( int q = 0; q <= sz; ++q ) {
+		int a = str[q];
+		if ( a == chr ) return q;
+	}
+}
+
+int ReturnStringCharPos(int str, int pos, int chr)
+{
+	int sz = strlen(str-1);
+	for ( int q = 0; q <= sz; ++q ) {
+		int a = str[q];
+		if ( a == chr ) return q;
+	}
+}
+
+int ReturnStringCharPosRev(int str, int chr)
+{
+	int sz = strlen(str-1);
+	for ( int q = sz; q >= 0; --q ) {
+		int a = str[q];
+		if ( a == chr ) return q;
+	}
+}
+
+int ReturnStringCharPosRev(int str, int pos, int chr)
+{
+	int sz = strlen(str-1);
+	for ( int q = pos; q >= 0; --q ) {
 		int a = str[q];
 		if ( a == chr ) return q;
 	}

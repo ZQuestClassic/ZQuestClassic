@@ -5,6 +5,9 @@ NEEDED: npc-Defence for LW_SPARKLE.
 
 //Alpha 22
 
+Improved efficiency of string.zh functions, and updated the docs.
+	( ZoriaRPG, 10th January, 2018 )
+	
 Fixed swords and melee weapons conflicting with npc->HitBy[LWEAPON].
 Added preliminary bool npc->Core. Cores of segmented enemies should set this true, segments false.
 	parentCore will be a bit trickier, and I'll add it only once I verify that this component works.
@@ -586,8 +589,11 @@ Debug->GetFFCPointer(), SetFFCPointer(), GetItemPointer(), SetItemPointer(), Get
 //2.53 Changes
 
 ChangeLog for 2.53.0 Beta 12
-4th January, 2018
+10th January, 2018
 
+Improved efficiency of string.zh functions, and updated the docs.
+	( ZoriaRPG, 10th January, 2018 )
+	
 Fixed Link->Misc[] not being divided or multiplied (internally) by 10000.
 	( ZoriaRPG, 4th January., 2018 )
 	
