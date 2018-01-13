@@ -1,5 +1,7 @@
 To-Do
 
+
+Make Clamp and vbound internal zscript functions, so that they are faster. 
 ------------
 *** NPCS ***
 ------------
@@ -42,6 +44,16 @@ Link->HitWidth, HitHeight, HitZHeight (possibly)
 
 Link->WarpEx()
 
+Manually position minimap link dot; subscr.cpp, 
+	putdot(dest,(((get_homescr()&15)-xoff)<<3)+x+(large?34:18)+(maptile?8:0),((get_homescr()&0xF0)>>1)+y+11,linkcolor);
+	if(show_subscreen_dmap_dots&&has_item(itype_compass, get_dlevel()))
+	putdot(dest,((get_homescr()&15)<<2)+x+9,((get_homescr()&0xF0)>>2)+y+8,linkcolor);
+	
+	
+Link->Colour (int linkcolor in subscr.cpp; in drawdmap())
+
+Both of the above are ugly, and very low-priority.
+
 ---------------
 *** WEAPONS ***
 ---------------
@@ -75,6 +87,50 @@ Datatypes:
 rgbdata
 palette
 
+------------
+*** SCCs ***
+------------
+
+Re-implement SCCs for Warp, SetDMapScreenD, GetDMapScreenD, SetScreenD, 
+	and TriggerSecret (specific) . 
+Add a Misc SCC, that works as \Misc\Instruction\Arg1\Arg2\...
+	Instead of \Instruction\arg1\arg2, this will be a catchall for a new instruction 
+	set that allows ~31 possible instructions--or would it be 255?
+	
+	I may prefer that we reserve three of these misc instruction values for future use. 
+	
+	Can SCC args be negative? if so, we can set up some defaults:
+	Warp format should be \warp-code\dmap\screen\x\y\type\effect\sound
+		where -1 for dmap would be the current dmap, -1 for scereen would be the current screen
+		-1 through -4 for x and y would be the warp returns 1-4, -5 would be the current position. 
+		
+		Otherwise, we'd use 0 for current x and Y, and 1-4 for the warp return, to simulate
+		pit warps and dest warps, respectively.
+		
+		The syntax for this, would be \warp-code\dmap\screen\warp_return\type\effect\sound
+		the values for warp_return are 0-4. 
+		
+The SCCs to manipulate screen D should be matched: One to use with GetScreenD \set_d_code\reg\values
+	and a new pair for Set/GetDMapScreenD as:
+		\set_dmap_d_code\dmap\screen\reg\value
+		\get_dmap_d_code\dmap\screen\reg
+
+Trigger secrets would target a specific secret type on the current screen:
+	\trigger_secret_code\secret_types
+
+Item Pickup Flags may also be viable. I'm not sure how best to approach this one, as determining what item to target might be 
+tricky. 
+	It might be mandatory to set the pickup flags for all screen items to the same value, for an SCC that does this:
+		\set_item_pickup_code\pickup_flag\ ( 0 or 1 for enable or disable ? ) 
+		--or just a raw pickup type
+		\set_item_pickup_code\pickup_types
+
+Another possibly useful code, would be 'run ffc script'
+	\run_ffc_code\ffc_id\script_id\combo_id
+		The user would need to set the combo_id > 0. 
+		
+		
+	
 
 ------------
 *** MISC ***
