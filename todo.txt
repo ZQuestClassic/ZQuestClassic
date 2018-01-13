@@ -91,6 +91,8 @@ palette
 *** SCCs ***
 ------------
 
+BUG TO FIX: Setting a goto SCC string ID to 0 can cause ZC to hang. 
+
 Re-implement SCCs for Warp, SetDMapScreenD, GetDMapScreenD, SetScreenD, 
 	and TriggerSecret (specific) . 
 Add a Misc SCC, that works as \Misc\Instruction\Arg1\Arg2\...
