@@ -1,5 +1,11 @@
 ChangeLog for 2.53.0 Beta 12
 
+Cleaned up Header dialogue and made the quest number visible (but disabled)
+by default. Holding Right Shift while opening the dialogue makes it an editable field. 
+	( ZoriaRPG, 14th January, 2018 )
+
+Fixed 'About' version details. ( ZoriaRPG, 14th January, 2018 )
+
 Corrected the tooltip for Slash->Item combos.
 
 Improved efficiency of string.zh functions, and updated the docs.

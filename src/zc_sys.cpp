@@ -5787,16 +5787,16 @@ int onAbout()
     switch(IS_BETA)
     {
     case 1:
-        sprintf(str_s,"(%s Beta Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+        sprintf(str_s,"(%s Beta Build %d)",VerStr(ABOUT_VERSION), VERSION_BUILD);
         break;
         
     case -1:
-        sprintf(str_s,"(%s Alpha Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+        sprintf(str_s,"(%s Alpha Build %d)",VerStr(ABOUT_VERSION), VERSION_BUILD);
         break;
         
     case 0:
     default:
-        sprintf(str_s,"(%s Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+        sprintf(str_s,"(%s Build %d)",VerStr(ABOUT_VERSION), VERSION_BUILD);
         break;
     }
     
