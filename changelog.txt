@@ -1,5 +1,10 @@
 //2.54 Changes
 
+
+Cleaned up Header dialogue and made the quest number visible (but disabled)
+by default. Holding Right Shift while opening the dialogue makes it an editable field. 
+* Also applied to 2.53.0 Beta 12 at this date. 	( ZoriaRPG, 14th January, 2018 )
+
 MISSING: npcdata->FireSound; npc->FireSound
 NEEDED: npc-Defence for LW_SPARKLE.
 NEEDED npc->FrozenTile offsets for facing dir, or something so that ZC chooses the
@@ -598,6 +603,12 @@ Debug->GetFFCPointer(), SetFFCPointer(), GetItemPointer(), SetItemPointer(), Get
 //2.53 Changes
 
 ChangeLog for 2.53.0 Beta 12
+
+Cleaned up Header dialogue and made the quest number visible (but disabled)
+by default. Holding Right Shift while opening the dialogue makes it an editable field. 
+	( ZoriaRPG, 14th January, 2018 )
+
+
 10th January, 2018
 
 Corrected the tooltip for Slash->Item combos.
