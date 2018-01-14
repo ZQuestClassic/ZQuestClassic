@@ -1379,11 +1379,11 @@ int onAbout()
     {
 #if IS_BETA
         {
-            sprintf(buf1,"ZQuest %s Beta Build %d - DEBUG",VerStr(ZELDA_VERSION), VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Beta Build %d - DEBUG",VerStr(ABOUT_VERSION), VERSION_BUILD);
         }
 #else
         {
-            sprintf(buf1,"ZQuest %s Build %d - DEBUG",VerStr(ZELDA_VERSION), VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Build %d - DEBUG",VerStr(ABOUT_VERSION), VERSION_BUILD);
         }
 #endif
         sprintf(buf2,"ZQuest Editor: %04X",INTERNAL_VERSION);
@@ -1395,16 +1395,16 @@ int onAbout()
         switch(IS_BETA)
         {
         case -1:
-            sprintf(buf2,"(%s Alpha Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+            sprintf(buf2,"(%s Alpha Build %d)",VerStr(ABOUT_VERSION), VERSION_BUILD);
             break;
             
         case 1:
-            sprintf(buf2,"(%s Beta Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+            sprintf(buf2,"(%s Beta Build %d)",VerStr(ABOUT_VERSION), VERSION_BUILD);
             break;
             
         case 0:
         default:
-            sprintf(buf2,"(%s Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+            sprintf(buf2,"(%s Build %d)",VerStr(ABOUT_VERSION), VERSION_BUILD);
             break;
         }
         

@@ -16715,13 +16715,13 @@ static DIALOG header_dlg[] =
     { jwin_win_proc,        20,   16,   280,  205,  vc(14),             vc(1),            0,       D_EXIT,        0,             0, (void *) "Quest Header", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { jwin_text_proc,       26,   40,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "ZQ Version:", NULL, NULL },
-    { jwin_text_proc,       103,  40,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_DISABLED,    0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       26,   72-16,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Number:", NULL, NULL },
-    { jwin_edit_proc,       100,  68-16,    32,   16,  vc(12),             vc(1),            0,       0,             2,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,       106,  40,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_DISABLED,    0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,       204,   43,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Number:", NULL, NULL },
+    { jwin_edit_proc,       260,  40,    32,   16,  vc(12),             vc(1),            0,       0,             2,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       26,   90-16,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Ver:", NULL, NULL },
-    { jwin_edit_proc,       100,  86-16,    80,   16,  vc(12),             vc(1),            0,       0,             8,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,       66,  86-16,    80,   16,  vc(12),             vc(1),            0,       0,             8,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       26,   108-16,   96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Min. Ver:", NULL, NULL },
-    { jwin_edit_proc,       100,  104-16,   80,   16,  vc(12),             vc(1),            0,       0,             8,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,       66,  104-16,   80,   16,  vc(12),             vc(1),            0,       0,             8,             0,       NULL, NULL, NULL },
     // 10
     { jwin_text_proc,       26,   126-16,   96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Title:", NULL, NULL },
     { d_showedit_proc,      66,   122-16,   80,   16,  vc(12),             vc(1),            0,       0,            64,             0,       title, NULL, NULL },
@@ -16767,8 +16767,17 @@ int onHeader()
         }
         
         header_dlg[0].h-=18;
-        header_dlg[4].proc=d_dummy_proc;
-        header_dlg[5].proc=d_dummy_proc;
+	
+	header_dlg[4].flags |= D_DISABLED;
+	header_dlg[5].flags |= D_DISABLED;
+        //header_dlg[4].proc=d_dummy_proc;
+        //header_dlg[5].proc=d_dummy_proc;
+    }
+    
+    if ( key[KEY_LSHIFT]||key[KEY_RSHIFT] )
+    {
+	header_dlg[4].flags &= ~D_DISABLED;
+	header_dlg[5].flags &= ~D_DISABLED;    
     }
     
     jwin_center_dialog(header_dlg);
@@ -16803,7 +16812,19 @@ int onHeader()
     do
     {
         ret=zc_popup_dialog(header_dlg,-1);
-        
+        /*
+	if ( !( key[KEY_LSHIFT]||key[KEY_RSHIFT] ) )
+	{
+	    header_dlg[4].flags |= D_DISABLED;
+	    header_dlg[5].flags |= D_DISABLED;
+        }
+    
+	if ( key[KEY_LSHIFT]||key[KEY_RSHIFT] )
+	{
+	    header_dlg[4].flags &= ~D_DISABLED;
+	    header_dlg[5].flags &= ~D_DISABLED;    
+	}
+        */
         if(ret==16)
         {
             ret=zc_popup_dialog(password_dlg,-1);
