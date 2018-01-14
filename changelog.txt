@@ -1,5 +1,9 @@
 ChangeLog for 2.53.0 Beta 12
 
+
+Added tooltips to the 'Quest Rev' and 'Min Rev' fields in the
+Quest Header dialogue. 
+
 Cleaned up Header dialogue and made the quest number visible (but disabled)
 by default. Holding Right Shift while opening the dialogue makes it an editable field. 
 	( ZoriaRPG, 14th January, 2018 )
