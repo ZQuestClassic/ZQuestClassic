@@ -1119,6 +1119,8 @@ void clear_tooltip();
 void ZQ_ClearQuestPath();
 void cflag_help(int id);
 void ctype_help(int id);
+void questrev_help();
+void questminrev_help();
 
 //throw together midi_strict hack
 #ifdef ALLEGRO_LINUX_GP2X

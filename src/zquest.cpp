@@ -8738,6 +8738,16 @@ static DIALOG cflag_dlg[] =
 };
 
 
+void questrev_help()
+{
+	jwin_alert("Help","The revision number of your quest.",NULL,NULL,"O&K",NULL,'k',16,lfont);
+}
+
+void questminrev_help()
+{
+	jwin_alert("Help","If a player's saved game was from a revision less than the minimum", "revision, they have to restart from the beginning.", "This is useful if you make major changes to your quest.","O&K",NULL,'k',16,lfont);
+}
+
 void ctype_help(int id)
 {
     if(id < 0 || id >= cMAX) return;  // Sanity check
@@ -16752,6 +16762,7 @@ static DIALOG header_dlg[] =
     { jwin_text_proc,       26,   40,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Made in ZQ Version:", NULL, NULL },
     { jwin_text_proc,       126,  40,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_DISABLED,    0,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       204,   43,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Number:", NULL, NULL },
+    //5
     { jwin_edit_proc,       260,  40,    32,   16,  vc(12),             vc(1),            0,       0,             2,             0,       NULL, NULL, NULL },
     { jwin_text_proc,       26,   90-16,    96,    8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,             0,             0, (void *) "Quest Rev:", NULL, NULL },
     { jwin_edit_proc,       66,  86-16,    80,   16,  vc(12),             vc(1),            0,       0,             8,             0,       NULL, NULL, NULL },
@@ -16769,6 +16780,9 @@ static DIALOG header_dlg[] =
     { jwin_button_proc,     90,   204-8,  61,   21,   vc(14),             vc(1),            13,      D_EXIT,        0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     170,  204-8,  61,   21,   vc(14),             vc(1),            27,      D_EXIT,        0,             0, (void *) "Cancel", NULL, NULL },
     { d_keyboard_proc,      0,    0,    0,    0,    0,                  0,                0,       0,             KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    //20
+    { jwin_button_proc,     150,  69-16,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
+    { jwin_button_proc,     150,  88-16,  12,   12,   vc(14),  vc(1),  0,      D_EXIT,     0,             0, (void *) "?", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -16847,6 +16861,29 @@ int onHeader()
     do
     {
         ret=zc_popup_dialog(header_dlg,-1);
+        
+        if(ret==20)
+            questrev_help();
+        else if(ret==21)
+            questminrev_help();
+	else if(ret==16)
+        {
+            ret=zc_popup_dialog(password_dlg,-1);
+            
+            if(ret==5)
+            {
+                header.use_keyfile=password_dlg[4].flags&D_SELECTED?1:0;
+                set_questpwd(pwd,header.use_keyfile!=0);
+            }
+            
+            ret=16;
+        }
+    }
+    while(ret == 20 || ret == 21 || ret == 16);
+    
+    //do
+    //{
+    //    ret=zc_popup_dialog(header_dlg,-1);
         /*
 	if ( !( key[KEY_LSHIFT]||key[KEY_RSHIFT] ) )
 	{
@@ -16860,20 +16897,22 @@ int onHeader()
 	    header_dlg[5].flags &= ~D_DISABLED;    
 	}
         */
-        if(ret==16)
-        {
-            ret=zc_popup_dialog(password_dlg,-1);
+	
+     //   if(ret==16)
+     //   {
+     //       ret=zc_popup_dialog(password_dlg,-1);
             
-            if(ret==5)
-            {
-                header.use_keyfile=password_dlg[4].flags&D_SELECTED?1:0;
-                set_questpwd(pwd,header.use_keyfile!=0);
-            }
+     //       if(ret==5)
+     //       {
+     //           header.use_keyfile=password_dlg[4].flags&D_SELECTED?1:0;
+     //           set_questpwd(pwd,header.use_keyfile!=0);
+     //       }
             
-            ret=16;
-        }
-    }
-    while(ret==16);
+     //       ret=16;
+     //   }
+    //}
+    //while(ret==16);
+    
     
     
     

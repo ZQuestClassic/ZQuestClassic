@@ -1,5 +1,7 @@
 //2.54 Changes
 
+Added tooltips to the 'Quest Rev' and 'Min Rev' fields in the
+Quest Header dialogue. 
 
 Cleaned up Header dialogue and made the quest number visible (but disabled)
 by default. Holding Right Shift while opening the dialogue makes it an editable field. 
@@ -603,6 +605,9 @@ Debug->GetFFCPointer(), SetFFCPointer(), GetItemPointer(), SetItemPointer(), Get
 //2.53 Changes
 
 ChangeLog for 2.53.0 Beta 12
+
+Added tooltips to the 'Quest Rev' and 'Min Rev' fields in the
+Quest Header dialogue. 
 
 Cleaned up Header dialogue and made the quest number visible (but disabled)
 by default. Holding Right Shift while opening the dialogue makes it an editable field. 
