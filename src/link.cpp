@@ -6057,17 +6057,21 @@ void LinkClass::movelink()
     
     if(can_attack() && (directWpn>-1 ? itemsbuf[directWpn].family==itype_sword : current_item(itype_sword)) && swordclk==0 && btnwpn==itype_sword && charging==0)
     {
-        action=attacking;
-        attack=wSword;
-        attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
-        attackclk=0;
-        sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(int(x)));
         
-        if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && checkmagiccost(dowpn))
-        {
-            ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
-            did_scripta=true;
-        }
+        attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
+	if(checkmagiccost(attackid))
+	{
+		action=attacking;
+		attack=wSword;
+		attackclk=0;
+		sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(int(x)));
+        
+		if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && checkmagiccost(dowpn))
+		{
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+			did_scripta=true;
+		}
+	}
     }
     else
     {
