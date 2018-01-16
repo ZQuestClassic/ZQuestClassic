@@ -3,6 +3,10 @@ To-Do
 Graphics->LoadESP
 Graphics->LoadBossPal
 
+DrawScreen, DrawCombo, Drawlayer--Fix CSet2 rendering
+
+Bitmap->ScriptDrawingFunctions()
+bitmap->Blit()
 
 tie beamhearts to any counter
 
