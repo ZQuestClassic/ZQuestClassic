@@ -1,9 +1,18 @@
 To-Do
 
+tie beamhearts to any counter
 
 Add tooltips to the Quest Rev abd Min ZRev fields of the Quest Header dialogue. 
 
 Make Clamp and vbound internal zscript functions, so that they are faster. 
+
+-------------
+*** FLAGS ***
+-------------
+
+Over/Under (Horizontal; scripted)
+Over/Under (Vertical; scripted)
+
 ------------
 *** NPCS ***
 ------------
