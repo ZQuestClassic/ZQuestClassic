@@ -1,5 +1,5 @@
 //Docs for 2.53.0
-//Rev. 0.7.3.3; 10th January, 2018
+//Rev. 0.7.3.4; 20th January, 2018
 
 Search for !#! to find areas that require completion. 
 
@@ -2945,12 +2945,17 @@ int Script;			ZASM Instruction:
 				
 /**
 * The number of the script assigned to the FFC. This will be automatically
-* set to 0 when the FFC's script halts. A script cannot change the script of
-* the FFC running it; in other words, f->Script is read-only when f==this.
+* set to 0 when the FFC's script exits. A script cannot change the script of
+* the FFC running it; in other words, you cannot write to this->Script. 
+*
 * When an FFC's script is changed, its arguments, Misc[], and registers will
 * all be set to 0, and it will start running from the beginning. Set
 * ffc->InitD[] after setting the script before the script starts running
 * to pass arguments to it.
+* 
+* Setting ->Data to 0 DOES NOT clear ->Script, and it is not treated as exiting.
+* To do this, call Quit(), or 
+* otherwise exit the scope of the run() function.
 *
 */ Example Use:
 
