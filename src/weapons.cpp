@@ -826,7 +826,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             defaultw = itemsbuf[itemid].wpn;
 	}
         else
+	{
             defaultw = wARROW;
+	}
+	LOADGFX(defaultw);
+        step=3;
         if ( parentitem > -1 )
 	{
 		//Port Item Editor Weapon Size Values
@@ -846,10 +850,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			*/
 		}
 	}    
-        LOADGFX(defaultw);
-        step=3;
+        
 	
-	
+	//This somehow broke arrows, so I am disabling it for the present.
+	//Arrows were making a sword sprite and not moving.
+	/*
         switch(dir)
         {
 		case down:
@@ -881,7 +886,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		}
 					
 		    
-		case right: /*tile=o_tile+((frames>1)?frames:1)*/
+		case right: //tile=o_tile+((frames>1)?frames:1)
 		{
 		    update_weapon_frame(((frames>1)?frames:1),o_tile);
 		    yofs=playing_field_offset + 1;
@@ -900,6 +905,34 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             
 		break;
 	}
+	*/
+	switch(dir)
+        {
+        case down:
+            flip=2;
+            
+        case up:
+            hyofs=2;
+            hysz=12;
+            break;
+            
+        case left:
+            flip=1;
+            
+        case right: /*tile=o_tile+((frames>1)?frames:1)*/
+            update_weapon_frame(((frames>1)?frames:1),o_tile);
+            yofs=playing_field_offset + 1;
+            hyofs=2;
+            hysz=14;
+            hxofs=2;
+            hxsz=12;
+            break;
+        }
+        
+        if(itemid >-1)
+            misc = itemsbuf[itemid].misc1;
+            
+        break;
         
     case wSSparkle:
 	/* Sparkles would be broken if we allowed them to be sized from here. 
