@@ -1,5 +1,7 @@
 //2.54 Changes
 
+Fixed arrows not working; and making sword sprites. ( ZoriaRPG, 3rd March, 2018 )
+
 Fixed swords not obeying magic costs. ( ZoriaRPG, 15th January, 2018 )
 
 Added tooltips to the 'Quest Rev' and 'Min Rev' fields in the

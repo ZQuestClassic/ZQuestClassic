@@ -844,76 +844,25 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-			//f ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
 			/* yofs+playing_field_offset == yofs+56.
 			It is needed for the passive subscreen offset.
 			*/
 		}
 	}    
-        
-	
-	//This somehow broke arrows, so I am disabling it for the present.
-	//Arrows were making a sword sprite and not moving.
-	/*
-        switch(dir)
-        {
-		case down:
-		{
-		    flip=2;
-		    misc = itemsbuf[itemid].misc1;
-		    break;
-		}	
-		    
-		case up:
-		{
-			//These hit size adjustments based on dir will need to be fixed later, and clarified in the editor, as arrows will need different
-			//values for X and Y based on direction. 
-			//The following ternary works as follows:
-			// if ( weapon is spawned by and item AND it has a size flag enebled ) ? use_size_from_editor : erlse, old hardcoded value. 
-		    hyofs= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
-			//2;
-		    hysz= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 12;
-			//12;
-		    misc = itemsbuf[itemid].misc1;
-		    break;
-		}
-		    
-		case left:
-		{
-		    flip=1;
-		    misc = itemsbuf[itemid].misc1;
-		    break;
-		}
-					
-		    
-		case right: //tile=o_tile+((frames>1)?frames:1)
-		{
-		    update_weapon_frame(((frames>1)?frames:1),o_tile);
-		    yofs=playing_field_offset + 1;
-		    hyofs= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
-		//2;
-		    hysz= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 14;
-		//14;
-		    hxofs=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) ? itemsbuf[parentitem].weap_hxofs : 2;
-		//2;
-		    hxsz=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? itemsbuf[parentitem].weap_hxsz : 12;
-		//12;
-		    misc = itemsbuf[itemid].misc1;
-		    break;
-		}
-        
-            
-		break;
-	}
-	*/
+
 	switch(dir)
         {
         case down:
             flip=2;
             
         case up:
-            hyofs=2;
-            hysz=12;
+            //hyofs=2;
+            //hysz=12;
+	    hyofs= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
+			//2;
+	    hysz= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 12;
+			//12;
             break;
             
         case left:
@@ -922,10 +871,20 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
             update_weapon_frame(((frames>1)?frames:1),o_tile);
             yofs=playing_field_offset + 1;
-            hyofs=2;
-            hysz=14;
-            hxofs=2;
-            hxsz=12;
+	
+	
+	    hyofs= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
+		//2;
+	    hysz= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 14;
+		//14;
+	    hxofs=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) ? itemsbuf[parentitem].weap_hxofs : 2;
+		//2;
+	    hxsz=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? itemsbuf[parentitem].weap_hxsz : 12;
+		//12;
+            //hyofs=2;
+            //hysz=14;
+            //hxofs=2;
+            //hxsz=12;
             break;
         }
         
