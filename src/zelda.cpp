@@ -994,6 +994,14 @@ void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid)
     Lwpns.add(new weapon((fix)x,(fix)y,(fix)z,id,type,power,dir,-1,parentid));
 }
 
+
+void addLwpnEx(int x,int y,int z,int id,int type,int power,int dir, int parentitem, int parentid, byte script_gen)
+{
+	//weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, byte script_gen, bool isDummy)
+    Lwpns.add(new weapon((fix)x,(fix)y,(fix)z,id,type,power,dir,parentitem,parentid,false,1));
+	
+}
+
 void ALLOFF(bool messagesToo, bool decorationsToo)
 {
     if(messagesToo)

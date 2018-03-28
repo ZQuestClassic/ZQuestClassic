@@ -949,6 +949,8 @@ int LinkClass::weaponattackpower()
 // Must only be called once per frame!
 void LinkClass::positionSword(weapon *w, int itemid)
 {
+	//if ( w->ScriptGenerated ) return; //t/b/a for script-generated swords.
+	//if ( itemsbuf[itemid].ScriptGenerated ) return; //t/b/a for script-generated swords.
     itemid=vbound(itemid, 0, MAXITEMS-1);
     // Place a sword weapon at the right spot.
     int wy=1;
@@ -1316,7 +1318,7 @@ attack:
         int itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
         int itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
         itemid=vbound(itemid, 0, MAXITEMS-1);
-        
+        // if ( itemsbuf[itemid].ScriptGenerated ) return; //t/b/a for script-generated swords.
         if(attackclk>4||(attack==wSword&&game->get_canslash()))
         {
             if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itemsbuf[itemid].wpn)) && wpnsbuf[itemsbuf[itemid].wpn].tile)

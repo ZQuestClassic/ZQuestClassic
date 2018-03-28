@@ -286,6 +286,7 @@ weapon::weapon(weapon const & other):
     //Enemy Editor Weapon Sprite
     wpnsprite = other.wpnsprite;
     magiccosttimer = other.magiccosttimer;
+    ScriptGenerated = other.ScriptGenerated;
     //if ( parentid > 0 ) wpnsprite = guysbuf[parentid].wpnsprite;
     //else wpnsprite  = -1;
 }
@@ -358,7 +359,8 @@ weapon::~weapon()
     }
 }
 
-weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy) : sprite(), parentid(prntid)
+//ZScript-only
+weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen) : sprite(), parentid(prntid)
 {
     x=X;
     y=Y;
@@ -380,6 +382,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     hysz=15;
     hzsz=8;
     isLit = false;
+	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
+		//This will need an input in the params! -Z
     
     int defaultw, itemid = parentitem;
     
@@ -1920,6 +1924,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         step *=2;
     }
 }
+
 
 void weapon::LOADGFX(int wpn)
 {

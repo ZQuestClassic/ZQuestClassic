@@ -89,8 +89,12 @@ public:
     int wpnsprite;
     int magiccosttimer; ///Magic cost for byrna beam, boots. -Z
     
+    //Used only by ffscript! No not make readable by scripts!
+    byte ScriptGenerated; //Used to permit creating LinkClass weapons, or other weapon types that the engine does not control.
+    
     weapon(weapon const & other);
-    weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
+    //weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
+    weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false, byte script_gen=0);
     virtual ~weapon();
     void LOADGFX(int wpn);
     bool Dead();
