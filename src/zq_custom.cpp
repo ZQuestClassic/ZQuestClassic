@@ -4167,54 +4167,7 @@ void edit_enemydata(int index)
     */
     
     //If the weapon sprite is 0, assign it here. 
-    if ( guysbuf[index].wpnsprite <= 0 ) {
-	    int wspr = -1;
-	    switch(guysbuf[index].weapon)
-	    {
-		case 31:
-		case 32:
-		case 33:
-		case 34:
-		case 35:
-		case 36:
-		case 37:
-		case 38:
-		case 39:
-		case 40:
-			wspr = -1;
-			break;
-		
-		case 128: wspr = 17; break;
-		case 129: wspr = 0; break;
-		case 130: wspr = 19; break;
-		case 131: wspr = 4; break;
-		case 132: wspr = 20; break;
-		case 133: wspr = 18; break;
-		case 134: wspr = 21; break;
-		case 135: wspr = 78; break;
-		case 136: wspr = 79; break;
-		case 137: wspr = 76; break;
-		case 138: wspr = 77; break;
-		case 139: wspr = 80; break;
-		case 140: wspr = 35; break;
-		case 141: wspr = 36; break;
-		case 142: wspr = 81; break;
-		case 143: wspr = 82; break;
-		case 144: wspr = 83; break;
-		case 145: wspr = 0; //fireball (rising)
-		
-		default: break; //No assign.
-		    
-		    
-	    }
-	    if ( wspr > -1 ) guysbuf[index].wpnsprite = wspr;
-	  /*  
-        for ( int q = FIRST_EWEAPON_ID; q < wMAX; q++ ) //read the weapon type of the npc and find its sprite
-        {
-	    if ( guysbuf[index].weapon == q ) { guysbuf[index].wpnsprite = default_weapon_sprites[q]; break; }
-        }
-	    */
-    }
+   //Moved weapon sprite assignment to quest loading.
     
     //Set the dialogue. 
     sprintf(weapsprite,"%d",guysbuf[index].wpnsprite);

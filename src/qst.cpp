@@ -9394,6 +9394,85 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		
 	    }
+	    if(guyversion < 31)
+	    {
+		if ( tempguy.wpnsprite <= 0 )
+		{
+			switch(tempguy.weapon)
+			{
+				case wNone:
+					tempguy.wpnsprite = -1; break;
+				
+				case wSword:
+				case wBeam:
+				case wBrang:
+				case wBomb:
+				case wSBomb:
+				case wLitBomb:
+				case wLitSBomb:
+				case wArrow:
+				case wFire:
+				case wWhistle:
+				case wBait:
+				case wWand:
+				case wMagic:
+				case wCatching:
+				case wWind:
+				case wRefMagic:
+				case wRefFireball:
+				case wRefRock:
+				case wHammer:
+				case wHookshot:
+				case wHSHandle:
+				case wHSChain:
+				case wSSparkle:
+				case wFSparkle:
+				case wSmack:
+				case wPhantom:
+				case wCByrna:
+				case wRefBeam:
+				case wStomp:
+				case lwMax:
+				case wScript1:
+				case wScript2:
+				case wScript3:
+				case wScript4:
+				case wScript5:
+				case wScript6:
+				case wScript7:
+				case wScript8:
+				case wScript9:
+				case wScript10:
+				case wIce:
+				case wEnemyWeapons:
+					//Cannot use any of these weapons yet. 
+					tempguy.wpnsprite = -1;
+					break;
+				
+				case ewFireball: tempguy.wpnsprite = 17; break;
+				case ewArrow: tempguy.wpnsprite = 19; break;
+				case ewBrang: tempguy.wpnsprite = 4; break;
+				case ewSword: tempguy.wpnsprite = 20; break;
+				case ewRock: tempguy.wpnsprite = 18; break;
+				case ewMagic: tempguy.wpnsprite = 21; break;
+				case ewBomb: tempguy.wpnsprite = 78; break;
+				case ewSBomb: tempguy.wpnsprite = 79; break;
+				case ewLitBomb: tempguy.wpnsprite = 76; break;
+				case ewLitSBomb: tempguy.wpnsprite = 77; break;
+				case ewFireTrail: tempguy.wpnsprite = 80; break;
+				case ewFlame: tempguy.wpnsprite = 35; break;
+				case ewWind: tempguy.wpnsprite = 36; break;
+				case ewFlame2: tempguy.wpnsprite = 81; break;
+				case ewFlame2Trail: tempguy.wpnsprite = 82; break;
+				case ewIce: tempguy.wpnsprite = 83; break;
+				case ewFireball2: tempguy.wpnsprite = 81; //fireball (rising)
+				
+					
+				default: break; //No assign.
+			}
+		}
+	    }
+		
 	    
             //miscellaneous other corrections
             //fix the mirror wizzrobe -DD
