@@ -98,9 +98,9 @@
 #define ZC_VERSION 25300 //Version ID for ZScript Game->Version
 #define ABOUT_VERSION 0x0253
 #define VERSION_BUILD       31                              //build number of this version
-#define ZELDA_VERSION_STR   "2.53 Beta 12"                    //version of the program as presented in text
-#define IS_BETA             1                               //is this a beta? (1: beta, -1: alpha)
-#define DATE_STR            "10th January, 2018"
+#define ZELDA_VERSION_STR   "2.53 Beta 14"                    //version of the program as presented in text
+#define IS_BETA             14                               //is this a beta? (1: beta, -1: alpha)
+#define DATE_STR            "28th March, 2018"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -609,6 +609,7 @@ enum
     qr_OLDHOOKSHOTGRAB /* Compatibility */, qr_PEAHATCLOCKVULN /* Compatibility */, qr_VERYFASTSCROLLING, qr_OFFSCREENWEAPONS /* Compatibility */,
     // 20
     qr_BROKENSTATUES /* Compatibility */, qr_NOSCRIPTSDURINGSCROLL /* Not Implemented */, qr_ITEMPICKUPSETSBELOW /* Compatibility */,
+    qr_NOGANONINTRO, //bugfix, Ganon DMap Intro
     qr_MAX
 };
 
@@ -616,6 +617,7 @@ enum
 enum extraRules
 {
     er_BITMAPOFFSET, er_SHORTDGNWALK,
+	er_MAGICCOSTSWORD, //BEAMS Only
     er_MAX
 };
 

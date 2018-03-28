@@ -470,7 +470,7 @@ static int miscrules1_list[] =
 
 static int miscrules2_list[] =
 {
-    22,23,-1
+    22,23,24,-1
 };
 
 static TABPANEL miscrules_tabs[] =
@@ -513,6 +513,7 @@ static DIALOG miscrules_dlg[] =
     // rules 2
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Log Script Errors To Allegro.log", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Draining Rupees Can Still Be Spent", NULL, NULL },
+    { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Intro String in Ganon Room", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -520,7 +521,8 @@ static int miscrules[] =
 {
     qr_SELECTAWPN, qr_MORESOUNDS, qr_FASTFILL, qr_QUARTERHEART, qr_ALLOWFASTMSG, qr_ALLOWMSGBYPASS,
     qr_MSGFREEZE, qr_MSGDISAPPEAR, qr_TIME, qr_HEARTRINGFIX, qr_NOHEARTRING, qr_NOSAVE,
-    qr_NOCONTINUE, qr_NOGUYFIRES, qr_NOGUYPOOF, qr_LOG, qr_SCRIPTERRLOG, qr_SHOPCHEAT, -1
+    qr_NOCONTINUE, qr_NOGUYFIRES, qr_NOGUYPOOF, qr_LOG, qr_SCRIPTERRLOG, qr_SHOPCHEAT, 
+	qr_NOGANONINTRO, -1
 };
 
 int onMiscRules()

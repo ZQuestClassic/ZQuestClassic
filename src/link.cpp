@@ -6059,7 +6059,9 @@ void LinkClass::movelink()
     {
         
         attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
-	if(checkmagiccost(attackid))
+	if(checkmagiccost(attackid) || (get_bit(extra_rules, er_MAGICCOSTSWORD) == 0) )
+		//2.50.2 quests may have had a magic cost only on sword beams. Need to add this to the Item Editor in 2.54+ 
+		//as a flag on sword class items (Beams Use Magic, Sword Blade Uses Magic)
 	{
 		action=attacking;
 		attack=wSword;
@@ -15350,7 +15352,10 @@ void LinkClass::ganon_intro()
         playLevelMusic();
         
     currcset=DMaps[currdmap].color;
-    dointro();
+    if ( get_bit(quest_rules, qr_NOGANONINTRO) == 0) 
+    {
+	    dointro();
+    }
     cont_sfx(WAV_ROAR);
 }
 
