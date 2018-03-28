@@ -100,9 +100,9 @@
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
 #define ZELDA_VERSION_STR   "2.54 Alpha 22"                    //version of the program as presented in text
 #define IS_BETA             -22                              //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        21
-#define DATE_STR            "26th December, 2017"
-#define COPYRIGHT_YEAR      "2017"                          //shown on title screen and in ending
+#define VERSION_BETA        22
+#define DATE_STR            "28th March, 2018"
+#define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
 
@@ -184,7 +184,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            30
+#define V_GUYS            31
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -375,11 +375,11 @@ extern bool fake_pack_writing;
 // screen flags
 #define fSHUTTERS       1
 #define fITEM           2
-#define fDARK           4
+#define fDARK           4 //'S.Flags1' Dark Room
 #define fROAR           8 // DEFUNCT
-#define fWHISTLE        16
-#define fLADDER         32
-#define fMAZE           64
+#define fWHISTLE        16 //'
+#define fLADDER         32 //'S.Flags2' Toggle  'Allow Ladder' --??? Is that right?
+#define fMAZE           64 //'S.Flags 1' Use Maze path
 #define fSEA            128 // DEFUNCT
 
 // flags2
@@ -388,63 +388,68 @@ extern bool fake_pack_writing;
 #define wfLEFT          4
 #define wfRIGHT         8
 #define fSECRET         16  // play "secret" sfx upon entering this screen
-#define fAIRCOMBOS      32
-#define fFLOATTRAPS     64
+#define fAIRCOMBOS      32  //'S.Flags2' Combos affect midair Link
+#define fFLOATTRAPS     64 //'E.Flags' Traps ignore walkability. 
 #define fCLEARSECRET    128 // clear all enemies to trigger secret entrance (Enemies->Secret)
 
 // flags3
-#define fHOLDITEM         1
-#define fCYCLEONINIT      2
-#define fINVISROOM        4
-#define fINVISLINK        8
-#define fNOSUBSCR         16
-#define fIWARPFULLSCREEN  32                                // instawarps affect all sprites
-#define fNOSUBSCROFFSET   64                                // don't offset the screen when fNOSUBSCR is true
-#define fENEMIESRETURN    128                               // enemies always return
+#define fHOLDITEM         1 //'S.Flags1' Hold Up Item
+#define fCYCLEONINIT      2 //'S.Flags2' Cycle combos on screen init
+#define fINVISROOM        4 //
+#define fINVISLINK        8 //'S.Flags1' Invisible Link
+#define fNOSUBSCR         16 //'S.Flags1' No subscreen
+#define fIWARPFULLSCREEN  32                                // instawarps affect all sprites --is this 'Sprites carry over in warps???' -Z
+#define fNOSUBSCROFFSET   64  //'S.Flags1' ...but don't offset screen     // don't offset the screen when fNOSUBSCR is true
+#define fENEMIESRETURN    128 //'E.Flags' Enemies always return                             // enemies always return
 
 //flags4
 #define fOVERHEADTEXT     1
 #define fITEMWARP         2
-#define fTIMEDDIRECT      4                                 //Specifies timed pit warp
-#define fDISABLETIME      8
-#define fENEMYSCRTPERM    16
+#define fTIMEDDIRECT      4    //'T.Warp' Timed Warps are Direct                             //Specifies timed pit warp
+#define fDISABLETIME      8    //'T.Warp' Secrets Disable timed warp ??
+#define fENEMYSCRTPERM    16   //'E.Flags' Enemies->Secret is Permanent
 #define fNOITEMRESET      32
-#define fSAVEROOM		  64
-#define fAUTOSAVE		  128
+#define fSAVEROOM		  64  //'S.Flags2' Save point->Continue here 
+#define fAUTOSAVE		  128 //'S.Flags2' Save game on entry
 
 //flags5
-#define fRANDOMTIMEDWARP  1
+#define fRANDOMTIMEDWARP  1 //'T.Warp' Timed warp is random
 #define fDAMAGEWITHBOOTS  2
-#define fDIRECTAWARP	  4
-#define fDIRECTSWARP	  8
-#define fTEMPSECRETS	  16
+#define fDIRECTAWARP	  4 //'S.Flags1' Auto warps are direct
+#define fDIRECTSWARP	  8 //'S.Flags1' Sensitive warps are direct
+#define fTEMPSECRETS	  16 //'S.Flags1' Secrets are temporary
 // what is going on with 32?
-#define fTOGGLEDIVING   64
-#define fNOFFCARRYOVER  128
+#define fTOGGLEDIVING   64 //'S.Flags2' Toggle no Diving
+#define fNOFFCARRYOVER  128 //'S.Flags2' No FFC Carryover
 
 //flags6
-#define fCAVEROOM		  1
-#define fDUNGEONROOM	  2
-#define fTRIGGERFPERM     4
-#define fCONTINUEHERE	  8
-#define fNOCONTINUEHERE   16
-#define fTRIGGERF1631	  32
-#define fTOGGLERINGDAMAGE 64
-#define fWRAPAROUNDFF	  128
+#define fCAVEROOM	  1 //'S.Flags1' Treat as Interior screen.
+#define fDUNGEONROOM	  2 //'S.Flags1' Treat as NES dungeon room
+#define fTRIGGERFPERM     4 //'S.Flags1' Hit all triggers->Perm Secret
+#define fCONTINUEHERE	  8 //'S.Flags 2' Continue Here
+#define fNOCONTINUEHERE   16 //'S.Flags2' No continue here after warp
+#define fTRIGGERF1631	  32 //'S.Flags1' Hit all triggers 16-31
+#define fTOGGLERINGDAMAGE 64 //'S.Flags2' Toggle Rings Affect Combos
+#define fWRAPAROUNDFF	  128 //'S.Flags2' FF Combos Wrap Around
 
 //flags7
-#define fLAYER3BG       1
-#define fLAYER2BG       2
-#define fITEMFALLS		  4
-#define fSIDEVIEW       8
-#define fNOLINKMARK     16
+#define fLAYER3BG       1 //'S.Flags1' Layer 3 is background
+#define fLAYER2BG       2 //'S.Flags1' Layer 2 is background
+#define fITEMFALLS	4 //'S.Flags1' Item falls from ceiling
+#define fSIDEVIEW       8 //'S.Flags1' Sideview Gravity
+#define fNOLINKMARK     16 //'S.Flags1' No Link marker in Minimap
 #define fSPECITEMMARK   32
-#define fWHISTLEPAL     64
-#define fWHISTLEWATER   128
+#define fWHISTLEPAL     64 //'S.Flags2' Whistle->Palette change. 
+#define fWHISTLEWATER   128 //'S.Flags2' Whistle->Dry lake
 
 //flags8
 // 1 - 16 are General Purpose (Scripts)
-#define fMAZEvSIDEWARP 32
+#define fGENERALSCRIPT1 	1 //'S.Flags2' General Use 1 (Scripts)
+#define fGENERALSCRIPT2 	2 //'S.Flags2' General Use 2 (Scripts)
+#define fGENERALSCRIPT3 	4 //'S.Flags2' General Use 3 (Scripts)
+#define fGENERALSCRIPT4 	8 //'S.Flags2' General Use 4 (Scripts)
+#define fGENERALSCRIPT5 	16 //'S.Flags2' General Use 5 (Scripts)
+#define fMAZEvSIDEWARP 		32 //'S.Flags1' Maze overrides side warps
 
 //lens layer effects
 #define llNORMAL        0
