@@ -1,5 +1,12 @@
-ChangeLog for 2.53.0 Beta 13
+ChangeLog for 2.53.0 Beta 14
 
+Added Extra Rule for older quests so that swords with a magic cost only apply it to beams,
+	and backported it to 2.53.0. 
+	!! This needs to be an item editor flagset: Beams use Magic, Blade Uses Magic
+Added a QR No Intro String in Ganon Rooms and backported it to 2.53.0 (beta 14)
+	( ZoriaRPG, 28th March, 2018 )
+	
+//Beta 13	
 Fixed swords not obeying magic costs. ( ZoriaRPG, 15th January, 2018 )
 
 Added tooltips to the 'Quest Rev' and 'Min Rev' fields in the
