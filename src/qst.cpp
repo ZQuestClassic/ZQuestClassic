@@ -2551,6 +2551,12 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         set_bit(extra_rules, er_BITMAPOFFSET, 1);
     }
+    //more 2.50 fixes -Z
+    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<31))
+    {
+        set_bit(extra_rules, er_MAGICCOSTSWORD, 1);
+        set_bit(quest_rules, qr_NOGANONINTRO, 0);
+    }
     
     if(tempheader.zelda_version < 0x193)
     {

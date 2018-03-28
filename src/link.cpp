@@ -1,4 +1,5 @@
 //--------------------------------------------------------
+//--------------------------------------------------------
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
 //
@@ -6475,7 +6476,9 @@ void LinkClass::movelink()
     if(can_attack() && (directWpn>-1 ? itemsbuf[directWpn].family==itype_sword : current_item(itype_sword)) && swordclk==0 && btnwpn==itype_sword && charging==0)
     {
 	attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
-	if(checkmagiccost(attackid))
+	if(checkmagiccost(attackid) || (get_bit(extra_rules, er_MAGICCOSTSWORD) == 0) )
+		//2.50.2 quests may have had a magic cost only on sword beams. Need to add this to the Item Editor in 2.54+ 
+		//as a flag on sword class items (Beams Use Magic, Sword Blade Uses Magic)
 	{
 		    //else paymagiccost(itemid);
 		action=attacking; FFCore.setLinkAction(attacking);
@@ -15947,7 +15950,11 @@ void LinkClass::ganon_intro()
         playLevelMusic();
         
     currcset=DMaps[currdmap].color;
-    dointro(); //This is likely what causes Ganon Rooms to repeat the DMap intro.  
+    if ( get_bit(quest_rules, qr_NOGANONINTRO) == 0) 
+    {
+	    dointro();
+    }
+    //dointro(); //This is likely what causes Ganon Rooms to repeat the DMap intro.  
     //I suppose it is to allow the user to make Gaanon rooms have their own dialogue, if they are
     //on a different DMap. 
     //~ Otherwise, why is it here?! -Z
