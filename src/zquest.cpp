@@ -10207,32 +10207,32 @@ static DIALOG scrdata_dlg[] =
     { jwin_check_proc,      165,   78,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Block->Shutters", NULL, NULL },
     //Moved to E. Flags
     { jwin_check_proc,      165,  148,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enemies->Item", NULL, NULL },
-    
+    //8
     { jwin_check_proc,      15,   178,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Dark Room", NULL, NULL },
     { d_dummy_proc,         160,  56-24,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    //S.Flags 2
+    //S.Flags 2  //10
     { jwin_check_proc,     165,   78,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Whistle->Stairs", NULL, NULL },
     { jwin_check_proc,     165,   118,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Toggle 'Allow Ladder'", NULL, NULL },
-    
+    //12
     { jwin_check_proc,     165,   148,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Use Maze Path", NULL, NULL },
     { d_dummy_proc,         160,  56-24,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    //S.Data 2
+    //S.Data 2 //14
     { jwin_check_proc,     140,   168,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Play Secret SFX On Screen Entry", NULL, NULL },
-    
+    //15
     { jwin_check_proc,      15,   78,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Combos Affect Midair Link", NULL, NULL },
-    //E.Flags
+    //E.Flags //16
     { jwin_check_proc,      15,   178,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Traps Ignore Walkability", NULL, NULL },
     { jwin_check_proc,      165,  158,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enemies->Secret", NULL, NULL },
     //18
     { jwin_check_proc,      165, 188,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Hold Up Item", NULL, NULL },
     //S.Flags 2
     { jwin_check_proc,      15,   88,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Cycle Combos On Screen Init", NULL, NULL },
-    //E. Flags
+    //E. Flags //20
     { jwin_check_proc,      15,   158,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "All Enemies Are Invisible", NULL, NULL },
-    
+    //21
     { jwin_check_proc,      15,   118,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Invisible Link", NULL, NULL },
     { jwin_check_proc,      15,   138,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No Subscreen", NULL, NULL },
-    
+    //23
     { jwin_check_proc,      165,  168,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Sprites Carry Over In Warps", NULL, NULL },
     
     { jwin_check_proc,       15,  148,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "...But Don't Offset Screen", NULL, NULL },
@@ -16163,6 +16163,7 @@ enemy_struct big[zqMAXGUYS];
 enemy_struct cg[100];
 int guy_type=0,big_cnt=-1,cg_cnt;
 
+//Uses old_max_guys[] in zq_misc.cpp to define what are visible if bool hide is set true. -Z
 void build_bie_list(bool hide)
 {
     bie[0].s = (char *)"(None)";
