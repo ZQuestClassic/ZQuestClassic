@@ -15914,6 +15914,7 @@ void LinkClass::ganon_intro()
         
         //NES Z1, the triforce vanishes for one frame in two cases
         //while still showing Link's two-handed overhead sprite.
+	//This should be a Quest Rule for NES Accuracy. -Z
         if(f==255 || f==270)
         {
             holditem=-1;
@@ -15946,8 +15947,18 @@ void LinkClass::ganon_intro()
         playLevelMusic();
         
     currcset=DMaps[currdmap].color;
-    dointro();
-    cont_sfx(WAV_ROAR);
+    dointro(); //This is likely what causes Ganon Rooms to repeat the DMap intro.  
+    //I suppose it is to allow the user to make Gaanon rooms have their own dialogue, if they are
+    //on a different DMap. 
+    //~ Otherwise, why is it here?! -Z
+    
+    
+    //if ( !(DMaps[currdmap].flags&dmfALWAYSMSG) ) { dointro(); } //This is likely what causes Ganon Rooms to repeat the DMap intro.  
+    //If we try it this way: The dmap flag /always display intro string/ is probably why James had this issue. 
+    
+    //The only fix that I can think of, off the top of me head, is either a QR or a Screen Flag to disable the intro text.
+    //Users who use that dmap rule should put ganons room on its own DMap! -Z 
+    cont_sfx(WAV_ROAR);	
 }
 
 void LinkClass::saved_Zelda()
