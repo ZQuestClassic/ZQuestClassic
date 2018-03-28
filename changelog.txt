@@ -1,5 +1,10 @@
 //2.54 Changes
 
+Made all enemies, including unimplemented types, visible in the Enemy Editor for Tamamo. 
+Moved the code that sets default weapon sprites for NPCs (for old quests) from the Enemy Editor
+	and into quest loading code ( qst.cpp, readguys() ). 
+	This should have fixed a bug with fire gleeoks in old quests. ( ZoriaRPG, 28th March, 2018 )
+
 Fixed arrows not working; and making sword sprites. ( ZoriaRPG, 3rd March, 2018 )
 
 Fixed swords not obeying magic costs. ( ZoriaRPG, 15th January, 2018 )
