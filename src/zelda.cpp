@@ -3313,26 +3313,32 @@ int main(int argc, char* argv[])
         {
         case 0:
             set_color_depth(desktop_color_depth());
+	    //setGraphicsMode(fullscreen);
             break;
             
         case 8:
             set_color_depth(8);
+	    //setGraphicsMode(fullscreen);
             break;
             
         case 15:
             set_color_depth(15);
+	    //setGraphicsMode(fullscreen);
             break;
             
         case 16:
             set_color_depth(16);
+	    //setGraphicsMode(fullscreen);
             break;
             
         case 24:
             set_color_depth(24);
+	    //setGraphicsMode(fullscreen);
             break;
             
         case 32:
             set_color_depth(32);
+		//setGraphicsMode(fullscreen);
             break;
             
         default:
@@ -3342,7 +3348,8 @@ int main(int argc, char* argv[])
         }
     }
     
-    
+    //set_color_depth(32);
+   // set_color_conversion(COLORCONV_24_TO_8);
     framebuf  = create_bitmap_ex(8,256,224);
     temp_buf  = create_bitmap_ex(8,256,224);
     scrollbuf = create_bitmap_ex(8,512,406);
