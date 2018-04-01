@@ -25,6 +25,8 @@ Over/Under (Vertical; scripted)
 *** NPCS ***
 ------------
 
+Flag: Vulnerable ti clocks.
+
 Whistle defence category.--huzzah, we need an extra page, defs 4!!
 Defence type: Split --seems feasible. 
 
