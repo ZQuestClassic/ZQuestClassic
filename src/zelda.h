@@ -113,6 +113,7 @@ void Z_scripterrlog(const char * const format, ...);
 
 // zelda.cc
 void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid);
+void addLwpnEx(int x,int y,int z,int id,int type,int power,int dir, int parentitem, int parentid, byte script_gen);
 void ALLOFF(bool messagesToo = true, bool decorationsToo = true);
 void centerLink();
 fix  LinkX();
