@@ -9472,7 +9472,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 				case ewFlame2: tempguy.wpnsprite = 81; break;
 				case ewFlame2Trail: tempguy.wpnsprite = 82; break;
 				case ewIce: tempguy.wpnsprite = 83; break;
-				case ewFireball2: tempguy.wpnsprite = 81; break; //fireball (rising)
+				case ewFireball2: tempguy.wpnsprite = 17; break; //fireball (rising)
 				
 					
 				default: break; //No assign.
