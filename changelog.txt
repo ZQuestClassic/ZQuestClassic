@@ -1,5 +1,10 @@
 //2.54 Changes
 
+//Alpha 24
+Added byte ScriptGeneratd param to weapon.add() 
+Fixed default weapon sprites for Gleeok, Fire Gleeok, Gohma, and Aquamentus
+Added bool EnemiesAlive() and int NumberEnemies() to std_functions.zh.
+	( ZoriaRPG, 1st April, 2018 )
 
 //Alpha 23
 
