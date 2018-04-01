@@ -1,0 +1,1371 @@
+//std_keyboard.zh for ZC 2.54
+//Version ID: 28OCT017
+
+/* 
+
+Constants that define the keyboard layout. I need to check an EU and a US keyboard 
+visually to verify if I set the proper symbols;  and I do not think that ZScript
+can handle some symbols on the UK layout. 
+
+*/
+
+const int KEYBOARD_TYPE = 0; //0 == US, 1 == UK, 2 == EU/GR
+const int KEYBOARD_LAYOUT_US = 0;
+const int KEYBOARD_LAYOUT_UK = 1;
+const int KEYBOARD_LAYOUT_EU = 2;
+
+//Special Circumstance Characters to store in strings if needed. 
+const int CHAR_ERROR 		= -1;
+const int CHAR_BACKSPC 		= -2; 
+const int CHAR_DELETE 		= -4; 
+const int CHAR_HOMEKEY 		= -8;
+const int CHAR_ENDKEY 		= -16;
+const int CHAR_PAGEUP 		= -32;
+const int CHAR_PAGEDOWN 	= -64;
+const int CHAR_ARROW_U 		= -128;
+const int CHAR_ARROW_L 		= -256;
+
+const int CHAR_ARROW_D 		= -512;
+const int CHAR_ARROW_R 		= -1024;
+const int CHAR_PRINTSCREEN 	= -2048;
+const int CHAR_PAUSE 		= -4096;
+
+const int CHAR_NONE = 0;
+
+//8192 for special modifiers?
+
+const int ___KEY_TIMER = 255; //Index of ____STD_GRAM[]
+// I think that an internal ZScript array Input->UserRAM[256] would be useful for this, as its pointer
+// would never change. 
+const float KEYBOARD_REPEAT_RATE = 6; //frames per keypress. 3 == 1/20 second
+//const int SFX_KEYPRESS = 58; //Do we want this in the header?
+
+
+//Checks if a key was pressed. If it was, it returns its char value. 
+//Returns CHAR_NONE / false if key was not pressed.
+int CheckKeyToChar(int key){
+	if ( KeyPress(key) ) {
+		return KeyToChar(key);
+	}
+	else return CHAR_NONE;
+}
+
+/*
+
+These functions are meant to return ReadKey and Keypress, while setting the appropriate
+input blockers. I would like to add bool Input->ReadingKeyboard, which while true, stops
+key presses from being read as joystick inputs.
+
+*/
+
+//This should be a ZScript function, as Input->ReadKey() -Z
+bool ReadKey(int key){
+	NoAction();
+	return Input->ReadKey[key];
+}
+
+bool KeyPress(int key){ return Input->Key[key]; }
+
+int GetKeyPress(int key){
+	if ( ReadKey(key) ) return KeyToChar(key);
+	else return -1; //Is this safe? Should we return 0, which is null?
+}
+
+//Returns modifier keys
+bool PressShift() { return (( Input->Key[KEY_LSHIFT] || Input->Key[KEY_RSHIFT] ) != 0);}
+bool PressControl(){ return (( Input->Key[KEY_LCONTROL] || Input->Key[KEY_RCONTROL] ) != 0);}
+bool CapsLock() { return Input->Key[KEY_CAPSLOCK]; }
+bool NumLock() { return Input->Key[KEY_NUMLOCK]; }
+bool PressWin() { return (( Input->Key[KEY_LWIN] || Input->Key[KEY_RWIN] ) != 0);}
+bool PressApple() { return (( Input->Key[KEY_LWIN] || Input->Key[KEY_RWIN] ) != 0);}
+bool PressCommand() { return Input->Key[KEY_COMMAND]; }
+bool PressAltGR() { return Input->Key[KEY_ALTGR]; }
+
+//Is this Linux only?
+bool PressLinuxMenu() { return Input->Key[KEY_MENU]; }
+
+//Note that these keys are used by the ZC Ui. You can read them this way, but you should not expect
+//a user to utilise them, for input, without some kind of interupt system.
+bool FKey(int f){ if ( f > 0 && f < 13 ) return Input->Key[46+f]; else return false; }
+bool EscKey() { return Input->Key[KEY_ESC]; } 
+
+
+
+//converts a key to its proper char (int, in ZScript).
+int KeyToChar(int key) { return KeyToChar(key,false,false); }
+//bool caps ==true : caps acts as shift, == false, standard
+int KeyToChar(int key, bool shifted) { return KeyToChar(key,shifted,false); }
+
+int KeyToChar(int key, bool shifted, bool caps){
+	TraceS("KeyToChar bool shifted is: "); TraceB(shifted);
+	if ( shifted )
+	{
+		if ( key == KEY_A ) return 'A';
+		if ( key == KEY_B ) return 'B';
+		if ( key == KEY_C ) return 'C';
+		if ( key == KEY_D ) return 'D';
+		if ( key == KEY_E ) return 'E';
+		if ( key == KEY_F ) return 'F';
+		if ( key == KEY_G ) return 'G';
+		if ( key == KEY_H ) return 'H';
+		if ( key == KEY_I ) return 'I';
+		if ( key == KEY_J ) return 'J';
+		if ( key == KEY_K ) return 'K';
+		if ( key == KEY_L ) return 'L';
+		if ( key == KEY_M ) return 'M';
+		if ( key == KEY_N ) return 'N';
+		if ( key == KEY_O ) return 'O';
+		if ( key == KEY_P ) return 'P';
+		if ( key == KEY_Q ) return 'Q';
+		if ( key == KEY_R ) return 'R';
+		if ( key == KEY_S ) return 'S';
+		if ( key == KEY_T ) return 'T';
+		if ( key == KEY_U ) return 'U';
+		if ( key == KEY_V ) return 'V';
+		if ( key == KEY_W ) return 'W';
+		if ( key == KEY_X ) return 'X';
+		if ( key == KEY_Y ) return 'Y';
+		if ( key == KEY_Z ) return 'Z';
+		//Shiften numeric row
+										
+		//if (  key > 26 ) 
+		//{
+			//if bool caps is set, and caps lock is on, read as shift
+			//|| ( Input->Key[KEY_CAPSLOCK] && caps ) ) ){
+		if ( key == KEY_1 ) return '!';
+		if ( key == KEY_0 ) return ')';
+		if ( key == KEY_2 ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '@';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return CHAR_DQUOTE;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return CHAR_DQUOTE;
+			}
+		}
+		if ( key == KEY_3 ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '#';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return CHAR_POUNDS;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '#';
+			}
+		}
+		if ( key == KEY_4 ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '$';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '$';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return CHAR_EURO;
+			}
+		}
+		if ( key == KEY_5 ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '%';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '%';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '%';
+			}
+		}
+		if ( key == KEY_6 ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '^';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '^';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '^';
+			}
+		}
+		if ( key == KEY_7 ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '&';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '&';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '&';
+			}
+		}
+		if ( key == KEY_8 ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '*';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '*';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '*';
+			}
+		}
+		if ( key == KEY_9 ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '(';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '(';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '(';
+			}
+		}
+		if ( key == KEY_TILDE ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '~';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '~';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '~';
+			}
+		}
+		if ( key == KEY_MINUS ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '_';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '_';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '_';
+			}
+		}
+		if ( key == KEY_EQUALS ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '+';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '+';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '+';
+			}
+		}
+		if ( key == KEY_BACKSPACE ) { //-2 is backspace
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -2;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -2;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -2;
+			}
+		}
+		if ( key == KEY_TAB ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return CHAR_TAB;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return CHAR_TAB;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return CHAR_TAB;
+			}
+		}
+		if ( key == KEY_OPENBRACE ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '{';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '{';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '{';
+			}
+		}
+		if ( key == KEY_CLOSEBRACE ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '}';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '}';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '}';
+			}
+		}
+		if ( key == KEY_ENTER ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return CHAR_CR;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return CHAR_CR;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return CHAR_CR;
+			}
+		}
+		if ( key == KEY_COLON ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return ':';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return ':';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return ':';
+			}
+		}
+		if ( key == KEY_SEMICOLON ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return ':';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return ':';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return ':';
+			}
+		}
+		if ( key == KEY_QUOTE ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '"';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '@';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '@';
+			}
+		}
+		if ( key == KEY_BACKSLASH ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '|';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '|';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '|';
+			}
+		}
+		if ( key == KEY_BACKSLASH2 ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '|';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '|';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '|';
+			}
+		}
+		if ( key == KEY_COMMA ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '<';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '<';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '<';
+			}
+		}
+		if ( key == KEY_STOP ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '>';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '>';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '>';
+			}
+		}
+		if ( key == KEY_SLASH ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '?';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '?';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '?';
+			}
+		}
+		if ( key == KEY_SPACE ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return ' ';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return ' ';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return ' ';
+			}
+		}
+		if ( key == KEY_DEL ) { //-4 is delete
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -4;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -4;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -4;
+			}
+		}
+		if ( key == KEY_HOME ) { //-8 is home
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -8;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -8;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -8;
+			}
+		}
+		if ( key == KEY_END ) { //-16 is 'end'
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -16;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -16;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -16;
+			}
+		}
+		if ( key == KEY_PGUP ) { //-32 
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -32;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -32;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -32;
+			}
+		}
+		if ( key == KEY_PGDN ) { //-64
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -64;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -64;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -64;
+			}
+		}
+		if ( key == KEY_UP ) { //ARROWS
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -128;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -128;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -128;
+			}
+		}
+		if ( key == KEY_LEFT ) { //ARROWS
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -256;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -256;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -256;
+			}
+		}
+		if ( key == KEY_DOWN ) { //ARROWS
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -512;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -512;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -512;
+			}
+		}
+		if ( key == KEY_RIGHT ) { //ARROWS
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -1024;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -1024;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -1024;
+			}
+		}
+		if ( key == KEY_SLASH_PAD ) { //Start Numeric Pad 
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '/';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '/';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '/';
+			}
+		}
+		if ( key == KEY_ASTERISK ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '*';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '*';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '*';
+			}
+		}
+		if ( key == KEY_MINUS_PAD ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '-';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '-';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '-';
+			}
+		}
+		if ( key == KEY_PLUS_PAD ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '+';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '+';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '+';
+			}
+		}
+		if ( key == KEY_DEL_PAD ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -4;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -4;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -4;
+			}
+		}
+		if ( key == KEY_ENTER_PAD ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return CHAR_CR;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return CHAR_CR;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return CHAR_CR;
+			}
+		}
+		if ( key == KEY_PRTSCR ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -2048;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -2048;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -2048;
+			}
+		}
+		if ( key == KEY_PAUSE ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -4096;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -4096;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -4096;
+			}
+		}
+		if ( key == KEY_CIRCUMFLEX ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '^';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '^';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '^';
+			}
+		}
+		if ( key == KEY_COLON2 ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return ':';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return ':';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return ':';
+			}
+		}
+			
+	}
+		
+		
+		
+		/*
+		if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+			
+		}
+		
+		if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+			
+		}
+		
+		if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+			
+		}
+		*/
+	//End modifier keys
+	else {
+		//otherwise no modifier
+		if ( key == KEY_A ) return 'a';
+		if ( key == KEY_B ) return 'b';
+		if ( key == KEY_C ) return 'c';
+		if ( key == KEY_D ) return 'd';
+		if ( key == KEY_E ) return 'e';
+		if ( key == KEY_F ) return 'f';
+		if ( key == KEY_G ) return 'g';
+		if ( key == KEY_H ) return 'h';
+		if ( key == KEY_I ) return 'i';
+		if ( key == KEY_J ) return 'j';
+		if ( key == KEY_K ) return 'k';
+		if ( key == KEY_L ) return 'l';
+		if ( key == KEY_M ) return 'm';
+		if ( key == KEY_N ) return 'n';
+		if ( key == KEY_O ) return 'o';
+		if ( key == KEY_P ) return 'p';
+		if ( key == KEY_Q ) return 'q';
+		if ( key == KEY_R ) return 'r';
+		if ( key == KEY_S ) return 's';
+		if ( key == KEY_T ) return 't';
+		if ( key == KEY_U ) return 'u';
+		if ( key == KEY_V ) return 'v';
+		if ( key == KEY_W ) return 'w';
+		if ( key == KEY_X ) return 'x';
+		if ( key == KEY_Y ) return 'y';
+		if ( key == KEY_Z ) return 'z';
+		
+		if ( key == KEY_0 || key == KEY_0_PAD ) return '0';
+		if ( key == KEY_1 || key == KEY_1_PAD ) return '1';
+		if ( key == KEY_2 || key == KEY_2_PAD ) return '2';
+		if ( key == KEY_3 || key == KEY_3_PAD ) return '3';
+		if ( key == KEY_4 || key == KEY_4_PAD ) return '4';
+		if ( key == KEY_5 || key == KEY_5_PAD ) return '5';
+		if ( key == KEY_6 || key == KEY_6_PAD ) return '6';
+		if ( key == KEY_7 || key == KEY_7_PAD ) return '7';
+		if ( key == KEY_8 || key == KEY_8_PAD ) return '8';
+		if ( key == KEY_9 || key == KEY_9_PAD ) return '9';
+		
+
+		if ( key == KEY_TILDE ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '`';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '`';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '`';
+			}
+		}
+		if ( key == KEY_MINUS ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '-';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '-';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '-';
+			}
+		}
+		if ( key == KEY_EQUALS ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '=';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '=';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '=';
+			}
+		}
+		if ( key == KEY_BACKSPACE ) { //-2 is backspace
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -2;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -2;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -2;
+			}
+		}
+		if ( key == KEY_TAB ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return CHAR_TAB;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return CHAR_TAB;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return CHAR_TAB;
+			}
+		}
+		if ( key == KEY_OPENBRACE ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '[';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '[';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '[';
+			}
+		}
+		if ( key == KEY_CLOSEBRACE ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return ']';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return ']';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return ']';
+			}
+		}
+		if ( key == KEY_ENTER ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return CHAR_LF;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return CHAR_LF;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return CHAR_LF;
+			}
+		}
+		if ( key == KEY_COLON ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return ';';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return ';';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return ';';
+			}
+		}
+		if ( key == KEY_SEMICOLON ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return ';';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return ';';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return ';';
+			}
+		}
+		if ( key == KEY_QUOTE ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return CHAR_QUOTE;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return CHAR_QUOTE;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return CHAR_QUOTE;
+			}
+		}
+		if ( key == KEY_BACKSLASH ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return CHAR_BSLASH;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return CHAR_BSLASH;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return CHAR_BSLASH;
+			}
+		}
+		if ( key == KEY_BACKSLASH2 ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return CHAR_BSLASH;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return CHAR_BSLASH;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return CHAR_BSLASH;
+			}
+		}
+		if ( key == KEY_COMMA ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return ',';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return ',';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return ',';
+			}
+		}
+		if ( key == KEY_STOP ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '.';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '.';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '.';
+			}
+		}
+		if ( key == KEY_SLASH ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '/';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '/';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '/';
+			}
+		}
+		if ( key == KEY_SPACE ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return ' ';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return ' ';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return ' ';
+			}
+		}
+		if ( key == KEY_DEL ) { //-4 is delete
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -4;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -4;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -4;
+			}
+		}
+		if ( key == KEY_HOME ) { //-8 is home
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -8;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -8;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -8;
+			}
+		}
+		if ( key == KEY_END ) { //-16 is 'end'
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -16;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -16;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -16;
+			}
+		}
+		if ( key == KEY_PGUP ) { //-32 
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -32;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -32;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -32;
+			}
+		}
+		if ( key == KEY_PGDN ) { //-64
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -64;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -64;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -64;
+			}
+		}
+		if ( key == KEY_UP ) { //ARROWS
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -128;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -128;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -128;
+			}
+		}
+		if ( key == KEY_LEFT ) { //ARROWS
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -256;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -256;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -256;
+			}
+		}
+		if ( key == KEY_DOWN ) { //ARROWS
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -512;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -512;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -512;
+			}
+		}
+		if ( key == KEY_RIGHT ) { //ARROWS
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -1024;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -1024;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -1024;
+			}
+		}
+		if ( key == KEY_SLASH_PAD ) { //Start Numeric Pad 
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '/';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '/';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '/';
+			}
+		}
+		if ( key == KEY_ASTERISK ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '*';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '*';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '*';
+			}
+		}
+		if ( key == KEY_MINUS_PAD ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '-';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '-';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '-';
+			}
+		}
+		if ( key == KEY_PLUS_PAD ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '+';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '+';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '+';
+			}
+		}
+		if ( key == KEY_DEL_PAD ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -4;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -4;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -4;
+			}
+		}
+		if ( key == KEY_ENTER_PAD ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return CHAR_LF;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return CHAR_LF;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return CHAR_LF;
+			}
+		}
+		if ( key == KEY_PRTSCR ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -2048;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -2048;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -2048;
+			}
+		}
+		if ( key == KEY_PAUSE ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return -4096;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return -4096;
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return -4096;
+			}
+		}
+		if ( key == KEY_CIRCUMFLEX ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return '^';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return '^';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return '^';
+			}
+		}
+		if ( key == KEY_COLON2 ) {
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_US ) {
+				return ':';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_UK ) {
+				return ':';
+			}
+			
+			if ( KEYBOARD_TYPE == KEYBOARD_LAYOUT_EU ) {
+				return ':';
+			}
+		}
+	}
+	
+}
+
+//Key Constants -- !DO NOT MODIFY
+
+const int KEY_A            = 1;
+const int KEY_B            = 2;
+const int KEY_C            = 3;
+const int KEY_D            = 4;
+const int KEY_E            = 5;
+const int KEY_F            = 6;
+const int KEY_G            = 7;
+const int KEY_H            = 8;
+const int KEY_I            = 9;
+const int KEY_J            = 10;
+const int KEY_K            = 11;
+const int KEY_L            = 12;
+const int KEY_M            = 13;
+const int KEY_N            = 14;
+const int KEY_O            = 15;
+const int KEY_P            = 16;
+const int KEY_Q            = 17;
+const int KEY_R            = 18;
+const int KEY_S            = 19;
+const int KEY_T            = 20;
+const int KEY_U            = 21;
+const int KEY_V            = 22;
+const int KEY_W            = 23;
+const int KEY_X            = 24;
+const int KEY_Y            = 25;
+const int KEY_Z            = 26;
+const int KEY_0            = 27;
+const int KEY_1            = 28;
+const int KEY_2            = 29;
+const int KEY_3            = 30;
+const int KEY_4            = 31;
+const int KEY_5            = 32;
+const int KEY_6            = 33;
+const int KEY_7            = 34;
+const int KEY_8            = 35;
+const int KEY_9            = 36;
+const int KEY_0_PAD        = 37;
+const int KEY_1_PAD        = 38;
+const int KEY_2_PAD        = 39;
+const int KEY_3_PAD        = 40;
+const int KEY_4_PAD        = 41;
+const int KEY_5_PAD        = 42;
+const int KEY_6_PAD        = 43;
+const int KEY_7_PAD        = 44;
+const int KEY_8_PAD        = 45;
+const int KEY_9_PAD        = 46;
+const int KEY_F1           = 47;
+const int KEY_F2           = 48;
+const int KEY_F3           = 49;
+const int KEY_F4           = 50;
+const int KEY_F5           = 51;
+const int KEY_F6           = 52;
+const int KEY_F7           = 53;
+const int KEY_F8           = 54;
+const int KEY_F9           = 55;
+const int KEY_F10          = 56;
+const int KEY_F11          = 57;
+const int KEY_F12          = 58;
+const int KEY_ESC          = 59;
+const int KEY_TILDE        = 60;
+const int KEY_MINUS        = 61;
+const int KEY_EQUALS       = 62;
+const int KEY_BACKSPACE    = 63;
+const int KEY_TAB          = 64;
+const int KEY_OPENBRACE    = 65;
+const int KEY_CLOSEBRACE   = 66;
+const int KEY_ENTER        = 67;
+const int KEY_COLON        = 68;
+const int KEY_QUOTE        = 69;
+const int KEY_BACKSLASH    = 70;
+const int KEY_BACKSLASH2   = 71;
+const int KEY_COMMA        = 72;
+const int KEY_STOP         = 73;
+const int KEY_SLASH        = 74;
+const int KEY_SPACE        = 75;
+const int KEY_INSERT       = 76;
+const int KEY_DEL          = 77;
+const int KEY_HOME         = 78;
+const int KEY_END          = 79;
+const int KEY_PGUP         = 80;
+const int KEY_PGDN         = 81;
+const int KEY_LEFT         = 82;
+const int KEY_RIGHT        = 83;
+const int KEY_UP           = 84;
+const int KEY_DOWN         = 85;
+const int KEY_SLASH_PAD    = 86;
+const int KEY_ASTERISK     = 87;
+const int KEY_MINUS_PAD    = 88;
+const int KEY_PLUS_PAD     = 89;
+const int KEY_DEL_PAD      = 90;
+const int KEY_ENTER_PAD    = 91;
+const int KEY_PRTSCR       = 92;
+const int KEY_PAUSE        = 93;
+const int KEY_ABNT_C1      = 94;
+const int KEY_YEN          = 95;
+const int KEY_KANA         = 96;
+const int KEY_CONVERT      = 97;
+const int KEY_NOCONVERT    = 98;
+const int KEY_AT           = 99;
+const int KEY_CIRCUMFLEX   = 100;
+const int KEY_COLON2       = 101;
+const int KEY_KANJI        = 102;
+const int KEY_EQUALS_PAD   = 103;  /* MacOS X */
+const int KEY_BACKQUOTE    = 104;  /* MacOS X */
+const int KEY_SEMICOLON    = 105;  /* MacOS X */
+const int KEY_COMMAND      = 106;  /* MacOS X */
+const int KEY_UNKNOWN1     = 107;
+const int KEY_UNKNOWN2     = 108;
+const int KEY_UNKNOWN3     = 109;
+const int KEY_UNKNOWN4     = 110;
+const int KEY_UNKNOWN5     = 111;
+const int KEY_UNKNOWN6     = 112;
+const int KEY_UNKNOWN7     = 113;
+const int KEY_UNKNOWN8     = 114;
+
+const int KEY_MODIFIERS    = 115;
+
+const int KEY_LSHIFT       = 115;
+const int KEY_RSHIFT       = 116;
+const int KEY_LCONTROL     = 117;
+const int KEY_RCONTROL     = 118;
+const int KEY_ALT          = 119;
+const int KEY_ALTGR        = 120;
+const int KEY_LWIN         = 121;
+const int KEY_RWIN         = 122;
+const int KEY_MENU         = 123;
+const int KEY_SCRLOCK      = 124;
+const int KEY_NUMLOCK      = 125;
+const int KEY_CAPSLOCK     = 126;

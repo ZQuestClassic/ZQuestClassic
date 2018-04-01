@@ -356,6 +356,8 @@ const int ROT_CW 		= 4;
 const int ROT_CW_FLIP 		= 5;
 const int ROT_CCW_FLIP 		= 6;
 const int ROT_CCW 		= 7; 
+const int ROT_ACW_FLIP 		= 6; //Anticlockwise, please.
+const int ROT_ACW 		= 7; 
 
 
 
@@ -404,6 +406,31 @@ const int CR_SCRIPT22           = 28;
 const int CR_SCRIPT23           = 29;
 const int CR_SCRIPT24           = 30;
 const int CR_SCRIPT25           = 31;
+const int CR_CUSTOM1            = 7;
+const int CR_CUSTOM2            = 8;
+const int CR_CUSTOM3            = 9;
+const int CR_CUSTOM4            = 10;
+const int CR_CUSTOM5            = 11;
+const int CR_CUSTOM6            = 12;
+const int CR_CUSTOM7            = 13;
+const int CR_CUSTOM8            = 14;
+const int CR_CUSTOM9            = 15;
+const int CR_CUSTOM10           = 16;
+const int CR_CUSTOM11           = 17;
+const int CR_CUSTOM12           = 18;
+const int CR_CUSTOM13           = 19;
+const int CR_CUSTOM14           = 20;
+const int CR_CUSTOM15           = 21;
+const int CR_CUSTOM16           = 22;
+const int CR_CUSTOM17           = 23;
+const int CR_CUSTOM18           = 24;
+const int CR_CUSTOM19           = 25;
+const int CR_CUSTOM20           = 26;
+const int CR_CUSTOM21           = 27;
+const int CR_CUSTOM22           = 28;
+const int CR_CUSTOM23           = 29;
+const int CR_CUSTOM24           = 30;
+const int CR_CUSTOM25           = 31;
 
 //Generic data indices. Use this with Game->Generic[]
 const int GEN_HEARTPIECES       = 0; // Heart Pieces currently possessed
@@ -428,24 +455,24 @@ const int MB_RIGHTCLICK			= 0x2;
 const int MB_MIDDLECLICK		= 0x4; //Keep in in mind that not all mice/touchpads have a middle mouse button
 
 //Controller buttons
-const int CB_UP 	= 1; 
-const int CB_DOWN	= 2;
-const int CB_LEFT	= 3;
-const int CB_RIGHT	= 4;
-const int CB_A		= 5;
-const int CB_B		= 6;
-const int CB_L		= 7;
-const int CB_R		= 8;
-const int CB_START	= 9;
-const int CB_MAP	= 10;
-const int CB_EX1	= 11;
-const int CB_EX2	= 12;
+const int CB_UP 	= 0; 
+const int CB_DOWN	= 1;
+const int CB_LEFT	= 2;
+const int CB_RIGHT	= 3;
+const int CB_A		= 4;
+const int CB_B		= 5;
+const int CB_L		= 6;
+const int CB_R		= 7;
+const int CB_START	= 8;
+const int CB_MAP	= 9;
+const int CB_EX1	= 10;
+const int CB_EX2	= 11;
 const int CB_EX3	= 12;
-const int CB_EX4	= 14;
-const int CB_STICKUP	= 15;
-const int CB_STICKDOWN	= 16;
-const int CB_STICKLEFT	= 17;
-const int CB_STICKRIGHT	= 18;
+const int CB_EX4	= 13;
+const int CB_STICKUP	= 14;
+const int CB_STICKDOWN	= 15;
+const int CB_STICKLEFT	= 16;
+const int CB_STICKRIGHT	= 17;
 
 
 
@@ -721,6 +748,18 @@ const int LW_SCRIPT7            = 37;
 const int LW_SCRIPT8            = 38;
 const int LW_SCRIPT9            = 39;
 const int LW_SCRIPT10           = 40;
+
+//Planned for 2.6
+const int LW_ICE		= 41;
+const int LW_SOUND		= 42;
+const int LW_THROWROCK 		= 43; //Z3 rock
+const int LW_POT		= 44; //Thrown pot
+const int LW_ELECTRIC		= 45; //Zap
+const int LW_Z3SWORD		= 46;
+const int LW_GBSWORD		= 47;
+const int LA_SPINATTACK		= 48;
+const int LW_SHIELD		= 49; 
+const int LW_SHOVEL		= 50; 
 
 //EWeapon types. Use with Screen->CreateEWeapon() and Screen->LoadEWeapon().
 const int EW_ARROW              = 130;
@@ -1358,6 +1397,54 @@ const int FONT_GBORACLEP        = 24;
 const int FONT_DSPHANTOM        = 25;
 const int FONT_DSPHANTOMP       = 26;
 
+
+//! There are four fonts in the fonts.dat file that are absent here. -Z
+
+//New Fonts for 2.54+
+const int FONT_ATARI800		= 27;
+const int FONT_ACORN		= 28;
+const int FONT_ADOS		= 29;
+const int FONT_ALLEGRO		= 30;
+const int FONT_APPLE2		= 31;
+const int FONT_APPLE2_80COL	= 32;
+const int FONT_APPLE2GS		= 33;
+const int FONT_AQUARIUS		= 34;
+const int FONT_ATARI400		= 35;
+const int FONT_C64		= 36;
+const int FONT_C64_HIRES	= 37;
+const int FONT_CGA		= 38;
+const int FONT_COCO		= 39;	//Invrse chars for upper. 
+const int FONT_COCO2		= 40;	//Upper and lower
+const int FONT_COUPE		= 41;
+const int FONT_CPC		= 42;	//Amstrad
+const int FONT_FANTASY		= 43;
+const int FONT_FDS_KANA		= 44;
+const int FONT_FDSLIKE		= 45;
+const int FONT_FDS_ROMAN	= 46;
+const int FONT_FF		= 47;	//Final Fantasy
+const int FONT_FUTHARK		= 48;	//Runes
+const int FONT_GAIA		= 49;
+const int FONT_HIRA		= 50;
+const int FONT_JP		= 51;
+const int FONT_KONG		= 52;
+const int FONT_MANA		= 53;
+const int FONT_MARIOLAND	= 54;
+const int FONT_MOT		= 55;	//Motorola
+const int FONT_MSX0		= 56;	//MSX, Mode 0
+const int FONT_MSX1		= 57;	//MSX, Mod 1
+const int FONT_PET		= 58;
+const int FONT_PSTART		= 59;	//Nintendo-esque
+const int FONT_SATURN		= 60;	//Mr. Saturn
+const int FONT_SCIFI		= 61;
+const int FONT_SHERWOOD		= 62;
+const int FONT_SINQL		= 63;	//Sinclair QL
+const int FONT_SPECTRUM		= 64;
+const int FONT_SPECTRUM_LG	= 65;
+const int FONT_TI99		= 66;
+const int FONT_TRS		= 67;
+const int FONT_Z2		= 68;	//Zelda 2 plus custom lowercase.
+const int FONT_LISA		= 69;	//Lisa OS System Font
+
 // PrintString Text Formats. Use with Screen->DrawString.
 const int TF_NORMAL             = 0; // treats the left-most char as (x)
 const int TF_CENTERED           = 1; // prints the string centered on (x)
@@ -1726,6 +1813,71 @@ const int CF_SCRIPT5            = 102;
 const int CF_RAFTBOUNCE		= 103;
 const int CF_PUSHED 		= 104;
 
+
+//2.54+ Flags
+
+const int CF_SCRIPT6 		= 105; //should be 106
+const int CF_SCRIPT7 		= 107;
+const int CF_SCRIPT8 		= 108;
+const int CF_SCRIPT9 		= 109;
+const int CF_SCRIPT10 		= 110;
+const int CF_SCRIPT11 		= 111;
+const int CF_SCRIPT12 		= 112;
+const int CF_SCRIPT13 		= 113;
+const int CF_SCRIPT14 		= 114;
+const int CF_SCRIPT15 		= 115;
+const int CF_SCRIPT16 		= 116;
+const int CF_SCRIPT17 		= 117;
+const int CF_SCRIPT18 		= 118;
+const int CF_SCRIPT19 		= 119;
+const int CF_SCRIPT20 		= 120;
+const int CF_SCRIPT_PIT 	= 121; // Pit or Hole (Scripted)",
+const int CF_SCRIPT_PIT_FALL 	= 122; // Pit or Hole, Fall Down Floor (Scripted)",
+const int CF_SCRIPT_LAVA 	= 123; // Fire or Lava (Scripted)",
+const int CF_SCRIPT_ICE 	= 124; // Ice (Scripted)",
+const int CF_SCRIPT_ICE_DMG  	= 125; //Ice, Damaging (Scripted)",
+const int CF_SCRIPT_DAMAGE_1 	= 126;  //Damage-1 (Scripted)",
+const int CF_SCRIPT_DAMAGE_2   	= 127; // Damage-2 (Scripted)",
+const int CF_SCRIPT_DAMAGE_4 	= 128; //Damage-4 (Scripted)",
+const int CF_SCRIPT_DAMAGE_8 	= 129; //Damage-8 (Scripted)",
+const int CF_SCRIPT_DAMAGE_16 	= 130; //Damage-16 (Scripted)",
+const int CF_SCRIPT_DAMAGE_32 	= 131; //Damage-32 (Scripted)",
+const int CF_SCRIPT_FREEZE_SCREEN = 132; //Freeze Screen (Unimplemented)",
+const int CF_SCRIPT_FREEZE_SCREEN_EXCEPT_FFCS  = 133; // Freeze Screen, Except FFCs (Unimplemented)",
+const int CF_SCRIPT_FREEZE_FFCS_ONLY = 134; //Freeze FFCs Only (Unimplemented)",
+const int CF_LW_SCRIPT1   	= 135; // Trigger LW_SCRIPT1 (Unimplemented)",
+const int CF_LW_SCRIPT2 	= 136; // Trigger LW_SCRIPT2 (Unimplemented)",
+const int CF_LW_SCRIPT3 	= 137; //Trigger LW_SCRIPT3 (Unimplemented)",
+const int CF_LW_SCRIPT4 	= 138; //Trigger LW_SCRIPT4 (Unimplemented)",
+const int CF_LW_SCRIPT5 	= 139; //Trigger LW_SCRIPT5 (Unimplemented)",
+const int CF_LW_SCRIPT6 	= 140; //Trigger LW_SCRIPT6 (Unimplemented)",
+const int CF_LW_SCRIPT7 	= 141; //Trigger LW_SCRIPT7 (Unimplemented)",
+const int CF_LW_SCRIPT8 	= 142; //Trigger LW_SCRIPT8 (Unimplemented)",
+const int CF_LW_SCRIPT9 	= 143; //Trigger LW_SCRIPT9 (Unimplemented)",
+const int CF_LW_SCRIPT10 	= 144; //Trigger LW_SCRIPT10 (Unimplemented)",
+const int CF_SCRIPT_DIG 	= 145;  //Dig Spot (Scripted)",
+const int CF_SCRIPT_DIG_NEXT  	= 146;  //Dig Spot, Next (Scripted)",
+const int CF_SCRIPT_DIG_ITEM  	= 147;  //Dig Spot, Special Item (Scripted)",
+const int CF_SCRIPT_POT_SLASH  	= 148; // Pot, Slashable (Scripted)",
+const int CF_SCRIPT_POT_SLASH_LIFT = 149; // Pot, Liftable (Scripted)",
+const int CF_SCRIPT_POT_SLASH_OR_LIFT =  150; // Pot, Slash or Lift (Scripted)",
+const int CF_SCRIPT_LIFT_NORMAL = 151; // Rock, Lift Normal (Scripted)",
+const int CF_SCRIPT_LIFT_HEAVY 	= 152; // Rock, Lift Heavy (Scripted)",
+const int CF_SCRIPT_DROPSET_ITEM = 153; // Dropset Item (Scripted)",
+const int CF_SCRIPT_SPECIAL_ITEM = 154; // Special Item (Scripted)",
+const int CF_SCRIPT_DROP_KEY 	= 155; //Drop Key (Scripted)",
+const int CF_SCRIPT_DROP_LKEY 	= 156; // Drop level-Specific Key (Scripted)",
+const int CF_SCRIPT_DROP_COMPASS = 157; // Drop Compass (Scripted)",
+const int CF_SCRIPT_DROP_MAP 	= 158; // Drop Map (Scripted)",
+ //   "159 Drop Map (Scripted)", // Duplicate??
+const int CF_SCRIPT_SPAWN_NPC 	= 160; // Spawn NPC (Scripted)",
+const int CF_SCRIPT_SWITCHHOOK 	= 161; // SwitchHook Spot (Scripted)",
+
+//chests  to 16, unlocked, locked, boss; small, big. Probably better as combo types?
+
+// 200 :  Reserved for CF_STEP from TheRandomHeader.zh
+
+
 //Combo types. Use with Screen->ComboT[]
 const int CT_ARMOS              = 4;
 const int CT_AWARPA             = 94;
@@ -1911,3 +2063,177 @@ const int SIDEWARP_A		= 0;
 const int SIDEWARP_B		= 1;
 const int SIDEWARP_C		= 2;
 const int SIDEWARP_D		= 3;
+
+
+//Game Over Screen
+//Values : Game->GameOverScreen[20]
+const int GOS_BACKGROUND		= 0;
+const int GOS_TEXT_COLOUR		= 1;
+const int GOS_CUSRSOR_TILE		= 2;
+const int GOS_CURSOR_CSET		= 3;
+const int GOS_CURSOR_SOUND  		= 4;
+const int GOS_TEXT_CONTINUE_COLOUR	= 5;
+const int GOS_TEXT_SAVE_COLOUR		= 6;
+const int GOS_TEXT_RETRY_COLOUR		= 7;
+const int GOS_EXT_CONTINUE_FLASH	= 8;
+const int GOS_TEXT_SAVE_FLASH		= 9;
+const int GOS_TEXT_RETRY_FLASH		= 10;
+const int GOS_MIDI 			= 11;
+const int GOS_CUR_FLIP			= 12;
+const int GOS_TEXT_DONTSAVE_COLOUR	= 13;
+const int GOS_TEXT_SAVEQUIT_COLOUR	= 14;
+const int GOS_TEXT_SAVE2_COLOUR 	= 15;
+const int GOS_TEXT_QUIT_COLOUR		= 16;
+const int GOS_TEXT_DONTSAVE_FLASH	= 17;
+const int GOS_TEXT_SAVEQUIT_FLASH	= 18;
+const int GOS_TEXT_SAVE2_FLASH		= 19;
+const int GOS_TEXT_QUIT_FLASH		= 20;
+const int GOS_EXTRA1			= 21;
+const int GOS_EXTRA2			= 22;
+const int GOS_EXTRA3			= 23;
+
+
+
+//Strings : Game->GameOverStrings[7]
+const int GOS_STR_CONTINUE 	= 0;	// (Continue:Retry:Save) Screen
+const int GOS_STR_SAVE		= 1;	// (Continue:Retry:Save) Screen
+const int GOS_RETRY		= 2;	// (Continue:Retry:Save) Screen
+const int GOS_DONT_SAVE		= 3;	//Savepoint Screen
+const int GOS_SAVEANDQUIT	= 4;	//Save and Quit Screen
+const int GOS_SAVE2		= 5; 	//Savepoint Screen
+const int GOS_QUIT		= 6;	//Save and Quit Screen
+
+
+// Constants for DrawBitmapEX Modes
+// These work as FLAGS that you may sum, or stack, to combine effects. 
+
+const int BITDX_NORMAL = 0;
+const int BITDX_TRANS = 1; //Translucent
+const int BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
+const int BITDX_HFLIP = 4; //Horizontal Flip
+const int BITDX_VFLIP = 8; //Vertical Flip.
+//Note:	Some modes cannot be combined. if a combination is not supported, an error
+//	detailing this will be shown in allegro.log. 
+
+//Effects for Link->WarpEffect
+const int WARPFX_NONE = 0;
+const int WARPFX_INSTANT = 1;
+const int WARPFX_BLACKOUT = 2;
+const int WARPFX_OPEN = 3;
+const int WARPFX_ZAP = 4;
+const int WARPFX_WAVE = 5;
+const int WARPFX_CANCEL = 6;
+const int WARPFX_SCROLL = 7;
+
+//Warp Return Types for Link->UseWarpReturn
+const int WARP_A = 0;
+const int WARP_B = 1;
+const int WARP_C = 2;
+const int WARP_D = 3;
+
+//Sprites for Link->SetTile(sprite, int, int, int)
+//See Quest->Graphics->Sprites->Link for what these are. 
+const int LSPR_NORMAL = 1;
+const int LSPR_FLOAT = 2;
+const int LSPR_SWIM = 3;
+const int LSPR_DIVE = 4;
+const int LSPR_SPLASH = 5;
+const int LSPR_JUMP = 6;
+const int LSPR_CHARGE = 7;
+const int LSPR_STAB = 8;
+const int LSPR_POUND = 9;
+const int LSPR_CAST = 10;
+const int LSPR_HOLD1LAND = 11;
+const int LSPR_HOLD2LAND = 12;
+const int LSPR_HOLD1WATER = 13;
+const int LSPR_HOLD2WATER = 14;
+
+//Animation Styles in Quest->Graphics->Spries->Link for use with:
+//	Link->Animation
+//	Link->WalkASpeed
+//	Link->SwimASpeed
+const int ANIM_ORIG = 0; //Animation styles nk
+const int ANIM_BS = 1;
+const int ANIM_Z3 = 2;
+const int ANIM_Z3SLOW = 3;
+const int SWIM_SLOW = 0;
+const int SWIM_FAST = 1;
+const int WALK_SLOW = 0; //Need to check what the walk speeds are. 
+const int WALK_FAST = 1;
+const int WALK_NEW = 2;
+
+//Link Tile Offsets
+const int LINKTILE_OFS_NORMAL = -261; //We need to figure out all of these, and determine how they are calculated.
+//Determine the offsetws for each sprite, each anim type, and each extend. 
+//Make a function to set the tiles with these offsets. 
+
+//Constants for SetItemSlot()
+//These stack as flags. 
+const int ITM_REQUIRE_NONE = 0;
+const int ITM_REQUIRE_INVENTORY = 1;
+const int ITM_REQUIRE_A_SLOT_RULE = 2;
+
+//Input->Mouse[]
+const int MOUSE_X = 0;
+const int MOUSE_Y = 1;
+const int MOUSE_Z = 2;
+const int MOUSE_LEFT = 3;
+const int MOUSE_RIGHT = 4;
+const int MOUSE_MIDDLE = 5;
+
+//MapData
+
+//GetSecretCombo()
+
+const int SECCMB_BCANDLE 	= 0;
+const int SECCMB_ARROW		= 1;	
+const int SECCMB_BOMB		= 2;
+const int SECCMB_STAIRS		= 3;
+const int SECCMB_SECRET01	= 4;
+const int SECCMB_SECRET02	= 5;
+const int SECCMB_SECRET03	= 6;
+const int SECCMB_SECRET04	= 7;
+const int SECCMB_SECRET05	= 8;
+const int SECCMB_SECRET06	= 9;
+const int SECCMB_SECRET07	= 10;
+const int SECCMB_SECRET08	= 11;
+const int SECCMB_SECRET09	= 12;
+const int SECCMB_SECRET10	= 13;
+const int SECCMB_SECRET11	= 14;
+const int SECCMB_SECRET12	= 15;
+const int SECCMB_SECRET13	= 16;
+const int SECCMB_SECRET14	= 17;
+const int SECCMB_SECRET15	= 18;
+const int SECCMB_SECRET16	= 19;
+const int SECCMB_RCANDLE	= 20;
+const int SECCMB_WANDFIRE	= 21;
+const int SECCMB_DINSFIRE	= 22;
+const int SECCMB_SARROW		= 23;
+const int SECCMB_GARROW		= 24;
+const int SECCMB_SBOMB		= 25;
+const int SECCMB_BRANG		= 26;
+const int SECCMB_MBRANG		= 27;
+const int SECCMB_FBRANG		= 28;
+const int SECCMB_WANDMAGIC	= 29;
+const int SECCMB_REFMAGIC	= 30;
+const int SECCMB_REFFIREBALL	= 31;
+const int SECCMB_SWORD		= 32;
+const int SECCMB_WSWORD		= 33;
+const int SECCMB_MSWORD		= 34;
+const int SECCMB_XSWORD		= 35;
+const int SECCMB_SWORDBEAM	= 36;
+const int SECCMB_WSWORDBEAM	= 37;
+const int SECCMB_MSWORDBEAM	= 38;
+const int SECCMB_XSWORDBEAM	= 39;
+const int SECCMB_HOOKSHOT	= 40;
+const int SECCMB_WAND		= 41;
+const int SECCMB_HAMMER		= 42;
+const int SECCMB_STRIKE		= 43;
+//44 to 127 unused. 
+
+//Audio->
+//Audio->Volume[]
+const int VOL_MIDI 	= 0;
+const int VOL_DIGI	= 1;
+const int VOL_MUSIC	= 2;
+const int VOL_SFX	= 3;
