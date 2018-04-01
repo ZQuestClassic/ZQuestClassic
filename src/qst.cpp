@@ -9400,14 +9400,14 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		
 	    }
-	    if(guyversion < 31)
+	    if(guyversion < 32)
 	    {
 		if ( tempguy.wpnsprite <= 0 )
 		{
 			switch(tempguy.weapon)
 			{
 				case wNone:
-					tempguy.wpnsprite = -1; break;
+					tempguy.wpnsprite = 0; break;
 				
 				case wSword:
 				case wBeam:
@@ -9450,12 +9450,13 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 				case wScript9:
 				case wScript10:
 				case wIce:
-				case wEnemyWeapons:
 					//Cannot use any of these weapons yet. 
 					tempguy.wpnsprite = -1;
 					break;
 				
+				case wEnemyWeapons:
 				case ewFireball: tempguy.wpnsprite = 17; break;
+				
 				case ewArrow: tempguy.wpnsprite = 19; break;
 				case ewBrang: tempguy.wpnsprite = 4; break;
 				case ewSword: tempguy.wpnsprite = 20; break;
@@ -9471,7 +9472,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 				case ewFlame2: tempguy.wpnsprite = 81; break;
 				case ewFlame2Trail: tempguy.wpnsprite = 82; break;
 				case ewIce: tempguy.wpnsprite = 83; break;
-				case ewFireball2: tempguy.wpnsprite = 81; //fireball (rising)
+				case ewFireball2: tempguy.wpnsprite = 81; break; //fireball (rising)
 				
 					
 				default: break; //No assign.
