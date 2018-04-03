@@ -1,5 +1,9 @@
-ChangeLog for 2.53.0 Beta 14
+ChangeLog for 2.53.0 Beta 15
 
+Added a compatibility fix for DrawInteger() and DrawCharacter() for quests made
+	using the old (broken) scaling factors. ( ZoriaRPG, 4th April, 2018 )
+
+//Beta 14
 Added Extra Rule for older quests so that swords with a magic cost only apply it to beams,
 	and backported it to 2.53.0. 
 	!! This needs to be an item editor flagset: Beams use Magic, Blade Uses Magic
