@@ -1911,3 +1911,6 @@ const int SIDEWARP_A		= 0;
 const int SIDEWARP_B		= 1;
 const int SIDEWARP_C		= 2;
 const int SIDEWARP_D		= 3;
+
+//Default Weapon Step Speeds
+//const int STEP_

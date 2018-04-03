@@ -277,13 +277,13 @@ void SetScreenDBit(int d, int bit, bool state){
 
 //Returns the state of bit 'bit' of Screen->D[] register 'd'
 bool GetScreenDBit(int dmap, int screen, int d, int bit){
-	return ( Game->GetDMapScreenD(dmap, screen, d) & (1 << bit) ) != 0;
+	return ( Game->GetDMapScreenD(dmap, screen, d) & (1 << bit) );
 }
 bool GetScreenDBit(int screen, int d, int bit){
-	return ( Game->GetScreenD(screen, d) & (1 << bit) ) != 0;
+	return ( Game->GetScreenD(screen, d) & (1 << bit) );
 }
 bool GetScreenDBit(int d, int bit){
-    return (Screen->D[d] & (1 << bit)) != 0;
+    return (Screen->D[d] & (1 << bit));
 }
 
 //A shorthand way to get a combo on the current layer.
@@ -1022,12 +1022,12 @@ int FFCNum(ffc f) {
 //Functions for those who are not comfortable with binary
 //Returns true if the left mouse button is pressed
 bool InputLeftClick() {
-	return (Link->InputMouseB&MB_LEFTCLICK) != 0;
+	return (Link->InputMouseB&MB_LEFTCLICK);
 }
 
 //Returns true if the right mouse button is pressed
 bool InputRightClick() {
-	return (Link->InputMouseB&MB_RIGHTCLICK) != 0;
+	return (Link->InputMouseB&MB_RIGHTCLICK);
 }
 
 //Returns the item ID of the item equipped to Link's A button
@@ -1073,7 +1073,7 @@ int ScreenEFlag(int category, int flag) {
 
 //Returns true if DMap Flag 'flag' is set on dmap 'dmap'
 bool GetDMapFlag(int dmap, int flag){
-	return (Game->DMapFlags[dmap]&flag)!=0;
+	return (Game->DMapFlags[dmap]&flag);
 }
 
 //Sets a certain DMap flag to 'state'
@@ -1085,7 +1085,7 @@ void SetDMapFlag(int dmap, int flag, bool state){
 //Returns true if an item's Pickup state is set
 //Use the IP_ constants for the 'pickup' argument of this function
 bool GetItemPickup(item i, int pickup) {
-	return (i->Pickup&pickup) != 0;
+	return (i->Pickup&pickup);
 }
 
 //Sets an item's Pickup state to 'state'
@@ -1096,17 +1096,17 @@ void SetItemPickup(item i, int pickup, bool state) {
 
 //Returns true if an npc's Misc. flag is set.
 bool GetNPCMiscFlag(npc e, int flag) {
-	return (e->MiscFlags&flag) != 0;
+	return (e->MiscFlags&flag);
 }
 
 //Returns true if Link has the level item 'itm' from level 'level'
 //Overloaded to use the current level if no 'level' arg is entered
 //Use the LI_ constants for the 'itm' argument
 bool GetLevelItem(int level, int itm) {
-	return (Game->LItems[level]&itm) != 0;
+	return (Game->LItems[level]&itm);
 }
 bool GetLevelItem(int itm) {
-	return (Game->LItems[Game->GetCurLevel()]&itm) != 0;
+	return (Game->LItems[Game->GetCurLevel()]&itm);
 }
 //Gives or removes a level item from Link's inventory
 void SetLevelItem(int level, int itm, bool state) {
@@ -1695,6 +1695,47 @@ itemdata GetItemData(item i)
 	return Game->LoadItemData(i->ID);
 }
 
+//Returns the item ID of the item with the highest level of a given class that Link owns. 
+//Returns -1 on failure. 
+//Note that this may be a slow process if used in iteration, because of the array sorting involved! -Z
+int GetHighestLevelItemOwned(int itemclass)
+{
+	itemdata id;
+	int ret = -1;
+	int items[256]; //holds the level of each item
+	int levels[8];  //holds the item ID of each level (1 to 8)
+	int i; int lv;
+	int curitem = -1; 
+	//143 is default max items, increase if you add lots of your own
+	for( i = 0; i <= 255; i++)
+	{
+		id = Game->LoadItemData(i);
+		if(id->Family != itemclass)
+			continue;
+		
+		items[i] = id->Level;
+	}
+	//Sort the ids of the levels
+	for ( i = 0; i < 256; i++ )
+	{
+		if ( items[i] > 0 ) 
+		{
+			lv = items[i];
+			levels[lv] = i;
+		}
+	}
+	
+	//Determine if Link owns any of the items in levels
+	for ( i = 0; i < 8; i++ )
+	{
+		//Trace(levels[i]);
+		if ( Link->Item[ levels[i] ] ) 
+		{
+			curitem = levels[i];
+		}
+	}
+	return curitem;
+}
 
 
 int GetHighestLevelItem(int itemclass)
@@ -1941,5 +1982,56 @@ void DCounterReduce(int counter, int amount){
 
 //Returns true if the central mouse button (if equipped) is pressed
 bool InputMiddleClick() {
-	return (Link->InputMouseB&MB_MIDDLECLICK) != 0;
+	return (Link->InputMouseB&MB_MIDDLECLICK);
 }
+
+
+//Returns the number of enemy NPCs on the current screen.
+int NumberEnemies()
+{
+	int count;
+	for ( int q = Screen->NumNPCs(); q > 0; --q )
+	{
+		npc n = Screen->LoadNPC(q); 
+		if ( n->Type != NPCT_PROJECTILE )
+		{
+			if ( !(n->MiscFlags&NPCMF_NOT_BEATABLE) )
+			{
+				if ( n->Type != NPCT_FAIRY )
+				{
+					if ( n->Type != NPCT_GUY )
+					{
+						++count;
+					}
+				}
+			}
+		}
+	}
+	return count;
+}
+			
+
+//Returns if there are enemy NPCs alive on the current screen.
+bool EnemiessAlive()
+{
+	bool alive = false; 
+	for ( int q = Screen->NumNPCs(); q > 0; --q )
+	{
+		npc n = Screen->LoadNPC(q); 
+		if ( n->Type != NPCT_PROJECTILE )
+		{
+			if ( !(n->MiscFlags&NPCMF_NOT_BEATABLE) )
+			{
+				if ( n->Type != NPCT_FAIRY )
+				{
+					if ( n->Type != NPCT_GUY )
+					{
+						alive = true;
+					}
+				}
+			}
+		}
+	}
+	return alive;
+}
+			
