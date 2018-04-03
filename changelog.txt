@@ -1,5 +1,10 @@
 //2.54 Changes
 
+//Alpha 25
+Added a compatibility fix for DrawInteger() and DrawCharacter() for quests made
+	using the old (broken) scaling factors. ( ZoriaRPG, 4th April, 2018 )
+	* Also implemented in 2.53.0 Beta 15
+	
 //Alpha 24
 Added byte ScriptGeneratd param to weapon.add() 
 Fixed default weapon sprites for Gleeok, Fire Gleeok, Gohma, and Aquamentus
@@ -623,10 +628,12 @@ Debug->GetFFCPointer(), SetFFCPointer(), GetItemPointer(), SetItemPointer(), Get
 	SetEWeaponPointer(), RefFFC, RefItem, RefItemdata, RefLWeapon, RefEWeapon, RefNPC, SP
 ,
 
-//2.53 Changes
+ChangeLog for 2.53.0 Beta 15
 
-ChangeLog for 2.53.0 Beta 14
+Added a compatibility fix for DrawInteger() and DrawCharacter() for quests made
+	using the old (broken) scaling factors. ( ZoriaRPG, 4th April, 2018 )
 
+//Beta 14
 Added Extra Rule for older quests so that swords with a magic cost only apply it to beams,
 	and backported it to 2.53.0. 
 	!! This needs to be an item editor flagset: Beams use Magic, Blade Uses Magic
