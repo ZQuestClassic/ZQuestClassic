@@ -1369,7 +1369,7 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    int bg_color=sdci[6]/10000; //-1 = transparent
 	    int w=sdci[7]/10000;
 	    int h=sdci[8]/10000;
-	    float number=static_cast<float>(sdci[9])/10000.0f;
+	    //float number=static_cast<float>(sdci[9])/10000.0f;
 	    int decplace=sdci[10]/10000;
 	    int opacity=sdci[11]/10000;
 	    
@@ -1384,26 +1384,30 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    
 	    switch(decplace)
 	    {
-	    default:
-	    case 0:
-		sprintf(numbuf,"%d",int(number));
-		break;
-		
-	    case 1:
-		sprintf(numbuf,"%.01f",number);
-		break;
-		
-	    case 2:
-		sprintf(numbuf,"%.02f",number);
-		break;
-		
-	    case 3:
-		sprintf(numbuf,"%.03f",number);
-		break;
-		
-	    case 4:
-		sprintf(numbuf,"%.04f",number);
-		break;
+		    default:
+		    case 0:
+			sprintf(numbuf,"%d",(sdci[9]/10000)); //For some reason, static casting for zero decimal places was
+			break;					//reducing the value by -1, so 8.000 printed as '7'. -Z
+			
+		    case 1:
+			//sprintf(numbuf,"%.01f",number);
+			sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower? 
+			break;
+			
+		    case 2:
+			//sprintf(numbuf,"%.02f",number);
+			sprintf(numbuf,"%.02f",(static_cast<float>(sdci[9])/10000.0f));
+			break;
+			
+		    case 3:
+			//sprintf(numbuf,"%.03f",number);
+			sprintf(numbuf,"%.03f",(static_cast<float>(sdci[9])/10000.0f));
+			break;
+			
+		    case 4:
+			//sprintf(numbuf,"%.04f",number);
+			sprintf(numbuf,"%.04f",(static_cast<float>(sdci[9])/10000.0f));
+			break;
 	    }
 	    
 	    if(w>0&&h>0)//stretch
@@ -1496,30 +1500,30 @@ void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    
 	    switch(decplace)
 	    {
-	    default:
-	    case 0:
-		sprintf(numbuf,"%d",(sdci[9]/10000)); //For some reason, static casting for zero decimal places was
-		break;					//reducing the value by -1, so 8.000 printed as '7'. -Z
-		
-	    case 1:
-		//sprintf(numbuf,"%.01f",number);
-		sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower? 
-		break;
-		
-	    case 2:
-		//sprintf(numbuf,"%.02f",number);
-		sprintf(numbuf,"%.02f",(static_cast<float>(sdci[9])/10000.0f));
-		break;
-		
-	    case 3:
-		//sprintf(numbuf,"%.03f",number);
-		sprintf(numbuf,"%.03f",(static_cast<float>(sdci[9])/10000.0f));
-		break;
-		
-	    case 4:
-		//sprintf(numbuf,"%.04f",number);
-		sprintf(numbuf,"%.04f",(static_cast<float>(sdci[9])/10000.0f));
-		break;
+		    default:
+		    case 0:
+			sprintf(numbuf,"%d",(sdci[9]/10000)); //For some reason, static casting for zero decimal places was
+			break;					//reducing the value by -1, so 8.000 printed as '7'. -Z
+			
+		    case 1:
+			//sprintf(numbuf,"%.01f",number);
+			sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower? 
+			break;
+			
+		    case 2:
+			//sprintf(numbuf,"%.02f",number);
+			sprintf(numbuf,"%.02f",(static_cast<float>(sdci[9])/10000.0f));
+			break;
+			
+		    case 3:
+			//sprintf(numbuf,"%.03f",number);
+			sprintf(numbuf,"%.03f",(static_cast<float>(sdci[9])/10000.0f));
+			break;
+			
+		    case 4:
+			//sprintf(numbuf,"%.04f",number);
+			sprintf(numbuf,"%.04f",(static_cast<float>(sdci[9])/10000.0f));
+			break;
 	    }
 	    
 	    //FONT* font=get_zc_font(sdci[4]/10000);
