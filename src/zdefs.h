@@ -98,10 +98,10 @@
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       40                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.54 Alpha 24"                    //version of the program as presented in text
-#define IS_BETA             -24                              //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        24
-#define DATE_STR            "1st April,, 2018"
+#define ZELDA_VERSION_STR   "2.54 Alpha 25"                    //version of the program as presented in text
+#define IS_BETA             -25                              //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        25
+#define DATE_STR            "4th April,, 2018"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -823,7 +823,7 @@ enum extraRules
 {
     er_BITMAPOFFSET, er_SHORTDGNWALK,
 	er_MAGICCOSTSWORD, //BEAMS Only
-	er_NOGANONINTRO, //Ganon DMap Intro
+	er_BROKENCHARINTDRAWING, //pre-2.53 fix to DrawInteger() and DrarCharacter() -Z
     er_MAX
 };
 

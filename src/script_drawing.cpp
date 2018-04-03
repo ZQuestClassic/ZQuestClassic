@@ -1219,205 +1219,409 @@ void do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 void do_drawcharr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
-    //sdci[1]=layer
-    //sdci[2]=x
-    //sdci[3]=y
-    //sdci[4]=font
-    //sdci[5]=color
-    //sdci[6]=bg color
-    //sdci[7]=strech x (width)
-    //sdci[8]=stretch y (height)
-    //sdci[9]=char
-    //sdci[10]=opacity
+	//broken 2.50.2 and earlier drawcharacter()
+	if ( get_bit(extra_rules, er_BROKENCHARINTDRAWING) )
+	{
+		//sdci[1]=layer
+		    //sdci[2]=x
+		    //sdci[3]=y
+		    //sdci[4]=font
+		    //sdci[5]=color
+		    //sdci[6]=bg color
+		    //sdci[7]=strech x (width)
+		    //sdci[8]=stretch y (height)
+		    //sdci[9]=char
+		    //sdci[10]=opacity
+		    
+		    int x=sdci[2]/10000;
+		    int y=sdci[3]/10000;
+		    int font_index=sdci[4]/10000;
+		    int color=sdci[5]/10000;
+		    int bg_color=sdci[6]/10000; //-1 = transparent
+		    int w=sdci[7]/10000;
+		    int h=sdci[8]/10000;
+		    char glyph=char(sdci[9]/10000);
+		    int opacity=sdci[10]/10000;
+		    
+		    //safe check
+		    if(bg_color < -1) bg_color = -1;
+		    
+		    if(w>512) w=512; //w=vbound(w,0,512);
+		    
+		    if(h>512) h=512; //h=vbound(h,0,512);
+		    
+		    //undone
+		    if(w>0&&h>0)//stretch the character
+		    {
+			BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
+			
+			if(opacity < 128)
+			{
+			    if(w>128||h>128)
+			    {
+				clear_bitmap(prim_bmp);
+				
+				textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
+				stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
+				draw_trans_sprite(bmp, prim_bmp, x+xoffset, y+yoffset);
+			    }
+			    else //this is faster
+			    {
+				BITMAP *pbmp2 = script_drawing_commands.AquireSubBitmap(w,h);
+				
+				textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
+				stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
+				draw_trans_sprite(bmp, pbmp2, x+xoffset, y+yoffset);
+				
+				script_drawing_commands.ReleaseSubBitmap(pbmp2);
+			    }
+			}
+			else // no opacity
+			{
+			    textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
+			    stretch_sprite(bmp, pbmp, x+xoffset, y+yoffset, w, h);
+			}
+			
+		    }
+		    else //no stretch
+		    {
+			if(opacity < 128)
+			{
+			    BITMAP *pbmp = create_sub_bitmap(prim_bmp,0,0,16,16);
+			    clear_bitmap(pbmp);
+			    
+			    textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
+			    draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
+			    
+			    destroy_bitmap(pbmp);
+			}
+			else // no opacity
+			{
+			    textprintf_ex(bmp, get_zc_font(font_index), x+xoffset, y+yoffset, color, bg_color, "%c", glyph);
+			}
+		    }		
+	}
+	
+	else //2.53.0 fixed version and later.
+	{
+	
+		//sdci[1]=layer
+		    //sdci[2]=x
+		    //sdci[3]=y
+		    //sdci[4]=font
+		    //sdci[5]=color
+		    //sdci[6]=bg color
+		    //sdci[7]=strech x (width)
+		    //sdci[8]=stretch y (height)
+		    //sdci[9]=char
+		    //sdci[10]=opacity
+		    
+		    int x=sdci[2]/10000;
+		    int y=sdci[3]/10000;
+		    int font_index=sdci[4]/10000;
+		    int color=sdci[5]/10000;
+		    int bg_color=sdci[6]/10000; //-1 = transparent
+		    int w=sdci[7]/10000;
+		    int h=sdci[8]/10000;
+		    char glyph=char(sdci[9]/10000);
+		    int opacity=sdci[10]/10000;
+		    
+		    //safe check
+		    if(bg_color < -1) bg_color = -1;
+		    
+		    if(w>512) w=512; //w=vbound(w,0,512);
+		    
+		    if(h>512) h=512; //h=vbound(h,0,512);
+		    
+		    //undone
+		    if(w>0&&h>0)//stretch the character
+		    {
+			BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
+			
+			if(opacity < 128)
+			{
+			    if(w>128||h>128)
+			    {
+				clear_bitmap(prim_bmp);
+				
+				textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
+				stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
+				draw_trans_sprite(bmp, prim_bmp, x+xoffset, y+yoffset);
+			    }
+			    else //this is faster
+			    {
+				BITMAP *pbmp2 = script_drawing_commands.AquireSubBitmap(w,h);
+				
+				textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
+				stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
+				draw_trans_sprite(bmp, pbmp2, x+xoffset, y+yoffset);
+				
+				script_drawing_commands.ReleaseSubBitmap(pbmp2);
+			    }
+			}
+			else // no opacity
+			{
+			    textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
+			    stretch_sprite(bmp, pbmp, x+xoffset, y+yoffset, w, h);
+			}
+			
+		    }
+		    else //no stretch
+		    {
+			if(opacity < 128)
+			{
+			    BITMAP *pbmp = create_sub_bitmap(prim_bmp,0,0,16,16);
+			    clear_bitmap(pbmp);
+			    
+			    textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
+			    draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
+			    
+			    destroy_bitmap(pbmp);
+			}
+			else // no opacity
+			{
+			    textprintf_ex(bmp, get_zc_font(font_index), x+xoffset, y+yoffset, color, bg_color, "%c", glyph);
+			}
+		    }		
+		
+	}
     
-    int x=sdci[2]/10000;
-    int y=sdci[3]/10000;
-    int font_index=sdci[4]/10000;
-    int color=sdci[5]/10000;
-    int bg_color=sdci[6]/10000; //-1 = transparent
-    int w=sdci[7]/10000;
-    int h=sdci[8]/10000;
-    char glyph=char(sdci[9]/10000);
-    int opacity=sdci[10]/10000;
-    
-    //safe check
-    if(bg_color < -1) bg_color = -1;
-    
-    if(w>512) w=512; //w=vbound(w,0,512);
-    
-    if(h>512) h=512; //h=vbound(h,0,512);
-    
-    //undone
-    if(w>0&&h>0)//stretch the character
-    {
-        BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
-        
-        if(opacity < 128)
-        {
-            if(w>128||h>128)
-            {
-                clear_bitmap(prim_bmp);
-                
-                textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
-                stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
-                draw_trans_sprite(bmp, prim_bmp, x+xoffset, y+yoffset);
-            }
-            else //this is faster
-            {
-                BITMAP *pbmp2 = script_drawing_commands.AquireSubBitmap(w,h);
-                
-                textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
-                stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
-                draw_trans_sprite(bmp, pbmp2, x+xoffset, y+yoffset);
-                
-                script_drawing_commands.ReleaseSubBitmap(pbmp2);
-            }
-        }
-        else // no opacity
-        {
-            textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
-            stretch_sprite(bmp, pbmp, x+xoffset, y+yoffset, w, h);
-        }
-        
-    }
-    else //no stretch
-    {
-        if(opacity < 128)
-        {
-            BITMAP *pbmp = create_sub_bitmap(prim_bmp,0,0,16,16);
-            clear_bitmap(pbmp);
-            
-            textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
-            draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
-            
-            destroy_bitmap(pbmp);
-        }
-        else // no opacity
-        {
-            textprintf_ex(bmp, get_zc_font(font_index), x+xoffset, y+yoffset, color, bg_color, "%c", glyph);
-        }
-    }
 }
 
 
 void do_drawintr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
-    //sdci[1]=layer
-    //sdci[2]=x
-    //sdci[3]=y
-    //sdci[4]=font
-    //sdci[5]=color
-    //sdci[6]=bg color
-    //sdci[7]=strech x (width)
-    //sdci[8]=stretch y (height)
-    //sdci[9]=integer
-    //sdci[10]=num decimal places
-    //sdci[11]=opacity
-    
-    int x=sdci[2]/10000;
-    int y=sdci[3]/10000;
-    int font_index=sdci[4]/10000;
-    int color=sdci[5]/10000;
-    int bg_color=sdci[6]/10000; //-1 = transparent
-    int w=sdci[7]/10000;
-    int h=sdci[8]/10000;
-    //float number=static_cast<float>(sdci[9])/10000.0f;
-	//int numberint = sdci[9]/10000;
-    int decplace=sdci[10]/10000;
-    int opacity=sdci[11]/10000;
-    
-    //safe check
-    if(bg_color < -1) bg_color = -1;
-    
-    if(w>512) w=512; //w=vbound(w,0,512);
-    
-    if(h>512) h=512; //h=vbound(h,0,512);
-    
-    char numbuf[15];
-    
-    switch(decplace)
-    {
-    default:
-    case 0:
-	sprintf(numbuf,"%d",(sdci[9]/10000)); //For some reason, static casting for zero decimal places was
-        break;					//reducing the value by -1, so 8.000 printed as '7'. -Z
-        
-    case 1:
-        //sprintf(numbuf,"%.01f",number);
-	sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower? 
-        break;
-        
-    case 2:
-        //sprintf(numbuf,"%.02f",number);
-	sprintf(numbuf,"%.02f",(static_cast<float>(sdci[9])/10000.0f));
-        break;
-        
-    case 3:
-        //sprintf(numbuf,"%.03f",number);
-	sprintf(numbuf,"%.03f",(static_cast<float>(sdci[9])/10000.0f));
-        break;
-        
-    case 4:
-        //sprintf(numbuf,"%.04f",number);
-	sprintf(numbuf,"%.04f",(static_cast<float>(sdci[9])/10000.0f));
-        break;
-    }
-    
-    //FONT* font=get_zc_font(sdci[4]/10000);
-    
-    if(w>0&&h>0)//stretch
-    {
-        BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, text_length(get_zc_font(font_index), numbuf)+1, text_height(get_zc_font(font_index)));
-        clear_bitmap(pbmp);
-	    //script_drawing_commands.GetSmallTextureBitmap(1,1);
-        
-        if(opacity < 128)
-        {
-            if(w>128||h>128)
-            {
-                clear_bitmap(prim_bmp);
-                
-                textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
-                stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
-                draw_trans_sprite(bmp, prim_bmp, x+xoffset, y+yoffset);
-            }
-            else
-            {
-                BITMAP *pbmp2 = create_sub_bitmap(prim_bmp,0,0,w,h);
-                clear_bitmap(pbmp2);
-                
-                textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
-                stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
-                draw_trans_sprite(bmp, pbmp2, x+xoffset, y+yoffset);
-                
-                destroy_bitmap(pbmp2);
-            }
-        }
-        else // no opacity
-        {
-            textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
-            stretch_sprite(bmp, pbmp, x+xoffset, y+yoffset, w, h);
-        }
-        
-    }
-    else //no stretch
-    {
-        if(opacity < 128)
-        {
-            FONT* font = get_zc_font(font_index);
-            BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, text_length(font, numbuf), text_height(font));
-            clear_bitmap(pbmp);
-            
-            textout_ex(pbmp, font, numbuf, 0, 0, color, bg_color);
-            draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
-            
-            destroy_bitmap(pbmp);
-        }
-        else // no opacity
-        {
-            textout_ex(bmp, get_zc_font(font_index), numbuf, x+xoffset, y+yoffset, color, bg_color);
-        }
-    }
+	//broken 2.50.2 and earlier drawinteger()
+	if ( get_bit(extra_rules, er_BROKENCHARINTDRAWING) )
+	{
+	    //sdci[1]=layer
+	    //sdci[2]=x
+	    //sdci[3]=y
+	    //sdci[4]=font
+	    //sdci[5]=color
+	    //sdci[6]=bg color
+	    //sdci[7]=strech x (width)
+	    //sdci[8]=stretch y (height)
+	    //sdci[9]=integer
+	    //sdci[10]=num decimal places
+	    //sdci[11]=opacity
+	    
+	    int x=sdci[2]/10000;
+	    int y=sdci[3]/10000;
+	    int font_index=sdci[4]/10000;
+	    int color=sdci[5]/10000;
+	    int bg_color=sdci[6]/10000; //-1 = transparent
+	    int w=sdci[7]/10000;
+	    int h=sdci[8]/10000;
+	    float number=static_cast<float>(sdci[9])/10000.0f;
+	    int decplace=sdci[10]/10000;
+	    int opacity=sdci[11]/10000;
+	    
+	    //safe check
+	    if(bg_color < -1) bg_color = -1;
+	    
+	    if(w>512) w=512; //w=vbound(w,0,512);
+	    
+	    if(h>512) h=512; //h=vbound(h,0,512);
+	    
+	    char numbuf[15];
+	    
+	    switch(decplace)
+	    {
+	    default:
+	    case 0:
+		sprintf(numbuf,"%d",int(number));
+		break;
+		
+	    case 1:
+		sprintf(numbuf,"%.01f",number);
+		break;
+		
+	    case 2:
+		sprintf(numbuf,"%.02f",number);
+		break;
+		
+	    case 3:
+		sprintf(numbuf,"%.03f",number);
+		break;
+		
+	    case 4:
+		sprintf(numbuf,"%.04f",number);
+		break;
+	    }
+	    
+	    if(w>0&&h>0)//stretch
+	    {
+		BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
+		
+		if(opacity < 128)
+		{
+		    if(w>128||h>128)
+		    {
+			clear_bitmap(prim_bmp);
+			
+			textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
+			stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
+			draw_trans_sprite(bmp, prim_bmp, x+xoffset, y+yoffset);
+		    }
+		    else
+		    {
+			BITMAP *pbmp2 = create_sub_bitmap(prim_bmp,0,0,w,h);
+			clear_bitmap(pbmp2);
+			
+			textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
+			stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
+			draw_trans_sprite(bmp, pbmp2, x+xoffset, y+yoffset);
+			
+			destroy_bitmap(pbmp2);
+		    }
+		}
+		else // no opacity
+		{
+		    textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
+		    stretch_sprite(bmp, pbmp, x+xoffset, y+yoffset, w, h);
+		}
+		
+	    }
+	    else //no stretch
+	    {
+		if(opacity < 128)
+		{
+		    BITMAP *pbmp = create_sub_bitmap(prim_bmp,0,0,16,16);
+		    clear_bitmap(pbmp);
+		    
+		    textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
+		    draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
+		    
+		    destroy_bitmap(pbmp);
+		}
+		else // no opacity
+		{
+		    textout_ex(bmp, get_zc_font(font_index), numbuf, x+xoffset, y+yoffset, color, bg_color);
+		}
+	    }
+		
+	}
+	
+	else //2.53.0 fixed version and later.
+	{
+	    //sdci[1]=layer
+	    //sdci[2]=x
+	    //sdci[3]=y
+	    //sdci[4]=font
+	    //sdci[5]=color
+	    //sdci[6]=bg color
+	    //sdci[7]=strech x (width)
+	    //sdci[8]=stretch y (height)
+	    //sdci[9]=integer
+	    //sdci[10]=num decimal places
+	    //sdci[11]=opacity
+	    
+	    int x=sdci[2]/10000;
+	    int y=sdci[3]/10000;
+	    int font_index=sdci[4]/10000;
+	    int color=sdci[5]/10000;
+	    int bg_color=sdci[6]/10000; //-1 = transparent
+	    int w=sdci[7]/10000;
+	    int h=sdci[8]/10000;
+	    //float number=static_cast<float>(sdci[9])/10000.0f;
+		//int numberint = sdci[9]/10000;
+	    int decplace=sdci[10]/10000;
+	    int opacity=sdci[11]/10000;
+	    
+	    //safe check
+	    if(bg_color < -1) bg_color = -1;
+	    
+	    if(w>512) w=512; //w=vbound(w,0,512);
+	    
+	    if(h>512) h=512; //h=vbound(h,0,512);
+	    
+	    char numbuf[15];
+	    
+	    switch(decplace)
+	    {
+	    default:
+	    case 0:
+		sprintf(numbuf,"%d",(sdci[9]/10000)); //For some reason, static casting for zero decimal places was
+		break;					//reducing the value by -1, so 8.000 printed as '7'. -Z
+		
+	    case 1:
+		//sprintf(numbuf,"%.01f",number);
+		sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower? 
+		break;
+		
+	    case 2:
+		//sprintf(numbuf,"%.02f",number);
+		sprintf(numbuf,"%.02f",(static_cast<float>(sdci[9])/10000.0f));
+		break;
+		
+	    case 3:
+		//sprintf(numbuf,"%.03f",number);
+		sprintf(numbuf,"%.03f",(static_cast<float>(sdci[9])/10000.0f));
+		break;
+		
+	    case 4:
+		//sprintf(numbuf,"%.04f",number);
+		sprintf(numbuf,"%.04f",(static_cast<float>(sdci[9])/10000.0f));
+		break;
+	    }
+	    
+	    //FONT* font=get_zc_font(sdci[4]/10000);
+	    
+	    if(w>0&&h>0)//stretch
+	    {
+		BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, text_length(get_zc_font(font_index), numbuf)+1, text_height(get_zc_font(font_index)));
+		clear_bitmap(pbmp);
+		    //script_drawing_commands.GetSmallTextureBitmap(1,1);
+		
+		if(opacity < 128)
+		{
+		    if(w>128||h>128)
+		    {
+			clear_bitmap(prim_bmp);
+			
+			textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
+			stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
+			draw_trans_sprite(bmp, prim_bmp, x+xoffset, y+yoffset);
+		    }
+		    else
+		    {
+			BITMAP *pbmp2 = create_sub_bitmap(prim_bmp,0,0,w,h);
+			clear_bitmap(pbmp2);
+			
+			textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
+			stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
+			draw_trans_sprite(bmp, pbmp2, x+xoffset, y+yoffset);
+			
+			destroy_bitmap(pbmp2);
+		    }
+		}
+		else // no opacity
+		{
+		    textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
+		    stretch_sprite(bmp, pbmp, x+xoffset, y+yoffset, w, h);
+		}
+		
+	    }
+	    else //no stretch
+	    {
+		if(opacity < 128)
+		{
+		    FONT* font = get_zc_font(font_index);
+		    BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, text_length(font, numbuf), text_height(font));
+		    clear_bitmap(pbmp);
+		    
+		    textout_ex(pbmp, font, numbuf, 0, 0, color, bg_color);
+		    draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
+		    
+		    destroy_bitmap(pbmp);
+		}
+		else // no opacity
+		{
+		    textout_ex(bmp, get_zc_font(font_index), numbuf, x+xoffset, y+yoffset, color, bg_color);
+		}
+	    }
+	}
 }
 
 

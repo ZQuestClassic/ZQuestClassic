@@ -2556,6 +2556,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         set_bit(extra_rules, er_MAGICCOSTSWORD, 1);
         set_bit(quest_rules, qr_NOGANONINTRO, 0);
+	set_bit(extra_rules, er_BROKENCHARINTDRAWING, 1);
     }
     
     if(tempheader.zelda_version < 0x193)
