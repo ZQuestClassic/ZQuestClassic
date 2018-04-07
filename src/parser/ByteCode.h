@@ -1042,8 +1042,12 @@ using namespace std;
 #define LINKDEFENCE 		977
 #define NPCHITBY 		978
 #define NPCISCORE 		979
+#define NPCSCRIPTUID 		980
+#define LWEAPONSCRIPTUID 	981
+#define EWEAPONSCRIPTUID 	982
+#define ITEMSCRIPTUID 		983
 
-#define LAST_BYTECODE 			980
+#define LAST_BYTECODE 			984
 
 //END OF BYTECODE
 

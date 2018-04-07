@@ -1650,6 +1650,14 @@ long get_register(const long arg)
         }
         
         break;
+	
+    case ITEMSCRIPTUID:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((int)((item*)(s))->script_UID); //Literal, not *10000
+        }
+        
+        break;
         
     case ITEMY:
         if(0!=(s=checkItem(ri->itemref)))
@@ -2422,6 +2430,14 @@ long get_register(const long arg)
             ret = ((GuyH::getNPC()->isCore) ? 10000 : 0);
             
         break;
+	
+    case NPCSCRIPTUID:
+        if(GuyH::loadNPC(ri->guyref, "npc->ScriptUID") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = ((GuyH::getNPC()->getScriptUID())); //literal, not *10000
+            
+        break;
         
     case NPCMFLAGS:
         if(GuyH::loadNPC(ri->guyref, "npc->MiscFlags") != SH::_NoError)
@@ -2819,6 +2835,13 @@ long get_register(const long arg)
             ret=(((weapon*)(s))->type)*10000;
             
         break;
+	
+    case LWEAPONSCRIPTUID:
+	if(0!=(s=checkLWpn(ri->lwpn,"ScriptUID")))
+            ret=(((weapon*)(s))->getScriptUID()); //literal, not *10000
+            
+        break;
+	
     
         
 ///----------------------------------------------------------------------------------------------------//
@@ -3049,6 +3072,12 @@ long get_register(const long arg)
     case EWPNPARENT:
         if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
             ret=(((weapon*)(s))->parentid)*10000;
+            
+        break;
+
+    case EWEAPONSCRIPTUID:
+	if(0!=(s=checkLWpn(ri->ewpn,"ScriptUID")))
+            ret=(((weapon*)(s))->getScriptUID()); //literal, not *10000
             
         break;
         
@@ -15758,6 +15787,12 @@ int FFScript::getLinkAction()
 }
 //get_bit
 
+int FFScript::GetScriptObjectUID(int type)
+{
+	++script_UIDs[type];
+	return script_UIDs[type];
+}
+
 /*
 FFScript::FFScript()
 {
@@ -15767,6 +15802,7 @@ FFScript::FFScript()
 void FFScript::init()
 {
 	coreflags = 0;
+	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	setFFRules(); //copy the quest rules over. 
 	long usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;

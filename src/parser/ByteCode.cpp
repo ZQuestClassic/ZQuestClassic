@@ -1647,6 +1647,10 @@ string VarArgument::toString()
 	case LINKDEFENCE: return "LINKDEFENCE";
 	case NPCHITBY: return "NPCHITBY";
 	case NPCISCORE: return "NPCISCORE";
+	case NPCSCRIPTUID: return "NPCSCRIPTUID";
+	case LWEAPONSCRIPTUID: return "LWEAPONSCRIPTUID";
+	case EWEAPONSCRIPTUID: return "EWEAPONSCRIPTUID";
+	case ITEMSCRIPTUID: return "ITEMSCRIPTUID";
     default:
     {
         sprintf(temp, "d%d", ID);

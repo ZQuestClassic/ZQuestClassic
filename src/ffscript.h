@@ -42,6 +42,12 @@ enum {
 		scdrDRAW_DURING_WIPES, scdrLAST
 	};
 
+enum
+{
+	UID_TYPE_NPC, UID_TYPE_WEAPON, UID_TYPE_ITEM, UID_TYPES
+};
+
+
 class FFScript
 {
 	
@@ -64,6 +70,7 @@ void do_adjustvolume(const bool v);
 //static void init();
 
 long coreflags;
+long script_UIDs[UID_TYPES];
 long usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
 #define FFRULES_SIZE 512
 byte FF_rules[FFRULES_SIZE]; //For Migration of Quest Rules, and Scritp Engine Rules
@@ -102,6 +109,8 @@ int getSubscreenScrollSpeed();
 void do_fx_zap(const bool v);
 void do_fx_wavy(const bool v);
 void do_greyscale(const bool v);
+
+int GetScriptObjectUID(int type);
     
 byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
 				//so that they do not play every time an item is collected, unless one of the flags is set for it.
@@ -2631,10 +2640,14 @@ enum ASM_DEFINE
 #define COMBODWHISTLE		0x1307	//C
 #define COMBODWINGAME		0x1308	//C
 #define COMBODBLOCKWPNLEVEL	0x1309	//C
-#define LINKHITBY	0x130A	//byte[4]
-#define LINKDEFENCE	0x130B	//byte[256]
-#define NPCHITBY	0x130C	//byte[4]
-#define NPCISCORE	0x130D	//byte[4]
+#define LINKHITBY		0x130A	//byte[4]
+#define LINKDEFENCE		0x130B	//byte[256]
+#define NPCHITBY		0x130C	//byte[4]
+#define NPCISCORE		0x130D	//byte[4]
+#define NPCSCRIPTUID		0x130E	//byte[4]
+#define LWEAPONSCRIPTUID	0x130F	//byte[4]
+#define EWEAPONSCRIPTUID	0x1310	//byte[4]
+#define ITEMSCRIPTUID		0x1311	//byte[4]
 
 //bytecode
 
@@ -2642,7 +2655,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x130E
+#define NUMVARIABLES         0x1312
 
 // Script types
 

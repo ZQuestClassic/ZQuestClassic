@@ -1666,6 +1666,10 @@ script_variable variable_list[]=
 	{"LINKDEFENCE", LINKDEFENCE, 0, 0 },
 	{"NPCHITBY", NPCHITBY, 0, 0 },
 	{"NPCISCORE", NPCISCORE, 0, 0 },
+	{"NPCSCRIPTUID", NPCSCRIPTUID, 0, 0 },
+	{"LWEAPONSCRIPTUID", LWEAPONSCRIPTUID, 0, 0 },
+	{"EWEAPONSCRIPTUID", EWEAPONSCRIPTUID, 0, 0 },
+	{"ITEMSCRIPTUID", ITEMSCRIPTUID, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
