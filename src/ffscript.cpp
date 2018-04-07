@@ -2838,7 +2838,7 @@ long get_register(const long arg)
 	
     case LWEAPONSCRIPTUID:
 	if(0!=(s=checkLWpn(ri->lwpn,"ScriptUID")))
-            ret=(((weapon*)(s))->getScriptUID()); //literal, not *10000
+            ret=(((weapon*)(s))->script_UID); //literal, not *10000
             
         break;
 	
@@ -3074,12 +3074,25 @@ long get_register(const long arg)
             ret=(((weapon*)(s))->parentid)*10000;
             
         break;
-
+	
+    case EWEAPONSCRIPTUID:
+        if(0!=(s=checkEWpn(ri->ewpn, "ScriptUID")))
+            ret=(((weapon*)(s))->script_UID); //literal, not *10000
+            
+        break;
+	
+	/*
+	case LWEAPONSCRIPTUID:
+	if(0!=(s=checkLWpn(ri->lwpn,"ScriptUID")))
+            ret=(((weapon*)(s))->getScriptUID()); //literal, not *10000
+            
+        break;
     case EWEAPONSCRIPTUID:
 	if(0!=(s=checkLWpn(ri->ewpn,"ScriptUID")))
             ret=(((weapon*)(s))->getScriptUID()); //literal, not *10000
             
         break;
+	*/
         
 ///----------------------------------------------------------------------------------------------------//
 //Game Info

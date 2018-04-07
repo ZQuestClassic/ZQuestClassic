@@ -193,6 +193,10 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
 
     #ifndef IS_ZQUEST
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
+	//Sadly, this also stores UIDs for all dummy objects, including subscreen and other stuff. 
+	//if ( !isDummy && ( pickup == 0x100 || pickup <= 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
+	//if it is on the screen
+	//if ( x > 0 && x < 256 && y > 56 && y < 256 && !isDummy && ( pickup == 0x100 || pickup == 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
     #endif
 	
     if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen

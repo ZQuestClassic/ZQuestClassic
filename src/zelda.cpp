@@ -1442,7 +1442,7 @@ int init_game()
     add_nl2asparkle=false;
     add_nl2bsparkle=false;
     gofast=false;
-    
+    FFCore.init();
     cheat=0;
     wavy=quakeclk=0;
     show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
@@ -1761,6 +1761,7 @@ int init_game()
 int cont_game()
 {
     //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
+	FFCore.init();
     didpit=false;
     Link.unfreeze();
     Link.reset_hookshot();
