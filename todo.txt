@@ -1,5 +1,6 @@
 To-Do
 
+Move Sideview DMaps element beneath scripts and ensure it is visible!
 FInish dmaps sideview in ZQuest and ZScript, and implement it in the engine.
 
 ->GetByUID(int script-uid) : A way to get the current screen index 
