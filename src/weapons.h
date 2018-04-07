@@ -82,6 +82,10 @@ public:
      int wpn_misc_d[FFSCRIPT_MISC];
     //! End weapon editor. -Z
     
+    int script_UID;
+    int getScriptUID();
+    void setScriptUID(int new_id);
+    
     //2.6 ZScript -Z
     int scriptrange,blastsfx;
     

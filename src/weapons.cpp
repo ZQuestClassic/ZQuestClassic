@@ -28,10 +28,12 @@
 #include "pal.h"
 #include "link.h"
 #include "mem_debug.h"
+#include "ffscript.h"
 
 extern LinkClass Link;
 extern zinitdata zinit;
 extern int directWpn;
+extern FFScript FFCore;
 
 /**************************************/
 /***********  Weapon Class  ***********/
@@ -234,7 +236,8 @@ weapon::weapon(weapon const & other):
     family_class(other.family_class),	//byte		Item Class
     family_level(other.family_level),	//byte		Item Level
     flags(other.flags),			//word		A misc flagset. 
-    collectflags(other.collectflags)	//long		A flagset that determines of the weapon can collect an item.
+    collectflags(other.collectflags),	//long		A flagset that determines of the weapon can collect an item.
+    script_UID(FFCore.GetScriptObjectUID(UID_TYPE_WEAPON))	
     
 	
 	//End Weapon editor non-arrays. 
@@ -382,6 +385,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     hysz=15;
     hzsz=8;
     isLit = false;
+	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
 		//This will need an input in the params! -Z
     
@@ -1924,6 +1928,9 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         step *=2;
     }
 }
+
+int weapon::getScriptUID() { return script_UID; }
+void weapon::setScriptUID(int new_id) { script_UID = new_id; }
 
 
 void weapon::LOADGFX(int wpn)
