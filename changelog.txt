@@ -1,5 +1,12 @@
 //2.54 Changes
 
+//Alpha 26
+Class FFScript is now shared between zc and ZQuest
+NPCs, Items, and Weapons now have special UIDs (in class FFScript) that can be used
+	to track them either in-engine, or by script. 
+Added lweapon->UID, eweapon->UID, npc->UID, and item->UID to ZScript
+	( ZoriaRPG, 7th April, 2018 )
+
 //Alpha 25
 Added a compatibility fix for DrawInteger() and DrawCharacter() for quests made
 	using the old (broken) scaling factors. ( ZoriaRPG, 4th April, 2018 )
