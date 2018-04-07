@@ -23,12 +23,17 @@
 #include "zelda.h"
 #include "zdefs.h"
 #include "mem_debug.h"
+#include "ffscript.h"
+#include "zquest.h"
 
 #include <queue>
 
 char *item_string[ITEMCNT];
 
 extern zinitdata zinit;
+#ifndef IS_ZQUEST
+	extern FFScript FFCore;
+#endif
 
 int fairy_cnt=0;
 
@@ -185,7 +190,11 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     aframe=aclk=0;
     anim=flash=twohand=subscreenItem=false;
     dummy_int[0]=PriceIndex=-1;
-    
+
+    #ifndef IS_ZQUEST
+	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
+    #endif
+	
     if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
         return;
          
@@ -287,6 +296,12 @@ void putitem(BITMAP *dest,int x,int y,int item_id)
     temp.animate(0);
     temp.draw(dest);
 }
+
+// Linker issues because this is shared with ZQu4est. :( -Z
+#ifndef IS_ZQUEST
+int item::getScriptUID() { return script_UID; }
+void item::setScriptUID(int new_id) { script_UID = new_id; }
+#endif
 
 void putitem2(BITMAP *dest,int x,int y,int item_id, int &aclk, int &aframe, int flash)
 {

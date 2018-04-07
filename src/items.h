@@ -40,12 +40,18 @@ public:
     int o_tile,o_cset, o_speed, o_delay, frames;
     word pstring; //pickup string
     word pickup_string_flags;
-
+    //int script_UID;
     int overrideFLAGS; //Override flags.
     //int weapoverrideFLAGS; 
     
     //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
-
+//Linker errors because this is shared with zquest. :( -Z
+    #ifndef IS_ZQUEST
+    int script_UID;
+    int getScriptUID();
+    void setScriptUID(int new_id);
+    #endif
+//
     item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy = false);
     virtual ~item();
     virtual bool animate(int index);

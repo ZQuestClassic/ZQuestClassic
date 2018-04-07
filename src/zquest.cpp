@@ -74,6 +74,8 @@ void setZScriptVersion(int) { } //bleh...
 
 //SDL_Surface *sdl_screen;
 
+#define IS_ZQUEST 1
+
 #ifdef ALLEGRO_DOS
 static const char *data_path_name   = "dos_data_path";
 static const char *midi_path_name   = "dos_midi_path";
@@ -137,6 +139,7 @@ FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
+FFScript FFCore;
 
 void do_previewtext();
 
@@ -22868,6 +22871,8 @@ int main(int argc,char **argv)
     
     time(&auto_save_time_start);
     
+    FFCore.init();
+    
     while(!quit)
     {
     
@@ -24537,6 +24542,99 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int li
     }
 }
 
+//FFCore
+
+int FFScript::GetScriptObjectUID(int type)
+{
+	++script_UIDs[type];
+	return script_UIDs[type];
+}
+
+void FFScript::init()
+{
+	coreflags = 0;
+	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
+	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
+	setFFRules(); //copy the quest rules over. 
+	long usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
+	FF_link_tile = 0; FF_link_action = 0;
+	for ( int q = 0; q < 4; q++ ) 
+	{
+		FF_screenbounds[q] = 0;
+		FF_screen_dimensions[q] = 0;
+		FF_subscreen_dimensions[q] = 0;
+		FF_eweapon_removal_bounds[q] = 0; 
+		FF_lweapon_removal_bounds[q] = 0;
+	}
+	for ( int q = 0; q < FFSCRIPTCLASS_CLOCKS; q++ )
+	{
+		FF_clocks[q] = 0;
+	}
+	for ( int q = 0; q < SCRIPT_DRAWING_RULES; q++ )
+	{
+		ScriptDrawingRules[q] = 0;
+	}
+	for ( int q = 0; q < NUM_USER_MIDI_OVERRIDES; q++ ) 
+	{
+		FF_UserMidis[q] = 0;
+	}
+	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
+	kb_typing_mode = false;
+	
+}
+
+void FFScript::setFFRules()
+{
+	for ( int q = 0; q < QUESTRULES_SIZE; q++ )
+	{
+		FF_rules[q] = getQRBit(q);
+	}
+	for ( int q = QUESTRULES_SIZE; q < QUESTRULES_SIZE+EXTRARULES_SIZE; q++ ) 
+	{
+		FF_rules[q] = extra_rules[q-QUESTRULES_SIZE];
+	}
+	for ( int q = QUESTRULES_SIZE+EXTRARULES_SIZE; q < FFRULES_SIZE; q++ )
+	{
+		FF_rules[q] = 0; //wipe the rest.
+	}
+	for ( int q = 0; q < 2; q++ )
+	{
+		passive_subscreen_offsets[q] = 0;
+	}
+	active_subscreen_scrollspeed_adjustment = 0;
+	//zinit.terminalv
+	FF_gravity = zinit.gravity;
+	FF_terminalv = zinit.terminalv;
+	FF_msg_speed = zinit.msg_speed;
+	FF_transition_type = zinit.transition_type; // Can't edit, yet.
+	FF_jump_link_layer_threshold = zinit.jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
+	FF_link_swim_speed = zinit.link_swim_speed;
+	for ( int q = 0; q < MAXITEMS; q++ )
+	{
+		item_messages_played[q] = 0;
+	}
+}
+
+
+void FFScript::setRule(int rule, bool s)
+{
+	FF_rules[rule] = ( s ? 1 : 0 );
+}
+
+bool FFScript::getRule(int rule)
+{
+	return ( FF_rules[rule] != 0 );
+}
+
+int FFScript::getQRBit(int rule)
+{
+	return ( get_bit(quest_rules,rule) ? 1 : 0 );
+}
+
+void FFScript::setLinkTile(int t)
+{
+	FF_link_tile = vbound(t, 0, NEWMAXTILES);
+}
 
 /* end */
 
