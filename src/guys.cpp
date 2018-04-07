@@ -25,6 +25,7 @@
 #include "mem_debug.h"
 #include "zscriptversion.h"
 
+extern FFScript FFCore;
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern zinitdata    zinit;
@@ -340,7 +341,8 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     firesfx = 0; //t.b.a -Z
     isCore = true; //t.b.a
     parentCore = 0; //t.b.a
-
+    script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+    
     if(bosspal>-1)
     {
         loadpalset(csBOSS,pSprite(bosspal));
@@ -411,6 +413,9 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
         wpn = 0;
 }
 
+
+int enemy::getScriptUID() { return script_UID; }
+void enemy::setScriptUID(int new_id) { script_UID = new_id; }
 enemy::~enemy() {}
 
 // Supplemental animation code that all derived classes should call

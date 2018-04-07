@@ -83,7 +83,9 @@ public:
     byte hitby[4];
     short firesfx;
     bool isCore;
-    short parentCore;
+    short parentCore; int script_UID;
+    int getScriptUID();
+    void setScriptUID(int new_id);
     
     fix  getX();
     fix  getY();
@@ -751,7 +753,7 @@ FONT *setmsgfont();
 bool parsemsgcode();
 void putmsg();
 int message_more_y();
-int wpnsfx(int wpn);
+int wpnsfx(int wpn); 
 
 /***  Collision detection & handling  ***/
 
