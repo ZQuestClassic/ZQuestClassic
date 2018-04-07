@@ -1,5 +1,9 @@
 To-Do
 
+
+->GetByUID(int script-uid) : A way to get the current screen index 
+	of objects using their script_UID. 
+	
 Graphics->LoadESP
 Graphics->LoadBossPal
 
