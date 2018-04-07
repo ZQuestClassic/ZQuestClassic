@@ -6685,6 +6685,10 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
             {
                 new_return(29);
             }
+	    if(!p_putc(DMaps[i].sideview,f))
+            {
+                new_return(30);
+            }
         }
         
         if(writecycle==0)

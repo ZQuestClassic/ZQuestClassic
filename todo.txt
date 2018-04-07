@@ -1,5 +1,6 @@
 To-Do
 
+FInish dmaps sideview in ZQuest and ZScript, and implement it in the engine.
 
 ->GetByUID(int script-uid) : A way to get the current screen index 
 	of objects using their script_UID. 

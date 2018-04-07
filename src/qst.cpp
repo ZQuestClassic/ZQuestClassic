@@ -3723,6 +3723,8 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                 return qe_invalid;
             }
         }
+	
+	
         else if(s_version>3)
         {
             char temp;
@@ -3768,6 +3770,15 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                 return qe_invalid;
             }
         }
+	
+	if(s_version >= 10)
+        {
+            if(!p_getc(&tempDMap.sideview,f,keepdata))
+            {
+                return qe_invalid;
+            }
+        }
+	if(s_version < 10) tempDMap.sideview = 0;
         
         if(keepdata==true)
         {

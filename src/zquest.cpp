@@ -12620,7 +12620,7 @@ static int editdmap_disableitems_list[] =
 
 static int editdmap_flags_list[] =
 {
-    110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,-1
+    110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,-1
 };
 
 static TABPANEL editdmap_tabs[] =
@@ -12833,6 +12833,8 @@ static DIALOG editdmap_dlg[] =
     {  jwin_check_proc,             230,     95,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 4",        					   NULL,                 NULL                  },
     {  jwin_check_proc,             230,    105,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 5",        					   NULL,                 NULL                  },
     {  d_timer_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
+    {  jwin_check_proc,              12,    175,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Sideview",      NULL,                 NULL                  },
+   
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
@@ -12939,6 +12941,7 @@ void editdmap(int index)
     editdmap_dlg[123].flags = (DMaps[index].flags& dmfSCRIPT3) ? D_SELECTED : 0;
     editdmap_dlg[124].flags = (DMaps[index].flags& dmfSCRIPT4) ? D_SELECTED : 0;
     editdmap_dlg[125].flags = (DMaps[index].flags& dmfSCRIPT5) ? D_SELECTED : 0;
+    editdmap_dlg[126].flags = (DMaps[index].sideview) ? D_SELECTED : 0;
     
     if(is_large)
     {
@@ -13095,6 +13098,7 @@ void editdmap(int index)
         f |= editdmap_dlg[123].flags & D_SELECTED ? dmfSCRIPT3:0;
         f |= editdmap_dlg[124].flags & D_SELECTED ? dmfSCRIPT4:0;
         f |= editdmap_dlg[125].flags & D_SELECTED ? dmfSCRIPT5:0;
+        f |= editdmap_dlg[126].flags & D_SELECTED ? DMaps[index].sideview:0;
         DMaps[index].flags = f;
     }
 }

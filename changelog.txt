@@ -1,5 +1,9 @@
 //2.54 Changes
 
+//Alpha 27
+Added byte sideview to struct dmaps and updated V_DMAPS to 10.
+	Updated quest loading and saving. ( ZoriaRPG, 7th April 2018 )
+
 //Alpha 26
 Class FFScript is now shared between zc and ZQuest
 NPCs, Items, and Weapons now have special UIDs (in class FFScript) that can be used
