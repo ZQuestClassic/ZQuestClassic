@@ -1651,6 +1651,7 @@ string VarArgument::toString()
 	case LWEAPONSCRIPTUID: return "LWEAPONSCRIPTUID";
 	case EWEAPONSCRIPTUID: return "EWEAPONSCRIPTUID";
 	case ITEMSCRIPTUID: return "ITEMSCRIPTUID";
+	case DMAPDATASIDEVIEW: return "DMAPDATASIDEVIEW";
     default:
     {
         sprintf(temp, "d%d", ID);

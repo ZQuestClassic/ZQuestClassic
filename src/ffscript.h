@@ -2648,6 +2648,7 @@ enum ASM_DEFINE
 #define LWEAPONSCRIPTUID	0x130F	//byte[4]
 #define EWEAPONSCRIPTUID	0x1310	//byte[4]
 #define ITEMSCRIPTUID		0x1311	//byte[4]
+#define DMAPDATASIDEVIEW	0x1312	//byte[4]
 
 //bytecode
 
@@ -2655,7 +2656,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x1312
+#define NUMVARIABLES         0x1313
 
 // Script types
 

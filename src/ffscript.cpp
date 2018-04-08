@@ -4559,6 +4559,10 @@ case DMAPDATATYPE:	//byte
 {
 	ret = ((byte)DMaps[ri->dmapsref].type) * 10000; break;
 }
+case DMAPDATASIDEVIEW:	//byte
+{
+	ret = (((byte)DMaps[ri->dmapsref].sideview)!=0) ? 10000 : 0; break;
+}
 case DMAPDATAGRID:	//byte[8] --array
 {
 	int indx = ri->d[0] / 10000;
@@ -9216,6 +9220,10 @@ case DMAPDATACONTINUE:	//byte
 case DMAPDATATYPE:	//byte
 {
 	DMaps[ri->dmapsref].type = ((byte)(value / 10000)); break;
+}
+case DMAPDATASIDEVIEW:	//byte, treat as bool
+{
+	DMaps[ri->dmapsref].type = ((byte)((value / 10000)!=0 ? 1 : 0)); break;
 }
 case DMAPDATAGRID:	//byte[8] --array
 {

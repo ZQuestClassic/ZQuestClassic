@@ -1671,6 +1671,8 @@ script_variable variable_list[]=
 	{"EWEAPONSCRIPTUID", EWEAPONSCRIPTUID, 0, 0 },
 	{"ITEMSCRIPTUID", ITEMSCRIPTUID, 0, 0 },
 	
+	{"DMAPDATASIDEVIEW", DMAPDATASIDEVIEW, 0, 0 },
+	
 	{ " ",                       -1,             0,             0 }
 };
 
