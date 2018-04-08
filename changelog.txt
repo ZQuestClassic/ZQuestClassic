@@ -2,6 +2,8 @@
 
 //Alpha 27
 
+Added bool dmapdata->Sideview to ZScript.
+
 The user may now enable the following effects on DMap-Basis, in 
 	addition to a per-screen basis (as DMap flags, instead of as Screen Flags):
 
