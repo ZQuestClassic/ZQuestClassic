@@ -65,7 +65,7 @@ const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
 static inline bool isSideview()
 {
-    return (tmpscr->flags7&fSIDEVIEW)!=0 && !ignoreSideview;
+    return (((tmpscr->flags7&fSIDEVIEW)!=0 || DMaps[currdmap].sideview != 0) && !ignoreSideview); //DMap Enable Sideview on All Screens -Z //2.54 Alpha 27
 }
 
 int LinkClass::DrunkClock()
@@ -13408,70 +13408,70 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         switch(scrolldir)
         {
         case up:
-            if(newscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
+            if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
             
-            if(oldscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, oldscr, 0, -176+playing_field_offset, 3);
+            if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, -176+playing_field_offset, 3);
             
-            if(newscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
+            if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
             
-            if(oldscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, oldscr, 0, -176+playing_field_offset, 3);
+            if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, -176+playing_field_offset, 3);
             
             // Draw both screens' background layer primitives together, after both layers' combos.
             // Not ideal, but probably good enough for all realistic purposes.
-            if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG) do_primitives(scrollbuf, 2, newscr, sx, sy);
+            if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
             
-            if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG) do_primitives(scrollbuf, 3, newscr, sx, sy);
+            if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
             
             putscr(scrollbuf, 0, 0, newscr);
             putscr(scrollbuf, 0, 176, oldscr);
             break;
             
         case down:
-            if(newscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, newscr, 0, -176+playing_field_offset, 2);
+            if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, -176+playing_field_offset, 2);
             
-            if(oldscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
+            if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
             
-            if(newscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, newscr, 0, -176+playing_field_offset, 2);
+            if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, -176+playing_field_offset, 2);
             
-            if(oldscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
+            if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
             
-            if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG) do_primitives(scrollbuf, 2, newscr, sx, sy);
+            if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
             
-            if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG) do_primitives(scrollbuf, 3, newscr, sx, sy);
+            if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
             
             putscr(scrollbuf, 0, 0, oldscr);
             putscr(scrollbuf, 0, 176, newscr);
             break;
             
         case left:
-            if(newscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
+            if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
             
-            if(oldscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, oldscr, -256, playing_field_offset, 3);
+            if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, -256, playing_field_offset, 3);
             
-            if(newscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
+            if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
             
-            if(oldscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, oldscr, -256, playing_field_offset, 3);
+            if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, -256, playing_field_offset, 3);
             
-            if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG) do_primitives(scrollbuf, 2, newscr, sx, sy);
+            if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
             
-            if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG) do_primitives(scrollbuf, 3, newscr, sx, sy);
+            if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
             
             putscr(scrollbuf, 0, 0, newscr);
             putscr(scrollbuf, 256, 0, oldscr);
             break;
             
         case right:
-            if(newscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, newscr, -256, playing_field_offset, 2);
+            if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, -256, playing_field_offset, 2);
             
-            if(oldscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
+            if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
             
-            if(newscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, newscr, -256, playing_field_offset, 2);
+            if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, -256, playing_field_offset, 2);
             
-            if(oldscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
+            if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
             
-            if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG) do_primitives(scrollbuf, 2, newscr, sx, sy);
+            if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
             
-            if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG) do_primitives(scrollbuf, 3, newscr, sx, sy);
+            if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
             
             putscr(scrollbuf, 0, 0, oldscr);
             putscr(scrollbuf, 256, 0, newscr);
@@ -13483,11 +13483,11 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         
         do_layer(framebuf, 0, oldscr, tx2, ty2, 3);
         
-        if(!(oldscr->flags7&fLAYER2BG)) do_layer(framebuf,1, oldscr, tx2, ty2, 3);
+        if(!(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG) ) do_layer(framebuf,1, oldscr, tx2, ty2, 3);
         
         do_layer(framebuf, 0, newscr, tx, ty, 2, false, true);
         
-        if(!(newscr->flags7&fLAYER2BG)) do_layer(framebuf,1, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
+        if(!(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(framebuf,1, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
         
         do_layer(framebuf, -2, oldscr, tx2, ty2, 3); //push blocks
         do_layer(framebuf, -2, newscr, tx, ty, 2);
@@ -13518,7 +13518,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
             decorations.draw(framebuf,  true);
         }
         
-        if(!(oldscr->flags7&fLAYER3BG)) do_layer(framebuf,2, oldscr, tx2, ty2, 3);
+        if(!(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, oldscr, tx2, ty2, 3);
         
         do_layer(framebuf, 3, oldscr, tx2, ty2, 3); //layer 3
         do_layer(framebuf,-1, oldscr, tx2, ty2, 3); //overhead combos
@@ -13526,7 +13526,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
         do_layer(framebuf,-4, oldscr, tx2, ty2, 3, true); //overhead FFCs
         do_layer(framebuf, 5, oldscr, tx2, ty2, 3); //layer 5
         
-        if(!(newscr->flags7&fLAYER3BG)) do_layer(framebuf,2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER3BG));
+        if(!(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ));
         
         do_layer(framebuf, 3, newscr, tx, ty, 2, false, true); //layer 3
         do_layer(framebuf,-1, newscr, tx, ty, 2); //overhead combos
@@ -15434,16 +15434,16 @@ void setup_red_screen_old()
     clear_bitmap(framebuf);
     rectfill(scrollbuf, 0, 0, 255, 167, 0);
     
-    if(tmpscr->flags7&fLAYER2BG) do_layer(scrollbuf,1, tmpscr, 0, playing_field_offset, 2);
+    if(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, tmpscr, 0, playing_field_offset, 2);
     
-    if(tmpscr->flags7&fLAYER3BG) do_layer(scrollbuf,2, tmpscr, 0, playing_field_offset, 2);
+    if(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, tmpscr, 0, playing_field_offset, 2);
     
     putscr(scrollbuf, 0, 0, tmpscr);
     putscrdoors(scrollbuf,0,0,tmpscr);
     blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
     do_layer(framebuf,0, tmpscr, 0, 0, 2);
     
-    if(!(tmpscr->flags7&fLAYER2BG)) do_layer(framebuf,1, tmpscr, 0, 0, 2);
+    if(!(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG )) do_layer(framebuf,1, tmpscr, 0, 0, 2);
     
     do_layer(framebuf,-2, tmpscr, 0, 0, 2);
     
@@ -15474,13 +15474,13 @@ void setup_red_screen_old()
     
     clear_bitmap(framebuf);
     
-    if(!((tmpscr->layermap[2]==0||(tmpscr->flags7&fLAYER3BG))
+    if(!((tmpscr->layermap[2]==0||(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ))
             && tmpscr->layermap[3]==0
             && tmpscr->layermap[4]==0
             && tmpscr->layermap[5]==0
             && !overheadcombos(tmpscr)))
     {
-        if(!(tmpscr->flags7&fLAYER3BG)) do_layer(framebuf,2, tmpscr, 0, 0, 2);
+        if(!(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, tmpscr, 0, 0, 2);
         
         do_layer(framebuf,3, tmpscr, 0, 0, 2);
         do_layer(framebuf,-1, tmpscr, 0, 0, 2);

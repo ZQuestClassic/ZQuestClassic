@@ -2303,7 +2303,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
                 {
                     if(layer->layeropacity[type]==255)
                     {
-                        if(layer->flags7&fLAYER2BG)
+                        if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
                         {
                             if(tempscreen==2)
                             {
@@ -2340,7 +2340,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
                     }
                     else
                     {
-                        if(layer->flags7&fLAYER2BG)
+                        if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
                         {
                             if(tempscreen==2)
                             {
@@ -2380,7 +2380,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
                 {
                     if(layer->layeropacity[type]==255)
                     {
-                        if(layer->flags7&fLAYER2BG)
+                        if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
                         {
                             if(tempscreen==2)
                             {
@@ -2417,7 +2417,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
                     }
                     else
                     {
-                        if(layer->flags7&fLAYER2BG)
+                        if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
                         {
                             if(tempscreen==2)
                             {
@@ -2467,7 +2467,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
                 {
                     if(layer->layeropacity[type]==255)
                     {
-                        if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
+                        if( (layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) && !(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
                         {
                             if(tempscreen==2)
                             {
@@ -2504,7 +2504,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
                     }
                     else
                     {
-                        if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
+                        if( (layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) && !(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
                         {
                             if(tempscreen==2)
                             {
@@ -2544,7 +2544,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
                 {
                     if(layer->layeropacity[type]==255)
                     {
-                        if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
+                        if((layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) &&!(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
                         {
                             if(tempscreen==2)
                             {
@@ -2581,7 +2581,7 @@ void do_scrolling_layer(BITMAP *bmp, int type, mapscr* layer, int x, int y, bool
                     }
                     else
                     {
-                        if(layer->flags7&fLAYER3BG&&!(layer->flags7&fLAYER2BG))
+                        if((layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) &&!(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
                         {
                             if(tempscreen==2)
                             {
@@ -2817,6 +2817,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 {
 
     //The Plan:
+	//0: Set sideview gravity from dmaps. -Z
     //1. Draw some layers onto scrollbuf with clipping
     //2. Blit scrollbuf onto framebuf
     //3. Draw some sprites onto framebuf
@@ -2840,10 +2841,17 @@ void draw_screen(mapscr* this_screen, bool showlink)
     int cmby2=0;
     int pcounter;
     
+    //0: Sideview Grvity from DMaps.
+    
+    if ( DMaps[currdmap].sideview != 0 ) 
+    {
+	if ( this_screen->flags7&fSIDEVIEW ) this_screen->flags7 |= ~fSIDEVIEW;
+	else this_screen->flags7 |= fSIDEVIEW;
+    }
     //1. Draw some layers onto temp_buf
     clear_bitmap(scrollbuf);
     
-    if(this_screen->flags7&fLAYER2BG)
+    if(this_screen->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
     {
         do_layer(scrollbuf,1, this_screen, 0, 0, 2, false, true);
         
@@ -2856,7 +2864,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
         }
     }
     
-    if(this_screen->flags7&fLAYER3BG)
+    if(this_screen->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG)
     {
         do_layer(scrollbuf,2, this_screen, 0, 0, 2, false, true);
         
@@ -2933,7 +2941,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     
     do_layer(scrollbuf,-3, this_screen, 0, 0, 2); // freeform combos!
     
-    if(!(this_screen->flags7&fLAYER2BG))
+    if(!(this_screen->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
     {
         do_layer(scrollbuf,1, this_screen, 0, 0, 2, false, true); // LAYER 2
         
@@ -3156,7 +3164,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
     
     //5. Draw some layers onto temp_buf and scrollbuf
     
-    if(!(this_screen->flags7&fLAYER3BG))
+    if(!(this_screen->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG))
     {
         do_layer(temp_buf,2, this_screen, 0, 0, 2, false, true);
         do_layer(scrollbuf, 2, this_screen, 0, 0, 2);
@@ -4284,7 +4292,7 @@ void putscr(BITMAP* dest,int x,int y, mapscr* scrn)
     
     for(int i=0; i<176; i++)
     {
-        if(scrn->flags7&fLAYER2BG||scrn->flags7&fLAYER3BG)
+        if(scrn->flags7&fLAYER2BG||scrn->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER2BG || DMaps[currdmap].flags&dmfLAYER3BG)
         {
             overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
         }
@@ -4602,20 +4610,20 @@ void ViewMap()
                     }
                 }
                 
-                if((tmpscr+1)->flags7&fLAYER2BG) do_layer(scrollbuf, 1, tmpscr+1, -256, playing_field_offset, 2);
+                if((tmpscr+1)->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG) do_layer(scrollbuf, 1, tmpscr+1, -256, playing_field_offset, 2);
                 
-                if((tmpscr+1)->flags7&fLAYER3BG) do_layer(scrollbuf, 2, tmpscr+1, -256, playing_field_offset, 2);
+                if((tmpscr+1)->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) do_layer(scrollbuf, 2, tmpscr+1, -256, playing_field_offset, 2);
                 
                 putscr(scrollbuf,256,0,tmpscr+1);
                 do_layer(scrollbuf, 0, tmpscr+1, -256, playing_field_offset, 2);
                 
-                if(!((tmpscr+1)->flags7&fLAYER2BG)) do_layer(scrollbuf, 1, tmpscr+1, -256, playing_field_offset, 2);
+                if(!(((tmpscr+1)->flags7&fLAYER2BG) || DMaps[currdmap].flags&dmfLAYER2BG) ) do_layer(scrollbuf, 1, tmpscr+1, -256, playing_field_offset, 2);
                 
                 putscrdoors(scrollbuf,256,0,tmpscr+1);
                 do_layer(scrollbuf,-2, tmpscr+1, -256, playing_field_offset, 2);
                 do_layer(scrollbuf,-3, tmpscr+1, -256, playing_field_offset, 2); // Freeform combos!
                 
-                if(!((tmpscr+1)->flags7&fLAYER3BG)) do_layer(scrollbuf, 2, tmpscr+1, -256, playing_field_offset, 2);
+                if(!(((tmpscr+1)->flags7&fLAYER3BG) || DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 2, tmpscr+1, -256, playing_field_offset, 2);
                 
                 do_layer(scrollbuf, 3, tmpscr+1, -256, playing_field_offset, 2);
                 do_layer(scrollbuf,-1, tmpscr+1, -256, playing_field_offset, 2);

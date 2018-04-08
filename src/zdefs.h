@@ -2532,6 +2532,8 @@ struct dmap
 #define dmfSCRIPT4 			0x4000
 #define dmfSCRIPT5 			0x8000
 #define dmfSIDEVIEW 			0x10000
+#define dmfLAYER3BG 			0x20000
+#define dmfLAYER2BG 			0x40000
 
 
 #define OLDMAXCOMBOALIASES 256

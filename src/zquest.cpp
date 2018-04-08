@@ -10268,7 +10268,7 @@ static DIALOG scrdata_dlg[] =
     { jwin_check_proc,      15,  138,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Save Game On Entry", NULL, NULL },
     // This now appears on the Timed Warp tab.
     { jwin_check_proc,      15,  138,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Timed Warp Is Random (A, B, C or D)", NULL, NULL },
-    
+    //41
     { jwin_check_proc,      15,   98,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Damage Combos Ignore Boots", NULL, NULL },
     //S.Flags 1
     { jwin_check_proc,     165,  138,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Sensitive Warps are Direct", NULL, NULL },
@@ -10276,19 +10276,21 @@ static DIALOG scrdata_dlg[] =
     //44
     { jwin_check_proc,     165,  128,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Toggle 'No Diving'", NULL, NULL },
     //S.Flags 1
+    //45
     { jwin_check_proc,      15,   78,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Treat as Interior Screen", NULL, NULL },
     { jwin_check_proc,      15,   88,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Treat as NES Dungeon Screen", NULL, NULL },
     { jwin_check_proc,     165,   98,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Hit All Triggers->Perm Secret", NULL, NULL },
-    
+    //48
     { jwin_check_proc,      15,  148,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Continue Here", NULL, NULL },
     { jwin_check_proc,      15,  158,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No Continue Here After Warp", NULL, NULL },
     //50, S.Flags 1
     { jwin_check_proc,      165, 108,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Hit All Triggers->16-31", NULL, NULL },
-    
+    //51
     { jwin_check_proc,       15, 108,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Toggle Rings Affect Combos", NULL, NULL },
     { jwin_check_proc,       15, 178,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "FF Combos Wrap Around", NULL, NULL },
     { jwin_check_proc,       15, 188,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No FFC Carryover", NULL, NULL },
     //S.Flags 1
+    //54
     { jwin_check_proc,      15,  168,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Layer 3 Is Background", NULL, NULL },
     { jwin_check_proc,      15,  158,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Layer 2 Is Background", NULL, NULL },
     { jwin_check_proc,      165,  198,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Item Falls From Ceiling", NULL, NULL },
@@ -12620,7 +12622,7 @@ static int editdmap_disableitems_list[] =
 
 static int editdmap_flags_list[] =
 {
-    110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,-1
+    110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,127,128,129,-1
 };
 
 static TABPANEL editdmap_tabs[] =
@@ -12683,14 +12685,14 @@ static ListData gotomap_list(gotomaplist, &font);
 static DIALOG editdmap_dlg[] =
 {
     // (dialog proc)                (x)     (y)     (w)     (h)     (fg)                    (bg)                 (key)     (flags)   (d1)           (d2)   (dp)                                                   (dp2)                 (dp3)
-    {  jwin_win_proc,                 0,      0,    312,    221,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    D_EXIT,      0,             0, (void *) "DMap Editor",                                NULL,                 NULL                  },
-    {  jwin_button_proc,             89,    196,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "OK",                                         NULL,                 NULL                  },
-    {  jwin_button_proc,            164,    196,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        27,    D_EXIT,      0,             0, (void *) "Cancel",                                     NULL,                 NULL                  },
+    {  jwin_win_proc,                 0,      0,    312,    256,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    D_EXIT,      0,             0, (void *) "DMap Editor",                                NULL,                 NULL                  },
+    {  jwin_button_proc,             89,    218,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "OK",                                         NULL,                 NULL                  },
+    {  jwin_button_proc,            164,    218,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        27,    D_EXIT,      0,             0, (void *) "Cancel",                                     NULL,                 NULL                  },
     {  jwin_text_proc,               10,     29,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Name: ",                                     NULL,                 NULL                  },
     {  jwin_edit_proc,               40,     25,    168,     16,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          20,             0,  NULL,                                                  NULL,                 NULL                  },
     //5
-    {  jwin_tab_proc,                 6,     45,    300,    144,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_tabs,                                NULL, (void *)editdmap_dlg  },
-    {  jwin_tab_proc,                10,     65,    292,    116,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmapmap_tabs,                             NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                 6,     45,    300,    164,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_tabs,                                NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                10,     65,    292,    136,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmapmap_tabs,                             NULL, (void *)editdmap_dlg  },
     {  jwin_ctext_proc,              67,     87,      0,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Minimap",                                    NULL,                 NULL                  },
     {  jwin_frame_proc,              31,     95,     84,     52,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_DEEP,       0,  NULL,                                                  NULL,                 NULL                  },
     {  d_maptile_proc,               33,     97,     80,     48,    0,                      0,                       0,    0,           0,             0,  NULL, (void*)0,             NULL                  },
@@ -12833,7 +12835,11 @@ static DIALOG editdmap_dlg[] =
     {  jwin_check_proc,             230,     95,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 4",        					   NULL,                 NULL                  },
     {  jwin_check_proc,             230,    105,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 5",        					   NULL,                 NULL                  },
     {  d_timer_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
-    {  jwin_check_proc,              12,    175,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Sideview",      NULL,                 NULL                  },
+    
+    //127
+    {  jwin_check_proc,              12,    175,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Enable Sideview on All Screens",      NULL,                 NULL                  },
+    {  jwin_check_proc,              12,    185,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Layer 3 is Background on All Screens",      NULL,                 NULL                  },
+    {  jwin_check_proc,              12,    195,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Layer 2 is Background on All Screens",      NULL,                 NULL                  },
    
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
@@ -12941,7 +12947,9 @@ void editdmap(int index)
     editdmap_dlg[123].flags = (DMaps[index].flags& dmfSCRIPT3) ? D_SELECTED : 0;
     editdmap_dlg[124].flags = (DMaps[index].flags& dmfSCRIPT4) ? D_SELECTED : 0;
     editdmap_dlg[125].flags = (DMaps[index].flags& dmfSCRIPT5) ? D_SELECTED : 0;
-    editdmap_dlg[126].flags = (DMaps[index].sideview) ? D_SELECTED : 0;
+    editdmap_dlg[127].flags = (DMaps[index].sideview) ? D_SELECTED : 0;
+    editdmap_dlg[128].flags = (DMaps[index].flags& dmfLAYER3BG) ? D_SELECTED : 0;
+    editdmap_dlg[129].flags = (DMaps[index].flags& dmfLAYER2BG) ? D_SELECTED : 0;
     
     if(is_large)
     {
@@ -13098,8 +13106,11 @@ void editdmap(int index)
         f |= editdmap_dlg[123].flags & D_SELECTED ? dmfSCRIPT3:0;
         f |= editdmap_dlg[124].flags & D_SELECTED ? dmfSCRIPT4:0;
         f |= editdmap_dlg[125].flags & D_SELECTED ? dmfSCRIPT5:0;
-        f |= editdmap_dlg[126].flags & D_SELECTED ? DMaps[index].sideview:0;
+        f |= editdmap_dlg[128].flags & D_SELECTED ? dmfLAYER3BG:0;
+        f |= editdmap_dlg[129].flags & D_SELECTED ? dmfLAYER2BG:0;
         DMaps[index].flags = f;
+	
+	DMaps[index].sideview = editdmap_dlg[127].flags & D_SELECTED ? 1:0;
     }
 }
 
