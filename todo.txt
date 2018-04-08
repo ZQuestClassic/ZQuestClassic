@@ -1,7 +1,6 @@
 To-Do
 
-Move Sideview DMaps element beneath scripts and ensure it is visible!
-FInish dmaps sideview in ZQuest and ZScript, and implement it in the engine.
+Add freeze, freezeexcept, and such as script instructions.
 
 ->GetByUID(int script-uid) : A way to get the current screen index 
 	of objects using their script_UID. 
