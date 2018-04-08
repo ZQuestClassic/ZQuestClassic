@@ -1,6 +1,17 @@
 //2.54 Changes
 
 //Alpha 27
+Fixed size of tabs in DMap editor to fit additional flags.
+Added DMap flags `Treat Layer 2 as Background on all Screens` and
+	`Treat Layer 3 as Background on All Screens` to the DMap Editor (Flags).
+	These use Dmaps[].flags
+	This works in ZC, but does not yet display properly in ZQuest.
+		Im not sure how to best do this, as the ZQ screen has no way to tell to what DMap it is bound.
+Changed wording for DMap sideview (DMaps Editor, Flags) to `Enable Sideview on All Screens`. 
+	All screens of that DMap will be treated as sideview.
+	This is NOT Xor`d with the screen flag!
+	This uses a new vriable, DMaps[].sideview
+		( ZoriaRPG, 8th April, 2018 )
 Added byte sideview to struct dmaps and updated V_DMAPS to 10.
 	Updated quest loading and saving. ( ZoriaRPG, 7th April 2018 )
 
