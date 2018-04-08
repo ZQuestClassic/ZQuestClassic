@@ -1,6 +1,22 @@
 //2.54 Changes
 
 //Alpha 27
+
+The user may now enable the following effects on DMap-Basis, in 
+	addition to a per-screen basis (as DMap flags, instead of as Screen Flags):
+
+1.	Sideview Gravity on All Screens (uses Dmaps[].sideview, new var.
+2.	Layer 3 is Background on All Screens (uses DMaps[].flgs&dmfLAYER3BG)
+3.	Layer 2 is Background on All Screens (uses DMaps[].flgs&dmfLAYER2BG
+
+This works in ZC, but does not yet display properly in ZQuest.
+
+I am not sure how to best do this, as the ZQ screen has no way to tell 
+to what DMap it is bound.
+
+It may need to be a view option, as `View Layer 3 as Bckground` and 
+	`View Layer 2 as Background` via the menus. 
+
 Fixed size of tabs in DMap editor to fit additional flags.
 Added DMap flags `Treat Layer 2 as Background on all Screens` and
 	`Treat Layer 3 as Background on All Screens` to the DMap Editor (Flags).
