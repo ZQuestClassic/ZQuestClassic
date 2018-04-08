@@ -98,10 +98,10 @@
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       40                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.54 Alpha 26"                    //version of the program as presented in text
-#define IS_BETA             -26                            //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        26
-#define DATE_STR            "7th April,, 2018"
+#define ZELDA_VERSION_STR   "2.54 Alpha 27"                    //version of the program as presented in text
+#define IS_BETA             -27                         //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        27
+#define DATE_STR            "8th April,, 2018"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
