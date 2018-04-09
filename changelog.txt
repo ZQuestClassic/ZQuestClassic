@@ -2,6 +2,10 @@
 
 //Alpha 27
 
+Added whistl;e defence to enemies.
+Added whistle Can Damage flag, and a damage attribute field to
+	the whistle item (in the Item Editor). ( ZoriaRPG, 10th April 2018 )
+
 Added bool dmapdata->Sideview to ZScript.
 
 The user may now enable the following effects on DMap-Basis, in 
