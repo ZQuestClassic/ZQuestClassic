@@ -1357,11 +1357,15 @@ int enemy::takehit(weapon *w)
 	    else 
 	    {
 		w->power = itemsbuf[parent_item].misc5;
+		    
 		int def = defend(wWhistle, &power, edefWhistle);
 		al_trace("Whistle Defence: %i\n", def);
 		al_trace("Whistle Damage Flag: %i\n", (itemsbuf[parent_item].flags & ITEM_FLAG2) ? 1 : 0);
-		if(def >= 0) 
+
+		if(def <= 0) 
 		{
+			if ( def == -2 ) hp -= hp;
+			else hp -= w->power;
 			al_trace("Whistle Defence: %i\n", def);
 			return def;
 		}

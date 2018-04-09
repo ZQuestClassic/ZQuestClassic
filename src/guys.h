@@ -138,6 +138,7 @@ protected:
     // take damage or ignore it
     virtual bool hitshield(int wpnx, int wpny, int xdir);
     virtual int defend(int wpnId, int *power, int edef);
+    //virtual int defend_wdmg(int wpnId, int dmg, int edef);
     bool candamage(int power, int edef);
     int defenditemclass(int wpnId, int *power);
     
