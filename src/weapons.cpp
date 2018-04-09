@@ -4028,7 +4028,7 @@ offscreenCheck:
     case wLitSBomb:
         if(!clipped) dead=1;
         
-    //case wWhistle:
+    case wWhistle:
     case wBomb:
     case wSBomb:
     case wBait:
@@ -4041,10 +4041,6 @@ offscreenCheck:
         if(!clipped) dead=1;
         
         break;
-    case wWhistle:
-	if(!clipped) dead=1;
-        
-        break;    
     
     case ewFlame:
         if(!clipped) dead=1;
