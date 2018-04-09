@@ -1169,6 +1169,11 @@ int enemy::defenditemclass(int wpnId, int *power)
 	    else def = defend(wpnId, power,  edefSCRIPT);
         break;
     
+    case wWhistle:
+	    if(QHeader.zelda_version > 0x250) def = defend(wpnId, power,  edefWhistle);
+	    else break;
+        break;
+    
     
     //!ZoriaRPG : We need some special cases here, to ensure that old script defs don;t break. 
     //Probably best to do this from the qest file, loading the values of Script(generic) into each
@@ -1200,6 +1205,7 @@ int enemy::takehit(weapon *w)
     int wpny = w->y;
     int enemyHitWeapon = w->parentitem;
     int wpnDir;
+	int parent_item = w->parentitem;
     
     // If it's a boomerang that just bounced, use the opposite direction;
     // otherwise, it might bypass a shield. This probably won't handle
@@ -1342,8 +1348,27 @@ int enemy::takehit(weapon *w)
     
     switch(wpnId)
     {
-    case wWhistle:
-        return 0;
+    case wWhistle: //No longer completely ignore whistle weapons! -Z
+    {
+	    if ( (itemsbuf[parent_item].flags & ITEM_FLAG2) == 0 ) 
+	    {
+		return 0; break;
+	    }
+	    else 
+	    {
+		power = itemsbuf[parent_item].misc5;
+		int def = defend(wWhistle, &power, edefWhistle);
+		al_trace("Whistle Defence: %i\n", def);
+		al_trace("Whistle Damage Flag: %i\n", (itemsbuf[parent_item].flags & ITEM_FLAG2) ? 1 : 0);
+		if(def >= 0) 
+		{
+			al_trace("Whistle Defence: %i\n", def);
+			return def;
+		}
+		break;
+	    }
+	    break;
+    }
         
     case wPhantom:
         return 0;

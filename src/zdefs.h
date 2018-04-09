@@ -184,7 +184,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            32
+#define V_GUYS            33
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -1162,7 +1162,7 @@ enum
 	edefSCRIPT01, 	edefSCRIPT02,	edefSCRIPT03,	edefSCRIPT04,	edefSCRIPT05,	//24
 	edefSCRIPT06, 	edefSCRIPT07,	edefSCRIPT08,	edefSCRIPT09,	edefSCRIPT10,	//29
 	edefICE,	edefBAIT, 	edefWIND,	edefSPARKLE,	edefSONIC,	//34
-	edefRES005,	edefRES006,	edefRES007,	edefRES008,	edefRES009,	//39
+	edefWhistle,	edefRES006,	edefRES007,	edefRES008,	edefRES009,	//39
 	edefRES010,	//x40
 	edefLAST255, //41
 	edef42,	edefETHER, 	edefBOMBOS,	edefPOT,	edefTHROWNROCK,	//46

@@ -706,11 +706,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     
         if(isDummy || itemid<0)
         {
-            itemid = getCanonicalItemID(itemsbuf, itype_cbyrna);
+            itemid = getCanonicalItemID(itemsbuf, itype_whistle);
         }
         
         if ( parentitem > -1 )
 	{
+		//Whistle damage
+		if ((itemsbuf[parentitem].flags & ITEM_FLAG2)!=0 ) //Flags[1]
+		{
+			power = itemsbuf[parentitem].misc5; //Attributews[5]
+		}
+		
 		//Port Item Editor Weapon Size Values
 		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 			extend = 3; 

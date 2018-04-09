@@ -9751,7 +9751,14 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     tempguy.misc2 = 0;
             }
 	    
-	    
+	    if(guyversion < 33) //Whistle defence did not exist before this version of 2.54. -Z
+	    {
+		if(tempguy.family!=eeDIG)
+		{
+			tempguy.defense[edefWhistle] = edIGNORE; //Might need to be ignore, universally. 
+		}
+			
+	    }
             
             if(keepdata)
             {

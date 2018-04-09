@@ -329,7 +329,7 @@ static ItemNameInfo inameinf[]=
     { itype_wand, 			(char *)"Damage:",                         	(char *)"M. Damage",				(char *)"W. Type:",                             (char *)"W. Speed:",			(char *)"W. Range:",			(char *)"Move Effect:",            (char *)"Mvt Arg1:",               (char *)"Mvt Arg2:",               (char *)"No. of Clones:",          (char *)"Clone Pattern:",          		(char *)"Slash Sound:",   		(char *)"Allow Magic w/o Book",		(char *)"Wand Moves",     		(char *)"Melee Item Pickup",		(char *)"Can Slash",              	NULL,			 		(char *)"Stab Sprite:", 			(char *)"Slash Sprite:", 			(char *)"Projectile Sprite:",      		(char *)"Projectile Misc:",                 	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL, 						(char *)"Firing Sound:"                    },
     { itype_bait,                        NULL, 						(char *)"Duration:",                         	NULL,                                      	NULL,                              	NULL,                              	NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              		NULL,                              	NULL,                                   NULL,                              	NULL,                              	NULL,                              	NULL, 					(char *)"Bait Sprite:",            		NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL, 						(char *)"Baiting Sound:"                   },
     { itype_potion,                      NULL, 						(char *)"HP Regained:", 			(char *)"MP Regained:",                    	NULL,                              	NULL,                              	NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              		NULL, 					(char *)"HP R. Is Percent", 		(char *)"MP R. Is Percent",        	NULL,                              	NULL,                              	NULL,                              	NULL,                              		NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL                                       },
-    { itype_whistle,                     NULL, 						(char *)"Whirlwind Direction:", 		(char *)"Warp Ring:",                      	NULL,                              	NULL,                              	NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              		NULL, 					(char *)"One W.Wind Per Scr.",		NULL,                              	NULL,                              	NULL,                              	NULL, 					(char *)"Whirlwind Sprite:",       		NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL, 						(char *)"Music Sound:"                     },
+    { itype_whistle,                     NULL, 						(char *)"Whirlwind Direction:", 		(char *)"Warp Ring:",                      	NULL,                              	NULL,                              	(char *)"Weapon Damage",                              NULL,                              NULL,                              NULL,                              NULL,                              		NULL, 					(char *)"One W.Wind Per Scr.",		(char *)"Has Damage",                              	NULL,                              	NULL,                              	NULL, 					(char *)"Whirlwind Sprite:",       		NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL, 						(char *)"Music Sound:"                     },
     { itype_candle, 			(char *)"Damage:",                         	(char *)"Damage to Link:",                      NULL,                                      	NULL,                              	NULL,                              	NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              		NULL, 					(char *)"Once Per Screen", 		(char *)"Don't Provide Light",     	(char *)"Fire Hurts Link",		(char *)"Can Slash",              	(char *)"Temporary Light", 					(char *)"Stab Sprite:", 			(char *)"Slash Sprite:", 			(char *)"Flame Sprite:",                   	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL, 						(char *)"Firing Sound:"                    },
     { itype_arrow, 			(char *)"Damage:", 				(char *)"Duration (0 = Infinite):",         	NULL,                                      	NULL,                              	NULL,                              	NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              		NULL, 					(char *)"Penetrate Enemies",            NULL,                              	NULL,                              	NULL,                              	NULL, 					(char *)"Arrow Sprite:", 			(char *)"Sparkle Sprite:", 			(char *)"Damaging Sparkle Sprite:",        	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                     	NULL,                                      	NULL,                                      	NULL, 						(char *)"Firing Sound:"                    },
     { itype_brang, 			(char *)"Damage:", 				(char *)"Range (0 = Infinite):",             	NULL, 						(char *)"Block Flags:", 		(char *)"Reflect Flags:",          	NULL,                              NULL,                              NULL,                              NULL,                              NULL,                              		NULL, 					(char *)"Corrected Animation", 		(char *)"Directional Sprites", 		(char *)"Do Not Return",           	(char *)"Pick Up Anything",                              	NULL, 					(char *)"Boomerang Sprite:", 			(char *)"Sparkle Sprite:", 			(char *)"Damaging Sparkle Sprite:",        	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL,                                      	NULL, 						(char *)"Spinning Sound:"                  },
@@ -3663,7 +3663,7 @@ static DIALOG enedata_dlg[] =
     {  jwin_edit_proc,         242,    140-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
     
     // 191
-    {  jwin_text_proc,           6,    198,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script Weapon Defense:",                              NULL,   NULL                 },
+    {  jwin_text_proc,           6,    198,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Whistle Weapon Defense:",                              NULL,   NULL                 },
     {  jwin_droplist_proc,      126, 198-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
  //193 - sccript 1
      	{  jwin_text_proc,           6,    51,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 1 Weapon Defense:",                              NULL,   NULL                 },
@@ -3820,7 +3820,8 @@ void setEnemyLabels(int family)
     {
         for(int j=0; j <= edefBYRNA+1 /* + the Set All button*/; j++) enedata_dlg[j+161].flags |= D_DISABLED;
         
-        enedata_dlg[192].flags |= D_DISABLED;
+        enedata_dlg[192].flags |= D_DISABLED; //Defences disabled for Traps. rocks,. Dodongos and Ganon. 
+	    //We will need to remove Ganon from this list once we give him defence properties in the EE. -Z
 	    
 	enedata_dlg[203].d1 |= D_DISABLED;
 	     enedata_dlg[204].d1 |= D_DISABLED;
@@ -4061,9 +4062,8 @@ void edit_enemydata(int index)
         enedata_dlg[j+161].d1 = guysbuf[index].defense[j];
     }
     
-    enedata_dlg[192].d1 = guysbuf[index].defense[edefSCRIPT];
+    enedata_dlg[192].d1 = guysbuf[index].defense[edefWhistle];
     
-     enedata_dlg[192].d1 = guysbuf[index].defense[edefSCRIPT];
     
     //Script Defences
     enedata_dlg[203].d1 = guysbuf[index].defense[edefSCRIPT01];
@@ -4351,7 +4351,7 @@ void edit_enemydata(int index)
             test.defense[j] = enedata_dlg[j+161].d1;
         }
         
-        test.defense[edefSCRIPT] = enedata_dlg[192].d1;
+        test.defense[edefWhistle] = enedata_dlg[192].d1;
 	//Are the new defs missing here? -Z
         
         
@@ -4436,7 +4436,6 @@ void edit_enemydata(int index)
                 enedata_dlg[j+161].d1 = enedata_dlg[161].d1;
             }
             
-            enedata_dlg[192].d1 = enedata_dlg[161].d1;
 	    enedata_dlg[192].d1 = enedata_dlg[161].d1;
 	     //Clear to 0
 	    enedata_dlg[203].d1 = enedata_dlg[161].d1;
