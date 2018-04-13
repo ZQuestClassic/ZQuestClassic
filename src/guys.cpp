@@ -2766,7 +2766,7 @@ int enemy::lined_up(int range, bool dir8)
     
     if(dir8)
     {
-        if(abs(lx-x)-abs(ly-y)<=range)
+        if(abs(lx-x)-abs(ly-y)<=range && abs(ly-y)-abs(lx-x)<=range) //Fix floating enemies not seeking link. -Tamamo
         {
             if(ly<y)
             {
