@@ -83,7 +83,27 @@ public:
     byte hitby[4];
     short firesfx;
     bool isCore;
-    short parentCore; int script_UID;
+    short parentCore; 
+    int script_UID; 	//used to determine the UID of an enemy by the user (in scripts), plus
+			//in-engine assignment of children to a parent and
+			//for future use in npc scripts (as the ref for `this`)--the easy way to determine to
+			//what npc a script on the stack is bound.
+    
+    int wpnsprite; //wpnsprite is new for 2.6 -Z
+    int SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults. 
+    int frozentile, frozencset, frozenclock;
+    short frozenmisc[10];
+    
+    long dmisc16, dmisc17, dmisc18, dmisc19, dmisc20, dmisc21, dmisc22, dmisc23, 
+	dmisc24, dmisc25, dmisc26, dmisc27, dmisc28, dmisc29, dmisc30, dmisc31, dmisc32;
+    long movement[32]; //Reserved for npc movement types and args. 
+    long new_weapon[32]; //Reserved for weapon patterns and args.
+    word npcscript; 
+    long initD[8], initA[2];
+    
+    long dialogue_str; //WIll be set in spawn flags. 
+    
+    
     int getScriptUID();
     void setScriptUID(int new_id);
     
@@ -117,10 +137,7 @@ public:
     {
         return false;
     }
-    int wpnsprite; //wpnsprite is new for 2.6 -Z
-    int SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults. 
-    int frozentile, frozencset, frozenclock;
-    short frozenmisc[10];
+    
 
 protected:
     int  clk2,sclk;

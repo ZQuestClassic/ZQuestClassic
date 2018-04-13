@@ -98,10 +98,10 @@
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       40                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.54 Alpha 28"                    //version of the program as presented in text
-#define IS_BETA             -28                         //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        28
-#define DATE_STR            "10th April, 2018"
+#define ZELDA_VERSION_STR   "2.54 Alpha 29"                    //version of the program as presented in text
+#define IS_BETA             -29                         //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        29
+#define DATE_STR            "13th April, 2018"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -184,7 +184,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            33
+#define V_GUYS            34
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -1619,6 +1619,18 @@ struct guydata
     int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
     int frozentile, frozencset, frozenclock;
     short frozenmisc[10];
+    //v 34
+    short firesfx; //weapon fire (attack) sound
+    //expanded ->Attributes[] to size of 32.
+    long misc16, misc17, misc18, misc19, misc20, misc21, misc22, misc23, 
+	misc24, misc25, misc26, misc27, misc28, misc29, misc30, misc31, misc32;
+    long movement[32]; //Reserved for npc movement types and args. 
+    long new_weapon[32]; //Reserved for weapon patterns and args.
+    long initD[8], initA[2];
+    
+    word npcscript; //For future npc action scripts. 
+    //short parentCore; //Probably not needed here. -Z
+    
 };
 
 class refInfo

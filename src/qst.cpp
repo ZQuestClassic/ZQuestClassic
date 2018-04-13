@@ -9412,6 +9412,118 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		
 	    }
+	    
+	    if(guyversion >= 34)
+	    {
+		if(!p_igetw(&(tempguy.firesfx),f,keepdata))
+		{
+			return qe_invalid;
+		}  
+		if(!p_igetl(&(tempguy.misc16),f,keepdata))
+		{
+			return qe_invalid;
+		}  
+		if(!p_igetl(&(tempguy.misc17),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc18),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc19),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc20),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc21),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc22),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc23),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc24),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc25),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc26),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc27),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc28),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc29),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc30),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc31),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc32),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		
+		for ( int q = 0; q < 32; q++ ) {
+			if(!p_igetl(&(tempguy.movement[q]),f,keepdata))
+			{
+				return qe_invalid;
+			}
+		}
+		for ( int q = 0; q < 32; q++ ) {
+			if(!p_igetl(&(tempguy.new_weapon[q]),f,keepdata))
+			{
+				return qe_invalid;
+			}
+		}
+		if(!p_igetw(&(tempguy.npcscript),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		for ( int q = 0; q < 8; q++ )
+		{
+			if(!p_igetl(&(tempguy.initD[q]),f,keepdata))
+			{
+				return qe_invalid;
+			} 			
+		}
+		for ( int q = 0; q < 2; q++ )
+		{
+			if(!p_igetl(&(tempguy.initA[q]),f,keepdata))
+			{
+				return qe_invalid;
+			} 			
+		}
+		
+	    }
+	    
+	    
+	    //default weapon sprites (quest version < 2.54)
+	    //port over old defaults -Z
 	    if(guyversion < 32)
 	    {
 		if ( tempguy.wpnsprite <= 0 )
@@ -9487,6 +9599,119 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 				case ewFireball2: tempguy.wpnsprite = 17; break; //fireball (rising)
 				
 					
+				default: break; //No assign.
+			}
+		}
+	    }
+	    
+	    //default weapon fire sound (quest version < 2.54)
+	    //port over old defaults and zero new data. -Z
+	    if(guyversion < 34)
+	    {
+		for ( int q = 0; q < 32; q++ )
+		{
+			tempguy.movement[q] = 0;
+			tempguy.new_weapon[q] = 0;
+			
+		}
+		
+		//NPC Script attributes.
+		tempguy.npcscript = 0; //No scripted enemies existed. -Z
+		for ( int q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
+		for ( int q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
+		
+		tempguy.misc16 = 0;
+		tempguy.misc17 = 0;
+		tempguy.misc18 = 0;
+		tempguy.misc19 = 0;
+		tempguy.misc20 = 0;
+		tempguy.misc21 = 0;
+		tempguy.misc22 = 0;
+		tempguy.misc23 = 0;
+		tempguy.misc24 = 0;
+		tempguy.misc25 = 0;
+		tempguy.misc26 = 0;
+		tempguy.misc27 = 0;
+		tempguy.misc28 = 0;
+		tempguy.misc29 = 0;
+		tempguy.misc30 = 0;
+		tempguy.misc31 = 0;
+		tempguy.misc32 = 0;
+
+		//old default sounds
+		if ( tempguy.firesfx <= 0 )
+		{
+			switch(tempguy.weapon)
+			{
+				case wNone:
+					tempguy.firesfx = 0; break;
+				
+				case wSword:
+				case wBeam:
+				case wBrang:
+				case wBomb:
+				case wSBomb:
+				case wLitBomb:
+				case wLitSBomb:
+				case wArrow:
+				case wFire:
+				case wWhistle:
+				case wBait:
+				case wWand:
+				case wMagic:
+				case wCatching:
+				case wWind:
+				case wRefMagic:
+				case wRefFireball:
+				case wRefRock:
+				case wHammer:
+				case wHookshot:
+				case wHSHandle:
+				case wHSChain:
+				case wSSparkle:
+				case wFSparkle:
+				case wSmack:
+				case wPhantom:
+				case wCByrna:
+				case wRefBeam:
+				case wStomp:
+				case lwMax:
+				case wScript1:
+				case wScript2:
+				case wScript3:
+				case wScript4:
+				case wScript5:
+				case wScript6:
+				case wScript7:
+				case wScript8:
+				case wScript9:
+				case wScript10:
+				case wIce:
+					//Cannot use any of these weapons yet. 
+					tempguy.firesfx = -1;
+					break;
+				
+				case wEnemyWeapons:
+				case ewFireball: tempguy.firesfx = 0; break;
+				
+				case ewArrow: tempguy.firesfx = 1; break;
+				case ewBrang: tempguy.firesfx = 4; break;
+				case ewSword: tempguy.firesfx = 20; break;
+				case ewRock: tempguy.firesfx = 1; break;
+				case ewMagic: tempguy.firesfx = 32; break;
+				case ewBomb: tempguy.firesfx = 3; break;
+				case ewSBomb: tempguy.firesfx = 3; break;
+				case ewLitBomb: tempguy.firesfx = 21; break;
+				case ewLitSBomb: tempguy.firesfx = 21; break;
+				case ewFireTrail: tempguy.firesfx = 13; break;
+				case ewFlame: tempguy.firesfx = 13; break;
+				case ewWind: tempguy.firesfx = 32; break;
+				case ewFlame2: tempguy.firesfx = 13; break;
+				case ewFlame2Trail: tempguy.firesfx = 13; break;
+				case ewIce: tempguy.firesfx = 44; break;
+				case ewFireball2: tempguy.firesfx = 13; break; //fireball (rising)
+				
+				//what about special attacks (e.g. summoning == 56)
 				default: break; //No assign.
 			}
 		}

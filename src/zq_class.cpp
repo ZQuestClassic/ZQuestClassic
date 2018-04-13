@@ -9605,7 +9605,111 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			new_return(67);
 		}
 	    }
-	    
+	    if(!p_iputw(guysbuf[i].firesfx,f))
+            {
+                new_return(68);
+            }
+	    //misc 16->31
+	    if(!p_iputl(guysbuf[i].misc16,f))
+            {
+                new_return(69);
+            }
+	    if(!p_iputl(guysbuf[i].misc17,f))
+            {
+                new_return(70);
+            }
+	    if(!p_iputl(guysbuf[i].misc18,f))
+            {
+                new_return(71);
+            }
+	    if(!p_iputl(guysbuf[i].misc19,f))
+            {
+                new_return(72);
+            }
+	    if(!p_iputl(guysbuf[i].misc20,f))
+            {
+                new_return(73);
+            }
+	    if(!p_iputl(guysbuf[i].misc21,f))
+            {
+                new_return(74);
+            }
+	    if(!p_iputl(guysbuf[i].misc22,f))
+            {
+                new_return(75);
+            }
+	    if(!p_iputl(guysbuf[i].misc23,f))
+            {
+                new_return(76);
+            }
+	    if(!p_iputl(guysbuf[i].misc24,f))
+            {
+                new_return(77);
+            }
+	    if(!p_iputl(guysbuf[i].misc25,f))
+            {
+                new_return(78);
+            }
+	    if(!p_iputl(guysbuf[i].misc26,f))
+            {
+                new_return(79);
+            }
+	    if(!p_iputl(guysbuf[i].misc27,f))
+            {
+                new_return(80);
+            }
+	    if(!p_iputl(guysbuf[i].misc28,f))
+            {
+                new_return(81);
+            }
+	    if(!p_iputl(guysbuf[i].misc29,f))
+            {
+                new_return(82);
+            }
+	    if(!p_iputl(guysbuf[i].misc30,f))
+            {
+                new_return(83);
+            }
+	    if(!p_iputl(guysbuf[i].misc31,f))
+            {
+                new_return(84);
+            }
+	    if(!p_iputl(guysbuf[i].misc32,f))
+            {
+                new_return(85);
+            }
+	    for ( int q = 0; q < 32; q++ )
+	    {
+		    if(!p_iputl(guysbuf[i].movement[q],f))
+		    {
+			new_return(86);
+		    }
+	    }
+	    for ( int q = 0; q < 32; q++ )
+	    {
+		    if(!p_iputl(guysbuf[i].new_weapon[q],f))
+		    {
+			new_return(87);
+		    }
+	    }
+	    if(!p_iputw(guysbuf[i].npcscript,f))
+            {
+                new_return(88);
+            }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].initD[q],f))
+		{
+			new_return(89);
+		}
+	    }
+	    for ( int q = 0; q < 2; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].initA[q],f))
+		{
+			new_return(90);
+		}
+	    }
         }
         
         if(writecycle==0)

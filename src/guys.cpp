@@ -322,6 +322,23 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     dmisc13=d->misc13;
     dmisc14=d->misc14;
     dmisc15=d->misc15;
+    dmisc16=d->misc16;
+    dmisc17=d->misc17;
+    dmisc18=d->misc18;
+    dmisc19=d->misc19;
+    dmisc20=d->misc20;
+    dmisc21=d->misc21;
+    dmisc22=d->misc22;
+    dmisc23=d->misc23;
+    dmisc24=d->misc24;
+    dmisc25=d->misc25;
+    dmisc26=d->misc26;
+    dmisc27=d->misc27;
+    dmisc28=d->misc28;
+    dmisc29=d->misc29;
+    dmisc30=d->misc30;
+    dmisc31=d->misc31;
+    dmisc31=d->misc32;
     
     for(int i=0; i<edefLAST255; i++)
         defense[i]=d->defense[i];
@@ -338,10 +355,21 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     for ( int q = 0; q < 10; q++ ) frozenmisc[q] = d->frozenmisc[q];
    
     for ( int q = 0; q < 4; q++ ) hitby[q] = 0;
-    firesfx = 0; //t.b.a -Z
+    //firesfx = 0; //t.b.a -Z
     isCore = true; //t.b.a
     parentCore = 0; //t.b.a
     script_UID = FFCore.GetScriptObjectUID(UID_TYPE_NPC); //This is used by child npcs. 
+    
+    firesfx = d->firesfx;
+    for ( int q = 0; q < 32; q++ ) movement[q] = d->movement[q];
+    for ( int q = 0; q < 32; q++ ) new_weapon[q] = d->new_weapon[q];
+    
+    npcscript = (d->npcscript >= 0) ? d->npcscript : 0; //Dont assign invalid data. 
+    
+    for ( int q = 0; q < 8; q++ ) initD[q] = d->initD[q];
+    for ( int q = 0; q < 2; q++ ) initA[q] = d->initA[q];
+    
+    dialogue_str = 0; //set by spawn flags. 
     
     if(bosspal>-1)
     {
