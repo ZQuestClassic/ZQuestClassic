@@ -1,7 +1,16 @@
 //2.54 Changes
 
-//Alpha 28
+//Alpha 29
+Fix: Fix enemies not seeking link at some angles. ( Tamamo, 13th April, 2018 )
+Added a heap of variables to npcs:
+	misc16 -> misc32
+	npcscript, initD[8], intiA[2]
+	movement[32] (for patterns, args)
+	new_weapon[32] (for weapon movement patterns and args)
+	firesfx
 
+
+//Alpha 28
 Added whistle defence to enemies.
 Added whistle Can Damage flag, and a damage attribute field to
 	the whistle item (in the Item Editor). ( ZoriaRPG, 10th April 2018 )
