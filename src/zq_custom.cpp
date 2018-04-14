@@ -2637,19 +2637,34 @@ static int enedata_spritesize_list[] =
     213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,237,238,239,240,241,242,243,244,245,246,-1
 };
 
+static int enemy_defence_tabs_list[] =
+{
+    247,-1
+};
+
+
+static TABPANEL enemy_defence_tabs[] =
+{
+    { (char *)"Defs 1",	 D_SELECTED,               enedata_defense_list,   0, NULL },
+    { (char *)"Defs 2",	 0,               enedata_defense2_list,   0, NULL },
+    { (char *)"Defs 3",	 0,               enedata_defense3_list,   0, NULL },
+    { NULL,                   0,               NULL,                  0, NULL }
+};
+
+
+
 static TABPANEL enedata_tabs[] =
 {
     { (char *)"Data 1",       D_SELECTED,      enedata_data_list,     0, NULL },
     { (char *)"Data 2",       0,               enedata_data2_list,    0, NULL },
     { (char *)"Misc. Flags",	 0,               enedata_flags_list,    0, NULL },
 //{ (char *)"Flags 2",	    0,               enedata_flags2_list,   0, NULL },
-    { (char *)"Defs 1",	 0,               enedata_defense_list,   0, NULL },
-    { (char *)"Defs 2",	 0,               enedata_defense2_list,   0, NULL },
-    { (char *)"Defs 3",	 0,               enedata_defense3_list,   0, NULL },
+    { (char *)"Defenses",	 0,               enemy_defence_tabs_list,   0, NULL },
     { (char *)"Spawn Flags",	 0,               enedata_flags3_list,   0, NULL },
     { (char *)"Size",	 0,               enedata_spritesize_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
 };
+
 
 list_data_struct bief[eeMAX];
 int bief_cnt=-1;
@@ -3444,14 +3459,14 @@ static DIALOG enedata_dlg[] =
 static DIALOG enedata_dlg[] =
 {
     {  jwin_win_proc,            0,      0,    320,    240,    vc(14),                 vc(1),                   0,    D_EXIT,      0,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_tab_proc,            4,     24,    312,    192,    0,                      0,                       0,    0,           0,    0, (void *) enedata_tabs,                                          NULL, (void *)enedata_dlg  },
+    {  jwin_tab_proc,            4,     17,    312,    200,    0,                      0,                       0,    0,           0,    0, (void *) enedata_tabs,                                          NULL, (void *)enedata_dlg  },
     //2
     {  d_ecstile_proc,          16,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
     {  d_ecstile_proc,          52,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
     {  d_ecstile_proc,          88,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
     //5
-    {  jwin_button_proc,        50,    220,     61,     16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void *) "OK",                                                  NULL,   NULL                 },
-    {  jwin_button_proc,       130,    220,     61,     16,    vc(14),                 vc(1),                  27,    D_EXIT,      0,    0, (void *) "Cancel",                                              NULL,   NULL                 },
+    {  jwin_button_proc,        86,    220,     61,     16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void *) "OK",                                                  NULL,   NULL                 },
+    {  jwin_button_proc,       166,    220,     61,     16,    vc(14),                 vc(1),                  27,    D_EXIT,      0,    0, (void *) "Cancel",                                              NULL,   NULL                 },
     //7
     {  jwin_text_proc,          21,     46,     30,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Old",                                                 NULL,   NULL                 },
     {  jwin_text_proc,          44,     46,     30,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Special",                                          NULL,   NULL                 },
@@ -3742,6 +3757,10 @@ static DIALOG enedata_dlg[] =
 	//246 TileHeight Overrife
 	 { jwin_check_proc,        94+50,     67,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	
+	 // 247 Defence tabs
+	  {  jwin_tab_proc,                        4,     34,    312,    182,    0,                      0,                       0,    0,          0,          0, (void *) enemy_defence_tabs,     NULL, (void *)enedata_dlg   },
+	  //scripts
+	  
     {  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
 
