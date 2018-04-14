@@ -1,5 +1,14 @@
 //2.54 Changes
 
+//Alpha 30
+Added cascading tabs to the Enemy Editor:
+	The Defs 1, Defs 2, and Defs 3 tabs have been moved 
+	into a *nested* tab interface.
+	The new tab, `Defenses`, has three tabs that cascade
+	below it.
+	This will save some room and remove some UI clutter. ( ZoriaRPG, 14th April, 2018 )
+
+
 //Alpha 29
 Fix: Fix enemies not seeking link at some angles. ( Tamamo, 13th April, 2018 )
 Added a heap of variables to npcs:
