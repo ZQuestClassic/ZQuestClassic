@@ -9692,24 +9692,24 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 					break;
 				
 				case wEnemyWeapons:
-				case ewFireball: tempguy.firesfx = 0; break;
+				case ewFireball: tempguy.firesfx = 40; break;
 				
-				case ewArrow: tempguy.firesfx = 1; break;
-				case ewBrang: tempguy.firesfx = 4; break;
-				case ewSword: tempguy.firesfx = 20; break;
-				case ewRock: tempguy.firesfx = 1; break;
+				case ewArrow: tempguy.firesfx = 1; break; //Ghost.zh has 0?
+				case ewBrang: tempguy.firesfx = 4; break; //Ghost.zh has 0?
+				case ewSword: tempguy.firesfx = 20; break; //Ghost.zh has 0?
+				case ewRock: tempguy.firesfx = 51; break;
 				case ewMagic: tempguy.firesfx = 32; break;
-				case ewBomb: tempguy.firesfx = 3; break;
-				case ewSBomb: tempguy.firesfx = 3; break;
-				case ewLitBomb: tempguy.firesfx = 21; break;
-				case ewLitSBomb: tempguy.firesfx = 21; break;
+				case ewBomb: tempguy.firesfx = 3; break; //Ghost.zh has 0?
+				case ewSBomb: tempguy.firesfx = 3; break; //Ghost.zh has 0?
+				case ewLitBomb: tempguy.firesfx = 21; break; //Ghost.zh has 0?
+				case ewLitSBomb: tempguy.firesfx = 21; break; //Ghost.zh has 0?
 				case ewFireTrail: tempguy.firesfx = 13; break;
 				case ewFlame: tempguy.firesfx = 13; break;
 				case ewWind: tempguy.firesfx = 32; break;
 				case ewFlame2: tempguy.firesfx = 13; break;
 				case ewFlame2Trail: tempguy.firesfx = 13; break;
 				case ewIce: tempguy.firesfx = 44; break;
-				case ewFireball2: tempguy.firesfx = 13; break; //fireball (rising)
+				case ewFireball2: tempguy.firesfx = 40; break; //fireball (rising)
 				
 				//what about special attacks (e.g. summoning == 56)
 				default: break; //No assign.
