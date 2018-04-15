@@ -2593,7 +2593,8 @@ int onCustomWpns()
 
 static int enedata_data_list[] =
 {
-    2,3,4,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,
+    //2,
+	247,3,4,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,
     31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,138,139,140,141,143,-1
 };
 
@@ -2619,7 +2620,7 @@ static int enedata_flags3_list[] =
 
 static int enedata_defense_list[] =
 {
-    144,145,146,147,148,149,150,151,152,161,162,163,164,165,166,167,168,169,178,-1
+	144,145,146,147,148,149,150,151,152,161,162,163,164,165,166,167,168,169,178,-1
 };
 
 static int enedata_defense2_list[] =
@@ -2639,9 +2640,105 @@ static int enedata_spritesize_list[] =
 
 static int enemy_defence_tabs_list[] =
 {
-    247,-1
+    2,-1
+};
+/*
+static int enemy_script_tabs_list[] =
+{
+    248,-1
 };
 
+static int enemy_graphics_tabs_list[] =
+{
+    249,-1
+};
+
+static int enemy_sounds_tabs_list[] =
+{
+    250,-1
+};
+
+static int enemy_basic_tabs_list[] =
+{
+    251,-1
+};
+
+static int enemy_attacks_tabs_list[] =
+{
+    252,-1
+};
+
+static int enemy_movement_tabs_list[] =
+{
+    253,-1
+};
+
+static int enemy_flags_tabs_list[] =
+{
+    254,-1
+};
+
+static int enemy_attributes_tabs_list[] =
+{
+    255,-1
+};
+
+static int enemy_scripts_list[] =
+{
+    -1
+};
+
+static int enemy_scripts_initdata_list[] =
+{
+    -1
+};
+
+static int enemy_gfx_tiles_list[] =
+{
+    -1
+};
+
+static int enemy_sfx_sounds_list[] =
+{
+    -1
+};
+
+static int enemy_sfx_bgsounds_list[] =
+{
+    -1
+};
+
+static int enemy_attacks_list[] =
+{
+    -1
+};
+static int enemy_attacks_Wmove_list[] =
+{
+    -1
+};
+static int enemy_movement_list[] =
+{
+    -1
+};
+
+static int enemy_attribs_1_list[] =
+{
+    -1
+};
+static int enemy_attribs_2_list[] =
+{
+    -1
+};
+static int enemy_attribs_3_list[] =
+{
+    -1
+};
+
+static int enemy_attribs_4_list[] =
+{
+    -1
+};
+*/
 
 static TABPANEL enemy_defence_tabs[] =
 {
@@ -2650,18 +2747,88 @@ static TABPANEL enemy_defence_tabs[] =
     { (char *)"Defs 3",	 0,               enedata_defense3_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
 };
+/*
+static TABPANEL enemy_attribs_tabs[] =
+{
+   // { (char *)"Attributes 1 to 8",	 D_SELECTED,               enemy_attribs_1_list,   0, NULL },
+   // { (char *)"Attributes 9 to 16",	 D_SELECTED,               enemy_attribs_2_list,   0, NULL },
+   // { (char *)"Attributes 17 to 24",	 D_SELECTED,               enemy_attribs_3_list,   0, NULL },
+   // { (char *)"Attributes 18 to 32",	 D_SELECTED,               enemy_attribs_4_list,   0, NULL },
+    { NULL,                   0,               NULL,                  0, NULL }
+};
+
+static TABPANEL enemy_flags_tabs[] =
+{
+    { (char *)"Misc. Flags",	 D_SELECTED,               enedata_flags_list,   0, NULL },
+    { (char *)"Spawn Flags",	 0,               enedata_flags3_list,   0, NULL },
+    { NULL,                   0,               NULL,                  0, NULL }
+};
+
+static TABPANEL enemy_script_tabs[] =
+{
+   // { (char *)"Script",	 D_SELECTED,               enemy_scripts_list,   0, NULL },
+   // { (char *)"Initial Data",	 0,               enemy_scripts_initdata_list,   0, NULL },
+    { NULL,                   0,               NULL,                  0, NULL }
+};
+
+static TABPANEL enemy_graphics_tabs[] =
+{
+   // { (char *)"Tiles",	 D_SELECTED,               enemy_gfx_tiles_list,   0, NULL },
+    { NULL,                   0,               NULL,                  0, NULL }
+};
 
 
 
+static TABPANEL enemy_sounds_tabs[] =
+{
+   // { (char *)"Sound Efects",	 D_SELECTED,               enemy_sfx_sounds_list,   0, NULL },
+   // { (char *)"Background Sounds",	 D_SELECTED,               enemy_sfx_bgsounds_list,   0, NULL },
+    { NULL,                   0,               NULL,                  0, NULL }
+};
+
+static TABPANEL enemy_basic_tabs[] =
+{
+    { (char *)"Data 1",	 D_SELECTED,               enedata_data_list,   0, NULL },
+    { (char *)"Data 2",	 0,               enedata_data2_list,   0, NULL },
+   // { (char *)"Graphics",	 D_SELECTED,               enemy_gfx_tiles_list,   0, NULL },
+   // { (char *)"Sound Efects",	 D_SELECTED,               enemy_sfx_sounds_list,   0, NULL },
+    { NULL,                   0,               NULL,                  0, NULL }
+};
+
+static TABPANEL enemy_attacks_tabs[] =
+{
+  //  { (char *)"Attacks",	 D_SELECTED,               enemy_attacks_list,   0, NULL },
+  //  { (char *)"Weapon Movement",	 D_SELECTED,               enemy_attacks_Wmove_list,   0, NULL },
+    { NULL,                   0,               NULL,                  0, NULL }
+};
+
+static TABPANEL enemy_movement_tabs[] =
+{
+  //  { (char *)"Enemy Movement",	 D_SELECTED,               enemy_movement_list,   0, NULL },#
+    { NULL,                   0,               NULL,                  0, NULL }
+};
+*/
 static TABPANEL enedata_tabs[] =
 {
     { (char *)"Data 1",       D_SELECTED,      enedata_data_list,     0, NULL },
     { (char *)"Data 2",       0,               enedata_data2_list,    0, NULL },
+   // { (char *)"Basic",       D_SELECTED,               enemy_basic_tabs_list,    0, NULL },
     { (char *)"Misc. Flags",	 0,               enedata_flags_list,    0, NULL },
-//{ (char *)"Flags 2",	    0,               enedata_flags2_list,   0, NULL },
+   // { (char *)"Flags 2",	    0,               enedata_flags2_list,   0, NULL },
     { (char *)"Defenses",	 0,               enemy_defence_tabs_list,   0, NULL },
+   // { (char *)"Defs 1",	 0,               enedata_defense_list,   0, NULL },
+   // { (char *)"Defs 2",	 0,               enedata_defense2_list,   0, NULL },
+   // { (char *)"Defs 3",	 0,               enedata_defense3_list,   0, NULL },
+   // { (char *)"Flags",	 0,               enemy_flags_tabs_list,   0, NULL },
     { (char *)"Spawn Flags",	 0,               enedata_flags3_list,   0, NULL },
     { (char *)"Size",	 0,               enedata_spritesize_list,   0, NULL },
+  //Unimplemented at present. -Z
+   // { (char *)"Movement",	 0,               enemy_movement_tabs_list,   0, NULL },
+   // { (char *)"Attacks",	 0,               enemy_attacks_tabs_list,   0, NULL },
+   // { (char *)"Sound Effects",	 0,               enemy_sounds_tabs_list,   0, NULL },
+   // { (char *)"Graphics",	 0,               enemy_graphics_tabs_list,   0, NULL },
+   // { (char *)"Attributes",	 0,               enemy_attributes_tabs_list,   0, NULL },
+   // { (char *)"Script",	 0,               enemy_script_tabs_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
 };
 
@@ -3461,7 +3628,10 @@ static DIALOG enedata_dlg[] =
     {  jwin_win_proc,            0,      0,    320,    240,    vc(14),                 vc(1),                   0,    D_EXIT,      0,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_tab_proc,            4,     17,    312,    200,    0,                      0,                       0,    0,           0,    0, (void *) enedata_tabs,                                          NULL, (void *)enedata_dlg  },
     //2
-    {  d_ecstile_proc,          16,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
+    ////tab procs must be listed prior to their elements!
+    {  jwin_tab_proc,             4,     34,    312,    182,    0,                      0,                       0,    0,          0,          0, (void *) enemy_defence_tabs ,     NULL, (void *) enedata_dlg   },
+//{  d_ecstile_proc,          16,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
+    
     {  d_ecstile_proc,          52,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
     {  d_ecstile_proc,          88,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
     //5
@@ -3623,6 +3793,7 @@ static DIALOG enedata_dlg[] =
     {  jwin_text_proc,         240,    180,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "F. Rate:",                                      NULL,   NULL                 },
     {  jwin_edit_proc,         280,    158,     30,     16,    vc(12),                 vc(1),                   0,    0,           3,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         280,    176,     30,     16,    vc(12),                 vc(1),                   0,    0,           3,    0,  NULL,                                                           NULL,   NULL                 },
+    //142 timer_proc
     {  d_timer_proc,             0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_check_proc,        165,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Use Pal CSet",                                        NULL,   NULL                 },
     //144 - note: these are defenses 0-16, 17 is at 191
@@ -3692,6 +3863,8 @@ static DIALOG enedata_dlg[] =
 	{  jwin_text_proc,           6,    179,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 9 Weapon Defense:",                              NULL,   NULL                 },
 	{  jwin_text_proc,           6,    196,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 10 Weapon Defense:",                              NULL,   NULL                 },
 	//203 script 1 pulldown
+	
+	 /* (dialog proc)           (x)   (y)     (w)     (h)      (fg)                   (bg)                    (key) (flags)      (d1)  (d2)  (dp)                                                         (dp2)  (dp3) */
 	{  jwin_droplist_proc,      126, 51-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
 	{  jwin_droplist_proc,      126, 67-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
 	{  jwin_droplist_proc,      126, 83-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
@@ -3756,10 +3929,32 @@ static DIALOG enedata_dlg[] =
 	 { jwin_check_proc,        94+50,     51,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
 	//246 TileHeight Overrife
 	 { jwin_check_proc,        94+50,     67,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Enable",                        NULL,   NULL                  },
-	
+	//247, used to be 2
+	 {  d_ecstile_proc,          16,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
+    
+	 /* (dialog proc)     		(x)   (y)     (w)     (h)    (fg)                   (bg)                    (key) (flags)      (d1)        (d2)  (dp)                           (dp2)  (dp3) */
 	 // 247 Defence tabs
-	  {  jwin_tab_proc,                        4,     34,    312,    182,    0,                      0,                       0,    0,          0,          0, (void *) enemy_defence_tabs,     NULL, (void *)enedata_dlg   },
-	  //scripts
+	 // {  jwin_tab_proc,             4,     34,    312,    182,    0,                      0,                       0,    0,          0,          0, (void *) enemy_defence_tabs ,     NULL, (void *) enedata_dlg   },
+	  //{  jwin_tab_proc,             4,     34,    312,    182,    0,                      0,                       0,    0,          0,          0, (void *) enemy_defence_tabs ,     NULL, (void *) enedata_tabs   },
+	// {  d_timer_proc,             0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
+	  /*
+	  // 248 scripts
+	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_script_tabs,     NULL, (void *)enedata_dlg   },
+	 //249 graphics
+	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_graphics_tabs,     NULL, (void *)enedata_dlg   },
+	 //250 sounds
+	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_sounds_tabs,     NULL, (void *)enedata_dlg   },
+	//251 basic
+	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_basic_tabs,     NULL, (void *)enedata_dlg   },
+	//252 attacks
+	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_attacks_tabs,     NULL, (void *)enedata_dlg   },
+	//253 movement
+	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_movement_tabs,     NULL, (void *)enedata_dlg   },
+	//254 flags
+	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_flags_tabs,     NULL, (void *)enedata_dlg   },
+	//255 attributes
+	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_attribs_tabs,     NULL, (void *)enedata_dlg   },
+    */
 	  
     {  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
@@ -3908,7 +4103,7 @@ int d_ecstile_proc(int msg,DIALOG *d,int c)
         if(select_tile(t,f,1,cs,true))
         {
             d->d1 = t;
-            enedata_dlg[2].d2 = cs;
+            enedata_dlg[247].d2 = cs;
             enedata_dlg[3].d2 = cs;
             enedata_dlg[4].d2 = cs;
             return D_REDRAW;
@@ -3973,8 +4168,8 @@ void edit_enemydata(int index)
     sprintf(enemynumstr,"Enemy %d: %s", index, guy_string[index]);
     enedata_dlg[0].dp = enemynumstr;
     enedata_dlg[0].dp2 = lfont;
-    enedata_dlg[2].d1 = guysbuf[index].tile;
-    enedata_dlg[2].d2 = guysbuf[index].cset;
+    enedata_dlg[247].d1 = guysbuf[index].tile;
+    enedata_dlg[247].d2 = guysbuf[index].cset;
     enedata_dlg[3].d1 = guysbuf[index].s_tile;
     enedata_dlg[3].d2 = guysbuf[index].cset;
     enedata_dlg[4].d1 = guysbuf[index].e_tile;
@@ -4313,8 +4508,8 @@ void edit_enemydata(int index)
         
         ret = zc_popup_dialog(enedata_dlg,3);
         
-        test.tile  = enedata_dlg[2].d1;
-        test.cset = enedata_dlg[2].d2;
+        test.tile  = enedata_dlg[247].d1;
+        test.cset = enedata_dlg[247].d2;
         test.s_tile  = enedata_dlg[3].d1;
         test.e_tile  = enedata_dlg[4].d1;
         
