@@ -2826,6 +2826,7 @@ static TABPANEL enemy_basic_tabs[] =
 {
     { (char *)"Data 1",	 D_SELECTED,               enedata_data_list,   0, NULL },
     { (char *)"Data 2",	 0,               enedata_data2_list,   0, NULL },
+    { (char *)"Size",	 0,               enedata_spritesize_list,   0, NULL },
    // { (char *)"Graphics",	 D_SELECTED,               enemy_gfx_tiles_list,   0, NULL },
    // { (char *)"Sound Efects",	 D_SELECTED,               enemy_sfx_sounds_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
@@ -2844,7 +2845,7 @@ static TABPANEL enedata_tabs[] =
    // { (char *)"Defs 3",	 0,               enedata_defense3_list,   0, NULL },
     { (char *)"Flags",	 0,               enemy_flags_tabs_list,   0, NULL },
    // { (char *)"Spawn Flags",	 0,               enedata_flags3_list,   0, NULL },
-    { (char *)"Size",	 0,               enedata_spritesize_list,   0, NULL },
+  // { (char *)"Size",	 0,               enedata_spritesize_list,   0, NULL },
   //Unimplemented at present. -Z
     { (char *)"Movement",	 0,               enemy_movement_tabs_list,   0, NULL },
    // { (char *)"Attacks",	 0,               enemy_attacks_tabs_list,   0, NULL },
