@@ -2794,6 +2794,40 @@ static TABPANEL enemy_attacks_tabs[] =
 */
 
 
+static int enedata_defense_ranged_list[] =
+{
+	//ranged 1
+	//brang,	arrow, 		magic, 		fire, 		byrna, 		whistle
+	144, 161, 	147, 164, 	150, 167,	148, 165, 	160, 177,	191, 192,
+	-1
+};
+
+
+//193 == text; 203 == lister
+static int enedata_defense_script_list[] =
+{
+    193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,-1
+};
+
+static int enedata_defense_melee_list[] =
+{
+	//melee
+	//sword, 	bomb, 		sbomb, 		wand, 
+	153, 170, 	145, 162,	146, 163, 	149, 166,
+	//hammer, 	boots, 		hookshot
+	152, 169, 	159, 176, 	151, 168, 
+	//set all
+	178, 
+};
+
+static int enedata_defense_reflected_list[] =
+{
+	//reflected
+	//ref beam, 	ref magic, 	ref fireball, 	refl rock, 
+	155, 172,	156, 173,	157, 174,	158, 175,
+	-1
+};
+
 static TABPANEL enemy_movement_tabs[] =
 {
     { (char *)"Enemy Movement",	 D_SELECTED,               enemy_movement_list,   0, NULL },
@@ -2809,9 +2843,17 @@ static TABPANEL enemy_script_tabs[] =
 
 static TABPANEL enemy_defence_tabs[] =
 {
+	
     { (char *)"Defs 1",	 D_SELECTED,               enedata_defense_list,   0, NULL },
     { (char *)"Defs 2",	 0,               enedata_defense2_list,   0, NULL },
-    { (char *)"Defs 3",	 0,               enedata_defense3_list,   0, NULL },
+    { (char *)"Script",	 0,               enedata_defense3_list,   0, NULL },
+    
+    /*
+    { (char *)"Melee",	 D_SELECTED,               enedata_defense_melee_list,   0, NULL },
+    { (char *)"Ranged",	 0,               enedata_defense_ranged_list,   0, NULL },
+    { (char *)"Reflected",	 0,               enedata_defense_reflected_list,   0, NULL },
+    { (char *)"Script",	 0,               enedata_defense_script_list,   0, NULL },
+    */
     { NULL,                   0,               NULL,                  0, NULL }
 };
 
