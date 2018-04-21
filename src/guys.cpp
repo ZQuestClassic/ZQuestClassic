@@ -4596,6 +4596,10 @@ bool eTektite::animate(int index)
                 {
                     step=0-step;
                 }
+                else if(water_walkflag(x+8,y+16,3) && dmisc4)
+                {
+                    step=0-step;
+                }
             }
             else if(step<0)
             {
@@ -4612,6 +4616,10 @@ bool eTektite::animate(int index)
                     step=0-step;
                 }
                 else if(MAPCOMBOFLAG(x+8,y)==mfNOENEMY)
+                {
+                    step=0-step;
+                }
+                else if(water_walkflag(x+8,y,3) && dmisc4)
                 {
                     step=0-step;
                 }
@@ -4635,6 +4643,10 @@ bool eTektite::animate(int index)
                 {
                     clk3^=1;
                 }
+                else if(water_walkflag(x,y+8,3) && dmisc4)
+                {
+                    clk3^=1;
+                }
             }
             else
             {
@@ -4651,6 +4663,10 @@ bool eTektite::animate(int index)
                     clk3^=1;
                 }
                 else if(MAPCOMBOFLAG(x+16,y+8)==mfNOENEMY)
+                {
+                    clk3^=1;
+                }
+                else if(water_walkflag(x+16,y+8,3) && dmisc4)
                 {
                     clk3^=1;
                 }
@@ -12772,7 +12788,10 @@ bool is_starting_pos(int i, int x, int y, int t)
             (COMBOTYPE(x+8,y+8)==cNOJUMPZONE||
              COMBOTYPE(x+8,y+8)==cNOENEMY||
              MAPFLAG(x+8,y+8)==mfNOENEMY||
-             MAPCOMBOFLAG(x+8,y+8)==mfNOENEMY))
+             MAPCOMBOFLAG(x+8,y+8)==mfNOENEMY)||
+             //z3-esque tektites -Tamamo
+             (guysbuf[tmpscr->enemy[i]].misc4==1) && water_walkflag(x,y+8,3))
+
         return false;
 
     // Other off-limit combos
