@@ -475,7 +475,7 @@ its graphics from the item editor. The user may set an item editor flag to disab
 //Alpha 14
 Converted the 'power' attribute of itemdata from a byte to a long. Item power now has a valid range of -LONG_MAX to +LONG_MAX, 
 however the cap is realistically -214747 to 214747, for ZScript. This allows inverting the effects of many items/weapons, and 
-scaling to obscene levels. 
+scaling to obscene levels. (Negative values now work in the power field, and in Attributes[], for rings, and similar.)
 Converted the 'family' attribute of itemdata from a byte to a long. This is in perparation for adding new classes (hardcoded),
 and allowing the user to create custom item classes.
 Begin adding mapdata variables. 

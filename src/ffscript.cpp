@@ -4418,7 +4418,8 @@ case MAPDATAMISCD:
 		int indx = ri->d[0] / 10000; 
 		if ( indx < 0 || indx > 2 ) 
 		{ 
-			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Item"); 
+			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Item");
+			ret = -10000;
 		} 
 		else 
 		{ 
@@ -4432,8 +4433,9 @@ case MAPDATAMISCD:
 				ret = ((int)(misc->shop[ref].item[indx]) * 10000); 
 			} 
 		} 
-	} 
 	break;
+	} 
+	
 	
 		// GET_SHOPDATA_VAR_INDEX(item, "Item", 2); break;
 	case SHOPDATAHASITEM: 
@@ -4445,6 +4447,7 @@ case MAPDATAMISCD:
 		if ( indx < 0 || indx > 2 ) 
 		{ 
 			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+			ret = -10000;
 		} 
 		else 
 		{ 
@@ -4458,8 +4461,9 @@ case MAPDATAMISCD:
 				ret = ((int)(misc->shop[ref].hasitem[indx]) * 10000); 
 			} 
 		} 
-	} 
 	break;
+	} 
+	
 		
 	//GET_SHOPDATA_VAR_INDEX(hasitem, "HasItem", 2); break;
 	case SHOPDATAPRICE: 
@@ -4471,6 +4475,7 @@ case MAPDATAMISCD:
 		if ( indx < 0 || indx > 2 ) 
 		{ 
 			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Price"); 
+			ret = -10000;
 		} 
 		else 
 		{ 
@@ -4483,8 +4488,9 @@ case MAPDATAMISCD:
 				ret = ((int)(misc->shop[ref].price[indx]) * 10000); 
 			} 
 		} 
-	} 
 	break;
+	} 
+	
 		
 	//GET_SHOPDATA_VAR_INDEX(price, "Price", 2); break;
 	//Pay for info
@@ -4493,7 +4499,7 @@ case MAPDATAMISCD:
 		if ( ri->shopsref < NUMSHOPS || ri->shopsref > NUMINFOSHOPS )
 		{
 			Z_scripterrlog("Invalid Info Shop ID passed to shopdata->String[]: %d\n", ri->shopsref); 
-			break;
+			ret = -10000;
 		}
 		else 
 		{
@@ -4520,7 +4526,8 @@ case MAPDATAMISCD:
 		}
 			
 		//GET_SHOPDATA_VAR_INDEX(str, String, 2); break;
-	} break;
+	break;
+	}
    
 
 ///----------------------------------------------------------------------------------------------------//
