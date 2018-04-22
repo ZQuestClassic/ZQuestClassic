@@ -1,5 +1,7 @@
 To-Do
 
+Allow decimal values in item editor power and attributes fields.
+
 Add freeze, freezeexcept, and such as script instructions.
 
 ->GetByUID(int script-uid) : A way to get the current screen index 
