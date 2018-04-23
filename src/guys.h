@@ -65,54 +65,54 @@ public:
     byte movestatus, item_set, grumble, posframe;
     bool itemguy, count_enemy, dying, ceiling, leader, scored, script_spawned;
     fix  step, floor_y;
-    
+
     //d variables
     dword flags;
     dword flags2;
-    
+
     short  family, dcset, anim;
     short  dp, wdp, wpn;
-    
+
     short  rate, hrate, homing;
     fix dstep;
     long dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, dmisc11, dmisc12, dmisc13, dmisc14, dmisc15;
     short bgsfx, bosspal;
     byte defense[edefLAST255];
     byte hitsfx,deadsfx;
-    
+
     byte hitby[4];
     short firesfx;
     bool isCore;
-    short parentCore; 
+    short parentCore;
     int script_UID; 	//used to determine the UID of an enemy by the user (in scripts), plus
 			//in-engine assignment of children to a parent and
 			//for future use in npc scripts (as the ref for `this`)--the easy way to determine to
 			//what npc a script on the stack is bound.
-    
+
     int wpnsprite; //wpnsprite is new for 2.6 -Z
-    int SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults. 
+    int SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults.
     int frozentile, frozencset, frozenclock;
     short frozenmisc[10];
-    
-    long dmisc16, dmisc17, dmisc18, dmisc19, dmisc20, dmisc21, dmisc22, dmisc23, 
+
+    long dmisc16, dmisc17, dmisc18, dmisc19, dmisc20, dmisc21, dmisc22, dmisc23,
 	dmisc24, dmisc25, dmisc26, dmisc27, dmisc28, dmisc29, dmisc30, dmisc31, dmisc32;
-    long movement[32]; //Reserved for npc movement types and args. 
+    long movement[32]; //Reserved for npc movement types and args.
     long new_weapon[32]; //Reserved for weapon patterns and args.
-    word npcscript; 
+    word npcscript;
     long initD[8], initA[2];
-    
-    long dialogue_str; //WIll be set in spawn flags. 
-    
-    
+
+    long dialogue_str; //WIll be set in spawn flags.
+
+
     int getScriptUID();
     void setScriptUID(int new_id);
-    
+
     fix  getX();
     fix  getY();
     int  getID();
     enemy(fix X,fix Y,int Id,int Clk);                      // : sprite()
     virtual ~enemy();
-    
+
     // Supplemental animation code that all derived classes should call
     // as a return value for animate().
     // Handles the death animation and returns true when enemy is finished.
@@ -121,7 +121,7 @@ public:
     // The one with an index is the one that is called by
     // the guys sprite list; index is the enemy's index in the list.
     virtual bool animate(int index);
-    
+
     // auomatically kill off enemy (for rooms with ringleaders)
     virtual void kickbucket();
     // Stop BG SFX only if no other enemy is playing it
@@ -137,28 +137,28 @@ public:
     {
         return false;
     }
-    
+
 
 protected:
     int  clk2,sclk;
     int  starting_hp;
     int  ox, oy;
     word  s_tile; //secondary (additional) tile(s)
-    
+
     // to allow for different sfx on defeating enemy
     virtual void death_sfx();
     virtual void move(fix dx,fix dy);
     virtual void removearmos(int ax,int ay);
     virtual void move(fix s);
     void leave_item();
-    
+
     // take damage or ignore it
     virtual bool hitshield(int wpnx, int wpny, int xdir);
     virtual int defend(int wpnId, int *power, int edef);
     //virtual int defend_wdmg(int wpnId, int dmg, int edef);
     bool candamage(int power, int edef);
     int defenditemclass(int wpnId, int *power);
-    
+
     bool dont_draw();
     // base drawing function to be used by all derived classes instead of
     // sprite::draw()
@@ -167,7 +167,7 @@ protected:
     void drawblock(BITMAP *dest,int mask);
     virtual void drawshadow(BITMAP *dest, bool translucent);
     void masked_draw(BITMAP *dest,int mx,int my,int mw,int mh);
-    
+
     //                         --==**==--
     //   Movement routines that can be used by derived classes as needed
     //                         --==**==--
@@ -237,7 +237,7 @@ protected:
     void tiledir_big(int ndir, bool fourdir);
     // Enemies that cannot ever be penetrated by weapons
     bool cannotpenetrate();
-    
+
 private:
     bool shieldCanBlock;
 };
@@ -308,7 +308,8 @@ public:
     int c;
     int clk2start;
     int cstart;
-    
+    fix xstep;
+
     eTektite(fix X,fix Y,int Id,int Clk);                   // : enemy(X,Y,Id,Clk)
     virtual bool animate(int index);
     virtual void drawshadow(BITMAP *dest,bool translucent);
@@ -408,7 +409,7 @@ public:
     eProjectile(fix X,fix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
     virtual bool animate(int index);
     virtual void draw(BITMAP *dest);
-    
+
 private:
     const int minRange;
 };
@@ -460,7 +461,7 @@ public:
     bool haslink; // Like Like
     int multishot; // Shoot twice/thrice/n times in one halt
     fix fy, shadowdistance; // Pols Voice
-    
+
     eStalfos(fix X,fix Y,int Id,int Clk);                   // : enemy(X,Y,Id,Clk)
     bool WeaponOut();
     void KillWeapon();
@@ -771,7 +772,7 @@ FONT *setmsgfont();
 bool parsemsgcode();
 void putmsg();
 int message_more_y();
-int wpnsfx(int wpn); 
+int wpnsfx(int wpn);
 
 /***  Collision detection & handling  ***/
 
@@ -782,4 +783,3 @@ void roaming_item();
 int more_carried_items();
 #endif
 /*** end of guys.cc ***/
-

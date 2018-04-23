@@ -3397,8 +3397,8 @@ static EnemyNameInfo enameinf[]=
         { (void*)&keesemisc1_list, (void*)&keesemisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
     },
     {
-        eeTEK,  { "1/n jump start:",  "1/n jump cont.:", "Jump Z velocity:", "Bounce Off Walls:", NULL, NULL, NULL, NULL, NULL, NULL },
-        { NULL, NULL, NULL,  &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL }
+        eeTEK,  { "1/n jump start:",  "1/n jump cont.:", "Jump Z velocity:", "Fixed X velocity:", "Solid Combos OK:", NULL, NULL, NULL, NULL, NULL },
+        { NULL, NULL, NULL, &noyesmisc_list, &noyesmisc_list, NULL, NULL, NULL, NULL, NULL }
     },
     {
         eeLEV,  { "Emerge style:",  "Submerged CSet:", "Emerging step:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },

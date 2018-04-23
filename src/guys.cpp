@@ -4526,6 +4526,11 @@ eTektite::eTektite(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     if(dmisc2 == 0)
         dmisc2 = 3;
 
+    if(dmisc4 == 0) //Fixed distance
+        xstep=(dstep/250.0); //250 is their default xstep they have an xstep by 1 by default.
+    else
+        xstep=1;
+
     //nets+760;
 }
 
@@ -4543,6 +4548,15 @@ bool eTektite::animate(int index)
     {
         y=floor_y;
     }
+
+    /*how these bugs work
+    -step: up/down
+    -misc: movestate
+    -clk2: stateclk
+    -clk3: left/right
+    -clk2start: where the jumpclk started at... used too draw shadows
+    -cstart: when gravity kicks in
+    -c: clk for the above*/
 
     if(clk>=0 && !stunclk && !frozenclock && (!watch || misc==0))
     {
@@ -4596,7 +4610,7 @@ bool eTektite::animate(int index)
                 {
                     step=0-step;
                 }
-                else if(water_walkflag(x+8,y+16,3) && dmisc4)
+                else if(water_walkflag(x+8,y+16,2) && dmisc5)
                 {
                     step=0-step;
                 }
@@ -4619,7 +4633,7 @@ bool eTektite::animate(int index)
                 {
                     step=0-step;
                 }
-                else if(water_walkflag(x+8,y,3) && dmisc4)
+                else if(water_walkflag(x+8,y,2) && dmisc5)
                 {
                     step=0-step;
                 }
@@ -4643,7 +4657,7 @@ bool eTektite::animate(int index)
                 {
                     clk3^=1;
                 }
-                else if(water_walkflag(x,y+8,3) && dmisc4)
+                else if(water_walkflag(x,y+8,2) && dmisc5)
                 {
                     clk3^=1;
                 }
@@ -4666,7 +4680,7 @@ bool eTektite::animate(int index)
                 {
                     clk3^=1;
                 }
-                else if(water_walkflag(x+16,y+8,3) && dmisc4)
+                else if(water_walkflag(x+16,y+8,2) && dmisc5)
                 {
                     clk3^=1;
                 }
@@ -4681,11 +4695,13 @@ bool eTektite::animate(int index)
 
             int nb=get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
 
-            if(x<=16-nb)  clk3=right;
+            if(x<=16-nb)
+                clk3=right;
 
-            if(x>=224+nb) clk3=left;
+            if(x>=224+nb)
+                clk3=left;
 
-            x += (clk3==left) ? -1 : 1;
+            x += (clk3==left) ? -xstep : xstep;
 
             if((--clk2<=0 && y>=16-nb) || y>=144+nb)
             {
@@ -12788,10 +12804,8 @@ bool is_starting_pos(int i, int x, int y, int t)
             (COMBOTYPE(x+8,y+8)==cNOJUMPZONE||
              COMBOTYPE(x+8,y+8)==cNOENEMY||
              MAPFLAG(x+8,y+8)==mfNOENEMY||
-             MAPCOMBOFLAG(x+8,y+8)==mfNOENEMY)||
-             //z3-esque tektites -Tamamo
-             (guysbuf[tmpscr->enemy[i]].misc4==1) && water_walkflag(x,y+8,3))
-
+             MAPCOMBOFLAG(x+8,y+8)==mfNOENEMY||
+             (guysbuf[tmpscr->enemy[i]].misc5==1 && water_walkflag(x,y+8,2))))
         return false;
 
     // Other off-limit combos
