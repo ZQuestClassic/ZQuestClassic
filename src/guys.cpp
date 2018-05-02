@@ -48,18 +48,30 @@ void playLevelMusic();
 
 namespace
 {
+    //traditional traps
     int trapConstantHorizontalID;
     int trapConstantVerticalID;
     int trapLOSHorizontalID;
     int trapLOSVerticalID;
     int trapLOS4WayID;
-
+    //enemy screen flags
     int cornerTrapID;
     int centerTrapID;
-
     int rockID;
     int zoraID;
     int statueID;
+    //diagonal traps
+    int trapLOS8WayID;
+    int trapLOSDiagonalID;
+    int trapLOSSlashID;
+    int trapLOSBackslashID;
+    int trapConstantSlashID;
+    int trapConstantBackslashID;
+    //circular traps
+    int trapLOSCWID;
+    int trapLOSCCWID;
+    int trapConstantCWID;
+    int trapConstantCCWID;
 }
 
 void identifyCFEnemies()
@@ -74,9 +86,20 @@ void identifyCFEnemies()
     rockID=-1;
     zoraID=-1;
     statueID=-1;
+    trapLOS8WayID=-1;
+    trapLOSDiagonalID=-1;
+    trapLOSSlashID=-1;
+    trapLOSBackslashID=-1;
+    trapConstantSlashID=-1;
+    trapConstantBackslashID=-1;
+    trapLOSCWID=-1;
+    trapLOSCCWID=-1;
+    trapConstantCWID=-1;
+    trapConstantCCWID=-1;
 
     for(int i=0; i<eMAXGUYS; i++)
     {
+        //traditional traps
         if((guysbuf[i].flags2&cmbflag_trph) && trapLOSHorizontalID==-1)
             trapLOSHorizontalID=i;
         if((guysbuf[i].flags2&cmbflag_trpv) && trapLOSVerticalID==-1)
@@ -87,19 +110,39 @@ void identifyCFEnemies()
             trapConstantHorizontalID=i;
         if((guysbuf[i].flags2&cmbflag_trpud) && trapConstantVerticalID==-1)
             trapConstantVerticalID=i;
-
+        //enemy screen flags
         if((guysbuf[i].flags2&eneflag_trap) && cornerTrapID==-1)
             cornerTrapID=i;
         if((guysbuf[i].flags2&eneflag_trp2) && centerTrapID==-1)
             centerTrapID=i;
-
         if((guysbuf[i].flags2&eneflag_rock) && rockID==-1)
             rockID=i;
         if((guysbuf[i].flags2&eneflag_zora) && zoraID==-1)
             zoraID=i;
-
         if((guysbuf[i].flags2 & eneflag_fire) && statueID==-1)
             statueID=i;
+        //diagonal traps
+        if((guysbuf[i].flags2 & cmbflag_trp8) && trapLOS8WayID==-1)
+            trapLOS8WayID=i;
+        if((guysbuf[i].flags2 & cmbflag_trpd) && trapLOSDiagonalID==-1)
+            trapLOSDiagonalID=i;
+        if((guysbuf[i].flags2 & cmbflag_trps) && trapLOSSlashID==-1)
+            trapLOSSlashID=i;
+        if((guysbuf[i].flags2 & cmbflag_trpb) && trapLOSBackslashID==-1)
+            trapLOSBackslashID=i;
+        if((guysbuf[i].flags2 & cmbflag_trpruld) && trapConstantSlashID==-1)
+            trapConstantSlashID=i;
+        if((guysbuf[i].flags2 & cmbflag_trplurd) && trapConstantBackslashID==-1)
+            trapConstantBackslashID=i;
+        //circular traps
+        if((guysbuf[i].flags2 & cmbflag_trpcw) && trapLOSCWID==-1)
+            trapLOSCWID=i;
+        if((guysbuf[i].flags2 & cmbflag_trpccw) && trapLOSCCWID==-1)
+            trapLOSCCWID=i;
+        if((guysbuf[i].flags2 & cmbflag_trpcwc) && trapConstantCWID==-1)
+            trapConstantCWID=i;
+        if((guysbuf[i].flags2 & cmbflag_trpccwc) && trapConstantCCWID==-1)
+            trapConstantCCWID=i;
     }
 }
 
@@ -1930,7 +1973,7 @@ bool enemy::canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2)
     case 11:
     case r_down:
         dx = dx2+s;
-        dx = dy2+s;
+        dy = dy2+s;
         ok = !m_walkflag(x,y+dy,special, x, y) && !m_walkflag(x+dx,y+sv,special, x, y) &&
              !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
         break;
@@ -5388,22 +5431,64 @@ bool eTrap::animate(int index)
         ox = x;
         oy = y;
         double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
-
-        if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
+        if(dmisc1>=4) //45 degree offset
         {
-            dir=down;
+            if(ddir>-PI && ddir <0) ddir+=PI/4;
+            else ddir-=PI/4;
         }
-        else if((ddir<=(((1)*PI)/4))&&(ddir>(((-1)*PI)/4)))
+        if(dmisc1!=3)
         {
-            dir=right;
+            if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
+            {
+                dir=down;
+            }
+            else if((ddir<=(((1)*PI)/4))&&(ddir>(((-1)*PI)/4)))
+            {
+                dir=right;
+            }
+            else if((ddir<=(((3)*PI)/4))&&(ddir>(((1)*PI)/4)))
+            {
+                dir=up;
+            }
+            else
+            {
+                dir=left;
+            }
         }
-        else if((ddir<=(((3)*PI)/4))&&(ddir>(((1)*PI)/4)))
+        else //animates 8 directions
         {
-            dir=up;
-        }
-        else
-        {
-            dir=left;
+            if((ddir <= -5.0*PI/8.0) && (ddir > -7.0*PI/8.0))
+            {
+                dir=l_down;
+            }
+            else if ((ddir <= -3.0*PI / 8.0) && (ddir > -5.0*PI / 8.0))
+            {
+                dir=down;
+            }
+            else if ((ddir <= -1.0*PI / 8.0) && (ddir > -3.0*PI / 8.0))
+            {
+                dir=r_down;
+            }
+            else if ((ddir <= 1.0*PI / 8.0) && (ddir > -1.0*PI / 8.0))
+            {
+                dir=right;
+            }
+            else if ((ddir <= 3.0*PI / 8.0) && (ddir > 1.0*PI / 8.0))
+            {
+                dir=r_up;
+            }
+            else if ((ddir <= 5.0*PI / 8.0) && (ddir > 3.0*PI / 8.0))
+            {
+                dir=up;
+            }
+            else if ((ddir <= 7.0*PI / 8.0) && (ddir > 5.0*PI / 8.0))
+            {
+                dir=l_up;
+            }
+            else
+            {
+                dir=left;
+            }
         }
 
         int d2=lined_up(15,true);
@@ -5412,8 +5497,8 @@ bool eTrap::animate(int index)
                 ((d2>down) && (dmisc1==2)) ||
                 ((d2>right) && (!dmisc1)) ||
                 ((d2<l_up) && (dmisc1==4)) ||
-                ((d2!=r_up) && (d2!=l_down) && (dmisc1==6)) ||
-                ((d2!=l_up) && (d2!=r_down) && (dmisc1==8)))
+                ((d2!=r_up) && (d2!=l_down) && (dmisc1==5)) ||
+                ((d2!=l_up) && (d2!=r_down) && (dmisc1==6)))
         {
             d2=-1;
         }
@@ -5517,7 +5602,7 @@ trap_rest:
 
 bool eTrap::trapmove(int ndir)
 {
-    if(get_bit(quest_rules,qr_MEANTRAPS))
+    if(dmisc3)
     {
         if(tmpscr->flags2&fFLOATTRAPS)
             return canmove(ndir,(fix)1,spw_floater, 0, 0, 15, 15);
@@ -5560,7 +5645,8 @@ bool eTrap::trapmove(int ndir)
 
 bool eTrap::clip()
 {
-    if(get_bit(quest_rules,qr_MEANPLACEDTRAPS))
+    //if(get_bit(quest_rules,qr_MEANPLACEDTRAPS))
+    if(dmisc4)
     {
         switch(dir)
         {
@@ -5674,14 +5760,27 @@ eTrap2::eTrap2(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     mainguy=false;
     count_enemy=false;
     step=2;
+    int orientation=-1; /* 0 horizontal, 1 vertical, 2 /, 3 \ */
 
-    if(dmisc1==1 || (dmisc1==0 && rand()&2))
+    if(dmisc1==0) orientation=(rand()&2);
+    else if(dmisc1==3) orientation=(rand()&4);
+    else if(dmisc1==4) orientation=(rand()&2)+2;
+
+    if(dmisc1==1 || orientation==0)
     {
         dir=(x<=112)?right:left;
     }
-    else
+    else if(dmisc1==2 || orientation==1)
     {
         dir=(y<=72)?down:up;
+    }
+    else if(dmisc1==5 || orientation==2)
+    {
+        dir=(x<=112)?r_up:l_down;
+    }
+    else if(dmisc1==6 || orientation==3)
+    {
+        dir=(x>112)?l_down:r_up;
     }
 
     if(get_bit(quest_rules,qr_TRAPPOSFIX))
@@ -5703,7 +5802,7 @@ bool eTrap2::animate(int index)
         removearmos(x,y);
     }
 
-    if(!get_bit(quest_rules,qr_PHANTOMPLACEDTRAPS))
+    if(!dmisc5)
     {
         if(lasthitclk>0)
         {
@@ -5743,7 +5842,8 @@ bool eTrap2::animate(int index)
             if(get_bit(quest_rules,qr_MORESOUNDS))
                 sfx(WAV_ZN1TAP,pan(int(x)));
 
-            dir=dir^1;
+            if(dir&4) dir=dir^1;
+            else dir=dir^3;
         }
 
         sprite::move(step);
@@ -5755,7 +5855,8 @@ bool eTrap2::animate(int index)
             if(get_bit(quest_rules,qr_MORESOUNDS))
                 sfx(WAV_ZN1TAP,pan(int(x)));
 
-            dir=dir^1;
+            if(dir&4) dir=dir^3;
+            else dir=dir^1;
         }
 
         sprite::move(step);
@@ -5793,6 +5894,26 @@ bool eTrap2::clip()
 
     case right:
         if(x>=240) return true;
+
+        break;
+
+    case l_up:
+        if(x<=0||y<=0) return true;
+
+        break;
+
+    case l_down:
+        if(x<=0||y>=160) return true;
+
+        break;
+
+    case r_up:
+        if(x<=0||y<=0) return true;
+
+        break;
+
+    case r_down:
+        if(x>=240||y>=160) return true;
 
         break;
     }
@@ -12478,6 +12599,59 @@ void load_default_enemies()
                 if(trapConstantVerticalID>=0)
                     addenemy(x, y, trapConstantVerticalID, -14);
             }
+
+            //Diagonal and Circular trap placement -Tamamo
+            else if(cflag==mfTRAP_8 || cflag2==mfTRAP_8)
+            {
+                if(trapLOS8WayID>=0)
+                    addenemy(x, y, trapLOS8WayID, -14);
+            }
+            else if(cflag==mfTRAP_D || cflag2==mfTRAP_D)
+            {
+                if(trapLOSDiagonalID>=0)
+                    addenemy(x, y, trapLOSDiagonalID, -14);
+            }
+            else if(cflag==mfTRAP_S || cflag2==mfTRAP_S)
+            {
+                if(trapLOSSlashID>=0)
+                    addenemy(x, y, trapLOSSlashID, -14);
+            }
+            else if(cflag==mfTRAP_B || cflag2==mfTRAP_B)
+            {
+                if(trapLOSBackslashID>=0)
+                    addenemy(x, y, trapLOSBackslashID, -14);
+            }
+            else if(cflag==mfTRAP_RULD || cflag2==mfTRAP_RULD)
+            {
+                if(trapConstantSlashID>=0)
+                    addenemy(x, y, trapConstantSlashID, -14);
+            }
+            else if(cflag==mfTRAP_LURD || cflag2==mfTRAP_LURD)
+            {
+                if(trapConstantBackslashID>=0)
+                    addenemy(x, y, trapConstantBackslashID, -14);
+            }
+            else if(cflag==mfTRAP_CW || cflag2==mfTRAP_CW)
+            {
+                if(trapLOSCWID>=0)
+                    addenemy(x, y, trapLOSCWID, -14);
+            }
+            else if(cflag==mfTRAP_CCW || cflag2==mfTRAP_CCW)
+            {
+                if(trapLOSCCWID>=0)
+                    addenemy(x, y, trapLOSCCWID, -14);
+            }
+            else if(cflag==mfTRAP_CWC || cflag2==mfTRAP_CWC)
+            {
+                if(trapConstantCWID>=0)
+                    addenemy(x, y, trapConstantCWID, -14);
+            }
+            else if(cflag==mfTRAP_CCWC || cflag2==mfTRAP_CCWC)
+            {
+                if(trapConstantCCWID>=0)
+                    addenemy(x, y, trapConstantCCWID, -14);
+            }
+
 
             if(ctype==cSPINTILE1)
             {

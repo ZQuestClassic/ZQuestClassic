@@ -2618,6 +2618,11 @@ static int enedata_flags3_list[] =
     107,108,109,110,111,112,113,114,115,116,117,118,119,185,186,-1
 };
 
+static int enedata_flags4_list[] =
+{
+    122,123,124,125,126,127,128,129,130,131,132,-1
+};
+
 static int enedata_defense_list[] =
 {
 	144,145,146,147,148,149,150,151,152,161,162,163,164,165,166,167,168,169,178,-1
@@ -2863,6 +2868,7 @@ static TABPANEL enemy_flags_tabs[] =
 {
     { (char *)"Misc. Flags",	 D_SELECTED,               enedata_flags_list,   0, NULL },
     { (char *)"Spawn Flags",	 0,               enedata_flags3_list,   0, NULL },
+    { (char *)"Spawn Flags 2",	 0,               enedata_flags4_list,   0, NULL }, //122-132
     { NULL,                   0,               NULL,                  0, NULL }
 };
 
@@ -3251,10 +3257,29 @@ const char *trapmisc1list(int index, int *list_size)
 {
     if(index>=0)
     {
-        return (index==2 ? "Vertical" : index==1 ? "Horizontal" : "4-Way");
+        //return (index==2 ? "Vertical" : index==1 ? "Horizontal" : "4-Way");
+        //Diagonal and Circular Traps added -Tamamo
+        if(index==0)
+            return "4-Way";
+        else if(index==1)
+            return "Horizontal";
+        else if(index==2)
+            return "Vertical";
+        else if(index==3)
+            return "8-Way";
+        else if(index==4)
+            return "Diagonal";
+        else if(index==5)
+            return "/";
+        else if(index==6)
+            return "\\";
+        else if(index==7)
+            return "CW";
+        else if(index==8)
+            return "CCW";
     }
 
-    *list_size = 3;
+    *list_size = 9;
     return NULL;
 }
 
@@ -3409,8 +3434,8 @@ static EnemyNameInfo enameinf[]=
         { (void*)&noyesmisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
     },
     {
-        eeTRAP, { "Direction:",  "Move Style:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-        { (void*)&trapmisc1_list, (void*)&trapmisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        eeTRAP, { "Direction:",  "Move Style:", "Multi-Directional:", "Goes across Screen:", "Goes through Enemies:", "Anchor Flag:", NULL, NULL, NULL, NULL  },
+        { (void*)&trapmisc1_list, (void*)&trapmisc2_list, &yesnomisc_list, &yesnomisc_list, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL }
     },
     {
         eeROCK, { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Rock size:" },
@@ -3845,17 +3870,17 @@ static DIALOG enedata_dlg[] =
     {  jwin_check_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Is Flickering",                                       NULL,   NULL                 },
     {  jwin_check_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Is Translucent",                                      NULL,   NULL                 },
     //122
-    {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
-    {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
-    {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
-    {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
-    {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
-    {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
-    {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
-    {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_check_proc,          6,     50,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"8-Way Trap\" Flag",                       NULL,   NULL                 },
+    {  jwin_check_proc,          6,     60,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"Diagonal Trap\" Flag",                    NULL,   NULL                 },
+    {  jwin_check_proc,          6,     70,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"/ Trap\" Flag",                           NULL,   NULL                 },
+    {  jwin_check_proc,          6,     80,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"\\ Trap\" Flag",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     90,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"RULD Trap\" Flag",                        NULL,   NULL                 },
+    {  jwin_check_proc,          6,    100,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"LDRU Trap\" Flag",                        NULL,   NULL                 },
+    {  jwin_check_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"CW Trap\" Flag",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"CCW Trap\" Flag",                         NULL,   NULL                 },
     //130
-    {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
-    {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_check_proc,          6,    130,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"CWC Trap\" Flag",                         NULL,   NULL                 },
+    {  jwin_check_proc,          6,    140,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"CCWC Trap\" Flag",                        NULL,   NULL                 },
     {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
     {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
     {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
@@ -4622,7 +4647,7 @@ void edit_enemydata(int index)
     enedata_dlg[186].d1 = (guysbuf[index].flags & guy_fadeinstant ? 2
                            : guysbuf[index].flags & guy_fadeflicker ? 1 : 0);
 
-    for(int i=0; i<16; i++)
+    for(int i=0; i<26; i++)
         enedata_dlg[106+i].flags = (guysbuf[index].flags2 & (1<<i)) ? D_SELECTED : 0;
 
     int ret;
@@ -4766,7 +4791,7 @@ void edit_enemydata(int index)
         test.flags &= ~(guy_fadeinstant|guy_fadeflicker);
         test.flags |= (enedata_dlg[186].d1==2 ? guy_fadeinstant : enedata_dlg[186].d1==1 ? guy_fadeflicker : 0);
 
-        for(int i=0; i<16; i++)
+        for(int i=0; i<26; i++)
             test.flags2 |= (enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0;
 
         if(enedata_dlg[143].flags & D_SELECTED)

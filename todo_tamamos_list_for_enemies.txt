@@ -1,12 +1,109 @@
-Lined Up fix… (DONE)
-Spw_sand, spw_shallow, spw_water_all, spw_grass?
-Sand Combos
-Bosses that spawn anywhere, and obey spawn flags
-Mirror Shielded Enemies
-Unimplemented Walk Styles
-Unimplemented Enemies
-Friendly NPCs
-Item Pond
+-Fixes                                                                          NOTES
+Enemy::Lined_Up                                                                 Complete
 NES Ganon Inconsistency
-Enemy Editor Overhaul…
-Enemy Scripts… Way later, definitely not before 2.6
+NES Animation Bombchus                                                          Ropes with explode deathstyle always move to the next row of tiles instead of special tiles.
+                                                                                Special tiles are reserved for broken shield tiles, we need a kludge of some sort. hmmm...
+
+--------------------------------------------------------------------------------
+
+-Misc flags
+Invisible in Darkrooms                                                          invisible in the dark!
+Invulnerable while Invisible
+dummy out the following as they go in their own flag set
+--shielded in front
+--shielded on left
+--shielded on right
+--shielded in back
+--hammer can break shield
+
+-Spawn flags 2
+spawned by LOS 8-way Trap flag                                                  complete
+spawned by LOS Diagonal Trap flag                                               complete
+spawned by LOS / Trap flag                                                      complete
+spawned by LOS \ Trap flag                                                      complete
+spawned by Constant / trap flag                                                 complete
+spawned by Constant \ trap flag                                                 complete
+spawned by LOS CW trap flag                                                     complete
+spawned by LOS CCW trap flag                                                    complete
+spawned by Constant CW trap flag                                                complete
+spawned by Constant CCW trap flag                                               complete
+
+-Shield flags
+shielded in front
+shielded on left
+shielded on right
+shielded in back
+hammer can break shield
+shield is mirrored
+broken shield tiles
+shield blocks eweapons
+shield reflects eweapons
+//9 more flags
+
+
+--------------------------------------------------------------------------------
+
+-Unimplemented Enemies
+ ID      NAME
+101 Ceilingmaster
+102 Floormaster
+108 Wizzrobe (Batking)                                                          scripted
+115 Dodongo (Fire)                                                              shoots ewflame2trail
+122 NPC 1 (Standing)
+123 NPC 2 (Standing)
+124 NPC 3 (Standing)
+125 NPC 4 (Standing)
+126 NPC 5 (Standing)
+127 NPC 6 (Standing)
+128 NPC 1 (Walking)
+129 NPC 2 (Walking)
+130 NPC 3 (Walking)
+131 NPC 4 (Walking)
+132 NPC 5 (Walking)
+133 NPC 6 (Walking)
+--142 Trap (8-Way)                                                                complete
+--143 Trap (Diagonal)                                                             complete
+--144 Trap (/, Constant)                                                          complete
+--145 Trap (/, Line of Sight)                                                     complete
+--146 Trap (\\, Constant)                                                         complete
+--147 Trap (\\, Line of Sight)                                                    complete
+148 Trap (CW, Constant)                                                         Requires a set of combo flags 'anchor flags' which serve as the center point.
+149 Trap (CW, Line of Sight)                                                    ditto
+150 Trap (CCW, Constant)                                                        ditto
+151 Trap (CCW, Line of Sight)                                                   ditto
+153 Wizzrobe (Ice)                                                              shoots ewice
+--165 Tektite (L3)                                                                complete -- bounces off walls
+--168 Lynel (L3)                                                                  complete -- charges as well as shoots
+169 Peahat (L2, Fire)                                                           uses new efloater type so it can shoot ewflame2trail at link
+--171 Pols Voice (Whistle)                                                        complete -- dies instantly to whistle
+172 Darknut (Mirror)                                                            shield is mirrored
+173 Ghini (L2, Fire)                                                            uses new efloater type so it can shoot ewflame2trail
+174 Ghini (L2, Magic)                                                           uses new efloater type so it can shoot magic
+175 Grappler Bug (Life)                                                         tektite3 with Eat HP touch effect, offset tiles by 20
+176 Grappler Bug (Magic)                                                        tektite3 with Eat MP touch effect, offset tiles by 20
+  ? Floormaster Kid
+  ? Aquamentus BS (L1, Facing Left)
+  ? Aquamentus BS (L1, Facing Right)
+  ? Aquamentus BS (L2, Facing Left)
+  ? Aquamentus BS (L2, Facing Right)
+  ? Moldorm
+
+--------------------------------------------------------------------------------
+
+-weapons
+ewice                                                                           Freezes link for 150 tics, see icemagic below... as this is quite intensive.
+ewflame2Trail                                                                   I honestly believe these where originally suppose to be spawned by flame2s.
+
+-Item Pond
+Roomtype Itempond
+String
+Itempond Shops
+ComboFlag Item Pond (activates gui)
+
+-Ice Magic
+Link Sprites                                                                    frozen subtab in land and water tabs
+MISC: Frozen Sparkles                                                           sparkly sparkly
+Link Sparkles when frozen                                                       animation rule
+No CSet6 Change when frozen                                                     ditto
+
+--------------------------------------------------------------------------------
