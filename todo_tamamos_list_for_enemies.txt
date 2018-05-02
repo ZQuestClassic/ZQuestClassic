@@ -1,12 +1,86 @@
-Lined Up fix… (DONE)
-Spw_sand, spw_shallow, spw_water_all, spw_grass?
-Sand Combos
-Bosses that spawn anywhere, and obey spawn flags
-Mirror Shielded Enemies
-Unimplemented Walk Styles
-Unimplemented Enemies
-Friendly NPCs
-Item Pond
+-Fixes                                                                          NOTES
+Enemy::Lined_Up                                                                 Complete
 NES Ganon Inconsistency
-Enemy Editor Overhaul…
-Enemy Scripts… Way later, definitely not before 2.6
+NES Animation Bombchus                                                          Ropes with explode deathstyle always move to the next row of tiles instead of special tiles.
+
+-Misc flags
+Visible to Lens of Truth
+Invisible in Darkrooms                                                          invisible in the dark!
+Invulnerable while Invisible
+Shield Is Mirrored                                                              but where to define reflect flags?
+
+-Spawn flags
+spawned by LOS 8-way Trap combo/flag
+spawned by LOS Diagonal Trap combo/flag
+spawned by LOS / Trap combo/flag
+spawned by LOS \ Trap combo/flag
+spawned by Constant / trap combo/flag
+spawned by Constant \ trap combo/flag
+spawned by LOS CW trap (combo/flag
+spawned by LOS CCW Trap combo/flag
+spawned by Constant CW trap combo/flag
+spawned by Constant CCW trap combo/flag
+
+-Unimplemented Enemies
+ ID      NAME
+101 Ceilingmaster
+102 Floormaster
+108 Wizzrobe (Batking)                                                          Scripted
+115 Dodongo (Fire)                                                              Shoots ewflameball
+122 NPC 1 (Standing)
+123 NPC 2 (Standing)
+124 NPC 3 (Standing)
+125 NPC 4 (Standing)
+126 NPC 5 (Standing)
+127 NPC 6 (Standing)
+128 NPC 1 (Walking)
+129 NPC 2 (Walking)
+130 NPC 3 (Walking)
+131 NPC 4 (Walking)
+132 NPC 5 (Walking)
+133 NPC 6 (Walking)
+142 Trap (8-Way)
+143 Trap (Diagonal)
+144 Trap (/, Constant)
+145 Trap (/, Line of Sight)
+146 Trap (\\, Constant)
+147 Trap (\\, Line of Sight)
+148 Trap (CW, Constant)                                                         Requires a set of combo flags 'anchor flags' which serve as the center point. 10? See bottom line
+149 Trap (CW, Line of Sight)                                                    ditto
+150 Trap (CCW, Constant)                                                        ditto
+151 Trap (CCW, Line of Sight)                                                   ditto
+153 Wizzrobe (Ice)
+165 Tektite (L3)                                                                bounces off walls
+168 Lynel (L3)                                                                  charges as well as shoots
+169 Peahat (L2, Fire)                                                           uses new floater type so it can shoot ewflameball (seeks link)
+171 Pols Voice (Whistle)                                                        dies instantly to whistle
+172 Darknut (Mirror)                                                            shield is mirrored, missing broken shield tiles... 'shrug'
+173 Ghini (L2, Fire)                                                            uses new floater type so it can shoot ewflameball
+174 Ghini (L2, Magic)                                                           uses new floater type so it can shoot magic
+175 Grappler Bug (Life)                                                         tektite3 with Eat HP touch effect
+176 Grappler Bug (Magic)                                                        tektite3 with Eat MP touch effect
+  ? Floormaster Kid
+  ? Aquamentus BS (L1, Facing Left)
+  ? Aquamentus BS (L1, Facing Right)
+  ? Aquamentus BS (L2, Facing Left)
+  ? Aquamentus BS (L2, Facing Right)
+  ? Moldorm
+
+-weapons
+ewice                                                                           Freezes link for 150 tics, see icemagic below... as this is quite intensive.
+ewflame2Trail                                                                   I honestly believe these where originally suppose to be spawned by flame2s.
+ewflameball                                                                     Spawns ewflame2trail. spawns a flame2trail when it collides with solidity or water
+
+-Item Pond
+Roomtype Itempond
+String
+Itempond Shops
+ComboFlag Item Pond (activates gui)
+
+-Ice Magic
+Link Sprites                                                                    Frozen subtab in land and water tabs
+MISC: Frozen Sparkles                                                           Sparkly Sparkly
+Link Sparkles when frozen                                                       Animation Rule
+No CSet6 Change when frozen                                                     ditto
+
+--------------------------------------------------------------------------------
