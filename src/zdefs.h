@@ -97,7 +97,7 @@
 #define ZELDA_VERSION       0x0254                          //version of the program
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       40                              //build number of this version
-//31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
+//31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40.
 #define ZELDA_VERSION_STR   "2.54 Alpha 29"                    //version of the program as presented in text
 #define IS_BETA             -29                         //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        29
@@ -389,7 +389,7 @@ extern bool fake_pack_writing;
 #define wfRIGHT         8
 #define fSECRET         16  // play "secret" sfx upon entering this screen
 #define fAIRCOMBOS      32  //'S.Flags2' Combos affect midair Link
-#define fFLOATTRAPS     64 //'E.Flags' Traps ignore walkability. 
+#define fFLOATTRAPS     64 //'E.Flags' Traps ignore walkability.
 #define fCLEARSECRET    128 // clear all enemies to trigger secret entrance (Enemies->Secret)
 
 // flags3
@@ -409,7 +409,7 @@ extern bool fake_pack_writing;
 #define fDISABLETIME      8    //'T.Warp' Secrets Disable timed warp ??
 #define fENEMYSCRTPERM    16   //'E.Flags' Enemies->Secret is Permanent
 #define fNOITEMRESET      32
-#define fSAVEROOM		  64  //'S.Flags2' Save point->Continue here 
+#define fSAVEROOM		  64  //'S.Flags2' Save point->Continue here
 #define fAUTOSAVE		  128 //'S.Flags2' Save game on entry
 
 //flags5
@@ -439,7 +439,7 @@ extern bool fake_pack_writing;
 #define fSIDEVIEW       8 //'S.Flags1' Sideview Gravity
 #define fNOLINKMARK     16 //'S.Flags1' No Link marker in Minimap
 #define fSPECITEMMARK   32
-#define fWHISTLEPAL     64 //'S.Flags2' Whistle->Palette change. 
+#define fWHISTLEPAL     64 //'S.Flags2' Whistle->Palette change.
 #define fWHISTLEWATER   128 //'S.Flags2' Whistle->Dry lake
 
 //flags8
@@ -488,12 +488,12 @@ extern bool fake_pack_writing;
 #define FFSCRIPT_MISC 32
 #define NUM_FFCS 32
 
-//We have definitions for this below, but this is for scripted stuff in 2,54. 
-enum { warpfxNONE, warpfxBLACKOUT, warpfxWIPE, warpfxSCROLL, warpfxZAP, warpfxZAPIN, warpfxZAPOUT, warpfxWAVY, 
-	warpfxWAVYIN, warpfxWAVYOUT, warpfxWAVYNOLINK, warpfxWAVYINNOLINK, warpfxWAVYOUTNOLINK, 
+//We have definitions for this below, but this is for scripted stuff in 2,54.
+enum { warpfxNONE, warpfxBLACKOUT, warpfxWIPE, warpfxSCROLL, warpfxZAP, warpfxZAPIN, warpfxZAPOUT, warpfxWAVY,
+	warpfxWAVYIN, warpfxWAVYOUT, warpfxWAVYNOLINK, warpfxWAVYINNOLINK, warpfxWAVYOUTNOLINK,
 		warpfxLAST};
-	
-//wipe types - mosaic should be one of them. 
+
+//wipe types - mosaic should be one of them.
 enum { wipeNONE, wipeCOOL, wipeBLACK, wipeBSZELDA, wipeTRIANGLE, wipeCIRCLE, wipeALLSTARS, wipeLAST };
 
 enum
@@ -524,84 +524,86 @@ enum { dmDNGN, dmOVERW, dmCAVE, dmBSOVERW, dmMAX };
 enum
 {	//These are the COMBO flags. -Z
 	//0
-	mfNONE, 	mfPUSHUD, 	mfPUSH4, 	mfWHISTLE, 	mfBCANDLE, 
+	mfNONE, 	mfPUSHUD, 	mfPUSH4, 	mfWHISTLE, 	mfBCANDLE,
 	//5
-	mfARROW, 	mfBOMB, 	mfFAIRY, 	mfRAFT, 	mfARMOS_SECRET, 
+	mfARROW, 	mfBOMB, 	mfFAIRY, 	mfRAFT, 	mfARMOS_SECRET,
 	//10
-	mfARMOS_ITEM, 	mfSBOMB, 	mfRAFT_BRANCH, 	mfDIVE_ITEM,	mfLENSMARKER, 
+	mfARMOS_ITEM, 	mfSBOMB, 	mfRAFT_BRANCH, 	mfDIVE_ITEM,	mfLENSMARKER,
 	//15
-	mfZELDA,	mfSECRETS01, 	mfSECRETS02, 	mfSECRETS03, 	mfSECRETS04,       
+	mfZELDA,	mfSECRETS01, 	mfSECRETS02, 	mfSECRETS03, 	mfSECRETS04,
 	//20
-	mfSECRETS05, 	mfSECRETS06, 	mfSECRETS07, 	mfSECRETS08,	mfSECRETS09, 
+	mfSECRETS05, 	mfSECRETS06, 	mfSECRETS07, 	mfSECRETS08,	mfSECRETS09,
 	//25
-	mfSECRETS10, 	mfSECRETS11, 	mfSECRETS12,	mfSECRETS13, 	mfSECRETS14, 
+	mfSECRETS10, 	mfSECRETS11, 	mfSECRETS12,	mfSECRETS13, 	mfSECRETS14,
 	//30
-	mfSECRETS15, 	mfSECRETS16,	mfTRAP_H, 	mfTRAP_V, 	mfTRAP_4, 
+	mfSECRETS15, 	mfSECRETS16,	mfTRAP_H, 	mfTRAP_V, 	mfTRAP_4,
 	//35
-	mfTRAP_LR, 	mfTRAP_UD,	mfENEMY0, 	mfENEMY1, 	mfENEMY2, 
+	mfTRAP_LR, 	mfTRAP_UD,	mfENEMY0, 	mfENEMY1, 	mfENEMY2,
 	//40
-	mfENEMY3, 	mfENEMY4,	mfENEMY5, 	mfENEMY6, 	mfENEMY7, 
+	mfENEMY3, 	mfENEMY4,	mfENEMY5, 	mfENEMY6, 	mfENEMY7,
 	//45
-	mfENEMY8, 	mfENEMY9,	mfPUSHLR, 	mfPUSHU, 	mfPUSHD, 
+	mfENEMY8, 	mfENEMY9,	mfPUSHLR, 	mfPUSHU, 	mfPUSHD,
 	//50
-	mfPUSHL, 	mfPUSHR,	mfPUSHUDNS, 	mfPUSHLRNS, 	mfPUSH4NS, 
+	mfPUSHL, 	mfPUSHR,	mfPUSHUDNS, 	mfPUSHLRNS, 	mfPUSH4NS,
 	//55
 	mfPUSHUNS,	mfPUSHDNS, 	mfPUSHLNS, 	mfPUSHRNS, 	mfPUSHUDINS,
 	//60
-	mfPUSHLRINS, 	mfPUSH4INS, 	mfPUSHUINS,	mfPUSHDINS, 	mfPUSHLINS, 
+	mfPUSHLRINS, 	mfPUSH4INS, 	mfPUSHUINS,	mfPUSHDINS, 	mfPUSHLINS,
 	//65
 	mfPUSHRINS,	mfBLOCKTRIGGER,	mfNOBLOCKS, 	mfBRANG, 	mfMBRANG,
 	//70
-	mfFBRANG, 	mfSARROW, 	mfGARROW, 	mfRCANDLE, 	mfWANDFIRE, 
+	mfFBRANG, 	mfSARROW, 	mfGARROW, 	mfRCANDLE, 	mfWANDFIRE,
 	//75
-	mfDINSFIRE,	mfWANDMAGIC, 	mfREFMAGIC, 	mfREFFIREBALL, 	mfSWORD, 
+	mfDINSFIRE,	mfWANDMAGIC, 	mfREFMAGIC, 	mfREFFIREBALL, 	mfSWORD,
 	//80
-	mfWSWORD,	mfMSWORD, 	mfXSWORD, 	mfSWORDBEAM, 	mfWSWORDBEAM, 
+	mfWSWORD,	mfMSWORD, 	mfXSWORD, 	mfSWORDBEAM, 	mfWSWORDBEAM,
 	//85
-	mfMSWORDBEAM,	mfXSWORDBEAM, 	mfHOOKSHOT, 	mfWAND, 	mfHAMMER, 
+	mfMSWORDBEAM,	mfXSWORDBEAM, 	mfHOOKSHOT, 	mfWAND, 	mfHAMMER,
 	//90
-	mfSTRIKE, 	mfBLOCKHOLE,	mfMAGICFAIRY, 	mfALLFAIRY, 	mfSINGLE, 
+	mfSTRIKE, 	mfBLOCKHOLE,	mfMAGICFAIRY, 	mfALLFAIRY, 	mfSINGLE,
 	//95
-	mfSINGLE16,	mfNOENEMY, 	mfNOGROUNDENEMY, mfSCRIPT1, 	mfSCRIPT2, 
+	mfSINGLE16,	mfNOENEMY, 	mfNOGROUNDENEMY, mfSCRIPT1, 	mfSCRIPT2,
 	//100
 	mfSCRIPT3, 	mfSCRIPT4, 	mfSCRIPT5,	mfRAFT_BOUNCE, 	mfPUSHED,
 	//105
-	mfSCRIPT6, 	mfSCRIPT7, 	mfSCRIPT8, 	mfSCRIPT9, 	mfSCRIPT10, 
+	mfSCRIPT6, 	mfSCRIPT7, 	mfSCRIPT8, 	mfSCRIPT9, 	mfSCRIPT10,
 	//110
 	mfSCRIPT11, 	mfSCRIPT12, 	mfSCRIPT13, 	mfSCRIPT14, 	mfSCRIPT15,
 	//115
 	mfSCRIPT16, 	mfSCRIPT17, 	mfSCRIPT18, 	mfSCRIPT19, 	mfSCRIPT20,
 	//120
-	mfPITHOLE, 	mfPITFALLFLOOR,	mfLAVA, 	mfICE, 		mfICEDAMAGE, 
+	mfPITHOLE, 	mfPITFALLFLOOR,	mfLAVA, 	mfICE, 		mfICEDAMAGE,
 	//125
-	mfDAMAGE1, 	mfDAMAGE2, 	mfDAMAGE4, 	mfDAMAGE8, 	mfDAMAGE16, 
+	mfDAMAGE1, 	mfDAMAGE2, 	mfDAMAGE4, 	mfDAMAGE8, 	mfDAMAGE16,
 	//130
-	mfDAMAGE32,	mfFREEZEALL, 	mfFREZEALLANSFFCS, mfFREEZEFFCSOLY, mfSCRITPTW1TRIG, 
+	mfDAMAGE32,	mfFREEZEALL, 	mfFREZEALLANSFFCS, mfFREEZEFFCSOLY, mfSCRITPTW1TRIG,
 	//135
-	mfSCRITPTW2TRIG, mfSCRITPTW3TRIG, mfSCRITPTW4TRIG, mfSCRITPTW5TRIG, mfSCRITPTW6TRIG, 
+	mfSCRITPTW2TRIG, mfSCRITPTW3TRIG, mfSCRITPTW4TRIG, mfSCRITPTW5TRIG, mfSCRITPTW6TRIG,
 	//140
-	mfSCRITPTW7TRIG, mfSCRITPTW8TRIG, mfSCRITPTW9TRIG, mfSCRITPTW10TRIG, mfTROWEL, 
+	mfSCRITPTW7TRIG, mfSCRITPTW8TRIG, mfSCRITPTW9TRIG, mfSCRITPTW10TRIG, mfTROWEL,
 	//145
-	mfTROWELNEXT, mfTROWELSPECIALITEM,mfSLASHPOT, 	mcLIFTPOT,	mfLIFTORSLASH, 
+	mfTROWELNEXT, mfTROWELSPECIALITEM,mfSLASHPOT, 	mcLIFTPOT,	mfLIFTORSLASH,
 	//150
-	mfLIFTROCK, 	mfLIFTROCKHEAVY, mfDROPITEM, 	mfSPECIALITEM, 	mfDROPKEY, 
+	mfLIFTROCK, 	mfLIFTROCKHEAVY, mfDROPITEM, 	mfSPECIALITEM, 	mfDROPKEY,
 	//155
-	mfDROPLKEY, 	mfDROPCOMPASS, 	mfDROPMAP, 	mcDROPBOSSKEY, mfSPAWNNPC, 
+	mfDROPLKEY, 	mfDROPCOMPASS, 	mfDROPMAP, 	mcDROPBOSSKEY, mfSPAWNNPC,
 	//160
-	mfSWITCHHOOK, 	mf161,
-    
-    
-    mf162, mf163, mf164, mf165, mf166, mf167, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
-    mf175, mf176, mf177, mf178, mf179, mf180, mf181, mf182, mf183, mf184, mf185, mf186, mf187, 
+	mfSWITCHHOOK, mfTRAP_8, mfTRAP_D, mfTRAP_S, mfTRAP_B,
+	//165
+	mfTRAP_RULD, mfTRAP_LURD, mfTRAP_CW, mfTRAP_CCW, mfTRAP_CWC,
+	//170
+  mfTRAP_CCWC, mf171, mf172, mf173, mf174,
+	//175
+    mf175, mf176, mf177, mf178, mf179, mf180, mf181, mf182, mf183, mf184, mf185, mf186, mf187,
     mf188, mf189, mf190, mf191, mf192, mf193, mf194, mf195, mf196, mf197, mf198, mf199, mf200,
     mf201, mf202, mf203, mf204, mf205, mf206, mf207, mf208, mf209, mf210, mf211, mf212, mf213,
-    mf214, mf215, mf216, mf217, mf218, mf219, mf220, mf221, mf222, mf223, mf224, mf225, mf226, 
+    mf214, mf215, mf216, mf217, mf218, mf219, mf220, mf221, mf222, mf223, mf224, mf225, mf226,
     mf227, mf228, mf229, mf230, mf231, mf232, mf233, mf234, mf235, mf236, mf237, mf238, mf239,
-    mf240, mf241, mf242, mf243, mf244, mf245, mf246, mf247, mf248, mf249, mf250, mf251, mf252, mf253, mf254, 
+    mf240, mf241, mf242, mf243, mf244, mf245, mf246, mf247, mf248, mf249, mf250, mf251, mf252, mf253, mf254,
     mfEXTENDED, mfMAX //256 for array sizing
-    
+
     //mfSLASHPOTSPECIALITEM, //stack flags to make a drop or special item
-     //mfLIFTPOTSPECIAL, 
+     //mfLIFTPOTSPECIAL,
 };
 
 // combo types
@@ -632,83 +634,83 @@ enum
     cSLASHTOUCHY, cSLASHITEMTOUCHY, cBUSHTOUCHY, cFLOWERSTOUCHY, cTALLGRASSTOUCHY,
     cSLASHNEXTTOUCHY, cSLASHNEXTITEMTOUCHY, cBUSHNEXTTOUCHY, cEYEBALL_4, cTALLGRASSNEXT,
     cSCRIPT1, cSCRIPT2, cSCRIPT3, cSCRIPT4, cSCRIPT5, cMAX,
-//! potential new stuff that I might decide it is worth adding. 
-    //Five additional user script types, 
+//! potential new stuff that I might decide it is worth adding.
+    //Five additional user script types,
     //146
-    cSCRIPT6, cSCRIPT7, cSRCIPT8, cSCRIPT9, cSCRIPT10, 
+    cSCRIPT6, cSCRIPT7, cSRCIPT8, cSCRIPT9, cSCRIPT10,
     //
     //151
-    cFIRELAVA1, cFIREFLAVA2, cFIRELAVA3, cFIRELAVA4, //fire or lava damage 
+    cFIRELAVA1, cFIREFLAVA2, cFIRELAVA3, cFIRELAVA4, //fire or lava damage
     //155
     cHOLEDROP, //drop link as a warp with a drop effect
     //156
     cHOLEDAMAGE1, cHOLEDAMAGE2, cHOLEDAMAGE3, cHOLEDAMAGE4, //Pits that damage and respawn
     //160
     cDIG, cDIGNEXT, cDIGITEM, //Dig a hole, dig a hole.
-    
+
       /* pot, or rock:
-		lift and slash combos need a 'break' sprite set in the combo editor. 
+		lift and slash combos need a 'break' sprite set in the combo editor.
 		The lifted object also needs a 'damage enemies' value, so that when thrown
 		it makes an lweapon. The leweapon type, and damage should be inputs
-		in the combo editor. -1 to damage means enemies ignore it. 
+		in the combo editor. -1 to damage means enemies ignore it.
 		-1 to weapon means that itdoesn't generate a weapon.
-	
-		The default type should be LW_POT, which we need to add, or LW_ROCK. 
-		We should add both of these. 
-		
+
+		The default type should be LW_POT, which we need to add, or LW_ROCK.
+		We should add both of these.
+
 		These should also include a break sound, a throw sound, and possibly other
-		attributes such as throw distance. Sideview behaviour must be very carefully 
+		attributes such as throw distance. Sideview behaviour must be very carefully
 		defined. -Z
-		
+
 	*/
       //163
     //normal (use undercombo), lift and generate drop item, lift and generate special item (screen item)
-    cLIFT, cLIFTITEM, cLIFTSPECITER, 
+    cLIFT, cLIFTITEM, cLIFTSPECITER,
     //166
     //lift and show next combo, same plus item drop, same with room item
     cLIFTNEXT, cLIFTNEXTITEM, cLIFTNEXTSPECITEM,
     //169
     //lift or slash (do not change combo; use undercombo), ...and make drop item, ...and make room item
-    cLIFTSLASH, cLIFTSLAHITEM, cLIFTSLASHSPECITEM, 
+    cLIFTSLASH, cLIFTSLAHITEM, cLIFTSLASHSPECITEM,
     //172
     //lift or shash, then change the combo at its position to the 'next combo', ...
 	//...and make drop, ...and make screen room item
-    cLIFTSLASHNEXT, cLIFTSLASHNEXTITEM, cLIFTSLASHNEXTSPECITEM, 
+    cLIFTSLASHNEXT, cLIFTSLASHNEXTITEM, cLIFTSLASHNEXTSPECITEM,
     //175
 
-    cBREAKAWAYFLOOR, //as combo cycling to pit, but it makes a sound? Might be useful? 
+    cBREAKAWAYFLOOR, //as combo cycling to pit, but it makes a sound? Might be useful?
    //176s
    cFREEZEFFCONLY, //freezes only scripts
    //177
    cSYS177, cSYS178, cSYS179, cSYS180,
     cSYS181, cSYS182, cSYS183, cSYS184, cSYS185, cSYS186, cSYS187, cSYS188, cSYS189, cSYS190,
-    cSYS191, cSYS192, cSYS193, cSYS194, cSYS195, cSYS196, cSYS197, cSYS198, cSYS199, cSYS200, 
+    cSYS191, cSYS192, cSYS193, cSYS194, cSYS195, cSYS196, cSYS197, cSYS198, cSYS199, cSYS200,
     cSYS201, cSYS202, cSYS203, cSYS204, cSYS205, cSYS206, cSYS207, cSYS208, cSYS209, cSYS210,
     cSYS211, cSYS212, cSYS213, cSYS214, cSYS215, cSYS216, cSYS217, cSYS218, cSYS219, cSYS220,
-    cSYS221, cSYS222, cSYS223, cSYS224, cSYS225, cSYS226, cSYS227, cSYS228, cSYS229, cSYS230, 
-    cSYS231, cSYS232, cSYS233, cSYS234, cSYS235, cSYS236, cSYS237, cSYS238, cSYS239, cSYS240, 
+    cSYS221, cSYS222, cSYS223, cSYS224, cSYS225, cSYS226, cSYS227, cSYS228, cSYS229, cSYS230,
+    cSYS231, cSYS232, cSYS233, cSYS234, cSYS235, cSYS236, cSYS237, cSYS238, cSYS239, cSYS240,
     cSYS241, cSYS242, cSYS243, cSYS244, cSYS245, cSYS246, cSYS247, cSYS248, cSYS249, cSYS250,
     cSYS251, cSYS252, cSYS253, cSYS254,
     //Should be 255
     cEXPANDED, //Set to this, and then select an expansion[0] type for the 'oombo editor'.
-    
-    
+
+
     //2.54, these would need filepack changes. Needs V_COMBOS.
-    cMAX250 //Old max, to make filepack handling easier. 
-    
-    //These need to be in a new, index of expansion[]. 
-    //Let's use expansion[0] for now. 
-    
-    
-    
+    cMAX250 //Old max, to make filepack handling easier.
+
+    //These need to be in a new, index of expansion[].
+    //Let's use expansion[0] for now.
+
+
+
     //cMAX
 };
 
 //Combo editor and additional system combos for combo type 'expanded'.
 
-//We could also change .type from a byte to a word, and typecast (byte)combo.type for old quests. 
-//That would make 2.50 exporting harder, though. 
-enum 
+//We could also change .type from a byte to a word, and typecast (byte)combo.type for old quests.
+//That would make 2.50 exporting harder, though.
+enum
 {
 	cUSER000, cUSER001, cUSER002, cUSER003, cUSER004, cUSER005, cUSER006, cUSER007, cUSER008, cUSER009,
     cUSER010, cUSER011, cUSER012, cUSER013, cUSER014, cUSER015, cUSER016, cUSER017, cUSER018, cUSER019,
@@ -723,7 +725,7 @@ enum
     cUSER100, cUSER101, cUSER102, cUSER103, cUSER104, cUSER105, cUSER106, cUSER107, cUSER108, cUSER109,
     cUSER110, cUSER111, cUSER112, cUSER113, cUSER114, cUSER115, cUSER116, cUSER117, cUSER118, cUSER119,
     cUSER120, cUSER121, cUSER122, cUSER123, cUSER124, cUSER125, cUSER126, cUSER127,
-    
+
     cSYSTEM000, cSYSTEM001, cSYSTEM002, cSYSTEM003, cSYSTEM004, cSYSTEM005, cSYSTEM006, cSYSTEM007, cSYSTEM008, cSYSTEM009,
     cSYSTEM010, cSYSTEM011, cSYSTEM012, cSYSTEM013, cSYSTEM014, cSYSTEM015, cSYSTEM016, cSYSTEM017, cSYSTEM018, cSYSTEM019,
     cSYSTEM020, cSYSTEM021, cSYSTEM022, cSYSTEM023, cSYSTEM024, cSYSTEM025, cSYSTEM026, cSYSTEM027, cSYSTEM028, cSYSTEM029,
@@ -737,16 +739,16 @@ enum
     cSYSTEM100, cSYSTEM101, cSYSTEM102, cSYSTEM103, cSYSTEM104, cSYSTEM105, cSYSTEM106, cSYSTEM107, cSYSTEM108, cSYSTEM109,
     cSYSTEM110, cSYSTEM111, cSYSTEM112, cSYSTEM113, cSYSTEM114, cSYSTEM115, cSYSTEM116, cSYSTEM117, cSYSTEM118, cSYSTEM119,
     cSYSTEM120, cSYSTEM121, cSYSTEM122, cSYSTEM123, cSYSTEM124, cSYSTEM125, cSYSTEM126, cSYSTEM127,
-    cEXPANDED_MAX	
+    cEXPANDED_MAX
 };
 
 
-enum 
+enum
 {
-	USR_MIDI_DEATH, USR_MIDI_GAMEOVER, USR_MIDI_OVERWORLD, USR_MIDI_DUNGEON, USR_MIDI_LEVELNINE, USR_MIDI_MAX 
-	
+	USR_MIDI_DEATH, USR_MIDI_GAMEOVER, USR_MIDI_OVERWORLD, USR_MIDI_DUNGEON, USR_MIDI_LEVELNINE, USR_MIDI_MAX
+
 }; //Obviously, the overworld, dungeon and L9 midis don;t need to be here, but we can define some user space for o
-//	otherwise hardcoded sounds, and use these instead of hardcoded SFX if they are set somehow. 
+//	otherwise hardcoded sounds, and use these instead of hardcoded SFX if they are set somehow.
 
 #define QUESTRULES_SIZE 20
 #define EXTRARULES_SIZE 1
@@ -813,7 +815,7 @@ enum
     qr_OLDHOOKSHOTGRAB /* Compatibility */, qr_PEAHATCLOCKVULN /* Compatibility */, qr_VERYFASTSCROLLING, qr_OFFSCREENWEAPONS /* Compatibility */,
     // 20
     qr_BROKENSTATUES /* Compatibility */, qr_NOSCRIPTSDURINGSCROLL /* Not Implemented */, qr_ITEMPICKUPSETSBELOW /* Compatibility */,
-    
+
     qr_NOGANONINTRO, //bugfix//
     qr_MAX
 };
@@ -950,7 +952,7 @@ enum
 // 80
     ewFIRETRAIL, ewFLAME2, ewFLAME2TRAIL, ewICE, iwHover,
     wFIREMAGIC, iwQuarterHearts, wCBYRNAORB, //iwSideLadder, iwSideRaft,
-    
+
     wLast, wSCRIPT, wMAX=256
 };
 
@@ -1070,7 +1072,7 @@ enum
     //170
     eMPOLSV, eWPOLSV, eDKNUT4, eFGHINI, eMGHINI,
     eGRAPBUGHP, eGRAPBUGMP, e177,
-    
+
     eMAXGUYS = MAXGUYS
 };
 
@@ -1151,8 +1153,8 @@ enum {  e9tMOLDORM=1, e9tVLANMOLA, e9tVMOLDORM, e9tZ3MOLDORM, //restricted to wa
 */
 
           //Preparation for new defences. -Z
-     
-     
+
+
 enum
 {
 	edefBRANG, 	edefBOMB, 	edefSBOMB, 	edefARROW, 	edefFIRE, 	//04
@@ -1172,9 +1174,9 @@ enum
     // Reserved for future use.
 	 //edefSCRIPT used to be unused edefSPIN
 
-}; 
+};
 
-#define edefLAST 19 
+#define edefLAST 19
 #define edefSCRIPTDEFS_MAX 9 //for 2.future compatibility
 
 //Old 2.future compat rubbish for quest loading. -Z
@@ -1184,9 +1186,9 @@ enum
 	scriptDEF8, scriptDEF9, scriptDEF10, scriptDEFLAST
 };
 
-//2.50.x last defense, used for filepack loading. 
+//2.50.x last defense, used for filepack loading.
 
-// New defence outcomes. 
+// New defence outcomes.
 enum
 {
     edNORMAL, // Take damage (or stun)
@@ -1215,18 +1217,18 @@ enum
 	edMSG_LINE, //An entry for the hiriz line in THE zq PULLDOWN
 	edLEVELDAMAGE, //Damage * item level
 	edLEVELREDUCTION, //Damage / item level
-	
+
 	edSPLIT, //causes the enemy to split if it has a split attribute
 	edREPLACE, //replaced by next in list?
-	edLEVELCHINK2, //If item level is < 2: This needs a weapon variable that is set by 
+	edLEVELCHINK2, //If item level is < 2: This needs a weapon variable that is set by
 	edLEVELCHINK3, //If item level is < 3: the item that generates it (itemdata::level stored to
 	edLEVELCHINK4, //If item level is < 4: weapon::level, or something similar; then a check to
-	edLEVELCHINK5, //If item level is < 5: read weapon::level in hit detection. 
+	edLEVELCHINK5, //If item level is < 5: read weapon::level in hit detection.
 	edSHOCK, //buzz blob
 	edEXPLODESMALL, //ew bombblast
 	edEXPLODELARGE, //super bomb blast
 	edSTONE, //deadrock
-	
+
 	edBREAKSHIELD, //break the enemy shield
 	edRESTORESHIELD, //if the enemy had a shield, reset it
 	edSPECIALDROP, //but where to define it?
@@ -1234,15 +1236,15 @@ enum
 	edREDUCECOUNTER, //same problem
 	edEXPLODEHARMLESS, //boss death explosion
 	edKILLNOSPLIT, //If sufficient damage to kill it, a splitting enemy just dies.
-	edTRIBBLE, //Tribbles on hit. 
+	edTRIBBLE, //Tribbles on hit.
 	edFIREBALL, //Makes a 1x1 fireball
 	edFIREBALLLARGE, //Makes a 3x3 fireball
-	edSUMMON, //Summons a number of enemies as defined by the summon properties of the npc. 
+	edSUMMON, //Summons a number of enemies as defined by the summon properties of the npc.
 	//edSAVE, edRETRY, edCRASHZC // Sanity Check Required. -Z
-	edWINGAME, //Wand of Gamelon. 
+	edWINGAME, //Wand of Gamelon.
 	edJUMP, //Z3 stalfos
 	edEATLINK, //-G //Is this practical? We need specisal npc mvoement for it. -Z
-	
+
     edLAST
 };
 #define edX edIGNORE // Shorthand
@@ -1278,8 +1280,8 @@ struct tiledata
 
 //Weapon clocks
 enum
-{ 
-	wpnclkFRAMECOUNT, wpnclkMAGICUSAGE = 9 
+{
+	wpnclkFRAMECOUNT, wpnclkMAGICUSAGE = 9
 };
 
 
@@ -1307,9 +1309,9 @@ enum
 	weapdefHOOKSHOT, weapdef21, weapdef22, weapdefSPARKLE, weapdef24,
 	weapdef25, weapdefBYRNA, weapdefREFBEAM, weapdef28, weapdef29,
 	weapdefSCRIPT1, weapdefSCRIPT2, weapdefSCRIPT3, weapdefSCRIPT4, weapdefSCRIPT5,
-	weapdefSCRIPT6, weapdefSCRIPT7, weapdefSCRIPT8, weapdefSCRIPT9, weapdefSCRIPT10 
+	weapdefSCRIPT6, weapdefSCRIPT7, weapdefSCRIPT8, weapdefSCRIPT9, weapdefSCRIPT10
 };
-	
+
 
 #define ITEM_MOVEMENT_PATTERNS 10
 
@@ -1317,12 +1319,12 @@ enum
 enum{
 	wpnmovePATTERN, wmoveARG1, wmoveARG2, wmoveARG3, wmoveARG4, wmoveDUPLICATES, wmoveOTHER1
 };
-	
+
 
 //Movement patterns
 enum
 {
-	wmovepatternNONE, wmovepatternLINE, wmovepatternSINE, wmovepatternCOSINE, wmovepatternCIRCLE, wmovepatternARC, wmovepatternPATTERN_A, 
+	wmovepatternNONE, wmovepatternLINE, wmovepatternSINE, wmovepatternCOSINE, wmovepatternCIRCLE, wmovepatternARC, wmovepatternPATTERN_A,
 	wmovepatternPATTERN_B, wmovepatternPATTERN_C, wmovepatternPATTERN_D, wmovepatternPATTERN_E, wmovepatternPATTERN_F
 };
 
@@ -1396,31 +1398,31 @@ struct itemdata
     byte usedefence; //default defence type -Z
     int weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
     int weaprange; //default range -Z
-    int weapduration; //default duration, 0 = infinite. 
- 
-    
+    int weapduration; //default duration, 0 = infinite.
+
+
     //To implement next;
     int duplicates; //Number of duplicate weapons generated.
-    int wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon, 
-    
+    int wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon,
+
     long weap_initiald[INITIAL_D];
     byte weap_initiala[INITIAL_A];
-    
+
     byte drawlayer;
     long collectflags;
     int hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs; //item
     int weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
     int tilew, tileh, weap_tilew, weap_tileh; //New for 2.54
-    int pickup; 
-    
+    int pickup;
+
 #define itemdataPSTRING_ALWAYS		0x00000001
 #define itemdataPSTRING_IP_HOLDUP	0x00000002
 #define itemdataPSTRING_NOMARK		0x00000004
     word pstring;
     word pickup_string_flags;
-    
-    
-  
+
+
+
 //Guydata Enemy Editor Size Panel FLags
 
 #define itemdataOVERRIDE_TILEWIDTH	0x00000001
@@ -1436,13 +1438,13 @@ struct itemdata
 #define itemdataOVERRIDE_PICKUP		0x00000400
 
     int overrideFLAGS; //Override flags.
-    int weapoverrideFLAGS; 
-    
+    int weapoverrideFLAGS;
+
     word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
-    int wpnsprite; //enemy weapon sprite. 
-    int magiccosttimer; //TImer for timed magic costs. 
+    int wpnsprite; //enemy weapon sprite.
+    int magiccosttimer; //TImer for timed magic costs.
     char cost_counter; //replaces mp cost with a list
-    
+
 };
 
 struct wpndata
@@ -1536,6 +1538,17 @@ struct item_drop_object
 #define guy_blinking    0x00004000
 #define guy_transparent 0x00008000
 
+#define cmbflag_trp8		0x00010000
+#define cmbflag_trpd		0x00020000
+#define cmbflag_trps		0x00040000
+#define cmbflag_trpb		0x00080000
+#define cmbflag_trpruld 0x00100000
+#define cmbflag_trplurd 0x00200000
+#define cmbflag_trpcw   0x00400000
+#define cmbflag_trpccw  0x00800000
+#define cmbflag_trpcwc  0x01000000
+#define cmbflag_trpccwc 0x02000000
+
 // Old flags
 #define weak_arrow		0x20000000
 #define guy_superman    0x00000008
@@ -1592,12 +1605,12 @@ struct guydata
     word  e_tile;
     byte  e_width;
     byte  e_height;
-    
+
     short hp;
-    
+
     short  family, cset, anim, e_anim, frate, e_frate;
     short  dp, wdp, weapon;
-    
+
     short  rate, hrate, step, homing, grumble, item_set;
     long   misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, misc11, misc12, misc13, misc14, misc15;
     short  bgsfx, bosspal, extend;
@@ -1608,29 +1621,29 @@ struct guydata
     byte  hitsfx, deadsfx;
     //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
     //Adding earlier will offset defdata arrays. -Z
-    
+
     //2.6 enemy editor tile and hit sizes. -Z
-    int xofs,yofs,zofs; //saved to the packfile, so I am using int. I can typecast to fix and back in the functions. 
+    int xofs,yofs,zofs; //saved to the packfile, so I am using int. I can typecast to fix and back in the functions.
     // no hzofs - it's always equal to zofs.
     int hxofs,hyofs,hxsz,hysz,hzsz;
     int txsz,tysz;
-    byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support. 
+    byte scriptdefense[scriptDEFLAST]; //old 2.future quest file crossover support.
     int wpnsprite; //wpnsprite is new for 2.6 -Z
-    int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults. 
+    int SIZEflags;; //Flags for size panel offsets. The user must enable these to override defaults.
     int frozentile, frozencset, frozenclock;
     short frozenmisc[10];
     //v 34
     short firesfx; //weapon fire (attack) sound
     //expanded ->Attributes[] to size of 32.
-    long misc16, misc17, misc18, misc19, misc20, misc21, misc22, misc23, 
+    long misc16, misc17, misc18, misc19, misc20, misc21, misc22, misc23,
 	misc24, misc25, misc26, misc27, misc28, misc29, misc30, misc31, misc32;
-    long movement[32]; //Reserved for npc movement types and args. 
+    long movement[32]; //Reserved for npc movement types and args.
     long new_weapon[32]; //Reserved for weapon patterns and args.
     long initD[8], initA[2];
-    
-    word npcscript; //For future npc action scripts. 
+
+    word npcscript; //For future npc action scripts.
     //short parentCore; //Probably not needed here. -Z
-    
+
 };
 
 class refInfo
@@ -1638,22 +1651,22 @@ class refInfo
 public:
     //word script; //script number
     dword pc; //current command offset
-    
+
     long d[8]; //d registers
     long a[2]; //a regsisters (reference to another ffc on screen)
     byte sp; //stack pointer for current script
     dword scriptflag; //stores whether various operations were true/false etc.
-    
+
     byte ffcref, idata; //current object pointers
     dword itemref, guyref, lwpn, ewpn;
 	dword mapsref, screenref, npcdataref, gfxref, spritesref, combosref, dmapsref, zmsgref, shopsref, untypedref;
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
-	dword gamedataref, cheatsref; 
+	dword gamedataref, cheatsref;
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
-    
+
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
-    
+
     void Clear()
     {
         pc = 0, sp = 0, scriptflag = 0;
@@ -1661,17 +1674,17 @@ public:
         memset(d, 0, 8 * sizeof(long));
         a[0] = a[1] = 0;
     }
-    
+
     refInfo()
     {
         Clear();
     }
-    
+
     refInfo(const refInfo &copy)
     {
         *this = copy;
     }
-    
+
     refInfo &operator = (const refInfo &rhs)
     {
         pc = rhs.pc, sp = rhs.sp, scriptflag = rhs.scriptflag;
@@ -1757,9 +1770,9 @@ struct mapscr
     word viewY;
     byte scrWidth; //ooooh. Can we make this a variable set by script? -Z
     byte scrHeight; //ooooh. Can we make this a variable set by script? -Z
-    
+
     byte entry_x, entry_y; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
-    
+
     //Why doesn't ffc get to be its own class?
     dword numff;
     word ffdata[NUM_FFCS];
@@ -1775,13 +1788,13 @@ struct mapscr
     byte ffwidth[NUM_FFCS];
     byte ffheight[NUM_FFCS];
     byte fflink[NUM_FFCS];
-    
+
     //ffc script attachments
     word ffscript[NUM_FFCS];
     long initd[NUM_FFCS][INITIAL_D];
     long inita[NUM_FFCS][INITIAL_A];
     bool initialized[NUM_FFCS];
-    
+
     /*long d[32][8];
     long a[32][2];
     word pc[32];
@@ -1796,7 +1809,7 @@ struct mapscr
     //byte lwpnclass[32]; Not implemented
     //byte ewpnclass[32]; Not implemented
     //byte guyclass[32]; Not implemented
-    
+
     /*long map_stack[256];
     long map_d[8];
     word map_pc;
@@ -1814,23 +1827,23 @@ struct mapscr
     word script_entry;
     word script_occupancy;
     word script_exit;
-    
+
     byte oceansfx;
     byte bosssfx;
     byte secretsfx;
     byte holdupsfx;
-    
+
     // for importing older quests...
     byte old_cpage;
     short screen_midi;
     byte lens_layer;
-    
+
     //for future versions after 2.54 -Z
     long npcstrings[10];
     short new_items[10];
     signed short new_item_x[10];
     signed short new_item_y[10];
-    
+
     void zero_memory()
     {
         //oh joy, this will be fun...
@@ -1849,13 +1862,13 @@ struct mapscr
         itemy=0;
         color=0;
         enemyflags=0;
-        
+
         exitdir=0;
         pattern=0;
         sidewarpoverlayflags=0;
         warparrivalx=0;
         warparrivaly=0;
-        
+
         sidewarpindex=0;
         undercombo=0;
         undercset=0;
@@ -1878,14 +1891,14 @@ struct mapscr
         nextscr=0;
 	 // new for 2.6
         //entry_x = entry_y = 0; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
-    
-        
+
+
         viewX=0;
         viewY=0;
         scrWidth=0;
         scrHeight=0;
         numff=0;
-        
+
         for(int i(0); i<4; i++)
         {
             door[i]=0;
@@ -1899,24 +1912,24 @@ struct mapscr
             sidewarpdmap[i]=0;
             sidewarptype[i]=0;
         }
-        
+
         for(int i(0); i<10; i++)
             enemy[i]=0;
-            
+
         for(int i(0); i<128; i++)
         {
             secretcombo[i]=0;
             secretcset[i]=0;
             secretflag[i]=0;
         }
-        
+
         for(int i(0); i<6; i++)
         {
             layermap[i]=0;
             layerscreen[i]=0;
             layeropacity[i]=0;
         }
-        
+
         for(int i(0); i<32; i++)
         {
             for(int j(0); j<8; j++)
@@ -1924,13 +1937,13 @@ struct mapscr
                 //d[i][j]=0;
                 initd[i][j]=0;
             }
-            
+
             for(int j(0); j<2; j++)
             {
                 inita[i][j]=0;
                 //a[i][j]=0;
             }
-            
+
             initialized[i]=0;
             /*pc[i]=0;
             scriptflag[i]=0;
@@ -1953,7 +1966,7 @@ struct mapscr
             fflink[i]=0;
             ffscript[i]=0;
         }
-        
+
         /*	  for(int i(0);i<256;i++)
         	  {
         	   map_stack[i]=0;
@@ -1980,12 +1993,12 @@ struct mapscr
         secretsfx=0;
         holdupsfx=0;
         lens_layer=0;
-	
+
 	for ( int q = 0; q < 10; q++ ) npcstrings[q] = 0;
         for ( int q = 0; q < 10; q++ ) new_items[q] = 0;
         for ( int q = 0; q < 10; q++ ) new_item_x[q] = 0;
         for ( int q = 0; q < 10; q++ ) new_item_y[q] = 0;
-        
+
         data.assign(176,0);
         sflag.assign(176,0);
         cset.assign(176,0);
@@ -1993,8 +2006,8 @@ struct mapscr
         //sflag.assign(sflag.size(),0);
         //cset.assign(cset.size(),0);
     }
-    
-    
+
+
     mapscr()
     {
         data.resize(176,0);
@@ -2002,7 +2015,7 @@ struct mapscr
         cset.resize(176,0);
         zero_memory();
     }
-    
+
 };
 
 struct ffscript
@@ -2116,9 +2129,9 @@ enum {cfOFFSET, cfMAX};
 #define NUM_COMBO_ATTRIBUTES 4
 
 /*
-The following flags are for the weapons assigned to the 
+The following flags are for the weapons assigned to the
 lower 18 bits (each) of the newcombo.triggerflags[] array
-indices. 
+indices.
 
 The higher 14 bits are unused in each for *this* purpose,
 because ZScript needs to be able to cleanly set the flags
@@ -2207,14 +2220,14 @@ struct newcombo
     byte skipanimy; //8 bits
     byte animflags; //8 bits
     byte expansion[6]; //48 bits
-	
+
 	long attributes[NUM_COMBO_ATTRIBUTES]; //32 bits; combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
 	long usrflags; //32 bits ; combodata->Flags and Screen->ComboFlags[pos]
 	long triggerflags[3]; //96 bits
 	long triggerlevel; //32 bits
-		//Only one of these per combo: Otherwise we would have 
+		//Only one of these per combo: Otherwise we would have
 		//long triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
-		//Thus, a weapon level affects all triggers for that combo type. 
+		//Thus, a weapon level affects all triggers for that combo type.
     //384 bits total per object
 };
 
@@ -2337,52 +2350,52 @@ enum
     font_gboraclepfont,
     font_dsphantomfont,
     font_dsphantompfont,
-    
-     font_atari800font,   
-		 font_acornfont,   
-		 font_adosfont,   
-		 font_baseallegrofont,   
-		 font_apple2font,   
-		 font_apple280colfont,   
-		 font_apple2gsfont, 
-		 font_aquariusfont,   
-		 font_atari400font,   
-		 font_c64font,   
-		 font_c64hiresfont,   
-		 font_cgafont,   
+
+     font_atari800font,
+		 font_acornfont,
+		 font_adosfont,
+		 font_baseallegrofont,
+		 font_apple2font,
+		 font_apple280colfont,
+		 font_apple2gsfont,
+		 font_aquariusfont,
+		 font_atari400font,
+		 font_c64font,
+		 font_c64hiresfont,
+		 font_cgafont,
 		 font_cocofont,
-		 font_coco2font, 
-		 font_coupefon, 
-		 font_cpcfon, 
-		 font_fantasyfon, 
-		 font_fdskanafon, 
-		 font_fdslikefon, 
-		 font_fdsromanfon, 
-		 font_finalffont, 
-		 font_futharkfont, 
-		 font_gaiafont, 
-		 font_hirafont, 
-		 font_jpfont, 
-		 font_kongfont, 
-		 font_manafont, 
-		 font_mlfont, 
-		 font_motfont, 
-		 font_msxmode0font, 
-		 font_msxmode1font, 
-		 font_petfont, 
-		 font_pstartfont, 
-		 font_saturnfont, 
-		 font_scififont, 
-		 font_sherwoodfont, 
-		 font_sinqlfont, 
-		 font_spectrumfont, 
-		 font_speclgfont, 
-		 font_ti99font, 
-		 font_trsfont, 
-		 font_z2font, 
+		 font_coco2font,
+		 font_coupefon,
+		 font_cpcfon,
+		 font_fantasyfon,
+		 font_fdskanafon,
+		 font_fdslikefon,
+		 font_fdsromanfon,
+		 font_finalffont,
+		 font_futharkfont,
+		 font_gaiafont,
+		 font_hirafont,
+		 font_jpfont,
+		 font_kongfont,
+		 font_manafont,
+		 font_mlfont,
+		 font_motfont,
+		 font_msxmode0font,
+		 font_msxmode1font,
+		 font_petfont,
+		 font_pstartfont,
+		 font_saturnfont,
+		 font_scififont,
+		 font_sherwoodfont,
+		 font_sinqlfont,
+		 font_spectrumfont,
+		 font_speclgfont,
+		 font_ti99font,
+		 font_trsfont,
+		 font_z2font,
 		 font_zxfont,
 		 font_lisafont,
-		 
+
     font_max
 };
 
@@ -2410,7 +2423,7 @@ struct MsgStr
     byte vspace;
     byte hspace;
     byte stringflags;
-    
+
     // Copy everything except listpos
     MsgStr& operator=(MsgStr &other)
     {
@@ -2419,7 +2432,7 @@ struct MsgStr
         copyStyle(other);
         return *this;
     }
-    
+
     // Copy style data - everything except s, nextstring, and listpos
     void copyStyle(MsgStr& other)
     {
@@ -2470,7 +2483,7 @@ struct DoorComboSet
     //594 (18)
     word walkthroughcombo[4];                                 //[n, s, e, w]
     byte walkthroughcset[4];                                  //[n, s, e, w]
-    
+
     byte flags[2];
     byte expansion[30];
     //638 (44)
@@ -2562,7 +2575,7 @@ struct combo_alias
         combos[0] = 0;
         csets[0] = 0;
     }
-    
+
     byte width;      // Max 15
     byte height;     // Max 10
     byte layermask;  // Specifies layers to be drawn
@@ -2702,23 +2715,23 @@ public:
     // 37
     void *data;
     // 41
-    
+
     byte format;
-    
+
     zctune()
     {
         data = NULL;
         format = MFORMAT_MIDI;
         reset();
     }
-    
+
     zctune(char _title[36], long _start, long _loop_start, long _loop_end, short _loop,short _volume, void *_data, byte _format)
         : start(_start), loop_start(_loop_start), loop_end(_loop_end), loop(_loop), volume(_volume), data(_data), format(_format)
     {
         //memcpy(title, _title, 20); //NOT SAFE for short strings
         strncpy(title, _title, 36);
     }
-    
+
     void clear()
     {
         memset(title,0,36);
@@ -2726,7 +2739,7 @@ public:
         loop = volume = flags = 0;
         data = NULL;
     }
-    
+
     void copyfrom(zctune z)
     {
         start = z.start;
@@ -2739,7 +2752,7 @@ public:
         strncpy(title, z.title, 36);
         data = z.data;
     }
-    
+
     void reset()
     {
         title[0]=0;
@@ -2749,20 +2762,20 @@ public:
         loop_start=-1;
         loop_end=-1;
         flags=0;
-        
+
         if(data) switch(format)
             {
             case MFORMAT_MIDI:
                 destroy_midi((MIDI*) data);
                 break;
-                
+
             default:
                 break;
             }
-            
+
         data = NULL;
     }
-    
+
 };
 
 /*typedef struct zcmidi_ // midi or other sound format (nsf ...)
@@ -2816,9 +2829,9 @@ enum // used for gamedata ITEMS
     itype_custom16, itype_custom17, itype_custom18, itype_custom19, itype_custom20,
     // 87
     itype_bowandarrow, itype_letterpotion,
-    itype_last, 
+    itype_last,
     itype_script1 = 256, //Scripted Weapons
-    itype_script2, 
+    itype_script2,
     itype_script3,
     itype_script4,
     itype_script5,
@@ -2830,13 +2843,13 @@ enum // used for gamedata ITEMS
     itype_icerod, //ice Rod
 
     itype_templast,
-	 itype_ether, itype_bombos, itype_quake, 
+	 itype_ether, itype_bombos, itype_quake,
 	 itype_powder,
 	 itype_trowel,
 	 itype_instrument,
 	 itype_sword180,
 	 itype_sword_gb,
-itype_scripted_001 = 400, 
+itype_scripted_001 = 400,
 itype_scripted_002,
 itype_scripted_003,
 itype_scripted_004,
@@ -2847,12 +2860,12 @@ itype_scripted_008,
 itype_scripted_009,
 itype_scripted_010,
 
-    
-    
+
+
     itype_max=512
 };
 
-#define itype_max_zc250 255 //Last in the 2.50.x lists. 
+#define itype_max_zc250 255 //Last in the 2.50.x lists.
 
 enum {i_sword=1, i_wsword, i_msword, i_xsword, imax_sword};
 enum {i_wbrang=1, i_mbrang, i_fbrang, imax_brang};
@@ -2924,7 +2937,7 @@ struct gamedata
     word _maxcounter[32];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
     word _counter[32];
     short _dcounter[32];
-    
+
     char  version[9];
     char  title[65];
     //354
@@ -2962,170 +2975,170 @@ struct gamedata
     long  screen_d[MAXDMAPS*MAPSCRSNORMAL][8];                // script-controlled screen variables
     long  global_d[256];                                      // script-controlled global variables
     std::vector< ZCArray <long> > globalRAM;
-    
+
     byte awpn, bwpn;											// Currently selected weapon slots
-    
+
     bool isclearing; // The gamedata is being cleared
     //115456 (260)
-    
+
     // member functions
     // public:
     gamedata()
     {
         Clear();
     }
-    
+
     ~gamedata()
     {}
-    
+
     void Clear();
     void Copy(const gamedata& g);
-    
+
     gamedata &operator = (const gamedata& data)
     {
         this->Copy(data);
         this->globalRAM=data.globalRAM;
         return *this;
     }
-    
+
     char *get_name();
     void set_name(char *n);
-    
+
     byte get_quest();
     void set_quest(byte q);
     void change_quest(short q);
-    
+
     word get_counter(byte c);
     void set_counter(word change, byte c);
     void change_counter(short change, byte c);
-    
+
     word get_maxcounter(byte c);
     void set_maxcounter(word change, byte c);
     void change_maxcounter(short change, byte c);
-    
+
     short get_dcounter(byte c);
     void set_dcounter(short change, byte c);
     void change_dcounter(short change, byte c);
-    
+
     word get_life();
     void set_life(word l);
     void change_life(short l);
-    
+
     word get_maxlife();
     void set_maxlife(word m);
     void change_maxlife(short m);
-    
+
     short get_drupy();
     void set_drupy(short d);
     void change_drupy(short d);
-    
+
     word get_rupies();
     word get_spendable_rupies();
     void set_rupies(word r);
     void change_rupies(short r);
-    
+
     word get_maxarrows();
     void set_maxarrows(word a);
     void change_maxarrows(short a);
-    
+
     word get_arrows();
     void set_arrows(word a);
     void change_arrows(short a);
-    
+
     word get_deaths();
     void set_deaths(word d);
     void change_deaths(short d);
-    
+
     word get_keys();
     void set_keys(word k);
     void change_keys(short k);
-    
+
     word get_bombs();
     void set_bombs(word k);
     void change_bombs(short k);
-    
+
     word get_maxbombs();
     void set_maxbombs(word b, bool setSuperBombs=true);
     void change_maxbombs(short b);
-    
+
     word get_sbombs();
     void set_sbombs(word k);
     void change_sbombs(short k);
-    
+
     word get_wlevel();
     void set_wlevel(word l);
     void change_wlevel(short l);
-    
+
     byte get_cheat();
     void set_cheat(byte c);
     void change_cheat(short c);
-    
+
     byte get_hasplayed();
     void set_hasplayed(byte p);
     void change_hasplayed(short p);
-    
+
     dword get_time();
     void set_time(dword t);
     void change_time(long long t);
-    
+
     byte get_timevalid();
     void set_timevalid(byte t);
     void change_timevalid(short t);
-    
+
     byte get_HCpieces();
     void set_HCpieces(byte p);
     void change_HCpieces(short p);
-    
+
     byte get_hcp_per_hc();
     void set_hcp_per_hc(byte val);
-    
+
     byte get_cont_hearts();
     void set_cont_hearts(byte val);
-    
+
     bool get_cont_percent();
     void set_cont_percent(bool ispercent);
-    
+
     byte get_continue_scrn();
     void set_continue_scrn(byte s);
     void change_continue_scrn(short s);
-    
+
     word get_continue_dmap();
     void set_continue_dmap(word d);
     void change_continue_dmap(short d);
-    
+
     word get_maxmagic();
     void set_maxmagic(word m);
     void change_maxmagic(short m);
-    
+
     word get_magic();
     void set_magic(word m);
     void change_magic(short m);
-    
+
     short get_dmagic();
     void set_dmagic(short d);
     void change_dmagic(short d);
-    
+
     byte get_magicdrainrate();
     void set_magicdrainrate(byte r);
     void change_magicdrainrate(short r);
-    
+
     byte get_canslash();
     void set_canslash(byte s);
     void change_canslash(short s);
-    
+
     short get_generic(byte c);
     void set_generic(byte change, byte c);
     void change_generic(short change, byte c);
-    
+
     byte get_lkeys();
-    
+
     void set_item(int id, bool value);
     void set_item_no_flush(int id, bool value);
     inline bool get_item(int id)
     {
         return item[id];
     }
-    
+
 };
 
 // "initialization data" flags (bit numbers in bit string)
@@ -3253,12 +3266,12 @@ static INLINE bool is_between(T a, T b, T c, bool inclusive)
     {
         return true;
     }
-    
+
     if(inclusive&&(a==b||a==c))
     {
         return true;
     }
-    
+
     return false;
 }
 
@@ -3267,44 +3280,44 @@ static INLINE bool is_between(T a, T b, T c, bool inclusive)
 INLINE bool pfwrite(void *p,long n,PACKFILE *f)
 {
     bool success=true;
-    
+
     if(!fake_pack_writing)
     {
         success=(pack_fwrite(p,n,f)==n);
     }
-    
+
     if(success)
     {
         writesize+=n;
     }
-    
+
     return success;
 }
 
 INLINE bool pfread(void *p,long n,PACKFILE *f,bool keepdata)
 {
     bool success;
-    
+
     if(keepdata==true)
     {
         success=(pack_fread(p,n,f)==n);
-        
+
         if(success)
         {
             readsize+=n;
         }
-        
+
         return success;
     }
     else
     {
         success=(pack_fseek(f,n)==0);
-        
+
         if(success)
         {
             readsize+=n;
         }
-        
+
         return success;
     }
 }
@@ -3313,36 +3326,36 @@ INLINE bool p_getc(void *p,PACKFILE *f,bool keepdata)
 {
     unsigned char *cp = (unsigned char *)p;
     int c;
-    
+
     if(!f) return false;
-    
+
 #ifdef NEWALLEGRO
-    
+
     if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-    
+
 #else
-    
+
     if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-    
+
 #endif
-    
+
     if(pack_feof(f))
     {
         return false;
     }
-    
+
     c = pack_getc(f);
-    
+
     if(pack_ferror(f))
     {
         return false;
     }
-    
+
     if(keepdata==true)
     {
         *cp = c;
     }
-    
+
     readsize+=1;
     return true;
 }
@@ -3350,30 +3363,30 @@ INLINE bool p_getc(void *p,PACKFILE *f,bool keepdata)
 INLINE bool p_putc(int c,PACKFILE *f)
 {
     bool success=true;
-    
+
     if(!fake_pack_writing)
     {
         if(!f) return false;
-        
+
 #ifdef NEWALLEGRO
-        
+
         if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-        
+
 #else
-        
+
         if(!(f->flags&PACKFILE_FLAG_WRITE)) return false;         //must be writing to file
-        
+
 #endif
-        
+
         pack_putc(c,f);
         success=(pack_ferror(f)==0);
     }
-    
+
     if(success)
     {
         writesize+=1;
     }
-    
+
     return success;
 }
 
@@ -3381,36 +3394,36 @@ INLINE bool p_igetw(void *p,PACKFILE *f,bool keepdata)
 {
     short *cp = (short *)p;
     int c;
-    
+
     if(!f) return false;
-    
+
 #ifdef NEWALLEGRO
-    
+
     if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-    
+
 #else
-    
+
     if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-    
+
 #endif
-    
+
     if(pack_feof(f))
     {
         return false;
     }
-    
+
     c = pack_igetw(f);
-    
+
     if(pack_ferror(f))
     {
         return false;
     }
-    
+
     if(keepdata==true)
     {
         *cp = c;
     }
-    
+
     readsize+=2;
     return true;
 }
@@ -3418,30 +3431,30 @@ INLINE bool p_igetw(void *p,PACKFILE *f,bool keepdata)
 INLINE bool p_iputw(int c,PACKFILE *f)
 {
     bool success=true;
-    
+
     if(!fake_pack_writing)
     {
         if(!f) return false;
-        
+
 #ifdef NEWALLEGRO
-        
+
         if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-        
+
 #else
-        
+
         if(!(f->flags&PACKFILE_FLAG_WRITE)) return false;         //must be writing to file
-        
+
 #endif
-        
+
         pack_iputw(c,f);
         success=(pack_ferror(f)==0);
     }
-    
+
     if(success)
     {
         writesize+=2;
     }
-    
+
     return success;
 }
 
@@ -3449,36 +3462,36 @@ INLINE bool p_igetl(void *p,PACKFILE *f,bool keepdata)
 {
     dword *cp = (dword *)p;
     long c;
-    
+
     if(!f) return false;
-    
+
 #ifdef NEWALLEGRO
-    
+
     if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-    
+
 #else
-    
+
     if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-    
+
 #endif
-    
+
     if(pack_feof(f))
     {
         return false;
     }
-    
+
     c = pack_igetl(f);
-    
+
     if(pack_ferror(f))
     {
         return false;
     }
-    
+
     if(keepdata==true)
     {
         *cp = c;
     }
-    
+
     readsize+=4;
     return true;
 }
@@ -3494,47 +3507,47 @@ INLINE bool p_igetd(void *p, PACKFILE *f, bool keepdata)
 INLINE bool p_igetf(void *p,PACKFILE *f,bool keepdata)
 {
     if(!f) return false;
-    
+
 #ifdef NEWALLEGRO
-    
+
     if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-    
+
 #else
-    
+
     if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-    
+
 #endif
-    
+
     if(pack_feof(f))
     {
         return false;
     }
-    
+
     byte tempfloat[sizeof(float)];
-    
+
     if(!pfread(tempfloat,sizeof(float),f,true))
         return false;
-        
+
     if(keepdata)
     {
         memset(p, 0,sizeof(float));
 #ifdef ALLEGRO_MACOSX
-        
+
         for(int i=0; i<(int)sizeof(float); i++)
         {
             ((byte *)p)[i] = tempfloat[i];
         }
-        
+
 #else
-        
+
         for(int i=0; i<(int)sizeof(float); i++)
         {
             ((byte *)p)[sizeof(float)-i-1] = tempfloat[i];
         }
-        
+
 #endif
     }
-    
+
     readsize += sizeof(float);
     return true;
 }
@@ -3542,30 +3555,30 @@ INLINE bool p_igetf(void *p,PACKFILE *f,bool keepdata)
 INLINE bool p_iputl(long c,PACKFILE *f)
 {
     bool success=true;
-    
+
     if(!fake_pack_writing)
     {
         if(!f) return false;
-        
+
 #ifdef NEWALLEGRO
-        
+
         if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-        
+
 #else
-        
+
         if(!(f->flags&PACKFILE_FLAG_WRITE)) return false;         //must be writing to file
-        
+
 #endif
-        
+
         pack_iputl(c,f);
         success=(pack_ferror(f)==0);
     }
-    
+
     if(success)
     {
         writesize+=4;
     }
-    
+
     return success;
 }
 
@@ -3573,36 +3586,36 @@ INLINE bool p_mgetw(void *p,PACKFILE *f,bool keepdata)
 {
     short *cp = (short *)p;
     int c;
-    
+
     if(!f) return false;
-    
+
 #ifdef NEWALLEGRO
-    
+
     if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-    
+
 #else
-    
+
     if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-    
+
 #endif
-    
+
     if(pack_feof(f))
     {
         return false;
     }
-    
+
     c = pack_mgetw(f);
-    
+
     if(pack_ferror(f))
     {
         return false;
     }
-    
+
     if(keepdata==true)
     {
         *cp = c;
     }
-    
+
     readsize+=2;
     return true;
 }
@@ -3610,30 +3623,30 @@ INLINE bool p_mgetw(void *p,PACKFILE *f,bool keepdata)
 INLINE bool p_mputw(int c,PACKFILE *f)
 {
     bool success=true;
-    
+
     if(!fake_pack_writing)
     {
         if(!f) return false;
-        
+
 #ifdef NEWALLEGRO
-        
+
         if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-        
+
 #else
-        
+
         if(!(f->flags&PACKFILE_FLAG_WRITE)) return false;         //must be writing to file
-        
+
 #endif
-        
+
         pack_mputw(c,f);
         success=(pack_ferror(f)==0);
     }
-    
+
     if(success)
     {
         writesize+=2;
     }
-    
+
     return success;
 }
 
@@ -3641,36 +3654,36 @@ INLINE bool p_mgetl(void *p,PACKFILE *f,bool keepdata)
 {
     dword *cp = (dword *)p;
     long c;
-    
+
     if(!f) return false;
-    
+
 #ifdef NEWALLEGRO
-    
+
     if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-    
+
 #else
-    
+
     if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-    
+
 #endif
-    
+
     if(pack_feof(f))
     {
         return false;
     }
-    
+
     c = pack_mgetl(f);
-    
+
     if(pack_ferror(f))
     {
         return false;
     }
-    
+
     if(keepdata==true)
     {
         *cp = c;
     }
-    
+
     readsize+=4;
     return true;
 }
@@ -3678,30 +3691,30 @@ INLINE bool p_mgetl(void *p,PACKFILE *f,bool keepdata)
 INLINE bool p_mputl(long c,PACKFILE *f)
 {
     bool success=true;
-    
+
     if(!fake_pack_writing)
     {
         if(!f) return false;
-        
+
 #ifdef NEWALLEGRO
-        
+
         if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-        
+
 #else
-        
+
         if(!(f->flags&PACKFILE_FLAG_WRITE)) return false;         //must be writing to file
-        
+
 #endif
-        
+
         pack_mputl(c,f);
         success=(pack_ferror(f)==0);
     }
-    
+
     if(success)
     {
         writesize+=4;
     }
-    
+
     return success;
 }
 

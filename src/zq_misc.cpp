@@ -42,36 +42,36 @@ int filetype(const char *path)
 {
     if(path==NULL || strlen(get_filename(path))==0)
         return 0;
-        
+
     char ext[40];
     strcpy(ext,get_extension(path));
     strupr(ext);
-    
+
     for(int i=0; i<ssfmtMAX; ++i)
     {
         if(stricmp(ext,snapshotformat_str[i][1])==0) return ftBMP;
     }
-    
+
     if(stricmp(ext,"til")==0) return ftTIL;
-    
+
     if(stricmp(ext,"zgp")==0) return ftZGP;
-    
+
     if(stricmp(ext,"qsu")==0) return ftQSU;
-    
+
     if(stricmp(ext,"zqt")==0) return ftZQT;
-    
+
     if(stricmp(ext,"qst")==0) return ftQST;
-    
+
     if(stricmp(ext,"dat")==0) return 0;
-    
+
     if(stricmp(ext,"htm")==0) return 0;
-    
+
     if(stricmp(ext,"html")==0) return 0;
-    
+
     if(stricmp(ext,"txt")==0) return 0;
-    
+
     if(stricmp(ext,"zip")==0) return 0;
-    
+
     return ftBIN;
 }
 
@@ -128,20 +128,20 @@ int wrap(int x,int low,int high)
 {
     while(x<low)
         x+=high-low+1;
-        
+
     while(x>high)
         x-=high-low+1;
-        
+
     return x;
 }
 
 bool readfile(const char *path,void *buf,int count)
 {
     PACKFILE *f=pack_fopen_password(path,F_READ,"");
-    
+
     if(!f)
         return 0;
-        
+
     bool good=pfread(buf,count,f,true);
     pack_fclose(f);
     return good;
@@ -150,10 +150,10 @@ bool readfile(const char *path,void *buf,int count)
 bool writefile(const char *path,void *buf,int count)
 {
     PACKFILE *f=pack_fopen_password(path,F_WRITE,"");
-    
+
     if(!f)
         return 0;
-        
+
     bool good=pfwrite(buf,count,f);
     pack_fclose(f);
     return good;
@@ -166,18 +166,18 @@ void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
 {
     int x = ((x1+y1) & 1) ? 1 : 0;
     int c;
-    
+
     /* two loops to avoid bank switches */
     for(c=x1; c<=x2; c++)
     {
         putpixel(screen, c, y1, (((c+y1) & 1) == x) ? fg : bg);
     }
-    
+
     for(c=x1; c<=x2; c++)
     {
         putpixel(screen, c, y2, (((c+y2) & 1) == x) ? fg : bg);
     }
-    
+
     for(c=y1+1; c<y2; c++)
     {
         putpixel(screen, x1, c, (((c+x1) & 1) == x) ? fg : bg);
@@ -238,7 +238,7 @@ void cycle_palette();
 void load_cset(RGB *pal,int cset_index,int dataset)
 {
     byte *si = colordata + CSET(dataset)*3;
-    
+
     for(int i=0; i<16; i++)
     {
         pal[CSET(cset_index)+i] = _RGB(si);
@@ -254,26 +254,26 @@ void set_pal()
 void loadlvlpal(int level)
 {
     Color=level;
-    
+
     // full pal
     for(int i=0; i<192; i++)
         RAMpal[i] = _RGB(colordata+i*3);
-        
+
     // level pal
     byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;
-    
+
     for(int i=0; i<16*3; i++)
     {
         RAMpal[CSET(2)+i] = _RGB(si);
         si+=3;
     }
-    
+
     for(int i=0; i<16; i++)
     {
         RAMpal[CSET(9)+i] = _RGB(si);
         si+=3;
     }
-    
+
     reset_pal_cycling();
     set_pal();
 }
@@ -281,13 +281,13 @@ void loadlvlpal(int level)
 void loadfadepal(int dataset)
 {
     byte *si = colordata + CSET(dataset)*3;
-    
+
     for(int i=0; i<16*3; i++)
     {
         RAMpal[CSET(2)+i] = _RGB(si);
         si+=3;
     }
-    
+
     set_pal();
 }
 
@@ -298,7 +298,7 @@ void setup_lcolors()
         RAMpal[lc1(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+2)*3);
         RAMpal[lc2(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+16+1)*3);
     }
-    
+
     set_palette(RAMpal);
 }
 
@@ -444,7 +444,7 @@ const char *flag_string[MAXFLAGS] =
     "101 General Purpose 4 (Scripts)",
     "102 General Purpose 5 (Scripts)",
     "103 Raft Bounce",
-     "104 Pushed",
+    "104 Pushed",
     "105 General Purpose 6 (Scripts)",
     "106 General Purpose 7 (Scripts)",
     "107 General Purpose 8 (Scripts)",
@@ -501,9 +501,21 @@ const char *flag_string[MAXFLAGS] =
     "158 Drop Bosskey (Scripted)",
     "159 Spawn NPC (Scripted)",
     "160 SwitchHook Spot (Scripted)",
-    "161 mf161",
-    "162 mf162","163 mf163","164 mf164","165 mf165","166 mf166","167 mf167","168 mf168","169 mf169",
-    "170 mf170","171 mf171","172 mf172","173 mf173","174 mf174","175 mf175","176 mf176","177 mf177","178 mf178","179 mf179",
+    "161 Trap (8-Way, Line of Sight)",
+    "162 Trap (Diagonal, Line of Sight)",
+    "163 Trap (/, Line of Sight)",
+    "164 Trap (\\, Line of Sight)",
+    "165 Trap (/, Constant)",
+    "166 Trap (\\, Constant)",
+    "167 Trap (CW, Line of Sight)",
+    "168 Trap (CCW, Line of Sight)",
+    "169 Trap (CW, Constant)",
+    "170 Trap (CCW, Constant)",
+    "171 Anchor (CW, Line of Sight)",
+    "172 Anchor (CCW, Line of Sight)",
+    "173 Anchor (CW, Constant)",
+    "174 Anchor (CCW, Constant)",
+    "175 mf175","176 mf176","177 mf177","178 mf178","179 mf179",
     "180 mf180","181 mf181","182 mf182","183 mf183","184 mf184","185 mf185","186 mf186","187 mf187","188 mf188","189 mf189",
     "190 mf190","191 mf191","192 mf192","193 mf193","194 mf194","195 mf195","196 mf196","197 mf197","198 mf198","199 mf199",
     "200 mf200","201 mf201","202 mf202","203 mf203","204 mf204","205 mf205","206 mf206","207 mf207","208 mf208","209 mf209",
@@ -859,14 +871,87 @@ const char *flag_help_string[(mfMAX)*3] =
     "", "", "",
     "", "", "",
     //Raft bounce flag! ^_^
-    "When Link is rafting, and hits","this flag, he will be turned around.", ""
+    "When Link is rafting, and hits","this flag, he will be turned around.", "",
+    //flags 104-160
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "", //110
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "", //120
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "", //130
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "", //140
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "", //150
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", "", //160
+    "Creates the lowest-numbered enemy with the","'Spawned by '8-Way Trap' Combo Type/Flag' enemy","data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the","'Spawned by 'Diagonal Trap' Combo Type/Flag' enemy","data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the","'Spawned by '/ Trap' Combo Type/Flag' enemy","data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the","'Spawned by '\\ Trap' Combo Type/Flag' enemy","data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the","'Spawned by 'RULD Trap' Combo Type/Flag' enemy","data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the","'Spawned by 'LURD Trap' Combo Type/Flag' enemy","data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the","'Spawned by 'CW Trap' Combo Type/Flag' enemy","data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the","'Spawned by 'CCW Trap' Combo Type/Flag' enemy","data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the","'Spawned by 'CWC Trap' Combo Type/Flag' enemy","data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the","'Spawned by 'CCWC Trap' Combo Type/Flag' enemy","data flag on the flagged combo.",
+    //Anchor Flags ^_^
+    "", "", "",
+    "", "", "",
+    "", "", "",
+    "", "", ""
 };
 
 // eMAXGUYS is defined in zdefs.h
-// Strings with a trailing space will not appear in the ZQ editor. 
+// Strings with a trailing space will not appear in the ZQ editor.
 // Remove the trailing space (e.g. "Ghini (L2, Magic) " become "Ghini (L2, Magic)"
 // to make them visible and editable. -Z
-// Add a trailing space to make any invisible (hidden) in the editor. 
+// Add a trailing space to make any invisible (hidden) in the editor.
 // This is what is used by build_bie_list() in zquest.cpp to generate the enemy lists! -Z
 const char *old_guy_string[OLDMAXGUYS] =
 {
@@ -1281,7 +1366,7 @@ int onSpacebar()
         alias_origin=(alias_origin+1)%4;
         return D_O_K;
     }
-    
+
     combo_cols=!combo_cols;
     return D_O_K;
 }
@@ -1289,23 +1374,23 @@ int onSpacebar()
 int onSaveZQuestSettings()
 {
 	if(jwin_alert3(
-			"Save Configuration", 
-			"Are you sure that you wish to save your present configuration settings?", 
+			"Save Configuration",
+			"Are you sure that you wish to save your present configuration settings?",
 			"This will overwrite your prior settings!",
 			NULL,
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		NULL, 
-		lfont) == 1)	
+		 "&Yes",
+		"&No",
+		NULL,
+		'y',
+		'n',
+		NULL,
+		lfont) == 1)
 	{
 		save_config_file();
 		return D_O_K;
 	}
-	else return D_O_K;	
-	
+	else return D_O_K;
+
 }
 
 
@@ -1313,30 +1398,30 @@ int onSaveZQuestSettings()
 int onClearQuestFilepath()
 {
 	if(jwin_alert3(
-			"Clear Quest Path", 
-			"Clear the current default filepath?", 
+			"Clear Quest Path",
+			"Clear the current default filepath?",
 			NULL,
 			NULL,
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		NULL, 
-		lfont) == 1)	
+		 "&Yes",
+		"&No",
+		NULL,
+		'y',
+		'n',
+		NULL,
+		lfont) == 1)
 	{
 		ZQ_ClearQuestPath();
 		return D_O_K;
 	}
-	else return D_O_K;	
-	
+	else return D_O_K;
+
 }
 
 int onSnapshot()
 {
     char buf[26];
     int num=0;
-    
+
     do
     {
 #ifdef ALLEGRO_MACOSX
@@ -1346,7 +1431,7 @@ int onSnapshot()
 #endif
     }
     while(num<999 && exists(buf));
-    
+
     blit(screen,screen2,0,0,0,0,zq_screen_w,zq_screen_h);
     PALETTE RAMpal2;
     get_palette(RAMpal2);
@@ -1365,17 +1450,17 @@ void go()
         blit(screen,menu1,0,0,0,0,zq_screen_w,zq_screen_h);
         unscare_mouse();
         break;
-        
+
     case 1:
         scare_mouse();
         blit(screen,menu3,0,0,0,0,zq_screen_w,zq_screen_h);
         unscare_mouse();
         break;
-        
+
     default:
         return;
     }
-    
+
     ++gocnt;
 }
 
@@ -1388,17 +1473,17 @@ void comeback()
         blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
         unscare_mouse();
         break;
-        
+
     case 2:
         scare_mouse();
         blit(menu3,screen,0,0,0,0,zq_screen_w,zq_screen_h);
         unscare_mouse();
         break;
-        
+
     default:
         return;
     }
-    
+
     --gocnt;
 }
 
@@ -1406,38 +1491,38 @@ int checksave()
 {
     if(saved)
         return 1;
-        
+
     char buf[80];
     char *name = get_filename(filepath);
-    
+
     if(name[0]==0)
         sprintf(buf,"Save this quest file?");
     else
         sprintf(buf,"Save changes to %s?",name);
-        
+
     switch(jwin_alert3("ZQuest",buf,NULL,NULL,"&Yes","&No","Cancel",'y','n',27,lfont))
     {
     case 1:
         onSave();
         return 1;
-        
+
     case 2:
         return 1;
     }
-    
+
     return 0;
 }
 
 int onExit()
 {
     restore_mouse();
-    
+
     if(checksave()==0)
         return D_O_K;
-        
+
     if(jwin_alert("ZQuest","Really want to quit?", NULL, NULL, "&Yes", "&No", 'y', 'n', lfont) == 2)
         return D_O_K;
-        
+
     return D_CLOSE;
 }
 
@@ -1446,7 +1531,7 @@ int onAbout()
     char buf1[80];
     char buf2[80];
     char buf3[80];
-    
+
     if(get_debug())
     {
 #if IS_BETA
@@ -1469,22 +1554,22 @@ int onAbout()
         case -1:
             sprintf(buf2,"(%s Alpha Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
             break;
-            
+
         case 1:
             sprintf(buf2,"(%s Beta Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
             break;
-            
+
         case 0:
         default:
             sprintf(buf2,"(%s Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
             break;
         }
-        
+
         sprintf(buf1,"ZQuest " ZELDA_VERSION_STR);
         sprintf(buf3,"'The Travels of Link' sequenced by Jeff Glenen.");
         jwin_alert("About ZQuest",buf1,buf2,buf3,"OK", NULL, 13, 27, lfont);
     }
-    
+
     return D_O_K;
 }
 
@@ -1498,12 +1583,12 @@ int onShowWalkability()
 int onPreviewMode()
 {
     prv_mode=(prv_mode+1)%2;
-    
+
     if(prv_mode)
     {
         Map.set_prvscr(Map.getCurrMap(),Map.getCurrScr());
     }
-    
+
     bool tempcb=ComboBrush!=0;
     ComboBrush=0;
     restore_mouse();
@@ -1525,7 +1610,7 @@ int onP()
     {
         Map.set_prvfreeze(((Map.get_prvfreeze()+1)%2));
     }
-    
+
     return D_O_K;
 }
 
@@ -1544,7 +1629,7 @@ int onShowComboInfoCSet()
     {
         Flags |= cCSET;
     }
-    
+
     refresh(rMAP);
     return D_O_K;
 }
@@ -1570,24 +1655,24 @@ int onShowDarkness()
     if(get_bit(quest_rules,qr_FADE))
     {
         int last = CSET(5)-1;
-        
+
         if(get_bit(quest_rules,qr_FADECS5))
             last += 16;
-            
+
         byte *si = colordata + CSET(Color*pdLEVEL+poFADE1)*3;
-        
+
         for(int i=0; i<16; i++)
         {
             int light = si[0]+si[1]+si[2];
             si+=3;
             fade_interpolate(RAMpal,black_palette,RAMpal,light?32:64,CSET(2)+i,CSET(2)+i);
         }
-        
+
         fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
         set_palette(RAMpal);
-        
+
         readkey();
-        
+
         load_cset(RAMpal,5,5);
         loadlvlpal(Color);
     }
@@ -1597,7 +1682,7 @@ int onShowDarkness()
         readkey();
         loadlvlpal(Color);
     }
-    
+
     return D_O_K;
 }
 
@@ -1620,12 +1705,12 @@ void setFlagColor()
 int onIncreaseFlag()
 {
     Flag=(Flag+1);
-    
+
     if(Flag==mfMAX)
     {
         Flag=0;
     }
-    
+
     setFlagColor();
     refresh(rMENU);
     return D_O_K;
@@ -1637,7 +1722,7 @@ int onDecreaseFlag()
     {
         Flag=mfMAX;
     }
-    
+
     Flag=(Flag-1);
     setFlagColor();
     refresh(rMENU);
@@ -1686,7 +1771,3 @@ int d_savemidi_proc(int, DIALOG*, int)
 {
     return D_O_K;
 }
-
-
-
-

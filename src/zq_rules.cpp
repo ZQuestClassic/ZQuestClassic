@@ -53,7 +53,7 @@ static DIALOG animationrules_dlg[] =
     { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    
+
     // rules
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "BS-Zelda Animation", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Circle Opening/Closing Wipes", NULL, NULL },
@@ -88,33 +88,33 @@ int onAnimationRules()
 {
     if(is_large)
         large_dialog(animationrules_dlg);
-        
+
     animationrules_dlg[0].dp2=lfont;
-    
+
     for(int i=0; animationrules[i]!=-1; i++)
     {
         animationrules_dlg[i+6].flags = get_bit(quest_rules,animationrules[i]) ? D_SELECTED : 0;
     }
-    
+
     int ret = zc_popup_dialog(animationrules_dlg,4);
-    
+
     if(ret==4)
     {
         saved=false;
-        
+
         for(int i=0; animationrules[i]!=-1; i++)
         {
             set_bit(quest_rules,animationrules[i],animationrules_dlg[i+6].flags & D_SELECTED);
         }
-        
+
         // For 2.50.0 and 2.50.1
         if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
             set_bit(quest_rules, qr_FASTDNGN, 1);
-        
+
         //this is only here until the subscreen style is selectable by itself
         zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
     }
-    
+
     return D_O_K;
 }
 
@@ -128,7 +128,7 @@ static DIALOG comborules_dlg[] =
     { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    
+
     // rules
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Link Drowns in Walkable Water", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Smart Screen Scrolling", NULL, NULL },
@@ -162,26 +162,26 @@ int onComboRules()
 {
     if(is_large)
         large_dialog(comborules_dlg);
-        
+
     comborules_dlg[0].dp2=lfont;
-    
+
     for(int i=0; comborules[i]!=-1; i++)
     {
         comborules_dlg[i+6].flags = get_bit(quest_rules,comborules[i]) ? D_SELECTED : 0;
     }
-    
+
     int ret = zc_popup_dialog(comborules_dlg,4);
-    
+
     if(ret==4)
     {
         saved=false;
-        
+
         for(int i=0; comborules[i]!=-1; i++)
         {
             set_bit(quest_rules, comborules[i], comborules_dlg[i+6].flags & D_SELECTED);
         }
     }
-    
+
     return D_O_K;
 }
 
@@ -213,7 +213,7 @@ static DIALOG itemrules_dlg[] =
     { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    
+
     // rules
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enable Magic", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Boomerang/Hookshot", NULL, NULL },
@@ -257,58 +257,40 @@ int onItemRules()
 {
     if(is_large)
         large_dialog(itemrules_dlg);
-        
+
     itemrules_dlg[0].dp2=lfont;
-    
+
     for(int i=0; itemrules[i]!=-1; i++)
     {
         itemrules_dlg[i+6].flags = get_bit(quest_rules,itemrules[i]) ? D_SELECTED : 0;
     }
-    
+
     int ret = zc_popup_dialog(itemrules_dlg,4);
-    
+
     if(ret==4)
     {
         saved=false;
-        
+
         for(int i=0; itemrules[i]!=-1; i++)
         {
             set_bit(quest_rules, itemrules[i], itemrules_dlg[i+6].flags & D_SELECTED);
         }
     }
-    
+
     return D_O_K;
 }
-
-static int enemyrules1_list[] =
-{
-    6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,-1
-};
-
-static int enemyrules2_list[] =
-{
-    22,-1
-};
-
-static TABPANEL enemyrules_tabs[] =
-{
-  // (text)
-  { (char *)" 1 ",     D_SELECTED, enemyrules1_list, 0, NULL },
-  { (char *)" 2 ",     0,          enemyrules2_list, 0, NULL },
-  { NULL,              0,          NULL,             0, NULL }
-};
 
 static DIALOG enemyrules_dlg[] =
 {
     /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
     { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Enemies", NULL, NULL },
     { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) enemyrules_tabs, NULL, (void *)enemyrules_dlg },
+    { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, NULL},
     // 3
     { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    
+
     // rules
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Use New Enemy Tiles", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Jump/Fly Through Z-Axis", NULL, NULL },
@@ -316,19 +298,14 @@ static DIALOG enemyrules_dlg[] =
     { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Always Return", NULL, NULL },
     { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Temporary No Return Disabled", NULL, NULL },
     { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Must Kill All Bosses To Set 'No Return' Screen State", NULL, NULL },
-    { jwin_check_proc,      10, 33+70, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Multi-Directional Traps", NULL, NULL },
-    { jwin_check_proc,      10, 33+80, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Line-of-Sight Traps Can Move Across Entire Screen", NULL, NULL },
-    { jwin_check_proc,      10, 33+90, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Constant Traps Can Pass Through Enemies", NULL, NULL },
-    { jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Flying Enemies Can Appear on Unwalkable Combos", NULL, NULL },
-    { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Enemy Shield Tiles", NULL, NULL },
-    { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Don't Flash When Dying", NULL, NULL },
-    { jwin_check_proc,      10, 33+130,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Show Shadows", NULL, NULL },
-    { jwin_check_proc,      10, 33+140,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Translucent Shadows", NULL, NULL },
-    { jwin_check_proc,      10, 33+150,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Shadows Flicker", NULL, NULL },
-    { jwin_check_proc,      10, 33+160,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Flicker When Hit", NULL, NULL },
-    
-    // rules 2
-    { jwin_check_proc,      10, 33+10, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Statue Minimum Range Or Double Fireballs", NULL, NULL },
+    { jwin_check_proc,      10, 33+70, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Flying Enemies Can Appear on Unwalkable Combos", NULL, NULL },
+    { jwin_check_proc,      10, 33+80, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Enemy Shield Tiles", NULL, NULL },
+    { jwin_check_proc,      10, 33+90, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Don't Flash When Dying", NULL, NULL },
+    { jwin_check_proc,      10, 33+100,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Show Shadows", NULL, NULL },
+    { jwin_check_proc,      10, 33+110,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Translucent Shadows", NULL, NULL },
+    { jwin_check_proc,      10, 33+120,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Shadows Flicker", NULL, NULL },
+    { jwin_check_proc,      10, 33+130,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enemies Flicker When Hit", NULL, NULL },
+    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Statue Minimum Range Or Double Fireballs", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -336,7 +313,7 @@ static int enemyrules[] =
 {
     qr_NEWENEMYTILES, qr_ENEMIESZAXIS,
     qr_HIDECARRIEDITEMS, qr_ALWAYSRET, qr_NOTMPNORET, qr_KILLALL,
-    qr_MEANTRAPS, qr_MEANPLACEDTRAPS, qr_PHANTOMPLACEDTRAPS, qr_WALLFLIERS,
+    qr_WALLFLIERS,
     qr_BRKNSHLDTILES, qr_NOFLASHDEATH, qr_SHADOWS, qr_TRANSSHADOWS,
     qr_SHADOWSFLICKER, qr_ENEMIESFLICKER, qr_BROKENSTATUES,
     -1
@@ -346,26 +323,26 @@ int onEnemyRules()
 {
     if(is_large)
         large_dialog(enemyrules_dlg);
-        
+
     enemyrules_dlg[0].dp2=lfont;
-    
+
     for(int i=0; enemyrules[i]!=-1; i++)
     {
         enemyrules_dlg[i+6].flags = get_bit(quest_rules,enemyrules[i]) ? D_SELECTED : 0;
     }
-    
+
     int ret = zc_popup_dialog(enemyrules_dlg,4);
-    
+
     if(ret==4)
     {
         saved=false;
-        
+
         for(int i=0; enemyrules[i]!=-1; i++)
         {
             set_bit(quest_rules, enemyrules[i], enemyrules_dlg[i+6].flags & D_SELECTED);
         }
     }
-    
+
     return D_O_K;
 }
 
@@ -397,7 +374,7 @@ static DIALOG fixesrules_dlg[] =
     { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    
+
     // rules
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Freeform Dungeons", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Can Safely Trigger Armos/Grave From The South", NULL, NULL },
@@ -440,26 +417,26 @@ int onFixesRules()
 {
     if(is_large)
         large_dialog(fixesrules_dlg);
-        
+
     fixesrules_dlg[0].dp2=lfont;
-    
+
     for(int i=0; fixesrules[i]!=-1; i++)
     {
         fixesrules_dlg[i+6].flags = get_bit(quest_rules,fixesrules[i]) ? D_SELECTED : 0;
     }
-    
+
     int ret = zc_popup_dialog(fixesrules_dlg,4);
-    
+
     if(ret==4)
     {
         saved=false;
-        
+
         for(int i=0; fixesrules[i]!=-1; i++)
         {
             set_bit(quest_rules, fixesrules[i], fixesrules_dlg[i+6].flags & D_SELECTED);
         }
     }
-    
+
     return D_O_K;
 }
 
@@ -491,7 +468,7 @@ static DIALOG miscrules_dlg[] =
     { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    
+
     // rules
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Can Select A-Button Weapon On Subscreen", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "More Sound Effects", NULL, NULL },
@@ -509,7 +486,7 @@ static DIALOG miscrules_dlg[] =
     { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Fires In Special Rooms", NULL, NULL },
     { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Special Room Guys Don't Create A Puff When Appearing", NULL, NULL },
     { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Log Game Events To Allegro.log", NULL, NULL },
-    
+
     // rules 2
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Log Script Errors To Allegro.log", NULL, NULL },
     { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Draining Rupees Can Still Be Spent", NULL, NULL },
@@ -521,7 +498,7 @@ static int miscrules[] =
 {
     qr_SELECTAWPN, qr_MORESOUNDS, qr_FASTFILL, qr_QUARTERHEART, qr_ALLOWFASTMSG, qr_ALLOWMSGBYPASS,
     qr_MSGFREEZE, qr_MSGDISAPPEAR, qr_TIME, qr_HEARTRINGFIX, qr_NOHEARTRING, qr_NOSAVE,
-    qr_NOCONTINUE, qr_NOGUYFIRES, qr_NOGUYPOOF, qr_LOG, qr_SCRIPTERRLOG, qr_SHOPCHEAT, 
+    qr_NOCONTINUE, qr_NOGUYFIRES, qr_NOGUYPOOF, qr_LOG, qr_SCRIPTERRLOG, qr_SHOPCHEAT,
 	qr_NOGANONINTRO, -1
 };
 
@@ -529,35 +506,35 @@ int onMiscRules()
 {
     if(is_large)
         large_dialog(miscrules_dlg);
-        
+
     miscrules_dlg[0].dp2=lfont;
-    
+
     for(int i=0; miscrules[i]!=-1; i++)
     {
         miscrules_dlg[i+6].flags = get_bit(quest_rules,miscrules[i]) ? D_SELECTED : 0;
     }
-    
+
     int ret = zc_popup_dialog(miscrules_dlg,4);
-    
+
     if(ret==4)
     {
         saved=false;
-        
+
         for(int i=0; miscrules[i]!=-1; i++)
         {
             set_bit(quest_rules, miscrules[i], miscrules_dlg[i+6].flags & D_SELECTED);
         }
     }
-    
+
     return D_O_K;
 }
 
-static int compatrules[] = 
+static int compatrules[] =
 {
    qr_GOTOLESSNOTEQUAL, qr_OLDLENSORDER, qr_NOFAIRYGUYFIRES, qr_TRIGGERSREPEAT,
    qr_HOOKSHOTDOWNBUG, qr_REPLACEOPENDOORS, qr_NOSOLIDDAMAGECOMBOS, qr_OLDHOOKSHOTGRAB,
    qr_PEAHATCLOCKVULN, qr_OFFSCREENWEAPONS, qr_ITEMPICKUPSETSBELOW,
-   -1 
+   -1
 };
 
 static DIALOG compatrules_dlg[] =
@@ -570,11 +547,11 @@ static DIALOG compatrules_dlg[] =
     { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    
+
     // Notice
     { jwin_text_proc,       10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "These rules are enabled automatically for compatibility.", NULL, NULL },
     { jwin_text_proc,       10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enabling them manually may cause unexpected behavior.", NULL, NULL },
-    
+
     // rules
     { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old GOTOLESS Behavior", NULL, NULL },
     { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Lens Drawing Order", NULL, NULL },
@@ -594,26 +571,26 @@ int onCompatRules()
 {
     if(is_large)
         large_dialog(compatrules_dlg);
-        
+
     compatrules_dlg[0].dp2=lfont;
-    
+
     for(int i=0; compatrules[i]!=-1; i++)
     {
         compatrules_dlg[i+8].flags = get_bit(quest_rules,compatrules[i]) ? D_SELECTED : 0;
     }
-    
+
     int ret = zc_popup_dialog(compatrules_dlg,4);
-    
+
     if(ret==4)
     {
         saved=false;
-        
+
         for(int i=0; compatrules[i]!=-1; i++)
         {
             set_bit(quest_rules, compatrules[i], compatrules_dlg[i+8].flags & D_SELECTED);
         }
     }
-    
+
     return D_O_K;
 }
 
@@ -627,4 +604,3 @@ void center_zq_rules_dialog()
     jwin_center_dialog(miscrules_dlg);
     jwin_center_dialog(compatrules_dlg);
 }
-
