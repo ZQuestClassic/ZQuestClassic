@@ -2025,6 +2025,52 @@ bool enemy::canmove(int ndir)
     return canmove(ndir,(fix)1,spw_none,0,-8,15,15);
 }
 
+//only used by circular traps... -Tamamo
+bool enemy::canmove_pixel(fix nx,fix ny,int special,int dx1,int dy1,int dx2,int dy2)
+{
+    bool xok,yok;
+    int dx = 0, dy = 0;
+    int sv = 8;
+    fix s= fix(0);
+
+    //y axis
+    if(ny<y)                                                              //up
+    {    if(canfall(id) && tmpscr->flags7&fSIDEVIEW)
+            return false;
+
+        dy = dy1-s;
+        special = (special==spw_clipbottomright)?spw_none:special;
+        yok = !m_walkflag(x,y+dy,special, x, y) && !flyerblocked(x,y+dy, special);
+    }
+    else if(ny>y)                                                         //down
+    {    if(canfall(id) && tmpscr->flags7&fSIDEVIEW)
+            return false;
+
+        dy = dy2+s;
+        yok = !m_walkflag(x,y+dy,special, x, y) && !flyerblocked(x,y+dy, special);
+    }
+    else yok=true;
+
+    //x axis
+    if(nx<x)                                                              //left
+    {
+        dx = dx1-s;
+        sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
+        special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
+        xok = !m_walkflag(x+dx,y+sv,special, x, y) && !flyerblocked(x+dx,y+8, special);
+    }
+    else if(nx>x)                                                         //right
+    {
+        dx = dx2+s;
+        sv = ((tmpscr->flags7&fSIDEVIEW)?7:8);
+        xok = !m_walkflag(x+dx,y+sv,special, x, y) && !flyerblocked(x+dx,y+8, special);
+    }
+    else xok=true;
+
+
+    return xok && yok;
+}
+
 // 8-directional
 void enemy::newdir_8(int newrate,int newhoming,int special,int dx1,int dy1,int dx2,int dy2)
 {
@@ -5780,7 +5826,7 @@ eTrap2::eTrap2(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     }
     else if(dmisc1==6 || orientation==3)
     {
-        dir=(x>112)?l_down:r_up;
+        dir=(x>112)?r_down:l_up;
     }
 
     if(get_bit(quest_rules,qr_TRAPPOSFIX))
@@ -5928,6 +5974,593 @@ void eTrap2::draw(BITMAP *dest)
 }
 
 int eTrap2::takehit(weapon*)
+{
+    return 0;
+}
+
+eTrap3::eTrap3(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+{
+    ox=x;                                                     //original x
+    oy=y;                                                     //original y
+
+    trapAnchor();
+    if(get_bit(quest_rules,qr_TRAPPOSFIX))
+    {
+        yofs = playing_field_offset;
+    }
+
+    mainguy=false;
+    count_enemy=false;
+    //nets+420;
+    dummy_int[1]=0;
+}
+
+bool eTrap3::animate(int index)
+{
+    if(clk<0)
+        return enemy::animate(index);
+
+    if(clk==0)
+    {
+        removearmos(x,y);
+    }
+
+    if(misc==0)                                               // waiting
+    {
+        ox = x;
+        oy = y;
+        double ddir = atan2(double(y-ay),double(x-ax));
+
+        if((ddir <= -5.0*PI/8.0) && (ddir > -7.0*PI/8.0))
+        {
+            dir=l_down;
+        }
+        else if ((ddir <= -3.0*PI / 8.0) && (ddir > -5.0*PI / 8.0))
+        {
+            dir=down;
+        }
+        else if ((ddir <= -1.0*PI / 8.0) && (ddir > -3.0*PI / 8.0))
+        {
+            dir=r_down;
+        }
+        else if ((ddir <= 1.0*PI / 8.0) && (ddir > -1.0*PI / 8.0))
+        {
+            dir=right;
+        }
+        else if ((ddir <= 3.0*PI / 8.0) && (ddir > 1.0*PI / 8.0))
+        {
+            dir=r_up;
+        }
+        else if ((ddir <= 5.0*PI / 8.0) && (ddir > 3.0*PI / 8.0))
+        {
+            dir=up;
+        }
+        else if ((ddir <= 7.0*PI / 8.0) && (ddir > 5.0*PI / 8.0))
+        {
+            dir=l_up;
+        }
+        else
+        {
+            dir=left;
+        }
+
+        int d2=eTrap3::lined_up(15,true); //it moves in a circle so this won't work :-/
+
+        /*if(((d2<left || d2 > right) && (dmisc1==1)) ||
+                ((d2>down) && (dmisc1==2)) ||
+                ((d2>right) && (!dmisc1)) ||
+                ((d2<l_up) && (dmisc1==4)) ||
+                ((d2!=r_up) && (d2!=l_down) && (dmisc1==5)) ||
+                ((d2!=l_up) && (d2!=r_down) && (dmisc1==6)))
+        {
+            d2=-1;
+        }*/
+        step=(dmisc1==7)?2:-2;
+        if(d2!=-1 && trapmove(step))
+        {
+            //dir=d2;
+            misc=1;
+            canreturn=false;
+            angle2=oangle;
+            //clk2=(dir==down)?3:0; //Shrug
+        }
+    }
+
+    if(misc==1)                                               // charging
+    {
+        clk2=(clk2+1)&3;
+        step=(dmisc1==7)?2:-2;
+
+        if(!trapmove(step) || clip(step))
+        {
+            misc=2;
+
+            //cause clipping prevents it from going to the next angle...
+            fix dx=fix(ax + (r * cos(angle2)));
+            fix dy=fix(ay + (r * sin(angle2)));
+            if(!(dx<0||dx>240||dy<0||dy>160))
+            {
+              x=fix(ax + (r * cos(angle2)));
+              y=fix(ay + (r * sin(angle2)));
+            }
+
+            /*if(dir<l_up)
+            {
+                dir=dir^1;
+            }
+            else
+            {
+                dir=dir^3;
+            }*/
+        }
+        else
+        {
+            //sprite::move(step);
+            x=fix(ax + (r * cos(angle2)));
+            y=fix(ay + (r * sin(angle2)));
+        }
+    }
+
+    if(misc==2)                                               // retreating
+    {
+        step=(++clk2&1)?(dmisc1==7)?-1:1:0; //moves on next frame, and every frame after that.
+
+        if(trapmove(step))
+        {
+            x=fix(ax + (r * cos(angle2)));
+            y=fix(ay + (r * sin(angle2)));
+        }
+        if(angle2==oangle)
+        {
+            x=ox;
+            y=oy;
+            misc=0;
+        }
+    }
+
+    return enemy::animate(index);
+}
+
+bool eTrap3::trapmove(fix s)
+{
+    double ddir = atan2(double(y-ay),double(x-ax));
+
+    if((ddir <= -5.0*PI/8.0) && (ddir > -7.0*PI/8.0))
+    {
+        dir=l_down;
+    }
+    else if ((ddir <= -3.0*PI / 8.0) && (ddir > -5.0*PI / 8.0))
+    {
+        dir=down;
+    }
+    else if ((ddir <= -1.0*PI / 8.0) && (ddir > -3.0*PI / 8.0))
+    {
+        dir=r_down;
+    }
+    else if ((ddir <= 1.0*PI / 8.0) && (ddir > -1.0*PI / 8.0))
+    {
+        dir=right;
+    }
+    else if ((ddir <= 3.0*PI / 8.0) && (ddir > 1.0*PI / 8.0))
+    {
+        dir=r_up;
+    }
+    else if ((ddir <= 5.0*PI / 8.0) && (ddir > 3.0*PI / 8.0))
+    {
+        dir=up;
+    }
+    else if ((ddir <= 7.0*PI / 8.0) && (ddir > 5.0*PI / 8.0))
+    {
+        dir=l_up;
+    }
+    else
+    {
+        dir=left;
+    }
+
+    //denormalize
+    angle2=ddir;
+    if(angle2<0) angle2=angle2+(2*PI);
+    double astep = s/r;
+    double angle3 = angle2 + astep;
+    if(angle3 > 2*PI) angle3 = angle3 - 2*PI;
+    if(angle3 < -2*PI) angle3 = angle3 + 2*PI;
+    fix dx=fix(ax+ (r * cos(angle2)));
+    fix dy=fix(ay+ (r * sin(angle2)));
+
+    if(abs(step)==2)
+    {
+        if(tmpscr->flags2&fFLOATTRAPS)
+        {
+            if(canmove_pixel(dx,dy,spw_floater, 0, 0, 15, 15))
+            {
+                angle2=angle3;
+                return true;
+            }
+        }
+        else if(canmove_pixel(dx,dy,spw_water, 0, 0, 15, 15))
+        {
+            angle2=angle3;
+            return true;
+        }
+        return false;
+    }
+    else if(step!=0&&angle2!=oangle)
+    {
+        if(abs(angle2-oangle)>=abs(astep))
+        {
+            angle2=angle2+astep;
+        }
+        else
+        {
+            angle2=oangle;
+        }
+        return true;
+    }
+    return false;
+}
+
+bool eTrap3::clip(fix s)
+{
+    //if(get_bit(quest_rules,qr_MEANPLACEDTRAPS))
+    fix dx=fix(ax + (r * cos(angle2)));
+    fix dy=fix(ay + (r * sin(angle2)));
+    if(dx<0||dx>240||dy<0||dy>160) return true; //stay on screen
+
+    //original angle
+    double a1 = oangle;
+    while (a1 <= -PI) a1=a1+PI*2;
+    while (a1 > PI) a1=a1-PI*2;
+    //end angle or midpoint for full circle
+    double a2 = a1+PI;
+    while (a2 <= -PI) a2=a2+PI*2;
+    while (a2 > PI) a2=a2-PI*2;
+    //current angle (actually next angle!)
+    double astep = s/r;
+    double a3 = angle2+astep;
+    while (a3 <= -PI) a3=a3+PI*2;
+    while (a3 > PI) a3=a3-PI*2;
+
+    double diffangle=PI-abs(abs(a3-a2)-PI);
+
+    if(dmisc4&&!canreturn) //full circle check
+    {
+        if(diffangle <= abs(astep))canreturn=true;
+    }
+    else
+    {
+        if(canreturn) //it's an ugly hack but oh well.
+        {
+          diffangle=PI-abs(abs(a3-a1)-PI);
+        }
+        if(diffangle <= abs(astep)) return true;
+    }
+    return false;
+}
+
+void eTrap3::trapAnchor()
+{
+    ax=120;
+    ay=80;
+    fix temp_r = fix(1000); //distance(ax,ay,x,y);
+    int cflag;
+    int cflag2;
+    if(dmisc6>0)
+        for(int i=0;i<256;i+=16)
+        {
+            for(int j=0;j<176;j+=16)
+            {
+                cflag=MAPFLAG(i,j);
+                cflag2=MAPCOMBOFLAG(i,j);
+                if(cflag==dmisc6 || cflag2==dmisc6)
+                {
+                    if(temp_r > distance(i,j,x,y))
+                    {
+                        ax=i;
+                        ay=j;
+                    }
+                }
+            }
+        }
+
+    r = distance(ax,ay,x,y);
+    angle2 = atan2(double(y-ay),double(x-ax));
+    if(angle2<0)
+        angle2=angle2+(2*PI); //wrap from 0 to 2 PI
+    oangle=angle2;
+}
+
+int eTrap3::lined_up(int range, bool dir8)
+{
+    //these are here to bypass compiler warnings about unused arguments
+    dir8=dir8;
+
+    fix linkdistance = distance(ax,ay,(Link.x),(Link.y));
+    double linkangle = atan2(double(ay-(Link.y)),double(Link.x-ax));
+    double a1 = oangle; //oangle
+    while (a1 <= -PI) a1 += PI*2;
+    while (a1 > PI) a1 -= PI*2;
+    double a2 = a1+PI;
+    while (a2 <= -PI) a2 += PI*2;
+    while (a2 > PI) a2 -= PI*2;
+
+    if(abs(linkdistance-r)>range) return -1;
+
+    al_trace("angle1: %lf \n", a1);
+    al_trace("angle2: %lf \n", a2);
+    al_trace("linkangle: %lf \n", linkangle);
+
+    if(dmisc1==8||dmisc3)
+    {
+        if(a1>0 && (linkangle >= a1 || linkangle <= a2)) return 1;
+        else if(linkangle >= a1 && linkangle <= a2) return 1;
+    }
+    else if(dmisc1==7||dmisc3)
+    {
+        if(a1<0 && (linkangle <= a1 || linkangle >= a2)) return 1;
+        else if(linkangle <= a1 && linkangle >= a2) return 1;
+    }
+    return -1;
+}
+
+void eTrap3::draw(BITMAP *dest)
+{
+    update_enemy_frame();
+    enemy::draw(dest);
+}
+
+int eTrap3::takehit(weapon*)
+{
+    return 0;
+}
+
+eTrap4::eTrap4(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+{
+    lasthit=-1;
+    lasthitclk=0;
+    mainguy=false;
+    count_enemy=false;
+    step=(dmisc1==7)?2:-2;
+    trapAnchor();
+
+    if(get_bit(quest_rules,qr_TRAPPOSFIX))
+    {
+        yofs = playing_field_offset;
+    }
+
+    dummy_int[1]=0;
+}
+
+bool eTrap4::animate(int index)
+{
+    if(clk<0)
+        return enemy::animate(index);
+
+    if(clk==0)
+    {
+        removearmos(x,y);
+    }
+
+    if(!dmisc5)
+    {
+        if(lasthitclk>0)
+        {
+            --lasthitclk;
+        }
+        else
+        {
+            lasthit=-1;
+        }
+
+        bool hitenemy=false;
+
+        for(int j=0; j<guys.Count(); j++)
+        {
+            if((j!=index) && (lasthit!=j))
+            {
+                if(hit(guys.spr(j)))
+                {
+                    lasthit=j;
+                    lasthitclk=10;
+                    hitenemy=true;
+                    guys.spr(j)->lasthit=index;
+                    guys.spr(j)->lasthitclk=10;
+                }
+            }
+        }
+
+        if(!trapmove(step) || clip() || hitenemy)
+        {
+            if(!trapmove(step) || clip())
+            {
+                lasthit=-1;
+                lasthitclk=0;
+            }
+
+            if(get_bit(quest_rules,qr_MORESOUNDS))
+                sfx(WAV_ZN1TAP,pan(int(x)));
+
+            /*if(dir&4) dir=dir^1;
+            else dir=dir^3;*/
+
+            step=-step;
+        }
+
+        //sprite::move(step);
+        x=fix(ax + (r * cos(angle2)));
+        y=fix(ay + (r * sin(angle2)));
+    }
+    else
+    {
+        if(!trapmove(step) || clip())
+        {
+            if(get_bit(quest_rules,qr_MORESOUNDS))
+                sfx(WAV_ZN1TAP,pan(int(x)));
+
+            /*if(dir&4) dir=dir^3;
+            else dir=dir^1;*/
+
+            step=-step;
+        }
+
+        //sprite::move(step);
+        x=fix(ax + (r * cos(angle2)));
+        y=fix(ay + (r * sin(angle2)));
+    }
+
+    return enemy::animate(index);
+}
+
+bool eTrap4::trapmove(fix s)
+{
+    double ddir = atan2(double(y-ay),double(x-ax));
+
+    if((ddir <= -5.0*PI/8.0) && (ddir > -7.0*PI/8.0))
+    {
+        dir=l_down;
+    }
+    else if ((ddir <= -3.0*PI / 8.0) && (ddir > -5.0*PI / 8.0))
+    {
+        dir=down;
+    }
+    else if ((ddir <= -1.0*PI / 8.0) && (ddir > -3.0*PI / 8.0))
+    {
+        dir=r_down;
+    }
+    else if ((ddir <= 1.0*PI / 8.0) && (ddir > -1.0*PI / 8.0))
+    {
+        dir=right;
+    }
+    else if ((ddir <= 3.0*PI / 8.0) && (ddir > 1.0*PI / 8.0))
+    {
+        dir=r_up;
+    }
+    else if ((ddir <= 5.0*PI / 8.0) && (ddir > 3.0*PI / 8.0))
+    {
+        dir=up;
+    }
+    else if ((ddir <= 7.0*PI / 8.0) && (ddir > 5.0*PI / 8.0))
+    {
+        dir=l_up;
+    }
+    else
+    {
+        dir=left;
+    }
+
+    //denormalize
+    angle2=ddir;
+    if(angle2<0) angle2=angle2+(2*PI);
+    double astep = s/r;
+    double angle3 = angle2 + astep;
+    if(angle3 > 2*PI) angle3 = angle3 - 2*PI;
+    if(angle3 < -2*PI) angle3 = angle3 + 2*PI;
+    fix dx=fix(ax+ (r * cos(angle2)));
+    fix dy=fix(ay+ (r * sin(angle2)));
+
+    if(tmpscr->flags2&fFLOATTRAPS)
+    {
+        if(canmove_pixel(dx,dy,spw_floater, 0, 0, 15, 15))
+        {
+            angle2=angle3;
+            return true;
+        }
+    }
+    else if(canmove_pixel(dx,dy,spw_water, 0, 0, 15, 15))
+    {
+        angle2=angle3;
+        return true;
+    }
+    angle2=angle2-astep;
+    return false;
+}
+
+bool eTrap4::clip()
+{
+    switch(dir)
+    {
+    case up:
+        if(y<=0) return true;
+
+        break;
+
+    case down:
+        if(y>=160) return true;
+
+        break;
+
+    case left:
+        if(x<=0) return true;
+
+        break;
+
+    case right:
+        if(x>=240) return true;
+
+        break;
+
+    case l_up:
+        if(x<=0||y<=0) return true;
+
+        break;
+
+    case l_down:
+        if(x<=0||y>=160) return true;
+
+        break;
+
+    case r_up:
+        if(x<=0||y<=0) return true;
+
+        break;
+
+    case r_down:
+        if(x>=240||y>=160) return true;
+
+        break;
+    }
+
+    return false;
+}
+
+void eTrap4::trapAnchor()
+{
+    ax=fix(120);
+    ay=fix(80);
+    fix temp_r = fix(1000); //distance(ax,ay,x,y);
+    int cflag;
+    int cflag2;
+    if(dmisc6>0)
+        for(int i=0;i<256;i+=16)
+        {
+            for(int j=0;j<176;j+=16)
+            {
+                cflag=MAPFLAG(i,j);
+                cflag2=MAPCOMBOFLAG(i,j);
+                if(cflag==dmisc6 || cflag2==dmisc6)
+                {
+                    if(temp_r > distance(i,j,x,y))
+                    {
+                        ax=fix(i);
+                        ay=fix(j);
+                    }
+                }
+            }
+        }
+
+    r = distance(ax,ay,x,y);
+    angle2 = atan2(double(y-ay),double(x-ax));
+    if(angle2<0)
+        angle2=angle2+(2*PI); //wrap from 0 to 2 PI
+}
+
+void eTrap4::draw(BITMAP *dest)
+{
+    update_enemy_frame();
+    enemy::draw(dest);
+}
+
+int eTrap4::takehit(weapon*)
 {
     return 0;
 }
@@ -11840,13 +12473,19 @@ int addenemy(int x,int y,int z,int id,int clk)
     {
         switch(guysbuf[id&0xFFF].misc2)
         {
-        case 1:
-            e = new eTrap2((fix)x,(fix)y,id,clk);
+        case 1:  //constant
+            if(guysbuf[id&0xFFF].misc1==7||guysbuf[id&0xFFF].misc1==8)
+                e = new eTrap4((fix)x,(fix)y,id,clk); //circular
+            else
+                e = new eTrap2((fix)x,(fix)y,id,clk);
             break;
 
-        case 0:
+        case 0: //los
         default:
-            e = new eTrap((fix)x,(fix)y,id,clk);
+            if(guysbuf[id&0xFFF].misc1==7||guysbuf[id&0xFFF].misc1==8)
+                e = new eTrap3((fix)x,(fix)y,id,clk); //circular
+            else
+                e = new eTrap((fix)x,(fix)y,id,clk);
             break;
         }
 

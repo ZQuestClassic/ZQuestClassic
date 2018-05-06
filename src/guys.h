@@ -177,6 +177,7 @@ protected:
     bool canmove(int ndir,fix s,int special);
     bool canmove(int ndir,int special);
     bool canmove(int ndir);
+    bool canmove_pixel(fix nx,fix ny,int special,int dx1,int dy1,int dx2,int dy2);
     // 8-directional
     void newdir_8(int rate,int homing, int special,int dx1,int dy1,int dx2,int dy2);
     void newdir_8(int rate,int homing, int special);
@@ -376,6 +377,38 @@ public:
     virtual bool animate(int index);
     bool trapmove(int ndir);
     bool clip();
+    virtual void draw(BITMAP *dest);
+    virtual int takehit(weapon *w);
+};
+
+class eTrap3 : public enemy                                 //los circular trap
+{
+public:
+    int  ox, oy, ax, ay;
+    double oangle, angle2;
+    fix r;
+    bool canreturn;
+    eTrap3(fix X,fix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
+    virtual bool animate(int index);
+    bool trapmove(fix s);
+    bool clip(fix s);
+    void trapAnchor();
+    virtual int lined_up(int ndir, bool dir8);
+    virtual void draw(BITMAP *dest);
+    virtual int takehit(weapon *w);
+};
+
+class eTrap4 : public enemy                                 //constant circular trap
+{
+public:
+    int ax, ay;
+    double angle2;
+    fix r;
+    eTrap4(fix X,fix Y,int Id,int Clk);                     // : enemy(X,Y,Id,Clk)
+    virtual bool animate(int index);
+    bool trapmove(fix s);
+    bool clip();
+    void trapAnchor();
     virtual void draw(BITMAP *dest);
     virtual int takehit(weapon *w);
 };

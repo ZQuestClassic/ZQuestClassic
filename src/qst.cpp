@@ -9985,7 +9985,32 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 								if(tempguy.family==eeTRAP) //traps now use misc instead of rules
 								{
-										if(tempguy.misc2==0) //los
+
+										//diagonal and circular traps had bad constant values we need to fix.
+										switch(tempguy.misc1)
+										{
+										case 6: // slash constant
+												tempguy.misc1=5;
+												break;
+										case 7:
+										case 8:
+												tempguy.misc1=6;
+												break;
+										case 9:
+										case 10:
+												tempguy.misc1=7;
+												break;
+										case 11:
+										case 12:
+												tempguy.misc1=8;
+										break;
+
+										default:
+												break;
+										}
+
+										//Old Traps
+										if(tempguy.misc2==0&& tempguy.misc1!=7 &&tempguy.misc1!=8) //los
 										{
 												if(get_bit(quest_rules,qr_MEANTRAPS))
 												{

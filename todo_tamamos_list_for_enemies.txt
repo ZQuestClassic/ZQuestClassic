@@ -2,7 +2,6 @@
 Enemy::Lined_Up                                                                 Complete
 NES Ganon Inconsistency
 NES Animation Bombchus                                                          Ropes with explode deathstyle always move to the next row of tiles instead of special tiles.
-                                                                                Special tiles are reserved for broken shield tiles, we need a kludge of some sort. hmmm...
 
 --------------------------------------------------------------------------------
 
@@ -40,7 +39,6 @@ shield blocks eweapons
 shield reflects eweapons
 //9 more flags
 
-
 --------------------------------------------------------------------------------
 
 -Unimplemented Enemies
@@ -61,21 +59,21 @@ shield reflects eweapons
 131 NPC 4 (Walking)
 132 NPC 5 (Walking)
 133 NPC 6 (Walking)
---142 Trap (8-Way)                                                                complete
---143 Trap (Diagonal)                                                             complete
---144 Trap (/, Constant)                                                          complete
---145 Trap (/, Line of Sight)                                                     complete
---146 Trap (\\, Constant)                                                         complete
---147 Trap (\\, Line of Sight)                                                    complete
-148 Trap (CW, Constant)                                                         Requires a set of combo flags 'anchor flags' which serve as the center point.
-149 Trap (CW, Line of Sight)                                                    ditto
-150 Trap (CCW, Constant)                                                        ditto
-151 Trap (CCW, Line of Sight)                                                   ditto
+142 Trap (8-Way)                                                                complete
+143 Trap (Diagonal)                                                             complete
+144 Trap (/, Constant)                                                          complete
+145 Trap (/, Line of Sight)                                                     complete
+146 Trap (\\, Constant)                                                         complete
+147 Trap (\\, Line of Sight)                                                    complete
+148 Trap (CW, Constant)                                                         complete
+149 Trap (CW, Line of Sight)                                                    complete
+150 Trap (CCW, Constant)                                                        complete
+151 Trap (CCW, Line of Sight)                                                   complete
 153 Wizzrobe (Ice)                                                              shoots ewice
---165 Tektite (L3)                                                                complete -- bounces off walls
---168 Lynel (L3)                                                                  complete -- charges as well as shoots
+165 Tektite (L3)                                                                complete -- bounces off walls
+168 Lynel (L3)                                                                  complete -- charges as well as shoots
 169 Peahat (L2, Fire)                                                           uses new efloater type so it can shoot ewflame2trail at link
---171 Pols Voice (Whistle)                                                        complete -- dies instantly to whistle
+171 Pols Voice (Whistle)                                                        complete -- dies instantly to whistle
 172 Darknut (Mirror)                                                            shield is mirrored
 173 Ghini (L2, Fire)                                                            uses new efloater type so it can shoot ewflame2trail
 174 Ghini (L2, Magic)                                                           uses new efloater type so it can shoot magic
@@ -94,11 +92,11 @@ shield reflects eweapons
 ewice                                                                           Freezes link for 150 tics, see icemagic below... as this is quite intensive.
 ewflame2Trail                                                                   I honestly believe these where originally suppose to be spawned by flame2s.
 
--Item Pond
+-item pond
 Roomtype Itempond
 String
 Itempond Shops
-ComboFlag Item Pond (activates gui)
+Combo Flag Item Pond (activates gui)
 
 -Ice Magic
 Link Sprites                                                                    frozen subtab in land and water tabs
