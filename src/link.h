@@ -45,7 +45,7 @@ enum actiontype
     none, walking, attacking, freeze, landhold1, landhold2,
     rafting, gothit, inwind, scrolling, won, swimming, hopping,
     swimhit, waterhold1, waterhold2, casting, climbcovertop,
-    climbcoverbottom, dying, drowning, 
+    climbcoverbottom, dying, drowning,
 	climbing, //not used -Z.
     // Fake actiontypes: used by ZScripts
     ischarging, isspinning, isdiving, gameover, hookshotout, stunned, ispushing
@@ -84,7 +84,7 @@ class LinkClass : public sprite
         static const int SETDIR = 16;
         static const int CLEARCHARGEATTACK = 32;
         static const int SETHOPDIR = 64;
-        
+
         int getHopClk()
         {
             return newhopclk;
@@ -113,56 +113,56 @@ class LinkClass : public sprite
         {
             return newladderstart;
         }
-        
+
         void setUnwalkable(bool val)
         {
             if(val) flags |= UNWALKABLE;
             else flags &= ~UNWALKABLE;
         }
-        
+
         void setIlswim(bool val)
         {
             if(val) flags |= SETILSWIM;
             else flags |= CLEARILSWIM;
         }
-        
+
         void setHopClk(int val)
         {
             flags |= SETHOPCLK;
             newhopclk = val;
         }
-        
+
         void setHopDir(int val)
         {
             flags |= SETHOPDIR;
             newhopdir = val;
         }
-        
+
         void setDir(int val)
         {
             flags |= SETDIR;
             newdir = val;
         }
-        
+
         void setChargeAttack()
         {
             flags |= CLEARCHARGEATTACK;
         }
-        
+
         int getFlags()
         {
             return flags;
         }
-        
+
         bool isUnwalkable()
         {
             return (flags & UNWALKABLE) != 0;
         }
-        
+
         WalkflagInfo operator||(WalkflagInfo other);
         WalkflagInfo operator&&(WalkflagInfo other);
         WalkflagInfo operator!();
-        
+
     private:
         int flags;
         int newhopclk;
@@ -173,10 +173,10 @@ class LinkClass : public sprite
         int newladdery;
         int newladderstart;
     };
-    
+
     void execute(WalkflagInfo info);
-    
-    bool autostep,superman,inwallm,tapping,stomping,last_hurrah;
+
+    bool autostep,superman,inwallm,inceilingm,infloorm,tapping,stomping,last_hurrah;
     int refilling,
         ladderx,
         laddery,
@@ -218,7 +218,7 @@ class LinkClass : public sprite
 	lastdir[4], // used in Maze Path screens
 	ladderstart, // starting direction of ladder...?
 	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
-	link_is_stunned; //scripted stun from weapons; possibly for later eweapon effects in the future. 
+	link_is_stunned; //scripted stun from weapons; possibly for later eweapon effects in the future.
     int shiftdir; // shift direction when walking into corners of solid combos
     int sdir; // scrolling direction
     int hopdir;  // direction to hop out of water (diagonal movement only)
@@ -236,13 +236,13 @@ class LinkClass : public sprite
     bool diagonalMovement;
     bool bigHitbox;
     byte defence[wMax];
-    
-    
+
+
      bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
     int hurtsfx; //Link's Hurt SOund
     int walkspeed; //Link's walking speed.
     int lastHitBy[4][2]; //[enemy, eweapon, combo, flag
-    
+
     // Methods below here.
     void movelink();
     void move(int d);
@@ -278,7 +278,7 @@ class LinkClass : public sprite
     bool edge_of_dmap(int side);
     bool checkmaze(mapscr *scr, bool sound);
     bool maze_enabled_sizewarp(int scrolldir);
-    
+
     int get_scroll_step(int scrolldir);
     int get_scroll_delay(int scrolldir);
 public:
@@ -312,7 +312,7 @@ private:
     int ringpower(int dmg);
     void addsparkle(int wpn);
     void addsparkle2(int type1, int type2);
-    
+
 public:
 
     void checkitems(int index = -1);
@@ -327,11 +327,11 @@ public:
     virtual void draw(BITMAP* dest);
     virtual bool animate(int index);
     bool dowarp(int type, int index);
-    
+
     void linkstep();
     void stepforward(int steps, bool adjust);
     void draw_under(BITMAP* dest);
-    
+
     // called by ALLOFF()
     void resetflags(bool all);
     void Freeze();
@@ -407,27 +407,27 @@ public:
     bool ffpit;
     void setscriptnohit(bool);
     bool getscriptnohit();
-    
+
      bool getCanLinkFlicker(); //enable or disable flicker or flash
     void setCanLinkFlicker(bool v);
-    
+
     void sethitLinkUID(int type, int screen_index);
     void ClearhitLinkUIDs();
     void set_defence(int def, int v);
     int get_defence(int def);
     int gethitLinkUID(int type);
-    
+
     void setHurtSFX(int sfx); //Set Link;s hurt sfx
     int getHurtSFX();
-    
+
       //Prevent the subscreen from falling by script.
     bool stopSubscreenFalling();
     void stopSubscreenFalling(bool v);
-    
+
     //Set the button items by brute force
     void setAButtonItem(int subscreenslot);
     void setBButtonItem(int subscreenslot);
-    
+
     bool getDiagMove(); //Diagonal movement.
     void setDiagMove(bool newdiag);
     bool getBigHitbox(); //Large H-itbox
