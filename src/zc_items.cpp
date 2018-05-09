@@ -57,52 +57,52 @@ bool can_drop(fix x, fix y)
 int select_dropitem(int item_set, int x, int y)
 {
     int total_chance=0;
-    
+
     for(int k=0; k<11; ++k)
     {
         int current_chance=item_drop_sets[item_set].chance[k];
-        
+
         if(k>0)
         {
             int current_item=item_drop_sets[item_set].item[k-1];
-            
+
             if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(itemsbuf[current_item].family == itype_magic))
             {
                 current_chance=0;
             }
-            
+
             if((!get_bit(quest_rules,qr_TRUEARROWS))&&(itemsbuf[current_item].family == itype_arrowammo))
             {
                 current_chance=0;
             }
         }
-        
+
         total_chance+=current_chance;
     }
-    
+
     if(total_chance==0)
         return -1;
-        
+
     int item_chance=(rand()%total_chance)+1;
-    
+
     int drop_item=-1;
-    
+
     for(int k=10; k>=0; --k)
     {
-    
+
         int current_chance=item_drop_sets[item_set].chance[k];
         int current_item=(k==0 ? -1 : item_drop_sets[item_set].item[k-1]);
-        
+
         if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(current_item>=0&&itemsbuf[current_item].family == itype_magic))
         {
             current_chance=0;
         }
-        
+
         if((!get_bit(quest_rules,qr_TRUEARROWS))&&(current_item>=0&&itemsbuf[current_item].family == itype_arrowammo))
         {
             current_chance=0;
         }
-        
+
         if(current_chance>0&&item_chance<=current_chance)
         {
             drop_item=current_item;
@@ -113,7 +113,7 @@ int select_dropitem(int item_set, int x, int y)
             item_chance-=current_chance;
         }
     }
-    
+
     if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy)
     {
         for(int j=0; j<items.Count(); ++j)
@@ -125,13 +125,12 @@ int select_dropitem(int item_set, int x, int y)
             }
         }
     }
-    
+
     return drop_item;
 }
 
 bool is_side_view()
 {
-    return (tmpscr->flags7&fSIDEVIEW)!=0;
+    return isSideview();
 }
 /*** end of sprite.cc ***/
-

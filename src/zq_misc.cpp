@@ -981,7 +981,7 @@ const char *old_guy_string[OLDMAXGUYS] =
     // 075
     "Lanmola (L2)","Patra (L1, Big Circle)","Patra (L1, Oval)","Ganon","Stalfos (L2)",
     // 080
-    "Rope (L2)","Bubble (Sword, Permanent Disabling)","Bubble (Sword, Re-enabling)","Shooter (Fireball)","Item Fairy ",
+    "Rope (L2)","Bubble (Sword, Permanent Disabling)","Bubble (Sword, Re-enabling)","Shooter (Fireball)","Item Fairy ", /*for now item fairies are not editable!*/
     // 085
     "Fire","Octorok (Magic)", "Darknut (Death Knight)", "Gel (L1, Tribble)", "Zol (L1, Tribble)",
     // 090
@@ -989,13 +989,13 @@ const char *old_guy_string[OLDMAXGUYS] =
     // 095
     "Trap (Horizontal, Line of Sight)", "Trap (Vertical, Line of Sight)", "Trap (Horizontal, Constant)", "Trap (Vertical, Constant)", "Wizzrobe (Fire)",
     // 100
-    "Wizzrobe (Wind)", "Ceiling Master ", "Floor Master ", "Patra (BS Zelda)", "Patra (L2)",
+    "Wizzrobe (Wind)", "Ceiling Master", "Floor Master", "Patra (BS Zelda)", "Patra (L2)",
     // 105
-    "Patra (L3)", "Bat", "Wizzrobe (Bat)", "Wizzrobe (Bat 2) ", "Gleeok (Fire, 1 Head)",
+    "Patra (L3)", "Bat", "Wizzrobe (Bat)", "Wizzrobe (Bat 2)", "Gleeok (Fire, 1 Head)",
     // 110
     "Gleeok (Fire, 2 Heads)",  "Gleeok (Fire, 3 Heads)","Gleeok (Fire, 4 Heads)", "Wizzrobe (Mirror)", "Dodongo (BS Zelda)",
     // 115
-    "Dodongo (Fire) ","Trigger", "Bubble (Item, Temporary Disabling)", "Bubble (Item, Permanent Disabling)", "Bubble (Item, Re-enabling)",
+    "Dodongo (Fire)","Trigger", "Bubble (Item, Temporary Disabling)", "Bubble (Item, Permanent Disabling)", "Bubble (Item, Re-enabling)",
     // 120
     "Stalfos (L3)", "Gohma (L3)", "Gohma (L4)", "NPC 1 (Standing)", "NPC 2 (Standing)",
     // 125

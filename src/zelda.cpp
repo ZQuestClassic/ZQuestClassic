@@ -121,8 +121,8 @@ int draw_screen_clip_rect_x2=255;
 int draw_screen_clip_rect_y1=0;
 int draw_screen_clip_rect_y2=223;
 
-extern int script_link_sprite; 
-extern int script_link_flip; 
+extern int script_link_sprite;
+extern int script_link_flip;
 
 volatile int logic_counter=0;
 bool trip=false;
@@ -196,7 +196,7 @@ const char *dmaplist(int index, int *list_size)
         sprintf(dmap_str_buf,"%3d-%s",index+(dmap_list_zero?0:1), DMaps[index].name);
         return dmap_str_buf;
     }
-    
+
     *list_size=dmap_list_size;
     return NULL;
 }
@@ -399,10 +399,10 @@ void initZScriptArrayRAM(bool firstplay)
         localRAM[i].Clear();
         arrayOwner[i]=255;
     }
-    
+
     if(game->globalRAM.size() != 0)
         game->globalRAM.clear();
-        
+
     if(firstplay)
     {
         //leave to global script ~Init to allocate global memory first time round
@@ -412,7 +412,7 @@ void initZScriptArrayRAM(bool firstplay)
     {
         //allocate from save file
         game->globalRAM.resize(saves[currgame].globalRAM.size());
-        
+
         for(dword i = 0; i < game->globalRAM.size(); i++)
         {
 #ifdef _DEBUGARRAYALLOC
@@ -421,7 +421,7 @@ void initZScriptArrayRAM(bool firstplay)
             ZScriptArray &from = saves[currgame].globalRAM[i];
             ZScriptArray &to = game->globalRAM[i];
             to.Resize(from.Size());
-            
+
             for(dword j = 0; j < from.Size(); j++)
             {
 #ifdef _DEBUGARRAYALLOC
@@ -443,18 +443,18 @@ void initZScriptGlobalRAM()
 dword getNumGlobalArrays()
 {
     word scommand, pc = 0, ret = 0;
-    
+
     do
     {
         scommand = globalscripts[GLOBAL_SCRIPT_INIT][pc].command;
-        
+
         if(scommand == ALLOCATEGMEMV || scommand == ALLOCATEGMEMR)
             ret++;
-            
+
         pc++;
     }
     while(scommand != 0xFFFF);
-    
+
     return ret;
 }
 
@@ -501,17 +501,17 @@ volatile int framecnt=0;
 volatile int myvsync=0;
 
 
-//enum { SAVESC_BACKGROUND, SAVESC_TEXT, SAVESC_USETILE, SAVESC_CURSOR_CSET, SAVESC_CUR_SOUND,  
+//enum { SAVESC_BACKGROUND, SAVESC_TEXT, SAVESC_USETILE, SAVESC_CURSOR_CSET, SAVESC_CUR_SOUND,
 //SAVESC_TEXT_CONTINUE_COLOUR, SAVESC_TEXT_SAVE_COLOUR, SAVESC_TEXT_RETRY_COLOUR, SAVESC_MIDI
-//SAVESC_CUR_FLIP, SAVSC_TEXT_DONTSAVE_COLOUR, SAVESC_TEXT_SAVEQUIT_COLOUR, SAVESC_TEXT_SAVE2_COLOUR, 
+//SAVESC_CUR_FLIP, SAVSC_TEXT_DONTSAVE_COLOUR, SAVESC_TEXT_SAVEQUIT_COLOUR, SAVESC_TEXT_SAVE2_COLOUR,
 //	SAVESC_TEXT_QUIT_COLOUR, SAVESC_EXTRA1, SAVESC_EXTRA2};
 #define SAVESC_DEF_TILE 2
 long SaveScreenSettings[24] = {
-	BLACK, 			WHITE, 			SAVESC_DEF_TILE, 
+	BLACK, 			WHITE, 			SAVESC_DEF_TILE,
 	1, 			WAV_CHINK,	 	QMisc.colors.msgtext,
 	QMisc.colors.msgtext,	QMisc.colors.msgtext,	QMisc.colors.caption,
 	QMisc.colors.caption,	QMisc.colors.caption,	ZC_MIDI_GAMEOVER,
-	0, 			QMisc.colors.msgtext, 	QMisc.colors.msgtext, 
+	0, 			QMisc.colors.msgtext, 	QMisc.colors.msgtext,
 	QMisc.colors.msgtext, 	QMisc.colors.msgtext,  	QMisc.colors.caption,
 	QMisc.colors.caption,	QMisc.colors.caption,	QMisc.colors.caption,
 	0, 			0, 			0 }; //BG, Text, Cursor CSet, Sound, UseTile, Misc
@@ -529,7 +529,7 @@ void SetSaveScreenSetting(int indx, int value)
 			break;
 		case SAVESC_USETILE:
 			SaveScreenSettings[SAVESC_USETILE] = vbound(value,0,NEWMAXTILES);
-			break; 
+			break;
 		case SAVESC_CURSOR_CSET:
 			SaveScreenSettings[SAVESC_CURSOR_CSET] = vbound(value,0,14);
 			break;
@@ -619,97 +619,97 @@ FONT *setmsgfont()
     {
     default:
         return zfont;
-        
+
     case font_z3font:
         return z3font;
-        
+
     case font_z3smallfont:
         return z3smallfont;
-        
+
     case font_deffont:
         return deffont;
-        
+
     case font_lfont:
         return lfont;
-        
+
     case font_lfont_l:
         return lfont_l;
-        
+
     case font_pfont:
         return pfont;
-        
+
     case font_mfont:
         return mfont;
-        
+
     case font_ztfont:
         return ztfont;
-        
+
     case font_sfont:
         return sfont;
-        
+
     case font_sfont2:
         return sfont2;
-        
+
     case font_spfont:
         return spfont;
-        
+
     case font_ssfont1:
         return ssfont1;
-        
+
     case font_ssfont2:
         return ssfont2;
-        
+
     case font_ssfont3:
         return ssfont3;
-        
+
     case font_ssfont4:
         return ssfont4;
-        
+
     case font_gblafont:
         return gblafont;
-        
+
     case font_goronfont:
         return goronfont;
-        
+
     case font_zoranfont:
         return zoranfont;
-        
+
     case font_hylian1font:
         return hylian1font;
-        
+
     case font_hylian2font:
         return hylian2font;
-        
+
     case font_hylian3font:
         return hylian3font;
-        
+
     case font_hylian4font:
         return hylian4font;
-        
+
     case font_gboraclefont:
         return gboraclefont;
-        
+
     case font_gboraclepfont:
         return gboraclepfont;
-        
+
     case font_dsphantomfont:
         return dsphantomfont;
-        
+
     case font_dsphantompfont:
         return dsphantompfont;
-    
+
      case font_atari800font: return atari800font;
 		 case font_acornfont: return acornfont;
 		 case font_adosfont: return adosfont;
-		 case font_baseallegrofont: return  baseallegrofont;  
+		 case font_baseallegrofont: return  baseallegrofont;
 		 case font_apple2font: return apple2font;
-		 case font_apple280colfont: return apple280colfont;   
+		 case font_apple280colfont: return apple280colfont;
 		 case font_apple2gsfont: return  apple2gsfont;
-		 case font_aquariusfont: return  aquariusfont;  
-		 case font_atari400font: return  atari400font;  
-		 case font_c64font: return c64font;   
-		 case font_c64hiresfont: return c64hiresfont;   
-		 case font_cgafont: return cgafont;   
+		 case font_aquariusfont: return  aquariusfont;
+		 case font_atari400font: return  atari400font;
+		 case font_c64font: return c64font;
+		 case font_c64hiresfont: return c64hiresfont;
+		 case font_cgafont: return cgafont;
 		 case font_cocofont: return cocofont;
 		 case font_coco2font: return coco2font;
 		 case font_coupefon: return  coupefont;
@@ -717,14 +717,14 @@ FONT *setmsgfont()
 		 case font_fantasyfon: return  fantasyfont;
 		 case font_fdskanafon: return  fdskanafont;
 		 case font_fdslikefon: return  fdslikefont;
-		 case font_fdsromanfon: return fdsromanfont; 
-		 case font_finalffont: return finalffont; 
+		 case font_fdsromanfon: return fdsromanfont;
+		 case font_finalffont: return finalffont;
 		 case font_futharkfont: return  futharkfont;
-		 case font_gaiafont: return gaiafont; 
-		 case font_hirafont: return hirafont; 
-		 case font_jpfont: return jpfont; 
+		 case font_gaiafont: return gaiafont;
+		 case font_hirafont: return hirafont;
+		 case font_jpfont: return jpfont;
 		 case font_kongfont: return  kongfont;
-		 case font_manafont: return manafont; 
+		 case font_manafont: return manafont;
 		 case font_mlfont: return  mlfont;
 		 case font_motfont: return motfont;
 		 case font_msxmode0font: return  msxmode0font;
@@ -750,7 +750,7 @@ int donew_shop_msg(int itmstr, int shopstr)
 {
 	if(msg_onscreen || msg_active)
 			dismissmsg();
-	
+
 	int tempmsg;
 	int tempmsgnext = MsgStrings[shopstr].nextstring; //store the next string
 	//Disabling this for now.
@@ -764,10 +764,10 @@ int donew_shop_msg(int itmstr, int shopstr)
 	//change the next string until we finish.
 	MsgStrings[tempmsgnext].nextstring = itmstr;
 	*/
-	
+
     //al_trace("donewmsg %d\n",str);
-    
-        
+
+
     linkedmsgclk=0;
     msg_active = true;
     // Don't set msg_onscreen - not onscreen just yet
@@ -776,21 +776,21 @@ int donew_shop_msg(int itmstr, int shopstr)
     msgfont = setmsgfont();
     msgcolour=QMisc.colors.msgtext;
     msgspeed=zinit.msg_speed;
-    
+
     if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
         clear_bitmap(msgdisplaybuf);
-        
+
     clear_bitmap(msgdisplaybuf);
     set_clip_state(msgdisplaybuf, 1);
     clear_bitmap(msgbmpbuf);
-    
+
     //transparency needs to occur here. -Z
     if(MsgStrings[msgstr].tile!=0)
     {
         frame2x2(msgbmpbuf,&QMisc,0,0,MsgStrings[msgstr].tile,MsgStrings[msgstr].cset,
                  (MsgStrings[msgstr].w>>3)+2,(MsgStrings[msgstr].h>>3)+2,0,true,0);
     }
-    
+
     msgclk=msgpos=msgptr=0;
     msgspace=true;
     msg_w=MsgStrings[msgstr].w;
@@ -811,10 +811,10 @@ void donewmsg(int str)
 {
 	if(msg_onscreen || msg_active)
 			dismissmsg();
-	
+
     //al_trace("donewmsg %d\n",str);
-    
-        
+
+
     linkedmsgclk=0;
     msg_active = true;
     // Don't set msg_onscreen - not onscreen just yet
@@ -823,21 +823,21 @@ void donewmsg(int str)
     msgfont = setmsgfont();
     msgcolour=QMisc.colors.msgtext;
     msgspeed=zinit.msg_speed;
-    
+
     if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
         clear_bitmap(msgdisplaybuf);
-        
+
     clear_bitmap(msgdisplaybuf);
     set_clip_state(msgdisplaybuf, 1);
     clear_bitmap(msgbmpbuf);
-    
+
     //transparency needs to occur here. -Z
     if(MsgStrings[msgstr].tile!=0)
     {
         frame2x2(msgbmpbuf,&QMisc,0,0,MsgStrings[msgstr].tile,MsgStrings[msgstr].cset,
                  (MsgStrings[msgstr].w>>3)+2,(MsgStrings[msgstr].h>>3)+2,0,true,0);
     }
-    
+
     msgclk=msgpos=msgptr=0;
     msgspace=true;
     msg_w=MsgStrings[msgstr].w;
@@ -880,7 +880,7 @@ bool bad_version(int version)
     // minimum zquest version allowed for any quest file
     if(version < 0x183)
         return true;
-        
+
     return false;
 }
 
@@ -917,13 +917,13 @@ void Z_eventlog(const char *format,...)
     if(get_bit(quest_rules,qr_LOG))
     {
         char buf[2048];
-        
+
         va_list ap;
         va_start(ap, format);
         vsprintf(buf, format, ap);
         va_end(ap);
         al_trace("%s",buf);
-        
+
         if(zconsole)
             printf("%s",buf);
     }
@@ -945,24 +945,24 @@ void Z_scripterrlog(const char * const format,...)
         case SCRIPT_GLOBAL:
             al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
             break;
-            
+
         case SCRIPT_FFC:
             al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
             break;
-            
+
         case SCRIPT_ITEM:
             al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
             break;
         }
-        
+
         char buf[2048];
-        
+
         va_list ap;
         va_start(ap, format);
         vsprintf(buf, format, ap);
         va_end(ap);
         al_trace("%s",buf);
-        
+
         if(zconsole)
             printf("%s",buf);
     }
@@ -999,7 +999,7 @@ void addLwpnEx(int x,int y,int z,int id,int type,int power,int dir, int parentit
 {
 	//weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, byte script_gen, bool isDummy)
     Lwpns.add(new weapon((fix)x,(fix)y,(fix)z,id,type,power,dir,parentitem,parentid,false,1));
-	
+
 }
 
 void ALLOFF(bool messagesToo, bool decorationsToo)
@@ -1009,32 +1009,32 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
         clear_bitmap(msgdisplaybuf);
         set_clip_state(msgdisplaybuf, 1);
     }
-    
+
     clear_bitmap(pricesdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
-    
+
     if(items.idCount(iPile))
     {
         loadlvlpal(DMaps[currdmap].color);
     }
-    
+
     items.clear();
     guys.clear();
     Lwpns.clear();
     Ewpns.clear();
     chainlinks.clear();
     clearScriptHelperData();
-    
+
     if(decorationsToo)
         decorations.clear();
-        
+
     particles.clear();
-    
+
     if(Link.getNayrusLoveShieldClk())
     {
         Link.setNayrusLoveShieldClk(Link.getNayrusLoveShieldClk());
     }
-    
+
     Link.resetflags(false);
     Link.reset_hookshot();
     linkedmsgclk=0;
@@ -1051,28 +1051,28 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
     dismissmsg();
     fadeclk=-1;
     introclk=intropos=72;
-    
+
     lensclk = 0;
     lensid=-1;
     drawguys=Udown=Ddown=Ldown=Rdown=Adown=Bdown=Sdown=true;
-    
+
     if(watch && !cheat_superman)
     {
         Link.setClock(false);
     }
-    
+
     //  if(watch)
     //    Link.setClock(false);
     watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
     stop_sfx(WAV_BRANG);
-    
+
     for(int i=0; i<176; i++)
         guygrid[i]=0;
-        
+
     sle_clk=0;
     blockmoving=false;
     fairy_cnt=0;
-    
+
     if(usebombpal)
     {
         memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
@@ -1167,7 +1167,7 @@ bool  GuySuperman(int j)
     {
         return true;
     }
-    
+
     return ((enemy*)guys.spr(j))->superman !=0;
 }
 
@@ -1178,7 +1178,7 @@ int  GuyCount()
 void StunGuy(int j,int stun)
 {
     if(stun<=0) return;
-    
+
     if(((enemy*)guys.spr(j))->z==0 && canfall(((enemy*)guys.spr(j))->id))
     {
         ((enemy*)guys.spr(j))->stunclk=zc_min(360,stun*4);
@@ -1212,7 +1212,7 @@ void add_grenade(int wx, int wy, int wz, int size, int parentid)
                              -1, parentid));
         Lwpns.spr(Lwpns.Count()-1)->id=wBomb;
     }
-    
+
     Lwpns.spr(Lwpns.Count()-1)->clk=48;
     Lwpns.spr(Lwpns.Count()-1)->misc=50;
 }
@@ -1247,12 +1247,12 @@ int load_quest(gamedata *g, bool report)
 #ifndef ALLEGRO_MACOSX
     tempdir=qstdir;
 #endif
-    
+
     if(g->get_quest()<255)
     {
         // Check the ZC directory first for 1st-4th quests; check qstdir if they're not there
         sprintf(qstpath, "%s.qst", ordinal(g->get_quest()));
-        
+
         if(!exists(qstpath))
         {
             sprintf(qstpath,"%s%s.qst",tempdir,ordinal(g->get_quest()));
@@ -1322,7 +1322,7 @@ int load_quest(gamedata *g, bool report)
 						std::string path = cwdbuf;
 						std::string fn;
 
-						if(path.size() != 0 && 
+						if(path.size() != 0 &&
 							!(*(path.end()-1)=='/' || *(path.end()-1)=='\\')
 							)
 						{
@@ -1344,18 +1344,18 @@ int load_quest(gamedata *g, bool report)
 		}//end hack
 
     }
-    
+
     //setPackfilePassword(datapwd);
     byte skip_flags[4];
-    
+
     for(int i=0; i<4; ++i)
     {
         skip_flags[i]=0;
     }
-    
+
     int ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags);
     //setPackfilePassword(NULL);
-    
+
     if(!g->title[0] || g->get_hasplayed() == 0)
     {
         strcpy(g->version,QHeader.version);
@@ -1368,13 +1368,13 @@ int load_quest(gamedata *g, bool report)
             ret = qe_match;
         }
     }
-    
+
     if(QHeader.minver[0])
     {
         if(strcmp(g->version,QHeader.minver) < 0)
             ret = qe_minver;
     }
-    
+
     if(ret && report)
     {
         system_pal();
@@ -1382,15 +1382,15 @@ int load_quest(gamedata *g, bool report)
         sprintf(buf1,"Error loading %s:",get_filename(qstpath));
         sprintf(buf2,"%s",qst_error[ret]);
         jwin_alert("File error",buf1,buf2,qstpath,"OK",NULL,13,27,lfont);
-        
+
         if(standalone_mode)
         {
             exit(1);
         }
-        
+
         game_pal();
     }
-    
+
     return ret;
 }
 
@@ -1402,12 +1402,12 @@ void init_dmap()
         game->items_off[i] &= (~1); // disable last bit - this one is set by dmap
         game->items_off[i] |= DMaps[currdmap].disableditems[i]; // and reset if required
     }
-    
+
     flushItemCache();
     // also update subscreens
     update_subscreens();
     verifyBothWeapons();
-    
+
     return;
 }
 
@@ -1415,17 +1415,17 @@ void init_dmap()
 
 int init_game()
 {
-	
-	
-  //port250QuestRules();	
+
+
+  //port250QuestRules();
     srand(time(0));
     //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.kb_typing_mode = false;
 	draw_screen_clip_rect_x1=0; //Prevent the ending sequence from carrying over through 'Reset System' -Z
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
-	draw_screen_clip_rect_y2=223;	
-	
+	draw_screen_clip_rect_y2=223;
+
 //Some initialising globals
     didpit=false;
     Link.unfreeze();
@@ -1448,58 +1448,58 @@ int init_game()
     show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
     show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
     cheat_superman=do_cheat_light=do_cheat_goto=show_walkflags=show_ff_scripts=show_hitboxes=false;
-    
-	SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] = QMisc.colors.msgtext; 
-	SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] = QMisc.colors.msgtext; 
-	SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] = QMisc.colors.msgtext; 
-	SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] = QMisc.colors.caption; 
-	SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH] = QMisc.colors.caption; 
-	SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] = QMisc.colors.caption; 
-    
+
+	SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] = QMisc.colors.msgtext;
+	SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] = QMisc.colors.msgtext;
+	SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] = QMisc.colors.msgtext;
+	SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] = QMisc.colors.caption;
+	SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH] = QMisc.colors.caption;
+	SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] = QMisc.colors.caption;
+
     for(int x = 0; x < MAXITEMS; x++)
     {
         lens_hint_item[x][0]=0;
         lens_hint_item[x][1]=0;
     }
-    
+
     for(int x = 0; x < MAXWPNS; x++)
     {
         lens_hint_weapon[x][0]=0;
         lens_hint_weapon[x][1]=0;
     }
-    
-    
+
+
 //Confuse the cheaters by moving the game data to a random location
     if(game != NULL)
         delete game;
-        
+
     char *dummy = (char *) zc_malloc((rand()%(RAND_MAX/2))+32);
     game = new gamedata;
     game->Clear();
-    
+
     zc_free(dummy);
-    
+
 //Copy saved data to RAM data (but not global arrays)
     game->Copy(saves[currgame]);
     flushItemCache();
-    
+
 //Load the quest
     //setPackfilePassword(datapwd);
     int ret = load_quest(game);
-    
+
     if(ret != qe_OK)
     {
         Quit = qERROR;
         //setPackfilePassword(NULL);
         return 1;
     }
-    
+
     //setPackfilePassword(NULL);
-    
+
     char keyfilename[2048];
     replace_extension(keyfilename, qstpath, "key", 2047);
     bool gotfromkey=false;
-    
+
     if(exists(keyfilename))
     {
         char password[32], pwd[32];
@@ -1507,7 +1507,7 @@ int init_game()
         char msg[80];
         memset(msg,0,80);
         pfread(msg, 80, fp,true);
-        
+
         if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
         {
             short ver;
@@ -1527,28 +1527,28 @@ int init_game()
             memset(password,0,32);
             memset(pwd,0,32);
         }
-        
+
         pack_fclose(fp);
     }
-    
+
     if(gotfromkey)
     {
         cheat=4;
     }
-    
+
     bool firstplay = (game->get_hasplayed() == 0);
-    
+
     BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
     //setuplinktiles(zinit.linkanimationstyle);
-    
+
     COOLSCROLL = (get_bit(quest_rules,qr_COOLSCROLL)!=0 ? 1 : 0) |
                  (get_bit(quest_rules,qr_OVALWIPE)!=0 ? 2 : 0) |
                  (get_bit(quest_rules,qr_TRIANGLEWIPE)!=0 ? 4 : 0) |
                  (get_bit(quest_rules,qr_SMASWIPE)!=0 ? 8 : 0);
     identifyCFEnemies();
-                 
+
     //  NEWSUBSCR = get_bit(quest_rules,qr_NEWSUBSCR);
-    
+
     //  homescr = currscr = DMaps[0].cont;
     //  currdmap = warpscr = worldscr=0;
     if(firstplay)
@@ -1556,10 +1556,10 @@ int init_game()
         game->set_continue_dmap(zinit.start_dmap);
         resetItems(game,&zinit,true);
     }
-    
+
     currdmap = warpscr = worldscr=game->get_continue_dmap();
     init_dmap();
-    
+
     if(game->get_continue_scrn() >= 0x80)
     {
         //if ((DMaps[currdmap].type&dmfTYPE)==dmOVERW || QHeader.zelda_version <= 0x190)
@@ -1576,7 +1576,7 @@ int init_game()
     {
         homescr = currscr = game->get_continue_scrn();
     }
-    
+
     lastentrance = currscr;
     game->set_continue_scrn(lastentrance);
     lastentrance_dmap = currdmap;
@@ -1584,38 +1584,38 @@ int init_game()
     dlevel = DMaps[currdmap].level;
     sle_x=sle_y=newscr_clk=opendoors=Bwpn=Bpos=0;
     fadeclk=-1;
-    
+
     if(DMaps[currdmap].flags&dmfVIEWMAP)
     {
         game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;              // mark as visited
     }
-    
+
     for(int i=0; i<6; i++)
     {
         visited[i]=-1;
     }
-    
+
     game->lvlitems[9] &= ~liBOSS;
-    
+
     ALLOFF();
     whistleclk=-1;
     clockclk=0;
     currcset=DMaps[currdmap].color;
     darkroom=naturaldark=false;
-    
+
     tmpscr[0].zero_memory();
     tmpscr[1].zero_memory();
-    
+
     //Script-related nonsense
     script_drawing_commands.Clear();
-    
-    //CLear the scripted Link sprites. 
-    script_link_sprite = 0; 
-    script_link_flip = -1; 
-    
+
+    //CLear the scripted Link sprites.
+    script_link_sprite = 0;
+    script_link_flip = -1;
+
     initZScriptArrayRAM(firstplay);
     initZScriptGlobalRAM();
-    
+
     //Run the init script or the oncontinue script with the highest priority.
     //GLobal Script Init ~Init
 /*
@@ -1631,26 +1631,26 @@ int init_game()
     }
 */
     global_wait=false;
-    
+
     //loadscr(0,currscr,up);
     loadscr(0,currdmap,currscr,-1,false);
     putscr(scrollbuf,0,0,&tmpscr[0]);
     putscrdoors(scrollbuf,0,0,&tmpscr[0]);
-    
+
     //preloaded freeform combos
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
-    FFCore.init(); ///Initialise new ffscript engine core. 
+    FFCore.init(); ///Initialise new ffscript engine core.
     Link.init();
     Link.resetflags(true);
     Link.setEntryPoints(LinkX(),LinkY());
-    
+
     copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
     loadfullpal();
     ringcolor(false);
     loadlvlpal(DMaps[currdmap].color);
     lighting(false,true);
     wavy=quakeclk=0;
-    
+
     if(firstplay)
     {
         game->set_life(zinit.start_heart*HP_PER_HEART);
@@ -1669,19 +1669,19 @@ int init_game()
             game->set_life(game->get_cont_hearts()*HP_PER_HEART);
         }
     }
-    
+
     if(firstplay)
         game->set_hasplayed(1);
-        
+
     update_subscreens();
-    
+
     load_Sitems(&QMisc);
-    
+
 //load the previous weapons -DD
     bool usesaved = (game->get_quest() == 0xFF); //What was wrong with firstplay?
     int apos = 0;
     int bpos = 0;
-    
+
     if(!get_bit(quest_rules,qr_SELECTAWPN))
     {
         Awpn = selectSword();
@@ -1692,37 +1692,37 @@ int init_game()
     {
         apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
         bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-        
+
         if(bpos==0xFF)
         {
             bpos=apos;
             apos=-1;
         }
-        
+
         Awpn = Bweapon(apos);
         directItemA = directItem;
     }
-    
+
     game->awpn = apos;
     game->bwpn = bpos;
     Bwpn = Bweapon(bpos);
     directItemB = directItem;
     update_subscr_items();
-    
+
     reset_subscr_items();
-    
+
     Link.setDontDraw(false);
     show_subscreen_dmap_dots=true;
     show_subscreen_items=true;
     show_subscreen_numbers=true;
     show_subscreen_life=true;
-    
+
     Playing=true;
-    
+
     map_bkgsfx(true);
-    
-    
-    
+
+
+
     if(firstplay)
     {
         memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
@@ -1732,29 +1732,29 @@ int init_game()
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
     }
-    
-    
+
+
     openscreen();
     show_subscreen_numbers=true;
     show_subscreen_life=true;
     dointro();
     loadguys();
-    
+
     activated_timed_warp=false;
     newscr_clk = frame;
-    
+
     if(isdungeon() && currdmap>0) // currdmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it
     {
         Link.stepforward(get_bit(quest_rules,qr_LTTPWALK) ? 11: 12, false);
     }
-    
+
     if(!Quit)
         playLevelMusic();
-        
-    
+
+
     initZScriptGlobalRAM(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     ffscript_engine(true);  //Here is a much safer place...
-    
+
     return 0;
 }
 
@@ -1790,40 +1790,40 @@ int cont_game()
     currmap = DMaps[currdmap].map;
     dlevel = DMaps[currdmap].level;
     init_dmap();
-    
+
     for(int i=0; i<6; i++)
     {
         visited[i]=-1;
     }
-    
+
     if(dlevel==0)
     {
         game->lvlitems[9]&=~liBOSS;
     }
-    
+
     ALLOFF();
     whistleclk=-1;
     currcset=DMaps[currdmap].color;
     darkroom=naturaldark=false;
     tmpscr[0].zero_memory();
     tmpscr[1].zero_memory();
-    
+
 //loadscr(0,currscr,up);
     loadscr(0,currdmap,currscr,-1,false);
     putscr(scrollbuf,0,0,&tmpscr[0]);
     putscrdoors(scrollbuf,0,0,&tmpscr[0]);
     script_drawing_commands.Clear();
-    
+
     //preloaded freeform combos
     ffscript_engine(true);
-    
+
     loadfullpal();
     ringcolor(false);
     loadlvlpal(DMaps[currdmap].color);
     lighting(false,true);
     Link.init();
     wavy=quakeclk=0;
-    
+
     //if(get_bit(zinit.misc,idM_CONTPERCENT))
     if(game->get_cont_percent())
     {
@@ -1836,15 +1836,15 @@ int cont_game()
     {
         game->set_life(game->get_cont_hearts()*HP_PER_HEART);
     }
-        
+
     /*
       else
       game->life=3*HP_PER_HEART;
       */
-    
+
     //  for(int i=0; i<128; i++)
     //    key[i]=0;
-    
+
     update_subscreens();
     Playing=true;
     map_bkgsfx(true);
@@ -1853,19 +1853,19 @@ int cont_game()
     show_subscreen_life=true;
     dointro();
     loadguys();
-    
+
     if(!Quit)
     {
         //play_DmapMusic();
         playLevelMusic();
-        
+
         if(isdungeon())
             Link.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
-            
+
         newscr_clk=frame;
         activated_timed_warp=false;
     }
-    
+
     initZScriptGlobalRAM();
     return 0;
 }
@@ -1874,7 +1874,7 @@ void restart_level()
 {
     blackscr(16,true);
     map_bkgsfx(false);
-    
+
     if(dlevel)
     {
         currdmap = lastentrance_dmap;
@@ -1892,25 +1892,25 @@ void restart_level()
             homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
         }
     }
-    
+
     currmap = DMaps[currdmap].map;
     dlevel = DMaps[currdmap].level;
-    
+
     for(int i=0; i<6; i++)
         visited[i]=-1;
-        
+
     ALLOFF();
     whistleclk=-1;
     darkroom=naturaldark=false;
     tmpscr[0].zero_memory();
     tmpscr[1].zero_memory();
-    
+
     loadscr(0,currdmap,currscr,-1,false);
     putscr(scrollbuf,0,0,&tmpscr[0]);
     putscrdoors(scrollbuf,0,0,&tmpscr[0]);
     //preloaded freeform combos
     ffscript_engine(true);
-    
+
     loadfullpal();
     ringcolor(false);
     loadlvlpal(DMaps[currdmap].color);
@@ -1923,15 +1923,15 @@ void restart_level()
     show_subscreen_numbers=true;
     show_subscreen_life=true;
     loadguys();
-    
+
     if(!Quit)
     {
         //play_DmapMusic();
         playLevelMusic();
-        
+
         if(isdungeon())
             Link.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
-            
+
         newscr_clk=frame;
         activated_timed_warp=false;
     }
@@ -1945,7 +1945,7 @@ void putintro()
         introclk=intropos=72;
         return;
     }
-    
+
     if((cBbtn())&&(get_bit(quest_rules,qr_ALLOWMSGBYPASS)))
     {
         //finish writing out the string
@@ -1955,37 +1955,37 @@ void putintro()
                           "%c",DMaps[currdmap].intro[intropos]);
         }
     }
-    
+
     if(intropos>=72)
     {
         if(dmapmsgclk >= 51)
             dmapmsgclk=50;
-            
+
         return;
     }
-    
+
     if(((introclk++)%6<5)&&((!cAbtn())||(!get_bit(quest_rules,qr_ALLOWFASTMSG))))
         return;
-        
+
     dmapmsgclk=51;
-    
+
     if(intropos == 0)
     {
         while(DMaps[currdmap].intro[intropos]==' ')
             ++intropos;
     }
-    
+
     sfx(WAV_MSG);
-    
-    
+
+
     //using the clip value to indicate the bitmap is "dirty"
     //rather than add yet another global variable
     set_clip_state(msgdisplaybuf, 0);
     textprintf_ex(msgdisplaybuf,zfont,((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
                   "%c",DMaps[currdmap].intro[intropos]);
-                  
+
     ++intropos;
-    
+
     if(DMaps[currdmap].intro[intropos]==' ' && DMaps[currdmap].intro[intropos+1]==' ')
         while(DMaps[currdmap].intro[intropos]==' ')
             ++intropos;
@@ -2000,7 +2000,7 @@ void show_details()
     //textprintf_ex(framebuf,font,-3,-5,WHITE,BLACK,"%-4d",whistleclk);
     textprintf_ex(framebuf,font,0,8,WHITE,BLACK,"dlvl:%-2d dngn:%d", dlevel, isdungeon());
     textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%ld %s",game->get_time(),time_str_long(game->get_time()));
-    
+
 //    textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Link.getPushing());
 //    for(int i=0; i<Lwpns.Count(); i++)
 //      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d",items.spr(i)->id);
@@ -2013,7 +2013,7 @@ void show_details()
 
     for(int i=0; i<guys.Count(); i++)
         textprintf_ex(framebuf,font,90,(i<<3)+16,WHITE,BLACK,"%d",(int)((enemy*)guys.spr(i))->id);
-        
+
 //      textprintf_ex(framebuf,font,90,16,WHITE,BLACK,"%3d, %3d",int(LinkModifiedX()),int(LinkModifiedY()));
     //textprintf_ex(framebuf,font,90,24,WHITE,BLACK,"%3d, %3d",detail_int[0],detail_int[1]);
 //      textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Link.getAction());
@@ -2033,7 +2033,7 @@ void show_details()
 void show_ffscript_names()
 {
     int ypos = 8;
-    
+
     for(int i=0; i< MAXFFCS; i++)
     {
         if(tmpscr->ffscript[i])
@@ -2051,12 +2051,12 @@ void do_magic_casting()
     int ltile=0;
     int lflip=0;
     bool shieldModify=true;
-    
+
     if(magicitem==-1)
     {
         return;
     }
-    
+
     switch(itemsbuf[magicitem].family)
     {
     case itype_dinsfire:
@@ -2068,15 +2068,15 @@ void do_magic_casting()
             w1->step=4;
             //          Link.tile=(BSZ)?32:29;
             linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
-            
+
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
                 Link.tile+=item_tile_mod(shieldModify);
             }
-            
+
             casty=Link.getY();
         }
-        
+
         if(magiccastclk==64)
         {
             Lwpns.add(new weapon((fix)LinkX(),(fix)(-32),(fix)LinkZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Link.getUID()));
@@ -2084,43 +2084,43 @@ void do_magic_casting()
             w1->step=4;
             //          Link.tile=29;
             linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
-            
+
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
                 Link.tile+=item_tile_mod(shieldModify);
             }
-            
+
             castnext=false;
         }
-        
+
         if(castnext)
         {
             linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
-            
+
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
                 Link.tile+=item_tile_mod(shieldModify);
             }
-            
+
             if(get_bit(quest_rules,qr_MORESOUNDS))
                 sfx(itemsbuf[magicitem].usesound,pan(int(Link.getX())));
-                
+
             int flamemax=itemsbuf[magicitem].misc1;
-            
+
             for(int flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
                 Lwpns.add(new weapon((fix)LinkX(),(fix)LinkY(),(fix)LinkZ(),wFire,3,itemsbuf[magicitem].power*DAMAGE_MULTIPLIER,
-                                     (tmpscr->flags7&fSIDEVIEW) ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link.getUID()));
+                                     (isSideview()) ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link.getUID()));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
                 w->step=(itemsbuf[magicitem].misc2/100.0);
                 w->angular=true;
                 w->angle=(flamecounter*PI/(flamemax/2.0));
             }
-            
+
             castnext=false;
             magiccastclk=128;
         }
-        
+
         if((magiccastclk++)>=226)
         {
             magicitem=-1;
@@ -2128,55 +2128,55 @@ void do_magic_casting()
         }
     }
     break;
-    
+
     case itype_faroreswind:
     {
         if(magiccastclk==0)
         {
             linktile(&ltile, &lflip, ls_stab, down, zinit.linkanimationstyle);
-            
+
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
                 ltile+=item_tile_mod(shieldModify);
             }
-            
+
             unpack_tile(newtilebuf, ltile, lflip, true);
             memcpy(linktilebuf, unpackbuf, 256);
             tempx=Link.getX();
             tempy=Link.getY();
             linktile(&Link.tile, &Link.flip, &Link.extend, ls_pound, down, zinit.linkanimationstyle);
-            
+
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
                 Link.tile+=item_tile_mod(shieldModify);
             }
         }
-        
+
         if(magiccastclk>=0&&magiccastclk<64)
         {
             Link.setX(tempx+((rand()%3)-1));
             Link.setY(tempy+((rand()%3)-1));
         }
-        
+
         if(magiccastclk==64)
         {
             Link.setX(tempx);
             Link.setY(tempy);
             linktile(&Link.tile, &Link.flip, &Link.extend, ls_stab, down, zinit.linkanimationstyle);
-            
+
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
                 Link.tile+=item_tile_mod(shieldModify);
             }
         }
-        
+
         if(magiccastclk==96)
         {
             if(get_bit(quest_rules,qr_MORESOUNDS))
                 sfx(itemsbuf[magicitem].usesound,pan(int(Link.getX())));
-                
+
             Link.setDontDraw(true);
-            
+
             for(int i=0; i<16; ++i)
             {
                 for(int j=0; j<16; ++j)
@@ -2196,7 +2196,7 @@ void do_magic_casting()
                             int k=particles.Count()-1;
                             particle *p = (particle*)(particles.spr(k));
                             p->step=4;
-                            
+
                             if(rand()%10 < 2)
                             {
                                 p->color=1;
@@ -2206,7 +2206,7 @@ void do_magic_casting()
                         else
                         {
                             particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], rand()%96));
-                            
+
                             int k=particles.Count()-1;
                             particle *p = (particle*)(particles.spr(k));
                             p->angular=true;
@@ -2218,7 +2218,7 @@ void do_magic_casting()
                 }
             }
         }
-        
+
         if((magiccastclk++)>=226)
         {
             //attackclk=0;
@@ -2233,7 +2233,7 @@ void do_magic_casting()
         }
     }
     break;
-    
+
     case itype_nayruslove:
     {
         // See also Link.cpp, LinkClass::checkhit().
@@ -2247,15 +2247,15 @@ void do_magic_casting()
             w1->step=4;
             //          Link.tile=(BSZ)?32:29;
             linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
-            
+
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
                 Link.tile+=item_tile_mod(shieldModify);
             }
-            
+
             castx=Link.getX();
         }
-        
+
         if(magiccastclk==64)
         {
             for(int i=0; i<Lwpns.Count(); i++)
@@ -2265,7 +2265,7 @@ void do_magic_casting()
                   w->type>=pNAYRUSLOVEROCKET1 && w->type<=pNAYRUSLOVEROCKETTRAILRETURN2)
                     Lwpns.del(i);
             }
-            
+
             int d=zc_max(LinkX(),256-LinkX())+32;
             Lwpns.add(new weapon((fix)(LinkX()-d),(fix)LinkY(),(fix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Link.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
@@ -2275,27 +2275,27 @@ void do_magic_casting()
             w1->step=4;
             //          Link.tile=29;
             linktile(&Link.tile, &Link.flip, &Link.extend, ls_cast, Link.getDir(), zinit.linkanimationstyle);
-            
+
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
                 Link.tile+=item_tile_mod(shieldModify);
             }
-            
+
             castnext=false;
         }
-        
+
         if(castnext)
         {
             //          Link.tile=4;
             linktile(&Link.tile, &Link.flip, &Link.extend, ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
-            
+
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
                 Link.tile+=item_tile_mod(shieldModify);
             }
-            
+
             Link.setNayrusLoveShieldClk(itemsbuf[magicitem].misc1);
-            
+
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
                 if(nayruitem != -1)
@@ -2303,15 +2303,15 @@ void do_magic_casting()
                     stop_sfx(itemsbuf[nayruitem].usesound+1);
                     stop_sfx(itemsbuf[nayruitem].usesound);
                 }
-                
+
                 cont_sfx(itemsbuf[magicitem].usesound);
             }
-            
+
             castnext=false;
             magiccastclk=128;
             nayruitem = magicitem;
         }
-        
+
         // Finish the final spell pose
         if((magiccastclk++)>=160)
         {
@@ -2322,13 +2322,13 @@ void do_magic_casting()
                   w->type>=pNAYRUSLOVEROCKET1 && w->type<=pNAYRUSLOVEROCKETTRAILRETURN2)
                     Lwpns.del(i);
             }
-            
+
             magicitem=-1;
             magiccastclk=0;
         }
     }
     break;
-    
+
     default:
         magiccastclk=0;
         break;
@@ -2343,14 +2343,14 @@ void update_hookshot()
     chainlinks.animate();
     //  char tempbuf[80];
     //  char tempbuf2[80];
-    
+
     //find out where the head is and make it
     //easy to reference
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         check_hs=true;
     }
-    
+
     if(check_hs)
     {
         int parentitem = ((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->parentitem;
@@ -2359,12 +2359,12 @@ void update_hookshot()
         hs_z=Lwpns.spr(Lwpns.idFirst(wHookshot))->z;
         hs_dx=hs_x-hs_startx;
         hs_dy=hs_y-hs_starty;
-        
+
         //extending
         if(((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==0)
         {
             int maxchainlinks=itemsbuf[parentitem].misc2;
-            
+
             if(chainlinks.Count()<maxchainlinks)           //extending chain
             {
                 if(abs(hs_dx)>=hs_xdist+8)
@@ -2383,19 +2383,19 @@ void update_hookshot()
                 dist_bx=(abs(hs_dx)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
                 dist_by=(abs(hs_dy)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
                 hs_w=8;
-                
+
                 if(hs_dx<0)
                 {
                     dist_bx=0-dist_bx;
                     hs_w=-8;
                 }
-                
+
                 if(hs_dy<0)
                 {
                     dist_by=0-dist_by;
                     hs_w=-8;
                 }
-                
+
                 for(int counter=0; counter<chainlinks.Count(); counter++)
                 {
                     if(Link.getDir()>down)                            //chain is moving horizontally
@@ -2414,19 +2414,19 @@ void update_hookshot()
             dist_bx=(abs(hs_dx)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
             dist_by=(abs(hs_dy)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
             hs_w=8;
-            
+
             if(hs_dx<0)
             {
                 dist_bx=0-dist_bx;
                 hs_w=-8;
             }
-            
+
             if(hs_dy<0)
             {
                 dist_by=0-dist_by;
                 hs_w=-8;
             }
-            
+
             /* With ZScript modification, chains can conceivably move diagonally.*/
             //if (Link.getDir()>down)                               //chain is moving horizontally
             {
@@ -2442,7 +2442,7 @@ void update_hookshot()
                     if(abs(hs_x-hs_startx)<=hs_xdist-8)
                     {
                         hs_xdist=abs(hs_x-hs_startx);
-                        
+
                         if(pull_link==false)
                         {
                             chainlinks.del(chainlinks.idLast(wHSChain));
@@ -2468,7 +2468,7 @@ void update_hookshot()
                     if(abs(hs_y-hs_starty)<=hs_ydist-8)
                     {
                         hs_ydist=abs(hs_y-hs_starty);
-                        
+
                         if(pull_link==false)
                         {
                             chainlinks.del(chainlinks.idLast(wHSChain));
@@ -2487,7 +2487,7 @@ void update_hookshot()
 void do_dcounters()
 {
     static bool sfxon = false;
-    
+
     for(int i=0; i<32; i++)
     {
         if(game->get_dcounter(i)==0)
@@ -2495,21 +2495,21 @@ void do_dcounters()
             sfxon = false;
             continue;
         }
-        
+
         if(frame&1)
         {
             sfxon = true;
-            
+
             if(game->get_dcounter(i)>0)
             {
                 int drain = (i==4 ? MAGICPERBLOCK/4 : 1);
                 drain = zc_min(game->get_dcounter(i),drain);
-                
+
                 if(game->get_counter(i) < game->get_maxcounter(i))
                 {
                     game->change_counter(drain, i);
                     game->change_dcounter(-drain, i);
-                    
+
                     if(game->get_dcounter(i) < 0)  // Better safe
                         game->set_dcounter(0, i);
                 }
@@ -2523,14 +2523,14 @@ void do_dcounters()
             {
                 if(i!=1)   // Only rupee drain is sounded
                     sfxon = false;
-                    
+
                 int drain = (i==4 ? 2*game->get_magicdrainrate() : 1);
-                
+
                 if(game->get_counter(i)>0)
                 {
                     game->change_counter(-drain, i);
                     game->change_dcounter(drain, i);
-                    
+
                     if(game->get_dcounter(i) > 0)  // Better safe
                         game->set_dcounter(0, i);
                 }
@@ -2541,7 +2541,7 @@ void do_dcounters()
                 }
             }
         }
-        
+
         if((sfxon || i==1) && !lensclk && (i<2 || i==4)) // Life, Rupees and Magic
             sfx(WAV_MSG);
     }
@@ -2549,76 +2549,76 @@ void do_dcounters()
 
 void game_loop()
 {
-    //clear Link's last hits 
+    //clear Link's last hits
     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing these here makes checking them fail both before and after waitdraw.
     //Link.ClearhitLinkUIDs();
-	
+
     //Why the flidd doesn't this work?! Clearing this to 0 in a way that doesn't demolish script access is impossible. -Z
 		//All I want, is to clear it at the end of a frame, or at the start of a frame, so that if it changes to non-0
 		//that a script can read it before Waitdraw(). --I want it to go stale at the end of a frame.
 		//I suppose I will need to do this inside the script engine, and not the game_loop() ? -Z
-	
-	
+
+
 	//  walkflagx=0; walkflagy=0;
-	
+
     if(fadeclk>=0)
     {
         if(fadeclk==0 && currscr<128)
             blockpath=false;
-            
+
         --fadeclk;
     }
-    
+
     // Three kinds of freezes: freeze, freezemsg, freezeff
-    
+
     // freezemsg if message is being printed && qr_MSGFREEZE is on,
     // or if a message is being prepared && qr_MSGDISAPPEAR is on.
     bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
                       && get_bit(quest_rules,qr_MSGFREEZE));
-                      
+
     // Messages also freeze FF combos.
     bool freezeff = freezemsg;
-    
+
     bool freeze = false;
-    
+
     for(int i=0; i<32; i++)
     {
         if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZE) freeze=true;
-        
+
         if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZEFF) freezeff=true;
     }
-    
+
     for(int i=0; i<176; i++)
     {
         if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
-        
+
         if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
-        
+
         if(guygrid[i]>0)
         {
             --guygrid[i];
         }
     }
-    
+
     animate_combos();
     load_control_state();
-    
+
     if(!freezemsg)
     {
         script_drawing_commands.Clear();
     }
-    
+
     if(!freezeff)
     {
         update_freeform_combos();
     }
-    
+
     // Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
     if(!freezemsg && g_doscript)
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
     }
-    
+
     if(!freeze && !freezemsg)
     {
         mblock2.animate(0);
@@ -2629,7 +2629,7 @@ void game_loop()
         dragging_item();
         Ewpns.animate();
         checklink = true;
-        clear_script_one_frame_conditions(); //the timing on this may need adjustment. 
+        clear_script_one_frame_conditions(); //the timing on this may need adjustment.
         for(int i = 0; i < (gofast ? 8 : 1); i++)
         {
             if(Link.animate(0))
@@ -2638,24 +2638,24 @@ void game_loop()
                 {
                     Quit = qGAMEOVER;
                 }
-                
+
                 return;
             }
-            
+
             checklink=false;
         }
-        
+
         do_magic_casting();
         Lwpns.animate();
         decorations.animate();
         particles.animate();
         update_hookshot();
-        
+
         if(conveyclk<=0)
         {
             conveyclk=3;
         }
-        
+
         --conveyclk;
         check_collisions();
         dryuplake();
@@ -2667,19 +2667,19 @@ void game_loop()
             if(((enemy*)guys.spr(i))->ignore_msg_freeze())
                 guys.spr(i)->animate(i);
     }
-    
+
     if(global_wait)
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
     }
-    
-    
+
+
     draw_screen(tmpscr);
-    
-    //clear Link's last hits 
-    //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
-    
+
+    //clear Link's last hits
+    //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw.
+
     if(linkedmsgclk==1)
     {
         if(wpnsbuf[iwMore].tile!=0)
@@ -2687,22 +2687,22 @@ void game_loop()
             putweapon(framebuf,zinit.msg_more_x, message_more_y(), wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
         }
     }
-    
+
     if(!freeze)
     {
         putintro();
     }
-    
+
     if(dmapmsgclk>0)
     {
         Link.Freeze();
-        
+
         if(dmapmsgclk<=50)
         {
             --dmapmsgclk;
         }
     }
-    
+
     if(dmapmsgclk==1)
     {
         Link.finishedmsg();
@@ -2712,72 +2712,72 @@ void game_loop()
         set_clip_state(msgdisplaybuf, 1);
         //    clear_bitmap(pricesdisplaybuf);
     }
-    
+
     if(!freeze)
     {
         if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
         {
             putmsg();
-            
+
             if(msgstr)
             {
                 set_clip_state(msgdisplaybuf, 0);
                 blit(msgbmpbuf, msgdisplaybuf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
             }
         }
-        
+
         do_dcounters();
-        
+
         if(!freezemsg && current_item(itype_heartring))
         {
             int itemid = current_item_id(itype_heartring);
             int fskip = itemsbuf[itemid].misc2;
-            
+
             if(fskip == 0 || frame % fskip == 0)
                 game->set_life(zc_min(game->get_life() + itemsbuf[itemid].misc1, game->get_maxlife()));
         }
-        
+
         if(!freezemsg && current_item(itype_magicring))
         {
             int itemid = current_item_id(itype_magicring);
             int fskip = itemsbuf[itemid].misc2;
-            
+
             if(fskip == 0 || frame % fskip == 0)
             {
                 game->set_magic(zc_min(game->get_magic() + itemsbuf[itemid].misc1, game->get_maxmagic()));
             }
         }
-        
+
         if(!freezemsg && current_item(itype_wallet))
         {
             int itemid = current_item_id(itype_wallet);
             int fskip = itemsbuf[itemid].misc2;
-            
+
             if(fskip == 0 || frame % fskip == 0)
             {
                 game->set_rupies(zc_min(game->get_rupies() + itemsbuf[itemid].misc1, game->get_maxcounter(1)));
             }
         }
-        
+
         if(!freezemsg && current_item(itype_bombbag))
         {
             int itemid = current_item_id(itype_bombbag);
-            
+
             if(itemsbuf[itemid].misc1)
             {
                 int fskip = itemsbuf[itemid].misc2;
-                
+
                 if(fskip == 0 || frame % fskip == 0)
                 {
                     game->set_bombs(zc_min(game->get_bombs() + itemsbuf[itemid].misc1, game->get_maxbombs()));
                 }
-                
+
                 if(itemsbuf[itemid].flags & ITEM_FLAG1)
                 {
                     int ratio = zinit.bomb_ratio;
-                    
+
                     fskip = itemsbuf[itemid].misc2 * ratio;
-                    
+
                     if(fskip == 0 || frame % fskip == 0)
                     {
                         game->set_sbombs(zc_min(game->get_sbombs() + zc_max(itemsbuf[itemid].misc1 / ratio, 1), game->get_maxbombs() / ratio));
@@ -2785,24 +2785,24 @@ void game_loop()
                 }
             }
         }
-        
+
         if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
         {
             int itemid = current_item_id(itype_quiver);
             int fskip = itemsbuf[itemid].misc2;
-            
+
             if(fskip == 0 || frame % fskip == 0)
             {
                 game->set_arrows(zc_min(game->get_arrows() + itemsbuf[itemid].misc1, game->get_maxarrows()));
             }
         }
-        
+
         if(lensclk)
         {
             draw_lens_over();
             --lensclk;
         }
-        
+
         // Earthquake!
         if(quakeclk>0)
         {
@@ -2812,10 +2812,10 @@ void game_loop()
         {
             playing_field_offset=56;
         }
-        
+
         // Other effects in zc_sys.cpp
     }
-    
+
     //  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int(rand()%16)));
 }
 
@@ -2854,8 +2854,8 @@ bool isMonochrome(){
 }
 
 void setMonochrome(bool v){
-	if ( v && !monochrome ) { 
-		
+	if ( v && !monochrome ) {
+
 		memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
 		if(get_bit(quest_rules,qr_FADE)) {
 		for(int i=CSET(0); i < CSET(15); i++)
@@ -2864,7 +2864,7 @@ void setMonochrome(bool v){
 			g = (g >> 1) + 32;
 			RAMpal[i] = _RGB(g,g,g);
 		}
-    
+
 		}
 		else
 		{
@@ -2874,15 +2874,15 @@ void setMonochrome(bool v){
 			{
 				RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
 			}
-		} 
+		}
 		refreshpal = true;
-		monochrome = true; 
+		monochrome = true;
 	}
-	
+
 	else if ( !v && monochrome ) {
 		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
 		refreshpal = true;
-		monochrome = false; 
+		monochrome = false;
 	}
 }
 
@@ -2914,7 +2914,7 @@ public:
 
     TB_Handler() {}
     ~TB_Handler() {}
-    
+
     bool CanEnable() const
     {
         if(is_windowed_mode() && can_triplebuffer_in_windowed_mode == FALSE)
@@ -2922,7 +2922,7 @@ public:
             triplebuffer_not_available = true;
             return false;
         }
-        
+
         return (disable_triplebuffer == FALSE);
     }
     bool GFX_can_triple_buffer() const
@@ -2932,19 +2932,19 @@ public:
             triplebuffer_not_available = true;
             return false;
         }
-        
+
         triplebuffer_not_available = false;
-        
+
         if(!(gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)) enable_triple_buffer();
-        
+
         if(!(gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)) triplebuffer_not_available = true;
-        
+
         return !triplebuffer_not_available;
     }
     void Destroy() const
     {
         if(disable_triplebuffer != FALSE || triplebuffer_not_available) return;
-        
+
         for(int i=0; i<3; i++)
             if(tb_page[i])
                 destroy_bitmap(tb_page[i]);
@@ -2956,18 +2956,18 @@ public:
             triplebuffer_not_available = true;
             return;
         }
-        
+
         for(int i=0; i<3; ++i)
         {
             tb_page[i]=create_video_bitmap(SCREEN_W, SCREEN_H);
-            
+
             if(!tb_page[i])
             {
                 triplebuffer_not_available = true;
                 break;
             }
         }
-        
+
         Clear();
     }
     void Clear() const
@@ -2988,13 +2988,13 @@ int onFullscreen()
 {
     PALETTE oldpal;
     get_palette(oldpal);
-    
+
     show_mouse(NULL);
     bool windowed=is_windowed_mode()!=0;
-    
+
     // these will become ultra corrupted no matter what.
     Triplebuffer.Destroy();
-    
+
     bool success=setGraphicsMode(!windowed);
     if(success)
         fullscreen=!fullscreen;
@@ -3009,7 +3009,7 @@ int onFullscreen()
             exit(1);
         }
     }
-    
+
     /* ZC will crash going from fullscreen to windowed mode if triple buffer is left unchecked. -Gleeok  */
     if(Triplebuffer.GFX_can_triple_buffer())
     {
@@ -3018,10 +3018,10 @@ int onFullscreen()
     }
     else
         Z_message("Triplebuffer disabled \n");
-    
+
     //Everything set?
     Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
-    
+
     set_palette(oldpal);
     gui_mouse_focus=0;
     show_mouse(screen);
@@ -3035,7 +3035,7 @@ int onFullscreen()
 int main(int argc, char* argv[])
 {
     bool onlyInstance=true;
-    
+
 #ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
     if(!is_only_instance("zc.lck"))
     {
@@ -3045,28 +3045,28 @@ int main(int argc, char* argv[])
             exit(1);
     }
 #endif
-    
+
     switch(IS_BETA)
     {
-    
+
     case -1:
         Z_title("Zelda Classic %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
         break;
-        
+
     case 1:
         Z_title("Zelda Classic %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
         break;
-        
+
     case 0:
         Z_title("Zelda Classic %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
     }
-    
+
     if(used_switch(argc, argv, "-standalone"))
     {
         standalone_mode=true;
-        
+
         int arg=used_switch(argc, argv, "-standalone");
-        
+
         if(arg==argc-1)
         {
             Z_error("-standalone requires a quest file, e.g.\n" \
@@ -3074,9 +3074,9 @@ int main(int argc, char* argv[])
                     "  -standalone \"Name with spaces.qst\"");
             exit(1);
         }
-        
+
         standalone_quest=argv[arg+1];
-        
+
         if(stricmp(standalone_quest, "1st.qst")==0 ||
           stricmp(standalone_quest, "2nd.qst")==0 ||
           stricmp(standalone_quest, "3rd.qst")==0 ||
@@ -3086,102 +3086,102 @@ int main(int argc, char* argv[])
             Z_error("Standalone mode can only be used with custom quests.");
             exit(1);
         }
-        
+
         int len=strlen(standalone_quest);
-        
+
         for(int i=0; i<len; i++)
         {
 #ifdef _ALLEGRO_WINDOWS
-        
+
             if(standalone_quest[i]=='/')
             {
                 standalone_quest[i]='\\';
             }
-            
+
 #else
-            
+
             if(standalone_quest[i]=='\\')
             {
                 standalone_quest[i]='/';
             }
-            
+
 #endif
         }
     }
-    
+
     //turn on MSVC memory checks
     //this should be interesting...
-    
+
 //  InitCrtDebug();
 
     // Before anything else, let's register our custom trace handler:
     register_trace_handler(zc_trace_handler);
-    
+
     //  Z_title("Zelda Classic %s",VerStr(ZELDA_VERSION));
-    
+
     // allocate quest data buffers
-    
+
 #ifdef _WIN32
-    
+
     if(used_switch(argc, argv, "-console") || used_switch(argc, argv, "-con"))
     {
         DebugConsole::Open();
         zconsole = true;
     }
-    
+
 #endif
-    
+
     PopulateInitDialog();
     //FFScript::init();
-    
+
     memrequested += 4096;
     Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
     qstdir = (char*)zc_malloc(2048);
     qstpath = (char*)zc_malloc(2048);
-    
+
     if(!qstdir || !qstpath)
     {
         Z_error("Allocation error");
         quit_game();
     }
-    
+
     qstdir[0] = 0;
     qstpath[0] = 0;
-    
+
 #ifdef ALLEGRO_MACOSX
     sprintf(qstdir, "../../../");
     sprintf(qstpath, "../../../");
 #endif
-    
+
     Z_message("OK\n");
-    
+
     if(!get_qst_buffers())
     {
         Z_error("Error");
         quit_game();
     }
-    
+
     // initialize Allegro
-    
+
     Z_message("Initializing Allegro... ");
-    
+
     if(allegro_init() != 0)
     {
         Z_error("Failed Init!");
         quit_game();
     }
-    
+
     three_finger_flag=false;
     //atexit(&dumb_exit);
     //dumb_register_stdfiles();
-    
+
     register_bitmap_file_type("GIF",  load_gif, save_gif);
     jpgalleg_init();
     loadpng_init();
-    
+
     // set and load game configurations
     set_config_file("zc.cfg");
-    
+
     if(exists("zc.cfg") != 0)
     {
         load_game_configs();
@@ -3191,116 +3191,116 @@ int main(int argc, char* argv[])
         load_game_configs();
         save_game_configs();
     }
-    
-    
+
+
 #ifdef _WIN32
-    
+
     //launch debug console if requested.
     if(use_debug_console != FALSE)
     {
         DebugConsole::Open();
         zconsole = true;
     }
-    
+
 #endif
-    
+
     if(install_timer() < 0)
     {
         Z_error(allegro_error);
         quit_game();
     }
-    
+
     if(install_keyboard() < 0)
     {
         Z_error(allegro_error);
         quit_game();
     }
-    
+
     if(install_mouse() < 0)
     {
         Z_error(allegro_error);
         quit_game();
     }
-    
+
     if(install_joystick(JOY_TYPE_AUTODETECT) < 0)
     {
         Z_error(allegro_error);
         quit_game();
     }
-    
+
     //set_keyboard_rate(1000,160);
-    
+
     LOCK_VARIABLE(logic_counter);
     LOCK_FUNCTION(update_logic_counter);
     install_int_ex(update_logic_counter, BPS_TO_TIMER(60));
-    
+
 #ifdef _SCRIPT_COUNTER
     LOCK_VARIABLE(script_counter);
     LOCK_FUNCTION(update_script_counter);
     install_int_ex(update_script_counter, 1);
 #endif
-    
+
     if(!Z_init_timers())
     {
         Z_error("Couldn't Allocate Timers");
         quit_game();
     }
-    
+
     Z_message("OK\n");
-    
+
     // check for the included quest files
     if(!standalone_mode)
     {
         Z_message("Checking Files... ");
-        
+
         char path[2048];
-        
+
         append_filename(path, qstdir, "1st.qst", 2048);
-        
+
         if(!exists("1st.qst") && !exists(path))
         {
             Z_error("\"1st.qst\" not found.");
             quit_game();
         }
-        
+
         append_filename(path, qstdir, "2nd.qst", 2048);
-        
+
         if(!exists("2nd.qst") && !exists(path))
         {
             Z_error("\"2nd.qst\" not found.");
             quit_game();
         }
-        
+
         append_filename(path, qstdir, "3rd.qst", 2048);
-        
+
         if(!exists("3rd.qst") && !exists(path))
         {
             Z_error("\"3rd.qst\" not found.");
             quit_game();
         }
-        
+
         append_filename(path, qstdir, "4th.qst", 2048);
-        
+
         if(!exists("4th.qst") && !exists(path))
         {
             Z_error("\"4th.qst\" not found.");
             quit_game();
         }
-        
+
         append_filename(path, qstdir, "5th.qst", 2048);
-        
+
         if(!exists("5th.qst") && !exists(path))
         {
             Z_error("\"5th.qst\" not found.");
             quit_game();
         }
-        
+
         Z_message("OK\n");
     }
-    
+
     // allocate bitmap buffers
     Z_message("Allocating bitmap buffers... ");
-    
+
     //Turns out color depth can be critical. -Gleeok
     if(used_switch(argc,argv,"-0bit")) set_color_depth(desktop_color_depth());
     else if(used_switch(argc,argv,"-15bit")) set_color_depth(15);
@@ -3316,39 +3316,39 @@ int main(int argc, char* argv[])
             set_color_depth(desktop_color_depth());
 	    //setGraphicsMode(fullscreen);
             break;
-            
+
         case 8:
             set_color_depth(8);
 	    //setGraphicsMode(fullscreen);
             break;
-            
+
         case 15:
             set_color_depth(15);
 	    //setGraphicsMode(fullscreen);
             break;
-            
+
         case 16:
             set_color_depth(16);
 	    //setGraphicsMode(fullscreen);
             break;
-            
+
         case 24:
             set_color_depth(24);
 	    //setGraphicsMode(fullscreen);
             break;
-            
+
         case 32:
             set_color_depth(32);
 		//setGraphicsMode(fullscreen);
             break;
-            
+
         default:
             zc_color_depth = 8; //invalid configuration, set to default in config file.
             set_color_depth(8);
             break;
         }
     }
-    
+
     //set_color_depth(32);
    // set_color_conversion(COLORCONV_24_TO_8);
     framebuf  = create_bitmap_ex(8,256,224);
@@ -3362,14 +3362,14 @@ int main(int argc, char* argv[])
     msgdisplaybuf = create_bitmap_ex(8,256, 176);
     msgbmpbuf = create_bitmap_ex(8, 512+16, 512+16);
     pricesdisplaybuf = create_bitmap_ex(8,256, 176);
-    
+
     if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
             || !screen2 || !msgdisplaybuf || !pricesdisplaybuf)
     {
         Z_error("Error");
         quit_game();
     }
-    
+
     clear_bitmap(scrollbuf);
     clear_bitmap(framebuf);
     clear_bitmap(msgdisplaybuf);
@@ -3377,36 +3377,36 @@ int main(int argc, char* argv[])
     clear_bitmap(pricesdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
     Z_message("OK\n");
-    
-    
+
+
     zcmusic_init();
-    
+
     //  int mode = VidMode;                                       // from config file
     int tempmode=GFX_AUTODETECT;
     int res_arg = used_switch(argc,argv,"-res");
-    
+
     if(used_switch(argc,argv,"-v0")) Throttlefps=false;
-    
+
     if(used_switch(argc,argv,"-v1")) Throttlefps=true;
-    
-    
+
+
     resolve_password(zeldapwd);
     debug_enabled = used_switch(argc,argv,"-d") && !strcmp(get_config_string("zeldadx","debug",""),zeldapwd);
     set_debug(debug_enabled);
-    
+
     skipicon = standalone_mode || used_switch(argc,argv,"-quickload");
-    
+
     int load_save=0;
-    
+
     load_save = used_switch(argc,argv,"-load");
     load_save = load_save?(argc>load_save+1)?atoi(argv[load_save+1]):0:0;
-    
+
     if(!(used_switch(argc,argv,"-load")))
         if(used_switch(argc,argv,"-loadlast"))
             load_save = loadlast;
-            
+
     slot_arg = used_switch(argc,argv,"-slot");
-    
+
     if(argc <= (slot_arg+1))
     {
         slot_arg = 0;
@@ -3415,115 +3415,115 @@ int main(int argc, char* argv[])
     {
         slot_arg2 = vbound(atoi(argv[slot_arg+1]), 1, MAXSAVES);
     }
-    
+
     if(standalone_mode)
     {
         load_save=1;
         slot_arg=1;
         slot_arg2=1;
     }
-    
+
     int fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
     skip_title = used_switch(argc, argv, "-notitle") > 0;
     int save_arg = used_switch(argc,argv,"-savefile");
-    
+
     if(save_arg && (argc>(save_arg+1)))
     {
         SAVE_FILE = (char *)zc_malloc(2048);
         sprintf(SAVE_FILE, "%s", argv[save_arg+1]);
-        
+
         int len=strlen(SAVE_FILE);
-        
+
         for(int i=0; i<len; i++)
         {
 #ifdef _ALLEGRO_WINDOWS
-        
+
             if(SAVE_FILE[i]=='/')
             {
                 SAVE_FILE[i]='\\';
             }
-            
+
 #else
-            
+
             if(SAVE_FILE[i]=='\\')
             {
                 SAVE_FILE[i]='/';
             }
-            
+
 #endif
         }
     }
-    
-    
-    
+
+
+
     // load the data files
     resolve_password(datapwd);
 //  setPackfilePassword(datapwd);
     packfile_password(datapwd);
-    
-    
+
+
     Z_message("Loading data files:\n");
     set_color_conversion(COLORCONV_NONE);
-    
+
     sprintf(zeldadat_sig,"Zelda.Dat %s Build %d",VerStr(ZELDADAT_VERSION), ZELDADAT_BUILD);
     sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
     sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
-    
+
     packfile_password(NULL); // Temporary measure. -L
     Z_message("Zelda.Dat...");
-    
+
     if((data=load_datafile("zelda.dat"))==NULL)
     {
         Z_error("failed");
         quit_game();
     }
-    
+
     if(strncmp((char*)data[0].dat,zeldadat_sig,24))
     {
         Z_error("\nIncompatible version of zelda.dat.\nPlease upgrade to %s Build %d",VerStr(ZELDADAT_VERSION), ZELDADAT_BUILD);
         quit_game();
     }
-    
+
     Z_message("OK\n");
     packfile_password(datapwd); // Temporary measure. -L
-    
+
     Z_message("Fonts.Dat...");
-    
+
     if((fontsdata=load_datafile("fonts.dat"))==NULL)
     {
         Z_error("failed");
         quit_game();
     }
-    
+
     if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
     {
         Z_error("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
         quit_game();
     }
-    
+
     Z_message("OK\n");
-    
+
 //  setPackfilePassword(NULL);
     packfile_password(NULL);
-    
+
     Z_message("SFX.Dat...");
-    
+
     if((sfxdata=load_datafile("sfx.dat"))==NULL)
     {
         Z_error("failed");
         quit_game();
     }
-    
+
     if(strncmp((char*)sfxdata[0].dat,sfxdat_sig,22) || sfxdata[Z35].type != DAT_ID('S', 'A', 'M', 'P'))
     {
         Z_error("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
         quit_game();
     }
-    
+
     Z_message("OK\n");
-    
+
     mididata = (DATAFILE*)data[ZC_MIDI].dat;
-    
+
     set_uformat(U_ASCII);
     deffont = font;
     nfont = (FONT*)fontsdata[FONT_GUI_PROP].dat;
@@ -3555,52 +3555,52 @@ int main(int argc, char* argv[])
     gboraclepfont = (FONT*)fontsdata[FONT_GB_ORACLE_P].dat;
     dsphantomfont = (FONT*)fontsdata[FONT_DS_PHANTOM].dat;
     dsphantompfont = (FONT*)fontsdata[FONT_DS_PHANTOM_P].dat;
-    
-     atari800font=(FONT*)fontsdata[FONT_ZZ_ATARU800].dat;  
-		 acornfont=(FONT*)fontsdata[FONT_ZZ_ACORN].dat;  
-		 adosfont=(FONT*)fontsdata[FONT_ZZ_ADOS].dat;  
-		 baseallegrofont=(FONT*)fontsdata[FONT_ZZ_ALLEGRO].dat;  
-		 apple2font=(FONT*)fontsdata[FONT_ZZ_APPLE2].dat;  
-		 apple280colfont=(FONT*)fontsdata[FONT_ZZ_APPLE280].dat;  
+
+     atari800font=(FONT*)fontsdata[FONT_ZZ_ATARU800].dat;
+		 acornfont=(FONT*)fontsdata[FONT_ZZ_ACORN].dat;
+		 adosfont=(FONT*)fontsdata[FONT_ZZ_ADOS].dat;
+		 baseallegrofont=(FONT*)fontsdata[FONT_ZZ_ALLEGRO].dat;
+		 apple2font=(FONT*)fontsdata[FONT_ZZ_APPLE2].dat;
+		 apple280colfont=(FONT*)fontsdata[FONT_ZZ_APPLE280].dat;
 		 apple2gsfont=(FONT*)fontsdata[FONT_ZZ_APPLE2GS].dat;
-		 aquariusfont=(FONT*)fontsdata[FONT_ZZ_AQUA].dat;  
-		 atari400font=(FONT*)fontsdata[FONT_ZZ_ATARI400].dat;  
-		 c64font=(FONT*)fontsdata[FONT_ZZ_C64].dat;  
-		 c64hiresfont=(FONT*)fontsdata[FONT_ZZ_C64HI].dat;  
-		 cgafont=(FONT*)fontsdata[FONT_ZZ_CGA].dat;  
-		 cocofont=(FONT*)fontsdata[FONT_ZZ_COCO].dat; 
+		 aquariusfont=(FONT*)fontsdata[FONT_ZZ_AQUA].dat;
+		 atari400font=(FONT*)fontsdata[FONT_ZZ_ATARI400].dat;
+		 c64font=(FONT*)fontsdata[FONT_ZZ_C64].dat;
+		 c64hiresfont=(FONT*)fontsdata[FONT_ZZ_C64HI].dat;
+		 cgafont=(FONT*)fontsdata[FONT_ZZ_CGA].dat;
+		 cocofont=(FONT*)fontsdata[FONT_ZZ_COCO].dat;
 		 coco2font=(FONT*)fontsdata[FONT_ZZ_COCO2].dat;
-		 coupefont=(FONT*)fontsdata[FONT_ZZ_COUPE].dat;  
-		 cpcfont=(FONT*)fontsdata[FONT_ZZ_CPC].dat;  
-		 fantasyfont=(FONT*)fontsdata[FONT_ZZ_FANTASY].dat;  
-		 fdskanafont=(FONT*)fontsdata[FONT_ZZ_FDS_KANA].dat;  
-		 fdslikefont=(FONT*)fontsdata[FONT_ZZ_FDSLIKE].dat;  
-		 fdsromanfont=(FONT*)fontsdata[FONT_ZZ_FDSROMAN].dat;  
+		 coupefont=(FONT*)fontsdata[FONT_ZZ_COUPE].dat;
+		 cpcfont=(FONT*)fontsdata[FONT_ZZ_CPC].dat;
+		 fantasyfont=(FONT*)fontsdata[FONT_ZZ_FANTASY].dat;
+		 fdskanafont=(FONT*)fontsdata[FONT_ZZ_FDS_KANA].dat;
+		 fdslikefont=(FONT*)fontsdata[FONT_ZZ_FDSLIKE].dat;
+		 fdsromanfont=(FONT*)fontsdata[FONT_ZZ_FDSROMAN].dat;
 		 finalffont=(FONT*)fontsdata[FONT_ZZ_FF].dat;
-		 futharkfont=(FONT*)fontsdata[FONT_ZZ_FUTHARK].dat;  
-		 gaiafont=(FONT*)fontsdata[FONT_ZZ_GAIA].dat;  
-		 hirafont=(FONT*)fontsdata[FONT_ZZ_HIRA].dat;  
-		 jpfont=(FONT*)fontsdata[FONT_ZZ_JP].dat;  
-		 kongfont=(FONT*)fontsdata[FONT_ZZ_KONG].dat;  
-		 manafont=(FONT*)fontsdata[FONT_ZZ_MANA].dat;  
-		 mlfont=(FONT*)fontsdata[FONT_ZZ_MARIOLAND].dat;  
+		 futharkfont=(FONT*)fontsdata[FONT_ZZ_FUTHARK].dat;
+		 gaiafont=(FONT*)fontsdata[FONT_ZZ_GAIA].dat;
+		 hirafont=(FONT*)fontsdata[FONT_ZZ_HIRA].dat;
+		 jpfont=(FONT*)fontsdata[FONT_ZZ_JP].dat;
+		 kongfont=(FONT*)fontsdata[FONT_ZZ_KONG].dat;
+		 manafont=(FONT*)fontsdata[FONT_ZZ_MANA].dat;
+		 mlfont=(FONT*)fontsdata[FONT_ZZ_MARIOLAND].dat;
 		 motfont=(FONT*)fontsdata[FONT_ZZ_MOT].dat;
-		 msxmode0font=(FONT*)fontsdata[FONT_ZZ_MSX0].dat;  
-		 msxmode1font=(FONT*)fontsdata[FONT_ZZ_MSX1].dat;  
-		 petfont=(FONT*)fontsdata[FONT_ZZ_PET].dat;  
-		 pstartfont=(FONT*)fontsdata[FONT_ZZ_PRESTRT].dat;  
-		 saturnfont=(FONT*)fontsdata[FONT_ZZ_SATURN].dat;  
-		 scififont=(FONT*)fontsdata[FONT_ZZ_SCIFI].dat;  
+		 msxmode0font=(FONT*)fontsdata[FONT_ZZ_MSX0].dat;
+		 msxmode1font=(FONT*)fontsdata[FONT_ZZ_MSX1].dat;
+		 petfont=(FONT*)fontsdata[FONT_ZZ_PET].dat;
+		 pstartfont=(FONT*)fontsdata[FONT_ZZ_PRESTRT].dat;
+		 saturnfont=(FONT*)fontsdata[FONT_ZZ_SATURN].dat;
+		 scififont=(FONT*)fontsdata[FONT_ZZ_SCIFI].dat;
 		 sherwoodfont=(FONT*)fontsdata[FONT_ZZ_SHERWOOD].dat;
-		 sinqlfont=(FONT*)fontsdata[FONT_ZZ_SINQL].dat;  
-		 spectrumfont=(FONT*)fontsdata[FONT_ZZ_SPEC].dat;  
-		 speclgfont=(FONT*)fontsdata[FONT_ZZ_SPECLG].dat;  
-		 ti99font=(FONT*)fontsdata[FONT_ZZ_TI99].dat;  
-		 trsfont=(FONT*)fontsdata[FONT_ZZ_TRS].dat;  
-		 z2font=(FONT*)fontsdata[FONT_ZZ_ZELDA2].dat;  
-		 zxfont=(FONT*)fontsdata[FONT_ZZ_ZX].dat; 
+		 sinqlfont=(FONT*)fontsdata[FONT_ZZ_SINQL].dat;
+		 spectrumfont=(FONT*)fontsdata[FONT_ZZ_SPEC].dat;
+		 speclgfont=(FONT*)fontsdata[FONT_ZZ_SPECLG].dat;
+		 ti99font=(FONT*)fontsdata[FONT_ZZ_TI99].dat;
+		 trsfont=(FONT*)fontsdata[FONT_ZZ_TRS].dat;
+		 z2font=(FONT*)fontsdata[FONT_ZZ_ZELDA2].dat;
+		 zxfont=(FONT*)fontsdata[FONT_ZZ_ZX].dat;
 		 lisafont=(FONT*)fontsdata[FONT_ZZZ_LISA].dat;
-    
+
     for(int i=0; i<4; i++)
     {
         for(int j=0; j<MAXSUBSCREENITEMS; j++)
@@ -3608,83 +3608,83 @@ int main(int argc, char* argv[])
             memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
         }
     }
-    
+
     for(int i=0; i<WAV_COUNT; i++)
     {
         customsfxdata[i].data=NULL;
         sfx_string[i] = new char[36];
     }
-    
+
     for(int i=0; i<WAV_COUNT>>3; i++)
     {
         customsfxflag[i] = 0;
     }
-    
+
     for(int i=0; i<WPNCNT; i++)
     {
         weapon_string[i] = new char[64];
     }
-    
+
     for(int i=0; i<ITEMCNT; i++)
     {
         item_string[i] = new char[64];
     }
-    
+
     for(int i=0; i<eMAXGUYS; i++)
     {
         guy_string[i] = new char[64];
     }
-    
+
     for(int i=0; i<512; i++)
     {
         ffscripts[i] = new ffscript[1];
         ffscripts[i][0].command = 0xFFFF;
     }
-    
+
     for(int i=0; i<256; i++)
     {
         itemscripts[i] = new ffscript[1];
         itemscripts[i][0].command = 0xFFFF;
     }
-    
+
     for(int i=0; i<256; i++)
     {
         guyscripts[i] = new ffscript[1];
         guyscripts[i][0].command = 0xFFFF;
     }
-    
+
     for(int i=0; i<256; i++)
     {
         wpnscripts[i] = new ffscript[1];
         wpnscripts[i][0].command = 0xFFFF;
     }
-    
+
     for(int i=0; i<256; i++)
     {
         screenscripts[i] = new ffscript[1];
         screenscripts[i][0].command = 0xFFFF;
     }
-    
+
     for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
         globalscripts[i] = new ffscript[1];
         globalscripts[i][0].command = 0xFFFF;
     }
-    
+
     for(int i=0; i<3; i++)
     {
         linkscripts[i] = new ffscript[1];
         linkscripts[i][0].command = 0xFFFF;
     }
-    
+
     //script drawing bitmap allocation
     zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
-    
-    
+
+
     // initialize sound driver
-    
+
     Z_message("Initializing sound driver... ");
-    
+
     if(used_switch(argc,argv,"-s") || used_switch(argc,argv,"-nosound"))
     {
         Z_message("skipped\n");
@@ -3701,12 +3701,12 @@ int main(int argc, char* argv[])
             Z_message("OK\n");
         }
     }
-    
+
     Z_init_sound();
-    
-    
+
+
     // CD player
-    
+
     /*
       if(used_switch(argc,argv,"-cd"))
       {
@@ -3717,49 +3717,49 @@ int main(int argc, char* argv[])
       useCD = true;
       }
       */
-    
+
     //use only page flipping
     if(used_switch(argc,argv,"-doublebuffer"))
     {
         disable_triplebuffer = 1;
         Z_message("used switch: -doublebuffer\n");
     }
-    
+
     //allow video bitmaps in windowed mode
     if(used_switch(argc,argv,"-triplebuffer"))
     {
         can_triplebuffer_in_windowed_mode = 1;
         Z_message("used switch: -triplebuffer\n");
     }
-    
+
     const int wait_ms_on_set_graphics = 20; //formerly 250. -Gleeok
-    
+
     // quick quit
     if(used_switch(argc,argv,"-q"))
     {
         printf("-q switch used, quitting program.\n");
         goto quick_quit;
     }
-    
+
     // set video mode
-    
+
     if(res_arg && (argc>(res_arg+2)))
     {
         resx = atoi(argv[res_arg+1]);
         resy = atoi(argv[res_arg+2]);
         bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
         bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
-        
+
 //    mode = GFX_AUTODETECT;
     }
-    
+
     if(resx>=640 && resy>=480)
     {
         is_large=true;
     }
-    
+
     //request_refresh_rate(60);
-    
+
     if(used_switch(argc,argv,"-fullscreen") ||
             (!used_switch(argc, argv, "-windowed") && get_config_int("zeldadx","fullscreen",1)==1))
     {
@@ -3771,30 +3771,30 @@ int main(int argc, char* argv[])
         al_trace("Used switch: -windowed\n");
         tempmode=GFX_AUTODETECT_WINDOWED;
     }
-    
+
     //set scale
     if(resx < 320) resx = 320;
-    
+
     if(resy < 240) resy = 240;
-    
+
     screen_scale = zc_max(zc_min(resx / 320, resy / 240), 1);
-    
+
     if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
     {
         //what we need here is not rightousness but madness!!!
-        
+
 #define TRY_SET_VID_MODE(scale) \
 	Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy); \
 	screen_scale=scale; \
 	resx=320*scale; \
 	resy=240*scale
-        
+
         TRY_SET_VID_MODE(2);
-        
+
         if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
         {
             TRY_SET_VID_MODE(1);
-            
+
             if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
             {
                 if(tempmode != GFX_AUTODETECT_WINDOWED)
@@ -3802,11 +3802,11 @@ int main(int argc, char* argv[])
                     tempmode=GFX_AUTODETECT_WINDOWED;
                     al_trace("-fullscreen not supported by your video driver! setting -windowed switch\n");
                     TRY_SET_VID_MODE(2);
-                    
+
                     if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
                     {
                         TRY_SET_VID_MODE(1);
-                        
+
                         if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
                         {
                             Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
@@ -3833,28 +3833,28 @@ int main(int argc, char* argv[])
     {
         Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
     }
-    
+
     sbig = (screen_scale > 1);
     set_display_switch_mode(is_windowed_mode()?SWITCH_BACKGROUND:SWITCH_BACKAMNESIA);
     zq_screen_w = resx;
     zq_screen_h = resy;
-    
+
     real_screen = screen;
-    
+
     if(Triplebuffer.GFX_can_triple_buffer())
     {
         Triplebuffer.Create();
     }
-    
+
     Z_message("Triplebuffer %savailable\n", triplebuffer_not_available?"not ":"");
-    
+
     set_close_button_callback((void (*)()) hit_close_button);
     set_window_title("Zelda Classic");
-    
+
     fix_dialogs();
     gui_mouse_focus = FALSE;
     position_mouse(resx-16,resy-16);
-    
+
     if(!onlyInstance)
     {
         clear_to_color(screen,BLACK);
@@ -3868,29 +3868,29 @@ int main(int argc, char* argv[])
         {
             if(forceExit)
                 exit(0);
-                
+
             allegro_exit();
             return 0;
         }
     }
-    
+
 // load saved games
     Z_message("Loading saved games... ");
-    
+
     if(load_savedgames() != 0)
     {
         Z_error("Insufficient memory");
         quit_game();
     }
-    
+
     Z_message("OK\n");
-    
+
 #ifdef _WIN32
     // Nothing for them to do on other platforms
     set_display_switch_callback(SWITCH_IN,switch_in_callback);
     set_display_switch_callback(SWITCH_OUT,switch_out_callback);
 #endif
-    
+
     // AG logo
     if(!fast_start)
     {
@@ -3898,34 +3898,34 @@ int main(int argc, char* argv[])
         aglogo(tmp_scr, scrollbuf, resx, resy);
         master_volume(digi_volume,midi_volume);
     }
-    
+
     // play the game
     fix_menu();
     reset_items(true, &QHeader);
-    
+
     clear_to_color(screen,BLACK);
     Quit = (fast_start||skip_title) ? qQUIT : qRESET;
-    
+
     rgb_map = &rgb_table;
-    
+
     // set up an initial game save slot (for the list_saves function)
     game = new gamedata;
     game->Clear();
-    
+
 #ifdef _WIN32
-    
+
     if(use_win32_proc != FALSE)
     {
         al_trace("Config file warning: \"zc_win_proc_fix\" enabled switch found. This can cause crashes on some computers.\n");
-        
+
         if(win32data.zcSetCustomCallbackProc(win_get_window()) != 0)
         {
             use_win32_proc = FALSE;
         }
     }
-    
+
 #endif
-    
+
     while(Quit!=qEXIT)
     {
         // this is here to continually fix the keyboard repeat
@@ -3933,32 +3933,32 @@ int main(int argc, char* argv[])
         toogam = false;
         ignoreSideview=false;
         titlescreen(load_save);
-        
+
         load_save=0;
         setup_combo_animations();
         setup_combo_animations2();
-        
+
         while(!Quit)
         {
 #ifdef _WIN32
-        
+
             if(use_win32_proc != FALSE)
             {
                 win32data.Update(0);
             }
-            
+
 #endif
             game_loop();
             advanceframe(true);
-		
-	     //clear Link's last hits 
-	     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible 
-									//to read before or after waitdraw in scripts. 
+
+	     //clear Link's last hits
+	     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible
+									//to read before or after waitdraw in scripts.
         }
-        
+
         tmpscr->flags3=0;
         Playing=Paused=false;
-        
+
         switch(Quit)
         {
         case qQUIT:
@@ -3972,19 +3972,19 @@ int main(int argc, char* argv[])
             show_subscreen_life=true;
             show_ff_scripts=false;
             introclk=intropos=0;
-            
+
             initZScriptGlobalRAM();
-		
+
 	    //Run Global script OnExit
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
-            
+
             if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
-            
-		
-	    
+
+
+
             skipcont = 0;
-		
-		
+
+
 		//restore user volume settings
 		if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 		{
@@ -4008,7 +4008,7 @@ int main(int argc, char* argv[])
 		}
         }
         break;
-        
+
         case qWON:
         {
             Link.setDontDraw(false);
@@ -4016,28 +4016,28 @@ int main(int argc, char* argv[])
             show_subscreen_numbers=true;
             show_subscreen_items=true;
             show_subscreen_life=true;
-            
+
             initZScriptGlobalRAM();
 	    //Run global script OnExit
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
-		
-		
+
+
             ending();
         }
         break;
-        
+
         }
-        
+
         kill_sfx();
         music_stop();
         clear_to_color(screen,BLACK);
     }
-    
+
     // clean up
-    
+
     music_stop();
     kill_sfx();
-    
+
 quick_quit:
     //restore user volume settings
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
@@ -4072,12 +4072,12 @@ quick_quit:
     Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
     Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
     Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
-    
+
     __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
-    
+
     if(forceExit) //fix for the allegro at_exit() hang.
         exit(0);
-        
+
     allegro_exit();
     return 0;
 }
@@ -4092,7 +4092,7 @@ void remove_installed_timers()
 #ifdef _SCRIPT_COUNTER
     remove_int(update_script_counter);
 #endif
-    
+
 }
 
 
@@ -4102,30 +4102,30 @@ void delete_everything_else() //blarg.
     reset_subscr_items();
     delete_selectors();
     Sitems.clear();
-    
+
 }
 
 void quit_game()
 {
     script_drawing_commands.Dispose(); //for allegro bitmaps
-    
+
     remove_installed_timers();
     delete_everything_else();
-    
+
     al_trace("Freeing Data: \n");
-    
+
     if(game) delete game;
-    
+
     if(data) unload_datafile(data);
-    
+
     if(fontsdata) unload_datafile(fontsdata);
-    
+
     if(sfxdata) unload_datafile(sfxdata);
-    
+
     //if(mididata) unload_datafile(mididata);
     //  if(mappic)
     //    destroy_bitmap(mappic);
-    
+
     al_trace("Bitmaps... \n");
     destroy_bitmap(framebuf);
     destroy_bitmap(scrollbuf);
@@ -4138,9 +4138,9 @@ void quit_game()
     destroy_bitmap(msgdisplaybuf);
     set_clip_state(pricesdisplaybuf, 1);
     destroy_bitmap(pricesdisplaybuf);
-    
+
     al_trace("Subscreens... \n");
-    
+
     for(int i=0; i<4; i++)
     {
         for(int j=0; j<MAXSUBSCREENITEMS; j++)
@@ -4155,77 +4155,77 @@ void quit_game()
             }
         }
     }
-    
+
     al_trace("SFX... \n");
     zcmusic_exit();
-    
+
     for(int i=0; i<WAV_COUNT; i++)
     {
         delete [] sfx_string[i];
-        
+
         if(customsfxdata[i].data!=NULL)
         {
 //      delete [] customsfxdata[i].data;
             zc_free(customsfxdata[i].data);
         }
     }
-    
+
     al_trace("Misc... \n");
-    
+
     for(int i=0; i<WPNCNT; i++)
     {
         delete [] weapon_string[i];
     }
-    
+
     for(int i=0; i<ITEMCNT; i++)
     {
         delete [] item_string[i];
     }
-    
+
     for(int i=0; i<eMAXGUYS; i++)
     {
         delete [] guy_string[i];
     }
-    
+
     al_trace("Script buffers... \n");
-    
+
     for(int i=0; i<512; i++)
     {
         if(ffscripts[i]!=NULL) delete [] ffscripts[i];
     }
-    
+
     for(int i=0; i<256; i++)
     {
         if(itemscripts[i]!=NULL) delete [] itemscripts[i];
     }
-    
+
     for(int i=0; i<256; i++)
     {
         if(guyscripts[i]!=NULL) delete [] guyscripts[i];
     }
-    
+
     for(int i=0; i<256; i++)
     {
         if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
     }
-    
+
     for(int i=0; i<256; i++)
     {
         if(screenscripts[i]!=NULL) delete [] screenscripts[i];
     }
-    
+
     for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
         if(globalscripts[i]!=NULL) delete [] globalscripts[i];
     }
-    
+
     for(int i=0; i<3; i++)
     {
         if(linkscripts[i]!=NULL) delete [] linkscripts[i];
     }
-    
+
     delete zscriptDrawingRenderTarget;
-    
+
     //for(int i=0; i<map_count*MAPSCRS; i++)
     //{
     //if(TheMaps[i].data != NULL) delete [] TheMaps[i].data;
@@ -4233,14 +4233,14 @@ void quit_game()
     //if(TheMaps[i].cset != NULL) delete [] TheMaps[i].cset;
     //}
     al_trace("Screen Data... \n");
-    
+
     al_trace("Deleting quest buffers... \n");
     del_qst_buffers();
-    
+
     if(qstdir) zc_free(qstdir);
-    
+
     if(qstpath) zc_free(qstpath);
-    
+
     //if(TheMaps != NULL) zc_free(TheMaps);
     //if(ZCMaps != NULL) zc_free(ZCMaps);
     //  dumb_exit();
@@ -4284,7 +4284,7 @@ void* __zc_debug_malloc(size_t numBytes, const char* file, int line)
 {
 #if ZC_WANT_DETAILED_MALLOC_LOGGING
     static bool zcDbgMallocInit = false;
-    
+
     if(!zcDbgMallocInit)
     {
         zcDbgMallocInit = true;
@@ -4292,13 +4292,13 @@ void* __zc_debug_malloc(size_t numBytes, const char* file, int line)
         //yeah. completely ridiculous... there's no reason zc should ever need this many..
         //BUT it does... go figure
     }
-    
+
     totalBytesAllocated += numBytes;
-    
+
     //char buf[1024];
     //sprintf(buf, "%i : %s, line %i, %u bytes allocated.\n", 0, file, line, numBytes);
     //al_trace("%s", buf);
-    
+
     al_trace("info: %i : %s, line %i, %u bytes, pool size %u, total %u,",
              0,
              file,
@@ -4308,23 +4308,23 @@ void* __zc_debug_malloc(size_t numBytes, const char* file, int line)
              totalBytesAllocated / 1024
             );
 #endif
-            
+
     ZC_MALLOC_ALWAYS_ASSERT(numBytes != 0);
     void* p = malloc(numBytes);
-    
+
 #if ZC_WANT_DETAILED_MALLOC_LOGGING
     al_trace("at address %x\n", (int)p);
-    
+
     if(!p)
         al_trace("____________ ERROR: __zc_debug_malloc: returned null. out of memory.\n");
-        
+
     debug_malloc_pool_type::insert_iterator_type it = debug_zc_malloc_allocated_pool.insert(p);
-    
+
     if(!it.second)
         al_trace("____________ ERROR: malloc returned identical address to one in use... No way Jose!\n");
-        
+
 #endif
-        
+
     return p;
 }
 
@@ -4332,17 +4332,17 @@ void* __zc_debug_malloc(size_t numBytes, const char* file, int line)
 void __zc_debug_free(void* p, const char* file, int line)
 {
     ZC_MALLOC_ALWAYS_ASSERT(p != 0);
-    
+
 #if ZC_WANT_DETAILED_MALLOC_LOGGING
     al_trace("alloc info: %i : %s line %i, freeing memory at address %x\n", 0, file, line, (int)p);
-    
+
     size_t numErased = debug_zc_malloc_allocated_pool.erase(p);
-    
+
     if(numErased == 0)
         al_trace("____________ ERROR: __zc_debug_free: no known ptr to memory exists. ..attempting to free it anyways.\n");
-        
+
 #endif
-        
+
     free(p);
 }
 
@@ -4351,7 +4351,7 @@ void __zc_debug_malloc_free_print_memory_leaks()
 {
 #if ZC_WANT_DETAILED_MALLOC_LOGGING
     al_trace("LOGGING INFO FROM debug_zc_malloc_allocated_pool:\n");
-    
+
     for(debug_malloc_pool_type::iterator it = debug_zc_malloc_allocated_pool.begin();
             it != debug_zc_malloc_allocated_pool.end();
             ++it
@@ -4359,7 +4359,7 @@ void __zc_debug_malloc_free_print_memory_leaks()
     {
         al_trace("block at address %x.\n", (int)*it);
     }
-    
+
 #endif
 }
 
@@ -4371,7 +4371,7 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int li
         //for best results set a breakpoint in here.
         char buf[1024];
         sprintf("ASSERTION FAILED! : %s, %s line %i\n", expression, file, line);
-        
+
         al_trace("%s", buf);
         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
         allegro_message("%s", buf);
@@ -4381,4 +4381,3 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int li
 
 
 /*** end of zelda.cc ***/
-

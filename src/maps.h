@@ -97,6 +97,7 @@ bool _walkflag(int x,int y,int cnt);
 bool water_walkflag(int x,int y,int cnt);
 bool hit_walkflag(int x,int y,int cnt);
 void map_bkgsfx(bool on);
+bool isSideview();
 
 //extern FONT *lfont;
 /****  View Map  ****/
@@ -109,4 +110,3 @@ int onViewMap();
 #endif
 
 /*** end of maps.cc ***/
-

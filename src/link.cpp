@@ -63,10 +63,11 @@ void playLevelMusic();
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
 
-static inline bool isSideview()
+//moving this to maps and making it a function... -Tamamo
+/*static inline bool isSideview()
 {
     return (((tmpscr->flags7&fSIDEVIEW)!=0 || DMaps[currdmap].sideview != 0) && !ignoreSideview); //DMap Enable Sideview on All Screens -Z //2.54 Alpha 27
-}
+}*/
 
 int LinkClass::DrunkClock()
 {
