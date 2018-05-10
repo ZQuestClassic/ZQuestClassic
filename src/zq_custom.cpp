@@ -3870,17 +3870,17 @@ static DIALOG enedata_dlg[] =
     {  jwin_check_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Is Flickering",                                       NULL,   NULL                 },
     {  jwin_check_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Is Translucent",                                      NULL,   NULL                 },
     //122
-    {  jwin_check_proc,          6,     50,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"8-Way Trap\" Flag",                       NULL,   NULL                 },
-    {  jwin_check_proc,          6,     60,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"Diagonal Trap\" Flag",                    NULL,   NULL                 },
-    {  jwin_check_proc,          6,     70,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"/ Trap\" Flag",                           NULL,   NULL                 },
-    {  jwin_check_proc,          6,     80,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"\\ Trap\" Flag",                          NULL,   NULL                 },
-    {  jwin_check_proc,          6,     90,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"RULD Trap\" Flag",                        NULL,   NULL                 },
-    {  jwin_check_proc,          6,    100,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"LDRU Trap\" Flag",                        NULL,   NULL                 },
-    {  jwin_check_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"CW Trap\" Flag",                          NULL,   NULL                 },
-    {  jwin_check_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"CCW Trap\" Flag",                         NULL,   NULL                 },
+    {  jwin_check_proc,          6,     50,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"8-Way Trap\" Flag",                       NULL,   NULL                 },
+    {  jwin_check_proc,          6,     60,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"Diagonal Trap\" Flag",                    NULL,   NULL                 },
+    {  jwin_check_proc,          6,     70,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"/ Trap\" Flag",                           NULL,   NULL                 },
+    {  jwin_check_proc,          6,     80,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"\\ Trap\" Flag",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,     90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"RULD Trap\" Flag",                        NULL,   NULL                 },
+    {  jwin_check_proc,          6,    100,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"LDRU Trap\" Flag",                        NULL,   NULL                 },
+    {  jwin_check_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"CW Trap\" Flag",                          NULL,   NULL                 },
+    {  jwin_check_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"CCW Trap\" Flag",                         NULL,   NULL                 },
     //130
-    {  jwin_check_proc,          6,    130,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"CWC Trap\" Flag",                         NULL,   NULL                 },
-    {  jwin_check_proc,          6,    140,    280,      9,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawned By \"CCWC Trap\" Flag",                        NULL,   NULL                 },
+    {  jwin_check_proc,          6,    130,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"CWC Trap\" Flag",                         NULL,   NULL                 },
+    {  jwin_check_proc,          6,    140,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"CCWC Trap\" Flag",                        NULL,   NULL                 },
     {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
     {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
     {  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
@@ -3950,7 +3950,7 @@ static DIALOG enedata_dlg[] =
     // 191
     {  jwin_text_proc,           6,    198,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Whistle Weapon Defense:",                              NULL,   NULL                 },
     {  jwin_droplist_proc,      126, 198-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
- //193 - sccript 1
+ //193 - script 1
      	{  jwin_text_proc,           6,    51,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 1 Weapon Defense:",                              NULL,   NULL                 },
 	{  jwin_text_proc,           6,    67,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 2 Weapon Defense:",                              NULL,   NULL                 },
 	{  jwin_text_proc,           6,    83,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script 3 Weapon Defense:",                              NULL,   NULL                 },
