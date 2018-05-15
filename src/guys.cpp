@@ -100,48 +100,48 @@ void identifyCFEnemies()
     for(int i=0; i<eMAXGUYS; i++)
     {
         //traditional traps
-        if((guysbuf[i].flags2&cmbflag_trph) && trapLOSHorizontalID==-1)
+        if((guysbuf[i].eflags[ef_trph]) && trapLOSHorizontalID==-1)
             trapLOSHorizontalID=i;
-        if((guysbuf[i].flags2&cmbflag_trpv) && trapLOSVerticalID==-1)
+        if((guysbuf[i].eflags[ef_trpv]) && trapLOSVerticalID==-1)
             trapLOSVerticalID=i;
-        if((guysbuf[i].flags2&cmbflag_trp4) && trapLOS4WayID==-1)
+        if((guysbuf[i].eflags[ef_trp4]) && trapLOS4WayID==-1)
             trapLOS4WayID=i;
-        if((guysbuf[i].flags2&cmbflag_trplr) && trapConstantHorizontalID==-1)
+        if((guysbuf[i].eflags[ef_trplr]) && trapConstantHorizontalID==-1)
             trapConstantHorizontalID=i;
-        if((guysbuf[i].flags2&cmbflag_trpud) && trapConstantVerticalID==-1)
+        if((guysbuf[i].eflags[ef_trpud]) && trapConstantVerticalID==-1)
             trapConstantVerticalID=i;
         //enemy screen flags
-        if((guysbuf[i].flags2&eneflag_trap) && cornerTrapID==-1)
+        if((guysbuf[i].eflags[ef_trap]) && cornerTrapID==-1)
             cornerTrapID=i;
-        if((guysbuf[i].flags2&eneflag_trp2) && centerTrapID==-1)
+        if((guysbuf[i].eflags[ef_trp2]) && centerTrapID==-1)
             centerTrapID=i;
-        if((guysbuf[i].flags2&eneflag_rock) && rockID==-1)
+        if((guysbuf[i].eflags[ef_rock]) && rockID==-1)
             rockID=i;
-        if((guysbuf[i].flags2&eneflag_zora) && zoraID==-1)
+        if((guysbuf[i].eflags[ef_zora]) && zoraID==-1)
             zoraID=i;
-        if((guysbuf[i].flags2 & eneflag_fire) && statueID==-1)
+        if((guysbuf[i].eflags[ef_fire]) && statueID==-1)
             statueID=i;
         //diagonal traps
-        if((guysbuf[i].flags2 & cmbflag_trp8) && trapLOS8WayID==-1)
+        if((guysbuf[i].eflags[ef_trp8]) && trapLOS8WayID==-1)
             trapLOS8WayID=i;
-        if((guysbuf[i].flags2 & cmbflag_trpd) && trapLOSDiagonalID==-1)
+        if((guysbuf[i].eflags[ef_trpd]) && trapLOSDiagonalID==-1)
             trapLOSDiagonalID=i;
-        if((guysbuf[i].flags2 & cmbflag_trps) && trapLOSSlashID==-1)
+        if((guysbuf[i].eflags[ef_trps]) && trapLOSSlashID==-1)
             trapLOSSlashID=i;
-        if((guysbuf[i].flags2 & cmbflag_trpb) && trapLOSBackslashID==-1)
+        if((guysbuf[i].eflags[ef_trpb]) && trapLOSBackslashID==-1)
             trapLOSBackslashID=i;
-        if((guysbuf[i].flags2 & cmbflag_trpruld) && trapConstantSlashID==-1)
+        if((guysbuf[i].eflags[ef_trpruld]) && trapConstantSlashID==-1)
             trapConstantSlashID=i;
-        if((guysbuf[i].flags2 & cmbflag_trplurd) && trapConstantBackslashID==-1)
+        if((guysbuf[i].eflags[ef_trplurd]) && trapConstantBackslashID==-1)
             trapConstantBackslashID=i;
         //circular traps
-        if((guysbuf[i].flags2 & cmbflag_trpcw) && trapLOSCWID==-1)
+        if((guysbuf[i].eflags[ef_trpcw]) && trapLOSCWID==-1)
             trapLOSCWID=i;
-        if((guysbuf[i].flags2 & cmbflag_trpccw) && trapLOSCCWID==-1)
+        if((guysbuf[i].eflags[ef_trpccw]) && trapLOSCCWID==-1)
             trapLOSCCWID=i;
-        if((guysbuf[i].flags2 & cmbflag_trpcwc) && trapConstantCWID==-1)
+        if((guysbuf[i].eflags[ef_trpcwc]) && trapConstantCWID==-1)
             trapConstantCWID=i;
-        if((guysbuf[i].flags2 & cmbflag_trpccwc) && trapConstantCCWID==-1)
+        if((guysbuf[i].eflags[ef_trpccwc]) && trapConstantCCWID==-1)
             trapConstantCCWID=i;
     }
 }
@@ -337,6 +337,8 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
 
     flags=d->flags;
     flags2=d->flags2;
+    for(int i=0; i < ef_MAX;i++)
+        eflags[i]=d->eflags[i];
     s_tile=d->s_tile; //secondary (additional) tile(s)
     family=d->family;
     dcset=d->cset;
@@ -439,7 +441,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
 
     // If they forgot the invisibility flag, here's another failsafe:
     if(o_tile==0 && family!=eeSPINTILE)
-        flags |= guy_invisible;
+        eflags[ef_invisible]=1;
 
 //  step = d->step/100.0;
     // To preserve the odd step values for Keese & Gleeok heads. -L
@@ -457,7 +459,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
 
     leader = itemguy = dying = scored = false;
     canfreeze = count_enemy = true;
-    mainguy = !(flags & guy_doesntcount);
+    mainguy = !(eflags[ef_doesntcount]);
     dir = rand()&3;
 
     //2.6 Enemy Editor Hit and TIle Sizes
@@ -475,7 +477,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 )
     {
 	    yofs = (int)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-	    yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+	    yofs += playing_field_offset; //this offset fixes yofs not plaing properly. -Z //actually you should be using that... ;) -Tamamo
     }
 
     if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int)d->zofs;
@@ -503,7 +505,7 @@ bool enemy::Dead(int index)
 
         if(clk2==0)
         {
-            if(flags&guy_neverret)
+            if(eflags[ef_neverret])
                 never_return(index);
 
             if(leader)
@@ -925,12 +927,16 @@ bool enemy::hitshield(int wpnx, int wpny, int xdir)
     bool ret = false;
 
     // TODO: There must be some bitwise operations that can simplify this...
-    if(wpny > y) ret = ((flags&inv_front && xdir==down) || (flags&inv_back && xdir==up) || (flags&inv_left && xdir==left) || (flags&inv_right && xdir==right));
-    else if(wpny < y) ret = ((flags&inv_front && xdir==up) || (flags&inv_back && xdir==down) || (flags&inv_left && xdir==right) || (flags&inv_right && xdir==left));
+    // This is now midpoint to midpoint to avoid issues with large weapons and/or enemies.
+    int midx=x+((txsz*16)/2);
+    int midy=y+((tysz*16)/2);
 
-    if(wpnx < x) ret = ret || ((flags&inv_front && xdir==left) || (flags&inv_back && xdir==right) || (flags&inv_left && xdir==up) || (flags&inv_right && xdir==down));
-    else if(wpnx > x) ret = ret || ((flags&inv_front && xdir==right) || (flags&inv_back && xdir==left) || (flags&inv_left && xdir==down) || (flags&inv_right && xdir==up));
+    if(wpny > midy) ret = ((eflags[ef_invfront] && xdir==down) || (eflags[ef_invback] && xdir==up) || (eflags[ef_invleft] && xdir==left) || (eflags[ef_invright] && xdir==right));
+    else if(wpny < midy) ret = ((eflags[ef_invfront] && xdir==up) || (eflags[ef_invback] && xdir==down) || (eflags[ef_invleft] && xdir==right) || (eflags[ef_invright] && xdir==left));
+    if(wpnx < midx) ret = ret || ((eflags[ef_invfront] && xdir==left) || (eflags[ef_invback] && xdir==right) || (eflags[ef_invleft] && xdir==up) || (eflags[ef_invright] && xdir==down));
+    else if(wpnx > midx) ret = ret || ((eflags[ef_invfront] && xdir==right) || (eflags[ef_invback] && xdir==left) || (eflags[ef_invleft] && xdir==down) || (eflags[ef_invright] && xdir==up));
 
+    //weapons alligned perfectly ignore shields?!
     return ret;
 }
 
@@ -1329,8 +1335,8 @@ int enemy::takehit(weapon *w)
     shieldCanBlock=false;
 
     //if (family==eeFLOAT && flags&(inv_front|inv_back_inv_left|inv_right)) xdir=down;
-    if((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
-            || ((flags&inv_front && wpnDir==(xdir^down)) || (flags&inv_back && wpnDir==(xdir^up)) || (flags&inv_left && wpnDir==(xdir^left)) || (flags&inv_right && wpnDir==(xdir^right)))
+    if((wpnId==wHookshot && hitshield(wpnx+((w->txsz*16)/2), wpny+((w->tysz*16)/2), xdir))
+            || ((eflags[ef_invfront] && wpnDir==(xdir^down)) || (eflags[ef_invback] && wpnDir==(xdir^up)) || (eflags[ef_invleft] && wpnDir==(xdir^left)) || (eflags[ef_invright] && wpnDir==(xdir^right)))
       )
         // The hammer should already be dealt with by subclasses (Walker etc.)
     {
@@ -1498,7 +1504,7 @@ int enemy::takehit(weapon *w)
         if(def >= 0) return def;
 
         // Not hurt by 0-damage weapons
-        if(!(flags & guy_bhit))
+        if(!(eflags[ef_bhit]))
         {
             stunclk=160;
 
@@ -1525,7 +1531,7 @@ int enemy::takehit(weapon *w)
 
         if(def >= 0) return def;
 
-        if(!(flags & guy_bhit))
+        if(!(eflags[guy_bhit]))
         {
             stunclk=160;
 
@@ -1555,8 +1561,11 @@ int enemy::takehit(weapon *w)
                                && (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot)) <= 0));
 
         // Peahats, Darknuts, Aquamentuses, Pols Voices, Wizzrobes, Manhandlas
+        // I added the case for the hookshothandle in the case of fire and other since they too have shields.
         if(!(family==eePEAHAT || family==eeAQUA || family==eeMANHAN || (family==eeWIZZ && !ignorehookshot)
-                || (family==eeWALK && dmisc9==e9tPOLSVOICE) || (family==eeWALK && flags&(inv_back|inv_front|inv_left|inv_right))))
+                || (family==eeWALK && dmisc9==e9tPOLSVOICE) ||
+                (((family==eeWALK||family==eeFIRE||family==eeOTHER) &&
+                eflags[ef_invback]||eflags[ef_invfront]||eflags[ef_invleft]||eflags[ef_invright]))))
             return 0;
 
         power = DAMAGE_MULTIPLIER;
@@ -1580,7 +1589,7 @@ fsparkle:
 
     if(!power)
     {
-        if(flags & guy_bhit)
+        if(eflags[ef_bhit])
             hp-=1;
         else
         {
@@ -1646,13 +1655,13 @@ hitclock:
 
 bool enemy::dont_draw()
 {
-    if(fading==fade_invisible || (((flags2&guy_blinking)||(fading==fade_flicker)) && (clk&1)))
+    if(fading==fade_invisible || (((eflags[ef_blinking])||(fading==fade_flicker)) && (clk&1)))
         return true;
 
-    if(flags&guy_invisible)
+    if(eflags[ef_invisible])
         return true;
 
-    if(flags&lens_only && !lensclk)
+    if(eflags[ef_lensonly] && !lensclk)
         return true;
 
     return false;
@@ -2964,7 +2973,7 @@ void enemy::n_frame_n_dir(int frames, int ndir, int f4)
         break;
 
     case eeTRAP:
-        if(dummy_int[1] && guysbuf[id].flags2 & eneflag_trp2)  // Just to make sure
+        if(dummy_int[1] && eflags[ef_trp2])  // Just to make sure
         {
             tile=s_tile;
             t=s_tile;
@@ -4199,12 +4208,12 @@ waves2:
 
     // flashing
 //  if(d->flags2 & guy_flashing)
-    if(flags2 & guy_flashing)
+    if(eflags[ef_flashing])
     {
         cs = (frame&3) + 6;
     }
 
-    if(flags2&guy_transparent)
+    if(eflags[ef_transparent])
     {
         drawstyle=1;
     }
@@ -4324,10 +4333,10 @@ void guy::draw(BITMAP *dest)
 eFire::eFire(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
     clk4=0;
-    shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
+    shield= (eflags[ef_invback]||eflags[ef_invfront]||eflags[ef_invleft]||eflags[ef_invright]);
 
     // Spawn type
-    if(flags & guy_fadeflicker)
+    if(eflags[ef_fadeflicker])
     {
         clk=0;
         superman = 1;
@@ -4338,7 +4347,7 @@ eFire::eFire(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
         if(!canmove(down,(fix)8,spw_none))
             clk3=int(13.0/step);
     }
-    else if(flags & guy_fadeinstant)
+    else if(eflags[ef_fadeinstant])
     {
         clk=0;
     }
@@ -4354,7 +4363,7 @@ bool eFire::animate(int index)
             superman=0;
             fading=0;
 
-            if(flags2&cmbflag_armos && z==0)
+            if(eflags[ef_armos] && z==0)
                 removearmos(x,y);
 
             clk2=0;
@@ -4367,7 +4376,7 @@ bool eFire::animate(int index)
 
             return Dead(index);
         }
-        else if(flags2&cmbflag_armos && z==0 && clk==0)
+        else if(eflags[ef_armos] && z==0 && clk==0)
             removearmos(x,y);
     }
 
@@ -4385,12 +4394,12 @@ int eFire::takehit(weapon *w)
     int wpnId = w->id;
     int wpnDir = w->dir;
 
-    if(wpnId==wHammer && shield && (flags & guy_bkshield)
-            && ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-                || (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
+    if(wpnId==wHammer && shield && (eflags[ef_bkshield])
+            && ((eflags[ef_invfront] && wpnDir==(dir^down)) || (eflags[ef_invback] && wpnDir==(dir^up))
+                || (eflags[ef_invleft] && wpnDir==(dir^left)) || (eflags[ef_invright] && wpnDir==(dir^right))))
     {
         shield = false;
-        flags &= ~(inv_left|inv_right|inv_back|inv_front);
+        for(int i=ef_invfront; i<=ef_invback;i++) eflags[i]=0;
 
         if(get_bit(quest_rules,qr_BRKNSHLDTILES))
             o_tile=s_tile;
@@ -4405,7 +4414,7 @@ void eFire::break_shield()
     if(!shield)
         return;
 
-    flags&=~(inv_front | inv_back | inv_left | inv_right);
+    for(int i=ef_invfront; i<=ef_invback;i++) eflags[i]=0;
     shield=false;
 
     if(get_bit(quest_rules,qr_BRKNSHLDTILES))
@@ -4415,10 +4424,10 @@ void eFire::break_shield()
 eOther::eOther(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
     clk4=0;
-    shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
+    shield=(eflags[ef_invback]||eflags[ef_invfront]||eflags[ef_invleft]||eflags[ef_invright]);
 
     // Spawn type
-    if(flags & guy_fadeflicker)
+    if(eflags[ef_fadeflicker])
     {
         clk=0;
         superman = 1;
@@ -4429,7 +4438,7 @@ eOther::eOther(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
         if(!canmove(down,(fix)8,spw_none))
             clk3=int(13.0/step);
     }
-    else if(flags & guy_fadeinstant)
+    else if(eflags[ef_fadeinstant])
     {
         clk=0;
     }
@@ -4445,7 +4454,7 @@ bool eOther::animate(int index)
             superman=0;
             fading=0;
 
-            if(flags2&cmbflag_armos && z==0)
+            if(eflags[ef_armos] && z==0)
                 removearmos(x,y);
 
             clk2=0;
@@ -4458,7 +4467,7 @@ bool eOther::animate(int index)
 
             return Dead(index);
         }
-        else if(flags2&cmbflag_armos && z==0 && clk==0)
+        else if(eflags[ef_armos] && z==0 && clk==0)
             removearmos(x,y);
     }
 
@@ -4476,12 +4485,12 @@ int eOther::takehit(weapon *w)
     int wpnId = w->id;
     int wpnDir = w->dir;
 
-    if(wpnId==wHammer && shield && (flags & guy_bkshield)
-            && ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-                || (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
+    if(wpnId==wHammer && shield && (eflags[ef_bkshield])
+            && ((eflags[ef_invfront] && wpnDir==(dir^down)) || (eflags[ef_invback] && wpnDir==(dir^up))
+                || (eflags[ef_invleft] && wpnDir==(dir^left)) || (eflags[ef_invright] && wpnDir==(dir^right))))
     {
         shield = false;
-        flags &= ~(inv_left|inv_right|inv_back|inv_front);
+        for(int i=ef_invfront; i<=ef_invback;i++) eflags[i]=0;
 
         if(get_bit(quest_rules,qr_BRKNSHLDTILES))
             o_tile=s_tile;
@@ -4496,7 +4505,7 @@ void eOther::break_shield()
     if(!shield)
         return;
 
-    flags&=~(inv_front | inv_back | inv_left | inv_right);
+    for(int i=ef_invfront; i<=ef_invback;i++) eflags[i]=0;
     shield=false;
 
     if(get_bit(quest_rules,qr_BRKNSHLDTILES))
@@ -7315,7 +7324,7 @@ eStalfos::eStalfos(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     multishot= timer = fired = dashing = 0;
     haslink = false;
     dummy_bool[0]=false;
-    shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
+    shield=(eflags[ef_invback]||eflags[ef_invfront]||eflags[ef_invleft]||eflags[ef_invright]);
 
     if(dmisc9==e9tARMOS && rand()&1)
     {
@@ -7324,7 +7333,7 @@ eStalfos::eStalfos(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
         if(anim==aARMOS4) o_tile+=20;
     }
 
-    if(flags & guy_fadeflicker)
+    if(eflags[ef_fadeflicker])
     {
         clk=0;
         superman = 1;
@@ -7335,7 +7344,7 @@ eStalfos::eStalfos(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
         if(!canmove(down,(fix)8,spw_none))
             clk3=int(13.0/step);
     }
-    else if(flags & guy_fadeinstant)
+    else if(eflags[ef_fadeinstant])
     {
         clk=0;
     }
@@ -7439,7 +7448,7 @@ bool eStalfos::animate(int index)
             superman=0;
             fading=0;
 
-            if(flags2&cmbflag_armos && z==0)
+            if(eflags[ef_armos] && z==0)
                 removearmos(x,y);
 
             clk2=0;
@@ -7448,7 +7457,7 @@ bool eStalfos::animate(int index)
         }
         else return enemy::animate(index);
     }
-    else if(flags2&cmbflag_armos && z==0 && clk==0)
+    else if(eflags[ef_armos] && z==0 && clk==0)
         removearmos(x,y);
 
     if(haslink)
@@ -7929,12 +7938,12 @@ int eStalfos::takehit(weapon *w)
     int wpnId = w->id;
     int wpnDir = w->dir;
 
-    if(wpnId==wHammer && shield && (flags & guy_bkshield)
-            && ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-                || (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
+    if(wpnId==wHammer && shield && (eflags[ef_bkshield])
+            && ((eflags[ef_invfront] && wpnDir==(dir^down)) || (eflags[ef_invback] && wpnDir==(dir^up))
+                || (eflags[ef_invleft] && wpnDir==(dir^left)) || (eflags[ef_invright] && wpnDir==(dir^right))))
     {
         shield = false;
-        flags &= ~(inv_left|inv_right|inv_back|inv_front);
+        for(int i=ef_invfront; i<=ef_invback;i++) eflags[i]=0;
 
         if(get_bit(quest_rules,qr_BRKNSHLDTILES))
             o_tile=s_tile;
@@ -8160,7 +8169,7 @@ void eStalfos::break_shield()
     if(!shield)
         return;
 
-    flags&=~(inv_front | inv_back | inv_left | inv_right);
+    for(int i=ef_invfront; i<=ef_invback;i++) eflags[i]=0;
     shield=false;
 
     if(get_bit(quest_rules,qr_BRKNSHLDTILES))
@@ -9976,7 +9985,7 @@ bool eMoldorm::animate(int index)
     {
         if(--clk2 == 0)
         {
-            if(flags&guy_neverret)
+            if(eflags[ef_neverret])
                 never_return(index);
 
             if(!dmisc2)
@@ -10077,7 +10086,7 @@ esMoldorm::esMoldorm(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     mainguy=count_enemy=false;
     parentclk = 0;
     bgsfx=-1;
-    flags&=~guy_neverret;
+    eflags[ef_neverret]=0;
     //deadsfx = WAV_EDEAD;
     isCore = false;
 }
@@ -10324,7 +10333,7 @@ esLanmola::esLanmola(fix X,fix Y,int Id,int Clk) : eBaseLanmola(X,Y,Id,Clk)
 
     bgsfx = -1;
     isCore = false;
-    flags&=~guy_neverret;
+    eflags[ef_neverret]=0;
 }
 
 bool esLanmola::animate(int index)
@@ -10804,7 +10813,7 @@ esManhandla::esManhandla(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     item_set=0;
     bgsfx=-1;
     deadsfx = WAV_EDEAD;
-    flags &= (~guy_neverret);
+    eflags[ef_neverret]=0;
     isCore = false;
 }
 
@@ -11037,7 +11046,7 @@ bool eGleeok::animate(int index)
         for(int i=0; i<misc; i++)
             ((enemy*)guys.spr(index+i+1))->misc = -2;             // give the signal to disappear
 
-        if(flags&guy_neverret) never_return(index);
+        if(eflags[ef_neverret]) never_return(index);
     }
 
     return enemy::animate(index);
@@ -11770,7 +11779,7 @@ esPatra::esPatra(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     mainguy=count_enemy=false;
     bgsfx=-1;
     //o_tile=0;
-    flags &= (~guy_neverret);
+    eflags[ef_neverret]=0;
     deadsfx = WAV_EDEAD;
     hitsfx = WAV_EHIT;
     isCore = false;
@@ -12106,7 +12115,7 @@ esPatraBS::esPatraBS(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     mainguy=count_enemy=false;
     deadsfx = WAV_EDEAD;
     hitsfx = WAV_EHIT;
-    flags &= ~guy_neverret;
+    eflags[ef_neverret]=0;
 }
 
 bool esPatraBS::animate(int index)
@@ -12225,7 +12234,7 @@ void kill_em_all()
     {
         enemy *e = ((enemy*)guys.spr(i));
 
-        if(e->flags&(1<<3) && !(e->family == eeGHINI && e->dmisc1 == 1)) continue;
+        if(e->eflags[1<<3] && !(e->family == eeGHINI && e->dmisc1 == 1)) continue;
 
         e->kickbucket();
     }
@@ -13034,7 +13043,7 @@ void never_return(int index)
         goto doit;
 
     for(int i=0; i<guys.Count(); i++)
-        if(((((enemy*)guys.spr(i))->d->flags)&guy_neverret) && i!=index)
+        if(((((enemy*)guys.spr(i))->d->eflags[ef_neverret])) && i!=index)
         {
             goto dontdoit;
         }
@@ -13074,7 +13083,7 @@ bool countguy(int id)
 
 bool ok2add(int id)
 {
-    if(getmapflag(mNEVERRET) && (guysbuf[id].flags & guy_neverret))
+    if(getmapflag(mNEVERRET) && (guysbuf[id].eflags[ef_neverret]))
         return false;
 
     switch(guysbuf[id].family)
@@ -13878,7 +13887,7 @@ placed_enemy:
             {
                 int index = guys.idFirst(tmpscr->enemy[i],0xFFF);
 
-                if(index!=-1 && (((enemy*)guys.spr(index))->flags&guy_doesntcount)==0)
+                if(index!=-1 && (((enemy*)guys.spr(index))->eflags[ef_doesntcount])==0)
                 {
                     ((enemy*)guys.spr(index))->itemguy = true;
                     foundCarrier=true;

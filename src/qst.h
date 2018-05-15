@@ -120,6 +120,7 @@ void get_questpwd(char *encrypted_pwd, short pwdkey, char *pwd);
 bool check_questpwd(zquestheader *Header, char *pwd);
 
 void update_guy_1(guydata *tempguy);
+void update_guy_2(guydata *tempguy);
 void initMsgStr(MsgStr *str);
 void init_msgstrings(int start, int end);
 
@@ -200,4 +201,3 @@ void init_item_drop_sets();
 void init_favorites();
 
 #endif                                                      // _ZC_QST_H_
-

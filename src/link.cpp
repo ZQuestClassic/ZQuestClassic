@@ -9810,7 +9810,7 @@ void LinkClass::checktouchblk()
                 case cARMOS: //id2=eARMOS; break;
                     for(int i=0; i<eMAXGUYS; i++)
                     {
-                        if(guysbuf[i].flags2&cmbflag_armos)
+                        if(guysbuf[i].eflags[ef_armos]&1)
                         {
                             id2=i;
 
@@ -9833,7 +9833,7 @@ void LinkClass::checktouchblk()
                 case cGRAVE:
                     for(int i=0; i<eMAXGUYS; i++)
                     {
-                        if(guysbuf[i].flags2&cmbflag_ghini)
+                        if(guysbuf[i].eflags[ef_ghini]&1)
                         {
                             id2=i;
                             eclk=0; // This is mostly for backwards-compatability
@@ -15918,7 +15918,7 @@ void LinkClass::ganon_intro()
 
             for(int i=0; i<eMAXGUYS; i++)
             {
-                if(guysbuf[i].flags2&eneflag_ganon)
+                if(guysbuf[i].eflags[ef_ganon]&1)
                 {
                     Id=i;
                     break;

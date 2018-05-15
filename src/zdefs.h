@@ -966,6 +966,9 @@ enum
 
 #define NUM_HIT_TYPES_USED 4
 
+//beam magic wind refmagic reffireball refrock refbeam
+//ebeam emagic ewind
+
 // weapon types in game engine
 enum
 {
@@ -1554,6 +1557,20 @@ struct item_drop_object
 #define guy_superman    0x00000008
 #define guy_sbombonly   0x00000010
 
+//2.5.4 enemy flags
+enum
+{
+ef_bhit, ef_invisible, ef_neverret, ef_doesntcount,  ef_lensonly, ef_flashing, ef_blinking, ef_transparent,
+ef_inv_invisible, ef_lightonly, ef_zaxis, ef_shadow, ef_shadowflicker, ef_shadowtrans, ef_hitflicker, ef_UNUSED1,
+ef_invfront, ef_invleft, ef_invright, ef_invback, ef_bkshield, ef_mirror, ef_bkshieldtil,ef_itemweaponoverride,
+ef_UNUSED2, ef_UNUSED3, ef_UNUSED4, ef_UNUSED5, ef_UNUSED6, ef_UNUSED7, ef_UNUSED8, ef_UNUSED9,
+ef_zora, ef_rock, ef_trap, ef_trph, ef_trpv, ef_trp4, ef_trplr, ef_trpud,
+ef_trp2, ef_fire, ef_armos, ef_ghini, ef_ganon, ef_DONTUSE, ef_fadeflicker, ef_fadeinstant,
+ef_trp8, ef_trpd, ef_trps, ef_trpb, ef_trpruld, ef_trplurd, ef_trpcw, ef_trpccw,
+ef_trpcwc, ef_trpccwc, ef_UNUSED10, ef_UNUSED11, ef_UNUSED12, ef_UNUSED13, ef_UNUSED14,
+ef_MAX //64 for array size
+};
+
 //FF combo flags
 
 #define ffOVERLAY       0x00000001
@@ -1590,7 +1607,7 @@ struct item_drop_object
 #define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
 #define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
 
-#define MAX_NPC_ATRIBUTES 15
+#define MAX_NPC_ATRIBUTES 32
 
 struct guydata
 {
@@ -1642,6 +1659,7 @@ struct guydata
     long initD[8], initA[2];
 
     word npcscript; //For future npc action scripts.
+		byte eflags[ef_MAX];
     //short parentCore; //Probably not needed here. -Z
 
 };

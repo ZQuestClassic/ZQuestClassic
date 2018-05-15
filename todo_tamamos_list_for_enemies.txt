@@ -5,20 +5,16 @@ NES Animation Bombchus                                                          
 
 --------------------------------------------------------------------------------
 
--Misc flags
-Invisible in Darkrooms                                                          invisible in the dark!
-Invulnerable while Invisible
-Has Shadow
-Shadow Is Translucent
-Shadow Flickers
-dummy out the following as they go in their own flag set
---shielded in front
---shielded on left
---shielded on right
---shielded in back
---hammer can break shield
+Remap flags to char array!
 
--Spawn flags 2 COMPLETE
+-Misc flags
+Invulnerable If Invisible
+Can Only Be Seen In Light
+Move Through Z-Axis
+Has Shadow
+Shadow Flickers
+Shadow Is Translucent
+Flicker When Hit
 
 -Shield flags
 shielded in front
@@ -28,6 +24,9 @@ shielded in back
 hammer can break shield
 shield is mirrored
 broken shield tiles
+item defense override effects shields
+
+-Spawn flags 2 COMPLETE
 
 --------------------------------------------------------------------------------
 

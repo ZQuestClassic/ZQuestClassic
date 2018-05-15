@@ -66,9 +66,10 @@ public:
     bool itemguy, count_enemy, dying, ceiling, leader, scored, script_spawned;
     fix  step, floor_y;
 
-    //d variables
+    //d variables //don't remove these they're needed for the quest loader! -Tamamo
     dword flags;
     dword flags2;
+    char eflags[ef_MAX];
 
     short  family, dcset, anim;
     short  dp, wdp, wpn;

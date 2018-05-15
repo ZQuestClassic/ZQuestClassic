@@ -8681,6 +8681,7 @@ void setupsfx()
 extern char *guy_string[eMAXGUYS];
 extern const char *old_guy_string[OLDMAXGUYS];
 
+//for sanity reasons I've went ahead and adjusted the white space so this folds correctly again... -Tamamo
 int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     dword dummy;
@@ -9224,9 +9225,9 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
 
-	    //! Enemy Defences
+				    //! Enemy Defences
 
-	    //If a 2.50 quest, use only the 2.5 defences.
+				    //If a 2.50 quest, use only the 2.5 defences.
             if(guyversion >= 16 )  // November 2009 - Super Enemy Editor
             {
                 for(int j=0; j<edefLAST; j++)
@@ -9236,12 +9237,9 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                         return qe_invalid;
                     }
                 }
-		//then copy the generic script defence to all the new script defences
+								//then copy the generic script defence to all the new script defences
 
             }
-
-
-
 
             if(guyversion >= 18)
             {
@@ -9287,436 +9285,436 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 tempguy.misc12=tempMisc;
             }
 
-	    //If a 2.54 or later quest, use all of the defences.
-	    if(guyversion > 24) // Add new guyversion conditional statement
+				    //If a 2.54 or later quest, use all of the defences.
+				    if(guyversion > 24) // Add new guyversion conditional statement
             {
-		for(int j=edefLAST; j<edefLAST255; j++)
-                {
-                    if(!p_getc(&(tempguy.defense[j]),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-                }
-            }
+								for(int j=edefLAST; j<edefLAST255; j++)
+		            {
+		                if(!p_getc(&(tempguy.defense[j]),f,keepdata))
+		                {
+		                    return qe_invalid;
+		                }
+		            }
+		        }
 
-	    if(guyversion <= 24) // Port over generic script settings from old quests in the new editor.
+				    if(guyversion <= 24) // Port over generic script settings from old quests in the new editor.
             {
-		for(int j=edefSCRIPT01; j<=edefSCRIPT10; j++)
+								for(int j=edefSCRIPT01; j<=edefSCRIPT10; j++)
                 {
                     tempguy.defense[j] = tempguy.defense[edefSCRIPT] ;
                 }
             }
 
-	    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
-	    if(guyversion > 25)
-	    {
-		    if(!p_igetl(&(tempguy.txsz),f,keepdata))
+				    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
+				    if(guyversion > 25)
+				    {
+		    				if(!p_igetl(&(tempguy.txsz),f,keepdata))
+                {
+                    return qe_invalid;
+                }
+		    				if(!p_igetl(&(tempguy.tysz),f,keepdata))
+                {
+                    return qe_invalid;
+                }
+		    				if(!p_igetl(&(tempguy.hxsz),f,keepdata))
                     {
                         return qe_invalid;
                     }
-		    if(!p_igetl(&(tempguy.tysz),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.hxsz),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.hysz),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.hzsz),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    /* Is it safe to read a fixed with getl, or do I need to typecast it? -Z
+						    if(!p_igetl(&(tempguy.hysz),f,keepdata))
+		                {
+		                    return qe_invalid;
+		                }
+						    if(!p_igetl(&(tempguy.hzsz),f,keepdata))
+                {
+                    return qe_invalid;
+                }
+						    /* Is it safe to read a fixed with getl, or do I need to typecast it? -Z
 
-		    */
-	    }
-	    //More Enemy Editor vars for 2.60
-	    if(guyversion > 26)
-	    {
-		    if(!p_igetl(&(tempguy.hxofs),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.hyofs),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.xofs),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.yofs),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-		    if(!p_igetl(&(tempguy.zofs),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-	    }
+						    */
+				    }
+				    //More Enemy Editor vars for 2.60
+				    if(guyversion > 26)
+				    {
+						    if(!p_igetl(&(tempguy.hxofs),f,keepdata))
+                {
+                    return qe_invalid;
+                }
+						    if(!p_igetl(&(tempguy.hyofs),f,keepdata))
+                {
+                    return qe_invalid;
+                }
+						    if(!p_igetl(&(tempguy.xofs),f,keepdata))
+                {
+                    return qe_invalid;
+                }
+		    				if(!p_igetl(&(tempguy.yofs),f,keepdata))
+                {
+                    return qe_invalid;
+                }
+								if(!p_igetl(&(tempguy.zofs),f,keepdata))
+                {
+                    return qe_invalid;
+                }
+			    	}
 
-	    if(guyversion <= 27) // Port over generic script settings from old quests in the new editor.
+				    if(guyversion <= 27) // Port over generic script settings from old quests in the new editor.
             {
-		tempguy.wpnsprite = 0;
+							tempguy.wpnsprite = 0;
             }
 
-	    if(guyversion > 27)
-	    {
-	        if(!p_igetl(&(tempguy.wpnsprite),f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-	    }
-	    if(guyversion <= 28) // Port over generic script settings from old quests in the new editor.
+				    if(guyversion > 27)
+				    {
+				        if(!p_igetl(&(tempguy.wpnsprite),f,keepdata))
+                {
+                    return qe_invalid;
+                }
+				    }
+				    if(guyversion <= 28) // Port over generic script settings from old quests in the new editor.
+	          {
+								tempguy.SIZEflags = 0;
+	          }
+				    if(guyversion > 28)
+				    {
+								if(!p_igetl(&(tempguy.SIZEflags),f,keepdata))
+		    				{
+										return qe_invalid;
+		    				}
+
+	    			}
+  					if(guyversion < 30) // Port over generic script settings from old quests in the new editor.
             {
-		tempguy.SIZEflags = 0;
+								tempguy.frozentile = 0;
+								tempguy.frozencset = 0;
+								tempguy.frozenclock = 0;
+								for ( int q = 0; q < 10; q++ ) tempguy.frozenmisc[q] = 0;
             }
-	    if(guyversion > 28)
-	    {
-		if(!p_igetl(&(tempguy.SIZEflags),f,keepdata))
-		    {
-			return qe_invalid;
-		    }
+				    if(guyversion >= 30)
+				    {
+								if(!p_igetl(&(tempguy.frozentile),f,keepdata))
+								{
+									return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.frozencset),f,keepdata))
+								{
+									return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.frozenclock),f,keepdata))
+								{
+									return qe_invalid;
+								}
+								for ( int q = 0; q < 10; q++ )
+								{
+										if(!p_igetw(&(tempguy.frozenmisc[q]),f,keepdata))
+										{
+												return qe_invalid;
+										}
+								}
+	    			}
+				    if(guyversion >= 34)
+				    {
+								if(!p_igetw(&(tempguy.firesfx),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc16),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc17),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc18),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc19),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc20),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc21),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc22),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc23),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc24),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc25),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc26),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc27),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc28),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc29),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc30),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc31),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								if(!p_igetl(&(tempguy.misc32),f,keepdata))
+								{
+										return qe_invalid;
+								}
 
-	    }
-	    if(guyversion < 30) // Port over generic script settings from old quests in the new editor.
-            {
-		tempguy.frozentile = 0;
-		tempguy.frozencset = 0;
-		tempguy.frozenclock = 0;
-		for ( int q = 0; q < 10; q++ ) tempguy.frozenmisc[q] = 0;
-            }
-	    if(guyversion >= 30)
-	    {
-		if(!p_igetl(&(tempguy.frozentile),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.frozencset),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.frozenclock),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		for ( int q = 0; q < 10; q++ ) {
-			if(!p_igetw(&(tempguy.frozenmisc[q]),f,keepdata))
-			{
-				return qe_invalid;
-			}
-		}
-
-	    }
-
-	    if(guyversion >= 34)
-	    {
-		if(!p_igetw(&(tempguy.firesfx),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc16),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc17),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc18),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc19),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc20),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc21),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc22),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc23),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc24),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc25),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc26),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc27),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc28),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc29),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc30),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc31),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		if(!p_igetl(&(tempguy.misc32),f,keepdata))
-		{
-			return qe_invalid;
-		}
-
-		for ( int q = 0; q < 32; q++ ) {
-			if(!p_igetl(&(tempguy.movement[q]),f,keepdata))
-			{
-				return qe_invalid;
-			}
-		}
-		for ( int q = 0; q < 32; q++ ) {
-			if(!p_igetl(&(tempguy.new_weapon[q]),f,keepdata))
-			{
-				return qe_invalid;
-			}
-		}
-		if(!p_igetw(&(tempguy.npcscript),f,keepdata))
-		{
-			return qe_invalid;
-		}
-		for ( int q = 0; q < 8; q++ )
-		{
-			if(!p_igetl(&(tempguy.initD[q]),f,keepdata))
-			{
-				return qe_invalid;
-			}
-		}
-		for ( int q = 0; q < 2; q++ )
-		{
-			if(!p_igetl(&(tempguy.initA[q]),f,keepdata))
-			{
-				return qe_invalid;
-			}
-		}
-
-	    }
+								for ( int q = 0; q < 32; q++ )
+								{
+										if(!p_igetl(&(tempguy.movement[q]),f,keepdata))
+										{
+												return qe_invalid;
+										}
+								}
+								for ( int q = 0; q < 32; q++ )
+								{
+										if(!p_igetl(&(tempguy.new_weapon[q]),f,keepdata))
+										{
+												return qe_invalid;
+										}
+								}
+								if(!p_igetw(&(tempguy.npcscript),f,keepdata))
+								{
+										return qe_invalid;
+								}
+								for ( int q = 0; q < 8; q++ )
+								{
+										if(!p_igetl(&(tempguy.initD[q]),f,keepdata))
+										{
+												return qe_invalid;
+										}
+								}
+								for ( int q = 0; q < 2; q++ )
+								{
+										if(!p_igetl(&(tempguy.initA[q]),f,keepdata))
+										{
+												return qe_invalid;
+										}
+								}
+    				}
 
 
-	    //default weapon sprites (quest version < 2.54)
-	    //port over old defaults -Z
-	    if(guyversion < 32)
-	    {
-		if ( tempguy.wpnsprite <= 0 )
-		{
-			switch(tempguy.weapon)
-			{
-				case wNone:
-					tempguy.wpnsprite = 0; break;
+				    //default weapon sprites (quest version < 2.54)
+				    //port over old defaults -Z
+				    if(guyversion < 32)
+				    {
+								if ( tempguy.wpnsprite <= 0 )
+								{
+										switch(tempguy.weapon)
+										{
+										case wNone:
+												tempguy.wpnsprite = 0; break;
 
-				case wSword:
-				case wBeam:
-				case wBrang:
-				case wBomb:
-				case wSBomb:
-				case wLitBomb:
-				case wLitSBomb:
-				case wArrow:
-				case wFire:
-				case wWhistle:
-				case wBait:
-				case wWand:
-				case wMagic:
-				case wCatching:
-				case wWind:
-				case wRefMagic:
-				case wRefFireball:
-				case wRefRock:
-				case wHammer:
-				case wHookshot:
-				case wHSHandle:
-				case wHSChain:
-				case wSSparkle:
-				case wFSparkle:
-				case wSmack:
-				case wPhantom:
-				case wCByrna:
-				case wRefBeam:
-				case wStomp:
-				case lwMax:
-				case wScript1:
-				case wScript2:
-				case wScript3:
-				case wScript4:
-				case wScript5:
-				case wScript6:
-				case wScript7:
-				case wScript8:
-				case wScript9:
-				case wScript10:
-				case wIce:
-					//Cannot use any of these weapons yet.
-					tempguy.wpnsprite = -1;
-					break;
+										case wSword:
+										case wBeam:
+										case wBrang:
+										case wBomb:
+										case wSBomb:
+										case wLitBomb:
+										case wLitSBomb:
+										case wArrow:
+										case wFire:
+										case wWhistle:
+										case wBait:
+										case wWand:
+										case wMagic:
+										case wCatching:
+										case wWind:
+										case wRefMagic:
+										case wRefFireball:
+										case wRefRock:
+										case wHammer:
+										case wHookshot:
+										case wHSHandle:
+										case wHSChain:
+										case wSSparkle:
+										case wFSparkle:
+										case wSmack:
+										case wPhantom:
+										case wCByrna:
+										case wRefBeam:
+										case wStomp:
+										case lwMax:
+										case wScript1:
+										case wScript2:
+										case wScript3:
+										case wScript4:
+										case wScript5:
+										case wScript6:
+										case wScript7:
+										case wScript8:
+										case wScript9:
+										case wScript10:
+										case wIce:
+												//Cannot use any of these weapons yet.
+												tempguy.wpnsprite = -1;
+												break;
 
-				case wEnemyWeapons:
-				case ewFireball: tempguy.wpnsprite = 17; break;
+										case wEnemyWeapons:
+										case ewFireball: tempguy.wpnsprite = 17; break;
 
-				case ewArrow: tempguy.wpnsprite = 19; break;
-				case ewBrang: tempguy.wpnsprite = 4; break;
-				case ewSword: tempguy.wpnsprite = 20; break;
-				case ewRock: tempguy.wpnsprite = 18; break;
-				case ewMagic: tempguy.wpnsprite = 21; break;
-				case ewBomb: tempguy.wpnsprite = 78; break;
-				case ewSBomb: tempguy.wpnsprite = 79; break;
-				case ewLitBomb: tempguy.wpnsprite = 76; break;
-				case ewLitSBomb: tempguy.wpnsprite = 77; break;
-				case ewFireTrail: tempguy.wpnsprite = 80; break;
-				case ewFlame: tempguy.wpnsprite = 35; break;
-				case ewWind: tempguy.wpnsprite = 36; break;
-				case ewFlame2: tempguy.wpnsprite = 81; break;
-				case ewFlame2Trail: tempguy.wpnsprite = 82; break;
-				case ewIce: tempguy.wpnsprite = 83; break;
-				case ewFireball2: tempguy.wpnsprite = 17; break; //fireball (rising)
+										case ewArrow: tempguy.wpnsprite = 19; break;
+										case ewBrang: tempguy.wpnsprite = 4; break;
+										case ewSword: tempguy.wpnsprite = 20; break;
+										case ewRock: tempguy.wpnsprite = 18; break;
+										case ewMagic: tempguy.wpnsprite = 21; break;
+										case ewBomb: tempguy.wpnsprite = 78; break;
+										case ewSBomb: tempguy.wpnsprite = 79; break;
+										case ewLitBomb: tempguy.wpnsprite = 76; break;
+										case ewLitSBomb: tempguy.wpnsprite = 77; break;
+										case ewFireTrail: tempguy.wpnsprite = 80; break;
+										case ewFlame: tempguy.wpnsprite = 35; break;
+										case ewWind: tempguy.wpnsprite = 36; break;
+										case ewFlame2: tempguy.wpnsprite = 81; break;
+										case ewFlame2Trail: tempguy.wpnsprite = 82; break;
+										case ewIce: tempguy.wpnsprite = 83; break;
+										case ewFireball2: tempguy.wpnsprite = 17; break; //fireball (rising)
 
 
-				default: break; //No assign.
-			}
-		}
-	    }
+										default: break; //No assign.
+										}
+								}
+				    }
 
-	    //default weapon fire sound (quest version < 2.54)
-	    //port over old defaults and zero new data. -Z
-	    if(guyversion < 34)
-	    {
-		for ( int q = 0; q < 32; q++ )
-		{
-			tempguy.movement[q] = 0;
-			tempguy.new_weapon[q] = 0;
+				    //default weapon fire sound (quest version < 2.54)
+				    //port over old defaults and zero new data. -Z
+				    if(guyversion < 34)
+				    {
+								for ( int q = 0; q < 32; q++ )
+								{
+										tempguy.movement[q] = 0;
+										tempguy.new_weapon[q] = 0;
 
-		}
+								}
 
-		//NPC Script attributes.
-		tempguy.npcscript = 0; //No scripted enemies existed. -Z
-		for ( int q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
-		for ( int q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
+								//NPC Script attributes.
+								tempguy.npcscript = 0; //No scripted enemies existed. -Z
+								for ( int q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
+								for ( int q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
 
-		tempguy.misc16 = 0;
-		tempguy.misc17 = 0;
-		tempguy.misc18 = 0;
-		tempguy.misc19 = 0;
-		tempguy.misc20 = 0;
-		tempguy.misc21 = 0;
-		tempguy.misc22 = 0;
-		tempguy.misc23 = 0;
-		tempguy.misc24 = 0;
-		tempguy.misc25 = 0;
-		tempguy.misc26 = 0;
-		tempguy.misc27 = 0;
-		tempguy.misc28 = 0;
-		tempguy.misc29 = 0;
-		tempguy.misc30 = 0;
-		tempguy.misc31 = 0;
-		tempguy.misc32 = 0;
+								tempguy.misc16 = 0;
+								tempguy.misc17 = 0;
+								tempguy.misc18 = 0;
+								tempguy.misc19 = 0;
+								tempguy.misc20 = 0;
+								tempguy.misc21 = 0;
+								tempguy.misc22 = 0;
+								tempguy.misc23 = 0;
+								tempguy.misc24 = 0;
+								tempguy.misc25 = 0;
+								tempguy.misc26 = 0;
+								tempguy.misc27 = 0;
+								tempguy.misc28 = 0;
+								tempguy.misc29 = 0;
+								tempguy.misc30 = 0;
+								tempguy.misc31 = 0;
+								tempguy.misc32 = 0;
 
-		//old default sounds
-		if ( tempguy.firesfx <= 0 )
-		{
-			switch(tempguy.weapon)
-			{
-				case wNone:
-					tempguy.firesfx = 0; break;
+								//old default sounds
+								if ( tempguy.firesfx <= 0 )
+								{
+										switch(tempguy.weapon)
+										{
+										case wNone:
+											tempguy.firesfx = 0; break;
 
-				case wSword:
-				case wBeam:
-				case wBrang:
-				case wBomb:
-				case wSBomb:
-				case wLitBomb:
-				case wLitSBomb:
-				case wArrow:
-				case wFire:
-				case wWhistle:
-				case wBait:
-				case wWand:
-				case wMagic:
-				case wCatching:
-				case wWind:
-				case wRefMagic:
-				case wRefFireball:
-				case wRefRock:
-				case wHammer:
-				case wHookshot:
-				case wHSHandle:
-				case wHSChain:
-				case wSSparkle:
-				case wFSparkle:
-				case wSmack:
-				case wPhantom:
-				case wCByrna:
-				case wRefBeam:
-				case wStomp:
-				case lwMax:
-				case wScript1:
-				case wScript2:
-				case wScript3:
-				case wScript4:
-				case wScript5:
-				case wScript6:
-				case wScript7:
-				case wScript8:
-				case wScript9:
-				case wScript10:
-				case wIce:
-					//Cannot use any of these weapons yet.
-					tempguy.firesfx = -1;
-					break;
+										case wSword:
+										case wBeam:
+										case wBrang:
+										case wBomb:
+										case wSBomb:
+										case wLitBomb:
+										case wLitSBomb:
+										case wArrow:
+										case wFire:
+										case wWhistle:
+										case wBait:
+										case wWand:
+										case wMagic:
+										case wCatching:
+										case wWind:
+										case wRefMagic:
+										case wRefFireball:
+										case wRefRock:
+										case wHammer:
+										case wHookshot:
+										case wHSHandle:
+										case wHSChain:
+										case wSSparkle:
+										case wFSparkle:
+										case wSmack:
+										case wPhantom:
+										case wCByrna:
+										case wRefBeam:
+										case wStomp:
+										case lwMax:
+										case wScript1:
+										case wScript2:
+										case wScript3:
+										case wScript4:
+										case wScript5:
+										case wScript6:
+										case wScript7:
+										case wScript8:
+										case wScript9:
+										case wScript10:
+										case wIce:
+											//Cannot use any of these weapons yet.
+											tempguy.firesfx = -1;
+											break;
 
-				case wEnemyWeapons:
-				case ewFireball: tempguy.firesfx = 40; break;
+										case wEnemyWeapons:
+										case ewFireball: tempguy.firesfx = 40; break;
 
-				case ewArrow: tempguy.firesfx = 1; break; //Ghost.zh has 0?
-				case ewBrang: tempguy.firesfx = 4; break; //Ghost.zh has 0?
-				case ewSword: tempguy.firesfx = 20; break; //Ghost.zh has 0?
-				case ewRock: tempguy.firesfx = 51; break;
-				case ewMagic: tempguy.firesfx = 32; break;
-				case ewBomb: tempguy.firesfx = 3; break; //Ghost.zh has 0?
-				case ewSBomb: tempguy.firesfx = 3; break; //Ghost.zh has 0?
-				case ewLitBomb: tempguy.firesfx = 21; break; //Ghost.zh has 0?
-				case ewLitSBomb: tempguy.firesfx = 21; break; //Ghost.zh has 0?
-				case ewFireTrail: tempguy.firesfx = 13; break;
-				case ewFlame: tempguy.firesfx = 13; break;
-				case ewWind: tempguy.firesfx = 32; break;
-				case ewFlame2: tempguy.firesfx = 13; break;
-				case ewFlame2Trail: tempguy.firesfx = 13; break;
-				case ewIce: tempguy.firesfx = 44; break;
-				case ewFireball2: tempguy.firesfx = 40; break; //fireball (rising)
+										case ewArrow: tempguy.firesfx = 1; break; //Ghost.zh has 0?
+										case ewBrang: tempguy.firesfx = 4; break; //Ghost.zh has 0?
+										case ewSword: tempguy.firesfx = 20; break; //Ghost.zh has 0?
+										case ewRock: tempguy.firesfx = 51; break;
+										case ewMagic: tempguy.firesfx = 32; break;
+										case ewBomb: tempguy.firesfx = 3; break; //Ghost.zh has 0?
+										case ewSBomb: tempguy.firesfx = 3; break; //Ghost.zh has 0?
+										case ewLitBomb: tempguy.firesfx = 21; break; //Ghost.zh has 0?
+										case ewLitSBomb: tempguy.firesfx = 21; break; //Ghost.zh has 0?
+										case ewFireTrail: tempguy.firesfx = 13; break;
+										case ewFlame: tempguy.firesfx = 13; break;
+										case ewWind: tempguy.firesfx = 32; break;
+										case ewFlame2: tempguy.firesfx = 13; break;
+										case ewFlame2Trail: tempguy.firesfx = 13; break;
+										case ewIce: tempguy.firesfx = 44; break;
+										case ewFireball2: tempguy.firesfx = 40; break; //fireball (rising)
 
-				//what about special attacks (e.g. summoning == 56)
-				default: break; //No assign.
-			}
-		}
-	    }
-
+										//what about special attacks (e.g. summoning == 56)
+										//iirc summoning only works with magic so you'll have to check if it's shot pattern is summoning.
+										default: break; //No assign.
+										}
+								}
+				    }
 
             //miscellaneous other corrections
             //fix the mirror wizzrobe -DD
@@ -9982,7 +9980,9 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 								{
 									tempguy.defense[edefWhistle] = edIGNORE; //Might need to be ignore, universally.
 								}
-
+						}
+						if(guyversion < 34)
+						{
 								if(tempguy.family==eeTRAP) //traps now use misc instead of rules
 								{
 
@@ -10030,15 +10030,15 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 										}
 								}
 				    }
-
-            if(keepdata)
-            {
-                guysbuf[i] = tempguy;
-            }
+						//anything that ignores but still must be included in guy updates goes here. -Tamamo
+						tempguy = (keepdata) ? tempguy : guysbuf[i];
+						if(guyversion < 35) //Remapped flags and flags2 into eflags
+						{
+								update_guy_2(&tempguy);
+						}
+						guysbuf[i] = tempguy;
         }
     }
-
-
     return 0;
 }
 
@@ -10286,6 +10286,36 @@ darknuts:
         tempguy->flags |= (guy_doesntcount);
 }
 
+void update_guy_2(guydata *tempguy) // May 2018
+{
+		for(int i=0;i<4;i++)
+		{
+				tempguy->eflags[i] = (tempguy->flags&(1<<i)) ? 1 : 0;
+		}
+		for(int i=0;i<5;i++)
+		{
+				tempguy->eflags[16+i] = (tempguy->flags&(inv_front<<i)) ? 1 : 0;
+		}
+		for(int i=0;i<13;i++)
+		{
+				tempguy->eflags[32+i] = (tempguy->flags2&(eneflag_zora<<i)) ? 1 : 0;
+		}
+		for(int i=0;i<10;i++)
+		{
+				tempguy->eflags[48+i] = (tempguy->flags2&(cmbflag_trp8<<i)) ? 1 : 0;
+		}
+		//these 6 flags have unusual positions...
+		tempguy->eflags[ef_lensonly]   = (tempguy->flags&lens_only) ? 1 : 0;
+		tempguy->eflags[ef_flashing]   = (tempguy->flags2&guy_flashing) ? 1 : 0;
+		tempguy->eflags[ef_blinking]   = (tempguy->flags2&guy_blinking) ? 1 : 0;
+		tempguy->eflags[ef_transparent]= (tempguy->flags2&guy_transparent) ? 1 : 0;
+		tempguy->eflags[ef_fadeflicker]= (tempguy->flags&guy_fadeflicker) ? 1 : 0;
+		tempguy->eflags[ef_fadeinstant]= (tempguy->flags&guy_fadeinstant) ? 1 : 0;
+
+		//zero out the dwords as they are no longer used.
+		tempguy->flags = 0;
+		tempguy->flags2 = 0;
+}
 
 int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version)
 {
