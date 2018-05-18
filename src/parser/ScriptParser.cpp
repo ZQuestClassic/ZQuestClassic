@@ -500,9 +500,8 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
             return NULL;
         }
         
-        t->putAST(*it, id);
-        t->putFunc(id, rettype);
-        t->putFuncDecl(id, params);
+        t->putNodeId(*it, id);
+        t->putFuncTypeIds(id, rettype, params);
         
     }
     
@@ -515,113 +514,113 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     
     //add a Link global variable
     vid2 = globalScope->getVarSymbols().addVariable("Link", ScriptParser::TYPE_LINK);
-    t->putVar(vid2, ScriptParser::TYPE_LINK);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_LINK);
     t->addGlobalPointer(vid2);
     //add a Screen global variable
     vid2 = globalScope->getVarSymbols().addVariable("Screen", ScriptParser::TYPE_SCREEN);
-    t->putVar(vid2, ScriptParser::TYPE_SCREEN);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_SCREEN);
     t->addGlobalPointer(vid2);
     //add a Game global variable
     vid2 = globalScope->getVarSymbols().addVariable("Game", ScriptParser::TYPE_GAME);
-    t->putVar(vid2, ScriptParser::TYPE_GAME);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_GAME);
     t->addGlobalPointer(vid2);
     
     //New Pointers
     
     vid2 = globalScope->getVarSymbols().addVariable("Debug", ScriptParser::TYPE_DEBUG);
-    t->putVar(vid2, ScriptParser::TYPE_DEBUG);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_DEBUG);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("Audio", ScriptParser::TYPE_AUDIO);
-    t->putVar(vid2, ScriptParser::TYPE_AUDIO);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_AUDIO);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("Text", ScriptParser::TYPE_TEXT);
-    t->putVar(vid2, ScriptParser::TYPE_TEXT);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_TEXT);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("NPCData", ScriptParser::TYPE_NPCDATA);
-    t->putVar(vid2, ScriptParser::TYPE_NPCDATA);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_NPCDATA);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("ComboData", ScriptParser::TYPE_COMBOS);
-    t->putVar(vid2, ScriptParser::TYPE_COMBOS);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_COMBOS);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("SpriteData", ScriptParser::TYPE_SPRITEDATA);
-    t->putVar(vid2, ScriptParser::TYPE_SPRITEDATA);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_SPRITEDATA);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("Graphics", ScriptParser::TYPE_GRAPHICS);
-    t->putVar(vid2, ScriptParser::TYPE_GRAPHICS);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_GRAPHICS);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("Input", ScriptParser::TYPE_INPUT);
-    t->putVar(vid2, ScriptParser::TYPE_INPUT);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_INPUT);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("MapData", ScriptParser::TYPE_MAPDATA);
-    t->putVar(vid2, ScriptParser::TYPE_MAPDATA);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_MAPDATA);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("DMapData", ScriptParser::TYPE_DMAPDATA);
-    t->putVar(vid2, ScriptParser::TYPE_DMAPDATA);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_DMAPDATA);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("MessageData", ScriptParser::TYPE_ZMESSAGE);
-    t->putVar(vid2, ScriptParser::TYPE_ZMESSAGE);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_ZMESSAGE);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("ShopData", ScriptParser::TYPE_SHOPDATA);
-    t->putVar(vid2, ScriptParser::TYPE_SHOPDATA);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_SHOPDATA);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("Untyped", ScriptParser::TYPE_UNTYPED);
-    t->putVar(vid2, ScriptParser::TYPE_UNTYPED);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_UNTYPED);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("dropdata->", ScriptParser::TYPE_DROPSET);
-    t->putVar(vid2, ScriptParser::TYPE_DROPSET);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_DROPSET);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("ponddata->", ScriptParser::TYPE_PONDS);
-    t->putVar(vid2, ScriptParser::TYPE_PONDS);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_PONDS);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("warpring->", ScriptParser::TYPE_WARPRING);
-    t->putVar(vid2, ScriptParser::TYPE_WARPRING);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_WARPRING);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("doorset->", ScriptParser::TYPE_DOORSET);
-    t->putVar(vid2, ScriptParser::TYPE_DOORSET);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_DOORSET);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("misccolors->", ScriptParser::TYPE_ZUICOLOURS);
-    t->putVar(vid2, ScriptParser::TYPE_ZUICOLOURS);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_ZUICOLOURS);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("rgbdata->", ScriptParser::TYPE_RGBDATA);
-    t->putVar(vid2, ScriptParser::TYPE_RGBDATA);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_RGBDATA);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("palette->", ScriptParser::TYPE_PALETTE);
-    t->putVar(vid2, ScriptParser::TYPE_PALETTE);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_PALETTE);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("musictrack->", ScriptParser::TYPE_TUNES);
-    t->putVar(vid2, ScriptParser::TYPE_TUNES);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_TUNES);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("palcycle->", ScriptParser::TYPE_PALCYCLE);
-    t->putVar(vid2, ScriptParser::TYPE_PALCYCLE);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_PALCYCLE);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("gamedata->", ScriptParser::TYPE_GAMEDATA);
-    t->putVar(vid2, ScriptParser::TYPE_GAMEDATA);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_GAMEDATA);
     t->addGlobalPointer(vid2);
     
     vid2 = globalScope->getVarSymbols().addVariable("cheats->", ScriptParser::TYPE_CHEATS);
-    t->putVar(vid2, ScriptParser::TYPE_CHEATS);
+    t->putVarTypeId(vid2, ScriptParser::TYPE_CHEATS);
     t->addGlobalPointer(vid2);
     
     
@@ -714,7 +713,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                     }
                     else
                     {
-                        int type = t->getFuncType(runid);
+                        int type = t->getFuncReturnTypeId(runid);
                         
                         if(type != ScriptParser::TYPE_VOID)
                         {
@@ -724,7 +723,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                         else
                         {
                             rval->runsymbols[*it] = runid;
-                            rval->numParams[*it] = (int)t->getFuncParams(runid).size();
+                            rval->numParams[*it] = (int)t->getFuncParamTypeIds(runid).size();
                             rval->scriptTypes[*it] = scripttype;
                         }
                     }
@@ -963,7 +962,7 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
     
     for(vector<ASTFuncDecl *>::iterator it = fd->functions.begin(); it != fd->functions.end(); it++)
     {
-        int rettype = fd->symbols->getFuncType(*it);
+        int rettype = fd->symbols->getFuncReturnTypeId(*it);
         pair<SymbolTable *, int> param = pair<SymbolTable *, int>(fd->symbols, rettype);
         TypeCheck tc;
         (*it)->execute(tc, &param);
@@ -1035,13 +1034,13 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     
     for(vector<ASTVarDecl *>::iterator it = globals.begin(); it != globals.end(); it++)
     {
-        int vid2 = symbols->getID(*it);
+        int vid2 = symbols->getNodeId(*it);
         lt.addGlobalVar(vid2);
     }
     
     for(vector<ASTArrayDecl *>::iterator it = globalas.begin(); it != globalas.end(); it++)
     {
-        int vid2 = symbols->getID(*it);
+        int vid2 = symbols->getNodeId(*it);
         lt.addGlobalVar(vid2);
     }
     
@@ -1054,7 +1053,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     
     for(vector<ASTFuncDecl *>::iterator it = funcs.begin(); it != funcs.end(); it++)
     {
-        int fid2 = symbols->getID(*it);
+        int fid2 = symbols->getNodeId(*it);
         lt.functionToLabel(fid2);
     }
     
@@ -1368,7 +1367,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         
         for(map<string,int>::iterator it2 = runsymbols.begin(); it2 != runsymbols.end(); it2++)
         {
-            if(it2->second == symbols->getID(*it))
+            if(it2->second == symbols->getNodeId(*it))
             {
                 isarun=true;
                 scriptname = it2->first;
@@ -1398,7 +1397,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
         //finally, assign the parameters, in reverse order
 		for (list<ASTVarDecl *>::reverse_iterator paramit = (*it)->getParams().rbegin(); paramit != (*it)->getParams().rend(); ++paramit)
 		{
-			int vid = symbols->getID(*paramit);
+			int vid = symbols->getNodeId(*paramit);
 			sf.addToFrame(vid, offset);
 			offset += 10000;
 		}
@@ -1407,13 +1406,12 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
 
         //start of the function
         Opcode *first = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-        first->setLabel(lt.functionToLabel(symbols->getID(*it)));
+        first->setLabel(lt.functionToLabel(symbols->getNodeId(*it)));
         funccode.push_back(first);
         //push on the 0s
-        int numtoallocate = totvars-(unsigned int)symbols->getFuncParams(symbols->getID(*it)).size();
-		
-	//Skip the runline: Fix for run() params being eaten. 
-	if (isarun) numtoallocate--;
+        int numtoallocate = totvars-(unsigned int)symbols->getFuncParamTypeIds(symbols->getNodeId(*it)).size();
+		//also don't count the "this"
+		if (isarun) numtoallocate--;
 
         for(int i = 0; i < numtoallocate; i++)
         {
@@ -1491,7 +1489,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
             funccode.push_back(new OGotoRegister(new VarArgument(EXP2)));
         }
         
-        rval->funcs[lt.functionToLabel(symbols->getID(*it))]=funccode;
+        rval->funcs[lt.functionToLabel(symbols->getNodeId(*it))]=funccode;
         delete *it;
     }
     

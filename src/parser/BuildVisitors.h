@@ -99,8 +99,7 @@ public:
     virtual void caseDefault(void *) { }
     virtual void caseArrayDecl(ASTArrayDecl &host, void *param)
     {
-
-        int vid = st->getID(&host);
+        int vid = st->getNodeId(&host);
 		sf->addToFrame(vid, curoffset);
 		curoffset += 10000;
 		if (highWaterOffset < curoffset)
@@ -108,7 +107,8 @@ public:
     }
     virtual void caseVarDecl(ASTVarDecl &host, void *)
     {        
-        int vid = st->getID(&host);
+
+		int vid = st->getNodeId(&host);
 		sf->addToFrame(vid, curoffset);
 		curoffset += 10000;
 		highWaterOffset = std::max(highWaterOffset, curoffset);
@@ -146,7 +146,7 @@ public:
 
 	virtual void caseStringConstant(ASTStringConstant& host, void* param)
 	{
-		int vid = st->getID(&host);
+		int vid = st->getNodeId(&host);
 		sf->addToFrame(vid, curoffset);
 		curoffset += 10000;
 		if (highWaterOffset < curoffset)

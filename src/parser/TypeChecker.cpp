@@ -117,7 +117,7 @@ void TypeCheck::caseArrayDecl(ASTArrayDecl &host, void *param)
 
     if (host.getList() != NULL)
     {
-		ZVarTypeId arraytype = p.symbols.getVarType(&host);
+		ZVarTypeId arraytype = p.symbols.getVarTypeId(&host);
         list<ASTExpr *> l = host.getList()->getList();
 
         for(list<ASTExpr *>::iterator it = l.begin(); it != l.end(); it++)
@@ -143,7 +143,7 @@ void TypeCheck::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
     if (failure) return;
 
     ZVarTypeId type = init->getType();
-    ZVarTypeId ltype = p.symbols.getVarType(&host);
+    ZVarTypeId ltype = p.symbols.getVarTypeId(&host);
 
     if (!standardCheck(ltype, type, &host))
         failure = true;
@@ -202,7 +202,7 @@ void TypeCheck::caseExprDot(ASTExprDot &host, void *param)
 	}
     else
     {
-        host.setType(p.symbols.getVarType(&host));
+        host.setType(p.symbols.getVarTypeId(&host));
     }
 }
     
@@ -351,7 +351,7 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host, void *param)
 	    return;
     }
 
-	vector<ZVarTypeId> functionParams = p.symbols.getFuncParams(functionId);
+	vector<ZVarTypeId> functionParams = p.symbols.getFuncParamTypeIds(functionId);
     if (functionId == -1 || functionParams.size() != (isIndexed ? 2 : 1) || functionParams[0] != type)
     {
         failure = true;
@@ -359,15 +359,15 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host, void *param)
         return;
     }
 
-    p.symbols.putAST(&host, functionId);
-    host.setType(p.symbols.getFuncType(functionId));
+    p.symbols.putNodeId(&host, functionId);
+    host.setType(p.symbols.getFuncReturnTypeId(functionId));
 }
 
 void TypeCheck::caseExprArray(ASTExprArray &host, void *param)
 {
 	TypeCheckParam& p = *(TypeCheckParam*)param;
 
-    ZVarTypeId type  = p.symbols.getVarType(&host);
+    ZVarTypeId type  = p.symbols.getVarTypeId(&host);
     host.setType(type);
 
     if (host.getIndex())
@@ -475,13 +475,13 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
 
     if (isdotexpr)
     {
-        possibleFuncIds = p.symbols.getAmbiguousFuncs(&host);
+        possibleFuncIds = p.symbols.getPossibleNodeFuncIds(&host);
 
         vector<pair<int, int> > matchedfuncs;
 
         for (vector<int>::iterator it = possibleFuncIds.begin(); it != possibleFuncIds.end(); it++)
         {
-            vector<ZVarTypeId> itParams = p.symbols.getFuncParams(*it);
+            vector<ZVarTypeId> itParams = p.symbols.getFuncParamTypeIds(*it);
 
             // See if they match.
             if (itParams.size() != paramtypes.size())
@@ -547,8 +547,8 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
         }
 
         // WHEW!
-        host.setType(p.symbols.getFuncType(bestmatch[0]));
-        p.symbols.putAST(&host, bestmatch[0]);
+        host.setType(p.symbols.getFuncReturnTypeId(bestmatch[0]));
+        p.symbols.putNodeId(&host, bestmatch[0]);
     }
     else
     {
@@ -730,7 +730,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
 			assert(false);
 		}
 		
-		vector<ZVarTypeId> functionParams = p.symbols.getFuncParams(functionId);
+		vector<ZVarTypeId> functionParams = p.symbols.getFuncParamTypeIds(functionId);
 
         if (functionId == -1)
         {
@@ -756,8 +756,8 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host, void *param)
             }
         }
 
-        host.setType(p.symbols.getFuncType(functionId));
-        p.symbols.putAST(&host, functionId);
+        host.setType(p.symbols.getFuncReturnTypeId(functionId));
+        p.symbols.putNodeId(&host, functionId);
     }
 }
 
@@ -813,8 +813,8 @@ void TypeCheck::caseExprIncrement(ASTExprIncrement &host, void *param)
 
     if (!isexprdot)
     {
-        int fid = p.symbols.getID(host.getOperand());
-        p.symbols.putAST(&host, fid);
+        int fid = p.symbols.getNodeId(host.getOperand());
+        p.symbols.putNodeId(&host, fid);
     }
 
     GetLValType glvt;
@@ -844,14 +844,14 @@ void TypeCheck::caseExprPreIncrement(ASTExprPreIncrement &host, void *param)
 
     if (!isexprdot)
     {
-        int fid = p.symbols.getID(host.getOperand());
-        p.symbols.putAST(&host, fid);
+        int fid = p.symbols.getNodeId(host.getOperand());
+        p.symbols.putNodeId(&host, fid);
     }
 
     if (!isexprdot)
     {
-        int fid = p.symbols.getID(host.getOperand());
-        p.symbols.putAST(&host, fid);
+        int fid = p.symbols.getNodeId(host.getOperand());
+        p.symbols.putNodeId(&host, fid);
     }
 
     GetLValType glvt;
@@ -881,8 +881,8 @@ void TypeCheck::caseExprDecrement(ASTExprDecrement &host, void *param)
 
     if (!isexprdot)
     {
-        int fid = p.symbols.getID(host.getOperand());
-        p.symbols.putAST(&host, fid);
+        int fid = p.symbols.getNodeId(host.getOperand());
+        p.symbols.putNodeId(&host, fid);
     }
 
     GetLValType glvt;
@@ -912,8 +912,8 @@ void TypeCheck::caseExprPreDecrement(ASTExprPreDecrement &host, void *param)
 
     if (!isexprdot)
     {
-        int fid = p.symbols.getID(host.getOperand());
-        p.symbols.putAST(&host, fid);
+        int fid = p.symbols.getNodeId(host.getOperand());
+        p.symbols.putNodeId(&host, fid);
     }
 
     GetLValType glvt;
@@ -1286,7 +1286,7 @@ void GetLValType::caseVarDecl(ASTVarDecl& host, void* param)
 {
 	GetLValTypeParam& p = *(GetLValTypeParam*)param;
     host.execute(p.tc, &p.tcParam);
-    p.type = p.tcParam.symbols.getVarType(&host);
+    p.type = p.tcParam.symbols.getVarTypeId(&host);
 }
 
 void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
@@ -1490,7 +1490,7 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
     }
     }
 
-	vector<ZVarTypeId> functionParams = p.tcParam.symbols.getFuncParams(functionId);
+	vector<ZVarTypeId> functionParams = p.tcParam.symbols.getFuncParamTypeIds(functionId);
     if (functionId == -1 || functionParams.size() != (isIndexed ? 3 : 2) || functionParams[0] != type)
     {
         printErrorMsg(&host, ARROWNOVAR, host.getName() + (isIndexed ? "[]" : ""));
@@ -1498,7 +1498,7 @@ void GetLValType::caseExprArrow(ASTExprArrow &host, void *param)
         return;
     }
 
-    p.tcParam.symbols.putAST(&host, functionId);
+    p.tcParam.symbols.putNodeId(&host, functionId);
     p.type = functionParams[isIndexed ? 2 : 1];
 }
 
@@ -1506,7 +1506,7 @@ void GetLValType::caseExprDot(ASTExprDot &host, void *param)
 {
 	GetLValTypeParam& p = *(GetLValTypeParam*)param;
     host.execute(p.tc, &p.tcParam);
-    int vid = p.tcParam.symbols.getID(&host);
+    int vid = p.tcParam.symbols.getNodeId(&host);
 
     if (vid == -1)
     {
@@ -1515,14 +1515,14 @@ void GetLValType::caseExprDot(ASTExprDot &host, void *param)
         return;
     }
 
-    p.type = p.tcParam.symbols.getVarType(&host);
+    p.type = p.tcParam.symbols.getVarTypeId(&host);
 }
 
 void GetLValType::caseExprArray(ASTExprArray &host, void *param)
 {
 	GetLValTypeParam& p = *(GetLValTypeParam*)param;
     host.execute(p.tc, &p.tcParam);
-    int vid = p.tcParam.symbols.getID(&host);
+    int vid = p.tcParam.symbols.getNodeId(&host);
 
     if (vid == -1)
     {
@@ -1531,7 +1531,7 @@ void GetLValType::caseExprArray(ASTExprArray &host, void *param)
         return;
     }
 
-    p.type = p.tcParam.symbols.getVarType(&host);
+    p.type = p.tcParam.symbols.getVarTypeId(&host);
 
     if (host.getIndex())
     {

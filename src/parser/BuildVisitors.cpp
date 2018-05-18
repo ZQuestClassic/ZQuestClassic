@@ -375,7 +375,7 @@ void BuildOpcodes::caseArrayDecl(ASTArrayDecl &host, void *param)
     OpcodeContext *c = (OpcodeContext *) param;
 
     // Check if the array is global or not.
-	int id = c->symbols->getID(&host);
+	int id = c->symbols->getNodeId(&host);
     int globalid = c->linktable->getGlobalID(id);
     int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
 
@@ -395,7 +395,7 @@ void BuildOpcodes::caseArrayDecl(ASTArrayDecl &host, void *param)
         else
     {
             addOpcode(new OAllocateMemRegister(new VarArgument(EXP1), new VarArgument(EXP1)));
-            int offset = c->stackframe->getOffset(c->symbols->getID(&host));
+            int offset = c->stackframe->getOffset(c->symbols->getNodeId(&host));
             addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
             addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
             addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
@@ -443,7 +443,7 @@ void BuildOpcodes::caseArrayDecl(ASTArrayDecl &host, void *param)
         else
     {
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(size)));
-            int offset = c->stackframe->getOffset(c->symbols->getID(&host));
+		int offset = c->stackframe->getOffset(c->symbols->getNodeId(&host));
 		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
 		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
 		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
@@ -479,7 +479,7 @@ void BuildOpcodes::caseVarDecl(ASTVarDecl &host, void *param)
 {
     //initialize to 0
     OpcodeContext *c = (OpcodeContext *)param;
-    int globalid = c->linktable->getGlobalID(c->symbols->getID(&host));
+    int globalid = c->linktable->getGlobalID(c->symbols->getNodeId(&host));
 
     if(globalid != -1)
     {
@@ -491,7 +491,7 @@ void BuildOpcodes::caseVarDecl(ASTVarDecl &host, void *param)
     
     //it's a local var
     //set it to 0 on the stack
-    int offset = c->stackframe->getOffset(c->symbols->getID(&host));
+    int offset = c->stackframe->getOffset(c->symbols->getNodeId(&host));
     addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
     addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
     addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
@@ -504,7 +504,7 @@ void BuildOpcodes::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *par
     //compute the value of the initializer
     host.getInitializer()->execute(*this,param);
     //value of expr now stored in EXP1
-    int globalid = c->linktable->getGlobalID(c->symbols->getID(&host));
+    int globalid = c->linktable->getGlobalID(c->symbols->getNodeId(&host));
 
     if(globalid != -1)
     {
@@ -515,7 +515,7 @@ void BuildOpcodes::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *par
     
     //it's a local var
     //set it on the stack
-    int offset = c->stackframe->getOffset(c->symbols->getID(&host));
+    int offset = c->stackframe->getOffset(c->symbols->getNodeId(&host));
     addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
     addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
     addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
@@ -546,7 +546,7 @@ void BuildOpcodes::caseBoolConstant(ASTBoolConstant &host, void *)
 void BuildOpcodes::caseStringConstant(ASTStringConstant& host, void* param)
 {
 	OpcodeContext* c = (OpcodeContext*)param;
-	int id = c->symbols->getID(&host);
+	int id = c->symbols->getNodeId(&host);
     int globalid = c->linktable->getGlobalID(id);
     int RAMtype = (globalid == -1) ? SCRIPTRAM: GLOBALRAM;
 
@@ -617,7 +617,7 @@ void BuildOpcodes::caseExprConst(ASTExprConst &host, void *param)
 void BuildOpcodes::caseExprDot(ASTExprDot &host, void *param)
 {
     OpcodeContext *c = (OpcodeContext *)param;
-    int vid = c->symbols->getID(&host);
+    int vid = c->symbols->getNodeId(&host);
 
     if(vid == -1)
     {
@@ -668,7 +668,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow &host, void *param)
 }
 
     //call the function
-    int label = c->linktable->functionToLabel(c->symbols->getID(&host));
+    int label = c->linktable->functionToLabel(c->symbols->getNodeId(&host));
     addOpcode(new OGotoImmediate(new LabelArgument(label)));
     //pop the stack frame
     Opcode *next = new OPopRegister(new VarArgument(SFRAME));
@@ -679,7 +679,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow &host, void *param)
 void BuildOpcodes::caseExprArray(ASTExprArray &host, void *param)
 {
     OpcodeContext *c = (OpcodeContext *)param;
-    int aid = c->symbols->getID(&host);
+    int aid = c->symbols->getNodeId(&host);
     int globalid = c->linktable->getGlobalID(aid);
 
     if(globalid != -1)
@@ -710,7 +710,7 @@ void BuildOpcodes::caseExprArray(ASTExprArray &host, void *param)
 void BuildOpcodes::caseFuncCall(ASTFuncCall &host, void *param)
 {
     OpcodeContext *c = (OpcodeContext *)param;
-    int funclabel = c->linktable->functionToLabel(c->symbols->getID(&host));
+    int funclabel = c->linktable->functionToLabel(c->symbols->getNodeId(&host));
     //push the stack frame pointer
     addOpcode(new OPushRegister(new VarArgument(SFRAME)));
     //push the return address
@@ -802,10 +802,10 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement &host, void *param)
     }
     else
     {
-        int oldid = c->symbols->getID(host.getOperand());
-        c->symbols->putAST(host.getOperand(), c->symbols->getID(&host));
+        int oldid = c->symbols->getNodeId(host.getOperand());
+        c->symbols->putNodeId(host.getOperand(), c->symbols->getNodeId(&host));
         host.getOperand()->execute(*this,param);
-        c->symbols->putAST(host.getOperand(), oldid);
+        c->symbols->putNodeId(host.getOperand(), oldid);
     }
     
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -843,10 +843,10 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement &host, void *param)
     }
     else
     {
-        int oldid = c->symbols->getID(host.getOperand());
-        c->symbols->putAST(host.getOperand(), c->symbols->getID(&host));
+        int oldid = c->symbols->getNodeId(host.getOperand());
+        c->symbols->putNodeId(host.getOperand(), c->symbols->getNodeId(&host));
         host.getOperand()->execute(*this,param);
-        c->symbols->putAST(host.getOperand(), oldid);
+        c->symbols->putNodeId(host.getOperand(), oldid);
     }
     
     //increment EXP1
@@ -879,10 +879,10 @@ void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement &host, void *param)
     }
     else
     {
-        int oldid = c->symbols->getID(host.getOperand());
-        c->symbols->putAST(host.getOperand(), c->symbols->getID(&host));
+        int oldid = c->symbols->getNodeId(host.getOperand());
+        c->symbols->putNodeId(host.getOperand(), c->symbols->getNodeId(&host));
         host.getOperand()->execute(*this,param);
-        c->symbols->putAST(host.getOperand(), oldid);
+        c->symbols->putNodeId(host.getOperand(), oldid);
     }
     
     //dencrement EXP1
@@ -915,10 +915,10 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement &host, void *param)
     }
     else
     {
-        int oldid = c->symbols->getID(host.getOperand());
-        c->symbols->putAST(host.getOperand(), c->symbols->getID(&host));
+        int oldid = c->symbols->getNodeId(host.getOperand());
+        c->symbols->putNodeId(host.getOperand(), c->symbols->getNodeId(&host));
         host.getOperand()->execute(*this,param);
-        c->symbols->putAST(host.getOperand(), oldid);
+        c->symbols->putNodeId(host.getOperand(), oldid);
     }
     
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -1295,7 +1295,7 @@ void LValBOHelper::caseVarDecl(ASTVarDecl &host, void *param)
 {
     //cannot be a global variable, so just stuff it in the stack
     OpcodeContext *c = (OpcodeContext *)param;
-    int vid = c->symbols->getID(&host);
+    int vid = c->symbols->getNodeId(&host);
     int offset = c->stackframe->getOffset(vid);
     addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
     addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
@@ -1305,7 +1305,7 @@ void LValBOHelper::caseVarDecl(ASTVarDecl &host, void *param)
 void LValBOHelper::caseExprDot(ASTExprDot &host, void *param)
 {
     OpcodeContext *c = (OpcodeContext *)param;
-    int vid = c->symbols->getID(&host);
+    int vid = c->symbols->getNodeId(&host);
     int globalid = c->linktable->getGlobalID(vid);
     
     if(globalid != -1)
@@ -1371,7 +1371,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     }
     
     //finally, goto!
-    int label = c->linktable->functionToLabel(c->symbols->getID(&host));
+    int label = c->linktable->functionToLabel(c->symbols->getNodeId(&host));
     addOpcode(new OGotoImmediate(new LabelArgument(label)));
     //pop the stack frame
     Opcode *next = new OPopRegister(new VarArgument(SFRAME));
@@ -1383,7 +1383,7 @@ void LValBOHelper::caseExprArray(ASTExprArray &host, void *param)
 {
     OpcodeContext *c = (OpcodeContext *)param;
     int RAMtype = SCRIPTRAM;
-    int vid = c->symbols->getID(&host);
+    int vid = c->symbols->getNodeId(&host);
     int globalid = c->linktable->getGlobalID(vid);
     
     //Get the pointer

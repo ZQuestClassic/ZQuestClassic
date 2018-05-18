@@ -10,6 +10,50 @@ using std::cout;
 using std::endl;
 
 ////////////////////////////////////////////////////////////////
+// FunctionSignature
+
+FunctionSignature::FunctionSignature(string const& name, vector<ZVarTypeId> const& paramTypeIds)
+	: name(name), paramTypeIds(paramTypeIds)
+{}
+
+int FunctionSignature::compare(FunctionSignature const& other) const
+{
+	int c = name.compare(other.name);
+	if (c) return c;
+	c = paramTypeIds.size() - other.paramTypeIds.size();
+	if (c) return c;
+	for (int i = 0; i < paramTypeIds.size(); ++i)
+	{
+		c = paramTypeIds[i] - other.paramTypeIds[i];
+		if (c) return c;
+	}
+	return 0;
+}
+
+////////////////////////////////////////////////////////////////
+// FunctionTypeIds
+
+FunctionTypeIds::FunctionTypeIds(ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds)
+	: returnTypeId(returnTypeId), paramTypeIds(paramTypeIds)
+{}
+
+int FunctionTypeIds::compare(FunctionTypeIds const& other) const
+{
+	int c = returnTypeId - other.returnTypeId;
+	if (c) return c;
+	c = paramTypeIds.size() - other.paramTypeIds.size();
+	if (c) return c;
+	for (int i = 0; i < paramTypeIds.size(); ++i)
+	{
+		c = paramTypeIds[i] - other.paramTypeIds[i];
+		if (c) return c;
+	}
+	return 0;
+}
+
+FunctionTypeIds const FunctionTypeIds::null;
+
+////////////////////////////////////////////////////////////////
 // VariableSymbols
 
 int VariableSymbols::addVariable(string name, int type)
@@ -90,23 +134,41 @@ vector<int> FunctionSymbols::getFuncIDs(string name)
 ////////////////////////////////////////////////////////////////
 // SymbolTable
 
-int SymbolTable::getVarType(AST *obj)
+SymbolTable::SymbolTable(map<string, long> *consts)
+	: nodeIds(), possibleNodeFuncIds(), varTypes(), funcTypes(), constants(consts)
+{}
+
+// Nodes
+
+int SymbolTable::getNodeId(AST* node) const
 {
-    map<AST *, int>::iterator it = astToID.find(obj);
+	map<AST*, int>::const_iterator it = nodeIds.find(node);
+	if (it == nodeIds.end()) return -1;
+	return it->second;
+}
     
-    if(it == astToID.end())
+void SymbolTable::putNodeId(AST* node, int id)
     {
-        box_out("Internal Error: Can't find the AST ID!");
-        box_eol();
-        return -1;
-    }
-    
-    return getVarType(it->second);
+    nodeIds[node] = id;
 }
 
-int SymbolTable::getVarType(int varID)
+vector<int> SymbolTable::getPossibleNodeFuncIds(AST* node) const
 {
-    map<int, int>::iterator it = varTypes.find(varID);
+	map<AST*, vector<int> >::const_iterator it = possibleNodeFuncIds.find(node);
+	if (it == possibleNodeFuncIds.end()) return vector<int>();
+	return it->second;
+    }
+    
+void SymbolTable::putPossibleNodeFuncIds(AST* node, vector<int> possibleFuncIds)
+{
+	possibleNodeFuncIds[node] = possibleFuncIds;
+}
+
+// Variables
+
+ZVarTypeId SymbolTable::getVarTypeId(int varId) const
+{
+    map<int, ZVarTypeId>::const_iterator it = varTypes.find(varId);
     
     if(it == varTypes.end())
     {
@@ -118,36 +180,67 @@ int SymbolTable::getVarType(int varID)
     return it->second;
 }
 
-bool SymbolTable::isConstant(string name)
+ZVarTypeId SymbolTable::getVarTypeId(AST* obj) const
+{
+    map<AST*, int>::const_iterator it = nodeIds.find(obj);
+
+    if (it == nodeIds.end())
+    {
+        box_out("Internal Error: Can't find the AST ID!");
+        box_eol();
+        return -1;
+}
+
+    return getVarTypeId(it->second);
+}
+
+void SymbolTable::putVarTypeId(int varId, ZVarTypeId typeId)
+{
+	varTypes[varId] = typeId;
+}
+
+// Functions
+
+ZVarTypeId SymbolTable::getFuncReturnTypeId(int funcId) const
+{
+	map<int, FunctionTypeIds>::const_iterator it = funcTypes.find(funcId);
+	if (it == funcTypes.end()) return -1;
+	return it->second.returnTypeId;
+}
+
+ZVarTypeId SymbolTable::getFuncReturnTypeId(AST* node) const
+{
+    return getFuncReturnTypeId(getNodeId(node));
+}
+
+vector<ZVarTypeId> SymbolTable::getFuncParamTypeIds(int funcId) const
+{
+	map<int, FunctionTypeIds>::const_iterator it = funcTypes.find(funcId);
+	if (it == funcTypes.end()) return vector<ZVarTypeId>();
+	return it->second.paramTypeIds;
+}
+
+void SymbolTable::putFuncTypeIds(int funcId, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds)
+{
+	funcTypes[funcId] = FunctionTypeIds(returnTypeId, paramTypeIds);
+}
+
+// 
+
+bool SymbolTable::isConstant(string name) const
 {
     return constants->find(name) != constants->end();
 }
 
-long SymbolTable::getConstantVal(string name)
+long SymbolTable::getConstantVal(string name) const
 {
     return (*constants)[name];
-}
-
-void SymbolTable::putFunc(int ID, int type)
-{
-    funcTypes[ID]=type;
-}
-
-void SymbolTable::putAST(AST *obj, int ID)
-{
-    astToID[obj]=ID;
-}
-
-int SymbolTable::getFuncType(AST *obj)
-{
-    return getFuncType(astToID[obj]);
 }
 
 void SymbolTable::printDiagnostics()
 {
     cout << (unsigned int)varTypes.size() << " variable symbols" << endl;
     cout << (unsigned int)funcTypes.size() << " function symbols" << endl;
-    cout << (unsigned int)funcParams.size() << " function declarations (should = function symbols)" << endl;
 }
 
 ////////////////////////////////////////////////////////////////

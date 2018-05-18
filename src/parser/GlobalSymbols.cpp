@@ -339,8 +339,7 @@ void LibrarySymbols::addSymbolsToScope(Scope *scope, SymbolTable *t)
             
         string name = table[i].name;
         scope->getFuncSymbols().addFunction(name, table[i].rettype,param);
-        t->putFunc(id, table[i].rettype);
-        t->putFuncDecl(id, param);
+        t->putFuncTypeIds(id, table[i].rettype, param);
         memberids[name]=id;
     }
 }
