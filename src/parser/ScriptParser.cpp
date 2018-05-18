@@ -237,52 +237,6 @@ int ScriptParser::fid = 0;
 int ScriptParser::gid = 1;
 int ScriptParser::lid = 0;
 
-// The following is NOT AT ALL compliant with the C++ standard
-// but apparently required by the MingW gcc...
-#ifndef _MSC_VER
-const int ScriptParser::TYPE_FLOAT;
-const int ScriptParser::TYPE_BOOL;
-const int ScriptParser::TYPE_VOID;
-const int ScriptParser::TYPE_LINK;
-const int ScriptParser::TYPE_FFC;
-const int ScriptParser::TYPE_ITEM;
-const int ScriptParser::TYPE_ITEMCLASS;
-const int ScriptParser::TYPE_SCREEN;
-const int ScriptParser::TYPE_GLOBAL;
-const int ScriptParser::TYPE_GAME;
-const int ScriptParser::TYPE_NPC;
-const int ScriptParser::TYPE_LWPN;
-const int ScriptParser::TYPE_EWPN;
-//New Types
-const int ScriptParser::TYPE_NPCDATA;
-const int ScriptParser::TYPE_DEBUG;
-const int ScriptParser::TYPE_AUDIO;
-const int ScriptParser::TYPE_COMBOS;
-const int ScriptParser::TYPE_SPRITEDATA;
-const int ScriptParser::TYPE_GRAPHICS;
-const int ScriptParser::TYPE_TEXT;
-const int ScriptParser::TYPE_INPUT;
-const int ScriptParser::TYPE_MAPDATA;
-
-const int ScriptParser::TYPE_DMAPDATA;
-const int ScriptParser::TYPE_ZMESSAGE;
-const int ScriptParser::TYPE_SHOPDATA;
-const int ScriptParser::TYPE_UNTYPED;
-
-const int ScriptParser::TYPE_DROPSET;
-const int ScriptParser::TYPE_PONDS;
-const int ScriptParser::TYPE_WARPRING;
-const int ScriptParser::TYPE_DOORSET;
-const int ScriptParser::TYPE_ZUICOLOURS;
-const int ScriptParser::TYPE_RGBDATA;
-const int ScriptParser::TYPE_PALETTE;
-const int ScriptParser::TYPE_TUNES;
-const int ScriptParser::TYPE_PALCYCLE;
-const int ScriptParser::TYPE_GAMEDATA;
-const int ScriptParser::TYPE_CHEATS;
-
-#endif
-
 string ScriptParser::trimQuotes(string quoteds)
 {
     string rval = quoteds.substr(1,quoteds.size()-2);
@@ -466,7 +420,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
             ExtractType temp;
             (*it2)->getType()->execute(temp, &type);
             
-            if(type == ScriptParser::TYPE_VOID)
+            if(type == ZVARTYPEID_VOID)
             {
                 printErrorMsg(*it2, FUNCTIONVOIDPARAM, (*it2)->getName());
                 failure=true;
@@ -513,114 +467,114 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     int vid2;
     
     //add a Link global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Link", ScriptParser::TYPE_LINK);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_LINK);
+    vid2 = globalScope->getVarSymbols().addVariable("Link", ZVARTYPEID_LINK);
+    t->putVarTypeId(vid2, ZVARTYPEID_LINK);
     t->addGlobalPointer(vid2);
     //add a Screen global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Screen", ScriptParser::TYPE_SCREEN);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_SCREEN);
+    vid2 = globalScope->getVarSymbols().addVariable("Screen", ZVARTYPEID_SCREEN);
+    t->putVarTypeId(vid2, ZVARTYPEID_SCREEN);
     t->addGlobalPointer(vid2);
     //add a Game global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Game", ScriptParser::TYPE_GAME);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_GAME);
+    vid2 = globalScope->getVarSymbols().addVariable("Game", ZVARTYPEID_GAME);
+    t->putVarTypeId(vid2, ZVARTYPEID_GAME);
     t->addGlobalPointer(vid2);
     
     //New Pointers
     
-    vid2 = globalScope->getVarSymbols().addVariable("Debug", ScriptParser::TYPE_DEBUG);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_DEBUG);
+    vid2 = globalScope->getVarSymbols().addVariable("Debug", ZVARTYPEID_DEBUG);
+    t->putVarTypeId(vid2, ZVARTYPEID_DEBUG);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("Audio", ScriptParser::TYPE_AUDIO);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_AUDIO);
+    vid2 = globalScope->getVarSymbols().addVariable("Audio", ZVARTYPEID_AUDIO);
+    t->putVarTypeId(vid2, ZVARTYPEID_AUDIO);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("Text", ScriptParser::TYPE_TEXT);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_TEXT);
+    vid2 = globalScope->getVarSymbols().addVariable("Text", ZVARTYPEID_TEXT);
+    t->putVarTypeId(vid2, ZVARTYPEID_TEXT);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("NPCData", ScriptParser::TYPE_NPCDATA);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_NPCDATA);
+    vid2 = globalScope->getVarSymbols().addVariable("NPCData", ZVARTYPEID_NPCDATA);
+    t->putVarTypeId(vid2, ZVARTYPEID_NPCDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("ComboData", ScriptParser::TYPE_COMBOS);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_COMBOS);
+    vid2 = globalScope->getVarSymbols().addVariable("ComboData", ZVARTYPEID_COMBOS);
+    t->putVarTypeId(vid2, ZVARTYPEID_COMBOS);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("SpriteData", ScriptParser::TYPE_SPRITEDATA);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_SPRITEDATA);
+    vid2 = globalScope->getVarSymbols().addVariable("SpriteData", ZVARTYPEID_SPRITEDATA);
+    t->putVarTypeId(vid2, ZVARTYPEID_SPRITEDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("Graphics", ScriptParser::TYPE_GRAPHICS);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_GRAPHICS);
+    vid2 = globalScope->getVarSymbols().addVariable("Graphics", ZVARTYPEID_GRAPHICS);
+    t->putVarTypeId(vid2, ZVARTYPEID_GRAPHICS);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("Input", ScriptParser::TYPE_INPUT);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_INPUT);
+    vid2 = globalScope->getVarSymbols().addVariable("Input", ZVARTYPEID_INPUT);
+    t->putVarTypeId(vid2, ZVARTYPEID_INPUT);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("MapData", ScriptParser::TYPE_MAPDATA);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_MAPDATA);
+    vid2 = globalScope->getVarSymbols().addVariable("MapData", ZVARTYPEID_MAPDATA);
+    t->putVarTypeId(vid2, ZVARTYPEID_MAPDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("DMapData", ScriptParser::TYPE_DMAPDATA);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_DMAPDATA);
+    vid2 = globalScope->getVarSymbols().addVariable("DMapData", ZVARTYPEID_DMAPDATA);
+    t->putVarTypeId(vid2, ZVARTYPEID_DMAPDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("MessageData", ScriptParser::TYPE_ZMESSAGE);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_ZMESSAGE);
+    vid2 = globalScope->getVarSymbols().addVariable("MessageData", ZVARTYPEID_ZMESSAGE);
+    t->putVarTypeId(vid2, ZVARTYPEID_ZMESSAGE);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("ShopData", ScriptParser::TYPE_SHOPDATA);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_SHOPDATA);
+    vid2 = globalScope->getVarSymbols().addVariable("ShopData", ZVARTYPEID_SHOPDATA);
+    t->putVarTypeId(vid2, ZVARTYPEID_SHOPDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("Untyped", ScriptParser::TYPE_UNTYPED);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_UNTYPED);
+    vid2 = globalScope->getVarSymbols().addVariable("Untyped", ZVARTYPEID_UNTYPED);
+    t->putVarTypeId(vid2, ZVARTYPEID_UNTYPED);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("dropdata->", ScriptParser::TYPE_DROPSET);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_DROPSET);
+    vid2 = globalScope->getVarSymbols().addVariable("dropdata->", ZVARTYPEID_DROPSET);
+    t->putVarTypeId(vid2, ZVARTYPEID_DROPSET);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("ponddata->", ScriptParser::TYPE_PONDS);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_PONDS);
+    vid2 = globalScope->getVarSymbols().addVariable("ponddata->", ZVARTYPEID_PONDS);
+    t->putVarTypeId(vid2, ZVARTYPEID_PONDS);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("warpring->", ScriptParser::TYPE_WARPRING);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_WARPRING);
+    vid2 = globalScope->getVarSymbols().addVariable("warpring->", ZVARTYPEID_WARPRING);
+    t->putVarTypeId(vid2, ZVARTYPEID_WARPRING);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("doorset->", ScriptParser::TYPE_DOORSET);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_DOORSET);
+    vid2 = globalScope->getVarSymbols().addVariable("doorset->", ZVARTYPEID_DOORSET);
+    t->putVarTypeId(vid2, ZVARTYPEID_DOORSET);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("misccolors->", ScriptParser::TYPE_ZUICOLOURS);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_ZUICOLOURS);
+    vid2 = globalScope->getVarSymbols().addVariable("misccolors->", ZVARTYPEID_ZUICOLOURS);
+    t->putVarTypeId(vid2, ZVARTYPEID_ZUICOLOURS);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("rgbdata->", ScriptParser::TYPE_RGBDATA);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_RGBDATA);
+    vid2 = globalScope->getVarSymbols().addVariable("rgbdata->", ZVARTYPEID_RGBDATA);
+    t->putVarTypeId(vid2, ZVARTYPEID_RGBDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("palette->", ScriptParser::TYPE_PALETTE);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_PALETTE);
+    vid2 = globalScope->getVarSymbols().addVariable("palette->", ZVARTYPEID_PALETTE);
+    t->putVarTypeId(vid2, ZVARTYPEID_PALETTE);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("musictrack->", ScriptParser::TYPE_TUNES);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_TUNES);
+    vid2 = globalScope->getVarSymbols().addVariable("musictrack->", ZVARTYPEID_TUNES);
+    t->putVarTypeId(vid2, ZVARTYPEID_TUNES);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("palcycle->", ScriptParser::TYPE_PALCYCLE);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_PALCYCLE);
+    vid2 = globalScope->getVarSymbols().addVariable("palcycle->", ZVARTYPEID_PALCYCLE);
+    t->putVarTypeId(vid2, ZVARTYPEID_PALCYCLE);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("gamedata->", ScriptParser::TYPE_GAMEDATA);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_GAMEDATA);
+    vid2 = globalScope->getVarSymbols().addVariable("gamedata->", ZVARTYPEID_GAMEDATA);
+    t->putVarTypeId(vid2, ZVARTYPEID_GAMEDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("cheats->", ScriptParser::TYPE_CHEATS);
-    t->putVarTypeId(vid2, ScriptParser::TYPE_CHEATS);
+    vid2 = globalScope->getVarSymbols().addVariable("cheats->", ZVARTYPEID_CHEATS);
+    t->putVarTypeId(vid2, ZVARTYPEID_CHEATS);
     t->addGlobalPointer(vid2);
     
     
@@ -715,7 +669,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                     {
                         int type = t->getFuncReturnTypeId(runid);
                         
-                        if(type != ScriptParser::TYPE_VOID)
+                        if (type != ZVARTYPEID_VOID)
                         {
                             printErrorMsg(*it, SCRIPTRUNNOTVOID, (*it)->getName());
                             failure = true;

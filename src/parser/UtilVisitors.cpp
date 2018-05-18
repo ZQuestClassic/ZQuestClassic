@@ -580,146 +580,146 @@ void ExtractType::caseDefault(void *)
 
 void ExtractType::caseTypeVoid(ASTTypeVoid &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_VOID;
+    *(int *)param = ZVARTYPEID_VOID;
 }
 
 void ExtractType::caseTypeGlobal(ASTTypeGlobal &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_GLOBAL;
+	assert(false);
 }
 
 void ExtractType::caseTypeFloat(ASTTypeFloat &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_FLOAT;
+    *(int *)param = ZVARTYPEID_FLOAT;
 }
 
 void ExtractType::caseTypeBool(ASTTypeBool &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_BOOL;
+    *(int *)param = ZVARTYPEID_BOOL;
 }
 
 void ExtractType::caseTypeFFC(ASTTypeFFC &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_FFC;
+    *(int *)param = ZVARTYPEID_FFC;
 }
 
 void ExtractType::caseTypeItem(ASTTypeItem &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_ITEM;
+    *(int *)param = ZVARTYPEID_ITEM;
 }
 
 void ExtractType::caseTypeItemclass(ASTTypeItemclass &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_ITEMCLASS;
+    *(int *)param = ZVARTYPEID_ITEMCLASS;
 }
 
 void ExtractType::caseTypeNPC(ASTTypeNPC &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_NPC;
+    *(int *)param = ZVARTYPEID_NPC;
 }
 
 void ExtractType::caseTypeLWpn(ASTTypeLWpn &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_LWPN;
+    *(int *)param = ZVARTYPEID_LWPN;
 }
 
 void ExtractType::caseTypeEWpn(ASTTypeEWpn &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_EWPN;
+    *(int *)param = ZVARTYPEID_EWPN;
 }
 void ExtractType::caseTypeNPCData(ASTTypeNPCData &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_NPCDATA;
+    *(int *)param = ZVARTYPEID_NPCDATA;
 }
 void ExtractType::caseTypeMapData(ASTTypeMapData &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_MAPDATA;
+    *(int *)param = ZVARTYPEID_MAPDATA;
 }
 void ExtractType::caseTypeDebug(ASTTypeDebug &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_DEBUG;
+    *(int *)param = ZVARTYPEID_DEBUG;
 }
 void ExtractType::caseTypeAudio(ASTTypeAudio &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_AUDIO;
+    *(int *)param = ZVARTYPEID_AUDIO;
 }
 void ExtractType::caseTypeComboData(ASTTypeComboData &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_COMBOS;
+    *(int *)param = ZVARTYPEID_COMBOS;
 }
 void ExtractType::caseTypeSpriteData(ASTTypeSpriteData &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_SPRITEDATA;
+    *(int *)param = ZVARTYPEID_SPRITEDATA;
 }
 void ExtractType::caseTypeGraphics(ASTTypeGraphics &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_GRAPHICS;
+    *(int *)param = ZVARTYPEID_GRAPHICS;
 }
 void ExtractType::caseTypeText(ASTTypeText &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_TEXT;
+    *(int *)param = ZVARTYPEID_TEXT;
 }
 void ExtractType::caseTypeInput(ASTTypeInput &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_INPUT;
+    *(int *)param = ZVARTYPEID_INPUT;
 }
 void ExtractType::caseTypeDMap(ASTTypeDMap &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_DMAPDATA;
+    *(int *)param = ZVARTYPEID_DMAPDATA;
 }
 void ExtractType::caseTypeZMsg(ASTTypeZMsg &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_ZMESSAGE;
+    *(int *)param = ZVARTYPEID_ZMESSAGE;
 }
 void ExtractType::caseTypeShopData(ASTTypeShopData &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_SHOPDATA;
+    *(int *)param = ZVARTYPEID_SHOPDATA;
 }
 void ExtractType::caseTypeUntyped(ASTTypeUntyped &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_UNTYPED;
+    *(int *)param = ZVARTYPEID_UNTYPED;
 }
 void ExtractType::caseTypeDropsets(ASTTypeDropsets &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_DROPSET;
+    *(int *)param = ZVARTYPEID_DROPSET;
 }
 void ExtractType::caseTypePonds(ASTTypePonds &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_PONDS;
+    *(int *)param = ZVARTYPEID_PONDS;
 }
 void ExtractType::caseTypeWarprings(ASTTypeWarprings &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_WARPRING;
+    *(int *)param = ZVARTYPEID_WARPRING;
 }
 void ExtractType::caseTypeDoorsets(ASTTypeDoorsets &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_DOORSET;
+    *(int *)param = ZVARTYPEID_DOORSET;
 }
 void ExtractType::caseTypeZColours(ASTTypeZColours &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_ZUICOLOURS;
+    *(int *)param = ZVARTYPEID_ZUICOLOURS;
 }
 void ExtractType::caseTypeRGB(ASTTypeRGB &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_RGBDATA;
+    *(int *)param = ZVARTYPEID_RGBDATA;
 }
 void ExtractType::caseTypePalette(ASTTypePalette &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_PALETTE;
+    *(int *)param = ZVARTYPEID_PALETTE;
 }
 void ExtractType::caseTypeTunes(ASTTypeTunes &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_TUNES;
+    *(int *)param = ZVARTYPEID_TUNES;
 }
 void ExtractType::caseTypePalCycle(ASTTypePalCycle &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_PALCYCLE;
+    *(int *)param = ZVARTYPEID_PALCYCLE;
 }
 void ExtractType::caseTypeGamedata(ASTTypeGamedata &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_GAMEDATA;
+    *(int *)param = ZVARTYPEID_GAMEDATA;
 }
 void ExtractType::caseTypeCheats(ASTTypeCheats &, void *param)
 {
-    *(int *)param = ScriptParser::TYPE_CHEATS;
+    *(int *)param = ZVARTYPEID_CHEATS;
 }

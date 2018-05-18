@@ -60,6 +60,47 @@ private:
 
 enum ScriptType {SCRIPTTYPE_VOID, SCRIPTTYPE_GLOBAL, SCRIPTTYPE_FFC, SCRIPTTYPE_ITEM};
 
+enum ZVarTypeIdSimple
+{
+    ZVARTYPEID_VOID,
+    ZVARTYPEID_FLOAT,
+    ZVARTYPEID_BOOL,
+    ZVARTYPEID_FFC,
+    ZVARTYPEID_ITEM,
+    ZVARTYPEID_ITEMCLASS,
+    ZVARTYPEID_NPC,
+    ZVARTYPEID_LWPN,
+    ZVARTYPEID_EWPN,
+    ZVARTYPEID_GAME,
+    ZVARTYPEID_LINK,
+    ZVARTYPEID_SCREEN,
+    ZVARTYPEID_NPCDATA,
+    ZVARTYPEID_DEBUG,
+    ZVARTYPEID_AUDIO,
+    ZVARTYPEID_COMBOS,
+    ZVARTYPEID_SPRITEDATA,
+    ZVARTYPEID_GRAPHICS,
+    ZVARTYPEID_TEXT,
+    ZVARTYPEID_INPUT,
+    ZVARTYPEID_MAPDATA,
+    ZVARTYPEID_DMAPDATA,
+    ZVARTYPEID_ZMESSAGE,
+    ZVARTYPEID_SHOPDATA,
+    ZVARTYPEID_UNTYPED,
+    
+    ZVARTYPEID_DROPSET,
+    ZVARTYPEID_PONDS,
+    ZVARTYPEID_WARPRING,
+    ZVARTYPEID_DOORSET,
+    ZVARTYPEID_ZUICOLOURS,
+    ZVARTYPEID_RGBDATA,
+    ZVARTYPEID_PALETTE,
+    ZVARTYPEID_TUNES,
+    ZVARTYPEID_PALCYCLE,
+    ZVARTYPEID_GAMEDATA,
+    ZVARTYPEID_CHEATS
+};
+
 typedef int ZVarTypeId;
 
 
@@ -97,48 +138,7 @@ public:
     {
         return gid++;
     }
-    static const int TYPE_FLOAT = 0;
-    static const int TYPE_BOOL = 1;
-    static const int TYPE_VOID = 2;
-    static const int TYPE_FFC = 3;
-    static const int TYPE_LINK = 4;
-    static const int TYPE_SCREEN = 5;
-    static const int TYPE_GLOBAL = 6;
-    static const int TYPE_ITEM = 7;
-    static const int TYPE_ITEMCLASS = 8;
-    static const int TYPE_GAME = 9;
-    static const int TYPE_NPC = 10;
-    static const int TYPE_LWPN = 11;
-    static const int TYPE_EWPN = 12;
-    
-    //New Types
-    static const int TYPE_NPCDATA = 13;
-    static const int TYPE_DEBUG = 14;
-    static const int TYPE_AUDIO = 15;
-    static const int TYPE_COMBOS = 16;
-    static const int TYPE_SPRITEDATA = 17;
-    static const int TYPE_GRAPHICS = 18;
-    static const int TYPE_TEXT = 19;
-    static const int TYPE_INPUT = 20;
-    static const int TYPE_MAPDATA = 21;
-    static const int TYPE_DMAPDATA = 22;
-    static const int TYPE_ZMESSAGE = 23;
-    static const int TYPE_SHOPDATA = 24;
-    static const int TYPE_UNTYPED = 25;
-    
-    static const int TYPE_DROPSET = 26;
-    static const int TYPE_PONDS = 27;
-    static const int TYPE_WARPRING = 28;
-    static const int TYPE_DOORSET = 29;
-    static const int TYPE_ZUICOLOURS = 30;
-    static const int TYPE_RGBDATA = 31;
-    static const int TYPE_PALETTE = 32;
-    static const int TYPE_TUNES = 33;
-    static const int TYPE_PALCYCLE = 34;
-    static const int TYPE_GAMEDATA = 35;
-    static const int TYPE_CHEATS = 36;
-    
-    
+        
     static bool preprocess(AST *theAST, int reclevel, std::map<string,long> *constants);
     static SymbolData *buildSymbolTable(AST *theAST, std::map<string, long> *constants);
     static FunctionData *typeCheck(SymbolData *sdata);
@@ -152,60 +152,59 @@ public:
         lid=0;
     }
     static pair<long,bool> parseLong(pair<string,string> parts);
-		static int getThisType(ScriptType type)
+	static int getThisType(ScriptType type)
+	{
+		switch (type)
 		{
-				switch (type)
-				{
-				case SCRIPTTYPE_FFC:
-						return TYPE_FFC;
-				case SCRIPTTYPE_ITEM:
-						return TYPE_ITEMCLASS;
-				case SCRIPTTYPE_GLOBAL:
-				case SCRIPTTYPE_VOID:
-						return TYPE_VOID;
-				}
+		case SCRIPTTYPE_FFC:
+			return ZVARTYPEID_FFC;
+		case SCRIPTTYPE_ITEM:
+			return ZVARTYPEID_ITEMCLASS;
+		case SCRIPTTYPE_GLOBAL:
+		case SCRIPTTYPE_VOID:
+			return ZVARTYPEID_VOID;
 		}
-    static string printType(ZVarTypeId type)
-    {
+	}
+	static string printType(ZVarTypeId type)
+	{
         switch (type)
         {
-        case TYPE_FLOAT: return "float";
-        case TYPE_BOOL: return "bool";
-        case TYPE_VOID: return "void";
-        case TYPE_FFC: return "ffc";
-        case TYPE_LINK: return "link";
-        case TYPE_SCREEN: return "screen";
-        case TYPE_GLOBAL: return "global";
-        case TYPE_ITEM: return "item";
-        case TYPE_ITEMCLASS: return "itemdata";
-        case TYPE_GAME: return "game";
-        case TYPE_NPC: return "npc";
-        case TYPE_LWPN: return "lweapon";
-        case TYPE_EWPN: return "eweapon";
-        case TYPE_NPCDATA: return "NPCData";
-        case TYPE_DEBUG: return "Debug";
-        case TYPE_AUDIO: return "Audio";
-        case TYPE_COMBOS: return "ComboData";
-        case TYPE_SPRITEDATA: return "SpriteData";
-        case TYPE_GRAPHICS: return "Graphics";
-        case TYPE_TEXT: return "Text->";
-        case TYPE_INPUT: return "Input->";
-        case TYPE_MAPDATA: return "MapData->";
-        case TYPE_DMAPDATA: return "DMapData->";
-        case TYPE_ZMESSAGE: return "MessageData->";
-        case TYPE_SHOPDATA: return "ShopData->";
-        case TYPE_UNTYPED: return "Untyped->";
-        case TYPE_DROPSET: return "dropdata->";
-        case TYPE_PONDS: return "ponddata->";
-        case TYPE_WARPRING: return "warpring->";
-        case TYPE_DOORSET: return "doorset->";
-        case TYPE_ZUICOLOURS: return "misccolors->";
-        case TYPE_RGBDATA: return "rgbdata->";
-        case TYPE_PALETTE: return "palette->";
-        case TYPE_TUNES: return "musictrack->";
-        case TYPE_PALCYCLE: return "palcycle->";
-        case TYPE_GAMEDATA: return "gamedata->";
-        case TYPE_CHEATS: return "cheats->";
+        case ZVARTYPEID_FLOAT: return "float";
+        case ZVARTYPEID_BOOL: return "bool";
+        case ZVARTYPEID_VOID: return "void";
+        case ZVARTYPEID_FFC: return "ffc";
+        case ZVARTYPEID_LINK: return "link";
+        case ZVARTYPEID_SCREEN: return "screen";
+        case ZVARTYPEID_ITEM: return "item";
+        case ZVARTYPEID_ITEMCLASS: return "itemdata";
+        case ZVARTYPEID_GAME: return "game";
+        case ZVARTYPEID_NPC: return "npc";
+        case ZVARTYPEID_LWPN: return "lweapon";
+        case ZVARTYPEID_EWPN: return "eweapon";
+        case ZVARTYPEID_NPCDATA: return "NPCData";
+        case ZVARTYPEID_DEBUG: return "Debug";
+        case ZVARTYPEID_AUDIO: return "Audio";
+        case ZVARTYPEID_COMBOS: return "ComboData";
+        case ZVARTYPEID_SPRITEDATA: return "SpriteData";
+        case ZVARTYPEID_GRAPHICS: return "Graphics";
+        case ZVARTYPEID_TEXT: return "Text->";
+        case ZVARTYPEID_INPUT: return "Input->";
+        case ZVARTYPEID_MAPDATA: return "MapData->";
+        case ZVARTYPEID_DMAPDATA: return "DMapData->";
+        case ZVARTYPEID_ZMESSAGE: return "MessageData->";
+        case ZVARTYPEID_SHOPDATA: return "ShopData->";
+        case ZVARTYPEID_UNTYPED: return "Untyped->";
+        case ZVARTYPEID_DROPSET: return "dropdata->";
+        case ZVARTYPEID_PONDS: return "ponddata->";
+        case ZVARTYPEID_WARPRING: return "warpring->";
+        case ZVARTYPEID_DOORSET: return "doorset->";
+        case ZVARTYPEID_ZUICOLOURS: return "misccolors->";
+        case ZVARTYPEID_RGBDATA: return "rgbdata->";
+        case ZVARTYPEID_PALETTE: return "palette->";
+        case ZVARTYPEID_TUNES: return "musictrack->";
+        case ZVARTYPEID_PALCYCLE: return "palcycle->";
+        case ZVARTYPEID_GAMEDATA: return "gamedata->";
+        case ZVARTYPEID_CHEATS: return "cheats->";
         default: return "wtf";
         }
     }
