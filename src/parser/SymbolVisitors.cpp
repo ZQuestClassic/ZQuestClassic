@@ -26,8 +26,8 @@ void BuildScriptSymbols::caseScript(ASTScript &host,void *param)
 
 void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
-    pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
-	SymbolTable& symbolTable = *p->second;
+	Scope& scope = *(Scope*)param;
+	SymbolTable& symbolTable = scope.getTable();
     string name = host.getName();
     vector<int> params;
     list<ASTVarDecl *> vds = host.getParams();
@@ -46,7 +46,7 @@ void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     
 	ZVarType const& returnType = host.getReturnType()->getType();
 	ZVarTypeId returnTypeId = symbolTable.getTypeId(returnType);
-    int id = p->first->getFuncSymbols().addFunction(name, symbolTable.getOrAssignTypeId(returnType), params);
+    int id = scope.getFuncSymbols().addFunction(name, symbolTable.getOrAssignTypeId(returnType), params);
     
     if (id == -1)
     {
@@ -61,8 +61,8 @@ void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
 
 void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
 {
-    pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
-	SymbolTable& symbolTable = *p->second;
+	Scope& scope = *(Scope*)param;
+	SymbolTable& symbolTable = scope.getTable();
     string name = host.getName();
     
     ZVarType const& type = host.getType()->getType();
@@ -82,7 +82,7 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
     
     // var is always visible
 	ZVarTypeId typeId = symbolTable.getOrAssignTypeId(type);
-    int id = p->first->getVarSymbols().addVariable(name, typeId);
+    int id = scope.getVarSymbols().addVariable(name, typeId);
     
     if (id == -1)
     {
@@ -112,8 +112,8 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
 
 void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
 {
-    pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
-	SymbolTable& symbolTable = *p->second;
+	Scope& scope = *(Scope*)param;
+	SymbolTable& symbolTable = scope.getTable();
     string name = host.getName();
     
 	ZVarType const& type = host.getType()->getType();
@@ -135,7 +135,7 @@ void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
     }
     
     // Var is always visible.
-    int id = p->first->getVarSymbols().addVariable(name, typeId);
+    int id = scope.getVarSymbols().addVariable(name, typeId);
     
     if (id == -1)
     {
@@ -163,53 +163,46 @@ void BuildScriptSymbols::caseVarDeclInitializer(ASTVarDeclInitializer &host, voi
 
 void BuildScriptSymbols::caseStringConstant(ASTStringConstant& host, void* param)
 {
-	pair<Scope*, SymbolTable*> *p = (pair<Scope*, SymbolTable*>*)param;
+	Scope& scope = *(Scope*)param;
 	BuildFunctionSymbols bfs;
-	BFSParam newp = {p->first, p->second, SCRIPTTYPE_VOID};
-	host.execute(bfs, &newp);
+	BFSParam subParam(scope);
+	host.execute(bfs, &subParam);
 
-	if (!bfs.isOK())
-		failure = true;
+	if (!bfs.isOK()) failure = true;
 }
 
 void BuildScriptSymbols::caseExprDot(ASTExprDot &host, void *param)
 {
-    pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
+	Scope& scope = *(Scope*)param;
     BuildFunctionSymbols bfs;
-    BFSParam newp = {p->first, p->second, SCRIPTTYPE_VOID};
-    host.execute(bfs, &newp);
+	BFSParam subParam(scope);
+	host.execute(bfs, &subParam);
     
-    if(!bfs.isOK())
-    {
-        failure=true;
-    }
+    if (!bfs.isOK()) failure = true;
 }
 
 void BuildScriptSymbols::caseExprArray(ASTExprArray &host, void *param)
 {
-    pair<Scope *, SymbolTable *> *p = (pair<Scope *, SymbolTable *> *)param;
+	Scope& scope = *(Scope*)param;
     BuildFunctionSymbols bfs;
-    BFSParam newp = {p->first, p->second, SCRIPTTYPE_VOID};
+    BFSParam newp(scope);
     host.execute(bfs, &newp);
     
-    if(!bfs.isOK())
-    {
-        failure=true;
-    }
+    if (!bfs.isOK()) failure = true;
     
     host.getIndex()->execute(bfs, &newp);
 }
 
-void BuildScriptSymbols::caseExprArrow(ASTExprArrow &host, void *)
+void BuildScriptSymbols::caseExprArrow(ASTExprArrow &host, void*)
 {
     printErrorMsg(&host, BADGLOBALINIT, "");
-    failure=true;
+    failure = true;
 }
 
-void BuildScriptSymbols::caseFuncCall(ASTFuncCall &host, void *)
+void BuildScriptSymbols::caseFuncCall(ASTFuncCall &host, void*)
 {
     printErrorMsg(&host, BADGLOBALINIT, "");
-    failure=true;
+    failure = true;
 }
 
 //////////////////////////////////////////////////////////////
@@ -217,55 +210,50 @@ void BuildScriptSymbols::caseFuncCall(ASTFuncCall &host, void *)
 
 // Statements
 
-void BuildFunctionSymbols::caseBlock(ASTBlock &host, void *param)
+void BuildFunctionSymbols::caseBlock(ASTBlock& host, void* param)
 {
-    //push in  a new scope
-    BFSParam *p = (BFSParam *)param;
-    Scope *newscope = new Scope(p->scope);
-    BFSParam newparam = {newscope, p->table,p->type};
-    list<ASTStmt *> stmts = host.getStatements();
-    
-    for(list<ASTStmt *>::iterator it = stmts.begin(); it != stmts.end(); it++)
-    {
-        (*it)->execute(*this, &newparam);
-    }
-    
-    delete newscope;
+    // Push in a new scope.
+    BFSParam& p = *(BFSParam*)param;
+    Scope blockScope(&p.scope);
+    BFSParam newParam(blockScope, p.type);
+
+    list<ASTStmt*> stmts = host.getStatements();
+    for (list<ASTStmt*>::iterator it = stmts.begin(); it != stmts.end(); it++)
+        (*it)->execute(*this, &newParam);
 }
 
 void BuildFunctionSymbols::caseStmtFor(ASTStmtFor &host, void *param)
 {
-    //push in new scope
-    //in accordance with C++ scoping
-    BFSParam *p = (BFSParam *)param;
-    Scope *newscope = new Scope(p->scope);
-    BFSParam newparam = {newscope, p->table, p->type};
-    host.getPrecondition()->execute(*this, &newparam);
-    host.getTerminationCondition()->execute(*this, &newparam);
-    host.getIncrement()->execute(*this, &newparam);
-    ASTStmt * stmt = host.getStmt();
-    
-    stmt->execute(*this,&newparam);
-    delete newscope;
+    // Push in new scope (in accordance with C++ scoping).
+    BFSParam& p = *(BFSParam*)param;
+    Scope blockScope(&p.scope);
+    BFSParam newParam(blockScope, p.type);
+    host.getPrecondition()->execute(*this, &newParam);
+    host.getTerminationCondition()->execute(*this, &newParam);
+    host.getIncrement()->execute(*this, &newParam);
+    ASTStmt* stmt = host.getStmt();
+    stmt->execute(*this, &newParam);
 }
 
 // Declarations
 
 void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
-    BFSParam *p = (BFSParam *)param;
+    BFSParam& p = *(BFSParam*)param;
     // Push in the scope.
-    Scope *subscope = new Scope(p->scope);
-    BFSParam newparam = {subscope,p->table,p->type};
+    Scope blockScope(&p.scope);
+	SymbolTable& table = p.scope.getTable();
+    BFSParam newParam(blockScope, p.type);
     
-    // If it's a run method, add this
+    // If it's a run method, add "this".
 	ZVarType const& returnType = host.getReturnType()->getType();
 
     if (host.getName() == "run" && returnType == ZVarType::VOID)
     {
-        int vid = subscope->getVarSymbols().addVariable("this", p->type);
-        newparam.table->putVarTypeId(vid, ScriptParser::getThisType(p->type));
-        thisvid=vid;
+		ZVarTypeId thisTypeId = ScriptParser::getThisType(p.type);
+        int vid = blockScope.getVarSymbols().addVariable("this", thisTypeId);
+        table.putVarTypeId(vid, thisTypeId);
+        thisvid = vid;
     }
     
     // Add the params.
@@ -275,39 +263,35 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     {
         string name = (*it)->getName();
 		ZVarType const& type = (*it)->getType()->getType();
-		ZVarTypeId typeId = p->table->getOrAssignTypeId(type);
-        int id = subscope->getVarSymbols().addVariable(name, typeId);
+		ZVarTypeId typeId = table.getOrAssignTypeId(type);
+        int id = blockScope.getVarSymbols().addVariable(name, typeId);
         
         if (id == -1)
         {
             printErrorMsg(*it, VARREDEF, name);
             failure = true;
-            delete subscope;
             return;
         }
         
-        p->table->putVarTypeId(id, typeId);
-        p->table->putNodeId(*it, id);
+        table.putVarTypeId(id, typeId);
+        table.putNodeId(*it, id);
     }
     
-    //shortcut the block
-    list<ASTStmt *> stmts = host.getBlock()->getStatements();
-    
+    // Shortcut the block.
+    list<ASTStmt*> stmts = host.getBlock()->getStatements();
     for(list<ASTStmt *>::iterator it = stmts.begin(); it != stmts.end(); it++)
-    {
-        (*it)->execute(*this, &newparam);
-    }
-    
-    delete subscope;
+        (*it)->execute(*this, &newParam);
 }
 
 void BuildFunctionSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
 {
-    BFSParam *p = (BFSParam *)param;
+    BFSParam& p = *(BFSParam*)param;
+	Scope& scope = p.scope;
+	SymbolTable& table = scope.getTable();
     string name = host.getName();
 	ZVarType const& type = host.getType()->getType();
-	ZVarTypeId typeId = p->table->getOrAssignTypeId(type);
-    int id = p->scope->getVarSymbols().addVariable(name, typeId);
+	ZVarTypeId typeId = table.getOrAssignTypeId(type);
+    int id = scope.getVarSymbols().addVariable(name, typeId);
     
     if (id == -1)
     {
@@ -316,8 +300,8 @@ void BuildFunctionSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
         return;
     }
     
-    p->table->putNodeId(&host, id);
-    p->table->putVarTypeId(id, typeId);
+    table.putNodeId(&host, id);
+    table.putVarTypeId(id, typeId);
     
 	((ASTExpr*)host.getSize())->execute(*this, param);
         
@@ -332,11 +316,13 @@ void BuildFunctionSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
 
 void BuildFunctionSymbols::caseVarDecl(ASTVarDecl &host, void *param)
 {
-    BFSParam *p = (BFSParam *)param;
+    BFSParam& p = *(BFSParam*)param;
+	Scope& scope = p.scope;
+	SymbolTable& table = scope.getTable();
     string name = host.getName();
 	ZVarType const& type = host.getType()->getType();
-	ZVarTypeId typeId = p->table->getOrAssignTypeId(type);
-    int id = p->scope->getVarSymbols().addVariable(name, typeId);
+	ZVarTypeId typeId = table.getOrAssignTypeId(type);
+    int id = scope.getVarSymbols().addVariable(name, typeId);
     
     if (id == -1)
     {
@@ -345,8 +331,8 @@ void BuildFunctionSymbols::caseVarDecl(ASTVarDecl &host, void *param)
         return;
     }
     
-    p->table->putNodeId(&host, id);
-    p->table->putVarTypeId(id, typeId);
+    table.putNodeId(&host, id);
+    table.putVarTypeId(id, typeId);
 }
 
 void BuildFunctionSymbols::caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param)
@@ -359,40 +345,43 @@ void BuildFunctionSymbols::caseVarDeclInitializer(ASTVarDeclInitializer &host, v
 
 void BuildFunctionSymbols::caseStringConstant(ASTStringConstant& host, void* param)
 {
-	BFSParam *p = (BFSParam*)param;
+	BFSParam& p = *(BFSParam*)param;
 	int id = ScriptParser::getUniqueVarID();
-	p->table->putNodeId(&host, id);
+	p.scope.getTable().putNodeId(&host, id);
 }
 
 void BuildFunctionSymbols::caseFuncCall(ASTFuncCall &host, void *param)
 {
-    BFSParam *p = (BFSParam *)param;
-    ASTExpr *ident = host.getName();
-    //ident could be a dotexpr, or an arrow exp.
-    //if an arrow exp, it is not my problem right now
+    BFSParam& p = *(BFSParam*)param;
+	Scope& scope = p.scope;
+	SymbolTable& table = scope.getTable();
+
+    ASTExpr* ident = host.getName();
+    // ident could be a dotexpr, or an arrow exp. If it's an arrow exp, it is
+    // not my problem right now.
     bool isdot = false;
     IsDotExpr temp;
     ident->execute(temp, &isdot);
     
-    if(!isdot)
+    if (!isdot)
     {
-        //recur to get any dotexprs inside
-        ident->execute(*this,param);
+        // Recur to get any dotexprs inside.
+        ident->execute(*this, param);
     }
     else
     {
-        //resolve the possible functions
-        ASTExprDot *dotname = (ASTExprDot *)host.getName();
+        // Resolve the possible functions.
+        ASTExprDot* dotname = (ASTExprDot*)host.getName();
         string name = dotname->getName();
         string nspace = dotname->getNamespace();
-        vector<int> possibleFuncs = p->scope->getFuncsInScope(nspace, name);
+        vector<int> possibleFuncs = scope.getFuncsInScope(nspace, name);
         
-        if(possibleFuncs.size() == 0)
+        if (possibleFuncs.size() == 0)
         {
             string fullname;
             
-            if(nspace == "")
-                fullname=name;
+            if (nspace == "")
+                fullname = name;
             else
                 fullname = nspace + "." + name;
                 
@@ -401,28 +390,28 @@ void BuildFunctionSymbols::caseFuncCall(ASTFuncCall &host, void *param)
             return;
         }
         
-        p->table->putPossibleNodeFuncIds(&host, possibleFuncs);
+        table.putPossibleNodeFuncIds(&host, possibleFuncs);
     }
     
-    for(list<ASTExpr *>::iterator it = host.getParams().begin(); it != host.getParams().end(); it++)
-    {
-        (*it)->execute(*this,param);
-    }
+    for (list<ASTExpr*>::iterator it = host.getParams().begin(); it != host.getParams().end(); it++)
+        (*it)->execute(*this, param);
 }
 
 void BuildFunctionSymbols::caseExprDot(ASTExprDot &host, void *param)
 {
-    BFSParam *p = (BFSParam *)param;
+    BFSParam& p = *(BFSParam*)param;
+	Scope& scope = p.scope;
+	SymbolTable& table = scope.getTable();
+
     string name = host.getName();
     string nspace = host.getNamespace();
-    int id = p->scope->getVarInScope(nspace, name);
-    
-    if(id == -1 && !(nspace == "" && p->table->isConstant(name)))
+    int id = scope.getVarInScope(nspace, name);
+    if (id == -1 && !(nspace == "" && table.isConstant(name)))
     {
         string fullname;
         
-        if(nspace == "")
-            fullname=name;
+        if (nspace == "")
+            fullname = name;
         else
             fullname = nspace + "." + name;
             
@@ -431,34 +420,37 @@ void BuildFunctionSymbols::caseExprDot(ASTExprDot &host, void *param)
         return;
     }
     
-    p->table->putNodeId(&host, id);
+    table.putNodeId(&host, id);
 }
 
 void BuildFunctionSymbols::caseExprArrow(ASTExprArrow &host, void *param)
 {
-    //recur on the name
-    host.getLVal()->execute(*this,param);
+    // Recur on the name.
+    host.getLVal()->execute(*this, param);
     
-    //recur on the index, if it exists
-    if(host.getIndex())
-        host.getIndex()->execute(*this,param);
+    // Recur on the index, if it exists.
+    if (host.getIndex())
+        host.getIndex()->execute(*this, param);
         
-    //wait for type-checking to do rest of work
+    // Wait for type-checking to do rest of work.
 }
 
 void BuildFunctionSymbols::caseExprArray(ASTExprArray &host, void *param)
 {
-    BFSParam *p = (BFSParam *)param;
+    BFSParam& p = *(BFSParam*)param;
+	Scope& scope = p.scope;
+	SymbolTable& table = scope.getTable();
+
     string name = host.getName();
     string nspace = host.getNamespace();
-    int id = p->scope->getVarInScope(nspace, name);
+    int id = scope.getVarInScope(nspace, name);
     
-    if(id == -1 && !(nspace == "" && p->table->isConstant(name)))
+    if (id == -1 && !(nspace == "" && table.isConstant(name)))
     {
         string fullname;
         
-        if(nspace == "")
-            fullname=name;
+        if (nspace == "")
+            fullname = name;
         else
             fullname = nspace + "." + name;
             
@@ -467,9 +459,9 @@ void BuildFunctionSymbols::caseExprArray(ASTExprArray &host, void *param)
         return;
     }
     
-    p->table->putNodeId(&host, id);
+    table.putNodeId(&host, id);
     
-    if(host.getIndex())
-        host.getIndex()->execute(*this,param);
+    if (host.getIndex())
+        host.getIndex()->execute(*this, param);
 }
 

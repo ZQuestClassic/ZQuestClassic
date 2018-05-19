@@ -4,8 +4,8 @@
 #include "AST.h"
 #include "UtilVisitors.h"
 
-//builds the global symbols (functions and variables) for a script.
-//param should be a pair<Scope, SymbolTable> pointer.
+// Builds the global symbols (functions and variables) for a script.
+// param should be a Scope*.
 class BuildScriptSymbols : public RecursiveVisitor
 {
 public:

@@ -323,24 +323,26 @@ const int radsperdeg = 572958;
 	for(int _i(0); _i < num_args; ++_i) \
 		code.push_back(new OPopRegister(new VarArgument(t)))
 
-void LibrarySymbols::addSymbolsToScope(Scope *scope, SymbolTable *t)
+void LibrarySymbols::addSymbolsToScope(Scope& scope)
 {
-    //waste an ID, OH WELL
+	SymbolTable& symbolTable = scope.getTable();
+
+    // Waste an ID, OH WELL
     memberids.clear();
-    firstid = ScriptParser::getUniqueFuncID()+1;
+    firstid = ScriptParser::getUniqueFuncID() + 1;
     int id = firstid;
     
-    for(int i=0; table[i].name != ""; i++,id++)
+    for (int i = 0; table[i].name != ""; i++, id++)
     {
         vector<int> param;
         
-        for(int k=0; table[i].params[k] != -1 && k<20; k++)
+        for (int k = 0; table[i].params[k] != -1 && k<20; k++)
             param.push_back(table[i].params[k]);
             
-        string name = table[i].name;
-        scope->getFuncSymbols().addFunction(name, table[i].rettype,param);
-        t->putFuncTypeIds(id, table[i].rettype, param);
-        memberids[name]=id;
+        string& name = table[i].name;
+        scope.getFuncSymbols().addFunction(name, table[i].rettype, param);
+        symbolTable.putFuncTypeIds(id, table[i].rettype, param);
+        memberids[name] = id;
     }
 }
 

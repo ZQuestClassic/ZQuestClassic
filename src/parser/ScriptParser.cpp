@@ -67,7 +67,7 @@ ScriptsData * compile(const char *filename)
     box_out("Pass 3: Building symbol tables");
     box_eol();
 #endif
-    SymbolData *d = ScriptParser::buildSymbolTable(theAST,consts);
+    SymbolData *d = ScriptParser::buildSymbolTable(theAST, consts);
     
     if(d==NULL)
     {
@@ -360,48 +360,44 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
 {
     SymbolData *rval = new SymbolData();
     SymbolTable *t = new SymbolTable(constants);
-    Scope *globalScope = new Scope(NULL);
+    Scope *globalScope = new Scope(*t);
     bool failure = false;
     
     //ADD LIBRARY FUNCTIONS TO THE GLOBAL SCOPE HERE
-    GlobalSymbols::getInst().addSymbolsToScope(globalScope, t);
-    FFCSymbols::getInst().addSymbolsToScope(globalScope,t);
-    ItemSymbols::getInst().addSymbolsToScope(globalScope,t);
-    ItemclassSymbols::getInst().addSymbolsToScope(globalScope,t);
-    LinkSymbols::getInst().addSymbolsToScope(globalScope,t);
-    ScreenSymbols::getInst().addSymbolsToScope(globalScope,t);
-    GameSymbols::getInst().addSymbolsToScope(globalScope,t);
-    NPCSymbols::getInst().addSymbolsToScope(globalScope,t);
-    LinkWeaponSymbols::getInst().addSymbolsToScope(globalScope,t);
-    EnemyWeaponSymbols::getInst().addSymbolsToScope(globalScope,t);
-	
-    //New Types
-	TextPtrSymbols::getInst().addSymbolsToScope(globalScope,t);
-	GfxPtrSymbols::getInst().addSymbolsToScope(globalScope,t);
-	SpriteDataSymbols::getInst().addSymbolsToScope(globalScope,t);
-	CombosPtrSymbols::getInst().addSymbolsToScope(globalScope,t);
-	AudioSymbols::getInst().addSymbolsToScope(globalScope,t);
-	DebugSymbols::getInst().addSymbolsToScope(globalScope,t);
-	NPCDataSymbols::getInst().addSymbolsToScope(globalScope,t);
-	InputSymbols::getInst().addSymbolsToScope(globalScope,t);
-	MapDataSymbols::getInst().addSymbolsToScope(globalScope,t);
-	
-	DMapDataSymbols::getInst().addSymbolsToScope(globalScope,t);
-	MessageDataSymbols::getInst().addSymbolsToScope(globalScope,t);
-	ShopDataSymbols::getInst().addSymbolsToScope(globalScope,t);
-	UntypedSymbols::getInst().addSymbolsToScope(globalScope,t);
-	
-	DropsetSymbols::getInst().addSymbolsToScope(globalScope,t);
-	PondSymbols::getInst().addSymbolsToScope(globalScope,t);
-	WarpringSymbols::getInst().addSymbolsToScope(globalScope,t);
-	DoorsetSymbols::getInst().addSymbolsToScope(globalScope,t);
-	MiscColourSymbols::getInst().addSymbolsToScope(globalScope,t);
-	RGBSymbols::getInst().addSymbolsToScope(globalScope,t);
-	PaletteSymbols::getInst().addSymbolsToScope(globalScope,t);
-	TunesSymbols::getInst().addSymbolsToScope(globalScope,t);
-	PalCycleSymbols::getInst().addSymbolsToScope(globalScope,t);
-	GamedataSymbols::getInst().addSymbolsToScope(globalScope,t);
-	CheatsSymbols::getInst().addSymbolsToScope(globalScope,t);
+    GlobalSymbols::getInst().addSymbolsToScope(*globalScope);
+    FFCSymbols::getInst().addSymbolsToScope(*globalScope);
+    ItemSymbols::getInst().addSymbolsToScope(*globalScope);
+    ItemclassSymbols::getInst().addSymbolsToScope(*globalScope);
+    LinkSymbols::getInst().addSymbolsToScope(*globalScope);
+    ScreenSymbols::getInst().addSymbolsToScope(*globalScope);
+    GameSymbols::getInst().addSymbolsToScope(*globalScope);
+    NPCSymbols::getInst().addSymbolsToScope(*globalScope);
+    LinkWeaponSymbols::getInst().addSymbolsToScope(*globalScope);
+    EnemyWeaponSymbols::getInst().addSymbolsToScope(*globalScope);
+	TextPtrSymbols::getInst().addSymbolsToScope(*globalScope);
+	GfxPtrSymbols::getInst().addSymbolsToScope(*globalScope);
+	SpriteDataSymbols::getInst().addSymbolsToScope(*globalScope);
+	CombosPtrSymbols::getInst().addSymbolsToScope(*globalScope);
+	AudioSymbols::getInst().addSymbolsToScope(*globalScope);
+	DebugSymbols::getInst().addSymbolsToScope(*globalScope);
+	NPCDataSymbols::getInst().addSymbolsToScope(*globalScope);
+	InputSymbols::getInst().addSymbolsToScope(*globalScope);
+	MapDataSymbols::getInst().addSymbolsToScope(*globalScope);
+	DMapDataSymbols::getInst().addSymbolsToScope(*globalScope);
+	MessageDataSymbols::getInst().addSymbolsToScope(*globalScope);
+	ShopDataSymbols::getInst().addSymbolsToScope(*globalScope);
+	UntypedSymbols::getInst().addSymbolsToScope(*globalScope);
+	DropsetSymbols::getInst().addSymbolsToScope(*globalScope);
+	PondSymbols::getInst().addSymbolsToScope(*globalScope);
+	WarpringSymbols::getInst().addSymbolsToScope(*globalScope);
+	DoorsetSymbols::getInst().addSymbolsToScope(*globalScope);
+	MiscColourSymbols::getInst().addSymbolsToScope(*globalScope);
+	RGBSymbols::getInst().addSymbolsToScope(*globalScope);
+	PaletteSymbols::getInst().addSymbolsToScope(*globalScope);
+	TunesSymbols::getInst().addSymbolsToScope(*globalScope);
+	PalCycleSymbols::getInst().addSymbolsToScope(*globalScope);
+	GamedataSymbols::getInst().addSymbolsToScope(*globalScope);
+	CheatsSymbols::getInst().addSymbolsToScope(*globalScope);
     
     //strip the global functions from the AST
     GetGlobalFuncs gc;
@@ -583,8 +579,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     for(vector<ASTVarDecl *>::iterator it = gvs.begin(); it != gvs.end(); it++)
     {
         BuildScriptSymbols bss;
-        pair<Scope * ,SymbolTable *> param(globalScope, t);
-        (*it)->execute(bss, &param);
+        (*it)->execute(bss, globalScope);
         
         if(!bss.isOK())
             failure = true;
@@ -593,8 +588,7 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     for(vector<ASTArrayDecl *>::iterator it = gvas.begin(); it != gvas.end(); it++)
     {
         BuildScriptSymbols bss;
-        pair<Scope * , SymbolTable *> param(globalScope, t);
-        (*it)->execute(bss, &param);
+        (*it)->execute(bss, globalScope);
         
         if(!bss.isOK())
             failure = true;
@@ -622,27 +616,26 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
                 continue;
             }
             
-            Scope *subscope = new Scope(globalScope);
+            Scope* subScope = new Scope(globalScope);
             
-            if(!globalScope->addNamedChild((*it)->getName(), subscope))
+            if (!globalScope->addNamedChild((*it)->getName(), subScope))
             {
                 printErrorMsg(*it, SCRIPTREDEF, (*it)->getName());
                 failure = true;
-                delete subscope;
+				delete subScope;
                 continue;
             }
             
-            pair<Scope *, SymbolTable *> param(subscope, t);
             BuildScriptSymbols bss;
             bss.enableDeprecationWarnings();
-            (*it)->execute(bss, &param);
+            (*it)->execute(bss, subScope);
             
             if(!bss.isOK())
                 failure=true;
             else
             {
                 //find the start symbol
-                vector<int> possibleruns = subscope->getFuncsInScope((*it)->getName(), "run");
+                vector<int> possibleruns = subScope->getFuncsInScope((*it)->getName(), "run");
                 int runid = -1;
                 
                 if(possibleruns.size() > 1)
@@ -690,68 +683,53 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     {
         for(vector<ASTFuncDecl *>::iterator it = fds.begin(); it != fds.end(); it++)
         {
-            Scope *subscope = new Scope(globalScope);
-            BFSParam param = {subscope, t, SCRIPTTYPE_VOID};
+            Scope subScope(globalScope);
+            BFSParam param(subScope);
             BuildFunctionSymbols bfs;
             (*it)->execute(bfs, &param);
             
-            if(!bfs.isOK())
-                failure = true;
-                
-            delete subscope;
+            if (!bfs.isOK()) failure = true;
         }
     }
     
     // Now do script function.
-    if(!failure)
+    if (!failure)
     {
         for(vector<ASTScript *>::iterator it = scripts.begin(); it != scripts.end(); it++)
         {
-            Scope *subscope = globalScope->getNamedChild((*it)->getName());
-            Scope *newscope = new Scope(subscope);
-            BFSParam param = {newscope, t,rval->scriptTypes[*it]};
-            list<ASTDecl *> decls = (*it)->getScriptBlock()->getDeclarations();
+            Scope subScope(globalScope->getNamedChild((*it)->getName()));
+            BFSParam param(subScope, rval->scriptTypes[*it]);
+            list<ASTDecl*> decls = (*it)->getScriptBlock()->getDeclarations();
             
-            for(list<ASTDecl *>::iterator it2 = decls.begin(); it2 != decls.end(); it2++)
+            for (list<ASTDecl*>::iterator it2 = decls.begin(); it2 != decls.end(); it2++)
             {
                 bool isfuncdecl;
                 IsFuncDecl temp;
                 (*it2)->execute(temp, &isfuncdecl);
                 
-                if(isfuncdecl)
+                if (isfuncdecl)
                 {
                     BuildFunctionSymbols bfs;
                     (*it2)->execute(bfs, &param);
                     
-                    if(!bfs.isOK())
-                        failure = true;
+                    if (!bfs.isOK()) failure = true;
                         
-                    if(bfs.getThisVID() != -1)
-                        rval->thisPtr[*it]=bfs.getThisVID();
+                    if (bfs.getThisVID() != -1)
+                        rval->thisPtr[*it] = bfs.getThisVID();
                 }
-                
             }
-            
-            delete newscope;
         }
     }
     
-    if(failure)
-    {
-        for(vector<ASTFuncDecl *>::iterator it2 = fds.begin(); it2 != fds.end(); it2++)
+    if (failure)
         {
+        for (vector<ASTFuncDecl*>::iterator it2 = fds.begin(); it2 != fds.end(); it2++)
             delete *it2;
-        }
-        
-        for(vector<ASTScript *>::iterator it2 = scripts.begin(); it2 != scripts.end(); it2++)
-        {
+        for (vector<ASTScript*>::iterator it2 = scripts.begin(); it2 != scripts.end(); it2++)
             delete *it2;
-        }
-        
-        for(vector<ASTVarDecl *>::iterator it2 = gvs.begin(); it2 != gvs.end(); it2++)
+        for (vector<ASTVarDecl*>::iterator it2 = gvs.begin(); it2 != gvs.end(); it2++)
             delete *it2;
-            
-        for(vector<ASTArrayDecl *>::iterator it2 = gvas.begin(); it2 != gvas.end(); it2++)
+        for (vector<ASTArrayDecl *>::iterator it2 = gvas.begin(); it2 != gvas.end(); it2++)
             delete *it2;
             
         delete globalScope;

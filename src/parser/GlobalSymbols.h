@@ -30,7 +30,7 @@ struct AccessorTable
 class LibrarySymbols
 {
 public:
-    virtual void addSymbolsToScope(Scope *scope, SymbolTable *t);
+    virtual void addSymbolsToScope(Scope& scope);
     virtual map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
     virtual int matchFunction(string name);
     virtual ~LibrarySymbols();
