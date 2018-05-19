@@ -454,118 +454,88 @@ SymbolData *ScriptParser::buildSymbolTable(AST *theAST, map<string, long> *const
     
     
     
-    //add global pointers
+    // Add global pointers
     int vid2;
-    
-    //add a Link global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Link", ZVARTYPEID_LINK);
-    t->putVarTypeId(vid2, ZVARTYPEID_LINK);
+
+    vid2 = globalScope->addVar("Link", ZVARTYPEID_LINK);
     t->addGlobalPointer(vid2);
-    //add a Screen global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Screen", ZVARTYPEID_SCREEN);
-    t->putVarTypeId(vid2, ZVARTYPEID_SCREEN);
+
+    vid2 = globalScope->addVar("Screen", ZVARTYPEID_SCREEN);
     t->addGlobalPointer(vid2);
-    //add a Game global variable
-    vid2 = globalScope->getVarSymbols().addVariable("Game", ZVARTYPEID_GAME);
-    t->putVarTypeId(vid2, ZVARTYPEID_GAME);
+
+    vid2 = globalScope->addVar("Game", ZVARTYPEID_GAME);
     t->addGlobalPointer(vid2);
     
-    //New Pointers
-    
-    vid2 = globalScope->getVarSymbols().addVariable("Debug", ZVARTYPEID_DEBUG);
-    t->putVarTypeId(vid2, ZVARTYPEID_DEBUG);
+    vid2 = globalScope->addVar("Debug", ZVARTYPEID_DEBUG);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("Audio", ZVARTYPEID_AUDIO);
-    t->putVarTypeId(vid2, ZVARTYPEID_AUDIO);
+    vid2 = globalScope->addVar("Audio", ZVARTYPEID_AUDIO);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("Text", ZVARTYPEID_TEXT);
-    t->putVarTypeId(vid2, ZVARTYPEID_TEXT);
+    vid2 = globalScope->addVar("Text", ZVARTYPEID_TEXT);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("NPCData", ZVARTYPEID_NPCDATA);
-    t->putVarTypeId(vid2, ZVARTYPEID_NPCDATA);
+    vid2 = globalScope->addVar("NPCData", ZVARTYPEID_NPCDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("ComboData", ZVARTYPEID_COMBOS);
-    t->putVarTypeId(vid2, ZVARTYPEID_COMBOS);
+    vid2 = globalScope->addVar("ComboData", ZVARTYPEID_COMBOS);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("SpriteData", ZVARTYPEID_SPRITEDATA);
-    t->putVarTypeId(vid2, ZVARTYPEID_SPRITEDATA);
+    vid2 = globalScope->addVar("SpriteData", ZVARTYPEID_SPRITEDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("Graphics", ZVARTYPEID_GRAPHICS);
-    t->putVarTypeId(vid2, ZVARTYPEID_GRAPHICS);
+    vid2 = globalScope->addVar("Graphics", ZVARTYPEID_GRAPHICS);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("Input", ZVARTYPEID_INPUT);
-    t->putVarTypeId(vid2, ZVARTYPEID_INPUT);
+    vid2 = globalScope->addVar("Input", ZVARTYPEID_INPUT);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("MapData", ZVARTYPEID_MAPDATA);
-    t->putVarTypeId(vid2, ZVARTYPEID_MAPDATA);
+    vid2 = globalScope->addVar("MapData", ZVARTYPEID_MAPDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("DMapData", ZVARTYPEID_DMAPDATA);
-    t->putVarTypeId(vid2, ZVARTYPEID_DMAPDATA);
+    vid2 = globalScope->addVar("DMapData", ZVARTYPEID_DMAPDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("MessageData", ZVARTYPEID_ZMESSAGE);
-    t->putVarTypeId(vid2, ZVARTYPEID_ZMESSAGE);
+    vid2 = globalScope->addVar("MessageData", ZVARTYPEID_ZMESSAGE);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("ShopData", ZVARTYPEID_SHOPDATA);
-    t->putVarTypeId(vid2, ZVARTYPEID_SHOPDATA);
+    vid2 = globalScope->addVar("ShopData", ZVARTYPEID_SHOPDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("Untyped", ZVARTYPEID_UNTYPED);
-    t->putVarTypeId(vid2, ZVARTYPEID_UNTYPED);
+    vid2 = globalScope->addVar("Untyped", ZVARTYPEID_UNTYPED);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("dropdata->", ZVARTYPEID_DROPSET);
-    t->putVarTypeId(vid2, ZVARTYPEID_DROPSET);
+    vid2 = globalScope->addVar("dropdata->", ZVARTYPEID_DROPSET);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("ponddata->", ZVARTYPEID_PONDS);
-    t->putVarTypeId(vid2, ZVARTYPEID_PONDS);
+    vid2 = globalScope->addVar("ponddata->", ZVARTYPEID_PONDS);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("warpring->", ZVARTYPEID_WARPRING);
-    t->putVarTypeId(vid2, ZVARTYPEID_WARPRING);
+    vid2 = globalScope->addVar("warpring->", ZVARTYPEID_WARPRING);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("doorset->", ZVARTYPEID_DOORSET);
-    t->putVarTypeId(vid2, ZVARTYPEID_DOORSET);
+    vid2 = globalScope->addVar("doorset->", ZVARTYPEID_DOORSET);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("misccolors->", ZVARTYPEID_ZUICOLOURS);
-    t->putVarTypeId(vid2, ZVARTYPEID_ZUICOLOURS);
+    vid2 = globalScope->addVar("misccolors->", ZVARTYPEID_ZUICOLOURS);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("rgbdata->", ZVARTYPEID_RGBDATA);
-    t->putVarTypeId(vid2, ZVARTYPEID_RGBDATA);
+    vid2 = globalScope->addVar("rgbdata->", ZVARTYPEID_RGBDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("palette->", ZVARTYPEID_PALETTE);
-    t->putVarTypeId(vid2, ZVARTYPEID_PALETTE);
+    vid2 = globalScope->addVar("palette->", ZVARTYPEID_PALETTE);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("musictrack->", ZVARTYPEID_TUNES);
-    t->putVarTypeId(vid2, ZVARTYPEID_TUNES);
+    vid2 = globalScope->addVar("musictrack->", ZVARTYPEID_TUNES);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("palcycle->", ZVARTYPEID_PALCYCLE);
-    t->putVarTypeId(vid2, ZVARTYPEID_PALCYCLE);
+    vid2 = globalScope->addVar("palcycle->", ZVARTYPEID_PALCYCLE);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("gamedata->", ZVARTYPEID_GAMEDATA);
-    t->putVarTypeId(vid2, ZVARTYPEID_GAMEDATA);
+    vid2 = globalScope->addVar("gamedata->", ZVARTYPEID_GAMEDATA);
     t->addGlobalPointer(vid2);
     
-    vid2 = globalScope->getVarSymbols().addVariable("cheats->", ZVARTYPEID_CHEATS);
-    t->putVarTypeId(vid2, ZVARTYPEID_CHEATS);
+    vid2 = globalScope->addVar("cheats->", ZVARTYPEID_CHEATS);
     t->addGlobalPointer(vid2);
     
     

@@ -82,7 +82,7 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
     
     // var is always visible
 	ZVarTypeId typeId = symbolTable.getOrAssignTypeId(type);
-    int id = scope.getVarSymbols().addVariable(name, typeId);
+    int id = scope.addVar(name, typeId, &host);
     
     if (id == -1)
     {
@@ -90,9 +90,6 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
         printErrorMsg(&host, ARRREDEF, name);
         return;
     }
-    
-    symbolTable.putNodeId(&host, id);
-    symbolTable.putVarTypeId(id, typeId);
     
     if (this->deprecateGlobals)
     {
@@ -135,7 +132,7 @@ void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
     }
     
     // Var is always visible.
-    int id = scope.getVarSymbols().addVariable(name, typeId);
+    int id = scope.addVar(name, typeId, &host);
     
     if (id == -1)
     {
@@ -143,9 +140,6 @@ void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
         printErrorMsg(&host, VARREDEF, name);
         return;
     }
-    
-    symbolTable.putNodeId(&host, id);
-    symbolTable.putVarTypeId(id, typeId);
     
     if (this->deprecateGlobals)
     {
@@ -251,7 +245,7 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     if (host.getName() == "run" && returnType == ZVarType::VOID)
     {
 		ZVarTypeId thisTypeId = ScriptParser::getThisType(p.type);
-        int vid = blockScope.getVarSymbols().addVariable("this", thisTypeId);
+        int vid = blockScope.addVar("this", thisTypeId);
         table.putVarTypeId(vid, thisTypeId);
         thisvid = vid;
     }
@@ -264,7 +258,7 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
         string name = (*it)->getName();
 		ZVarType const& type = (*it)->getType()->getType();
 		ZVarTypeId typeId = table.getOrAssignTypeId(type);
-        int id = blockScope.getVarSymbols().addVariable(name, typeId);
+        int id = blockScope.addVar(name, typeId);
         
         if (id == -1)
         {
@@ -291,7 +285,7 @@ void BuildFunctionSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
     string name = host.getName();
 	ZVarType const& type = host.getType()->getType();
 	ZVarTypeId typeId = table.getOrAssignTypeId(type);
-    int id = scope.getVarSymbols().addVariable(name, typeId);
+    int id = scope.addVar(name, typeId);
     
     if (id == -1)
     {
@@ -322,7 +316,7 @@ void BuildFunctionSymbols::caseVarDecl(ASTVarDecl &host, void *param)
     string name = host.getName();
 	ZVarType const& type = host.getType()->getType();
 	ZVarTypeId typeId = table.getOrAssignTypeId(type);
-    int id = scope.getVarSymbols().addVariable(name, typeId);
+    int id = scope.addVar(name, typeId);
     
     if (id == -1)
     {
@@ -405,7 +399,7 @@ void BuildFunctionSymbols::caseExprDot(ASTExprDot &host, void *param)
 
     string name = host.getName();
     string nspace = host.getNamespace();
-    int id = scope.getVarInScope(nspace, name);
+    int id = scope.getVarId(nspace, name);
     if (id == -1 && !(nspace == "" && table.isConstant(name)))
     {
         string fullname;
@@ -443,7 +437,7 @@ void BuildFunctionSymbols::caseExprArray(ASTExprArray &host, void *param)
 
     string name = host.getName();
     string nspace = host.getNamespace();
-    int id = scope.getVarInScope(nspace, name);
+    int id = scope.getVarId(nspace, name);
     
     if (id == -1 && !(nspace == "" && table.isConstant(name)))
     {
