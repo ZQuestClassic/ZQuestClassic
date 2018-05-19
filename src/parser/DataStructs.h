@@ -35,19 +35,6 @@ public:
 	static FunctionTypeIds const null;
 };
 
-class FunctionSymbols
-{
-public:
-    FunctionSymbols() : symbols(), ambiguous() {}
-    int addFunction(string name, int rettype, vector<int> paramtype);
-    bool containsFunction(string name, vector<int> &params);
-    int getID(string name, vector<int> &params);
-    vector<int> getFuncIDs(string name);
-private:
-    map<pair<string, vector<int> >, pair<int,int> > symbols;
-    map<string, vector<int> > ambiguous;
-};
-
 class SymbolTable
 {
 public:
@@ -95,8 +82,8 @@ private:
 class Scope
 {
 public:
-	Scope(SymbolTable& table) : table(table), children(), parent(NULL), variables(), funcs() {}
-	Scope(Scope* parent) : table(parent->table), children(), parent(parent), variables(), funcs() {}
+	Scope(SymbolTable& table);
+	Scope(Scope* parent);
     ~Scope();
 	// SymbolTable
 	SymbolTable const& getTable() const {return table;}
@@ -113,19 +100,27 @@ public:
 	int addVar(string const& name, ZVarType const& type, AST* node);
 	int addVar(string const& name, ZVarTypeId typeId);
 	int addVar(string const& name, ZVarType const& type);
-	////////////////
-    FunctionSymbols &getFuncSymbols()
-    {
-        return funcs;
-    }
-    int getVarInScope(string nspace, string name);
-    vector<int> getFuncsInScope(string nspace, string name);
+	// Functions
+	vector<int> getFuncIds(string const& nspace, string const& name) const;
+	vector<int> getFuncIds(vector<string> const& names) const;
+	vector<int> getFuncIds(string const& name) const;
+	int getFuncId(string const& nspace, FunctionSignature const& signature) const;
+	int getFuncId(vector<string> const& names, FunctionSignature const& signature) const;
+	int getFuncId(FunctionSignature const& signature) const;
+	int addFunc(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds, AST* node);
+	int addFunc(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes, AST* node);
+	int addFunc(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds);
+	int addFunc(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes);
 private:
 	SymbolTable& table;
     Scope* parent;
     map<string, Scope*> children;
 	map<string, int> variables;
-    FunctionSymbols funcs;
+	map<string, vector<int> > functionsByName;
+	map<FunctionSignature, int> functionsBySignature;
+
+	void getFuncIds(vector<int>& ids, vector<string> const& names) const;
+	void getFuncIds(vector<int>& ids, string const& name) const;
 };
 
 struct SymbolData

@@ -29,13 +29,13 @@ void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
 	Scope& scope = *(Scope*)param;
 	SymbolTable& symbolTable = scope.getTable();
     string name = host.getName();
-    vector<int> params;
+    vector<ZVarTypeId> paramTypeIds;
     list<ASTVarDecl *> vds = host.getParams();
     
     for (list<ASTVarDecl*>::iterator it = vds.begin(); it != vds.end(); it++)
     {
 		ZVarType const& type = (*it)->getType()->getType();
-        params.push_back(symbolTable.getOrAssignTypeId(type));
+        paramTypeIds.push_back(symbolTable.getOrAssignTypeId(type));
         
         if (type == ZVarType::VOID)
         {
@@ -45,8 +45,8 @@ void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     }
     
 	ZVarType const& returnType = host.getReturnType()->getType();
-	ZVarTypeId returnTypeId = symbolTable.getTypeId(returnType);
-    int id = scope.getFuncSymbols().addFunction(name, symbolTable.getOrAssignTypeId(returnType), params);
+	ZVarTypeId returnTypeId = symbolTable.getOrAssignTypeId(returnType);
+    int id = scope.addFunc(name, returnTypeId, paramTypeIds, &host);
     
     if (id == -1)
     {
@@ -54,9 +54,6 @@ void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
         printErrorMsg(&host, FUNCTIONREDEF, name);
         return;
     }
-    
-    symbolTable.putNodeId(&host, id);
-    symbolTable.putFuncTypeIds(id, returnTypeId, params);
 }
 
 void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
@@ -368,7 +365,7 @@ void BuildFunctionSymbols::caseFuncCall(ASTFuncCall &host, void *param)
         ASTExprDot* dotname = (ASTExprDot*)host.getName();
         string name = dotname->getName();
         string nspace = dotname->getNamespace();
-        vector<int> possibleFuncs = scope.getFuncsInScope(nspace, name);
+        vector<int> possibleFuncs = scope.getFuncIds(nspace, name);
         
         if (possibleFuncs.size() == 0)
         {
