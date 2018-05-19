@@ -135,8 +135,18 @@ vector<int> FunctionSymbols::getFuncIDs(string name)
 // SymbolTable
 
 SymbolTable::SymbolTable(map<string, long> *consts)
-	: nodeIds(), possibleNodeFuncIds(), varTypes(), funcTypes(), constants(consts)
-{}
+	: nodeIds(), possibleNodeFuncIds(), types(), typeIds(),
+	  varTypes(), funcTypes(), constants(consts)
+{
+	for (ZVarTypeId id = 0; id < ZVARTYPEID_END; ++id)
+		assignTypeId(*ZVarType::get(id));
+}
+
+SymbolTable::~SymbolTable()
+{
+	for (vector<ZVarType*>::iterator it = types.begin(); it != types.end(); ++it)
+		delete *it;
+}
 
 // Nodes
 
@@ -162,6 +172,42 @@ vector<int> SymbolTable::getPossibleNodeFuncIds(AST* node) const
 void SymbolTable::putPossibleNodeFuncIds(AST* node, vector<int> possibleFuncIds)
 {
 	possibleNodeFuncIds[node] = possibleFuncIds;
+}
+
+// Types
+ZVarType* SymbolTable::getType(ZVarTypeId typeId) const
+{
+	if (typeId < 0 || typeId > types.size()) return NULL;
+	return types[typeId];
+}
+
+ZVarTypeId SymbolTable::getTypeId(ZVarType const& type) const
+{
+	map<ZVarType*, ZVarTypeId>::const_iterator it = typeIds.find((ZVarType*)&type);
+	if (it == typeIds.end()) return -1;
+	return it->second;
+}
+
+ZVarTypeId SymbolTable::assignTypeId(ZVarType const& type)
+{
+	map<ZVarType*, ZVarTypeId>::const_iterator it = typeIds.find((ZVarType*)&type);
+	if (it != typeIds.end()) return -1;
+	ZVarTypeId id = types.size();
+	ZVarType* storedType = type.clone();
+	types.push_back(storedType);
+	typeIds[storedType] = id;
+	return id;
+}
+
+ZVarTypeId SymbolTable::getOrAssignTypeId(ZVarType const& type)
+{
+	map<ZVarType*, ZVarTypeId>::const_iterator it = typeIds.find((ZVarType*)&type);
+	if (it != typeIds.end()) return it->second;
+	ZVarTypeId id = types.size();
+	ZVarType* storedType = type.clone();
+	types.push_back(storedType);
+	typeIds[storedType] = id;
+	return id;
 }
 
 // Variables

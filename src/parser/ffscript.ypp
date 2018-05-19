@@ -165,7 +165,6 @@ ConstDecl : ZCONST ZFLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = 
 																  val->set_negative(true);
 																  $$ = new ASTConstDecl(name->getValue(), val,@1);
 																  delete name;}
-																  
 	 | ZCONST UNTYPED IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = (ASTString *)$3;
 															ASTFloat *val = (ASTFloat *)$5;
 															$$ = new ASTConstDecl(name->getValue(), val,@1);
@@ -175,32 +174,36 @@ ConstDecl : ZCONST ZFLOAT IDENTIFIER ASSIGN NUMBER SEMICOLON {ASTString *name = 
 																  val->set_negative(true);
 																  $$ = new ASTConstDecl(name->getValue(), val,@1);
 																  delete name;}
-	//The following does not compile: error PRJ0019: A tool returned an error code from "[BISON][ZScriptParser] Building parser with bison 2.7"															
+//The following does not compile: error PRJ0019: A tool returned an error code from "[BISON][ZScriptParser] Building parser with bison 2.7"
 //          | PREPROCESS DEFINE IDENTIFIER NUMBER WS {ASTString *name = (ASTString *)$3;
 //															ASTFloat *val = (ASTFloat *)$4;
 //															$$ = new ASTConstDecl(name->getValue(), val,@1);
 //															delete name;}
-//																  
+//
 //	  | PREPROCESS DEFINE IDENTIFIER MINUS NUMBER WS {ASTString *name = (ASTString *)$3;
 //																  ASTFloat *val = (ASTFloat *)$5;
 //																  val->set_negative(true);
 //																  $$ = new ASTConstDecl(name->getValue(), val,@1);
 //																  delete name;}
-//          ;
+		;
 
-ArrayDecl : Type IDENTIFIER LBRACKET ConstExpr RBRACKET {	ASTType *type = (ASTType *)$1;
+
+ArrayDecl :
+	Type IDENTIFIER LBRACKET ConstExpr RBRACKET {
+			ASTVarType *type = (ASTVarType*)$1;
 														ASTString *name = (ASTString *)$2;
 														ASTExprConst *size = (ASTExprConst *)$4;
 														$$ = new ASTArrayDecl(type, name->getValue(), size, NULL, @1);
 														delete name;}
-
-	| Type IDENTIFIER LBRACKET ConstExpr RBRACKET ASSIGN LBRACE ArrayList RBRACE {	ASTType *type = (ASTType *)$1;
+	| Type IDENTIFIER LBRACKET ConstExpr RBRACKET ASSIGN LBRACE ArrayList RBRACE {
+			ASTVarType *type = (ASTVarType*)$1;
 																				ASTString *name = (ASTString *)$2;
 																				ASTExprConst *size = (ASTExprConst *)$4;
 																				ASTArrayList *list = (ASTArrayList *)$8;
 																				$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
 																				delete name;}
- 	| Type IDENTIFIER LBRACKET RBRACKET ASSIGN LBRACE ArrayList RBRACE {	ASTType *type = (ASTType *)$1;
+ 	| Type IDENTIFIER LBRACKET RBRACKET ASSIGN LBRACE ArrayList RBRACE {
+			ASTVarType *type = (ASTVarType*)$1;
 																			ASTString *name = (ASTString *)$2;
 																			ASTArrayList *list = (ASTArrayList *)$7;
 																			char val[15];
@@ -208,8 +211,8 @@ ArrayDecl : Type IDENTIFIER LBRACKET ConstExpr RBRACKET {	ASTType *type = (ASTTy
 																			ASTExpr *size = new ASTNumConstant(new ASTFloat(val, 0, @1), @1);
 																			$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
 																			delete name;}
-
-	| Type IDENTIFIER LBRACKET ConstExpr RBRACKET ASSIGN QUOTEDSTRING {	ASTType *type = (ASTType *)$1;
+	| Type IDENTIFIER LBRACKET ConstExpr RBRACKET ASSIGN QUOTEDSTRING {
+			ASTVarType *type = (ASTVarType*)$1;
 																		ASTString *name = (ASTString *)$2;
 																		ASTExprConst *size = (ASTExprConst *)$4;
 																		ASTArrayList *list = new ASTArrayList(@1);
@@ -221,7 +224,8 @@ ArrayDecl : Type IDENTIFIER LBRACKET ConstExpr RBRACKET {	ASTType *type = (ASTTy
 																		$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
 																		delete name;}
 
- 	| Type IDENTIFIER LBRACKET RBRACKET ASSIGN QUOTEDSTRING {	ASTType *type = (ASTType *)$1;
+ 	| Type IDENTIFIER LBRACKET RBRACKET ASSIGN QUOTEDSTRING {
+			ASTVarType *type = (ASTVarType*)$1;
 																ASTString *name = (ASTString *)$2;
 																ASTArrayList *list = new ASTArrayList(@1);
 																list->makeString();
@@ -235,8 +239,6 @@ ArrayDecl : Type IDENTIFIER LBRACKET ConstExpr RBRACKET {	ASTType *type = (ASTTy
 																$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
 																delete name;}
 	;
-
-
 
 ArrayList : ArrayList COMMA Expr {	ASTArrayList *al = (ASTArrayList *)$1;
 									al->addParam((ASTExpr*)$3);
@@ -284,61 +286,65 @@ ScriptStmt : VarDecl SEMICOLON {$$ = $1;}
 	| FuncDecl {$$ = $1;}
 	;
 
-VarDecl : Type IDENTIFIER {ASTType *type = (ASTType *)$1;
-				   ASTString *name = (ASTString *)$2;
-				   $$ = new ASTVarDecl(type, name->getValue(),@1);
+VarDecl : Type IDENTIFIER {
+		ASTVarType *type = (ASTVarType*)$1;
+		ASTString *name = (ASTString*)$2;
+		$$ = new ASTVarDecl(type, name->getValue(), @1);
 				   delete name;}
 	;
 
-Type : ZFLOAT {$$ = new ASTTypeFloat(@1);}
-	| ZBOOL {$$ = new ASTTypeBool(@1);}
-	| ZVOID {$$ = new ASTTypeVoid(@1);}
-	| FFC {$$ = new ASTTypeFFC(@1);}
-	| ITEM {$$ = new ASTTypeItem(@1);}
-	| ITEMCLASS {$$ = new ASTTypeItemclass(@1);}
-	| NPC		{$$ = new ASTTypeNPC(@1);}
-	| LWEAPON	{$$ = new ASTTypeLWpn(@1);}
-	| EWEAPON	{$$ = new ASTTypeEWpn(@1);}
-	| SPRITEDATA	{$$ = new ASTTypeSpriteData(@1);}
-	| MAPDATA	{$$ = new ASTTypeMapData(@1);}
-	| NPCDATA	{$$ = new ASTTypeNPCData(@1);}
-	| COMBODATA	{$$ = new ASTTypeComboData(@1);}
-	| GRAPHICS	{$$ = new ASTTypeGraphics(@1);}
-	| DMAPDATA	{$$ = new ASTTypeDMap(@1);}
-	| MESSAGEDATA	{$$ = new ASTTypeZMsg(@1);}
-	| SHOPDATA	{$$ = new ASTTypeShopData(@1);}
-//	| UNTYPED	{$$ = new ASTTypeUntyped(@1);}
-	| DROPDATA	{$$ = new ASTTypeDropsets(@1);}
-	| PONDDATA	{$$ = new ASTTypePonds(@1);}
-	| WARPRING	{$$ = new ASTTypeWarprings(@1);}
-	| DOORSET	{$$ = new ASTTypeDoorsets(@1);}
-	| MISCCOLORS	{$$ = new ASTTypeZColours(@1);}
-	| RGBDATA	{$$ = new ASTTypeRGB(@1);}
-	| PALETTE	{$$ = new ASTTypePalette(@1);}
-	| MUSICTRACK	{$$ = new ASTTypeTunes(@1);}
-	| PALCYCLE	{$$ = new ASTTypePalCycle(@1);}
-	| GAMEDATA	{$$ = new ASTTypeGamedata(@1);}
-	| CHEATS	{$$ = new ASTTypeCheats(@1);}
+Type : ZVOID {$$ = new ASTVarType(ZVarTypeSimple::VOID, @1);}
+	| ZFLOAT {$$ = new ASTVarType(ZVarTypeSimple::FLOAT, @1);}
+	| ZBOOL {$$ = new ASTVarType(ZVarTypeSimple::BOOL, @1);}
+	| FFC {$$ = new ASTVarType(ZVarTypeSimple::FFC, @1);}
+	| ITEM {$$ = new ASTVarType(ZVarTypeSimple::ITEM, @1);}
+	| ITEMCLASS {$$ = new ASTVarType(ZVarTypeSimple::ITEMCLASS, @1);}
+	| NPC	{$$ = new ASTVarType(ZVarTypeSimple::NPC, @1);}
+	| LWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::LWPN, @1);}
+	| EWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::EWPN, @1);}
+	| SPRITEDATA	{$$ = new ASTVarType(ZVarTypeSimple::SPRITEDATA, @1);}
+	| MAPDATA	{$$ = new ASTVarType(ZVarTypeSimple::MAPDATA, @1);}
+	| NPCDATA	{$$ = new ASTVarType(ZVarTypeSimple::NPCDATA, @1);}
+	| COMBODATA	{$$ = new ASTVarType(ZVarTypeSimple::COMBOS, @1);}
+	| GRAPHICS	{$$ = new ASTVarType(ZVarTypeSimple::GRAPHICS, @1);}
+	| DMAPDATA	{$$ = new ASTVarType(ZVarTypeSimple::DMAPDATA, @1);}
+	| MESSAGEDATA	{$$ = new ASTVarType(ZVarTypeSimple::ZMESSAGE, @1);}
+	| SHOPDATA	{$$ = new ASTVarType(ZVarTypeSimple::SHOPDATA, @1);}
+//	| UNTYPED	{$$ = new ASTVarType(ZVarTypeSimple::UNTYPED, @1);}
+	| DROPDATA	{$$ = new ASTVarType(ZVarTypeSimple::DROPSET, @1);}
+	| PONDDATA	{$$ = new ASTVarType(ZVarTypeSimple::PONDS, @1);}
+	| WARPRING	{$$ = new ASTVarType(ZVarTypeSimple::WARPRING, @1);}
+	| DOORSET	{$$ = new ASTVarType(ZVarTypeSimple::DOORSET, @1);}
+	| MISCCOLORS	{$$ = new ASTVarType(ZVarTypeSimple::ZUICOLOURS, @1);}
+	| RGBDATA	{$$ = new ASTVarType(ZVarTypeSimple::RGBDATA, @1);}
+	| PALETTE	{$$ = new ASTVarType(ZVarTypeSimple::PALETTE, @1);}
+	| MUSICTRACK	{$$ = new ASTVarType(ZVarTypeSimple::TUNES, @1);}
+	| PALCYCLE	{$$ = new ASTVarType(ZVarTypeSimple::PALCYCLE, @1);}
+	| GAMEDATA	{$$ = new ASTVarType(ZVarTypeSimple::GAMEDATA, @1);}
+	| CHEATS	{$$ = new ASTVarType(ZVarTypeSimple::CHEATS, @1);}
 	;
 
-FuncDecl : Type IDENTIFIER LPAREN ParamList RPAREN Block {ASTFuncDecl *fd = (ASTFuncDecl *)$4;
-									    ASTType *rettype = (ASTType *)$1;
+FuncDecl :
+	Type IDENTIFIER LPAREN ParamList RPAREN Block {
+			ASTFuncDecl *fd = (ASTFuncDecl *)$4;
+			ASTVarType *rettype = (ASTVarType *)$1;
 									    ASTString *name = (ASTString *)$2;
 									    ASTBlock *block = (ASTBlock *)$6;
 									    fd->setName(name->getValue());
 									    delete name;
 									    fd->setReturnType(rettype);
 									    fd->setBlock(block);
-									    $$=fd;}
-	| Type IDENTIFIER LPAREN RPAREN Block {ASTFuncDecl *fd = new ASTFuncDecl(@1);
-							   ASTType *rettype = (ASTType *)$1;
+			$$ = fd;}
+	| Type IDENTIFIER LPAREN RPAREN Block {
+			ASTFuncDecl *fd = new ASTFuncDecl(@1);
+			ASTVarType *rettype = (ASTVarType*)$1;
 							   ASTString *name = (ASTString *)$2;
 							   ASTBlock *block = (ASTBlock *)$5;
 							   fd->setName(name->getValue());
 							   delete name;
 							   fd->setReturnType(rettype);
 							   fd->setBlock(block);
-							   $$=fd;}
+			$$ = fd;}
 	;
 
 ParamList : VarDecl COMMA ParamList {ASTFuncDecl *fd = (ASTFuncDecl *)$3;

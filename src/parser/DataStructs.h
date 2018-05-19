@@ -63,11 +63,17 @@ class SymbolTable
 {
 public:
     SymbolTable(map<string, long> *consts);
+	~SymbolTable();
 	// Nodes
     int getNodeId(AST* node) const;
     void putNodeId(AST* node, int id);
     vector<int> getPossibleNodeFuncIds(AST* node) const;
     void putPossibleNodeFuncIds(AST* node, vector<int> possibleFuncIds);
+	// Types
+	ZVarType* getType(ZVarTypeId typeId) const;
+	ZVarTypeId getTypeId(ZVarType const& type) const;
+	ZVarTypeId assignTypeId(ZVarType const& type);
+	ZVarTypeId getOrAssignTypeId(ZVarType const& type);
 	// Variables
     ZVarTypeId getVarTypeId(int varId) const;
     ZVarTypeId getVarTypeId(AST* node) const;
@@ -87,6 +93,8 @@ public:
     void printDiagnostics();
 private:
     map<AST*, int> nodeIds;
+	vector<ZVarType*> types;
+	map<ZVarType*, ZVarTypeId, ZVarType::PointerLess> typeIds;
     map<AST*, vector<int> > possibleNodeFuncIds;
     map<int, ZVarTypeId> varTypes;
     map<int, FunctionTypeIds> funcTypes;

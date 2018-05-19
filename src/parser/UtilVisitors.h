@@ -210,47 +210,6 @@ private:
     bool ok;
 };
 
-class ExtractType : public ASTVisitor
-{
-public:
-    void caseDefault(void *param);
-    void caseTypeVoid(ASTTypeVoid &host, void *param);
-    void caseTypeGlobal(ASTTypeGlobal &host, void *param);
-    void caseTypeFloat(ASTTypeFloat &host, void *param);
-    void caseTypeBool(ASTTypeBool &host, void *param);
-    void caseTypeFFC(ASTTypeFFC &host, void *param);
-    void caseTypeItem(ASTTypeItem &host, void *param);
-    void caseTypeItemclass(ASTTypeItemclass &host, void *param);
-    void caseTypeNPC(ASTTypeNPC &host, void *param);
-    void caseTypeLWpn(ASTTypeLWpn &host, void *param);
-    void caseTypeEWpn(ASTTypeEWpn &host, void *param);
-    void caseTypeMapData(ASTTypeMapData &host, void *param);
-    void caseTypeNPCData(ASTTypeNPCData &host, void *param);
-    void caseTypeDebug(ASTTypeDebug &host, void *param);
-    void caseTypeAudio(ASTTypeAudio &host, void *param);
-    void caseTypeComboData(ASTTypeComboData &host, void *param);
-    void caseTypeSpriteData(ASTTypeSpriteData &host, void *param);
-    void caseTypeGraphics(ASTTypeGraphics &host, void *param);
-    void caseTypeText(ASTTypeText &host, void *param);
-    void caseTypeInput(ASTTypeInput &host, void *param);
-    void caseTypeDMap(ASTTypeDMap &host, void *param);
-    void caseTypeZMsg(ASTTypeZMsg &host, void *param);
-    void caseTypeShopData(ASTTypeShopData &host, void *param);
-    void caseTypeUntyped(ASTTypeUntyped &host, void *param);
-    
-    void caseTypeDropsets(ASTTypeDropsets &host, void *param);
-    void caseTypePonds(ASTTypePonds &host, void *param);
-    void caseTypeWarprings(ASTTypeWarprings &host, void *param);
-    void caseTypeDoorsets(ASTTypeDoorsets &host, void *param);
-    void caseTypeZColours(ASTTypeZColours &host, void *param);
-    void caseTypeRGB(ASTTypeRGB &host, void *param);
-    void caseTypePalette(ASTTypePalette &host, void *param);
-    void caseTypeTunes(ASTTypeTunes &host, void *param);
-    void caseTypePalCycle(ASTTypePalCycle &host, void *param);
-    void caseTypeGamedata(ASTTypeGamedata &host, void *param);
-    void caseTypeCheats(ASTTypeCheats &host, void *param);
-};
-
 class IsDotExpr : public ASTVisitor
 {
 public:
