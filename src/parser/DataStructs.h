@@ -105,9 +105,14 @@ private:
 class Scope
 {
 public:
-	Scope(SymbolTable& table) : table(table), namedChildren(), parent(NULL), vars(), funcs() {}
-	Scope(Scope* parent) : table(parent->table), namedChildren(), parent(parent), vars(), funcs() {}
+	Scope(SymbolTable& table) : table(table), children(), parent(NULL), vars(), funcs() {}
+	Scope(Scope* parent) : table(parent->table), children(), parent(parent), vars(), funcs() {}
     ~Scope();
+	// Children
+	Scope* makeChild(string const& name);
+	Scope* getChild(string const& name) const;
+	Scope& getOrMakeChild(string const& name);
+	////////////////
 	SymbolTable const& getTable() const {return table;}
 	SymbolTable& getTable() {return table;}
     VariableSymbols &getVarSymbols()
@@ -118,14 +123,12 @@ public:
     {
         return funcs;
     }
-    bool addNamedChild(string name, Scope *child);
     int getVarInScope(string nspace, string name);
     vector<int> getFuncsInScope(string nspace, string name);
-    Scope *getNamedChild(string name);
 private:
 	SymbolTable& table;
-    map<string, Scope *> namedChildren;
-    Scope *parent;
+    map<string, Scope*> children;
+    Scope* parent;
     VariableSymbols vars;
     FunctionSymbols funcs;
 };

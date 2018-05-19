@@ -292,42 +292,49 @@ void SymbolTable::printDiagnostics()
 
 ////////////////////////////////////////////////////////////////
 // Scope
-bool Scope::addNamedChild(string name, Scope *child)
-{
-    map<string, Scope *>::iterator it = namedChildren.find(name);
-    
-    if(it != namedChildren.end())
-        return false;
-        
-    namedChildren[name] = child;
-    return true;
-}
 
 Scope::~Scope()
 {
-    map<string, Scope *>::iterator it;
-    for (it = namedChildren.begin(); it != namedChildren.end(); it++)
-        delete it->second;
+	for (map<string, Scope*>::iterator it = children.begin(); it != children.end(); ++it)
+		delete it->second;
+}
+    
+Scope* Scope::makeChild(string const& name)
+{
+	map<string, Scope*>::const_iterator it = children.find(name);
+	if (it != children.end()) return NULL;
+	children[name] = new Scope(this);
+	return children[name];
+}
+        
+Scope* Scope::getChild(string const& name) const
+{
+	map<string, Scope*>::const_iterator it = children.find(name);
+	if (it == children.end()) return NULL;
+	return it->second;
+}
+
+Scope& Scope::getOrMakeChild(string const& name)
+{
+	map<string, Scope*>::const_iterator it = children.find(name);
+	if (it != children.end()) return *it->second;
+	children[name] = new Scope(this);
+	return *children[name];
 }
 
 int Scope::getVarInScope(string nspace, string name)
 {
-    if(nspace == "" && getVarSymbols().containsVariable(name))
+    if (nspace == "" && getVarSymbols().containsVariable(name))
         return getVarSymbols().getID(name);
         
-    map<string, Scope *>::iterator it = namedChildren.find(nspace);
-    
-    if(it != namedChildren.end())
+	Scope* child = getChild(nspace);
+    if (child)
     {
-        int id = (*it).second->getVarInScope("", name);
-        
-        if(id != -1)
-            return id;
+        int id = child->getVarInScope("", name);
+        if (id != -1) return id;
     }
     
-    if(parent == NULL)
-        return -1;
-        
+    if (parent == NULL) return -1;
     return parent->getVarInScope(nspace, name);
 }
 
@@ -335,44 +342,35 @@ vector<int> Scope::getFuncsInScope(string nspace, string name)
 {
     vector<int> rval;
     
-    if(nspace == "")
+    if (nspace == "")
     {
         vector<int> thisscope = getFuncSymbols().getFuncIDs(name);
-        
-        for(vector<int>::iterator it = thisscope.begin(); it != thisscope.end(); it++)
+        for (vector<int>::iterator it = thisscope.begin(); it != thisscope.end(); it++)
         {
             rval.push_back(*it);
         }
     }
     
-    map<string, Scope *>::iterator it = namedChildren.find(nspace);
-    
-    if(it != namedChildren.end())
+	Scope* child = getChild(nspace);
+    if (child)
     {
-        vector<int> childscope = (*it).second->getFuncsInScope("", name);
-        
-        for(vector<int>::iterator it2 = childscope.begin(); it2 != childscope.end(); it2++)
+        vector<int> childscope = child->getFuncsInScope("", name);
+        for (vector<int>::iterator it2 = childscope.begin(); it2 != childscope.end(); it2++)
         {
             rval.push_back(*it2);
         }
     }
     
-    if(parent != NULL)
+    if (parent != NULL)
     {
-        vector<int> abovescope = parent->getFuncsInScope(nspace,name);
-        
-        for(vector<int>::iterator it2 = abovescope.begin(); it2 != abovescope.end(); it2++)
+        vector<int> abovescope = parent->getFuncsInScope(nspace, name);
+        for (vector<int>::iterator it2 = abovescope.begin(); it2 != abovescope.end(); it2++)
         {
             rval.push_back(*it2);
         }
     }
     
     return rval;
-}
-
-Scope *Scope::getNamedChild(string name)
-{
-    return namedChildren[name];
 }
 
 ////////////////////////////////////////////////////////////////
