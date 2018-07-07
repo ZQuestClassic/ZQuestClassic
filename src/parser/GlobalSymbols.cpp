@@ -341,7 +341,7 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
             param.push_back(table[i].params[k]);
             
         string& name = table[i].name;
-        scope.addFunc(name, table[i].rettype, param);
+        scope.addFunction(name, table[i].rettype, param);
         memberids[name] = id;
     }
 }

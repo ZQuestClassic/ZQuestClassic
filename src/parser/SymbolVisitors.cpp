@@ -47,7 +47,7 @@ void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     
 	ZVarType const& returnType = host.getReturnType()->resolve(scope);
 	ZVarTypeId returnTypeId = symbolTable.getOrAssignTypeId(returnType);
-    int id = scope.addFunc(name, returnTypeId, paramTypeIds, &host);
+    int id = scope.addFunction(name, returnTypeId, paramTypeIds, &host);
     
     if (id == -1)
     {
@@ -79,7 +79,7 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
     
     // var is always visible
 	ZVarTypeId typeId = symbolTable.getOrAssignTypeId(type);
-    int id = scope.addVar(name, typeId, &host);
+    int id = scope.addVariable(name, typeId, &host);
     
     if (id == -1)
     {
@@ -126,7 +126,7 @@ void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
     }
     
     // Var is always visible.
-    int id = scope.addVar(name, typeId, &host);
+    int id = scope.addVariable(name, typeId, &host);
     
     if (id == -1)
     {
@@ -249,7 +249,7 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     if (host.getName() == "run" && returnType == ZVarType::VOID)
     {
 		ZVarTypeId thisTypeId = ScriptParser::getThisType(p.type);
-        int vid = blockScope.addVar("this", thisTypeId);
+        int vid = blockScope.addVariable("this", thisTypeId);
         table.putVarTypeId(vid, thisTypeId);
         thisvid = vid;
     }
@@ -262,7 +262,7 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
         string name = (*it)->getName();
 		ZVarType const& type = (*it)->getType()->resolve(blockScope);
 		ZVarTypeId typeId = table.getOrAssignTypeId(type);
-        int id = blockScope.addVar(name, typeId);
+        int id = blockScope.addVariable(name, typeId);
         
         if (id == -1)
         {
@@ -289,7 +289,7 @@ void BuildFunctionSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
     string name = host.getName();
 	ZVarType const& type = host.getType()->resolve(scope);
 	ZVarTypeId typeId = table.getOrAssignTypeId(type);
-    int id = scope.addVar(name, typeId);
+    int id = scope.addVariable(name, typeId);
     
     if (id == -1)
     {
@@ -320,7 +320,7 @@ void BuildFunctionSymbols::caseVarDecl(ASTVarDecl &host, void *param)
     string name = host.getName();
 	ZVarType const& type = host.getType()->resolve(scope);
 	ZVarTypeId typeId = table.getOrAssignTypeId(type);
-    int id = scope.addVar(name, typeId);
+    int id = scope.addVariable(name, typeId);
     
     if (id == -1)
     {
@@ -383,7 +383,14 @@ void BuildFunctionSymbols::caseFuncCall(ASTFuncCall &host, void *param)
         ASTExprDot* dotname = (ASTExprDot*)host.getName();
         string name = dotname->getName();
         string nspace = dotname->getNamespace();
-        vector<int> possibleFuncs = scope.getFuncIds(nspace, name);
+		Scope* namespaceScope;
+		if (nspace == "")
+			namespaceScope = &scope;
+		else
+			namespaceScope = scope.getNamespace(nspace);
+
+		vector<int> possibleFuncs;
+		if (namespaceScope) possibleFuncs = namespaceScope->getFunctionIds(name);
         
         if (possibleFuncs.size() == 0)
         {
@@ -414,7 +421,14 @@ void BuildFunctionSymbols::caseExprDot(ASTExprDot &host, void *param)
 
     string name = host.getName();
     string nspace = host.getNamespace();
-    int id = scope.getVarId(nspace, name);
+	Scope* namespaceScope;
+	if (nspace == "")
+		namespaceScope = &scope;
+	else
+		namespaceScope = scope.getNamespace(nspace);
+	int id = -1;
+	if (namespaceScope) id = namespaceScope->getVariableId(name);
+
     if (id == -1)
     {
         string fullname;
@@ -452,7 +466,13 @@ void BuildFunctionSymbols::caseExprArray(ASTExprArray &host, void *param)
 
     string name = host.getName();
     string nspace = host.getNamespace();
-    int id = scope.getVarId(nspace, name);
+	Scope* namespaceScope;
+	if (nspace == "")
+		namespaceScope = &scope;
+	else
+		namespaceScope = scope.getNamespace(nspace);
+	int id = -1;
+	if (namespaceScope) id = namespaceScope->getVariableId(name);
     
     if (id == -1)
     {
