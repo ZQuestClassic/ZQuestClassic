@@ -1,45 +1,47 @@
-#include <typeinfo>
+#include <cstdio>
+#include <string>
+#include <cassert>
 #include "Types.h"
 #include "DataStructs.h"
 #include "Scope.h"
 
 // Standard Type definitions.
+ZVarTypeSimple const ZVarType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", "Untyped");
 ZVarTypeSimple const ZVarType::VOID(ZVARTYPEID_VOID, "void", "Void");
 ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float", "Float");
 ZVarTypeSimple const ZVarType::BOOL(ZVARTYPEID_BOOL, "bool", "Bool");
-ZVarTypeSimple const ZVarType::FFC(ZVARTYPEID_FFC, "ffc", "FFC");
-ZVarTypeSimple const ZVarType::ITEM(ZVARTYPEID_ITEM, "item", "Item");
-ZVarTypeSimple const ZVarType::ITEMCLASS(ZVARTYPEID_ITEMCLASS, "itemdata", "ItemData");
-ZVarTypeSimple const ZVarType::NPC(ZVARTYPEID_NPC, "npc", "NPC");
-ZVarTypeSimple const ZVarType::LWPN(ZVARTYPEID_LWPN, "lweapon", "LWeapon");
-ZVarTypeSimple const ZVarType::EWPN(ZVARTYPEID_EWPN, "eweapon", "EWeapon");
-ZVarTypeSimple const ZVarType::GAME(ZVARTYPEID_GAME, "game", "Game");
-ZVarTypeSimple const ZVarType::LINK(ZVARTYPEID_LINK, "link", "Link");
-ZVarTypeSimple const ZVarType::SCREEN(ZVARTYPEID_SCREEN, "screen", "Screen");
-ZVarTypeSimple const ZVarType::NPCDATA(ZVARTYPEID_NPCDATA, "npcdata", "NpcData");
-ZVarTypeSimple const ZVarType::DEBUG(ZVARTYPEID_DEBUG, "debug", "Debug");
-ZVarTypeSimple const ZVarType::AUDIO(ZVARTYPEID_AUDIO, "audio", "Audio");
-ZVarTypeSimple const ZVarType::COMBOS(ZVARTYPEID_COMBOS, "combos", "Combos");
-ZVarTypeSimple const ZVarType::SPRITEDATA(ZVARTYPEID_SPRITEDATA, "spritedata", "SpriteData");
-ZVarTypeSimple const ZVarType::GRAPHICS(ZVARTYPEID_GRAPHICS, "graphics", "Graphics");
-ZVarTypeSimple const ZVarType::TEXT(ZVARTYPEID_TEXT, "text", "Text");
-ZVarTypeSimple const ZVarType::INPUT(ZVARTYPEID_INPUT, "input", "Input");
-ZVarTypeSimple const ZVarType::MAPDATA(ZVARTYPEID_MAPDATA, "mapdata", "MapData");
-ZVarTypeSimple const ZVarType::DMAPDATA(ZVARTYPEID_DMAPDATA, "dmapdata", "DMapData");
-ZVarTypeSimple const ZVarType::ZMESSAGE(ZVARTYPEID_ZMESSAGE, "zmessage", "ZMessage");
-ZVarTypeSimple const ZVarType::SHOPDATA(ZVARTYPEID_SHOPDATA, "shopdata", "ShopData");
-ZVarTypeSimple const ZVarType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", "Untyped");
-ZVarTypeSimple const ZVarType::DROPSET(ZVARTYPEID_DROPSET, "dropset", "DropSet");
-ZVarTypeSimple const ZVarType::PONDS(ZVARTYPEID_PONDS, "ponds", "Ponds");
-ZVarTypeSimple const ZVarType::WARPRING(ZVARTYPEID_WARPRING, "warpring", "WarpRing");
-ZVarTypeSimple const ZVarType::DOORSET(ZVARTYPEID_DOORSET, "doorset", "DoorSet");
-ZVarTypeSimple const ZVarType::ZUICOLOURS(ZVARTYPEID_ZUICOLOURS, "zuicolours", "ZuiColours");
-ZVarTypeSimple const ZVarType::RGBDATA(ZVARTYPEID_RGBDATA, "rgbdata", "RgbData");
-ZVarTypeSimple const ZVarType::PALETTE(ZVARTYPEID_PALETTE, "palette", "Palette");
-ZVarTypeSimple const ZVarType::TUNES(ZVARTYPEID_TUNES, "tunes", "Tunes");
-ZVarTypeSimple const ZVarType::PALCYCLE(ZVARTYPEID_PALCYCLE, "palcycle", "PalCycle");
-ZVarTypeSimple const ZVarType::GAMEDATA(ZVARTYPEID_GAMEDATA, "gamedata", "GameData");
-ZVarTypeSimple const ZVarType::CHEATS(ZVARTYPEID_CHEATS, "cheats", "Cheats");
+ZVarTypeClass const ZVarType::GAME(ZCLASSID_GAME, "Game");
+ZVarTypeClass const ZVarType::LINK(ZCLASSID_LINK, "Link");
+ZVarTypeClass const ZVarType::SCREEN(ZCLASSID_SCREEN, "Screen");
+ZVarTypeClass const ZVarType::FFC(ZCLASSID_FFC, "FFC");
+ZVarTypeClass const ZVarType::ITEM(ZCLASSID_ITEM, "Item");
+ZVarTypeClass const ZVarType::ITEMCLASS(ZCLASSID_ITEMCLASS, "ItemData");
+ZVarTypeClass const ZVarType::NPC(ZCLASSID_NPC, "NPC");
+ZVarTypeClass const ZVarType::LWPN(ZCLASSID_LWPN, "LWeapon");
+ZVarTypeClass const ZVarType::EWPN(ZCLASSID_EWPN, "EWeapon");
+ZVarTypeClass const ZVarType::NPCDATA(ZCLASSID_NPCDATA, "NpcData");
+ZVarTypeClass const ZVarType::DEBUG(ZCLASSID_DEBUG, "Debug");
+ZVarTypeClass const ZVarType::AUDIO(ZCLASSID_AUDIO, "Audio");
+ZVarTypeClass const ZVarType::COMBOS(ZCLASSID_COMBOS, "Combos");
+ZVarTypeClass const ZVarType::SPRITEDATA(ZCLASSID_SPRITEDATA, "SpriteData");
+ZVarTypeClass const ZVarType::GRAPHICS(ZCLASSID_GRAPHICS, "Graphics");
+ZVarTypeClass const ZVarType::TEXT(ZCLASSID_TEXT, "Text");
+ZVarTypeClass const ZVarType::INPUT(ZCLASSID_INPUT, "Input");
+ZVarTypeClass const ZVarType::MAPDATA(ZCLASSID_MAPDATA, "MapData");
+ZVarTypeClass const ZVarType::DMAPDATA(ZCLASSID_DMAPDATA, "DMapData");
+ZVarTypeClass const ZVarType::ZMESSAGE(ZCLASSID_ZMESSAGE, "ZMessage");
+ZVarTypeClass const ZVarType::SHOPDATA(ZCLASSID_SHOPDATA, "ShopData");
+ZVarTypeClass const ZVarType::DROPSET(ZCLASSID_DROPSET, "DropSet");
+ZVarTypeClass const ZVarType::PONDS(ZCLASSID_PONDS, "Ponds");
+ZVarTypeClass const ZVarType::WARPRING(ZCLASSID_WARPRING, "WarpRing");
+ZVarTypeClass const ZVarType::DOORSET(ZCLASSID_DOORSET, "DoorSet");
+ZVarTypeClass const ZVarType::ZUICOLOURS(ZCLASSID_ZUICOLOURS, "ZuiColours");
+ZVarTypeClass const ZVarType::RGBDATA(ZCLASSID_RGBDATA, "RgbData");
+ZVarTypeClass const ZVarType::PALETTE(ZCLASSID_PALETTE, "Palette");
+ZVarTypeClass const ZVarType::TUNES(ZCLASSID_TUNES, "Tunes");
+ZVarTypeClass const ZVarType::PALCYCLE(ZCLASSID_PALCYCLE, "PalCycle");
+ZVarTypeClass const ZVarType::GAMEDATA(ZCLASSID_GAMEDATA, "GameData");
+ZVarTypeClass const ZVarType::CHEATS(ZCLASSID_CHEATS, "Cheats");
 ZVarTypeConstFloat const ZVarType::CONST_FLOAT;
 
 ////////////////////////////////////////////////////////////////
@@ -47,7 +49,7 @@ ZVarTypeConstFloat const ZVarType::CONST_FLOAT;
 
 int ZVarType::compare(ZVarType const& other) const
 {
-	int c = classId() - other.classId();
+	int c = typeClassId() - other.typeClassId();
 	if (c) return c;
 	return selfCompare(other);
 }
@@ -59,15 +61,16 @@ ZVarType const* ZVarType::get(ZVarTypeId id)
 	case ZVARTYPEID_VOID: return &VOID;
 	case ZVARTYPEID_FLOAT: return &FLOAT;
 	case ZVARTYPEID_BOOL: return &BOOL;
+	case ZVARTYPEID_CONST_FLOAT: return &CONST_FLOAT;
+	case ZVARTYPEID_GAME: return &GAME;
+	case ZVARTYPEID_LINK: return &LINK;
+	case ZVARTYPEID_SCREEN: return &SCREEN;
 	case ZVARTYPEID_FFC: return &FFC;
 	case ZVARTYPEID_ITEM: return &ITEM;
 	case ZVARTYPEID_ITEMCLASS: return &ITEMCLASS;
 	case ZVARTYPEID_NPC: return &NPC;
 	case ZVARTYPEID_LWPN: return &LWPN;
 	case ZVARTYPEID_EWPN: return &EWPN;
-	case ZVARTYPEID_GAME: return &GAME;
-	case ZVARTYPEID_LINK: return &LINK;
-	case ZVARTYPEID_SCREEN: return &SCREEN;
 	case ZVARTYPEID_NPCDATA: return &NPCDATA;
 	case ZVARTYPEID_DEBUG: return &DEBUG;
 	case ZVARTYPEID_AUDIO: return &AUDIO;
@@ -112,8 +115,8 @@ bool ZVarTypeSimple::canBeGlobal() const
 
 bool ZVarTypeSimple::canCastTo(ZVarType const& target) const
 {
-	if (simpleId == ZVARTYPEID_FLOAT && target.classId() == ZVARTYPE_CLASSID_CONST_FLOAT) return true;
-	if (target.classId() != ZVARTYPE_CLASSID_SIMPLE) return false;
+	if (simpleId == ZVARTYPEID_FLOAT && target.typeClassId() == ZVARTYPE_CLASSID_CONST_FLOAT) return true;
+	if (target.typeClassId() != ZVARTYPE_CLASSID_SIMPLE) return false;
 	ZVarTypeSimple const& t = (ZVarTypeSimple const&)target;
 	if (simpleId == ZVARTYPEID_UNTYPED || t.simpleId == ZVARTYPEID_UNTYPED) return true;
 	if (simpleId == ZVARTYPEID_VOID || t.simpleId == ZVARTYPEID_VOID) return false;
@@ -146,3 +149,38 @@ bool ZVarTypeConstFloat::canCastTo(ZVarType const& target) const
 	if (*this == target) return true;
 	return ZVarType::FLOAT.canCastTo(target);
 }
+
+////////////////////////////////////////////////////////////////
+// ZVarTypeClass
+
+std::string to_string( int x ) {
+  int length = snprintf( NULL, 0, "%d", x );
+  assert( length >= 0 );
+  char* buf = new char[length + 1];
+  snprintf( buf, length + 1, "%d", x );
+  std::string str( buf );
+  delete[] buf;
+  return str;
+}
+
+string ZVarTypeClass::getName() const
+{
+	string name = className == "" ? "anonymous" : className;
+	return name + "[class " + to_string(classId) + "]";
+}
+
+ZVarType* ZVarTypeClass::resolve(Scope& scope)
+{
+	// Grab the proper name for the class the first time it's resolved.
+	if (className == "")
+		className = scope.getTable().getClass(classId)->name;
+
+	return this;
+}
+
+int ZVarTypeClass::selfCompare(ZVarType const& other) const
+{
+	ZVarTypeClass const& o = (ZVarTypeClass const&)other;
+	return classId - o.classId;
+}
+

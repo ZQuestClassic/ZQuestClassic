@@ -23,23 +23,33 @@ enum ZVarTypeClassId
 	ZVARTYPE_CLASSID_BASE,
 	ZVARTYPE_CLASSID_SIMPLE,
 	ZVARTYPE_CLASSID_UNRESOLVED,
-	ZVARTYPE_CLASSID_CONST_FLOAT
+	ZVARTYPE_CLASSID_CONST_FLOAT,
+	ZVARTYPE_CLASSID_CLASS
 };
 
-enum ZVarTypeIdSimple
+enum ZVarTypeIdBuiltin
 {
+	ZVARTYPEID_START = 0,
+
+	ZVARTYPEID_PRIMITIVE_START = 0,
+    ZVARTYPEID_UNTYPED = 0,
     ZVARTYPEID_VOID,
     ZVARTYPEID_FLOAT,
     ZVARTYPEID_BOOL,
+	ZVARTYPEID_PRIMITIVE_END,
+
+	ZVARTYPEID_CONST_FLOAT = ZVARTYPEID_PRIMITIVE_END,
+
+	ZVARTYPEID_CLASS_START,
+    ZVARTYPEID_GAME = ZVARTYPEID_CLASS_START,
+    ZVARTYPEID_LINK,
+    ZVARTYPEID_SCREEN,
     ZVARTYPEID_FFC,
     ZVARTYPEID_ITEM,
     ZVARTYPEID_ITEMCLASS,
     ZVARTYPEID_NPC,
     ZVARTYPEID_LWPN,
     ZVARTYPEID_EWPN,
-    ZVARTYPEID_GAME,
-    ZVARTYPEID_LINK,
-    ZVARTYPEID_SCREEN,
     ZVARTYPEID_NPCDATA,
     ZVARTYPEID_DEBUG,
     ZVARTYPEID_AUDIO,
@@ -52,7 +62,6 @@ enum ZVarTypeIdSimple
     ZVARTYPEID_DMAPDATA,
     ZVARTYPEID_ZMESSAGE,
     ZVARTYPEID_SHOPDATA,
-    ZVARTYPEID_UNTYPED,
     ZVARTYPEID_DROPSET,
     ZVARTYPEID_PONDS,
     ZVARTYPEID_WARPRING,
@@ -64,11 +73,14 @@ enum ZVarTypeIdSimple
     ZVARTYPEID_PALCYCLE,
     ZVARTYPEID_GAMEDATA,
 	ZVARTYPEID_CHEATS,
-	ZVARTYPEID_END
+	ZVARTYPEID_CLASS_END,
+
+	ZVARTYPEID_END = ZVARTYPEID_CLASS_END
 };
 
 class ZVarTypeSimple;
 class ZVarTypeConstFloat;
+class ZVarTypeClass;
 
 class ZVarType
 {
@@ -79,7 +91,7 @@ public:
 	virtual bool isResolved() const {return true;}
 	virtual bool canBeGlobal() const {return false;}
 	virtual bool canCastTo(ZVarType const& target) const = 0;
-	virtual int classId() const {return ZVARTYPE_CLASSID_BASE;};
+	virtual int typeClassId() const {return ZVARTYPE_CLASSID_BASE;};
 
 	int compare(ZVarType const& other) const;
 	bool operator==(ZVarType const& other) const {return compare(other) == 0;}
@@ -99,62 +111,62 @@ protected:
 
 // Standard Types.
 public:
+	static ZVarTypeSimple const UNTYPED;
 	static ZVarTypeSimple const VOID;
 	static ZVarTypeSimple const FLOAT;
 	static ZVarTypeSimple const BOOL;
-	static ZVarTypeSimple const FFC;
-	static ZVarTypeSimple const ITEM;
-	static ZVarTypeSimple const ITEMCLASS;
-	static ZVarTypeSimple const NPC;
-	static ZVarTypeSimple const LWPN;
-	static ZVarTypeSimple const EWPN;
-	static ZVarTypeSimple const GAME;
-	static ZVarTypeSimple const LINK;
-	static ZVarTypeSimple const SCREEN;
-	static ZVarTypeSimple const NPCDATA;
-	static ZVarTypeSimple const DEBUG;
-	static ZVarTypeSimple const AUDIO;
-	static ZVarTypeSimple const COMBOS;
-	static ZVarTypeSimple const SPRITEDATA;
-	static ZVarTypeSimple const GRAPHICS;
-	static ZVarTypeSimple const TEXT;
-	static ZVarTypeSimple const INPUT;
-	static ZVarTypeSimple const MAPDATA;
-	static ZVarTypeSimple const DMAPDATA;
-	static ZVarTypeSimple const ZMESSAGE;
-	static ZVarTypeSimple const SHOPDATA;
-	static ZVarTypeSimple const UNTYPED;
-	static ZVarTypeSimple const DROPSET;
-	static ZVarTypeSimple const PONDS;
-	static ZVarTypeSimple const WARPRING;
-	static ZVarTypeSimple const DOORSET;
-	static ZVarTypeSimple const ZUICOLOURS;
-	static ZVarTypeSimple const RGBDATA;
-	static ZVarTypeSimple const PALETTE;
-	static ZVarTypeSimple const TUNES;
-	static ZVarTypeSimple const PALCYCLE;
-	static ZVarTypeSimple const GAMEDATA;
-	static ZVarTypeSimple const CHEATS;
 	static ZVarTypeConstFloat const CONST_FLOAT;
+	static ZVarTypeClass const FFC;
+	static ZVarTypeClass const ITEM;
+	static ZVarTypeClass const ITEMCLASS;
+	static ZVarTypeClass const NPC;
+	static ZVarTypeClass const LWPN;
+	static ZVarTypeClass const EWPN;
+	static ZVarTypeClass const GAME;
+	static ZVarTypeClass const LINK;
+	static ZVarTypeClass const SCREEN;
+	static ZVarTypeClass const NPCDATA;
+	static ZVarTypeClass const DEBUG;
+	static ZVarTypeClass const AUDIO;
+	static ZVarTypeClass const COMBOS;
+	static ZVarTypeClass const SPRITEDATA;
+	static ZVarTypeClass const GRAPHICS;
+	static ZVarTypeClass const TEXT;
+	static ZVarTypeClass const INPUT;
+	static ZVarTypeClass const MAPDATA;
+	static ZVarTypeClass const DMAPDATA;
+	static ZVarTypeClass const ZMESSAGE;
+	static ZVarTypeClass const SHOPDATA;
+	static ZVarTypeClass const DROPSET;
+	static ZVarTypeClass const PONDS;
+	static ZVarTypeClass const WARPRING;
+	static ZVarTypeClass const DOORSET;
+	static ZVarTypeClass const ZUICOLOURS;
+	static ZVarTypeClass const RGBDATA;
+	static ZVarTypeClass const PALETTE;
+	static ZVarTypeClass const TUNES;
+	static ZVarTypeClass const PALCYCLE;
+	static ZVarTypeClass const GAMEDATA;
+	static ZVarTypeClass const CHEATS;
 	static ZVarType const* get(ZVarTypeId id);
 };
 
 class ZVarTypeSimple : public ZVarType
 {
 public:
-	ZVarTypeSimple(ZVarTypeIdSimple simpleId, string const& name, string const& upName)
+	ZVarTypeSimple(int simpleId, string const& name, string const& upName)
 			: simpleId(simpleId), name(name), upName(upName) {}
 	ZVarTypeSimple* clone() const {return new ZVarTypeSimple(*this);}
 	string getName() const {return name;}
 	string getUpName() const {return upName;}
 	bool canBeGlobal() const;
 	bool canCastTo(ZVarType const& target) const;
-	ZVarTypeIdSimple getId() const {return simpleId;}
-	int classId() const {return ZVARTYPE_CLASSID_SIMPLE;}
+	int getId() const {return simpleId;}
+	int typeClassId() const {return ZVARTYPE_CLASSID_SIMPLE;}
 protected:
 	int selfCompare(ZVarType const& other) const;
 private:
-	ZVarTypeIdSimple simpleId;
+	int simpleId;
 	string name;
 	string upName;
 };
@@ -168,7 +180,7 @@ public:
 	ZVarType* resolve(Scope& scope);
 	bool isResolved() const {return false;}
 	bool canCastTo(ZVarType const& target) const {return false;}
-	int classId() const {return ZVARTYPE_CLASSID_UNRESOLVED;}
+	int typeClassId() const {return ZVARTYPE_CLASSID_UNRESOLVED;}
 protected:
 	int selfCompare(ZVarType const& other) const;
 private:
@@ -185,9 +197,29 @@ public:
 	ZVarType* resolve(Scope& scope) {return this;}
 	bool canBeGlobal() const {return true;}
 	bool canCastTo(ZVarType const& target) const;
-	int classId() const {return ZVARTYPE_CLASSID_CONST_FLOAT;};
+	int typeClassId() const {return ZVARTYPE_CLASSID_CONST_FLOAT;};
 protected:
 	int selfCompare(ZVarType const& other) const {return 0;};
+};
+
+class ZVarTypeClass : public ZVarType
+{
+public:
+	ZVarTypeClass(int classId) : classId(classId), className("") {}
+	ZVarTypeClass(int classId, string const& className) : classId(classId), className(className) {}
+	ZVarTypeClass* clone() const {return new ZVarTypeClass(*this);}
+	string getName() const;
+	string getClassName() const {return className;}
+	int getClassId() const {return classId;}
+	ZVarType* resolve(Scope& scope);
+	bool canBeGlobal() const {return true;}
+	bool canCastTo(ZVarType const& target) const {return *this == target;}
+	int typeClassId() const {return ZVARTYPE_CLASSID_CLASS;};
+protected:
+	int selfCompare(ZVarType const& other) const;
+private:
+	int classId;
+	string className;
 };
 
 #endif

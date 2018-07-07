@@ -13,11 +13,10 @@ Scope* Scope::makeGlobalScope(SymbolTable& table)
     GlobalSymbols::getInst().addSymbolsToScope(*global);
 
 	// Create builtin classes (skip void, float, and bool).
-	for (ZVarTypeId typeId = ZVARTYPEID_FFC; typeId < ZVARTYPEID_END; ++typeId)
+	for (ZVarTypeId typeId = ZVARTYPEID_CLASS_START; typeId < ZVARTYPEID_CLASS_END; ++typeId)
 	{
-		ZVarTypeSimple const& type = *(ZVarTypeSimple const*)ZVarType::get(typeId);
-		int classId = global->addClass(type.getUpName());
-		ZClass& klass = *table.getClass(classId);
+		ZVarTypeClass const& type = *(ZVarTypeClass const*)ZVarType::get(typeId);
+		ZClass& klass = *table.getClass(type.getClassId());
 		LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
 		library.addSymbolsToScope(klass);
 	}
@@ -180,6 +179,13 @@ int Scope::getGetterId(int varId) const
 	return id;
 }
 
+int Scope::getGetterId(string const& name) const
+{
+	int varId = getVariableId(name);
+	if (varId == -1) return -1;
+	return getGetterId(varId);
+}
+
 int Scope::getSetterId(int varId) const
 {
 	int id = getLocalSetterId(varId);
@@ -187,6 +193,13 @@ int Scope::getSetterId(int varId) const
 	if (id == -1 && parent)
 		id = parent->getSetterId(varId);
 	return id;
+}
+
+int Scope::getSetterId(string const& name) const
+{
+	int varId = getVariableId(name);
+	if (varId == -1) return -1;
+	return getSetterId(varId);
 }
 
 Scope::VariableAccess Scope::getRead(string const& name) const
@@ -331,7 +344,7 @@ int BasicScope::addClass(string const& name, AST* node)
 	map<string, int>::const_iterator it = classes.find(name);
 	if (it != classes.end()) return -1;
 
-	int classId = table.createClass()->id;
+	int classId = table.createClass(name)->id;
 	classes[name] = classId;
 	if (node) table.putNodeId(node, classId);
 	return classId;
@@ -429,4 +442,8 @@ int BasicScope::addFunction(string const& name, ZVarTypeId returnTypeId, vector<
 ////////////////////////////////////////////////////////////////
 // ZClass
 
-ZClass::ZClass(SymbolTable& table, int id) : BasicScope(table), id(id) {}
+ZClass::ZClass(SymbolTable& table, string const& name, int id)
+	: BasicScope(table), name(name), id(id)
+{}
+
+

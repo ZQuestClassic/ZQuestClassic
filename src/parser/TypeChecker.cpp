@@ -4,6 +4,7 @@
 #include "TypeChecker.h"
 #include "ParseError.h"
 #include "GlobalSymbols.h"
+#include "Scope.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <string>
@@ -249,19 +250,21 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host)
         }
     }
 
-    ZVarTypeId typeId = host.getLVal()->getType();
-	LibrarySymbols* lib = LibrarySymbols::getTypeInstance(typeId);
-	if (!lib)
+	// Make sure the left side is an object.
+    ZVarTypeId leftTypeId = host.getLVal()->getType();
+	if (symbolTable.getType(leftTypeId)->typeClassId() != ZVARTYPE_CLASSID_CLASS)
     {
 	    failure = true;
 	    printErrorMsg(&host, ARROWNOTPOINTER);
 	    return;
     }
 
-	int functionId = lib->matchGetter(host.getName());
+	ZVarTypeClass& leftType = *(ZVarTypeClass*)symbolTable.getType(leftTypeId);
+	ZClass& leftClass = *symbolTable.getClass(leftType.getClassId());
 
+	int functionId = leftClass.getGetterId(host.getName());
 	vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(functionId);
-    if (functionId == -1 || functionParams.size() != (isIndexed ? 2 : 1) || functionParams[0] != typeId)
+    if (functionId == -1 || functionParams.size() != (isIndexed ? 2 : 1) || functionParams[0] != leftTypeId)
     {
         failure = true;
         printErrorMsg(&host, ARROWNOVAR, host.getName() + (isIndexed ? "[]" : ""));
@@ -461,12 +464,20 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
         // Luckily I will here assert that each type's functions MUST be unique
 		ASTExprArrow& arrow = *(ASTExprArrow*)host.getName();
         string name = arrow.getName();
-        ZVarTypeId typeId = arrow.getLVal()->getType();
 
-		LibrarySymbols* lib = LibrarySymbols::getTypeInstance(typeId);
-		assert(lib);
+		// Make sure the left side is an object.
+        ZVarTypeId leftTypeId = arrow.getLVal()->getType();
+		if (symbolTable.getType(leftTypeId)->typeClassId() != ZVARTYPE_CLASSID_CLASS)
+		{
+			failure = true;
+			printErrorMsg(&host, ARROWNOTPOINTER);
+			return;
+		}
 
-		int functionId = lib->matchFunction(name);
+		ZVarTypeClass& leftType = *(ZVarTypeClass*)symbolTable.getType(leftTypeId);
+		ZClass& leftClass = *symbolTable.getClass(leftType.getClassId());
+
+		int functionId = leftClass.getFunctionIds(name)[0];
         if (functionId == -1)
         {
             failure = true;
@@ -492,8 +503,8 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
             }
         }
 
-        host.setType(symbolTable.getFuncReturnTypeId(functionId));
         symbolTable.putNodeId(&host, functionId);
+        host.setType(symbolTable.getFuncReturnTypeId(functionId));
     }
 }
 
@@ -1002,10 +1013,11 @@ void GetLValType::caseVarDecl(ASTVarDecl& host)
 
 void GetLValType::caseExprArrow(ASTExprArrow &host)
 {
+	SymbolTable& symbolTable = typeCheck.symbolTable;
+
     host.getLVal()->execute(typeCheck);
     if (!typeCheck.isOK()) return;
 
-    ZVarTypeId type = host.getLVal()->getType();
     bool isIndexed = (host.getIndex() != 0);
 
     if (isIndexed)
@@ -1020,20 +1032,24 @@ void GetLValType::caseExprArrow(ASTExprArrow &host)
         }
     }
 
-	LibrarySymbols* lib = LibrarySymbols::getTypeInstance(type);
-	if (!lib)
+	// Make sure the left side is an object.
+    ZVarTypeId leftTypeId = host.getLVal()->getType();
+	if (symbolTable.getType(leftTypeId)->typeClassId() != ZVARTYPE_CLASSID_CLASS)
     {
-        printErrorMsg(&host, ARROWNOTPOINTER);
 		typeCheck.fail();
+        printErrorMsg(&host, ARROWNOTPOINTER);
         return;
     }
-	int functionId = lib->matchSetter(host.getName());
 
-	vector<ZVarTypeId> functionParams = typeCheck.symbolTable.getFuncParamTypeIds(functionId);
-    if (functionId == -1 || functionParams.size() != (isIndexed ? 3 : 2) || functionParams[0] != type)
+	ZVarTypeClass& leftType = *(ZVarTypeClass*)symbolTable.getType(leftTypeId);
+	ZClass& leftClass = *symbolTable.getClass(leftType.getClassId());
+
+	int functionId = leftClass.getSetterId(host.getName());
+	vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(functionId);
+    if (functionId == -1 || functionParams.size() != (isIndexed ? 3 : 2) || functionParams[0] != leftTypeId)
     {
-        printErrorMsg(&host, ARROWNOVAR, host.getName() + (isIndexed ? "[]" : ""));
         typeCheck.fail();
+        printErrorMsg(&host, ARROWNOVAR, host.getName() + (isIndexed ? "[]" : ""));
         return;
     }
 
