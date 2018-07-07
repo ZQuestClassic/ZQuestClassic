@@ -35,6 +35,8 @@ public:
 	static FunctionTypeIds const null;
 };
 
+class ZClass;
+
 class SymbolTable
 {
 public:
@@ -51,6 +53,9 @@ public:
 	ZVarTypeId getTypeId(ZVarType const& type) const;
 	ZVarTypeId assignTypeId(ZVarType const& type);
 	ZVarTypeId getOrAssignTypeId(ZVarType const& type);
+	// Classes
+	ZClass* getClass(int classId) const;
+	ZClass* createClass();
 	// Variables
     ZVarTypeId getVarTypeId(int varId) const;
     ZVarTypeId getVarTypeId(AST* node) const;
@@ -80,6 +85,7 @@ private:
     map<AST*, int> nodeIds;
 	vector<ZVarType*> types;
 	map<ZVarType*, ZVarTypeId, ZVarType::PointerLess> typeIds;
+	vector<ZClass*> classes;
     map<AST*, vector<int> > possibleNodeFuncIds;
     map<int, ZVarTypeId> varTypes;
     map<int, long> inlinedConstants;

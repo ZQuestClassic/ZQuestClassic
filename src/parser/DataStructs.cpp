@@ -5,6 +5,7 @@
 #include "Types.h"
 #include "ParseError.h"
 #include "GlobalSymbols.h"
+#include "Scope.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <iostream>
@@ -69,6 +70,8 @@ SymbolTable::SymbolTable() : nodeIds()
 SymbolTable::~SymbolTable()
 {
 	for (vector<ZVarType*>::iterator it = types.begin(); it != types.end(); ++it)
+		delete *it;
+	for (vector<ZClass*>::iterator it = classes.begin(); it != classes.end(); ++it)
 		delete *it;
 }
 
@@ -150,6 +153,21 @@ ZVarTypeId SymbolTable::getOrAssignTypeId(ZVarType const& type)
 	types.push_back(storedType);
 	typeIds[storedType] = id;
 	return id;
+}
+
+// Classes
+
+ZClass* SymbolTable::getClass(int classId) const
+{
+	if (classId < 0 || classId > classes.size()) return NULL;
+	return classes[classId];
+}
+
+ZClass* SymbolTable::createClass()
+{
+	ZClass* klass = new ZClass(*this, classes.size());
+	classes.push_back(klass);
+	return klass;
 }
 
 // Variables

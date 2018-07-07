@@ -50,7 +50,7 @@ const int radsperdeg = 572958;
 
 #define SetIdentifier(label) \
 { \
-	int id = memberids[label]; \
+	int id = functions[label]; \
         int label = lt.functionToLabel(id); \
         vector<Opcode *> code; \
 } \
@@ -98,7 +98,7 @@ const int radsperdeg = 572958;
 //LoadRefData
 #define LOAD_REFDATA(flabel, ffins, ref_var) \
 { \
-        int id = memberids["flabel"]; \
+        int id = functions["flabel"]; \
         int label = lt.functionToLabel(id); \
         vector<Opcode *> code; \
         Opcode *first = new OPopRegister(new VarArgument(EXP1)); \
@@ -115,7 +115,7 @@ const int radsperdeg = 572958;
 //Guydata member with one input, one return
 #define GET_GUYDATA_MEMBER(flabel, ffins) \
 { \
-	int id = memberids[flabel];\
+	int id = functions[flabel];\
 	int label = lt.functionToLabel(id); \
         vector<Opcode *> code; \
         Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
@@ -131,7 +131,7 @@ const int radsperdeg = 572958;
 //Dataclass member with three inputs
 #define SET_DATACLASS_MEMBER(flabel, ffins) \
 { \
-	int id = memberids[flabel]; \
+	int id = functions[flabel]; \
 	int label = lt.functionToLabel(id); \
 	vector<Opcode *> code; \
 	Opcode *first = new OPopRegister(new VarArgument(SFTEMP)); \
@@ -149,7 +149,7 @@ const int radsperdeg = 572958;
 //Dataclass Member with four inputs (int, int, int, int)
 #define SET_DATACLASS_ARRAY(flabel, ffins) \
 { \
-	int id = memberids[flabel]; \
+	int id = functions[flabel]; \
 	int label = lt.functionToLabel(id); \
 	vector<Opcode *> code; \
 	Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
@@ -168,7 +168,7 @@ const int radsperdeg = 572958;
 //Dataclass member with two inputs, one return 
 #define GET_DATACLASS_MEMBER(flabel, ffins) \
 { \
-	int id = memberids[flabel]; \
+	int id = functions[flabel]; \
 	int label = lt.functionToLabel(id); \
 	vector<Opcode *> code; \
 	Opcode *first = new OPopRegister(new VarArgument(INDEX2)); \
@@ -185,7 +185,7 @@ const int radsperdeg = 572958;
 //Dataclass member with three inputs, one return
 #define GET_DATACLASS_ARRAY(flabel, ocode) \
 { \
-	int id = memberids[flabel]; \
+	int id = functions[flabel]; \
 	int label = lt.functionToLabel(id); \
 	vector<Opcode *> code; \
 	Opcode *first = new OPopRegister(new VarArgument(INDEX)); \
@@ -203,7 +203,7 @@ const int radsperdeg = 572958;
 //void function(int) -- follows pattern of cleartile() and trace()
 #define ONE_INPUT_NO_RETURN(flabel, ocode) \
 { \
-        id = memberids[flabel]; \
+        id = functions[flabel]; \
         int label = lt.functionToLabel(id); \
         vector<Opcode *> code; \
         Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
@@ -218,7 +218,7 @@ const int radsperdeg = 572958;
 //int function(int)
 #define ONE_INPUT_ONE_RETURN(flabel, ocode) \
 { \
-	int id = memberids[flabel]; \
+	int id = functions[flabel]; \
 	int label = lt.functionToLabel(id); \
         vector<Opcode *> code; \
         Opcode *first = new OPopRegister(new VarArgument(EXP1)); \
@@ -236,7 +236,7 @@ const int radsperdeg = 572958;
 //void function(int, int)
 #define TWO_INPUT_NO_RETURN(flabel, ocode) \
 { \
-	int id = memberids[flabel]; \
+	int id = functions[flabel]; \
         int label = lt.functionToLabel(id); \
         vector<Opcode *> code; \
         Opcode *first = new OPopRegister(new VarArgument(INDEX2)); \
@@ -255,7 +255,7 @@ const int radsperdeg = 572958;
 //int function(int, int)
 #define TWO_INPUT_ONE_RETURN(flabel, ocode) \
 { \
-        int id = memberids[flabel]; \
+        int id = functions[flabel]; \
         int label = lt.functionToLabel(id); \
         vector<Opcode *> code; \
         Opcode *first = new OPopRegister(new VarArgument(INDEX2)); \
@@ -272,7 +272,7 @@ const int radsperdeg = 572958;
 //void function(int, int, int)
 #define THREE_INPUT_NO_RETURN(flabel,zasmid) \
 { \
-        int id = memberids[flabel]; \
+        int id = functions[flabel]; \
         int label = lt.functionToLabel(id); \
         vector<Opcode *> code; \
         Opcode *first = new OPopRegister(new VarArgument(SFTEMP)); \
@@ -290,7 +290,7 @@ const int radsperdeg = 572958;
 //Three Inputs, One Return -- based on int GetScreenEFlags(int map, int screen, int flagset);	
 #define THREE_INPUTS_ONE_RETURN(flabel, ocode) \
 { \
-        int id = memberids[flabel]; \
+        int id = functions[flabel]; \
         int label = lt.functionToLabel(id); \
         vector<Opcode *> code; \
         Opcode *first = new OPopRegister(new VarArgument(INDEX)); \
@@ -308,7 +308,7 @@ const int radsperdeg = 572958;
 //This will trace the float value of any pointer type to allegro.log. 
 #define TRACING_FUNCTION(flabel) \
 { \
-	int id = memberids[flabel]; \
+	int id = functions[flabel]; \
         int label = lt.functionToLabel(id); \
         vector<Opcode *> code; \
         Opcode *first = new OPopRegister(new VarArgument(EXP2)); \
@@ -324,32 +324,118 @@ const int radsperdeg = 572958;
 	for(int _i(0); _i < num_args; ++_i) \
 		code.push_back(new OPopRegister(new VarArgument(t)))
 
+LibrarySymbols* LibrarySymbols::getTypeInstance(ZVarTypeId typeId)
+{
+    switch (typeId)
+    {
+    case ZVARTYPEID_FFC: return &FFCSymbols::getInst();
+    case ZVARTYPEID_LINK: return &LinkSymbols::getInst();
+    case ZVARTYPEID_SCREEN: return &ScreenSymbols::getInst();
+    case ZVARTYPEID_GAME: return &GameSymbols::getInst();
+    case ZVARTYPEID_ITEM: return &ItemSymbols::getInst();
+    case ZVARTYPEID_ITEMCLASS: return &ItemclassSymbols::getInst();
+    case ZVARTYPEID_NPC: return &NPCSymbols::getInst();
+    case ZVARTYPEID_LWPN: return &LinkWeaponSymbols::getInst();
+    case ZVARTYPEID_EWPN: return &EnemyWeaponSymbols::getInst();
+    case ZVARTYPEID_NPCDATA: return &NPCDataSymbols::getInst();
+    case ZVARTYPEID_DEBUG: return &DebugSymbols::getInst();
+    case ZVARTYPEID_AUDIO: return &AudioSymbols::getInst();
+    case ZVARTYPEID_COMBOS: return &CombosPtrSymbols::getInst();
+    case ZVARTYPEID_SPRITEDATA: return &SpriteDataSymbols::getInst();
+    case ZVARTYPEID_GRAPHICS: return &GfxPtrSymbols::getInst();
+    case ZVARTYPEID_TEXT: return &TextPtrSymbols::getInst();
+    case ZVARTYPEID_INPUT: return &InputSymbols::getInst();
+    case ZVARTYPEID_MAPDATA: return &MapDataSymbols::getInst();
+    case ZVARTYPEID_DMAPDATA: return &DMapDataSymbols::getInst();
+    case ZVARTYPEID_ZMESSAGE: return &MessageDataSymbols::getInst();
+    case ZVARTYPEID_SHOPDATA: return &ShopDataSymbols::getInst();
+    case ZVARTYPEID_UNTYPED: return &UntypedSymbols::getInst();
+    case ZVARTYPEID_DROPSET: return &DropsetSymbols::getInst();
+    case ZVARTYPEID_PONDS: return &PondSymbols::getInst();
+    case ZVARTYPEID_WARPRING: return &WarpringSymbols::getInst();
+    case ZVARTYPEID_DOORSET: return &DoorsetSymbols::getInst();
+    case ZVARTYPEID_ZUICOLOURS: return &MiscColourSymbols::getInst();
+    case ZVARTYPEID_RGBDATA: return &RGBSymbols::getInst();
+    case ZVARTYPEID_PALETTE: return &PaletteSymbols::getInst();
+    case ZVARTYPEID_TUNES: return &TunesSymbols::getInst();
+    case ZVARTYPEID_PALCYCLE: return &PalCycleSymbols::getInst();
+    case ZVARTYPEID_GAMEDATA: return &GamedataSymbols::getInst();
+    case ZVARTYPEID_CHEATS: return &CheatsSymbols::getInst();
+    default: return NULL;
+    }
+}
+
 void LibrarySymbols::addSymbolsToScope(Scope& scope)
 {
 	SymbolTable& symbolTable = scope.getTable();
 
-    // Waste an ID, OH WELL
-    memberids.clear();
-    firstid = ScriptParser::getUniqueFuncID() + 1;
-    int id = firstid;
+    functions.clear();
+	getters.clear();
+	setters.clear();
     
-    for (int i = 0; table[i].name != ""; i++, id++)
+    for (int i = 0; table[i].name != ""; i++)
     {
-        vector<int> param;
+		AccessorTable& entry = table[i];
+        string name = entry.name;
+        vector<int> paramTypeIds;
+        for (int k = 0; entry.params[k] != -1 && k < 20; k++)
+            paramTypeIds.push_back(entry.params[k]);
+
         
-        for (int k = 0; table[i].params[k] != -1 && k<20; k++)
-            param.push_back(table[i].params[k]);
+		// Strip out the array at the end.
+		bool isArray = name.substr(name.size() - 2) == "[]";
+		if (isArray)
+			name = name.substr(0, name.size() - 2);
             
-        string& name = table[i].name;
-        scope.addFunction(name, table[i].rettype, param);
-        memberids[name] = id;
+		if (entry.setorget == SETTER && name.substr(0, 3) == "set")
+		{
+			name = name.substr(3); // Strip out "set".
+			int varId = scope.getLocalVariableId(name);
+			if (varId == -1)
+				varId = scope.addVariable(name, paramTypeIds[1]);
+			int functionId = scope.addSetter(varId, paramTypeIds);
+			assert(functionId != -1);
+			setters[name] = functionId;
+		}
+		else if (entry.setorget == GETTER && name.substr(0, 3) == "get")
+		{
+			name = name.substr(3); // Strip out "get".
+			int varId = scope.getLocalVariableId(name);
+			if (varId == -1)
+				varId = scope.addVariable(name, entry.rettype);
+			int functionId = scope.addGetter(varId, paramTypeIds);
+			assert(functionId != -1);
+			getters[name] = functionId;
+		}
+		else
+		{
+			int functionId = scope.addFunction(name, entry.rettype, paramTypeIds);
+			assert(functionId != -1);
+			functions[name] = functionId;
+    }
     }
 }
 
-int LibrarySymbols::matchFunction(string name)
+int LibrarySymbols::matchFunction(string const& name)
 {
-    map<string, int>::iterator it = memberids.find(name);
-    if (it != memberids.end())
+    map<string, int>::iterator it = functions.find(name);
+    if (it != functions.end())
+		return it->second;
+	return -1;
+}
+
+int LibrarySymbols::matchGetter(string const& name)
+{
+    map<string, int>::iterator it = getters.find(name);
+    if (it != getters.end())
+		return it->second;
+	return -1;
+}
+
+int LibrarySymbols::matchSetter(string const& name)
+{
+    map<string, int>::iterator it = setters.find(name);
+    if (it != setters.end())
 		return it->second;
 	return -1;
 }
@@ -363,7 +449,7 @@ map<int, vector<Opcode *> > LibrarySymbols::addSymbolsCode(LinkTable &lt)
         int var = table[i].var;
         string name = table[i].name;
         bool isIndexed = table[i].numindex > 1;
-        int id = memberids[name];
+        int id = functions[name];
         int label = lt.functionToLabel(id);
         
         switch(table[i].setorget)
@@ -590,7 +676,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
 	//no input, one return
     //untyped NULL()(global)
     {
-        int id = memberids["NULL"];
+        int id = functions["NULL"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -606,7 +692,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     //one input, one return
     //untyped Untype(untype)
     {
-        int id = memberids["Untype"];
+        int id = functions["Untype"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -621,7 +707,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
 	
     //int Rand(int maxval)
     {
-        id = memberids["Rand"];
+        id = functions["Rand"];
         int label  = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop maxval
@@ -635,7 +721,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Quit()
     {
-        id = memberids["Quit"];
+        id = functions["Quit"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -646,7 +732,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Waitframe()
     {
-        id = memberids["Waitframe"];
+        id = functions["Waitframe"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OWaitframe();
@@ -658,7 +744,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Waitdraw()
     {
-        id = memberids["Waitdraw"];
+        id = functions["Waitdraw"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OWaitdraw();
@@ -670,7 +756,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Trace(int val)
     {
-        id = memberids["Trace"];
+        id = functions["Trace"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -701,7 +787,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void TraceB(bool val)
     {
-        id = memberids["TraceB"];
+        id = functions["TraceB"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -714,7 +800,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void TraceS(bool val)
     {
-        id = memberids["TraceS"];
+        id = functions["TraceS"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(INDEX));
@@ -727,7 +813,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void TraceNL()
     {
-        id = memberids["TraceNL"];
+        id = functions["TraceNL"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OTrace3();
@@ -739,7 +825,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void ClearTrace()
     {
-        id = memberids["ClearTrace"];
+        id = functions["ClearTrace"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OTrace4();
@@ -751,7 +837,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void TraceToBase(float, float, float)
     {
-        id = memberids["TraceToBase"];
+        id = functions["TraceToBase"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OTrace5Register();
@@ -767,7 +853,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int Sin(int val)
     {
-        id = memberids["Sin"];
+        id = functions["Sin"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -780,7 +866,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int RadianSin(int val)
     {
-        id = memberids["RadianSin"];
+        id = functions["RadianSin"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -794,7 +880,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int ArcSin(int val)
     {
-        id = memberids["ArcSin"];
+        id = functions["ArcSin"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -807,7 +893,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int Cos(int val)
     {
-        id = memberids["Cos"];
+        id = functions["Cos"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -820,7 +906,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int RadianCos(int val)
     {
-        id = memberids["RadianCos"];
+        id = functions["RadianCos"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -834,7 +920,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int ArcCos(int val)
     {
-        id = memberids["ArcCos"];
+        id = functions["ArcCos"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -847,7 +933,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int Tan(int val)
     {
-        id = memberids["Tan"];
+        id = functions["Tan"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -860,7 +946,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int ArcTan(int X, int Y)
     {
-        id = memberids["ArcTan"];
+        id = functions["ArcTan"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(INDEX2));
@@ -874,7 +960,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int RadianTan(int val)
     {
-        id = memberids["RadianTan"];
+        id = functions["RadianTan"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -888,7 +974,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int Max(int first, int second)
     {
-        id = memberids["Max"];
+        id = functions["Max"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -902,7 +988,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int Min(int first, int second)
     {
-        id = memberids["Min"];
+        id = functions["Min"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -916,7 +1002,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int Pow(int first, int second)
     {
-        id = memberids["Pow"];
+        id = functions["Pow"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -930,7 +1016,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int InvPow(int first, int second)
     {
-        id = memberids["InvPow"];
+        id = functions["InvPow"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -944,7 +1030,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int Factorial(int val)
     {
-        id = memberids["Factorial"];
+        id = functions["Factorial"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -957,7 +1043,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int Abs(int val)
     {
-        id = memberids["Abs"];
+        id = functions["Abs"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -970,7 +1056,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int Log10(int val)
     {
-        id = memberids["Log10"];
+        id = functions["Log10"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -983,7 +1069,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int Ln(int val)
     {
-        id = memberids["Ln"];
+        id = functions["Ln"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -996,7 +1082,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int Sqrt(int val)
     {
-        id = memberids["Sqrt"];
+        id = functions["Sqrt"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -1011,7 +1097,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     
     //int CopyTile(int source, int dest)
     {
-        id = memberids["CopyTile"];
+        id = functions["CopyTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -1025,7 +1111,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int SwapTile(int first, int second)
     {
-        id = memberids["SwapTile"];
+        id = functions["SwapTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -1040,7 +1126,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SwapTile(int first, int second)
     {
-        id = memberids["OverlayTile"];
+        id = functions["OverlayTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -1055,7 +1141,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     
     //void ClearTile(int tile)
     {
-        id = memberids["ClearTile"];
+        id = functions["ClearTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -1068,7 +1154,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void GetGlobalRAM(int)
     {
-        int id2 = memberids["GetGlobalRAM"];
+        int id2 = functions["GetGlobalRAM"];
         int label = lt.functionToLabel(id2);
         vector<Opcode *> code;
         //pop off the params
@@ -1082,7 +1168,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetGlobalRAM(int, int)
     {
-        int id2 = memberids["SetGlobalRAM"];
+        int id2 = functions["SetGlobalRAM"];
         int label = lt.functionToLabel(id2);
         vector<Opcode *> code;
         //pop off the params
@@ -1097,7 +1183,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void GetScriptRAM(int)
     {
-        int id2 = memberids["GetScriptRAM"];
+        int id2 = functions["GetScriptRAM"];
         int label = lt.functionToLabel(id2);
         vector<Opcode *> code;
         //pop off the params
@@ -1112,7 +1198,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScriptRAM(int, int)
     {
-        int id2 = memberids["SetScriptRAM"];
+        int id2 = functions["SetScriptRAM"];
         int label = lt.functionToLabel(id2);
         vector<Opcode *> code;
         //pop off the params
@@ -1127,7 +1213,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetColorBuffer(int amount, int offset, int stride, int *ptr)
     {
-        id = memberids["SetColorBuffer"];
+        id = functions["SetColorBuffer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OSetColorBufferRegister();
@@ -1143,7 +1229,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetDepthBuffer(int amount, int offset, int stride, int *ptr)
     {
-        id = memberids["SetDepthBuffer"];
+        id = functions["SetDepthBuffer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OSetDepthBufferRegister();
@@ -1159,7 +1245,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void GetColorBuffer(int amount, int offset, int stride, int *ptr)
     {
-        id = memberids["GetColorBuffer"];
+        id = functions["GetColorBuffer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OGetColorBufferRegister();
@@ -1175,7 +1261,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void GetDepthBuffer(int amount, int offset, int stride, int *ptr)
     {
-        id = memberids["GetDepthBuffer"];
+        id = functions["GetDepthBuffer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OGetDepthBufferRegister();
@@ -1191,7 +1277,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int SizeOfArray(int val)
     {
-        id = memberids["SizeOfArray"];
+        id = functions["SizeOfArray"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -1204,7 +1290,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int SizeOfArrayFFC(ffc *ptr)
     {
-        id = memberids["SizeOfArrayFFC"];
+        id = functions["SizeOfArrayFFC"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -1218,7 +1304,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     
      //int SizeOfArrayNPC(npc *ptr)
     {
-        id = memberids["SizeOfArrayNPC"];
+        id = functions["SizeOfArrayNPC"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -1232,7 +1318,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SizeOfArrayBool(bool *ptr)
     {
-        id = memberids["SizeOfArrayBool"];
+        id = functions["SizeOfArrayBool"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -1244,7 +1330,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
         rval[label]=code;
     } //int SizeOfArrayItem(item *ptr)
     {
-        id = memberids["SizeOfArrayItem"];
+        id = functions["SizeOfArrayItem"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -1256,7 +1342,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
         rval[label]=code;
     } //int SizeOfArrayItemdata(itemdata *ptr)
     {
-        id = memberids["SizeOfArrayItemdata"];
+        id = functions["SizeOfArrayItemdata"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -1268,7 +1354,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
         rval[label]=code;
     } //int SizeOfArrayLWeapon(lweapon *ptr)
     {
-        id = memberids["SizeOfArrayLWeapon"];
+        id = functions["SizeOfArrayLWeapon"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -1280,7 +1366,7 @@ map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
         rval[label]=code;
     } //int SizeOfArrayEWeapon(eweapon *ptr)
     {
-        id = memberids["SizeOfArrayEWeapon"];
+        id = functions["SizeOfArrayEWeapon"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -1358,7 +1444,7 @@ map<int, vector<Opcode *> > FFCSymbols::addSymbolsCode(LinkTable &lt)
 	
 //void ChangeFFCScript(ffc, int)
     {
-        int id = memberids["ChangeFFCScript"];
+        int id = functions["ChangeFFCScript"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -1374,7 +1460,7 @@ map<int, vector<Opcode *> > FFCSymbols::addSymbolsCode(LinkTable &lt)
     }
     //bool WasTriggered(ffc)
     /*{
-    	int id = memberids["WasTriggered"];
+    	int id = functions["WasTriggered"];
     	int label  = lt.functionToLabel(id);
     	vector<Opcode *> code;
     	//pop ffc
@@ -1616,7 +1702,7 @@ map<int, vector<Opcode *> > LinkSymbols::addSymbolsCode(LinkTable &lt)
     map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     //Warp(link, int, int)
     {
-        int id = memberids["Warp"];
+        int id = functions["Warp"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -1635,7 +1721,7 @@ map<int, vector<Opcode *> > LinkSymbols::addSymbolsCode(LinkTable &lt)
     
        //void SetItemSlot(link, int item, int slot, int force)
     {
-        int id = memberids["SetItemSlot"];
+        int id = functions["SetItemSlot"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -1654,7 +1740,7 @@ map<int, vector<Opcode *> > LinkSymbols::addSymbolsCode(LinkTable &lt)
     
     //void SetItemA(link, int)
     {
-        int id = memberids["SetItemA"];
+        int id = functions["SetItemA"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -1669,7 +1755,7 @@ map<int, vector<Opcode *> > LinkSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetItemB(link, int)
     {
-        int id = memberids["SetItemB"];
+        int id = functions["SetItemB"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -1685,7 +1771,7 @@ map<int, vector<Opcode *> > LinkSymbols::addSymbolsCode(LinkTable &lt)
     
     //PitWarp(link, int, int)
     {
-        int id = memberids["PitWarp"];
+        int id = functions["PitWarp"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -1703,7 +1789,7 @@ map<int, vector<Opcode *> > LinkSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SelectAWeapon(link, int)
     {
-        int id = memberids["SelectAWeapon"];
+        int id = functions["SelectAWeapon"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -1719,7 +1805,7 @@ map<int, vector<Opcode *> > LinkSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SelectBWeapon(link, int)
     {
-        int id = memberids["SelectBWeapon"];
+        int id = functions["SelectBWeapon"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -1856,10 +1942,12 @@ static AccessorTable ScreenTable[] =
     
     { "getString",              ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASTRING,           1,      {  ZVARTYPEID_SCREEN,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setString",              ZVARTYPEID_VOID,         SETTER,       SCREENDATASTRING,           1,      {  ZVARTYPEID_SCREEN,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    
+
+    /*
     { "getRoomType",              ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAROOM,           1,      {  ZVARTYPEID_SCREEN,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setRoomType",              ZVARTYPEID_VOID,         SETTER,       SCREENDATAROOM,           1,      {  ZVARTYPEID_SCREEN,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    
+    */
+
     { "getItem",              ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAITEM,           1,      {  ZVARTYPEID_SCREEN,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setItem",              ZVARTYPEID_VOID,         SETTER,       SCREENDATAITEM,           1,      {  ZVARTYPEID_SCREEN,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
@@ -1940,12 +2028,16 @@ static AccessorTable ScreenTable[] =
     
     { "getSideWarpIndex",              ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASIDEWARPINDEX,           1,      {  ZVARTYPEID_SCREEN,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setSideWarpIndex",              ZVARTYPEID_VOID,         SETTER,       SCREENDATASIDEWARPINDEX,           1,      {  ZVARTYPEID_SCREEN,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    
+
+    /*
     { "getUnderCombo",              ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAUNDERCOMBO,           1,      {  ZVARTYPEID_SCREEN,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setUnderCombo",              ZVARTYPEID_VOID,         SETTER,       SCREENDATAUNDERCOMBO,           1,      {  ZVARTYPEID_SCREEN,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    
+    */
+
+    /*
     { "getUnderCSet",              ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAUNDERCSET,           1,      {  ZVARTYPEID_SCREEN,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setUnderCSet",              ZVARTYPEID_VOID,         SETTER,       SCREENDATAUNDERCSET,           1,      {  ZVARTYPEID_SCREEN,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    */
     
     { "getCatchall",              ZVARTYPEID_FLOAT,         GETTER,       SCREENDATACATCHALL,           1,      {  ZVARTYPEID_SCREEN,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setCatchall",              ZVARTYPEID_VOID,         SETTER,       SCREENDATACATCHALL,           1,      {  ZVARTYPEID_SCREEN,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -2040,8 +2132,6 @@ static AccessorTable ScreenTable[] =
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
-
-
 ScreenSymbols::ScreenSymbols()
 {
     table = ScreenTable;
@@ -2053,7 +2143,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     //item LoadItem(screen, int)
     {
-        int id = memberids["LoadItem"];
+        int id = functions["LoadItem"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -2072,7 +2162,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //item CreateItem(screen, int)
     {
-        int id = memberids["CreateItem"];
+        int id = functions["CreateItem"];
         
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
@@ -2090,7 +2180,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //ffc LoadFFC(screen, int)
     {
-        int id = memberids["LoadFFC"];
+        int id = functions["LoadFFC"];
         
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
@@ -2108,7 +2198,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //npc LoadNPC(screen, int)
     {
-        int id = memberids["LoadNPC"];
+        int id = functions["LoadNPC"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -2127,7 +2217,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //npc CreateNPC(screen, int)
     {
-        int id = memberids["CreateNPC"];
+        int id = functions["CreateNPC"];
         
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
@@ -2145,7 +2235,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //npc LoadLWeapon(screen, int)
     {
-        int id = memberids["LoadLWeapon"];
+        int id = functions["LoadLWeapon"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -2164,7 +2254,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //npc CreateLWeapon(screen, int)
     {
-        int id = memberids["CreateLWeapon"];
+        int id = functions["CreateLWeapon"];
         
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
@@ -2182,7 +2272,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //ewpn LoadEWeapon(screen, int)
     {
-        int id = memberids["LoadEWeapon"];
+        int id = functions["LoadEWeapon"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -2201,7 +2291,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //ewpn CreateEWeapon(screen, int)
     {
-        int id = memberids["CreateEWeapon"];
+        int id = functions["CreateEWeapon"];
         
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
@@ -2219,7 +2309,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void ClearSprites(screen, int)
     {
-        int id = memberids["ClearSprites"];
+        int id = functions["ClearSprites"];
         
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
@@ -2237,7 +2327,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Rectangle(screen, float, float, float, float, float, float, float, float, float, float, bool, float)
     {
-        int id = memberids["Rectangle"];
+        int id = functions["Rectangle"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new ORectangleRegister();
@@ -2253,7 +2343,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Circle(screen, float, float, float, float, float, float, float, float, float, bool, float)
     {
-        int id = memberids["Circle"];
+        int id = functions["Circle"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OCircleRegister();
@@ -2269,7 +2359,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Arc(screen, float, float, float, float, float, float, float, float, float, float, float, bool, bool, float)
     {
-        int id = memberids["Arc"];
+        int id = functions["Arc"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OArcRegister();
@@ -2285,7 +2375,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Ellipse(screen, float, float, float, float, float, bool, float, float, float)
     {
-        int id = memberids["Ellipse"];
+        int id = functions["Ellipse"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OEllipseRegister();
@@ -2301,7 +2391,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Line(screen, float, float, float, float, float, float, float, float, float, float, float)
     {
-        int id = memberids["Line"];
+        int id = functions["Line"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OLineRegister();
@@ -2317,7 +2407,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Spline(screen, float, float, float, float, float, float, float, float, float, float, float)
     {
-        int id = memberids["Spline"];
+        int id = functions["Spline"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OSplineRegister();
@@ -2333,7 +2423,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PutPixel(screen, float, float, float, float, float, float, float, float)
     {
-        int id = memberids["PutPixel"];
+        int id = functions["PutPixel"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPutPixelRegister();
@@ -2349,7 +2439,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void DrawCharacter(screen, float, float, float, float, float, float, float, float, float, float)
     {
-        int id = memberids["DrawCharacter"];
+        int id = functions["DrawCharacter"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new ODrawCharRegister();
@@ -2365,7 +2455,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void DrawInteger(screen, float, float, float, float, float, float, float, float, float, float, float)
     {
-        int id = memberids["DrawInteger"];
+        int id = functions["DrawInteger"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new ODrawIntRegister();
@@ -2381,7 +2471,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void DrawTile(screen, float, float, float, float, float, bool, float, float, float)
     {
-        int id = memberids["DrawTile"];
+        int id = functions["DrawTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new ODrawTileRegister();
@@ -2397,7 +2487,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void DrawCombo(screen, float, float, float, float, float, bool, float, float, float)
     {
-        int id = memberids["DrawCombo"];
+        int id = functions["DrawCombo"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new ODrawComboRegister();
@@ -2413,7 +2503,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Quad(screen, float, float, float, float, float, float, float, float, float)
     {
-        int id = memberids["Quad"];
+        int id = functions["Quad"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OQuadRegister();
@@ -2429,7 +2519,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Triangle(screen, float, float, float, float, float, float, float, float, float)
     {
-        int id = memberids["Triangle"];
+        int id = functions["Triangle"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OTriangleRegister();
@@ -2446,7 +2536,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     
     //void Quad3D(screen, float, float, float, float, float, float, float, float, float)
     {
-        int id = memberids["Quad3D"];
+        int id = functions["Quad3D"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OQuad3DRegister();
@@ -2462,7 +2552,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Triangle3D(screen, float, float, float, float, float, float, float, float, float)
     {
-        int id = memberids["Triangle3D"];
+        int id = functions["Triangle3D"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OTriangle3DRegister();
@@ -2479,7 +2569,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     
     //void FastTile(screen, float, float, float, float, float)
     {
-        int id = memberids["FastTile"];
+        int id = functions["FastTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OFastTileRegister();
@@ -2495,7 +2585,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void FastCombo(screen, float, float, float, float, float)
     {
-        int id = memberids["FastCombo"];
+        int id = functions["FastCombo"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OFastComboRegister();
@@ -2511,7 +2601,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void DrawString(screen, float, float, float, float, float, float, float, int *string)
     {
-        int id = memberids["DrawString"];
+        int id = functions["DrawString"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new ODrawStringRegister();
@@ -2527,7 +2617,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void DrawLayer(screen, float, float, float, float, float, float, float, float)
     {
-        int id = memberids["DrawLayer"];
+        int id = functions["DrawLayer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new ODrawLayerRegister();
@@ -2543,7 +2633,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void DrawScreen(screen, float, float, float, float, float, float)
     {
-        int id = memberids["DrawScreen"];
+        int id = functions["DrawScreen"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new ODrawScreenRegister();
@@ -2559,7 +2649,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void DrawBitmap(screen, float, float, float, float, float, float, float, float, float, bool)
     {
-        int id = memberids["DrawBitmap"];
+        int id = functions["DrawBitmap"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new ODrawBitmapRegister();
@@ -2575,7 +2665,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetRenderTarget(bitmap)
     {
-        int id = memberids["SetRenderTarget"];
+        int id = functions["SetRenderTarget"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OSetRenderTargetRegister();
@@ -2591,7 +2681,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Message(screen, float)
     {
-        int id = memberids["Message"];
+        int id = functions["Message"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -2606,7 +2696,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //bool isSolid(screen, int, int)
     {
-        int id = memberids["isSolid"];
+        int id = functions["isSolid"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -2623,7 +2713,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetSideWarp(screen, float, float, float, float)
     {
-        int id = memberids["SetSideWarp"];
+        int id = functions["SetSideWarp"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OSetSideWarpRegister();
@@ -2642,7 +2732,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetTileWarp(screen, float, float, float, float)
     {
-        int id = memberids["SetTileWarp"];
+        int id = functions["SetTileWarp"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OSetTileWarpRegister();
@@ -2661,7 +2751,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //float LayerScreen(screen, float)
     {
-        int id = memberids["LayerScreen"];
+        int id = functions["LayerScreen"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -2676,7 +2766,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //float LayerMap(screen, float)
     {
-        int id = memberids["LayerMap"];
+        int id = functions["LayerMap"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -2691,7 +2781,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void TriggerSecrets(screen)
     {
-        int id = memberids["TriggerSecrets"];
+        int id = functions["TriggerSecrets"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -2705,7 +2795,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetSideWarpDMap(screen, int)
     {
-        int id = memberids["GetSideWarpDMap"];
+        int id = functions["GetSideWarpDMap"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -2720,7 +2810,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetSideWarpScreen(screen, int)
     {
-        int id = memberids["GetSideWarpScreen"];
+        int id = functions["GetSideWarpScreen"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -2735,7 +2825,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetSideWarpType(screen, int)
     {
-        int id = memberids["GetSideWarpType"];
+        int id = functions["GetSideWarpType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -2750,7 +2840,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetTileWarpDMap(screen, int)
     {
-        int id = memberids["GetTileWarpDMap"];
+        int id = functions["GetTileWarpDMap"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -2765,7 +2855,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetTileWarpScreen(screen, int)
     {
-        int id = memberids["GetTileWarpScreen"];
+        int id = functions["GetTileWarpScreen"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -2780,7 +2870,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetTileWarpType(screen, int)
     {
-        int id = memberids["GetTileWarpType"];
+        int id = functions["GetTileWarpType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -2796,7 +2886,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     
     //void ZapIn(screen)
     {
-        int id = memberids["ZapIn"];
+        int id = functions["ZapIn"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -2812,7 +2902,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 
 	//void ZapOut(screen)
     {
-        int id = memberids["ZapOut"];
+        int id = functions["ZapOut"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -2827,7 +2917,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
 
 	//void WavyIn(screen)
     {
-        int id = memberids["WavyIn"];
+        int id = functions["WavyIn"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -2842,7 +2932,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
             
 	//void WavyOut(screen)
     {
-        int id = memberids["WavyOut"];
+        int id = functions["WavyOut"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -2856,7 +2946,7 @@ map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
     }
      //void OpeningWipe(screen)
     {
-        int id = memberids["OpeningWipe"];
+        int id = functions["OpeningWipe"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -2960,7 +3050,7 @@ map<int, vector<Opcode *> > ItemSymbols::addSymbolsCode(LinkTable &lt)
     map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     //bool isValid(item)
     {
-        int id = memberids["isValid"];
+        int id = functions["isValid"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the pointer
@@ -3169,7 +3259,7 @@ map<int, vector<Opcode *> > ItemclassSymbols::addSymbolsCode(LinkTable &lt)
     map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     //void GetName(itemclass, int)
     {
-        int id = memberids["GetName"];
+        int id = functions["GetName"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3381,7 +3471,7 @@ static AccessorTable gameTable[] =
    
     //{ "SetContinueScreen[]",              ZVARTYPEID_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     //{ "SetContinueString[]",              ZVARTYPEID_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-
+    /*
    { "getJoypad[]",             ZVARTYPEID_FLOAT,         GETTER,       JOYPADPRESS,         18,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getPress[]",             ZVARTYPEID_BOOL,         GETTER,       BUTTONPRESS,         18,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setPress[]",             ZVARTYPEID_VOID,          SETTER,       BUTTONPRESS,         18,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -3394,7 +3484,7 @@ static AccessorTable gameTable[] =
 	{ "setKey[]",             ZVARTYPEID_VOID,          SETTER,       KEYPRESS,         127,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getMouse[]",             ZVARTYPEID_FLOAT,         GETTER,       MOUSEARR,         6,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setMouse[]",             ZVARTYPEID_VOID,          SETTER,       MOUSEARR,         6,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	
+    */
 	//New Datatypes
 	{ "LoadNPCData",           ZVARTYPEID_NPCDATA,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadComboData",           ZVARTYPEID_COMBOS,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -3421,7 +3511,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     map<int,vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     //itemclass LoadItemData(game, int)
     {
-        int id = memberids["LoadItemData"];
+        int id = functions["LoadItemData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3438,8 +3528,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //NPCData
     {
-	    
-	int id = memberids["LoadNPCData"];
+	    int id = functions["LoadNPCData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3457,8 +3546,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //DMapdata
     {
-	    
-	int id = memberids["LoadDMapData"];
+	    int id = functions["LoadDMapData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3475,8 +3563,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //Messagedata
     {
-	    
-	int id = memberids["LoadMessageData"];
+		int id = functions["LoadMessageData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3493,7 +3580,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //ComboData
     {
-	int id = memberids["LoadComboData"];
+	    int id = functions["LoadComboData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3511,7 +3598,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     //MapData
     /*
     { //LoadMapData(int map, int screen)
-	int id = memberids["LoadMapData"];
+	int id = functions["LoadMapData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3532,7 +3619,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //int LoadMapData(mapdata, int map,int scr)
     {
-        int id = memberids["LoadMapData"];
+        int id = functions["LoadMapData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3550,7 +3637,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     //SpriteData
     {
 	    
-	int id = memberids["LoadSpriteData"];
+	int id = functions["LoadSpriteData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3567,8 +3654,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //ShopData
     {
-	    
-	int id = memberids["LoadShopData"];
+	    int id = functions["LoadShopData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3585,8 +3671,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //InfoShopData
     {
-	    
-	int id = memberids["LoadInfoShopData"];
+	    int id = functions["LoadInfoShopData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3607,7 +3692,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //Bitmap
     {
-	int id = memberids["LoadBitmapID"];
+	    int id = functions["LoadBitmapID"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3624,7 +3709,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //bool GetScreenState(game, int,int,int)
     {
-        int id = memberids["GetScreenState"];
+        int id = functions["GetScreenState"];
         int label = lt.functionToLabel(id);
         int done = ScriptParser::getUniqueLabelID();
         vector<Opcode *> code;
@@ -3652,7 +3737,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenState(game, int,int,int,bool)
     {
-        int id = memberids["SetScreenState"];
+        int id = functions["SetScreenState"];
         int label = lt.functionToLabel(id);
         int done = ScriptParser::getUniqueLabelID();
         vector<Opcode *> code;
@@ -3680,7 +3765,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenD(game, int,int)
     {
-        int id = memberids["GetScreenD"];
+        int id = functions["GetScreenD"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3697,7 +3782,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenD(game, int,int,int)
     {
-        int id = memberids["SetScreenD"];
+        int id = functions["SetScreenD"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3715,7 +3800,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetDMapScreenD(game, int,int,int)
     {
-        int id = memberids["GetDMapScreenD"];
+        int id = functions["GetDMapScreenD"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3733,7 +3818,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetDMapScreenD(game, int,int,int,int)
     {
-        int id = memberids["SetDMapScreenD"];
+        int id = functions["SetDMapScreenD"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3752,7 +3837,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PlaySound(game, int)
     {
-        int id = memberids["PlaySound"];
+        int id = functions["PlaySound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3768,7 +3853,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PlayMIDI(game, int)
     {
-        int id = memberids["PlayMIDI"];
+        int id = functions["PlayMIDI"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -3784,7 +3869,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PlayEnhancedMusic(game, int, int)
     {
-        int id = memberids["PlayEnhancedMusic"];
+        int id = functions["PlayEnhancedMusic"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3801,7 +3886,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void GetDMapMusicFilename(game, int, int)
     {
-        int id = memberids["GetDMapMusicFilename"];
+        int id = functions["GetDMapMusicFilename"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3818,7 +3903,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetDMapMusicTrack(game, int)
     {
-        int id = memberids["GetDMapMusicTrack"];
+        int id = functions["GetDMapMusicTrack"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -3833,7 +3918,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetDMapEnhancedMusic(game, int,int,int)
     {
-        int id = memberids["SetDMapEnhancedMusic"];
+        int id = functions["SetDMapEnhancedMusic"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OSetDMapEnhancedMusic();
@@ -3851,7 +3936,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetComboData(int,int,int)
     {
-        int id = memberids["GetComboData"];
+        int id = functions["GetComboData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3869,7 +3954,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetComboData(int,int,int,int)
     {
-        int id = memberids["SetComboData"];
+        int id = functions["SetComboData"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3888,7 +3973,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetComboCSet(int,int,int)
     {
-        int id = memberids["GetComboCSet"];
+        int id = functions["GetComboCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3906,7 +3991,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetComboCSet(int,int,int,int)
     {
-        int id = memberids["SetComboCSet"];
+        int id = functions["SetComboCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3925,7 +4010,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetComboFlag(int,int,int)
     {
-        int id = memberids["GetComboFlag"];
+        int id = functions["GetComboFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3943,7 +4028,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetComboFlag(int,int,int,int)
     {
-        int id = memberids["SetComboFlag"];
+        int id = functions["SetComboFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3962,7 +4047,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetComboType(int,int,int)
     {
-        int id = memberids["GetComboType"];
+        int id = functions["GetComboType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3980,7 +4065,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetComboType(int,int,int,int)
     {
-        int id = memberids["SetComboType"];
+        int id = functions["SetComboType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -3999,7 +4084,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetComboInherentFlag(int,int,int)
     {
-        int id = memberids["GetComboInherentFlag"];
+        int id = functions["GetComboInherentFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4017,7 +4102,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetComboInherentFlag(int,int,int,int)
     {
-        int id = memberids["SetComboInherentFlag"];
+        int id = functions["SetComboInherentFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4036,7 +4121,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetComboCollision(int,int,int)
     {
-        int id = memberids["GetComboSolid"];
+        int id = functions["GetComboSolid"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4054,7 +4139,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetComboCollision(int,int,int,int)
     {
-        int id = memberids["SetComboSolid"];
+        int id = functions["SetComboSolid"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4073,7 +4158,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenFlags(game,int,int,int)
     {
-        int id = memberids["GetScreenFlags"];
+        int id = functions["GetScreenFlags"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4091,7 +4176,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenEFlags(game,int,int,int)
     {
-        int id = memberids["GetScreenEFlags"];
+        int id = functions["GetScreenEFlags"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4109,7 +4194,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void Save(game)
     {
-        int id = memberids["Save"];
+        int id = functions["Save"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -4123,7 +4208,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void End(game)
     {
-        int id = memberids["End"];
+        int id = functions["End"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -4137,7 +4222,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int ComboTile(game,int)
     {
-        int id = memberids["ComboTile"];
+        int id = functions["ComboTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -4152,7 +4237,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void GetSaveName(game, int)
     {
-        int id = memberids["GetSaveName"];
+        int id = functions["GetSaveName"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -4168,7 +4253,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void GetSaveName(game, int)
     {
-        int id = memberids["SetSaveName"];
+        int id = functions["SetSaveName"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -4184,7 +4269,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetMessage(game, int, int)
     {
-        int id = memberids["GetMessage"];
+        int id = functions["GetMessage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4201,7 +4286,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDMapName(game, int, int)
     {
-        int id = memberids["GetDMapName"];
+        int id = functions["GetDMapName"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4218,7 +4303,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDMapTitle(game, int, int)
     {
-        int id = memberids["GetDMapTitle"];
+        int id = functions["GetDMapTitle"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4235,7 +4320,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDMapIntro(game, int, int)
     {
-        int id = memberids["GetDMapIntro"];
+        int id = functions["GetDMapIntro"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4255,7 +4340,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void GreyscaleOn(game)
     {
-        int id = memberids["GreyscaleOn"];
+        int id = functions["GreyscaleOn"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -4270,7 +4355,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
             
 	//void GreyscaleOff(game)
     {
-        int id = memberids["GreyscaleOff"];
+        int id = functions["GreyscaleOff"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -4286,7 +4371,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
    // SetMessage(game, int, int)
     {
-        int id = memberids["SetMessage"];
+        int id = functions["SetMessage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4303,7 +4388,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDMapName(game, int, int)
     {
-        int id = memberids["SetDMapName"];
+        int id = functions["SetDMapName"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4320,7 +4405,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDMapTitle(game, int, int)
     {
-        int id = memberids["SetDMapTitle"];
+        int id = functions["SetDMapTitle"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4337,7 +4422,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDMapIntro(game, int, int)
     {
-        int id = memberids["SetDMapIntro"];
+        int id = functions["SetDMapIntro"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4355,7 +4440,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //bool ShowSaveScreen(game)
     {
-        int id = memberids["ShowSaveScreen"];
+        int id = functions["ShowSaveScreen"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -4370,7 +4455,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void ShowSaveQuitScreen(game)
     {
-        int id = memberids["ShowSaveQuitScreen"];
+        int id = functions["ShowSaveQuitScreen"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -4385,7 +4470,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //int GetFFCScript(game, int)
     {
-        int id = memberids["GetFFCScript"];
+        int id = functions["GetFFCScript"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -4403,7 +4488,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
      //int GetItemScript(game, int)
     {
-        int id = memberids["GetItemScript"];
+        int id = functions["GetItemScript"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -4420,7 +4505,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
      //int GetScreenEnemy(game,int,int,int)
     {
-        int id = memberids["GetScreenEnemy"];
+        int id = functions["GetScreenEnemy"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4438,7 +4523,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
      //int GetScreenDoor(game,int,int,int)
     {
-        int id = memberids["GetScreenDoor"];
+        int id = functions["GetScreenDoor"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4456,7 +4541,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenEnemy(int,int,int,int)
     {
-        int id = memberids["SetScreenEnemy"];
+        int id = functions["SetScreenEnemy"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4475,7 +4560,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenDoor(int,int,int,int)
     {
-        int id = memberids["SetScreenDoor"];
+        int id = functions["SetScreenDoor"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4495,7 +4580,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void SetScreenWidth(game, int,int,int)
     {
-        int id = memberids["SetScreenWidth"];
+        int id = functions["SetScreenWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4513,7 +4598,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenWidth(game, int,int)
     {
-        int id = memberids["GetScreenWidth"];
+        int id = functions["GetScreenWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4531,7 +4616,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void SetScreenHeight(game, int,int,int)
     {
-        int id = memberids["SetScreenHeight"];
+        int id = functions["SetScreenHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4549,7 +4634,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenHeight(game, int,int)
     {
-        int id = memberids["GetScreenHeight"];
+        int id = functions["GetScreenHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4566,7 +4651,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenViewX(game, int,int,int)
     {
-        int id = memberids["SetScreenViewX"];
+        int id = functions["SetScreenViewX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4584,7 +4669,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenViewX(game, int,int)
     {
-        int id = memberids["GetScreenViewX"];
+        int id = functions["GetScreenViewX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4601,7 +4686,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
      //void SetScreenViewY(game, int,int,int)
     {
-        int id = memberids["SetScreenViewY"];
+        int id = functions["SetScreenViewY"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4619,7 +4704,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenViewY(game, int,int)
     {
-        int id = memberids["GetScreenViewY"];
+        int id = functions["GetScreenViewY"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4636,7 +4721,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenGuy(game, int,int,int)
     {
-        int id = memberids["SetScreenGuy"];
+        int id = functions["SetScreenGuy"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4654,7 +4739,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenGuy(game, int,int)
     {
-        int id = memberids["GetScreenGuy"];
+        int id = functions["GetScreenGuy"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4671,7 +4756,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenString(game, int,int,int)
     {
-        int id = memberids["SetScreenString"];
+        int id = functions["SetScreenString"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4689,7 +4774,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenString(game, int,int)
     {
-        int id = memberids["GetScreenString"];
+        int id = functions["GetScreenString"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4706,7 +4791,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenRoomType(game, int,int,int)
     {
-        int id = memberids["SetScreenRoomType"];
+        int id = functions["SetScreenRoomType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4724,7 +4809,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenRoomType(game, int,int)
     {
-        int id = memberids["GetScreenRoomType"];
+        int id = functions["GetScreenRoomType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4741,7 +4826,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenEntryX(game, int,int,int)
     {
-        int id = memberids["SetScreenEntryX"];
+        int id = functions["SetScreenEntryX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4759,7 +4844,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenEntryX(game, int,int)
     {
-        int id = memberids["GetScreenEntryX"];
+        int id = functions["GetScreenEntryX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4776,7 +4861,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenEntryY(game, int,int,int)
     {
-        int id = memberids["SetScreenEntryY"];
+        int id = functions["SetScreenEntryY"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4794,7 +4879,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenEntryY(game, int,int)
     {
-        int id = memberids["GetScreenEntryY"];
+        int id = functions["GetScreenEntryY"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4811,7 +4896,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
      //void SetScreenItem(game, int,int,int)
     {
-        int id = memberids["SetScreenItem"];
+        int id = functions["SetScreenItem"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4829,7 +4914,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenItem(game, int,int)
     {
-        int id = memberids["GetScreenItem"];
+        int id = functions["GetScreenItem"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4846,7 +4931,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
      //void SetScreenUndercombo(game, int,int,int)
     {
-        int id = memberids["SetScreenUndercombo"];
+        int id = functions["SetScreenUndercombo"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4864,7 +4949,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenUndercombo(game, int,int)
     {
-        int id = memberids["GetScreenUndercombo"];
+        int id = functions["GetScreenUndercombo"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4881,7 +4966,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenUnderCSet(game, int,int,int)
     {
-        int id = memberids["SetScreenUnderCSet"];
+        int id = functions["SetScreenUnderCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4899,7 +4984,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenUnderCSet(game, int,int)
     {
-        int id = memberids["GetScreenUnderCSet"];
+        int id = functions["GetScreenUnderCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4916,7 +5001,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenCatchall(game, int,int,int)
     {
-        int id = memberids["SetScreenCatchall"];
+        int id = functions["SetScreenCatchall"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4934,7 +5019,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenCatchall(game, int,int)
     {
-        int id = memberids["GetScreenCatchall"];
+        int id = functions["GetScreenCatchall"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4952,7 +5037,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void SetScreenLayerOpacity(int,int,int,int)
     {
-        int id = memberids["SetScreenLayerOpacity"];
+        int id = functions["SetScreenLayerOpacity"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4971,7 +5056,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenLayerOpacity(game,int,int,int)
     {
-        int id = memberids["GetScreenLayerOpacity"];
+        int id = functions["GetScreenLayerOpacity"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -4990,7 +5075,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 
      //void SetScreenSecretCombo(int,int,int,int)
     {
-        int id = memberids["SetScreenSecretCombo"];
+        int id = functions["SetScreenSecretCombo"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5009,7 +5094,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenSecretCombo(game,int,int,int)
     {
-        int id = memberids["GetScreenSecretCombo"];
+        int id = functions["GetScreenSecretCombo"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5028,7 +5113,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 
      //void SetScreenSecretCSet(int,int,int,int)
     {
-        int id = memberids["SetScreenSecretCSet"];
+        int id = functions["SetScreenSecretCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5047,7 +5132,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenSecretCSet(game,int,int,int)
     {
-        int id = memberids["GetScreenSecretCSet"];
+        int id = functions["GetScreenSecretCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5065,7 +5150,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenSecretFlag(int,int,int,int)
     {
-        int id = memberids["SetScreenSecretFlag"];
+        int id = functions["SetScreenSecretFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5084,7 +5169,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenSecretFlag(game,int,int,int)
     {
-        int id = memberids["GetScreenSecretFlag"];
+        int id = functions["GetScreenSecretFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5103,7 +5188,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 
      //void SetScreenLayerMap(int,int,int,int)
     {
-        int id = memberids["SetScreenLayerMap"];
+        int id = functions["SetScreenLayerMap"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5122,7 +5207,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenLayerMap(game,int,int,int)
     {
-        int id = memberids["GetScreenLayerMap"];
+        int id = functions["GetScreenLayerMap"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5142,7 +5227,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     
     //void SetScreenLayerScreen(int,int,int,int)
     {
-        int id = memberids["SetScreenLayerScreen"];
+        int id = functions["SetScreenLayerScreen"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5161,7 +5246,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenLayerScreen(game,int,int,int)
     {
-        int id = memberids["GetScreenLayerScreen"];
+        int id = functions["GetScreenLayerScreen"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5180,7 +5265,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
 
     //void SetScreenPath(int,int,int,int)
     {
-        int id = memberids["SetScreenPath"];
+        int id = functions["SetScreenPath"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5199,7 +5284,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenPath(game,int,int,int)
     {
-        int id = memberids["GetScreenPath"];
+        int id = functions["GetScreenPath"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5217,7 +5302,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenWarpReturnX(int,int,int,int)
     {
-        int id = memberids["SetScreenWarpReturnX"];
+        int id = functions["SetScreenWarpReturnX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5236,7 +5321,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenWarpReturnX(game,int,int,int)
     {
-        int id = memberids["GetScreenWarpReturnX"];
+        int id = functions["GetScreenWarpReturnX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5254,7 +5339,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void SetScreenWarpReturnY(int,int,int,int)
     {
-        int id = memberids["SetScreenWarpReturnY"];
+        int id = functions["SetScreenWarpReturnY"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5279,7 +5364,7 @@ map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetScreenWarpReturnY(game,int,int,int)
     {
-        int id = memberids["GetScreenWarpReturnY"];
+        int id = functions["GetScreenWarpReturnY"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -5437,7 +5522,7 @@ map<int, vector<Opcode *> > NPCSymbols::addSymbolsCode(LinkTable &lt)
     map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     //bool isValid(npc)
     {
-        int id = memberids["isValid"];
+        int id = functions["isValid"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the pointer
@@ -5452,7 +5537,7 @@ map<int, vector<Opcode *> > NPCSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void GetName(npc, int)
     {
-        int id = memberids["GetName"];
+        int id = functions["GetName"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -5468,7 +5553,7 @@ map<int, vector<Opcode *> > NPCSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void BreakShield(npc)
     {
-        int id = memberids["BreakShield"];
+        int id = functions["BreakShield"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the pointer
@@ -5588,7 +5673,7 @@ map<int, vector<Opcode *> > LinkWeaponSymbols::addSymbolsCode(LinkTable &lt)
     int id=-1;
     //bool isValid(lweapon)
     {
-        id = memberids["isValid"];
+        id = functions["isValid"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the pointer
@@ -5603,7 +5688,7 @@ map<int, vector<Opcode *> > LinkWeaponSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void UseSprite(lweapon, int val)
     {
-        id = memberids["UseSprite"];
+        id = functions["UseSprite"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the val
@@ -5719,7 +5804,7 @@ map<int, vector<Opcode *> > EnemyWeaponSymbols::addSymbolsCode(LinkTable &lt)
     int id=-1;
     //bool isValid(eweapon)
     {
-        id = memberids["isValid"];
+        id = functions["isValid"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the pointer
@@ -5734,7 +5819,7 @@ map<int, vector<Opcode *> > EnemyWeaponSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void UseSprite(eweapon, int val)
     {
-        id = memberids["UseSprite"];
+        id = functions["UseSprite"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the val
@@ -6102,7 +6187,7 @@ static AccessorTable MapDataTable[] =
     { "setComboS[]",            ZVARTYPEID_VOID,          SETTER,       MAPDATACOMBOSD,              176,    {  ZVARTYPEID_MAPDATA,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getState[]",             ZVARTYPEID_BOOL,          GETTER,       MAPDATASCREENSTATED,          32,    {  ZVARTYPEID_MAPDATA,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setState[]",             ZVARTYPEID_VOID,          SETTER,       MAPDATASCREENSTATED,          32,    {  ZVARTYPEID_MAPDATA,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    { "getFlags[]",             ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCREENFLAGSD,        10,      {  ZVARTYPEID_MAPDATA,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	//{ "getFlags[]",             ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCREENFLAGSD,        10,      {  ZVARTYPEID_MAPDATA,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     //{ "setFlags[]",             ZVARTYPEID_VOID,          SETTER,       MAPDATASCREENFLAGSD,        10,      {  ZVARTYPEID_MAPDATA,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	//This is read-only, but it was not previously blocked! -Z
     { "getEFlags[]",            ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCREENEFLAGSD,        3,      {  ZVARTYPEID_MAPDATA,        ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -6339,7 +6424,7 @@ map<int, vector<Opcode *> > MapDataSymbols::addSymbolsCode(LinkTable &lt)
 
 	//int GetFFCInitD(mapscr, int,int,int)
 	{
-		int id = memberids["GetFFCInitD"];
+		int id = functions["GetFFCInitD"];
 		int label = lt.functionToLabel(id);
 		vector<Opcode *> code;
 		//pop off the params
@@ -6358,7 +6443,7 @@ map<int, vector<Opcode *> > MapDataSymbols::addSymbolsCode(LinkTable &lt)
     
 	//void SetFFCInitD(mapsc, int,int,int,int)
 	{
-		int id = memberids["SetFFCInitD"];
+		int id = functions["SetFFCInitD"];
 		int label = lt.functionToLabel(id);
 		vector<Opcode *> code;
 		//pop off the params
@@ -6378,7 +6463,7 @@ map<int, vector<Opcode *> > MapDataSymbols::addSymbolsCode(LinkTable &lt)
     
 	//int GetFFCInitA(mapscr, int,int,int)
 	{
-		int id = memberids["GetFFCInitA"];
+		int id = functions["GetFFCInitA"];
 		int label = lt.functionToLabel(id);
 		vector<Opcode *> code;
 		//pop off the params
@@ -6397,7 +6482,7 @@ map<int, vector<Opcode *> > MapDataSymbols::addSymbolsCode(LinkTable &lt)
     
 	//void SetFFCInitA(mapsc, int,int,int,int)
 	{
-		int id = memberids["SetFFCInitA"];
+		int id = functions["SetFFCInitA"];
 		int label = lt.functionToLabel(id);
 		vector<Opcode *> code;
 		//pop off the params
@@ -6461,7 +6546,7 @@ map<int, vector<Opcode *> > InputSymbols::addSymbolsCode(LinkTable &lt)
 	
  //SetType(SpriteData, int, int)
     {
-        int id = memberids["SetType"];
+        int id = functions["SetType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6477,7 +6562,7 @@ map<int, vector<Opcode *> > InputSymbols::addSymbolsCode(LinkTable &lt)
         rval[label] = code;
     }
      {
-        int id = memberids["GetType"];
+        int id = functions["GetType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6525,7 +6610,7 @@ map<int, vector<Opcode *> > GfxPtrSymbols::addSymbolsCode(LinkTable &lt)
    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
     int id=-1;
 	{
-        id = memberids["Wavy"];
+        id = functions["Wavy"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -6537,7 +6622,7 @@ map<int, vector<Opcode *> > GfxPtrSymbols::addSymbolsCode(LinkTable &lt)
         rval[label]=code;
     }
     {
-        id = memberids["Zap"];
+        id = functions["Zap"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -6549,7 +6634,7 @@ map<int, vector<Opcode *> > GfxPtrSymbols::addSymbolsCode(LinkTable &lt)
         rval[label]=code;
     }
     {
-        id = memberids["Greyscale"];
+        id = functions["Greyscale"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -6620,7 +6705,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
 
 //GetTile(SpriteData, int)
     {
-        int id = memberids["GetTile"];
+        int id = functions["GetTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6637,7 +6722,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetMisc(SpriteData, int)
     {
-        int id = memberids["GetMisc"];
+        int id = functions["GetMisc"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6654,7 +6739,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetCSets(SpriteData, int)
     {
-        int id = memberids["GetCSets"];
+        int id = functions["GetCSets"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6671,7 +6756,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetFrames(SpriteData, int)
     {
-        int id = memberids["GetFrames"];
+        int id = functions["GetFrames"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6688,7 +6773,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetSpeed(SpriteData, int)
     {
-        int id = memberids["GetSpeed"];
+        int id = functions["GetSpeed"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6705,7 +6790,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetType(SpriteData, int)
     {
-        int id = memberids["GetType"];
+        int id = functions["GetType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6722,7 +6807,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetTile(SpriteData, int, int)
     {
-        int id = memberids["SetTile"];
+        int id = functions["SetTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6739,7 +6824,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetMisc(SpriteData, int, int)
     {
-        int id = memberids["SetMisc"];
+        int id = functions["SetMisc"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6756,7 +6841,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetCSets(SpriteData, int, int)
     {
-        int id = memberids["SetCSets"];
+        int id = functions["SetCSets"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6773,7 +6858,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetFrames(SpriteData, int, int)
     {
-        int id = memberids["SetFrames"];
+        int id = functions["SetFrames"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6790,7 +6875,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetSpeed(SpriteData, int, int)
     {
-        int id = memberids["SetSpeed"];
+        int id = functions["SetSpeed"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -6807,7 +6892,7 @@ map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetType(SpriteData, int, int)
     {
-        int id = memberids["SetType"];
+        int id = functions["SetType"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7702,7 +7787,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
 	    
     //void AdjustVolume(audio, int)
     {
-        int id = memberids["AdjustMusicVolume"];
+        int id = functions["AdjustMusicVolume"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -7718,7 +7803,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void AdjustSFXVolume(audio, int)
     {
-        int id = memberids["AdjustSFXVolume"];
+        int id = functions["AdjustSFXVolume"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -7735,7 +7820,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     
     //void AdjustSound(game, int,int,bool)
     {
-        int id = memberids["AdjustSound"];
+        int id = functions["AdjustSound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7753,7 +7838,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PlaySound(game, int)
     {
-        int id = memberids["PlaySound"];
+        int id = functions["PlaySound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -7770,7 +7855,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     
     //void EndSound(game, int)
     {
-        int id = memberids["EndSound"];
+        int id = functions["EndSound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -7787,7 +7872,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     
     //void PauseSound(game, int)
     {
-        int id = memberids["PauseSound"];
+        int id = functions["PauseSound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -7804,7 +7889,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     
     //void ContinueSound(game, int)
     {
-        int id = memberids["ContinueSound"];
+        int id = functions["ContinueSound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -7821,7 +7906,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     
     //void ResumeSound(game, int)
     {
-        int id = memberids["ResumeSound"];
+        int id = functions["ResumeSound"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -7838,7 +7923,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     
     //void PauseCurMIDI(game)
     {
-        int id = memberids["PauseCurMIDI"];
+        int id = functions["PauseCurMIDI"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -7853,7 +7938,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     
     //void ResumeCurMIDI(game)
     {
-        int id = memberids["ResumeCurMIDI"];
+        int id = functions["ResumeCurMIDI"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop pointer, and ignore it
@@ -7867,7 +7952,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PlayMIDI(game, int)
     {
-        int id = memberids["PlayMIDI"];
+        int id = functions["PlayMIDI"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -7883,7 +7968,7 @@ map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
     }
     //void PlayEnhancedMusic(game, int, int)
     {
-        int id = memberids["PlayEnhancedMusic"];
+        int id = functions["PlayEnhancedMusic"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -7971,7 +8056,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
 	
      //int GetPointer(itemclass, itemclass)
     {
-        int id = memberids["GetItemdataPointer"];
+        int id = functions["GetItemdataPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -7987,7 +8072,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(itemclass, float)
     {
-        int id = memberids["SetItemdataPointer"];
+        int id = functions["SetItemdataPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8002,7 +8087,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetPointer(item, item)
     {
-        int id = memberids["GetItemPointer"];
+        int id = functions["GetItemPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8018,7 +8103,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(item, float)
     {
-        int id = memberids["SetItemPointer"];
+        int id = functions["SetItemPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8033,7 +8118,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     }    
     //int GetPointer(ffc, ffc)
     {
-        int id = memberids["GetFFCPointer"];
+        int id = functions["GetFFCPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8049,7 +8134,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(ffc, float)
     {
-        int id = memberids["SetFFCPointer"];
+        int id = functions["SetFFCPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8064,7 +8149,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     }
           //int GetPointer(eweapon, eweapon)
     {
-        int id = memberids["GetEWeaponPointer"];
+        int id = functions["GetEWeaponPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8080,7 +8165,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(eweapon, float)
     {
-        int id = memberids["SetEWeaponPointer"];
+        int id = functions["SetEWeaponPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8095,7 +8180,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     }
        //int GetPointer(lweapon, lweapon)
     {
-        int id = memberids["GetLWeaponPointer"];
+        int id = functions["GetLWeaponPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8111,7 +8196,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(lweapon, float)
     {
-        int id = memberids["SetLWeaponPointer"];
+        int id = functions["SetLWeaponPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8126,7 +8211,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     }
 	 //int GetPointer(npc, ffc)
     {
-        int id = memberids["GetNPCPointer"];
+        int id = functions["GetNPCPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8142,7 +8227,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(npc, float)
     {
-        int id = memberids["SetNPCPointer"];
+        int id = functions["SetNPCPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8157,7 +8242,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetPointer(game, bool)
     {
-        int id = memberids["GetBoolPointer"];
+        int id = functions["GetBoolPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8173,7 +8258,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
     //int SetPointer(game, float)
     {
-        int id = memberids["SetBoolPointer"];
+        int id = functions["SetBoolPointer"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP1));
@@ -8190,7 +8275,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
 //void TriggerSecret(game, int)
     {
-        int id = memberids["TriggerSecret"];
+        int id = functions["TriggerSecret"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -8208,7 +8293,7 @@ map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
     
 //void ChangeFFCScript(game, int)
     {
-        int id = memberids["ChangeFFCScript"];
+        int id = functions["ChangeFFCScript"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the param
@@ -8452,7 +8537,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
 	//GetTile(NPCData, int)
     {
 	
-        int id = memberids["GetTile"];
+        int id = functions["GetTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8475,7 +8560,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
 
 	//int GetScriptDefense((NPCData, int, int)
     {
-        int id = memberids["GetScriptDefense"];
+        int id = functions["GetScriptDefense"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -8492,7 +8577,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetDefense(NPCData, int, int)
     {
-        int id = memberids["GetDefense"];
+        int id = functions["GetDefense"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -8509,7 +8594,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetSizeFlag(NPCData, int, int)
     {
-        int id = memberids["GetSizeFlag"];
+        int id = functions["GetSizeFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -8526,7 +8611,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //int GetAttribute(NPCData, int, int)
     {
-        int id = memberids["GetAttribute"];
+        int id = functions["GetAttribute"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -8547,7 +8632,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     
       //void SetScriptDefense(NPCData, int,int,int)
     {
-        int id = memberids["SetScriptDefense"];
+        int id = functions["SetScriptDefense"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -8567,7 +8652,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     
       //void SetDefense(NPCData, int,int,int)
     {
-        int id = memberids["SetDefense"];
+        int id = functions["SetDefense"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -8587,7 +8672,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     
       //void SetSizeFlag(NPCData, int,int,int)
     {
-        int id = memberids["SetSizeFlag"];
+        int id = functions["SetSizeFlag"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -8607,7 +8692,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     
       //void SetAttribute(NPCData, int,int,int)
     {
-        int id = memberids["SetAttribute"];
+        int id = functions["SetAttribute"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -8629,7 +8714,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetFlags2(NPCData, int)
     {
-        int id = memberids["GetFlags2"];
+        int id = functions["GetFlags2"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8671,7 +8756,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetSHeight(NPCData, int)
     {
-        int id = memberids["GetSHeight"];
+        int id = functions["GetSHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8686,7 +8771,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetETile(NPCData, int)
     {
-        int id = memberids["GetETile"];
+        int id = functions["GetETile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8701,7 +8786,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetEWidth(NPCData, int)
     {
-        int id = memberids["GetEWidth"];
+        int id = functions["GetEWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8716,7 +8801,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHP(NPCData, int)
     {
-        int id = memberids["GetHP"];
+        int id = functions["GetHP"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8731,7 +8816,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetFamily(NPCData, int)
     {
-        int id = memberids["GetFamily"];
+        int id = functions["GetFamily"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8746,7 +8831,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetCSet(NPCData, int)
     {
-        int id = memberids["GetCSet"];
+        int id = functions["GetCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8761,7 +8846,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDMapIntro(NPCData, int)
     {
-        int id = memberids["GetAnim"];
+        int id = functions["GetAnim"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8776,7 +8861,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetEAnim(NPCData, int)
     {
-        int id = memberids["GetEAnim"];
+        int id = functions["GetEAnim"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8791,7 +8876,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetFramerate(NPCData, int)
     {
-        int id = memberids["GetFramerate"];
+        int id = functions["GetFramerate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8806,7 +8891,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetEFramerate(NPCData, int)
     {
-        int id = memberids["GetEFramerate"];
+        int id = functions["GetEFramerate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8821,7 +8906,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetTouchDamage(NPCData,, int)
     {
-        int id = memberids["GetTouchDamage"];
+        int id = functions["GetTouchDamage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8836,7 +8921,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetWeaponDamage(NPCData, int)
     {
-        int id = memberids["GetWeaponDamage"];
+        int id = functions["GetWeaponDamage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8851,7 +8936,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetWeapon(NPCData, int)
     {
-        int id = memberids["GetWeapon"];
+        int id = functions["GetWeapon"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8866,7 +8951,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetRandom(NPCData, int)
     {
-        int id = memberids["GetRandom"];
+        int id = functions["GetRandom"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8881,7 +8966,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHaltRate(NPCData, int)
     {
-        int id = memberids["GetHaltRate"];
+        int id = functions["GetHaltRate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8896,7 +8981,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetStep(NPCData, int)
     {
-        int id = memberids["GetStep"];
+        int id = functions["GetStep"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8911,7 +8996,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHoming(NPCData, int)
     {
-        int id = memberids["GetHoming"];
+        int id = functions["GetHoming"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8926,7 +9011,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHunger(NPCData, int)
     {
-        int id = memberids["GetHunger"];
+        int id = functions["GetHunger"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8941,7 +9026,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDropset(NPCData, int)
     {
-        int id = memberids["GetDropset"];
+        int id = functions["GetDropset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8956,7 +9041,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetBGSFX(NPCData, int)
     {
-        int id = memberids["GetBGSFX"];
+        int id = functions["GetBGSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8971,7 +9056,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHitSFX(NPCData, int)
     {
-        int id = memberids["GetHitSFX"];
+        int id = functions["GetHitSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -8986,7 +9071,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDeathSFX(NPCData, int)
     {
-        int id = memberids["GetDeathSFX"];
+        int id = functions["GetDeathSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -9001,7 +9086,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDrawXOffset(NPCData, int)
     {
-        int id = memberids["GetDrawXOffset"];
+        int id = functions["GetDrawXOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -9016,7 +9101,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDrawYOffset(NPCData, int)
     {
-        int id = memberids["GetDrawYOffset"];
+        int id = functions["GetDrawYOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -9031,7 +9116,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetDrawZOffset(NPCData,int)
     {
-        int id = memberids["GetDrawZOffset"];
+        int id = functions["GetDrawZOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -9046,7 +9131,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHitXOffset(NPCData, int)
     {
-        int id = memberids["GetHitXOffset"];
+        int id = functions["GetHitXOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -9061,7 +9146,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHitYOffset(NPCData, int)
     {
-        int id = memberids["GetHitYOffset"];
+        int id = functions["GetHitYOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -9076,7 +9161,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHitWidth(NPCData, int)
     {
-        int id = memberids["GetHitWidth"];
+        int id = functions["GetHitWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -9091,7 +9176,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHitHeight(NPCData, int)
     {
-        int id = memberids["GetHitHeight"];
+        int id = functions["GetHitHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -9106,7 +9191,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetHitZHeight(NPCData, int)
     {
-        int id = memberids["GetHitZHeight"];
+        int id = functions["GetHitZHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -9121,7 +9206,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetTileWidth(NPCData, int)
     {
-        int id = memberids["GetTileWidth"];
+        int id = functions["GetTileWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -9136,7 +9221,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetTileHeight(NPCData, int)
     {
-        int id = memberids["GetTileHeight"];
+        int id = functions["GetTileHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -9151,7 +9236,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //GetWeaponSprite(NPCData, int)
     {
-        int id = memberids["GetWeaponSprite"];
+        int id = functions["GetWeaponSprite"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         Opcode *first = new OPopRegister(new VarArgument(EXP2));
@@ -9166,7 +9251,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
 	//SetFlags(NPCData, int, int)
     {
-        int id = memberids["SetFlags"];
+        int id = functions["SetFlags"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9183,7 +9268,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
      //SetTile(NPCData, int, int)
     {
-        int id = memberids["SetTile"];
+        int id = functions["SetTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9200,7 +9285,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
      //SetEHeight(NPCData, int, int)
     {
-        int id = memberids["SetEHeight"];
+        int id = functions["SetEHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9217,7 +9302,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetFlags2(NPCData, int, int)
     {
-        int id = memberids["SetFlags2"];
+        int id = functions["SetFlags2"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9234,7 +9319,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetWidth(NPCData, int, int)
     {
-        int id = memberids["SetWidth"];
+        int id = functions["SetWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9251,7 +9336,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHeight(NPCData, int, int)
     {
-        int id = memberids["SetHeight"];
+        int id = functions["SetHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9268,7 +9353,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetSTile(NPCData, int, int)
     {
-        int id = memberids["SetSTile"];
+        int id = functions["SetSTile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9285,7 +9370,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetSWidth(NPCData, int, int)
     {
-        int id = memberids["SetSWidth"];
+        int id = functions["SetSWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9302,7 +9387,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetSHeight(NPCData, int, int)
     {
-        int id = memberids["SetSHeight"];
+        int id = functions["SetSHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9319,7 +9404,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetETile(NPCData, int, int)
     {
-        int id = memberids["SetETile"];
+        int id = functions["SetETile"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9336,7 +9421,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetEWidth(NPCData, int, int)
     {
-        int id = memberids["SetEWidth"];
+        int id = functions["SetEWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9353,7 +9438,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHP(NPCData, int, int)
     {
-        int id = memberids["SetHP"];
+        int id = functions["SetHP"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9370,7 +9455,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetFamily(NPCData, int, int)
     {
-        int id = memberids["SetFamily"];
+        int id = functions["SetFamily"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9387,7 +9472,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetCSet(NPCData, int, int)
     {
-        int id = memberids["SetCSet"];
+        int id = functions["SetCSet"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9404,7 +9489,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDMapIntro(NPCData, int, int)
     {
-        int id = memberids["SetAnim"];
+        int id = functions["SetAnim"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9421,7 +9506,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetEAnim(NPCData, int, int)
     {
-        int id = memberids["SetEAnim"];
+        int id = functions["SetEAnim"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9438,7 +9523,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetFramerate(NPCData, int, int)
     {
-        int id = memberids["SetFramerate"];
+        int id = functions["SetFramerate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9455,7 +9540,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetEFramerate(NPCData, int, int)
     {
-        int id = memberids["SetEFramerate"];
+        int id = functions["SetEFramerate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9472,7 +9557,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetTouchDamage(NPCData, int, int)
     {
-        int id = memberids["SetTouchDamage"];
+        int id = functions["SetTouchDamage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9489,7 +9574,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetWeaponDamage(NPCData, int, int)
     {
-        int id = memberids["SetWeaponDamage"];
+        int id = functions["SetWeaponDamage"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9506,7 +9591,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetWeapon(NPCData, int, int)
     {
-        int id = memberids["SetWeapon"];
+        int id = functions["SetWeapon"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9523,7 +9608,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetRandom(NPCData, int, int)
     {
-        int id = memberids["SetRandom"];
+        int id = functions["SetRandom"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9540,7 +9625,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHaltRate(NPCData, int, int)
     {
-        int id = memberids["SetHaltRate"];
+        int id = functions["SetHaltRate"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9557,7 +9642,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetStep(NPCData, int, int)
     {
-        int id = memberids["SetStep"];
+        int id = functions["SetStep"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9574,7 +9659,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHoming(NPCData, int, int)
     {
-        int id = memberids["SetHoming"];
+        int id = functions["SetHoming"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9591,7 +9676,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHunger(NPCData, int, int)
     {
-        int id = memberids["SetHunger"];
+        int id = functions["SetHunger"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9608,7 +9693,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDropset(NPCData, int, int)
     {
-        int id = memberids["SetDropset"];
+        int id = functions["SetDropset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9625,7 +9710,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetBGSFX(NPCData, int, int)
     {
-        int id = memberids["SetBGSFX"];
+        int id = functions["SetBGSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9642,7 +9727,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHitSFX(NPCData, int, int)
     {
-        int id = memberids["SetHitSFX"];
+        int id = functions["SetHitSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9659,7 +9744,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDeathSFX(NPCData, int, int)
     {
-        int id = memberids["SetDeathSFX"];
+        int id = functions["SetDeathSFX"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9676,7 +9761,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDrawXOffset(NPCData, int, int)
     {
-        int id = memberids["SetDrawXOffset"];
+        int id = functions["SetDrawXOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9693,7 +9778,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDrawYOffset(NPCData, int, int)
     {
-        int id = memberids["SetDrawYOffset"];
+        int id = functions["SetDrawYOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9710,7 +9795,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetDrawZOffset(NPCData, int, int)
     {
-        int id = memberids["SetDrawZOffset"];
+        int id = functions["SetDrawZOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9727,7 +9812,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHitXOffset(NPCData, int, int)
     {
-        int id = memberids["SetHitXOffset"];
+        int id = functions["SetHitXOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9744,7 +9829,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHitYOffset(NPCData, int, int)
     {
-        int id = memberids["SetHitYOffset"];
+        int id = functions["SetHitYOffset"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9761,7 +9846,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHitWidth(NPCData, int, int)
     {
-        int id = memberids["SetHitWidth"];
+        int id = functions["SetHitWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9778,7 +9863,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHitHeight(NPCData, int, int)
     {
-        int id = memberids["SetHitHeight"];
+        int id = functions["SetHitHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9795,7 +9880,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetHitZHeight(NPCData, int, int)
     {
-        int id = memberids["SetHitZHeight"];
+        int id = functions["SetHitZHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9812,7 +9897,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetTileWidth(NPCData, int, int)
     {
-        int id = memberids["SetTileWidth"];
+        int id = functions["SetTileWidth"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9829,7 +9914,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetTileHeight(NPCData, int, int)
     {
-        int id = memberids["SetTileHeight"];
+        int id = functions["SetTileHeight"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9846,7 +9931,7 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
     }
     //SetWeaponSprite(NPCData, int, int)
     {
-        int id = memberids["SetWeaponSprite"];
+        int id = functions["SetWeaponSprite"];
         int label = lt.functionToLabel(id);
         vector<Opcode *> code;
         //pop off the params
@@ -9941,7 +10026,7 @@ map<int, vector<Opcode *> > DMapDataSymbols::addSymbolsCode(LinkTable &lt)
     int id=-1;
 	{
 		{	//Get("dest_string[]")
-		id = memberids["GetName"]; 
+		id = functions["GetName"]; 
 		int label = lt.functionToLabel(id); 
 		vector<Opcode *> code; 
 		Opcode *first = new OPopRegister(new VarArgument(EXP2)); 
@@ -9953,7 +10038,7 @@ map<int, vector<Opcode *> > DMapDataSymbols::addSymbolsCode(LinkTable &lt)
 		rval[label]=code; 
 	}
 	{	//Set("source_string[]")
-		id = memberids["SetName"]; 
+		id = functions["SetName"]; 
 		int label = lt.functionToLabel(id); 
 		vector<Opcode *> code; 
 		Opcode *first = new OPopRegister(new VarArgument(EXP2)); 
@@ -9966,7 +10051,7 @@ map<int, vector<Opcode *> > DMapDataSymbols::addSymbolsCode(LinkTable &lt)
 	}
 	
 	{	//Get("dest_string[]")
-		id = memberids["GetTitle"]; 
+		id = functions["GetTitle"]; 
 		int label = lt.functionToLabel(id); 
 		vector<Opcode *> code; 
 		Opcode *first = new OPopRegister(new VarArgument(EXP2)); 
@@ -9978,7 +10063,7 @@ map<int, vector<Opcode *> > DMapDataSymbols::addSymbolsCode(LinkTable &lt)
 		rval[label]=code; 
 	}
 	{	//Set("source_string[]")
-		id = memberids["SetTitle"]; 
+		id = functions["SetTitle"]; 
 		int label = lt.functionToLabel(id); 
 		vector<Opcode *> code; 
 		Opcode *first = new OPopRegister(new VarArgument(EXP2)); 
@@ -9990,7 +10075,7 @@ map<int, vector<Opcode *> > DMapDataSymbols::addSymbolsCode(LinkTable &lt)
 		rval[label]=code; 
 	}
 	{	//Get("dest_string[]")
-		id = memberids["GetIntro"]; 
+		id = functions["GetIntro"]; 
 		int label = lt.functionToLabel(id); 
 		vector<Opcode *> code; 
 		Opcode *first = new OPopRegister(new VarArgument(EXP2)); 
@@ -10002,7 +10087,7 @@ map<int, vector<Opcode *> > DMapDataSymbols::addSymbolsCode(LinkTable &lt)
 		rval[label]=code; 
 	}
 	{	//Set("source_string[]")
-		id = memberids["SetIntro"]; 
+		id = functions["SetIntro"]; 
 		int label = lt.functionToLabel(id); 
 		vector<Opcode *> code; 
 		Opcode *first = new OPopRegister(new VarArgument(EXP2)); 
@@ -10014,7 +10099,7 @@ map<int, vector<Opcode *> > DMapDataSymbols::addSymbolsCode(LinkTable &lt)
 		rval[label]=code; 
 	}
 	{	//Get("dest_string[]")
-		id = memberids["GetMusic"]; 
+		id = functions["GetMusic"]; 
 		int label = lt.functionToLabel(id); 
 		vector<Opcode *> code; 
 		Opcode *first = new OPopRegister(new VarArgument(EXP2)); 
@@ -10026,7 +10111,7 @@ map<int, vector<Opcode *> > DMapDataSymbols::addSymbolsCode(LinkTable &lt)
 		rval[label]=code; 
 	}
 	{	//Set("source_string[]")
-		id = memberids["SetMusic"]; 
+		id = functions["SetMusic"]; 
 		int label = lt.functionToLabel(id); 
 		vector<Opcode *> code; 
 		Opcode *first = new OPopRegister(new VarArgument(EXP2)); 
@@ -10137,7 +10222,7 @@ map<int, vector<Opcode *> > MessageDataSymbols::addSymbolsCode(LinkTable &lt)
     int id=-1;
 	{
 		{	//Get("dest_string[]")
-			id = memberids["Get"]; 
+			id = functions["Get"]; 
 			int label = lt.functionToLabel(id); 
 			vector<Opcode *> code; 
 			Opcode *first = new OPopRegister(new VarArgument(EXP2)); 
@@ -10149,7 +10234,7 @@ map<int, vector<Opcode *> > MessageDataSymbols::addSymbolsCode(LinkTable &lt)
 			rval[label]=code; 
 		}
 		{	//Set("source_string[]")
-			id = memberids["Set"]; 
+			id = functions["Set"]; 
 			int label = lt.functionToLabel(id); 
 			vector<Opcode *> code; 
 			Opcode *first = new OPopRegister(new VarArgument(EXP2)); 

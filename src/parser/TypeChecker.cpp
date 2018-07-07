@@ -249,129 +249,19 @@ void TypeCheck::caseExprArrow(ASTExprArrow &host)
         }
     }
 
-    ZVarTypeId type = host.getLVal()->getType();
-
-    string name = "get" + host.getName();
-    if (isIndexed) name += "[]";
-
-	int functionId;
-    switch (type)
+    ZVarTypeId typeId = host.getLVal()->getType();
+	LibrarySymbols* lib = LibrarySymbols::getTypeInstance(typeId);
+	if (!lib)
     {
-    case ZVARTYPEID_FFC:
-    {
-        functionId = FFCSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_LINK:
-    {
-        functionId = LinkSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_SCREEN:
-    {
-        functionId = ScreenSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_GAME:
-    {
-        functionId = GameSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_ITEM:
-    {
-        functionId = ItemSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_ITEMCLASS:
-    {
-        functionId = ItemclassSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_NPC:
-    {
-        functionId = NPCSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_LWPN:
-    {
-        functionId = LinkWeaponSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_EWPN:
-    {
-        functionId = EnemyWeaponSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_NPCDATA:
-    {
-        functionId = NPCDataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_DEBUG:
-    {
-        functionId = DebugSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_AUDIO:
-    {
-        functionId = AudioSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_COMBOS:
-    {
-        functionId = CombosPtrSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_SPRITEDATA:
-    {
-        functionId = SpriteDataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_GRAPHICS:
-    {
-        functionId = GfxPtrSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_TEXT:
-    {
-        functionId = TextPtrSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_INPUT:
-    {
-        functionId = InputSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_MAPDATA:
-    {
-        functionId = MapDataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    
-    case ZVARTYPEID_DMAPDATA:
-    {
-        functionId = DMapDataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    
-    case ZVARTYPEID_SHOPDATA:
-    {
-        functionId = ShopDataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_ZMESSAGE:
-    {
-        functionId = MessageDataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    default:
 	    failure = true;
 	    printErrorMsg(&host, ARROWNOTPOINTER);
 	    return;
     }
 
+	int functionId = lib->matchGetter(host.getName());
+
 	vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(functionId);
-    if (functionId == -1 || functionParams.size() != (isIndexed ? 2 : 1) || functionParams[0] != type)
+    if (functionId == -1 || functionParams.size() != (isIndexed ? 2 : 1) || functionParams[0] != typeId)
     {
         failure = true;
         printErrorMsg(&host, ARROWNOVAR, host.getName() + (isIndexed ? "[]" : ""));
@@ -571,182 +461,12 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
         // Luckily I will here assert that each type's functions MUST be unique
 		ASTExprArrow& arrow = *(ASTExprArrow*)host.getName();
         string name = arrow.getName();
-        ZVarTypeId type = arrow.getLVal()->getType();
+        ZVarTypeId typeId = arrow.getLVal()->getType();
 
-		int functionId;
-		switch(type)
-		{
-		case ZVARTYPEID_FFC:
-		{
-			functionId = FFCSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_LINK:
-		{
-			functionId = LinkSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_SCREEN:
-		{
-			functionId = ScreenSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_GAME:
-		{
-			functionId = GameSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_ITEM:
-		{
-			functionId = ItemSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_ITEMCLASS:
-		{
-			functionId = ItemclassSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_NPC:
-		{
-			functionId = NPCSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_LWPN:
-		{
-			functionId = LinkWeaponSymbols::getInst().matchFunction(name);
-			break;
-		}
-		case ZVARTYPEID_EWPN:
-		{
-			functionId = EnemyWeaponSymbols::getInst().matchFunction(name);
-			break;
-		}
-        case ZVARTYPEID_NPCDATA:
-        {
-            functionId = NPCDataSymbols::getInst().matchFunction(name);
-            break;
-        }
-        case ZVARTYPEID_MAPDATA:
-        {
-            functionId = MapDataSymbols::getInst().matchFunction(name);
-            break;
-        }
-        case ZVARTYPEID_DEBUG:
-        {
-            functionId = DebugSymbols::getInst().matchFunction(name);
-            break;
-        }
-        case ZVARTYPEID_AUDIO:
-        {
-            functionId = AudioSymbols::getInst().matchFunction(name);
-            break;
-        }
-        case ZVARTYPEID_COMBOS:
-        {
-            functionId = CombosPtrSymbols::getInst().matchFunction(name);
-            break;
-        }
-        case ZVARTYPEID_SPRITEDATA:
-        {
-            functionId = SpriteDataSymbols::getInst().matchFunction(name);
-            break;
-        }
-        case ZVARTYPEID_GRAPHICS:
-        {
-            functionId = GfxPtrSymbols::getInst().matchFunction(name);
-            break;
-        }
-        case ZVARTYPEID_TEXT:
-        {
-            functionId = TextPtrSymbols::getInst().matchFunction(name);
-            break;
-        }
-        case ZVARTYPEID_INPUT:
-        {
-            functionId = InputSymbols::getInst().matchFunction(name);
-            break;
-        }   
-        case ZVARTYPEID_DMAPDATA:
-        {
-	        functionId = DMapDataSymbols::getInst().matchFunction(name);
-	        break;
-        }
-        case ZVARTYPEID_ZMESSAGE:
-        {
-	        functionId = MessageDataSymbols::getInst().matchFunction(name);
-	        break;
-        }
-        case ZVARTYPEID_SHOPDATA:
-        {
-	        functionId = ShopDataSymbols::getInst().matchFunction(name);
-	        break;
-        }
-        case ZVARTYPEID_UNTYPED:
-        {
-	        functionId = UntypedSymbols::getInst().matchFunction(name);
-	        break;
-        }
-		case ZVARTYPEID_DROPSET:
-		{
-	        functionId = DropsetSymbols::getInst().matchFunction(name);
-	        break;
-		}
-		case ZVARTYPEID_PONDS:
-		{
-	        functionId = PondSymbols::getInst().matchFunction(name);
-	        break;
-		}
-		case ZVARTYPEID_WARPRING:
-		{
-	        functionId = WarpringSymbols::getInst().matchFunction(name);
-	        break;
-		}
-		case ZVARTYPEID_DOORSET:
-		{
-	        functionId = DoorsetSymbols::getInst().matchFunction(name);
-	        break;
-		}
-		case ZVARTYPEID_ZUICOLOURS:
-		{
-	        functionId = MiscColourSymbols::getInst().matchFunction(name);
-	        break;
-		}
-		case ZVARTYPEID_RGBDATA:
-		{
-	        functionId = RGBSymbols::getInst().matchFunction(name);
-	        break;
-		}
-		case ZVARTYPEID_PALETTE:
-		{
-	        functionId = PaletteSymbols::getInst().matchFunction(name);
-	        break;
-		}
-		case ZVARTYPEID_TUNES:
-		{
-	        functionId = TunesSymbols::getInst().matchFunction(name);
-	        break;
-		}
-		case ZVARTYPEID_PALCYCLE:
-		{
-	        functionId = PalCycleSymbols::getInst().matchFunction(name);
-	        break;
-		}
-		case ZVARTYPEID_GAMEDATA:
-		{
-	        functionId = GamedataSymbols::getInst().matchFunction(name);
-	        break;
-		}
-		case ZVARTYPEID_CHEATS:
-		{
-	        functionId = CheatsSymbols::getInst().matchFunction(name);
-	        break;
-		}
-		default:
-			assert(false);
-		}
-		
-		vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(functionId);
+		LibrarySymbols* lib = LibrarySymbols::getTypeInstance(typeId);
+		assert(lib);
 
+		int functionId = lib->matchFunction(name);
         if (functionId == -1)
         {
             failure = true;
@@ -754,6 +474,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
             return;
         }
 
+		vector<ZVarTypeId> functionParams = symbolTable.getFuncParamTypeIds(functionId);
         if (paramtypes.size() != functionParams.size())
         {
             failure = true;
@@ -1299,185 +1020,14 @@ void GetLValType::caseExprArrow(ASTExprArrow &host)
         }
     }
 
-    string name = "set" + host.getName();
-    if (isIndexed) name += "[]";
-
-	int functionId;
-    switch (type)
+	LibrarySymbols* lib = LibrarySymbols::getTypeInstance(type);
+	if (!lib)
     {
-    case ZVARTYPEID_FFC:
-    {
-        functionId = FFCSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_LINK:
-    {
-        functionId = LinkSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_SCREEN:
-    {
-        functionId = ScreenSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_GAME:
-    {
-        functionId = GameSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_ITEM:
-    {
-        functionId = ItemSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_ITEMCLASS:
-    {
-        functionId = ItemclassSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_NPC:
-    {
-        functionId = NPCSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_LWPN:
-    {
-        functionId = LinkWeaponSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_EWPN:
-    {
-        functionId = EnemyWeaponSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_NPCDATA:
-    {
-        functionId = NPCDataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_MAPDATA:
-    {
-        functionId = MapDataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_DEBUG:
-    {
-        functionId = DebugSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_AUDIO:
-    {
-        functionId = AudioSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_COMBOS:
-    {
-        functionId = CombosPtrSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_SPRITEDATA:
-    {
-        functionId = SpriteDataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_GRAPHICS:
-    {
-        functionId = GfxPtrSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_TEXT:
-    {
-        functionId = TextPtrSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_INPUT:
-    {
-        functionId = InputSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_DMAPDATA:
-    {
-        functionId = DMapDataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_ZMESSAGE:
-    {
-        functionId = MessageDataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_SHOPDATA:
-    {
-        functionId = ShopDataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_UNTYPED:
-    {
-        functionId = UntypedSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_DROPSET:
-    {
-        functionId = DropsetSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_PONDS:
-    {
-        functionId = PondSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_WARPRING:
-    {
-        functionId = WarpringSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_DOORSET:
-    {
-        functionId = DoorsetSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_ZUICOLOURS:
-    {
-        functionId = MiscColourSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_RGBDATA:
-    {
-        functionId = RGBSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_PALETTE:
-    {
-        functionId = PaletteSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_TUNES:
-    {
-        functionId = TunesSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_PALCYCLE:
-    {
-        functionId = PalCycleSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_GAMEDATA:
-    {
-        functionId = GamedataSymbols::getInst().matchFunction(name);
-        break;
-    }
-    case ZVARTYPEID_CHEATS:
-    {
-        functionId = CheatsSymbols::getInst().matchFunction(name);
-        break;
-    }
-    
-    default:
-    {
-        typeCheck.fail();
         printErrorMsg(&host, ARROWNOTPOINTER);
+		typeCheck.fail();
         return;
     }
-    }
+	int functionId = lib->matchSetter(host.getName());
 
 	vector<ZVarTypeId> functionParams = typeCheck.symbolTable.getFuncParamTypeIds(functionId);
     if (functionId == -1 || functionParams.size() != (isIndexed ? 3 : 2) || functionParams[0] != type)

@@ -30,16 +30,22 @@ struct AccessorTable
 class LibrarySymbols
 {
 public:
+	static LibrarySymbols* getTypeInstance(ZVarTypeId typeId);
+
     virtual void addSymbolsToScope(Scope& scope);
     virtual map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
-    virtual int matchFunction(string name);
+    virtual int matchFunction(string const& name);
+    virtual int matchGetter(string const& name);
+    virtual int matchSetter(string const& name);
     virtual ~LibrarySymbols();
 protected:
     AccessorTable *table;
     LibrarySymbols() {}
     int firstid;
     int refVar;
-    map<string, int> memberids;
+    map<string, int> functions;
+	map<string, int> getters;
+	map<string, int> setters;
     virtual vector<Opcode *> getVariable(LinkTable &lt, int id, int var);
     virtual vector<Opcode *> setVariable(LinkTable &lt, int id, int var);
     virtual vector<Opcode *> setBoolVariable(LinkTable &lt, int id, int var);
