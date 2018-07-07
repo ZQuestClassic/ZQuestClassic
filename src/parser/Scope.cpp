@@ -5,55 +5,7 @@
 ////////////////////////////////////////////////////////////////
 // Scope
 
-Scope* Scope::makeGlobalScope(SymbolTable& table)
-{
-	Scope* global = new BasicScope(table);
-
-	// Add global library functions.
-    GlobalSymbols::getInst().addSymbolsToScope(*global);
-
-	// Create builtin classes (skip void, float, and bool).
-	for (ZVarTypeId typeId = ZVARTYPEID_CLASS_START; typeId < ZVARTYPEID_CLASS_END; ++typeId)
-	{
-		ZVarTypeClass const& type = *(ZVarTypeClass const*)ZVarType::get(typeId);
-		ZClass& klass = *table.getClass(type.getClassId());
-		LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
-		library.addSymbolsToScope(klass);
-	}
-
-	// Add global pointers.
-    table.addGlobalPointer(global->addVariable("Link", ZVARTYPEID_LINK));
-    table.addGlobalPointer(global->addVariable("Screen", ZVARTYPEID_SCREEN));
-    table.addGlobalPointer(global->addVariable("Game", ZVARTYPEID_GAME));
-    table.addGlobalPointer(global->addVariable("Debug", ZVARTYPEID_DEBUG));
-    table.addGlobalPointer(global->addVariable("Audio", ZVARTYPEID_AUDIO));
-    table.addGlobalPointer(global->addVariable("Text", ZVARTYPEID_TEXT));
-    table.addGlobalPointer(global->addVariable("NPCData", ZVARTYPEID_NPCDATA));
-    table.addGlobalPointer(global->addVariable("ComboData", ZVARTYPEID_COMBOS));
-    table.addGlobalPointer(global->addVariable("SpriteData", ZVARTYPEID_SPRITEDATA));
-    table.addGlobalPointer(global->addVariable("Graphics", ZVARTYPEID_GRAPHICS));
-    table.addGlobalPointer(global->addVariable("Input", ZVARTYPEID_INPUT));
-    table.addGlobalPointer(global->addVariable("MapData", ZVARTYPEID_MAPDATA));
-    table.addGlobalPointer(global->addVariable("DMapData", ZVARTYPEID_DMAPDATA));
-    table.addGlobalPointer(global->addVariable("MessageData", ZVARTYPEID_ZMESSAGE));
-    table.addGlobalPointer(global->addVariable("ShopData", ZVARTYPEID_SHOPDATA));
-    table.addGlobalPointer(global->addVariable("Untyped", ZVARTYPEID_UNTYPED));
-    table.addGlobalPointer(global->addVariable("dropdata->", ZVARTYPEID_DROPSET));
-    table.addGlobalPointer(global->addVariable("ponddata->", ZVARTYPEID_PONDS));
-    table.addGlobalPointer(global->addVariable("warpring->", ZVARTYPEID_WARPRING));
-    table.addGlobalPointer(global->addVariable("doorset->", ZVARTYPEID_DOORSET));
-    table.addGlobalPointer(global->addVariable("misccolors->", ZVARTYPEID_ZUICOLOURS));
-    table.addGlobalPointer(global->addVariable("rgbdata->", ZVARTYPEID_RGBDATA));
-    table.addGlobalPointer(global->addVariable("palette->", ZVARTYPEID_PALETTE));
-    table.addGlobalPointer(global->addVariable("musictrack->", ZVARTYPEID_TUNES));
-    table.addGlobalPointer(global->addVariable("palcycle->", ZVARTYPEID_PALCYCLE));
-    table.addGlobalPointer(global->addVariable("gamedata->", ZVARTYPEID_GAMEDATA));
-    table.addGlobalPointer(global->addVariable("cheats->", ZVARTYPEID_CHEATS));
-
-	return global;
-}
-
-Scope::Scope(SymbolTable& table) : table(table) {}
+Scope::Scope(SymbolTable& table) : table(table), varDeclsDeprecated(false) {}
 
 // Inheritance
 
@@ -262,6 +214,14 @@ int Scope::getFunctionId(FunctionSignature const& signature) const
 	return functionId;
 }
 
+int Scope::addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes, AST* node)
+{
+	vector<ZVarTypeId> paramTypeIds;
+	for (vector<ZVarType*>::const_iterator it = paramTypes.begin(); it != paramTypes.end(); ++it)
+		paramTypeIds.push_back(table.getOrAssignTypeId(**it));
+	return addFunction(name, table.getOrAssignTypeId(returnType), paramTypeIds, node);
+}
+
 int Scope::addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds)
 {
 	return addFunction(name, returnTypeId, paramTypeIds, NULL);
@@ -270,14 +230,6 @@ int Scope::addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarT
 int Scope::addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes)
 {
 	return addFunction(name, returnType, paramTypes, NULL);
-}
-
-int Scope::addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes, AST* node)
-{
-	vector<ZVarTypeId> paramTypeIds;
-	for (vector<ZVarType*>::const_iterator it = paramTypes.begin(); it != paramTypes.end(); ++it)
-		paramTypeIds.push_back(table.getOrAssignTypeId(**it));
-	return addFunction(name, table.getOrAssignTypeId(returnType), paramTypeIds, node);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -437,6 +389,53 @@ int BasicScope::addFunction(string const& name, ZVarTypeId returnTypeId, vector<
 	table.putFuncTypeIds(funcId, returnTypeId, paramTypeIds);
 	if (node) table.putNodeId(node, funcId);
 	return funcId;
+}
+
+////////////////////////////////////////////////////////////////
+// GlobalScope
+
+GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
+{
+	// Add global library functions.
+    GlobalSymbols::getInst().addSymbolsToScope(*this);
+
+	// Create builtin classes (skip void, float, and bool).
+	for (ZVarTypeId typeId = ZVARTYPEID_CLASS_START; typeId < ZVARTYPEID_CLASS_END; ++typeId)
+	{
+		ZVarTypeClass const& type = *(ZVarTypeClass const*)ZVarType::get(typeId);
+		ZClass& klass = *table.getClass(type.getClassId());
+		LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
+		library.addSymbolsToScope(klass);
+	}
+
+	// Add global pointers.
+    table.addGlobalPointer(addVariable("Link", ZVARTYPEID_LINK));
+    table.addGlobalPointer(addVariable("Screen", ZVARTYPEID_SCREEN));
+    table.addGlobalPointer(addVariable("Game", ZVARTYPEID_GAME));
+    table.addGlobalPointer(addVariable("Debug", ZVARTYPEID_DEBUG));
+    table.addGlobalPointer(addVariable("Audio", ZVARTYPEID_AUDIO));
+    table.addGlobalPointer(addVariable("Text", ZVARTYPEID_TEXT));
+    table.addGlobalPointer(addVariable("NPCData", ZVARTYPEID_NPCDATA));
+    table.addGlobalPointer(addVariable("ComboData", ZVARTYPEID_COMBOS));
+    table.addGlobalPointer(addVariable("SpriteData", ZVARTYPEID_SPRITEDATA));
+    table.addGlobalPointer(addVariable("Graphics", ZVARTYPEID_GRAPHICS));
+    table.addGlobalPointer(addVariable("Input", ZVARTYPEID_INPUT));
+    table.addGlobalPointer(addVariable("MapData", ZVARTYPEID_MAPDATA));
+    table.addGlobalPointer(addVariable("DMapData", ZVARTYPEID_DMAPDATA));
+    table.addGlobalPointer(addVariable("MessageData", ZVARTYPEID_ZMESSAGE));
+    table.addGlobalPointer(addVariable("ShopData", ZVARTYPEID_SHOPDATA));
+    table.addGlobalPointer(addVariable("Untyped", ZVARTYPEID_UNTYPED));
+    table.addGlobalPointer(addVariable("dropdata->", ZVARTYPEID_DROPSET));
+    table.addGlobalPointer(addVariable("ponddata->", ZVARTYPEID_PONDS));
+    table.addGlobalPointer(addVariable("warpring->", ZVARTYPEID_WARPRING));
+    table.addGlobalPointer(addVariable("doorset->", ZVARTYPEID_DOORSET));
+    table.addGlobalPointer(addVariable("misccolors->", ZVARTYPEID_ZUICOLOURS));
+    table.addGlobalPointer(addVariable("rgbdata->", ZVARTYPEID_RGBDATA));
+    table.addGlobalPointer(addVariable("palette->", ZVARTYPEID_PALETTE));
+    table.addGlobalPointer(addVariable("musictrack->", ZVARTYPEID_TUNES));
+    table.addGlobalPointer(addVariable("palcycle->", ZVARTYPEID_PALCYCLE));
+    table.addGlobalPointer(addVariable("gamedata->", ZVARTYPEID_GAMEDATA));
+    table.addGlobalPointer(addVariable("cheats->", ZVARTYPEID_CHEATS));
 }
 
 ////////////////////////////////////////////////////////////////

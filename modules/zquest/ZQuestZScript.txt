@@ -12,7 +12,8 @@ src/parser/GlobalSymbols.cpp
 src/parser/ParseError.cpp
 src/parser/Scope.cpp
 src/parser/ScriptParser.cpp
-src/parser/SymbolVisitors.cpp
+src/parser/SemanticAnalyzer.cpp
+##src/parser/SymbolVisitors.cpp
 src/parser/TypeChecker.cpp
 src/parser/Types.cpp
 src/parser/UtilVisitors.cpp
