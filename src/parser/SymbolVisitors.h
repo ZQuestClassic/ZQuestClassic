@@ -61,5 +61,13 @@ private:
     int thisvid;
 };
 
+struct BFSParam
+{
+	BFSParam(Scope& scope) : scope(scope), type(SCRIPTTYPE_VOID) {}
+	BFSParam(Scope& scope, ScriptType type) : scope(scope), type(type) {}
+    Scope& scope;
+    ScriptType type;
+};
+
 #endif
 

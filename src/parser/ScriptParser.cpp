@@ -13,6 +13,7 @@
 #include <cstdlib>
 
 #include "DataStructs.h"
+#include "Scope.h"
 #include "SymbolVisitors.h"
 #include "UtilVisitors.h"
 #include "AST.h"
