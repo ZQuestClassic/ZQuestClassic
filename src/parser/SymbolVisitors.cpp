@@ -212,7 +212,7 @@ void BuildFunctionSymbols::caseBlock(ASTBlock& host, void* param)
 {
     // Push in a new scope.
     BFSParam& p = *(BFSParam*)param;
-    Scope blockScope(&p.scope);
+    BasicScope blockScope(&p.scope);
     BFSParam newParam(blockScope, p.type);
 
     list<ASTStmt*> stmts = host.getStatements();
@@ -224,7 +224,7 @@ void BuildFunctionSymbols::caseStmtFor(ASTStmtFor &host, void *param)
 {
     // Push in new scope (in accordance with C++ scoping).
     BFSParam& p = *(BFSParam*)param;
-    Scope blockScope(&p.scope);
+    BasicScope blockScope(&p.scope);
     BFSParam newParam(blockScope, p.type);
     host.getPrecondition()->execute(*this, &newParam);
     host.getTerminationCondition()->execute(*this, &newParam);
@@ -239,7 +239,7 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
 {
     BFSParam& p = *(BFSParam*)param;
     // Push in the scope.
-    Scope blockScope(&p.scope);
+    BasicScope blockScope(&p.scope);
 	SymbolTable& table = p.scope.getTable();
     BFSParam newParam(blockScope, p.type);
     

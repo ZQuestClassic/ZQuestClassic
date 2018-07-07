@@ -296,7 +296,7 @@ SymbolData* ScriptParser::buildSymbolTable(ASTProgram* theAST)
 {
     SymbolData* rval = new SymbolData();
     SymbolTable* t = new SymbolTable();
-    Scope* globalScope = new Scope(*t);
+    Scope* globalScope = Scope::makeGlobalScope(*t);
     bool failure = false;
     
 	// Add the types to the global scope.
@@ -447,7 +447,7 @@ SymbolData* ScriptParser::buildSymbolTable(ASTProgram* theAST)
     {
         for (vector<ASTFuncDecl*>::iterator it = functions.begin(); it != functions.end(); it++)
         {
-            Scope functionScope(globalScope);
+            BasicScope functionScope(globalScope);
             BFSParam param(functionScope);
             BuildFunctionSymbols bfs;
             (*it)->execute(bfs, &param);
@@ -462,7 +462,7 @@ SymbolData* ScriptParser::buildSymbolTable(ASTProgram* theAST)
         {
 			ASTScript& scriptDecl = **it;
 			string const& scriptName = scriptDecl.getName();
-            Scope functionScope(globalScope->getChild(scriptName));
+            BasicScope functionScope(globalScope->getChild(scriptName));
             BFSParam param(functionScope, rval->scriptTypes[*it]);
             
 			list<ASTDecl*> decls = scriptDecl.getScriptBlock()->getDeclarations();

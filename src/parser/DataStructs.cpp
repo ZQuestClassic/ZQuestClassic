@@ -63,7 +63,7 @@ SymbolTable::SymbolTable() : nodeIds()
 {
 	for (ZVarTypeId id = 0; id < ZVARTYPEID_END; ++id)
 		assignTypeId(*ZVarType::get(id));
-	assignTypeId(ZVarTypeConstFloat());
+	assignTypeId(ZVarType::CONST_FLOAT);
 }
 
 SymbolTable::~SymbolTable()
