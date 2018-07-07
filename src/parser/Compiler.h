@@ -120,49 +120,6 @@ public:
 			return ZVARTYPEID_VOID;
 		}
 	}
-	static string printType(ZVarTypeId type)
-	{
-        switch (type)
-        {
-        case ZVARTYPEID_FLOAT: return "float";
-        case ZVARTYPEID_BOOL: return "bool";
-        case ZVARTYPEID_VOID: return "void";
-        case ZVARTYPEID_FFC: return "ffc";
-        case ZVARTYPEID_LINK: return "link";
-        case ZVARTYPEID_SCREEN: return "screen";
-        case ZVARTYPEID_ITEM: return "item";
-        case ZVARTYPEID_ITEMCLASS: return "itemdata";
-        case ZVARTYPEID_GAME: return "game";
-        case ZVARTYPEID_NPC: return "npc";
-        case ZVARTYPEID_LWPN: return "lweapon";
-        case ZVARTYPEID_EWPN: return "eweapon";
-        case ZVARTYPEID_NPCDATA: return "NPCData";
-        case ZVARTYPEID_DEBUG: return "Debug";
-        case ZVARTYPEID_AUDIO: return "Audio";
-        case ZVARTYPEID_COMBOS: return "ComboData";
-        case ZVARTYPEID_SPRITEDATA: return "SpriteData";
-        case ZVARTYPEID_GRAPHICS: return "Graphics";
-        case ZVARTYPEID_TEXT: return "Text->";
-        case ZVARTYPEID_INPUT: return "Input->";
-        case ZVARTYPEID_MAPDATA: return "MapData->";
-        case ZVARTYPEID_DMAPDATA: return "DMapData->";
-        case ZVARTYPEID_ZMESSAGE: return "MessageData->";
-        case ZVARTYPEID_SHOPDATA: return "ShopData->";
-        case ZVARTYPEID_UNTYPED: return "Untyped->";
-        case ZVARTYPEID_DROPSET: return "dropdata->";
-        case ZVARTYPEID_PONDS: return "ponddata->";
-        case ZVARTYPEID_WARPRING: return "warpring->";
-        case ZVARTYPEID_DOORSET: return "doorset->";
-        case ZVARTYPEID_ZUICOLOURS: return "misccolors->";
-        case ZVARTYPEID_RGBDATA: return "rgbdata->";
-        case ZVARTYPEID_PALETTE: return "palette->";
-        case ZVARTYPEID_TUNES: return "musictrack->";
-        case ZVARTYPEID_PALCYCLE: return "palcycle->";
-        case ZVARTYPEID_GAMEDATA: return "gamedata->";
-        case ZVARTYPEID_CHEATS: return "cheats->";
-        default: return "wtf";
-        }
-    }
 private:
     static string trimQuotes(string quoteds);
     static vector<Opcode *> assembleOne(vector<Opcode *> script, std::map<int, vector<Opcode *> > &otherfuncs, int numparams);

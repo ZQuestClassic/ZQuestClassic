@@ -12,6 +12,7 @@ class TypeCheck : public RecursiveVisitor
 public:
 	TypeCheck(SymbolTable& symbolTable);
 	TypeCheck(SymbolTable& symbolTable, ZVarTypeId returnTypeId);
+	TypeCheck(SymbolTable& symbolTable, ZVarType const& returnType);
 
     void caseDefault(void*) {}
 	// Statements
@@ -67,9 +68,9 @@ public:
 	static bool check(SymbolTable& symbolTable, AST& node);
 private:
 	SymbolTable& symbolTable;
-	ZVarTypeId returnTypeId;
+	ZVarType const& returnType;
     bool failure;
-    static bool standardCheck(ZVarTypeId targetType, ZVarTypeId sourceType, AST* toBlame);
+    bool standardCheck(ZVarTypeId targetType, ZVarTypeId sourceType, AST* toBlame);
 	bool checkExprTypes(ASTUnaryExpr& expr, ZVarTypeId type);
 	bool checkExprTypes(ASTBinaryExpr& expr, ZVarTypeId firstType, ZVarTypeId secondType);
 	ZVarTypeId getLValTypeId(AST& lval);

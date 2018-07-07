@@ -12,12 +12,17 @@
 // TypeCheck
     
 TypeCheck::TypeCheck(SymbolTable& symbolTable)
-	: symbolTable(symbolTable), returnTypeId(ZVARTYPEID_VOID), failure(false)
+	: symbolTable(symbolTable), returnType(ZVarType::VOID), failure(false)
 {}
 
 TypeCheck::TypeCheck(SymbolTable& symbolTable, ZVarTypeId returnTypeId)
-	: symbolTable(symbolTable), returnTypeId(returnTypeId), failure(false)
+	: symbolTable(symbolTable), returnType(*symbolTable.getType(returnTypeId)), failure(false)
 {}
+
+TypeCheck::TypeCheck(SymbolTable& symbolTable, ZVarType const& returnType)
+	: symbolTable(symbolTable), returnType(returnType), failure(false)
+{}
+
 
 // Statements
 
@@ -84,9 +89,9 @@ void TypeCheck::caseStmtWhile(ASTStmtWhile &host)
     
 void TypeCheck::caseStmtReturn(ASTStmtReturn &host)
 {
-    if (returnTypeId != ZVARTYPEID_VOID)
+    if (returnType != ZVarType::VOID)
     {
-        printErrorMsg(&host, FUNCBADRETURN, ScriptParser::printType(returnTypeId));
+        printErrorMsg(&host, FUNCBADRETURN, returnType.getName());
         failure = true;
     }
 }
@@ -96,7 +101,7 @@ void TypeCheck::caseStmtReturnVal(ASTStmtReturnVal &host)
     host.getReturnValue()->execute(*this);
     if (failure) return;
 
-    if (!standardCheck(returnTypeId, host.getReturnValue()->getType(), &host))
+    if (!standardCheck(symbolTable.getTypeId(returnType), host.getReturnValue()->getType(), &host))
         failure = true;
 }
 
@@ -456,7 +461,7 @@ void TypeCheck::caseFuncCall(ASTFuncCall &host)
         else
             paramstring += ", ";
 
-        paramstring += ScriptParser::printType(*it);
+        paramstring += symbolTable.getType(*it)->getName();
     }
     paramstring += ")";
 
@@ -1181,15 +1186,15 @@ void TypeCheck::caseExprRShift(ASTExprRShift &host)
         
 // Other
 
-bool TypeCheck::standardCheck(ZVarTypeId targetType, ZVarTypeId sourceType, AST* toBlame)
+bool TypeCheck::standardCheck(ZVarTypeId targetTypeId, ZVarTypeId sourceTypeId, AST* toBlame)
 {
-	if (targetType == sourceType && targetType != ZVARTYPEID_VOID) return true;
-	if (targetType == ZVARTYPEID_BOOL && sourceType == ZVARTYPEID_FLOAT) return true;
-	if (sourceType == ZVARTYPEID_UNTYPED || targetType == ZVARTYPEID_UNTYPED) return true;
+	ZVarType const& sourceType = *symbolTable.getType(sourceTypeId);
+	ZVarType const& targetType = *symbolTable.getType(targetTypeId);
+	if (sourceType.canCastTo(targetType)) return true;
 
 	if (toBlame)
 	{
-		string msg = ScriptParser::printType(sourceType) + " to " + ScriptParser::printType(targetType);
+		string msg = sourceType.getName() + " to " + targetType.getName();
 		printErrorMsg(toBlame, ILLEGALCAST, msg);
 	}
 	return false;
@@ -1264,7 +1269,7 @@ void GetLValType::caseExprArrow(ASTExprArrow &host)
         host.getIndex()->execute(typeCheck);
         if (!typeCheck.isOK()) return;
 
-        if (!TypeCheck::standardCheck(ZVARTYPEID_FLOAT, host.getIndex()->getType(), host.getIndex()))
+        if (!typeCheck.standardCheck(ZVARTYPEID_FLOAT, host.getIndex()->getType(), host.getIndex()))
         {
             typeCheck.fail();
             return;
@@ -1498,7 +1503,7 @@ void GetLValType::caseExprArray(ASTExprArray &host)
 
         if (!typeCheck.isOK()) return;
 
-        if (!TypeCheck::standardCheck(ZVARTYPEID_FLOAT, host.getIndex()->getType(), host.getIndex()))
+        if (!typeCheck.standardCheck(ZVARTYPEID_FLOAT, host.getIndex()->getType(), host.getIndex()))
         {
             typeCheck.fail();
             return;

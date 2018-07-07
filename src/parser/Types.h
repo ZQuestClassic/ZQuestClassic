@@ -17,6 +17,14 @@ enum ScriptType {SCRIPTTYPE_VOID, SCRIPTTYPE_GLOBAL, SCRIPTTYPE_FFC, SCRIPTTYPE_
 
 typedef int ZVarTypeId;
 
+// I can't figure out a better way to do this in C++98.
+enum ZVarTypeClassId
+{
+	ZVARTYPE_CLASSID_BASE,
+	ZVARTYPE_CLASSID_SIMPLE,
+	ZVARTYPE_CLASSID_UNRESOLVED
+};
+
 enum ZVarTypeIdSimple
 {
     ZVARTYPEID_VOID,
@@ -68,9 +76,12 @@ public:
 	virtual ZVarType* resolve(Scope& scope) {return this;}
 	virtual bool isResolved() const {return true;}
 	virtual bool canBeGlobal() const {return false;}
+	virtual bool canCastTo(ZVarType const& target) const = 0;
+	virtual int classId() const {return ZVARTYPE_CLASSID_BASE;};
 
 	int compare(ZVarType const& other) const;
 	bool operator==(ZVarType const& other) const {return compare(other) == 0;}
+	bool operator!=(ZVarType const& other) const {return compare(other) != 0;}
 	bool operator<(ZVarType const& other) const {return compare(other) < 0;}
 
 	struct PointerLess : public std::less<ZVarType*> {
@@ -82,7 +93,6 @@ public:
 		}
 	};
 protected:
-	virtual int classCompareId() const {return 0;};
 	virtual int selfCompare(ZVarType const& other) const = 0;
 
 // Standard Types.
@@ -133,9 +143,10 @@ public:
 	ZVarTypeSimple* clone() const {return new ZVarTypeSimple(*this);}
 	string getName() const {return name;}
 	bool canBeGlobal() const;
+	bool canCastTo(ZVarType const& target) const;
 	ZVarTypeIdSimple getId() const {return simpleId;}
+	int classId() const {return ZVARTYPE_CLASSID_SIMPLE;}
 protected:
-	int classCompareId() const {return 1;}
 	int selfCompare(ZVarType const& other) const;
 private:
 	ZVarTypeIdSimple simpleId;
@@ -150,8 +161,9 @@ public:
 	string getName() const {return name;}
 	ZVarType* resolve(Scope& scope);
 	bool isResolved() const {return false;}
+	bool canCastTo(ZVarType const& target) const {return false;}
+	int classId() const {return ZVARTYPE_CLASSID_UNRESOLVED;}
 protected:
-	int classCompareId() const {return 2;}
 	int selfCompare(ZVarType const& other) const;
 private:
 	string name;
