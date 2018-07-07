@@ -83,6 +83,7 @@ extern YYLTYPE noloc;
 %token PALCYCLE
 %token GAMEDATA
 %token CHEATS
+%token TYPEDEF
 
 %token ASSIGN
 %token COLON
@@ -148,6 +149,7 @@ GlobalStmt : Script {$$ = $1;}
 									$$ = new ASTVarDeclInitializer(vd->getType()->clone(), vd->getName(), (ASTExpr *)$3,@1);
 									delete vd;}
 	| ArrayDecl SEMICOLON {$$ = $1;}
+	| TypeDef SEMICOLON {$$ = $1;}
 	;
 
 //DefineDecl : PREPROCESS DEFINE IDENTIFIER WS NUMBER WS {ASTString *name = (ASTString *)$3;
@@ -284,6 +286,7 @@ ScriptStmt : VarDecl SEMICOLON {$$ = $1;}
 						   $$ = new ASTVarDeclInitializer(vd->getType()->clone(), vd->getName(), (ASTExpr *)$3,@1);
 						   delete vd;}
 	| FuncDecl {$$ = $1;}
+	| TypeDef SEMICOLON {$$ = $1;}
 	;
 
 VarDecl : Type IDENTIFIER {
@@ -322,6 +325,10 @@ Type : ZVOID {$$ = new ASTVarType(ZVarTypeSimple::VOID, @1);}
 	| PALCYCLE	{$$ = new ASTVarType(ZVarTypeSimple::PALCYCLE, @1);}
 	| GAMEDATA	{$$ = new ASTVarType(ZVarTypeSimple::GAMEDATA, @1);}
 	| CHEATS	{$$ = new ASTVarType(ZVarTypeSimple::CHEATS, @1);}
+	| IDENTIFIER {
+		ASTString *name = (ASTString*)$1;
+		$$ = new ASTVarType(ZVarTypeUnresolved(name->getValue()), @1);
+		delete name;}
 	;
 
 FuncDecl :
@@ -386,6 +393,7 @@ Stmt : VarDecl SEMICOLON {$$ = $1;}
 	| Expr SEMICOLON {$$=$1;}
 	| BREAK SEMICOLON {$$ = new ASTStmtBreak(@1);}
 	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(@1);}
+	| TypeDef SEMICOLON {$$ = $1;}
 	;
 
 StmtNoSemi : VarDecl {$$ = $1;}
@@ -403,6 +411,14 @@ StmtNoSemi : VarDecl {$$ = $1;}
 	| Expr {$$=$1;}
 	| BREAK {$$ = new ASTStmtBreak(@1);}
 	| CONTINUE {$$ = new ASTStmtContinue(@1);}
+	| TypeDef {$$ = $1;}
+	;
+
+TypeDef : TYPEDEF Type IDENTIFIER {
+	ASTVarType* type = (ASTVarType*)$2;
+	ASTString* name = (ASTString*)$3;
+	$$ = new ASTTypeDef(type, name->getValue(), @1);
+	delete name;}
 	;
 
 ShortcutAssignStmt : DotExpr PLUSASSIGN Expr {SHORTCUT(ASTExprPlus,$1,$3,$$,@1,@2) }

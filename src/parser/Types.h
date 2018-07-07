@@ -3,6 +3,8 @@
 
 #include <string>
 
+class Scope;
+
 using std::string;
 
 ////////////////////////////////////////////////////////////////
@@ -63,6 +65,8 @@ class ZVarType
 public:
 	virtual ZVarType* clone() const = 0;
 	virtual string getName() const = 0;
+	virtual ZVarType* resolve(Scope& scope) {return this;}
+	virtual bool isResolved() const {return true;}
 	int compare(ZVarType const& other) const;
 	bool operator==(ZVarType const& other) const {return compare(other) == 0;}
 	bool operator<(ZVarType const& other) const {return compare(other) < 0;}
@@ -132,6 +136,21 @@ protected:
 	int selfCompare(ZVarType const& other) const;
 private:
 	ZVarTypeIdSimple simpleId;
+	string name;
+};
+
+class ZVarTypeUnresolved : public ZVarType
+{
+public:
+	ZVarTypeUnresolved(string const& name) : name(name) {}
+	ZVarTypeUnresolved* clone() const {return new ZVarTypeUnresolved(*this);}
+	string getName() const {return name;}
+	ZVarType* resolve(Scope& scope);
+	bool isResolved() const {return false;}
+protected:
+	int classCompareId() const {return 2;}
+	int selfCompare(ZVarType const& other) const;
+private:
 	string name;
 };
 

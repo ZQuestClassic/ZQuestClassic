@@ -61,6 +61,7 @@ class ASTArrayDecl;
 class ASTArrayList;
 class ASTVarDecl;
 class ASTVarDeclInitializer;
+class ASTTypeDef;
 // Expressions
 class ASTExpr; // virtual
 class ASTExprConst;
@@ -168,6 +169,8 @@ public:
     virtual void caseVarDecl(ASTVarDecl& node) {caseVarDecl(node, NULL);}
     virtual void caseVarDeclInitializer(ASTVarDeclInitializer&, void* param) {caseDefault(param);}
     virtual void caseVarDeclInitializer(ASTVarDeclInitializer& node) {caseVarDeclInitializer(node, NULL);}
+    virtual void caseTypeDef(ASTTypeDef&, void* param) {caseDefault(param);}
+    virtual void caseTypeDef(ASTTypeDef& node) {caseTypeDef(node, NULL);}
 	// Expressions
     virtual void caseExprConst(ASTExprConst&, void* param) {caseDefault(param);}
     virtual void caseExprConst(ASTExprConst& node) {caseExprConst(node, NULL);}
@@ -780,6 +783,23 @@ private:
     ASTVarDeclInitializer &operator=(ASTVarDeclInitializer &);
 };
 
+class ASTTypeDef : public ASTDecl
+{
+public:
+	ASTTypeDef(ASTVarType *type, string const& name, LocationData location) : ASTDecl(location), type(type), name(name) {}
+	~ASTTypeDef();
+	ASTTypeDef* clone() const;
+
+	ASTVarType* getType() const {return type;}
+	string getName() const {return name;}
+
+    void execute(ASTVisitor &visitor, void *param) {visitor.caseTypeDef(*this, param);}
+    void execute(ASTVisitor &visitor) {visitor.caseTypeDef(*this);}
+private:
+	ASTVarType* type;
+	string name;
+};
+
 ////////////////////////////////////////////////////////////////
 // Expressions
 
@@ -1346,7 +1366,7 @@ public:
 	}
     void execute(ASTVisitor &visitor, void* param) {visitor.caseVarType(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseVarType(*this);}
-	ZVarType const& getType() const {return *type;}
+	ZVarType const& resolve(Scope& scope);
 private:
 	ZVarType* type;
 };

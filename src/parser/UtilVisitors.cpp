@@ -281,6 +281,16 @@ void RecursiveVisitor::caseVarDeclInitializer(ASTVarDeclInitializer &host)
 	host.getInitializer()->execute(*this);
 }
 
+void RecursiveVisitor::caseTypeDef(ASTTypeDef& host, void* param)
+{
+	host.getType()->execute(*this, param);
+}
+
+void RecursiveVisitor::caseTypeDef(ASTTypeDef& host)
+{
+	host.getType()->execute(*this);
+}
+
 // Expressions
 
 void RecursiveVisitor::caseExprConst(ASTExprConst &host, void *param)
@@ -806,6 +816,43 @@ void GetGlobalFuncs::caseFuncDecl(ASTFuncDecl &, void *param)
 {
     if(param != NULL)
         *(bool *)param = true;
+}
+
+////////////////////////////////////////////////////////////////
+// GetGlobalTypes
+
+void GetGlobalTypes::caseDefault(void *param)
+{
+	if (param != NULL) *(bool*)param = false;
+}
+
+void GetGlobalTypes::caseProgram(ASTProgram &host, void*)
+{
+    host.getDeclarations()->execute(*this, NULL);
+}
+
+void GetGlobalTypes::caseDeclList(ASTDeclList &host, void*)
+{
+    list<ASTDecl*> &l = host.getDeclarations();
+
+    for (list<ASTDecl*>::iterator it = l.begin(); it != l.end();)
+    {
+        bool istypedef;
+        (*it)->execute(*this, &istypedef);
+
+        if (istypedef)
+        {
+            result.push_back((ASTTypeDef*)*it);
+            it = l.erase(it);
+        }
+        else
+            it++;
+    }
+}
+
+void GetGlobalTypes::caseTypeDef(ASTTypeDef &, void *param)
+{
+    if (param != NULL) *(bool*)param = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

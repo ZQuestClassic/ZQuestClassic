@@ -92,6 +92,17 @@ public:
 	Scope* makeChild(string const& name);
 	Scope* getChild(string const& name) const;
 	Scope& getOrMakeChild(string const& name);
+	// Types
+	int getTypeId(string const& nspace, string const& name) const;
+	int getTypeId(vector<string> const& names) const;
+	int getTypeId(string const& name) const;
+	ZVarType* getType(string const& nspace, string const& name) const;
+	ZVarType* getType(vector<string> const& names) const;
+	ZVarType* getType(string const& name) const;
+	int addType(string const& name, ZVarTypeId typeId, AST* node);
+	int addType(string const& name, ZVarType const& type, AST* node);
+	int addType(string const& name, ZVarTypeId typeId);
+	int addType(string const& name, ZVarType const& type);
 	// Variables
 	int getVarId(string const& nspace, string const& name) const;
 	int getVarId(vector<string> const& names) const;
@@ -115,10 +126,13 @@ private:
 	SymbolTable& table;
     Scope* parent;
     map<string, Scope*> children;
+	map<string, int> types;
 	map<string, int> variables;
 	map<string, vector<int> > functionsByName;
 	map<FunctionSignature, int> functionsBySignature;
 
+	int getTypeIdNoParent(vector<string> const& names) const;
+	int getTypeIdNoParent(string const& name) const;
 	int getVarIdNoParent(vector<string> const& names) const;
 	int getVarIdNoParent(string const& name) const;
 	void getFuncIds(vector<int>& ids, vector<string> const& names) const;

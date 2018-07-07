@@ -557,12 +557,17 @@ ASTVarDeclInitializer* ASTVarDeclInitializer::clone() const
 	return new ASTVarDeclInitializer(getType()->clone(), getName(), initial->clone(), getLocation());
 }
 
-////////////////////////////////////////////////////////////////
-// Generated Declarations
+// ASTTypeDef
 
-// ASTGenDecl
+ASTTypeDef::~ASTTypeDef()
+{
+	delete type;
+}
 
-// ASTGenStringDecl
+ASTTypeDef* ASTTypeDef::clone() const
+{
+	return new ASTTypeDef(type->clone(), name, getLocation());
+}
 
 ////////////////////////////////////////////////////////////////
 // Expressions
@@ -1047,3 +1052,14 @@ ASTExprRShift* ASTExprRShift::clone() const
 // ASTScriptType
 
 // ASTVarType
+
+ZVarType const& ASTVarType::resolve(Scope& scope)
+{
+	ZVarType* resolved = type->resolve(scope);
+	if (type != resolved)
+	{
+		delete type;
+		type = resolved;
+	}
+	return *type;
+}

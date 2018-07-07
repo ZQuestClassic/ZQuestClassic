@@ -34,7 +34,7 @@ void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     
     for (list<ASTVarDecl*>::iterator it = vds.begin(); it != vds.end(); it++)
     {
-		ZVarType const& type = (*it)->getType()->getType();
+		ZVarType const& type = (*it)->getType()->resolve(scope);
         paramTypeIds.push_back(symbolTable.getOrAssignTypeId(type));
         
         if (type == ZVarType::VOID)
@@ -44,7 +44,7 @@ void BuildScriptSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
         }
     }
     
-	ZVarType const& returnType = host.getReturnType()->getType();
+	ZVarType const& returnType = host.getReturnType()->resolve(scope);
 	ZVarTypeId returnTypeId = symbolTable.getOrAssignTypeId(returnType);
     int id = scope.addFunc(name, returnTypeId, paramTypeIds, &host);
     
@@ -62,7 +62,7 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
 	SymbolTable& symbolTable = scope.getTable();
     string name = host.getName();
     
-    ZVarType const& type = host.getType()->getType();
+    ZVarType const& type = host.getType()->resolve(scope);
 
     if (type == ZVarType::VOID)
     {
@@ -110,7 +110,7 @@ void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
 	SymbolTable& symbolTable = scope.getTable();
     string name = host.getName();
     
-	ZVarType const& type = host.getType()->getType();
+	ZVarType const& type = host.getType()->resolve(scope);
 	ZVarTypeId typeId = symbolTable.getOrAssignTypeId(type);
 
     if (type == ZVarType::VOID)
@@ -148,6 +148,16 @@ void BuildScriptSymbols::caseVarDeclInitializer(ASTVarDeclInitializer &host, voi
 {
     host.getInitializer()->execute(*this, param);
     caseVarDecl(host, param);
+}
+
+void BuildScriptSymbols::caseTypeDef(ASTTypeDef& host, void* param)
+{
+	Scope& scope = *(Scope*)param;
+	SymbolTable& table = scope.getTable();
+
+	ZVarType const& type = host.getType()->resolve(scope);
+	ZVarTypeId typeId = table.getOrAssignTypeId(type);
+	scope.addType(host.getName(), typeId, &host);
 }
 
 // Expressions
@@ -237,7 +247,7 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     BFSParam newParam(blockScope, p.type);
     
     // If it's a run method, add "this".
-	ZVarType const& returnType = host.getReturnType()->getType();
+	ZVarType const& returnType = host.getReturnType()->resolve(p.scope);
 
     if (host.getName() == "run" && returnType == ZVarType::VOID)
     {
@@ -253,7 +263,7 @@ void BuildFunctionSymbols::caseFuncDecl(ASTFuncDecl &host, void *param)
     for (list<ASTVarDecl*>::iterator it = vars.begin(); it != vars.end(); it++)
     {
         string name = (*it)->getName();
-		ZVarType const& type = (*it)->getType()->getType();
+		ZVarType const& type = (*it)->getType()->resolve(blockScope);
 		ZVarTypeId typeId = table.getOrAssignTypeId(type);
         int id = blockScope.addVar(name, typeId);
         
@@ -280,7 +290,7 @@ void BuildFunctionSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
 	Scope& scope = p.scope;
 	SymbolTable& table = scope.getTable();
     string name = host.getName();
-	ZVarType const& type = host.getType()->getType();
+	ZVarType const& type = host.getType()->resolve(scope);
 	ZVarTypeId typeId = table.getOrAssignTypeId(type);
     int id = scope.addVar(name, typeId);
     
@@ -311,7 +321,7 @@ void BuildFunctionSymbols::caseVarDecl(ASTVarDecl &host, void *param)
 	Scope& scope = p.scope;
 	SymbolTable& table = scope.getTable();
     string name = host.getName();
-	ZVarType const& type = host.getType()->getType();
+	ZVarType const& type = host.getType()->resolve(scope);
 	ZVarTypeId typeId = table.getOrAssignTypeId(type);
     int id = scope.addVar(name, typeId);
     
@@ -330,6 +340,17 @@ void BuildFunctionSymbols::caseVarDeclInitializer(ASTVarDeclInitializer &host, v
 {
 	host.getInitializer()->execute(*this,param);
 	caseVarDecl(host, param);
+}
+
+void BuildFunctionSymbols::caseTypeDef(ASTTypeDef& host, void* param)
+{
+    BFSParam& p = *(BFSParam*)param;
+	Scope& scope = p.scope;
+	SymbolTable& table = scope.getTable();
+
+	ZVarType const& type = host.getType()->resolve(scope);
+	ZVarTypeId typeId = table.getOrAssignTypeId(type);
+	scope.addType(host.getName(), typeId, &host);
 }
 
 // Expressions
