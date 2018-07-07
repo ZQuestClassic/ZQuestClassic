@@ -342,3 +342,4 @@ int StackFrame::getOffset(int vid)
     return stackoffset[vid];
 }
 
+

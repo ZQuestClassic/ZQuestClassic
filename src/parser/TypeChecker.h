@@ -71,7 +71,10 @@ private:
 	SymbolTable& symbolTable;
 	ZVarType const& returnType;
     bool failure;
-    bool standardCheck(ZVarTypeId targetType, ZVarTypeId sourceType, AST* toBlame);
+    bool standardCheck(ZVarTypeId targetTypeId, ZVarTypeId sourceTypeId, AST* toBlame);
+    bool standardCheck(ZVarType const& targetType, ZVarTypeId sourceTypeId, AST* toBlame);
+    bool standardCheck(ZVarTypeId targetTypeId, ZVarType const& sourceType, AST* toBlame);
+    bool standardCheck(ZVarType const& targetType, ZVarType const& sourceType, AST* toBlame);
 	bool checkExprTypes(ASTUnaryExpr& expr, ZVarTypeId type);
 	bool checkExprTypes(ASTBinaryExpr& expr, ZVarTypeId firstType, ZVarTypeId secondType);
 	ZVarTypeId getLValTypeId(AST& lval);
