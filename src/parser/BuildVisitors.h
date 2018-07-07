@@ -98,8 +98,11 @@ public:
 	}
 
     virtual void caseDefault(void *) { }
-    virtual void caseArrayDecl(ASTArrayDecl &host, void *param)
+    virtual void caseArrayDecl(ASTArrayDecl& host, void* param)
     {
+		ASTArrayList* list = host.getList();
+		if (list) list->execute(*this, param);
+		
         int vid = st->getNodeId(&host);
 		sf->addToFrame(vid, curoffset);
 		curoffset += 10000;
@@ -108,7 +111,6 @@ public:
     }
     virtual void caseVarDecl(ASTVarDecl &host, void *)
     {        
-
 		int vid = st->getNodeId(&host);
 		sf->addToFrame(vid, curoffset);
 		curoffset += 10000;
