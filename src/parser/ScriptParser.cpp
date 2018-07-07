@@ -54,9 +54,7 @@ ScriptsData* compile(const char *filename)
     box_eol();
 #endif
     
-    map<string, long> consts;
-
-    if (!ScriptParser::preprocess(theAST, RECURSIONLIMIT, &consts))
+    if (!ScriptParser::preprocess(theAST, RECURSIONLIMIT))
     {
         delete theAST;
         return NULL;
@@ -67,7 +65,7 @@ ScriptsData* compile(const char *filename)
     box_eol();
 #endif
     
-    SymbolData *d = ScriptParser::buildSymbolTable(theAST, &consts);
+    SymbolData *d = ScriptParser::buildSymbolTable(theAST);
 
     if (d == NULL)
     {
@@ -251,7 +249,7 @@ string ScriptParser::prepareFilename(string const& filename)
     return retval;
 }
         
-bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit, map<string,long> *constants)
+bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
 {
     if (reclimit == 0)
             {
@@ -272,7 +270,7 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit, map<string,long>
             }
             
         ASTProgram* recAST = resAST;
-        if (!preprocess(recAST, reclimit - 1, constants))
+        if (!preprocess(recAST, reclimit - 1))
         {
             delete recAST;
             return false;
@@ -290,42 +288,13 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit, map<string,long>
     theAST->execute(c, NULL);
     if (!c.isOK()) return false;
     
-    // Get the constants
-    vector<ASTConstDecl*>& consts = theAST->constants;
-    bool failure = false;
-    for (vector<ASTConstDecl*>::iterator it = consts.begin(); it != consts.end(); it++)
-    {
-        map<string, long>::iterator find = constants->find((*it)->getName());
-        
-        if (find != constants->end())
-        {
-            printErrorMsg(*it, CONSTREDEF, (*it)->getName());
-            failure = true;
-        }
-        else
-        {
-            pair<string, string> parts = (*it)->getValue()->parseValue();
-            pair<long, bool> val = ScriptParser::parseLong(parts);
-            
-            if (!val.second)
-            {
-                printErrorMsg(*it, CONSTTRUNC, (*it)->getValue()->getValue());
-            }
-            
-            (*constants)[(*it)->getName()] = val.first;
-        }
-        
-        delete *it;
-    }
-	consts.clear();
-    
-    return !failure;
+    return true;
 }
 
-SymbolData* ScriptParser::buildSymbolTable(ASTProgram* theAST, map<string, long>* constants)
+SymbolData* ScriptParser::buildSymbolTable(ASTProgram* theAST)
 {
     SymbolData* rval = new SymbolData();
-    SymbolTable* t = new SymbolTable(constants);
+    SymbolTable* t = new SymbolTable();
     Scope* globalScope = new Scope(*t);
     bool failure = false;
     
@@ -653,7 +622,38 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
     for(vector<ASTFuncDecl *>::iterator it = fd->functions.begin(); it != fd->functions.end(); it++)
 		failure = failure || !TypeCheck::check(*fd->symbols, fd->symbols->getFuncReturnTypeId(*it), **it);
     
-    if (fd->globalVars.size() + fd->newGlobalVars.size() > 256)
+	// Strip out inlined constants.
+	for (vector<ASTVarDecl*>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end();)
+	{
+		if (fd->symbols->isInlinedConstant(*it))
+		{
+			//delete *it;
+			it = fd->globalVars.erase(it);
+		}
+		else
+			++it;
+	}
+	for (vector<ASTVarDecl*>::iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end();)
+	{
+		if (fd->symbols->isInlinedConstant(*it))
+		{
+			//delete *it;
+			it = fd->newGlobalVars.erase(it);
+		}
+		else
+			++it;
+	}
+	
+	// Count (un-inlined) global variables.
+	fd->globalVarCount = 0;
+	for (vector<ASTVarDecl*>::const_iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); ++it)
+		if (!fd->symbols->isInlinedConstant(*it))
+			++fd->globalVarCount;
+	for (vector<ASTVarDecl*>::const_iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end(); ++it)
+		if (!fd->symbols->isInlinedConstant(*it))
+			++fd->globalVarCount;
+
+    if (fd->globalVarCount > 256)
     {
         printErrorMsg(NULL, TOOMANYGLOBAL);
         failure = true;
@@ -714,7 +714,7 @@ IntermediateData *ScriptParser::generateOCode(FunctionData *fdata)
     delete fdata;
     LinkTable lt;
     
-    for(vector<ASTVarDecl *>::iterator it = globals.begin(); it != globals.end(); it++)
+    for(vector<ASTVarDecl*>::iterator it = globals.begin(); it != globals.end(); it++)
     {
         int vid2 = symbols->getNodeId(*it);
         lt.addGlobalVar(vid2);

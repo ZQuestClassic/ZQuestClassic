@@ -11,8 +11,6 @@ ASTProgram::ASTProgram(ASTProgram const& base) : AST(base.getLocation())
 {
 	for (vector<ASTImportDecl*>::const_iterator it = base.imports.begin(); it != base.imports.end(); ++it)
 		imports.push_back((*it)->clone());
-	for (vector<ASTConstDecl*>::const_iterator it = base.constants.begin(); it != base.constants.end(); ++it)
-		constants.push_back((*it)->clone());
 	for (vector<ASTVarDecl*>::const_iterator it = base.variables.begin(); it != base.variables.end(); ++it)
 		variables.push_back((*it)->clone());
 	for (vector<ASTArrayDecl*>::const_iterator it = base.arrays.begin(); it != base.arrays.end(); ++it)
@@ -28,8 +26,6 @@ ASTProgram::ASTProgram(ASTProgram const& base) : AST(base.getLocation())
 ASTProgram::~ASTProgram()
 {
 	for (vector<ASTImportDecl*>::const_iterator it = imports.begin(); it != imports.end(); ++it)
-		delete *it;
-	for (vector<ASTConstDecl*>::const_iterator it = constants.begin(); it != constants.end(); ++it)
 		delete *it;
 	for (vector<ASTVarDecl*>::const_iterator it = variables.begin(); it != variables.end(); ++it)
 		delete *it;
@@ -53,9 +49,6 @@ void ASTProgram::addDeclaration(ASTDecl* declaration)
 	case ASTDECL_CLASSID_IMPORT:
 		imports.push_back((ASTImportDecl*)declaration);
 		break;
-	case ASTDECL_CLASSID_CONSTANT:
-		constants.push_back((ASTConstDecl*)declaration);
-		break;
 	case ASTDECL_CLASSID_FUNCTION:
 		functions.push_back((ASTFuncDecl*)declaration);
 		break;
@@ -76,9 +69,6 @@ ASTProgram& ASTProgram::merge(ASTProgram& other)
 	for (vector<ASTImportDecl*>::const_iterator it = other.imports.begin(); it != other.imports.end(); ++it)
 		imports.push_back(*it);
 	other.imports.clear();
-	for (vector<ASTConstDecl*>::const_iterator it = other.constants.begin(); it != other.constants.end(); ++it)
-		constants.push_back(*it);
-	other.constants.clear();
 	for (vector<ASTVarDecl*>::const_iterator it = other.variables.begin(); it != other.variables.end(); ++it)
 		variables.push_back(*it);
 	other.variables.clear();
@@ -515,13 +505,6 @@ void ASTDeclList::addDeclaration(ASTDecl *newdecl)
 ASTImportDecl* ASTImportDecl::clone() const
 {
 	return new ASTImportDecl(filename, getLocation());
-}
-
-// ASTConstDecl
-
-ASTConstDecl* ASTConstDecl::clone() const
-{
-	return new ASTConstDecl(name, val->clone(), getLocation());
 }
 
 // ASTFuncDecl

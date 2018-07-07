@@ -39,6 +39,7 @@ ZVarTypeSimple const ZVarType::TUNES(ZVARTYPEID_TUNES, "tunes");
 ZVarTypeSimple const ZVarType::PALCYCLE(ZVARTYPEID_PALCYCLE, "palcycle");
 ZVarTypeSimple const ZVarType::GAMEDATA(ZVARTYPEID_GAMEDATA, "gamedata");
 ZVarTypeSimple const ZVarType::CHEATS(ZVARTYPEID_CHEATS, "cheats");
+ZVarTypeConstFloat const ZVarType::CONST_FLOAT;
 
 ////////////////////////////////////////////////////////////////
 // ZVarType
@@ -110,6 +111,7 @@ bool ZVarTypeSimple::canBeGlobal() const
 
 bool ZVarTypeSimple::canCastTo(ZVarType const& target) const
 {
+	if (simpleId == ZVARTYPEID_FLOAT && target.classId() == ZVARTYPE_CLASSID_CONST_FLOAT) return true;
 	if (target.classId() != ZVARTYPE_CLASSID_SIMPLE) return false;
 	ZVarTypeSimple const& t = (ZVarTypeSimple const&)target;
 	if (simpleId == ZVARTYPEID_UNTYPED || t.simpleId == ZVARTYPEID_UNTYPED) return true;
@@ -133,4 +135,13 @@ int ZVarTypeUnresolved::selfCompare(ZVarType const& other) const
 {
 	ZVarTypeUnresolved const& o = (ZVarTypeUnresolved const&)other;
 	return name.compare(o.name);
+}
+
+////////////////////////////////////////////////////////////////
+// ZVarTypeConstFloat
+
+bool ZVarTypeConstFloat::canCastTo(ZVarType const& target) const
+{
+	if (*this == target) return true;
+	return ZVarType::FLOAT.canCastTo(target);
 }

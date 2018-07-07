@@ -26,6 +26,7 @@ public:
     void caseStmtReturnVal(ASTStmtReturnVal &host);
 	// Declarations
     void caseArrayDecl(ASTArrayDecl &host);
+    void caseVarDecl(ASTVarDecl &host);
     void caseVarDeclInitializer(ASTVarDeclInitializer &host);
 	// Expressions
 	void caseExprConst(ASTExprConst &host);

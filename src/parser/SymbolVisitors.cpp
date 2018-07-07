@@ -414,7 +414,7 @@ void BuildFunctionSymbols::caseExprDot(ASTExprDot &host, void *param)
     string name = host.getName();
     string nspace = host.getNamespace();
     int id = scope.getVarId(nspace, name);
-    if (id == -1 && !(nspace == "" && table.isConstant(name)))
+    if (id == -1)
     {
         string fullname;
         
@@ -453,7 +453,7 @@ void BuildFunctionSymbols::caseExprArray(ASTExprArray &host, void *param)
     string nspace = host.getNamespace();
     int id = scope.getVarId(nspace, name);
     
-    if (id == -1 && !(nspace == "" && table.isConstant(name)))
+    if (id == -1)
     {
         string fullname;
         
@@ -469,7 +469,6 @@ void BuildFunctionSymbols::caseExprArray(ASTExprArray &host, void *param)
     
     table.putNodeId(&host, id);
     
-    if (host.getIndex())
-        host.getIndex()->execute(*this, param);
+    if (host.getIndex()) host.getIndex()->execute(*this, param);
 }
 

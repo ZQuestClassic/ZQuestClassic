@@ -59,12 +59,11 @@ FunctionTypeIds const FunctionTypeIds::null;
 ////////////////////////////////////////////////////////////////
 // SymbolTable
 
-SymbolTable::SymbolTable(map<string, long> *consts)
-	: nodeIds(), possibleNodeFuncIds(), types(), typeIds(),
-	  varTypes(), funcTypes(), constants(consts)
+SymbolTable::SymbolTable() : nodeIds()
 {
 	for (ZVarTypeId id = 0; id < ZVARTYPEID_END; ++id)
 		assignTypeId(*ZVarType::get(id));
+	assignTypeId(ZVarTypeConstFloat());
 }
 
 SymbolTable::~SymbolTable()
@@ -100,10 +99,16 @@ void SymbolTable::putPossibleNodeFuncIds(AST* node, vector<int> possibleFuncIds)
 }
 
 // Types
+
 ZVarType* SymbolTable::getType(ZVarTypeId typeId) const
 {
 	if (typeId < 0 || typeId > types.size()) return NULL;
 	return types[typeId];
+}
+
+ZVarType* SymbolTable::getType(AST* node) const
+{
+    return getType(getNodeId(node));
 }
 
 ZVarTypeId SymbolTable::getTypeId(ZVarType const& type) const
@@ -177,6 +182,20 @@ ZVarTypeId SymbolTable::getVarTypeId(AST* obj) const
     return getVarTypeId(it->second);
 }
 
+ZVarType* SymbolTable::getVarType(int varId) const
+{
+	ZVarTypeId id = getVarTypeId(varId);
+	if (id == -1) return NULL;
+	return getType(id);
+}
+
+ZVarType* SymbolTable::getVarType(AST* node) const
+{
+	ZVarTypeId id = getVarTypeId(node);
+	if (id == -1) return NULL;
+	return getType(id);
+}
+
 void SymbolTable::putVarTypeId(int varId, ZVarTypeId typeId)
 {
 	varTypes[varId] = typeId;
@@ -185,6 +204,66 @@ void SymbolTable::putVarTypeId(int varId, ZVarTypeId typeId)
 void SymbolTable::putVarType(int varId, ZVarType const& type)
 {
 	varTypes[varId] = getOrAssignTypeId(type);
+}
+
+// Inlined Constants
+
+void SymbolTable::inlineConstant(int varId, long value)
+{
+	if (varId == -1) return; 
+	
+	map<int, long>::const_iterator it = inlinedConstants.find(varId);
+	if (it != inlinedConstants.end())
+	{
+		box_out("Internal Error: Constant already inlined.");
+		box_eol();
+		return;
+	}
+
+	inlinedConstants[varId] = value;
+}
+
+void SymbolTable::inlineConstant(AST* node, long value)
+{
+	int varId = getNodeId(node);
+	if (varId == -1)
+	{
+		box_out("Internal Error (inlineConstant): Node does not have id.");
+		box_eol();
+		return;
+	}
+
+	inlineConstant(varId, value);
+}
+
+bool SymbolTable::isInlinedConstant(int varId) const
+{
+	return inlinedConstants.find(varId) != inlinedConstants.end();
+}
+
+bool SymbolTable::isInlinedConstant(AST* node) const
+{
+	int varId = getNodeId(node);
+	if (varId == -1)
+	{
+		box_out("Internal Error (isInlinedConstant): Node does not have id.");
+		box_eol();
+		return false;
+	}
+
+	return isInlinedConstant(varId);
+}
+
+long SymbolTable::getInlinedValue(int varId) const
+{
+	map<int, long>::const_iterator it = inlinedConstants.find(varId);
+	if (it == inlinedConstants.end()) return 0L;
+	return it->second;
+}
+
+long SymbolTable::getInlinedValue(AST* node) const
+{
+	return getInlinedValue(getNodeId(node));
 }
 
 // Functions
@@ -215,16 +294,6 @@ void SymbolTable::putFuncTypeIds(int funcId, ZVarTypeId returnTypeId, vector<ZVa
 
 // 
 
-bool SymbolTable::isConstant(string name) const
-{
-    return constants->find(name) != constants->end();
-}
-
-long SymbolTable::getConstantVal(string name) const
-{
-    return (*constants)[name];
-}
-
 void SymbolTable::printDiagnostics()
 {
     cout << (unsigned int)varTypes.size() << " variable symbols" << endl;
@@ -242,6 +311,11 @@ Scope::Scope(SymbolTable& table) : table(table), parent(NULL)
 		ZVarType const& type = *ZVarType::get(id);
 		types[type.getName()] = id;
 	}
+
+	// Add const float type.
+	ZVarTypeConstFloat constType;
+	addType("const int", ZVarType::CONST_FLOAT);
+	addType("const float", ZVarType::CONST_FLOAT);
 
 	// Add library functions to the top level scope.
     GlobalSymbols::getInst().addSymbolsToScope(*this);

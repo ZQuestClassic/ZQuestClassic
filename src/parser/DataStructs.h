@@ -38,7 +38,7 @@ public:
 class SymbolTable
 {
 public:
-    SymbolTable(map<string, long> *consts);
+    SymbolTable();
 	~SymbolTable();
 	// Nodes
     int getNodeId(AST* node) const;
@@ -47,14 +47,24 @@ public:
     void putPossibleNodeFuncIds(AST* node, vector<int> possibleFuncIds);
 	// Types
 	ZVarType* getType(ZVarTypeId typeId) const;
+	ZVarType* getType(AST* node) const;
 	ZVarTypeId getTypeId(ZVarType const& type) const;
 	ZVarTypeId assignTypeId(ZVarType const& type);
 	ZVarTypeId getOrAssignTypeId(ZVarType const& type);
 	// Variables
     ZVarTypeId getVarTypeId(int varId) const;
     ZVarTypeId getVarTypeId(AST* node) const;
+    ZVarType* getVarType(int varId) const;
+    ZVarType* getVarType(AST* node) const;
     void putVarTypeId(int varId, ZVarTypeId typeId);
     void putVarType(int varId, ZVarType const& type);
+	// Inlined Constants
+	void inlineConstant(int varId, long value);
+	void inlineConstant(AST* node, long value);
+	bool isInlinedConstant(int varId) const;
+	bool isInlinedConstant(AST* node) const;
+	long getInlinedValue(int varId) const;
+	long getInlinedValue(AST* node) const;
 	// Functions
     ZVarTypeId getFuncReturnTypeId(int funcId) const;
     ZVarTypeId getFuncReturnTypeId(AST *node) const;
@@ -65,8 +75,6 @@ public:
     vector<int>& getGlobalPointers() {return globalPointers;}
     void addGlobalPointer(int varId) {globalPointers.push_back(varId);}
 	// Other
-    bool isConstant(string name) const;
-    long getConstantVal(string name) const;
     void printDiagnostics();
 private:
     map<AST*, int> nodeIds;
@@ -74,9 +82,9 @@ private:
 	map<ZVarType*, ZVarTypeId, ZVarType::PointerLess> typeIds;
     map<AST*, vector<int> > possibleNodeFuncIds;
     map<int, ZVarTypeId> varTypes;
+    map<int, long> inlinedConstants;
     map<int, FunctionTypeIds> funcTypes;
     vector<int> globalPointers;
-    map<string, long> *constants;
 };
 
 class Scope
@@ -143,25 +151,26 @@ private:
 
 struct SymbolData
 {
-    SymbolTable *symbols;
-    vector<ASTFuncDecl *> globalFuncs;
-    vector<ASTVarDecl *> globalVars;
-    vector<ASTArrayDecl *> globalArrays;
-    vector<ASTScript *> scripts;
-    map<ASTScript *, int> runsymbols;
-    map<ASTScript *, int> numParams;
-    map<ASTScript *, ScriptType> scriptTypes;
-    map<ASTScript *, int> thisPtr;
+    SymbolTable* symbols;
+    vector<ASTFuncDecl*> globalFuncs;
+    vector<ASTVarDecl*> globalVars;
+    vector<ASTArrayDecl*> globalArrays;
+    vector<ASTScript*> scripts;
+    map<ASTScript*, int> runsymbols;
+    map<ASTScript*, int> numParams;
+    map<ASTScript*, ScriptType> scriptTypes;
+    map<ASTScript*, int> thisPtr;
 };
 
 struct FunctionData
 {
-    SymbolTable *symbols;
-    vector<ASTFuncDecl *> functions;
-    vector<ASTVarDecl *> globalVars;
-    vector<ASTVarDecl *> newGlobalVars;
-    vector<ASTArrayDecl *> globalArrays;
-    vector<ASTArrayDecl *> newGlobalArrays;
+    SymbolTable* symbols;
+    vector<ASTFuncDecl*> functions;
+    vector<ASTVarDecl*> globalVars;
+    vector<ASTVarDecl*> newGlobalVars;
+    vector<ASTArrayDecl*> globalArrays;
+    vector<ASTArrayDecl*> newGlobalArrays;
+	int globalVarCount;
     map<string, int> scriptRunSymbols;
     map<string, int> numParams;
     map<string, ScriptType> scriptTypes;

@@ -38,6 +38,12 @@ void TypeCheck::caseStmtAssign(ASTStmtAssign& host)
 
     if (!standardCheck(ltype, rtype, &host))
         failure = true;
+
+	if (ltype == symbolTable.getTypeId(ZVarType::CONST_FLOAT))
+	{
+		printErrorMsg(&host, CONSTASSIGN);
+		failure = true;
+	}
 }
 
 void TypeCheck::caseStmtIf(ASTStmtIf &host)
@@ -138,6 +144,16 @@ void TypeCheck::caseArrayDecl(ASTArrayDecl &host)
     }
 }
 
+void TypeCheck::caseVarDecl(ASTVarDecl &host)
+{
+	// Constants must be initialized.
+	if (*symbolTable.getVarType(&host) == ZVarType::CONST_FLOAT)
+	{
+		printErrorMsg(&host, CONSTUNITIALIZED);
+		failure = true;
+	}
+}
+
 void TypeCheck::caseVarDeclInitializer(ASTVarDeclInitializer &host)
 {
     ASTExpr* init = host.getInitializer();
@@ -149,6 +165,13 @@ void TypeCheck::caseVarDeclInitializer(ASTVarDeclInitializer &host)
 
     if (!standardCheck(ltype, type, &host))
         failure = true;
+
+	// If a constant, save it as an inlined value.
+	if (*symbolTable.getVarType(&host) == ZVarType::CONST_FLOAT)
+	{
+		if (init->hasIntValue())
+			symbolTable.inlineConstant(&host, init->getIntValue());
+	}
 }
 
 // Expressions
@@ -195,10 +218,10 @@ void TypeCheck::caseStringConstant(ASTStringConstant& host)
 
 void TypeCheck::caseExprDot(ASTExprDot &host)
 {
-    if (symbolTable.isConstant(host.getName()))
+    if (symbolTable.isInlinedConstant(&host))
 	{
-        host.setType(ZVARTYPEID_FLOAT);
-		host.setIntValue(symbolTable.getConstantVal(host.getName()));
+        host.setType(symbolTable.getTypeId(ZVarType::CONST_FLOAT));
+		host.setIntValue(symbolTable.getInlinedValue(&host));
 	}
     else
     {
