@@ -102,6 +102,11 @@ int ZVarTypeSimple::selfCompare(ZVarType const& other) const
 	return simpleId - o.simpleId;
 }
 
+bool ZVarTypeSimple::canBeGlobal() const
+{
+	return simpleId == ZVARTYPEID_FLOAT || simpleId == ZVARTYPEID_BOOL;
+}
+
 ////////////////////////////////////////////////////////////////
 // ZVarTypeUnresolved
 

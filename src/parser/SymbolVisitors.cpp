@@ -70,11 +70,10 @@ void BuildScriptSymbols::caseArrayDecl(ASTArrayDecl &host, void *param)
         printErrorMsg(&host, VOIDARR, name);
     }
     
-    if (type == ZVarType::FFC || type == ZVarType::ITEM || type == ZVarType::ITEMCLASS
-		|| type == ZVarType::NPC || type == ZVarType::LWPN || type == ZVarType::EWPN)
+    if (!type.canBeGlobal())
     {
         failure = true;
-        printErrorMsg(&host, REFARR, name);
+        printErrorMsg(&host, REFARR, type.getName() + " " + name);
     }
     
     // var is always visible
@@ -119,13 +118,10 @@ void BuildScriptSymbols::caseVarDecl(ASTVarDecl &host, void *param)
         printErrorMsg(&host, VOIDVAR, name);
     }
     
-    // This code prevents global arrays from being typed to special types. -Z
-	if (type == ZVarType::FFC || type == ZVarType::ITEM
-        || type == ZVarType::ITEMCLASS || type == ZVarType::NPC
-        || type == ZVarType::LWPN || type == ZVarType::EWPN)
+    if (!type.canBeGlobal())
     {
         failure = true;
-        printErrorMsg(&host, REFVAR, name);
+        printErrorMsg(&host, REFVAR, type.getName() + " " + name);
     }
     
     // Var is always visible.

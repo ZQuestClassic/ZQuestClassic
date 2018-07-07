@@ -67,6 +67,8 @@ public:
 	virtual string getName() const = 0;
 	virtual ZVarType* resolve(Scope& scope) {return this;}
 	virtual bool isResolved() const {return true;}
+	virtual bool canBeGlobal() const {return false;}
+
 	int compare(ZVarType const& other) const;
 	bool operator==(ZVarType const& other) const {return compare(other) == 0;}
 	bool operator<(ZVarType const& other) const {return compare(other) < 0;}
@@ -130,6 +132,7 @@ public:
 	ZVarTypeSimple(ZVarTypeIdSimple simpleId, string const& name) : simpleId(simpleId), name(name) {}
 	ZVarTypeSimple* clone() const {return new ZVarTypeSimple(*this);}
 	string getName() const {return name;}
+	bool canBeGlobal() const;
 	ZVarTypeIdSimple getId() const {return simpleId;}
 protected:
 	int classCompareId() const {return 1;}
