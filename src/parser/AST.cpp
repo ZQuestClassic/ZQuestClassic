@@ -5,13 +5,96 @@
 
 // ASTProgram
 
-ASTProgram::~ASTProgram() {delete decls;}
+ASTProgram::ASTProgram(LocationData const& location) : AST(location) {}
 
-ASTProgram* ASTProgram::clone() const
+ASTProgram::ASTProgram(ASTProgram const& base) : AST(base.getLocation())
 {
-	return new ASTProgram(
-			decls != NULL ? decls->clone() : NULL,
-			getLocation());
+	for (vector<ASTImportDecl*>::const_iterator it = base.imports.begin(); it != base.imports.end(); ++it)
+		imports.push_back((*it)->clone());
+	for (vector<ASTConstDecl*>::const_iterator it = base.constants.begin(); it != base.constants.end(); ++it)
+		constants.push_back((*it)->clone());
+	for (vector<ASTVarDecl*>::const_iterator it = base.variables.begin(); it != base.variables.end(); ++it)
+		variables.push_back((*it)->clone());
+	for (vector<ASTArrayDecl*>::const_iterator it = base.arrays.begin(); it != base.arrays.end(); ++it)
+		arrays.push_back((*it)->clone());
+	for (vector<ASTFuncDecl*>::const_iterator it = base.functions.begin(); it != base.functions.end(); ++it)
+		functions.push_back((*it)->clone());
+	for (vector<ASTTypeDef*>::const_iterator it = base.types.begin(); it != base.types.end(); ++it)
+		types.push_back((*it)->clone());
+	for (vector<ASTScript*>::const_iterator it = base.scripts.begin(); it != base.scripts.end(); ++it)
+		scripts.push_back((*it)->clone());
+}
+
+ASTProgram::~ASTProgram()
+{
+	for (vector<ASTImportDecl*>::const_iterator it = imports.begin(); it != imports.end(); ++it)
+		delete *it;
+	for (vector<ASTConstDecl*>::const_iterator it = constants.begin(); it != constants.end(); ++it)
+		delete *it;
+	for (vector<ASTVarDecl*>::const_iterator it = variables.begin(); it != variables.end(); ++it)
+		delete *it;
+	for (vector<ASTArrayDecl*>::const_iterator it = arrays.begin(); it != arrays.end(); ++it)
+		delete *it;
+	for (vector<ASTFuncDecl*>::const_iterator it = functions.begin(); it != functions.end(); ++it)
+		delete *it;
+	for (vector<ASTTypeDef*>::const_iterator it = types.begin(); it != types.end(); ++it)
+		delete *it;
+	for (vector<ASTScript*>::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
+		delete *it;
+}
+
+void ASTProgram::addDeclaration(ASTDecl* declaration)
+{
+	switch (declaration->declarationClassId())
+	{
+	case ASTDECL_CLASSID_SCRIPT:
+		scripts.push_back((ASTScript*)declaration);
+		break;
+	case ASTDECL_CLASSID_IMPORT:
+		imports.push_back((ASTImportDecl*)declaration);
+		break;
+	case ASTDECL_CLASSID_CONSTANT:
+		constants.push_back((ASTConstDecl*)declaration);
+		break;
+	case ASTDECL_CLASSID_FUNCTION:
+		functions.push_back((ASTFuncDecl*)declaration);
+		break;
+	case ASTDECL_CLASSID_ARRAY:
+		arrays.push_back((ASTArrayDecl*)declaration);
+		break;
+	case ASTDECL_CLASSID_VARIABLE:
+		variables.push_back((ASTVarDecl*)declaration);
+		break;
+	case ASTDECL_CLASSID_TYPE:
+		types.push_back((ASTTypeDef*)declaration);
+		break;
+	}
+}
+
+ASTProgram& ASTProgram::merge(ASTProgram& other)
+{
+	for (vector<ASTImportDecl*>::const_iterator it = other.imports.begin(); it != other.imports.end(); ++it)
+		imports.push_back(*it);
+	other.imports.clear();
+	for (vector<ASTConstDecl*>::const_iterator it = other.constants.begin(); it != other.constants.end(); ++it)
+		constants.push_back(*it);
+	other.constants.clear();
+	for (vector<ASTVarDecl*>::const_iterator it = other.variables.begin(); it != other.variables.end(); ++it)
+		variables.push_back(*it);
+	other.variables.clear();
+	for (vector<ASTArrayDecl*>::const_iterator it = other.arrays.begin(); it != other.arrays.end(); ++it)
+		arrays.push_back(*it);
+	other.arrays.clear();
+	for (vector<ASTFuncDecl*>::const_iterator it = other.functions.begin(); it != other.functions.end(); ++it)
+		functions.push_back(*it);
+	other.functions.clear();
+	for (vector<ASTTypeDef*>::const_iterator it = other.types.begin(); it != other.types.end(); ++it)
+		types.push_back(*it);
+	other.types.clear();
+	for (vector<ASTScript*>::const_iterator it = other.scripts.begin(); it != other.scripts.end(); ++it)
+		scripts.push_back(*it);
+	other.scripts.clear();
+	return *this;
 }
 
 // ASTFloat

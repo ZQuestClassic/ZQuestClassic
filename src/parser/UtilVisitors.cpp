@@ -9,14 +9,40 @@
 ////////////////////////////////////////////////////////////////
 // RecursiveVisitor
 
-void RecursiveVisitor::caseProgram(ASTProgram &host, void *param)
+void RecursiveVisitor::caseProgram(ASTProgram& host, void* param)
 {
-	host.getDeclarations()->execute(*this, param);
+	for (vector<ASTImportDecl*>::const_iterator it = host.imports.begin(); it != host.imports.end(); ++it)
+		(*it)->execute(*this, param);
+	for (vector<ASTConstDecl*>::const_iterator it = host.constants.begin(); it != host.constants.end(); ++it)
+		(*it)->execute(*this, param);
+	for (vector<ASTVarDecl*>::const_iterator it = host.variables.begin(); it != host.variables.end(); ++it)
+		(*it)->execute(*this, param);
+	for (vector<ASTArrayDecl*>::const_iterator it = host.arrays.begin(); it != host.arrays.end(); ++it)
+		(*it)->execute(*this, param);
+	for (vector<ASTFuncDecl*>::const_iterator it = host.functions.begin(); it != host.functions.end(); ++it)
+		(*it)->execute(*this, param);
+	for (vector<ASTTypeDef*>::const_iterator it = host.types.begin(); it != host.types.end(); ++it)
+		(*it)->execute(*this, param);
+	for (vector<ASTScript*>::const_iterator it = host.scripts.begin(); it != host.scripts.end(); ++it)
+		(*it)->execute(*this, param);
 }
 
 void RecursiveVisitor::caseProgram(ASTProgram &host)
 {
-	host.getDeclarations()->execute(*this);
+	for (vector<ASTImportDecl*>::const_iterator it = host.imports.begin(); it != host.imports.end(); ++it)
+		(*it)->execute(*this);
+	for (vector<ASTConstDecl*>::const_iterator it = host.constants.begin(); it != host.constants.end(); ++it)
+		(*it)->execute(*this);
+	for (vector<ASTVarDecl*>::const_iterator it = host.variables.begin(); it != host.variables.end(); ++it)
+		(*it)->execute(*this);
+	for (vector<ASTArrayDecl*>::const_iterator it = host.arrays.begin(); it != host.arrays.end(); ++it)
+		(*it)->execute(*this);
+	for (vector<ASTFuncDecl*>::const_iterator it = host.functions.begin(); it != host.functions.end(); ++it)
+		(*it)->execute(*this);
+	for (vector<ASTTypeDef*>::const_iterator it = host.types.begin(); it != host.types.end(); ++it)
+		(*it)->execute(*this);
+	for (vector<ASTScript*>::const_iterator it = host.scripts.begin(); it != host.scripts.end(); ++it)
+		(*it)->execute(*this);
 }
 
 // Statements
@@ -643,271 +669,6 @@ void RecursiveVisitor::caseExprRShift(ASTExprRShift &host)
 {
 	host.getFirstOperand()->execute(*this);
 	host.getSecondOperand()->execute(*this);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// GetImports
-
-void GetImports::caseDefault(void *param)
-{
-    if(param != NULL)
-        *(bool *)param = false;
-}
-
-void GetImports::caseProgram(ASTProgram &host, void *)
-{
-    host.getDeclarations()->execute(*this, NULL);
-}
-
-void GetImports::caseDeclList(ASTDeclList &host, void *)
-{
-    list<ASTDecl *> &l = host.getDeclarations();
-    
-    for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
-    {
-        bool isimport;
-        (*it)->execute(*this, &isimport);
-        
-        if(isimport)
-        {
-            result.push_back((ASTImportDecl *)*it);
-            it=l.erase(it);
-        }
-        else
-            it++;
-    }
-}
-
-void GetImports::caseImportDecl(ASTImportDecl &, void *param)
-{
-    if(param != NULL)
-        *(bool *)param = true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// GetConsts
-
-void GetConsts::caseDefault(void *param)
-{
-    if(param != NULL)
-        *(bool *)param = false;
-}
-
-void GetConsts::caseProgram(ASTProgram &host, void *)
-{
-    host.getDeclarations()->execute(*this, NULL);
-}
-
-void GetConsts::caseDeclList(ASTDeclList &host, void *)
-{
-    list<ASTDecl *> &l = host.getDeclarations();
-    
-    for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
-    {
-        bool isconst;
-        (*it)->execute(*this, &isconst);
-        
-        if(isconst)
-        {
-            result.push_back((ASTConstDecl *)*it);
-            it=l.erase(it);
-        }
-        else
-            it++;
-    }
-}
-
-void GetConsts::caseConstDecl(ASTConstDecl &, void *param)
-{
-    if(param != NULL)
-        *(bool *)param = true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// GetGlobalVars
-
-void GetGlobalVars::caseDefault(void *param)
-{
-    if(param != NULL)
-        *(int *)param = 0;
-}
-
-void GetGlobalVars::caseProgram(ASTProgram &host, void *)
-{
-    host.getDeclarations()->execute(*this, NULL);
-}
-
-void GetGlobalVars::caseDeclList(ASTDeclList &host, void *)
-{
-    list<ASTDecl *> &l = host.getDeclarations();
-    
-    for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
-    {
-        int dectype;
-        (*it)->execute(*this, &dectype);
-        
-        if(dectype==1)
-        {
-            result.push_back((ASTVarDecl *)(*it));
-            it=l.erase(it);
-        }
-        else if(dectype==2)
-        {
-            resultA.push_back((ASTArrayDecl *)(*it));
-            it=l.erase(it);
-        }
-        else
-            it++;
-    }
-}
-
-void GetGlobalVars::caseArrayDecl(ASTArrayDecl &, void *param)
-{
-    if(param != NULL)
-        *(int *)param = 2;
-}
-
-void GetGlobalVars::caseVarDecl(ASTVarDecl &, void *param)
-{
-    if(param != NULL)
-        *(int *)param = 1;
-}
-
-void GetGlobalVars::caseVarDeclInitializer(ASTVarDeclInitializer &, void *param)
-{
-    if(param != NULL)
-        *(int *)param = 1;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// GetGlobalFuncs
-
-void GetGlobalFuncs::caseDefault(void *param)
-{
-    if(param != NULL)
-        *(bool *)param = false;
-}
-
-void GetGlobalFuncs::caseProgram(ASTProgram &host, void *)
-{
-    host.getDeclarations()->execute(*this,NULL);
-}
-
-void GetGlobalFuncs::caseDeclList(ASTDeclList &host, void *)
-{
-    list<ASTDecl *> &l = host.getDeclarations();
-    
-    for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
-    {
-        bool isfuncdecl;
-        (*it)->execute(*this, &isfuncdecl);
-        
-        if(isfuncdecl)
-        {
-            result.push_back((ASTFuncDecl *)*it);
-            it=l.erase(it);
-        }
-        else
-            it++;
-    }
-}
-
-void GetGlobalFuncs::caseFuncDecl(ASTFuncDecl &, void *param)
-{
-    if(param != NULL)
-        *(bool *)param = true;
-}
-
-////////////////////////////////////////////////////////////////
-// GetGlobalTypes
-
-void GetGlobalTypes::caseDefault(void *param)
-{
-	if (param != NULL) *(bool*)param = false;
-}
-
-void GetGlobalTypes::caseProgram(ASTProgram &host, void*)
-{
-    host.getDeclarations()->execute(*this, NULL);
-}
-
-void GetGlobalTypes::caseDeclList(ASTDeclList &host, void*)
-{
-    list<ASTDecl*> &l = host.getDeclarations();
-
-    for (list<ASTDecl*>::iterator it = l.begin(); it != l.end();)
-    {
-        bool istypedef;
-        (*it)->execute(*this, &istypedef);
-
-        if (istypedef)
-        {
-            result.push_back((ASTTypeDef*)*it);
-            it = l.erase(it);
-        }
-        else
-            it++;
-    }
-}
-
-void GetGlobalTypes::caseTypeDef(ASTTypeDef &, void *param)
-{
-    if (param != NULL) *(bool*)param = true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// GetScripts
-    
-void GetScripts::caseDefault(void *)
-{
-    // There should be nothing left in here now
-    box_out("Should be nothing but scripts left at this point.");
-    box_eol();
-    assert(false);
-}
-
-void GetScripts::caseProgram(ASTProgram &host, void *param)
-{
-    host.getDeclarations()->execute(*this,param);
-}
-
-void GetScripts::caseDeclList(ASTDeclList &host, void *param)
-{
-    list<ASTDecl *> &l = host.getDeclarations();
-    
-    for(list<ASTDecl *>::iterator it = l.begin(); it != l.end();)
-    {
-        (*it)->execute(*this, param);
-        result.push_back((ASTScript *)*it);
-        it=l.erase(it);
-    }
-}
-
-void GetScripts::caseScript(ASTScript &, void *) {}
-
-////////////////////////////////////////////////////////////////////////////////
-// MergeASTs
-    
-void MergeASTs::caseDefault(void *)
-{
-    box_out("Something BAD BROKEN in the parser code!");
-    box_eol();
-    assert(false);
-}
-
-void MergeASTs::caseProgram(ASTProgram &host, void *param)
-{
-    assert(param);
-    ASTProgram *other = (ASTProgram *)param;
-    list<ASTDecl *> &decls = other->getDeclarations()->getDeclarations();
-    
-    for(list<ASTDecl *>::iterator it = decls.begin(); it != decls.end();)
-    {
-        host.getDeclarations()->addDeclaration((*it));
-        it = decls.erase(it);
-    }
-    
-    delete other;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

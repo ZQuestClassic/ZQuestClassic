@@ -21,7 +21,7 @@ extern int yylineno;
 extern char* yytext;
 extern int yylex(void);
 extern FILE *yyin;
-extern AST *resAST;
+extern ASTProgram *resAST;
 extern void resetLexer();
 void yyerror(const char* s);
 string curfilename;
@@ -131,13 +131,11 @@ extern YYLTYPE noloc;
 
 %%
 
-Init : Prog {resAST = new ASTProgram((ASTDeclList *)$1, @1);}
-	;
-
-Prog : Prog GlobalStmt {ASTDeclList *list = (ASTDeclList *)$1;
-				list->addDeclaration((ASTDecl *)$2);
-				$$ = list;}
-	| {$$ = new ASTDeclList(noloc);}
+Init :
+	Init GlobalStmt {
+		resAST->addDeclaration((ASTDecl*)$2);}
+	| {
+		resAST = new ASTProgram(noloc);}
 	;
 
 GlobalStmt : Script {$$ = $1;}

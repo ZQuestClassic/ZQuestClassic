@@ -4,6 +4,7 @@
 #include "DataStructs.h"
 #include "Types.h"
 #include "ParseError.h"
+#include "GlobalSymbols.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <iostream>
@@ -233,8 +234,7 @@ void SymbolTable::printDiagnostics()
 ////////////////////////////////////////////////////////////////
 // Scope
 
-Scope::Scope(SymbolTable& table)
-	: table(table), children(), parent(NULL), types(), variables(), functionsBySignature(), functionsByName()
+Scope::Scope(SymbolTable& table) : table(table), parent(NULL)
 {
 	// Add basic types to the top level scope.
 	for (int id = ZVARTYPEID_VOID; id <= ZVARTYPEID_EWPN; ++id)
@@ -242,10 +242,74 @@ Scope::Scope(SymbolTable& table)
 		ZVarType const& type = *ZVarType::get(id);
 		types[type.getName()] = id;
 	}
+
+	// Add library functions to the top level scope.
+    GlobalSymbols::getInst().addSymbolsToScope(*this);
+    FFCSymbols::getInst().addSymbolsToScope(*this);
+    ItemSymbols::getInst().addSymbolsToScope(*this);
+    ItemclassSymbols::getInst().addSymbolsToScope(*this);
+    LinkSymbols::getInst().addSymbolsToScope(*this);
+    ScreenSymbols::getInst().addSymbolsToScope(*this);
+    GameSymbols::getInst().addSymbolsToScope(*this);
+    NPCSymbols::getInst().addSymbolsToScope(*this);
+    LinkWeaponSymbols::getInst().addSymbolsToScope(*this);
+    EnemyWeaponSymbols::getInst().addSymbolsToScope(*this);
+    TextPtrSymbols::getInst().addSymbolsToScope(*this);
+	GfxPtrSymbols::getInst().addSymbolsToScope(*this);
+	SpriteDataSymbols::getInst().addSymbolsToScope(*this);
+	CombosPtrSymbols::getInst().addSymbolsToScope(*this);
+	AudioSymbols::getInst().addSymbolsToScope(*this);
+	DebugSymbols::getInst().addSymbolsToScope(*this);
+	NPCDataSymbols::getInst().addSymbolsToScope(*this);
+	InputSymbols::getInst().addSymbolsToScope(*this);
+	MapDataSymbols::getInst().addSymbolsToScope(*this);
+	DMapDataSymbols::getInst().addSymbolsToScope(*this);
+	MessageDataSymbols::getInst().addSymbolsToScope(*this);
+	ShopDataSymbols::getInst().addSymbolsToScope(*this);
+	UntypedSymbols::getInst().addSymbolsToScope(*this);
+	DropsetSymbols::getInst().addSymbolsToScope(*this);
+	PondSymbols::getInst().addSymbolsToScope(*this);
+	WarpringSymbols::getInst().addSymbolsToScope(*this);
+	DoorsetSymbols::getInst().addSymbolsToScope(*this);
+	MiscColourSymbols::getInst().addSymbolsToScope(*this);
+	RGBSymbols::getInst().addSymbolsToScope(*this);
+	PaletteSymbols::getInst().addSymbolsToScope(*this);
+	TunesSymbols::getInst().addSymbolsToScope(*this);
+	PalCycleSymbols::getInst().addSymbolsToScope(*this);
+	GamedataSymbols::getInst().addSymbolsToScope(*this);
+	CheatsSymbols::getInst().addSymbolsToScope(*this);
+
+	// Add global pointers.
+    table.addGlobalPointer(addVar("Link", ZVARTYPEID_LINK));
+    table.addGlobalPointer(addVar("Screen", ZVARTYPEID_SCREEN));
+    table.addGlobalPointer(addVar("Game", ZVARTYPEID_GAME));
+    table.addGlobalPointer(addVar("Debug", ZVARTYPEID_DEBUG));
+    table.addGlobalPointer(addVar("Audio", ZVARTYPEID_AUDIO));
+    table.addGlobalPointer(addVar("Text", ZVARTYPEID_TEXT));
+    table.addGlobalPointer(addVar("NPCData", ZVARTYPEID_NPCDATA));
+    table.addGlobalPointer(addVar("ComboData", ZVARTYPEID_COMBOS));
+    table.addGlobalPointer(addVar("SpriteData", ZVARTYPEID_SPRITEDATA));
+    table.addGlobalPointer(addVar("Graphics", ZVARTYPEID_GRAPHICS));
+    table.addGlobalPointer(addVar("Input", ZVARTYPEID_INPUT));
+    table.addGlobalPointer(addVar("MapData", ZVARTYPEID_MAPDATA));
+    table.addGlobalPointer(addVar("DMapData", ZVARTYPEID_DMAPDATA));
+    table.addGlobalPointer(addVar("MessageData", ZVARTYPEID_ZMESSAGE));
+    table.addGlobalPointer(addVar("ShopData", ZVARTYPEID_SHOPDATA));
+    table.addGlobalPointer(addVar("Untyped", ZVARTYPEID_UNTYPED));
+    table.addGlobalPointer(addVar("dropdata->", ZVARTYPEID_DROPSET));
+    table.addGlobalPointer(addVar("ponddata->", ZVARTYPEID_PONDS));
+    table.addGlobalPointer(addVar("warpring->", ZVARTYPEID_WARPRING));
+    table.addGlobalPointer(addVar("doorset->", ZVARTYPEID_DOORSET));
+    table.addGlobalPointer(addVar("misccolors->", ZVARTYPEID_ZUICOLOURS));
+    table.addGlobalPointer(addVar("rgbdata->", ZVARTYPEID_RGBDATA));
+    table.addGlobalPointer(addVar("palette->", ZVARTYPEID_PALETTE));
+    table.addGlobalPointer(addVar("musictrack->", ZVARTYPEID_TUNES));
+    table.addGlobalPointer(addVar("palcycle->", ZVARTYPEID_PALCYCLE));
+    table.addGlobalPointer(addVar("gamedata->", ZVARTYPEID_GAMEDATA));
+    table.addGlobalPointer(addVar("cheats->", ZVARTYPEID_CHEATS));
 }
 
-Scope::Scope(Scope* parent)
-	: table(parent->table), children(), parent(parent), types(), variables(), functionsBySignature(), functionsByName()
+Scope::Scope(Scope* parent) : table(parent->table), parent(parent)
 {}
 
 Scope::~Scope()
