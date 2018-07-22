@@ -67,7 +67,7 @@ class ASTExprConst;
 class ASTNumConstant;
 class ASTBoolConstant;
 class ASTStringConstant;
-class ASTExprDot;
+class ASTExprIdentifier;
 class ASTExprArrow;
 class ASTExprIndex;
 class ASTFuncCall;
@@ -177,8 +177,8 @@ public:
     virtual void caseBoolConstant(ASTBoolConstant& node) {caseBoolConstant(node, NULL);}
     virtual void caseStringConstant(ASTStringConstant&, void* param) {caseDefault(param);}
     virtual void caseStringConstant(ASTStringConstant& node) {caseStringConstant(node, NULL);}
-    virtual void caseExprDot(ASTExprDot&, void* param) {caseDefault(param);}
-    virtual void caseExprDot(ASTExprDot& node) {caseExprDot(node, NULL);}
+    virtual void caseExprIdentifier(ASTExprIdentifier&, void* param) {caseDefault(param);}
+    virtual void caseExprIdentifier(ASTExprIdentifier& node) {caseExprIdentifier(node, NULL);}
     virtual void caseExprArrow(ASTExprArrow&, void* param) {caseDefault(param);}
     virtual void caseExprArrow(ASTExprArrow& node) {caseExprArrow(node, NULL);}
     virtual void caseExprIndex(ASTExprIndex&, void* param) {caseDefault(param);}
@@ -273,8 +273,15 @@ public:
 	virtual AST* clone() const = 0;
     LocationData const &getLocation() const {return loc;}
     LocationData &getLocation() {return loc;}
+	void updateLocation(LocationData const& location) {loc = location;}
     virtual void execute(ASTVisitor &visitor, void *param)=0;
 	virtual void execute(ASTVisitor &visitor) {execute(visitor, NULL);}
+
+	virtual string asString() const {return "unknown";}
+
+	// Subclass Predicates (replacing typeof and such)
+	virtual bool isTypeArrow() const {return false;}
+	virtual bool isTypeIdentifier() const {return false;}
 private:
     LocationData loc;
 };
@@ -949,23 +956,25 @@ private:
 	string str;
 };
 
-class ASTExprDot : public ASTExpr
+class ASTExprIdentifier : public ASTExpr
 {
 public:
-    ASTExprDot(string const& nspace, string const& name, LocationData const& location);
-	ASTExprDot(ASTExprDot const& base);
-	ASTExprDot& operator=(ASTExprDot const& base);
-	ASTExprDot* clone() const {return new ASTExprDot(*this);}
+    ASTExprIdentifier(string const& name, LocationData const& location);
+	ASTExprIdentifier(ASTExprIdentifier const& base);
+	ASTExprIdentifier& operator=(ASTExprIdentifier const& base);
+	ASTExprIdentifier* clone() const {return new ASTExprIdentifier(*this);}
 
-    string getName() const {return name;}
-    string getNamespace() const {return nspace;}
+	vector<string>const& getComponents() const {return components;}
+	void appendComponent(string const& component) {components.push_back(component);}
 	bool isConstant() const {return isConstant_;}
 	void markConstant() {isConstant_ = true;}
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseExprDot(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseExprDot(*this);}
+	void execute(ASTVisitor &visitor, void *param) {visitor.caseExprIdentifier(*this, param);}
+	void execute(ASTVisitor &visitor) {visitor.caseExprIdentifier(*this);}
+
+	string asString() const;
+	bool isTypeIdentifier() const {return true;}
 private:
-    string name;
-    string nspace;
+	vector<string> components;
 	bool isConstant_;
 };
 
@@ -986,6 +995,8 @@ public:
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseExprArrow(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseExprArrow(*this);}
+
+	bool isTypeArrow() const {return true;}
 private:
     ASTExpr* left;
     string right;

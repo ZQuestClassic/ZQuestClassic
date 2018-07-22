@@ -24,6 +24,29 @@ Scope* Scope::getNamespace(string const& name) const
 	return child;
 }
 
+Scope* Scope::getLocalChild(vector<string> const& names) const
+{
+	if (names.size() == 0) return (Scope*)this;
+
+	Scope* child = (Scope*)this;
+	for (vector<string>::const_iterator it = names.begin();
+	   it != names.end() && child != NULL;
+	   ++it)
+	{
+		child = child->getLocalChild(*it);
+	}
+
+	return child;
+}
+
+Scope* Scope::getChild(vector<string>const& names) const
+{
+	Scope* child = getLocalChild(names);
+	Scope* parent = getParent();
+	if (!child && parent) child = parent->getChild(names);
+	return child;
+}
+
 // Types
 
 int Scope::getTypeId(string const& name) const
@@ -103,6 +126,15 @@ int Scope::getVariableId(string const& name) const
 	if (variableId == -1 && parent)
 		variableId = parent->getVariableId(name);
 	return variableId;
+}
+
+int Scope::getVariableId(vector<string> const& names) const
+{
+	vector<string> namespaces = names;
+	namespaces.pop_back();
+	Scope* scope = getChild(namespaces);
+	if (scope == NULL) return -1;
+	return scope->getVariableId(names.back());
 }
 
 int Scope::addVariable(string const& name, ZVarType const& type, AST* node)
@@ -203,6 +235,15 @@ vector<int> Scope::getFunctionIds(string const& name) const
 	vector<int> ids;
 	getFunctionIds(ids, name);
 	return ids;
+}
+
+vector<int> Scope::getFunctionIds(vector<string> const& names)const
+{
+	vector<string> namespaces = names;
+	namespaces.pop_back();
+	Scope* scope = getChild(namespaces);
+	if (scope == NULL) return vector<int>();
+	return scope->getFunctionIds(names.back());
 }
 
 int Scope::getFunctionId(FunctionSignature const& signature) const

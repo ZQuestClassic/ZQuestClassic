@@ -121,13 +121,6 @@ private:
     bool ok;
 };
 
-class IsDotExpr : public ASTVisitor
-{
-public:
-    void caseDefault(void *param) {*(bool *)param = false;}
-    void caseExprDot(ASTExprDot &, void *param) {*(bool *)param = true;}
-};
-
 class IsArrayDecl : public ASTVisitor
 {
 public:

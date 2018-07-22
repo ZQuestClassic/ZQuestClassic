@@ -359,35 +359,20 @@ void SemanticAnalyzer::caseFuncCall(ASTFuncCall& host)
 {
 	// Find out if left hand side is an arrow or not.
 	ASTExpr* left = host.getName();
-	bool isDot = false;
-	IsDotExpr temp;
-	left->execute(temp, &isDot);
 
 	// If it's an arrow, recurse on it.
-	if (!isDot)
+	if (left->isTypeArrow())
 	{
 		left->execute(*this);
 	}
 	// Otherwise,
 	else
 	{
-		ASTExprDot& dot = *(ASTExprDot*)left;
-		string nspace = dot.getNamespace();
-		string name = dot.getName();
-		Scope* namespaceScope = scope;
-		if (nspace != "") namespaceScope = scope->getNamespace(nspace);
-
-		vector<int> possibleFunctionIds = namespaceScope->getFunctionIds(name);
-
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)left;
+		vector<int> possibleFunctionIds = scope->getFunctionIds(identifier->getComponents());
 		if (possibleFunctionIds.size() == 0)
 		{
-			string fullname;
-			if (nspace == "")
-				fullname = name;
-			else
-				fullname = nspace + "::" + name;
-
-			printErrorMsg(&host, FUNCUNDECLARED, fullname);
+			printErrorMsg(&host, FUNCUNDECLARED, identifier->asString());
 			failure = true;
 			return;
 		}
@@ -399,28 +384,17 @@ void SemanticAnalyzer::caseFuncCall(ASTFuncCall& host)
 	RecursiveVisitor::caseFuncCall(host);
 }
 
-void SemanticAnalyzer::caseExprDot(ASTExprDot& host)
+void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host)
 {
-    string name = host.getName();
-    string nspace = host.getNamespace();
-	Scope* namespaceScope = scope;
-	if (nspace != "") namespaceScope = scope->getNamespace(nspace);
+	int variableId = scope->getVariableId(host.getComponents());
+	if (variableId == -1)
+	{
+		printErrorMsg(&host, VARUNDECLARED, host.asString());
+		failure = true;
+		return;
+	}
 
-	int variableId = namespaceScope->getVariableId(name);
-    if (variableId == -1)
-    {
-        string fullname;
-        if (nspace == "")
-            fullname = name;
-        else
-            fullname = nspace + "." + name;
-
-        printErrorMsg(&host, VARUNDECLARED, fullname);
-        failure = true;
-        return;
-    }
-
-    scope->getTable().putNodeId(&host, variableId);
+	scope->getTable().putNodeId(&host, variableId);
 }
 
 // ExprArrow just recurses.

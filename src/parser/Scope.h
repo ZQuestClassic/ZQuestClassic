@@ -58,6 +58,8 @@ public:
 	// Inheritance
 	Scope& getOrMakeLocalChild(string const& name);
 	Scope* getNamespace(string const& name) const;
+	Scope* getLocalChild(vector<string> const& names) const;
+	Scope* getChild(vector<string>const& names)const;
 	// Types
 	int getTypeId(string const& name) const;
 	ZVarType* getLocalType(string const& name) const;
@@ -72,6 +74,7 @@ public:
 	int addClass(string const& name);
 	// Variables
 	int getVariableId(string const& name) const;
+	int getVariableId(vector<string> const& name) const;
 	int addVariable(string const& name, ZVarType const& type, AST* node);
 	int addVariable(string const& name, ZVarTypeId typeId);
 	int addVariable(string const& name, ZVarType const& type);
@@ -88,6 +91,7 @@ public:
 	vector<int> getLocalFunctionIds(string const& name) const;
 	void getFunctionIds(vector<int>& ids, string const& name) const;
 	vector<int> getFunctionIds(string const& name) const;
+	vector<int> getFunctionIds(vector<string> const& names)const;
 	int getFunctionId(FunctionSignature const& signature) const;
 	int addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes, AST* node);
 	int addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds);

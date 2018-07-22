@@ -38,7 +38,7 @@ public:
     virtual void caseNumConstant(ASTNumConstant &host, void *param);
     virtual void caseBoolConstant(ASTBoolConstant &host, void *param);
     virtual void caseStringConstant(ASTStringConstant &host, void *param);
-    virtual void caseExprDot(ASTExprDot &host, void *param);
+    virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
     virtual void caseExprIndex(ASTExprIndex &host, void *param);
     virtual void caseFuncCall(ASTFuncCall &host, void *param);
@@ -171,7 +171,7 @@ class LValBOHelper : public ASTVisitor
 public:
     virtual void caseDefault(void *param);
     virtual void caseVarDecl(ASTVarDecl &host, void *param);
-    virtual void caseExprDot(ASTExprDot &host, void *param);
+    virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
     virtual void caseExprIndex(ASTExprIndex &host, void *param);
     vector<Opcode *> getResult() {return result;}
