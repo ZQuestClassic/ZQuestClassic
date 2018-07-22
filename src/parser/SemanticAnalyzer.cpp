@@ -297,22 +297,6 @@ void SemanticAnalyzer::caseScript(ASTScript& host)
 	scope = scope->getParent();
 	if (failure) return;
 
-	// Get run function.
-	vector<int> possibleRunIds = scope->getLocalFunctionIds("run");
-	if (possibleRunIds.size() > 1)
-	{
-		printErrorMsg(&host, TOOMANYRUN, name);
-		failure = true;
-		return;
-	}
-	else if (possibleRunIds.size() == 0)
-	{
-		printErrorMsg(&host, SCRIPTNORUN, name);
-		failure = true;
-		return;
-	}
-	int runId = possibleRunIds[0];
-
 	if (script.hasError())
 	{
 		script.printErrors();
