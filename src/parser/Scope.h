@@ -15,6 +15,16 @@ public:
 		int id;
 	};
 
+	struct Function
+	{
+		Function(ZVarType const* returnType, string const& name, vector<ZVarType const*> paramTypes, int id)
+				: returnType(returnType), name(name), paramTypes(paramTypes), id(id) {}
+		ZVarType const* returnType;
+		string name;
+		vector<ZVarType const*> paramTypes;
+		int id;
+	};
+
 	static Scope* makeGlobalScope(SymbolTable& table);
 
 	Scope(SymbolTable& table);
@@ -48,9 +58,11 @@ public:
 	virtual int addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node) = 0;
 	virtual int addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node) = 0;
 	// Functions
-	virtual void getLocalFunctionIds(vector<int>& ids, string const& name) const = 0;
-	virtual int getLocalFunctionId(FunctionSignature const& signature) const = 0;
-	virtual int addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds, AST* node) = 0;
+	virtual void getLocalFunctions(string const& name, vector<Function*>& out) const = 0;
+	virtual Function* getLocalFunction(FunctionSignature const& signature) const = 0;
+	virtual Function* addFunction(
+			ZVarType const* returnType, string const& name,
+			vector<ZVarType const*> const& paramTypes, AST* node = NULL) = 0;
 
 	////////////////
 	// Convenience Methods
@@ -87,14 +99,18 @@ public:
 	int addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds);
 	int addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds);
 	// Functions
+	vector<Function*> getLocalFunctions(string const& name) const;
+	void getLocalFunctionIds(string const& name, vector<int>& out) const;
 	vector<int> getLocalFunctionIds(string const& name) const;
-	void getFunctionIds(vector<int>& ids, string const& name) const;
+	void getFunctions(string const& name, vector<Function*>& out) const;
+	void getFunctionIds(string const& name, vector<int>& out) const;
+	vector<Function*> getFunctions(string const& name) const;
 	vector<int> getFunctionIds(string const& name) const;
+	vector<Function*> getFunctions(vector<string> const& names)const;
 	vector<int> getFunctionIds(vector<string> const& names)const;
+	Function* getFunction(FunctionSignature const& signature) const;
 	int getFunctionId(FunctionSignature const& signature) const;
-	int addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes, AST* node);
-	int addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds);
-	int addFunction(string const& name, ZVarType const& returnType, vector<ZVarType*> const& paramTypes);
+	Function* addFunction(ZVarTypeId returnTypeId, string const& name, vector<ZVarTypeId> const& paramTypeIds, AST* node = NULL);
 
 	bool varDeclsDeprecated;
 protected:
@@ -130,11 +146,12 @@ public:
 	using Scope::addSetter;
 	int addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node);
 	// Functions
-	using Scope::getLocalFunctionIds;
-	void getLocalFunctionIds(vector<int>& ids, string const& name) const;
-	int getLocalFunctionId(FunctionSignature const& signature) const;
+	using Scope::getLocalFunctions;
+	void getLocalFunctions(string const& name, vector<Function*>& out) const;
+	Function* getLocalFunction(FunctionSignature const& signature) const;
 	using Scope::addFunction;
-	int addFunction(string const& name, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds, AST* node);
+	Function* addFunction(ZVarType const* returnType, string const& name,
+						  vector<ZVarType const*> const& paramTypes, AST* node = NULL);
 private:
     Scope* parent;
     map<string, Scope*> children;
@@ -143,8 +160,8 @@ private:
 	map<string, Variable*> variables;
 	map<int, int> getters;
 	map<int, int> setters;
-	map<string, vector<int> > functionsByName;
-	map<FunctionSignature, int> functionsBySignature;
+	map<string, vector<Function*> > functionsByName;
+	map<FunctionSignature, Function*> functionsBySignature;
 
 	// Disabled since it's easy to call by accident instead of the Scope*
 	// constructor.

@@ -256,7 +256,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 	}
 
 	// Gather the paramater types.
-	vector<ZVarType*> paramTypes;
+	vector<ZVarType const*> paramTypes;
 	list<ASTVarDecl*>& params = host.getParams();
 	for (list<ASTVarDecl*>::iterator it = params.begin(); it != params.end(); ++it)
 	{
@@ -275,15 +275,15 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 			failure = true;
 		}
 
-		paramTypes.push_back((ZVarType*)&type);
+		paramTypes.push_back(&type);
 	}
 
 	// Add the function to the scope.
-	int functionId = scope->addFunction(host.getName(), returnType, paramTypes, &host);
+	Scope::Function* function = scope->addFunction(&returnType, host.getName(), paramTypes, &host);
 
 	// If adding it failed, it means this scope already has a function with
 	// that name.
-	if (functionId == -1)
+	if (function == NULL)
 	{
 		printErrorMsg(&host, FUNCTIONREDEF, host.getName());
 		failure = true;

@@ -14,12 +14,12 @@ using std::pair;
 class FunctionSignature
 {
 public:
-	FunctionSignature(string const& name, vector<ZVarTypeId> const& paramTypeIds);
+	FunctionSignature(string const& name, vector<ZVarType const*> const& paramTypes);
 	int compare(FunctionSignature const& other) const;
 	bool operator==(FunctionSignature const& other) const {return compare(other) == 0;}
 	bool operator<(FunctionSignature const& other) const {return compare(other) < 0;}
 	string name;
-	vector<ZVarTypeId> paramTypeIds;
+	vector<ZVarType const*> paramTypes;
 };
 
 class FunctionTypeIds
@@ -75,6 +75,7 @@ public:
     ZVarTypeId getFuncReturnTypeId(AST *node) const;
     vector<ZVarTypeId> getFuncParamTypeIds(int funcId) const;
     void putFuncTypeIds(int funcId, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds);
+    void putFuncTypes(int funcId, ZVarType const* returnType, vector<ZVarType const*> const& paramTypes);
 	// Global Pointers
     vector<int> const& getGlobalPointers() const {return globalPointers;}
     vector<int>& getGlobalPointers() {return globalPointers;}

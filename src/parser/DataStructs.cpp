@@ -16,19 +16,19 @@ using std::endl;
 ////////////////////////////////////////////////////////////////
 // FunctionSignature
 
-FunctionSignature::FunctionSignature(string const& name, vector<ZVarTypeId> const& paramTypeIds)
-	: name(name), paramTypeIds(paramTypeIds)
+FunctionSignature::FunctionSignature(string const& name, vector<ZVarType const*> const& paramTypes)
+	: name(name), paramTypes(paramTypes)
 {}
 
 int FunctionSignature::compare(FunctionSignature const& other) const
 {
 	int c = name.compare(other.name);
 	if (c) return c;
-	c = paramTypeIds.size() - other.paramTypeIds.size();
+	c = paramTypes.size() - other.paramTypes.size();
 	if (c) return c;
-	for (int i = 0; i < paramTypeIds.size(); ++i)
+	for (int i = 0; i < paramTypes.size(); ++i)
 	{
-		c = paramTypeIds[i] - other.paramTypeIds[i];
+		c = paramTypes[i]->compare(*other.paramTypes[i]);
 		if (c) return c;
 	}
 	return 0;
@@ -315,6 +315,15 @@ vector<ZVarTypeId> SymbolTable::getFuncParamTypeIds(int funcId) const
 
 void SymbolTable::putFuncTypeIds(int funcId, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds)
 {
+	funcTypes[funcId] = FunctionTypeIds(returnTypeId, paramTypeIds);
+}
+
+void SymbolTable::putFuncTypes(int funcId, ZVarType const* returnType, vector<ZVarType const*> const& paramTypes)
+{
+	ZVarTypeId returnTypeId = getOrAssignTypeId(*returnType);
+	vector<ZVarTypeId> paramTypeIds;
+	for (vector<ZVarType const*>::const_iterator it = paramTypes.begin(); it != paramTypes.end(); ++it)
+		paramTypeIds.push_back(getOrAssignTypeId(**it));
 	funcTypes[funcId] = FunctionTypeIds(returnTypeId, paramTypeIds);
 }
 
