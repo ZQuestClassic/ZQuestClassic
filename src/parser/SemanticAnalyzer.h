@@ -4,12 +4,12 @@
 #include "AST.h"
 #include "DataStructs.h"
 #include "UtilVisitors.h"
+#include "ZScript.h"
 
 class SemanticAnalyzer : public RecursiveVisitor
 {
 public:
-	SemanticAnalyzer();
-	~SemanticAnalyzer();
+	SemanticAnalyzer(ZScript::Program& program);
 
 	////////////////
 	// Cases
@@ -38,9 +38,9 @@ public:
 
 private:
 	bool failure;
-	SymbolTable data;
 	SymbolData results;
 	Scope* scope;
+	ZScript::Program& program;
 
 	bool deprecateGlobals;
 

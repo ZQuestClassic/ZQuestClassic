@@ -2,21 +2,18 @@
 
 #include "Scope.h"
 #include "ParseError.h"
-#include "ZScript.h"
 
 using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
 // SemanticAnalyzer
 
-SemanticAnalyzer::SemanticAnalyzer() : failure(false), deprecateGlobals(false)
+SemanticAnalyzer::SemanticAnalyzer(ZScript::Program& program)
+	: failure(false), deprecateGlobals(false), program(program)
 {
-	results.symbols = &data;
-}
-
-SemanticAnalyzer::~SemanticAnalyzer()
-{
-	delete scope;
+	results.symbols = &program.table;
+	scope = &program.globalScope;
+	caseProgram(*program.ast);
 }
 
 void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& function)
@@ -64,9 +61,6 @@ void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& 
 
 void SemanticAnalyzer::caseProgram(ASTProgram& host)
 {
-	// Create the global scope.
-	scope = new GlobalScope(data);
-
 	// Recurse on elements.
 	RecursiveVisitor::caseProgram(host);
 
@@ -343,7 +337,7 @@ void SemanticAnalyzer::caseScript(ASTScript& host)
 		return;
 	}
 	int runId = possibleRunIds[0];
-	if (data.getTypeId(ZVarType::ZVOID) != data.getFuncReturnTypeId(runId))
+	if (program.table.getTypeId(ZVarType::ZVOID) != program.table.getFuncReturnTypeId(runId))
 	{
 		printErrorMsg(&host, SCRIPTRUNNOTVOID, name);
 		failure = true;
@@ -352,7 +346,7 @@ void SemanticAnalyzer::caseScript(ASTScript& host)
 
 	// Save script info.
 	results.runsymbols[&host] = runId;
-	results.numParams[&host] = (int) data.getFuncParamTypeIds(runId).size();
+	results.numParams[&host] = (int) program.table.getFuncParamTypeIds(runId).size();
 	results.scriptTypes[&host] = scriptType;
 }
 
