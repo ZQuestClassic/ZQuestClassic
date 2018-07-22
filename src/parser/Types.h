@@ -24,7 +24,8 @@ enum ZVarTypeClassId
 	ZVARTYPE_CLASSID_SIMPLE,
 	ZVARTYPE_CLASSID_UNRESOLVED,
 	ZVARTYPE_CLASSID_CONST_FLOAT,
-	ZVARTYPE_CLASSID_CLASS
+	ZVARTYPE_CLASSID_CLASS,
+	ZVARTYPE_CLASSID_ARRAY
 };
 
 enum ZVarTypeIdBuiltin
@@ -81,6 +82,7 @@ enum ZVarTypeIdBuiltin
 class ZVarTypeSimple;
 class ZVarTypeConstFloat;
 class ZVarTypeClass;
+class ZVarTypeArray;
 
 class ZVarType
 {
@@ -98,6 +100,7 @@ public:
 	bool operator!=(ZVarType const& other) const {return compare(other) != 0;}
 	bool operator<(ZVarType const& other) const {return compare(other) < 0;}
 
+	// Comparator for pointers to types.
 	struct PointerLess : public std::less<ZVarType*> {
 		bool operator() (ZVarType* const& a, ZVarType* const& b) const
 		{
@@ -213,13 +216,30 @@ public:
 	int getClassId() const {return classId;}
 	ZVarType* resolve(Scope& scope);
 	bool canBeGlobal() const {return true;}
-	bool canCastTo(ZVarType const& target) const {return *this == target;}
-	int typeClassId() const {return ZVARTYPE_CLASSID_CLASS;};
+	bool canCastTo(ZVarType const& target) const;
+	int typeClassId() const {return ZVARTYPE_CLASSID_CLASS;}
 protected:
 	int selfCompare(ZVarType const& other) const;
 private:
 	int classId;
 	string className;
+};
+
+class ZVarTypeArray : public ZVarType
+{
+public:
+	ZVarTypeArray(ZVarType const& elementType) : elementType(elementType) {}
+	ZVarTypeArray* clone() const {return new ZVarTypeArray(elementType);}
+	string getName() const {return elementType.getName() + "[]";}
+	ZVarType* resolve(Scope& scope) {return this;}
+	bool canBeGlobal() const {return true;}
+	bool canCastTo(ZVarType const& target) const;
+	int typeClassId() const {return ZVARTYPE_CLASSID_ARRAY; }
+	ZVarType const& getBaseType() const;
+protected:
+	int selfCompare(ZVarType const& other) const;
+private:
+	ZVarType const& elementType;
 };
 
 #endif

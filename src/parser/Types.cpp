@@ -115,6 +115,7 @@ bool ZVarTypeSimple::canBeGlobal() const
 
 bool ZVarTypeSimple::canCastTo(ZVarType const& target) const
 {
+	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY) return target.canCastTo(*this);
 	if (simpleId == ZVARTYPEID_FLOAT && target.typeClassId() == ZVARTYPE_CLASSID_CONST_FLOAT) return true;
 	if (target.typeClassId() != ZVARTYPE_CLASSID_SIMPLE) return false;
 	ZVarTypeSimple const& t = (ZVarTypeSimple const&)target;
@@ -171,6 +172,12 @@ string ZVarTypeClass::getName() const
 	return name + "[class " + tmp + "]";
 }
 
+bool ZVarTypeClass::canCastTo(ZVarType const& target) const
+{
+	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY) return target.canCastTo(*this);
+	return *this == target;
+}
+
 ZVarType* ZVarTypeClass::resolve(Scope& scope)
 {
 	// Grab the proper name for the class the first time it's resolved.
@@ -186,3 +193,27 @@ int ZVarTypeClass::selfCompare(ZVarType const& other) const
 	return classId - o.classId;
 }
 
+////////////////////////////////////////////////////////////////
+// ZVarTypeArray
+
+bool ZVarTypeArray::canCastTo(ZVarType const& target) const
+{
+	if (elementType == target) return true;
+	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
+		return getBaseType() == ZVarTypeArray(target).getBaseType();
+	return false;
+}
+
+ZVarType const& ZVarTypeArray::getBaseType() const
+{
+	ZVarType const* type = &elementType;
+	while (type->typeClassId() == ZVARTYPE_CLASSID_ARRAY)
+		type = &((ZVarTypeArray const*)type)->elementType;
+	return *type;
+}
+
+int ZVarTypeArray::selfCompare(ZVarType const& other) const
+{
+	ZVarTypeArray const& o = (ZVarTypeArray const&)other;
+	return elementType.compare(o.elementType);
+}

@@ -190,21 +190,24 @@ void SemanticAnalyzer::caseVarDeclInitializer(ASTVarDeclInitializer& host)
 void SemanticAnalyzer::caseArrayDecl(ASTArrayDecl& host)
 {
 	// Resolve the type under current scope.
-	ZVarType const& type = host.getType()->resolve(*scope);
-	if (!type.isResolved())
+	ZVarType const& elementType = host.getType()->resolve(*scope);
+	if (!elementType.isResolved())
 	{
-		printErrorMsg(&host, UNRESOLVEDTYPE, type.getName());
+		printErrorMsg(&host, UNRESOLVEDTYPE, elementType.getName());
 		failure = true;
 		return;
 	}
 
 	// Don't allow void type.
-	if (type == ZVarType::ZVOID)
+	if (elementType == ZVarType::ZVOID)
 	{
 		failure = true;
 		printErrorMsg(&host, VOIDARR, host.getName());
 		return;
 	}
+
+	// Convert to array type.
+	ZVarTypeArray type(elementType);
 
 	// Check for disallowed global types.
 	if (scope->isGlobal() && !type.canBeGlobal())
