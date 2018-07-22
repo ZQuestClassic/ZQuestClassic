@@ -11,10 +11,13 @@ using std::map;
 using std::vector;
 using std::pair;
 
+// Forward declare ZScript.h
 namespace ZScript
 {
 	struct Program;
 	struct Script;
+	struct Variable;
+	struct Function;
 }
 
 class FunctionSignature
@@ -101,22 +104,13 @@ private:
     vector<int> globalPointers;
 };
 
-struct SymbolData
-{
-	SymbolData(ZScript::Program& program) : program(program) {}
-	ZScript::Program& program;
-    vector<ASTVarDecl*> globalVars;
-    vector<ASTArrayDecl*> globalArrays;
-};
-
 struct FunctionData
 {
-	FunctionData(SymbolData const& symbolData);
+	FunctionData(ZScript::Program& program);
 	ZScript::Program& program;
     vector<ASTFuncDecl*> functions;
-    vector<ASTVarDecl*> globalVars;
-    vector<ASTArrayDecl*> globalArrays;
-	int globalVarCount;
+	vector<ZScript::Variable*> globalVariables;
+	vector<ZScript::Variable*> globalConstants;
     map<string, int> thisPtr;
 };
 

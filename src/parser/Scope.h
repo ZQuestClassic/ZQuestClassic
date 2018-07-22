@@ -41,6 +41,7 @@ public:
 	virtual int getLocalClassId(string const& name) const = 0;
 	virtual int addClass(string const& name, AST* node) = 0;
 	// Variables
+	virtual vector<ZScript::Variable*> getLocalVariables() const = 0;
 	virtual ZScript::Variable* getLocalVariable(string const& name) const = 0;
 	virtual ZScript::Variable* addVariable(ZVarType const& type, string const& name, AST* node = NULL) = 0;
 	// Properties
@@ -123,6 +124,7 @@ public:
 	int getLocalClassId(string const& name) const;
 	int addClass(string const& name, AST* node);
 	// Variables
+	vector<ZScript::Variable*> getLocalVariables() const;
 	ZScript::Variable* getLocalVariable(string const& name) const;
 	using Scope::addVariable;
 	ZScript::Variable* addVariable(ZVarType const& type, string const& name, AST* node = NULL);

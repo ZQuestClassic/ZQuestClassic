@@ -34,11 +34,9 @@ public:
 
 	////////////////
 	bool hasFailed() const {return failure;}
-	SymbolData& getResults() {return results;}
 
 private:
 	bool failure;
-	SymbolData results;
 	Scope* scope;
 	ZScript::Program& program;
 

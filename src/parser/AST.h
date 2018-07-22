@@ -280,6 +280,8 @@ public:
 	virtual bool isTypeArrow() const {return false;}
 	virtual bool isTypeIndex() const {return false;}
 	virtual bool isTypeIdentifier() const {return false;}
+	virtual bool isTypeVarDecl() const {return false;}
+	virtual bool isTypeArrayDecl() const {return false;}
 private:
     LocationData loc;
 };
@@ -692,6 +694,7 @@ public:
     ASTArrayDecl(ASTVarType *Type, string Name, ASTExpr *Size, ASTArrayList *List, LocationData Loc);
     ~ASTArrayDecl();
 	ASTArrayDecl* clone() const;
+	bool isTypeArrayDecl() const {return true;}
 
     ASTVarType *getType() const {return type;}
     string getName() const {return name;}
@@ -743,6 +746,7 @@ public:
     ASTVarDecl(ASTVarType *Type, string Name, LocationData Loc) : ASTDecl(Loc), type(Type), name(Name) {}
     virtual ~ASTVarDecl();
 	virtual ASTVarDecl* clone() const;
+	bool isTypeVarDecl() const {return true;}
 
     ASTVarType *getType() const {return type;}
     string getName() const {return name;}

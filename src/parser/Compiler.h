@@ -63,6 +63,11 @@ struct ScriptsData
 
 ScriptsData *compile(const char *filename);
 
+namespace ZScript
+{
+	class Program;
+}
+
 struct SymbolData;
 struct FunctionData;
 struct IntermediateData;
@@ -90,7 +95,7 @@ public:
     }
     static bool preprocess(ASTProgram* theAST, int reclevel);
     static SymbolData* buildSymbolTable(ASTProgram* theAST);
-    static FunctionData* typeCheck(SymbolData* sdata);
+    static FunctionData* typeCheck(ZScript::Program& program);
     static IntermediateData* generateOCode(FunctionData* fdata);
     static ScriptsData* assemble(IntermediateData* id);
     static void resetState()

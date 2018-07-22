@@ -372,6 +372,15 @@ int BasicScope::addClass(string const& name, AST* node)
 
 // Variables
 
+vector<Variable*> BasicScope::getLocalVariables() const
+{
+	vector<Variable*> ret;
+	for (map<string, Variable*>::const_iterator it = variables.begin();
+		 it != variables.end(); ++it)
+		ret.push_back(it->second);
+	return ret;
+}
+
 Variable* BasicScope::getLocalVariable(string const& name) const
 {
 	map<string, Variable*>::const_iterator it = variables.find(name);
@@ -385,7 +394,7 @@ Variable* BasicScope::addVariable(ZVarType const& type, string const& name, AST*
 	map<string, Variable*>::const_iterator it = variables.find(name);
 	if (it != variables.end()) return NULL;
 
-	Variable* var = new Variable(&type, name, ScriptParser::getUniqueVarID());
+	Variable* var = new Variable((ASTDecl*)node, &type, name, ScriptParser::getUniqueVarID());
 	variables[name] = var;
 	table.putVarTypeId(var->id, table.getOrAssignTypeId(type));
 	if (node) table.putNodeId(node, var->id);
