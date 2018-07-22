@@ -532,13 +532,17 @@ void TypeCheck::caseExprIncrement(ASTExprIncrement &host)
     host.getOperand()->execute(*this);
     if (failure) return;
 
-    if (!host.getOperand()->isTypeIdentifier())
+	ASTExpr& operand = *host.getOperand();
+    if (operand.isTypeArrow() || operand.isTypeIndex())
     {
-        int fid = symbolTable.getNodeId(host.getOperand());
+		ASTExprArrow* arrow;
+		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
+		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).getArray();
+        int fid = symbolTable.getNodeId(arrow);
         symbolTable.putNodeId(&host, fid);
     }
 
-	ZVarTypeId ltype = getLValTypeId(*host.getOperand());
+	ZVarTypeId ltype = getLValTypeId(operand);
     if (failure) return;
 
     if (!standardCheck(ZVARTYPEID_FLOAT, ltype, &host))
@@ -555,13 +559,17 @@ void TypeCheck::caseExprPreIncrement(ASTExprPreIncrement &host)
     host.getOperand()->execute(*this);
     if (failure) return;
 
-    if (!host.getOperand()->isTypeIdentifier())
+	ASTExpr& operand = *host.getOperand();
+    if (operand.isTypeArrow() || operand.isTypeIndex())
     {
-        int fid = symbolTable.getNodeId(host.getOperand());
+		ASTExprArrow* arrow;
+		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
+		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).getArray();
+        int fid = symbolTable.getNodeId(arrow);
         symbolTable.putNodeId(&host, fid);
     }
 
-	ZVarTypeId ltype = getLValTypeId(*host.getOperand());
+	ZVarTypeId ltype = getLValTypeId(operand);
     if (failure) return;
 
     if (!standardCheck(ZVARTYPEID_FLOAT, ltype, &host))
@@ -578,13 +586,17 @@ void TypeCheck::caseExprDecrement(ASTExprDecrement &host)
     host.getOperand()->execute(*this);
     if (failure) return;
 
-    if (!host.getOperand()->isTypeIdentifier())
+	ASTExpr& operand = *host.getOperand();
+    if (operand.isTypeArrow() || operand.isTypeIndex())
     {
-        int fid = symbolTable.getNodeId(host.getOperand());
+		ASTExprArrow* arrow;
+		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
+		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).getArray();
+        int fid = symbolTable.getNodeId(arrow);
         symbolTable.putNodeId(&host, fid);
     }
 
-	ZVarTypeId ltype = getLValTypeId(*host.getOperand());
+	ZVarTypeId ltype = getLValTypeId(operand);
     if (failure) return;
 
     if (!standardCheck(ZVARTYPEID_FLOAT, ltype, &host))
@@ -601,13 +613,17 @@ void TypeCheck::caseExprPreDecrement(ASTExprPreDecrement &host)
     host.getOperand()->execute(*this);
     if (failure) return;
 
-    if (!host.getOperand()->isTypeIdentifier())
+	ASTExpr& operand = *host.getOperand();
+    if (operand.isTypeArrow() || operand.isTypeIndex())
     {
-        int fid = symbolTable.getNodeId(host.getOperand());
+		ASTExprArrow* arrow;
+		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
+		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).getArray();
+        int fid = symbolTable.getNodeId(arrow);
         symbolTable.putNodeId(&host, fid);
     }
 
-	ZVarTypeId ltype = getLValTypeId(*host.getOperand());
+	ZVarTypeId ltype = getLValTypeId(operand);
     if (failure) return;
 
     if (!standardCheck(ZVARTYPEID_FLOAT, ltype, &host))

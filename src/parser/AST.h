@@ -281,6 +281,7 @@ public:
 
 	// Subclass Predicates (replacing typeof and such)
 	virtual bool isTypeArrow() const {return false;}
+	virtual bool isTypeIndex() const {return false;}
 	virtual bool isTypeIdentifier() const {return false;}
 private:
     LocationData loc;
@@ -1010,6 +1011,7 @@ public:
 	ASTExprIndex& operator=(ASTExprIndex const& rhs);
     ~ASTExprIndex() {delete array; delete index;}
 	ASTExprIndex* clone() const {return new ASTExprIndex(*this);}
+	bool isTypeIndex() const {return true;}
     
 	ASTExpr* getArray()const {return array;}
     ASTExpr* getIndex() const {return index;}
