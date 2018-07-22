@@ -99,7 +99,7 @@ void TypeCheck::caseArrayDecl(ASTArrayDecl &host)
 	ASTExpr *size = host.getSize();
 	size->execute(*this);
     
-	if (size->getVarType() != ZVarType::FLOAT)
+	if (!size->getVarType().canCastTo(ZVarType::FLOAT))
 	{
 		printErrorMsg(&host, NONINTEGERARRAYSIZE, "");
 		failure = true;
