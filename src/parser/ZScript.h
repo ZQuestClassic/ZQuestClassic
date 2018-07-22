@@ -53,11 +53,17 @@ namespace ZScript
 	struct Function
 	{
 		Function(ZVarType const* returnType, string const& name, vector<ZVarType const*> paramTypes, int id)
-				: returnType(returnType), name(name), paramTypes(paramTypes), id(id) {}
+				: node(NULL), internalScope(NULL), thisVar(NULL),
+				  returnType(returnType), name(name), paramTypes(paramTypes), id(id)
+			{}
 		ZVarType const* returnType;
 		string name;
 		vector<ZVarType const*> paramTypes;
 		int id;
+
+		ASTFuncDecl* node;
+		Scope* internalScope;
+		Variable* thisVar;
 	};
 }
 

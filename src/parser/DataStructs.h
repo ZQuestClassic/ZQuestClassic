@@ -108,7 +108,6 @@ struct SymbolData
     vector<ASTFuncDecl*> globalFuncs;
     vector<ASTVarDecl*> globalVars;
     vector<ASTArrayDecl*> globalArrays;
-    map<ASTScript*, int> thisPtr;
 };
 
 struct FunctionData
