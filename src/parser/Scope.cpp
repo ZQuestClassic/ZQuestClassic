@@ -168,46 +168,26 @@ Scope::Variable* Scope::addVariable(ZVarTypeId typeId, string const& name, AST* 
 
 // Properties
 
-int Scope::getGetterId(int varId) const
+Scope::Function* Scope::getGetter(string const& name) const
 {
-	int id = getLocalGetterId(varId);
+	Function* fun = getLocalGetter(name);
+	if (!fun)
+	{
 	Scope* parent = getParent();
-	if (id == -1 && parent)
-		id = parent->getGetterId(varId);
-	return id;
+		if (parent) fun = parent->getGetter(name);
+	}
+	return fun;
 }
 
-int Scope::getGetterId(string const& name) const
+Scope::Function* Scope::getSetter(string const& name) const
 {
-	int varId = getVariableId(name);
-	if (varId == -1) return -1;
-	return getGetterId(varId);
-}
-
-int Scope::getSetterId(int varId) const
-{
-	int id = getLocalSetterId(varId);
+	Function* fun = getLocalSetter(name);
+	if (!fun)
+	{
 	Scope* parent = getParent();
-	if (id == -1 && parent)
-		id = parent->getSetterId(varId);
-	return id;
-}
-
-int Scope::getSetterId(string const& name) const
-{
-	int varId = getVariableId(name);
-	if (varId == -1) return -1;
-	return getSetterId(varId);
-}
-
-int Scope::addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds)
-{
-	return addGetter(varId, paramTypeIds, NULL);
-}
-
-int Scope::addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds)
-{
-	return addSetter(varId, paramTypeIds, NULL);
+		if (parent) fun = parent->getSetter(name);
+	}
+	return fun;
 }
 
 // Functions
@@ -329,6 +309,15 @@ BasicScope::~BasicScope()
 		delete it->second;
 	for (map<string, Variable*>::iterator it = variables.begin(); it != variables.end(); ++it)
 		delete it->second;
+	for (map<FunctionSignature, Function*>::iterator it = functionsBySignature.begin();
+	   it != functionsBySignature.end(); ++it)
+	{
+		delete it->second;
+	}
+	for (map<string, Function*>::iterator it = getters.begin(); it != getters.end(); ++it)
+		delete it->second;
+	for (map<string, Function*>::iterator it = setters.begin(); it != setters.end(); ++it)
+		delete it->second;
 }
 
 // Inheritance
@@ -412,41 +401,48 @@ Scope::Variable* BasicScope::addVariable(ZVarType const& type, string const& nam
 
 // Properties
 
-int BasicScope::getLocalGetterId(int varId) const
+Scope::Function* BasicScope::getLocalGetter(string const& name) const
 {
-	map<int, int>::const_iterator it = getters.find(varId);
-	if (it != getters.end()) return it->second;
-	return -1;
+	map<string, Function*>::const_iterator it = getters.find(name);
+	if (it == getters.end()) return NULL;
+	return it->second;
 }
 
-int BasicScope::getLocalSetterId(int varId) const
+Scope::Function*  BasicScope::getLocalSetter(string const& name) const
 {
-	map<int, int>::const_iterator it = setters.find(varId);
-	if (it != setters.end()) return it->second;
-	return -1;
+	map<string, Function*>::const_iterator it = setters.find(name);
+	if (it == setters.end()) return NULL;
+	return it->second;
 }
 
-int BasicScope::addGetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node)
+Scope::Function* BasicScope::addGetter(
+		ZVarType const* returnType, string const& name,
+		vector<ZVarType const*> const& paramTypes, AST* node)
 {
-	map<int, int>::const_iterator it = getters.find(varId);
-	if (it != getters.end()) return -1;
-	ZVarTypeId returnTypeId = table.getVarTypeId(varId);
-	int getterId = ScriptParser::getUniqueFuncID();
-	getters[varId] = getterId;
-	table.putFuncTypeIds(getterId, returnTypeId, paramTypeIds);
-	if (node) table.putNodeId(node, getterId);
-	return getterId;
+	// Return null if getter with name already exists locally.
+	map<string, Function*>::const_iterator it = getters.find(name);
+	if (it != getters.end()) return NULL;
+
+	Function* fun = new Function(returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
+	getters[name] = fun;
+	table.putFuncTypes(fun->id, returnType, paramTypes);
+	if (node) table.putNodeId(node, fun->id);
+	return fun;
 }
 
-int BasicScope::addSetter(int varId, vector<ZVarTypeId> const& paramTypeIds, AST* node)
+Scope::Function* BasicScope::addSetter(
+		ZVarType const* returnType, string const& name,
+		vector<ZVarType const*> const& paramTypes, AST* node)
 {
-	map<int, int>::const_iterator it = setters.find(varId);
-	if (it != setters.end()) return -1;
-	int setterId = ScriptParser::getUniqueFuncID();
-	setters[varId] = setterId;
-	table.putFuncTypeIds(setterId, table.getTypeId(ZVarType::ZVOID), paramTypeIds);
-	if (node) table.putNodeId(node, setterId);
-	return setterId;
+	// Return null if setter with name already exists locally.
+	map<string, Function*>::const_iterator it = setters.find(name);
+	if (it != setters.end()) return NULL;
+
+	Function* fun = new Function(returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
+	setters[name] = fun;
+	table.putFuncTypes(fun->id, returnType, paramTypes);
+	if (node) table.putNodeId(node, fun->id);
+	return fun;
 }
 
 // Functions
