@@ -9,9 +9,24 @@ namespace ZScript
 	struct Program
 	{
 		Program(ASTProgram* ast);
-		ASTProgram* ast;
+		ASTProgram* node;
 		SymbolTable table;
 		GlobalScope globalScope;
+
+		vector<Script> scripts;
+		Script* getScript(string const& name) const;
+		Script* getScript(ASTScript* node) const;
+	private:
+		map<string, Script*> scriptsByName;
+		map<ASTScript*, Script*> scriptsByNode;
+	};
+
+	struct Script
+	{
+		Script(ASTScript* script);
+		ASTScript* node;
+		string getName() const;
+		ScriptType getType() const;
 	};
 
 	struct Variable

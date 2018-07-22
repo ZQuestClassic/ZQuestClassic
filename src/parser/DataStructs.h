@@ -11,6 +11,12 @@ using std::map;
 using std::vector;
 using std::pair;
 
+namespace ZScript
+{
+	struct Program;
+	struct Script;
+}
+
 class FunctionSignature
 {
 public:
@@ -97,14 +103,13 @@ private:
 
 struct SymbolData
 {
-    SymbolTable* symbols;
+	SymbolData(ZScript::Program& program) : program(program) {}
+	ZScript::Program& program;
     vector<ASTFuncDecl*> globalFuncs;
     vector<ASTVarDecl*> globalVars;
     vector<ASTArrayDecl*> globalArrays;
-    vector<ASTScript*> scripts;
     map<ASTScript*, int> runsymbols;
     map<ASTScript*, int> numParams;
-    map<ASTScript*, ScriptType> scriptTypes;
     map<ASTScript*, int> thisPtr;
 };
 

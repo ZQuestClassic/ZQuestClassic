@@ -180,31 +180,34 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
     return true;
 }
 
-FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
+FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 {
+	ZScript::Program& program = sdata->program;
+
     //build the functiondata
     FunctionData *fd = new FunctionData;
-    fd->symbols = sdata->symbols;
+    fd->symbols = &program.table;
     fd->newGlobalVars = sdata->globalVars;
     fd->newGlobalArrays = sdata->globalArrays;
-    vector<ASTScript *> scripts = sdata->scripts;
     vector<ASTFuncDecl *> funcs = sdata->globalFuncs;
     map<ASTScript *, int> runsymbols = sdata->runsymbols;
     map<ASTScript *, int> numparams = sdata->numParams;
-    map<ASTScript *, ScriptType> scripttypes = sdata->scriptTypes;
     map<ASTScript *, int> thisptr = sdata->thisPtr;
     bool failure = false;
     map<int, bool> usednums;
     
-    //strip var and func decls from the scripts
-    for(vector<ASTScript *>::iterator it = scripts.begin(); it != scripts.end(); it++)
+    // Strip var and func decls from the scripts.
+    for (vector<ZScript::Script>::const_iterator it = program.scripts.begin();
+		 it != program.scripts.end(); it++)
     {
-        fd->scriptRunSymbols[(*it)->getName()] = runsymbols[*it];
-        fd->numParams[(*it)->getName()] = numparams[*it];
-        fd->scriptTypes[(*it)->getName()] = scripttypes[*it];
-        fd->thisPtr[(*it)->getName()] = thisptr[*it];
+		ZScript::Script const& script = *it;
+		ASTScript* node = script.node;
+        fd->scriptRunSymbols[node->getName()] = runsymbols[node];
+        fd->numParams[node->getName()] = numparams[node];
+        fd->scriptTypes[node->getName()] = script.getType();
+        fd->thisPtr[node->getName()] = thisptr[node];
         //strip vars and funcs
-        list<ASTDecl *> &stuff = (*it)->getScriptBlock()->getDeclarations();
+        list<ASTDecl *> &stuff = node->getScriptBlock()->getDeclarations();
         
         for(list<ASTDecl *>::iterator it2 = stuff.begin(); it2 != stuff.end();)
         {
@@ -234,11 +237,13 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
             it2 = stuff.erase(it2);
         }
     }
-    
-    for(vector<ASTScript *>::iterator it = scripts.begin(); it != scripts.end(); it++)
+
+    /*
+    for (vector<ASTScript*>::iterator it = scripts.begin(); it != scripts.end(); it++)
     {
-        delete *it;
+	    delete *it;
     }
+    */
     
     for(vector<ASTFuncDecl *>::iterator it = funcs.begin(); it != funcs.end(); it++)
     {
