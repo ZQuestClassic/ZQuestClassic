@@ -119,13 +119,6 @@ int Scope::addClass(string const& name)
 
 // Variables
 
-int Scope::getLocalVariableId(string const& name) const
-{
-	Variable* var = getLocalVariable(name);
-	if (var == NULL) return -1;
-	return var->id;
-}
-
 Scope::Variable* Scope::getVariable(string const& name) const
 {
 	Variable* var = getLocalVariable(name);
@@ -138,13 +131,6 @@ Scope::Variable* Scope::getVariable(string const& name) const
 	return var;
 }
 
-int Scope::getVariableId(string const& name) const
-{
-	Variable* var = getVariable(name);
-	if (var == NULL) return -1;
-	return var->id;
-}
-
 Scope::Variable* Scope::getVariable(vector<string> const& names) const
 {
 	vector<string> namespaces = names;
@@ -152,18 +138,6 @@ Scope::Variable* Scope::getVariable(vector<string> const& names) const
 	Scope* scope = getChild(namespaces);
 	if (scope == NULL) return NULL;
 	return scope->getVariable(names.back());
-}
-
-int Scope::getVariableId(vector<string> const& name) const
-{
-	Variable* var = getVariable(name);
-	if (var == NULL) return -1;
-	return var->id;
-}
-
-Scope::Variable* Scope::addVariable(ZVarTypeId typeId, string const& name, AST* node)
-{
-	return addVariable(*table.getType(typeId), name, node);
 }
 
 // Properties
@@ -494,33 +468,33 @@ GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
 	}
 
 	// Add global pointers.
-    table.addGlobalPointer(addVariable(ZVARTYPEID_LINK, "Link")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_SCREEN, "Screen")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_GAME, "Game")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_DEBUG, "Debug")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_AUDIO, "Audio")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_TEXT, "Text")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_NPCDATA, "NPCData")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_COMBOS, "ComboData")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_SPRITEDATA, "SpriteData")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_GRAPHICS, "Graphics")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_INPUT, "Input")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_MAPDATA, "MapData")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_DMAPDATA, "DMapData")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_ZMESSAGE, "MessageData")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_SHOPDATA, "ShopData")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_UNTYPED, "Untyped")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_DROPSET, "DropData")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_PONDS, "PondData")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_WARPRING, "WarpRing")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_DOORSET, "DoorSet")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_ZUICOLOURS, "MiscColors")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_RGBDATA, "RGBData")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_PALETTE, "Palette")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_TUNES, "MusicTrack")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_PALCYCLE, "PalCycle")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_GAMEDATA, "GameData")->id);
-    table.addGlobalPointer(addVariable(ZVARTYPEID_CHEATS, "Cheats")->id);
+    table.addGlobalPointer(addVariable(ZVarType::LINK, "Link")->id);
+    table.addGlobalPointer(addVariable(ZVarType::SCREEN, "Screen")->id);
+    table.addGlobalPointer(addVariable(ZVarType::GAME, "Game")->id);
+    table.addGlobalPointer(addVariable(ZVarType::DEBUG, "Debug")->id);
+    table.addGlobalPointer(addVariable(ZVarType::AUDIO, "Audio")->id);
+    table.addGlobalPointer(addVariable(ZVarType::TEXT, "Text")->id);
+    table.addGlobalPointer(addVariable(ZVarType::NPCDATA, "NPCData")->id);
+    table.addGlobalPointer(addVariable(ZVarType::COMBOS, "ComboData")->id);
+    table.addGlobalPointer(addVariable(ZVarType::SPRITEDATA, "SpriteData")->id);
+    table.addGlobalPointer(addVariable(ZVarType::GRAPHICS, "Graphics")->id);
+    table.addGlobalPointer(addVariable(ZVarType::INPUT, "Input")->id);
+    table.addGlobalPointer(addVariable(ZVarType::MAPDATA, "MapData")->id);
+    table.addGlobalPointer(addVariable(ZVarType::DMAPDATA, "DMapData")->id);
+    table.addGlobalPointer(addVariable(ZVarType::ZMESSAGE, "MessageData")->id);
+    table.addGlobalPointer(addVariable(ZVarType::SHOPDATA, "ShopData")->id);
+    table.addGlobalPointer(addVariable(ZVarType::UNTYPED, "Untyped")->id);
+    table.addGlobalPointer(addVariable(ZVarType::DROPSET, "DropData")->id);
+    table.addGlobalPointer(addVariable(ZVarType::PONDS, "PondData")->id);
+    table.addGlobalPointer(addVariable(ZVarType::WARPRING, "WarpRing")->id);
+    table.addGlobalPointer(addVariable(ZVarType::DOORSET, "DoorSet")->id);
+    table.addGlobalPointer(addVariable(ZVarType::ZUICOLOURS, "MiscColors")->id);
+    table.addGlobalPointer(addVariable(ZVarType::RGBDATA, "RGBData")->id);
+    table.addGlobalPointer(addVariable(ZVarType::PALETTE, "Palette")->id);
+    table.addGlobalPointer(addVariable(ZVarType::TUNES, "MusicTrack")->id);
+    table.addGlobalPointer(addVariable(ZVarType::PALCYCLE, "PalCycle")->id);
+    table.addGlobalPointer(addVariable(ZVarType::GAMEDATA, "GameData")->id);
+    table.addGlobalPointer(addVariable(ZVarType::CHEATS, "Cheats")->id);
 }
 
 ////////////////////////////////////////////////////////////////

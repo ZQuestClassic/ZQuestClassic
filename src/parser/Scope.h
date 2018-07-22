@@ -87,12 +87,8 @@ public:
 	ZClass* getClass(string const& name) const;
 	int addClass(string const& name);
 	// Variables
-	int getLocalVariableId(string const& name) const;
 	Variable* getVariable(string const& name) const;
-	int getVariableId(string const& name) const;
 	Variable* getVariable(vector<string> const& name) const;
-	int getVariableId(vector<string> const& name) const;
-	Variable* addVariable(ZVarTypeId typeId, string const& name, AST* node = NULL);
 	// Properties
 	Function* getGetter(string const& name) const;
 	Function* getSetter(string const& name) const;

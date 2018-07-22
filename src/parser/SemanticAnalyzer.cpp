@@ -25,7 +25,8 @@ void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& 
 	if (function.getName() == "run" && returnType == ZVarType::ZVOID)
 	{
 		ZVarTypeId thisTypeId = ScriptParser::getThisType(scriptType);
-		Scope::Variable* thisVar = functionScope.addVariable(thisTypeId, "this");
+		ZVarType const& thisType = *scope->getTable().getType(thisTypeId);
+		Scope::Variable* thisVar = functionScope.addVariable(thisType, "this");
 		results.thisPtr[script] = thisVar->id;
 	}
 
@@ -394,15 +395,15 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host)
 
 void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host)
 {
-	int variableId = scope->getVariableId(host.getComponents());
-	if (variableId == -1)
+	Scope::Variable* variable = scope->getVariable(host.getComponents());
+	if (!variable)
 	{
 		printErrorMsg(&host, VARUNDECLARED, host.asString());
 		failure = true;
 		return;
 	}
 
-	scope->getTable().putNodeId(&host, variableId);
+	scope->getTable().putNodeId(&host, variable->id);
 }
 
 // ExprArrow just recurses.
