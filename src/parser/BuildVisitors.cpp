@@ -686,35 +686,23 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
     addOpcode(next);
 }
 
-void BuildOpcodes::caseExprArray(ASTExprArray &host, void *param)
+void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 {
-    OpcodeContext *c = (OpcodeContext *)param;
-    int aid = c->symbols->getNodeId(&host);
-    int globalid = c->linktable->getGlobalID(aid);
+	// First, push the array.
+	host.getArray()->execute(*this, param);
+	addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
-    if(globalid != -1)
-    {
-        //global variable, so just get its value
-        addOpcode(new OSetRegister(new VarArgument(EXP1), new GlobalArgument(globalid)));
-        addOpcode(new OPushRegister(new VarArgument(EXP1))); //Push on the pointer so we can have a[b[i]]
-        host.getIndex()->execute(*this,param);
-        addOpcode(new OPopRegister(new VarArgument(INDEX))); //Pop back off
+	// Load the index into INDEX2.
+	host.getIndex()->execute(*this, param);
         addOpcode(new OSetRegister(new VarArgument(INDEX2), new VarArgument(EXP1)));
-        addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(GLOBALRAM)));
-        return;
-    }
     
-    //local variable, get its value from the stack
-    int offset = c->stackframe->getOffset(aid);
-    addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-    addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-    addOpcode(new OLoadIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
-    addOpcode(new OPushRegister(new VarArgument(EXP1))); //Push on the pointer so we can have a[b[i]]
-    host.getIndex()->execute(*this,param);
-    addOpcode(new OPopRegister(new VarArgument(INDEX))); //Pop back off
-    addOpcode(new OSetRegister(new VarArgument(INDEX2), new VarArgument(EXP1)));
-    addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(SCRIPTRAM)));
+	// Pop array into INDEX.
+	addOpcode(new OPopRegister(new VarArgument(INDEX)));
 
+	// Return GLOBALRAM to indicate an array access.
+	//   (As far as I can tell, there's no difference between GLOBALRAM and
+	//    SCRIPTRAM, so I'll use GLOBALRAM here instead of checking.)
+	addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(GLOBALRAM)));
 }
 
 void BuildOpcodes::caseFuncCall(ASTFuncCall& host, void* param)
@@ -1388,47 +1376,36 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     addOpcode(next);
 }
 
-void LValBOHelper::caseExprArray(ASTExprArray &host, void *param)
+void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 {
-    OpcodeContext *c = (OpcodeContext *)param;
-    int RAMtype = SCRIPTRAM;
-    int vid = c->symbols->getNodeId(&host);
-    int globalid = c->linktable->getGlobalID(vid);
+	vector<Opcode*> opcodes;
     
-    //Get the pointer
-    if(globalid != -1)
-    {
-        //global array
-        addOpcode(new OSetRegister(new VarArgument(INDEX), new GlobalArgument(globalid)));
-        RAMtype = GLOBALRAM;
-    }
-    else
-    {
-        int offset = c->stackframe->getOffset(vid);
-        addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-        addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-        addOpcode(new OLoadIndirect(new VarArgument(INDEX), new VarArgument(SFTEMP)));
-    }
-    
-    // Both the index and the value may be expressions that can change
-    // any register, so push both
+	// Push the value.
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    addOpcode(new OPushRegister(new VarArgument(INDEX)));
     
-    //Get the index
-    BuildOpcodes oc;
-    host.getIndex()->execute(oc, param);
-    vector<Opcode *> toadd;
-    toadd = oc.getResult();
+	// Get and push the array pointer.
+	BuildOpcodes buildOpcodes1;
+	host.getArray()->execute(buildOpcodes1, param);
+	opcodes = buildOpcodes1.getResult();
+	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
+		addOpcode(*it);
+    addOpcode(new OPushRegister(new VarArgument(EXP1)));
     
-    for(vector<Opcode *>::iterator it = toadd.begin(); it != toadd.end(); it++)
-    {
+	// Get the index.
+	BuildOpcodes buildOpcodes2;
+	host.getIndex()->execute(buildOpcodes2, param);
+	opcodes = buildOpcodes2.getResult();
+	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
         addOpcode(*it);
-    }
     
-    addOpcode(new OPopRegister(new VarArgument(INDEX))); // Pop the index
+	// Setup array indices.
+    addOpcode(new OPopRegister(new VarArgument(INDEX)));
     addOpcode(new OSetRegister(new VarArgument(INDEX2), new VarArgument(EXP1)));
+
+	// Pop and assign the value.
+	//   (As far as I can tell, there's no difference between GLOBALRAM and
+	//    SCRIPTRAM, so I'll use GLOBALRAM here instead of checking.)
     addOpcode(new OPopRegister(new VarArgument(EXP2))); // Pop the value
-    addOpcode(new OSetRegister(new VarArgument(RAMtype), new VarArgument(EXP2)));
+    addOpcode(new OSetRegister(new VarArgument(GLOBALRAM), new VarArgument(EXP2)));
 }
 

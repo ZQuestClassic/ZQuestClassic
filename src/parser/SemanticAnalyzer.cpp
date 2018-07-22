@@ -425,28 +425,4 @@ void SemanticAnalyzer::caseExprDot(ASTExprDot& host)
 
 // ExprArrow just recurses.
 
-void SemanticAnalyzer::caseExprArray(ASTExprArray& host)
-{
-    string name = host.getName();
-    string nspace = host.getNamespace();
-	Scope* namespaceScope = scope;
-	if (nspace != "") namespaceScope = scope->getNamespace(nspace);
-
-	int variableId = namespaceScope->getVariableId(name);
-    if (variableId == -1)
-    {
-        string fullname;
-        if (nspace == "")
-            fullname = name;
-        else
-            fullname = nspace + "." + name;
-
-        printErrorMsg(&host, VARUNDECLARED, fullname);
-        failure = true;
-        return;
-    }
-
-    scope->getTable().putNodeId(&host, variableId);
-
-	if (host.getIndex()) host.getIndex()->execute(*this);
-}
+// ExprIndex just recurses.

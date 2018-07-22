@@ -392,7 +392,6 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
         for(vector<ASTArrayDecl *>::iterator it = fd->newGlobalArrays.begin(); it != fd->newGlobalArrays.end(); it++)
             delete *it;
             
-        delete fd->symbols;
         delete fd;
         return NULL;
     }
@@ -474,7 +473,6 @@ FunctionData *ScriptParser::typeCheck(SymbolData *sdata)
         for(vector<ASTArrayDecl *>::iterator it = fd->newGlobalArrays.begin(); it != fd->newGlobalArrays.end(); it++)
             delete *it;
             
-        delete fd->symbols;
         delete fd;
         return NULL;
     }

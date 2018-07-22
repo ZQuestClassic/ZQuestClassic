@@ -813,26 +813,32 @@ ASTExprArrow::~ASTExprArrow()
 	delete index;
 }
 
-// ASTExprArray
+// ASTExprIndex
 
-ASTExprArray::ASTExprArray(string const& nspace, string const& name, LocationData const& location)
-	: ASTExpr(location), nspace(nspace), name(name), index(NULL)
+ASTExprIndex::ASTExprIndex(ASTExpr* array, ASTExpr* index, LocationData const& location)
+	: ASTExpr(location), array(array), index(index)
 {}
 
-ASTExprArray::ASTExprArray(ASTExprArray const& base)
-	: ASTExpr(base), nspace(base.nspace), name(base.name),
+ASTExprIndex::ASTExprIndex(ASTExprIndex const& base)
+	: ASTExpr(base.getLocation()),
+	  array(base.array ? base.array->clone() : NULL),
 	  index(base.index ? base.index->clone() : NULL)
 {}
 
-ASTExprArray& ASTExprArray::operator=(ASTExprArray const& rhs)
+ASTExprIndex& ASTExprIndex::operator=(ASTExprIndex const& rhs)
 {
 	ASTExpr::operator=(rhs);
-	nspace = rhs.nspace;
-	name = rhs.name;
-	delete index;
+	array = rhs.array ? rhs.array->clone() : NULL;
 	index = rhs.index ? rhs.index->clone() : NULL;
 	return *this;
 }
+
+bool ASTExprIndex::isConstant() const
+{
+	if (array == NULL || index == NULL) return false;
+	return array->isConstant() && index->isConstant();
+}
+
 
 // ASTFuncCall
 
