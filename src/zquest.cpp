@@ -24548,7 +24548,7 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int li
     if(!e)
     {
         char buf[1024];
-        sprintf("ASSERTION FAILED! : %s, %s line %i\n", expression, file, line);
+        sprintf(buf, "ASSERTION FAILED! : %s, %s line %i\n", expression, file, line);
         
         al_trace("%s", buf);
         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);

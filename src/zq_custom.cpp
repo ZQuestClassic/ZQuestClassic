@@ -3028,7 +3028,7 @@ const char *eweaponlist(int index, int *list_size)
 struct EnemyNameInfo
 {
     int family;
-    char *misc[10];
+    char const* misc[10];
     void* list[10];
 };
 
@@ -4074,7 +4074,7 @@ void setEnemyLabels(int family)
         {
             if(inf->misc[i]!=NULL)
             {
-                enedata_dlg[54+i].dp = inf->misc[i];
+                enedata_dlg[54+i].dp = (char*)inf->misc[i];
                 //enedata_dlg[54+i].flags = enedata_dlg[64+i].flags = 0;
             }
             else

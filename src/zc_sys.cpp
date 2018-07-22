@@ -6298,7 +6298,7 @@ int onSound()
     return D_O_K;
 }
 
-int queding(const char *s1,char *s2,char *s3)
+int queding(char const* s1, char const* s2, char const* s3)
 {
     return jwin_alert(ZC_str,s1,s2,s3,"&Yes","&No",'y','n',lfont);
 }
