@@ -25,8 +25,8 @@ void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& 
 	if (function.getName() == "run" && returnType == ZVarType::ZVOID)
 	{
 		ZVarTypeId thisTypeId = ScriptParser::getThisType(scriptType);
-		int variableId = functionScope.addVariable("this", thisTypeId);
-		results.thisPtr[script] = variableId;
+		Scope::Variable* thisVar = functionScope.addVariable(thisTypeId, "this");
+		results.thisPtr[script] = thisVar->id;
 	}
 
 	// Add the parameters to the scope.
@@ -36,8 +36,8 @@ void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& 
 		ASTVarDecl& parameter = **it;
 		string const& name = parameter.getName();
 		ZVarType const& type = parameter.getType()->resolve(functionScope);
-		int variableId = functionScope.addVariable(name, type, &parameter);
-		if (variableId == -1)
+		Scope::Variable* var = functionScope.addVariable(type, name, &parameter);
+		if (var == NULL)
 		{
             printErrorMsg(&parameter, VARREDEF, name);
             failure = true;
@@ -162,11 +162,11 @@ void SemanticAnalyzer::caseVarDecl(ASTVarDecl& host)
 	}
 
 	// Add variable to the scope.
-	int variableId = scope->addVariable(host.getName(), type, &host);
+	Scope::Variable* var = scope->addVariable(type, host.getName(), &host);
 
 	// If adding it failed, it means this scope already has a variable with
 	// that name.
-	if (variableId == -1)
+	if (var == NULL)
 	{
 		failure = true;
         printErrorMsg(&host, VARREDEF, host.getName());
@@ -218,11 +218,11 @@ void SemanticAnalyzer::caseArrayDecl(ASTArrayDecl& host)
 	}
 
 	// Add array to the scope.
-	int variableId = scope->addVariable(host.getName(), type, &host);
+	Scope::Variable* var = scope->addVariable(type, host.getName(), &host);
 
 	// If adding it failed, it means this scope already has a variable with
 	// that name.
-	if (variableId == -1)
+	if (var == NULL)
 	{
 		failure = true;
         printErrorMsg(&host, ARRREDEF, host.getName());
