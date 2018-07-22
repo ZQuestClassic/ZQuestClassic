@@ -27,26 +27,6 @@ TypeCheck::TypeCheck(SymbolTable& symbolTable, ZVarType const& returnType)
 
 // Statements
 
-void TypeCheck::caseStmtAssign(ASTStmtAssign& host)
-{
-    host.getRVal()->execute(*this);
-    if (failure) return;
-
-	ZVarTypeId ltypeid = getLValTypeId(*host.getLVal());
-    if (failure) return;
-
-    ZVarType const& rtype = host.getRVal()->getVarType();
-
-    if (!standardCheck(ltypeid, rtype, &host))
-        failure = true;
-
-	if (ltypeid == ZVARTYPEID_CONST_FLOAT)
-	{
-		printErrorMsg(&host, CONSTASSIGN);
-		failure = true;
-	}
-}
-
 void TypeCheck::caseStmtIf(ASTStmtIf &host)
 {
     RecursiveVisitor::caseStmtIf(host);
@@ -192,6 +172,27 @@ void TypeCheck::caseExprConst(ASTExprConst &host)
 	host.setVarType(content->getVarType());
 	if (content->hasValue())
 		host.setDataValue(content->getDataValue());
+}
+
+void TypeCheck::caseExprAssign(ASTExprAssign& host)
+{
+    host.getRVal()->execute(*this);
+    if (failure) return;
+
+	ZVarTypeId ltypeid = getLValTypeId(*host.getLVal());
+    if (failure) return;
+
+    ZVarType const& rtype = host.getRVal()->getVarType();
+	host.setVarType(rtype);
+
+    if (!standardCheck(ltypeid, rtype, &host))
+        failure = true;
+
+	if (ltypeid == ZVARTYPEID_CONST_FLOAT)
+	{
+		printErrorMsg(&host, CONSTASSIGN);
+		failure = true;
+	}
 }
 
 void TypeCheck::caseNumConstant(ASTNumConstant &host)

@@ -37,7 +37,6 @@ class ASTString;
 // Statements
 class ASTStmt; // virtual
 class ASTBlock;
-class ASTStmtAssign;
 class ASTStmtIf;
 class ASTStmtIfElse;
 class ASTStmtSwitch;
@@ -64,6 +63,7 @@ class ASTTypeDef;
 // Expressions
 class ASTExpr; // virtual
 class ASTExprConst;
+class ASTExprAssign;
 class ASTNumConstant;
 class ASTBoolConstant;
 class ASTStringConstant;
@@ -123,8 +123,6 @@ public:
 	// Statements
     virtual void caseBlock(ASTBlock&, void* param) {caseDefault(param);}
     virtual void caseBlock(ASTBlock& node) {caseBlock(node, NULL);}
-    virtual void caseStmtAssign(ASTStmtAssign&, void* param) {caseDefault(param);}
-    virtual void caseStmtAssign(ASTStmtAssign& node) {caseStmtAssign(node, NULL);}
     virtual void caseStmtIf(ASTStmtIf&, void* param) {caseDefault(param);}
     virtual void caseStmtIf(ASTStmtIf& node) {caseStmtIf(node, NULL);}
     virtual void caseStmtIfElse(ASTStmtIfElse&, void* param) {caseDefault(param);}
@@ -171,6 +169,8 @@ public:
 	// Expressions
     virtual void caseExprConst(ASTExprConst&, void* param) {caseDefault(param);}
     virtual void caseExprConst(ASTExprConst& node) {caseExprConst(node, NULL);}
+    virtual void caseExprAssign(ASTExprAssign&, void* param) {caseDefault(param);}
+    virtual void caseExprAssign(ASTExprAssign& node) {caseExprAssign(node, NULL);}
     virtual void caseNumConstant(ASTNumConstant&, void* param) {caseDefault(param);}
     virtual void caseNumConstant(ASTNumConstant& node) {caseNumConstant(node, NULL);}
     virtual void caseBoolConstant(ASTBoolConstant&, void* param) {caseDefault(param);}
@@ -373,26 +373,6 @@ private:
     list<ASTStmt *> statements;
 };
     
-class ASTStmtAssign : public ASTStmt
-    {
-public:
-	ASTStmtAssign(ASTExpr* left, ASTExpr* right, LocationData const& location)
-			: ASTStmt(location), lval(left), rval(right) {}
-    ~ASTStmtAssign();
-	ASTStmtAssign* clone() const;
-    
-	ASTExpr* getLVal() const {return lval;}
-	ASTExpr* getRVal() const {return rval;}
-	void execute(ASTVisitor& visitor, void* param) {visitor.caseStmtAssign(*this, param);}
-	void execute(ASTVisitor& visitor) {visitor.caseStmtAssign(*this);}
-private:
-	ASTExpr* lval;
-	ASTExpr* rval;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTStmtAssign(ASTStmtAssign &);
-	ASTStmtAssign& operator=(ASTStmtAssign&);
-};
-
 class ASTStmtIf : public ASTStmt
     {
 public:
@@ -902,6 +882,24 @@ public:
     void execute(ASTVisitor &visitor) {visitor.caseExprConst(*this);}
 private:
 	ASTExpr* content;
+};
+
+class ASTExprAssign : public ASTExpr
+{
+public:
+	ASTExprAssign(ASTExpr* left, ASTExpr* right, LocationData const& location)
+			: ASTExpr(location), lval(left), rval(right) {}
+	~ASTExprAssign();
+	ASTExprAssign* clone() const;
+
+	ASTExpr* getLVal() const {return lval;}
+	ASTExpr* getRVal() const {return rval;}
+	bool isConstant() const {return rval && rval->isConstant();}
+	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprAssign(*this, param);}
+	void execute(ASTVisitor& visitor) {visitor.caseExprAssign(*this);}
+private:
+	ASTExpr* lval;
+	ASTExpr* rval;
 };
 
 class ASTNumConstant : public ASTExpr

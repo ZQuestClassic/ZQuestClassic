@@ -52,7 +52,7 @@ extern YYLTYPE noloc;
 	ASTExpr* left = (ASTExpr*)d1; \
 	ASTExpr* right = (ASTExpr*)d3; \
 	klass* rval = new klass(left, right, a3); \
-	dd = new ASTStmtAssign(left, rval, ad);
+	dd = new ASTExprAssign(left, rval, ad);
 
 %}
 %expect 1
@@ -580,31 +580,31 @@ Expr_14 : Expr_13 {$$ = $1;}
 
 Expr_15 : Expr_14 {$$ = $1;}
 	// Assignment
-	| Expr_15 ASSIGN Expr_14 {BINARY(ASTStmtAssign, $$, $1, $3, @$)}
+	| Expr_14 ASSIGN Expr_15 {BINARY(ASTExprAssign, $$, $1, $3, @$)}
 	// Addition Assignment
-	| Expr_15 PLUSASSIGN Expr_14 {SHORTCUT(ASTExprPlus, $$, $1, $3, @$, @3)}
+	| Expr_14 PLUSASSIGN Expr_15 {SHORTCUT(ASTExprPlus, $$, $1, $3, @$, @3)}
 	// Subtraction Assignment
-	| Expr_15 MINUSASSIGN Expr_14 {SHORTCUT(ASTExprMinus, $$, $1, $3, @$, @3)}
+	| Expr_14 MINUSASSIGN Expr_15 {SHORTCUT(ASTExprMinus, $$, $1, $3, @$, @3)}
 	// Multiplication Assignment
-	| Expr_15 TIMESASSIGN Expr_14 {SHORTCUT(ASTExprTimes, $$, $1, $3, @$, @3)}
+	| Expr_14 TIMESASSIGN Expr_15 {SHORTCUT(ASTExprTimes, $$, $1, $3, @$, @3)}
 	// Division Assignment
-	| Expr_15 DIVIDEASSIGN Expr_14 {SHORTCUT(ASTExprDivide, $$, $1, $3, @$, @3)}
+	| Expr_14 DIVIDEASSIGN Expr_15 {SHORTCUT(ASTExprDivide, $$, $1, $3, @$, @3)}
 	// Modulus Assignment
-	| Expr_15 MODULOASSIGN Expr_14 {SHORTCUT(ASTExprModulo, $$, $1, $3, @$, @3)}
+	| Expr_14 MODULOASSIGN Expr_15 {SHORTCUT(ASTExprModulo, $$, $1, $3, @$, @3)}
 	// Left Shift Assignment
-	| Expr_15 LSHIFTASSIGN Expr_14 {SHORTCUT(ASTExprLShift, $$, $1, $3, @$, @3)}
+	| Expr_14 LSHIFTASSIGN Expr_15 {SHORTCUT(ASTExprLShift, $$, $1, $3, @$, @3)}
 	// Right Shift Assignment
-	| Expr_15 RSHIFTASSIGN Expr_14 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
+	| Expr_14 RSHIFTASSIGN Expr_15 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
 	// Bitwise And Assignment
-	| Expr_15 BITANDASSIGN Expr_14 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
+	| Expr_14 BITANDASSIGN Expr_15 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
 	// Bitwise Xor Assignment
-	| Expr_15 BITXORASSIGN Expr_14 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
+	| Expr_14 BITXORASSIGN Expr_15 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
 	// Bitwise Or Assignment
-	| Expr_15 BITORASSIGN Expr_14 {SHORTCUT(ASTExprBitOr, $$, $1, $3, @$, @3)}
+	| Expr_14 BITORASSIGN Expr_15 {SHORTCUT(ASTExprBitOr, $$, $1, $3, @$, @3)}
 	// Logical And Assignment
-	| Expr_15 ANDASSIGN Expr_14 {SHORTCUT(ASTExprAnd, $$, $1, $3, @$, @3)}
+	| Expr_14 ANDASSIGN Expr_15 {SHORTCUT(ASTExprAnd, $$, $1, $3, @$, @3)}
 	// Logical Or Assignment
-	| Expr_15 ORASSIGN Expr_14 {SHORTCUT(ASTExprOr, $$, $1, $3, @$, @3)}
+	| Expr_14 ORASSIGN Expr_15 {SHORTCUT(ASTExprOr, $$, $1, $3, @$, @3)}
 		 ;
 
 Expr : Expr_15 {$$ = $1;}
