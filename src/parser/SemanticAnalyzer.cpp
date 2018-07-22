@@ -11,10 +11,15 @@ SemanticAnalyzer::SemanticAnalyzer() : failure(false), deprecateGlobals(false)
 	results.symbols = &data;
 }
 
+SemanticAnalyzer::~SemanticAnalyzer()
+{
+	delete scope;
+}
+
 void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& function)
 {
 	// Create function scope.
-	BasicScope functionScope(scope);
+	Scope& functionScope = *scope->makeChild();
 
 	// Grab the script type.
 	ScriptType scriptType = SCRIPTTYPE_VOID;
@@ -95,8 +100,7 @@ void SemanticAnalyzer::caseProgram(ASTProgram& host)
 void SemanticAnalyzer::caseBlock(ASTBlock& host)
 {
 	// Switch to block scope.
-	BasicScope blockScope(scope);
-	scope = &blockScope;
+	scope = scope->makeChild();
 
 	// Recurse.
 	RecursiveVisitor::caseBlock(host);
@@ -108,8 +112,7 @@ void SemanticAnalyzer::caseBlock(ASTBlock& host)
 void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host)
 {
 	// Switch to block scope.
-	BasicScope blockScope(scope);
-	scope = &blockScope;
+	scope = scope->makeChild();
 
 	// Recurse.
 	RecursiveVisitor::caseStmtFor(host);
