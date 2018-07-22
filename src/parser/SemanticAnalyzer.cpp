@@ -22,7 +22,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(ASTScript* script, ASTFuncDecl& 
 
 	// If this is the script's run method, add "this" to the scope.
 	ZVarType const& returnType = function.getReturnType()->resolve(*scope);
-	if (function.getName() == "run" && returnType == ZVarType::VOID)
+	if (function.getName() == "run" && returnType == ZVarType::ZVOID)
 	{
 		ZVarTypeId thisTypeId = ScriptParser::getThisType(scriptType);
 		int variableId = functionScope.addVariable("this", thisTypeId);
@@ -146,7 +146,7 @@ void SemanticAnalyzer::caseVarDecl(ASTVarDecl& host)
 	}
 
 	// Don't allow void type.
-	if (type == ZVarType::VOID)
+	if (type == ZVarType::ZVOID)
 	{
 		failure = true;
 		printErrorMsg(&host, VOIDVAR, host.getName());
@@ -199,7 +199,7 @@ void SemanticAnalyzer::caseArrayDecl(ASTArrayDecl& host)
 	}
 
 	// Don't allow void type.
-	if (type == ZVarType::VOID)
+	if (type == ZVarType::ZVOID)
 	{
 		failure = true;
 		printErrorMsg(&host, VOIDARR, host.getName());
@@ -266,7 +266,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 		}
 
 		// Don't allow void params.
-		if (type == ZVarType::VOID)
+		if (type == ZVarType::ZVOID)
 		{
 			printErrorMsg(*it, FUNCTIONVOIDPARAM, (*it)->getName());
 			failure = true;
@@ -333,7 +333,7 @@ void SemanticAnalyzer::caseScript(ASTScript& host)
 		return;
 	}
 	int runId = possibleRunIds[0];
-	if (data.getTypeId(ZVarType::VOID) != data.getFuncReturnTypeId(runId))
+	if (data.getTypeId(ZVarType::ZVOID) != data.getFuncReturnTypeId(runId))
 	{
 		printErrorMsg(&host, SCRIPTRUNNOTVOID, name);
 		failure = true;

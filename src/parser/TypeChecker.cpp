@@ -13,7 +13,7 @@
 // TypeCheck
     
 TypeCheck::TypeCheck(SymbolTable& symbolTable)
-	: symbolTable(symbolTable), returnType(ZVarType::VOID), failure(false)
+	: symbolTable(symbolTable), returnType(ZVarType::ZVOID), failure(false)
 {}
 
 TypeCheck::TypeCheck(SymbolTable& symbolTable, ZVarTypeId returnTypeId)
@@ -76,7 +76,7 @@ void TypeCheck::caseStmtWhile(ASTStmtWhile &host)
     
 void TypeCheck::caseStmtReturn(ASTStmtReturn &host)
 {
-    if (returnType != ZVarType::VOID)
+    if (returnType != ZVarType::ZVOID)
     {
         printErrorMsg(&host, FUNCBADRETURN, returnType.getName());
         failure = true;

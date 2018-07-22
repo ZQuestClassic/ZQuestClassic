@@ -7,7 +7,7 @@
 
 // Standard Type definitions.
 ZVarTypeSimple const ZVarType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", "Untyped");
-ZVarTypeSimple const ZVarType::VOID(ZVARTYPEID_VOID, "void", "Void");
+ZVarTypeSimple const ZVarType::ZVOID(ZVARTYPEID_VOID, "void", "Void");
 ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float", "Float");
 ZVarTypeSimple const ZVarType::BOOL(ZVARTYPEID_BOOL, "bool", "Bool");
 ZVarTypeClass const ZVarType::GAME(ZCLASSID_GAME, "Game");
@@ -58,7 +58,7 @@ ZVarType const* ZVarType::get(ZVarTypeId id)
 {
 	switch (id)
 	{
-	case ZVARTYPEID_VOID: return &VOID;
+	case ZVARTYPEID_VOID: return &ZVOID;
 	case ZVARTYPEID_FLOAT: return &FLOAT;
 	case ZVARTYPEID_BOOL: return &BOOL;
 	case ZVARTYPEID_CONST_FLOAT: return &CONST_FLOAT;
@@ -166,7 +166,9 @@ std::string to_string( int x ) {
 string ZVarTypeClass::getName() const
 {
 	string name = className == "" ? "anonymous" : className;
-	return name + "[class " + to_string(classId) + "]";
+	char tmp[32];
+	sprintf(tmp, "%d", classId);
+	return name + "[class " + tmp + "]";
 }
 
 ZVarType* ZVarTypeClass::resolve(Scope& scope)

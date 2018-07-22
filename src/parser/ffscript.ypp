@@ -279,7 +279,7 @@ VarDecl : Type IDENTIFIER {
 				   delete name;}
 	;
 
-Type : ZVOID {$$ = new ASTVarType(ZVarTypeSimple::VOID, @1);}
+Type : ZVOID {$$ = new ASTVarType(ZVarTypeSimple::ZVOID, @1);}
 	| ZFLOAT {$$ = new ASTVarType(ZVarTypeSimple::FLOAT, @1);}
 	| ZBOOL {$$ = new ASTVarType(ZVarTypeSimple::BOOL, @1);}
 	| FFC {$$ = new ASTVarType(ZVarTypeSimple::FFC, @1);}

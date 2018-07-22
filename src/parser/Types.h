@@ -112,7 +112,7 @@ protected:
 // Standard Types.
 public:
 	static ZVarTypeSimple const UNTYPED;
-	static ZVarTypeSimple const VOID;
+	static ZVarTypeSimple const ZVOID;
 	static ZVarTypeSimple const FLOAT;
 	static ZVarTypeSimple const BOOL;
 	static ZVarTypeConstFloat const CONST_FLOAT;
