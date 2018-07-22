@@ -636,50 +636,19 @@ ASTTypeDef* ASTTypeDef::clone() const
 ////////////////////////////////////////////////////////////////
 // Expressions
 
-// ExprInfo
-
-ExprInfo::ExprInfo(ExprInfo::Type exprType, bool hasValue, ZVarType* valType, long value, Scope* scope)
-	: exprType(exprType), hasValue_(hasValue), valType(valType), value(value), scope_(scope)
-{}
-
-ExprInfo ExprInfo::unknown(UNKNOWN, false, NULL, 0L, NULL);
-
-ExprInfo ExprInfo::data(ZVarType* dataType)
-{
-	return ExprInfo(DATA, false, dataType, 0L, NULL);
-}
-
-ExprInfo ExprInfo::data(ZVarType* dataType, long dataValue)
-{
-	return ExprInfo(DATA, true, dataType, dataValue, NULL);
-}
-
-ExprInfo ExprInfo::variable(ZVarType* variableType, int variableId)
-{
-	return ExprInfo(VARIABLE, false, variableType, variableId, NULL);
-}
-
-ExprInfo ExprInfo::function(ZVarType* returnType, int functionId)
-{
-	return ExprInfo(FUNCTION, false, returnType, functionId, NULL);
-}
-
-ExprInfo ExprInfo::scope(Scope* scope)
-{
-	return ExprInfo(SCOPE, false, NULL, 0L, scope);
-}
-
 // ASTExpr
 
 ASTExpr::ASTExpr(ASTExpr const& base)
-	: ASTStmt(base), info(base.info), lval(false)
+	: ASTStmt(base), hasValue(base.hasValue), value(base.value), lval(false), varType(base.varType)
 {}
 
 ASTExpr& ASTExpr::operator=(ASTExpr const& rhs)
 {
 	ASTStmt::operator=(rhs);
 	lval = rhs.lval;
-	info = rhs.info;
+	hasValue = rhs.hasValue;
+	value = rhs.value;
+	varType = rhs.varType;
 	return *this;
 }
 

@@ -798,74 +798,33 @@ private:
 ////////////////////////////////////////////////////////////////
 // Expressions
 
-// Partial or complete information about a given ASTExpr node's type and
-// value. Gradually built up as the compilation progresses.
-class ExprInfo
-{
-public:
-	enum Type {UNKNOWN, DATA, VARIABLE, FUNCTION, SCOPE};
-
-	static ExprInfo unknown;
-	static ExprInfo data(ZVarType* dataType);
-	static ExprInfo data(ZVarType* dataType, long dataValue);
-	static ExprInfo variable(ZVarType* variableType, int variableId);
-	static ExprInfo function(ZVarType* returnType, int functionId);
-	static ExprInfo scope(Scope* scope);
-
-	ExprInfo() : exprType(UNKNOWN), hasValue_(false), value(0L), valType(NULL), scope_(NULL) {}
-
-	bool hasValue() const {return hasValue_;}
-	Type getExprType() const {return exprType;}
-	ZVarType const* getValueType() const {return valType;}
-	void setValueType(ZVarType const* type) {valType = type;}
-	void setValueType(ZVarType* type) {valType = (ZVarType const*)type;}
-
-	long getDataValue() const {return exprType == DATA ? value : 0l;}
-	void setDataValue(long v) {exprType = DATA; value = v; hasValue_ = true;}
-	void setVariableId(int variableId) {exprType = VARIABLE; value = variableId; hasValue_ = true;}
-	int getFunctionId() const {return exprType == FUNCTION ? value : -1;}
-	void setFunctionId(int functionId) {exprType = FUNCTION; value = functionId; hasValue_ = true;}
-	Scope* getScope() const {return scope_;}
-	void setScope(Scope* scope) {exprType = SCOPE; scope_ = scope; hasValue_ = true;}
-
-private:
-	ExprInfo(Type type, bool hasValue, ZVarType* valType, long value, Scope* scope);
-
-	Type exprType;
-	ZVarType const* valType;
-	bool hasValue_;
-	long value;
-	Scope* scope_;
-};
-
 class ASTExpr : public ASTStmt
 {
 public:
-    ASTExpr(LocationData const& location) : ASTStmt(location), lval(false) {}
+    ASTExpr(LocationData const& location) : ASTStmt(location), hasValue(false), value(0L), varType(NULL), lval(false) {}
 	ASTExpr(ASTExpr const& base);
 	ASTExpr& operator=(ASTExpr const& rhs);
 	virtual ASTExpr* clone() const = 0;
 
 	virtual bool isConstant() const = 0;
 
-	ExprInfo& getInfo() {return info;}
-	ExprInfo const& getInfo() const {return info;}
-	void setInfo(ExprInfo const& i) {info = i;}
-
 	void markAsLVal() {lval = true;}
 	bool isLVal() {return lval;}
 
-	// Convenience methods for info.
-	bool hasValue() const {return info.hasValue();}
-	long getDataValue() const {return info.getDataValue();}
-	void setDataValue(long v) {info.setDataValue(v);}
-	ZVarType const& getVarType() const {return *info.getValueType();}
-	void setVarType(ZVarType const& type) {info.setValueType(&type);}
-	void setVarType(ZVarType& type) {info.setValueType(&type);}
-	void setVarType(ZVarType const* type) {info.setValueType(type);}
-	void setVarType(ZVarType* type) {info.setValueType(type);}
+	bool hasDataValue() const {return hasValue;}
+	long getDataValue() const {return value;}
+	void setDataValue(long v) {value = v; hasValue = true;}
+
+	ZVarType const* getVarType() const {return varType;}
+	void setVarType(ZVarType const& type) {varType = &type;}
+	void setVarType(ZVarType& type) {varType = (ZVarType const*)&type;}
+	void setVarType(ZVarType const* type) {varType = type;}
+	void setVarType(ZVarType* type) {varType = (ZVarType const*)type;}
+
 private:
-    ExprInfo info;
+	bool hasValue;
+	long value;
+	ZVarType const* varType;
 	bool lval;
 };
 
