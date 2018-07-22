@@ -48,12 +48,7 @@ public:
         dup->setLabel(label);
         return dup;
     }
-    virtual void execute(ArgumentVisitor &host, void *param)
-    {
-        void *temp;
-        temp=&host;
-        param=param; /*these are here to bypass compiler warnings about unused arguments*/
-    }
+    virtual void execute(ArgumentVisitor&, void*) {}
 protected:
     virtual Opcode *clone()=0;
 private:

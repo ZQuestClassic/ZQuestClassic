@@ -28,7 +28,7 @@ public:
 	void caseFuncCall(ASTFuncCall& host);
 	void caseExprIdentifier(ASTExprIdentifier& host);
 	// void caseExprArrow(ASTExprArrow& host); // No need to redefine.
-	// void caseExprIndex(ASTExprIndex& host); // No need to redefine.
+	void caseExprIndex(ASTExprIndex& host);
 
 	////////////////
 	bool hasFailed() const {return failure;}

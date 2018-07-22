@@ -688,6 +688,13 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 
 void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 {
+	// If the left hand side is an arrow, then we'll let it run instead.
+	if (host.getArray()->isTypeArrow())
+	{
+		host.getArray()->execute(*this, param);
+		return;
+	}
+
 	// First, push the array.
 	host.getArray()->execute(*this, param);
 	addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -1355,6 +1362,13 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 
 void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 {
+	// Arrows just fall back on the arrow implementation.
+	if (host.getArray()->isTypeArrow())
+	{
+		host.getArray()->execute(*this, param);
+		return;
+	}
+
 	vector<Opcode*> opcodes;
     
 	// Push the value.

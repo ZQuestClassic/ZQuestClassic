@@ -827,6 +827,13 @@ ASTExprArrow::~ASTExprArrow()
 	delete index;
 }
 
+string ASTExprArrow::asString() const
+{
+	string s = left->asString() + "->" + right;
+	if (index != NULL) s += "[" + index->asString() + "]";
+	return s;
+}
+
 // ASTExprIndex
 
 ASTExprIndex::ASTExprIndex(ASTExpr* array, ASTExpr* index, LocationData const& location)
