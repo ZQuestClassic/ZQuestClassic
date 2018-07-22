@@ -516,6 +516,19 @@ GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
     table.addGlobalPointer(addVariable(ZVarType::CHEATS, "Cheats")->id);
 }
 
+ScriptScope* GlobalScope::makeScriptChild(string const& name)
+{
+	map<string, Scope*>::const_iterator it = children.find(name);
+	if (it != children.end()) return NULL;
+	children[name] = new ScriptScope(this);
+	return (ScriptScope*)children[name];
+}
+
+
+
+////////////////////////////////////////////////////////////////
+// ScriptScope
+
 ////////////////////////////////////////////////////////////////
 // ZClass
 

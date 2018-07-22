@@ -23,6 +23,7 @@ public:
 
 	// Others
 	virtual bool isGlobal() const {return false;}
+	virtual bool isScript() const {return false;}
 
 	////////////////
 	// Virtual Methods
@@ -136,7 +137,7 @@ public:
 	using Scope::addFunction;
 	ZScript::Function* addFunction(ZVarType const* returnType, string const& name,
 						  vector<ZVarType const*> const& paramTypes, AST* node = NULL);
-private:
+protected:
     Scope* parent;
     map<string, Scope*> children;
 	vector<Scope*> anonymousChildren;
@@ -153,11 +154,20 @@ private:
 	BasicScope(BasicScope const& base) : Scope(base.table) {assert(false);}
 };
 
+class ScriptScope;
 class GlobalScope : public BasicScope
 {
 public:
 	GlobalScope(SymbolTable& table);
 	bool isGlobal() const {return true;}
+	ScriptScope* makeScriptChild(string const& name);
+};
+
+class ScriptScope : public BasicScope
+{
+public:
+	ScriptScope(GlobalScope* scope) : BasicScope(scope) {}
+	bool isScript() const {return true;}
 };
 
 enum ZClassIdBuiltin
