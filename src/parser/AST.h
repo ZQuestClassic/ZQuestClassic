@@ -842,7 +842,7 @@ private:
 class ASTExpr : public ASTStmt
 {
 public:
-    ASTExpr(LocationData const& location) : ASTStmt(location) {}
+    ASTExpr(LocationData const& location) : ASTStmt(location), lval(false) {}
 	ASTExpr(ASTExpr const& base);
 	ASTExpr& operator=(ASTExpr const& rhs);
 	virtual ASTExpr* clone() const = 0;
@@ -852,6 +852,9 @@ public:
 	ExprInfo& getInfo() {return info;}
 	ExprInfo const& getInfo() const {return info;}
 	void setInfo(ExprInfo const& i) {info = i;}
+
+	void markAsLVal() {lval = true;}
+	bool isLVal() {return lval;}
 
 	// Convenience methods for info.
 	bool hasValue() const {return info.hasValue();}
@@ -864,6 +867,7 @@ public:
 	void setVarType(ZVarType* type) {info.setValueType(type);}
 private:
     ExprInfo info;
+	bool lval;
 };
 
 // Wrap around an expression to type it as constant.
