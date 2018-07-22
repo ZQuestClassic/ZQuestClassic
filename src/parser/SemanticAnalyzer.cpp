@@ -19,9 +19,6 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
 	ASTFuncDecl* functionDecl = function.node;
 
-	// Don't need to analyze built-in functions.
-	if (!functionDecl) return;
-
 	// Create function scope.
 	function.internalScope = scope->makeChild();
 	Scope& functionScope = *function.internalScope;
@@ -70,7 +67,7 @@ void SemanticAnalyzer::caseProgram(ASTProgram& host)
 	vector<Function*> functions;
 
 	// Analyze function internals.
-	functions = scope->getLocalFunctions();
+	functions = program.getUserGlobalFunctions();
 	for (vector<Function*>::iterator it = functions.begin(); it != functions.end(); ++it)
 		analyzeFunctionInternals(**it);
 	for (vector<Script*>::iterator it = program.scripts.begin();
@@ -85,7 +82,6 @@ void SemanticAnalyzer::caseProgram(ASTProgram& host)
 		}
 
 	// Save results.
-	results.globalFuncs = host.functions;
 	results.globalVars = host.variables;
 	results.globalArrays = host.arrays;
 }

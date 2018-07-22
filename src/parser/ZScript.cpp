@@ -42,6 +42,18 @@ Script* Program::getScript(ASTScript* node) const
 	return it->second;
 }
 
+vector<Function*> Program::getUserGlobalFunctions() const
+{
+	vector<Function*> functions = globalScope.getLocalFunctions();
+	for (vector<Function*>::iterator it = functions.begin(); it != functions.end();)
+	{
+		Function& function = **it;
+		if (!function.node) it = functions.erase(it);
+		else ++it;
+	}
+	return functions;
+}
+
 bool Program::hasError() const
 {
 	for (vector<Script*>::const_iterator it = scripts.begin(); it != scripts.end(); ++it)

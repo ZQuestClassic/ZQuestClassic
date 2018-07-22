@@ -105,7 +105,6 @@ struct SymbolData
 {
 	SymbolData(ZScript::Program& program) : program(program) {}
 	ZScript::Program& program;
-    vector<ASTFuncDecl*> globalFuncs;
     vector<ASTVarDecl*> globalVars;
     vector<ASTArrayDecl*> globalArrays;
 };

@@ -185,14 +185,20 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
 
 FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 {
-	ZScript::Program& program = sdata->program;
+	Program& program = sdata->program;
 
     //build the functiondata
     FunctionData *fd = new FunctionData(*sdata);
-    vector<ASTFuncDecl *> funcs = sdata->globalFuncs;
+    vector<ASTFuncDecl *> funcs;
     bool failure = false;
     map<int, bool> usednums;
     
+	// Grab global functions.
+	vector<Function*> userGlobalFunctions = program.getUserGlobalFunctions();
+	for (vector<Function*>::iterator it = userGlobalFunctions.begin();
+		 it != userGlobalFunctions.end(); ++it)
+		funcs.push_back((*it)->node);
+
     // Strip var and func decls from the scripts.
     for (vector<ZScript::Script*>::const_iterator it = program.scripts.begin();
 		 it != program.scripts.end(); it++)
