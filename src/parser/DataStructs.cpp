@@ -16,14 +16,25 @@ using std::endl;
 ////////////////////////////////////////////////////////////////
 // FunctionSignature
 
-FunctionSignature::FunctionSignature(string const& name, vector<ZVarType const*> const& paramTypes)
+FunctionSignature::FunctionSignature(string const& name_, vector<ZVarType const*> const& paramTypes)
+	: paramTypes(paramTypes)
+{
+	name.push_back(name_);
+}
+
+FunctionSignature::FunctionSignature(vector<string> const& name, vector<ZVarType const*> const& paramTypes)
 	: name(name), paramTypes(paramTypes)
 {}
 
 int FunctionSignature::compare(FunctionSignature const& other) const
 {
-	int c = name.compare(other.name);
+	int c = name.size() - other.name.size();
 	if (c) return c;
+	for (int i = 0; i < name.size(); ++i)
+	{
+		c = name[i].compare(other.name[i]);
+		if (c) return c;
+	}
 	c = paramTypes.size() - other.paramTypes.size();
 	if (c) return c;
 	for (int i = 0; i < paramTypes.size(); ++i)

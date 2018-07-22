@@ -15,10 +15,11 @@ class FunctionSignature
 {
 public:
 	FunctionSignature(string const& name, vector<ZVarType const*> const& paramTypes);
+	FunctionSignature(vector<string> const& name, vector<ZVarType const*> const& paramTypes);
 	int compare(FunctionSignature const& other) const;
 	bool operator==(FunctionSignature const& other) const {return compare(other) == 0;}
 	bool operator<(FunctionSignature const& other) const {return compare(other) < 0;}
-	string name;
+	vector<string> name;
 	vector<ZVarType const*> paramTypes;
 };
 
