@@ -118,7 +118,6 @@ struct FunctionData
     vector<ASTArrayDecl*> globalArrays;
 	int globalVarCount;
     map<string, int> numParams;
-    map<string, ScriptType> scriptTypes;
     map<string, int> thisPtr;
 };
 
@@ -130,7 +129,6 @@ struct IntermediateData
     vector<Opcode *> globalsInit;
     vector<Opcode *> globalasInit;
     map<string, int> scriptRunLabels;
-    map<string, ScriptType> scriptTypes;
     map<string, int> thisPtr;
 };
 

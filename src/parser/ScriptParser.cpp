@@ -205,7 +205,6 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
     {
 		ZScript::Script const& script = **it;
 		ASTScript* node = script.node;
-        fd->scriptTypes[node->getName()] = script.getType();
         fd->thisPtr[node->getName()] = script.getRun()->thisVar->id;
         //strip vars and funcs
         list<ASTDecl *> &stuff = node->getScriptBlock()->getDeclarations();
@@ -293,14 +292,14 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 
 IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 {
-    //Z_message("yes");
+	Program& program = fdata->program;
+    // Z_message("yes");
     bool failure = false;
     vector<ASTFuncDecl *> funcs = fdata->functions;
     vector<ASTVarDecl *> globals = fdata->globalVars;
     vector<ASTArrayDecl *> globalas = fdata->globalArrays;
     
     SymbolTable* symbols = &fdata->program.table;
-    map<string, ScriptType> scripttypes = fdata->scriptTypes;
     map<string, int> thisptr = fdata->thisPtr;
     LinkTable lt;
     
@@ -692,7 +691,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
         //push on the this, if a script
         if(isarun)
         {
-            switch(scripttypes[scriptname])
+            switch (program.getScript(scriptname)->getType())
             {
             case SCRIPTTYPE_FFC:
                 funccode.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(REFFFC)));
@@ -776,7 +775,6 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 		int id = run->id;
         int labelid = lt.functionToLabel(id);
         rval->scriptRunLabels[name] = labelid;
-        rval->scriptTypes[name] = (*it)->getType();
     }
     
     //Z_message("yes");
@@ -812,6 +810,8 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 
 ScriptsData *ScriptParser::assemble(IntermediateData *id)
 {
+	Program& program = id->program;
+	
     //finally, finish off this bitch
     ScriptsData *rval = new ScriptsData;
     map<int, vector<Opcode *> > funcs = id->funcs;
@@ -824,7 +824,12 @@ ScriptsData *ScriptParser::assemble(IntermediateData *id)
             ginit.push_back(*i);
     }
     map<string, int> scripts = id->scriptRunLabels;
-    map<string, ScriptType> scripttypes = id->scriptTypes;
+
+	// Build scripttypes map.
+    map<string, ScriptType> scripttypes;
+	for (vector<Script*>::iterator it = program.scripts.begin();
+		 it != program.scripts.end(); ++it)
+		scripttypes[(*it)->getName()] = (*it)->getType();
     
     //do the global inits
     //if there's a global script called "Init", append it to ~Init:
