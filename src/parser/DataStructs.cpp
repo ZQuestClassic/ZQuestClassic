@@ -347,6 +347,18 @@ void SymbolTable::printDiagnostics()
 }
 
 ////////////////////////////////////////////////////////////////
+// FunctionData
+
+FunctionData::FunctionData(SymbolData const& symbolData)
+	: program(symbolData.program)
+{
+	newGlobalVars = symbolData.globalVars;
+	newGlobalArrays = symbolData.globalArrays;
+}
+
+
+
+////////////////////////////////////////////////////////////////
 
 int StackFrame::getOffset(int vid)
 {
