@@ -2,29 +2,12 @@
 #define ZPARSER_SCOPE_H
 
 #include <assert.h>
+#include "ZScript.h"
 #include "DataStructs.h"
 
 class Scope
 {
 public:
-	struct Variable
-	{
-		Variable(ZVarType const* type, string const& name, int id) : type(type), name(name), id(id) {}
-		ZVarType const* type;
-		string name;
-		int id;
-	};
-
-	struct Function
-	{
-		Function(ZVarType const* returnType, string const& name, vector<ZVarType const*> paramTypes, int id)
-				: returnType(returnType), name(name), paramTypes(paramTypes), id(id) {}
-		ZVarType const* returnType;
-		string name;
-		vector<ZVarType const*> paramTypes;
-		int id;
-	};
-
 	static Scope* makeGlobalScope(SymbolTable& table);
 
 	Scope(SymbolTable& table);
@@ -52,19 +35,19 @@ public:
 	virtual int getLocalClassId(string const& name) const = 0;
 	virtual int addClass(string const& name, AST* node) = 0;
 	// Variables
-	virtual Variable* getLocalVariable(string const& name) const = 0;
-	virtual Variable* addVariable(ZVarType const& type, string const& name, AST* node = NULL) = 0;
+	virtual ZScript::Variable* getLocalVariable(string const& name) const = 0;
+	virtual ZScript::Variable* addVariable(ZVarType const& type, string const& name, AST* node = NULL) = 0;
 	// Properties
-	virtual Function* getLocalGetter(string const& name) const = 0;
-	virtual Function* getLocalSetter(string const& name) const = 0;
-	virtual Function* addGetter(ZVarType const* returnType, string const& name,
+	virtual ZScript::Function* getLocalGetter(string const& name) const = 0;
+	virtual ZScript::Function* getLocalSetter(string const& name) const = 0;
+	virtual ZScript::Function* addGetter(ZVarType const* returnType, string const& name,
 								vector<ZVarType const*> const& paramTypes, AST* node = NULL) = 0;
-	virtual Function* addSetter(ZVarType const* returnType, string const& name,
+	virtual ZScript::Function* addSetter(ZVarType const* returnType, string const& name,
 								vector<ZVarType const*> const& paramTypes, AST* node = NULL) = 0;
 	// Functions
-	virtual void getLocalFunctions(string const& name, vector<Function*>& out) const = 0;
-	virtual Function* getLocalFunction(FunctionSignature const& signature) const = 0;
-	virtual Function* addFunction(
+	virtual void getLocalFunctions(string const& name, vector<ZScript::Function*>& out) const = 0;
+	virtual ZScript::Function* getLocalFunction(FunctionSignature const& signature) const = 0;
+	virtual ZScript::Function* addFunction(
 			ZVarType const* returnType, string const& name,
 			vector<ZVarType const*> const& paramTypes, AST* node = NULL) = 0;
 
@@ -89,24 +72,24 @@ public:
 	ZClass* getClass(string const& name) const;
 	int addClass(string const& name);
 	// Variables
-	Variable* getVariable(string const& name) const;
-	Variable* getVariable(vector<string> const& name) const;
+	ZScript::Variable* getVariable(string const& name) const;
+	ZScript::Variable* getVariable(vector<string> const& name) const;
 	// Properties
-	Function* getGetter(string const& name) const;
-	Function* getSetter(string const& name) const;
+	ZScript::Function* getGetter(string const& name) const;
+	ZScript::Function* getSetter(string const& name) const;
 	// Functions
-	vector<Function*> getLocalFunctions(string const& name) const;
+	vector<ZScript::Function*> getLocalFunctions(string const& name) const;
 	void getLocalFunctionIds(string const& name, vector<int>& out) const;
 	vector<int> getLocalFunctionIds(string const& name) const;
-	void getFunctions(string const& name, vector<Function*>& out) const;
+	void getFunctions(string const& name, vector<ZScript::Function*>& out) const;
 	void getFunctionIds(string const& name, vector<int>& out) const;
-	vector<Function*> getFunctions(string const& name) const;
+	vector<ZScript::Function*> getFunctions(string const& name) const;
 	vector<int> getFunctionIds(string const& name) const;
-	vector<Function*> getFunctions(vector<string> const& names)const;
+	vector<ZScript::Function*> getFunctions(vector<string> const& names)const;
 	vector<int> getFunctionIds(vector<string> const& names)const;
-	Function* getFunction(FunctionSignature const& signature) const;
+	ZScript::Function* getFunction(FunctionSignature const& signature) const;
 	int getFunctionId(FunctionSignature const& signature) const;
-	Function* addFunction(ZVarTypeId returnTypeId, string const& name, vector<ZVarTypeId> const& paramTypeIds, AST* node = NULL);
+	ZScript::Function* addFunction(ZVarTypeId returnTypeId, string const& name, vector<ZVarTypeId> const& paramTypeIds, AST* node = NULL);
 
 	bool varDeclsDeprecated;
 protected:
@@ -133,20 +116,20 @@ public:
 	int getLocalClassId(string const& name) const;
 	int addClass(string const& name, AST* node);
 	// Variables
-	Variable* getLocalVariable(string const& name) const;
+	ZScript::Variable* getLocalVariable(string const& name) const;
 	using Scope::addVariable;
-	Variable* addVariable(ZVarType const& type, string const& name, AST* node = NULL);
+	ZScript::Variable* addVariable(ZVarType const& type, string const& name, AST* node = NULL);
 	// Properties
-	Function* getLocalGetter(string const& name) const;
-	Function* getLocalSetter(string const& name) const;
-	Function* addGetter(ZVarType const* returnType, string const& name, vector<ZVarType const*> const& paramTypes, AST* node = NULL);
-	Function* addSetter(ZVarType const* returnType, string const& name, vector<ZVarType const*> const& paramTypes, AST* node = NULL);
+	ZScript::Function* getLocalGetter(string const& name) const;
+	ZScript::Function* getLocalSetter(string const& name) const;
+	ZScript::Function* addGetter(ZVarType const* returnType, string const& name, vector<ZVarType const*> const& paramTypes, AST* node = NULL);
+	ZScript::Function* addSetter(ZVarType const* returnType, string const& name, vector<ZVarType const*> const& paramTypes, AST* node = NULL);
 	// Functions
 	using Scope::getLocalFunctions;
-	void getLocalFunctions(string const& name, vector<Function*>& out) const;
-	Function* getLocalFunction(FunctionSignature const& signature) const;
+	void getLocalFunctions(string const& name, vector<ZScript::Function*>& out) const;
+	ZScript::Function* getLocalFunction(FunctionSignature const& signature) const;
 	using Scope::addFunction;
-	Function* addFunction(ZVarType const* returnType, string const& name,
+	ZScript::Function* addFunction(ZVarType const* returnType, string const& name,
 						  vector<ZVarType const*> const& paramTypes, AST* node = NULL);
 private:
     Scope* parent;
@@ -154,11 +137,11 @@ private:
 	vector<Scope*> anonymousChildren;
 	map<string, int> types;
 	map<string, int> classes;
-	map<string, Variable*> variables;
-	map<string, Function*> getters;
-	map<string, Function*> setters;
-	map<string, vector<Function*> > functionsByName;
-	map<FunctionSignature, Function*> functionsBySignature;
+	map<string, ZScript::Variable*> variables;
+	map<string, ZScript::Function*> getters;
+	map<string, ZScript::Function*> setters;
+	map<string, vector<ZScript::Function*> > functionsByName;
+	map<FunctionSignature, ZScript::Function*> functionsBySignature;
 
 	// Disabled since it's easy to call by accident instead of the Scope*
 	// constructor.
