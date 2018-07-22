@@ -246,28 +246,6 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
     
     if(failure)
     {
-        //delete stuff
-        for(vector<ASTVarDecl *>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); it++)
-        {
-            delete *it;
-        }
-        
-        for(vector<ASTArrayDecl *>::iterator it = fd->globalArrays.begin(); it != fd->globalArrays.end(); it++)
-        {
-            delete *it;
-        }
-        
-        for(vector<ASTFuncDecl *>::iterator it = fd->functions.begin(); it != fd->functions.end(); it++)
-        {
-            delete *it;
-        }
-        
-        for(vector<ASTVarDecl *>::iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end(); it++)
-            delete *it;
-            
-        for(vector<ASTArrayDecl *>::iterator it = fd->newGlobalArrays.begin(); it != fd->newGlobalArrays.end(); it++)
-            delete *it;
-            
         delete fd;
         return NULL;
     }
@@ -279,12 +257,6 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
     for (vector<ASTArrayDecl *>::iterator it = fd->globalArrays.begin(); it != fd->globalArrays.end(); it++)
 		failure = failure || !TypeCheck::check(fd->program.table, **it);
     
-    for (vector<ASTVarDecl *>::iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end(); it++)
-		failure = failure || !TypeCheck::check(fd->program.table, **it);
-        
-    for (vector<ASTArrayDecl *>::iterator it = fd->newGlobalArrays.begin(); it != fd->newGlobalArrays.end(); it++)
-		failure = failure || !TypeCheck::check(fd->program.table, **it);
-    
     for(vector<ASTFuncDecl *>::iterator it = fd->functions.begin(); it != fd->functions.end(); it++)
 		failure = failure || !TypeCheck::check(fd->program.table, fd->program.table.getFuncReturnTypeId(*it), **it);
     
@@ -293,29 +265,14 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
 	{
 		if (fd->program.table.isInlinedConstant(*it))
 		{
-			//delete *it;
 			it = fd->globalVars.erase(it);
-		}
-		else
-			++it;
-	}
-	for (vector<ASTVarDecl*>::iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end();)
-	{
-		if (fd->program.table.isInlinedConstant(*it))
-		{
-			//delete *it;
-			it = fd->newGlobalVars.erase(it);
 		}
 		else
 			++it;
 	}
 	
 	// Count (un-inlined) global variables.
-	fd->globalVarCount = 0;
 	for (vector<ASTVarDecl*>::const_iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); ++it)
-		if (!fd->program.table.isInlinedConstant(*it))
-			++fd->globalVarCount;
-	for (vector<ASTVarDecl*>::const_iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end(); ++it)
 		if (!fd->program.table.isInlinedConstant(*it))
 			++fd->globalVarCount;
 
@@ -327,28 +284,6 @@ FunctionData* ScriptParser::typeCheck(SymbolData* sdata)
     
     if (failure)
     {
-        //delete stuff
-        for(vector<ASTVarDecl *>::iterator it = fd->globalVars.begin(); it != fd->globalVars.end(); it++)
-        {
-            delete *it;
-        }
-        
-        for(vector<ASTArrayDecl *>::iterator it = fd->globalArrays.begin(); it != fd->globalArrays.end(); it++)
-        {
-            delete *it;
-        }
-        
-        for(vector<ASTFuncDecl *>::iterator it = fd->functions.begin(); it != fd->functions.end(); it++)
-        {
-            delete *it;
-        }
-        
-        for(vector<ASTVarDecl *>::iterator it = fd->newGlobalVars.begin(); it != fd->newGlobalVars.end(); it++)
-            delete *it;
-            
-        for(vector<ASTArrayDecl *>::iterator it = fd->newGlobalArrays.begin(); it != fd->newGlobalArrays.end(); it++)
-            delete *it;
-            
         delete fd;
         return NULL;
     }
@@ -364,13 +299,6 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
     vector<ASTVarDecl *> globals = fdata->globalVars;
     vector<ASTArrayDecl *> globalas = fdata->globalArrays;
     
-    //we have no need of newglobals at this point anymore
-    for(vector<ASTVarDecl *>::iterator it = fdata->newGlobalVars.begin(); it != fdata->newGlobalVars.end(); it++)
-        globals.push_back(*it);
-        
-    for(vector<ASTArrayDecl *>::iterator it = fdata->newGlobalArrays.begin(); it != fdata->newGlobalArrays.end(); it++)
-        globalas.push_back(*it);
-        
     SymbolTable* symbols = &fdata->program.table;
     map<string, ScriptType> scripttypes = fdata->scriptTypes;
     map<string, int> thisptr = fdata->thisPtr;

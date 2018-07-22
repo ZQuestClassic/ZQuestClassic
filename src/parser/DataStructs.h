@@ -115,9 +115,7 @@ struct FunctionData
 	ZScript::Program& program;
     vector<ASTFuncDecl*> functions;
     vector<ASTVarDecl*> globalVars;
-    vector<ASTVarDecl*> newGlobalVars;
     vector<ASTArrayDecl*> globalArrays;
-    vector<ASTArrayDecl*> newGlobalArrays;
 	int globalVarCount;
     map<string, int> numParams;
     map<string, ScriptType> scriptTypes;
