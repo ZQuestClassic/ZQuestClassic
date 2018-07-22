@@ -54,8 +54,8 @@ public:
     virtual void caseExprArrow(ASTExprArrow &host);
     virtual void caseExprIndex(ASTExprIndex &host, void *param);
     virtual void caseExprIndex(ASTExprIndex &host);
-    virtual void caseFuncCall(ASTFuncCall &host, void *param);
-    virtual void caseFuncCall(ASTFuncCall &host);
+    virtual void caseExprCall(ASTExprCall &host, void *param);
+    virtual void caseExprCall(ASTExprCall &host);
     virtual void caseExprNegate(ASTExprNegate &host, void *param);
     virtual void caseExprNegate(ASTExprNegate &host);
     virtual void caseExprNot(ASTExprNot &host, void *param);

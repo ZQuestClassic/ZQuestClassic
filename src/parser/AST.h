@@ -70,7 +70,7 @@ class ASTStringConstant;
 class ASTExprIdentifier;
 class ASTExprArrow;
 class ASTExprIndex;
-class ASTFuncCall;
+class ASTExprCall;
 class ASTUnaryExpr; // virtual
 class ASTExprNegate;
 class ASTExprNot;
@@ -183,8 +183,8 @@ public:
     virtual void caseExprArrow(ASTExprArrow& node) {caseExprArrow(node, NULL);}
     virtual void caseExprIndex(ASTExprIndex&, void* param) {caseDefault(param);}
     virtual void caseExprIndex(ASTExprIndex& node) {caseExprIndex(node, NULL);}
-    virtual void caseFuncCall(ASTFuncCall&, void* param) {caseDefault(param);}
-    virtual void caseFuncCall(ASTFuncCall& node) {caseFuncCall(node, NULL);}
+    virtual void caseExprCall(ASTExprCall&, void* param) {caseDefault(param);}
+    virtual void caseExprCall(ASTExprCall& node) {caseExprCall(node, NULL);}
     virtual void caseExprNegate(ASTExprNegate&, void* param) {caseDefault(param);}
     virtual void caseExprNegate(ASTExprNegate& node) {caseExprNegate(node, NULL);}
     virtual void caseExprNot(ASTExprNot&, void* param) {caseDefault(param);}
@@ -1030,27 +1030,28 @@ private:
     ASTExpr* index;
 };
 
-class ASTFuncCall : public ASTExpr
+class ASTExprCall : public ASTExpr
 {
 public:
-    ASTFuncCall(LocationData const& location);
-	ASTFuncCall(ASTFuncCall const& base);
-	ASTFuncCall& operator=(ASTFuncCall const& rhs);
-    ~ASTFuncCall();
-	ASTFuncCall* clone() const {return new ASTFuncCall(*this);}
+	ASTExprCall(LocationData const& location);
+	ASTExprCall(ASTExprCall const& base);
+	ASTExprCall& operator=(ASTExprCall const& rhs);
+	~ASTExprCall();
+	ASTExprCall* clone() const {return new ASTExprCall(*this);}
 
-    list<ASTExpr*> const &getParams() const {return params;}
-    list<ASTExpr*> &getParams() {return params;}
+	void execute(ASTVisitor& visitor, void* param) {visitor.caseExprCall(*this, param);}
+	void execute(ASTVisitor& visitor) {visitor.caseExprCall(*this);}
 
-    void setName(ASTExpr *n) {name = n;}
-    ASTExpr* getName() const {return name;}
-	void addParam(ASTExpr* param) {params.push_back(param);}
 	bool isConstant() const {return false;}
 
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseFuncCall(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseFuncCall(*this);}
+	ASTExpr* getLeft() const {return left;}
+	void setLeft(ASTExpr* expr) {left = expr;}
+    list<ASTExpr*> const &getParams() const {return params;}
+    list<ASTExpr*> &getParams() {return params;}
+	void addParam(ASTExpr* param) {params.push_back(param);}
+
 private:
-    ASTExpr* name;
+    ASTExpr* left;
     list<ASTExpr*> params;
 };
 

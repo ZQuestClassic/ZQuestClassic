@@ -41,7 +41,7 @@ public:
     virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
     virtual void caseExprArrow(ASTExprArrow &host, void *param);
     virtual void caseExprIndex(ASTExprIndex &host, void *param);
-    virtual void caseFuncCall(ASTFuncCall &host, void *param);
+    virtual void caseExprCall(ASTExprCall &host, void *param);
     virtual void caseExprNegate(ASTExprNegate &host, void *param);
     virtual void caseExprNot(ASTExprNot &host, void *param);
     virtual void caseExprBitNot(ASTExprBitNot &host, void *param);
