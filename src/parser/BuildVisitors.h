@@ -68,6 +68,7 @@ public:
     virtual void caseNumberLiteral(ASTNumberLiteral& host, void* param);
     virtual void caseBoolLiteral(ASTBoolLiteral& host, void* param);
     virtual void caseStringLiteral(ASTStringLiteral& host, void* param);
+	virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param);
 
     vector<Opcode *> getResult() const {return result;}
     int getReturnLabelID() const {return returnlabelid;}
@@ -89,6 +90,7 @@ private:
 	int breakRefCount;
     list<long> arrayRefs;
     bool failure;
+	vector<Opcode*>* resultOverride;
 };
 
 class AssignStackSymbols : public RecursiveVisitor
@@ -149,6 +151,15 @@ public:
 	}
 
 	virtual void caseStringLiteral(ASTStringLiteral& host, void* param)
+	{
+		int vid = st->getNodeId(&host);
+		sf->addToFrame(vid, curoffset);
+		curoffset += 10000;
+		if (highWaterOffset < curoffset)
+			highWaterOffset = curoffset;
+	}
+
+	virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param)
 	{
 		int vid = st->getNodeId(&host);
 		sf->addToFrame(vid, curoffset);

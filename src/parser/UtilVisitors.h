@@ -105,6 +105,8 @@ public:
 	// Literals
     virtual void caseNumberLiteral(ASTNumberLiteral& host, void* param);
     virtual void caseNumberLiteral(ASTNumberLiteral& host);
+	virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param);
+	virtual void caseArrayLiteral(ASTArrayLiteral& host);
 };
 
 class CheckForExtraneousImports : public RecursiveVisitor

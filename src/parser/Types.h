@@ -235,6 +235,7 @@ public:
 	bool canBeGlobal() const {return true;}
 	bool canCastTo(ZVarType const& target) const;
 	int typeClassId() const {return ZVARTYPE_CLASSID_ARRAY; }
+	ZVarType const& getElementType() const {return elementType;}
 	ZVarType const& getBaseType() const;
 protected:
 	int selfCompare(ZVarType const& other) const;

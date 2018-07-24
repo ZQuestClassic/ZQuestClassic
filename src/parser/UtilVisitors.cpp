@@ -667,6 +667,30 @@ void RecursiveVisitor::caseNumberLiteral(ASTNumberLiteral& host)
 	host.getValue()->execute(*this);
 }
 
+void RecursiveVisitor::caseArrayLiteral(ASTArrayLiteral& host, void* param)
+{
+	ASTVarType* type = host.getType();
+	if (type) type->execute(*this, param);
+	ASTExpr* size = host.getSize();
+	if (size) size->execute(*this, param);
+	vector<ASTExpr*> elements = host.getElements();
+	for (vector<ASTExpr*>::iterator it = elements.begin();
+		 it != elements.end(); ++it)
+		(*it)->execute(*this, param);
+}
+
+void RecursiveVisitor::caseArrayLiteral(ASTArrayLiteral& host)
+{
+	ASTVarType* type = host.getType();
+	if (type) type->execute(*this);
+	ASTExpr* size = host.getSize();
+	if (size) size->execute(*this);
+	vector<ASTExpr*> elements = host.getElements();
+	for (vector<ASTExpr*>::iterator it = elements.begin();
+		 it != elements.end(); ++it)
+		(*it)->execute(*this);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // CheckForExtraneousImports
 

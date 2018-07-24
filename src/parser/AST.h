@@ -106,6 +106,7 @@ class ASTLiteral; // virtual
 class ASTNumberLiteral;
 class ASTBoolLiteral;
 class ASTStringLiteral;
+class ASTArrayLiteral;
 // Types
 class ASTScriptType;
 class ASTVarType;
@@ -236,6 +237,8 @@ public:
     virtual void caseBoolLiteral(ASTBoolLiteral& node) {caseBoolLiteral(node, NULL);}
     virtual void caseStringLiteral(ASTStringLiteral&, void* param) {caseDefault(param);}
     virtual void caseStringLiteral(ASTStringLiteral& node) {caseStringLiteral(node, NULL);}
+	virtual void caseArrayLiteral(ASTArrayLiteral& node, void* param) {caseDefault(param);}
+	virtual void caseArrayLiteral(ASTArrayLiteral& node) {caseArrayLiteral(node, NULL);}
 	// Types
 	virtual void caseScriptType(ASTScriptType&, void* param) {caseDefault(param);}
 	virtual void caseScriptType(ASTScriptType& node) {caseScriptType(node, NULL);}
@@ -1434,6 +1437,32 @@ public:
 	string getValue() const {return data;}
 private:
 	string data;
+};
+
+class ASTArrayLiteral : public ASTLiteral
+{
+public:
+	ASTArrayLiteral(LocationData const& location);
+	ASTArrayLiteral(ASTArrayLiteral const& base);
+	ASTArrayLiteral& operator=(ASTArrayLiteral const& rhs);
+	ASTArrayLiteral* clone() const {return new ASTArrayLiteral(*this);}
+	~ASTArrayLiteral();
+
+	void execute (ASTVisitor& visitor, void* param) {visitor.caseArrayLiteral(*this, param);}
+	void execute (ASTVisitor& visitor) {visitor.caseArrayLiteral(*this);}
+
+	bool isConstant() const {return true;}
+
+	ASTVarType* getType() const {return type;}
+	void setType(ASTVarType* node) {type = node;}
+	ASTExpr* getSize() const {return size;}
+	void setSize(ASTExpr* node) {size = node;}
+	vector<ASTExpr*> getElements() const {return elements;}
+	void appendElement(ASTExpr* element) {elements.push_back(element);}
+private:
+	ASTVarType* type;
+	ASTExpr* size;
+	vector<ASTExpr*> elements;
 };
 
 // Types
