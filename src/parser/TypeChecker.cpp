@@ -928,10 +928,7 @@ void TypeCheck::caseBoolLiteral(ASTBoolLiteral& host)
     host.setDataValue(host.getValue() ? 1L : 0L);
 }
 
-void TypeCheck::caseStringLiteral(ASTStringLiteral& host)
-{
-	host.setVarType(ZVarType::FLOAT);
-}
+void TypeCheck::caseStringLiteral(ASTStringLiteral& host) {}
 
 void TypeCheck::caseArrayLiteral(ASTArrayLiteral& host)
 {
@@ -971,6 +968,9 @@ void TypeCheck::caseArrayLiteral(ASTArrayLiteral& host)
 			return;
 		}
 	}
+
+	// Update literal type.
+	host.manager->type = type;
 }
 
 

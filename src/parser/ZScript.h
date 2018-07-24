@@ -51,6 +51,14 @@ namespace ZScript
 		void printErrors() const;
 	};
 
+	struct Literal
+	{
+		Literal(ASTLiteral* node, ZVarType const* type, int id);
+		ASTLiteral* node;
+		ZVarType const* type;
+		int id;
+	};
+	
 	struct Variable
 	{
 		Variable(ASTDataDecl* node, ZVarType const* type, string const& name, int id);

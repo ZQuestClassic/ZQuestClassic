@@ -321,13 +321,13 @@ BasicScope::~BasicScope()
 		delete it->second;
 	for (vector<Scope*>::iterator it = anonymousChildren.begin(); it != anonymousChildren.end(); ++it)
 		delete *it;
+	for (vector<Literal*>::iterator it = literals.begin(); it != literals.end(); ++it)
+		delete *it;
 	for (map<string, Variable*>::iterator it = variables.begin(); it != variables.end(); ++it)
 		delete it->second;
 	for (map<FunctionSignature, Function*>::iterator it = functionsBySignature.begin();
 	   it != functionsBySignature.end(); ++it)
-	{
 		delete it->second;
-	}
 	for (map<string, Function*>::iterator it = getters.begin(); it != getters.end(); ++it)
 		delete it->second;
 	for (map<string, Function*>::iterator it = setters.begin(); it != setters.end(); ++it)
@@ -414,6 +414,22 @@ int BasicScope::addClass(string const& name, AST* node)
 	classes[name] = classId;
 	if (node) table.putNodeId(node, classId);
 	return classId;
+}
+
+// Literals
+
+vector<Literal*> BasicScope::getLocalLiterals() const
+{
+	return literals;
+}
+
+Literal* BasicScope::addLiteral(ASTLiteral& node, ZVarType const* type)
+{
+	int id = ScriptParser::getUniqueVarID();
+	getTable().putNodeId(&node, id);
+	Literal* literal = new Literal(&node, type, id);
+	literals.push_back(literal);
+	return literal;
 }
 
 // Variables

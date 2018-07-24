@@ -239,6 +239,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 {
 	Program& program = fdata->program;
     SymbolTable* symbols = &program.table;
+	vector<Literal*>& globalLiterals = fdata->globalLiterals;
 	vector<Variable*>& globalVariables = fdata->globalVariables;
 
     // Z_message("yes");
@@ -246,6 +247,14 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
     
     LinkTable lt;
     
+	for (vector<Literal*>::iterator it = globalLiterals.begin();
+		 it != globalLiterals.end(); ++it)
+	{
+		Literal& literal = **it;
+		int nodeId = symbols->getNodeId(literal.node);
+		lt.addGlobalVar(nodeId);
+	}
+
     for (vector<Variable*>::iterator it = globalVariables.begin();
 		 it != globalVariables.end(); ++it)
     {
@@ -520,7 +529,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 		 it != globalVariables.end(); ++it)
     {
 		Variable& variable = **it;
-		ASTDecl& node = *variable.node;
+		ASTDataDecl& node = *variable.node;
         
         OpcodeContext oc;
         oc.linktable = &lt;
@@ -531,6 +540,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
         BuildOpcodes bo;
         node.execute(bo, &oc);
         if (!bo.isOK()) failure = true;
+		rval->globalsInit.insert(rval->globalsInit.end(), oc.initCode.begin(), oc.initCode.end());
         vector<Opcode*> code = bo.getResult();
 		rval->globalsInit.insert(rval->globalsInit.end(), code.begin(), code.end());
     }
