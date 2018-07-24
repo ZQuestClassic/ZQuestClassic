@@ -192,7 +192,7 @@ ArrayDecl :
 																			ASTArrayList *list = (ASTArrayList *)$7;
 																			char val[15];
 																			sprintf(val, "%d", list->getList().size());
-																			ASTExpr *size = new ASTNumConstant(new ASTFloat(val, 0, @1), @1);
+			ASTExpr *size = new ASTNumberLiteral(new ASTFloat(val, 0, @1), @1);
 																			$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
 																			delete name;}
 	| Type IDENTIFIER LBRACKET ConstExpr RBRACKET ASSIGN QUOTEDSTRING {
@@ -214,12 +214,12 @@ ArrayDecl :
 																ASTArrayList *list = new ASTArrayList(@1);
 																list->makeString();
 																ASTString *string = (ASTString *)$6;
-																ASTExpr *size = new ASTNumConstant(new ASTFloat(string->getValue().length()-1, 0, @1), @1);
+			ASTExpr *size = new ASTNumberLiteral(new ASTFloat(string->getValue().length()-1, 0, @1), @1);
 
 																for(unsigned int i=1; i < string->getValue().length()-1; i++)
-																	list->addParam(new ASTNumConstant(new ASTFloat(long((string->getValue())[i]), 0, @1), @1));
+				list->addParam(new ASTNumberLiteral(new ASTFloat(long((string->getValue())[i]), 0, @1), @1));
 
-																list->addParam(new ASTNumConstant(new ASTFloat(0L, 0, @1), @1));
+			list->addParam(new ASTNumberLiteral(new ASTFloat(0L, 0, @1), @1));
 																$$ = new ASTArrayDecl(type, name->getValue(), size, list, @1);
 																delete name;}
 	;
@@ -466,8 +466,8 @@ FunctionCallArgs :
 	;
 
 BoolConstant :
-	ZTRUE {$$ = new ASTBoolConstant(true, @$);}
-	| ZFALSE {$$ = new ASTBoolConstant(false, @$);}
+	ZTRUE {$$ = new ASTBoolLiteral(true, @$);}
+	| ZFALSE {$$ = new ASTBoolLiteral(false, @$);}
 	;
 
 ////////////////////////////////////////////////////////////////
@@ -477,15 +477,15 @@ BoolConstant :
 Expr_1 : Identifier {$$ = $1;}
 	| NUMBER {
 			ASTFloat* val = (ASTFloat*)$1;
-			$$ = new ASTNumConstant(val, @$);}
+			$$ = new ASTNumberLiteral(val, @$);}
 	| SINGLECHAR {
 			ASTString* as = (ASTString*)$1;
 			char val[15];
 			sprintf(val, "%d", as->getValue().at(1));
-			$$ = new ASTNumConstant(new ASTFloat(val, 0, @$), @$);}
+			$$ = new ASTNumberLiteral(new ASTFloat(val, 0, @$), @$);}
 	| QUOTEDSTRING {
 			ASTString* rawstring = (ASTString*)$1;
-			ASTStringConstant* str = new ASTStringConstant(*rawstring);
+			ASTStringLiteral* str = new ASTStringLiteral(*rawstring);
 			delete rawstring;
 			$$ = str;}
 	| BoolConstant {$$ = $1;}
