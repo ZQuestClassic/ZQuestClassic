@@ -556,18 +556,11 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 
         bool isarun = false;
         string scriptname;
-        
-		for (vector<Script*>::const_iterator it2 = fdata->program.scripts.begin();
-			 it2 != fdata->program.scripts.end();
-			 ++it2)
-        {
-			Function* run = (*it2)->getRun();
-            if (nodeId == run->id)
+		Script* functionScript = function.getScript();
+		if (functionScript)
             {
-                isarun = true;
-                scriptname = (*it2)->getName();
-                break;
-            }
+			scriptname = functionScript->getName();
+			isarun = function.name == "run";
         }
         
         vector<Opcode *> funccode;
