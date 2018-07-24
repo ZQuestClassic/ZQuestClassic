@@ -11,8 +11,10 @@
 BuildOpcodes::BuildOpcodes()
 	: returnlabelid(-1), continuelabelid(-1), breaklabelid(-1), 
 	  returnRefCount(0), continueRefCount(0), breakRefCount(0),
-	  failure(false), resultOverride(NULL)
-{}
+	  failure(false)
+{
+	opcodeTargets.push_back(&result);
+}
 
 void BuildOpcodes::caseDefault(void *)
 {
@@ -22,10 +24,7 @@ void BuildOpcodes::caseDefault(void *)
 
 void BuildOpcodes::addOpcode(Opcode* code)
 {
-	if (resultOverride)
-		resultOverride->push_back(code);
-	else
-	result.push_back(code);
+	opcodeTargets.back()->push_back(code);
 }
 
 void BuildOpcodes::deallocateArrayRef(long arrayRef)
@@ -1334,9 +1333,9 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 		 it != elements.end(); ++it, i += 10000L)
 	{
 		c->initCode.push_back(new OPushRegister(new VarArgument(INDEX)));
-		resultOverride = &c->initCode;
+		opcodeTargets.push_back(&c->initCode);
 		(*it)->execute(*this, param);
-		resultOverride = NULL;
+		opcodeTargets.pop_back();
 		c->initCode.push_back(new OPopRegister(new VarArgument(INDEX)));
 		c->initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(i)));
 		c->initCode.push_back(new OSetRegister(new VarArgument(RAMtype), new VarArgument(EXP1)));
