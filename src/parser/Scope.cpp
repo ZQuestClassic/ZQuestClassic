@@ -440,7 +440,7 @@ Variable* BasicScope::addVariable(ZVarType const& type, string const& name, AST*
 	map<string, Variable*>::const_iterator it = variables.find(name);
 	if (it != variables.end()) return NULL;
 
-	Variable* var = new Variable((ASTDecl*)node, &type, name, ScriptParser::getUniqueVarID());
+	Variable* var = new Variable((ASTDataDecl*)node, &type, name, ScriptParser::getUniqueVarID());
 	variables[name] = var;
 	table.putVarTypeId(var->id, table.getOrAssignTypeId(type));
 	if (node) table.putNodeId(node, var->id);
