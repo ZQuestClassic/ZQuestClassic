@@ -221,7 +221,10 @@ FunctionData* ScriptParser::typeCheck(ZScript::Program& program)
 	}
 	
     if (fd->globalVariables.size() > 256)
+	{
 		CompileError::TooManyGlobal.print(NULL);
+		failure = true;
+	}
     
     if (failure)
     {

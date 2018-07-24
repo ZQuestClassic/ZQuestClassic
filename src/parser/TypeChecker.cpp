@@ -225,10 +225,9 @@ void TypeCheck::caseExprIdentifier(ASTExprIdentifier& host, void*)
     
 void TypeCheck::caseExprArrow(ASTExprArrow& host, void*)
 {
-    // Annoyingly enough I have to treat arrowed variables as function calls
-    // Get the left-hand type.
+    // Recurse on left.
     host.left->execute(*this);
-    if (failure) return;
+    if (breakRecursion(host)) return;
 
 	// Don't need to check index here, since it'll be checked in the above
 	// ASTExprIndex.

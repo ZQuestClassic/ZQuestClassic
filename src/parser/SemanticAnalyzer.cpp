@@ -9,7 +9,7 @@ using namespace ZScript;
 // SemanticAnalyzer
 
 SemanticAnalyzer::SemanticAnalyzer(Program& program)
-	: failure(false), deprecateGlobals(false), program(program)
+	: deprecateGlobals(false), program(program)
 {
 	scope = &program.globalScope;
 	caseProgram(*program.node);

@@ -40,7 +40,6 @@ public:
 	bool hasFailed() const {return failure;}
 
 private:
-	bool failure;
 	Scope* scope;
 	ZScript::Program& program;
 
