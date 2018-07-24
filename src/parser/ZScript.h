@@ -25,6 +25,9 @@ namespace ZScript
 		// Gets the non-internal (user-defined) global scope functions.
 		vector<Function*> getUserGlobalFunctions() const;
 
+		// Gets all user-defined functions.
+		vector<Function*> getUserFunctions() const;
+
 		bool hasError() const;
 		void printErrors() const;
 

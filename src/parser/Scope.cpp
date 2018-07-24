@@ -51,6 +51,14 @@ Scope* Scope::getChild(vector<string>const& names) const
 	return child;
 }
 
+vector<Scope*> Scope::getLocalChildren() const
+{
+	vector<Scope*> children;
+	getLocalChildren(children);
+	return children;
+}
+
+
 // Types
 
 int Scope::getTypeId(string const& name) const
@@ -170,12 +178,38 @@ Function* Scope::getSetter(string const& name) const
 
 // Functions
 
+vector<Function*> Scope::getLocalFunctions() const
+{
+	vector<Function*> functions;
+	getLocalFunctions(functions);
+	return functions;
+}
+
 vector<Function*> Scope::getLocalFunctions(string const& name) const
 {
 	vector<Function*> functions;
 	getLocalFunctions(name, functions);
 	return functions;
 }
+
+vector<Function*> Scope::getAllFunctions() const
+{
+	vector<Function*> functions;
+	getAllFunctions(functions);
+	return functions;
+}
+
+void Scope::getAllFunctions(vector<ZScript::Function*>& outFunctions) const
+{
+	// Get local functions.
+	getLocalFunctions(outFunctions);
+	// Recurse on children.
+	vector<Scope*> children = getLocalChildren();
+	for (vector<Scope*>::iterator it = children.begin();
+		 it != children.end(); ++it)
+		(*it)->getAllFunctions(outFunctions);
+}
+
 
 void Scope::getLocalFunctionIds(string const& name, vector<int>& out) const
 {
@@ -331,6 +365,18 @@ vector<Scope*> BasicScope::getAnonymousChildren() const
 	return anonymousChildren;
 }
 
+void BasicScope::getLocalChildren(vector<Scope*>& outChildren) const
+{
+	// Grab anonymous children.
+	outChildren.insert(
+			outChildren.end(),
+			anonymousChildren.begin(),
+			anonymousChildren.end());
+	// Grab named children.
+	for (map<string, Scope*>::const_iterator it = children.begin();
+		 it != children.end(); ++it)
+		outChildren.push_back(it->second);
+}
 
 // Types
 
@@ -449,13 +495,11 @@ Function* BasicScope::addSetter(
 
 // Functions
 
-vector<Function*> BasicScope::getLocalFunctions() const
+void BasicScope::getLocalFunctions(vector<Function*>& functions) const
 {
-	vector<Function*> functions;
 	for (map<FunctionSignature, Function*>::const_iterator it = functionsBySignature.begin();
 		 it != functionsBySignature.end(); ++it)
 		functions.push_back(it->second);
-	return functions;
 }
 
 void BasicScope::getLocalFunctions(string const& name, vector<Function*>& out) const

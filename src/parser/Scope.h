@@ -34,6 +34,7 @@ public:
 	virtual Scope* makeChild(string const& name) = 0;
 	virtual Scope* getLocalChild(string const& name) const = 0;
 	virtual vector<Scope*> getAnonymousChildren() const = 0;
+	virtual void getLocalChildren(vector<Scope*>&) const = 0;
 	// Types
 	virtual int getLocalTypeId(string const& name) const = 0;
 	virtual int addType(string const& name, ZVarTypeId typeId, AST* node) = 0;
@@ -52,7 +53,7 @@ public:
 	virtual ZScript::Function* addSetter(ZVarType const* returnType, string const& name,
 								vector<ZVarType const*> const& paramTypes, AST* node = NULL) = 0;
 	// Functions
-	virtual vector<ZScript::Function*> getLocalFunctions() const = 0;
+	virtual void getLocalFunctions(vector<ZScript::Function*>&) const = 0;
 	virtual void getLocalFunctions(string const& name, vector<ZScript::Function*>& out) const = 0;
 	virtual ZScript::Function* getLocalFunction(FunctionSignature const& signature) const = 0;
 	virtual ZScript::Function* addFunction(
@@ -67,6 +68,7 @@ public:
 	Scope* getNamespace(string const& name) const;
 	Scope* getLocalChild(vector<string> const& names) const;
 	Scope* getChild(vector<string>const& names)const;
+	vector<Scope*> getLocalChildren() const;
 	// Types
 	int getTypeId(string const& name) const;
 	ZVarType* getLocalType(string const& name) const;
@@ -86,7 +88,10 @@ public:
 	ZScript::Function* getGetter(string const& name) const;
 	ZScript::Function* getSetter(string const& name) const;
 	// Functions
+	vector<ZScript::Function*> getLocalFunctions() const;
 	vector<ZScript::Function*> getLocalFunctions(string const& name) const;
+	vector<ZScript::Function*> getAllFunctions() const;
+	void getAllFunctions(vector<ZScript::Function*>&) const;
 	void getLocalFunctionIds(string const& name, vector<int>& out) const;
 	vector<int> getLocalFunctionIds(string const& name) const;
 	void getFunctions(string const& name, vector<ZScript::Function*>& out) const;
@@ -116,6 +121,8 @@ public:
 	Scope* makeChild(string const& name);
 	Scope* getLocalChild(string const& name) const;
 	vector<Scope*> getAnonymousChildren() const;
+	using Scope::getLocalChildren;
+	void getLocalChildren(vector<Scope*>&) const;
 	// Types
 	int getLocalTypeId(string const& name) const;
 	using Scope::addType;
@@ -135,7 +142,7 @@ public:
 	ZScript::Function* addSetter(ZVarType const* returnType, string const& name, vector<ZVarType const*> const& paramTypes, AST* node = NULL);
 	// Functions
 	using Scope::getLocalFunctions;
-	vector<ZScript::Function*> getLocalFunctions() const;
+	void getLocalFunctions(vector<ZScript::Function*>&) const;
 	void getLocalFunctions(string const& name, vector<ZScript::Function*>& out) const;
 	ZScript::Function* getLocalFunction(FunctionSignature const& signature) const;
 	using Scope::addFunction;

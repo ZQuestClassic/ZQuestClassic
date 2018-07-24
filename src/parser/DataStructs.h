@@ -108,7 +108,6 @@ struct FunctionData
 {
 	FunctionData(ZScript::Program& program);
 	ZScript::Program& program;
-    vector<ASTFuncDecl*> functions;
 	vector<ZScript::Variable*> globalVariables;
 	vector<ZScript::Variable*> globalConstants;
     map<string, int> thisPtr;

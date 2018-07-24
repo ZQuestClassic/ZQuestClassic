@@ -191,28 +191,13 @@ FunctionData* ScriptParser::typeCheck(ZScript::Program& program)
     bool failure = false;
     map<int, bool> usednums;
     
-	// Grab global functions.
-	vector<Function*> userGlobalFunctions = program.getUserGlobalFunctions();
-	for (vector<Function*>::iterator it = userGlobalFunctions.begin();
-		 it != userGlobalFunctions.end(); ++it)
-		funcs.push_back((*it)->node);
-
-    // Strip func decls from the scripts.
+    // Setup this pointers.
     for (vector<ZScript::Script*>::const_iterator it = program.scripts.begin();
 		 it != program.scripts.end(); it++)
     {
 		ZScript::Script const& script = **it;
 		ASTScript* node = script.node;
         fd->thisPtr[node->getName()] = script.getRun()->thisVar->id;
-        
-        // Strip functions from the script.
-		fd->functions.insert(fd->functions.end(), node->functions.begin(), node->functions.end());
-		node->functions.clear();
-    }
-
-    for (vector<ASTFuncDecl*>::iterator it = funcs.begin(); it != funcs.end(); it++)
-    {
-        fd->functions.push_back(*it);
     }
     
     if (failure)
@@ -226,8 +211,14 @@ FunctionData* ScriptParser::typeCheck(ZScript::Program& program)
 	for (vector<Variable*>::iterator it = vars.begin(); it != vars.end(); ++it)
 		failure = failure || !TypeCheck::check(table, *(*it)->node);
     
-    for(vector<ASTFuncDecl *>::iterator it = fd->functions.begin(); it != fd->functions.end(); it++)
-		failure = failure || !TypeCheck::check(table, table.getFuncReturnTypeId(*it), **it);
+	vector<Function*> funs = program.getUserFunctions();
+    for (vector<Function*>::iterator it = funs.begin(); it != funs.end(); ++it)
+	{
+		Function& function = **it;
+		ZVarTypeId returnTypeId = table.getFuncReturnTypeId(function.id);
+		if (!TypeCheck::check(table, returnTypeId, *function.node))
+			failure = true;
+	}
     
 	// Sort global variables into vars and constants.
 	for (vector<Variable*>::iterator it = vars.begin(); it != vars.end(); ++it)
@@ -260,7 +251,6 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 
     // Z_message("yes");
     bool failure = false;
-    vector<ASTFuncDecl *> funcs = fdata->functions;
     
 	// Sort variables into singles and arrays.
 	vector<ASTVarDecl *> globals;
@@ -297,11 +287,9 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
         lt.addGlobalPointer(*it);
     }
     
-    for(vector<ASTFuncDecl *>::iterator it = funcs.begin(); it != funcs.end(); it++)
-    {
-        int fid2 = symbols->getNodeId(*it);
-        lt.functionToLabel(fid2);
-    }
+	vector<Function*> funs = program.getUserFunctions();
+    for (vector<Function*>::iterator it = funs.begin(); it != funs.end(); ++it)
+        lt.functionToLabel(symbols->getNodeId((*it)->node));
     
     //Z_message("yes");
     
@@ -602,8 +590,12 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
     //Z_message("yes");
     
     //globals have been initialized, now we repeat for the functions
-    for(vector<ASTFuncDecl *>::iterator it = funcs.begin(); it != funcs.end(); it++)
+    for (vector<Function*>::iterator it = funs.begin(); it != funs.end(); ++it)
     {
+		Function& function = **it;
+		ASTFuncDecl& node = *function.node;
+		int nodeId = symbols->getNodeId(&node);
+
         bool isarun = false;
         string scriptname;
         
@@ -612,7 +604,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 			 ++it2)
         {
 			Function* run = (*it2)->getRun();
-            if (symbols->getNodeId(*it) == run->id)
+            if (nodeId == run->id)
             {
                 isarun = true;
                 scriptname = (*it2)->getName();
@@ -635,12 +627,13 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
         //assign the local, non-parameters to slots on the stack
         
         AssignStackSymbols assign(&sf, symbols, offset);
-        (*it)->getBlock()->execute(assign, NULL);
+        node.getBlock()->execute(assign, NULL);
         
 		offset = assign.getHighWaterOffset();
         
         //finally, assign the parameters, in reverse order
-		for (list<ASTVarDecl *>::reverse_iterator paramit = (*it)->getParams().rbegin(); paramit != (*it)->getParams().rend(); ++paramit)
+		for (list<ASTVarDecl *>::reverse_iterator paramit = node.getParams().rbegin();
+			 paramit != node.getParams().rend(); ++paramit)
 		{
 			int vid = symbols->getNodeId(*paramit);
 			sf.addToFrame(vid, offset);
@@ -651,10 +644,10 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 
         //start of the function
         Opcode *first = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-        first->setLabel(lt.functionToLabel(symbols->getNodeId(*it)));
+        first->setLabel(lt.functionToLabel(nodeId));
         funccode.push_back(first);
         //push on the 0s
-        int numtoallocate = totvars-(unsigned int)symbols->getFuncParamTypeIds(symbols->getNodeId(*it)).size();
+        int numtoallocate = totvars-(unsigned int)symbols->getFuncParamTypeIds(nodeId).size();
 		//also don't count the "this"
 		if (isarun) numtoallocate--;
 
@@ -691,10 +684,9 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
         oc.symbols = symbols;
         oc.stackframe = &sf;
         BuildOpcodes bo;
-        (*it)->execute(bo, &oc);
+        node.execute(bo, &oc);
         
-        if(!bo.isOK())
-            failure = true;
+        if (!bo.isOK()) failure = true;
             
         vector<Opcode *> code = bo.getResult();
         
@@ -703,8 +695,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
             funccode.push_back(*it2);
         }
         
-        //add appendix code
-        //nop label
+        // Add appendix code.
         Opcode *next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
         next->setLabel(bo.getReturnLabelID());
         funccode.push_back(next);
@@ -734,7 +725,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
             funccode.push_back(new OGotoRegister(new VarArgument(EXP2)));
         }
         
-        rval->funcs[lt.functionToLabel(symbols->getNodeId(*it))]=funccode;
+        rval->funcs[lt.functionToLabel(nodeId)]=funccode;
     }
     
     //Z_message("yes");

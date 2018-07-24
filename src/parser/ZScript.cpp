@@ -76,6 +76,18 @@ vector<Function*> Program::getUserGlobalFunctions() const
 	return functions;
 }
 
+vector<Function*> Program::getUserFunctions() const
+{
+	vector<Function*> functions = globalScope.getAllFunctions();
+	for (vector<Function*>::iterator it = functions.begin(); it != functions.end();)
+	{
+		Function& function = **it;
+		if (!function.node) it = functions.erase(it);
+		else ++it;
+	}
+	return functions;
+}
+
 bool Program::hasError() const
 {
 	for (vector<Script*>::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
