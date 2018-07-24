@@ -320,7 +320,7 @@ void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 {
     if(breaklabelid == -1)
     {
-        compileError(host, &CompileError::BreakBad);
+        handleError(CompileError::BreakBad, &host);
         return;
     }
     
@@ -332,7 +332,7 @@ void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *)
 {
     if(continuelabelid == -1)
     {
-        compileError(host, &CompileError::ContinueBad);
+        handleError(CompileError::ContinueBad, &host);
         return;
     }
     
@@ -430,7 +430,7 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 	// Right now, don't support nested arrays.
 	if (host.extraArrays.size() != 1)
         {
-		compileError(host, &CompileError::DimensionMismatch);
+		handleError(CompileError::DimensionMismatch, &host);
 		return;
     }
 
@@ -445,7 +445,7 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 		// Currently only allow constant size arrays.
 		if (!expr.hasDataValue())
     {
-			compileError(expr, &CompileError::ExprNotConstant);
+			handleError(CompileError::ExprNotConstant, &expr);
         return;
     }
     
@@ -453,7 +453,7 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 		long dimension = expr.getDataValue() / 10000L;
 		if (dimension < 1)
 		{
-			compileError(host, &CompileError::ArrayTooSmall);
+			handleError(CompileError::ArrayTooSmall, &host);
 			return;
 		}
 
@@ -1170,7 +1170,7 @@ void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
         pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue());
 
         if (!val.second)
-            compileError(host, &CompileError::ConstTrunc,
+            handleError(CompileError::ConstTrunc, &host,
 						 host.value->value);
 
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val.first)));
@@ -1201,7 +1201,7 @@ void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
 		ASTDataDeclExtraArray& extraArray = *host.declaration->extraArrays[0];
 		if (!extraArray.isConstant())
 		{
-			compileError(host, &CompileError::ExprNotConstant);
+			handleError(CompileError::ExprNotConstant, &host);
 			return;
 		}
 		if (extraArray.hasSize()) size = extraArray.getTotalSize() * 10000L;
@@ -1275,7 +1275,7 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 		ASTDataDeclExtraArray& extraArray = *host.declaration->extraArrays[0];
 		if (!extraArray.isConstant())
 		{
-			compileError(host, &CompileError::ExprNotConstant);
+			handleError(CompileError::ExprNotConstant, &host);
 			return;
 		}
 		if (extraArray.hasSize()) size = extraArray.getTotalSize();
@@ -1287,7 +1287,7 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 		// Make sure the size has been resolved.
 		if (!host.getSize()->hasDataValue())
 		{
-			compileError(host, &CompileError::ExprNotConstant);
+			handleError(CompileError::ExprNotConstant, &host);
 			return;
 		}
 
@@ -1301,7 +1301,7 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 		// Make sure the chosen size has enough space.
 		if (size < host.getElements().size())
 		{
-		compileError(host, &CompileError::ArrayListTooLarge);
+		handleError(CompileError::ArrayListTooLarge, &host);
 			return;
 		}
 

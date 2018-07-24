@@ -90,4 +90,10 @@ public:
 	static CompileError const UnimplementedFeature;
 };
 
+class CompileErrorHandler
+{
+public:
+	virtual void handleError(CompileError const& error, AST* node, ...) = 0;
+};
+
 #endif

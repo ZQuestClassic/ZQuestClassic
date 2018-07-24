@@ -4,7 +4,7 @@
 #include "AST.h"
 #include "CompileError.h"
 
-class RecursiveVisitor : public ASTVisitor
+class RecursiveVisitor : public ASTVisitor, public CompileErrorHandler
 {
 public:
 	RecursiveVisitor() : failure(false), currentCompileError(NULL) {}
@@ -16,7 +16,7 @@ public:
 	void fail() {failure = true;}
 	
 	// Used to signal that a compile error has occured.
-	void compileError(AST& host, CompileError const* error, ...);
+	void handleError(CompileError const& error, AST* node, ...);
 	
     virtual void caseDefault(void*) {}
 	virtual void caseCompileError(ASTCompileError& host, void* param = NULL);
