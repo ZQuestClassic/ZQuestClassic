@@ -1,10 +1,14 @@
 ////////////////////////////////////////////////////////////////
 // Create a new quest and load this script in it to test various aspects of
-// ZScript. It should compile cleanly and report no errors when the quest is
-// run.
+// ZScript. It should compile cleanly (except for 1 deprecation warning), and
+// report no errors when the quest is run.
 
 import "std.zh"
 import "string.zh"
+
+// Global Typedef
+typedef int num;
+num typedefstring[] = "Test";
 
 // Global Variable Declaration.
 int global_var_1;
@@ -18,12 +22,19 @@ int global_const_size_1[10 * 10];
 int global_const_size_2[S1];
 int global_const_size_3[S1 * S2];
 
+// Global arrays can reference previous ones.
+int global_prev_ref_1[10];
+int global_prev_ref_2 = {global_prev_ref_1};
+
 ////////////////////////////////////////////////////////////////
 
 // Globals for test_Arrays()
 int test_Arrays_g1[5];
 int test_Arrays_g2[] = {1, 2, 3};
 int test_Arrays_g3[5] = {1, 2, 3};
+int test_Arrays_g4 = {1, 2, 3};
+bool test_Arrays_g5 = (bool[]){0, 1};
+int test_Arrays_g6 = (int[3]){};
 
 // Globals for test_Constants()
 const int GLOBAL = 100;
@@ -31,7 +42,7 @@ const int GLOBAL = 100;
 // Globals for test_Strings()
 int test_Strings_g1[5] = "xyz";
 int test_Strings_g2[] = "xyz";
-//int test_Strings_g3 = "xyz";
+int test_Strings_g3 = "xyz";
 
 // Globals for test_Variables()
 int test_Variables_g1;
@@ -40,10 +51,12 @@ int test_Variables_g3 = test_Variables_g2 * 5;
 
 ////////////////////////////////////////////////////////////////
 
-int error_count;
-int test_count = 0;
-int group_name;
-int group_count = 0;
+// Typedef for constants.
+typedef const int def;
+def TYPEDEF_CONST = 100;
+
+
+int error_count, test_count = 0, group_name, group_count = 0;
 
 // Init Script.
 global script Init {
@@ -57,7 +70,7 @@ global script Init {
 		test_ArrayCasts();
 		test_BuiltIns();
 		test_Constants();
-		test_Operations();
+		test_ScriptStrip();
 		test_Strings();
 		test_Variables();
 
@@ -160,12 +173,18 @@ global script Init {
 		test(test_Arrays_g1);
 		test(test_Arrays_g2);
 		test(test_Arrays_g3);
+		test(test_Arrays_g4);
+		//test(test_Arrays_g5);
+		test(test_Arrays_g6);
 
 		// Global Array Size.
 		test_group("Global Array Size");
 		test(5, SizeOfArray(test_Arrays_g1));
 		test(3, SizeOfArray(test_Arrays_g2));
 		test(5, SizeOfArray(test_Arrays_g3));
+		test(3, SizeOfArray(test_Arrays_g4));
+		//test(2, SizeOfArray(test_Arrays_g5));
+		test(3, SizeOfArray(test_Arrays_g6));
 
 		// Global Array Initialization & Reading.
 		test_group("Global Array Initialization & Reading");
@@ -182,27 +201,46 @@ global script Init {
 		test(3, test_Arrays_g3[2]);
 		test(0, test_Arrays_g3[3]);
 		test(0, test_Arrays_g3[4]);
+		test(1, test_Arrays_g4[0]);
+		test(2, test_Arrays_g4[1]);
+		test(3, test_Arrays_g4[2]);
+		test(false, test_Arrays_g5[0]);
+		test(true, test_Arrays_g5[1]);
+		test(0, test_Arrays_g6[0]);
+		test(0, test_Arrays_g6[1]);
+		test(0, test_Arrays_g6[2]);
 
 		// Global Array Write/Read.
 		test_group("Global Array Write/Read");
 		test_Arrays_g1[2] = 100;
 		test(100, test_Arrays_g1[2]);
+		test_Arrays_g4[1] = 100;
+		test(100, test_Arrays_g4[1]);
 
 		int test_Arrays_l1[5];
 		int test_Arrays_l2[] = {1, 2, 3};
 		int test_Arrays_l3[5] = {1, 2, 3};
+		int test_Arrays_l4 = {1, 2, 3};
+		bool test_Arrays_l5 = (bool[]){0, 1};
+		int test_Arrays_l6 = (int[3]){};
 
 		// Local Array Creation.
 		test_group("Local Array Creation");
 		test(test_Arrays_l1);
 		test(test_Arrays_l2);
 		test(test_Arrays_l3);
+		test(test_Arrays_l4);
+		//test(test_Arrays_l5);
+		test(test_Arrays_l6);
 
 		// Local Array Size.
 		test_group("Local Array Size");
 		test(5, SizeOfArray(test_Arrays_l1));
 		test(3, SizeOfArray(test_Arrays_l2));
 		test(5, SizeOfArray(test_Arrays_l3));
+		test(3, SizeOfArray(test_Arrays_l4));
+		//test(2, SizeOfArray(test_Arrays_l5));
+		test(3, SizeOfArray(test_Arrays_l6));
 
 		// Local Array Initialization & Reading.
 		test_group("Local Array Initialization & Reading");
@@ -219,11 +257,21 @@ global script Init {
 		test(3, test_Arrays_l3[2]);
 		test(0, test_Arrays_l3[3]);
 		test(0, test_Arrays_l3[4]);
+		test(1, test_Arrays_l4[0]);
+		test(2, test_Arrays_l4[1]);
+		test(3, test_Arrays_l4[2]);
+		test(false, test_Arrays_l5[0]);
+		test(true, test_Arrays_l5[1]);
+		test(0, test_Arrays_l6[0]);
+		test(0, test_Arrays_l6[1]);
+		test(0, test_Arrays_l6[2]);
 
 		// Local Array Write/Read.
 		test_group("Local Array Write/Read");
 		test_Arrays_l1[2] = 100;
 		test(100, test_Arrays_l1[2]);
+		test_Arrays_l4[1] = 100;
+		test(100, test_Arrays_l4[1]);
 	}
 
 	void test_ArrayCasts() {
@@ -244,65 +292,30 @@ global script Init {
 	void test_Constants() {
 		test_group("Global Constant");
 		test(100, GLOBAL);
+
+		const int LOCAL = 100;
+		test_group("Local Constant");
+		test(100, LOCAL);
 	}
 
-	void test_Operations() {
-		test_group("Math Operations");
-		int val = 100;
-		test(-100, -val);
-		test(-1, ~0);
-		test(101, ++val);
-		test(100, --val);
-		test(100, val++);
-		test(101, val--);
-		test(150, val + 50);
-		test(50, val - 50);
-		test(300, val * 3);
-		test(10, val / 10);
-		test(4, val % 32);
-		test(7, 255 & 7);
-		test(3, 1 | 2);
-		test(1, 3 ^ 2);
-		test(4, 1 << 2);
-		test(1, 4 >> 2);
-
-		test_group("Math Comparisons");
-		test(false, 0 > 0);
-		test(true, 0 >= 0);
-		test(false, 0 < 0);
- 		test(true, 0 <= 0);
- 		test(true, 0 == 0);
- 		test(false, 0 != 0);
-		test(true, 10 > 0);
-		test(true, 10 >= 0);
-		test(false, 10 < 0);
- 		test(false, 10 <= 0);
- 		test(false, 10 == 0);
- 		test(true, 10 != 0);
-
-		test_group("Boolean Operations");
-		test(true, true && true);
-		test(false, false && true);
-		test(false, true && false);
-		test(false, false && false);
-		test(true, true || true);
-		test(true, false || true);
-		test(true, true || false);
-		test(false, false || false);
+	void test_ScriptStrip() {
+		test_group("Script Level Variable");
+		test(100, TestStrip.testStripVar);
+		test_group("Script Level Function");
+		TestStrip.testStripFunction(0);
+		test(0, TestStrip.testStripVar);
 	}
-	
+
 	void test_Strings() {
-		printf("TODO Fix G3\n");
-		
 		test_group("Global String Creation");
 		test(test_Strings_g1);
 		test(test_Strings_g2);
-		//test(test_Strings_g3);
+		test(test_Strings_g3);
 
 		test_group("Global String Size");
 		test(5, SizeOfArray(test_Strings_g1));
 		test(4, SizeOfArray(test_Strings_g2));
-		//test(4, SizeOfArray(test_Strings_g3));
+		test(4, SizeOfArray(test_Strings_g3));
 
 		test_group("Global String Initialization & Reading");
 		test('x', test_Strings_g1[0]);
@@ -314,10 +327,10 @@ global script Init {
 		test('y', test_Strings_g2[1]);
 		test('z', test_Strings_g2[2]);
 		test(0, test_Strings_g2[3]);
-		// test('x', test_Strings_g3[0]);
-		// test('y', test_Strings_g3[1]);
-		// test('z', test_Strings_g3[2]);
-		// test(0, test_Strings_g3[3]);
+		test('x', test_Strings_g3[0]);
+		test('y', test_Strings_g3[1]);
+		test('z', test_Strings_g3[2]);
+		test(0, test_Strings_g3[3]);
 
 		int test_Strings_l1[5] = "xyz";
 		int test_Strings_l2[] = "xyz";
@@ -376,6 +389,13 @@ global script Init {
 		test(50, test_Variables_l1);
 		test(50, test_Variables_l2);
 	}
+}
+
+global script TestStrip
+{
+	void run() {}
+	int testStripVar = 100;
+	void testStripFunction(int x) {testStripVar = x;}
 }
 
 item script ItemScript {
