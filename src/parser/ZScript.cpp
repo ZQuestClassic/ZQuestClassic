@@ -109,9 +109,9 @@ Script::Script(Program& program, ASTScript* script) : node(script)
 	scope->varDeclsDeprecated = true;
 }
 
-string Script::getName() const {return node->getName();}
+string Script::getName() const {return node->name;}
 
-ScriptType Script::getType() const {return node->getType()->getType();}
+ScriptType Script::getType() const {return node->type->type;}
 
 Function* Script::getRun() const
 {

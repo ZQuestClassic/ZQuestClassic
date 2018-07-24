@@ -53,11 +53,11 @@ void BuildOpcodes::deallocateRefsUntilCount(int count)
 void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 {
 	OpcodeContext *c = (OpcodeContext *)param;
-	list<ASTStmt*> l = host.getStatements();
 
 	int startRefCount = arrayRefs.size();
 
-    for (list<ASTStmt*>::iterator it = l.begin(); it != l.end(); it++)
+    for (vector<ASTStmt*>::iterator it = host.statements.begin();
+		 it != host.statements.end(); ++it)
 	{
 		int initIndex = result.size();
         (*it)->execute(*this, param);
@@ -73,12 +73,12 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
         {
     //run the test
-    host.getCondition()->execute(*this,param);
+    host.condition->execute(*this,param);
     int endif = ScriptParser::getUniqueLabelID();
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(endif)));
     //run the block
-    host.getStmt()->execute(*this,param);
+    host.thenStatement->execute(*this,param);
     //nop
     Opcode *next = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
     next->setLabel(endif);
@@ -88,18 +88,18 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
         {
     //run the test
-    host.getCondition()->execute(*this,param);
+    host.condition->execute(*this,param);
     int elseif = ScriptParser::getUniqueLabelID();
     int endif = ScriptParser::getUniqueLabelID();
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(elseif)));
     //run if blocl
-    host.getStmt()->execute(*this,param);
+    host.thenStatement->execute(*this,param);
     addOpcode(new OGotoImmediate(new LabelArgument(endif)));
     Opcode *next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
     next->setLabel(elseif);
     addOpcode(next);
-    host.getElseStmt()->execute(*this,param);
+    host.elseStatement->execute(*this,param);
     next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
     next->setLabel(endif);
     addOpcode(next);
@@ -108,7 +108,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 {
 	map<ASTSwitchCases*, int> labels;
-	vector<ASTSwitchCases*> cases = host.getCases();
+	vector<ASTSwitchCases*>& cases = host.cases;
 
 	int end_label = ScriptParser::getUniqueLabelID();;
 	int default_label = end_label;
@@ -120,7 +120,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	breakRefCount = arrayRefs.size();
 
 	// Evaluate the key.
-	ASTExpr* key = host.getKey();
+	ASTExpr* key = host.key;
 	key->execute(*this, param);
 	result.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 
@@ -134,8 +134,8 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 		labels[cases] = label;
 
 		// Run the tests for these cases.
-		for (vector<ASTExprConst*>::iterator it = cases->getCases().begin();
-			 it != cases->getCases().end();
+		for (vector<ASTExprConst*>::iterator it = cases->cases.begin();
+			 it != cases->cases.end();
 			 ++it)
 		{
 			// Test this individual case.
@@ -148,7 +148,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 		}
 
 		// If this set includes the default case, mark it.
-		if (cases->isDefaultCase())
+		if (cases->isDefault)
 			default_label = label;
 	}
 
@@ -163,7 +163,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 		// Mark start of the block we're adding.
 		int block_start_index = result.size();
 		// Add block.
-		cases->getBlock()->execute(*this, param);
+		cases->block->execute(*this, param);
 		// If nothing was added, put in a nop to point to.
 		if (result.size() == block_start_index)
 			result.push_back(new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0)));
@@ -184,7 +184,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     {
     //run the precondition
-    host.getPrecondition()->execute(*this,param);
+    host.setup->execute(*this,param);
     int loopstart = ScriptParser::getUniqueLabelID();
     int loopend = ScriptParser::getUniqueLabelID();
     int loopincr = ScriptParser::getUniqueLabelID();
@@ -193,7 +193,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     next->setLabel(loopstart);
     addOpcode(next);
     //test the termination condition
-    host.getTerminationCondition()->execute(*this,param);
+    host.test->execute(*this,param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(loopend)));
     //run the loop body
@@ -208,7 +208,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     continuelabelid = loopincr;
 	continueRefCount = arrayRefs.size();
 
-    host.getStmt()->execute(*this,param);
+    host.body->execute(*this,param);
 
     breaklabelid = oldbreak;
     breakRefCount = oldBreakRefCount;
@@ -220,7 +220,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
     next->setLabel(loopincr);
     addOpcode(next);
-    host.getIncrement()->execute(*this,param);
+    host.increment->execute(*this,param);
     addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
     //nop
     next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
@@ -237,7 +237,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
     Opcode *start = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
     start->setLabel(startlabel);
     addOpcode(start);
-    host.getCond()->execute(*this,param);
+    host.test->execute(*this,param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
 
@@ -250,7 +250,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
     continuelabelid = startlabel;
 	continueRefCount = arrayRefs.size();
 
-    host.getStmt()->execute(*this,param);
+    host.body->execute(*this,param);
 
     breaklabelid = oldbreak;
 	breakRefCount = oldBreakRefCount;
@@ -283,7 +283,7 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     continuelabelid = continuelabel;
 	continueRefCount = arrayRefs.size();
 
-    host.getStmt()->execute(*this,param);
+    host.body->execute(*this, param);
 
     breaklabelid = oldbreak;
     continuelabelid = oldcontinue;
@@ -293,7 +293,7 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     start = new OSetImmediate(new VarArgument(NUL), new LiteralArgument(0));
     start->setLabel(continuelabel);
     addOpcode(start);
-    host.getCond()->execute(*this,param);
+    host.test->execute(*this,param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
     addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
@@ -311,7 +311,7 @@ void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
 
 void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 {
-    host.getReturnValue()->execute(*this,param);
+    host.value->execute(*this, param);
 	deallocateRefsUntilCount(0);
     addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 }
@@ -368,7 +368,7 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 	// Switch off to the proper helper function.
 	if (manager.type->typeClassId() == ZVARTYPE_CLASSID_ARRAY)
 	{
-		if (host.getInitializer()) buildArrayInit(host, context);
+		if (host.initializer()) buildArrayInit(host, context);
 		else buildArrayUninit(host, context);
 	}
 	else buildVariable(host, context);
@@ -379,13 +379,13 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	Variable& manager = *host.manager;
 
 	// Load initializer into EXP1, if present.
-	if (host.getInitializer()) host.getInitializer()->execute(*this, &context);
+	AST::execute(host.initializer(), *this, &context);
 
 	// Set variable to EXP1 or 0, depending on the initializer.
 	if (manager.global)
     {
 		int globalid = context.linktable->getGlobalID(manager.id);
-		if (host.getInitializer())
+		if (host.initializer())
             addOpcode(new OSetRegister(new GlobalArgument(globalid), new VarArgument(EXP1)));
 		else
 			addOpcode(new OSetImmediate(new GlobalArgument(globalid), new LiteralArgument(0)));
@@ -395,7 +395,7 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 		int offset = context.stackframe->getOffset(manager.id);
             addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
             addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		if (!host.getInitializer())
+		if (!host.initializer())
 			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
             addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
     }
@@ -406,7 +406,7 @@ void BuildOpcodes::buildArrayInit(ASTDataDecl& host, OpcodeContext& context)
 	Variable& manager = *host.manager;
 
 	// Initializer creates the array and loads the array id into EXP1.
-	host.getInitializer()->execute(*this, &context);
+	host.initializer()->execute(*this, &context);
 
 	// Set variable to EXP1.
 	if (manager.global)
@@ -496,10 +496,10 @@ void BuildOpcodes::caseCompileError(ASTCompileError& host, void*)
 void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 {
     //load the rval into EXP1
-    host.getRVal()->execute(*this,param);
+    host.right->execute(*this, param);
     //and store it
     LValBOHelper helper;
-    host.getLVal()->execute(helper, param);
+    host.left->execute(helper, param);
     vector<Opcode *> subcode = helper.getResult();
 
     for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
@@ -510,7 +510,7 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 
 void BuildOpcodes::caseExprConst(ASTExprConst &host, void *param)
 {
-	host.getContent()->execute(*this, param);
+	AST::execute(host.content, *this, param);
 }
 	
 void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
@@ -545,7 +545,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
-    bool isIndexed = host.getIndex() != NULL;
+    bool isIndexed = host.index != NULL;
     //this is actually a function call
     //to the appropriate gettor method
     //so, set that up:
@@ -556,13 +556,13 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
     addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnlabel)));
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     //get the rhs of the arrow
-    host.getLeft()->execute(*this, param);
+    AST::execute(host.left, *this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
     //if indexed, push the index
     if(isIndexed)
     {
-        host.getIndex()->execute(*this,param);
+        AST::execute(host.index, *this, param);
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
 }
 
@@ -578,18 +578,18 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// If the left hand side is an arrow, then we'll let it run instead.
-	if (host.getArray()->isTypeArrow())
+	if (host.array->isTypeArrow())
 	{
-		host.getArray()->execute(*this, param);
+		host.array->execute(*this, param);
 		return;
 	}
 
 	// First, push the array.
-	host.getArray()->execute(*this, param);
+	AST::execute(host.array, *this, param);
 	addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
 	// Load the index into INDEX2.
-	host.getIndex()->execute(*this, param);
+	AST::execute(host.index, *this, param);
         addOpcode(new OSetRegister(new VarArgument(INDEX2), new VarArgument(EXP1)));
     
 	// Pop array into INDEX.
@@ -614,17 +614,18 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 
     // If the function is a pointer function (->func()) we need to push the
     // left-hand-side.
-    if (host.getLeft()->isTypeArrow())
+    if (host.left->isTypeArrow())
     {
         //load the value of the left-hand of the arrow into EXP1
-        ((ASTExprArrow*)host.getLeft())->getLeft()->execute(*this, param);
+        ((ASTExprArrow*)host.left)->left->execute(*this, param);
         //host.getLeft()->execute(*this,param);
         //push it onto the stack
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
     }
     
     //push the parameters, in forward order
-    for(list<ASTExpr *>::iterator it = host.getParams().begin(); it != host.getParams().end(); it++)
+    for (vector<ASTExpr*>::iterator it = host.parameters.begin();
+		it != host.parameters.end(); ++it)
     {
         (*it)->execute(*this, param);
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -646,7 +647,7 @@ void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
         return;
     }
     
-    host.getOperand()->execute(*this, param);
+    host.operand->execute(*this, param);
     addOpcode(new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0)));
     addOpcode(new OSubRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -660,7 +661,7 @@ void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
         return;
     }
     
-    host.getOperand()->execute(*this, param);
+    host.operand->execute(*this, param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OSetTrue(new VarArgument(EXP1)));
 }
@@ -673,7 +674,7 @@ void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
         return;
     }
     
-    host.getOperand()->execute(*this, param);
+    host.operand->execute(*this, param);
     addOpcode(new ONot(new VarArgument(EXP1)));
 }
 
@@ -683,21 +684,21 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
     
     // Load value of the variable into EXP1.  Except if it is an arrow expr, in
     // which case the gettor function is stored in this AST*.
-	ASTExpr& operand = *host.getOperand();
+	ASTExpr& operand = *host.operand;
 	if (operand.isTypeArrow() || operand.isTypeIndex())
     {
 		ASTExprArrow* arrow;
 		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).getArray();
+		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
 
         int oldid = c->symbols->getNodeId(arrow);
         c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
-        host.getOperand()->execute(*this,param);
+        host.operand->execute(*this,param);
         c->symbols->putNodeId(arrow, oldid);
     }
-    else if (host.getOperand()->isTypeIdentifier())
+    else if (host.operand->isTypeIdentifier())
     {
-        host.getOperand()->execute(*this, param);
+        host.operand->execute(*this, param);
     }
     
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -706,7 +707,7 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
     addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
     //store it
     LValBOHelper helper;
-    host.getOperand()->execute(helper, param);
+    host.operand->execute(helper, param);
     vector<Opcode *> subcode = helper.getResult();
     
     for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
@@ -724,28 +725,28 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
     
     // Load value of the variable into EXP1.  Except if it is an arrow expr, in
     // which case the gettor function is stored in this AST*.
-	ASTExpr& operand = *host.getOperand();
+	ASTExpr& operand = *host.operand;
 	if (operand.isTypeArrow() || operand.isTypeIndex())
     {
 		ASTExprArrow* arrow;
 		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).getArray();
+		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
 
         int oldid = c->symbols->getNodeId(arrow);
         c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
-        host.getOperand()->execute(*this,param);
+        host.operand->execute(*this,param);
         c->symbols->putNodeId(arrow, oldid);
     }
-    else if (host.getOperand()->isTypeIdentifier())
+    else if (host.operand->isTypeIdentifier())
     {
-        host.getOperand()->execute(*this, param);
+        host.operand->execute(*this, param);
     }
     
     //increment EXP1
     addOpcode(new OAddImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
     //store it
     LValBOHelper helper;
-    host.getOperand()->execute(helper, param);
+    host.operand->execute(helper, param);
     vector<Opcode *> subcode = helper.getResult();
     
     for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
@@ -759,28 +760,28 @@ void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
     OpcodeContext* c = (OpcodeContext*)param;
     // Load value of the variable into EXP1 Except if it is an arrow expr, in
     // which case the gettor function is stored in this AST*.
-	ASTExpr& operand = *host.getOperand();
+	ASTExpr& operand = *host.operand;
 	if (operand.isTypeArrow() || operand.isTypeIndex())
     {
 		ASTExprArrow* arrow;
 		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).getArray();
+		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
 
         int oldid = c->symbols->getNodeId(arrow);
         c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
-        host.getOperand()->execute(*this,param);
+        host.operand->execute(*this,param);
         c->symbols->putNodeId(arrow, oldid);
     }
-    else if (host.getOperand()->isTypeIdentifier())
+    else if (host.operand->isTypeIdentifier())
     {
-        host.getOperand()->execute(*this, param);
+        host.operand->execute(*this, param);
     }
     
     //dencrement EXP1
     addOpcode(new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
     //store it
     LValBOHelper helper;
-    host.getOperand()->execute(helper, param);
+    host.operand->execute(helper, param);
     vector<Opcode *> subcode = helper.getResult();
     
     for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
@@ -794,21 +795,21 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
     OpcodeContext* c = (OpcodeContext*)param;
     // Load value of the variable into EXP1 except if it is an arrow expr, in
     // which case the gettor function is stored in this AST*.
-	ASTExpr& operand = *host.getOperand();
+	ASTExpr& operand = *host.operand;
 	if (operand.isTypeArrow() || operand.isTypeIndex())
     {
 		ASTExprArrow* arrow;
 		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).getArray();
+		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
 
         int oldid = c->symbols->getNodeId(arrow);
         c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
-        host.getOperand()->execute(*this,param);
+        host.operand->execute(*this,param);
         c->symbols->putNodeId(arrow, oldid);
     }
-    else if (host.getOperand()->isTypeIdentifier())
+    else if (host.operand->isTypeIdentifier())
     {
-        host.getOperand()->execute(*this, param);
+        host.operand->execute(*this, param);
     }
     
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -817,7 +818,7 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
     addOpcode(new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
     //store it
     LValBOHelper helper;
-    host.getOperand()->execute(helper, param);
+    host.operand->execute(helper, param);
     vector<Opcode *> subcode = helper.getResult();
     
     for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
@@ -838,9 +839,9 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
     }
     
     //compute both sides
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     castFromBool(result, EXP1);
     castFromBool(result, EXP2);
@@ -858,9 +859,9 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
     }
     
     //compute both sides
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this,param);
+    host.right->execute(*this,param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
@@ -876,9 +877,9 @@ void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
     }
     
     //compute both sides
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetLess(new VarArgument(EXP1)));
@@ -895,9 +896,9 @@ void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
     }
     
     //compute both sides
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetMore(new VarArgument(EXP1)));
@@ -912,9 +913,9 @@ void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 }
 
     //compute both sides
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetMore(new VarArgument(EXP1)));
@@ -931,9 +932,9 @@ void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
     }
     
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetLess(new VarArgument(EXP1)));
@@ -942,7 +943,7 @@ void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 {
     // Special case for booleans.
-    bool isBoolean = (*host.getFirstOperand()->getVarType() == ZVarType::BOOL);
+    bool isBoolean = (*host.left->getVarType() == ZVarType::BOOL);
     
     if (host.hasDataValue())
     {
@@ -951,9 +952,9 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 }
 
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     
     if (isBoolean)
@@ -969,7 +970,7 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 {
     // Special case for booleans.
-    bool isBoolean = (*host.getFirstOperand()->getVarType() == ZVarType::BOOL);
+    bool isBoolean = (*host.left->getVarType() == ZVarType::BOOL);
     
     if (host.hasDataValue())
     {
@@ -978,9 +979,9 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
     }
     
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
 
     if (isBoolean)
@@ -1002,9 +1003,9 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
     }
     
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
@@ -1018,9 +1019,9 @@ void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 }
 
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OSubRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1035,9 +1036,9 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
     }
     
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OMultRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
@@ -1051,9 +1052,9 @@ void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
     }
         
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new ODivRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1068,9 +1069,9 @@ void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
     }
     
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OModuloRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1085,9 +1086,9 @@ void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 }
 
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OAndRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
@@ -1101,9 +1102,9 @@ void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
     }
     
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OOrRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
@@ -1117,9 +1118,9 @@ void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
     }
     
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OXorRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
@@ -1133,9 +1134,9 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
     }
     
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OLShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1150,9 +1151,9 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
     }
     
     // Compute both sides.
-    host.getFirstOperand()->execute(*this, param);
+    host.left->execute(*this, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.getSecondOperand()->execute(*this, param);
+    host.right->execute(*this, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new ORShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1166,11 +1167,11 @@ void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(host.getDataValue())));
     else
     {
-        pair<long, bool> val = ScriptParser::parseLong(host.getValue()->parseValue());
+        pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue());
 
         if (!val.second)
             compileError(host, &CompileError::ConstTrunc,
-						 host.getValue()->getValue());
+						 host.value->value);
 
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val.first)));
     }
@@ -1191,7 +1192,7 @@ void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
 	////////////////////////////////////////////////////////////////
 	// Initialization Code.
 
-	string data = host.getValue();
+	string data = host.value;
 	long size = (data.size() + 1) * 10000L;
 
 	// If this is part of an array declaration, grab the size info from it.
@@ -1426,7 +1427,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 {
     OpcodeContext *c = (OpcodeContext *)param;
-    int isIndexed = (host.getIndex() != NULL);
+    int isIndexed = (host.index != NULL);
     // This is actually implemented as a settor function call.
 
     // Push the stack frame.
@@ -1441,7 +1442,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     vector<Opcode *> toadd;
     BuildOpcodes oc;
-    host.getLeft()->execute(oc, param);
+    host.left->execute(oc, param);
     toadd = oc.getResult();
     
     for(vector<Opcode *>::iterator it = toadd.begin(); it != toadd.end(); it++)
@@ -1460,7 +1461,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     if(isIndexed)
     {
         BuildOpcodes oc2;
-        host.getIndex()->execute(oc2, param);
+        host.index->execute(oc2, param);
         toadd = oc2.getResult();
         
         for(vector<Opcode *>::iterator it = toadd.begin(); it != toadd.end(); it++)
@@ -1484,9 +1485,9 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// Arrows just fall back on the arrow implementation.
-	if (host.getArray()->isTypeArrow())
+	if (host.array->isTypeArrow())
 	{
-		host.getArray()->execute(*this, param);
+		host.array->execute(*this, param);
 		return;
 	}
 
@@ -1497,7 +1498,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
     
 	// Get and push the array pointer.
 	BuildOpcodes buildOpcodes1;
-	host.getArray()->execute(buildOpcodes1, param);
+	host.array->execute(buildOpcodes1, param);
 	opcodes = buildOpcodes1.getResult();
 	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
 		addOpcode(*it);
@@ -1505,7 +1506,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
     
 	// Get the index.
 	BuildOpcodes buildOpcodes2;
-	host.getIndex()->execute(buildOpcodes2, param);
+	host.index->execute(buildOpcodes2, param);
 	opcodes = buildOpcodes2.getResult();
 	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
         addOpcode(*it);

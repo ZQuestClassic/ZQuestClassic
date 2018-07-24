@@ -125,11 +125,7 @@ public:
 	virtual void caseBlock(ASTBlock &host, void *param)
 	{
 		prevframes.push(curoffset);
-		list<ASTStmt *> l = host.getStatements();
-
-		for (list<ASTStmt *>::iterator it = l.begin(); it != l.end(); it++)
-			(*it)->execute(*this, param);
-
+		AST::execute(host.statements, *this, param);
 		curoffset = prevframes.top();
 		prevframes.pop();
 	}
@@ -138,10 +134,10 @@ public:
 	{
 		prevframes.push(curoffset);
 
-		host.getPrecondition()->execute(*this, param);
-		host.getIncrement()->execute(*this, param);
-		host.getTerminationCondition()->execute(*this, param);
-		host.getStmt()->execute(*this, param);
+		host.setup->execute(*this, param);
+		host.increment->execute(*this, param);
+		host.test->execute(*this, param);
+		host.body->execute(*this, param);
 
 		curoffset = prevframes.top();
 		prevframes.pop();

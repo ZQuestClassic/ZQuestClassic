@@ -152,7 +152,7 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
     for (vector<ASTImportDecl*>::iterator it = imports.begin();
 		 it != imports.end(); it = imports.erase(it))
         {
-        string fn = prepareFilename((*it)->getFilename());
+        string fn = prepareFilename((*it)->filename);
 
         if (go(fn.c_str()) != 0 || !resAST)
             {
@@ -581,8 +581,8 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
 		offset = assign.getHighWaterOffset();
         
         //finally, assign the parameters, in reverse order
-		for (vector<ASTDataDecl*>::const_reverse_iterator it = node.getParameters().rbegin();
-			 it != node.getParameters().rend(); ++it)
+		for (vector<ASTDataDecl*>::const_reverse_iterator it = node.parameters.rbegin();
+			 it != node.parameters.rend(); ++it)
 		{
 			int vid = symbols->getNodeId(*it);
 			sf.addToFrame(vid, offset);
