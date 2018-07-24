@@ -3938,31 +3938,3 @@ string OGreyscaleR::toString()
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-int LinkTable::functionToLabel(int fid)
-{
-    map<int,int>::iterator it = funcLabels.find(fid);
-    
-    if(it != funcLabels.end())
-        return (*it).second;
-        
-    int newid = ScriptParser::getUniqueLabelID();
-    funcLabels[fid]=newid;
-    return newid;
-}
-
-int LinkTable::getGlobalID(int vid)
-{
-    map<int, int>::iterator it = globalIDs.find(vid);
-    
-    if(it == globalIDs.end())
-        return -1;
-        
-    return it->second;
-}
-
-int LinkTable::addGlobalVar(int vid)
-{
-    int newid = ScriptParser::getUniqueGlobalID();
-    globalIDs[vid]=newid;
-    return newid;
-}
