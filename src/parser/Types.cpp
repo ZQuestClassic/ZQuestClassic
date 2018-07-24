@@ -115,14 +115,20 @@ bool ZVarTypeSimple::canBeGlobal() const
 
 bool ZVarTypeSimple::canCastTo(ZVarType const& target) const
 {
-	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY) return target.canCastTo(*this);
-	if (simpleId == ZVARTYPEID_FLOAT && target.typeClassId() == ZVARTYPE_CLASSID_CONST_FLOAT) return true;
+	if (target.typeClassId() == ZVARTYPE_CLASSID_CONST_FLOAT)
+		return canCastTo(ZVarType::FLOAT);
+	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
+		return canCastTo(((ZVarTypeArray const&)target).getBaseType());
+
 	if (target.typeClassId() != ZVARTYPE_CLASSID_SIMPLE) return false;
 	ZVarTypeSimple const& t = (ZVarTypeSimple const&)target;
-	if (simpleId == ZVARTYPEID_UNTYPED || t.simpleId == ZVARTYPEID_UNTYPED) return true;
-	if (simpleId == ZVARTYPEID_VOID || t.simpleId == ZVARTYPEID_VOID) return false;
+	if (simpleId == ZVARTYPEID_UNTYPED || t.simpleId == ZVARTYPEID_UNTYPED)
+		return true;
+	if (simpleId == ZVARTYPEID_VOID || t.simpleId == ZVARTYPEID_VOID)
+		return false;
 	if (simpleId == t.simpleId) return true;
-	if (simpleId == ZVARTYPEID_FLOAT && t.simpleId == ZVARTYPEID_BOOL) return true;
+	if (simpleId == ZVARTYPEID_FLOAT && t.simpleId == ZVARTYPEID_BOOL)
+		return true;
 	return false;
 }
 
@@ -174,7 +180,8 @@ string ZVarTypeClass::getName() const
 
 bool ZVarTypeClass::canCastTo(ZVarType const& target) const
 {
-	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY) return target.canCastTo(*this);
+	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
+		return canCastTo(((ZVarTypeArray const&)target).getBaseType());
 	return *this == target;
 }
 
@@ -198,10 +205,9 @@ int ZVarTypeClass::selfCompare(ZVarType const& other) const
 
 bool ZVarTypeArray::canCastTo(ZVarType const& target) const
 {
-	if (elementType == target) return true;
 	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
-		return getBaseType() == ZVarTypeArray(target).getBaseType();
-	return false;
+		return canCastTo(((ZVarTypeArray const&)target).getBaseType());
+	return getBaseType().canCastTo(target);
 }
 
 ZVarType const& ZVarTypeArray::getBaseType() const
