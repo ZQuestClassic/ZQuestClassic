@@ -85,6 +85,7 @@
   GFX_QUARTZ_WINDOW
   */
 
+#include <cstdio>
 #include <math.h>
 #include <string.h>
 #include <vector>
