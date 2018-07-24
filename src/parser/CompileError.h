@@ -87,6 +87,7 @@ public:
 	static CompileError const DimensionMismatch;
 	static CompileError const ArrayLiteralResize;
 	static CompileError const MissingCompileError;
+	static CompileError const UnimplementedFeature;
 };
 
 #endif

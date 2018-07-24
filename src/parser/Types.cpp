@@ -99,6 +99,18 @@ ZVarType const* ZVarType::get(ZVarTypeId id)
 	}
 }
 
+int ZVarType::getArrayDepth() const
+{
+	ZVarType const* type = this;
+	int depth = 0;
+	while (type->isArray())
+	{
+		++depth;
+		type = &((ZVarTypeArray const*)type)->getElementType();
+	}
+	return depth;
+}
+
 ////////////////////////////////////////////////////////////////
 // ZVarTypeSimple
 

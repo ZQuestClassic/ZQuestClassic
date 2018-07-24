@@ -168,6 +168,9 @@ global script Init {
 	}
 
 	void test_Arrays() {
+		// Nested arrays currently unsupported.
+		compile_error (54) int a[][];
+		
 		// Global Array Creation.
 		test_group("Global Array Creation");
 		test(test_Arrays_g1);
