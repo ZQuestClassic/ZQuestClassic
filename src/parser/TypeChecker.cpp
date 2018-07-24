@@ -290,39 +290,7 @@ void TypeCheck::caseExprCall(ASTExprCall &host)
         if (failure) return;
         ZVarType const& lvaltype = *lval->getLeft()->getVarType();
 
-        if (!(lvaltype == ZVarType::FFC
-              || lvaltype == ZVarType::LINK
-			  || lvaltype == ZVarType::SCREEN
-              || lvaltype == ZVarType::ITEM
-			  || lvaltype == ZVarType::ITEMCLASS
-              || lvaltype == ZVarType::GAME
-              || lvaltype == ZVarType::NPC
-			  || lvaltype == ZVarType::LWPN
-              || lvaltype == ZVarType::EWPN
-              || lvaltype == ZVarType::NPCDATA
-              || lvaltype == ZVarType::DEBUG
-              || lvaltype == ZVarType::AUDIO
-              || lvaltype == ZVarType::COMBOS
-              || lvaltype == ZVarType::SPRITEDATA
-              || lvaltype == ZVarType::GRAPHICS
-              || lvaltype == ZVarType::TEXT
-              || lvaltype == ZVarType::INPUT
-              || lvaltype == ZVarType::MAPDATA
-              || lvaltype == ZVarType::DMAPDATA
-              || lvaltype == ZVarType::ZMESSAGE
-              || lvaltype == ZVarType::SHOPDATA 
-              || lvaltype == ZVarType::UNTYPED
-              || lvaltype == ZVarType::DROPSET
-              || lvaltype == ZVarType::PONDS
-              || lvaltype == ZVarType::WARPRING
-              || lvaltype == ZVarType::DOORSET
-              || lvaltype == ZVarType::ZUICOLOURS
-              || lvaltype == ZVarType::RGBDATA
-              || lvaltype == ZVarType::PALETTE
-              || lvaltype == ZVarType::TUNES
-              || lvaltype == ZVarType::PALCYCLE
-              || lvaltype == ZVarType::GAMEDATA
-              || lvaltype == ZVarType::CHEATS))
+		if (lvaltype.typeClassId() != ZVARTYPE_CLASSID_CLASS)
         {
 	        printErrorMsg(lval, ARROWNOTPOINTER);
 	        failure = true;
@@ -446,7 +414,9 @@ void TypeCheck::caseExprCall(ASTExprCall &host)
 		ZVarTypeClass& leftType = *(ZVarTypeClass*)symbolTable.getType(leftTypeId);
 		ZClass& leftClass = *symbolTable.getClass(leftType.getClassId());
 
-		int functionId = leftClass.getFunctionIds(name)[0];
+		int functionId = -1;
+		vector<int> functionIds = leftClass.getFunctionIds(name);
+		if (functionIds.size() > 0) functionId = functionIds[0];
         if (functionId == -1)
         {
             failure = true;
