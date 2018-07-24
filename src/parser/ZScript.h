@@ -28,8 +28,10 @@ namespace ZScript
 		// Gets all user-defined functions.
 		vector<Function*> getUserFunctions() const;
 
-		bool hasError() const;
-		void printErrors() const;
+		// Return a list of all errors in the script declaration.
+		vector<CompileError const*> getErrors() const;
+		// Does this script have a declaration error?
+		bool hasError() const {return getErrors().size();}
 
 	private:
 		map<string, Script*> scriptsByName;
@@ -48,8 +50,10 @@ namespace ZScript
 		ScriptType getType() const;
 		Function* getRun() const;
 
-		bool hasError() const;
-		void printErrors() const;
+		// Return a list of all errors in the script declaration.
+		vector<CompileError const*> getErrors() const;
+		// Does this script have a declaration error?
+		bool hasError() const {return getErrors().size();}
 	};
 
 	class Literal

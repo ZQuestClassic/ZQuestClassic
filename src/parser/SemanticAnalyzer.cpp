@@ -1,7 +1,7 @@
 #include "SemanticAnalyzer.h"
 
 #include "Scope.h"
-#include "ParseError.h"
+#include "CompileError.h"
 
 using namespace ZScript;
 
@@ -43,12 +43,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		string const& name = parameter.name;
 		ZVarType const& type = *parameter.resolveType(&functionScope);
 		Variable* var = functionScope.addVariable(type, name, &parameter);
-		if (var == NULL)
-		{
-            printErrorMsg(&parameter, VARREDEF, name);
-            failure = true;
-            continue;
-        }
+		if (var == NULL) compileError(parameter, CompileError::VarRedef, name.c_str());
 	}
 
 	// Evaluate the function block under its scope.
@@ -59,7 +54,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	scope = scope->getParent();
 }
 
-void SemanticAnalyzer::caseProgram(ASTProgram& host)
+void SemanticAnalyzer::caseProgram(ASTProgram& host, void*)
 {
 	// Recurse on elements.
 	RecursiveVisitor::caseProgram(host);
@@ -85,7 +80,7 @@ void SemanticAnalyzer::caseProgram(ASTProgram& host)
 
 // Statements
 
-void SemanticAnalyzer::caseBlock(ASTBlock& host)
+void SemanticAnalyzer::caseBlock(ASTBlock& host, void*)
 {
 	// Switch to block scope.
 	scope = scope->makeChild();
@@ -97,7 +92,7 @@ void SemanticAnalyzer::caseBlock(ASTBlock& host)
 	scope = scope->getParent();
 }
 
-void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host)
+void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
 {
 	// Switch to block scope.
 	scope = scope->makeChild();
@@ -111,14 +106,13 @@ void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host)
 
 // Declarations
 
-void SemanticAnalyzer::caseTypeDef(ASTTypeDef& host)
+void SemanticAnalyzer::caseTypeDef(ASTTypeDef& host, void*)
 {
 	// Resolve the base type under current scope.
 	ZVarType const& type = host.getType()->resolve(*scope);
 	if (!type.isResolved())
 	{
-		printErrorMsg(&host, UNRESOLVEDTYPE, type.getName());
-		failure = true;
+		compileError(host, CompileError::UnresolvedType, type.getName().c_str());
 		return;
 	}
 
@@ -126,30 +120,27 @@ void SemanticAnalyzer::caseTypeDef(ASTTypeDef& host)
 	scope->addType(host.getName(), type, &host);
 }
 
-void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host)
+void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 {
 	// Resolve the base type.
 	ZVarType const& baseType = host.baseType->resolve(*scope);
 	if (!baseType.isResolved())
 	{
-		printErrorMsg(&host, UNRESOLVEDTYPE, baseType.getName());
-		failure = true;
+		compileError(host, CompileError::UnresolvedType, baseType.getName().c_str());
 		return;
 	}
 
 	// Don't allow void type.
 	if (baseType == ZVarType::ZVOID)
 	{
-		failure = true;
-		printErrorMsg(&host, VOIDVAR);
+		compileError(host, CompileError::VoidVar);
 		return;
 	}
 
 	// Check for disallowed global types.
 	if (scope->isGlobal() && !baseType.canBeGlobal())
 	{
-		failure = true;
-        printErrorMsg(&host, REFVAR, baseType.getName());
+		compileError(host, CompileError::RefVar, baseType.getName().c_str());
 		return;
 	}
 
@@ -157,10 +148,13 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host)
 	vector<ASTDataDecl*> const& decls = host.getDeclarations();
 	for (vector<ASTDataDecl*>::const_iterator it = decls.begin();
 		 it != decls.end(); ++it)
+	{
 		caseDataDecl(**it);
+		if (breakRecursion(host)) return;
+	}
 }
 
-void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host)
+void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 {
 	// First do standard recursing.
 	RecursiveVisitor::caseDataDecl(host);
@@ -169,24 +163,22 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host)
 	ZVarType const& type = *host.resolveType(scope);
 	if (!type.isResolved())
 	{
-		printErrorMsg(&host, UNRESOLVEDTYPE, type.getName());
-		failure = true;
+		compileError(host, CompileError::UnresolvedType, type.getName().c_str());
 		return;
 	}
 
 	// Don't allow void type.
 	if (type == ZVarType::ZVOID)
 	{
-		failure = true;
-		printErrorMsg(&host, VOIDVAR, host.name);
+		compileError(host, CompileError::VoidVar, host.name.c_str());
 		return;
 	}
 
 	// Check for disallowed global types.
 	if (scope->isGlobal() && !type.canBeGlobal())
 	{
-		failure = true;
-        printErrorMsg(&host, REFVAR, type.getName() + " " + host.name);
+		compileError(host, CompileError::RefVar,
+					 (type.getName() + " " + host.name).c_str());
 		return;
 	}
 
@@ -197,24 +189,24 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host)
 	// that name.
 	if (variable == NULL)
 	{
-		failure = true;
-        printErrorMsg(&host, VARREDEF, host.name);
+		compileError(host, CompileError::VarRedef, host.name.c_str());
 		return;
 	}
 
 	// Special message for deprecated global variables.
 	if (scope->varDeclsDeprecated)
-        printErrorMsg(&host, DEPRECATEDGLOBAL, host.name);
+		compileError(host, CompileError::DeprecatedGlobal, host.name.c_str());
 }
 
-void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
+void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 {
 	// Resolve the return type under current scope.
 	ZVarType const& returnType = host.returnType->resolve(*scope);
 	if (!returnType.isResolved())
 	{
-		printErrorMsg(&host, UNRESOLVEDTYPE, returnType.getName());
-		failure = true;
+		compileError(host, CompileError::UnresolvedType,
+					 returnType.getName().c_str());
+		return;
 	}
 
 	// Gather the paramater types.
@@ -229,15 +221,17 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 		ZVarType const& type = *decl.resolveType(scope);
 		if (!type.isResolved())
 		{
-			printErrorMsg(&decl, UNRESOLVEDTYPE, type.getName());
-			failure = true;
+			compileError(decl, CompileError::UnresolvedType,
+						 type.getName().c_str());
+			return;
 		}
 
 		// Don't allow void params.
 		if (type == ZVarType::ZVOID)
 		{
-			printErrorMsg(&decl, FUNCTIONVOIDPARAM, decl.name);
-			failure = true;
+			compileError(decl, CompileError::FunctionVoidParam,
+						 decl.name.c_str());
+			return;
 		}
 
 		paramTypes.push_back(&type);
@@ -250,13 +244,10 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host)
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)
-	{
-		printErrorMsg(&host, FUNCTIONREDEF, host.name);
-		failure = true;
-	}
+		compileError(host, CompileError::FunctionRedef, host.name.c_str());
 }
 
-void SemanticAnalyzer::caseScript(ASTScript& host)
+void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 {
 	Script& script = *program.getScript(&host);
 	string name = script.getName();
@@ -265,26 +256,36 @@ void SemanticAnalyzer::caseScript(ASTScript& host)
 	scope = script.scope;
 	RecursiveVisitor::caseScript(host);
 	scope = scope->getParent();
-	if (failure) return;
+	if (breakRecursion(host)) return;
 
-	if (script.hasError())
+	// Handle any script errors.
+	vector<CompileError const*> errors = script.getErrors();
+	for (vector<CompileError const*>::iterator it = errors.begin();
+		 it != errors.end(); ++it)
 	{
-		script.printErrors();
-		failure = true;
-		return;
+		compileError(host, **it, name.c_str());
+		if (breakRecursion(host)) return;
 	}
-
 }
 
 // Expressions
 
-void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host)
+void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)
+{
+	ASTExpr* content = host.getContent();
+	content->execute(*this);
+
+	if (content->hasDataValue())
+		host.setDataValue(content->getDataValue());
+}
+
+void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 {
 	host.getLVal()->markAsLVal();
 	RecursiveVisitor::caseExprAssign(host);
 }
 
-void SemanticAnalyzer::caseExprCall(ASTExprCall& host)
+void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 {
 	ASTExpr* left = host.getLeft();
 
@@ -298,8 +299,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host)
 		vector<int> possibleFunctionIds = scope->getFunctionIds(identifier->getComponents());
 		if (possibleFunctionIds.size() == 0)
 		{
-			printErrorMsg(&host, FUNCUNDECLARED, identifier->asString());
-			failure = true;
+			compileError(host, CompileError::FuncUndeclared,
+						 identifier->asString().c_str());
 			return;
 		}
 
@@ -312,13 +313,13 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host)
 	RecursiveVisitor::caseExprCall(host);
 }
 
-void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host)
+void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host, void*)
 {
 	Variable* variable = scope->getVariable(host.getComponents());
 	if (!variable)
 	{
-		printErrorMsg(&host, VARUNDECLARED, host.asString());
-		failure = true;
+		compileError(host, CompileError::VarUndeclared,
+					 host.asString().c_str());
 		return;
 	}
 
@@ -327,7 +328,7 @@ void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host)
 
 // ExprArrow just recurses.
 
-void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host)
+void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void*)
 {
 	// If the left hand side is an arrow, then pass the index over, so if it's
 	// a built-in command it has access to it.
@@ -343,7 +344,26 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host)
 
 // Literals
 
-void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host)
+void SemanticAnalyzer::caseNumberLiteral(ASTNumberLiteral& host, void*)
+{
+    host.setVarType(ZVarType::FLOAT);
+    pair<string,string> parts = host.getValue()->parseValue();
+    pair<long, bool> val = ScriptParser::parseLong(parts);
+
+    if (!val.second)
+		compileError(
+				host, CompileError::ConstTrunc, host.getValue()->getValue());
+
+    host.setDataValue(val.first);
+}
+
+void SemanticAnalyzer::caseBoolLiteral(ASTBoolLiteral& host, void*)
+{
+    host.setVarType(ZVarType::BOOL);
+    host.setDataValue(host.getValue() ? 1L : 0L);
+}
+
+void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
 {
 	// Assign type.
 	SymbolTable& table = scope->getTable();
@@ -354,7 +374,7 @@ void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host)
 	scope->addLiteral(host, type);
 }
 
-void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host)
+void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 {
 	// Recurse on type, size, and elements.
 	RecursiveVisitor::caseArrayLiteral(host);
@@ -365,16 +385,15 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host)
 		ZVarType const& elementType = host.getType()->resolve(*scope);
 		if (!elementType.isResolved())
 		{
-			printErrorMsg(&host, UNRESOLVEDTYPE, elementType.getName());
-			failure = true;
+			compileError(host, CompileError::UnresolvedType,
+						 elementType.getName().c_str());
 			return;
 		}
 
 		// Disallow void type.
 		if (elementType == ZVarType::ZVOID)
 		{
-			printErrorMsg(&host, VOIDARR);
-			failure = true;
+			compileError(host, CompileError::VoidArr);
 			return;
 		}
 
@@ -385,8 +404,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host)
 	// Check that we have elements OR a type.
 	if (host.getElements().size() == 0 && !host.getType())
 	{
-		printErrorMsg(&host, EMPTYARRAYLITERAL);
-		failure = true;
+		compileError(host, CompileError::EmptyArrayLiteral);
 	}
 
 	// Add to scope as a managed literal.

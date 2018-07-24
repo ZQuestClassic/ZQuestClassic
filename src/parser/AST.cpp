@@ -1,5 +1,6 @@
 #include "../precompiled.h" //always first //2.53 Updated to 16th Jan, 2017
 #include "AST.h"
+#include "CompileError.h"
 #include "DataStructs.h"
 #include "Scope.h"
 
@@ -452,6 +453,55 @@ ASTStmtContinue* ASTStmtContinue::clone() const
 ASTStmtEmpty* ASTStmtEmpty::clone() const
 {
 	return new ASTStmtEmpty(getLocation());
+}
+
+// ASTCompileError
+
+ASTCompileError::ASTCompileError(
+		ASTExpr* errorId, ASTStmt* statement,
+		LocationData const& location)
+	: ASTStmt(location), errorId(errorId), statement(statement),
+	  errorTriggered(false)
+{}
+
+ASTCompileError::ASTCompileError(ASTCompileError const& base)
+	: ASTStmt(base),
+	  errorId(base.errorId ? base.errorId->clone() : NULL),
+	  statement(base.statement ? base.statement->clone() : NULL),
+	  errorTriggered(base.errorTriggered)
+	  
+{}
+
+ASTCompileError::~ASTCompileError()
+{
+	delete errorId;
+	delete statement;
+}
+
+ASTCompileError& ASTCompileError::operator=(ASTCompileError const& rhs)
+{
+	ASTStmt::operator=(rhs);
+	// Delete.
+	delete errorId;
+	delete statement;
+	// Copy.
+	errorId = rhs.errorId ? rhs.errorId->clone() : NULL;
+	statement = rhs.statement ? rhs.statement->clone() : NULL;
+	errorTriggered = rhs.errorTriggered;
+	// Return.
+	return *this;
+}
+
+int ASTCompileError::getErrorId() const
+{
+	if (!errorId) return -1;
+	if (!errorId->hasDataValue()) return -1;
+	return errorId->getDataValue() / 10000;
+}
+
+bool ASTCompileError::canHandle(CompileError const& error) const
+{
+	return error.id == getErrorId();
 }
 
 ////////////////////////////////////////////////////////////////

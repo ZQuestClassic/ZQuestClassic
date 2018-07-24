@@ -2,8 +2,8 @@
 #include "../precompiled.h" //always first
 
 #include "ByteCode.h"
+#include "CompileError.h"
 #include "DataStructs.h"
-#include "ParseError.h"
 #include "../zsyssimple.h"
 #include <assert.h>
 #include <iostream>

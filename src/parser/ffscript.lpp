@@ -50,6 +50,8 @@ lweapon					{doLines(); return LWEAPON;}
 eweapon					{doLines(); return EWEAPON;}
 typedef					{doLines(); return TYPEDEF;}
 
+compile_error			{doLines(); return COMPILEERROR;}
+
 \-\>		{ doLines(); return ARROW;}
 \<\<=		{ doLines(); return LSHIFTASSIGN; }
 \>\>=		{ doLines(); return RSHIFTASSIGN; }

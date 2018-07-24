@@ -2,9 +2,9 @@
 #include "../precompiled.h" //always first
 
 #include "BuildVisitors.h"
-#include <assert.h>
-#include "ParseError.h"
+#include "CompileError.h"
 #include "ZScript.h"
+#include <assert.h>
 
 using namespace ZScript;
 
@@ -13,8 +13,7 @@ using namespace ZScript;
 
 BuildOpcodes::BuildOpcodes()
 	: returnlabelid(-1), continuelabelid(-1), breaklabelid(-1), 
-	  returnRefCount(0), continueRefCount(0), breakRefCount(0),
-	  failure(false)
+	  returnRefCount(0), continueRefCount(0), breakRefCount(0)
 {
 	opcodeTargets.push_back(&result);
 }
@@ -321,8 +320,7 @@ void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 {
     if(breaklabelid == -1)
     {
-        printErrorMsg(&host, BREAKBAD);
-        failure = true;
+        compileError(host, CompileError::BreakBad);
         return;
     }
     
@@ -334,8 +332,7 @@ void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *)
 {
     if(continuelabelid == -1)
     {
-        printErrorMsg(&host, CONTINUEBAD);
-        failure = true;
+        compileError(host, CompileError::ContinueBad);
         return;
     }
     
@@ -433,8 +430,7 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 	// Right now, don't support nested arrays.
 	if (host.extraArrays.size() != 1)
         {
-		printErrorMsg(&host, DIMENSIONMISMATCH);
-		failure = true;
+		compileError(host, CompileError::DimensionMismatch);
 		return;
     }
 
@@ -449,8 +445,7 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 		// Currently only allow constant size arrays.
 		if (!expr.hasDataValue())
     {
-			failure = true;
-			printErrorMsg(&expr, EXPRNOTCONSTANT);
+			compileError(expr, CompileError::ExprNotConstant);
         return;
     }
     
@@ -458,8 +453,7 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 		long dimension = expr.getDataValue() / 10000L;
 		if (dimension < 1)
 		{
-			failure = true;
-			printErrorMsg(&host, ARRAYTOOSMALL);
+			compileError(host, CompileError::ArrayTooSmall);
 			return;
 		}
 
@@ -489,6 +483,15 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 void BuildOpcodes::caseTypeDef(ASTTypeDef&, void*) {}
 
 // Expressions
+
+void BuildOpcodes::caseCompileError(ASTCompileError& host, void*)
+{
+	// If we haven't been triggered, throw a warning.
+	if (!host.errorTriggered)
+		CompileError::MissingCompileError.print(&host, host.getErrorId());
+
+	// Otherwise, we don't want to actually generate any code.
+}
 
 void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 {
@@ -1166,7 +1169,8 @@ void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
         pair<long, bool> val = ScriptParser::parseLong(host.getValue()->parseValue());
 
         if (!val.second)
-            printErrorMsg(&host, CONSTTRUNC, host.getValue()->getValue());
+            compileError(host, CompileError::ConstTrunc,
+						 host.getValue()->getValue());
 
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val.first)));
     }
@@ -1196,8 +1200,7 @@ void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
 		ASTDataDeclExtraArray& extraArray = *host.declaration->extraArrays[0];
 		if (!extraArray.isConstant())
 		{
-			printErrorMsg(&host, EXPRNOTCONSTANT);
-			failure = true;
+			compileError(host, CompileError::ExprNotConstant);
 			return;
 		}
 		if (extraArray.hasSize()) size = extraArray.getTotalSize() * 10000L;
@@ -1271,8 +1274,7 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 		ASTDataDeclExtraArray& extraArray = *host.declaration->extraArrays[0];
 		if (!extraArray.isConstant())
 		{
-			printErrorMsg(&host, EXPRNOTCONSTANT);
-			failure = true;
+			compileError(host, CompileError::ExprNotConstant);
 			return;
 		}
 		if (extraArray.hasSize()) size = extraArray.getTotalSize();
@@ -1284,8 +1286,7 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 		// Make sure the size has been resolved.
 		if (!host.getSize()->hasDataValue())
 		{
-			printErrorMsg(&host, EXPRNOTCONSTANT);
-			failure = true;
+			compileError(host, CompileError::ExprNotConstant);
 			return;
 		}
 
@@ -1299,8 +1300,7 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 		// Make sure the chosen size has enough space.
 		if (size < host.getElements().size())
 		{
-			printErrorMsg(&host, ARRAYLISTTOOLARGE);
-			failure = true;
+		compileError(host, CompileError::ArrayListTooLarge);
 			return;
 		}
 

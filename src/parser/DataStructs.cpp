@@ -1,13 +1,13 @@
 //2.53 Updated to 16th Jan, 2017
 #include "../precompiled.h" //always first
 
+#include "../zsyssimple.h"
+#include "CompileError.h"
 #include "DataStructs.h"
-#include "Types.h"
-#include "ParseError.h"
 #include "GlobalSymbols.h"
 #include "Scope.h"
+#include "Types.h"
 #include "ZScript.h"
-#include "../zsyssimple.h"
 #include <assert.h>
 #include <iostream>
 
@@ -146,7 +146,7 @@ ZVarTypeId SymbolTable::assignTypeId(ZVarType const& type)
 {
 	if (!type.isResolved())
 	{
-		printErrorMsg(NULL, UNRESOLVEDTYPE, type.getName());
+		CompileError::UnresolvedType.print(NULL, type.getName());
 		return -1;
 	}
 
@@ -163,7 +163,7 @@ ZVarTypeId SymbolTable::getOrAssignTypeId(ZVarType const& type)
 {
 	if (!type.isResolved())
 	{
-		printErrorMsg(NULL, UNRESOLVEDTYPE, type.getName());
+		CompileError::UnresolvedType.print(NULL, type.getName());
 		return -1;
 	}
 
