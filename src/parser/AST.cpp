@@ -1,5 +1,9 @@
 #include "../precompiled.h" //always first //2.53 Updated to 16th Jan, 2017
 #include "AST.h"
+#include "DataStructs.h"
+#include "Scope.h"
+
+#include <assert.h>
 
 ////////////////////////////////////////////////////////////////
 
@@ -17,33 +21,39 @@ ASTProgram::ASTProgram(LocationData const& location) : AST(location) {}
 
 ASTProgram::ASTProgram(ASTProgram const& base) : AST(base.getLocation())
 {
-	for (vector<ASTImportDecl*>::const_iterator it = base.imports.begin(); it != base.imports.end(); ++it)
+	for (vector<ASTImportDecl*>::const_iterator it = base.imports.begin();
+		 it != base.imports.end(); ++it)
 		imports.push_back((*it)->clone());
-	for (vector<ASTVarDecl*>::const_iterator it = base.variables.begin(); it != base.variables.end(); ++it)
+	for (vector<ASTDataDeclList*>::const_iterator it = base.variables.begin();
+		 it != base.variables.end(); ++it)
 		variables.push_back((*it)->clone());
-	for (vector<ASTArrayDecl*>::const_iterator it = base.arrays.begin(); it != base.arrays.end(); ++it)
-		arrays.push_back((*it)->clone());
-	for (vector<ASTFuncDecl*>::const_iterator it = base.functions.begin(); it != base.functions.end(); ++it)
+	for (vector<ASTFuncDecl*>::const_iterator it = base.functions.begin();
+		 it != base.functions.end(); ++it)
 		functions.push_back((*it)->clone());
-	for (vector<ASTTypeDef*>::const_iterator it = base.types.begin(); it != base.types.end(); ++it)
+	for (vector<ASTTypeDef*>::const_iterator it = base.types.begin();
+		 it != base.types.end(); ++it)
 		types.push_back((*it)->clone());
-	for (vector<ASTScript*>::const_iterator it = base.scripts.begin(); it != base.scripts.end(); ++it)
+	for (vector<ASTScript*>::const_iterator it = base.scripts.begin();
+		 it != base.scripts.end(); ++it)
 		scripts.push_back((*it)->clone());
 }
 
 ASTProgram::~ASTProgram()
 {
-	for (vector<ASTImportDecl*>::const_iterator it = imports.begin(); it != imports.end(); ++it)
+	for (vector<ASTImportDecl*>::const_iterator it = imports.begin();
+		 it != imports.end(); ++it)
 		delete *it;
-	for (vector<ASTVarDecl*>::const_iterator it = variables.begin(); it != variables.end(); ++it)
+	for (vector<ASTDataDeclList*>::const_iterator it = variables.begin();
+		 it != variables.end(); ++it)
 		delete *it;
-	for (vector<ASTArrayDecl*>::const_iterator it = arrays.begin(); it != arrays.end(); ++it)
+	for (vector<ASTFuncDecl*>::const_iterator it = functions.begin();
+		 it != functions.end(); ++it)
 		delete *it;
-	for (vector<ASTFuncDecl*>::const_iterator it = functions.begin(); it != functions.end(); ++it)
+	for (vector<ASTTypeDef*>::const_iterator it = types.begin();
+		 it != types.end(); ++it)
 		delete *it;
-	for (vector<ASTTypeDef*>::const_iterator it = types.begin(); it != types.end(); ++it)
-		delete *it;
-	for (vector<ASTScript*>::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
+	for (vector<ASTScript*>::const_iterator it = scripts.begin();
+		 it != scripts.end(); ++it)
 		delete *it;
 }
 
@@ -60,11 +70,8 @@ void ASTProgram::addDeclaration(ASTDecl* declaration)
 	case ASTDECL_CLASSID_FUNCTION:
 		functions.push_back((ASTFuncDecl*)declaration);
 		break;
-	case ASTDECL_CLASSID_ARRAY:
-		arrays.push_back((ASTArrayDecl*)declaration);
-		break;
-	case ASTDECL_CLASSID_VARIABLE:
-		variables.push_back((ASTVarDecl*)declaration);
+	case ASTDECL_CLASSID_DATALIST:
+		variables.push_back((ASTDataDeclList*)declaration);
 		break;
 	case ASTDECL_CLASSID_TYPE:
 		types.push_back((ASTTypeDef*)declaration);
@@ -74,22 +81,24 @@ void ASTProgram::addDeclaration(ASTDecl* declaration)
 
 ASTProgram& ASTProgram::merge(ASTProgram& other)
 {
-	for (vector<ASTImportDecl*>::const_iterator it = other.imports.begin(); it != other.imports.end(); ++it)
+	for (vector<ASTImportDecl*>::const_iterator it = other.imports.begin();
+		 it != other.imports.end(); ++it)
 		imports.push_back(*it);
 	other.imports.clear();
-	for (vector<ASTVarDecl*>::const_iterator it = other.variables.begin(); it != other.variables.end(); ++it)
+	for (vector<ASTDataDeclList*>::const_iterator it = other.variables.begin();
+		 it != other.variables.end(); ++it)
 		variables.push_back(*it);
 	other.variables.clear();
-	for (vector<ASTArrayDecl*>::const_iterator it = other.arrays.begin(); it != other.arrays.end(); ++it)
-		arrays.push_back(*it);
-	other.arrays.clear();
-	for (vector<ASTFuncDecl*>::const_iterator it = other.functions.begin(); it != other.functions.end(); ++it)
+	for (vector<ASTFuncDecl*>::const_iterator it = other.functions.begin();
+		 it != other.functions.end(); ++it)
 		functions.push_back(*it);
 	other.functions.clear();
-	for (vector<ASTTypeDef*>::const_iterator it = other.types.begin(); it != other.types.end(); ++it)
+	for (vector<ASTTypeDef*>::const_iterator it = other.types.begin();
+		 it != other.types.end(); ++it)
 		types.push_back(*it);
 	other.types.clear();
-	for (vector<ASTScript*>::const_iterator it = other.scripts.begin(); it != other.scripts.end(); ++it)
+	for (vector<ASTScript*>::const_iterator it = other.scripts.begin();
+		 it != other.scripts.end(); ++it)
 		scripts.push_back(*it);
 	other.scripts.clear();
 	return *this;
@@ -466,12 +475,9 @@ ASTScript::ASTScript(ASTScript const& base)
 	  type(base.type ? base.type->clone() : NULL),
 	  name(base.name)
 {
-	for (vector<ASTVarDecl*>::const_iterator it = base.variables.begin();
+	for (vector<ASTDataDeclList*>::const_iterator it = base.variables.begin();
 		 it != base.variables.end(); ++it)
 		variables.push_back((*it)->clone());
-	for (vector<ASTArrayDecl*>::const_iterator it = base.arrays.begin();
-		 it != base.arrays.end(); ++it)
-		arrays.push_back((*it)->clone());
 	for (vector<ASTFuncDecl*>::const_iterator it = base.functions.begin();
 		 it != base.functions.end(); ++it)
 		functions.push_back((*it)->clone());
@@ -483,11 +489,8 @@ ASTScript::ASTScript(ASTScript const& base)
 ASTScript::~ASTScript()
 {
 	delete type;
-	for (vector<ASTVarDecl*>::const_iterator it = variables.begin();
+	for (vector<ASTDataDeclList*>::const_iterator it = variables.begin();
 		 it != variables.end(); ++it)
-		delete *it;
-	for (vector<ASTArrayDecl*>::const_iterator it = arrays.begin();
-		 it != arrays.end(); ++it)
 		delete *it;
 	for (vector<ASTFuncDecl*>::const_iterator it = functions.begin();
 		 it != functions.end(); ++it)
@@ -497,6 +500,36 @@ ASTScript::~ASTScript()
 		delete *it;
 }
 
+ASTScript& ASTScript::operator=(ASTScript const& rhs)
+{
+	ASTDecl::operator=(rhs);
+	// Delete.
+	delete type;
+	for (vector<ASTDataDeclList*>::const_iterator it = variables.begin();
+		 it != variables.end(); ++it)
+		delete *it;
+	for (vector<ASTFuncDecl*>::const_iterator it = functions.begin();
+		 it != functions.end(); ++it)
+		delete *it;
+	for (vector<ASTTypeDef*>::const_iterator it = types.begin();
+		 it != types.end(); ++it)
+		delete *it;
+	// Copy.
+	for (vector<ASTDataDeclList*>::const_iterator it = rhs.variables.begin();
+		 it != rhs.variables.end(); ++it)
+		variables.push_back((*it)->clone());
+	for (vector<ASTFuncDecl*>::const_iterator it = rhs.functions.begin();
+		 it != rhs.functions.end(); ++it)
+		functions.push_back((*it)->clone());
+	for (vector<ASTTypeDef*>::const_iterator it = rhs.types.begin();
+		 it != rhs.types.end(); ++it)
+		types.push_back((*it)->clone());
+	type = rhs.type ? rhs.type->clone() : NULL;
+	name = rhs.name;
+	// Return.
+	return *this;
+}
+
 void ASTScript::addDeclaration(ASTDecl& declaration)
 {
 	switch (declaration.declarationClassId())
@@ -504,11 +537,8 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 	case ASTDECL_CLASSID_FUNCTION:
 		functions.push_back(&(ASTFuncDecl&)declaration);
 		break;
-	case ASTDECL_CLASSID_ARRAY:
-		arrays.push_back(&(ASTArrayDecl&)declaration);
-		break;
-	case ASTDECL_CLASSID_VARIABLE:
-		variables.push_back(&(ASTVarDecl&)declaration);
+	case ASTDECL_CLASSID_DATALIST:
+		variables.push_back(&(ASTDataDeclList&)declaration);
 		break;
 	case ASTDECL_CLASSID_TYPE:
 		types.push_back(&(ASTTypeDef&)declaration);
@@ -525,181 +555,249 @@ ASTImportDecl* ASTImportDecl::clone() const
 
 // ASTFuncDecl
 
+ASTFuncDecl::ASTFuncDecl(LocationData const& location)
+	: ASTDecl(location), returnType(NULL), block(NULL)
+{}
+
+ASTFuncDecl::ASTFuncDecl(ASTFuncDecl const& base)
+	: ASTDecl(base),
+	  returnType(base.returnType ? base.returnType->clone() : NULL),
+	  name(base.name),
+	  block(base.block ? base.block->clone() : NULL)
+{
+	for (vector<ASTDataDecl*>::const_iterator it = base.parameters.begin();
+		 it != base.parameters.end(); ++it)
+		parameters.push_back((*it)->clone());
+}
+
+ASTFuncDecl& ASTFuncDecl::operator=(ASTFuncDecl const& rhs)
+{
+	ASTDecl::operator=(rhs);
+	// Delete.
+	delete returnType;
+	delete block;
+	for (vector<ASTDataDecl*>::iterator it = parameters.begin();
+		 it != parameters.end(); ++it)
+		delete *it;
+	// Copy.
+	returnType = rhs.returnType ? rhs.returnType->clone() : NULL;
+	name = rhs.name;
+	block = rhs.block ? rhs.block->clone() : NULL;
+	for (vector<ASTDataDecl*>::const_iterator it = rhs.parameters.begin();
+		 it != rhs.parameters.end(); ++it)
+		parameters.push_back((*it)->clone());
+	// Return.
+	return *this;
+}
+
 ASTFuncDecl::~ASTFuncDecl()
 {
-    delete rettype;
-    delete block;
-    list<ASTVarDecl *>::iterator it;
-
-    for(it = params.begin(); it != params.end(); it++)
-    {
-        delete *it;
-    }
-
-    params.clear();
+	delete returnType;
+	delete block;
+	for (vector<ASTDataDecl*>::iterator it = parameters.begin();
+		 it != parameters.end(); ++it)
+		delete *it;
 }
 
-ASTFuncDecl* ASTFuncDecl::clone() const
+void ASTFuncDecl::addParameter(ASTDataDecl* parameter)
 {
-	ASTFuncDecl* c = new ASTFuncDecl(getLocation());
-	c->setName(name);
-	for (list<ASTVarDecl*>::const_iterator it = params.begin(); it != params.end(); ++it)
-		c->params.push_back((*it)->clone());
-	c->setReturnType(rettype->clone());
-	c->setBlock(block->clone());
-	return c;
+	parameters.push_back(parameter);
 }
 
-void ASTFuncDecl::addParam(ASTVarDecl *param)
+// ASTDataDeclList
+
+ASTDataDeclList::ASTDataDeclList(LocationData const& location)
+	: ASTDecl(location), baseType(NULL)
+{}
+
+ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& base)
+	: ASTDecl(base), baseType(base.baseType)
 {
-    params.push_front(param);
+	for (vector<ASTDataDecl*>::const_iterator it = base.declarations.begin();
+		 it != base.declarations.end(); ++it)
+		declarations.push_back((*it)->clone());
+}
+
+ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
+{
+	ASTDecl::operator=(rhs);
+	// Delete.
+	for (vector<ASTDataDecl*>::iterator it = declarations.begin();
+		 it != declarations.end(); ++it)
+		delete *it;
+	// Copy.
+    baseType = rhs.baseType;
+	for (vector<ASTDataDecl*>::const_iterator it = rhs.declarations.begin();
+		 it != rhs.declarations.end(); ++it)
+		declarations.push_back((*it)->clone());
+	// Return.
+	return *this;
+}
+
+ASTDataDeclList::~ASTDataDeclList()
+{
+	for (vector<ASTDataDecl*>::iterator it = declarations.begin();
+		 it != declarations.end(); ++it)
+		delete *it;
+}
+
+void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration)
+{
+	// Declarations in a list should not have their own type.
+	assert(!declaration->baseType);
+
+	declaration->list = this;
+	declarations.push_back(declaration);
 }
 
 // ASTDataDecl
 
+ASTDataDecl::ASTDataDecl(LocationData const& location)
+	: ASTDecl(location), list(NULL), manager(NULL),
+	  baseType(NULL), initializer(NULL)
+{}
+
+ASTDataDecl::ASTDataDecl(ASTDataDecl const& base)
+	: ASTDecl(base),
+	  baseType(base.baseType ? base.baseType->clone() : NULL),
+	  name(base.name),
+	  initializer(base.initializer ? base.initializer->clone() : NULL),
+	  // list and manager indicate being this object being "owned" by them, so
+	  // it doesn't make sense for a copy to keep those values.
+	  list(NULL), manager(NULL)
+{
+	for (vector<ASTDataDeclExtraArray*>::const_iterator it = base.extraArrays.begin();
+		 it != base.extraArrays.end(); ++it)
+		extraArrays.push_back((*it)->clone());
+}
+
+
+ASTDataDecl::~ASTDataDecl()
+{
+	delete baseType;
+	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
+		 it != extraArrays.end(); ++it)
+		delete *it;
+	delete initializer;
+}
 ASTDataDecl& ASTDataDecl::operator=(ASTDataDecl const& rhs)
 {
+	ASTDecl::operator=(rhs);
+	// Delete.
+	delete baseType;
+	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
+		 it != extraArrays.end(); ++it)
+		delete *it;
+	delete initializer;
+	// Copy.
+	list = NULL;
+	manager = NULL;
+	baseType = rhs.baseType ? rhs.baseType->clone() : NULL;
+	name = rhs.name;
+	for (vector<ASTDataDeclExtraArray*>::const_iterator it = rhs.extraArrays.begin();
+		 it != rhs.extraArrays.end(); ++it)
+		extraArrays.push_back((*it)->clone());
+	initializer = rhs.initializer ? rhs.initializer->clone() : NULL;
+	// Return.
+	return *this;
+}
+
+void ASTDataDecl::setInitializer(ASTExpr* initializer)
+{
+	this->initializer = initializer;
+
+	// Give a string or array literal a reference back to this object so it
+	// can grab size information.
+	if (extraArrays.size() > 0)
+	{
+		if (initializer->isArrayLiteral())
+		{
+			ASTArrayLiteral& arrayLiteral = *(ASTArrayLiteral*)initializer;
+			arrayLiteral.declaration = this;
+		}
+		if (initializer->isStringLiteral())
+		{
+			ASTStringLiteral& stringLiteral = *(ASTStringLiteral*)initializer;
+			stringLiteral.declaration = this;
+		}
+	}
+}
+
+ZVarType const* ASTDataDecl::resolveType(Scope* scope) const
+{
+	SymbolTable& table = scope->getTable();
+
+	// First resolve the base type.
+	ASTVarType* baseTypeNode = list ? list->baseType : baseType;
+	ZVarType const* type = &baseTypeNode->resolve(*scope);
+
+	// If we have any arrays, tack them onto the base type.
+	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
+		 it != extraArrays.end(); ++it)
+	{
+		ZVarTypeArray arrayType(*type);
+		type = table.getCanonicalType(arrayType);
+	}
+
+	return type;
+}
+
+// ASTDataDeclExtraArray
+
+ASTDataDeclExtraArray::ASTDataDeclExtraArray(LocationData const& location)
+	: AST(location)
+{}
+
+ASTDataDeclExtraArray::ASTDataDeclExtraArray(ASTDataDeclExtraArray const& base)
+	: AST(base)
+{
+	for (vector<ASTExpr*>::const_iterator it = base.dimensions.begin();
+		 it != base.dimensions.end(); ++it)
+		dimensions.push_back((*it)->clone());
+}
+
+ASTDataDeclExtraArray& ASTDataDeclExtraArray::operator=(ASTDataDeclExtraArray const& rhs)
+{
 	AST::operator=(rhs);
-	variable = rhs.variable;
+	// Delete.
+	for (vector<ASTExpr*>::iterator it = dimensions.begin();
+		 it != dimensions.end(); ++it)
+		delete *it;
+	// Copy.
+	for (vector<ASTExpr*>::const_iterator it = rhs.dimensions.begin();
+		 it != rhs.dimensions.end(); ++it)
+		dimensions.push_back((*it)->clone());
+	// Return.
 	return *this;
 }
 
-
-// ASTArrayDecl
-
-ASTArrayDecl::ASTArrayDecl(ASTVarType* type, string const& name, ASTExpr* size,
-						   ASTArrayList* list, LocationData const& location)
-	: ASTDataDecl(location), type(type), name(name), size(size), list(list)
-{}
-
-ASTArrayDecl::ASTArrayDecl(ASTArrayDecl const& base)
-	: ASTDataDecl(base),
-	  type(base.type ? base.type->clone() : NULL),
-	  name(base.name),
-	  size(base.size ? base.size->clone() : NULL),
-	  list(base.list ? base.list->clone() : NULL)
-{}
-
-ASTArrayDecl& ASTArrayDecl::operator=(ASTArrayDecl const& rhs)
+ASTDataDeclExtraArray::~ASTDataDeclExtraArray()
 {
-	ASTDataDecl::operator=(rhs);
-    delete type;
-    delete size;
-	delete list;
-	type = rhs.type ? rhs.type->clone() : NULL;
-	name = rhs.name;
-	size = rhs.size ? rhs.size->clone() : NULL;
-	list = rhs.list ? rhs.list->clone() : NULL;
-	return *this;
+	for (vector<ASTExpr*>::iterator it = dimensions.begin();
+		 it != dimensions.end(); ++it)
+		delete *it;
 }
 
-ASTArrayDecl* ASTArrayDecl::clone() const
+bool ASTDataDeclExtraArray::isConstant() const
 {
-	return new ASTArrayDecl(*this);
+	for (vector<ASTExpr*>::const_iterator it = dimensions.begin();
+		 it != dimensions.end(); ++it)
+		if (!(*it)->hasDataValue()) return false;
+	return true;
 }
 
-ASTArrayDecl::~ASTArrayDecl()
+int ASTDataDeclExtraArray::getTotalSize() const
 {
-    delete type;
-    delete list;
-    delete size;
-}
-
-// ASTArrayList
-
-ASTArrayList::~ASTArrayList()
-{
-    list<ASTExpr *>::iterator it;
-
-    for(it = exprs.begin(); it != exprs.end(); it++)
-    {
-        delete *it;
-    }
-
-    exprs.clear();
-}
-
-ASTArrayList* ASTArrayList::clone() const
-{
-	ASTArrayList* c = new ASTArrayList(getLocation());
-	if (listIsString) c->makeString();
-	for (list<ASTExpr*>::const_iterator it = exprs.begin(); it != exprs.end(); ++it)
-		c->exprs.push_back((*it)->clone());
-	return c;
-}
-
-void ASTArrayList::addParam(ASTExpr *expr)
-{
-    exprs.push_back(expr);
-}
-
-void ASTArrayList::addString(string const & str)
-{
-	LocationData & loc = getLocation();
-	for (unsigned int i = 1; i < str.length() - 1; ++i)
-		this->addParam(new ASTNumberLiteral(new ASTFloat(long(str[i]), 0, loc), loc));
-	this->addParam(new ASTNumberLiteral(new ASTFloat(0L, 0, loc), loc));
-}
-
-// ASTVarDecl
-
-ASTVarDecl::ASTVarDecl(ASTVarType* type, string const& name, LocationData const& location)
-	: ASTDataDecl(location), type(type), name(name)
-{}
-
-ASTVarDecl::ASTVarDecl(ASTVarDecl const& base)
-	: ASTDataDecl(base),
-	  type(base.type ? base.type->clone() : NULL),
-	  name(base.name)
-{}
-
-ASTVarDecl& ASTVarDecl::operator=(ASTVarDecl const& rhs)
-{
-	ASTDataDecl::operator=(rhs);
-    delete type;
-	type = rhs.type ? rhs.type->clone() : NULL;
-	name = rhs.name;
-	return *this;
-}
-
-ASTVarDecl* ASTVarDecl::clone() const
-{
-	return new ASTVarDecl(*this);
-}
-
-ASTVarDecl::~ASTVarDecl()
-{
-    delete type;
-}
-
-// ASTVarDeclInitializer
-
-ASTVarDeclInitializer::ASTVarDeclInitializer(ASTVarType* type, string const& name,
-											 ASTExpr* initial, LocationData const& location)
-	: ASTVarDecl(type, name, location), initial(initial)
-{}
-
-ASTVarDeclInitializer::ASTVarDeclInitializer(ASTVarDeclInitializer const& base)
-	: ASTVarDecl(base),
-	  initial(base.initial ? base.initial->clone() : NULL)
-{}
-
-ASTVarDeclInitializer& ASTVarDeclInitializer::operator=(ASTVarDeclInitializer const& rhs)
-{
-	ASTVarDecl::operator=(rhs);
-    delete initial;
-	initial = rhs.initial ? rhs.initial->clone() : NULL;
-	return *this;
-}
-
-ASTVarDeclInitializer* ASTVarDeclInitializer::clone() const
-{
-	return new ASTVarDeclInitializer(*this);
-}
-
-ASTVarDeclInitializer::~ASTVarDeclInitializer()
-{
-    delete initial;
+	if (dimensions.size() == 0) return -1;
+	long size = 1;
+	for (vector<ASTExpr*>::const_iterator it = dimensions.begin();
+		 it != dimensions.end(); ++it)
+	{
+		ASTExpr& expr = **it;
+		if (!expr.hasDataValue()) return -1;
+		size *= expr.getDataValue() / 10000L;
+	}
+	return size;
 }
 
 // ASTTypeDef
@@ -1035,39 +1133,47 @@ ASTBoolLiteral& ASTBoolLiteral::operator=(ASTBoolLiteral const& rhs)
 // ASTStringLiteral
 
 ASTStringLiteral::ASTStringLiteral(char const* str, LocationData const& location)
-	: ASTLiteral(location), data(str)
+	: ASTLiteral(location), data(str), declaration(NULL)
 {}
 
 ASTStringLiteral::ASTStringLiteral(string const& str, LocationData const& location)
-	: ASTLiteral(location), data(str)
+	: ASTLiteral(location), data(str), declaration(NULL)
 {}
 
 ASTStringLiteral::ASTStringLiteral(ASTString const& raw)
 	: ASTLiteral(raw.getLocation()),
-	  data(raw.getValue().substr(1, raw.getValue().size() - 2))
+	  data(raw.getValue().substr(1, raw.getValue().size() - 2)),
+	  declaration(NULL)
 {}
 
 ASTStringLiteral::ASTStringLiteral(ASTStringLiteral const& base)
-	: ASTLiteral(base), data(base.data)
+	: ASTLiteral(base), data(base.data),
+	  // declaration field is managed by the declaration itself, so it stays
+	  // NULL regardless.
+	  declaration(NULL)
 {}
 
 ASTStringLiteral& ASTStringLiteral::operator=(ASTStringLiteral const& rhs)
 {
 	ASTLiteral::operator=(rhs);
 	data = rhs.data;
+	declaration = NULL;
 	return *this;
 }
 
 // ASTArrayLiteral
 
 ASTArrayLiteral::ASTArrayLiteral(LocationData const& location)
-	: ASTLiteral(location), type(NULL), size(NULL)
+	: ASTLiteral(location), type(NULL), size(NULL), declaration(NULL)
 {}
 
 ASTArrayLiteral::ASTArrayLiteral(ASTArrayLiteral const& base)
 	: ASTLiteral(base),
 	  type(base.type ? base.type->clone() : NULL),
-	  size(base.size ? base.size->clone() : NULL)
+	  size(base.size ? base.size->clone() : NULL),
+	  // declaration field is managed by the declaration itself, so it stays
+	  // NULL regardless.
+	  declaration(NULL)
 {
 	for (vector<ASTExpr*>::const_iterator it = base.elements.begin();
 		 it != base.elements.end(); ++it)
@@ -1077,19 +1183,20 @@ ASTArrayLiteral::ASTArrayLiteral(ASTArrayLiteral const& base)
 ASTArrayLiteral& ASTArrayLiteral::operator=(ASTArrayLiteral const& rhs)
 {
 	ASTLiteral::operator=(rhs);
-
+	// Delete.
 	delete type;
 	delete size;
 	for (vector<ASTExpr*>::iterator it = elements.begin();
 		 it != elements.end(); ++it)
 		delete *it;
-
+	// Copy.
 	type = rhs.type ? rhs.type->clone() : NULL;
 	size = rhs.size ? rhs.size->clone() : NULL;
+	declaration = NULL;
 	for (vector<ASTExpr*>::const_iterator it = rhs.elements.begin();
 		 it != rhs.elements.end(); ++it)
 		elements.push_back((*it)->clone());
-
+	// Return.
 	return *this;
 }
 

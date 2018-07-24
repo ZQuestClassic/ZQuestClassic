@@ -19,9 +19,8 @@ public:
 	void caseStmtFor(ASTStmtFor& host);
 	// Declarations
 	void caseTypeDef(ASTTypeDef& host);
-    void caseVarDecl(ASTVarDecl& host);
-    void caseVarDeclInitializer(ASTVarDeclInitializer& host);
-    void caseArrayDecl(ASTArrayDecl& host);
+	void caseDataDeclList(ASTDataDeclList& host);
+	void caseDataDecl(ASTDataDecl& host);
     void caseFuncDecl(ASTFuncDecl& host);
     void caseScript(ASTScript& host);
 	// Expressions

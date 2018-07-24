@@ -54,11 +54,9 @@ class ASTDecl; // virtual
 class ASTScript;
 class ASTImportDecl;
 class ASTFuncDecl;
-class ASTDataDecl; // virtual
-class ASTArrayDecl;
-class ASTArrayList;
-class ASTVarDecl;
-class ASTVarDeclInitializer;
+class ASTDataDeclList;
+class ASTDataDecl;
+class ASTDataDeclExtraArray;
 class ASTTypeDef;
 // Expressions
 class ASTExpr; // virtual
@@ -157,14 +155,12 @@ public:
     virtual void caseImportDecl(ASTImportDecl& node) {caseImportDecl(node, NULL);}
     virtual void caseFuncDecl(ASTFuncDecl&, void* param) {caseDefault(param);}
     virtual void caseFuncDecl(ASTFuncDecl& node) {caseFuncDecl(node, NULL);}
-    virtual void caseArrayDecl(ASTArrayDecl&, void* param) {caseDefault(param);}
-    virtual void caseArrayDecl(ASTArrayDecl& node) {caseArrayDecl(node, NULL);}
-    virtual void caseArrayList(ASTArrayList&, void* param) {caseDefault(param);}
-    virtual void caseArrayList(ASTArrayList& node) {caseArrayList(node, NULL);}
-    virtual void caseVarDecl(ASTVarDecl&, void* param) {caseDefault(param);}
-    virtual void caseVarDecl(ASTVarDecl& node) {caseVarDecl(node, NULL);}
-    virtual void caseVarDeclInitializer(ASTVarDeclInitializer&, void* param) {caseDefault(param);}
-    virtual void caseVarDeclInitializer(ASTVarDeclInitializer& node) {caseVarDeclInitializer(node, NULL);}
+    virtual void caseDataDeclList(ASTDataDeclList&, void* param) {caseDefault(param);}
+    virtual void caseDataDeclList(ASTDataDeclList& node) {caseDataDeclList(node, NULL);}
+    virtual void caseDataDecl(ASTDataDecl&, void* param) {caseDefault(param);}
+    virtual void caseDataDecl(ASTDataDecl& node) {caseDataDecl(node, NULL);}
+    virtual void caseDataDeclExtraArray(ASTDataDeclExtraArray&, void* param) {caseDefault(param);}
+    virtual void caseDataDeclExtraArray(ASTDataDeclExtraArray& node) {caseDataDeclExtraArray(node, NULL);}
     virtual void caseTypeDef(ASTTypeDef&, void* param) {caseDefault(param);}
     virtual void caseTypeDef(ASTTypeDef& node) {caseTypeDef(node, NULL);}
 	// Expressions
@@ -250,19 +246,25 @@ public:
 class LocationData
 {
 public:
+	LocationData()
+			: first_line(-1), last_line(-1),
+			  first_column(-1), last_column(-1),
+			  fname(curfilename)
+	{}
+
     LocationData(YYLTYPE loc)
-    {
-        first_line = loc.first_line;
-        last_line = loc.last_line;
-        first_column = loc.first_column;
-        last_column = loc.last_column;
-        fname = curfilename;
-    }
+			: first_line(loc.first_line), last_line(loc.last_line),
+			  first_column(loc.first_column), last_column(loc.last_column),
+			  fname(curfilename)
+	{}
+
     int first_line;
     int last_line;
     int first_column;
     int last_column;
     string fname;
+
+	static LocationData const NONE;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -289,6 +291,8 @@ public:
 	virtual bool isTypeIdentifier() const {return false;}
 	virtual bool isTypeVarDecl() const {return false;}
 	virtual bool isTypeArrayDecl() const {return false;}
+	virtual bool isStringLiteral() const {return false;}
+	virtual bool isArrayLiteral() const {return false;}
 private:
     LocationData loc;
 };
@@ -309,8 +313,7 @@ public:
 
 	// Public since we'll be clearing them and such.
 	vector<ASTImportDecl*> imports;
-	vector<ASTVarDecl*> variables;
-	vector<ASTArrayDecl*> arrays;
+	vector<ASTDataDeclList*> variables;
 	vector<ASTFuncDecl*> functions;
 	vector<ASTTypeDef*> types;
 	vector<ASTScript*> scripts;
@@ -602,8 +605,8 @@ enum ASTDeclClassId
 	ASTDECL_CLASSID_IMPORT,
 	ASTDECL_CLASSID_CONSTANT,
 	ASTDECL_CLASSID_FUNCTION,
-	ASTDECL_CLASSID_ARRAY,
-	ASTDECL_CLASSID_VARIABLE,
+	ASTDECL_CLASSID_DATALIST,
+	ASTDECL_CLASSID_DATA,
 	ASTDECL_CLASSID_TYPE
 };
 
@@ -612,9 +615,9 @@ class ASTDecl : public ASTStmt
 public:
     ASTDecl(LocationData const& location) : ASTStmt(location) {}
 	ASTDecl(ASTDecl const& base) : ASTStmt(base) {}
-	ASTDecl& operator=(ASTDecl const& rhs);
-	virtual ASTDecl* clone() const = 0;
     virtual ~ASTDecl() {}
+	virtual ASTDecl& operator=(ASTDecl const& rhs);
+	virtual ASTDecl* clone() const = 0;
 
 	virtual ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_NONE;}
 };
@@ -624,7 +627,8 @@ class ASTScript : public ASTDecl
 public:
     ASTScript(LocationData const& location);
 	ASTScript(ASTScript const& base);
-	virtual ~ASTScript();
+	~ASTScript();
+	ASTScript& operator=(ASTScript const& rhs);
 	ASTScript* clone() const {return new ASTScript(*this);}
 
     void execute(ASTVisitor &visitor, void *param) {visitor.caseScript(*this, param);}
@@ -642,14 +646,12 @@ public:
     string getName() {return name;}
 	void setName(string const& n) {name = n;}
     
-	vector<ASTVarDecl*> variables;
-	vector<ASTArrayDecl*> arrays;
+	vector<ASTDataDeclList*> variables;
 	vector<ASTFuncDecl*> functions;
 	vector<ASTTypeDef*> types;
 private:
     ASTScriptType* type;
     string name;
-
 };
 
 class ASTImportDecl : public ASTDecl
@@ -672,29 +674,25 @@ private:
 class ASTFuncDecl : public ASTDecl
 {
 public:
-    ASTFuncDecl(LocationData Loc) : ASTDecl(Loc), params() {}
+    ASTFuncDecl(LocationData const& location = LocationData::NONE);
+	ASTFuncDecl(ASTFuncDecl const& base);
+	ASTFuncDecl& operator=(ASTFuncDecl const& rhs);
+	ASTFuncDecl* clone() const {return new ASTFuncDecl(*this);}
     ~ASTFuncDecl();
-	ASTFuncDecl* clone() const;
-    
-    void setName(string n) {name = n;}
-    void setReturnType(ASTVarType *type) {rettype = type;}
-    void setBlock(ASTBlock *b) {block = b;}
-    
-    void addParam(ASTVarDecl *param);
-    list<ASTVarDecl *> const &getParams() const {return params;}
-    list<ASTVarDecl *> &getParams() {return params;}
-    ASTVarType *getReturnType() const {return rettype;}
-    ASTBlock *getBlock() const {return block;}
-    string getName() const {return name;}
     
     void execute(ASTVisitor &visitor, void *param) {visitor.caseFuncDecl(*this, param);}
     void execute(ASTVisitor &visitor) {visitor.caseFuncDecl(*this);}
 	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_FUNCTION;}
-private:
+
+	vector<ASTDataDecl*>& getParameters() {return parameters;}
+	void addParameter(ASTDataDecl* parameter);
+
+	ASTVarType* returnType;
     string name;
-    list<ASTVarDecl *> params;
-    ASTVarType *rettype;
-    ASTBlock *block;
+	ASTBlock* block;
+
+private:
+	vector<ASTDataDecl*> parameters;
 };
 
 namespace ZScript
@@ -702,111 +700,104 @@ namespace ZScript
 	class Variable;
 }
 
+// A line of variable/constant declarations:
+// int a, b, c[];
+class ASTDataDeclList : public ASTDecl
+{
+public:
+	ASTDataDeclList(LocationData const& location = LocationData::NONE);
+	ASTDataDeclList(ASTDataDeclList const& base);
+	ASTDataDeclList& operator=(ASTDataDeclList const& rhs);
+	~ASTDataDeclList();
+	ASTDataDeclList* clone() const {return new ASTDataDeclList(*this);}
+
+	void execute(ASTVisitor& visitor, void* param) {visitor.caseDataDeclList(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseDataDeclList(*this);}
+	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_DATALIST;}
+
+	// The base type at the start of the line shared by all the declarations.
+	ASTVarType* baseType;
+
+	vector<ASTDataDecl*> const& getDeclarations() const {return declarations;}
+	void addDeclaration(ASTDataDecl* declaration);
+
+private:
+	// The list of individual data declarations.
+	vector<ASTDataDecl*> declarations;
+};
+
+// Declares a single variable or constant. May or may not be inside an
+// ASTDataDeclList.
 class ASTDataDecl : public ASTDecl
 {
 public:
-	ASTDataDecl(LocationData const& location) : ASTDecl(location), variable(NULL) {}
-	ASTDataDecl(ASTDataDecl const& base) : ASTDecl(base), variable(NULL) {}
+	ASTDataDecl(LocationData const& location = LocationData::NONE);
+	ASTDataDecl(ASTDataDecl const& base);
+	~ASTDataDecl();
 	ASTDataDecl& operator=(ASTDataDecl const& rhs);
+	ASTDataDecl* clone() const {return new ASTDataDecl(*this);}
 
-	// Reference back to the variable that is built for this node. Should be
-	// set by that Variable when it is created.
-	ZScript::Variable* variable;
-};
+	void execute(ASTVisitor& visitor, void* param) {visitor.caseDataDecl(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseDataDecl(*this);}
+	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_DATA;}
 
-class ASTArrayDecl : public ASTDataDecl
-{
-public:
-    ASTArrayDecl(ASTVarType* type, string const& name, ASTExpr* size,
-				 ASTArrayList* list, LocationData const& location);
-	ASTArrayDecl(ASTArrayDecl const& base);
-	ASTArrayDecl& operator=(ASTArrayDecl const& rhs);
-	ASTArrayDecl* clone() const;
-    ~ASTArrayDecl();
+	// The list containing this declaration. Should be set by that list when
+	// this is added.
+	ASTDataDeclList* list;
 
-    void execute(ASTVisitor &visitor, void *param) {visitor.caseArrayDecl(*this, param);}
-    void execute(ASTVisitor &visitor) {visitor.caseArrayDecl(*this);}
-	bool isTypeArrayDecl() const {return true;}
+	// Reference back to the variable manager for this node. Should be set by
+	// that Variable when it is created.
+	ZScript::Variable* manager;
 
-    ASTVarType *getType() const {return type;}
-    string getName() const {return name;}
+	// This type of this data (minus the extra arrays). This should only be
+	// set if this declaration is not part of a list, as the list's base type
+	// should be used instead in that case.
+	ASTVarType* baseType;
 
-    ASTExpr *getSize() const {return size;}
-    ASTArrayList *getList() const {return list;}
-	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_ARRAY;}
-private:
+	// The symbol this declaration is binding.
     string name;
-    ASTArrayList *list;
-    ASTExpr *size;
-    ASTVarType *type;
-    //NOT IMPLEMENTED; DO NOT USE
-    ASTArrayDecl(ASTArrayDecl &);
-    ASTArrayDecl &operator=(ASTArrayDecl &);
-};
 
-class ASTArrayList : public AST
-{
-public:
-    ASTArrayList(LocationData Loc) : AST(Loc), listIsString(false) {}
-    ~ASTArrayList();
-	ASTArrayList* clone() const;
+	ASTExpr* getInitializer() const {return initializer;}
+	void setInitializer(ASTExpr* initializer);
 
-    list<ASTExpr *> const &getList() const {return exprs;}
-    list<ASTExpr *> &getList() {return exprs;}
+	// Extra array type for this specific declaration. The final type is the
+	// list's base type combined with these.
+	vector<ASTDataDeclExtraArray*> extraArrays;
 
-    void addParam(ASTExpr *expr);
-	void addString(string const & str);
-    bool isString() const {return listIsString;}
-    void makeString() {listIsString = true;}
+	// Resolves the type, using either the list's or this node's own base type
+	// as appropriate.
+	ZVarType const* resolveType(Scope* scope) const;
 
-    // Just to allow us to instantiate the object.
-    void execute(ASTVisitor&, void *) {}
-    void execute(ASTVisitor&) {}
 private:
-    list<ASTExpr *> exprs;
-    bool listIsString;
-    //NOT IMPLEMENTED
-    ASTArrayList(ASTArrayList &);
-    ASTArrayList &operator=(ASTArrayList &);
+	// The initialization expression. Optional.
+	ASTExpr* initializer;
 };
 
-class ASTVarDecl : public ASTDataDecl
+// The extra array parameters appended to a data declaration name.
+class ASTDataDeclExtraArray : public AST
 {
 public:
-    ASTVarDecl(ASTVarType* type, string const& name, LocationData const& location);
-	ASTVarDecl(ASTVarDecl const& base);
-	ASTVarDecl& operator=(ASTVarDecl const& rhs);
-	virtual ASTVarDecl* clone() const;
-    virtual ~ASTVarDecl();
+	ASTDataDeclExtraArray(LocationData const& location = LocationData::NONE);
+	ASTDataDeclExtraArray(ASTDataDeclExtraArray const& base);
+	ASTDataDeclExtraArray& operator=(ASTDataDeclExtraArray const& rhs);
+	ASTDataDeclExtraArray* clone() const {return new ASTDataDeclExtraArray(*this);}
+	~ASTDataDeclExtraArray();
 
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseVarDecl(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseVarDecl(*this);}
-	bool isTypeVarDecl() const {return true;}
+	void execute(ASTVisitor& visitor, void* param) {visitor.caseDataDeclExtraArray(*this, param);}
+    void execute(ASTVisitor& visitor) {visitor.caseDataDeclExtraArray(*this);}
 
-    ASTVarType* getType() const {return type;}
-    string getName() const {return name;}
-	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_VARIABLE;}
-private:
-    ASTVarType* type;
-    string name;
-};
+	// The vector of array dimensions. Empty means unspecified.
+	vector<ASTExpr*> dimensions;
 
-class ASTVarDeclInitializer : public ASTVarDecl
-{
-public:
-    ASTVarDeclInitializer(ASTVarType* type, string const& name,
-						  ASTExpr* initial, LocationData const& location);
-	ASTVarDeclInitializer(ASTVarDeclInitializer const& base);
-	ASTVarDeclInitializer& operator=(ASTVarDeclInitializer const& rhs);
-	ASTVarDeclInitializer* clone() const;
-    ~ASTVarDeclInitializer();
+	// If this declares an a sized array.
+	bool hasSize() const {return dimensions.size();}
 
-    void execute(ASTVisitor& visitor, void* param) {visitor.caseVarDeclInitializer(*this, param);}
-    void execute(ASTVisitor& visitor) {visitor.caseVarDeclInitializer(*this);}
+	// If all expressions in the dimension array are constant.
+	bool isConstant() const;
     
-    ASTExpr* getInitializer() const {return initial;}
-private:
-    ASTExpr* initial;
+	// If this is constant, get the total size. Returns -1 if not constant or
+	// not specified.
+	int getTotalSize() const;
 };
 
 class ASTTypeDef : public ASTDecl
@@ -1439,9 +1430,16 @@ public:
 
 	void execute (ASTVisitor& visitor, void* param) {visitor.caseStringLiteral(*this, param);}
 	void execute (ASTVisitor& visitor) {visitor.caseStringLiteral(*this);}
+	bool isStringLiteral() const {return true;}
+
 	bool isConstant() const {return true;}
 
 	string getValue() const {return data;}
+
+	// The data declaration that this literal may be part of. If NULL that
+	// means this is not part of a data declaration. This should be managed by
+	// that declaration and not modified by this object at all.
+	ASTDataDecl* declaration;
 private:
 	string data;
 };
@@ -1457,6 +1455,7 @@ public:
 
 	void execute (ASTVisitor& visitor, void* param) {visitor.caseArrayLiteral(*this, param);}
 	void execute (ASTVisitor& visitor) {visitor.caseArrayLiteral(*this);}
+	bool isArrayLiteral() const {return true;}
 
 	bool isConstant() const {return true;}
 
@@ -1466,6 +1465,12 @@ public:
 	void setSize(ASTExpr* node) {size = node;}
 	vector<ASTExpr*> getElements() const {return elements;}
 	void appendElement(ASTExpr* element) {elements.push_back(element);}
+
+	// The data declaration that this literal may be part of. If NULL that
+	// means this is not part of a data declaration. This should be managed by
+	// that declaration and not modified by this object at all.
+	ASTDataDecl* declaration;
+
 private:
 	ASTVarType* type;
 	ASTExpr* size;

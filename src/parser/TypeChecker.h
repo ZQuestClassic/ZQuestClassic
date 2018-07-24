@@ -3,6 +3,7 @@
 
 #include "UtilVisitors.h"
 #include "DataStructs.h"
+#include <assert.h>
 
 class TypeCheckParam;
 
@@ -24,9 +25,8 @@ public:
     void caseStmtReturn(ASTStmtReturn &host);
     void caseStmtReturnVal(ASTStmtReturnVal &host);
 	// Declarations
-    void caseArrayDecl(ASTArrayDecl &host);
-    void caseVarDecl(ASTVarDecl &host);
-    void caseVarDeclInitializer(ASTVarDeclInitializer &host);
+	void caseDataDecl(ASTDataDecl& host);
+	void caseDataDeclExtraArray(ASTDataDeclExtraArray& host);
 	// Expressions
 	void caseExprConst(ASTExprConst &host);
     void caseExprAssign(ASTExprAssign &host);
@@ -86,8 +86,7 @@ class GetLValType : public ASTVisitor
 {
 public:
 	GetLValType(TypeCheck& typeCheck);
-    void caseDefault(void* param);
-    void caseVarDecl(ASTVarDecl& host);
+    void caseDefault(void* param) {assert(false);}
     void caseExprIdentifier(ASTExprIdentifier& host);
     void caseExprArrow(ASTExprArrow& host);
     void caseExprIndex(ASTExprIndex& host);

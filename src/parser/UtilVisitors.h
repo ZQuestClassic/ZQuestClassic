@@ -33,12 +33,12 @@ public:
     virtual void caseScript(ASTScript &host);
     virtual void caseFuncDecl(ASTFuncDecl &host, void *param);
     virtual void caseFuncDecl(ASTFuncDecl &host);
-    virtual void caseArrayDecl(ASTArrayDecl &host, void *param);
-    virtual void caseArrayDecl(ASTArrayDecl &host);
-    virtual void caseVarDecl(ASTVarDecl &host, void *param);
-    virtual void caseVarDecl(ASTVarDecl &host);
-    virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host, void *param);
-    virtual void caseVarDeclInitializer(ASTVarDeclInitializer &host);
+	virtual void caseDataDeclList(ASTDataDeclList& host, void* param);
+	virtual void caseDataDeclList(ASTDataDeclList& host);
+	virtual void caseDataDecl(ASTDataDecl& host, void* param);
+	virtual void caseDataDecl(ASTDataDecl& host);
+	virtual void caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void* param);
+	virtual void caseDataDeclExtraArray(ASTDataDeclExtraArray& host);
     virtual void caseTypeDef(ASTTypeDef&, void* param);
     virtual void caseTypeDef(ASTTypeDef& node);
 	// Expressions
@@ -120,13 +120,6 @@ public:
 	bool isOK() const {return ok;}
 private:
     bool ok;
-};
-
-class IsArrayDecl : public ASTVisitor
-{
-public:
-    void caseDefault(void *param) {*(bool *)param = false;}
-    void caseArrayDecl(ASTArrayDecl &, void *param) {*(bool *)param = true;}
 };
 
 class IsBlock : public ASTVisitor
