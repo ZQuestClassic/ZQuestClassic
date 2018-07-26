@@ -24,6 +24,8 @@ using std::map;
 using std::vector;
 using std::list;
 
+class CompileErrorHandler;
+
 #define RECURSIONLIMIT 30
 
 extern string curfilename;
@@ -919,6 +921,14 @@ public:
 	void markAsLVal() {lval = true;}
 	bool isLVal() {return lval;}
 
+	// Return this expression's value if it has already been resolved at
+	// compile time.
+	virtual optional<long> getCompileTimeValue(
+			CompileErrorHandler* errorHandler = NULL)
+		const
+	{return hasValue ? optional<long>(value) : nullopt;}
+	
+	// working on getting rid of these for the above.
 	bool hasDataValue() const {return hasValue;}
 	long getDataValue() const {return value;}
 	void setDataValue(long v) {value = v; hasValue = true;}

@@ -279,8 +279,8 @@ void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)
 	ASTExpr* content = host.content;
 	content->execute(*this);
 
-	if (content->hasDataValue())
-		host.setDataValue(content->getDataValue());
+	if (optional<long> value = content->getCompileTimeValue(this))
+		host.setDataValue(*value);
 }
 
 void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
