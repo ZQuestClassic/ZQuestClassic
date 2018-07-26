@@ -1,8 +1,7 @@
 #ifndef BUILDVISITORS_H //2.53 Updated to 16th Jan, 2017
 #define BUILDVISITORS_H
 
-#include "AST.h"
-#include "UtilVisitors.h"
+#include "ASTVisitors.h"
 #include "ByteCode.h"
 #include "ZScript.h"
 #include <stack>
