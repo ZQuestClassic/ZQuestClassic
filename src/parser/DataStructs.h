@@ -113,7 +113,6 @@ struct IntermediateData
 class LinkTable
 {
 public:
-    int functionToLabel(int fid);
     int getGlobalID(int vid);
     int addGlobalVar(int vid);
     void addGlobalPointer(int vid)
@@ -121,7 +120,6 @@ public:
         globalIDs[vid]=0;
     }
 private:
-    map<int, int> funcLabels;
     map<int, int> globalIDs;
 };
 
