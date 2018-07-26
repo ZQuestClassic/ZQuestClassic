@@ -51,6 +51,12 @@ int test_Variables_g3 = test_Variables_g2 * 5;
 
 ////////////////////////////////////////////////////////////////
 
+// Error for function redefinition.
+void compile_error_func() {}
+compile_error (4) int compile_error_func() {return 0;}
+
+////////////////////////////////////////////////////////////////
+
 // Typedef for constants.
 typedef const int def;
 def TYPEDEF_CONST = 100;
