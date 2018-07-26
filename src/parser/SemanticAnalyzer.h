@@ -28,8 +28,6 @@ public:
 	void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
 	void caseExprIndex(ASTExprIndex& host, void* = NULL);
 	// Literals
-    void caseNumberLiteral(ASTNumberLiteral& host, void* = NULL);
-    void caseBoolLiteral(ASTBoolLiteral& host, void* = NULL);
 	void caseStringLiteral(ASTStringLiteral& host, void* = NULL);
 	void caseArrayLiteral(ASTArrayLiteral& host, void* = NULL);
 
