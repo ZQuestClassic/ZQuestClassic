@@ -43,6 +43,14 @@ void BuildOpcodes::addOpcode(Opcode* code)
 	opcodeTargets.back()->push_back(code);
 }
 
+template <class Container>
+void BuildOpcodes::addOpcodes(Container const& container)
+{
+	for (typename Container::const_iterator it = container.begin();
+		 it != container.end(); ++it)
+		addOpcode(*it);
+}
+
 void BuildOpcodes::deallocateArrayRef(long arrayRef)
 {
 	addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
@@ -488,12 +496,7 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
     //and store it
     LValBOHelper helper;
     host.left->execute(helper, param);
-    vector<Opcode *> subcode = helper.getResult();
-
-    for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
-    {
-        addOpcode(*it);
-    }
+	addOpcodes(helper.getResult());
 }
 
 void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
@@ -696,12 +699,7 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
     //store it
     LValBOHelper helper;
     host.operand->execute(helper, param);
-    vector<Opcode *> subcode = helper.getResult();
-    
-    for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
-    {
-        addOpcode(*it);
-    }
+    addOpcodes(helper.getResult());
     
     //pop EXP1
     addOpcode(new OPopRegister(new VarArgument(EXP1)));
@@ -740,12 +738,7 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
     //store it
     LValBOHelper helper;
     host.operand->execute(helper, param);
-    vector<Opcode *> subcode = helper.getResult();
-    
-    for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
-    {
-        addOpcode(*it);
-    }
+	addOpcodes(helper.getResult());
 }
 
 void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
@@ -780,12 +773,7 @@ void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
     //store it
     LValBOHelper helper;
     host.operand->execute(helper, param);
-    vector<Opcode *> subcode = helper.getResult();
-    
-    for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
-    {
-        addOpcode(*it);
-    }
+	addOpcodes(helper.getResult());
 }
 
 void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
@@ -822,12 +810,7 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
     //store it
     LValBOHelper helper;
     host.operand->execute(helper, param);
-    vector<Opcode *> subcode = helper.getResult();
-    
-    for(vector<Opcode *>::iterator it = subcode.begin(); it != subcode.end(); it++)
-    {
-        addOpcode(*it);
-    }
+	addOpcodes(helper.getResult());
     
     //pop EXP1
     addOpcode(new OPopRegister(new VarArgument(EXP1)));
@@ -1392,6 +1375,13 @@ void LValBOHelper::addOpcode(Opcode* code)
 	result.push_back(code);
 }
 
+template <class Container>
+void LValBOHelper::addOpcodes(Container const& container)
+{
+	for (typename Container::const_iterator it = container.begin();
+		 it != container.end(); ++it)
+		addOpcode(*it);
+}
 
 /*
 void LValBOHelper::caseDataDecl(ASTDataDecl& host, void* param)
@@ -1443,15 +1433,10 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     //push the lhs of the arrow
     //but first save the value of EXP1
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    vector<Opcode *> toadd;
+
     BuildOpcodes oc;
     oc.visit(host.left, param);
-    toadd = oc.getResult();
-    
-    for(vector<Opcode *>::iterator it = toadd.begin(); it != toadd.end(); it++)
-    {
-        addOpcode(*it);
-    }
+	addOpcodes(oc.getResult());
     
     //pop the old value of EXP1
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
@@ -1465,13 +1450,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     {
         BuildOpcodes oc2;
         oc2.visit(host.index, param);
-        toadd = oc2.getResult();
-        
-        for(vector<Opcode *>::iterator it = toadd.begin(); it != toadd.end(); it++)
-        {
-            addOpcode(*it);
-        }
-        
+		addOpcodes(oc2.getResult());
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
     }
     

@@ -79,6 +79,10 @@ public:
     void castFromBool(vector<Opcode *> &result, int reg);
 private:
 	void addOpcode(Opcode* code);
+
+	template <class Container>
+	void addOpcodes(Container const& container);
+	
 	void deallocateArrayRef(long arrayRef);
 	void deallocateRefsUntilCount(int count);
 
@@ -182,6 +186,10 @@ public:
     vector<Opcode *> getResult() {return result;}
 private:
 	void addOpcode(Opcode* code);
+
+	template <class Container>
+	void addOpcodes(Container const& container);
+	
     vector<Opcode *> result;
 };
 
