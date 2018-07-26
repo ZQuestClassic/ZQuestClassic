@@ -37,10 +37,8 @@ ScriptsData* compile(const char *filename)
 {
     ScriptParser::resetState();
 
-#ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 1: Parsing");
     box_eol();
-#endif
     
     if (go(filename) != 0 || !resAST)
     {
@@ -50,10 +48,8 @@ ScriptsData* compile(const char *filename)
     
     ASTProgram* theAST = resAST;
     
-#ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 2: Preprocessing");
     box_eol();
-#endif
     
     if (!ScriptParser::preprocess(theAST, RECURSIONLIMIT))
     {
@@ -61,10 +57,8 @@ ScriptsData* compile(const char *filename)
         return NULL;
     }
     
-#ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 3: Building symbol tables");
     box_eol();
-#endif
     
 	ZScript::Program program(theAST);
 	SemanticAnalyzer semanticAnalyzer(program);
@@ -75,10 +69,8 @@ ScriptsData* compile(const char *filename)
         return NULL;
     }
     
-#ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 4: Type-checking/Completing function symbol tables/Constant folding");
     box_eol();
-#endif
 
     FunctionData* fd = ScriptParser::typeCheck(program);
     
@@ -88,10 +80,8 @@ ScriptsData* compile(const char *filename)
 		return NULL;
 	}
     
-#ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 5: Generating object code");
     box_eol();
-#endif
     
     IntermediateData *id = ScriptParser::generateOCode(fd);
     delete fd;
@@ -102,13 +92,12 @@ ScriptsData* compile(const char *filename)
 		return NULL;
 	}
     
-#ifndef SCRIPTPARSER_COMPILE
     box_out("Pass 6: Assembling");
     box_eol();
-#endif
 
     ScriptsData* final = ScriptParser::assemble(id);
     delete id;
+
     box_out("Success!");
     box_eol();
     
