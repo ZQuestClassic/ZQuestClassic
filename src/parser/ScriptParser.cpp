@@ -173,11 +173,6 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
 		delete *it;
     }
     
-    // Check that there are no more stupidly placed imports in the file
-    CheckForExtraneousImports c;
-    theAST->execute(c, NULL);
-    if (!c.isOK()) return false;
-    
     return true;
 }
 
