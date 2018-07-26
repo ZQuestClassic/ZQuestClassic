@@ -9,7 +9,6 @@ class TypeCheckParam;
 
 class TypeCheck : public RecursiveVisitor
 {
-    friend class GetLValType;
 public:
 	TypeCheck(SymbolTable& symbolTable);
 	TypeCheck(SymbolTable& symbolTable, ZVarTypeId returnTypeId);
@@ -29,6 +28,7 @@ public:
 	// Expressions
 	void caseExprConst(ASTExprConst& host, void* = NULL);
     void caseExprAssign(ASTExprAssign& host, void* = NULL);
+    void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
     void caseExprArrow(ASTExprArrow& host, void* = NULL);
     void caseExprIndex(ASTExprIndex& host, void* = NULL);
     void caseExprCall(ASTExprCall& host, void* = NULL);
@@ -63,6 +63,14 @@ public:
 
 	static bool check(SymbolTable& symbolTable, ZVarTypeId returnTypeId, AST& node);
 	static bool check(SymbolTable& symbolTable, AST& node);
+
+	// Used as a parameter to signal that the rval is needed.
+	static void* const paramRead;
+	// Used as a parameter to signal that the lval is needed.
+	static void* const paramWrite;
+	// Used as a parameter to signal that both lval and rval are needed.
+	static void* const paramReadWrite;
+	
 private:
 	SymbolTable& symbolTable;
 	ZVarType const& returnType;
@@ -72,20 +80,6 @@ private:
     bool standardCheck(ZVarType const& targetType, ZVarType const& sourceType, AST* toBlame);
 	bool checkExprTypes(ASTUnaryExpr& expr, ZVarTypeId type);
 	bool checkExprTypes(ASTBinaryExpr& expr, ZVarTypeId firstType, ZVarTypeId secondType);
-	ZVarTypeId getLValTypeId(AST& lval);
-};
-
-class GetLValType : public ASTVisitor
-{
-public:
-	GetLValType(TypeCheck& typeCheck);
-    void caseDefault(void* param) {assert(false);}
-    void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
-    void caseExprArrow(ASTExprArrow& host, void* = NULL);
-    void caseExprIndex(ASTExprIndex& host, void* = NULL);
-	ZVarTypeId typeId;
-private:
-	TypeCheck& typeCheck;
 };
 
 #endif

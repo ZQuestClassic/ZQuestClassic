@@ -12,6 +12,11 @@
 
 using namespace ZScript;
 
+struct tag {};
+void* const TypeCheck::paramRead = new tag();
+void* const TypeCheck::paramWrite = new tag();
+void* const TypeCheck::paramReadWrite = new tag();
+
 ////////////////////////////////////////////////////////////////
 // TypeCheck
     
@@ -190,65 +195,121 @@ void TypeCheck::caseExprConst(ASTExprConst& host, void*)
 
 void TypeCheck::caseExprAssign(ASTExprAssign& host, void*)
 {
-    visit(host.right);
+	visit(host.left, paramWrite);
     if (breakRecursion(host)) return;
 
-	ZVarTypeId ltypeid = getLValTypeId(*host.left);
+    visit(host.right, paramRead);
     if (breakRecursion(host)) return;
 
+	ZVarType const& ltype = *host.left->getWriteType();
     ZVarType const& rtype = *host.right->getReadType();
 
-    if (!standardCheck(ltypeid, rtype, &host))
+    if (!standardCheck(ltype, rtype, &host))
         failure = true;
 
-	if (ltypeid == ZVARTYPEID_CONST_FLOAT)
+	if (ltype == ZVarType::CONST_FLOAT)
 		handleError(CompileError::ConstAssign, &host);
 }
 
-void TypeCheck::caseExprArrow(ASTExprArrow& host, void*)
+void TypeCheck::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
-    // Recurse on left.
-    visit(host.left);
+	RecursiveVisitor::caseExprIdentifier(host);
     if (breakRecursion(host)) return;
 
-	// Make sure the left side is an object.
-    ZVarType const& leftType = *host.left->getReadType();
-	if (leftType.typeClassId() != ZVARTYPE_CLASSID_CLASS)
-    {
-		handleError(CompileError::ArrowNotPointer, &host);
-	    return;
-    }
+	if (param == paramWrite || param == paramReadWrite)
+	{
+		if (*host.binding->type == ZVarType::CONST_FLOAT)
+		{
+			handleError(CompileError::LValConst, &host,
+						host.asString().c_str());
+			return;
+		}
+	}
+}
 
+void TypeCheck::caseExprArrow(ASTExprArrow& host, void* param)
+{
+	// Recurse on left.
+	visit(host.left);
+	if (breakRecursion(host)) return;
+
+	// Grab the left side's class.
+	ZVarType const& leftType = *host.left->getReadType();
+	if (leftType.typeClassId() != ZVARTYPE_CLASSID_CLASS)
+	{
+		handleError(CompileError::ArrowNotPointer, &host);
+		return;
+	}
 	ZClass& leftClass = *symbolTable.getClass(
 			static_cast<ZVarTypeClass const&>(leftType).getClassId());
 
-	host.readFunction = leftClass.getGetter(host.right);
-	if (!host.readFunction)
+	// Find read function.
+	if (!param || param == paramRead || param == paramReadWrite)
 	{
-		handleError(CompileError::ArrowNoVar, &host,
-		            (host.right + (host.index ? "[]" : "")).c_str());
-        return;
+		host.readFunction = leftClass.getGetter(host.right);
+		if (!host.readFunction)
+		{
+			handleError(CompileError::ArrowNoVar, &host,
+			            (host.right + (host.index ? "[]" : "")).c_str());
+			return;
+		}
+		vector<ZVarType const*>& paramTypes = host.readFunction->paramTypes;
+		if (paramTypes.size() != (host.index ? 2 : 1) || *paramTypes[0] != leftType)
+		{
+			handleError(CompileError::ArrowNoVar, &host,
+			            (host.right + (host.index ? "[]" : "")).c_str());
+			return;
+		}
+		symbolTable.putNodeId(&host, host.readFunction->id);
 	}
-	vector<ZVarType const*>& paramTypes = host.readFunction->paramTypes;
-    if (paramTypes.size() != (host.index ? 2 : 1) || *paramTypes[0] != leftType)
-    {
-	    handleError(CompileError::ArrowNoVar, &host,
-	                (host.right + (host.index ? "[]" : "")).c_str());
-        return;
-    }
 
-    symbolTable.putNodeId(&host, host.readFunction->id);
+	// Find write function.
+	if (param == paramWrite || param == paramReadWrite)
+	{
+		host.writeFunction = leftClass.getSetter(host.right);
+		if (!host.writeFunction)
+		{
+			handleError(CompileError::ArrowNoVar, &host,
+			            (host.right + (host.index ? "[]" : "")).c_str());
+			return;
+		}
+		vector<ZVarType const*>& paramTypes = host.writeFunction->paramTypes;
+		if (paramTypes.size() != (host.index ? 3 : 2) || *paramTypes[0] != leftType)
+		{
+			handleError(CompileError::ArrowNoVar, &host,
+			            (host.right + (host.index ? "[]" : "")).c_str());
+			return;
+		}
+		symbolTable.putNodeId(&host, host.writeFunction->id);
+	}
+
+	if (host.index)
+	{
+		visit(host.index);
+		if (breakRecursion(host)) return;
+
+		standardCheck(
+				ZVarType::FLOAT, *host.index->getReadType(), host.index);
+		if (breakRecursion(host)) return;
+	}
 }
 
-void TypeCheck::caseExprIndex(ASTExprIndex& host, void*)
+void TypeCheck::caseExprIndex(ASTExprIndex& host, void* param)
 {
-	visit(host.array);
+	// Arrow handles its own indexing.
+	if (host.array->isTypeArrow())
+	{
+		visit(host.array, param);
+		host.setVarType(host.array->getReadType());
+		return;
+	}
+	
+	RecursiveVisitor::caseExprIndex(host);
 	host.setVarType(host.array->getReadType());
 
 	// The index must be a number.
     if (host.index)
     {
-        visit(host.index);
         if (breakRecursion(host)) return;
 
         if (!standardCheck(ZVARTYPEID_FLOAT, *host.index->getReadType(), host.index))
@@ -445,102 +506,102 @@ void TypeCheck::caseExprBitNot(ASTExprBitNot& host, void*)
 
 void TypeCheck::caseExprIncrement(ASTExprIncrement& host, void*)
 {
-    visit(host.operand);
+    visit(host.operand, paramReadWrite);
     if (breakRecursion(host)) return;
 
 	ASTExpr& operand = *host.operand;
-    if (operand.isTypeArrow() || operand.isTypeIndex())
-    {
-		ASTExprArrow* arrow;
-		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
-        int fid = symbolTable.getNodeId(arrow);
-        symbolTable.putNodeId(&host, fid);
-    }
+	if (operand.isTypeArrow())
+	{
+		ASTExprArrow& arrow = static_cast<ASTExprArrow&>(operand);
+		symbolTable.putNodeId(&host, arrow.readFunction->id);
+	}
+	if (operand.isTypeIndex())
+	{
+		ASTExprIndex& index = static_cast<ASTExprIndex&>(operand);
+		if (index.array->isTypeArrow())
+		{
+			ASTExprArrow& arrow = static_cast<ASTExprArrow&>(*index.array);
+			symbolTable.putNodeId(&host, arrow.readFunction->id);
+		}
+	}
 
-	ZVarTypeId ltype = getLValTypeId(operand);
+    standardCheck(ZVarType::FLOAT, *operand.getReadType(), &host);
     if (breakRecursion(host)) return;
-
-    if (!standardCheck(ZVARTYPEID_FLOAT, ltype, &host))
-    {
-        failure = true;
-        return;
-    }
 }
     
 void TypeCheck::caseExprPreIncrement(ASTExprPreIncrement& host, void*)
 {
-    visit(host.operand);
+    visit(host.operand, paramReadWrite);
     if (breakRecursion(host)) return;
 
 	ASTExpr& operand = *host.operand;
-    if (operand.isTypeArrow() || operand.isTypeIndex())
-    {
-		ASTExprArrow* arrow;
-		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
-        int fid = symbolTable.getNodeId(arrow);
-        symbolTable.putNodeId(&host, fid);
-    }
+	if (operand.isTypeArrow())
+	{
+		ASTExprArrow& arrow = static_cast<ASTExprArrow&>(operand);
+		symbolTable.putNodeId(&host, arrow.readFunction->id);
+	}
+	if (operand.isTypeIndex())
+	{
+		ASTExprIndex& index = static_cast<ASTExprIndex&>(operand);
+		if (index.array->isTypeArrow())
+		{
+			ASTExprArrow& arrow = static_cast<ASTExprArrow&>(*index.array);
+			symbolTable.putNodeId(&host, arrow.readFunction->id);
+		}
+	}
 
-	ZVarTypeId ltype = getLValTypeId(operand);
+    standardCheck(ZVarType::FLOAT, *operand.getReadType(), &host);
     if (breakRecursion(host)) return;
-
-    if (!standardCheck(ZVARTYPEID_FLOAT, ltype, &host))
-    {
-        failure = true;
-        return;
-    }
 }
 
 void TypeCheck::caseExprDecrement(ASTExprDecrement& host, void*)
 {
-    visit(host.operand);
+    visit(host.operand, paramReadWrite);
     if (breakRecursion(host)) return;
 
 	ASTExpr& operand = *host.operand;
-    if (operand.isTypeArrow() || operand.isTypeIndex())
-    {
-		ASTExprArrow* arrow;
-		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
-        int fid = symbolTable.getNodeId(arrow);
-        symbolTable.putNodeId(&host, fid);
-    }
+	if (operand.isTypeArrow())
+	{
+		ASTExprArrow& arrow = static_cast<ASTExprArrow&>(operand);
+		symbolTable.putNodeId(&host, arrow.readFunction->id);
+	}
+	if (operand.isTypeIndex())
+	{
+		ASTExprIndex& index = static_cast<ASTExprIndex&>(operand);
+		if (index.array->isTypeArrow())
+		{
+			ASTExprArrow& arrow = static_cast<ASTExprArrow&>(*index.array);
+			symbolTable.putNodeId(&host, arrow.readFunction->id);
+		}
+	}
 
-	ZVarTypeId ltype = getLValTypeId(operand);
+    standardCheck(ZVarType::FLOAT, *operand.getReadType(), &host);
     if (breakRecursion(host)) return;
-
-    if (!standardCheck(ZVARTYPEID_FLOAT, ltype, &host))
-    {
-        failure = true;
-        return;
-    }
 }
     
 void TypeCheck::caseExprPreDecrement(ASTExprPreDecrement& host, void*)
 {
-    visit(host.operand);
+    visit(host.operand, paramReadWrite);
     if (breakRecursion(host)) return;
 
 	ASTExpr& operand = *host.operand;
-    if (operand.isTypeArrow() || operand.isTypeIndex())
-    {
-		ASTExprArrow* arrow;
-		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
-        int fid = symbolTable.getNodeId(arrow);
-        symbolTable.putNodeId(&host, fid);
-    }
+	if (operand.isTypeArrow())
+	{
+		ASTExprArrow& arrow = static_cast<ASTExprArrow&>(operand);
+		symbolTable.putNodeId(&host, arrow.readFunction->id);
+	}
+	if (operand.isTypeIndex())
+	{
+		ASTExprIndex& index = static_cast<ASTExprIndex&>(operand);
+		if (index.array->isTypeArrow())
+		{
+			ASTExprArrow& arrow = static_cast<ASTExprArrow&>(*index.array);
+			symbolTable.putNodeId(&host, arrow.readFunction->id);
+		}
+	}
 
-	ZVarTypeId ltype = getLValTypeId(operand);
+    standardCheck(ZVarType::FLOAT, *operand.getReadType(), &host);
     if (breakRecursion(host)) return;
-
-    if (!standardCheck(ZVARTYPEID_FLOAT, ltype, &host))
-    {
-        failure = true;
-        return;
-    }
 }
 
 void TypeCheck::caseExprAnd(ASTExprAnd& host, void*)
@@ -760,13 +821,6 @@ bool TypeCheck::checkExprTypes(ASTBinaryExpr& expr, ZVarTypeId firstType, ZVarTy
 	return !failure;
 }
 
-ZVarTypeId TypeCheck::getLValTypeId(AST& lval)
-{
-    GetLValType temp(*this);
-    lval.execute(temp);
-	return temp.typeId;
-}
-
 bool TypeCheck::check(SymbolTable& symbolTable, ZVarTypeId returnTypeId, AST& node)
 {
 	TypeCheck tc(symbolTable, returnTypeId);
@@ -778,93 +832,4 @@ bool TypeCheck::check(SymbolTable& symbolTable, AST& node)
 {
 	return TypeCheck::check(symbolTable, ZVARTYPEID_VOID, node);
 }
-
-////////////////////////////////////////////////////////////////
-// GetLValType
-
-GetLValType::GetLValType(TypeCheck& typeCheck) : typeCheck(typeCheck) {}
-
-void GetLValType::caseExprArrow(ASTExprArrow& host, void*)
-{
-	SymbolTable& symbolTable = typeCheck.symbolTable;
-
-    typeCheck.visit(host.left);
-    if (typeCheck.hasFailed()) return;
-
-	// Make sure the left side is an object.
-    ZVarType const& leftType = *host.left->getReadType();
-	if (leftType.typeClassId() != ZVARTYPE_CLASSID_CLASS)
-    {
-		typeCheck.handleError(CompileError::ArrowNotPointer, &host);
-        return;
-    }
-
-	ZClass& leftClass = *symbolTable.getClass(
-			static_cast<ZVarTypeClass const&>(leftType).getClassId());
-
-	host.writeFunction = leftClass.getSetter(host.right);
-	if (!host.writeFunction)
-    {
-		typeCheck.handleError(CompileError::ArrowNoVar, &host,
-							  (host.right + (host.index ? "[]" : "")).c_str());
-        return;
-    }
-	vector<ZVarType const*>& paramTypes = host.writeFunction->paramTypes;
-    if (paramTypes.size() != (host.index ? 3 : 2) || *paramTypes[0] != leftType)
-    {
-	    typeCheck.handleError(CompileError::ArrowNoVar, &host,
-							  (host.right + (host.index ? "[]" : "")).c_str());
-        return;
-    }
-
-    symbolTable.putNodeId(&host, host.writeFunction->id);
-    typeId = symbolTable.getTypeId(*host.getWriteType());
-}
-
-void GetLValType::caseExprIdentifier(ASTExprIdentifier& host, void*)
-{
-    typeCheck.visit(host);
-    int vid = typeCheck.symbolTable.getNodeId(&host);
-
-    if (vid == -1)
-    {
-	    typeCheck.handleError(CompileError::LValConst, &host,
-							   host.asString().c_str());
-        return;
-    }
-
-    typeId = typeCheck.symbolTable.getVarTypeId(&host);
-}
-
-void GetLValType::caseExprIndex(ASTExprIndex& host, void*)
-{
-	// Arrows just fall back on the arrow implementation.
-	if (host.array->isTypeArrow()) host.array->execute(*this);
-
-	else
-    {
-		typeCheck.visit(host);
-		typeId = typeCheck.symbolTable.getTypeId(*host.array->getReadType());
-    }
-
-	// The index must be a number.
-	if (host.index)
-    {
-		typeCheck.visit(host.index);
-
-		if (typeCheck.hasFailed()) return;
-
-		if (!typeCheck.standardCheck(
-					ZVARTYPEID_FLOAT, *host.index->getReadType(), host.index))
-        {
-            typeCheck.fail();
-            return;
-        }
-    }
-
-	host.setVarType(typeCheck.symbolTable.getType(typeId));
-}
-
-        
-    
 

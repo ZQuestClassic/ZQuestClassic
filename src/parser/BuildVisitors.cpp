@@ -668,12 +668,17 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
     // Load value of the variable into EXP1.  Except if it is an arrow expr, in
     // which case the gettor function is stored in this AST*.
 	ASTExpr& operand = *host.operand;
-	if (operand.isTypeArrow() || operand.isTypeIndex())
+	ASTExprArrow* arrow = NULL;
+	if (operand.isTypeArrow())
+		arrow = &static_cast<ASTExprArrow&>(operand);
+	if (operand.isTypeIndex())
+	{
+		ASTExprIndex& index = static_cast<ASTExprIndex&>(operand);
+		if (index.array->isTypeArrow())
+			arrow = static_cast<ASTExprArrow*>(index.array);
+	}
+	if (arrow)
     {
-		ASTExprArrow* arrow;
-		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
-
         int oldid = c->symbols->getNodeId(arrow);
         c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
         visit(host.operand, param);
@@ -706,15 +711,20 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
     
-    // Load value of the variable into EXP1.  Except if it is an arrow expr, in
+    // Load value of the variable into EXP1 except if it is an arrow expr, in
     // which case the gettor function is stored in this AST*.
 	ASTExpr& operand = *host.operand;
-	if (operand.isTypeArrow() || operand.isTypeIndex())
+	ASTExprArrow* arrow = NULL;
+	if (operand.isTypeArrow())
+		arrow = &static_cast<ASTExprArrow&>(operand);
+	if (operand.isTypeIndex())
+	{
+		ASTExprIndex& index = static_cast<ASTExprIndex&>(operand);
+		if (index.array->isTypeArrow())
+			arrow = static_cast<ASTExprArrow*>(index.array);
+	}
+	if (arrow)
     {
-		ASTExprArrow* arrow;
-		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
-
         int oldid = c->symbols->getNodeId(arrow);
         c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
         visit(host.operand, param);
@@ -741,15 +751,20 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
 void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
-    // Load value of the variable into EXP1 Except if it is an arrow expr, in
+    // Load value of the variable into EXP1 except if it is an arrow expr, in
     // which case the gettor function is stored in this AST*.
 	ASTExpr& operand = *host.operand;
-	if (operand.isTypeArrow() || operand.isTypeIndex())
+	ASTExprArrow* arrow = NULL;
+	if (operand.isTypeArrow())
+		arrow = &static_cast<ASTExprArrow&>(operand);
+	if (operand.isTypeIndex())
+	{
+		ASTExprIndex& index = static_cast<ASTExprIndex&>(operand);
+		if (index.array->isTypeArrow())
+			arrow = static_cast<ASTExprArrow*>(index.array);
+	}
+	if (arrow)
     {
-		ASTExprArrow* arrow;
-		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
-
         int oldid = c->symbols->getNodeId(arrow);
         c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
         visit(host.operand, param);
@@ -779,12 +794,17 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
     // Load value of the variable into EXP1 except if it is an arrow expr, in
     // which case the gettor function is stored in this AST*.
 	ASTExpr& operand = *host.operand;
-	if (operand.isTypeArrow() || operand.isTypeIndex())
+	ASTExprArrow* arrow = NULL;
+	if (operand.isTypeArrow())
+		arrow = &static_cast<ASTExprArrow&>(operand);
+	if (operand.isTypeIndex())
+	{
+		ASTExprIndex& index = static_cast<ASTExprIndex&>(operand);
+		if (index.array->isTypeArrow())
+			arrow = static_cast<ASTExprArrow*>(index.array);
+	}
+	if (arrow)
     {
-		ASTExprArrow* arrow;
-		if (operand.isTypeArrow()) arrow = &(ASTExprArrow&)operand;
-		else arrow = (ASTExprArrow*)((ASTExprIndex&)operand).array;
-
         int oldid = c->symbols->getNodeId(arrow);
         c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
         visit(host.operand, param);
