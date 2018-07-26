@@ -23,11 +23,9 @@ public:
     void caseFuncDecl(ASTFuncDecl& host, void* = NULL);
     void caseScript(ASTScript& host, void* = NULL);
 	// Expressions
-	void caseExprConst(ASTExprConst& host, void* = NULL);
 	void caseExprAssign(ASTExprAssign& host, void* = NULL);
 	void caseExprCall(ASTExprCall& host, void* = NULL);
 	void caseExprIdentifier(ASTExprIdentifier& host, void* = NULL);
-	// void caseExprArrow(ASTExprArrow& host, void* = NULL); // No need to redefine.
 	void caseExprIndex(ASTExprIndex& host, void* = NULL);
 	// Literals
     void caseNumberLiteral(ASTNumberLiteral& host, void* = NULL);

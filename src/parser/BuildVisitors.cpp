@@ -60,7 +60,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 		 it != host.statements.end(); ++it)
 	{
 		int initIndex = result.size();
-        (*it)->execute(*this, param);
+        visit(*it, param);
 		result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
 		c->initCode.clear();
 	}
@@ -73,12 +73,12 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
         {
     //run the test
-    host.condition->execute(*this,param);
+    visit(host.condition, param);
     int endif = ScriptParser::getUniqueLabelID();
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(endif)));
     //run the block
-    host.thenStatement->execute(*this,param);
+    visit(host.thenStatement, param);
     //nop
     Opcode *next = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
     next->setLabel(endif);
@@ -88,18 +88,18 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
         {
     //run the test
-    host.condition->execute(*this,param);
+    visit(host.condition, param);
     int elseif = ScriptParser::getUniqueLabelID();
     int endif = ScriptParser::getUniqueLabelID();
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(elseif)));
     //run if blocl
-    host.thenStatement->execute(*this,param);
+    visit(host.thenStatement, param);
     addOpcode(new OGotoImmediate(new LabelArgument(endif)));
     Opcode *next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
     next->setLabel(elseif);
     addOpcode(next);
-    host.elseStatement->execute(*this,param);
+    visit(host.elseStatement, param);
     next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
     next->setLabel(endif);
     addOpcode(next);
@@ -121,7 +121,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 
 	// Evaluate the key.
 	ASTExpr* key = host.key;
-	key->execute(*this, param);
+	visit(key, param);
 	result.push_back(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 
 	// Add the tests and jumps.
@@ -140,7 +140,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 		{
 			// Test this individual case.
 			result.push_back(new OPushRegister(new VarArgument(EXP2)));
-			(*it)->execute(*this, param);
+			visit(*it, param);
 			result.push_back(new OPopRegister(new VarArgument(EXP2)));
 			// If the test succeeds, jump to its label.
 			result.push_back(new OCompareRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -163,7 +163,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 		// Mark start of the block we're adding.
 		int block_start_index = result.size();
 		// Add block.
-		cases->block->execute(*this, param);
+		visit(cases->block, param);
 		// If nothing was added, put in a nop to point to.
 		if (result.size() == block_start_index)
 			result.push_back(new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0)));
@@ -184,7 +184,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     {
     //run the precondition
-    host.setup->execute(*this,param);
+    visit(host.setup, param);
     int loopstart = ScriptParser::getUniqueLabelID();
     int loopend = ScriptParser::getUniqueLabelID();
     int loopincr = ScriptParser::getUniqueLabelID();
@@ -193,7 +193,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     next->setLabel(loopstart);
     addOpcode(next);
     //test the termination condition
-    host.test->execute(*this,param);
+    visit(host.test, param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(loopend)));
     //run the loop body
@@ -208,7 +208,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     continuelabelid = loopincr;
 	continueRefCount = arrayRefs.size();
 
-    host.body->execute(*this,param);
+    visit(host.body, param);
 
     breaklabelid = oldbreak;
     breakRefCount = oldBreakRefCount;
@@ -220,7 +220,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
     next->setLabel(loopincr);
     addOpcode(next);
-    host.increment->execute(*this,param);
+    visit(host.increment, param);
     addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
     //nop
     next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
@@ -237,7 +237,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
     Opcode *start = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
     start->setLabel(startlabel);
     addOpcode(start);
-    host.test->execute(*this,param);
+    visit(host.test, param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
 
@@ -250,7 +250,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
     continuelabelid = startlabel;
 	continueRefCount = arrayRefs.size();
 
-    host.body->execute(*this,param);
+    visit(host.body, param);
 
     breaklabelid = oldbreak;
 	breakRefCount = oldBreakRefCount;
@@ -283,7 +283,7 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     continuelabelid = continuelabel;
 	continueRefCount = arrayRefs.size();
 
-    host.body->execute(*this, param);
+    visit(host.body, param);
 
     breaklabelid = oldbreak;
     continuelabelid = oldcontinue;
@@ -293,7 +293,7 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     start = new OSetImmediate(new VarArgument(NUL), new LiteralArgument(0));
     start->setLabel(continuelabel);
     addOpcode(start);
-    host.test->execute(*this,param);
+    visit(host.test, param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
     addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
@@ -311,7 +311,7 @@ void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
 
 void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 {
-    host.value->execute(*this, param);
+    visit(host.value, param);
 	deallocateRefsUntilCount(0);
     addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 }
@@ -354,7 +354,7 @@ void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
     returnlabelid = ScriptParser::getUniqueLabelID();
 	returnRefCount = arrayRefs.size();
 
-    host.block->execute(*this, param);
+    visit(host.block, param);
 }
     
 void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
@@ -379,7 +379,7 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	Variable& manager = *host.manager;
 
 	// Load initializer into EXP1, if present.
-	AST::execute(host.initializer(), *this, &context);
+	visit(host.initializer(), &context);
 
 	// Set variable to EXP1 or 0, depending on the initializer.
 	if (manager.global)
@@ -406,7 +406,7 @@ void BuildOpcodes::buildArrayInit(ASTDataDecl& host, OpcodeContext& context)
 	Variable& manager = *host.manager;
 
 	// Initializer creates the array and loads the array id into EXP1.
-	host.initializer()->execute(*this, &context);
+	visit(host.initializer(), &context);
 
 	// Set variable to EXP1.
 	if (manager.global)
@@ -479,7 +479,7 @@ void BuildOpcodes::caseStmtCompileError(ASTStmtCompileError& host, void*)
 void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 {
     //load the rval into EXP1
-    host.right->execute(*this, param);
+    visit(host.right, param);
     //and store it
     LValBOHelper helper;
     host.left->execute(helper, param);
@@ -491,11 +491,6 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
     }
 }
 
-void BuildOpcodes::caseExprConst(ASTExprConst &host, void *param)
-{
-	AST::execute(host.content, *this, param);
-}
-	
 void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
@@ -539,13 +534,13 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
     addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnlabel)));
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     //get the rhs of the arrow
-    AST::execute(host.left, *this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
     //if indexed, push the index
     if(isIndexed)
     {
-        AST::execute(host.index, *this, param);
+        visit(host.index, param);
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
 }
 
@@ -563,16 +558,16 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 	// If the left hand side is an arrow, then we'll let it run instead.
 	if (host.array->isTypeArrow())
 	{
-		host.array->execute(*this, param);
+		visit(host.array, param);
 		return;
 	}
 
 	// First, push the array.
-	AST::execute(host.array, *this, param);
+	visit(host.array, param);
 	addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
 	// Load the index into INDEX2.
-	AST::execute(host.index, *this, param);
+	visit(host.index, param);
         addOpcode(new OSetRegister(new VarArgument(INDEX2), new VarArgument(EXP1)));
     
 	// Pop array into INDEX.
@@ -600,8 +595,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
     if (host.left->isTypeArrow())
     {
         //load the value of the left-hand of the arrow into EXP1
-        ((ASTExprArrow*)host.left)->left->execute(*this, param);
-        //host.getLeft()->execute(*this,param);
+        visit(static_cast<ASTExprArrow&>(*host.left).left, param);
+        //visit(host.getLeft(), param);
         //push it onto the stack
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
     }
@@ -610,7 +605,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
     for (vector<ASTExpr*>::iterator it = host.parameters.begin();
 		it != host.parameters.end(); ++it)
     {
-        (*it)->execute(*this, param);
+        visit(*it, param);
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
 }
 
@@ -630,7 +625,7 @@ void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
         return;
     }
     
-    host.operand->execute(*this, param);
+    visit(host.operand, param);
     addOpcode(new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0)));
     addOpcode(new OSubRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -644,7 +639,7 @@ void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
         return;
     }
     
-    host.operand->execute(*this, param);
+    visit(host.operand, param);
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
     addOpcode(new OSetTrue(new VarArgument(EXP1)));
 }
@@ -657,7 +652,7 @@ void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
         return;
     }
     
-    host.operand->execute(*this, param);
+    visit(host.operand, param);
     addOpcode(new ONot(new VarArgument(EXP1)));
 }
 
@@ -676,12 +671,12 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
 
         int oldid = c->symbols->getNodeId(arrow);
         c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
-        host.operand->execute(*this,param);
+        visit(host.operand, param);
         c->symbols->putNodeId(arrow, oldid);
     }
     else if (host.operand->isTypeIdentifier())
     {
-        host.operand->execute(*this, param);
+        visit(host.operand, param);
     }
     
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -717,12 +712,12 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
 
         int oldid = c->symbols->getNodeId(arrow);
         c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
-        host.operand->execute(*this,param);
+        visit(host.operand, param);
         c->symbols->putNodeId(arrow, oldid);
     }
     else if (host.operand->isTypeIdentifier())
     {
-        host.operand->execute(*this, param);
+        visit(host.operand, param);
     }
     
     //increment EXP1
@@ -752,12 +747,12 @@ void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
 
         int oldid = c->symbols->getNodeId(arrow);
         c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
-        host.operand->execute(*this,param);
+        visit(host.operand, param);
         c->symbols->putNodeId(arrow, oldid);
     }
     else if (host.operand->isTypeIdentifier())
     {
-        host.operand->execute(*this, param);
+        visit(host.operand, param);
     }
     
     //dencrement EXP1
@@ -787,12 +782,12 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 
         int oldid = c->symbols->getNodeId(arrow);
         c->symbols->putNodeId(arrow, c->symbols->getNodeId(&host));
-        host.operand->execute(*this,param);
+        visit(host.operand, param);
         c->symbols->putNodeId(arrow, oldid);
     }
     else if (host.operand->isTypeIdentifier())
     {
-        host.operand->execute(*this, param);
+        visit(host.operand, param);
     }
     
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -822,9 +817,9 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
     }
     
     //compute both sides
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     castFromBool(result, EXP1);
     castFromBool(result, EXP2);
@@ -842,9 +837,9 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
     }
     
     //compute both sides
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this,param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
@@ -860,9 +855,9 @@ void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
     }
     
     //compute both sides
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetLess(new VarArgument(EXP1)));
@@ -879,9 +874,9 @@ void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
     }
     
     //compute both sides
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetMore(new VarArgument(EXP1)));
@@ -896,9 +891,9 @@ void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 }
 
     //compute both sides
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetMore(new VarArgument(EXP1)));
@@ -915,9 +910,9 @@ void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
     }
     
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetLess(new VarArgument(EXP1)));
@@ -935,9 +930,9 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 }
 
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     
     if (isBoolean)
@@ -962,9 +957,9 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
     }
     
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
 
     if (isBoolean)
@@ -986,9 +981,9 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
     }
     
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
@@ -1002,9 +997,9 @@ void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 }
 
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OSubRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1019,9 +1014,9 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
     }
     
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OMultRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
@@ -1035,9 +1030,9 @@ void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
     }
         
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new ODivRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1052,9 +1047,9 @@ void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
     }
     
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OModuloRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1069,9 +1064,9 @@ void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 }
 
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OAndRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
@@ -1085,9 +1080,9 @@ void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
     }
     
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OOrRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
@@ -1101,9 +1096,9 @@ void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
     }
     
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OXorRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
@@ -1117,9 +1112,9 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
     }
     
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new OLShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1134,9 +1129,9 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
     }
     
     // Compute both sides.
-    host.left->execute(*this, param);
+    visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    host.right->execute(*this, param);
+    visit(host.right, param);
     addOpcode(new OPopRegister(new VarArgument(EXP2)));
     addOpcode(new ORShiftRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
@@ -1316,7 +1311,7 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 	{
 		context.initCode.push_back(new OPushRegister(new VarArgument(INDEX)));
 		opcodeTargets.push_back(&context.initCode);
-		(*it)->execute(*this, param);
+		visit(*it, param);
 		opcodeTargets.pop_back();
 		context.initCode.push_back(new OPopRegister(new VarArgument(INDEX)));
 		context.initCode.push_back(new OSetImmediate(new VarArgument(INDEX2), new LiteralArgument(i)));
@@ -1426,7 +1421,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
     vector<Opcode *> toadd;
     BuildOpcodes oc;
-    host.left->execute(oc, param);
+    oc.visit(host.left, param);
     toadd = oc.getResult();
     
     for(vector<Opcode *>::iterator it = toadd.begin(); it != toadd.end(); it++)
@@ -1445,7 +1440,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     if(isIndexed)
     {
         BuildOpcodes oc2;
-        host.index->execute(oc2, param);
+        oc2.visit(host.index, param);
         toadd = oc2.getResult();
         
         for(vector<Opcode *>::iterator it = toadd.begin(); it != toadd.end(); it++)
@@ -1482,7 +1477,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
     
 	// Get and push the array pointer.
 	BuildOpcodes buildOpcodes1;
-	host.array->execute(buildOpcodes1, param);
+	buildOpcodes1.visit(host.array, param);
 	opcodes = buildOpcodes1.getResult();
 	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
 		addOpcode(*it);
@@ -1490,7 +1485,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
     
 	// Get the index.
 	BuildOpcodes buildOpcodes2;
-	host.index->execute(buildOpcodes2, param);
+	buildOpcodes2.visit(host.index, param);
 	opcodes = buildOpcodes2.getResult();
 	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
         addOpcode(*it);
