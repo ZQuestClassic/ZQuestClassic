@@ -158,50 +158,88 @@ extern YYLTYPE noloc;
 
 %%
 
-Init :
-	Init GlobalStmt {
-		resAST->addDeclaration((ASTDecl*)$2);}
-	| {
-		resAST = new ASTProgram(noloc);}
+////////////////////////////////////////////////////////////////
+	
+Init : Global_List {$$ = $1;};
+
+////////////////////////////////////////////////////////////////
+// Global
+
+Global_List :
+	Global_List Global_Statement {
+		ASTDecl* declaration = (ASTDecl*)$2;
+		resAST->addDeclaration(declaration);}
+	| {resAST = new ASTProgram(noloc);}
 	;
 
-GlobalStmt : Script {$$ = $1;}
-	| Import {$$ = $1;}
-	| FuncDecl {$$ = $1;}
-	| DataDeclList SEMICOLON {$$ = $1;}
+Global_Statement :
+	Import {$$ = $1;}
 	| TypeDef SEMICOLON {$$ = $1;}
+	| Data SEMICOLON {$$ = $1;}
+	| Function {$$ = $1;}
+	| Script {$$ = $1;}
 	;
 
-////////////////
-// Data Declarations.
+////////////////////////////////////////////////////////////////
+// Import Declaration
 
-// Common
-
-DataDeclExtraArray :
-	LBRACKET DataDeclExtraArray_SizeList RBRACKET {
-			ASTDataDeclExtraArray* extraArray = (ASTDataDeclExtraArray*)$2;
-			extraArray->location = @$;
-			$$ = extraArray;}
-	| LBRACKET RBRACKET {$$ = new ASTDataDeclExtraArray(@$);}
+Import : IMPORT QUOTEDSTRING {
+	ASTString* str = (ASTString*)$2;
+	$$ = new ASTImportDecl(str->getValue(), @$);
+	delete str;}
 	;
 
-DataDeclExtraArray_SizeList :
-	DataDeclExtraArray_SizeList COMMA ConstExpr {
-			ASTDataDeclExtraArray* extraArray = (ASTDataDeclExtraArray*)$1;
-			ASTExpr* size = (ASTExpr*)$3;
-			extraArray->dimensions.push_back(size);
-			extraArray->location = @$;
-			$$ = extraArray;}
-	| ConstExpr {
-			ASTExpr* size = (ASTExpr*)$1;
-			ASTDataDeclExtraArray* extraArray = new ASTDataDeclExtraArray(@$);
-			extraArray->dimensions.push_back(size);
-			$$ = extraArray;}
+////////////////////////////////////////////////////////////////
+// Type Declaration
+
+TypeDef : TYPEDEF DataType IDENTIFIER {
+	ASTVarType* type = (ASTVarType*)$2;
+	ASTString* name = (ASTString*)$3;
+	$$ = new ASTTypeDef(type, name->getValue(), @1);
+	delete name;}
 	;
 
-// Data Decl List
+DataType :
+	ZVOID {$$ = new ASTVarType(ZVarTypeSimple::ZVOID, @$);}
+	| ZFLOAT {$$ = new ASTVarType(ZVarTypeSimple::FLOAT, @$);}
+	| ZBOOL {$$ = new ASTVarType(ZVarTypeSimple::BOOL, @$);}
+	| FFC {$$ = new ASTVarType(ZVarTypeSimple::FFC, @$);}
+	| ITEM {$$ = new ASTVarType(ZVarTypeSimple::ITEM, @$);}
+	| ITEMCLASS {$$ = new ASTVarType(ZVarTypeSimple::ITEMCLASS, @$);}
+	| NPC	{$$ = new ASTVarType(ZVarTypeSimple::NPC, @$);}
+	| LWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::LWPN, @$);}
+	| EWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::EWPN, @$);}
+	| SPRITEDATA	{$$ = new ASTVarType(ZVarTypeSimple::SPRITEDATA, @$);}
+	| MAPDATA	{$$ = new ASTVarType(ZVarTypeSimple::MAPDATA, @$);}
+	| NPCDATA	{$$ = new ASTVarType(ZVarTypeSimple::NPCDATA, @$);}
+	| COMBODATA	{$$ = new ASTVarType(ZVarTypeSimple::COMBOS, @$);}
+	| GRAPHICS	{$$ = new ASTVarType(ZVarTypeSimple::GRAPHICS, @$);}
+	| DMAPDATA	{$$ = new ASTVarType(ZVarTypeSimple::DMAPDATA, @$);}
+	| MESSAGEDATA	{$$ = new ASTVarType(ZVarTypeSimple::ZMESSAGE, @$);}
+	| SHOPDATA	{$$ = new ASTVarType(ZVarTypeSimple::SHOPDATA, @$);}
+//	| UNTYPED	{$$ = new ASTVarType(ZVarTypeSimple::UNTYPED, @$);}
+	| DROPDATA	{$$ = new ASTVarType(ZVarTypeSimple::DROPSET, @$);}
+	| PONDDATA	{$$ = new ASTVarType(ZVarTypeSimple::PONDS, @$);}
+	| WARPRING	{$$ = new ASTVarType(ZVarTypeSimple::WARPRING, @$);}
+	| DOORSET	{$$ = new ASTVarType(ZVarTypeSimple::DOORSET, @$);}
+	| MISCCOLORS	{$$ = new ASTVarType(ZVarTypeSimple::ZUICOLOURS, @$);}
+	| RGBDATA	{$$ = new ASTVarType(ZVarTypeSimple::RGBDATA, @$);}
+	| PALETTE	{$$ = new ASTVarType(ZVarTypeSimple::PALETTE, @$);}
+	| MUSICTRACK	{$$ = new ASTVarType(ZVarTypeSimple::TUNES, @$);}
+	| PALCYCLE	{$$ = new ASTVarType(ZVarTypeSimple::PALCYCLE, @$);}
+	| GAMEDATA	{$$ = new ASTVarType(ZVarTypeSimple::GAMEDATA, @$);}
+	| CHEATS	{$$ = new ASTVarType(ZVarTypeSimple::CHEATS, @$);}
+	| IDENTIFIER {
+			ASTString *name = (ASTString*)$1;
+			$$ = new ASTVarType(ZVarTypeUnresolved(name->getValue()), @$);
+			delete name;}
+	| ZCONST ZFLOAT {$$ = new ASTVarType(new ZVarTypeConstFloat(), @$);}
+	;
 
-DataDeclList : Type DataDeclList_1 {
+////////////////////////////////////////////////////////////////
+// Data Declaration
+
+Data : DataType Data_List {
 		ASTVarType* type = (ASTVarType*)$1;
 		ASTDataDeclList* list = (ASTDataDeclList*)$2;
 		list->baseType = type;
@@ -209,32 +247,32 @@ DataDeclList : Type DataDeclList_1 {
 		$$ = list;}
 	;
 
-DataDeclList_1 :
-	DataDeclList_1 COMMA DataDeclList_Element {
+Data_List :
+	Data_List COMMA Data_Element {
 			ASTDataDeclList* list = (ASTDataDeclList*)$1;
 			ASTDataDecl* element = (ASTDataDecl*)$3;
 			list->addDeclaration(element);
 			list->location = @$;
 			$$ = list;}
-	| DataDeclList_Element {
+	| Data_Element {
 			ASTDataDecl* element = (ASTDataDecl*)$1;
 			ASTDataDeclList* list = new ASTDataDeclList(@$);
 			list->addDeclaration(element);
 			$$ = list;}
 	;
 
-DataDeclList_Element :
-	DataDeclList_Element_1 ASSIGN Expr {
+Data_Element :
+	Data_Element_Array_List ASSIGN Expression {
 			ASTDataDecl* element = (ASTDataDecl*)$1;
 			ASTExpr* initializer = (ASTExpr*)$3;
 			element->initializer(initializer);
 			element->location = @$;
 			$$ = element;}
-	| DataDeclList_Element_1 {$$ = $1;}
+	| Data_Element_Array_List {$$ = $1;}
 	;
 
-DataDeclList_Element_1 :
-	DataDeclList_Element_1 DataDeclExtraArray {
+Data_Element_Array_List :
+	Data_Element_Array_List Data_Element_Array_Element {
 			ASTDataDecl* element = (ASTDataDecl*)$1;
 			ASTDataDeclExtraArray* extraArray = (ASTDataDeclExtraArray*)$2;
 			element->extraArrays.push_back(extraArray);
@@ -248,47 +286,35 @@ DataDeclList_Element_1 :
 																			delete name;}
 	;
 
-// Single Data Decl.
-
-DataDecl : Type DataDecl_1 {
-		ASTVarType* type = (ASTVarType*)$1;
-		ASTDataDecl* data = (ASTDataDecl*)$2;
-		data->baseType = type;
-		data->location = @$;
-		$$ = data;}
+Data_Element_Array_Element :
+	LBRACKET Data_Element_Array_Element_Size_List RBRACKET {
+		ASTDataDeclExtraArray* extraArray = (ASTDataDeclExtraArray*)$2;
+		extraArray->location = @$;
+		$$ = extraArray;}
+	| LBRACKET RBRACKET {$$ = new ASTDataDeclExtraArray(@$);}
 	;
 
-
-DataDecl_1 :
-	DataDecl_2 {$$ = $1;}
-	| DataDecl_2 ASSIGN Expr {
-			ASTDataDecl* data = (ASTDataDecl*)$1;
-			ASTExpr* initializer = (ASTExpr*)$3;
-			data->initializer(initializer);
-			data->location = @$;
-			$$ = data;}
+Data_Element_Array_Element_Size_List :
+	Data_Element_Array_Element_Size_List COMMA Expression_Constant {
+		ASTDataDeclExtraArray* extraArray = (ASTDataDeclExtraArray*)$1;
+		ASTExpr* size = (ASTExpr*)$3;
+		extraArray->dimensions.push_back(size);
+		extraArray->location = @$;
+		$$ = extraArray;}
+	| Expression_Constant {
+		ASTExpr* size = (ASTExpr*)$1;
+		ASTDataDeclExtraArray* extraArray = new ASTDataDeclExtraArray(@$);
+		extraArray->dimensions.push_back(size);
+		$$ = extraArray;}
 	;
 
-DataDecl_2 :
-	DataDecl_2 DataDeclExtraArray {
-			ASTDataDecl* data = (ASTDataDecl*)$1;
-			ASTDataDeclExtraArray* extraArray = (ASTDataDeclExtraArray*)$2;
-			data->extraArrays.push_back(extraArray);
-			data->location = @$;
-			$$ = data;}
-	| IDENTIFIER {
-			ASTString* name = (ASTString*)$1;
-			ASTDataDecl* data = new ASTDataDecl(@$);
-			data->name = name->getValue();
-			$$ = data;
-			delete name;}
-	;
-
-////////////////
+////////////////////////////////////////////////////////////////
 // Function Declaration
 
-FuncDecl :
-	Type IDENTIFIER LPAREN FuncDecl_ParamList RPAREN Block {
+Function :
+	DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN
+		Statement_Block
+	{
 			ASTVarType* returnType = (ASTVarType*)$1;
 			ASTString* name = (ASTString*)$2;
 			ASTFuncDecl* func = (ASTFuncDecl*)$4;
@@ -298,8 +324,9 @@ FuncDecl :
 			func->block = block;
 			func->location = @$;
 			$$ = func;
-			delete name;}
-	| Type IDENTIFIER LPAREN RPAREN Block {
+		delete name;
+	}
+	| DataType IDENTIFIER LPAREN RPAREN Statement_Block {
 			ASTVarType* returnType = (ASTVarType*)$1;
 			ASTString* name = (ASTString*)$2;
 			ASTBlock* block = (ASTBlock*)$5;
@@ -311,32 +338,33 @@ FuncDecl :
 																delete name;}
 	;
 
-FuncDecl_ParamList :
-	FuncDecl_ParamList COMMA DataDecl {
+Function_Parameters_List :
+	Function_Parameters_List COMMA Function_Parameters_Element {
 			ASTFuncDecl* func = (ASTFuncDecl*)$1;
 			ASTDataDecl* param = (ASTDataDecl*)$3;
 			func->parameters.push_back(param);
 			func->location = @$;
 			$$ = func;}
-	| DataDecl {
+	| Function_Parameters_Element {
 			ASTDataDecl* param = (ASTDataDecl*)$1;
 			ASTFuncDecl* func = new ASTFuncDecl(@$);
 			func->parameters.push_back(param);
 			$$ = func;}
 	;
 
-////////////////
-// Compile Error
-
-CompileError : COMPILEERROR LPAREN ConstExpr RPAREN StmtNoSemi {
-		ASTExpr* errorId = (ASTExpr*)$3;
-		ASTStmt* statement = (ASTStmt*)$5;
-		$$ = new ASTCompileError(errorId, statement, @$);}
+Function_Parameters_Element :
+	DataType Data_Element_Array_List {
+		ASTVarType* type = (ASTVarType*)$1;
+		ASTDataDecl* data = (ASTDataDecl*)$2;
+		data->baseType = type;
+		data->location = @$;
+		$$ = data;}
 	;
 	
-////////////////
+////////////////////////////////////////////////////////////////
+// Script Declaration
 
-Script : ScriptType SCRIPT IDENTIFIER ScriptBlock {
+Script : Script_Type SCRIPT IDENTIFIER Script_Block {
 			ASTScriptType* type = (ASTScriptType*)$1;
 			ASTString* name = (ASTString*)$3;
 			ASTScript* script = (ASTScript*)$4;
@@ -347,132 +375,196 @@ Script : ScriptType SCRIPT IDENTIFIER ScriptBlock {
 												   delete name;}
 	;
 
-ScriptType : GLOBAL {$$ = new ASTScriptType(SCRIPTTYPE_GLOBAL, @1);}
-	| FFC {$$ = new ASTScriptType(SCRIPTTYPE_FFC, @1);}
-	| ITEM {$$ = new ASTScriptType(SCRIPTTYPE_ITEM, @1);}
+Script_Type :
+	GLOBAL {$$ = new ASTScriptType(SCRIPTTYPE_GLOBAL, @$);}
+	| FFC {$$ = new ASTScriptType(SCRIPTTYPE_FFC, @$);}
+	| ITEM {$$ = new ASTScriptType(SCRIPTTYPE_ITEM, @$);}
 		   ;
 
-Import : IMPORT QUOTEDSTRING	{ASTString *str = (ASTString *)$2;
-								 $$ = new ASTImportDecl(str->getValue(),@1);
-								 delete str;}
+Script_Block :
+	LBRACE Script_Block_List RBRACE {$$ = $2;}
+	| LBRACE RBRACE {$$ = new ASTScript(@$);}
 	;
 
-ScriptBlock : LBRACE ScriptStmtList RBRACE {$$ = $2;}
-	| LBRACE RBRACE {
-		$$ = new ASTScript(@$);}
-	;
-
-ScriptStmtList :
-	ScriptStmtList ScriptStmt {
+Script_Block_List :
+	Script_Block_List Script_Block_Element {
 		ASTScript* script = (ASTScript*)$1;
 		ASTDecl* declaration = (ASTDecl*)$2;
 		script->addDeclaration(*declaration);
 		script->location = @$;
 		$$ = script;}
-	| ScriptStmt {
+	| Script_Block_Element {
 		ASTScript* script = new ASTScript(@$);
 		ASTDecl* declaration = (ASTDecl*)$1;
 		script->addDeclaration(*declaration);
 		$$ = script;}
 	;
 
-ScriptStmt :
-	DataDeclList SEMICOLON {$$ = $1;}
-	| FuncDecl {$$ = $1;}
+Script_Block_Element :
+	Data SEMICOLON {$$ = $1;}
+	| Function {$$ = $1;}
 	| TypeDef SEMICOLON {$$ = $1;}
 	;
 
-Type : ZVOID {$$ = new ASTVarType(ZVarTypeSimple::ZVOID, @1);}
-	| ZFLOAT {$$ = new ASTVarType(ZVarTypeSimple::FLOAT, @1);}
-	| ZBOOL {$$ = new ASTVarType(ZVarTypeSimple::BOOL, @1);}
-	| FFC {$$ = new ASTVarType(ZVarTypeSimple::FFC, @1);}
-	| ITEM {$$ = new ASTVarType(ZVarTypeSimple::ITEM, @1);}
-	| ITEMCLASS {$$ = new ASTVarType(ZVarTypeSimple::ITEMCLASS, @1);}
-	| NPC	{$$ = new ASTVarType(ZVarTypeSimple::NPC, @1);}
-	| LWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::LWPN, @1);}
-	| EWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::EWPN, @1);}
-	| SPRITEDATA	{$$ = new ASTVarType(ZVarTypeSimple::SPRITEDATA, @1);}
-	| MAPDATA	{$$ = new ASTVarType(ZVarTypeSimple::MAPDATA, @1);}
-	| NPCDATA	{$$ = new ASTVarType(ZVarTypeSimple::NPCDATA, @1);}
-	| COMBODATA	{$$ = new ASTVarType(ZVarTypeSimple::COMBOS, @1);}
-	| GRAPHICS	{$$ = new ASTVarType(ZVarTypeSimple::GRAPHICS, @1);}
-	| DMAPDATA	{$$ = new ASTVarType(ZVarTypeSimple::DMAPDATA, @1);}
-	| MESSAGEDATA	{$$ = new ASTVarType(ZVarTypeSimple::ZMESSAGE, @1);}
-	| SHOPDATA	{$$ = new ASTVarType(ZVarTypeSimple::SHOPDATA, @1);}
-//	| UNTYPED	{$$ = new ASTVarType(ZVarTypeSimple::UNTYPED, @1);}
-	| DROPDATA	{$$ = new ASTVarType(ZVarTypeSimple::DROPSET, @1);}
-	| PONDDATA	{$$ = new ASTVarType(ZVarTypeSimple::PONDS, @1);}
-	| WARPRING	{$$ = new ASTVarType(ZVarTypeSimple::WARPRING, @1);}
-	| DOORSET	{$$ = new ASTVarType(ZVarTypeSimple::DOORSET, @1);}
-	| MISCCOLORS	{$$ = new ASTVarType(ZVarTypeSimple::ZUICOLOURS, @1);}
-	| RGBDATA	{$$ = new ASTVarType(ZVarTypeSimple::RGBDATA, @1);}
-	| PALETTE	{$$ = new ASTVarType(ZVarTypeSimple::PALETTE, @1);}
-	| MUSICTRACK	{$$ = new ASTVarType(ZVarTypeSimple::TUNES, @1);}
-	| PALCYCLE	{$$ = new ASTVarType(ZVarTypeSimple::PALCYCLE, @1);}
-	| GAMEDATA	{$$ = new ASTVarType(ZVarTypeSimple::GAMEDATA, @1);}
-	| CHEATS	{$$ = new ASTVarType(ZVarTypeSimple::CHEATS, @1);}
-	| IDENTIFIER {
-		ASTString *name = (ASTString*)$1;
-		$$ = new ASTVarType(ZVarTypeUnresolved(name->getValue()), @1);
-		delete name;}
-	| ZCONST ZFLOAT {$$ = new ASTVarType(new ZVarTypeConstFloat(), @1);}
+////////////////////////////////////////////////////////////////
+// Statements
+
+Statement :
+	// Declarations
+	Data SEMICOLON {$$ = $1;}
+	| TypeDef SEMICOLON {$$ = $1;}
+	// Normal Statements
+	| Expression SEMICOLON {$$ = $1;}
+	| Statement_Block {$$ = $1;}
+	| Statement_If {$$ = $1;}
+	| Statement_Switch {$$ = $1;}
+	| Statement_For {$$ = $1;}
+	| Statement_While {$$ = $1;}
+	| Statement_Do {$$ = $1;}
+	| Statement_Return SEMICOLON {$$ = $1;}
+	| BREAK SEMICOLON {$$ = new ASTStmtBreak(@$);}
+	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(@$);}
+	| SEMICOLON {$$ = new ASTStmtEmpty(@$);}
+	| Statement_CompileError SEMICOLON {$$ = $1;}
 	;
 
-Block : LBRACE StmtList RBRACE  {$$ = $2;}
-	| LBRACE RBRACE {$$ = new ASTBlock(@1);}
+Statement_NoSemicolon:
+	// Declarations
+	Data {$$ = $1;}
+	| TypeDef {$$ = $1;}
+	// Normal Statements
+	| Expression {$$ = $1;}
+	| Statement_Block {$$ = $1;}
+	| Statement_If {$$ = $1;}
+	| Statement_Switch {$$ = $1;}
+	| Statement_For {$$ = $1;}
+	| Statement_While {$$ = $1;}
+	| Statement_Do {$$ = $1;}
+	| Statement_Return {$$ = $1;}
+	| BREAK {$$ = new ASTStmtBreak(@$);}
+	| CONTINUE {$$ = new ASTStmtContinue(@$);}
+	| {$$ = new ASTStmtEmpty(@$);}
+	| Statement_CompileError {$$ = $1;}
 	;
 
-StmtList : Stmt {
-			ASTStmt* stmt = (ASTStmt*)$1;
-			ASTBlock *block = new ASTBlock(@1);
+Statement_Block :
+	LBRACE Statement_Block_List RBRACE {$$ = $2;}
+	| LBRACE RBRACE {$$ = new ASTBlock(@$);}
+	;
+
+Statement_Block_List :
+	Statement_Block_List Statement {
+		ASTBlock* block = (ASTBlock*)$1;
+		ASTStmt* stmt = (ASTStmt*)$2;
 			block->statements.push_back(stmt);
 				  $$ = block;}
-  | StmtList Stmt {
-			ASTBlock *block = (ASTBlock *)$1;
-			ASTStmt *stmt = (ASTStmt *)$2;
+	| Statement {
+		ASTStmt* stmt = (ASTStmt*)$1;
+		ASTBlock* block = new ASTBlock(@$);
 			block->statements.push_back(stmt);
 		  $$ = block;}
 	;
 
-Stmt :
-	DataDeclList SEMICOLON {$$ = $1;}
-	| ForStmt {$$ = $1;}
-	| IfStmt {$$ = $1;}
-	| SwitchStmt {$$ = $1;}
-	| Block {$$ = $1;}
-	| ReturnStmt SEMICOLON {$$ = $1;}
-	| WhileStmt {$$ = $1;}
-	| DoStmt {$$ = $1;}
-	| SEMICOLON {$$ = new ASTStmtEmpty(@1);}
-	| Expr SEMICOLON {$$ = $1;}
-	| BREAK SEMICOLON {$$ = new ASTStmtBreak(@1);}
-	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(@1);}
-	| TypeDef SEMICOLON {$$ = $1;}
-	| CompileError SEMICOLON {$$ = $1;}
+Statement_If :
+	IF LPAREN Expression RPAREN Statement {
+		ASTExpr* cond = (ASTExpr*)$3;
+		ASTStmt* stmt = (ASTStmt*)$5;
+		$$ = new ASTStmtIf(cond, stmt, @$);}
+	| IF LPAREN Expression RPAREN Statement ELSE Statement {
+		ASTExpr* test = (ASTExpr*)$3;
+		ASTStmt* thenStatement = (ASTStmt*)$5;
+		ASTStmt* elseStatement = (ASTStmt*)$7;
+		$$ = new ASTStmtIfElse(test, thenStatement, elseStatement, @$);}
 	;
 
-StmtNoSemi :
-	DataDeclList {$$ = $1;}
-	| ForStmt {$$ = $1;}
-	| IfStmt {$$ = $1;}
-	| SwitchStmt {$$ = $1;}
-	| Block {$$ = $1;}
-	| ReturnStmt {$$ = $1;}
-	| WhileStmt {$$ = $1;}
-	| DoStmt {$$ = $1;}
-	| {$$ = new ASTStmtEmpty(noloc);}
-	| Expr {$$ = $1;}
-	| BREAK {$$ = new ASTStmtBreak(@1);}
-	| CONTINUE {$$ = new ASTStmtContinue(@1);}
-	| TypeDef {$$ = $1;}
-	| CompileError {$$ = $1;}
+Statement_Switch :
+	SWITCH LPAREN Expression RPAREN LBRACE Statement_Switch_Body RBRACE {
+		ASTExpr* key = (ASTExpr*)$3;
+		ASTStmtSwitch* sw = (ASTStmtSwitch*)$6;
+		sw->key = key;
+		$$ = sw;}
 	;
 
-TypeDef : TYPEDEF Type IDENTIFIER {
-	ASTVarType* type = (ASTVarType*)$2;
-	ASTString* name = (ASTString*)$3;
-	$$ = new ASTTypeDef(type, name->getValue(), @1);
-	delete name;}
+Statement_Switch_Body :
+	Statement_Switch_Body Statement_Switch_Cases Statement_Block_List {
+		ASTStmtSwitch* sw = (ASTStmtSwitch*)$1;
+		ASTSwitchCases* cases = (ASTSwitchCases*)$2;
+		ASTBlock* block = (ASTBlock*)$3;
+		cases->block;
+		sw->cases.push_back(cases);
+		$$ = sw;}
+	| Statement_Switch_Cases Statement_Block_List {
+		ASTStmtSwitch* sw = new ASTStmtSwitch(@$);
+		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
+		ASTBlock* block = (ASTBlock*)$2;
+		cases->block = block;
+		sw->cases.push_back(cases);
+		$$ = sw;}
+	;
+	
+Statement_Switch_Cases :
+	Statement_Switch_Cases CASE Expression_Constant COLON {
+		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
+		ASTExprConst* key = (ASTExprConst*)$3;
+		cases->cases.push_back(key);
+		$$ = cases;}
+	| Statement_Switch_Cases DEFAULT COLON {
+		ASTSwitchCases* cases = (ASTSwitchCases*)$1;
+		cases->isDefault = true;
+		$$ = cases;}
+	| CASE Expression_Constant COLON {
+		ASTSwitchCases* cases = new ASTSwitchCases(@$);
+		ASTExprConst* key = (ASTExprConst*)$2;
+		cases->cases.push_back(key);
+		$$ = cases;}
+	| DEFAULT COLON {
+		ASTSwitchCases* cases = new ASTSwitchCases(@$);
+		cases->isDefault = true;
+		$$ = cases;}
+	;
+
+Statement_For :
+	FOR LPAREN
+		Statement_NoSemicolon SEMICOLON
+		Expression SEMICOLON
+		Statement_NoSemicolon RPAREN
+		Statement
+	{
+		ASTStmt* setup = (ASTStmt*)$3;
+		ASTExpr* test = (ASTExpr*)$5;
+		ASTStmt* increment = (ASTExpr*)$7;
+		ASTStmt* body = (ASTStmt*)$9;
+		$$ = new ASTStmtFor(setup, test, increment, body, @$);
+	}
+	;
+
+Statement_While :
+	WHILE LPAREN Expression RPAREN Statement {
+		ASTExpr* test = (ASTExpr*)$3;
+		ASTStmt* body = (ASTStmt*)$5;
+		$$ = new ASTStmtWhile(test, body, @$);}
+	;
+	
+Statement_Do :
+	DO Statement WHILE LPAREN Expression RPAREN {
+		ASTStmt* body = (ASTStmt *)$2;
+		ASTExpr* test = (ASTExpr*)$5;
+		$$ = new ASTStmtDo(test, body, @$);}
+	;
+
+
+Statement_Return :
+	RETURN Expression {
+		ASTExpr* value = (ASTExpr*)$2;
+		$$ = new ASTStmtReturnVal(value, @$);}
+	| RETURN {$$ = new ASTStmtReturn(@$);}
+	;
+	
+Statement_CompileError :
+	COMPILEERROR LPAREN Expression_Constant RPAREN Statement_NoSemicolon {
+		ASTExpr* errorId = (ASTExpr*)$3;
+		ASTStmt* statement = (ASTStmt*)$5;
+		$$ = new ASTCompileError(errorId, statement, @$);}
 	;
 
 ////////////////////////////////////////////////////////////////
@@ -492,14 +584,14 @@ Identifier :
 		delete name;}
 	;
 
-FunctionCall :
+Expr_2_Call :
 	Expr_2 LPAREN RPAREN {
 		ASTExprCall* call = new ASTExprCall(@$);
 		ASTExpr* left = (ASTExpr*)$1;
 		call->left = left;
 		call->location = @$;
 		$$ = call;}
-	| Expr_2 LPAREN FunctionCallArgs RPAREN {
+	| Expr_2 LPAREN Expr_2_Call_Parameters RPAREN {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExprCall* call = (ASTExprCall*)$3;
 		call->left = left;
@@ -507,92 +599,28 @@ FunctionCall :
 		$$ = call;}
 	;
 
-FunctionCallArgs :
-	Expr {
-		ASTExprCall* call = new ASTExprCall(@$);
-		ASTExpr* e = (ASTExpr*)$1;
-		call->parameters.push_back(e);
-		$$ = call;}
-	| FunctionCallArgs COMMA Expr {
+Expr_2_Call_Parameters :
+	Expr_2_Call_Parameters COMMA Expression {
 		ASTExprCall* call = (ASTExprCall*)$1;
 		ASTExpr* e = (ASTExpr*)$3;
 		call->parameters.push_back(e);
 		call->location = @$;
 		$$ = call;}
-	;
-
-BoolConstant :
-	ZTRUE {$$ = new ASTBoolLiteral(true, @$);}
-	| ZFALSE {$$ = new ASTBoolLiteral(false, @$);}
-	;
-
-ArrayLiteral :
-	LBRACE ArrayLiteralList RBRACE {
-			ASTArrayLiteral* al = (ASTArrayLiteral*)$2;
-			al->location = @$;
-			$$ = al;}
-	| LPAREN Type LBRACKET RBRACKET RPAREN LBRACE ArrayLiteralList RBRACE {
-			ASTVarType* type = (ASTVarType*)$2;
-			ASTArrayLiteral* al = (ASTArrayLiteral*)$7;
-			al->setType(type);
-			al->location = @$;
-			$$ = al;}
-	| LPAREN Type LBRACKET ConstExpr RBRACKET RPAREN LBRACE ArrayLiteralList RBRACE {
-			ASTVarType* type = (ASTVarType*)$2;
-			ASTExpr* size = (ASTExpr*)$4;
-			ASTArrayLiteral* al = (ASTArrayLiteral*)$8;
-			al->setType(type);
-			al->setSize(size);
-			al->location = @$;
-			$$ = al;}
-	| LPAREN Type LBRACKET RBRACKET RPAREN LBRACE RBRACE {
-			ASTVarType* type = (ASTVarType*)$2;
-			ASTArrayLiteral* al = new ASTArrayLiteral(@$);
-			al->setType(type);
-			$$ = al;}
-	| LPAREN Type LBRACKET ConstExpr RBRACKET RPAREN LBRACE RBRACE {
-			ASTVarType* type = (ASTVarType*)$2;
-			ASTExpr* size = (ASTExpr*)$4;
-			ASTArrayLiteral* al = new ASTArrayLiteral(@$);
-			al->setType(type);
-			al->setSize(size);
-			$$ = al;}
-	;
-
-ArrayLiteralList :
-	Expr {
-			ASTExpr* element = (ASTExpr*)$1;
-			ASTArrayLiteral* al = new ASTArrayLiteral(@$);
-			al->appendElement(element);
-			$$ = al;}
-	| ArrayLiteralList COMMA Expr {
-			ASTArrayLiteral* al = (ASTArrayLiteral*)$1;
-			ASTExpr* element = (ASTExpr*)$3;
-			al->appendElement(element);
-			$$ = al;}
+	| Expression {
+		ASTExprCall* call = new ASTExprCall(@$);
+		ASTExpr* e = (ASTExpr*)$1;
+		call->parameters.push_back(e);
+		$$ = call;}
 	;
 
 ////////////////////////////////////////////////////////////////
 // Expressions - in order of precedence.
 //   (Roughly following http://en.cppreference.com/w/cpp/language/operator_precedence).
 
-Expr_1 : Identifier {$$ = $1;}
-	| NUMBER {
-			ASTFloat* val = (ASTFloat*)$1;
-			$$ = new ASTNumberLiteral(val, @$);}
-	| SINGLECHAR {
-			ASTString* as = (ASTString*)$1;
-			char val[15];
-			sprintf(val, "%d", as->getValue().at(1));
-			$$ = new ASTNumberLiteral(new ASTFloat(val, (ASTFloat::Type)0, @$), @$);}
-	| QUOTEDSTRING {
-			ASTString* rawstring = (ASTString*)$1;
-			ASTStringLiteral* str = new ASTStringLiteral(*rawstring);
-			delete rawstring;
-			$$ = str;}
-	| BoolConstant {$$ = $1;}
-	| ArrayLiteral {$$ = $1;}
-	| LPAREN Expr RPAREN {$$ = $2;}
+Expr_1 :
+	Identifier {$$ = $1;}
+	| Literal {$$ = $1;}
+	| LPAREN Expression RPAREN {$$ = $2;}
 	;
 
 Expr_2 : Expr_1 {$$ = $1;}
@@ -601,9 +629,10 @@ Expr_2 : Expr_1 {$$ = $1;}
   // Post Decrement
 	| Expr_2 DECREMENT {POSTFIX(ASTExprDecrement, $$, $1, @$)}
   // Function Call
-	| FunctionCall {$$ = $1;}
+	| Expr_2_Call {$$ = $1;}
 	// Subscript
-	| Expr_2 LBRACKET Expr RBRACKET {BINARY(ASTExprIndex, $$, $1, $3, @$)}
+	| Expr_2 LBRACKET Expression RBRACKET {
+		BINARY(ASTExprIndex, $$, $1, $3, @$);}
 	// Access
 	| Expr_2 ARROW IDENTIFIER {
 			ASTExpr* left = (ASTExpr*)$1;
@@ -722,85 +751,102 @@ Expr_15 : Expr_14 {$$ = $1;}
 	| Expr_14 ORASSIGN Expr_15 {SHORTCUT(ASTExprOr, $$, $1, $3, @$, @3)}
 		 ;
 
-Expr : Expr_15 {$$ = $1;}
-	;
+Expression : Expr_15 {$$ = $1;};
 
-ConstExpr : Expr {
+Expression_Constant :
+	Expression {
 		ASTExpr* content = (ASTExpr*)$1;
 		$$ = new ASTExprConst(content, @$);}
 	;
 
 ////////////////////////////////////////////////////////////////
+// Literals
 
-ForStmt : FOR LPAREN StmtNoSemi SEMICOLON Expr SEMICOLON StmtNoSemi RPAREN Stmt {ASTStmt *prec = (ASTStmt *)$3;
-												ASTExpr *term = (ASTExpr *)$5;
-												ASTStmt *incr = (ASTExpr *)$7;
-												ASTStmt *stmt = (ASTStmt *)$9;
-												$$ = new ASTStmtFor(prec,term,incr,stmt,@1);}
+Literal :
+	NUMBER {
+		ASTFloat* val = (ASTFloat*)$1;
+		$$ = new ASTNumberLiteral(val, @$);}
+	| SINGLECHAR {
+		ASTString* as = (ASTString*)$1;
+		char val[15];
+		sprintf(val, "%d", as->getValue().at(1));
+		ASTFloat* number = new ASTFloat(val, (ASTFloat::Type)0, @$);
+		$$ = new ASTNumberLiteral(number, @$);}
+	| QUOTEDSTRING {
+		ASTString* rawstring = (ASTString*)$1;
+		ASTStringLiteral* str = new ASTStringLiteral(*rawstring);
+		delete rawstring;
+		$$ = str;}
+	| Literal_Bool {$$ = $1;}
+	| Literal_Array {$$ = $1;}
 	;
 
-WhileStmt : WHILE LPAREN Expr RPAREN Stmt {ASTExpr *cond = (ASTExpr *)$3;
-										   ASTStmt *stmt = (ASTStmt *)$5;
-										   $$ = new ASTStmtWhile(cond,stmt,@1);}
-
-DoStmt : DO Stmt WHILE LPAREN Expr RPAREN {ASTExpr *cond = (ASTExpr *)$5;
-										   ASTStmt *stmt = (ASTStmt *)$2;
-										   $$ = new ASTStmtDo(cond,stmt,@1);}
-
-IfStmt : IF LPAREN Expr RPAREN Stmt {ASTExpr *cond = (ASTExpr *)$3;
-							  ASTStmt *stmt = (ASTStmt *)$5;
-							  $$ = new ASTStmtIf(cond,stmt,@1);}
-	| IF LPAREN Expr RPAREN Stmt ELSE Stmt {ASTExpr *cond = (ASTExpr *)$3;
-										ASTStmt *ifstmt = (ASTStmt *)$5;
-										ASTStmt *elsestmt = (ASTStmt *)$7;
-										$$ = new ASTStmtIfElse(cond,ifstmt,elsestmt,@1);}
+Literal_Bool :
+	ZTRUE {$$ = new ASTBoolLiteral(true, @$);}
+	| ZFALSE {$$ = new ASTBoolLiteral(false, @$);}
 	;
 
-SwitchStmt : SWITCH LPAREN Expr RPAREN LBRACE SwitchStmt1 RBRACE {
-		ASTExpr* key = (ASTExpr*)$3;
-		ASTStmtSwitch* sw = (ASTStmtSwitch*)$6;
-		sw->key = key;
-		$$ = sw;}
-	;
-SwitchStmt1 : SwitchCases StmtList {
-			ASTStmtSwitch* sw = new ASTStmtSwitch(@$);
-			ASTSwitchCases* cases = (ASTSwitchCases*)$1;
-			ASTBlock* block = (ASTBlock*)$2;
-			cases->block = block;
-			sw->cases.push_back(cases);
-			$$ = sw;}
-	| SwitchStmt1 SwitchCases StmtList {
-			ASTStmtSwitch* sw = (ASTStmtSwitch*)$1;
-			ASTSwitchCases* cases = (ASTSwitchCases*)$2;
-			ASTBlock* block = (ASTBlock*)$3;
-			cases->block;
-			sw->cases.push_back(cases);
-			$$ = sw;}
-	;
-SwitchCases : CASE ConstExpr COLON {
-			ASTSwitchCases* cases = new ASTSwitchCases(@$);
-			ASTExprConst* key = (ASTExprConst*)$2;
-			cases->cases.push_back(key);
-			$$ = cases;}
-	| DEFAULT COLON {
-			ASTSwitchCases* cases = new ASTSwitchCases(@$);
-			cases->isDefault = true;
-			$$ = cases;}
-	| SwitchCases CASE ConstExpr COLON {
-			ASTSwitchCases* cases = (ASTSwitchCases*)$1;
-			ASTExprConst* key = (ASTExprConst*)$3;
-			cases->cases.push_back(key);
-			$$ = cases;}
-	| SwitchCases DEFAULT COLON {
-			ASTSwitchCases* cases = (ASTSwitchCases*)$1;
-			cases->isDefault = true;
-			$$ = cases;}
+Literal_Array :
+	// (int[5]){1, 2, 3}
+	LPAREN DataType LBRACKET Expression_Constant RBRACKET RPAREN
+		  LBRACE Literal_Array_Body RBRACE
+	{
+		ASTVarType* type = (ASTVarType*)$2;
+		ASTExpr* size = (ASTExpr*)$4;
+		ASTArrayLiteral* al = (ASTArrayLiteral*)$8;
+		al->setType(type);
+		al->setSize(size);
+		al->location = @$;
+		$$ = al;
+	}
+	// (int[]){1, 2, 3}
+	| LPAREN DataType LBRACKET RBRACKET RPAREN
+		  LBRACE Literal_Array_Body RBRACE
+	{
+		ASTVarType* type = (ASTVarType*)$2;
+		ASTArrayLiteral* al = (ASTArrayLiteral*)$7;
+		al->setType(type);
+		al->location = @$;
+		$$ = al;
+	}
+	// (int[5]){}
+	| LPAREN DataType LBRACKET Expression_Constant RBRACKET
+		  RPAREN LBRACE RBRACE
+	{
+		ASTVarType* type = (ASTVarType*)$2;
+		ASTExpr* size = (ASTExpr*)$4;
+		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
+		al->setType(type);
+		al->setSize(size);
+		$$ = al;
+	}
+	// (int[]){}
+	| LPAREN DataType LBRACKET RBRACKET RPAREN LBRACE RBRACE {
+		ASTVarType* type = (ASTVarType*)$2;
+		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
+		al->setType(type);
+		$$ = al;}
+	// {1, 2, 3}
+	| LBRACE Literal_Array_Body RBRACE {
+		ASTArrayLiteral* al = (ASTArrayLiteral*)$2;
+		al->location = @$;
+		$$ = al;}
 	;
 
-
-ReturnStmt : RETURN Expr {$$ = new ASTStmtReturnVal((ASTExpr *)$2,@1);}
-	| RETURN {$$ = new ASTStmtReturn(@1);}
+Literal_Array_Body :
+	Literal_Array_Body COMMA Expression {
+		ASTArrayLiteral* al = (ASTArrayLiteral*)$1;
+		ASTExpr* element = (ASTExpr*)$3;
+		al->appendElement(element);
+		$$ = al;}
+	| Expression {
+		ASTExpr* element = (ASTExpr*)$1;
+		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
+		al->appendElement(element);
+		$$ = al;}
 	;
+
+////////////////////////////////////////////////////////////////
 
 %%
 
