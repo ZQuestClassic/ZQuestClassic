@@ -1,12 +1,17 @@
-#include "ZScript.h"
 #include "CompileError.h"
+#include "DataStructs.h"
+#include "Scope.h"
+#include "ZScript.h"
 
 using namespace std;
 using namespace ZScript;
 
 // ZScript::Program
 
-Program::Program(ASTProgram* program) : node(program), globalScope(table)
+Program::Program(ASTProgram* node)
+	: node(node),
+	  table(*new SymbolTable()),
+	  globalScope(*new GlobalScope(table))
 {
 	assert(node);
 
@@ -25,6 +30,8 @@ Program::~Program()
 {
 	for (vector<Script*>::iterator it = scripts.begin(); it != scripts.end(); ++it)
 		delete *it;
+	delete &table;
+	delete &globalScope;
 }
 
 Script* Program::getScript(string const& name) const
