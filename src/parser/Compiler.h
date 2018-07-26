@@ -118,6 +118,7 @@ public:
 		case SCRIPTTYPE_VOID:
 			return ZVARTYPEID_VOID;
 		}
+		return ZVARTYPEID_VOID;
 	}
 private:
     static string prepareFilename(string const& filename);
