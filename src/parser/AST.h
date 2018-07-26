@@ -28,6 +28,12 @@ using std::list;
 class ASTVisitor;
 class CompileError;
 class CompileErrorHandler;
+namespace ZScript
+{
+	class Function;
+	class Variable;
+}
+
 
 #define RECURSIONLIMIT 30
 
@@ -604,11 +610,6 @@ public:
 	ASTBlock* block;
 };
 
-namespace ZScript
-{
-	class Variable;
-}
-
 // A line of variable/constant declarations:
 // int a, b, c[];
 class ASTDataDeclList : public ASTDecl
@@ -855,8 +856,8 @@ public:
 				 string const& right = "",
 				 LocationData const& location = LocationData::NONE);
 	ASTExprArrow(ASTExprArrow const& base);
-	ASTExprArrow& operator=(ASTExprArrow const& rhs);
     ~ASTExprArrow();
+	ASTExprArrow& operator=(ASTExprArrow const& rhs);
 	ASTExprArrow* clone() const {return new ASTExprArrow(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
@@ -865,9 +866,15 @@ public:
 
 	bool isConstant() const {return false;}
 
+	ZVarType const* getReadType() const;
+	ZVarType const* getWriteType() const;
+	
     ASTExpr* left;
     string right;
     ASTExpr* index;
+
+	ZScript::Function* readFunction;
+	ZScript::Function* writeFunction;
 };
 
 class ASTExprIndex : public ASTExpr
@@ -903,6 +910,9 @@ public:
 
 	bool isConstant() const {return false;}
 
+	ZVarType const* getReadType() const;
+	ZVarType const* getWriteType() const;
+	
     ASTExpr* left;
     vector<ASTExpr*> parameters;
 };
