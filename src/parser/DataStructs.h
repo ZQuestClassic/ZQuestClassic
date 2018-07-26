@@ -12,6 +12,11 @@ using std::map;
 using std::vector;
 using std::pair;
 
+namespace ZScript
+{
+	class ZClass;
+}
+
 class FunctionTypeIds
 {
 public:
@@ -24,8 +29,6 @@ public:
 	vector<ZVarTypeId> paramTypeIds;
 	static FunctionTypeIds const null;
 };
-
-class ZClass;
 
 class SymbolTable
 {
@@ -52,8 +55,8 @@ public:
 	}
 	
 	// Classes
-	ZClass* getClass(int classId) const;
-	ZClass* createClass(string const& name);
+	ZScript::ZClass* getClass(int classId) const;
+	ZScript::ZClass* createClass(string const& name);
 	// Variables
     ZVarTypeId getVarTypeId(int varId) const;
     ZVarTypeId getVarTypeId(AST* node) const;
@@ -72,8 +75,10 @@ public:
     ZVarTypeId getFuncReturnTypeId(int funcId) const;
     ZVarTypeId getFuncReturnTypeId(AST *node) const;
     vector<ZVarTypeId> getFuncParamTypeIds(int funcId) const;
-    void putFuncTypeIds(int funcId, ZVarTypeId returnTypeId, vector<ZVarTypeId> const& paramTypeIds);
-    void putFuncTypes(int funcId, ZVarType const* returnType, vector<ZVarType const*> const& paramTypes);
+    void putFuncTypeIds(int funcId, ZVarTypeId returnTypeId,
+                        vector<ZVarTypeId> const& paramTypeIds);
+    void putFuncTypes(int funcId, ZVarType const* returnType,
+                      vector<ZVarType const*> const& paramTypes);
 	// Global Pointers
     vector<int> const& getGlobalPointers() const {return globalPointers;}
     vector<int>& getGlobalPointers() {return globalPointers;}
@@ -84,7 +89,7 @@ private:
     map<AST*, int> nodeIds;
 	vector<ZVarType*> types;
 	map<ZVarType*, ZVarTypeId, ZVarType::PointerLess> typeIds;
-	vector<ZClass*> classes;
+	vector<ZScript::ZClass*> classes;
     map<AST*, vector<int> > possibleNodeFuncIds;
     map<int, ZVarTypeId> varTypes;
     map<int, long> inlinedConstants;

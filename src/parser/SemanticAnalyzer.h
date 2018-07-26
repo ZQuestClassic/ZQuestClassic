@@ -80,7 +80,7 @@ public:
 private:
 	ZScript::Program& program;
 	// Current scope.
-	Scope* scope;
+	ZScript::Scope* scope;
 	// Current function return type.
 	ZVarType const* returnType;
 

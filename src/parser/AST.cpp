@@ -6,6 +6,8 @@
 
 #include <assert.h>
 
+using namespace ZScript;
+
 ////////////////////////////////////////////////////////////////
 
 // AST
@@ -967,7 +969,7 @@ ASTExpr* ASTDataDecl::initializer(ASTExpr* initializer)
 	return initializer;
 }
 
-ZVarType const* ASTDataDecl::resolveType(Scope* scope) const
+ZVarType const* ASTDataDecl::resolveType(ZScript::Scope* scope) const
 {
 	SymbolTable& table = scope->getTable();
 
@@ -2567,7 +2569,7 @@ void ASTVarType::execute(ASTVisitor& visitor, void* param)
 	visitor.caseVarType(*this, param);
 }
 
-ZVarType const& ASTVarType::resolve(Scope& scope)
+ZVarType const& ASTVarType::resolve(ZScript::Scope& scope)
 {
 	ZVarType* resolved = type->resolve(scope);
 	if (type != resolved)

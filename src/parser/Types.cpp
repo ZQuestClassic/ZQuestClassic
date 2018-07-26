@@ -5,6 +5,8 @@
 #include "DataStructs.h"
 #include "Scope.h"
 
+using namespace ZScript;
+
 // Standard Type definitions.
 ZVarTypeSimple const ZVarType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", "Untyped");
 ZVarTypeSimple const ZVarType::ZVOID(ZVARTYPEID_VOID, "void", "Void");
@@ -149,9 +151,9 @@ bool ZVarTypeSimple::canCastTo(ZVarType const& target) const
 
 ZVarType* ZVarTypeUnresolved::resolve(Scope& scope)
 {
-	ZVarTypeId id = scope.getTypeId(name);
-	if (id == -1) return this;
-	return scope.getTable().getType(id)->clone();
+	if (ZVarType const* type = lookupType(scope, name))
+		return type->clone();
+	return NULL;
 }
 
 int ZVarTypeUnresolved::selfCompare(ZVarType const& other) const
