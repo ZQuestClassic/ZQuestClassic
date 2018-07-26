@@ -167,7 +167,7 @@ Literal::Literal(ASTLiteral* node, ZVarType const* type, int id)
 // ZScript::Variable
 
 Variable::Variable(ASTDataDecl* node, ZVarType const* type, string const& name, int id)
-	: node(node), type(type), name(name), id(id), inlined(false)
+	: node(node), type(type), name(name), id(id)
 {
 	if (node) node->manager = this;
 }

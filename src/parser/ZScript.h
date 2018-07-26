@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include "AST.h"
+#include "CompilerUtils.h"
 #include "Types.h"
 
 using std::vector;
@@ -92,11 +93,11 @@ namespace ZScript
 		string name;
 		int id;
 
-		// Is this an inlined constant?
-		bool inlined;
-
 		// Is this a global variable?
 		bool global;
+
+		// If this is a compile time constant, and its value.
+		optional<long> compileTimeValue;
 	};
 
 	class Function
