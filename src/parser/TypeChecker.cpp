@@ -187,8 +187,6 @@ void TypeCheck::caseExprConst(ASTExprConst& host, void*)
 	}
 
 	host.setVarType(content->getVarType());
-	if (!host.getCompileTimeValue(this) && content->getCompileTimeValue(this))
-		host.setDataValue(*content->getCompileTimeValue(this));
 }
 
 void TypeCheck::caseExprAssign(ASTExprAssign& host, void*)
@@ -211,15 +209,7 @@ void TypeCheck::caseExprAssign(ASTExprAssign& host, void*)
 
 void TypeCheck::caseExprIdentifier(ASTExprIdentifier& host, void*)
 {
-    if (optional<long> value = host.binding->compileTimeValue)
-	{
-        host.setVarType(symbolTable.getType(symbolTable.getTypeId(ZVarType::CONST_FLOAT)));
-		host.setDataValue(*value);
-	}
-    else
-    {
-        host.setVarType(symbolTable.getType(symbolTable.getVarTypeId(&host)));
-    }
+	host.setVarType(host.binding->type);
 }
     
 void TypeCheck::caseExprArrow(ASTExprArrow& host, void*)
@@ -457,36 +447,18 @@ void TypeCheck::caseExprNegate(ASTExprNegate& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.operand->getCompileTimeValue(this))
-    {
-        long val = *host.operand->getCompileTimeValue(this);
-        host.setDataValue(-val);
-    }
 }
 
 void TypeCheck::caseExprNot(ASTExprNot& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_BOOL)) return;
     host.setVarType(ZVarType::BOOL);
-
-    if (host.operand->getCompileTimeValue(this))
-    {
-        long val = *host.operand->getCompileTimeValue(this);
-		host.setDataValue(!*host.operand->getCompileTimeValue(this));
-    }
 }
 
 void TypeCheck::caseExprBitNot(ASTExprBitNot& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.operand->getCompileTimeValue(this))
-    {
-        long val = *host.operand->getCompileTimeValue(this);
-        host.setDataValue((~(val/10000))*10000);
-    }
 }
 
 void TypeCheck::caseExprIncrement(ASTExprIncrement& host, void*)
@@ -601,78 +573,36 @@ void TypeCheck::caseExprAnd(ASTExprAnd& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_BOOL, ZVARTYPEID_BOOL)) return;
     host.setVarType(ZVarType::BOOL);
-
-	if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-		long firstval = *host.left->getCompileTimeValue(this);
-		long secondval = *host.right->getCompileTimeValue(this);
-		host.setDataValue(firstval && secondval);
-    }
 }
 
 void TypeCheck::caseExprOr(ASTExprOr& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_BOOL, ZVARTYPEID_BOOL)) return;
     host.setVarType(ZVarType::BOOL);
-
-	if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-		long firstval = *host.left->getCompileTimeValue(this);
-		long secondval = *host.right->getCompileTimeValue(this);
-		host.setDataValue(firstval || secondval);
-    }
 }
 
 void TypeCheck::caseExprGT(ASTExprGT& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::BOOL);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-		host.setDataValue(firstval > secondval);
-    }
 }
 
 void TypeCheck::caseExprGE(ASTExprGE& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::BOOL);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-		host.setDataValue(firstval >= secondval);
-    }
 }
 
 void TypeCheck::caseExprLT(ASTExprLT& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::BOOL);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-		host.setDataValue(firstval < secondval);
-    }
 }
 
 void TypeCheck::caseExprLE(ASTExprLE& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::BOOL);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-		host.setDataValue(firstval <= secondval);
-    }
 }
 
 void TypeCheck::caseExprEQ(ASTExprEQ& host, void*)
@@ -689,13 +619,6 @@ void TypeCheck::caseExprEQ(ASTExprEQ& host, void*)
 	}
 
     host.setVarType(ZVarType::BOOL);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-		host.setDataValue(firstval == secondval);
-    }
 }
 
 void TypeCheck::caseExprNE(ASTExprNE& host, void*)
@@ -712,176 +635,67 @@ void TypeCheck::caseExprNE(ASTExprNE& host, void*)
 	}
 
     host.setVarType(ZVarType::BOOL);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-		host.setDataValue(firstval != secondval);
-    }
 }
 
 void TypeCheck::caseExprPlus(ASTExprPlus& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-        host.setDataValue(firstval + secondval);
-    }
 }
 
 void TypeCheck::caseExprMinus(ASTExprMinus& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-        host.setDataValue(firstval - secondval);
-    }
-    }
+}
     
 void TypeCheck::caseExprTimes(ASTExprTimes& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-        double temp = ((double)secondval)/10000.0;
-        host.setDataValue((long)(firstval * temp));
-    }
 }
 
 void TypeCheck::caseExprDivide(ASTExprDivide& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-
-        if (secondval == 0)
-        {
-	        handleError(CompileError::DivByZero, &host);
-            return;
-        }
-
-        host.setDataValue((firstval / secondval) * 10000);
-    }
 }
 
 void TypeCheck::caseExprModulo(ASTExprModulo& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-
-        if (secondval == 0)
-        {
-	        handleError(CompileError::DivByZero, &host);
-            failure = true;
-            return;
-        }
-
-        host.setDataValue(firstval % secondval);
-    }
 }
 
 void TypeCheck::caseExprBitAnd(ASTExprBitAnd& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-        host.setDataValue(((firstval/10000)&(secondval/10000))*10000);
-    }
 }
     
 void TypeCheck::caseExprBitOr(ASTExprBitOr& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-        host.setDataValue(((firstval/10000)|(secondval/10000))*10000);
-    }
 }
 
 void TypeCheck::caseExprBitXor(ASTExprBitXor& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        long secondval = *host.right->getCompileTimeValue(this);
-        host.setDataValue(((firstval/10000)^(secondval/10000))*10000);
-    }
 }
+
 void TypeCheck::caseExprLShift(ASTExprLShift& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-
-    if (host.right->getCompileTimeValue(this))
-    {
-        if (*host.right->getCompileTimeValue(this) % 10000)
-        {
-	        handleError(CompileError::ShiftNotInt, &host);
-            host.right->setDataValue(10000*(*host.right->getCompileTimeValue(this)/10000));
-        }
-    }
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        int secondval = *host.right->getCompileTimeValue(this);
-        host.setDataValue(((firstval/10000)<<(secondval/10000))*10000);
-    }
 }
+
 void TypeCheck::caseExprRShift(ASTExprRShift& host, void*)
 {
 	if (!checkExprTypes(host, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT)) return;
-
-    if (host.right->getCompileTimeValue(this))
-    {
-        if (*host.right->getCompileTimeValue(this) % 10000)
-        {
-	        handleError(CompileError::ShiftNotInt, &host);
-            host.right->setDataValue(10000*(*host.right->getCompileTimeValue(this)/10000));
-        }
-    }
     host.setVarType(ZVarType::FLOAT);
-
-    if (host.left->getCompileTimeValue(this) && host.right->getCompileTimeValue(this))
-    {
-        long firstval = *host.left->getCompileTimeValue(this);
-        int secondval = *host.right->getCompileTimeValue(this);
-        host.setDataValue(((firstval/10000)>>(secondval/10000))*10000);
-            }
-        }
+}
         
 // Literals
 

@@ -435,31 +435,14 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
     }
 
 	// Get size of the array.
-	long totalSize = 1;
-	vector<ASTExpr*> dimensions = host.extraArrays[0]->dimensions;
-	for (vector<ASTExpr*>::const_iterator it = dimensions.begin();
-		 it != dimensions.end(); ++it)
-	{
-		ASTExpr& expr = **it;
-
-		// Currently only allow constant size arrays.
-		if (!expr.hasDataValue())
-    {
-			handleError(CompileError::ExprNotConstant, &expr);
-        return;
-    }
-    
-		// Make sure the dimension is at least 1.
-		long dimension = *expr.getCompileTimeValue(this) / 10000L;
-		if (dimension < 1)
+	long totalSize;
+	if (optional<int> size = host.extraArrays[0]->getCompileTimeSize(this))
+		totalSize = *size * 10000L;
+	else
 		{
-			handleError(CompileError::ArrayTooSmall, &host);
+		handleError(CompileError::ExprNotConstant, host.extraArrays[0]);
 			return;
 		}
-
-		totalSize *= dimension;
-	}
-	totalSize *= 10000L;
 
 	// Allocate the array.
 	if (manager.global)
@@ -641,7 +624,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 
 void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -655,7 +638,7 @@ void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 
 void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -668,7 +651,7 @@ void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 
 void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -832,7 +815,7 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 
 void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -852,7 +835,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
     
 void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -870,7 +853,7 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 
 void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -889,7 +872,7 @@ void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 
 void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -906,7 +889,7 @@ void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 
 void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -925,7 +908,7 @@ void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 
 void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -945,7 +928,7 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
     // Special case for booleans.
     bool isBoolean = (*host.left->getVarType() == ZVarType::BOOL);
     
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -972,7 +955,7 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
     // Special case for booleans.
     bool isBoolean = (*host.left->getVarType() == ZVarType::BOOL);
     
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -996,7 +979,7 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 
 void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -1012,7 +995,7 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 
 void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -1029,7 +1012,7 @@ void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 
 void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -1045,7 +1028,7 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 
 void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -1062,7 +1045,7 @@ void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
             
 void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -1079,7 +1062,7 @@ void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 
 void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -1095,7 +1078,7 @@ void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 
 void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -1111,7 +1094,7 @@ void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 
 void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -1127,7 +1110,7 @@ void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 
 void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -1144,7 +1127,7 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 
 void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
     {
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
         return;
@@ -1163,7 +1146,7 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
 
 void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
 {
-    if (host.hasDataValue())
+    if (host.getCompileTimeValue())
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
     else
     {
@@ -1199,12 +1182,13 @@ void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
 	if (host.declaration)
 	{
 		ASTDataDeclExtraArray& extraArray = *host.declaration->extraArrays[0];
-		if (!extraArray.isConstant())
+		if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
+			size = *totalSize * 10000L;
+		else if (extraArray.hasSize())
 		{
 			handleError(CompileError::ExprNotConstant, &host);
 			return;
 		}
-		if (extraArray.hasSize()) size = extraArray.getTotalSize() * 10000L;
 	}
 
 	// Allocate.
@@ -1273,26 +1257,26 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 	if (host.declaration)
 	{
 		ASTDataDeclExtraArray& extraArray = *host.declaration->extraArrays[0];
-		if (!extraArray.isConstant())
+		if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
+			size = *totalSize;
+		else if (extraArray.hasSize())
 		{
 			handleError(CompileError::ExprNotConstant, &host);
 			return;
 		}
-		if (extraArray.hasSize()) size = extraArray.getTotalSize();
 	}
 
 	// If there's an explicit size, grab it.
 	else if (host.getSize())
 	{
-		// Make sure the size has been resolved.
-		if (!host.getSize()->hasDataValue())
+		ASTExpr& sizeExpr = *host.getSize();
+		if (optional<long> s = sizeExpr.getCompileTimeValue(this))
+			size = *s / 10000L;
+		else
 		{
-			handleError(CompileError::ExprNotConstant, &host);
+			handleError(CompileError::ExprNotConstant, &sizeExpr);
 			return;
 		}
-
-		// Grab the size.
-		size = *host.getSize()->getCompileTimeValue(this) / 10000L;
 	}
 
 	// Otherwise, grab the number of elements.
