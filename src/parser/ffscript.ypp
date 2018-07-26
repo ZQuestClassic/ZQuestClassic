@@ -564,7 +564,7 @@ Statement_CompileError :
 	COMPILEERROR LPAREN Expression_Constant RPAREN Statement_NoSemicolon {
 		ASTExpr* errorId = (ASTExpr*)$3;
 		ASTStmt* statement = (ASTStmt*)$5;
-		$$ = new ASTCompileError(errorId, statement, @$);}
+		$$ = new ASTStmtCompileError(errorId, statement, @$);}
 	;
 
 ////////////////////////////////////////////////////////////////

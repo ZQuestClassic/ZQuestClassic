@@ -22,7 +22,7 @@ void RecursiveVisitor::handleError(
 {
 	// Scan through the error handlers backwards to see if we can find
 	// one matching this error.
-	for (vector<ASTCompileError*>::reverse_iterator it
+	for (vector<ASTStmtCompileError*>::reverse_iterator it
 			 = compileErrorHandlers.rbegin();
 		 it != compileErrorHandlers.rend(); ++it)
 	{
@@ -78,7 +78,7 @@ template <class Node> void RecursiveVisitor::recurse(
 
 ////
 
-void RecursiveVisitor::caseCompileError(ASTCompileError& host, void* param)
+void RecursiveVisitor::caseStmtCompileError(ASTStmtCompileError& host, void* param)
 {
 	// If we've already been triggered, don't run.
 	if (host.errorTriggered) return;

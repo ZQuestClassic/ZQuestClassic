@@ -615,29 +615,29 @@ ASTStmtEmpty& ASTStmtEmpty::operator=(ASTStmtEmpty const& rhs)
 	return *this;
 }
 
-// ASTCompileError
+// ASTStmtCompileError
 
-ASTCompileError::ASTCompileError(
+ASTStmtCompileError::ASTStmtCompileError(
 		ASTExpr* errorId, ASTStmt* statement,
 		LocationData const& location)
 	: ASTStmt(location), errorId(errorId), statement(statement),
 	  errorTriggered(false)
 {}
 
-ASTCompileError::ASTCompileError(ASTCompileError const& base)
+ASTStmtCompileError::ASTStmtCompileError(ASTStmtCompileError const& base)
 	: ASTStmt(base),
 	  errorId(AST::clone(base.errorId)),
 	  statement(AST::clone(base.statement)),
 	  errorTriggered(base.errorTriggered)
 {}
 
-ASTCompileError::~ASTCompileError()
+ASTStmtCompileError::~ASTStmtCompileError()
 {
 	delete errorId;
 	delete statement;
 }
 
-ASTCompileError& ASTCompileError::operator=(ASTCompileError const& rhs)
+ASTStmtCompileError& ASTStmtCompileError::operator=(ASTStmtCompileError const& rhs)
 {
 	ASTStmt::operator=(rhs);
 
@@ -651,7 +651,7 @@ ASTCompileError& ASTCompileError::operator=(ASTCompileError const& rhs)
 	return *this;
 }
 
-int ASTCompileError::getErrorId() const
+int ASTStmtCompileError::getErrorId() const
 {
 	if (!errorId) return -1;
 	if (optional<long> id = errorId->getCompileTimeValue())
@@ -659,7 +659,7 @@ int ASTCompileError::getErrorId() const
 	return -1;
 }
 
-bool ASTCompileError::canHandle(CompileError const& error) const
+bool ASTStmtCompileError::canHandle(CompileError const& error) const
 {
 	return error.id == getErrorId();
 }

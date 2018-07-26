@@ -19,7 +19,8 @@ public:
 	void handleError(CompileError const& error, AST const* node, ...);
 	
     virtual void caseDefault(void*) {}
-	virtual void caseCompileError(ASTCompileError& host, void* param = NULL);
+	virtual void caseStmtCompileError(
+			ASTStmtCompileError& host, void* param = NULL);
 
     virtual void caseProgram(ASTProgram& host, void* param = NULL);
 	// Statements
@@ -98,8 +99,8 @@ protected:
 	template <class Node> void recurse(
 			AST& host, void* param, list<Node*> nodes);
 
-	// A stack of active ASTCompileErrors.
-	vector<ASTCompileError*> compileErrorHandlers;
+	// A stack of active ASTStmtCompileErrors.
+	vector<ASTStmtCompileError*> compileErrorHandlers;
 
 	// The current compile error. While this is set breakRecursion will return
 	// true. This lets us move up the call stack until we reach the proper

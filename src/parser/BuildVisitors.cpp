@@ -467,7 +467,7 @@ void BuildOpcodes::caseTypeDef(ASTTypeDef&, void*) {}
 
 // Expressions
 
-void BuildOpcodes::caseCompileError(ASTCompileError& host, void*)
+void BuildOpcodes::caseStmtCompileError(ASTStmtCompileError& host, void*)
 {
 	// If we haven't been triggered, throw a warning.
 	if (!host.errorTriggered)
