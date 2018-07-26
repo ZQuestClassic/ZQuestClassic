@@ -12,6 +12,10 @@ using std::vector;
 
 class Scope;
 class SymbolTable;
+namespace ZScript
+{
+	class Function;
+}
 
 static const int SETTER = 0;
 static const int GETTER = 1;
@@ -34,19 +38,17 @@ public:
 
     virtual void addSymbolsToScope(Scope& scope);
     virtual map<int, vector<Opcode *> > addSymbolsCode(LinkTable &lt);
-    virtual int matchFunction(string const& name);
-    virtual int matchGetter(string const& name);
-    virtual int matchSetter(string const& name);
     virtual ~LibrarySymbols();
 protected:
     AccessorTable *table;
     LibrarySymbols() {}
     int firstid;
     int refVar;
-    map<string, int> functions;
-	map<string, int> getters;
-	map<string, int> setters;
-	int getFunctionId(string const& name) const;
+    map<string, ZScript::Function*> functions;
+	map<string, ZScript::Function*> getters;
+	map<string, ZScript::Function*> setters;
+
+	ZScript::Function* getFunction(string const& name) const;
     virtual vector<Opcode *> getVariable(LinkTable &lt, int id, int var);
     virtual vector<Opcode *> setVariable(LinkTable &lt, int id, int var);
     virtual vector<Opcode *> setBoolVariable(LinkTable &lt, int id, int var);
