@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////
 // Create a new quest and load this script in it to test various aspects of
-// ZScript. It should compile cleanly (except for 1 deprecation warning), and
-// report no errors when the quest is run.
+// ZScript. It should compile cleanly and report no errors when the quest is
+// run.
 
 import "std.zh"
 import "string.zh"
@@ -404,7 +404,7 @@ global script Init {
 global script TestStrip
 {
 	void run() {}
-	int testStripVar = 100;
+	compile_error(38) int testStripVar = 100;
 	void testStripFunction(int x) {testStripVar = x;}
 }
 
