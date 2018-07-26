@@ -18,7 +18,7 @@ CompileError::CompileError(int id, char code, bool warning, string const& format
 	: id(id), code(code), warning(warning), format(format)
 {}
 
-void CompileError::print(AST* offender, ...) const
+void CompileError::print(AST const* offender, ...) const
 {
 	va_list args;
 	va_start(args, offender);
@@ -26,7 +26,7 @@ void CompileError::print(AST* offender, ...) const
 	va_end(args);
 }
 
-void CompileError::vprint(AST* offender, va_list args) const
+void CompileError::vprint(AST const* offender, va_list args) const
 {
     ostringstream oss;
 

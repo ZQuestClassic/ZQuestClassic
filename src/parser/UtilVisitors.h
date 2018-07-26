@@ -16,7 +16,7 @@ public:
 	void fail() {failure = true;}
 	
 	// Used to signal that a compile error has occured.
-	void handleError(CompileError const& error, AST* node, ...);
+	void handleError(CompileError const& error, AST const* node, ...);
 	
     virtual void caseDefault(void*) {}
 	virtual void caseCompileError(ASTCompileError& host, void* param = NULL);

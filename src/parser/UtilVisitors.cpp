@@ -17,7 +17,8 @@ bool RecursiveVisitor::breakRecursion(AST& host) const
 	return false;
 }
 
-void RecursiveVisitor::handleError(CompileError const& error, AST* node, ...)
+void RecursiveVisitor::handleError(
+		CompileError const& error, AST const* node, ...)
 {
 	// Scan through the error handlers backwards to see if we can find
 	// one matching this error.
