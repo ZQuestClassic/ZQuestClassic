@@ -328,6 +328,7 @@ void SemanticAnalyzer::caseExprIdentifier(ASTExprIdentifier& host, void*)
 		return;
 	}
 
+	host.binding = variable;
 	scope->getTable().putNodeId(&host, variable->id);
 }
 
