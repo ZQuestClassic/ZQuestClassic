@@ -61,6 +61,7 @@ extern YYLTYPE noloc;
 %error-verbose
 %start Init
 
+%define api.token.prefix {TOK_}
 %token SCRIPT
 %token ZFLOAT
 %token FOR
