@@ -403,6 +403,11 @@ Script_Block_Element :
 	Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
 	| TypeDef SEMICOLON {$$ = $1;}
+	| COMPILEERROR LPAREN Expression_Constant RPAREN Script_Block_Element {
+		ASTExpr* errorId = (ASTExpr*)$3;
+		ASTDecl* declaration = (ASTDecl*)$5;
+		declaration->compileErrorCatches.push_back(errorId);
+		$$ = declaration;}
 	;
 
 ////////////////////////////////////////////////////////////////
