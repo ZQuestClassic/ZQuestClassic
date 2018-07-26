@@ -804,8 +804,8 @@ Literal_Array :
 		ASTVarType* type = (ASTVarType*)$2;
 		ASTExpr* size = (ASTExpr*)$4;
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$8;
-		al->setType(type);
-		al->setSize(size);
+		al->type = type;
+		al->size = size;
 		al->location = @$;
 		$$ = al;
 	}
@@ -815,7 +815,7 @@ Literal_Array :
 	{
 		ASTVarType* type = (ASTVarType*)$2;
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$7;
-		al->setType(type);
+		al->type = type;
 		al->location = @$;
 		$$ = al;
 	}
@@ -826,15 +826,15 @@ Literal_Array :
 		ASTVarType* type = (ASTVarType*)$2;
 		ASTExpr* size = (ASTExpr*)$4;
 		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
-		al->setType(type);
-		al->setSize(size);
+		al->type = type;
+		al->size = size;
 		$$ = al;
 	}
 	// (int[]){}
 	| LPAREN DataType LBRACKET RBRACKET RPAREN LBRACE RBRACE {
 		ASTVarType* type = (ASTVarType*)$2;
 		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
-		al->setType(type);
+		al->type = type;
 		$$ = al;}
 	// {1, 2, 3}
 	| LBRACE Literal_Array_Body RBRACE {
@@ -847,12 +847,12 @@ Literal_Array_Body :
 	Literal_Array_Body COMMA Expression {
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$1;
 		ASTExpr* element = (ASTExpr*)$3;
-		al->appendElement(element);
+		al->elements.push_back(element);
 		$$ = al;}
 	| Expression {
 		ASTExpr* element = (ASTExpr*)$1;
 		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
-		al->appendElement(element);
+		al->elements.push_back(element);
 		$$ = al;}
 	;
 

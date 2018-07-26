@@ -5,7 +5,6 @@
 #include "ByteCode.h"
 #include "CompileError.h"
 #include "GlobalSymbols.h"
-#include "TypeChecker.h"
 #include "y.tab.hpp"
 #include <iostream>
 #include <assert.h>
@@ -191,21 +190,8 @@ FunctionData* ScriptParser::typeCheck(ZScript::Program& program)
         return NULL;
     }
     
-    // Run type-checker visitor.
-	vector<Variable*> vars = program.getUserGlobalVariables();
-	for (vector<Variable*>::iterator it = vars.begin(); it != vars.end(); ++it)
-		failure = failure || !TypeCheck::check(table, *(*it)->node);
-    
-	vector<Function*> funs = program.getUserFunctions();
-    for (vector<Function*>::iterator it = funs.begin(); it != funs.end(); ++it)
-	{
-		Function& function = **it;
-		ZVarTypeId returnTypeId = table.getFuncReturnTypeId(function.id);
-		if (!TypeCheck::check(table, returnTypeId, *function.node))
-			failure = true;
-	}
-    
 	// Sort global variables into vars and constants.
+	vector<Variable*> vars = program.getUserGlobalVariables();
 	for (vector<Variable*>::iterator it = vars.begin(); it != vars.end(); ++it)
 		{
 		if (program.table.isInlinedConstant((*it)->node))

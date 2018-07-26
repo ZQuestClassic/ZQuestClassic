@@ -33,6 +33,7 @@ namespace ZScript
 	class Function;
 	class Variable;
 }
+class ZClass;
 
 
 #define RECURSIONLIMIT 30
@@ -736,9 +737,6 @@ public:
 
 	virtual bool isConstant() const = 0;
 
-	void markAsLVal() {lval = true;}
-	bool isLVal() {return lval;}
-
 	// Return this expression's value if it has already been resolved at
 	// compile time.
 	virtual optional<long> getCompileTimeValue(
@@ -760,7 +758,6 @@ public:
 
 private:
 	ZVarType const* varType;
-	bool lval;
 
 protected:
 	ASTExpr& operator=(ASTExpr const& rhs);
@@ -873,6 +870,7 @@ public:
     string right;
     ASTExpr* index;
 
+	ZClass* leftClass;
 	ZScript::Function* readFunction;
 	ZScript::Function* writeFunction;
 };
@@ -918,6 +916,8 @@ public:
 	
     ASTExpr* left;
     vector<ASTExpr*> parameters;
+
+	ZScript::Function* binding;
 };
 
 // virtual
@@ -1583,12 +1583,8 @@ public:
 
 	bool isConstant() const {return true;}
 
-	ASTVarType* getType() const {return type;}
-	void setType(ASTVarType* node) {type = node;}
-	ASTExpr* getSize() const {return size;}
-	void setSize(ASTExpr* node) {size = node;}
-	vector<ASTExpr*> getElements() const {return elements;}
-	void appendElement(ASTExpr* element) {elements.push_back(element);}
+	ZVarTypeArray const* getReadType() const {return iReadType;}
+	void setReadType(ZVarTypeArray const* type) {iReadType = type;}
 
 	// The data declaration that this literal may be part of. If NULL that
 	// means this is not part of a data declaration. This should be managed by
@@ -1601,6 +1597,10 @@ public:
 	ASTExpr* size;
 	// The array elements.
 	vector<ASTExpr*> elements;
+
+private:
+	// Cached read type.
+	ZVarTypeArray const* iReadType;
 };
 
 // Types

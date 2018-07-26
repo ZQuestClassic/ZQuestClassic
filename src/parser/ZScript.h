@@ -109,10 +109,13 @@ namespace ZScript
 		public:
 			Signature(string const& name,
 			          vector<ZVarType const*> const& parameterTypes);
+			Signature(Function const& function);
 
 			int compare(Signature const& other) const;
 			bool operator==(Signature const& other) const;
 			bool operator<(Signature const& other) const;
+			string asString() const;
+			operator string() const {return asString();}
 
 			string name;
 			vector<ZVarType const*> parameterTypes;
@@ -131,6 +134,8 @@ namespace ZScript
 		Scope* internalScope;
 		Variable* thisVar;
 
+		Signature getSignature() const {return Signature(*this);}
+		
 		// If this is a script level function, return that script.
 		Script* getScript() const;
 	};
