@@ -319,8 +319,19 @@ void SymbolTable::printDiagnostics()
 // FunctionData
 
 FunctionData::FunctionData(Program& program)
-	: program(program), globalLiterals(program.globalScope.getLocalLiterals())
-{}
+	: program(program),
+	  globalLiterals(program.globalScope.getLocalLiterals())
+{
+	// Sort global variables into vars and constants.
+	vector<Variable*> vars = program.getUserGlobalVariables();
+	for (vector<Variable*>::iterator it = vars.begin(); it != vars.end(); ++it)
+	{
+		if (program.table.isInlinedConstant((*it)->node))
+			globalConstants.push_back(*it);
+		else
+			globalVariables.push_back(*it);
+	}
+}
 
 ////////////////////////////////////////////////////////////////
 // IntermediateData

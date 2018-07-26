@@ -57,7 +57,7 @@ ScriptsData* compile(const char *filename)
         return NULL;
     }
     
-    box_out("Pass 3: Building symbol tables");
+    box_out("Pass 3: Analyzing Code");
     box_eol();
     
 	ZScript::Program program(theAST);
@@ -69,22 +69,19 @@ ScriptsData* compile(const char *filename)
         return NULL;
     }
     
-    box_out("Pass 4: Type-checking/Completing function symbol tables/Constant folding");
-    box_eol();
-
-    FunctionData* fd = ScriptParser::typeCheck(program);
+    FunctionData fd(program);
     
-    if (fd == NULL)
+    if (fd.globalVariables.size() > 256)
 	{
+		CompileError::TooManyGlobal.print(NULL);
 		delete theAST;
 		return NULL;
 	}
     
-    box_out("Pass 5: Generating object code");
+    box_out("Pass 4: Generating object code");
     box_eol();
     
     IntermediateData *id = ScriptParser::generateOCode(fd);
-    delete fd;
     
     if (id == NULL)
 	{
@@ -92,7 +89,7 @@ ScriptsData* compile(const char *filename)
 		return NULL;
 	}
     
-    box_out("Pass 6: Assembling");
+    box_out("Pass 5: Assembling");
     box_eol();
 
     ScriptsData* final = ScriptParser::assemble(id);
@@ -163,53 +160,12 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
     return true;
 }
 
-FunctionData* ScriptParser::typeCheck(ZScript::Program& program)
+IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 {
-	SymbolTable& table = program.table;
-
-    //build the functiondata
-    FunctionData *fd = new FunctionData(program);
-    vector<ASTFuncDecl *> funcs;
-    bool failure = false;
-    map<int, bool> usednums;
-    
-    if (failure)
-    {
-        delete fd;
-        return NULL;
-    }
-    
-	// Sort global variables into vars and constants.
-	vector<Variable*> vars = program.getUserGlobalVariables();
-	for (vector<Variable*>::iterator it = vars.begin(); it != vars.end(); ++it)
-		{
-		if (program.table.isInlinedConstant((*it)->node))
-			fd->globalConstants.push_back(*it);
-		else
-			fd->globalVariables.push_back(*it);
-	}
-	
-    if (fd->globalVariables.size() > 256)
-	{
-		CompileError::TooManyGlobal.print(NULL);
-		failure = true;
-	}
-    
-    if (failure)
-    {
-        delete fd;
-        return NULL;
-    }
-    
-    return fd;
-}
-
-IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
-{
-	Program& program = fdata->program;
+	Program& program = fdata.program;
     SymbolTable* symbols = &program.table;
-	vector<Literal*>& globalLiterals = fdata->globalLiterals;
-	vector<Variable*>& globalVariables = fdata->globalVariables;
+	vector<Literal*>& globalLiterals = fdata.globalLiterals;
+	vector<Variable*>& globalVariables = fdata.globalVariables;
 
     // Z_message("yes");
     bool failure = false;
@@ -247,7 +203,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
     
     //we now have labels for the functions and ids for the global variables.
     //we can now generate the code to intialize the globals
-    IntermediateData *rval = new IntermediateData(*fdata);
+    IntermediateData *rval = new IntermediateData(fdata);
     
     //Link against the global symbols, and add their labels
     map<int, vector<Opcode *> > globalcode = GlobalSymbols::getInst().addSymbolsCode(lt);
@@ -652,10 +608,9 @@ IntermediateData* ScriptParser::generateOCode(FunctionData* fdata)
     //Z_message("yes");
     
     //update the run symbols
-	for (vector<Script*>::const_iterator it = fdata->program.scripts.begin();
-		 it != fdata->program.scripts.end();
+	for (vector<Script*>::const_iterator it = program.scripts.begin();
+		 it != program.scripts.end();
 		 ++it)
-		//for (map<string, int>::iterator it = runsymbols.begin(); it != runsymbols.end(); it++)
     {
 		Function* run = (*it)->getRun();
 		string name = (*it)->getName();
