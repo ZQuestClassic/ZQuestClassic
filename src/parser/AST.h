@@ -745,6 +745,12 @@ public:
 		const
 	{return nullopt;}
 
+	// Returns the read or write type for this expression. Null for either
+	// means that it can't be read from/written to.
+	virtual ZVarType const* getReadType() const {return getVarType();}
+	virtual ZVarType const* getWriteType() const {return getVarType();}
+	
+	// phasing out this group for the above two.
 	ZVarType const* getVarType() const {return varType;}
 	void setVarType(ZVarType const& type) {varType = &type;}
 	void setVarType(ZVarType& type) {varType = (ZVarType const*)&type;}
