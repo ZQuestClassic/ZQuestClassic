@@ -12,7 +12,7 @@ class BuildOpcodes : public RecursiveVisitor
 public:
     BuildOpcodes();
 
-    virtual void caseDefault(void *param);
+    virtual void caseDefault(AST& host, void* param);
 	// Statements
     virtual void caseBlock(ASTBlock &host, void *param);
     virtual void caseStmtIf(ASTStmtIf &host, void *param);

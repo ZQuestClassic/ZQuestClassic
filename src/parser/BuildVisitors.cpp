@@ -18,9 +18,9 @@ BuildOpcodes::BuildOpcodes()
 	opcodeTargets.push_back(&result);
 }
 
-void BuildOpcodes::caseDefault(void *)
+void BuildOpcodes::caseDefault(AST&, void*)
 {
-    //unreachable
+    // Unreachable
     assert(false);
 }
 
