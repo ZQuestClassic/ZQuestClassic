@@ -1,6 +1,7 @@
 //2.53 Updated to 16th Jan, 2017
 #include "../precompiled.h" //always first
-
+#include <assert.h>
+#include <iostream>
 #include "../zsyssimple.h"
 #include "CompileError.h"
 #include "DataStructs.h"
@@ -8,44 +9,10 @@
 #include "Scope.h"
 #include "Types.h"
 #include "ZScript.h"
-#include <assert.h>
-#include <iostream>
 
 using std::cout;
 using std::endl;
 using namespace ZScript;
-
-////////////////////////////////////////////////////////////////
-// FunctionSignature
-
-FunctionSignature::FunctionSignature(string const& name_, vector<ZVarType const*> const& paramTypes)
-	: paramTypes(paramTypes)
-{
-	name.push_back(name_);
-}
-
-FunctionSignature::FunctionSignature(vector<string> const& name, vector<ZVarType const*> const& paramTypes)
-	: name(name), paramTypes(paramTypes)
-{}
-
-int FunctionSignature::compare(FunctionSignature const& other) const
-{
-	int c = name.size() - other.name.size();
-	if (c) return c;
-	for (int i = 0; i < name.size(); ++i)
-	{
-		c = name[i].compare(other.name[i]);
-		if (c) return c;
-	}
-	c = paramTypes.size() - other.paramTypes.size();
-	if (c) return c;
-	for (int i = 0; i < paramTypes.size(); ++i)
-	{
-		c = paramTypes[i]->compare(*other.paramTypes[i]);
-		if (c) return c;
-	}
-	return 0;
-}
 
 ////////////////////////////////////////////////////////////////
 // FunctionTypeIds

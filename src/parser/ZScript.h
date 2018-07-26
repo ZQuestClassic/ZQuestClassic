@@ -3,6 +3,11 @@
 
 #include <vector>
 #include <map>
+#include "AST.h"
+#include "Types.h"
+
+using std::vector;
+using std::map;
 
 class SymbolTable;
 class GlobalScope;
@@ -10,6 +15,11 @@ class ScriptScope;
 
 namespace ZScript
 {
+	class Program;
+	class Script;
+	class Variable;
+	class Function;
+	
 	class Program
 	{
 	public:
@@ -92,6 +102,21 @@ namespace ZScript
 	class Function
 	{
 	public:
+		// Comparable signature structure.
+		class Signature
+		{
+		public:
+			Signature(string const& name,
+			          vector<ZVarType const*> const& parameterTypes);
+
+			int compare(Signature const& other) const;
+			bool operator==(Signature const& other) const;
+			bool operator<(Signature const& other) const;
+
+			string name;
+			vector<ZVarType const*> parameterTypes;
+		};
+		
 		Function(ZVarType const* returnType, string const& name, vector<ZVarType const*> paramTypes, int id)
 				: node(NULL), internalScope(NULL), thisVar(NULL),
 				  returnType(returnType), name(name), paramTypes(paramTypes), id(id)

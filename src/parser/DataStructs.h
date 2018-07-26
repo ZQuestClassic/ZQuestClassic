@@ -1,36 +1,16 @@
 #ifndef DATASTRUCTS_H //2.53 Updated to 16th Jan, 2017
 #define DATASTRUCTS_H
 
-#include "AST.h"
-#include <string>
 #include <map>
+#include <string>
 #include <vector>
+#include "AST.h"
+#include "ZScript.h"
 
 using std::string;
 using std::map;
 using std::vector;
 using std::pair;
-
-// Forward declare ZScript.h
-namespace ZScript
-{
-	struct Program;
-	struct Script;
-	struct Variable;
-	struct Function;
-}
-
-class FunctionSignature
-{
-public:
-	FunctionSignature(string const& name, vector<ZVarType const*> const& paramTypes);
-	FunctionSignature(vector<string> const& name, vector<ZVarType const*> const& paramTypes);
-	int compare(FunctionSignature const& other) const;
-	bool operator==(FunctionSignature const& other) const {return compare(other) == 0;}
-	bool operator<(FunctionSignature const& other) const {return compare(other) < 0;}
-	vector<string> name;
-	vector<ZVarType const*> paramTypes;
-};
 
 class FunctionTypeIds
 {
