@@ -18,6 +18,20 @@ BuildOpcodes::BuildOpcodes()
 	opcodeTargets.push_back(&result);
 }
 
+void BuildOpcodes::visit(AST& node, void* param)
+{
+	RecursiveVisitor::visit(node, param);
+	for (list<ASTExpr*>::const_iterator it = node.compileErrorCatches.begin();
+		 it != node.compileErrorCatches.end(); ++it)
+	{
+		ASTExpr& idNode = **it;
+		optional<long> errorId = idNode.getCompileTimeValue();
+		assert(errorId);
+		handleError(CompileError::MissingCompileError, &node,
+					int(*errorId / 10000L));
+	}
+}
+
 void BuildOpcodes::caseDefault(AST&, void*)
 {
     // Unreachable
@@ -466,15 +480,6 @@ void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 void BuildOpcodes::caseTypeDef(ASTTypeDef&, void*) {}
 
 // Expressions
-
-void BuildOpcodes::caseStmtCompileError(ASTStmtCompileError& host, void*)
-{
-	// If we haven't been triggered, throw a warning.
-	if (!host.errorTriggered)
-		CompileError::MissingCompileError.print(&host, host.getErrorId());
-
-	// Otherwise, we don't want to actually generate any code.
-}
 
 void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 {

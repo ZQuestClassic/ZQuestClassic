@@ -10,13 +10,27 @@
 
 // AST
 
-AST::AST(LocationData const& location) : location(location) {}
+AST::AST(LocationData const& location)
+	: location(location), disabled(false)
+{}
 
-AST::AST(AST const& base) : location(base.location) {}
+AST::AST(AST const& rhs) :
+	location(rhs.location), disabled(rhs.disabled)
+{}
+
+AST::~AST()
+{
+	deleteElements(compileErrorCatches);
+}
 
 AST& AST::operator=(AST const& rhs)
 {
+	deleteElements(compileErrorCatches);
+	
 	location = rhs.location;
+	compileErrorCatches = AST::clone(compileErrorCatches);
+	disabled = rhs.disabled;
+	
 	return *this;
 }
 
@@ -695,60 +709,6 @@ void ASTStmtEmpty::execute(ASTVisitor& visitor, void* param)
 	visitor.caseStmtEmpty(*this, param);
 }
 
-// ASTStmtCompileError
-
-ASTStmtCompileError::ASTStmtCompileError(
-		ASTExpr* errorId, ASTStmt* statement,
-		LocationData const& location)
-	: ASTStmt(location), errorId(errorId), statement(statement),
-	  errorTriggered(false)
-{}
-
-ASTStmtCompileError::ASTStmtCompileError(ASTStmtCompileError const& base)
-	: ASTStmt(base),
-	  errorId(AST::clone(base.errorId)),
-	  statement(AST::clone(base.statement)),
-	  errorTriggered(base.errorTriggered)
-{}
-
-ASTStmtCompileError::~ASTStmtCompileError()
-{
-	delete errorId;
-	delete statement;
-}
-
-ASTStmtCompileError& ASTStmtCompileError::operator=(ASTStmtCompileError const& rhs)
-{
-	ASTStmt::operator=(rhs);
-
-	delete errorId;
-	delete statement;
-
-	errorId = AST::clone(rhs.errorId);
-	statement = AST::clone(rhs.statement);
-	errorTriggered = rhs.errorTriggered;
-
-	return *this;
-}
-
-void ASTStmtCompileError::execute(ASTVisitor& visitor, void* param)
-{
-	visitor.caseStmtCompileError(*this, param);
-}
-	
-int ASTStmtCompileError::getErrorId() const
-{
-	if (!errorId) return -1;
-	if (optional<long> id = errorId->getCompileTimeValue())
-		return *id / 10000L;
-	return -1;
-}
-
-bool ASTStmtCompileError::canHandle(CompileError const& error) const
-{
-	return error.id == getErrorId();
-}
-
 ////////////////////////////////////////////////////////////////
 // Declarations
 
@@ -1294,7 +1254,6 @@ void ASTExprArrow::execute(ASTVisitor& visitor, void* param)
 ASTExprArrow::~ASTExprArrow()
 {
 	delete left;
-	delete index;
 }
 
 string ASTExprArrow::asString() const

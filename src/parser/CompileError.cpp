@@ -192,6 +192,6 @@ CompileError const CompileError::ArrayLiteralResize(
 CompileError const CompileError::MissingCompileError(
 		53, 'C', true, "Expected error %d did not occur.");
 CompileError const CompileError::UnimplementedFeature(
-		54, 'C', true, "Feature unimplemented: %s.");
+		54, 'C', false, "Feature unimplemented: %s.");
 
 

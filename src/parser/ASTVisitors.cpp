@@ -11,26 +11,37 @@
 
 bool RecursiveVisitor::breakRecursion(AST& host, void* param) const
 {
-	if (failure) return true;
-	if (currentCompileError) return true;
-	return false;
+	return host.disabled || failure || breakNode;
 }
 
 void RecursiveVisitor::handleError(
 		CompileError const& error, AST const* node, ...)
 {
-	// Scan through the error handlers backwards to see if we can find
-	// one matching this error.
-	for (vector<ASTStmtCompileError*>::reverse_iterator it
-			 = compileErrorHandlers.rbegin();
-		 it != compileErrorHandlers.rend(); ++it)
+	// Scan through the node stack looking for a handler.
+	for (vector<AST*>::const_reverse_iterator it = recursionStack.rbegin();
+		 it != recursionStack.rend(); ++it)
 	{
-		// When we find a valid handler, save the error as the current one and
-		// return.
-		if ((*it)->canHandle(error))
+		AST& ancestor = **it;
+		for (list<ASTExpr*>::iterator it =
+				 ancestor.compileErrorCatches.begin();
+			 it != ancestor.compileErrorCatches.end(); ++it)
 		{
-			currentCompileError = &error;
-			return;
+			ASTExpr& idNode = **it;
+			optional<long> errorId = idNode.getCompileTimeValue();
+			assert(errorId);
+			// If we've found a handler, remove that handler from the node's
+			// list of handlers and disable the current node (if not a
+			// warning).
+			if (*errorId == error.id * 10000L)
+			{
+				ancestor.compileErrorCatches.erase(it);
+				if (!error.warning)
+				{
+					ancestor.disabled = true;
+					breakNode = &ancestor;
+				}
+				return;
+			}
 		}
 	}
 
@@ -45,7 +56,11 @@ void RecursiveVisitor::handleError(
 
 void RecursiveVisitor::visit(AST& node, void* param)
 {
+	if (breakRecursion(node, param)) return;
+	recursionStack.push_back(&node);
 	node.execute(*this, param);
+	recursionStack.pop_back();
+	if (breakNode == &node) breakNode = NULL;
 }
 
 void RecursiveVisitor::visit(AST* node, void* param)
@@ -55,28 +70,6 @@ void RecursiveVisitor::visit(AST* node, void* param)
 
 ////////////////////////////////////////////////////////////////
 // Cases
-
-void RecursiveVisitor::caseStmtCompileError(ASTStmtCompileError& host, void* param)
-{
-	// If we've already been triggered, don't run.
-	if (host.errorTriggered) return;
-	
-	// First visit on error id.
-	visit(host.errorId, param);
-	if (breakRecursion(host, param)) return;
-
-	// Visit on statement with host as a handler.
-	compileErrorHandlers.push_back(&host);
-	visit(host.statement, param);
-	compileErrorHandlers.pop_back();
-
-	// If we can handle the current error, erase it and continue.
-	if (currentCompileError && host.canHandle(*currentCompileError))
-	{
-		currentCompileError = NULL;
-		host.errorTriggered = true;
-	}
-}
 
 void RecursiveVisitor::caseProgram(ASTProgram& host, void* param)
 {
