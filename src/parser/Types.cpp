@@ -109,6 +109,16 @@ vector<Function*> ZScript::getClassFunctions(TypeStore const& store)
 	return functions;
 }
 
+// Internal
+
+bool TypeStore::TypeIdMapComparator::operator()(
+		DataType const* const& lhs, DataType const* const& rhs) const
+{
+	if (rhs == NULL) return false;
+	if (lhs == NULL) return true;
+	return *lhs < *rhs;
+}
+
 ////////////////////////////////////////////////////////////////
 
 // Standard Type definitions.
