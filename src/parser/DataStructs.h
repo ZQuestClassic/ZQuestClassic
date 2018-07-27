@@ -30,37 +30,6 @@ public:
 	static FunctionTypeIds const null;
 };
 
-class SymbolTable
-{
-public:
-    SymbolTable();
-	~SymbolTable();
-	// Types
-	ZVarType* getType(ZVarTypeId typeId) const;
-	ZVarTypeId getTypeId(ZVarType const& type) const;
-	ZVarTypeId assignTypeId(ZVarType const& type);
-	ZVarTypeId getOrAssignTypeId(ZVarType const& type);
-
-	template <typename Type>
-	Type const* getCanonicalType(Type const& type)
-	{
-		return static_cast<Type const*>(
-				types[getOrAssignTypeId(type)]);
-	}
-	
-	// Classes
-	vector<ZScript::ZClass*> getClasses() const {return classes;}
-	ZScript::ZClass* getClass(int classId) const;
-	ZScript::ZClass* createClass(string const& name);
-
-private:
-	vector<ZVarType*> types;
-	map<ZVarType*, ZVarTypeId, ZVarType::PointerLess> typeIds;
-	vector<ZScript::ZClass*> classes;
-};
-
-vector<ZScript::Function*> getClassFunctions(SymbolTable const&);
-
 struct FunctionData
 {
 	FunctionData(ZScript::Program& program);
@@ -78,7 +47,7 @@ struct IntermediateData
 
 struct OpcodeContext
 {
-    SymbolTable *symbols;
+    TypeStore* typeStore;
 	vector<Opcode*> initCode;
 };
 

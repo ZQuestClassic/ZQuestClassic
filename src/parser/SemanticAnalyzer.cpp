@@ -49,7 +49,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	if (isRun(function))
 	{
 		ZVarTypeId thisTypeId = script->getType().getThisTypeId();
-		ZVarType const& thisType = *scope->getTable().getType(thisTypeId);
+		ZVarType const& thisType = *scope->getTypeStore().getType(thisTypeId);
 		function.thisVar =
 			BuiltinVariable::create(functionScope, thisType, "this", *this);
 	}
@@ -492,7 +492,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		handleError(CompileError::ArrowNotPointer, &host);
         return;
 	}
-	host.leftClass = program.getTable().getClass(
+	host.leftClass = program.getTypeStore().getClass(
 			static_cast<ZVarTypeClass const&>(leftType).getClassId());
 
 	// Find read function.
@@ -811,7 +811,7 @@ void SemanticAnalyzer::caseExprRShift(ASTExprRShift& host, void*)
 void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
 {
 	// Assign type.
-	ZVarType const* type = program.getTable().getCanonicalType(
+	ZVarType const* type = program.getTypeStore().getCanonicalType(
 			ZVarTypeArray(ZVarType::FLOAT));
 	host.setVarType(type);
 
@@ -865,7 +865,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 
 		// Convert to array type.
 		host.setReadType(
-				program.getTable().getCanonicalType(
+				program.getTypeStore().getCanonicalType(
 						ZVarTypeArray(elementType)));
 	}
 
@@ -873,7 +873,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	else
 	{
 		host.setReadType(
-				program.getTable().getCanonicalType(
+				program.getTypeStore().getCanonicalType(
 						ZVarTypeArray(*host.elements[0]->getReadType())));
 	}
 

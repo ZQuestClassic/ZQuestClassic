@@ -2,14 +2,22 @@
 #define ZSPARSER_TYPES_H
 
 #include <string>
+#include <functional>
+#include <iostream>
+#include <vector>
+#include <map>
+#include "CompilerUtils.h"
 
 using std::string;
 
 typedef int ZVarTypeId;
 
+// Forward Declarations
 namespace ZScript
 {
+	class Function;
 	class Scope;
+	class ZClass;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -101,6 +109,13 @@ public:
 	// Comparator for pointers to types.
 	struct PointerLess : public std::less<ZVarType*> {
 		bool operator() (ZVarType* const& a, ZVarType* const& b) const
+		{
+			if (b == NULL) return false;
+			if (a == NULL) return true;
+			return *a < *b;
+		}
+		bool operator() (
+				ZVarType const* const& a, ZVarType const* const& b) const
 		{
 			if (b == NULL) return false;
 			if (a == NULL) return true;
@@ -253,6 +268,41 @@ private:
 
 namespace ZScript
 {
+	// Stores and lookup types and classes.
+	class TypeStore
+	{
+	public:
+		TypeStore();
+		~TypeStore();
+
+		// Types
+		ZVarType const* getType(ZVarTypeId typeId) const;
+		optional<ZVarTypeId> getTypeId(ZVarType const& type) const;
+		optional<ZVarTypeId> assignTypeId(ZVarType const& type);
+		optional<ZVarTypeId> getOrAssignTypeId(ZVarType const& type);
+
+		template <typename Type>
+		Type const* getCanonicalType(Type const& type)
+		{
+			return static_cast<Type const*>(
+					ownedTypes[*getOrAssignTypeId(type)]);
+		}
+	
+		// Classes
+		std::vector<ZScript::ZClass*> getClasses() const {
+			return ownedClasses;}
+		ZScript::ZClass* getClass(int classId) const;
+		ZScript::ZClass* createClass(string const& name);
+
+	private:
+		std::vector<ZVarType const*> ownedTypes;
+		std::map<ZVarType const*, ZVarTypeId, ZVarType::PointerLess>
+			typeIdMap;
+		std::vector<ZClass*> ownedClasses;
+	};
+
+	std::vector<Function*> getClassFunctions(TypeStore const&);
+
 	////////////////////////////////////////////////////////////////
 	// Script Types
 

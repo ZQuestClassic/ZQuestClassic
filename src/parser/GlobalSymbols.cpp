@@ -1,13 +1,12 @@
-//2.53 Updated to 16th Jan, 2017
-#include "../precompiled.h" //always first//2.53 Updated to 16th Jan, 2017
+#include "../precompiled.h" //always first
 
+#include <assert.h>
+//#include "../zdefs.h"
+#include "../zsyssimple.h"
 #include "GlobalSymbols.h"
 #include "ByteCode.h"
 #include "Scope.h"
-#include "../zsyssimple.h"
 #include "ZScript.h"
-#include <assert.h>
-#include "../zdefs.h"
 #include "CompilerUtils.h"
 
 #define MAXDMAPS         512
@@ -16,7 +15,6 @@
 using namespace ZScript;
 
 const int radsperdeg = 572958;
-
 
 //sanity underflow
 #define typeVOID ZVARTYPEID_VOID
@@ -481,16 +479,16 @@ void setIndexedVariable(int refVar, Function* function, int var)
 
 void LibrarySymbols::addSymbolsToScope(Scope& scope)
 {
-	SymbolTable& symbolTable = scope.getTable();
+	TypeStore& typeStore = scope.getTypeStore();
     
     for (int i = 0; table[i].name != ""; i++)
     {
 		AccessorTable& entry = table[i];
         
-		ZVarType const* returnType = symbolTable.getType(entry.rettype);
+		ZVarType const* returnType = typeStore.getType(entry.rettype);
 		vector<ZVarType const*> paramTypes;
         for (int k = 0; entry.params[k] != -1 && k < 20; k++)
-			paramTypes.push_back(symbolTable.getType(entry.params[k]));
+			paramTypes.push_back(typeStore.getType(entry.params[k]));
                 
         string const& name = entry.name;
 		string varName = name;

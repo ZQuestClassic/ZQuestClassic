@@ -171,7 +171,7 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
 IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 {
 	Program& program = fdata.program;
-	SymbolTable* symbols = &program.getTable();
+	TypeStore* typeStore = &program.getTypeStore();
 	vector<Datum*>& globalVariables = fdata.globalVariables;
 
     // Z_message("yes");
@@ -198,7 +198,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		AST& node = *variable.getNode();
         
         OpcodeContext oc;
-        oc.symbols = symbols;
+        oc.typeStore = typeStore;
         
         BuildOpcodes bo;
         node.execute(bo, &oc);
@@ -260,7 +260,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
         funccode.push_back(new OSetRegister(new VarArgument(SFRAME),
                                             new VarArgument(SP)));
         OpcodeContext oc;
-        oc.symbols = symbols;
+        oc.typeStore = typeStore;
         BuildOpcodes bo;
         node.execute(bo, &oc);
         

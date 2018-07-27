@@ -8,6 +8,7 @@ class CompileErrorHandler;
 
 namespace ZScript
 {
+	class TypeStore;
 	class Script;
 	class Datum;
 	class Function;
@@ -18,12 +19,12 @@ namespace ZScript
 		friend class Datum;
 		
 	public:
-	Scope(SymbolTable& table);
-		Scope(SymbolTable& table, string const& name);
+		Scope(TypeStore&);
+		Scope(TypeStore&, string const& name);
 
 		// Accessors
-	SymbolTable const& getTable() const {return table;}
-	SymbolTable& getTable() {return table;}
+		TypeStore const& getTypeStore() const {return typeStore;}
+		TypeStore& getTypeStore() {return typeStore;}
 		optional<string> const& getName() const {return name;}
 		optional<string>& getName() {return name;}
 
@@ -95,12 +96,12 @@ namespace ZScript
 		bool varDeclsDeprecated;
 
 	protected:
-		SymbolTable& table;
+		TypeStore& typeStore;
 		optional<string> name;
 
 	private:
 		// Add the datum to this scope, returning if successful. Called by
-		// the Datum classes ::create functions.
+		// the Datum classes' ::create functions.
 		virtual bool add(ZScript::Datum&, CompileErrorHandler&) = 0;
 	};
 
@@ -256,8 +257,8 @@ namespace ZScript
 		map<string, vector<Function*> > functionsByName;
 		map<Function::Signature, Function*> functionsBySignature;
 
-		BasicScope(SymbolTable&);
-		BasicScope(SymbolTable&, string const& name);
+		BasicScope(TypeStore&);
+		BasicScope(TypeStore&, string const& name);
 
 	private:
 	// Disabled since it's easy to call by accident instead of the Scope*
@@ -350,7 +351,7 @@ namespace ZScript
 	class ZClass : public BasicScope
 	{
 	public:
-	ZClass(SymbolTable& table, string const& name, int id);
+		ZClass(TypeStore&, string const& name, int id);
 	string const name;
 	int const id;
 	};
