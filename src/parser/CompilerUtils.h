@@ -160,8 +160,18 @@ std::vector<Value> getSeconds(Map const& map)
 template <typename Map>
 void deleteSeconds(Map const& map)
 {
-	for (typename Map::const_iterator it = map.begin(); it != map.end(); ++it)
+	for (typename Map::const_iterator it = map.begin();
+	     it != map.end(); ++it)
 		delete it->second;
+}
+
+// Overwrite all key/value pairs in source onto target.
+template <typename Map>
+void overwritePairs(Map& target, Map const& source)
+{
+	for (typename Map::const_iterator it = source.begin();
+	     it != source.end(); ++it)
+		target[it->first] = it->second;
 }
 
 template <typename Element, typename Map, typename Key>

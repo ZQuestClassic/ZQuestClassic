@@ -536,11 +536,11 @@ vector<Opcode*> setIndexedVariable(int refVar, Function* function, int var)
     return code;
 }
 
-map<int, vector<Opcode *> > LibrarySymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode*> > LibrarySymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval;
+    map<int, vector<Opcode*> > rval;
     
-    for(int i=0; table[i].name != ""; i++)
+    for (int i = 0; table[i].name != ""; ++i)
     {
         int var = table[i].var;
         string name = table[i].name;
@@ -666,7 +666,7 @@ GlobalSymbols::GlobalSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > GlobalSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode*> > GlobalSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id;
@@ -1436,9 +1436,9 @@ FFCSymbols::FFCSymbols()
     refVar = REFFFC;
 }
 
-map<int, vector<Opcode *> > FFCSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > FFCSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
 	
 //void ChangeFFCScript(ffc, int)
     {
@@ -1695,9 +1695,9 @@ LinkSymbols::LinkSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > LinkSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > LinkSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     //Warp(link, int, int)
     {
 	    Function* function = functions["Warp"];
@@ -2136,9 +2136,9 @@ ScreenSymbols::ScreenSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > ScreenSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > ScreenSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     //item LoadItem(screen, int)
     {
 	    Function* function = functions["LoadItem"];
@@ -3174,9 +3174,9 @@ ItemSymbols::ItemSymbols()
     refVar = REFITEM;
 }
 
-map<int, vector<Opcode *> > ItemSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > ItemSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     //bool isValid(item)
     {
 	    Function* function = functions["isValid"];
@@ -3383,9 +3383,9 @@ ItemclassSymbols::ItemclassSymbols()
     table = itemclassTable;
     refVar = REFITEMCLASS;
 }
-map<int, vector<Opcode *> > ItemclassSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > ItemclassSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     //void GetName(itemclass, int)
     {
 	    Function* function = functions["GetName"];
@@ -3635,9 +3635,9 @@ GameSymbols::GameSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > GameSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > GameSymbols::generateCode()
 {
-    map<int,vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int,vector<Opcode *> > rval = LibrarySymbols::generateCode();
     //itemclass LoadItemData(game, int)
     {
 	    Function* function = functions["LoadItemData"];
@@ -5652,9 +5652,9 @@ NPCSymbols::NPCSymbols()
     refVar = REFNPC;
 }
 
-map<int, vector<Opcode *> > NPCSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > NPCSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     //bool isValid(npc)
     {
 	    Function* function = functions["isValid"];
@@ -5802,9 +5802,9 @@ LinkWeaponSymbols::LinkWeaponSymbols()
     refVar = REFLWPN;
 }
 
-map<int, vector<Opcode *> > LinkWeaponSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > LinkWeaponSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
     //bool isValid(lweapon)
     {
@@ -5933,9 +5933,9 @@ EnemyWeaponSymbols::EnemyWeaponSymbols()
     refVar = REFEWPN;
 }
 
-map<int, vector<Opcode *> > EnemyWeaponSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > EnemyWeaponSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
     //bool isValid(eweapon)
     {
@@ -5992,7 +5992,7 @@ TextPtrSymbols::TextPtrSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > TextPtrSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > TextPtrSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -6348,10 +6348,10 @@ MapDataSymbols::MapDataSymbols()
     refVar = REFMAPDATA; //NUL; //
 }
 
-map<int, vector<Opcode *> > MapDataSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > MapDataSymbols::generateCode()
 {
 	//map<int, vector<Opcode *> > rval; //This will cause 'Cannot find function label ***' for the variable members. 
-	map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+	map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
 	int id=-1;
 	
 	
@@ -6673,9 +6673,9 @@ InputSymbols::InputSymbols()
 
 
 
-map<int, vector<Opcode *> > InputSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > InputSymbols::generateCode()
 {
-     map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+     map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
 	
  //SetType(SpriteData, int, int)
@@ -6739,9 +6739,9 @@ GfxPtrSymbols::GfxPtrSymbols()
     refVar = REFGRAPHICS;
 }
 
-map<int, vector<Opcode *> > GfxPtrSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > GfxPtrSymbols::generateCode()
 {
-   map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+   map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
 	{
         Function* function = functions["Wavy"];
@@ -6829,10 +6829,10 @@ SpriteDataSymbols::SpriteDataSymbols()
     refVar = REFSPRITEDATA; //NUL;// 
 }
 
-map<int, vector<Opcode *> > SpriteDataSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > SpriteDataSymbols::generateCode()
 {
     //map<int, vector<Opcode *> > rval; //This will cause 'Cannot find function label ***' for the variable members. 
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
 	
 	
@@ -7397,10 +7397,10 @@ CombosPtrSymbols::CombosPtrSymbols()
     refVar = REFCOMBODATA; //NUL;
 }
 
-map<int, vector<Opcode *> > CombosPtrSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > CombosPtrSymbols::generateCode()
 {
     //map<int, vector<Opcode *> > rval; //This will cause 'Cannot find function label ***' for the variable members. 
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
 
     
@@ -7918,9 +7918,9 @@ AudioSymbols::AudioSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > AudioSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > AudioSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
 	    
     //void AdjustVolume(audio, int)
@@ -8186,9 +8186,9 @@ DebugSymbols::DebugSymbols()
     refVar = NUL;
 }
 
-map<int, vector<Opcode *> > DebugSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > DebugSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
 	
 	
@@ -8667,9 +8667,9 @@ NPCDataSymbols::NPCDataSymbols()
     refVar = REFNPCCLASS; // NUL; //
 }
 
-map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > NPCDataSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
 	
 	//GetTile(NPCData, int)
@@ -9863,232 +9863,8 @@ map<int, vector<Opcode *> > NPCDataSymbols::addSymbolsCode(LinkTable &lt)
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         rval[label] = code;
     }
-    //SetHitSFX(NPCData, int, int)
-    {
-        Function* function = functions["SetHitSFX"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-	    code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetHitSound(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-    //SetDeathSFX(NPCData, int, int)
-    {
-        Function* function = functions["SetDeathSFX"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetDeathSound(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-    //SetDrawXOffset(NPCData, int, int)
-    {
-        Function* function = functions["SetDrawXOffset"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetXofs(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-    //SetDrawYOffset(NPCData, int, int)
-    {
-        Function* function = functions["SetDrawYOffset"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetYofs(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-    //SetDrawZOffset(NPCData, int, int)
-    {
-        Function* function = functions["SetDrawZOffset"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetZofs(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-    //SetHitXOffset(NPCData, int, int)
-    {
-        Function* function = functions["SetHitXOffset"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetHitXOfs(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-    //SetHitYOffset(NPCData, int, int)
-    {
-        Function* function = functions["SetHitYOffset"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetHYOfs(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-    //SetHitWidth(NPCData, int, int)
-    {
-	    Function* function = functions["SetHitWidth"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetHitWidth(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-    //SetHitHeight(NPCData, int, int)
-    {
-	    Function* function = functions["SetHitHeight"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetHitHeight(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-    //SetHitZHeight(NPCData, int, int)
-    {
-	    Function* function = functions["SetHitZHeight"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetHitZ(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-    //SetTileWidth(NPCData, int, int)
-    {
-	    Function* function = functions["SetTileWidth"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetTileWidth(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-    //SetTileHeight(NPCData, int, int)
-    {
-	    Function* function = functions["SetTileHeight"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetTileHeight(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-    //SetWeaponSprite(NPCData, int, int)
-    {
-	    Function* function = functions["SetWeaponSprite"];
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(SFTEMP)));
-        code.push_back(new ONDataSetWeapSprite(new VarArgument(EXP2), new VarArgument(EXP1)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        rval[label] = code;
-    }
-	
-    
     return rval;
 }
-
 
 DMapDataSymbols DMapDataSymbols::singleton = DMapDataSymbols();
 
@@ -10158,9 +9934,9 @@ DMapDataSymbols::DMapDataSymbols()
     refVar = REFDMAPDATA;
 }
 
-map<int, vector<Opcode *> > DMapDataSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > DMapDataSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
     return rval;
 }
@@ -10194,9 +9970,9 @@ ShopDataSymbols::ShopDataSymbols()
     refVar = REFSHOPDATA;
 }
 
-map<int, vector<Opcode *> > ShopDataSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > ShopDataSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
 	{
 		
@@ -10254,9 +10030,9 @@ MessageDataSymbols::MessageDataSymbols()
     refVar = REFMSGDATA;
 }
 
-map<int, vector<Opcode *> > MessageDataSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > MessageDataSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
 
     // Get("dest_string[]")
@@ -10310,9 +10086,9 @@ UntypedSymbols::UntypedSymbols()
     refVar = REFNIL;
 }
 
-map<int, vector<Opcode *> > UntypedSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > UntypedSymbols::generateCode()
 {
-    map<int, vector<Opcode *> > rval = LibrarySymbols::addSymbolsCode(lt);
+    map<int, vector<Opcode *> > rval = LibrarySymbols::generateCode();
     int id=-1;
 	{
 		
@@ -10341,7 +10117,7 @@ DropsetSymbols::DropsetSymbols()
     refVar = REFDROPS;
 }
 
-map<int, vector<Opcode *> > DropsetSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > DropsetSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -10384,7 +10160,7 @@ PondSymbols::PondSymbols()
     refVar = REFPONDS;
 }
 
-map<int, vector<Opcode *> > PondSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > PondSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -10410,7 +10186,7 @@ WarpringSymbols::WarpringSymbols()
     refVar = REFWARPRINGS;
 }
 
-map<int, vector<Opcode *> > WarpringSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > WarpringSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -10436,7 +10212,7 @@ DoorsetSymbols::DoorsetSymbols()
     refVar = REFDOORS;
 }
 
-map<int, vector<Opcode *> > DoorsetSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > DoorsetSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -10462,7 +10238,7 @@ MiscColourSymbols::MiscColourSymbols()
     refVar = REFUICOLOURS;
 }
 
-map<int, vector<Opcode *> > MiscColourSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > MiscColourSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -10488,7 +10264,7 @@ RGBSymbols::RGBSymbols()
     refVar = REFRGB;
 }
 
-map<int, vector<Opcode *> > RGBSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > RGBSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -10514,7 +10290,7 @@ PaletteSymbols::PaletteSymbols()
     refVar = REFPALETTE;
 }
 
-map<int, vector<Opcode *> > PaletteSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > PaletteSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -10540,7 +10316,7 @@ TunesSymbols::TunesSymbols()
     refVar = REFTUNES;
 }
 
-map<int, vector<Opcode *> > TunesSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > TunesSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -10566,7 +10342,7 @@ PalCycleSymbols::PalCycleSymbols()
     refVar = REFPALCYCLE;
 }
 
-map<int, vector<Opcode *> > PalCycleSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > PalCycleSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -10592,7 +10368,7 @@ GamedataSymbols::GamedataSymbols()
     refVar = REFGAMEDATA;
 }
 
-map<int, vector<Opcode *> > GamedataSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > GamedataSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
@@ -10618,7 +10394,7 @@ CheatsSymbols::CheatsSymbols()
     refVar = REFCHEATS;
 }
 
-map<int, vector<Opcode *> > CheatsSymbols::addSymbolsCode(LinkTable &lt)
+map<int, vector<Opcode *> > CheatsSymbols::generateCode()
 {
     map<int, vector<Opcode *> > rval;
     int id=-1;
