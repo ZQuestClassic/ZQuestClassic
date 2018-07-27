@@ -25,6 +25,9 @@ namespace ZScript
 	class ScriptScope;
 	class FunctionScope;
 	
+	////////////////////////////////////////////////////////////////
+	// Program
+	
 	class Program
 	{
 	public:
@@ -63,34 +66,82 @@ namespace ZScript
 		Program& operator=(Program const&);
 	};
 
+	////////////////////////////////////////////////////////////////
+	// Script
+
+	class UserScript;
+	class BuiltinScript;
+	
 	class Script
 	{
 	public:
-		// Create a new script, possibly failing.
-		static Script* create(Program&, ASTScript&, CompileErrorHandler&);
+		virtual ~Script();
 
-		ScriptScope& getScope() {return *scope;}
+		virtual ScriptType getType() const = 0;
+		virtual string const& getName() const = 0;
+		virtual ASTScript* getNode() const = 0;
+		virtual ScriptScope& getScope() = 0;
+		virtual ScriptScope const& getScope() const = 0;
 
-		ASTScript const& getNode() const {return node;}
-		ASTScript& getNode() {return node;}
+		vector<Opcode*> code;
 
-		string getName() const;
-		ScriptType getType() const;
-		Function* getRun() const;
-
-		// Return a list of all errors in the script declaration.
-		vector<CompileError const*> getErrors() const;
-		// Does this script have a declaration error?
-		bool hasError() const {return getErrors().size() > 0;}
+	protected:
+		Script(Program& program);
 
 	private:
-		Script(Program& program, ASTScript& node);
-
 		Program& program;
+	};
+
+	class UserScript : public Script
+	{
+		friend UserScript* createScript(
+				Program&, ASTScript&, CompileErrorHandler&);
+
+	public:
+		ScriptType getType() const {return node.type->type;}
+		string const& getName() const {return node.name;};
+		ASTScript* getNode() const {return &node;};
+		ScriptScope& getScope() {return *scope;}
+		ScriptScope const& getScope() const {return *scope;}
+
+	private:
+		UserScript(Program&, ASTScript&);
+
 		ASTScript& node;
 		ScriptScope* scope;
 	};
 
+	class BuiltinScript : public Script
+	{
+		friend BuiltinScript* createScript(
+				Program&, ScriptType, string const& name,
+				CompileErrorHandler&);
+
+	public:
+		ScriptType getType() const {return type;}
+		string const& getName() const {return name;};
+		ASTScript* getNode() const {return NULL;};
+		ScriptScope& getScope() {return *scope;}
+		ScriptScope const& getScope() const {return *scope;}
+		
+	private:
+		BuiltinScript(Program&, ScriptType, string const& name);
+		
+		ScriptType type;
+		string name;
+		ScriptScope* scope;
+	};
+
+	UserScript* createScript(Program&, ASTScript&, CompileErrorHandler&);
+	BuiltinScript* createScript(
+			Program&, ScriptType, string const& name, CompileErrorHandler&);
+	
+	Function* getRunFunction(Script const&);
+	optional<int> getLabel(Script const&);
+
+	////////////////////////////////////////////////////////////////
+	// Datum
+	
 	// Something that can be resolved to a data value.
 	class Datum
 	{
@@ -222,6 +273,9 @@ namespace ZScript
 		long value;
 	};
 
+	////////////////////////////////////////////////////////////////
+	// Function
+	
 	class Function
 	{
 	public:

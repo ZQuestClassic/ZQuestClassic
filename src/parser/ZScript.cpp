@@ -8,6 +8,7 @@
 using namespace std;
 using namespace ZScript;
 
+////////////////////////////////////////////////////////////////
 // ZScript::Program
 
 Program::Program(ASTProgram& node, CompileErrorHandler& errorHandler)
@@ -18,12 +19,20 @@ Program::Program(ASTProgram& node, CompileErrorHandler& errorHandler)
 	for (vector<ASTScript*>::const_iterator it = node.scripts.begin();
 		 it != node.scripts.end(); ++it)
 	{
-		Script* script = Script::create(*this, **it, errorHandler);
+		Script* script = createScript(*this, **it, errorHandler);
 		if (!script) continue;
 		
 		scripts.push_back(script);
 		scriptsByName[script->getName()] = script;
 		scriptsByNode[*it] = script;
+	}
+
+	// Create the ~Init script.
+	if (Script* initScript =
+	    createScript(*this, ScriptType::GLOBAL, "~Init", errorHandler))
+	{
+		scripts.push_back(initScript);
+		scriptsByName[initScript->getName()] = initScript;
 	}
 }
 
@@ -72,27 +81,38 @@ vector<Function*> Program::getUserFunctions() const
 	return functions;
 }
 
-vector<CompileError const*> Program::getErrors() const
-{
-	vector<CompileError const*> errors;
-	for (vector<Script*>::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
-	{
-		vector<CompileError const*> scriptErrors = (*it)->getErrors();
-		errors.insert(errors.end(), scriptErrors.begin(), scriptErrors.end());
-	}
-	return errors;
-}
+////////////////////////////////////////////////////////////////
+// ZScript::Script
 
 // ZScript::Script
 
-Script::Script(Program& program, ASTScript& node)
-	: program(program), node(node)
+Script::Script(Program& program) : program(program) {}
+
+Script::~Script()
+{
+	deleteElements(code);
+}
+
+// ZScript::UserScript
+
+UserScript::UserScript(Program& program, ASTScript& node)
+	: Script(program), node(node)
 {}
 
-Script* Script::create(Program& program, ASTScript& node,
-                       CompileErrorHandler& errorHandler)
+// ZScript::BuiltinScript
+
+BuiltinScript::BuiltinScript(
+		Program& program, ScriptType type, string const& name)
+	: Script(program), type(type), name(name)
+{}
+
+// ZScript
+
+UserScript* ZScript::createScript(
+		Program& program, ASTScript& node,
+		CompileErrorHandler& errorHandler)
 {
-	Script* script = new Script(program, node);
+	UserScript* script = new UserScript(program, node);
 
 	ScriptScope* scope = program.getScope().makeScriptChild(*script);
 	if (!scope)
@@ -116,27 +136,48 @@ Script* Script::create(Program& program, ASTScript& node,
 	return script;
 }
 
-string Script::getName() const {return node.name;}
-
-ScriptType Script::getType() const {return node.type->type;}
-
-Function* Script::getRun() const
+BuiltinScript* ZScript::createScript(
+		Program& program, ScriptType type, string const& name,
+		CompileErrorHandler& errorHandler)
 {
-	vector<Function*> possibleRuns = scope->getLocalFunctions("run");
-	if (possibleRuns.size() != 1) return NULL;
-	return possibleRuns[0];
+	BuiltinScript* script = new BuiltinScript(program, type, name);
+
+	ScriptScope* scope = program.getScope().makeScriptChild(*script);
+	if (!scope)
+	{
+		errorHandler.handleError(
+				CompileError::ScriptRedef, NULL, name.c_str());
+		delete script;
+		return NULL;
+	}
+	scope->varDeclsDeprecated = true;
+	script->scope = scope;
+
+	if (type.isNull())
+	{
+		errorHandler.handleError(
+				CompileError::ScriptBadType, NULL, name.c_str());
+		delete script;
+		return NULL;
+	}
+
+	return script;
 }
 
-vector<CompileError const*> Script::getErrors() const
+Function* ZScript::getRunFunction(Script const& script)
 {
-	vector<CompileError const*> errors;
-	string const& name = getName();
-
-	// Invalid run function.
-
-	return errors;
+	return getOnly<Function*>(script.getScope().getLocalFunctions("run"))
+		.value_or(NULL);
 }
 
+optional<int> ZScript::getLabel(Script const& script)
+{
+	if (Function* run = getRunFunction(script))
+		return run->getLabel();
+	return nullopt;
+}
+
+////////////////////////////////////////////////////////////////
 // ZScript::Datum
 
 Datum::Datum(Scope& scope, ZVarType const& type)

@@ -173,6 +173,15 @@ void deleteElements(Container const& container)
 		delete *it;
 }
 
+// Return the only element of a container, or nothing.
+template <typename Element, typename Container>
+optional<Element> getOnly(Container const& container)
+{
+	typename Container::size_type size = container.size();
+	if (size != 1) return nullopt;
+	return container.front();
+}
+
 ////////////////////////////////////////////////////////////////
 // Maps
 

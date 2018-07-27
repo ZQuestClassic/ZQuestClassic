@@ -98,15 +98,17 @@ ScriptsData* compile(const char *filename)
     box_out("Pass 5: Assembling");
     box_eol();
 
-    ScriptsData* final = ScriptParser::assemble(id);
+    ScriptParser::assemble(id);
     delete id;
 
+    ScriptsData* result = new ScriptsData(program);
+    
     box_out("Success!");
     box_eol();
     
 	delete theAST;
 
-    return final;
+    return result;
 }
 
 int ScriptParser::vid = 0;
@@ -340,23 +342,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
         rval->funcs[function.getLabel()] = funccode;
     }
     
-    //Z_message("yes");
-    
-    //update the run symbols
-	for (vector<Script*>::const_iterator it = program.scripts.begin();
-		 it != program.scripts.end();
-		 ++it)
-    {
-		Function* run = (*it)->getRun();
-		string name = (*it)->getName();
-		int id = run->id;
-        int labelid = run->getLabel();
-        rval->scriptRunLabels[name] = labelid;
-    }
-    
-    //Z_message("yes");
-    
-    if(failure)
+    if (failure)
     {
         delete rval;
         return NULL;
@@ -366,59 +352,36 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
     return rval;
 }
 
-ScriptsData *ScriptParser::assemble(IntermediateData *id)
+void ScriptParser::assemble(IntermediateData *id)
 {
 	Program& program = id->program;
 	
-    //finally, finish off this bitch
-    ScriptsData *rval = new ScriptsData;
+	map<Script*, vector<Opcode*> > scriptCode;
     map<int, vector<Opcode *> > funcs = id->funcs;
     vector<Opcode*> ginit = id->globalsInit;
-    map<string, int> scripts = id->scriptRunLabels;
-
-	// Build scripttypes map.
-    map<string, ScriptType> scripttypes;
-	for (vector<Script*>::iterator it = program.scripts.begin();
-		 it != program.scripts.end(); ++it)
-		scripttypes[(*it)->getName()] = (*it)->getType();
     
-    //do the global inits
-    //if there's a global script called "Init", append it to ~Init:
-    map<string, int>::iterator it = scripts.find("Init");
+    // Do the global inits
     
-    if (it != scripts.end() && scripttypes["Init"] == ScriptType::GLOBAL)
+    // If there's a global script called "Init", append it to ~Init:
+	Script* userInit = program.getScript("Init");
+	if (userInit && userInit->getType() == ScriptType::GLOBAL)
     {
-        //append
-        //get label
-        int label = funcs[scripts["Init"]][0]->getLabel();
+	    int label = *getLabel(*userInit);
         ginit.push_back(new OGotoImmediate(new LabelArgument(label)));
     }
     
-    rval->theScripts["~Init"] = assembleOne(ginit, funcs, 0);
-    rval->scriptTypes["~Init"] = ScriptType::GLOBAL;
+	Script* init = program.getScript("~Init");
+	init->code = assembleOne(ginit, funcs, 0);
     
-    for(map<string, int>::iterator it2 = scripts.begin(); it2 != scripts.end(); it2++)
-    {
-        vector<Opcode *> code = funcs[it2->second];
-		int numparams = id->program.getScript(it2->first)->getRun()->paramTypes.size();
-        rval->theScripts[it2->first] = assembleOne(code, funcs, numparams);
-        rval->scriptTypes[it2->first] = scripttypes[it2->first];
-    }
-    
-    for(vector<Opcode *>::iterator it2 = ginit.begin(); it2 != ginit.end(); it2++)
-    {
-        delete *it2;
-    }
-    
-    for(map<int, vector<Opcode *> >::iterator it2 = funcs.begin(); it2 != funcs.end(); it2++)
-    {
-        for(vector<Opcode *>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); it3++)
+    for (vector<Script*>::const_iterator it = program.scripts.begin();
+         it != program.scripts.end(); ++it)
         {
-            delete *it3;
-        }
+	    Script& script = **it;
+	    if (script.getName() == "~Init") continue;
+	    vector<Opcode*> code = funcs[*getLabel(script)];
+        int numparams = getRunFunction(script)->paramTypes.size();
+        script.code = assembleOne(code, funcs, numparams);
     }
-    
-    return rval;
 }
 
 vector<Opcode *> ScriptParser::assembleOne(vector<Opcode *> script, map<int, vector<Opcode *> > &otherfuncs, int numparams)
@@ -573,3 +536,15 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
     return rval;
 }
 
+ScriptsData::ScriptsData(Program& program)
+{
+	for (vector<Script*>::const_iterator it = program.scripts.begin();
+	     it != program.scripts.end(); ++it)
+	{
+		Script& script = **it;
+		string const& name = script.getName();
+		theScripts[name] = script.code;
+		script.code = vector<Opcode*>();
+		scriptTypes[name] = script.getType();
+	}
+}
