@@ -386,14 +386,6 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler& errorHandler)
 	}
 	else anonymousData.push_back(&datum);
 
-	if (AST* node = datum.getNode())
-	{
-		table.putNodeId(node, datum.id);
-	
-		if (optional<long> value = datum.getCompileTimeValue())
-			table.inlineConstant(node, *value);
-	}
-
 	if (!ZScript::isGlobal(datum))
 	{
 		stackOffsets[&datum] = stackDepth++;
@@ -412,8 +404,6 @@ Function* BasicScope::addGetter(
 	Function* fun = new Function(
 			returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
 	getters[name] = fun;
-	table.putFuncTypes(fun->id, returnType, paramTypes);
-	if (node) table.putNodeId(node, fun->id);
 	return fun;
 }
 
@@ -426,8 +416,6 @@ Function* BasicScope::addSetter(
 	Function* fun = new Function(
 			returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
 	setters[name] = fun;
-	table.putFuncTypes(fun->id, returnType, paramTypes);
-	if (node) table.putNodeId(node, fun->id);
 	return fun;
 }
 
@@ -443,8 +431,6 @@ Function* BasicScope::addFunction(
 			returnType, name, paramTypes, ScriptParser::getUniqueFuncID());
 	functionsByName[name].push_back(fun);
 	functionsBySignature[signature] = fun;
-	table.putFuncTypes(fun->id, returnType, paramTypes);
-	if (node) table.putNodeId(node, fun->id);
 	return fun;
 }
 

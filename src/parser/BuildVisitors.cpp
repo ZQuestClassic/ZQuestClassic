@@ -1102,7 +1102,7 @@ void BuildOpcodes::caseBoolLiteral(ASTBoolLiteral& host, void*)
 void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
 {
 	OpcodeContext* c = (OpcodeContext*)param;
-	int id = c->symbols->getNodeId(&host);
+	int id = host.manager->id;
 
 	////////////////////////////////////////////////////////////////
 	// Initialization Code.
@@ -1317,7 +1317,7 @@ void LValBOHelper::caseDataDecl(ASTDataDecl& host, void* param)
 void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
     OpcodeContext* c = (OpcodeContext*)param;
-    int vid = c->symbols->getNodeId(&host);
+    int vid = host.binding->id;
 
     if (optional<int> globalId = host.binding->getGlobalId())
     {

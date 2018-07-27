@@ -466,7 +466,6 @@ void SemanticAnalyzer::caseExprIdentifier(
 		            host.asString().c_str());
 		return;
 	}
-	scope->getTable().putNodeId(&host, host.binding->id);
 
 	// Can't write to a constant.
 	if (param == paramWrite || param == paramReadWrite)
@@ -513,7 +512,6 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 						(host.right + (host.index ? "[]" : "")).c_str());
 			return;
 		}
-		program.getTable().putNodeId(&host, host.readFunction->id);
 	}
 
 	// Find write function.
@@ -533,7 +531,6 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 						(host.right + (host.index ? "[]" : "")).c_str());
 			return;
 		}
-		program.getTable().putNodeId(&host, host.writeFunction->id);
 	}
 
 	if (host.index)
@@ -674,7 +671,6 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	}
 
 	host.binding = bestFunction;
-	program.getTable().putNodeId(&host, bestFunction->id);	
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
@@ -920,21 +916,6 @@ void SemanticAnalyzer::analyzeIncrement(ASTUnaryExpr& host)
     if (breakRecursion(host)) return;
 
 	ASTExpr& operand = *host.operand;
-	if (operand.isTypeArrow())
-	{
-		ASTExprArrow& arrow = static_cast<ASTExprArrow&>(operand);
-		program.getTable().putNodeId(&host, arrow.readFunction->id);
-	}
-	if (operand.isTypeIndex())
-	{
-		ASTExprIndex& index = static_cast<ASTExprIndex&>(operand);
-		if (index.array->isTypeArrow())
-		{
-			ASTExprArrow& arrow = static_cast<ASTExprArrow&>(*index.array);
-			program.getTable().putNodeId(&host, arrow.readFunction->id);
-		}
-	}
-
     checkCast(*operand.getReadType(), ZVarType::FLOAT, &host);
     if (breakRecursion(host)) return;
 }
