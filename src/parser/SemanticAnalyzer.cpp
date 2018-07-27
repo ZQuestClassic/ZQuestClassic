@@ -38,7 +38,8 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	{
 		ZVarTypeId thisTypeId = ScriptParser::getThisType(script->getType());
 		ZVarType const& thisType = *scope->getTable().getType(thisTypeId);
-		function.thisVar = functionScope.addVariable(thisType, "this");
+		function.thisVar = new BuiltinVariable(*scope, thisType, "this");
+		functionScope.add(function.thisVar);
 	}
 
 	// Add the parameters to the scope.
@@ -48,8 +49,12 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		ASTDataDecl& parameter = **it;
 		string const& name = parameter.name;
 		ZVarType const& type = *parameter.resolveType(&functionScope);
-		Variable* var = functionScope.addVariable(type, name, &parameter);
-		if (var == NULL) handleError(CompileError::VarRedef, &parameter, name.c_str());
+		Variable* var = new Variable(functionScope, parameter, type);
+		if (!functionScope.add(var))
+		{
+			handleError(CompileError::VarRedef, &parameter, name.c_str());
+			delete var;
+		}
 	}
 
 	// Evaluate the function block under its scope and return type.
@@ -234,21 +239,6 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		return;
 	}
 
-	// Add the variable to scope.
-	Variable* variable = scope->addVariable(type, host.name, &host);
-
-	// If adding it failed, it means this scope already has a variable with
-	// that name.
-	if (variable == NULL)
-	{
-		handleError(CompileError::VarRedef, &host, host.name.c_str());
-		return;
-	}
-
-	// Special message for deprecated global variables.
-	if (scope->varDeclsDeprecated)
-		handleError(CompileError::DeprecatedGlobal, &host, host.name.c_str());
-
 	// Currently disabled syntaxes:
 	if (type.getArrayDepth() > 1)
 	{
@@ -257,7 +247,8 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		return;
 	}
 
-	// Constants are treated special.
+	// Is it a constant?
+	bool isConstant = false;
 	if (type == ZVarType::CONST_FLOAT)
 	{
 		// A constant without an initializer doesn't make sense.
@@ -268,15 +259,35 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		}
 
 		// Inline the constant if possible.
-		if (host.initializer()->getCompileTimeValue(this))
-		{
-			program.table.inlineConstant(
-					&host, *host.initializer()->getCompileTimeValue(this));
-			variable->compileTimeValue =
-				host.initializer()->getCompileTimeValue(this);
-			if (breakRecursion(host)) return;
-		}
+		isConstant = host.initializer()->getCompileTimeValue(this);
 	}
+
+	if (isConstant)
+		{
+		if (scope->getLocalDatum(host.name))
+		{
+			handleError(CompileError::VarRedef, &host, host.name.c_str());
+			return;
+		}
+		
+		long value = *host.initializer()->getCompileTimeValue(this);
+		addConstant(*scope, host, type, value);
+	}
+	
+	else
+	{
+		if (scope->getLocalDatum(host.name))
+		{
+			handleError(CompileError::VarRedef, &host, host.name.c_str());
+			return;
+		}
+
+		addVariable(*scope, host, type);
+	}
+
+	// Special message for deprecated global variables.
+	if (scope->varDeclsDeprecated)
+		handleError(CompileError::DeprecatedGlobal, &host, host.name.c_str());
 
 	// Check the initializer.
 	if (host.initializer())
@@ -441,7 +452,7 @@ void SemanticAnalyzer::caseExprIdentifier(
 		ASTExprIdentifier& host, void* param)
 {
 	// Bind to named variable.
-	host.binding = lookupVariable(*scope, host.components);
+	host.binding = lookupDatum(*scope, host.components);
 	if (!host.binding)
 	{
 		handleError(CompileError::VarUndeclared, &host,
@@ -453,7 +464,7 @@ void SemanticAnalyzer::caseExprIdentifier(
 	// Can't write to a constant.
 	if (param == paramWrite || param == paramReadWrite)
 	{
-		if (*host.binding->type == ZVarType::CONST_FLOAT)
+		if (host.binding->type == ZVarType::CONST_FLOAT)
 		{
 			handleError(CompileError::LValConst, &host,
 						host.asString().c_str());
@@ -802,7 +813,8 @@ void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
 	host.setVarType(type);
 
 	// Add to scope as a managed literal.
-	scope->addLiteral(host, type);
+	Literal* literal = new Literal(*scope, host, *type);
+	if (!scope->add(literal)) delete literal;
 }
 
 void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
@@ -874,7 +886,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	}
 	
 	// Add to scope as a managed literal.
-	scope->addLiteral(host, host.getReadType());
+	addLiteral(*scope, host, *host.getReadType());
 }
 
 void SemanticAnalyzer::checkCast(

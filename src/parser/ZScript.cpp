@@ -48,28 +48,6 @@ Script* Program::getScript(ASTScript* node) const
 	return it->second;
 }
 
-vector<Variable*> Program::getUserGlobalVariables() const
-{
-	// Grab user-defined global variables.
-	vector<Variable*> variables = globalScope.getLocalVariables();
-	for (vector<Variable*>::iterator it = variables.begin(); it != variables.end();)
-	{
-		Variable& variable = **it;
-		if (!variable.node) it = variables.erase(it);
-		else ++it;
-	}
-
-	// Append all script level variables.
-	for (vector<Script*>::const_iterator it = scripts.begin();
-		 it != scripts.end(); ++it)
-	{
-		Script& script = **it;
-		vector<Variable*> scriptVariables = script.scope->getLocalVariables();
-		variables.insert(variables.end(), scriptVariables.begin(), scriptVariables.end());
-	}
-	return variables;
-}
-
 vector<Function*> Program::getUserGlobalFunctions() const
 {
 	vector<Function*> functions = globalScope.getLocalFunctions();
@@ -156,21 +134,87 @@ vector<CompileError const*> Script::getErrors() const
 	return errors;
 }
 
+// ZScript::Datum
+
+Datum::Datum(Scope& scope, ZVarType const& type)
+	: id(ScriptParser::getUniqueVarID()), type(type), scope(scope)
+{}
+
+bool ZScript::isGlobal(Datum const& datum)
+{
+	return datum.scope.isGlobal() || datum.scope.isScript();
+}
+
 // ZScript::Literal
 
-Literal::Literal(ASTLiteral* node, ZVarType const* type, int id)
-	: node(node), type(type), id(id)
+Literal::Literal(Scope& scope, ASTLiteral& node, ZVarType const& type)
+	: Datum(scope, type), node(node)
 {
-	if (node) node->manager = this;
+	node.manager = this;
+}
+
+Literal* ZScript::addLiteral(
+		Scope& scope, ASTLiteral& node, ZVarType const& type)
+{
+	Literal* literal = new Literal(scope, node, type);
+	if (scope.add(literal)) return literal;
+	delete literal;
+	return NULL;
 }
 
 // ZScript::Variable
 
-Variable::Variable(ASTDataDecl* node, ZVarType const* type, string const& name, int id)
-	: node(node), type(type), name(name), id(id)
+Variable::Variable(
+		Scope& scope, ASTDataDecl& node, ZVarType const& type)
+	: Datum(scope, type), node(node)
 {
-	if (node) node->manager = this;
+	node.manager = this;
 }
+
+optional<string> Variable::getName() const {return node.name;}
+
+Variable* ZScript::addVariable(
+		Scope& scope, ASTDataDecl& node, ZVarType const& type)
+{
+	Variable* variable = new Variable(scope, node, type);
+	if (scope.add(variable)) return variable;
+	delete variable;
+	return NULL;
+}
+
+// ZScript::BuiltinVariable
+
+BuiltinVariable::BuiltinVariable(
+		Scope& scope, ZVarType const& type, string const& name)
+	: Datum(scope, type), name(name)
+{}
+
+// ZScript::Constant
+
+Constant::Constant(
+		Scope& scope, ASTDataDecl& node, ZVarType const& type, long value)
+	: Datum(scope, type), node(node), value(value)
+{
+	node.manager = this;
+}
+
+optional<string> Constant::getName() const {return node.name;}
+
+Constant* ZScript::addConstant(
+		Scope& scope, ASTDataDecl& node, ZVarType const& type, long value)
+{
+	Constant* constant = new Constant(scope, node, type, value);
+	if (scope.add(constant)) return constant;
+	delete constant;
+	return NULL;
+}
+
+// ZScript::BuiltinConstant
+
+BuiltinConstant::BuiltinConstant(
+		Scope& scope, ZVarType const& type, string const& name, long value)
+	: Datum(scope, type), name(name), value(value)
+{}
 
 // ZScript::Function::Signature
 

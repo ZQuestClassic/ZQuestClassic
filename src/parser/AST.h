@@ -30,10 +30,13 @@ class CompileError;
 class CompileErrorHandler;
 namespace ZScript
 {
-	class Function;
-	class Variable;
 	class Scope;
 	class ZClass;
+	class Datum;
+	class Literal;
+	class Variable;
+	class Constant;
+	class Function;
 }
 
 #define RECURSIONLIMIT 30
@@ -656,7 +659,7 @@ public:
 
 	// Reference back to the variable manager for this node. Should be set by
 	// that Variable when it is created.
-	ZScript::Variable* manager;
+	ZScript::Datum* manager;
 
 	// This type of this data (minus the extra arrays). This should only be
 	// set if this declaration is not part of a list, as the list's base type
@@ -841,7 +844,7 @@ public:
 	vector<string> components;
 
 	// What this identifier refers to.
-	ZScript::Variable* binding;
+	ZScript::Datum* binding;
 private:
 	bool mIsConstant;
 };

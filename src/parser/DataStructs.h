@@ -101,9 +101,8 @@ struct FunctionData
 {
 	FunctionData(ZScript::Program& program);
 	ZScript::Program& program;
-	vector<ZScript::Literal*> globalLiterals;
-	vector<ZScript::Variable*> globalVariables;
-	vector<ZScript::Variable*> globalConstants;
+	vector<ZScript::Datum*> globalData;
+	vector<ZScript::Datum*> globalVariables;
 };
 
 struct IntermediateData

@@ -1212,19 +1212,18 @@ optional<long> ASTExprIdentifier::getCompileTimeValue(
 		CompileErrorHandler* errorHandler)
 		const
 {
-	return binding ? binding->compileTimeValue : nullopt;
+	return binding ? binding->getCompileTimeValue() : nullopt;
 }
 
 ZVarType const* ASTExprIdentifier::getReadType() const
 {
-	return binding ? binding->type : NULL;
+	return binding ? &binding->type : NULL;
 }
 
 ZVarType const* ASTExprIdentifier::getWriteType() const
 {
-	return binding ? binding->type : NULL;
+	return binding ? &binding->type : NULL;
 }
-
 
 // ASTExprArrow
 
