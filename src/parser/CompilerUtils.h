@@ -4,8 +4,49 @@
 #define ZSCRIPT_COMPILER_UTILS_H
 
 #include <cassert>
-#include <list>
+#include <cstddef>
 #include <vector>
+
+////////////////////////////////////////////////////////////////
+// Safe Bool Idiom
+
+// Mixin for the safe bool idiom.
+// To use, inherit publically from safe_bool<Own Class> and implement
+// bool safe_bool() const;
+template <typename Self>
+class SafeBool
+{
+protected:
+	typedef void (SafeBool::*bool_type) () const;
+	void this_type_does_not_support_comparisons() const {}
+
+	SafeBool() {}
+	SafeBool(SafeBool const&) {}
+	SafeBool& operator=(SafeBool const&) {return *this;}
+	~SafeBool() {}
+
+public:
+	operator bool_type() const
+	{
+		return static_cast<Self const*>(this)->safe_bool()
+			? &SafeBool::this_type_does_not_support_comparisons
+			: NULL;
+	}
+};
+
+// Disable ==.
+template <typename T, typename U> 
+bool operator==(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
+	lhs.this_type_does_not_support_comparisons(); // compile error
+	return false;
+}
+
+// Disable !=
+template <typename T, typename U> 
+bool operator!=(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
+    lhs.this_type_does_not_support_comparisons(); // compile error
+    return false;	
+}
 
 ////////////////////////////////////////////////////////////////
 // Simple std::optional (from C++17).
@@ -19,7 +60,7 @@ struct nullopt_t
 const nullopt_t nullopt((nullopt_t::init()));
 
 template <class Type>
-class optional
+class optional : public SafeBool<optional<Type> >
 {
 public:
 	// Construct empty optional. 
@@ -106,21 +147,11 @@ public:
 		has_value_ = false;
 	}
 
+	bool safe_bool() const {return has_value_;}
+	
 private:
 	bool has_value_;
 	union {char data[1 + (sizeof(Type) - 1) / sizeof(char)];};
-
-	// safe_bool idiom
-private:
-	typedef void (optional::*safe_bool)() const;
-	void this_type_does_not_support_comparisons() const {}
-public:
-	operator safe_bool() const
-    {
-        return has_value_
-			? &optional::this_type_does_not_support_comparisons
-			: 0;
-    }
 };
 
 ////////////////////////////////////////////////////////////////
