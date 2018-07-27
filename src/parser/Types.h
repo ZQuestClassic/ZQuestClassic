@@ -196,26 +196,6 @@ namespace ZScript
 	bool operator>(DataType const&, DataType const&);
 	bool operator>=(DataType const&, DataType const&);
 	
-	class DataTypeSimple : public DataType
-	{
-	public:
-		DataTypeSimple(int simpleId, string const& name, string const& upName)
-			: simpleId(simpleId), name(name), upName(upName) {}
-		DataTypeSimple* clone() const {return new DataTypeSimple(*this);}
-	string getName() const {return name;}
-	string getUpName() const {return upName;}
-	bool canBeGlobal() const;
-		bool canCastTo(DataType const& target) const;
-	int getId() const {return simpleId;}
-
-	private:
-	int simpleId;
-	string name;
-	string upName;
-
-		int selfCompare(DataType const& rhs) const;
-	};
-
 	class DataTypeUnresolved : public DataType
 	{
 	public:
@@ -223,11 +203,31 @@ namespace ZScript
 		DataTypeUnresolved* clone() const {return new DataTypeUnresolved(*this);}
 	string getName() const {return name;}
 		DataType* resolve(ZScript::Scope& scope);
-	bool isResolved() const {return false;}
+		bool isResolved() const {return false;}
 		bool canCastTo(DataType const& target) const {return false;}
 
 	private:
 	string name;
+
+		int selfCompare(DataType const& rhs) const;
+	};
+
+	class DataTypeSimple : public DataType
+	{
+	public:
+		DataTypeSimple(int simpleId, string const& name, string const& upName)
+			: simpleId(simpleId), name(name), upName(upName) {}
+		DataTypeSimple* clone() const {return new DataTypeSimple(*this);}
+	string getName() const {return name;}
+		string getUpName() const {return upName;}
+		bool canBeGlobal() const;
+		bool canCastTo(DataType const& target) const;
+		int getId() const {return simpleId;}
+
+	private:
+		int simpleId;
+	string name;
+		string upName;
 
 		int selfCompare(DataType const& rhs) const;
 	};
