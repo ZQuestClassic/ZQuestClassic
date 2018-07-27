@@ -13,7 +13,7 @@ using namespace ZScript;
 // ZScript::Program
 
 Program::Program(ASTProgram& node, CompileErrorHandler& errorHandler)
-	: node(node), globalScope(new GlobalScope())
+	: node(node), globalScope(new GlobalScope(typeStore))
 {
 	// Create a ZScript::Script for every script in the program.
 	for (vector<ASTScript*>::const_iterator it = node.scripts.begin();
@@ -40,16 +40,6 @@ Program::~Program()
 {
 	deleteElements(scripts);
 	delete globalScope;
-}
-
-TypeStore const& Program::getTypeStore() const
-{
-	return globalScope->getTypeStore();
-}
-
-TypeStore& Program::getTypeStore()
-{
-	return globalScope->getTypeStore();
 }
 
 Script* Program::getScript(string const& name) const
