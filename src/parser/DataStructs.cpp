@@ -125,6 +125,20 @@ ZClass* SymbolTable::createClass(string const& name)
 	return klass;
 }
 
+vector<Function*> getClassFunctions(SymbolTable const& table)
+{
+	vector<Function*> functions;
+	vector<ZClass*> classes = table.getClasses();
+	for (vector<ZClass*>::const_iterator it = classes.begin();
+	     it != classes.end(); ++it)
+	{
+		appendElements(functions, (*it)->getLocalFunctions());
+		appendElements(functions, (*it)->getLocalGetters());
+		appendElements(functions, (*it)->getLocalSetters());
+	}
+	return functions;
+}
+
 ////////////////////////////////////////////////////////////////
 // FunctionData
 

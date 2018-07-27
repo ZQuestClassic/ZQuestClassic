@@ -115,7 +115,7 @@ public:
     static pair<long,bool> parseLong(pair<string,string> parts);
 private:
     static string prepareFilename(string const& filename);
-    static vector<Opcode *> assembleOne(vector<Opcode *> script, std::map<int, vector<Opcode *> > &otherfuncs, int numparams);
+    static vector<Opcode *> assembleOne(ZScript::Program& program, vector<Opcode*> script, int numparams);
     static int vid;
     static int fid;
     static int gid;

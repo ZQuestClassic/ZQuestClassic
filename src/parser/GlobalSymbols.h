@@ -36,20 +36,21 @@ class LibrarySymbols
 public:
 	static LibrarySymbols* getTypeInstance(ZVarTypeId typeId);
 
-    virtual map<int, vector<Opcode*> > generateCode();
-	
 	virtual void addSymbolsToScope(ZScript::Scope& scope);
     virtual ~LibrarySymbols();
+
 protected:
     AccessorTable *table;
-    LibrarySymbols() {}
-    int firstid;
+	LibrarySymbols() : refVar(0) {}
     int refVar;
-    map<string, ZScript::Function*> functions;
-	map<string, ZScript::Function*> getters;
-	map<string, ZScript::Function*> setters;
 
 	ZScript::Function* getFunction(string const& name) const;
+
+private:
+    map<string, ZScript::Function*> functions;
+	
+	// Generates the code for functions which can't be auto generated.
+	virtual void generateCode() = 0;
 };
 
 class GlobalSymbols : public LibrarySymbols
@@ -59,11 +60,10 @@ public:
     {
         return singleton;
     }
-
-	map<int, vector<Opcode*> > generateCode();
 private:
     static GlobalSymbols singleton;
     GlobalSymbols();
+	void generateCode();
 };
 
 class FFCSymbols : public LibrarySymbols
@@ -73,10 +73,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 private:
     static FFCSymbols singleton;
     FFCSymbols();
+	void generateCode();
 };
 
 class LinkSymbols : public LibrarySymbols
@@ -86,10 +86,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 private:
     static LinkSymbols singleton;
     LinkSymbols();
+	void generateCode();
 };
 
 class ScreenSymbols : public LibrarySymbols
@@ -99,10 +99,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 private:
     static ScreenSymbols singleton;
     ScreenSymbols();
+	void generateCode();
 };
 
 class ItemSymbols : public LibrarySymbols
@@ -112,11 +112,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static ItemSymbols singleton;
     ItemSymbols();
+	void generateCode();
 };
 
 class ItemclassSymbols : public LibrarySymbols
@@ -126,10 +125,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 private:
     static ItemclassSymbols singleton;
     ItemclassSymbols();
+	void generateCode();
 };
 
 class GameSymbols : public LibrarySymbols
@@ -139,10 +138,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 private:
     static GameSymbols singleton;
     GameSymbols();
+	void generateCode();
 };
 
 class NPCSymbols : public LibrarySymbols
@@ -152,11 +151,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static NPCSymbols singleton;
     NPCSymbols();
+	void generateCode();
 };
 
 class LinkWeaponSymbols : public LibrarySymbols
@@ -166,11 +164,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static LinkWeaponSymbols singleton;
     LinkWeaponSymbols();
+	void generateCode();
 };
 
 class EnemyWeaponSymbols : public LibrarySymbols
@@ -180,11 +177,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static EnemyWeaponSymbols singleton;
     EnemyWeaponSymbols();
+	void generateCode();
 };
 
 //New Types
@@ -198,11 +194,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static GfxPtrSymbols singleton;
     GfxPtrSymbols();
+    void generateCode();
 };
 
 //SpriteData
@@ -213,11 +209,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static SpriteDataSymbols singleton;
     SpriteDataSymbols();
+    void generateCode();
 };
 
 //DMapData
@@ -228,11 +224,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static DMapDataSymbols singleton;
     DMapDataSymbols();
+    void generateCode();
 };
 
 
@@ -244,11 +240,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static MessageDataSymbols singleton;
     MessageDataSymbols();
+    void generateCode();
 };
 
 //ShopData
@@ -259,11 +255,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static ShopDataSymbols singleton;
     ShopDataSymbols();
+    void generateCode();
 };
 
 //ComboData->
@@ -275,11 +271,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static CombosPtrSymbols singleton;
     CombosPtrSymbols();
+    void generateCode();
 };
 
 //Audio->
@@ -291,11 +287,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static AudioSymbols singleton;
     AudioSymbols();
+	void generateCode();
 };
 
 //Debug->
@@ -307,11 +302,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static DebugSymbols singleton;
     DebugSymbols();
+	void generateCode();
 };
 
 //NPCData->
@@ -323,11 +317,10 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
-protected:
 private:
     static NPCDataSymbols singleton;
     NPCDataSymbols();
+	void generateCode();
 };
 
 //Text->
@@ -338,11 +331,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static TextPtrSymbols singleton;
     TextPtrSymbols();
+    void generateCode();
 };
 
 //Input->
@@ -353,11 +346,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static InputSymbols singleton;
     InputSymbols();
+    void generateCode();
 };
 
 //MapData->
@@ -368,14 +361,12 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static MapDataSymbols singleton;
     MapDataSymbols();
+    void generateCode();
 };
-
-
 
 //nil
 class UntypedSymbols : public LibrarySymbols
@@ -385,11 +376,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static UntypedSymbols singleton;
     UntypedSymbols();
+    void generateCode();
 };
 
 //dropdata
@@ -400,11 +391,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static DropsetSymbols singleton;
     DropsetSymbols();
+    void generateCode();
 };
 
 //ponddata
@@ -415,11 +406,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static PondSymbols singleton;
     PondSymbols();
+    void generateCode();
 };
 
 //warpringdata
@@ -430,11 +421,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static WarpringSymbols singleton;
     WarpringSymbols();
+    void generateCode();
 };
 
 //doorsetdata
@@ -445,11 +436,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static DoorsetSymbols singleton;
     DoorsetSymbols();
+    void generateCode();
 };
 
 //misccolordata
@@ -460,11 +451,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static MiscColourSymbols singleton;
     MiscColourSymbols();
+    void generateCode();
 };
 
 //rgbdata
@@ -475,11 +466,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static RGBSymbols singleton;
     RGBSymbols();
+    void generateCode();
 };
 
 //palettedata
@@ -490,11 +481,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static PaletteSymbols singleton;
     PaletteSymbols();
+    void generateCode();
 };
 
 //tunesdata
@@ -505,11 +496,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static TunesSymbols singleton;
     TunesSymbols();
+    void generateCode();
 };
 
 //palcycledata
@@ -520,11 +511,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static PalCycleSymbols singleton;
     PalCycleSymbols();
+    void generateCode();
 };
 
 //gamedata
@@ -535,11 +526,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static GamedataSymbols singleton;
     GamedataSymbols();
+    void generateCode();
 };
 
 //cheatdata
@@ -550,11 +541,11 @@ public:
     {
         return singleton;
     }
-    map<int, vector<Opcode *> > generateCode();
 protected:
 private:
     static CheatsSymbols singleton;
     CheatsSymbols();
+    void generateCode();
 };
 
 

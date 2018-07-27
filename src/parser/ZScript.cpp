@@ -41,6 +41,11 @@ Program::~Program()
 	delete globalScope;
 }
 
+SymbolTable const& Program::getTable() const
+{
+	return globalScope->getTable();
+}
+
 SymbolTable& Program::getTable()
 {
 	return globalScope->getTable();
@@ -74,13 +79,21 @@ vector<Function*> Program::getUserGlobalFunctions() const
 
 vector<Function*> Program::getUserFunctions() const
 {
-	vector<Function*> functions = getFunctionsInBranch(*globalScope);
-	for (vector<Function*>::iterator it = functions.begin(); it != functions.end();)
+	vector<Function*> functions = getFunctions(*this);
+	for (vector<Function*>::iterator it = functions.begin();
+	     it != functions.end();)
 	{
 		Function& function = **it;
 		if (!function.node) it = functions.erase(it);
 		else ++it;
 	}
+	return functions;
+}
+
+vector<Function*> ZScript::getFunctions(Program const& program)
+{
+	vector<Function*> functions = getFunctionsInBranch(program.getScope());
+	appendElements(functions, getClassFunctions(program.getTable()));
 	return functions;
 }
 
@@ -363,6 +376,24 @@ Function::Function(ZVarType const* returnType, string const& name,
 	  returnType(returnType), name(name), paramTypes(paramTypes),
 	  id(id), label(nullopt)
 {}
+
+Function::~Function()
+{
+	deleteElements(ownedCode);
+}
+
+vector<Opcode*> Function::takeCode()
+{
+	vector<Opcode*> code = ownedCode;
+	ownedCode.clear();
+	return code;
+}
+
+void Function::giveCode(vector<Opcode*>& code)
+{
+	appendElements(ownedCode, code);
+	code.clear();
+}
 
 Script* Function::getScript() const
 {
