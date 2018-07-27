@@ -1,10 +1,11 @@
 #include <cstdio>
 #include <string>
-#include <cassert>
+#include <typeinfo>
 #include "Types.h"
 #include "DataStructs.h"
 #include "Scope.h"
 
+using namespace std;
 using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
@@ -163,11 +164,13 @@ DataTypeConstFloat const DataType::CONST_FLOAT;
 ////////////////////////////////////////////////////////////////
 // DataType
 
-int DataType::compare(DataType const& other) const
+int DataType::compare(DataType const& rhs) const
 {
-	int c = typeClassId() - other.typeClassId();
-	if (c) return c;
-	return selfCompare(other);
+	type_info const& lhsType = typeid(*this);
+	type_info const& rhsType = typeid(rhs);
+	if (lhsType.before(rhsType)) return -1;
+	if (rhsType.before(lhsType)) return 1;
+	return selfCompare(rhs);
 }
 
 DataType const* DataType::get(DataTypeId id)
@@ -227,12 +230,42 @@ int DataType::getArrayDepth() const
 	return depth;
 }
 
+bool ZScript::operator==(DataType const& lhs, DataType const& rhs)
+{
+	return lhs.compare(rhs) == 0;
+}
+
+bool ZScript::operator!=(DataType const& lhs, DataType const& rhs)
+{
+	return lhs.compare(rhs) != 0;
+}
+
+bool ZScript::operator<(DataType const& lhs, DataType const& rhs)
+{
+	return lhs.compare(rhs) < 0;
+}
+
+bool ZScript::operator<=(DataType const& lhs, DataType const& rhs)
+{
+	return lhs.compare(rhs) <= 0;
+}
+
+bool ZScript::operator>(DataType const& lhs, DataType const& rhs)
+{
+	return lhs.compare(rhs) > 0;
+}
+
+bool ZScript::operator>=(DataType const& lhs, DataType const& rhs)
+{
+	return lhs.compare(rhs) >= 0;
+}
+
 ////////////////////////////////////////////////////////////////
 // DataTypeSimple
 
-int DataTypeSimple::selfCompare(DataType const& other) const
+int DataTypeSimple::selfCompare(DataType const& rhs) const
 {
-	DataTypeSimple const& o = (DataTypeSimple const&)other;
+	DataTypeSimple const& o = static_cast<DataTypeSimple const&>(rhs);
 	return simpleId - o.simpleId;
 }
 
@@ -243,21 +276,27 @@ bool DataTypeSimple::canBeGlobal() const
 
 bool DataTypeSimple::canCastTo(DataType const& target) const
 {
-	if (target.typeClassId() == ZVARTYPE_CLASSID_CONST_FLOAT)
+	if (DataTypeConstFloat const* t =
+			dynamic_cast<DataTypeConstFloat const*>(&target))
 		return canCastTo(DataType::FLOAT);
-	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
-		return canCastTo(((DataTypeArray const&)target).getBaseType());
 
-	if (target.typeClassId() != ZVARTYPE_CLASSID_SIMPLE) return false;
+	if (DataTypeArray const* t =
+			dynamic_cast<DataTypeArray const*>(&target))
+		return canCastTo(t->getBaseType());
 
-	DataTypeSimple const& t = (DataTypeSimple const&)target;
-	if (simpleId == ZVARTYPEID_UNTYPED || t.simpleId == ZVARTYPEID_UNTYPED)
-		return true;
-	if (simpleId == ZVARTYPEID_VOID || t.simpleId == ZVARTYPEID_VOID)
+	if (DataTypeSimple const* t =
+			dynamic_cast<DataTypeSimple const*>(&target))
+	{
+		if (simpleId == ZVARTYPEID_UNTYPED || t->simpleId == ZVARTYPEID_UNTYPED)
+			return true;
+		if (simpleId == ZVARTYPEID_VOID || t->simpleId == ZVARTYPEID_VOID)
 		return false;
-	if (simpleId == t.simpleId) return true;
-	if (simpleId == ZVARTYPEID_FLOAT && t.simpleId == ZVARTYPEID_BOOL)
+		if (simpleId == t->simpleId)
+			return true;
+		if (simpleId == ZVARTYPEID_FLOAT && t->simpleId == ZVARTYPEID_BOOL)
 		return true;
+	}
+	
 	return false;
 }
 
@@ -271,9 +310,9 @@ DataType* DataTypeUnresolved::resolve(Scope& scope)
 	return NULL;
 }
 
-int DataTypeUnresolved::selfCompare(DataType const& other) const
+int DataTypeUnresolved::selfCompare(DataType const& rhs) const
 {
-	DataTypeUnresolved const& o = (DataTypeUnresolved const&)other;
+	DataTypeUnresolved const& o = static_cast<DataTypeUnresolved const&>(rhs);
 	return name.compare(o.name);
 }
 
@@ -309,8 +348,10 @@ string DataTypeClass::getName() const
 
 bool DataTypeClass::canCastTo(DataType const& target) const
 {
-	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
-		return canCastTo(((DataTypeArray const&)target).getBaseType());
+	if (DataTypeArray const* t =
+			dynamic_cast<DataTypeArray const*>(&target))
+		return canCastTo(t->getBaseType());
+
 	return *this == target;
 }
 
@@ -323,9 +364,9 @@ DataType* DataTypeClass::resolve(Scope& scope)
 	return this;
 }
 
-int DataTypeClass::selfCompare(DataType const& other) const
+int DataTypeClass::selfCompare(DataType const& rhs) const
 {
-	DataTypeClass const& o = (DataTypeClass const&)other;
+	DataTypeClass const& o = static_cast<DataTypeClass const&>(rhs);
 	return classId - o.classId;
 }
 
@@ -334,22 +375,24 @@ int DataTypeClass::selfCompare(DataType const& other) const
 
 bool DataTypeArray::canCastTo(DataType const& target) const
 {
-	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
-		return canCastTo(((DataTypeArray const&)target).getBaseType());
+	if (DataTypeArray const* t =
+			dynamic_cast<DataTypeArray const*>(&target))
+		return canCastTo(t->getBaseType());
+	
 	return getBaseType().canCastTo(target);
 }
 
 DataType const& DataTypeArray::getBaseType() const
 {
 	DataType const* type = &elementType;
-	while (type->typeClassId() == ZVARTYPE_CLASSID_ARRAY)
-		type = &((DataTypeArray const*)type)->elementType;
+	while (DataTypeArray const* t = dynamic_cast<DataTypeArray const*>(type))
+		type = &t->elementType;
 	return *type;
 }
 
-int DataTypeArray::selfCompare(DataType const& other) const
+int DataTypeArray::selfCompare(DataType const& rhs) const
 {
-	DataTypeArray const& o = (DataTypeArray const&)other;
+	DataTypeArray const& o = static_cast<DataTypeArray const&>(rhs);
 	return elementType.compare(o.elementType);
 }
 

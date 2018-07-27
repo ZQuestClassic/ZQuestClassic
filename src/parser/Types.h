@@ -1,11 +1,11 @@
 #ifndef ZSPARSER_TYPES_H
 #define ZSPARSER_TYPES_H
 
-#include <string>
 #include <functional>
 #include <iostream>
-#include <vector>
 #include <map>
+#include <string>
+#include <vector>
 #include "CompilerUtils.h"
 
 using std::string;
@@ -65,17 +65,6 @@ namespace ZScript
 
 	////////////////////////////////////////////////////////////////
 	// Data Types
-
-	// I can't figure out a better way to do this in C++98.
-	enum DataTypeClassId
-	{
-	ZVARTYPE_CLASSID_BASE,
-	ZVARTYPE_CLASSID_SIMPLE,
-	ZVARTYPE_CLASSID_UNRESOLVED,
-	ZVARTYPE_CLASSID_CONST_FLOAT,
-	ZVARTYPE_CLASSID_CLASS,
-	ZVARTYPE_CLASSID_ARRAY
-	};
 
 	enum DataTypeIdBuiltin
 	{
@@ -142,21 +131,21 @@ namespace ZScript
 	virtual bool isResolved() const {return true;}
 	virtual bool canBeGlobal() const {return false;}
 		virtual bool canCastTo(DataType const& target) const = 0;
-	virtual int typeClassId() const {return ZVARTYPE_CLASSID_BASE;};
 
-		int compare(DataType const& other) const;
-		bool operator==(DataType const& other) const {return compare(other) == 0;}
-		bool operator!=(DataType const& other) const {return compare(other) != 0;}
-		bool operator<(DataType const& other) const {return compare(other) < 0;}
+		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
+		int compare(DataType const& rhs) const;
 
-	// This comes up so often I'm adding in this shortcut.
-	bool isArray() const {return typeClassId() == ZVARTYPE_CLASSID_ARRAY;}
+		// Derived class info.
+		virtual bool isArray() const {return false;}
+		virtual bool isClass() const {return false;}
 
 	// Get the number of nested arrays at top level.
 	int getArrayDepth() const;
 	
-	protected:
-		virtual int selfCompare(DataType const& other) const = 0;
+	private:
+		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
+		// rhs is guaranteed to be the same class as the derived type.
+		virtual int selfCompare(DataType const& rhs) const = 0;
 
 		// Standard Types.
 	public:
@@ -200,6 +189,13 @@ namespace ZScript
 		static DataType const* get(DataTypeId id);
 	};
 
+	bool operator==(DataType const&, DataType const&);
+	bool operator!=(DataType const&, DataType const&);
+	bool operator<(DataType const&, DataType const&);
+	bool operator<=(DataType const&, DataType const&);
+	bool operator>(DataType const&, DataType const&);
+	bool operator>=(DataType const&, DataType const&);
+	
 	class DataTypeSimple : public DataType
 	{
 	public:
@@ -211,13 +207,13 @@ namespace ZScript
 	bool canBeGlobal() const;
 		bool canCastTo(DataType const& target) const;
 	int getId() const {return simpleId;}
-	int typeClassId() const {return ZVARTYPE_CLASSID_SIMPLE;}
-	protected:
-		int selfCompare(DataType const& other) const;
+
 	private:
 	int simpleId;
 	string name;
 	string upName;
+
+		int selfCompare(DataType const& rhs) const;
 	};
 
 	class DataTypeUnresolved : public DataType
@@ -229,11 +225,11 @@ namespace ZScript
 		DataType* resolve(ZScript::Scope& scope);
 	bool isResolved() const {return false;}
 		bool canCastTo(DataType const& target) const {return false;}
-	int typeClassId() const {return ZVARTYPE_CLASSID_UNRESOLVED;}
-	protected:
-		int selfCompare(DataType const& other) const;
+
 	private:
 	string name;
+
+		int selfCompare(DataType const& rhs) const;
 	};
 
 	// Temporary while only floats can be constant.
@@ -246,8 +242,8 @@ namespace ZScript
 		DataType* resolve(ZScript::Scope& scope) {return this;}
 	bool canBeGlobal() const {return true;}
 		bool canCastTo(DataType const& target) const;
-	int typeClassId() const {return ZVARTYPE_CLASSID_CONST_FLOAT;};
-	protected:
+
+	private:
 		int selfCompare(DataType const& other) const {return 0;};
 	};
 
@@ -263,12 +259,14 @@ namespace ZScript
 		DataType* resolve(ZScript::Scope& scope);
 	bool canBeGlobal() const {return true;}
 		bool canCastTo(DataType const& target) const;
-	int typeClassId() const {return ZVARTYPE_CLASSID_CLASS;}
-	protected:
-		int selfCompare(DataType const& other) const;
+
+		bool isClass() const {return true;}
+		
 	private:
 	int classId;
 	string className;
+
+		int selfCompare(DataType const& other) const;
 	};
 
 	class DataTypeArray : public DataType
@@ -277,8 +275,6 @@ namespace ZScript
 		DataTypeArray(DataType const& elementType) : elementType(elementType) {}
 		DataTypeArray* clone() const {return new DataTypeArray(*this);}
 
-	int typeClassId() const {return ZVARTYPE_CLASSID_ARRAY; }
-
 	string getName() const {return elementType.getName() + "[]";}
 		DataType* resolve(ZScript::Scope& scope) {return this;}
 
@@ -286,10 +282,13 @@ namespace ZScript
 		bool canCastTo(DataType const& target) const;
 		DataType const& getElementType() const {return elementType;}
 		DataType const& getBaseType() const;
-	protected:
-		int selfCompare(DataType const& other) const;
+
+		bool isArray() const {return true;}
+
 	private:
 		DataType const& elementType;
+
+		int selfCompare(DataType const& other) const;
 	};
 
 	////////////////////////////////////////////////////////////////
