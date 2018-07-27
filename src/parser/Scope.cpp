@@ -78,11 +78,11 @@ vector<Scope*> ZScript::lookupScopes(Scope const& scope, vector<string> const& n
 
 // Lookup
 
-ZVarType const* ZScript::lookupType(Scope const& scope, string const& name)
+DataType const* ZScript::lookupType(Scope const& scope, string const& name)
 {
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
-		if (ZVarType const* type = scope.getLocalType(name))
+		if (DataType const* type = scope.getLocalType(name))
 			return type;
 	return NULL;
 }
@@ -288,9 +288,9 @@ vector<Scope*> BasicScope::getChildren() const
 
 // Lookup Local
 
-ZVarType const* BasicScope::getLocalType(string const& name) const
+DataType const* BasicScope::getLocalType(string const& name) const
 {
-	return find<ZVarType const*>(types, name).value_or(NULL);
+	return find<DataType const*>(types, name).value_or(NULL);
 }
 
 ZClass* BasicScope::getLocalClass(string const& name) const
@@ -373,10 +373,10 @@ FunctionScope* BasicScope::makeFunctionChild(Function& function)
 	return child;
 }
 
-ZVarType const* BasicScope::addType(
-		string const& name, ZVarType const* type, AST* node)
+DataType const* BasicScope::addType(
+		string const& name, DataType const* type, AST* node)
 {
-	if (find<ZVarType const*>(types, name)) return NULL;
+	if (find<DataType const*>(types, name)) return NULL;
 	type = typeStore.getCanonicalType(*type);
 	types[name] = type;
 	return type;
@@ -406,8 +406,8 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler& errorHandler)
 }
 
 Function* BasicScope::addGetter(
-		ZVarType const* returnType, string const& name,
-		vector<ZVarType const*> const& paramTypes, AST* node)
+		DataType const* returnType, string const& name,
+		vector<DataType const*> const& paramTypes, AST* node)
 {
 	if (find<Function*>(getters, name)) return NULL;
 
@@ -418,8 +418,8 @@ Function* BasicScope::addGetter(
 }
 
 Function* BasicScope::addSetter(
-		ZVarType const* returnType, string const& name,
-		vector<ZVarType const*> const& paramTypes, AST* node)
+		DataType const* returnType, string const& name,
+		vector<DataType const*> const& paramTypes, AST* node)
 {
 	if (find<Function*>(setters, name)) return NULL;
 
@@ -430,8 +430,8 @@ Function* BasicScope::addSetter(
 }
 
 Function* BasicScope::addFunction(
-		ZVarType const* returnType, string const& name,
-		vector<ZVarType const*> const& paramTypes, AST* node)
+		DataType const* returnType, string const& name,
+		vector<DataType const*> const& paramTypes, AST* node)
 {
 	Function::Signature signature(name, paramTypes);
 	if (find<Function*>(functionsBySignature, signature))
@@ -486,44 +486,43 @@ GlobalScope::GlobalScope()
     GlobalSymbols::getInst().addSymbolsToScope(*this);
 
 	// Create builtin classes (skip void, float, and bool).
-	for (ZVarTypeId typeId = ZVARTYPEID_CLASS_START;
+	for (DataTypeId typeId = ZVARTYPEID_CLASS_START;
 	     typeId < ZVARTYPEID_CLASS_END; ++typeId)
 	{
-		ZVarTypeClass const& type =
-			*static_cast<ZVarTypeClass const*>(ZVarType::get(typeId));
+		DataTypeClass const& type =
+			*static_cast<DataTypeClass const*>(DataType::get(typeId));
 		ZClass& klass = *typeStore.getClass(type.getClassId());
 		LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
 		library.addSymbolsToScope(klass);
 	}
 
 	// Add builtin pointers.
-	BuiltinConstant::create(*this, ZVarType::LINK, "Link", 0);
-	BuiltinConstant::create(*this, ZVarType::SCREEN, "Screen", 0);
-	BuiltinConstant::create(*this, ZVarType::GAME, "Game", 0);
-	BuiltinConstant::create(*this, ZVarType::AUDIO, "Audio", 0);
-	BuiltinConstant::create(*this, ZVarType::DEBUG, "Debug", 0);
-	BuiltinConstant::create(*this, ZVarType::NPCDATA, "NPCData", 0);
-	BuiltinConstant::create(*this, ZVarType::TEXT, "Text", 0);
-	BuiltinConstant::create(*this, ZVarType::COMBOS, "ComboData", 0);
-	BuiltinConstant::create(*this, ZVarType::SPRITEDATA, "SpriteData", 0);
-	BuiltinConstant::create(*this, ZVarType::GRAPHICS, "Graphics", 0);
-	BuiltinConstant::create(*this, ZVarType::INPUT, "Input", 0);
-	BuiltinConstant::create(*this, ZVarType::MAPDATA, "MapData", 0);
-	BuiltinConstant::create(*this, ZVarType::DMAPDATA, "DMapData", 0);
-	BuiltinConstant::create(*this, ZVarType::ZMESSAGE, "MessageData", 0);
-	BuiltinConstant::create(*this, ZVarType::SHOPDATA, "ShopData", 0);
-	BuiltinConstant::create(*this, ZVarType::UNTYPED, "Untyped", 0);
-	BuiltinConstant::create(*this, ZVarType::DROPSET, "DropData", 0);
-	BuiltinConstant::create(*this, ZVarType::PONDS, "PondData", 0);
-	BuiltinConstant::create(*this, ZVarType::WARPRING, "WarpRing", 0);
-	BuiltinConstant::create(*this, ZVarType::DOORSET, "DoorSet", 0);
-	BuiltinConstant::create(*this, ZVarType::ZUICOLOURS, "MiscColors", 0);
-	BuiltinConstant::create(*this, ZVarType::RGBDATA, "RGBData", 0);
-	BuiltinConstant::create(*this, ZVarType::PALETTE, "Palette", 0);
-	BuiltinConstant::create(*this, ZVarType::TUNES, "MusicTrack", 0);
-	BuiltinConstant::create(*this, ZVarType::PALCYCLE, "PalCycle", 0);
-	BuiltinConstant::create(*this, ZVarType::GAMEDATA, "GameData", 0);
-	BuiltinConstant::create(*this, ZVarType::CHEATS, "Cheats", 0);
+	BuiltinConstant::create(*this, DataType::LINK, "Link", 0);
+	BuiltinConstant::create(*this, DataType::SCREEN, "Screen", 0);
+	BuiltinConstant::create(*this, DataType::GAME, "Game", 0);
+	BuiltinConstant::create(*this, DataType::AUDIO, "Audio", 0);
+	BuiltinConstant::create(*this, DataType::DEBUG, "Debug", 0);
+	BuiltinConstant::create(*this, DataType::NPCDATA, "NPCData", 0);
+	BuiltinConstant::create(*this, DataType::TEXT, "Text", 0);
+	BuiltinConstant::create(*this, DataType::COMBOS, "ComboData", 0);
+	BuiltinConstant::create(*this, DataType::SPRITEDATA, "SpriteData", 0);
+	BuiltinConstant::create(*this, DataType::GRAPHICS, "Graphics", 0);
+	BuiltinConstant::create(*this, DataType::INPUT, "Input", 0);
+	BuiltinConstant::create(*this, DataType::MAPDATA, "MapData", 0);
+	BuiltinConstant::create(*this, DataType::DMAPDATA, "DMapData", 0);
+	BuiltinConstant::create(*this, DataType::ZMESSAGE, "MessageData", 0);
+	BuiltinConstant::create(*this, DataType::SHOPDATA, "ShopData", 0);
+	BuiltinConstant::create(*this, DataType::DROPSET, "DropData", 0);
+	BuiltinConstant::create(*this, DataType::PONDS, "PondData", 0);
+	BuiltinConstant::create(*this, DataType::WARPRING, "WarpRing", 0);
+	BuiltinConstant::create(*this, DataType::DOORSET, "DoorSet", 0);
+	BuiltinConstant::create(*this, DataType::ZUICOLOURS, "MiscColors", 0);
+	BuiltinConstant::create(*this, DataType::RGBDATA, "RGBData", 0);
+	BuiltinConstant::create(*this, DataType::PALETTE, "Palette", 0);
+	BuiltinConstant::create(*this, DataType::TUNES, "MusicTrack", 0);
+	BuiltinConstant::create(*this, DataType::PALCYCLE, "PalCycle", 0);
+	BuiltinConstant::create(*this, DataType::GAMEDATA, "GameData", 0);
+	BuiltinConstant::create(*this, DataType::CHEATS, "Cheats", 0);
 }
 
 GlobalScope::~GlobalScope()

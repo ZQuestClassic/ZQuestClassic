@@ -10,32 +10,31 @@
 
 using std::string;
 
-typedef int ZVarTypeId;
-
 // Forward Declarations
 namespace ZScript
 {
 	class Function;
 	class Scope;
 	class ZClass;
-}
 
-////////////////////////////////////////////////////////////////
-// Variable Types
+	////////////////////////////////////////////////////////////////
+	// Data Types
 
-// I can't figure out a better way to do this in C++98.
-enum ZVarTypeClassId
-{
+	typedef int DataTypeId;
+
+	// I can't figure out a better way to do this in C++98.
+	enum DataTypeClassId
+	{
 	ZVARTYPE_CLASSID_BASE,
 	ZVARTYPE_CLASSID_SIMPLE,
 	ZVARTYPE_CLASSID_UNRESOLVED,
 	ZVARTYPE_CLASSID_CONST_FLOAT,
 	ZVARTYPE_CLASSID_CLASS,
 	ZVARTYPE_CLASSID_ARRAY
-};
+	};
 
-enum ZVarTypeIdBuiltin
-{
+	enum DataTypeIdBuiltin
+	{
 	ZVARTYPEID_START = 0,
 
 	ZVARTYPEID_PRIMITIVE_START = 0,
@@ -83,39 +82,39 @@ enum ZVarTypeIdBuiltin
 	ZVARTYPEID_CLASS_END,
 
 	ZVARTYPEID_END = ZVARTYPEID_CLASS_END
-};
+	};
 
-class ZVarTypeSimple;
-class ZVarTypeConstFloat;
-class ZVarTypeClass;
-class ZVarTypeArray;
+	class DataTypeSimple;
+	class DataTypeConstFloat;
+	class DataTypeClass;
+	class DataTypeArray;
 
-class ZVarType
-{
-public:
-	virtual ZVarType* clone() const = 0;
+	class DataType
+	{
+	public:
+		virtual DataType* clone() const = 0;
 	virtual string getName() const = 0;
-	virtual ZVarType* resolve(ZScript::Scope& scope) {return this;}
+		virtual DataType* resolve(ZScript::Scope& scope) {return this;}
 	virtual bool isResolved() const {return true;}
 	virtual bool canBeGlobal() const {return false;}
-	virtual bool canCastTo(ZVarType const& target) const = 0;
+		virtual bool canCastTo(DataType const& target) const = 0;
 	virtual int typeClassId() const {return ZVARTYPE_CLASSID_BASE;};
 
-	int compare(ZVarType const& other) const;
-	bool operator==(ZVarType const& other) const {return compare(other) == 0;}
-	bool operator!=(ZVarType const& other) const {return compare(other) != 0;}
-	bool operator<(ZVarType const& other) const {return compare(other) < 0;}
+		int compare(DataType const& other) const;
+		bool operator==(DataType const& other) const {return compare(other) == 0;}
+		bool operator!=(DataType const& other) const {return compare(other) != 0;}
+		bool operator<(DataType const& other) const {return compare(other) < 0;}
 
 	// Comparator for pointers to types.
-	struct PointerLess : public std::less<ZVarType*> {
-		bool operator() (ZVarType* const& a, ZVarType* const& b) const
+		struct PointerLess : public std::less<DataType*> {
+			bool operator() (DataType* const& a, DataType* const& b) const
 		{
 			if (b == NULL) return false;
 			if (a == NULL) return true;
 			return *a < *b;
 		}
 		bool operator() (
-				ZVarType const* const& a, ZVarType const* const& b) const
+					DataType const* const& a, DataType const* const& b) const
 		{
 			if (b == NULL) return false;
 			if (a == NULL) return true;
@@ -129,145 +128,144 @@ public:
 	// Get the number of nested arrays at top level.
 	int getArrayDepth() const;
 	
-protected:
-	virtual int selfCompare(ZVarType const& other) const = 0;
+	protected:
+		virtual int selfCompare(DataType const& other) const = 0;
 
-// Standard Types.
-public:
-	static ZVarTypeSimple const UNTYPED;
-	static ZVarTypeSimple const ZVOID;
-	static ZVarTypeSimple const FLOAT;
-	static ZVarTypeSimple const BOOL;
-	static ZVarTypeConstFloat const CONST_FLOAT;
-	static ZVarTypeClass const FFC;
-	static ZVarTypeClass const ITEM;
-	static ZVarTypeClass const ITEMCLASS;
-	static ZVarTypeClass const NPC;
-	static ZVarTypeClass const LWPN;
-	static ZVarTypeClass const EWPN;
-	static ZVarTypeClass const GAME;
-	static ZVarTypeClass const LINK;
-	static ZVarTypeClass const SCREEN;
-	static ZVarTypeClass const NPCDATA;
-	static ZVarTypeClass const DEBUG;
-	static ZVarTypeClass const AUDIO;
-	static ZVarTypeClass const COMBOS;
-	static ZVarTypeClass const SPRITEDATA;
-	static ZVarTypeClass const GRAPHICS;
-	static ZVarTypeClass const TEXT;
-	static ZVarTypeClass const INPUT;
-	static ZVarTypeClass const MAPDATA;
-	static ZVarTypeClass const DMAPDATA;
-	static ZVarTypeClass const ZMESSAGE;
-	static ZVarTypeClass const SHOPDATA;
-	static ZVarTypeClass const DROPSET;
-	static ZVarTypeClass const PONDS;
-	static ZVarTypeClass const WARPRING;
-	static ZVarTypeClass const DOORSET;
-	static ZVarTypeClass const ZUICOLOURS;
-	static ZVarTypeClass const RGBDATA;
-	static ZVarTypeClass const PALETTE;
-	static ZVarTypeClass const TUNES;
-	static ZVarTypeClass const PALCYCLE;
-	static ZVarTypeClass const GAMEDATA;
-	static ZVarTypeClass const CHEATS;
-	static ZVarType const* get(ZVarTypeId id);
-};
+		// Standard Types.
+	public:
+		static DataTypeSimple const UNTYPED;
+		static DataTypeSimple const ZVOID;
+		static DataTypeSimple const FLOAT;
+		static DataTypeSimple const BOOL;
+		static DataTypeConstFloat const CONST_FLOAT;
+		static DataTypeClass const FFC;
+		static DataTypeClass const ITEM;
+		static DataTypeClass const ITEMCLASS;
+		static DataTypeClass const NPC;
+		static DataTypeClass const LWPN;
+		static DataTypeClass const EWPN;
+		static DataTypeClass const GAME;
+		static DataTypeClass const LINK;
+		static DataTypeClass const SCREEN;
+		static DataTypeClass const AUDIO;
+		static DataTypeClass const DEBUG;
+		static DataTypeClass const NPCDATA;
+		static DataTypeClass const COMBOS;
+		static DataTypeClass const SPRITEDATA;
+		static DataTypeClass const GRAPHICS;
+		static DataTypeClass const TEXT;
+		static DataTypeClass const INPUT;
+		static DataTypeClass const MAPDATA;
+		static DataTypeClass const DMAPDATA;
+		static DataTypeClass const ZMESSAGE;
+		static DataTypeClass const SHOPDATA;
+		static DataTypeClass const DROPSET;
+		static DataTypeClass const PONDS;
+		static DataTypeClass const WARPRING;
+		static DataTypeClass const DOORSET;
+		static DataTypeClass const ZUICOLOURS;
+		static DataTypeClass const RGBDATA;
+		static DataTypeClass const PALETTE;
+		static DataTypeClass const TUNES;
+		static DataTypeClass const PALCYCLE;
+		static DataTypeClass const GAMEDATA;
+		static DataTypeClass const CHEATS;
+		static DataType const* get(DataTypeId id);
+	};
 
-class ZVarTypeSimple : public ZVarType
-{
-public:
-	ZVarTypeSimple(int simpleId, string const& name, string const& upName)
+	class DataTypeSimple : public DataType
+	{
+	public:
+		DataTypeSimple(int simpleId, string const& name, string const& upName)
 			: simpleId(simpleId), name(name), upName(upName) {}
-	ZVarTypeSimple* clone() const {return new ZVarTypeSimple(*this);}
+		DataTypeSimple* clone() const {return new DataTypeSimple(*this);}
 	string getName() const {return name;}
 	string getUpName() const {return upName;}
 	bool canBeGlobal() const;
-	bool canCastTo(ZVarType const& target) const;
+		bool canCastTo(DataType const& target) const;
 	int getId() const {return simpleId;}
 	int typeClassId() const {return ZVARTYPE_CLASSID_SIMPLE;}
-protected:
-	int selfCompare(ZVarType const& other) const;
-private:
+	protected:
+		int selfCompare(DataType const& other) const;
+	private:
 	int simpleId;
 	string name;
 	string upName;
-};
+	};
 
-class ZVarTypeUnresolved : public ZVarType
-{
-public:
-	ZVarTypeUnresolved(string const& name) : name(name) {}
-	ZVarTypeUnresolved* clone() const {return new ZVarTypeUnresolved(*this);}
+	class DataTypeUnresolved : public DataType
+	{
+	public:
+		DataTypeUnresolved(string const& name) : name(name) {}
+		DataTypeUnresolved* clone() const {return new DataTypeUnresolved(*this);}
 	string getName() const {return name;}
-	ZVarType* resolve(ZScript::Scope& scope);
+		DataType* resolve(ZScript::Scope& scope);
 	bool isResolved() const {return false;}
-	bool canCastTo(ZVarType const& target) const {return false;}
+		bool canCastTo(DataType const& target) const {return false;}
 	int typeClassId() const {return ZVARTYPE_CLASSID_UNRESOLVED;}
-protected:
-	int selfCompare(ZVarType const& other) const;
-private:
+	protected:
+		int selfCompare(DataType const& other) const;
+	private:
 	string name;
-};
+	};
 
-// Temporary while only floats can be constant.
-class ZVarTypeConstFloat : public ZVarType
-{
-public:
-	ZVarTypeConstFloat() {}
-	ZVarType* clone() const {return new ZVarTypeConstFloat(*this);}
+	// Temporary while only floats can be constant.
+	class DataTypeConstFloat : public DataType
+	{
+	public:
+		DataTypeConstFloat() {}
+		DataType* clone() const {return new DataTypeConstFloat(*this);}
 	string getName() const {return "const float";}
-	ZVarType* resolve(ZScript::Scope& scope) {return this;}
+		DataType* resolve(ZScript::Scope& scope) {return this;}
 	bool canBeGlobal() const {return true;}
-	bool canCastTo(ZVarType const& target) const;
+		bool canCastTo(DataType const& target) const;
 	int typeClassId() const {return ZVARTYPE_CLASSID_CONST_FLOAT;};
-protected:
-	int selfCompare(ZVarType const& other) const {return 0;};
-};
+	protected:
+		int selfCompare(DataType const& other) const {return 0;};
+	};
 
-class ZVarTypeClass : public ZVarType
-{
-public:
-	ZVarTypeClass(int classId) : classId(classId), className("") {}
-	ZVarTypeClass(int classId, string const& className) : classId(classId), className(className) {}
-	ZVarTypeClass* clone() const {return new ZVarTypeClass(*this);}
+	class DataTypeClass : public DataType
+	{
+	public:
+		DataTypeClass(int classId) : classId(classId), className("") {}
+		DataTypeClass(int classId, string const& className) : classId(classId), className(className) {}
+		DataTypeClass* clone() const {return new DataTypeClass(*this);}
 	string getName() const;
 	string getClassName() const {return className;}
 	int getClassId() const {return classId;}
-	ZVarType* resolve(ZScript::Scope& scope);
+		DataType* resolve(ZScript::Scope& scope);
 	bool canBeGlobal() const {return true;}
-	bool canCastTo(ZVarType const& target) const;
+		bool canCastTo(DataType const& target) const;
 	int typeClassId() const {return ZVARTYPE_CLASSID_CLASS;}
-protected:
-	int selfCompare(ZVarType const& other) const;
-private:
+	protected:
+		int selfCompare(DataType const& other) const;
+	private:
 	int classId;
 	string className;
-};
+	};
 
-class ZVarTypeArray : public ZVarType
-{
-public:
-	ZVarTypeArray(ZVarType const& elementType) : elementType(elementType) {}
-	ZVarTypeArray* clone() const {return new ZVarTypeArray(*this);}
+	class DataTypeArray : public DataType
+	{
+	public:
+		DataTypeArray(DataType const& elementType) : elementType(elementType) {}
+		DataTypeArray* clone() const {return new DataTypeArray(*this);}
 
 	int typeClassId() const {return ZVARTYPE_CLASSID_ARRAY; }
 
 	string getName() const {return elementType.getName() + "[]";}
-	ZVarType* resolve(ZScript::Scope& scope) {return this;}
+		DataType* resolve(ZScript::Scope& scope) {return this;}
 
 	bool canBeGlobal() const {return true;}
-	bool canCastTo(ZVarType const& target) const;
-	ZVarType const& getElementType() const {return elementType;}
-	ZVarType const& getBaseType() const;
-protected:
-	int selfCompare(ZVarType const& other) const;
-private:
-	ZVarType const& elementType;
-};
+		bool canCastTo(DataType const& target) const;
+		DataType const& getElementType() const {return elementType;}
+		DataType const& getBaseType() const;
+	protected:
+		int selfCompare(DataType const& other) const;
+	private:
+		DataType const& elementType;
+	};
 
-namespace ZScript
-{
+	////////////////////////////////////////////////////////////////
 	// Stores and lookup types and classes.
 	class TypeStore
 	{
@@ -276,10 +274,10 @@ namespace ZScript
 		~TypeStore();
 
 		// Types
-		ZVarType const* getType(ZVarTypeId typeId) const;
-		optional<ZVarTypeId> getTypeId(ZVarType const& type) const;
-		optional<ZVarTypeId> assignTypeId(ZVarType const& type);
-		optional<ZVarTypeId> getOrAssignTypeId(ZVarType const& type);
+		DataType const* getType(DataTypeId typeId) const;
+		optional<DataTypeId> getTypeId(DataType const& type) const;
+		optional<DataTypeId> assignTypeId(DataType const& type);
+		optional<DataTypeId> getOrAssignTypeId(DataType const& type);
 
 		template <typename Type>
 		Type const* getCanonicalType(Type const& type)
@@ -295,8 +293,8 @@ namespace ZScript
 		ZScript::ZClass* createClass(string const& name);
 
 	private:
-		std::vector<ZVarType const*> ownedTypes;
-		std::map<ZVarType const*, ZVarTypeId, ZVarType::PointerLess>
+		std::vector<DataType const*> ownedTypes;
+		std::map<DataType const*, DataTypeId, DataType::PointerLess>
 			typeIdMap;
 		std::vector<ZClass*> ownedClasses;
 	};
@@ -317,7 +315,7 @@ namespace ZScript
 		bool operator==(ScriptType const& other) const {
 			return id == other.id;}
 		string const& getName() const {return name;}
-		ZVarTypeId getThisTypeId() const {return thisTypeId;}
+		DataTypeId getThisTypeId() const {return thisTypeId;}
 		bool isNull() const {return id == ID_NULL;}
 
 		static ScriptType const GLOBAL;
@@ -327,13 +325,13 @@ namespace ZScript
 	private:
 		enum Id {ID_NULL, ID_GLOBAL, ID_FFC, ID_ITEM};
 		
-		ScriptType(Id id, string const& name, ZVarTypeId thisTypeId)
+		ScriptType(Id id, string const& name, DataTypeId thisTypeId)
 			: id(id), name(name), thisTypeId(thisTypeId)
 		{}
 
 		int id;
 		string name;
-		ZVarTypeId thisTypeId;
+		DataTypeId thisTypeId;
 	};
 }
 

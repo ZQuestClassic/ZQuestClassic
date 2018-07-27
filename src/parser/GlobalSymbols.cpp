@@ -328,7 +328,7 @@ const int radsperdeg = 572958;
 	for(int _i(0); _i < num_args; ++_i) \
 		code.push_back(new OPopRegister(new VarArgument(t)))
 
-LibrarySymbols* LibrarySymbols::getTypeInstance(ZVarTypeId typeId)
+LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 {
     switch (typeId)
     {
@@ -485,8 +485,8 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
     {
 		AccessorTable& entry = table[i];
         
-		ZVarType const* returnType = typeStore.getType(entry.rettype);
-		vector<ZVarType const*> paramTypes;
+		DataType const* returnType = typeStore.getType(entry.rettype);
+		vector<DataType const*> paramTypes;
         for (int k = 0; entry.params[k] != -1 && k < 20; k++)
 			paramTypes.push_back(typeStore.getType(entry.params[k]));
                 

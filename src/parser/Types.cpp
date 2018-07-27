@@ -13,13 +13,13 @@ using namespace ZScript;
 TypeStore::TypeStore()
 {
 	// Assign builtin types.
-	for (ZVarTypeId id = ZVARTYPEID_START; id < ZVARTYPEID_END; ++id)
-		assignTypeId(*ZVarType::get(id));
+	for (DataTypeId id = ZVARTYPEID_START; id < ZVARTYPEID_END; ++id)
+		assignTypeId(*DataType::get(id));
 
 	// Assign builtin classes.
 	for (int id = ZVARTYPEID_CLASS_START; id < ZVARTYPEID_CLASS_END; ++id)
 	{
-		ZVarTypeClass& type = *(ZVarTypeClass*)ZVarType::get(id);
+		DataTypeClass& type = *(DataTypeClass*)DataType::get(id);
 		assert(type.getClassId() == ownedClasses.size());
 		ownedClasses.push_back(
 				new ZClass(*this, type.getClassName(), type.getClassId()));
@@ -34,18 +34,18 @@ TypeStore::~TypeStore()
 
 // Types
 
-ZVarType const* TypeStore::getType(ZVarTypeId typeId) const
+DataType const* TypeStore::getType(DataTypeId typeId) const
 {
 	if (typeId < 0 || typeId > (int)ownedTypes.size()) return NULL;
 	return ownedTypes[typeId];
 }
 
-optional<ZVarTypeId> TypeStore::getTypeId(ZVarType const& type) const
+optional<DataTypeId> TypeStore::getTypeId(DataType const& type) const
 {
-	return find<ZVarTypeId>(typeIdMap, &type);
+	return find<DataTypeId>(typeIdMap, &type);
 }
 
-optional<ZVarTypeId> TypeStore::assignTypeId(ZVarType const& type)
+optional<DataTypeId> TypeStore::assignTypeId(DataType const& type)
 {
 	if (!type.isResolved())
 	{
@@ -53,16 +53,16 @@ optional<ZVarTypeId> TypeStore::assignTypeId(ZVarType const& type)
 		return nullopt;
 	}
 
-	if (find<ZVarTypeId>(typeIdMap, &type)) return nullopt;
+	if (find<DataTypeId>(typeIdMap, &type)) return nullopt;
 
-	ZVarTypeId id = ownedTypes.size();
-	ZVarType const* storedType = type.clone();
+	DataTypeId id = ownedTypes.size();
+	DataType const* storedType = type.clone();
 	ownedTypes.push_back(storedType);
 	typeIdMap[storedType] = id;
 	return id;
 }
 
-optional<ZVarTypeId> TypeStore::getOrAssignTypeId(ZVarType const& type)
+optional<DataTypeId> TypeStore::getOrAssignTypeId(DataType const& type)
 {
 	if (!type.isResolved())
 	{
@@ -70,11 +70,11 @@ optional<ZVarTypeId> TypeStore::getOrAssignTypeId(ZVarType const& type)
 		return nullopt;
 	}
 
-	if (optional<ZVarTypeId> typeId = find<ZVarTypeId>(typeIdMap, &type))
+	if (optional<DataTypeId> typeId = find<DataTypeId>(typeIdMap, &type))
 		return typeId;
 	
-	ZVarTypeId id = ownedTypes.size();
-	ZVarType* storedType = type.clone();
+	DataTypeId id = ownedTypes.size();
+	DataType* storedType = type.clone();
 	ownedTypes.push_back(storedType);
 	typeIdMap[storedType] = id;
 	return id;
@@ -112,58 +112,59 @@ vector<Function*> ZScript::getClassFunctions(TypeStore const& store)
 ////////////////////////////////////////////////////////////////
 
 // Standard Type definitions.
-ZVarTypeSimple const ZVarType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", "Untyped");
-ZVarTypeSimple const ZVarType::ZVOID(ZVARTYPEID_VOID, "void", "Void");
-ZVarTypeSimple const ZVarType::FLOAT(ZVARTYPEID_FLOAT, "float", "Float");
-ZVarTypeSimple const ZVarType::BOOL(ZVARTYPEID_BOOL, "bool", "Bool");
-ZVarTypeClass const ZVarType::GAME(ZCLASSID_GAME, "Game");
-ZVarTypeClass const ZVarType::LINK(ZCLASSID_LINK, "Link");
-ZVarTypeClass const ZVarType::SCREEN(ZCLASSID_SCREEN, "Screen");
-ZVarTypeClass const ZVarType::FFC(ZCLASSID_FFC, "FFC");
-ZVarTypeClass const ZVarType::ITEM(ZCLASSID_ITEM, "Item");
-ZVarTypeClass const ZVarType::ITEMCLASS(ZCLASSID_ITEMCLASS, "ItemData");
-ZVarTypeClass const ZVarType::NPC(ZCLASSID_NPC, "NPC");
-ZVarTypeClass const ZVarType::LWPN(ZCLASSID_LWPN, "LWeapon");
-ZVarTypeClass const ZVarType::EWPN(ZCLASSID_EWPN, "EWeapon");
-ZVarTypeClass const ZVarType::NPCDATA(ZCLASSID_NPCDATA, "NpcData");
-ZVarTypeClass const ZVarType::DEBUG(ZCLASSID_DEBUG, "Debug");
-ZVarTypeClass const ZVarType::AUDIO(ZCLASSID_AUDIO, "Audio");
-ZVarTypeClass const ZVarType::COMBOS(ZCLASSID_COMBOS, "Combos");
-ZVarTypeClass const ZVarType::SPRITEDATA(ZCLASSID_SPRITEDATA, "SpriteData");
-ZVarTypeClass const ZVarType::GRAPHICS(ZCLASSID_GRAPHICS, "Graphics");
-ZVarTypeClass const ZVarType::TEXT(ZCLASSID_TEXT, "Text");
-ZVarTypeClass const ZVarType::INPUT(ZCLASSID_INPUT, "Input");
-ZVarTypeClass const ZVarType::MAPDATA(ZCLASSID_MAPDATA, "MapData");
-ZVarTypeClass const ZVarType::DMAPDATA(ZCLASSID_DMAPDATA, "DMapData");
-ZVarTypeClass const ZVarType::ZMESSAGE(ZCLASSID_ZMESSAGE, "ZMessage");
-ZVarTypeClass const ZVarType::SHOPDATA(ZCLASSID_SHOPDATA, "ShopData");
-ZVarTypeClass const ZVarType::DROPSET(ZCLASSID_DROPSET, "DropSet");
-ZVarTypeClass const ZVarType::PONDS(ZCLASSID_PONDS, "Ponds");
-ZVarTypeClass const ZVarType::WARPRING(ZCLASSID_WARPRING, "WarpRing");
-ZVarTypeClass const ZVarType::DOORSET(ZCLASSID_DOORSET, "DoorSet");
-ZVarTypeClass const ZVarType::ZUICOLOURS(ZCLASSID_ZUICOLOURS, "ZuiColours");
-ZVarTypeClass const ZVarType::RGBDATA(ZCLASSID_RGBDATA, "RgbData");
-ZVarTypeClass const ZVarType::PALETTE(ZCLASSID_PALETTE, "Palette");
-ZVarTypeClass const ZVarType::TUNES(ZCLASSID_TUNES, "Tunes");
-ZVarTypeClass const ZVarType::PALCYCLE(ZCLASSID_PALCYCLE, "PalCycle");
-ZVarTypeClass const ZVarType::GAMEDATA(ZCLASSID_GAMEDATA, "GameData");
-ZVarTypeClass const ZVarType::CHEATS(ZCLASSID_CHEATS, "Cheats");
-ZVarTypeConstFloat const ZVarType::CONST_FLOAT;
+DataTypeSimple const DataType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", "Untyped");
+DataTypeSimple const DataType::ZVOID(ZVARTYPEID_VOID, "void", "Void");
+DataTypeSimple const DataType::FLOAT(ZVARTYPEID_FLOAT, "float", "Float");
+DataTypeSimple const DataType::BOOL(ZVARTYPEID_BOOL, "bool", "Bool");
+DataTypeClass const DataType::GAME(ZCLASSID_GAME, "Game");
+DataTypeClass const DataType::LINK(ZCLASSID_LINK, "Link");
+DataTypeClass const DataType::SCREEN(ZCLASSID_SCREEN, "Screen");
+DataTypeClass const DataType::FFC(ZCLASSID_FFC, "FFC");
+DataTypeClass const DataType::ITEM(ZCLASSID_ITEM, "Item");
+DataTypeClass const DataType::ITEMCLASS(ZCLASSID_ITEMCLASS, "ItemData");
+DataTypeClass const DataType::NPC(ZCLASSID_NPC, "NPC");
+DataTypeClass const DataType::LWPN(ZCLASSID_LWPN, "LWeapon");
+DataTypeClass const DataType::EWPN(ZCLASSID_EWPN, "EWeapon");
+DataTypeClass const DataType::AUDIO(ZCLASSID_AUDIO, "Audio");
+DataTypeClass const DataType::DEBUG(ZCLASSID_DEBUG, "Debug");
+DataTypeClass const DataType::NPCDATA(ZCLASSID_NPCDATA, "NPCData");
+DataTypeClass const DataType::COMBOS(ZCLASSID_COMBOS, "Combos");
+DataTypeClass const DataType::SPRITEDATA(ZCLASSID_SPRITEDATA, "SpriteData");
+DataTypeClass const DataType::GRAPHICS(ZCLASSID_GRAPHICS, "Graphics");
+DataTypeClass const DataType::TEXT(ZCLASSID_TEXT, "Text");
+DataTypeClass const DataType::INPUT(ZCLASSID_INPUT, "Input");
+DataTypeClass const DataType::MAPDATA(ZCLASSID_MAPDATA, "MapData");
+DataTypeClass const DataType::DMAPDATA(ZCLASSID_DMAPDATA, "DMapData");
+DataTypeClass const DataType::ZMESSAGE(ZCLASSID_ZMESSAGE, "ZMessage");
+DataTypeClass const DataType::SHOPDATA(ZCLASSID_SHOPDATA, "ShopData");
+DataTypeClass const DataType::DROPSET(ZCLASSID_DROPSET, "DropSet");
+DataTypeClass const DataType::PONDS(ZCLASSID_PONDS, "Ponds");
+DataTypeClass const DataType::WARPRING(ZCLASSID_WARPRING, "WarpRing");
+DataTypeClass const DataType::DOORSET(ZCLASSID_DOORSET, "DoorSet");
+DataTypeClass const DataType::ZUICOLOURS(ZCLASSID_ZUICOLOURS, "ZuiColours");
+DataTypeClass const DataType::RGBDATA(ZCLASSID_RGBDATA, "RgbData");
+DataTypeClass const DataType::PALETTE(ZCLASSID_PALETTE, "Palette");
+DataTypeClass const DataType::TUNES(ZCLASSID_TUNES, "Tunes");
+DataTypeClass const DataType::PALCYCLE(ZCLASSID_PALCYCLE, "PalCycle");
+DataTypeClass const DataType::GAMEDATA(ZCLASSID_GAMEDATA, "GameData");
+DataTypeClass const DataType::CHEATS(ZCLASSID_CHEATS, "Cheats");
+DataTypeConstFloat const DataType::CONST_FLOAT;
 
 ////////////////////////////////////////////////////////////////
-// ZVarType
+// DataType
 
-int ZVarType::compare(ZVarType const& other) const
+int DataType::compare(DataType const& other) const
 {
 	int c = typeClassId() - other.typeClassId();
 	if (c) return c;
 	return selfCompare(other);
 }
 
-ZVarType const* ZVarType::get(ZVarTypeId id)
+DataType const* DataType::get(DataTypeId id)
 {
 	switch (id)
 	{
+	case ZVARTYPEID_UNTYPED: return &UNTYPED;
 	case ZVARTYPEID_VOID: return &ZVOID;
 	case ZVARTYPEID_FLOAT: return &FLOAT;
 	case ZVARTYPEID_BOOL: return &BOOL;
@@ -189,7 +190,6 @@ ZVarType const* ZVarType::get(ZVarTypeId id)
 	case ZVARTYPEID_DMAPDATA: return &DMAPDATA;
 	case ZVARTYPEID_ZMESSAGE: return &ZMESSAGE;
 	case ZVARTYPEID_SHOPDATA: return &SHOPDATA;
-	case ZVARTYPEID_UNTYPED: return &UNTYPED;
 	case ZVARTYPEID_DROPSET: return &DROPSET;
 	case ZVARTYPEID_PONDS: return &PONDS;
 	case ZVARTYPEID_WARPRING: return &WARPRING;
@@ -205,41 +205,42 @@ ZVarType const* ZVarType::get(ZVarTypeId id)
 	}
 }
 
-int ZVarType::getArrayDepth() const
+int DataType::getArrayDepth() const
 {
-	ZVarType const* type = this;
+	DataType const* type = this;
 	int depth = 0;
 	while (type->isArray())
 	{
 		++depth;
-		type = &((ZVarTypeArray const*)type)->getElementType();
+		type = &((DataTypeArray const*)type)->getElementType();
 	}
 	return depth;
 }
 
 ////////////////////////////////////////////////////////////////
-// ZVarTypeSimple
+// DataTypeSimple
 
-int ZVarTypeSimple::selfCompare(ZVarType const& other) const
+int DataTypeSimple::selfCompare(DataType const& other) const
 {
-	ZVarTypeSimple const& o = (ZVarTypeSimple const&)other;
+	DataTypeSimple const& o = (DataTypeSimple const&)other;
 	return simpleId - o.simpleId;
 }
 
-bool ZVarTypeSimple::canBeGlobal() const
+bool DataTypeSimple::canBeGlobal() const
 {
 	return simpleId == ZVARTYPEID_FLOAT || simpleId == ZVARTYPEID_BOOL;
 }
 
-bool ZVarTypeSimple::canCastTo(ZVarType const& target) const
+bool DataTypeSimple::canCastTo(DataType const& target) const
 {
 	if (target.typeClassId() == ZVARTYPE_CLASSID_CONST_FLOAT)
-		return canCastTo(ZVarType::FLOAT);
+		return canCastTo(DataType::FLOAT);
 	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
-		return canCastTo(((ZVarTypeArray const&)target).getBaseType());
+		return canCastTo(((DataTypeArray const&)target).getBaseType());
 
 	if (target.typeClassId() != ZVARTYPE_CLASSID_SIMPLE) return false;
-	ZVarTypeSimple const& t = (ZVarTypeSimple const&)target;
+
+	DataTypeSimple const& t = (DataTypeSimple const&)target;
 	if (simpleId == ZVARTYPEID_UNTYPED || t.simpleId == ZVARTYPEID_UNTYPED)
 		return true;
 	if (simpleId == ZVARTYPEID_VOID || t.simpleId == ZVARTYPEID_VOID)
@@ -251,32 +252,32 @@ bool ZVarTypeSimple::canCastTo(ZVarType const& target) const
 }
 
 ////////////////////////////////////////////////////////////////
-// ZVarTypeUnresolved
+// DataTypeUnresolved
 
-ZVarType* ZVarTypeUnresolved::resolve(Scope& scope)
+DataType* DataTypeUnresolved::resolve(Scope& scope)
 {
-	if (ZVarType const* type = lookupType(scope, name))
+	if (DataType const* type = lookupType(scope, name))
 		return type->clone();
 	return NULL;
 }
 
-int ZVarTypeUnresolved::selfCompare(ZVarType const& other) const
+int DataTypeUnresolved::selfCompare(DataType const& other) const
 {
-	ZVarTypeUnresolved const& o = (ZVarTypeUnresolved const&)other;
+	DataTypeUnresolved const& o = (DataTypeUnresolved const&)other;
 	return name.compare(o.name);
 }
 
 ////////////////////////////////////////////////////////////////
-// ZVarTypeConstFloat
+// DataTypeConstFloat
 
-bool ZVarTypeConstFloat::canCastTo(ZVarType const& target) const
+bool DataTypeConstFloat::canCastTo(DataType const& target) const
 {
 	if (*this == target) return true;
-	return ZVarType::FLOAT.canCastTo(target);
+	return DataType::FLOAT.canCastTo(target);
 }
 
 ////////////////////////////////////////////////////////////////
-// ZVarTypeClass
+// DataTypeClass
 
 std::string to_string( int x ) {
   int length = snprintf( NULL, 0, "%d", x );
@@ -288,7 +289,7 @@ std::string to_string( int x ) {
   return str;
 }
 
-string ZVarTypeClass::getName() const
+string DataTypeClass::getName() const
 {
 	string name = className == "" ? "anonymous" : className;
 	char tmp[32];
@@ -296,14 +297,14 @@ string ZVarTypeClass::getName() const
 	return name + "[class " + tmp + "]";
 }
 
-bool ZVarTypeClass::canCastTo(ZVarType const& target) const
+bool DataTypeClass::canCastTo(DataType const& target) const
 {
 	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
-		return canCastTo(((ZVarTypeArray const&)target).getBaseType());
+		return canCastTo(((DataTypeArray const&)target).getBaseType());
 	return *this == target;
 }
 
-ZVarType* ZVarTypeClass::resolve(Scope& scope)
+DataType* DataTypeClass::resolve(Scope& scope)
 {
 	// Grab the proper name for the class the first time it's resolved.
 	if (className == "")
@@ -312,33 +313,33 @@ ZVarType* ZVarTypeClass::resolve(Scope& scope)
 	return this;
 }
 
-int ZVarTypeClass::selfCompare(ZVarType const& other) const
+int DataTypeClass::selfCompare(DataType const& other) const
 {
-	ZVarTypeClass const& o = (ZVarTypeClass const&)other;
+	DataTypeClass const& o = (DataTypeClass const&)other;
 	return classId - o.classId;
 }
 
 ////////////////////////////////////////////////////////////////
-// ZVarTypeArray
+// DataTypeArray
 
-bool ZVarTypeArray::canCastTo(ZVarType const& target) const
+bool DataTypeArray::canCastTo(DataType const& target) const
 {
 	if (target.typeClassId() == ZVARTYPE_CLASSID_ARRAY)
-		return canCastTo(((ZVarTypeArray const&)target).getBaseType());
+		return canCastTo(((DataTypeArray const&)target).getBaseType());
 	return getBaseType().canCastTo(target);
 }
 
-ZVarType const& ZVarTypeArray::getBaseType() const
+DataType const& DataTypeArray::getBaseType() const
 {
-	ZVarType const* type = &elementType;
+	DataType const* type = &elementType;
 	while (type->typeClassId() == ZVARTYPE_CLASSID_ARRAY)
-		type = &((ZVarTypeArray const*)type)->elementType;
+		type = &((DataTypeArray const*)type)->elementType;
 	return *type;
 }
 
-int ZVarTypeArray::selfCompare(ZVarType const& other) const
+int DataTypeArray::selfCompare(DataType const& other) const
 {
-	ZVarTypeArray const& o = (ZVarTypeArray const&)other;
+	DataTypeArray const& o = (DataTypeArray const&)other;
 	return elementType.compare(o.elementType);
 }
 

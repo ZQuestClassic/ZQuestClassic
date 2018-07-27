@@ -207,40 +207,40 @@ TypeDef : TYPEDEF DataType IDENTIFIER {
 	;
 
 DataType :
-	ZVOID {$$ = new ASTVarType(ZVarTypeSimple::ZVOID, @$);}
-	| ZFLOAT {$$ = new ASTVarType(ZVarTypeSimple::FLOAT, @$);}
-	| ZBOOL {$$ = new ASTVarType(ZVarTypeSimple::BOOL, @$);}
-	| FFC {$$ = new ASTVarType(ZVarTypeSimple::FFC, @$);}
-	| ITEM {$$ = new ASTVarType(ZVarTypeSimple::ITEM, @$);}
-	| ITEMCLASS {$$ = new ASTVarType(ZVarTypeSimple::ITEMCLASS, @$);}
-	| NPC	{$$ = new ASTVarType(ZVarTypeSimple::NPC, @$);}
-	| LWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::LWPN, @$);}
-	| EWEAPON	{$$ = new ASTVarType(ZVarTypeSimple::EWPN, @$);}
-	| SPRITEDATA	{$$ = new ASTVarType(ZVarTypeSimple::SPRITEDATA, @$);}
-	| MAPDATA	{$$ = new ASTVarType(ZVarTypeSimple::MAPDATA, @$);}
-	| NPCDATA	{$$ = new ASTVarType(ZVarTypeSimple::NPCDATA, @$);}
-	| COMBODATA	{$$ = new ASTVarType(ZVarTypeSimple::COMBOS, @$);}
-	| GRAPHICS	{$$ = new ASTVarType(ZVarTypeSimple::GRAPHICS, @$);}
-	| DMAPDATA	{$$ = new ASTVarType(ZVarTypeSimple::DMAPDATA, @$);}
-	| MESSAGEDATA	{$$ = new ASTVarType(ZVarTypeSimple::ZMESSAGE, @$);}
-	| SHOPDATA	{$$ = new ASTVarType(ZVarTypeSimple::SHOPDATA, @$);}
-//	| UNTYPED	{$$ = new ASTVarType(ZVarTypeSimple::UNTYPED, @$);}
-	| DROPDATA	{$$ = new ASTVarType(ZVarTypeSimple::DROPSET, @$);}
-	| PONDDATA	{$$ = new ASTVarType(ZVarTypeSimple::PONDS, @$);}
-	| WARPRING	{$$ = new ASTVarType(ZVarTypeSimple::WARPRING, @$);}
-	| DOORSET	{$$ = new ASTVarType(ZVarTypeSimple::DOORSET, @$);}
-	| MISCCOLORS	{$$ = new ASTVarType(ZVarTypeSimple::ZUICOLOURS, @$);}
-	| RGBDATA	{$$ = new ASTVarType(ZVarTypeSimple::RGBDATA, @$);}
-	| PALETTE	{$$ = new ASTVarType(ZVarTypeSimple::PALETTE, @$);}
-	| MUSICTRACK	{$$ = new ASTVarType(ZVarTypeSimple::TUNES, @$);}
-	| PALCYCLE	{$$ = new ASTVarType(ZVarTypeSimple::PALCYCLE, @$);}
-	| GAMEDATA	{$$ = new ASTVarType(ZVarTypeSimple::GAMEDATA, @$);}
-	| CHEATS	{$$ = new ASTVarType(ZVarTypeSimple::CHEATS, @$);}
+	ZVOID {$$ = new ASTVarType(DataTypeSimple::ZVOID, @$);}
+	| ZFLOAT {$$ = new ASTVarType(DataTypeSimple::FLOAT, @$);}
+	| ZBOOL {$$ = new ASTVarType(DataTypeSimple::BOOL, @$);}
+	| FFC {$$ = new ASTVarType(DataTypeSimple::FFC, @$);}
+	| ITEM {$$ = new ASTVarType(DataTypeSimple::ITEM, @$);}
+	| ITEMCLASS {$$ = new ASTVarType(DataTypeSimple::ITEMCLASS, @$);}
+	| NPC	{$$ = new ASTVarType(DataTypeSimple::NPC, @$);}
+	| LWEAPON	{$$ = new ASTVarType(DataTypeSimple::LWPN, @$);}
+	| EWEAPON	{$$ = new ASTVarType(DataTypeSimple::EWPN, @$);}
+	| SPRITEDATA	{$$ = new ASTVarType(DataTypeSimple::SPRITEDATA, @$);}
+	| MAPDATA	{$$ = new ASTVarType(DataTypeSimple::MAPDATA, @$);}
+	| NPCDATA	{$$ = new ASTVarType(DataTypeSimple::NPCDATA, @$);}
+	| COMBODATA	{$$ = new ASTVarType(DataTypeSimple::COMBOS, @$);}
+	| GRAPHICS	{$$ = new ASTVarType(DataTypeSimple::GRAPHICS, @$);}
+	| DMAPDATA	{$$ = new ASTVarType(DataTypeSimple::DMAPDATA, @$);}
+	| MESSAGEDATA	{$$ = new ASTVarType(DataTypeSimple::ZMESSAGE, @$);}
+	| SHOPDATA	{$$ = new ASTVarType(DataTypeSimple::SHOPDATA, @$);}
+//	| UNTYPED	{$$ = new ASTVarType(DataTypeSimple::UNTYPED, @$);}
+	| DROPDATA	{$$ = new ASTVarType(DataTypeSimple::DROPSET, @$);}
+	| PONDDATA	{$$ = new ASTVarType(DataTypeSimple::PONDS, @$);}
+	| WARPRING	{$$ = new ASTVarType(DataTypeSimple::WARPRING, @$);}
+	| DOORSET	{$$ = new ASTVarType(DataTypeSimple::DOORSET, @$);}
+	| MISCCOLORS	{$$ = new ASTVarType(DataTypeSimple::ZUICOLOURS, @$);}
+	| RGBDATA	{$$ = new ASTVarType(DataTypeSimple::RGBDATA, @$);}
+	| PALETTE	{$$ = new ASTVarType(DataTypeSimple::PALETTE, @$);}
+	| MUSICTRACK	{$$ = new ASTVarType(DataTypeSimple::TUNES, @$);}
+	| PALCYCLE	{$$ = new ASTVarType(DataTypeSimple::PALCYCLE, @$);}
+	| GAMEDATA	{$$ = new ASTVarType(DataTypeSimple::GAMEDATA, @$);}
+	| CHEATS	{$$ = new ASTVarType(DataTypeSimple::CHEATS, @$);}
 	| IDENTIFIER {
 			ASTString *name = (ASTString*)$1;
-			$$ = new ASTVarType(ZVarTypeUnresolved(name->getValue()), @$);
+			$$ = new ASTVarType(DataTypeUnresolved(name->getValue()), @$);
 			delete name;}
-	| ZCONST ZFLOAT {$$ = new ASTVarType(new ZVarTypeConstFloat(), @$);}
+	| ZCONST ZFLOAT {$$ = new ASTVarType(new DataTypeConstFloat(), @$);}
 	;
 
 ////////////////////////////////////////////////////////////////

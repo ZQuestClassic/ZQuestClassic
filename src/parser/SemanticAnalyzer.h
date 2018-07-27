@@ -82,12 +82,12 @@ private:
 	// Current scope.
 	ZScript::Scope* scope;
 	// Current function return type.
-	ZVarType const* returnType;
+	DataType const* returnType;
 
 	bool deprecateGlobals;
 
 	// Signal a compile error if source can't be cast to target.
-	void checkCast(ZVarType const& sourceType, ZVarType const& targetType,
+	void checkCast(DataType const& sourceType, DataType const& targetType,
 				   AST* node = NULL);
 
 	void analyzeFunctionInternals(ZScript::Function& function);
@@ -95,11 +95,11 @@ private:
 	////////////////////////////////////////////////////////////////
 	// Helper Functions.
 
-	void analyzeUnaryExpr(ASTUnaryExpr& host, ZVarType const& type);
+	void analyzeUnaryExpr(ASTUnaryExpr& host, DataType const& type);
 	void analyzeIncrement(ASTUnaryExpr& host);
 	void analyzeBinaryExpr(
-			ASTBinaryExpr& host, ZVarType const& leftType,
-			ZVarType const& rightType);
+			ASTBinaryExpr& host, DataType const& leftType,
+			DataType const& rightType);
 
 };
 

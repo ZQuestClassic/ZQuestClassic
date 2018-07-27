@@ -197,7 +197,7 @@ optional<int> ZScript::getLabel(Script const& script)
 ////////////////////////////////////////////////////////////////
 // ZScript::Datum
 
-Datum::Datum(Scope& scope, ZVarType const& type)
+Datum::Datum(Scope& scope, DataType const& type)
 	: scope(scope), type(type), id(ScriptParser::getUniqueVarID())
 {}
 
@@ -220,7 +220,7 @@ optional<int> ZScript::getStackOffset(Datum const& datum)
 // ZScript::Literal
 
 Literal* Literal::create(
-		Scope& scope, ASTLiteral& node, ZVarType const& type,
+		Scope& scope, ASTLiteral& node, DataType const& type,
 		CompileErrorHandler& errorHandler)
 {
 	Literal* literal = new Literal(scope, node, type);
@@ -229,7 +229,7 @@ Literal* Literal::create(
 	return NULL;
 }
 
-Literal::Literal(Scope& scope, ASTLiteral& node, ZVarType const& type)
+Literal::Literal(Scope& scope, ASTLiteral& node, DataType const& type)
 	: Datum(scope, type), node(node)
 {
 	node.manager = this;
@@ -238,7 +238,7 @@ Literal::Literal(Scope& scope, ASTLiteral& node, ZVarType const& type)
 // ZScript::Variable
 
 Variable* Variable::create(
-		Scope& scope, ASTDataDecl& node, ZVarType const& type,
+		Scope& scope, ASTDataDecl& node, DataType const& type,
 		CompileErrorHandler& errorHandler)
 {
 	Variable* variable = new Variable(scope, node, type);
@@ -248,7 +248,7 @@ Variable* Variable::create(
 }
 
 Variable::Variable(
-		Scope& scope, ASTDataDecl& node, ZVarType const& type)
+		Scope& scope, ASTDataDecl& node, DataType const& type)
 	: Datum(scope, type),
 	  node(node),
 	  globalId((scope.isGlobal() || scope.isScript())
@@ -261,7 +261,7 @@ Variable::Variable(
 // ZScript::BuiltinVariable
 
 BuiltinVariable* BuiltinVariable::create(
-		Scope& scope, ZVarType const& type, string const& name,
+		Scope& scope, DataType const& type, string const& name,
 		CompileErrorHandler& errorHandler)
 {
 	BuiltinVariable* builtin = new BuiltinVariable(scope, type, name);
@@ -271,7 +271,7 @@ BuiltinVariable* BuiltinVariable::create(
 }
 
 BuiltinVariable::BuiltinVariable(
-		Scope& scope, ZVarType const& type, string const& name)
+		Scope& scope, DataType const& type, string const& name)
 	: Datum(scope, type),
 	  name(name),
 	  globalId((scope.isGlobal() || scope.isScript())
@@ -282,7 +282,7 @@ BuiltinVariable::BuiltinVariable(
 // ZScript::Constant
 
 Constant* Constant::create(
-		Scope& scope, ASTDataDecl& node, ZVarType const& type, long value,
+		Scope& scope, ASTDataDecl& node, DataType const& type, long value,
 		CompileErrorHandler& errorHandler)
 {
 	Constant* constant = new Constant(scope, node, type, value);
@@ -292,7 +292,7 @@ Constant* Constant::create(
 }
 
 Constant::Constant(
-		Scope& scope, ASTDataDecl& node, ZVarType const& type, long value)
+		Scope& scope, ASTDataDecl& node, DataType const& type, long value)
 	: Datum(scope, type), node(node), value(value)
 {
 	node.manager = this;
@@ -304,7 +304,7 @@ optional<string> Constant::getName() const {return node.name;}
 
 
 BuiltinConstant* BuiltinConstant::create(
-		Scope& scope, ZVarType const& type, string const& name, long value,
+		Scope& scope, DataType const& type, string const& name, long value,
 		CompileErrorHandler& errorHandler)
 {
 	BuiltinConstant* builtin = new BuiltinConstant(scope, type, name, value);
@@ -314,14 +314,14 @@ BuiltinConstant* BuiltinConstant::create(
 }
 
 BuiltinConstant::BuiltinConstant(
-		Scope& scope, ZVarType const& type, string const& name, long value)
+		Scope& scope, DataType const& type, string const& name, long value)
 	: Datum(scope, type), name(name), value(value)
 {}
 
 // ZScript::Function::Signature
 
 Function::Signature::Signature(
-		string const& name, vector<ZVarType const*> const& parameterTypes)
+		string const& name, vector<DataType const*> const& parameterTypes)
 	: name(name), parameterTypes(parameterTypes)
 {}
 
@@ -359,7 +359,7 @@ string Function::Signature::asString() const
 	result += name;
 	result += "(";
 	bool comma = false;
-	for (vector<ZVarType const*>::const_iterator it = parameterTypes.begin();
+	for (vector<DataType const*>::const_iterator it = parameterTypes.begin();
 		 it != parameterTypes.end(); ++it)
 	{
 		if (comma) {result += ", "; comma = true;}
@@ -371,8 +371,8 @@ string Function::Signature::asString() const
 
 // ZScript::Function
 
-Function::Function(ZVarType const* returnType, string const& name,
-				   vector<ZVarType const*> paramTypes, int id)
+Function::Function(DataType const* returnType, string const& name,
+				   vector<DataType const*> paramTypes, int id)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes),
 	  id(id), label(nullopt)
@@ -416,7 +416,7 @@ int Function::getLabel() const
 bool ZScript::isRun(Function const& function)
 {
 	return function.internalScope->getParent()->isScript()
-		&& *function.returnType == ZVarType::ZVOID
+		&& *function.returnType == DataType::ZVOID
 		&& function.name == "run";
 }
 

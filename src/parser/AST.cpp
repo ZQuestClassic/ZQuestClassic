@@ -969,19 +969,19 @@ ASTExpr* ASTDataDecl::initializer(ASTExpr* initializer)
 	return initializer;
 }
 
-ZVarType const* ASTDataDecl::resolveType(ZScript::Scope* scope) const
+DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope) const
 {
 	TypeStore& typeStore = scope->getTypeStore();
 
 	// First resolve the base type.
 	ASTVarType* baseTypeNode = list ? list->baseType : baseType;
-	ZVarType const* type = &baseTypeNode->resolve(*scope);
+	DataType const* type = &baseTypeNode->resolve(*scope);
 
 	// If we have any arrays, tack them onto the base type.
 	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
 		 it != extraArrays.end(); ++it)
 	{
-		ZVarTypeArray arrayType(*type);
+		DataTypeArray arrayType(*type);
 		type = typeStore.getCanonicalType(arrayType);
 	}
 
@@ -1215,12 +1215,12 @@ optional<long> ASTExprIdentifier::getCompileTimeValue(
 	return binding ? binding->getCompileTimeValue() : nullopt;
 }
 
-ZVarType const* ASTExprIdentifier::getReadType() const
+DataType const* ASTExprIdentifier::getReadType() const
 {
 	return binding ? &binding->type : NULL;
 }
 
-ZVarType const* ASTExprIdentifier::getWriteType() const
+DataType const* ASTExprIdentifier::getWriteType() const
 {
 	return binding ? &binding->type : NULL;
 }
@@ -1275,12 +1275,12 @@ string ASTExprArrow::asString() const
 	return s;
 }
 
-ZVarType const* ASTExprArrow::getReadType() const
+DataType const* ASTExprArrow::getReadType() const
 {
 	return readFunction ? readFunction->returnType : NULL;
 }
 
-ZVarType const* ASTExprArrow::getWriteType() const
+DataType const* ASTExprArrow::getWriteType() const
 {
 	return writeFunction ? writeFunction->paramTypes.back() : NULL;
 }
@@ -1322,13 +1322,13 @@ bool ASTExprIndex::isConstant() const
 	return array->isConstant() && index->isConstant();
 }
 
-ZVarType const* ASTExprIndex::getReadType() const
+DataType const* ASTExprIndex::getReadType() const
 {
 	if (array->isTypeArrow()) return array->getReadType();
 	return ASTExpr::getReadType();
 }
 
-ZVarType const* ASTExprIndex::getWriteType() const
+DataType const* ASTExprIndex::getWriteType() const
 {
 	if (array->isTypeArrow()) return array->getWriteType();
 	return ASTExpr::getWriteType();
@@ -1372,12 +1372,12 @@ void ASTExprCall::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprCall(*this, param);
 }
 
-ZVarType const* ASTExprCall::getReadType() const
+DataType const* ASTExprCall::getReadType() const
 {
 	return binding ? binding->returnType : NULL;
 }
 
-ZVarType const* ASTExprCall::getWriteType() const
+DataType const* ASTExprCall::getWriteType() const
 {
 	return NULL;
 }
@@ -2542,11 +2542,11 @@ void ASTScriptType::execute(ASTVisitor& visitor, void* param)
 
 // ASTVarType
 
-ASTVarType::ASTVarType(ZVarType* type, LocationData const& location)
+ASTVarType::ASTVarType(DataType* type, LocationData const& location)
 	: AST(location), type(type)
 {}
 
-ASTVarType::ASTVarType(ZVarType const& type, LocationData const& location)
+ASTVarType::ASTVarType(DataType const& type, LocationData const& location)
 	: AST(location), type(type.clone())
 {}
 
@@ -2568,9 +2568,9 @@ void ASTVarType::execute(ASTVisitor& visitor, void* param)
 	visitor.caseVarType(*this, param);
 }
 
-ZVarType const& ASTVarType::resolve(ZScript::Scope& scope)
+DataType const& ASTVarType::resolve(ZScript::Scope& scope)
 {
-	ZVarType* resolved = type->resolve(scope);
+	DataType* resolved = type->resolve(scope);
 	if (type != resolved)
 	{
 		delete type;
