@@ -57,10 +57,8 @@ SymbolTable::SymbolTable()
 
 SymbolTable::~SymbolTable()
 {
-	for (vector<ZVarType*>::iterator it = types.begin(); it != types.end(); ++it)
-		delete *it;
-	for (vector<ZClass*>::iterator it = classes.begin(); it != classes.end(); ++it)
-		delete *it;
+	deleteElements(types);
+	deleteElements(classes);
 }
 
 // Types

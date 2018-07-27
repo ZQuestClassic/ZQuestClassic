@@ -12,8 +12,7 @@ using namespace ZScript;
 // ZScript::Program
 
 Program::Program(ASTProgram& node, CompileErrorHandler& errorHandler)
-	: node(node), table(new SymbolTable()),
-	  globalScope(new GlobalScope(*table))
+	: node(node), globalScope(new GlobalScope())
 {
 	// Create a ZScript::Script for every script in the program.
 	for (vector<ASTScript*>::const_iterator it = node.scripts.begin();
@@ -39,8 +38,12 @@ Program::Program(ASTProgram& node, CompileErrorHandler& errorHandler)
 Program::~Program()
 {
 	deleteElements(scripts);
-	delete table;
 	delete globalScope;
+}
+
+SymbolTable& Program::getTable()
+{
+	return globalScope->getTable();
 }
 
 Script* Program::getScript(string const& name) const

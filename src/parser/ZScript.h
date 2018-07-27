@@ -35,7 +35,7 @@ namespace ZScript
 		~Program();
 
 		ASTProgram& getNode() {return node;}
-		SymbolTable& getTable() {return *table;}
+		SymbolTable& getTable();
 		GlobalScope& getScope() {return *globalScope;}
 
 		vector<Script*> scripts;
@@ -58,7 +58,6 @@ namespace ZScript
 		map<ASTScript*, Script*> scriptsByNode;
 
 		ASTProgram& node;
-		SymbolTable* table;
 		GlobalScope* globalScope;
 		
 		// Disabled.
