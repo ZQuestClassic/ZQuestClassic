@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include "AST.h"
+#include "CompileError.h"
 #include "CompilerUtils.h"
 #include "Types.h"
 
@@ -101,6 +102,9 @@ namespace ZScript
 		
 	protected:
 		Datum(Scope& scope, ZVarType const& type);
+
+		// Call in static creation function to register with scope.
+		bool tryAddToScope(CompileErrorHandler&);
 	};
 
 	bool isGlobal(Datum const& data);
@@ -109,42 +113,51 @@ namespace ZScript
 	class Literal : public Datum
 	{
 	public:
+		static Literal* create(
+				Scope&, ASTLiteral&, ZVarType const&,
+				CompileErrorHandler& = CompileErrorHandler::NONE);
+		
+		ASTLiteral* getNode() const {return &node;}
+
+	private:
 		Literal(Scope& scope, ASTLiteral& node, ZVarType const& type);
 
 		ASTLiteral& node;
-
-		ASTLiteral* getNode() const {return &node;}
 	};
-
-	Literal* addLiteral(Scope& scope, ASTLiteral& node, ZVarType const& type);
 
 	// A variable.
 	class Variable : public Datum
 	{
 	public:
-		Variable(Scope& scope, ASTDataDecl& node, ZVarType const& type);
+		static Variable* create(
+				Scope&, ASTDataDecl&, ZVarType const&,
+				CompileErrorHandler& = CompileErrorHandler::NONE);
 
 		optional<string> getName() const {return node.name;}
 		ASTDataDecl* getNode() const {return &node;}
 		optional<int> getGlobalId() const {return globalId;}
 
 	private:
+		Variable(Scope& scope, ASTDataDecl& node, ZVarType const& type);
+
 		ASTDataDecl& node;
 		optional<int> globalId;
 	};
-
-	Variable* addVariable(Scope&, ASTDataDecl&, ZVarType const&);
 
 	// A compiler generated variable.
 	class BuiltinVariable : public Datum
 	{
 	public:
-		BuiltinVariable(Scope&, ZVarType const&, string const& name);
+		static BuiltinVariable* create(
+				Scope&, ZVarType const&, string const& name,
+				CompileErrorHandler& = CompileErrorHandler::NONE);
 
 		optional<string> getName() const {return name;}
 		optional<int> getGlobalId() const {return globalId;}
 
 	private:
+		BuiltinVariable(Scope&, ZVarType const&, string const& name);
+
 		string const name;
 		optional<int> globalId;
 	};
@@ -153,36 +166,40 @@ namespace ZScript
 	class Constant : public Datum
 	{
 	public:
-		Constant(Scope& scope, ASTDataDecl& node, ZVarType const& type,
-		         long value);
-
-		ASTDataDecl& node;
-		long const value;
+		static Constant* create(
+				Scope&, ASTDataDecl&, ZVarType const&, long value,
+				CompileErrorHandler& = CompileErrorHandler::NONE);
 
 		optional<string> getName() const;
 
 		optional<long> getCompileTimeValue() const {return value;}
 
 		ASTDataDecl* getNode() const {return &node;}
-	};
 	
-	Constant* addConstant(Scope&, ASTDataDecl&, ZVarType const&, long value);
+	private:
+		Constant(Scope&, ASTDataDecl&, ZVarType const&, long value);
+
+		ASTDataDecl& node;
+		long value;
+	};
 
 	// A builtin data value.
 	class BuiltinConstant : public Datum
 	{
 	public:
-		BuiltinConstant(Scope& scope, ZVarType const& type,
-		                string const& name, long value);
-
-		long value;
+		static BuiltinConstant* create(
+				Scope&, ZVarType const&, string const& name, long value,
+				CompileErrorHandler& = CompileErrorHandler::NONE);
 
 		optional<string> getName() const {return name;}
-		
 		optional<long> getCompileTimeValue() const {return value;}
 
 	private:
+		BuiltinConstant(Scope&, ZVarType const&,
+		                string const& name, long value);
+
 		string name;
+		long value;
 	};
 
 	class Function

@@ -1,4 +1,5 @@
-
+#include "../precompiled.h"
+#include "CompileError.h"
 #include "GlobalSymbols.h"
 #include "Scope.h"
 #include "Types.h"
@@ -310,20 +311,25 @@ ZVarType const* BasicScope::addType(
 	return type;
 }
 
-bool BasicScope::add(Datum* datum)
+bool BasicScope::add(Datum& datum, CompileErrorHandler& errorHandler)
 {
-	if (optional<string> name = datum->getName())
+	if (optional<string> name = datum.getName())
 	{
-		if (find<Datum*>(namedData, *name)) return false;
-		namedData[*name] = datum;
+		if (find<Datum*>(namedData, *name))
+	{
+			errorHandler.handleError(CompileError::VarRedef,
+			                         datum.getNode(), name->c_str());
+			return false;
+		}
+		namedData[*name] = &datum;
 	}
-	else anonymousData.push_back(datum);
+	else anonymousData.push_back(&datum);
 
-	if (AST* node = datum->getNode())
+	if (AST* node = datum.getNode())
 	{
-		table.putNodeId(node, datum->id);
+		table.putNodeId(node, datum.id);
 	
-		if (optional<long> value = datum->getCompileTimeValue())
+		if (optional<long> value = datum.getCompileTimeValue())
 			table.inlineConstant(node, *value);
 	}
 
@@ -393,61 +399,33 @@ GlobalScope::GlobalScope(SymbolTable& table) : BasicScope(table)
 	}
 
 	// Add builtin pointers.
-	BuiltinConstant* builtin;
-	builtin = new BuiltinConstant(*this, ZVarType::LINK, "Link", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::SCREEN, "Screen", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::GAME, "Game", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::AUDIO, "Audio", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::DEBUG, "Debug", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::NPCDATA, "NPCData", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::TEXT, "Text", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::COMBOS, "ComboData", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::SPRITEDATA, "SpriteData", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::GRAPHICS, "Graphics", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::INPUT, "Input", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::MAPDATA, "MapData", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::DMAPDATA, "DMapData", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::ZMESSAGE, "MessageData", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::SHOPDATA, "ShopData", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::UNTYPED, "Untyped", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::DROPSET, "DropData", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::PONDS, "PondData", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::WARPRING, "WarpRing", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::DOORSET, "DoorSet", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::ZUICOLOURS, "MiscColors", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::RGBDATA, "RGBData", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::PALETTE, "Palette", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::TUNES, "MusicTrack", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::PALCYCLE, "PalCycle", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::GAMEDATA, "GameData", 0);
-	add(builtin);
-	builtin = new BuiltinConstant(*this, ZVarType::CHEATS, "Cheats", 0);
-	add(builtin);
+	BuiltinConstant::create(*this, ZVarType::LINK, "Link", 0);
+	BuiltinConstant::create(*this, ZVarType::SCREEN, "Screen", 0);
+	BuiltinConstant::create(*this, ZVarType::GAME, "Game", 0);
+	BuiltinConstant::create(*this, ZVarType::AUDIO, "Audio", 0);
+	BuiltinConstant::create(*this, ZVarType::DEBUG, "Debug", 0);
+	BuiltinConstant::create(*this, ZVarType::NPCDATA, "NPCData", 0);
+	BuiltinConstant::create(*this, ZVarType::TEXT, "Text", 0);
+	BuiltinConstant::create(*this, ZVarType::COMBOS, "ComboData", 0);
+	BuiltinConstant::create(*this, ZVarType::SPRITEDATA, "SpriteData", 0);
+	BuiltinConstant::create(*this, ZVarType::GRAPHICS, "Graphics", 0);
+	BuiltinConstant::create(*this, ZVarType::INPUT, "Input", 0);
+	BuiltinConstant::create(*this, ZVarType::MAPDATA, "MapData", 0);
+	BuiltinConstant::create(*this, ZVarType::DMAPDATA, "DMapData", 0);
+	BuiltinConstant::create(*this, ZVarType::ZMESSAGE, "MessageData", 0);
+	BuiltinConstant::create(*this, ZVarType::SHOPDATA, "ShopData", 0);
+	BuiltinConstant::create(*this, ZVarType::UNTYPED, "Untyped", 0);
+	BuiltinConstant::create(*this, ZVarType::DROPSET, "DropData", 0);
+	BuiltinConstant::create(*this, ZVarType::PONDS, "PondData", 0);
+	BuiltinConstant::create(*this, ZVarType::WARPRING, "WarpRing", 0);
+	BuiltinConstant::create(*this, ZVarType::DOORSET, "DoorSet", 0);
+	BuiltinConstant::create(*this, ZVarType::ZUICOLOURS, "MiscColors", 0);
+	BuiltinConstant::create(*this, ZVarType::RGBDATA, "RGBData", 0);
+	BuiltinConstant::create(*this, ZVarType::PALETTE, "Palette", 0);
+	BuiltinConstant::create(*this, ZVarType::TUNES, "MusicTrack", 0);
+	BuiltinConstant::create(*this, ZVarType::PALCYCLE, "PalCycle", 0);
+	BuiltinConstant::create(*this, ZVarType::GAMEDATA, "GameData", 0);
+	BuiltinConstant::create(*this, ZVarType::CHEATS, "Cheats", 0);
 }
 
 ScriptScope* GlobalScope::makeScriptChild(Script& script)
