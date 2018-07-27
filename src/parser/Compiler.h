@@ -59,7 +59,7 @@ private:
 struct ScriptsData
 {
     std::map<string, vector<Opcode *> > theScripts;
-    std::map<string, ScriptType> scriptTypes;
+	std::map<string, ZScript::ScriptType> scriptTypes;
 };
 
 ScriptsData *compile(const char *filename);
@@ -106,20 +106,6 @@ public:
         lid=0;
     }
     static pair<long,bool> parseLong(pair<string,string> parts);
-	static int getThisType(ScriptType type)
-	{
-		switch (type)
-		{
-		case SCRIPTTYPE_FFC:
-			return ZVARTYPEID_FFC;
-		case SCRIPTTYPE_ITEM:
-			return ZVARTYPEID_ITEMCLASS;
-		case SCRIPTTYPE_GLOBAL:
-		case SCRIPTTYPE_VOID:
-			return ZVARTYPEID_VOID;
-		}
-		return ZVARTYPEID_VOID;
-	}
 private:
     static string prepareFilename(string const& filename);
     static vector<Opcode *> assembleOne(vector<Opcode *> script, std::map<int, vector<Opcode *> > &otherfuncs, int numparams);

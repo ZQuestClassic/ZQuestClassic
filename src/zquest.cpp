@@ -19226,7 +19226,8 @@ int onCompileScript()
                 break;
             }
             
-            std::map<string, ScriptType> stypes = result->scriptTypes;
+            std::map<string, ZScript::ScriptType> stypes =
+	            result->scriptTypes;
             std::map<string, vector<Opcode *> > scripts = result->theScripts;
             delete result;
             asffcscripts.clear();
@@ -19236,30 +19237,20 @@ int onCompileScript()
             asitemscripts.clear();
             asitemscripts.push_back("<none>");
             
-            for(std::map<string, ScriptType>::iterator it = stypes.begin(); it != stypes.end(); it++)
+            for (std::map<string, ZScript::ScriptType>::iterator it =
+	                 stypes.begin(); it != stypes.end(); ++it)
             {
-                switch(it->second)
-                {
-                case SCRIPTTYPE_FFC:
-                {
-                    asffcscripts.push_back(it->first);
-                    break;
-                }
-                
-                case SCRIPTTYPE_GLOBAL:
-                {
-                    if(it->first != "~Init") //Don't allow assigning the allocate memory script, bad things could happen
-                        asglobalscripts.push_back(it->first);
-                        
-                    break;
-                }
-                
-                case SCRIPTTYPE_ITEM:
-                {
-                    asitemscripts.push_back(it->first);
-                    break;
-                }
-                }
+	            string const& name = it->first;
+	            ZScript::ScriptType type = it->second;
+	            if (type == ZScript::ScriptType::FFC)
+                    asffcscripts.push_back(name);
+	            else if (type == ZScript::ScriptType::ITEM)
+                    asitemscripts.push_back(name);
+	            else if (type == ZScript::ScriptType::GLOBAL
+	                     // Don't allow assigning the allocate memory
+	                     // script, bad things could happen
+	                     && name != "~Init")
+		            asglobalscripts.push_back(name);
             }
             
             assignscript_dlg[0].dp2 = lfont;

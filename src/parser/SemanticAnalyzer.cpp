@@ -48,7 +48,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	// If this is the script's run method, add "this" to the scope.
 	if (isRun(function))
 	{
-		ZVarTypeId thisTypeId = ScriptParser::getThisType(script->getType());
+		ZVarTypeId thisTypeId = script->getType().getThisTypeId();
 		ZVarType const& thisType = *scope->getTable().getType(thisTypeId);
 		function.thisVar =
 			BuiltinVariable::create(functionScope, thisType, "this", *this);

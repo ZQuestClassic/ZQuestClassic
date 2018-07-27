@@ -26,6 +26,8 @@ void yyerror(const char* s);
 string curfilename;
 extern YYLTYPE noloc;
 
+using namespace ZScript;
+
 // Since c macros can't directly contain bison macros, they need to be passed
 // in where they're invoked. The following arguments are named so that 'd'
 // stands in for '$' and 'a' stands in for '@'.
@@ -381,9 +383,9 @@ Script : Script_Type SCRIPT IDENTIFIER Script_Block {
 	;
 
 Script_Type :
-	GLOBAL {$$ = new ASTScriptType(SCRIPTTYPE_GLOBAL, @$);}
-	| FFC {$$ = new ASTScriptType(SCRIPTTYPE_FFC, @$);}
-	| ITEM {$$ = new ASTScriptType(SCRIPTTYPE_ITEM, @$);}
+	GLOBAL {$$ = new ASTScriptType(ScriptType::GLOBAL, @$);}
+	| FFC {$$ = new ASTScriptType(ScriptType::FFC, @$);}
+	| ITEM {$$ = new ASTScriptType(ScriptType::ITEM, @$);}
 		   ;
 
 Script_Block :
