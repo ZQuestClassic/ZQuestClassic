@@ -1,3 +1,5 @@
+#include "../precompiled.h"
+#include "CompilerUtils.h"
 #include "CompileError.h"
 #include "DataStructs.h"
 #include "Scope.h"
@@ -8,19 +10,18 @@ using namespace ZScript;
 
 // ZScript::Program
 
-Program::Program(ASTProgram* node)
-	: node(node),
-	  table(*new SymbolTable()),
-	  globalScope(*new GlobalScope(table))
+Program::Program(ASTProgram& node, CompileErrorHandler& errorHandler)
+	: node(node), table(new SymbolTable()),
+	  globalScope(new GlobalScope(*table))
 {
-	assert(node);
-
 	// Create a ZScript::Script for every script in the program.
-	for (vector<ASTScript*>::const_iterator it = node->scripts.begin();
-		 it != node->scripts.end(); ++it)
+	for (vector<ASTScript*>::const_iterator it = node.scripts.begin();
+		 it != node.scripts.end(); ++it)
 	{
-		scripts.push_back(new Script(*this, *it));
-		Script* script = scripts.back();
+		Script* script = Script::create(*this, **it, errorHandler);
+		if (!script) continue;
+		
+		scripts.push_back(script);
 		scriptsByName[script->getName()] = script;
 		scriptsByNode[*it] = script;
 	}
@@ -28,10 +29,9 @@ Program::Program(ASTProgram* node)
 
 Program::~Program()
 {
-	for (vector<Script*>::iterator it = scripts.begin(); it != scripts.end(); ++it)
-		delete *it;
-	delete &table;
-	delete &globalScope;
+	deleteElements(scripts);
+	delete table;
+	delete globalScope;
 }
 
 Script* Program::getScript(string const& name) const
@@ -50,7 +50,7 @@ Script* Program::getScript(ASTScript* node) const
 
 vector<Function*> Program::getUserGlobalFunctions() const
 {
-	vector<Function*> functions = globalScope.getLocalFunctions();
+	vector<Function*> functions = globalScope->getLocalFunctions();
 	for (vector<Function*>::iterator it = functions.begin(); it != functions.end();)
 	{
 		Function& function = **it;
@@ -62,7 +62,7 @@ vector<Function*> Program::getUserGlobalFunctions() const
 
 vector<Function*> Program::getUserFunctions() const
 {
-	vector<Function*> functions = getFunctionsInBranch(globalScope);
+	vector<Function*> functions = getFunctionsInBranch(*globalScope);
 	for (vector<Function*>::iterator it = functions.begin(); it != functions.end();)
 	{
 		Function& function = **it;
@@ -85,18 +85,40 @@ vector<CompileError const*> Program::getErrors() const
 
 // ZScript::Script
 
-Script::Script(Program& program, ASTScript* script) : node(script)
-{
-	assert(node);
+Script::Script(Program& program, ASTScript& node)
+	: program(program), node(node)
+{}
 
-	// Create script scope.
-	scope = program.globalScope.makeScriptChild(*this);
+Script* Script::create(Program& program, ASTScript& node,
+                       CompileErrorHandler& errorHandler)
+{
+	Script* script = new Script(program, node);
+
+	ScriptScope* scope = program.getScope().makeScriptChild(*script);
+	if (!scope)
+	{
+		errorHandler.handleError(
+				CompileError::ScriptRedef, &node, node.name.c_str());
+		delete script;
+		return NULL;
+	}
 	scope->varDeclsDeprecated = true;
+	script->scope = scope;
+
+	if (node.type->type.isNull())
+	{
+		errorHandler.handleError(
+				CompileError::ScriptBadType, &node, node.name.c_str());
+		delete script;
+		return NULL;
+	}
+
+	return script;
 }
 
-string Script::getName() const {return node->name;}
+string Script::getName() const {return node.name;}
 
-ScriptType Script::getType() const {return node->type->type;}
+ScriptType Script::getType() const {return node.type->type;}
 
 Function* Script::getRun() const
 {
@@ -110,23 +132,7 @@ vector<CompileError const*> Script::getErrors() const
 	vector<CompileError const*> errors;
 	string const& name = getName();
 
-	// Failed to create scope means an existing script already has this name.
-	if (!scope) errors.push_back(&CompileError::ScriptRedef);
-
-	// Invalid script type.
-	if (getType().isNull())
-	{
-		errors.push_back(&CompileError::ScriptBadType);
-	}
-
 	// Invalid run function.
-	vector<Function*> possibleRuns = scope->getLocalFunctions("run");
-	if (possibleRuns.size() > 1)
-		errors.push_back(&CompileError::TooManyRun);
-	else if (possibleRuns.size() == 0)
-		errors.push_back(&CompileError::ScriptNoRun);
-	else if (*possibleRuns[0]->returnType != ZVarType::ZVOID)
-		errors.push_back(&CompileError::ScriptRunNotVoid);
 
 	return errors;
 }

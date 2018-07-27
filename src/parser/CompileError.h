@@ -93,11 +93,27 @@ public:
 class CompileErrorHandler
 {
 public:
-	virtual void handleError(
-			CompileError const& error, AST const* node, ...)
-	{}
+	virtual void handleError(CompileError const&, AST const*, ...) {}
 
 	static CompileErrorHandler NONE;
+};
+
+// Prints out the error on receiving it, and tracks the number of errors and
+// warnings.
+class SimpleCompileErrorHandler : public CompileErrorHandler
+{
+public:
+	SimpleCompileErrorHandler() : errorCount(0), warningCount(0) {}
+
+	void handleError(CompileError const&, AST const*, ...);
+	
+	bool hasError() const {return errorCount;}
+	int getErrorCount() const {return errorCount;}
+	int getWarningCount() const {return warningCount;}
+	
+private:
+	int errorCount;
+	int warningCount;
 };
 
 #endif

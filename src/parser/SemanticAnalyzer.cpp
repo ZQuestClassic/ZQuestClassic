@@ -17,8 +17,8 @@ void* const SemanticAnalyzer::paramReadWrite = new tag();
 SemanticAnalyzer::SemanticAnalyzer(Program& program)
 	: deprecateGlobals(false), program(program), returnType(NULL)
 {
-	scope = &program.globalScope;
-	caseProgram(*program.node);
+	scope = &program.getScope();
+	caseProgram(program.getNode());
 }
 
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
@@ -78,7 +78,7 @@ void SemanticAnalyzer::caseProgram(ASTProgram& host, void*)
 		 it != program.scripts.end(); ++it)
 	{
 		Script& script = **it;
-		scope = script.scope;
+		scope = &script.getScope();
 		functions = scope->getLocalFunctions();
 		for (vector<Function*>::iterator it = functions.begin(); it != functions.end(); ++it)
 			analyzeFunctionInternals(**it);
@@ -397,17 +397,27 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 	string name = script.getName();
 
 	// Recurse on script elements with its scope.
-	scope = script.scope;
+	scope = &script.getScope();
 	RecursiveVisitor::caseScript(host);
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
 
-	// Handle any script errors.
-	vector<CompileError const*> errors = script.getErrors();
-	for (vector<CompileError const*>::iterator it = errors.begin();
-		 it != errors.end(); ++it)
+	// Check for a valid run function.
+	vector<Function*> possibleRuns =
+		script.getScope().getLocalFunctions("run");
+	if (possibleRuns.size() == 0)
 	{
-		handleError(**it, &host, name.c_str());
+		handleError(CompileError::ScriptNoRun, &host, name.c_str());
+		if (breakRecursion(host)) return;
+	}
+	if (possibleRuns.size() > 1)
+	{
+		handleError(CompileError::TooManyRun, &host, name.c_str());
+		if (breakRecursion(host)) return;
+	}
+	if (*possibleRuns[0]->returnType != ZVarType::ZVOID)
+	{
+		handleError(CompileError::ScriptRunNotVoid, &host, name.c_str());
 		if (breakRecursion(host)) return;
 	}
 }
@@ -483,7 +493,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		handleError(CompileError::ArrowNotPointer, &host);
         return;
 	}
-	host.leftClass = program.table.getClass(
+	host.leftClass = program.getTable().getClass(
 			static_cast<ZVarTypeClass const&>(leftType).getClassId());
 
 	// Find read function.
@@ -503,7 +513,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 						(host.right + (host.index ? "[]" : "")).c_str());
 			return;
 		}
-		program.table.putNodeId(&host, host.readFunction->id);
+		program.getTable().putNodeId(&host, host.readFunction->id);
 	}
 
 	// Find write function.
@@ -523,7 +533,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 						(host.right + (host.index ? "[]" : "")).c_str());
 			return;
 		}
-		program.table.putNodeId(&host, host.writeFunction->id);
+		program.getTable().putNodeId(&host, host.writeFunction->id);
 	}
 
 	if (host.index)
@@ -664,7 +674,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	}
 
 	host.binding = bestFunction;
-	program.table.putNodeId(&host, bestFunction->id);	
+	program.getTable().putNodeId(&host, bestFunction->id);	
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
@@ -805,7 +815,7 @@ void SemanticAnalyzer::caseExprRShift(ASTExprRShift& host, void*)
 void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
 {
 	// Assign type.
-	ZVarType const* type = program.table.getCanonicalType(
+	ZVarType const* type = program.getTable().getCanonicalType(
 			ZVarTypeArray(ZVarType::FLOAT));
 	host.setVarType(type);
 
@@ -859,7 +869,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 
 		// Convert to array type.
 		host.setReadType(
-				program.table.getCanonicalType(
+				program.getTable().getCanonicalType(
 						ZVarTypeArray(elementType)));
 	}
 
@@ -867,7 +877,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	else
 	{
 		host.setReadType(
-				program.table.getCanonicalType(
+				program.getTable().getCanonicalType(
 						ZVarTypeArray(*host.elements[0]->getReadType())));
 	}
 
@@ -913,7 +923,7 @@ void SemanticAnalyzer::analyzeIncrement(ASTUnaryExpr& host)
 	if (operand.isTypeArrow())
 	{
 		ASTExprArrow& arrow = static_cast<ASTExprArrow&>(operand);
-		program.table.putNodeId(&host, arrow.readFunction->id);
+		program.getTable().putNodeId(&host, arrow.readFunction->id);
 	}
 	if (operand.isTypeIndex())
 	{
@@ -921,7 +931,7 @@ void SemanticAnalyzer::analyzeIncrement(ASTUnaryExpr& host)
 		if (index.array->isTypeArrow())
 		{
 			ASTExprArrow& arrow = static_cast<ASTExprArrow&>(*index.array);
-			program.table.putNodeId(&host, arrow.readFunction->id);
+			program.getTable().putNodeId(&host, arrow.readFunction->id);
 		}
 	}
 

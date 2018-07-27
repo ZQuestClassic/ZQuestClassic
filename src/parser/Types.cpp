@@ -7,7 +7,6 @@
 
 using namespace ZScript;
 
-////////////////////////////////////////////////////////////////
 // Standard Type definitions.
 ZVarTypeSimple const ZVarType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", "Untyped");
 ZVarTypeSimple const ZVarType::ZVOID(ZVARTYPEID_VOID, "void", "Void");
