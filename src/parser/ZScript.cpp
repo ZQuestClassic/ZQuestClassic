@@ -137,17 +137,23 @@ vector<CompileError const*> Script::getErrors() const
 // ZScript::Datum
 
 Datum::Datum(Scope& scope, ZVarType const& type)
-	: id(ScriptParser::getUniqueVarID()), type(type), scope(scope)
+	: scope(scope), type(type), id(ScriptParser::getUniqueVarID())
 {}
 
 bool Datum::tryAddToScope(CompileErrorHandler& errorHandler)
 {
-	scope.add(*this, errorHandler);
+	return scope.add(*this, errorHandler);
 }
 
 bool ZScript::isGlobal(Datum const& datum)
 {
-	return datum.scope.isGlobal() || datum.scope.isScript();
+	return (datum.scope.isGlobal() || datum.scope.isScript())
+		&& datum.getName();
+}
+
+optional<int> ZScript::getStackOffset(Datum const& datum)
+{
+	return lookupStackPosition(datum.scope, datum);
 }
 
 // ZScript::Literal
@@ -317,7 +323,8 @@ Script* Function::getScript() const
 	Scope* parentScope = internalScope->getParent();
 	if (!parentScope) return NULL;
 	if (!parentScope->isScript()) return NULL;
-	ScriptScope* scriptScope = (ScriptScope*)parentScope;
+	ScriptScope* scriptScope =
+		dynamic_cast<ScriptScope*>(parentScope);
 	return &scriptScope->script;
 }
 
@@ -325,4 +332,21 @@ int Function::getLabel() const
 {
 	if (!label) label = ScriptParser::getUniqueLabelID();
 	return *label;
+}
+
+bool ZScript::isRun(Function const& function)
+{
+	return function.internalScope->getParent()->isScript()
+		&& *function.returnType == ZVarType::ZVOID
+		&& function.name == "run";
+}
+
+int ZScript::getStackSize(Function const& function)
+{
+	return *lookupStackSize(*function.internalScope);
+}
+
+int ZScript::getParameterCount(Function const& function)
+{
+	return function.paramTypes.size() + (isRun(function) ? 1 : 0);
 }

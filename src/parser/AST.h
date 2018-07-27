@@ -657,8 +657,8 @@ public:
 	// this is added.
 	ASTDataDeclList* list;
 
-	// Reference back to the variable manager for this node. Should be set by
-	// that Variable when it is created.
+	// Reference back to the datum manager for this node. Should be set by
+	// that Datum when it is created.
 	ZScript::Datum* manager;
 
 	// This type of this data (minus the extra arrays). This should only be
@@ -1538,8 +1538,8 @@ public:
 
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
-			const
-	{return value ? 10000L : 0L;}
+			const {
+		return value ? 10000L : 0L;}
 	ZVarType const* getReadType() const {return &ZVarType::BOOL;}
 	
     bool value;

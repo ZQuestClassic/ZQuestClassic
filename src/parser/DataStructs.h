@@ -109,21 +109,8 @@ struct IntermediateData
     map<string, int> scriptRunLabels;
 };
 
-class StackFrame
-{
-public:
-    void addToFrame(int vid, int offset)
-    {
-        stackoffset[vid] = offset;
-    }
-    int getOffset(int vid);
-private:
-    map<int, int> stackoffset;
-};
-
 struct OpcodeContext
 {
-    StackFrame *stackframe;
     SymbolTable *symbols;
 	vector<Opcode*> initCode;
 };

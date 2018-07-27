@@ -347,20 +347,3 @@ IntermediateData::IntermediateData(FunctionData const& functionData)
 	: program(functionData.program)
 {}
 
-////////////////////////////////////////////////////////////////
-
-int StackFrame::getOffset(int vid)
-{
-    map<int, int>::iterator it = stackoffset.find(vid);
-    
-    if(it == stackoffset.end())
-    {
-        box_out("Internal Error: Can't find stack offset for variable!");
-        box_eol();
-        return 0;
-    }
-    
-    return stackoffset[vid];
-}
-
-

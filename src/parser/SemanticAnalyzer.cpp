@@ -26,30 +26,32 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	ASTFuncDecl* functionDecl = function.node;
 
 	// Create function scope.
-	function.internalScope = scope->makeChild();
+	function.internalScope = scope->makeFunctionChild(function);
 	Scope& functionScope = *function.internalScope;
 
 	// Grab the script.
 	Script* script = NULL;
-	if (scope->isScript()) script = &((ScriptScope*)scope)->script;
-
-	// If this is the script's run method, add "this" to the scope.
-	if (script && function.name == "run" && *function.returnType == ZVarType::ZVOID)
-	{
-		ZVarTypeId thisTypeId = ScriptParser::getThisType(script->getType());
-		ZVarType const& thisType = *scope->getTable().getType(thisTypeId);
-		function.thisVar =
-			BuiltinVariable::create(functionScope, thisType, "this", *this);
-	}
+	if (scope->isScript())
+		script = &dynamic_cast<ScriptScope*>(scope)->script;
 
 	// Add the parameters to the scope.
 	vector<ASTDataDecl*>& parameters = functionDecl->parameters;
-	for (vector<ASTDataDecl*>::iterator it = parameters.begin(); it != parameters.end(); ++it)
+	for (vector<ASTDataDecl*>::iterator it = parameters.begin();
+	     it != parameters.end(); ++it)
 	{
 		ASTDataDecl& parameter = **it;
 		string const& name = parameter.name;
 		ZVarType const& type = *parameter.resolveType(&functionScope);
 		Variable::create(functionScope, parameter, type, *this);
+	}
+
+	// If this is the script's run method, add "this" to the scope.
+	if (isRun(function))
+	{
+		ZVarTypeId thisTypeId = ScriptParser::getThisType(script->getType());
+		ZVarType const& thisType = *scope->getTable().getType(thisTypeId);
+		function.thisVar =
+			BuiltinVariable::create(functionScope, thisType, "this", *this);
 	}
 
 	// Evaluate the function block under its scope and return type.
