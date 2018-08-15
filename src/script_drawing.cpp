@@ -5,7 +5,7 @@
 
 #include "precompiled.h" //always first
 
-#include <allegro.h>
+#include "allegro_wrapper.h"
 #include "script_drawing.h"
 #include "rendertarget.h"
 #include "maps.h"

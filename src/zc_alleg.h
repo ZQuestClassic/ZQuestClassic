@@ -13,7 +13,7 @@
 
 #define DEBUGMODE
 #define ALLEGRO_NO_COMPATIBILITY
-#include <allegro.h>
+#include "allegro_wrapper.h"
 #include <allegro/internal/aintern.h>
 #include "alleg_compat.h"
 

@@ -43,7 +43,7 @@
 
 #include <string.h>
 
-#include <allegro.h>
+#include "allegro_wrapper.h"
 #include <allegro/internal/aintern.h>
 #include <allegro/alcompat.h>
 
