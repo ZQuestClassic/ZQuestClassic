@@ -108,7 +108,7 @@ namespace ZScript
 	private:
 		// Add the datum to this scope, returning if successful. Called by
 		// the Datum classes' ::create functions.
-		virtual bool add(ZScript::Datum&, CompileErrorHandler&) = 0;
+		virtual bool add(ZScript::Datum&, CompileErrorHandler*) = 0;
 	};
 
 	////////////////
@@ -279,7 +279,7 @@ namespace ZScript
 		// constructor.
 		BasicScope(BasicScope const& base);
 
-		bool add(Datum&, CompileErrorHandler&);
+		bool add(Datum&, CompileErrorHandler*);
 	};
 
 	class ScriptScope;

@@ -61,7 +61,7 @@ ScriptsData* compile(const char *filename)
     box_eol();
     
     SimpleCompileErrorHandler handler;
-    Program program(*theAST, handler);
+    Program program(*theAST, &handler);
     if (handler.hasError())
     {
 	    delete theAST;

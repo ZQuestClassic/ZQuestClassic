@@ -4,9 +4,10 @@
 #include <vector>
 #include <map>
 #include "AST.h"
-#include "CompileError.h"
 #include "CompilerUtils.h"
 #include "Types.h"
+
+class CompileErrorHandler;
 
 namespace ZScript
 {
@@ -27,7 +28,7 @@ namespace ZScript
 	class Program : private NoCopy
 	{
 	public:
-		Program(ASTProgram&, CompileErrorHandler&);
+		Program(ASTProgram&, CompileErrorHandler*);
 		~Program();
 
 		ASTProgram& getNode() {return node;}
@@ -91,7 +92,7 @@ namespace ZScript
 	class UserScript : public Script
 	{
 		friend UserScript* createScript(
-				Program&, ASTScript&, CompileErrorHandler&);
+				Program&, ASTScript&, CompileErrorHandler*);
 
 	public:
 		ScriptType getType() const {return node.type->type;}
@@ -111,7 +112,7 @@ namespace ZScript
 	{
 		friend BuiltinScript* createScript(
 				Program&, ScriptType, std::string const& name,
-				CompileErrorHandler&);
+				CompileErrorHandler*);
 
 	public:
 		ScriptType getType() const {return type;}
@@ -128,10 +129,11 @@ namespace ZScript
 		ScriptScope* scope;
 	};
 
-	UserScript* createScript(Program&, ASTScript&, CompileErrorHandler&);
+	UserScript* createScript(
+			Program&, ASTScript&, CompileErrorHandler* = NULL);
 	BuiltinScript* createScript(
 			Program&, ScriptType, std::string const& name,
-			CompileErrorHandler&);
+			CompileErrorHandler* = NULL);
 	
 	Function* getRunFunction(Script const&);
 	optional<int> getLabel(Script const&);
@@ -168,7 +170,7 @@ namespace ZScript
 		Datum(Scope& scope, DataType const& type);
 
 		// Call in static creation function to register with scope.
-		bool tryAddToScope(CompileErrorHandler&);
+		bool tryAddToScope(CompileErrorHandler* = NULL);
 	};
 
 	// Is this datum a global value?
@@ -183,7 +185,7 @@ namespace ZScript
 	public:
 		static Literal* create(
 				Scope&, ASTLiteral&, DataType const&,
-				CompileErrorHandler& = CompileErrorHandler::NONE);
+				CompileErrorHandler* = NULL);
 		
 		ASTLiteral* getNode() const {return &node;}
 
@@ -199,7 +201,7 @@ namespace ZScript
 	public:
 		static Variable* create(
 				Scope&, ASTDataDecl&, DataType const&,
-				CompileErrorHandler& = CompileErrorHandler::NONE);
+				CompileErrorHandler* = NULL);
 
 		optional<std::string> getName() const {return node.name;}
 		ASTDataDecl* getNode() const {return &node;}
@@ -218,7 +220,7 @@ namespace ZScript
 	public:
 		static BuiltinVariable* create(
 				Scope&, DataType const&, std::string const& name,
-				CompileErrorHandler& = CompileErrorHandler::NONE);
+				CompileErrorHandler* = NULL);
 
 		optional<std::string> getName() const {return name;}
 		optional<int> getGlobalId() const {return globalId;}
@@ -236,7 +238,7 @@ namespace ZScript
 	public:
 		static Constant* create(
 				Scope&, ASTDataDecl&, DataType const&, long value,
-				CompileErrorHandler& = CompileErrorHandler::NONE);
+				CompileErrorHandler* = NULL);
 
 		optional<std::string> getName() const;
 
@@ -257,7 +259,7 @@ namespace ZScript
 	public:
 		static BuiltinConstant* create(
 				Scope&, DataType const&, std::string const& name, long value,
-				CompileErrorHandler& = CompileErrorHandler::NONE);
+				CompileErrorHandler* = NULL);
 
 		optional<std::string> getName() const {return name;}
 		optional<long> getCompileTimeValue() const {return value;}

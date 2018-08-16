@@ -382,14 +382,16 @@ DataType const* BasicScope::addType(
 	return type;
 }
 
-bool BasicScope::add(Datum& datum, CompileErrorHandler& errorHandler)
+bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 {
 	if (optional<string> name = datum.getName())
 	{
 		if (find<Datum*>(namedData, *name))
-	{
-			errorHandler.handleError(CompileError::VarRedef,
-			                         datum.getNode(), name->c_str());
+		{
+			if (errorHandler)
+				errorHandler->handleError(
+						CompileError::VarRedef, datum.getNode(),
+						name->c_str());
 			return false;
 		}
 		namedData[*name] = &datum;
@@ -401,7 +403,7 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler& errorHandler)
 		stackOffsets[&datum] = stackDepth++;
 		invalidateStackSize();
 	}
-	
+
 	return true;
 }
 

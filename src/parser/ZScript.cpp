@@ -12,7 +12,7 @@ using namespace ZScript;
 ////////////////////////////////////////////////////////////////
 // ZScript::Program
 
-Program::Program(ASTProgram& node, CompileErrorHandler& errorHandler)
+Program::Program(ASTProgram& node, CompileErrorHandler* errorHandler)
 	: node(node), globalScope(new GlobalScope(typeStore))
 {
 	// Create a ZScript::Script for every script in the program.
@@ -117,15 +117,16 @@ BuiltinScript::BuiltinScript(
 
 UserScript* ZScript::createScript(
 		Program& program, ASTScript& node,
-		CompileErrorHandler& errorHandler)
+		CompileErrorHandler* errorHandler)
 {
 	UserScript* script = new UserScript(program, node);
 
 	ScriptScope* scope = program.getScope().makeScriptChild(*script);
 	if (!scope)
 	{
-		errorHandler.handleError(
-				CompileError::ScriptRedef, &node, node.name.c_str());
+		if (errorHandler)
+			errorHandler->handleError(
+					CompileError::ScriptRedef, &node, node.name.c_str());
 		delete script;
 		return NULL;
 	}
@@ -134,8 +135,9 @@ UserScript* ZScript::createScript(
 
 	if (node.type->type.isNull())
 	{
-		errorHandler.handleError(
-				CompileError::ScriptBadType, &node, node.name.c_str());
+		if (errorHandler)
+			errorHandler->handleError(
+					CompileError::ScriptBadType, &node, node.name.c_str());
 		delete script;
 		return NULL;
 	}
@@ -145,15 +147,16 @@ UserScript* ZScript::createScript(
 
 BuiltinScript* ZScript::createScript(
 		Program& program, ScriptType type, string const& name,
-		CompileErrorHandler& errorHandler)
+		CompileErrorHandler* errorHandler)
 {
 	BuiltinScript* script = new BuiltinScript(program, type, name);
 
 	ScriptScope* scope = program.getScope().makeScriptChild(*script);
 	if (!scope)
 	{
-		errorHandler.handleError(
-				CompileError::ScriptRedef, NULL, name.c_str());
+		if (errorHandler)
+			errorHandler->handleError(
+					CompileError::ScriptRedef, NULL, name.c_str());
 		delete script;
 		return NULL;
 	}
@@ -162,8 +165,9 @@ BuiltinScript* ZScript::createScript(
 
 	if (type.isNull())
 	{
-		errorHandler.handleError(
-				CompileError::ScriptBadType, NULL, name.c_str());
+		if (errorHandler)
+			errorHandler->handleError(
+					CompileError::ScriptBadType, NULL, name.c_str());
 		delete script;
 		return NULL;
 	}
@@ -191,7 +195,7 @@ Datum::Datum(Scope& scope, DataType const& type)
 	: scope(scope), type(type), id(ScriptParser::getUniqueVarID())
 {}
 
-bool Datum::tryAddToScope(CompileErrorHandler& errorHandler)
+bool Datum::tryAddToScope(CompileErrorHandler* errorHandler)
 {
 	return scope.add(*this, errorHandler);
 }
@@ -211,7 +215,7 @@ optional<int> ZScript::getStackOffset(Datum const& datum)
 
 Literal* Literal::create(
 		Scope& scope, ASTLiteral& node, DataType const& type,
-		CompileErrorHandler& errorHandler)
+		CompileErrorHandler* errorHandler)
 {
 	Literal* literal = new Literal(scope, node, type);
 	if (literal->tryAddToScope(errorHandler)) return literal;
@@ -229,7 +233,7 @@ Literal::Literal(Scope& scope, ASTLiteral& node, DataType const& type)
 
 Variable* Variable::create(
 		Scope& scope, ASTDataDecl& node, DataType const& type,
-		CompileErrorHandler& errorHandler)
+		CompileErrorHandler* errorHandler)
 {
 	Variable* variable = new Variable(scope, node, type);
 	if (variable->tryAddToScope(errorHandler)) return variable;
@@ -252,7 +256,7 @@ Variable::Variable(
 
 BuiltinVariable* BuiltinVariable::create(
 		Scope& scope, DataType const& type, string const& name,
-		CompileErrorHandler& errorHandler)
+		CompileErrorHandler* errorHandler)
 {
 	BuiltinVariable* builtin = new BuiltinVariable(scope, type, name);
 	if (builtin->tryAddToScope(errorHandler)) return builtin;
@@ -273,7 +277,7 @@ BuiltinVariable::BuiltinVariable(
 
 Constant* Constant::create(
 		Scope& scope, ASTDataDecl& node, DataType const& type, long value,
-		CompileErrorHandler& errorHandler)
+		CompileErrorHandler* errorHandler)
 {
 	Constant* constant = new Constant(scope, node, type, value);
 	if (constant->tryAddToScope(errorHandler)) return constant;
@@ -295,7 +299,7 @@ optional<string> Constant::getName() const {return node.name;}
 
 BuiltinConstant* BuiltinConstant::create(
 		Scope& scope, DataType const& type, string const& name, long value,
-		CompileErrorHandler& errorHandler)
+		CompileErrorHandler* errorHandler)
 {
 	BuiltinConstant* builtin = new BuiltinConstant(scope, type, name, value);
 	if (builtin->tryAddToScope(errorHandler)) return builtin;

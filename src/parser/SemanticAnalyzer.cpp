@@ -44,7 +44,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		ASTDataDecl& parameter = **it;
 		string const& name = parameter.name;
 		DataType const& type = *parameter.resolveType(&functionScope);
-		Variable::create(functionScope, parameter, type, *this);
+		Variable::create(functionScope, parameter, type, this);
 	}
 
 	// If this is the script's run method, add "this" to the scope.
@@ -53,7 +53,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		DataTypeId thisTypeId = script->getType().getThisTypeId();
 		DataType const& thisType = *scope->getTypeStore().getType(thisTypeId);
 		function.thisVar =
-			BuiltinVariable::create(functionScope, thisType, "this", *this);
+			BuiltinVariable::create(functionScope, thisType, "this", this);
 	}
 
 	// Evaluate the function block under its scope and return type.
@@ -270,7 +270,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		}
 		
 		long value = *host.initializer()->getCompileTimeValue(this);
-		Constant::create(*scope, host, type, value, *this);
+		Constant::create(*scope, host, type, value, this);
 	}
 	
 	else
@@ -281,7 +281,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 			return;
 		}
 
-		Variable::create(*scope, host, type, *this);
+		Variable::create(*scope, host, type, this);
 	}
 
 	// Special message for deprecated global variables.
@@ -819,7 +819,7 @@ void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
 	host.setVarType(type);
 
 	// Add to scope as a managed literal.
-	Literal::create(*scope, host, *type, *this);
+	Literal::create(*scope, host, *type, this);
 }
 
 void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
@@ -891,7 +891,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	}
 	
 	// Add to scope as a managed literal.
-	Literal::create(*scope, host, *host.getReadType(), *this);
+	Literal::create(*scope, host, *host.getReadType(), this);
 }
 
 void SemanticAnalyzer::checkCast(

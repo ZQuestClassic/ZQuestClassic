@@ -1,9 +1,10 @@
 #include <cstdio>
 #include <string>
 #include <typeinfo>
-#include "Types.h"
+#include "CompileError.h"
 #include "DataStructs.h"
 #include "Scope.h"
+#include "Types.h"
 
 using namespace std;
 using namespace ZScript;
