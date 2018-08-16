@@ -5,12 +5,10 @@
 #include <cstdarg>
 #include <string>
 
-using std::string;
-
 class CompileError
 {
 public:
-	CompileError(int id, char code, bool warning, string const& format);
+	CompileError(int id, char code, bool warning, std::string const& format);
 
 	// An internal id number for the error.
 	int id;
@@ -21,8 +19,8 @@ public:
 	// True if this is only a warning.
 	bool warning;
 
-	// The format string for printing out the error message.
-	string format;
+	// The format std::string for printing out the error message.
+	std::string format;
 
 	// Print out the error message. Optional format arguments.
 	void print(AST const* offender, ...) const;

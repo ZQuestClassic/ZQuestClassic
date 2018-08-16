@@ -1,12 +1,11 @@
-#ifndef PARSEERROR_H //2.53 Updated to 16th Jan, 2017
-#define PARSEERROR_H
+#ifndef ZSCRIPT_PARSEERROR_H
+#define ZSCRIPT_PARSEERROR_H
 
 #include "AST.h"
 #include <string>
 
-using std::string;
-
-void printErrorMsg(AST *offender, int errorID, string param = string());
+void printErrorMsg(AST *offender, int errorID,
+                   std::string param = std::string());
 
 #define CANTOPENSOURCE 0
 #define CANTOPENIMPORT 1

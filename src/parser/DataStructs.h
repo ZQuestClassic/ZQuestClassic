@@ -1,16 +1,9 @@
-#ifndef DATASTRUCTS_H //2.53 Updated to 16th Jan, 2017
-#define DATASTRUCTS_H
+#ifndef ZSCRIPT_DATASTRUCTS_H
+#define ZSCRIPT_DATASTRUCTS_H
 
-#include <map>
-#include <string>
 #include <vector>
 #include "AST.h"
 #include "ZScript.h"
-
-using std::string;
-using std::map;
-using std::vector;
-using std::pair;
 
 namespace ZScript
 {
@@ -21,12 +14,15 @@ class FunctionTypeIds
 {
 public:
 	FunctionTypeIds() : returnTypeId(-1), paramTypeIds() {}
-	FunctionTypeIds(DataTypeId returnTypeId, vector<DataTypeId> const& paramTypeIds);
+	FunctionTypeIds(ZScript::DataTypeId returnTypeId,
+	                std::vector<ZScript::DataTypeId> const& paramTypeIds);
 	int compare(FunctionTypeIds const& other) const;
-	bool operator==(FunctionTypeIds const& other) const {return compare(other) == 0;}
-	bool operator<(FunctionTypeIds const& other) const {return compare(other) < 0;}
-	DataTypeId returnTypeId;
-	vector<DataTypeId> paramTypeIds;
+	bool operator==(FunctionTypeIds const& other) const {
+		return compare(other) == 0;}
+	bool operator<(FunctionTypeIds const& other) const {
+		return compare(other) < 0;}
+	ZScript::DataTypeId returnTypeId;
+	std::vector<ZScript::DataTypeId> paramTypeIds;
 	static FunctionTypeIds const null;
 };
 
@@ -34,21 +30,21 @@ struct FunctionData
 {
 	FunctionData(ZScript::Program& program);
 	ZScript::Program& program;
-	vector<ZScript::Datum*> globalData;
-	vector<ZScript::Datum*> globalVariables;
+	std::vector<ZScript::Datum*> globalData;
+	std::vector<ZScript::Datum*> globalVariables;
 };
 
 struct IntermediateData
 {
 	IntermediateData(FunctionData const& functionData);
 	ZScript::Program& program;
-    vector<Opcode *> globalsInit;
+    std::vector<Opcode *> globalsInit;
 };
 
 struct OpcodeContext
 {
-    TypeStore* typeStore;
-	vector<Opcode*> initCode;
+	ZScript::TypeStore* typeStore;
+	std::vector<Opcode*> initCode;
 };
 
 #endif

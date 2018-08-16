@@ -6,6 +6,9 @@
 
 #include <assert.h>
 
+using std::pair;
+using std::string;
+using std::vector;
 using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
@@ -124,11 +127,13 @@ ASTProgram& ASTProgram::merge(ASTProgram& other)
 // ASTFloat
 
 ASTFloat::ASTFloat(char* value, Type type, LocationData const& location)
-	: AST(location), type(type), negative(false), value((string)value)
+	: AST(location), type(type), negative(false),
+	  value(static_cast<string>(value))
 {}
     
 ASTFloat::ASTFloat(char const* value, Type type, LocationData const& location)
-	: AST(location), type(type), negative(false), value((string)value)
+	: AST(location), type(type), negative(false),
+	  value(static_cast<string>(value))
 {}
     
 ASTFloat::ASTFloat(
@@ -166,9 +171,9 @@ void ASTFloat::execute(ASTVisitor& visitor, void* param)
 
 pair<string, string> ASTFloat::parseValue()
 {
-    string f = value;
-    string intpart;
-    string fpart;
+	string f = value;
+	string intpart;
+	string fpart;
 
     switch(type)
     {
@@ -256,7 +261,7 @@ pair<string, string> ASTFloat::parseValue()
 // ASTString
 
 ASTString::ASTString(const char* str, LocationData const& location)
-	: AST(location), str((string)str)
+	: AST(location), str(static_cast<string>(str))
 {}
 
 ASTString::ASTString(string const& str, LocationData const& location)

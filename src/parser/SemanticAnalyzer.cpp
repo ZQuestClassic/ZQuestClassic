@@ -3,6 +3,8 @@
 #include "Scope.h"
 #include "CompileError.h"
 
+using std::string;
+using std::vector;
 using namespace ZScript;
 
 struct tag {};

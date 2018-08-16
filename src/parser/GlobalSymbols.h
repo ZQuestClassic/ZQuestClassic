@@ -9,6 +9,7 @@
 using std::string;
 using std::map;
 using std::vector;
+using namespace ZScript;
 
 class SymbolTable;
 namespace ZScript

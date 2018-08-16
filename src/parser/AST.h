@@ -1,5 +1,5 @@
-#ifndef AST_H //2.53 Updated to 16th Jan, 2017
-#define AST_H
+#ifndef ZSCRIPT_AST_H
+#define ZSCRIPT_AST_H
 
 class AST;
 // for flex and bison
@@ -18,14 +18,6 @@ class AST;
 #include <map>
 #include <string>
 
-using std::string;
-using std::pair;
-using std::map;
-using std::vector;
-using std::list;
-
-using namespace ZScript;
-
 // Forward Declarations
 class ASTVisitor;
 class CompileError;
@@ -43,7 +35,7 @@ namespace ZScript
 
 #define RECURSIONLIMIT 30
 
-extern string curfilename;
+extern std::string curfilename;
 int go(const char *f);
 
 // AST Subclasses.
@@ -146,7 +138,7 @@ public:
     int last_line;
     int first_column;
     int last_column;
-    string fname;
+    std::string fname;
 
 	static LocationData const NONE;
 };
@@ -163,14 +155,14 @@ public:
 	virtual AST* clone() const = 0;
 
 	virtual void execute(ASTVisitor& visitor, void* param = NULL) = 0;
-	virtual string asString() const {return "unknown";}
+	virtual std::string asString() const {return "unknown";}
 
 	// Filename and linenumber.
     LocationData location;
 
 	// List of expected compile error ids for this node. They are removed as
 	// they are encountered.
-	list<ASTExpr*> compileErrorCatches;
+	std::list<ASTExpr*> compileErrorCatches;
 
 	// If this node has been disabled due to an error.
 	bool disabled;
@@ -189,19 +181,19 @@ public:
 	static Node* clone(Node* node) {return node ? node->clone() : NULL;}
 	// Clone a vector of AST nodes.
 	template <class Node>
-	static vector<Node*> clone(vector<Node*> const& nodes)
+	static std::vector<Node*> clone(std::vector<Node*> const& nodes)
 	{
-		vector<Node*> clones;
-		for (typename vector<Node*>::const_iterator it = nodes.begin();
+		std::vector<Node*> clones;
+		for (typename std::vector<Node*>::const_iterator it = nodes.begin();
 			 it != nodes.end(); ++it)
 			clones.push_back((*it)->clone());
 		return clones;
 	}	
 	// Clone a list of AST nodes.
-	template <class Node> static list<Node*> clone(list<Node*> const& nodes)
+	template <class Node> static std::list<Node*> clone(std::list<Node*> const& nodes)
 	{
-		list<Node*> clones;
-		for (typename list<Node*>::const_iterator it = nodes.begin();
+		std::list<Node*> clones;
+		for (typename std::list<Node*>::const_iterator it = nodes.begin();
 			 it != nodes.end(); ++it)
 			clones.push_back((*it)->clone());
 		return clones;
@@ -215,20 +207,20 @@ public:
 	// Execute a vector of AST nodes.
 	template <class Node>
 	static void execute(
-			vector<Node*> const& nodes, ASTVisitor& visitor,
+			std::vector<Node*> const& nodes, ASTVisitor& visitor,
 			void* param = NULL)
 	{
-		for (typename vector<Node*>::const_iterator it = nodes.begin();
+		for (typename std::vector<Node*>::const_iterator it = nodes.begin();
 			 it != nodes.end(); ++it)
 			(*it)->execute(visitor, param);
 	}
 	// Execute a list of AST nodes.
 	template <class Node>
 	static void execute(
-			list<Node*> const& nodes, ASTVisitor& visitor,
+			std::list<Node*> const& nodes, ASTVisitor& visitor,
 			void* param = NULL)
 	{
-		for (typename list<Node*>::const_iterator it = nodes.begin();
+		for (typename std::list<Node*>::const_iterator it = nodes.begin();
 			 it != nodes.end(); ++it)
 			(*it)->execute(visitor, param);
 	}
@@ -258,11 +250,11 @@ public:
 	ASTProgram& merge(ASTProgram& other);
 
 	// Public since we'll be clearing them and such.
-	vector<ASTImportDecl*> imports;
-	vector<ASTDataDeclList*> variables;
-	vector<ASTFuncDecl*> functions;
-	vector<ASTTypeDef*> types;
-	vector<ASTScript*> scripts;
+	std::vector<ASTImportDecl*> imports;
+	std::vector<ASTDataDeclList*> variables;
+	std::vector<ASTFuncDecl*> functions;
+	std::vector<ASTTypeDef*> types;
+	std::vector<ASTScript*> scripts;
 };
 
 class ASTFloat : public AST
@@ -274,7 +266,7 @@ public:
 			 LocationData const& location = LocationData::NONE);
     ASTFloat(char const* value, Type type,
 			 LocationData const& location = LocationData::NONE);
-    ASTFloat(string const& value, Type type,
+    ASTFloat(std::string const& value, Type type,
 			 LocationData const& location = LocationData::NONE);
     ASTFloat(long value, Type type,
 			 LocationData const& location = LocationData::NONE);
@@ -284,10 +276,10 @@ public:
 	
     void execute(ASTVisitor& visitor, void* param = NULL);
     	
-    pair<string,string> parseValue();
+    std::pair<std::string,std::string> parseValue();
 
 	Type type;
-    string value;
+    std::string value;
     bool negative;
 };
 
@@ -296,7 +288,7 @@ class ASTString : public AST
 public:
 	ASTString(const char* str,
 			  LocationData const& location = LocationData::NONE);
-    ASTString(string const& str,
+    ASTString(std::string const& str,
 			  LocationData const& location = LocationData::NONE);
 	ASTString(ASTString const& base);
 	ASTString& operator=(ASTString const& rhs);
@@ -304,9 +296,9 @@ public:
 	
     void execute(ASTVisitor& visitor, void* param = NULL);
 
-    string getValue() const {return str;}
+    std::string getValue() const {return str;}
 private:
-    string str;
+    std::string str;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -334,7 +326,7 @@ public:
     void execute(ASTVisitor& visitor, void* param = NULL);
 
 	// List of statements this block contains.
-    vector<ASTStmt*> statements;
+    std::vector<ASTStmt*> statements;
 };
     
 class ASTStmtIf : public ASTStmt
@@ -384,7 +376,7 @@ public:
 	// The key expression used to switch.
 	ASTExpr* key;
 	// A vector of case groupings.
-	vector<ASTSwitchCases*> cases;
+	std::vector<ASTSwitchCases*> cases;
 private:
 };
 
@@ -401,7 +393,7 @@ public:
 	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	// The list of case labels.
-	vector<ASTExprConst*> cases;
+	std::vector<ASTExprConst*> cases;
 	// If the default case is included in this grouping.
 	bool isDefault;
 	// The block to run.
@@ -573,16 +565,16 @@ public:
 	void addDeclaration(ASTDecl& declaration);
 
     ASTScriptType* type;
-    string name;
-	vector<ASTDataDeclList*> variables;
-	vector<ASTFuncDecl*> functions;
-	vector<ASTTypeDef*> types;
+    std::string name;
+	std::vector<ASTDataDeclList*> variables;
+	std::vector<ASTFuncDecl*> functions;
+	std::vector<ASTTypeDef*> types;
 };
 
 class ASTImportDecl : public ASTDecl
     {
 public:
-    ASTImportDecl(string const& filename,
+    ASTImportDecl(std::string const& filename,
 				  LocationData const& location = LocationData::NONE);
 	ASTImportDecl(ASTImportDecl const& base);
 	ASTImportDecl& operator=(ASTImportDecl const& rhs);
@@ -593,7 +585,7 @@ public:
 	ASTDeclClassId declarationClassId() const {
 		return ASTDECL_CLASSID_IMPORT;}
     
-    string filename;
+    std::string filename;
 };
 
 class ASTFuncDecl : public ASTDecl
@@ -611,8 +603,8 @@ public:
 		return ASTDECL_CLASSID_FUNCTION;}
 
 	ASTVarType* returnType;
-	vector<ASTDataDecl*> parameters;
-    string name;
+	std::vector<ASTDataDecl*> parameters;
+    std::string name;
 	ASTBlock* block;
 };
 
@@ -633,12 +625,12 @@ public:
 	// The base type at the start of the line shared by all the declarations.
 	ASTVarType* baseType;
 
-	vector<ASTDataDecl*> const& declarations() const {return mDeclarations;}
+	std::vector<ASTDataDecl*> const& declarations() const {return mDeclarations;}
 	void addDeclaration(ASTDataDecl* declaration);
 
 private:
 	// The list of individual data declarations.
-	vector<ASTDataDecl*> mDeclarations;
+	std::vector<ASTDataDecl*> mDeclarations;
 };
 
 // Declares a single variable or constant. May or may not be inside an
@@ -669,18 +661,18 @@ public:
 	ASTVarType* baseType;
 
 	// The symbol this declaration is binding.
-    string name;
+    std::string name;
 
 	ASTExpr* initializer() const {return mInitializer;}
 	ASTExpr* initializer(ASTExpr* initializer);
 
 	// Extra array type for this specific declaration. The final type is the
 	// list's base type combined with these.
-	vector<ASTDataDeclExtraArray*> extraArrays;
+	std::vector<ASTDataDeclExtraArray*> extraArrays;
 
 	// Resolves the type, using either the list's or this node's own base type
 	// as appropriate.
-	DataType const* resolveType(ZScript::Scope* scope) const;
+	ZScript::DataType const* resolveType(ZScript::Scope* scope) const;
 
 private:
 	// The initialization expression. Optional.
@@ -700,7 +692,7 @@ public:
 	void execute(ASTVisitor& visitor, void* param = NULL);
 
 	// The vector of array dimensions. Empty means unspecified.
-	vector<ASTExpr*> dimensions;
+	std::vector<ASTExpr*> dimensions;
 
 	// If this declares an a sized array.
 	bool hasSize() const {return dimensions.size();}
@@ -715,7 +707,7 @@ class ASTTypeDef : public ASTDecl
 {
 public:
 	ASTTypeDef(ASTVarType* type = NULL,
-			   string const& name = "",
+			   std::string const& name = "",
 			   LocationData const& location = LocationData::NONE);
 	ASTTypeDef(ASTTypeDef const& base);
 	~ASTTypeDef();
@@ -727,7 +719,7 @@ public:
 	ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_TYPE;}
 
 	ASTVarType* type;
-	string name;
+	std::string name;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -751,18 +743,18 @@ public:
 
 	// Returns the read or write type for this expression. Null for either
 	// means that it can't be read from/written to.
-	virtual DataType const* getReadType() const {return getVarType();}
-	virtual DataType const* getWriteType() const {return getVarType();}
+	virtual ZScript::DataType const* getReadType() const {return getVarType();}
+	virtual ZScript::DataType const* getWriteType() const {return getVarType();}
 	
 	// phasing out this group for the above two.
-	DataType const* getVarType() const {return varType;}
-	void setVarType(DataType const& type) {varType = &type;}
-	void setVarType(DataType& type) {varType = (DataType const*)&type;}
-	void setVarType(DataType const* type) {varType = type;}
-	void setVarType(DataType* type) {varType = (DataType const*)type;}
+	ZScript::DataType const* getVarType() const {return varType;}
+	void setVarType(ZScript::DataType const& type) {varType = &type;}
+	void setVarType(ZScript::DataType& type) {varType = (ZScript::DataType const*)&type;}
+	void setVarType(ZScript::DataType const* type) {varType = type;}
+	void setVarType(ZScript::DataType* type) {varType = (ZScript::DataType const*)type;}
 
 private:
-	DataType const* varType;
+	ZScript::DataType const* varType;
 
 protected:
 	ASTExpr& operator=(ASTExpr const& rhs);
@@ -786,9 +778,9 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const {
+	ZScript::DataType const* getReadType() const {
 		return content ? content->getReadType() : NULL;}
-	DataType const* getWriteType() const {return NULL;}
+	ZScript::DataType const* getWriteType() const {return NULL;}
 	
 	ASTExpr* content;
 };
@@ -811,9 +803,9 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const {
+	ZScript::DataType const* getReadType() const {
 		return right ? right->getReadType() : NULL;}
-	DataType const* getWriteType() const {
+	ZScript::DataType const* getWriteType() const {
 		return right ? right->getWriteType() : NULL;}
 	
 	ASTExpr* left;
@@ -823,14 +815,14 @@ public:
 class ASTExprIdentifier : public ASTExpr
 {
 public:
-    ASTExprIdentifier(string const& name = "",
+    ASTExprIdentifier(std::string const& name = "",
 					  LocationData const& location = LocationData::NONE);
 	ASTExprIdentifier(ASTExprIdentifier const& base);
 	ASTExprIdentifier& operator=(ASTExprIdentifier const& base);
 	ASTExprIdentifier* clone() const {return new ASTExprIdentifier(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
-	string asString() const;
+	std::string asString() const;
 	bool isTypeIdentifier() const {return true;}
 
 	bool isConstant() const {return mIsConstant;}
@@ -839,11 +831,11 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const;
-	DataType const* getWriteType() const;
+	ZScript::DataType const* getReadType() const;
+	ZScript::DataType const* getWriteType() const;
 	
 	// The identifier components separated by '.'.
-	vector<string> components;
+	std::vector<std::string> components;
 
 	// What this identifier refers to.
 	ZScript::Datum* binding;
@@ -855,7 +847,7 @@ class ASTExprArrow : public ASTExpr
 {
 public:
 	ASTExprArrow(ASTExpr* left = NULL,
-				 string const& right = "",
+				 std::string const& right = "",
 				 LocationData const& location = LocationData::NONE);
 	ASTExprArrow(ASTExprArrow const& base);
     ~ASTExprArrow();
@@ -863,16 +855,16 @@ public:
 	ASTExprArrow* clone() const {return new ASTExprArrow(*this);}
 
 	void execute(ASTVisitor& visitor, void* param = NULL);
-	string asString() const;
+	std::string asString() const;
 	bool isTypeArrow() const {return true;}
 
 	bool isConstant() const {return false;}
 
-	DataType const* getReadType() const;
-	DataType const* getWriteType() const;
+	ZScript::DataType const* getReadType() const;
+	ZScript::DataType const* getWriteType() const;
 	
     ASTExpr* left;
-    string right;
+    std::string right;
     ASTExpr* index;
 
 	ZScript::ZClass* leftClass;
@@ -896,8 +888,8 @@ public:
     
 	bool isConstant() const;
 
-	DataType const* getReadType() const;
-	DataType const* getWriteType() const;
+	ZScript::DataType const* getReadType() const;
+	ZScript::DataType const* getWriteType() const;
 	
 	ASTExpr* array;
     ASTExpr* index;
@@ -916,11 +908,11 @@ public:
 
 	bool isConstant() const {return false;}
 
-	DataType const* getReadType() const;
-	DataType const* getWriteType() const;
+	ZScript::DataType const* getReadType() const;
+	ZScript::DataType const* getWriteType() const;
 	
     ASTExpr* left;
-    vector<ASTExpr*> parameters;
+    std::vector<ASTExpr*> parameters;
 
 	ZScript::Function* binding;
 };
@@ -955,8 +947,8 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {return NULL;}
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::FLOAT;}
+	ZScript::DataType const* getWriteType() const {return NULL;}
 };
 
 class ASTExprNot : public ASTUnaryExpr
@@ -972,8 +964,8 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const {return &DataType::BOOL;}
-	DataType const* getWriteType() const {return NULL;}
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::BOOL;}
+	ZScript::DataType const* getWriteType() const {return NULL;}
 };
 
 class ASTExprBitNot : public ASTUnaryExpr
@@ -989,8 +981,8 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {return NULL;}
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::FLOAT;}
+	ZScript::DataType const* getWriteType() const {return NULL;}
 };
 
 class ASTExprIncrement : public ASTUnaryExpr
@@ -1005,8 +997,8 @@ public:
 
 	bool isConstant() const {return false;}
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::FLOAT;}
+	ZScript::DataType const* getWriteType() const {
 		return operand ? operand->getWriteType() : NULL;}
 };
 
@@ -1022,8 +1014,8 @@ public:
 
 	bool isConstant() const {return false;}
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::FLOAT;}
+	ZScript::DataType const* getWriteType() const {
 		return operand ? operand->getWriteType() : NULL;}
 };
 
@@ -1039,8 +1031,8 @@ public:
 
 	bool isConstant() const {return false;}
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::FLOAT;}
+	ZScript::DataType const* getWriteType() const {
 		return operand ? operand->getWriteType() : NULL;}
 };
 
@@ -1057,8 +1049,8 @@ public:
 
 	bool isConstant() const {return false;}
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::FLOAT;}
+	ZScript::DataType const* getWriteType() const {
 		return operand ? operand->getWriteType() : NULL;}
 };
 
@@ -1092,8 +1084,8 @@ public:
 	ASTLogExpr(ASTLogExpr const& base);
 	virtual ASTLogExpr* clone() const = 0;
 
-	DataType const* getReadType() const {return &DataType::BOOL;}
-	DataType const* getWriteType() const {return NULL;}
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::BOOL;}
+	ZScript::DataType const* getWriteType() const {return NULL;}
 protected:
 	ASTLogExpr& operator=(ASTLogExpr const& rhs);
 };
@@ -1142,8 +1134,8 @@ public:
 	ASTRelExpr(ASTRelExpr const& base);
 	virtual ASTRelExpr* clone() const = 0;
 
-	DataType const* getReadType() const {return &DataType::BOOL;}
-	DataType const* getWriteType() const {return NULL;}
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::BOOL;}
+	ZScript::DataType const* getWriteType() const {return NULL;}
 protected:
 	ASTRelExpr& operator=(ASTRelExpr const& rhs);
 };
@@ -1260,8 +1252,8 @@ public:
 	ASTAddExpr(ASTAddExpr const& base);
 	virtual ASTAddExpr* clone() const = 0;
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {return NULL;}
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::FLOAT;}
+	ZScript::DataType const* getWriteType() const {return NULL;}
 protected:
 	ASTAddExpr& operator=(ASTAddExpr const& rhs);
 };
@@ -1310,8 +1302,8 @@ public:
 	ASTMultExpr(ASTMultExpr const& base);
 	virtual ASTMultExpr* clone() const = 0;
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {return NULL;}
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::FLOAT;}
+	ZScript::DataType const* getWriteType() const {return NULL;}
 protected:
 	ASTMultExpr& operator=(ASTMultExpr const& rhs);
 };
@@ -1376,8 +1368,8 @@ public:
 	ASTBitExpr(ASTBitExpr const& base);
 	virtual ASTBitExpr* clone() const = 0;
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {return NULL;}
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::FLOAT;}
+	ZScript::DataType const* getWriteType() const {return NULL;}
 protected:
 	ASTBitExpr& operator=(ASTBitExpr const& rhs);
 };
@@ -1440,8 +1432,8 @@ public:
 	ASTShiftExpr(ASTShiftExpr const& base);
 	virtual ASTShiftExpr* clone() const = 0;
 
-	DataType const* getReadType() const {return &DataType::FLOAT;}
-	DataType const* getWriteType() const {return NULL;}
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::FLOAT;}
+	ZScript::DataType const* getWriteType() const {return NULL;}
 protected:
 	ASTShiftExpr& operator=(ASTShiftExpr const& rhs);
 };
@@ -1495,7 +1487,7 @@ public:
 
 	ZScript::Literal* manager;
 
-	DataType const* getWriteType() const {return NULL;}
+	ZScript::DataType const* getWriteType() const {return NULL;}
 
 protected:
 	ASTLiteral& operator=(ASTLiteral const& rhs);
@@ -1519,7 +1511,7 @@ public:
 	optional<long> getCompileTimeValue(
 			CompileErrorHandler* errorHandler = NULL)
 			const;
-	DataType const* getReadType() const {return &DataType::FLOAT;}
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::FLOAT;}
 	
     ASTFloat* value;
 };
@@ -1542,7 +1534,7 @@ public:
 			CompileErrorHandler* errorHandler = NULL)
 			const {
 		return value ? 10000L : 0L;}
-	DataType const* getReadType() const {return &DataType::BOOL;}
+	ZScript::DataType const* getReadType() const {return &ZScript::DataType::BOOL;}
 	
     bool value;
 };
@@ -1554,7 +1546,7 @@ public:
 			char const* str = "",
 			LocationData const& location = LocationData::NONE);
 	ASTStringLiteral(
-			string const& str,
+			std::string const& str,
 			LocationData const& location = LocationData::NONE);
 	ASTStringLiteral(ASTString const& raw);
 	ASTStringLiteral(ASTStringLiteral const& base);
@@ -1571,7 +1563,7 @@ public:
 	// that declaration and not modified by this object at all.
 	ASTDataDecl* declaration;
 
-	string value;
+	std::string value;
 };
 
 class ASTArrayLiteral : public ASTLiteral
@@ -1588,8 +1580,8 @@ public:
 
 	bool isConstant() const {return true;}
 
-	DataTypeArray const* getReadType() const {return iReadType;}
-	void setReadType(DataTypeArray const* type) {iReadType = type;}
+	ZScript::DataTypeArray const* getReadType() const {return iReadType;}
+	void setReadType(ZScript::DataTypeArray const* type) {iReadType = type;}
 
 	// The data declaration that this literal may be part of. If NULL that
 	// means this is not part of a data declaration. This should be managed by
@@ -1601,11 +1593,11 @@ public:
 	// Optional size specification.
 	ASTExpr* size;
 	// The array elements.
-	vector<ASTExpr*> elements;
+	std::vector<ASTExpr*> elements;
 
 private:
 	// Cached read type.
-	DataTypeArray const* iReadType;
+	ZScript::DataTypeArray const* iReadType;
 };
 
 // Types
@@ -1614,7 +1606,7 @@ class ASTScriptType : public AST
 {
 public:
 	ASTScriptType(
-			ScriptType type = ScriptType(),
+			ZScript::ScriptType type = ZScript::ScriptType(),
 			LocationData const& location = LocationData::NONE);
 	ASTScriptType(ASTScriptType const& base);
 	ASTScriptType& operator=(ASTScriptType const& rhs);
@@ -1622,7 +1614,7 @@ public:
 
     void execute(ASTVisitor& visitor, void* param = NULL);
 
-	ScriptType type;
+	ZScript::ScriptType type;
 };
 
 class ASTVarType : public AST
@@ -1630,11 +1622,11 @@ class ASTVarType : public AST
 public:
 	// Takes ownership of type.
     ASTVarType(
-			DataType* type = NULL,
+			ZScript::DataType* type = NULL,
 			LocationData const& location = LocationData::NONE);
 	// Clones type.
     ASTVarType(
-			DataType const& type,
+			ZScript::DataType const& type,
 			LocationData const& location = LocationData::NONE);
 	ASTVarType(ASTVarType const& base);
 	~ASTVarType() {delete type;}
@@ -1643,10 +1635,10 @@ public:
 	
     void execute(ASTVisitor& visitor, void* param = NULL);
 
-	DataType const& resolve(ZScript::Scope& scope);
+	ZScript::DataType const& resolve(ZScript::Scope& scope);
 
 	// Owned by this object.
-	DataType* type;
+	ZScript::DataType* type;
 };
 
 #endif

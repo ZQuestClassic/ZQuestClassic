@@ -23,7 +23,7 @@ extern FILE *yyin;
 extern ASTProgram *resAST;
 extern void resetLexer();
 void yyerror(const char* s);
-string curfilename;
+std::string curfilename;
 extern YYLTYPE noloc;
 
 using namespace ZScript;
@@ -883,7 +883,7 @@ if(!yyin)
 	box_eol();
 	return -1;
 }
-	curfilename = string(f);
+	curfilename = std::string(f);
 	int result = yyparse();
 	fclose(yyin);
 	return result;

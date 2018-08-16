@@ -260,7 +260,7 @@ protected:
 	virtual bool breakRecursion(AST& host, void* param = NULL) const;
 
 	// Current stack of visited nodes.
-	vector<AST*> recursionStack;
+	std::vector<AST*> recursionStack;
 
 	// Node which we are breaking recursion until we reach.
 	AST* breakNode;

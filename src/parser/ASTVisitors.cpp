@@ -6,6 +6,9 @@
 #include <assert.h>
 #include <cstdarg>
 
+using std::list;
+using std::vector;
+
 ////////////////////////////////////////////////////////////////
 // RecursiveVisitor
 
