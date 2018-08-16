@@ -666,7 +666,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 			bestCastCount == parameterTypes.size() + 1
 			? CompileError::NoFuncMatch
 			: CompileError::TooFuncMatch;
-		Function::Signature signature(host.left->asString(), parameterTypes);
+		FunctionSignature signature(host.left->asString(), parameterTypes);
 		handleError(error, &host, signature.asString().c_str());
 		return;
 	}

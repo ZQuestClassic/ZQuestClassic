@@ -277,28 +277,33 @@ namespace ZScript
 	};
 
 	////////////////////////////////////////////////////////////////
+	// FunctionSignature
+
+	// Comparable signature structure.
+	class FunctionSignature
+	{
+	public:
+		FunctionSignature(string const& name,
+		          vector<DataType const*> const& parameterTypes);
+		FunctionSignature(Function const& function);
+
+		int compare(FunctionSignature const& other) const;
+		bool operator==(FunctionSignature const& other) const;
+		bool operator<(FunctionSignature const& other) const;
+		string asString() const;
+		operator string() const {return asString();}
+
+		string name;
+		vector<DataType const*> parameterTypes;
+	};
+	
+	
+	////////////////////////////////////////////////////////////////
 	// Function
 	
 	class Function
 	{
 	public:
-		// Comparable signature structure.
-		class Signature
-		{
-		public:
-			Signature(string const& name,
-			          vector<DataType const*> const& parameterTypes);
-			Signature(Function const& function);
-
-			int compare(Signature const& other) const;
-			bool operator==(Signature const& other) const;
-			bool operator<(Signature const& other) const;
-			string asString() const;
-			operator string() const {return asString();}
-
-			string name;
-			vector<DataType const*> parameterTypes;
-		};
 		
 		Function(DataType const* returnType, string const& name,
 				 vector<DataType const*> paramTypes, int id);
@@ -321,7 +326,7 @@ namespace ZScript
 		// Clears the input vector.
 		void giveCode(vector<Opcode*>& code);
 		
-		Signature getSignature() const {return Signature(*this);}
+		FunctionSignature getSignature() const {return FunctionSignature(*this);}
 		
 		// If this is a script level function, return that script.
 		Script* getScript() const;

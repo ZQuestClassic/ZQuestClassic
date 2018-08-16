@@ -308,18 +308,18 @@ BuiltinConstant::BuiltinConstant(
 	: Datum(scope, type), name(name), value(value)
 {}
 
-// ZScript::Function::Signature
+// ZScript::FunctionSignature
 
-Function::Signature::Signature(
+FunctionSignature::FunctionSignature(
 		string const& name, vector<DataType const*> const& parameterTypes)
 	: name(name), parameterTypes(parameterTypes)
 {}
 
-Function::Signature::Signature(Function const& function)
+FunctionSignature::FunctionSignature(Function const& function)
 	: name(function.name), parameterTypes(function.paramTypes)
 {}
 		
-int Function::Signature::compare(Function::Signature const& other) const
+int FunctionSignature::compare(FunctionSignature const& other) const
 {
 	int c = name.compare(other.name);
 	if (c) return c;
@@ -333,17 +333,17 @@ int Function::Signature::compare(Function::Signature const& other) const
 	return 0;
 }
 
-bool Function::Signature::operator==(Function::Signature const& other) const
+bool FunctionSignature::operator==(FunctionSignature const& other) const
 {
 	return compare(other) == 0;
 }
 
-bool Function::Signature::operator<(Function::Signature const& other) const
+bool FunctionSignature::operator<(FunctionSignature const& other) const
 {
 	return compare(other) < 0;
 }
 
-string Function::Signature::asString() const
+string FunctionSignature::asString() const
 {
 	string result;
 	result += name;

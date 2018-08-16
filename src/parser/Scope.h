@@ -12,6 +12,7 @@ namespace ZScript
 	class Script;
 	class Datum;
 	class Function;
+	class FunctionSignature;
 
 	class Scope : private NoCopy
 	{
@@ -45,7 +46,7 @@ namespace ZScript
 		virtual Function* getLocalGetter(string const& name) const = 0;
 		virtual Function* getLocalSetter(string const& name) const = 0;
 		virtual Function* getLocalFunction(
-				Function::Signature const& signature) const = 0;
+				FunctionSignature const& signature) const = 0;
 		virtual vector<Function*> getLocalFunctions(
 				string const& name) const = 0;
 	
@@ -142,7 +143,7 @@ namespace ZScript
 	Function* lookupSetter(Scope const&, string const& name);
 
 	// Attempt to resolve signature to a function under scope.
-	Function* lookupFunction(Scope const&, Function::Signature const&);
+	Function* lookupFunction(Scope const&, FunctionSignature const&);
 	
 	// Attempt to resolve name to possible functions under scope.
 	vector<Function*> lookupFunctions(Scope const&, string const& name);
@@ -212,7 +213,7 @@ namespace ZScript
 		Datum* getLocalDatum(string const& name) const;
 		Function* getLocalGetter(string const& name) const;
 		Function* getLocalSetter(string const& name) const;
-		Function* getLocalFunction(Function::Signature const& signature)
+		Function* getLocalFunction(FunctionSignature const& signature)
 				const;
 		vector<Function*> getLocalFunctions(string const& name) const;
 	
@@ -255,7 +256,7 @@ namespace ZScript
 		map<string, Function*> getters;
 		map<string, Function*> setters;
 		map<string, vector<Function*> > functionsByName;
-		map<Function::Signature, Function*> functionsBySignature;
+		map<FunctionSignature, Function*> functionsBySignature;
 
 		BasicScope(TypeStore&);
 		BasicScope(TypeStore&, string const& name);

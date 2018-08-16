@@ -138,7 +138,7 @@ Function* ZScript::lookupSetter(Scope const& scope, string const& name)
 }
 
 Function* ZScript::lookupFunction(Scope const& scope,
-                         Function::Signature const& signature)
+                         FunctionSignature const& signature)
 {
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
@@ -314,7 +314,7 @@ Function* BasicScope::getLocalSetter(string const& name) const
 }
 
 Function* BasicScope::getLocalFunction(
-		Function::Signature const& signature) const
+		FunctionSignature const& signature) const
 {
 	return find<Function*>(functionsBySignature, signature).value_or(NULL);
 }
@@ -433,7 +433,7 @@ Function* BasicScope::addFunction(
 		DataType const* returnType, string const& name,
 		vector<DataType const*> const& paramTypes, AST* node)
 {
-	Function::Signature signature(name, paramTypes);
+	FunctionSignature signature(name, paramTypes);
 	if (find<Function*>(functionsBySignature, signature))
 		return NULL;
 
