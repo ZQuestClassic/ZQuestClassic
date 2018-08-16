@@ -101,13 +101,7 @@ public:
 	static SymbolData* buildSymbolTable(ASTProgram* theAST);
 	static IntermediateData* generateOCode(FunctionData& fdata);
 	static void assemble(IntermediateData* id);
-	static void resetState()
-	{
-		vid=0;
-		fid=0;
-		gid=1;
-		lid=0;
-	}
+	static void initialize();
 	static std::pair<long,bool> parseLong(
 			std::pair<std::string,std::string> parts);
 private:

@@ -33,9 +33,17 @@ int main(int argc, char *argv[])
 }
 #endif
 
+void ScriptParser::initialize()
+{
+	vid = 0;
+	fid = 0;
+	gid = 1;
+	lid = 0;
+}
+
 ScriptsData* compile(const char *filename)
 {
-	ScriptParser::resetState();
+    ScriptParser::initialize();
 
 	box_out("Pass 1: Parsing");
 	box_eol();
