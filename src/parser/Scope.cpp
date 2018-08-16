@@ -83,7 +83,7 @@ DataType const* ZScript::lookupType(Scope const& scope, string const& name)
 {
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
-		if (DataType const* type = scope.getLocalType(name))
+		if (DataType const* type = current->getLocalType(name))
 			return type;
 	return NULL;
 }
