@@ -1,7 +1,8 @@
 #include "../precompiled.h"
+#include "Scope.h"
+
 #include "CompileError.h"
 #include "GlobalSymbols.h"
-#include "Scope.h"
 #include "Types.h"
 #include "ZScript.h"
 

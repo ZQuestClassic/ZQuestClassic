@@ -1,18 +1,31 @@
 #ifndef ZSCRIPT_SCOPE_H
 #define ZSCRIPT_SCOPE_H
 
-#include <assert.h>
-#include "DataStructs.h"
+#include <map>
+#include <string>
+#include <vector>
+#include "CompilerUtils.h"
 
 class CompileErrorHandler;
 
+// Forward declarations from AST.h
+class AST;
+
 namespace ZScript
 {
-	class TypeStore;
+	// Forward declarations from ZScript.h
 	class Script;
 	class Datum;
 	class Function;
 	class FunctionSignature;
+
+	// Forward declarations from Types.h
+	class DataType;
+	class TypeStore;
+
+	// Local forward declarations
+	class FunctionScope;
+	class ZClass;
 
 	class Scope : private NoCopy
 	{
