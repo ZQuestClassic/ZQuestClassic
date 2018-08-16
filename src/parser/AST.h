@@ -11,12 +11,13 @@ class AST;
 #endif
 #endif
 
-#include "y.tab.hpp"
-#include "Compiler.h"
 #include <list>
 #include <vector>
 #include <map>
 #include <string>
+#include "y.tab.hpp"
+#include "Compiler.h"
+#include "CompileOption.h"
 
 // Forward Declarations
 class ASTVisitor;
@@ -114,6 +115,7 @@ class ASTNumberLiteral;
 class ASTBoolLiteral;
 class ASTStringLiteral;
 class ASTArrayLiteral;
+class ASTOptionValue;
 // Types
 class ASTScriptType;
 class ASTVarType;
@@ -1598,6 +1600,28 @@ public:
 private:
 	// Cached read type.
 	ZScript::DataTypeArray const* iReadType;
+};
+
+class ASTOptionValue : public ASTLiteral
+{
+public:
+	ASTOptionValue(std::string const& name = "",
+	               LocationData const& location = LocationData::NONE);
+	ASTOptionValue(ASTOptionValue const& base);
+	ASTOptionValue& operator=(ASTOptionValue const& base);
+	ASTOptionValue* clone() const {return new ASTOptionValue(*this);}
+
+	virtual void execute(ASTVisitor& visitor, void* param = NULL);
+	virtual std::string asString() const;
+
+	virtual bool isConstant() const {return true;}
+
+	virtual ZScript::DataType const* getReadType() const {
+		return &ZScript::DataType::FLOAT;}
+
+	std::string name;
+	ZScript::CompileOption option;
+	optional<long> value;
 };
 
 // Types

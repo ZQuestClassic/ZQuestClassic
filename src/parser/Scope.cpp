@@ -186,6 +186,16 @@ vector<Function*> ZScript::lookupFunctions(
 	return functions;
 }
 
+optional<long> ZScript::lookupOption(Scope const& scope, CompileOption option)
+{
+	if (!option.isValid()) return nullopt;;
+	for (Scope const* current = &scope;
+	     current; current = current->getParent())
+		if (optional<long> value = current->getLocalOption(option))
+			return value;
+	return *option.getDefault();
+}
+
 // Stack
 
 bool ZScript::isStackRoot(Scope const& scope)
@@ -326,6 +336,11 @@ vector<Function*> BasicScope::getLocalFunctions(string const& name) const
 		.value_or(vector<Function*>());
 }
 
+optional<long> BasicScope::getLocalOption(CompileOption option) const
+{
+	return find<long>(options, option);
+}
+
 // Get All Local
 
 vector<Datum*> BasicScope::getLocalData() const
@@ -348,6 +363,11 @@ vector<Function*> BasicScope::getLocalGetters() const
 vector<Function*> BasicScope::getLocalSetters() const
 {
 	return getSeconds<Function*>(setters);
+}
+
+std::map<CompileOption, long> BasicScope::getLocalOptions() const
+{
+	return options;
 }
 
 // Add

@@ -73,6 +73,7 @@ public:
 	// Literals
 	void caseStringLiteral(ASTStringLiteral& host, void* = NULL);
 	void caseArrayLiteral(ASTArrayLiteral& host, void* = NULL);
+    void caseOptionValue(ASTOptionValue& host, void* = NULL);
 
 	////////////////
 	bool hasFailed() const {return failure;}

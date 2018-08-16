@@ -1272,6 +1272,12 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 	arrayRefs.push_back(offset);
 }
 
+void BuildOpcodes::caseOptionValue(ASTOptionValue& host, void*)
+{
+	addOpcode(new OSetImmediate(new VarArgument(EXP1),
+	                            new LiteralArgument(*host.value)));
+}
+
 // Other
 
 void BuildOpcodes::castFromBool(vector<Opcode*>& res, int reg)

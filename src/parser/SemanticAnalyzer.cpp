@@ -894,6 +894,14 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	Literal::create(*scope, host, *host.getReadType(), this);
 }
 
+void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
+{
+	if (optional<long> value = lookupOption(*scope, host.option))
+		host.value = value;
+	else
+		handleError(CompileError::UnknownOption, &host, host.name.c_str());
+}
+
 void SemanticAnalyzer::checkCast(
 		DataType const& sourceType, DataType const& targetType, AST* node)
 {

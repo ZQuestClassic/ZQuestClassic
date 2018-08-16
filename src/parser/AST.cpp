@@ -2518,6 +2518,40 @@ void ASTArrayLiteral::execute(ASTVisitor& visitor, void* param)
 	visitor.caseArrayLiteral(*this, param);
 }
 
+// ASTOptionValue
+
+ASTOptionValue::ASTOptionValue(
+		string const& name, LocationData const& location)
+	: ASTLiteral(location),
+	  name(name),
+	  option(CompileOption::get(name).value_or(CompileOption::Invalid)),
+	  value(nullopt)
+{}
+
+ASTOptionValue::ASTOptionValue(ASTOptionValue const& base)
+	: ASTLiteral(base), name(base.name),
+	  option(base.option), value(base.value)
+{}
+
+ASTOptionValue& ASTOptionValue::operator=(ASTOptionValue const& rhs)
+{
+	ASTLiteral::operator=(rhs);
+	name = rhs.name;
+	option = rhs.option;
+	value = rhs.value;
+	return *this;
+}
+
+void ASTOptionValue::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseOptionValue(*this, param);
+}
+
+std::string ASTOptionValue::asString() const
+{
+	return "OPTION_VALUE(" + *option.getName() + ")";
+}
+
 ////////////////////////////////////////////////////////////////
 // Types
 
@@ -2583,3 +2617,4 @@ DataType const& ASTVarType::resolve(ZScript::Scope& scope)
 	}
 	return *type;
 }
+

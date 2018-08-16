@@ -23,6 +23,9 @@ namespace ZScript
 	class DataType;
 	class TypeStore;
 
+	// Forward declarations from CompileOption.
+	class CompileOption;
+
 	// Local forward declarations
 	class FunctionScope;
 	class ZClass;
@@ -63,12 +66,14 @@ namespace ZScript
 				FunctionSignature const& signature) const = 0;
 		virtual std::vector<Function*> getLocalFunctions(
 				std::string const& name) const = 0;
+		virtual optional<long> getLocalOption(CompileOption option) const = 0;
 	
 		// Get All Local.
 		virtual std::vector<Datum*> getLocalData() const = 0;
 		virtual std::vector<Function*> getLocalFunctions() const = 0;
 		virtual std::vector<Function*> getLocalGetters() const = 0;
 		virtual std::vector<Function*> getLocalSetters() const = 0;
+		virtual std::map<CompileOption, long> getLocalOptions() const = 0;
 
 		// Add
 		virtual Scope* makeChild() = 0;
@@ -171,6 +176,11 @@ namespace ZScript
 	std::vector<Function*> lookupFunctions(
 			Scope const&, std::vector<std::string> const& name);
 
+	// Resolve an option value under the scope. Will only return empty if
+	// the provided option is invalid. If the option is valid but not set,
+	// returns the default value for it.
+	optional<long> lookupOption(Scope const&, CompileOption);
+
 	////////////////
 	// Stack
 
@@ -238,12 +248,14 @@ namespace ZScript
 				const;
 		std::vector<Function*> getLocalFunctions(std::string const& name)
 				const;
-	
+		optional<long> getLocalOption(CompileOption option) const;
+		
 		// Get All Local
 		std::vector<ZScript::Datum*> getLocalData() const;
 		std::vector<ZScript::Function*> getLocalFunctions() const;
 		std::vector<ZScript::Function*> getLocalGetters() const;
 		std::vector<ZScript::Function*> getLocalSetters() const;
+		std::map<CompileOption, long> getLocalOptions() const;
 
 		// Add
 		Scope* makeChild();
@@ -283,6 +295,7 @@ namespace ZScript
 		std::map<std::string, Function*> setters;
 		std::map<std::string, std::vector<Function*> > functionsByName;
 		std::map<FunctionSignature, Function*> functionsBySignature;
+		std::map<CompileOption, long> options;
 
 		BasicScope(TypeStore&);
 		BasicScope(TypeStore&, std::string const& name);

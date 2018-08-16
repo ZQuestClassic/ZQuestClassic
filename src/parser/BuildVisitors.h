@@ -70,6 +70,7 @@ public:
     virtual void caseBoolLiteral(ASTBoolLiteral& host, void* param);
     virtual void caseStringLiteral(ASTStringLiteral& host, void* param);
 	virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param);
+    virtual void caseOptionValue(ASTOptionValue& host, void* param);
 	// Types
 	void caseVarType(ASTVarType& host, void* param) {}
 

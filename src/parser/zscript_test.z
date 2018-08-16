@@ -57,6 +57,12 @@ compile_error (4) int compile_error_func() {return 0;}
 
 ////////////////////////////////////////////////////////////////
 
+// Error for unknown option
+int unknown_option_func() {
+	compile_error (55) return OPTION_VALUE(unknown);}
+
+////////////////////////////////////////////////////////////////
+
 // Typedef for constants.
 typedef const int def;
 def TYPEDEF_CONST = 100;
@@ -77,6 +83,7 @@ global script Init {
 		test_BuiltIns();
 		test_Constants();
 		test_Operations();
+		test_Options();
 		test_ScriptStrip();
 		test_Strings();
 		test_Variables();
@@ -358,6 +365,11 @@ global script Init {
 		test(true, false || true);
 		test(true, true || false);
 		test(false, false || false);
+	}
+
+	void test_Options() {
+		test_group("Basic Options");
+		test(1, OPTION_VALUE(TestOption));
 	}
 	
 	void test_ScriptStrip() {

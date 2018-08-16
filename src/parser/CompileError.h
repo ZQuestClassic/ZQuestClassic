@@ -86,6 +86,7 @@ public:
 	static CompileError const ArrayLiteralResize;
 	static CompileError const MissingCompileError;
 	static CompileError const UnimplementedFeature;
+	static CompileError const UnknownOption;
 };
 
 class CompileErrorHandler

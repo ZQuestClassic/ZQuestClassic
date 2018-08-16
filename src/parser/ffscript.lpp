@@ -50,6 +50,7 @@ lweapon         { doLines(); return TOK_LWEAPON; }
 eweapon         { doLines(); return TOK_EWEAPON; }
 typedef         { doLines(); return TOK_TYPEDEF; }
 compile_error   { doLines(); return TOK_COMPILEERROR; }
+OPTION_VALUE	{ doLines(); return TOK_OPTIONVALUE; }
 
 \-\>    { doLines(); return TOK_ARROW; }
 \<\<=   { doLines(); return TOK_LSHIFTASSIGN; }

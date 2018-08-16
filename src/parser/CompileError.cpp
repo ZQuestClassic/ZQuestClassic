@@ -192,6 +192,8 @@ CompileError const CompileError::MissingCompileError(
 		53, 'C', true, "Expected error %d did not occur.");
 CompileError const CompileError::UnimplementedFeature(
 		54, 'C', false, "Feature unimplemented: %s.");
+CompileError const CompileError::UnknownOption(
+		55, 'C', false, "Unknown option \"%s\".");
 
 CompileErrorHandler CompileErrorHandler::NONE;
 

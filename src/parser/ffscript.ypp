@@ -143,6 +143,7 @@ using namespace ZScript;
 %token SINGLECHAR
 
 %token COMPILEERROR
+%token OPTIONVALUE
 
 %left LSHIFT RSHIFT
 %left BITAND BITOR BITXOR
@@ -792,6 +793,10 @@ Literal :
 		$$ = str;}
 	| Literal_Bool {$$ = $1;}
 	| Literal_Array {$$ = $1;}
+	| OPTIONVALUE LPAREN IDENTIFIER RPAREN {
+		ASTString* name = (ASTString*)$3;
+		$$ = new ASTOptionValue(name->getValue(), @$);
+		delete name;}
 	;
 
 Literal_Bool :
