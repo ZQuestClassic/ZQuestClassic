@@ -4,6 +4,7 @@
 #include "../zsyssimple.h"
 #include "ByteCode.h"
 #include "CompileError.h"
+#include "CompileOption.h"
 #include "GlobalSymbols.h"
 #include "y.tab.hpp"
 #include <iostream>
@@ -39,6 +40,7 @@ void ScriptParser::initialize()
 	fid = 0;
 	gid = 1;
 	lid = 0;
+	CompileOption::initialize();
 }
 
 ScriptsData* compile(const char *filename)

@@ -9,6 +9,7 @@ src/parser/ASTVisitors.cpp
 src/parser/BuildVisitors.cpp
 src/parser/ByteCode.cpp
 src/parser/CompileError.cpp
+src/parser/CompileOption.cpp
 src/parser/DataStructs.cpp
 src/parser/GlobalSymbols.cpp
 src/parser/Scope.cpp

@@ -1,0 +1,10 @@
+// Table of compile options.
+
+//	Name,		Default Value
+X(	TestOption,	10)
+
+// Emacs Stuff:
+// Local Variables:
+// mode: c++
+// tab-width: 8
+// End:
