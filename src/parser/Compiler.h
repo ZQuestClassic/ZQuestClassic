@@ -65,7 +65,7 @@ public:
 	std::map<std::string, ZScript::ScriptType> scriptTypes;
 };
 
-ScriptsData *compile(const char *filename);
+ScriptsData *compile(std::string const& filename);
 
 namespace ZScript
 {

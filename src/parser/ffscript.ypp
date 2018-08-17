@@ -1,10 +1,8 @@
-/*
- Parser for the scripting language compiler. Inteded for use with Flex and Bison;
- use this file to generate y.tab.cpp //2.53 Updated to 16th Jan, 2017
-
-command: bison -b y -v -d ffscript.ypp
-
-*/
+/* -*- mode: bison; tab-width: 4 -*-
+ * Parser for the scripting language compiler. Intended for use with Flex
+ * and Bison. Use this file to generate y.tab.cpp:
+ * $ bison -b y -v -d ffscript.ypp
+ */
 
 /* declarations */
 %{
@@ -12,6 +10,7 @@ command: bison -b y -v -d ffscript.ypp
 #include <stdlib.h>
 #include <stdio.h>
 #include <cassert>
+#include <string>
 #include "ASTVisitors.h"
 #include "../zsyssimple.h"
 #define YYINCLUDED_STDLIB_H
@@ -22,7 +21,7 @@ extern int yylex(void);
 extern FILE *yyin;
 extern ASTProgram *resAST;
 extern void resetLexer();
-void yyerror(const char* s);
+void yyerror(ASTProgram*& root, const char* s);
 std::string curfilename;
 extern YYLTYPE noloc;
 
@@ -57,11 +56,20 @@ using namespace ZScript;
 
 %}
 
+%code requires {
+	class ASTProgram;
+	namespace ZScript
+	{
+		ASTProgram* parseFile(std::string const& filename);
+	};
+}
+
 %glr-parser
 %expect 1
 %expect-rr 1
 %error-verbose
 %start Init
+%parse-param {ASTProgram*& root}
 
 %define api.token.prefix {TOK_}
 %token SCRIPT
@@ -174,8 +182,8 @@ Init : Global_List {$$ = $1;};
 Global_List :
 	Global_List Global_Statement {
 		ASTDecl* declaration = (ASTDecl*)$2;
-		resAST->addDeclaration(declaration);}
-	| {resAST = new ASTProgram(noloc);}
+		root->addDeclaration(declaration);}
+	| {root = new ASTProgram(noloc);}
 	;
 
 Global_Statement :
@@ -423,7 +431,7 @@ Script_Block_List :
 		if (!script->variables.empty()
 		    || !script->functions.empty()
 		    || !script->types.empty()) {
-			yyerror("Warning: Options should come before everything else.");}}
+			yyerror(root, "Warning: Options should come before everything else.");}}
 	| Script_Block_Element {
 		ASTScript* script = new ASTScript(@$);
 		ASTDecl* declaration = (ASTDecl*)$1;
@@ -505,7 +513,7 @@ Statement_Block_List :
 		block->options.push_back(option);
 		$$ = block;
 		if (!block->statements.empty()) {
-			yyerror("Warning: Options should come before statements.");}}
+			yyerror(root, "Warning: Options should come before statements.");}}
 	| Statement {
 		ASTStmt* stmt = (ASTStmt*)$1;
 		ASTBlock* block = new ASTBlock(@$);
@@ -910,27 +918,41 @@ Literal_Array_Body :
 
 /*        programs */
 
-void yyerror(const char *s) {
+void yyerror(ASTProgram*&, const char *s) {
 	char temp[512];
     snprintf(temp, 512, "line %d: %s, on token %s", yylineno, s, yytext);
     box_out(temp);
     box_eol();
 }
 
-int go(const char *f)
+namespace ZScript
 {
-yyin = NULL;
-resetLexer();
-yyin = fopen(f, "r");
-if(!yyin)
-{
-	box_out("Can't open input file");
-	box_eol();
-	return -1;
-}
-	curfilename = std::string(f);
-	int result = yyparse();
-	fclose(yyin);
-	return result;
-}
+	ASTProgram* parseFile(std::string const& filename)
+	{
+		ASTProgram* result = NULL;
 
+		// Reset lexer.
+		yyin = NULL;
+		resetLexer();
+
+		// Read in the file.
+		yyin = fopen(filename.c_str(), "r");
+		if (!yyin)
+		{
+			box_out("Can't open input file");
+			box_eol();
+			return NULL;
+		}
+		curfilename = filename;
+
+		// Run the parser.
+		if (yyparse(result))
+		{
+			delete result;
+			result = NULL;
+		}
+		fclose(yyin);
+		
+		return result;
+	}
+};

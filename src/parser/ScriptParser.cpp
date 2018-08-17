@@ -9,8 +9,9 @@
 #include "y.tab.hpp"
 #include <iostream>
 #include <assert.h>
-#include <string>
 #include <cstdlib>
+#include <string>
+#include <memory>
 
 #include "ASTVisitors.h"
 #include "DataStructs.h"
@@ -24,13 +25,13 @@ using namespace ZScript;
 
 ASTProgram* resAST;
 
-ScriptsData* compile(const char *filename);
+ScriptsData* compile(string const& filename);
 
 #ifdef PARSER_DEBUG
 int main(int argc, char *argv[])
 {
 	if (argc < 2) return -1;
-	compile(argv[1]);
+	compile(string(argv[1]));
 }
 #endif
 
@@ -43,80 +44,61 @@ void ScriptParser::initialize()
 	CompileOption::initialize();
 }
 
-ScriptsData* compile(const char *filename)
+ScriptsData* compile(string const& filename)
 {
     ScriptParser::initialize();
 
 	box_out("Pass 1: Parsing");
 	box_eol();
-    
-	if (go(filename) != 0 || !resAST)
+
+	auto_ptr<ASTProgram> root(parseFile(filename));
+	if (!root.get())
 	{
 		CompileError::CantOpenSource.print(NULL);
 		return NULL;
 	}
     
-	ASTProgram* theAST = resAST;
-    
 	box_out("Pass 2: Preprocessing");
 	box_eol();
     
-	if (!ScriptParser::preprocess(theAST, RECURSIONLIMIT))
-	{
-		delete theAST;
+	if (!ScriptParser::preprocess(root.get(), RECURSIONLIMIT))
 		return NULL;
-	}
     
 	box_out("Pass 3: Analyzing Code");
 	box_eol();
     
 	SimpleCompileErrorHandler handler;
-	Program program(*theAST, &handler);
+	Program program(*root, &handler);
 	if (handler.hasError())
-	{
-		delete theAST;
 		return NULL;
-	}
 
 	SemanticAnalyzer semanticAnalyzer(program);
 	if (semanticAnalyzer.hasFailed())
-	{
-		delete theAST;
 		return NULL;
-	}
     
 	FunctionData fd(program);
-    
 	if (fd.globalVariables.size() > 256)
 	{
 		CompileError::TooManyGlobal.print(NULL);
-		delete theAST;
 		return NULL;
 	}
     
 	box_out("Pass 4: Generating object code");
 	box_eol();
     
-	IntermediateData* id = ScriptParser::generateOCode(fd);
-    
-	if (id == NULL)
-	{
-		delete theAST;
+	auto_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
+	if (!id.get())
 		return NULL;
-	}
     
 	box_out("Pass 5: Assembling");
 	box_eol();
 
-	ScriptParser::assemble(id);
-	delete id;
+	ScriptParser::assemble(id.get());
 
 	ScriptsData* result = new ScriptsData(program);
     
 	box_out("Success!");
 	box_eol();
-    
-	delete theAST;
 
 	return result;
 }
@@ -141,7 +123,7 @@ string ScriptParser::prepareFilename(string const& filename)
 	return retval;
 }
         
-bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
+bool ScriptParser::preprocess(ASTProgram* root, int reclimit)
 {
 	if (reclimit == 0)
 	{
@@ -150,29 +132,28 @@ bool ScriptParser::preprocess(ASTProgram* theAST, int reclimit)
 	}
         
 	// Repeat parsing process for each of import files
-	vector<ASTImportDecl*>& imports = theAST->imports;
+	vector<ASTImportDecl*>& imports = root->imports;
 	for (vector<ASTImportDecl*>::iterator it = imports.begin();
 	     it != imports.end(); it = imports.erase(it))
 	{
-		string fn = prepareFilename((*it)->filename);
+		// Grab import, and delete it when finished with this loop.
+		auto_ptr<ASTImportDecl> importDecl(*it);
 
-		if (go(fn.c_str()) != 0 || !resAST)
+		// Parse the imported file.
+		string filename = prepareFilename(importDecl->filename);
+		auto_ptr<ASTProgram> importRoot(parseFile(filename));
+		if (!importRoot.get())
 		{
-			CompileError::CantOpenImport.print(*it, fn);
+			CompileError::CantOpenImport.print(*it, filename);
 			return false;
 		}
-            
-		ASTProgram* recAST = resAST;
-		if (!preprocess(recAST, reclimit - 1))
-		{
-			delete recAST;
+
+		// Recurse on imports.
+		if (!preprocess(importRoot.get(), reclimit - 1))
 			return false;
-		}
         
-		// Put the imported code into theAST.
-		theAST->merge(*recAST);
-    
-		delete *it;
+		// Put the imported code into the parent.
+		root->merge(*importRoot);
 	}
     
 	return true;

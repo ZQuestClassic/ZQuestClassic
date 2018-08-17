@@ -1,4 +1,4 @@
-/* -*- mode: bison; tab-width: 8 -*-
+/* -*- mode: bison; tab-width: 4 -*-
   use this file to generate lex.yy.c
   command: flex -B -olex.yy.cpp ffscript.lpp
 */
