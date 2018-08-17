@@ -98,6 +98,7 @@ namespace ZScript
 				std::vector<DataType const*> const& paramTypes,
 				AST* node = NULL)
 		= 0;
+		virtual void setOption(CompileOption option, long value) = 0;
 
 		////////////////
 		// Stack
@@ -276,6 +277,7 @@ namespace ZScript
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
 				AST* node = NULL);
+		void setOption(CompileOption option, long value);
 		
 		// Stack
 		int getLocalStackDepth() const {return stackDepth;}

@@ -467,6 +467,11 @@ Function* BasicScope::addFunction(
 	return fun;
 }
 
+void BasicScope::setOption(CompileOption option, long value)
+{
+	options[option] = value;
+}
+
 // Stack
 
 optional<int> BasicScope::getLocalStackOffset(Datum const& datum) const

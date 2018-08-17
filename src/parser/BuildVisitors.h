@@ -17,6 +17,7 @@ public:
 	void visit(AST& node, void* param = NULL);
 	
     virtual void caseDefault(AST& host, void* param);
+	virtual void caseSetOption(ASTSetOption& host, void* param);
 	// Statements
     virtual void caseBlock(ASTBlock &host, void *param);
     virtual void caseStmtIf(ASTStmtIf &host, void *param);

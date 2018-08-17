@@ -71,6 +71,11 @@ void BuildOpcodes::deallocateRefsUntilCount(int count)
 	}
 }
 
+void BuildOpcodes::caseSetOption(ASTSetOption&, void*)
+{
+	// Do nothing, not even recurse.
+}
+
 // Statements
 
 void BuildOpcodes::caseBlock(ASTBlock &host, void *param)

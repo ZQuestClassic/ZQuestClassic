@@ -286,6 +286,51 @@ void ASTString::execute(ASTVisitor& visitor, void* param)
 	visitor.caseString(*this, param);
 }
 
+// ASTSetOption
+
+ASTSetOption::ASTSetOption(
+		string const& name, ASTExprConst* value,
+		LocationData const& location)
+	: AST(location), name(name),
+	  option(CompileOption::get(name).value_or(CompileOption::Invalid)),
+	  value(value)
+{}
+
+ASTSetOption::ASTSetOption(ASTSetOption const& base)
+	: AST(base), name(base.name), option(base.option),
+	  value(AST::clone(base.value))
+{}
+
+ASTSetOption::~ASTSetOption()
+{
+	delete value;
+}
+
+
+ASTSetOption& ASTSetOption::operator=(ASTSetOption const& rhs)
+{
+	AST::operator=(rhs);
+
+	delete value;
+	
+	name = rhs.name;
+	option = rhs.option;
+	value = AST::clone(rhs.value);
+
+	return *this;
+}
+
+void ASTSetOption::execute(ASTVisitor& visitor, void* param)
+{
+	return visitor.caseSetOption(*this, param);
+}
+
+std::string ASTSetOption::asString() const
+{
+	return "#option " + name + " "
+		+ (value ? value->asString() : "<unknown>");
+}
+
 ////////////////////////////////////////////////////////////////
 // Statements
 
@@ -305,11 +350,14 @@ ASTStmt& ASTStmt::operator=(ASTStmt const& rhs)
 ASTBlock::ASTBlock(LocationData const& location) : ASTStmt(location) {}
     
 ASTBlock::ASTBlock(ASTBlock const& base)
-	: ASTStmt(base), statements(AST::clone(base.statements))
+	: ASTStmt(base),
+	  options(AST::clone(base.options)),
+	  statements(AST::clone(base.statements))
 {}
 
 ASTBlock::~ASTBlock()
 {
+	deleteElements(options);
 	deleteElements(statements);
 }
 
@@ -317,8 +365,10 @@ ASTBlock& ASTBlock::operator=(ASTBlock const& rhs)
 {
 	ASTStmt::operator=(rhs);
 
+	deleteElements(options);
 	deleteElements(statements);
 
+	options = AST::clone(rhs.options);
 	statements = AST::clone(rhs.statements);
 
 	return *this;
@@ -740,6 +790,7 @@ ASTScript::ASTScript(ASTScript const& base)
 	: ASTDecl(base),
 	  type(AST::clone(base.type)),
 	  name(base.name),
+	  options(AST::clone(base.options)),
 	  variables(AST::clone(base.variables)),
 	  functions(AST::clone(base.functions)),
 	  types(AST::clone(base.types))
@@ -748,6 +799,7 @@ ASTScript::ASTScript(ASTScript const& base)
 ASTScript::~ASTScript()
 {
 	delete type;
+	deleteElements(options);
 	deleteElements(variables);
 	deleteElements(functions);
 	deleteElements(types);
@@ -758,12 +810,14 @@ ASTScript& ASTScript::operator=(ASTScript const& rhs)
 	ASTDecl::operator=(rhs);
 
 	delete type;
+	deleteElements(options);
 	deleteElements(variables);
 	deleteElements(functions);
 	deleteElements(types);
 
 	type = AST::clone(rhs.type);
 	name = rhs.name;
+	options = AST::clone(rhs.options);
 	variables = AST::clone(rhs.variables);
 	functions = AST::clone(rhs.functions);
 	types = AST::clone(rhs.types);

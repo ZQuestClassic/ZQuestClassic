@@ -1,5 +1,5 @@
-/*
-  use this file to generate lex.yy.c //2.53 Updated to 16th Jan, 2017
+/* -*- mode: bison; tab-width: 8 -*-
+  use this file to generate lex.yy.c
   command: flex -B -olex.yy.cpp ffscript.lpp
 */
 
@@ -9,6 +9,7 @@
 WS	[ \t\n\r]
 
 %x COMMENT
+%s HASH
 
 %{
 #include <stdlib.h>
@@ -98,7 +99,6 @@ OPTION_VALUE	{ doLines(); return TOK_OPTIONVALUE; }
 \^      { doLines(); return TOK_BITXOR; }
 \!      { doLines(); return TOK_NOT; }
 \%      { doLines(); return TOK_MODULO; }
-\#      { doLines(); return TOK_PREPROCESS; }
 
 define                  { doLines(); return TOK_DEFINE; }
 "//".*                  { ; }
@@ -111,6 +111,13 @@ define                  { doLines(); return TOK_DEFINE; }
 	box_out(temp);
 	box_eol();
 	return 0;
+}
+
+<INITIAL>\#		{ doLines(); BEGIN(HASH); return TOK_HASH; }
+<HASH>{
+	\\\n		{ doLines(); }
+	\n		{ doLines(); BEGIN(INITIAL); return TOK_ENDLINE; }
+	option		{ doLines(); return TOK_OPTION; }
 }
 
 

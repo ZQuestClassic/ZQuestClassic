@@ -87,10 +87,17 @@ void RecursiveVisitor::caseProgram(ASTProgram& host, void* param)
 	visit(host, host.scripts, param);
 }
 
+void RecursiveVisitor::caseSetOption(ASTSetOption& host, void* param)
+{
+	visit(host.value, param);
+}
+
 // Statements
 
 void RecursiveVisitor::caseBlock(ASTBlock& host, void* param)
 {
+	visit(host, host.options, param);
+	if (breakRecursion(host, param)) return;
 	visit(host, host.statements, param);
 }
 
@@ -157,6 +164,8 @@ void RecursiveVisitor::caseStmtReturnVal(ASTStmtReturnVal& host, void* param)
 void RecursiveVisitor::caseScript(ASTScript& host, void* param)
 {
 	visit(host.type, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.options, param);
 	if (breakRecursion(host, param)) return;
 	visit(host, host.types, param);
 	if (breakRecursion(host, param)) return;

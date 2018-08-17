@@ -44,6 +44,7 @@ class AST; // virtual
 class ASTProgram;
 class ASTFloat;
 class ASTString;
+class ASTSetOption;
 // Statements
 class ASTStmt; // virtual
 class ASTBlock;
@@ -303,6 +304,24 @@ private:
     std::string str;
 };
 
+class ASTSetOption : public AST
+{
+public:
+	ASTSetOption(std::string const& name, ASTExprConst* value,
+	             LocationData const& location = LocationData::NONE);
+	ASTSetOption(ASTSetOption const& base);
+	~ASTSetOption();
+	ASTSetOption& operator=(ASTSetOption const& rhs);
+	ASTSetOption* clone() const {return new ASTSetOption(*this);}
+
+	void execute(ASTVisitor& visitor, void* param = NULL);
+	std::string asString() const;
+
+	std::string name;
+	ZScript::CompileOption option;
+	ASTExprConst* value;
+};
+
 ////////////////////////////////////////////////////////////////
 // Statements
 
@@ -327,6 +346,9 @@ public:
 
     void execute(ASTVisitor& visitor, void* param = NULL);
 
+	// List of scope options.
+	std::vector<ASTSetOption*> options;
+	
 	// List of statements this block contains.
     std::vector<ASTStmt*> statements;
 };
@@ -568,6 +590,7 @@ public:
 
     ASTScriptType* type;
     std::string name;
+	std::vector<ASTSetOption*> options;
 	std::vector<ASTDataDeclList*> variables;
 	std::vector<ASTFuncDecl*> functions;
 	std::vector<ASTTypeDef*> types;

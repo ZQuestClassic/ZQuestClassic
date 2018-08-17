@@ -18,6 +18,8 @@ public:
 		caseDefault(host, param);}
     virtual void caseString(ASTString& host, void* param = NULL) {
 		caseDefault(host, param);}
+	virtual void caseSetOption(ASTSetOption& host, void* param = NULL) {
+		caseDefault(host, param);}
 	// Statements
     virtual void caseBlock(ASTBlock& host, void* param = NULL) {
 		caseDefault(host, param);}
@@ -197,6 +199,7 @@ public:
 	
     virtual void caseDefault(AST&, void*) {}
     virtual void caseProgram(ASTProgram& host, void* param = NULL);
+	virtual void caseSetOption(ASTSetOption& host, void* param = NULL);
 	// Statements
     virtual void caseBlock(ASTBlock& host, void* param = NULL);
     virtual void caseStmtIf(ASTStmtIf& host, void* param = NULL);

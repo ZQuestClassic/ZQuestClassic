@@ -22,6 +22,7 @@ public:
 	////////////////
 	// Cases
 	void caseProgram(ASTProgram& host, void* = NULL);
+	void caseSetOption(ASTSetOption& host, void* param = NULL);
 	// Statements
 	void caseBlock(ASTBlock& host, void* = NULL);
 	void caseStmtIf(ASTStmtIf& host, void* = NULL);

@@ -155,7 +155,10 @@ using namespace ZScript;
 %left TIMES DIVIDE
 %left MODULO
 
-%token PREPROCESS
+%token HASH
+%token ENDLINE
+%token OPTION
+
 %token DEFINE
 
 
@@ -195,6 +198,16 @@ Import : IMPORT QUOTEDSTRING {
 	ASTString* str = (ASTString*)$2;
 	$$ = new ASTImportDecl(str->getValue(), @$);
 	delete str;}
+	;
+
+////////////////////////////////////////////////////////////////
+// Compile Option
+
+Option : HASH OPTION IDENTIFIER Expression_Constant ENDLINE {
+	ASTString* name = (ASTString*)$3;
+	ASTExprConst* value = (ASTExprConst*)$4;
+	$$ = new ASTSetOption(name->getValue(), value, @$);
+	delete name;}
 	;
 
 ////////////////////////////////////////////////////////////////
@@ -380,7 +393,7 @@ Script : Script_Type SCRIPT IDENTIFIER Script_Block {
 			script->name = name->getValue();
 			script->location = @$;
 			$$ = script;
-												   delete name;}
+			delete name;}
 	;
 
 Script_Type :
@@ -401,10 +414,25 @@ Script_Block_List :
 		script->addDeclaration(*declaration);
 		script->location = @$;
 		$$ = script;}
+	| Script_Block_List Option {
+		ASTScript* script = (ASTScript*)$1;
+		ASTSetOption* option = (ASTSetOption*)$2;
+		script->options.push_back(option);
+		script->location = @$;
+		$$ = script;
+		if (!script->variables.empty()
+		    || !script->functions.empty()
+		    || !script->types.empty()) {
+			yyerror("Warning: Options should come before everything else.");}}
 	| Script_Block_Element {
 		ASTScript* script = new ASTScript(@$);
 		ASTDecl* declaration = (ASTDecl*)$1;
 		script->addDeclaration(*declaration);
+		$$ = script;}
+	| Option {
+		ASTScript* script = new ASTScript(@$);
+		ASTSetOption* option = (ASTSetOption*)$1;
+		script->options.push_back(option);
 		$$ = script;}
 	;
 
@@ -469,13 +497,25 @@ Statement_Block_List :
 	Statement_Block_List Statement {
 		ASTBlock* block = (ASTBlock*)$1;
 		ASTStmt* stmt = (ASTStmt*)$2;
-			block->statements.push_back(stmt);
-				  $$ = block;}
+		block->statements.push_back(stmt);
+		$$ = block;}
+	| Statement_Block_List Option {
+		ASTBlock* block = (ASTBlock*)$1;
+		ASTSetOption* option = (ASTSetOption*)$2;
+		block->options.push_back(option);
+		$$ = block;
+		if (!block->statements.empty()) {
+			yyerror("Warning: Options should come before statements.");}}
 	| Statement {
 		ASTStmt* stmt = (ASTStmt*)$1;
 		ASTBlock* block = new ASTBlock(@$);
-			block->statements.push_back(stmt);
-		  $$ = block;}
+		block->statements.push_back(stmt);
+		$$ = block;}
+	| Option {
+		ASTSetOption* option = (ASTSetOption*)$1;
+		ASTBlock* block = new ASTBlock(@$);
+		block->options.push_back(option);
+		$$ = block;}
 	;
 
 Statement_If :

@@ -58,8 +58,14 @@ compile_error (4) int compile_error_func() {return 0;}
 ////////////////////////////////////////////////////////////////
 
 // Error for unknown option
-int unknown_option_func() {
+int unknown_option_func1() {
 	compile_error (55) return OPTION_VALUE(unknown);}
+/*
+int unknown_option_func2() {
+	compile_error (55)
+	#option unknown 10
+	}
+*/
 
 ////////////////////////////////////////////////////////////////
 
@@ -67,12 +73,12 @@ int unknown_option_func() {
 typedef const int def;
 def TYPEDEF_CONST = 100;
 
-
 int error_count, test_count = 0, group_name, group_count = 0;
 
 // Init Script.
 global script Init {
-
+	#option TestOption 99
+	
     // Run function.
 	void run() {
 		// Start
@@ -369,7 +375,12 @@ global script Init {
 
 	void test_Options() {
 		test_group("Basic Options");
-		test(1, OPTION_VALUE(TestOption));
+		test(99, OPTION_VALUE(TestOption));
+		{
+			#option TestOption 500
+			test(500, OPTION_VALUE(TestOption));
+		}
+		test(99, OPTION_VALUE(TestOption));
 	}
 	
 	void test_ScriptStrip() {

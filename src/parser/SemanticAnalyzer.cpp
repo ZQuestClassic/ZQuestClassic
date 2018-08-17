@@ -89,6 +89,26 @@ void SemanticAnalyzer::caseProgram(ASTProgram& host, void*)
 
 }
 
+void SemanticAnalyzer::caseSetOption(ASTSetOption& host, void*)
+{
+	// Recurse on elements.
+	RecursiveVisitor::caseSetOption(host);
+	if (breakRecursion(host)) return;
+	
+	// Make sure the option is valid.
+	if (!host.option.isValid())
+	{
+		handleError(CompileError::UnknownOption, &host, host.name.c_str());
+		return;
+	}
+
+	// Set the option to the provided value.
+	if (optional<long> value = host.value->getCompileTimeValue(this))
+		scope->setOption(host.option, *value);
+	else
+		handleError(CompileError::ExprNotConstant, &host);
+}
+
 // Statements
 
 void SemanticAnalyzer::caseBlock(ASTBlock& host, void*)
