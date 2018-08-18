@@ -21,6 +21,7 @@ extern int yylex(void);
 extern FILE *yyin;
 extern void resetLexer();
 void yyerror(ASTFile*& root, const char* s);
+void yywarn(char const* s);
 std::string curfilename;
 extern YYLTYPE noloc;
 
@@ -182,6 +183,11 @@ Global_List :
 	Global_List Global_Statement {
 		ASTDecl* declaration = (ASTDecl*)$2;
 		root->addDeclaration(declaration);}
+	| Global_List Option {
+		ASTSetOption* option = (ASTSetOption*)$2;
+		root->options.push_back(option);
+		if (root->hasDeclarations())
+			yywarn("Options should come before everything else.");}
 	| {root = new ASTFile(noloc);}
 	;
 
@@ -430,7 +436,7 @@ Script_Block_List :
 		if (!script->variables.empty()
 		    || !script->functions.empty()
 		    || !script->types.empty()) {
-			yyerror(root, "Warning: Options should come before everything else.");}}
+			yywarn("Options should come before everything else.");}}
 	| Script_Block_Element {
 		ASTScript* script = new ASTScript(@$);
 		ASTDecl* declaration = (ASTDecl*)$1;
@@ -512,7 +518,7 @@ Statement_Block_List :
 		block->options.push_back(option);
 		$$ = block;
 		if (!block->statements.empty()) {
-			yyerror(root, "Warning: Options should come before statements.");}}
+			yywarn("Options should come before everything else.");}}
 	| Statement {
 		ASTStmt* stmt = (ASTStmt*)$1;
 		ASTBlock* block = new ASTBlock(@$);
@@ -920,6 +926,14 @@ Literal_Array_Body :
 void yyerror(ASTFile*&, const char *s) {
 	char temp[512];
     snprintf(temp, 512, "line %d: %s, on token %s", yylineno, s, yytext);
+    box_out(temp);
+    box_eol();
+}
+
+void yywarn(char const* s)
+{
+	char temp[512];
+    snprintf(temp, 512, "WARNING [line %d]: %s", yylineno, s);
     box_out(temp);
     box_eol();
 }

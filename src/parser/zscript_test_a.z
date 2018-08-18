@@ -1,0 +1,10 @@
+#option TestOption 55
+
+const int TestOptionA = OPTION_VALUE(TestOption);
+
+void test_Options_A()
+{
+	test_group("Different File Options");
+	test(55, TestOptionA);
+	test(55, OPTION_VALUE(TestOption));
+}

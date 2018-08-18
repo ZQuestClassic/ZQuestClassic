@@ -4,7 +4,7 @@
 // run.
 
 import "std.zh"
-import "string.zh"
+import "zscript_test_a.z"
 
 // Global Typedef
 typedef int num;
@@ -75,6 +75,52 @@ def TYPEDEF_CONST = 100;
 
 int error_count, test_count = 0, group_name, group_count = 0;
 
+////////////////////////////////////////////////////////////////
+
+void test(int result) {
+	++test_count;
+	++group_count;
+	if (!result)
+	{
+		int strue = "true";
+		int sfalse = "false";
+		printf("  Failed Test: %s (%d)\n", group_name, group_count);
+		printf("    Expected: true\n    Result: %d\n", result);
+		++error_count;
+	}
+}
+
+void test(int expected, int result) {
+	++test_count;
+	++group_count;
+	if (expected != result)
+	{
+		printf("  Failed Test: %s (%d)\n", group_name, group_count);
+		printf("    Expected: %d\n    Result: %d\n", expected, result);
+		++error_count;
+	}
+}
+
+void test(bool expected, bool result) {
+	++test_count;
+	++group_count;
+	if (expected != result)
+	{
+		int strue = "true";
+		int sfalse = "false";
+		printf("  Failed Test: %s (%d)\n", group_name, group_count);
+		printf("    Expected: %s\n    Result: %s\n",
+		       Cond(expected, strue, sfalse),
+		       Cond(result, strue, sfalse));
+		++error_count;
+	}
+}
+
+void test_group(int name) {
+	group_name = name;
+	group_count = 0;
+}
+
 // Init Script.
 global script Init {
 	#option TestOption 99
@@ -104,50 +150,6 @@ global script Init {
 	}
 
 	// Secondary functions.
-	void test(int result) {
-		++test_count;
-		++group_count;
-		if (!result)
-		{
-			int strue = "true";
-			int sfalse = "false";
-			printf("  Failed Test: %s (%d)\n", group_name, group_count);
-			printf("    Expected: true\n    Result: %d\n", result);
-			++error_count;
-		}
-	}
-
-	void test(int expected, int result) {
-		++test_count;
-		++group_count;
-		if (expected != result)
-		{
-			printf("  Failed Test: %s (%d)\n", group_name, group_count);
-			printf("    Expected: %d\n    Result: %d\n", expected, result);
-			++error_count;
-		}
-	}
-
-	void test(bool expected, bool result) {
-		++test_count;
-		++group_count;
-		if (expected != result)
-		{
-			int strue = "true";
-			int sfalse = "false";
-			printf("  Failed Test: %s (%d)\n", group_name, group_count);
-			printf("    Expected: %s\n    Result: %s\n",
-				   Cond(expected, strue, sfalse),
-				   Cond(result, strue, sfalse));
-			++error_count;
-		}
-	}
-
-	void test_group(int name) {
-		group_name = name;
-		group_count = 0;
-	}
-
 	void test_BuiltIns() {
 		// Read/Write a non-existent builtin.
 		compile_error(29) bool x = Link->PressEx0;
@@ -381,6 +383,7 @@ global script Init {
 			test(500, OPTION_VALUE(TestOption));
 		}
 		test(99, OPTION_VALUE(TestOption));
+		test_Options_A();
 	}
 	
 	void test_ScriptStrip() {

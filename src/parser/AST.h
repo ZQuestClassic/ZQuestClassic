@@ -256,7 +256,9 @@ public:
 
 	// Add a declaration to the proper list based on its type.
 	void addDeclaration(ASTDecl* declaration);
+	bool hasDeclarations() const;
 
+	std::vector<ASTSetOption*> options;
 	std::vector<ASTImportDecl*> imports;
 	std::vector<ASTDataDeclList*> variables;
 	std::vector<ASTFuncDecl*> functions;

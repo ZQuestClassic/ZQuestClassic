@@ -46,6 +46,7 @@ ASTFile::ASTFile(LocationData const& location) : AST(location) {}
 
 ASTFile::ASTFile(ASTFile const& base)
 	: AST(base),
+	  options(AST::clone(base.options)),
 	  imports(AST::clone(base.imports)),
 	  variables(AST::clone(base.variables)),
 	  functions(AST::clone(base.functions)),
@@ -55,6 +56,7 @@ ASTFile::ASTFile(ASTFile const& base)
 
 ASTFile::~ASTFile()
 {
+	deleteElements(options);
 	deleteElements(imports);
 	deleteElements(variables);
 	deleteElements(functions);
@@ -66,12 +68,14 @@ ASTFile& ASTFile::operator=(ASTFile const& rhs)
 {
 	AST::operator=(rhs);
 
+	deleteElements(options);
 	deleteElements(imports);
 	deleteElements(variables);
 	deleteElements(functions);
 	deleteElements(types);
 	deleteElements(scripts);
 
+	options = AST::clone(rhs.options);
 	imports = AST::clone(rhs.imports);
 	variables = AST::clone(rhs.variables);
 	functions = AST::clone(rhs.functions);
@@ -111,6 +115,15 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 		types.push_back((ASTTypeDef*)declaration);
 		break;
 	}
+}
+
+bool ASTFile::hasDeclarations() const
+{
+	return !imports.empty()
+		|| !variables.empty()
+		|| !functions.empty()
+		|| !types.empty()
+		|| !scripts.empty();
 }
 
 // ASTFloat

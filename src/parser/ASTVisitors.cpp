@@ -76,6 +76,8 @@ void RecursiveVisitor::visit(AST* node, void* param)
 
 void RecursiveVisitor::caseFile(ASTFile& host, void* param)
 {
+	visit(host, host.options, param);
+	if (breakRecursion(host, param)) return;
 	visit(host, host.imports, param);
 	if (breakRecursion(host, param)) return;
 	visit(host, host.types, param);
