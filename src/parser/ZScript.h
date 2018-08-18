@@ -18,7 +18,7 @@ namespace ZScript
 	class BuiltinVariable;
 	class Function;
 	class Scope;
-	class GlobalScope;
+	class RootScope;
 	class ScriptScope;
 	class FunctionScope;
 	
@@ -28,17 +28,18 @@ namespace ZScript
 	class Program : private NoCopy
 	{
 	public:
-		Program(ASTProgram&, CompileErrorHandler*);
+		Program(ASTFile&, CompileErrorHandler*);
 		~Program();
 
-		ASTProgram& getNode() {return node;}
-		TypeStore const& getTypeStore() const {return typeStore;}
-		TypeStore& getTypeStore() {return typeStore;}
-		GlobalScope& getScope() const {return *globalScope;}
+		ASTFile& getRoot() {return root_;}
+		TypeStore const& getTypeStore() const {return typeStore_;}
+		TypeStore& getTypeStore() {return typeStore_;}
+		RootScope& getScope() const {return *rootScope_;}
 
 		std::vector<Script*> scripts;
 		Script* getScript(std::string const& name) const;
 		Script* getScript(ASTScript* node) const;
+		Script* addScript(ASTScript&, Scope&, CompileErrorHandler*);
 
 		// Gets the non-internal (user-defined) global scope functions.
 		std::vector<Function*> getUserGlobalFunctions() const;
@@ -52,12 +53,12 @@ namespace ZScript
 		bool hasError() const {return getErrors().size();}
 
 	private:
-		std::map<std::string, Script*> scriptsByName;
-		std::map<ASTScript*, Script*> scriptsByNode;
+		std::map<std::string, Script*> scriptsByName_;
+		std::map<ASTScript*, Script*> scriptsByNode_;
 
-		TypeStore typeStore;
-		GlobalScope* globalScope;
-		ASTProgram& node;
+		TypeStore typeStore_;
+		RootScope* rootScope_;
+		ASTFile& root_;
 	};
 
 	// Gets all defined functions.
@@ -92,7 +93,7 @@ namespace ZScript
 	class UserScript : public Script
 	{
 		friend UserScript* createScript(
-				Program&, ASTScript&, CompileErrorHandler*);
+				Program&, Scope&, ASTScript&, CompileErrorHandler*);
 
 	public:
 		ScriptType getType() const {return node.type->type;}
@@ -111,7 +112,7 @@ namespace ZScript
 	class BuiltinScript : public Script
 	{
 		friend BuiltinScript* createScript(
-				Program&, ScriptType, std::string const& name,
+				Program&, Scope&, ScriptType, std::string const& name,
 				CompileErrorHandler*);
 
 	public:
@@ -130,9 +131,9 @@ namespace ZScript
 	};
 
 	UserScript* createScript(
-			Program&, ASTScript&, CompileErrorHandler* = NULL);
+			Program&, Scope&, ASTScript&, CompileErrorHandler* = NULL);
 	BuiltinScript* createScript(
-			Program&, ScriptType, std::string const& name,
+			Program&, Scope&, ScriptType, std::string const& name,
 			CompileErrorHandler* = NULL);
 	
 	Function* getRunFunction(Script const&);

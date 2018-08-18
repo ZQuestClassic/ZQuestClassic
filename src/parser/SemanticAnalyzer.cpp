@@ -1,5 +1,6 @@
 #include "SemanticAnalyzer.h"
 
+#include <cassert>
 #include "Scope.h"
 #include "CompileError.h"
 
@@ -20,21 +21,39 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 	: deprecateGlobals(false), program(program), returnType(NULL)
 {
 	scope = &program.getScope();
-	caseProgram(program.getNode());
+	caseFile(program.getRoot());
+	assert(dynamic_cast<RootScope*>(scope));
+
+	// Analyze function internals.
+	vector<Function*> functions = program.getUserGlobalFunctions();
+
+	for (vector<Function*>::iterator it = functions.begin();
+	     it != functions.end(); ++it)
+		analyzeFunctionInternals(**it);
+	
+	for (vector<Script*>::iterator it = program.scripts.begin();
+		 it != program.scripts.end(); ++it)
+	{
+		Script& script = **it;
+		scope = &script.getScope();
+		functions = scope->getLocalFunctions();
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+			analyzeFunctionInternals(**it);
+		scope = scope->getParent();
+	}
 }
 
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
 	ASTFuncDecl* functionDecl = function.node;
 
-	// Create function scope.
-	function.internalScope = scope->makeFunctionChild(function);
 	Scope& functionScope = *function.internalScope;
 
 	// Grab the script.
 	Script* script = NULL;
-	if (scope->isScript())
-		script = &dynamic_cast<ScriptScope*>(scope)->script;
+	if (ScriptScope* ss = dynamic_cast<ScriptScope*>(scope))
+		script = &ss->script;
 
 	// Add the parameters to the scope.
 	vector<ASTDataDecl*>& parameters = functionDecl->parameters;
@@ -65,28 +84,11 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	returnType = oldReturnType;
 }
 
-void SemanticAnalyzer::caseProgram(ASTProgram& host, void*)
+void SemanticAnalyzer::caseFile(ASTFile& host, void*)
 {
-	// Recurse on elements.
-	RecursiveVisitor::caseProgram(host);
-
-	vector<Function*> functions;
-
-	// Analyze function internals.
-	functions = program.getUserGlobalFunctions();
-	for (vector<Function*>::iterator it = functions.begin(); it != functions.end(); ++it)
-		analyzeFunctionInternals(**it);
-	for (vector<Script*>::iterator it = program.scripts.begin();
-		 it != program.scripts.end(); ++it)
-	{
-		Script& script = **it;
-		scope = &script.getScope();
-		functions = scope->getLocalFunctions();
-		for (vector<Function*>::iterator it = functions.begin(); it != functions.end(); ++it)
-			analyzeFunctionInternals(**it);
-		scope = scope->getParent();
-	}
-
+	scope = scope->makeFileChild(host.asString());
+	RecursiveVisitor::caseFile(host);
+	scope = scope->getParent();
 }
 
 void SemanticAnalyzer::caseSetOption(ASTSetOption& host, void*)
@@ -282,7 +284,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	}
 
 	if (isConstant)
-		{
+	{
 		if (scope->getLocalDatum(host.name))
 		{
 			handleError(CompileError::VarRedef, &host, host.name.c_str());
@@ -415,7 +417,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 
 void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 {
-	Script& script = *program.getScript(&host);
+	Script& script = *program.addScript(host, *scope, this);
 	string name = script.getName();
 
 	// Recurse on script elements with its scope.

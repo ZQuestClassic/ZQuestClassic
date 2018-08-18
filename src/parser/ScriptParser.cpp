@@ -23,8 +23,6 @@ using namespace std;
 using namespace ZScript;
 //#define PARSER_DEBUG
 
-ASTProgram* resAST;
-
 ScriptsData* compile(string const& filename);
 
 #ifdef PARSER_DEBUG
@@ -51,7 +49,7 @@ ScriptsData* compile(string const& filename)
 	box_out("Pass 1: Parsing");
 	box_eol();
 
-	auto_ptr<ASTProgram> root(parseFile(filename));
+	auto_ptr<ASTFile> root(parseFile(filename));
 	if (!root.get())
 	{
 		CompileError::CantOpenSource.print(NULL);
@@ -123,7 +121,7 @@ string ScriptParser::prepareFilename(string const& filename)
 	return retval;
 }
         
-bool ScriptParser::preprocess(ASTProgram* root, int reclimit)
+bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 {
 	if (reclimit == 0)
 	{
@@ -134,26 +132,25 @@ bool ScriptParser::preprocess(ASTProgram* root, int reclimit)
 	// Repeat parsing process for each of import files
 	vector<ASTImportDecl*>& imports = root->imports;
 	for (vector<ASTImportDecl*>::iterator it = imports.begin();
-	     it != imports.end(); it = imports.erase(it))
+	     it != imports.end(); ++it)
 	{
-		// Grab import, and delete it when finished with this loop.
-		auto_ptr<ASTImportDecl> importDecl(*it);
+		ASTImportDecl& importDecl = **it;
 
 		// Parse the imported file.
-		string filename = prepareFilename(importDecl->filename);
-		auto_ptr<ASTProgram> importRoot(parseFile(filename));
-		if (!importRoot.get())
+		string filename = prepareFilename(importDecl.getFilename());
+		auto_ptr<ASTFile> imported(parseFile(filename));
+		if (!imported.get())
 		{
-			CompileError::CantOpenImport.print(*it, filename);
+			CompileError::CantOpenImport.print(&importDecl, filename);
 			return false;
 		}
 
+		// Save the AST in the import declaration.
+		importDecl.giveTree(imported);
+		
 		// Recurse on imports.
-		if (!preprocess(importRoot.get(), reclimit - 1))
+		if (!preprocess(importDecl.getTree(), reclimit - 1))
 			return false;
-        
-		// Put the imported code into the parent.
-		root->merge(*importRoot);
 	}
     
 	return true;

@@ -27,8 +27,11 @@ namespace ZScript
 	class CompileOption;
 
 	// Local forward declarations
-	class FunctionScope;
 	class ZClass;
+	class RootScope;
+	class FileScope;
+	class ScriptScope;
+	class FunctionScope;
 
 	class Scope : private NoCopy
 	{
@@ -39,16 +42,15 @@ namespace ZScript
 		Scope(TypeStore&);
 		Scope(TypeStore&, std::string const& name);
 
-		// Accessors
-		TypeStore const& getTypeStore() const {return typeStore;}
-		TypeStore& getTypeStore() {return typeStore;}
-		optional<std::string> const& getName() const {return name;}
-		optional<std::string>& getName() {return name;}
-
-		// Scope Type
+		// Scope type.
 		virtual bool isGlobal() const {return false;}
 		virtual bool isScript() const {return false;}
-		virtual bool isFunction() const {return false;}
+		
+		// Accessors
+		TypeStore const& getTypeStore() const {return typeStore_;}
+		TypeStore& getTypeStore() {return typeStore_;}
+		optional<std::string> const& getName() const {return name_;}
+		optional<std::string>& getName() {return name_;}
 
 		// Inheritance
 		virtual Scope* getParent() const = 0;
@@ -78,6 +80,8 @@ namespace ZScript
 		// Add
 		virtual Scope* makeChild() = 0;
 		virtual Scope* makeChild(std::string const& name) = 0;
+		virtual FileScope* makeFileChild(std::string const& filename) = 0;
+		virtual ScriptScope* makeScriptChild(Script& script) = 0;
 		virtual FunctionScope* makeFunctionChild(Function& function) = 0;
 		virtual DataType const* addType(
 				std::string const& name, DataType const* type, AST* node)
@@ -121,8 +125,8 @@ namespace ZScript
 		bool varDeclsDeprecated;
 
 	protected:
-		TypeStore& typeStore;
-		optional<std::string> name;
+		TypeStore& typeStore_;
+		optional<std::string> name_;
 
 	private:
 		// Add the datum to this scope, returning if successful. Called by
@@ -148,6 +152,9 @@ namespace ZScript
 	// empty name list will the current scope and its ancestry.
 	std::vector<Scope*> lookupScopes(
 			Scope const&, std::vector<std::string> const& names);
+
+	// Get the most distant parent.
+	RootScope* getRoot(Scope const&);
 	
 	////////////////
 	// Lookup
@@ -235,101 +242,185 @@ namespace ZScript
 		virtual ~BasicScope();
 
 		// Inheritance
-		Scope* getParent() const {return parent;}
-		Scope* getChild(std::string const& name) const;
-		std::vector<Scope*> getChildren() const;
+		virtual Scope* getParent() const {return parent_;}
+		virtual Scope* getChild(std::string const& name) const;
+		virtual std::vector<Scope*> getChildren() const;
 	
 		// Lookup Local
-		DataType const* getLocalType(std::string const& name) const;
-		ZClass* getLocalClass(std::string const& name) const;
-		Datum* getLocalDatum(std::string const& name) const;
-		Function* getLocalGetter(std::string const& name) const;
-		Function* getLocalSetter(std::string const& name) const;
-		Function* getLocalFunction(FunctionSignature const& signature)
-				const;
-		std::vector<Function*> getLocalFunctions(std::string const& name)
-				const;
-		optional<long> getLocalOption(CompileOption option) const;
+		virtual DataType const* getLocalType(std::string const& name) const;
+		virtual ZClass* getLocalClass(std::string const& name) const;
+		virtual Datum* getLocalDatum(std::string const& name) const;
+		virtual Function* getLocalGetter(std::string const& name) const;
+		virtual Function* getLocalSetter(std::string const& name) const;
+		virtual Function* getLocalFunction(
+				FunctionSignature const& signature) const;
+		virtual std::vector<Function*> getLocalFunctions(
+				std::string const& name) const;
+		virtual optional<long> getLocalOption(CompileOption option) const;
 		
 		// Get All Local
-		std::vector<ZScript::Datum*> getLocalData() const;
-		std::vector<ZScript::Function*> getLocalFunctions() const;
-		std::vector<ZScript::Function*> getLocalGetters() const;
-		std::vector<ZScript::Function*> getLocalSetters() const;
-		std::map<CompileOption, long> getLocalOptions() const;
+		virtual std::vector<ZScript::Datum*> getLocalData() const;
+		virtual std::vector<ZScript::Function*> getLocalFunctions() const;
+		virtual std::vector<ZScript::Function*> getLocalGetters() const;
+		virtual std::vector<ZScript::Function*> getLocalSetters() const;
+		virtual std::map<CompileOption, long> getLocalOptions() const;
 
 		// Add
-		Scope* makeChild();
-		Scope* makeChild(std::string const& name);
-		FunctionScope* makeFunctionChild(Function& function);
-		DataType const* addType(
+		virtual Scope* makeChild();
+		virtual Scope* makeChild(std::string const& name);
+		virtual FileScope* makeFileChild(std::string const& filename);
+		virtual ScriptScope* makeScriptChild(Script& script);
+		virtual FunctionScope* makeFunctionChild(Function& function);
+		virtual DataType const* addType(
 				std::string const& name, DataType const* type,
 				AST* node = NULL);
-		Function* addGetter(
+		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
 				AST* node = NULL);
-		Function* addSetter(
+		virtual Function* addSetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
 				AST* node = NULL);
-		Function* addFunction(
+		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
 				AST* node = NULL);
-		void setOption(CompileOption option, long value);
+		virtual void setOption(CompileOption option, long value);
 		
 		// Stack
-		int getLocalStackDepth() const {return stackDepth;}
-		optional<int> getLocalStackOffset(Datum const& datum) const;
+		virtual int getLocalStackDepth() const {return stackDepth_;}
+		virtual optional<int> getLocalStackOffset(Datum const& datum) const;
 		
 	protected:
-		Scope* parent;
-		std::map<std::string, Scope*> children;
-		std::vector<Scope*> anonymousChildren;
-		std::map<std::string, DataType const*> types;
-		std::map<std::string, ZClass*> classes;
-		std::vector<Datum*> anonymousData;
-		std::map<std::string, Datum*> namedData;
-		std::map<Datum*, int> stackOffsets;
-		int stackDepth;
-		std::map<std::string, Function*> getters;
-		std::map<std::string, Function*> setters;
-		std::map<std::string, std::vector<Function*> > functionsByName;
-		std::map<FunctionSignature, Function*> functionsBySignature;
-		std::map<CompileOption, long> options;
+		Scope* parent_;
+		std::map<std::string, Scope*> children_;
+		std::vector<Scope*> anonymousChildren_;
+		std::map<std::string, DataType const*> types_;
+		std::map<std::string, ZClass*> classes_;
+		std::vector<Datum*> anonymousData_;
+		std::map<std::string, Datum*> namedData_;
+		std::map<Datum*, int> stackOffsets_;
+		int stackDepth_;
+		std::map<std::string, Function*> getters_;
+		std::map<std::string, Function*> setters_;
+		std::map<std::string, std::vector<Function*> > functionsByName_;
+		std::map<FunctionSignature, Function*> functionsBySignature_;
+		std::map<CompileOption, long> options_;
 
 		BasicScope(TypeStore&);
 		BasicScope(TypeStore&, std::string const& name);
 
+		virtual bool add(Datum&, CompileErrorHandler*);
+		
 	private:
 		// Disabled since it's easy to call by accident instead of the Scope*
 		// constructor.
 		BasicScope(BasicScope const& base);
-
-		bool add(Datum&, CompileErrorHandler*);
 	};
 
-	class ScriptScope;
-	class GlobalScope : public BasicScope
+	////////////////////////////////////////////////////////////////
+	// FileScope
+
+	class FileScope : public BasicScope
 	{
 	public:
-		// Creates the starting global scope.
-		GlobalScope(TypeStore&);
-		
-		bool isGlobal() const {return true;}
-		ScriptScope* makeScriptChild(Script& script);
-		optional<int> getRootStackSize() const;
+		FileScope(Scope* parent, std::string const& filename);
 
+		virtual bool isGlobal() const {return true;}
+		
+		// Override to also register in the root scope, and fail if already
+		// present there as well.
+		virtual Scope* makeChild(std::string const& name);
+		virtual DataType const* addType(
+				std::string const& name, DataType const* type,
+				AST* node = NULL);
+		virtual Function* addGetter(
+				DataType const* returnType, std::string const& name,
+				std::vector<DataType const*> const& paramTypes,
+				AST* node = NULL);
+		virtual Function* addSetter(
+				DataType const* returnType, std::string const& name,
+				std::vector<DataType const*> const& paramTypes,
+				AST* node = NULL);
+		virtual Function* addFunction(
+				DataType const* returnType, std::string const& name,
+				std::vector<DataType const*> const& paramTypes,
+				AST* node = NULL);
+
+	protected:
+		virtual bool add(Datum&, CompileErrorHandler*);
+		
 	private:
-		mutable optional<int> stackSize;
+		std::string filename_;
+
 	};
 
+	////////////////////////////////////////////////////////////////
+	// RootScope - The highest level scope.
+
+	// For the purpose of resolving data, functions, etc. the root scope has
+	// counts as locally having the objects of all its FileScope
+	// descendants. These lists are maintained locally in the desc*
+	// variables.
+
+	class RootScope : public BasicScope
+	{
+	public:
+		RootScope(TypeStore&);
+		
+		virtual bool isGlobal() const {return true;}
+		virtual optional<int> getRootStackSize() const;
+
+		// Also check the descendant listings.
+		// Single
+		virtual Scope* getChild(std::string const& name) const;
+		virtual DataType const* getLocalType(
+				std::string const& name) const;
+		virtual ZClass* getLocalClass(std::string const& name) const;
+		virtual Datum* getLocalDatum(std::string const& name) const;
+		virtual Function* getLocalGetter(std::string const& name) const;
+		virtual Function* getLocalSetter(std::string const& name) const;
+		virtual Function* getLocalFunction(
+				FunctionSignature const& signature) const;
+		virtual std::vector<Function*> getLocalFunctions(
+				std::string const& name) const;
+		// All
+		virtual std::vector<Datum*> getLocalData() const;
+		virtual std::vector<Function*> getLocalFunctions() const;
+		virtual std::vector<Function*> getLocalGetters() const;
+		virtual std::vector<Function*> getLocalSetters() const;
+
+		// Register a descendant's thing.
+		bool registerChild(std::string const& name, Scope* child);
+		bool registerType(std::string const& name, DataType const* type);
+		bool registerClass(std::string const& name, ZClass* klass);
+		bool registerDatum(std::string const& name, Datum* datum);
+		bool registerGetter(std::string const& name, Function* getter);
+		bool registerSetter(std::string const& name, Function* setter);
+		bool registerFunction(Function* function);
+		
+	private:
+		mutable optional<int> stackSize_;
+
+		// Unowned pointers to descendant's stuff.
+		std::map<std::string, Scope*> descChildren_;
+		std::map<std::string, DataType const*> descTypes_;
+		std::map<std::string, ZClass*> descClasses_;
+		std::map<std::string, Datum*> descData_;
+		std::map<std::string, Function*> descGetters_;
+		std::map<std::string, Function*> descSetters_;
+		std::map<std::string, std::vector<Function*> > descFunctionsByName_;
+		std::map<FunctionSignature, Function*> descFunctionsBySignature_;
+	};
+	
+	////////////////////////////////////////////////////////////////
+	
 	class ScriptScope : public BasicScope
 	{
 	public:
-		ScriptScope(GlobalScope* parent, Script& script);
-		bool isScript() const {return true;}
+		ScriptScope(Scope* parent, Script& script);
+		virtual bool isScript() const {return true;}
 		Script& script;
 	};
 

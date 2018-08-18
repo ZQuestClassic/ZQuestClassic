@@ -74,7 +74,7 @@ void RecursiveVisitor::visit(AST* node, void* param)
 ////////////////////////////////////////////////////////////////
 // Cases
 
-void RecursiveVisitor::caseProgram(ASTProgram& host, void* param)
+void RecursiveVisitor::caseFile(ASTFile& host, void* param)
 {
 	visit(host, host.imports, param);
 	if (breakRecursion(host, param)) return;
@@ -172,6 +172,11 @@ void RecursiveVisitor::caseScript(ASTScript& host, void* param)
 	visit(host, host.variables, param);
 	if (breakRecursion(host, param)) return;
 	visit(host, host.functions, param);
+}
+
+void RecursiveVisitor::caseImportDecl(ASTImportDecl& host, void* param)
+{
+	visit(host.getTree(), param);
 }
 
 void RecursiveVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)

@@ -1,4 +1,5 @@
-#include "../precompiled.h" //always first
+#include "../precompiled.h" // Always first.
+
 #include "ASTVisitors.h"
 #include "CompilerUtils.h"
 #include "DataStructs.h"
@@ -39,11 +40,11 @@ AST& AST::operator=(AST const& rhs)
 	return *this;
 }
 
-// ASTProgram
+// ASTFile
 
-ASTProgram::ASTProgram(LocationData const& location) : AST(location) {}
+ASTFile::ASTFile(LocationData const& location) : AST(location) {}
 
-ASTProgram::ASTProgram(ASTProgram const& base)
+ASTFile::ASTFile(ASTFile const& base)
 	: AST(base),
 	  imports(AST::clone(base.imports)),
 	  variables(AST::clone(base.variables)),
@@ -52,7 +53,7 @@ ASTProgram::ASTProgram(ASTProgram const& base)
 	  scripts(AST::clone(base.scripts))
 {}
 
-ASTProgram::~ASTProgram()
+ASTFile::~ASTFile()
 {
 	deleteElements(imports);
 	deleteElements(variables);
@@ -61,7 +62,7 @@ ASTProgram::~ASTProgram()
 	deleteElements(scripts);
 }
 
-ASTProgram& ASTProgram::operator=(ASTProgram const& rhs)
+ASTFile& ASTFile::operator=(ASTFile const& rhs)
 {
 	AST::operator=(rhs);
 
@@ -80,12 +81,17 @@ ASTProgram& ASTProgram::operator=(ASTProgram const& rhs)
 	return *this;
 }
 
-void ASTProgram::execute(ASTVisitor& visitor, void* param)
+void ASTFile::execute(ASTVisitor& visitor, void* param)
 {
-	visitor.caseProgram(*this, param);
+	visitor.caseFile(*this, param);
 }
 
-void ASTProgram::addDeclaration(ASTDecl* declaration)
+string ASTFile::asString() const
+{
+	return location.fname;
+}
+
+void ASTFile::addDeclaration(ASTDecl* declaration)
 {
 	switch (declaration->declarationClassId())
 	{
@@ -105,23 +111,6 @@ void ASTProgram::addDeclaration(ASTDecl* declaration)
 		types.push_back((ASTTypeDef*)declaration);
 		break;
 	}
-}
-
-ASTProgram& ASTProgram::merge(ASTProgram& other)
-{
-	imports.insert(imports.end(), other.imports.begin(), other.imports.end());
-	other.imports.clear();
-	variables.insert(variables.end(), other.variables.begin(),
-					 other.variables.end());
-	other.variables.clear();
-	functions.insert(functions.end(), other.functions.begin(),
-					 other.functions.end());
-	other.functions.clear();
-	types.insert(types.end(), other.types.begin(), other.types.end());
-	other.types.clear();
-	scripts.insert(scripts.end(), other.scripts.begin(), other.scripts.end());
-	other.scripts.clear();
-	return *this;
 }
 
 // ASTFloat
@@ -850,18 +839,21 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 
 ASTImportDecl::ASTImportDecl(
 		string const& filename, LocationData const& location)
-	: ASTDecl(location), filename(filename)
+	: ASTDecl(location), filename_(filename)
 {}
 
 ASTImportDecl::ASTImportDecl(ASTImportDecl const& base)
-	: ASTDecl(base), filename(base.filename)
+	: ASTDecl(base),
+	  filename_(base.filename_),
+	  tree_(AST::clone(base.tree_.get()))
 {}
 
 ASTImportDecl& ASTImportDecl::operator=(ASTImportDecl const& rhs)
 {
 	ASTDecl::operator=(rhs);
 
-	filename = rhs.filename;
+	filename_ = rhs.filename_;
+	tree_ = AST::clone(rhs.tree_);
 
 	return *this;
 }

@@ -19,9 +19,8 @@ extern int yylineno;
 extern char* yytext;
 extern int yylex(void);
 extern FILE *yyin;
-extern ASTProgram *resAST;
 extern void resetLexer();
-void yyerror(ASTProgram*& root, const char* s);
+void yyerror(ASTFile*& root, const char* s);
 std::string curfilename;
 extern YYLTYPE noloc;
 
@@ -57,10 +56,10 @@ using namespace ZScript;
 %}
 
 %code requires {
-	class ASTProgram;
+	class ASTFile;
 	namespace ZScript
 	{
-		ASTProgram* parseFile(std::string const& filename);
+		ASTFile* parseFile(std::string const& filename);
 	};
 }
 
@@ -69,7 +68,7 @@ using namespace ZScript;
 %expect-rr 1
 %error-verbose
 %start Init
-%parse-param {ASTProgram*& root}
+%parse-param {ASTFile*& root}
 
 %define api.token.prefix {TOK_}
 %token SCRIPT
@@ -183,7 +182,7 @@ Global_List :
 	Global_List Global_Statement {
 		ASTDecl* declaration = (ASTDecl*)$2;
 		root->addDeclaration(declaration);}
-	| {root = new ASTProgram(noloc);}
+	| {root = new ASTFile(noloc);}
 	;
 
 Global_Statement :
@@ -918,7 +917,7 @@ Literal_Array_Body :
 
 /*        programs */
 
-void yyerror(ASTProgram*&, const char *s) {
+void yyerror(ASTFile*&, const char *s) {
 	char temp[512];
     snprintf(temp, 512, "line %d: %s, on token %s", yylineno, s, yytext);
     box_out(temp);
@@ -927,9 +926,9 @@ void yyerror(ASTProgram*&, const char *s) {
 
 namespace ZScript
 {
-	ASTProgram* parseFile(std::string const& filename)
+	ASTFile* parseFile(std::string const& filename)
 	{
-		ASTProgram* result = NULL;
+		ASTFile* result = NULL;
 
 		// Reset lexer.
 		yyin = NULL;

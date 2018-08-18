@@ -14,6 +14,7 @@ class AST;
 #include <list>
 #include <vector>
 #include <map>
+#include <memory>
 #include <string>
 #include "y.tab.hpp"
 #include "Compiler.h"
@@ -40,7 +41,7 @@ extern std::string curfilename;
 
 // AST Subclasses.
 class AST; // virtual
-class ASTProgram;
+class ASTFile;
 class ASTFloat;
 class ASTString;
 class ASTSetOption;
@@ -181,6 +182,12 @@ public:
 	// Clone a single node pointer.
 	template <class Node>
 	static Node* clone(Node* node) {return node ? node->clone() : NULL;}
+	// Clone a single node auto pointer.
+	template <class Node>
+	static std::auto_ptr<Node> clone(std::auto_ptr<Node> const& node) {
+		return node.get()
+			? std::auto_ptr<Node>(node->clone())
+			: std::auto_ptr<Node>();}
 	// Clone a vector of AST nodes.
 	template <class Node>
 	static std::vector<Node*> clone(std::vector<Node*> const& nodes)
@@ -235,23 +242,21 @@ protected:
 
 ////////////////////////////////////////////////////////////////
 
-class ASTProgram : public AST
+class ASTFile : public AST
 {
 public:
-    ASTProgram(LocationData const& location = LocationData::NONE);
-	ASTProgram(ASTProgram const& base);
-    ~ASTProgram();
-	ASTProgram& operator=(ASTProgram const& rhs);
-	ASTProgram* clone() const {return new ASTProgram(*this);}
+    ASTFile(LocationData const& location = LocationData::NONE);
+	ASTFile(ASTFile const& base);
+    virtual ~ASTFile();
+	virtual ASTFile& operator=(ASTFile const& rhs);
+	virtual ASTFile* clone() const {return new ASTFile(*this);}
     
-    void execute(ASTVisitor& visitor, void* param = NULL);
+    virtual void execute(ASTVisitor& visitor, void* param = NULL);
+	virtual std::string asString() const;
 
 	// Add a declaration to the proper list based on its type.
 	void addDeclaration(ASTDecl* declaration);
-	// Steal all the contents of other.
-	ASTProgram& merge(ASTProgram& other);
 
-	// Public since we'll be clearing them and such.
 	std::vector<ASTImportDecl*> imports;
 	std::vector<ASTDataDeclList*> variables;
 	std::vector<ASTFuncDecl*> functions;
@@ -596,20 +601,26 @@ public:
 };
 
 class ASTImportDecl : public ASTDecl
-    {
+{
 public:
     ASTImportDecl(std::string const& filename,
 				  LocationData const& location = LocationData::NONE);
 	ASTImportDecl(ASTImportDecl const& base);
-	ASTImportDecl& operator=(ASTImportDecl const& rhs);
-	ASTImportDecl* clone() const {return new ASTImportDecl(*this);}
+	virtual ASTImportDecl& operator=(ASTImportDecl const& rhs);
+	virtual ASTImportDecl* clone() const {return new ASTImportDecl(*this);}
     
-    void execute(ASTVisitor& visitor, void* param = NULL);
+    virtual void execute(ASTVisitor& visitor, void* param = NULL);
 
-	ASTDeclClassId declarationClassId() const {
+	virtual ASTDeclClassId declarationClassId() const {
 		return ASTDECL_CLASSID_IMPORT;}
-    
-    std::string filename;
+
+	std::string const& getFilename() const {return filename_;}
+	ASTFile* getTree() const {return tree_.get();}
+	void giveTree(std::auto_ptr<ASTFile> tree) {tree_ = tree;}
+	
+private:
+    std::string filename_;
+	std::auto_ptr<ASTFile> tree_;
 };
 
 class ASTFuncDecl : public ASTDecl

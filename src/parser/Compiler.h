@@ -76,7 +76,7 @@ struct SymbolData;
 struct FunctionData;
 struct IntermediateData;
 
-class ASTProgram;
+class ASTFile;
 
 class ScriptParser
 {
@@ -97,8 +97,7 @@ public:
 	{
 		return gid++;
 	}
-	static bool preprocess(ASTProgram* theAST, int reclevel);
-	static SymbolData* buildSymbolTable(ASTProgram* theAST);
+	static bool preprocess(ASTFile* root, int reclevel);
 	static IntermediateData* generateOCode(FunctionData& fdata);
 	static void assemble(IntermediateData* id);
 	static void initialize();
