@@ -196,11 +196,16 @@ vector<Function*> ZScript::lookupFunctions(
 
 optional<long> ZScript::lookupOption(Scope const& scope, CompileOption option)
 {
-	if (!option.isValid()) return nullopt;;
+	if (!option.isValid()) return nullopt;
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
-		if (optional<long> value = current->getLocalOption(option))
-			return value;
+	{
+		CompileOptionSetting setting = current->getLocalOption(option);
+		if (setting == CompileOptionSetting::Inherit) continue;
+		if (setting == CompileOptionSetting::Default)
+			return *option.getDefault();
+		return *setting.getValue();
+	}
 	return *option.getDefault();
 }
 
@@ -264,20 +269,24 @@ vector<Function*> ZScript::getFunctionsInBranch(Scope const& scope)
 
 BasicScope::BasicScope(Scope* parent)
 	: Scope(parent->getTypeStore()), parent_(parent),
-	  stackDepth_(parent->getLocalStackDepth())
+	  stackDepth_(parent->getLocalStackDepth()),
+	  defaultOption_(CompileOptionSetting::Inherit)
 {}
 
 BasicScope::BasicScope(Scope* parent, string const& name)
 	: Scope(parent->getTypeStore(), name), parent_(parent),
-	  stackDepth_(parent->getLocalStackDepth())
+	  stackDepth_(parent->getLocalStackDepth()),
+	  defaultOption_(CompileOptionSetting::Inherit)
 {}
 
 BasicScope::BasicScope(TypeStore& typeStore)
-	: Scope(typeStore), parent_(NULL), stackDepth_(0)
+	: Scope(typeStore), parent_(NULL), stackDepth_(0),
+	  defaultOption_(CompileOptionSetting::Inherit)
 {}
 
 BasicScope::BasicScope(TypeStore& typeStore, string const& name)
-	: Scope(typeStore, name), parent_(NULL), stackDepth_(0)
+	: Scope(typeStore, name), parent_(NULL), stackDepth_(0),
+	  defaultOption_(CompileOptionSetting::Inherit)
 {}
 
 BasicScope::~BasicScope()
@@ -344,9 +353,12 @@ vector<Function*> BasicScope::getLocalFunctions(string const& name) const
 		.value_or(vector<Function*>());
 }
 
-optional<long> BasicScope::getLocalOption(CompileOption option) const
+CompileOptionSetting BasicScope::getLocalOption(CompileOption option) const
 {
-	return find<long>(options_, option);
+	if (optional<CompileOptionSetting> setting =
+	    	find<CompileOptionSetting>(options_, option))
+		return *setting;
+	return defaultOption_;
 }
 
 // Get All Local
@@ -373,7 +385,7 @@ vector<Function*> BasicScope::getLocalSetters() const
 	return getSeconds<Function*>(setters_);
 }
 
-std::map<CompileOption, long> BasicScope::getLocalOptions() const
+map<CompileOption, CompileOptionSetting> BasicScope::getLocalOptions() const
 {
 	return options_;
 }
@@ -468,8 +480,14 @@ Function* BasicScope::addFunction(
 	return fun;
 }
 
-void BasicScope::setOption(CompileOption option, long value)
+void BasicScope::setDefaultOption(CompileOptionSetting value)
 {
+	defaultOption_ = value;
+}
+		
+void BasicScope::setOption(CompileOption option, CompileOptionSetting value)
+{
+	assert(option.isValid());
 	options_[option] = value;
 }
 
@@ -511,7 +529,9 @@ optional<int> BasicScope::getLocalStackOffset(Datum const& datum) const
 
 FileScope::FileScope(Scope* parent, string const& filename)
 	: BasicScope(parent), filename_(filename)
-{}
+{
+	defaultOption_ = CompileOptionSetting::Default;
+}
 
 Scope* FileScope::makeChild(std::string const& name)
 {

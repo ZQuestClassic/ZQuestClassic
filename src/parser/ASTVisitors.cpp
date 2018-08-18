@@ -91,7 +91,7 @@ void RecursiveVisitor::caseFile(ASTFile& host, void* param)
 
 void RecursiveVisitor::caseSetOption(ASTSetOption& host, void* param)
 {
-	visit(host.value, param);
+	visit(host.expr.get(), param);
 }
 
 // Statements

@@ -1,7 +1,10 @@
 // Table of compile options.
 
 //	Name,		Default Value
-X(	TestOption,	10000)
+X(	TestOption1,	10000)
+X(	TestOption2,	20000)
+X(	TestOption3,	30000)
+X(	TestOption4,	40000)
 
 // Emacs Stuff:
 // Local Variables:

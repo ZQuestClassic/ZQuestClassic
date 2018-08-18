@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "CompilerUtils.h"
+#include "CompileOption.h"
 
 class CompileErrorHandler;
 
@@ -22,9 +23,6 @@ namespace ZScript
 	// Forward declarations from Types.h
 	class DataType;
 	class TypeStore;
-
-	// Forward declarations from CompileOption.
-	class CompileOption;
 
 	// Local forward declarations
 	class ZClass;
@@ -68,14 +66,16 @@ namespace ZScript
 				FunctionSignature const& signature) const = 0;
 		virtual std::vector<Function*> getLocalFunctions(
 				std::string const& name) const = 0;
-		virtual optional<long> getLocalOption(CompileOption option) const = 0;
+		virtual CompileOptionSetting getLocalOption(CompileOption option)
+				const = 0;
 	
 		// Get All Local.
 		virtual std::vector<Datum*> getLocalData() const = 0;
 		virtual std::vector<Function*> getLocalFunctions() const = 0;
 		virtual std::vector<Function*> getLocalGetters() const = 0;
 		virtual std::vector<Function*> getLocalSetters() const = 0;
-		virtual std::map<CompileOption, long> getLocalOptions() const = 0;
+		virtual std::map<CompileOption, CompileOptionSetting>
+				getLocalOptions() const = 0;
 
 		// Add
 		virtual Scope* makeChild() = 0;
@@ -102,7 +102,9 @@ namespace ZScript
 				std::vector<DataType const*> const& paramTypes,
 				AST* node = NULL)
 		= 0;
-		virtual void setOption(CompileOption option, long value) = 0;
+		virtual void setDefaultOption(CompileOptionSetting value) = 0;
+		virtual void setOption(
+				CompileOption option, CompileOptionSetting value) = 0;
 
 		////////////////
 		// Stack
@@ -256,14 +258,15 @@ namespace ZScript
 				FunctionSignature const& signature) const;
 		virtual std::vector<Function*> getLocalFunctions(
 				std::string const& name) const;
-		virtual optional<long> getLocalOption(CompileOption option) const;
+		virtual CompileOptionSetting getLocalOption(CompileOption option) const;
 		
 		// Get All Local
 		virtual std::vector<ZScript::Datum*> getLocalData() const;
 		virtual std::vector<ZScript::Function*> getLocalFunctions() const;
 		virtual std::vector<ZScript::Function*> getLocalGetters() const;
 		virtual std::vector<ZScript::Function*> getLocalSetters() const;
-		virtual std::map<CompileOption, long> getLocalOptions() const;
+		virtual std::map<CompileOption, CompileOptionSetting>
+				getLocalOptions() const;
 
 		// Add
 		virtual Scope* makeChild();
@@ -286,7 +289,9 @@ namespace ZScript
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
 				AST* node = NULL);
-		virtual void setOption(CompileOption option, long value);
+		virtual void setDefaultOption(CompileOptionSetting value);
+		virtual void setOption(
+				CompileOption option, CompileOptionSetting value);
 		
 		// Stack
 		virtual int getLocalStackDepth() const {return stackDepth_;}
@@ -306,7 +311,8 @@ namespace ZScript
 		std::map<std::string, Function*> setters_;
 		std::map<std::string, std::vector<Function*> > functionsByName_;
 		std::map<FunctionSignature, Function*> functionsBySignature_;
-		std::map<CompileOption, long> options_;
+		std::map<CompileOption, CompileOptionSetting> options_;
+		CompileOptionSetting defaultOption_;
 
 		BasicScope(TypeStore&);
 		BasicScope(TypeStore&, std::string const& name);

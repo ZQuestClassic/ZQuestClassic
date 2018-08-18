@@ -1,4 +1,4 @@
-/* -*- mode: bison; tab-width: 4 -*-
+/* -*- mode: bison; tab-width: 8 -*-
   use this file to generate lex.yy.c
   command: flex -B -olex.yy.cpp ffscript.lpp
 */
@@ -118,6 +118,7 @@ define                  { doLines(); return TOK_DEFINE; }
 	\\\n		{ doLines(); }
 	\n		{ doLines(); BEGIN(INITIAL); return TOK_ENDLINE; }
 	option		{ doLines(); return TOK_OPTION; }
+	inherit		{ doLines(); return TOK_INHERIT; }
 }
 
 

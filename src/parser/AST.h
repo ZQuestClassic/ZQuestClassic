@@ -313,19 +313,25 @@ private:
 class ASTSetOption : public AST
 {
 public:
-	ASTSetOption(std::string const& name, ASTExprConst* value,
+	ASTSetOption(std::string const& name, ASTExprConst* expr,
+	             LocationData const& location = LocationData::NONE);
+	ASTSetOption(std::string const& name,
+	             ZScript::CompileOptionSetting setting,
 	             LocationData const& location = LocationData::NONE);
 	ASTSetOption(ASTSetOption const& base);
-	~ASTSetOption();
-	ASTSetOption& operator=(ASTSetOption const& rhs);
-	ASTSetOption* clone() const {return new ASTSetOption(*this);}
+	virtual ASTSetOption& operator=(ASTSetOption const& rhs);
+	virtual ASTSetOption* clone() const {return new ASTSetOption(*this);}
 
-	void execute(ASTVisitor& visitor, void* param = NULL);
-	std::string asString() const;
+	virtual void execute(ASTVisitor& visitor, void* param = NULL);
+	virtual std::string asString() const;
 
+	ZScript::CompileOptionSetting getSetting(
+			CompileErrorHandler* = NULL) const;
+	
 	std::string name;
 	ZScript::CompileOption option;
-	ASTExprConst* value;
+	std::auto_ptr<ASTExprConst> expr;
+	ZScript::CompileOptionSetting setting;
 };
 
 ////////////////////////////////////////////////////////////////

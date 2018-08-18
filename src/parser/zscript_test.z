@@ -3,6 +3,10 @@
 // ZScript. It should compile cleanly and report no errors when the quest is
 // run.
 
+#option TestOption2 default
+#option TestOption3 inherit
+#option TestOption4 400
+
 import "std.zh"
 import "zscript_test_a.z"
 
@@ -67,6 +71,11 @@ int unknown_option_func2() {
 	}
 */
 
+const int GlobalTestOption1 = OPTION_VALUE(TestOption1);
+const int GlobalTestOption2 = OPTION_VALUE(TestOption2);
+const int GlobalTestOption3 = OPTION_VALUE(TestOption3);
+const int GlobalTestOption4 = OPTION_VALUE(TestOption4);
+
 ////////////////////////////////////////////////////////////////
 
 // Typedef for constants.
@@ -123,7 +132,8 @@ void test_group(int name) {
 
 // Init Script.
 global script Init {
-	#option TestOption 99
+	#option all default
+	#option TestOption1 99
 	
     // Run function.
 	void run() {
@@ -376,14 +386,30 @@ global script Init {
 	}
 
 	void test_Options() {
+		test_group("Global Options");
+		test(1, GlobalTestOption1);
+		test(2, GlobalTestOption2);
+		test(3, GlobalTestOption3);
+		test(400, GlobalTestOption4);
+
+		test_group("Script Options");
+		test(99, OPTION_VALUE(TestOption1));
+		test(2, OPTION_VALUE(TestOption2));
+		test(3, OPTION_VALUE(TestOption3));
+		test(4, OPTION_VALUE(TestOption4));
+
 		test_group("Basic Options");
-		test(99, OPTION_VALUE(TestOption));
 		{
-			#option TestOption 500
-			test(500, OPTION_VALUE(TestOption));
+			#option TestOption1 default
+			#option TestOption2 500
+			test(1, OPTION_VALUE(TestOption1));
+			test(500, OPTION_VALUE(TestOption2));
 		}
-		test(99, OPTION_VALUE(TestOption));
+		test(99, OPTION_VALUE(TestOption1));
+		test(2, OPTION_VALUE(TestOption2));
+
 		test_Options_A();
+		test_Options_B();
 	}
 	
 	void test_ScriptStrip() {

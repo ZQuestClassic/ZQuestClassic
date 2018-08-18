@@ -291,33 +291,34 @@ void ASTString::execute(ASTVisitor& visitor, void* param)
 // ASTSetOption
 
 ASTSetOption::ASTSetOption(
-		string const& name, ASTExprConst* value,
+		string const& name, ASTExprConst* expr,
 		LocationData const& location)
 	: AST(location), name(name),
 	  option(CompileOption::get(name).value_or(CompileOption::Invalid)),
-	  value(value)
+	  expr(expr)
+{}
+
+ASTSetOption::ASTSetOption(
+		string const& name, CompileOptionSetting setting,
+		LocationData const& location)
+	: AST(location), name(name),
+	  option(CompileOption::get(name).value_or(CompileOption::Invalid)),
+	  expr(NULL), setting(setting)
 {}
 
 ASTSetOption::ASTSetOption(ASTSetOption const& base)
 	: AST(base), name(base.name), option(base.option),
-	  value(AST::clone(base.value))
+	  expr(AST::clone(base.expr)), setting(base.setting)
 {}
-
-ASTSetOption::~ASTSetOption()
-{
-	delete value;
-}
-
 
 ASTSetOption& ASTSetOption::operator=(ASTSetOption const& rhs)
 {
 	AST::operator=(rhs);
 
-	delete value;
-	
 	name = rhs.name;
 	option = rhs.option;
-	value = AST::clone(rhs.value);
+	expr = AST::clone(rhs.expr);
+	setting = rhs.setting;
 
 	return *this;
 }
@@ -327,10 +328,24 @@ void ASTSetOption::execute(ASTVisitor& visitor, void* param)
 	return visitor.caseSetOption(*this, param);
 }
 
-std::string ASTSetOption::asString() const
+string ASTSetOption::asString() const
 {
 	return "#option " + name + " "
-		+ (value ? value->asString() : "<unknown>");
+		+ (expr.get() ? expr->asString() : setting.asString());
+}
+
+CompileOptionSetting ASTSetOption::getSetting(
+		CompileErrorHandler* handler) const
+{
+	if (expr.get())
+	{
+		if (optional<long> value = expr->getCompileTimeValue(handler))
+			return CompileOptionSetting(*value);
+		handler->handleError(CompileError::ExprNotConstant, this);
+		return CompileOptionSetting::Invalid;
+	}
+
+	return setting;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -858,7 +873,7 @@ ASTImportDecl::ASTImportDecl(
 ASTImportDecl::ASTImportDecl(ASTImportDecl const& base)
 	: ASTDecl(base),
 	  filename_(base.filename_),
-	  tree_(AST::clone(base.tree_.get()))
+	  tree_(AST::clone(base.tree_))
 {}
 
 ASTImportDecl& ASTImportDecl::operator=(ASTImportDecl const& rhs)

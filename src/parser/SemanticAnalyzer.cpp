@@ -96,6 +96,15 @@ void SemanticAnalyzer::caseSetOption(ASTSetOption& host, void*)
 	// Recurse on elements.
 	RecursiveVisitor::caseSetOption(host);
 	if (breakRecursion(host)) return;
+
+	// If the option name is "all", set the default option instead.
+	if (host.name == "all")
+	{
+		CompileOptionSetting setting = host.getSetting(this);
+		if (!setting) return; // error
+		scope->setDefaultOption(setting);
+		return;
+	}
 	
 	// Make sure the option is valid.
 	if (!host.option.isValid())
@@ -105,10 +114,9 @@ void SemanticAnalyzer::caseSetOption(ASTSetOption& host, void*)
 	}
 
 	// Set the option to the provided value.
-	if (optional<long> value = host.value->getCompileTimeValue(this))
-		scope->setOption(host.option, *value);
-	else
-		handleError(CompileError::ExprNotConstant, &host);
+	CompileOptionSetting setting = host.getSetting(this);
+	if (!setting) return; // error
+	scope->setOption(host.option, setting);
 }
 
 // Statements

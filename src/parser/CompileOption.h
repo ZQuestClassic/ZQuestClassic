@@ -6,19 +6,55 @@
 
 namespace ZScript
 {
+	typedef long CompileOptionValue;
+	
+	class CompileOptionSetting : public SafeBool<CompileOptionSetting>
+	{
+	public:
+		static CompileOptionSetting Invalid;
+		static CompileOptionSetting Default;
+		static CompileOptionSetting Inherit;
+		
+		CompileOptionSetting();
+		CompileOptionSetting(CompileOptionValue value);
+
+		bool operator==(CompileOptionSetting const& rhs) const;
+
+		bool safe_bool() const;
+		
+		// Get the set value if we're not a special type.
+		optional<CompileOptionValue> getValue() const;
+
+		std::string asString() const;
+
+	private:
+		enum Type
+		{
+			TYPE_UNSET,
+			TYPE_DEFAULT,
+			TYPE_INHERIT,
+			TYPE_VALUE
+		};
+
+		Type type_;
+		CompileOptionValue value_;
+
+		CompileOptionSetting(Type type);
+	};
+	
 	// This class has value semantics. Basically, just treat it like an
 	// enum.
 	class CompileOption
 	{
 	public:
+		// Static instance for an invalid option.
+		static CompileOption Invalid;
+
 		// Declare static instance for each option.
 #		define X(NAME, DEFAULT) \
 		static CompileOption NAME;
 #		include "CompileOption.xtable"
 #		undef X
-
-		// Static instance for an invalid option.
-		static CompileOption Invalid;
 
 		static void initialize();
 
@@ -38,14 +74,13 @@ namespace ZScript
 		std::string* getName() const;
 	
 		// Get the default option value.
-		optional<long> getDefault() const;
+		optional<CompileOptionValue> getDefault() const;
 	
 	private:
 		int id_;
 
 		CompileOption(int id) : id_(id) {}
 	};
-
 };
 
 #endif

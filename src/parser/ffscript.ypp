@@ -12,6 +12,7 @@
 #include <cassert>
 #include <string>
 #include "ASTVisitors.h"
+#include "CompileOption.h"	
 #include "../zsyssimple.h"
 #define YYINCLUDED_STDLIB_H
 extern int yydebug;
@@ -166,6 +167,7 @@ using namespace ZScript;
 %token HASH
 %token ENDLINE
 %token OPTION
+%token INHERIT
 
 %token DEFINE
 
@@ -216,11 +218,22 @@ Import : IMPORT QUOTEDSTRING {
 ////////////////////////////////////////////////////////////////
 // Compile Option
 
-Option : HASH OPTION IDENTIFIER Expression_Constant ENDLINE {
-	ASTString* name = (ASTString*)$3;
-	ASTExprConst* value = (ASTExprConst*)$4;
-	$$ = new ASTSetOption(name->getValue(), value, @$);
-	delete name;}
+Option :
+	HASH OPTION IDENTIFIER Expression_Constant ENDLINE {
+		ASTString* name = (ASTString*)$3;
+		ASTExprConst* expr = (ASTExprConst*)$4;
+		$$ = new ASTSetOption(name->getValue(), expr, @$);
+		delete name;}
+	| HASH OPTION IDENTIFIER INHERIT ENDLINE {
+		ASTString* name = (ASTString*)$3;
+		$$ = new ASTSetOption(
+				name->getValue(), CompileOptionSetting::Inherit, @$);
+		delete name;}
+	| HASH OPTION IDENTIFIER DEFAULT ENDLINE {
+		ASTString* name = (ASTString*)$3;
+		$$ = new ASTSetOption(
+				name->getValue(), CompileOptionSetting::Default, @$);
+		delete name;}
 	;
 
 ////////////////////////////////////////////////////////////////

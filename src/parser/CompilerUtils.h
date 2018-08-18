@@ -7,6 +7,19 @@
 #include <cstddef>
 #include <vector>
 #include <set>
+#include <sstream>
+#include <string>
+
+////////////////////////////////////////////////////////////////
+// Strings
+
+template <typename Type>
+std::string to_string(Type val)
+{
+	std::ostringstream ostr;
+	ostr << val;
+	return ostr.str();
+}
 
 ////////////////////////////////////////////////////////////////
 // No Copy Mixin
@@ -27,7 +40,7 @@ private:
 // Safe Bool Idiom
 
 // Mixin for the safe bool idiom.
-// To use, inherit publically from safe_bool<Own Class> and implement
+// To use, inherit publically from SafeBool<Own Class> and implement
 // bool safe_bool() const;
 template <typename Self>
 class SafeBool

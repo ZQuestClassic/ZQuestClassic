@@ -1,10 +1,15 @@
-#option TestOption 55
+#option TestOption1 55
 
-const int TestOptionA = OPTION_VALUE(TestOption);
+import "zscript_test_b.z"
+
+const int GlobalTestOption1A = OPTION_VALUE(TestOption1);
+const int GlobalTestOption4A = OPTION_VALUE(TestOption4);
 
 void test_Options_A()
 {
-	test_group("Different File Options");
-	test(55, TestOptionA);
-	test(55, OPTION_VALUE(TestOption));
+	test_group("Different File Options A");
+	test(55, OPTION_VALUE(TestOption1));
+	test(4, OPTION_VALUE(TestOption4));
+	test(55, GlobalTestOption1A);
+	test(4, GlobalTestOption4A);
 }
