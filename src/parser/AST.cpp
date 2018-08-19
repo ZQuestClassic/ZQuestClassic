@@ -2554,7 +2554,7 @@ ASTStringLiteral::ASTStringLiteral(
 
 ASTStringLiteral::ASTStringLiteral(ASTString const& raw)
 	: ASTLiteral(raw.location),
-	  value(raw.getValue().substr(1, raw.getValue().size() - 2)),
+	  value(raw.getValue()),
 	  declaration(NULL)
 {}
 

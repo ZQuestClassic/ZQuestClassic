@@ -858,11 +858,7 @@ Literal :
 		sprintf(val, "%d", as->getValue().at(1));
 		ASTFloat* number = new ASTFloat(val, (ASTFloat::Type)0, @$);
 		$$ = new ASTNumberLiteral(number, @$);}
-	| QUOTEDSTRING {
-		ASTString* rawstring = (ASTString*)$1;
-		ASTStringLiteral* str = new ASTStringLiteral(*rawstring);
-		delete rawstring;
-		$$ = str;}
+	| Literal_String {$$ = $1;}
 	| Literal_Bool {$$ = $1;}
 	| Literal_Array {$$ = $1;}
 	| OPTIONVALUE LPAREN IDENTIFIER RPAREN {
@@ -870,6 +866,20 @@ Literal :
 		$$ = new ASTOptionValue(name->getValue(), @$);
 		delete name;}
 	;
+
+Literal_String :
+	Literal_String QUOTEDSTRING {
+		ASTStringLiteral* str = (ASTStringLiteral*)$1;
+		ASTString* rawstr = (ASTString*)$2;
+		str->value += rawstr->getValue();
+		delete rawstr;
+		$$ = str;}
+	| QUOTEDSTRING {
+		ASTString* rawstring = (ASTString*)$1;
+		ASTStringLiteral* str = new ASTStringLiteral(*rawstring);
+		delete rawstring;
+		$$ = str;}
+
 
 Literal_Bool :
 	ZTRUE {$$ = new ASTBoolLiteral(true, @$);}

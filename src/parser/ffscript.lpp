@@ -5,13 +5,14 @@
 
 %option noyywrap
 %option never-interactive
-WS	[ \t\r]
 
 %x COMMENT
+%x STRING
 %s HASH
 
 %{
 #include <stdlib.h>
+#include <sstream>
 #include "AST.h"
 #include "../zsyssimple.h"
 #include "y.tab.hpp"
@@ -26,10 +27,11 @@ void yymsg(std::string const& message, int row = yyrow, int col = yycol);
 
  /* Parser local code */
 %{
-int comment_start_row, comment_start_col;
+int srow, scol;
+std::ostringstream qstr;
 
 #define NEWLINE ++yyrow; yycol = 1
-#define SKIP yycol += yyleng
+#define ADVANCE yycol += yyleng
 
 #define UPDATE_YYLLOC \
 yylloc.first_line = yylloc.last_line = yyrow; \
@@ -45,6 +47,11 @@ yylloc.last_column = yycol
 UPDATE_YYLLOC; \
 yylval = new CONSTRUCTOR; \
 return TOK_##NAME
+
+#define ESC_CHAR(CHAR) \
+yycol += yyleng + 1; \
+qstr << CHAR; \
+break
 
 %}
 
@@ -137,21 +144,19 @@ define		TOKEN( DEFINE );
 
  /* Block Comments */
 "/*"[^*\n]*			{
-	comment_start_row = yyrow;
-	comment_start_col = yycol;
-	SKIP; 
+	srow = yyrow;
+	scol = yycol;
+	ADVANCE; 
 	BEGIN( COMMENT );
 }
 <COMMENT>{
-	[^*\n]*			SKIP;
+	[^*\n]*			ADVANCE;
 	[^*\n]*\n		NEWLINE;
-	"*"+[^*/\n]*		SKIP;
+	"*"+[^*/\n]*		ADVANCE;
 	"*"+[^*/\n]*\n		NEWLINE;
-	"*"+"/"			SKIP; BEGIN( INITIAL );
+	"*"+"/"			ADVANCE; BEGIN( INITIAL );
 	<<EOF>>			{
-		yymsg("WARNING: Comment does not end.",
-		      comment_start_row,
-		      comment_start_col);
+		yymsg("WARNING: Comment does not end.", srow, scol);
 		return 0;
 	}
 }
@@ -165,6 +170,56 @@ define		TOKEN( DEFINE );
 	inherit		TOKEN( INHERIT );
 	on		TOKEN( ZTRUE );
 	off		TOKEN( ZFALSE );
+}
+
+ /* Strings */
+<INITIAL>\"		{
+	BEGIN( STRING );
+	qstr.str(""); /* Clear qstr */
+	srow = yyrow;
+	scol = yycol;
+	ADVANCE;
+}
+<STRING>{
+	<<EOF>>			{
+		yymsg("ERROR: String does not end.", srow, scol);
+		return 0;
+	}
+	[^\"\n\\]*		ADVANCE; qstr << yytext;
+	[^\"\n\\]*\n		NEWLINE; qstr << yytext;
+	[^\"\n\\]*\\		{
+		// Add the current text to the output, minus the \.
+		yytext[yyleng - 1] = 0;
+		qstr << yytext;
+		// Read in the escaped character.
+		register int c = yyinput();
+		switch (c) {
+		case 'a': ESC_CHAR('\a');
+		case 'b': ESC_CHAR('\b');
+		case 'f': ESC_CHAR('\f');
+		case 'n': ESC_CHAR('\n');
+		case 'r': ESC_CHAR('\r');
+		case 't': ESC_CHAR('\t');
+		case 'v': ESC_CHAR('\v');
+		case '\n': NEWLINE; break;
+		case EOF:
+			yymsg("ERROR: String does not end.", srow, scol);
+			return 0;
+		default: ESC_CHAR((char)c);
+		}
+	}
+	[^\"\n\\]*\"		{
+		ADVANCE;
+		yytext[yyleng - 1] = 0; /* Remove the '"'. */
+		qstr << yytext;
+		BEGIN( INITIAL );
+		yylloc.first_line = srow;
+		yylloc.first_column = scol;
+		yylloc.last_line = yyrow;
+		yylloc.last_column = yycol;
+		yylval = new ASTString(qstr.str(), yylloc);
+		return TOK_QUOTEDSTRING;
+	}
 }
 
  /* Identifier */
@@ -183,11 +238,6 @@ define		TOKEN( DEFINE );
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_BINARY, yylloc) );
 }
 
- /* String */
-\"[^\"]+\" {
-	VALUE( QUOTEDSTRING, ASTString(yytext, yylloc) );
-}
-
  /* Char */
 \'[^\']?\' {
 	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
@@ -195,7 +245,7 @@ define		TOKEN( DEFINE );
 
  /* Whitespace */
 [ \t\r]*\n	NEWLINE;
-[ \t\r]+	SKIP;
+[ \t\r]+	ADVANCE;
 
  /* Error */
 .		yymsg("WARNING: Unknown Character");

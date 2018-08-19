@@ -108,7 +108,7 @@ int ScriptParser::lid = 0;
 
 string ScriptParser::prepareFilename(string const& filename)
 {
-	string retval = filename.substr(1, filename.size() - 2); // strip quotes.
+	string retval = filename;
 
 	for (int i = 0; retval[i]; ++i)
 	{
