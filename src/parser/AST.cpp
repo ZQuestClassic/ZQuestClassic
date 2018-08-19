@@ -353,12 +353,16 @@ CompileOptionSetting ASTSetOption::getSetting(
 
 // ASTStmt
 
-ASTStmt::ASTStmt(LocationData const& location) : AST(location) {}
+ASTStmt::ASTStmt(LocationData const& location)
+	: AST(location), disabled_(false)
+{}
 
 ASTStmt& ASTStmt::operator=(ASTStmt const& rhs)
 {
 	AST::operator=(rhs);
 
+	disabled_ = rhs.disabled_;
+	
 	return *this;
 }
 

@@ -52,7 +52,7 @@ namespace ZScript
 
 		// Declare static instance for each option.
 #		define X(NAME, DEFAULT) \
-		static CompileOption NAME;
+		static CompileOption OPT_##NAME;
 #		include "CompileOption.xtable"
 #		undef X
 

@@ -91,8 +91,6 @@ void test(int result) {
 	++group_count;
 	if (!result)
 	{
-		int strue = "true";
-		int sfalse = "false";
 		printf("  Failed Test: %s (%d)\n", group_name, group_count);
 		printf("    Expected: true\n    Result: %d\n", result);
 		++error_count;
@@ -386,6 +384,10 @@ global script Init {
 		test(false, false || false);
 	}
 
+	void TraceTest(int val) {
+		global_var_1 = val;
+	}
+	
 	void test_Options() {
 		test_group("Global Options");
 		test(1, GlobalTestOption1);
@@ -411,6 +413,25 @@ global script Init {
 
 		test_Options_A();
 		test_Options_B();
+
+		test_group("Tracing Option");
+		{
+			#option trace off
+			TraceS("ERROR: This message should not show!");
+			global_var_1 = 100;
+			TraceTest(0);
+			test(100, global_var_1);
+			{
+				TraceTest(200);
+				test(100, global_var_1);
+			}
+			const int TRACE_LEVEL = 5;
+			{
+				#option trace TRACE_LEVEL > 3
+				TraceTest(200);
+				test(200, global_var_1);
+			}
+		}
 	}
 	
 	void test_ScriptStrip() {

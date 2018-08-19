@@ -91,7 +91,7 @@ namespace // file local
 
 // Define static instance for each option.
 #define X(NAME, DEFAULT) \
-CompileOption CompileOption::NAME(ID_##NAME);
+CompileOption CompileOption::OPT_##NAME(ID_##NAME);
 #include "CompileOption.xtable"
 #undef X
 

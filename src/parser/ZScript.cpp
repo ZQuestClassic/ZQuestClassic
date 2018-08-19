@@ -1,10 +1,11 @@
 #include "../precompiled.h"
+#include "ZScript.h"
+
 #include "CompilerUtils.h"
 #include "CompileError.h"
 #include "DataStructs.h"
 #include "Types.h"
 #include "Scope.h"
-#include "ZScript.h"
 
 using namespace std;
 using namespace ZScript;
@@ -404,6 +405,13 @@ int Function::getLabel() const
 {
 	if (!label) label = ScriptParser::getUniqueLabelID();
 	return *label;
+}
+
+bool Function::isTracing() const
+{
+	std::string prefix = name.substr(0, 5);
+	return *returnType == DataType::ZVOID
+		&& (prefix == "Trace" || prefix == "print");
 }
 
 bool ZScript::isRun(Function const& function)

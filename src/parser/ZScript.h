@@ -331,6 +331,9 @@ namespace ZScript
 		Script* getScript() const;
 
 		int getLabel() const;
+
+		// If this is a tracing function (enabled by #option trace)
+		bool isTracing() const;
 		
 	private:
 		mutable optional<int> label;

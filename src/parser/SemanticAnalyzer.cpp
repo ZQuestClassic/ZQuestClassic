@@ -703,6 +703,14 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 		return;
 	}
 
+	// Is this a call to a disabled tracing function?
+	if (!*lookupOption(*scope, CompileOption::OPT_trace)
+	    && bestFunction->isTracing())
+	{
+		host.disable();
+		return;
+	}
+		
 	host.binding = bestFunction;
 }
 

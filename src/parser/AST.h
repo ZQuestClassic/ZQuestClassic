@@ -343,8 +343,15 @@ public:
     ASTStmt(LocationData const& location = LocationData::NONE);
 	ASTStmt(ASTStmt const& base) : AST(base) {}
 	virtual ASTStmt* clone() const = 0;
+
+	bool isDisabled() const {return disabled_;}
+	void disable() {disabled_ = true;}
+	
 protected:
 	ASTStmt& operator=(ASTStmt const& rhs);
+
+private:
+	bool disabled_;
 };
     
 class ASTBlock : public ASTStmt

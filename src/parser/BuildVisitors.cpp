@@ -603,6 +603,8 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 
 void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
+	if (host.isDisabled()) return;
+	
     OpcodeContext* c = (OpcodeContext*)param;
     int funclabel = host.binding->getLabel();
     //push the stack frame pointer

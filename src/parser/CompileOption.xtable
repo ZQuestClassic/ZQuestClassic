@@ -5,6 +5,7 @@ X(	TestOption1,	10000)
 X(	TestOption2,	20000)
 X(	TestOption3,	30000)
 X(	TestOption4,	40000)
+X(	trace,		10000)
 
 // Emacs Stuff:
 // Local Variables:
