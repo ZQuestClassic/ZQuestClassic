@@ -362,27 +362,26 @@ Function :
 	DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN
 		Statement_Block
 	{
-			ASTVarType* returnType = (ASTVarType*)$1;
-			ASTString* name = (ASTString*)$2;
-			ASTFuncDecl* func = (ASTFuncDecl*)$4;
-			ASTBlock* block = (ASTBlock*)$6;
-			func->returnType = returnType;
-			func->name = name->getValue();
-			func->block = block;
-			func->location = @$;
-			$$ = func;
-		delete name;
-	}
+		ASTVarType* returnType = (ASTVarType*)$1;
+		ASTString* name = (ASTString*)$2;
+		ASTFuncDecl* func = (ASTFuncDecl*)$4;
+		ASTBlock* block = (ASTBlock*)$6;
+		func->returnType = returnType;
+		func->name = name->getValue();
+		func->block = block;
+		func->location = @$;
+		$$ = func;
+		delete name;}
 	| DataType IDENTIFIER LPAREN RPAREN Statement_Block {
-			ASTVarType* returnType = (ASTVarType*)$1;
-			ASTString* name = (ASTString*)$2;
-			ASTBlock* block = (ASTBlock*)$5;
-			ASTFuncDecl* func = new ASTFuncDecl(@$);
-			func->returnType = returnType;
-			func->name = name->getValue();
-			func->block = block;
-			$$ = func;
-																delete name;}
+		ASTVarType* returnType = (ASTVarType*)$1;
+		ASTString* name = (ASTString*)$2;
+		ASTBlock* block = (ASTBlock*)$5;
+		ASTFuncDecl* func = new ASTFuncDecl(@$);
+		func->returnType = returnType;
+		func->name = name->getValue();
+		func->block = block;
+		$$ = func;
+		delete name;}
 	;
 
 Function_Parameters_List :

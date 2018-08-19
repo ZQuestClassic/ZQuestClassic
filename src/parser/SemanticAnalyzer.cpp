@@ -79,7 +79,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	DataType const* oldReturnType = returnType;
 	returnType = function.returnType;
 	scope = &functionScope;
-	visit(*functionDecl, functionDecl->block->statements);
+	visit(functionDecl->block);
 	scope = scope->getParent();
 	returnType = oldReturnType;
 }
