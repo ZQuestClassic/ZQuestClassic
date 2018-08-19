@@ -3,10 +3,9 @@
   command: flex -B -olex.yy.cpp ffscript.lpp
 */
 
-%option yylineno
 %option noyywrap
 %option never-interactive
-WS	[ \t\n\r]
+WS	[ \t\r]
 
 %x COMMENT
 %s HASH
@@ -17,169 +16,194 @@ WS	[ \t\n\r]
 #include "../zsyssimple.h"
 #include "y.tab.hpp"
 YYLTYPE noloc = {0,0,0,0};
-void doLines();
+int yyrow, yycol;
+
+// Defined in ffscript.ypp.
+void yymsg(std::string const& message, int row = yyrow, int col = yycol);
 %}
 
 %%
 
-script          { doLines(); return TOK_SCRIPT; }
-float           { doLines(); return TOK_ZFLOAT; }
-int             { doLines(); return TOK_ZFLOAT; }
-for             { doLines(); return TOK_FOR; }
-bool            { doLines(); return TOK_ZBOOL; }
-void            { doLines(); return TOK_ZVOID; }
-if              { doLines(); return TOK_IF; }
-else            { doLines(); return TOK_ELSE; }
-switch          { doLines(); return TOK_SWITCH; }
-case            { doLines(); return TOK_CASE; }
-default         { doLines(); return TOK_DEFAULT; }
-return          { doLines(); return TOK_RETURN; }
-import          { doLines(); return TOK_IMPORT; }
-true            { doLines(); return TOK_ZTRUE; }
-false           { doLines(); return TOK_ZFALSE; }
-while           { doLines(); return TOK_WHILE; }
-ffc             { doLines(); return TOK_FFC; }
-itemdata        { doLines(); return TOK_ITEMCLASS; }
-item            { doLines(); return TOK_ITEM; }
-global          { doLines(); return TOK_GLOBAL; }
-break           { doLines(); return TOK_BREAK; }
-continue        { doLines(); return TOK_CONTINUE; }
-const           { doLines(); return TOK_ZCONST; }
-do              { doLines(); return TOK_DO; }
-npc             { doLines(); return TOK_NPC; }
-lweapon         { doLines(); return TOK_LWEAPON; }
-eweapon         { doLines(); return TOK_EWEAPON; }
-typedef         { doLines(); return TOK_TYPEDEF; }
-compile_error   { doLines(); return TOK_COMPILEERROR; }
-OPTION_VALUE	{ doLines(); return TOK_OPTIONVALUE; }
+ /* Parser local code */
+%{
+int comment_start_row, comment_start_col;
 
-\-\>    { doLines(); return TOK_ARROW; }
-\<\<=   { doLines(); return TOK_LSHIFTASSIGN; }
-\>\>=   { doLines(); return TOK_RSHIFTASSIGN; }
-\<\<    { doLines(); return TOK_LSHIFT; }
-\>\>    { doLines(); return TOK_RSHIFT; }
-\<=     { doLines(); return TOK_LE; }
-\<      { doLines(); return TOK_LT; }
-\>=     { doLines(); return TOK_GE; }
-\>      { doLines(); return TOK_GT; }
-==      { doLines(); return TOK_EQ; }
-\!=     { doLines(); return TOK_NE; }
-\=      { doLines(); return TOK_ASSIGN; }
-\+=     { doLines(); return TOK_PLUSASSIGN; }
-\-=     { doLines(); return TOK_MINUSASSIGN; }
-\*=     { doLines(); return TOK_TIMESASSIGN; }
-\/=     { doLines(); return TOK_DIVIDEASSIGN; }
-\&\&=   { doLines(); return TOK_ANDASSIGN; }
-\|\|=   { doLines(); return TOK_ORASSIGN; }
-\&=     { doLines(); return TOK_BITANDASSIGN; }
-\|=     { doLines(); return TOK_BITORASSIGN; }
-\^=     { doLines(); return TOK_BITXORASSIGN; }
-\%=     { doLines(); return TOK_MODULOASSIGN; }
-\:      { doLines(); return TOK_COLON; }
-\;      { doLines(); return TOK_SEMICOLON; }
-\,      { doLines(); return TOK_COMMA; }
-\[      { doLines(); return TOK_LBRACKET; }
-\]      { doLines(); return TOK_RBRACKET; }
-\(      { doLines(); return TOK_LPAREN; }
-\)      { doLines(); return TOK_RPAREN; }
-\+\+    { doLines(); return TOK_INCREMENT; }
-\-\-    { doLines(); return TOK_DECREMENT; }
-\.      { doLines(); return TOK_DOT; }
-\+      { doLines(); return TOK_PLUS; }
-\-      { doLines(); return TOK_MINUS; }
-\*      { doLines(); return TOK_TIMES; }
-\/      { doLines(); return TOK_DIVIDE; }
-\{      { doLines(); return TOK_LBRACE; }
-\}      { doLines(); return TOK_RBRACE; }
-\&\&    { doLines(); return TOK_AND; }
-\|\|    { doLines(); return TOK_OR; }
-\&      { doLines(); return TOK_BITAND; }
-\|      { doLines(); return TOK_BITOR; }
-\~      { doLines(); return TOK_BITNOT; }
-\^      { doLines(); return TOK_BITXOR; }
-\!      { doLines(); return TOK_NOT; }
-\%      { doLines(); return TOK_MODULO; }
+#define NEWLINE ++yyrow; yycol = 1
+#define SKIP yycol += yyleng
 
-define                  { doLines(); return TOK_DEFINE; }
-"//".*                  { ; }
-"/*"                    { doLines(); BEGIN(COMMENT); }
-<COMMENT>"*/"           { doLines(); BEGIN(INITIAL); }
-<COMMENT>([^*]|\n)+|.   { ; }
-<COMMENT><<EOF>>        {
-	char temp[512];
-	sprintf(temp, "Scanner: Unterminated comment.\n");
-	box_out(temp);
-	box_eol();
-	return 0;
+#define UPDATE_YYLLOC \
+yylloc.first_line = yylloc.last_line = yyrow; \
+yylloc.first_column = yycol; \
+yycol += yyleng; \
+yylloc.last_column = yycol
+
+// Return token.
+#define TOKEN(NAME) UPDATE_YYLLOC; return TOK_##NAME
+
+// Return token and value.
+#define VALUE(NAME, CONSTRUCTOR) \
+UPDATE_YYLLOC; \
+yylval = new CONSTRUCTOR; \
+return TOK_##NAME
+
+%}
+
+ /* Keywords */
+script		TOKEN( SCRIPT );
+float		TOKEN( ZFLOAT );
+int		TOKEN( ZFLOAT );
+for		TOKEN( FOR );
+bool		TOKEN( ZBOOL );
+void		TOKEN( ZVOID );
+if		TOKEN( IF );
+else		TOKEN( ELSE );
+switch		TOKEN( SWITCH );
+case		TOKEN( CASE );
+default		TOKEN( DEFAULT );
+return		TOKEN( RETURN );
+import		TOKEN( IMPORT );
+true		TOKEN( ZTRUE );
+false		TOKEN( ZFALSE );
+while		TOKEN( WHILE );
+ffc		TOKEN( FFC );
+itemdata	TOKEN( ITEMCLASS );
+item		TOKEN( ITEM );
+global		TOKEN( GLOBAL );
+break		TOKEN( BREAK );
+continue	TOKEN( CONTINUE );
+const		TOKEN( ZCONST );
+do		TOKEN( DO );
+npc		TOKEN( NPC );
+lweapon		TOKEN( LWEAPON );
+eweapon		TOKEN( EWEAPON );
+typedef		TOKEN( TYPEDEF );
+compile_error	TOKEN( COMPILEERROR );
+OPTION_VALUE	TOKEN( OPTIONVALUE );
+define		TOKEN( DEFINE );
+
+ /* Syntax */
+","		TOKEN( COMMA );
+"."		TOKEN( DOT );
+";"		TOKEN( SEMICOLON );
+":"		TOKEN( COLON );
+"("		TOKEN( LPAREN );
+")"		TOKEN( RPAREN );
+"["		TOKEN( LBRACKET );
+"]"		TOKEN( RBRACKET );
+"{"		TOKEN( LBRACE );
+"}"		TOKEN( RBRACE );
+
+ /* Operators (in order of operations) */
+"->"		TOKEN( ARROW );
+"++"		TOKEN( INCREMENT );
+"--"		TOKEN( DECREMENT );
+"!"		TOKEN( NOT );
+"~"		TOKEN( BITNOT );
+"*"		TOKEN( TIMES );
+"/"		TOKEN( DIVIDE );
+"%"		TOKEN( MODULO );
+"+"		TOKEN( PLUS );
+"-"		TOKEN( MINUS );
+"<<"		TOKEN( LSHIFT );
+">>"		TOKEN( RSHIFT );
+"<"		TOKEN( LT );
+"<="		TOKEN( LE );
+">"		TOKEN( GT );
+">="		TOKEN( GE );
+"=="		TOKEN( EQ );
+"!="		TOKEN( NE );
+"&"		TOKEN( BITAND );
+"^"		TOKEN( BITXOR );
+"|"		TOKEN( BITOR );
+"&&"		TOKEN( AND );
+"||"		TOKEN( OR );
+"="		TOKEN( ASSIGN );
+"+="		TOKEN( PLUSASSIGN );
+"-="		TOKEN( MINUSASSIGN );
+"*="		TOKEN( TIMESASSIGN );
+"/="		TOKEN( DIVIDEASSIGN );
+"%="		TOKEN( MODULOASSIGN );
+"<<="		TOKEN( LSHIFTASSIGN );
+">>="		TOKEN( RSHIFTASSIGN );
+"&="		TOKEN( BITANDASSIGN );
+"^="		TOKEN( BITXORASSIGN );
+"|="		TOKEN( BITORASSIGN );
+"&&="		TOKEN( ANDASSIGN );
+"||="		TOKEN( ORASSIGN );
+
+ /* Line Comments */
+"//".*		/* hit end of file */
+"//".*\n	NEWLINE;
+
+ /* Block Comments */
+"/*"[^*\n]*			{
+	comment_start_row = yyrow;
+	comment_start_col = yycol;
+	SKIP; 
+	BEGIN( COMMENT );
+}
+<COMMENT>{
+	[^*\n]*			SKIP;
+	[^*\n]*\n		NEWLINE;
+	"*"+[^*/\n]*		SKIP;
+	"*"+[^*/\n]*\n		NEWLINE;
+	"*"+"/"			SKIP; BEGIN( INITIAL );
+	<<EOF>>			{
+		yymsg("WARNING: Comment does not end.",
+		      comment_start_row,
+		      comment_start_col);
+		return 0;
+	}
 }
 
-<INITIAL>\#		{ doLines(); BEGIN(HASH); return TOK_HASH; }
+ /* Hash Commands */
+<INITIAL>"#"		BEGIN( HASH ); TOKEN( HASH );
 <HASH>{
-	\\\n		{ doLines(); }
-	\n		{ doLines(); BEGIN(INITIAL); return TOK_ENDLINE; }
-	option		{ doLines(); return TOK_OPTION; }
-	inherit		{ doLines(); return TOK_INHERIT; }
-	on		{ doLines(); return TOK_ZTRUE; }
-	off		{ doLines(); return TOK_ZFALSE; }
+	\\\n		NEWLINE;
+	\n		NEWLINE; BEGIN( INITIAL ); TOKEN( ENDLINE );
+	option		TOKEN( OPTION );
+	inherit		TOKEN( INHERIT );
+	on		TOKEN( ZTRUE );
+	off		TOKEN( ZFALSE );
 }
 
-
-[_a-zA-Z]([_a-zA-Z]|[0-9])*	{
-	doLines();
-	yylval = new ASTString(yytext, yylloc);
-	return TOK_IDENTIFIER;
+ /* Identifier */
+[_a-zA-Z][_a-zA-Z0-9]*	{
+	VALUE( IDENTIFIER, ASTString(yytext, yylloc) );
 }
 
-([0-9]*\.?[0-9]+) {
-	doLines();
-	yylval = new ASTFloat(yytext, ASTFloat::TYPE_DECIMAL, yylloc);
-	return TOK_NUMBER;
+ /* Numbers */
+[0-9]*\.?[0-9]+ 	{
+	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_DECIMAL, yylloc) );
+}
+0x[0-9a-fA-F]+ 		{
+	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_HEX, yylloc) );
+}
+[0-1]+b			{
+	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_BINARY, yylloc) );
 }
 
-(0x[0-9a-fA-F]+) {
-	doLines();
-	yylval = new ASTFloat(yytext, ASTFloat::TYPE_HEX, yylloc);
-	return TOK_NUMBER;
-}
-
-([0-1]+b) {
-	doLines();
-	yylval = new ASTFloat(yytext, ASTFloat::TYPE_BINARY, yylloc);
-	return TOK_NUMBER;
-}
-
+ /* String */
 \"[^\"]+\" {
-	doLines();
-	yylval = new ASTString(yytext, yylloc);
-	return TOK_QUOTEDSTRING;
+	VALUE( QUOTEDSTRING, ASTString(yytext, yylloc) );
 }
 
+ /* Char */
 \'[^\']?\' {
-	doLines();
-	yylval = new ASTString(yytext, yylloc);
-	return TOK_SINGLECHAR;
+	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
 }
 
-{WS} { ; }
+ /* Whitespace */
+[ \t\r]*\n	NEWLINE;
+[ \t\r]+	SKIP;
 
-
-. {
-	char temp[512];
-	sprintf(temp, "Scanner, line %d: lexical error '%s'.\n", yylineno, yytext); 
-	box_out(temp);
-	box_eol();
-}
+ /* Error */
+.		yymsg("WARNING: Unknown Character");
 
 %%
 
 void resetLexer() {
 	YY_FLUSH_BUFFER;
-	yylineno=1;
+	yyrow = 1;
+	yycol = 1;
 }
-
-void doLines()
-{
-	YYLTYPE rval = {yylineno, 0, yylineno, 0};
-	yylloc = rval;
-}
- 

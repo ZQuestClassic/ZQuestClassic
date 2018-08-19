@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstdarg>
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <sstream>
 
@@ -31,29 +32,31 @@ void CompileError::vprint(AST const* offender, va_list args) const
 {
     ostringstream oss;
 
-	// Output location data.
-    if (offender)
-    {
-        LocationData const& ld = offender->location;
-        oss << ld.fname << ", line " << ld.first_line << ": ";
-    }
-
 	// Error or warning?
 	if (warning) oss << "Warning";
 	else oss << "Error";
 
 	// Error Code and Id
-	char idstr[8];
-	sprintf(idstr, "%03d", id);
-	oss << " " << code << idstr << ": ";
+	oss << " " << code
+	    << setw(3) << setfill('0') << id << setw(0)
+	    << ": ";
 
 	// Message.
 	char msg[1024];
 	vsprintf(msg, format.c_str(), args);
 	oss << msg;
-	
+
     box_out(oss.str().c_str());
     box_eol();
+
+	// Output location data.
+    if (offender)
+    {
+	    oss.str("");
+	    oss << "    @ " << offender->location.asString();
+	    box_out(oss.str().c_str());
+	    box_eol();
+    }
 }
 	
 ////////////////////////////////////////////////////////////////

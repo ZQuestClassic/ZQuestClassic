@@ -11,22 +11,29 @@
 #include <stdio.h>
 #include <cassert>
 #include <string>
+#include <sstream>
 #include "ASTVisitors.h"
 #include "CompileOption.h"	
 #include "../zsyssimple.h"
+
+using std::string;
+using std::ostringstream;
+using namespace ZScript;
+
 #define YYINCLUDED_STDLIB_H
 extern int yydebug;
-extern int yylineno;
+extern int yyrow;
+extern int yycol;
 extern char* yytext;
+extern int yyleng;
 extern int yylex(void);
 extern FILE *yyin;
 extern void resetLexer();
 void yyerror(ASTFile*& root, const char* s);
-void yywarn(char const* s);
+void yymsg(string const& message, int row = yyrow, int col = yycol);
 std::string curfilename;
 extern YYLTYPE noloc;
 
-using namespace ZScript;
 
 // Since c macros can't directly contain bison macros, they need to be passed
 // in where they're invoked. The following arguments are named so that 'd'
@@ -189,7 +196,7 @@ Global_List :
 		ASTSetOption* option = (ASTSetOption*)$2;
 		root->options.push_back(option);
 		if (root->hasDeclarations())
-			yywarn("Options should come before everything else.");}
+			yymsg("WARNING: Options should come before everything else.");}
 	| {root = new ASTFile(noloc);}
 	;
 
@@ -448,7 +455,7 @@ Script_Block_List :
 		if (!script->variables.empty()
 		    || !script->functions.empty()
 		    || !script->types.empty()) {
-			yywarn("Options should come before everything else.");}}
+			yymsg("WARNING: Options should come before everything else.");}}
 	| Script_Block_Element {
 		ASTScript* script = new ASTScript(@$);
 		ASTDecl* declaration = (ASTDecl*)$1;
@@ -530,7 +537,7 @@ Statement_Block_List :
 		block->options.push_back(option);
 		$$ = block;
 		if (!block->statements.empty()) {
-			yywarn("Options should come before everything else.");}}
+			yymsg("WARNING: Options should come before everything else.");}}
 	| Statement {
 		ASTStmt* stmt = (ASTStmt*)$1;
 		ASTBlock* block = new ASTBlock(@$);
@@ -935,19 +942,23 @@ Literal_Array_Body :
 
 /*        programs */
 
-void yyerror(ASTFile*&, const char *s) {
-	char temp[512];
-    snprintf(temp, 512, "line %d: %s, on token %s", yylineno, s, yytext);
-    box_out(temp);
+void yymsg(string const& message, int row, int col)
+{
+	ostringstream out;
+	out << message << " [";
+	if (curfilename != "tmp")
+		out << curfilename << " ";
+	out << "L" << yyrow << " "
+	    << "C" << yycol;
+	if (yyleng)
+	    out << " '" << yytext << "'";
+	out << "]";
+	box_out(out.str().c_str());
     box_eol();
 }
 
-void yywarn(char const* s)
-{
-	char temp[512];
-    snprintf(temp, 512, "WARNING [line %d]: %s", yylineno, s);
-    box_out(temp);
-    box_eol();
+void yyerror(ASTFile*&, const char *s) {
+	yymsg(s);
 }
 
 namespace ZScript

@@ -6,11 +6,37 @@
 #include "Scope.h"
 
 #include <assert.h>
+#include <sstream>
 
 using std::pair;
 using std::string;
+using std::ostringstream;
 using std::vector;
 using namespace ZScript;
+
+////////////////////////////////////////////////////////////////
+// LocationData
+
+string LocationData::asString() const
+{
+	ostringstream out;
+	if (fname != "tmp" && fname != "")
+		out << fname << " ";
+	if (first_line == last_line)
+	{
+		out << "L" << first_line << " ";
+		out << "C" << first_column;
+		if (first_column != last_column)
+			out << "-" << last_column;
+	}
+	else
+	{
+		out << "L" << first_line << " C" << first_column
+		    << " - "
+		    << "L" << last_line << " C" << last_column;
+	}
+	return out.str();
+}
 
 ////////////////////////////////////////////////////////////////
 

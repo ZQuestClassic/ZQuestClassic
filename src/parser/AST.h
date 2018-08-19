@@ -125,6 +125,14 @@ class ASTVarType;
 class LocationData
 {
 public:
+	static LocationData const NONE;
+
+    int first_line;
+    int last_line;
+    int first_column;
+    int last_column;
+    std::string fname;
+
 	LocationData()
 			: first_line(-1), last_line(-1),
 			  first_column(-1), last_column(-1),
@@ -137,13 +145,7 @@ public:
 			  fname(curfilename)
 	{}
 
-    int first_line;
-    int last_line;
-    int first_column;
-    int last_column;
-    std::string fname;
-
-	static LocationData const NONE;
+	std::string asString() const;
 };
 
 ////////////////////////////////////////////////////////////////
