@@ -5,7 +5,7 @@
 
 #option TestOption2 default
 #option TestOption3 inherit
-#option TestOption4 400
+#option TestOption4 false
 
 import "std.zh"
 import "zscript_test_a.z"
@@ -134,6 +134,7 @@ void test_group(int name) {
 global script Init {
 	#option all default
 	#option TestOption1 99
+	#option TestOption4 true
 	
     // Run function.
 	void run() {
@@ -390,13 +391,13 @@ global script Init {
 		test(1, GlobalTestOption1);
 		test(2, GlobalTestOption2);
 		test(3, GlobalTestOption3);
-		test(400, GlobalTestOption4);
+		test(0, GlobalTestOption4);
 
 		test_group("Script Options");
 		test(99, OPTION_VALUE(TestOption1));
 		test(2, OPTION_VALUE(TestOption2));
 		test(3, OPTION_VALUE(TestOption3));
-		test(4, OPTION_VALUE(TestOption4));
+		test(1, OPTION_VALUE(TestOption4));
 
 		test_group("Basic Options");
 		{

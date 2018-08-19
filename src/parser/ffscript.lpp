@@ -119,6 +119,8 @@ define                  { doLines(); return TOK_DEFINE; }
 	\n		{ doLines(); BEGIN(INITIAL); return TOK_ENDLINE; }
 	option		{ doLines(); return TOK_OPTION; }
 	inherit		{ doLines(); return TOK_INHERIT; }
+	on		{ doLines(); return TOK_ZTRUE; }
+	off		{ doLines(); return TOK_ZFALSE; }
 }
 
 
