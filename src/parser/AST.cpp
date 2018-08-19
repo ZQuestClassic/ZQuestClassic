@@ -2486,7 +2486,7 @@ optional<long> ASTNumberLiteral::getCompileTimeValue(
 
     if (!val.second && errorHandler)
 	    errorHandler->handleError(
-				CompileError::ConstTrunc, this, value->value);
+			    CompileError::ConstTrunc, this, value->value.c_str());
 
 	return val.first;
 }
