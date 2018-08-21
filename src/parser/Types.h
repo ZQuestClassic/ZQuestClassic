@@ -235,7 +235,6 @@ namespace ZScript
 	private:
 		int simpleId;
 		std::string name;
-		std::string upName;
 
 		int selfCompare(DataType const& rhs) const;
 	};

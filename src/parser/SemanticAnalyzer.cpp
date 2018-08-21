@@ -1,11 +1,13 @@
 #include "SemanticAnalyzer.h"
 
 #include <cassert>
+#include <sstream>
 #include "Scope.h"
 #include "CompileError.h"
 
 using std::string;
 using std::vector;
+using std::ostringstream;
 using namespace ZScript;
 
 struct tag {};
@@ -668,7 +670,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	}
 
 	// Find function with least number of casts.
-	Function* bestFunction = NULL;
+	vector<Function*> bestFunctions;
 	int bestCastCount = parameterTypes.size() + 1;
 	for (vector<Function*>::iterator it = functions.begin();
 		 it != functions.end(); ++it)
@@ -682,36 +684,54 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 		// If this beats the record, keep it.
 		if (castCount < bestCastCount)
 		{
-			bestFunction = &function;
+			bestFunctions.push_back(&function);
 			bestCastCount = castCount;
 		}
 
-		// If this just matches the record, drop the current function.
+		// If this just matches the record, append it.
 		else if (castCount == bestCastCount)
-			bestFunction = NULL;
+			bestFunctions.push_back(&function);
 	}
 
 	// We failed.
-	if (!bestFunction)
+	if (bestFunctions.size() != 1)
 	{
-		CompileError const& error =
-			bestCastCount == parameterTypes.size() + 1
-			? CompileError::NoFuncMatch
-			: CompileError::TooFuncMatch;
 		FunctionSignature signature(host.left->asString(), parameterTypes);
-		handleError(error, &host, signature.asString().c_str());
+		if (bestFunctions.size() == 0)
+		{
+			handleError(CompileError::NoFuncMatch,
+			            &host,
+			            signature.asString().c_str());
+		}
+		else
+		{
+			// Build list of function signatures.
+			ostringstream oss;
+			for (vector<Function*>::const_iterator it = bestFunctions.begin();
+			     it != bestFunctions.end(); ++it)
+			{
+				oss << "        "
+				    << (*it)->getSignature().asString()
+				    << "\n";
+			}
+			
+			handleError(CompileError::TooFuncMatch,
+			            &host,
+			            signature.asString().c_str(),
+			            oss.str().c_str());
+		}
 		return;
 	}
 
 	// Is this a call to a disabled tracing function?
 	if (!*lookupOption(*scope, CompileOption::OPT_trace)
-	    && bestFunction->isTracing())
+	    && bestFunctions.front()->isTracing())
 	{
 		host.disable();
 		return;
 	}
 		
-	host.binding = bestFunction;
+	host.binding = bestFunctions.front();
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)

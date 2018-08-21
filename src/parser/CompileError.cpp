@@ -46,8 +46,7 @@ void CompileError::vprint(AST const* offender, va_list args) const
 	vsprintf(msg, format.c_str(), args);
 	oss << msg;
 
-    box_out(oss.str().c_str());
-    box_eol();
+    box_out_nl(oss.str().c_str());
 
 	// Output location data.
     if (offender)
@@ -115,9 +114,11 @@ CompileError const CompileError::DivByZero(
 CompileError const CompileError::ConstTrunc(
 		20, 'T', true, "Truncation of constant %s.");
 CompileError const CompileError::NoFuncMatch(
-		21, 'T', false, "Could not match type signature %s.");
+		21, 'T', false, "Attempting to call unknown function %s.");
 CompileError const CompileError::TooFuncMatch(
-		22, 'T', false, "Two or more functions match type signature %s.");
+		22, 'T', false,
+		"Attempting to call function %s.\n"
+		"        Cannot choose between several possible functions:\n%s");
 CompileError const CompileError::FuncBadReturn(
 		23, 'T', false, "This function must return a value.");
 CompileError const CompileError::TooManyGlobal(

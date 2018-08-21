@@ -1,6 +1,7 @@
 #include "../precompiled.h"
 #include "ZScript.h"
 
+#include <sstream>
 #include "CompilerUtils.h"
 #include "CompileError.h"
 #include "DataStructs.h"
@@ -349,18 +350,16 @@ bool FunctionSignature::operator<(FunctionSignature const& other) const
 
 string FunctionSignature::asString() const
 {
-	string result;
-	result += name;
-	result += "(";
-	bool comma = false;
+	ostringstream oss;
+	oss << name << "(";
 	for (vector<DataType const*>::const_iterator it = parameterTypes.begin();
 		 it != parameterTypes.end(); ++it)
 	{
-		if (comma) {result += ", "; comma = true;}
-		result += (*it)->getName();
+		if (it != parameterTypes.begin()) oss << ", ";
+		oss << (*it)->getName();
 	}
-	result += ")";
-	return result;
+	oss << ")";
+	return oss.str();
 }
 
 // ZScript::Function

@@ -16,8 +16,11 @@
 #include "zc_alleg.h"
 #include <allegro/internal/aintern.h>
 #include <string>
+#include <sstream>
 
 using std::string;
+using std::istringstream;
+using std::getline;
 
 #ifdef ALLEGRO_DOS
 #include <conio.h>
@@ -1099,6 +1102,18 @@ void box_out(const char *msg)
     //	#endif
 }
 
+/* calls box_out, and box_eol for newlines */
+void box_out_nl(const char *msg)
+{
+	string line;
+	istringstream reader(msg);
+	while (getline(reader, line))
+	{
+		box_out(line.c_str());
+		box_eol();
+	}
+}
+		
 /* remembers the current x position */
 void box_save_x()
 {

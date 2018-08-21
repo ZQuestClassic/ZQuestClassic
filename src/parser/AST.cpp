@@ -24,16 +24,18 @@ string LocationData::asString() const
 		out << fname << " ";
 	if (first_line == last_line)
 	{
-		out << "L" << first_line << " ";
-		out << "C" << first_column;
-		if (first_column != last_column)
-			out << "-" << last_column;
+		out << "Line " << first_line << " ";
+		if (first_column == last_column)
+			out << "Column " << first_column;
+		else
+			out << "Columns " << first_column
+				<< "-" << last_column;
 	}
 	else
 	{
-		out << "L" << first_line << " C" << first_column
+		out << "Line " << first_line << " Column " << first_column
 		    << " - "
-		    << "L" << last_line << " C" << last_column;
+		    << "Line " << last_line << " Column " << last_column;
 	}
 	return out.str();
 }

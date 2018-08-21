@@ -958,8 +958,8 @@ void yymsg(string const& message, int row, int col)
 	out << message << " [";
 	if (curfilename != "tmp")
 		out << curfilename << " ";
-	out << "L" << yyrow << " "
-	    << "C" << yycol;
+	out << "Line " << yyrow << " "
+	    << "Column " << yycol;
 	if (yyleng)
 	    out << " '" << yytext << "'";
 	out << "]";

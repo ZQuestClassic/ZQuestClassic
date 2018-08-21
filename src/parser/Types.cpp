@@ -306,11 +306,11 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 		if (simpleId == ZVARTYPEID_UNTYPED || t->simpleId == ZVARTYPEID_UNTYPED)
 			return true;
 		if (simpleId == ZVARTYPEID_VOID || t->simpleId == ZVARTYPEID_VOID)
-		return false;
+			return false;
 		if (simpleId == t->simpleId)
 			return true;
 		if (simpleId == ZVARTYPEID_FLOAT && t->simpleId == ZVARTYPEID_BOOL)
-		return true;
+			return true;
 	}
 	
 	return false;
