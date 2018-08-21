@@ -1673,6 +1673,11 @@ script_variable variable_list[]=
 	
 	{"DMAPDATASIDEVIEW", DMAPDATASIDEVIEW, 0, 0 },
 	
+	{"DONULL", DONULL, 0, 0 },
+	{"DEBUGD", DEBUGD, 0, 0 },
+	{"GETPIXEL", GETPIXEL, 0, 0 },
+	{"DOUNTYPE", DOUNTYPE, 0, 0 },
+	
 	{ " ",                       -1,             0,             0 }
 };
 

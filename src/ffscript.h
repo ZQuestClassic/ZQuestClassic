@@ -119,7 +119,8 @@ void SetFFEngineFlag(int flag, bool v);
 void SetItemMessagePlayed(int itm);
 bool GetItemMessagePlayed(int itm);
 	
-    
+int do_getpixel();
+
     //virtual ~FFScript();
     
 	
@@ -2650,13 +2651,19 @@ enum ASM_DEFINE
 #define ITEMSCRIPTUID		0x1311	//byte[4]
 #define DMAPDATASIDEVIEW	0x1312	//byte[4]
 
+#define DONULL			0x1313	
+#define DEBUGD			0x1314	
+#define GETPIXEL			0x1315	
+#define DOUNTYPE			0x1316	
+
 //bytecode
 
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x1313
+#define NUMVARIABLES         0x1317
+
 
 // Script types
 

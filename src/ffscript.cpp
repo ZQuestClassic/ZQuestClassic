@@ -3111,6 +3111,10 @@ long get_register(const long arg)
     case PASSSUBOFS:
 	ret = passive_subscreen_offset * 10000;
     break;
+    
+    case GETPIXEL:
+        ret=FFCore.do_getpixel();
+        break;
 
     
     case ZELDAVERSION:
@@ -14730,6 +14734,65 @@ long FFScript::get_screenHeight(mapscr *m)
     int f = m->scrHeight;
     return f*10000;
 }
+
+//bitmap->GetPixel()
+
+
+int FFScript::do_getpixel()
+{
+
+	int xoffset = 0, yoffset = 0;
+	int xoff = 0; int yoff = 0; //IDR where these are normally read off-hand. 
+	//Sticking this here to do initial tests. Will fix later. 
+	//They're for the subscreen offsets. 
+	const bool brokenOffset=get_bit(extra_rules, er_BITMAPOFFSET)!=0;
+	//bool isTargetOffScreenBmp = false;
+	//al_trace("Getpixel: The current bitmap ID is: %d /n",ri->gfxref);
+	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->gfxref);
+	BITMAP *bitty = zscriptDrawingRenderTarget->GetBitmapPtr(ri->gfxref);
+        //bmp = targetBitmap;
+        if(!bitty)
+        {
+		bitty = scrollbuf;
+		//al_trace("Getpixel: Loaded ScrollBuf into bitty /n");
+		//return -10000;
+	}
+	// draw to screen with subscreen offset
+	if(!brokenOffset && ri->gfxref == -1 )
+	{
+                xoffset = xoff;
+                yoffset = 56; //should this be -56?
+	}
+	else
+        {
+            xoffset = 0;
+	    yoffset = 0;
+        }
+	//sdci[1]=x
+	//sdci[2]=y
+	//sdci[3]= return val?
+	//al_trace("Getpixel: ri->d[0] is: %d /n",ri->d[0]);
+	//al_trace("Getpixel: ri->d[1] is: %d /n",ri->d[1]);
+	//int x1=ri->d[0]/10000;
+	//int y1=ri->d[1]/10000;
+	
+	//al_trace("Getpixel: X is: %d /n",x1);
+	//al_trace("Getpixel: Y is: %d /n",y1);
+	//al_trace("Getpixel: X is: %d /n",ri->d[0]/10000);
+	//al_trace("Getpixel: Y is: %d /n",ri->d[1]/10000);
+	
+	int yv = ri->d[1]/10000 + yoffset;
+	//int ret =  getpixel(bitty, x1+xoffset, y1+yoffset); //This is a palette index value. 
+	int ret =  getpixel(bitty, ri->d[0]/10000, yv	); //This is a palette index value. 
+	
+	//al_trace("Getpixel: Returning a palette index value of: %d /n",ret);
+	//al_trace("I'm not yet sure if the PALETTE type will use a value div/mult by 10000. /n");
+	
+	return ret;
+
+	
+}
+
 
 long FFScript::loadMapData()
 {
