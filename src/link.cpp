@@ -837,7 +837,7 @@ void LinkClass::init()
     magiccastclk=0;
     magicitem = nayruitem = -1;
     
-    for(int i=0; i<16; i++) miscellaneous[i] = 0;
+    for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     bigHitbox=get_bit(quest_rules, qr_LTTPCOLLISION);
     diagonalMovement=get_bit(quest_rules,qr_LTTPWALK);
@@ -15570,7 +15570,7 @@ void LinkClass::gameover()
     attackclk=hclk=superman=0;
     scriptcoldet = 1;
     
-    for(int i=0; i<16; i++) miscellaneous[i] = 0;
+    for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     //get rid off all sprites but Link
     guys.clear();

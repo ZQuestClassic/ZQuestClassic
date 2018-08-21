@@ -72,7 +72,7 @@ public:
     int drawstyle;                                          //0=normal, 1=translucent, 2=cloaked
     int extend;
     // Scripting additions
-    long miscellaneous[16];
+    long miscellaneous[32];
     byte scriptcoldet;
     //long stack[256];
     //Are you kidding? Really? 256 * sizeof(long) = 2048 bytes = 2kb of wasted memory for every sprite, and it'll never

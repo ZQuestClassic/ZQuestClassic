@@ -80,7 +80,7 @@ sprite::sprite()
     ffcref=0; */
     //scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
     //doscript=1;
-    for(int i=0; i<16; i++) miscellaneous[i] = 0;
+    for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
 }
@@ -149,7 +149,7 @@ ewpnclass(other.ewpnclass)*/
     {
       a[i]=other.a[i];
     }*/
-    for(int i=0; i<16; i++) miscellaneous[i] = other.miscellaneous[i];
+    for(int i=0; i<32; i++) miscellaneous[i] = other.miscellaneous[i];
     
     scriptcoldet = other.scriptcoldet;
 }
@@ -178,7 +178,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     ffcref=0;
     doscript=1;*/
     //itemclass=0;
-    for(int i=0; i<16; i++) miscellaneous[i] = 0;
+    for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
     
