@@ -607,6 +607,19 @@ int  LinkClass::getAction() // Used by ZScript
     return action;
 }
 
+int  LinkClass::getAction2() // Used by ZScript new ffcore.actions
+{
+    if(spins > 0)
+        return isspinning;
+    else if(charging > 0)
+        return ischarging;
+    else if(diveclk > 0)
+        return isdiving;
+    //else if (pushing > 0) return ispushing; //Needs a QR? -Z or make it an instruction as Link->Pushing? Probably better, as that has a clk?? 
+        
+    return -1;
+}
+
 void LinkClass::setAction(actiontype new_action) // Used by ZScript
 {
     if(new_action==dying || new_action==won || new_action==scrolling ||

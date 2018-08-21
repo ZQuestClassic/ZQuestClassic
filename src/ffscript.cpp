@@ -16024,7 +16024,9 @@ int FFScript::getLinkTile()
 
 int FFScript::getLinkAction()
 {
-	return FF_link_action;
+	int special_action = Link.getAction2();
+	if ( special_action != -1 ) return special_action; //spin, dive, charge
+	else return FF_link_action; //everything else
 }
 //get_bit
 

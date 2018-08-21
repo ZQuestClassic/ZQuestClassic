@@ -389,6 +389,7 @@ public:
     bool getClock();
     void setClock(bool state);
     int  getAction();
+    int  getAction2(); //used by the new ffcore.actions
     void setAction(actiontype new_action);
     int getHeldItem();
     void setHeldItem(int newitem);
