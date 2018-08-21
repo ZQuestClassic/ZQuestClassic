@@ -1055,6 +1055,20 @@ long get_register(const long arg)
     
     switch(arg)
     {
+	    
+	//Debug->Null()
+    case DONULL: 
+	ret = 0;
+	break;
+    
+    //debug ri->d[]
+    case DEBUGD:
+    {
+	int a = ri->d[0] / 10000;
+	ret = ri->d[a] * 10000;
+	break;
+    }
+    
 ///----------------------------------------------------------------------------------------------------//
 //FFC Variables
     case DATA:
@@ -5568,6 +5582,15 @@ void set_register(const long arg, const long value)
 	
     switch(arg)
     {
+	    
+	    //debug ri->d[]
+    case DEBUGD:
+    {
+	int a = vbound((ri->d[0] / 10000), 0, 255);
+	ri->d[a] = value/10000;
+	break;
+    }    
+    
 ///----------------------------------------------------------------------------------------------------//
 //FFC Variables
     case DATA:
