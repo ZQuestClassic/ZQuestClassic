@@ -99,10 +99,10 @@
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       40                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.54 Alpha 29"                    //version of the program as presented in text
-#define IS_BETA             -29                         //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        29
-#define DATE_STR            "13th April, 2018"
+#define ZELDA_VERSION_STR   "2.54 Alpha 33"                    //version of the program as presented in text
+#define IS_BETA             -33                         //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        33
+#define DATE_STR            "19th August, 2018"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -959,11 +959,17 @@ enum
 #define HIT_BY_NPC 0
 #define HIT_BY_EWEAPON 1
 #define HIT_BY_LWEAPON 2
-#define HIT_BY_COMBO 3
-#define HIT_BY_MAPFLAG 4
-#define HIT_BY_FFC 5
+#define HIT_BY_FFC 3
 
-#define NUM_HIT_TYPES_USED 4
+#define HIT_BY_NPC_UID 4
+#define HIT_BY_EWEAPON_UID 5
+#define HIT_BY_LWEAPON_UID 6
+#define HIT_BY_FFC_UID 7
+
+#define HIT_BY_COMBO 8
+#define HIT_BY_MAPFLAG 9
+
+#define NUM_HIT_TYPES_USED 10
 
 // weapon types in game engine
 enum

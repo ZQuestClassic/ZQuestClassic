@@ -241,7 +241,7 @@ class LinkClass : public sprite
      bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
     int hurtsfx; //Link's Hurt SOund
     int walkspeed; //Link's walking speed.
-    int lastHitBy[4][2]; //[enemy, eweapon, combo, flag
+    int lastHitBy[NUM_HIT_TYPES_USED][2]; //[enemy, eweapon, combo, flag
     
     // Methods below here.
     void movelink();

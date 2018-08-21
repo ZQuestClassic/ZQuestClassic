@@ -354,7 +354,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     frozenclock = 0;
     for ( int q = 0; q < 10; q++ ) frozenmisc[q] = d->frozenmisc[q];
    
-    for ( int q = 0; q < 4; q++ ) hitby[q] = 0;
+    for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) hitby[q] = 0;
     //firesfx = 0; //t.b.a -Z
     isCore = true; //t.b.a
     parentCore = 0; //t.b.a
@@ -13952,8 +13952,11 @@ void check_collisions()
 				//because this only checks `if(dying || clk<0 || hclk>0 || superman)`
                 {//!(e->stunclk)
                     int h = e->takehit(w);
-                    if (h == -1) { e->hitby[HIT_BY_LWEAPON] = i+1; temp_hit = true; } //h can be the return of defend(), so 
-										      //we may need to handle this in special cases. -Z
+                     if (h == -1) 
+		    { 
+			    e->hitby[HIT_BY_LWEAPON] = i+1; temp_hit = true; 
+			    e->hitby[HIT_BY_LWEAPON_UID] = w->script_UID;
+		    }							      //we may need to handle this in special cases. -Z
                     // NOT FOR PUBLIC RELEASE
                     /*if(h==3) //Mirror shield
                     {

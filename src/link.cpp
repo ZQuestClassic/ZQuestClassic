@@ -847,8 +847,8 @@ void LinkClass::init()
 	hurtsfx = getHurtSFX(); //Set the default sound. 
 	flickerorflash = true; //flicker or flash unless disabled externally.
 	
-	for ( int q = 0; q < 4; q++ ) lastHitBy[q][0] = 0; 
-	for ( int q = 0; q < 4; q++ ) lastHitBy[q][1] = 0; 
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][0] = 0; 
+	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][1] = 0; 
 	for ( int q = 0; q < wMax; q++ ) defence[q] = 0; //we will need to have a Link section in the quest load/save code! -Z
 }
 
