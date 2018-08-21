@@ -1,5 +1,151 @@
 //2.54 Changes
 
+//Alpha 34
+Redacted some changes, and re=implemented new features from Alpha 32, and 33 
+into the new parser branch. (This fixed some instability in Alpha 32 and 33.) 
+Fixed a bug where Link->Action would not return swimming, charging, or diving. 
+( ZoriaRPG, 21st August, 2018 )
+
+Add escape sequences to string literals
+
+	Added:
+	- \a\b\f\n\r\t\v for the standard values,
+	- \" for quotes
+	- You can escape a newline to make it not appear in the string
+
+	Additionally, adjacent strings are merged by the compiler.
+
+	This also fixed a bug where multiline string literals would count as
+	one line.
+	( grawswandir, 20th August, 2018 )
+
+Add column numbers to compile error messages
+
+	Most compilation error messages should now properly report the file,
+	line, and column numbers.
+
+	Rewrote the scanner to track the line and column numbers. It's
+	theoretically faster as well.
+
+Add #option trace for disabling tracing calls
+
+	A call to "#option trace off" will disable all "tracing" function
+	calls.
+
+	Currently, "tracing" functions are defined as those which return void
+	and start with "Trace" or "print". Later we should change this out to
+	a specific designation we can attach to a function.
+
+
+fix: Make truncation error show properly
+fix: Let compile options count in function scope
+Add on/off as aliases for true/false in #option
+Add inheritance directives for compile options 
+Add file-scope compile options
+
+Add option support to scopes and OPTION_VALUE expr
+
+	Scopes now maintain their own map of set option values, and the value
+	of an option under a scope can be looked up.
+
+	The OPTION_VALUE(option_name) expression returns the current value of
+	a given option in the current scope.
+
+Make each imported file have its own scope
+
+	Renamed ASTProgram to ASTFile.
+
+	Renamed GlobalScope to RootScope. Introduced FileScope. RootScope now
+	pretends to locally have all objects that its FileScope children
+	register in it, except for options.
+
+Add setting options to scripts and statement blocks
+
+	The syntax is:
+	\#option name value_expr.
+
+	The parser will give a warning if anything comes before the options in
+	the blocks.
+
+	Global or file level options are currently not allowed.
+
+( grayswandir, 19th August, 2018 )
+
+//Alpha 33
+
+Fixed *bitmap->GetPixel(int x, int y). It now work swith the screen (and offset flags),
+	and with off-screen bitmaps. ( ZoriaRPG, 18th August, 2018 )
+
+Fixed Untype(), moved Null() to Debug-> pointer as:
+	Debug->NULL(), Debug->Null(), Debug->NULL, and Debug->Null ( ZoriaRPG, 18th August, 2018 )
+
+Allow global level compile errors 
+Allow script level compiler errors
+	Can now insert a compile_error statement inside of script definitions.
+
+Add Array Literals
+
+	Of the following forms:
+	- {0, 1, 2}
+	- (int[]){0, 1, 2}
+	- (int[3]){}
+	- (int[3]){4}
+
+	Currently broken in the global scope, but the existing string literals
+	are also broken in the same way, so both will be fixed later in the same
+	commit.
+	( grawswandir, 23rd July, 2018 )
+
+//Alpha 32
+
+npc->Attributes[32], itemdata->Attributes[32], and npcdata->Attributes[32] are now untyped, for the same reason as Misc[].
+
+npc->HitBy[10] now has indices for object UIDs. The valid indices are:
+#define HIT_BY_NPC 0
+#define HIT_BY_EWEAPON 1
+#define HIT_BY_LWEAPON 2
+#define HIT_BY_FFC 3
+
+#define HIT_BY_NPC_UID 4
+#define HIT_BY_EWEAPON_UID 5
+#define HIT_BY_LWEAPON_UID 6
+#define HIT_BY_FFC_UID 7
+
+#define HIT_BY_COMBO 8
+#define HIT_BY_MAPFLAG 9
+
+Obviously, only indices 2, and 6 are in use at this time. 
+	Some melee weapons do not register a hit at this time. 
+	
+When a weapon hits an npc, both the screen index, and the script UID are stored in npc->HitBy[], in indices
+2 and 6 respectively. I tried to apply a similar change to Link, but this wasn't stable, so I reverted it for now. 
+( ZoriaRPG, 16th August, 2018 )
+	
+Resized npc->HitBy[] and Link->HitBy[] to a size of [10] each. ( ZoriaRPG, 16th August, 2018 )
+
+
+Temporarily rename some internal allegro functions so they don't
+	conflict with some new functions that glibc defines. ( grayswandir, 15th August, 2018 )
+Fixed return values and setter values (div/mult by 10000) for npc->HitBy[] and Link->HitBy[] based on index of the array. ( 15th August, 2018 )
+Fixed npc->Attributes. it was a size of 14, not 32. ( 15th August, 2018 )
+Fixed datatype->Misc[]. The values above index 15 weren't set up properly, or initialised. ( 15th August, 2018 )
+Fixed typecast for npc->HitBy[]. It's now 'untyped'. ( 15th August, 2018 )
+Revised Untype() function, and NULL() function.  ( ZoriaRPG, 11th August, 2018 )
+Added NULL, Null, and Null() as alternatives to NULL() ( ZoriaRPG, 11th August, 2018 )
+Added expanded ZScript docs. ( ZoriaRPG, 10th August, 2018 )
+Added bitmap->Getpixel(x,y) ( ZoriaRPG, 10th August, 2018 )
+Removed deprecated functions carried over from '2.future' and old 2.54 alphas that 
+	have been replaced by datatype members. ( ZoriaRPG, 10th August, 2018 )
+
+
+//Alpha 31
+Added mock-up layout for revised Enemy Editor ( ZoriaRPG, 65th April, 2018 )
+Segregated Enemy Editor Defences ( ZoriaRPG, 16th April, 2018 )
+Moved Enemy Size tab into basic properties tab as a sub-tab. ( ZoriaRPG, 15th April, 2018 )
+Fixed enemy editor defence sub-tabs. ( ZoriaRPG, 15th April, 2018 )
+Fixed default enemy sounds. ( ZoriaRPG, 15th April, 2018 )
+
+
 //Alpha 30
 Added cascading tabs to the Enemy Editor:
 	The Defs 1, Defs 2, and Defs 3 tabs have been moved 
