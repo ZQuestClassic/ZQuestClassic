@@ -4687,7 +4687,7 @@ int OnSaveZCConfig()
 		NULL, 
 		'y', 
 		'n', 
-		NULL, 
+		0, 
 		lfont) == 1)	
 	{
 		save_game_configs();
@@ -4709,7 +4709,7 @@ int onDebugConsole()
 		NULL, 
 		'y', 
 		'n', 
-		NULL, 
+		0, 
 		lfont) == 1)
 		{
 			DebugConsole::Open();
