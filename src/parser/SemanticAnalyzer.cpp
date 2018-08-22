@@ -679,7 +679,14 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 		Function& function = **it;
 		int castCount = 0;
 		for (int i = 0; i < parameterTypes.size(); ++i)
-			if (*parameterTypes[i] != *function.paramTypes[i]) ++castCount;
+		{
+			if (*parameterTypes[i] != *function.paramTypes[i]
+			    && !(*parameterTypes[i] == DataType::CONST_FLOAT
+			         && *function.paramTypes[i] == DataType::FLOAT))
+			{
+				++castCount;
+			}
+		}
 
 		// If this beats the record, keep it.
 		if (castCount < bestCastCount)
