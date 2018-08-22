@@ -2716,7 +2716,7 @@ void ASTVarType::execute(ASTVisitor& visitor, void* param)
 DataType const& ASTVarType::resolve(ZScript::Scope& scope)
 {
 	DataType* resolved = type->resolve(scope);
-	if (type != resolved)
+	if (resolved && type != resolved)
 	{
 		delete type;
 		type = resolved;
