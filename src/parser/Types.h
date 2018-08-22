@@ -297,13 +297,14 @@ namespace ZScript
 		virtual bool isArray() const {return true;}
 
 		DataType const& getElementType() const {return elementType;}
-		DataType const& getBaseType() const;
 
 	private:
 		DataType const& elementType;
 
 		int selfCompare(DataType const& other) const;
 	};
+
+	DataType const& getBaseType(DataType const&);
 
 	////////////////////////////////////////////////////////////////
 	// Script Types

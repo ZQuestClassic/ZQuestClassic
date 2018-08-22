@@ -298,7 +298,7 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
-		return canCastTo(t->getBaseType());
+		return canCastTo(getBaseType(*t));
 
 	if (DataTypeSimple const* t =
 			dynamic_cast<DataTypeSimple const*>(&target))
@@ -362,7 +362,7 @@ bool DataTypeClass::canCastTo(DataType const& target) const
 {
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
-		return canCastTo(t->getBaseType());
+		return canCastTo(getBaseType(*t));
 
 	return *this == target;
 }
@@ -380,23 +380,23 @@ bool DataTypeArray::canCastTo(DataType const& target) const
 {
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
-		return canCastTo(t->getBaseType());
+		return canCastTo(getBaseType(*t));
 	
-	return getBaseType().canCastTo(target);
-}
-
-DataType const& DataTypeArray::getBaseType() const
-{
-	DataType const* type = &elementType;
-	while (DataTypeArray const* t = dynamic_cast<DataTypeArray const*>(type))
-		type = &t->elementType;
-	return *type;
+	return getBaseType(*this).canCastTo(target);
 }
 
 int DataTypeArray::selfCompare(DataType const& rhs) const
 {
 	DataTypeArray const& o = static_cast<DataTypeArray const&>(rhs);
 	return elementType.compare(o.elementType);
+}
+
+DataType const& ZScript::getBaseType(DataType const& type)
+{
+	DataType const* current = &type;
+	while (DataTypeArray const* t = dynamic_cast<DataTypeArray const*>(current))
+		current = &t->getElementType();
+	return *current;
 }
 
 ////////////////////////////////////////////////////////////////

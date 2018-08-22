@@ -328,17 +328,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		checkCast(initType, type, &host);
 		if (breakRecursion(host)) return;
 
-		// If it's an array, do an extra check for array count and sizes.
-		if (type.isArray())
-		{
-			if (type != initType)
-			{
-				handleError(CompileError::IllegalCast, &host,
-							initType.getName().c_str(),
-							type.getName().c_str());
-				return;
-			}
-		}
+		// TODO check for array casting here.
 	}	
 }
 
@@ -680,12 +670,12 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 		int castCount = 0;
 		for (int i = 0; i < parameterTypes.size(); ++i)
 		{
-			if (*parameterTypes[i] != *function.paramTypes[i]
-			    && !(*parameterTypes[i] == DataType::CONST_FLOAT
-			         && *function.paramTypes[i] == DataType::FLOAT))
-			{
-				++castCount;
-			}
+			DataType const& from = getBaseType(*parameterTypes[i]);
+			DataType const& to = getBaseType(*function.paramTypes[i]);
+			if (from == to) continue;
+			if (from == DataType::CONST_FLOAT && to == DataType::FLOAT)
+				continue;
+			++castCount;
 		}
 
 		// If this beats the record, keep it.
