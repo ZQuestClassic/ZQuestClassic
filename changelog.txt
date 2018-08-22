@@ -1,6 +1,14 @@
 //2.54 Changes
 
 //Alpha 35
+
+The hardcoded enemy hit sound was playing OVER user-set sounds,
+causing both sounds to play at the same time on a hit, and if an enemy 
+died on the same frame that it was hit, all three sounds would play that frame.
+
+[Applied also to 2.53.0, Beta 16]
+( ZoriaRPG, 22nd August, 2018 )
+
 Fixed Link's hurt sfrx not being initialised to the old default.
 Fixed npc weapon sprites being read from guysbuf[] instead of the individual enemy.
 Fixed an issue where setting npc->Weapon in older quests did not update its sprite. 
@@ -848,8 +856,14 @@ Debug->GetFFCPointer(), SetFFCPointer(), GetItemPointer(), SetItemPointer(), Get
 	SetEWeaponPointer(), RefFFC, RefItem, RefItemdata, RefLWeapon, RefEWeapon, RefNPC, SP
 ,
 
-ChangeLog for 2.53.0 Beta 15
+ChangeLog for 2.53.0 Beta 16
 
+The hardcoded enemy hit sound was playing OVER user-set sounds,
+causing both sounds to play at the same time on a hit, and if an enemy 
+died on the same frame that it was hit, all three sounds would play that frame.
+( ZoriaRPG, 22nd August, 2018 )
+
+//Beta 15
 Added a compatibility fix for DrawInteger() and DrawCharacter() for quests made
 	using the old (broken) scaling factors. ( ZoriaRPG, 4th April, 2018 )
 
