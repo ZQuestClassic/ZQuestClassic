@@ -17,6 +17,7 @@
 #include "zc_array.h"
 #include "ffscript.h"
 FFScript FFCore;
+zquestheader ZCheader;
 
 #include "zelda.h"
 #include "link.h"
@@ -2348,10 +2349,10 @@ long get_register(const long arg)
         
     case NPCHUNGER:
         GET_NPC_VAR_INT(grumble, "npc->Hunger") break;
-/*    
+    
     case NPCWEAPSPRITE:
         GET_NPC_VAR_INT(wpnsprite, "npc->WeaponSprite") break;
-*/        
+        
     case NPCTYPE:
         GET_NPC_VAR_INT(family, "npc->Type") break;
         
@@ -7641,10 +7642,10 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         
     case NPCHUNGER:
         SET_NPC_VAR_INT(grumble, "npc->Hunger") break;
-/*    
+    
     case NPCWEAPSPRITE:
         SET_NPC_VAR_INT(wpnsprite, "npc->WeaponSprite") break;
-*/        
+       
     case NPCCSET:
     {
         if(GuyH::loadNPC(ri->guyref, "npc->CSet") == SH::_NoError)
@@ -7699,7 +7700,16 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         
         if(GuyH::loadNPC(ri->guyref, "npc->Weapon") == SH::_NoError &&
                 BC::checkBounds(weapon, 0, MAXWPNS-1, "npc->Weapon") == SH::_NoError)
+	{
             GuyH::getNPC()->wpn = weapon;
+	
+		//al_trace("Correct weapon sprite is: %d /n", FFCore.GetDefaultWeaponSprite(weapon));
+		if ( get_bit(extra_rules, er_SETENEMYWEAPONSPRITESONWPNCHANGE) ) //this should probably just be an extra_rule
+		{
+			GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon);
+		}
+		//else GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon); //just to test that this works. 
+	}
     }
     break;
     
@@ -14906,6 +14916,96 @@ long FFScript::get_screenHeight(mapscr *m)
 {
     int f = m->scrHeight;
     return f*10000;
+}
+
+int FFScript::GetQuestVersion()
+{
+	return ZCheader.zelda_version;
+}
+int FFScript::GetQuestBuild()
+{
+	return ZCheader.build;
+}
+int FFScript::GetQuestSectionVersion(int section)
+{
+	return ZCheader.zelda_version;
+}
+
+int FFScript::GetDefaultWeaponSprite(int wpn_id)
+{
+	switch (wpn_id)
+	{
+		case wNone:
+			return 0; 
+		
+		case wSword:
+		case wBeam:
+		case wBrang:
+		case wBomb:
+		case wSBomb:
+		case wLitBomb:
+		case wLitSBomb:
+		case wArrow:
+		case wFire:
+		case wWhistle:
+		case wBait:
+		case wWand:
+		case wMagic:
+		case wCatching:
+		case wWind:
+		case wRefMagic:
+		case wRefFireball:
+		case wRefRock:
+		case wHammer:
+		case wHookshot:
+		case wHSHandle:
+		case wHSChain:
+		case wSSparkle:
+		case wFSparkle:
+		case wSmack:
+		case wPhantom:
+		case wCByrna:
+		case wRefBeam:
+		case wStomp:
+		case lwMax:
+		case wScript1:
+		case wScript2:
+		case wScript3:
+		case wScript4:
+		case wScript5:
+		case wScript6:
+		case wScript7:
+		case wScript8:
+		case wScript9:
+		case wScript10:
+		case wIce:
+			//Cannot use any of these weapons yet. 
+			return -1;
+		
+		case wEnemyWeapons:
+		case ewFireball: return 17;
+		
+		case ewArrow: return 19; 
+		case ewBrang: return 4; 
+		case ewSword: return 20; 
+		case ewRock: return 18; 
+		case ewMagic: return 21; 
+		case ewBomb: return 78; 
+		case ewSBomb: return 79; 
+		case ewLitBomb: return 76; 
+		case ewLitSBomb: return 77; 
+		case ewFireTrail: return 80; 
+		case ewFlame: return 35; 
+		case ewWind: return 36; 
+		case ewFlame2: return 81; 
+		case ewFlame2Trail: return 82; 
+		case ewIce: return 83; 
+		case ewFireball2: return 17;  //fireball (rising)
+		
+			
+		default:  return -1; //No assign.
+		
+	}
 }
 
 //bitmap->GetPixel()

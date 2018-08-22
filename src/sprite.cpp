@@ -47,6 +47,7 @@ sprite::sprite()
     angular=canfreeze=false;
     drawstyle=0;
     extend=0;
+    wpnsprite = 0; //wpnsprite is new for 2.6 -Z
     
     /*ewpnclass=0;
     lwpnclass=0;
@@ -115,7 +116,8 @@ sprite::sprite(sprite const & other):
     lasthit(other.lasthit),
     lasthitclk(other.lasthitclk),
     drawstyle(other.drawstyle),
-    extend(other.extend)
+    extend(other.extend),
+    wpnsprite(other.wpnsprite)
     //scriptData(other.scriptData),
 /*ffcref(other.ffcref),
 itemref(other.itemref),

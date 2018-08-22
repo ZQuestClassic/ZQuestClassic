@@ -120,6 +120,11 @@ void SetItemMessagePlayed(int itm);
 bool GetItemMessagePlayed(int itm);
 	
 int do_getpixel();
+int GetDefaultWeaponSprite(int w);
+
+int GetQuestVersion();
+int GetQuestBuild();
+int GetQuestSectionVersion(int section);
 
     //virtual ~FFScript();
     

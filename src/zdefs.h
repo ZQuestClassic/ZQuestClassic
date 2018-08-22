@@ -825,7 +825,8 @@ enum extraRules
     er_BITMAPOFFSET, er_SHORTDGNWALK,
 	er_MAGICCOSTSWORD, //BEAMS Only
 	er_BROKENCHARINTDRAWING, //pre-2.53 fix to DrawInteger() and DrarCharacter() -Z
-    er_MAX
+	er_SETENEMYWEAPONSPRITESONWPNCHANGE,
+	er_MAX
 };
 
 // room types
