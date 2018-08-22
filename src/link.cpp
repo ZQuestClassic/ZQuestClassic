@@ -857,7 +857,7 @@ void LinkClass::init()
     
     //2.6
 	preventsubscreenfalling = false;  //-Z
-	hurtsfx = getHurtSFX(); //Set the default sound. 
+	hurtsfx = 19; //getHurtSFX(); //Set the default sound. 
 	flickerorflash = true; //flicker or flash unless disabled externally.
 	
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][0] = 0; 
