@@ -9717,6 +9717,13 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 		}
 	    }
+	    
+	    //Port hardcoded hit sound to the enemy hitsfx defaults for older quests. 
+	    if(Header->zelda_version <= 0x250 || ( Header->zelda_version > 0x250 && guyversion < 35 ))
+	    {
+		    if ( tempguy.hitsfx == 0 ) tempguy.hitsfx = 11;
+	    }
+	 
 		
 	    
             //miscellaneous other corrections

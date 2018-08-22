@@ -1567,14 +1567,21 @@ hitclock:
     }
     
    
-    
+    /*
     if( hitsfx > 0 ) //user set hit sound. 
     {
 	if ( !dying ) //Don't play the hit sound when dying. 
 		sfx(hitsfx, pan(int(x)));
     }
     else sfx(WAV_EHIT, pan(int(x))); //Don't play this one if the user sets a custom sound!
-        
+*/
+    
+    if( hitsfx > 0 ) //A sound is set. 
+    {
+	if ( !dying ) //Don't play the hit sound when dying. 
+		sfx(hitsfx, pan(int(x)));
+    }
+    
     if(family==eeGUY)
         sfx(WAV_EDEAD, pan(int(x)));
         
