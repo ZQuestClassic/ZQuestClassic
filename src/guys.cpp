@@ -1344,10 +1344,13 @@ hitclock:
         fading=fade_blue_poof;
     }
     
-    sfx(WAV_EHIT, pan(int(x)));
+    if( hitsfx > 0 ) //user-set hit sound. 
+    {
+	    if (!dying) //don't play the hit sound on death! -Z
+		sfx(hitsfx, pan(int(x)));
+    }
+    else sfx(WAV_EHIT, pan(int(x))); //Don't play the hardcoded sound if the user sets a custom one. 
     
-    if(hitsfx > 0)
-        sfx(hitsfx, pan(int(x)));
         
     if(family==eeGUY)
         sfx(WAV_EDEAD, pan(int(x)));
