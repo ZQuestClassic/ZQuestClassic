@@ -2,6 +2,10 @@
 
 //Alpha 35
 
+Changed the enemy editor default for hitsound from 0 (None)
+to 11 (Enemy is Hit) in the quest loader for older quests.
+Now if hitsfx is set to 0 (none), the hit will be silent.
+
 The hardcoded enemy hit sound was playing OVER user-set sounds,
 causing both sounds to play at the same time on a hit, and if an enemy 
 died on the same frame that it was hit, all three sounds would play that frame.
