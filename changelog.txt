@@ -1,5 +1,16 @@
 //2.54 Changes
 
+//Alpha 35
+Fixed Link's hurt sfrx not being initialised to the old default.
+Fixed npc weapon sprites being read from guysbuf[] instead of the individual enemy.
+Fixed an issue where setting npc->Weapon in older quests did not update its sprite. 
+( ZoriaRPG, 22nd August, 2018 )
+
+Fixed const float not casting to float.
+Fixed function overloads being confused by constants.
+Fixed array initialisation with constants. 
+( grayswandir, 21st August, 2018 )
+
 //Alpha 34
 Redacted some changes, and re=implemented new features from Alpha 32, and 33 
 into the new parser branch. (This fixed some instability in Alpha 32 and 33.) 
