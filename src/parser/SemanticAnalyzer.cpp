@@ -3,6 +3,7 @@
 #include <cassert>
 #include <sstream>
 #include "Scope.h"
+#include "Types.h"
 #include "CompileError.h"
 
 using std::string;
@@ -511,7 +512,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 
 	// Grab the left side's class.
     DataTypeClass const* leftType = dynamic_cast<DataTypeClass const*>(
-		    host.left->getReadType());
+		    &getNaiveType(*host.left->getReadType()));
     if (!leftType)
 	{
 		handleError(CompileError::ArrowNotPointer, &host);

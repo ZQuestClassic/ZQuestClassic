@@ -249,6 +249,17 @@ bool ZScript::operator>=(DataType const& lhs, DataType const& rhs)
 	return lhs.compare(rhs) >= 0;
 }
 
+DataType const& ZScript::getNaiveType(DataType const& type)
+{
+	if (type == DataType::CONST_FLOAT) return DataType::FLOAT;
+
+	DataType const* t = &type;
+	while (DataTypeArray const* ta = dynamic_cast<DataTypeArray const*>(t))
+		t = &ta->getElementType();
+
+	return *t;
+}
+
 int ZScript::getArrayDepth(DataType const& type)
 {
 	DataType const* ptype = &type;

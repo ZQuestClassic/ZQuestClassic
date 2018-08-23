@@ -195,6 +195,9 @@ namespace ZScript
 	bool operator<=(DataType const&, DataType const&);
 	bool operator>(DataType const&, DataType const&);
 	bool operator>=(DataType const&, DataType const&);
+
+	// Get the data type stripped of consts and arrays.
+	DataType const& getNaiveType(DataType const& type);
 	
 	// Get the number of nested arrays at top level.
 	int getArrayDepth(DataType const&);
