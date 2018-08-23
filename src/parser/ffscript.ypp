@@ -74,7 +74,7 @@ extern YYLTYPE noloc;
 
 %glr-parser
 %expect 1
-%expect-rr 1
+%expect-rr 26
 %error-verbose
 %start Init
 %parse-param {ASTFile*& root}
@@ -335,12 +335,12 @@ Data_Element_Array_List :
 			element->extraArrays.push_back(extraArray);
 			element->location = @$;
 			$$ = element;}
-	| IDENTIFIER {
+	| Identifier {
 			ASTString* name = (ASTString*)$1;
 			ASTDataDecl* element = new ASTDataDecl(@$);
 			element->name = name->getValue();
 			$$ = element;
-																			delete name;}
+			delete name;}
 	;
 
 Data_Element_Array_Element :
@@ -659,18 +659,47 @@ Statement_CompileError :
 ////////////////////////////////////////////////////////////////
 // Expression Helpers
 
-Identifier :
-	IDENTIFIER {
-			ASTString* rval = (ASTString*)$1;
-		$$ = new ASTExprIdentifier(rval->getValue(), @$);
-		delete rval;}
-	| Identifier DOT IDENTIFIER {
+Identifier_List :
+	Identifier_List DOT Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
-		ASTString* name = (ASTString *)$3;
+		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
 		identifier->location = @$;
 		$$ = identifier;
 		delete name;}
+	| Identifier {
+		ASTString* name = (ASTString*)$1;
+		$$ = new ASTExprIdentifier(name->getValue(), @$);
+		delete name;}
+	;
+
+Identifier :
+	IDENTIFIER {$$ = $1;}
+	| GRAPHICS {$$ = new ASTString("bitmap", @$);}
+	| CHEAT {$$ = new ASTString("cheat", @$);}
+	| COMBO {$$ = new ASTString("combo", @$);}
+	| DOORSET {$$ = new ASTString("doorset", @$);}
+	| DROPSET {$$ = new ASTString("dropset", @$);}
+	| DMAP {$$ = new ASTString("dmap", @$);}
+	| EWEAPON {$$ = new ASTString("eweapon", @$);}
+	| FFC {$$ = new ASTString("ffc", @$);}
+	| GAMEDATA {$$ = new ASTString("gamedata", @$);}
+	| ITEM {$$ = new ASTString("item", @$);}
+	| ITEMCLASS {$$ = new ASTString("itemdata", @$);}
+	| LWEAPON {$$ = new ASTString("lweapon", @$);}
+	| MAP {$$ = new ASTString("map", @$);}
+	| MESSAGE {$$ = new ASTString("message", @$);}
+	| MISCCOLOR {$$ = new ASTString("misccolor", @$);}
+	| NPC {$$ = new ASTString("npc", @$);}
+	| NPCDATA {$$ = new ASTString("npcdata", @$);}
+	| PALCYCLE {$$ = new ASTString("palcycle", @$);}
+	| PALETTE {$$ = new ASTString("palette", @$);}
+	| POND {$$ = new ASTString("pond", @$);}
+	| RGB {$$ = new ASTString("rgb", @$);}
+	| SHOP {$$ = new ASTString("shop", @$);}
+	| SPRITE {$$ = new ASTString("sprite", @$);}
+	| TUNE {$$ = new ASTString("tune", @$);}
+	| WARPRING {$$ = new ASTString("warpring", @$);}
 	;
 
 Expr_2_Call :
@@ -707,7 +736,7 @@ Expr_2_Call_Parameters :
 //   (Roughly following http://en.cppreference.com/w/cpp/language/operator_precedence).
 
 Expr_1 :
-	Identifier {$$ = $1;}
+	Identifier_List {$$ = $1;}
 	| Literal {$$ = $1;}
 	| LPAREN Expression RPAREN {$$ = $2;}
 	;
