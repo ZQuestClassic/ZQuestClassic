@@ -57,11 +57,7 @@ break
 
  /* Keywords */
 script		TOKEN( SCRIPT );
-float		TOKEN( ZFLOAT );
-int		TOKEN( ZFLOAT );
 for		TOKEN( FOR );
-bool		TOKEN( ZBOOL );
-void		TOKEN( ZVOID );
 if		TOKEN( IF );
 else		TOKEN( ELSE );
 switch		TOKEN( SWITCH );
@@ -72,21 +68,46 @@ import		TOKEN( IMPORT );
 true		TOKEN( ZTRUE );
 false		TOKEN( ZFALSE );
 while		TOKEN( WHILE );
-ffc		TOKEN( FFC );
-itemdata	TOKEN( ITEMCLASS );
-item		TOKEN( ITEM );
 global		TOKEN( GLOBAL );
 break		TOKEN( BREAK );
 continue	TOKEN( CONTINUE );
 const		TOKEN( ZCONST );
 do		TOKEN( DO );
-npc		TOKEN( NPC );
-lweapon		TOKEN( LWEAPON );
-eweapon		TOKEN( EWEAPON );
 typedef		TOKEN( TYPEDEF );
 compile_error	TOKEN( COMPILEERROR );
 OPTION_VALUE	TOKEN( OPTIONVALUE );
 define		TOKEN( DEFINE );
+
+ /* Types */
+void		TOKEN( ZVOID );
+bool		TOKEN( ZBOOL );
+float		TOKEN( ZFLOAT );
+int		TOKEN( ZFLOAT );
+bitmap		TOKEN( GRAPHICS );
+cheat		TOKEN( CHEAT );
+combo		TOKEN( COMBO );
+doorset		TOKEN( DOORSET );
+dropset		TOKEN( DROPSET );
+dmap		TOKEN( DMAP );
+eweapon		TOKEN( EWEAPON );
+ffc		TOKEN( FFC );
+gamedata	TOKEN( GAMEDATA );
+item		TOKEN( ITEM );
+itemdata	TOKEN( ITEMCLASS );
+lweapon		TOKEN( LWEAPON );
+map		TOKEN( MAP );
+message		TOKEN( MESSAGE );
+misccolor	TOKEN( MISCCOLOR );
+npc		TOKEN( NPC );
+npcdata		TOKEN( NPCDATA );
+palcycle	TOKEN( PALCYCLE );
+palette		TOKEN( PALETTE );
+pond		TOKEN( POND );
+rgb		TOKEN( RGB );
+shop		TOKEN( SHOP );
+sprite		TOKEN( SPRITE );
+tune		TOKEN( TUNE );
+warpring	TOKEN( WARPRING );
 
  /* Syntax */
 ","		TOKEN( COMMA );

@@ -80,11 +80,10 @@ extern YYLTYPE noloc;
 %parse-param {ASTFile*& root}
 
 %define api.token.prefix {TOK_}
+
+ // Keywords
 %token SCRIPT
-%token ZFLOAT
 %token FOR
-%token ZBOOL
-%token ZVOID
 %token IF
 %token ELSE
 %token SWITCH
@@ -95,89 +94,93 @@ extern YYLTYPE noloc;
 %token ZTRUE
 %token ZFALSE
 %token WHILE
-%token FFC
-%token ITEM
-%token ITEMCLASS
 %token GLOBAL
 %token BREAK
 %token CONTINUE
 %token ZCONST
 %token DO
-%token NPC
-%token LWEAPON
-%token EWEAPON
-%token GRAPHICS
-%token SPRITEDATA
-%token MAPDATA
-%token NPCDATA
-%token COMBODATA
-%token DMAPDATA
-%token MESSAGEDATA
-%token SHOPDATA
-%token UNTYPED
-%token DROPDATA
-%token PONDDATA
-%token WARPRING
-%token DOORSET
-%token MISCCOLORS
-%token RGBDATA
-%token PALETTE
-%token MUSICTRACK
-%token PALCYCLE
-%token GAMEDATA
-%token CHEATS
 %token TYPEDEF
+%token COMPILEERROR
+%token OPTIONVALUE
+%token DEFINE
 
-%token ASSIGN
-%token COLON
-%token SEMICOLON
+ // Types
+%token ZVOID
+%token ZBOOL
+%token ZFLOAT
+%token GRAPHICS
+%token CHEAT
+%token COMBO
+%token DOORSET
+%token DROPSET
+%token DMAP
+%token EWEAPON
+%token FFC
+%token GAMEDATA
+%token ITEM
+%token ITEMCLASS
+%token LWEAPON
+%token MAP
+%token MESSAGE
+%token MISCCOLOR
+%token NPC
+%token NPCDATA
+%token PALCYCLE
+%token PALETTE
+%token POND
+%token RGB
+%token SHOP
+%token SPRITE
+%token TUNE
+%token WARPRING
+
+ // Syntax
 %token COMMA
-%token LBRACKET
-%token RBRACKET
+%token DOT
+%token SEMICOLON
+%token COLON
 %token LPAREN
 %token RPAREN
-%token DOT
+%token LBRACKET
+%token RBRACKET
 %token LBRACE
 %token RBRACE
-%token ARROW
 
-%token NUMBER
+ // Operators
+%token ARROW
+%left INCREMENT DECREMENT
+%left NOT BITNOT
+%left TIMES DIVIDE MODULO
+%left PLUS MINUS
+%left LSHIFT RSHIFT
+%left LE LT GE GT EQ NE
+%left BITAND BITXOR BITOR
+%left AND OR
+%token ASSIGN
 %token PLUSASSIGN
 %token MINUSASSIGN
 %token TIMESASSIGN
 %token DIVIDEASSIGN
-%token ANDASSIGN
-%token ORASSIGN
-%token BITANDASSIGN
-%token BITORASSIGN
-%token BITXORASSIGN
 %token MODULOASSIGN
 %token LSHIFTASSIGN
 %token RSHIFTASSIGN
-%token IDENTIFIER
-%token QUOTEDSTRING
-%token SINGLECHAR
+%token BITANDASSIGN
+%token BITXORASSIGN
+%token BITORASSIGN
+%token ANDASSIGN
+%token ORASSIGN
 
-%token COMPILEERROR
-%token OPTIONVALUE
-
-%left LSHIFT RSHIFT
-%left BITAND BITOR BITXOR
-%left AND OR
-%left NOT BITNOT
-%left INCREMENT DECREMENT
-%left LE LT GE GT EQ NE
-%left PLUS MINUS
-%left TIMES DIVIDE
-%left MODULO
-
+ // Hash Only
 %token HASH
 %token ENDLINE
 %token OPTION
 %token INHERIT
 
-%token DEFINE
-
+ // Others
+%token IDENTIFIER
+%token QUOTEDSTRING
+%token SINGLECHAR
+%token NUMBER
 
 %%
 
@@ -254,35 +257,35 @@ TypeDef : TYPEDEF DataType IDENTIFIER {
 	;
 
 DataType :
-	ZVOID {$$ = new ASTVarType(DataTypeSimple::ZVOID, @$);}
-	| ZFLOAT {$$ = new ASTVarType(DataTypeSimple::FLOAT, @$);}
-	| ZBOOL {$$ = new ASTVarType(DataTypeSimple::BOOL, @$);}
-	| FFC {$$ = new ASTVarType(DataTypeSimple::FFC, @$);}
-	| ITEM {$$ = new ASTVarType(DataTypeSimple::ITEM, @$);}
-	| ITEMCLASS {$$ = new ASTVarType(DataTypeSimple::ITEMCLASS, @$);}
-	| NPC	{$$ = new ASTVarType(DataTypeSimple::NPC, @$);}
-	| LWEAPON	{$$ = new ASTVarType(DataTypeSimple::LWPN, @$);}
-	| EWEAPON	{$$ = new ASTVarType(DataTypeSimple::EWPN, @$);}
-	| SPRITEDATA	{$$ = new ASTVarType(DataTypeSimple::SPRITEDATA, @$);}
-	| MAPDATA	{$$ = new ASTVarType(DataTypeSimple::MAPDATA, @$);}
-	| NPCDATA	{$$ = new ASTVarType(DataTypeSimple::NPCDATA, @$);}
-	| COMBODATA	{$$ = new ASTVarType(DataTypeSimple::COMBOS, @$);}
-	| GRAPHICS	{$$ = new ASTVarType(DataTypeSimple::GRAPHICS, @$);}
-	| DMAPDATA	{$$ = new ASTVarType(DataTypeSimple::DMAPDATA, @$);}
-	| MESSAGEDATA	{$$ = new ASTVarType(DataTypeSimple::ZMESSAGE, @$);}
-	| SHOPDATA	{$$ = new ASTVarType(DataTypeSimple::SHOPDATA, @$);}
-//	| UNTYPED	{$$ = new ASTVarType(DataTypeSimple::UNTYPED, @$);}
-	| DROPDATA	{$$ = new ASTVarType(DataTypeSimple::DROPSET, @$);}
-	| PONDDATA	{$$ = new ASTVarType(DataTypeSimple::PONDS, @$);}
-	| WARPRING	{$$ = new ASTVarType(DataTypeSimple::WARPRING, @$);}
-	| DOORSET	{$$ = new ASTVarType(DataTypeSimple::DOORSET, @$);}
-	| MISCCOLORS	{$$ = new ASTVarType(DataTypeSimple::ZUICOLOURS, @$);}
-	| RGBDATA	{$$ = new ASTVarType(DataTypeSimple::RGBDATA, @$);}
-	| PALETTE	{$$ = new ASTVarType(DataTypeSimple::PALETTE, @$);}
-	| MUSICTRACK	{$$ = new ASTVarType(DataTypeSimple::TUNES, @$);}
-	| PALCYCLE	{$$ = new ASTVarType(DataTypeSimple::PALCYCLE, @$);}
-	| GAMEDATA	{$$ = new ASTVarType(DataTypeSimple::GAMEDATA, @$);}
-	| CHEATS	{$$ = new ASTVarType(DataTypeSimple::CHEATS, @$);}
+	ZVOID {$$ = new ASTVarType(DataType::ZVOID, @$);}
+//	| UNTYPED {$$ = new ASTVarType(DataType::UNTYPED, @$);}
+	| ZBOOL {$$ = new ASTVarType(DataType::BOOL, @$);}
+	| ZFLOAT {$$ = new ASTVarType(DataType::FLOAT, @$);}
+	| GRAPHICS {$$ = new ASTVarType(DataType::GRAPHICS, @$);}
+	| CHEAT {$$ = new ASTVarType(DataType::CHEATS, @$);}
+	| COMBO {$$ = new ASTVarType(DataType::COMBOS, @$);}
+	| DOORSET {$$ = new ASTVarType(DataType::DOORSET, @$);}
+	| DROPSET {$$ = new ASTVarType(DataType::DROPSET, @$);}
+	| DMAP {$$ = new ASTVarType(DataType::DMAPDATA, @$);}
+	| EWEAPON	{$$ = new ASTVarType(DataType::EWPN, @$);}
+	| FFC {$$ = new ASTVarType(DataType::FFC, @$);}
+	| GAMEDATA	{$$ = new ASTVarType(DataType::GAMEDATA, @$);}
+	| ITEM {$$ = new ASTVarType(DataType::ITEM, @$);}
+	| ITEMCLASS {$$ = new ASTVarType(DataType::ITEMCLASS, @$);}
+	| LWEAPON {$$ = new ASTVarType(DataType::LWPN, @$);}
+	| MAP {$$ = new ASTVarType(DataType::MAPDATA, @$);}
+	| MESSAGE {$$ = new ASTVarType(DataType::ZMESSAGE, @$);}
+	| MISCCOLOR {$$ = new ASTVarType(DataType::ZUICOLOURS, @$);}
+	| NPC {$$ = new ASTVarType(DataType::NPC, @$);}
+	| NPCDATA {$$ = new ASTVarType(DataType::NPCDATA, @$);}
+	| PALCYCLE {$$ = new ASTVarType(DataType::PALCYCLE, @$);}
+	| PALETTE {$$ = new ASTVarType(DataType::PALETTE, @$);}
+	| POND {$$ = new ASTVarType(DataType::PONDS, @$);}
+	| RGB {$$ = new ASTVarType(DataType::RGBDATA, @$);}
+	| SHOP {$$ = new ASTVarType(DataType::SHOPDATA, @$);}
+	| SPRITE {$$ = new ASTVarType(DataType::SPRITEDATA, @$);}
+	| TUNE {$$ = new ASTVarType(DataType::TUNES, @$);}
+	| WARPRING	{$$ = new ASTVarType(DataType::WARPRING, @$);}
 	| IDENTIFIER {
 			ASTString *name = (ASTString*)$1;
 			$$ = new ASTVarType(DataTypeUnresolved(name->getValue()), @$);
