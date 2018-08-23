@@ -292,6 +292,9 @@ int DataTypeSimple::selfCompare(DataType const& rhs) const
 
 bool DataTypeSimple::canCastTo(DataType const& target) const
 {
+	if (simpleId == ZVARTYPEID_UNTYPED) return true;
+	if (target == UNTYPED) return true;
+	
 	if (DataTypeConstFloat const* t =
 			dynamic_cast<DataTypeConstFloat const*>(&target))
 		return canCastTo(DataType::FLOAT);
@@ -326,6 +329,8 @@ bool DataTypeSimple::canBeGlobal() const
 
 bool DataTypeConstFloat::canCastTo(DataType const& target) const
 {
+	if (target == UNTYPED) return true;
+	
 	if (*this == target) return true;
 	return DataType::FLOAT.canCastTo(target);
 }
@@ -360,6 +365,8 @@ string DataTypeClass::getName() const
 
 bool DataTypeClass::canCastTo(DataType const& target) const
 {
+	if (target == UNTYPED) return true;
+	
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
 		return canCastTo(getBaseType(*t));
@@ -378,6 +385,8 @@ int DataTypeClass::selfCompare(DataType const& rhs) const
 
 bool DataTypeArray::canCastTo(DataType const& target) const
 {
+	if (target == UNTYPED) return true;
+	
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
 		return canCastTo(getBaseType(*t));
