@@ -2,6 +2,18 @@
 
 //Alpha 35
 
+Fix switch-case.
+	( grayswandir, 24th August, 2018 )
+
+Parser Fixes:
+	Let you use indexed arrays as left side of pointers.
+	Re-Add in missing lexer tokens (mapdata, messagedata, ponddata, rgbdata, shopdata, spritedata), (lost in refactor)
+	Re-Add in proper casting to/from untyped (lost in refactor)
+	Fix pointer for GetPixel().
+	Allow type names as identifiers
+	Add back in missing tokens to scanner (lost in refactor)
+	( grayswandir, 22nd August, 2018 )
+
 Changed the enemy editor default for hitsound from 0 (None)
 to 11 (Enemy is Hit) in the quest loader for older quests.
 Now if hitsfx is set to 0 (none), the hit will be silent.
