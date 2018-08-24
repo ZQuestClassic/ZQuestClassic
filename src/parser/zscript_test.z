@@ -503,17 +503,29 @@ global script Init {
 		test_group("Switch Statements");
 		int key = 10;
 		int x = 0;
+		int y = 0;
+
 		switch (key) {
 		case 5:	x = 5; break;
 		case 10: x = 10; break;
 		}
 		test(10, x);
+		
 		switch (key) {
 		case 5:	x = 5; break;
 		case 90:
 		default: x = 45; break;
 		}
 		test(45, x);
+
+		switch (key + 10) {
+		case 50: y = 99; break;
+		case 20: x = 15;
+		case 10: y = 10; break;
+		default: y = 34;
+		}
+		test(15, x);
+		test(10, y);
 	}
 	
 	void test_Variables() {
