@@ -320,18 +320,33 @@ global script Init {
 	}
 
 	void test_ArrayCasts() {
+		int ary1[] = {100, 200};
+		int ary2[] = {300, 400};
+		const int aryC[] = {500, 600};
+		int single = 0; 
+		const int singleC = -50;
+		
 		test_group("Cast between int[] and int");
-		int a[] = {100};
-		int b = a;
-		test(100, b[0]);
-		a = b[0];
-		test(100, a);
+		single = ary1;
+		test(100, single[0]);
+		ary1 = single[0];
+		test(100, ary1);
+		ary1 = single;
 
+		test_group("Assign to arrays");
+		ary1[0] = 500;
+		test(500, ary1[0]);
+		ary1[0] = singleC;
+		test(-50, ary1[0]);
+			
 		test_group("Assignment between arrays");
-		int c[] = {0};
-		int d[] = {5};
-		c[0] = d[0];
-		test(5, c[0]);
+		ary1[0] = ary2[0];
+		test(300, ary1[0]);
+		test(200, ary1[1]);
+
+		test_group("Cast from const int[] to int");
+		single = aryC;
+		test(500, single[0]);
 	}
 
 	void test_Constants() {
