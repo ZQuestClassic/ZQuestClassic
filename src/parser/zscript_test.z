@@ -10,6 +10,8 @@
 import "std.zh"
 import "zscript_test_a.z"
 
+const int ZERO = 0;
+
 // Global Typedef
 typedef int num;
 num typedefstring[] = "Test";
@@ -143,6 +145,7 @@ global script Init {
 		test_ArrayCasts();
 		test_BuiltIns();
 		test_Constants();
+		test_FunctionResolution();
 		test_Operations();
 		test_Options();
 		test_ScriptStrip();
@@ -340,6 +343,24 @@ global script Init {
 		test(100, LOCAL);
 	}
 
+	void test_fr1(int a, bool b) {}
+	void test_fr1(bool a, int b) {}
+	void test_fr2(int a) {global_var_1 = 100;}
+	void test_fr2(bool a) {global_var_1 = 200;}
+	void test_FunctionResolution() {
+		test_group("Function Resolution");
+		compile_error (22) test_fr1(0, 0);
+		compile_error (22) test_fr1(ZERO, ZERO);
+
+		global_var_1 = 0;
+		test_fr2(0);
+		test(100, global_var_1);
+		test_fr2(false);
+		test(200, global_var_1);
+		test_fr2(ZERO);
+		test(100, global_var_1);
+	}
+	
 	void test_Operations() {
 		test_group("Math Operations");
 		int val = 100;
