@@ -147,6 +147,7 @@ global script Init {
 		test_Options();
 		test_ScriptStrip();
 		test_Strings();
+		test_Switch();
 		test_Variables();
 
 		if (error_count > 0)
@@ -498,6 +499,23 @@ global script Init {
 		test(0, test_Strings_l3[3]);
 	}
 
+	void test_Switch() {
+		test_group("Switch Statements");
+		int key = 10;
+		int x = 0;
+		switch (key) {
+		case 5:	x = 5; break;
+		case 10: x = 10; break;
+		}
+		test(10, x);
+		switch (key) {
+		case 5:	x = 5; break;
+		case 90:
+		default: x = 45; break;
+		}
+		test(45, x);
+	}
+	
 	void test_Variables() {
 		test_group("Global Variable Initialization & Reading");
 		test(0, test_Variables_g1);
