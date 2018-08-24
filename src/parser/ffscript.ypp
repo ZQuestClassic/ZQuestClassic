@@ -578,7 +578,7 @@ Statement_Switch_Body :
 		ASTStmtSwitch* sw = (ASTStmtSwitch*)$1;
 		ASTSwitchCases* cases = (ASTSwitchCases*)$2;
 		ASTBlock* block = (ASTBlock*)$3;
-		cases->block;
+		cases->block = block;
 		sw->cases.push_back(cases);
 		$$ = sw;}
 	| Statement_Switch_Cases Statement_Block_List {
