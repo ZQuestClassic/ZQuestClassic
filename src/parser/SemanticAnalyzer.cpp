@@ -679,9 +679,10 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 			++castCount;
 		}
 
-		// If this beats the record, keep it.
+		// If this beats the record, clear results and keep it.
 		if (castCount < bestCastCount)
 		{
+			bestFunctions.clear();
 			bestFunctions.push_back(&function);
 			bestCastCount = castCount;
 		}
