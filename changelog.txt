@@ -2,6 +2,8 @@
 
 //Alpha 35
 
+Fix parser function overload typecasting logic. ( grayswandir, 25th August, 2018 )
+
 Fix switch-case.
 	( grayswandir, 24th August, 2018 )
 
