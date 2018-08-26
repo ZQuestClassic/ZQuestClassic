@@ -80,3 +80,6 @@ makefile.inc
 /allegro/CMakeFiles/
 /allegro/Makefile
 /allegro/cmake_install.cmake
+
+# Bison
+/src/parser/y.output
