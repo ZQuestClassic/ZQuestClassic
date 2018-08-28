@@ -555,7 +555,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
     //push the return address
     addOpcode(new OSetImmediate(new VarArgument(EXP1), new LabelArgument(returnlabel)));
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    //get the rhs of the arrow
+    //push the lhs of the arrow
     visit(host.left, param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 

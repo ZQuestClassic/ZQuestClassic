@@ -224,10 +224,6 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		first->setLabel(function.getLabel());
 		funccode.push_back(first);
 
-		// Push 0s for the local variables.
-		for (int i = stackSize - getParameterCount(function); i > 0; --i)
-			funccode.push_back(new OPushRegister(new VarArgument(EXP1)));
-        
 		// Push on the this, if a script
 		if (isRun)
 		{
@@ -243,6 +239,10 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
             
 			funccode.push_back(new OPushRegister(new VarArgument(EXP2)));
 		}
+        
+		// Push 0s for the local variables.
+		for (int i = stackSize - getParameterCount(function); i > 0; --i)
+			funccode.push_back(new OPushRegister(new VarArgument(EXP1)));
         
 		// Set up the stack frame register
 		funccode.push_back(new OSetRegister(new VarArgument(SFRAME),
