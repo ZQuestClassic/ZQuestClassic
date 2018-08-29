@@ -970,7 +970,15 @@ enum
 #define HIT_BY_COMBO 8
 #define HIT_BY_MAPFLAG 9
 
-#define NUM_HIT_TYPES_USED 10
+#define HIT_BY_NPC_FAMILY 10
+#define HIT_BY_EWEAPON_FAMILY 11
+#define HIT_BY_LWEAPON_FAMILY 12
+#define HIT_BY_NPC_LITERAL_ID 13
+#define HIT_BY_EWEAPON_LITERAL_ID 14
+#define HIT_BY_LWEAPON_LITERAL_ID 15
+
+#define NUM_HIT_TYPES_USED 16
+#define NUM_HIT_TYPES_USED_LINK 4
 
 // weapon types in game engine
 enum

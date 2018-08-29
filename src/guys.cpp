@@ -13967,8 +13967,22 @@ void check_collisions()
 		    { 
 			    e->hitby[HIT_BY_LWEAPON] = i+1; temp_hit = true; 
 			    e->hitby[HIT_BY_LWEAPON_UID] = w->script_UID;
-		    }							      //we may need to handle this in special cases. -Z
-                    // NOT FOR PUBLIC RELEASE
+			    //e->hitby[HIT_BY_LWEAPON_FAMILY] = itemsbuf[w->parentid].family; //that would be the itemclass, not the weapon type!
+			    e->hitby[HIT_BY_LWEAPON_FAMILY] = w->id;
+			    //al_trace("npc->HitBy[] Parent Item is: %d /n", w->parentitem);
+			    //al_trace("npc->HitBy[] Parent ID is: %d /n", w->parentid);
+			    e->hitby[HIT_BY_LWEAPON_LITERAL_ID] = w->parentitem;
+			    
+		    }
+							      //we may need to handle this in special cases. -Z
+                   
+		    //if h == stun or ignore
+		    
+		    //if e->stun > DEFAULT_STUN -1 || !e->stun 
+		    //if the enemy wasn't stunned this round -- what a bitch, as the stun value is set before we check this
+		    ///! how about: if w->dead != bounce !
+		    
+		    // NOT FOR PUBLIC RELEASE
                     /*if(h==3) //Mirror shield
                     {
                     if (w->id==ewFireball || w->id==wRefFireball)

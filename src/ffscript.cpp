@@ -2515,6 +2515,14 @@ long get_register(const long arg)
 			case 1:
 			case 2:
 			case 3:
+			case 8:
+			case 9:
+			case 10:
+			case 11:
+			case 12:
+			case 13:
+			case 14:
+			case 15:
 			{
 				ret = GuyH::getNPC()->hitby[indx] * 10000; // * 10000; //do not multiply by 10000! UIDs are not *10000!
 				break;
@@ -5788,6 +5796,7 @@ void set_register(const long arg, const long value)
          case LINKEQUIP:
           {
         
+		  //int seta = (value/10000) >> 8; int setb = value/10000) & 0xFF;
         	int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
         	if(seta && get_bit(quest_rules,qr_SELECTAWPN) && game->item[seta]){
 			Awpn = value/10000;
@@ -7737,6 +7746,14 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 			case 1:
 			case 2:
 			case 3:
+			case 8:
+			case 9:
+			case 10:
+			case 11:
+			case 12:
+			case 13:
+			case 14:
+			case 15:
 			{
 				GuyH::getNPC()->hitby[indx] = vbound((value / 10000),0,255); //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
     				break;

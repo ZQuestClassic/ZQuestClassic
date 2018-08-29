@@ -133,7 +133,7 @@ void LinkClass::ClearhitLinkUIDs()
 		// 1. If set by internal mecanics, it has its value that you can read by script, before waitdraw--this part works at present.
 		// 2. FFCs can read it before Waitframe. --same.
 		// 3. After Waitframe(), it is wiped by the ZC Engine to 0. --I cannot get this to happen without breaking 1 and 2. 
-	for ( int q = 0; q < 4; q++ ) 	
+	for ( int q = 0; q < NUM_HIT_TYPES_USED_LINK; q++ ) 	
 	{
 		/*
 		if ( lastHitBy[q][1] == (frame-1) ) //Verify if this is needed at all now. 

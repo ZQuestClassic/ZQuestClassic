@@ -80,7 +80,7 @@ public:
     byte defense[edefLAST255];
     byte hitsfx,deadsfx;
     
-    byte hitby[NUM_HIT_TYPES_USED];
+    long hitby[NUM_HIT_TYPES_USED];
     short firesfx;
     bool isCore;
     short parentCore; 
