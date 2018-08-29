@@ -329,13 +329,14 @@ const float RAD_DIR_UPRIGHT 	= 5.4978;
 const float RAD_DIR_UP 		= 4.7214;
 const float RAD_DIR_UPLEFT 	= 3.927;
 const float RAD_DIR_LEFTUP 	= 3.927;
-const float RAD_DIR_LEFT 	= 3.1519; //Pi
+const float RAD_DIR_LEFT 	= 3.1416; //3.1519; //Pi
 const float RAD_DIR_LEFTDOWN 	= 2.3562; //Pi
-const float RAD_DIR_DOWNLEFT 	= 2.3562;
+const float RAD_DIR_DOWNLEFT 	= 2.3562; //Pi
 const float RAD_DIR_DOWN 	= 1.5708;
 const float RAD_DIR_RIGHTDOWN 	= 0.7854;
 const float RAD_DIR_DOWNRIGHT 	= 0.7854;
 const float RAD_DIR_RIGHT 	= 0; 
+
 
 
 
@@ -1817,61 +1818,61 @@ const int CF_PUSHED 		= 104;
 //2.54+ Flags
 
 const int CF_SCRIPT6 		= 105; //should be 106
-const int CF_SCRIPT7 		= 107;
-const int CF_SCRIPT8 		= 108;
-const int CF_SCRIPT9 		= 109;
-const int CF_SCRIPT10 		= 110;
-const int CF_SCRIPT11 		= 111;
-const int CF_SCRIPT12 		= 112;
-const int CF_SCRIPT13 		= 113;
-const int CF_SCRIPT14 		= 114;
-const int CF_SCRIPT15 		= 115;
-const int CF_SCRIPT16 		= 116;
-const int CF_SCRIPT17 		= 117;
-const int CF_SCRIPT18 		= 118;
-const int CF_SCRIPT19 		= 119;
-const int CF_SCRIPT20 		= 120;
-const int CF_SCRIPT_PIT 	= 121; // Pit or Hole (Scripted)",
-const int CF_SCRIPT_PIT_FALL 	= 122; // Pit or Hole, Fall Down Floor (Scripted)",
-const int CF_SCRIPT_LAVA 	= 123; // Fire or Lava (Scripted)",
-const int CF_SCRIPT_ICE 	= 124; // Ice (Scripted)",
-const int CF_SCRIPT_ICE_DMG  	= 125; //Ice, Damaging (Scripted)",
-const int CF_SCRIPT_DAMAGE_1 	= 126;  //Damage-1 (Scripted)",
-const int CF_SCRIPT_DAMAGE_2   	= 127; // Damage-2 (Scripted)",
-const int CF_SCRIPT_DAMAGE_4 	= 128; //Damage-4 (Scripted)",
-const int CF_SCRIPT_DAMAGE_8 	= 129; //Damage-8 (Scripted)",
-const int CF_SCRIPT_DAMAGE_16 	= 130; //Damage-16 (Scripted)",
-const int CF_SCRIPT_DAMAGE_32 	= 131; //Damage-32 (Scripted)",
-const int CF_SCRIPT_FREEZE_SCREEN = 132; //Freeze Screen (Unimplemented)",
-const int CF_SCRIPT_FREEZE_SCREEN_EXCEPT_FFCS  = 133; // Freeze Screen, Except FFCs (Unimplemented)",
-const int CF_SCRIPT_FREEZE_FFCS_ONLY = 134; //Freeze FFCs Only (Unimplemented)",
-const int CF_LW_SCRIPT1   	= 135; // Trigger LW_SCRIPT1 (Unimplemented)",
-const int CF_LW_SCRIPT2 	= 136; // Trigger LW_SCRIPT2 (Unimplemented)",
-const int CF_LW_SCRIPT3 	= 137; //Trigger LW_SCRIPT3 (Unimplemented)",
-const int CF_LW_SCRIPT4 	= 138; //Trigger LW_SCRIPT4 (Unimplemented)",
-const int CF_LW_SCRIPT5 	= 139; //Trigger LW_SCRIPT5 (Unimplemented)",
-const int CF_LW_SCRIPT6 	= 140; //Trigger LW_SCRIPT6 (Unimplemented)",
-const int CF_LW_SCRIPT7 	= 141; //Trigger LW_SCRIPT7 (Unimplemented)",
-const int CF_LW_SCRIPT8 	= 142; //Trigger LW_SCRIPT8 (Unimplemented)",
-const int CF_LW_SCRIPT9 	= 143; //Trigger LW_SCRIPT9 (Unimplemented)",
-const int CF_LW_SCRIPT10 	= 144; //Trigger LW_SCRIPT10 (Unimplemented)",
-const int CF_SCRIPT_DIG 	= 145;  //Dig Spot (Scripted)",
-const int CF_SCRIPT_DIG_NEXT  	= 146;  //Dig Spot, Next (Scripted)",
-const int CF_SCRIPT_DIG_ITEM  	= 147;  //Dig Spot, Special Item (Scripted)",
-const int CF_SCRIPT_POT_SLASH  	= 148; // Pot, Slashable (Scripted)",
-const int CF_SCRIPT_POT_SLASH_LIFT = 149; // Pot, Liftable (Scripted)",
-const int CF_SCRIPT_POT_SLASH_OR_LIFT =  150; // Pot, Slash or Lift (Scripted)",
-const int CF_SCRIPT_LIFT_NORMAL = 151; // Rock, Lift Normal (Scripted)",
-const int CF_SCRIPT_LIFT_HEAVY 	= 152; // Rock, Lift Heavy (Scripted)",
-const int CF_SCRIPT_DROPSET_ITEM = 153; // Dropset Item (Scripted)",
-const int CF_SCRIPT_SPECIAL_ITEM = 154; // Special Item (Scripted)",
-const int CF_SCRIPT_DROP_KEY 	= 155; //Drop Key (Scripted)",
-const int CF_SCRIPT_DROP_LKEY 	= 156; // Drop level-Specific Key (Scripted)",
-const int CF_SCRIPT_DROP_COMPASS = 157; // Drop Compass (Scripted)",
-const int CF_SCRIPT_DROP_MAP 	= 158; // Drop Map (Scripted)",
- //   "159 Drop Map (Scripted)", // Duplicate??
-const int CF_SCRIPT_SPAWN_NPC 	= 160; // Spawn NPC (Scripted)",
-const int CF_SCRIPT_SWITCHHOOK 	= 161; // SwitchHook Spot (Scripted)",
+const int CF_SCRIPT7 		= 106;
+const int CF_SCRIPT8 		= 107;
+const int CF_SCRIPT9 		= 108;
+const int CF_SCRIPT10 		= 109;
+const int CF_SCRIPT11 		= 110;
+const int CF_SCRIPT12 		= 111;
+const int CF_SCRIPT13 		= 112;
+const int CF_SCRIPT14 		= 113;
+const int CF_SCRIPT15 		= 114;
+const int CF_SCRIPT16 		= 115;
+const int CF_SCRIPT17 		= 116;
+const int CF_SCRIPT18 		= 117;
+const int CF_SCRIPT19 		= 118;
+const int CF_SCRIPT20 		= 119;
+const int CF_SCRIPT_PIT 	= 120; // Pit or Hole (Scripted)",
+const int CF_SCRIPT_PIT_FALL 	= 121; // Pit or Hole, Fall Down Floor (Scripted)",
+const int CF_SCRIPT_LAVA 	= 122; // Fire or Lava (Scripted)",
+const int CF_SCRIPT_ICE 	= 123; // Ice (Scripted)",
+const int CF_SCRIPT_ICE_DMG  	= 124; //Ice, Damaging (Scripted)",
+const int CF_SCRIPT_DAMAGE_1 	= 125;  //Damage-1 (Scripted)",
+const int CF_SCRIPT_DAMAGE_2   	= 126; // Damage-2 (Scripted)",
+const int CF_SCRIPT_DAMAGE_4 	= 127; //Damage-4 (Scripted)",
+const int CF_SCRIPT_DAMAGE_8 	= 128; //Damage-8 (Scripted)",
+const int CF_SCRIPT_DAMAGE_16 	= 129; //Damage-16 (Scripted)",
+const int CF_SCRIPT_DAMAGE_32 	= 130; //Damage-32 (Scripted)",
+const int CF_SCRIPT_FREEZE_SCREEN = 131; //Freeze Screen (Unimplemented)",
+const int CF_SCRIPT_FREEZE_SCREEN_EXCEPT_FFCS  = 132; // Freeze Screen, Except FFCs (Unimplemented)",
+const int CF_SCRIPT_FREEZE_FFCS_ONLY = 133; //Freeze FFCs Only (Unimplemented)",
+const int CF_LW_SCRIPT1   	= 134; // Trigger LW_SCRIPT1 (Unimplemented)",
+const int CF_LW_SCRIPT2 	= 135; // Trigger LW_SCRIPT2 (Unimplemented)",
+const int CF_LW_SCRIPT3 	= 136; //Trigger LW_SCRIPT3 (Unimplemented)",
+const int CF_LW_SCRIPT4 	= 137; //Trigger LW_SCRIPT4 (Unimplemented)",
+const int CF_LW_SCRIPT5 	= 138; //Trigger LW_SCRIPT5 (Unimplemented)",
+const int CF_LW_SCRIPT6 	= 139; //Trigger LW_SCRIPT6 (Unimplemented)",
+const int CF_LW_SCRIPT7 	= 140; //Trigger LW_SCRIPT7 (Unimplemented)",
+const int CF_LW_SCRIPT8 	= 141; //Trigger LW_SCRIPT8 (Unimplemented)",
+const int CF_LW_SCRIPT9 	= 142; //Trigger LW_SCRIPT9 (Unimplemented)",
+const int CF_LW_SCRIPT10 	= 143; //Trigger LW_SCRIPT10 (Unimplemented)",
+const int CF_SCRIPT_DIG 	= 144;  //Dig Spot (Scripted)",
+const int CF_SCRIPT_DIG_NEXT  	= 145;  //Dig Spot, Next (Scripted)",
+const int CF_SCRIPT_DIG_ITEM  	= 146;  //Dig Spot, Special Item (Scripted)",
+const int CF_SCRIPT_POT_SLASH  	= 147; // Pot, Slashable (Scripted)",
+const int CF_SCRIPT_POT_SLASH_LIFT = 148; // Pot, Liftable (Scripted)",
+const int CF_SCRIPT_POT_SLASH_OR_LIFT =  149; // Pot, Slash or Lift (Scripted)",
+const int CF_SCRIPT_LIFT_NORMAL = 150; // Rock, Lift Normal (Scripted)",
+const int CF_SCRIPT_LIFT_HEAVY 	= 151; // Rock, Lift Heavy (Scripted)",
+const int CF_SCRIPT_DROPSET_ITEM = 152; // Dropset Item (Scripted)",
+const int CF_SCRIPT_SPECIAL_ITEM = 153; // Special Item (Scripted)",
+const int CF_SCRIPT_DROP_KEY 	= 154; //Drop Key (Scripted)",
+const int CF_SCRIPT_DROP_LKEY 	= 155; // Drop level-Specific Key (Scripted)",
+const int CF_SCRIPT_DROP_COMPASS = 156; // Drop Compass (Scripted)",
+const int CF_SCRIPT_DROP_MAP 	= 157; // Drop Map (Scripted)",
+const int CF_SCRIPT_DROP_BOSS_KEY 	= 158; // Drop Boss Key (Scripted)",
+const int CF_SCRIPT_SPAWN_NPC 	= 159; // Spawn NPC (Scripted)",
+const int CF_SCRIPT_SWITCHHOOK 	= 160; // SwitchHook Spot (Scripted)",
 
 //chests  to 16, unlocked, locked, boss; small, big. Probably better as combo types?
 
@@ -2237,3 +2238,64 @@ const int VOL_MIDI 	= 0;
 const int VOL_DIGI	= 1;
 const int VOL_MUSIC	= 2;
 const int VOL_SFX	= 3;
+
+//Input->
+/* Defined earlier.
+const int CB_UP		= 0;
+const int CB_DOWN	= 1;
+const int CB_LEFT	= 2;
+const int CB_RIGHT	= 3;
+const int CB_A		= 4;
+const int CB_B		= 5;
+const int CB_L		= 7;
+const int CB_R		= 8;
+const int CB_START	= 6;
+const int CB_MAP	= 9;
+const int CB_EX1	= 10;
+const int CB_EX2	= 11;
+const int CB_EX3	= 12;
+const int CB_EX4	= 13;
+const int CB_AXIS_UP	= 14;
+const int CB_AXIS_DOWN	= 15;
+const int CB_AXIS_LEFT	= 16;
+const int CB_AXIS_RIGHT	= 17;
+
+*/
+
+const float DIR16_DEG_INCREMENT = 22.5; //Number of degrees per 1/16 rotation
+
+const float DIR16_DEG_UP 		= 270;
+const float DIR16_DEG_UPUPLEFT = 247.5;
+
+const float DIR16_DEG_UPLEFT 	= 225;
+const float DIR16_DEG_LEFTLEFTUP = 202.5;
+const float DIR16_DEG_LEFT 		= 180;
+const float DIR16_DEG_LEFTLEFTDOWN = 157.5;
+const float DIR16_DEG_LEFTDOWN 	= 135;
+const float DIR16_DEG_DOWNDOWNLEFT = 112.5;
+const float DIR16_DEG_DOWN 		= 90;
+const float DIR16_DEG_DOWNDOWNRIGHT = 67.5;
+const float DIR16_DEG_RIGHTDOWN 	= 45;
+const float DIR16_DEG_RIGHTRIGHTDOWN = 22.5;
+const float DIR16_DEG_RIGHT 	= 0;
+const float DIR16_DEG_RIGHTRIGHTUP  = 292.5;
+const float DIR16_DEG_DIR_RIGHTUP 	= 315;
+
+const float DIR_16_RADS_INCREMENT = 0.3927; //Number of radians per 1/16 rotation
+
+const float DIR16_RADS_UP 		= 4.7214;
+const float DIR16_RADS_UPUPLEFT = 4.3197;
+const float DIR16_RADS_UPLEFT 	= 3.927;
+const float DIR16_RADS_LEFTLEFTUP = 3.5343;
+const float DIR16_RADS_LEFT 	= 3.1416; //3.1519; //Pi
+const float DIR16_RADS_LEFTLEFTDOWN = 2.7489;
+const float DIR16_RADS_LEFTDOWN 	= 2.3562; 
+const float DIR16_RADS_DOWNDOWNLEFT = 1.9635;
+const float DIR16_RADS_DOWN 	= 1.5708;
+const float DIR16_RADS_DOWNDOWNRIGHT = 1.1781;
+const float DIR16_RADS_RIGHTDOWN 	= 0.7854;
+const float DIR16_RADS_RIGHTRIGHTDOWN = 0.3927; 
+const float DIR16_RADS_RIGHT 	= 0; 
+const float DIR16_RADS_RIGHTRIGHTUP = 5.1051;
+const float DIR16_RADS_RIGHTUP 	= 5.4978;
+const float DIR16_RADS_RIGHTUPUP 	= 5.1141;
