@@ -1,12 +1,28 @@
-//2.54 Changes
+//2.55 and 2.54 Changes
 
-//Alpha 35
+//2.55 Alpha 1 (Candidates)
+
+Added npc->HitBy[LW_TYPE] : This stores the lweapon type (ID) that struck an npc.
+Added npc->HitBy[LW_PARENTITEM] : THis stores the parent Item ID that generated a weapon that struck the npc.
+( ZoriaRPG, 29th August, 2018 )
+
+Fixed values for new combo flag constants, starting with 106. 
+ ( VenRob, 29th August, 2018 )
+
+//2.55 Preliminary 6
+
+Fixed the `this->` pointer being pushed last instead of first. ( grayswandir, 28th August, 2018 )
+
+//2.55 Preliminary 5
 
 Fix parser function overload typecasting logic. ( grayswandir, 25th August, 2018 )
+
+//2.55 Preliminary 4
 
 Fix switch-case.
 	( grayswandir, 24th August, 2018 )
 
+//2.55 Preliminary 3 
 Parser Fixes:
 	Let you use indexed arrays as left side of pointers.
 	Re-Add in missing lexer tokens (mapdata, messagedata, ponddata, rgbdata, shopdata, spritedata), (lost in refactor)
@@ -15,6 +31,8 @@ Parser Fixes:
 	Allow type names as identifiers
 	Add back in missing tokens to scanner (lost in refactor)
 	( grayswandir, 22nd August, 2018 )
+
+//Alpha 35
 
 Changed the enemy editor default for hitsound from 0 (None)
 to 11 (Enemy is Hit) in the quest loader for older quests.
