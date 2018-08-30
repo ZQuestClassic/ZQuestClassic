@@ -141,7 +141,8 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 		auto_ptr<ASTFile> imported(parseFile(filename));
 		if (!imported.get())
 		{
-			CompileError::CantOpenImport.print(&importDecl, filename);
+			CompileError::CantOpenImport.print(
+					&importDecl, filename.c_str());
 			return false;
 		}
 
