@@ -43,6 +43,7 @@ struct IntermediateData
 
 struct OpcodeContext
 {
+	OpcodeContext(ZScript::TypeStore*);
 	ZScript::TypeStore* typeStore;
 	std::vector<Opcode*> initCode;
 };

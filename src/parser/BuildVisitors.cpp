@@ -434,25 +434,8 @@ void BuildOpcodes::buildArrayInit(ASTDataDecl& host, OpcodeContext& context)
 {
 	Datum& manager = *host.manager;
 
-	// Initializer creates the array and loads the array id into EXP1.
+	// Initializer should take care of everything.
 	visit(host.initializer(), &context);
-
-	// Set variable to EXP1.
-	if (optional<int> globalId = manager.getGlobalId())
-	{
-		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-		                           new VarArgument(EXP1)));
-	}
-	else
-	{
-		int offset = 10000L * *getStackOffset(manager);
-		addOpcode(new OSetRegister(new VarArgument(SFTEMP),
-		                           new VarArgument(SFRAME)));
-		addOpcode(new OAddImmediate(new VarArgument(SFTEMP),
-		                            new LiteralArgument(offset)));
-		addOpcode(new OStoreIndirect(new VarArgument(EXP1),
-		                             new VarArgument(SFTEMP)));
-	}
 }
 
 void BuildOpcodes::buildArrayUninit(
@@ -1106,63 +1089,123 @@ void BuildOpcodes::caseBoolLiteral(ASTBoolLiteral& host, void*)
     addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
 }
 
-// TODO add implicit stackframe to global case for literals.
 void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
 {
-	OpcodeContext* c = (OpcodeContext*)param;
-	int id = host.manager->id;
+	OpcodeContext& context = *(OpcodeContext*)param;
+	if (host.declaration) stringLiteralDeclaration(host, context);
+	else stringLiteralFree(host, context);
+}
+
+void BuildOpcodes::stringLiteralDeclaration(
+		ASTStringLiteral& host, OpcodeContext& context)
+{
+	ASTDataDecl& declaration = *host.declaration;
+	Datum& manager = *declaration.manager;
+	string const& data = host.value;
+
+	// Grab the size from the declaration.
+	int size = -1;
+	ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
+	if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
+		size = *totalSize;
+	else if (extraArray.hasSize())
+	{
+		handleError(CompileError::ExprNotConstant, &host);
+		return;
+	}
+
+	// Otherwise, grab the number of elements as the size.
+	if (size == -1) size = data.size() + 1;
+
+	// Make sure the chosen size has enough space.
+	if (size < int(data.size() + 1))
+	{
+		handleError(CompileError::ArrayListTooLarge, &host);
+		return;
+	}
+
+	// Create the array and store its id.
+	if (optional<int> globalId = manager.getGlobalId())
+	{
+		addOpcode(new OAllocateGlobalMemImmediate(
+				          new VarArgument(EXP1),
+				          new LiteralArgument(size * 10000L)));
+		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
+		                           new VarArgument(EXP1)));
+	}
+	else
+	{
+		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
+		                                    new LiteralArgument(size * 10000L)));
+		int offset = 10000L * *getStackOffset(manager);
+		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		// Register for cleanup.
+		arrayRefs.push_back(offset);
+	}
+
+	// Initialize array.
+	addOpcode(new OSetRegister(new VarArgument(INDEX),
+	                           new VarArgument(EXP1)));
+	for (int i = 0; i < (int)data.size(); ++i)
+	{
+		addOpcode(new OSetImmediate(
+				          new VarArgument(INDEX2),
+				          new LiteralArgument(i * 10000L)));
+		addOpcode(new OSetImmediate(
+				          new VarArgument(SCRIPTRAM),
+				          new LiteralArgument(data[i] * 10000L)));
+	}
+	addOpcode(new OSetImmediate(
+			          new VarArgument(INDEX2),
+			          new LiteralArgument(data.size() * 10000L)));
+	addOpcode(new OSetImmediate(
+			          new VarArgument(SCRIPTRAM),
+			          new LiteralArgument(0)));
+}
+
+void BuildOpcodes::stringLiteralFree(
+		ASTStringLiteral& host, OpcodeContext& context)
+{
+	Literal& manager = *host.manager;
+	string data = host.value;
+	long size = data.size() + 1;
+	int offset = *getStackOffset(manager) * 10000L;
+	vector<Opcode*>& init = context.initCode;
 
 	////////////////////////////////////////////////////////////////
 	// Initialization Code.
 
-	string data = host.value;
-	long size = (data.size() + 1) * 10000L;
-
-	// If this is part of an array declaration, grab the size info from it.
-	if (host.declaration)
-	{
-		ASTDataDeclExtraArray& extraArray = *host.declaration->extraArrays[0];
-		if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
-			size = *totalSize * 10000L;
-		else if (extraArray.hasSize())
-		{
-			handleError(CompileError::ExprNotConstant, &host);
-			return;
-		}
-	}
-
 	// Allocate.
-	c->initCode.push_back(
-			new OAllocateMemImmediate(new VarArgument(EXP1),
-			                          new LiteralArgument(size)));
-	int offset = 10000L * *getStackOffset(*host.manager);
-	c->initCode.push_back(new OSetRegister(new VarArgument(SFTEMP),
-	                                       new VarArgument(SFRAME)));
-	c->initCode.push_back(
-			new OAddImmediate(new VarArgument(SFTEMP),
-			                  new LiteralArgument(offset)));
-	c->initCode.push_back(new OStoreIndirect(new VarArgument(EXP1),
-	                                         new VarArgument(SFTEMP)));
+	init.push_back(new OAllocateMemImmediate(
+			               new VarArgument(EXP1),
+			               new LiteralArgument(size * 10000L)));
+	init.push_back(new OSetRegister(new VarArgument(SFTEMP),
+	                                new VarArgument(SFRAME)));
+	init.push_back(new OAddImmediate(new VarArgument(SFTEMP),
+	                                 new LiteralArgument(offset)));
+	init.push_back(new OStoreIndirect(new VarArgument(EXP1),
+	                                  new VarArgument(SFTEMP)));
 
 	// Initialize.
-	c->initCode.push_back(new OSetRegister(new VarArgument(INDEX),
-	                                       new VarArgument(EXP1)));
+	init.push_back(new OSetRegister(new VarArgument(INDEX),
+	                                new VarArgument(EXP1)));
 	for (int i = 0; i < (int)data.size(); ++i)
 	{
-		c->initCode.push_back(
-				new OSetImmediate(new VarArgument(INDEX2),
-				                  new LiteralArgument(i * 10000L)));
-		long value = data[i] * 10000L;
-		c->initCode.push_back(new OSetImmediate(
-				                      new VarArgument(SCRIPTRAM),
-				                      new LiteralArgument(value)));
+		init.push_back(new OSetImmediate(
+				               new VarArgument(INDEX2),
+				               new LiteralArgument(i * 10000L)));
+		init.push_back(new OSetImmediate(
+				               new VarArgument(SCRIPTRAM),
+				               new LiteralArgument(data[i] * 10000L)));
 	}
-	c->initCode.push_back(
-			new OSetImmediate(new VarArgument(INDEX2),
-			                  new LiteralArgument(data.size() * 10000L)));
-	c->initCode.push_back(new OSetImmediate(
-			                      new VarArgument(SCRIPTRAM),
-			                      new LiteralArgument(0)));
+	init.push_back(new OSetImmediate(
+			               new VarArgument(INDEX2),
+			               new LiteralArgument(data.size() * 10000L)));
+	init.push_back(new OSetImmediate(
+			               new VarArgument(SCRIPTRAM),
+			               new LiteralArgument(0)));
 
 	////////////////////////////////////////////////////////////////
 	// Actual Code.
@@ -1184,25 +1227,85 @@ void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
 void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 {
 	OpcodeContext& context = *(OpcodeContext*)param;
+	if (host.declaration) arrayLiteralDeclaration(host, context);
+	else arrayLiteralFree(host, context);
+}
+
+void BuildOpcodes::arrayLiteralDeclaration(
+		ASTArrayLiteral& host, OpcodeContext& context)
+{
+	ASTDataDecl& declaration = *host.declaration;
+	Datum& manager = *declaration.manager;
+
+	// Grab the size from the declaration.
+	int size = -1;
+	ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
+	if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
+		size = *totalSize;
+	else if (extraArray.hasSize())
+	{
+		handleError(CompileError::ExprNotConstant, &host);
+		return;
+	}
+
+	// Otherwise, grab the number of elements as the size.
+	if (size == -1) size = host.elements.size();
+
+	// Make sure the chosen size has enough space.
+	if (size < int(host.elements.size()))
+	{
+		handleError(CompileError::ArrayListTooLarge, &host);
+		return;
+	}
+
+	// Create the array and store its id.
+	if (optional<int> globalId = manager.getGlobalId())
+	{
+		addOpcode(new OAllocateGlobalMemImmediate(
+				          new VarArgument(EXP1),
+				          new LiteralArgument(size * 10000L)));
+		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
+		                           new VarArgument(EXP1)));
+	}
+	else
+	{
+		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
+		                                    new LiteralArgument(size * 10000L)));
+		int offset = 10000L * *getStackOffset(manager);
+		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
+		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
+		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		// Register for cleanup.
+		arrayRefs.push_back(offset);
+	}
+
+	// Initialize array.
+	addOpcode(new OSetRegister(new VarArgument(INDEX),
+	                           new VarArgument(EXP1)));
+	long i = 0;
+	vector<ASTExpr*> elements = host.elements;
+	for (vector<ASTExpr*>::const_iterator it = elements.begin();
+		 it != elements.end(); ++it, i += 10000L)
+	{
+		addOpcode(new OPushRegister(new VarArgument(INDEX)));
+		visit(*it, &context);
+		addOpcode(new OPopRegister(new VarArgument(INDEX)));
+		addOpcode(new OSetImmediate(new VarArgument(INDEX2),
+		                            new LiteralArgument(i)));
+		addOpcode(new OSetRegister(new VarArgument(SCRIPTRAM),
+		                           new VarArgument(EXP1)));
+	}
+}
+
+void BuildOpcodes::arrayLiteralFree(
+		ASTArrayLiteral& host, OpcodeContext& context)
+{
 	Literal& manager = *host.manager;
 
 	int size = -1;
 
-	// If this is part of an array declaration, grab the size info from it.
-	if (host.declaration)
-	{
-		ASTDataDeclExtraArray& extraArray = *host.declaration->extraArrays[0];
-		if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
-			size = *totalSize;
-		else if (extraArray.hasSize())
-		{
-			handleError(CompileError::ExprNotConstant, &host);
-			return;
-		}
-	}
-
 	// If there's an explicit size, grab it.
-	else if (host.size)
+	if (host.size)
 	{
 		if (optional<long> s = host.size->getCompileTimeValue(this))
 			size = *s / 10000L;
@@ -1243,7 +1346,8 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 			                   new VarArgument(SFTEMP)));
 
 	// Initialize.
-	context.initCode.push_back(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
+	context.initCode.push_back(new OSetRegister(new VarArgument(INDEX),
+	                                            new VarArgument(EXP1)));
 	long i = 0;
 	vector<ASTExpr*> elements = host.elements;
 	for (vector<ASTExpr*>::iterator it = elements.begin();
@@ -1251,7 +1355,7 @@ void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
 	{
 		context.initCode.push_back(new OPushRegister(new VarArgument(INDEX)));
 		opcodeTargets.push_back(&context.initCode);
-		visit(*it, param);
+		visit(*it, &context);
 		opcodeTargets.pop_back();
 		context.initCode.push_back(new OPopRegister(new VarArgument(INDEX)));
 		context.initCode.push_back(

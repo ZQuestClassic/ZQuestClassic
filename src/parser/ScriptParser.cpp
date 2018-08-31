@@ -141,7 +141,8 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 		auto_ptr<ASTFile> imported(parseFile(filename));
 		if (!imported.get())
 		{
-			CompileError::CantOpenImport.print(&importDecl, filename);
+			CompileError::CantOpenImport.print(
+					&importDecl, filename.c_str());
 			return false;
 		}
 
@@ -185,8 +186,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		Datum& variable = **it;
 		AST& node = *variable.getNode();
         
-		OpcodeContext oc;
-		oc.typeStore = typeStore;
+		OpcodeContext oc(typeStore);
         
 		BuildOpcodes bo;
 		node.execute(bo, &oc);
@@ -247,8 +247,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		// Set up the stack frame register
 		funccode.push_back(new OSetRegister(new VarArgument(SFRAME),
 		                                    new VarArgument(SP)));
-		OpcodeContext oc;
-		oc.typeStore = typeStore;
+		OpcodeContext oc(typeStore);
 		BuildOpcodes bo;
 		node.execute(bo, &oc);
         
