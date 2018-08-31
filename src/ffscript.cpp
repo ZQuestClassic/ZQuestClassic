@@ -18,6 +18,7 @@
 #include "ffscript.h"
 FFScript FFCore;
 zquestheader ZCheader;
+//miscQdata *Misc;
 
 #include "zelda.h"
 #include "link.h"
@@ -1257,7 +1258,7 @@ long get_register(const long arg)
         break;
         
     case LINKMISCD:
-        ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,31)])* 10000; //Was this buffed before? -Z
+        ret = (int)(Link.miscellaneous[vbound(ri->d[0]/10000,0,31)]); //Was this buffed before? -Z
         break;
     
     
@@ -2491,7 +2492,7 @@ long get_register(const long arg)
         int a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Defense[]") != SH::_NoError ||
-                BC::checkBounds(a, 0, (edefLAST255-1), "npc->Defense[]") != SH::_NoError)
+                BC::checkBounds(a, 0, (edefLAST255), "npc->Defense[]") != SH::_NoError)
             ret = -10000;
         else
             ret = GuyH::getNPC()->defense[a] * 10000;
@@ -3273,7 +3274,7 @@ long get_register(const long arg)
 	}
 	else
 	{
-		ret = misc->questmisc[indx] * 10000;
+		ret = QMisc.questmisc[indx];
 	}
 	break;
     }
@@ -4504,7 +4505,7 @@ case MAPDATAMISCD:
 			} 
 			else 
 			{ 
-				ret = ((int)(misc->shop[ref].item[indx]) * 10000); 
+				ret = ((int)(QMisc.shop[ref].item[indx]) * 10000); 
 			} 
 		} 
 	break;
@@ -4532,7 +4533,7 @@ case MAPDATAMISCD:
 			} 
 			else 
 			{ 
-				ret = ((int)(misc->shop[ref].hasitem[indx]) * 10000); 
+				ret = ((int)(QMisc.shop[ref].hasitem[indx]) * 10000); 
 			} 
 		} 
 	break;
@@ -4555,11 +4556,11 @@ case MAPDATAMISCD:
 		{ 
 			if ( isInfo ) 
 			{ 
-				ret = ((int)(misc->info[ref].price[indx]) * 10000); 
+				ret = ((int)(QMisc.info[ref].price[indx]) * 10000); 
 			} 
 			else 
 			{ 
-				ret = ((int)(misc->shop[ref].price[indx]) * 10000); 
+				ret = ((int)(QMisc.shop[ref].price[indx]) * 10000); 
 			} 
 		} 
 	break;
@@ -4588,11 +4589,11 @@ case MAPDATAMISCD:
 			{ 
 				if ( isInfo ) 
 				{ 
-					ret = ((int)(misc->info[ref].str[indx]) * 10000); 
+					ret = ((int)(QMisc.info[ref].str[indx]) * 10000); 
 				} 
 				else 
 				{ 
-					ret = ((int)(misc->shop[ref].str[indx]) * 10000); 
+					ret = ((int)(QMisc.shop[ref].str[indx]) * 10000); 
 				} 
 			} 
 	
@@ -5890,7 +5891,7 @@ void set_register(const long arg, const long value)
         break;
         
     case LINKMISCD:
-        Link.miscellaneous[vbound(ri->d[0]/10000,0,31)] = value/10000; //Was this bugged before?
+        Link.miscellaneous[vbound(ri->d[0]/10000,0,31)] = value; 
         break;
     
     case LINKHITBY:
@@ -7728,7 +7729,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         long a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Defense") == SH::_NoError &&
-                BC::checkBounds(a, 0, (edefLAST255-1), "npc->Defense") == SH::_NoError)
+                BC::checkBounds(a, 0, (edefLAST255), "npc->Defense") == SH::_NoError)
             GuyH::getNPC()->defense[a] = vbound((value / 10000),0,255);
     }
     break;
@@ -8019,7 +8020,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	}
 	else 
 	{
-		misc->questmisc[indx] = value;
+		QMisc.questmisc[indx] = value;
 	}
 	break;
     }
@@ -9289,7 +9290,7 @@ case MAPDATAMISCD:
 			} 
 			else 
 			{ 
-				misc->shop[ref].item[indx] = (byte)(vbound((value/10000), 0, 255)); 
+				QMisc.shop[ref].item[indx] = (byte)(vbound((value/10000), 0, 255)); 
 			} 
 		} 
 	} 
@@ -9313,7 +9314,7 @@ case MAPDATAMISCD:
 			} 
 			else 
 			{ 
-				misc->shop[ref].hasitem[indx] = (byte)(vbound((value/10000), 0, 255)); 
+				QMisc.shop[ref].hasitem[indx] = (byte)(vbound((value/10000), 0, 255)); 
 			} 
 		} 
 	} 
@@ -9333,11 +9334,11 @@ case MAPDATAMISCD:
 		{ 
 			if ( isInfo ) 
 			{ 
-				misc->shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
+				QMisc.shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
 			} 
 			else 
 			{ 
-				misc->shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
+				QMisc.shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
 			} 
 		} 
 	} 
@@ -9364,11 +9365,11 @@ case SHOPDATASTRING:
 			{ 
 				if ( isInfo ) 
 				{ 
-					misc->info[ref].str[indx] = (word)(vbound((value/10000), 0, 32767));
+					QMisc.info[ref].str[indx] = (word)(vbound((value/10000), 0, 32767));
 				} 
 				else 
 				{ 
-					misc->shop[ref].str[indx] = (word)(vbound((value/10000), 0, 32767));
+					QMisc.shop[ref].str[indx] = (word)(vbound((value/10000), 0, 32767));
 				} 
 			} 
 	
@@ -15482,7 +15483,7 @@ void do_issolid()
 //void FFScript::getNPCData_scriptdefence(){GET_NPCDATA_FUNCTION_VAR_INDEX(scriptdefence)};
 
 
-void FFScript::getNPCData_defense(){GET_NPCDATA_FUNCTION_VAR_INDEX(defense,(edefLAST255-1))};
+void FFScript::getNPCData_defense(){GET_NPCDATA_FUNCTION_VAR_INDEX(defense,(edefLAST255))};
 
 
 void FFScript::getNPCData_SIZEflags(){GET_NPCDATA_FUNCTION_VAR_FLAG(SIZEflags);}
@@ -15640,7 +15641,7 @@ void FFScript::setNPCData_wpnsprite(){SET_NPCDATA_FUNCTION_VAR_INT(wpnsprite,511
 
 
 //void FFScript::setNPCData_scriptdefence(){SET_NPCDATA_FUNCTION_VAR_INDEX(scriptdefence);}
-void FFScript::setNPCData_defense(int v){SET_NPCDATA_FUNCTION_VAR_INDEX(defense,v, ZS_INT, (edefLAST255-1) );}
+void FFScript::setNPCData_defense(int v){SET_NPCDATA_FUNCTION_VAR_INDEX(defense,v, ZS_INT, (edefLAST255) );}
 void FFScript::setNPCData_SIZEflags(int v){SET_NPCDATA_FUNCTION_VAR_FLAG(SIZEflags,v);}
 void FFScript::setNPCData_misc(int val)
 {
