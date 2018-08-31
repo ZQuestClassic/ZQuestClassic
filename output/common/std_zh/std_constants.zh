@@ -1547,7 +1547,7 @@ const int RT_BITMAP6            = 6; // draws to off-screen bitmap 6
 /// DMaps, Screens, Rooms
 
 //Screen Flag categories. Flags from each category are ORed together, starting with the first flag
-//See Screen Data dialog for what flags are contained in each category. Use in Screen->Flags
+//See Screen Data dialog for what flags are contained in each category. Use in Screen->Flags or ScreenFlag()
 const int SF_ROOMTYPE			= 0;
 const int SF_VIEW			= 1;
 const int SF_SECRETS			= 2;
@@ -1625,10 +1625,30 @@ const int SFM_SCRIPT4		= 5; //0x0020; //General use 4 (Scripts)
 const int SFM_SCRIPT5		= 6; //0x0040; //General use 5 (Scripts)
 
 //Screen Enemy Flag categories, handled in the same way as the SF_ constants.
-//Use in Screen->EFlags
+//Use in Screen->EFlags or ScreenEFlag()
 const int SEF_SPAWN				= 0;
 const int SEF_LIST1				= 1; //left-hand list
 const int SEF_LIST2				= 2; //right-hand list
+
+//Screen Enemy Flags Spawn
+const int SEFS_ZORA				= 0; //0x0001; //Zora (1 x Zora)
+const int SEFS_CTRAP			= 1; //0x0002; //Corner Traps (4 x Trap (4-way))
+const int SEFS_MTRAP			= 2; //0x0004; //Middle Traps (2 x Trap (4-way))
+const int SEFS_ROCKS			= 3; //0x0008; //Falling Rocks (3 x Rock)
+const int SEFS_SHOOTER			= 4; //0x0010; //Shooting Statues (Shooter (Fireball) per combo)
+
+//Screen Enemy Flags List
+const int SEFL_RINGLEADER		= 0; //0x0001; //First Enemy is "Ring Leader"
+const int SEFL_ITEM				= 1; //0x0002; //First Enemy carries Item
+const int SEFL_INVIS			= 2; //0x0004; //All enemies are invisible
+const int SEFL_BOSS				= 3; //0x0008; //Dungeon Boss (Don't Return)
+const int SEFL_TRAPIGNORE		= 4; //0x0010; //Traps ignore walkability
+
+//Screen Enemy Flags List2
+const int SEFL2_ALWAYSRET		= 0; //0x0001; //Enemies Always Return
+const int SEFL2_EITEM			= 1; //0x0002; //Enemies -> Item
+const int SEFL2_ESECRET			= 2; //0x0004; //Enemies -> Secret
+const int SEFL2_ESECRETPERM		= 3; //0x0008; //Enemies -> Secret is Permanent
 
 //Room types (Screen => Room Type)
 //Use with Screen->RoomType
