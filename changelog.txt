@@ -2,8 +2,13 @@
 
 //2.55 Alpha 1 (Candidates)
 
+//2.55 Preliminary 7
+
+Fix crash when using Game->Misc[] and shopdata. ( ZoriaRPG, 31st August, 2018 )
+Fix Link->Misc multiplying/diving by 10000. ( ZoriaRPG, 30th August, 2018 )
+
 Added npc->HitBy[LW_TYPE] : This stores the lweapon type (ID) that struck an npc.
-Added npc->HitBy[LW_PARENTITEM] : THis stores the parent Item ID that generated a weapon that struck the npc.
+Added npc->HitBy[LW_PARENTITEM] : This stores the parent Item ID that generated a weapon that struck the npc.
 ( ZoriaRPG, 29th August, 2018 )
 
 Fixed values for new combo flag constants, starting with 106. 
