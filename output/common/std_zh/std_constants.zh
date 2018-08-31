@@ -1235,18 +1235,41 @@ const int NPCD_SCRIPT			= 17;
 const int NPCD_STOMP			= 15;
 const int NPCD_SWORD			= 9;
 const int NPCD_WAND			= 5;
+const int NPCD_WHISTLE			= 35; //whistle lweapon
 
-//NPC Script Defenses. Use as indices to npc->Defense[].
-const int NPCSD_SCRIPT1			= 0;
-const int NPCSD_SCRIPT2			= 1;
-const int NPCSD_SCRIPT3			= 2;
-const int NPCSD_SCRIPT4			= 3;
-const int NPCSD_SCRIPT5			= 4;
-const int NPCSD_SCRIPT6			= 5;
-const int NPCSD_SCRIPT7			= 6;
-const int NPCSD_SCRIPT8			= 7;
-const int NPCSD_SCRIPT9			= 8;
-const int NPCSD_SCRIPT10		= 9;
+//NPC Script Weapon Defences
+const int NPCD_SCRIPT1 = 20;
+const int NPCD_SCRIPT2 = 21;
+const int NPCD_SCRIPT3 = 22;
+const int NPCD_SCRIPT4 = 23;
+const int NPCD_SCRIPT5 = 24;
+const int NPCD_SCRIPT6 = 25;
+const int NPCD_SCRIPT7 = 26;
+const int NPCD_SCRIPT8 = 27;
+const int NPCD_SCRIPT9 = 28;
+const int NPCD_SCRIPT10 = 29;
+
+
+/* Unimplemented
+const int NPCD_ICE = 30;
+const int NPCD_BAIT = 31;
+const int NPCD_WIND = 32;
+const int NPCD_SPARKLE = 33;
+const int NPCD_SONIC = 34;
+//35 to 42 reserved, but non-descript in zdefs.
+//the following are defined, but unused. 
+const int NPCD_ETHER = 43;
+const int NPCD_BOMBOS = 44;
+const int NPCD_POT = 45;
+const int NPCD_THROWNROCK = 46;
+const int NPCD_ELECTRICITY = 47;
+const int NPCD_SHIELD = 48;
+const int NPCD_TROWEL = 49;
+const int NPCD_SPINATTACK = 50;
+const int NPCD_Z3SWORD = 51;
+const int NPCD_GBSWORD = 52;
+*/
+
 
 //NPC Defense types. Use with npc->Defense[].
 const int NPCDT_NONE			= 0;
@@ -1264,6 +1287,41 @@ const int NPCDT_BLOCK			= 11;
 const int NPCDT_IGNORE1			= 12;
 const int NPCDT_IGNORE			= 13;
 const int NPCDT_ONEHITKILL		= 14;
+const int NPCDT_BLOCK10			= 15;
+const int NPCDT_2XDAMAGE		= 16;
+const int NPCDT_3XDAMAGE		= 17;
+const int NPCDT_4XDAMAGE		= 18;
+const int NPCDT_HEAL			= 19;
+const int NPCDT_TRIGGERSECRETS		= 20;
+
+/*
+const int NPCDT_FREEZE			= 21; //not implemented
+const int NPCDT_LVLDAMAGE			= 24; //not implemented
+const int NPCDT_LVLREDUCTION			= 25; //not implemented
+const int NPCDT_SPLIT				= 26; //not implemented
+const int NPCDT_REPLACE				= 27; //not implemented
+const int NPCDT_LVLBLOCK2			= 28; //not implemented
+const int NPCDT_LVLBLOCK3			= 29 //not implemented
+const int NPCDT_LVLBLOCK4			= 30; //not implemented
+const int NPCDT_LVLBLOCK5			= 31; //not implemented
+const int NPCDT_SHOCK				= 32; //not implemented
+const int NPCDT_EXPLODESMALL			= 33; //not implemented
+const int NPCDT_EXPLODELARGE			= 34; //not implemented
+const int NPCDT_TURNTOSTONE			= 35; //not implemented
+const int NPCDT_BREAKSHIELD			= 36; //not implemented
+const int NPCDT_RESTORESHIELD			= 37; //not implemented
+const int NPCDT_SPECIALDROP			= 38; //not implemented
+const int NPCDT_INCREASECOUNTER			= 39; //not implemented
+const int NPCDT_EXPLODEHARMLESS			= 40; //not implemented
+const int NPCDT_KILLNOSPLIOT			= 41; //not implemented
+const int NPCDT_TRIBBLE				= 42; //not implemented
+const int NPCDT_FIREBALL			= 43; //not implemented
+const int NPCDT_FIREBALLLARGE			= 44; //not implemented
+const int NPCDT_SUMMON				= 45; //not implemented
+const int NPCDT_WINGAME				= 46; //not implemented
+const int NPCDT_JUMP				= 47; //not implemented
+const int NPCDT_EATLINK				= 48; //not implemented
+*/
 
 //NPC Misc. Flags
 const int NPCMF_0POWERWEAPS 		= 0x0001; //Damaged by 0-Power Weapons
@@ -2278,8 +2336,9 @@ const float DIR16_DEG_DOWNDOWNRIGHT = 67.5;
 const float DIR16_DEG_RIGHTDOWN 	= 45;
 const float DIR16_DEG_RIGHTRIGHTDOWN = 22.5;
 const float DIR16_DEG_RIGHT 	= 0;
-const float DIR16_DEG_RIGHTRIGHTUP  = 292.5;
-const float DIR16_DEG_DIR_RIGHTUP 	= 315;
+const float DIR16_DEG_RIGHTUPUP  = 292.5;
+const float DIR16_DEG_RIGHTUP 	= 315;
+const float DIR16_DEG_RIGHTRIGHTUP 	= 337.5;
 
 const float DIR_16_RADS_INCREMENT = 0.3927; //Number of radians per 1/16 rotation
 
@@ -2296,6 +2355,6 @@ const float DIR16_RADS_DOWNDOWNRIGHT = 1.1781;
 const float DIR16_RADS_RIGHTDOWN 	= 0.7854;
 const float DIR16_RADS_RIGHTRIGHTDOWN = 0.3927; 
 const float DIR16_RADS_RIGHT 	= 0; 
-const float DIR16_RADS_RIGHTRIGHTUP = 5.1051;
+const float DIR16_RADS_RIGHTRIGHTUP = 5.8905;
 const float DIR16_RADS_RIGHTUP 	= 5.4978;
 const float DIR16_RADS_RIGHTUPUP 	= 5.1141;
