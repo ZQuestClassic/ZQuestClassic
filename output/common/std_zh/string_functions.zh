@@ -3,17 +3,19 @@
 //ZScript string handling functions, akin to those found in C
 
 //Returns the number of chracters of a given type in a specified string.
-int NumCharsOf(int str, int chr){
-	int chars; int sz = SizeOfArray(str)-1;
-	for ( int q = 0; q < sz; ++q ) {
+int NumCharsOf(int str, int chr)
+{
+	int chars; 
+	for ( int q = 0; str[q]!=0; ++q ) {
 		if ( str[q] == chr ) chars++;
 	}
 	return chars;
 }
 
-int NumCharsOf(int str, int pos, int chr){
-	int chars; int sz = SizeOfArray(str)-1;
-	for ( int q = pos; q < sz; ++q ) {
+int NumCharsOf(int str, int pos, int chr)
+{
+	int chars; 
+	for ( int q = pos; str[q]!=0; ++q ) {
 		if ( str[q] == chr ) chars++;
 	}
 	return chars;
@@ -21,15 +23,17 @@ int NumCharsOf(int str, int pos, int chr){
 
 //reversed
 //Returns the number of chracters of a given type in a specified string.
-int NumCharsOfRev(int str, int chr){
-	int chars; int sz = SizeOfArray(str)-1;
-	for ( int q = sz; q >= 0; --q ) {
+int NumCharsOfRev(int str, int chr)
+{
+	int chars;
+	for ( int q = SizeOfArray(str)-1; q >= 0; --q ) {
 		if ( str[q] == chr ) chars++;
 	}
 	return chars;
 }
 
-int NumCharsOfRev(int str, int pos, int chr){
+int NumCharsOfRev(int str, int pos, int chr)
+{
 	int chars; 
 	for ( int q = pos; q >= 0; --q ) {
 		if ( str[q] == chr ) chars++;
@@ -41,19 +45,35 @@ int NumCharsOfRev(int str, int pos, int chr){
 //Returns true if 'chr' is in the control code range of ascii characters
 bool isControlCode(int chr)
 {
-	return (chr >= 0 && chr < ' ');
+	if ( chr >= 0 )
+	{
+		if ( chr < ' ' ) return true;
+	}
+	return false; 
 }
 
 //Returns true if 'chr' is in the range of ascii characters '0' to '9'
 bool isNumber(int chr)
 {
-	return (chr >= '0' && chr <= '9');
+	if ( chr >= '0' )
+	{
+		if ( chr <= '9' ) return true;
+	}
+	return false;
 }
 
 //Returns true if 'chr' is an alphabetic character
 bool isAlphabetic(int chr)
 {
-	return (chr >= 'a' && chr <= 'z') || (chr >= 'A' && chr <= 'Z');
+	if ( chr >= 'a' )
+	{
+		if ( chr <= 'z' ) return true;
+	}
+	else if ( chr >= 'A' )
+	{
+		if ( chr <= 'Z' ) return true;
+	}
+	else return false;
 }
 
 //Returns true if 'chr' is an alphanumeric character
@@ -86,15 +106,31 @@ bool isSpace(int chr){
 }
 
 //Returns true if 'chr' is a vowel. 
-bool isVowel(int chr){
-	return (chr == 'A' || chr == 'E' || chr == 'I'|| chr == 'O' || chr == 'U' || chr == 'a' || chr == 'e' || chr == 'i' || chr == 'o' || chr == 'u');
+bool isVowel(int chr)
+{
+	switch(chr)
+	{
+		//based on frequency in English
+		case 'e': return true;
+		case 'a': return true;
+		case 'o': return true;
+		case 'i': return true;
+		case 'u': return true;
+		case 'E': return true;
+		case 'A': return true;
+		case 'O': return true;
+		case 'I': return true;
+		case 'U': return true;
+		
+		default: return false;
+	}
 }
 
 //Returns true if the string contains a specific character.
 bool ContainsChar(int chr, int buffer)
 {
-	int sz = SizeOfArray(buffer);
-	for ( int q = 0; q < sz; ++q )
+	//int sz = SizeOfArray(buffer)-1;
+	for ( int q = 0; buffer[q]!=0; ++q )
 	{
 		if ( buffer[q] == chr ) return true;
 	}
@@ -103,8 +139,8 @@ bool ContainsChar(int chr, int buffer)
 
 //Returns first character position if the string contains a specific character, else -1.
 int ContainsCharPos(int chr, int buffer){
-	int sz = SizeOfArray(buffer);
-	for ( int q = 0; q < sz; ++q )
+	//int sz = SizeOfArray(buffer)-1;
+	for ( int q = 0; buffer[q]!=0; ++q )
 	{
 		if ( buffer[q] == chr ) return q;
 	}
@@ -114,8 +150,8 @@ int ContainsCharPos(int chr, int buffer){
 //Returns true if the string contains a specific character.
 bool ContainsChar(int chr, int pos, int buffer)
 {
-	int sz = SizeOfArray(buffer);
-	for ( int q = pos; q < sz; ++q )
+	//int sz = SizeOfArray(buffer)-1;
+	for ( int q = pos; buffer[q]!=0; ++q )
 	{
 		if ( buffer[q] == chr ) return true;
 	}
@@ -125,8 +161,8 @@ bool ContainsChar(int chr, int pos, int buffer)
 //Returns first character position if the string contains a specific character, else -1.
 int ContainsCharPos(int chr, int pos, int buffer)
 {
-	int sz = SizeOfArray(buffer);
-	for ( int q = pos; q < sz; ++q )
+	//int sz = SizeOfArray(buffer)-1;
+	for ( int q = pos; buffer[q]!=0; ++q )
 	{
 		if ( buffer[q] == chr ) return q;
 	}
@@ -778,106 +814,134 @@ int ntoa(int string, float num)
 //Appends 'arg' onto 'dest' as the MF_ constant passed into 'format'
 void strcatf(int dest, int arg, int format)
 {
-	if(format == MF_INT)
+	switch(format)
 	{
-		int buffer[0x20];
-		itoa(buffer, arg);
-		strcat(dest, buffer);
+		case MF_INT:
+		{
+			int buffer[0x20];
+			itoa(buffer, arg);
+			strcat(dest, buffer);
+			break;
+		}
+		case MF_HEXLOWER:
+		{
+			int buffer[0x20];
+			xtoa(buffer, arg, false);
+			strcat(dest, buffer);
+			break;
+		}
+		case MF_HEXUPPER:
+		{
+			int buffer[0x20];
+			xtoa(buffer, arg, true);
+			strcat(dest, buffer);
+			break;
+		}
+		case MF_FLOAT:
+		{
+			int buffer[0x20];
+			ftoa(buffer, arg, false);
+			strcat(dest, buffer);
+			break;
+		}
+		case MF_NUM:
+		{
+			int buffer[0x20];
+			ntoa(buffer, arg);
+			strcat(dest, buffer);
+			break;
+		}
+		case MF_PTR:
+		{
+			int buffer[0x20];
+			itoa(buffer, arg);
+			strcat(dest, buffer);
+			break;
+		}
+		case MF_CHAR:
+		{
+			int buffer[0x2];
+			arrayset(buffer, arg, 0);
+			strcat(dest, buffer);
+			break;
+		}
+		case MF_STRING:
+		{
+			if (arg != 0)
+			{
+				strcat(dest, arg);
+			}
+			break;
+		}
+		default: break;
 	}
-	else if(format == MF_HEXLOWER)
-	{
-		int buffer[0x20];
-		xtoa(buffer, arg, false);
-		strcat(dest, buffer);
-	}
-	else if(format == MF_HEXUPPER)
-	{
-		int buffer[0x20];
-		xtoa(buffer, arg, true);
-		strcat(dest, buffer);
-	}
-	else if(format == MF_FLOAT)
-	{
-		int buffer[0x20];
-		ftoa(buffer, arg, false);
-		strcat(dest, buffer);
-	}
-	else if(format == MF_FLOAT)
-	{
-		int buffer[0x20];
-		ftoa(buffer, arg, false);
-		strcat(dest, buffer);
-	}
-	else if(format == MF_NUM)
-	{
-		int buffer[0x20];
-		ntoa(buffer, arg);
-		strcat(dest, buffer);
-	}
-	else if(format == MF_PTR)
-	{
-		int buffer[0x20];
-		itoa(buffer, arg);
-		strcat(dest, buffer);
-	}
-	else if(format == MF_CHAR)
-	{
-		int buffer[0x2];
-		arrayset(buffer, arg, 0);
-		strcat(dest, buffer);
-	}
-	else if(format == MF_STRING && arg != 0)
-		strcat(dest, arg);
 
 }
 
 //As strcatf, using only 'n' characters of 'arg'
 void strncatf(int dest, int arg, int format, int n)
 {
-	if(format == MF_INT)
+	switch(format)
 	{
-		int buffer[0x20];
-		itoa(buffer, arg);
-		strncat(dest, buffer, n);
+		case MF_INT:
+		{
+			int buffer[0x20];
+			itoa(buffer, arg);
+			strncat(dest, buffer, n);
+			break;
+		}
+		case MF_HEXLOWER:
+		{
+			int buffer[0x20];
+			xtoa(buffer, arg, false);
+			strncat(dest, buffer, n);
+			break;
+		}
+		case MF_HEXUPPER:
+		{
+			int buffer[0x20];
+			xtoa(buffer, arg, true);
+			strncat(dest, buffer, n);
+			break;
+		}
+		case MF_FLOAT:
+		{
+			int buffer[0x20];
+			ftoa(buffer, arg, false);
+			strncat(dest, buffer, n);
+			break;
+		}
+		case MF_NUM:
+		{
+			int buffer[0x20];
+			ntoa(buffer, arg);
+			strncat(dest, buffer, n);
+			break;
+		}
+		case MF_PTR:
+		{
+			int buffer[0x20];
+			itoa(buffer, arg);
+			strncat(dest, buffer, n);
+			break;
+		}
+		case MF_CHAR:
+		{
+			int buffer[0x2];
+			arrayset(buffer, arg, 0);
+			strncat(dest, buffer, n);
+			break;
+		}
+		case MF_STRING: 
+		{
+			if (arg != 0)
+			{
+				strncat(dest, arg, n);
+			}
+			break;
+		}
+		default: break;
 	}
-    else if(format == MF_HEXLOWER)
-	{
-		int buffer[0x20];
-		xtoa(buffer, arg, false);
-		strncat(dest, buffer, n);
-	}
-	else if(format == MF_HEXUPPER)
-	{
-		int buffer[0x20];
-		xtoa(buffer, arg, true);
-		strncat(dest, buffer, n);
-	}
-	else if(format == MF_FLOAT)
-	{
-		int buffer[0x20];
-		ftoa(buffer, arg, false);
-		strncat(dest, buffer, n);
-	}
-	else if(format == MF_NUM)
-	{
-		int buffer[0x20];
-		ntoa(buffer, arg);
-		strncat(dest, buffer, n);
-	}
-	else if(format == MF_PTR)
-	{
-		int buffer[0x20];
-		itoa(buffer, arg);
-		strncat(dest, buffer, n);
-	}
-	else if(format == MF_CHAR)
-	{
-		int buffer[0x2];
-		arrayset(buffer, arg, 0);
-		strncat(dest, buffer, n);
-	}
-	else if(format == MF_STRING && arg != 0)
-		strncat(dest, arg, n);
 
 }
 
@@ -939,21 +1003,36 @@ void printf(int formatstr,int a0,int a1,int a2,int a3,int a4,int a5,int a6,int a
 //Used by sprintf
 bool sprintf_isMFCode(int chr)
 {
-	return (chr == 'n' || chr == 's' || chr == 'i' || chr == 'f' || chr == 'd' ||
-            chr == 'p' || chr == 'c' || chr == 'x' || chr == 'X');
+	switch (chr)
+	{
+		case 'n': return true;
+		case 's': return true; 
+		case 'i': return true;
+		case 'f': return true;
+		case 'd': return true;
+		case 'p': return true;
+		case 'c': return true;
+		case 'x': return true;
+		case 'X': return true;
+		default: return false;
+	}
 }
 int sprintf_MFCodeToInt(int chr)
 {
-	if(chr == 'n') return MF_NONE;
-	else if(chr == 'i') return MF_INT;
-	else if(chr == 'f') return MF_FLOAT;
-	else if(chr == 'd') return MF_NUM;
-	else if(chr == 's') return MF_STRING;
-	else if(chr == 'p') return MF_PTR;
-	else if(chr == 'c') return MF_CHAR;
-	else if(chr == 'x') return MF_HEXLOWER;
-	else if(chr == 'X') return MF_HEXUPPER;
-	return -1;
+	switch(chr)
+	{
+		case 'n': return MF_NONE;
+		
+		case 'i': return MF_INT;
+		case 'f': return MF_FLOAT;
+		case 'd': return MF_NUM;
+		case 's': return MF_STRING;
+		case 'p': return MF_PTR;
+		case 'c': return MF_CHAR;
+		case 'x': return MF_HEXLOWER;
+		case 'X': return MF_HEXUPPER;
+		default: return -1;
+	}
 }
 
 
@@ -1130,37 +1209,36 @@ void arrayset(int a,int a0){
 int ReturnStringCharPos(int str, int chr)
 {
 	int sz = strlen(str-1);
-	for ( int q = 0; q <= sz; ++q ) {
-		int a = str[q];
-		if ( a == chr ) return q;
+	for ( int q = 0; str[q]!=0; ++q ) {
+		if ( str[q] == chr ) return q;
 	}
+	return -1;
 }
 
 int ReturnStringCharPos(int str, int pos, int chr)
 {
-	int sz = strlen(str-1);
-	for ( int q = 0; q <= sz; ++q ) {
-		int a = str[q];
-		if ( a == chr ) return q;
+	for ( int q = pos; str[q]!=0; ++q ) {
+		if ( str[q] == chr ) return q;
 	}
+	return -1;
 }
 
 int ReturnStringCharPosRev(int str, int chr)
 {
-	int sz = strlen(str-1);
-	for ( int q = sz; q >= 0; --q ) {
+	for ( int q = strlen(str-1); q >= 0; --q ) {
 		int a = str[q];
 		if ( a == chr ) return q;
 	}
+	return -1;
 }
 
 int ReturnStringCharPosRev(int str, int pos, int chr)
 {
-	int sz = strlen(str-1);
 	for ( int q = pos; q >= 0; --q ) {
 		int a = str[q];
 		if ( a == chr ) return q;
 	}
+	return -1;
 }
 
 int IsChar(int chr) { return chr; }
