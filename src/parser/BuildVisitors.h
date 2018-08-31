@@ -108,6 +108,11 @@ private:
 	void buildArrayInit(ASTDataDecl& host, OpcodeContext& context);
 	// For when ASTDataDecl is an uninitialized array.
 	void buildArrayUninit(ASTDataDecl& host, OpcodeContext& context);
+	// For when ASTStringLiteral is a declaration initializer.
+	void stringLiteralDeclaration(
+			ASTStringLiteral& host, OpcodeContext& context);
+	// For when ASTStringLiteral is not a declaration initializer.
+	void stringLiteralFree(ASTStringLiteral& host, OpcodeContext& context);
 	// For when ASTArrayLiteral is a declaration initializer.
 	void arrayLiteralDeclaration(
 			ASTArrayLiteral& host, OpcodeContext& context);
