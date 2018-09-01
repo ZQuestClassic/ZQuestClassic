@@ -190,13 +190,11 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 
 		// Mark start of the block we're adding.
 		int block_start_index = result.size();
+		// Make a nop for starting the block.
+		result.push_back(new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0)));
+		result[block_start_index]->setLabel(labels[cases]);
 		// Add block.
 		visit(cases->block, param);
-		// If nothing was added, put in a nop to point to.
-		if (result.size() == block_start_index)
-			result.push_back(new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0)));
-		// Set label to start of block.
-		result[block_start_index]->setLabel(labels[cases]);
 	}
 
 	// Add ending label.
