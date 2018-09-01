@@ -1105,13 +1105,16 @@ void BuildOpcodes::stringLiteralDeclaration(
 
 	// Grab the size from the declaration.
 	int size = -1;
-	ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
-	if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
-		size = *totalSize;
-	else if (extraArray.hasSize())
+	if (declaration.extraArrays.size() == 1)
 	{
-		handleError(CompileError::ExprNotConstant, &host);
-		return;
+		ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
+		if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
+			size = *totalSize;
+		else if (extraArray.hasSize())
+		{
+			handleError(CompileError::ExprNotConstant, &host);
+			return;
+		}
 	}
 
 	// Otherwise, grab the number of elements as the size.
@@ -1239,13 +1242,16 @@ void BuildOpcodes::arrayLiteralDeclaration(
 
 	// Grab the size from the declaration.
 	int size = -1;
-	ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
-	if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
-		size = *totalSize;
-	else if (extraArray.hasSize())
+	if (declaration.extraArrays.size() == 1)
 	{
-		handleError(CompileError::ExprNotConstant, &host);
-		return;
+		ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
+		if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
+			size = *totalSize;
+		else if (extraArray.hasSize())
+		{
+			handleError(CompileError::ExprNotConstant, &host);
+			return;
+		}
 	}
 
 	// Otherwise, grab the number of elements as the size.

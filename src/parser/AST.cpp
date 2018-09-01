@@ -1063,18 +1063,15 @@ ASTExpr* ASTDataDecl::initializer(ASTExpr* initializer)
 
 	// Give a string or array literal a reference back to this object so it
 	// can grab size information.
-	if (extraArrays.size() > 0)
+	if (initializer->isArrayLiteral())
 	{
-		if (initializer->isArrayLiteral())
-		{
-			ASTArrayLiteral& arrayLiteral = *(ASTArrayLiteral*)initializer;
-			arrayLiteral.declaration = this;
-		}
-		if (initializer->isStringLiteral())
-		{
-			ASTStringLiteral& stringLiteral = *(ASTStringLiteral*)initializer;
-			stringLiteral.declaration = this;
-		}
+		ASTArrayLiteral& arrayLiteral = *(ASTArrayLiteral*)initializer;
+		arrayLiteral.declaration = this;
+	}
+	if (initializer->isStringLiteral())
+	{
+		ASTStringLiteral& stringLiteral = *(ASTStringLiteral*)initializer;
+		stringLiteral.declaration = this;
 	}
 
 	return initializer;
