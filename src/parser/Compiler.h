@@ -13,107 +13,109 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 
-class ArgumentVisitor;
-
 namespace ZScript
 {
-	class Program;
-}
+	////////////////////////////////////////////////////////////////
+	// Forward Declarations
 
-class Opcode
-{
-public:
-	Opcode() : label(-1) {}
-	virtual ~Opcode() {}
-	virtual std::string toString()=0;
-	int getLabel()
+	// AST.h
+	class ASTFile;
+
+	// ByteCode.h
+	class ArgumentVisitor;
+
+	// ZScript.h
+	class Program;
+
+	// DataStructs.h
+	struct FunctionData;
+	struct IntermediateData;
+	
+	////////////////////////////////////////////////////////////////
+	
+	class Opcode
 	{
-		return label;
-	}
-	void setLabel(int l)
-	{
-		label=l;
-	}
-	std::string printLine(bool showlabel = false)
-	{
-		char buf[100];
+	public:
+		Opcode() : label(-1) {}
+		virtual ~Opcode() {}
+		virtual std::string toString()=0;
+		int getLabel()
+		{
+			return label;
+		}
+		void setLabel(int l)
+		{
+			label=l;
+		}
+		std::string printLine(bool showlabel = false)
+		{
+			char buf[100];
         
-		if(label == -1)
-			return " " + toString() + "\n";
+			if(label == -1)
+				return " " + toString() + "\n";
             
-		sprintf(buf, "l%d:", label);
-		return (showlabel ? std::string(buf) : " ")+ toString() + "\n";
-	}
-	Opcode * makeClone()
+			sprintf(buf, "l%d:", label);
+			return (showlabel ? std::string(buf) : " ")+ toString() + "\n";
+		}
+		Opcode * makeClone()
+		{
+			Opcode *dup = clone();
+			dup->setLabel(label);
+			return dup;
+		}
+		virtual void execute(ArgumentVisitor&, void*) {}
+	protected:
+		virtual Opcode *clone()=0;
+	private:
+		int label;
+	};
+
+	class ScriptsData
 	{
-		Opcode *dup = clone();
-		dup->setLabel(label);
-		return dup;
-	}
-	virtual void execute(ArgumentVisitor&, void*) {}
-protected:
-	virtual Opcode *clone()=0;
-private:
-	int label;
-};
+	public:
+		ScriptsData(Program&);
+		std::map<std::string, std::vector<Opcode *> > theScripts;
+		std::map<std::string, ScriptType> scriptTypes;
+	};
 
-class ScriptsData
-{
-public:
-	ScriptsData(ZScript::Program&);
-	std::map<std::string, std::vector<Opcode *> > theScripts;
-	std::map<std::string, ZScript::ScriptType> scriptTypes;
-};
+	ScriptsData *compile(std::string const& filename);
 
-ScriptsData *compile(std::string const& filename);
-
-namespace ZScript
-{
-	class Program;
+	class ScriptParser
+	{
+	public:
+		static int getUniqueVarID()
+		{
+			return vid++;
+		}
+		static int getUniqueFuncID()
+		{
+			return fid++;
+		}
+		static int getUniqueLabelID()
+		{
+			return lid++;
+		}
+		static int getUniqueGlobalID()
+		{
+			return gid++;
+		}
+		static bool preprocess(ASTFile* root, int reclevel);
+		static IntermediateData* generateOCode(FunctionData& fdata);
+		static void assemble(IntermediateData* id);
+		static void initialize();
+		static std::pair<long,bool> parseLong(
+				std::pair<std::string,std::string> parts);
+	private:
+		static std::string prepareFilename(std::string const& filename);
+		static std::vector<Opcode *> assembleOne(
+				Program& program, std::vector<Opcode*> script,
+				int numparams);
+		static int vid;
+		static int fid;
+		static int gid;
+		static int lid;
+	};
 }
-
-struct SymbolData;
-struct FunctionData;
-struct IntermediateData;
-
-class ASTFile;
-
-class ScriptParser
-{
-public:
-	static int getUniqueVarID()
-	{
-		return vid++;
-	}
-	static int getUniqueFuncID()
-	{
-		return fid++;
-	}
-	static int getUniqueLabelID()
-	{
-		return lid++;
-	}
-	static int getUniqueGlobalID()
-	{
-		return gid++;
-	}
-	static bool preprocess(ASTFile* root, int reclevel);
-	static IntermediateData* generateOCode(FunctionData& fdata);
-	static void assemble(IntermediateData* id);
-	static void initialize();
-	static std::pair<long,bool> parseLong(
-			std::pair<std::string,std::string> parts);
-private:
-	static std::string prepareFilename(std::string const& filename);
-	static std::vector<Opcode *> assembleOne(
-			ZScript::Program& program, std::vector<Opcode*> script,
-			int numparams);
-	static int vid;
-	static int fid;
-	static int gid;
-	static int lid;
-};
-
 
 #endif
 

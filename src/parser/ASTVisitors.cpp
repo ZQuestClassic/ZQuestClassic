@@ -8,6 +8,7 @@
 
 using std::list;
 using std::vector;
+using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
 // RecursiveVisitor

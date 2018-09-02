@@ -11,6 +11,7 @@
 #include <sstream>
 
 using namespace std;
+using namespace ZScript;
 
 // Weird macros to insert constants into strings at preprocessing stage.
 #define STRING1(s) #s

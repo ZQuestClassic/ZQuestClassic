@@ -27,6 +27,8 @@ void yymsg(std::string const& message, int row = yyrow, int col = yycol);
 
  /* Parser local code */
 %{
+using namespace ZScript;
+
 int srow, scol;
 std::ostringstream qstr;
 
