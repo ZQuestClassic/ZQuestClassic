@@ -105,6 +105,8 @@ namespace ZScript
 		static void initialize();
 		static std::pair<long,bool> parseLong(
 				std::pair<std::string,std::string> parts);
+
+		static int const recursionLimit = 30;
 	private:
 		static std::string prepareFilename(std::string const& filename);
 		static std::vector<Opcode *> assembleOne(

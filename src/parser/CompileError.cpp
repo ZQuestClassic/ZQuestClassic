@@ -68,7 +68,7 @@ CompileError const CompileError::CantOpenImport(
 		1, 'P', false, "Failure to parse imported file %s.");
 CompileError const CompileError::ImportRecursion(
 		2, 'P', false,
-		"Recursion limit of " STRING(RECURSIONLIMIT)
+		"Recursion limit of %d"
 		" hit while preprocessing. Perhaps you have circular imports?");
 // DEPRECATED
 CompileError const CompileError::ImportBadScope(

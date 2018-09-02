@@ -59,7 +59,7 @@ ScriptsData* ZScript::compile(string const& filename)
 	box_out("Pass 2: Preprocessing");
 	box_eol();
     
-	if (!ScriptParser::preprocess(root.get(), RECURSIONLIMIT))
+	if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
 		return NULL;
     
 	box_out("Pass 3: Analyzing Code");
@@ -125,7 +125,7 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 {
 	if (reclimit == 0)
 	{
-		CompileError::ImportRecursion.print(NULL);
+		CompileError::ImportRecursion.print(NULL, recursionLimit);
 		return false;
 	}
         

@@ -25,7 +25,6 @@ namespace ZScript
 
 ////////////////////////////////////////////////////////////////
 
-#define RECURSIONLIMIT 30
 extern std::string curfilename;
 
 namespace ZScript
