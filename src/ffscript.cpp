@@ -8013,7 +8013,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         break;
     case GAMEMISC:
     {
-	int indx = ri->d[0]/10000/10000;
+	int indx = ri->d[0]/10000;
 	if ( indx < 0 || indx > 31 )
 	{
 		Z_scripterrlog("Invalud index used to access Game->Misc: %d\n", indx);
@@ -11597,7 +11597,8 @@ void do_isvaliditem()
 {
     long IID = get_register(sarg1);
     
-    for(int j = 0; j < items.Count(); j++)
+    for ( int j = items.Count(); j >= 0; --j )
+    //for(int j = 0; j < items.Count(); j++)
         if(items.spr(j)->getUID() == IID)
         {
             set_register(sarg1, 10000);
@@ -11610,8 +11611,8 @@ void do_isvaliditem()
 void do_isvalidnpc()
 {
     long UID = get_register(sarg1);
-    
-    for(int j = 0; j < guys.Count(); j++)
+    for ( int j = guys.Count(); j >= 0; --j )
+    //for(int j = 0; j < guys.Count(); j++)
         if(guys.spr(j)->getUID() == UID)
         {
             set_register(sarg1, 10000);
@@ -11624,8 +11625,8 @@ void do_isvalidnpc()
 void do_isvalidlwpn()
 {
     long WID = get_register(sarg1);
-    
-    for(int j = 0; j < Lwpns.Count(); j++)
+    for ( int j = Lwpns.Count(); j >= 0; --j )
+    //for(int j = 0; j < Lwpns.Count(); j++)
         if(Lwpns.spr(j)->getUID() == WID)
         {
             set_register(sarg1, 10000);
@@ -11638,8 +11639,8 @@ void do_isvalidlwpn()
 void do_isvalidewpn()
 {
     long WID = get_register(sarg1);
-    
-    for(int j = 0; j < Ewpns.Count(); j++)
+    for ( int j = Ewpns.Count(); j >= 0; --j )
+    //for(int j = 0; j < Ewpns.Count(); j++)
         if(Ewpns.spr(j)->getUID() == WID)
         {
             set_register(sarg1, 10000);
@@ -12376,6 +12377,22 @@ void do_sfx(const bool v)
     sfx(ID);
 }
 
+int FFScript::do_get_internal_uid_npc(int index)
+{
+	return ((int)guys.spr(index)->getUID());
+}
+int FFScript::do_get_internal_uid_item(int index)
+{
+	return ((int)items.spr(index)->getUID());
+}
+int FFScript::do_get_internal_uid_lweapon(int index)
+{
+	return ((int)Lwpns.spr(index)->getUID());
+}
+int FFScript::do_get_internal_uid_eweapon(int index)
+{
+	return ((int)Ewpns.spr(index)->getUID());
+}
 
 void FFScript::do_adjustvolume(const bool v)
 {

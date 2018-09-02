@@ -126,6 +126,12 @@ int GetQuestVersion();
 int GetQuestBuild();
 int GetQuestSectionVersion(int section);
 
+int do_get_internal_uid_npc(int i);
+int do_get_internal_uid_item(int i);
+int do_get_internal_uid_lweapon(int i);
+int do_get_internal_uid_eweapon(int i);
+//int do_get_internal_uid
+
     //virtual ~FFScript();
     
 	
