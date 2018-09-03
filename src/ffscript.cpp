@@ -11596,9 +11596,11 @@ void do_getscreennpc()
 void do_isvaliditem()
 {
     long IID = get_register(sarg1);
-    
-    for ( int j = items.Count(); j >= 0; --j )
-    //for(int j = 0; j < items.Count(); j++)
+    //int ct = items.Count();
+  
+    //for ( int j = items.Count()-1; j >= 0; --j )
+    for(int j = 0; j < items.Count(); j++)
+    //for(int j = 0; j < ct; j++)
         if(items.spr(j)->getUID() == IID)
         {
             set_register(sarg1, 10000);
@@ -11611,8 +11613,11 @@ void do_isvaliditem()
 void do_isvalidnpc()
 {
     long UID = get_register(sarg1);
-    for ( int j = guys.Count(); j >= 0; --j )
-    //for(int j = 0; j < guys.Count(); j++)
+    //for ( int j = guys.Count()-1; j >= 0; --j )
+    //int ct = guys.Count(); 
+   
+    for(int j = 0; j < guys.Count(); j++)
+    //for(int j = 0; j < ct; j++)
         if(guys.spr(j)->getUID() == UID)
         {
             set_register(sarg1, 10000);
@@ -11625,8 +11630,11 @@ void do_isvalidnpc()
 void do_isvalidlwpn()
 {
     long WID = get_register(sarg1);
-    for ( int j = Lwpns.Count(); j >= 0; --j )
-    //for(int j = 0; j < Lwpns.Count(); j++)
+	//int ct = Lwpns.Count();
+    
+    //for ( int j = Lwpns.Count()-1; j >= 0; --j )
+    for(int j = 0; j < Lwpns.Count(); j++)
+    //for(int j = 0; j < ct; j++)
         if(Lwpns.spr(j)->getUID() == WID)
         {
             set_register(sarg1, 10000);
@@ -11639,8 +11647,11 @@ void do_isvalidlwpn()
 void do_isvalidewpn()
 {
     long WID = get_register(sarg1);
-    for ( int j = Ewpns.Count(); j >= 0; --j )
-    //for(int j = 0; j < Ewpns.Count(); j++)
+   // int ct = Ewpns.Count();
+   
+   // for ( int j = Ewpns.Count()-1; j >= 0; --j )
+    for(int j = 0; j < Ewpns.Count(); j++)
+    //for(int j = 0; j < ct; j++)
         if(Ewpns.spr(j)->getUID() == WID)
         {
             set_register(sarg1, 10000);
@@ -11771,6 +11782,21 @@ void do_loadnpc(const bool v)
         ri->guyref = guys.spr(index)->getUID();
         //Z_eventlog("Script loaded NPC with UID = %ld\n", ri->guyref);
     }
+}
+
+void FFScript::do_loadnpc_by_script_uid(const bool v)
+{
+	long sUID = SH::get_arg(sarg1, v) / 10000; //script UID
+	int ct = guys.Count();
+	for(int j = 0; j < ct; j++)
+        if(guys.spr(j)->script_uid == sUID)
+        {
+            ri->guyref = guys.spr(j)->getUID();
+	    return;
+        }
+	ri->guyref = LONG_MAX;
+	//error here.
+	//Z_eventlog("Script loaded NPC with UID = %ld\n", ri->guyref);
 }
 
 void FFScript::do_loaddmapdata(const bool v)
