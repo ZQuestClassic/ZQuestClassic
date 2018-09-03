@@ -2393,6 +2393,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                 case mfSCRIPT3:
                 case mfSCRIPT4:
                 case mfSCRIPT5:
+		case 105:
 		case 106:
 		case 107:
 		case 108:
