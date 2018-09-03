@@ -6361,8 +6361,10 @@ void LinkClass::do_rafting()
                     dir=right;
                 else if((isRaftFlag(nextflag(x,y,left,false))||isRaftFlag(nextflag(x,y,left,true))))
                     dir=left;
-                else if(y>0 && y<160)
+                else if(y>0 && y<160) 
+		{
                     action=none; FFCore.setLinkAction(none);
+		}
             }
             else //going left or right
             {
@@ -6371,7 +6373,9 @@ void LinkClass::do_rafting()
                 else if((isRaftFlag(nextflag(x,y,up,false))||isRaftFlag(nextflag(x,y,up,true))))
                     dir=up;
                 else if(x>0 && x<240)
+		{
                     action=none; FFCore.setLinkAction(none);
+		}
             }
         }
     }
