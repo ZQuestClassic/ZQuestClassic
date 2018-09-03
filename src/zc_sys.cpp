@@ -2393,6 +2393,56 @@ void draw_lens_under(BITMAP *dest, bool layer)
                 case mfSCRIPT3:
                 case mfSCRIPT4:
                 case mfSCRIPT5:
+		case 206:
+		case 207:
+		case 208:
+		case 209:
+		case 210:
+		case 211:
+		case 212:
+		case 213:
+		case 214:
+		case 215:
+		case 216:
+		case 217:
+		case 218:
+		case 219:
+		case 220:
+		case 221:
+		case 222:
+		case 223:
+		case 224:
+		case 225:
+		case 226:
+		case 227:
+		case 228:
+		case 229:
+		case 230:
+		case 231:
+		case 232:
+		case 233:
+		case 234:
+		case 235:
+		case 236:
+		case 237:
+		case 238:
+		case 239:
+		case 240:
+		case 241:
+		case 242:
+		case 243:
+		case 244:
+		case 245:
+		case 246:
+		case 247:
+		case 248:
+		case 249:
+		case 250:
+		case 251:
+		case 252:
+		case 253:
+		case 254:
+		case 255:
                     break;
                     
                 case mfPUSHUD:
@@ -3147,57 +3197,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                                  
                     break;
 		    
-		case 206:
-		case 207:
-		case 208:
-		case 209:
-		case 210:
-		case 211:
-		case 212:
-		case 213:
-		case 214:
-		case 215:
-		case 216:
-		case 217:
-		case 218:
-		case 219:
-		case 220:
-		case 221:
-		case 222:
-		case 223:
-		case 224:
-		case 225:
-		case 226:
-		case 227:
-		case 228:
-		case 229:
-		case 230:
-		case 231:
-		case 232:
-		case 233:
-		case 234:
-		case 235:
-		case 236:
-		case 237:
-		case 238:
-		case 239:
-		case 240:
-		case 241:
-		case 242:
-		case 243:
-		case 244:
-		case 245:
-		case 246:
-		case 247:
-		case 248:
-		case 249:
-		case 250:
-		case 251:
-		case 252:
-		case 253:
-		case 254:
-		case 255:
-			break;
+		
                     
                 default:
                     if(layer && ((checkflag!=mfRAFT && checkflag!=mfRAFT_BRANCH&& checkflag!=mfRAFT_BOUNCE) || get_bit(quest_rules,qr_RAFTLENS)))
