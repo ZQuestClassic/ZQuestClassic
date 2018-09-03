@@ -242,6 +242,8 @@ class LinkClass : public sprite
     int hurtsfx; //Link's Hurt SOund
     int walkspeed; //Link's walking speed.
     int lastHitBy[NUM_HIT_TYPES_USED][2]; //[enemy, eweapon, combo, flag
+	
+	int last_lens_id;// The item ID of the last Lens of Truth type item used
     
     // Methods below here.
     void movelink();
@@ -433,6 +435,10 @@ public:
     void setDiagMove(bool newdiag);
     bool getBigHitbox(); //Large H-itbox
     void setBigHitbox(bool newbighitbox);
+	
+	
+	int getLastLensID();	
+	int setLastLensID(int p_item);
 };
 
 bool isRaftFlag(int flag);

@@ -2311,6 +2311,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
 {
     bool hints = (layer && get_bit(quest_rules,qr_LENSHINTS));
     
+	if(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1)hints = false;
+	
     int strike_hint_table[11]=
     {
         mfARROW, mfBOMB, mfBRANG, mfWANDMAGIC,
@@ -2356,7 +2358,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                 if(checkflag==mfSTRIKE)
                 {
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sSTRIKE],tmpscr->secretcset[sSTRIKE]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sSTRIKE],tmpscr->secretcset[sSTRIKE]);
                     else
                     {
                         checkflag = strike_hint;
@@ -2570,7 +2572,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     if(!hints && ((!(get_debug() && key[KEY_N]) && (lensclk&16))
                                   || ((get_debug() && key[KEY_N]) && (frame&16))))
                     {
-                        putcombo(dest,x,y,tmpscr->undercombo,tmpscr->undercset);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->undercombo,tmpscr->undercset);
                     }
                     
                     if((!(get_debug() && key[KEY_N]) && (lensclk&blink_rate))
@@ -2648,7 +2650,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfBCANDLE:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sBCANDLE],tmpscr->secretcset[sBCANDLE]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sBCANDLE],tmpscr->secretcset[sBCANDLE]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_candle,1);
@@ -2669,7 +2671,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfRCANDLE:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sRCANDLE],tmpscr->secretcset[sRCANDLE]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sRCANDLE],tmpscr->secretcset[sRCANDLE]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_candle,2);
@@ -2690,7 +2692,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfWANDFIRE:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sWANDFIRE],tmpscr->secretcset[sWANDFIRE]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sWANDFIRE],tmpscr->secretcset[sWANDFIRE]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_wand,1);
@@ -2719,7 +2721,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfDINSFIRE:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sDINSFIRE],tmpscr->secretcset[sDINSFIRE]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sDINSFIRE],tmpscr->secretcset[sDINSFIRE]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_dinsfire,1);
@@ -2740,7 +2742,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfARROW:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sARROW],tmpscr->secretcset[sARROW]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sARROW],tmpscr->secretcset[sARROW]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_arrow,1);
@@ -2761,7 +2763,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfSARROW:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sSARROW],tmpscr->secretcset[sSARROW]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sSARROW],tmpscr->secretcset[sSARROW]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_arrow,2);
@@ -2782,7 +2784,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfGARROW:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sGARROW],tmpscr->secretcset[sGARROW]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sGARROW],tmpscr->secretcset[sGARROW]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_arrow,3);
@@ -2803,7 +2805,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfBOMB:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sBOMB],tmpscr->secretcset[sBOMB]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sBOMB],tmpscr->secretcset[sBOMB]);
                     else
                     {
                         //tempitem=getItemID(itemsbuf,itype_bomb,1);
@@ -2824,7 +2826,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfSBOMB:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sSBOMB],tmpscr->secretcset[sSBOMB]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sSBOMB],tmpscr->secretcset[sSBOMB]);
                     else
                     {
                         //tempitem=getItemID(itemsbuf,itype_sbomb,1);
@@ -2845,13 +2847,13 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfARMOS_SECRET:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
                         
                     break;
                     
                 case mfBRANG:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sBRANG],tmpscr->secretcset[sBRANG]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sBRANG],tmpscr->secretcset[sBRANG]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_brang,1);
@@ -2872,7 +2874,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfMBRANG:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sMBRANG],tmpscr->secretcset[sMBRANG]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sMBRANG],tmpscr->secretcset[sMBRANG]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_brang,2);
@@ -2893,7 +2895,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfFBRANG:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sFBRANG],tmpscr->secretcset[sFBRANG]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sFBRANG],tmpscr->secretcset[sFBRANG]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_brang,3);
@@ -2914,7 +2916,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfWANDMAGIC:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sWANDMAGIC],tmpscr->secretcset[sWANDMAGIC]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sWANDMAGIC],tmpscr->secretcset[sWANDMAGIC]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_wand,1);
@@ -2949,7 +2951,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfREFMAGIC:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sREFMAGIC],tmpscr->secretcset[sREFMAGIC]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sREFMAGIC],tmpscr->secretcset[sREFMAGIC]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_shield,3);
@@ -2997,7 +2999,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfREFFIREBALL:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sREFFIREBALL],tmpscr->secretcset[sREFFIREBALL]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sREFFIREBALL],tmpscr->secretcset[sREFFIREBALL]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_shield,3);
@@ -3039,7 +3041,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfSWORD:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sSWORD],tmpscr->secretcset[sSWORD]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sSWORD],tmpscr->secretcset[sSWORD]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_sword,1);
@@ -3060,7 +3062,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfWSWORD:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sWSWORD],tmpscr->secretcset[sWSWORD]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sWSWORD],tmpscr->secretcset[sWSWORD]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_sword,2);
@@ -3081,7 +3083,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfMSWORD:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sMSWORD],tmpscr->secretcset[sMSWORD]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sMSWORD],tmpscr->secretcset[sMSWORD]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_sword,3);
@@ -3102,7 +3104,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfXSWORD:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sXSWORD],tmpscr->secretcset[sXSWORD]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sXSWORD],tmpscr->secretcset[sXSWORD]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_sword,4);
@@ -3123,7 +3125,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfSWORDBEAM:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sSWORDBEAM],tmpscr->secretcset[sSWORDBEAM]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sSWORDBEAM],tmpscr->secretcset[sSWORDBEAM]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_sword,1);
@@ -3144,7 +3146,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfWSWORDBEAM:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sWSWORDBEAM],tmpscr->secretcset[sWSWORDBEAM]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sWSWORDBEAM],tmpscr->secretcset[sWSWORDBEAM]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_sword,2);
@@ -3165,7 +3167,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfMSWORDBEAM:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sMSWORDBEAM],tmpscr->secretcset[sMSWORDBEAM]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sMSWORDBEAM],tmpscr->secretcset[sMSWORDBEAM]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_sword,3);
@@ -3186,7 +3188,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfXSWORDBEAM:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sXSWORDBEAM],tmpscr->secretcset[sXSWORDBEAM]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sXSWORDBEAM],tmpscr->secretcset[sXSWORDBEAM]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_sword,4);
@@ -3207,7 +3209,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfHOOKSHOT:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sHOOKSHOT],tmpscr->secretcset[sHOOKSHOT]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sHOOKSHOT],tmpscr->secretcset[sHOOKSHOT]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_hookshot,1);
@@ -3228,7 +3230,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfWAND:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sWAND],tmpscr->secretcset[sWAND]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sWAND],tmpscr->secretcset[sWAND]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_wand,1);
@@ -3249,7 +3251,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                     
                 case mfHAMMER:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[sHAMMER],tmpscr->secretcset[sHAMMER]);
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[sHAMMER],tmpscr->secretcset[sHAMMER]);
                     else
                     {
                         tempitem=getItemID(itemsbuf,itype_hammer,1);
@@ -3293,7 +3295,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                 case 30:
                 case 31:
                     if(!hints)
-                        putcombo(dest,x,y,tmpscr->secretcombo[checkflag-16+4],
+                        if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,x,y,tmpscr->secretcombo[checkflag-16+4],
                                  tmpscr->secretcset[checkflag-16+4]);
                                  
                     break;
@@ -3352,7 +3354,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
         if(tmpscr->stairx + tmpscr->stairy)
         {
             if(!hints)
-                putcombo(dest,tmpscr->stairx,tmpscr->stairy+playing_field_offset,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
+                if(!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1))putcombo(dest,tmpscr->stairx,tmpscr->stairy+playing_field_offset,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
             else
             {
                 if(tmpscr->flags&fWHISTLE)

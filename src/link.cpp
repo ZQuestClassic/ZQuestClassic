@@ -855,6 +855,7 @@ void LinkClass::init()
     falling_oldy = y;
     magiccastclk=0;
     magicitem = nayruitem = -1;
+	last_lens_id = 0;
     
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -5966,7 +5967,7 @@ bool isRaftFlag(int flag)
 void do_lens()
 {
     int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
-    
+	setLastLensID(itemid);
     if(itemid<0)
         return;
         
@@ -16314,6 +16315,14 @@ int LinkClass::getHoverClk()
 int LinkClass::getHoldClk()
 {
     return holdclk;
+}
+
+int LinkClass::getLastLensID(){
+	return last_lens_id;
+}
+
+void LinkClass::setLastLensID(int p_item){
+	last_lens_id = p_item;
 }
 
 void LinkClass::execute(LinkClass::WalkflagInfo info)
