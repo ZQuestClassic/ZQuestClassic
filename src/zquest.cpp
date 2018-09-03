@@ -19217,7 +19217,7 @@ int onCompileScript()
             fclose(tempfile);
             box_start(1, "Compile Progress", lfont, sfont,true);
             gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
-            ScriptsData *result = compile("tmp");
+            ZScript::ScriptsData *result = ZScript::compile("tmp");
             unlink("tmp");
             box_end(true);
             refresh(rALL);
@@ -19230,7 +19230,7 @@ int onCompileScript()
             
             std::map<string, ZScript::ScriptType> stypes =
 	            result->scriptTypes;
-            std::map<string, vector<Opcode *> > scripts = result->theScripts;
+            std::map<string, vector<ZScript::Opcode *> > scripts = result->theScripts;
             delete result;
             asffcscripts.clear();
             asffcscripts.push_back("<none>");
@@ -19350,7 +19350,7 @@ int onCompileScript()
                                 al_trace("\n");
                             }
                             
-                            for(vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
                             {
                                 string theline = (*line)->printLine();
                                 fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -19391,7 +19391,7 @@ int onCompileScript()
                                 al_trace("\n");
                             }
                             
-                            for(vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
                             {
                                 string theline = (*line)->printLine();
                                 fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -19432,7 +19432,7 @@ int onCompileScript()
                                 al_trace("\n");
                             }
                             
-                            for(vector<Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
                             {
                                 string theline = (*line)->printLine();
                                 fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
@@ -19459,9 +19459,9 @@ int onCompileScript()
                     build_biffs_list();
                     build_biitems_list();
                     
-                    for(map<string, vector<Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
+                    for(map<string, vector<ZScript::Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
                     {
-                        for(vector<Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+                        for(vector<ZScript::Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
                         {
                             delete *it2;
                         }

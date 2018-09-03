@@ -15,29 +15,6 @@ using std::endl;
 using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////
-// FunctionTypeIds
-
-FunctionTypeIds::FunctionTypeIds(DataTypeId returnTypeId, vector<DataTypeId> const& paramTypeIds)
-	: returnTypeId(returnTypeId), paramTypeIds(paramTypeIds)
-{}
-
-int FunctionTypeIds::compare(FunctionTypeIds const& other) const
-{
-	int c = returnTypeId - other.returnTypeId;
-	if (c) return c;
-	c = paramTypeIds.size() - other.paramTypeIds.size();
-	if (c) return c;
-	for (int i = 0; i < paramTypeIds.size(); ++i)
-	{
-		c = paramTypeIds[i] - other.paramTypeIds[i];
-		if (c) return c;
-	}
-	return 0;
-}
-
-FunctionTypeIds const FunctionTypeIds::null;
-
-////////////////////////////////////////////////////////////////
 // FunctionData
 
 FunctionData::FunctionData(Program& program)

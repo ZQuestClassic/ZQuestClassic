@@ -1056,5522 +1056,5525 @@ using namespace std;
 
 //END OF BYTECODE
 
-class LiteralArgument;
-class VarArgument;
-class LabelArgument;
-class GlobalArgument;
-
-class ArgumentVisitor
-{
-public:
-    virtual void caseLiteral(LiteralArgument &host, void *param)
-    {
-        void *temp;
-        temp=&host;
-        param=param; /*these are here to bypass compiler warnings about unused arguments*/
-    }
-    virtual void caseVar(VarArgument &host, void *param)
-    {
-        void *temp;
-        temp=&host;
-        param=param; /*these are here to bypass compiler warnings about unused arguments*/
-    }
-    virtual void caseLabel(LabelArgument &host, void *param)
-    {
-        void *temp;
-        temp=&host;
-        param=param; /*these are here to bypass compiler warnings about unused arguments*/
-    }
-    virtual void caseGlobal(GlobalArgument &host, void *param)
-    {
-        void *temp;
-        temp=&host;
-        param=param; /*these are here to bypass compiler warnings about unused arguments*/
-    }
-    virtual ~ArgumentVisitor() {}
-};
-
-class Argument
-{
-public:
-    virtual string toString()=0;
-    virtual void execute(ArgumentVisitor &host, void *param)=0;
-    virtual Argument *clone()=0;
-    virtual ~Argument() {}
-};
-
-class LiteralArgument : public Argument
-{
-public:
-    LiteralArgument(long Value) : value(Value) {}
-    string toString();
-    void execute(ArgumentVisitor &host, void *param)
-    {
-        host.caseLiteral(*this, param);
-    }
-    Argument *clone()
-    {
-        return new LiteralArgument(value);
-    }
-private:
-    long value;
-};
-
-class VarArgument : public Argument
-{
-public:
-    VarArgument(int id) : ID(id) {}
-    string toString();
-    void execute(ArgumentVisitor &host, void *param)
-    {
-        host.caseVar(*this,param);
-    }
-    Argument *clone()
-    {
-        return new VarArgument(ID);
-    }
-private:
-    int ID;
-};
-
-class GlobalArgument : public Argument
-{
-public:
-    GlobalArgument(int id) : ID(id) {}
-    string toString();
-    void execute(ArgumentVisitor &host, void *param)
-    {
-        host.caseGlobal(*this,param);
-    }
-    Argument *clone()
-    {
-        return new GlobalArgument(ID);
-    }
-private:
-    int ID;
-};
-
-class LabelArgument : public Argument
-{
-public:
-    LabelArgument(int id) : ID(id), haslineno(false) {}
-    string toString();
-    void execute(ArgumentVisitor &host, void *param)
-    {
-        host.caseLabel(*this,param);
-    }
-    Argument *clone()
-    {
-        return new LabelArgument(ID);
-    }
-    int getID()
-    {
-        return ID;
-    }
-    void setLineNo(int l)
-    {
-        haslineno=true;
-        lineno=l;
-    }
-private:
-    int ID;
-    int lineno;
-    bool haslineno;
-};
-
-class UnaryOpcode : public Opcode
-{
-public:
-    UnaryOpcode(Argument *A) : a(A) {}
-    ~UnaryOpcode()
-    {
-        delete a;
-    }
-    Argument *getArgument()
-    {
-        return a;
-    }
-    void execute(ArgumentVisitor &host, void *param)
-    {
-        a->execute(host, param);
-    }
-protected:
-    Argument *a;
-};
-
-class BinaryOpcode : public Opcode
-{
-public:
-    BinaryOpcode(Argument *A, Argument *B) : a(A), b(B) {}
-    ~BinaryOpcode()
-    {
-        delete a;
-        delete b;
-    }
-    Argument *getFirstArgument()
-    {
-        return a;
-    }
-    Argument *getSecondArgument()
-    {
-        return b;
-    }
-    void execute(ArgumentVisitor &host, void *param)
-    {
-        a->execute(host, param);
-        b->execute(host, param);
-    }
-protected:
-    Argument *a;
-    Argument *b;
-};
-
-class OSetTrue : public UnaryOpcode
-{
-public:
-    OSetTrue(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetTrue(a->clone());
-    }
-};
-
-class OSetFalse : public UnaryOpcode
-{
-public:
-    OSetFalse(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetFalse(a->clone());
-    }
-};
-
-class OSetMore : public UnaryOpcode
-{
-public:
-    OSetMore(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetMore(a->clone());
-    }
-};
-
-class OSetLess : public UnaryOpcode
-{
-public:
-    OSetLess(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetLess(a->clone());
-    }
-};
-
-class OSetImmediate : public BinaryOpcode
-{
-public:
-    OSetImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetImmediate(a->clone(),b->clone());
-    }
-};
-
-class OSetRegister : public BinaryOpcode
-{
-public:
-    OSetRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetRegister(a->clone(),b->clone());
-    }
-};
-
-class OAddImmediate : public BinaryOpcode
-{
-public:
-    OAddImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OAddImmediate(a->clone(),b->clone());
-    }
-};
-
-class OAddRegister : public BinaryOpcode
-{
-public:
-    OAddRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OAddRegister(a->clone(),b->clone());
-    }
-};
-
-class OSubImmediate : public BinaryOpcode
-{
-public:
-    OSubImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSubImmediate(a->clone(),b->clone());
-    }
-};
-
-class OSubRegister : public BinaryOpcode
-{
-public:
-    OSubRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSubRegister(a->clone(),b->clone());
-    }
-};
-
-class OMultImmediate : public BinaryOpcode
-{
-public:
-    OMultImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OMultImmediate(a->clone(),b->clone());
-    }
-};
-
-class OMultRegister : public BinaryOpcode
-{
-public:
-    OMultRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OMultRegister(a->clone(),b->clone());
-    }
-};
-
-class ODivImmediate : public BinaryOpcode
-{
-public:
-    ODivImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ODivImmediate(a->clone(),b->clone());
-    }
-};
-
-class ODivRegister : public BinaryOpcode
-{
-public:
-    ODivRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ODivRegister(a->clone(),b->clone());
-    }
-};
-
-class OCompareImmediate : public BinaryOpcode
-{
-public:
-    OCompareImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCompareImmediate(a->clone(),b->clone());
-    }
-};
-
-class OCompareRegister : public BinaryOpcode
-{
-public:
-    OCompareRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCompareRegister(a->clone(),b->clone());
-    }
-};
-
-class OWaitframe : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OWaitframe();
-    }
-};
-
-class OWaitdraw : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OWaitdraw();
-    }
-};
-
-class OGotoImmediate : public UnaryOpcode
-{
-public:
-    OGotoImmediate(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGotoImmediate(a->clone());
-    }
-};
-
-class OGotoTrueImmediate: public UnaryOpcode
-{
-public:
-    OGotoTrueImmediate(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGotoTrueImmediate(a->clone());
-    }
-};
-
-class OGotoFalseImmediate: public UnaryOpcode
-{
-public:
-    OGotoFalseImmediate(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGotoFalseImmediate(a->clone());
-    }
-};
-
-class OGotoMoreImmediate : public UnaryOpcode
-{
-public:
-    OGotoMoreImmediate(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGotoMoreImmediate(a->clone());
-    }
-};
-
-class OGotoLessImmediate : public UnaryOpcode
-{
-public:
-    OGotoLessImmediate(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGotoLessImmediate(a->clone());
-    }
-};
-
-class OPushRegister : public UnaryOpcode
-{
-public:
-    OPushRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OPushRegister(a->clone());
-    }
-};
-
-class OPopRegister : public UnaryOpcode
-{
-public:
-    OPopRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OPopRegister(a->clone());
-    }
-};
-
-class OLoadIndirect : public BinaryOpcode
-{
-public:
-    OLoadIndirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadIndirect(a->clone(),b->clone());
-    }
-};
-
-class OStoreIndirect : public BinaryOpcode
-{
-public:
-    OStoreIndirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OStoreIndirect(a->clone(),b->clone());
-    }
-};
-
-class OQuit : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OQuit();
-    }
-};
-
-class OGotoRegister : public UnaryOpcode
-{
-public:
-    OGotoRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGotoRegister(a->clone());
-    }
-};
-
-class OTraceRegister : public UnaryOpcode
-{
-public:
-    OTraceRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OTraceRegister(a->clone());
-    }
-};
-
-class OTrace2Register : public UnaryOpcode
-{
-public:
-    OTrace2Register(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OTrace2Register(a->clone());
-    }
-};
-
-class OTrace3 : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OTrace3();
-    }
-};
-
-class OTrace4 : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OTrace4();
-    }
-};
-
-class OTrace5Register : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OTrace5Register();
-    }
-};
-
-class OTrace6Register : public UnaryOpcode
-{
-public:
-    OTrace6Register(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OTrace6Register(a->clone());
-    }
-};
-
-class OAndImmediate : public BinaryOpcode
-{
-public:
-    OAndImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OAndImmediate(a->clone(),b->clone());
-    }
-};
-
-class OAndRegister : public BinaryOpcode
-{
-public:
-    OAndRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OAndRegister(a->clone(),b->clone());
-    }
-};
-
-class OOrImmediate : public BinaryOpcode
-{
-public:
-    OOrImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OOrImmediate(a->clone(),b->clone());
-    }
-};
-
-class OOrRegister : public BinaryOpcode
-{
-public:
-    OOrRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OOrRegister(a->clone(),b->clone());
-    }
-};
-
-class OXorImmediate : public BinaryOpcode
-{
-public:
-    OXorImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OXorImmediate(a->clone(), b->clone());
-    }
-};
-
-class OXorRegister : public BinaryOpcode
-{
-public:
-    OXorRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OXorRegister(a->clone(), b->clone());
-    }
-};
-
-class ONot : public UnaryOpcode
-{
-public:
-    ONot(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONot(a->clone());
-    }
-};
-
-class OLShiftImmediate : public BinaryOpcode
-{
-public:
-    OLShiftImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLShiftImmediate(a->clone(), b->clone());
-    }
-};
-
-class OLShiftRegister : public BinaryOpcode
-{
-public:
-    OLShiftRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLShiftRegister(a->clone(), b->clone());
-    }
-};
-
-class ORShiftImmediate : public BinaryOpcode
-{
-public:
-    ORShiftImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ORShiftImmediate(a->clone(), b->clone());
-    }
-};
-
-class ORShiftRegister : public BinaryOpcode
-{
-public:
-    ORShiftRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ORShiftRegister(a->clone(), b->clone());
-    }
-};
-
-class OModuloImmediate : public BinaryOpcode
-{
-public:
-    OModuloImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OModuloImmediate(a->clone(), b->clone());
-    }
-};
-
-class OModuloRegister : public BinaryOpcode
-{
-public:
-    OModuloRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OModuloRegister(a->clone(), b->clone());
-    }
-};
-
-class OSinRegister : public BinaryOpcode
-{
-public:
-    OSinRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSinRegister(a->clone(), b->clone());
-    }
-};
-
-class OArcSinRegister : public BinaryOpcode
-{
-public:
-    OArcSinRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OArcSinRegister(a->clone(), b->clone());
-    }
-};
-
-class OCosRegister : public BinaryOpcode
-{
-public:
-    OCosRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCosRegister(a->clone(), b->clone());
-    }
-};
-
-class OArcCosRegister : public BinaryOpcode
-{
-public:
-    OArcCosRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OArcCosRegister(a->clone(), b->clone());
-    }
-};
-
-class OTanRegister : public BinaryOpcode
-{
-public:
-    OTanRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OTanRegister(a->clone(), b->clone());
-    }
-};
-
-class OATanRegister : public UnaryOpcode
-{
-public:
-    OATanRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OATanRegister(a->clone());
-    }
-};
-
-class OMaxRegister : public BinaryOpcode
-{
-public:
-    OMaxRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OMaxRegister(a->clone(), b->clone());
-    }
-};
-
-class OMinRegister : public BinaryOpcode
-{
-public:
-    OMinRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OMinRegister(a->clone(), b->clone());
-    }
-};
-
-class OPowRegister : public BinaryOpcode
-{
-public:
-    OPowRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OPowRegister(a->clone(), b->clone());
-    }
-};
-
-class OInvPowRegister : public BinaryOpcode
-{
-public:
-    OInvPowRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OInvPowRegister(a->clone(), b->clone());
-    }
-};
-
-class OFactorial : public UnaryOpcode
-{
-public:
-    OFactorial(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OFactorial(a->clone());
-    }
-};
-
-class OAbsRegister : public UnaryOpcode
-{
-public:
-    OAbsRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OAbsRegister(a->clone());
-    }
-};
-
-class OLog10Register : public UnaryOpcode
-{
-public:
-    OLog10Register(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLog10Register(a->clone());
-    }
-};
-
-class OLogERegister : public UnaryOpcode
-{
-public:
-    OLogERegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLogERegister(a->clone());
-    }
-};
-
-class OArraySize : public UnaryOpcode
-{
-public:
-    OArraySize(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OArraySize(a->clone());
-    }
-};
-
-
-class OArraySizeF : public UnaryOpcode
-{
-public:
-    OArraySizeF(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OArraySizeF(a->clone());
-    }
-};
-class OArraySizeN : public UnaryOpcode
-{
-public:
-    OArraySizeN(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OArraySizeN(a->clone());
-    }
-};
-class OArraySizeE : public UnaryOpcode
-{
-public:
-    OArraySizeE(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OArraySizeE(a->clone());
-    }
-};
-class OArraySizeL : public UnaryOpcode
-{
-public:
-    OArraySizeL(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OArraySizeL(a->clone());
-    }
-};
-class OArraySizeB : public UnaryOpcode
-{
-public:
-    OArraySizeB(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OArraySizeB(a->clone());
-    }
-};
-class OArraySizeI : public UnaryOpcode
-{
-public:
-    OArraySizeI(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OArraySizeI(a->clone());
-    }
-};
-class OArraySizeID : public UnaryOpcode
-{
-public:
-    OArraySizeID(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OArraySizeID(a->clone());
-    }
-};
-
-class OCheckTrig : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OCheckTrig();
-    }
-};
-
-class ORandRegister : public BinaryOpcode
-{
-public:
-    ORandRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ORandRegister(a->clone(), b->clone());
-    }
-};
-
-class OSqrtRegister : public BinaryOpcode
-{
-public:
-    OSqrtRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSqrtRegister(a->clone(),b->clone());
-    }
-};
-
-class OCalcSplineRegister : public BinaryOpcode
-{
-public:
-    OCalcSplineRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCalcSplineRegister(a->clone(),b->clone());
-    }
-};
-
-class OSetColorRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetColorRegister();
-    }
-};
-
-class OSetDepthRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetDepthRegister();
-    }
-};
-
-class OCollisionRectRegister : public UnaryOpcode
-{
-public:
-    OCollisionRectRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCollisionRectRegister(a->clone());
-    }
-};
-
-class OCollisionBoxRegister : public UnaryOpcode
-{
-public:
-    OCollisionBoxRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCollisionBoxRegister(a->clone());
-    }
-};
-
-class OWarp : public BinaryOpcode
-{
-public:
-    OWarp(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OWarp(a->clone(), b->clone());
-    }
-};
-
-class OPitWarp : public BinaryOpcode
-{
-public:
-    OPitWarp(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OPitWarp(a->clone(), b->clone());
-    }
-};
-
-class OCreateItemRegister : public UnaryOpcode
-{
-public:
-    OCreateItemRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCreateItemRegister(a->clone());
-    }
-};
-
-class OCreateNPCRegister : public UnaryOpcode
-{
-public:
-    OCreateNPCRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCreateNPCRegister(a->clone());
-    }
-};
-
-class OCreateLWpnRegister : public UnaryOpcode
-{
-public:
-    OCreateLWpnRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCreateLWpnRegister(a->clone());
-    }
-};
-
-class OCreateEWpnRegister : public UnaryOpcode
-{
-public:
-    OCreateEWpnRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCreateEWpnRegister(a->clone());
-    }
-};
-
-class OLoadItemRegister : public UnaryOpcode
-{
-public:
-    OLoadItemRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadItemRegister(a->clone());
-    }
-};
-
-class OLoadItemDataRegister : public UnaryOpcode
-{
-public:
-    OLoadItemDataRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadItemDataRegister(a->clone());
-    }
-};
-
-class OLoadShopDataRegister : public UnaryOpcode
-{
-public:
-    OLoadShopDataRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadShopDataRegister(a->clone());
-    }
-};
-
-
-class OLoadInfoShopDataRegister : public UnaryOpcode
-{
-public:
-    OLoadInfoShopDataRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadInfoShopDataRegister(a->clone());
-    }
-};
-
-class OLoadNPCDataRegister : public UnaryOpcode
-{
-public:
-    OLoadNPCDataRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadNPCDataRegister(a->clone());
-    }
-};
-
-
-class OLoadMessageDataRegister : public UnaryOpcode
-{
-public:
-    OLoadMessageDataRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadMessageDataRegister(a->clone());
-    }
-};
-
-
-class OLoadDMapDataRegister : public UnaryOpcode
-{
-public:
-    OLoadDMapDataRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadDMapDataRegister(a->clone());
-    }
-};
-
-class ODMapDataGetNameRegister : public UnaryOpcode
-{
-public:
-    ODMapDataGetNameRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ODMapDataGetNameRegister(a->clone());
-    }
-};
-
-class ODMapDataSetNameRegister : public UnaryOpcode
-{
-public:
-    ODMapDataSetNameRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ODMapDataSetNameRegister(a->clone());
-    }
-};
-
-class ODMapDataGetTitleRegister : public UnaryOpcode
-{
-public:
-    ODMapDataGetTitleRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ODMapDataGetTitleRegister(a->clone());
-    }
-};
-
-class ODMapDataSetTitleRegister : public UnaryOpcode
-{
-public:
-    ODMapDataSetTitleRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ODMapDataSetTitleRegister(a->clone());
-    }
-};
-
-class ODMapDataGetIntroRegister : public UnaryOpcode
-{
-public:
-    ODMapDataGetIntroRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ODMapDataGetIntroRegister(a->clone());
-    }
-};
-
-class ODMapDataSetIntroRegister : public UnaryOpcode
-{
-public:
-    ODMapDataSetIntroRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ODMapDataSetIntroRegister(a->clone());
-    }
-};
-
-class ODMapDataGetMusicRegister : public UnaryOpcode
-{
-public:
-    ODMapDataGetMusicRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ODMapDataGetMusicRegister(a->clone());
-    }
-};
-
-class ODMapDataSetMusicRegister : public UnaryOpcode
-{
-public:
-    ODMapDataSetMusicRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ODMapDataSetMusicRegister(a->clone());
-    }
-};
-
-
-class OMessageDataSetStringRegister : public UnaryOpcode
-{
-public:
-    OMessageDataSetStringRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OMessageDataSetStringRegister(a->clone());
-    }
-};
-
-
-class OMessageDataGetStringRegister : public UnaryOpcode
-{
-public:
-    OMessageDataGetStringRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OMessageDataGetStringRegister(a->clone());
-    }
-};
-
-class OLoadComboDataRegister : public UnaryOpcode
-{
-public:
-    OLoadComboDataRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadComboDataRegister(a->clone());
-    }
-};
-
-class OLoadMapDataRegister : public BinaryOpcode
-{
-public:
-    OLoadMapDataRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadMapDataRegister(a->clone(), b->clone());
-    }
-};
-
-
-class OLoadSpriteDataRegister : public UnaryOpcode
-{
-public:
-    OLoadSpriteDataRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadSpriteDataRegister(a->clone());
-    }
-};
-
-
-class OLoadScreenDataRegister : public UnaryOpcode
-{
-public:
-    OLoadScreenDataRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadScreenDataRegister(a->clone());
-    }
-};
-
-
-class OLoadBitmapDataRegister : public UnaryOpcode
-{
-public:
-    OLoadBitmapDataRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadBitmapDataRegister(a->clone());
-    }
-};
-
-class OLoadNPCRegister : public UnaryOpcode
-{
-public:
-    OLoadNPCRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadNPCRegister(a->clone());
-    }
-};
-
-class OLoadLWpnRegister : public UnaryOpcode
-{
-public:
-    OLoadLWpnRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadLWpnRegister(a->clone());
-    }
-};
-
-class OLoadEWpnRegister : public UnaryOpcode
-{
-public:
-    OLoadEWpnRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLoadEWpnRegister(a->clone());
-    }
-};
-
-class OPlaySoundRegister : public UnaryOpcode
-{
-public:
-    OPlaySoundRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OPlaySoundRegister(a->clone());
-    }
-};
-
-// Audio->
-
-
-class OAdjustVolumeRegister : public UnaryOpcode
-{
-public:
-    OAdjustVolumeRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OAdjustVolumeRegister(a->clone());
-    }
-};
-
-
-class OAdjustSFXVolumeRegister : public UnaryOpcode
-{
-public:
-    OAdjustSFXVolumeRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OAdjustSFXVolumeRegister(a->clone());
-    }
-};
-
-
-class OEndSoundRegister : public UnaryOpcode
-{
-public:
-    OEndSoundRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OEndSoundRegister(a->clone());
-    }
-};
-
-
-class OPauseSoundRegister : public UnaryOpcode
-{
-public:
-    OPauseSoundRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OPauseSoundRegister(a->clone());
-    }
-};
-
-
-class OResumeSoundRegister : public UnaryOpcode
-{
-public:
-    OResumeSoundRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OResumeSoundRegister(a->clone());
-    }
-};
-
-
-class OPauseSFX : public UnaryOpcode
-{
-public:
-    OPauseSFX(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OPauseSFX(a->clone());
-    }
-};
-
-class OResumeSFX : public UnaryOpcode
-{
-public:
-    OResumeSFX(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OResumeSFX(a->clone());
-    }
-};
-
-class OContinueSFX : public UnaryOpcode
-{
-public:
-    OContinueSFX(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OContinueSFX(a->clone());
-    }
-};
-
-
-class OPauseMusic : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OPauseMusic();
-    }
-};
-
-class OResumeMusic : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OResumeMusic();
-    }
-};
-
-
-//END Audio
-
-class OPlayMIDIRegister : public UnaryOpcode
-{
-public:
-    OPlayMIDIRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OPlayMIDIRegister(a->clone());
-    }
-};
-
-class OPlayEnhancedMusic : public BinaryOpcode
-{
-public:
-    OPlayEnhancedMusic(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OPlayEnhancedMusic(a->clone(), b->clone());
-    }
-};
-
-class OGetDMapMusicFilename : public BinaryOpcode
-{
-public:
-    OGetDMapMusicFilename(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetDMapMusicFilename(a->clone(), b->clone());
-    }
-};
-
-class OGetDMapMusicTrack : public UnaryOpcode
-{
-public:
-    OGetDMapMusicTrack(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetDMapMusicTrack(a->clone());
-    }
-};
-
-class OSetDMapEnhancedMusic : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetDMapEnhancedMusic();
-    }
-};
-
-class OGetSaveName : public UnaryOpcode
-{
-public:
-    OGetSaveName(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetSaveName(a->clone());
-    }
-};
-
-class OGetDMapName : public BinaryOpcode
-{
-public:
-    OGetDMapName(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetDMapName(a->clone(), b->clone());
-    }
-};
-
-class OSetDMapName : public BinaryOpcode
-{
-public:
-    OSetDMapName(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetDMapName(a->clone(), b->clone());
-    }
-};
-
-class OSetDMapIntro : public BinaryOpcode
-{
-public:
-    OSetDMapIntro(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetDMapIntro(a->clone(), b->clone());
-    }
-};
-
-class OSetDMapTitle : public BinaryOpcode
-{
-public:
-    OSetDMapTitle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetDMapTitle(a->clone(), b->clone());
-    }
-};
-
-
-class OSetMessage : public BinaryOpcode
-{
-public:
-    OSetMessage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetMessage(a->clone(), b->clone());
-    }
-};
-
-
-class OGetDMapIntro : public BinaryOpcode
-{
-public:
-    OGetDMapIntro(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetDMapIntro(a->clone(), b->clone());
-    }
-};
-
-class OGetDMapTitle : public BinaryOpcode
-{
-public:
-    OGetDMapTitle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetDMapTitle(a->clone(), b->clone());
-    }
-};
-
-class OSetSaveName : public UnaryOpcode
-{
-public:
-    OSetSaveName(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetSaveName(a->clone());
-    }
-};
-
-class OGetItemName : public UnaryOpcode
-{
-public:
-    OGetItemName(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetItemName(a->clone());
-    }
-};
-
-class OGetNPCName : public UnaryOpcode
-{
-public:
-    OGetNPCName(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetNPCName(a->clone());
-    }
-};
-
-class OGetMessage : public BinaryOpcode
-{
-public:
-    OGetMessage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetMessage(a->clone(), b->clone());
-    }
-};
-
-class OClearSpritesRegister : public UnaryOpcode
-{
-public:
-    OClearSpritesRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OClearSpritesRegister(a->clone());
-    }
-};
-
-class OMessageRegister : public UnaryOpcode
-{
-public:
-    OMessageRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OMessageRegister(a->clone());
-    }
-};
-
-class OIsSolid : public UnaryOpcode
-{
-public:
-    OIsSolid(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OIsSolid(a->clone());
-    }
-};
-
-class OSetSideWarpRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetSideWarpRegister();
-    }
-};
-
-class OSetTileWarpRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetTileWarpRegister();
-    }
-};
-
-class OGetSideWarpDMap : public UnaryOpcode
-{
-public:
-    OGetSideWarpDMap(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetSideWarpDMap(a->clone());
-    }
-};
-
-class OGetSideWarpScreen : public UnaryOpcode
-{
-public:
-    OGetSideWarpScreen(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetSideWarpScreen(a->clone());
-    }
-};
-
-class OGetSideWarpType : public UnaryOpcode
-{
-public:
-    OGetSideWarpType(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetSideWarpType(a->clone());
-    }
-};
-
-class OGetTileWarpDMap : public UnaryOpcode
-{
-public:
-    OGetTileWarpDMap(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetTileWarpDMap(a->clone());
-    }
-};
-
-class OGetTileWarpScreen : public UnaryOpcode
-{
-public:
-    OGetTileWarpScreen(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetTileWarpScreen(a->clone());
-    }
-};
-
-class OGetTileWarpType : public UnaryOpcode
-{
-public:
-    OGetTileWarpType(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetTileWarpType(a->clone());
-    }
-};
-
-class OLayerScreenRegister : public BinaryOpcode
-{
-public:
-    OLayerScreenRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLayerScreenRegister(a->clone(), b->clone());
-    }
-};
-
-class OLayerMapRegister : public BinaryOpcode
-{
-public:
-    OLayerMapRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OLayerMapRegister(a->clone(), b->clone());
-    }
-};
-
-class OTriggerSecrets : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OTriggerSecrets();
-    }
-};
-
-class OIsValidItem : public UnaryOpcode
-{
-public:
-    OIsValidItem(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OIsValidItem(a->clone());
-    }
-};
-
-class OIsValidNPC : public UnaryOpcode
-{
-public:
-    OIsValidNPC(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OIsValidNPC(a->clone());
-    }
-};
-
-class OIsValidLWpn : public UnaryOpcode
-{
-public:
-    OIsValidLWpn(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OIsValidLWpn(a->clone());
-    }
-};
-
-class OIsValidEWpn : public UnaryOpcode
-{
-public:
-    OIsValidEWpn(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OIsValidEWpn(a->clone());
-    }
-};
-
-class OUseSpriteLWpn : public UnaryOpcode
-{
-public:
-    OUseSpriteLWpn(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OUseSpriteLWpn(a->clone());
-    }
-};
-
-class OUseSpriteEWpn : public UnaryOpcode
-{
-public:
-    OUseSpriteEWpn(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OUseSpriteEWpn(a->clone());
-    }
-};
-
-class ORectangleRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new ORectangleRegister();
-    }
-};
-
-class OCircleRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OCircleRegister();
-    }
-};
-
-class OArcRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OArcRegister();
-    }
-};
-
-class OEllipseRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OEllipseRegister();
-    }
-};
-
-class OLineRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OLineRegister();
-    }
-};
-
-class OSplineRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OSplineRegister();
-    }
-};
-
-class OPutPixelRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OPutPixelRegister();
-    }
-};
-
-class ODrawCharRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new ODrawCharRegister();
-    }
-};
-
-class ODrawIntRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new ODrawIntRegister();
-    }
-};
-
-class ODrawTileRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new ODrawTileRegister();
-    }
-};
-
-class ODrawComboRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new ODrawComboRegister();
-    }
-};
-
-class OQuadRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OQuadRegister();
-    }
-};
-
-class OTriangleRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OTriangleRegister();
-    }
-};
-
-class OQuad3DRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OQuad3DRegister();
-    }
-};
-
-class OTriangle3DRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OTriangle3DRegister();
-    }
-};
-
-class OFastTileRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OFastTileRegister();
-    }
-};
-
-class OFastComboRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OFastComboRegister();
-    }
-};
-
-class ODrawStringRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new ODrawStringRegister();
-    }
-};
-
-class ODrawLayerRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new ODrawLayerRegister();
-    }
-};
-
-class ODrawScreenRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new ODrawScreenRegister();
-    }
-};
-
-class ODrawBitmapRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new ODrawBitmapRegister();
-    }
-};
-
-
-class ODrawBitmapExRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new ODrawBitmapExRegister();
-    }
-};
-
-class OSetRenderTargetRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetRenderTargetRegister();
-    }
-};
-
-class OSetDepthBufferRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetDepthBufferRegister();
-    }
-};
-
-class OGetDepthBufferRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetDepthBufferRegister();
-    }
-};
-
-class OSetColorBufferRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetColorBufferRegister();
-    }
-};
-
-class OGetColorBufferRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetColorBufferRegister();
-    }
-};
-
-class OCopyTileRegister : public BinaryOpcode
-{
-public:
-    OCopyTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCopyTileRegister(a->clone(),b->clone());
-    }
-};
-
-
-class OOverlayTileRegister : public BinaryOpcode
-{
-public:
-    OOverlayTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OOverlayTileRegister(a->clone(),b->clone());
-    }
-};
-
-class OSwapTileRegister : public BinaryOpcode
-{
-public:
-    OSwapTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSwapTileRegister(a->clone(),b->clone());
-    }
-};
-
-class OClearTileRegister : public UnaryOpcode
-{
-public:
-    OClearTileRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OClearTileRegister(a->clone());
-    }
-};
-
-class OAllocateMemRegister : public BinaryOpcode
-{
-public:
-    OAllocateMemRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OAllocateMemRegister(a->clone(),b->clone());
-    }
-};
-
-class OAllocateMemImmediate : public BinaryOpcode
-{
-public:
-    OAllocateMemImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OAllocateMemImmediate(a->clone(),b->clone());
-    }
-};
-
-class OAllocateGlobalMemImmediate : public BinaryOpcode
-{
-public:
-    OAllocateGlobalMemImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OAllocateGlobalMemImmediate(a->clone(),b->clone());
-    }
-};
-
-class OAllocateGlobalMemRegister : public BinaryOpcode
-{
-public:
-    OAllocateGlobalMemRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OAllocateGlobalMemRegister(a->clone(),b->clone());
-    }
-};
-
-class ODeallocateMemRegister : public UnaryOpcode
-{
-public:
-    ODeallocateMemRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ODeallocateMemRegister(a->clone());
-    }
-};
-
-class ODeallocateMemImmediate : public UnaryOpcode
-{
-public:
-    ODeallocateMemImmediate(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ODeallocateMemImmediate(a->clone());
-    }
-};
-
-class OSave : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OSave();
-    }
-};
-
-class OGetScreenFlags : public UnaryOpcode
-{
-public:
-    OGetScreenFlags(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenFlags(a->clone());
-    }
-};
-
-class OGetScreenEFlags : public UnaryOpcode
-{
-public:
-    OGetScreenEFlags(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenEFlags(a->clone());
-    }
-};
-
-class OEnd : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OEnd();
-    }
-};
-
-class OComboTile : public BinaryOpcode
-{
-public:
-    OComboTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OComboTile(a->clone(), b->clone());
-    }
-};
-
-class OBreakShield : public UnaryOpcode
-{
-public:
-    OBreakShield(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OBreakShield(a->clone());
-    }
-};
-
-class OShowSaveScreen : public UnaryOpcode
-{
-public:
-    OShowSaveScreen(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OShowSaveScreen(a->clone());
-    }
-};
-
-class OShowSaveQuitScreen : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OShowSaveQuitScreen();
-    }
-};
-
-class OSelectAWeaponRegister : public UnaryOpcode
-{
-public:
-    OSelectAWeaponRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSelectAWeaponRegister(a->clone());
-    }
-};
-
-class OSelectBWeaponRegister : public UnaryOpcode
-{
-public:
-    OSelectBWeaponRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSelectBWeaponRegister(a->clone());
-    }
-};
-
-class OGetFFCScript : public UnaryOpcode
-{
-public:
-    OGetFFCScript(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetFFCScript(a->clone());
-    }
-};
-
-class OGetItemScript : public UnaryOpcode
-{
-public:
-    OGetItemScript(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetItemScript(a->clone());
-    }
-};
-
-
-
-//2,54
-
-class OZapIn : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OZapIn();
-    }
-};
-
-class OZapOut : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OZapOut();
-    }
-};
-
-
-class OGreyscaleOn : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OGreyscaleOn();
-    }
-};
-
-class OGreyscaleOff : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OGreyscaleOff();
-    }
-};
-
-
-//These need to be unary opcodes that accept bool linkvisible. 
-class OWavyIn : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OWavyIn();
-    }
-};
-
-
-class OWavyOut : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OWavyOut();
-    }
-};
-
-class OOpenWipe : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OOpenWipe();
-    }
-};
-
-
-class OGetFFCPointer : public UnaryOpcode
-{
-public:
-    OGetFFCPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetFFCPointer(a->clone());
-    }
-};
-
-class OSetFFCPointer : public UnaryOpcode
-{
-public:
-    OSetFFCPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetFFCPointer(a->clone());
-    }
-};
-
-
-class OGetNPCPointer : public UnaryOpcode
-{
-public:
-    OGetNPCPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetNPCPointer(a->clone());
-    }
-};
-
-
-class OSetNPCPointer : public UnaryOpcode
-{
-public:
-    OSetNPCPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetNPCPointer(a->clone());
-    }
-};
-
-
-class OGetLWeaponPointer : public UnaryOpcode
-{
-public:
-    OGetLWeaponPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetLWeaponPointer(a->clone());
-    }
-};
-
-
-class OSetLWeaponPointer : public UnaryOpcode
-{
-public:
-    OSetLWeaponPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetLWeaponPointer(a->clone());
-    }
-};
-
-
-class OGetEWeaponPointer : public UnaryOpcode
-{
-public:
-    OGetEWeaponPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetEWeaponPointer(a->clone());
-    }
-};
-
-
-class OSetEWeaponPointer : public UnaryOpcode
-{
-public:
-    OSetEWeaponPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetEWeaponPointer(a->clone());
-    }
-};
-
-
-class OGetItemPointer : public UnaryOpcode
-{
-public:
-    OGetItemPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetItemPointer(a->clone());
-    }
-};
-
-
-class OSetItemPointer : public UnaryOpcode
-{
-public:
-    OSetItemPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetItemPointer(a->clone());
-    }
-};
-
-
-class OGetItemDataPointer : public UnaryOpcode
-{
-public:
-    OGetItemDataPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetItemDataPointer(a->clone());
-    }
-};
-
-
-class OSetItemDataPointer : public UnaryOpcode
-{
-public:
-    OSetItemDataPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetItemDataPointer(a->clone());
-    }
-};
-
-
-class OGetBoolPointer : public UnaryOpcode
-{
-public:
-    OGetBoolPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetBoolPointer(a->clone());
-    }
-};
-
-
-class OSetBoolPointer : public UnaryOpcode
-{
-public:
-    OSetBoolPointer(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSetBoolPointer(a->clone());
-    }
-};
-
-
-class OGetScreenDoor : public UnaryOpcode
-{
-public:
-    OGetScreenDoor(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenDoor(a->clone());
-    }
-};
-
-
-class OGetScreenEnemy : public UnaryOpcode
-{
-public:
-    OGetScreenEnemy(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenEnemy(a->clone());
-    }
-};
-
-class OGetScreenLayerOpacity : public UnaryOpcode
-{
-public:
-    OGetScreenLayerOpacity(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenLayerOpacity(a->clone());
-    }
-};
-class OGetScreenSecretCombo : public UnaryOpcode
-{
-public:
-    OGetScreenSecretCombo(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenSecretCombo(a->clone());
-    }
-};
-class OGetScreenSecretCSet : public UnaryOpcode
-{
-public:
-    OGetScreenSecretCSet(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenSecretCSet(a->clone());
-    }
-};
-class OGetScreenSecretFlag : public UnaryOpcode
-{
-public:
-    OGetScreenSecretFlag(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenSecretFlag(a->clone());
-    }
-};
-class OGetScreenLayerMap : public UnaryOpcode
-{
-public:
-    OGetScreenLayerMap(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenLayerMap(a->clone());
-    }
-};
-class OGetScreenLayerScreen : public UnaryOpcode
-{
-public:
-    OGetScreenLayerScreen(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenLayerScreen(a->clone());
-    }
-};
-class OGetScreenPath : public UnaryOpcode
-{
-public:
-    OGetScreenPath(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenPath(a->clone());
-    }
-};
-class OGetScreenWarpReturnX : public UnaryOpcode
-{
-public:
-    OGetScreenWarpReturnX(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenWarpReturnX(a->clone());
-    }
-};
-class OGetScreenWarpReturnY : public UnaryOpcode
-{
-public:
-    OGetScreenWarpReturnY(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGetScreenWarpReturnY(a->clone());
-    }
-};
-
-class OTriggerSecretRegister : public UnaryOpcode
-{
-public:
-    OTriggerSecretRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OTriggerSecretRegister(a->clone());
-    }
-};
-
-class OPolygonRegister : public Opcode
-{
-public:
-    string toString();
-    Opcode *clone()
-    {
-        return new OPolygonRegister();
-    }
-};
-
-class OChangeFFCScriptRegister : public UnaryOpcode
-{
-public:
-    OChangeFFCScriptRegister(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OChangeFFCScriptRegister(a->clone());
-    }
-};
-
-
-
-class ONDataBaseTile : public BinaryOpcode
-{
-public:
-    ONDataBaseTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataBaseTile(a->clone(), b->clone());
-    }
-};
-
-class ONDataEHeight : public BinaryOpcode
-{
-public:
-    ONDataEHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataEHeight(a->clone(), b->clone());
-    }
-};
-
-//one input, no return
-class ONDataFlags : public BinaryOpcode
-{
-public:
-    ONDataFlags(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataFlags(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataFlags2 : public BinaryOpcode
-{
-public:
-    ONDataFlags2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataFlags2(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataWidth : public BinaryOpcode
-{
-public:
-    ONDataWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataWidth(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataHeight : public BinaryOpcode
-{
-public:
-    ONDataHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataHeight(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataTile : public BinaryOpcode
-{
-public:
-    ONDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataTile(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSWidth : public BinaryOpcode
-{
-public:
-    ONDataSWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSWidth(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSHeight : public BinaryOpcode
-{
-public:
-    ONDataSHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSHeight(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataETile : public BinaryOpcode
-{
-public:
-    ONDataETile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataETile(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataEWidth : public BinaryOpcode
-{
-public:
-    ONDataEWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataEWidth(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataHP : public BinaryOpcode
-{
-public:
-    ONDataHP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataHP(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataFamily : public BinaryOpcode
-{
-public:
-    ONDataFamily(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataFamily(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataCSet : public BinaryOpcode
-{
-public:
-    ONDataCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataCSet(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataAnim : public BinaryOpcode
-{
-public:
-    ONDataAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataAnim(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataEAnim : public BinaryOpcode
-{
-public:
-    ONDataEAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataEAnim(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataFramerate : public BinaryOpcode
-{
-public:
-    ONDataFramerate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataFramerate(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataEFramerate : public BinaryOpcode
-{
-public:
-    ONDataEFramerate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataEFramerate(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataTouchDamage : public BinaryOpcode
-{
-public:
-    ONDataTouchDamage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataTouchDamage(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataWeaponDamage : public BinaryOpcode
-{
-public:
-    ONDataWeaponDamage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataWeaponDamage(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataWeapon : public BinaryOpcode
-{
-public:
-    ONDataWeapon(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataWeapon(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataRandom : public BinaryOpcode
-{
-public:
-    ONDataRandom(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataRandom(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataHalt : public BinaryOpcode
-{
-public:
-    ONDataHalt(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataHalt(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataStep : public BinaryOpcode
-{
-public:
-    ONDataStep(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataStep(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataHoming : public BinaryOpcode
-{
-public:
-    ONDataHoming(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataHoming(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataHunger : public BinaryOpcode
-{
-public:
-    ONDataHunger(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataHunger(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataropset : public BinaryOpcode
-{
-public:
-    ONDataropset(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataropset(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataBGSound : public BinaryOpcode
-{
-public:
-    ONDataBGSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataBGSound(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataHitSound : public BinaryOpcode
-{
-public:
-    ONDataHitSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataHitSound(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataDeathSound : public BinaryOpcode
-{
-public:
-    ONDataDeathSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataDeathSound(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataXofs : public BinaryOpcode
-{
-public:
-    ONDataXofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataXofs(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataYofs : public BinaryOpcode
-{
-public:
-    ONDataYofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataYofs(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataZofs : public BinaryOpcode
-{
-public:
-    ONDataZofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataZofs(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataHitXOfs : public BinaryOpcode
-{
-public:
-    ONDataHitXOfs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataHitXOfs(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataHYOfs : public BinaryOpcode
-{
-public:
-    ONDataHYOfs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataHYOfs(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataHitWidth : public BinaryOpcode
-{
-public:
-    ONDataHitWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataHitWidth(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataHitHeight : public BinaryOpcode
-{
-public:
-    ONDataHitHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataHitHeight(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataHitZ : public BinaryOpcode
-{
-public:
-    ONDataHitZ(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataHitZ(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataTileWidth : public BinaryOpcode
-{
-public:
-    ONDataTileWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataTileWidth(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataTileHeight : public BinaryOpcode
-{
-public:
-    ONDataTileHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataTileHeight(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataWeapSprite : public BinaryOpcode
-{
-public:
-    ONDataWeapSprite(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataWeapSprite(a->clone(), b->clone());
-    }
-};
-
-//two inputs, two returns
-
-class ONDataScriptDef : public UnaryOpcode
-{
-public:
-    ONDataScriptDef(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataScriptDef(a->clone());
-    }
-};
-//two inputs, two returns
-
-class ONDataDefense : public UnaryOpcode
-{
-public:
-    ONDataDefense(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataDefense(a->clone());
-    }
-};
-//two inputs, two returns
-
-class ONDataSizeFlag : public UnaryOpcode
-{
-public:
-    ONDataSizeFlag(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSizeFlag(a->clone());
-    }
-};
-//two inputs, two returns
-
-class ONDatattributes : public UnaryOpcode
-{
-public:
-    ONDatattributes(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDatattributes(a->clone());
-    }
-};
-
-class ONDataSetBaseTile : public BinaryOpcode
-{
-public:
-    ONDataSetBaseTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetBaseTile(a->clone(), b->clone());
-    }
-};
-class ONDataSetEHeight : public BinaryOpcode
-{
-public:
-    ONDataSetEHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetEHeight(a->clone(), b->clone());
-    }
-};
-
-class ONDataSetFlags : public BinaryOpcode
-{
-public:
-    ONDataSetFlags(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetFlags(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetFlags2 : public BinaryOpcode
-{
-public:
-    ONDataSetFlags2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetFlags2(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetWidth : public BinaryOpcode
-{
-public:
-    ONDataSetWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetWidth(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetHeight : public BinaryOpcode
-{
-public:
-    ONDataSetHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetHeight(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetTile : public BinaryOpcode
-{
-public:
-    ONDataSetTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetTile(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetSWidth : public BinaryOpcode
-{
-public:
-    ONDataSetSWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetSWidth(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetSHeight : public BinaryOpcode
-{
-public:
-    ONDataSetSHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetSHeight(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetETile : public BinaryOpcode
-{
-public:
-    ONDataSetETile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetETile(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetEWidth : public BinaryOpcode
-{
-public:
-    ONDataSetEWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetEWidth(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetHP : public BinaryOpcode
-{
-public:
-    ONDataSetHP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetHP(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetFamily : public BinaryOpcode
-{
-public:
-    ONDataSetFamily(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetFamily(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetCSet : public BinaryOpcode
-{
-public:
-    ONDataSetCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetCSet(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetAnim : public BinaryOpcode
-{
-public:
-    ONDataSetAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetAnim(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetEAnim : public BinaryOpcode
-{
-public:
-    ONDataSetEAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetEAnim(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetFramerate : public BinaryOpcode
-{
-public:
-    ONDataSetFramerate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetFramerate(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetEFramerate : public BinaryOpcode
-{
-public:
-    ONDataSetEFramerate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetEFramerate(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetTouchDamage : public BinaryOpcode
-{
-public:
-    ONDataSetTouchDamage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetTouchDamage(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetWeaponDamage : public BinaryOpcode
-{
-public:
-    ONDataSetWeaponDamage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetWeaponDamage(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetWeapon : public BinaryOpcode
-{
-public:
-    ONDataSetWeapon(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetWeapon(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetRandom : public BinaryOpcode
-{
-public:
-    ONDataSetRandom(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetRandom(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetHalt : public BinaryOpcode
-{
-public:
-    ONDataSetHalt(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetHalt(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetStep : public BinaryOpcode
-{
-public:
-    ONDataSetStep(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetStep(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetHoming : public BinaryOpcode
-{
-public:
-    ONDataSetHoming(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetHoming(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetHunger : public BinaryOpcode
-{
-public:
-    ONDataSetHunger(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetHunger(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetropset : public BinaryOpcode
-{
-public:
-    ONDataSetropset(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetropset(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetHitSound : public BinaryOpcode
-{
-public:
-    ONDataSetHitSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetHitSound(a->clone(), b->clone());
-    }
-};
-
-//one input, no return
-class ONDataSetBGSound : public BinaryOpcode
-{
-public:
-    ONDataSetBGSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetBGSound(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetDeathSound : public BinaryOpcode
-{
-public:
-    ONDataSetDeathSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetDeathSound(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetXofs : public BinaryOpcode
-{
-public:
-    ONDataSetXofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetXofs(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetYofs : public BinaryOpcode
-{
-public:
-    ONDataSetYofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetYofs(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetZofs : public BinaryOpcode
-{
-public:
-    ONDataSetZofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetZofs(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetHitXOfs : public BinaryOpcode
-{
-public:
-    ONDataSetHitXOfs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetHitXOfs(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetHYOfs : public BinaryOpcode
-{
-public:
-    ONDataSetHYOfs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetHYOfs(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetHitWidth : public BinaryOpcode
-{
-public:
-    ONDataSetHitWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetHitWidth(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetHitHeight : public BinaryOpcode
-{
-public:
-    ONDataSetHitHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetHitHeight(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetHitZ : public BinaryOpcode
-{
-public:
-    ONDataSetHitZ(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetHitZ(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetTileWidth : public BinaryOpcode
-{
-public:
-    ONDataSetTileWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetTileWidth(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetTileHeight : public BinaryOpcode
-{
-public:
-    ONDataSetTileHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetTileHeight(a->clone(), b->clone());
-    }
-};
-//one input, no return
-class ONDataSetWeapSprite : public BinaryOpcode
-{
-public:
-    ONDataSetWeapSprite(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new ONDataSetWeapSprite(a->clone(), b->clone());
-    }
-};
-
-//ComboData
-
-class OCDataBlockEnemy : public BinaryOpcode
-{
-public:
-    OCDataBlockEnemy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataBlockEnemy(a->clone(), b->clone());
-    }
-};
-class OCDataBlockHole : public BinaryOpcode
-{
-public:
-    OCDataBlockHole(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataBlockHole(a->clone(), b->clone());
-    }
-};
-class OCDataBlockTrig : public BinaryOpcode
-{
-public:
-    OCDataBlockTrig(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataBlockTrig(a->clone(), b->clone());
-    }
-};
-class OCDataConveyX : public BinaryOpcode
-{
-public:
-    OCDataConveyX(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataConveyX(a->clone(), b->clone());
-    }
-};
-class OCDataConveyY : public BinaryOpcode
-{
-public:
-    OCDataConveyY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataConveyY(a->clone(), b->clone());
-    }
-};
-class OCDataCreateNPC : public BinaryOpcode
-{
-public:
-    OCDataCreateNPC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataCreateNPC(a->clone(), b->clone());
-    }
-};
-class OCDataCreateEnemW : public BinaryOpcode
-{
-public:
-    OCDataCreateEnemW(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataCreateEnemW(a->clone(), b->clone());
-    }
-};
-class OCDataCreateEnemC : public BinaryOpcode
-{
-public:
-    OCDataCreateEnemC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataCreateEnemC(a->clone(), b->clone());
-    }
-};
-class OCDataDirch : public BinaryOpcode
-{
-public:
-    OCDataDirch(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataDirch(a->clone(), b->clone());
-    }
-};
-class OCDataDistTiles : public BinaryOpcode
-{
-public:
-    OCDataDistTiles(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataDistTiles(a->clone(), b->clone());
-    }
-};
-class OCDataDiveItem : public BinaryOpcode
-{
-public:
-    OCDataDiveItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataDiveItem(a->clone(), b->clone());
-    }
-};
-class OCDataAttrib : public BinaryOpcode
-{
-public:
-    OCDataAttrib(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataAttrib(a->clone(), b->clone());
-    }
-};
-class OCDataDecoTile : public BinaryOpcode
-{
-public:
-    OCDataDecoTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataDecoTile(a->clone(), b->clone());
-    }
-};
-class OCDataDock : public BinaryOpcode
-{
-public:
-    OCDataDock(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataDock(a->clone(), b->clone());
-    }
-};
-class OCDataFairy : public BinaryOpcode
-{
-public:
-    OCDataFairy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataFairy(a->clone(), b->clone());
-    }
-};
-class OCDataDecoType : public BinaryOpcode
-{
-public:
-    OCDataDecoType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataDecoType(a->clone(), b->clone());
-    }
-};
-class OCDataHookshotGrab : public BinaryOpcode
-{
-public:
-    OCDataHookshotGrab(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataHookshotGrab(a->clone(), b->clone());
-    }
-};
-class OCDataLockBlock : public BinaryOpcode
-{
-public:
-    OCDataLockBlock(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataLockBlock(a->clone(), b->clone());
-    }
-};
-class OCDataLockBlockChange : public BinaryOpcode
-{
-public:
-    OCDataLockBlockChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataLockBlockChange(a->clone(), b->clone());
-    }
-};
-class OCDataMagicMirror : public BinaryOpcode
-{
-public:
-    OCDataMagicMirror(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataMagicMirror(a->clone(), b->clone());
-    }
-};
-class OCDataModHP : public BinaryOpcode
-{
-public:
-    OCDataModHP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataModHP(a->clone(), b->clone());
-    }
-};
-class OCDataModHPDelay : public BinaryOpcode
-{
-public:
-    OCDataModHPDelay(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataModHPDelay(a->clone(), b->clone());
-    }
-};
-class OCDataModHpType : public BinaryOpcode
-{
-public:
-    OCDataModHpType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataModHpType(a->clone(), b->clone());
-    }
-};
-class OCDataModMP : public BinaryOpcode
-{
-public:
-    OCDataModMP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataModMP(a->clone(), b->clone());
-    }
-};
-class OCDataMpdMPDelay : public BinaryOpcode
-{
-public:
-    OCDataMpdMPDelay(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataMpdMPDelay(a->clone(), b->clone());
-    }
-};
-class OCDataModMPType : public BinaryOpcode
-{
-public:
-    OCDataModMPType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataModMPType(a->clone(), b->clone());
-    }
-};
-class OCDataNoPush : public BinaryOpcode
-{
-public:
-    OCDataNoPush(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataNoPush(a->clone(), b->clone());
-    }
-};
-class OCDataOverhead : public BinaryOpcode
-{
-public:
-    OCDataOverhead(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataOverhead(a->clone(), b->clone());
-    }
-};
-class OCDataEnemyLoc : public BinaryOpcode
-{
-public:
-    OCDataEnemyLoc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataEnemyLoc(a->clone(), b->clone());
-    }
-};
-class OCDataPushDir : public BinaryOpcode
-{
-public:
-    OCDataPushDir(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataPushDir(a->clone(), b->clone());
-    }
-};
-class OCDataPushWeight : public BinaryOpcode
-{
-public:
-    OCDataPushWeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataPushWeight(a->clone(), b->clone());
-    }
-};
-class OCDataPushWait : public BinaryOpcode
-{
-public:
-    OCDataPushWait(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataPushWait(a->clone(), b->clone());
-    }
-};
-class OCDataPushed : public BinaryOpcode
-{
-public:
-    OCDataPushed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataPushed(a->clone(), b->clone());
-    }
-};
-class OCDataRaft : public BinaryOpcode
-{
-public:
-    OCDataRaft(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataRaft(a->clone(), b->clone());
-    }
-};
-class OCDataResetRoom : public BinaryOpcode
-{
-public:
-    OCDataResetRoom(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataResetRoom(a->clone(), b->clone());
-    }
-};
-class OCDataSavePoint : public BinaryOpcode
-{
-public:
-    OCDataSavePoint(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataSavePoint(a->clone(), b->clone());
-    }
-};
-class OCDataFreeezeScreen : public BinaryOpcode
-{
-public:
-    OCDataFreeezeScreen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataFreeezeScreen(a->clone(), b->clone());
-    }
-};
-class OCDataSecretCombo : public BinaryOpcode
-{
-public:
-    OCDataSecretCombo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataSecretCombo(a->clone(), b->clone());
-    }
-};
-class OCDataSingular : public BinaryOpcode
-{
-public:
-    OCDataSingular(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataSingular(a->clone(), b->clone());
-    }
-};
-class OCDataSlowMove : public BinaryOpcode
-{
-public:
-    OCDataSlowMove(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataSlowMove(a->clone(), b->clone());
-    }
-};
-class OCDataStatue : public BinaryOpcode
-{
-public:
-    OCDataStatue(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataStatue(a->clone(), b->clone());
-    }
-};
-class OCDataStepType : public BinaryOpcode
-{
-public:
-    OCDataStepType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataStepType(a->clone(), b->clone());
-    }
-};
-class OCDataSteoChange : public BinaryOpcode
-{
-public:
-    OCDataSteoChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataSteoChange(a->clone(), b->clone());
-    }
-};
-class OCDataStrikeRem : public BinaryOpcode
-{
-public:
-    OCDataStrikeRem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataStrikeRem(a->clone(), b->clone());
-    }
-};
-class OCDataStrikeRemType : public BinaryOpcode
-{
-public:
-    OCDataStrikeRemType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataStrikeRemType(a->clone(), b->clone());
-    }
-};
-class OCDataStrikeChange : public BinaryOpcode
-{
-public:
-    OCDataStrikeChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataStrikeChange(a->clone(), b->clone());
-    }
-};
-class OCDataStrikeChangeItem : public BinaryOpcode
-{
-public:
-    OCDataStrikeChangeItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataStrikeChangeItem(a->clone(), b->clone());
-    }
-};
-class OCDataTouchItem : public BinaryOpcode
-{
-public:
-    OCDataTouchItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataTouchItem(a->clone(), b->clone());
-    }
-};
-class OCDataTouchStairs : public BinaryOpcode
-{
-public:
-    OCDataTouchStairs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataTouchStairs(a->clone(), b->clone());
-    }
-};
-class OCDataTriggerType : public BinaryOpcode
-{
-public:
-    OCDataTriggerType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataTriggerType(a->clone(), b->clone());
-    }
-};
-class OCDataTriggerSens : public BinaryOpcode
-{
-public:
-    OCDataTriggerSens(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataTriggerSens(a->clone(), b->clone());
-    }
-};
-class OCDataWarpType : public BinaryOpcode
-{
-public:
-    OCDataWarpType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataWarpType(a->clone(), b->clone());
-    }
-};
-class OCDataWarpSens : public BinaryOpcode
-{
-public:
-    OCDataWarpSens(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataWarpSens(a->clone(), b->clone());
-    }
-};
-class OCDataWarpDirect : public BinaryOpcode
-{
-public:
-    OCDataWarpDirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataWarpDirect(a->clone(), b->clone());
-    }
-};
-class OCDataWarpLoc : public BinaryOpcode
-{
-public:
-    OCDataWarpLoc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataWarpLoc(a->clone(), b->clone());
-    }
-};
-class OCDataWater : public BinaryOpcode
-{
-public:
-    OCDataWater(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataWater(a->clone(), b->clone());
-    }
-};
-
-class OCDataWinGame : public BinaryOpcode
-{
-public:
-    OCDataWinGame(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataWinGame(a->clone(), b->clone());
-    }
-};
-
-class OCDataWhistle : public BinaryOpcode
-{
-public:
-    OCDataWhistle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataWhistle(a->clone(), b->clone());
-    }
-};
-class OCDataWeapBlockLevel : public BinaryOpcode
-{
-public:
-    OCDataWeapBlockLevel(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataWeapBlockLevel(a->clone(), b->clone());
-    }
-};
-class OCDataTile : public BinaryOpcode
-{
-public:
-    OCDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataTile(a->clone(), b->clone());
-    }
-};
-class OCDataFlip : public BinaryOpcode
-{
-public:
-    OCDataFlip(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataFlip(a->clone(), b->clone());
-    }
-};
-class OCDataWalkability : public BinaryOpcode
-{
-public:
-    OCDataWalkability(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataWalkability(a->clone(), b->clone());
-    }
-};
-class OCDataType : public BinaryOpcode
-{
-public:
-    OCDataType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataType(a->clone(), b->clone());
-    }
-};
-class OCDataCSets : public BinaryOpcode
-{
-public:
-    OCDataCSets(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataCSets(a->clone(), b->clone());
-    }
-};
-class OCDataFoo : public BinaryOpcode
-{
-public:
-    OCDataFoo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataFoo(a->clone(), b->clone());
-    }
-};
-class OCDataFrames : public BinaryOpcode
-{
-public:
-    OCDataFrames(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataFrames(a->clone(), b->clone());
-    }
-};
-class OCDataSpeed : public BinaryOpcode
-{
-public:
-    OCDataSpeed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataSpeed(a->clone(), b->clone());
-    }
-};
-class OCDataNext : public BinaryOpcode
-{
-public:
-    OCDataNext(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataNext(a->clone(), b->clone());
-    }
-};
-class OCDataNextCSet : public BinaryOpcode
-{
-public:
-    OCDataNextCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataNextCSet(a->clone(), b->clone());
-    }
-};
-class OCDataFlag : public BinaryOpcode
-{
-public:
-    OCDataFlag(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataFlag(a->clone(), b->clone());
-    }
-};
-class OCDataSkipAnim : public BinaryOpcode
-{
-public:
-    OCDataSkipAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataSkipAnim(a->clone(), b->clone());
-    }
-};
-class OCDataTimer : public BinaryOpcode
-{
-public:
-    OCDataTimer(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataTimer(a->clone(), b->clone());
-    }
-};
-class OCDataAnimY : public BinaryOpcode
-{
-public:
-    OCDataAnimY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataAnimY(a->clone(), b->clone());
-    }
-};
-class OCDataAnimFlags : public BinaryOpcode
-{
-public:
-    OCDataAnimFlags(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataAnimFlags(a->clone(), b->clone());
-    }
-};
-class OCDataBlockWeapon : public UnaryOpcode
-{
-public:
-    OCDataBlockWeapon(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataBlockWeapon(a->clone());
-    }
-};
-class OCDataExpansion : public UnaryOpcode
-{
-public:
-    OCDataExpansion(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataExpansion(a->clone());
-    }
-};
-class OCDataStrikeWeapon : public UnaryOpcode
-{
-public:
-    OCDataStrikeWeapon(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataStrikeWeapon(a->clone());
-    }
-};
-
-
-class OCSetDataBlockEnemy : public BinaryOpcode
-{
-public:
-    OCSetDataBlockEnemy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataBlockEnemy(a->clone(), b->clone());
-    }
-};
-class OCSetDataBlockHole : public BinaryOpcode
-{
-public:
-    OCSetDataBlockHole(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataBlockHole(a->clone(), b->clone());
-    }
-};
-class OCSetDataBlockTrig : public BinaryOpcode
-{
-public:
-    OCSetDataBlockTrig(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataBlockTrig(a->clone(), b->clone());
-    }
-};
-class OCSetDataConveyX : public BinaryOpcode
-{
-public:
-    OCSetDataConveyX(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataConveyX(a->clone(), b->clone());
-    }
-};
-class OCSetDataConveyY : public BinaryOpcode
-{
-public:
-    OCSetDataConveyY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataConveyY(a->clone(), b->clone());
-    }
-};
-class OCSetDataCreateNPC : public BinaryOpcode
-{
-public:
-    OCSetDataCreateNPC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataCreateNPC(a->clone(), b->clone());
-    }
-};
-class OCSetDataCreateEnemW : public BinaryOpcode
-{
-public:
-    OCSetDataCreateEnemW(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataCreateEnemW(a->clone(), b->clone());
-    }
-};
-class OCSetDataCreateEnemC : public BinaryOpcode
-{
-public:
-    OCSetDataCreateEnemC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataCreateEnemC(a->clone(), b->clone());
-    }
-};
-class OCSetDataDirch : public BinaryOpcode
-{
-public:
-    OCSetDataDirch(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataDirch(a->clone(), b->clone());
-    }
-};
-class OCSetDataDistTiles : public BinaryOpcode
-{
-public:
-    OCSetDataDistTiles(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataDistTiles(a->clone(), b->clone());
-    }
-};
-class OCSetDataDiveItem : public BinaryOpcode
-{
-public:
-    OCSetDataDiveItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataDiveItem(a->clone(), b->clone());
-    }
-};
-class OCSetDataAttrib : public BinaryOpcode
-{
-public:
-    OCSetDataAttrib(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataAttrib(a->clone(), b->clone());
-    }
-};
-class OCSetDataDecoTile : public BinaryOpcode
-{
-public:
-    OCSetDataDecoTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataDecoTile(a->clone(), b->clone());
-    }
-};
-class OCSetDataDock : public BinaryOpcode
-{
-public:
-    OCSetDataDock(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataDock(a->clone(), b->clone());
-    }
-};
-class OCSetDataFairy : public BinaryOpcode
-{
-public:
-    OCSetDataFairy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataFairy(a->clone(), b->clone());
-    }
-};
-class OCSetDataDecoType : public BinaryOpcode
-{
-public:
-    OCSetDataDecoType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataDecoType(a->clone(), b->clone());
-    }
-};
-class OCSetDataHookshotGrab : public BinaryOpcode
-{
-public:
-    OCSetDataHookshotGrab(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataHookshotGrab(a->clone(), b->clone());
-    }
-};
-class OCSetDataLockBlock : public BinaryOpcode
-{
-public:
-    OCSetDataLockBlock(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataLockBlock(a->clone(), b->clone());
-    }
-};
-class OCSetDataLockBlockChange : public BinaryOpcode
-{
-public:
-    OCSetDataLockBlockChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataLockBlockChange(a->clone(), b->clone());
-    }
-};
-class OCSetDataMagicMirror : public BinaryOpcode
-{
-public:
-    OCSetDataMagicMirror(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataMagicMirror(a->clone(), b->clone());
-    }
-};
-class OCSetDataModHP : public BinaryOpcode
-{
-public:
-    OCSetDataModHP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataModHP(a->clone(), b->clone());
-    }
-};
-class OCSetDataModHPDelay : public BinaryOpcode
-{
-public:
-    OCSetDataModHPDelay(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataModHPDelay(a->clone(), b->clone());
-    }
-};
-class OCSetDataModHpType : public BinaryOpcode
-{
-public:
-    OCSetDataModHpType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataModHpType(a->clone(), b->clone());
-    }
-};
-class OCSetDataModMP : public BinaryOpcode
-{
-public:
-    OCSetDataModMP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataModMP(a->clone(), b->clone());
-    }
-};
-class OCSetDataMpdMPDelay : public BinaryOpcode
-{
-public:
-    OCSetDataMpdMPDelay(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataMpdMPDelay(a->clone(), b->clone());
-    }
-};
-class OCSetDataModMPType : public BinaryOpcode
-{
-public:
-    OCSetDataModMPType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataModMPType(a->clone(), b->clone());
-    }
-};
-class OCSetDataNoPush : public BinaryOpcode
-{
-public:
-    OCSetDataNoPush(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataNoPush(a->clone(), b->clone());
-    }
-};
-class OCSetDataOverhead : public BinaryOpcode
-{
-public:
-    OCSetDataOverhead(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataOverhead(a->clone(), b->clone());
-    }
-};
-class OCSetDataEnemyLoc : public BinaryOpcode
-{
-public:
-    OCSetDataEnemyLoc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataEnemyLoc(a->clone(), b->clone());
-    }
-};
-class OCSetDataPushDir : public BinaryOpcode
-{
-public:
-    OCSetDataPushDir(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataPushDir(a->clone(), b->clone());
-    }
-};
-class OCSetDataPushWeight : public BinaryOpcode
-{
-public:
-    OCSetDataPushWeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataPushWeight(a->clone(), b->clone());
-    }
-};
-class OCSetDataPushWait : public BinaryOpcode
-{
-public:
-    OCSetDataPushWait(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataPushWait(a->clone(), b->clone());
-    }
-};
-class OCSetDataPushed : public BinaryOpcode
-{
-public:
-    OCSetDataPushed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataPushed(a->clone(), b->clone());
-    }
-};
-class OCSetDataRaft : public BinaryOpcode
-{
-public:
-    OCSetDataRaft(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataRaft(a->clone(), b->clone());
-    }
-};
-class OCSetDataResetRoom : public BinaryOpcode
-{
-public:
-    OCSetDataResetRoom(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataResetRoom(a->clone(), b->clone());
-    }
-};
-class OCSetDataSavePoint : public BinaryOpcode
-{
-public:
-    OCSetDataSavePoint(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataSavePoint(a->clone(), b->clone());
-    }
-};
-class OCSetDataFreeezeScreen : public BinaryOpcode
-{
-public:
-    OCSetDataFreeezeScreen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataFreeezeScreen(a->clone(), b->clone());
-    }
-};
-class OCSetDataSecretCombo : public BinaryOpcode
-{
-public:
-    OCSetDataSecretCombo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataSecretCombo(a->clone(), b->clone());
-    }
-};
-class OCSetDataSingular : public BinaryOpcode
-{
-public:
-    OCSetDataSingular(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataSingular(a->clone(), b->clone());
-    }
-};
-class OCSetDataSlowMove : public BinaryOpcode
-{
-public:
-    OCSetDataSlowMove(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataSlowMove(a->clone(), b->clone());
-    }
-};
-class OCSetDataStatue : public BinaryOpcode
-{
-public:
-    OCSetDataStatue(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataStatue(a->clone(), b->clone());
-    }
-};
-class OCSetDataStepType : public BinaryOpcode
-{
-public:
-    OCSetDataStepType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataStepType(a->clone(), b->clone());
-    }
-};
-class OCSetDataSteoChange : public BinaryOpcode
-{
-public:
-    OCSetDataSteoChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataSteoChange(a->clone(), b->clone());
-    }
-};
-class OCSetDataStrikeRem : public BinaryOpcode
-{
-public:
-    OCSetDataStrikeRem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataStrikeRem(a->clone(), b->clone());
-    }
-};
-class OCSetDataStrikeRemType : public BinaryOpcode
-{
-public:
-    OCSetDataStrikeRemType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataStrikeRemType(a->clone(), b->clone());
-    }
-};
-class OCSetDataStrikeChange : public BinaryOpcode
-{
-public:
-    OCSetDataStrikeChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataStrikeChange(a->clone(), b->clone());
-    }
-};
-class OCSetDataStrikeChangeItem : public BinaryOpcode
-{
-public:
-    OCSetDataStrikeChangeItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataStrikeChangeItem(a->clone(), b->clone());
-    }
-};
-class OCSetDataTouchItem : public BinaryOpcode
-{
-public:
-    OCSetDataTouchItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataTouchItem(a->clone(), b->clone());
-    }
-};
-class OCSetDataTouchStairs : public BinaryOpcode
-{
-public:
-    OCSetDataTouchStairs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataTouchStairs(a->clone(), b->clone());
-    }
-};
-class OCSetDataTriggerType : public BinaryOpcode
-{
-public:
-    OCSetDataTriggerType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataTriggerType(a->clone(), b->clone());
-    }
-};
-class OCSetDataTriggerSens : public BinaryOpcode
-{
-public:
-    OCSetDataTriggerSens(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataTriggerSens(a->clone(), b->clone());
-    }
-};
-class OCSetDataWarpType : public BinaryOpcode
-{
-public:
-    OCSetDataWarpType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataWarpType(a->clone(), b->clone());
-    }
-};
-class OCSetDataWarpSens : public BinaryOpcode
-{
-public:
-    OCSetDataWarpSens(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataWarpSens(a->clone(), b->clone());
-    }
-};
-class OCSetDataWarpDirect : public BinaryOpcode
-{
-public:
-    OCSetDataWarpDirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataWarpDirect(a->clone(), b->clone());
-    }
-};
-class OCSetDataWarpLoc : public BinaryOpcode
-{
-public:
-    OCSetDataWarpLoc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataWarpLoc(a->clone(), b->clone());
-    }
-};
-class OCSetDataWater : public BinaryOpcode
-{
-public:
-    OCSetDataWater(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataWater(a->clone(), b->clone());
-    }
-};
-class OCSetDataWhistle : public BinaryOpcode
-{
-public:
-    OCSetDataWhistle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataWhistle(a->clone(), b->clone());
-    }
-};
-class OCSetDataWeapBlockLevel : public BinaryOpcode
-{
-public:
-    OCSetDataWeapBlockLevel(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataWeapBlockLevel(a->clone(), b->clone());
-    }
-};
-class OCSetDataTile : public BinaryOpcode
-{
-public:
-    OCSetDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataTile(a->clone(), b->clone());
-    }
-};
-class OCSetDataFlip : public BinaryOpcode
-{
-public:
-    OCSetDataFlip(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataFlip(a->clone(), b->clone());
-    }
-};
-class OCSetDataWalkability : public BinaryOpcode
-{
-public:
-    OCSetDataWalkability(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataWalkability(a->clone(), b->clone());
-    }
-};
-class OCSetDataType : public BinaryOpcode
-{
-public:
-    OCSetDataType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataType(a->clone(), b->clone());
-    }
-};
-class OCSetDataCSets : public BinaryOpcode
-{
-public:
-    OCSetDataCSets(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataCSets(a->clone(), b->clone());
-    }
-};
-class OCSetDataFoo : public BinaryOpcode
-{
-public:
-    OCSetDataFoo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataFoo(a->clone(), b->clone());
-    }
-};
-class OCSetDataFrames : public BinaryOpcode
-{
-public:
-    OCSetDataFrames(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataFrames(a->clone(), b->clone());
-    }
-};
-class OCSetDataSpeed : public BinaryOpcode
-{
-public:
-    OCSetDataSpeed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataSpeed(a->clone(), b->clone());
-    }
-};
-class OCSetDataNext : public BinaryOpcode
-{
-public:
-    OCSetDataNext(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataNext(a->clone(), b->clone());
-    }
-};
-class OCSetDataNextCSet : public BinaryOpcode
-{
-public:
-    OCSetDataNextCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataNextCSet(a->clone(), b->clone());
-    }
-};
-class OCSetDataFlag : public BinaryOpcode
-{
-public:
-    OCSetDataFlag(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataFlag(a->clone(), b->clone());
-    }
-};
-class OCSetDataSkipAnim : public BinaryOpcode
-{
-public:
-    OCSetDataSkipAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataSkipAnim(a->clone(), b->clone());
-    }
-};
-
-class OCDataLadderPass : public BinaryOpcode
-{
-public:
-    OCDataLadderPass(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCDataLadderPass(a->clone(), b->clone());
-    }
-};
-
-class OCSetDataLadderPass : public BinaryOpcode
-{
-public:
-    OCSetDataLadderPass(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataLadderPass(a->clone(), b->clone());
-    }
-};
-class OCSetDataTimer : public BinaryOpcode
-{
-public:
-    OCSetDataTimer(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataTimer(a->clone(), b->clone());
-    }
-};
-class OCSetDataAnimY : public BinaryOpcode
-{
-public:
-    OCSetDataAnimY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataAnimY(a->clone(), b->clone());
-    }
-};
-class OCSetDataAnimFlags : public BinaryOpcode
-{
-public:
-    OCSetDataAnimFlags(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataAnimFlags(a->clone(), b->clone());
-    }
-};
-class OCSetDataBlockWeapon : public UnaryOpcode
-{
-public:
-    OCSetDataBlockWeapon(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataBlockWeapon(a->clone());
-    }
-};
-class OCSetDataExpansion : public UnaryOpcode
-{
-public:
-    OCSetDataExpansion(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataExpansion(a->clone());
-    }
-};
-class OCSetDataStrikeWeapon : public UnaryOpcode
-{
-public:
-    OCSetDataStrikeWeapon(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataStrikeWeapon(a->clone());
-    }
-};
-
-class OCSetDataWinGame : public BinaryOpcode
-{
-public:
-    OCSetDataWinGame(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OCSetDataWinGame(a->clone(), b->clone());
-    }
-};
-
-//SpriteData
-class OSDataTile : public BinaryOpcode
-{
-public:
-    OSDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSDataTile(a->clone(), b->clone());
-    }
-};
-
-class OSDataMisc : public BinaryOpcode
-{
-public:
-    OSDataMisc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSDataMisc(a->clone(), b->clone());
-    }
-};
-
-class OSDataCSets : public BinaryOpcode
-{
-public:
-    OSDataCSets(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSDataCSets(a->clone(), b->clone());
-    }
-};
-
-class OSDataFrames : public BinaryOpcode
-{
-public:
-    OSDataFrames(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSDataFrames(a->clone(), b->clone());
-    }
-};
-
-class OSDataSpeed : public BinaryOpcode
-{
-public:
-    OSDataSpeed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSDataSpeed(a->clone(), b->clone());
-    }
-};
-class OSDataType : public BinaryOpcode
-{
-public:
-    OSDataType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSDataType(a->clone(), b->clone());
-    }
-};
-
-class OSSetDataTile : public BinaryOpcode
-{
-public:
-    OSSetDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSSetDataTile(a->clone(), b->clone());
-    }
-};
-
-class OSSetDataMisc : public BinaryOpcode
-{
-public:
-    OSSetDataMisc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSSetDataMisc(a->clone(), b->clone());
-    }
-};
-
-class OSSetDataCSets : public BinaryOpcode
-{
-public:
-    OSSetDataCSets(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSSetDataCSets(a->clone(), b->clone());
-    }
-};
-
-class OSSetDataFrames : public BinaryOpcode
-{
-public:
-    OSSetDataFrames(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSSetDataFrames(a->clone(), b->clone());
-    }
-};
-
-class OSSetDataSpeed : public BinaryOpcode
-{
-public:
-    OSSetDataSpeed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSSetDataSpeed(a->clone(), b->clone());
-    }
-};
-class OSSetDataType : public BinaryOpcode
-{
-public:
-    OSSetDataType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSSetDataType(a->clone(), b->clone());
-    }
-};
-
-//Continue Screen
-
-
-class OSSetContinueScreen : public BinaryOpcode
-{
-public:
-    OSSetContinueScreen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSSetContinueScreen(a->clone(), b->clone());
-    }
-};
-class OSSetContinueString : public BinaryOpcode
-{
-public:
-    OSSetContinueString(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OSSetContinueString	(a->clone(), b->clone());
-    }
-};
-
-//Visual effects with one bool input
-
-
-class OWavyR : public UnaryOpcode
-{
-public:
-    OWavyR(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OWavyR(a->clone());
-    }
-};
-
-class OZapR : public UnaryOpcode
-{
-public:
-    OZapR(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OZapR(a->clone());
-    }
-};
-
-class OGreyscaleR : public UnaryOpcode
-{
-public:
-    OGreyscaleR(Argument *A) : UnaryOpcode(A) {}
-    string toString();
-    Opcode *clone()
-    {
-        return new OGreyscaleR(a->clone());
-    }
-};
+namespace ZScript
+{
+	class LiteralArgument;
+	class VarArgument;
+	class LabelArgument;
+	class GlobalArgument;
+
+	class ArgumentVisitor
+	{
+	public:
+		virtual void caseLiteral(LiteralArgument &host, void *param)
+		{
+			void *temp;
+			temp=&host;
+			param=param; /*these are here to bypass compiler warnings about unused arguments*/
+		}
+		virtual void caseVar(VarArgument &host, void *param)
+		{
+			void *temp;
+			temp=&host;
+			param=param; /*these are here to bypass compiler warnings about unused arguments*/
+		}
+		virtual void caseLabel(LabelArgument &host, void *param)
+		{
+			void *temp;
+			temp=&host;
+			param=param; /*these are here to bypass compiler warnings about unused arguments*/
+		}
+		virtual void caseGlobal(GlobalArgument &host, void *param)
+		{
+			void *temp;
+			temp=&host;
+			param=param; /*these are here to bypass compiler warnings about unused arguments*/
+		}
+		virtual ~ArgumentVisitor() {}
+	};
+
+	class Argument
+	{
+	public:
+		virtual string toString()=0;
+		virtual void execute(ArgumentVisitor &host, void *param)=0;
+		virtual Argument *clone()=0;
+		virtual ~Argument() {}
+	};
+
+	class LiteralArgument : public Argument
+	{
+	public:
+		LiteralArgument(long Value) : value(Value) {}
+		string toString();
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			host.caseLiteral(*this, param);
+		}
+		Argument *clone()
+		{
+			return new LiteralArgument(value);
+		}
+	private:
+		long value;
+	};
+
+	class VarArgument : public Argument
+	{
+	public:
+		VarArgument(int id) : ID(id) {}
+		string toString();
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			host.caseVar(*this,param);
+		}
+		Argument *clone()
+		{
+			return new VarArgument(ID);
+		}
+	private:
+		int ID;
+	};
+
+	class GlobalArgument : public Argument
+	{
+	public:
+		GlobalArgument(int id) : ID(id) {}
+		string toString();
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			host.caseGlobal(*this,param);
+		}
+		Argument *clone()
+		{
+			return new GlobalArgument(ID);
+		}
+	private:
+		int ID;
+	};
+
+	class LabelArgument : public Argument
+	{
+	public:
+		LabelArgument(int id) : ID(id), haslineno(false) {}
+		string toString();
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			host.caseLabel(*this,param);
+		}
+		Argument *clone()
+		{
+			return new LabelArgument(ID);
+		}
+		int getID()
+		{
+			return ID;
+		}
+		void setLineNo(int l)
+		{
+			haslineno=true;
+			lineno=l;
+		}
+	private:
+		int ID;
+		int lineno;
+		bool haslineno;
+	};
+
+	class UnaryOpcode : public Opcode
+	{
+	public:
+		UnaryOpcode(Argument *A) : a(A) {}
+		~UnaryOpcode()
+		{
+			delete a;
+		}
+		Argument *getArgument()
+		{
+			return a;
+		}
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			a->execute(host, param);
+		}
+	protected:
+		Argument *a;
+	};
+
+	class BinaryOpcode : public Opcode
+	{
+	public:
+		BinaryOpcode(Argument *A, Argument *B) : a(A), b(B) {}
+		~BinaryOpcode()
+		{
+			delete a;
+			delete b;
+		}
+		Argument *getFirstArgument()
+		{
+			return a;
+		}
+		Argument *getSecondArgument()
+		{
+			return b;
+		}
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			a->execute(host, param);
+			b->execute(host, param);
+		}
+	protected:
+		Argument *a;
+		Argument *b;
+	};
+
+	class OSetTrue : public UnaryOpcode
+	{
+	public:
+		OSetTrue(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetTrue(a->clone());
+		}
+	};
+
+	class OSetFalse : public UnaryOpcode
+	{
+	public:
+		OSetFalse(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetFalse(a->clone());
+		}
+	};
+
+	class OSetMore : public UnaryOpcode
+	{
+	public:
+		OSetMore(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetMore(a->clone());
+		}
+	};
+
+	class OSetLess : public UnaryOpcode
+	{
+	public:
+		OSetLess(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetLess(a->clone());
+		}
+	};
+
+	class OSetImmediate : public BinaryOpcode
+	{
+	public:
+		OSetImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class OSetRegister : public BinaryOpcode
+	{
+	public:
+		OSetRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OAddImmediate : public BinaryOpcode
+	{
+	public:
+		OAddImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OAddImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class OAddRegister : public BinaryOpcode
+	{
+	public:
+		OAddRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OAddRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OSubImmediate : public BinaryOpcode
+	{
+	public:
+		OSubImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSubImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class OSubRegister : public BinaryOpcode
+	{
+	public:
+		OSubRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSubRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OMultImmediate : public BinaryOpcode
+	{
+	public:
+		OMultImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OMultImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class OMultRegister : public BinaryOpcode
+	{
+	public:
+		OMultRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OMultRegister(a->clone(),b->clone());
+		}
+	};
+
+	class ODivImmediate : public BinaryOpcode
+	{
+	public:
+		ODivImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ODivImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class ODivRegister : public BinaryOpcode
+	{
+	public:
+		ODivRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ODivRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OCompareImmediate : public BinaryOpcode
+	{
+	public:
+		OCompareImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCompareImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class OCompareRegister : public BinaryOpcode
+	{
+	public:
+		OCompareRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCompareRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OWaitframe : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OWaitframe();
+		}
+	};
+
+	class OWaitdraw : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OWaitdraw();
+		}
+	};
+
+	class OGotoImmediate : public UnaryOpcode
+	{
+	public:
+		OGotoImmediate(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGotoImmediate(a->clone());
+		}
+	};
+
+	class OGotoTrueImmediate: public UnaryOpcode
+	{
+	public:
+		OGotoTrueImmediate(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGotoTrueImmediate(a->clone());
+		}
+	};
+
+	class OGotoFalseImmediate: public UnaryOpcode
+	{
+	public:
+		OGotoFalseImmediate(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGotoFalseImmediate(a->clone());
+		}
+	};
+
+	class OGotoMoreImmediate : public UnaryOpcode
+	{
+	public:
+		OGotoMoreImmediate(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGotoMoreImmediate(a->clone());
+		}
+	};
+
+	class OGotoLessImmediate : public UnaryOpcode
+	{
+	public:
+		OGotoLessImmediate(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGotoLessImmediate(a->clone());
+		}
+	};
+
+	class OPushRegister : public UnaryOpcode
+	{
+	public:
+		OPushRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OPushRegister(a->clone());
+		}
+	};
+
+	class OPopRegister : public UnaryOpcode
+	{
+	public:
+		OPopRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OPopRegister(a->clone());
+		}
+	};
+
+	class OLoadIndirect : public BinaryOpcode
+	{
+	public:
+		OLoadIndirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadIndirect(a->clone(),b->clone());
+		}
+	};
+
+	class OStoreIndirect : public BinaryOpcode
+	{
+	public:
+		OStoreIndirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OStoreIndirect(a->clone(),b->clone());
+		}
+	};
+
+	class OQuit : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OQuit();
+		}
+	};
+
+	class OGotoRegister : public UnaryOpcode
+	{
+	public:
+		OGotoRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGotoRegister(a->clone());
+		}
+	};
+
+	class OTraceRegister : public UnaryOpcode
+	{
+	public:
+		OTraceRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OTraceRegister(a->clone());
+		}
+	};
+
+	class OTrace2Register : public UnaryOpcode
+	{
+	public:
+		OTrace2Register(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OTrace2Register(a->clone());
+		}
+	};
+
+	class OTrace3 : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OTrace3();
+		}
+	};
+
+	class OTrace4 : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OTrace4();
+		}
+	};
+
+	class OTrace5Register : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OTrace5Register();
+		}
+	};
+
+	class OTrace6Register : public UnaryOpcode
+	{
+	public:
+		OTrace6Register(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OTrace6Register(a->clone());
+		}
+	};
+
+	class OAndImmediate : public BinaryOpcode
+	{
+	public:
+		OAndImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OAndImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class OAndRegister : public BinaryOpcode
+	{
+	public:
+		OAndRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OAndRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OOrImmediate : public BinaryOpcode
+	{
+	public:
+		OOrImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OOrImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class OOrRegister : public BinaryOpcode
+	{
+	public:
+		OOrRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OOrRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OXorImmediate : public BinaryOpcode
+	{
+	public:
+		OXorImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OXorImmediate(a->clone(), b->clone());
+		}
+	};
+
+	class OXorRegister : public BinaryOpcode
+	{
+	public:
+		OXorRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OXorRegister(a->clone(), b->clone());
+		}
+	};
+
+	class ONot : public UnaryOpcode
+	{
+	public:
+		ONot(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONot(a->clone());
+		}
+	};
+
+	class OLShiftImmediate : public BinaryOpcode
+	{
+	public:
+		OLShiftImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLShiftImmediate(a->clone(), b->clone());
+		}
+	};
+
+	class OLShiftRegister : public BinaryOpcode
+	{
+	public:
+		OLShiftRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLShiftRegister(a->clone(), b->clone());
+		}
+	};
+
+	class ORShiftImmediate : public BinaryOpcode
+	{
+	public:
+		ORShiftImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ORShiftImmediate(a->clone(), b->clone());
+		}
+	};
+
+	class ORShiftRegister : public BinaryOpcode
+	{
+	public:
+		ORShiftRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ORShiftRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OModuloImmediate : public BinaryOpcode
+	{
+	public:
+		OModuloImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OModuloImmediate(a->clone(), b->clone());
+		}
+	};
+
+	class OModuloRegister : public BinaryOpcode
+	{
+	public:
+		OModuloRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OModuloRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OSinRegister : public BinaryOpcode
+	{
+	public:
+		OSinRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSinRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OArcSinRegister : public BinaryOpcode
+	{
+	public:
+		OArcSinRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OArcSinRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OCosRegister : public BinaryOpcode
+	{
+	public:
+		OCosRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCosRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OArcCosRegister : public BinaryOpcode
+	{
+	public:
+		OArcCosRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OArcCosRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OTanRegister : public BinaryOpcode
+	{
+	public:
+		OTanRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OTanRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OATanRegister : public UnaryOpcode
+	{
+	public:
+		OATanRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OATanRegister(a->clone());
+		}
+	};
+
+	class OMaxRegister : public BinaryOpcode
+	{
+	public:
+		OMaxRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OMaxRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OMinRegister : public BinaryOpcode
+	{
+	public:
+		OMinRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OMinRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OPowRegister : public BinaryOpcode
+	{
+	public:
+		OPowRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OPowRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OInvPowRegister : public BinaryOpcode
+	{
+	public:
+		OInvPowRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OInvPowRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OFactorial : public UnaryOpcode
+	{
+	public:
+		OFactorial(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OFactorial(a->clone());
+		}
+	};
+
+	class OAbsRegister : public UnaryOpcode
+	{
+	public:
+		OAbsRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OAbsRegister(a->clone());
+		}
+	};
+
+	class OLog10Register : public UnaryOpcode
+	{
+	public:
+		OLog10Register(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLog10Register(a->clone());
+		}
+	};
+
+	class OLogERegister : public UnaryOpcode
+	{
+	public:
+		OLogERegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLogERegister(a->clone());
+		}
+	};
+
+	class OArraySize : public UnaryOpcode
+	{
+	public:
+		OArraySize(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OArraySize(a->clone());
+		}
+	};
+
+
+	class OArraySizeF : public UnaryOpcode
+	{
+	public:
+		OArraySizeF(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OArraySizeF(a->clone());
+		}
+	};
+	class OArraySizeN : public UnaryOpcode
+	{
+	public:
+		OArraySizeN(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OArraySizeN(a->clone());
+		}
+	};
+	class OArraySizeE : public UnaryOpcode
+	{
+	public:
+		OArraySizeE(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OArraySizeE(a->clone());
+		}
+	};
+	class OArraySizeL : public UnaryOpcode
+	{
+	public:
+		OArraySizeL(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OArraySizeL(a->clone());
+		}
+	};
+	class OArraySizeB : public UnaryOpcode
+	{
+	public:
+		OArraySizeB(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OArraySizeB(a->clone());
+		}
+	};
+	class OArraySizeI : public UnaryOpcode
+	{
+	public:
+		OArraySizeI(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OArraySizeI(a->clone());
+		}
+	};
+	class OArraySizeID : public UnaryOpcode
+	{
+	public:
+		OArraySizeID(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OArraySizeID(a->clone());
+		}
+	};
+
+	class OCheckTrig : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OCheckTrig();
+		}
+	};
+
+	class ORandRegister : public BinaryOpcode
+	{
+	public:
+		ORandRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ORandRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OSqrtRegister : public BinaryOpcode
+	{
+	public:
+		OSqrtRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSqrtRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OCalcSplineRegister : public BinaryOpcode
+	{
+	public:
+		OCalcSplineRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCalcSplineRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OSetColorRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetColorRegister();
+		}
+	};
+
+	class OSetDepthRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetDepthRegister();
+		}
+	};
+
+	class OCollisionRectRegister : public UnaryOpcode
+	{
+	public:
+		OCollisionRectRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCollisionRectRegister(a->clone());
+		}
+	};
+
+	class OCollisionBoxRegister : public UnaryOpcode
+	{
+	public:
+		OCollisionBoxRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCollisionBoxRegister(a->clone());
+		}
+	};
+
+	class OWarp : public BinaryOpcode
+	{
+	public:
+		OWarp(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OWarp(a->clone(), b->clone());
+		}
+	};
+
+	class OPitWarp : public BinaryOpcode
+	{
+	public:
+		OPitWarp(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OPitWarp(a->clone(), b->clone());
+		}
+	};
+
+	class OCreateItemRegister : public UnaryOpcode
+	{
+	public:
+		OCreateItemRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCreateItemRegister(a->clone());
+		}
+	};
+
+	class OCreateNPCRegister : public UnaryOpcode
+	{
+	public:
+		OCreateNPCRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCreateNPCRegister(a->clone());
+		}
+	};
+
+	class OCreateLWpnRegister : public UnaryOpcode
+	{
+	public:
+		OCreateLWpnRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCreateLWpnRegister(a->clone());
+		}
+	};
+
+	class OCreateEWpnRegister : public UnaryOpcode
+	{
+	public:
+		OCreateEWpnRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCreateEWpnRegister(a->clone());
+		}
+	};
+
+	class OLoadItemRegister : public UnaryOpcode
+	{
+	public:
+		OLoadItemRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadItemRegister(a->clone());
+		}
+	};
+
+	class OLoadItemDataRegister : public UnaryOpcode
+	{
+	public:
+		OLoadItemDataRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadItemDataRegister(a->clone());
+		}
+	};
+
+	class OLoadShopDataRegister : public UnaryOpcode
+	{
+	public:
+		OLoadShopDataRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadShopDataRegister(a->clone());
+		}
+	};
+
+
+	class OLoadInfoShopDataRegister : public UnaryOpcode
+	{
+	public:
+		OLoadInfoShopDataRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadInfoShopDataRegister(a->clone());
+		}
+	};
+
+	class OLoadNPCDataRegister : public UnaryOpcode
+	{
+	public:
+		OLoadNPCDataRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadNPCDataRegister(a->clone());
+		}
+	};
+
+
+	class OLoadMessageDataRegister : public UnaryOpcode
+	{
+	public:
+		OLoadMessageDataRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadMessageDataRegister(a->clone());
+		}
+	};
+
+
+	class OLoadDMapDataRegister : public UnaryOpcode
+	{
+	public:
+		OLoadDMapDataRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadDMapDataRegister(a->clone());
+		}
+	};
+
+	class ODMapDataGetNameRegister : public UnaryOpcode
+	{
+	public:
+		ODMapDataGetNameRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ODMapDataGetNameRegister(a->clone());
+		}
+	};
+
+	class ODMapDataSetNameRegister : public UnaryOpcode
+	{
+	public:
+		ODMapDataSetNameRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ODMapDataSetNameRegister(a->clone());
+		}
+	};
+
+	class ODMapDataGetTitleRegister : public UnaryOpcode
+	{
+	public:
+		ODMapDataGetTitleRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ODMapDataGetTitleRegister(a->clone());
+		}
+	};
+
+	class ODMapDataSetTitleRegister : public UnaryOpcode
+	{
+	public:
+		ODMapDataSetTitleRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ODMapDataSetTitleRegister(a->clone());
+		}
+	};
+
+	class ODMapDataGetIntroRegister : public UnaryOpcode
+	{
+	public:
+		ODMapDataGetIntroRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ODMapDataGetIntroRegister(a->clone());
+		}
+	};
+
+	class ODMapDataSetIntroRegister : public UnaryOpcode
+	{
+	public:
+		ODMapDataSetIntroRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ODMapDataSetIntroRegister(a->clone());
+		}
+	};
+
+	class ODMapDataGetMusicRegister : public UnaryOpcode
+	{
+	public:
+		ODMapDataGetMusicRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ODMapDataGetMusicRegister(a->clone());
+		}
+	};
+
+	class ODMapDataSetMusicRegister : public UnaryOpcode
+	{
+	public:
+		ODMapDataSetMusicRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ODMapDataSetMusicRegister(a->clone());
+		}
+	};
+
+
+	class OMessageDataSetStringRegister : public UnaryOpcode
+	{
+	public:
+		OMessageDataSetStringRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OMessageDataSetStringRegister(a->clone());
+		}
+	};
+
+
+	class OMessageDataGetStringRegister : public UnaryOpcode
+	{
+	public:
+		OMessageDataGetStringRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OMessageDataGetStringRegister(a->clone());
+		}
+	};
+
+	class OLoadComboDataRegister : public UnaryOpcode
+	{
+	public:
+		OLoadComboDataRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadComboDataRegister(a->clone());
+		}
+	};
+
+	class OLoadMapDataRegister : public BinaryOpcode
+	{
+	public:
+		OLoadMapDataRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadMapDataRegister(a->clone(), b->clone());
+		}
+	};
+
+
+	class OLoadSpriteDataRegister : public UnaryOpcode
+	{
+	public:
+		OLoadSpriteDataRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadSpriteDataRegister(a->clone());
+		}
+	};
+
+
+	class OLoadScreenDataRegister : public UnaryOpcode
+	{
+	public:
+		OLoadScreenDataRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadScreenDataRegister(a->clone());
+		}
+	};
+
+
+	class OLoadBitmapDataRegister : public UnaryOpcode
+	{
+	public:
+		OLoadBitmapDataRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadBitmapDataRegister(a->clone());
+		}
+	};
+
+	class OLoadNPCRegister : public UnaryOpcode
+	{
+	public:
+		OLoadNPCRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadNPCRegister(a->clone());
+		}
+	};
+
+	class OLoadLWpnRegister : public UnaryOpcode
+	{
+	public:
+		OLoadLWpnRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadLWpnRegister(a->clone());
+		}
+	};
+
+	class OLoadEWpnRegister : public UnaryOpcode
+	{
+	public:
+		OLoadEWpnRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLoadEWpnRegister(a->clone());
+		}
+	};
+
+	class OPlaySoundRegister : public UnaryOpcode
+	{
+	public:
+		OPlaySoundRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OPlaySoundRegister(a->clone());
+		}
+	};
+
+	// Audio->
+
+
+	class OAdjustVolumeRegister : public UnaryOpcode
+	{
+	public:
+		OAdjustVolumeRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OAdjustVolumeRegister(a->clone());
+		}
+	};
+
+
+	class OAdjustSFXVolumeRegister : public UnaryOpcode
+	{
+	public:
+		OAdjustSFXVolumeRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OAdjustSFXVolumeRegister(a->clone());
+		}
+	};
+
+
+	class OEndSoundRegister : public UnaryOpcode
+	{
+	public:
+		OEndSoundRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OEndSoundRegister(a->clone());
+		}
+	};
+
+
+	class OPauseSoundRegister : public UnaryOpcode
+	{
+	public:
+		OPauseSoundRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OPauseSoundRegister(a->clone());
+		}
+	};
+
+
+	class OResumeSoundRegister : public UnaryOpcode
+	{
+	public:
+		OResumeSoundRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OResumeSoundRegister(a->clone());
+		}
+	};
+
+
+	class OPauseSFX : public UnaryOpcode
+	{
+	public:
+		OPauseSFX(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OPauseSFX(a->clone());
+		}
+	};
+
+	class OResumeSFX : public UnaryOpcode
+	{
+	public:
+		OResumeSFX(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OResumeSFX(a->clone());
+		}
+	};
+
+	class OContinueSFX : public UnaryOpcode
+	{
+	public:
+		OContinueSFX(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OContinueSFX(a->clone());
+		}
+	};
+
+
+	class OPauseMusic : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OPauseMusic();
+		}
+	};
+
+	class OResumeMusic : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OResumeMusic();
+		}
+	};
+
+
+	//END Audio
+
+	class OPlayMIDIRegister : public UnaryOpcode
+	{
+	public:
+		OPlayMIDIRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OPlayMIDIRegister(a->clone());
+		}
+	};
+
+	class OPlayEnhancedMusic : public BinaryOpcode
+	{
+	public:
+		OPlayEnhancedMusic(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OPlayEnhancedMusic(a->clone(), b->clone());
+		}
+	};
+
+	class OGetDMapMusicFilename : public BinaryOpcode
+	{
+	public:
+		OGetDMapMusicFilename(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetDMapMusicFilename(a->clone(), b->clone());
+		}
+	};
+
+	class OGetDMapMusicTrack : public UnaryOpcode
+	{
+	public:
+		OGetDMapMusicTrack(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetDMapMusicTrack(a->clone());
+		}
+	};
+
+	class OSetDMapEnhancedMusic : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetDMapEnhancedMusic();
+		}
+	};
+
+	class OGetSaveName : public UnaryOpcode
+	{
+	public:
+		OGetSaveName(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetSaveName(a->clone());
+		}
+	};
+
+	class OGetDMapName : public BinaryOpcode
+	{
+	public:
+		OGetDMapName(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetDMapName(a->clone(), b->clone());
+		}
+	};
+
+	class OSetDMapName : public BinaryOpcode
+	{
+	public:
+		OSetDMapName(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetDMapName(a->clone(), b->clone());
+		}
+	};
+
+	class OSetDMapIntro : public BinaryOpcode
+	{
+	public:
+		OSetDMapIntro(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetDMapIntro(a->clone(), b->clone());
+		}
+	};
+
+	class OSetDMapTitle : public BinaryOpcode
+	{
+	public:
+		OSetDMapTitle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetDMapTitle(a->clone(), b->clone());
+		}
+	};
+
+
+	class OSetMessage : public BinaryOpcode
+	{
+	public:
+		OSetMessage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetMessage(a->clone(), b->clone());
+		}
+	};
+
+
+	class OGetDMapIntro : public BinaryOpcode
+	{
+	public:
+		OGetDMapIntro(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetDMapIntro(a->clone(), b->clone());
+		}
+	};
+
+	class OGetDMapTitle : public BinaryOpcode
+	{
+	public:
+		OGetDMapTitle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetDMapTitle(a->clone(), b->clone());
+		}
+	};
+
+	class OSetSaveName : public UnaryOpcode
+	{
+	public:
+		OSetSaveName(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetSaveName(a->clone());
+		}
+	};
+
+	class OGetItemName : public UnaryOpcode
+	{
+	public:
+		OGetItemName(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetItemName(a->clone());
+		}
+	};
+
+	class OGetNPCName : public UnaryOpcode
+	{
+	public:
+		OGetNPCName(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetNPCName(a->clone());
+		}
+	};
+
+	class OGetMessage : public BinaryOpcode
+	{
+	public:
+		OGetMessage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetMessage(a->clone(), b->clone());
+		}
+	};
+
+	class OClearSpritesRegister : public UnaryOpcode
+	{
+	public:
+		OClearSpritesRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OClearSpritesRegister(a->clone());
+		}
+	};
+
+	class OMessageRegister : public UnaryOpcode
+	{
+	public:
+		OMessageRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OMessageRegister(a->clone());
+		}
+	};
+
+	class OIsSolid : public UnaryOpcode
+	{
+	public:
+		OIsSolid(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OIsSolid(a->clone());
+		}
+	};
+
+	class OSetSideWarpRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetSideWarpRegister();
+		}
+	};
+
+	class OSetTileWarpRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetTileWarpRegister();
+		}
+	};
+
+	class OGetSideWarpDMap : public UnaryOpcode
+	{
+	public:
+		OGetSideWarpDMap(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetSideWarpDMap(a->clone());
+		}
+	};
+
+	class OGetSideWarpScreen : public UnaryOpcode
+	{
+	public:
+		OGetSideWarpScreen(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetSideWarpScreen(a->clone());
+		}
+	};
+
+	class OGetSideWarpType : public UnaryOpcode
+	{
+	public:
+		OGetSideWarpType(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetSideWarpType(a->clone());
+		}
+	};
+
+	class OGetTileWarpDMap : public UnaryOpcode
+	{
+	public:
+		OGetTileWarpDMap(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetTileWarpDMap(a->clone());
+		}
+	};
+
+	class OGetTileWarpScreen : public UnaryOpcode
+	{
+	public:
+		OGetTileWarpScreen(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetTileWarpScreen(a->clone());
+		}
+	};
+
+	class OGetTileWarpType : public UnaryOpcode
+	{
+	public:
+		OGetTileWarpType(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetTileWarpType(a->clone());
+		}
+	};
+
+	class OLayerScreenRegister : public BinaryOpcode
+	{
+	public:
+		OLayerScreenRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLayerScreenRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OLayerMapRegister : public BinaryOpcode
+	{
+	public:
+		OLayerMapRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLayerMapRegister(a->clone(), b->clone());
+		}
+	};
+
+	class OTriggerSecrets : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OTriggerSecrets();
+		}
+	};
+
+	class OIsValidItem : public UnaryOpcode
+	{
+	public:
+		OIsValidItem(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OIsValidItem(a->clone());
+		}
+	};
+
+	class OIsValidNPC : public UnaryOpcode
+	{
+	public:
+		OIsValidNPC(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OIsValidNPC(a->clone());
+		}
+	};
+
+	class OIsValidLWpn : public UnaryOpcode
+	{
+	public:
+		OIsValidLWpn(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OIsValidLWpn(a->clone());
+		}
+	};
+
+	class OIsValidEWpn : public UnaryOpcode
+	{
+	public:
+		OIsValidEWpn(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OIsValidEWpn(a->clone());
+		}
+	};
+
+	class OUseSpriteLWpn : public UnaryOpcode
+	{
+	public:
+		OUseSpriteLWpn(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OUseSpriteLWpn(a->clone());
+		}
+	};
+
+	class OUseSpriteEWpn : public UnaryOpcode
+	{
+	public:
+		OUseSpriteEWpn(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OUseSpriteEWpn(a->clone());
+		}
+	};
+
+	class ORectangleRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ORectangleRegister();
+		}
+	};
+
+	class OCircleRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OCircleRegister();
+		}
+	};
+
+	class OArcRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OArcRegister();
+		}
+	};
+
+	class OEllipseRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OEllipseRegister();
+		}
+	};
+
+	class OLineRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OLineRegister();
+		}
+	};
+
+	class OSplineRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OSplineRegister();
+		}
+	};
+
+	class OPutPixelRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OPutPixelRegister();
+		}
+	};
+
+	class ODrawCharRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ODrawCharRegister();
+		}
+	};
+
+	class ODrawIntRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ODrawIntRegister();
+		}
+	};
+
+	class ODrawTileRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ODrawTileRegister();
+		}
+	};
+
+	class ODrawComboRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ODrawComboRegister();
+		}
+	};
+
+	class OQuadRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OQuadRegister();
+		}
+	};
+
+	class OTriangleRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OTriangleRegister();
+		}
+	};
+
+	class OQuad3DRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OQuad3DRegister();
+		}
+	};
+
+	class OTriangle3DRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OTriangle3DRegister();
+		}
+	};
+
+	class OFastTileRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OFastTileRegister();
+		}
+	};
+
+	class OFastComboRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OFastComboRegister();
+		}
+	};
+
+	class ODrawStringRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ODrawStringRegister();
+		}
+	};
+
+	class ODrawLayerRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ODrawLayerRegister();
+		}
+	};
+
+	class ODrawScreenRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ODrawScreenRegister();
+		}
+	};
+
+	class ODrawBitmapRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ODrawBitmapRegister();
+		}
+	};
+
+
+	class ODrawBitmapExRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ODrawBitmapExRegister();
+		}
+	};
+
+	class OSetRenderTargetRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetRenderTargetRegister();
+		}
+	};
+
+	class OSetDepthBufferRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetDepthBufferRegister();
+		}
+	};
+
+	class OGetDepthBufferRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetDepthBufferRegister();
+		}
+	};
+
+	class OSetColorBufferRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetColorBufferRegister();
+		}
+	};
+
+	class OGetColorBufferRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetColorBufferRegister();
+		}
+	};
+
+	class OCopyTileRegister : public BinaryOpcode
+	{
+	public:
+		OCopyTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCopyTileRegister(a->clone(),b->clone());
+		}
+	};
+
+
+	class OOverlayTileRegister : public BinaryOpcode
+	{
+	public:
+		OOverlayTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OOverlayTileRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OSwapTileRegister : public BinaryOpcode
+	{
+	public:
+		OSwapTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSwapTileRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OClearTileRegister : public UnaryOpcode
+	{
+	public:
+		OClearTileRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OClearTileRegister(a->clone());
+		}
+	};
+
+	class OAllocateMemRegister : public BinaryOpcode
+	{
+	public:
+		OAllocateMemRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OAllocateMemRegister(a->clone(),b->clone());
+		}
+	};
+
+	class OAllocateMemImmediate : public BinaryOpcode
+	{
+	public:
+		OAllocateMemImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OAllocateMemImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class OAllocateGlobalMemImmediate : public BinaryOpcode
+	{
+	public:
+		OAllocateGlobalMemImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OAllocateGlobalMemImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class OAllocateGlobalMemRegister : public BinaryOpcode
+	{
+	public:
+		OAllocateGlobalMemRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OAllocateGlobalMemRegister(a->clone(),b->clone());
+		}
+	};
+
+	class ODeallocateMemRegister : public UnaryOpcode
+	{
+	public:
+		ODeallocateMemRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ODeallocateMemRegister(a->clone());
+		}
+	};
+
+	class ODeallocateMemImmediate : public UnaryOpcode
+	{
+	public:
+		ODeallocateMemImmediate(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ODeallocateMemImmediate(a->clone());
+		}
+	};
+
+	class OSave : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OSave();
+		}
+	};
+
+	class OGetScreenFlags : public UnaryOpcode
+	{
+	public:
+		OGetScreenFlags(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenFlags(a->clone());
+		}
+	};
+
+	class OGetScreenEFlags : public UnaryOpcode
+	{
+	public:
+		OGetScreenEFlags(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenEFlags(a->clone());
+		}
+	};
+
+	class OEnd : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OEnd();
+		}
+	};
+
+	class OComboTile : public BinaryOpcode
+	{
+	public:
+		OComboTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OComboTile(a->clone(), b->clone());
+		}
+	};
+
+	class OBreakShield : public UnaryOpcode
+	{
+	public:
+		OBreakShield(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBreakShield(a->clone());
+		}
+	};
+
+	class OShowSaveScreen : public UnaryOpcode
+	{
+	public:
+		OShowSaveScreen(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OShowSaveScreen(a->clone());
+		}
+	};
+
+	class OShowSaveQuitScreen : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OShowSaveQuitScreen();
+		}
+	};
+
+	class OSelectAWeaponRegister : public UnaryOpcode
+	{
+	public:
+		OSelectAWeaponRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSelectAWeaponRegister(a->clone());
+		}
+	};
+
+	class OSelectBWeaponRegister : public UnaryOpcode
+	{
+	public:
+		OSelectBWeaponRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSelectBWeaponRegister(a->clone());
+		}
+	};
+
+	class OGetFFCScript : public UnaryOpcode
+	{
+	public:
+		OGetFFCScript(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetFFCScript(a->clone());
+		}
+	};
+
+	class OGetItemScript : public UnaryOpcode
+	{
+	public:
+		OGetItemScript(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetItemScript(a->clone());
+		}
+	};
+
+
+
+	//2,54
+
+	class OZapIn : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OZapIn();
+		}
+	};
+
+	class OZapOut : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OZapOut();
+		}
+	};
+
+
+	class OGreyscaleOn : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OGreyscaleOn();
+		}
+	};
+
+	class OGreyscaleOff : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OGreyscaleOff();
+		}
+	};
+
+
+	//These need to be unary opcodes that accept bool linkvisible. 
+	class OWavyIn : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OWavyIn();
+		}
+	};
+
+
+	class OWavyOut : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OWavyOut();
+		}
+	};
+
+	class OOpenWipe : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OOpenWipe();
+		}
+	};
+
+
+	class OGetFFCPointer : public UnaryOpcode
+	{
+	public:
+		OGetFFCPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetFFCPointer(a->clone());
+		}
+	};
+
+	class OSetFFCPointer : public UnaryOpcode
+	{
+	public:
+		OSetFFCPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetFFCPointer(a->clone());
+		}
+	};
+
+
+	class OGetNPCPointer : public UnaryOpcode
+	{
+	public:
+		OGetNPCPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetNPCPointer(a->clone());
+		}
+	};
+
+
+	class OSetNPCPointer : public UnaryOpcode
+	{
+	public:
+		OSetNPCPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetNPCPointer(a->clone());
+		}
+	};
+
+
+	class OGetLWeaponPointer : public UnaryOpcode
+	{
+	public:
+		OGetLWeaponPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetLWeaponPointer(a->clone());
+		}
+	};
+
+
+	class OSetLWeaponPointer : public UnaryOpcode
+	{
+	public:
+		OSetLWeaponPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetLWeaponPointer(a->clone());
+		}
+	};
+
+
+	class OGetEWeaponPointer : public UnaryOpcode
+	{
+	public:
+		OGetEWeaponPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetEWeaponPointer(a->clone());
+		}
+	};
+
+
+	class OSetEWeaponPointer : public UnaryOpcode
+	{
+	public:
+		OSetEWeaponPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetEWeaponPointer(a->clone());
+		}
+	};
+
+
+	class OGetItemPointer : public UnaryOpcode
+	{
+	public:
+		OGetItemPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetItemPointer(a->clone());
+		}
+	};
+
+
+	class OSetItemPointer : public UnaryOpcode
+	{
+	public:
+		OSetItemPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetItemPointer(a->clone());
+		}
+	};
+
+
+	class OGetItemDataPointer : public UnaryOpcode
+	{
+	public:
+		OGetItemDataPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetItemDataPointer(a->clone());
+		}
+	};
+
+
+	class OSetItemDataPointer : public UnaryOpcode
+	{
+	public:
+		OSetItemDataPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetItemDataPointer(a->clone());
+		}
+	};
+
+
+	class OGetBoolPointer : public UnaryOpcode
+	{
+	public:
+		OGetBoolPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetBoolPointer(a->clone());
+		}
+	};
+
+
+	class OSetBoolPointer : public UnaryOpcode
+	{
+	public:
+		OSetBoolPointer(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSetBoolPointer(a->clone());
+		}
+	};
+
+
+	class OGetScreenDoor : public UnaryOpcode
+	{
+	public:
+		OGetScreenDoor(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenDoor(a->clone());
+		}
+	};
+
+
+	class OGetScreenEnemy : public UnaryOpcode
+	{
+	public:
+		OGetScreenEnemy(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenEnemy(a->clone());
+		}
+	};
+
+	class OGetScreenLayerOpacity : public UnaryOpcode
+	{
+	public:
+		OGetScreenLayerOpacity(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenLayerOpacity(a->clone());
+		}
+	};
+	class OGetScreenSecretCombo : public UnaryOpcode
+	{
+	public:
+		OGetScreenSecretCombo(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenSecretCombo(a->clone());
+		}
+	};
+	class OGetScreenSecretCSet : public UnaryOpcode
+	{
+	public:
+		OGetScreenSecretCSet(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenSecretCSet(a->clone());
+		}
+	};
+	class OGetScreenSecretFlag : public UnaryOpcode
+	{
+	public:
+		OGetScreenSecretFlag(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenSecretFlag(a->clone());
+		}
+	};
+	class OGetScreenLayerMap : public UnaryOpcode
+	{
+	public:
+		OGetScreenLayerMap(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenLayerMap(a->clone());
+		}
+	};
+	class OGetScreenLayerScreen : public UnaryOpcode
+	{
+	public:
+		OGetScreenLayerScreen(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenLayerScreen(a->clone());
+		}
+	};
+	class OGetScreenPath : public UnaryOpcode
+	{
+	public:
+		OGetScreenPath(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenPath(a->clone());
+		}
+	};
+	class OGetScreenWarpReturnX : public UnaryOpcode
+	{
+	public:
+		OGetScreenWarpReturnX(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenWarpReturnX(a->clone());
+		}
+	};
+	class OGetScreenWarpReturnY : public UnaryOpcode
+	{
+	public:
+		OGetScreenWarpReturnY(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenWarpReturnY(a->clone());
+		}
+	};
+
+	class OTriggerSecretRegister : public UnaryOpcode
+	{
+	public:
+		OTriggerSecretRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OTriggerSecretRegister(a->clone());
+		}
+	};
+
+	class OPolygonRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OPolygonRegister();
+		}
+	};
+
+	class OChangeFFCScriptRegister : public UnaryOpcode
+	{
+	public:
+		OChangeFFCScriptRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OChangeFFCScriptRegister(a->clone());
+		}
+	};
+
+
+
+	class ONDataBaseTile : public BinaryOpcode
+	{
+	public:
+		ONDataBaseTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataBaseTile(a->clone(), b->clone());
+		}
+	};
+
+	class ONDataEHeight : public BinaryOpcode
+	{
+	public:
+		ONDataEHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataEHeight(a->clone(), b->clone());
+		}
+	};
+
+	//one input, no return
+	class ONDataFlags : public BinaryOpcode
+	{
+	public:
+		ONDataFlags(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataFlags(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataFlags2 : public BinaryOpcode
+	{
+	public:
+		ONDataFlags2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataFlags2(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataWidth : public BinaryOpcode
+	{
+	public:
+		ONDataWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataWidth(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataHeight : public BinaryOpcode
+	{
+	public:
+		ONDataHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataHeight(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataTile : public BinaryOpcode
+	{
+	public:
+		ONDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataTile(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSWidth : public BinaryOpcode
+	{
+	public:
+		ONDataSWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSWidth(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSHeight : public BinaryOpcode
+	{
+	public:
+		ONDataSHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSHeight(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataETile : public BinaryOpcode
+	{
+	public:
+		ONDataETile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataETile(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataEWidth : public BinaryOpcode
+	{
+	public:
+		ONDataEWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataEWidth(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataHP : public BinaryOpcode
+	{
+	public:
+		ONDataHP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataHP(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataFamily : public BinaryOpcode
+	{
+	public:
+		ONDataFamily(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataFamily(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataCSet : public BinaryOpcode
+	{
+	public:
+		ONDataCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataCSet(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataAnim : public BinaryOpcode
+	{
+	public:
+		ONDataAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataAnim(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataEAnim : public BinaryOpcode
+	{
+	public:
+		ONDataEAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataEAnim(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataFramerate : public BinaryOpcode
+	{
+	public:
+		ONDataFramerate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataFramerate(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataEFramerate : public BinaryOpcode
+	{
+	public:
+		ONDataEFramerate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataEFramerate(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataTouchDamage : public BinaryOpcode
+	{
+	public:
+		ONDataTouchDamage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataTouchDamage(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataWeaponDamage : public BinaryOpcode
+	{
+	public:
+		ONDataWeaponDamage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataWeaponDamage(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataWeapon : public BinaryOpcode
+	{
+	public:
+		ONDataWeapon(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataWeapon(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataRandom : public BinaryOpcode
+	{
+	public:
+		ONDataRandom(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataRandom(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataHalt : public BinaryOpcode
+	{
+	public:
+		ONDataHalt(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataHalt(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataStep : public BinaryOpcode
+	{
+	public:
+		ONDataStep(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataStep(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataHoming : public BinaryOpcode
+	{
+	public:
+		ONDataHoming(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataHoming(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataHunger : public BinaryOpcode
+	{
+	public:
+		ONDataHunger(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataHunger(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataropset : public BinaryOpcode
+	{
+	public:
+		ONDataropset(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataropset(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataBGSound : public BinaryOpcode
+	{
+	public:
+		ONDataBGSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataBGSound(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataHitSound : public BinaryOpcode
+	{
+	public:
+		ONDataHitSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataHitSound(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataDeathSound : public BinaryOpcode
+	{
+	public:
+		ONDataDeathSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataDeathSound(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataXofs : public BinaryOpcode
+	{
+	public:
+		ONDataXofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataXofs(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataYofs : public BinaryOpcode
+	{
+	public:
+		ONDataYofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataYofs(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataZofs : public BinaryOpcode
+	{
+	public:
+		ONDataZofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataZofs(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataHitXOfs : public BinaryOpcode
+	{
+	public:
+		ONDataHitXOfs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataHitXOfs(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataHYOfs : public BinaryOpcode
+	{
+	public:
+		ONDataHYOfs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataHYOfs(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataHitWidth : public BinaryOpcode
+	{
+	public:
+		ONDataHitWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataHitWidth(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataHitHeight : public BinaryOpcode
+	{
+	public:
+		ONDataHitHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataHitHeight(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataHitZ : public BinaryOpcode
+	{
+	public:
+		ONDataHitZ(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataHitZ(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataTileWidth : public BinaryOpcode
+	{
+	public:
+		ONDataTileWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataTileWidth(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataTileHeight : public BinaryOpcode
+	{
+	public:
+		ONDataTileHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataTileHeight(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataWeapSprite : public BinaryOpcode
+	{
+	public:
+		ONDataWeapSprite(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataWeapSprite(a->clone(), b->clone());
+		}
+	};
+
+	//two inputs, two returns
+
+	class ONDataScriptDef : public UnaryOpcode
+	{
+	public:
+		ONDataScriptDef(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataScriptDef(a->clone());
+		}
+	};
+	//two inputs, two returns
+
+	class ONDataDefense : public UnaryOpcode
+	{
+	public:
+		ONDataDefense(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataDefense(a->clone());
+		}
+	};
+	//two inputs, two returns
+
+	class ONDataSizeFlag : public UnaryOpcode
+	{
+	public:
+		ONDataSizeFlag(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSizeFlag(a->clone());
+		}
+	};
+	//two inputs, two returns
+
+	class ONDatattributes : public UnaryOpcode
+	{
+	public:
+		ONDatattributes(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDatattributes(a->clone());
+		}
+	};
+
+	class ONDataSetBaseTile : public BinaryOpcode
+	{
+	public:
+		ONDataSetBaseTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetBaseTile(a->clone(), b->clone());
+		}
+	};
+	class ONDataSetEHeight : public BinaryOpcode
+	{
+	public:
+		ONDataSetEHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetEHeight(a->clone(), b->clone());
+		}
+	};
+
+	class ONDataSetFlags : public BinaryOpcode
+	{
+	public:
+		ONDataSetFlags(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetFlags(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetFlags2 : public BinaryOpcode
+	{
+	public:
+		ONDataSetFlags2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetFlags2(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetWidth : public BinaryOpcode
+	{
+	public:
+		ONDataSetWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetWidth(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetHeight : public BinaryOpcode
+	{
+	public:
+		ONDataSetHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetHeight(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetTile : public BinaryOpcode
+	{
+	public:
+		ONDataSetTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetTile(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetSWidth : public BinaryOpcode
+	{
+	public:
+		ONDataSetSWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetSWidth(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetSHeight : public BinaryOpcode
+	{
+	public:
+		ONDataSetSHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetSHeight(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetETile : public BinaryOpcode
+	{
+	public:
+		ONDataSetETile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetETile(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetEWidth : public BinaryOpcode
+	{
+	public:
+		ONDataSetEWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetEWidth(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetHP : public BinaryOpcode
+	{
+	public:
+		ONDataSetHP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetHP(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetFamily : public BinaryOpcode
+	{
+	public:
+		ONDataSetFamily(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetFamily(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetCSet : public BinaryOpcode
+	{
+	public:
+		ONDataSetCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetCSet(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetAnim : public BinaryOpcode
+	{
+	public:
+		ONDataSetAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetAnim(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetEAnim : public BinaryOpcode
+	{
+	public:
+		ONDataSetEAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetEAnim(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetFramerate : public BinaryOpcode
+	{
+	public:
+		ONDataSetFramerate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetFramerate(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetEFramerate : public BinaryOpcode
+	{
+	public:
+		ONDataSetEFramerate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetEFramerate(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetTouchDamage : public BinaryOpcode
+	{
+	public:
+		ONDataSetTouchDamage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetTouchDamage(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetWeaponDamage : public BinaryOpcode
+	{
+	public:
+		ONDataSetWeaponDamage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetWeaponDamage(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetWeapon : public BinaryOpcode
+	{
+	public:
+		ONDataSetWeapon(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetWeapon(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetRandom : public BinaryOpcode
+	{
+	public:
+		ONDataSetRandom(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetRandom(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetHalt : public BinaryOpcode
+	{
+	public:
+		ONDataSetHalt(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetHalt(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetStep : public BinaryOpcode
+	{
+	public:
+		ONDataSetStep(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetStep(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetHoming : public BinaryOpcode
+	{
+	public:
+		ONDataSetHoming(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetHoming(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetHunger : public BinaryOpcode
+	{
+	public:
+		ONDataSetHunger(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetHunger(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetropset : public BinaryOpcode
+	{
+	public:
+		ONDataSetropset(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetropset(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetHitSound : public BinaryOpcode
+	{
+	public:
+		ONDataSetHitSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetHitSound(a->clone(), b->clone());
+		}
+	};
+
+	//one input, no return
+	class ONDataSetBGSound : public BinaryOpcode
+	{
+	public:
+		ONDataSetBGSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetBGSound(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetDeathSound : public BinaryOpcode
+	{
+	public:
+		ONDataSetDeathSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetDeathSound(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetXofs : public BinaryOpcode
+	{
+	public:
+		ONDataSetXofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetXofs(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetYofs : public BinaryOpcode
+	{
+	public:
+		ONDataSetYofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetYofs(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetZofs : public BinaryOpcode
+	{
+	public:
+		ONDataSetZofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetZofs(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetHitXOfs : public BinaryOpcode
+	{
+	public:
+		ONDataSetHitXOfs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetHitXOfs(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetHYOfs : public BinaryOpcode
+	{
+	public:
+		ONDataSetHYOfs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetHYOfs(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetHitWidth : public BinaryOpcode
+	{
+	public:
+		ONDataSetHitWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetHitWidth(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetHitHeight : public BinaryOpcode
+	{
+	public:
+		ONDataSetHitHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetHitHeight(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetHitZ : public BinaryOpcode
+	{
+	public:
+		ONDataSetHitZ(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetHitZ(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetTileWidth : public BinaryOpcode
+	{
+	public:
+		ONDataSetTileWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetTileWidth(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetTileHeight : public BinaryOpcode
+	{
+	public:
+		ONDataSetTileHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetTileHeight(a->clone(), b->clone());
+		}
+	};
+	//one input, no return
+	class ONDataSetWeapSprite : public BinaryOpcode
+	{
+	public:
+		ONDataSetWeapSprite(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONDataSetWeapSprite(a->clone(), b->clone());
+		}
+	};
+
+	//ComboData
+
+	class OCDataBlockEnemy : public BinaryOpcode
+	{
+	public:
+		OCDataBlockEnemy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataBlockEnemy(a->clone(), b->clone());
+		}
+	};
+	class OCDataBlockHole : public BinaryOpcode
+	{
+	public:
+		OCDataBlockHole(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataBlockHole(a->clone(), b->clone());
+		}
+	};
+	class OCDataBlockTrig : public BinaryOpcode
+	{
+	public:
+		OCDataBlockTrig(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataBlockTrig(a->clone(), b->clone());
+		}
+	};
+	class OCDataConveyX : public BinaryOpcode
+	{
+	public:
+		OCDataConveyX(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataConveyX(a->clone(), b->clone());
+		}
+	};
+	class OCDataConveyY : public BinaryOpcode
+	{
+	public:
+		OCDataConveyY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataConveyY(a->clone(), b->clone());
+		}
+	};
+	class OCDataCreateNPC : public BinaryOpcode
+	{
+	public:
+		OCDataCreateNPC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataCreateNPC(a->clone(), b->clone());
+		}
+	};
+	class OCDataCreateEnemW : public BinaryOpcode
+	{
+	public:
+		OCDataCreateEnemW(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataCreateEnemW(a->clone(), b->clone());
+		}
+	};
+	class OCDataCreateEnemC : public BinaryOpcode
+	{
+	public:
+		OCDataCreateEnemC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataCreateEnemC(a->clone(), b->clone());
+		}
+	};
+	class OCDataDirch : public BinaryOpcode
+	{
+	public:
+		OCDataDirch(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataDirch(a->clone(), b->clone());
+		}
+	};
+	class OCDataDistTiles : public BinaryOpcode
+	{
+	public:
+		OCDataDistTiles(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataDistTiles(a->clone(), b->clone());
+		}
+	};
+	class OCDataDiveItem : public BinaryOpcode
+	{
+	public:
+		OCDataDiveItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataDiveItem(a->clone(), b->clone());
+		}
+	};
+	class OCDataAttrib : public BinaryOpcode
+	{
+	public:
+		OCDataAttrib(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataAttrib(a->clone(), b->clone());
+		}
+	};
+	class OCDataDecoTile : public BinaryOpcode
+	{
+	public:
+		OCDataDecoTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataDecoTile(a->clone(), b->clone());
+		}
+	};
+	class OCDataDock : public BinaryOpcode
+	{
+	public:
+		OCDataDock(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataDock(a->clone(), b->clone());
+		}
+	};
+	class OCDataFairy : public BinaryOpcode
+	{
+	public:
+		OCDataFairy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataFairy(a->clone(), b->clone());
+		}
+	};
+	class OCDataDecoType : public BinaryOpcode
+	{
+	public:
+		OCDataDecoType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataDecoType(a->clone(), b->clone());
+		}
+	};
+	class OCDataHookshotGrab : public BinaryOpcode
+	{
+	public:
+		OCDataHookshotGrab(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataHookshotGrab(a->clone(), b->clone());
+		}
+	};
+	class OCDataLockBlock : public BinaryOpcode
+	{
+	public:
+		OCDataLockBlock(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataLockBlock(a->clone(), b->clone());
+		}
+	};
+	class OCDataLockBlockChange : public BinaryOpcode
+	{
+	public:
+		OCDataLockBlockChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataLockBlockChange(a->clone(), b->clone());
+		}
+	};
+	class OCDataMagicMirror : public BinaryOpcode
+	{
+	public:
+		OCDataMagicMirror(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataMagicMirror(a->clone(), b->clone());
+		}
+	};
+	class OCDataModHP : public BinaryOpcode
+	{
+	public:
+		OCDataModHP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataModHP(a->clone(), b->clone());
+		}
+	};
+	class OCDataModHPDelay : public BinaryOpcode
+	{
+	public:
+		OCDataModHPDelay(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataModHPDelay(a->clone(), b->clone());
+		}
+	};
+	class OCDataModHpType : public BinaryOpcode
+	{
+	public:
+		OCDataModHpType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataModHpType(a->clone(), b->clone());
+		}
+	};
+	class OCDataModMP : public BinaryOpcode
+	{
+	public:
+		OCDataModMP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataModMP(a->clone(), b->clone());
+		}
+	};
+	class OCDataMpdMPDelay : public BinaryOpcode
+	{
+	public:
+		OCDataMpdMPDelay(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataMpdMPDelay(a->clone(), b->clone());
+		}
+	};
+	class OCDataModMPType : public BinaryOpcode
+	{
+	public:
+		OCDataModMPType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataModMPType(a->clone(), b->clone());
+		}
+	};
+	class OCDataNoPush : public BinaryOpcode
+	{
+	public:
+		OCDataNoPush(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataNoPush(a->clone(), b->clone());
+		}
+	};
+	class OCDataOverhead : public BinaryOpcode
+	{
+	public:
+		OCDataOverhead(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataOverhead(a->clone(), b->clone());
+		}
+	};
+	class OCDataEnemyLoc : public BinaryOpcode
+	{
+	public:
+		OCDataEnemyLoc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataEnemyLoc(a->clone(), b->clone());
+		}
+	};
+	class OCDataPushDir : public BinaryOpcode
+	{
+	public:
+		OCDataPushDir(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataPushDir(a->clone(), b->clone());
+		}
+	};
+	class OCDataPushWeight : public BinaryOpcode
+	{
+	public:
+		OCDataPushWeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataPushWeight(a->clone(), b->clone());
+		}
+	};
+	class OCDataPushWait : public BinaryOpcode
+	{
+	public:
+		OCDataPushWait(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataPushWait(a->clone(), b->clone());
+		}
+	};
+	class OCDataPushed : public BinaryOpcode
+	{
+	public:
+		OCDataPushed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataPushed(a->clone(), b->clone());
+		}
+	};
+	class OCDataRaft : public BinaryOpcode
+	{
+	public:
+		OCDataRaft(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataRaft(a->clone(), b->clone());
+		}
+	};
+	class OCDataResetRoom : public BinaryOpcode
+	{
+	public:
+		OCDataResetRoom(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataResetRoom(a->clone(), b->clone());
+		}
+	};
+	class OCDataSavePoint : public BinaryOpcode
+	{
+	public:
+		OCDataSavePoint(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataSavePoint(a->clone(), b->clone());
+		}
+	};
+	class OCDataFreeezeScreen : public BinaryOpcode
+	{
+	public:
+		OCDataFreeezeScreen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataFreeezeScreen(a->clone(), b->clone());
+		}
+	};
+	class OCDataSecretCombo : public BinaryOpcode
+	{
+	public:
+		OCDataSecretCombo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataSecretCombo(a->clone(), b->clone());
+		}
+	};
+	class OCDataSingular : public BinaryOpcode
+	{
+	public:
+		OCDataSingular(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataSingular(a->clone(), b->clone());
+		}
+	};
+	class OCDataSlowMove : public BinaryOpcode
+	{
+	public:
+		OCDataSlowMove(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataSlowMove(a->clone(), b->clone());
+		}
+	};
+	class OCDataStatue : public BinaryOpcode
+	{
+	public:
+		OCDataStatue(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataStatue(a->clone(), b->clone());
+		}
+	};
+	class OCDataStepType : public BinaryOpcode
+	{
+	public:
+		OCDataStepType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataStepType(a->clone(), b->clone());
+		}
+	};
+	class OCDataSteoChange : public BinaryOpcode
+	{
+	public:
+		OCDataSteoChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataSteoChange(a->clone(), b->clone());
+		}
+	};
+	class OCDataStrikeRem : public BinaryOpcode
+	{
+	public:
+		OCDataStrikeRem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataStrikeRem(a->clone(), b->clone());
+		}
+	};
+	class OCDataStrikeRemType : public BinaryOpcode
+	{
+	public:
+		OCDataStrikeRemType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataStrikeRemType(a->clone(), b->clone());
+		}
+	};
+	class OCDataStrikeChange : public BinaryOpcode
+	{
+	public:
+		OCDataStrikeChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataStrikeChange(a->clone(), b->clone());
+		}
+	};
+	class OCDataStrikeChangeItem : public BinaryOpcode
+	{
+	public:
+		OCDataStrikeChangeItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataStrikeChangeItem(a->clone(), b->clone());
+		}
+	};
+	class OCDataTouchItem : public BinaryOpcode
+	{
+	public:
+		OCDataTouchItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataTouchItem(a->clone(), b->clone());
+		}
+	};
+	class OCDataTouchStairs : public BinaryOpcode
+	{
+	public:
+		OCDataTouchStairs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataTouchStairs(a->clone(), b->clone());
+		}
+	};
+	class OCDataTriggerType : public BinaryOpcode
+	{
+	public:
+		OCDataTriggerType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataTriggerType(a->clone(), b->clone());
+		}
+	};
+	class OCDataTriggerSens : public BinaryOpcode
+	{
+	public:
+		OCDataTriggerSens(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataTriggerSens(a->clone(), b->clone());
+		}
+	};
+	class OCDataWarpType : public BinaryOpcode
+	{
+	public:
+		OCDataWarpType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataWarpType(a->clone(), b->clone());
+		}
+	};
+	class OCDataWarpSens : public BinaryOpcode
+	{
+	public:
+		OCDataWarpSens(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataWarpSens(a->clone(), b->clone());
+		}
+	};
+	class OCDataWarpDirect : public BinaryOpcode
+	{
+	public:
+		OCDataWarpDirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataWarpDirect(a->clone(), b->clone());
+		}
+	};
+	class OCDataWarpLoc : public BinaryOpcode
+	{
+	public:
+		OCDataWarpLoc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataWarpLoc(a->clone(), b->clone());
+		}
+	};
+	class OCDataWater : public BinaryOpcode
+	{
+	public:
+		OCDataWater(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataWater(a->clone(), b->clone());
+		}
+	};
+
+	class OCDataWinGame : public BinaryOpcode
+	{
+	public:
+		OCDataWinGame(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataWinGame(a->clone(), b->clone());
+		}
+	};
+
+	class OCDataWhistle : public BinaryOpcode
+	{
+	public:
+		OCDataWhistle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataWhistle(a->clone(), b->clone());
+		}
+	};
+	class OCDataWeapBlockLevel : public BinaryOpcode
+	{
+	public:
+		OCDataWeapBlockLevel(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataWeapBlockLevel(a->clone(), b->clone());
+		}
+	};
+	class OCDataTile : public BinaryOpcode
+	{
+	public:
+		OCDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataTile(a->clone(), b->clone());
+		}
+	};
+	class OCDataFlip : public BinaryOpcode
+	{
+	public:
+		OCDataFlip(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataFlip(a->clone(), b->clone());
+		}
+	};
+	class OCDataWalkability : public BinaryOpcode
+	{
+	public:
+		OCDataWalkability(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataWalkability(a->clone(), b->clone());
+		}
+	};
+	class OCDataType : public BinaryOpcode
+	{
+	public:
+		OCDataType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataType(a->clone(), b->clone());
+		}
+	};
+	class OCDataCSets : public BinaryOpcode
+	{
+	public:
+		OCDataCSets(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataCSets(a->clone(), b->clone());
+		}
+	};
+	class OCDataFoo : public BinaryOpcode
+	{
+	public:
+		OCDataFoo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataFoo(a->clone(), b->clone());
+		}
+	};
+	class OCDataFrames : public BinaryOpcode
+	{
+	public:
+		OCDataFrames(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataFrames(a->clone(), b->clone());
+		}
+	};
+	class OCDataSpeed : public BinaryOpcode
+	{
+	public:
+		OCDataSpeed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataSpeed(a->clone(), b->clone());
+		}
+	};
+	class OCDataNext : public BinaryOpcode
+	{
+	public:
+		OCDataNext(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataNext(a->clone(), b->clone());
+		}
+	};
+	class OCDataNextCSet : public BinaryOpcode
+	{
+	public:
+		OCDataNextCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataNextCSet(a->clone(), b->clone());
+		}
+	};
+	class OCDataFlag : public BinaryOpcode
+	{
+	public:
+		OCDataFlag(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataFlag(a->clone(), b->clone());
+		}
+	};
+	class OCDataSkipAnim : public BinaryOpcode
+	{
+	public:
+		OCDataSkipAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataSkipAnim(a->clone(), b->clone());
+		}
+	};
+	class OCDataTimer : public BinaryOpcode
+	{
+	public:
+		OCDataTimer(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataTimer(a->clone(), b->clone());
+		}
+	};
+	class OCDataAnimY : public BinaryOpcode
+	{
+	public:
+		OCDataAnimY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataAnimY(a->clone(), b->clone());
+		}
+	};
+	class OCDataAnimFlags : public BinaryOpcode
+	{
+	public:
+		OCDataAnimFlags(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataAnimFlags(a->clone(), b->clone());
+		}
+	};
+	class OCDataBlockWeapon : public UnaryOpcode
+	{
+	public:
+		OCDataBlockWeapon(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataBlockWeapon(a->clone());
+		}
+	};
+	class OCDataExpansion : public UnaryOpcode
+	{
+	public:
+		OCDataExpansion(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataExpansion(a->clone());
+		}
+	};
+	class OCDataStrikeWeapon : public UnaryOpcode
+	{
+	public:
+		OCDataStrikeWeapon(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataStrikeWeapon(a->clone());
+		}
+	};
+
+
+	class OCSetDataBlockEnemy : public BinaryOpcode
+	{
+	public:
+		OCSetDataBlockEnemy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataBlockEnemy(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataBlockHole : public BinaryOpcode
+	{
+	public:
+		OCSetDataBlockHole(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataBlockHole(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataBlockTrig : public BinaryOpcode
+	{
+	public:
+		OCSetDataBlockTrig(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataBlockTrig(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataConveyX : public BinaryOpcode
+	{
+	public:
+		OCSetDataConveyX(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataConveyX(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataConveyY : public BinaryOpcode
+	{
+	public:
+		OCSetDataConveyY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataConveyY(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataCreateNPC : public BinaryOpcode
+	{
+	public:
+		OCSetDataCreateNPC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataCreateNPC(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataCreateEnemW : public BinaryOpcode
+	{
+	public:
+		OCSetDataCreateEnemW(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataCreateEnemW(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataCreateEnemC : public BinaryOpcode
+	{
+	public:
+		OCSetDataCreateEnemC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataCreateEnemC(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataDirch : public BinaryOpcode
+	{
+	public:
+		OCSetDataDirch(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataDirch(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataDistTiles : public BinaryOpcode
+	{
+	public:
+		OCSetDataDistTiles(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataDistTiles(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataDiveItem : public BinaryOpcode
+	{
+	public:
+		OCSetDataDiveItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataDiveItem(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataAttrib : public BinaryOpcode
+	{
+	public:
+		OCSetDataAttrib(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataAttrib(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataDecoTile : public BinaryOpcode
+	{
+	public:
+		OCSetDataDecoTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataDecoTile(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataDock : public BinaryOpcode
+	{
+	public:
+		OCSetDataDock(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataDock(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataFairy : public BinaryOpcode
+	{
+	public:
+		OCSetDataFairy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataFairy(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataDecoType : public BinaryOpcode
+	{
+	public:
+		OCSetDataDecoType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataDecoType(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataHookshotGrab : public BinaryOpcode
+	{
+	public:
+		OCSetDataHookshotGrab(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataHookshotGrab(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataLockBlock : public BinaryOpcode
+	{
+	public:
+		OCSetDataLockBlock(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataLockBlock(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataLockBlockChange : public BinaryOpcode
+	{
+	public:
+		OCSetDataLockBlockChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataLockBlockChange(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataMagicMirror : public BinaryOpcode
+	{
+	public:
+		OCSetDataMagicMirror(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataMagicMirror(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataModHP : public BinaryOpcode
+	{
+	public:
+		OCSetDataModHP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataModHP(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataModHPDelay : public BinaryOpcode
+	{
+	public:
+		OCSetDataModHPDelay(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataModHPDelay(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataModHpType : public BinaryOpcode
+	{
+	public:
+		OCSetDataModHpType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataModHpType(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataModMP : public BinaryOpcode
+	{
+	public:
+		OCSetDataModMP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataModMP(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataMpdMPDelay : public BinaryOpcode
+	{
+	public:
+		OCSetDataMpdMPDelay(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataMpdMPDelay(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataModMPType : public BinaryOpcode
+	{
+	public:
+		OCSetDataModMPType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataModMPType(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataNoPush : public BinaryOpcode
+	{
+	public:
+		OCSetDataNoPush(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataNoPush(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataOverhead : public BinaryOpcode
+	{
+	public:
+		OCSetDataOverhead(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataOverhead(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataEnemyLoc : public BinaryOpcode
+	{
+	public:
+		OCSetDataEnemyLoc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataEnemyLoc(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataPushDir : public BinaryOpcode
+	{
+	public:
+		OCSetDataPushDir(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataPushDir(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataPushWeight : public BinaryOpcode
+	{
+	public:
+		OCSetDataPushWeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataPushWeight(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataPushWait : public BinaryOpcode
+	{
+	public:
+		OCSetDataPushWait(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataPushWait(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataPushed : public BinaryOpcode
+	{
+	public:
+		OCSetDataPushed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataPushed(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataRaft : public BinaryOpcode
+	{
+	public:
+		OCSetDataRaft(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataRaft(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataResetRoom : public BinaryOpcode
+	{
+	public:
+		OCSetDataResetRoom(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataResetRoom(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataSavePoint : public BinaryOpcode
+	{
+	public:
+		OCSetDataSavePoint(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataSavePoint(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataFreeezeScreen : public BinaryOpcode
+	{
+	public:
+		OCSetDataFreeezeScreen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataFreeezeScreen(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataSecretCombo : public BinaryOpcode
+	{
+	public:
+		OCSetDataSecretCombo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataSecretCombo(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataSingular : public BinaryOpcode
+	{
+	public:
+		OCSetDataSingular(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataSingular(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataSlowMove : public BinaryOpcode
+	{
+	public:
+		OCSetDataSlowMove(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataSlowMove(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataStatue : public BinaryOpcode
+	{
+	public:
+		OCSetDataStatue(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataStatue(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataStepType : public BinaryOpcode
+	{
+	public:
+		OCSetDataStepType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataStepType(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataSteoChange : public BinaryOpcode
+	{
+	public:
+		OCSetDataSteoChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataSteoChange(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataStrikeRem : public BinaryOpcode
+	{
+	public:
+		OCSetDataStrikeRem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataStrikeRem(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataStrikeRemType : public BinaryOpcode
+	{
+	public:
+		OCSetDataStrikeRemType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataStrikeRemType(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataStrikeChange : public BinaryOpcode
+	{
+	public:
+		OCSetDataStrikeChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataStrikeChange(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataStrikeChangeItem : public BinaryOpcode
+	{
+	public:
+		OCSetDataStrikeChangeItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataStrikeChangeItem(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataTouchItem : public BinaryOpcode
+	{
+	public:
+		OCSetDataTouchItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataTouchItem(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataTouchStairs : public BinaryOpcode
+	{
+	public:
+		OCSetDataTouchStairs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataTouchStairs(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataTriggerType : public BinaryOpcode
+	{
+	public:
+		OCSetDataTriggerType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataTriggerType(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataTriggerSens : public BinaryOpcode
+	{
+	public:
+		OCSetDataTriggerSens(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataTriggerSens(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataWarpType : public BinaryOpcode
+	{
+	public:
+		OCSetDataWarpType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataWarpType(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataWarpSens : public BinaryOpcode
+	{
+	public:
+		OCSetDataWarpSens(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataWarpSens(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataWarpDirect : public BinaryOpcode
+	{
+	public:
+		OCSetDataWarpDirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataWarpDirect(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataWarpLoc : public BinaryOpcode
+	{
+	public:
+		OCSetDataWarpLoc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataWarpLoc(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataWater : public BinaryOpcode
+	{
+	public:
+		OCSetDataWater(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataWater(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataWhistle : public BinaryOpcode
+	{
+	public:
+		OCSetDataWhistle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataWhistle(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataWeapBlockLevel : public BinaryOpcode
+	{
+	public:
+		OCSetDataWeapBlockLevel(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataWeapBlockLevel(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataTile : public BinaryOpcode
+	{
+	public:
+		OCSetDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataTile(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataFlip : public BinaryOpcode
+	{
+	public:
+		OCSetDataFlip(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataFlip(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataWalkability : public BinaryOpcode
+	{
+	public:
+		OCSetDataWalkability(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataWalkability(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataType : public BinaryOpcode
+	{
+	public:
+		OCSetDataType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataType(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataCSets : public BinaryOpcode
+	{
+	public:
+		OCSetDataCSets(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataCSets(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataFoo : public BinaryOpcode
+	{
+	public:
+		OCSetDataFoo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataFoo(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataFrames : public BinaryOpcode
+	{
+	public:
+		OCSetDataFrames(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataFrames(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataSpeed : public BinaryOpcode
+	{
+	public:
+		OCSetDataSpeed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataSpeed(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataNext : public BinaryOpcode
+	{
+	public:
+		OCSetDataNext(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataNext(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataNextCSet : public BinaryOpcode
+	{
+	public:
+		OCSetDataNextCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataNextCSet(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataFlag : public BinaryOpcode
+	{
+	public:
+		OCSetDataFlag(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataFlag(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataSkipAnim : public BinaryOpcode
+	{
+	public:
+		OCSetDataSkipAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataSkipAnim(a->clone(), b->clone());
+		}
+	};
+
+	class OCDataLadderPass : public BinaryOpcode
+	{
+	public:
+		OCDataLadderPass(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCDataLadderPass(a->clone(), b->clone());
+		}
+	};
+
+	class OCSetDataLadderPass : public BinaryOpcode
+	{
+	public:
+		OCSetDataLadderPass(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataLadderPass(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataTimer : public BinaryOpcode
+	{
+	public:
+		OCSetDataTimer(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataTimer(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataAnimY : public BinaryOpcode
+	{
+	public:
+		OCSetDataAnimY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataAnimY(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataAnimFlags : public BinaryOpcode
+	{
+	public:
+		OCSetDataAnimFlags(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataAnimFlags(a->clone(), b->clone());
+		}
+	};
+	class OCSetDataBlockWeapon : public UnaryOpcode
+	{
+	public:
+		OCSetDataBlockWeapon(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataBlockWeapon(a->clone());
+		}
+	};
+	class OCSetDataExpansion : public UnaryOpcode
+	{
+	public:
+		OCSetDataExpansion(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataExpansion(a->clone());
+		}
+	};
+	class OCSetDataStrikeWeapon : public UnaryOpcode
+	{
+	public:
+		OCSetDataStrikeWeapon(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataStrikeWeapon(a->clone());
+		}
+	};
+
+	class OCSetDataWinGame : public BinaryOpcode
+	{
+	public:
+		OCSetDataWinGame(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OCSetDataWinGame(a->clone(), b->clone());
+		}
+	};
+
+	//SpriteData
+	class OSDataTile : public BinaryOpcode
+	{
+	public:
+		OSDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSDataTile(a->clone(), b->clone());
+		}
+	};
+
+	class OSDataMisc : public BinaryOpcode
+	{
+	public:
+		OSDataMisc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSDataMisc(a->clone(), b->clone());
+		}
+	};
+
+	class OSDataCSets : public BinaryOpcode
+	{
+	public:
+		OSDataCSets(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSDataCSets(a->clone(), b->clone());
+		}
+	};
+
+	class OSDataFrames : public BinaryOpcode
+	{
+	public:
+		OSDataFrames(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSDataFrames(a->clone(), b->clone());
+		}
+	};
+
+	class OSDataSpeed : public BinaryOpcode
+	{
+	public:
+		OSDataSpeed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSDataSpeed(a->clone(), b->clone());
+		}
+	};
+	class OSDataType : public BinaryOpcode
+	{
+	public:
+		OSDataType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSDataType(a->clone(), b->clone());
+		}
+	};
+
+	class OSSetDataTile : public BinaryOpcode
+	{
+	public:
+		OSSetDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSSetDataTile(a->clone(), b->clone());
+		}
+	};
+
+	class OSSetDataMisc : public BinaryOpcode
+	{
+	public:
+		OSSetDataMisc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSSetDataMisc(a->clone(), b->clone());
+		}
+	};
+
+	class OSSetDataCSets : public BinaryOpcode
+	{
+	public:
+		OSSetDataCSets(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSSetDataCSets(a->clone(), b->clone());
+		}
+	};
+
+	class OSSetDataFrames : public BinaryOpcode
+	{
+	public:
+		OSSetDataFrames(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSSetDataFrames(a->clone(), b->clone());
+		}
+	};
+
+	class OSSetDataSpeed : public BinaryOpcode
+	{
+	public:
+		OSSetDataSpeed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSSetDataSpeed(a->clone(), b->clone());
+		}
+	};
+	class OSSetDataType : public BinaryOpcode
+	{
+	public:
+		OSSetDataType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSSetDataType(a->clone(), b->clone());
+		}
+	};
+
+	//Continue Screen
+
+
+	class OSSetContinueScreen : public BinaryOpcode
+	{
+	public:
+		OSSetContinueScreen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSSetContinueScreen(a->clone(), b->clone());
+		}
+	};
+	class OSSetContinueString : public BinaryOpcode
+	{
+	public:
+		OSSetContinueString(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OSSetContinueString	(a->clone(), b->clone());
+		}
+	};
+
+	//Visual effects with one bool input
+
+
+	class OWavyR : public UnaryOpcode
+	{
+	public:
+		OWavyR(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OWavyR(a->clone());
+		}
+	};
+
+	class OZapR : public UnaryOpcode
+	{
+	public:
+		OZapR(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OZapR(a->clone());
+		}
+	};
+
+	class OGreyscaleR : public UnaryOpcode
+	{
+	public:
+		OGreyscaleR(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGreyscaleR(a->clone());
+		}
+	};
+}
 
 #endif
 

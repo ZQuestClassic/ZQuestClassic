@@ -65,9 +65,9 @@ extern YYLTYPE noloc;
 %}
 
 %code requires {
-	class ASTFile;
 	namespace ZScript
 	{
+		class ASTFile;
 		ASTFile* parseFile(std::string const& filename);
 	};
 }

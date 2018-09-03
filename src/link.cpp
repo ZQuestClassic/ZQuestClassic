@@ -449,17 +449,23 @@ void LinkClass::setZ(int new_z)
         switch(action)
         {
         case swimming:
+	{
             diveclk=0;
             action=walking; FFCore.setLinkAction(walking);
             break;
+	}
             
         case waterhold1:
+	{
             action=landhold1; FFCore.setLinkAction(landhold1);
             break;
+	}
             
         case waterhold2:
+	{
             action=landhold2; FFCore.setLinkAction(landhold2);
             break;
+	}
             
         default:
             if(charging)
@@ -3120,10 +3126,14 @@ void LinkClass::checkhit()
     }
     
     if(hclk<39 && action==gothit)
+    {
         action=none; FFCore.setLinkAction(none);
+    }
         
     if(hclk<39 && action==swimhit)
+    {
         action=swimming; FFCore.setLinkAction(swimming);
+    }
         
     if(hclk>=40 && action==gothit)
     {
@@ -3970,17 +3980,23 @@ bool LinkClass::animate(int)
             switch(action)
             {
             case swimming:
+	    {
                 diveclk=0;
                 action=walking; FFCore.setLinkAction(walking);
+		    
                 break;
-                
+	    }
             case waterhold1:
+	    {
                 action=landhold1; FFCore.setLinkAction(landhold1);
                 break;
+	    }
                 
             case waterhold2:
+	    {
                 action=landhold2; FFCore.setLinkAction(landhold2);
                 break;
+	    }
                 
             default:
                 break;
@@ -4353,6 +4369,7 @@ bool LinkClass::animate(int)
         break;
         
     case drowning:
+    {
         linkstep(); // maybe this line should be elsewhere?
         
         if(--drownclk==0)
@@ -4367,22 +4384,24 @@ bool LinkClass::animate(int)
         }
         
         break;
-        
+    }  
     case swimhit:
     case freeze:
     case scrolling:
         break;
         
     case casting:
+    {
         if(magicitem==-1)
         {
             action=none; FFCore.setLinkAction(none);
         }
         
         break;
-        
+    }
     case landhold1:
     case landhold2:
+    {
         if(--holdclk <= 0)
         {
             //restart music
@@ -4395,9 +4414,10 @@ bool LinkClass::animate(int)
             freeze_guys=true;
             
         break;
-        
+    }
     case waterhold1:
     case waterhold2:
+    {
         diveclk=0;
         
         if(--holdclk <= 0)
@@ -4412,8 +4432,9 @@ bool LinkClass::animate(int)
             freeze_guys=true;
             
         break;
-        
+    }
     case hopping:
+    {
         if(DRIEDLAKE)
         {
             action=none; FFCore.setLinkAction(none);
@@ -4424,7 +4445,7 @@ bool LinkClass::animate(int)
         
         do_hopping();
         break;
-        
+    }
     case inwind:
     {
         int i=Lwpns.idFirst(wWind);
@@ -4470,6 +4491,7 @@ bool LinkClass::animate(int)
     break;
     
     case swimming:
+	    
         if(DRIEDLAKE)
         {
             action=none; FFCore.setLinkAction(none);
@@ -6361,8 +6383,10 @@ void LinkClass::do_rafting()
                     dir=right;
                 else if((isRaftFlag(nextflag(x,y,left,false))||isRaftFlag(nextflag(x,y,left,true))))
                     dir=left;
-                else if(y>0 && y<160)
+                else if(y>0 && y<160) 
+		{
                     action=none; FFCore.setLinkAction(none);
+		}
             }
             else //going left or right
             {
@@ -6371,7 +6395,9 @@ void LinkClass::do_rafting()
                 else if((isRaftFlag(nextflag(x,y,up,false))||isRaftFlag(nextflag(x,y,up,true))))
                     dir=up;
                 else if(x>0 && x<240)
+		{
                     action=none; FFCore.setLinkAction(none);
+		}
             }
         }
     }
@@ -8149,7 +8175,9 @@ void LinkClass::move(int d2)
         
         //ack... don't walk if in midair! -DD
         if(charging==0 && spins==0 && z==0 && !(isSideview() && !ON_SIDEPLATFORM))
+	{
             action=walking; FFCore.setLinkAction(walking);
+	}
             
         if(++link_count > (16*link_animation_speed))
             link_count=0;
@@ -11591,7 +11619,9 @@ bool LinkClass::dowarp(int type, int index)
             action=swimming; FFCore.setLinkAction(swimming);
         }
         else
+	{
             action=none; FFCore.setLinkAction(none);
+	}
             
         //preloaded freeform combos
         ffscript_engine(true);

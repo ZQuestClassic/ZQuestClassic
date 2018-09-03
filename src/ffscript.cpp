@@ -8013,7 +8013,7 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         break;
     case GAMEMISC:
     {
-	int indx = ri->d[0]/10000/10000;
+	int indx = ri->d[0]/10000;
 	if ( indx < 0 || indx > 31 )
 	{
 		Z_scripterrlog("Invalud index used to access Game->Misc: %d\n", indx);
@@ -11596,8 +11596,11 @@ void do_getscreennpc()
 void do_isvaliditem()
 {
     long IID = get_register(sarg1);
-    
+    //int ct = items.Count();
+  
+    //for ( int j = items.Count()-1; j >= 0; --j )
     for(int j = 0; j < items.Count(); j++)
+    //for(int j = 0; j < ct; j++)
         if(items.spr(j)->getUID() == IID)
         {
             set_register(sarg1, 10000);
@@ -11610,8 +11613,11 @@ void do_isvaliditem()
 void do_isvalidnpc()
 {
     long UID = get_register(sarg1);
-    
+    //for ( int j = guys.Count()-1; j >= 0; --j )
+    //int ct = guys.Count(); 
+   
     for(int j = 0; j < guys.Count(); j++)
+    //for(int j = 0; j < ct; j++)
         if(guys.spr(j)->getUID() == UID)
         {
             set_register(sarg1, 10000);
@@ -11624,8 +11630,11 @@ void do_isvalidnpc()
 void do_isvalidlwpn()
 {
     long WID = get_register(sarg1);
+	//int ct = Lwpns.Count();
     
+    //for ( int j = Lwpns.Count()-1; j >= 0; --j )
     for(int j = 0; j < Lwpns.Count(); j++)
+    //for(int j = 0; j < ct; j++)
         if(Lwpns.spr(j)->getUID() == WID)
         {
             set_register(sarg1, 10000);
@@ -11638,8 +11647,11 @@ void do_isvalidlwpn()
 void do_isvalidewpn()
 {
     long WID = get_register(sarg1);
-    
+   // int ct = Ewpns.Count();
+   
+   // for ( int j = Ewpns.Count()-1; j >= 0; --j )
     for(int j = 0; j < Ewpns.Count(); j++)
+    //for(int j = 0; j < ct; j++)
         if(Ewpns.spr(j)->getUID() == WID)
         {
             set_register(sarg1, 10000);
@@ -11747,6 +11759,7 @@ void do_loaditem(const bool v)
     }
 }
 
+
 void do_loaditemdata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
@@ -11771,6 +11784,39 @@ void do_loadnpc(const bool v)
         //Z_eventlog("Script loaded NPC with UID = %ld\n", ri->guyref);
     }
 }
+
+/* script_UID is not yet part of sprite class. 
+
+void FFScript::do_loaditem_by_script_uid(const bool v)
+{
+	long sUID = SH::get_arg(sarg1, v) / 10000; //script UID
+	for(int j = 0; j < items.Count(); j++)
+        if(items.spr(j)->script_UID == sUID)
+        {
+            ri->itemref = items.spr(j)->getUID();
+	    return;
+        }
+	ri->itemref = LONG_MAX;
+	//error here.
+	//Z_eventlog("Script loaded NPC with UID = %ld\n", ri->guyref);
+}
+
+void FFScript::do_loadnpc_by_script_uid(const bool v)
+{
+	long sUID = SH::get_arg(sarg1, v) / 10000; //script UID
+	//int ct = guys.Count();
+	for(int j = 0; j < guys.Count(); j++)
+        if(guys.spr(j)->script_UID == sUID)
+        {
+            ri->guyref = guys.spr(j)->getUID();
+	    return;
+        }
+	ri->guyref = LONG_MAX;
+	//error here.
+	//Z_eventlog("Script loaded NPC with UID = %ld\n", ri->guyref);
+}
+
+*/
 
 void FFScript::do_loaddmapdata(const bool v)
 {
@@ -12376,6 +12422,22 @@ void do_sfx(const bool v)
     sfx(ID);
 }
 
+int FFScript::do_get_internal_uid_npc(int index)
+{
+	return ((int)guys.spr(index)->getUID());
+}
+int FFScript::do_get_internal_uid_item(int index)
+{
+	return ((int)items.spr(index)->getUID());
+}
+int FFScript::do_get_internal_uid_lweapon(int index)
+{
+	return ((int)Lwpns.spr(index)->getUID());
+}
+int FFScript::do_get_internal_uid_eweapon(int index)
+{
+	return ((int)Ewpns.spr(index)->getUID());
+}
 
 void FFScript::do_adjustvolume(const bool v)
 {
