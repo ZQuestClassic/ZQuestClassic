@@ -1643,6 +1643,7 @@ int init_game()
     Link.init();
     Link.resetflags(true);
     Link.setEntryPoints(LinkX(),LinkY());
+    Link.setDontDraw(true);
     
     copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
     loadfullpal();
@@ -1711,7 +1712,7 @@ int init_game()
     
     reset_subscr_items();
     
-    Link.setDontDraw(false);
+    
     show_subscreen_dmap_dots=true;
     show_subscreen_items=true;
     show_subscreen_numbers=true;
@@ -1733,7 +1734,7 @@ int init_game()
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
     }
     
-    
+    Link.setDontDraw(false);
     openscreen();
     show_subscreen_numbers=true;
     show_subscreen_life=true;
@@ -2853,6 +2854,7 @@ bool isMonochrome(){
 	return monochrome;
 }
 
+
 void setMonochrome(bool v){
 	if ( v && !monochrome ) { 
 		
@@ -2885,6 +2887,7 @@ void setMonochrome(bool v){
 		monochrome = false; 
 	}
 }
+
 
 
 /**************************/

@@ -792,6 +792,7 @@ int LinkClass::getSpecialCave()
 void LinkClass::init()
 {
     setMonochrome(false);
+	dontdraw = true;
     hookshot_used=false;
     hookshot_frozen=false;
     dir = up;
@@ -865,7 +866,7 @@ void LinkClass::init()
 	preventsubscreenfalling = false;  //-Z
 	hurtsfx = 19; //getHurtSFX(); //Set the default sound. 
 	flickerorflash = true; //flicker or flash unless disabled externally.
-	
+	walkspeed = 0; //not used, yet. -Z
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][0] = 0; 
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][1] = 0; 
 	for ( int q = 0; q < wMax; q++ ) defence[q] = 0; //we will need to have a Link section in the quest load/save code! -Z
