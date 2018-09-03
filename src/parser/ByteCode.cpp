@@ -9,6 +9,8 @@
 #include <iostream>
 #include <cstdlib>
 
+using namespace ZScript;
+
 string LiteralArgument::toString()
 {
     char temp[128];

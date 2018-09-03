@@ -7,22 +7,26 @@
 #include "CompilerUtils.h"
 #include "CompileOption.h"
 
-class CompileErrorHandler;
-
-// Forward declarations from AST.h
-class AST;
-
 namespace ZScript
 {
-	// Forward declarations from ZScript.h
+	////////////////////////////////////////////////////////////////
+	// Forward Declarations
+	
+	// AST.h
+	class AST;
+
+	// CompileError.h
+	class CompileErrorHandler;
+	
+	// Types.h
+	class DataType;
+	class TypeStore;
+
+	// ZScript.h
 	class Script;
 	class Datum;
 	class Function;
 	class FunctionSignature;
-
-	// Forward declarations from Types.h
-	class DataType;
-	class TypeStore;
 
 	// Local forward declarations
 	class ZClass;
@@ -31,6 +35,8 @@ namespace ZScript
 	class ScriptScope;
 	class FunctionScope;
 
+	////////////////////////////////////////////////////////////////
+	
 	class Scope : private NoCopy
 	{
 		// So Datum classes can only be generated in tandem with a scope.

@@ -42,7 +42,7 @@ void ScriptParser::initialize()
 	CompileOption::initialize();
 }
 
-ScriptsData* compile(string const& filename)
+ScriptsData* ZScript::compile(string const& filename)
 {
     ScriptParser::initialize();
 
