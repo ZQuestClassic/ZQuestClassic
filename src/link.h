@@ -438,7 +438,7 @@ public:
 	
 	
 	int getLastLensID();	
-	int setLastLensID(int p_item);
+	void setLastLensID(int p_item);
 };
 
 bool isRaftFlag(int flag);

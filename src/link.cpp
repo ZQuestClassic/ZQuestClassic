@@ -5967,7 +5967,7 @@ bool isRaftFlag(int flag)
 void do_lens()
 {
     int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
-	setLastLensID(itemid);
+	Link.setLastLensID(itemid);
     if(itemid<0)
         return;
         
