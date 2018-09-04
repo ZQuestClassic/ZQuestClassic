@@ -15677,8 +15677,12 @@ void LinkClass::gameover()
             
             if(f>=194 && f<208)
             {
-                if(f==194)
-                    action=dying; FFCore.setLinkAction(dying);
+			if(f>=194 && f<208)
+				if(f==194)
+				{
+					action=dying;
+					FFCore.setLinkAction(dying);
+				}
                     
                 extend = 0;
                 cs = wpnsbuf[iwDeath].csets&15;
