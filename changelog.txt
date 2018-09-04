@@ -2,12 +2,48 @@
 
 //2.55 Alpha 1 (Candidates)
 
+//2.55 Preliminary 9
+
+Fixed Link->Action[dying] being set at the incorrect frame during Link.gameover(). 
+	( grayswandir, 4th September, 2018 )
+	
+Fixed issues with ZScript namespace compiling on MSVC. 
+ ( grayswandir, 3rd September, 2018 )
+ 
+Fixed Link being drawn before running the OnContinue script. 
+Fixed various issues with Link->Action being set improperly. 
+Fix Lens of Truth showing all new combo flags as secrets.
+Fix Greyscale modes causing inproper writes of CSet6 colours to other CSets. 
+	( ZoriaRPG, 3rd September, 2018 )
+	
+Moved ZScript into its own namespace.
+	( grayswandir, 2nd September, 2018 )
+	
+Fixed Game->Misc[] not working on array indices higher than 0. 
+	( ZoriaRPG, 2nd September, 2018 )
+	
+Added a nop to switch statements, to fix while and other loops in switch statements. 
+Directly assigning string and array literals now works regardless of
+the declaration type.
+	( grayswandir, 1st September, 2018 )
+	
+Added constants for GetScreenEFlags()
+	( venrob, 31st August, 2018 )
+	
+
 //2.55 Preliminary 8
 
 Fixed issues with global array pointers.
 	( grayswandir, 31st August, 2018 )
 
-Further optimised string_functions.zh. 
+Further refactor string.zh for performance.
+Corrected value for DIR16_RADS_RIGHTRIGHTUP. 
+Added additional defence types and outcomes to NPCD_* and NPCDT_*. ( ZoriaRPG, 31st August, 2018 )
+	( ZoriaRPG, 31st August, 2018 )
+
+Added NPCD_Scriptweapon types to std_constants. 
+	( Venrob, 30th August, 2018 )
+
 
 Fix crash when using Game->Misc[] and shopdata. ( ZoriaRPG, 31st August, 2018 )
 Fix Link->Misc multiplying/diving by 10000. ( ZoriaRPG, 30th August, 2018 )
