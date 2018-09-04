@@ -31,6 +31,7 @@
 #include "title.h"
 #include "ffscript.h"
 extern FFScript FFCore;
+extern LinkClass Link;
 #include "mem_debug.h"
 #include "zscriptversion.h"
 
