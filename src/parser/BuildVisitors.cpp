@@ -28,8 +28,8 @@ void BuildOpcodes::visit(AST& node, void* param)
 		ASTExpr& idNode = **it;
 		optional<long> errorId = idNode.getCompileTimeValue();
 		assert(errorId);
-		handleError(CompileError::MissingCompileError, &node,
-					int(*errorId / 10000L));
+		handleError(CompileError::MissingCompileError(
+				            &node, int(*errorId / 10000L)));
 	}
 }
 
@@ -346,7 +346,7 @@ void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 {
     if (breaklabelid == -1)
     {
-        handleError(CompileError::BreakBad, &host);
+	    handleError(CompileError::BreakBad(&host));
         return;
     }
 
@@ -358,7 +358,7 @@ void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *)
 {
     if (continuelabelid == -1)
     {
-        handleError(CompileError::ContinueBad, &host);
+	    handleError(CompileError::ContinueBad(&host));
         return;
     }
 
@@ -444,7 +444,7 @@ void BuildOpcodes::buildArrayUninit(
 	// Right now, don't support nested arrays.
 	if (host.extraArrays.size() != 1)
 	{
-		handleError(CompileError::DimensionMismatch, &host);
+		handleError(CompileError::DimensionMismatch(&host));
 		return;
 	}
 
@@ -454,7 +454,8 @@ void BuildOpcodes::buildArrayUninit(
 		totalSize = *size * 10000L;
 	else
 	{
-		handleError(CompileError::ExprNotConstant, host.extraArrays[0]);
+		handleError(
+				CompileError::ExprNotConstant(host.extraArrays[0]));
 		return;
 	}
 
@@ -1075,8 +1076,8 @@ void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
         pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue());
 
         if (!val.second)
-            handleError(CompileError::ConstTrunc, &host,
-						host.value->value);
+	        handleError(CompileError::ConstTrunc(
+			                    &host, host.value->value));
 
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val.first)));
     }
@@ -1110,7 +1111,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 			size = *totalSize;
 		else if (extraArray.hasSize())
 		{
-			handleError(CompileError::ExprNotConstant, &host);
+			handleError(CompileError::ExprNotConstant(&host));
 			return;
 		}
 	}
@@ -1121,7 +1122,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 	// Make sure the chosen size has enough space.
 	if (size < int(data.size() + 1))
 	{
-		handleError(CompileError::ArrayListTooLarge, &host);
+		handleError(CompileError::ArrayListStringTooLarge(&host));
 		return;
 	}
 
@@ -1247,7 +1248,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 			size = *totalSize;
 		else if (extraArray.hasSize())
 		{
-			handleError(CompileError::ExprNotConstant, &host);
+			handleError(CompileError::ExprNotConstant(&host));
 			return;
 		}
 	}
@@ -1258,7 +1259,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	// Make sure the chosen size has enough space.
 	if (size < int(host.elements.size()))
 	{
-		handleError(CompileError::ArrayListTooLarge, &host);
+		handleError(CompileError::ArrayListTooLarge(&host));
 		return;
 	}
 
@@ -1315,7 +1316,7 @@ void BuildOpcodes::arrayLiteralFree(
 			size = *s / 10000L;
 		else
 		{
-			handleError(CompileError::ExprNotConstant, host.size);
+			handleError(CompileError::ExprNotConstant(host.size));
 			return;
 		}
 	}
@@ -1326,7 +1327,7 @@ void BuildOpcodes::arrayLiteralFree(
 	// Make sure the chosen size has enough space.
 	if (size < int(host.elements.size()))
 	{
-		handleError(CompileError::ArrayListTooLarge, &host);
+		handleError(CompileError::ArrayListTooLarge(&host));
 		return;
 	}
 

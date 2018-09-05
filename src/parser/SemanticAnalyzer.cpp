@@ -112,7 +112,7 @@ void SemanticAnalyzer::caseSetOption(ASTSetOption& host, void*)
 	// Make sure the option is valid.
 	if (!host.option.isValid())
 	{
-		handleError(CompileError::UnknownOption, &host, host.name.c_str());
+		handleError(CompileError::UnknownOption(&host, host.name));
 		return;
 	}
 
@@ -173,17 +173,16 @@ void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
 
 void SemanticAnalyzer::caseStmtWhile(ASTStmtWhile& host, void*)
 {
-    RecursiveVisitor::caseStmtWhile(host);
-    if (breakRecursion(host)) return;
+	RecursiveVisitor::caseStmtWhile(host);
+	if (breakRecursion(host)) return;
 
 	checkCast(*host.test->getReadType(), DataType::BOOL, &host);
 }
 
 void SemanticAnalyzer::caseStmtReturn(ASTStmtReturn& host, void*)
 {
-    if (*returnType != DataType::ZVOID)
-	    handleError(CompileError::FuncBadReturn, &host,
-	                returnType->getName().c_str());
+	if (*returnType != DataType::ZVOID)
+		handleError(CompileError::FuncBadReturn(&host));
 }
 
 void SemanticAnalyzer::caseStmtReturnVal(ASTStmtReturnVal& host, void*)
@@ -202,8 +201,7 @@ void SemanticAnalyzer::caseTypeDef(ASTTypeDef& host, void*)
 	DataType const& type = host.type->resolve(*scope);
 	if (!type.isResolved())
 	{
-		handleError(CompileError::UnresolvedType, &host,
-		            type.getName().c_str());
+		handleError(CompileError::UnresolvedType(&host, type.getName()));
 		return;
 	}
 
@@ -217,23 +215,21 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 	DataType const& baseType = host.baseType->resolve(*scope);
 	if (!baseType.isResolved())
 	{
-		handleError(CompileError::UnresolvedType, &host,
-		            baseType.getName().c_str());
+		handleError(CompileError::UnresolvedType(&host, baseType.getName()));
 		return;
 	}
 
 	// Don't allow void type.
 	if (baseType == DataType::ZVOID)
 	{
-		handleError(CompileError::VoidVar, &host);
+		handleError(CompileError::VoidVar(&host, host.asString()));
 		return;
 	}
 
 	// Check for disallowed global types.
 	if (scope->isGlobal() && !baseType.canBeGlobal())
 	{
-		handleError(CompileError::RefVar, &host,
-		            baseType.getName().c_str());
+		handleError(CompileError::RefVar(&host, baseType.getName()));
 		return;
 	}
 
@@ -251,31 +247,30 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	DataType const& type = *host.resolveType(scope);
 	if (!type.isResolved())
 	{
-		handleError(CompileError::UnresolvedType, &host,
-		            type.getName().c_str());
+		handleError(CompileError::UnresolvedType(&host, type.getName()));
 		return;
 	}
 
 	// Don't allow void type.
 	if (type == DataType::ZVOID)
 	{
-		handleError(CompileError::VoidVar, &host, host.name.c_str());
+		handleError(CompileError::VoidVar(&host, host.name));
 		return;
 	}
 
 	// Check for disallowed global types.
 	if (scope->isGlobal() && !type.canBeGlobal())
 	{
-		handleError(CompileError::RefVar, &host,
-		            (type.getName() + " " + host.name).c_str());
+		handleError(CompileError::RefVar(
+				            &host, type.getName() + " " + host.name));
 		return;
 	}
 
 	// Currently disabled syntaxes:
 	if (getArrayDepth(type) > 1)
 	{
-		handleError(CompileError::UnimplementedFeature, &host,
-		            "Nested Array Declarations");
+		handleError(CompileError::UnimplementedFeature(
+				            &host, "Nested Array Declarations"));
 		return;
 	}
 
@@ -286,7 +281,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		// A constant without an initializer doesn't make sense.
 		if (!host.initializer())
 		{
-			handleError(CompileError::ConstUninitialized, &host);
+			handleError(CompileError::ConstUninitialized(&host));
 			return;
 		}
 
@@ -298,7 +293,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	{
 		if (scope->getLocalDatum(host.name))
 		{
-			handleError(CompileError::VarRedef, &host, host.name.c_str());
+			handleError(CompileError::VarRedef(&host, host.name));
 			return;
 		}
 		
@@ -310,7 +305,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	{
 		if (scope->getLocalDatum(host.name))
 		{
-			handleError(CompileError::VarRedef, &host, host.name.c_str());
+			handleError(CompileError::VarRedef(&host, host.name));
 			return;
 		}
 
@@ -319,7 +314,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 
 	// Special message for deprecated global variables.
 	if (scope->varDeclsDeprecated)
-		handleError(CompileError::DeprecatedGlobal, &host, host.name.c_str());
+		handleError(CompileError::DeprecatedGlobal(&host, host.name));
 
 	// Check the initializer.
 	if (host.initializer())
@@ -349,14 +344,14 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 		// Make sure each size can cast to float.
 		if (!size.getReadType()->canCastTo(DataType::FLOAT))
 		{
-			handleError(CompileError::NonIntegerArraySize, &host);
+			handleError(CompileError::NonIntegerArraySize(&host));
 			return;
 		}
 
 		// Make sure that the size is constant.
 		if (!size.getCompileTimeValue(this))
 		{
-			handleError(CompileError::ExprNotConstant, &host);
+			handleError(CompileError::ExprNotConstant(&host));
 			return;
 		}
 	}
@@ -368,8 +363,8 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 	DataType const& returnType = host.returnType->resolve(*scope);
 	if (!returnType.isResolved())
 	{
-		handleError(CompileError::UnresolvedType, &host,
-		            returnType.getName().c_str());
+		handleError(
+				CompileError::UnresolvedType(&host, returnType.getName()));
 		return;
 	}
 
@@ -385,16 +380,14 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		DataType const& type = *decl.resolveType(scope);
 		if (!type.isResolved())
 		{
-			handleError(CompileError::UnresolvedType, &decl,
-			            type.getName().c_str());
+			handleError(CompileError::UnresolvedType(&decl, type.getName()));
 			return;
 		}
 
 		// Don't allow void params.
 		if (type == DataType::ZVOID)
 		{
-			handleError(CompileError::FunctionVoidParam, &decl,
-			            decl.name.c_str());
+			handleError(CompileError::FunctionVoidParam(&decl, decl.name));
 			return;
 		}
 
@@ -409,7 +402,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 	// that name.
 	if (function == NULL)
 	{
-		handleError(CompileError::FunctionRedef, &host, host.name.c_str());
+		handleError(CompileError::FunctionRedef(&host, host.name));
 		return;
 	}
 
@@ -432,17 +425,17 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 		script.getScope().getLocalFunctions("run");
 	if (possibleRuns.size() == 0)
 	{
-		handleError(CompileError::ScriptNoRun, &host, name.c_str());
+		handleError(CompileError::ScriptNoRun(&host, name));
 		if (breakRecursion(host)) return;
 	}
 	if (possibleRuns.size() > 1)
 	{
-		handleError(CompileError::TooManyRun, &host, name.c_str());
+		handleError(CompileError::TooManyRun(&host, name));
 		if (breakRecursion(host)) return;
 	}
 	if (*possibleRuns[0]->returnType != DataType::ZVOID)
 	{
-		handleError(CompileError::ScriptRunNotVoid, &host, name.c_str());
+		handleError(CompileError::ScriptRunNotVoid(&host, name));
 		if (breakRecursion(host)) return;
 	}
 }
@@ -456,7 +449,7 @@ void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)
 
 	if (!host.getCompileTimeValue())
 	{
-		handleError(CompileError::ExprNotConstant, &host);
+		handleError(CompileError::ExprNotConstant(&host));
 		return;
 	}
 }
@@ -476,7 +469,7 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 	if (breakRecursion(host)) return;	
 
 	if (ltype == DataType::CONST_FLOAT)
-		handleError(CompileError::ConstAssign, &host);
+		handleError(CompileError::LValConst(&host, host.left->asString()));
 	if (breakRecursion(host)) return;	
 }
 
@@ -487,8 +480,7 @@ void SemanticAnalyzer::caseExprIdentifier(
 	host.binding = lookupDatum(*scope, host.components);
 	if (!host.binding)
 	{
-		handleError(CompileError::VarUndeclared, &host,
-		            host.asString().c_str());
+		handleError(CompileError::VarUndeclared(&host, host.asString()));
 		return;
 	}
 
@@ -497,8 +489,7 @@ void SemanticAnalyzer::caseExprIdentifier(
 	{
 		if (host.binding->type == DataType::CONST_FLOAT)
 		{
-			handleError(CompileError::LValConst, &host,
-						host.asString().c_str());
+			handleError(CompileError::LValConst(&host, host.asString()));
 			return;
 		}
 	}
@@ -515,7 +506,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		    &getNaiveType(*host.left->getReadType()));
     if (!leftType)
 	{
-		handleError(CompileError::ArrowNotPointer, &host);
+		handleError(CompileError::ArrowNotPointer(&host));
         return;
 	}
 	host.leftClass = program.getTypeStore().getClass(leftType->getClassId());
@@ -526,15 +517,19 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		host.readFunction = lookupGetter(*host.leftClass, host.right);
 		if (!host.readFunction)
 		{
-			handleError(CompileError::ArrowNoVar, &host,
-						(host.right + (host.index ? "[]" : "")).c_str());
+			handleError(
+					CompileError::ArrowNoVar(
+							&host,
+							host.right + (host.index ? "[]" : "")));
 			return;
 		}
 		vector<DataType const*>& paramTypes = host.readFunction->paramTypes;
 		if (paramTypes.size() != (host.index ? 2 : 1) || *paramTypes[0] != *leftType)
 		{
-			handleError(CompileError::ArrowNoVar, &host,
-						(host.right + (host.index ? "[]" : "")).c_str());
+			handleError(
+					CompileError::ArrowNoVar(
+							&host,
+							host.right + (host.index ? "[]" : "")));
 			return;
 		}
 	}
@@ -545,16 +540,20 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		host.writeFunction = lookupSetter(*host.leftClass, host.right);
 		if (!host.writeFunction)
 		{
-			handleError(CompileError::ArrowNoVar, &host,
-						(host.right + (host.index ? "[]" : "")).c_str());
+			handleError(
+					CompileError::ArrowNoVar(
+							&host,
+							host.right + (host.index ? "[]" : "")));
 			return;
 		}
 		vector<DataType const*>& paramTypes = host.writeFunction->paramTypes;
 		if (paramTypes.size() != (host.index ? 3 : 2)
 		    || *paramTypes[0] != *leftType)
 		{
-			handleError(CompileError::ArrowNoVar, &host,
-						(host.right + (host.index ? "[]" : "")).c_str());
+			handleError(
+					CompileError::ArrowNoVar(
+							&host,
+							host.right + (host.index ? "[]" : "")));
 			return;
 		}
 	}
@@ -698,9 +697,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 		FunctionSignature signature(host.left->asString(), parameterTypes);
 		if (bestFunctions.size() == 0)
 		{
-			handleError(CompileError::NoFuncMatch,
-			            &host,
-			            signature.asString().c_str());
+			handleError(
+					CompileError::NoFuncMatch(&host, signature.asString()));
 		}
 		else
 		{
@@ -714,10 +712,11 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 				    << "\n";
 			}
 			
-			handleError(CompileError::TooFuncMatch,
-			            &host,
-			            signature.asString().c_str(),
-			            oss.str().c_str());
+			handleError(
+					CompileError::TooFuncMatch(
+							&host,
+							signature.asString(),
+							oss.str()));
 		}
 		return;
 	}
@@ -887,7 +886,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	// Check that we have some way to determine type.
 	if (host.elements.size() == 0 && !host.type)
 	{
-		handleError(CompileError::EmptyArrayLiteral, &host);
+		handleError(CompileError::EmptyArrayLiteral(&host));
 		return;
 	}
 
@@ -901,7 +900,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	// Don't allow an explicit size if we're part of a declaration.
 	if (host.size && host.declaration)
 	{
-		handleError(CompileError::ArrayLiteralResize, &host);
+		handleError(CompileError::ArrayLiteralResize(&host));
 		return;
 	}
 
@@ -911,15 +910,16 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		DataType const& elementType = host.type->resolve(*scope);
 		if (!elementType.isResolved())
 		{
-			handleError(CompileError::UnresolvedType, &host,
-			            elementType.getName().c_str());
+			handleError(
+					CompileError::UnresolvedType(
+							&host, elementType.getName()));
 			return;
 		}
 
 		// Disallow void type.
 		if (elementType == DataType::ZVOID)
 		{
-			handleError(CompileError::VoidArr, &host);
+			handleError(CompileError::VoidArr(&host, host.asString()));
 			return;
 		}
 
@@ -956,16 +956,16 @@ void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
 	if (optional<long> value = lookupOption(*scope, host.option))
 		host.value = value;
 	else
-		handleError(CompileError::UnknownOption, &host, host.name.c_str());
+		handleError(CompileError::UnknownOption(&host, host.name));
 }
 
 void SemanticAnalyzer::checkCast(
 		DataType const& sourceType, DataType const& targetType, AST* node)
 {
 	if (sourceType.canCastTo(targetType)) return;
-	handleError(CompileError::IllegalCast, node,
-				sourceType.getName().c_str(),
-				targetType.getName().c_str());
+	handleError(
+		CompileError::IllegalCast(
+			node, sourceType.getName(), targetType.getName()));
 }
 
 void SemanticAnalyzer::analyzeUnaryExpr(

@@ -1,120 +1,101 @@
 #ifndef COMPILE_ERROR_H
 #define COMPILE_ERROR_H
 
-#include <cstdarg>
 #include <string>
-#include "AST.h"
+#include "CompilerUtils.h"
 
 namespace ZScript
 {
+	// Forward Declaration (AST.h)
+	class AST;
+	
 	class CompileError
 	{
 	public:
-		CompileError(int id, char code, bool warning, std::string const& format);
+		// Inner compile error implementation.
+		class Impl;
 
-		// An internal id number for the error.
-		int id;
+		// Enum of compile error ids.
+		enum Id
+		{
+			// Generate an id for each compile error code.
+#			define X(NAME, ...) id##NAME,
+#			include "CompileError.xtable"
+#			undef X
+			// Total number of compile error codes.
+			idCount
+		};
 
-		// A single letter code classifying the error type.
-		char code;
+		// Call at least once before using CompileError instances.
+		static void initialize();
 
-		// True if this is only a warning.
-		bool warning;
+		////////////////
+		// Generate factory functions to construct CompileError instances
+		// for each type of error.
+		// Example:
+		// static CompileError FunctionRedef(AST const*, std::string const&);
 
-		// The format std::string for printing out the error message.
-		std::string format;
+		// Define argument types. Non-void has preceding comma to fit in the
+		// argument list properly.
+#		define TYPE_VOID /* ignore void types */
+#		define TYPE_INT ,int
+#		define TYPE_STR ,std::string const&
+		// Split on USED field.
+#		define X(NAME, CODE, USED, ...) X_##USED(NAME, CODE, __VA_ARGS__)
+#		define X_D(...) /* don't make function for deprecated error code */
+#		define X_A(NAME, CODE, STRICT, ARG1, ARG2, FORMAT) \
+		static CompileError NAME(AST const* TYPE_##ARG1 TYPE_##ARG2);
+#		include "CompileError.xtable"
+#		undef TYPE_VOID
+#		undef TYPE_INT
+#		undef TYPE_STR
+#		undef X
+#		undef X_D
+#		undef X_A
+		////////////////
 
-		// Print out the error message. Optional format arguments.
-		void print(AST const* offender, ...) const;
-		// Print by directly passing varargs list.
-		void vprint(AST const* offender, std::va_list args) const;
+		CompileError(); // Default constructor - creates invalid instance.
+		CompileError(CompileError const&);
+		~CompileError();
+		CompileError& operator=(CompileError const&);
 
-		// Comparison on id.
-		bool operator==(CompileError const& rhs) const {return id == rhs.id;}
+		// Get id if a valid instance.
+		optional<Id> getId() const;
+		// Get if strict (an error), or not (a warning).
+		bool isStrict() const;
+		std::string toString() const;
 
-		// Defined errors.
-		static CompileError const CantOpenSource;
-		static CompileError const CantOpenImport;
-		static CompileError const ImportRecursion;
-		static CompileError const ImportBadScope; // DEPRECATED
-		static CompileError const FunctionRedef;
-		static CompileError const FunctionVoidParam;
-		static CompileError const ScriptRedef;
-		static CompileError const VoidVar;
-		static CompileError const VarRedef;
-		static CompileError const VarUndeclared;
-		static CompileError const FuncUndeclared;
-		static CompileError const ScriptNoRun;
-		static CompileError const ScriptRunNotVoid;
-		static CompileError const ScriptNumNotInt; // DEPRECATED
-		static CompileError const ScriptNumTooBig; // DEPRECATED
-		static CompileError const ScriptNumRedef; // DEPRECATED
-		static CompileError const ImplictCast;
-		static CompileError const IllegalCast;
-		static CompileError const VoidExpr; // DEPRECATED
-		static CompileError const DivByZero;
-		static CompileError const ConstTrunc;
-		static CompileError const NoFuncMatch;
-		static CompileError const TooFuncMatch;
-		static CompileError const FuncBadReturn;
-		static CompileError const TooManyGlobal;
-		static CompileError const ShiftNotInt;
-		static CompileError const RefVar;
-		static CompileError const ArrowNotPointer;
-		static CompileError const ArrowNoFunc;
-		static CompileError const ArrowNoVar;
-		static CompileError const TooManyRun;
-		static CompileError const IndexNotInt; // DEPRECATED
-		static CompileError const ScriptBadType;
-		static CompileError const BreakBad;
-		static CompileError const ContinueBad;
-		static CompileError const ConstRedef;
-		static CompileError const LValConst;
-		static CompileError const BadGlobalInit;
-		static CompileError const DeprecatedGlobal;
-		static CompileError const VoidArr;
-		static CompileError const RefArr;
-		static CompileError const ArrRedef;
-		static CompileError const ArrayTooSmall;
-		static CompileError const ArrayListTooLarge;
-		static CompileError const ArrayListStringTooLarge;
-		static CompileError const NonIntegerArraySize;
-		static CompileError const ExprNotConstant;
-		static CompileError const UnresolvedType;
-		static CompileError const ConstUninitialized;
-		static CompileError const ConstAssign;
-		static CompileError const EmptyArrayLiteral;
-		static CompileError const DimensionMismatch;
-		static CompileError const ArrayLiteralResize;
-		static CompileError const MissingCompileError;
-		static CompileError const UnimplementedFeature;
-		static CompileError const UnknownOption;
+	private:
+		CompileError(Impl*);
+		
+		Impl* pimpl_;
 	};
+
+	void box_out_err(CompileError const&);
 
 	class CompileErrorHandler
 	{
 	public:
-		virtual void handleError(CompileError const&, AST const*, ...) {}
-
-		static CompileErrorHandler NONE;
+		virtual void handleError(CompileError const&) = 0;
+		virtual bool hasError() const = 0;
 	};
 
-	// Prints out the error on receiving it, and tracks the number of errors and
-	// warnings.
+	// Prints out the error on receiving it, and tracks the number of errors
+	// and warnings.
 	class SimpleCompileErrorHandler : public CompileErrorHandler
 	{
 	public:
-		SimpleCompileErrorHandler() : errorCount(0), warningCount(0) {}
+		SimpleCompileErrorHandler() : errorCount_(0), warningCount_(0) {}
 
-		void handleError(CompileError const&, AST const*, ...);
+		void handleError(CompileError const&);
 	
-		bool hasError() const {return errorCount;}
-		int getErrorCount() const {return errorCount;}
-		int getWarningCount() const {return warningCount;}
+		bool hasError() const {return errorCount_ > 0;}
+		int getErrorCount() const {return errorCount_;}
+		int getWarningCount() const {return warningCount_;}
 	
 	private:
-		int errorCount;
-		int warningCount;
+		int errorCount_;
+		int warningCount_;
 	};
 }
 	

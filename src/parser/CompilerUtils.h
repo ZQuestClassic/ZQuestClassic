@@ -4,7 +4,6 @@
 #define ZSCRIPT_COMPILER_UTILS_H
 
 #include <cassert>
-#include <cstddef>
 #include <vector>
 #include <set>
 #include <sstream>
@@ -16,10 +15,14 @@
 template <typename Type>
 std::string to_string(Type val)
 {
-	std::ostringstream ostr;
-	ostr << val;
-	return ostr.str();
+	std::ostringstream oss;
+	oss << val;
+	return oss.str();
 }
+
+// as sprintf, but for strings.
+int const formatBufferSize = 4096;
+std::string format(std::string const* format, ...);
 
 ////////////////////////////////////////////////////////////////
 // No Copy Mixin

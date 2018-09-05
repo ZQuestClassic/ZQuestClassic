@@ -39,6 +39,7 @@ void ScriptParser::initialize()
 	fid = 0;
 	gid = 1;
 	lid = 0;
+	CompileError::initialize();
 	CompileOption::initialize();
 }
 
@@ -52,7 +53,7 @@ ScriptsData* ZScript::compile(string const& filename)
 	auto_ptr<ASTFile> root(parseFile(filename));
 	if (!root.get())
 	{
-		CompileError::CantOpenSource.print(NULL);
+		box_out_err(CompileError::CantOpenSource(NULL));
 		return NULL;
 	}
     
@@ -77,7 +78,7 @@ ScriptsData* ZScript::compile(string const& filename)
 	FunctionData fd(program);
 	if (fd.globalVariables.size() > 256)
 	{
-		CompileError::TooManyGlobal.print(NULL);
+		box_out_err(CompileError::TooManyGlobal(NULL));
 		return NULL;
 	}
     
@@ -125,7 +126,7 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 {
 	if (reclimit == 0)
 	{
-		CompileError::ImportRecursion.print(NULL, recursionLimit);
+		box_out_err(CompileError::ImportRecursion(NULL, recursionLimit));
 		return false;
 	}
         
@@ -141,8 +142,7 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 		auto_ptr<ASTFile> imported(parseFile(filename));
 		if (!imported.get())
 		{
-			CompileError::CantOpenImport.print(
-					&importDecl, filename.c_str());
+			box_out_err(CompileError::CantOpenImport(&importDecl, filename));
 			return false;
 		}
 
@@ -190,7 +190,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
         
 		BuildOpcodes bo;
 		node.execute(bo, &oc);
-		if (bo.hasFailed()) failure = true;
+		if (bo.hasError()) failure = true;
 		appendElements(rval->globalsInit, oc.initCode);
 		appendElements(rval->globalsInit, bo.getResult());
 	}
@@ -251,7 +251,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		BuildOpcodes bo;
 		node.execute(bo, &oc);
         
-		if (bo.hasFailed()) failure = true;
+		if (bo.hasError()) failure = true;
             
 		appendElements(funccode, bo.getResult());
         
