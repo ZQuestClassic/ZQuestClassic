@@ -369,7 +369,7 @@ CompileOptionSetting ASTSetOption::getSetting(
 	{
 		if (optional<long> value = expr->getCompileTimeValue(handler))
 			return CompileOptionSetting(*value);
-		handler->handleError(CompileError::ExprNotConstant, this);
+		handler->handleError(CompileError::ExprNotConstant(this));
 		return CompileOptionSetting::Invalid;
 	}
 
@@ -2197,7 +2197,7 @@ optional<long> ASTExprDivide::getCompileTimeValue(
 	if (*rightValue == 0)
 	{
 		if (errorHandler)
-			errorHandler->handleError(CompileError::DivByZero, this);
+			errorHandler->handleError(CompileError::DivByZero(this));
 		return nullopt;
 	}
 	return *leftValue / *rightValue * 10000L;
@@ -2237,7 +2237,7 @@ optional<long> ASTExprModulo::getCompileTimeValue(
 	if (*rightValue == 0)
 	{
 		if (errorHandler)
-			errorHandler->handleError(CompileError::DivByZero, this);
+			errorHandler->handleError(CompileError::DivByZero(this));
 		return nullopt;
 	}
 	return *leftValue % *rightValue;
@@ -2411,7 +2411,7 @@ optional<long> ASTExprLShift::getCompileTimeValue(
 	if (*rightValue % 10000L)
 	{
 		if (errorHandler)
-			errorHandler->handleError(CompileError::ShiftNotInt, this);
+			errorHandler->handleError(CompileError::ShiftNotInt(this));
 		rightValue = (*rightValue / 10000L) * 10000L;
 	}
 	
@@ -2452,7 +2452,7 @@ optional<long> ASTExprRShift::getCompileTimeValue(
 	if (*rightValue % 10000L)
 	{
 		if (errorHandler)
-			errorHandler->handleError(CompileError::ShiftNotInt, this);
+			errorHandler->handleError(CompileError::ShiftNotInt(this));
 		rightValue = (*rightValue / 10000L) * 10000L;
 	}
 	
@@ -2511,7 +2511,7 @@ optional<long> ASTNumberLiteral::getCompileTimeValue(
 
     if (!val.second && errorHandler)
 	    errorHandler->handleError(
-			    CompileError::ConstTrunc, this, value->value.c_str());
+			    CompileError::ConstTrunc(this, value->value.c_str()));
 
 	return val.first;
 }

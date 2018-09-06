@@ -499,8 +499,8 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 		{
 			if (errorHandler)
 				errorHandler->handleError(
-						CompileError::VarRedef, datum.getNode(),
-						name->c_str());
+						CompileError::VarRedef(datum.getNode(),
+						                       name->c_str()));
 			return false;
 		}
 		namedData_[*name] = &datum;
@@ -600,8 +600,8 @@ bool FileScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 		{
 			if (errorHandler)
 				errorHandler->handleError(
-						CompileError::VarRedef, datum.getNode(),
-						name->c_str());
+						CompileError::VarRedef(datum.getNode(),
+						                       name->c_str()));
 			return false;
 		}
 	}

@@ -793,6 +793,7 @@ int LinkClass::getSpecialCave()
 void LinkClass::init()
 {
     setMonochrome(false);
+	dontdraw = true;
     hookshot_used=false;
     hookshot_frozen=false;
     dir = up;
@@ -867,7 +868,7 @@ void LinkClass::init()
 	preventsubscreenfalling = false;  //-Z
 	hurtsfx = 19; //getHurtSFX(); //Set the default sound. 
 	flickerorflash = true; //flicker or flash unless disabled externally.
-	
+	walkspeed = 0; //not used, yet. -Z
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][0] = 0; 
 	for ( int q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][1] = 0; 
 	for ( int q = 0; q < wMax; q++ ) defence[q] = 0; //we will need to have a Link section in the quest load/save code! -Z
@@ -13038,25 +13039,25 @@ int LinkClass::get_scroll_step(int scrolldir)
 
 int LinkClass::get_scroll_delay(int scrolldir)
 {
-    if(get_bit(quest_rules, qr_NOSCROLL))
-        return 0;
+	if(get_bit(quest_rules, qr_NOSCROLL))
+		return 0;
         
 	if( (get_bit(quest_rules, qr_VERYFASTSCROLLING) != 0) ||
-		(get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) != 0) )
-    {
-        return 1;
-    }
-    else
-    {
-        if(scrolldir == up || scrolldir == down)
-        {
-            return (isdungeon() && !get_bit(quest_rules,qr_FASTDNGN)) ? 4 : 2;
-        }
-        else
-        {
-            return 1;
-        }
-    }
+	    (get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) != 0) )
+	{
+		return 1;
+	}
+	else
+	{
+		if(scrolldir == up || scrolldir == down)
+		{
+			return (isdungeon() && !get_bit(quest_rules,qr_FASTDNGN)) ? 4 : 2;
+		}
+		else
+		{
+			return 1;
+		}
+	}
 }
 
 void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
@@ -15598,300 +15599,303 @@ void slide_in_color(int color)
 
 void LinkClass::gameover()
 {
-    int f=0;
+	int f=0;
     
-    action=none; FFCore.setLinkAction(dying); //mayhaps a new action of 'gameover'? -Z
-    Playing=false;
+	action=none; FFCore.setLinkAction(dying); //mayhaps a new action of 'gameover'? -Z
+	Playing=false;
     
-    if(!debug_enabled)
-    {
-        Paused=false;
-    }
+	if(!debug_enabled)
+	{
+		Paused=false;
+	}
     
-    game->set_deaths(zc_min(game->get_deaths()+1,999));
-    dir=down;
-    music_stop();
-    kill_sfx();
-    attackclk=hclk=superman=0;
-    scriptcoldet = 1;
+	game->set_deaths(zc_min(game->get_deaths()+1,999));
+	dir=down;
+	music_stop();
+	kill_sfx();
+	attackclk=hclk=superman=0;
+	scriptcoldet = 1;
     
-    for(int i=0; i<32; i++) miscellaneous[i] = 0;
+	for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
-    //get rid off all sprites but Link
-    guys.clear();
-    items.clear();
-    Ewpns.clear();
-    Lwpns.clear();
-    Sitems.clear();
-    chainlinks.clear();
-    decorations.clear();
+	//get rid off all sprites but Link
+	guys.clear();
+	items.clear();
+	Ewpns.clear();
+	Lwpns.clear();
+	Sitems.clear();
+	chainlinks.clear();
+	decorations.clear();
     
-    playing_field_offset=56; // otherwise, red_shift() may go past the bottom of the screen
-    quakeclk=wavy=0;
+	playing_field_offset=56; // otherwise, red_shift() may go past the bottom of the screen
+	quakeclk=wavy=0;
     
-    //in original Z1, Link marker vanishes at death.
-    //code in subscr.cpp, put_passive_subscr checks the following value.
-    //color 255 is a GUI color, so quest makers shouldn't be using this value.
-    //Also, subscreen is static after death in Z1.
-    int tmp_link_dot = QMisc.colors.link_dot;
-    QMisc.colors.link_dot = 255;
-    //doesn't work
-    //scrollbuf is tampered with by draw_screen()
-    //put_passive_subscr(scrollbuf, &QMisc, 256, passive_subscreen_offset, false, false);//save this and reuse it.
-    BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
-    clear_bitmap(subscrbmp);
-    put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, false, sspUP);
-    QMisc.colors.link_dot = tmp_link_dot;
+	//in original Z1, Link marker vanishes at death.
+	//code in subscr.cpp, put_passive_subscr checks the following value.
+	//color 255 is a GUI color, so quest makers shouldn't be using this value.
+	//Also, subscreen is static after death in Z1.
+	int tmp_link_dot = QMisc.colors.link_dot;
+	QMisc.colors.link_dot = 255;
+	//doesn't work
+	//scrollbuf is tampered with by draw_screen()
+	//put_passive_subscr(scrollbuf, &QMisc, 256, passive_subscreen_offset, false, false);//save this and reuse it.
+	BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
+	clear_bitmap(subscrbmp);
+	put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+	QMisc.colors.link_dot = tmp_link_dot;
     
-    do
-    {
-        if(f<254)
-        {
-            if(f<=32)
-            {
-                hclk=(32-f);
-            }
+	do
+	{
+		if(f<254)
+		{
+			if(f<=32)
+			{
+				hclk=(32-f);
+			}
             
-            if(f>=62 && f<138)
-            {
-                switch((f-62)%20)
-                {
-                case 0:
-                    dir=right;
-                    break;
+			if(f>=62 && f<138)
+			{
+				switch((f-62)%20)
+				{
+				case 0:
+					dir=right;
+					break;
                     
-                case 5:
-                    dir=up;
-                    break;
+				case 5:
+					dir=up;
+					break;
                     
-                case 10:
-                    dir=left;
-                    break;
+				case 10:
+					dir=left;
+					break;
                     
-                case 15:
-                    dir=down;
-                    break;
-                }
+				case 15:
+					dir=down;
+					break;
+				}
                 
-                linkstep();
-            }
+				linkstep();
+			}
             
-            if(f>=194 && f<208)
-            {
-                if(f==194)
-                    action=dying; FFCore.setLinkAction(dying);
+			if(f>=194 && f<208)
+			{
+				if(f==194)
+				{
+					action=dying;
+					FFCore.setLinkAction(dying);
+				}
                     
-                extend = 0;
-                cs = wpnsbuf[iwDeath].csets&15;
-                tile = wpnsbuf[iwDeath].tile;
+				extend = 0;
+				cs = wpnsbuf[iwDeath].csets&15;
+				tile = wpnsbuf[iwDeath].tile;
                 
-                if(BSZ)
-                {
-                    tile += (f-194)/3;
-                }
-                else if(f>=204)
-                {
-                    ++tile;
-                }
-            }
+				if(BSZ)
+				{
+					tile += (f-194)/3;
+				}
+				else if(f>=204)
+				{
+					++tile;
+				}
+			}
             
-            if(f==208)
-                dontdraw = true;
+			if(f==208)
+				dontdraw = true;
                 
-            if(get_bit(quest_rules,qr_FADE))
-            {
-                if(f < 170)
-                {
-                    if(f<60)
-                    {
-                        draw_screen(tmpscr);
-                        //reuse our static subscreen
-                        set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-                        blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-                    }
+			if(get_bit(quest_rules,qr_FADE))
+			{
+				if(f < 170)
+				{
+					if(f<60)
+					{
+						draw_screen(tmpscr);
+						//reuse our static subscreen
+						set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+						blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+					}
                     
-                    if(f==60)
-                    {
-                        red_shift();
-                        create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
-                        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-                        memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
+					if(f==60)
+					{
+						red_shift();
+						create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
+						create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
+						memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
                         
-                        for(int q=0; q<PAL_SIZE; q++)
-                        {
-                            trans_table2.data[0][q] = q;
-                            trans_table2.data[q][q] = q;
-                        }
-                    }
+						for(int q=0; q<PAL_SIZE; q++)
+						{
+							trans_table2.data[0][q] = q;
+							trans_table2.data[q][q] = q;
+						}
+					}
                     
-                    if(f>=60 && f<=169)
-                    {
-                        draw_screen(tmpscr);
-                        //reuse our static subscreen
-                        blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-                        red_shift();
+					if(f>=60 && f<=169)
+					{
+						draw_screen(tmpscr);
+						//reuse our static subscreen
+						blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+						red_shift();
                         
-                    }
+					}
                     
-                    if(f>=139 && f<=169)//fade from red to black
-                    {
-                        fade_interpolate(RAMpal,black_palette,RAMpal, (f-138)<<1, 224, 255);
-                        create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
-                        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-                        memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
+					if(f>=139 && f<=169)//fade from red to black
+					{
+						fade_interpolate(RAMpal,black_palette,RAMpal, (f-138)<<1, 224, 255);
+						create_rgb_table_range(&rgb_table, RAMpal, 208, 239, NULL);
+						create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
+						memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
                         
-                        for(int q=0; q<PAL_SIZE; q++)
-                        {
-                            trans_table2.data[0][q] = q;
-                            trans_table2.data[q][q] = q;
-                        }
+						for(int q=0; q<PAL_SIZE; q++)
+						{
+							trans_table2.data[0][q] = q;
+							trans_table2.data[q][q] = q;
+						}
                         
-                        refreshpal=true;
-                    }
-                }
-                else //f>=170
-                {
-                    if(f==170)//make Link grayish
-                    {
-                        fade_interpolate(RAMpal,black_palette,RAMpal,64, 224, 255);
+						refreshpal=true;
+					}
+				}
+				else //f>=170
+				{
+					if(f==170)//make Link grayish
+					{
+						fade_interpolate(RAMpal,black_palette,RAMpal,64, 224, 255);
                         
-                        for(int i=CSET(6); i < CSET(7); i++)
-                        {
-                            int g = (RAMpal[i].r + RAMpal[i].g + RAMpal[i].b)/3;
-                            RAMpal[i] = _RGB(g,g,g);
-                        }
+						for(int i=CSET(6); i < CSET(7); i++)
+						{
+							int g = (RAMpal[i].r + RAMpal[i].g + RAMpal[i].b)/3;
+							RAMpal[i] = _RGB(g,g,g);
+						}
                         
-                        refreshpal = true;
-                    }
+						refreshpal = true;
+					}
                     
-                    //draw only link. otherwise black layers might cover him.
-                    rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
-                    draw(framebuf);
-                    blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-                }
-            }
-            else //!qr_FADE
-            {
-                if(f==58)
-                {
-                    for(int i = 0; i < 96; i++)
-                        tmpscr->cset[i] = 3;
+					//draw only link. otherwise black layers might cover him.
+					rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
+					draw(framebuf);
+					blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+				}
+			}
+			else //!qr_FADE
+			{
+				if(f==58)
+				{
+					for(int i = 0; i < 96; i++)
+						tmpscr->cset[i] = 3;
                         
-                    for(int j=0; j<6; j++)
-                        if(tmpscr->layermap[j]>0)
-                            for(int i=0; i<96; i++)
-                                tmpscr2[j].cset[i] = 3;
-                }
+					for(int j=0; j<6; j++)
+						if(tmpscr->layermap[j]>0)
+							for(int i=0; i<96; i++)
+								tmpscr2[j].cset[i] = 3;
+				}
                 
-                if(f==59)
-                {
-                    for(int i = 96; i < 176; i++)
-                        tmpscr->cset[i] = 3;
+				if(f==59)
+				{
+					for(int i = 96; i < 176; i++)
+						tmpscr->cset[i] = 3;
                         
-                    for(int j=0; j<6; j++)
-                        if(tmpscr->layermap[j]>0)
-                            for(int i=96; i<176; i++)
-                                tmpscr2[j].cset[i] = 3;
-                }
+					for(int j=0; j<6; j++)
+						if(tmpscr->layermap[j]>0)
+							for(int i=96; i<176; i++)
+								tmpscr2[j].cset[i] = 3;
+				}
                 
-                if(f==60)
-                {
-                    for(int i=0; i<176; i++)
-                    {
-                        tmpscr->cset[i] = 2;
-                    }
+				if(f==60)
+				{
+					for(int i=0; i<176; i++)
+					{
+						tmpscr->cset[i] = 2;
+					}
                     
-                    for(int j=0; j<6; j++)
-                        if(tmpscr->layermap[j]>0)
-                            for(int i=0; i<176; i++)
-                                tmpscr2[j].cset[i] = 2;
+					for(int j=0; j<6; j++)
+						if(tmpscr->layermap[j]>0)
+							for(int i=0; i<176; i++)
+								tmpscr2[j].cset[i] = 2;
                                 
-                    for(int i=1; i<16; i+=3)
-                    {
-                        RAMpal[CSET(2)+i]   = NESpal(0x17);
-                        RAMpal[CSET(2)+i+1] = NESpal(0x16);
-                        RAMpal[CSET(2)+i+2] = NESpal(0x26);
-                    }
+					for(int i=1; i<16; i+=3)
+					{
+						RAMpal[CSET(2)+i]   = NESpal(0x17);
+						RAMpal[CSET(2)+i+1] = NESpal(0x16);
+						RAMpal[CSET(2)+i+2] = NESpal(0x26);
+					}
                     
-                    refreshpal=true;
-                }
+					refreshpal=true;
+				}
                 
-                if(f==139)
-                    slide_in_color(0x06);
+				if(f==139)
+					slide_in_color(0x06);
                     
-                if(f==149)
-                    slide_in_color(0x07);
+				if(f==149)
+					slide_in_color(0x07);
                     
-                if(f==159)
-                    slide_in_color(0x0F);
+				if(f==159)
+					slide_in_color(0x0F);
                     
-                if(f==169)
-                {
-                    slide_in_color(0x0F);
-                    slide_in_color(0x0F);
-                }
+				if(f==169)
+				{
+					slide_in_color(0x0F);
+					slide_in_color(0x0F);
+				}
                 
-                if(f==170)
-                {
-                    for(int i=1; i<16; i+=3)
-                    {
-                        RAMpal[CSET(6)+i]   = NESpal(0x10);
-                        RAMpal[CSET(6)+i+1] = NESpal(0x30);
-                        RAMpal[CSET(6)+i+2] = NESpal(0x00);
-                        refreshpal = true;
-                    }
-                }
+				if(f==170)
+				{
+					for(int i=1; i<16; i+=3)
+					{
+						RAMpal[CSET(6)+i]   = NESpal(0x10);
+						RAMpal[CSET(6)+i+1] = NESpal(0x30);
+						RAMpal[CSET(6)+i+2] = NESpal(0x00);
+						refreshpal = true;
+					}
+				}
                 
-                if(f < 169)
-                {
-                    draw_screen(tmpscr);
-                    //reuse our static subscreen
-                    blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-                }
-                else
-                {
-                    //draw only link. otherwise black layers might cover him.
-                    rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
-                    draw(framebuf);
-                    blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-                }
-            }
-        }
-        else if(f<350)//draw 'GAME OVER' text
-        {
-            clear_bitmap(framebuf);
-            blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-            textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,1,-1);
-        }
-        else
-        {
-            clear_bitmap(framebuf);
-        }
+				if(f < 169)
+				{
+					draw_screen(tmpscr);
+					//reuse our static subscreen
+					blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+				}
+				else
+				{
+					//draw only link. otherwise black layers might cover him.
+					rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
+					draw(framebuf);
+					blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+				}
+			}
+		}
+		else if(f<350)//draw 'GAME OVER' text
+		{
+			clear_bitmap(framebuf);
+			blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+			textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,1,-1);
+		}
+		else
+		{
+			clear_bitmap(framebuf);
+		}
         
-        //SFX... put them all here
-        switch(f)
-        {
-        case   0:
-            sfx(getHurtSFX(),pan(int(x)));
-            break;
-	//Death sound.
-        case  60:
-            sfx(WAV_SPIRAL);
-            break;
-	//Message sound. 
-        case 194:
-            sfx(WAV_MSG);
-            break;
-        }
+		//SFX... put them all here
+		switch(f)
+		{
+		case   0:
+			sfx(getHurtSFX(),pan(int(x)));
+			break;
+			//Death sound.
+		case  60:
+			sfx(WAV_SPIRAL);
+			break;
+			//Message sound. 
+		case 194:
+			sfx(WAV_MSG);
+			break;
+		}
         
-        advanceframe(true);
-        ++f;
-    }
-    while(f<353 && !Quit);
+		advanceframe(true);
+		++f;
+	}
+	while(f<353 && !Quit);
     
-    destroy_bitmap(subscrbmp);
-    action=none; FFCore.setLinkAction(none);
-    dontdraw=false;
+	destroy_bitmap(subscrbmp);
+	action=none; FFCore.setLinkAction(none);
+	dontdraw=false;
 }
 
 

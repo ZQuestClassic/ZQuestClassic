@@ -1,214 +1,300 @@
 #include "../precompiled.h" //always first
 
 #include "CompileError.h"
-#include "../zsyssimple.h"
-#include <assert.h>
-#include <cstdio>
-#include <cstdarg>
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <sstream>
+#include "../zsyssimple.h"
+#include "AST.h"
 
 using namespace std;
 using namespace ZScript;
 
-// Weird macros to insert constants into strings at preprocessing stage.
-#define STRING1(s) #s
-#define STRING(s) STRING1(s)
+////////////////////////////////////////////////////////////////
+// CompileError::Impl interface
 
-CompileError::CompileError(int id, char code, bool warning, string const& format)
-	: id(id), code(code), warning(warning), format(format)
-{}
-
-void CompileError::print(AST const* offender, ...) const
+class CompileError::Impl
 {
-	va_list args;
-	va_start(args, offender);
-	vprint(offender, args);
-	va_end(args);
+public:
+	// Create a copy.
+	virtual CompileError::Impl* clone() const = 0;
+	// Get this error's id.
+	virtual CompileError::Id getId() const = 0;
+	// Get the formatted message for this error.
+	virtual string getMessage() const = 0;
+	// Get the AST node that's the source of the error.
+	virtual AST const* getSource() const = 0;
+};
+
+////////////////////////////////////////////////////////////////
+// Table holding compile error code data.
+namespace // file local
+{
+	// Compile Error entries
+	struct Entry
+	{
+		// Blank entry.
+		Entry() : used(false), strict(true) {}
+		// Full entry.
+		Entry(char const* name, char const* code,
+		      bool strict, char const* format)
+			: name(name), code(*code), used(true),
+			  strict(strict), format(format)
+		{}
+		// Deprecated entry.
+		Entry(char const* name, char const* code)
+			: name(name), code(*code), used(false),
+			  strict(false), format("")
+		{}
+		
+		string name;
+		char code;
+		bool used;
+		bool strict;
+		string format;
+	};
+
+	Entry entries[CompileError::idCount];
 }
 
-void CompileError::vprint(AST const* offender, va_list args) const
+////////////////////////////////////////////////////////////////
+// CompileError::initialize()
+
+// Fills the entries table with the xtable data.
+void CompileError::initialize()
 {
-    ostringstream oss;
+	static bool initialized = false;
+	if (!initialized)
+	{
+#		define STRICT_W false
+#		define STRICT_E true
+		// Split on if it's deprecated or not.
+#		define X(NAME, CODE, USED, ...) X_##USED(NAME, CODE, __VA_ARGS__)
+#		define X_D(NAME, CODE, ...) \
+		entries[id##NAME] = Entry(#NAME, #CODE);
+#		define X_A(NAME, CODE, STRICT, ARG1, ARG2, FORMAT) \
+		entries[id##NAME] = Entry(#NAME, #CODE, STRICT_##STRICT, FORMAT);
+#		include "CompileError.xtable"
+#		undef STRICT_W
+#		undef STRICT_E
+#		undef X
+#		undef X_D
+#		undef X_A
+		
+		initialized = true;
+	}
+}
+
+////////////////////////////////////////////////////////////////
+// CompileError::Impl implementations
+namespace // file local
+{
+	////////////////////////////////////////////////////////////////
+	// Convert int to int, and string to char const*
+	// for the format function.
+
+	// formatArgOut<Type>::type = Type
+	template <typename Arg>
+	struct formatArgOut {typedef Arg type;};
+	// formatArgOut<string>::type = char const*
+	template <>
+	struct formatArgOut<string> {typedef char const* type;};
+
+	// formatArg returns argument by default.
+	template <typename Arg>
+	typename formatArgOut<Arg>::type formatArg(Arg const& arg) {return arg;}
+
+	// If a string, formatArg returns the c string underneath.
+	template <>
+	char const* formatArg<string>(string const& arg)
+	{
+		return arg.c_str();
+	}
+	////////////////////////////////////////////////////////////////
+	
+	// Two argument specialization (default).
+	template <typename A = void, typename B = void>
+	class CEImpl : public CompileError::Impl
+	{
+	public:
+		CEImpl(CompileError::Id id, AST const* source,
+		       A const& arg1, B const& arg2)
+			: id_(id), source_(source), arg1_(arg1), arg2_(arg2)
+		{}
+		CEImpl* clone() const /*override*/ {return new CEImpl(*this);}
+		
+		CompileError::Id getId() const /*override*/ {return id_;}
+		string getMessage() const /*override*/ {
+			return format(&entries[id_].format,
+			              formatArg<A>(arg1_),
+			              formatArg<A>(arg2_));}
+		AST const* getSource() const /*override*/ {return source_;}
+
+	private:
+		CompileError::Id id_;
+		AST const* source_;
+		A arg1_;
+		B arg2_;
+	};
+
+	// One argument specialization.
+	template <typename A>
+	class CEImpl<A, void> : public CompileError::Impl
+	{
+	public:
+		CEImpl(CompileError::Id id, AST const* source, A const& arg)
+			: id_(id), source_(source), arg_(arg)
+		{}
+		CEImpl* clone() const /*override*/ {return new CEImpl(*this);}
+		
+		CompileError::Id getId() const /*override*/ {return id_;}
+		string getMessage() const /*override*/ {
+			return format(&entries[id_].format, formatArg<A>(arg_));}
+		AST const* getSource() const /*override*/ {return source_;}
+
+	private:
+		CompileError::Id id_;
+		AST const* source_;
+		A arg_;
+	};
+
+	// No argument specialization.
+	template <>
+	class CEImpl<void, void> : public CompileError::Impl
+	{
+	public:
+		CEImpl(CompileError::Id id, AST const* source)
+			: id_(id), source_(source)
+		{}
+		CEImpl* clone() const /*override*/ {return new CEImpl(*this);}
+		
+		CompileError::Id getId() const /*override*/ {return id_;}
+		string getMessage() const /*override*/ {return entries[id_].format;}
+		AST const* getSource() const /*override*/ {return source_;}
+
+	private:
+		CompileError::Id id_;
+		AST const* source_;
+	};
+
+}
+
+////////////////////////////////////////////////////////////////
+// CompileError factory functions
+
+// Define argument types. Non-void has preceding comma to fit in the
+// argument list properly.
+#define ARG_VOID(ARGNAME) /* ignore void types */
+#define ARG_INT(ARGNAME) ,int ARGNAME
+#define ARG_STR(ARGNAME) ,string const& ARGNAME
+// CEImpl template types
+#define TYPE_VOID void
+#define TYPE_INT int
+#define TYPE_STR string
+// CEImpl constructor arguments
+#define ARGC_VOID(ARGNAME) /* ignore void types */
+#define ARGC_INT(ARGNAME) ,ARGNAME
+#define ARGC_STR(ARGNAME) ,ARGNAME
+// Split on USED field.
+#define X(NAME, CODE, USED, ...) X_##USED(NAME, CODE, __VA_ARGS__)
+#define X_D(...) /* don't make function for deprecated error code */
+#define X_A(NAME, CODE, STRICT, ARG1, ARG2, FORMAT) \
+CompileError CompileError::NAME( \
+		AST const* source ARG_##ARG1(arg1) ARG_##ARG2(arg2)) \
+{ \
+	return new CEImpl<TYPE_##ARG1, TYPE_##ARG2>( \
+			id##NAME, source ARGC_##ARG1(arg1) ARGC_##ARG2(arg2)); \
+}
+#include "CompileError.xtable"
+#undef ARG_VOID
+#undef ARG_INT
+#undef ARG_STR
+#undef TYPE_VOID
+#undef TYPE_INT
+#undef TYPE_STR
+#undef ARGC_VOID
+#undef ARGC_INT
+#undef ARGC_STR
+#undef X
+#undef X_D
+#undef X_A
+
+////////////////////////////////////////////////////////////////
+// CompileError
+
+CompileError::CompileError() : pimpl_(NULL) {}
+
+CompileError::CompileError(CompileError const& other)
+	: pimpl_(other.pimpl_ ? other.pimpl_->clone() : NULL)
+{}
+
+CompileError::~CompileError()
+{
+	delete pimpl_;
+}
+
+CompileError& CompileError::operator=(CompileError const& rhs)
+{
+	delete pimpl_;
+	pimpl_ = rhs.pimpl_ ? rhs.pimpl_->clone() : NULL;
+	return *this;
+}
+
+optional<CompileError::Id> CompileError::getId() const
+{
+	if (pimpl_) return pimpl_->getId();
+	return nullopt;
+}
+
+bool CompileError::isStrict() const
+{
+	if (!pimpl_) return true;
+	return entries[pimpl_->getId()].strict;
+}
+
+string CompileError::toString() const
+{
+	if (!pimpl_) return "unknown error";
+	Id id = pimpl_->getId();
+	Entry& entry = entries[id];
+	
+	ostringstream oss;
 
 	// Error or warning?
-	if (warning) oss << "Warning";
-	else oss << "Error";
+	oss << (isStrict() ? "Error" : "Warning");
 
 	// Error Code and Id
-	oss << " " << code
+	oss << " " << entry.code
 	    << setw(3) << setfill('0') << id << setw(0)
 	    << ": ";
 
 	// Message.
-	char msg[1024];
-	vsprintf(msg, format.c_str(), args);
-	oss << msg;
-
-    box_out_nl(oss.str().c_str());
+	oss << pimpl_->getMessage();
 
 	// Output location data.
-    if (offender)
-    {
-	    oss.str("");
-	    oss << "    @ " << offender->location.asString();
-	    box_out(oss.str().c_str());
-	    box_eol();
-    }
+	if (AST const* source = pimpl_->getSource())
+	    oss << "\n    @ " << source->location.asString();
+
+	return oss.str();
 }
-	
-////////////////////////////////////////////////////////////////
-// Error Definitions
 
-CompileError const CompileError::CantOpenSource(
-		0, 'P', false, "Can't open or parse input file!");
-CompileError const CompileError::CantOpenImport(
-		1, 'P', false, "Failure to parse imported file %s.");
-CompileError const CompileError::ImportRecursion(
-		2, 'P', false,
-		"Recursion limit of " STRING(RECURSIONLIMIT)
-		" hit while preprocessing. Perhaps you have circular imports?");
-// DEPRECATED
-CompileError const CompileError::ImportBadScope(
-		3, 'P', false,
-		"You may only place import statements at file scope.");
-CompileError const CompileError::FunctionRedef(
-		4, 'S', false,
-		"Function %s was already declared with that type signature.");
-CompileError const CompileError::FunctionVoidParam(
-		5, 'S', false, "Function parameter %s cannot have void type.");
-CompileError const CompileError::ScriptRedef(
-		6, 'S', false, "Duplicate script with name %s already exists.");
-CompileError const CompileError::VoidVar(
-		7, 'S', false, "Variable %s can't have type void.");
-CompileError const CompileError::VarRedef(
-		8, 'S', false,
-		"There is already a variable with name %s in this scope.");
-CompileError const CompileError::VarUndeclared(
-		9, 'S', false, "Variable %s is undeclared.");
-CompileError const CompileError::FuncUndeclared(
-		10, 'S', false, "Function %s is undeclared.");
-CompileError const CompileError::ScriptNoRun(
-		11, 'S', false, "Script %s must implement void run().");
-CompileError const CompileError::ScriptRunNotVoid(
-		12, 'S', false, "Script %s's run() must have return type void.");
-// DEPRECATED
-CompileError const CompileError::ScriptNumNotInt(
-		13, 'T', false, "Script %s has id that's not an integer.");
-// DEPRECATED
-CompileError const CompileError::ScriptNumTooBig(
-		14, 'T', false, "Script %s's id must be between 0 and 255.");
-// DEPRECATED
-CompileError const CompileError::ScriptNumRedef(
-		15, 'T', false, "Script %s's id is already in use."); 
-CompileError const CompileError::ImplictCast(
-		16, 'T', true, "Cast from %s.");
-CompileError const CompileError::IllegalCast(
-		17, 'T', false, "Cannot cast from %s to %s.");
-// DEPRECATED
-CompileError const CompileError::VoidExpr(
-		18, 'T', false, "Operand is void.");
-CompileError const CompileError::DivByZero(
-		19, 'T', false, "Constant division by zero.");
-CompileError const CompileError::ConstTrunc(
-		20, 'T', true, "Truncation of constant %s.");
-CompileError const CompileError::NoFuncMatch(
-		21, 'T', false, "Attempting to call unknown function %s.");
-CompileError const CompileError::TooFuncMatch(
-		22, 'T', false,
-		"Attempting to call function %s.\n"
-		"        Cannot choose between several possible functions:\n%s");
-CompileError const CompileError::FuncBadReturn(
-		23, 'T', false, "This function must return a value.");
-CompileError const CompileError::TooManyGlobal(
-		24, 'L', false, "Too many global variables.");
-CompileError const CompileError::ShiftNotInt(
-		25, 'T', true,
-		"Constant bitshift by noninteger amount;"
-		" truncating to nearest integer.");
-CompileError const CompileError::RefVar(
-		26, 'S', false, "Variable type cannot be global [%s].");
-CompileError const CompileError::ArrowNotPointer(
-		27, 'T', false,
-		"Left of the arrow (->) operator must be a pointer type (ffc, etc).");
-CompileError const CompileError::ArrowNoFunc(
-		28, 'T', false, "That pointer type does not have a function %s.");
-CompileError const CompileError::ArrowNoVar(
-		29, 'T', false, "That pointer type does not have a variable %s.");
-CompileError const CompileError::TooManyRun(
-		30, 'S', false, "Script %s may have only one run method.");
-// DEPRECATED
-CompileError const CompileError::IndexNotInt(
-		31, 'T', false, "The index of %s must be an integer.");
-CompileError const CompileError::ScriptBadType(
-		32, 'S', false, "Script %s is of illegal type.");
-CompileError const CompileError::BreakBad(
-		33, 'G', false,
-		"Break must lie inside of an enclosing for or while loop.");
-CompileError const CompileError::ContinueBad(
-		34, 'G', false,
-		"Continue must lie inside of an enclosing for or while loop.");
-CompileError const CompileError::ConstRedef(
-		35, 'P', false, "There is already a constant with name %s defined.");
-CompileError const CompileError::LValConst(
-		36, 'T', false, "Cannot change the value of constant variable %s.");
-CompileError const CompileError::BadGlobalInit(
-		37, 'T', false,
-		"Global variables can only be initialized to constants or"
-		" globals declared in the same script.");
-CompileError const CompileError::DeprecatedGlobal(
-		38, 'S', true,
-		"Script-scope global variable declaration syntax is deprecated;"
-		" put declarations at file scope instead.");
-CompileError const CompileError::VoidArr(
-		39, 'S', false, "Array %s can't have type void.");
-CompileError const CompileError::RefArr(
-		40, 'S', false, "Array type cannot be global [%s].");
-CompileError const CompileError::ArrRedef(
-		41, 'S', false,
-		"There is already an array with name%s defined in this scope.");
-CompileError const CompileError::ArrayTooSmall(
-		42, 'A', false, "Array is too small.");
-CompileError const CompileError::ArrayListTooLarge(
-		43, 'A', false, "Array initializer larger than specified dimensions.");
-CompileError const CompileError::ArrayListStringTooLarge(
-		44, 'A', false,
-		"String array initializer larger than specified dimensions,"
-		" space must be allocated for NULL terminator.");
-CompileError const CompileError::NonIntegerArraySize(
-		45, 'T', false, "Arrays can only be initialized to numerical values.");
-CompileError const CompileError::ExprNotConstant(
-		46, 'T', false, "Expression not constant.");
-CompileError const CompileError::UnresolvedType(
-		47, 'T', false, "Type '%s' is unknown.");
-CompileError const CompileError::ConstUninitialized(
-		48, 'T', false, "Const types must be initialized.");
-CompileError const CompileError::ConstAssign(
-		49, 'T', false, "You cannot assign to a constant value.");
-CompileError const CompileError::EmptyArrayLiteral(
-		50, 'S', false, "Array Literals must not be empty.");
-CompileError const CompileError::DimensionMismatch(
-		51, 'B', false, "Array Size Mismatch.");
-CompileError const CompileError::ArrayLiteralResize(
-		52, 'S', false, "Re-specifying array size.");
-CompileError const CompileError::MissingCompileError(
-		53, 'C', true, "Expected error %d did not occur.");
-CompileError const CompileError::UnimplementedFeature(
-		54, 'C', false, "Feature unimplemented: %s.");
-CompileError const CompileError::UnknownOption(
-		55, 'C', false, "Unknown option \"%s\".");
+CompileError::CompileError(CompileError::Impl* pimpl) : pimpl_(pimpl) {}
 
-CompileErrorHandler CompileErrorHandler::NONE;
-
-void SimpleCompileErrorHandler::handleError(
-		CompileError const& error, AST const* node, ...)
+void ZScript::box_out_err(CompileError const& error)
 {
-	va_list args;
-	va_start(args, node);
-	error.vprint(node, args);
-	if (error.warning) ++warningCount;
-	else ++errorCount;
-	va_end(args);
+	box_out_nl(error.toString().c_str());
+	box_eol();
+}
+
+////////////////////////////////////////////////////////////////
+// CompileErrorHandler
+
+void SimpleCompileErrorHandler::handleError(CompileError const& error)
+{
+	if (error.isStrict()) ++errorCount_;
+	else ++warningCount_;
+
+	box_out_nl(error.toString().c_str());
+	box_eol();
 }

@@ -51,7 +51,7 @@ optional<DataTypeId> TypeStore::assignTypeId(DataType const& type)
 {
 	if (!type.isResolved())
 	{
-		CompileError::UnresolvedType.print(NULL, type.getName());
+		box_out_err(CompileError::UnresolvedType(NULL, type.getName()));
 		return nullopt;
 	}
 
@@ -68,7 +68,7 @@ optional<DataTypeId> TypeStore::getOrAssignTypeId(DataType const& type)
 {
 	if (!type.isResolved())
 	{
-		CompileError::UnresolvedType.print(NULL, type.getName());
+		box_out_err(CompileError::UnresolvedType(NULL, type.getName()));
 		return nullopt;
 	}
 

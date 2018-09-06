@@ -7,10 +7,10 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 
-class CompileErrorHandler;
-
 namespace ZScript
 {
+	class CompileErrorHandler;
+
 	class TypeStore;
 	class Program;
 	class Script;

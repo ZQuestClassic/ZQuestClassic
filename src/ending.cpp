@@ -626,21 +626,21 @@ void ending()
 
 void inc_quest()
 {
-    char name[9];
-    strcpy(name,game->get_name());
-    // Go to quest 3 if you got some heart containers,
-    // or quest 4 if you got them all.
-    int quest;
+	char name[9];
+	strcpy(name,game->get_name());
+	// Go to quest 3 if you got some heart containers,
+	// or quest 4 if you got them all.
+	int quest;
     
-    if(game->get_quest()==2 && game->get_maxlife()>=HP_PER_HEART*16)
-        quest = 4;
-    else
-        quest = zc_min(game->get_quest()+1,5);
+	if(game->get_quest()==2 && game->get_maxlife()>=HP_PER_HEART*16)
+		quest = 4;
+	else
+		quest = zc_min(game->get_quest()+1,5);
 
 	if(game->get_quest()==3 && game->get_maxlife()>=HP_PER_HEART*16)
 		quest = 4;
         
-    int deaths = game->get_deaths();
+	int deaths = game->get_deaths();
 
 	// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
 	if(game->get_quest()==3 && deaths == 0)
@@ -650,20 +650,20 @@ void inc_quest()
 	if(game->get_quest()==5 && deaths > 0)
 		quest = 4;
 
-    game->Clear();
+	game->Clear();
     
-    game->set_name(name);
-    game->set_quest(quest);
-    game->set_deaths(deaths);
-    game->set_maxlife(3*HP_PER_HEART);
-    game->set_life(3*HP_PER_HEART);
-    game->set_maxbombs(8);
-    game->set_hasplayed(true);
-    game->set_continue_dmap(zinit.start_dmap);
-    game->set_continue_scrn(0x77);
-    resetItems(game,&zinit,true);
-    load_quest(game);
-    load_game_icon_to_buffer(false,currgame);
-    load_game_icon(game,false,currgame);
+	game->set_name(name);
+	game->set_quest(quest);
+	game->set_deaths(deaths);
+	game->set_maxlife(3*HP_PER_HEART);
+	game->set_life(3*HP_PER_HEART);
+	game->set_maxbombs(8);
+	game->set_hasplayed(true);
+	game->set_continue_dmap(zinit.start_dmap);
+	game->set_continue_scrn(0x77);
+	resetItems(game,&zinit,true);
+	load_quest(game);
+	load_game_icon_to_buffer(false,currgame);
+	load_game_icon(game,false,currgame);
 }
 

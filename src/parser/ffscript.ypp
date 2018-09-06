@@ -77,7 +77,7 @@ extern YYLTYPE noloc;
 %expect-rr 26
 %error-verbose
 %start Init
-%parse-param {ASTFile*& root}
+%parse-param {ZScript::ASTFile*& root}
 
 %define api.token.prefix {TOK_}
 

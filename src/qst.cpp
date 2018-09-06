@@ -652,144 +652,144 @@ bool valid_zqt(const char *filename)
 
 PACKFILE *open_quest_file(int *open_error, const char *filename, char *deletefilename, bool compressed,bool encrypted, bool show_progress)
 {
-    char tmpfilename[32];
-    temp_name(tmpfilename);
-    char percent_done[30];
-    int current_method=0;
+	char tmpfilename[32];
+	temp_name(tmpfilename);
+	char percent_done[30];
+	int current_method=0;
     
-    PACKFILE *f;
-    const char *passwd= encrypted ? datapwd : "";
+	PACKFILE *f;
+	const char *passwd= encrypted ? datapwd : "";
     
-    // oldquest flag is set when an unencrypted qst file is suspected.
-    bool oldquest = false;
-    int ret;
+	// oldquest flag is set when an unencrypted qst file is suspected.
+	bool oldquest = false;
+	int ret;
     
-    if(show_progress)
-    {
-        box_start(1, "Loading Quest", lfont, font, true);
-    }
+	if(show_progress)
+	{
+		box_start(1, "Loading Quest", lfont, font, true);
+	}
     
 	box_out("Loading Quest: ");
 	if(strncasecmp(filename, "qst.dat", 7)!=0)
-        box_out(filename);
-    else
-        box_out("new quest"); // Or whatever
+		box_out(filename);
+	else
+		box_out("new quest"); // Or whatever
 	box_out("...");
-    box_eol();
-    box_eol();
+	box_eol();
+	box_eol();
     
-    if(encrypted)
-    {
-        box_out("Decrypting...");
-        box_save_x();
-        ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_MAX-1, strstr(filename, ".dat#")!=NULL, passwd);
+	if(encrypted)
+	{
+		box_out("Decrypting...");
+		box_save_x();
+		ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_MAX-1, strstr(filename, ".dat#")!=NULL, passwd);
         
-        if(ret)
-        {
-            switch(ret)
-            {
-            case 1:
-                box_out("error.");
-                box_eol();
-                box_end(true);
-                *open_error=qe_notfound;
-                return NULL;
+		if(ret)
+		{
+			switch(ret)
+			{
+			case 1:
+				box_out("error.");
+				box_eol();
+				box_end(true);
+				*open_error=qe_notfound;
+				return NULL;
                 
-            case 2:
-                box_out("error.");
-                box_eol();
-                box_end(true);
-                *open_error=qe_internal;
-                return NULL;
-                // be sure not to delete tmpfilename now...
-            }
+			case 2:
+				box_out("error.");
+				box_eol();
+				box_end(true);
+				*open_error=qe_internal;
+				return NULL;
+				// be sure not to delete tmpfilename now...
+			}
             
-            if(ret==5)                                              //old encryption?
-            {
-                current_method++;
-                sprintf(percent_done, "%d%%", (current_method*100)/ENC_METHOD_MAX);
-                box_out(percent_done);
-                box_load_x();
-                ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_211B9, strstr(filename, ".dat#")!=NULL, passwd);
-            }
+			if(ret==5)                                              //old encryption?
+			{
+				current_method++;
+				sprintf(percent_done, "%d%%", (current_method*100)/ENC_METHOD_MAX);
+				box_out(percent_done);
+				box_load_x();
+				ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_211B9, strstr(filename, ".dat#")!=NULL, passwd);
+			}
             
-            if(ret==5)                                              //old encryption?
-            {
-                current_method++;
-                sprintf(percent_done, "%d%%", (current_method*100)/ENC_METHOD_MAX);
-                box_out(percent_done);
-                box_load_x();
-                ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_192B185, strstr(filename, ".dat#")!=NULL, passwd);
-            }
+			if(ret==5)                                              //old encryption?
+			{
+				current_method++;
+				sprintf(percent_done, "%d%%", (current_method*100)/ENC_METHOD_MAX);
+				box_out(percent_done);
+				box_load_x();
+				ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_192B185, strstr(filename, ".dat#")!=NULL, passwd);
+			}
             
-            if(ret==5)                                              //old encryption?
-            {
-                current_method++;
-                sprintf(percent_done, "%d%%", (current_method*100)/ENC_METHOD_MAX);
-                box_out(percent_done);
-                box_load_x();
-                ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_192B105, strstr(filename, ".dat#")!=NULL, passwd);
-            }
+			if(ret==5)                                              //old encryption?
+			{
+				current_method++;
+				sprintf(percent_done, "%d%%", (current_method*100)/ENC_METHOD_MAX);
+				box_out(percent_done);
+				box_load_x();
+				ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_192B105, strstr(filename, ".dat#")!=NULL, passwd);
+			}
             
-            if(ret==5)                                              //old encryption?
-            {
-                current_method++;
-                sprintf(percent_done, "%d%%", (current_method*100)/ENC_METHOD_MAX);
-                box_out(percent_done);
-                box_load_x();
-                ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_192B104, strstr(filename, ".dat#")!=NULL, passwd);
-            }
+			if(ret==5)                                              //old encryption?
+			{
+				current_method++;
+				sprintf(percent_done, "%d%%", (current_method*100)/ENC_METHOD_MAX);
+				box_out(percent_done);
+				box_load_x();
+				ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_192B104, strstr(filename, ".dat#")!=NULL, passwd);
+			}
             
-            if(ret)
-            {
-                oldquest = true;
-                passwd="";
-            }
-        }
+			if(ret)
+			{
+				oldquest = true;
+				passwd="";
+			}
+		}
         
-        box_out("okay.");
-        box_eol();
-    }
-    else
-    {
-        oldquest = true;
-    }
+		box_out("okay.");
+		box_eol();
+	}
+	else
+	{
+		oldquest = true;
+	}
     
-    box_out("Opening...");
-    f = pack_fopen_password(oldquest ? filename : tmpfilename, compressed ? F_READ_PACKED : F_READ, passwd);
+	box_out("Opening...");
+	f = pack_fopen_password(oldquest ? filename : tmpfilename, compressed ? F_READ_PACKED : F_READ, passwd);
     
-    if(!f)
-    {
-        if((compressed==1)&&(errno==EDOM))
-        {
-            f = pack_fopen_password(oldquest ? filename : tmpfilename, F_READ, passwd);
-        }
+	if(!f)
+	{
+		if((compressed==1)&&(errno==EDOM))
+		{
+			f = pack_fopen_password(oldquest ? filename : tmpfilename, F_READ, passwd);
+		}
         
-        if(!f)
-        {
-            if(!oldquest)
-            {
-                delete_file(tmpfilename);
-            }
+		if(!f)
+		{
+			if(!oldquest)
+			{
+				delete_file(tmpfilename);
+			}
             
-            box_out("error.");
-            box_eol();
-            box_end(true);
-            *open_error=qe_invalid;
-            return NULL;
-        }
-    }
+			box_out("error.");
+			box_eol();
+			box_end(true);
+			*open_error=qe_invalid;
+			return NULL;
+		}
+	}
     
-    if(!oldquest)
-    {
-        if(deletefilename)
-            sprintf(deletefilename, "%s", tmpfilename);
-    }
+	if(!oldquest)
+	{
+		if(deletefilename)
+			sprintf(deletefilename, "%s", tmpfilename);
+	}
     
-    box_out("okay.");
-    box_eol();
+	box_out("okay.");
+	box_eol();
     
-    return f;
+	return f;
 }
 
 PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool validate)

@@ -165,14 +165,12 @@ namespace ZScript
 	public:
 		RecursiveVisitor() : failure(false), breakNode(NULL) {}
 	
-		// If any errors have occured.
-		bool hasFailed() const {return failure;}
-
 		// Mark as having failed.
 		void fail() {failure = true;}
 	
 		// Used to signal that a compile error has occured.
-		void handleError(CompileError const& error, AST const* node, ...);
+		void handleError(CompileError const& error) /*override*/;
+		bool hasError() const /*override*/ {return failure;}
 	
 		// Visits a single node. The only virtual visit function as all others
 		// defer to this one.
