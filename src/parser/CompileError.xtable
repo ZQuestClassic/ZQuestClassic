@@ -51,7 +51,7 @@ X(	ContinueBad,			G,	A,	E,	VOID,	VOID,	"There is nothing for \"continue;\" to do
 X(	ConstRedef,			P,	D				       	  	      		       	  						)
 X(	LValConst,			T,	A,	E,	STR,	VOID,	"Variable %s is constant and cannot be changed."					)
 X(	BadGlobalInit,			T,	D					     		     	       							)
-X(	DeprecatedGlobal,		S,	A,	W,	STR,	VOID,	"Script-level global variables are deprecated - Please move %s outside of the script."	)
+X(	DeprecatedGlobal,		S,	D															)
 X(	VoidArr,			S,	A,	E,	STR,	VOID,	"Array %s cannot have base type void."							)
 X(	RefArr,				S,	A,	E,	STR,	VOID,	"Arrays of type %s are not allowed to be global."					)
 X(	ArrRedef,			S,	D					   	       	   	      	 						)

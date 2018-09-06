@@ -14,11 +14,11 @@ using namespace ZScript;
 // Scope
 
 Scope::Scope(TypeStore& typeStore)
-	: typeStore_(typeStore), name_(nullopt), varDeclsDeprecated(false)
+	: typeStore_(typeStore), name_(nullopt)
 {}
 
 Scope::Scope(TypeStore& typeStore, string const& name)
-	: typeStore_(typeStore), name_(name), varDeclsDeprecated(false)
+	: typeStore_(typeStore), name_(name)
 {}
 
 void Scope::invalidateStackSize()

@@ -131,7 +131,6 @@ UserScript* ZScript::createScript(
 		delete script;
 		return NULL;
 	}
-	scope->varDeclsDeprecated = true;
 	script->scope = scope;
 
 	if (node.type->type.isNull())
@@ -160,7 +159,6 @@ BuiltinScript* ZScript::createScript(
 		delete script;
 		return NULL;
 	}
-	scope->varDeclsDeprecated = true;
 	script->scope = scope;
 
 	if (type.isNull())

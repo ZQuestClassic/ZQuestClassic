@@ -312,10 +312,6 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		Variable::create(*scope, host, type, this);
 	}
 
-	// Special message for deprecated global variables.
-	if (scope->varDeclsDeprecated)
-		handleError(CompileError::DeprecatedGlobal(&host, host.name));
-
 	// Check the initializer.
 	if (host.initializer())
 	{

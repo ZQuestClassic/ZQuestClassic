@@ -130,8 +130,6 @@ namespace ZScript
 		virtual optional<int> getLocalStackOffset(Datum const&) const {
 			return nullopt;}
 		
-		bool varDeclsDeprecated;
-
 	protected:
 		TypeStore& typeStore_;
 		optional<std::string> name_;
