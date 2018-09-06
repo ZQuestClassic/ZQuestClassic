@@ -656,6 +656,7 @@ RootScope::RootScope(TypeStore& typeStore)
 	BuiltinConstant::create(*this, DataType::COMBOS, "ComboData", 0);
 	BuiltinConstant::create(*this, DataType::SPRITEDATA, "SpriteData", 0);
 	BuiltinConstant::create(*this, DataType::INPUT, "Input", 0);
+	BuiltinConstant::create(*this, DataType::GRAPHICS, "Graphics", 0);
 	BuiltinConstant::create(*this, DataType::MAPDATA, "MapData", 0);
 	BuiltinConstant::create(*this, DataType::DMAPDATA, "DMapData", 0);
 	BuiltinConstant::create(*this, DataType::ZMESSAGE, "MessageData", 0);

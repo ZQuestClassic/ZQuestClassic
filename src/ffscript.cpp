@@ -5504,7 +5504,7 @@ case AUDIOPAN:
     case REFSCREENDATA: ret = ri->screenref; break;
     case REFCOMBODATA: ret = ri->combosref; break;
     case REFSPRITEDATA: ret = ri->spritesref; break;
-    case REFGRAPHICS: ret = ri->gfxref; break;
+    case REFBITMAP: ret = ri->bitmapref; break;
     case REFNPCCLASS: ret = ri->npcdataref; break;
     
     
@@ -10290,7 +10290,7 @@ case AUDIOPAN:
     case REFSCREENDATA: ri->screenref = value; break;
     case REFCOMBODATA: ri->combosref = value; break;
     case REFSPRITEDATA: ri->spritesref = value; break;
-    case REFGRAPHICS: ri->gfxref = value; break;
+    case REFBITMAP: ri->bitmapref = value; break;
     case REFNPCCLASS: ri->npcdataref = value; break;
     
     case REFDMAPDATA: ri->dmapsref = value; break;
@@ -12137,10 +12137,10 @@ void FFScript::do_loadbitmapid(const bool v)
     if ( ID < MIN_INTERNAL_BITMAP || ID > MAX_INTERNAL_BITMAP )
     {
 	Z_scripterrlog("Invalid Bitmap ID passed to Game->Load BitmapID: %d\n", ID);
-	ri->gfxref = 0; 
+	ri->bitmapref = 0; 
     }
 
-    else ri->gfxref = ID;
+    else ri->bitmapref = ID;
     //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
 }
 
@@ -15100,9 +15100,9 @@ int FFScript::do_getpixel()
 	//They're for the subscreen offsets. 
 	const bool brokenOffset=get_bit(extra_rules, er_BITMAPOFFSET)!=0;
 	//bool isTargetOffScreenBmp = false;
-	//al_trace("Getpixel: The current bitmap ID is: %d /n",ri->gfxref);
-	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->gfxref);
-	BITMAP *bitty = zscriptDrawingRenderTarget->GetBitmapPtr(ri->gfxref);
+	//al_trace("Getpixel: The current bitmap ID is: %d /n",ri->bitmapref);
+	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->bitmapref);
+	BITMAP *bitty = zscriptDrawingRenderTarget->GetBitmapPtr(ri->bitmapref);
         //bmp = targetBitmap;
         if(!bitty)
         {
@@ -15111,7 +15111,7 @@ int FFScript::do_getpixel()
 		//return -10000;
 	}
 	// draw to screen with subscreen offset
-	if(!brokenOffset && ri->gfxref == -1 )
+	if(!brokenOffset && ri->bitmapref == -1 )
 	{
                 xoffset = xoff;
                 yoffset = 56; //should this be -56?

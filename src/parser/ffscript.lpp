@@ -85,7 +85,7 @@ void		TOKEN( ZVOID );
 bool		TOKEN( ZBOOL );
 float		TOKEN( ZFLOAT );
 int		TOKEN( ZFLOAT );
-bitmap		TOKEN( GRAPHICS );
+bitmap		TOKEN( BITMAP );
 cheat		TOKEN( CHEAT );
 combo		TOKEN( COMBO );
 doorset		TOKEN( DOORSET );

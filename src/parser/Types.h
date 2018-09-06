@@ -93,6 +93,7 @@ namespace ZScript
 		ZVARTYPEID_COMBOS,
 		ZVARTYPEID_SPRITEDATA,
 		ZVARTYPEID_GRAPHICS,
+		ZVARTYPEID_BITMAP,
 		ZVARTYPEID_TEXT,
 		ZVARTYPEID_INPUT,
 		ZVARTYPEID_MAPDATA,
@@ -169,6 +170,7 @@ namespace ZScript
 		static DataTypeClass const COMBOS;
 		static DataTypeClass const SPRITEDATA;
 		static DataTypeClass const GRAPHICS;
+		static DataTypeClass const BITMAP;
 		static DataTypeClass const TEXT;
 		static DataTypeClass const INPUT;
 		static DataTypeClass const MAPDATA;
