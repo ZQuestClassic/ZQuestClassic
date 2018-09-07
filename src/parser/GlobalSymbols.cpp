@@ -346,7 +346,8 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
     case ZVARTYPEID_AUDIO: return &AudioSymbols::getInst();
     case ZVARTYPEID_COMBOS: return &CombosPtrSymbols::getInst();
     case ZVARTYPEID_SPRITEDATA: return &SpriteDataSymbols::getInst();
-    case ZVARTYPEID_GRAPHICS: return &GfxPtrSymbols::getInst();
+    case ZVARTYPEID_GRAPHICS: return &GraphicsSymbols::getInst();
+    case ZVARTYPEID_BITMAP: return &BitmapSymbols::getInst();
     case ZVARTYPEID_TEXT: return &TextPtrSymbols::getInst();
     case ZVARTYPEID_INPUT: return &InputSymbols::getInst();
     case ZVARTYPEID_MAPDATA: return &MapDataSymbols::getInst();
@@ -3560,7 +3561,8 @@ static AccessorTable gameTable[] =
 	{ "getHold[]",             ZVARTYPEID_BOOL,         GETTER,       BUTTONHELD,         18,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setHold[]",             ZVARTYPEID_VOID,          SETTER,       BUTTONHELD,         18,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getReadKey[]",             ZVARTYPEID_BOOL,         GETTER,       READKEY,         127,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "getKey[]",             ZVARTYPEID_BOOL,         GETTER,       KEYPRESS,         127,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getKey[]",             ZVARTYPEID_B
+OOL,         GETTER,       KEYPRESS,         127,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setKey[]",             ZVARTYPEID_VOID,          SETTER,       KEYPRESS,         127,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getMouse[]",             ZVARTYPEID_FLOAT,         GETTER,       MOUSEARR,         6,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setMouse[]",             ZVARTYPEID_VOID,          SETTER,       MOUSEARR,         6,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -3573,7 +3575,7 @@ static AccessorTable gameTable[] =
 	{ "LoadShopData",           ZVARTYPEID_SHOPDATA,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadInfoShopData",           ZVARTYPEID_SHOPDATA,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	//{ "LoadScreenData",           ZVARTYPEID_ITEMCLASS,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "LoadBitmapID",           ZVARTYPEID_GRAPHICS,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadBitmapID",           ZVARTYPEID_BITMAP,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadMessageData",           ZVARTYPEID_ZMESSAGE,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadDMapData",           ZVARTYPEID_DMAPDATA,     FUNCTION,     0,                    1,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
@@ -3783,7 +3785,7 @@ void GameSymbols::generateCode()
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         code.push_back(new OLoadBitmapDataRegister(new VarArgument(EXP1)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFGRAPHICS)));
+        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBITMAP)));
         code.push_back(new OPopRegister(new VarArgument(EXP2)));
         code.push_back(new OGotoRegister(new VarArgument(EXP2)));
         function->giveCode(code);   
@@ -6643,84 +6645,105 @@ void InputSymbols::generateCode()
     }
 }
 
-GfxPtrSymbols GfxPtrSymbols::singleton = GfxPtrSymbols();
+GraphicsSymbols GraphicsSymbols::singleton = GraphicsSymbols();
 
 static AccessorTable GraphicsTable[] =
 {
-    //name,                     rettype,                        setorget,     var,              numindex,      params
-	//All of these return a function label error when used:
-	{ "getTest",               ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,            1,      {  ZVARTYPEID_GRAPHICS,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	
-	{ "Wavy",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BOOL,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-   
-	{ "Zap",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BOOL,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-   
-	{ "Greyscale",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_BOOL,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-        { "GetPixel",               ZVARTYPEID_UNTYPED,         FUNCTION,       0,            1,      {  ZVARTYPEID_GRAPHICS,      ZVARTYPEID_FLOAT,  ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-    
-    { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
+//	  name,		rettype,		setorget,	var,	num,	params
+	{ "Wavy",	ZVARTYPEID_VOID,	FUNCTION,	0,	1,	{ ZVARTYPEID_GRAPHICS,	ZVARTYPEID_BOOL,	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "Zap",	ZVARTYPEID_VOID,	FUNCTION,	0,	1,	{ ZVARTYPEID_GRAPHICS,	ZVARTYPEID_BOOL,	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "Greyscale",	ZVARTYPEID_VOID,	FUNCTION,	0,	1,	{ ZVARTYPEID_GRAPHICS,	ZVARTYPEID_BOOL,	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "",		-1,			-1,		-1,	-1,	{ -1,			-1,			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
-GfxPtrSymbols::GfxPtrSymbols()
+GraphicsSymbols::GraphicsSymbols()
 {
     table = GraphicsTable;
-    refVar = REFGRAPHICS;
+    refVar = NUL;
 }
 
-void GfxPtrSymbols::generateCode()
+void GraphicsSymbols::generateCode()
 {
-	 {
-	Function* function = getFunction("GetPixel");
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the params
-        Opcode *first = new OPopRegister(new VarArgument(INDEX2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(GETPIXEL)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function->giveCode(code);
-    }
 	{
-        Function* function = getFunction("Wavy");
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OWavyR(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function->giveCode(code);
-    }
-    {
-        Function* function = getFunction("Zap");
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OZapR(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function->giveCode(code);
-    }
-    {
-        Function* function = getFunction("Greyscale");
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OGreyscaleR(new VarArgument(EXP2)));
-        code.push_back(new OPopRegister(new VarArgument(EXP2)));
-        code.push_back(new OGotoRegister(new VarArgument(EXP2)));
-        function->giveCode(code);
-    }
+		Function* function = getFunction("Wavy");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		// Pop argument.
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		// Pop pointer.
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OWavyR(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("Zap");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		// Pop argument.
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		// Pop pointer.
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OZapR(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("Greyscale");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		// Pop argument.
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		// Pop pointer.
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OGreyscaleR(new VarArgument(EXP2)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		function->giveCode(code);
+	}
+}
+
+BitmapSymbols BitmapSymbols::singleton = BitmapSymbols();
+
+static AccessorTable BitmapTable[] =
+{
+//	  name, 	rettype, 		setorget,	var,	num,	params
+	{ "GetPixel", 	ZVARTYPEID_UNTYPED,     FUNCTION,       0,      1,      { ZVARTYPEID_BITMAP,	ZVARTYPEID_FLOAT,	ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "", 		-1,                     -1,             -1,     -1,     { -1,                   -1,                     -1,               -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+};
+
+BitmapSymbols::BitmapSymbols()
+{
+    table = BitmapTable;
+    refVar = REFBITMAP;
+}
+
+void BitmapSymbols::generateCode()
+{
+	{
+		Function* function = getFunction("GetPixel");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(GETPIXEL)));
+		code.push_back(new OPopRegister(new VarArgument(EXP2)));
+		code.push_back(new OGotoRegister(new VarArgument(EXP2)));
+		function->giveCode(code);
+	}
 }
 
 SpriteDataSymbols SpriteDataSymbols::singleton = SpriteDataSymbols();

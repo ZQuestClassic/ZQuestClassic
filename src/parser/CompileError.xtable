@@ -1,0 +1,76 @@
+// The various compile errors.
+
+// Name :: The error identifier.
+// Code :: The error code letter.
+// Used :: 'A'ctive or 'D'eprecated
+// Strict :: 'E'rror or 'W'arning
+// Arg1 :: First argument type. (VOID, STR, INT)
+// Arg2 :: Second argument type. (VOID, STR, INT)
+
+
+// ERROR - A compiler error.
+// WARN - A compiler warning.
+// DEPR - A deprecated error. Used as a placeholder to keep the numbering the same.
+
+//	Name,				Code,	Used,	Strict,	Arg1,	Arg,	String
+X(	CantOpenSource,			P,	A,	E,	VOID,	VOID,	"Can't open or parse input file!"							)
+X(	CantOpenImport,			P,	A,	E,	STR,	VOID,	"Failure to parse imported file %s."							)
+X(	ImportRecursion,		P,	A,	E,	INT,	VOID,	"Recursion limit of %d hit while preprocessing. Perhaps you have circular imports?"	)
+X(	ImportBadScope,			P,	D	                                                                                  				)
+X(	FunctionRedef,			S,	A,	E,	STR,	VOID,	"Function %s was already declared with that type signature."                            )
+X(	FunctionVoidParam,		S,	A,	E,	STR,	VOID,	"Function parameter %s cannot have void type."	 					)
+X(	ScriptRedef,			S,	A,	E,	STR,	VOID,	"Duplicate script with name %s already exists."						)
+X(	VoidVar,			S,	A,	E,	STR,	VOID,	"Variable %s can't have type void."    							)
+X(	VarRedef,			S,	A,	E,	STR,	VOID,	"There is already a variable with name %s in this scope."				)
+X(	VarUndeclared,			S,	A,	E,	STR,	VOID,	"Variable %s has not been declared."   	     	  					)
+X(	FuncUndeclared,			S,	D					     	     	  								)
+X(	ScriptNoRun,			S,	A,	E,	STR,	VOID,	"Script %s needs a void run() function."						)
+X(	ScriptRunNotVoid,		S,	A,	E,	STR,	VOID,	"Script %s's run() needs to be type void."						)
+X(	ScriptNumNotInt,		T,	D					     	   	       	    							)
+X(	ScriptNumTooBig,		T,	D															)
+X(	ScriptNumRedef,			T,	D															)
+X(	ImplicitCast,			T,	D															)
+X(	IllegalCast,			T,	A,	E,	STR,	STR,	"Cannot cast from %s to %s."								)
+X(	VoidExpr,			T,	D															)
+X(	DivByZero,			T,	A,	E,	VOID,	VOID,	"Attempting to divide by 0."								)
+X(	ConstTrunc,			T,	A,	W,	STR,	VOID,	"Constant %s is too long and has been truncated."					)
+X(	NoFuncMatch,			T,	A,	E,	STR,	VOID,	"Function %s has not been declared."							)
+X(	TooFuncMatch,			T,	A,	E,	STR,	STR,	"There are too many choices for function %s.\n        The possible choices are:\n%s"	)
+X(	FuncBadReturn,			T,	A,	E,	VOID,	VOID,	"This function is not void, so it cannot return nothing."     	  	   	   	)
+X(	TooManyGlobal,			L,	A,	E,	VOID,	VOID,	"There are too many global variables."	 						)
+X(	ShiftNotInt,			T,	A,	W,	VOID,	VOID,	"Bitshift by non-integer amount; it has been truncated." 				)
+X(	RefVar,				S,	A,	E,	STR,	VOID,	"Variables of type %s are not allowed to be global."					)
+X(	ArrowNotPointer,		T,	A,	E,	VOID,	VOID,	"The left of the -> is not a pointer type (ffc, etc)."					)
+X(	ArrowNoFunc,			T,	A,	E,	STR,	VOID,	"There is no function %s for the pointer on the left side of ->."			)
+X(	ArrowNoVar,			T,	A,	E,	STR,	VOID,	"There is no variable %s for the pointer on the left side of ->."			)
+X(	TooManyRun,			S,	A,	E,	STR,	VOID,	"Script %s has more than one run() function."	     	     				)
+X(	IndexNotInt,			T,	D					       	    	     	   							)
+X(	ScriptBadType,			S,	A,	E,	STR,	VOID,	"Script %s is of an illegal type."							)
+X(	BreakBad,			G,	A,	E,	VOID,	VOID,	"There is nothing for \"break;\" to do here."						)
+X(	ContinueBad,			G,	A,	E,	VOID,	VOID,	"There is nothing for \"continue;\" to do here."					)
+X(	ConstRedef,			P,	D				       	  	      		       	  						)
+X(	LValConst,			T,	A,	E,	STR,	VOID,	"Variable %s is constant and cannot be changed."					)
+X(	BadGlobalInit,			T,	D					     		     	       							)
+X(	DeprecatedGlobal,		S,	D															)
+X(	VoidArr,			S,	A,	E,	STR,	VOID,	"Array %s cannot have base type void."							)
+X(	RefArr,				S,	A,	E,	STR,	VOID,	"Arrays of type %s are not allowed to be global."					)
+X(	ArrRedef,			S,	D					   	       	   	      	 						)
+X(	ArrayTooSmall,			A,	A,	E,	STR,	VOID,	"Arrays must have a size of at least 1."						)
+X(	ArrayListTooLarge,		A,	A,	E,	VOID,	VOID,	"The array's size is set to be shorter than its initial contents."          		)
+X(	ArrayListStringTooLarge,	A,	A,	E,	VOID,	VOID,	"The array's size is set to be shorter than its initial contents.\n"
+										"    (strings take up 1 more space than the number of characters in them.)"		)
+X(	NonIntegerArraySize,		T,	A,	E,	VOID,	VOID,	"An array's size must be an integer."	    	      		    			)
+X(	ExprNotConstant,		T,	A,	E,	VOID,	VOID,	"An expression is not constant that needs to be."					)
+X(	UnresolvedType,			T,	A,	E,	STR,	VOID,	"Type %s has not been declared."    	     						)
+X(	ConstUninitialized,		T,	A,	E,	VOID,	VOID,	"A constant has not been initialized."							)
+X(	ConstAssign,			T,	D															)
+X(	EmptyArrayLiteral,		S,	A,	E,	VOID,	VOID,	"Array Literals must not be empty."							)
+X(	DimensionMismatch,		B,	A,	E,	VOID,	VOID,	"Array Size Mismatch."	    								)
+X(	ArrayLiteralResize,		S,	A,	E,	VOID,	VOID,	"Don't define the size of the same array twice."					)
+X(	MissingCompileError,		C,	A,	W,	INT,	VOID,	"The compile error with id %d did not occur."						)
+X(	UnimplementedFeature,		C,	A,	E,	STR,	VOID,	"The feature \"%s\" has not been implemented yet."					)
+X(	UnknownOption,			C,	A,	E,	STR,	VOID,	"There is no option for \"%s\"." 	     						)
+X(	NoReadType,			T,	A,	E,	STR,	VOID,	"\"%s\" cannot be read from."								)
+X(	NoWriteType,			T,	A,	E,	STR,	VOID,	"\"%s\" cannot be written to."								)
+
+#undef STR

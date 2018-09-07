@@ -18,8 +18,7 @@ bool RecursiveVisitor::breakRecursion(AST& host, void* param) const
 	return host.disabled || failure || breakNode;
 }
 
-void RecursiveVisitor::handleError(
-		CompileError const& error, AST const* node, ...)
+void RecursiveVisitor::handleError(CompileError const& error)
 {
 	// Scan through the node stack looking for a handler.
 	for (vector<AST*>::const_reverse_iterator it = recursionStack.rbegin();
@@ -36,10 +35,10 @@ void RecursiveVisitor::handleError(
 			// If we've found a handler, remove that handler from the node's
 			// list of handlers and disable the current node (if not a
 			// warning).
-			if (*errorId == error.id * 10000L)
+			if (*errorId == *error.getId() * 10000L)
 			{
 				ancestor.compileErrorCatches.erase(it);
-				if (!error.warning)
+				if (error.isStrict())
 				{
 					ancestor.disabled = true;
 					breakNode = &ancestor;
@@ -49,13 +48,9 @@ void RecursiveVisitor::handleError(
 		}
 	}
 
-	// If there was no handler, fail if it's not a warning and then print it
-	// out.
-	va_list args;
-	va_start(args, node);
-	error.vprint(node, args);
-	if (!error.warning) failure = true;
-	va_end(args);
+	// Actually handle the error.
+	if (error.isStrict()) failure = true;
+	box_out_err(error);
 }
 
 void RecursiveVisitor::visit(AST& node, void* param)

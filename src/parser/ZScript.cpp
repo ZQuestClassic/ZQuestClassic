@@ -127,18 +127,17 @@ UserScript* ZScript::createScript(
 	{
 		if (errorHandler)
 			errorHandler->handleError(
-					CompileError::ScriptRedef, &node, node.name.c_str());
+				CompileError::ScriptRedef(&node, node.name));
 		delete script;
 		return NULL;
 	}
-	scope->varDeclsDeprecated = true;
 	script->scope = scope;
 
 	if (node.type->type.isNull())
 	{
 		if (errorHandler)
 			errorHandler->handleError(
-					CompileError::ScriptBadType, &node, node.name.c_str());
+				CompileError::ScriptBadType(&node, node.name));
 		delete script;
 		return NULL;
 	}
@@ -156,19 +155,17 @@ BuiltinScript* ZScript::createScript(
 	if (!scope)
 	{
 		if (errorHandler)
-			errorHandler->handleError(
-					CompileError::ScriptRedef, NULL, name.c_str());
+			errorHandler->handleError(CompileError::ScriptRedef(NULL, name));
 		delete script;
 		return NULL;
 	}
-	scope->varDeclsDeprecated = true;
 	script->scope = scope;
 
 	if (type.isNull())
 	{
 		if (errorHandler)
 			errorHandler->handleError(
-					CompileError::ScriptBadType, NULL, name.c_str());
+				CompileError::ScriptBadType(NULL, name));
 		delete script;
 		return NULL;
 	}

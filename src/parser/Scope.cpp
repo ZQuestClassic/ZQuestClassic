@@ -14,11 +14,11 @@ using namespace ZScript;
 // Scope
 
 Scope::Scope(TypeStore& typeStore)
-	: typeStore_(typeStore), name_(nullopt), varDeclsDeprecated(false)
+	: typeStore_(typeStore), name_(nullopt)
 {}
 
 Scope::Scope(TypeStore& typeStore, string const& name)
-	: typeStore_(typeStore), name_(name), varDeclsDeprecated(false)
+	: typeStore_(typeStore), name_(name)
 {}
 
 void Scope::invalidateStackSize()
@@ -499,8 +499,8 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 		{
 			if (errorHandler)
 				errorHandler->handleError(
-						CompileError::VarRedef, datum.getNode(),
-						name->c_str());
+						CompileError::VarRedef(datum.getNode(),
+						                       name->c_str()));
 			return false;
 		}
 		namedData_[*name] = &datum;
@@ -600,8 +600,8 @@ bool FileScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 		{
 			if (errorHandler)
 				errorHandler->handleError(
-						CompileError::VarRedef, datum.getNode(),
-						name->c_str());
+						CompileError::VarRedef(datum.getNode(),
+						                       name->c_str()));
 			return false;
 		}
 	}
@@ -656,6 +656,7 @@ RootScope::RootScope(TypeStore& typeStore)
 	BuiltinConstant::create(*this, DataType::COMBOS, "ComboData", 0);
 	BuiltinConstant::create(*this, DataType::SPRITEDATA, "SpriteData", 0);
 	BuiltinConstant::create(*this, DataType::INPUT, "Input", 0);
+	BuiltinConstant::create(*this, DataType::GRAPHICS, "Graphics", 0);
 	BuiltinConstant::create(*this, DataType::MAPDATA, "MapData", 0);
 	BuiltinConstant::create(*this, DataType::DMAPDATA, "DMapData", 0);
 	BuiltinConstant::create(*this, DataType::ZMESSAGE, "MessageData", 0);

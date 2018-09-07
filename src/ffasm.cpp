@@ -1046,7 +1046,7 @@ script_variable variable_list[]=
 	{ "REFSCREENDATA",       REFSCREENDATA,          0,             0 },
 	{ "REFCOMBODATA",       REFCOMBODATA,          0,             0 },
 	{ "REFSPRITEDATA",       REFSPRITEDATA,          0,             0 },
-	{ "REFGRAPHICS",       REFGRAPHICS,          0,             0 },
+	{ "REFBITMAP",       REFBITMAP,          0,             0 },
 	{ "REFDMAPDATA",         REFDMAPDATA,            0,             0 },
 	{ "REFSHOPDATA",         REFSHOPDATA,            0,             0 },
 	{ "REFMSGDATA",         REFMSGDATA,            0,             0 },

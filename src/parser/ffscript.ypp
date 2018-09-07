@@ -108,7 +108,7 @@ extern YYLTYPE noloc;
 %token ZVOID
 %token ZBOOL
 %token ZFLOAT
-%token GRAPHICS
+%token BITMAP
 %token CHEAT
 %token COMBO
 %token DOORSET
@@ -261,7 +261,7 @@ DataType :
 //	| UNTYPED {$$ = new ASTVarType(DataType::UNTYPED, @$);}
 	| ZBOOL {$$ = new ASTVarType(DataType::BOOL, @$);}
 	| ZFLOAT {$$ = new ASTVarType(DataType::FLOAT, @$);}
-	| GRAPHICS {$$ = new ASTVarType(DataType::GRAPHICS, @$);}
+	| BITMAP {$$ = new ASTVarType(DataType::BITMAP, @$);}
 	| CHEAT {$$ = new ASTVarType(DataType::CHEATS, @$);}
 	| COMBO {$$ = new ASTVarType(DataType::COMBOS, @$);}
 	| DOORSET {$$ = new ASTVarType(DataType::DOORSET, @$);}
@@ -675,7 +675,7 @@ Identifier_List :
 
 Identifier :
 	IDENTIFIER {$$ = $1;}
-	| GRAPHICS {$$ = new ASTString("bitmap", @$);}
+	| BITMAP {$$ = new ASTString("bitmap", @$);}
 	| CHEAT {$$ = new ASTString("cheat", @$);}
 	| COMBO {$$ = new ASTString("combo", @$);}
 	| DOORSET {$$ = new ASTString("doorset", @$);}

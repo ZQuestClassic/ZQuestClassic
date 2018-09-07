@@ -51,7 +51,7 @@ optional<DataTypeId> TypeStore::assignTypeId(DataType const& type)
 {
 	if (!type.isResolved())
 	{
-		CompileError::UnresolvedType.print(NULL, type.getName());
+		box_out_err(CompileError::UnresolvedType(NULL, type.getName()));
 		return nullopt;
 	}
 
@@ -68,7 +68,7 @@ optional<DataTypeId> TypeStore::getOrAssignTypeId(DataType const& type)
 {
 	if (!type.isResolved())
 	{
-		CompileError::UnresolvedType.print(NULL, type.getName());
+		box_out_err(CompileError::UnresolvedType(NULL, type.getName()));
 		return nullopt;
 	}
 
@@ -143,6 +143,7 @@ DataTypeClass const DataType::NPCDATA(ZCLASSID_NPCDATA, "NPCData");
 DataTypeClass const DataType::COMBOS(ZCLASSID_COMBOS, "Combos");
 DataTypeClass const DataType::SPRITEDATA(ZCLASSID_SPRITEDATA, "SpriteData");
 DataTypeClass const DataType::GRAPHICS(ZCLASSID_GRAPHICS, "Graphics");
+DataTypeClass const DataType::BITMAP(ZCLASSID_BITMAP, "Bitmap");
 DataTypeClass const DataType::TEXT(ZCLASSID_TEXT, "Text");
 DataTypeClass const DataType::INPUT(ZCLASSID_INPUT, "Input");
 DataTypeClass const DataType::MAPDATA(ZCLASSID_MAPDATA, "MapData");
@@ -198,6 +199,7 @@ DataType const* DataType::get(DataTypeId id)
 	case ZVARTYPEID_COMBOS: return &COMBOS;
 	case ZVARTYPEID_SPRITEDATA: return &SPRITEDATA;
 	case ZVARTYPEID_GRAPHICS: return &GRAPHICS;
+	case ZVARTYPEID_BITMAP: return &BITMAP;
 	case ZVARTYPEID_TEXT: return &TEXT;
 	case ZVARTYPEID_INPUT: return &INPUT;
 	case ZVARTYPEID_MAPDATA: return &MAPDATA;
