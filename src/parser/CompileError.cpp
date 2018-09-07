@@ -12,22 +12,6 @@
 using namespace std;
 using namespace ZScript;
 
-#include <cstdarg>
-#include <cstdio>
-
-string formatStr(std::string const* format, ...)
-{
-	static char buffer[formatBufferSize];
-	
-	va_list args;
-	va_start(args, format);
-	vsprintf(buffer, format->c_str(), args);
-	va_end(args);
-
-	return std::string(buffer);
-}
-
-
 ////////////////////////////////////////////////////////////////
 // CompileError::Impl interface
 

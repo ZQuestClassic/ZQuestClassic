@@ -20,9 +20,12 @@ std::string to_string(Type val)
 	return oss.str();
 }
 
-// as sprintf, but for strings.
-int const formatBufferSize = 4096;
-std::string formatStr(std::string const* format, ...);
+namespace ZScript
+{
+	// as sprintf, but for strings.
+	int const formatBufferSize = 4096;
+	std::string formatStr(std::string const* format, ...);
+}
 
 ////////////////////////////////////////////////////////////////
 // No Copy Mixin
