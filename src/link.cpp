@@ -793,7 +793,7 @@ int LinkClass::getSpecialCave()
 void LinkClass::init()
 {
     setMonochrome(false);
-	dontdraw = true;
+	dontdraw = false;
     hookshot_used=false;
     hookshot_frozen=false;
     dir = up;
