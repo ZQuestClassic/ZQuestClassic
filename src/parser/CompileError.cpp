@@ -8,6 +8,9 @@
 #include "../zsyssimple.h"
 #include "AST.h"
 #include "CompilerUtils.h"
+XTableHelper XH;
+#include <cstdarg>
+#include <cstdio>
 
 using namespace std;
 using namespace ZScript;
@@ -129,7 +132,7 @@ namespace // file local
 		
 		CompileError::Id getId() const /*override*/ {return id_;}
 		string getMessage() const /*override*/ {
-			return formatStr(&entries[id_].format,
+			return XH.formatStr(&entries[id_].format,
 			                 formatArg<A>(arg1_),
 			                 formatArg<B>(arg2_));}
 		AST const* getSource() const /*override*/ {return source_;}
@@ -153,7 +156,7 @@ namespace // file local
 		
 		CompileError::Id getId() const /*override*/ {return id_;}
 		string getMessage() const /*override*/ {
-			return formatStr(&entries[id_].format, formatArg<A>(arg_));}
+			return XH.formatStr(&entries[id_].format, formatArg<A>(arg_));}
 		AST const* getSource() const /*override*/ {return source_;}
 
 	private:

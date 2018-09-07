@@ -3,8 +3,9 @@
 
 #include <cstdarg>
 #include <cstdio>
+#include <string>
 
-std::string ZScript::formatStr(std::string const* format, ...)
+std::string XTableHelper::formatStr(std::string const* format, ...)
 {
 	static char buffer[formatBufferSize];
 	
