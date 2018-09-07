@@ -4,6 +4,7 @@
 #include <cstdarg>
 #include <cstdio>
 
+/*
 std::string formatStr(std::string const* format, ...)
 {
 	static char buffer[formatBufferSize];
@@ -15,3 +16,4 @@ std::string formatStr(std::string const* format, ...)
 
 	return std::string(buffer);
 }
+*/
