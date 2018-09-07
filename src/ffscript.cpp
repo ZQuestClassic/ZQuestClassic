@@ -5790,7 +5790,11 @@ void set_register(const long arg, const long value)
 	    if ( game->item[itemID] != settrue ) game->set_item(itemID,(value != 0));
                     
             //resetItems(game); - Is this really necessary? ~Joe123
-            if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) ringcolor(false);
+            if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) 
+	    {
+		    ringcolor(false);
+		    //refreshpal=true;
+	    }
         }
         break;
         
