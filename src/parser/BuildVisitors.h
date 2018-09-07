@@ -75,7 +75,7 @@ namespace ZScript
 		virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param);
 		virtual void caseOptionValue(ASTOptionValue& host, void* param);
 		// Types
-		void caseVarType(ASTVarType& host, void* param) {}
+		void caseVarType(ASTDataType& host, void* param) {}
 
 		vector<Opcode *> getResult() const {return result;}
 		int getReturnLabelID() const {return returnlabelid;}
