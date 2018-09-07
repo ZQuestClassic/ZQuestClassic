@@ -147,7 +147,7 @@ namespace // file local
 		string getMessage() const /*override*/ {
 			return formatStr(&entries[id_].format,
 			                 formatArg<A>(arg1_),
-			                 formatArg<A>(arg2_));}
+			                 formatArg<B>(arg2_));}
 		AST const* getSource() const /*override*/ {return source_;}
 
 	private:
