@@ -37,15 +37,17 @@ namespace ZScript
 
 		// Define argument types. Non-void has preceding comma to fit in the
 		// argument list properly.
+#		define EXPAND(X) X
 #		define TYPE_VOID /* ignore void types */
 #		define TYPE_INT ,int
 #		define TYPE_STR ,std::string const&
 		// Split on USED field.
-#		define X(NAME, CODE, USED, ...) X_##USED(NAME, CODE, __VA_ARGS__)
+#		define X(NAME, CODE, USED, ...) EXPAND(X_##USED(NAME, CODE, __VA_ARGS__))
 #		define X_D(...) /* don't make function for deprecated error code */
 #		define X_A(NAME, CODE, STRICT, ARG1, ARG2, FORMAT) \
 		static CompileError NAME(AST const* TYPE_##ARG1 TYPE_##ARG2);
 #		include "CompileError.xtable"
+#		undef EXPAND
 #		undef TYPE_VOID
 #		undef TYPE_INT
 #		undef TYPE_STR

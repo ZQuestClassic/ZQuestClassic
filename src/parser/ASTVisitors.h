@@ -153,7 +153,7 @@ namespace ZScript
 		// Types
 		virtual void caseScriptType(ASTScriptType& host, void* param = NULL) {
 			caseDefault(host, param);}
-		virtual void caseVarType(ASTVarType& host, void* param = NULL) {
+		virtual void caseDataType(ASTDataType& host, void* param = NULL) {
 			caseDefault(host, param);}
 	};
 

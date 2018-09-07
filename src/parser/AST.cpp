@@ -1082,7 +1082,7 @@ DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope) const
 	TypeStore& typeStore = scope->getTypeStore();
 
 	// First resolve the base type.
-	ASTVarType* baseTypeNode = list ? list->baseType : baseType;
+	ASTDataType* baseTypeNode = list ? list->baseType : baseType;
 	DataType const* type = &baseTypeNode->resolve(*scope);
 
 	// If we have any arrays, tack them onto the base type.
@@ -1150,7 +1150,7 @@ optional<int> ASTDataDeclExtraArray::getCompileTimeSize(
 // ASTTypeDef
 
 ASTTypeDef::ASTTypeDef(
-		ASTVarType* type, string const& name, LocationData const& location)
+		ASTDataType* type, string const& name, LocationData const& location)
 	 : ASTDecl(location), type(type), name(name)
 {}
 
@@ -2682,21 +2682,21 @@ void ASTScriptType::execute(ASTVisitor& visitor, void* param)
 	visitor.caseScriptType(*this, param);
 }
 
-// ASTVarType
+// ASTDataType
 
-ASTVarType::ASTVarType(DataType* type, LocationData const& location)
+ASTDataType::ASTDataType(DataType* type, LocationData const& location)
 	: AST(location), type(type)
 {}
 
-ASTVarType::ASTVarType(DataType const& type, LocationData const& location)
+ASTDataType::ASTDataType(DataType const& type, LocationData const& location)
 	: AST(location), type(type.clone())
 {}
 
-ASTVarType::ASTVarType(ASTVarType const& base)
+ASTDataType::ASTDataType(ASTDataType const& base)
 	: AST(base), type(AST::clone(base.type))
 {}
 
-ASTVarType& ASTVarType::operator=(ASTVarType const& rhs)
+ASTDataType& ASTDataType::operator=(ASTDataType const& rhs)
 {
 	AST::operator=(rhs);
 
@@ -2705,12 +2705,12 @@ ASTVarType& ASTVarType::operator=(ASTVarType const& rhs)
 	return *this;
 }
 
-void ASTVarType::execute(ASTVisitor& visitor, void* param)
+void ASTDataType::execute(ASTVisitor& visitor, void* param)
 {
-	visitor.caseVarType(*this, param);
+	visitor.caseDataType(*this, param);
 }
 
-DataType const& ASTVarType::resolve(ZScript::Scope& scope)
+DataType const& ASTDataType::resolve(ZScript::Scope& scope)
 {
 	DataType* resolved = type->resolve(scope);
 	if (resolved && type != resolved)
