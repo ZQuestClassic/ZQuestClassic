@@ -7,6 +7,7 @@
 #include <sstream>
 #include "../zsyssimple.h"
 #include "AST.h"
+#include "CompilerUtils.h"
 
 using namespace std;
 using namespace ZScript;
@@ -128,9 +129,9 @@ namespace // file local
 		
 		CompileError::Id getId() const /*override*/ {return id_;}
 		string getMessage() const /*override*/ {
-			return format(&entries[id_].format,
-			              formatArg<A>(arg1_),
-			              formatArg<A>(arg2_));}
+			return formatStr(&entries[id_].format,
+			                 formatArg<A>(arg1_),
+			                 formatArg<A>(arg2_));}
 		AST const* getSource() const /*override*/ {return source_;}
 
 	private:
@@ -152,7 +153,7 @@ namespace // file local
 		
 		CompileError::Id getId() const /*override*/ {return id_;}
 		string getMessage() const /*override*/ {
-			return format(&entries[id_].format, formatArg<A>(arg_));}
+			return formatStr(&entries[id_].format, formatArg<A>(arg_));}
 		AST const* getSource() const /*override*/ {return source_;}
 
 	private:
