@@ -70,5 +70,7 @@ X(	ArrayLiteralResize,		S,	A,	E,	VOID,	VOID,	"Don't define the size of the same 
 X(	MissingCompileError,		C,	A,	W,	INT,	VOID,	"The compile error with id %d did not occur."						)
 X(	UnimplementedFeature,		C,	A,	E,	STR,	VOID,	"The feature \"%s\" has not been implemented yet."					)
 X(	UnknownOption,			C,	A,	E,	STR,	VOID,	"There is no option for \"%s\"." 	     						)
+X(	NoReadType,			T,	A,	E,	STR,	VOID,	"\"%s\" cannot be read from."								)
+X(	NoWriteType,			T,	A,	E,	STR,	VOID,	"\"%s\" cannot be written to."								)
 
 #undef STR
