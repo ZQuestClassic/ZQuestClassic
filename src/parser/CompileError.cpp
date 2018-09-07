@@ -12,22 +12,6 @@
 using namespace std;
 using namespace ZScript;
 
-#include <cstdarg>
-#include <cstdio>
-
-string formatStr(std::string const* format, ...)
-{
-	static char buffer[formatBufferSize];
-	
-	va_list args;
-	va_start(args, format);
-	vsprintf(buffer, format->c_str(), args);
-	va_end(args);
-
-	return std::string(buffer);
-}
-
-
 ////////////////////////////////////////////////////////////////
 // CompileError::Impl interface
 
@@ -147,7 +131,7 @@ namespace // file local
 		string getMessage() const /*override*/ {
 			return formatStr(&entries[id_].format,
 			                 formatArg<A>(arg1_),
-			                 formatArg<A>(arg2_));}
+			                 formatArg<B>(arg2_));}
 		AST const* getSource() const /*override*/ {return source_;}
 
 	private:

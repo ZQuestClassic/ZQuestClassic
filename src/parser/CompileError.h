@@ -4,11 +4,6 @@
 #include <string>
 #include "CompilerUtils.h"
 
-#include <cstdarg>
-#include <cstdio>
-
-extern std::string formatStr(std::string const* format, ...);
-
 namespace ZScript
 {
 	// Forward Declaration (AST.h)
