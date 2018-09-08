@@ -653,7 +653,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         xofs=0;
         whirlwind=0;
         lstep=0;
-        dontdraw=false;
+        if ( dontdraw < 2 ) { dontdraw=0; }
     }
     else if(action==freeze) // Might be in enemy wind
     {
@@ -672,7 +672,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         if(foundWind)
         {
             xofs=0;
-            dontdraw=false;
+            if ( dontdraw < 2 ) { dontdraw=false; }
             wind->misc=-1;
             x=wind->x;
             y=wind->y;
@@ -765,12 +765,12 @@ bool LinkClass::isSwimming()
             (hopclk==0xFF));
 }
 
-void LinkClass::setDontDraw(bool new_dontdraw)
+void LinkClass::setDontDraw(byte new_dontdraw)
 {
     dontdraw=new_dontdraw;
 }
 
-bool LinkClass::getDontDraw()
+byte LinkClass::getDontDraw()
 {
     return dontdraw;
 }
@@ -793,7 +793,7 @@ int LinkClass::getSpecialCave()
 void LinkClass::init()
 {
     setMonochrome(false);
-	dontdraw = false;
+    if ( dontdraw < 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw link == 0
     hookshot_used=false;
     hookshot_frozen=false;
     dir = up;
@@ -857,7 +857,7 @@ void LinkClass::init()
     falling_oldy = y;
     magiccastclk=0;
     magicitem = nayruitem = -1;
-	setLastLensID(-1);
+	last_lens_id = 0;
     
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -1264,7 +1264,7 @@ void LinkClass::draw(BITMAP* dest)
     int oxofs, oyofs;
     bool shieldModify = false;
     
-    bool invisible=dontdraw || (tmpscr->flags3&fINVISLINK);
+    bool invisible=(dontdraw>0) || (tmpscr->flags3&fINVISLINK);
     
     if(action==dying)
     {
@@ -4473,7 +4473,7 @@ bool LinkClass::animate(int)
                 xofs=0;
                 whirlwind=0;
                 lstep=0;
-                dontdraw=false;
+                if ( dontdraw < 2 ) dontdraw=0;
                 entry_x=x;
                 entry_y=y;
             }
@@ -5968,8 +5968,30 @@ bool isRaftFlag(int flag)
 
 void do_lens()
 {
-    int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
-    //printf("Item ID read:%d\nLastLensID:%d\nlensid:%d\ndirectWpn:%d\ndefault:%d\n\n",itemid,Link.getLastLensID(),lensid,directWpn,current_item_id(itype_lens));
+    int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
+	/*
+	int itemid = -1;
+	
+	if ( lensid >= 0 ) 
+	{
+		al_trace("Current lensid detected for lens item: %d \n", lensid);
+		itemid = lensid;
+	}
+	else if ( directWpn>-1 ) 
+	{
+		if ( itemsbuf[directWpn].family != itype_lens )
+		{
+			al_trace("Current directWpn detected for lens item: %d \n", directWpn);
+			al_trace("Current item family detected for lens item: %d \n", itemsbuf[directWpn].family);
+			itemid = current_item_id(itype_lens);
+		}
+		else
+		{
+			itemid = directWpn;
+		}
+	}
+	*/
+	
     if(itemid<0)
         return;
         
@@ -5978,12 +6000,14 @@ void do_lens()
         if(lensid<0)
         {
             lensid=itemid;
-            Link.setLastLensID(itemid);
+            
             if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
         }
         
         paymagiccost(itemid);
-        
+	
+        Link.setLastLensID(itemid);
+	
         if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
         {
             ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
@@ -11170,7 +11194,7 @@ bool LinkClass::dowarp(int type, int index)
             blackscr(30,true);
             loadscr(0,wdmap,currscr,down,false);
             loadscr(1,wdmap,homescr,-1,false);
-            dontdraw=true;
+            if ( dontdraw < 2 ) {  dontdraw=1; }
             draw_screen(tmpscr);
             fade(11,true,true);
             darkroom = false;
@@ -11188,7 +11212,7 @@ bool LinkClass::dowarp(int type, int index)
             
             reset_hookshot();
             lighting(false, true);
-            dontdraw=false;
+            if ( dontdraw < 2 ) { dontdraw=0; }
             stepforward(diagonalMovement?16:18, false);
         }
         
@@ -11215,7 +11239,7 @@ bool LinkClass::dowarp(int type, int index)
         loadscr(1,wdmap,homescr,-1,false);
         //preloaded freeform combos
         ffscript_engine(true);
-        dontdraw=true;
+        if ( dontdraw < 2 ) { dontdraw=1; }
         draw_screen(tmpscr);
         lighting(false, true);
         dir=down;
@@ -11244,7 +11268,7 @@ bool LinkClass::dowarp(int type, int index)
         
         setEntryPoints(x,y=0);
         reset_hookshot();
-        dontdraw=false;
+        if ( dontdraw < 2 ) { dontdraw=0; }
         stepforward(diagonalMovement?16:18, false);
         newscr_clk=frame;
         activated_timed_warp=false;
@@ -15700,8 +15724,9 @@ void LinkClass::gameover()
 			}
             
 			if(f==208)
-				dontdraw = true;
-                
+			{
+				if ( dontdraw < 2 ) { dontdraw = 1; }
+			}
 			if(get_bit(quest_rules,qr_FADE))
 			{
 				if(f < 170)
@@ -15895,7 +15920,7 @@ void LinkClass::gameover()
     
 	destroy_bitmap(subscrbmp);
 	action=none; FFCore.setLinkAction(none);
-	dontdraw=false;
+	if ( dontdraw < 2 ) { dontdraw=0; }
 }
 
 
