@@ -5968,30 +5968,8 @@ bool isRaftFlag(int flag)
 
 void do_lens()
 {
-    int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
-	/*
-	int itemid = -1;
-	
-	if ( lensid >= 0 ) 
-	{
-		al_trace("Current lensid detected for lens item: %d \n", lensid);
-		itemid = lensid;
-	}
-	else if ( directWpn>-1 ) 
-	{
-		if ( itemsbuf[directWpn].family != itype_lens )
-		{
-			al_trace("Current directWpn detected for lens item: %d \n", directWpn);
-			al_trace("Current item family detected for lens item: %d \n", itemsbuf[directWpn].family);
-			itemid = current_item_id(itype_lens);
-		}
-		else
-		{
-			itemid = directWpn;
-		}
-	}
-	*/
-	
+    int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
+    //printf("Item ID read:%d\nLastLensID:%d\nlensid:%d\ndirectWpn:%d\ndefault:%d\n\n",itemid,Link.getLastLensID(),lensid,directWpn,current_item_id(itype_lens));
     if(itemid<0)
         return;
         
@@ -6000,13 +5978,12 @@ void do_lens()
         if(lensid<0)
         {
             lensid=itemid;
-            
+	    if(itemsbuf[itemid].family == itype_lens)
+		Link.setLastLensID(itemid);
             if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
         }
         
         paymagiccost(itemid);
-	
-        Link.setLastLensID(itemid);
 	
         if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
         {
