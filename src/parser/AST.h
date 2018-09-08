@@ -515,28 +515,28 @@ namespace ZScript
 	////////////////////////////////////////////////////////////////
 	// Declarations
 
-	// Different declaration subclasses.
-	enum ASTDeclClassId
-	{
-		ASTDECL_CLASSID_NONE,
-		ASTDECL_CLASSID_SCRIPT,
-		ASTDECL_CLASSID_IMPORT,
-		ASTDECL_CLASSID_CONSTANT,
-		ASTDECL_CLASSID_FUNCTION,
-		ASTDECL_CLASSID_DATALIST,
-		ASTDECL_CLASSID_DATA,
-		ASTDECL_CLASSID_DATATYPE
-	};
-
 	// virtual
 	class ASTDecl : public ASTStmt
 	{
 	public:
+		// Different declaration types.
+		enum Type
+		{
+			TYPE_VOID,
+			TYPE_SCRIPT,
+			TYPE_IMPORT,
+			TYPE_CONSTANT,
+			TYPE_FUNCTION,
+			TYPE_DATALIST,
+			TYPE_DATA,
+			TYPE_DATATYPE
+		};
+
 		ASTDecl(LocationData const& location = LocationData::NONE);
-		virtual ASTDecl* clone() const = 0;
+		ASTDecl* clone() const /*override*/ = 0;
 
 		// Return the subclass id.
-		virtual ASTDeclClassId declarationClassId() const = 0;
+		virtual Type getDeclarationType() const = 0;
 	};
 
 	// Declares a script.
@@ -544,12 +544,11 @@ namespace ZScript
 	{
 	public:
 		ASTScript(LocationData const& location = LocationData::NONE);
-		ASTScript* clone() const {return new ASTScript(*this);}
+		ASTScript* clone() const /*override*/ {return new ASTScript(*this);}
 
-		void execute(ASTVisitor& visitor, void* param = NULL);
+		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
 
-		ASTDeclClassId declarationClassId() const {
-			return ASTDECL_CLASSID_SCRIPT;}
+		Type getDeclarationType() const /*override*/ {return TYPE_SCRIPT;}
     
 		// Adds a declaration to the proper vector.
 		void addDeclaration(ASTDecl& declaration);
@@ -567,12 +566,12 @@ namespace ZScript
 	public:
 		ASTImportDecl(std::string const& filename,
 		              LocationData const& location = LocationData::NONE);
-		virtual ASTImportDecl* clone() const {return new ASTImportDecl(*this);}
+		ASTImportDecl* clone() /*override*/ const {
+			return new ASTImportDecl(*this);}
     
-		virtual void execute(ASTVisitor& visitor, void* param = NULL);
+		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
 
-		virtual ASTDeclClassId declarationClassId() const {
-			return ASTDECL_CLASSID_IMPORT;}
+		Type getDeclarationType() const /*override*/ {return TYPE_IMPORT;}
 
 		std::string const& getFilename() const {return filename_;}
 		ASTFile* getTree() {return tree_.get();}
@@ -588,12 +587,12 @@ namespace ZScript
 	{
 	public:
 		ASTFuncDecl(LocationData const& location = LocationData::NONE);
-		ASTFuncDecl* clone() const {return new ASTFuncDecl(*this);}
+		ASTFuncDecl* clone() const /*override*/ {
+			return new ASTFuncDecl(*this);}
     
-		void execute(ASTVisitor& visitor, void* param = NULL);
+		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
 
-		ASTDeclClassId declarationClassId() const {
-			return ASTDECL_CLASSID_FUNCTION;}
+		Type getDeclarationType() const /*override*/ {return TYPE_FUNCTION;}
 
 		owning_ptr<ASTDataType> returnType;
 		owning_vector<ASTDataDecl> parameters;
@@ -609,17 +608,18 @@ namespace ZScript
 		ASTDataDeclList(LocationData const& location = LocationData::NONE);
 		ASTDataDeclList(ASTDataDeclList const&);
 		ASTDataDeclList& operator=(ASTDataDeclList const& rhs);
-		ASTDataDeclList* clone() const {return new ASTDataDeclList(*this);}
+		ASTDataDeclList* clone() const /*override*/ {
+			return new ASTDataDeclList(*this);}
 
-		void execute(ASTVisitor& visitor, void* param = NULL);
-		ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_DATALIST;}
-
-		// The base type at the start of the line shared by all the declarations.
-		owning_ptr<ASTDataType> baseType;
+		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
+		Type getDeclarationType() const /*override*/ {return TYPE_DATALIST;}
 
 		std::vector<ASTDataDecl*> const& getDeclarations() const {
 			return declarations_.data();}
 		void addDeclaration(ASTDataDecl* declaration);
+
+		// The base type at the start of the line shared by all the declarations.
+		owning_ptr<ASTDataType> baseType;
 
 	private:
 		// The list of individual data declarations.
@@ -634,10 +634,11 @@ namespace ZScript
 		ASTDataDecl(LocationData const& location = LocationData::NONE);
 		ASTDataDecl(ASTDataDecl const&);
 		ASTDataDecl& operator=(ASTDataDecl const& rhs);
-		ASTDataDecl* clone() const {return new ASTDataDecl(*this);}
+		ASTDataDecl* clone() const /*override*/ {return new ASTDataDecl(*this);}
 
-		void execute(ASTVisitor& visitor, void* param = NULL);
-		ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_DATA;}
+		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
+
+		Type getDeclarationType() const /*override*/ {return TYPE_DATA;}
 
 		ASTExpr* getInitializer() {return initializer_.get();}
 		ASTExpr const* getInitializer() const {return initializer_.get();}
@@ -679,9 +680,10 @@ namespace ZScript
 	{
 	public:
 		ASTDataDeclExtraArray(LocationData const& location = LocationData::NONE);
-		ASTDataDeclExtraArray* clone() const {return new ASTDataDeclExtraArray(*this);}
+		ASTDataDeclExtraArray* clone() const /*override*/ {
+			return new ASTDataDeclExtraArray(*this);}
 
-		void execute(ASTVisitor& visitor, void* param = NULL);
+		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
 
 		// The vector of array dimensions. Empty means unspecified.
 		owning_vector<ASTExpr> dimensions;
@@ -701,12 +703,12 @@ namespace ZScript
 		ASTDataTypeDef(ASTDataType* type = NULL,
 		           std::string const& name = "",
 		           LocationData const& location = LocationData::NONE);
-		ASTDataTypeDef* clone() const {return new ASTDataTypeDef(*this);}
+		ASTDataTypeDef* clone() const /*override*/ {
+			return new ASTDataTypeDef(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		ASTDeclClassId declarationClassId() const {
-			return ASTDECL_CLASSID_DATATYPE;}
+		Type getDeclarationType() const /*override*/ {return TYPE_DATATYPE;}
 
 		owning_ptr<ASTDataType> type;
 		std::string name;

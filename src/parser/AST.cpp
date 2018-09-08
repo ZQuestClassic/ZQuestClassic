@@ -64,22 +64,22 @@ string ASTFile::asString() const
 
 void ASTFile::addDeclaration(ASTDecl* declaration)
 {
-	switch (declaration->declarationClassId())
+	switch (declaration->getDeclarationType())
 	{
-	case ASTDECL_CLASSID_SCRIPT:
-		scripts.push_back((ASTScript*)declaration);
+	case ASTDecl::TYPE_SCRIPT:
+		scripts.push_back(static_cast<ASTScript*>(declaration));
 		break;
-	case ASTDECL_CLASSID_IMPORT:
-		imports.push_back((ASTImportDecl*)declaration);
+	case ASTDecl::TYPE_IMPORT:
+		imports.push_back(static_cast<ASTImportDecl*>(declaration));
 		break;
-	case ASTDECL_CLASSID_FUNCTION:
-		functions.push_back((ASTFuncDecl*)declaration);
+	case ASTDecl::TYPE_FUNCTION:
+		functions.push_back(static_cast<ASTFuncDecl*>(declaration));
 		break;
-	case ASTDECL_CLASSID_DATALIST:
-		variables.push_back((ASTDataDeclList*)declaration);
+	case ASTDecl::TYPE_DATALIST:
+		variables.push_back(static_cast<ASTDataDeclList*>(declaration));
 		break;
-	case ASTDECL_CLASSID_DATATYPE:
-		dataTypes.push_back((ASTDataTypeDef*)declaration);
+	case ASTDecl::TYPE_DATATYPE:
+		dataTypes.push_back(static_cast<ASTDataTypeDef*>(declaration));
 		break;
 	}
 }
@@ -452,16 +452,16 @@ void ASTScript::execute(ASTVisitor& visitor, void* param)
 
 void ASTScript::addDeclaration(ASTDecl& declaration)
 {
-	switch (declaration.declarationClassId())
+	switch (declaration.getDeclarationType())
     {
-	case ASTDECL_CLASSID_FUNCTION:
-		functions.push_back(&(ASTFuncDecl&)declaration);
+	case ASTDecl::TYPE_FUNCTION:
+		functions.push_back(static_cast<ASTFuncDecl*>(&declaration));
 		break;
-	case ASTDECL_CLASSID_DATALIST:
-		variables.push_back(&(ASTDataDeclList&)declaration);
+	case ASTDecl::TYPE_DATALIST:
+		variables.push_back(static_cast<ASTDataDeclList*>(&declaration));
 		break;
-	case ASTDECL_CLASSID_DATATYPE:
-		types.push_back(&(ASTDataTypeDef&)declaration);
+	case ASTDecl::TYPE_DATATYPE:
+		types.push_back(static_cast<ASTDataTypeDef*>(&declaration));
 		break;
 	}
 }
