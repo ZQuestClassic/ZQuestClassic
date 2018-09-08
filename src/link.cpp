@@ -653,7 +653,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         xofs=0;
         whirlwind=0;
         lstep=0;
-        dontdraw=false;
+        if ( dontdraw < 2 ) { dontdraw=0; }
     }
     else if(action==freeze) // Might be in enemy wind
     {
@@ -672,7 +672,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         if(foundWind)
         {
             xofs=0;
-            dontdraw=false;
+            if ( dontdraw < 2 ) { dontdraw=false; }
             wind->misc=-1;
             x=wind->x;
             y=wind->y;
@@ -765,12 +765,12 @@ bool LinkClass::isSwimming()
             (hopclk==0xFF));
 }
 
-void LinkClass::setDontDraw(bool new_dontdraw)
+void LinkClass::setDontDraw(byte new_dontdraw)
 {
     dontdraw=new_dontdraw;
 }
 
-bool LinkClass::getDontDraw()
+byte LinkClass::getDontDraw()
 {
     return dontdraw;
 }
@@ -793,7 +793,7 @@ int LinkClass::getSpecialCave()
 void LinkClass::init()
 {
     setMonochrome(false);
-	dontdraw = true;
+	dontdraw = 1; //scripted dontdraw == 2, normal == 1, draw link == 0
     hookshot_used=false;
     hookshot_frozen=false;
     dir = up;
@@ -1264,7 +1264,7 @@ void LinkClass::draw(BITMAP* dest)
     int oxofs, oyofs;
     bool shieldModify = false;
     
-    bool invisible=dontdraw || (tmpscr->flags3&fINVISLINK);
+    bool invisible=(dontdraw>0) || (tmpscr->flags3&fINVISLINK);
     
     if(action==dying)
     {
@@ -4473,7 +4473,7 @@ bool LinkClass::animate(int)
                 xofs=0;
                 whirlwind=0;
                 lstep=0;
-                dontdraw=false;
+                if ( dontdraw < 2 ) dontdraw=0;
                 entry_x=x;
                 entry_y=y;
             }
@@ -11170,7 +11170,7 @@ bool LinkClass::dowarp(int type, int index)
             blackscr(30,true);
             loadscr(0,wdmap,currscr,down,false);
             loadscr(1,wdmap,homescr,-1,false);
-            dontdraw=true;
+            if ( dontdraw < 2 ) {  dontdraw=1; }
             draw_screen(tmpscr);
             fade(11,true,true);
             darkroom = false;
@@ -11188,7 +11188,7 @@ bool LinkClass::dowarp(int type, int index)
             
             reset_hookshot();
             lighting(false, true);
-            dontdraw=false;
+            if ( dontdraw < 2 ) { dontdraw=0; }
             stepforward(diagonalMovement?16:18, false);
         }
         
@@ -11215,7 +11215,7 @@ bool LinkClass::dowarp(int type, int index)
         loadscr(1,wdmap,homescr,-1,false);
         //preloaded freeform combos
         ffscript_engine(true);
-        dontdraw=true;
+        if ( dontdraw < 2 ) { dontdraw=1; }
         draw_screen(tmpscr);
         lighting(false, true);
         dir=down;
@@ -11244,7 +11244,7 @@ bool LinkClass::dowarp(int type, int index)
         
         setEntryPoints(x,y=0);
         reset_hookshot();
-        dontdraw=false;
+        if ( dontdraw < 2 ) { dontdraw=0; }
         stepforward(diagonalMovement?16:18, false);
         newscr_clk=frame;
         activated_timed_warp=false;
@@ -15700,8 +15700,9 @@ void LinkClass::gameover()
 			}
             
 			if(f==208)
-				dontdraw = true;
-                
+			{
+				if ( dontdraw < 2 ) { dontdraw = 1; }
+			}
 			if(get_bit(quest_rules,qr_FADE))
 			{
 				if(f < 170)
@@ -15895,7 +15896,7 @@ void LinkClass::gameover()
     
 	destroy_bitmap(subscrbmp);
 	action=none; FFCore.setLinkAction(none);
-	dontdraw=false;
+	if ( dontdraw < 2 ) { dontdraw=0; }
 }
 
 

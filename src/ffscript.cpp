@@ -1230,7 +1230,7 @@ long get_register(const long arg)
         break;
         
     case LINKINVIS:
-        ret = (int)(Link.getDontDraw())*10000;
+        ret = (((int)(Link.getDontDraw())) ? 10000 : 0);
         break;
         
     case LINKINVINC:
@@ -5875,7 +5875,7 @@ void set_register(const long arg, const long value)
 	break;
 	  
     case LINKINVIS:
-        Link.setDontDraw(value/10000);
+        Link.setDontDraw((value ? 2 : 0));
         break;
         
     case LINKINVINC:
