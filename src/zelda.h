@@ -126,7 +126,7 @@ int  LinkSwordClk();
 int  LinkItemClk();
 int  LinkAction();
 int  LinkCharged();
-bool LinkGetDontDraw();
+byte LinkGetDontDraw();
 void setSwordClk(int newclk);
 void setItemClk(int newclk);
 int  LinkLStep();

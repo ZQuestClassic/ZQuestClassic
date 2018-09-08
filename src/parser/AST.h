@@ -125,7 +125,7 @@ namespace ZScript
 	class ASTOptionValue;
 	// Types
 	class ASTScriptType;
-	class ASTVarType;
+	class ASTDataType;
 
 	//////////////////////////////////////////////////////////////////////////////
 	class LocationData
@@ -660,7 +660,7 @@ namespace ZScript
 		ASTDeclClassId declarationClassId() const {
 			return ASTDECL_CLASSID_FUNCTION;}
 
-		ASTVarType* returnType;
+		ASTDataType* returnType;
 		std::vector<ASTDataDecl*> parameters;
 		std::string name;
 		ASTBlock* block;
@@ -681,7 +681,7 @@ namespace ZScript
 		ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_DATALIST;}
 
 		// The base type at the start of the line shared by all the declarations.
-		ASTVarType* baseType;
+		ASTDataType* baseType;
 
 		std::vector<ASTDataDecl*> const& declarations() const {return mDeclarations;}
 		void addDeclaration(ASTDataDecl* declaration);
@@ -716,7 +716,7 @@ namespace ZScript
 		// This type of this data (minus the extra arrays). This should only be
 		// set if this declaration is not part of a list, as the list's base type
 		// should be used instead in that case.
-		ASTVarType* baseType;
+		ASTDataType* baseType;
 
 		// The symbol this declaration is binding.
 		std::string name;
@@ -764,7 +764,7 @@ namespace ZScript
 	class ASTTypeDef : public ASTDecl
 	{
 	public:
-		ASTTypeDef(ASTVarType* type = NULL,
+		ASTTypeDef(ASTDataType* type = NULL,
 		           std::string const& name = "",
 		           LocationData const& location = LocationData::NONE);
 		ASTTypeDef(ASTTypeDef const& base);
@@ -776,7 +776,7 @@ namespace ZScript
 
 		ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_TYPE;}
 
-		ASTVarType* type;
+		ASTDataType* type;
 		std::string name;
 	};
 
@@ -1642,7 +1642,7 @@ namespace ZScript
 		ASTDataDecl* declaration;
 
 		// Optional type specification.
-		ASTVarType* type;
+		ASTDataType* type;
 		// Optional size specification.
 		ASTExpr* size;
 		// The array elements.
@@ -1692,21 +1692,21 @@ namespace ZScript
 		ScriptType type;
 	};
 
-	class ASTVarType : public AST
+	class ASTDataType : public AST
 	{
 	public:
 		// Takes ownership of type.
-		ASTVarType(
+		ASTDataType(
 				DataType* type = NULL,
 				LocationData const& location = LocationData::NONE);
 		// Clones type.
-		ASTVarType(
+		ASTDataType(
 				DataType const& type,
 				LocationData const& location = LocationData::NONE);
-		ASTVarType(ASTVarType const& base);
-		~ASTVarType() {delete type;}
-		ASTVarType& operator=(ASTVarType const& rhs);
-		ASTVarType* clone() const {return new ASTVarType(*this);}
+		ASTDataType(ASTDataType const& base);
+		~ASTDataType() {delete type;}
+		ASTDataType& operator=(ASTDataType const& rhs);
+		ASTDataType* clone() const {return new ASTDataType(*this);}
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
 

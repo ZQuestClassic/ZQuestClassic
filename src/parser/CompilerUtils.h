@@ -8,6 +8,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <cstdarg>
 
 ////////////////////////////////////////////////////////////////
 // Strings
@@ -20,9 +21,25 @@ std::string to_string(Type val)
 	return oss.str();
 }
 
-// as sprintf, but for strings.
 int const formatBufferSize = 4096;
-std::string format(std::string const* format, ...);
+
+/*
+namespace ZScript
+{
+	// as sprintf, but for strings.
+	int const formatBufferSize = 4096;
+	std::string formatStr(std::string const* format, ...);
+}
+*/
+
+class XTableHelper
+{
+	public:
+	std::string formatStr(std::string const* format, ...);
+	
+	private:
+};
+
 
 ////////////////////////////////////////////////////////////////
 // No Copy Mixin

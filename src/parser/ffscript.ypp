@@ -108,7 +108,7 @@ extern YYLTYPE noloc;
 %token ZVOID
 %token ZBOOL
 %token ZFLOAT
-%token GRAPHICS
+%token BITMAP
 %token CHEAT
 %token COMBO
 %token DOORSET
@@ -250,54 +250,54 @@ Option :
 // Type Declaration
 
 TypeDef : TYPEDEF DataType IDENTIFIER {
-	ASTVarType* type = (ASTVarType*)$2;
+	ASTDataType* type = (ASTDataType*)$2;
 	ASTString* name = (ASTString*)$3;
 	$$ = new ASTTypeDef(type, name->getValue(), @1);
 	delete name;}
 	;
 
 DataType :
-	ZVOID {$$ = new ASTVarType(DataType::ZVOID, @$);}
-//	| UNTYPED {$$ = new ASTVarType(DataType::UNTYPED, @$);}
-	| ZBOOL {$$ = new ASTVarType(DataType::BOOL, @$);}
-	| ZFLOAT {$$ = new ASTVarType(DataType::FLOAT, @$);}
-	| GRAPHICS {$$ = new ASTVarType(DataType::GRAPHICS, @$);}
-	| CHEAT {$$ = new ASTVarType(DataType::CHEATS, @$);}
-	| COMBO {$$ = new ASTVarType(DataType::COMBOS, @$);}
-	| DOORSET {$$ = new ASTVarType(DataType::DOORSET, @$);}
-	| DROPSET {$$ = new ASTVarType(DataType::DROPSET, @$);}
-	| DMAP {$$ = new ASTVarType(DataType::DMAPDATA, @$);}
-	| EWEAPON	{$$ = new ASTVarType(DataType::EWPN, @$);}
-	| FFC {$$ = new ASTVarType(DataType::FFC, @$);}
-	| GAMEDATA	{$$ = new ASTVarType(DataType::GAMEDATA, @$);}
-	| ITEM {$$ = new ASTVarType(DataType::ITEM, @$);}
-	| ITEMCLASS {$$ = new ASTVarType(DataType::ITEMCLASS, @$);}
-	| LWEAPON {$$ = new ASTVarType(DataType::LWPN, @$);}
-	| MAP {$$ = new ASTVarType(DataType::MAPDATA, @$);}
-	| MESSAGE {$$ = new ASTVarType(DataType::ZMESSAGE, @$);}
-	| MISCCOLOR {$$ = new ASTVarType(DataType::ZUICOLOURS, @$);}
-	| NPC {$$ = new ASTVarType(DataType::NPC, @$);}
-	| NPCDATA {$$ = new ASTVarType(DataType::NPCDATA, @$);}
-	| PALCYCLE {$$ = new ASTVarType(DataType::PALCYCLE, @$);}
-	| PALETTE {$$ = new ASTVarType(DataType::PALETTE, @$);}
-	| POND {$$ = new ASTVarType(DataType::PONDS, @$);}
-	| RGB {$$ = new ASTVarType(DataType::RGBDATA, @$);}
-	| SHOP {$$ = new ASTVarType(DataType::SHOPDATA, @$);}
-	| SPRITE {$$ = new ASTVarType(DataType::SPRITEDATA, @$);}
-	| TUNE {$$ = new ASTVarType(DataType::TUNES, @$);}
-	| WARPRING	{$$ = new ASTVarType(DataType::WARPRING, @$);}
+	ZVOID {$$ = new ASTDataType(DataType::ZVOID, @$);}
+//	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
+	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}
+	| ZFLOAT {$$ = new ASTDataType(DataType::FLOAT, @$);}
+	| BITMAP {$$ = new ASTDataType(DataType::BITMAP, @$);}
+	| CHEAT {$$ = new ASTDataType(DataType::CHEATS, @$);}
+	| COMBO {$$ = new ASTDataType(DataType::COMBOS, @$);}
+	| DOORSET {$$ = new ASTDataType(DataType::DOORSET, @$);}
+	| DROPSET {$$ = new ASTDataType(DataType::DROPSET, @$);}
+	| DMAP {$$ = new ASTDataType(DataType::DMAPDATA, @$);}
+	| EWEAPON	{$$ = new ASTDataType(DataType::EWPN, @$);}
+	| FFC {$$ = new ASTDataType(DataType::FFC, @$);}
+	| GAMEDATA	{$$ = new ASTDataType(DataType::GAMEDATA, @$);}
+	| ITEM {$$ = new ASTDataType(DataType::ITEM, @$);}
+	| ITEMCLASS {$$ = new ASTDataType(DataType::ITEMCLASS, @$);}
+	| LWEAPON {$$ = new ASTDataType(DataType::LWPN, @$);}
+	| MAP {$$ = new ASTDataType(DataType::MAPDATA, @$);}
+	| MESSAGE {$$ = new ASTDataType(DataType::ZMESSAGE, @$);}
+	| MISCCOLOR {$$ = new ASTDataType(DataType::ZUICOLOURS, @$);}
+	| NPC {$$ = new ASTDataType(DataType::NPC, @$);}
+	| NPCDATA {$$ = new ASTDataType(DataType::NPCDATA, @$);}
+	| PALCYCLE {$$ = new ASTDataType(DataType::PALCYCLE, @$);}
+	| PALETTE {$$ = new ASTDataType(DataType::PALETTE, @$);}
+	| POND {$$ = new ASTDataType(DataType::PONDS, @$);}
+	| RGB {$$ = new ASTDataType(DataType::RGBDATA, @$);}
+	| SHOP {$$ = new ASTDataType(DataType::SHOPDATA, @$);}
+	| SPRITE {$$ = new ASTDataType(DataType::SPRITEDATA, @$);}
+	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
+	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
 	| IDENTIFIER {
 			ASTString *name = (ASTString*)$1;
-			$$ = new ASTVarType(DataTypeUnresolved(name->getValue()), @$);
+			$$ = new ASTDataType(DataTypeUnresolved(name->getValue()), @$);
 			delete name;}
-	| ZCONST ZFLOAT {$$ = new ASTVarType(new DataTypeConstFloat(), @$);}
+	| ZCONST ZFLOAT {$$ = new ASTDataType(new DataTypeConstFloat(), @$);}
 	;
 
 ////////////////////////////////////////////////////////////////
 // Data Declaration
 
 Data : DataType Data_List {
-		ASTVarType* type = (ASTVarType*)$1;
+		ASTDataType* type = (ASTDataType*)$1;
 		ASTDataDeclList* list = (ASTDataDeclList*)$2;
 		list->baseType = type;
 		list->location = @$;
@@ -372,7 +372,7 @@ Function :
 	DataType IDENTIFIER LPAREN Function_Parameters_List RPAREN
 		Statement_Block
 	{
-		ASTVarType* returnType = (ASTVarType*)$1;
+		ASTDataType* returnType = (ASTDataType*)$1;
 		ASTString* name = (ASTString*)$2;
 		ASTFuncDecl* func = (ASTFuncDecl*)$4;
 		ASTBlock* block = (ASTBlock*)$6;
@@ -383,7 +383,7 @@ Function :
 		$$ = func;
 		delete name;}
 	| DataType IDENTIFIER LPAREN RPAREN Statement_Block {
-		ASTVarType* returnType = (ASTVarType*)$1;
+		ASTDataType* returnType = (ASTDataType*)$1;
 		ASTString* name = (ASTString*)$2;
 		ASTBlock* block = (ASTBlock*)$5;
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
@@ -410,7 +410,7 @@ Function_Parameters_List :
 
 Function_Parameters_Element :
 	DataType Data_Element_Array_List {
-		ASTVarType* type = (ASTVarType*)$1;
+		ASTDataType* type = (ASTDataType*)$1;
 		ASTDataDecl* data = (ASTDataDecl*)$2;
 		data->baseType = type;
 		data->location = @$;
@@ -675,7 +675,7 @@ Identifier_List :
 
 Identifier :
 	IDENTIFIER {$$ = $1;}
-	| GRAPHICS {$$ = new ASTString("bitmap", @$);}
+	| BITMAP {$$ = new ASTString("bitmap", @$);}
 	| CHEAT {$$ = new ASTString("cheat", @$);}
 	| COMBO {$$ = new ASTString("combo", @$);}
 	| DOORSET {$$ = new ASTString("doorset", @$);}
@@ -923,7 +923,7 @@ Literal_Array :
 	LPAREN DataType LBRACKET Expression_Constant RBRACKET RPAREN
 		  LBRACE Literal_Array_Body RBRACE
 	{
-		ASTVarType* type = (ASTVarType*)$2;
+		ASTDataType* type = (ASTDataType*)$2;
 		ASTExpr* size = (ASTExpr*)$4;
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$8;
 		al->type = type;
@@ -935,7 +935,7 @@ Literal_Array :
 	| LPAREN DataType LBRACKET RBRACKET RPAREN
 		  LBRACE Literal_Array_Body RBRACE
 	{
-		ASTVarType* type = (ASTVarType*)$2;
+		ASTDataType* type = (ASTDataType*)$2;
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$7;
 		al->type = type;
 		al->location = @$;
@@ -945,7 +945,7 @@ Literal_Array :
 	| LPAREN DataType LBRACKET Expression_Constant RBRACKET
 		  RPAREN LBRACE RBRACE
 	{
-		ASTVarType* type = (ASTVarType*)$2;
+		ASTDataType* type = (ASTDataType*)$2;
 		ASTExpr* size = (ASTExpr*)$4;
 		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
 		al->type = type;
@@ -954,7 +954,7 @@ Literal_Array :
 	}
 	// (int[]){}
 	| LPAREN DataType LBRACKET RBRACKET RPAREN LBRACE RBRACE {
-		ASTVarType* type = (ASTVarType*)$2;
+		ASTDataType* type = (ASTDataType*)$2;
 		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
 		al->type = type;
 		$$ = al;}

@@ -186,19 +186,33 @@ private:
 
 //New Types
 
-//Graphics->
-
-class GfxPtrSymbols : public LibrarySymbols
+//Graphics
+class GraphicsSymbols : public LibrarySymbols
 {
 public:
-    static GfxPtrSymbols &getInst()
+    static GraphicsSymbols &getInst()
     {
         return singleton;
     }
 protected:
 private:
-    static GfxPtrSymbols singleton;
-    GfxPtrSymbols();
+    static GraphicsSymbols singleton;
+    GraphicsSymbols();
+    void generateCode();
+};
+
+// Bitmap
+class BitmapSymbols : public LibrarySymbols
+{
+public:
+    static BitmapSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static BitmapSymbols singleton;
+    BitmapSymbols();
     void generateCode();
 };
 

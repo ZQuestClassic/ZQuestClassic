@@ -312,10 +312,6 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		Variable::create(*scope, host, type, this);
 	}
 
-	// Special message for deprecated global variables.
-	if (scope->varDeclsDeprecated)
-		handleError(CompileError::DeprecatedGlobal(&host, host.name));
-
 	// Check the initializer.
 	if (host.initializer())
 	{
@@ -462,13 +458,26 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 	visit(host.right, paramRead);
 	if (breakRecursion(host)) return;	
 
-	DataType const& ltype = *host.left->getWriteType();
-    DataType const& rtype = *host.right->getReadType();
-
-	checkCast(rtype, ltype, &host);
+    DataType const* rtype = host.right->getReadType();
+	if (!rtype)
+	{
+		handleError(
+			CompileError::NoReadType(host.right, host.right->asString()));
+		return;
+	}
+    
+	DataType const* ltype = host.left->getWriteType();
+	if (!ltype)
+	{
+		handleError(
+			CompileError::NoWriteType(host.left, host.left->asString()));
+		return;
+	}
+	
+	checkCast(*rtype, *ltype, &host);
 	if (breakRecursion(host)) return;	
 
-	if (ltype == DataType::CONST_FLOAT)
+	if (*ltype == DataType::CONST_FLOAT)
 		handleError(CompileError::LValConst(&host, host.left->asString()));
 	if (breakRecursion(host)) return;	
 }

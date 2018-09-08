@@ -7,6 +7,10 @@
 #include <sstream>
 #include "../zsyssimple.h"
 #include "AST.h"
+#include "CompilerUtils.h"
+XTableHelper XH;
+#include <cstdarg>
+#include <cstdio>
 
 using namespace std;
 using namespace ZScript;
@@ -67,15 +71,17 @@ void CompileError::initialize()
 	static bool initialized = false;
 	if (!initialized)
 	{
+#		define EXPAND(X) X
 #		define STRICT_W false
 #		define STRICT_E true
 		// Split on if it's deprecated or not.
-#		define X(NAME, CODE, USED, ...) X_##USED(NAME, CODE, __VA_ARGS__)
+#		define X(NAME, CODE, USED, ...) EXPAND(X_##USED(NAME, CODE, __VA_ARGS__))
 #		define X_D(NAME, CODE, ...) \
 		entries[id##NAME] = Entry(#NAME, #CODE);
 #		define X_A(NAME, CODE, STRICT, ARG1, ARG2, FORMAT) \
 		entries[id##NAME] = Entry(#NAME, #CODE, STRICT_##STRICT, FORMAT);
 #		include "CompileError.xtable"
+#		undef EXPAND
 #		undef STRICT_W
 #		undef STRICT_E
 #		undef X
@@ -126,9 +132,9 @@ namespace // file local
 		
 		CompileError::Id getId() const /*override*/ {return id_;}
 		string getMessage() const /*override*/ {
-			return format(&entries[id_].format,
-			              formatArg<A>(arg1_),
-			              formatArg<A>(arg2_));}
+			return XH.formatStr(&entries[id_].format,
+			                 formatArg<A>(arg1_),
+			                 formatArg<B>(arg2_));}
 		AST const* getSource() const /*override*/ {return source_;}
 
 	private:
@@ -150,7 +156,7 @@ namespace // file local
 		
 		CompileError::Id getId() const /*override*/ {return id_;}
 		string getMessage() const /*override*/ {
-			return format(&entries[id_].format, formatArg<A>(arg_));}
+			return XH.formatStr(&entries[id_].format, formatArg<A>(arg_));}
 		AST const* getSource() const /*override*/ {return source_;}
 
 	private:
@@ -183,6 +189,7 @@ namespace // file local
 ////////////////////////////////////////////////////////////////
 // CompileError factory functions
 
+#define EXPAND(X) X
 // Define argument types. Non-void has preceding comma to fit in the
 // argument list properly.
 #define ARG_VOID(ARGNAME) /* ignore void types */
@@ -197,7 +204,7 @@ namespace // file local
 #define ARGC_INT(ARGNAME) ,ARGNAME
 #define ARGC_STR(ARGNAME) ,ARGNAME
 // Split on USED field.
-#define X(NAME, CODE, USED, ...) X_##USED(NAME, CODE, __VA_ARGS__)
+#define X(NAME, CODE, USED, ...) EXPAND(X_##USED(NAME, CODE, __VA_ARGS__))
 #define X_D(...) /* don't make function for deprecated error code */
 #define X_A(NAME, CODE, STRICT, ARG1, ARG2, FORMAT) \
 CompileError CompileError::NAME( \
@@ -207,6 +214,7 @@ CompileError CompileError::NAME( \
 			id##NAME, source ARGC_##ARG1(arg1) ARGC_##ARG2(arg2)); \
 }
 #include "CompileError.xtable"
+#undef EXPAND
 #undef ARG_VOID
 #undef ARG_INT
 #undef ARG_STR

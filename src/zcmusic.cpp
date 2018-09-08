@@ -513,6 +513,11 @@ error:
                         ret = FALSE;
                         
                     ((OGGFILE*)zcm)->vol = vol;
+		    /*
+		    //Should be possible to establish loops for these file types. -Z
+			((MP3FILE*)zcm)->loop_start = 0;
+			((MP3FILE*)zcm)->loop_end = samp->len;
+		    */
                 }
                 else
                 {
@@ -528,6 +533,11 @@ error:
                         ret = FALSE;
                         
                     ((MP3FILE*)zcm)->vol = vol;
+		    /*
+		    //Should be possible to establish loops for these file types. -Z
+			((MP3FILE*)zcm)->loop_start = 0;
+			((MP3FILE*)zcm)->loop_end = samp->len;
+		    */
                 }
                 else
                 {

@@ -2,6 +2,60 @@
 
 //2.55 Alpha 1 (Candidates)
 
+//2.55 Preliminary 10
+
+Moved strFormat() into a new class, XTableHelper--rename it later if you don't like it--, 
+and fixed ordering of module files to fix compiling on MSVC:
+	The new cpp file, src/parser/CompilerUtils.cpp, was being added to
+	the ZScript objects *after* src/parser/CompileError.cpp, which needed
+	to access an external reference from CompilerUtils.
+	In order for MSVC to be able to Link the objects properly, the file
+	order must be arranged so that CompilerUtils is before CompileError. 
+	( ZoriaRPG, 7th September, 2018 )
+	
+Added strings for the three new lens flags to the Item Editor.
+	( ZoriaRPG, 7th September, 2018 )
+
+Fixed crash on writing to void types. 
+	( grayswandir, 7th September, 2018 )
+	
+Removed duplicate tokens from flex. 
+Split Graphics-> and bitmap-> into two tables. 
+Removed warning for script-level variables.
+	You can now declare script-scope variables, constants, and arrays.
+	These are global, but their identifiers are in the script's namespace,
+	so accessing them would use the dot scope resolution token:
+		scriptname.variable
+		scriptname.CONSTANT
+		scriptname.array[index]
+	( grayswandir, 6th September, 2018 )
+
+Add type checking to compiler error messages
+	This should prevent any more blank error messages popping up. These
+	were mainly do to passing a std::string into the format function,
+	instead of a c string. Now the error code arguments are type properly
+	checked.
+		All compile error codes are now generated from the CompileError.xtable
+	file. Adding a new line is all that's needed for a new error
+	code. Currently it is only set up for up to 2 arguments per
+	code. Adding more will require some rewriting.
+		CompileError is now an actual value type object that holds onto the
+	source AST node and other information when constructed, instead of
+	just being the enum-type object it was before.
+
+	Added box_out_err for directly printing out error messages.
+
+	Added a general string format function to CompilerUtils.
+	( grayswandir, 5th September, 2018 )
+
+Added three flags to lens items:
+	Setting Lens Flag 1 is equivalent to qr_LENSHINTS being set for that item
+	Setting Lens Flag 2 will prevent secret combos as well as qr_LENSHINTS hints from being shown by that item
+	Setting Lens Flag 3 will prevent Armos/Chest -> Item and Dive -> Item items from being shown.
+	
+	The lens item ID is tracked by Link.setLastLensID(id) and Link.getLastLensID(). 
+	( Venrob, 4th September, 2018 )
+	
 //2.55 Preliminary 9
 
 Fixed Link->Action[dying] being set at the incorrect frame during Link.gameover(). 

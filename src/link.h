@@ -232,7 +232,7 @@ class LinkClass : public sprite
     fix climb_cover_x, climb_cover_y;
     fix entry_x, entry_y; // When drowning, re-create Link here
     fix falling_oldy; // Used by the Stomp Boots in sideview
-    bool dontdraw;
+    byte dontdraw;
     bool diagonalMovement;
     bool bigHitbox;
     byte defence[wMax];
@@ -397,8 +397,8 @@ public:
     void setHeldItem(int newitem);
     bool isDiving();
     bool isSwimming();
-    void setDontDraw(bool new_dontdraw);
-    bool getDontDraw();
+    void setDontDraw(byte new_dontdraw);
+    byte getDontDraw();
     void setHClk(int newhclk);
     int getHClk();
     void setNayrusLoveShieldClk(int newclk);

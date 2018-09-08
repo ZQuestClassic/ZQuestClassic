@@ -1141,7 +1141,7 @@ void LinkCheckItems()
 {
     Link.checkitems();
 }
-bool LinkGetDontDraw()
+byte LinkGetDontDraw()
 {
     return Link.getDontDraw();
 }
@@ -1643,7 +1643,7 @@ int init_game()
     Link.init();
     Link.resetflags(true);
     Link.setEntryPoints(LinkX(),LinkY());
-    Link.setDontDraw(true);
+    if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); }
     
     copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
     loadfullpal();
@@ -1734,7 +1734,7 @@ int init_game()
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
     }
     
-    Link.setDontDraw(false);
+    if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
     openscreen();
     show_subscreen_numbers=true;
     show_subscreen_life=true;
@@ -2176,7 +2176,7 @@ void do_magic_casting()
             if(get_bit(quest_rules,qr_MORESOUNDS))
                 sfx(itemsbuf[magicitem].usesound,pan(int(Link.getX())));
                 
-            Link.setDontDraw(true);
+            if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); }
             
             for(int i=0; i<16; ++i)
             {
@@ -2230,7 +2230,7 @@ void do_magic_casting()
             //action=none;
             magicitem=-1;
             magiccastclk=0;
-            Link.setDontDraw(false);
+            if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
         }
     }
     break;
@@ -3968,7 +3968,7 @@ int main(int argc, char* argv[])
         case qGAMEOVER:
         {
             playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
-            Link.setDontDraw(false);
+            if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
             show_subscreen_dmap_dots=true;
             show_subscreen_numbers=true;
             show_subscreen_items=true;
@@ -4014,7 +4014,7 @@ int main(int argc, char* argv[])
         
         case qWON:
         {
-            Link.setDontDraw(false);
+            if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
             show_subscreen_dmap_dots=true;
             show_subscreen_numbers=true;
             show_subscreen_items=true;

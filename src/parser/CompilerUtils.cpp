@@ -3,8 +3,9 @@
 
 #include <cstdarg>
 #include <cstdio>
+#include <string>
 
-std::string format(std::string const* format, ...)
+std::string XTableHelper::formatStr(std::string const* format, ...)
 {
 	static char buffer[formatBufferSize];
 	
@@ -15,3 +16,4 @@ std::string format(std::string const* format, ...)
 
 	return std::string(buffer);
 }
+
