@@ -205,7 +205,7 @@ Global_List :
 
 Global_Statement :
 	Import {$$ = $1;}
-	| TypeDef SEMICOLON {$$ = $1;}
+	| DataTypeDef SEMICOLON {$$ = $1;}
 	| Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
 	| Script {$$ = $1;}
@@ -249,10 +249,10 @@ Option :
 ////////////////////////////////////////////////////////////////
 // Type Declaration
 
-TypeDef : TYPEDEF DataType IDENTIFIER {
+DataTypeDef : TYPEDEF DataType IDENTIFIER {
 	ASTDataType* type = (ASTDataType*)$2;
 	ASTString* name = (ASTString*)$3;
-	$$ = new ASTTypeDef(type, name->getValue(), @1);
+	$$ = new ASTDataTypeDef(type, name->getValue(), @1);
 	delete name;}
 	;
 
@@ -474,7 +474,7 @@ Script_Block_List :
 Script_Block_Element :
 	Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
-	| TypeDef SEMICOLON {$$ = $1;}
+	| DataTypeDef SEMICOLON {$$ = $1;}
 	| COMPILEERROR LPAREN Expression_Constant RPAREN Script_Block_Element {
 		ASTExpr* errorId = (ASTExpr*)$3;
 		ASTDecl* declaration = (ASTDecl*)$5;
@@ -488,7 +488,7 @@ Script_Block_Element :
 Statement :
 	// Declarations
 	Data SEMICOLON {$$ = $1;}
-	| TypeDef SEMICOLON {$$ = $1;}
+	| DataTypeDef SEMICOLON {$$ = $1;}
 	// Normal Statements
 	| Expression SEMICOLON {$$ = $1;}
 	| Statement_Block {$$ = $1;}
@@ -507,7 +507,7 @@ Statement :
 Statement_NoSemicolon:
 	// Declarations
 	Data {$$ = $1;}
-	| TypeDef {$$ = $1;}
+	| DataTypeDef {$$ = $1;}
 	// Normal Statements
 	| Expression {$$ = $1;}
 	| Statement_Block {$$ = $1;}

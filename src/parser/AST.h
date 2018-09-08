@@ -76,7 +76,7 @@ namespace ZScript
 	class ASTDataDeclList;
 	class ASTDataDecl;
 	class ASTDataDeclExtraArray;
-	class ASTTypeDef;
+	class ASTDataTypeDef;
 	// Expressions
 	class ASTExpr; // virtual
 	class ASTExprConst;
@@ -264,7 +264,7 @@ namespace ZScript
 		owning_vector<ASTImportDecl> imports;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
-		owning_vector<ASTTypeDef> types;
+		owning_vector<ASTDataTypeDef> dataTypes;
 		owning_vector<ASTScript> scripts;
 	};
 
@@ -525,7 +525,7 @@ namespace ZScript
 		ASTDECL_CLASSID_FUNCTION,
 		ASTDECL_CLASSID_DATALIST,
 		ASTDECL_CLASSID_DATA,
-		ASTDECL_CLASSID_TYPE
+		ASTDECL_CLASSID_DATATYPE
 	};
 
 	// virtual
@@ -559,7 +559,7 @@ namespace ZScript
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
-		owning_vector<ASTTypeDef> types;
+		owning_vector<ASTDataTypeDef> types;
 	};
 
 	class ASTImportDecl : public ASTDecl
@@ -695,17 +695,18 @@ namespace ZScript
 				const;
 	};
 
-	class ASTTypeDef : public ASTDecl
+	class ASTDataTypeDef : public ASTDecl
 	{
 	public:
-		ASTTypeDef(ASTDataType* type = NULL,
+		ASTDataTypeDef(ASTDataType* type = NULL,
 		           std::string const& name = "",
 		           LocationData const& location = LocationData::NONE);
-		ASTTypeDef* clone() const {return new ASTTypeDef(*this);}
+		ASTDataTypeDef* clone() const {return new ASTDataTypeDef(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		ASTDeclClassId declarationClassId() const {return ASTDECL_CLASSID_TYPE;}
+		ASTDeclClassId declarationClassId() const {
+			return ASTDECL_CLASSID_DATATYPE;}
 
 		owning_ptr<ASTDataType> type;
 		std::string name;

@@ -482,7 +482,7 @@ void BuildOpcodes::buildArrayUninit(
 	}
 }
 
-void BuildOpcodes::caseTypeDef(ASTTypeDef&, void*) {}
+void BuildOpcodes::caseDataTypeDef(ASTDataTypeDef&, void*) {}
 
 // Expressions
 

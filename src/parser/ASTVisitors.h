@@ -64,7 +64,7 @@ namespace ZScript
 		virtual void caseDataDeclExtraArray(
 				ASTDataDeclExtraArray& host, void* param = NULL) {
 			caseDefault(host, param);}
-		virtual void caseTypeDef(ASTTypeDef& host, void* param = NULL) {
+		virtual void caseDataTypeDef(ASTDataTypeDef& host, void* param = NULL) {
 			caseDefault(host, param);}
 		// Expressions
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL) {
@@ -218,7 +218,7 @@ namespace ZScript
 		virtual void caseDataDecl(ASTDataDecl& host, void* param = NULL);
 		virtual void caseDataDeclExtraArray(
 				ASTDataDeclExtraArray& host, void* param = NULL);
-		virtual void caseTypeDef(ASTTypeDef&, void* param = NULL);
+		virtual void caseDataTypeDef(ASTDataTypeDef&, void* param = NULL);
 		// Expressions
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL);
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL);

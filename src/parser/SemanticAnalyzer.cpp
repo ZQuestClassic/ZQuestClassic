@@ -195,7 +195,7 @@ void SemanticAnalyzer::caseStmtReturnVal(ASTStmtReturnVal& host, void*)
 
 // Declarations
 
-void SemanticAnalyzer::caseTypeDef(ASTTypeDef& host, void*)
+void SemanticAnalyzer::caseDataTypeDef(ASTDataTypeDef& host, void*)
 {
 	// Resolve the base type under current scope.
 	DataType const& type = host.type->resolve(*scope);

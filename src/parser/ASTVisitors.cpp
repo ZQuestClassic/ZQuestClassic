@@ -76,7 +76,7 @@ void RecursiveVisitor::caseFile(ASTFile& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit(host, host.imports, param);
 	if (breakRecursion(host, param)) return;
-	visit(host, host.types, param);
+	visit(host, host.dataTypes, param);
 	if (breakRecursion(host, param)) return;
 	visit(host, host.variables, param);
 	if (breakRecursion(host, param)) return;
@@ -208,7 +208,7 @@ void RecursiveVisitor::caseDataDeclExtraArray(
 	visit(host, host.dimensions, param);
 }
 
-void RecursiveVisitor::caseTypeDef(ASTTypeDef& host, void* param)
+void RecursiveVisitor::caseDataTypeDef(ASTDataTypeDef& host, void* param)
 {
 	visit(host.type.get(), param);
 }

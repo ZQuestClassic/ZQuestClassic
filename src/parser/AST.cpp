@@ -78,8 +78,8 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 	case ASTDECL_CLASSID_DATALIST:
 		variables.push_back((ASTDataDeclList*)declaration);
 		break;
-	case ASTDECL_CLASSID_TYPE:
-		types.push_back((ASTTypeDef*)declaration);
+	case ASTDECL_CLASSID_DATATYPE:
+		dataTypes.push_back((ASTDataTypeDef*)declaration);
 		break;
 	}
 }
@@ -89,7 +89,7 @@ bool ASTFile::hasDeclarations() const
 	return !imports.empty()
 		|| !variables.empty()
 		|| !functions.empty()
-		|| !types.empty()
+		|| !dataTypes.empty()
 		|| !scripts.empty();
 }
 
@@ -460,8 +460,8 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 	case ASTDECL_CLASSID_DATALIST:
 		variables.push_back(&(ASTDataDeclList&)declaration);
 		break;
-	case ASTDECL_CLASSID_TYPE:
-		types.push_back(&(ASTTypeDef&)declaration);
+	case ASTDECL_CLASSID_DATATYPE:
+		types.push_back(&(ASTDataTypeDef&)declaration);
 		break;
 	}
 }
@@ -643,16 +643,16 @@ optional<int> ASTDataDeclExtraArray::getCompileTimeSize(
 	return size;
 }
 
-// ASTTypeDef
+// ASTDataTypeDef
 
-ASTTypeDef::ASTTypeDef(
+ASTDataTypeDef::ASTDataTypeDef(
 		ASTDataType* type, string const& name, LocationData const& location)
 	 : ASTDecl(location), type(type), name(name)
 {}
 
-void ASTTypeDef::execute(ASTVisitor& visitor, void* param)
+void ASTDataTypeDef::execute(ASTVisitor& visitor, void* param)
 {
-	visitor.caseTypeDef(*this, param);
+	visitor.caseDataTypeDef(*this, param);
 }
 
 ////////////////////////////////////////////////////////////////
