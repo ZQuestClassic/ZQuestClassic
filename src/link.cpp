@@ -793,7 +793,7 @@ int LinkClass::getSpecialCave()
 void LinkClass::init()
 {
     setMonochrome(false);
-	dontdraw = 1; //scripted dontdraw == 2, normal == 1, draw link == 0
+    if ( dontdraw < 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw link == 0
     hookshot_used=false;
     hookshot_frozen=false;
     dir = up;
@@ -5969,7 +5969,29 @@ bool isRaftFlag(int flag)
 void do_lens()
 {
     int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
-	Link.setLastLensID(itemid);
+	/*
+	int itemid = -1;
+	
+	if ( lensid >= 0 ) 
+	{
+		al_trace("Current lensid detected for lens item: %d \n", lensid);
+		itemid = lensid;
+	}
+	else if ( directWpn>-1 ) 
+	{
+		if ( itemsbuf[directWpn].family != itype_lens )
+		{
+			al_trace("Current directWpn detected for lens item: %d \n", directWpn);
+			al_trace("Current item family detected for lens item: %d \n", itemsbuf[directWpn].family);
+			itemid = current_item_id(itype_lens);
+		}
+		else
+		{
+			itemid = directWpn;
+		}
+	}
+	*/
+	
     if(itemid<0)
         return;
         
@@ -5983,7 +6005,9 @@ void do_lens()
         }
         
         paymagiccost(itemid);
-        
+	
+        Link.setLastLensID(itemid);
+	
         if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
         {
             ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
