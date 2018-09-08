@@ -155,6 +155,7 @@ namespace ZScript
 		static DataTypeSimple const FLOAT;
 		static DataTypeSimple const BOOL;
 		static DataTypeConstFloat const CONST_FLOAT;
+		static DataTypeArray const STRING;
 		static DataTypeClass const FFC;
 		static DataTypeClass const ITEM;
 		static DataTypeClass const ITEMCLASS;

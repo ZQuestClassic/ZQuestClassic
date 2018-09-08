@@ -124,6 +124,8 @@ string ScriptParser::prepareFilename(string const& filename)
         
 bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 {
+	assert(root);
+	
 	if (reclimit == 0)
 	{
 		box_out_err(CompileError::ImportRecursion(NULL, recursionLimit));
@@ -131,9 +133,8 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 	}
         
 	// Repeat parsing process for each of import files
-	vector<ASTImportDecl*>& imports = root->imports;
-	for (vector<ASTImportDecl*>::iterator it = imports.begin();
-	     it != imports.end(); ++it)
+	for (vector<ASTImportDecl*>::iterator it = root->imports.begin();
+	     it != root->imports.end(); ++it)
 	{
 		ASTImportDecl& importDecl = **it;
 
@@ -147,7 +148,7 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 		}
 
 		// Save the AST in the import declaration.
-		importDecl.giveTree(imported);
+		importDecl.giveTree(imported.release());
 		
 		// Recurse on imports.
 		if (!preprocess(importDecl.getTree(), reclimit - 1))

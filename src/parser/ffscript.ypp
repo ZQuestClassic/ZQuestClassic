@@ -322,7 +322,7 @@ Data_Element :
 	Data_Element_Array_List ASSIGN Expression {
 			ASTDataDecl* element = (ASTDataDecl*)$1;
 			ASTExpr* initializer = (ASTExpr*)$3;
-			element->initializer(initializer);
+			element->setInitializer(initializer);
 			element->location = @$;
 			$$ = element;}
 	| Data_Element_Array_List {$$ = $1;}

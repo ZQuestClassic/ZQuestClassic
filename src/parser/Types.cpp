@@ -128,6 +128,7 @@ DataTypeSimple const DataType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped");
 DataTypeSimple const DataType::ZVOID(ZVARTYPEID_VOID, "void");
 DataTypeSimple const DataType::FLOAT(ZVARTYPEID_FLOAT, "float");
 DataTypeSimple const DataType::BOOL(ZVARTYPEID_BOOL, "bool");
+DataTypeArray const DataType::STRING(FLOAT);
 DataTypeClass const DataType::GAME(ZCLASSID_GAME, "Game");
 DataTypeClass const DataType::LINK(ZCLASSID_LINK, "Link");
 DataTypeClass const DataType::SCREEN(ZCLASSID_SCREEN, "Screen");
