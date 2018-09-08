@@ -857,7 +857,7 @@ void LinkClass::init()
     falling_oldy = y;
     magiccastclk=0;
     magicitem = nayruitem = -1;
-	last_lens_id = 0;
+	setLastLensID(-1);
     
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -5968,8 +5968,8 @@ bool isRaftFlag(int flag)
 
 void do_lens()
 {
-    int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
-	Link.setLastLensID(itemid);
+    int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
+    //printf("Item ID read:%d\nLastLensID:%d\nlensid:%d\ndirectWpn:%d\ndefault:%d\n\n",itemid,Link.getLastLensID(),lensid,directWpn,current_item_id(itype_lens));
     if(itemid<0)
         return;
         
@@ -5978,7 +5978,7 @@ void do_lens()
         if(lensid<0)
         {
             lensid=itemid;
-            
+            Link.setLastLensID(itemid);
             if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
         }
         
