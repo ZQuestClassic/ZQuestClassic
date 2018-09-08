@@ -387,12 +387,15 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 {
     OpcodeContext& context = *(OpcodeContext*)param;
 	Datum& manager = *host.manager;
+	ASTExpr* init = host.initializer();
 
 	// Ignore inlined values.
 	if (manager.getCompileTimeValue()) return;
 
 	// Switch off to the proper helper function.
-	if (manager.type.isArray())
+	if (manager.type.isArray()
+	    || (init && (init->isArrayLiteral()
+	                 || init->isStringLiteral())))
 	{
 		if (host.initializer()) buildArrayInit(host, context);
 		else buildArrayUninit(host, context);
@@ -1239,9 +1242,14 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	ASTDataDecl& declaration = *host.declaration;
 	Datum& manager = *declaration.manager;
 
-	// Grab the size from the declaration.
+	// Find the size.
 	int size = -1;
-	if (declaration.extraArrays.size() == 1)
+	// From this literal?
+	if (host.size)
+		if (optional<long> s = host.size->getCompileTimeValue(this))
+			size = *s / 10000L;
+	// From the declaration?
+	if (size == -1 && declaration.extraArrays.size() == 1)
 	{
 		ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
 		if (optional<int> totalSize = extraArray.getCompileTimeSize(this))
@@ -1252,10 +1260,16 @@ void BuildOpcodes::arrayLiteralDeclaration(
 			return;
 		}
 	}
-
 	// Otherwise, grab the number of elements as the size.
 	if (size == -1) size = host.elements.size();
 
+	// Make sure we have a valid size.
+	if (size < 1)
+	{
+		handleError(CompileError::ArrayTooSmall(&host));
+		return;
+	}
+	
 	// Make sure the chosen size has enough space.
 	if (size < int(host.elements.size()))
 	{

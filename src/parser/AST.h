@@ -737,6 +737,8 @@ namespace ZScript
 		ASTExpr* mInitializer;
 	};
 
+	bool hasSize(ASTDataDecl const&);
+
 	// The extra array parameters appended to a data declaration name.
 	class ASTDataDeclExtraArray : public AST
 	{

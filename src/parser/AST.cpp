@@ -1096,6 +1096,15 @@ DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope) const
 	return type;
 }
 
+bool ZScript::hasSize(ASTDataDecl const& decl)
+{
+	for (vector<ASTDataDeclExtraArray*>::const_iterator it =
+		     decl.extraArrays.begin();
+	     it != decl.extraArrays.end(); ++it)
+		if ((*it)->hasSize()) return true;
+	return false;
+}
+
 // ASTDataDeclExtraArray
 
 ASTDataDeclExtraArray::ASTDataDeclExtraArray(LocationData const& location)
