@@ -5968,8 +5968,9 @@ bool isRaftFlag(int flag)
 
 void do_lens()
 {
-    int itemid = lensid >= 0 ? lensid : directWpn>-1&&(itemsbuf[directWpn].family == itype_lens) ? directWpn : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
-    //printf("Item ID read:%d\nLastLensID:%d\nlensid:%d\ndirectWpn:%d\ndefault:%d\n\n",itemid,Link.getLastLensID(),lensid,directWpn,current_item_id(itype_lens));
+	int wpnPressed = getWpnPressed(itype_lens);
+    int itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
+    //printf("Item ID read:%d\nLastLensID:%d\nlensid:%d\ngetWpnPressed:%d\ndefault:%d\n\n",itemid,Link.getLastLensID(),lensid,getWpnPressed(itype_lens),current_item_id(itype_lens));
     if(itemid<0)
         return;
         
@@ -6006,6 +6007,47 @@ void do_lens()
         }
     }
 }
+
+//Add 2.10 version check to call this
+/*void do_lens()
+{
+    int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
+    
+    if(itemid<0)
+        return;
+        
+    if(isWpnPressed(itype_lens) && !LinkItemClk() && !lensclk && checkmagiccost(itemid))
+    {
+        if(lensid<0)
+        {
+            lensid=itemid;
+            
+            if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
+        }
+        
+        paymagiccost(itemid);
+        
+        if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
+        {
+            ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+            did_scriptl=true;
+        }
+        
+        lensclk = 12;
+    }
+    else
+    {
+        did_scriptl=false;
+        
+        if(lensid>-1 && !(isWpnPressed(itype_lens) && !LinkItemClk() && checkmagiccost(itemid)))
+        {
+            lensid=-1;
+            lensclk = 0;
+            
+            if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
+        }
+    }
+}*/
 
 void LinkClass::do_hopping()
 {
@@ -14158,13 +14200,22 @@ void stopCaneOfByrna()
 }
 
 // Used to find out if an item family is attached to one of the buttons currently pressed.
-bool isWpnPressed(int wpn)
+bool isWpnPressed(int itype)
 {
-    if((wpn==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true;
+    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true;
     
-    if((wpn==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return true;
+    if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return true;
     
     return false;
+}
+
+int getWpnPressed(int itype)
+{
+    if((itype==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn()) return Bwpn;
+
+    if((itype==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn()) return Awpn;
+    
+    return -1;
 }
 
 void selectNextAWpn(int type)
