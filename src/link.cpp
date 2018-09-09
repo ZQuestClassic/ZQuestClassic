@@ -5968,7 +5968,7 @@ bool isRaftFlag(int flag)
 
 void do_lens()
 {
-    int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
+    int itemid = lensid >= 0 ? lensid : directWpn>-1&&(itemsbuf[directWpn].family == itype_lens) ? directWpn : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
     //printf("Item ID read:%d\nLastLensID:%d\nlensid:%d\ndirectWpn:%d\ndefault:%d\n\n",itemid,Link.getLastLensID(),lensid,directWpn,current_item_id(itype_lens));
     if(itemid<0)
         return;
