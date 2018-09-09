@@ -907,7 +907,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	}
 
 	// Don't allow an explicit size if we're part of a declaration.
-	if (host.size && host.declaration)
+	if (host.size && host.declaration && hasSize(*host.declaration))
 	{
 		handleError(CompileError::ArrayLiteralResize(&host));
 		return;
