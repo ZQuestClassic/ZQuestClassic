@@ -66,6 +66,9 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseDataTypeDef(ASTDataTypeDef& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseScriptTypeDef(ASTScriptTypeDef& host,
+		                               void* param = NULL) {
+			caseDefault(host, param);}
 		// Expressions
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL) {
 			caseDefault(host, param);}

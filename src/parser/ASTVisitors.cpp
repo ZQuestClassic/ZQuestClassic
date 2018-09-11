@@ -82,6 +82,8 @@ void RecursiveVisitor::caseFile(ASTFile& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit(host, host.functions, param);
 	if (breakRecursion(host, param)) return;
+	visit(host, host.scriptTypes, param);
+	if (breakRecursion(host, param)) return;
 	visit(host, host.scripts, param);
 }
 

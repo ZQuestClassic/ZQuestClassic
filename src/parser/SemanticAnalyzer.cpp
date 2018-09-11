@@ -206,7 +206,30 @@ void SemanticAnalyzer::caseDataTypeDef(ASTDataTypeDef& host, void*)
 	}
 
 	// Add type to the current scope under its new name.
-	scope->addType(host.name, &type, &host);
+	scope->addDataType(host.name, &type, &host);
+}
+
+void SemanticAnalyzer::caseScriptTypeDef(ASTScriptTypeDef& host, void*)
+{
+	// Resolve the base type under current scope.
+	ScriptType type = resolveScriptType(*host.oldType, *scope);
+	if (!type.isValid())
+	{
+		handleError(
+			CompileError::UnresolvedScriptType(&host, host.oldType->name));
+		return;
+	}
+
+	// Add type to the current scope under its new name.
+	if (!scope->addScriptType(host.newName, type, &host))
+	{
+		ScriptType originalType = lookupScriptType(*scope, host.newName);
+		if (originalType != type)
+			handleError(
+				CompileError::RedefScriptType(
+					&host, host.newName, originalType.getName()));
+		return;
+	}
 }
 
 void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
@@ -408,6 +431,8 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 {
 	Script& script = *program.addScript(host, *scope, this);
+	if (breakRecursion(host)) return;
+	
 	string name = script.getName();
 
 	// Recurse on script elements with its scope.

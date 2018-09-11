@@ -19244,11 +19244,11 @@ int onCompileScript()
             {
 	            string const& name = it->first;
 	            ZScript::ScriptType type = it->second;
-	            if (type == ZScript::ScriptType::FFC)
+	            if (type == ZScript::ScriptType::ffc)
                     asffcscripts.push_back(name);
-	            else if (type == ZScript::ScriptType::ITEM)
+	            else if (type == ZScript::ScriptType::item)
                     asitemscripts.push_back(name);
-	            else if (type == ZScript::ScriptType::GLOBAL
+	            else if (type == ZScript::ScriptType::global
 	                     // Don't allow assigning the allocate memory
 	                     // script, bad things could happen
 	                     && name != "~Init")

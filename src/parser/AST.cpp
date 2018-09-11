@@ -81,6 +81,9 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 	case ASTDecl::TYPE_DATATYPE:
 		dataTypes.push_back(static_cast<ASTDataTypeDef*>(declaration));
 		break;
+	case ASTDecl::TYPE_SCRIPTTYPE:
+		scriptTypes.push_back(static_cast<ASTScriptTypeDef*>(declaration));
+		break;
 	}
 }
 
@@ -90,6 +93,7 @@ bool ASTFile::hasDeclarations() const
 		|| !variables.empty()
 		|| !functions.empty()
 		|| !dataTypes.empty()
+		|| !scriptTypes.empty()
 		|| !scripts.empty();
 }
 
@@ -653,6 +657,19 @@ ASTDataTypeDef::ASTDataTypeDef(
 void ASTDataTypeDef::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseDataTypeDef(*this, param);
+}
+
+// ASTScriptTypeDef
+
+ASTScriptTypeDef::ASTScriptTypeDef(ASTScriptType* oldType,
+                                   std::string const& newName,
+                                   LocationData const& location)
+		: ASTDecl(location), oldType(oldType), newName(newName)
+{}
+
+void ASTScriptTypeDef::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseScriptTypeDef(*this, param);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1618,12 +1635,23 @@ std::string ASTOptionValue::asString() const
 // ASTScriptType
 
 ASTScriptType::ASTScriptType(ScriptType type, LocationData const& location)
-	: AST(location), type(type)
+		: AST(location), type(type)
+{}
+
+ASTScriptType::ASTScriptType(string const& name, LocationData const& location)
+		: AST(location), name(name)
 {}
 
 void ASTScriptType::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseScriptType(*this, param);
+}
+
+ScriptType ZScript::resolveScriptType(ASTScriptType const& node,
+                                      Scope const& scope)
+{
+	if (node.type.isValid()) return node.type;
+	return lookupScriptType(scope, node.name);
 }
 
 // ASTDataType

@@ -20,7 +20,7 @@ Program::Program(ASTFile& root, CompileErrorHandler* errorHandler)
 	// Create the ~Init script.
 	if (Script* initScript =
 	    	createScript(
-				*this, *rootScope_, ScriptType::GLOBAL,
+				*this, *rootScope_, ScriptType::global,
 				"~Init", errorHandler))
 	{
 		scripts.push_back(initScript);
@@ -107,6 +107,11 @@ UserScript::UserScript(Program& program, ASTScript& node)
 	: Script(program), node(node)
 {}
 
+ScriptType UserScript::getType() const
+{
+	return resolveScriptType(*node.type, *scope->getParent());
+}
+
 // ZScript::BuiltinScript
 
 BuiltinScript::BuiltinScript(
@@ -133,7 +138,7 @@ UserScript* ZScript::createScript(
 	}
 	script->scope = scope;
 
-	if (node.type->type.isNull())
+	if (!resolveScriptType(*node.type, parentScope).isValid())
 	{
 		if (errorHandler)
 			errorHandler->handleError(
@@ -161,7 +166,7 @@ BuiltinScript* ZScript::createScript(
 	}
 	script->scope = scope;
 
-	if (type.isNull())
+	if (!type.isValid())
 	{
 		if (errorHandler)
 			errorHandler->handleError(

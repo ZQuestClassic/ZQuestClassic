@@ -77,6 +77,7 @@ namespace ZScript
 	class ASTDataDecl;
 	class ASTDataDeclExtraArray;
 	class ASTDataTypeDef;
+	class ASTScriptTypeDef;
 	// Expressions
 	class ASTExpr; // virtual
 	class ASTExprConst;
@@ -265,6 +266,7 @@ namespace ZScript
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
 		owning_vector<ASTDataTypeDef> dataTypes;
+		owning_vector<ASTScriptTypeDef> scriptTypes;
 		owning_vector<ASTScript> scripts;
 	};
 
@@ -529,7 +531,8 @@ namespace ZScript
 			TYPE_FUNCTION,
 			TYPE_DATALIST,
 			TYPE_DATA,
-			TYPE_DATATYPE
+			TYPE_DATATYPE,
+			TYPE_SCRIPTTYPE
 		};
 
 		ASTDecl(LocationData const& location = LocationData::NONE);
@@ -706,12 +709,31 @@ namespace ZScript
 		ASTDataTypeDef* clone() const /*override*/ {
 			return new ASTDataTypeDef(*this);}
 
-		void execute(ASTVisitor& visitor, void* param = NULL);
+		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
 
 		Type getDeclarationType() const /*override*/ {return TYPE_DATATYPE;}
 
 		owning_ptr<ASTDataType> type;
 		std::string name;
+	};
+
+	class ASTScriptTypeDef : public ASTDecl
+	{
+	public:
+		ASTScriptTypeDef(
+			ASTScriptType* oldType,
+			std::string const& newName,
+			LocationData const& location = LocationData::NONE);
+		ASTScriptTypeDef* clone() const /*override*/ {
+			return new ASTScriptTypeDef(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
+
+		Type getDeclarationType() const /*override*/ {
+			return TYPE_SCRIPTTYPE;}
+
+		owning_ptr<ASTScriptType> oldType;
+		std::string newName;
 	};
 
 	////////////////////////////////////////////////////////////////
@@ -1501,15 +1523,18 @@ namespace ZScript
 	class ASTScriptType : public AST
 	{
 	public:
-		ASTScriptType(
-				ScriptType type = ScriptType(),
-				LocationData const& location = LocationData::NONE);
+		ASTScriptType(ScriptType type, LocationData const& location);
+		ASTScriptType(std::string const& name, LocationData const& location);
 		ASTScriptType* clone() const {return new ASTScriptType(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
+		// If type is invalid, try to resolve using name.
 		ScriptType type;
+		std::string name;
 	};
+
+	ScriptType resolveScriptType(ASTScriptType const&, Scope const&);
 
 	class ASTDataType : public AST
 	{

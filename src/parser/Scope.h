@@ -21,6 +21,7 @@ namespace ZScript
 	// Types.h
 	class DataType;
 	class TypeStore;
+	class ScriptType;
 
 	// ZScript.h
 	class Script;
@@ -62,8 +63,10 @@ namespace ZScript
 		virtual std::vector<Scope*> getChildren() const = 0;
 	
 		// Lookup Local
-		virtual DataType const* getLocalType(
-				std::string const& name) const = 0;
+		virtual DataType const* getLocalDataType(std::string const& name)
+			const = 0;
+		virtual optional<ScriptType> getLocalScriptType(
+			std::string const& name) const = 0;
 		virtual ZClass* getLocalClass(std::string const& name) const = 0;
 		virtual Datum* getLocalDatum(std::string const& name) const = 0;
 		virtual Function* getLocalGetter(std::string const& name) const = 0;
@@ -89,9 +92,11 @@ namespace ZScript
 		virtual FileScope* makeFileChild(std::string const& filename) = 0;
 		virtual ScriptScope* makeScriptChild(Script& script) = 0;
 		virtual FunctionScope* makeFunctionChild(Function& function) = 0;
-		virtual DataType const* addType(
+		virtual DataType const* addDataType(
 				std::string const& name, DataType const* type, AST* node)
 		= 0;
+		virtual bool addScriptType(
+			std::string const& name, ScriptType type, AST* node) = 0;
 		//virtual ZClass* addClass(string const& name, AST* node) = 0;
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
@@ -166,7 +171,10 @@ namespace ZScript
 	// Lookup
 
 	// Attempt to resolve name to a type id under scope.
-	DataType const* lookupType(Scope const&, std::string const& name);
+	DataType const* lookupDataType(Scope const&, std::string const& name);
+	
+	// Attempt to resolve name to a script type id under scope.
+	ScriptType lookupScriptType(Scope const&, std::string const& name);
 	
 	// Attempt to resolve name to a class id under scope.
 	ZClass* lookupClass(Scope const&, std::string const& name);
@@ -253,7 +261,10 @@ namespace ZScript
 		virtual std::vector<Scope*> getChildren() const;
 	
 		// Lookup Local
-		virtual DataType const* getLocalType(std::string const& name) const;
+		DataType const* getLocalDataType(std::string const& name)
+			const /*override*/;
+		optional<ScriptType> getLocalScriptType(std::string const& name)
+			const /*override*/;
 		virtual ZClass* getLocalClass(std::string const& name) const;
 		virtual Datum* getLocalDatum(std::string const& name) const;
 		virtual Function* getLocalGetter(std::string const& name) const;
@@ -278,9 +289,12 @@ namespace ZScript
 		virtual FileScope* makeFileChild(std::string const& filename);
 		virtual ScriptScope* makeScriptChild(Script& script);
 		virtual FunctionScope* makeFunctionChild(Function& function);
-		virtual DataType const* addType(
+		virtual DataType const* addDataType(
 				std::string const& name, DataType const* type,
 				AST* node = NULL);
+		bool addScriptType(
+			std::string const& name, ScriptType type, AST* node)
+			/*override*/;
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
@@ -305,7 +319,8 @@ namespace ZScript
 		Scope* parent_;
 		std::map<std::string, Scope*> children_;
 		std::vector<Scope*> anonymousChildren_;
-		std::map<std::string, DataType const*> types_;
+		std::map<std::string, DataType const*> dataTypes_;
+		std::map<std::string, ScriptType> scriptTypes_;
 		std::map<std::string, ZClass*> classes_;
 		std::vector<Datum*> anonymousData_;
 		std::map<std::string, Datum*> namedData_;
@@ -342,9 +357,12 @@ namespace ZScript
 		// Override to also register in the root scope, and fail if already
 		// present there as well.
 		virtual Scope* makeChild(std::string const& name);
-		virtual DataType const* addType(
+		virtual DataType const* addDataType(
 				std::string const& name, DataType const* type,
 				AST* node = NULL);
+		bool addScriptType(
+			std::string const& name, ScriptType type, AST* node)
+			/*override*/;
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes,
@@ -385,8 +403,10 @@ namespace ZScript
 		// Also check the descendant listings.
 		// Single
 		virtual Scope* getChild(std::string const& name) const;
-		virtual DataType const* getLocalType(
+		virtual DataType const* getLocalDataType(
 				std::string const& name) const;
+		optional<ScriptType> getLocalScriptType(std::string const& name)
+			const /*override*/;
 		virtual ZClass* getLocalClass(std::string const& name) const;
 		virtual Datum* getLocalDatum(std::string const& name) const;
 		virtual Function* getLocalGetter(std::string const& name) const;
@@ -403,7 +423,8 @@ namespace ZScript
 
 		// Register a descendant's thing.
 		bool registerChild(std::string const& name, Scope* child);
-		bool registerType(std::string const& name, DataType const* type);
+		bool registerDataType(std::string const& name, DataType const* type);
+		bool registerScriptType(std::string const& name, ScriptType type);
 		bool registerClass(std::string const& name, ZClass* klass);
 		bool registerDatum(std::string const& name, Datum* datum);
 		bool registerGetter(std::string const& name, Function* getter);
@@ -415,7 +436,8 @@ namespace ZScript
 
 		// Unowned pointers to descendant's stuff.
 		std::map<std::string, Scope*> descChildren_;
-		std::map<std::string, DataType const*> descTypes_;
+		std::map<std::string, DataType const*> descDataTypes_;
+		std::map<std::string, ScriptType> descScriptTypes_;
 		std::map<std::string, ZClass*> descClasses_;
 		std::map<std::string, Datum*> descData_;
 		std::map<std::string, Function*> descGetters_;

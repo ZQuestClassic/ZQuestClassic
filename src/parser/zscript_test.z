@@ -600,12 +600,22 @@ global script TestStrip
 	void testStripFunction(int x) {testStripVar = x;}
 }
 
-item script ItemScript {
+script typedef item ITEMSZOR;
+// Redef allowed as long as same time.
+script typedef item BLAH;
+script typedef BLAH ITEMSZOR;
+// Different type not allowed.
+compile_error(59)
+script typedef ffc ITEMSZOR;
+
+
+ITEMSZOR script ItemScript {
 	void run() {
 		// Test for this being correct type.
 		itemdata a = this;
 	}
 }
+
 
 ffc script FFCScript {
 	void run() {
@@ -613,4 +623,8 @@ ffc script FFCScript {
 		ffc a = this;
 	}
 }
+
+// ILLEGAL SCRIPT TYPE
+compile_error (32)
+ILLEGAL_SCRIPT_TYPE script IllegalScript {void run() {}}
 

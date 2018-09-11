@@ -229,11 +229,11 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		if (isRun)
 		{
 			ScriptType type = program.getScript(scriptname)->getType();
-			if (type == ScriptType::FFC)
+			if (type == ScriptType::ffc)
 				funccode.push_back(
 						new OSetRegister(new VarArgument(EXP2),
 						                 new VarArgument(REFFFC)));
-			else if (type == ScriptType::ITEM)
+			else if (type == ScriptType::item)
 				funccode.push_back(
 						new OSetRegister(new VarArgument(EXP2),
 						                 new VarArgument(REFITEMCLASS)));
@@ -311,7 +311,7 @@ void ScriptParser::assemble(IntermediateData *id)
     
 	// If there's a global script called "Init", append it to ~Init:
 	Script* userInit = program.getScript("Init");
-	if (userInit && userInit->getType() == ScriptType::GLOBAL)
+	if (userInit && userInit->getType() == ScriptType::global)
 	{
 		int label = *getLabel(*userInit);
 		ginit.push_back(new OGotoImmediate(new LabelArgument(label)));

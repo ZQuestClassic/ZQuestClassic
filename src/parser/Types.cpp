@@ -280,7 +280,7 @@ int ZScript::getArrayDepth(DataType const& type)
 
 DataType* DataTypeUnresolved::resolve(Scope& scope)
 {
-	if (DataType const* type = lookupType(scope, name))
+	if (DataType const* type = lookupDataType(scope, name))
 		return type->clone();
 	return NULL;
 }
@@ -425,10 +425,47 @@ DataType const& ZScript::getBaseType(DataType const& type)
 ////////////////////////////////////////////////////////////////
 // Script Types
 
-ScriptType const ScriptType::GLOBAL(
-		ScriptType::ID_GLOBAL, "global", ZVARTYPEID_VOID);
-ScriptType const ScriptType::FFC(
-		ScriptType::ID_FFC, "ffc", ZVARTYPEID_FFC);
-ScriptType const ScriptType::ITEM(
-		ScriptType::ID_ITEM, "item", ZVARTYPEID_ITEMCLASS);
+namespace // file local
+{
+	struct ScriptTypeData
+	{
+		string name;
+		DataTypeId thisTypeId;
+	};
 
+	ScriptTypeData scriptTypes[ScriptType::idEnd] = {
+		{"invalid", ZVARTYPEID_VOID},
+		{"global", ZVARTYPEID_VOID},
+		{"ffc", ZVARTYPEID_FFC},
+		{"item", ZVARTYPEID_ITEMCLASS},
+	};
+}
+
+ScriptType const ScriptType::invalid(idInvalid);
+ScriptType const ScriptType::global(idGlobal);
+ScriptType const ScriptType::ffc(idFfc);
+ScriptType const ScriptType::item(idItem);
+
+string const& ScriptType::getName() const
+{
+	if (isValid()) return scriptTypes[id_].name;
+	return scriptTypes[idInvalid].name;
+}
+
+DataTypeId ScriptType::getThisTypeId() const
+{
+	if (isValid()) return scriptTypes[id_].thisTypeId;
+	return scriptTypes[idInvalid].thisTypeId;
+}
+
+bool ZScript::operator==(ScriptType const& lhs, ScriptType const& rhs)
+{
+	if (!lhs.isValid()) return !rhs.isValid();
+	return lhs.id_ == rhs.id_;
+}
+
+bool ZScript::operator!=(ScriptType const& lhs, ScriptType const& rhs)
+{
+	if (lhs.isValid()) return lhs.id_ != rhs.id_;
+	return rhs.isValid();
+}
