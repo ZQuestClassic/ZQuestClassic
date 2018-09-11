@@ -25,11 +25,11 @@ void RecursiveVisitor::handleError(CompileError const& error)
 		 it != recursionStack.rend(); ++it)
 	{
 		AST& ancestor = **it;
-		for (vector<ASTExpr*>::iterator it =
+		for (vector<ASTExprConst*>::iterator it =
 				 ancestor.compileErrorCatches.begin();
 			 it != ancestor.compileErrorCatches.end(); ++it)
 		{
-			ASTExpr& idNode = **it;
+			ASTExprConst& idNode = **it;
 			optional<long> errorId = idNode.getCompileTimeValue();
 			assert(errorId);
 			// If we've found a handler, remove that handler from the node's

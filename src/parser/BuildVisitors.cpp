@@ -22,10 +22,11 @@ BuildOpcodes::BuildOpcodes()
 void BuildOpcodes::visit(AST& node, void* param)
 {
 	RecursiveVisitor::visit(node, param);
-	for (vector<ASTExpr*>::const_iterator it = node.compileErrorCatches.begin();
+	for (vector<ASTExprConst*>::const_iterator it =
+		     node.compileErrorCatches.begin();
 		 it != node.compileErrorCatches.end(); ++it)
 	{
-		ASTExpr& idNode = **it;
+		ASTExprConst& idNode = **it;
 		optional<long> errorId = idNode.getCompileTimeValue();
 		assert(errorId);
 		handleError(CompileError::MissingCompileError(
