@@ -36,7 +36,7 @@ namespace ZScript
 		// Declarations
 		virtual void caseFuncDecl(ASTFuncDecl &host, void *param);
 		virtual void caseDataDecl(ASTDataDecl& host, void* param);
-		virtual void caseTypeDef(ASTTypeDef& host, void* param);
+		virtual void caseDataTypeDef(ASTDataTypeDef& host, void* param);
 		// Expressions
 		virtual void caseExprAssign(ASTExprAssign &host, void *param);
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
@@ -75,7 +75,7 @@ namespace ZScript
 		virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param);
 		virtual void caseOptionValue(ASTOptionValue& host, void* param);
 		// Types
-		void caseVarType(ASTDataType& host, void* param) {}
+		void caseDataType(ASTDataType& host, void* param) {}
 
 		vector<Opcode *> getResult() const {return result;}
 		int getReturnLabelID() const {return returnlabelid;}

@@ -96,11 +96,11 @@ namespace ZScript
 				Program&, Scope&, ASTScript&, CompileErrorHandler*);
 
 	public:
-		ScriptType getType() const {return node.type->type;}
-		std::string const& getName() const {return node.name;};
-		ASTScript* getNode() const {return &node;};
-		ScriptScope& getScope() {return *scope;}
-		ScriptScope const& getScope() const {return *scope;}
+		ScriptType getType() const /*override*/;
+		std::string const& getName() const /*override*/ {return node.name;};
+		ASTScript* getNode() const /*override*/ {return &node;};
+		ScriptScope& getScope() /*override*/ {return *scope;}
+		ScriptScope const& getScope() const /*override*/ {return *scope;}
 
 	private:
 		UserScript(Program&, ASTScript&);
@@ -116,11 +116,11 @@ namespace ZScript
 				CompileErrorHandler*);
 
 	public:
-		ScriptType getType() const {return type;}
-		std::string const& getName() const {return name;};
-		ASTScript* getNode() const {return NULL;};
-		ScriptScope& getScope() {return *scope;}
-		ScriptScope const& getScope() const {return *scope;}
+		ScriptType getType() const /*override*/ {return type;}
+		std::string const& getName() const /*override*/ {return name;};
+		ASTScript* getNode() const /*override*/ {return NULL;};
+		ScriptScope& getScope() /*override*/ {return *scope;}
+		ScriptScope const& getScope() const /*override*/ {return *scope;}
 		
 	private:
 		BuiltinScript(Program&, ScriptType, std::string const& name);

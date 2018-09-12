@@ -58,17 +58,17 @@ int test_Variables_g3 = test_Variables_g2 * 5;
 ////////////////////////////////////////////////////////////////
 
 // Error for function redefinition.
-void compile_error_func() {}
-compile_error (4) int compile_error_func() {return 0;}
+void EXPECT_ERROR_func() {}
+EXPECT_ERROR(4) int EXPECT_ERROR_func() {return 0;}
 
 ////////////////////////////////////////////////////////////////
 
 // Error for unknown option
 int unknown_option_func1() {
-	compile_error (55) return OPTION_VALUE(unknown);}
+	EXPECT_ERROR(55) return OPTION_VALUE(unknown);}
 /*
 int unknown_option_func2() {
-	compile_error (55)
+	EXPECT_ERROR(55)
 	#option unknown 10
 	}
 */
@@ -165,11 +165,11 @@ global script Init {
 	// Secondary functions.
 	void test_BuiltIns() {
 		// Read/Write a non-existent builtin.
-		compile_error(29) bool x = Link->PressEx0;
-		compile_error(29) Link->PressEx0 = true;
+		EXPECT_ERROR(29) bool x = Link->PressEx0;
+		EXPECT_ERROR(29) Link->PressEx0 = true;
 		
 		// Call a non-existent builtin function.
-		compile_error(21) Link->Warp(1, 2, 3);
+		EXPECT_ERROR(21) Link->Warp(1, 2, 3);
 		
 		test_group("Read/Write Bulitin Variable");
 		Link->Dir = DIR_LEFT;
@@ -211,7 +211,7 @@ global script Init {
 
 	void test_Arrays() {
 		// Nested arrays currently unsupported.
-		compile_error (54) int a[][];
+		EXPECT_ERROR(54) int a[][];
 		
 		// Global Array Creation.
 		test_group("Global Array Creation");
@@ -364,8 +364,8 @@ global script Init {
 	void test_fr2(bool a) {global_var_1 = 200;}
 	void test_FunctionResolution() {
 		test_group("Function Resolution");
-		compile_error (22) test_fr1(0, 0);
-		compile_error (22) test_fr1(ZERO, ZERO);
+		EXPECT_ERROR(22) test_fr1(0, 0);
+		EXPECT_ERROR(22) test_fr1(ZERO, ZERO);
 
 		global_var_1 = 0;
 		test_fr2(0);
@@ -596,16 +596,26 @@ global script Init {
 global script TestStrip
 {
 	void run() {}
-	compile_error(38) int testStripVar = 100;
+	EXPECT_ERROR(38) int testStripVar = 100;
 	void testStripFunction(int x) {testStripVar = x;}
 }
 
-item script ItemScript {
+script typedef item ITEMSZOR;
+// Redef allowed as long as same time.
+script typedef item BLAH;
+script typedef BLAH ITEMSZOR;
+// Different type not allowed.
+EXPECT_ERROR(59)
+script typedef ffc ITEMSZOR;
+
+
+ITEMSZOR script ItemScript {
 	void run() {
 		// Test for this being correct type.
 		itemdata a = this;
 	}
 }
+
 
 ffc script FFCScript {
 	void run() {
@@ -613,4 +623,8 @@ ffc script FFCScript {
 		ffc a = this;
 	}
 }
+
+// ILLEGAL SCRIPT TYPE
+EXPECT_ERROR(32)
+ILLEGAL_SCRIPT_TYPE script IllegalScript {void run() {}}
 

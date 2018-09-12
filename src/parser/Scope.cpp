@@ -88,13 +88,23 @@ RootScope* ZScript::getRoot(Scope const& scope)
 
 // Lookup
 
-DataType const* ZScript::lookupType(Scope const& scope, string const& name)
+DataType const* ZScript::lookupDataType(
+	Scope const& scope, string const& name)
 {
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
-		if (DataType const* type = current->getLocalType(name))
+		if (DataType const* type = current->getLocalDataType(name))
 			return type;
 	return NULL;
+}
+
+ScriptType ZScript::lookupScriptType(Scope const& scope, string const& name)
+{
+	for (Scope const* current = &scope;
+	     current; current = current->getParent())
+		if (optional<ScriptType> type = current->getLocalScriptType(name))
+			return *type;
+	return ScriptType::invalid;
 }
 
 ZClass* ZScript::lookupClass(Scope const& scope, string const& name)
@@ -316,9 +326,14 @@ vector<Scope*> BasicScope::getChildren() const
 
 // Lookup Local
 
-DataType const* BasicScope::getLocalType(string const& name) const
+DataType const* BasicScope::getLocalDataType(string const& name) const
 {
-	return find<DataType const*>(types_, name).value_or(NULL);
+	return find<DataType const*>(dataTypes_, name).value_or(NULL);
+}
+
+optional<ScriptType> BasicScope::getLocalScriptType(string const& name) const
+{
+	return find<ScriptType>(scriptTypes_, name);
 }
 
 ZClass* BasicScope::getLocalClass(string const& name) const
@@ -430,13 +445,21 @@ FunctionScope* BasicScope::makeFunctionChild(Function& function)
 	return child;
 }
 
-DataType const* BasicScope::addType(
+DataType const* BasicScope::addDataType(
 		string const& name, DataType const* type, AST* node)
 {
-	if (find<DataType const*>(types_, name)) return NULL;
+	if (find<DataType const*>(dataTypes_, name)) return NULL;
 	type = typeStore_.getCanonicalType(*type);
-	types_[name] = type;
+	dataTypes_[name] = type;
 	return type;
+}
+
+bool BasicScope::addScriptType(
+	string const& name, ScriptType type, AST* node)
+{
+	if (find<ScriptType>(scriptTypes_, name)) return false;
+	scriptTypes_[name] = type;
+	return true;
 }
 
 Function* BasicScope::addGetter(
@@ -542,14 +565,20 @@ Scope* FileScope::makeChild(std::string const& name)
 	return result;
 }
 
-DataType const* FileScope::addType(
+DataType const* FileScope::addDataType(
 		std::string const& name, DataType const* type, AST* node)
 {
-	DataType const* result = BasicScope::addType(name, type, node);
+	DataType const* result = BasicScope::addDataType(name, type, node);
 	if (!result) return NULL;
-	if (!getRoot(*this)->registerType(name, result))
-		result = NULL;
+	if (!getRoot(*this)->registerDataType(name, result)) result = NULL;
 	return result;
+}
+
+bool FileScope::addScriptType(string const& name, ScriptType type, AST* node)
+{
+	if (!BasicScope::addScriptType(name, type, node)) return false;
+	if (!getRoot(*this)->registerScriptType(name, type)) return false;
+	return true;
 }
 
 Function* FileScope::addGetter(
@@ -694,12 +723,19 @@ Scope* RootScope::getChild(std::string const& name) const
 	return result;
 }
 
-DataType const* RootScope::getLocalType(string const& name) const
+DataType const* RootScope::getLocalDataType(string const& name) const
 {
-	DataType const* result = BasicScope::getLocalType(name);
+	DataType const* result = BasicScope::getLocalDataType(name);
 	if (!result)
-		result = find<DataType const*>(descTypes_, name).value_or(NULL);
+		result = find<DataType const*>(descDataTypes_, name).value_or(NULL);
 	return result;
+}
+
+optional<ScriptType> RootScope::getLocalScriptType(string const& name) const
+{
+	if (optional<ScriptType> result = BasicScope::getLocalScriptType(name))
+		return result;
+	return find<ScriptType>(descScriptTypes_, name);
 }
 
 ZClass* RootScope::getLocalClass(string const& name) const
@@ -792,10 +828,17 @@ bool RootScope::registerChild(string const& name, Scope* child)
 	return true;
 }
 
-bool RootScope::registerType(string const& name, DataType const* type)
+bool RootScope::registerDataType(string const& name, DataType const* type)
 {
-	if (getLocalType(name)) return false;
-	descTypes_[name] = type;
+	if (getLocalDataType(name)) return false;
+	descDataTypes_[name] = type;
+	return true;
+}
+
+bool RootScope::registerScriptType(std::string const& name, ScriptType type)
+{
+	if (getLocalScriptType(name)) return false;
+	descScriptTypes_[name] = type;
 	return true;
 }
 

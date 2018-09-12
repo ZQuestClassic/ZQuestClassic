@@ -1682,7 +1682,7 @@ void enemy::draw(BITMAP *dest)
     
     if((tmpscr->flags3&fINVISROOM) &&
             !(current_item(itype_amulet)) &&
-            !(get_bit(quest_rules,qr_LENSSEESENEMIES) &&
+            !((get_bit(quest_rules,qr_LENSSEESENEMIES) || (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5) ) &&
               lensclk) && family!=eeGANON)
     {
         sprite::drawcloaked(dest);

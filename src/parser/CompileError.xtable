@@ -55,7 +55,7 @@ X(	DeprecatedGlobal,		S,	D															)
 X(	VoidArr,			S,	A,	E,	STR,	VOID,	"Array %s cannot have base type void."							)
 X(	RefArr,				S,	A,	E,	STR,	VOID,	"Arrays of type %s are not allowed to be global."					)
 X(	ArrRedef,			S,	D					   	       	   	      	 						)
-X(	ArrayTooSmall,			A,	A,	E,	STR,	VOID,	"Arrays must have a size of at least 1."						)
+X(	ArrayTooSmall,			A,	A,	E,	VOID,	VOID,	"Arrays must have a size of at least 1."						)
 X(	ArrayListTooLarge,		A,	A,	E,	VOID,	VOID,	"The array's size is set to be shorter than its initial contents."          		)
 X(	ArrayListStringTooLarge,	A,	A,	E,	VOID,	VOID,	"The array's size is set to be shorter than its initial contents.\n"
 										"    (strings take up 1 more space than the number of characters in them.)"		)
@@ -72,5 +72,7 @@ X(	UnimplementedFeature,		C,	A,	E,	STR,	VOID,	"The feature \"%s\" has not been i
 X(	UnknownOption,			C,	A,	E,	STR,	VOID,	"There is no option for \"%s\"." 	     						)
 X(	NoReadType,			T,	A,	E,	STR,	VOID,	"\"%s\" cannot be read from."								)
 X(	NoWriteType,			T,	A,	E,	STR,	VOID,	"\"%s\" cannot be written to."								)
+X(	UnresolvedScriptType,		T,	A,	E,	STR,	VOID,	"Script Type %s has not been declared."    	     					)
+X(	RedefScriptType,		T,	A,	E,	STR,	STR,	"Script Type %s has already been defined as %s."    	     				)
 
 #undef STR
