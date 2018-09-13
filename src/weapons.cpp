@@ -2879,10 +2879,46 @@ bool weapon::animate(int)
         
         int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:1;
         
+	/* This causes brang weapons with a level > 3 to hit OTHER flags. 
+	// e.g., a brang with a level of 5 would trigger mfBRANG through mfGARROW! -Z
         for(int i=0; i<current_item(itype_brang); i++)
         {
             if(findentrance(x,y,mfBRANG+i,true)) dead=deadval;
         }
+	*/
+	
+	int branglevel = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].fam_type;
+	
+	switch ( branglevel )
+	{
+		case 0:
+		case 1:
+		{
+			if(findentrance(x,y,mfBRANG,true)) dead=deadval; break;
+		}
+		case 2: 
+		{
+			if(findentrance(x,y,mfBRANG,true)) dead=deadval;
+			if(findentrance(x,y,mfMBRANG,true)) dead=deadval;
+			break;
+		}
+		case 3:
+		{
+			goto brang_level_3_or_higher;
+		}
+		default: //level higher than 3
+		{
+			goto brang_level_3_or_higher;
+		}
+		brang_level_3_or_higher: 
+		{
+			if(findentrance(x,y,mfBRANG,true)) dead=deadval;
+			if(findentrance(x,y,mfMBRANG,true)) dead=deadval;
+			if(findentrance(x,y,mfFBRANG,true)) dead=deadval;
+			break;
+		}
+	}
+		
         
         if(findentrance(x,y,mfSTRIKE,true)) dead=deadval;
         

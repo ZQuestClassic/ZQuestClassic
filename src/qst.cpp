@@ -5411,6 +5411,28 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 		}
 		
+		if ( s_version < 35 ) //new Lens of Truth flags		
+		{
+			if ( tempitem.family == itype_lens )
+			{
+				if ( get_bit(quest_rules,qr_RAFTLENS) ) 
+				{
+					tempitem.flags |= ITEM_FLAG4;
+				}
+				if ( get_bit(quest_rules,qr_LENSHINTS) ) 
+				{
+					tempitem.flags |= ITEM_FLAG1;
+				}
+				if ( get_bit(quest_rules,qr_LENSSEESENEMIES) ) 
+				{
+					tempitem.flags |= ITEM_FLAG5;
+				}
+				//if ( get_bit(quest_rules,qr_RAFTLENS) ) tempitem.flags &= lensflagHIDESECRETS;
+				//What controlled this before? -Z
+				//lensflagNOXRAY New option, not an old rule. -Z
+			}
+		}
+		
 		
         }
         else

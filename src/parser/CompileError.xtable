@@ -72,5 +72,7 @@ X(	UnimplementedFeature,		C,	A,	E,	STR,	VOID,	"The feature \"%s\" has not been i
 X(	UnknownOption,			C,	A,	E,	STR,	VOID,	"There is no option for \"%s\"." 	     						)
 X(	NoReadType,			T,	A,	E,	STR,	VOID,	"\"%s\" cannot be read from."								)
 X(	NoWriteType,			T,	A,	E,	STR,	VOID,	"\"%s\" cannot be written to."								)
+X(	UnresolvedScriptType,		T,	A,	E,	STR,	VOID,	"Script Type %s has not been declared."    	     					)
+X(	RedefScriptType,		T,	A,	E,	STR,	STR,	"Script Type %s has already been defined as %s."    	     				)
 
 #undef STR

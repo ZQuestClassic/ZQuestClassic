@@ -155,6 +155,7 @@ namespace ZScript
 		static DataTypeSimple const FLOAT;
 		static DataTypeSimple const BOOL;
 		static DataTypeConstFloat const CONST_FLOAT;
+		static DataTypeArray const STRING;
 		static DataTypeClass const FFC;
 		static DataTypeClass const ITEM;
 		static DataTypeClass const ITEMCLASS;
@@ -317,32 +318,40 @@ namespace ZScript
 	// Basically an enum.
 	class ScriptType
 	{
+		friend bool operator==(ScriptType const& lhs, ScriptType const& rhs);
+		friend bool operator!=(ScriptType const& lhs, ScriptType const& rhs);
+
 	public:
-		ScriptType()
-			: id(ID_NULL), name("null"), thisTypeId(ZVARTYPEID_VOID)
-		{}
+		enum Id
+		{
+			idInvalid,
+			idStart,
+			idGlobal = idStart,
+			idFfc,
+			idItem,
+			idEnd
+		};
+	
+		ScriptType() : id_(idInvalid) {}
 		
-		bool operator==(ScriptType const& other) const {
-			return id == other.id;}
-		std::string const& getName() const {return name;}
-		DataTypeId getThisTypeId() const {return thisTypeId;}
-		bool isNull() const {return id == ID_NULL;}
+		std::string const& getName() const;
+		DataTypeId getThisTypeId() const;
+		bool isValid() const {return id_ >= idStart && id_ < idEnd;}
 
-		static ScriptType const GLOBAL;
-		static ScriptType const FFC;
-		static ScriptType const ITEM;
-		
+		static ScriptType const invalid;
+		static ScriptType const global;
+		static ScriptType const ffc;
+		static ScriptType const item;
+
 	private:
-		enum Id {ID_NULL, ID_GLOBAL, ID_FFC, ID_ITEM};
+		ScriptType(Id id) : id_(id) {}
 		
-		ScriptType(Id id, std::string const& name, DataTypeId thisTypeId)
-			: id(id), name(name), thisTypeId(thisTypeId)
-		{}
-
-		int id;
-		std::string name;
-		DataTypeId thisTypeId;
+		Id id_;
 	};
+
+	// All invalid values are equal to each other.
+	bool operator==(ScriptType const& lhs, ScriptType const& rhs);
+	bool operator!=(ScriptType const& lhs, ScriptType const& rhs);
 }
 
 #endif
