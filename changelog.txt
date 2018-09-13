@@ -2,6 +2,45 @@
 
 //2.55 Alpha 1 (Candidates)
 
+//2.55 Preliminary 11
+
+Finish porting old lens Quest Rules to Item Editor:
+	V_ITEMS is now 35
+	Deprecated the QRs: qr_LENSHINTS, qr_RAFTLENS, qr_LENSSEESENEMIES.
+	Quests with V_ITEMS < 35 will port their QRs to the item editor flags.
+	Removed display of old rules (they won't do anything when a quest is saved as V_ITEMS >= 35.
+	Added flag descriptions for flags 4 and 5 to the Item Editor.
+	( ZoriaRPG, 13th September, 2018 )
+
+Fixed boomerangs with levels greater than 3, triggering inappropriate
+map flags. ( ZoriaRPG, 18th September, 2018 )
+
+Added typedef for script type tokens. 
+(e.g. [ script typedef ffc scrweapon ] )
+	( grayswandir, 11th September, 2018 )
+	
+Fixed Persisting old, and new Lens of Truth bugs:
+	Changed do_lens() to no longer use directWpn for finding the current used item
+	Added `getWpnPressed(int itype)` in the same style as isWpnPressed, instead 
+	of returning bool it returns the item ID that is pressed.
+	These prevent the lens from 'stealing' properties of other items that are used
+	at the same time. 
+	( Venrob, 9th September, 2018 )
+	
+Re-fixed Link->Invisible. It's now a trinary state, with 0 == off, 1 == engine, 
+and 2 == script_set. 
+	( ZoriaRPG, 8th September, 2018 )
+	
+Use array init code even if not declared an array.
+	Fixes issues with some array types not being validated for size.
+	( grayswandir, 8th September, 2018 )
+
+Added Flags 4 and 5 to the Lens of Truth item class. 
+Lens Flag 4 now enables "Show Raft Paths"
+Lens Flag 5 now enables "Show Invisible Enemies"
+	( Venrob, 8th September, 2018 )
+	
+
 //2.55 Preliminary 10
 
 Moved strFormat() into a new class, XTableHelper--rename it later if you don't like it--, 
