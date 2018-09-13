@@ -179,6 +179,8 @@ int d_timer_proc(int msg, DIALOG *d, int c);
 void setMonochrome(bool state); //GFX are monochrome. 
 bool isMonochrome();
 
+void runDrunkRNG();
+
 //Save screen settings. 
 enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE, 	
 	SAVESC_CURSOR_CSET, 		SAVESC_CUR_SOUND,  		SAVESC_TEXT_CONTINUE_COLOUR, 

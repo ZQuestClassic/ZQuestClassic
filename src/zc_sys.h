@@ -58,6 +58,7 @@ bool ReadKey(int k);
 void eat_buttons();
 
 extern bool control_state[18];
+extern bool drunk_toggle_state[11];
 extern bool button_press[18];
 
 extern bool button_hold[18];
