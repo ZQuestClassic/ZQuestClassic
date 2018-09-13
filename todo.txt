@@ -178,7 +178,7 @@ Subscreen scrolling speed variable.
 *** RULES ***
 -------------
 Forward QRs to Items
-qr_FIREPROOFLINK (candle, done; book fire, todo)
+qr_FIREPROOFLINK (candle, done; book fire, todo) //Where is this done? -V
 qr_TEMPCANDLELIGHT (candle, done; book fire, todo)
 qr_OUCHBOMBS(bombs, done; sbombs done)
 qr_BRANGPICKUP(brangs done; hookshots, todo.)
