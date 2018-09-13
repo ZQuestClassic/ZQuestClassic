@@ -183,7 +183,6 @@ qr_TEMPCANDLELIGHT (candle, done; book fire, todo)
 qr_OUCHBOMBS(bombs, done; sbombs done)
 qr_BRANGPICKUP(brangs done; hookshots, todo.)
 qr_NOWANDMELEE(wand done; canes, toto)
-qr_RAFTLENS
 qr_WHIRLWINDMIRROR
 qr_BRKNSHLDTILES
 qr_NONBUBBLEMEDICINE
@@ -197,7 +196,6 @@ qr_RINGAFFECTDAMAGE
 qr_SLASHFLIPFIX
 qr_NOWANDMELEE
 qr_SWORDMIRROR
-qr_LENSSEESENEMIES(may be  better on a per-npc basis, 'Seen by Lens').
 qr_LADDERANYWHERE(perhaps better by per-dmap basis?)
 
 Implement Itemdata-based rule behaviour
@@ -280,6 +278,9 @@ ZQuest Editors: Enemy Editor Defences
 Guys
 Enemy Defence Code (new defence outcomes, only!)
 Enemy Editor Enemy Sizing (Seems as if it should be fine.)
+qr_RAFTLENS
+qr_LENSSEESENEMIES(may be  better on a per-npc basis, 'Seen by Lens').
+
 
 Might Do:
 
