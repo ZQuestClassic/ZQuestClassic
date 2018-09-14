@@ -11970,7 +11970,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
         
 	if ( section_version >= 11 )
 	{
-		if(!p_igetw(&temp_combo.tile,f,true))
+		if(!p_igetl(&temp_combo.tile,f,true))
 		{
 		    return qe_invalid;
 		}
