@@ -177,7 +177,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOS           11
 #define V_CSETS            4
 #define V_MAPS            19
-#define V_DMAPS            10
+#define V_DMAPS            11
 #define V_DOORS            1
 #define V_ITEMS           36
 #define V_WEAPONS          7
@@ -2520,17 +2520,17 @@ struct dmap
     char intro[73];
     //byte padding;
     //132
-    word minimap_1_tile;                                      //before getting map
+    int minimap_1_tile;                                      //before getting map
     byte minimap_1_cset;                                      //cset for minimap 1
     //byte padding;
-    word minimap_2_tile;                                      //after getting map
+    int minimap_2_tile;                                      //after getting map
     byte minimap_2_cset;                                      //cset for minimap 2
     //byte padding;
     //140
-    word largemap_1_tile;                                     //large map
+    int largemap_1_tile;                                     //large map
     byte largemap_1_cset;                                     //cset for large
     //byte padding;
-    word largemap_2_tile;                                     //large map
+    int largemap_2_tile;                                     //large map
     byte largemap_2_cset;                                     //cset for large
     char tmusic[56];
     byte tmusictrack;

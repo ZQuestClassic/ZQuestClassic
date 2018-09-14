@@ -6605,7 +6605,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
                 new_return(17);
             }
             
-            if(!p_iputw(DMaps[i].minimap_1_tile,f))
+            if(!p_iputl(DMaps[i].minimap_1_tile,f))
             {
                 new_return(18);
             }
@@ -6615,7 +6615,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
                 new_return(19);
             }
             
-            if(!p_iputw(DMaps[i].minimap_2_tile,f))
+            if(!p_iputl(DMaps[i].minimap_2_tile,f))
             {
                 new_return(20);
             }
@@ -6625,7 +6625,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
                 new_return(21);
             }
             
-            if(!p_iputw(DMaps[i].largemap_1_tile,f))
+            if(!p_iputl(DMaps[i].largemap_1_tile,f))
             {
                 new_return(22);
             }
@@ -6635,7 +6635,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
                 new_return(23);
             }
             
-            if(!p_iputw(DMaps[i].largemap_2_tile,f))
+            if(!p_iputl(DMaps[i].largemap_2_tile,f))
             {
                 new_return(24);
             }

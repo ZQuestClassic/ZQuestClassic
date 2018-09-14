@@ -3626,11 +3626,20 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                     return qe_invalid;
                 }
             }
-            
-            if(!p_igetw(&tempDMap.minimap_1_tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
+            if ( s_version >= 11 )
+	    {
+		    if(!p_igetl(&tempDMap.minimap_1_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&tempDMap.minimap_1_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
             
             if(!p_getc(&tempDMap.minimap_1_cset,f,keepdata))
             {
@@ -3645,11 +3654,20 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                 }
             }
             
-            if(!p_igetw(&tempDMap.minimap_2_tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
+	    if ( s_version >= 11 )
+	    {
+		    if(!p_igetl(&tempDMap.minimap_2_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&tempDMap.minimap_2_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
             if(!p_getc(&tempDMap.minimap_2_cset,f,keepdata))
             {
                 return qe_invalid;
@@ -3663,11 +3681,21 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                 }
             }
             
-            if(!p_igetw(&tempDMap.largemap_1_tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
+	    if ( s_version >= 11 )
+	    {
+		    if(!p_igetl(&tempDMap.largemap_1_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&tempDMap.largemap_1_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    
             if(!p_getc(&tempDMap.largemap_1_cset,f,keepdata))
             {
                 return qe_invalid;
@@ -3682,11 +3710,20 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                 }
             }
             
-            if(!p_igetw(&tempDMap.largemap_2_tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
+	    if ( s_version >= 11 )
+	    {
+		    if(!p_igetl(&tempDMap.largemap_2_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&tempDMap.largemap_2_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
             if(!p_getc(&tempDMap.largemap_2_cset,f,keepdata))
             {
                 return qe_invalid;
