@@ -8969,6 +8969,7 @@ int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_
     dword section_id=ID_TILES;
     dword section_version=V_TILES;
     dword section_cversion=CV_TILES;
+	al_trace("Counting tiles used\n");
     tiles_used = count_tiles(newtilebuf)-start_tile;
     tiles_used = zc_min(tiles_used, max_tiles);
     tiles_used = zc_min(tiles_used, NEWMAXTILES);
@@ -9013,7 +9014,7 @@ int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_
             new_return(5);
         }
         
-        for(dword i=0; i<tiles_used; ++i)
+        for(int i=0; i<tiles_used; ++i)
         {
             if(!p_putc(newtilebuf[start_tile+i].format,f))
             {

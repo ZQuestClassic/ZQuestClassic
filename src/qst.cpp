@@ -1201,7 +1201,9 @@ int get_qst_buffers()
         return 0;
         
     memset(newtilebuf, 0, NEWMAXTILES*sizeof(tiledata));
+    //Z_message("Performed memset on tiles\n"); 
     clear_tiles(newtilebuf);
+    //Z_message("Performed clear_tiles()\n"); 
     Z_message("OK\n");                                        // Allocating tile buffer...
     
     if(is_zquest())
@@ -12549,12 +12551,21 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
     return 0;
 }
 
-int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, word max_tiles, bool from_init, bool keepdata)
+int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int max_tiles, bool from_init, bool keepdata)
 {
     int dummy;
     word tiles_used=0;
     byte *temp_tile = new byte[tilesize(tf32Bit)];
+	
     
+    if ( build < 41 ) 
+    {
+	    al_trace("Build was < 41 when reading tiles\n");
+	    max_tiles = ZC250MAXTILES;
+    }
+    
+	al_trace("Max Tiles: %d\n", max_tiles);
+	
     if(Header!=NULL&&(!Header->data_flags[ZQ_TILES]&&!from_init))         //keep for old quests
     {
         if(keepdata==true)
@@ -12594,6 +12605,11 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
             }
         }
         
+	if ( build < 41 ) 
+	{
+		tiles_used = ZC250MAXTILES;
+	}
+	
         if(version < 0x174)
         {
             tiles_used=TILES_PER_PAGE*4;
@@ -12615,9 +12631,15 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         
         tiles_used=zc_min(tiles_used, max_tiles);
         
-        tiles_used=zc_min(tiles_used, NEWMAXTILES-start_tile);
+        tiles_used=zc_min(tiles_used, ZC250MAXTILES-start_tile);
+	
+	tiles_used = zc_min(tiles_used,NEWMAXTILES-start_tile); 
+	
+	//if ( section_version > 1 ) tiles_used = NEWMAXTILES;
         
-        for(word i=0; i<tiles_used; ++i)
+	al_trace("tiles_used = %d\n", tiles_used);
+	
+        for(int i=0; i<tiles_used; ++i)
         {
             byte format=tf4Bit;
             memset(temp_tile, 0, tilesize(tf32Bit));
@@ -12655,10 +12677,25 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
     
     if(keepdata==true)
     {
-        for(int i=start_tile+tiles_used; i<max_tiles; ++i)
-        {
-            reset_tile(buf,i,tf4Bit);
-        }
+	    al_trace("calling reset_tile()");
+	if ( build < 41 ) 
+	{
+		for(int i=start_tile+tiles_used; i<max_tiles; ++i)
+		{
+			al_trace("Resetting tiles for ZC250MAXTILES, iteration: %d\n", i);
+		    reset_tile(buf,i,tf4Bit);
+		}
+	}
+
+	else
+	{
+		for(int i=start_tile+tiles_used; i<max_tiles; ++i)
+		{
+			al_trace("Resetting tiles for build 41+\n");
+		    reset_tile(buf,i,tf4Bit);
+		}
+	}
+	
         
         if((version < 0x192)|| ((version == 0x192)&&(build<186)))
         {
@@ -12704,7 +12741,8 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
             }
         }
         
-        register_blank_tiles();
+	al_trace("Registering blank tiles\n");
+        register_blank_tiles(max_tiles);
     }
     
     //memset(temp_tile, 0, tilesize(tf32Bit));
