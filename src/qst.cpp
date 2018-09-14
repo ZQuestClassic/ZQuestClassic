@@ -2833,11 +2833,21 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 tempMsgString.s[MSGSIZE]='\0';
                 
-                if(!p_igetw(&tempMsgString.tile,f,true))
-                {
-                    return qe_invalid;
-                }
-                
+		if ( s_version >= 6 )
+		{
+			if(!p_igetl(&tempMsgString.tile,f,true))
+			{
+			    return qe_invalid;
+			}
+		}
+		else
+		{
+			if(!p_igetw(&tempMsgString.tile,f,true))
+			{
+			    return qe_invalid;
+			}
+		}
+			
                 if(!p_getc(&tempMsgString.cset,f,true))
                 {
                     return qe_invalid;

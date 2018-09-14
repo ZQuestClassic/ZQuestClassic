@@ -8819,7 +8819,7 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
                 return qe_invalid;
             }
             
-            if(!p_iputw(MsgStrings[i].tile,f))
+            if(!p_iputl(MsgStrings[i].tile,f))
             {
                 return qe_invalid;
             }

@@ -171,7 +171,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 //Version number of the different section types
 #define V_HEADER           3
 #define V_RULES           14
-#define V_STRINGS          5
+#define V_STRINGS          6
 #define V_MISC             9
 #define V_TILES            2 //2 will be either unsigned short, or long
 #define V_COMBOS           11
@@ -2422,7 +2422,7 @@ struct MsgStr
 {
     char s[MSGSIZE+1];
     word nextstring;
-    word tile;
+    int tile;
     byte cset;
     bool trans;
     byte font;
