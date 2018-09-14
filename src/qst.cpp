@@ -12745,7 +12745,19 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
 	{
 		for ( int q = ZC250MAXTILES; q < NEWMAXTILES; ++q )
 		{
-			buf[q] = buf[ZC250MAXTILES];
+			
+			buf[q].data=(byte *)zc_malloc(tilesize(buf[q].format));
+			/*
+			memcpy(buf[start_tile+i].data,temp_tile,tilesize(buf[start_tile+i].format));
+			byte tempbyte;
+			for(int i=0; i<tilesize(tf4Bit); i++)
+			{
+				tempbyte=buf[ZC250MAXTILES-1].data[i];
+				buf[q].data[i] = tempbyte;
+			}
+			//int temp = tempbyte=buf[130].data[i];
+			//buf[q].data = buf[ZC250MAXTILES-1].data;
+			*/
 			reset_tile(buf,q,tf4Bit);
 		}
 		
