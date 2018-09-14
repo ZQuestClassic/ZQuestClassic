@@ -12622,11 +12622,11 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
     
     if ( build < 41 ) 
     {
-	    al_trace("Build was < 41 when reading tiles\n");
+	    //al_trace("Build was < 41 when reading tiles\n");
 	    max_tiles = ZC250MAXTILES;
     }
     
-	al_trace("Max Tiles: %d\n", max_tiles);
+	//al_trace("Max Tiles: %d\n", max_tiles);
 	
     if(Header!=NULL&&(!Header->data_flags[ZQ_TILES]&&!from_init))         //keep for old quests
     {
@@ -12715,7 +12715,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
 	
 	//if ( section_version > 1 ) tiles_used = NEWMAXTILES;
         
-	al_trace("tiles_used = %d\n", tiles_used);
+	//al_trace("tiles_used = %d\n", tiles_used);
 	
         for(int i=0; i<tiles_used; ++i)
         {
@@ -12755,11 +12755,11 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
     
 	if ( section_version < 2 ) //write blank tile data --check s_version with this again instead?
 	{
-		al_trace("Writing blank tile data to new tiles for build < 41\n");
+		//al_trace("Writing blank tile data to new tiles for build < 41\n");
 		for ( int q = ZC250MAXTILES; q < NEWMAXTILES; ++q )
 		{
 			
-			buf[q].data=(byte *)zc_malloc(tilesize(buf[q].format));
+			buf[q].data=(byte *)zc_malloc(tilesize(tf4Bit));
 			//memcpy(buf[q].data,temp_tile,tilesize(buf[q].format));
 			reset_tile(buf,q,tf4Bit);
 			
@@ -12782,12 +12782,12 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
     
     if(keepdata==true)
     {
-	    al_trace("calling reset_tile()");
+	    //al_trace("calling reset_tile()");
 	if ( build < 41 ) 
 	{
 		for(int i=start_tile+tiles_used; i<max_tiles; ++i)
 		{
-			al_trace("Resetting tiles for ZC250MAXTILES, iteration: %d\n", i);
+			//al_trace("Resetting tiles for ZC250MAXTILES, iteration: %d\n", i);
 		    reset_tile(buf,i,tf4Bit);
 		}
 	}
@@ -12796,7 +12796,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
 	{
 		for(int i=start_tile+tiles_used; i<max_tiles; ++i)
 		{
-			al_trace("Resetting tiles for build 41+\n");
+			//al_trace("Resetting tiles for build 41+\n");
 		    reset_tile(buf,i,tf4Bit);
 		}
 	}

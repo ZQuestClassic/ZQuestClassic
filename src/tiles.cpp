@@ -111,7 +111,7 @@ void register_blank_tiles(int max)
     //int tiles_used=count_tiles(newtilebuf);
     for(int i=0; i<max; ++i)
     {
-	    al_trace("Registering a blank tile, iteration: \n", i);
+	    //al_trace("Registering a blank tile, iteration: \n", i);
         register_blank_tile_quarters(i);
         blank_tile_table[i]=isblanktile(newtilebuf, i);
     }
@@ -137,7 +137,7 @@ int count_tiles(tiledata *buf)
           break;
           }
           */
-	    al_trace("count_tiles() is checking if tile %d is blank.\n", tiles_used-1);
+	    //al_trace("count_tiles() is checking if tile %d is blank.\n", tiles_used-1);
         if(!isblanktile(buf, tiles_used-1))
         {
             break;
