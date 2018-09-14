@@ -6980,7 +6980,7 @@ int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         
         for(int i=0; i<4; i++)
         {
-            if(!p_iputw(Misc->icons[i],f))
+            if(!p_iputl(Misc->icons[i],f))
             {
                 new_return(5);
             }

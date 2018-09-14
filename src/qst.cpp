@@ -4150,14 +4150,26 @@ int readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdata)
     
     icons=4;
     
-    for(int i=0; i<icons; i++)
+    if ( s_version >= 10 )
     {
-        if(!p_igetw(&temp_misc.icons[i],f,true))
-        {
-            return qe_invalid;
-        }
+	    for(int i=0; i<icons; i++)
+	    {
+		if(!p_igetl(&temp_misc.icons[i],f,true))
+		{
+		    return qe_invalid;
+		}
+	    }	   
     }
-    
+    else
+    {	    
+	    for(int i=0; i<icons; i++)
+	    {
+		if(!p_igetw(&temp_misc.icons[i],f,true))
+		{
+		    return qe_invalid;
+		}
+	    }
+    }
     if(keepdata==true)
     {
         memcpy(Misc, &temp_misc, sizeof(temp_misc));

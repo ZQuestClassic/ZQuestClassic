@@ -172,7 +172,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           3
 #define V_RULES           14
 #define V_STRINGS          6
-#define V_MISC             9
+#define V_MISC             10
 #define V_TILES            2 //2 will be either unsigned short, or long
 #define V_COMBOS           11
 #define V_CSETS            4
@@ -182,7 +182,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ITEMS           36
 #define V_WEAPONS          7
 #define V_COLORS           3 //Misc Colours
-#define V_ICONS            1
+#define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
 #define V_GUYS            36
@@ -2702,7 +2702,7 @@ struct miscQdata
     //2858 (8)
     zcolors  colors;
     //3154 (296)
-    word     icons[4];
+    int     icons[4];
     //3162 (8=2*4)
     //pondtype pond[16];
     //4314 (1152=72*16)
