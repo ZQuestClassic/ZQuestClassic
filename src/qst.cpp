@@ -12554,7 +12554,7 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
 int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int max_tiles, bool from_init, bool keepdata)
 {
     int dummy;
-    word tiles_used=0;
+    int tiles_used=0;
     byte *temp_tile = new byte[tilesize(tf32Bit)];
 	
     
@@ -12605,10 +12605,10 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
             }
         }
         
-	if ( build < 41 ) 
-	{
-		tiles_used = ZC250MAXTILES;
-	}
+	//if ( build < 41 ) 
+	//{
+	//	tiles_used = ZC250MAXTILES;
+	//}
 	
         if(version < 0x174)
         {
@@ -12621,12 +12621,23 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         else
         {
             //finally...  section data
-            
-            if(!p_igetw(&tiles_used,f,true))
-            {
-                delete[] temp_tile;
-                return qe_invalid;
-            }
+            if ( version > 0x250 && build >= 41 ) //read and write the size of tiles_used properly
+	    { 
+		    if(!p_igetl(&tiles_used,f,true))
+		    {
+			delete[] temp_tile;
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		 if(!p_igetw(&tiles_used,f,true))
+		    {
+			delete[] temp_tile;
+			return qe_invalid;
+		    }
+	    }
+	    
         }
         
         tiles_used=zc_min(tiles_used, max_tiles);
@@ -12743,10 +12754,12 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         
 	if ( build < 41 ) //write blank tile data
 	{
+		al_trace("Writingblank tile data to new tiles for build < 41\n");
 		for ( int q = ZC250MAXTILES; q < NEWMAXTILES; ++q )
 		{
 			
 			buf[q].data=(byte *)zc_malloc(tilesize(buf[q].format));
+			memcpy(buf[q].data,temp_tile,tilesize(buf[q].format));
 			/*
 			memcpy(buf[start_tile+i].data,temp_tile,tilesize(buf[start_tile+i].format));
 			byte tempbyte;
@@ -12758,7 +12771,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
 			//int temp = tempbyte=buf[130].data[i];
 			//buf[q].data = buf[ZC250MAXTILES-1].data;
 			*/
-			reset_tile(buf,q,tf4Bit);
+			//reset_tile(buf,q,tf4Bit);
 		}
 		
 	}

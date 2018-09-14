@@ -8965,7 +8965,7 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
     version=version;
     build=build;
     
-    word tiles_used;
+    int tiles_used;
     dword section_id=ID_TILES;
     dword section_version=V_TILES;
     dword section_cversion=CV_TILES;
@@ -8973,6 +8973,7 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
     tiles_used = count_tiles(newtilebuf)-start_tile;
     tiles_used = zc_min(tiles_used, max_tiles);
     tiles_used = zc_min(tiles_used, NEWMAXTILES);
+	al_trace("writetiles counted %dtiles used.\n",tiles_used); 
     dword section_size = 0;
     
     //section id
@@ -9009,12 +9010,13 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
         tiles_used=zc_min(tiles_used, max_tiles);
         tiles_used=zc_min(tiles_used, NEWMAXTILES);
         
-        if(!p_iputw(tiles_used,f))
+        if(!p_iputl(tiles_used,f))
         {
             new_return(5);
         }
         
-        for(int i=0; i<tiles_used; ++i)
+        for(int i=0; i<tiles_used-1; ++i)
+        //for(int i=0; i<NEWMAXTILES; ++i)
         {
             if(!p_putc(newtilebuf[start_tile+i].format,f))
             {
@@ -9025,6 +9027,17 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
             {
                 new_return(7);
             }
+	    /*
+            if(!p_putc(newtilebuf[start_tile+i].format,f))
+            {
+                new_return(6);
+            }
+            
+            if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
+            {
+                new_return(7);
+            }
+	    */
         }
         
         if(writecycle==0)
