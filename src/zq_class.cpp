@@ -9322,7 +9322,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                 new_return(7);
             }
             
-            if(!p_iputw(guysbuf[i].tile,f))
+            if(!p_iputl(guysbuf[i].tile,f))
             {
                 new_return(8);
             }
@@ -9337,7 +9337,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                 new_return(10);
             }
             
-            if(!p_iputw(guysbuf[i].s_tile,f))
+            if(!p_iputl(guysbuf[i].s_tile,f))
             {
                 new_return(11);
             }
@@ -9352,7 +9352,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                 new_return(13);
             }
             
-            if(!p_iputw(guysbuf[i].e_tile,f))
+            if(!p_iputl(guysbuf[i].e_tile,f))
             {
                 new_return(14);
             }

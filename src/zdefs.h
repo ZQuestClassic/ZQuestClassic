@@ -185,7 +185,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            1
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            35
+#define V_GUYS            36
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -1608,13 +1608,13 @@ struct guydata
 {
     dword flags;
     dword flags2;
-    word  tile;
+    int  tile;
     byte  width;
     byte  height; //0=striped, 1+=rectangular
-    word  s_tile; //secondary (additional) tile(s)
+    int  s_tile; //secondary (additional) tile(s)
     byte  s_width;
     byte  s_height;  //0=striped, 1+=rectangular
-    word  e_tile;
+    int  e_tile;
     byte  e_width;
     byte  e_height;
     

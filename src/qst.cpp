@@ -8910,11 +8910,20 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.tile),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
+	    if ( guyversion >= 36 ) //expanded tiles
+	    {
+		    if(!p_igetl(&(tempguy.tile),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&(tempguy.tile),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }    
             if(!p_getc(&(tempguy.width),f,keepdata))
             {
                 return qe_invalid;
@@ -8925,11 +8934,21 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.s_tile),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
+	    if ( guyversion >= 36 ) //expanded tiles
+	    {
+		    if(!p_igetl(&(tempguy.s_tile),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&(tempguy.s_tile),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    
             if(!p_getc(&(tempguy.s_width),f,keepdata))
             {
                 return qe_invalid;
@@ -8940,11 +8959,21 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.e_tile),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
+	    if ( guyversion >= 36 ) //expanded tiles
+	    {
+		    if(!p_igetl(&(tempguy.e_tile),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&(tempguy.e_tile),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    
             if(!p_getc(&(tempguy.e_width),f,keepdata))
             {
                 return qe_invalid;
