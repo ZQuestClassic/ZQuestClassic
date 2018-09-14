@@ -8959,7 +8959,7 @@ int writestrings_text(PACKFILE *f)
 }
 
 
-int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_tiles)
+int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_tiles)
 {
     //these are here to bypass compiler warnings about unused arguments
     version=version;

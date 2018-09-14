@@ -12741,6 +12741,16 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
             }
         }
         
+	if ( build < 41 ) //write blank tile data
+	{
+		for ( int q = ZC250MAXTILES; q < NEWMAXTILES; ++q )
+		{
+			buf[q] = buf[ZC250MAXTILES];
+			reset_tile(buf,q,tf4Bit);
+		}
+		
+	}
+	
 	al_trace("Registering blank tiles\n");
         register_blank_tiles(max_tiles);
     }

@@ -270,7 +270,7 @@ extern bool fake_pack_writing;
 #define TILE_PAGES          252
 
 #define OLDMAXTILES         (TILES_PER_PAGE*6)              // 1560 tiles
-#define NEWMAXTILES         (TILES_PER_PAGE*400)     // 214500 tiles
+#define NEWMAXTILES         (TILES_PER_PAGE*825)     // 214500 tiles
 #define ZC250MAXTILES         (TILES_PER_PAGE*252)     // 32760 tiles
 
 #define NEWTILE_SIZE2       (NEWMAXTILES*SINGLE_TILE_SIZE)  // 4193280 bytes (new packed format, 6 pages)
