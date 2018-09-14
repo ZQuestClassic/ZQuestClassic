@@ -9015,7 +9015,7 @@ int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_ti
             new_return(5);
         }
         
-        for(int i=0; i<tiles_used-1; ++i)
+        for(int i=0; i<tiles_used; ++i)
         //for(int i=0; i<NEWMAXTILES; ++i)
         {
             if(!p_putc(newtilebuf[start_tile+i].format,f))
