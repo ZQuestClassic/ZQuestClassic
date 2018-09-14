@@ -6891,6 +6891,37 @@ int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         {
             new_return(33);
         }
+	
+        if(!p_iputl(Misc->colors.new_triforce_tile,f))
+        {
+            new_return(34);
+        }
+        
+        if(!p_iputl(Misc->colors.new_triframe_tile,f))
+        {
+            new_return(35);
+        }
+        
+        if(!p_iputl(Misc->colors.new_overworld_map_tile,f))
+        {
+            new_return(36);
+        }
+        
+        if(!p_iputl(Misc->colors.new_dungeon_map_tile,f))
+        {
+            new_return(37);
+        }
+        
+        if(!p_iputl(Misc->colors.new_blueframe_tile,f))
+        {
+            new_return(38);
+        }
+        
+        if(!p_iputl(Misc->colors.new_HCpieces_tile,f))
+        {
+            new_return(39);
+        }
+        
         
         if(writecycle==0)
         {

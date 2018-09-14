@@ -2167,7 +2167,7 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,i
       */
     if(tile==0)
     {
-        tile=misc->colors.blueframe_tile;
+        tile=misc->colors.new_blueframe_tile;
     }
     
     int t8 = tile<<2;
@@ -2543,9 +2543,9 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
             {
                 draw_block(dest,x,y,DMaps[get_currdmap()].minimap_1_tile,DMaps[get_currdmap()].minimap_1_cset,5,3);
             }
-            else if(c.overworld_map_tile)
+            else if(c.new_overworld_map_tile)
             {
-                draw_block(dest,x,y,c.overworld_map_tile,c.overworld_map_cset,5,3);
+                draw_block(dest,x,y,c.new_overworld_map_tile,c.overworld_map_cset,5,3);
             }
             else
             {
@@ -2568,9 +2568,9 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
             {
                 draw_block(dest,x,y,maptile,mapcset,5,3);
             }
-            else if(c.dungeon_map_tile)
+            else if(c.new_dungeon_map_tile)
             {
-                draw_block(dest,x,y,c.dungeon_map_tile,c.dungeon_map_cset,5,3);
+                draw_block(dest,x,y,c.new_dungeon_map_tile,c.dungeon_map_cset,5,3);
             }
             else
             {
@@ -4250,13 +4250,13 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int x, int y, int triframecolor,
 {
     if(triframetile==0)
     {
-        triframetile=misc->colors.triframe_tile;
+        triframetile=misc->colors.new_triframe_tile;
         triframecset=misc->colors.triframe_cset;
     }
     
     if(triforcetile==0)
     {
-        triforcetile=misc->colors.triforce_tile;
+        triforcetile=misc->colors.new_triforce_tile;
         triforcecset=misc->colors.triforce_cset;
     }
     
@@ -4420,7 +4420,7 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int x, int y, int tile, int cset
 {
     if(tile==0)
     {
-        tile=misc->colors.triforce_tile;
+        tile=misc->colors.new_triforce_tile;
     }
     
     for(int i=0; i<8; i++)
@@ -4472,13 +4472,13 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
         {
             draw_block(dest,x,y,maptile,mapcset,large?9:7,5);
         }
-        else if(misc->colors.dungeon_map_tile)
+        else if(misc->colors.new_dungeon_map_tile)
         {
             for(int y2=0; y2<5; y2++)
             {
                 for(int x2=0; x2<(large?8:6); x2++)
                 {
-                    overtile16(dest,misc->colors.dungeon_map_tile+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),misc->colors.dungeon_map_cset,0);
+                    overtile16(dest,misc->colors.new_dungeon_map_tile+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),misc->colors.dungeon_map_cset,0);
                     //++si;
                 }
             }
@@ -4581,7 +4581,7 @@ void load_Sitems(miscQdata *misc)
     Sitems.clear();
     
     // HC Pieces
-    if(misc->colors.HCpieces_tile)
+    if(misc->colors.new_HCpieces_tile)
     {
         //      item *HCP = new item((fix)(inventory_x[5]-ofs),(fix)y,iMax,0,0);
         item *HCP = new item((fix)0,(fix)0,(fix)0,iHCPiece,0,0);
@@ -4589,7 +4589,7 @@ void load_Sitems(miscQdata *misc)
         if(HCP)
         {
             int hcpphc =  game->get_hcp_per_hc();
-            HCP->tile   = misc->colors.HCpieces_tile + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
+            HCP->tile   = misc->colors.new_HCpieces_tile + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
             HCP->o_tile = HCP->tile;
             HCP->cs     = misc->colors.HCpieces_cset;
             HCP->frames = 0;
