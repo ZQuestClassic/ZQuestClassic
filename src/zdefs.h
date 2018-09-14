@@ -267,7 +267,7 @@ extern bool fake_pack_writing;
 #define TILES_PER_ROW       20
 #define TILE_ROWS_PER_PAGE  13
 #define TILES_PER_PAGE      (TILES_PER_ROW*TILE_ROWS_PER_PAGE)
-#define TILE_PAGES          252
+#define TILE_PAGES          825
 
 #define OLDMAXTILES         (TILES_PER_PAGE*6)              // 1560 tiles
 #define NEWMAXTILES         (TILES_PER_PAGE*825)     // 214500 tiles
