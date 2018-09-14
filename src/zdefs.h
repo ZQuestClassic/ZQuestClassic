@@ -174,7 +174,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          5
 #define V_MISC             9
 #define V_TILES            2 //2 will be either unsigned short, or long
-#define V_COMBOS           10
+#define V_COMBOS           11
 #define V_CSETS            4
 #define V_MAPS            19
 #define V_DMAPS            10
@@ -2216,7 +2216,7 @@ without needing the user to have bit precision. -Z
 
 struct newcombo
 {
-    word tile; //16 bits
+    int tile; //16 bits
     byte flip; //8 bits
     byte walk; //8 bits
     byte type; //8 bits

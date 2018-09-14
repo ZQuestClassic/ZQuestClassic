@@ -8439,7 +8439,7 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
         
         for(int i=start_combo; i<start_combo+combos_used; i++)
         {
-            if(!p_iputw(combobuf[i].tile,f))
+            if(!p_iputl(combobuf[i].tile,f))
             {
                 new_return(6);
             }

@@ -11918,11 +11918,20 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
     {
         memset(&temp_combo,0,sizeof(temp_combo));
         
-        if(!p_igetw(&temp_combo.tile,f,true))
-        {
-            return qe_invalid;
-        }
-        
+	if ( section_version >= 11 )
+	{
+		if(!p_igetw(&temp_combo.tile,f,true))
+		{
+		    return qe_invalid;
+		}
+	}
+	else
+	{
+		if(!p_igetw(&temp_combo.tile,f,true))
+		{
+		    return qe_invalid;
+		}
+	}
         if(!p_getc(&temp_combo.flip,f,true))
         {
             return qe_invalid;
