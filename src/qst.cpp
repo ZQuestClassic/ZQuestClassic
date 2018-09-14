@@ -4810,11 +4810,22 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
         memset(&tempitem, 0, sizeof(itemdata));
         reset_itembuf(&tempitem,i);
         
-        if(!p_igetw(&tempitem.tile,f,true))
-        {
-            return qe_invalid;
-        }
-        
+	    
+	if ( s_version > 35 ) //expanded tiles	
+	{    
+		if(!p_igetl(&tempitem.tile,f,true))
+		{
+		    return qe_invalid;
+		}
+	}
+	else
+	{
+		if(!p_igetw(&tempitem.tile,f,true))
+		{
+		    return qe_invalid;
+		}
+	}
+		
         if(!p_getc(&tempitem.misc,f,true))
         {
             return qe_invalid;

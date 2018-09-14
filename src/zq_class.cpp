@@ -7226,7 +7226,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<iMax; i++)
         {
-            if(!p_iputw(itemsbuf[i].tile,f))
+            if(!p_iputl(itemsbuf[i].tile,f))
             {
                 new_return(6);
             }

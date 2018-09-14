@@ -179,7 +179,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            19
 #define V_DMAPS            10
 #define V_DOORS            1
-#define V_ITEMS           35
+#define V_ITEMS           36
 #define V_WEAPONS          6
 #define V_COLORS           2
 #define V_ICONS            1
@@ -1356,7 +1356,7 @@ enum
 
 struct itemdata
 {
-    word tile;
+    int tile;
     byte misc;                                                // 0000vhtf (vh:flipping, t:two hands, f:flash)
     byte csets;                                               // ffffcccc (f:flash cset, c:cset)
     byte frames;                                              // animation frame count
