@@ -11602,7 +11602,7 @@ int d_wlist_proc(int msg,DIALOG *d,int c)
         
         int tile = 0;
         int cset = 0;
-        tile= wpnsbuf[biw[d->d1].i].tile;
+        tile= wpnsbuf[biw[d->d1].i].newtile;
         cset= wpnsbuf[biw[d->d1].i].csets&15;
         int x = d->x + d->w + 4;
         int y = d->y;

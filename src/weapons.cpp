@@ -1960,15 +1960,15 @@ void weapon::LOADGFX(int wpn)
         
     wid = wpn;
     flash = wpnsbuf[wid].misc&3;
-    tile  = wpnsbuf[wid].tile;
+    tile  = wpnsbuf[wid].newtile;
     cs = wpnsbuf[wid].csets&15;
-    o_tile = wpnsbuf[wid].tile;
+    o_tile = wpnsbuf[wid].newtile;
     o_cset = wpnsbuf[wid].csets;
     o_flip=(wpnsbuf[wid].misc>>2)&3;
     o_speed = wpnsbuf[wid].speed;
     o_type = wpnsbuf[wid].type;
     frames = wpnsbuf[wid].frames;
-    temp1 = wpnsbuf[wFIRE].tile;
+    temp1 = wpnsbuf[wFIRE].newtile;
     behind = (wpnsbuf[wid].misc&WF_BEHIND)!=0;
 }
 
@@ -4389,7 +4389,7 @@ void weapon::draw(BITMAP *dest)
             break;
         }
         
-        tile = wpnsbuf[id2].tile;
+        tile = wpnsbuf[id2].newtile;
         cs = wpnsbuf[id2].csets&15;
         boomframes = wpnsbuf[id2].frames;
         

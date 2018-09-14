@@ -6327,10 +6327,12 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     for(int i=0; i<weapons_to_read; i++)
     {
+	    
+		    
         if(!p_igetw(&tempweapon.tile,f,true))
-        {
-            return qe_invalid;
-        }
+	{
+	    return qe_invalid;
+	}	
         
         if(!p_getc(&tempweapon.misc,f,true))
         {
@@ -6356,6 +6358,22 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             return qe_invalid;
         }
+	
+	if ( s_version >= 7 )
+	{
+		if(!p_igetw(&tempweapon.script,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempweapon.tile,f,true))
+		{
+		    return qe_invalid;
+		}	    
+	}
+	if ( s_version < 7 ) 
+	{
+		tempweapon.newtile = tempweapon.tile;
+	}
         
         if(Header->zelda_version < 0x193)
         {

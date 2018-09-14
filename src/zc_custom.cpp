@@ -338,8 +338,8 @@ void linktile(int *tile, int *flip, int state, int dir, int)
 
 void setuplinktiles(int style)
 {
-    old_floatspr = wpnsbuf[iwSwim].tile;
-    old_slashspr = wpnsbuf[iwLinkSlash].tile;
+    old_floatspr = wpnsbuf[iwSwim].newtile;
+    old_slashspr = wpnsbuf[iwLinkSlash].newtile;
     linkspr = 4;
     
     switch(style)

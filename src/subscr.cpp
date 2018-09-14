@@ -2647,11 +2647,11 @@ void lifemeter(BITMAP *dest,int x,int y,int tile,bool bs_style)
         {
             if(get_bit(quest_rules,qr_QUARTERHEART))
             {
-                if(i+((HP_PER_HEART/4)*3)>=game->get_life()) tile=(wpnsbuf[iwQuarterHearts].tile*4)+2;
+                if(i+((HP_PER_HEART/4)*3)>=game->get_life()) tile=(wpnsbuf[iwQuarterHearts].newtile*4)+2;
                 
                 if(i+(HP_PER_HEART/2)>=game->get_life()) tile=1;
                 
-                if(i+((HP_PER_HEART/4)*1)>=game->get_life()) tile=(wpnsbuf[iwQuarterHearts].tile*4)+3;
+                if(i+((HP_PER_HEART/4)*1)>=game->get_life()) tile=(wpnsbuf[iwQuarterHearts].newtile*4)+3;
             }
             else if(i+(HP_PER_HEART/2)>=game->get_life()) tile=1;
             
@@ -2826,7 +2826,7 @@ void magicmeter(BITMAP *dest,int x,int y)
     if(game->get_maxmagic()==0) return;
     
     int tile;
-    int mmtile=wpnsbuf[iwMMeter].tile;
+    int mmtile=wpnsbuf[iwMMeter].newtile;
     int mmcset=wpnsbuf[iwMMeter].csets&15;
     overtile8(dest,(mmtile*4)+2,x-8,y,mmcset,0);
     
@@ -3731,11 +3731,11 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                     switch(css->objects[i].d2)
                     {
                     case ssmstSSVINETILE:
-                        t=wpnsbuf[iwSubscreenVine].tile*4;
+                        t=wpnsbuf[iwSubscreenVine].newtile*4;
                         break;
                         
                     case ssmstMAGICMETER:
-                        t=wpnsbuf[iwMMeter].tile*4;
+                        t=wpnsbuf[iwMMeter].newtile*4;
                         break;
                         
                     default:

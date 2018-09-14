@@ -7712,6 +7712,16 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
             {
                 new_return(11);
             }
+	    
+	    if(!p_iputw(wpnsbuf[i].script,f))
+            {
+                new_return(12);
+            }
+	    
+	    if(!p_iputl(wpnsbuf[i].newtile,f))
+            {
+                new_return(12);
+            }
         }
         
         if(writecycle==0)
