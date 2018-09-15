@@ -5937,8 +5937,9 @@ bool LinkClass::doattack()
 
 bool LinkClass::can_attack()
 {
+	int currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
     if(action==hopping || action==swimming || action==freeze || link_is_stunned > 0 ||
-            (action==attacking && (attack!=wSword || attack!=wWand || !get_bit(quest_rules,qr_QUICKSWORD)) && charging!=0) || spins>0)
+            (action==attacking && ((attack!=wSword && attack!=wWand) || !(get_bit(quest_rules,qr_QUICKSWORD)||(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5))) && charging!=0) || spins>0)
     {
         return false;
     }
@@ -6537,7 +6538,8 @@ void LinkClass::movelink()
     
     //&0xFFF removes the "bow & arrows" bitmask
     //The Quick Sword is allowed to interrupt attacks.
-    if((!attackclk && action!=attacking) || ((attack==wSword || attack==wWand) && get_bit(quest_rules,qr_QUICKSWORD)))
+    int currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
+    if((!attackclk && action!=attacking) || ((attack==wSword || attack==wWand) && (get_bit(quest_rules,qr_QUICKSWORD)||(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5))))
     {
         if(DrunkrBbtn())
         {
