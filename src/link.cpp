@@ -6059,7 +6059,7 @@ void LinkClass::do_hopping()
             --diveclk;
         else if(DrunkrAbtn())
         {
-            bool global_diving=(get_bit(quest_rules,qr_NODIVING) != 0);
+            bool global_diving=(get_bit(quest_rules,qr_NODIVING)>0 || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG1)>0);
             bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
             
             if(global_diving==screen_diving)
@@ -6511,7 +6511,7 @@ void LinkClass::movelink()
     }
     else if(action==swimming)
     {
-        bool global_diving=(get_bit(quest_rules,qr_NODIVING) != 0);
+        bool global_diving=(get_bit(quest_rules,qr_NODIVING)>0 || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG1)>0);
         bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
         
         if(DrunkrAbtn()&&(global_diving==screen_diving))
