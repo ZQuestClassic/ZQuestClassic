@@ -14041,7 +14041,7 @@ void check_collisions()
                             bool priced = ((item*)items.spr(j))->PriceIndex >-1;
                             
                             if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
-                                    || (get_bit(quest_rules,qr_BRANGPICKUP) && !priced && !(((item*)items.spr(j))->pickup & ipDUMMY)))
+                                    || ((get_bit(quest_rules,qr_BRANGPICKUP) || (itemsbuf[w->parentitem].flags & ITEM_FLAG4)) && !priced && !(((item*)items.spr(j))->pickup & ipDUMMY)))
                             {
                                 if(w->id == wBrang)
                                 {
@@ -14075,7 +14075,7 @@ void check_collisions()
                             bool priced = ((item*)items.spr(j))->PriceIndex >-1;
                             
                             if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
-                                    || (get_bit(quest_rules,qr_BRANGPICKUP) && !priced))
+                                    || ((get_bit(quest_rules,qr_BRANGPICKUP) || (itemsbuf[w->parentitem].flags & ITEM_FLAG4)) && !priced))
                             {
                                 if(itemsbuf[items.spr(j)->id].collect_script)
                                 {
