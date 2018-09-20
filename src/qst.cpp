@@ -6322,6 +6322,32 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 		
 	    }
 	    
+	    //Port quest rules to items
+	    if( s_version <= 37) 
+	    {
+		if(tempitem.family == itype_flippers)
+		{
+			if ( (get_bit(quest_rules,qr_NODIVING)) ) tempitem.flags |= ITEM_FLAG1;
+			else tempitem.flags &= ~ ITEM_FLAG1;
+		}
+		else if(tempitem.family == itype_sword)
+		{
+			if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
+			else tempitem.flags &= ~ ITEM_FLAG5;
+		}
+		else if(tempitem.family == itype_wand)
+		{
+			if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
+			else tempitem.flags &= ~ ITEM_FLAG5;
+		}
+		else if(tempitem.family == itype_book)
+		{
+			//@VenRob: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
+			if ( (get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
+			else tempitem.flags &= ~ ITEM_FLAG3;
+		}
+	    }
+	    
             if(tempitem.fam_type==0)  // Always do this
                 tempitem.fam_type=1;
                 
