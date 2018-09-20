@@ -232,7 +232,7 @@ int writecomboaliases(PACKFILE *f, word version, word build);
 
 bool load_tiles(const char *path, int starttile);
 bool save_tiles(const char *path);
-int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_tiles);
+int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_tiles);
 
 bool load_dmaps(const char *path, int startdmap);
 bool save_dmaps(const char *path);

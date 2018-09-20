@@ -912,7 +912,7 @@ void LinkClass::drawshadow(BITMAP* dest, bool translucent)
 {
     int tempy=yofs;
     yofs+=8;
-    shadowtile = wpnsbuf[iwShadow].tile;
+    shadowtile = wpnsbuf[iwShadow].newtile;
     sprite::drawshadow(dest,translucent);
     yofs=tempy;
 }
@@ -1150,7 +1150,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
             {
                 wy-=9;
                 wx-=3;
-                t = wpnsbuf[wpn2].tile;
+                t = wpnsbuf[wpn2].newtile;
                 cs2 = wpnsbuf[wpn2].csets&15;
                 f=0;
             }
@@ -1167,7 +1167,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
             {
                 wy+=15;
                 wx+=2;
-                t = wpnsbuf[wpn2].tile;
+                t = wpnsbuf[wpn2].newtile;
                 cs2 = wpnsbuf[wpn2].csets&15;
                 ++t;
                 f=0;
@@ -1186,7 +1186,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
                 wx-=15;
                 wy+=3;
                 slashxofs-=1;
-                t = wpnsbuf[wpn2].tile;
+                t = wpnsbuf[wpn2].newtile;
                 cs2 = wpnsbuf[wpn2].csets&15;
                 t+=2;
                 f=0;
@@ -1214,7 +1214,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
             {
                 wx+=15;
                 slashxofs+=1;
-                t = wpnsbuf[wpn2].tile;
+                t = wpnsbuf[wpn2].newtile;
                 cs2 = wpnsbuf[wpn2].csets&15;
                 
                 if(spins>0 || get_bit(quest_rules, qr_SLASHFLIPFIX))
@@ -1343,7 +1343,7 @@ attack:
         // if ( itemsbuf[itemid].ScriptGenerated ) return; //t/b/a for script-generated swords.
         if(attackclk>4||(attack==wSword&&game->get_canslash()))
         {
-            if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itemsbuf[itemid].wpn)) && wpnsbuf[itemsbuf[itemid].wpn].tile)
+            if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itemsbuf[itemid].wpn)) && wpnsbuf[itemsbuf[itemid].wpn].newtile)
             {
                 // Create a sword weapon at the right spot.
                 weapon *w=NULL;
@@ -15739,7 +15739,7 @@ void LinkClass::gameover()
                     
 				extend = 0;
 				cs = wpnsbuf[iwDeath].csets&15;
-				tile = wpnsbuf[iwDeath].tile;
+				tile = wpnsbuf[iwDeath].newtile;
                 
 				if(BSZ)
 				{

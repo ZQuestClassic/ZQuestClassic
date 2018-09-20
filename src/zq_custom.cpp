@@ -2507,7 +2507,7 @@ void edit_weapondata(int index)
     sprintf(wpnnumstr, "Sprite %d: %s", index, weapon_string[index]);
     wpndata_dlg[0].dp  = wpnnumstr;
     wpndata_dlg[0].dp2 = lfont;
-    wpndata_dlg[2].d1  = wpnsbuf[index].tile;
+    wpndata_dlg[2].d1  = wpnsbuf[index].newtile;
     wpndata_dlg[2].d2  = wpnsbuf[index].csets&15;
     
     for(int i=0; i<4; i++)
@@ -2538,7 +2538,7 @@ void edit_weapondata(int index)
     {
         ret = zc_popup_dialog(wpndata_dlg,3);
         
-        test.tile  = wpndata_dlg[2].d1;
+        test.newtile  = wpndata_dlg[2].d1;
         test.csets = wpndata_dlg[2].d2;
         
         test.misc  = 0;
