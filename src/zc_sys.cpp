@@ -8671,6 +8671,11 @@ bool control_state[18]=
     false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
 };
 
+bool drunk_toggle_state[11]=
+{
+    false, false, false, false, false, false, false, false, false, false, false
+};
+
 bool button_press[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 bool button_hold[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
@@ -8944,99 +8949,100 @@ bool rI()
     return rButton(cI,  keyI);
 }
 
+/*No longer in use -V
 bool drunk()
 {
     return ((!(frame%((rand()%100)+1)))&&(rand()%MAXDRUNKCLOCK<Link.DrunkClock()));
-}
+}*/
 
 bool DrunkUp()
 {
-    return drunk()?(rand()%2)?0:!Up():Up();
+    return !drunk_toggle_state[0] != !Up();
 }
 bool DrunkDown()
 {
-    return drunk()?(rand()%2)?0:!Down():Down();
+    return !drunk_toggle_state[1] != !Down();
 }
 bool DrunkLeft()
 {
-    return drunk()?(rand()%2)?0:!Left():Left();
+    return !drunk_toggle_state[2] != !Left();
 }
 bool DrunkRight()
 {
-    return drunk()?(rand()%2)?0:!Right():Right();
+    return !drunk_toggle_state[3] != !Right();
 }
 bool DrunkcAbtn()
 {
-    return drunk()?(rand()%2)?0:!cAbtn():cAbtn();
+    return !drunk_toggle_state[4] != !cAbtn();
 }
 bool DrunkcBbtn()
 {
-    return drunk()?(rand()%2)?0:!cBbtn():cBbtn();
+    return !drunk_toggle_state[5] != !cBbtn();
 }
 bool DrunkcSbtn()
 {
-    return drunk()?(rand()%2)?0:!cSbtn():cSbtn();
+    return !drunk_toggle_state[6] != !cSbtn();
 }
 bool DrunkcMbtn()
 {
-    return drunk()?(rand()%2)?0:!cMbtn():cMbtn();
+    return !drunk_toggle_state[10] != !cMbtn();
 }
 bool DrunkcLbtn()
 {
-    return drunk()?(rand()%2)?0:!cLbtn():cLbtn();
+    return !drunk_toggle_state[7] != !cLbtn();
 }
 bool DrunkcRbtn()
 {
-    return drunk()?(rand()%2)?0:!cRbtn():cRbtn();
+    return !drunk_toggle_state[8] != !cRbtn();
 }
 bool DrunkcPbtn()
 {
-    return drunk()?(rand()%2)?0:!cPbtn():cPbtn();
+    return !drunk_toggle_state[9] != !cPbtn();
 }
 
 bool DrunkrUp()
 {
-    return drunk()?(rand()%2)?0:!rUp():rUp();
+    return !drunk_toggle_state[0] != !rUp();
 }
 bool DrunkrDown()
 {
-    return drunk()?(rand()%2)?0:!rDown():rDown();
+    return !drunk_toggle_state[1] != !rDown();
 }
 bool DrunkrLeft()
 {
-    return drunk()?(rand()%2)?0:!rLeft():rLeft();
+    return !drunk_toggle_state[2] != !rLeft();
 }
 bool DrunkrRight()
 {
-    return drunk()?(rand()%2)?0:!rRight():rRight();
+    return !drunk_toggle_state[3] != !rRight();
 }
 bool DrunkrAbtn()
 {
-    return drunk()?(rand()%2)?0:!rAbtn():rAbtn();
+    return !drunk_toggle_state[4] != !rAbtn();
 }
 bool DrunkrBbtn()
 {
-    return drunk()?(rand()%2)?0:!rBbtn():rBbtn();
+    return !drunk_toggle_state[5] != !rBbtn();
 }
 bool DrunkrSbtn()
 {
-    return drunk()?(rand()%2)?0:!rSbtn():rSbtn();
+    return !drunk_toggle_state[6] != !rSbtn();
 }
 bool DrunkrMbtn()
 {
-    return drunk()?(rand()%2)?0:!rMbtn():rMbtn();
+    return !drunk_toggle_state[10] != !rMbtn();
 }
 bool DrunkrLbtn()
 {
-    return drunk()?(rand()%2)?0:!rLbtn():rLbtn();
+    return !drunk_toggle_state[7] != !rLbtn();
 }
 bool DrunkrRbtn()
 {
-    return drunk()?(rand()%2)?0:!rRbtn():rRbtn();
+    return !drunk_toggle_state[8] != !rRbtn();
 }
 bool DrunkrPbtn()
 {
-    return drunk()?(rand()%2)?0:!rPbtn():rPbtn();
+    return !drunk_toggle_state[9] != !rPbtn();
 }
 
 void eat_buttons()

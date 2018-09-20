@@ -2561,7 +2561,7 @@ void game_loop()
 	
 	
 	//  walkflagx=0; walkflagy=0;
-	
+	runDrunkRNG();
     if(fadeclk>=0)
     {
         if(fadeclk==0 && currscr<128)
@@ -2818,6 +2818,18 @@ void game_loop()
     }
     
     //  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int(rand()%16)));
+}
+
+void runDrunkRNG(){
+	//Runs the RNG for drunk for each control which makes use of drunk toggling. 
+	//Index 0-10 refer to control_state[0]-[9], while index 11 is used for `DrunkrMbtn()`/`DrunkcMbtn()`, which do not use control_states[]
+	for(int i = 0; i<sizeof(drunk_toggle_state); i++){
+		if((!(frame%((rand()%100)+1)))&&(rand()%MAXDRUNKCLOCK<Link.DrunkClock())){
+			drunk_toggle_state[i] = (rand()%2)?true:false;
+		} else {
+			drunk_toggle_state[i] = false;
+		}
+	}
 }
 
 int get_currdmap()
