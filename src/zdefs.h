@@ -1380,6 +1380,17 @@ struct itemdata
 #define ITEM_FLAG3     0x0400
 #define ITEM_FLAG4     0x0800
 #define ITEM_FLAG5     0x1000
+#define ITEM_FLAG6     0x2000
+#define ITEM_FLAG7     0x4000
+#define ITEM_FLAG8     0x8000
+#define ITEM_FLAG9     0x10000
+#define ITEM_FLAG10     0x20000
+#define ITEM_FLAG11     0x40000
+#define ITEM_FLAG12     0x80000
+#define ITEM_FLAG13     0x100000
+#define ITEM_FLAG14     0x200000
+#define ITEM_FLAG15     0x400000
+#define ITEM_FLAG16     0x800000
 
 
 
@@ -2872,6 +2883,7 @@ enum // used for gamedata ITEMS
 	 itype_instrument,
 	 itype_sword180,
 	 itype_sword_gb,
+	 itype_firerod,
 itype_scripted_001 = 400, 
 itype_scripted_002,
 itype_scripted_003,

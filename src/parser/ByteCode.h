@@ -1051,8 +1051,9 @@ using namespace std;
 #define DEBUGD 	986
 #define GETPIXEL 	987
 #define DOUNTYPE 	988
+#define IDATAKEEP 	989
 
-#define LAST_BYTECODE 		989
+#define LAST_BYTECODE 		990
 
 //END OF BYTECODE
 
