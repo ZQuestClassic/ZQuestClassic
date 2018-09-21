@@ -4061,7 +4061,7 @@ case SCREENCATCH:
 ///----------------------------------------------------------------------------------------------------//
 //spritedata sp-> Variables
     
-case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(tile, "Tile") break;
+case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(newtile, "Tile") break;
 case SPRITEDATAMISC: GET_SPRITEDATA_VAR_INT(misc, "Misc") break;
 case SPRITEDATACSETS: GET_SPRITEDATA_VAR_INT(csets, "CSet") break;
 case SPRITEDATAFRAMES: GET_SPRITEDATA_VAR_INT(frames, "Frames") break;
@@ -8860,7 +8860,7 @@ break;
     
 ///----------------------------------------------------------------------------------------------------//
 //spritedata sp-> Variables
-case SPRITEDATATILE: SET_SPRITEDATA_VAR_INT(tile, "Tile"); break;
+case SPRITEDATATILE: SET_SPRITEDATA_VAR_INT(newtile, "Tile"); break;
 case SPRITEDATAMISC: SET_SPRITEDATA_VAR_BYTE(misc, "Misc"); break;
 case SPRITEDATACSETS: SET_SPRITEDATA_VAR_BYTE(csets, "CSet"); break;
 case SPRITEDATAFRAMES: SET_SPRITEDATA_VAR_BYTE(frames, "Frames"); break;

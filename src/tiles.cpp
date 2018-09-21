@@ -100,15 +100,27 @@ void register_blank_tiles()
     //int tiles_used=count_tiles(newtilebuf);
     for(int i=0; i<NEWMAXTILES; ++i)
     {
+	    al_trace("Registering a blank tile\n");
+        register_blank_tile_quarters(i);
+        blank_tile_table[i]=isblanktile(newtilebuf, i);
+    }
+}
+
+void register_blank_tiles(int max)
+{
+    //int tiles_used=count_tiles(newtilebuf);
+    for(int i=0; i<max; ++i)
+    {
+	    //al_trace("Registering a blank tile, iteration: \n", i);
         register_blank_tile_quarters(i);
         blank_tile_table[i]=isblanktile(newtilebuf, i);
     }
 }
 
 //returns the number of tiles
-word count_tiles(tiledata *buf)
+int count_tiles(tiledata *buf)
 {
-    word tiles_used;
+    int tiles_used;
     
     //  bool used;
     //  int x;
@@ -125,6 +137,7 @@ word count_tiles(tiledata *buf)
           break;
           }
           */
+	    //al_trace("count_tiles() is checking if tile %d is blank.\n", tiles_used-1);
         if(!isblanktile(buf, tiles_used-1))
         {
             break;
@@ -429,7 +442,7 @@ void reset_tile(tiledata *buf, int t, int format=1)
 //clears the tile buffer
 void clear_tiles(tiledata *buf)
 {
-    for(word i=0; i<NEWMAXTILES; ++i)
+    for(int i=0; i<NEWMAXTILES; ++i)
     {
         reset_tile(buf,i,tf4Bit);
     }
