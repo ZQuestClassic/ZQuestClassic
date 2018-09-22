@@ -6348,6 +6348,22 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 		}
 	    }
 	    
+	    if( s_version < 38){
+		if(tempitem.family == itype_brang || tempitem.family == itype_hookshot){
+			if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
+			else tempitem.flags &= ~ITEM_FLAG4;
+			
+			if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags |= ITEM_FLAG5 | ITEM_FLAG6;
+			else tempitem.flags &= ~(ITEM_FLAG5|ITEM_FLAG6);
+		} else if(tempitem.family == itype_arrow){
+			if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
+			else tempitem.flags &= ~ITEM_FLAG4;
+			
+			if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags &= ~ITEM_FLAG2;
+			else tempitem.flags |= ITEM_FLAG2;
+		}
+	    }
+	    
             if(tempitem.fam_type==0)  // Always do this
                 tempitem.fam_type=1;
                 
