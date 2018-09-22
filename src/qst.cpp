@@ -6525,7 +6525,7 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 		    return qe_invalid;
 		}
-		if(!p_igetl(&tempweapon.tile,f,true))
+		if(!p_igetl(&tempweapon.newtile,f,true))
 		{
 		    return qe_invalid;
 		}	    
