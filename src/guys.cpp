@@ -1646,7 +1646,7 @@ void enemy::draw(BITMAP *dest)
         }
         
         flip = 0;
-        tile = wpnsbuf[iwDeath].tile;
+        tile = wpnsbuf[iwDeath].newtile;
 	//The scale of this tile shouldx be based on the enemy size. -Z
         
         if(BSZ)
@@ -1810,7 +1810,7 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
         //this hack is in place as not all enemies that should use the z axis while in the air
         //(ie rocks, boulders) actually do. To be removed when the enemy revamp is complete -DD
         if(canfall(id) && shadowtile == 0)
-            shadowtile = wpnsbuf[iwShadow].tile;
+            shadowtile = wpnsbuf[iwShadow].newtile;
             
         if(z>0 || !canfall(id))
             sprite::drawshadow(dest,translucent);
@@ -4730,7 +4730,7 @@ void eTektite::drawshadow(BITMAP *dest,bool translucent)
     int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
            efrate:((clk>=(frate>>1))?1:0);
     flip = 0;
-    shadowtile = wpnsbuf[iwShadow].tile;
+    shadowtile = wpnsbuf[iwShadow].newtile;
     
     if(get_bit(quest_rules,qr_NEWENEMYTILES))
     {
@@ -4858,7 +4858,7 @@ void ePeahat::drawshadow(BITMAP *dest, bool translucent)
 {
     int tempy=yofs;
     flip = 0;
-    shadowtile = wpnsbuf[iwShadow].tile+posframe;
+    shadowtile = wpnsbuf[iwShadow].newtile+posframe;
     
     if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
     {
@@ -5900,7 +5900,7 @@ void eRock::drawshadow(BITMAP *dest, bool translucent)
         int efrate = fdiv == 0 ? 0 : clk/fdiv;
         int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
                efrate:((clk>=(frate>>1))?1:0);
-        shadowtile = wpnsbuf[iwShadow].tile+f2;
+        shadowtile = wpnsbuf[iwShadow].newtile+f2;
         
         yofs+=8;
         yofs+=zc_max(0,zc_min(29-clk3,clk3));
@@ -6036,7 +6036,7 @@ void eBoulder::drawshadow(BITMAP *dest, bool translucent)
         int tempy=yofs;
         flip = 0;
         int f2=((clk<<2)/frate)<<1;
-        shadowtile = wpnsbuf[iwLargeShadow].tile+f2;
+        shadowtile = wpnsbuf[iwLargeShadow].newtile+f2;
         yofs+=zc_max(0,zc_min(29-clk3,clk3));
         
         yofs+=8;
@@ -6203,7 +6203,7 @@ void eTrigger::death_sfx()
 
 eNPC::eNPC(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
-    o_tile+=wpnsbuf[iwNPCs].tile;
+    o_tile+=wpnsbuf[iwNPCs].newtile;
     count_enemy=false;
 }
 
@@ -6379,7 +6379,7 @@ void eSpinTile::draw(BITMAP *dest)
 void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
 {
     flip = 0;
-    shadowtile = wpnsbuf[iwShadow].tile+(clk%4);
+    shadowtile = wpnsbuf[iwShadow].newtile+(clk%4);
     yofs+=4;
     enemy::drawshadow(dest, translucent);
     yofs-=4;
@@ -7130,7 +7130,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
         
         int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
                efrate:((clk>=(frate>>1))?1:0);
-        shadowtile = wpnsbuf[iwShadow].tile;
+        shadowtile = wpnsbuf[iwShadow].newtile;
         
         if(get_bit(quest_rules,qr_NEWENEMYTILES))
         {
@@ -7476,7 +7476,7 @@ void eKeese::drawshadow(BITMAP *dest, bool translucent)
 {
     int tempy=yofs;
     flip = 0;
-    shadowtile = wpnsbuf[iwShadow].tile+posframe;
+    shadowtile = wpnsbuf[iwShadow].newtile+posframe;
     yofs+=8;
     
     if(!get_bit(quest_rules,qr_ENEMIESZAXIS))

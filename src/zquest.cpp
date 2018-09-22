@@ -11602,7 +11602,7 @@ int d_wlist_proc(int msg,DIALOG *d,int c)
         
         int tile = 0;
         int cset = 0;
-        tile= wpnsbuf[biw[d->d1].i].tile;
+        tile= wpnsbuf[biw[d->d1].i].newtile;
         cset= wpnsbuf[biw[d->d1].i].csets&15;
         int x = d->x + d->w + 4;
         int y = d->y;
@@ -20262,17 +20262,23 @@ int onMapStyles()
     }
     
     mapstyles_dlg[0].dp2 = lfont;
-    mapstyles_dlg[17].d1  = misc.colors.blueframe_tile;
+    //al_trace("onMapStyles() read new_blueframe_tile as: %d\n", misc.colors.new_blueframe_tile);
+    mapstyles_dlg[17].d1  = misc.colors.new_blueframe_tile;
     mapstyles_dlg[17].fg  = misc.colors.blueframe_cset;
-    mapstyles_dlg[18].d1  = misc.colors.triforce_tile;
+    //al_trace("onMapStyles() read new_triforce_tile as: %d\n", misc.colors.new_triforce_tile);
+    mapstyles_dlg[18].d1  = misc.colors.new_triforce_tile;
     mapstyles_dlg[18].fg  = misc.colors.triforce_cset;
-    mapstyles_dlg[19].d1  = misc.colors.triframe_tile;
+    //al_trace("onMapStyles() read new_triframe_tile as: %d\n", misc.colors.new_triframe_tile);
+    mapstyles_dlg[19].d1  = misc.colors.new_triframe_tile;
     mapstyles_dlg[19].fg  = misc.colors.triframe_cset;
-    mapstyles_dlg[20].d1  = misc.colors.overworld_map_tile;
+    //al_trace("onMapStyles() read new_overworld_map_tile as: %d\n", misc.colors.new_overworld_map_tile);
+    mapstyles_dlg[20].d1  = misc.colors.new_overworld_map_tile;
     mapstyles_dlg[20].fg  = misc.colors.overworld_map_cset;
-    mapstyles_dlg[21].d1 = misc.colors.HCpieces_tile;
+     //al_trace("onMapStyles() read new_HCpieces_tile as: %d\n", misc.colors.new_HCpieces_tile);
+    mapstyles_dlg[21].d1 = misc.colors.new_HCpieces_tile;
     mapstyles_dlg[21].fg = misc.colors.HCpieces_cset;
-    mapstyles_dlg[22].d1  = misc.colors.dungeon_map_tile;
+    //al_trace("onMapStyles() read new_dungeon_map_tile as: %d\n", misc.colors.new_dungeon_map_tile);
+    mapstyles_dlg[22].d1  = misc.colors.new_dungeon_map_tile;
     mapstyles_dlg[22].fg  = misc.colors.dungeon_map_cset;
     
     if(is_large)
@@ -20284,17 +20290,17 @@ int onMapStyles()
     
     if(ret==23)
     {
-        misc.colors.blueframe_tile     = mapstyles_dlg[17].d1;
+        misc.colors.new_blueframe_tile     = mapstyles_dlg[17].d1;
         misc.colors.blueframe_cset     = mapstyles_dlg[17].fg;
-        misc.colors.triforce_tile      = mapstyles_dlg[18].d1;
+        misc.colors.new_triforce_tile      = mapstyles_dlg[18].d1;
         misc.colors.triforce_cset      = mapstyles_dlg[18].fg;
-        misc.colors.triframe_tile      = mapstyles_dlg[19].d1;
+        misc.colors.new_triframe_tile      = mapstyles_dlg[19].d1;
         misc.colors.triframe_cset      = mapstyles_dlg[19].fg;
-        misc.colors.overworld_map_tile = mapstyles_dlg[20].d1;
+        misc.colors.new_overworld_map_tile = mapstyles_dlg[20].d1;
         misc.colors.overworld_map_cset = mapstyles_dlg[20].fg;
-        misc.colors.HCpieces_tile      = mapstyles_dlg[21].d1;
+        misc.colors.new_HCpieces_tile      = mapstyles_dlg[21].d1;
         misc.colors.HCpieces_cset      = mapstyles_dlg[21].fg;
-        misc.colors.dungeon_map_tile   = mapstyles_dlg[22].d1;
+        misc.colors.new_dungeon_map_tile   = mapstyles_dlg[22].d1;
         misc.colors.dungeon_map_cset   = mapstyles_dlg[22].fg;
         saved=false;
     }

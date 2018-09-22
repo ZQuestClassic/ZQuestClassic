@@ -140,7 +140,7 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata);
 int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build, bool keepdata);
 int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets, bool keepdata);
-int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, word max_tiles, bool from_init, bool keepdata);
+int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int max_tiles, bool from_init, bool keepdata);
 int readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes, bool keepdata);
 int readcheatcodes(PACKFILE *f, zquestheader *Header, bool keepdata);
 int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata);

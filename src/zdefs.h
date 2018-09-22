@@ -97,7 +97,7 @@
 
 #define ZELDA_VERSION       0x0254                          //version of the program
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
-#define VERSION_BUILD       40                              //build number of this version
+#define VERSION_BUILD       41                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
 #define ZELDA_VERSION_STR   "2.54 Alpha 35"                    //version of the program as presented in text
 #define IS_BETA             -35                         //is this a beta? (1: beta, -1: alpha)
@@ -171,21 +171,21 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 //Version number of the different section types
 #define V_HEADER           3
 #define V_RULES           14
-#define V_STRINGS          5
-#define V_MISC             9
-#define V_TILES            1 //2 will be either unsigned short, or long
-#define V_COMBOS           10
+#define V_STRINGS          6
+#define V_MISC             10
+#define V_TILES            2 //2 will be either unsigned short, or long
+#define V_COMBOS           11
 #define V_CSETS            4
 #define V_MAPS            19
-#define V_DMAPS            10
+#define V_DMAPS            11
 #define V_DOORS            1
-#define V_ITEMS           35
-#define V_WEAPONS          6
-#define V_COLORS           2
-#define V_ICONS            1
+#define V_ITEMS           37
+#define V_WEAPONS          7
+#define V_COLORS           3 //Misc Colours
+#define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        18
-#define V_GUYS            35
+#define V_GUYS            36
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -267,10 +267,11 @@ extern bool fake_pack_writing;
 #define TILES_PER_ROW       20
 #define TILE_ROWS_PER_PAGE  13
 #define TILES_PER_PAGE      (TILES_PER_ROW*TILE_ROWS_PER_PAGE)
-#define TILE_PAGES          252
+#define TILE_PAGES          825
 
 #define OLDMAXTILES         (TILES_PER_PAGE*6)              // 1560 tiles
-#define NEWMAXTILES         (TILES_PER_PAGE*TILE_PAGES)     // 32760 tiles
+#define NEWMAXTILES         (TILES_PER_PAGE*825)     // 214500 tiles
+#define ZC250MAXTILES         (TILES_PER_PAGE*252)     // 32760 tiles
 
 #define NEWTILE_SIZE2       (NEWMAXTILES*SINGLE_TILE_SIZE)  // 4193280 bytes (new packed format, 6 pages)
 
@@ -1355,7 +1356,7 @@ enum
 
 struct itemdata
 {
-    word tile;
+    int tile;
     byte misc;                                                // 0000vhtf (vh:flipping, t:two hands, f:flash)
     byte csets;                                               // ffffcccc (f:flash cset, c:cset)
     byte frames;                                              // animation frame count
@@ -1379,6 +1380,17 @@ struct itemdata
 #define ITEM_FLAG3     0x0400
 #define ITEM_FLAG4     0x0800
 #define ITEM_FLAG5     0x1000
+#define ITEM_FLAG6     0x2000
+#define ITEM_FLAG7     0x4000
+#define ITEM_FLAG8     0x8000
+#define ITEM_FLAG9     0x10000
+#define ITEM_FLAG10     0x20000
+#define ITEM_FLAG11     0x40000
+#define ITEM_FLAG12     0x80000
+#define ITEM_FLAG13     0x100000
+#define ITEM_FLAG14     0x200000
+#define ITEM_FLAG15     0x400000
+#define ITEM_FLAG16     0x800000
 
 
 
@@ -1479,6 +1491,7 @@ struct wpndata
     byte type;                                                // used by certain weapons
 //  byte wpn_type;
     word script;
+	int newtile; //copy tile to newtile at quest load and update all refs?
 //  byte exp;                                                 // not used
 };
 
@@ -1607,13 +1620,13 @@ struct guydata
 {
     dword flags;
     dword flags2;
-    word  tile;
+    int  tile;
     byte  width;
     byte  height; //0=striped, 1+=rectangular
-    word  s_tile; //secondary (additional) tile(s)
+    int  s_tile; //secondary (additional) tile(s)
     byte  s_width;
     byte  s_height;  //0=striped, 1+=rectangular
-    word  e_tile;
+    int  e_tile;
     byte  e_width;
     byte  e_height;
     
@@ -2215,7 +2228,7 @@ without needing the user to have bit precision. -Z
 
 struct newcombo
 {
-    word tile; //16 bits
+    int tile; //16 bits
     byte flip; //8 bits
     byte walk; //8 bits
     byte type; //8 bits
@@ -2421,7 +2434,7 @@ struct MsgStr
 {
     char s[MSGSIZE+1];
     word nextstring;
-    word tile;
+    int tile;
     byte cset;
     bool trans;
     byte font;
@@ -2518,17 +2531,17 @@ struct dmap
     char intro[73];
     //byte padding;
     //132
-    word minimap_1_tile;                                      //before getting map
+    int minimap_1_tile;                                      //before getting map
     byte minimap_1_cset;                                      //cset for minimap 1
     //byte padding;
-    word minimap_2_tile;                                      //after getting map
+    int minimap_2_tile;                                      //after getting map
     byte minimap_2_cset;                                      //cset for minimap 2
     //byte padding;
     //140
-    word largemap_1_tile;                                     //large map
+    int largemap_1_tile;                                     //large map
     byte largemap_1_cset;                                     //cset for large
     //byte padding;
-    word largemap_2_tile;                                     //large map
+    int largemap_2_tile;                                     //large map
     byte largemap_2_cset;                                     //cset for large
     char tmusic[56];
     byte tmusictrack;
@@ -2663,9 +2676,19 @@ struct zcolors
     word HCpieces_tile;
     byte HCpieces_cset;
     byte msgtext;
+    
+    int new_triforce_tile;
+    int new_triframe_tile;
+    int new_overworld_map_tile;
+    int new_dungeon_map_tile;
+    int new_blueframe_tile;
+    int new_HCpieces_tile;
+    
     byte foo[6];
     //40
     byte foo2[256];
+    
+    
     //296 bytes
 };
 
@@ -2690,7 +2713,7 @@ struct miscQdata
     //2858 (8)
     zcolors  colors;
     //3154 (296)
-    word     icons[4];
+    int     icons[4];
     //3162 (8=2*4)
     //pondtype pond[16];
     //4314 (1152=72*16)
@@ -2860,6 +2883,7 @@ enum // used for gamedata ITEMS
 	 itype_instrument,
 	 itype_sword180,
 	 itype_sword_gb,
+	 itype_firerod,
 itype_scripted_001 = 400, 
 itype_scripted_002,
 itype_scripted_003,

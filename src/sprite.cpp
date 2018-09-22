@@ -543,7 +543,7 @@ void sprite::draw(BITMAP* dest)
     {
         if(e!=3)
         {
-            int t  = wpnsbuf[iwSpawn].tile;
+            int t  = wpnsbuf[iwSpawn].newtile;
             int cs2 = wpnsbuf[iwSpawn].csets&15;
             
             if(BSZ)
@@ -563,7 +563,7 @@ void sprite::draw(BITMAP* dest)
         }
         else
         {
-            sprite w((fix)sx,(fix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
+            sprite w((fix)sx,(fix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
             w.xofs = xofs;
             w.yofs = yofs;
             w.zofs = zofs;
@@ -653,7 +653,7 @@ void sprite::drawcloaked(BITMAP* dest)
     }
     else
     {
-        int t  = wpnsbuf[iwSpawn].tile;
+        int t  = wpnsbuf[iwSpawn].newtile;
         int cs2 = wpnsbuf[iwSpawn].csets&15;
         
         if(BSZ)

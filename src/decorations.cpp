@@ -174,7 +174,7 @@ void dBushLeaves::draw(BITMAP *dest)
         return;
     }
     
-    int t=wpnsbuf[iwBushLeaves].tile;
+    int t=wpnsbuf[iwBushLeaves].newtile;
     cs=wpnsbuf[iwBushLeaves].csets&15;
     
     for(int i=0; i<4; ++i)
@@ -314,7 +314,7 @@ void dFlowerClippings::draw(BITMAP *dest)
         return;
     }
     
-    int t=wpnsbuf[iwFlowerClippings].tile;
+    int t=wpnsbuf[iwFlowerClippings].newtile;
     cs=wpnsbuf[iwFlowerClippings].csets&15;
     
     for(int i=0; i<4; ++i)
@@ -406,7 +406,7 @@ void dGrassClippings::draw(BITMAP *dest)
         return;
     }
     
-    int t=wpnsbuf[iwGrassClippings].tile;
+    int t=wpnsbuf[iwGrassClippings].newtile;
     cs=wpnsbuf[iwGrassClippings].csets&15;
     
     for(int i=0; i<3; ++i)
@@ -475,7 +475,7 @@ void dHammerSmack::draw(BITMAP *dest)
         return;
     }
     
-    int t=wpnsbuf[wpnid].tile;
+    int t=wpnsbuf[wpnid].newtile;
     cs=wpnsbuf[wpnid].csets&15;
     flip=0;
     
@@ -505,7 +505,7 @@ void dTallGrass::draw(BITMAP *dest)
     if(LinkGetDontDraw())
         return;
         
-    int t=wpnsbuf[iwTallGrass].tile*4;
+    int t=wpnsbuf[iwTallGrass].newtile*4;
     cs=wpnsbuf[iwTallGrass].csets&15;
     flip=0;
     x=LinkX();
@@ -546,7 +546,7 @@ void dRipples::draw(BITMAP *dest)
     if(LinkGetDontDraw())
         return;
         
-    int t=wpnsbuf[iwRipples].tile*4;
+    int t=wpnsbuf[iwRipples].newtile*4;
     cs=wpnsbuf[iwRipples].csets&15;
     flip=0;
     x=LinkX();
@@ -567,7 +567,7 @@ dHover::dHover(fix X,fix Y,int Id,int Clk) : decoration(X,Y,Id,Clk)
 
 void dHover::draw(BITMAP *dest)
 {
-    int t=wpnsbuf[wpnid].tile*4;
+    int t=wpnsbuf[wpnid].newtile*4;
     cs=wpnsbuf[wpnid].csets&15;
     flip=0;
     x=LinkX();
@@ -613,7 +613,7 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int draw_what)
              itemsbuf[current_item_id(itype_nayruslove)].wpn5 : (byte) iwNayrusLoveShieldFront) :
                 (itemsbuf[current_item_id(itype_nayruslove)].wpn10 ?
                  itemsbuf[current_item_id(itype_nayruslove)].wpn10 : (byte) iwNayrusLoveShieldBack));
-    int t=wpnsbuf[fb].tile;
+    int t=wpnsbuf[fb].newtile;
     int fr=wpnsbuf[fb].frames;
     int spd=wpnsbuf[fb].speed;
     cs=wpnsbuf[fb].csets&15;

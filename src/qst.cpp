@@ -1104,17 +1104,17 @@ bool reset_wpns(bool validate, zquestheader *Header)
 
 bool reset_mapstyles(bool validate, miscQdata *Misc)
 {
-    Misc->colors.blueframe_tile = 20044;
+    Misc->colors.new_blueframe_tile = 20044;
     Misc->colors.blueframe_cset = 0;
-    Misc->colors.triforce_tile = 23461;
+    Misc->colors.new_triforce_tile = 23461;
     Misc->colors.triforce_cset = 1;
-    Misc->colors.triframe_tile = 18752;
+    Misc->colors.new_triframe_tile = 18752;
     Misc->colors.triframe_cset = 1;
-    Misc->colors.overworld_map_tile = 16990;
+    Misc->colors.new_overworld_map_tile = 16990;
     Misc->colors.overworld_map_cset = 2;
-    Misc->colors.HCpieces_tile = 21160;
+    Misc->colors.new_HCpieces_tile = 21160;
     Misc->colors.HCpieces_cset = 8;
-    Misc->colors.dungeon_map_tile = 19651;
+    Misc->colors.new_dungeon_map_tile = 19651;
     Misc->colors.dungeon_map_cset = 8;
     return true;
 }
@@ -1201,7 +1201,9 @@ int get_qst_buffers()
         return 0;
         
     memset(newtilebuf, 0, NEWMAXTILES*sizeof(tiledata));
+    //Z_message("Performed memset on tiles\n"); 
     clear_tiles(newtilebuf);
+    //Z_message("Performed clear_tiles()\n"); 
     Z_message("OK\n");                                        // Allocating tile buffer...
     
     if(is_zquest())
@@ -2831,11 +2833,21 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 tempMsgString.s[MSGSIZE]='\0';
                 
-                if(!p_igetw(&tempMsgString.tile,f,true))
-                {
-                    return qe_invalid;
-                }
-                
+		if ( s_version >= 6 )
+		{
+			if(!p_igetl(&tempMsgString.tile,f,true))
+			{
+			    return qe_invalid;
+			}
+		}
+		else
+		{
+			if(!p_igetw(&tempMsgString.tile,f,true))
+			{
+			    return qe_invalid;
+			}
+		}
+			
                 if(!p_getc(&tempMsgString.cset,f,true))
                 {
                     return qe_invalid;
@@ -3614,11 +3626,20 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                     return qe_invalid;
                 }
             }
-            
-            if(!p_igetw(&tempDMap.minimap_1_tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
+            if ( s_version >= 11 )
+	    {
+		    if(!p_igetl(&tempDMap.minimap_1_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&tempDMap.minimap_1_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
             
             if(!p_getc(&tempDMap.minimap_1_cset,f,keepdata))
             {
@@ -3633,11 +3654,20 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                 }
             }
             
-            if(!p_igetw(&tempDMap.minimap_2_tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
+	    if ( s_version >= 11 )
+	    {
+		    if(!p_igetl(&tempDMap.minimap_2_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&tempDMap.minimap_2_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
             if(!p_getc(&tempDMap.minimap_2_cset,f,keepdata))
             {
                 return qe_invalid;
@@ -3651,11 +3681,21 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                 }
             }
             
-            if(!p_igetw(&tempDMap.largemap_1_tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
+	    if ( s_version >= 11 )
+	    {
+		    if(!p_igetl(&tempDMap.largemap_1_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&tempDMap.largemap_1_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    
             if(!p_getc(&tempDMap.largemap_1_cset,f,keepdata))
             {
                 return qe_invalid;
@@ -3670,11 +3710,20 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
                 }
             }
             
-            if(!p_igetw(&tempDMap.largemap_2_tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
+	    if ( s_version >= 11 )
+	    {
+		    if(!p_igetl(&tempDMap.largemap_2_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&tempDMap.largemap_2_tile,f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
             if(!p_getc(&tempDMap.largemap_2_cset,f,keepdata))
             {
                 return qe_invalid;
@@ -3806,6 +3855,8 @@ int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keep
     {
         return qe_invalid;
     }
+    
+    al_trace("Misc Colours section version: %d\n", s_version);
     
     //al_trace("Misc. colors version %d\n", s_version);
     if(!p_igetw(&s_cversion,f,true))
@@ -3975,6 +4026,89 @@ int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keep
         }
     }
     
+    if ( s_version >= 3 ) //expanded tile pages to 825
+    {
+	if(!p_igetl(&temp_misc.colors.new_triforce_tile,f,true))
+        {
+             return qe_invalid;
+        }    
+    }
+    else
+    {
+	al_trace("Copying misc.colors.*tile to misc.colors.new_*tile.\n");
+	temp_misc.colors.new_triforce_tile = temp_misc.colors.triforce_tile;
+	    //al_trace("Old triforce tile: %d\n", temp_misc.colors.triforce_tile);
+	   // al_trace("New triforce tile: %d\n", temp_misc.colors.new_triforce_tile);
+    }
+    if ( s_version >= 3 ) //expanded tile pages to 825
+    {
+	if(!p_igetl(&temp_misc.colors.new_triframe_tile,f,true))
+        {
+             return qe_invalid;
+        }  
+    }
+    else
+    {
+	temp_misc.colors.new_triframe_tile = temp_misc.colors.triframe_tile;
+	   // al_trace("Old triframe tile: %d\n", temp_misc.colors.triframe_tile);
+	   // al_trace("New triframe tile: %d\n", temp_misc.colors.new_triframe_tile);
+	    
+    }
+    if ( s_version >= 3 ) //expanded tile pages to 825
+    {
+	if(!p_igetl(&temp_misc.colors.new_overworld_map_tile,f,true))
+        {
+             return qe_invalid;
+        } 
+    }
+    else
+    {
+	temp_misc.colors.new_overworld_map_tile = temp_misc.colors.overworld_map_tile;    
+	  //  al_trace("Old overworld map tile: %d\n", temp_misc.colors.overworld_map_tile);
+	  //  al_trace("New overworld map tile: %d\n", temp_misc.colors.new_overworld_map_tile);
+	    
+    }
+    if ( s_version >= 3 ) //expanded tile pages to 825
+    {
+	if(!p_igetl(&temp_misc.colors.new_dungeon_map_tile,f,true))
+        {
+             return qe_invalid;
+        } 
+    }
+    else
+    {
+	temp_misc.colors.new_dungeon_map_tile = temp_misc.colors.dungeon_map_tile;    
+	//al_trace("Old dungeon map tile: %d\n", temp_misc.colors.dungeon_map_tile);
+	  //  al_trace("New dungeon map tile: %d\n", temp_misc.colors.new_dungeon_map_tile);
+    }
+    if ( s_version >= 3 ) //expanded tile pages to 825
+    {
+	if(!p_igetl(&temp_misc.colors.new_blueframe_tile,f,true))
+        {
+             return qe_invalid;
+        }
+    }
+    else
+    {
+	temp_misc.colors.new_blueframe_tile = temp_misc.colors.blueframe_tile;
+	//al_trace("Old blueframe tile: %d\n", temp_misc.colors.blueframe_tile);
+	  //  al_trace("New blueframe tile: %d\n", temp_misc.colors.new_blueframe_tile);
+    }
+    if ( s_version >= 3 ) //expanded tile pages to 825
+    {
+	if(!p_igetl(&temp_misc.colors.new_HCpieces_tile,f,true))
+        {
+             return qe_invalid;
+        }
+    }
+    else
+    {	    
+	temp_misc.colors.new_HCpieces_tile = temp_misc.colors.HCpieces_tile;  
+	//al_trace("Old HCP tile: %d\n", temp_misc.colors.HCpieces_tile);
+	 //   al_trace("New HCP tile: %d\n", temp_misc.colors.new_HCpieces_tile);	    
+    }
+    
+    
     if(keepdata==true)
     {
         memcpy(Misc, &temp_misc, sizeof(temp_misc));
@@ -4016,14 +4150,26 @@ int readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdata)
     
     icons=4;
     
-    for(int i=0; i<icons; i++)
+    if ( s_version >= 10 )
     {
-        if(!p_igetw(&temp_misc.icons[i],f,true))
-        {
-            return qe_invalid;
-        }
+	    for(int i=0; i<icons; i++)
+	    {
+		if(!p_igetl(&temp_misc.icons[i],f,true))
+		{
+		    return qe_invalid;
+		}
+	    }	   
     }
-    
+    else
+    {	    
+	    for(int i=0; i<icons; i++)
+	    {
+		if(!p_igetw(&temp_misc.icons[i],f,true))
+		{
+		    return qe_invalid;
+		}
+	    }
+    }
     if(keepdata==true)
     {
         memcpy(Misc, &temp_misc, sizeof(temp_misc));
@@ -4808,11 +4954,22 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
         memset(&tempitem, 0, sizeof(itemdata));
         reset_itembuf(&tempitem,i);
         
-        if(!p_igetw(&tempitem.tile,f,true))
-        {
-            return qe_invalid;
-        }
-        
+	    
+	if ( s_version > 35 ) //expanded tiles	
+	{    
+		if(!p_igetl(&tempitem.tile,f,true))
+		{
+		    return qe_invalid;
+		}
+	}
+	else
+	{
+		if(!p_igetw(&tempitem.tile,f,true))
+		{
+		    return qe_invalid;
+		}
+	}
+		
         if(!p_getc(&tempitem.misc,f,true))
         {
             return qe_invalid;
@@ -6165,6 +6322,32 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 		
 	    }
 	    
+	    //Port quest rules to items
+	    if( s_version <= 37) 
+	    {
+		if(tempitem.family == itype_flippers)
+		{
+			if ( (get_bit(quest_rules,qr_NODIVING)) ) tempitem.flags |= ITEM_FLAG1;
+			else tempitem.flags &= ~ ITEM_FLAG1;
+		}
+		else if(tempitem.family == itype_sword)
+		{
+			if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
+			else tempitem.flags &= ~ ITEM_FLAG5;
+		}
+		else if(tempitem.family == itype_wand)
+		{
+			if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
+			else tempitem.flags &= ~ ITEM_FLAG5;
+		}
+		else if(tempitem.family == itype_book)
+		{
+			//@VenRob: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
+			if ( (get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
+			else tempitem.flags &= ~ ITEM_FLAG3;
+		}
+	    }
+	    
             if(tempitem.fam_type==0)  // Always do this
                 tempitem.fam_type=1;
                 
@@ -6304,10 +6487,12 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     for(int i=0; i<weapons_to_read; i++)
     {
+	    
+		    
         if(!p_igetw(&tempweapon.tile,f,true))
-        {
-            return qe_invalid;
-        }
+	{
+	    return qe_invalid;
+	}	
         
         if(!p_getc(&tempweapon.misc,f,true))
         {
@@ -6333,6 +6518,22 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             return qe_invalid;
         }
+	
+	if ( s_version >= 7 )
+	{
+		if(!p_igetw(&tempweapon.script,f,true))
+		{
+		    return qe_invalid;
+		}
+		if(!p_igetl(&tempweapon.newtile,f,true))
+		{
+		    return qe_invalid;
+		}	    
+	}
+	if ( s_version < 7 ) 
+	{
+		tempweapon.newtile = tempweapon.tile;
+	}
         
         if(Header->zelda_version < 0x193)
         {
@@ -8887,11 +9088,20 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.tile),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
+	    if ( guyversion >= 36 ) //expanded tiles
+	    {
+		    if(!p_igetl(&(tempguy.tile),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&(tempguy.tile),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }    
             if(!p_getc(&(tempguy.width),f,keepdata))
             {
                 return qe_invalid;
@@ -8902,11 +9112,21 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.s_tile),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
+	    if ( guyversion >= 36 ) //expanded tiles
+	    {
+		    if(!p_igetl(&(tempguy.s_tile),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&(tempguy.s_tile),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    
             if(!p_getc(&(tempguy.s_width),f,keepdata))
             {
                 return qe_invalid;
@@ -8917,11 +9137,21 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.e_tile),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
+	    if ( guyversion >= 36 ) //expanded tiles
+	    {
+		    if(!p_igetl(&(tempguy.e_tile),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&(tempguy.e_tile),f,keepdata))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    
             if(!p_getc(&(tempguy.e_width),f,keepdata))
             {
                 return qe_invalid;
@@ -11916,11 +12146,20 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
     {
         memset(&temp_combo,0,sizeof(temp_combo));
         
-        if(!p_igetw(&temp_combo.tile,f,true))
-        {
-            return qe_invalid;
-        }
-        
+	if ( section_version >= 11 )
+	{
+		if(!p_igetl(&temp_combo.tile,f,true))
+		{
+		    return qe_invalid;
+		}
+	}
+	else
+	{
+		if(!p_igetw(&temp_combo.tile,f,true))
+		{
+		    return qe_invalid;
+		}
+	}
         if(!p_getc(&temp_combo.flip,f,true))
         {
             return qe_invalid;
@@ -12549,12 +12788,24 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
     return 0;
 }
 
-int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, word max_tiles, bool from_init, bool keepdata)
+int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int max_tiles, bool from_init, bool keepdata)
 {
     int dummy;
-    word tiles_used=0;
+    int tiles_used=0;
+	word section_version = 0;
+	word section_cversion = 0;
+	int section_size= 0;
     byte *temp_tile = new byte[tilesize(tf32Bit)];
+	
     
+    if ( build < 41 ) 
+    {
+	    //al_trace("Build was < 41 when reading tiles\n");
+	    max_tiles = ZC250MAXTILES;
+    }
+    
+	//al_trace("Max Tiles: %d\n", max_tiles);
+	
     if(Header!=NULL&&(!Header->data_flags[ZQ_TILES]&&!from_init))         //keep for old quests
     {
         if(keepdata==true)
@@ -12574,26 +12825,31 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         if(version > 0x192)
         {
             //section version info
-            if(!p_igetw(&dummy,f,true))
+            if(!p_igetw(&section_version,f,true))
             {
                 delete[] temp_tile;
                 return qe_invalid;
             }
             
-            if(!p_igetw(&dummy,f,true))
+            if(!p_igetw(&section_cversion,f,true))
             {
                 delete[] temp_tile;
                 return qe_invalid;
             }
             
             //section size
-            if(!p_igetl(&dummy,f,true))
+            if(!p_igetl(&section_size,f,true))
             {
                 delete[] temp_tile;
                 return qe_invalid;
             }
         }
         
+	//if ( build < 41 ) 
+	//{
+	//	tiles_used = ZC250MAXTILES;
+	//}
+	
         if(version < 0x174)
         {
             tiles_used=TILES_PER_PAGE*4;
@@ -12605,19 +12861,41 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         else
         {
             //finally...  section data
-            
-            if(!p_igetw(&tiles_used,f,true))
-            {
-                delete[] temp_tile;
-                return qe_invalid;
-            }
+            if ( version >= 0x254 && build >= 41 ) //read and write the size of tiles_used properly
+	    { 
+		    if(!p_igetl(&tiles_used,f,true))
+		    {
+			delete[] temp_tile;
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		 if(!p_igetw(&tiles_used,f,true))
+		    {
+			delete[] temp_tile;
+			return qe_invalid;
+		    }
+	    }
+	    
         }
         
         tiles_used=zc_min(tiles_used, max_tiles);
         
-        tiles_used=zc_min(tiles_used, NEWMAXTILES-start_tile);
+	if ( version < 0x254 && build < 41 )
+	{
+		tiles_used=zc_min(tiles_used, ZC250MAXTILES-start_tile);
+	}
+	else 
+	{
+		tiles_used = zc_min(tiles_used,NEWMAXTILES-start_tile); 
+	}
+	
+	//if ( section_version > 1 ) tiles_used = NEWMAXTILES;
         
-        for(word i=0; i<tiles_used; ++i)
+	//al_trace("tiles_used = %d\n", tiles_used);
+	
+        for(int i=0; i<tiles_used; ++i)
         {
             byte format=tf4Bit;
             memset(temp_tile, 0, tilesize(tf32Bit));
@@ -12653,12 +12931,54 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         }
     }
     
+	if ( section_version < 2 ) //write blank tile data --check s_version with this again instead?
+	{
+		//al_trace("Writing blank tile data to new tiles for build < 41\n");
+		for ( int q = ZC250MAXTILES; q < NEWMAXTILES; ++q )
+		{
+			
+			buf[q].data=(byte *)zc_malloc(tilesize(tf4Bit));
+			//memcpy(buf[q].data,temp_tile,tilesize(buf[q].format));
+			reset_tile(buf,q,tf4Bit);
+			
+			
+			/*
+			
+			byte tempbyte;
+			for(int i=0; i<tilesize(tf4Bit); i++)
+			{
+				tempbyte=buf[ZC250MAXTILES-1].data[i];
+				buf[q].data[i] = tempbyte;
+			}
+			//int temp = tempbyte=buf[130].data[i];
+			//buf[q].data = buf[ZC250MAXTILES-1].data;
+			*/
+			//reset_tile(buf,q,tf4Bit);
+		}
+		
+	}
+    
     if(keepdata==true)
     {
-        for(int i=start_tile+tiles_used; i<max_tiles; ++i)
-        {
-            reset_tile(buf,i,tf4Bit);
-        }
+	    //al_trace("calling reset_tile()");
+	if ( build < 41 ) 
+	{
+		for(int i=start_tile+tiles_used; i<max_tiles; ++i)
+		{
+			//al_trace("Resetting tiles for ZC250MAXTILES, iteration: %d\n", i);
+		    reset_tile(buf,i,tf4Bit);
+		}
+	}
+
+	else
+	{
+		for(int i=start_tile+tiles_used; i<max_tiles; ++i)
+		{
+			//al_trace("Resetting tiles for build 41+\n");
+		    reset_tile(buf,i,tf4Bit);
+		}
+	}
+	
         
         if((version < 0x192)|| ((version == 0x192)&&(build<186)))
         {
@@ -12704,7 +13024,10 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
             }
         }
         
-        register_blank_tiles();
+	
+	
+	al_trace("Registering blank tiles\n");
+        register_blank_tiles(max_tiles);
     }
     
     //memset(temp_tile, 0, tilesize(tf32Bit));

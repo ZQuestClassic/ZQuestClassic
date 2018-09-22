@@ -2167,7 +2167,7 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,i
       */
     if(tile==0)
     {
-        tile=misc->colors.blueframe_tile;
+        tile=misc->colors.new_blueframe_tile;
     }
     
     int t8 = tile<<2;
@@ -2543,9 +2543,9 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
             {
                 draw_block(dest,x,y,DMaps[get_currdmap()].minimap_1_tile,DMaps[get_currdmap()].minimap_1_cset,5,3);
             }
-            else if(c.overworld_map_tile)
+            else if(c.new_overworld_map_tile)
             {
-                draw_block(dest,x,y,c.overworld_map_tile,c.overworld_map_cset,5,3);
+                draw_block(dest,x,y,c.new_overworld_map_tile,c.overworld_map_cset,5,3);
             }
             else
             {
@@ -2568,9 +2568,9 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int x, int y, bool showmap, int sho
             {
                 draw_block(dest,x,y,maptile,mapcset,5,3);
             }
-            else if(c.dungeon_map_tile)
+            else if(c.new_dungeon_map_tile)
             {
-                draw_block(dest,x,y,c.dungeon_map_tile,c.dungeon_map_cset,5,3);
+                draw_block(dest,x,y,c.new_dungeon_map_tile,c.dungeon_map_cset,5,3);
             }
             else
             {
@@ -2647,11 +2647,11 @@ void lifemeter(BITMAP *dest,int x,int y,int tile,bool bs_style)
         {
             if(get_bit(quest_rules,qr_QUARTERHEART))
             {
-                if(i+((HP_PER_HEART/4)*3)>=game->get_life()) tile=(wpnsbuf[iwQuarterHearts].tile*4)+2;
+                if(i+((HP_PER_HEART/4)*3)>=game->get_life()) tile=(wpnsbuf[iwQuarterHearts].newtile*4)+2;
                 
                 if(i+(HP_PER_HEART/2)>=game->get_life()) tile=1;
                 
-                if(i+((HP_PER_HEART/4)*1)>=game->get_life()) tile=(wpnsbuf[iwQuarterHearts].tile*4)+3;
+                if(i+((HP_PER_HEART/4)*1)>=game->get_life()) tile=(wpnsbuf[iwQuarterHearts].newtile*4)+3;
             }
             else if(i+(HP_PER_HEART/2)>=game->get_life()) tile=1;
             
@@ -2826,7 +2826,7 @@ void magicmeter(BITMAP *dest,int x,int y)
     if(game->get_maxmagic()==0) return;
     
     int tile;
-    int mmtile=wpnsbuf[iwMMeter].tile;
+    int mmtile=wpnsbuf[iwMMeter].newtile;
     int mmcset=wpnsbuf[iwMMeter].csets&15;
     overtile8(dest,(mmtile*4)+2,x-8,y,mmcset,0);
     
@@ -3359,50 +3359,50 @@ FONT *ss_font(int fontnum)
         tempfont=dsphantompfont;
         break;
 
-    case ssfAT800: tempfont=atari800font;
-	case ssfACORN: tempfont=acornfont;
-	case ssADOS: tempfont= adosfont;
-	case ssfALLEG: tempfont=  baseallegrofont;
-	case ssfAPL2: tempfont=  apple2font;
-	case ssfAPL280: tempfont=  apple280colfont;
-	case ssfAPL2GS: tempfont=  apple2gsfont;
-	case ssfAQUA: tempfont=  aquariusfont;
-	case ssfAT400: tempfont=  atari400font;
-	case ssfC64: tempfont=  c64font;
-	case ssfC64HR: tempfont= c64hiresfont;
-	case ssfCGA: tempfont=  cgafont;
-	case ssfCOCO: tempfont=  cocofont;
-	case ssfCOCO2: tempfont=  coco2font;
-	case ssfCOUPE: tempfont=  coupefont;
-	case ssfCPC: tempfont=  cpcfont;
-	case ssfFANTASY: tempfont=  fantasyfont;
-	case ssfFDSKANA: tempfont=  fdskanafont;
-	case ssfFDSLIKE: tempfont=  fdslikefont;
-	case ssfFDSROM: tempfont=  fdsromanfont;
-	case ssfFF: tempfont= finalffont;
-	case ssfFUTHARK: tempfont=  futharkfont;
-	case ssfGAIA: tempfont=  gaiafont;
-	case ssfHIRA: tempfont=  hirafont;
-	case ssfJP: tempfont=  jpfont;
-	case ssfKONG: tempfont=  kongfont;
-	case ssfMANA: tempfont=  manafont;
-	case ssfML: tempfont=  mlfont;
-	case ssfMOT: tempfont=  motfont;
-	case ssfMSX0: tempfont=  msxmode0font;
-	case ssfMSX1: tempfont=  msxmode1font;
-	case ssfPET: tempfont= petfont;
-	case ssfPSTART: tempfont=  pstartfont;
-	case ssfSATURN: tempfont=  saturnfont;
-	case ssfSCIFI: tempfont=  scififont;
-	case ssfSHERW: tempfont=  sherwoodfont;
-	case ssfSINQL: tempfont=  sinqlfont;
-	case ssfSPEC: tempfont=  spectrumfont;
-	case ssfSPECLG: tempfont=  speclgfont;
-	case ssfTI99: tempfont=  ti99font;
-	case ssfTRS: tempfont=  trsfont;
-	case ssfZ2: tempfont=  z2font;
-	case ssfZX: tempfont= zxfont;
-	case ssfLISA: tempfont= lisafont;
+    case ssfAT800: tempfont=atari800font; break;
+	case ssfACORN: tempfont=acornfont;break;
+	case ssADOS: tempfont= adosfont; break;
+	case ssfALLEG: tempfont=  baseallegrofont; break;
+	case ssfAPL2: tempfont=  apple2font; break;
+	case ssfAPL280: tempfont=  apple280colfont; break;
+	case ssfAPL2GS: tempfont=  apple2gsfont; break;
+	case ssfAQUA: tempfont=  aquariusfont; break;
+	case ssfAT400: tempfont=  atari400font; break;
+	case ssfC64: tempfont=  c64font; break;
+	case ssfC64HR: tempfont= c64hiresfont; break;
+	case ssfCGA: tempfont=  cgafont; break;
+	case ssfCOCO: tempfont=  cocofont; break;
+	case ssfCOCO2: tempfont=  coco2font; break;
+	case ssfCOUPE: tempfont=  coupefont; break;
+	case ssfCPC: tempfont=  cpcfont; break;
+	case ssfFANTASY: tempfont=  fantasyfont; break;
+	case ssfFDSKANA: tempfont=  fdskanafont; break;
+	case ssfFDSLIKE: tempfont=  fdslikefont; break;
+	case ssfFDSROM: tempfont=  fdsromanfont; break;
+	case ssfFF: tempfont= finalffont; break;
+	case ssfFUTHARK: tempfont=  futharkfont; break;
+	case ssfGAIA: tempfont=  gaiafont; break;
+	case ssfHIRA: tempfont=  hirafont; break;
+	case ssfJP: tempfont=  jpfont; break;
+	case ssfKONG: tempfont=  kongfont; break;
+	case ssfMANA: tempfont=  manafont; break;
+	case ssfML: tempfont=  mlfont; break;
+	case ssfMOT: tempfont=  motfont; break;
+	case ssfMSX0: tempfont=  msxmode0font; break;
+	case ssfMSX1: tempfont=  msxmode1font; break;
+	case ssfPET: tempfont= petfont; break;
+	case ssfPSTART: tempfont=  pstartfont; break;
+	case ssfSATURN: tempfont=  saturnfont; break;
+	case ssfSCIFI: tempfont=  scififont; break;
+	case ssfSHERW: tempfont=  sherwoodfont; break;
+	case ssfSINQL: tempfont=  sinqlfont; break;
+	case ssfSPEC: tempfont=  spectrumfont; break;
+	case ssfSPECLG: tempfont=  speclgfont; break;
+	case ssfTI99: tempfont=  ti99font; break;
+	case ssfTRS: tempfont=  trsfont; break;
+	case ssfZ2: tempfont=  z2font; break;
+	case ssfZX: tempfont= zxfont; break;
+	case ssfLISA: tempfont= lisafont; break;
     default:
         fontnum=rand()%ssfMAX;
         tempfont=ss_font(fontnum);
@@ -3731,11 +3731,11 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
                     switch(css->objects[i].d2)
                     {
                     case ssmstSSVINETILE:
-                        t=wpnsbuf[iwSubscreenVine].tile*4;
+                        t=wpnsbuf[iwSubscreenVine].newtile*4;
                         break;
                         
                     case ssmstMAGICMETER:
-                        t=wpnsbuf[iwMMeter].tile*4;
+                        t=wpnsbuf[iwMMeter].newtile*4;
                         break;
                         
                     default:
@@ -4250,13 +4250,13 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int x, int y, int triframecolor,
 {
     if(triframetile==0)
     {
-        triframetile=misc->colors.triframe_tile;
+        triframetile=misc->colors.new_triframe_tile;
         triframecset=misc->colors.triframe_cset;
     }
     
     if(triforcetile==0)
     {
-        triforcetile=misc->colors.triforce_tile;
+        triforcetile=misc->colors.new_triforce_tile;
         triforcecset=misc->colors.triforce_cset;
     }
     
@@ -4420,7 +4420,7 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int x, int y, int tile, int cset
 {
     if(tile==0)
     {
-        tile=misc->colors.triforce_tile;
+        tile=misc->colors.new_triforce_tile;
     }
     
     for(int i=0; i<8; i++)
@@ -4472,13 +4472,13 @@ void putBmap(BITMAP *dest, miscQdata *misc, int x, int y,bool showmap, bool show
         {
             draw_block(dest,x,y,maptile,mapcset,large?9:7,5);
         }
-        else if(misc->colors.dungeon_map_tile)
+        else if(misc->colors.new_dungeon_map_tile)
         {
             for(int y2=0; y2<5; y2++)
             {
                 for(int x2=0; x2<(large?8:6); x2++)
                 {
-                    overtile16(dest,misc->colors.dungeon_map_tile+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),misc->colors.dungeon_map_cset,0);
+                    overtile16(dest,misc->colors.new_dungeon_map_tile+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),misc->colors.dungeon_map_cset,0);
                     //++si;
                 }
             }
@@ -4581,7 +4581,7 @@ void load_Sitems(miscQdata *misc)
     Sitems.clear();
     
     // HC Pieces
-    if(misc->colors.HCpieces_tile)
+    if(misc->colors.new_HCpieces_tile)
     {
         //      item *HCP = new item((fix)(inventory_x[5]-ofs),(fix)y,iMax,0,0);
         item *HCP = new item((fix)0,(fix)0,(fix)0,iHCPiece,0,0);
@@ -4589,7 +4589,7 @@ void load_Sitems(miscQdata *misc)
         if(HCP)
         {
             int hcpphc =  game->get_hcp_per_hc();
-            HCP->tile   = misc->colors.HCpieces_tile + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
+            HCP->tile   = misc->colors.new_HCpieces_tile + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
             HCP->o_tile = HCP->tile;
             HCP->cs     = misc->colors.HCpieces_cset;
             HCP->frames = 0;

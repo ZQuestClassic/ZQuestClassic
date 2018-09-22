@@ -6605,7 +6605,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
                 new_return(17);
             }
             
-            if(!p_iputw(DMaps[i].minimap_1_tile,f))
+            if(!p_iputl(DMaps[i].minimap_1_tile,f))
             {
                 new_return(18);
             }
@@ -6615,7 +6615,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
                 new_return(19);
             }
             
-            if(!p_iputw(DMaps[i].minimap_2_tile,f))
+            if(!p_iputl(DMaps[i].minimap_2_tile,f))
             {
                 new_return(20);
             }
@@ -6625,7 +6625,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
                 new_return(21);
             }
             
-            if(!p_iputw(DMaps[i].largemap_1_tile,f))
+            if(!p_iputl(DMaps[i].largemap_1_tile,f))
             {
                 new_return(22);
             }
@@ -6635,7 +6635,7 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
                 new_return(23);
             }
             
-            if(!p_iputw(DMaps[i].largemap_2_tile,f))
+            if(!p_iputl(DMaps[i].largemap_2_tile,f))
             {
                 new_return(24);
             }
@@ -6891,6 +6891,37 @@ int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         {
             new_return(33);
         }
+	
+        if(!p_iputl(Misc->colors.new_triforce_tile,f))
+        {
+            new_return(34);
+        }
+        
+        if(!p_iputl(Misc->colors.new_triframe_tile,f))
+        {
+            new_return(35);
+        }
+        
+        if(!p_iputl(Misc->colors.new_overworld_map_tile,f))
+        {
+            new_return(36);
+        }
+        
+        if(!p_iputl(Misc->colors.new_dungeon_map_tile,f))
+        {
+            new_return(37);
+        }
+        
+        if(!p_iputl(Misc->colors.new_blueframe_tile,f))
+        {
+            new_return(38);
+        }
+        
+        if(!p_iputl(Misc->colors.new_HCpieces_tile,f))
+        {
+            new_return(39);
+        }
+        
         
         if(writecycle==0)
         {
@@ -6949,7 +6980,7 @@ int writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         
         for(int i=0; i<4; i++)
         {
-            if(!p_iputw(Misc->icons[i],f))
+            if(!p_iputl(Misc->icons[i],f))
             {
                 new_return(5);
             }
@@ -7226,7 +7257,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<iMax; i++)
         {
-            if(!p_iputw(itemsbuf[i].tile,f))
+            if(!p_iputl(itemsbuf[i].tile,f))
             {
                 new_return(6);
             }
@@ -7711,6 +7742,16 @@ int writeweapons(PACKFILE *f, zquestheader *Header)
             if(!p_putc(wpnsbuf[i].type,f))
             {
                 new_return(11);
+            }
+	    
+	    if(!p_iputw(wpnsbuf[i].script,f))
+            {
+                new_return(12);
+            }
+	    
+	    if(!p_iputl(wpnsbuf[i].newtile,f))
+            {
+                new_return(12);
             }
         }
         
@@ -8439,7 +8480,7 @@ int writecombos(PACKFILE *f, word version, word build, word start_combo, word ma
         
         for(int i=start_combo; i<start_combo+combos_used; i++)
         {
-            if(!p_iputw(combobuf[i].tile,f))
+            if(!p_iputl(combobuf[i].tile,f))
             {
                 new_return(6);
             }
@@ -8819,7 +8860,7 @@ int writestrings(PACKFILE *f, word version, word build, word start_msgstr, word 
                 return qe_invalid;
             }
             
-            if(!p_iputw(MsgStrings[i].tile,f))
+            if(!p_iputl(MsgStrings[i].tile,f))
             {
                 return qe_invalid;
             }
@@ -8959,19 +9000,21 @@ int writestrings_text(PACKFILE *f)
 }
 
 
-int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_tiles)
+int writetiles(PACKFILE *f, word version, word build, int start_tile, int max_tiles)
 {
     //these are here to bypass compiler warnings about unused arguments
     version=version;
     build=build;
     
-    word tiles_used;
+    int tiles_used;
     dword section_id=ID_TILES;
     dword section_version=V_TILES;
     dword section_cversion=CV_TILES;
+	al_trace("Counting tiles used\n");
     tiles_used = count_tiles(newtilebuf)-start_tile;
     tiles_used = zc_min(tiles_used, max_tiles);
     tiles_used = zc_min(tiles_used, NEWMAXTILES);
+	al_trace("writetiles counted %dtiles used.\n",tiles_used); 
     dword section_size = 0;
     
     //section id
@@ -9008,12 +9051,13 @@ int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_
         tiles_used=zc_min(tiles_used, max_tiles);
         tiles_used=zc_min(tiles_used, NEWMAXTILES);
         
-        if(!p_iputw(tiles_used,f))
+        if(!p_iputl(tiles_used,f))
         {
             new_return(5);
         }
         
-        for(dword i=0; i<tiles_used; ++i)
+        for(int i=0; i<tiles_used; ++i)
+        //for(int i=0; i<NEWMAXTILES; ++i)
         {
             if(!p_putc(newtilebuf[start_tile+i].format,f))
             {
@@ -9024,6 +9068,17 @@ int writetiles(PACKFILE *f, word version, word build, word start_tile, word max_
             {
                 new_return(7);
             }
+	    /*
+            if(!p_putc(newtilebuf[start_tile+i].format,f))
+            {
+                new_return(6);
+            }
+            
+            if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
+            {
+                new_return(7);
+            }
+	    */
         }
         
         if(writecycle==0)
@@ -9308,7 +9363,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                 new_return(7);
             }
             
-            if(!p_iputw(guysbuf[i].tile,f))
+            if(!p_iputl(guysbuf[i].tile,f))
             {
                 new_return(8);
             }
@@ -9323,7 +9378,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                 new_return(10);
             }
             
-            if(!p_iputw(guysbuf[i].s_tile,f))
+            if(!p_iputl(guysbuf[i].s_tile,f))
             {
                 new_return(11);
             }
@@ -9338,7 +9393,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                 new_return(13);
             }
             
-            if(!p_iputw(guysbuf[i].e_tile,f))
+            if(!p_iputl(guysbuf[i].e_tile,f))
             {
                 new_return(14);
             }

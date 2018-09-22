@@ -2264,6 +2264,29 @@ long get_register(const long arg)
 			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG4)?10000:0; break;
 		    case 4:
 			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG5)?10000:0; break;
+		    case 5:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG6)?10000:0; break;
+		   case 6:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG7)?10000:0; break;
+		   case 7:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG8)?10000:0; break;
+		   case 8:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG9)?10000:0; break;
+		   case 9:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG10)?10000:0; break;
+		   case 10:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG11)?10000:0; break;
+		   case 11:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG12)?10000:0; break;
+		   case 12:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG13)?10000:0; break;
+		   case 13:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG14)?10000:0; break;
+		   case 14:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG15)?10000:0; break;
+		   case 15:
+			ret=(itemsbuf[ri->idata].flags & ITEM_FLAG16)?10000:0; break;
+		   
 		   
 		    default: 
 			   ret = 0; break;
@@ -4061,7 +4084,7 @@ case SCREENCATCH:
 ///----------------------------------------------------------------------------------------------------//
 //spritedata sp-> Variables
     
-case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(tile, "Tile") break;
+case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(newtile, "Tile") break;
 case SPRITEDATAMISC: GET_SPRITEDATA_VAR_INT(misc, "Misc") break;
 case SPRITEDATACSETS: GET_SPRITEDATA_VAR_INT(csets, "CSet") break;
 case SPRITEDATAFRAMES: GET_SPRITEDATA_VAR_INT(frames, "Frames") break;
@@ -6838,6 +6861,28 @@ void set_register(const long arg, const long value)
 			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG4:0; 
 		    case 4:
 			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG5:0; 
+		    case 5:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG6:0; 
+		    case 6:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG7:0; 
+		    case 7:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG8:0; 
+		    case 8:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG9:0; 
+		    case 9:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG10:0; 
+		    case 10:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG11:0; 
+		    case 11:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG12:0; 
+		    case 12:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG13:0; 
+		    case 13:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG14:0; 
+		    case 14:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG15:0; 
+		    case 15:
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG16:0; 
 		    
 		    
 		    default: 
@@ -8860,7 +8905,7 @@ break;
     
 ///----------------------------------------------------------------------------------------------------//
 //spritedata sp-> Variables
-case SPRITEDATATILE: SET_SPRITEDATA_VAR_INT(tile, "Tile"); break;
+case SPRITEDATATILE: SET_SPRITEDATA_VAR_INT(newtile, "Tile"); break;
 case SPRITEDATAMISC: SET_SPRITEDATA_VAR_BYTE(misc, "Misc"); break;
 case SPRITEDATACSETS: SET_SPRITEDATA_VAR_BYTE(csets, "CSet"); break;
 case SPRITEDATAFRAMES: SET_SPRITEDATA_VAR_BYTE(frames, "Frames"); break;
