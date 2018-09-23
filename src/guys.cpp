@@ -14043,9 +14043,11 @@ void check_collisions()
 				{
 					if(items.spr(j)->hit(w))
 					{
-						bool priced = ((item*)items.spr(j))->PriceIndex >-1;
+						item *theItem = ((item*)items.spr(j));
+						bool priced = theItem->PriceIndex >-1;
+						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
 						if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
-							|| ((itemsbuf[w->parentitem].flags & ITEM_FLAG4) && !priced))
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey))&& !priced))
 						{
 							if(itemsbuf[items.spr(j)->id].collect_script)
 							{
@@ -14061,10 +14063,11 @@ void check_collisions()
 				{
 					if(items.spr(j)->hit(w))
 					{
-						bool priced = ((item*)items.spr(j))->PriceIndex >-1;
-
+						item *theItem = ((item*)items.spr(j));
+						bool priced = theItem->PriceIndex >-1;
+						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
 						if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
-							|| ((itemsbuf[w->parentitem].flags & ITEM_FLAG4) && !priced && !(((item*)items.spr(j))->pickup & ipDUMMY)))
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(((item*)items.spr(j))->pickup & ipDUMMY)))
 						{
 							if(w->id == wBrang)
 							{
