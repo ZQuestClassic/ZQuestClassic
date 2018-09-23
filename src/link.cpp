@@ -3237,7 +3237,7 @@ void LinkClass::checkhit()
         
         //   check enemy weapons true, 1, -1
         //
-        if(get_bit(quest_rules,qr_Z3BRANG_HSHOT))
+        if(itemsbuf[itemid].flags & ITEM_FLAG6)
         {
             if(s->id==wBrang || s->id==wHookshot)
             {
