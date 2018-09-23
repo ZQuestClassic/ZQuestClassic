@@ -8919,6 +8919,7 @@ bool eGanon::animate(int index)
         break;
         
     case 3:
+    {
         if(hclk>0)
             break;
             
@@ -8932,8 +8933,13 @@ bool eGanon::animate(int index)
         if(deadsfx>0) sfx(deadsfx,pan(int(x)));
         
         sfx(WAV_GANON);
-        items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
+	    //Ganon's dustpile; fall in sideview. -Z
+            item *dustpile = new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0);
+	    dustpile->miscellaneous[31] = eeGANON;
+            setmapflag();
+        //items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
         break;
+    }
         
     case 4:
         if(clk>=80)

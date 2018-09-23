@@ -49,7 +49,12 @@ bool item::animate(int)
     {
         if(is_side_view())
         {
-            if(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
+            if
+	    (
+		(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
+		||
+		(can_drop(x,y) && ipDUMMY && miscellaneous[31] == eeGANON ) //Ganon's dust pile
+	    )
             {
                 y+=fall/100;
                 

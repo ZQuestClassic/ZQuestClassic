@@ -16004,6 +16004,11 @@ void LinkClass::ganon_intro()
     }
     
     dir=down;
+    if ( !isSideview() )
+    {
+	fall = 0; //Fix midair glitch on holding triforce. -Z
+	z = 0;
+    }
     action=landhold2; FFCore.setLinkAction(landhold2);
     holditem=getItemID(itemsbuf,itype_triforcepiece, 1);
     //not good, as this only returns the highest level that Link possesses. -DD
