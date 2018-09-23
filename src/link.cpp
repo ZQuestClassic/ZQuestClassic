@@ -3197,7 +3197,7 @@ void LinkClass::checkhit()
 	int itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
         //if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Link
 	    //if ( itemsbuf[parentitem].misc1 > 0 ) //damages Link by this amount. 
-        if((!((itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)) || get_bit(quest_rules,qr_FIREPROOFLINK)) && (scriptcoldet&1) && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
+        if((!((itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3))) && (scriptcoldet&1) && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
         {
             if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
                         (itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
@@ -3346,7 +3346,7 @@ killweapon:
             }
         }
         
-        if(get_bit(quest_rules,qr_OUCHBOMBS) || (itemsbuf[itemid].flags & ITEM_FLAG2))
+        if(itemsbuf[itemid].flags & ITEM_FLAG2)
         {
             //     if(((s->id==wBomb)||(s->id==wSBomb)) && (superman ? s->hit(x+7,y+7,z,2,2,1) : s->hit(this)))
             if(((s->id==wBomb)||(s->id==wSBomb)) && s->hit(this) && !superman && (scriptcoldet&1))
@@ -5956,7 +5956,7 @@ bool LinkClass::can_attack()
 {
 	int currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
     if(action==hopping || action==swimming || action==freeze || link_is_stunned > 0 ||
-            (action==attacking && ((attack!=wSword && attack!=wWand) || !(get_bit(quest_rules,qr_QUICKSWORD)||(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5))) && charging!=0) || spins>0)
+            (action==attacking && ((attack!=wSword && attack!=wWand) ||(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5))) && charging!=0) || spins>0)
     {
         return false;
     }
@@ -6084,7 +6084,7 @@ void LinkClass::do_hopping()
             --diveclk;
         else if(DrunkrAbtn())
         {
-            bool global_diving=(get_bit(quest_rules,qr_NODIVING)>0 || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG1)>0);
+            bool global_diving=(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG1);
             bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
             
             if(global_diving==screen_diving)
@@ -6536,7 +6536,7 @@ void LinkClass::movelink()
     }
     else if(action==swimming)
     {
-        bool global_diving=(get_bit(quest_rules,qr_NODIVING)>0 || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG1)>0);
+        bool global_diving=(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG1);
         bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
         
         if(DrunkrAbtn()&&(global_diving==screen_diving))
@@ -6563,7 +6563,7 @@ void LinkClass::movelink()
     //&0xFFF removes the "bow & arrows" bitmask
     //The Quick Sword is allowed to interrupt attacks.
     int currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
-    if((!attackclk && action!=attacking) || ((attack==wSword || attack==wWand) && (get_bit(quest_rules,qr_QUICKSWORD)||(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5))))
+    if((!attackclk && action!=attacking) || ((attack==wSword || attack==wWand) && (itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)))
     {
         if(DrunkrBbtn())
         {
