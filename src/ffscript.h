@@ -47,6 +47,21 @@ enum
 	UID_TYPE_NPC, UID_TYPE_WEAPON, UID_TYPE_ITEM, UID_TYPES
 };
 
+enum 
+{
+	vZelda, qQuestNumber, vBuild, vBeta, vHeader, vRules, vStrings, vMisc,
+	vTiles, vCombos, vCSets, vMaps, vDMaps, vDoors, vItems, vWeaponSprites,
+	vColours, vIcons, vGfxPack, vInitData, vGuys, vMIDIs, vCheats, vSaveformat,
+	vComboAliases, vLinkSprites, vSubscreen, vItemDropsets, vFFScript, vSFX, vFavourites,
+	qMapCount,
+	versiontypesLAST
+	
+};
+
+enum
+{
+	 qQuestVersion, qMinQuestVersion, qvLAST
+};
 
 class FFScript
 {
@@ -64,10 +79,24 @@ int getLinkTile();
 void setLinkAction(int a);
 int getLinkAction();
 
+long getQuestHeaderInfo(int type);
+
+/*
+long getQuestHeaderInfo(int type)
+{
+    return quest_format[type];
+}
+
+
+*/
+
 void do_adjustsfxvolume(const bool v);
 void do_adjustvolume(const bool v);
 //FFScript();
 //static void init();
+
+long quest_format[versiontypesLAST];
+
 
 long coreflags;
 long script_UIDs[UID_TYPES];
