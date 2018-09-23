@@ -2325,6 +2325,17 @@ bool weapon::animate(int)
             if(ignorecombo==(((int)checky&0xF0)+((int)checkx>>4)))
                 break;
                 
+		int posx, posy;
+		if(false)//Replace this conditional with an ER; true if the ER is checked. This will use the old (glitchy) behavior for sword beams.
+		{
+			posx=x;
+			posy=y;
+		}
+		else
+		{
+			posx=checkx;
+			posy=checky;
+		}
             if(hitcombo(checkx,checky,cMIRROR))
             {
                 id = wRefBeam;
@@ -2337,8 +2348,8 @@ bool weapon::animate(int)
                     
                 ignoreLink=false;
                 ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                y=(int)y&0xF0;
-                x=(int)x&0xF0;
+                y=(int)posy&0xF0;
+                x=(int)posx&0xF0;
             }
             
             if(hitcombo(checkx,checky,cMIRRORSLASH))
@@ -2371,8 +2382,8 @@ bool weapon::animate(int)
                 
                 ignoreLink=false;
                 ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                y=(int)y&0xF0;
-                x=(int)x&0xF0;
+                y=(int)posy&0xF0;
+                x=(int)posx&0xF0;
             }
             
             if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
@@ -2405,15 +2416,15 @@ bool weapon::animate(int)
                 
                 ignoreLink=false;
                 ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                y=(int)y&0xF0;
-                x=(int)x&0xF0;
+                y=(int)posy&0xF0;
+                x=(int)posx&0xF0;
             }
             
             if(hitcombo(checkx,checky,cMAGICPRISM))
             {
                 int newx, newy;
-                newy=(int)y&0xF0;
-                newx=(int)x&0xF0;
+                newy=(int)posy&0xF0;
+                newx=(int)posx&0xF0;
                 
                 for(int tdir=0; tdir<4; tdir++)
                 {
@@ -2463,8 +2474,8 @@ bool weapon::animate(int)
             if(hitcombo(checkx,checky,cMAGICPRISM4))
             {
                 int newx, newy;
-                newy=(int)y&0xF0;
-                newx=(int)x&0xF0;
+                newy=(int)posy&0xF0;
+                newx=(int)posx&0xF0;
                 
                 for(int tdir=0; tdir<4; tdir++)
                 {
