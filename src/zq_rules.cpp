@@ -237,15 +237,15 @@ static DIALOG itemrules_dlg[] =
     { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "3 or 6 Triforce Total", NULL, NULL },
     // rules 2 //22
     { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slow Walk While Charging", NULL, NULL },
- //Deprecated:  23, 24, 25 
-    { jwin_check_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Show Secret Combo Hints When Using The Lens", NULL, NULL },
-    { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Shows Raft Paths", NULL, NULL },
-    { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Reveals Invisible Enemies", NULL, NULL },
+ //Deprecated:  23, 24, 25, 26, 27, 28, 29
+    { d_dummy_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Show Secret Combo Hints When Using The Lens", NULL, NULL },
+    { d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Shows Raft Paths", NULL, NULL },
+    { d_dummy_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Reveals Invisible Enemies", NULL, NULL },
 	
-    { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Medicine Doesn't Remove Sword Jinxes", NULL, NULL },
-    { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fairies Don't Remove Sword Jinxes", NULL, NULL },
-    { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Triforce Doesn't Remove Sword Jinxes", NULL, NULL },
-    { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Things That Remove Sword Jinxes Also Remove Item Jinxes", NULL, NULL },
+    { d_dummy_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Medicine Doesn't Remove Sword Jinxes", NULL, NULL },
+    { d_dummy_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fairies Don't Remove Sword Jinxes", NULL, NULL },
+    { d_dummy_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Triforce Doesn't Remove Sword Jinxes", NULL, NULL },
+    { d_dummy_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Things That Remove Sword Jinxes Also Remove Item Jinxes", NULL, NULL },
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
