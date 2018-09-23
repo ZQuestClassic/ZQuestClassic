@@ -2584,11 +2584,18 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     //more 2.50 fixes -Z
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<31))
     {
-        set_bit(extra_rules, er_MAGICCOSTSWORD, 1);
+        set_bit(quest_rules, qr_MELEEMAGICCOST, 0);
         set_bit(quest_rules, qr_NOGANONINTRO, 0);
+        set_bit(quest_rules, qr_OLDMIRRORCOMBOS, 1);
+        set_bit(quest_rules, qr_BROKENBOOKCOST, 1);
 	set_bit(extra_rules, er_BROKENCHARINTDRAWING, 1);
 	set_bit(extra_rules, er_SETENEMYWEAPONSPRITESONWPNCHANGE, 1);
     }
+    if(tempheader.zelda_version == 0x254 && tempheader.build<41)
+    {
+	set_bit(quest_rules,qr_MELEEMAGICCOST, get_bit(extra_rules,er_MAGICCOSTSWORD));
+    }
+	    
     
     if(tempheader.zelda_version < 0x193)
     {

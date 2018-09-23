@@ -827,7 +827,7 @@ enum
     qr_NOGANONINTRO, //bugfix//
     qr_MELEEMAGICCOST,
     qr_OLDMIRRORCOMBOS,
-    qr_CHECKBOOKCOST,
+    qr_BROKENBOOKCOST,
 
     qr_MAX
 };

@@ -147,7 +147,7 @@ static DIALOG comborules_dlg[] =
     { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Hookshot Grab Combos Work On Layers 1 And 2", NULL, NULL },
     //{ jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,       (void *) "Changing DMaps Doesn't Set The Continue Point", NULL, NULL },
     { d_dummy_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Correct Mirror and Weapon Interaction", NULL, NULL },
+    { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Mirror and Weapon Interaction", NULL, NULL },
   
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -252,7 +252,7 @@ static DIALOG itemrules_dlg[] =
     { d_dummy_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Things That Remove Sword Jinxes Also Remove Item Jinxes", NULL, NULL },
     //30
     { jwin_check_proc,      10, 33+20, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Melee Weapons Require Magic Cost", NULL, NULL },
-    { jwin_check_proc,      10, 33+30, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Corrected Magic Book Costs", NULL, NULL },
+    { jwin_check_proc,      10, 33+30, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Magic Book Costs", NULL, NULL },
    
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -265,7 +265,7 @@ static int itemrules[] =
     qr_FIREPROOFLINK, qr_OUCHBOMBS, qr_RINGAFFECTDAMAGE, qr_QUICKSWORD, qr_SLASHFLIPFIX,
     qr_NOWANDMELEE, qr_NOITEMMELEE, qr_BRANGPICKUP, qr_HEARTSREQUIREDFIX, qr_4TRI, qr_3TRI,
     qr_SLOWCHARGINGWALK, qr_LENSHINTS, qr_RAFTLENS, qr_LENSSEESENEMIES,
-    qr_NONBUBBLEMEDICINE, qr_NONBUBBLEFAIRIES, qr_NONBUBBLETRIFORCE, qr_ITEMBUBBLE, qr_MELEEMAGICCOST, qr_CHECKBOOKCOST, -1
+    qr_NONBUBBLEMEDICINE, qr_NONBUBBLEFAIRIES, qr_NONBUBBLETRIFORCE, qr_ITEMBUBBLE, qr_MELEEMAGICCOST, qr_BROKENBOOKCOST, -1
 };
 
 int onItemRules()
