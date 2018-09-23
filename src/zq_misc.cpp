@@ -739,11 +739,26 @@ const char *combotype_help_string[cMAX*3] =
     "Identical to Eyeball (8-Way A), but only the four","cardinal directions/sets of tiles are used","(up, down, left and right, respectively).",
     "Identical to Tall Grass, but instead of changing","into the Under Combo when slashed, this","changes to the next combo in the list.",
     // Script types
+    "","","", //1
+    "","","",
+    "","","",
+    "","","",
+    "","","", //5
     "","","",
     "","","",
     "","","",
     "","","",
-    "","",""
+    "","","", //10
+    "","","",
+    "","","",
+    "","","",
+    "","","",
+    "","","", //15
+    "","","",
+    "","","",
+    "","","",
+    "","","",
+    "","","" //20
 };
 
 const char *flag_help_string[(mfMAX)*3] =

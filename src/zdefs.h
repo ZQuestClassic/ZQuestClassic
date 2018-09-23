@@ -95,14 +95,14 @@
 #include "gamedata.h"
 #include "zc_array.h"
 
-#define ZELDA_VERSION       0x0254                          //version of the program
+#define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25400 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       41                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.54 Alpha 35"                    //version of the program as presented in text
-#define IS_BETA             -35                         //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        35
-#define DATE_STR            "23rd August, 2018"
+#define ZELDA_VERSION_STR   "2.55 Alpha 31"                    //version of the program as presented in text
+#define IS_BETA             -1                         //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        1
+#define DATE_STR            "23rd September, 2018"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -133,9 +133,9 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define PI 3.14159265358979323846
 #endif
 
-#define HP_PER_HEART          16
-#define DAMAGE_MULTIPLIER     2
-
+#define HP_PER_HEART          16 //We should make this a global quest setting.
+#define DAMAGE_MULTIPLIER     2 //We should make this a global quest setting.
+//same for magic.
 
 #define ZC_ID(a,b,c,d)  (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
@@ -268,27 +268,20 @@ extern bool fake_pack_writing;
 #define TILE_ROWS_PER_PAGE  13
 #define TILES_PER_PAGE      (TILES_PER_ROW*TILE_ROWS_PER_PAGE)
 #define TILE_PAGES          825
+#define TILE_PAGES_ZC250    252 //2.50.x
 
 #define OLDMAXTILES         (TILES_PER_PAGE*6)              // 1560 tiles
-#define NEWMAXTILES         (TILES_PER_PAGE*825)     // 214500 tiles
-#define ZC250MAXTILES         (TILES_PER_PAGE*252)     // 32760 tiles
+#define NEWMAXTILES         (TILES_PER_PAGE*TILE_PAGES)     // 214500 tiles
+#define ZC250MAXTILES         (TILES_PER_PAGE*TILE_PAGES_ZC250)     // 32760 tiles
 
-#define NEWTILE_SIZE2       (NEWMAXTILES*SINGLE_TILE_SIZE)  // 4193280 bytes (new packed format, 6 pages)
-
+#define NEWTILE_SIZE2       (NEWMAXTILES*SINGLE_TILE_SIZE)  // 27456000 bytes 
+#define ZC250TILESIZE       (ZC250MAXTILES*SINGLE_TILE_SIZE)  // 4193280 bytes (new packed format, 6 pages)
 #define OLDTILE_SIZE2       (OLDMAXTILES*SINGLE_TILE_SIZE)  // 199680 bytes (new packed format, 6 pages)
 // 133120 bytes (new packed format, 4 pages)
 #define OLDTILE_SIZE        (TILES_PER_PAGE*4*SINGLE_TILE_SIZE)
 //#define NEWTILE_SIZE      (260*6*128) // 199680 bytes (new packed format, 6 pages)
 //#define OLDTILE_SIZE      (260*4*128) // 133120 bytes (new packed format, 4 pages)
 #define TILEBUF_SIZE        (320*480)                       // 153600 bytes (old unpacked format)
-
-
-//2.54 expanded tile pages
-//This is going to be fun, as absolutely every reference to tiles that expects a short needs to become a long. :( -Z
-#define TILE_PAGES_254      214747/(TILES_PER_ROW*TILE_ROWS_PER_PAGE)
-#define NEWMAXTILES254      214747 - ( 214747 % (TILES_PER_PAGE*TILE_PAGES) )     // 32760 tiles
-#define NEWTILE_SIZE254       (NEWMAXTILES254*SINGLE_TILE_SIZE)  // 4193280 bytes (new packed format, 6 pages)
-
 
 #define COMBOS_PER_ROW      20
 
@@ -607,6 +600,7 @@ enum
 };
 
 // combo types
+//combo name strings come from defdata
 enum
 {
     cNONE, cSTAIR, cCAVE, cWATER, cARMOS, cGRAVE, cDOCK,
@@ -633,11 +627,15 @@ enum
     cSCREENFREEZE, cSCREENFREEZEFF, cNOGROUNDENEMY, cSLASHNEXT, cSLASHNEXTITEM, cBUSHNEXT,
     cSLASHTOUCHY, cSLASHITEMTOUCHY, cBUSHTOUCHY, cFLOWERSTOUCHY, cTALLGRASSTOUCHY,
     cSLASHNEXTTOUCHY, cSLASHNEXTITEMTOUCHY, cBUSHNEXTTOUCHY, cEYEBALL_4, cTALLGRASSNEXT,
-    cSCRIPT1, cSCRIPT2, cSCRIPT3, cSCRIPT4, cSCRIPT5, cMAX,
+    cSCRIPT1, cSCRIPT2, cSCRIPT3, cSCRIPT4, cSCRIPT5, 
+    cSCRIPT6, cSCRIPT7, cSRCIPT8, cSCRIPT9, cSCRIPT10, 
+    cSCRIPT11, cSCRIPT12, cSCRIPT13, cSCRIPT14, cSCRIPT15, 
+    cSCRIPT16, cSCRIPT17, cSRCIPT18, cSCRIPT19, cSCRIPT20, 
+    cMAX,
 //! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
     //146
-    cSCRIPT6, cSCRIPT7, cSRCIPT8, cSCRIPT9, cSCRIPT10, 
+    
     //
     //151
     cFIRELAVA1, cFIREFLAVA2, cFIRELAVA3, cFIRELAVA4, //fire or lava damage 
