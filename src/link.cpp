@@ -5139,13 +5139,20 @@ bool LinkClass::startwpn(int itemid)
             
         if(Lwpns.idCount(wBeam))
             Lwpns.del(Lwpns.idFirst(wBeam));
-            
-        int type = bookid != -1 ? current_item(itype_book) : itemsbuf[itemid].fam_type;
-        int pow = (bookid != -1 ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
+        
+	//This needs an ER -V
+        /*int type = bookid != -1 ? current_item(itype_book) : itemsbuf[itemid].fam_type;
+        int pow = (bookid != -1 ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;*/ 
+        int type = (bookid != -1 && paybook) ? current_item(itype_book) : itemsbuf[itemid].fam_type;
+        int pow = ((bookid != -1 && paybook) ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
         
         for(int i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
             if(dir!=(i^1))
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID()));
+	    {
+		weapon *magic = new weapon((fix)wx,(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID());
+		if(paybook)magic->miscellaneous[31] = bookid;
+                Lwpns.add(magic);
+	    }
                 
         paymagiccost(itemid);
         
