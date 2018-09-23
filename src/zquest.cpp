@@ -8788,7 +8788,7 @@ void ctype_help(int id)
         sprintf(buf1,"Identical to %s, but if slashing this combo",combotype_help_string[id*3]);
         jwin_alert(combo_class_buf[id].name,buf1,"changes it to another slash-affected combo,","then that combo will also change.","O&K",NULL,'k',0,lfont);
     }
-    else if(id >= cSCRIPT1 && id <= cSCRIPT5)
+    else if(( id >= cSCRIPT1 && id <= cSCRIPT5) || ( id >= cSCRIPT6 && id <= cSCRIPT20 ) )
     {
         jwin_alert(combo_class_buf[id].name,"This type has no built-in effect, but can be","given special significance with ZASM or ZScript.",NULL,"O&K",NULL,'k',0,lfont);
     }
