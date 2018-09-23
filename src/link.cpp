@@ -3197,7 +3197,7 @@ void LinkClass::checkhit()
 	int itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
         //if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Link
 	    //if ( itemsbuf[parentitem].misc1 > 0 ) //damages Link by this amount. 
-        if((!((itemid==-1&&get_bit(quest_rules,qr_FIREPROOFLINK)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3))) || get_bit(quest_rules,qr_FIREPROOFLINK)) && (scriptcoldet&1) && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
+        if((!(itemid==-1&&get_bit(quest_rules,qr_FIREPROOFLINK)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
         {
             if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
                         (itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
@@ -3851,7 +3851,7 @@ bool LinkClass::animate(int)
     if(do_cheat_light)
     {
         naturaldark = !naturaldark;
-        lighting(false, false);
+        lighting(false, false, pal_litOVERRIDE);//Forcibly set permLit, overriding it's current setting
         do_cheat_light = false;
     }
     
@@ -11325,6 +11325,7 @@ bool LinkClass::dowarp(int type, int index)
     
     case wtEXIT: // entrance/exit
     {
+		lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
         ALLOFF();
         music_stop();
         kill_sfx();

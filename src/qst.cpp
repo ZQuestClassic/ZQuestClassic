@@ -6416,6 +6416,13 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 		}
 	    }
 	    
+	    if( s_version < 39){
+		if(tempitem.family == itype_dinsfire || tempitem.family == itype_book){
+			if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
+			else tempitem.flags &= ~ITEM_FLAG5;
+		}
+	    }
+	    
             if(tempitem.fam_type==0)  // Always do this
                 tempitem.fam_type=1;
                 

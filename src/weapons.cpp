@@ -46,13 +46,15 @@ byte bszboomflip[4] = {0,2,3,1};
 
 //light up the screen if there is at least one "lit" weapon
 //otherwise darken the screen
-void checkLightSources()
+void checkLightSources(bool perm = false)
 {
+	int isPerm = 0;
+	if(perm)isPerm=3;
     for(int i=0; i<Lwpns.Count(); i++)
     {
         if(((weapon *)Lwpns.spr(i))->isLit)
         {
-            lighting(true);
+            lighting(true, false, isPerm);
             return;
         }
     }
@@ -61,12 +63,12 @@ void checkLightSources()
     {
         if(((weapon *)Ewpns.spr(i))->isLit)
         {
-            lighting(true);
+            lighting(true, false, isPerm);
             return;
         }
     }
     
-    lighting(false);
+    lighting(false,false,isPerm);
 }
 
 void getdraggeditem(int j)
@@ -2583,7 +2585,11 @@ bool weapon::animate(int)
                 if(parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG2))
                 {
                     isLit = true;
-                    checkLightSources();
+                    if((parentitem==-1&&get_bit(quest_rules,qr_TEMPCANDLELIGHT))||itemsbuf[parentitem].flags & ITEM_FLAG5){
+				checkLightSources();
+			} else {
+				checkLightSources(true);
+			}
                 }
             }
             
@@ -2591,8 +2597,8 @@ bool weapon::animate(int)
             {
                 dead=1;
                 
-                if((parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG2)) &&
-                   get_bit(quest_rules,qr_TEMPCANDLELIGHT) &&
+                if(((parentitem==-1 && get_bit(quest_rules,qr_TEMPCANDLELIGHT)) ||
+		   (parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG2)&&(itemsbuf[parentitem].flags & ITEM_FLAG5))) &&
                    (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
                 {
                     isLit = false;
@@ -2620,7 +2626,11 @@ bool weapon::animate(int)
             if(clk==1)
             {
                 isLit = true;
-                checkLightSources();
+                if(itemsbuf[parentitem].flags & ITEM_FLAG5){
+			checkLightSources();
+		} else {
+			checkLightSources(true);
+		}
             }
             
             if(clk==80)
@@ -2630,7 +2640,7 @@ bool weapon::animate(int)
                 findentrance(x,y,mfRCANDLE,true);
                 findentrance(x,y,mfWANDFIRE,true);
                 
-                if(get_bit(quest_rules,qr_TEMPCANDLELIGHT) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+                if(((parentitem==-1&&get_bit(quest_rules,qr_TEMPCANDLELIGHT))||(parentitem>-1&&(itemsbuf[parentitem].flags & ITEM_FLAG5))) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
                 {
                     isLit=false;
                     checkLightSources();
@@ -2639,7 +2649,7 @@ bool weapon::animate(int)
         }
         
         // Killed by script?
-        if(dead==0 && get_bit(quest_rules,qr_TEMPCANDLELIGHT) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+        if(dead==0 && ((parentitem==-1&&get_bit(quest_rules,qr_TEMPCANDLELIGHT))||(parentitem>0&&(itemsbuf[parentitem].flags & ITEM_FLAG5))) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
         {
             isLit=false;
             checkLightSources();
@@ -3704,7 +3714,11 @@ mirrors:
             step=0;
             misc = -1; // Don't drift diagonally anymore
             isLit=true;
-            checkLightSources();
+            if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)){
+			checkLightSources();
+		} else {
+			checkLightSources(true);
+		}
         }
         
         if(clk==126)
@@ -3739,7 +3753,11 @@ mirrors:
         {
             step=0;  //should already be 0, but still...
             isLit=true;
-            checkLightSources();
+            if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)){
+			checkLightSources();
+		} else {
+			checkLightSources(true);
+		}
         }
         
         if(clk==640)
