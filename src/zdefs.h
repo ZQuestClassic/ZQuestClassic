@@ -825,6 +825,10 @@ enum
     qr_BROKENSTATUES /* Compatibility */, qr_NOSCRIPTSDURINGSCROLL /* Not Implemented */, qr_ITEMPICKUPSETSBELOW /* Compatibility */,
     
     qr_NOGANONINTRO, //bugfix//
+    qr_MELEEMAGICCOST,
+    qr_OLDMIRRORCOMBOS,
+    qr_CHECKBOOKCOST,
+
     qr_MAX
 };
 
