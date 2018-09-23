@@ -2191,6 +2191,8 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             return qe_invalid;
         }
+	
+	ffcore.quest_format[vHeader] = version;
         
         if(!p_igetw(&dummy,f,true))
         {
@@ -15642,12 +15644,12 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
 	al_trace("Quest Section 'Weapons' is Version: %d\n", ffcore.quest_format[vWeaponSprites]);
 	al_trace("Quest Section 'Colors' is Version: %d\n", ffcore.quest_format[vColours]);
 	al_trace("Quest Section 'Icons' is Version: %d\n", ffcore.quest_format[vIcons]);
-	al_trace("Quest Section 'Gfx Pack' is Version: %d\n", ffcore.quest_format[vGfxPack]);
+	//al_trace("Quest Section 'Gfx Pack' is Version: %d; qst.cpp doesn't read this!\n", ffcore.quest_format[vGfxPack]);
 	al_trace("Quest Section 'InitData' is Version: %d\n", ffcore.quest_format[vInitData]);
 	al_trace("Quest Section 'Guys' is Version: %d\n", ffcore.quest_format[vGuys]);
 	al_trace("Quest Section 'MIDIs' is Version: %d\n", ffcore.quest_format[vMIDIs]);
 	al_trace("Quest Section 'Cheats' is Version: %d\n", ffcore.quest_format[vCheats]);
-	al_trace("Quest Section 'Save Format' is Version: %d\n", ffcore.quest_format[vSaveformat]);
+	//al_trace("Quest Section 'Save Format' is Version: %d; qst.cpp doesn't read this!\n", ffcore.quest_format[vSaveformat]);
 	al_trace("Quest Section 'Combo Aliases' is Version: %d\n", ffcore.quest_format[vComboAliases]);
 	al_trace("Quest Section 'Link Sprites' is Version: %d\n", ffcore.quest_format[vLinkSprites]);
 	al_trace("Quest Section 'Subscreen' is Version: %d\n", ffcore.quest_format[vSubscreen]);
