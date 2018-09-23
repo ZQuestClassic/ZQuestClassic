@@ -443,6 +443,7 @@ public:
 
 bool isRaftFlag(int flag);
 void do_lens();
+void do_210_lens();
 int touchcombo(int x,int y);
 extern bool did_secret;
 int selectWlevel(int d);

@@ -614,7 +614,7 @@ int  LinkClass::getAction() // Used by ZScript
     return action;
 }
 
-int  LinkClass::getAction2() // Used by ZScript new ffcore.actions
+int  LinkClass::getAction2() // Used by ZScript new FFCore.actions
 {
     if(spins > 0)
         return isspinning;
@@ -5968,48 +5968,55 @@ bool isRaftFlag(int flag)
 
 void do_lens()
 {
-	int wpnPressed = getWpnPressed(itype_lens);
-    int itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
-    //printf("Item ID read:%d\nLastLensID:%d\nlensid:%d\ngetWpnPressed:%d\ndefault:%d\n\n",itemid,Link.getLastLensID(),lensid,getWpnPressed(itype_lens),current_item_id(itype_lens));
-    if(itemid<0)
-        return;
-        
-    if(isWpnPressed(itype_lens) && !LinkItemClk() && !lensclk && checkmagiccost(itemid))
-    {
-        if(lensid<0)
-        {
-            lensid=itemid;
-	    if(itemsbuf[itemid].family == itype_lens)
-		Link.setLastLensID(itemid);
-            if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
-        }
-        
-        paymagiccost(itemid);
 	
-        if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
-        {
-            ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-            did_scriptl=true;
-        }
-        
-        lensclk = 12;
-    }
-    else
-    {
-        did_scriptl=false;
-        
-        if(lensid>-1 && !(isWpnPressed(itype_lens) && !LinkItemClk() && checkmagiccost(itemid)))
-        {
-            lensid=-1;
-            lensclk = 0;
-            
-            if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
-        }
-    }
+	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x250 )
+	{
+		int wpnPressed = getWpnPressed(itype_lens);
+	    int itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
+	    //printf("Item ID read:%d\nLastLensID:%d\nlensid:%d\ngetWpnPressed:%d\ndefault:%d\n\n",itemid,Link.getLastLensID(),lensid,getWpnPressed(itype_lens),current_item_id(itype_lens));
+	    if(itemid<0)
+		return;
+		
+	    if(isWpnPressed(itype_lens) && !LinkItemClk() && !lensclk && checkmagiccost(itemid))
+	    {
+		if(lensid<0)
+		{
+		    lensid=itemid;
+		    if(itemsbuf[itemid].family == itype_lens)
+			Link.setLastLensID(itemid);
+		    if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
+		}
+		
+		paymagiccost(itemid);
+		
+		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
+		{
+		    ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+		    did_scriptl=true;
+		}
+		
+		lensclk = 12;
+	    }
+	    else
+	    {
+		did_scriptl=false;
+		
+		if(lensid>-1 && !(isWpnPressed(itype_lens) && !LinkItemClk() && checkmagiccost(itemid)))
+		{
+		    lensid=-1;
+		    lensclk = 0;
+		    
+		    if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
+		}
+	    }
+	}
+	else //2.10 or earlier
+	{
+		do_210_lens();
+	}
 }
-
 //Add 2.10 version check to call this
-/*void do_lens()
+void do_210_lens()
 {
     int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
     
@@ -6047,7 +6054,7 @@ void do_lens()
             if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
         }
     }
-}*/
+}
 
 void LinkClass::do_hopping()
 {
