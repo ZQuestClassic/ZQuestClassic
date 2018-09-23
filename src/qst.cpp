@@ -36,7 +36,8 @@
 #include "sfx.h"
 #include "md5.h"
 #include "ffscript.h"
-FFScript ffcore;
+//FFScript FFCore;
+extern FFScript FFCore;
 //FFSCript   FFEngine;
 
 #ifdef _MSC_VER
@@ -1932,7 +1933,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
     cvs_MD5Context ctx;
     memset(temp_midi_flags, 0, MIDIFLAGS_SIZE);
     memset(&tempheader, 0, sizeof(tempheader));
-	memset(ffcore.quest_format, 0, sizeof(ffcore.quest_format));
+	memset(FFCore.quest_format, 0, sizeof(FFCore.quest_format));
 	
 	
     
@@ -1968,14 +1969,14 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vZelda] = tempheader.zelda_version;
+	FFCore.quest_format[vZelda] = tempheader.zelda_version;
         
         if(tempheader.zelda_version > ZELDA_VERSION)
         {
             return qe_version;
         }
 	
-	ffcore.quest_format[vZelda] = tempheader.zelda_version;
+	FFCore.quest_format[vZelda] = tempheader.zelda_version;
         
         if(strcmp(tempheader.id_str,QH_IDSTR))
         {
@@ -1997,7 +1998,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	ffcore.quest_format[qQuestNumber] = tempheader.quest_number;
+	FFCore.quest_format[qQuestNumber] = tempheader.quest_number;
         
         if(!pfread(&quest_rules[0],2,f,true))
         {
@@ -2009,7 +2010,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	ffcore.quest_format[qMapCount] = temp_map_count;
+	FFCore.quest_format[qMapCount] = temp_map_count;
         
         if(!p_getc(&tempheader.old_str_count,f,true))
         {
@@ -2102,7 +2103,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
 	    
-	    ffcore.quest_format[vBuild] = tempheader.build;
+	    FFCore.quest_format[vBuild] = tempheader.build;
             
             if(!p_getc(&tempheader.use_keyfile,f,true))
             {
@@ -2192,7 +2193,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vHeader] = version;
+	FFCore.quest_format[vHeader] = version;
         
         if(!p_igetw(&dummy,f,true))
         {
@@ -2211,7 +2212,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vZelda] = tempheader.zelda_version;
+	FFCore.quest_format[vZelda] = tempheader.zelda_version;
         
         //do some quick checking...
         if(tempheader.zelda_version > ZELDA_VERSION)
@@ -2234,7 +2235,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-        ffcore.quest_format[vBuild] = tempheader.build;
+        FFCore.quest_format[vBuild] = tempheader.build;
 	
         if(version<3)
         {
@@ -2271,21 +2272,21 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	ffcore.quest_format[qQuestNumber] = tempheader.quest_number;
+	FFCore.quest_format[qQuestNumber] = tempheader.quest_number;
         
         if(!pfread(tempheader.version,sizeof(tempheader.version),f,true))
         {
             return qe_invalid;
         }
 	
-	//ffcore.quest_format[qQuestVersion] = tempheader.version;
+	//FFCore.quest_format[qQuestVersion] = tempheader.version;
         //needs to be copied as char[9] or stored as a s.str
         if(!pfread(tempheader.minver,sizeof(tempheader.minver),f,true))
         {
             return qe_invalid;
         }
 	
-	//ffcore.quest_format[qMinQuestVersion] = tempheader.minver;
+	//FFCore.quest_format[qMinQuestVersion] = tempheader.minver;
         //needs to be copied as char[9] or stored as a s.str
         if(!pfread(tempheader.title,sizeof(tempheader.title),f,true))
         {
@@ -2373,7 +2374,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vRules] = s_version;
+	FFCore.quest_format[vRules] = s_version;
         
         if(!p_igetw(&dummy,f,true))
         {
@@ -2785,7 +2786,7 @@ int readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vStrings] = s_version;
+	FFCore.quest_format[vStrings] = s_version;
         
         if(!p_igetw(&s_cversion,f,true))
         {
@@ -3011,7 +3012,7 @@ int readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-        ffcore.quest_format[vDoors] = s_version;
+        FFCore.quest_format[vDoors] = s_version;
 	
         //al_trace("Door combo sets version %d\n", dummy_word);
         if(!p_igetw(&dummy_word,f,true))
@@ -3490,7 +3491,7 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vDMaps] = s_version;
+	FFCore.quest_format[vDMaps] = s_version;
         
         //al_trace("DMaps version %d\n", s_version);
         
@@ -3900,7 +3901,7 @@ int readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keep
         return qe_invalid;
     }
     
-    ffcore.quest_format[vColours] = s_version;
+    FFCore.quest_format[vColours] = s_version;
     
     al_trace("Misc Colours section version: %d\n", s_version);
     
@@ -4178,7 +4179,7 @@ int readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdata)
         return qe_invalid;
     }
     
-    ffcore.quest_format[vIcons] = s_version;
+    FFCore.quest_format[vIcons] = s_version;
     
     //al_trace("Game icons version %d\n", s_version);
     if(!p_igetw(&s_cversion,f,true))
@@ -4258,7 +4259,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vMisc] = s_version;
+	FFCore.quest_format[vMisc] = s_version;
         
         //al_trace("Misc. data version %d\n", s_version);
         if(!p_igetw(&s_cversion,f,true))
@@ -4938,7 +4939,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vItems] = s_version;
+	FFCore.quest_format[vItems] = s_version;
         
         //al_trace("Items version %d\n", s_version);
         if(!p_igetw(&s_cversion,f,true))
@@ -6519,7 +6520,7 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vWeaponSprites] = s_version;
+	FFCore.quest_format[vWeaponSprites] = s_version;
         
         //al_trace("Weapons version %d\n", s_version);
         if(!p_igetw(&s_cversion,f,true))
@@ -7324,7 +7325,7 @@ int readlinksprites(PACKFILE *f, zquestheader *Header, bool keepdata)
         return qe_invalid;
     }
     
-    ffcore.quest_format[vLinkSprites] = s_version;
+    FFCore.quest_format[vLinkSprites] = s_version;
     
     //al_trace("Link sprites version %d\n", s_version);
     if(!p_igetw(&s_cversion,f,true))
@@ -7352,7 +7353,7 @@ int readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
         return qe_invalid;
     }
     
-    ffcore.quest_format[vSubscreen] = s_version;
+    FFCore.quest_format[vSubscreen] = s_version;
     
     //al_trace("Subscreens version %d\n", s_version);
     if(!p_igetw(&s_cversion,f,true))
@@ -8373,7 +8374,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         return qe_invalid;
     }
     
-    ffcore.quest_format[vFFScript] = s_version;
+    FFCore.quest_format[vFFScript] = s_version;
     
     if(!p_igetw(&s_cversion,f,true))
     {
@@ -8756,7 +8757,7 @@ int readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
         return qe_invalid;
     }
     
-    ffcore.quest_format[vSFX] = s_version;
+    FFCore.quest_format[vSFX] = s_version;
     
     //al_trace("SFX version %d\n", s_version);
     if(!p_igetw(&s_cversion,f,true))
@@ -9036,7 +9037,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
         
-	ffcore.quest_format[vGuys] = guyversion;
+	FFCore.quest_format[vGuys] = guyversion;
 	
         //al_trace("Guys version %d\n", guyversion);
         if(!p_igetw(&dummy2,f,true))
@@ -11999,7 +12000,7 @@ int readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vMaps] = version;
+	FFCore.quest_format[vMaps] = version;
         
         //al_trace("Maps version %d\n", version);
         if(!p_igetw(&dummy,f,true))
@@ -12233,7 +12234,7 @@ int readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vCombos] = section_version;
+	FFCore.quest_format[vCombos] = section_version;
         
         //al_trace("Combos version %d\n", section_version);
         if(!p_igetw(&section_cversion,f,true))
@@ -12595,7 +12596,7 @@ int readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build
         return qe_invalid;
     }
     
-    ffcore.quest_format[vComboAliases] = sversion;
+    FFCore.quest_format[vComboAliases] = sversion;
     
     //al_trace("Combo aliases version %d\n", sversion);
     if(!p_igetw(&c_sversion,f,true))
@@ -12737,7 +12738,7 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vCSets] = s_version;
+	FFCore.quest_format[vCSets] = s_version;
         
         //al_trace("Color data version %d\n", s_version);
         if(!p_igetw(&dummy,f,true))
@@ -12958,7 +12959,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
                 return qe_invalid;
             }
             
-	    ffcore.quest_format[vTiles] = section_version;
+	    FFCore.quest_format[vTiles] = section_version;
 	    
             if(!p_igetw(&section_cversion,f,true))
             {
@@ -13196,7 +13197,7 @@ int readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *midis*
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vMIDIs] = section_version;
+	FFCore.quest_format[vMIDIs] = section_version;
         
         //al_trace("Tunes version %d\n", section_version);
         if(!p_igetw(&dummy2,f,true))
@@ -13362,7 +13363,7 @@ int readcheatcodes(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
         
-	ffcore.quest_format[vCheats] = s_version;
+	FFCore.quest_format[vCheats] = s_version;
         //al_trace("Cheats version %d\n", dummy);
         if(!p_igetw(&dummy,f,true))
         {
@@ -13459,7 +13460,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
         
-	ffcore.quest_format[vInitData] = s_version;
+	FFCore.quest_format[vInitData] = s_version;
 	
         //al_trace("Init data version %d\n", s_version);
         if(!p_igetw(&s_cversion,f,true))
@@ -14644,7 +14645,7 @@ int readitemdropsets(PACKFILE *f, int version, word build, bool keepdata)
             return qe_invalid;
         }
 	
-	ffcore.quest_format[vItemDropsets] = s_version;
+	FFCore.quest_format[vItemDropsets] = s_version;
         
         //al_trace("Item drop sets version %d\n", s_version);
         if(!p_igetw(&s_cversion,f,true))
@@ -14752,7 +14753,7 @@ int readfavorites(PACKFILE *f, int, word, bool keepdata)
         return qe_invalid;
     }
     
-    ffcore.quest_format[vFavourites] = s_version;
+    FFCore.quest_format[vFavourites] = s_version;
     
     if(!p_igetw(&s_cversion,f,true))
     {
@@ -15661,36 +15662,36 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         delete_file(deletefilename);
     }
     
-    //Debug ffcore.quest_format[]
-	al_trace("Quest made in ZC Version: %d\n", ffcore.quest_format[vZelda]);
-	al_trace("Quest made in ZC Build: %d\n", ffcore.quest_format[vBuild]);
-	al_trace("Quest Section 'Header' is Version: %d\n", ffcore.quest_format[vHeader]);
-	al_trace("Quest Section 'Rules' is Version: %d\n", ffcore.quest_format[vRules]);
-	al_trace("Quest Section 'Strings' is Version: %d\n", ffcore.quest_format[vStrings]);
-	al_trace("Quest Section 'Misc' is Version: %d\n", ffcore.quest_format[vMisc]);
-	al_trace("Quest Section 'Tiles' is Version: %d\n", ffcore.quest_format[vTiles]);
-	al_trace("Quest Section 'Combos' is Version: %d\n", ffcore.quest_format[vCombos]);
-	al_trace("Quest Section 'CSets' is Version: %d\n", ffcore.quest_format[vCSets]);
-	al_trace("Quest Section 'Maps' is Version: %d\n", ffcore.quest_format[vMaps]);
-	al_trace("Quest Section 'DMaps' is Version: %d\n", ffcore.quest_format[vDMaps]);
-	al_trace("Quest Section 'Doors' is Version: %d\n", ffcore.quest_format[vDoors]);
-	al_trace("Quest Section 'Items' is Version: %d\n", ffcore.quest_format[vItems]);
-	al_trace("Quest Section 'Weapons' is Version: %d\n", ffcore.quest_format[vWeaponSprites]);
-	al_trace("Quest Section 'Colors' is Version: %d\n", ffcore.quest_format[vColours]);
-	al_trace("Quest Section 'Icons' is Version: %d\n", ffcore.quest_format[vIcons]);
-	//al_trace("Quest Section 'Gfx Pack' is Version: %d; qst.cpp doesn't read this!\n", ffcore.quest_format[vGfxPack]);
-	al_trace("Quest Section 'InitData' is Version: %d\n", ffcore.quest_format[vInitData]);
-	al_trace("Quest Section 'Guys' is Version: %d\n", ffcore.quest_format[vGuys]);
-	al_trace("Quest Section 'MIDIs' is Version: %d\n", ffcore.quest_format[vMIDIs]);
-	al_trace("Quest Section 'Cheats' is Version: %d\n", ffcore.quest_format[vCheats]);
-	//al_trace("Quest Section 'Save Format' is Version: %d; qst.cpp doesn't read this!\n", ffcore.quest_format[vSaveformat]);
-	al_trace("Quest Section 'Combo Aliases' is Version: %d\n", ffcore.quest_format[vComboAliases]);
-	al_trace("Quest Section 'Link Sprites' is Version: %d\n", ffcore.quest_format[vLinkSprites]);
-	al_trace("Quest Section 'Subscreen' is Version: %d\n", ffcore.quest_format[vSubscreen]);
-	al_trace("Quest Section 'Dropsets' is Version: %d\n", ffcore.quest_format[vItemDropsets]);
-	al_trace("Quest Section 'FFScript' is Version: %d\n", ffcore.quest_format[vFFScript]);
-	al_trace("Quest Section 'SFX' is Version: %d\n", ffcore.quest_format[vSFX]);
-	al_trace("Quest Section 'Favorites' is Version: %d\n", ffcore.quest_format[vFavourites]);
+    //Debug FFCore.quest_format[]
+	al_trace("Quest made in ZC Version: %d\n", FFCore.quest_format[vZelda]);
+	al_trace("Quest made in ZC Build: %d\n", FFCore.quest_format[vBuild]);
+	al_trace("Quest Section 'Header' is Version: %d\n", FFCore.quest_format[vHeader]);
+	al_trace("Quest Section 'Rules' is Version: %d\n", FFCore.quest_format[vRules]);
+	al_trace("Quest Section 'Strings' is Version: %d\n", FFCore.quest_format[vStrings]);
+	al_trace("Quest Section 'Misc' is Version: %d\n", FFCore.quest_format[vMisc]);
+	al_trace("Quest Section 'Tiles' is Version: %d\n", FFCore.quest_format[vTiles]);
+	al_trace("Quest Section 'Combos' is Version: %d\n", FFCore.quest_format[vCombos]);
+	al_trace("Quest Section 'CSets' is Version: %d\n", FFCore.quest_format[vCSets]);
+	al_trace("Quest Section 'Maps' is Version: %d\n", FFCore.quest_format[vMaps]);
+	al_trace("Quest Section 'DMaps' is Version: %d\n", FFCore.quest_format[vDMaps]);
+	al_trace("Quest Section 'Doors' is Version: %d\n", FFCore.quest_format[vDoors]);
+	al_trace("Quest Section 'Items' is Version: %d\n", FFCore.quest_format[vItems]);
+	al_trace("Quest Section 'Weapons' is Version: %d\n", FFCore.quest_format[vWeaponSprites]);
+	al_trace("Quest Section 'Colors' is Version: %d\n", FFCore.quest_format[vColours]);
+	al_trace("Quest Section 'Icons' is Version: %d\n", FFCore.quest_format[vIcons]);
+	//al_trace("Quest Section 'Gfx Pack' is Version: %d; qst.cpp doesn't read this!\n", FFCore.quest_format[vGfxPack]);
+	al_trace("Quest Section 'InitData' is Version: %d\n", FFCore.quest_format[vInitData]);
+	al_trace("Quest Section 'Guys' is Version: %d\n", FFCore.quest_format[vGuys]);
+	al_trace("Quest Section 'MIDIs' is Version: %d\n", FFCore.quest_format[vMIDIs]);
+	al_trace("Quest Section 'Cheats' is Version: %d\n", FFCore.quest_format[vCheats]);
+	//al_trace("Quest Section 'Save Format' is Version: %d; qst.cpp doesn't read this!\n", FFCore.quest_format[vSaveformat]);
+	al_trace("Quest Section 'Combo Aliases' is Version: %d\n", FFCore.quest_format[vComboAliases]);
+	al_trace("Quest Section 'Link Sprites' is Version: %d\n", FFCore.quest_format[vLinkSprites]);
+	al_trace("Quest Section 'Subscreen' is Version: %d\n", FFCore.quest_format[vSubscreen]);
+	al_trace("Quest Section 'Dropsets' is Version: %d\n", FFCore.quest_format[vItemDropsets]);
+	al_trace("Quest Section 'FFScript' is Version: %d\n", FFCore.quest_format[vFFScript]);
+	al_trace("Quest Section 'SFX' is Version: %d\n", FFCore.quest_format[vSFX]);
+	al_trace("Quest Section 'Favorites' is Version: %d\n", FFCore.quest_format[vFavourites]);
     
     return qe_OK;
     
