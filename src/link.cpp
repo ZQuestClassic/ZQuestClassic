@@ -15251,30 +15251,65 @@ void LinkClass::StartRefill(int refillWhat)
         stop_sfx(WAV_ER);
         sfx(WAV_REFILL,128,true);
         refilling=refillWhat;
-        
-        if(refill_why>=0) // Item index
-        {
-            if((itemsbuf[refill_why].family==itype_potion)&&(!get_bit(quest_rules,qr_NONBUBBLEMEDICINE)))
-            {
-                swordclk=0;
-                
-                if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
-            }
-            
-            if((itemsbuf[refill_why].family==itype_triforcepiece)&&(!get_bit(quest_rules,qr_NONBUBBLETRIFORCE)))
-            {
-                swordclk=0;
-                
-                if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
-            }
-        }
-        else if((refill_why==REFILL_FAIRY)&&(!get_bit(quest_rules,qr_NONBUBBLEFAIRIES)))
-        {
-            swordclk=0;
-            
-            if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
-        }
+	if(FFCore.quest_format[vZelda] < 0x255)//use old behavior
+	{
+		Start250Refill(refillWhat);
+	}
+	else //use 2.55+ behavior
+	{
+		if(refill_why>=0) // Item index
+		{
+			if(itemsbuf[refill_why].family==itype_potion)
+			{
+				if(itemsbuf[refill_why].flags & ITEM_FLAG3)swordclk=0;
+				if(itemsbuf[refill_why].flags & ITEM_FLAG4)itemclk=0;
+			}
+			else if((itemsbuf[refill_why].family==itype_triforcepiece))
+			{
+				if(itemsbuf[refill_why].flags & ITEM_FLAG3)swordclk=0;
+				if(itemsbuf[refill_why].flags & ITEM_FLAG4)itemclk=0;
+			}
+		}
+		else if(refill_why==REFILL_FAIRY)
+		{
+			if(!get_bit(quest_rules,qr_NONBUBBLEFAIRIES))swordclk=0;
+			if(get_bit(quest_rules,qr_ITEMBUBBLE))itemclk=0;
+		}
+	}
     }
+}
+
+void LinkClass::Start250Refill(int refillWhat){
+	if(!refilling)
+	{
+		refillclk=21;
+		stop_sfx(WAV_ER);
+		sfx(WAV_REFILL,128,true);
+		refilling=refillWhat;
+		
+		if(refill_why>=0) // Item index
+		{
+			if((itemsbuf[refill_why].family==itype_potion)&&(!get_bit(quest_rules,qr_NONBUBBLEMEDICINE)))
+			{
+				swordclk=0;
+				
+				if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
+			}
+
+			if((itemsbuf[refill_why].family==itype_triforcepiece)&&(!get_bit(quest_rules,qr_NONBUBBLETRIFORCE)))
+			{
+				swordclk=0;
+				
+				if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
+			}
+		}
+		else if((refill_why==REFILL_FAIRY)&&(!get_bit(quest_rules,qr_NONBUBBLEFAIRIES)))
+			{
+			swordclk=0;
+			
+			if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
+		}
+	}
 }
 
 bool LinkClass::refill()

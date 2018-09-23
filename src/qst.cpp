@@ -6417,9 +6417,36 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 	    }
 	    
 	    if( s_version < 39){
-		if(tempitem.family == itype_dinsfire || tempitem.family == itype_book){
+		if(tempitem.family == itype_dinsfire || tempitem.family == itype_book)
+		{
 			if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
 			else tempitem.flags &= ~ITEM_FLAG5;
+		}
+		else if(tempitem.family == itype_potion)
+		{
+			if(get_bit(quest_rules,qr_NONBUBBLEMEDICINE))
+			{
+				tempitem.flags |= ITEM_FLAG3;
+				if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+				else tempitem.flags &= ~ITEM_FLAG4;
+			}
+			else
+			{
+				tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+			}
+		}
+		else if(tempitem.family == itype_triforcepiece)
+		{
+			if(get_bit(quest_rules,qr_NONBUBBLETRIFORCE))
+			{
+				tempitem.flags |= ITEM_FLAG3;
+				if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+				else tempitem.flags &= ~ITEM_FLAG4;
+			}
+			else
+			{
+				tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+			}
 		}
 	    }
 	    
