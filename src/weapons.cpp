@@ -2325,6 +2325,17 @@ bool weapon::animate(int)
             if(ignorecombo==(((int)checky&0xF0)+((int)checkx>>4)))
                 break;
                 
+		int posx, posy;
+		if(get_bit(quest_rules,qr_OLDMIRRORCOMBOS))//Replace this conditional with an ER; true if the ER is checked. This will use the old (glitchy) behavior for sword beams.
+		{
+			posx=x;
+			posy=y;
+		}
+		else
+		{
+			posx=checkx;
+			posy=checky;
+		}
             if(hitcombo(checkx,checky,cMIRROR))
             {
                 id = wRefBeam;
@@ -2337,8 +2348,8 @@ bool weapon::animate(int)
                     
                 ignoreLink=false;
                 ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                y=(int)y&0xF0;
-                x=(int)x&0xF0;
+                y=(int)posy&0xF0;
+                x=(int)posx&0xF0;
             }
             
             if(hitcombo(checkx,checky,cMIRRORSLASH))
@@ -2371,8 +2382,8 @@ bool weapon::animate(int)
                 
                 ignoreLink=false;
                 ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                y=(int)y&0xF0;
-                x=(int)x&0xF0;
+                y=(int)posy&0xF0;
+                x=(int)posx&0xF0;
             }
             
             if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
@@ -2405,15 +2416,15 @@ bool weapon::animate(int)
                 
                 ignoreLink=false;
                 ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                y=(int)y&0xF0;
-                x=(int)x&0xF0;
+                y=(int)posy&0xF0;
+                x=(int)posx&0xF0;
             }
             
             if(hitcombo(checkx,checky,cMAGICPRISM))
             {
                 int newx, newy;
-                newy=(int)y&0xF0;
-                newx=(int)x&0xF0;
+                newy=(int)posy&0xF0;
+                newx=(int)posx&0xF0;
                 
                 for(int tdir=0; tdir<4; tdir++)
                 {
@@ -2463,8 +2474,8 @@ bool weapon::animate(int)
             if(hitcombo(checkx,checky,cMAGICPRISM4))
             {
                 int newx, newy;
-                newy=(int)y&0xF0;
-                newx=(int)x&0xF0;
+                newy=(int)posy&0xF0;
+                newx=(int)posx&0xF0;
                 
                 for(int tdir=0; tdir<4; tdir++)
                 {
@@ -3330,14 +3341,34 @@ bool weapon::animate(int)
         if((id==wRefMagic)&&(findentrance(x,y,mfREFMAGIC,true))) dead=0;
         
         if((id!=ewMagic)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
-        
-        if((id==wMagic && current_item(itype_book) &&
-                itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
-        {
-            findentrance(x,y,mfBCANDLE,true);
-            findentrance(x,y,mfRCANDLE,true);
-            findentrance(x,y,mfWANDFIRE,true);
-        }
+	
+	    
+	
+       
+	//Create an ER to use this in older quests -V
+	if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
+	{
+		
+	
+		if((id==wMagic && current_item(itype_book) &&
+			itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+		{
+		    findentrance(x,y,mfBCANDLE,true);
+		    findentrance(x,y,mfRCANDLE,true);
+		    findentrance(x,y,mfWANDFIRE,true);
+		}
+	}
+	else
+	{
+		 if((id==wMagic && miscellaneous[31] && itemsbuf[miscellaneous[31]].family == itype_book &&
+                itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+		{
+		    findentrance(x,y,mfBCANDLE,true);
+		    findentrance(x,y,mfRCANDLE,true);
+		    findentrance(x,y,mfWANDFIRE,true);
+		}
+	}
+		
         
 mirrors:
         int checkx=0, checky=0;
@@ -4181,13 +4212,26 @@ offscreenCheck:
     case wMagic:
         dead=1; //remove the dead part to make the wand only die when clipped
         
-        if(((id==wMagic && current_item(itype_book) &&
-                (itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
-        {
-            Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
-            sfx(WAV_FIRE,pan(x));
+	if ( get_bit(quest_rules, qr_BROKENBOOKCOST) )
+	{
+	//Create an ER to sue this in older quests -V
+		//used a QR. -Z
+		if(((id==wMagic && current_item(itype_book) &&
+			(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+		{
+		    Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
+		    sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
+		}
+	}
+	else
+	{
+		if(((id==wMagic && miscellaneous[31] && itemsbuf[miscellaneous[31]].family==itype_book &&
+			(itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+		{
+		    Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,miscellaneous[31],-1));
+		    sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
+		}
         }
-        
         break;
         
     case ewWind:

@@ -8919,6 +8919,7 @@ bool eGanon::animate(int index)
         break;
         
     case 3:
+    {
         if(hclk>0)
             break;
             
@@ -8932,8 +8933,13 @@ bool eGanon::animate(int index)
         if(deadsfx>0) sfx(deadsfx,pan(int(x)));
         
         sfx(WAV_GANON);
-        items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
+	    //Ganon's dustpile; fall in sideview. -Z
+            item *dustpile = new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0);
+	    dustpile->miscellaneous[31] = eeGANON;
+            setmapflag();
+        //items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
         break;
+    }
         
     case 4:
         if(clk>=80)
@@ -14029,98 +14035,89 @@ void check_collisions()
                     break;
                 }
             }
-            
-            if(get_bit(quest_rules,qr_Z3BRANG_HSHOT))
-            {
-                if(w->id == wBrang || w->id==wHookshot)
-                {
-                    for(int j=0; j<items.Count(); j++)
-                    {
-                        if(items.spr(j)->hit(w))
-                        {
-                            bool priced = ((item*)items.spr(j))->PriceIndex >-1;
-                            
-                            if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
-                                    || (get_bit(quest_rules,qr_BRANGPICKUP) && !priced && !(((item*)items.spr(j))->pickup & ipDUMMY)))
-                            {
-                                if(w->id == wBrang)
-                                {
-                                    w->onhit(false);
-                                }
-                                
-                                if(w->dragging==-1)
-                                {
-                                    w->dead=1;
-                                    /*if (w->id==wBrang&&w->dummy_bool[0]&&(w->misc==1))
-                                    {
-                                      add_grenade(w->x,w->y,w->z,(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))>0,w->parentid);
-                                      w->dummy_bool[0]=false;
-                                    }*/
-                                    ((item*)items.spr(j))->clk2=256;
-                                    w->dragging=j;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if(w->id == wBrang || w->id == wArrow || w->id==wHookshot)
-                {
-                    for(int j=0; j<items.Count(); j++)
-                    {
-                        if(items.spr(j)->hit(w))
-                        {
-                            bool priced = ((item*)items.spr(j))->PriceIndex >-1;
-                            
-                            if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
-                                    || (get_bit(quest_rules,qr_BRANGPICKUP) && !priced))
-                            {
-                                if(itemsbuf[items.spr(j)->id].collect_script)
-                                {
-                                    ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, items.spr(j)->id & 0xFFF);
-                                }
-                                
-                                //getitem(items.spr(j)->id);
-                                //items.del(j);
-                                Link.checkitems(j);
-                                //--j;
-                            }
-                        }
-                    }
-                }
-            }
+	
+		// Item flags added in 2.55:
+		// BRang/HShot/Arrows ITEM_FLAG4 is "Pick up anything" (port of qr_BRANGPICKUP)
+		// BRang/HShot ITEM_FLAG5 is "Drags Items" (port of qr_Z3BRANG_HSHOT)
+		// Arrows ITEM_FLAG2 is "Picks up items" (inverse port of qr_Z3BRANG_HSHOT)
+		// -V
+		if(w->id == wBrang || w->id == wHookshot || w->id == wArrow)
+		{
+			if((w->id==wArrow&&itemsbuf[w->parentitem].flags & ITEM_FLAG2)||(w->id!=wArrow&&!(itemsbuf[w->parentitem].flags & ITEM_FLAG5)))//An arrow with "Picks up items" or a BRang/HShot without "Drags items"
+			{
+				for(int j=0; j<items.Count(); j++)
+				{
+					if(items.spr(j)->hit(w))
+					{
+						item *theItem = ((item*)items.spr(j));
+						bool priced = theItem->PriceIndex >-1;
+						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
+						if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey))&& !priced))
+						{
+							if(itemsbuf[items.spr(j)->id].collect_script)
+							{
+								ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, items.spr(j)->id & 0xFFF);
+							}
+							
+							Link.checkitems(j);
+						}
+					}
+				}
+			} else if(w->id!=wArrow){//A BRang/HShot with "Drags Items"
+				for(int j=0; j<items.Count(); j++)
+				{
+					if(items.spr(j)->hit(w))
+					{
+						item *theItem = ((item*)items.spr(j));
+						bool priced = theItem->PriceIndex >-1;
+						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
+						if((((item*)items.spr(j))->pickup & ipTIMER && ((item*)items.spr(j))->clk2 >= 32)
+							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(((item*)items.spr(j))->pickup & ipDUMMY)))
+						{
+							if(w->id == wBrang)
+							{
+								w->onhit(false);
+							}
+
+							if(w->dragging==-1)
+							{
+								w->dead=1;
+								((item*)items.spr(j))->clk2=256;
+								w->dragging=j;
+							}
+						}
+					}
+				}
+			}
+		}
         }
     }
 }
 
 void dragging_item()
 {
-    if(get_bit(quest_rules,qr_Z3BRANG_HSHOT))
-    {
-        for(int i=0; i<Lwpns.Count(); i++)
-        {
-            weapon *w = (weapon*)Lwpns.spr(i);
-            
-            if(w->id == wBrang || w->id==wHookshot)
-            {
-                if(w->dragging>=0 && w->dragging<items.Count())
-                {
-                    items.spr(w->dragging)->x=w->x;
-                    items.spr(w->dragging)->y=w->y;
-                    
-                    // Drag the Fairy enemy as well as the Fairy item
-                    int id = items.spr(w->dragging)->id;
-                    
-                    if(itemsbuf[id].family ==itype_fairy && itemsbuf[id].misc3)
-                    {
-                        movefairy2(w->x,w->y,items.spr(w->dragging)->misc);
-                    }
-                }
-            }
-        }
-    }
+	for(int i=0; i<Lwpns.Count(); i++)
+	{
+		weapon *w = (weapon*)Lwpns.spr(i);
+		
+		if((w->id == wBrang || w->id==wHookshot)&&itemsbuf[w->parentitem].flags & ITEM_FLAG5)//ITEM_FLAG5 is a port for qr_Z3BRANG_HSHOT
+		{
+			if(w->dragging>=0 && w->dragging<items.Count())
+			{
+				items.spr(w->dragging)->x=w->x;
+				items.spr(w->dragging)->y=w->y;
+				
+				// Drag the Fairy enemy as well as the Fairy item
+				int id = items.spr(w->dragging)->id;
+				
+				if(itemsbuf[id].family ==itype_fairy && itemsbuf[id].misc3)
+				{
+					movefairy2(w->x,w->y,items.spr(w->dragging)->misc);
+				}
+			}
+		}
+	}
 }
 
 int more_carried_items()

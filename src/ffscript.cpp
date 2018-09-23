@@ -16384,3 +16384,8 @@ void FFScript::init()
 	for ( int q = 0; q < NUM_USER_MIDI_OVERRIDES; q++ ) FF_UserMidis[q] = 0;
 }
 */
+
+long FFScript::getQuestHeaderInfo(int type)
+{
+    return quest_format[type];
+}

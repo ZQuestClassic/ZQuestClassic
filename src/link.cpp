@@ -614,7 +614,7 @@ int  LinkClass::getAction() // Used by ZScript
     return action;
 }
 
-int  LinkClass::getAction2() // Used by ZScript new ffcore.actions
+int  LinkClass::getAction2() // Used by ZScript new FFCore.actions
 {
     if(spins > 0)
         return isspinning;
@@ -3237,7 +3237,7 @@ void LinkClass::checkhit()
         
         //   check enemy weapons true, 1, -1
         //
-        if(get_bit(quest_rules,qr_Z3BRANG_HSHOT))
+        if(itemsbuf[itemid].flags & ITEM_FLAG6)
         {
             if(s->id==wBrang || s->id==wHookshot)
             {
@@ -5139,13 +5139,30 @@ bool LinkClass::startwpn(int itemid)
             
         if(Lwpns.idCount(wBeam))
             Lwpns.del(Lwpns.idFirst(wBeam));
-            
-        int type = bookid != -1 ? current_item(itype_book) : itemsbuf[itemid].fam_type;
-        int pow = (bookid != -1 ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
         
+	//This needs an ER -V
+	//Patched with QRs
+	int type, pow;
+	if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
+	{
+		type = bookid != -1 ? current_item(itype_book) : itemsbuf[itemid].fam_type;
+		pow = (bookid != -1 ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
+	}
+	else
+	{
+		//@Venrob:
+		//Wait, so, why are you using current_item(itype_book) and not itemsbuf[bookid].whatever? 
+		//There is an actual field on the magic book and/or wand for the damage modification!! -Z
+		type = (bookid != -1 && paybook) ? current_item(itype_book) : itemsbuf[itemid].fam_type;
+		pow = ((bookid != -1 && paybook) ? current_item_power(itype_book) : itemsbuf[itemid].power)*DAMAGE_MULTIPLIER;
+	}
         for(int i=(spins==1?up:dir); i<=(spins==1 ? right:dir); i++)
             if(dir!=(i^1))
-                Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID()));
+	    {
+		weapon *magic = new weapon((fix)wx,(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID());
+		if(paybook)magic->miscellaneous[31] = bookid;
+                Lwpns.add(magic);
+	    }
                 
         paymagiccost(itemid);
         
@@ -5968,48 +5985,55 @@ bool isRaftFlag(int flag)
 
 void do_lens()
 {
-	int wpnPressed = getWpnPressed(itype_lens);
-    int itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
-    //printf("Item ID read:%d\nLastLensID:%d\nlensid:%d\ngetWpnPressed:%d\ndefault:%d\n\n",itemid,Link.getLastLensID(),lensid,getWpnPressed(itype_lens),current_item_id(itype_lens));
-    if(itemid<0)
-        return;
-        
-    if(isWpnPressed(itype_lens) && !LinkItemClk() && !lensclk && checkmagiccost(itemid))
-    {
-        if(lensid<0)
-        {
-            lensid=itemid;
-	    if(itemsbuf[itemid].family == itype_lens)
-		Link.setLastLensID(itemid);
-            if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
-        }
-        
-        paymagiccost(itemid);
 	
-        if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
-        {
-            ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-            did_scriptl=true;
-        }
-        
-        lensclk = 12;
-    }
-    else
-    {
-        did_scriptl=false;
-        
-        if(lensid>-1 && !(isWpnPressed(itype_lens) && !LinkItemClk() && checkmagiccost(itemid)))
-        {
-            lensid=-1;
-            lensclk = 0;
-            
-            if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
-        }
-    }
+	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x250 )
+	{
+		int wpnPressed = getWpnPressed(itype_lens);
+	    int itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
+	    //printf("Item ID read:%d\nLastLensID:%d\nlensid:%d\ngetWpnPressed:%d\ndefault:%d\n\n",itemid,Link.getLastLensID(),lensid,getWpnPressed(itype_lens),current_item_id(itype_lens));
+	    if(itemid<0)
+		return;
+		
+	    if(isWpnPressed(itype_lens) && !LinkItemClk() && !lensclk && checkmagiccost(itemid))
+	    {
+		if(lensid<0)
+		{
+		    lensid=itemid;
+		    if(itemsbuf[itemid].family == itype_lens)
+			Link.setLastLensID(itemid);
+		    if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
+		}
+		
+		paymagiccost(itemid);
+		
+		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
+		{
+		    ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+		    did_scriptl=true;
+		}
+		
+		lensclk = 12;
+	    }
+	    else
+	    {
+		did_scriptl=false;
+		
+		if(lensid>-1 && !(isWpnPressed(itype_lens) && !LinkItemClk() && checkmagiccost(itemid)))
+		{
+		    lensid=-1;
+		    lensclk = 0;
+		    
+		    if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
+		}
+	    }
+	}
+	else //2.10 or earlier
+	{
+		do_210_lens();
+	}
 }
-
 //Add 2.10 version check to call this
-/*void do_lens()
+void do_210_lens()
 {
     int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
     
@@ -6047,7 +6071,7 @@ void do_lens()
             if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
         }
     }
-}*/
+}
 
 void LinkClass::do_hopping()
 {
@@ -6564,7 +6588,7 @@ void LinkClass::movelink()
     if(can_attack() && (directWpn>-1 ? itemsbuf[directWpn].family==itype_sword : current_item(itype_sword)) && swordclk==0 && btnwpn==itype_sword && charging==0)
     {
 	attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
-	if(checkmagiccost(attackid) || (get_bit(extra_rules, er_MAGICCOSTSWORD) == 0) )
+	if(checkmagiccost(attackid) || (get_bit(quest_rules, qr_MELEEMAGICCOST) == 0) ) //what about wands and canes?
 		//2.50.2 quests may have had a magic cost only on sword beams. Need to add this to the Item Editor in 2.54+ 
 		//as a flag on sword class items (Beams Use Magic, Sword Blade Uses Magic)
 	{
@@ -15980,6 +16004,11 @@ void LinkClass::ganon_intro()
     }
     
     dir=down;
+    if ( !isSideview() )
+    {
+	fall = 0; //Fix midair glitch on holding triforce. -Z
+	z = 0;
+    }
     action=landhold2; FFCore.setLinkAction(landhold2);
     holditem=getItemID(itemsbuf,itype_triforcepiece, 1);
     //not good, as this only returns the highest level that Link possesses. -DD
