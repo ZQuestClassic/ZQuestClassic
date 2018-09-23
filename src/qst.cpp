@@ -13326,6 +13326,7 @@ int readcheatcodes(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
         
+	ffcore.quest_format[vCheats] = s_version;
         //al_trace("Cheats version %d\n", dummy);
         if(!p_igetw(&dummy,f,true))
         {
