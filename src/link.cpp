@@ -2166,7 +2166,8 @@ void LinkClass::checkstab()
             check_wand_block(wx+wxsz-8,y+8);
         }
     }
-    else if((attack==wHammer) && (attackclk==15))
+    //else if((attack==wHammer) && (attackclk==15))
+    else if((attack==wHammer) && (attackclk>=15)) //>= instead of == for time it takes to charge up hammer with quake scrolls.
     {
         // poundable blocks
         for(int q=0; q<176; q++)
