@@ -1860,6 +1860,10 @@ void LinkClass::checkstab()
             
             if(attackclk==12 && z==0 && sideviewhammerpound())
             {
+		decorations.add(new dHammerSmack((fix)wx, (fix)wy, dHAMMERSMACK, 0));
+                   
+		/* The hammer smack sprites weren't being positioned properly if Link changed directions on the same frame that they are created.
+		
                 switch(dir)
                 {
                 case up:
@@ -1878,6 +1882,7 @@ void LinkClass::checkstab()
                     decorations.add(new dHammerSmack(x+21, y+14, dHAMMERSMACK, 0));
                     break;
                 }
+		*/
             }
             
             return;
