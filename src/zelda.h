@@ -413,7 +413,7 @@ extern void throttleFPS();
 
 // quest file data
 extern zquestheader QHeader;
-extern byte                quest_rules[QUESTRULES_SIZE];
+extern byte                quest_rules[QUESTRULES_NEW_SIZE];
 extern byte                extra_rules[EXTRARULES_SIZE];
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];

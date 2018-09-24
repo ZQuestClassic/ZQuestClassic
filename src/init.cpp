@@ -47,7 +47,7 @@ extern FONT *lfont;
 extern FONT *pfont;
 extern dmap *DMaps;
 extern itemdata *itemsbuf;
-extern byte quest_rules[20];
+extern byte quest_rules[QUESTRULES_NEW_SIZE];
 extern char *item_string[];
 
 void initPopulate(int &i, DIALOG_PROC proc, int x, int y, int w, int h, int fg, int bg, int key, int flags, int d1, int d2,

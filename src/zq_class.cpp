@@ -6207,7 +6207,7 @@ int writerules(PACKFILE *f, zquestheader *Header)
         writesize=0;
         
         //finally...  section data
-        if(!pfwrite(quest_rules,QUESTRULES_SIZE,f))
+        if(!pfwrite(quest_rules,QUESTRULES_NEW_SIZE,f))
         {
             new_return(5);
         }

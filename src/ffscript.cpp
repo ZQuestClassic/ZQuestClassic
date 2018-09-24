@@ -16205,15 +16205,15 @@ void FFScript::do_typedpointer_typecast(const bool v)
 
 void FFScript::setFFRules()
 {
-	for ( int q = 0; q < QUESTRULES_SIZE; q++ )
+	for ( int q = 0; q < QUESTRULES_NEW_SIZE; q++ )
 	{
 		FF_rules[q] = getQRBit(q);
 	}
-	for ( int q = QUESTRULES_SIZE; q < QUESTRULES_SIZE+EXTRARULES_SIZE; q++ ) 
+	for ( int q = QUESTRULES_NEW_SIZE; q < QUESTRULES_NEW_SIZE+EXTRARULES_SIZE; q++ ) 
 	{
 		FF_rules[q] = extra_rules[q-QUESTRULES_SIZE];
 	}
-	for ( int q = QUESTRULES_SIZE+EXTRARULES_SIZE; q < FFRULES_SIZE; q++ )
+	for ( int q = QUESTRULES_NEW_SIZE+EXTRARULES_SIZE; q < FFRULES_SIZE; q++ )
 	{
 		FF_rules[q] = 0; //wipe the rest.
 	}

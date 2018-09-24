@@ -2387,11 +2387,23 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
         
-        //finally...  section data
-        if(!pfread(quest_rules,QUESTRULES_SIZE,f,true))
-        {
-            return qe_invalid;
-        }
+	if ( s_version < 15 )
+	{
+		//finally...  section data
+		if(!pfread(quest_rules,QUESTRULES_SIZE,f,true))
+		{
+		    return qe_invalid;
+		}
+	}
+	else
+	{
+		
+		if(!pfread(quest_rules,QUESTRULES_NEW_SIZE,f,true))
+		{
+		    return qe_invalid;
+		}
+		
+	}
     }
     
     //al_trace("Rules version %d\n", s_version);
@@ -2579,6 +2591,7 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     
     // Not entirely sure this is the best place for this...
+    //2.50.2 bitmap offset fix
     memset(extra_rules, 0, EXTRARULES_SIZE);
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
     {

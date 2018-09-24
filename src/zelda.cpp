@@ -477,7 +477,7 @@ int idle_count, active_count;
 
 // quest file data
 zquestheader QHeader;
-byte                quest_rules[QUESTRULES_SIZE];
+byte                quest_rules[QUESTRULES_NEW_SIZE];
 byte                extra_rules[EXTRARULES_SIZE];
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];

@@ -170,7 +170,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 
 //Version number of the different section types
 #define V_HEADER           3
-#define V_RULES           14
+#define V_RULES           15
 #define V_STRINGS          6
 #define V_MISC             10
 #define V_TILES            2 //2 is a long, max 214500 tiles (ZScript upper limit)
@@ -755,6 +755,7 @@ enum
 //	otherwise hardcoded sounds, and use these instead of hardcoded SFX if they are set somehow. 
 
 #define QUESTRULES_SIZE 20
+#define QUESTRULES_NEW_SIZE 100
 #define EXTRARULES_SIZE 1
 
 // "quest rules" flags (bit numbers in bit string)

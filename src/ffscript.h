@@ -23,7 +23,7 @@
 
 #define MIN_INTERNAL_BITMAP -1 //RT_SCREEN
 #define MAX_INTERNAL_BITMAP 6 //RT_BITMAP6
-#define FFRULES_SIZE 512
+#define FFRULES_SIZE 1024
 
 //unum FFCoreFlags[] { 
 enum {
@@ -101,7 +101,7 @@ long quest_format[versiontypesLAST];
 long coreflags;
 long script_UIDs[UID_TYPES];
 long usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
-#define FFRULES_SIZE 512
+
 byte FF_rules[FFRULES_SIZE]; //For Migration of Quest Rules, and Scritp Engine Rules
 long FF_link_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
 byte FF_link_action; //This way, we can make safe replicas of internal Link actions to be set by script. 
