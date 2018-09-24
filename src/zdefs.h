@@ -179,7 +179,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            19
 #define V_DMAPS            11
 #define V_DOORS            1
-#define V_ITEMS           38
+#define V_ITEMS           39
 #define V_WEAPONS          7
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -855,6 +855,9 @@ const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_u
 // refill stuff
 enum { REFILL_NONE, REFILL_FAIRYDONE, REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
 #define REFILL_FAIRY -1
+
+// 2.55 lighting stuff
+enum { pal_litDEFAULT, pal_litOVERRIDE, pal_litRESET, pal_litSET, pal_litRESETONLY };
 
 //Z-axis related
 #define FEATHERJUMP 80

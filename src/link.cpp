@@ -3197,7 +3197,7 @@ void LinkClass::checkhit()
 	int itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
         //if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Link
 	    //if ( itemsbuf[parentitem].misc1 > 0 ) //damages Link by this amount. 
-        if((!((itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)) || get_bit(quest_rules,qr_FIREPROOFLINK)) && (scriptcoldet&1) && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
+        if((!(itemid==-1&&get_bit(quest_rules,qr_FIREPROOFLINK)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
         {
             if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
                         (itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
@@ -3346,7 +3346,7 @@ killweapon:
             }
         }
         
-        if(get_bit(quest_rules,qr_OUCHBOMBS) || (itemsbuf[itemid].flags & ITEM_FLAG2))
+        if((itemsbuf[itemid].flags & ITEM_FLAG2)||(itemid==-1&&get_bit(quest_rules,qr_OUCHBOMBS)))
         {
             //     if(((s->id==wBomb)||(s->id==wSBomb)) && (superman ? s->hit(x+7,y+7,z,2,2,1) : s->hit(this)))
             if(((s->id==wBomb)||(s->id==wSBomb)) && s->hit(this) && !superman && (scriptcoldet&1))
@@ -3851,7 +3851,7 @@ bool LinkClass::animate(int)
     if(do_cheat_light)
     {
         naturaldark = !naturaldark;
-        lighting(false, false);
+        lighting(false, false, pal_litOVERRIDE);//Forcibly set permLit, overriding it's current setting
         do_cheat_light = false;
     }
     
@@ -11325,6 +11325,7 @@ bool LinkClass::dowarp(int type, int index)
     
     case wtEXIT: // entrance/exit
     {
+		lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
         ALLOFF();
         music_stop();
         kill_sfx();
@@ -15250,30 +15251,65 @@ void LinkClass::StartRefill(int refillWhat)
         stop_sfx(WAV_ER);
         sfx(WAV_REFILL,128,true);
         refilling=refillWhat;
-        
-        if(refill_why>=0) // Item index
-        {
-            if((itemsbuf[refill_why].family==itype_potion)&&(!get_bit(quest_rules,qr_NONBUBBLEMEDICINE)))
-            {
-                swordclk=0;
-                
-                if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
-            }
-            
-            if((itemsbuf[refill_why].family==itype_triforcepiece)&&(!get_bit(quest_rules,qr_NONBUBBLETRIFORCE)))
-            {
-                swordclk=0;
-                
-                if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
-            }
-        }
-        else if((refill_why==REFILL_FAIRY)&&(!get_bit(quest_rules,qr_NONBUBBLEFAIRIES)))
-        {
-            swordclk=0;
-            
-            if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
-        }
+	if(FFCore.quest_format[vZelda] < 0x255)//use old behavior
+	{
+		Start250Refill(refillWhat);
+	}
+	else //use 2.55+ behavior
+	{
+		if(refill_why>=0) // Item index
+		{
+			if(itemsbuf[refill_why].family==itype_potion)
+			{
+				if(itemsbuf[refill_why].flags & ITEM_FLAG3)swordclk=0;
+				if(itemsbuf[refill_why].flags & ITEM_FLAG4)itemclk=0;
+			}
+			else if((itemsbuf[refill_why].family==itype_triforcepiece))
+			{
+				if(itemsbuf[refill_why].flags & ITEM_FLAG3)swordclk=0;
+				if(itemsbuf[refill_why].flags & ITEM_FLAG4)itemclk=0;
+			}
+		}
+		else if(refill_why==REFILL_FAIRY)
+		{
+			if(!get_bit(quest_rules,qr_NONBUBBLEFAIRIES))swordclk=0;
+			if(get_bit(quest_rules,qr_ITEMBUBBLE))itemclk=0;
+		}
+	}
     }
+}
+
+void LinkClass::Start250Refill(int refillWhat){
+	if(!refilling)
+	{
+		refillclk=21;
+		stop_sfx(WAV_ER);
+		sfx(WAV_REFILL,128,true);
+		refilling=refillWhat;
+		
+		if(refill_why>=0) // Item index
+		{
+			if((itemsbuf[refill_why].family==itype_potion)&&(!get_bit(quest_rules,qr_NONBUBBLEMEDICINE)))
+			{
+				swordclk=0;
+				
+				if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
+			}
+
+			if((itemsbuf[refill_why].family==itype_triforcepiece)&&(!get_bit(quest_rules,qr_NONBUBBLETRIFORCE)))
+			{
+				swordclk=0;
+				
+				if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
+			}
+		}
+		else if((refill_why==REFILL_FAIRY)&&(!get_bit(quest_rules,qr_NONBUBBLEFAIRIES)))
+			{
+			swordclk=0;
+			
+			if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
+		}
+	}
 }
 
 bool LinkClass::refill()

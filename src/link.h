@@ -300,6 +300,7 @@ private:
     void checkstab();
     void fairycircle(int type);
     void StartRefill(int refillWhat);
+    void Start250Refill(int refillWhat);
     int  EwpnHit();
     int  LwpnHit();
     void gameover();
