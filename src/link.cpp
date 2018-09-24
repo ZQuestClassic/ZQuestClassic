@@ -13373,6 +13373,7 @@ bool checkmagiccost(int itemid)
     }
     else if(itemsbuf[itemid].flags & ITEM_RUPEE_MAGIC)
     {
+	if (current_item_power(itype_wallet)) return true; //Infinite wallet.
         return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
     }
     else if(get_bit(quest_rules,qr_ENABLEMAGIC))
@@ -13395,6 +13396,7 @@ void paymagiccost(int itemid)
         
     if(itemsbuf[itemid].flags & ITEM_RUPEE_MAGIC)
     {
+	if (current_item_power(itype_wallet)) return; //Infinite wallet.
         game->change_drupy(-itemsbuf[itemid].magic);
         return;
     }
