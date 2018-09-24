@@ -13938,8 +13938,11 @@ bool checkmagiccost(int itemid)
     switch (itemsbuf[itemid].cost_counter )
     {
 	case 1: //rupees
+	{
+		if ( current_item_power(itype_wallet) ) return true;
 		return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
 		break;
+	}
 	case 4: //magic
 	{
 		if (get_bit(quest_rules,qr_ENABLEMAGIC))
@@ -13986,6 +13989,7 @@ void paymagiccost(int itemid)
         
     if(itemsbuf[itemid].cost_counter == 1) //rupees
     {
+	if ( current_item_power(itype_wallet) ) return;
 	if ( itemsbuf[itemid].magiccosttimer > 0 ) 
 	{
 		//get_counter
