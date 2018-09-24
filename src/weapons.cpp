@@ -893,6 +893,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
             
         case left:
+	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -927,6 +928,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
             
         case left:
+	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -1010,6 +1012,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
             
         case left:
+	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -1047,6 +1050,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
             
         case left:
+	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -1085,6 +1089,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
             
         case left:
+	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
