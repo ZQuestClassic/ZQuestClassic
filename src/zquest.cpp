@@ -19633,6 +19633,7 @@ int onImportGScript()
     return D_O_K;
 }
 
+//FFC Editor FFC_Editor
 int onEditFFCombo(int ffcombo)
 {
     char xystring[8][10];
