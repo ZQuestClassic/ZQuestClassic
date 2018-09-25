@@ -234,6 +234,8 @@ class LinkClass : public sprite
     bool diagonalMovement;
     bool bigHitbox;
     
+	int last_lens_id;// The item ID of the last Lens of Truth type item used
+	
     // Methods below here.
     void movelink();
     void move(int d);
@@ -398,10 +400,14 @@ public:
     bool ffpit;
     void setscriptnohit(bool);
     bool getscriptnohit();
+	
+	int getLastLensID();	
+	void setLastLensID(int p_item);
 };
 
 bool isRaftFlag(int flag);
 void do_lens();
+void do_210_lens();
 int touchcombo(int x,int y);
 extern bool did_secret;
 int selectWlevel(int d);
@@ -427,6 +433,7 @@ const int SEL_VERIFY_LEFT = 4;
 const int SEL_VERIFY_RIGHT = 5;
 int selectWpn_new(int type, int startpos, int forbiddenpos = -1);
 bool isWpnPressed(int wpn);
+int getWpnPressed(int wpn);
 int selectSword();
 void selectNextAWpn(int type);
 void selectNextBWpn(int type);
