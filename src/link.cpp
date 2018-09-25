@@ -3836,6 +3836,25 @@ void LinkClass::addsparkle2(int type1, int type2)
                          Lwpns.spr(arrow)->z, wPhantom, type2,0,0,((weapon*)Lwpns.spr(arrow))->parentitem,-1));
 }
 
+//cleans up decorations that exit the bounds of the screen for a long time, to prevebt them wrapping around.
+void LinkClass::PhantomsCleanup()
+{
+	if(Lwpns.idCount(wPhantom))
+	{
+		for(int i=0; i<Lwpns.Count(); i++)
+		{
+			weapon *w = ((weapon *)Lwpns.spr(i));
+			if ( w->id == wPhantom && !w->isScriptGenerated() )
+			{
+				if ( w->x < -10000 || w->y > 10000 || w->x < -10000 || w->y > 10000 )
+				{
+					Lwpns.remove(w);
+				}				
+			}
+		}	
+	}
+}
+
 // returns true when game over
 bool LinkClass::animate(int)
 {
@@ -4845,6 +4864,8 @@ bool LinkClass::animate(int)
     checkstab();
     
     check_conveyor();
+    PhantomsCleanup();
+    
     return false;
 }
 
@@ -16127,7 +16148,7 @@ void LinkClass::ganon_intro()
         playLevelMusic();
         
     currcset=DMaps[currdmap].color;
-    if ( get_bit(quest_rules, qr_NOGANONINTRO) == 0) 
+    if ( !get_bit(quest_rules, qr_NOGANONINTRO) ) 
     {
 	    dointro();
     }

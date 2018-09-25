@@ -315,6 +315,7 @@ private:
     int ringpower(int dmg);
     void addsparkle(int wpn);
     void addsparkle2(int type1, int type2);
+    void PhantomsCleanup();
     
 public:
 
