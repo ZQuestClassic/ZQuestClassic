@@ -44,7 +44,12 @@ bool item::animate(int)
     {
         if(is_side_view())
         {
-            if(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
+            if
+	    (
+		(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
+		||
+		(can_drop(x,y) && ipDUMMY && miscellaneous[15] == eeGANON )
+	    )
             {
                 y+=fall/100;
                 

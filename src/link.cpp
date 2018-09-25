@@ -1860,6 +1860,10 @@ void LinkClass::checkstab()
             
             if(attackclk==12 && z==0 && sideviewhammerpound())
             {
+		decorations.add(new dHammerSmack((fix)wx, (fix)wy, dHAMMERSMACK, 0));
+                   
+		/* The hammer smack sprites weren't being positioned properly if Link changed directions on the same frame that they are created.
+		
                 switch(dir)
                 {
                 case up:
@@ -1878,6 +1882,7 @@ void LinkClass::checkstab()
                     decorations.add(new dHammerSmack(x+21, y+14, dHAMMERSMACK, 0));
                     break;
                 }
+		*/
             }
             
             return;
@@ -2161,7 +2166,8 @@ void LinkClass::checkstab()
             check_wand_block(wx+wxsz-8,y+8);
         }
     }
-    else if((attack==wHammer) && (attackclk==15))
+    //else if((attack==wHammer) && (attackclk==15))
+    else if((attack==wHammer) && (attackclk>=15)) //>= instead of == for time it takes to charge up hammer with quake scrolls.
     {
         // poundable blocks
         for(int q=0; q<176; q++)
@@ -3591,6 +3597,25 @@ void LinkClass::addsparkle2(int type1, int type2)
                          Lwpns.spr(arrow)->z, wPhantom, type2,0,0,((weapon*)Lwpns.spr(arrow))->parentitem,-1));
 }
 
+//cleans up decorations that exit the bounds of the screen for a long time, to prevebt them wrapping around.
+void LinkClass::PhantomsCleanup()
+{
+	if(Lwpns.idCount(wPhantom))
+	{
+		for(int i=0; i<Lwpns.Count(); i++)
+		{
+			weapon *w = ((weapon *)Lwpns.spr(i));
+			if ( w->id == wPhantom )
+			{
+				if ( w->x < -10000 || w->y > 10000 || w->x < -10000 || w->y > 10000 )
+				{
+					Lwpns.remove(w);
+				}				
+			}
+		}	
+	}
+}
+
 // returns true when game over
 bool LinkClass::animate(int)
 {
@@ -4552,6 +4577,7 @@ bool LinkClass::animate(int)
     checkstab();
     
     check_conveyor();
+    PhantomsCleanup();
     return false;
 }
 
@@ -13373,6 +13399,7 @@ bool checkmagiccost(int itemid)
     }
     else if(itemsbuf[itemid].flags & ITEM_RUPEE_MAGIC)
     {
+	if (current_item_power(itype_wallet)) return true; //Infinite wallet.
         return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
     }
     else if(get_bit(quest_rules,qr_ENABLEMAGIC))
@@ -13395,6 +13422,7 @@ void paymagiccost(int itemid)
         
     if(itemsbuf[itemid].flags & ITEM_RUPEE_MAGIC)
     {
+	if (current_item_power(itype_wallet)) return; //Infinite wallet.
         game->change_drupy(-itemsbuf[itemid].magic);
         return;
     }
@@ -15278,6 +15306,11 @@ void LinkClass::ganon_intro()
     }
     
     dir=down;
+    if ( !isSideview() )
+    {
+	fall = 0; //Fix midair glitch on holding triforce. -Z
+	z = 0;
+    }
     action=landhold2;
     holditem=getItemID(itemsbuf,itype_triforcepiece, 1);
     //not good, as this only returns the highest level that Link possesses. -DD
@@ -15352,7 +15385,7 @@ void LinkClass::ganon_intro()
         playLevelMusic();
         
     currcset=DMaps[currdmap].color;
-    if ( get_bit(quest_rules, qr_NOGANONINTRO) == 0) 
+    if ( !get_bit(quest_rules, qr_NOGANONINTRO) ) 
     {
 	    dointro();
     }
