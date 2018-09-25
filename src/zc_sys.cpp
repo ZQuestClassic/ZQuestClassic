@@ -6734,7 +6734,7 @@ int onRupies()
 
 int onMaxBombs()
 {
-    game->set_maxbombs(vbound(getnumber("Max Bombs",game->get_maxbombs()),8,99));
+    game->set_maxbombs(vbound(getnumber("Max Bombs",game->get_maxbombs()),0,0xFFFF));
     game->set_bombs(game->get_maxbombs());
     return D_O_K;
 }
