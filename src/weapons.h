@@ -102,6 +102,7 @@ public:
     virtual ~weapon();
     void LOADGFX(int wpn);
     bool Dead();
+    bool isScriptGenerated();
     bool clip();
     bool blocked();
     virtual bool blocked(int xOffset, int yOffset);

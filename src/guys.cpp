@@ -11391,10 +11391,10 @@ void esPatraBS::draw(BITMAP *dest)
 /**********  Misc Code  ***********/
 /**********************************/
 
-void addEwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid)
+void addEwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid, byte script_generated)
 {
     if(id>wEnemyWeapons || (id >= wScript1 && id <= wScript10))
-        Ewpns.add(new weapon((fix)x,(fix)y,(fix)z,id,type,power,dir, -1, parentid));
+        Ewpns.add(new weapon((fix)x,(fix)y,(fix)z,id,type,power,dir, -1, parentid, script_generated));
 }
 
 int hit_enemy(int index, int wpnId,int power,int wpnx,int wpny,int dir, int enemyHitWeapon)

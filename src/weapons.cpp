@@ -1986,6 +1986,11 @@ bool weapon::Dead()
     return dead!=-1;
 }
 
+bool weapon::isScriptGenerated()
+{
+	return (ScriptGenerated != 0);
+}
+
 bool weapon::clip()
 {
     int c[4];

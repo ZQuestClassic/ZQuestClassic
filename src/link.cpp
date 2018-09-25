@@ -14507,7 +14507,7 @@ void dospecialmoney(int index)
         
     case rGAMBLE:                                           // gamble
     {
-        if(game->get_spendable_rupies()<10 && !current_item_power(itype_wallet)) return;
+        if(game->get_spendable_rupies()<10 && !current_item_power(itype_wallet)) return; //Why 10? 
         
         unsigned si=(rand()%24)*3;
         
