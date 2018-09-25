@@ -321,7 +321,7 @@ const char *roomtype_string[MAXROOMTYPES] =
 
 const char *catchall_string[MAXROOMTYPES] =
 {
-    " ","Special Item","Info Type","Amount"," ","Repair Fee"," "," "," ","Shop Type",
+    "Generic Catchall","Special Item","Info Type","Amount"," ","Repair Fee"," "," "," ","Shop Type",
     "Shop Type","Price","Price"," ","Warp Ring"," "," ", " ", " ",
     " ", "Price","Shop Type"
 };

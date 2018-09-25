@@ -795,7 +795,7 @@ static MENU data_menu[] =
     { (char *)"&Guy\tG",                    onGuy,                     NULL,                     0,            NULL   },
     { (char *)"&Message String\tS",         onString,                  NULL,                     0,            NULL   },
     { (char *)"&Room Type\tR",              onRType,                   NULL,                     0,            NULL   },
-    { (char *)"Catch &All\tA",              onCatchall,                NULL,                     D_DISABLED,   NULL   },
+    { (char *)"Catch &All\tA",              onCatchall,                NULL,                     0,   	       NULL   }, //Allow setting a generic catch-a;;. or clearing it mamnually.
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Item\tI",                   onItem,                    NULL,                     0,            NULL   },
     { (char *)"&Enemies\tE",                onEnemies,                 NULL,                     0,            NULL   },
@@ -11345,7 +11345,7 @@ int onCatchall()
         while(exit_status == 5);
         
         break;
-        
+	
     case rINFO:
         info_list_size = 256;
         ret = select_data("Select Info Type",Map.CurrScr()->catchall,infolist,"OK","Cancel",lfont);
