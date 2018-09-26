@@ -4900,7 +4900,7 @@ bool LinkClass::startwpn(int itemid)
             if(dir!=(i^1))
                 {
 					weapon *magic = new weapon((fix)wx,(fix)wy,(fix)wz,wMagic,type,pow,i, itemid,getUID());
-					if(paybook)magic->miscellaneous[31] = bookid;
+					if(paybook)magic->linkedItem = bookid;
 						Lwpns.add(magic);
 				}
                 

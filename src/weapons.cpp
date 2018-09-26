@@ -205,7 +205,7 @@ weapon::weapon(weapon const & other):
     frames(other.frames),
     o_flip(other.o_flip),
     temp1(other.temp1),
-    temp1(other.temp1),
+	behind(other.behind),
     linkedItem(other.linkedItem)
 
 {
@@ -2685,8 +2685,8 @@ bool weapon::animate(int)
 		}
 		else
 		{
-			 if((id==wMagic && miscellaneous[31] && itemsbuf[miscellaneous[31]].family == itype_book &&
-					itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+			 if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
+					itemsbuf[linkedItem].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 			{
 				findentrance(x,y,mfBCANDLE,true);
 				findentrance(x,y,mfRCANDLE,true);
@@ -3542,16 +3542,16 @@ offscreenCheck:
 				(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 			{
 				Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
-				sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
+				sfx(itemsbuf[linkedItem].usesound > 0 ? itemsbuf[linkedItem].usesound : WAV_FIRE,pan(x));
 			}
 		}
 		else
 		{
-			if(((id==wMagic && miscellaneous[31] && itemsbuf[miscellaneous[31]].family==itype_book &&
-				(itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+			if(((id==wMagic && linkedItem && itemsbuf[linkedItem].family==itype_book &&
+				(itemsbuf[linkedItem].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 			{
-				Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,miscellaneous[31],-1));
-				sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
+				Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,linkedItem,-1));
+				sfx(itemsbuf[linkedItem].usesound > 0 ? itemsbuf[linkedItem].usesound : WAV_FIRE,pan(x));
 			}
         }
         break;
