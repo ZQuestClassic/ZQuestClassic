@@ -98,10 +98,12 @@
 #define ZC_VERSION 25300 //Version ID for ZScript Game->Version
 #define ABOUT_VERSION 0x0253
 #define VERSION_BUILD       31                              //build number of this version
-#define ZELDA_VERSION_STR   "Omnius, 2.53 Beta 19"                    //version of the program as presented in text
-#define IS_BETA             19                           //is this a beta? (1: beta, -1: alpha)
-#define DATE_STR            "25th September, 2018"
-#define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
+#define ZELDA_VERSION_STR   "Omnius, 2.53 Beta 20"                    //version of the program as presented in text
+#define IS_BETA             20                           //is this a beta? (1: beta, -1: alpha)
+#define DATE_STR            "26th September, 2018"
+#define ZELDA_ABOUT_STR 	    "Zelda Classic 'Omnius'"
+#define COPYRIGHT_YEAR      "2018"     
+                     //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
 
@@ -610,16 +612,22 @@ enum
     // 20
     qr_BROKENSTATUES /* Compatibility */, qr_NOSCRIPTSDURINGSCROLL /* Not Implemented */, qr_ITEMPICKUPSETSBELOW /* Compatibility */,
     qr_NOGANONINTRO, //bugfix, Ganon DMap Intro
+    qr_MELEEMAGICCOST,
+    qr_OLDMIRRORCOMBOS,
+    qr_BROKENBOOKCOST,
+    qr_OLDSIDEVIEWSPIKES, //last bit possible
     qr_MAX
 };
 
+// Unsaved compatibility rules
 // Unsaved compatibility rules
 enum extraRules
 {
     er_BITMAPOFFSET, er_SHORTDGNWALK,
 	er_MAGICCOSTSWORD, //BEAMS Only
-	er_BROKENCHARINTDRAWING,  //pre-2.53 fix to DrawInteger() and DrarCharacter() -Z
-    er_MAX
+	er_BROKENCHARINTDRAWING, //pre-2.53 fix to DrawInteger() and DrarCharacter() -Z
+	er_SETENEMYWEAPONSPRITESONWPNCHANGE, //er_OLDSIDEVIEWSPIKES,
+	er_MAX
 };
 
 // room types

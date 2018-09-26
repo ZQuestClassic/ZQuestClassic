@@ -6,6 +6,7 @@ Require using Alt+Shift modifier keys in conjunction with cheat hotkeys.
 Fixed input getting stuuck as if buttons were being hel down, when released.
 	( ZoriaRPG, 25th September, 2018 )
 	( credit also: Venrob for think-tank.)
+	( credit also: Russ for testing.)
 
 //Beta 18.1
 Fixed the Cheat Menu 'Max Bombs' so that it is possible to set 

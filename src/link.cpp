@@ -32,6 +32,9 @@
 #include "mem_debug.h"
 #include "zscriptversion.h"
 
+extern  zquestheader QHeader;
+extern LinkClass Link;
+
 using std::set;
 
 extern int draw_screen_clip_rect_x1;
@@ -697,6 +700,8 @@ void LinkClass::init()
     falling_oldy = y;
     magiccastclk=0;
     magicitem = nayruitem = -1;
+	last_lens_id = 0;
+
     
     for(int i=0; i<16; i++) miscellaneous[i] = 0;
     
@@ -3723,8 +3728,11 @@ bool LinkClass::animate(int)
             {
                 fall = 0; // Bumped his head
                 
-                // ... maybe on spikes
-                checkdamagecombos(x+4, x+12, y-1, y-1);
+		// ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
+                if ( !get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES) )  //fix for older sideview quests -Z
+		{
+			checkdamagecombos(x+4, x+12, y-1, y-1);
+		}
             }
             
             if(hoverclk)
@@ -5537,6 +5545,53 @@ bool isRaftFlag(int flag)
 }
 
 void do_lens()
+{
+	if ( QHeader.zelda_version <= 0x210 ){
+		do_210_lens();
+		return;
+	}
+	
+    int wpnPressed = getWpnPressed(itype_lens);
+	int itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
+	
+	if(itemid<0)
+	return;
+	
+	if(isWpnPressed(itype_lens) && !LinkItemClk() && !lensclk && checkmagiccost(itemid))
+	{
+		if(lensid<0)
+		{
+		    lensid=itemid;
+		    if(itemsbuf[itemid].family == itype_lens)
+			Link.setLastLensID(itemid);
+		    if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
+		}
+		
+		paymagiccost(itemid);
+		
+		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
+		{
+		    ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+		    did_scriptl=true;
+		}
+		
+		lensclk = 12;
+	}
+	else
+	{
+		did_scriptl=false;
+		
+		if(lensid>-1 && !(isWpnPressed(itype_lens) && !LinkItemClk() && checkmagiccost(itemid)))
+		{
+		    lensid=-1;
+		    lensclk = 0;
+		    
+		    if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
+		}
+	}
+}
+
+void do_210_lens()
 {
     int itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
     
@@ -8335,8 +8390,22 @@ void LinkClass::checkpushblock()
         if(isSideview() && // Check for sideview damage combos
                 hclk<1 && action!=casting) // ... but only if Link could be hurt
         {
-            if(checkdamagecombos(x+4, x+12, y+16, y+24))
-                return;
+		
+		//old 2.50.2-ish code for 2.50.0 sideview quests for er_OLDSIDEVIEWSPIKES
+		if ( get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES ) )
+		{
+			checkdamagecombos(x+8-(fix)(tmpscr->csensitive),
+                                         x+8+(zc_max(tmpscr->csensitive-1,0)),
+                                         y+17-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
+                                         y+17+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
+			return;
+		}
+		else //2.50.1 and later
+		{
+			if(checkdamagecombos(x+4, x+12, y+16, y+24))
+				return;		
+		}
+            
         }
     }
     
@@ -13644,6 +13713,15 @@ bool isWpnPressed(int wpn)
     return false;
 }
 
+int getWpnPressed(int itype)
+{
+    if((itype==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn()) return Bwpn;
+
+    if((itype==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn()) return Awpn;
+    
+    return -1;
+}
+
 void selectNextAWpn(int type)
 {
     if(!get_bit(quest_rules,qr_SELECTAWPN))
@@ -15693,6 +15771,14 @@ int LinkClass::getHoverClk()
 int LinkClass::getHoldClk()
 {
     return holdclk;
+}
+
+int LinkClass::getLastLensID(){
+	return last_lens_id;
+}
+
+void LinkClass::setLastLensID(int p_item){
+	last_lens_id = p_item;
 }
 
 void LinkClass::execute(LinkClass::WalkflagInfo info)
