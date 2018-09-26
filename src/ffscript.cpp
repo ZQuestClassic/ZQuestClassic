@@ -3958,7 +3958,7 @@ case SCREENCATCH:
 	    //Z_scripterrlog("GetLinkExtend rid->[1] is (%i), trying to use for '%s'\n", state, "state");
 	    //Z_scripterrlog("GetLinkExtend rid->[0] is (%i), trying to use for '%s'\n", dir, "dir");
 	
-		Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,itemid,Link.getUID()));
+		Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,itemid,false,1,Link.getUID()));
 		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
 		
 		/* Z_scripterrlog("CreateLWeaponDx ri->d[0] is (%i), trying to use for '%s'\n", ID, "ID");
@@ -12200,7 +12200,9 @@ void do_createlweapon(const bool v)
     if(BC::checkWeaponID(ID, "Screen->CreateLWeapon") != SH::_NoError)
         return;
         
-    addLwpn(0, 0, 0, ID, 0, 0, 0, Link.getUID());
+    Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID()));
+		
+    //addLwpn(0, 0, 0, ID, 0, 0, 0, Link.getUID());
     
     if(Lwpns.Count() < 1)
     {
@@ -12220,8 +12222,9 @@ void do_createeweapon(const bool v)
     
     if(BC::checkWeaponID(ID, "Screen->CreateEWeapon") != SH::_NoError)
         return;
-        
-    addEwpn(0, 0, 0, ID, 0, 0, 0, -1);
+		
+    addEwpn(0, 0, 0, ID, 0, 0, 0, -1,1); //Param 9 marks it as script-generated.
+    //addEwpn(0, 0, 0, ID, 0, 0, 0, -1);
     
     if(Ewpns.Count() < 1)
     {
@@ -16205,15 +16208,15 @@ void FFScript::do_typedpointer_typecast(const bool v)
 
 void FFScript::setFFRules()
 {
-	for ( int q = 0; q < QUESTRULES_SIZE; q++ )
+	for ( int q = 0; q < QUESTRULES_NEW_SIZE; q++ )
 	{
 		FF_rules[q] = getQRBit(q);
 	}
-	for ( int q = QUESTRULES_SIZE; q < QUESTRULES_SIZE+EXTRARULES_SIZE; q++ ) 
+	for ( int q = QUESTRULES_NEW_SIZE; q < QUESTRULES_NEW_SIZE+EXTRARULES_SIZE; q++ ) 
 	{
 		FF_rules[q] = extra_rules[q-QUESTRULES_SIZE];
 	}
-	for ( int q = QUESTRULES_SIZE+EXTRARULES_SIZE; q < FFRULES_SIZE; q++ )
+	for ( int q = QUESTRULES_NEW_SIZE+EXTRARULES_SIZE; q < FFRULES_SIZE; q++ )
 	{
 		FF_rules[q] = 0; //wipe the rest.
 	}

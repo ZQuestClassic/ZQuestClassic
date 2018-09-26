@@ -2387,11 +2387,23 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
         
-        //finally...  section data
-        if(!pfread(quest_rules,QUESTRULES_SIZE,f,true))
-        {
-            return qe_invalid;
-        }
+	if ( s_version < 15 )
+	{
+		//finally...  section data
+		if(!pfread(quest_rules,QUESTRULES_SIZE,f,true))
+		{
+		    return qe_invalid;
+		}
+	}
+	else
+	{
+		
+		if(!pfread(quest_rules,QUESTRULES_NEW_SIZE,f,true))
+		{
+		    return qe_invalid;
+		}
+		
+	}
     }
     
     //al_trace("Rules version %d\n", s_version);
@@ -2579,10 +2591,16 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     
     // Not entirely sure this is the best place for this...
+    //2.50.2 bitmap offset fix
     memset(extra_rules, 0, EXTRARULES_SIZE);
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
     {
         set_bit(extra_rules, er_BITMAPOFFSET, 1);
+    }
+    //Sideview spikes in 2.50.0
+    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<27)) //2.50.1RC3
+    {
+        set_bit(quest_rules, qr_OLDSIDEVIEWSPIKES, 1);
     }
     //more 2.50 fixes -Z
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<31))
@@ -14387,6 +14405,59 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
         }
+	
+	//expaned init data for larger values in 2.55
+	if ( s_version >= 19 ) //expand init data bombs, sbombs, and arrows to 0xFFFF
+	{
+		al_trace("2.50.x version of init data, or older.\n");
+		if(!p_igetw(&temp_zinit.nBombs,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_igetw(&temp_zinit.nSbombs,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_igetw(&temp_zinit.nBombmax,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_igetw(&temp_zinit.nSBombmax,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_igetw(&temp_zinit.nArrows,f,true))
+		{
+			return qe_invalid;
+		}
+		if(!p_igetw(&temp_zinit.nArrowmax,f,true))
+		{
+			return qe_invalid;
+		}
+	    
+	}
+	else //load new vars with old data
+	{
+		al_trace("Copying over old init values:\n");
+		temp_zinit.nBombs = temp_zinit.bombs;
+		al_trace("temp_zinit.bombs is: %d\n", temp_zinit.bombs);
+		al_trace("temp_zinit.nBombs is: %d\n", temp_zinit.nBombs);
+		temp_zinit.nSbombs = temp_zinit.super_bombs;
+		al_trace("temp_zinit.super_bombs is: %d\n", temp_zinit.super_bombs);
+		al_trace("temp_zinit.nSbombs is: %d\n", temp_zinit.nSbombs);
+		temp_zinit.nBombmax = temp_zinit.max_bombs;
+		al_trace("temp_zinit.max_bombs is: %d\n", temp_zinit.max_bombs);
+		al_trace("temp_zinit.nBombmax is: %d\n", temp_zinit.nBombmax);
+		//temp_zinit.nSBombmax = temp_zinit.bombs;
+		temp_zinit.nArrows = temp_zinit.arrows;
+		al_trace("temp_zinit.arrows is: %d\n", temp_zinit.arrows);
+		al_trace("temp_zinit.nArrows is: %d\n", temp_zinit.nArrows);
+		temp_zinit.nArrowmax = temp_zinit.max_arrows;
+		al_trace("temp_zinit.max_arrows is: %d\n", temp_zinit.max_arrows);
+		al_trace("temp_zinit.nArrowmax is: %d\n", temp_zinit.nArrowmax);
+		    
+		    
+	}
         
         //old only
         if((Header->zelda_version == 0x192)&&(Header->build<174))
@@ -14605,6 +14676,9 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
             link_animation_speed=1;
         }
     }
+    
+    
+    
     
     return 0;
 }

@@ -6207,7 +6207,7 @@ int writerules(PACKFILE *f, zquestheader *Header)
         writesize=0;
         
         //finally...  section data
-        if(!pfwrite(quest_rules,QUESTRULES_SIZE,f))
+        if(!pfwrite(quest_rules,QUESTRULES_NEW_SIZE,f))
         {
             new_return(5);
         }
@@ -11050,6 +11050,31 @@ int writeinitdata(PACKFILE *f, zquestheader *Header)
         if(!p_putc(zinit.msg_more_is_offset,f))
         {
             new_return(67);
+        }
+	
+	if(!p_iputw(zinit.nBombs,f))
+        {
+            new_return(68);
+        }
+	if(!p_iputw(zinit.nSbombs,f))
+        {
+            new_return(69);
+        }
+	if(!p_iputw(zinit.nBombmax,f))
+        {
+            new_return(70);
+        }
+	if(!p_iputw(zinit.nSBombmax,f))
+        {
+            new_return(71);
+        }
+	if(!p_iputw(zinit.nArrows,f))
+        {
+            new_return(72);
+        }
+	if(!p_iputw(zinit.nArrowmax,f))
+        {
+            new_return(73);
         }
         
         if(writecycle==0)

@@ -47,7 +47,7 @@ extern FONT *lfont;
 extern FONT *pfont;
 extern dmap *DMaps;
 extern itemdata *itemsbuf;
-extern byte quest_rules[20];
+extern byte quest_rules[QUESTRULES_NEW_SIZE];
 extern char *item_string[];
 
 void initPopulate(int &i, DIALOG_PROC proc, int x, int y, int w, int h, int fg, int bg, int key, int flags, int d1, int d2,
@@ -1019,31 +1019,40 @@ void PopulateInitDialog()
     initPopulate(i, jwin_text_proc,            21,     57,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Normal ",                                   NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,           36,     67,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,           77,     67,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,            25,     77,     21,     16,    0,                      0,                       0,    0,              2,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, d_maxbombsedit_proc,       66,     77,     21,     16,    0,                      0,                       0,    0,              2,             0,  NULL,                                                  NULL,   NULL);
+    //[109] starting bombs   															//   Max characters to permit in the editor text box
+    initPopulate(i, jwin_edit_proc,            25,     77,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
+    //[110] max bombs
+    initPopulate(i, d_maxbombsedit_proc,       56,     77,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_frame_proc,           17,    100,     78,     37,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,            21,     98,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Super ",                                    NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,           36,    108,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,           77,    108,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,            25,    118,     21,     16,    0,                      0,                       0,    0,              2,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,            66,    118,     21,     16,    0,                      0,                       0,    D_DISABLED,     2,             0,  NULL,                                                  NULL,   NULL);
+    //[115] Starting super bombs
+    initPopulate(i, jwin_edit_proc,            25,    118,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
+    //[116] max super bombs
+    initPopulate(i, jwin_edit_proc,            56,    118,     30,     16,    0,                      0,                       0,    D_DISABLED,     5,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          119,     57,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          160,     57,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,           108,     67,     21,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,           149,     67,     21,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
+    //[119] starting arrows
+    initPopulate(i, jwin_edit_proc,           108,     67,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
+    //[120] max arrows
+    initPopulate(i, jwin_edit_proc,           139,     67,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_frame_proc,          187,     50,     86,     40,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,           191,     47,    121,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Rupees ",                                   NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          206,     57,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          247,     57,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
     // 125
-    initPopulate(i, jwin_edit_proc,           195,     67,     26,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,           236,     67,     26,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
+    //[125] starting rupees
+    initPopulate(i, jwin_edit_proc,           195,     67,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
+    initPopulate(i, jwin_edit_proc,           226,     67,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_frame_proc,          100,     93,     86,     40,    0,                      0,                       0,    0,              FR_ETCHED,     0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, jwin_text_proc,           104,     90,    121,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) " Keys ",                                     NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          119,    100,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Start",                                      NULL,   NULL);
     initPopulate(i, jwin_ctext_proc,          160,    100,     73,      9,    vc(0),                  vc(11),                  0,    0,              0,             0, (void *) "Max",                                        NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,           108,    110,     26,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
-    initPopulate(i, jwin_edit_proc,           149,    110,     26,     16,    0,                      0,                       0,    0,              3,             0,  NULL,                                                  NULL,   NULL);
+    //[131] Starting Keys
+    initPopulate(i, jwin_edit_proc,           108,    110,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
+    //[132] max keys
+    initPopulate(i, jwin_edit_proc,           139,    110,     30,     16,    0,                      0,                       0,    0,              5,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
     initPopulate(i, d_dummy_proc,               0,      0,      0,      0,    0,                      0,                       0,    0,              0,             0,  NULL,                                                  NULL,   NULL);
@@ -1702,23 +1711,23 @@ int doInit(zinitdata *local_zinit)
     }
     
     // items
-    char bombstring[5];
-    char maxbombstring[5];
-    char sbombstring[5];
-    char maxsbombstring[5];
-    char arrowstring[5];
-    char maxarrowstring[5];
-    sprintf(bombstring, "%d", local_zinit->bombs);
-    sprintf(maxbombstring, "%d", local_zinit->max_bombs);
-    sprintf(sbombstring, "%d", local_zinit->super_bombs);
-    sprintf(maxsbombstring, "%d", local_zinit->max_bombs/(local_zinit->bomb_ratio > 0 ? local_zinit->bomb_ratio : 4));
-    sprintf(arrowstring, "%d", local_zinit->arrows);
-    sprintf(maxarrowstring, "%d", local_zinit->max_arrows);
+    char bombstring[6];
+    char maxbombstring[6];
+    char sbombstring[6];
+    char maxsbombstring[6];
+    char arrowstring[6];
+    char maxarrowstring[6];
+    sprintf(bombstring, "%d", local_zinit->nBombs);
+    sprintf(maxbombstring, "%d", local_zinit->nBombmax);
+    sprintf(sbombstring, "%d", local_zinit->nSbombs);
+    sprintf(maxsbombstring, "%d", local_zinit->nBombmax/(local_zinit->bomb_ratio > 0 ? local_zinit->bomb_ratio : 4));
+    sprintf(arrowstring, "%d", local_zinit->nArrows);
+    sprintf(maxarrowstring, "%d", local_zinit->nArrowmax);
     
     
     //This is the format for storing values into Init Data. -Z
     init_dlg[109].dp=bombstring;
-    init_dlg[110].dp=maxbombstring;
+    init_dlg[110].dp=maxbombstring; //max normnal bombs is 99 for some reason. -Z
     init_dlg[115].dp=sbombstring;
     init_dlg[116].dp=maxsbombstring;
     init_dlg[119].dp=arrowstring;
@@ -1746,18 +1755,18 @@ int doInit(zinitdata *local_zinit)
     }
     
     // misc
-    char tempbuf[5];
-    char hcstring[5];
-    char hcpstring[5];
-    char hcpperstring[5];
-    char sheartstring[5];
-    char cheartstring[5];
-    char keystring[5];
-    char rupiestring[5];
-    char magicstring[5];
-    char maxmagicstring[5];
-    char maxrupeestring[8];
-    char maxkeystring[8];
+    char tempbuf[6];
+    char hcstring[6];
+    char hcpstring[6];
+    char hcpperstring[6];
+    char sheartstring[6];
+    char cheartstring[6];
+    char keystring[6];
+    char rupiestring[6];
+    char magicstring[6];
+    char maxmagicstring[6];
+    char maxrupeestring[6];
+    char maxkeystring[6];
     char bombratiostring[5];
     char gravitystring[5];
     char terminalvstring[8];
@@ -1838,11 +1847,11 @@ int doInit(zinitdata *local_zinit)
         }
         
         memcpy(local_zinit, &tempdata, sizeof(zinitdata));
-        local_zinit->bombs=atoi(bombstring);
-        local_zinit->max_bombs=atoi(maxbombstring);
-        local_zinit->super_bombs=atoi(sbombstring);
-        local_zinit->arrows=atoi(arrowstring);
-        local_zinit->max_arrows=atoi(maxarrowstring);
+        local_zinit->nBombs=vbound(atoi(bombstring),0,0xFFFF);
+        local_zinit->nBombmax=vbound(atoi(maxbombstring),0,0xFFFF);
+        local_zinit->nSbombs=vbound(atoi(sbombstring),0,0xFFFF);
+        local_zinit->nArrows=vbound(atoi(arrowstring),0,0xFFFF);
+        local_zinit->nArrowmax=vbound(atoi(maxarrowstring),0,0xFFFF);
         
         // dmap items
         for(int i=0; i<256; i++)

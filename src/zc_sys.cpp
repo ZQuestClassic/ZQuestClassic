@@ -4224,7 +4224,8 @@ static void restoreInput()
 
 void syskeys()
 {
-    backupAndClearInput();
+	  //Saffith's method of separating system and game key bindings. Can't do this!!
+    //backupAndClearInput(); //This caused input to become randomly 'stuck'. -Z
     
     int oldtitle_version;
     
@@ -4301,82 +4302,100 @@ void syskeys()
         
     if(get_debug() || cheat>=1)
     {
-        if(ReadKey(KEY_ASTERISK) || ReadKey(KEY_H))   game->set_life(game->get_maxlife());
-        
-        if(ReadKey(KEY_SLASH_PAD) || ReadKey(KEY_M))  game->set_magic(game->get_maxmagic());
-        
-        if(ReadKey(KEY_R))          game->set_drupy(999);
-        
-        if(ReadKey(KEY_B))
-        {
-            onCheatBombs();
-        }
-        
-        if(ReadKey(KEY_A))
-        {
-            onCheatArrows();
-        }
+	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	{
+		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+		{
+			if(ReadKey(KEY_ASTERISK) || ReadKey(KEY_H))   game->set_life(game->get_maxlife());
+			
+			if(ReadKey(KEY_SLASH_PAD) || ReadKey(KEY_M))  game->set_magic(game->get_maxmagic());
+			
+			if(ReadKey(KEY_R))          game->set_drupy(999);
+			
+			if(ReadKey(KEY_B))
+			{
+			    onCheatBombs();
+			}
+			
+			if(ReadKey(KEY_A))
+			{
+			    onCheatArrows();
+			}
+		}
+	}
     }
     
     if(get_debug() || cheat>=2)
     {
-        if(rI())
-        {
-            setClock(!getClock());
-            cheat_superman=getClock();
-        }
+	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	{
+		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+		{
+			if(rI())
+			{
+			    setClock(!getClock());
+			    cheat_superman=getClock();
+			}
+		}
+	}
     }
     
     if(get_debug() || cheat>=4)
     {
-        if(rF11())
-        {
-            onNoWalls();
-        }
-        
-        if(rQ())
-        {
-            onGoFast();
-        }
-        
-        if(ReadKey(KEY_F))
-        {
-            if(Link.getAction()==freeze)
-            {
-                Link.unfreeze();
-            }
-            else
-            {
-                Link.Freeze();
-            }
-        }
-        
-        if(ReadKey(KEY_G))   onGoToComplete();
-        
-        if(ReadKey(KEY_0))   onShowLayer0();
-        
-        if(ReadKey(KEY_1))   onShowLayer1();
-        
-        if(ReadKey(KEY_2))   onShowLayer2();
-        
-        if(ReadKey(KEY_3))   onShowLayer3();
-        
-        if(ReadKey(KEY_4))   onShowLayer4();
-        
-        if(ReadKey(KEY_5))   onShowLayer5();
-        
-        if(ReadKey(KEY_6))   onShowLayer6();
-        
-        //if(ReadKey(KEY_7))   onShowLayerO();
-        if(ReadKey(KEY_7))   onShowLayerF();
-        
-        if(ReadKey(KEY_8))   onShowLayerS();
-        
-        if(ReadKey(KEY_W))   onShowLayerW();
-        
-        if(ReadKey(KEY_L))   onLightSwitch();
-        
-        if(ReadKey(KEY_V))   onIgnoreSideview();
+	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	{
+		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+		{
+			if(rF11())
+			{
+			    onNoWalls();
+			}
+			
+			if(rQ())
+			{
+			    onGoFast();
+			}
+			
+			if(ReadKey(KEY_F))
+			{
+			    if(Link.getAction()==freeze)
+			    {
+				Link.unfreeze();
+			    }
+			    else
+			    {
+				Link.Freeze();
+			    }
+			}
+			
+			if(ReadKey(KEY_G))   onGoToComplete();
+			
+			if(ReadKey(KEY_0))   onShowLayer0();
+			
+			if(ReadKey(KEY_1))   onShowLayer1();
+			
+			if(ReadKey(KEY_2))   onShowLayer2();
+			
+			if(ReadKey(KEY_3))   onShowLayer3();
+			
+			if(ReadKey(KEY_4))   onShowLayer4();
+			
+			if(ReadKey(KEY_5))   onShowLayer5();
+			
+			if(ReadKey(KEY_6))   onShowLayer6();
+			
+			//if(ReadKey(KEY_7))   onShowLayerO();
+			if(ReadKey(KEY_7))   onShowLayerF();
+			
+			if(ReadKey(KEY_8))   onShowLayerS();
+			
+			if(ReadKey(KEY_W))   onShowLayerW();
+			
+			if(ReadKey(KEY_L))   onLightSwitch();
+			
+			if(ReadKey(KEY_V))   onIgnoreSideview();
+		}
+	}
     }
     
     if(volkeys)
@@ -4511,8 +4530,8 @@ bottom:
         Matrix(ss_speed, ss_density, 0);
         game_pal();
     }
-    
-    restoreInput();
+    //Saffith's method of separating system and game key bindings. Can't do this!!
+    //restoreInput(); //This caused input to become randomly 'stuck'. -Z
     
     //while(Playing && keypressed())
     //readkey();
@@ -5449,7 +5468,7 @@ static DIALOG about_dlg[] =
     /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
     { jwin_win_proc,       68,   52,   184,  154,  0,       0,       0,       D_EXIT,    0,        0, (void *) "About", NULL,  NULL },
     { jwin_button_proc,    140,  176,  41,   21,   vc(14),  0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
-    { jwin_ctext_proc,        160,  84,   0,    8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Zelda Classic", NULL,  NULL },
+    { jwin_ctext_proc,        160,  84,   0,    8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) ZELDA_ABOUT_STR, NULL,  NULL },
     { jwin_ctext_proc,        160,  92,   0,    8,    vc(0) ,  vc(11),  0,       0,         0,        0,       str_s, NULL,  NULL },
     { jwin_ctext_proc,        160,  100,  0,    8,    vc(0) ,  vc(11),  0,       0,         0,        0, (void *) DATE_STR, NULL,  NULL },
     { jwin_text_proc,         88,   124,  140,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Coded by:", NULL,  NULL },
@@ -6734,7 +6753,7 @@ int onRupies()
 
 int onMaxBombs()
 {
-    game->set_maxbombs(vbound(getnumber("Max Bombs",game->get_maxbombs()),8,99));
+    game->set_maxbombs(vbound(getnumber("Max Bombs",game->get_maxbombs()),0,0xFFFF));
     game->set_bombs(game->get_maxbombs());
     return D_O_K;
 }

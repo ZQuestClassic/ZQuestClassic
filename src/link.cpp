@@ -2044,7 +2044,9 @@ void LinkClass::checkstab()
             
             if(attackclk==12 && z==0 && sideviewhammerpound())
             {
-                switch(dir)
+		decorations.add(new dHammerSmack((fix)wx, (fix)wy, dHAMMERSMACK, 0));
+                /* The hammer smack sprites weren't being positioned properly if Link changed directions on the same frame that they are created.
+		switch(dir)
                 {
                 case up:
                     decorations.add(new dHammerSmack(x-1, y-4, dHAMMERSMACK, 0));
@@ -2062,6 +2064,7 @@ void LinkClass::checkstab()
                     decorations.add(new dHammerSmack(x+21, y+14, dHAMMERSMACK, 0));
                     break;
                 }
+		*/
             }
             
             return;
@@ -2348,7 +2351,7 @@ void LinkClass::checkstab()
             check_wand_block(wx+wxsz-8,y+8);
         }
     }
-    else if((attack==wHammer) && (attackclk==15))
+    else if((attack==wHammer) && (attackclk>=15)) //>= instead of == for time it takes to charge up hammer with quake scrolls.
     {
         // poundable blocks
         for(int q=0; q<176; q++)
@@ -3833,6 +3836,25 @@ void LinkClass::addsparkle2(int type1, int type2)
                          Lwpns.spr(arrow)->z, wPhantom, type2,0,0,((weapon*)Lwpns.spr(arrow))->parentitem,-1));
 }
 
+//cleans up decorations that exit the bounds of the screen for a long time, to prevebt them wrapping around.
+void LinkClass::PhantomsCleanup()
+{
+	if(Lwpns.idCount(wPhantom))
+	{
+		for(int i=0; i<Lwpns.Count(); i++)
+		{
+			weapon *w = ((weapon *)Lwpns.spr(i));
+			if ( w->id == wPhantom && !w->isScriptGenerated() )
+			{
+				if ( w->x < -10000 || w->y > 10000 || w->x < -10000 || w->y > 10000 )
+				{
+					Lwpns.remove(w);
+				}				
+			}
+		}	
+	}
+}
+
 // returns true when game over
 bool LinkClass::animate(int)
 {
@@ -3940,8 +3962,11 @@ bool LinkClass::animate(int)
             {
                 fall = 0; // Bumped his head
                 
-                // ... maybe on spikes
-                checkdamagecombos(x+4, x+12, y-1, y-1);
+                // ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
+                if ( !get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES) ) //fix for older sideview quests -Z
+		{
+			checkdamagecombos(x+4, x+12, y-1, y-1);
+		}
             }
             
             if(hoverclk)
@@ -4842,6 +4867,8 @@ bool LinkClass::animate(int)
     checkstab();
     
     check_conveyor();
+    PhantomsCleanup();
+    
     return false;
 }
 
@@ -8843,8 +8870,22 @@ void LinkClass::checkpushblock()
         if(isSideview() && // Check for sideview damage combos
                 hclk<1 && action!=casting) // ... but only if Link could be hurt
         {
-            if(checkdamagecombos(x+4, x+12, y+16, y+24))
-                return;
+		
+		//old 2.50.2-ish code for 2.50.0 sideview quests for er_OLDSIDEVIEWSPIKES
+		if ( get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES ) )
+		{
+			checkdamagecombos(x+8-(fix)(tmpscr->csensitive),
+                                         x+8+(zc_max(tmpscr->csensitive-1,0)),
+                                         y+17-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
+                                         y+17+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
+			return;
+		}
+		else //2.50.1 and later
+		{
+			if(checkdamagecombos(x+4, x+12, y+16, y+24))
+				return;		
+		}
+            
         }
     }
     
@@ -13938,8 +13979,11 @@ bool checkmagiccost(int itemid)
     switch (itemsbuf[itemid].cost_counter )
     {
 	case 1: //rupees
+	{
+		if ( current_item_power(itype_wallet) ) return true;
 		return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
 		break;
+	}
 	case 4: //magic
 	{
 		if (get_bit(quest_rules,qr_ENABLEMAGIC))
@@ -13986,6 +14030,7 @@ void paymagiccost(int itemid)
         
     if(itemsbuf[itemid].cost_counter == 1) //rupees
     {
+	if ( current_item_power(itype_wallet) ) return;
 	if ( itemsbuf[itemid].magiccosttimer > 0 ) 
 	{
 		//get_counter
@@ -14500,7 +14545,7 @@ void dospecialmoney(int index)
         
     case rGAMBLE:                                           // gamble
     {
-        if(game->get_spendable_rupies()<10 && !current_item_power(itype_wallet)) return;
+        if(game->get_spendable_rupies()<10 && !current_item_power(itype_wallet)) return; //Why 10? 
         
         unsigned si=(rand()%24)*3;
         
@@ -16120,7 +16165,7 @@ void LinkClass::ganon_intro()
         playLevelMusic();
         
     currcset=DMaps[currdmap].color;
-    if ( get_bit(quest_rules, qr_NOGANONINTRO) == 0) 
+    if ( !get_bit(quest_rules, qr_NOGANONINTRO) ) 
     {
 	    dointro();
     }

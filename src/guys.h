@@ -727,7 +727,7 @@ public:
 /**********************************/
 /**********  Misc Code  ***********/
 /**********************************/
-void addEwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid);
+void addEwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid, byte script_gen = 0);
 // Used by Link's swords & stomp boots
 int hit_enemy(int index,int wpnId,int power,int wpnx,int wpny,int dir, int enemyHitWeapon);
 void enemy_scored(int index);

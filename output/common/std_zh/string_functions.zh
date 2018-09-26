@@ -1,5 +1,5 @@
-//string.zh
-//13-JUNE-2016
+//string_functions.zh
+//24th September, 2018 for ZC 2.55
 //ZScript string handling functions, akin to those found in C
 
 //Returns the number of chracters of a given type in a specified string.
@@ -636,6 +636,7 @@ int nlen(int string)
 	return nlen(string, 0);
 }
 
+
 //Integer to ASCII
 //Places integer 'num' into string 'string' without checking for overflow,
 //and returns the number of characters used
@@ -659,6 +660,7 @@ int itoa(int string, int pos, int num)
 		string[pos + ret + i] = (Floor(num / Pow(10, digits - i - 1)) % 10) + '0';
 	return ret + digits;
 }
+
 int itoa(int string, int num)
 {
 	return itoa(string, 0, num);
@@ -1243,3 +1245,13 @@ int ReturnStringCharPosRev(int str, int pos, int chr)
 
 int IsChar(int chr) { return chr; }
 bool IsChar(int chr, int comp) { return (chr == comp); }
+
+
+void TraceError(int s, float v)
+{
+	int buf[12];
+	ftoa(buf,v);
+	TraceS(s); TraceS(": "); TraceS(buf); TraceNL();
+}
+	
+	
