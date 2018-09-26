@@ -44,6 +44,7 @@ public:
     int o_tile, o_cset, o_speed, o_type, frames, o_flip;
     int temp1;
     bool behind;
+    int linkedItem;
     
     weapon(weapon const & other);
     weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentid, int prntid, bool isDummy=false);
