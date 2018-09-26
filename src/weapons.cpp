@@ -2671,13 +2671,26 @@ bool weapon::animate(int)
         
         if((id!=ewMagic)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
         
-        if((id==wMagic && current_item(itype_book) &&
-                itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
-        {
-            findentrance(x,y,mfBCANDLE,true);
-            findentrance(x,y,mfRCANDLE,true);
-            findentrance(x,y,mfWANDFIRE,true);
-        }
+        if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
+		{
+			if((id==wMagic && current_item(itype_book) &&
+				itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+			{
+				findentrance(x,y,mfBCANDLE,true);
+				findentrance(x,y,mfRCANDLE,true);
+				findentrance(x,y,mfWANDFIRE,true);
+			}
+		}
+		else
+		{
+			 if((id==wMagic && miscellaneous[31] && itemsbuf[miscellaneous[31]].family == itype_book &&
+					itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+			{
+				findentrance(x,y,mfBCANDLE,true);
+				findentrance(x,y,mfRCANDLE,true);
+				findentrance(x,y,mfWANDFIRE,true);
+			}
+		}
         
 mirrors:
         int checkx=0, checky=0;
@@ -3520,14 +3533,25 @@ offscreenCheck:
     case wRefMagic:
     case wMagic:
         dead=1; //remove the dead part to make the wand only die when clipped
-        
-        if(((id==wMagic && current_item(itype_book) &&
-                (itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
-        {
-            Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
-            sfx(WAV_FIRE,pan(x));
+		
+        if ( get_bit(quest_rules, qr_BROKENBOOKCOST) )
+		{
+			if(((id==wMagic && current_item(itype_book) &&
+				(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+			{
+				Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
+				sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
+			}
+		}
+		else
+		{
+			if(((id==wMagic && miscellaneous[31] && itemsbuf[miscellaneous[31]].family==itype_book &&
+				(itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+			{
+				Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,miscellaneous[31],-1));
+				sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
+			}
         }
-        
         break;
         
     case ewWind:
