@@ -103,6 +103,7 @@
 #define IS_BETA             -1                         //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        1
 #define DATE_STR            "23rd September, 2018"
+#define ZELDA_ABOUT_STR 	    "Zelda Classic 'Necromancer'"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -827,6 +828,7 @@ enum
     qr_MELEEMAGICCOST,
     qr_OLDMIRRORCOMBOS,
     qr_BROKENBOOKCOST,
+    qr_OLDSIDEVIEWSPIKES,
 
     qr_MAX
 };
@@ -837,7 +839,7 @@ enum extraRules
     er_BITMAPOFFSET, er_SHORTDGNWALK,
 	er_MAGICCOSTSWORD, //BEAMS Only
 	er_BROKENCHARINTDRAWING, //pre-2.53 fix to DrawInteger() and DrarCharacter() -Z
-	er_SETENEMYWEAPONSPRITESONWPNCHANGE,
+	er_SETENEMYWEAPONSPRITESONWPNCHANGE, //er_OLDSIDEVIEWSPIKES,
 	er_MAX
 };
 

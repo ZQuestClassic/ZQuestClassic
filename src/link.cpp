@@ -3962,8 +3962,11 @@ bool LinkClass::animate(int)
             {
                 fall = 0; // Bumped his head
                 
-                // ... maybe on spikes
-                checkdamagecombos(x+4, x+12, y-1, y-1);
+                // ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
+                if ( !get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES) ) //fix for older sideview quests -Z
+		{
+			checkdamagecombos(x+4, x+12, y-1, y-1);
+		}
             }
             
             if(hoverclk)
@@ -8867,8 +8870,22 @@ void LinkClass::checkpushblock()
         if(isSideview() && // Check for sideview damage combos
                 hclk<1 && action!=casting) // ... but only if Link could be hurt
         {
-            if(checkdamagecombos(x+4, x+12, y+16, y+24))
-                return;
+		
+		//old 2.50.2-ish code for 2.50.0 sideview quests for er_OLDSIDEVIEWSPIKES
+		if ( get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES ) )
+		{
+			checkdamagecombos(x+8-(fix)(tmpscr->csensitive),
+                                         x+8+(zc_max(tmpscr->csensitive-1,0)),
+                                         y+17-(get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2),
+                                         y+17+zc_max((get_bit(quest_rules,qr_LTTPCOLLISION)?tmpscr->csensitive:(tmpscr->csensitive+1)/2)-1,0), i-1, true);
+			return;
+		}
+		else //2.50.1 and later
+		{
+			if(checkdamagecombos(x+4, x+12, y+16, y+24))
+				return;		
+		}
+            
         }
     }
     
