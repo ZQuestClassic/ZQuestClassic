@@ -1654,6 +1654,7 @@ bool weapon::animate(int)
             if(ignorecombo==(((int)checky&0xF0)+((int)checkx>>4)))
                 break;
             
+			int posx, posy;
 			if(get_bit(quest_rules,qr_OLDMIRRORCOMBOS))
 			{
 				posx=x;
