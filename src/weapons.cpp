@@ -205,7 +205,8 @@ weapon::weapon(weapon const & other):
     frames(other.frames),
     o_flip(other.o_flip),
     temp1(other.temp1),
-    behind(other.behind)
+    temp1(other.temp1),
+    linkedItem(other.linkedItem)
 
 {
     for(int i=0; i<10; ++i)
@@ -316,6 +317,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     hysz=15;
     hzsz=8;
     isLit = false;
+	linkedItem = -1;
     
     int defaultw, itemid = parentitem;
     
