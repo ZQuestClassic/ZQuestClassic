@@ -2208,7 +2208,7 @@ void LinkClass::checkstab()
 		
 	}
 	
-    if(!(itemsbuf[parentitem].flags & ITEM_FLAG7))
+    if(((parentitem==-1&&get_bit(quest_rules,qr_NOITEMMELEE))||parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
     {
         for(int j=0; j<items.Count(); j++)
         {
