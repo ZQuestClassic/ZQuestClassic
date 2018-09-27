@@ -6450,6 +6450,13 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 		}
 	    }
+		
+		if( s_version < 40){
+			if(tempitem.family == itype_ring){
+				if(get_bit(quest_rules,qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
+				else tempitem.flags &= ~ITEM_FLAG1;
+			}
+		}
 	    
             if(tempitem.fam_type==0)  // Always do this
                 tempitem.fam_type=1;
