@@ -3566,7 +3566,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
     
     int hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
     
-    bool global_ring = (get_bit(quest_rules,qr_RINGAFFECTDAMAGE) != 0);
+    bool global_ring = (itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1);
     bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
     
     int itemid = current_item_id(itype_boots);
