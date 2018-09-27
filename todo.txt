@@ -178,39 +178,30 @@ Subscreen scrolling speed variable.
 *** RULES ***
 -------------
 Forward QRs to Items
-qr_FIREPROOFLINK (candle, done; book fire, todo) //Where is this done? -V
-qr_TEMPCANDLELIGHT (candle, done; book fire, todo)
-qr_OUCHBOMBS(bombs, done; sbombs done)
-qr_BRANGPICKUP(brangs done; hookshots, todo.)
-qr_NOWANDMELEE(wand done; canes, toto)
+qr_NOWANDMELEE(wand done; canes, toto) //Where is this done? -V
 qr_WHIRLWINDMIRROR
-qr_BRKNSHLDTILES
-qr_NONBUBBLEMEDICINE
-qr_NONBUBBLEFAIRIES (or should this be npcs?)
-qr_Z3BRANG_HSHOT
+qr_BRKNSHLDTILES //This goes on an item? Shouldn't this be enemies? -V
 qr_NOITEMMELEE
-qr_QUICKSWORD	
 qr_NOBOMBPALFLASH (may be better as a QR)
-qr_NODIVING 
-qr_RINGAFFECTDAMAGE
-qr_SLASHFLIPFIX
 qr_NOWANDMELEE
 qr_SWORDMIRROR
 qr_LADDERANYWHERE(perhaps better by per-dmap basis?)
+qr_SLOWCHARGINGWALK //Charge rings or swords? Or both, with a flag for "Overrides item slowwalk" on charge rings?
 
 Implement Itemdata-based rule behaviour
+
+Forward QRs to Combos
+qr_NONBUBBLEFAIRIES //"Fairy Combos" as in flag 7. -V
 
 Forward QRs to enemeies
 qr_MEANTRAPS
 qr_MEANPLACEDTRAPS
 qr_PHANTOMPLACEDTRAPS
-qr_NONBUBBLEFAIRIES(or should this be items?)
 qr_SHADOWS
 qr_TRANSSHADOWS
 qr_SHADOWSFLICKER
 qr_NOGUYPOOF
 qr_WALLFLIERS
-qr_LENSSEESENEMIES
 qr_ENEMIESFLICKER
 qr_PEAHATCLOCKVULN
 qr_BROKENSTATUES
@@ -280,6 +271,17 @@ Enemy Defence Code (new defence outcomes, only!)
 Enemy Editor Enemy Sizing (Seems as if it should be fine.)
 qr_RAFTLENS
 qr_LENSSEESENEMIES(may be  better on a per-npc basis, 'Seen by Lens').
+qr_FIREPROOFLINK
+qr_TEMPCANDLELIGHT
+qr_OUCHBOMBS
+qr_BRANGPICKUP
+qr_NONBUBBLEMEDICINE
+qr_NONBUBBLETRIFORCE
+qr_NODIVING 
+qr_Z3BRANG_HSHOT
+qr_QUICKSWORD	
+qr_RINGAFFECTDAMAGE
+qr_SLASHFLIPFIX
 
 
 Might Do:
