@@ -5830,6 +5830,14 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
     char keyfilename[2048];
     replace_extension(keyfilename, filename, "key", 2047);
     bool gotfromkey=false;
+    char pwdfilename[2048];
+    replace_extension(pwdfilename, filename, "zpwd", 2047);
+    bool gotfrompwdfile=false;
+    char cheatfilename[2048];
+    replace_extension(cheatfilename, filename, "zcheat", 2047);
+    bool gotfromcheatfile=false;
+    
+    
     
     if(exists(keyfilename))
     {
@@ -5866,7 +5874,47 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
         pack_fclose(fp);
     }
     
+    if(exists(pwdfilename))
+    {
+        char password[256];
+        PACKFILE *fp = pack_fopen_password(pwdfilename, F_READ, "");
+        char msg[80];
+        memset(msg,0,80);
+        pfread(msg, 80, fp,true);
+        
+        if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
+        {
+            short ver = 0;
+            byte  bld = 0;
+            short pwd_len;
+            p_igetw(&ver,fp,true);
+            p_getc(&bld,fp,true);
+            memset(password,0,256);
+            
+            if((ver > 0x211)||((ver == 0x211)&&(bld>1)))
+            {
+                pwd_len=256;
+            }
+            else
+            {
+                pwd_len=30;
+            }
+            
+            pfread(password, pwd_len, fp,true);
+            gotfrompwdfile=check_questpwd(hdr, password);
+            memset(password,0,256);
+            memset(pwd,0,256);
+        }
+        
+        pack_fclose(fp);
+    }
+    
     if(gotfromkey)
+    {
+        return true;
+    }
+    
+    if(gotfrompwdfile)
     {
         return true;
     }
@@ -11284,7 +11332,6 @@ int save_unencoded_quest(const char *filename, bool compressed)
     
     
     
-    
     box_start(1, "Saving Quest", lfont, font, true);
     box_out("Saving Quest...");
     box_eol();
@@ -11551,7 +11598,7 @@ int save_unencoded_quest(const char *filename, bool compressed)
     pack_fclose(f);
     
     replace_extension(keyfilename, get_filename(filepath), "key", 2047);
-    
+   
     if(header.use_keyfile&&header.dirty_password)
     {
         PACKFILE *fp = pack_fopen_password(keyfilename, F_WRITE, "");
@@ -11565,6 +11612,69 @@ int save_unencoded_quest(const char *filename, bool compressed)
         p_putc(header.build,fp);
         pfwrite(header.password, 256, fp);
         pack_fclose(fp);
+	al_trace("Wrote Master Key File, filename: %s\n",keyfilename);
+
+	replace_extension(keyfilename, get_filename(filepath), "zpwd", 2047); //lower-level, zq-only key
+	PACKFILE *fp2 = pack_fopen_password(keyfilename, F_WRITE, "");
+        memset(msg,0,80);
+        sprintf(msg, "ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!");
+        msg[78]=13;
+        msg[79]=10;
+        pfwrite(msg, 80, fp2);
+        p_iputw(header.zelda_version,fp2);
+        p_putc(header.build,fp2);
+        pfwrite(header.password, 256, fp2);
+        pack_fclose(fp2);
+	al_trace("Wrote ZQuest Editor Password File, filename: %s\n",keyfilename);
+        
+	
+	replace_extension(keyfilename, get_filename(filepath), "zcheat", 2047); //lower-level, zq-only key
+	PACKFILE *fp3 = pack_fopen_password(keyfilename, F_WRITE, "");
+        memset(msg,0,80);
+        sprintf(msg, "ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!");
+        msg[78]=13;
+        msg[79]=10;
+        pfwrite(msg, 80, fp3);
+        p_iputw(header.zelda_version,fp3);
+        p_putc(header.build,fp2);
+	/* no, this writes as bytes
+	long temp_pw[256];
+	for ( int q = 0; q < 256; ++q ) temp_pw[q] = header.password[q];
+	int hash = 0;
+	for ( int q = 0; q < 256 && temp_pw[q] != NULL; ++q ) hash += temp_pw[q]; //silly hash -Z 
+	for ( int q = 0; q < 256; ++q ) temp_pw[q] *= hash;
+	*/
+	char hashmap = 'Z';
+	hashmap += 'Q';
+	hashmap += 'U';
+	hashmap += 'E';
+	hashmap += 'S';
+	hashmap += 'T';
+	char temp_pw[32];
+	memset(temp_pw,0,32);
+	for ( int q = 0; q < 32; ++q ) 
+	{
+		temp_pw[q] = header.password[q];
+		temp_pw[q] += hashmap;
+	}
+	
+	//al_trace("hashed password is: %s\n", header.password);
+	//al_trace("un-hashed password is: %s\n", temp_pw);
+	
+	//reverse
+		
+		//char reversehashpw[32];
+		//memset(reversehashpw,0,32);
+		//for ( int q = 0; q < 30; q++ ) 
+		//{
+		//	reversehashpw[q] = temp_pw[q] - hashmap;
+		//}
+		
+		//al_trace("reverse-hashed password is: %s\n", reversehashpw);
+	
+        pfwrite(temp_pw, 32, fp3); //the pw would be visible as plain ascii, so, this is useless without encoding it
+	pack_fclose(fp3);
+	al_trace("Wrote ZC Player Cheats, filename: %s\n",keyfilename);
     }
     
     new_return(0);
