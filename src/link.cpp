@@ -5983,7 +5983,7 @@ bool LinkClass::can_attack()
 {
 	int currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
     if(action==hopping || action==swimming || action==freeze || link_is_stunned > 0 ||
-            (action==attacking && ((attack!=wSword && attack!=wWand) || !(get_bit(quest_rules,qr_QUICKSWORD)||(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5))) && charging!=0) || spins>0)
+            (action==attacking && ((attack!=wSword && attack!=wWand) || !(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)) && charging!=0) || spins>0)
     {
         return false;
     }
@@ -6111,7 +6111,7 @@ void LinkClass::do_hopping()
             --diveclk;
         else if(DrunkrAbtn())
         {
-            bool global_diving=(get_bit(quest_rules,qr_NODIVING)>0 || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG1)>0);
+            bool global_diving=(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG1);
             bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
             
             if(global_diving==screen_diving)
@@ -6563,7 +6563,7 @@ void LinkClass::movelink()
     }
     else if(action==swimming)
     {
-        bool global_diving=(get_bit(quest_rules,qr_NODIVING)>0 || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG1)>0);
+        bool global_diving=(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG1);
         bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
         
         if(DrunkrAbtn()&&(global_diving==screen_diving))
@@ -6590,7 +6590,7 @@ void LinkClass::movelink()
     //&0xFFF removes the "bow & arrows" bitmask
     //The Quick Sword is allowed to interrupt attacks.
     int currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
-    if((!attackclk && action!=attacking) || ((attack==wSword || attack==wWand) && (get_bit(quest_rules,qr_QUICKSWORD)||(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5))))
+    if((!attackclk && action!=attacking) || ((attack==wSword || attack==wWand) && (itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)))
     {
         if(DrunkrBbtn())
         {
