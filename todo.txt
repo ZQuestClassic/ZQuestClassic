@@ -181,7 +181,6 @@ Forward QRs to Items
 qr_NOWANDMELEE(wand done; canes, toto) //Where is this done? -V
 qr_WHIRLWINDMIRROR
 qr_BRKNSHLDTILES //This goes on an item? Shouldn't this be enemies? -V
-qr_NOITEMMELEE
 qr_NOBOMBPALFLASH (may be better as a QR)
 qr_NOWANDMELEE
 qr_SWORDMIRROR
@@ -282,6 +281,7 @@ qr_Z3BRANG_HSHOT
 qr_QUICKSWORD	
 qr_RINGAFFECTDAMAGE
 qr_SLASHFLIPFIX
+qr_NOITEMMELEE
 
 
 Might Do:
