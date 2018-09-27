@@ -6473,6 +6473,9 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			if(tempitem.family == itype_ring){
 				if(get_bit(quest_rules,qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
 				else tempitem.flags &= ~ITEM_FLAG1;
+			} else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna){
+				if(get_bit(quest_rules,qr_SLASHFLIPFIX))tempitem.flags |= ITEM_FLAG8;
+				else tempitem.flags &= ~ITEM_FLAG8;
 			}
 		}
 	    
