@@ -1197,7 +1197,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
         case right:
             --t;
             
-            if(spins>0 || get_bit(quest_rules, qr_SLASHFLIPFIX))
+            if(spins>0 || (itemsbuf[itemid].flags & ITEM_FLAG8))
             {
                 wx=1;
                 wy=13;
@@ -1217,7 +1217,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
                 t = wpnsbuf[wpn2].newtile;
                 cs2 = wpnsbuf[wpn2].csets&15;
                 
-                if(spins>0 || get_bit(quest_rules, qr_SLASHFLIPFIX))
+                if(spins>0 || (itemsbuf[itemid].flags & ITEM_FLAG8))
                 {
                     wx-=1;
                     wy-=2;
