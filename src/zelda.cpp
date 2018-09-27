@@ -1497,8 +1497,11 @@ int init_game()
     //setPackfilePassword(NULL);
     
     char keyfilename[2048];
+    char keyfilename2[2048];
     replace_extension(keyfilename, qstpath, "key", 2047);
+    replace_extension(keyfilename2, qstpath, "zpwd", 2047);
     bool gotfromkey=false;
+    bool gotfrompwdfile=false;
     
     if(exists(keyfilename))
     {
@@ -1524,6 +1527,37 @@ int init_game()
             }
             */
             gotfromkey=check_questpwd(&QHeader, password);
+            memset(password,0,32);
+            memset(pwd,0,32);
+        }
+        
+        pack_fclose(fp);
+    }
+    
+    if(exists(keyfilename2))
+    {
+        char password[32], pwd[32];
+        PACKFILE *fp = pack_fopen_password(keyfilename, F_READ,"");
+        char msg[80];
+        memset(msg,0,80);
+        pfread(msg, 80, fp,true);
+        
+        if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
+        {
+            short ver;
+            byte  bld;
+            p_igetw(&ver,fp,true);
+            p_getc(&bld,fp,true);
+            memset(password,0,32);
+            pfread(password, 30, fp,true);
+            /*
+            get-questpwd(&QHeader, pwd);
+            if (strcmp(pwd,password)==0)
+            {
+            	gotfromkey=true;
+            }
+            */
+            gotfrompwdfile=check_questpwd(&QHeader, password);
             memset(password,0,32);
             memset(pwd,0,32);
         }

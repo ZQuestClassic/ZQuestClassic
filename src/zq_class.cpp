@@ -5829,7 +5829,12 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
     
     char keyfilename[2048];
     replace_extension(keyfilename, filename, "key", 2047);
+    char pwdfilename[2048];
+    replace_extension(pwdfilename, filename, "zpwd", 2047);
     bool gotfromkey=false;
+    bool gotfrompwdfile=false;
+    
+    
     
     if(exists(keyfilename))
     {
@@ -5866,7 +5871,47 @@ int quest_access(const char *filename, zquestheader *hdr, bool compressed)
         pack_fclose(fp);
     }
     
+    if(exists(pwdfilename))
+    {
+        char password[256];
+        PACKFILE *fp = pack_fopen_password(pwdfilename, F_READ, "");
+        char msg[80];
+        memset(msg,0,80);
+        pfread(msg, 80, fp,true);
+        
+        if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
+        {
+            short ver = 0;
+            byte  bld = 0;
+            short pwd_len;
+            p_igetw(&ver,fp,true);
+            p_getc(&bld,fp,true);
+            memset(password,0,256);
+            
+            if((ver > 0x211)||((ver == 0x211)&&(bld>1)))
+            {
+                pwd_len=256;
+            }
+            else
+            {
+                pwd_len=30;
+            }
+            
+            pfread(password, pwd_len, fp,true);
+            gotfrompwdfile=check_questpwd(hdr, password);
+            memset(password,0,256);
+            memset(pwd,0,256);
+        }
+        
+        pack_fclose(fp);
+    }
+    
     if(gotfromkey)
+    {
+        return true;
+    }
+    
+    if(gotfrompwdfile)
     {
         return true;
     }
@@ -11284,7 +11329,6 @@ int save_unencoded_quest(const char *filename, bool compressed)
     
     
     
-    
     box_start(1, "Saving Quest", lfont, font, true);
     box_out("Saving Quest...");
     box_eol();
@@ -11551,7 +11595,7 @@ int save_unencoded_quest(const char *filename, bool compressed)
     pack_fclose(f);
     
     replace_extension(keyfilename, get_filename(filepath), "key", 2047);
-    
+   
     if(header.use_keyfile&&header.dirty_password)
     {
         PACKFILE *fp = pack_fopen_password(keyfilename, F_WRITE, "");
@@ -11565,6 +11609,19 @@ int save_unencoded_quest(const char *filename, bool compressed)
         p_putc(header.build,fp);
         pfwrite(header.password, 256, fp);
         pack_fclose(fp);
+	    
+	    
+	replace_extension(keyfilename, get_filename(filepath), "zpwd", 2047); //lower-level, zq-only key
+	PACKFILE *fp2 = pack_fopen_password(keyfilename, F_WRITE, "");
+        memset(msg,0,80);
+        sprintf(msg, "ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!");
+        msg[78]=13;
+        msg[79]=10;
+        pfwrite(msg, 80, fp2);
+        p_iputw(header.zelda_version,fp2);
+        p_putc(header.build,fp2);
+        pfwrite(header.password, 256, fp2);
+        pack_fclose(fp2);
     }
     
     new_return(0);
