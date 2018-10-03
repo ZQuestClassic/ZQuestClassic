@@ -1197,7 +1197,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
         case right:
             --t;
             
-            if(spins>0 || get_bit(quest_rules, qr_SLASHFLIPFIX))
+            if(spins>0 || (itemsbuf[itemid].flags & ITEM_FLAG8))
             {
                 wx=1;
                 wy=13;
@@ -1217,7 +1217,7 @@ void LinkClass::positionSword(weapon *w, int itemid)
                 t = wpnsbuf[wpn2].newtile;
                 cs2 = wpnsbuf[wpn2].csets&15;
                 
-                if(spins>0 || get_bit(quest_rules, qr_SLASHFLIPFIX))
+                if(spins>0 || (itemsbuf[itemid].flags & ITEM_FLAG8))
                 {
                     wx-=1;
                     wy-=2;
@@ -1984,6 +1984,7 @@ void LinkClass::checkstab()
     int wx=0,wy=0,wz=0,wxsz=0,wysz=0;
     bool found = false;
     int melee_weapon_index;
+	int parentitem=-1;
     
     for(int i=0; i<Lwpns.Count(); i++)
     {
@@ -2002,6 +2003,7 @@ void LinkClass::checkstab()
             wz=w->z;
             wxsz = w->hxsz;
             wysz = w->hysz;
+			parentitem = w->parentitem;
             break;
         }
     }
@@ -2011,197 +2013,202 @@ void LinkClass::checkstab()
         
     if(!found)
         return;
-        
-    if(attack==wCByrna||attack==wFire)
-        return;
-        
-    if(attack==wHammer)
-    {
-        if(attackclk<15)
-        {
-            switch(w->dir)
-            {
-            case up:
-                wx=x-1;
-                wy=y-4;
-                break;
-                
-            case down:
-                wx=x+8;
-                wy=y+28;
-                break; // This is consistent with 2.10
-                
-            case left:
-                wx=x-13;
-                wy=y+14;
-                break;
-                
-            case right:
-                wx=x+21;
-                wy=y+14;
-                break;
-            }
-            
-            if(attackclk==12 && z==0 && sideviewhammerpound())
-            {
-		decorations.add(new dHammerSmack((fix)wx, (fix)wy, dHAMMERSMACK, 0));
-                /* The hammer smack sprites weren't being positioned properly if Link changed directions on the same frame that they are created.
-		switch(dir)
-                {
-                case up:
-                    decorations.add(new dHammerSmack(x-1, y-4, dHAMMERSMACK, 0));
-                    break;
-                    
-                case down:
-                    decorations.add(new dHammerSmack(x+8, y+28, dHAMMERSMACK, 0));
-                    break;
-                    
-                case left:
-                    decorations.add(new dHammerSmack(x-13, y+14, dHAMMERSMACK, 0));
-                    break;
-                    
-                case right:
-                    decorations.add(new dHammerSmack(x+21, y+14, dHAMMERSMACK, 0));
-                    break;
-                }
-		*/
-            }
-            
-            return;
-        }
-        else if(attackclk==15)
-        {
-            // Hammer's reach needs adjusted slightly for backward compatibility
-            if(w->dir==up)
-                w->hyofs-=1;
-            else if(w->dir==left)
-                w->hxofs-=2;
-        }
-    }
     
-    // The return of Spaghetti Code Constants!
-    int itype = (attack==wWand ? itype_wand : itype_sword);
-    int itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-    itemid = vbound(itemid, 0, MAXITEMS-1);
-    
-    // The sword offsets aren't based on anything other than what felt about right
-    // compared to the NES game and what mostly kept it from hitting things that
-    // should clearly be out of range. They could probably still use more tweaking.
-    // Don't use 2.10 for reference; it's pretty far off.
-    // - Saf
-    
-    if(game->get_canslash() && (attack==wSword || attack==wWand) && itemsbuf[itemid].flags & ITEM_FLAG4)
-    {
-        switch(w->dir)
-        {
-        case up:
-            if(attackclk<8)
-            {
-                wy-=4;
-            }
-            
-            break;
-            
-        case down:
-            //if(attackclk<8)
-        {
-            wy-=2;
-        }
-        break;
-        
-        case left:
-        
-            //if(attackclk<8)
-        {
-            wx+=2;
-        }
-        
-        break;
-        
-        case right:
-        
-            //if(attackclk<8)
-        {
-            wx-=3;
-            //wy+=((spins>0 || get_bit(quest_rules, qr_SLASHFLIPFIX)) ? -4 : 4);
-        }
-        
-        break;
-        }
-    }
-    
-    switch(w->dir)
-    {
-    case up:
-        wx+=2;
-        break;
-        
-    case down:
-        break;
-        
-    case left:
-        wy-=3;
-        break;
-        
-    case right:
-        wy-=3;
-        break;
-    }
-    
-    wx+=w->hxofs;
-    wy+=w->hyofs;
-    
-    for(int i=0; i<guys.Count(); i++)
-    {
-        // So that Link can actually hit peahats while jumping, his weapons' hzsz becomes 16 in midair.
-        if((guys.spr(i)->hit(wx,wy,wz,wxsz,wysz,wz>0?16:8) && (attack!=wWand || !get_bit(quest_rules,qr_NOWANDMELEE)))
-                || (attack==wWand && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !get_bit(quest_rules,qr_NOWANDMELEE))
-                || (attack==wHammer && guys.spr(i)->hit(wx,wy-8,z,16,24,z>0?16:8)))
-        {
-            // Checking the whimsical ring for every collision check causes
-            // an odd bug. It's much more likely to activate on a 0-damage
-            // weapon, since a 0-damage hit won't make the enemy invulnerable
-            // to damaging hits in the following frames.
-            
-            int whimsyid = current_item_id(itype_whimsicalring);
-            int whimsypower = 0;
-            
-            if(whimsyid>-1)
-            {
-                whimsypower = rand()%zc_max(itemsbuf[current_item_id(itype_whimsicalring)].misc1,1) ?
-                              0 : current_item_power(itype_whimsicalring);
-            }
-            
-            int h = hit_enemy(i,attack,(weaponattackpower() + whimsypower)*DAMAGE_MULTIPLIER,wx,wy,dir,directWpn);
-	    enemy *e = (enemy*)guys.spr(i);
-	    if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
-	    //melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
-            
-            if(h<0 && whimsypower)
-            {
-                sfx(itemsbuf[whimsyid].usesound);
-            }
-            
-            if(h && charging>0)
-            {
-                attackclk = SWORDTAPFRAME;
-                spins=0;
-            }
-            
-            if(h && hclk==0 && inlikelike != 1)
-            {
-                if(GuyHit(i,x+7,y+7,z,2,2,hzsz)!=-1)
-                {
-                    hitlink(i);
-                }
-            }
-            
-            if(h==2)
-                break;
-        }
-    }
-    
-    if(!get_bit(quest_rules,qr_NOITEMMELEE))
+	if(attack == wFire)
+		return;
+	
+    if(attack!=wCByrna)
+	{
+			
+		if(attack==wHammer)
+		{
+			if(attackclk<15)
+			{
+				switch(w->dir)
+				{
+				case up:
+					wx=x-1;
+					wy=y-4;
+					break;
+					
+				case down:
+					wx=x+8;
+					wy=y+28;
+					break; // This is consistent with 2.10
+					
+				case left:
+					wx=x-13;
+					wy=y+14;
+					break;
+					
+				case right:
+					wx=x+21;
+					wy=y+14;
+					break;
+				}
+				
+				if(attackclk==12 && z==0 && sideviewhammerpound())
+				{
+			decorations.add(new dHammerSmack((fix)wx, (fix)wy, dHAMMERSMACK, 0));
+					/* The hammer smack sprites weren't being positioned properly if Link changed directions on the same frame that they are created.
+			switch(dir)
+					{
+					case up:
+						decorations.add(new dHammerSmack(x-1, y-4, dHAMMERSMACK, 0));
+						break;
+						
+					case down:
+						decorations.add(new dHammerSmack(x+8, y+28, dHAMMERSMACK, 0));
+						break;
+						
+					case left:
+						decorations.add(new dHammerSmack(x-13, y+14, dHAMMERSMACK, 0));
+						break;
+						
+					case right:
+						decorations.add(new dHammerSmack(x+21, y+14, dHAMMERSMACK, 0));
+						break;
+					}
+			*/
+				}
+				
+				return;
+			}
+			else if(attackclk==15)
+			{
+				// Hammer's reach needs adjusted slightly for backward compatibility
+				if(w->dir==up)
+					w->hyofs-=1;
+				else if(w->dir==left)
+					w->hxofs-=2;
+			}
+		}
+		
+		// The return of Spaghetti Code Constants!
+		int itype = (attack==wWand ? itype_wand : itype_sword);
+		int itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+		itemid = vbound(itemid, 0, MAXITEMS-1);
+		
+		// The sword offsets aren't based on anything other than what felt about right
+		// compared to the NES game and what mostly kept it from hitting things that
+		// should clearly be out of range. They could probably still use more tweaking.
+		// Don't use 2.10 for reference; it's pretty far off.
+		// - Saf
+		
+		if(game->get_canslash() && (attack==wSword || attack==wWand) && itemsbuf[itemid].flags & ITEM_FLAG4)
+		{
+			switch(w->dir)
+			{
+			case up:
+				if(attackclk<8)
+				{
+					wy-=4;
+				}
+				
+				break;
+				
+			case down:
+				//if(attackclk<8)
+			{
+				wy-=2;
+			}
+			break;
+			
+			case left:
+			
+				//if(attackclk<8)
+			{
+				wx+=2;
+			}
+			
+			break;
+			
+			case right:
+			
+				//if(attackclk<8)
+			{
+				wx-=3;
+				//wy+=((spins>0 || get_bit(quest_rules, qr_SLASHFLIPFIX)) ? -4 : 4);
+			}
+			
+			break;
+			}
+		}
+		
+		switch(w->dir)
+		{
+		case up:
+			wx+=2;
+			break;
+			
+		case down:
+			break;
+			
+		case left:
+			wy-=3;
+			break;
+			
+		case right:
+			wy-=3;
+			break;
+		}
+		
+		wx+=w->hxofs;
+		wy+=w->hyofs;
+		
+		for(int i=0; i<guys.Count(); i++)
+		{
+			// So that Link can actually hit peahats while jumping, his weapons' hzsz becomes 16 in midair.
+			if((guys.spr(i)->hit(wx,wy,wz,wxsz,wysz,wz>0?16:8) && (attack!=wWand || !get_bit(quest_rules,qr_NOWANDMELEE)))
+					|| (attack==wWand && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !get_bit(quest_rules,qr_NOWANDMELEE))
+					|| (attack==wHammer && guys.spr(i)->hit(wx,wy-8,z,16,24,z>0?16:8)))
+			{
+				// Checking the whimsical ring for every collision check causes
+				// an odd bug. It's much more likely to activate on a 0-damage
+				// weapon, since a 0-damage hit won't make the enemy invulnerable
+				// to damaging hits in the following frames.
+				
+				int whimsyid = current_item_id(itype_whimsicalring);
+				int whimsypower = 0;
+				
+				if(whimsyid>-1)
+				{
+					whimsypower = rand()%zc_max(itemsbuf[current_item_id(itype_whimsicalring)].misc1,1) ?
+								  0 : current_item_power(itype_whimsicalring);
+				}
+				
+				int h = hit_enemy(i,attack,(weaponattackpower() + whimsypower)*DAMAGE_MULTIPLIER,wx,wy,dir,directWpn);
+			enemy *e = (enemy*)guys.spr(i);
+			if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
+			//melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
+				
+				if(h<0 && whimsypower)
+				{
+					sfx(itemsbuf[whimsyid].usesound);
+				}
+				
+				if(h && charging>0)
+				{
+					attackclk = SWORDTAPFRAME;
+					spins=0;
+				}
+				
+				if(h && hclk==0 && inlikelike != 1)
+				{
+					if(GuyHit(i,x+7,y+7,z,2,2,hzsz)!=-1)
+					{
+						hitlink(i);
+					}
+				}
+				
+				if(h==2)
+					break;
+			}
+		}
+		
+	}
+	
+    if(((parentitem==-1&&get_bit(quest_rules,qr_NOITEMMELEE))||parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
     {
         for(int j=0; j<items.Count(); j++)
         {
@@ -2248,6 +2255,8 @@ void LinkClass::checkstab()
         }
     }
     
+	if(attack==wCByrna)return;
+	
     if(attack==wSword)
     {
         if(attackclk == 6)
