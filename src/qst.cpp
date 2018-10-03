@@ -10794,6 +10794,17 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         ffcScriptData[m].a[1] = 10000;
     }
     
+    //Dodongos in 2.10 used the boss roar, not the dodongo sound. -Z
+    //May be any version before 2.11. -Z
+    
+    if ( Header->zelda_version <= 0x210 ) 
+    {
+	if ( temp_mapscr->bosssfx == WAV_DODONGO ) 
+	{
+		temp_mapscr->bosssfx = WAV_ROAR;
+	}
+    }
+    
     return 0;
 }
 
