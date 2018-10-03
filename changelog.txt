@@ -8,6 +8,9 @@ Fix dodongos using the wwrong sound in 2.10 and earlier quests.
 	
 Ported qrSLASHFLIPFIX to item editor flags for candles, canes, and swords. 
 	( Venrob, 10th October, 2018 )
+
+Fixed improper warp points in 2nd.qst.
+	( NightmareJames, 29th September, 2018 )
 	
 Ported qrNOITEMMELEE to item editor flags for swords, wands, and canes as ITEM_FLAG7.
 	( Venrob, 28th September, 2018 )
@@ -119,6 +122,7 @@ Added and modified labels for the new flags in the item editor.
 Added entry for itype_flippers to zq_custom labels for item editor.
 Ported new item flags from QRs on reading quests.
 Added and modified labels for the new flags in the item editor.
+Fixed new fonts looping infinitely on subscreens.
 	( ZoriaRPG, 20th September 2018 )
 	
 Fixed bug with Wand/Book Fire
