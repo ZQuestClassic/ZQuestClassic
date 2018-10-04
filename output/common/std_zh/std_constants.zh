@@ -50,6 +50,9 @@ const int MIN_FFC			= 1;
 const int MAX_FFC			= 32; 
 const int MIN_OBJ			= 1; //Short, const for loops. 
 
+const int MIN_COMBO_POS 			= 0;
+const int MAX_COMBO_POS 			= 175;
+const int NUM_COMBO_POS 			= 176;
 
 const int MAX_OBJECT_POINTERS 		= 255; //Max of any one type. 
 const int MAX_WEAPON_POINTERS 		= 510; //eweapon and lweapon combined.
