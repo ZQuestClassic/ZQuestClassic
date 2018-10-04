@@ -6851,38 +6851,38 @@ void set_register(const long arg, const long value)
 	    int index = vbound(ri->d[0]/10000,0,4);
 		switch(index){
 		    case 0:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG1:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG1:~ITEM_FLAG1; 
 		    break;
 		    case 1:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG2:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG2:~ITEM_FLAG2; 
 		    case 2:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG3:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG3:~ITEM_FLAG3; 
 		    case 3:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG4:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG4:~ITEM_FLAG4; 
 		    case 4:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG5:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG5:~ITEM_FLAG5; 
 		    case 5:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG6:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG6:~ITEM_FLAG6; 
 		    case 6:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG7:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG7:~ITEM_FLAG7; 
 		    case 7:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG8:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG8:~ITEM_FLAG8; 
 		    case 8:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG9:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG9:~ITEM_FLAG9; 
 		    case 9:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG10:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG10:~ITEM_FLAG10; 
 		    case 10:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG11:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG11:~ITEM_FLAG11; 
 		    case 11:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG12:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG12:~ITEM_FLAG12; 
 		    case 12:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG13:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG13:~ITEM_FLAG13; 
 		    case 13:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG14:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG14:~ITEM_FLAG14; 
 		    case 14:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG15:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG15:~ITEM_FLAG15; 
 		    case 15:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG16:0; 
+			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG16:~ITEM_FLAG16; 
 		    
 		    
 		    default: 
