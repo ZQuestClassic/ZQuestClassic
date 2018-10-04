@@ -1,5 +1,11 @@
 ChangeLog for 2.53.0 
 
+//Beta 22
+Rewrote the onSaveMapPic() function to fix issues with it causing
+random glitches, including screen drawing glitches while scrolling and other
+issues.
+	( ZoriaRPG, 4th october, 2018 )
+
 //Beta 21
 Added constants for MIN_COMBO_POS, MAX_COMBO_POS, and NUM_COMBO_POS to std.zh.
 Rewrote all SetLayerCombo*() and GetlayerCombo*() function sin std.zh.
