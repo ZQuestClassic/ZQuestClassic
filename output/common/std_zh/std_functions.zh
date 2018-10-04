@@ -301,7 +301,15 @@ int GetLayerComboC(int layer, int pos)
 	}
 	if ( SETLAYERCOMBO_USE_MAPDATA )
 	{
-		mapdata md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		mapdata md;
+		if ( layer ) 
+		{
+			md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		}
+		else
+		{
+			md = Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
+		}
 		return md->ComboC[pos];
 	}
 	else
@@ -312,6 +320,7 @@ int GetLayerComboC(int layer, int pos)
 			{
 				return Screen->ComboC[pos];
 			}
+			else return Game->GetComboCSet(Game->GetCurMap(), Game->GetCurScreen(), pos);
 		}
 		
 		return Game->GetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
@@ -334,28 +343,44 @@ void SetLayerComboC(int layer, int pos, int combo)
 	}
 	if ( SETLAYERCOMBO_USE_MAPDATA )
 	{
-		mapdata md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
-		if (!layer) //layer 0
+		mapdata md;
+		if ( layer ) 
 		{
-			if ( !SETLAYERCOMBO_ONLY_USE_MAPDATA)
+			md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		}
+		else //layer 0
+		{
+			if ( SETLAYERCOMBO_ONLY_USE_MAPDATA )
+			{
+				md->ComboC[pos] = combo;
+				return;
+			}
+			else
 			{
 				Screen->ComboC[pos] = combo;
 				return;
 			}
 		}		
-		md->ComboC[pos] = combo;
 	}
 	else
 	{
 		if (!layer) //layer 0
 		{
-			if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			{
+				Game->SetComboCSet(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+				return;
+			}
+			else
 			{
 				Screen->ComboC[pos] = combo;
 				return;
 			}
 		}
-		Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+		else
+		{
+			Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+		}
 	}
 }
 
@@ -375,7 +400,15 @@ int GetLayerComboI(int layer, int pos)
 	}
 	if ( SETLAYERCOMBO_USE_MAPDATA )
 	{
-		mapdata md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		mapdata md;
+		if ( layer ) 
+		{
+			md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		}
+		else
+		{
+			md = Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
+		}
 		return md->ComboI[pos];
 	}
 	else
@@ -386,6 +419,7 @@ int GetLayerComboI(int layer, int pos)
 			{
 				return Screen->ComboI[pos];
 			}
+			else return Game->GetComboInherentFlag(Game->GetCurMap(), Game->GetCurScreen(), pos);
 		}
 		
 		return Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
@@ -408,28 +442,44 @@ void SetLayerComboI(int layer, int pos, int combo)
 	}
 	if ( SETLAYERCOMBO_USE_MAPDATA )
 	{
-		mapdata md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
-		if (!layer) //layer 0
+		mapdata md;
+		if ( layer ) 
 		{
-			if ( !SETLAYERCOMBO_ONLY_USE_MAPDATA)
+			md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		}
+		else //layer 0
+		{
+			if ( SETLAYERCOMBO_ONLY_USE_MAPDATA )
+			{
+				md->ComboI[pos] = combo;
+				return;
+			}
+			else
 			{
 				Screen->ComboI[pos] = combo;
 				return;
 			}
 		}		
-		md->ComboI[pos] = combo;
 	}
 	else
 	{
 		if (!layer) //layer 0
 		{
-			if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			{
+				Game->SetComboInherentFlag(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+				return;
+			}
+			else
 			{
 				Screen->ComboI[pos] = combo;
 				return;
 			}
 		}
-		Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+		else
+		{
+			Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+		}
 	}
 }
 
@@ -450,6 +500,7 @@ void old_SetLayerComboD(int layer, int pos, int combo) {
   else
     Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
 }
+
 //A shorthand way to get a combo on the current layer.
 //Layer 0 is the screen itself.
 int GetLayerComboD(int layer, int pos) 
@@ -466,7 +517,15 @@ int GetLayerComboD(int layer, int pos)
 	}
 	if ( SETLAYERCOMBO_USE_MAPDATA )
 	{
-		mapdata md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		mapdata md;
+		if ( layer ) 
+		{
+			md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		}
+		else
+		{
+			md = Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
+		}
 		return md->ComboD[pos];
 	}
 	else
@@ -477,6 +536,7 @@ int GetLayerComboD(int layer, int pos)
 			{
 				return Screen->ComboD[pos];
 			}
+			else return Game->GetComboData(Game->GetCurMap(), Game->GetCurScreen(), pos);
 		}
 		
 		return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
@@ -499,31 +559,46 @@ void SetLayerComboD(int layer, int pos, int combo)
 	}
 	if ( SETLAYERCOMBO_USE_MAPDATA )
 	{
-		mapdata md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
-		if (!layer) //layer 0
+		mapdata md;
+		if ( layer ) 
 		{
-			if ( !SETLAYERCOMBO_ONLY_USE_MAPDATA)
+			md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		}
+		else //layer 0
+		{
+			if ( SETLAYERCOMBO_ONLY_USE_MAPDATA )
+			{
+				md->ComboD[pos] = combo;
+				return;
+			}
+			else
 			{
 				Screen->ComboD[pos] = combo;
 				return;
 			}
 		}		
-		md->ComboD[pos] = combo;
 	}
 	else
 	{
 		if (!layer) //layer 0
 		{
-			if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			{
+				Game->SetComboData(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+				return;
+			}
+			else
 			{
 				Screen->ComboD[pos] = combo;
 				return;
 			}
 		}
-		Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+		else
+		{
+			Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+		}
 	}
 }
-
 
 //A shorthand way to get a combo flag on the current layer.
 //Layer 0 is the screen itself.
@@ -559,7 +634,15 @@ int GetLayerComboF(int layer, int pos)
 	}
 	if ( SETLAYERCOMBO_USE_MAPDATA )
 	{
-		mapdata md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		mapdata md;
+		if ( layer ) 
+		{
+			md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		}
+		else
+		{
+			md = Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
+		}
 		return md->ComboF[pos];
 	}
 	else
@@ -570,6 +653,7 @@ int GetLayerComboF(int layer, int pos)
 			{
 				return Screen->ComboF[pos];
 			}
+			else return Game->GetComboFlag(Game->GetCurMap(), Game->GetCurScreen(), pos);
 		}
 		
 		return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
@@ -592,28 +676,44 @@ void SetLayerComboF(int layer, int pos, int combo)
 	}
 	if ( SETLAYERCOMBO_USE_MAPDATA )
 	{
-		mapdata md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
-		if (!layer) //layer 0
+		mapdata md;
+		if ( layer ) 
 		{
-			if ( !SETLAYERCOMBO_ONLY_USE_MAPDATA)
+			md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		}
+		else //layer 0
+		{
+			if ( SETLAYERCOMBO_ONLY_USE_MAPDATA )
+			{
+				md->ComboF[pos] = combo;
+				return;
+			}
+			else
 			{
 				Screen->ComboF[pos] = combo;
 				return;
 			}
 		}		
-		md->ComboF[pos] = combo;
 	}
 	else
 	{
 		if (!layer) //layer 0
 		{
-			if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
 			{
-				Screen->ComboD[pos] = combo;
+				Game->SetComboFlag(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+				return;
+			}
+			else
+			{
+				Screen->ComboF[pos] = combo;
 				return;
 			}
 		}
-		Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+		else
+		{
+			Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+		}
 	}
 }
 
@@ -651,7 +751,15 @@ int GetLayerComboT(int layer, int pos)
 	}
 	if ( SETLAYERCOMBO_USE_MAPDATA )
 	{
-		mapdata md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		mapdata md;
+		if ( layer ) 
+		{
+			md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		}
+		else
+		{
+			md = Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
+		}
 		return md->ComboT[pos];
 	}
 	else
@@ -662,6 +770,7 @@ int GetLayerComboT(int layer, int pos)
 			{
 				return Screen->ComboT[pos];
 			}
+			else return Game->GetComboType(Game->GetCurMap(), Game->GetCurScreen(), pos);
 		}
 		
 		return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
@@ -674,39 +783,54 @@ void SetLayerComboT(int layer, int pos, int combo)
 {
 	if (layer < 0 )
 	{
-		TraceError("Invalid layer passed to GetLayerComboT",layer);
+		TraceError("Invalid layer passed to SetLayerComboT",layer);
 		return;
 	}
 	if (layer > 6 )
 	{
-		TraceError("Invalid layer passed to GetLayerComboT",layer);
+		TraceError("Invalid layer passed to SetLayerComboT",layer);
 		return;
 	}
-	
 	if ( SETLAYERCOMBO_USE_MAPDATA )
 	{
-		mapdata md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
-		if (!layer) //layer 0
+		mapdata md;
+		if ( layer ) 
 		{
-			if ( !SETLAYERCOMBO_ONLY_USE_MAPDATA)
+			md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		}
+		else //layer 0
+		{
+			if ( SETLAYERCOMBO_ONLY_USE_MAPDATA )
+			{
+				md->ComboT[pos] = combo;
+				return;
+			}
+			else
 			{
 				Screen->ComboT[pos] = combo;
 				return;
 			}
 		}		
-		md->ComboT[pos] = combo;
 	}
 	else
 	{
 		if (!layer) //layer 0
 		{
-			if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			{
+				Game->SetComboType(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+				return;
+			}
+			else
 			{
 				Screen->ComboT[pos] = combo;
 				return;
 			}
 		}
-		Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+		else
+		{
+			Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+		}
 	}
 }
 
@@ -747,7 +871,15 @@ int GetLayerComboS(int layer, int pos)
 	}
 	if ( SETLAYERCOMBO_USE_MAPDATA )
 	{
-		mapdata md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		mapdata md;
+		if ( layer ) 
+		{
+			md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		}
+		else
+		{
+			md = Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
+		}
 		return md->ComboS[pos];
 	}
 	else
@@ -758,6 +890,7 @@ int GetLayerComboS(int layer, int pos)
 			{
 				return Screen->ComboS[pos];
 			}
+			else return Game->GetComboSolid(Game->GetCurMap(), Game->GetCurScreen(), pos);
 		}
 		
 		return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
@@ -780,28 +913,44 @@ void SetLayerComboS(int layer, int pos, int combo)
 	}
 	if ( SETLAYERCOMBO_USE_MAPDATA )
 	{
-		mapdata md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
-		if (!layer) //layer 0
+		mapdata md;
+		if ( layer ) 
 		{
-			if ( !SETLAYERCOMBO_ONLY_USE_MAPDATA)
+			md = Game->LoadMapData(Screen->LayerMap(layer),Screen->LayerScreen(layer));
+		}
+		else //layer 0
+		{
+			if ( SETLAYERCOMBO_ONLY_USE_MAPDATA )
+			{
+				md->ComboS[pos] = combo;
+				return;
+			}
+			else
 			{
 				Screen->ComboS[pos] = combo;
 				return;
 			}
 		}		
-		md->ComboS[pos] = combo;
 	}
 	else
 	{
 		if (!layer) //layer 0
 		{
-			if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+			{
+				Game->SetComboSolid(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+				return;
+			}
+			else
 			{
 				Screen->ComboS[pos] = combo;
 				return;
 			}
 		}
-		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+		else
+		{
+			Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+		}
 	}
 }
 
