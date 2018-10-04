@@ -329,7 +329,7 @@ extern char   cheat_goto_dmap_str[4];
 extern char   cheat_goto_screen_str[3];
 extern short  visited[6];
 extern byte   guygrid[176];
-extern mapscr tmpscr[2];
+extern mapscr tmpscr[2]; 
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];

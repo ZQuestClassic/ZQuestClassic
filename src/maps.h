@@ -90,6 +90,7 @@ void over_door(BITMAP *dest,int t, int pos,int side);
 void putdoor(BITMAP *dest,int t,int side,int door,bool redraw=true,bool even_walls=false);
 void showbombeddoor(BITMAP *dest, int side);
 void openshutters();
+void loadscr2(int tmp,int scr,int);
 void loadscr(int tmp,int destdmap,int scr,int ldir,bool overlay);
 void putscr(BITMAP* dest,int x,int y,mapscr* screen);
 void putscrdoors(BITMAP *dest,int x,int y,mapscr* screen);
