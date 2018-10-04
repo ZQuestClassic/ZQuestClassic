@@ -2,6 +2,12 @@
 
 //2.55 Alpha 1 (Candidates)
 
+//2.55 ALphsa 1, Preliminary 13
+Rewrote the onSaveMapPic() function to fix issues with it causing
+random glitches, including screen drawing glitches while scrolling and other
+issues.
+	( ZoriaRPG, 4th october, 2018 )
+
 //2.55 Alpha 1, Preliminary 12
 
 Adjusted the UI for the Item Editor and the Enemy Editor, justifying the sixteen miscellaneous
