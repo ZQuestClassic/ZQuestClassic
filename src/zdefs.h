@@ -186,7 +186,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        19
-#define V_GUYS            36
+#define V_GUYS            37
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        11
@@ -1675,6 +1675,24 @@ struct guydata
     
     word npcscript; //For future npc action scripts. 
     //short parentCore; //Probably not needed here. -Z
+    long editorflags;
+    
+#define ENEMY_FLAG1   0x01
+#define ENEMY_FLAG2   0x02
+#define ENEMY_FLAG3     0x04
+#define ENEMY_FLAG4     0x08
+#define ENEMY_FLAG5     0x10
+#define ENEMY_FLAG6     0x20
+#define ENEMY_FLAG7     0x40
+#define ENEMY_FLAG8     0x80
+#define ENEMY_FLAG9     0x100
+#define ENEMY_FLAG10     0x200
+#define ENEMY_FLAG11     0x400
+#define ENEMY_FLAG12     0x800
+#define ENEMY_FLAG13     0x1000
+#define ENEMY_FLAG14     0x2000
+#define ENEMY_FLAG15     0x4000
+#define ENEMY_FLAG16     0x8000
     
 };
 

@@ -9928,6 +9928,17 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 	    }
 	    
+	    if(guyversion >= 37)
+	    {
+		if(!p_igetl(&(tempguy.editorflags),f,keepdata))
+		{
+			return qe_invalid;
+		}     
+	    }
+	    if ( guyversion < 37 ) { tempguy.editorflags = 0; }
+	    
+	    //All ports of QRs to Enemy Editor Flags go HERE! -Z
+	    
 	    
 	    //default weapon sprites (quest version < 2.54)
 	    //port over old defaults -Z
