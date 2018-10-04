@@ -102,7 +102,7 @@
 #define ZELDA_VERSION_STR   "2.55 Alpha 31"                    //version of the program as presented in text
 #define IS_BETA             -1                         //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        1
-#define DATE_STR            "23rd September, 2018"
+#define DATE_STR            "4th October, 2018"
 #define ZELDA_ABOUT_STR 	    "Zelda Classic 'Necromancer'"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
