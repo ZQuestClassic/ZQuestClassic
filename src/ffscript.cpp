@@ -2686,6 +2686,61 @@ long get_register(const long arg)
 	
 	case NPCFROZEN:
         GET_NPC_VAR_INT(frozenclock, "npc->Frozen") break;
+	
+	
+case NPCBEHAVIOUR: {
+		if(GuyH::loadNPC(ri->guyref, "npc->Behaviour[]") != SH::_NoError) 
+		{
+			ret = -10000;
+			break;
+		}
+		
+		
+	    int index = vbound(ri->d[0]/10000,0,4);
+		switch(index){
+		    case 0:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG1)?10000:0;
+		    break;
+		    case 1:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG2)?10000:0; break;
+		    case 2:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG3)?10000:0; break;
+		    case 3:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG4)?10000:0; break;
+		    case 4:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG5)?10000:0; break;
+		    case 5:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG6)?10000:0; break;
+		   case 6:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG7)?10000:0; break;
+		   case 7:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG8)?10000:0; break;
+		   case 8:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG9)?10000:0; break;
+		   case 9:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG10)?10000:0; break;
+		   case 10:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG11)?10000:0; break;
+		   case 11:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG12)?10000:0; break;
+		   case 12:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG13)?10000:0; break;
+		   case 13:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG14)?10000:0; break;
+		   case 14:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG15)?10000:0; break;
+		   case 15:
+			ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG16)?10000:0; break;
+		   
+		   
+		    default: 
+			   ret = 0; break;
+		}
+		   
+		break;
+	}
+	
+	
     
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
@@ -5401,6 +5456,57 @@ case NPCDATAATTRIBUTE:
 	break;
 }
 
+	case NPCDATABEHAVIOUR: 
+	{
+		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+		{
+			ret = -10000;
+			break;
+		}
+	    int index = vbound(ri->d[0]/10000,0,4);
+		switch(index){
+		    case 0:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG1)?10000:0;
+		    break;
+		    case 1:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG2)?10000:0; break;
+		    case 2:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG3)?10000:0; break;
+		    case 3:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG4)?10000:0; break;
+		    case 4:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG5)?10000:0; break;
+		    case 5:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG6)?10000:0; break;
+		   case 6:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG7)?10000:0; break;
+		   case 7:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG8)?10000:0; break;
+		   case 8:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG9)?10000:0; break;
+		   case 9:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG10)?10000:0; break;
+		   case 10:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG11)?10000:0; break;
+		   case 11:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG12)?10000:0; break;
+		   case 12:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG13)?10000:0; break;
+		   case 13:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG14)?10000:0; break;
+		   case 14:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG15)?10000:0; break;
+		   case 15:
+			ret=(guysbuf[ri->npcdataref].editorflags & ENEMY_FLAG16)?10000:0; break;
+		   
+		   
+		    default: 
+			   ret = 0; break;
+		}
+		   
+		break;
+	}
+
 case NPCDATASHIELD:
 {
 	int indx = ri->d[0] / 10000; 
@@ -6851,38 +6957,53 @@ void set_register(const long arg, const long value)
 	    int index = vbound(ri->d[0]/10000,0,4);
 		switch(index){
 		    case 0:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG1:~ITEM_FLAG1; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG1 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG1; 
 		    break;
 		    case 1:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG2:~ITEM_FLAG2; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG2 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG2; 
+		    break;
 		    case 2:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG3:~ITEM_FLAG3; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG3 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG3; 
+		    break;
 		    case 3:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG4:~ITEM_FLAG4; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG4 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG4; 
+		    break;
 		    case 4:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG5:~ITEM_FLAG5; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG5 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG5; 
+		    break;
 		    case 5:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG6:~ITEM_FLAG6; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG6 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG6;  
+		    break;
 		    case 6:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG7:~ITEM_FLAG7; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG7 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG7;  
+		    break;
 		    case 7:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG8:~ITEM_FLAG8; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG8 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG8; 
+		    break;
 		    case 8:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG9:~ITEM_FLAG9; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG9 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG9; 
+		    break;
 		    case 9:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG10:~ITEM_FLAG10; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG10 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG10;  
+		    break;
 		    case 10:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG11:~ITEM_FLAG11; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG11 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG11; 
+		    break;
 		    case 11:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG12:~ITEM_FLAG12; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG12 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG12;  
+		    break;
 		    case 12:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG13:~ITEM_FLAG13; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG13 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG13; 
+		    break;
 		    case 13:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG14:~ITEM_FLAG14; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG14 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG14; 
+		    break;
 		    case 14:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG15:~ITEM_FLAG15; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG15 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG15;  
+		    break;
 		    case 15:
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_FLAG16:~ITEM_FLAG16; 
+			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG16 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG16; 
+		    break;
 		    
 		    
 		    default: 
@@ -7971,6 +8092,72 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
         SET_NPC_VAR_INT(frozencset, "npc->FrozenCSet") break;
 	case NPCFROZEN:
         SET_NPC_VAR_INT(frozenclock, "npc->Frozen") break;
+	
+	case NPCBEHAVIOUR: 
+	{
+		if(GuyH::loadNPC(ri->guyref, "npc->Behaviour[]") != SH::_NoError) 
+		{
+			break;
+		}
+		int index = vbound(ri->d[0]/10000,0,4);
+		switch(index){
+		    case 0:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG1 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG1;
+		    break;
+		    case 1:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG2 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG2;
+		    break;
+		    case 2:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG3 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG3;
+		    break;
+		    case 3:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG4 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG4; 
+		    break;
+		    case 4:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG5 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG5;
+		    break;
+		    case 5:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG6 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG6; 
+		    break;
+		    case 6:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG7 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG7;
+		    break;
+		    case 7:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG8 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG8;
+		    break;
+		    case 8:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG9 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG9;
+			break;		    
+		    case 9:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG10 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG10;
+		    break;
+		    case 10:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG11 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG11; 
+		    break;
+		    case 11:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG12 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG12;
+		    break;
+		    case 12:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG13 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG13;
+		    break;
+		    case 13:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG14 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG14;
+		    break;
+		    case 14:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG15 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG15; 
+		    break;
+		    case 15:
+			(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG16 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG16; 
+		    break;
+		    
+		    
+		    default: 
+			    break;
+		}
+		   
+		break;
+	}
+	
     
 ///----------------------------------------------------------------------------------------------------//
 //Game Information
@@ -10176,6 +10363,73 @@ case NPCDATAATTRIBUTE:
 	} 
 	break;
 }
+
+	case NPCDATABEHAVIOUR: 
+	{
+		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+		{
+			break;
+		}
+		
+		
+	    int index = vbound(ri->d[0]/10000,0,4);
+		switch(index){
+		    case 0:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG1 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG1;
+		    break;
+		    case 1:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG2 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG2;
+		    break;
+		    case 2:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG3 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG3;
+		    break;
+		    case 3:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG4 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG4; 
+		    break;
+		    case 4:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG5 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG5;
+		    break;
+		    case 5:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG6 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG6; 
+		    break;
+		    case 6:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG7 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG7;
+		    break;
+		    case 7:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG8 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG8;
+		    break;
+		    case 8:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG9 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG9;
+			break;		    
+		    case 9:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG10 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG10;
+		    break;
+		    case 10:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG11 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG11; 
+		    break;
+		    case 11:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG12 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG12;
+		    break;
+		    case 12:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG13 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG13;
+		    break;
+		    case 13:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG14 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG14;
+		    break;
+		    case 14:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG15 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG15; 
+		    break;
+		    case 15:
+			(value) ? guysbuf[ri->npcdataref].editorflags|=ENEMY_FLAG16 : guysbuf[ri->npcdataref].editorflags&= ~ENEMY_FLAG16; 
+		    break;
+		    
+		    
+		    default: 
+			    break;
+		}
+		   
+		break;
+	}
 
 case NPCDATASHIELD:
 {

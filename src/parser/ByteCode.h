@@ -1052,8 +1052,10 @@ using namespace std;
 #define GETPIXEL 	987
 #define DOUNTYPE 	988
 #define IDATAKEEP 	989
+#define NPCBEHAVIOUR 	990
+#define NPCDATABEHAVIOUR 	991
 
-#define LAST_BYTECODE 		990
+#define LAST_BYTECODE 		992
 
 //END OF BYTECODE
 

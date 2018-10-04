@@ -2700,6 +2700,8 @@ enum ASM_DEFINE
 #define DEBUGD			0x1314	
 #define GETPIXEL			0x1315	
 #define DOUNTYPE			0x1316	
+#define NPCBEHAVIOUR			0x1317
+#define NPCDATABEHAVIOUR			0x1318	
 
 //bytecode
 
@@ -2707,7 +2709,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x1317
+#define NUMVARIABLES         0x1319
 
 
 // Script types
