@@ -1,8 +1,18 @@
 ChangeLog for 2.53.0 
 
 //Beta 21
+Added constants for MIN_COMBO_POS, MAX_COMBO_POS, and NUM_COMBO_POS to std.zh.
+Rewrote all SetLayerCombo*() and GetlayerCombo*() function sin std.zh.
+	Added std.cfg flag: SETLAYERCOMBO_ALWAYS_USE_SETCOMBO
+	Setting this to '1' will force using Set/GetCombo on maps instead
+	of setting or getting Screen->Combo*[] for layer 0.
+	Added error logging to these functions. 
+	Added TraceError() to string_functions.zh. 
 Fix dodongos using the wwrong sound in 2.10 and earlier quests. 
 	( ZoriaRPG, 3rd October 2018 )
+	
+Fixed improper warp points in 2nd.qst.
+	( NightmareJames, 29th September, 2018 )
 	
 Added two additional levels of key files:
 	.cheat: This is a ketyfile that only enables cheats for the player in ZC, but does not allow
