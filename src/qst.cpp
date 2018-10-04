@@ -10409,6 +10409,14 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 			
 	    }
+	    
+	    if ( Header->zelda_version <= 0x210 ) 
+	    {
+		if ( tempguy.family == eeDONGO ) 
+		{
+			tempguy.deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
+		}
+	    }
             
             if(keepdata)
             {
@@ -12011,7 +12019,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
     
     //Dodongos in 2.10 used the boss roar, not the dodongo sound. -Z
     //May be any version before 2.11. -Z
-    
+    /* --not the roar, the HIT SFX
     if ( Header->zelda_version <= 0x210 ) 
     {
 	if ( temp_mapscr->bosssfx == WAV_DODONGO ) 
@@ -12019,6 +12027,7 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 		temp_mapscr->bosssfx = WAV_ROAR;
 	}
     }
+    */
     
     return 0;
 }
