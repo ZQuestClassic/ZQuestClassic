@@ -3851,6 +3851,138 @@ int onSnapshot()
     return D_O_K;
 }
 
+
+int onSaveMapPic()
+{
+    int mapres2 = 0;
+    char buf[20];
+    int num=0;
+    mapscr tmpscr_b[2];
+    mapscr tmpscr_c[6];
+    BITMAP* _screen_draw_buffer = NULL;
+    _screen_draw_buffer = create_bitmap_ex(8,256,224);
+    set_clip_state(_screen_draw_buffer,1);
+    
+    for(int i=0; i<6; ++i)
+    {
+        tmpscr_c[i] = tmpscr2[i];
+        tmpscr2[i].zero_memory();
+        
+        if(i>=2)
+        {
+            continue;
+        }
+        
+        tmpscr_b[i] = tmpscr[i];
+        tmpscr[i].zero_memory();
+    }
+    
+    do
+    {
+#ifdef ALLEGRO_MACOSX
+        sprintf(buf, "../../../zelda%03d.png", ++num);
+#else
+        sprintf(buf, "zelda%03d.png", ++num);
+#endif
+    }
+    while(num<999 && exists(buf));
+    
+    BITMAP* mappic = NULL;
+    
+    
+    bool done=false, redraw=true;
+    
+    mappic = create_bitmap_ex(8,(256*16)>>mapres,(176*8)>>mapres);
+    
+    if(!mappic)
+    {
+        system_pal();
+        jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,lfont);
+        game_pal();
+        return D_O_K;;
+    }
+    
+    // draw the map
+    set_clip_rect(_screen_draw_buffer, 0, 0, _screen_draw_buffer->w, _screen_draw_buffer->h);
+    
+    for(int y=0; y<8; y++)
+    {
+        for(int x=0; x<16; x++)
+        {
+            if(!displayOnMap(x, y))
+            {
+                rectfill(_screen_draw_buffer, 0, 0, 255, 223, WHITE);
+            }
+            else
+            {
+                int s = (y<<4) + x;
+                loadscr2(1,s,-1);
+                
+                for(int i=0; i<6; i++)
+                {
+                    if(tmpscr[1].layermap[i]<=0)
+                        continue;
+                    
+                    if((ZCMaps[tmpscr[1].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
+                       (ZCMaps[tmpscr[1].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+                    {
+                        const int _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
+                        
+                        tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
+                        
+                        tmpscr2[i].data.resize(_mapsSize, 0);
+                        tmpscr2[i].sflag.resize(_mapsSize, 0);
+                        tmpscr2[i].cset.resize(_mapsSize, 0);
+                    }
+                }
+                
+                if((tmpscr+1)->flags7&fLAYER2BG) do_layer(_screen_draw_buffer, 1, tmpscr+1, -256, playing_field_offset, 2);
+                
+                if((tmpscr+1)->flags7&fLAYER3BG) do_layer(_screen_draw_buffer, 2, tmpscr+1, -256, playing_field_offset, 2);
+                
+                putscr(_screen_draw_buffer,256,0,tmpscr+1);
+                do_layer(_screen_draw_buffer, 0, tmpscr+1, -256, playing_field_offset, 2);
+                
+                if(!((tmpscr+1)->flags7&fLAYER2BG)) do_layer(_screen_draw_buffer, 1, tmpscr+1, -256, playing_field_offset, 2);
+                
+                putscrdoors(_screen_draw_buffer,256,0,tmpscr+1);
+                do_layer(_screen_draw_buffer,-2, tmpscr+1, -256, playing_field_offset, 2);
+                do_layer(_screen_draw_buffer,-3, tmpscr+1, -256, playing_field_offset, 2); // Freeform combos!
+                
+                if(!((tmpscr+1)->flags7&fLAYER3BG)) do_layer(_screen_draw_buffer, 2, tmpscr+1, -256, playing_field_offset, 2);
+                
+                do_layer(_screen_draw_buffer, 3, tmpscr+1, -256, playing_field_offset, 2);
+                do_layer(_screen_draw_buffer,-1, tmpscr+1, -256, playing_field_offset, 2);
+                do_layer(_screen_draw_buffer, 4, tmpscr+1, -256, playing_field_offset, 2);
+                do_layer(_screen_draw_buffer, 5, tmpscr+1, -256, playing_field_offset, 2);
+                
+            }
+            
+            stretch_blit(_screen_draw_buffer, mappic, 256, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
+        }
+    }
+    
+    for(int i=0; i<6; ++i)
+    {
+        tmpscr2[i]=tmpscr_c[i];
+        
+        if(i>=2)
+        {
+            continue;
+        }
+        
+        tmpscr[i]=tmpscr_b[i];
+    }
+    
+    
+    save_bitmap(buf,mappic,RAMpal);
+    destroy_bitmap(mappic);
+    destroy_bitmap(_screen_draw_buffer);
+    return D_O_K;
+    
+}
+
+/*
 int onSaveMapPic()
 {
     BITMAP* mappic = NULL;
@@ -3977,6 +4109,7 @@ int onSaveMapPic()
     destroy_bitmap(mappic);
     return D_O_K;
 }
+*/
 
 void f_Quit(int type)
 {
