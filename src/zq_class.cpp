@@ -9813,6 +9813,10 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			new_return(90);
 		}
 	    }
+	    if(!p_iputl(guysbuf[i].editorflags,f))
+            {
+                new_return(91);
+            }
         }
         
         if(writecycle==0)

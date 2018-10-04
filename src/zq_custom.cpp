@@ -2822,6 +2822,12 @@ static int enedata_flags2_list[] =
     90,91,92,93,94,95,96,97,-1
 };
 
+static int enedata_editorflags_list[]=
+{
+	254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,
+	-1
+};
+
 static int enedata_flags3_list[] =
 {
     107,108,109,110,111,112,113,114,115,116,117,118,119,185,186,-1
@@ -3068,7 +3074,8 @@ static TABPANEL enemy_defence_tabs[] =
 
 static TABPANEL enemy_flags_tabs[] =
 {
-    { (char *)"Misc. Flags",	 D_SELECTED,               enedata_flags_list,   0, NULL },
+    { (char *)"Basic Flags",	 D_SELECTED,               enedata_flags_list,   0, NULL },
+    { (char *)"Behaviour",	 0,               enedata_editorflags_list,   0, NULL },
     { (char *)"Spawn Flags",	 0,               enedata_flags3_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
 };
@@ -3239,6 +3246,8 @@ struct EnemyNameInfo
     int family;
     char const* misc[10];
     void* list[10];
+	char *flags[16];
+  
 };
 
 const char *walkmisc1list(int index, int *list_size)
@@ -3553,87 +3562,129 @@ static EnemyNameInfo enameinf[]=
 {
     {
         eeWALK, { "Shot Type:", "Death Type:", "Death Attr. 1:", "Death Attr. 2:", "Death Attr. 3:", "Extra Shots:", "Touch Effects:", "Effect Strength:", "Walk Style:", "Walk Attr.:" },
-        { (void*)&walkmisc1_list, (void*)&walkmisc2_list, NULL, NULL, NULL, NULL, (void*)&walkmisc7_list, NULL, (void*)&walkmisc9_list, NULL }
+        { (void*)&walkmisc1_list, (void*)&walkmisc2_list, NULL, NULL, NULL, NULL, (void*)&walkmisc7_list, NULL, (void*)&walkmisc9_list, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+	
     },
     {
         eeGLEEOK, { "Heads:", "Head HP:", "Shot Type:", NULL, "Neck Segments:", "Neck Offset 1:", "Neck Offset 2:", "Head Offset:", "Fly Head Offset:", NULL },
-        { NULL, NULL, (void*)&gleeokmisc3_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { NULL, NULL, (void*)&gleeokmisc3_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeDIG, { "Enemy 1 ID:", "Enemy 2 ID:", "Enemy 3 ID:", "Enemy 4 ID:", "Enemy 1 Qty:", "Enemy 2 Qty:", "Enemy 3 Qty:", "Enemy 4 Qty:", "Unused:", "Type:" },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&digdoggermisc10_list }
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&digdoggermisc10_list },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eePATRA, { "Outer Eyes:", "Inner Eyes:", "Eyes' HP:", "Eye Movement:", "Shooters:", "Pattern Odds:", "Pattern Cycles:", "Eye Offset:", "Eye CSet:", "Type:" },
-        { NULL, NULL, NULL, (void*)&patramisc4_list, (void*)&patramisc5_list, NULL, NULL, NULL, NULL, (void*)&patramisc10_list }
+        { NULL, NULL, NULL, (void*)&patramisc4_list, (void*)&patramisc5_list, NULL, NULL, NULL, NULL, (void*)&patramisc10_list },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eePROJECTILE, { "Shot Type:",  NULL, "Shot Attr. 1:", "Shot Attr. 2:", NULL, NULL, NULL, NULL, NULL, NULL  },
-        { (void*)&walkmisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { (void*)&walkmisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeGHOMA, { "Shot Type:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-        { (void*)&gohmamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { (void*)&gohmamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeAQUA, { "Side:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-        { (void*)&aquamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { (void*)&aquamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeMANHAN, { "Frame rate:",  "Size:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-        { NULL, (void*)&manhandlamisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { NULL, (void*)&manhandlamisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeLANM, { "Segments:",  "Segment Lag:", "Item per segment:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-        { NULL, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { NULL, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeMOLD, { "Segments:",  "Item per segment:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-        { NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeWIZZ, { "Walk Style:",  "Shot Type:", "Shot Attr. 1:", "Solid Combos OK:", "Teleport Delay:", NULL, NULL, NULL, NULL, NULL  },
-        { (void*)&wizzrobemisc1_list, (void*)&wizzrobemisc2_list, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL }
+        { (void*)&wizzrobemisc1_list, (void*)&wizzrobemisc2_list, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeDONGO,{ NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Type :"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&dodongomisc10_list }
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&dodongomisc10_list },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeKEESE, { "Walk Style:",  "Death Type:", "Enemy ID:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-        { (void*)&keesemisc1_list, (void*)&keesemisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { (void*)&keesemisc1_list, (void*)&keesemisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeTEK,  { "1/n jump start:",  "1/n jump cont.:", "Jump Z velocity:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeLEV,  { "Emerge style:",  "Submerged CSet:", "Emerging step:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-        { (void*)&leevermisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { (void*)&leevermisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeWALLM,{ "Fixed distance:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-        { (void*)&noyesmisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { (void*)&noyesmisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeTRAP, { "Direction:",  "Move Style:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
-        { (void*)&trapmisc1_list, (void*)&trapmisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { (void*)&trapmisc1_list, (void*)&trapmisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeROCK, { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Rock size:" },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&rockmisc1_list }
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&rockmisc1_list },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeNONE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list }
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list }
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     },
     {
         -1,		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Flag[0]:",(char *)"Flag[1]:",(char *)"Flag[2]:",(char *)"Flag[3]:",(char *)"Flag[4]:",(char *)"Flag[5]:",(char *)"Flag[6]:",(char *)"Flag[7]:",(char *)"Flag[8]:",(char *)"Flag[9]:",(char *)"Flag[10]:",(char *)"Flag[11]:",(char *)"Flag[12]:",(char *)"Flag[13]:",(char *)"Flag[14]:",(char *)"Flag[15]:" }
+		
     }
 };
 
@@ -4226,7 +4277,26 @@ static DIALOG enedata_dlg[] =
 	 {  jwin_button_proc,        86,    220,     61,     16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void *) "OK",                                                  NULL,   NULL                 },
 	//253 -- CANCEL  BUTTON
 	 {  jwin_button_proc,       166,    220,     61,     16,    vc(14),                 vc(1),                  27,    D_EXIT,      0,    0, (void *) "Cancel",                                              NULL,   NULL                 },
-    
+	//254
+{ jwin_check_proc,        20,     52,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[0]",                        NULL,   NULL                  },
+{ jwin_check_proc,        20,     62,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[1]",                        NULL,   NULL                  },
+{ jwin_check_proc,        20,     72,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[2]",                        NULL,   NULL                  },
+{ jwin_check_proc,        20,     82,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[3]",                        NULL,   NULL                  },
+{ jwin_check_proc,        20,     92,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[4]",                        NULL,   NULL                  },
+{ jwin_check_proc,        20,     102,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[5]",                        NULL,   NULL                  },
+//260  
+{ jwin_check_proc,        20,    112,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[6]",                        NULL,   NULL                  },
+    { jwin_check_proc,        20,     122,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[7]",                        NULL,   NULL                  },
+    { jwin_check_proc,        20,     132,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[8]",                        NULL,   NULL                  },
+    { jwin_check_proc,        20,    142,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[9]",                        NULL,   NULL                  },
+    { jwin_check_proc,        20,     152,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[10]",                        NULL,   NULL                  },
+    //265
+    { jwin_check_proc,        20,    162,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[11]",                        NULL,   NULL                  },
+    { jwin_check_proc,        20,     172,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[12]",                        NULL,   NULL                  },
+    { jwin_check_proc,        20,     182,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[13]",                        NULL,   NULL                  },
+    { jwin_check_proc,        20,    192,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[14]",                        NULL,   NULL                  },
+    { jwin_check_proc,        20,    202,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[15]",                        NULL,   NULL                  },
+  
 	 /*
 	  // 248 scripts
 	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_script_tabs,     NULL, (void *)enedata_dlg   },
@@ -4277,6 +4347,22 @@ void setEnemyLabels(int family)
     else
         enedata_dlg[22].dp = (void*)"Halt Rate:";
         
+    //set enemy editor new 2.55 flags 1 to 16 label
+    for(int i = 0; i < 16; i++)
+    {
+        if(inf != NULL)
+        {
+            if(inf->flags[i]!=NULL)
+            {
+                enedata_dlg[254+i].dp = (char*)inf->flags[i];
+            }
+            else
+            {
+                //enedata_dlg[64+i].flags = enedata_dlg[54+i].flags = D_DISABLED;
+            }
+        }
+	
+    }
     for(int i = 0; i < 10; i++)
     {
         if(inf != NULL)
@@ -4619,6 +4705,25 @@ void edit_enemydata(int index)
     enedata_dlg[245].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) ? D_SELECTED : 0;
     enedata_dlg[246].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) ? D_SELECTED : 0;
     
+    //New Misc FLags (2.55, flag1 to flag16)
+    enedata_dlg[254].flags = (guysbuf[index].editorflags&ENEMY_FLAG1) ? D_SELECTED : 0;
+    enedata_dlg[255].flags = (guysbuf[index].editorflags&ENEMY_FLAG2) ? D_SELECTED : 0;
+    enedata_dlg[256].flags = (guysbuf[index].editorflags&ENEMY_FLAG3) ? D_SELECTED : 0;
+    enedata_dlg[257].flags = (guysbuf[index].editorflags&ENEMY_FLAG4) ? D_SELECTED : 0;
+    enedata_dlg[258].flags = (guysbuf[index].editorflags&ENEMY_FLAG5) ? D_SELECTED : 0;
+    enedata_dlg[259].flags = (guysbuf[index].editorflags&ENEMY_FLAG6) ? D_SELECTED : 0;
+    enedata_dlg[260].flags = (guysbuf[index].editorflags&ENEMY_FLAG7) ? D_SELECTED : 0;
+    enedata_dlg[261].flags = (guysbuf[index].editorflags&ENEMY_FLAG8) ? D_SELECTED : 0;
+    enedata_dlg[262].flags = (guysbuf[index].editorflags&ENEMY_FLAG9) ? D_SELECTED : 0;
+    enedata_dlg[263].flags = (guysbuf[index].editorflags&ENEMY_FLAG10) ? D_SELECTED : 0;
+    enedata_dlg[264].flags = (guysbuf[index].editorflags&ENEMY_FLAG11) ? D_SELECTED : 0;
+    enedata_dlg[265].flags = (guysbuf[index].editorflags&ENEMY_FLAG12) ? D_SELECTED : 0;
+    enedata_dlg[266].flags = (guysbuf[index].editorflags&ENEMY_FLAG13) ? D_SELECTED : 0;
+    enedata_dlg[267].flags = (guysbuf[index].editorflags&ENEMY_FLAG14) ? D_SELECTED : 0;
+    enedata_dlg[268].flags = (guysbuf[index].editorflags&ENEMY_FLAG15) ? D_SELECTED : 0;
+    enedata_dlg[269].flags = (guysbuf[index].editorflags&ENEMY_FLAG16) ? D_SELECTED : 0;
+  
+    
     sprintf(frt,"%d",guysbuf[index].frate);
     sprintf(efr,"%d",guysbuf[index].e_frate);
     enedata_dlg[140].dp = frt;
@@ -4922,7 +5027,40 @@ void edit_enemydata(int index)
 	if(enedata_dlg[246].flags & D_SELECTED)
             test.SIZEflags |= guyflagOVERRIDE_TILE_HEIGHT;
 
-	    
+	//new 2.55 misc flags 1 to 16
+	if(enedata_dlg[254].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG1;
+	if(enedata_dlg[255].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG2;
+	if(enedata_dlg[256].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG3;
+	if(enedata_dlg[257].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG4;
+	if(enedata_dlg[258].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG5;
+	if(enedata_dlg[259].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG6;
+	if(enedata_dlg[260].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG7;
+	if(enedata_dlg[261].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG8;
+	if(enedata_dlg[262].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG9;
+	if(enedata_dlg[263].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG10;
+	if(enedata_dlg[264].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG11;
+	if(enedata_dlg[265].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG12;
+	if(enedata_dlg[266].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG13;
+	if(enedata_dlg[267].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG14;
+	if(enedata_dlg[268].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG15;
+	if(enedata_dlg[269].flags & D_SELECTED)
+            test.editorflags |= ENEMY_FLAG16;
+	
         if(ret==252) //OK Button
         {
             strcpy(guy_string[index],name);
