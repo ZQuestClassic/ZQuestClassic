@@ -9936,6 +9936,29 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}     
 	    }
 	    if ( guyversion < 37 ) { tempguy.editorflags = 0; }
+	    if(guyversion >= 38)
+	    {
+		if(!p_igetl(&(tempguy.misc13),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc14),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc15),f,keepdata))
+		{
+			return qe_invalid;
+		}  
+		   
+	    }
+	    if ( guyversion < 38 ) 
+	    { 
+		tempguy.misc13 = 0; 
+		tempguy.misc14 = 0; 
+		tempguy.misc15 = 0; 
+	    }
+	    
 	    
 	    //All ports of QRs to Enemy Editor Flags go HERE! -Z
 	    
