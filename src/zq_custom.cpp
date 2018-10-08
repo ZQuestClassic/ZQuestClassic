@@ -2906,19 +2906,23 @@ static int enemy_movement_list[] =
 
 static int enemy_attribs_1_list[] =
 {
-    -1
+        270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,
+	-1
 };
 static int enemy_attribs_2_list[] =
 {
+	286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,
     -1
 };
 static int enemy_attribs_3_list[] =
 {
+	302,303,304,305,306,307,308,309,310,311,312,313,314,315,316,317,
     -1
 };
 
 static int enemy_attribs_4_list[] =
 {
+	318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,
     -1
 };
 
@@ -2930,8 +2934,9 @@ static int enemy_gfx_tiles_list[] =
 
 static TABPANEL enemy_attribs_tabs[] =
 {
-    { (char *)"Attributes 1 to 8",	 D_SELECTED,               enemy_attribs_1_list,   0, NULL },
-    { (char *)"Attributes 9 to 16",	 0,               enemy_attribs_2_list,   0, NULL },
+	//Unless we move the basic attributes out of their present multipurpose form, this tab shall remain disabled. -Z
+   // { (char *)"Attributes 1 to 8",	 D_SELECTED,               enemy_attribs_1_list,   0, NULL },
+    { (char *)"Attributes 11 to 16",	 D_SELECTED,               enemy_attribs_2_list,   0, NULL },
     { (char *)"Attributes 17 to 24",	 0,               enemy_attribs_3_list,   0, NULL },
     { (char *)"Attributes 18 to 32",	 0,               enemy_attribs_4_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
@@ -3247,6 +3252,7 @@ struct EnemyNameInfo
     char const* misc[10];
     void* list[10];
 	char *flags[16];
+	char *attributes[32];
   
 };
 
@@ -3563,128 +3569,310 @@ static EnemyNameInfo enameinf[]=
     {
         eeWALK, { "Shot Type:", "Death Type:", "Death Attr. 1:", "Death Attr. 2:", "Death Attr. 3:", "Extra Shots:", "Touch Effects:", "Effect Strength:", "Walk Style:", "Walk Attr.:" },
         { (void*)&walkmisc1_list, (void*)&walkmisc2_list, NULL, NULL, NULL, NULL, (void*)&walkmisc7_list, NULL, (void*)&walkmisc9_list, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-	
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",
+		(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",
+		(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}
     },
     {
         eeGLEEOK, { "Heads:", "Head HP:", "Shot Type:", NULL, "Neck Segments:", "Neck Offset 1:", "Neck Offset 2:", "Head Offset:", "Fly Head Offset:", NULL },
         { NULL, NULL, (void*)&gleeokmisc3_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeDIG, { "Enemy 1 ID:", "Enemy 2 ID:", "Enemy 3 ID:", "Enemy 4 ID:", "Enemy 1 Qty:", "Enemy 2 Qty:", "Enemy 3 Qty:", "Enemy 4 Qty:", "Unused:", "Type:" },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&digdoggermisc10_list },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eePATRA, { "Outer Eyes:", "Inner Eyes:", "Eyes' HP:", "Eye Movement:", "Shooters:", "Pattern Odds:", "Pattern Cycles:", "Eye Offset:", "Eye CSet:", "Type:" },
         { NULL, NULL, NULL, (void*)&patramisc4_list, (void*)&patramisc5_list, NULL, NULL, NULL, NULL, (void*)&patramisc10_list },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eePROJECTILE, { "Shot Type:",  NULL, "Shot Attr. 1:", "Shot Attr. 2:", NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&walkmisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeGHOMA, { "Shot Type:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&gohmamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeAQUA, { "Side:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&aquamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeMANHAN, { "Frame rate:",  "Size:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, (void*)&manhandlamisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeLANM, { "Segments:",  "Segment Lag:", "Item per segment:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",
+		(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",
+		(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeMOLD, { "Segments:",  "Item per segment:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeWIZZ, { "Walk Style:",  "Shot Type:", "Shot Attr. 1:", "Solid Combos OK:", "Teleport Delay:", NULL, NULL, NULL, NULL, NULL  },
         { (void*)&wizzrobemisc1_list, (void*)&wizzrobemisc2_list, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeDONGO,{ NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Type :"  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&dodongomisc10_list },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeKEESE, { "Walk Style:",  "Death Type:", "Enemy ID:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&keesemisc1_list, (void*)&keesemisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeTEK,  { "1/n jump start:",  "1/n jump cont.:", "Jump Z velocity:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeLEV,  { "Emerge style:",  "Submerged CSet:", "Emerging step:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { (void*)&leevermisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeWALLM,{ "Fixed distance:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { (void*)&noyesmisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeTRAP, { "Direction:",  "Move Style:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&trapmisc1_list, (void*)&trapmisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeROCK, { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Rock size:" },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&rockmisc1_list },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeNONE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
+    },
+    {
+        eeGANON,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
+	{ (char *)"Visible if the player has an Level 2 (or higher) Amulet item.",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",
+		(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",
+		(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     },
     {
         -1,		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"BFlags[0]:",(char *)"BFlags[1]:",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" }
-		
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
+		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
+		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
+		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	}	
     }
 };
 
@@ -4174,10 +4362,11 @@ static DIALOG enedata_dlg[] =
     {  jwin_droplist_proc,      86,    187-4,     100,     16,   jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &sfx__list,                                           NULL,   NULL                 },
     {  jwin_text_proc,          6,     184,     95,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawn Animation:",                               NULL,   NULL                 },
     {  jwin_droplist_proc,      86,    180,     85,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &walkerspawn_list,                                     NULL,   NULL                 },
-    {  jwin_text_proc,         160,    126-4,     50+30,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 11:",                                  NULL,   NULL                 },
-    {  jwin_text_proc,         160,    144-4,     50+30,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 12:",                                  NULL,   NULL                 },
-    {  jwin_edit_proc,         242,    122-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    {  jwin_edit_proc,         242,    140-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+//moved to attributes tabs  
+    {  d_dummy_proc,         160,    126-4,     50+30,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 11:",                                  NULL,   NULL                 },
+    {  d_dummy_proc,         160,    144-4,     50+30,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 12:",                                  NULL,   NULL                 },
+    {  d_dummy_proc,         242,    122-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  d_dummy_proc,         242,    140-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
     
     // 191
     {  jwin_text_proc,           6,    198,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Whistle Weapon Defense:",                              NULL,   NULL                 },
@@ -4296,8 +4485,84 @@ static DIALOG enedata_dlg[] =
     { jwin_check_proc,        6,     182,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[13]",                        NULL,   NULL                  },
     { jwin_check_proc,        6,    192,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[14]",                        NULL,   NULL                  },
     { jwin_check_proc,        6,    202,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[15]",                        NULL,   NULL                  },
-  
-	 /*
+  //270
+    //attributes page 1, attrib 1 to 8 move from basic tab?
+     {  d_dummy_proc,           70,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[0]",                                   NULL,   NULL                 },
+    {  d_dummy_proc,           70,     58+(18),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[1]",                                   NULL,   NULL                 },
+    {  d_dummy_proc,           70,     58+(18*2),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[2]",                                   NULL,   NULL                 },
+    {  d_dummy_proc,           70,    58+(18*3),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[3]",                                   NULL,   NULL                 },
+    {  d_dummy_proc,           70,    58+(18*4),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[4]",                                   NULL,   NULL                 },
+    {  d_dummy_proc,           70,    58+(18*5),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[5]",                                   NULL,   NULL                 },
+    {  d_dummy_proc,         70,     58+(18*6),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[6]",                                   NULL,   NULL                 },
+    {  d_dummy_proc,         70,     58+(18*7),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[7]",                                   NULL,   NULL                 },
+      //278 : Misc Attribute boxes. 
+    {  d_dummy_proc,         6,     56,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  d_dummy_proc,          6,     56+(18),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  d_dummy_proc,          6,     56+(18*2),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  d_dummy_proc,          6,    56+(18*3),   50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  d_dummy_proc,          6,    56+(18*4),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  d_dummy_proc,          6,    56+(18*5),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  d_dummy_proc,        6,     56+(18*6),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  d_dummy_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+//286 
+    //attributes page 2, attrib 9 to 16
+     {  d_dummy_proc,           70,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[8]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,     58+(18),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Lower Attributes are on Basic->Data 2",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,     58+(18*2),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[10]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,    58+(18*3),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[11]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,    58+(18*4),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[12]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,    58+(18*5),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[13]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,         70,     58+(18*6),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[14]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,         70,     58+(18*7),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[15]",                                   NULL,   NULL                 },
+      //294 : Misc Attribute boxes. 
+    {  d_dummy_proc,         6,     56,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  d_dummy_proc,          6,     56+(18),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,     56+(18*2),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,    56+(18*3),   50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,    56+(18*4),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,    56+(18*5),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,        6,     56+(18*6),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+//302
+    //attributes page 3, attrib 17 to 24
+     {  jwin_text_proc,           70,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[16]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,     58+(18),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[17]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,     58+(18*2),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[18]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,    58+(18*3),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[19]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,    58+(18*4),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[20]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,    58+(18*5),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[21]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,         70,     58+(18*6),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[22]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,         70,     58+(18*7),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[23]",                                   NULL,   NULL                 },
+      //310 : Misc Attribute boxes. 
+    {  jwin_edit_proc,         6,     56,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,     56+(18),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,     56+(18*2),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,    56+(18*3),   50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,    56+(18*4),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,    56+(18*5),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,        6,     56+(18*6),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+//319
+    //attributes page 4, attrib 25 to 32
+     {  jwin_text_proc,           70,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[24]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,     58+(18),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[25]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,     58+(18*2),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[26]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,    58+(18*3),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[27]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,    58+(18*4),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[28]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,           70,    58+(18*5),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[29]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,         70,     58+(18*6),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[30]",                                   NULL,   NULL                 },
+    {  jwin_text_proc,         70,     58+(18*7),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[31]",                                   NULL,   NULL                 },
+      //327 : Misc Attribute boxes. 
+    {  jwin_edit_proc,         6,     56,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,     56+(18),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,     56+(18*2),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,    56+(18*3),   50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,    56+(18*4),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,          6,    56+(18*5),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,        6,     56+(18*6),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+//334
+    /*
 	  // 248 scripts
 	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_script_tabs,     NULL, (void *)enedata_dlg   },
 	 //249 graphics
@@ -4363,6 +4628,30 @@ void setEnemyLabels(int family)
         }
 	
     }
+    
+    //Enemy Attribute Labels, starting at 11
+    for ( int q = 10; q < 16; q++ ) //check these numbers! -Z
+    {
+	if(inf->flags[q]!=NULL)
+            {
+                enedata_dlg[288+(q-10)].dp = (char*)inf->attributes[q];
+            }
+    }
+    for ( int q = 16; q < 24; q++ ) //check these numbers! -Z
+    {
+	if(inf->flags[q]!=NULL)
+            {
+                enedata_dlg[310+(q-16)].dp = (char*)inf->attributes[q];
+            }
+    }
+    for ( int q = 24; q < 32; q++ ) //check these numbers! -Z
+    {
+	if(inf->flags[q]!=NULL)
+            {
+                enedata_dlg[327+(q-24)].dp = (char*)inf->attributes[q];
+            }
+    }
+    
     for(int i = 0; i < 10; i++)
     {
         if(inf != NULL)
@@ -4525,6 +4814,7 @@ void edit_enemydata(int index)
     char w[8],h[8],sw[8],sh[8],ew[8],eh[8];
     char name[64];
     char ms[12][8];
+    char attribs[32][8];
     char enemynumstr[75];
     char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
 	char weapsprite[8];
@@ -4646,6 +4936,40 @@ void edit_enemydata(int index)
     sprintf(ms[9],"%ld",guysbuf[index].misc10);
     sprintf(ms[10],"%ld",guysbuf[index].misc11);
     sprintf(ms[11],"%ld",guysbuf[index].misc12);
+    
+    //four pages of attributes, 1 through 32
+    sprintf(attribs[0],"%ld",guysbuf[index].misc1);
+    sprintf(attribs[1],"%ld",guysbuf[index].misc2);
+    sprintf(attribs[2],"%ld",guysbuf[index].misc3);
+    sprintf(attribs[3],"%ld",guysbuf[index].misc4);
+    sprintf(attribs[4],"%ld",guysbuf[index].misc5);
+    sprintf(attribs[5],"%ld",guysbuf[index].misc6);
+    sprintf(attribs[6],"%ld",guysbuf[index].misc7);
+    sprintf(attribs[7],"%ld",guysbuf[index].misc8);
+    sprintf(attribs[8],"%ld",guysbuf[index].misc9);
+    sprintf(attribs[9],"%ld",guysbuf[index].misc10);
+    sprintf(attribs[10],"%ld",guysbuf[index].misc11);
+    sprintf(attribs[11],"%ld",guysbuf[index].misc12);
+    sprintf(attribs[12],"%ld",guysbuf[index].misc13);
+    sprintf(attribs[13],"%ld",guysbuf[index].misc14);
+    sprintf(attribs[14],"%ld",guysbuf[index].misc15);
+    sprintf(attribs[15],"%ld",guysbuf[index].misc16);
+    sprintf(attribs[16],"%ld",guysbuf[index].misc17);
+    sprintf(attribs[17],"%ld",guysbuf[index].misc18);
+    sprintf(attribs[18],"%ld",guysbuf[index].misc19);
+    sprintf(attribs[19],"%ld",guysbuf[index].misc20);
+    sprintf(attribs[20],"%ld",guysbuf[index].misc21);
+    sprintf(attribs[21],"%ld",guysbuf[index].misc22);
+    sprintf(attribs[22],"%ld",guysbuf[index].misc23);
+    sprintf(attribs[23],"%ld",guysbuf[index].misc24);
+    sprintf(attribs[24],"%ld",guysbuf[index].misc25);
+    sprintf(attribs[25],"%ld",guysbuf[index].misc26);
+    sprintf(attribs[26],"%ld",guysbuf[index].misc27);
+    sprintf(attribs[27],"%ld",guysbuf[index].misc28);
+    sprintf(attribs[28],"%ld",guysbuf[index].misc29);
+    sprintf(attribs[29],"%ld",guysbuf[index].misc30);
+    sprintf(attribs[30],"%ld",guysbuf[index].misc31);
+    sprintf(attribs[31],"%ld",guysbuf[index].misc32);
     
     for(int j=0; j <= edefBYRNA; j++)
     {
@@ -4900,6 +5224,43 @@ void edit_enemydata(int index)
         
         enedata_dlg[189].dp = ms[10];
         enedata_dlg[190].dp = ms[11];
+	
+	
+	enedata_dlg[278].dp = attribs[0];
+	enedata_dlg[279].dp = attribs[1];
+	enedata_dlg[280].dp = attribs[2];
+	enedata_dlg[281].dp = attribs[3];
+	enedata_dlg[282].dp = attribs[4];
+	enedata_dlg[283].dp = attribs[5];
+	enedata_dlg[284].dp = attribs[6];
+	enedata_dlg[285].dp = attribs[7];
+	
+	enedata_dlg[294].dp = attribs[8];
+	enedata_dlg[295].dp = attribs[9];
+	enedata_dlg[296].dp = attribs[10];
+        enedata_dlg[297].dp = attribs[11];
+        enedata_dlg[298].dp = attribs[12];
+        enedata_dlg[299].dp = attribs[13];
+        enedata_dlg[300].dp = attribs[14];
+        enedata_dlg[301].dp = attribs[15];
+	
+        enedata_dlg[310].dp = attribs[16];
+        enedata_dlg[311].dp = attribs[17];
+        enedata_dlg[312].dp = attribs[18];
+        enedata_dlg[313].dp = attribs[19];
+        enedata_dlg[314].dp = attribs[20];
+        enedata_dlg[315].dp = attribs[21];
+        enedata_dlg[316].dp = attribs[22];
+        enedata_dlg[317].dp = attribs[23];
+	
+        enedata_dlg[326].dp = attribs[24];
+        enedata_dlg[327].dp = attribs[25];
+        enedata_dlg[328].dp = attribs[26];
+        enedata_dlg[329].dp = attribs[27];
+        enedata_dlg[330].dp = attribs[28];
+        enedata_dlg[331].dp = attribs[29];
+        enedata_dlg[332].dp = attribs[30];
+        enedata_dlg[333].dp = attribs[31];
         
         ret = zc_popup_dialog(enedata_dlg,3);
         
@@ -4952,9 +5313,31 @@ void edit_enemydata(int index)
         test.misc8 = (enedata_dlg[71].proc==jwin_droplist_proc) ? enedata_dlg[71].d1 : atol(ms[7]);
         test.misc9 = (enedata_dlg[72].proc==jwin_droplist_proc) ? enedata_dlg[72].d1 : atol(ms[8]);
         test.misc10 = (enedata_dlg[73].proc==jwin_droplist_proc) ? enedata_dlg[73].d1 : atol(ms[9]);
-        test.misc11 = atol(ms[10]);
-        test.misc12 = atol(ms[11]);
+        test.misc11 = atol(attribs[10]);
+        test.misc12 = atol(attribs[11]); 
+        test.misc13 = atol(attribs[12]); 
+        test.misc14 = atol(attribs[13]); 
+        test.misc15 = atol(attribs[14]); 
+        test.misc16 = atol(attribs[15]); 
+        test.misc17 = atol(attribs[16]); 
+        test.misc18 = atol(attribs[17]); 
+        test.misc19 = atol(attribs[18]); 
+        test.misc20 = atol(attribs[19]); 
+        test.misc21 = atol(attribs[20]); 
+        test.misc22 = atol(attribs[21]); 
+        test.misc23 = atol(attribs[22]); 
+        test.misc24 = atol(attribs[23]); 
+        test.misc25 = atol(attribs[24]); 
+        test.misc26 = atol(attribs[25]); 
+        test.misc27 = atol(attribs[26]); 
+        test.misc28 = atol(attribs[27]); 
+        test.misc29 = atol(attribs[28]); 
+        test.misc30 = atol(attribs[29]); 
+        test.misc31 = atol(attribs[30]); 
+        test.misc32 = atol(attribs[31]); 
         
+	
+	
         for(int j=0; j <= edefBYRNA; j++)
         {
             test.defense[j] = enedata_dlg[j+161].d1;
