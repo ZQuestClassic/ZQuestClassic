@@ -717,6 +717,8 @@ string VarArgument::toString()
         return "NPCFROZENTILE";
     case NPCFROZENCSET:
         return "NPCFROZENCSET"; 
+    case NPCBEHAVIOUR:
+        return "NPCBEHAVIOUR"; 
         
     case SCRDOORD:
         return "SCRDOORD";
@@ -1317,6 +1319,7 @@ string VarArgument::toString()
 	case NPCDATASHIELD: return "NPCDATASHIELD";
 	case NPCDATAFROZENTILE: return "NPCDATAFROZENTILE";
 	case NPCDATAFROZENCSET: return "NPCDATAFROZENCSET";
+	case NPCDATABEHAVIOUR: return "NPCDATABEHAVIOUR";
 		
 	case MAPDATAVALID: return "MAPDATAVALID";
 	case MAPDATAGUY: return "MAPDATAGUY";

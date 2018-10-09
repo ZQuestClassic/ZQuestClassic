@@ -2,7 +2,196 @@
 
 //2.55 Alpha 1 (Candidates)
 
-//2.55 Preliminary 11
+//2.55 ALphsa 1, Preliminary 13
+Rewrote the onSaveMapPic() function to fix issues with it causing
+random glitches, including screen drawing glitches while scrolling and other
+issues.
+	( ZoriaRPG, 4th october, 2018 )
+
+//2.55 Alpha 1, Preliminary 12
+
+Adjusted the UI for the Item Editor and the Enemy Editor, justifying the sixteen miscellaneous
+	flag tick boxes to the left of each pane. 
+Fixed two errors in the setter for itemdata->Flags[16]:
+	The logic was incorrect for setting flag or ~flag.
+	The label block lacked breaks at each case!
+Added npc->BFlags[16] and npcdata->BFlags[16] to ZScript.
+Added auto-label code to the new flags in zq_custom.cpp (seek token `BFlags`).
+Added a new 'Behaviour' panel to the Enemy Editor Flags tabset. 
+	This contains sixteen multipurpose flags, to match those in the item editor, for use in 
+	porting quest rules to individual enemies.
+Added a new npc variable, `editorflags` to guydata, and to the guy class. 
+	( ZoriaRPG, 4th October, 2018 )
+
+//2.55 Alpha 1, Preliminary 11
+Added constants for MIN_COMBO_POS, MAX_COMBO_POS, and NUM_COMBO_POS to std.zh.
+
+Rewrote all SetLayerCombo*() and GetlayerCombo*() functions in std.zh:
+
+	All of these functions now have the option to use `mapdata` instead of old
+	Game-> functions, and options to use either the screen Combo*[] arrays, or
+	to use mapdata->Combo*[] arrays, for layer 0. 
+	
+	They also return errors if layer < 0 or layer > 6.
+
+	Added std.cfg flag: SETLAYERCOMBO_ALWAYS_USE_SETCOMBO
+		Setting this to '1' will force using Set/GetCombo on maps instead
+		of setting or getting Screen->Combo*[] for layer 0, but only
+		if SETLAYERCOMBO_USE_MAPDATAis false.
+	
+	Added flag SETLAYERCOMBO_USE_MAPDATA to std.cfg.
+		Setting this to '1' will always use mapdata, rather than the old Game->GetCombo and
+		Game->SetCombo funcvtions. This is the default for 2.55.
+		
+	Added flag SETLAYERCOMBO_ONLY_USE_MAPDATA to std.cfg.
+		Setting this will force using mapdata on layer 0. 
+	
+	Added error logging to these functions. 
+	Added TraceError() to string_functions.zh. 
+	( ZoriaRPG, 4th October, 2018 )
+	
+Fix dodongos using the wwrong sound in 2.10 and earlier quests. 
+	( ZoriaRPG, 3rd October 2018 )
+	
+Ported qrSLASHFLIPFIX to item editor flags for candles, canes, and swords. 
+	( Venrob, 10th October, 2018 )
+
+Fixed improper warp points in 2nd.qst.
+	( NightmareJames, 29th September, 2018 )
+	
+Ported qrNOITEMMELEE to item editor flags for swords, wands, and canes as ITEM_FLAG7.
+	( Venrob, 28th September, 2018 )
+	
+Marked deprectaed QRs in qst.cpp.
+Remove extraneous inclusive ORs on QRs qr_QUICKSWORD, and qr_NODIVING in link.cpp. 
+Ported qrRINGAFFECTDAMAGE to an item flag on rings. 
+	( Venrob, 28th September, 2018 )
+	
+Added two additional levels of key files:
+	.cheat: This is a ketyfile that only enables cheats for the player in ZC, but does not allow
+		opening the quest in ZQuest. The questb password is hashed so that it is not visible as
+		plain ASCII text in the .cheat keyfile.
+	.zpwd: 	This is a keyfile that only allows editing the quest in ZQuest, but it DOES NOT enable cheats.
+	( ZoriaRPG, 28th September, 2018 )
+	
+Fixed sideview spike combos and ffcs in quests made iin 2.50.1RC2 and earlier. 
+Added a QR to enable the old behaviour for any quest under Compatibility rules.
+	( ZoriaRPG, 26th September, 2018 )
+	
+Require using Alt+Shift modifier keys in conjunction with cheat hotkeys.
+Fixed hard crash when loading an ASM script if the filename is invalid. 
+	( ZoriaRPG, 25th September 2018 )
+	
+Fixed input getting stuuck as if buttons were being hel down, when released.
+	( ZoriaRPG, 25th September, 2018 )
+	( credit also: Venrob for think-tank.)
+	( credit also: Russ for testing.)
+	
+Fixed the Cheat Menu 'Max Bombs' so that it is possible to set 
+any value from 0 to 0xFFFF.
+Fixed and improved the Init Data max starting values. Now all counter items have a starting max amount
+and a starting amount cap of 0xFFFF.
+( ZoriaRPG, 25th September 2018 )
+
+Allow setting the Catchall on a room with a type of 'None'. The catchall type is 'Generic Catchall'.
+Minor touch-up on qrNOGANONINTRO
+Should fix: Nayru's Love decorations do not die, and will eventually wrap the screen.
+Should fix: Vires freeze when struck, without split-on-hit.
+	( ZoriaRPG, 24th September, 2018 )
+Should fix: Lens costs rupees with infinite wallet.
+Should fix: Diagonal left-down sprites on 8-way shots are mis-oriented.
+Should fix: Charged hammer doesn't strike pound blocks.
+Should fix: Ganon Triforce holdup when Link is jumping.
+Should fix: Ganon's ashes don't fall in sideview.
+Expanded QRs from char[20] (160 max rules) to char[100] (800 max rules).
+Added a mechanic to determine if a weapon is script generated.
+	You can now check: *weapon->isScriptGenerated().
+Changed Set/GetLayerCombo*() in std_functions to allow setting or checking on layer 0. 
+	( ZoriaRPG, 23rd September, 2018 )
+	
+Ported 'Temporary Light' and all rules regarding bubbles to item flags:
+	Ported qr_NONBUBBLEMEDICINE, qr_NONBUBBLETRIFORCE, and qr_ITEMBUBBLE to Triforce/Potion ITEM_FLAG3 and ITEM_FLAG4.
+	Ported qr_TEMPCANDLELIGHT to ITEM_FLAG5 of Din's Fire, Candles, and Books.
+	New variable stayLit in pal.cpp for keeping track of permanent light; this fixes a major bug with temp and non-temp light on the same screen.
+	Reworked how `lighting()` works (part of the bug fix)
+
+	Scripted and Enemy fire still relies on the QR; do not remove the QR!
+	The QR has been renamed to reflect this; "Scripted and Enemy Fire Lights Temporarily"
+
+	Updated V_ITEMS to 39; changes in the next commit will also fall under V_ITEMS 39.
+	( Venrob, 23rd September, 2018 )
+	
+Fix: Scripted Fire/Bombs obey QRs, updated zq_rules names
+	( Venrob, 23rd September, 2018 )
+	
+Store ffcore.quest_format[vHeader] properly.
+Added +15 Scipt Combo Types, fixed storing vCSets
+	( ZoriaRPG, 23rd September, 2018 )
+	
+Apply new QRs for broken mirror combos, magic book costs, and
+melee weapon magic requirements to their respective components.
+QRs are auto-set for quests < 0x250 or 0x250.build < 31 in qst.cpp.
+
+Add QRs to the system for new Wand/Book and other things. 
+
+Attempted fix for two Ganon Room issues:
+    Dust Pile does not fall in Sideview
+    Triforce hold-up animation is incorrect if Link is Jumping.
+2.10 quests will now again use the old 2.10 lens code. --Should we do this, though?
+
+Store all quest header version details in FFCore on quest load, under:
+	ffcore.quest_format, with a getter getQuestHeaderInfo() as a universal
+	way to read this data at any time. 
+    ( ZoriaRPG, 22nd September, 2018 )
+    
+Added 'Picks up keys' to the boomerang, arrows, and the hookshot in the item editor. 
+
+Port qr_BRANGPICKUP and qr_Z3BRANG_HSHOT to the item editor.
+	Updated V_ITEMS to 38 (zdefs.h)
+	Forwarded QRs to item flags, on arrows, brang, and hshot (qst.cpp)
+	Gave flags names in the item editor (zq_custom.cpp)
+Port  qr_Z3BRANG_HSHOT to the item editor.
+	Changed check from qr_Z3BRANG_HSHOT to ITEM_FLAG6 (brang/hookshot)
+	( Venrob, 22nd September, 2018 )
+	
+Expand Item Flags from 5 to 16 and added those flags to the Item Editor.
+	All item flags are now on their own tab with plenty of room for flavour text.
+	Added additional fields to the item in zq_custom.cpp, and the code to aut-name item flags 6 to 16.
+Fix crash on subscreen and loading invalid weapon data.
+	( ZoriaRPG, 21st September, 2018 )
+	
+Fixed Sword beam grid-snapping error with Mirror Combos
+	( Venrob, 21st September 2018 )
+	
+Added entry for itype_flippers to zq_custom labels for item editor.
+Ported new item flags from QRs on reading quests.
+Added and modified labels for the new flags in the item editor.
+Added entry for itype_flippers to zq_custom labels for item editor.
+Ported new item flags from QRs on reading quests.
+Added and modified labels for the new flags in the item editor.
+Fixed new fonts looping infinitely on subscreens.
+	( ZoriaRPG, 20th September 2018 )
+	
+Fixed bug with Wand/Book Fire
+Ported qr_NODIVING to the item editor as item flags. 
+Ported qr_FIREPROOFLINK to the item editor as item flags. 
+Ported qr_OUCHBOMBS to the item editor as item flags. 
+Fixed Link Drunk code to only rand() once.
+	( Venrob, 20th September 2018 )
+	
+Ported qr_FIREPROOFLIN to the item editor as item flags as ITEM_FLAG3.
+	( Venrob, 17th September 2018 )
+Ported qr_BRANGPICKUP to item editor as ITEM_FLAG4.
+Ported qr_QUICKSWORD to wand and sword as ITEM_FLAG5.
+Ported qr_NODIVING to flippers in item editor. 
+	( Venrob, 15th September, 2018 )
+
+Fix Tile Page cap in editors when reloading entries that have been set to a tile on page 252 or higher.
+Expanded max tiles to 214500.
+	( ZoriaRPG, 14th September, 2018 )
+	
+Drunk RNG now only runs once per frame.
+	( Venrob, 13th September 2018 )
 
 Finish porting old lens Quest Rules to Item Editor:
 	V_ITEMS is now 35
@@ -11,6 +200,8 @@ Finish porting old lens Quest Rules to Item Editor:
 	Removed display of old rules (they won't do anything when a quest is saved as V_ITEMS >= 35.
 	Added flag descriptions for flags 4 and 5 to the Item Editor.
 	( ZoriaRPG, 13th September, 2018 )
+	
+
 
 Fixed boomerangs with levels greater than 3, triggering inappropriate
 map flags. ( ZoriaRPG, 18th September, 2018 )

@@ -1677,6 +1677,8 @@ script_variable variable_list[]=
 	{"DEBUGD", DEBUGD, 0, 0 },
 	{"GETPIXEL", GETPIXEL, 0, 0 },
 	{"DOUNTYPE", DOUNTYPE, 0, 0 },
+	{"NPCBEHAVIOUR", NPCBEHAVIOUR, 0, 0 },
+	{"NPCDATABEHAVIOUR", NPCDATABEHAVIOUR, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

@@ -6473,6 +6473,15 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			if(tempitem.family == itype_ring){
 				if(get_bit(quest_rules,qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
 				else tempitem.flags &= ~ITEM_FLAG1;
+			} else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna){
+				if(get_bit(quest_rules,qr_SLASHFLIPFIX))tempitem.flags |= ITEM_FLAG8;
+				else tempitem.flags &= ~ITEM_FLAG8;
+			}
+			if(tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_hammer){
+				if(get_bit(quest_rules,qr_NOITEMMELEE))tempitem.flags |= ITEM_FLAG7;
+				else tempitem.flags &= ~ITEM_FLAG7;
+			} else if(tempitem.family == itype_cbyrna){
+				tempitem.flags |= ITEM_FLAG7;
 			}
 		}
 	    
@@ -9919,6 +9928,40 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 	    }
 	    
+	    if(guyversion >= 37)
+	    {
+		if(!p_igetl(&(tempguy.editorflags),f,keepdata))
+		{
+			return qe_invalid;
+		}     
+	    }
+	    if ( guyversion < 37 ) { tempguy.editorflags = 0; }
+	    if(guyversion >= 38)
+	    {
+		if(!p_igetl(&(tempguy.misc13),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc14),f,keepdata))
+		{
+			return qe_invalid;
+		} 
+		if(!p_igetl(&(tempguy.misc15),f,keepdata))
+		{
+			return qe_invalid;
+		}  
+		   
+	    }
+	    if ( guyversion < 38 ) 
+	    { 
+		tempguy.misc13 = 0; 
+		tempguy.misc14 = 0; 
+		tempguy.misc15 = 0; 
+	    }
+	    
+	    
+	    //All ports of QRs to Enemy Editor Flags go HERE! -Z
+	    
 	    
 	    //default weapon sprites (quest version < 2.54)
 	    //port over old defaults -Z
@@ -10388,6 +10431,14 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			tempguy.defense[edefWhistle] = edIGNORE; //Might need to be ignore, universally. 
 		}
 			
+	    }
+	    
+	    if ( Header->zelda_version <= 0x210 ) 
+	    {
+		if ( tempguy.family == eeDONGO ) 
+		{
+			tempguy.deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
+		}
 	    }
             
             if(keepdata)
@@ -11988,6 +12039,18 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
 		} 
 	}
     }
+    
+    //Dodongos in 2.10 used the boss roar, not the dodongo sound. -Z
+    //May be any version before 2.11. -Z
+    /* --not the roar, the HIT SFX
+    if ( Header->zelda_version <= 0x210 ) 
+    {
+	if ( temp_mapscr->bosssfx == WAV_DODONGO ) 
+	{
+		temp_mapscr->bosssfx = WAV_ROAR;
+	}
+    }
+    */
     
     return 0;
 }

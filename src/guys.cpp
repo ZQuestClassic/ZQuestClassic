@@ -370,6 +370,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     for ( int q = 0; q < 2; q++ ) initA[q] = d->initA[q];
     
     dialogue_str = 0; //set by spawn flags. 
+    editorflags = d->editorflags; //set by Enemy Editor 
     
     if(bosspal>-1)
     {

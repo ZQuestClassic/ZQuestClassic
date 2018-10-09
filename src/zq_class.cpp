@@ -9813,6 +9813,23 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			new_return(90);
 		}
 	    }
+	    if(!p_iputl(guysbuf[i].editorflags,f))
+            {
+                new_return(91);
+            }
+	    //somehow forgot these in the older builds -Z
+	    if(!p_iputl(guysbuf[i].misc13,f))
+            {
+                new_return(92);
+            }
+	    if(!p_iputl(guysbuf[i].misc14,f))
+            {
+                new_return(93);
+            }
+	    if(!p_iputl(guysbuf[i].misc15,f))
+            {
+                new_return(94);
+            }
         }
         
         if(writecycle==0)

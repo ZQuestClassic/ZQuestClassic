@@ -102,7 +102,7 @@ public:
     long initD[8], initA[2];
     
     long dialogue_str; //WIll be set in spawn flags. 
-    
+    long editorflags; //Enemy editor flags 1 to 16
     
     int getScriptUID();
     void setScriptUID(int new_id);
