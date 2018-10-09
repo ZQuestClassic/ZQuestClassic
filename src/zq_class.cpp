@@ -7355,7 +7355,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
                 new_return(14);
             }
             
-            if(!p_iputw(itemsbuf[i].flags,f))
+            if(!p_iputl(itemsbuf[i].flags,f))
             {
                 new_return(15);
             }
