@@ -6494,6 +6494,9 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 		
 		if( s_version < 41 ){
 			if(tempitem.family == itype_sword){
+				if(get_bit(quest_rules,qr_SWORDMIRROR))tempitem.flags |= ITEM_FLAG9;
+				else tempitem.flags &= ~ITEM_FLAG9;
+				
 				if(get_bit(quest_rules,qr_SLOWCHARGINGWALK))tempitem.flags |= ITEM_FLAG10;
 				else tempitem.flags &= ~ITEM_FLAG10;
 			}
