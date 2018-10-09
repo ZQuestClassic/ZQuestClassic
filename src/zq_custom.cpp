@@ -3569,7 +3569,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeWALK, { "Shot Type:", "Death Type:", "Death Attr. 1:", "Death Attr. 2:", "Death Attr. 3:", "Extra Shots:", "Touch Effects:", "Effect Strength:", "Walk Style:", "Walk Attr.:" },
         { (void*)&walkmisc1_list, (void*)&walkmisc2_list, NULL, NULL, NULL, NULL, (void*)&walkmisc7_list, NULL, (void*)&walkmisc9_list, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",
 		(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",
 		(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3583,7 +3583,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeGLEEOK, { "Heads:", "Head HP:", "Shot Type:", NULL, "Neck Segments:", "Neck Offset 1:", "Neck Offset 2:", "Head Offset:", "Fly Head Offset:", NULL },
         { NULL, NULL, (void*)&gleeokmisc3_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3597,7 +3597,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeDIG, { "Enemy 1 ID:", "Enemy 2 ID:", "Enemy 3 ID:", "Enemy 4 ID:", "Enemy 1 Qty:", "Enemy 2 Qty:", "Enemy 3 Qty:", "Enemy 4 Qty:", "Unused:", "Type:" },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&digdoggermisc10_list },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3611,7 +3611,7 @@ static EnemyNameInfo enameinf[]=
     {
         eePATRA, { "Outer Eyes:", "Inner Eyes:", "Eyes' HP:", "Eye Movement:", "Shooters:", "Pattern Odds:", "Pattern Cycles:", "Eye Offset:", "Eye CSet:", "Type:" },
         { NULL, NULL, NULL, (void*)&patramisc4_list, (void*)&patramisc5_list, NULL, NULL, NULL, NULL, (void*)&patramisc10_list },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3625,7 +3625,7 @@ static EnemyNameInfo enameinf[]=
     {
         eePROJECTILE, { "Shot Type:",  NULL, "Shot Attr. 1:", "Shot Attr. 2:", NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&walkmisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3639,7 +3639,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeGHOMA, { "Shot Type:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&gohmamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3653,7 +3653,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeAQUA, { "Side:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&aquamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3667,7 +3667,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeMANHAN, { "Frame rate:",  "Size:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, (void*)&manhandlamisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3681,7 +3681,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeLANM, { "Segments:",  "Segment Lag:", "Item per segment:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",
 		(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",
 		(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3695,7 +3695,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeMOLD, { "Segments:",  "Item per segment:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3709,7 +3709,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeWIZZ, { "Walk Style:",  "Shot Type:", "Shot Attr. 1:", "Solid Combos OK:", "Teleport Delay:", NULL, NULL, NULL, NULL, NULL  },
         { (void*)&wizzrobemisc1_list, (void*)&wizzrobemisc2_list, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3723,7 +3723,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeDONGO,{ NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Type :"  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&dodongomisc10_list },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3737,7 +3737,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeKEESE, { "Walk Style:",  "Death Type:", "Enemy ID:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&keesemisc1_list, (void*)&keesemisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3751,7 +3751,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeTEK,  { "1/n jump start:",  "1/n jump cont.:", "Jump Z velocity:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3765,7 +3765,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeLEV,  { "Emerge style:",  "Submerged CSet:", "Emerging step:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { (void*)&leevermisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3779,7 +3779,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeWALLM,{ "Fixed distance:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { (void*)&noyesmisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3793,7 +3793,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeTRAP, { "Direction:",  "Move Style:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { (void*)&trapmisc1_list, (void*)&trapmisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3807,7 +3807,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeROCK, { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Rock size:" },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&rockmisc1_list },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3821,7 +3821,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeNONE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3835,7 +3835,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3849,7 +3849,7 @@ static EnemyNameInfo enameinf[]=
     {
         eeGANON,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Visible if the player has an Level 2 (or higher) Amulet item.",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",
+	{ (char *)"Visible if the player has an Level 2 (or higher) Amulet item.",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",
 		(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",
 		(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
@@ -3863,7 +3863,7 @@ static EnemyNameInfo enameinf[]=
     {
         -1,		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility; Negative Value for Item Class",(char *)"BFlags[2]:",(char *)"BFlags[3]:",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"BFlags[15]:" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",

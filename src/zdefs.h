@@ -180,7 +180,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            19
 #define V_DMAPS            11
 #define V_DOORS            1
-#define V_ITEMS           40
+#define V_ITEMS           41
 #define V_WEAPONS          7
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -1374,7 +1374,7 @@ struct itemdata
     long family;												// What family the item is in
     byte fam_type;	//level										// What type in this family the item is
     long power;	// Damage, height, etc. //changed from byte to int in V_ITEMS 31
-    word flags;
+    long flags;
 #define ITEM_GAMEDATA    0x0001  // Whether this item sets the corresponding gamedata value or not
 #define ITEM_EDIBLE      0x0002  // can be eaten by Like Like
 #define ITEM_COMBINE     0x0004  // blue potion + blue potion = red potion
