@@ -9227,7 +9227,13 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     tempguy.misc2 = 0;
             }
 	    
-	     
+	    if ( Header->zelda_version <= 0x210 ) 
+	    {
+		if ( tempguy.family == eeDONGO ) 
+		{
+			tempguy.deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
+		}
+	    }
 	    
 	   
             
