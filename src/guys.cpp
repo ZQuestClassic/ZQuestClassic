@@ -1627,10 +1627,67 @@ bool enemy::dont_draw()
     return false;
 }
 
+#define DRAW_NORMAL 1
+#define DRAW_CLOAKED 1
+#define DRAW_INVIS 0
 // base drawing function to be used by all derived classes instead of
 // sprite::draw()
 void enemy::draw(BITMAP *dest)
 {
+	//Let's clen up this logic; shall we?
+    byte canSee = DRAW_INVIS;
+    if ( editorflags & ENEMY_FLAG1 )
+    {
+	if ( dmisc13 >= 0 )
+	{
+		if  (!( game->item[dmisc13] ))
+		{
+			if ( editorflags & ENEMY_FLAG16 )
+			{
+				canSee = DRAW_CLOAKED;
+			}
+			else canSee = DRAW_NORMAL;
+		}
+		//else if ( lensclk && getlensid.flags SHOWINVIS )
+		//{
+		//
+		//}
+		//else
+		//{
+		//	if ( (editorflags & ENEMY_FLAG4) ) canSee = DRAW_CLOAKED;
+		//	//otherwisem invisible
+		//}
+	}
+	    
+    }
+    
+    /*
+    if (!(game->item[dmisc13]))
+			{
+				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
+				{
+					sprite::drawcloaked(dest);
+				}
+				//al_trace("Required invisibility item id is: %d\n",dmisc13);
+			}
+			else
+			{
+				if ( (editorflags & ENEMY_FLAG16) )
+				{
+					sprite::drawcloaked(dest);
+				}
+				else
+				{
+					sprite::draw(dest);
+				}
+			}
+		}
+		else
+		{
+			sprite::draw(dest);
+		}
+    */
+	
     if(dont_draw())
     {
 	    //new enemy editor behaviour flags for Ganon
@@ -8979,6 +9036,7 @@ int eBigDig::takehit(weapon *w)
     return 0;
 }
 
+/*
 eGanon::eGanon(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
     hxofs=hyofs=8;
@@ -9114,39 +9172,77 @@ int eGanon::takehit(weapon *w)
     
     switch(misc)
     {
-    case 0:
-        if(wpnId!=wSword)
-            return 0;
-            
-        hp-=power;
-        
-        if(hp>0)
-        {
-            misc=1;
-            Stunclk=64;
-        }
-        else
-        {
-            loadpalset(csBOSS,pSprite(spBROWN));
-            misc=2;
-            Stunclk=284;
-            hp=guysbuf[id&0xFFF].hp;                              //16*DAMAGE_MULTIPLIER;
-        }
-        
-        sfx(WAV_EHIT,pan(int(x)));
-        
-        if(hitsfx>0) sfx(hitsfx,pan(int(x)));
-        
-        return 1;
-        
-    case 2:
-        if(wpnId!=wArrow || (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_arrow))<4)
-            return 0;
-            
-        misc=3;
-        hclk=81;
-        loadpalset(9,pSprite(spBROWN));
-        return 1;
+	    case 0:
+	    {
+		    //if we're not using the editor defences, and Ganon isn't hit by a sword, return.
+		if(wpnId!=wSword && !(editorflags & ENEMY_FLAG14))
+		    return 0;
+		
+		//if we are not using the new defences, just reduce his HP
+		if (!(editorflags & ENEMY_FLAG14)) 
+		{
+			hp-=power;
+			if(hp>0)
+			{
+			    misc=1;
+			    Stunclk=64;
+			}
+			else
+			{
+			    loadpalset(csBOSS,pSprite(spBROWN));
+			    misc=2;
+			    Stunclk=284;
+			    hp=guysbuf[id&0xFFF].hp;                              //16*DAMAGE_MULTIPLIER;
+			}
+			
+			sfx(WAV_EHIT,pan(int(x)));
+			
+			if(hitsfx>0) sfx(hitsfx,pan(int(x)));
+			
+			return 1;
+		}
+		//otherwise, resolve his defence. 
+		else 
+		{
+		        int def = enemy::takehit(w); //This works, but it instantly kills him if it does enough damage.
+			if(hp>0)
+			{
+			    misc=1;
+			    Stunclk=64;
+			}
+			else
+			{
+			    loadpalset(csBOSS,pSprite(spBROWN));
+			    misc=2;
+			    Stunclk=284;
+			    hp=guysbuf[id&0xFFF].hp;                              //16*DAMAGE_MULTIPLIER;
+			}
+			
+			sfx(WAV_EHIT,pan(int(x)));
+			
+			if(hitsfx>0) sfx(hitsfx,pan(int(x)));
+			
+			
+			return 1;
+		}
+	    } 
+	    case 2:
+	    {
+		if 
+		(
+			( dmisc14 > 0 && !enemyHitWeapon == dmisc14 ) //special weapon needed to kill ganon specified in editor
+			|| //or nothing specified, use silver arrows+
+			( dmisc14 <= 0 && (wpnId!=wArrow || (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_arrow))<4))
+		)
+		return 0;
+		{
+			misc=3;
+			hclk=81;
+			loadpalset(9,pSprite(spBROWN));
+			return 1;
+		}
+		
+	   }
     }
     
     return 0;
@@ -9206,6 +9302,224 @@ void eGanon::draw(BITMAP *dest)
 		draw_guts(dest); //makes his shots visible, but not him
 		draw_flash(dest);
 	}
+    }
+}
+
+void eGanon::draw_guts(BITMAP *dest)
+{
+    int c = zc_min(clk>>3,8);
+    tile = clk<24 ? 74 : 75;
+    overtile16(dest,tile,x+8,y+c+playing_field_offset,9,0);
+    overtile16(dest,tile,x+8,y+16-c+playing_field_offset,9,0);
+    overtile16(dest,tile,x+c,y+8+playing_field_offset,9,0);
+    overtile16(dest,tile,x+16-c,y+8+playing_field_offset,9,0);
+    overtile16(dest,tile,x+c,y+c+playing_field_offset,9,0);
+    overtile16(dest,tile,x+16-c,y+c+playing_field_offset,9,0);
+    overtile16(dest,tile,x+c,y+16-c+playing_field_offset,9,0);
+    overtile16(dest,tile,x+16-c,y+16-c+playing_field_offset,9,0);
+}
+
+void eGanon::draw_flash(BITMAP *dest)
+{
+
+    int c = clk-(clk>>2);
+    cs = (frame&3)+6;
+    overtile16(dest,194,x+8,y+8-clk+playing_field_offset,cs,0);
+    overtile16(dest,194,x+8,y+8+clk+playing_field_offset,cs,2);
+    overtile16(dest,195,x+8-clk,y+8+playing_field_offset,cs,0);
+    overtile16(dest,195,x+8+clk,y+8+playing_field_offset,cs,1);
+    overtile16(dest,196,x+8-c,y+8-c+playing_field_offset,cs,0);
+    overtile16(dest,196,x+8+c,y+8-c+playing_field_offset,cs,1);
+    overtile16(dest,196,x+8-c,y+8+c+playing_field_offset,cs,2);
+    overtile16(dest,196,x+8+c,y+8+c+playing_field_offset,cs,3);
+}
+*/
+
+eGanon::eGanon(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
+{
+    hxofs=hyofs=8;
+    hzsz=16; //can't be jumped.
+    clk2=70;
+    misc=-1;
+    mainguy=!getmapflag();
+}
+
+bool eGanon::animate(int index)
+{
+    if(dying)
+    
+        return Dead(index);
+        
+    if(clk==0)
+    {
+        removearmos(x,y);
+    }
+    
+    switch(misc)
+    {
+    case -1:
+        misc=0;
+        
+    case 0:
+        if(++clk2>72 && !(rand()&3))
+        {
+            addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
+            sfx(wpnsfx(wpn),pan(int(x)));
+            clk2=0;
+        }
+        
+        Stunclk=0;
+        constant_walk(rate,homing,spw_none);
+        break;
+        
+    case 1:
+    case 2:
+        if(--Stunclk<=0)
+        {
+            int r=rand();
+            
+            if(r&1)
+            {
+                y=96;
+                
+                if(r&2)
+                    x=160;
+                else
+                    x=48;
+                    
+                if(tooclose(x,y,48))
+                    x=208-x;
+            }
+            
+            loadpalset(csBOSS,pSprite(d->bosspal));
+            misc=0;
+        }
+        
+        break;
+        
+    case 3:
+    {
+        if(hclk>0)
+            break;
+            
+        misc=4;
+        clk=0;
+        hxofs=1000;
+        loadpalset(9,pSprite(spPILE));
+        music_stop();
+        stop_sfx(WAV_ROAR);
+        
+        if(deadsfx>0) sfx(deadsfx,pan(int(x)));
+        
+        sfx(WAV_GANON);
+	    //Ganon's dustpile; fall in sideview. -Z
+            item *dustpile = new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0);
+	    dustpile->miscellaneous[31] = eeGANON;
+            setmapflag();
+        //items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
+        break;
+    }
+        
+    case 4:
+        if(clk>=80)
+        {
+            misc=5;
+            
+            if(getmapflag())
+            {
+                game->lvlitems[dlevel]|=liBOSS;
+                //play_DmapMusic();
+                playLevelMusic();
+                return true;
+            }
+            
+            sfx(WAV_CLEARED);
+            items.add(new item(x+8,y+8,(fix)0,iBigTri,ipBIGTRI,0));
+            setmapflag();
+        }
+        
+        break;
+    }
+    
+    return enemy::animate(index);
+}
+
+
+int eGanon::takehit(weapon *w)
+{
+    //these are here to bypass compiler warnings about unused arguments
+    int wpnId = w->id;
+    int power = w->power;
+    int enemyHitWeapon = w->parentitem;
+    
+    switch(misc)
+    {
+    case 0:
+        if(wpnId!=wSword)
+            return 0;
+            
+        hp-=power;
+        
+        if(hp>0)
+        {
+            misc=1;
+            Stunclk=64;
+        }
+        else
+        {
+            loadpalset(csBOSS,pSprite(spBROWN));
+            misc=2;
+            Stunclk=284;
+            hp=guysbuf[id&0xFFF].hp;                              //16*DAMAGE_MULTIPLIER;
+        }
+        
+        sfx(WAV_EHIT,pan(int(x)));
+        
+        if(hitsfx>0) sfx(hitsfx,pan(int(x)));
+        
+        return 1;
+        
+    case 2:
+        if(wpnId!=wArrow || (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_arrow))<4)
+            return 0;
+            
+        misc=3;
+        hclk=81;
+        loadpalset(9,pSprite(spBROWN));
+        return 1;
+    }
+    
+    return 0;
+}
+
+void eGanon::draw(BITMAP *dest)
+{
+    switch(misc)
+    {
+    case 0:
+        if((clk&3)==3)
+            tile=(rand()%5)*2+o_tile;
+            
+        if(db!=999)
+            break;
+            
+    case 2:
+        if(Stunclk<64 && (Stunclk&1))
+            break;
+            
+    case -1:
+        tile=o_tile;
+        
+        //fall through
+    case 1:
+    case 3:
+        drawblock(dest,15);
+        break;
+        
+    case 4:
+        draw_guts(dest);
+        draw_flash(dest);
+        break;
     }
 }
 
