@@ -240,7 +240,7 @@ static DIALOG itemrules_dlg[] =
     { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Big Triforce Pieces", NULL, NULL },
     { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "3 or 6 Triforce Total", NULL, NULL },
     // rules 2 //22
-    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slow Walk While Charging", NULL, NULL },
+    { d_dummy_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slow Walk While Charging", NULL, NULL },
  //Deprecated:  23, 24, 25, 26, 27, 28, 29
     { d_dummy_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Show Secret Combo Hints When Using The Lens", NULL, NULL },
     { d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Shows Raft Paths", NULL, NULL },
