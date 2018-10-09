@@ -3852,9 +3852,9 @@ static EnemyNameInfo enameinf[]=
         { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Visible if the player has an Level 2 (or higher) Amulet item.",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",
 		(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",
-		(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"BFlags[13]:",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
+		(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",(char *)"Use Editor Defenses",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
+		(char *)"This Item Dispels Invisibility",(char *)"Death Shot Item ID",(char *)"Attributes[14]",(char *)"Attributes[15]",
 		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
@@ -4696,7 +4696,7 @@ void setEnemyLabels(int family)
     enedata_dlg[r ? 140 : 141].flags |= D_DISABLED;
     enedata_dlg[r ? 141 : 140].flags &= ~D_DISABLED;
     
-    if(family==eeTRAP || family==eeROCK || family==eeDONGO || family==eeGANON)
+    if(family==eeTRAP || family==eeROCK || family==eeDONGO ) //|| family==eeGANON)
     {
         for(int j=0; j <= edefBYRNA+1 /* + the Set All button*/; j++) enedata_dlg[j+161].flags |= D_DISABLED;
         
