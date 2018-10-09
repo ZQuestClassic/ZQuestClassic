@@ -5164,10 +5164,22 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 		}
                 
-                if(!p_igetw(&tempitem.flags,f,true))
-                {
-                    return qe_invalid;
-                }
+		//converted flags from 16b to 32b -Z
+		if ( s_version < 41 )
+		{
+			if(!p_igetw(&tempitem.flags,f,true))
+			{
+			    return qe_invalid;
+			}
+		}
+		else
+		{
+			if(!p_igetl(&tempitem.flags,f,true))
+			{
+			    return qe_invalid;
+			}
+		}
+				
             }
             else
             {
