@@ -1632,7 +1632,39 @@ bool enemy::dont_draw()
 void enemy::draw(BITMAP *dest)
 {
     if(dont_draw())
-        return;
+    {
+	    //new enemy editor behaviour flags for Ganon
+	if ( family == eeGANON ) 
+	{
+	    //if ( editorflags & ENEMY_FLAG1 || ( (editorflags & ENEMY_FLAG2) && ( misc13 >= 0 : game->item[misc13] ? (linkhasitemclass((misc13*-1)) ) ) //ganon is visible to level 2 amulet
+	    if ( editorflags & ENEMY_FLAG1 && current_item_power(itype_amulet) >= 2 ) //ganon is visible to level 2 amulet
+	    {
+		
+		if ( editorflags & ENEMY_FLAG16 ) //draw cloaked
+		{
+			sprite::drawcloaked(dest);
+		}
+		else
+		{
+			sprite::draw(dest);
+		}
+		
+	    }
+	    else if ( (editorflags & ENEMY_FLAG2) && (game->item[dmisc13]) )
+	    {
+		if ( editorflags & ENEMY_FLAG16 ) //draw cloaked
+		{
+			sprite::drawcloaked(dest);
+		}
+		else
+		{
+			sprite::draw(dest);
+		}
+	    }
+	    
+	}
+	else return;
+    }
         
     int cshold=cs;
     
@@ -1641,7 +1673,35 @@ void enemy::draw(BITMAP *dest)
         if(clk2>=19)
         {
             if(!(clk2&2))
-                sprite::draw(dest);
+	    {
+		//if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
+		if ( (editorflags & ENEMY_FLAG1) )
+		{
+			if (!(game->item[dmisc13]))
+			{
+				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
+				{
+					sprite::drawcloaked(dest);
+				}
+				//al_trace("Required invisibility item id is: %d\n",dmisc13);
+			}
+			else
+			{
+				if ( (editorflags & ENEMY_FLAG16) )
+				{
+					sprite::drawcloaked(dest);
+				}
+				else
+				{
+					sprite::draw(dest);
+				}
+			}
+		}
+		else
+		{
+			sprite::draw(dest);
+		}
+	    }
                 
             return;
         }
@@ -1695,16 +1755,78 @@ void enemy::draw(BITMAP *dest)
 		if ( frozentile > 0 ) tile = frozentile;
 		loadpalset(csBOSS,frozencset);
 	    }
+	    
+	    //draw every other frame for flickering enemies
         if(family !=eeGANON && hclk>0 && get_bit(quest_rules,qr_ENEMIESFLICKER))
         {
             if((frame&1)==1)
-                sprite::draw(dest);
+	    {
+		//if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
+		if ( (editorflags & ENEMY_FLAG1) )
+		{
+			if (!(game->item[dmisc13]))
+			{
+				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
+				{
+					sprite::drawcloaked(dest);
+				}
+				//al_trace("Required invisibility item id is: %d\n",dmisc13);
+			}
+			else
+			{
+				if ( (editorflags & ENEMY_FLAG16) )
+				{
+					sprite::drawcloaked(dest);
+				}
+				else
+				{
+					sprite::draw(dest);
+				}
+			}
+		}
+		else
+		{
+			sprite::draw(dest);
+		}
+	    }
         }
         else
-            sprite::draw(dest);
+	{
+            //if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
+		if ( (editorflags & ENEMY_FLAG1) )
+		{
+			if (!(game->item[dmisc13]))
+			{
+				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
+				{
+					sprite::drawcloaked(dest);
+				}
+				//al_trace("Required invisibility item id is: %d\n",dmisc13);
+			}
+			else
+			{
+				if ( (editorflags & ENEMY_FLAG16) )
+				{
+					sprite::drawcloaked(dest);
+				}
+				else
+				{
+					sprite::draw(dest);
+				}
+			}
+		}
+		else
+		{
+			sprite::draw(dest);
+		}
+	}
     }
     
+    
+	
     cs=cshold;
+	
+
 }
 
 // similar to the overblock function--can do up to a 32x32 sprite
@@ -8913,7 +9035,14 @@ bool eGanon::animate(int index)
                     x=208-x;
             }
             
-            loadpalset(csBOSS,pSprite(d->bosspal));
+	    //if ( editorflags & ENEMY_FLAG15 && current_item_id(itype_amulet,false) >= 2 ) //visible to Amulet 2
+	    //{
+	//	loadpalset(9,pSprite(spBROWN)); //make Ganon visible?
+	//    }
+        //    else
+	//    {
+		loadpalset(csBOSS,pSprite(d->bosspal));
+	//    }
             misc=0;
         }
         
@@ -8962,6 +9091,15 @@ bool eGanon::animate(int index)
         
         break;
     }
+    
+    //if ( editorflags & ENEMY_FLAG15 ) //visible to Amulet 2
+    //{
+	//if ( current_item_id(itype_amulet,false) >= 2 )
+	//{
+	///	loadpalset(9,pSprite(spBROWN)); //make Ganon visible?
+	//}
+    //}
+    
     
     return enemy::animate(index);
 }
@@ -9026,8 +9164,19 @@ void eGanon::draw(BITMAP *dest)
             break;
             
     case 2:
-        if(Stunclk<64 && (Stunclk&1))
+        if(Stunclk<64 && (Stunclk&1) )
+	{
+	    if 
+	    (
+		( (editorflags & ENEMY_FLAG1) && current_item_power(itype_amulet) >= 2 && (editorflags & ENEMY_FLAG15) )
+		||
+		( (editorflags & ENEMY_FLAG2) && (game->item[dmisc13]) && (editorflags & ENEMY_FLAG15) )
+	    )
+	    {
+		    goto ganon_draw; //draw his weapons if we can see him
+	    }
             break;
+        }
             
     case -1:
         tile=o_tile;
@@ -9035,6 +9184,7 @@ void eGanon::draw(BITMAP *dest)
         //fall through
     case 1:
     case 3:
+	ganon_draw:
         drawblock(dest,15);
         break;
         
@@ -9042,6 +9192,20 @@ void eGanon::draw(BITMAP *dest)
         draw_guts(dest);
         draw_flash(dest);
         break;
+    }
+    
+    if ( editorflags & ENEMY_FLAG1 ) //visible to Amulet 2
+    {
+	if 
+	(
+		( (editorflags & ENEMY_FLAG1) && current_item_power(itype_amulet) >= 2 && (editorflags & ENEMY_FLAG15) )
+		||
+		( (editorflags & ENEMY_FLAG2) && (game->item[dmisc13]) && (editorflags & ENEMY_FLAG15) )
+	)
+	{
+		draw_guts(dest); //makes his shots visible, but not him
+		draw_flash(dest);
+	}
     }
 }
 
