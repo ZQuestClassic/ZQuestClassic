@@ -6496,13 +6496,6 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 				tempitem.flags |= ITEM_FLAG7;
 			}
 		}
-	    
-            if(tempitem.fam_type==0)  // Always do this
-                tempitem.fam_type=1;
-                
-            memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
-            
-        }
 		
 		if( s_version < 41 ){
 			if(tempitem.family == itype_sword){
@@ -6513,6 +6506,13 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 				else tempitem.flags &= ~ITEM_FLAG10;
 			}
 		}
+	    
+		if(tempitem.fam_type==0)  // Always do this
+			tempitem.fam_type=1;
+			
+		memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
+            
+        }
     }
     
     return 0;
