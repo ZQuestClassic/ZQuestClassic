@@ -245,6 +245,8 @@ class LinkClass : public sprite
 	
 	int last_lens_id;// The item ID of the last Lens of Truth type item used
     
+	long misc_internal_link_flags;// Flags to hold data temporarily for misc handling
+	
     // Methods below here.
     void movelink();
     void move(int d);

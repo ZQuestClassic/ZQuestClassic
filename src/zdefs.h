@@ -180,7 +180,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            19
 #define V_DMAPS            11
 #define V_DOORS            1
-#define V_ITEMS           41
+#define V_ITEMS           42
 #define V_WEAPONS          7
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -3825,5 +3825,7 @@ extern void removeFromItemCache(int itemid);
 #define GLOBAL_SCRIPT_END		2
 #define GLOBAL_SCRIPT_CONTINUE 	3
 
+//Link Internal Flags
+#define LF_PAID_SWORD_COST	0x01
 
 #endif                                                      //_ZDEFS_H_

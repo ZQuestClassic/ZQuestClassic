@@ -6513,9 +6513,9 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 				else tempitem.flags &= ~ITEM_FLAG3;
 			} else if(tempitem.family == itype_hammer){
 				tempitem.flags &= ~ITEM_FLAG3;
-			} /*else if(tempitem.family == itype_cbyrna){
+			} else if(tempitem.family == itype_cbyrna){
 				tempitem.flags |= ITEM_FLAG3;
-			}*/
+			}
 		}
 	    
 		if(tempitem.fam_type==0)  // Always do this

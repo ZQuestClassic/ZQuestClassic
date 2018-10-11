@@ -63,7 +63,6 @@ void playLevelMusic();
 
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
-
 static inline bool isSideview()
 {
     return (((tmpscr->flags7&fSIDEVIEW)!=0 || DMaps[currdmap].sideview != 0) && !ignoreSideview); //DMap Enable Sideview on All Screens -Z //2.54 Alpha 27
@@ -858,6 +857,7 @@ void LinkClass::init()
     magiccastclk=0;
     magicitem = nayruitem = -1;
 	last_lens_id = 0;
+	misc_internal_link_flags = 0;
     
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -961,7 +961,7 @@ bool LinkClass::agonyflag(int flag)
 // The Whimsical Ring is applied on a target-by-target basis.
 int LinkClass::weaponattackpower()
 {
-    int power = directWpn>-1 ? itemsbuf[directWpn].power : (current_item_power(attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword));
+    int power = attack==wCByrna ? itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_cbyrna)].misc4 : directWpn>-1 ? itemsbuf[directWpn].power : (current_item_power(attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword));
     
     // Multiply it by the power of the spin attack/quake hammer, if applicable.
     power *= (spins>0 ? itemsbuf[current_item_id(attack==wHammer ? itype_quakescroll : (spins>5 || current_item_id(itype_spinscroll) < 0) ? itype_spinscroll2 : itype_spinscroll)].power : 1);
@@ -2017,9 +2017,6 @@ void LinkClass::checkstab()
 	if(attack == wFire)
 		return;
 	
-    if(attack!=wCByrna)
-	{
-			
 		if(attack==wHammer)
 		{
 			if(attackclk<15)
@@ -2085,7 +2082,7 @@ void LinkClass::checkstab()
 		}
 		
 		// The return of Spaghetti Code Constants!
-		int itype = (attack==wWand ? itype_wand : attack==wSword ? itype_sword : /*attack==wCByrna ? itype_cbyrna : */itype_hammer);
+		int itype = (attack==wWand ? itype_wand : attack==wSword ? itype_sword : attack==wCByrna ? itype_cbyrna : itype_hammer);
 		int itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 		itemid = vbound(itemid, 0, MAXITEMS-1);
 		
@@ -2159,8 +2156,8 @@ void LinkClass::checkstab()
 		for(int i=0; i<guys.Count(); i++)
 		{
 			// So that Link can actually hit peahats while jumping, his weapons' hzsz becomes 16 in midair.
-			if((guys.spr(i)->hit(wx,wy,wz,wxsz,wysz,wz>0?16:8) && ((attack!=wWand && attack!=wHammer /*&& attack!=wCByrna*/) || !(itemsbuf[itemid].flags & ITEM_FLAG3)))
-					|| ((attack==wWand /*|| attack==wCByrna*/) && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !(itemsbuf[itemid].flags & ITEM_FLAG3))
+			if((guys.spr(i)->hit(wx,wy,wz,wxsz,wysz,wz>0?16:8) && ((attack!=wWand && attack!=wHammer && attack!=wCByrna) || !(itemsbuf[itemid].flags & ITEM_FLAG3)))
+					|| ((attack==wWand || attack==wCByrna) && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !(itemsbuf[itemid].flags & ITEM_FLAG3))
 					|| (attack==wHammer && guys.spr(i)->hit(wx,wy-8,z,16,24,z>0?16:8) && !(itemsbuf[itemid].flags & ITEM_FLAG3)))
 			{
 				// Checking the whimsical ring for every collision check causes
@@ -2205,8 +2202,6 @@ void LinkClass::checkstab()
 					break;
 			}
 		}
-		
-	}
 	
     if(((parentitem==-1&&get_bit(quest_rules,qr_NOITEMMELEE))||parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
     {
@@ -5240,13 +5235,18 @@ bool LinkClass::startwpn(int itemid)
     
     case itype_sword:
     {
-        if(!checkmagiccost(itemid))
+        if(!(misc_internal_link_flags & LF_PAID_SWORD_COST) && !checkmagiccost(itemid))
             return false;
             
         if((Lwpns.idCount(wBeam) && spins==0)||Lwpns.idCount(wMagic))
+		{
+			misc_internal_link_flags &= ~LF_PAID_SWORD_COST;
             return false;
+		}
             
-        paymagiccost(itemid);
+        if(!(misc_internal_link_flags & LF_PAID_SWORD_COST))//If already paid to use sword melee, don't charge again
+			paymagiccost(itemid);
+		else misc_internal_link_flags &= ~LF_PAID_SWORD_COST;
         float temppower;
         
         if(itemsbuf[itemid].flags & ITEM_FLAG2)
@@ -5958,18 +5958,22 @@ bool LinkClass::doattack()
                           && ((itemsbuf[wpnid].flags & ITEM_FLAG1)
                               || itemsbuf[wpnid].misc1 <= game->get_maxlife()/HP_PER_HEART));
                               
-        if(attack==wSword && !tapping && (perilbeam || normalbeam))
+        if(attack==wSword && !tapping)
         {
-            if(attackclk==7)
-                paymagiccost(crossid); // Pay the Cross Beams magic cost.
-                
-            if(perilbeam && !normalbeam)
-                paymagiccost(perilid); // Pay the Peril Beam magic cost.
-                
-            // TODO: Something that would be cheap but disgraceful to hack in at this point is
-            // a way to make the peril/cross beam item's power stat influence the strength
-            // of the peril/cross beam...
-            startwpn(attackid);
+			if(perilbeam || normalbeam)
+			{
+				if(attackclk==7)
+					paymagiccost(crossid); // Pay the Cross Beams magic cost.
+					
+				if(perilbeam && !normalbeam)
+					paymagiccost(perilid); // Pay the Peril Beam magic cost.
+					
+				// TODO: Something that would be cheap but disgraceful to hack in at this point is
+				// a way to make the peril/cross beam item's power stat influence the strength
+				// of the peril/cross beam...
+				startwpn(attackid);
+			}
+			else misc_internal_link_flags &= ~LF_PAID_SWORD_COST;
         }
         
         if(attack==wWand)
@@ -6624,11 +6628,15 @@ void LinkClass::movelink()
     if(can_attack() && (directWpn>-1 ? itemsbuf[directWpn].family==itype_sword : current_item(itype_sword)) && swordclk==0 && btnwpn==itype_sword && charging==0)
     {
 	attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
+	bool paidSwordCost = false;
 	if(checkmagiccost(attackid) || (get_bit(quest_rules, qr_MELEEMAGICCOST) == 0) ) //what about wands and canes?
 		//2.50.2 quests may have had a magic cost only on sword beams. Need to add this to the Item Editor in 2.54+ 
 		//as a flag on sword class items (Beams Use Magic, Sword Blade Uses Magic)
 	{
-		    //else paymagiccost(itemid);
+		if(get_bit(quest_rules, qr_MELEEMAGICCOST) && !(misc_internal_link_flags & LF_PAID_SWORD_COST)){
+			paymagiccost(attackid);
+			misc_internal_link_flags |= LF_PAID_SWORD_COST;
+		}
 		action=attacking; FFCore.setLinkAction(attacking);
 		attack=wSword;
 		
