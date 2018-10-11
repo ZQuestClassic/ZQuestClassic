@@ -2085,7 +2085,7 @@ void LinkClass::checkstab()
 		}
 		
 		// The return of Spaghetti Code Constants!
-		int itype = (attack==wWand ? itype_wand : itype_sword);
+		int itype = (attack==wWand ? itype_wand : attack==wSword ? itype_sword : /*attack==wCByrna ? itype_cbyrna : */itype_hammer);
 		int itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 		itemid = vbound(itemid, 0, MAXITEMS-1);
 		
@@ -2159,9 +2159,9 @@ void LinkClass::checkstab()
 		for(int i=0; i<guys.Count(); i++)
 		{
 			// So that Link can actually hit peahats while jumping, his weapons' hzsz becomes 16 in midair.
-			if((guys.spr(i)->hit(wx,wy,wz,wxsz,wysz,wz>0?16:8) && (attack!=wWand || !get_bit(quest_rules,qr_NOWANDMELEE)))
-					|| (attack==wWand && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !get_bit(quest_rules,qr_NOWANDMELEE))
-					|| (attack==wHammer && guys.spr(i)->hit(wx,wy-8,z,16,24,z>0?16:8)))
+			if((guys.spr(i)->hit(wx,wy,wz,wxsz,wysz,wz>0?16:8) && ((attack!=wWand && attack!=wHammer /*&& attack!=wCByrna*/) || !(itemsbuf[itemid].flags & ITEM_FLAG3)))
+					|| ((attack==wWand /*|| attack==wCByrna*/) && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !(itemsbuf[itemid].flags & ITEM_FLAG3))
+					|| (attack==wHammer && guys.spr(i)->hit(wx,wy-8,z,16,24,z>0?16:8) && !(itemsbuf[itemid].flags & ITEM_FLAG3)))
 			{
 				// Checking the whimsical ring for every collision check causes
 				// an odd bug. It's much more likely to activate on a 0-damage
