@@ -6373,15 +6373,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 	    //Port quest rules to items
 	    if( s_version <= 31) 
 	    {
-		if(tempitem.family == itype_candle)
-		{
-			if ( (!get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
-			else tempitem.flags &= ~ ITEM_FLAG3;
-			if ( (!get_bit(quest_rules,qr_TEMPCANDLELIGHT)) ) tempitem.flags |= ITEM_FLAG5;
-			else tempitem.flags &= ~ ITEM_FLAG5;
-			
-		}
-		else if(tempitem.family == itype_bomb)
+		if(tempitem.family == itype_bomb)
 		{
 			if ( get_bit(quest_rules,qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
 			else tempitem.flags &= ~ ITEM_FLAG2;
@@ -6423,7 +6415,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
 			else tempitem.flags &= ~ ITEM_FLAG5;
 		}
-		else if(tempitem.family == itype_book)
+		else if(tempitem.family == itype_book || tempitem.family == itype_candle)
 		{
 			//@VenRob: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
 			if ( (get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
@@ -6448,7 +6440,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 	    }
 	    
 	    if( s_version < 39){
-		if(tempitem.family == itype_dinsfire || tempitem.family == itype_book)
+		if(tempitem.family == itype_dinsfire || tempitem.family == itype_book || tempitem.family == itype_candle)
 		{
 			if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
 			else tempitem.flags &= ~ITEM_FLAG5;
