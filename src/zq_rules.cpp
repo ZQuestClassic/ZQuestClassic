@@ -572,39 +572,40 @@ static int compatrules[] =
    qr_GOTOLESSNOTEQUAL, qr_OLDLENSORDER, qr_NOFAIRYGUYFIRES, qr_TRIGGERSREPEAT,
    qr_HOOKSHOTDOWNBUG, qr_REPLACEOPENDOORS, qr_NOSOLIDDAMAGECOMBOS, qr_OLDHOOKSHOTGRAB,
    qr_PEAHATCLOCKVULN, qr_OFFSCREENWEAPONS, qr_ITEMPICKUPSETSBELOW, qr_OLDSIDEVIEWSPIKES,
+   qr_OLDINFMAGIC,
    -1 
 };
 
 static DIALOG compatrules_dlg[] =
 {
     /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Compatibility", NULL, NULL },
-    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0,        NULL, NULL, NULL },
+    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0,        (void *) "Quest Rules - Compatibility", NULL, NULL },
+    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL },
+    { d_dummy_proc,          5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0,        NULL, NULL, NULL },
     // 3
-    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0,        (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0,        (void *) "OK", NULL, NULL },
+    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0,        (void *) onHelp, NULL, NULL },
     
     // Notice
-    { jwin_text_proc,       10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "These rules are enabled automatically for compatibility.", NULL, NULL },
-    { jwin_text_proc,       10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enabling them manually may cause unexpected behavior.", NULL, NULL },
+    { jwin_text_proc,       10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "These rules are enabled automatically for compatibility.", NULL, NULL },
+    { jwin_text_proc,       10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Enabling them manually may cause unexpected behavior.", NULL, NULL },
     
     // rules
-    { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old GOTOLESS Behavior", NULL, NULL },
-    { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Lens Drawing Order", NULL, NULL },
-    { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Fairy Guy Fires", NULL, NULL },
-    { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Continuous Step Triggers", NULL, NULL },
-    { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Downward Hookshot Bug", NULL, NULL },
-    { jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fix Open Door Solidity", NULL, NULL },
-    { jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Solid Damage Combos", NULL, NULL },
-    { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Hookshot Grab Checking", NULL, NULL },
-    { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Peahats Are Vulnerable When Frozen By Clocks", NULL, NULL },
-    { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Weapons With No Collision Detection Move Offscreen", NULL, NULL },
-    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Screen Item Pickup Disables Hunger/Special Item", NULL, NULL },
-    { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sideview Spike Detection Prior to 2.50.1RC3", NULL, NULL },
-    //{ jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Old Sideview Spikes", NULL, NULL },
-    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+    { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old GOTOLESS Behavior", NULL, NULL },
+    { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Lens Drawing Order", NULL, NULL },
+    { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "No Fairy Guy Fires", NULL, NULL },
+    { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Continuous Step Triggers", NULL, NULL },
+    { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Downward Hookshot Bug", NULL, NULL },
+    { jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Fix Open Door Solidity", NULL, NULL },
+    { jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "No Solid Damage Combos", NULL, NULL },
+    { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Old Hookshot Grab Checking", NULL, NULL },
+    { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Peahats Are Vulnerable When Frozen By Clocks", NULL, NULL },
+    { jwin_check_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Weapons With No Collision Detection Move Offscreen", NULL, NULL },
+    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Screen Item Pickup Disables Hunger/Special Item", NULL, NULL },
+    { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Sideview Spike Detection Prior to 2.50.1RC3", NULL, NULL },
+    { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0,        (void *) "Infinite Magic Prevents Items From Draining Rupees", NULL, NULL },
+    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,        NULL, NULL, NULL }
 };
 
 int onCompatRules()

@@ -461,7 +461,7 @@ int enemy_dp(int index);
 int ewpn_dp(int index);
 int lwpn_dp(int index);
 bool checkmagiccost(int itemid);
-void paymagiccost(int itemid);
+void paymagiccost(int itemid, bool ignoreTimer = false);
 int Bweapon(int pos);
 void stopCaneOfByrna();
 //void selectWpn(int xstep, int ystep, bool b);

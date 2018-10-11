@@ -5157,15 +5157,21 @@ bool LinkClass::startwpn(int itemid)
     case itype_wand:
     {
         if(Lwpns.idCount(wMagic))
+		{
+			misc_internal_link_flags &= ~LF_PAID_WAND_COST;
             return false;
+		}
             
         int bookid = current_item_id(itype_book);
         bool paybook = (bookid>-1 && checkmagiccost(bookid));
         
         if(!(itemsbuf[itemid].flags&ITEM_FLAG1) && !paybook)  //Can the wand shoot without the book?
+        {
+			misc_internal_link_flags &= ~LF_PAID_WAND_COST;
             return false;
+		}
             
-        if(!checkmagiccost(itemid))
+        if(!(misc_internal_link_flags & LF_PAID_WAND_COST) && !checkmagiccost(itemid))
             return false;
             
         if(Lwpns.idCount(wBeam))
@@ -5194,8 +5200,9 @@ bool LinkClass::startwpn(int itemid)
 		if(paybook)magic->miscellaneous[31] = bookid;
                 Lwpns.add(magic);
 	    }
-                
-        paymagiccost(itemid);
+        if(!(misc_internal_link_flags & LF_PAID_WAND_COST))
+			paymagiccost(itemid);
+		else misc_internal_link_flags &= ~LF_PAID_WAND_COST;
         
         if(paybook)
             paymagiccost(current_item_id(itype_book));
@@ -5681,13 +5688,16 @@ bool LinkClass::startwpn(int itemid)
         if(Lwpns.idCount(wCByrna))
         {
             stopCaneOfByrna();
+			misc_internal_link_flags &= ~LF_PAID_CBYRNA_COST;
             return false;
         }
         
-        if(!checkmagiccost(itemid))
+        if(!(misc_internal_link_flags & LF_PAID_CBYRNA_COST) && !checkmagiccost(itemid))
             return false;
-	paymagiccost(itemid);
-        
+		if(!(misc_internal_link_flags & LF_PAID_CBYRNA_COST))
+			paymagiccost(itemid);
+        else misc_internal_link_flags &= ~LF_PAID_CBYRNA_COST;
+		
         for(int i=0; i<itemsbuf[itemid].misc3; i++)
             Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
     }
@@ -6628,13 +6638,12 @@ void LinkClass::movelink()
     if(can_attack() && (directWpn>-1 ? itemsbuf[directWpn].family==itype_sword : current_item(itype_sword)) && swordclk==0 && btnwpn==itype_sword && charging==0)
     {
 	attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
-	bool paidSwordCost = false;
-	if(checkmagiccost(attackid) || (get_bit(quest_rules, qr_MELEEMAGICCOST) == 0) ) //what about wands and canes?
+	if(checkmagiccost(attackid) || !(itemsbuf[attackid].flags & ITEM_FLAG6)) //what about wands and canes?
 		//2.50.2 quests may have had a magic cost only on sword beams. Need to add this to the Item Editor in 2.54+ 
 		//as a flag on sword class items (Beams Use Magic, Sword Blade Uses Magic)
 	{
-		if(get_bit(quest_rules, qr_MELEEMAGICCOST) && !(misc_internal_link_flags & LF_PAID_SWORD_COST)){
-			paymagiccost(attackid);
+		if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_link_flags & LF_PAID_SWORD_COST)){
+			paymagiccost(attackid,true);
 			misc_internal_link_flags |= LF_PAID_SWORD_COST;
 		}
 		action=attacking; FFCore.setLinkAction(attacking);
@@ -6687,10 +6696,17 @@ void LinkClass::movelink()
         
         if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
         {
-            action=attacking; FFCore.setLinkAction(attacking);
-            attack=wWand;
             attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
-            attackclk=0;
+			if((!itemsbuf[attackid].flags & ITEM_FLAG6) || checkmagiccost(attackid))
+			{
+				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_link_flags & LF_PAID_WAND_COST)){
+					paymagiccost(attackid,true);
+					misc_internal_link_flags |= LF_PAID_WAND_COST;
+				}
+				action=attacking; FFCore.setLinkAction(attacking);
+				attack=wWand;
+				attackclk=0;
+			}
         }
         else if((btnwpn==itype_hammer)&&!(action==attacking && attack==wHammer)
                 && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)) && checkmagiccost(dowpn))
@@ -6713,10 +6729,17 @@ void LinkClass::movelink()
         else if((btnwpn==itype_cbyrna)&&!(action==attacking && attack==wCByrna)
                 && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
         {
-            action=attacking; FFCore.setLinkAction(attacking);
-            attack=wCByrna;
             attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
-            attackclk=0;
+			if((!itemsbuf[attackid].flags & ITEM_FLAG6) || checkmagiccost(attackid))
+			{
+				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_link_flags & LF_PAID_CBYRNA_COST)){
+					paymagiccost(attackid,true);
+					misc_internal_link_flags |= LF_PAID_CBYRNA_COST;
+				}
+				action=attacking; FFCore.setLinkAction(attacking);
+				attack=wCByrna;
+				attackclk=0;
+			}
         }
         else
         {
@@ -14030,7 +14053,7 @@ bool checkmagiccost(int itemid)
     return 1;
 }
 
-void paymagiccost(int itemid)
+void paymagiccost(int itemid, bool ignoreTimer)
 {
     if(itemid < 0)
     {
@@ -14040,7 +14063,7 @@ void paymagiccost(int itemid)
     {
 	    return;
     }    
-    else if(current_item_power(itype_magicring) > 0 && ( itemsbuf[itemid].cost_counter == 4 || itemsbuf[itemid].cost_counter == 1 ))
+    else if((current_item_power(itype_magicring) > 0 && (itemsbuf[itemid].cost_counter == 4 || (itemsbuf[itemid].cost_counter == 1 && get_bit(quest_rules,qr_OLDINFMAGIC)))) || (!get_bit(quest_rules,qr_OLDINFMAGIC) && current_item_power(itype_wallet) > 0 && itemsbuf[itemid].cost_counter == 1))
     {
         return;
     }
@@ -14048,7 +14071,7 @@ void paymagiccost(int itemid)
     if(itemsbuf[itemid].cost_counter == 1) //rupees
     {
 	if ( current_item_power(itype_wallet) ) return;
-	if ( itemsbuf[itemid].magiccosttimer > 0 ) 
+	if ( itemsbuf[itemid].magiccosttimer > 0 && !ignoreTimer) 
 	{
 		//get_counter
 		if ( frame % itemsbuf[itemid].magiccosttimer == 0 )  game->change_drupy(-itemsbuf[itemid].magic);
@@ -14062,7 +14085,7 @@ void paymagiccost(int itemid)
     }
     else if (itemsbuf[itemid].cost_counter == 4) //magic
     {
-	if ( itemsbuf[itemid].magiccosttimer > 0 ) 
+	if ( itemsbuf[itemid].magiccosttimer > 0 && !ignoreTimer) 
 	{
 		if ( frame % itemsbuf[itemid].magiccosttimer == 0 )  game->change_magic(-(itemsbuf[itemid].magic*game->get_magicdrainrate()));
 	}
@@ -14074,7 +14097,7 @@ void paymagiccost(int itemid)
     else //other counters
     {
 	    
-	if ( itemsbuf[itemid].magiccosttimer > 0 ) 
+	if ( itemsbuf[itemid].magiccosttimer > 0 && !ignoreTimer) 
 	{
 		//game->set_counter
 		if ( frame % itemsbuf[itemid].magiccosttimer == 0 ) game->set_counter(-(itemsbuf[itemid].magic), itemsbuf[itemid].cost_counter);

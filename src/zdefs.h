@@ -825,10 +825,11 @@ enum
     qr_BROKENSTATUES /* Compatibility */, qr_NOSCRIPTSDURINGSCROLL /* Not Implemented */, qr_ITEMPICKUPSETSBELOW /* Compatibility */,
     
     qr_NOGANONINTRO, //bugfix//
-    qr_MELEEMAGICCOST,
+    qr_MELEEMAGICCOST/*DEPRECATED*/,
     qr_OLDMIRRORCOMBOS,
     qr_BROKENBOOKCOST,
     qr_OLDSIDEVIEWSPIKES,
+	qr_OLDINFMAGIC/* Compatibility */, //Infinite magic prevents items from draining rupees
 
     qr_MAX
 };
@@ -3826,6 +3827,8 @@ extern void removeFromItemCache(int itemid);
 #define GLOBAL_SCRIPT_CONTINUE 	3
 
 //Link Internal Flags
-#define LF_PAID_SWORD_COST	0x01
+#define LF_PAID_SWORD_COST		0x01
+#define LF_PAID_WAND_COST		0x02
+#define LF_PAID_CBYRNA_COST		0x04
 
 #endif                                                      //_ZDEFS_H_
