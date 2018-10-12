@@ -245,6 +245,8 @@ class LinkClass : public sprite
 	
 	int last_lens_id;// The item ID of the last Lens of Truth type item used
     
+	long misc_internal_link_flags;// Flags to hold data temporarily for misc handling
+	
     // Methods below here.
     void movelink();
     void move(int d);
@@ -459,7 +461,7 @@ int enemy_dp(int index);
 int ewpn_dp(int index);
 int lwpn_dp(int index);
 bool checkmagiccost(int itemid);
-void paymagiccost(int itemid);
+void paymagiccost(int itemid, bool ignoreTimer = false);
 int Bweapon(int pos);
 void stopCaneOfByrna();
 //void selectWpn(int xstep, int ystep, bool b);

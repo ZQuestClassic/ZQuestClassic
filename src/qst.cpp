@@ -2623,6 +2623,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(extra_rules, er_SHORTDGNWALK, 1);
     }
     
+	if(tempheader.zelda_version < 0x255){
+		set_bit(quest_rules, qr_OLDINFMAGIC, 1);
+	}
+	
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
@@ -6504,6 +6508,24 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 				
 				if(get_bit(quest_rules,qr_SLOWCHARGINGWALK))tempitem.flags |= ITEM_FLAG10;
 				else tempitem.flags &= ~ITEM_FLAG10;
+			}
+		}
+		
+		if( s_version < 42 ){
+			if(tempitem.family == itype_wand){
+				if(get_bit(quest_rules,qr_NOWANDMELEE))tempitem.flags |= ITEM_FLAG3;
+				else tempitem.flags &= ~ITEM_FLAG3;
+				
+				tempitem.flags &= ~ITEM_FLAG6;
+			} else if(tempitem.family == itype_hammer){
+				tempitem.flags &= ~ITEM_FLAG3;
+			} else if(tempitem.family == itype_cbyrna){
+				tempitem.flags |= ITEM_FLAG3;
+				
+				tempitem.flags &= ~ITEM_FLAG6;
+			} else if(tempitem.family == itype_sword){
+				if(get_bit(quest_rules,qr_MELEEMAGICCOST))tempitem.flags |= ITEM_FLAG6;
+				else tempitem.flags &= ~ITEM_FLAG6;
 			}
 		}
 	    
