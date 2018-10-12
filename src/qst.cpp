@@ -6482,24 +6482,33 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 		}
 		
-		if( s_version < 40){
-			if(tempitem.family == itype_ring){
+		if( s_version < 40)
+		{
+			if(tempitem.family == itype_ring)
+			{
 				if(get_bit(quest_rules,qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
 				else tempitem.flags &= ~ITEM_FLAG1;
-			} else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna){
+			} 
+			else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna)
+			{
 				if(get_bit(quest_rules,qr_SLASHFLIPFIX))tempitem.flags |= ITEM_FLAG8;
 				else tempitem.flags &= ~ITEM_FLAG8;
 			}
-			if(tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_hammer){
+			if(tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_hammer)
+			{
 				if(get_bit(quest_rules,qr_NOITEMMELEE))tempitem.flags |= ITEM_FLAG7;
 				else tempitem.flags &= ~ITEM_FLAG7;
-			} else if(tempitem.family == itype_cbyrna){
+			} 
+			else if(tempitem.family == itype_cbyrna)
+			{
 				tempitem.flags |= ITEM_FLAG7;
 			}
 		}
 		
-		if( s_version < 41 ){
-			if(tempitem.family == itype_sword){
+		if( s_version < 41 )
+		{
+			if(tempitem.family == itype_sword)
+			{
 				if(get_bit(quest_rules,qr_SWORDMIRROR))tempitem.flags |= ITEM_FLAG9;
 				else tempitem.flags &= ~ITEM_FLAG9;
 				
@@ -6508,19 +6517,27 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 		}
 		
-		if( s_version < 42 ){
-			if(tempitem.family == itype_wand){
+		if( s_version < 42 )
+		{
+			if(tempitem.family == itype_wand)
+			{
 				if(get_bit(quest_rules,qr_NOWANDMELEE))tempitem.flags |= ITEM_FLAG3;
 				else tempitem.flags &= ~ITEM_FLAG3;
 				
 				tempitem.flags &= ~ITEM_FLAG6;
-			} else if(tempitem.family == itype_hammer){
+			} 
+			else if(tempitem.family == itype_hammer)
+			{
 				tempitem.flags &= ~ITEM_FLAG3;
-			} else if(tempitem.family == itype_cbyrna){
+			} 
+			else if(tempitem.family == itype_cbyrna)
+			{
 				tempitem.flags |= ITEM_FLAG3;
 				
 				tempitem.flags &= ~ITEM_FLAG6;
-			} else if(tempitem.family == itype_sword){
+			} 
+			else if(tempitem.family == itype_sword)
+			{
 				if(get_bit(quest_rules,qr_MELEEMAGICCOST))tempitem.flags |= ITEM_FLAG6;
 				else tempitem.flags &= ~ITEM_FLAG6;
 			}
