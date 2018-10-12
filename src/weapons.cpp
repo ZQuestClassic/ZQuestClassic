@@ -2309,7 +2309,7 @@ bool weapon::animate(int)
             dead=0;
         }
         
-        if(get_bit(quest_rules,qr_SWORDMIRROR))
+        if(id==ewSword && get_bit(quest_rules,qr_SWORDMIRROR) || id!=ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & ITEM_FLAG9 : get_bit(quest_rules,qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -V
         {
             int checkx=0, checky=0;
             

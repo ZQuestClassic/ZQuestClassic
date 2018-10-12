@@ -2623,6 +2623,10 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(extra_rules, er_SHORTDGNWALK, 1);
     }
     
+	if(tempheader.zelda_version < 0x255){
+		set_bit(quest_rules, qr_OLDINFMAGIC, 1);
+	}
+	
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
@@ -6373,15 +6377,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 	    //Port quest rules to items
 	    if( s_version <= 31) 
 	    {
-		if(tempitem.family == itype_candle)
-		{
-			if ( (!get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
-			else tempitem.flags &= ~ ITEM_FLAG3;
-			if ( (!get_bit(quest_rules,qr_TEMPCANDLELIGHT)) ) tempitem.flags |= ITEM_FLAG5;
-			else tempitem.flags &= ~ ITEM_FLAG5;
-			
-		}
-		else if(tempitem.family == itype_bomb)
+		if(tempitem.family == itype_bomb)
 		{
 			if ( get_bit(quest_rules,qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
 			else tempitem.flags &= ~ ITEM_FLAG2;
@@ -6423,7 +6419,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
 			else tempitem.flags &= ~ ITEM_FLAG5;
 		}
-		else if(tempitem.family == itype_book)
+		else if(tempitem.family == itype_book || tempitem.family == itype_candle)
 		{
 			//@VenRob: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
 			if ( (get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
@@ -6431,55 +6427,60 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 		}
 	    }
 	    
-	    if( s_version < 38){
-		if(tempitem.family == itype_brang || tempitem.family == itype_hookshot){
+	 if( s_version < 38)
+   {
+		if(tempitem.family == itype_brang || tempitem.family == itype_hookshot)
+    {
 			if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
 			else tempitem.flags &= ~ITEM_FLAG4;
 			
 			if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags |= ITEM_FLAG5 | ITEM_FLAG6;
 			else tempitem.flags &= ~(ITEM_FLAG5|ITEM_FLAG6);
-		} else if(tempitem.family == itype_arrow){
+		} 
+    else if(tempitem.family == itype_arrow)
+    {
 			if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
 			else tempitem.flags &= ~ITEM_FLAG4;
 			
 			if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags &= ~ITEM_FLAG2;
 			else tempitem.flags |= ITEM_FLAG2;
 		}
-	    }
+	}
 	    
-	    if( s_version < 39){
-		if(tempitem.family == itype_dinsfire || tempitem.family == itype_book)
+	if( s_version < 39)
+  {
+		if(tempitem.family == itype_dinsfire || tempitem.family == itype_book || tempitem.family == itype_candle)
 		{
 			if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
 			else tempitem.flags &= ~ITEM_FLAG5;
 		}
 		else if(tempitem.family == itype_potion)
 		{
-			if(get_bit(quest_rules,qr_NONBUBBLEMEDICINE))
-			{
-				tempitem.flags |= ITEM_FLAG3;
-				if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
-				else tempitem.flags &= ~ITEM_FLAG4;
+			  if(get_bit(quest_rules,qr_NONBUBBLEMEDICINE))
+				{
+					tempitem.flags |= ITEM_FLAG3;
+					if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+					else tempitem.flags &= ~ITEM_FLAG4;
+				}
+				else
+				{
+					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+				}
 			}
-			else
+			else if(tempitem.family == itype_triforcepiece)
 			{
-				tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+				if(get_bit(quest_rules,qr_NONBUBBLETRIFORCE))
+				{
+					tempitem.flags |= ITEM_FLAG3;
+					if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+					else tempitem.flags &= ~ITEM_FLAG4;
+				}
+				else
+				{
+					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+				}
 			}
-		}
-		else if(tempitem.family == itype_triforcepiece)
-		{
-			if(get_bit(quest_rules,qr_NONBUBBLETRIFORCE))
-			{
-				tempitem.flags |= ITEM_FLAG3;
-				if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
-				else tempitem.flags &= ~ITEM_FLAG4;
-			}
-			else
-			{
-				tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
-			}
-		}
-	    }
+	  }
 		
 		if( s_version < 40){
 			if(tempitem.family == itype_ring){
@@ -6496,11 +6497,39 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 				tempitem.flags |= ITEM_FLAG7;
 			}
 		}
+		
+		if( s_version < 41 ){
+			if(tempitem.family == itype_sword){
+				if(get_bit(quest_rules,qr_SWORDMIRROR))tempitem.flags |= ITEM_FLAG9;
+				else tempitem.flags &= ~ITEM_FLAG9;
+				
+				if(get_bit(quest_rules,qr_SLOWCHARGINGWALK))tempitem.flags |= ITEM_FLAG10;
+				else tempitem.flags &= ~ITEM_FLAG10;
+			}
+		}
+		
+		if( s_version < 42 ){
+			if(tempitem.family == itype_wand){
+				if(get_bit(quest_rules,qr_NOWANDMELEE))tempitem.flags |= ITEM_FLAG3;
+				else tempitem.flags &= ~ITEM_FLAG3;
+				
+				tempitem.flags &= ~ITEM_FLAG6;
+			} else if(tempitem.family == itype_hammer){
+				tempitem.flags &= ~ITEM_FLAG3;
+			} else if(tempitem.family == itype_cbyrna){
+				tempitem.flags |= ITEM_FLAG3;
+				
+				tempitem.flags &= ~ITEM_FLAG6;
+			} else if(tempitem.family == itype_sword){
+				if(get_bit(quest_rules,qr_MELEEMAGICCOST))tempitem.flags |= ITEM_FLAG6;
+				else tempitem.flags &= ~ITEM_FLAG6;
+			}
+		}
 	    
-            if(tempitem.fam_type==0)  // Always do this
-                tempitem.fam_type=1;
-                
-            memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
+		if(tempitem.fam_type==0)  // Always do this
+			tempitem.fam_type=1;
+			
+		memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
             
         }
     }
