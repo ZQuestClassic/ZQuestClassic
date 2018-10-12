@@ -6543,6 +6543,15 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 		}
 		
+		if( s_version < 43 )
+		{
+			if(tempitem.family == itype_whistle)
+			{
+				if(get_bit(quest_rules,qr_WHIRLWINDMIRROR))tempitem.flags |= ITEM_FLAG3;
+				else tempitem.flags &= ~ITEM_FLAG3;
+			}
+		}
+		
 		if(tempitem.fam_type==0)  // Always do this
 			tempitem.fam_type=1;
 			

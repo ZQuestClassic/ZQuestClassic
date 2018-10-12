@@ -2575,7 +2575,7 @@ bool weapon::animate(int)
         else if(get_bit(quest_rules,qr_MORESOUNDS))
             sfx(WAV_ZN1WHIRLWIND,pan(int(x)),true,false);
             
-        if(get_bit(quest_rules,qr_WHIRLWINDMIRROR))
+        if((parentitem==-1 && get_bit(quest_rules,qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & ITEM_FLAG3))
             goto mirrors;
             
         break;
