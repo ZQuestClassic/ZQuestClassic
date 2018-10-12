@@ -6401,62 +6401,62 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 		
 	    }
 	    
-	    //Port quest rules to items
-	    if( s_version <= 37) 
-	    {
-		if(tempitem.family == itype_flippers)
+		//Port quest rules to items
+		if( s_version <= 37) 
 		{
-			if ( (get_bit(quest_rules,qr_NODIVING)) ) tempitem.flags |= ITEM_FLAG1;
-			else tempitem.flags &= ~ ITEM_FLAG1;
+			if(tempitem.family == itype_flippers)
+			{
+				if ( (get_bit(quest_rules,qr_NODIVING)) ) tempitem.flags |= ITEM_FLAG1;
+				else tempitem.flags &= ~ ITEM_FLAG1;
+			}
+			else if(tempitem.family == itype_sword)
+			{
+				if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
+				else tempitem.flags &= ~ ITEM_FLAG5;
+			}
+			else if(tempitem.family == itype_wand)
+			{
+				if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
+				else tempitem.flags &= ~ ITEM_FLAG5;
+			}
+			else if(tempitem.family == itype_book || tempitem.family == itype_candle)
+			{
+				//@VenRob: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
+				if ( (get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
+				else tempitem.flags &= ~ ITEM_FLAG3;
+			}
 		}
-		else if(tempitem.family == itype_sword)
+		
+		if( s_version < 38)
 		{
-			if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
-			else tempitem.flags &= ~ ITEM_FLAG5;
+			if(tempitem.family == itype_brang || tempitem.family == itype_hookshot)
+			{
+				if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
+				else tempitem.flags &= ~ITEM_FLAG4;
+				
+				if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags |= ITEM_FLAG5 | ITEM_FLAG6;
+				else tempitem.flags &= ~(ITEM_FLAG5|ITEM_FLAG6);
+			} 
+			else if(tempitem.family == itype_arrow)
+			{
+				if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
+				else tempitem.flags &= ~ITEM_FLAG4;
+				
+				if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags &= ~ITEM_FLAG2;
+				else tempitem.flags |= ITEM_FLAG2;
+			}
 		}
-		else if(tempitem.family == itype_wand)
+		
+		if( s_version < 39)
 		{
-			if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
-			else tempitem.flags &= ~ ITEM_FLAG5;
-		}
-		else if(tempitem.family == itype_book || tempitem.family == itype_candle)
-		{
-			//@VenRob: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
-			if ( (get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
-			else tempitem.flags &= ~ ITEM_FLAG3;
-		}
-	    }
-	    
-	 if( s_version < 38)
-   {
-		if(tempitem.family == itype_brang || tempitem.family == itype_hookshot)
-    {
-			if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
-			else tempitem.flags &= ~ITEM_FLAG4;
-			
-			if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags |= ITEM_FLAG5 | ITEM_FLAG6;
-			else tempitem.flags &= ~(ITEM_FLAG5|ITEM_FLAG6);
-		} 
-    else if(tempitem.family == itype_arrow)
-    {
-			if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
-			else tempitem.flags &= ~ITEM_FLAG4;
-			
-			if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags &= ~ITEM_FLAG2;
-			else tempitem.flags |= ITEM_FLAG2;
-		}
-	}
-	    
-	if( s_version < 39)
-  {
-		if(tempitem.family == itype_dinsfire || tempitem.family == itype_book || tempitem.family == itype_candle)
-		{
-			if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
-			else tempitem.flags &= ~ITEM_FLAG5;
-		}
-		else if(tempitem.family == itype_potion)
-		{
-			  if(get_bit(quest_rules,qr_NONBUBBLEMEDICINE))
+			if(tempitem.family == itype_dinsfire || tempitem.family == itype_book || tempitem.family == itype_candle)
+			{
+				if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
+				else tempitem.flags &= ~ITEM_FLAG5;
+			}
+			else if(tempitem.family == itype_potion)
+			{
+				if(get_bit(quest_rules,qr_NONBUBBLEMEDICINE))
 				{
 					tempitem.flags |= ITEM_FLAG3;
 					if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
@@ -6480,26 +6480,35 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
 				}
 			}
-	  }
+		}
 		
-		if( s_version < 40){
-			if(tempitem.family == itype_ring){
+		if( s_version < 40)
+		{
+			if(tempitem.family == itype_ring)
+			{
 				if(get_bit(quest_rules,qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
 				else tempitem.flags &= ~ITEM_FLAG1;
-			} else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna){
+			} 
+			else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna)
+			{
 				if(get_bit(quest_rules,qr_SLASHFLIPFIX))tempitem.flags |= ITEM_FLAG8;
 				else tempitem.flags &= ~ITEM_FLAG8;
 			}
-			if(tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_hammer){
+			if(tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_hammer)
+			{
 				if(get_bit(quest_rules,qr_NOITEMMELEE))tempitem.flags |= ITEM_FLAG7;
 				else tempitem.flags &= ~ITEM_FLAG7;
-			} else if(tempitem.family == itype_cbyrna){
+			} 
+			else if(tempitem.family == itype_cbyrna)
+			{
 				tempitem.flags |= ITEM_FLAG7;
 			}
 		}
 		
-		if( s_version < 41 ){
-			if(tempitem.family == itype_sword){
+		if( s_version < 41 )
+		{
+			if(tempitem.family == itype_sword)
+			{
 				if(get_bit(quest_rules,qr_SWORDMIRROR))tempitem.flags |= ITEM_FLAG9;
 				else tempitem.flags &= ~ITEM_FLAG9;
 				
@@ -6508,33 +6517,50 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 		}
 		
-		if( s_version < 42 ){
-			if(tempitem.family == itype_wand){
+		if( s_version < 42 )
+		{
+			if(tempitem.family == itype_wand)
+			{
 				if(get_bit(quest_rules,qr_NOWANDMELEE))tempitem.flags |= ITEM_FLAG3;
 				else tempitem.flags &= ~ITEM_FLAG3;
 				
 				tempitem.flags &= ~ITEM_FLAG6;
-			} else if(tempitem.family == itype_hammer){
+			} 
+			else if(tempitem.family == itype_hammer)
+			{
 				tempitem.flags &= ~ITEM_FLAG3;
-			} else if(tempitem.family == itype_cbyrna){
+			} 
+			else if(tempitem.family == itype_cbyrna)
+			{
 				tempitem.flags |= ITEM_FLAG3;
 				
 				tempitem.flags &= ~ITEM_FLAG6;
-			} else if(tempitem.family == itype_sword){
+			} 
+			else if(tempitem.family == itype_sword)
+			{
 				if(get_bit(quest_rules,qr_MELEEMAGICCOST))tempitem.flags |= ITEM_FLAG6;
 				else tempitem.flags &= ~ITEM_FLAG6;
 			}
 		}
-	    
+		
+		if( s_version < 43 )
+		{
+			if(tempitem.family == itype_whistle)
+			{
+				if(get_bit(quest_rules,qr_WHIRLWINDMIRROR))tempitem.flags |= ITEM_FLAG3;
+				else tempitem.flags &= ~ITEM_FLAG3;
+			}
+		}
+		
 		if(tempitem.fam_type==0)  // Always do this
 			tempitem.fam_type=1;
 			
 		memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
             
-        }
-    }
-    
-    return 0;
+		}
+	}
+	
+	return 0;
 }
 
 
