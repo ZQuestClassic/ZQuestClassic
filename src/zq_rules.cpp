@@ -136,7 +136,7 @@ static DIALOG comborules_dlg[] =
     { jwin_check_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Push Blocks Don't Move When Bumped", NULL, NULL },
     { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Burn Flags Are Triggered Instantly", NULL, NULL },
     { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirror/Prism Combos Reflect Enemy and Scripted Sword Beams", NULL, NULL },
-    { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirrors Reflect Whistle Whirlwinds", NULL, NULL },
+    { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Magic Mirrors Reflect Scripted Whirlwinds", NULL, NULL },
     { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Combo Cycling On Layers", NULL, NULL },
     { jwin_check_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Full Priority Damage Combos", NULL, NULL },
     { jwin_check_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Warps Ignore Arrival X/Y Position When Setting Continue Screen", NULL, NULL },
@@ -187,7 +187,7 @@ int onComboRules()
     return D_O_K;
 }
 
-static int itemrules1_list[] =
+/*static int itemrules1_list[] =
 {
     6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,-1
 };
@@ -206,53 +206,53 @@ static TABPANEL itemrules_tabs[] =
     { (char *)" 1 ",     D_SELECTED, itemrules1_list, 0, NULL },
     { (char *)" 2 ",     0,          itemrules2_list, 0, NULL },
     { NULL,              0,          NULL,            0, NULL }
-};
+};*/
 
 static DIALOG itemrules_dlg[] =
 {
     /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
     { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Items", NULL, NULL },
     { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { jwin_tab_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, (void *) itemrules_tabs, NULL, (void *)itemrules_dlg },
+    { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)itemrules_dlg },
     // 3
     { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
     
     // rules //6
-    { jwin_check_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enable Magic", NULL, NULL },
-    { d_dummy_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Boomerang/Hookshot", NULL, NULL },
-    { jwin_check_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True Arrows", NULL, NULL },
-    { d_dummy_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Diving", NULL, NULL },
+    { jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enable Magic", NULL, NULL },
+    { d_dummy_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Boomerang/Hookshot", NULL, NULL },
+    { jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True Arrows", NULL, NULL },
+    { d_dummy_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Diving", NULL, NULL },
    //10
-    { jwin_check_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted and Enemy Fire Lights Temporarily", NULL, NULL },
-    { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Fire LWeapons don't hurt Link", NULL, NULL },
-    { jwin_check_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Bomb LWeapons hurt Link", NULL, NULL },
-    { d_dummy_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Rings Affect Damage Combos", NULL, NULL },
-    { d_dummy_proc,      10, 33+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Quick Sword", NULL, NULL },
+    { jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted and Enemy Fire Lights Temporarily", NULL, NULL },
+    { jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Fire LWeapons don't hurt Link", NULL, NULL },
+    { jwin_check_proc,      10, 21+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Bomb LWeapons hurt Link", NULL, NULL },
+    { d_dummy_proc,      10, 21+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Rings Affect Damage Combos", NULL, NULL },
+    { d_dummy_proc,      10, 21+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Quick Sword", NULL, NULL },
     //15
-    { d_dummy_proc,      10, 33+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Flip Right-Facing Slash", NULL, NULL },
-    { jwin_check_proc,      10, 33+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Wand Can't Be Used As Melee Weapon", NULL, NULL },
-    { jwin_check_proc,      10, 33+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Melee Weapons Can't Pick Up Items", NULL, NULL },
-    { d_dummy_proc,      10, 33+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Boomerang/Hookshot Grabs All Items", NULL, NULL },
-    { jwin_check_proc,      10, 33+140, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "'Hearts Required' Affects Non-Special Items", NULL, NULL },
+    { d_dummy_proc,      10, 21+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Flip Right-Facing Slash", NULL, NULL },
+    { d_dummy_proc,      10, 21+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Wand Can't Be Used As Melee Weapon", NULL, NULL },
+    { jwin_check_proc,      10, 21+60, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Melee Weapons Can't Pick Up Items", NULL, NULL },
+    { d_dummy_proc,      10, 21+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Boomerang/Hookshot Grabs All Items", NULL, NULL },
+    { jwin_check_proc,      10, 21+70, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "'Hearts Required' Affects Non-Special Items", NULL, NULL },
   //20
-    { jwin_check_proc,      10, 33+150, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Big Triforce Pieces", NULL, NULL },
-    { jwin_check_proc,      10, 33+160, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "3 or 6 Triforce Total", NULL, NULL },
+    { jwin_check_proc,      10, 21+80, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Big Triforce Pieces", NULL, NULL },
+    { jwin_check_proc,      10, 21+90, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "3 or 6 Triforce Total", NULL, NULL },
     // rules 2 //22
-    { d_dummy_proc,      10, 33+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slow Walk While Charging", NULL, NULL },
+    { d_dummy_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slow Walk While Charging", NULL, NULL },
  //Deprecated:  23, 24, 25, 26, 27, 28, 29
-    { d_dummy_proc,      10, 33+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Show Secret Combo Hints When Using The Lens", NULL, NULL },
-    { d_dummy_proc,      10, 33+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Shows Raft Paths", NULL, NULL },
-    { d_dummy_proc,      10, 33+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Reveals Invisible Enemies", NULL, NULL },
+    { d_dummy_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Show Secret Combo Hints When Using The Lens", NULL, NULL },
+    { d_dummy_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Shows Raft Paths", NULL, NULL },
+    { d_dummy_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Reveals Invisible Enemies", NULL, NULL },
 	
-    { d_dummy_proc,      10, 33+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Medicine Doesn't Remove Sword Jinxes", NULL, NULL },
-    { jwin_check_proc,      10, 33+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fairy Combos Don't Remove Sword Jinxes", NULL, NULL },
-    { d_dummy_proc,      10, 33+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Triforce Doesn't Remove Sword Jinxes", NULL, NULL },
-    { jwin_check_proc,      10, 33+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fairy Combos Remove Item Jinxes", NULL, NULL },
+    { d_dummy_proc,      10, 21+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Medicine Doesn't Remove Sword Jinxes", NULL, NULL },
+    { jwin_check_proc,      10, 21+100,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fairy Combos Don't Remove Sword Jinxes", NULL, NULL },
+    { d_dummy_proc,      10, 21+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Triforce Doesn't Remove Sword Jinxes", NULL, NULL },
+    { jwin_check_proc,      10, 21+110,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fairy Combos Remove Item Jinxes", NULL, NULL },
     //30
-    { jwin_check_proc,      10, 33+20, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Melee Weapons Require Magic Cost", NULL, NULL },
-    { jwin_check_proc,      10, 33+30, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Magic Book Costs", NULL, NULL },
+    { d_dummy_proc,      10, 21+20, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Melee Weapons Require Magic Cost", NULL, NULL },
+    { jwin_check_proc,      10, 21+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Magic Book Costs", NULL, NULL },
    
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
