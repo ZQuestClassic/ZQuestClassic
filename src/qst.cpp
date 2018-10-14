@@ -8494,6 +8494,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     // Not sure when this first changed, but it's necessary for 2.10, at least
     // @TODO: @BUG:1.92 - 1.84? Figure this out exactly for the final 2.50 release.
+//2.10 Fixes  
     if(Header->zelda_version <= 0x210)
     {
         guysbuf[eGLEEOK1F].misc6 = 16;
@@ -8505,6 +8506,8 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eBATROBE].misc4 = 1;
         //guysbuf[eSUMMONER].misc4 = 1;
         guysbuf[eWWIZ].misc4 = 1;
+	    guysbuf[eDODONGO].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
+	guysbuf[eDODONGOBS].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
     }
     
     // The versions here may not be correct
