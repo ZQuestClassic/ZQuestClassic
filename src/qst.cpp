@@ -9247,7 +9247,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             guysbuf[eDODONGO].bosspal=spDIG;
         }
     }
-    
+ //2.10 fixes   
     // Not sure when this first changed, but it's necessary for 2.10, at least
     if(Header->zelda_version <= 0x210)
     {
@@ -9260,6 +9260,8 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eBATROBE].misc4 = 1;
         guysbuf[eSUMMONER].misc4 = 1;
         guysbuf[eWWIZ].misc4 = 1;
+	guysbuf[eDODONGO].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
+	guysbuf[eDODONGOBS].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
     }
     
     // The versions here may not be correct
@@ -10499,9 +10501,10 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 			
 	    }
-	    
+	    // does not seem to solve the issue!
 	    if ( Header->zelda_version <= 0x210 ) 
 	    {
+		al_trace("Detected version %d for dodongo patch.\n",Header->zelda_version);
 		if ( tempguy.family == eeDONGO ) 
 		{
 			tempguy.deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
