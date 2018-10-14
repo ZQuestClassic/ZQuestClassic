@@ -2906,11 +2906,15 @@ static int enemy_movement_list[] =
 
 static int enemy_attribs_1_list[] =
 {
-        270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,
 	-1
 };
 static int enemy_attribs_2_list[] =
 {
+	// d_dummy_proc entries still must be somewhere on the editor.
+	// They will be hidden, but if ther are not referenced, this causes objects
+	// to refuse to click!
+	// This was the cause of flags not clicking properly and Enemy Editor UI elements not responding to mouse input. -Z
+	 270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,
 	286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,
     -1
 };
@@ -4468,24 +4472,24 @@ static DIALOG enedata_dlg[] =
 	//253 -- CANCEL  BUTTON
 	 {  jwin_button_proc,       166,    220,     61,     16,    vc(14),                 vc(1),                  27,    D_EXIT,      0,    0, (void *) "Cancel",                                              NULL,   NULL                 },
 	//254
-	{ jwin_check_proc,        6,     52,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[0]",                        NULL,   NULL                  },
-	{ jwin_check_proc,        6,     62,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[1]",                        NULL,   NULL                  },
-	{ jwin_check_proc,        6,     72,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[2]",                        NULL,   NULL                  },
-	{ jwin_check_proc,        6,     82,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[3]",                        NULL,   NULL                  },
-	{ jwin_check_proc,        6,     92,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[4]",                        NULL,   NULL                  },
-	{ jwin_check_proc,        6,     102,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[5]",                        NULL,   NULL                  },
+	{ jwin_check_proc,        6,     52,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[0]",                        NULL,   NULL                  },
+	{ jwin_check_proc,        6,     62,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[1]",                        NULL,   NULL                  },
+	{ jwin_check_proc,        6,     72,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[2]",                        NULL,   NULL                  },
+	{ jwin_check_proc,        6,     82,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[3]",                        NULL,   NULL                  },
+	{ jwin_check_proc,        6,     92,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[4]",                        NULL,   NULL                  },
+	{ jwin_check_proc,        6,     102,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[5]",                        NULL,   NULL                  },
 	//260  
-	{ jwin_check_proc,        6,    112,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[6]",                        NULL,   NULL                  },
-    { jwin_check_proc,        6,     122,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[7]",                        NULL,   NULL                  },
-    { jwin_check_proc,        6,     132,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[8]",                        NULL,   NULL                  },
-    { jwin_check_proc,        6,    142,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[9]",                        NULL,   NULL                  },
-    { jwin_check_proc,        6,     152,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[10]",                        NULL,   NULL                  },
+	{ jwin_check_proc,        6,    112,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[6]",                        NULL,   NULL                  },
+    { jwin_check_proc,        6,     122,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[7]",                        NULL,   NULL                  },
+    { jwin_check_proc,        6,     132,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[8]",                        NULL,   NULL                  },
+    { jwin_check_proc,        6,    142,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[9]",                        NULL,   NULL                  },
+    { jwin_check_proc,        6,     152,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[10]",                        NULL,   NULL                  },
     //265
-    { jwin_check_proc,        6,    162,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[11]",                        NULL,   NULL                  },
-    { jwin_check_proc,        6,     172,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[12]",                        NULL,   NULL                  },
-    { jwin_check_proc,        6,     182,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[13]",                        NULL,   NULL                  },
-    { jwin_check_proc,        6,    192,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[14]",                        NULL,   NULL                  },
-    { jwin_check_proc,        6,    202,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[15]",                        NULL,   NULL                  },
+    { jwin_check_proc,        6,    162,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[11]",                        NULL,   NULL                  },
+    { jwin_check_proc,        6,     172,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[12]",                        NULL,   NULL                  },
+    { jwin_check_proc,        6,     182,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[13]",                        NULL,   NULL                  },
+    { jwin_check_proc,        6,    192,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[14]",                        NULL,   NULL                  },
+    { jwin_check_proc,        6,    202,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[15]",                        NULL,   NULL                  },
   //270
     //attributes page 1, attrib 1 to 8 move from basic tab?
      {  d_dummy_proc,           70,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[0]",                                   NULL,   NULL                 },
