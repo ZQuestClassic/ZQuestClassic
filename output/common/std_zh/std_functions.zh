@@ -259,6 +259,466 @@ bool ComboFI(int loc, int flag){
 	return Screen->ComboF[loc] == flag || Screen->ComboI[loc] == flag;
 }
 
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboC(int layer, int pos) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboC";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboC";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (!layer) //layer 0
+	{
+		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			return Screen->ComboC[pos];
+		}
+		else return Game->GetComboCSet(Game->GetCurMap(), Game->GetCurScreen(), pos);
+	}
+	
+	return Game->GetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboC(int layer, int pos, int combo) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboC";
+		TraceError(err,layer);
+		return;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboC";
+		TraceError(err,layer);
+		return;
+	}
+	if (!layer) //layer 0
+	{
+		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			Game->SetComboCSet(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+			return;
+		}
+		else
+		{
+			Screen->ComboC[pos] = combo;
+			return;
+		}
+	}
+	else
+	{
+		Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+	}
+}
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboI(int layer, int pos) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboI";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboI";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (!layer) //layer 0
+	{
+		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			return Screen->ComboI[pos];
+		}
+		else return Game->GetComboInherentFlag(Game->GetCurMap(), Game->GetCurScreen(), pos);
+	}
+	
+	return Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboI(int layer, int pos, int combo) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboI";
+		TraceError(err,layer);
+		return;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboI";
+		TraceError(err,layer);
+		return;
+	}
+	if (!layer) //layer 0
+	{
+		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			Game->SetComboInherentFlag(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+			return;
+		}
+		else
+		{
+			Screen->ComboI[pos] = combo;
+			return;
+		}
+	}
+	else
+	{
+		Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+	}
+}
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int old_GetLayerComboD(int layer, int pos) {
+  if (layer==0)
+    return Screen->ComboD[pos];
+  else
+    return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void old_SetLayerComboD(int layer, int pos, int combo) {
+  if (layer == 0)
+    Screen->ComboD[pos] = combo;
+  else
+    Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+}
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboD(int layer, int pos) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboD";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboD";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (!layer) //layer 0
+	{
+		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			return Screen->ComboD[pos];
+		}
+		else return Game->GetComboData(Game->GetCurMap(), Game->GetCurScreen(), pos);
+	}
+	
+	return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboD(int layer, int pos, int combo) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboD";
+		TraceError(err,layer);
+		return;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboD";
+		TraceError(err,layer);
+		return;
+	}
+	if (!layer) //layer 0
+	{
+		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			Game->SetComboData(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+			return;
+		}
+		else
+		{
+			Screen->ComboD[pos] = combo;
+			return;
+		}
+	}
+	else
+	{
+		Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+	}
+}
+
+//A shorthand way to get a combo flag on the current layer.
+//Layer 0 is the screen itself.
+int old_GetLayerComboF(int layer, int pos) {
+  if (layer==0)
+    return Screen->ComboF[pos];
+  else
+    return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo flag on the current layer.
+//Layer 0 is the screen itself.
+void old_SetLayerComboF(int layer, int pos, int flag) {
+  if (layer == 0)
+    Screen->ComboF[pos] = flag;
+  else
+    Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, flag);
+}
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboF(int layer, int pos) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboF";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboF";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (!layer) //layer 0
+	{
+		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			return Screen->ComboF[pos];
+		}
+		else return Game->GetComboFlag(Game->GetCurMap(), Game->GetCurScreen(), pos);
+	}
+	
+	return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboF(int layer, int pos, int combo) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboF";
+		TraceError(err,layer);
+		return;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboF";
+		TraceError(err,layer);
+		return;
+	}
+	if (!layer) //layer 0
+	{
+		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			Game->SetComboFlag(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+			return;
+		}
+		else
+		{
+			Screen->ComboF[pos] = combo;
+			return;
+		}
+	}
+	else
+	{
+		Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+	}
+}
+
+//A shorthand way to get a combo type on the current layer.
+//Layer 0 is the screen itself.
+int old_GetLayerComboT(int layer, int pos) {
+  if (layer==0)
+    return Screen->ComboT[pos];
+  else
+    return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo type on the current layer.
+//Layer 0 is the screen itself.
+void old_SetLayerComboT(int layer, int pos, int type) {
+  if (layer == 0)
+    Screen->ComboT[pos] = type;
+  else
+    Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, type);
+}
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboT(int layer, int pos) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboT";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboT";
+		TraceError(err,layer);
+		return -1;
+	}
+	
+	if (!layer) //layer 0
+	{
+		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			return Screen->ComboT[pos];
+		}
+		else return Game->GetComboType(Game->GetCurMap(), Game->GetCurScreen(), pos);
+	}
+	
+	return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+
+}
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboT(int layer, int pos, int combo) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboT";
+		TraceError(err,layer);
+		return;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboT";
+		TraceError(err,layer);
+		return;
+	}
+	
+	if (!layer) //layer 0
+	{
+		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			Game->SetComboType(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+			return;
+		}
+		else
+		{
+			Screen->ComboT[pos] = combo;
+			return;
+		}
+	}
+	else
+	{
+		Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+	}
+	
+}
+
+//A shorthand way to get a combo's solidity on the current layer.
+//Layer 0 is the screen itself.
+int old_GetLayerComboS(int layer, int pos) {
+  if (layer==0)
+    return Screen->ComboS[pos];
+  else if(Screen->LayerMap(layer)<0)
+    // Special case for this one: return 0 if there's no layer
+    return 0;
+  else
+    return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo's solidity on the current layer.
+//Layer 0 is the screen itself.
+void old_SetLayerComboS(int layer, int pos, int solidity) {
+  if (layer == 0)
+    Screen->ComboS[pos] = solidity;
+  else
+    Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
+}
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboS(int layer, int pos) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboS";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (layer > 6 )
+	{	
+		int err[]="Invalid layer passed to GetLayerComboS";
+		TraceError(err,layer);
+		return -1;
+	}
+	
+	if (!layer) //layer 0
+	{
+		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			return Screen->ComboS[pos];
+		}
+		else return Game->GetComboSolid(Game->GetCurMap(), Game->GetCurScreen(), pos);
+	}
+	
+	return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboS(int layer, int pos, int combo) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboS";
+		TraceError(err,layer);
+		return;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboS";
+		TraceError(err,layer);
+		return;
+	}
+	
+	if (!layer) //layer 0
+	{
+		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			Game->SetComboSolid(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+			return;
+		}
+		else
+		{
+			Screen->ComboS[pos] = combo;
+			return;
+		}
+	}
+	else
+	{
+		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+	}
+}
+
+
 //Sets bit 'bit' of Screen->D[] register 'd' to 'state'
 void SetScreenDBit(int dmap, int screen, int d, int bit, bool state){
 	int curstate = Game->GetDMapScreenD(dmap, screen, d);
@@ -285,82 +745,6 @@ bool GetScreenDBit(int screen, int d, int bit){
 bool GetScreenDBit(int d, int bit){
     return (Screen->D[d] & (1 << bit));
 }
-
-//A shorthand way to get a combo on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboD(int layer, int pos) {
-  if (layer==0)
-    return Screen->ComboD[pos];
-  else
-    return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboD(int layer, int pos, int combo) {
-  if (layer == 0)
-    Screen->ComboD[pos] = combo;
-  else
-    Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-}
-
-//A shorthand way to get a combo flag on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboF(int layer, int pos) {
-  if (layer==0)
-    return Screen->ComboF[pos];
-  else
-    return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo flag on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboF(int layer, int pos, int flag) {
-  if (layer == 0)
-    Screen->ComboF[pos] = flag;
-  else
-    Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, flag);
-}
-
-//A shorthand way to get a combo type on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboT(int layer, int pos) {
-  if (layer==0)
-    return Screen->ComboT[pos];
-  else
-    return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo type on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboT(int layer, int pos, int type) {
-  if (layer == 0)
-    Screen->ComboT[pos] = type;
-  else
-    Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, type);
-}
-
-//A shorthand way to get a combo's solidity on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboS(int layer, int pos) {
-  if (layer==0)
-    return Screen->ComboS[pos];
-  else if(Screen->LayerMap(layer)<0)
-    // Special case for this one: return 0 if there's no layer
-    return 0;
-  else
-    return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo's solidity on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboS(int layer, int pos, int solidity) {
-  if (layer == 0)
-    Screen->ComboS[pos] = solidity;
-  else
-    Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
-}
-
 
 
 //Copies the combos and csets from one screen to another.
@@ -1836,48 +2220,6 @@ int Dir4Rad(int dir){
 	if (dir==DIR_RIGHT) return RAD_DIR_RIGHT;
 	return -1;
 } 
-
-//A shorthand way to get a combo's solidity on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboC(int layer, int pos) {
-  if (layer==0)
-    return Screen->ComboC[pos];
-  else if(Screen->LayerMap(layer)<0)
-    // Special case for this one: return 0 if there's no layer
-    return 0;
-  else
-    return Game->GetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo's solidity on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboC(int layer, int pos, int solidity) {
-  if (layer == 0)
-    Screen->ComboC[pos] = solidity;
-  else
-    Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
-}
-
-//A shorthand way to get a combo's solidity on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboI(int layer, int pos) {
-  if (layer==0)
-    return Screen->ComboI[pos];
-  else if(Screen->LayerMap(layer)<0)
-    // Special case for this one: return 0 if there's no layer
-    return 0;
-  else
-    return Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo's solidity on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboI(int layer, int pos, int solidity) {
-  if (layer == 0)
-    Screen->ComboI[pos] = solidity;
-  else
-    Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
-}
 
 //Returns true if Link is on a Dungeon (flagged) screen
 bool IsDungeonFlag() {

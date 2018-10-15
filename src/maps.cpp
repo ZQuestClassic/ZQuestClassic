@@ -4103,6 +4103,8 @@ void loadscr(int tmp,int destdmap, int scr,int ldir,bool overlay=false)
     }
 }
 
+
+
 // Screen is being viewed by the Overworld Map viewer.
 void loadscr2(int tmp,int scr,int)
 {

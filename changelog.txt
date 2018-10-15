@@ -1,8 +1,46 @@
-ChangeLog for 2.53.0 Beta 19
+ChangeLog for 2.53.0 
 
+//Beta 22
+Rewrote the onSaveMapPic() function to fix issues with it causing
+random glitches, including screen drawing glitches while scrolling and other
+issues.
+	( ZoriaRPG, 4th october, 2018 )
+
+//Beta 21
+Added constants for MIN_COMBO_POS, MAX_COMBO_POS, and NUM_COMBO_POS to std.zh.
+Rewrote all SetLayerCombo*() and GetlayerCombo*() function sin std.zh.
+	Added std.cfg flag: SETLAYERCOMBO_ALWAYS_USE_SETCOMBO
+	Setting this to '1' will force using Set/GetCombo on maps instead
+	of setting or getting Screen->Combo*[] for layer 0.
+	Added error logging to these functions. 
+	Added TraceError() to string_functions.zh. 
+Fix dodongos using the wwrong sound in 2.10 and earlier quests. 
+	( ZoriaRPG, 3rd October 2018 )
+	
+Fixed improper warp points in 2nd.qst.
+	( NightmareJames, 29th September, 2018 )
+	
+Added two additional levels of key files:
+	.cheat: This is a ketyfile that only enables cheats for the player in ZC, but does not allow
+		opening the quest in ZQuest. The questb password is hashed so that it is not visible as
+		plain ASCII text in the .cheat keyfile.
+	.zpwd: 	This is a keyfile that only allows editing the quest in ZQuest, but it DOES NOT enable cheats.
+	( ZoriaRPG, 28th September, 2018 )
+
+//Beta 20
+Fix: Lens stealing properties of other items (e.g. sound effects); backported from 2.55. 
+	( Venrob, 27th September, 2018 )
+	
+Backported fixes from 2.55 for:
+	Sword beam/mirrors interaction (with QR).
+	Wand/book costs.
+	( Venrob, 26th September, 2018 )
+
+//Beta 19
 Require using Alt+Shift modifier keys in conjunction with cheat hotkeys.
 
 //Beta 18.2
+Fixed hard crash when loading an ASM script if the filename is invalid. 
 Fixed input getting stuuck as if buttons were being hel down, when released.
 	( ZoriaRPG, 25th September, 2018 )
 	( credit also: Venrob for think-tank.)
@@ -11,16 +49,17 @@ Fixed input getting stuuck as if buttons were being hel down, when released.
 //Beta 18.1
 Fixed the Cheat Menu 'Max Bombs' so that it is possible to set 
 any value from 0 to 0xFFFF.
+
 	( ZoriaRPG, 25th September, 2018 )
 
 //Betas 16, 17, 18
+Allow setting the Catchall on a room with a type of 'None'. The catchall type is 'Generic Catchall'.
 Minor touch-up on qrNOGANONINTRO
 Should fix: Nayru's Love decorations do not die, and will eventually wrap the screen.
 Should fix: Vires freeze when struck, without split-on-hit.
 	( ZoriaRPG, 24th September, 2018 )
 Should fix: Lens costs rupees with infinite wallet.
 Should fix: Diagonal left-down sprites on 8-way shots are mis-oriented.
-Should fix: ammer stars appear in wrong spot.
 Should fix: Charged hammer doesn't strike pound blocks.
 Should fix: Ganon Triforce holdup when Link is jumping.
 Should fix: Ganon's ashes don't fall in sideview.

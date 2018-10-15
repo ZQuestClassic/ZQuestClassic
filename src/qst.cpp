@@ -8494,6 +8494,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     // Not sure when this first changed, but it's necessary for 2.10, at least
     // @TODO: @BUG:1.92 - 1.84? Figure this out exactly for the final 2.50 release.
+//2.10 Fixes  
     if(Header->zelda_version <= 0x210)
     {
         guysbuf[eGLEEOK1F].misc6 = 16;
@@ -8505,6 +8506,8 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eBATROBE].misc4 = 1;
         //guysbuf[eSUMMONER].misc4 = 1;
         guysbuf[eWWIZ].misc4 = 1;
+	    guysbuf[eDODONGO].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
+	guysbuf[eDODONGOBS].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
     }
     
     // The versions here may not be correct
@@ -9226,6 +9229,16 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 else if(tempguy.family==eeMOLD)
                     tempguy.misc2 = 0;
             }
+	    
+	    if ( Header->zelda_version <= 0x210 ) 
+	    {
+		if ( tempguy.family == eeDONGO ) 
+		{
+			tempguy.deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
+		}
+	    }
+	    
+	   
             
             if(keepdata)
             {
@@ -10793,6 +10806,18 @@ int readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap 
         ffcScriptData[m].a[0] = 10000;
         ffcScriptData[m].a[1] = 10000;
     }
+    
+    //Dodongos in 2.10 used the boss roar, not the dodongo sound. -Z
+    //May be any version before 2.11. -Z
+    /* --not the roar, the HIT SFX
+    if ( Header->zelda_version <= 0x210 ) 
+    {
+	if ( temp_mapscr->bosssfx == WAV_DODONGO ) 
+	{
+		temp_mapscr->bosssfx = WAV_ROAR;
+	}
+    }
+    */
     
     return 0;
 }
