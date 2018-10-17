@@ -7612,6 +7612,39 @@ void system_pal()
     }
     break;
     
+    case 2019:  //2.55 DARK Theme
+    {
+	   
+        pal[dvc(1)] = _RGB(4,38,46); //box fg is text
+        pal[dvc(2)] = _RGB(16*63/255, 10*63/255, 0*63/255);
+        pal[dvc(3)] = _RGB(17,20,20); //slate
+        pal[dvc(4)] = _RGB(13,14,14); //menu background
+        pal[dvc(5)] = _RGB(0,0,0);//menu text bg
+        pal[dvc(6)] = _RGB(13,14,14);//menu selected text
+        pal[dvc(7)] = _RGB(42,60,48);
+        pal[dvc(8)] = _RGB(6,49,35);//highlight on selected menu text
+        
+        byte palrstart= 10*63/255, palrend=166*63/255,
+             palgstart= 36*63/255, palgend=202*63/255,
+             palbstart=106*63/255, palbend=240*63/255,
+             paldivs=7;
+       
+        jwin_pal[jcBOX]    =dvc(4);
+        jwin_pal[jcLIGHT]  =dvc(5);
+        jwin_pal[jcMEDLT]  =dvc(4);
+        jwin_pal[jcMEDDARK]=dvc(3);
+        jwin_pal[jcDARK]   =dvc(2);
+        jwin_pal[jcBOXFG]  =dvc(1);
+        jwin_pal[jcTITLEL] =dvc(3);
+        jwin_pal[jcTITLER] =dvc(5);
+        jwin_pal[jcTITLEFG]=dvc(7);
+        jwin_pal[jcTEXTBG] =dvc(5);
+        jwin_pal[jcTEXTFG] =dvc(1);
+        jwin_pal[jcSELBG]  =dvc(8);
+        jwin_pal[jcSELFG]  =dvc(6);
+    }
+    break;
+    
     case 201018:  //20-oct-2018, PureZC Expo
     {
 	    //16,10,0; dark chocolate
