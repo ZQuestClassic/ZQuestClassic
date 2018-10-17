@@ -7612,6 +7612,52 @@ void system_pal()
     }
     break;
     
+    case 201018:  //20-oct-2018, PureZC Expo
+    {
+	    //16,10,0; dark chocolate
+	    //39,19,0 chocolate
+	    //63,23,0 orange
+	    //46,32,4 tan
+        pal[dvc(1)] = _RGB(63,23,0); //box fg is text
+        pal[dvc(2)] = _RGB(16*63/255, 10*63/255, 0*63/255);
+        pal[dvc(3)] = _RGB(39,19,0);
+       // pal[dvc(4)] = _RGB(212*63/255, 208*63/255, 200*63/255);
+        pal[dvc(4)] = _RGB(16,10,0); //menu background
+        pal[dvc(5)] = _RGB(0,0,0);
+        //pal[dvc(5)] = _RGB(63*63/255, 23*63/255, 0*63/255);
+        //pal[dvc(5)] = _
+        pal[dvc(6)] = _RGB(0,0,0);
+        pal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
+        pal[dvc(8)] = _RGB(63,49,0);
+        
+        byte palrstart= 10*63/255, palrend=166*63/255,
+             palgstart= 36*63/255, palgend=202*63/255,
+             palbstart=106*63/255, palbend=240*63/255,
+             paldivs=7;
+        /*     
+        for(int i=0; i<paldivs; i++)
+        {
+            pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+            pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+            pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+        }
+        */
+        jwin_pal[jcBOX]    =dvc(4);
+        jwin_pal[jcLIGHT]  =dvc(5);
+        jwin_pal[jcMEDLT]  =dvc(4);
+        jwin_pal[jcMEDDARK]=dvc(3);
+        jwin_pal[jcDARK]   =dvc(2);
+        jwin_pal[jcBOXFG]  =dvc(1);
+        jwin_pal[jcTITLEL] =dvc(3);
+        jwin_pal[jcTITLER] =dvc(3);
+        jwin_pal[jcTITLEFG]=dvc(7);
+        jwin_pal[jcTEXTBG] =dvc(5);
+        jwin_pal[jcTEXTFG] =dvc(1);
+        jwin_pal[jcSELBG]  =dvc(8);
+        jwin_pal[jcSELFG]  =dvc(6);
+    }
+    break;
+   
     default:  //Windows 2000
     {
         pal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
