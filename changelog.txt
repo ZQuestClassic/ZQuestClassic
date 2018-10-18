@@ -1,5 +1,27 @@
 ChangeLog for 2.53.0 
 
+//Beta 24
+Added a DARK theme, and the 2018 PureZC Autumn Expo (Halloween)
+theme to ZC and ZQuest. Their gui_colorset IDs are 2019 and 201018 respectively.
+
+Rebuilt clean, fixing some stability issues when ZC and ZQ were running as
+background processes.
+( ZoriaRPG, 17th October, 2018 )
+
+Re-fixed the sound that 2.10 Dodongos (and BS Dodongos) make when they die.
+The prior patch didn't work, but this one seems fine.
+( ZoriaRPG, 14th October, 2018 )
+
+//Beta 23
+Fixed 2.10 Dodongo Death Sound:
+	In 2.10, according to a report, Dodongos used SFX 15 for their 
+	death sound. This forces their death sound (`deadsfx`) to 15, 
+	to correct the problem.
+
+	I previously thought that James was reporting the wrong screen
+	ambient sound, so this commit also reverses that patch.
+	( ZoriaRPG, 4th October, 2018 )
+
 //Beta 22
 Rewrote the onSaveMapPic() function to fix issues with it causing
 random glitches, including screen drawing glitches while scrolling and other
