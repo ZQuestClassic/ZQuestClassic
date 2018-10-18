@@ -100,7 +100,7 @@ void register_blank_tiles()
     //int tiles_used=count_tiles(newtilebuf);
     for(int i=0; i<NEWMAXTILES; ++i)
     {
-	    al_trace("Registering a blank tile\n");
+	    //al_trace("Registering a blank tile\n");
         register_blank_tile_quarters(i);
         blank_tile_table[i]=isblanktile(newtilebuf, i);
     }
