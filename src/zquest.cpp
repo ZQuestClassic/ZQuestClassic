@@ -22631,7 +22631,7 @@ int main(int argc,char **argv)
         jwin_pal[jcTITLEL] =dvc(3);
         jwin_pal[jcTITLER] =dvc(5);
         jwin_pal[jcTITLEFG]=dvc(7);
-        jwin_pal[jcTEXTBG] =dvc(1);
+        jwin_pal[jcTEXTBG] =dvc(5);
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
@@ -22678,7 +22678,7 @@ int main(int argc,char **argv)
         jwin_pal[jcTITLEL] =dvc(3);
         jwin_pal[jcTITLER] =dvc(3);
         jwin_pal[jcTITLEFG]=dvc(7);
-        jwin_pal[jcTEXTBG] =dvc(1);
+        jwin_pal[jcTEXTBG] =dvc(5);
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
@@ -24486,7 +24486,7 @@ void update_tooltip(int x, int y, int trigger_x, int trigger_y, int trigger_w, i
             
             temp = tmpstr[t];
             tmpstr[t]=0;
-            textprintf_ex(tooltipbmp, font, 4, (i*text_height(font))+4, vc(0), -1, "%s", tmpstr);
+            textprintf_ex(tooltipbmp, font, 4, (i*text_height(font))+4, jwin_pal[jcTEXTFG], -1, "%s", tmpstr);
             tmpstr[t]=temp;
             ++i;
             
