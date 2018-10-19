@@ -24486,7 +24486,7 @@ void update_tooltip(int x, int y, int trigger_x, int trigger_y, int trigger_w, i
             
             temp = tmpstr[t];
             tmpstr[t]=0;
-            textprintf_ex(tooltipbmp, font, 4, (i*text_height(font))+4, vc(0), -1, "%s", tmpstr);
+            textprintf_ex(tooltipbmp, font, 4, (i*text_height(font))+4, jwin_pal[jcTEXTFG], -1, "%s", tmpstr);
             tmpstr[t]=temp;
             ++i;
             
