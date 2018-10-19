@@ -7638,7 +7638,7 @@ void system_pal()
         jwin_pal[jcTITLEL] =dvc(3);
         jwin_pal[jcTITLER] =dvc(5);
         jwin_pal[jcTITLEFG]=dvc(7);
-        jwin_pal[jcTEXTBG] =dvc(5);
+        jwin_pal[jcTEXTBG] =dvc(1);
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
@@ -7684,7 +7684,7 @@ void system_pal()
         jwin_pal[jcTITLEL] =dvc(3);
         jwin_pal[jcTITLER] =dvc(3);
         jwin_pal[jcTITLEFG]=dvc(7);
-        jwin_pal[jcTEXTBG] =dvc(5);
+        jwin_pal[jcTEXTBG] =dvc(1);
         jwin_pal[jcTEXTFG] =dvc(1);
         jwin_pal[jcSELBG]  =dvc(8);
         jwin_pal[jcSELFG]  =dvc(6);
