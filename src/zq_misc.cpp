@@ -945,7 +945,7 @@ const char *old_guy_string[OLDMAXGUYS] =
     // 160
     "Bombchu", "Gel (L2, Normal)", "Zol (L2, Normal)", "Gel (L2, Tribble)", "Zol (L2, Tribble)",
     // 165
-    "Tektite (L3)", "Spinning Tile (Combo)", "Spinning Tile (Enemy Sprite)", "Lynel (L3)", "Peahat (L2) ",
+    "Tektite (L3)", "Spinning Tile (Combo)", "Spinning Tile (Enemy Sprite)", "Lynel (L3)", "Peahat (L2)",
     // 170
     "Pols Voice (Magic)", "Pols Voice (Whistle)", "Darknut (Mirror)", "Ghini (L2, Fire)", "Ghini (L2, Magic)",
     // 175
