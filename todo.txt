@@ -178,14 +178,8 @@ Subscreen scrolling speed variable.
 *** RULES ***
 -------------
 Forward QRs to Items
-qr_NOWANDMELEE(wand done; canes, toto) //Where is this done? -V
-qr_WHIRLWINDMIRROR
-qr_BRKNSHLDTILES //This goes on an item? Shouldn't this be enemies? -V
 qr_NOBOMBPALFLASH (may be better as a QR)
-qr_NOWANDMELEE
-qr_SWORDMIRROR
 qr_LADDERANYWHERE(perhaps better by per-dmap basis?)
-qr_SLOWCHARGINGWALK //Charge rings or swords? Or both, with a flag for "Overrides item slowwalk" on charge rings?
 
 Implement Itemdata-based rule behaviour
 
@@ -204,6 +198,7 @@ qr_WALLFLIERS
 qr_ENEMIESFLICKER
 qr_PEAHATCLOCKVULN
 qr_BROKENSTATUES
+qr_BRKNSHLDTILES
 
 Implement Enemy based QR behaviour
 
@@ -282,6 +277,10 @@ qr_QUICKSWORD
 qr_RINGAFFECTDAMAGE
 qr_SLASHFLIPFIX
 qr_NOITEMMELEE
+qr_NOWANDMELEE
+qr_WHIRLWINDMIRROR
+qr_SWORDMIRROR
+qr_SLOWCHARGINGWALK
 
 
 Might Do:
