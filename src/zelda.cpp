@@ -3135,13 +3135,13 @@ void setMonochromatic(int mode)
 {
 	int base = mode < baseDISTRIBUTED ? baseUNIFORM : baseDISTRIBUTED; //distributed is an additive flag adding 10
 	int colour_mode = mode - base;
-	if (!colour_mode && monochrome ) //restore
+	if (colour_mode <= 0 && monochrome ) //restore
 	{
 		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
 		refreshpal = true;
 		monochrome = false; 
 	}
-	else if ( colour_mode && !monochrome ) 
+	else if ( colour_mode /*&& !monochrome allow cascading*/ ) 
 	{ 
 		
 		memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
