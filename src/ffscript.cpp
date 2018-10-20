@@ -22,6 +22,10 @@ zquestheader ZCheader;
 
 #include "zelda.h"
 #include "link.h"
+//extern int directItem = -1; //Is set if Link is currently using an item directly
+//extern int directItemA = -1;
+//extern int directItemB = -1;
+
 #include "guys.h"
 
 #include "gamedata.h"
@@ -5934,9 +5938,15 @@ void set_register(const long arg, const long value)
         	int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
         	if(seta && get_bit(quest_rules,qr_SELECTAWPN) && game->item[seta]){
 			Awpn = value/10000;
+			game->awpn = value/10000;
+			game->items_off[value/10000] = 0;
+			//directItemA = directItem;
         	}
         	if(setb && game->item[setb]){
 			Bwpn = value/10000;
+			game->bwpn = value/10000;
+			game->items_off[value/10000] = 0;
+			//directItemB = directItem;
         	}
           }
          break;
@@ -5971,33 +5981,72 @@ void set_register(const long arg, const long value)
 		if ( force == 0 ) {
 			if ( slot == 1 ) {
 				Awpn = itm;
+				game->items_off[itm] = 0;
+				game->awpn = itm;
+				//directItemA = directItem;
 			}
-			else Bwpn = itm;
+			else 
+			{
+				Bwpn = itm;
+				game->items_off[itm] = 0;
+				game->bwpn = itm;
+				//directItemB = directItem;
+			}
 		}
 		if ( force == 1 ) {
-			if(slot == 1 && game->item[itm]){
+			if(slot == 1 && game->item[itm])
+			{
 				Awpn = itm;
+				game->items_off[itm] = 0;
+				game->awpn = itm;
+				//directItemA = directItem;
+				
 			}
 			else { 
-				if ( game->item[itm] ) Bwpn = itm;
+				if ( game->item[itm] ) 
+				{
+					Bwpn = itm;
+					game->items_off[itm] = 0;
+					game->bwpn = itm;
+					//directItemB = directItem;
+				}
 			}
 		}
 
 		if ( force == 2 ) {
-			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) ){
+			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) )
+			{
 				Awpn = itm;
+				game->items_off[itm] = 0;
+				game->awpn = itm;
+				//directItemA = directItem;
 			}
-			else { 
+			else 
+			{ 
 				Bwpn = itm;
+				game->items_off[itm] = 0;
+				game->bwpn = itm;
+				//directItemB = directItem;
 			}
 		}
 		
 		if ( force == 3 ) { //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
-			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) && game->item[itm]){
+			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) && game->item[itm])
+			{
 				Awpn = itm;
+				game->items_off[itm] = 0;
+				game->awpn = itm;
+				//directItemA = directItem;
 			}
-			else { 
-				if ( game->item[itm] ) Bwpn = itm;
+			else 
+			{ 
+				if ( game->item[itm] ) 
+				{
+					Bwpn = itm;
+					game->items_off[itm] = 0;
+					game->bwpn = itm;
+					//directItemB = directItem;
+				}
 			}
 		}
 	}
@@ -6121,29 +6170,49 @@ void set_register(const long arg, const long value)
 	Link.setHurtSFX( (int)vbound((value/10000), 0, 255) );
 	break;
         
-    /*
+    
      case LINKITEMB:
+     {
+	if ( value/10000 < 0 ) 
+	{
+	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+	    break;
+	}		
+	if ( value/10000 < MAXITEMS-1 ) 
+	{
+	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+	    break;
+	}
 	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
     
-	//Link->directItem = vbound((value/10000),0,(MAXITEMS-1));
-	//Link->directItemB = Link->directItem;
-	//Bwpn = vbound((value/10000),0,(MAXITEMS-1));
-    
-	Link.setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
-	Link.setDirectItemB(Link->getDirectItem());
-	Bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
-	game->bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	
+	Bwpn = value/10000;
+	game->bwpn = value/10000;
+	game->items_off[value/10000] = 0;
+	//directItemB = directItem;
 	break;
+    }
     
     
     case LINKITEMA:
+    {
+	if ( value/10000 < 0 ) 
+	{
+	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+	}		
+	if ( value/10000 < MAXITEMS-1 ) 
+	{
+	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+	}		
 	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-	Link.setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
-	Link.setDirectItemA(Link->getDirectItem());
-	Awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
-	game->awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	
+	Awpn = value/10000;
+	game->awpn = value/10000;
+	game->items_off[value/10000] = 0;
+	//directItemB = directItem;
 	break;
-*/
+    }
+
 
       case LINKEATEN:
 	Link.setEaten(value/10000);
