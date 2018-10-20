@@ -282,9 +282,8 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 			// pop off. The top of the stack is now the function
 			// return address (pushed on by the caller).
 			//pop off the return address
-			funccode.push_back(new OPopRegister(new VarArgument(EXP2)));
 			//and return
-			funccode.push_back(new OGotoRegister(new VarArgument(EXP2)));
+			funccode.push_back(new OReturn());
 		}
         
 		function.giveCode(funccode);

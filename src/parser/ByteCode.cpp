@@ -10,6 +10,7 @@
 #include <cstdlib>
 
 using namespace ZScript;
+using std::ostringstream;
 
 string LiteralArgument::toString()
 {
@@ -1695,6 +1696,22 @@ string LabelArgument::toString()
     }
 }
 
+string LabelArgument::toStringSetV()
+{
+    if(!haslineno)
+    {
+        char temp[40];
+        sprintf(temp, "l%d", ID);
+        return string(temp);
+    }
+    else
+    {
+        char temp[40];
+        sprintf(temp, "%.4f", lineno * 0.0001f);
+        return string(temp);
+    }
+}
+
 string OSetTrue::toString()
 {
     return "SETTRUE " + getArgument()->toString();
@@ -1717,7 +1734,14 @@ string OSetLess::toString()
 
 string OSetImmediate::toString()
 {
-    return "SETV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	ostringstream oss;
+	oss << "SETV " << getFirstArgument()->toString() << ",";
+	Argument* second = getSecondArgument();
+	if (LabelArgument* label = dynamic_cast<LabelArgument*>(second))
+		oss << label->toStringSetV();
+	else
+		oss << second->toString();
+	return oss.str();
 }
 
 string OSetRegister::toString()
@@ -3946,6 +3970,11 @@ string OZapR::toString()
 string OGreyscaleR::toString()
 {
     return "GREYSCALER " + getArgument()->toString();
+}
+
+string OReturn::toString()
+{
+	return "RETURN";
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

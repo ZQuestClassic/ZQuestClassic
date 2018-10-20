@@ -1161,6 +1161,7 @@ namespace ZScript
 	public:
 		LabelArgument(int id) : ID(id), haslineno(false) {}
 		string toString();
+		string toStringSetV();
 		void execute(ArgumentVisitor &host, void *param)
 		{
 			host.caseLabel(*this,param);
@@ -6576,6 +6577,13 @@ namespace ZScript
 		{
 			return new OGreyscaleR(a->clone());
 		}
+	};
+
+	class OReturn : public Opcode
+	{
+	public:
+		std::string toString() /*override*/;
+		OReturn* clone() {return new OReturn();}
 	};
 }
 
