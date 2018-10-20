@@ -3133,7 +3133,7 @@ void shiftColour(int rshift, int gshift, int bshift, int base)
 
 void setMonochromatic(int mode)
 {
-	int base = mode < 10 ? baseUNIFORM : baseDISTRIBUTED; //distributed is an additive flag adding 10
+	int base = mode < baseDISTRIBUTED ? baseUNIFORM : baseDISTRIBUTED; //distributed is an additive flag adding 10
 	int colour_mode = mode - base;
 	if (!colour_mode && monochrome ) //restore
 	{
