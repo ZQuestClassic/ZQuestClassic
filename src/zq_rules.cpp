@@ -221,37 +221,37 @@ static DIALOG itemrules_dlg[] =
     
     // rules //6
     { jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Enable Magic", NULL, NULL },
-    { d_dummy_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Boomerang/Hookshot", NULL, NULL },
+    { d_dummy_proc,      10, 21+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "New Boomerang/Hookshot", NULL, NULL },
     { jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True Arrows", NULL, NULL },
-    { d_dummy_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Diving", NULL, NULL },
+    { d_dummy_proc,      10, 21+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "No Diving", NULL, NULL },
    //10
     { jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted and Enemy Fire Lights Temporarily", NULL, NULL },
     { jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Fire LWeapons don't hurt Link", NULL, NULL },
     { jwin_check_proc,      10, 21+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Bomb LWeapons hurt Link", NULL, NULL },
-    { d_dummy_proc,      10, 21+80,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Rings Affect Damage Combos", NULL, NULL },
-    { d_dummy_proc,      10, 21+90,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Quick Sword", NULL, NULL },
+    { d_dummy_proc,      10, 21+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Rings Affect Damage Combos", NULL, NULL },
+    { d_dummy_proc,      10, 21+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Quick Sword", NULL, NULL },
     //15
-    { d_dummy_proc,      10, 21+100, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Flip Right-Facing Slash", NULL, NULL },
-    { d_dummy_proc,      10, 21+110, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Wand Can't Be Used As Melee Weapon", NULL, NULL },
+    { d_dummy_proc,      10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Flip Right-Facing Slash", NULL, NULL },
+    { d_dummy_proc,      10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Wand Can't Be Used As Melee Weapon", NULL, NULL },
     { jwin_check_proc,      10, 21+60, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripted Melee Weapons Can't Pick Up Items", NULL, NULL },
-    { d_dummy_proc,      10, 21+130, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Boomerang/Hookshot Grabs All Items", NULL, NULL },
+    { d_dummy_proc,      10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Boomerang/Hookshot Grabs All Items", NULL, NULL },
     { jwin_check_proc,      10, 21+70, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "'Hearts Required' Affects Non-Special Items", NULL, NULL },
   //20
     { jwin_check_proc,      10, 21+80, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Big Triforce Pieces", NULL, NULL },
     { jwin_check_proc,      10, 21+90, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "3 or 6 Triforce Total", NULL, NULL },
     // rules 2 //22
-    { d_dummy_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slow Walk While Charging", NULL, NULL },
+    { d_dummy_proc,      10, 21+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Slow Walk While Charging", NULL, NULL },
  //Deprecated:  23, 24, 25, 26, 27, 28, 29
-    { d_dummy_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Show Secret Combo Hints When Using The Lens", NULL, NULL },
-    { d_dummy_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Shows Raft Paths", NULL, NULL },
-    { d_dummy_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Reveals Invisible Enemies", NULL, NULL },
+    { d_dummy_proc,      10, 21+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Show Secret Combo Hints When Using The Lens", NULL, NULL },
+    { d_dummy_proc,      10, 21+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Shows Raft Paths", NULL, NULL },
+    { d_dummy_proc,      10, 21+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Lens Reveals Invisible Enemies", NULL, NULL },
 	
-    { d_dummy_proc,      10, 21+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Medicine Doesn't Remove Sword Jinxes", NULL, NULL },
+    { d_dummy_proc,      10, 21+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Medicine Doesn't Remove Sword Jinxes", NULL, NULL },
     { jwin_check_proc,      10, 21+100,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fairy Combos Don't Remove Sword Jinxes", NULL, NULL },
-    { d_dummy_proc,      10, 21+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Triforce Doesn't Remove Sword Jinxes", NULL, NULL },
+    { d_dummy_proc,      10, 21+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Triforce Doesn't Remove Sword Jinxes", NULL, NULL },
     { jwin_check_proc,      10, 21+110,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Fairy Combos Remove Item Jinxes", NULL, NULL },
     //30
-    { d_dummy_proc,      10, 21+20, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Melee Weapons Require Magic Cost", NULL, NULL },
+    { d_dummy_proc,      10, 21+500, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Melee Weapons Require Magic Cost", NULL, NULL },
     { jwin_check_proc,      10, 21+120, 185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Broken Magic Book Costs", NULL, NULL },
    
     
