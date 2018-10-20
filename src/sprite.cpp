@@ -66,7 +66,7 @@ sprite::sprite()
         dummy_int[i]=0;
         dummy_fix[i]=0;
         dummy_float[i]=0;
-        dummy_bool[i]=0;
+        dummy_bool[i]=false;
     }
     
     /*for(int i=0;i<8;i++)
