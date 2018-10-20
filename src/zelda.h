@@ -175,9 +175,28 @@ bool screenIsScrolling();
 //void quit_game();
 int d_timer_proc(int msg, DIALOG *d, int c);
 
+/*ZScript
+const int TINT_NONE = 0;
+const int TINT_GREY = 0;
+const int TINT_RED = 0;
+const int TINT_GREEN = 0;
+const int TINT_BLUE = 0;
+const int TINT_VIOLET = 0;
+const int TINT_TEAL = 0;
+const int TINT_AMBER = 0;
+const int TINT_CYAN = 0;
+const int TINT_MODE_UNIFORM = 0;
+const int TINT_MODE_DISTRIBUTED = 10;
+
+Graphics->Tint(mode)
+Graphics->Tint(TINT_MODE_DISTRIBUTED+TINT_VIOLET)
+*/
 //2.54
+void setMonochromatic(int mode); //GFX are monochrome. 
 void setMonochrome(bool state); //GFX are monochrome. 
 bool isMonochrome();
+void addColour(int radd, int gadd, int badd, int base);
+void shiftColour(int rshift, int gshift, int bshift, int base);
 
 void runDrunkRNG();
 

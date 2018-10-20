@@ -3334,6 +3334,7 @@ static AccessorTable gameTable[] =
     { "getButtonHeld[]",             ZVARTYPEID_BOOL,         GETTER,       BUTTONHELD,         18,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setButtonHeld[]",             ZVARTYPEID_VOID,          SETTER,       BUTTONHELD,         18,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getReadKey[]",             ZVARTYPEID_BOOL,         GETTER,       READKEY,         127,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    //{ "ReadKey",                ZVARTYPEID_BOOL,         GETTER,       READKEY,             1,      {  ZVARTYPEID_GAME,       ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getKeyPress[]",             ZVARTYPEID_BOOL,         GETTER,       KEYPRESS,         127,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setKeyPress[]",             ZVARTYPEID_VOID,          SETTER,       KEYPRESS,         127,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getDisableItem[]",             ZVARTYPEID_BOOL,         GETTER,       DISABLEDITEM,        256,      {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -6398,6 +6399,7 @@ static AccessorTable GraphicsTable[] =
 	{ "Wavy",	ZVARTYPEID_VOID,	FUNCTION,	0,	1,	{ ZVARTYPEID_GRAPHICS,	ZVARTYPEID_BOOL,	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Zap",	ZVARTYPEID_VOID,	FUNCTION,	0,	1,	{ ZVARTYPEID_GRAPHICS,	ZVARTYPEID_BOOL,	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Greyscale",	ZVARTYPEID_VOID,	FUNCTION,	0,	1,	{ ZVARTYPEID_GRAPHICS,	ZVARTYPEID_BOOL,	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "Monochrome",	ZVARTYPEID_VOID,	FUNCTION,	0,	1,	{ ZVARTYPEID_GRAPHICS,	ZVARTYPEID_FLOAT,	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "",		-1,			-1,		-1,	-1,	{ -1,			-1,			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -6448,6 +6450,20 @@ void GraphicsSymbols::generateCode()
 		// Pop pointer.
 		code.push_back(new OPopRegister(new VarArgument(NUL)));
 		code.push_back(new OGreyscaleR(new VarArgument(EXP2)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("Monochrome");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		// Pop argument.
+		Opcode *first = new OPopRegister(new VarArgument(EXP2));
+		first->setLabel(label);
+		code.push_back(first);
+		// Pop pointer.
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OMonochromeR(new VarArgument(EXP2)));
 		code.push_back(new OReturn());
 		function->giveCode(code);
 	}

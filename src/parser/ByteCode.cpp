@@ -3972,6 +3972,11 @@ string OGreyscaleR::toString()
     return "GREYSCALER " + getArgument()->toString();
 }
 
+string OMonochromeR::toString()
+{
+    return "MONOCHROMER " + getArgument()->toString();
+}
+
 string OReturn::toString()
 {
 	return "RETURN";

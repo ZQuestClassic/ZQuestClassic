@@ -6578,6 +6578,17 @@ namespace ZScript
 			return new OGreyscaleR(a->clone());
 		}
 	};
+	
+	class OMonochromeR : public UnaryOpcode
+	{
+	public:
+		OMonochromeR(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OMonochromeR(a->clone());
+		}
+	};
 
 	class OReturn : public Opcode
 	{

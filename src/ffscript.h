@@ -138,6 +138,7 @@ int getSubscreenScrollSpeed();
 void do_fx_zap(const bool v);
 void do_fx_wavy(const bool v);
 void do_greyscale(const bool v);
+void do_monochromatic(const bool v);
 
 int GetScriptObjectUID(int type);
     
@@ -1576,6 +1577,8 @@ enum ASM_DEFINE
 	GREYSCALEV,
 
 	RETURN,
+	MONOCHROMER,
+	MONOCHROMEV,
 		
 	NUMCOMMANDS           //0x013B
 };

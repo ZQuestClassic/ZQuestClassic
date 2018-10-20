@@ -14004,6 +14004,12 @@ int run_script(const byte type, const word script, const byte i)
 	case GREYSCALEV:
 		FFCore.do_greyscale(true);
 		break;
+	case MONOCHROMER:
+		FFCore.do_monochromatic(false);
+		break;
+	case MONOCHROMEV:
+		FFCore.do_monochromatic(true);
+		break;
             
         case TRACE2V:
             do_tracebool(true);
@@ -16692,6 +16698,12 @@ void FFScript::do_greyscale(const bool v)
 {
     bool on = (SH::get_arg(sarg1, v)) != 0;
     setMonochrome(on);
+}
+
+void FFScript::do_monochromatic(const bool v)
+{
+    int colour = SH::get_arg(sarg1, v)/10000;
+    setMonochromatic(colour);
 }
 void FFScript::do_fx_zap(const bool v)
 {
