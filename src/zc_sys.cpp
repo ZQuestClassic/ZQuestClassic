@@ -2104,7 +2104,7 @@ int current_item_id(int itemtype, bool checkmagic)
                 //printf("Checkmagic for %d: %d (%d %d)\n",i,checkmagiccost(i),itemsbuf[i].magic*game->get_magicdrainrate(),game->get_magic());
                 if(!checkmagiccost(i))
                 {
-                    continue;
+                        if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) continue; //don't make items with a magic cost vanish!! -Z
                 }
             }
             
