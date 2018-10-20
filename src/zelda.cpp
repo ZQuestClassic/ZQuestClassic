@@ -3144,7 +3144,7 @@ void setMonochromatic(int mode)
 	else if ( colour_mode /*&& !monochrome allow cascading*/ ) 
 	{ 
 		
-		memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
+		if ( !monochrome ) { memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB)); }
 		switch(colour_mode)
 		{
 			case colourGREY:
