@@ -2314,7 +2314,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 	//Lens flag 3: Don't show armos/chest/dive items
 	//Lens flag 4: Show Raft Paths
 	//Lens flag 5: Show Invisible Enemies
-	bool hints = (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2) ? false : (layer && itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1));
+	bool hints = (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2) ? false : (layer && (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1));
 	
     int strike_hint_table[11]=
     {
