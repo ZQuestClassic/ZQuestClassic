@@ -1665,6 +1665,9 @@ string VarArgument::toString()
 	case GETPIXEL: return "GETPIXEL";
 	case DOUNTYPE: return "DOUNTYPE";
 	
+	case GRAPHICSMONO: return "GRAPHICSMONO";
+	case GRAPHICSTINT: return "GRAPHICSTINT";
+	
     default:
     {
         sprintf(temp, "d%d", ID);
@@ -2080,6 +2083,11 @@ string OTrace3::toString()
 string OTrace4::toString()
 {
     return "TRACE4";
+}
+
+string OClearTint::toString()
+{
+    return "CLEARTINT";
 }
 
 string OTrace5Register::toString()

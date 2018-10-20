@@ -80,6 +80,7 @@ extern std::map<int, std::pair<string,string> > itemmap;
 extern std::map<int, std::pair<string,string> > globalmap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
+PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
 
 FFScript ffengine;
 
@@ -10629,6 +10630,33 @@ case AUDIOPAN:
 }
 
 ///----------------------------------------------------------------------------------------------------//
+//Graphics->
+
+	case GRAPHICSMONO:
+	    { //void SetScreenEnemy(int map, int screen, int index, int value);
+		
+		    
+			long __RED     = (ri->d[1] / 10000) - 1; 
+			long __GREEN  = ri->d[2] / 10000; 
+			long __BLUE = ri->d[0] / 10000; 
+			bool mono = ri->d[3]/10000 != 0; 
+		
+			FFCore.dummy_gfxmonohue(__RED,__GREEN,__BLUE,mono); 
+			
+			
+			
+	    }
+	    break;
+	    
+	case GRAPHICSTINT:
+		FFCore.dummy_doTint((ri->d[0] / 10000),(ri->d[1]/10000), (value/10000));
+	break;
+	
+	case CLEARTINT:
+            FFCore.dummy_clearTint();
+            break;
+
+///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
     case SP:
         ri->sp = value / 10000;
@@ -16705,6 +16733,22 @@ void FFScript::do_monochromatic(const bool v)
     int colour = SH::get_arg(sarg1, v)/10000;
     setMonochromatic(colour);
 }
+
+void FFScript::dummy_gfxmonohue(int _r, int _g, int _b, bool m)
+{
+    do_dummy_gfxmonohue(_r,_g,_b,m);
+}
+
+void FFScript::dummy_clearTint()
+{
+    do_dummy_clearTint();
+}
+
+void FFScript::dummy_doTint(int _r, int _g, int _b)
+{
+    do_dummy_doTint(_r,_g,_b);
+}
+
 void FFScript::do_fx_zap(const bool v)
 {
     long out = SH::get_arg(sarg1, v);

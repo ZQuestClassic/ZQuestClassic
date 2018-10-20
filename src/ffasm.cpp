@@ -697,7 +697,7 @@ script_command command_list[NUMCOMMANDS+1]=
     { "RETURN",			0,	0,	0,	0},
     { "MONOCHROMER",             1,   0,   0,   0},
     { "MONOCHROMEV",             1,   1,   0,   0},
-    
+    { "CLEARTINT",              0,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 
@@ -1683,6 +1683,9 @@ script_variable variable_list[]=
 	{"DOUNTYPE", DOUNTYPE, 0, 0 },
 	{"NPCBEHAVIOUR", NPCBEHAVIOUR, 0, 0 },
 	{"NPCDATABEHAVIOUR", NPCDATABEHAVIOUR, 0, 0 },
+	
+	{ "GRAPHICSMONO",           SETSCREENDOOR,            0,             0 },
+	{ "GRAPHICSTINT",           SETSCREENDOOR,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
