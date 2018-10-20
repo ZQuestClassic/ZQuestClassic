@@ -2314,7 +2314,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 	//Lens flag 3: Don't show armos/chest/dive items
 	//Lens flag 4: Show Raft Paths
 	//Lens flag 5: Show Invisible Enemies
-	bool hints = (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2) ? false : (layer && (get_bit(quest_rules,qr_LENSHINTS) || itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1));
+	bool hints = (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG2) ? false : (layer && itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG1));
 	
     int strike_hint_table[11]=
     {
@@ -3371,7 +3371,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
                 default: goto special;
 				
 				special:
-                    if(layer && ((checkflag!=mfRAFT && checkflag!=mfRAFT_BRANCH&& checkflag!=mfRAFT_BOUNCE) || get_bit(quest_rules,qr_RAFTLENS) || (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG4)))
+                    if(layer && ((checkflag!=mfRAFT && checkflag!=mfRAFT_BRANCH&& checkflag!=mfRAFT_BOUNCE) ||(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG4)))
                     {
                         if((!(get_debug() && key[KEY_N]) && (lensclk&1)) || ((get_debug() && key[KEY_N]) && (frame&1)))
                         {
