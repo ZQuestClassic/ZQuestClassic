@@ -2,6 +2,221 @@
 
 //2.55 Alpha 1 (Candidates)
 
+//PureZC 2018 Fall Expo Build
+
+Begin adding user/script-created bitmaps to ZScript.
+	( ZoriaRPG, 21st october, 2018 )
+
+Fixed Lens QR/Flag inclusive ORs
+Fix script input setting being overriden by drunk:
+	When an input which has a drunk state is written to, tell the drunk code not to change that input.
+	( Venrob, 20th October, 2018 )
+
+Added dummy functions to ZScript so that Venrob can make the Zelda side of them:
+	Graphics->Tint(int,int,int),
+	Graphics->MonochromeHue(int,int,int,bool) and
+	Graphics->ClearTint
+		These can be adapted to user palettes, later.
+Added Graphics->Monochrome(int mode) to ZScript.
+	This allows setting a monochrome state in a number of hues, with two chroma
+	luma distribution patterns.
+
+	Modes:
+		const int TINT_NONE = 0;
+		const int TINT_GREY = 1;
+		const int TINT_RED = 2;
+		const int TINT_GREEN = 3;
+		const int TINT_BLUE = 4;
+		const int TINT_VIOLET = 5;
+		const int TINT_TEAL = 6;
+		const int TINT_AMBER = 7;
+		const int TINT_CYAN = 8;
+		const int TINT_MODE_UNIFORM = 0;
+		const int TINT_MODE_DISTRIBUTED = 1000;
+
+		Usage:
+			Graphics->Monochrome(TINT_MODE_DISTRIBUTED+TINT_AMBER); //Set amber, distribuyted
+			Graphics->Monochrome(TINT_NONE); //Restore colour palette.
+	( ZoriaRPG, 20th October, 2018 )
+
+Properly make Ganon invisible again.
+	( ZoriaRPG, 20th October, 2018 )
+
+Fix Item QRs Not Selecting:
+	Moved all d_dummy_procs in the item rules dialogue to +500, to move their hitbox out 
+	of the way
+( Venrob, 20th October, 2018 )
+
+All major game_loop() events will be now logged to allegro.log if LOGGAMELOOP = 1
+( ZoriaRPG, 20th October, 2018 )
+
+Added qr_NEVERDISABLEAMMOONSUBSCREEN
+	If enabled, inventory items with ammo costs will not vanish on subscreens,
+	even if Link is out of ammo, or otherwise cannot pay the cost.
+Possible fixes for ZScript:
+	Link->SetItemSlot()
+	Link->Equipment
+	Link->ItemA
+	Link->ItemB
+Fixed crash when calling getWpnPressed for items with subscreen overrides.
+Updated build data.
+Fixed Init Data not using new zinit members.
+( ZoriaRPG, 20th October. 2018 )
+
+Remove 214747 limit on asm script length. Done with two changes:
+	Make OSetImmediate divide any label arguments by 10000 before printing them.
+	Adds the RETURN opcode which pops directly from the stack and jumps to
+	it, without multiplying by 10000.
+	( grayswandir, 20th October, 2018 )
+
+Changed colors coded for jwin_radio_proc, jwin_check_proc, and draw_checkbox
+	These were hard-coded to use jcDARK for the foreground and jcLIGHT for the background and
+	I changed this to jcTEXTFG and jcTEXTBG respectively.
+	I changed the "shadow" on jwin_radio_proc from jcMEDDARK/jcDARK to a hard-coded vc(0) (Black). 
+	This is so that it looks proper in both "Light" and "Dark" themes.
+	( Venrob, 20th October, 2018 )
+
+Fixed crashes of enemies of type Other, Other(float), Ghini, Peahat, Zora, and Spintile
+	Gave these gui handlers for BFlags/Attributes pages (identical to eeNONE)
+	The crash was being caused by unhandled cases.
+Fixed Dark and Expo theme text unreadable against background.
+	( Venrob, 19th October, 2018 )
+
+Fixed Tile editor EXTREME lag issues:
+Stopped tracing a message 214500 times per pressing anything in the tile editor.
+	( Venrob, 18th October, 2018 )
+Added DARK theme to ZC and ZQuest (gui_colorset = 2019)
+Temporarily disable Peahat L2
+Added a UI colourset for the PureZC Fall Expo of 2018.
+The UI case label is 201018 (20th October, 2018) and the GUI colours are
+Samhain themed.
+	( ZoriaRPG, 18th October, 2018 )
+
+//Preliminary 16 (17th October, 2018)
+
+Fixed Dodongo death sfx in 3rd, 5th, and 4th quests.
+Rebuilt clean, fixing some stability issues when ZC and ZQ were running as
+background processes.
+( ZoriaRPG, 17th October, 2018 )
+
+Fixed Dodongo death sound in 1st.qst and 2nd.qst.
+	( NightmareJames, 17th October, 2018 )
+
+Re-fixed the sound that 2.10 Dodongos (and BS Dodongos) make when they die.
+The prior patch didn't work, but this one seems fine.
+( ZoriaRPG, 14th October, 2018 )
+
+Fixed UI responsoveness to mouse input caused by not listing some d_dummy_proc elements on tabs.
+( ZoriaRPG, 14th October, 2018 )
+
+Re-order Item QR dialog, update V_ITEMS to 43
+Port qr_WHIRLWINDMIRROR to Whistles ITEM_FLAG3
+	Updated V_ITEMS to 43
+	Ported QR to flags
+	QR renamed to reflect that it still is needed for scripted whirlwinds
+	Named flag in zq_custom.cpp
+Ported qr_SLOWCHARGINGWALK to ITEM_FLAG10 of swords
+	Named ITEM_FLAG10 in zq_custom.cpp
+	Set qr_SLOWCHARGINGWALK's checkbox type to dummy
+	Ported the flag for V_ITEMS<41
+	Marked qr /*DEPRECATED*/ in zq_rules.cpp
+Ported qr_SWORDMIRROR to ITEM_FLAG9 of swords  …
+	Renamed QR to reflect its' effect on enemies/scripted sword beams
+	Named flag in zq_custom.cpp
+Renamed "Sword Beams reflect off mirrors" to "Sword Beams Reflect off Prism/Mirror Combos"
+	This required expanding spacing for the items table under the flag 9 column, 
+	thus why the entire section is "changed"
+qr_SLOWCHARGEWALK and qr_SWORDMIRROR ports
+Moved candle porting for FIREPROOF and TEMPCANDLE to be identical to book/dins
+	( Venrob, 12th October, 2018 )
+
+Fixed inf magic preventing rupee drain from items, and added compat QR for this. 
+Port qr_MELEEMAGICCOST to Swords, Wands, and CByrnas ITEM_FLAG6
+	Named flags in zq_custom
+	Marked the qr /*DEPRECATED*/ in zdefs.h
+	Forwarded to flags in qst.cpp, including forcing default states
+	Made new qr_OLDINFMAGIC, which re-enables inf magic preventing items from draining rupees
+	Set QR to on when loading any pre-2.55 quest
+	QR was added to Compatibility, taking the last slot on the first tab.
+Byrna given "No Melee" flag, now can do melee damage and fixed qr_MELEEMAGICCOST.
+	Byrna now does damage equivalent to Attributes[3] (item.misc4)
+	It will do no damage if "No Melee" is checked, which is the default.
+	MELEEMAGICCOST would not charge magic if you could not shoot a sword beam! 
+		Now it does, using a new flagset `misc_internal_link_flags`.
+Ported qr_NOWANDMELEE to wands, and added the same flag to hammers - ITEM_FLAG3
+	Wands + Hammers functional
+	Flag named for Wands + Hammers in zq_custom.cpp
+	These things set up for CByrna, but commented out; cbyrna is not ready yet
+	( Venrob, 11th October, 2018 )
+
+Corrected position of `if(tempitem.fam_type==0)tempitem.fam_type=1;` in readitems()
+	( Venrob, 10th October, 2018 )
+
+Added UI text for additional Ganon Behaviour covering:
+Using normal Enemy Editor Defences
+Using a custom kill shot item.
+Put new Ganon code in a comment block, and reinstituted old code for now.
+	( ZoriaRPG, 9th October, 2018 )
+
+ Renamed "Sword Beams reflect off mirrors" to "Sword Beams Reflect off Prism/Mirror Combos"
+	This required expanding spacing for the items table under the flag 9 column, 
+	thus why the entire section is "changed"
+	( Venrob, 9th October, 2018 )
+
+Added flags to all enemies (except Ganon):
+	Enemy is Completely Invisible
+	Enemy Is Revealed by Item Specified in dmisc13
+	---> This eventually needs to be a class when positive, and a specific item when negative.
+	Draw Invisible as Cloaked
+	Render Cloaked Instead of VISIBLE
+
+	All of the above seem to work.
+
+	For GANON:
+	Visible if the player has Level 2 Amulet or higher.
+	Specific item dispels invisibility (dmisc13)
+	When not invisible, show shots.
+	Draw cloaked when not invisible.
+
+	This is only PARTLY working. Ganon's shots render, but Ganon does not.
+
+	On the Attributes tab for all enemies, Attributes[12] (misc13) is now
+	for the item that removes invisibility from that enemy, and is listed accordingly.
+	( ZoriaRPG, 9th October, 2018 )
+	
+Reworded Enemy Editor BFlag[8]:
+	Denoted that a nagative value for invisibility item is its class.
+Changed the datatype on itemdata.flags to long.
+Bumpted V_Items to 41, and updated quest save/load.
+	( ZoriaRPG, 9th October, 2018 )
+
+Ported qr_SLOWCHARGINGWALK to ITEM_FLAG10 of swords:
+	Named ITEM_FLAG10 in zq_custom.cpp
+	Set qr_SLOWCHARGINGWALK's checkbox type to dummy
+	Ported the flag for V_ITEMS<41
+	Marked qr /*DEPRECATED*/ in zq_rules.cpp
+	( Venrob, 9th October, 2018 )
+	
+	
+-V_ITEMS has yet to be updated; this branch is not ready for merge at this time.
+
+//Preliminary 15 (rolled into 16)
+
+//Preliminary 14 (8th Oct, 2018)
+Reworded text on Enemy Editor Flags (Is Invisible):
+	With full invisibility now an option, I changed the old text to
+	read: Is Invisible (Cloaked).
+Changelog: Added fields for Attributes tabs inthe Enemy Editor, for Attributes 11 throug 32..
+Moved 'Misc Attrib 11' and 'Misc Attrib 12' from Data 2, to Attributes.
+Added automatic string handling insetEnemyLabels()
+Set default labels for invisibility-dispelling item.
+Set default BFlags for invisibility, plus special flags on Ganon.
+Fix: Read guys.misc13, misc14, misc15. I somehow missed these when I edxpanded enemy attributes.
+( ZoriaRPG, 8th October, 2018 )
+
+Fixed death sound for Dodongos. 
+( ZoriaRPG, 4th October, 2018 )
+
 //2.55 ALphsa 1, Preliminary 13
 Rewrote the onSaveMapPic() function to fix issues with it causing
 random glitches, including screen drawing glitches while scrolling and other
@@ -404,7 +619,7 @@ Add escape sequences to string literals
 
 	This also fixed a bug where multiline string literals would count as
 	one line.
-	( grawswandir, 20th August, 2018 )
+	( grayswandir, 20th August, 2018 )
 
 Add column numbers to compile error messages
 
@@ -481,7 +696,7 @@ Add Array Literals
 	Currently broken in the global scope, but the existing string literals
 	are also broken in the same way, so both will be fixed later in the same
 	commit.
-	( grawswandir, 23rd July, 2018 )
+	( grayswandir, 23rd July, 2018 )
 
 //Alpha 32
 
