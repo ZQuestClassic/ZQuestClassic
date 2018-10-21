@@ -109,7 +109,7 @@ ponddata	TOKEN( POND );
 rgb		TOKEN( RGB );
 shopdata	TOKEN( SHOP );
 spritedata	TOKEN( SPRITE );
-tune		TOKEN( TUNE );
+mididata		TOKEN( TUNE );
 warpring	TOKEN( WARPRING );
 
  /* Syntax */
