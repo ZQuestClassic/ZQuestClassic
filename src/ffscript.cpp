@@ -15305,6 +15305,24 @@ BITMAP* FFScript::get_user_bitmap(int id)
 	return scb.script_created_bitmaps[id].u_bmp;
 }
 
+BITMAP* FFScript::GetScriptBitmap(int id)
+{
+    switch(id)
+    {
+        case -1:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6: //old system bitmap
+        {
+            return zscriptDrawingRenderTarget->GetBitmapPtr(id);
+        }
+        default: return  get_user_bitmap(id);
+    }
+}
+
 int FFScript::get_free_bitmap()
 {
         int num_free = scb.num_active;

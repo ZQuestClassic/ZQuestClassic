@@ -115,6 +115,8 @@ long create_user_bitmap_ex(int w, int h, int depth);
 
 BITMAP* get_user_bitmap(int id);
 
+BITMAP* FFScript::GetScriptBitmap(int id);
+
 bool cleanup_user_bitmaps();
 
 bool destroy_user_bitmap(int id);
