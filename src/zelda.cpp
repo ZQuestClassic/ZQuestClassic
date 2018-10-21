@@ -2711,11 +2711,11 @@ void game_loop()
             --guygrid[i];
         }
     }
-    #ifdef LOGGAMELOOP
+    #if LOGGAMELOOP > 0
     al_trace("game_loop is calling: %s\n", "animate_combos()\n");
     #endif
     animate_combos();
-    #ifdef LOGGAMELOOP
+    #if LOGGAMELOOP > 0
     al_trace("game_loop is calling: %s\n", "load_control_state()\n");
     #endif
     load_control_state();
@@ -2738,46 +2738,46 @@ void game_loop()
     
     if(!freeze && !freezemsg)
     {
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "mblock2.animate()\n");
 	#endif
         mblock2.animate(0);
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.animate()\n");
 	#endif
         items.animate();
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
 	#endif
         items.check_conveyor();
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "guys.animate()\n");
 	#endif
         guys.animate();
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "roaming_item()\n");
 	#endif
         roaming_item();
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "dragging_item()\n");
 	#endif
         dragging_item();
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "Ewpns.animate()\n");
 	#endif
         Ewpns.animate();
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is setting: %s\n", "checklink=true()\n");
 	#endif
         checklink = true;
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "clear_script_one_frame_conditions()\n");
 	#endif
         clear_script_one_frame_conditions(); //the timing on this may need adjustment. 
 	
         for(int i = 0; i < (gofast ? 8 : 1); i++)
         {
-	    #ifdef LOGGAMELOOP
+	    #if LOGGAMELOOP > 0
 	al_trace("game_loop is at: %s\n", "if(Link.animate(0)\n");
 	#endif
             if(Link.animate(0))
@@ -2792,23 +2792,23 @@ void game_loop()
             
             checklink=false;
         }
-        #ifdef LOGGAMELOOP
+        #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
 	#endif
         do_magic_casting();
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
 	#endif
         Lwpns.animate();
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
 	#endif
         decorations.animate();
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "particles.animate()\n");
 	#endif
         particles.animate();
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "update_hookshot()\n");
 	#endif
         update_hookshot();
@@ -2819,15 +2819,15 @@ void game_loop()
         }
         
         --conveyclk;
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "check_collisions()\n");
 	#endif
         check_collisions();
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "dryuplake()\n");
 	#endif
         dryuplake();
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "cycle_palette()\n");
 	#endif
         cycle_palette();
@@ -2838,7 +2838,7 @@ void game_loop()
             if(((enemy*)guys.spr(i))->ignore_msg_freeze())
                 guys.spr(i)->animate(i);
     }
-    #ifdef LOGGAMELOOP
+    #if LOGGAMELOOP > 0
 	al_trace("game_loop at: %s\n", "if(global_wait)\n");
 	#endif
     if(global_wait)
@@ -2847,19 +2847,19 @@ void game_loop()
         global_wait=false;
     }
     
-    #ifdef LOGGAMELOOP
+    #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "draw_screen()\n");
 	#endif
     draw_screen(tmpscr);
     
     //clear Link's last hits 
     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
-    #ifdef LOGGAMELOOP
+    #if LOGGAMELOOP > 0
 	al_trace("game_loop is at: %s\n", "if(linkedmsgclk)\n");
 	#endif
     if(linkedmsgclk==1)
     {
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "if(wpnsbuf[iwMore].newtile!=0)\n");
 	#endif
         if(wpnsbuf[iwMore].newtile!=0)
@@ -2870,7 +2870,7 @@ void game_loop()
     
     if(!freeze)
     {
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "putintro()\n");
 	#endif
         putintro();
@@ -2908,12 +2908,12 @@ void game_loop()
                 blit(msgbmpbuf, msgdisplaybuf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
             }
         }
-        #ifdef LOGGAMELOOP
+        #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_dcounters()\n");
 	#endif
         do_dcounters();
         
-	#ifdef LOGGAMELOOP
+	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_heartring))\n");
 	#endif
         if(!freezemsg && current_item(itype_heartring))
@@ -2924,7 +2924,7 @@ void game_loop()
             if(fskip == 0 || frame % fskip == 0)
                 game->set_life(zc_min(game->get_life() + itemsbuf[itemid].misc1, game->get_maxlife()));
         }
-        #ifdef LOGGAMELOOP
+        #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_magicring))\n");
 	#endif
         if(!freezemsg && current_item(itype_magicring))
@@ -2937,7 +2937,7 @@ void game_loop()
                 game->set_magic(zc_min(game->get_magic() + itemsbuf[itemid].misc1, game->get_maxmagic()));
             }
         }
-        #ifdef LOGGAMELOOP
+        #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_wallet))\n");
 	#endif
         if(!freezemsg && current_item(itype_wallet))
@@ -2950,7 +2950,7 @@ void game_loop()
                 game->set_rupies(zc_min(game->get_rupies() + itemsbuf[itemid].misc1, game->get_maxcounter(1)));
             }
         }
-        #ifdef LOGGAMELOOP
+        #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_bombbag))\n");
 	#endif
         if(!freezemsg && current_item(itype_bombbag))
@@ -2979,7 +2979,7 @@ void game_loop()
                 }
             }
         }
-        #ifdef LOGGAMELOOP
+        #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_quiver))\n");
 	#endif
         if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
@@ -2992,7 +2992,7 @@ void game_loop()
                 game->set_arrows(zc_min(game->get_arrows() + itemsbuf[itemid].misc1, game->get_maxarrows()));
             }
         }
-        #ifdef LOGGAMELOOP
+        #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "if(lensclk)\n");
 	#endif
         if(lensclk)
@@ -3000,7 +3000,7 @@ void game_loop()
             draw_lens_over();
             --lensclk;
         }
-        #ifdef LOGGAMELOOP
+        #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "if(quakeclk)\n");
 	#endif
         // Earthquake!
