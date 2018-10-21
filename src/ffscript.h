@@ -71,7 +71,12 @@ struct user_bitmap
 	int depth;
 };
 
+enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1, 
+	rtBMP2, rtBMP3, rtBMP4, rtBMP5, rtBMP6 };
 #define MAX_USER_BITMAPS 256
+#define MIN_USER_BITMAPS 7 //starts at rtBMP6 +1
+#define MIN_OLD_RENDERTARGETS -1 //old script drawing
+#define MAX_OLD_RENDERTARGETS 6
 struct script_bitmaps
 {
 	int num_active;
@@ -115,9 +120,12 @@ long create_user_bitmap_ex(int w, int h, int depth);
 
 BITMAP* get_user_bitmap(int id);
 
+BITMAP* FFScript::GetScriptBitmap(int id);
+
 bool cleanup_user_bitmaps();
 
 bool destroy_user_bitmap(int id);
+int highest_valid_user_bitmap();
     
 void do_adjustsfxvolume(const bool v);
 void do_adjustvolume(const bool v);

@@ -2361,3 +2361,30 @@ const float DIR16_RADS_RIGHT 	= 0;
 const float DIR16_RADS_RIGHTRIGHTUP = 5.8905;
 const float DIR16_RADS_RIGHTUP 	= 5.4978;
 const float DIR16_RADS_RIGHTUPUP 	= 5.1141;
+
+//DMap Types for use with dmapdata->Type
+define DMAP_DUNGEON = 0;
+define DMAP_OVERWORLD = 1;
+define DMAP_CAVE = 2;
+define DMAP_BSOVERWORLD = 3;
+
+/*Monochrome Tints and modes
+	for use with Graphics->Monochrome(int mode)
+	Add together the MODE and the TINT, e.g.:
+	Graphics->Monochrome(TINT_MODE_DISTRIBUTED+TINT_AMBER); //Set amber, distribuyted
+			
+	Set to TINT_NONE to disable Monochrome:
+	Graphics->Monochrome(TINT_NONE); 
+*/
+
+const int TINT_NONE = 0;
+const int TINT_GREY = 1;
+const int TINT_RED = 2;
+const int TINT_GREEN = 3;
+const int TINT_BLUE = 4;
+const int TINT_VIOLET = 5;
+const int TINT_TEAL = 6;
+const int TINT_AMBER = 7;
+const int TINT_CYAN = 8;
+const int TINT_MODE_UNIFORM = 0;
+const int TINT_MODE_DISTRIBUTED = 1000;
