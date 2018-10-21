@@ -4,6 +4,10 @@
 
 //PureZC 2018 Fall Expo Build
 
+Added code for Graphics->Tint(), Graphics->MonochromeHue() and 
+	Graphics->ClearTint(), and renamed dummy function identifiers.
+	( Venrob, 21st October, 2018 )
+
 Begin adding user/script-created bitmaps to ZScript.
 	( ZoriaRPG, 21st october, 2018 )
 
