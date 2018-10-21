@@ -1800,8 +1800,8 @@ void enemy::draw(BITMAP *dest)
     
     if((tmpscr->flags3&fINVISROOM) &&
             !(current_item(itype_amulet)) &&
-            (!(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5) &&
-              lensclk) && family!=eeGANON)
+            !((itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5) &&
+              lensclk) && family!=eeGANON)//eeGANON check for handling his invis seperately? -V
     {
         sprite::drawcloaked(dest);
     }
