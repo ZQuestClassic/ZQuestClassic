@@ -1054,8 +1054,10 @@ using namespace std;
 #define IDATAKEEP 	989
 #define NPCBEHAVIOUR 	990
 #define NPCDATABEHAVIOUR 	991
+#define GRAPHICSMONO 	992
+#define GRAPHICSTINT 	993
 
-#define LAST_BYTECODE 		992
+#define LAST_BYTECODE 		994
 
 //END OF BYTECODE
 
@@ -6576,6 +6578,27 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OGreyscaleR(a->clone());
+		}
+	};
+	
+	class OMonochromeR : public UnaryOpcode
+	{
+	public:
+		OMonochromeR(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OMonochromeR(a->clone());
+		}
+	};
+	
+	class OClearTint : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OClearTint();
 		}
 	};
 

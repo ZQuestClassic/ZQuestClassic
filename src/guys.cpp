@@ -1691,7 +1691,9 @@ void enemy::draw(BITMAP *dest)
     if(dont_draw())
     {
 	    //new enemy editor behaviour flags for Ganon
+	
 	if ( family == eeGANON ) 
+	/*
 	{
 	    //if ( editorflags & ENEMY_FLAG1 || ( (editorflags & ENEMY_FLAG2) && ( misc13 >= 0 : game->item[misc13] ? (linkhasitemclass((misc13*-1)) ) ) //ganon is visible to level 2 amulet
 	    if ( editorflags & ENEMY_FLAG1 && current_item_power(itype_amulet) >= 2 ) //ganon is visible to level 2 amulet
@@ -1720,7 +1722,10 @@ void enemy::draw(BITMAP *dest)
 	    }
 	    
 	}
+	
 	else return;
+	*/
+	return;
     }
         
     int cshold=cs;

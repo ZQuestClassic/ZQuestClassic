@@ -328,6 +328,7 @@ int skipcont=0;
 int skipicon=0;
 
 bool monochrome = false; //GFX are monochrome.
+bool palette_user_tinted = false;
 
 bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true, show_layer_4=true, show_layer_5=true, show_layer_6=true,
 //oveheard combos     //pushblocks
@@ -3064,6 +3065,15 @@ bool isMonochrome(){
 	return monochrome;
 }
 
+bool isUserTinted()
+{
+	return palette_user_tinted;
+}
+void isUserTinted(bool state)
+{
+	palette_user_tinted = state;
+}
+
 
 void setMonochrome(bool v){
 	if ( v && !monochrome ) { 
@@ -3098,8 +3108,128 @@ void setMonochrome(bool v){
 	}
 }
 
+enum { colourNONE, colourGREY, colourRED, colourGREEN, colourBLUE, colourVIOLET, colourTEAL, colourAMBER, colourCYAN };
+enum { baseUNIFORM, baseDISTRIBUTED = 1000 };
 
+void shiftColour(int rshift, int gshift, int bshift, int base)
+{
+	for(int i=0; i <= 0xEF; i++)
+	{
+		if(base==baseUNIFORM){//Recolor the palette to uniform greyscale before tinting
+			int grey = (RAMpal[i].r+RAMpal[i].g+RAMpal[i].b)/3;
+			RAMpal[i] = _RGB(grey,grey,grey);
+		} else if(base==baseDISTRIBUTED){//Recolor the palette to distributed greyscale before tinting
+			int grey = 0.299*RAMpal[i].r + 0.587*RAMpal[i].g + 0.114*RAMpal[i].b;
+			RAMpal[i] = _RGB(grey,grey,grey);
+		}
+		//Bit-shifting negatives throws errors. If negative, shift in the other direction.
+		if(rshift>=0){
+			RAMpal[i].r = zc_min(RAMpal[i].r >> rshift,63);
+		} else {
+			RAMpal[i].r = zc_min(RAMpal[i].r << -rshift,63);
+		}
+		if(gshift>=0){
+			RAMpal[i].g = zc_min(RAMpal[i].g >> gshift,63);
+		} else {
+			RAMpal[i].g = zc_min(RAMpal[i].g << -gshift,63);
+		}
+		if(bshift>=0){
+			RAMpal[i].b = zc_min(RAMpal[i].b >> bshift,63);
+		} else {
+			RAMpal[i].b = zc_min(RAMpal[i].b << -bshift,63);
+		}
+	}
+}
 
+void setMonochromatic(int mode)
+{
+	int base = mode < baseDISTRIBUTED ? baseUNIFORM : baseDISTRIBUTED; //distributed is an additive flag adding 10
+	int colour_mode = mode - base;
+	if (colour_mode <= 0 && monochrome ) //restore
+	{
+		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
+		refreshpal = true;
+		monochrome = false; 
+	}
+	else if ( colour_mode /*&& !monochrome allow cascading*/ ) 
+	{ 
+		
+		if ( !monochrome ) { memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB)); }
+		switch(colour_mode)
+		{
+			case colourGREY:
+				shiftColour(0,0,0,base);
+				break;
+			case colourRED:
+				shiftColour(0,4,4,base);
+				break;
+			case colourGREEN:
+				shiftColour(4,0,4,base);
+				break;
+			case colourBLUE:
+				shiftColour(4,4,0,base);
+				break;
+			case colourVIOLET:
+				shiftColour(1,4,0,base);
+				break;
+			case colourTEAL:
+				shiftColour(4,1,0,base);
+				break;
+			case colourAMBER:
+				shiftColour(0,1,4,base);
+				break;
+			case colourCYAN:
+				addColour(-63,-6,-2,base);
+				break;
+			default: shiftColour(0,0,0,base);
+				break;
+		}
+
+		refreshpal = true;
+		monochrome = true; 
+	}
+}
+
+void addColour(int radd, int gadd, int badd, int base)
+{
+	
+	for(int i=0; i <= 0xEF; i++)
+	{
+		if(base==baseUNIFORM){//Recolor the palette to uniform greyscale before tinting
+			int grey = (RAMpal[i].r+RAMpal[i].g+RAMpal[i].b)/3;
+			RAMpal[i] = _RGB(grey,grey,grey);
+		} else if(base==baseDISTRIBUTED){//Recolor the palette to distributed greyscale before tinting
+			int grey = 0.299*RAMpal[i].r + 0.587*RAMpal[i].g + 0.114*RAMpal[i].b;
+			RAMpal[i] = _RGB(grey,grey,grey);
+		}
+		//Add the r/g/b adds to the r/g/b values, clamping between 0 and 63.
+		RAMpal[i].r = vbound(RAMpal[i].r + radd,0,63);
+		RAMpal[i].g = vbound(RAMpal[i].g + gadd,0,63);
+		RAMpal[i].b = vbound(RAMpal[i].b + badd,0,63);
+	}
+}
+
+void do_dummy_gfxmonohue(int _r, int _g, int _b, bool m)
+{
+	al_trace("do_dummy_gfxmonohue RED value is: %d\n",_r);
+	al_trace("do_dummy_gfxmonohue GREEN value is: %d\n",_g);
+	al_trace("do_dummy_gfxmonohue BLUE value is: %d\n",_b);
+	al_trace("do_dummy_gfxmonohue MONO value is: %s\n", (m) ? "true" : "false" );
+	
+}
+
+void do_dummy_doTint(int _r, int _g, int _b)
+{
+	al_trace("do_dummy_doTint RED value is: %d\n",_r);
+	al_trace("do_dummy_doTint GREEN value is: %d\n",_g);
+	al_trace("do_dummy_doTint BLUE value is: %d\n",_b);
+}
+
+void do_dummy_clearTint()
+{
+	al_trace("Clearing user scripted tints.\n",0);
+	
+}
 /**************************/
 /********** Main **********/
 /**************************/

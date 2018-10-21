@@ -138,6 +138,10 @@ int getSubscreenScrollSpeed();
 void do_fx_zap(const bool v);
 void do_fx_wavy(const bool v);
 void do_greyscale(const bool v);
+void do_monochromatic(const bool v);
+void dummy_gfxmonohue(int _r, int _g, int _b, bool m);
+void dummy_doTint(int _r, int _g, int _b);
+void dummy_clearTint();
 
 int GetScriptObjectUID(int type);
     
@@ -840,6 +844,7 @@ extern long ffmisc[32][16];
 extern refInfo ffcScriptData[32];
 
 extern PALETTE tempgreypal; //script greyscale
+extern PALETTE userPALETTE[256];
 
 long get_register(const long arg);
 int run_script(const byte type, const word script, const byte i = -1); //Global scripts don't need 'i'
@@ -1576,7 +1581,10 @@ enum ASM_DEFINE
 	GREYSCALEV,
 
 	RETURN,
-		
+	MONOCHROMER,
+	MONOCHROMEV,
+	CLEARTINT,
+	
 	NUMCOMMANDS           //0x013B
 };
 
@@ -2704,6 +2712,8 @@ enum ASM_DEFINE
 #define DOUNTYPE			0x1316	
 #define NPCBEHAVIOUR			0x1317
 #define NPCDATABEHAVIOUR			0x1318	
+#define GRAPHICSMONO			0x1319	
+#define GRAPHICSTINT			0x131A	
 
 //bytecode
 
@@ -2711,7 +2721,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x1319
+#define NUMVARIABLES         0x131B
 
 
 // Script types
