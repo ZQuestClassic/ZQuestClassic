@@ -80,7 +80,7 @@ extern std::map<int, std::pair<string,string> > itemmap;
 extern std::map<int, std::pair<string,string> > globalmap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
-//PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
+PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
 
 FFScript ffengine;
 

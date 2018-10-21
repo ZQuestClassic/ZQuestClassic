@@ -93,7 +93,7 @@ void loadfullpal()
   byte *si = colordata + */
 
 extern PALETTE tempgreypal;
-//extern PALETTE userPALETTE[256];
+extern PALETTE userPALETTE[256];
 
 void loadlvlpal(int level)
 {

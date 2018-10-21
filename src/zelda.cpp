@@ -328,7 +328,7 @@ int skipcont=0;
 int skipicon=0;
 
 bool monochrome = false; //GFX are monochrome.
-//bool palette_user_tinted = false;
+bool palette_user_tinted = false;
 
 bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true, show_layer_4=true, show_layer_5=true, show_layer_6=true,
 //oveheard combos     //pushblocks
@@ -3065,14 +3065,14 @@ bool isMonochrome(){
 	return monochrome;
 }
 
-/*bool isUserTinted()
+bool isUserTinted()
 {
 	return palette_user_tinted;
 }
 void isUserTinted(bool state)
 {
 	palette_user_tinted = state;
-}*/
+}
 
 
 void setMonochrome(bool v){
