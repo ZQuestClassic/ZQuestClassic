@@ -15274,6 +15274,73 @@ int ffscript_engine(const bool preload)
 
 ///----------------------------------------------------------------------------------------------------
 
+script_bitmaps scb;
+
+//script_bitmaps scb;
+void FFScript::user_bitmaps_init()
+{
+	scb.num_active = 0;
+	for ( int q = 0; q < MAX_USER_BITMAPS; q++ )
+	{
+	    scb.script_created_bitmaps[q].width = 0;
+            scb.script_created_bitmaps[q].height = 0;
+            scb.script_created_bitmaps[q].depth = 0;
+            scb.script_created_bitmaps[q].u_bmp = NULL;
+		
+	}
+}
+
+long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
+{
+        int id = get_free_bitmap();
+        if ( id > 0 )
+        {
+            scb.script_created_bitmaps[id].width = w;
+            scb.script_created_bitmaps[id].height = h;
+            scb.script_created_bitmaps[id].depth = d;
+            scb.script_created_bitmaps[id].u_bmp = create_bitmap_ex(d,w,h);
+        }
+	return id;
+}
+
+BITMAP* FFScript::get_user_bitmap(int id)
+{
+	return scb.script_created_bitmaps[id].u_bmp;
+}
+
+int FFScript::get_free_bitmap()
+{
+        int num_free = scb.num_active;
+        if ( num_free < ( MAX_USER_BITMAPS-1 ) )
+        {
+            ++scb.num_active;
+            return num_free;
+        }
+        return 0;
+}
+
+bool FFScript::cleanup_user_bitmaps()
+{
+	for ( int q = 0; q < scb.num_active; q++ )
+	{
+		if ( scb.script_created_bitmaps[q].u_bmp != NULL )
+		{
+			destroy_bitmap(scb.script_created_bitmaps[q].u_bmp);
+		}
+	}
+	return true; //so that we know when we're done
+}
+
+bool FFScript::destroy_user_bitmap(int id)
+{
+	if ( scb.script_created_bitmaps[id].u_bmp != NULL )
+	{
+		//destroy it
+		destroy_bitmap(scb.script_created_bitmaps[id].u_bmp);
+		return true;
+	}
+	return false;
+}
 
 void FFScript::set_screenwarpReturnY(mapscr *m, int d, int value)
 {

@@ -63,6 +63,21 @@ enum
 	 qQuestVersion, qMinQuestVersion, qvLAST
 };
 
+struct user_bitmap
+{
+	BITMAP* u_bmp;
+	int width;
+	int height;
+	int depth;
+};
+
+#define MAX_USER_BITMAPS 256
+struct script_bitmaps
+{
+	int num_active;
+	user_bitmap script_created_bitmaps[MAX_USER_BITMAPS];
+};
+
 class FFScript
 {
 	
@@ -90,6 +105,20 @@ long getQuestHeaderInfo(int type)
 
 */
 
+
+
+void user_bitmaps_init();
+
+int get_free_bitmap();
+
+long create_user_bitmap_ex(int w, int h, int depth);
+
+BITMAP* get_user_bitmap(int id);
+
+bool cleanup_user_bitmaps();
+
+bool destroy_user_bitmap(int id);
+    
 void do_adjustsfxvolume(const bool v);
 void do_adjustvolume(const bool v);
 //FFScript();
