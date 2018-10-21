@@ -22,6 +22,10 @@ zquestheader ZCheader;
 
 #include "zelda.h"
 #include "link.h"
+//extern int directItem = -1; //Is set if Link is currently using an item directly
+//extern int directItemA = -1;
+//extern int directItemB = -1;
+
 #include "guys.h"
 
 #include "gamedata.h"
@@ -5934,9 +5938,15 @@ void set_register(const long arg, const long value)
         	int setb = ((value/10000)&0xFF00)>>8, seta = (value/10000)&0xFF;
         	if(seta && get_bit(quest_rules,qr_SELECTAWPN) && game->item[seta]){
 			Awpn = value/10000;
+			game->awpn = value/10000;
+			game->items_off[value/10000] = 0;
+			//directItemA = directItem;
         	}
         	if(setb && game->item[setb]){
 			Bwpn = value/10000;
+			game->bwpn = value/10000;
+			game->items_off[value/10000] = 0;
+			//directItemB = directItem;
         	}
           }
          break;
@@ -5971,33 +5981,72 @@ void set_register(const long arg, const long value)
 		if ( force == 0 ) {
 			if ( slot == 1 ) {
 				Awpn = itm;
+				game->items_off[itm] = 0;
+				game->awpn = itm;
+				//directItemA = directItem;
 			}
-			else Bwpn = itm;
+			else 
+			{
+				Bwpn = itm;
+				game->items_off[itm] = 0;
+				game->bwpn = itm;
+				//directItemB = directItem;
+			}
 		}
 		if ( force == 1 ) {
-			if(slot == 1 && game->item[itm]){
+			if(slot == 1 && game->item[itm])
+			{
 				Awpn = itm;
+				game->items_off[itm] = 0;
+				game->awpn = itm;
+				//directItemA = directItem;
+				
 			}
 			else { 
-				if ( game->item[itm] ) Bwpn = itm;
+				if ( game->item[itm] ) 
+				{
+					Bwpn = itm;
+					game->items_off[itm] = 0;
+					game->bwpn = itm;
+					//directItemB = directItem;
+				}
 			}
 		}
 
 		if ( force == 2 ) {
-			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) ){
+			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) )
+			{
 				Awpn = itm;
+				game->items_off[itm] = 0;
+				game->awpn = itm;
+				//directItemA = directItem;
 			}
-			else { 
+			else 
+			{ 
 				Bwpn = itm;
+				game->items_off[itm] = 0;
+				game->bwpn = itm;
+				//directItemB = directItem;
 			}
 		}
 		
 		if ( force == 3 ) { //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
-			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) && game->item[itm]){
+			if(slot == 1 && get_bit(quest_rules,qr_SELECTAWPN) && game->item[itm])
+			{
 				Awpn = itm;
+				game->items_off[itm] = 0;
+				game->awpn = itm;
+				//directItemA = directItem;
 			}
-			else { 
-				if ( game->item[itm] ) Bwpn = itm;
+			else 
+			{ 
+				if ( game->item[itm] ) 
+				{
+					Bwpn = itm;
+					game->items_off[itm] = 0;
+					game->bwpn = itm;
+					//directItemB = directItem;
+				}
 			}
 		}
 	}
@@ -6121,29 +6170,49 @@ void set_register(const long arg, const long value)
 	Link.setHurtSFX( (int)vbound((value/10000), 0, 255) );
 	break;
         
-    /*
+    
      case LINKITEMB:
+     {
+	if ( value/10000 < 0 ) 
+	{
+	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+	    break;
+	}		
+	if ( value/10000 < MAXITEMS-1 ) 
+	{
+	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+	    break;
+	}
 	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
     
-	//Link->directItem = vbound((value/10000),0,(MAXITEMS-1));
-	//Link->directItemB = Link->directItem;
-	//Bwpn = vbound((value/10000),0,(MAXITEMS-1));
-    
-	Link.setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
-	Link.setDirectItemB(Link->getDirectItem());
-	Bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
-	game->bwpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	
+	Bwpn = value/10000;
+	game->bwpn = value/10000;
+	game->items_off[value/10000] = 0;
+	//directItemB = directItem;
 	break;
+    }
     
     
     case LINKITEMA:
+    {
+	if ( value/10000 < 0 ) 
+	{
+	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+	}		
+	if ( value/10000 < MAXITEMS-1 ) 
+	{
+	    al_trace("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+	}		
 	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-	Link.setDirectItem((int)vbound((value/10000),0,(MAXITEMS-1)));
-	Link.setDirectItemA(Link->getDirectItem());
-	Awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
-	game->awpn = (int)vbound((value/10000),0,(MAXITEMS-1));
+	
+	Awpn = value/10000;
+	game->awpn = value/10000;
+	game->items_off[value/10000] = 0;
+	//directItemB = directItem;
 	break;
-*/
+    }
+
 
       case LINKEATEN:
 	Link.setEaten(value/10000);
@@ -6191,42 +6260,52 @@ void set_register(const long arg, const long value)
 //Input States
     case INPUTSTART:
         control_state[6]=((value/10000)!=0)?true:false;
+        drunk_toggle_state[6]=false;
         break;
         
     case INPUTMAP:
         control_state[9]=((value/10000)!=0)?true:false;
+        drunk_toggle_state[9]=false;
         break;
         
     case INPUTUP:
         control_state[0]=((value/10000)!=0)?true:false;
+        drunk_toggle_state[0]=false;
         break;
         
     case INPUTDOWN:
         control_state[1]=((value/10000)!=0)?true:false;
+        drunk_toggle_state[1]=false;
         break;
         
     case INPUTLEFT:
         control_state[2]=((value/10000)!=0)?true:false;
+        drunk_toggle_state[2]=false;
         break;
         
     case INPUTRIGHT:
         control_state[3]=((value/10000)!=0)?true:false;
+        drunk_toggle_state[3]=false;
         break;
         
     case INPUTA:
         control_state[4]=((value/10000)!=0)?true:false;
-        break;
+        drunk_toggle_state[4]=false;
+	break;
         
     case INPUTB:
         control_state[5]=((value/10000)!=0)?true:false;
+        drunk_toggle_state[5]=false;
         break;
         
     case INPUTL:
         control_state[7]=((value/10000)!=0)?true:false;
+        drunk_toggle_state[7]=false;
         break;
         
     case INPUTR:
         control_state[8]=((value/10000)!=0)?true:false;
+        drunk_toggle_state[8]=false;
         break;
         
     case INPUTEX1:
@@ -13548,6 +13627,14 @@ int run_script(const byte type, const word script, const byte i)
             }
         }
         break;
+
+        case RETURN:
+        {
+            pc = SH::read_stack(ri->sp) - 1;
+            ++ri->sp;
+            increment = false;
+            break;
+        }
         
         case SETTRUE:
             set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 1 : 0);

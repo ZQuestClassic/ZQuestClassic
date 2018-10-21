@@ -2020,10 +2020,10 @@ int jwin_initlist_proc(int msg,DIALOG *d,int c)
 void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 {
     game2->set_maxlife(zinit2->hc*HP_PER_HEART);
-    game2->set_maxbombs(zinit2->max_bombs);
-    game2->set_maxcounter(zinit2->max_bombs/zc_max(1,zinit2->bomb_ratio), 6);
+    game2->set_maxbombs(zinit2->nBombmax);
+    game2->set_maxcounter(zinit2->nBombmax/zc_max(1,zinit2->bomb_ratio), 6);
     game2->set_maxmagic(zinit2->max_magic);
-    game2->set_maxarrows(zinit2->max_arrows);
+    game2->set_maxarrows(zinit2->nArrowmax);
     game2->set_maxcounter(zinit2->max_rupees, 1);
     game2->set_maxcounter(zinit2->max_keys, 5);
     
@@ -2049,14 +2049,14 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     flushItemCache();
     
     //Then set up the counters
-    game2->set_bombs(zinit2->bombs);
+    game2->set_bombs(zinit2->nBombs);
     
-    if(zinit2->bombs > 0 && zinit2->max_bombs > 0) game2->set_item(iBombs, true);
+    if(zinit2->nBombs > 0 && zinit2->nSBombmax > 0) game2->set_item(iBombs, true);
     
     game2->set_keys(zinit2->keys);
-    game2->set_sbombs(zinit2->super_bombs);
+    game2->set_sbombs(zinit2->nSbombs);
     
-    if(zinit2->super_bombs > 0 && (zinit2->max_bombs/zc_max(1,zinit2->bomb_ratio)) > 0) game2->set_item(iSBomb, true);
+    if(zinit2->nSbombs > 0 && (zinit2->nBombmax/zc_max(1,zinit2->bomb_ratio)) > 0) game2->set_item(iSBomb, true);
     
     game2->set_HCpieces(zinit2->hcp);
     game2->set_rupies(zinit2->rupies);
@@ -2088,7 +2088,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     game2->set_magicdrainrate(get_bit(zinit2->misc,idM_DOUBLEMAGIC)?1:2);
     game2->set_canslash(get_bit(zinit2->misc,idM_CANSLASH)?1:0);
     
-    game2->set_arrows(zinit2->arrows);
+    game2->set_arrows(zinit2->nArrows);
     
     //flush the cache again (in case bombs became illegal to use by setting bombs to 0)
     flushItemCache();

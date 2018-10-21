@@ -2956,6 +2956,7 @@ void update_subscr_items()
                 }
                 
                 break;
+		//default: break;
             }
             
             //      Bitem = new item((fix)(zinit.subscreen<ssdtBSZELDA?124:136), (fix)24,(fix)0, Bwpn, 0, 0);
@@ -2991,6 +2992,7 @@ void update_subscr_items()
                 }
                 
                 break;
+		//default: break;
             }
             
             if(Aitem != NULL)
@@ -3011,6 +3013,7 @@ void update_subscr_items()
 
 void add_subscr_item(item *newItem)
 {
+	//al_trace("Adding a subscreen item, ID: %d\n",newItem->id); //Logging stuff to remove, later.
     newItem->subscreenItem=true;
     Sitems.add(newItem);
 }
@@ -3044,6 +3047,7 @@ bool displaysubscreenitem(int itemtype, int d)
 {
     if(game==NULL)  //ZQuest
         return true;
+    if (get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) return true;
         
     if((itemtype == itype_bomb &&
             !(game->get_bombs()
@@ -3076,7 +3080,11 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
         if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
         {
             if(overridecheck==0xFFFF)
+	    {
+		//al_trace("Found an override item at subscreen.cpp linere 3084, id: %d\n",Sitems.spr(i)->id);
+
                 if(Sitems.spr(i)->id == (itemtype&0xFFF) && Sitems.spr(i)->misc==-1) overridecheck = i;
+	    }
         }
         else if(Sitems.spr(i)->misc!=-1)
         {
@@ -3104,11 +3112,15 @@ void subscreenitem(BITMAP *dest, int x, int y, int itemtype)
     }
     
     //Item Override stuff here
-    if((itemtype & 0x8000) && (has_item(itemsbuf[itemtype&0xFFF].family,itemsbuf[itemtype&0xFFF].fam_type))
+   // if((itemtype & 0x8000) && game->item[itemtype])
+    if((itemtype & 0x8000) && 
+    (has_item(itemsbuf[itemtype&0xFFF].family,itemsbuf[itemtype&0xFFF].fam_type))
             && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0))
     {
         if(overridecheck == 0xFFFF)
         {
+	    //al_trace("Found an override item at subscreen.cpp linere 3120, itemtype: %d\n",itemtype);
+
             add_subscr_item(new item((fix)x,(fix)y,(fix)0,(itemtype&0xFFF),0,0));
             overridecheck = Sitems.Count()-1;
             Sitems.spr(overridecheck)->misc = -1;
@@ -3875,7 +3887,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
                                 ||(!get_bit(quest_rules,qr_TRUEARROWS)&&!game->get_rupies()&&!current_item_power(itype_wallet)))
                                 &&!current_item_power(itype_quiver))
                         {
-                            return;
+                            if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
                         }
                     }
                 }
@@ -3907,7 +3919,7 @@ void buttonitem(BITMAP *dest, int button, int x, int y)
                                 ||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_rupies())&&!current_item_power(itype_wallet)))
                                 &&!current_item_power(itype_quiver))
                         {
-                            return;
+                            if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
                         }
                     }
                 }
@@ -4622,11 +4634,12 @@ void load_Sitems(miscQdata *misc)
         if(current_item_id(i,false)>-1)
         {
             int j = current_item_id(i,false);
-            
+            //al_trace("About to check itemsbuf[j].tile in subscreen.cpp, line 4634, loop[%d]\n",j);
             if(itemsbuf[j].tile)
                 add_subscr_item(new item((fix)0, (fix)0,(fix)0,j,0,0));
         }
     }
+    //al_trace("Finished load_Sitems(%d)\n",0);
     
     new_sel=true;
 }

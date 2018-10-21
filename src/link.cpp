@@ -792,7 +792,7 @@ int LinkClass::getSpecialCave()
 void LinkClass::init()
 {
     setMonochrome(false);
-    if ( dontdraw < 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw link == 0
+    if ( dontdraw != 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw link == 0
     hookshot_used=false;
     hookshot_frozen=false;
     dir = up;
@@ -4880,6 +4880,7 @@ bool LinkClass::animate(int)
 // to switch Link's weapon if his current weapon (bombs) was depleted.
 void LinkClass::deselectbombs(int super)
 {
+    if ( get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
     if(getItemFamily(itemsbuf,Bwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
         int temp = selectWpn_new(SEL_VERIFY_LEFT, game->bwpn, game->awpn);
@@ -14313,7 +14314,8 @@ void stopCaneOfByrna()
 // Used to find out if an item family is attached to one of the buttons currently pressed.
 bool isWpnPressed(int itype)
 {
-    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true;
+    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true; //0xFFF for subscreen overrides
+	//Will crash on win10 without it! -Z
     
     if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return true;
     
@@ -14322,9 +14324,10 @@ bool isWpnPressed(int itype)
 
 int getWpnPressed(int itype)
 {
-    if((itype==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn()) return Bwpn;
+    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return Bwpn; //0xFFF for subscreen overrides
+	//Will crash on win10 without it! -Z
 
-    if((itype==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn()) return Awpn;
+    if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return Awpn;
     
     return -1;
 }
