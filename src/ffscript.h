@@ -63,6 +63,21 @@ enum
 	 qQuestVersion, qMinQuestVersion, qvLAST
 };
 
+struct user_bitmap
+{
+	BITMAP* u_bmp;
+	int width;
+	int height;
+	int depth;
+};
+
+#define MAX_USER_BITMAPS 256
+struct script_bitmaps
+{
+	int num_active;
+	user_bitmap script_created_bitmaps[MAX_USER_BITMAPS];
+};
+
 class FFScript
 {
 	
@@ -90,6 +105,20 @@ long getQuestHeaderInfo(int type)
 
 */
 
+
+
+void user_bitmaps_init();
+
+int get_free_bitmap();
+
+long create_user_bitmap_ex(int w, int h, int depth);
+
+BITMAP* get_user_bitmap(int id);
+
+bool cleanup_user_bitmaps();
+
+bool destroy_user_bitmap(int id);
+    
 void do_adjustsfxvolume(const bool v);
 void do_adjustvolume(const bool v);
 //FFScript();
@@ -139,8 +168,8 @@ void do_fx_zap(const bool v);
 void do_fx_wavy(const bool v);
 void do_greyscale(const bool v);
 void do_monochromatic(const bool v);
-void dummy_gfxmonohue(int _r, int _g, int _b, bool m);
-void dummy_doTint(int _r, int _g, int _b);
+void dummy_gfxmonohue();
+void dummy_doTint();
 void dummy_clearTint();
 
 int GetScriptObjectUID(int type);
@@ -1584,6 +1613,8 @@ enum ASM_DEFINE
 	MONOCHROMER,
 	MONOCHROMEV,
 	CLEARTINT,
+	TINT,
+	MONOHUE,
 	
 	NUMCOMMANDS           //0x013B
 };

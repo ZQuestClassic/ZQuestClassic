@@ -1665,8 +1665,6 @@ string VarArgument::toString()
 	case GETPIXEL: return "GETPIXEL";
 	case DOUNTYPE: return "DOUNTYPE";
 	
-	case GRAPHICSMONO: return "GRAPHICSMONO";
-	case GRAPHICSTINT: return "GRAPHICSTINT";
 	
     default:
     {
@@ -2083,11 +2081,6 @@ string OTrace3::toString()
 string OTrace4::toString()
 {
     return "TRACE4";
-}
-
-string OClearTint::toString()
-{
-    return "CLEARTINT";
 }
 
 string OTrace5Register::toString()
@@ -3983,6 +3976,21 @@ string OGreyscaleR::toString()
 string OMonochromeR::toString()
 {
     return "MONOCHROMER " + getArgument()->toString();
+}
+
+string OClearTint::toString()
+{
+    return "CLEARTINT";
+}
+
+string OTintR::toString()
+{
+    return "TINT";
+}
+
+string OMonoHueR::toString()
+{
+    return "MONOHUE";
 }
 
 string OReturn::toString()
