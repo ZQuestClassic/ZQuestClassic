@@ -698,6 +698,8 @@ script_command command_list[NUMCOMMANDS+1]=
     { "MONOCHROMER",             1,   0,   0,   0},
     { "MONOCHROMEV",             1,   1,   0,   0},
     { "CLEARTINT",              0,   0,   0,   0},
+    { "TINT",         0,   0,   0,   0},
+    { "MONOHUE",         0,   0,   0,   0},
     { "",                    0,   0,   0,   0}
 };
 

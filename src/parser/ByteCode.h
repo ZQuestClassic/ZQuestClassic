@@ -6601,6 +6601,26 @@ namespace ZScript
 			return new OClearTint();
 		}
 	};
+	
+	class OTintR : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OTintR();
+		}
+	};
+	
+	class OMonoHueR : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OMonoHueR();
+		}
+	};
 
 	class OReturn : public Opcode
 	{

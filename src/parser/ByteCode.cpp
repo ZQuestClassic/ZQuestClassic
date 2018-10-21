@@ -2085,11 +2085,6 @@ string OTrace4::toString()
     return "TRACE4";
 }
 
-string OClearTint::toString()
-{
-    return "CLEARTINT";
-}
-
 string OTrace5Register::toString()
 {
     return "TRACE5";
@@ -3983,6 +3978,21 @@ string OGreyscaleR::toString()
 string OMonochromeR::toString()
 {
     return "MONOCHROMER " + getArgument()->toString();
+}
+
+string OClearTint::toString()
+{
+    return "CLEARTINT";
+}
+
+string OTintR::toString()
+{
+    return "TINT";
+}
+
+string OMonoHueR::toString()
+{
+    return "MONOHUE";
 }
 
 string OReturn::toString()

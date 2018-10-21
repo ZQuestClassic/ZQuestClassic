@@ -10632,29 +10632,9 @@ case AUDIOPAN:
 ///----------------------------------------------------------------------------------------------------//
 //Graphics->
 
-	case GRAPHICSMONO:
-	    { //void SetScreenEnemy(int map, int screen, int index, int value);
-		
-		    
-			long __RED     = (ri->d[1] / 10000) - 1; 
-			long __GREEN  = ri->d[2] / 10000; 
-			long __BLUE = ri->d[0] / 10000; 
-			bool mono = ri->d[3]/10000 != 0; 
-		
-			FFCore.dummy_gfxmonohue(__RED,__GREEN,__BLUE,mono); 
-			
-			
-			
-	    }
-	    break;
-	    
-	case GRAPHICSTINT:
-		FFCore.dummy_doTint((ri->d[0] / 10000),(ri->d[1]/10000), (value/10000));
-	break;
 	
-	case CLEARTINT:
-            FFCore.dummy_clearTint();
-            break;
+	
+	
 
 ///----------------------------------------------------------------------------------------------------//
 //Misc./Internal
@@ -14890,6 +14870,17 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 		setMonochrome(false);
 		break;
 	
+	case TINT:
+            FFCore.dummy_doTint();
+            break;
+	
+	case CLEARTINT:
+            FFCore.dummy_clearTint();
+            break;
+	
+	case MONOHUE:
+            FFCore.dummy_gfxmonohue();
+            break;
 	
 	//case NPCData
 	
@@ -16801,8 +16792,12 @@ void FFScript::do_monochromatic(const bool v)
     setMonochromatic(colour);
 }
 
-void FFScript::dummy_gfxmonohue(int _r, int _g, int _b, bool m)
+void FFScript::dummy_gfxmonohue()
 {
+    long _r   = SH::read_stack(ri->sp + 3) / 10000;
+    long _g = SH::read_stack(ri->sp + 2) / 10000;
+    long _b   = SH::read_stack(ri->sp + 1) / 10000;
+    bool m   = (SH::read_stack(ri->sp + 0) / 10000);
     do_dummy_gfxmonohue(_r,_g,_b,m);
 }
 
@@ -16811,8 +16806,11 @@ void FFScript::dummy_clearTint()
     do_dummy_clearTint();
 }
 
-void FFScript::dummy_doTint(int _r, int _g, int _b)
+void FFScript::dummy_doTint()
 {
+    long _r   = SH::read_stack(ri->sp + 2) / 10000;
+    long _g = SH::read_stack(ri->sp + 1) / 10000;
+    long _b   = SH::read_stack(ri->sp + 0) / 10000;
     do_dummy_doTint(_r,_g,_b);
 }
 

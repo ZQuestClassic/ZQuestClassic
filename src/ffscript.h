@@ -168,8 +168,8 @@ void do_fx_zap(const bool v);
 void do_fx_wavy(const bool v);
 void do_greyscale(const bool v);
 void do_monochromatic(const bool v);
-void dummy_gfxmonohue(int _r, int _g, int _b, bool m);
-void dummy_doTint(int _r, int _g, int _b);
+void dummy_gfxmonohue();
+void dummy_doTint();
 void dummy_clearTint();
 
 int GetScriptObjectUID(int type);
@@ -1613,6 +1613,8 @@ enum ASM_DEFINE
 	MONOCHROMER,
 	MONOCHROMEV,
 	CLEARTINT,
+	TINT,
+	MONOHUE,
 	
 	NUMCOMMANDS           //0x013B
 };
