@@ -195,14 +195,14 @@ Graphics->Tint(TINT_MODE_DISTRIBUTED+TINT_VIOLET)
 void setMonochromatic(int mode); //GFX are monochrome. 
 void setMonochrome(bool state); //GFX are monochrome. 
 bool isMonochrome();
-bool isUserTinted();
-void isUserTinted(bool state);
+//bool isUserTinted();
+//void isUserTinted(bool state);
 void addColour(int radd, int gadd, int badd, int base);
 void shiftColour(int rshift, int gshift, int bshift, int base);
-void do_dummy_clearTint();
+void doClearTint();
 
-void do_dummy_gfxmonohue(int _r, int _g, int _b, bool m);
-void do_dummy_doTint(int _r, int _g, int _b);
+void doGFXMonohue(int _r, int _g, int _b, bool m);
+void doTint(int _r, int _g, int _b);
 
 void runDrunkRNG();
 

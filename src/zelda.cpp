@@ -328,7 +328,7 @@ int skipcont=0;
 int skipicon=0;
 
 bool monochrome = false; //GFX are monochrome.
-bool palette_user_tinted = false;
+//bool palette_user_tinted = false;
 
 bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true, show_layer_4=true, show_layer_5=true, show_layer_6=true,
 //oveheard combos     //pushblocks
@@ -3065,14 +3065,14 @@ bool isMonochrome(){
 	return monochrome;
 }
 
-bool isUserTinted()
+/*bool isUserTinted()
 {
 	return palette_user_tinted;
 }
 void isUserTinted(bool state)
 {
 	palette_user_tinted = state;
-}
+}*/
 
 
 void setMonochrome(bool v){
@@ -3192,7 +3192,6 @@ void setMonochromatic(int mode)
 
 void addColour(int radd, int gadd, int badd, int base)
 {
-	
 	for(int i=0; i <= 0xEF; i++)
 	{
 		if(base==baseUNIFORM){//Recolor the palette to uniform greyscale before tinting
@@ -3209,26 +3208,33 @@ void addColour(int radd, int gadd, int badd, int base)
 	}
 }
 
-void do_dummy_gfxmonohue(int _r, int _g, int _b, bool m)
+void doGFXMonohue(int _r, int _g, int _b, bool m)
 {
-	al_trace("do_dummy_gfxmonohue RED value is: %d\n",_r);
-	al_trace("do_dummy_gfxmonohue GREEN value is: %d\n",_g);
-	al_trace("do_dummy_gfxmonohue BLUE value is: %d\n",_b);
-	al_trace("do_dummy_gfxmonohue MONO value is: %s\n", (m) ? "true" : "false" );
-	
+	//al_trace("do_dummy_gfxmonohue RED value is: %d\n",_r);
+	//al_trace("do_dummy_gfxmonohue GREEN value is: %d\n",_g);
+	//al_trace("do_dummy_gfxmonohue BLUE value is: %d\n",_b);
+	//al_trace("do_dummy_gfxmonohue MONO value is: %s\n", (m) ? "true" : "false" );
+	if(!monochrome) { memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB)); }
+	addColour(_r,_g,_b,m?baseDISTRIBUTED:baseUNIFORM);
+	monochrome = true;
+	refreshpal = true;
 }
 
-void do_dummy_doTint(int _r, int _g, int _b)
+void doTint(int _r, int _g, int _b)
 {
-	al_trace("do_dummy_doTint RED value is: %d\n",_r);
-	al_trace("do_dummy_doTint GREEN value is: %d\n",_g);
-	al_trace("do_dummy_doTint BLUE value is: %d\n",_b);
+	//al_trace("do_dummy_doTint RED value is: %d\n",_r);
+	//al_trace("do_dummy_doTint GREEN value is: %d\n",_g);
+	//al_trace("do_dummy_doTint BLUE value is: %d\n",_b);
+	if(!monochrome) { memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB)); }
+	addColour(_r,_g,_b,-1);
+	monochrome = true;
+	refreshpal = true;
 }
 
-void do_dummy_clearTint()
+void doClearTint()
 {
-	al_trace("Clearing user scripted tints.%d\n",0);
-	
+	//al_trace("Clearing user scripted tints.%d\n",0);
+	setMonochromatic(0);
 }
 /**************************/
 /********** Main **********/
