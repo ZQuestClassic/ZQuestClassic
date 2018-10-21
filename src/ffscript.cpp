@@ -14872,19 +14872,19 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 	
 	case TINT:
 	{
-            FFCore.dummy_doTint();
+            FFCore.Tint();
             break;
 	}
 	
 	case CLEARTINT:
 	{
-            FFCore.dummy_clearTint();
+            FFCore.clearTint();
             break;
 	}
 	
 	case MONOHUE:
 	{
-            FFCore.dummy_gfxmonohue();
+            FFCore.gfxmonohue();
             break;
 	}
 	
@@ -16798,26 +16798,26 @@ void FFScript::do_monochromatic(const bool v)
     setMonochromatic(colour);
 }
 
-void FFScript::dummy_gfxmonohue()
+void FFScript::gfxmonohue()
 {
     long _r   = SH::read_stack(ri->sp + 3) / 10000;
     long _g = SH::read_stack(ri->sp + 2) / 10000;
     long _b   = SH::read_stack(ri->sp + 1) / 10000;
     bool m   = (SH::read_stack(ri->sp + 0) / 10000);
-    do_dummy_gfxmonohue(_r,_g,_b,m);
+    doGFXMonohue(_r,_g,_b,m);
 }
 
-void FFScript::dummy_clearTint()
+void FFScript::clearTint()
 {
-    do_dummy_clearTint();
+    doClearTint();
 }
 
-void FFScript::dummy_doTint()
+void FFScript::Tint()
 {
     long _r   = SH::read_stack(ri->sp + 2) / 10000;
     long _g = SH::read_stack(ri->sp + 1) / 10000;
     long _b   = SH::read_stack(ri->sp + 0) / 10000;
-    do_dummy_doTint(_r,_g,_b);
+    doTint(_r,_g,_b);
 }
 
 void FFScript::do_fx_zap(const bool v)

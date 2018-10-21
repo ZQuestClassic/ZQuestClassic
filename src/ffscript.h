@@ -168,9 +168,9 @@ void do_fx_zap(const bool v);
 void do_fx_wavy(const bool v);
 void do_greyscale(const bool v);
 void do_monochromatic(const bool v);
-void dummy_gfxmonohue();
-void dummy_doTint();
-void dummy_clearTint();
+void gfxmonohue();
+void Tint();
+void clearTint();
 
 int GetScriptObjectUID(int type);
     
