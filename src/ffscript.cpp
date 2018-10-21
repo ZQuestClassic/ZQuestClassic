@@ -13548,6 +13548,14 @@ int run_script(const byte type, const word script, const byte i)
             }
         }
         break;
+
+        case RETURN:
+        {
+            pc = SH::read_stack(ri->sp) - 1;
+            ++ri->sp;
+            increment = false;
+            break;
+        }
         
         case SETTRUE:
             set_register(sarg1, (ri->scriptflag & TRUEFLAG) ? 1 : 0);

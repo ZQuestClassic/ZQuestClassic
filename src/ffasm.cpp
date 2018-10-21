@@ -694,6 +694,8 @@ script_command command_list[NUMCOMMANDS+1]=
     
     { "GREYSCALER",             1,   0,   0,   0},
     { "GREYSCALEV",             1,   1,   0,   0},
+    { "RETURN",			0,	0,	0,	0},
+    
     { "",                    0,   0,   0,   0}
 };
 
