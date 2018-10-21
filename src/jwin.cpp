@@ -3840,7 +3840,7 @@ int jwin_check_proc(int msg, DIALOG *d, int c)
         
         if(!(d->flags & D_DISABLED))
         {
-            rectfill(screen, x+bx+2, d->y+2, x+bx+d->h-3, d->y+d->h-3, scheme[jcLIGHT]);
+            rectfill(screen, x+bx+2, d->y+2, x+bx+d->h-3, d->y+d->h-3, scheme[jcTEXTBG]);
         }
         
         if(d->d1)
@@ -3863,8 +3863,8 @@ int jwin_check_proc(int msg, DIALOG *d, int c)
         
         if(d->flags & D_SELECTED)
         {
-            line(screen, x+bx+2, d->y+2, x+bx+d->h-3, d->y+d->h-3, scheme[jcDARK]);
-            line(screen, x+bx+2, d->y+d->h-3, x+bx+d->h-3, d->y+2, scheme[jcDARK]);
+            line(screen, x+bx+2, d->y+2, x+bx+d->h-3, d->y+d->h-3, scheme[jcTEXTFG]);
+            line(screen, x+bx+2, d->y+d->h-3, x+bx+d->h-3, d->y+2, scheme[jcTEXTFG]);
         }
         
         d->w=int(text_height(font)*1.5);
@@ -3952,15 +3952,15 @@ int jwin_radio_proc(int msg, DIALOG *d, int c)
             break;
             
         default:
-            circlefill(screen, center, d->y+r, r, scheme[jcLIGHT]);
-            arc(screen, center, d->y+r, itofix(32), itofix(160), r, scheme[jcMEDDARK]);
-            circlefill(screen, center, d->y+r, r-1, scheme[jcMEDLT]);
-            arc(screen, center, d->y+r, itofix(32), itofix(160), r-1, scheme[jcDARK]);
-            circlefill(screen, center, d->y+r, r-2, (d->flags & D_DISABLED)?scheme[jcBOX]:scheme[jcLIGHT]);
+            circlefill(screen, center, d->y+r, r, scheme[jcTEXTBG]);
+            arc(screen, center, d->y+r, itofix(32), itofix(160), r, vc(0));
+            circlefill(screen, center, d->y+r, r-1, scheme[jcTEXTBG]);
+            arc(screen, center, d->y+r, itofix(32), itofix(160), r-1, vc(0));
+            circlefill(screen, center, d->y+r, r-2, (d->flags & D_DISABLED)?scheme[jcBOX]:scheme[jcTEXTBG]);
             
             if(d->flags & D_SELECTED)
             {
-                circlefill(screen, center, d->y+r, r-3, scheme[jcDARK]);
+                circlefill(screen, center, d->y+r, r-3, scheme[jcTEXTFG]);
             }
             
             break;
