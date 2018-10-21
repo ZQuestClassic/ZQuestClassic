@@ -1,6 +1,14 @@
 ChangeLog for 2.53.0 
 
 //Beta 25
+Backported fix for crash on getWpnPressed(0 on Win10 from 2.55 to
+	2.53. I'm not sure why 2.53 didn't crash from this, but, it
+	surely would cause problems at some point. 
+Backported the UI Widget (radio button) fixes for dark themes
+	from 2.55. Let's hope thet these changes don't break
+	any of the old 1.9x themes!!
+	( ZoriaRPG, 21st October, 2018 )
+
 Backport UI/Theme fixes for tooltips from 2.55
 ( 19th October, 2018 )
 
