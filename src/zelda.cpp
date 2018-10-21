@@ -3227,7 +3227,7 @@ void do_dummy_doTint(int _r, int _g, int _b)
 
 void do_dummy_clearTint()
 {
-	al_trace("Clearing user scripted tints.\n",0);
+	al_trace("Clearing user scripted tints.%d\n",0);
 	
 }
 /**************************/

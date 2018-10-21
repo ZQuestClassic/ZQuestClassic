@@ -6513,7 +6513,7 @@ void GraphicsSymbols::generateCode()
 		 Function* function = getFunction("ClearTint");
 		int label = function->getLabel();
 		vector<Opcode *> code;
-		Opcode *first = new OMonoHueR();
+		Opcode *first = new OClearTint();
 		first->setLabel(label);
 		code.push_back(first);
 		code.push_back(new OPopRegister(new VarArgument(NUL))); //pop the 'this'

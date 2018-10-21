@@ -14871,16 +14871,22 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 		break;
 	
 	case TINT:
+	{
             FFCore.dummy_doTint();
             break;
+	}
 	
 	case CLEARTINT:
+	{
             FFCore.dummy_clearTint();
             break;
+	}
 	
 	case MONOHUE:
+	{
             FFCore.dummy_gfxmonohue();
             break;
+	}
 	
 	//case NPCData
 	

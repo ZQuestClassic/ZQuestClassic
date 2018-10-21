@@ -1686,9 +1686,6 @@ script_variable variable_list[]=
 	{"NPCBEHAVIOUR", NPCBEHAVIOUR, 0, 0 },
 	{"NPCDATABEHAVIOUR", NPCDATABEHAVIOUR, 0, 0 },
 	
-	{ "GRAPHICSMONO",           SETSCREENDOOR,            0,             0 },
-	{ "GRAPHICSTINT",           SETSCREENDOOR,            0,             0 },
-	
 	{ " ",                       -1,             0,             0 }
 };
 

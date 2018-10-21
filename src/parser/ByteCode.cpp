@@ -1665,8 +1665,6 @@ string VarArgument::toString()
 	case GETPIXEL: return "GETPIXEL";
 	case DOUNTYPE: return "DOUNTYPE";
 	
-	case GRAPHICSMONO: return "GRAPHICSMONO";
-	case GRAPHICSTINT: return "GRAPHICSTINT";
 	
     default:
     {
