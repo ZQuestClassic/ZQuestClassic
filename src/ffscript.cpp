@@ -15287,6 +15287,11 @@ void FFScript::user_bitmaps_init()
 	}
 }
 
+int FFScript::highest_valid_user_bitmap()
+{
+	return (scb.num_active)-1;
+}
+
 long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
 {
         int id = get_free_bitmap();
@@ -15307,15 +15312,22 @@ BITMAP* FFScript::get_user_bitmap(int id)
 
 BITMAP* FFScript::GetScriptBitmap(int id)
 {
+	
+    if ( id < MIN_OLD_RENDERTARGETS || id > highest_valid_user_bitmap() ) 
+    {
+	    Z_scripterrlog("Attempted to get a bitmap with an invalid bitmap ID: (%d).\n", id);
+	    return NULL;
+    }
     switch(id)
     {
-        case -1:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6: //old system bitmap
+        case rtSCREEN:
+        case rtBMP0:
+        case rtBMP1:
+        case rtBMP2:
+        case rtBMP3:
+        case rtBMP4:
+        case rtBMP5:
+        case rtBMP6: //old system bitmaps (render targets)
         {
             return zscriptDrawingRenderTarget->GetBitmapPtr(id);
         }
