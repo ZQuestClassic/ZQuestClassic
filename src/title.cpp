@@ -3293,6 +3293,7 @@ void game_over(int type)
     music_stop();
     clear_to_color(screen,BLACK);
 	setMonochrome(false); //Clear monochrome before drawing the file select. 
+	doClearTint();
     loadfullpal();
     
     if(Quit==qGAMEOVER)
@@ -3418,6 +3419,7 @@ void game_over(int type)
         if(pos==1&&(!type))
         {
 		setMonochrome(false); //Clear monochrome before drawing the file select.
+		doClearTint();
             game->set_cheat(game->get_cheat() | cheat);
             
             saves[currgame]=*game;
