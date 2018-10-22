@@ -79,7 +79,7 @@ typedef		TOKEN( TYPEDEF );
 EXPECT_ERROR	TOKEN( EXPECTERROR );
 EXPECT_WARNING	TOKEN( EXPECTERROR );
 OPTION_VALUE	TOKEN( OPTIONVALUE );
-define		TOKEN( DEFINE );
+"#define"		TOKEN( DEFINE );
 
  /* Types */
 void		TOKEN( ZVOID );
@@ -98,7 +98,6 @@ gamedata	TOKEN( GAMEDATA );
 item		TOKEN( ITEM );
 itemdata	TOKEN( ITEMCLASS );
 lweapon		TOKEN( LWEAPON );
-map		TOKEN( MAP );
 mapdata		TOKEN( MAP );
 messagedata	TOKEN( MESSAGE );
 misccolor	TOKEN( MISCCOLOR );
@@ -110,7 +109,7 @@ ponddata	TOKEN( POND );
 rgb		TOKEN( RGB );
 shopdata	TOKEN( SHOP );
 spritedata	TOKEN( SPRITE );
-tune		TOKEN( TUNE );
+musicdata		TOKEN( TUNE );
 warpring	TOKEN( WARPRING );
 
  /* Syntax */
