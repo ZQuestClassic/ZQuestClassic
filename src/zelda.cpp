@@ -4457,7 +4457,10 @@ int main(int argc, char* argv[])
         break;
         
         }
-        
+		//Restore original palette before exiting for any reason!
+        setMonochrome(false);
+		doClearTint();
+		
         kill_sfx();
         music_stop();
         clear_to_color(screen,BLACK);

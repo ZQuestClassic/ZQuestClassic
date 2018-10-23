@@ -212,11 +212,25 @@ void loadfadepal(int dataset)
     
     for(int i=0; i<pdFADE*16; i++)
     {
-        RAMpal[CSET(2)+i] = _RGB(si);
+        if(isMonochrome() || isUserTinted())tempgreypal[CSET(2)+i] = _RGB(si);
+		else RAMpal[CSET(2)+i] = _RGB(si);
         si+=3;
     }
     
     refreshpal=true;
+	
+	if(isMonochrome()){
+	    if(lastMonoPreset){
+		    restoreMonoPreset();
+	    } else {
+			setMonochrome(false);
+		    setMonochrome(true);
+	    }
+    }
+    
+    if(isUserTinted()){
+	    restoreTint();
+    }
 }
 
 void interpolatedfade()
