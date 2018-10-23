@@ -15623,7 +15623,8 @@ int FFScript::do_getpixel()
 	//bool isTargetOffScreenBmp = false;
 	//al_trace("Getpixel: The current bitmap ID is: %d /n",ri->bitmapref);
 	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->bitmapref);
-	BITMAP *bitty = zscriptDrawingRenderTarget->GetBitmapPtr(ri->bitmapref);
+	//BITMAP *bitty = zscriptDrawingRenderTarget->GetBitmapPtr(ri->bitmapref);
+	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref);
         //bmp = targetBitmap;
         if(!bitty)
         {
