@@ -6622,7 +6622,221 @@ namespace ZScript
 			return new OMonoHueR();
 		}
 	};
-
+	
+	//bitmap functions
+	
+		class OBMPDrawBitmapExRegister : public UnaryOpcode
+	{
+	public:
+		OBMPDrawBitmapExRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawBitmapExRegister(a->clone());
+		}
+	};
+	class OBMPQuadRegister : public UnaryOpcode
+	{
+	public:
+		OBMPQuadRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPQuadRegister(a->clone());
+		}
+	};
+	class OBMPTriangleRegister : public UnaryOpcode
+	{
+	public:
+		OBMPTriangleRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPTriangleRegister(a->clone());
+		}
+	};
+	class OBMPQuad3DRegister : public UnaryOpcode
+	{
+	public:
+		OBMPQuad3DRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPQuad3DRegister(a->clone());
+		}
+	};
+	class OBMPTriangle3DRegister : public UnaryOpcode
+	{
+	public:
+		OBMPTriangle3DRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPTriangle3DRegister(a->clone());
+		}
+	};
+	class OBMPDrawLayerRegister : public UnaryOpcode
+	{
+	public:
+		OBMPDrawLayerRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawLayerRegister(a->clone());
+		}
+	};
+	class OBMPDrawScreenRegister : public UnaryOpcode
+	{
+	public:
+		OBMPDrawScreenRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawScreenRegister(a->clone());
+		}
+	};
+	class OBMPDrawStringRegister : public UnaryOpcode
+	{
+	public:
+		OBMPDrawStringRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawStringRegister(a->clone());
+		}
+	};
+	class OBMPFastComboRegister : public UnaryOpcode
+	{
+	public:
+		OBMPFastComboRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPFastComboRegister(a->clone());
+		}
+	};
+	class OBMPFastTileRegister : public UnaryOpcode
+	{
+	public:
+		OBMPFastTileRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPFastTileRegister(a->clone());
+		}
+	};
+	class OBMPDrawComboRegister : public UnaryOpcode
+	{
+	public:
+		OBMPDrawComboRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawComboRegister(a->clone());
+		}
+	};
+	class OBMPDrawTileRegister : public UnaryOpcode
+	{
+	public:
+		OBMPDrawTileRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawTileRegister(a->clone());
+		}
+	};
+	class OBMPDrawIntRegister : public UnaryOpcode
+	{
+	public:
+		OBMPDrawIntRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPDrawIntRegister(a->clone());
+		}
+	};
+	
+	class BMPODrawCharRegister : public UnaryOpcode
+	{
+	public:
+		BMPODrawCharRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new BMPODrawCharRegister(a->clone());
+		}
+	};
+	class OBMPPutPixelRegister : public UnaryOpcode
+	{
+	public:
+		OBMPPutPixelRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPPutPixelRegister(a->clone());
+		}
+	};
+	class OBMPSplineRegister : public UnaryOpcode
+	{
+	public:
+		OBMPSplineRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPSplineRegister(a->clone());
+		}
+	};
+	class OBMPLineRegister : public UnaryOpcode
+	{
+	public:
+		OBMPLineRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPLineRegister(a->clone());
+		}
+	};
+	class OBMPEllipseRegister : public UnaryOpcode
+	{
+	public:
+		OBMPEllipseRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPEllipseRegister(a->clone());
+		}
+	};
+	class OBMPArcRegister : public UnaryOpcode
+	{
+	public:
+		OBMPArcRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPArcRegister(a->clone());
+		}
+	};
+	class OBMPCircleRegister : public UnaryOpcode
+	{
+	public:
+		OBMPCircleRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPCircleRegister(a->clone());
+		}
+	};
+	class OBMPRectangleRegister : public UnaryOpcode
+	{
+	public:
+		OBMPRectangleRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OBMPRectangleRegister(a->clone());
+		}
+	};
+	
 	class OReturn : public Opcode
 	{
 	public:
