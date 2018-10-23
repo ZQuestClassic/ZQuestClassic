@@ -133,13 +133,26 @@ void loadlvlpal(int level)
     //! Doing this is bad, because we are also copying over the sprite palettes.
     
     
-    
+    /* Old handling for monochrome, before tint features added -V
     if ( isMonochrome () ) {
 	//memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
 	    
 	//Refresh the monochrome palette to avoid gfx glitches from loading the lpal.  
 	setMonochrome(false);
 	setMonochrome(true);
+    }*/
+    
+    if(isMonochrome()){
+	    if(lastMonoPreset){
+		    restoreMonoPreset();
+	    } else {
+			setMonochrome(false);
+		    setMonochrome(true);
+	    }
+    }
+    
+    if(isUserTinted()){
+	    restoreTint();
     }
     
     refreshpal=true;
@@ -152,9 +165,22 @@ void loadpalset(int cset,int dataset)
     for(int i=0; i<16; i++,j+=3)
     {
 	   // if ( isMonochrome() ) tempgreypal[CSET(2)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Link pal... 
-	    if ( isMonochrome() ) tempgreypal[CSET(cset)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Link pal... 
+	    if ( isMonochrome() || isUserTinted() ) tempgreypal[CSET(cset)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Link pal... 
 		else 
 			RAMpal[CSET(cset)+i] = _RGB(&colordata[j]); 
+    }
+	
+	if(isMonochrome()){
+	    if(lastMonoPreset){
+		    restoreMonoPreset();
+	    } else {
+			setMonochrome(false);
+		    setMonochrome(true);
+	    }
+    }
+    
+    if(isUserTinted()){
+	    restoreTint();
     }
     
     if(cset==6 && !get_bit(quest_rules,qr_NOLEVEL3FIX) && DMaps[currdmap].color==3){
@@ -186,11 +212,25 @@ void loadfadepal(int dataset)
     
     for(int i=0; i<pdFADE*16; i++)
     {
-        RAMpal[CSET(2)+i] = _RGB(si);
+        if(isMonochrome() || isUserTinted())tempgreypal[CSET(2)+i] = _RGB(si);
+		else RAMpal[CSET(2)+i] = _RGB(si);
         si+=3;
     }
     
     refreshpal=true;
+	
+	if(isMonochrome()){
+	    if(lastMonoPreset){
+		    restoreMonoPreset();
+	    } else {
+			setMonochrome(false);
+		    setMonochrome(true);
+	    }
+    }
+    
+    if(isUserTinted()){
+	    restoreTint();
+    }
 }
 
 void interpolatedfade()

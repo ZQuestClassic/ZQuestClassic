@@ -192,6 +192,9 @@ Graphics->Tint(mode)
 Graphics->Tint(TINT_MODE_DISTRIBUTED+TINT_VIOLET)
 */
 //2.54
+extern short int lastMonoPreset;
+extern short int lastCustomTint[4];
+
 void setMonochromatic(int mode); //GFX are monochrome. 
 void setMonochrome(bool state); //GFX are monochrome. 
 bool isMonochrome();
@@ -200,6 +203,8 @@ void isUserTinted(bool state);
 void addColour(int radd, int gadd, int badd, int base);
 void shiftColour(int rshift, int gshift, int bshift, int base);
 void doClearTint();
+void restoreTint();
+void restoreMonoPreset();
 
 void doGFXMonohue(int _r, int _g, int _b, bool m);
 void doTint(int _r, int _g, int _b);
