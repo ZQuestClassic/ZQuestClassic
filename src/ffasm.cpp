@@ -700,7 +700,31 @@ script_command command_list[NUMCOMMANDS+1]=
     { "CLEARTINT",              0,   0,   0,   0},
     { "TINT",         0,   0,   0,   0},
     { "MONOHUE",         0,   0,   0,   0},
-    { "",                    0,   0,   0,   0}
+    
+     { "BMPRECTR",                0,   0,   0,   0},
+     { "BMPCIRCLER",                0,   0,   0,   0},
+     { "BMPARCR",                0,   0,   0,   0},
+     { "BMPELLIPSER",                0,   0,   0,   0},
+     { "BMPLINER",                0,   0,   0,   0},
+     { "BMPSPLINER",                0,   0,   0,   0},
+     { "BMPPUTPIXELR",                0,   0,   0,   0},
+     { "BMPDRAWTILER",                0,   0,   0,   0},
+     { "BMPDRAWCOMBOR",                0,   0,   0,   0},
+     { "BMPFASTTILER",                0,   0,   0,   0},
+     { "BMPFASTCOMBOR",                0,   0,   0,   0},
+     { "BMPDRAWCHARR",                0,   0,   0,   0},
+     { "BMPDRAWINTR",                0,   0,   0,   0},
+     { "BMPDRAWSTRINGR",                0,   0,   0,   0},
+     { "BMPQUADR",                0,   0,   0,   0},
+     { "BMPQUAD3DR",                0,   0,   0,   0},
+     { "BMPTRIANGLER",                0,   0,   0,   0},
+     { "BMPTRIANGLE3DR",                0,   0,   0,   0},
+     { "BMPPOLYGONR",                0,   0,   0,   0},
+     { "BMPDRAWLAYERR",                0,   0,   0,   0},
+     { "BMPDRAWSCREENR",                0,   0,   0,   0},
+     
+     
+     { "",                    0,   0,   0,   0}
 };
 
 
@@ -1685,6 +1709,9 @@ script_variable variable_list[]=
 	{"DOUNTYPE", DOUNTYPE, 0, 0 },
 	{"NPCBEHAVIOUR", NPCBEHAVIOUR, 0, 0 },
 	{"NPCDATABEHAVIOUR", NPCDATABEHAVIOUR, 0, 0 },
+	{"CREATEBITMAP", CREATEBITMAP, 0, 0 },
+	
+	
 	
 	{ " ",                       -1,             0,             0 }
 };

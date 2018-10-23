@@ -120,13 +120,14 @@ long create_user_bitmap_ex(int w, int h, int depth);
 
 BITMAP* get_user_bitmap(int id);
 
-BITMAP* FFScript::GetScriptBitmap(int id);
+BITMAP* GetScriptBitmap(int id);
 
 bool cleanup_user_bitmaps();
 
 bool destroy_user_bitmap(int id);
 int highest_valid_user_bitmap();
-    
+long do_create_bitmap();
+
 void do_adjustsfxvolume(const bool v);
 void do_adjustvolume(const bool v);
 //FFScript();
@@ -1624,6 +1625,28 @@ enum ASM_DEFINE
 	TINT,
 	MONOHUE,
 	
+	BMPRECTR,
+	BMPCIRCLER,
+	BMPARCR,
+	BMPELLIPSER,
+	BMPLINER,
+	BMPSPLINER,
+	BMPPUTPIXELR,
+	BMPDRAWTILER,
+	BMPDRAWCOMBOR,
+	BMPFASTTILER,
+	BMPFASTCOMBOR,
+	BMPDRAWCHARR,
+	BMPDRAWINTR,
+	BMPDRAWSTRINGR,
+	BMPQUADR,
+	BMPQUAD3DR,
+	BMPTRIANGLER,
+	BMPTRIANGLE3DR,
+	BMPPOLYGONR,
+	BMPDRAWLAYERR,
+	BMPDRAWSCREENR,
+
 	NUMCOMMANDS           //0x013B
 };
 
@@ -2753,6 +2776,7 @@ enum ASM_DEFINE
 #define NPCDATABEHAVIOUR			0x1318	
 #define GRAPHICSMONO			0x1319	
 #define GRAPHICSTINT			0x131A	
+#define CREATEBITMAP			0x131B	
 
 //bytecode
 
@@ -2760,7 +2784,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x131B
+#define NUMVARIABLES         0x131C
 
 
 // Script types
