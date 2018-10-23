@@ -4293,6 +4293,10 @@ case LOADMAPDATA:
         ret=FFScript::loadMapData();
         break;
 
+case CREATEBITMAP:
+        ret=FFCore.do_create_bitmap();
+        break;
+
 
 case MAPDATAVALID:		GET_MAPDATA_VAR_BYTE(valid, "Valid"); break;		//b
 case MAPDATAGUY: 		GET_MAPDATA_VAR_BYTE(guy, "Guy"); break;		//b
@@ -15284,6 +15288,36 @@ void FFScript::user_bitmaps_init()
             scb.script_created_bitmaps[q].depth = 0;
             scb.script_created_bitmaps[q].u_bmp = NULL;
 		
+	}
+}
+
+long FFScript::do_create_bitmap()
+{
+    
+	//CreateBitmap(h,w)
+	long h = (ri->d[0] / 10000);
+	long w = (ri->d[1]/10000);
+	//sanity checks
+	if ( highest_valid_user_bitmap() >= (MAX_USER_BITMAPS-1) )
+	{
+		ri->bitmapref = 0;
+		Z_scripterrlog("Script attempted to create a bitmap, but no bitmaps are available. Setting ri->bitmapref to: %d\n", ri->bitmapref);
+		return NULL;
+	}
+	else
+	{
+		int id = create_user_bitmap_ex(h,w,8);
+		//if ( id < rtSCREEN || id > (MAX_USER_BITMAPS-1) )
+		//{
+		//	ri->bitmapref = 0;
+		//	Z_scripterrlog("Script attempted to create a bitmap with ID %d, but no bitmaps are available.\n Setting ri->bitmapref to: %d\n", id, ri->bitmapref);
+		//}
+		//else
+		//{	
+			ri->bitmapref = id; 
+			Z_eventlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
+			return id;
+		//}
 	}
 }
 

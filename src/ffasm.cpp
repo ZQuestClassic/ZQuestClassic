@@ -1685,6 +1685,7 @@ script_variable variable_list[]=
 	{"DOUNTYPE", DOUNTYPE, 0, 0 },
 	{"NPCBEHAVIOUR", NPCBEHAVIOUR, 0, 0 },
 	{"NPCDATABEHAVIOUR", NPCDATABEHAVIOUR, 0, 0 },
+	{"CREATEBITMAP", CREATEBITMAP, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

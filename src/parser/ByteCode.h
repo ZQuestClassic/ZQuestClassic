@@ -1056,8 +1056,9 @@ using namespace std;
 #define NPCDATABEHAVIOUR 	991
 #define GRAPHICSMONO 	992
 #define GRAPHICSTINT 	993
+#define CREATEBITMAP 	994
 
-#define LAST_BYTECODE 		994
+#define LAST_BYTECODE 		995
 
 //END OF BYTECODE
 
