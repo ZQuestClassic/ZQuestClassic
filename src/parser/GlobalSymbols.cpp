@@ -3572,7 +3572,7 @@ void GameSymbols::generateCode()
     }
     //long Create(bitmap, int map,int scr)
 	{
-		Function* function = getFunction("Create");
+		Function* function = getFunction("CreateBitmap");
 		int label = function->getLabel();
 		vector<Opcode *> code;
 		//pop off the params
