@@ -4395,7 +4395,6 @@ int main(int argc, char* argv[])
         case qGAMEOVER:
         {
             playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
-            if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
             show_subscreen_dmap_dots=true;
             show_subscreen_numbers=true;
             show_subscreen_items=true;
@@ -4441,7 +4440,6 @@ int main(int argc, char* argv[])
         
         case qWON:
         {
-            if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
             show_subscreen_dmap_dots=true;
             show_subscreen_numbers=true;
             show_subscreen_items=true;
@@ -4460,6 +4458,7 @@ int main(int argc, char* argv[])
 		//Restore original palette before exiting for any reason!
         setMonochrome(false);
 		doClearTint();
+		Link.setDontDraw(0);
 		
         kill_sfx();
         music_stop();
