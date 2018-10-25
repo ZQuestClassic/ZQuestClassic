@@ -3236,10 +3236,10 @@ void doGFXMonohue(int _r, int _g, int _b, bool m)
 	if(isUserTinted()) { // A tint already is active. Tint should then cascade.
 		//Restore RAMpal
 		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
-		//Add the current tint parameters to the previous ones, vbounded from -63 to 63
-		lastCustomTint[0] = vbound(lastCustomTint[0] + _r,-63,63);
-		lastCustomTint[1] = vbound(lastCustomTint[1] + _g,-63,63);
-		lastCustomTint[2] = vbound(lastCustomTint[2] + _b,-63,63);
+		//Add the current tint parameters to the previous ones
+		lastCustomTint[0] = vbound(lastCustomTint[0]+_r,-32768,32767);
+		lastCustomTint[1] = vbound(lastCustomTint[1]+_g,-32768,32767);
+		lastCustomTint[2] = vbound(lastCustomTint[2]+_b,-32768,32767);
 		//Force the base to the new base; bases do NOT cascade, they override.
 		lastCustomTint[3] = m?baseDISTRIBUTED:baseUNIFORM;
 		//Color with the new args
@@ -3267,10 +3267,10 @@ void doTint(int _r, int _g, int _b)
 	if(isUserTinted()) { // A tint already is active. Tint should then cascade.
 		//Restore RAMpal
 		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
-		//Add the current tint parameters to the previous ones, vbounded from -63 to 63
-		lastCustomTint[0] = vbound(lastCustomTint[0] + _r,-63,63);
-		lastCustomTint[1] = vbound(lastCustomTint[1] + _g,-63,63);
-		lastCustomTint[2] = vbound(lastCustomTint[2] + _b,-63,63);
+		//Add the current tint parameters to the previous ones
+		lastCustomTint[0] = vbound(lastCustomTint[0]+_r,-32768,32767);
+		lastCustomTint[1] = vbound(lastCustomTint[1]+_g,-32768,32767);
+		lastCustomTint[2] = vbound(lastCustomTint[2]+_b,-32768,32767);
 		//Force the base to the new base; bases do NOT cascade, they override.
 		lastCustomTint[3] = -1;
 		//Color with the new args
