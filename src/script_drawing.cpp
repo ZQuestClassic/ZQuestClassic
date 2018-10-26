@@ -3779,7 +3779,12 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             do_drawbitmapr(bmp, sdci, xoffset, yoffset);
         }
         break;
-	
+		
+		case BITMAPEXR:
+        {
+            do_drawbitmapexr(bmp, sdci, xoffset, yoffset);
+        }
+        break;
         
         case DRAWLAYERR:
         {
