@@ -4584,7 +4584,10 @@ case MAPDATAFFWIDTH:
             ret = -10000;
             break;
         }
-        ret = ((m->ffwidth[indx]&0x3F)+1)*10000;
+       
+        ret=((m->ffwidth[indx]>>6)+1)*10000;
+       
+       
         break;
     }
 }  
@@ -4608,7 +4611,7 @@ case MAPDATAFFHEIGHT:
             ret = -10000;
             break;
         }
-        ret=((m->ffheight[indx]&0x3F)+1)*10000;
+        ret=((m->ffheight[indx]>>6)+1)*10000;
         break;
     }
    
@@ -4634,7 +4637,7 @@ case MAPDATAFFEFFECTWIDTH:
             ret = -10000;
             break;
         }
-        ret=((m->ffwidth[indx]>>6)+1)*10000;
+        ret=((m->ffwidth[indx]&0x3F)+1)*10000;
         break;
     }
 }
@@ -4658,10 +4661,11 @@ case MAPDATAFFEFFECTHEIGHT:
             ret = -10000;
             break;
         }
-        ret=((m->ffheight[indx]>>6)+1)*10000;
+        ret=((m->ffheight[indx]&0x3F)+1)*10000;
+       
         break;
     }
-}  
+}
    
 //GET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"    //B, 32 OF THESE   
  
@@ -9758,7 +9762,8 @@ case MAPDATAFFWIDTH:
             Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileWidth[]: %d\n", value/10000);
             break;
         }
-        m->ffwidth[indx] = ( m->ffwidth[indx]&~63) | vbound( (((value/10000)-1)&63), (0&63), (214747&63) );
+        m->ffwidth[indx]= (m->ffwidth[indx]&63) | ((((value/10000)-1)&3)<<6);
+   
         break;
     }
 }  
@@ -9775,7 +9780,7 @@ case MAPDATAFFHEIGHT:
     else
     {
         mapscr *m = &TheMaps[ri->mapsref];
-        int indx = (ri->d[0] / 10000)-1;
+        int (ri->d[0] / 10000)-1;
         if ( indx < 0 || indx > 31 )
         {
             Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileHeight[]: %d\n", indx+1);
@@ -9786,7 +9791,7 @@ case MAPDATAFFHEIGHT:
             Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileHeight[]: %d\n", value/10000);
             break;
         }
-        m->ffheight[indx] = ( m->ffheight[indx]&~63) | vbound( (((value/10000)-1)&63), (0&63), (4&63) );
+        m->ffheight[indx]=(m->ffheight[indx]&63) | ((((value/10000)-1)&3)<<6);
         break;
     }
    
@@ -9805,7 +9810,7 @@ case MAPDATAFFEFFECTWIDTH:
     else
     {
         mapscr *m = &TheMaps[ri->mapsref];
-        int indx = (ri->d[0] / 10000)-1;
+        int (ri->d[0] / 10000)-1;
         if ( indx < 0 || indx > 31 )
         {
             Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectWidth[]: %d\n", indx+1);
@@ -9816,7 +9821,7 @@ case MAPDATAFFEFFECTWIDTH:
             Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCEffectWidth[]: %d\n", value/10000);
             break;
         }
-        m->ffwidth[indx] = ( m->ffwidth[indx]&63) | vbound( ((((value/10000)-1)&3)<<6), ((((0)-1)&3)<<6), ((((214747)&3)<<6)) );
+        m->ffwidth[indx]= (m->ffwidth[indx] & ~63) | (((value/10000)-1)&63);
         break;
     }
 }
@@ -9844,10 +9849,10 @@ case MAPDATAFFEFFECTHEIGHT:
             Z_scripterrlog("Invalid HEIGHT value passed to MapData->FFCEffectHeight[]: %d\n", value/10000);
             break;
         }
-        m->ffheight[indx] = ( m->ffheight[indx]&63) | vbound( ((((value/10000)-1)&3)<<6), ((((0)-1)&3)<<6), ((((214747)&3)<<6)) );
+        m->ffheight[indx]= (m->ffheight[indx] & ~63) | (((value/10000)-1)&63);
         break;
     }
-}  
+}
    
 //SET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"    //B, 32 OF THESE   
  
