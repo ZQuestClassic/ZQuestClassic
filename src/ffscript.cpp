@@ -4431,7 +4431,67 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 				ret = combobuf[m->data[pos]].member * 10000; \
 		} \
 	} \
+	
+	#define GET_MAPDATA_FFCPOS_INDEX32(member, str, indexbound) \
+    { \
+        int indx = (ri->d[0] / 10000)-1; \
+        if(indx < 0 || indx > indexbound ) \
+        { \
+            Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+            ret = -10000; \
+        } \
+        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        { \
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+            ret = -10000; \
+        } \
+        else \
+        { \
+            mapscr *m = &TheMaps[ri->mapsref]; \
+            ret = (m->member[indx]); \
+        } \
+    } \
+   
+    #define GET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
+    { \
+        int indx = (ri->d[0] / 10000)-1; \
+        if(indx < 0 || indx > indexbound ) \
+        { \
+            Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+            ret = -10000; \
+        } \
+        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        { \
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+            ret = -10000; \
+        } \
+        else \
+        { \
+            mapscr *m = &TheMaps[ri->mapsref]; \
+            ret = (m->member[indx])*10000; \
+        } \
+    } \
 
+    #define GET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
+    { \
+        int indx = (ri->d[0] / 10000)-1; \
+        if(indx < 0 || indx > indexbound ) \
+        { \
+            Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+            ret = -10000; \
+        } \
+        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        { \
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+            ret = -10000; \
+        } \
+        else \
+        { \
+            mapscr *m = &TheMaps[ri->mapsref]; \
+            ret = (m->member[indx])*10000; \
+        } \
+    } \
+	
 case LOADMAPDATA:
         ret=FFScript::loadMapData();
         break;
@@ -4496,88 +4556,121 @@ case MAPDATASCREENHEIGHT: 	GET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 case MAPDATAENTRYX: 		GET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 case MAPDATAENTRYY: 		GET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 case MAPDATANUMFF: 		GET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
-case MAPDATAFFDATA: 		GET_MAPDATA_VAR_INDEX32(ffdata,	"FFCData", 31); break;	//W, 32 OF THESE
-case MAPDATAFFCSET: 		GET_MAPDATA_BYTE_INDEX(ffcset,	"FFCCSet", 31); break;	//B, 32
-case MAPDATAFFDELAY: 		GET_MAPDATA_VAR_INDEX32(ffdelay, "FFCDelay", 31); break;	//W, 32
-case MAPDATAFFX: 		GET_MAPDATA_VAR_INDEX32(ffx, "FFCX", 31); break;	//INT32, 32 OF THESE
-case MAPDATAFFY: 		GET_MAPDATA_VAR_INDEX32(ffy, "FFCY", 31); break;	//..
-case MAPDATAFFXDELTA:	 	GET_MAPDATA_VAR_INDEX32(ffxdelta, "FFCVx", 31); break;	//..
-case MAPDATAFFYDELTA: 		GET_MAPDATA_VAR_INDEX32(ffydelta, "FFCVy", 31); break;	//..
-case MAPDATAFFXDELTA2:	 	GET_MAPDATA_VAR_INDEX32(ffxdelta2, "FFCAx", 31); break;	//..
-case MAPDATAFFYDELTA2:	 	GET_MAPDATA_VAR_INDEX32(ffydelta2, "FFCAy", 31); break;	//..
-case MAPDATAFFFLAGS: 		GET_MAPDATA_VAR_INDEX16(ffflags, "FFCFlags", 31); break;	//INT16, 32 OF THESE
-//Height and With are Or'd together, and need to be separate:
-/*
- //TileWidth ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
-*/
-case MAPDATAFFWIDTH: 		
+case MAPDATAFFDATA:         GET_MAPDATA_FFC_INDEX32(ffdata, "FFCData", 31); break;  //W, 32 OF THESE
+case MAPDATAFFCSET:         GET_MAPDATA_FFC_INDEX32(ffcset, "FFCCSet", 31); break;  //B, 32
+case MAPDATAFFDELAY:        GET_MAPDATA_FFC_INDEX32(ffdelay, "FFCDelay", 31); break;    //W, 32
+case MAPDATAFFX:        GET_MAPDATA_FFCPOS_INDEX32(ffx, "FFCX", 31); break; //INT32, 32 OF THESE
+case MAPDATAFFY:        GET_MAPDATA_FFCPOS_INDEX32(ffy, "FFCY", 31); break; //..
+case MAPDATAFFXDELTA:       GET_MAPDATA_FFCPOS_INDEX32(ffxdelta, "FFCVx", 31); break;   //..
+case MAPDATAFFYDELTA:       GET_MAPDATA_FFCPOS_INDEX32(ffydelta, "FFCVy", 31); break;   //..
+case MAPDATAFFXDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ffxdelta2, "FFCAx", 31); break;  //..
+case MAPDATAFFYDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ffydelta2, "FFCAy", 31); break;  //..
+case MAPDATAFFFLAGS:        GET_MAPDATA_FFC_INDEX32(ffflags, "FFCFlags", 31); break;    //INT16, 32 OF THESE
+ 
+case MAPDATAFFWIDTH:       
 {
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	int indx = ri->d[0] / 10000; 
-	if ( indx < 0 || indx > 31 ) 
-	{
-		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileWidth[]: %d\n", indx);
-		ret = -10000;
-		break;
-	}
-	ret = ((m->ffwidth[indx]&0x3F)+1)*10000;
-	break;
-}	
-
-
-//GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");	//B, 32 OF THESE
-case MAPDATAFFHEIGHT:	 	
+    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    {
+        Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
+        ret = -10000;
+    }
+    else
+    {
+        mapscr *m = &TheMaps[ri->mapsref];
+        int indx = (ri->d[0] / 10000)-1;
+        if ( indx < 0 || indx > 32 )
+        {
+            Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileWidth[]: %d\n", indx+1);
+            ret = -10000;
+            break;
+        }
+       
+        ret=((m->ffwidth[indx]>>6)+1)*10000;
+       
+       
+        break;
+    }
+}  
+ 
+ 
+//GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");  //B, 32 OF THESE
+case MAPDATAFFHEIGHT:      
 {
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	int indx = ri->d[0] / 10000; 
-	if ( indx < 0 || indx > 31 ) 
-	{
-		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileHeight[]: %d\n", indx);
-		ret = -10000;
-		break;
-	}
-	ret=((m->ffheight[indx]&0x3F)+1)*10000;
-	break;
-	
+    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    {
+        Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
+        ret = -10000;
+    }
+    else
+    {
+        mapscr *m = &TheMaps[ri->mapsref];
+        int indx = (ri->d[0] / 10000)-1;
+        if ( indx < 0 || indx > 32 )
+        {
+            Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileHeight[]: %d\n", indx+1);
+            ret = -10000;
+            break;
+        }
+        ret=((m->ffheight[indx]>>6)+1)*10000;
+        break;
+    }
+   
 }
-
+ 
 //EffectWidth tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
-
-//GET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"	//B, 32 OF THESE
-case MAPDATAFFEFFECTWIDTH: 		
-{ 
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	int indx = ri->d[0] / 10000; 
-	if ( indx < 0 || indx > 31 ) 
-	{
-		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectWidth[]: %d\n", indx);
-		ret = -10000;
-		break;
-	}
-	ret=((m->ffwidth[indx]>>6)+1)*10000;
-	break;
+ 
+//GET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"  //B, 32 OF THESE
+case MAPDATAFFEFFECTWIDTH:     
+{
+    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    {
+        Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
+        ret = -10000;
+    }
+    else
+    {
+        mapscr *m = &TheMaps[ri->mapsref];
+        int indx = (ri->d[0] / 10000)-1;
+        if ( indx < 0 || indx > 32 )
+        {
+            Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectWidth[]: %d\n", indx+1);
+            ret = -10000;
+            break;
+        }
+        ret=((m->ffwidth[indx]&0x3F)+1)*10000;
+        break;
+    }
 }
-
-
-//GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");	//B, 32 OF THESE
+ 
+ 
+//GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");    //B, 32 OF THESE
 case MAPDATAFFEFFECTHEIGHT:
-{ 
-	mapscr *m = &TheMaps[ri->mapsref];
-	int indx = ri->d[0] / 10000; 
-	if ( indx < 0 || indx > 31 ) 
-	{
-		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectHeight[]: %d\n", indx);
-		ret = -10000;
-		break;
-	}
-	ret=((m->ffheight[indx]>>6)+1)*10000;
-	break;
-}	
-	
-//GET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"	//B, 32 OF THESE	
-
-case MAPDATAFFLINK: 		GET_MAPDATA_BYTE_INDEX(fflink, "FFCLink", 31); break;	//B, 32 OF THESE
-case MAPDATAFFSCRIPT:	 	GET_MAPDATA_VAR_INDEX32(ffscript, "FFCScript", 31); break;	//W, 32 OF THESE
+{
+    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    {
+        Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
+        ret = -10000;
+    }
+    else
+    {
+        mapscr *m = &TheMaps[ri->mapsref];
+        int indx = (ri->d[0] / 10000)-1;
+        if ( indx < 0 || indx > 32 )
+        {
+            Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectHeight[]: %d\n", indx+1);
+            ret = -10000;
+            break;
+        }
+        ret=((m->ffheight[indx]&0x3F)+1)*10000;
+       
+        break;
+    }
+}
+   
+//GET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"    //B, 32 OF THESE   
+ 
+case MAPDATAFFLINK:         GET_MAPDATA_FFC_INDEX32(fflink, "FFCLink", 31); break;  //B, 32 OF THESE
+case MAPDATAFFSCRIPT:       GET_MAPDATA_FFC_INDEX32(ffscript, "FFCScript", 31); break;  //W, 32 OF THESE
 
 case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//SetFFCInitD(ffindex, d, value)
@@ -9509,7 +9602,73 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 			else m->.member|= ~flag; \
 		} \
 	} \
-
+	
+	#define SET_MAPDATA_FFCPOS_INDEX32(member, str, indexbound) \
+    { \
+        int indx = (ri->d[0] / 10000)-1; \
+        if(indx < 0 || indx > indexbound ) \
+        { \
+            Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+            break; \
+        } \
+        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        { \
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+            break; \
+        } \
+        else \
+        { \
+            mapscr *m = &TheMaps[ri->mapsref]; \
+            m->member[indx] = value; \
+        } \
+    } \
+   
+    #define SET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
+    { \
+        int indx = (ri->d[0] / 10000)-1; \
+        if(indx < 0 || indx > indexbound ) \
+        { \
+            Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+            break; \
+        } \
+        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        { \
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+            break; \
+        } \
+        else \
+        { \
+            mapscr *m = &TheMaps[ri->mapsref]; \
+            m->member[indx] = value/10000; \
+        } \
+    } \
+   
+    #define SET_MAPDATA_FFC_INDEX_VBOUND(member, str, indexbound, min, max) \
+    { \
+        int v = value/10000; \
+        int indx = (ri->d[0] / 10000)-1; \
+        if(indx < 0 || indx > indexbound ) \
+        { \
+            Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
+            break; \
+        } \
+        if(v < min || v > max ) \
+        { \
+            Z_scripterrlog("Invalid value assigned to mapdata->%s[]: %d\n", (indx+1), str); \
+            break; \
+        } \
+        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        { \
+            Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
+            break; \
+        } \
+        else \
+        { \
+            mapscr *m = &TheMaps[ri->mapsref]; \
+            m->member[indx] = v; \
+        } \
+    } \
+	
 case MAPDATAVALID:		SET_MAPDATA_VAR_BYTE(valid, "Valid"); break;		//b
 case MAPDATAGUY: 		SET_MAPDATA_VAR_BYTE(guy, "Guy"); break;		//b
 case MAPDATASTRING:		SET_MAPDATA_VAR_INT32(str, "String"); break;		//w
@@ -9568,104 +9727,137 @@ case MAPDATASCREENHEIGHT: 	SET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 case MAPDATAENTRYX: 		SET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 case MAPDATANUMFF: 		SET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
-case MAPDATAFFDATA: 		SET_MAPDATA_VAR_INDEX32(ffdata,	"FFCData", 31); break;	//W, 32 OF THESE
-case MAPDATAFFCSET: 		SET_MAPDATA_BYTE_INDEX(ffcset,	"FFCCSet", 31); break;	//B, 32
-case MAPDATAFFDELAY: 		SET_MAPDATA_VAR_INDEX32(ffdelay, "FFCDelay", 31); break;	//W, 32
-case MAPDATAFFX: 		SET_MAPDATA_VAR_INDEX32(ffx, "FFCX", 31); break;	//INT32, 32 OF THESE
-case MAPDATAFFY: 		SET_MAPDATA_VAR_INDEX32(ffy, "FFCY", 31); break;	//..
-case MAPDATAFFXDELTA:	 	SET_MAPDATA_VAR_INDEX32(ffxdelta, "FFCVx", 31); break;	//..
-case MAPDATAFFYDELTA: 		SET_MAPDATA_VAR_INDEX32(ffydelta, "FFCVy", 31); break;	//..
-case MAPDATAFFXDELTA2:	 	SET_MAPDATA_VAR_INDEX32(ffxdelta2, "FFCAx", 31); break;	//..
-case MAPDATAFFYDELTA2:	 	SET_MAPDATA_VAR_INDEX32(ffydelta2, "FFCAy", 31); break;	//..
-case MAPDATAFFFLAGS: 		SET_MAPDATA_VAR_INDEX16(ffflags, "FFCFlags", 31); break;	//INT16, 32 OF THESE
+case MAPDATAFFDATA:         SET_MAPDATA_FFC_INDEX32(ffdata, "FFCData", 31); break;  //W, 32 OF THESE
+case MAPDATAFFCSET:         SET_MAPDATA_FFC_INDEX32(ffcset, "FFCCSet", 31); break;  //B, 32
+case MAPDATAFFDELAY:        SET_MAPDATA_FFC_INDEX32(ffdelay, "FFCDelay", 31); break;    //W, 32
+case MAPDATAFFX:        SET_MAPDATA_FFCPOS_INDEX32(ffx, "FFCX", 31); break; //INT32, 32 OF THESE
+case MAPDATAFFY:        SET_MAPDATA_FFCPOS_INDEX32(ffy, "FFCY", 31); break; //..
+case MAPDATAFFXDELTA:       SET_MAPDATA_FFCPOS_INDEX32(ffxdelta, "FFCVx", 31); break;   //..
+case MAPDATAFFYDELTA:       SET_MAPDATA_FFCPOS_INDEX32(ffydelta, "FFCVy", 31); break;   //..
+case MAPDATAFFXDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ffxdelta2, "FFCAx", 31); break;  //..
+case MAPDATAFFYDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ffydelta2, "FFCAy", 31); break;  //..
+case MAPDATAFFFLAGS:        SET_MAPDATA_FFC_INDEX32(ffflags, "FFCFlags", 31); break;    //INT16, 32 OF THESE
 //Height and With are Or'd together, and need to be separate:
 /*
  //TileWidth ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
 */
-case MAPDATAFFWIDTH: 		
+case MAPDATAFFWIDTH:       
 {
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	int indx = ri->d[0] / 10000; 
-	if ( indx < 0 || indx > 31 ) 
-	{
-		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileWidth[]: %d\n", indx);
-		break;
-	}
-	if ( (value/10000) < 0 || (value/10000) > 4 ) 
-	{
-		Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileWidth[]: %d\n", value);
-		break;
-	}
-	m->ffwidth[indx] = ( m->ffwidth[indx]&~63) | vbound( (((value/10000)-1)&63), (0&63), (214747&63) ); 
-	break;
-}	
-
-
-//SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");	//B, 32 OF THESE
-case MAPDATAFFHEIGHT:	 	
+    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    {
+        Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
+        break;
+    }
+    else
+    {
+    mapscr *m = &TheMaps[ri->mapsref];
+    int indx = (ri->d[0] / 10000)-1;
+        if ( indx < 0 || indx > 32 )
+        {
+            Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileWidth[]: %d\n", indx+1);
+            break;
+        }
+        if ( (value/10000) < 0 || (value/10000) > 4 )
+        {
+            Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileWidth[]: %d\n", value/10000);
+            break;
+        }
+        m->ffwidth[indx]= (m->ffwidth[indx]&63) | ((((value/10000)-1)&3)<<6);
+   
+        break;
+    }
+}  
+ 
+ 
+//SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");  //B, 32 OF THESE
+case MAPDATAFFHEIGHT:      
 {
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	int indx = ri->d[0] / 10000; 
-	if ( indx < 0 || indx > 31 ) 
-	{
-		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileHeight[]: %d\n", indx);
-		break;
-	}
-	if ( (value/10000) < 0 || (value/10000) > 4 ) 
-	{
-		Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileHeight[]: %d\n", value);
-		break;
-	}
-	m->ffheight[indx] = ( m->ffheight[indx]&~63) | vbound( (((value/10000)-1)&63), (0&63), (4&63) ); 
-	break;
-	
+    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    {
+        Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
+        break;
+    }
+    else
+    {
+        mapscr *m = &TheMaps[ri->mapsref];
+        int indx = (ri->d[0] / 10000)-1;
+        if ( indx < 0 || indx > 31 )
+        {
+            Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileHeight[]: %d\n", indx+1);
+            break;
+        }
+        if ( (value/10000) < 0 || (value/10000) > 4 )
+        {
+            Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCTileHeight[]: %d\n", value/10000);
+            break;
+        }
+        m->ffheight[indx]=(m->ffheight[indx]&63) | ((((value/10000)-1)&3)<<6);
+        break;
+    }
+   
 }
-
+ 
 //EffectWidth tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
-
-//SET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"	//B, 32 OF THESE
-case MAPDATAFFEFFECTWIDTH: 		
-{ 
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	int indx = ri->d[0] / 10000; 
-	if ( indx < 0 || indx > 31 ) 
-	{
-		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectWidth[]: %d\n", indx);
-		break;
-	}
-	if ( (value/10000) < 0 ) 
-	{
-		Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCEffectWidth[]: %d\n", value);
-		break;
-	}
-	m->ffwidth[indx] = ( m->ffwidth[indx]&63) | vbound( ((((value/10000)-1)&3)<<6), ((((0)-1)&3)<<6), ((((214747)&3)<<6)) );
-	break;
+ 
+//SET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"  //B, 32 OF THESE
+case MAPDATAFFEFFECTWIDTH:     
+{
+    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    {
+        Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
+        break;
+    }
+    else
+    {
+        mapscr *m = &TheMaps[ri->mapsref];
+        int indx = (ri->d[0] / 10000)-1;
+        if ( indx < 0 || indx > 31 )
+        {
+            Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectWidth[]: %d\n", indx+1);
+            break;
+        }
+        if ( (value/10000) < 0 )
+        {
+            Z_scripterrlog("Invalid WIDTH value passed to MapData->FFCEffectWidth[]: %d\n", value/10000);
+            break;
+        }
+        m->ffwidth[indx]= (m->ffwidth[indx] & ~63) | (((value/10000)-1)&63);
+        break;
+    }
 }
-
-
-//SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");	//B, 32 OF THESE
+ 
+ 
+//SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");    //B, 32 OF THESE
 case MAPDATAFFEFFECTHEIGHT:
-{ 
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	int indx = ri->d[0] / 10000; 
-	if ( indx < 0 || indx > 31 ) 
-	{
-		Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectHeight[]: %d\n", indx);
-		break;
-	}
-	if ( (value/10000) < 0 ) 
-	{
-		Z_scripterrlog("Invalid HEIGHT value passed to MapData->FFCEffectHeight[]: %d\n", value);
-		break;
-	}
-	m->ffheight[indx] = ( m->ffheight[indx]&63) | vbound( ((((value/10000)-1)&3)<<6), ((((0)-1)&3)<<6), ((((214747)&3)<<6)) );
-	break;
-}	
-	
-//SET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"	//B, 32 OF THESE	
-
-case MAPDATAFFLINK: 		SET_MAPDATA_BYTE_INDEX(fflink, "FFCLink", 31); break;	//B, 32 OF THESE
-case MAPDATAFFSCRIPT:	 	SET_MAPDATA_VAR_INDEX32(ffscript, "FFCScript", 31); break;	//W, 32 OF THESE
+{
+    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    {
+        Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
+        break;
+    }
+    else
+    {
+        mapscr *m = &TheMaps[ri->mapsref];
+        int indx = (ri->d[0] / 10000)-1;
+        if ( indx < 0 || indx > 31 )
+        {
+            Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectHeight[]: %d\n", indx+1);
+            break;
+        }
+        if ( (value/10000) < 0 )
+        {
+            Z_scripterrlog("Invalid HEIGHT value passed to MapData->FFCEffectHeight[]: %d\n", value/10000);
+            break;
+        }
+        m->ffheight[indx]= (m->ffheight[indx] & ~63) | (((value/10000)-1)&63);
+        break;
+    }
+}
+   
+//SET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"    //B, 32 OF THESE   
+ 
+case MAPDATAFFLINK:         SET_MAPDATA_FFC_INDEX_VBOUND(fflink, "FFCLink", 31, 0, 32); break;  //B, 32 OF THESE
+case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(ffscript, "FFCScript", 31, 0, 255); break; //W, 32 OF THESE
 
 case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//SetFFCInitD(ffindex, d, value)

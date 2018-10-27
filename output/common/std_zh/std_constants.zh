@@ -2108,6 +2108,19 @@ const int FFCF_RESET            = 8; // Script Resets When Carried Over
 const int FFCF_ETHEREAL         = 9; // The FFC's Combo Type is ignored.
 const int FFCF_IGNOREHOLDUP     = 10; // The FFC is updated while Link is holding up an item
 
+//FFC Bitwise Flags. To be used for bitwise checking of mapdata->FFCFlags[].
+const int FFCBF_OVERLAY   	    = 0x001;
+const int FFCBF_TRANS           = 0x002;
+const int FFCBF_SOLID           = 0x004;
+const int FFCBF_CARRYOVER       = 0x008;
+const int FFCBF_STATIONARY      = 0x010;
+const int FFCBF_CHANGER         = 0x020;
+const int FFCBF_PRELOAD         = 0x040;
+const int FFCBF_LENSVIS         = 0x080;
+const int FFCBF_RESET           = 0x100;
+const int FFCBF_ETHEREAL        = 0x200;
+const int FFCBF_IGNOREHOLDUP    = 0x400;
+
 
 //Aim-type constants, for use with AimEWeapon
 const int AT_NONE		= 0;
