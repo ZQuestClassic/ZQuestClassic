@@ -9780,7 +9780,7 @@ case MAPDATAFFHEIGHT:
     else
     {
         mapscr *m = &TheMaps[ri->mapsref];
-        int (ri->d[0] / 10000)-1;
+        int indx = (ri->d[0] / 10000)-1;
         if ( indx < 0 || indx > 31 )
         {
             Z_scripterrlog("Invalid FFC Index passed to MapData->FFCTileHeight[]: %d\n", indx+1);
@@ -9810,7 +9810,7 @@ case MAPDATAFFEFFECTWIDTH:
     else
     {
         mapscr *m = &TheMaps[ri->mapsref];
-        int (ri->d[0] / 10000)-1;
+        int indx = (ri->d[0] / 10000)-1;
         if ( indx < 0 || indx > 31 )
         {
             Z_scripterrlog("Invalid FFC Index passed to MapData->FFCEffectWidth[]: %d\n", indx+1);
