@@ -4679,7 +4679,7 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//int ffindex = ri->d[0]/10000;
 	//int d = ri->d[1]/10000;
 	//int v = (value/10000);
-	ret = (m->initd[(ri->d[0]/10000)][(ri->d[1]/10000)]) * 10000;
+	ret = (m->initd[(ri->d[0]/10000) - 1][(ri->d[1]/10000)]);
 	break;
 }	
 	
@@ -9866,7 +9866,7 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//int ffindex = ri->d[0]/10000;
 	//int d = ri->d[1]/10000;
 	//int v = (value/10000);
-	m->initd[(ri->d[0]/10000)][(ri->d[1]/10000)] = (value/10000);
+	m->initd[(ri->d[0]/10000) - 1][(ri->d[1]/10000)] = value;
 	break;
 }	
 	
