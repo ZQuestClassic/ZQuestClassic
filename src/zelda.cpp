@@ -3116,6 +3116,7 @@ void setMonochrome(bool v){
 
 enum { colourNONE, colourGREY, colourRED, colourGREEN, colourBLUE, colourVIOLET, colourTEAL, colourAMBER, colourCYAN };
 enum { baseUNIFORM, baseDISTRIBUTED = 1000 };
+enum { tint_r, tint_g, tint_b, tint_bool_dist};
 
 short int lastMonoPreset = 0; // The current Monochrome preset loaded
 short int lastCustomTint[4] = {0,0,0,0}; // The current custom tint information. 0/1/2: R/G/B, 3: Base
@@ -3316,6 +3317,11 @@ void restoreMonoPreset(){
 		setMonochromatic(lastMonoPreset);
 		refreshpal = true;
 	}
+}
+
+int getTint(int color)
+{
+	return lastCustomTint[color];
 }
 /**************************/
 /********** Main **********/
