@@ -4676,10 +4676,28 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//SetFFCInitD(ffindex, d, value)
 {
 	mapscr *m = &TheMaps[ri->mapsref]; 
+	int ffid = (ri->d[0]/10000) -1;
+	int indx = ri->d[1]/10000;
+		
+	if ( (unsigned)ffid > 31 ) 
+	{
+	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+	    ret = -10000;
+	}
+	else if ( (unsigned)indx > 7 )
+	{
+	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+            ret = -10000;
+	}
+	else
+	{ 
+	    ret = (m->initd[ffid][indx]);
+	}
+	
 	//int ffindex = ri->d[0]/10000;
 	//int d = ri->d[1]/10000;
 	//int v = (value/10000);
-	ret = (m->initd[(ri->d[0]/10000) - 1][(ri->d[1]/10000)]);
+	
 	break;
 }	
 	
@@ -4693,7 +4711,24 @@ case MAPDATAINITA:
 	//int ffindex = ri->d[0]/10000;
 	//int d = ri->d[1]/10000;
 	//int v = (value/10000);
-	ret = (m->inita[(ri->d[0]/10000)][(ri->d[1]/10000)]) * 10000;
+	
+	int ffid = (ri->d[0]/10000) -1;
+	int indx = ri->d[1]/10000;
+		
+	if ( (unsigned)ffid > 31 ) 
+	{
+	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+	    ret = -10000;
+	}
+	else if ( (unsigned)indx > 1 )
+	{
+	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+            ret = -10000;
+	}
+	else
+	{ 
+	    ret = (m->inita[ffid][indx]);
+	}
 	break;
 }	
 
@@ -9866,7 +9901,21 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//int ffindex = ri->d[0]/10000;
 	//int d = ri->d[1]/10000;
 	//int v = (value/10000);
-	m->initd[(ri->d[0]/10000) - 1][(ri->d[1]/10000)] = value;
+	int ffid = (ri->d[0]/10000) -1;
+	int indx = ri->d[1]/10000;
+		
+	if ( (unsigned)ffid > 31 ) 
+	{
+	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+	}
+	else if ( (unsigned)indx > 7 )
+	{
+	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+	}
+	else
+	{ 
+	     m->initd[ffid][indx] = value;
+	}
 	break;
 }	
 	
@@ -9881,7 +9930,22 @@ case MAPDATAINITA:
 	//int ffindex = ri->d[0]/10000;
 	//int d = ri->d[1]/10000;
 	//int v = (value/10000);
-	m->inita[(ri->d[0]/10000)][(ri->d[1]/10000)] = (value/10000);
+	int ffid = (ri->d[0]/10000) -1;
+	int indx = ri->d[1]/10000;
+		
+	if ( (unsigned)ffid > 31 ) 
+	{
+	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+	}
+	else if ( (unsigned)indx > 7 )
+	{
+	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+	}
+	else
+	{ 
+	     m->inita[ffid][indx] = value;
+	}
+	
 	break;
 }	
 	
