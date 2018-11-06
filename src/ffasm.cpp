@@ -722,7 +722,7 @@ script_command command_list[NUMCOMMANDS+1]=
      { "BMPPOLYGONR",                0,   0,   0,   0},
      { "BMPDRAWLAYERR",                0,   0,   0,   0},
      { "BMPDRAWSCREENR",                0,   0,   0,   0},
-     
+     { "BMPBLIT",                0,   0,   0,   0},
      
      { "",                    0,   0,   0,   0}
 };

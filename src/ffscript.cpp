@@ -13303,6 +13303,77 @@ void do_drawing_command(const int script_command)
         script_drawing_commands[j].SetString(str);
     }
     break;
+    
+     case 	BMPRECTR:	set_drawing_command_args(j, 12); break;
+	case 	BMPCIRCLER:	set_drawing_command_args(j, 11); break;
+	case 	BMPARCR:	set_drawing_command_args(j, 14); break;
+	case 	BMPELLIPSER:	set_drawing_command_args(j, 12); break;
+	case 	BMPLINER:	set_drawing_command_args(j, 11); break;
+	case 	BMPSPLINER:	set_drawing_command_args(j, 11); break;
+	case 	BMPPUTPIXELR:	set_drawing_command_args(j, 8); break;
+	case 	BMPDRAWTILER:	set_drawing_command_args(j, 15); break;
+	case 	BMPDRAWCOMBOR:	set_drawing_command_args(j, 16); break;
+	case 	BMPFASTTILER:	set_drawing_command_args(j, 6); break;
+	case 	BMPFASTCOMBOR:	set_drawing_command_args(j, 6); break;
+	case 	BMPDRAWCHARR:	set_drawing_command_args(j, 10); break;
+	case 	BMPDRAWINTR:	set_drawing_command_args(j, 11); break;
+	case 	BMPDRAWSTRINGR:	
+	{
+		set_drawing_command_args(j, 9);
+		// Unused
+		//const int index = script_drawing_commands[j][19] = j;
+		
+		string *str = script_drawing_commands.GetString();
+		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
+		script_drawing_commands[j].SetString(str);
+		break;
+	}
+	case 	BMPQUADR:	set_drawing_command_args(j, 15); break;
+	case 	BMPQUAD3DR:
+	 {
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		v->resize(26, 0);
+		
+		long* pos = &v->at(0);
+		long* uv = &v->at(12);
+		long* col = &v->at(20);
+		long* size = &v->at(24);
+		
+		set_drawing_command_args(j, 8);
+		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 12);
+		ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 8);
+		ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 4);
+		ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+		
+		script_drawing_commands[j].SetVector(v);
+		break;
+	}
+	case 	BMPTRIANGLER:	set_drawing_command_args(j, 13); break;
+	case 	BMPTRIANGLE3DR:
+	{
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		v->resize(20, 0);
+		
+		long* pos = &v->at(0);
+		long* uv = &v->at(9);
+		long* col = &v->at(15);
+		long* size = &v->at(18);
+		
+		set_drawing_command_args(j, 8);
+		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 8);
+		ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 6);
+		ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 3);
+		ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+		
+		script_drawing_commands[j].SetVector(v);
+		break;
+	}
+	//case 	BMPPOLYGONR:
+	case 	BMPDRAWLAYERR: 	set_drawing_command_args(j, 8); break;
+	case 	BMPDRAWSCREENR:	set_drawing_command_args(j, 6); break;
+	case 	BMPBLIT:	set_drawing_command_args(j, 16); break;
+    
+    
     }
 }
 
@@ -15196,6 +15267,28 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 	case BITMAPEXR:
         case DRAWLAYERR:
         case DRAWSCREENR:
+	case 	BMPRECTR:	
+	case 	BMPCIRCLER:
+	case 	BMPARCR:
+	case 	BMPELLIPSER:
+	case 	BMPLINER:
+	case 	BMPSPLINER:
+	case 	BMPPUTPIXELR:
+	case 	BMPDRAWTILER:
+	case 	BMPDRAWCOMBOR:
+	case 	BMPFASTTILER:
+	case 	BMPFASTCOMBOR:
+	case 	BMPDRAWCHARR:
+	case 	BMPDRAWINTR:
+	case 	BMPDRAWSTRINGR:
+	case 	BMPQUADR:
+	case 	BMPQUAD3DR:
+	case 	BMPTRIANGLER:
+	case 	BMPTRIANGLE3DR:
+	case 	BMPPOLYGONR:
+	case 	BMPDRAWLAYERR: 
+	case 	BMPDRAWSCREENR:
+	case 	BMPBLIT:
             do_drawing_command(scommand);
             break;
             

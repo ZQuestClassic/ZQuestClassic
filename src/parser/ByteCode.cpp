@@ -4031,7 +4031,7 @@ string OBMPPutPixelRegister::toString()
     return "BMPPUTPIXEL";
 }
 
-string BMPODrawCharRegister::toString()
+string OBMPDrawCharRegister::toString()
 {
     return "BMPDRAWCHAR";
 }
@@ -4068,7 +4068,7 @@ string OBMPDrawStringRegister::toString()
 
 string OBMPDrawBitmapExRegister::toString()
 {
-    return "BMPBITMAPEXR";
+    return "BMPBLIT";
 }
 
 string OBMPQuadRegister::toString()
