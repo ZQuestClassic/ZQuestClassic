@@ -12,6 +12,8 @@
   #define  INTERNAL_VERSION  0xA721
   */
 
+#define MIDI_TRACK_BUFFER_SIZE 50
+
 #include "precompiled.h" //always first
 
 #include <stdio.h>
@@ -2431,7 +2433,7 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
 }
 
 
-static char track_number_str_buf[32];
+static char track_number_str_buf[MIDI_TRACK_BUFFER_SIZE];
 const char *tracknumlist(int index, int *list_size)
 {
     if(index>=0)
@@ -10736,7 +10738,7 @@ const char *roomslist(int index, int *list_size)
     return NULL;
 }
 
-static char number_str_buf[32];
+static char number_str_buf[MIDI_TRACK_BUFFER_SIZE];
 int number_list_size=1;
 bool number_list_zero=false;
 
@@ -12641,7 +12643,7 @@ static TABPANEL editdmapmap_tabs[] =
 };
 
 int dmap_tracks=0;
-static char dmap_track_number_str_buf[32];
+static char dmap_track_number_str_buf[MIDI_TRACK_BUFFER_SIZE];
 const char *dmaptracknumlist(int index, int *list_size)
 {
     if(index>=0)
@@ -13500,7 +13502,7 @@ int onMidis()
 {
     stopMusic();
     int ret;
-    char buf[40];
+    char buf[MIDI_TRACK_BUFFER_SIZE];
     number_list_size=MAXCUSTOMTUNES;
     number_list_zero=false;
     strcpy(temppath,midipath);
