@@ -320,7 +320,7 @@ script_command command_list[NUMCOMMANDS+1]=
     { "__RESERVED_FOR_POLYGON3DR",                0,   0,   0,   0},
     { "__RESERVED_FOR_SETRENDERSOURCE",                0,   0,   0,   0},
     { "__RESERVED_FOR_CREATEBITMAP",                0,   0,   0,   0},
-    { "__RESERVED_FOR_PIXELARRAYR",                0,   0,   0,   0},
+    { "PIXELARRAYR",                0,   0,   0,   0},
     { "__RESERVED_FOR_TILEARRAYR",                0,   0,   0,   0},
     { "__RESERVED_FOR_COMBOARRAYR",                0,   0,   0,   0},
     { "RES0000",			   0,   0,   0,   0},

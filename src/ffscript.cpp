@@ -13199,6 +13199,10 @@ void do_drawing_command(const int script_command)
     case PUTPIXELR:
         set_drawing_command_args(j, 8);
         break;
+    
+    case PIXELARRAYR:
+        set_drawing_command_args(j, 5);
+        break;
         
     case DRAWTILER:
         set_drawing_command_args(j, 15);
@@ -15251,6 +15255,7 @@ case DMAPDATASETMUSICV: //command, string to load a music file
         case ELLIPSER:
         case LINER:
         case PUTPIXELR:
+        case PIXELARRAYR:
         case DRAWTILER:
         case DRAWCOMBOR:
         case DRAWCHARR:

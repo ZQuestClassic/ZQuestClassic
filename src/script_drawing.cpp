@@ -853,6 +853,56 @@ void do_putpixelr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
+void do_putpixelsr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+	//Z_scripterrlog("Starting putpixels()%s\n");
+    //sdci[1]=layer
+    //sdci[2]=array {x,y,colour,opacity}
+    //sdci[3]=rotation anchor x
+    //sdci[4]=rotation anchor y
+    //sdci[5]=rotation angle
+    
+    int sz = FFCore.getSize(sdci[2]/10000);
+	//Z_scripterrlog("PutPixels array size is%d: \n",sz);
+    int points[214748];// = script_drawing_commands[i].GetPtr();
+
+    for ( int q = 0; q < sz; q++ )
+	{	points[q] = (FFCore.getElement(sdci[2]/10000, q))/10000;
+		//Z_scripterrlog("PutPixels array index %d is %d: \n",q, points[q]);
+		
+	}
+    //FFCore.getValues(sdci[2]/10000, points, sz);
+    
+    
+	int x1 = 0;
+	int y1 = 0;
+    
+    for ( int q = 0; q < sz; q+=4 )
+    {
+	    x1 = points[q];
+	    y1 = points[q+1];
+	    if(sdci[5]!=0) //rotation
+	    {
+		int xy[2];
+		int rx=sdci[3]/10000;
+		int ry=sdci[4]/10000;
+		fixed ra1=itofix(sdci[5]%10000)/10000;
+		fixed ra2=itofix(sdci[5]/10000);
+		fixed ra=ra1+ra2;
+		
+		xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
+		xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
+		x1=xy[0];
+		y1=xy[1];
+	    }
+	    //Z_scripterrlog("PutPixels()%s value is %d\n","x",x1);
+	    //Z_scripterrlog("PutPixels()%s value is %d\n","y",y1);
+	    //Z_scripterrlog("PutPixels()%s value is %d\n","colour",points[q+2]);
+	    putpixel(bmp, x1+xoffset, y1+yoffset, points[q+2]);
+	    if ( points[q+3] < 128 ) drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+	    else drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+    }
+}
 
 void do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
@@ -6868,6 +6918,12 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
         case PUTPIXELR:
         {
             do_putpixelr(bmp, sdci, xoffset, yoffset);
+        }
+        break;
+	case PIXELARRAYR:
+        {
+		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
+            do_putpixelsr(bmp, sdci, xoffset, yoffset);
         }
         break;
         

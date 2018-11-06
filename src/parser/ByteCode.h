@@ -3033,6 +3033,16 @@ namespace ZScript
 			return new OPutPixelRegister();
 		}
 	};
+	
+	class OPutPixelArrayRegister : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OPutPixelArrayRegister();
+		}
+	};
 
 	class ODrawCharRegister : public Opcode
 	{

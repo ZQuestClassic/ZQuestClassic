@@ -2430,6 +2430,11 @@ string OPutPixelRegister::toString()
     return "PUTPIXEL";
 }
 
+string OPutPixelArrayRegister::toString()
+{
+    return "PIXELARRAYR";
+}
+
 string ODrawCharRegister::toString()
 {
     return "DRAWCHAR";
