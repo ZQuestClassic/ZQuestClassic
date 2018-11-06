@@ -4497,8 +4497,11 @@ case LOADMAPDATA:
         break;
 
 case CREATEBITMAP:
+{
+	Z_scripterrlog("Creating a bitmap for bitmap ref: %d\n", ri->bitmapref);
         ret=FFCore.do_create_bitmap();
         break;
+}
 
 
 case MAPDATAVALID:		GET_MAPDATA_VAR_BYTE(valid, "Valid"); break;		//b
@@ -15894,20 +15897,24 @@ void FFScript::user_bitmaps_init()
 
 long FFScript::do_create_bitmap()
 {
-    
+	Z_scripterrlog("Begin running FFCore.do_create_bitmap()\n");
 	//CreateBitmap(h,w)
 	long h = (ri->d[0] / 10000);
 	long w = (ri->d[1]/10000);
 	//sanity checks
+	int id = 0;
+	
 	if ( highest_valid_user_bitmap() >= (MAX_USER_BITMAPS-1) )
 	{
 		ri->bitmapref = 0;
 		Z_scripterrlog("Script attempted to create a bitmap, but no bitmaps are available. Setting ri->bitmapref to: %d\n", ri->bitmapref);
-		return NULL;
+		return id;
 	}
 	else
 	{
-		int id = create_user_bitmap_ex(h,w,8);
+		Z_scripterrlog("do_create_bitmap() is %s\n","getting a bitmap ID with create_user_bitmap_ex()");
+		id = create_user_bitmap_ex(h,w,8);
+		Z_scripterrlog("do_create_bitmap() found a free bitmap ID of: %d\n",id);
 		//if ( id < rtSCREEN || id > (MAX_USER_BITMAPS-1) )
 		//{
 		//	ri->bitmapref = 0;
@@ -15916,7 +15923,9 @@ long FFScript::do_create_bitmap()
 		//else
 		//{	
 			ri->bitmapref = id; 
+			
 			Z_eventlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
+			Z_scripterrlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
 			return id;
 		//}
 	}
@@ -15924,12 +15933,16 @@ long FFScript::do_create_bitmap()
 
 int FFScript::highest_valid_user_bitmap()
 {
-	return (scb.num_active)-1;
+	return (scb.num_active);
 }
 
 long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
 {
-        int id = get_free_bitmap();
+	int id;
+        do
+	{
+		id = get_free_bitmap();
+	} while (id < rtBMP6+1); //be sure not to overlay with system bitmaps!
         if ( id > 0 )
         {
             scb.script_created_bitmaps[id].width = w;
@@ -15976,9 +15989,12 @@ int FFScript::get_free_bitmap()
         int num_free = scb.num_active;
         if ( num_free < ( MAX_USER_BITMAPS-1 ) )
         {
+		//num_free = scb.num_active; 
             ++scb.num_active;
-            return num_free;
+		Z_scripterrlog("get_free_bitmap() found a valid free bitmap with an ID of: %d\n",num_free);
+            return scb.num_active;
         }
+	Z_scripterrlog("get_free_bitmap() could not find a valid free bitmap!%s\n"," ");
         return 0;
 }
 

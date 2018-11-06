@@ -5118,7 +5118,12 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//BITMAP *refbmp = FFCore.GetScriptBitmap(ri->bitmapref);
 	//if ( refbmp == NULL ) return;
 
-	int bitmapIndex = sdci[2]/10000;
+	int bitmapIndex = sdci[2];
+	Z_scripterrlog("Blit() found a dest bitmap ID of: %d\n",bitmapIndex);
+	if ( (unsigned) bitmapIndex > 10000 )
+	{
+		bitmapIndex = bitmapIndex / 10000;
+	}
 	
 	//BITMAP *destBMP = FFCore.GetScriptBitmap(bitmapIndex);
 	//if ( destBMP == NULL ) return;
@@ -5139,15 +5144,49 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	bool masked = (sdci[16] != 0);
 	
 	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ri->bitmapref);
+	Z_scripterrlog("bitmap->Blit() is trying to blit ri->bitmapref: %d\n",ri->bitmapref);
 
 	if(!sourceBitmap)
 	{
-		Z_message("Warning: Screen->DrawBitmap(%d) contains invalid data or is not initialized.\n", bitmapIndex);
+		Z_message("Warning: blit(%d) source bitmap contains invalid data or is not initialized.\n", ri->bitmapref);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
 	
-
+	BITMAP *destBMP;
+	
+	switch(bitmapIndex)
+	{
+		case -1:
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6: //old system bitmaps (render targets)
+		{
+		    destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
+		}
+		default: destBMP = FFCore.get_user_bitmap(bitmapIndex);
+	}
+	
+	//BITMAP *destBMP = FFCore.GetScriptBitmap(bitmapIndex);
+	if(!destBMP && bitmapIndex != -1)
+	{
+		Z_message("Warning: blit(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
+		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
+		return;
+	}
+	if ( bitmapIndex == -1 ) Z_scripterrlog("blit() is trying to blit to the scren!%s\n"," ");
+	{
+	
+		Z_scripterrlog("bitmap->Blit() is trying is blitting!%s\n"," ");
+		destBMP = framebuf;
+		//masked_blit(sourceBitmap, framebuf, 0, 0, 0, 0, 64, 64);
+		//return;
+	}
+	
 	//bugfix
 	sx = vbound(sx, 0, sourceBitmap->w);
 	sy = vbound(sy, 0, sourceBitmap->h);
@@ -5159,8 +5198,6 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
 	
 	
-	BITMAP *destBMP = FFCore.GetScriptBitmap(bitmapIndex);
-	if ( destBMP == NULL ) return;
     
 	
     
