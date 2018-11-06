@@ -13206,6 +13206,18 @@ void do_drawing_command(const int script_command)
     case PIXELARRAYR:
         set_drawing_command_args(j, 5);
         break;
+    
+    case TILEARRAYR:
+        set_drawing_command_args(j, 2);
+        break;
+        
+    case LINESARRAY:
+        set_drawing_command_args(j, 2);
+        break;
+        
+    case COMBOARRAYR:
+        set_drawing_command_args(j, 2);
+        break;
         
     case DRAWTILER:
         set_drawing_command_args(j, 15);
@@ -15259,6 +15271,9 @@ case DMAPDATASETMUSICV: //command, string to load a music file
         case LINER:
         case PUTPIXELR:
         case PIXELARRAYR:
+        case TILEARRAYR:
+        case LINESARRAY:
+        case COMBOARRAYR:
         case DRAWTILER:
         case DRAWCOMBOR:
         case DRAWCHARR:

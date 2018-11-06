@@ -2435,6 +2435,16 @@ string OPutPixelArrayRegister::toString()
     return "PIXELARRAYR";
 }
 
+string OPutTileArrayRegister::toString()
+{
+    return "TILEARRAYR";
+}
+
+string OPutLinesArrayRegister::toString()
+{
+    return "LINESARRAY";
+}
+
 string ODrawCharRegister::toString()
 {
     return "DRAWCHAR";
@@ -2463,6 +2473,11 @@ string OFastTileRegister::toString()
 string OFastComboRegister::toString()
 {
     return "FASTCOMBO";
+}
+
+string OFastComboArrayRegister::toString()
+{
+    return "COMBOARRAYR";
 }
 
 string ODrawStringRegister::toString()

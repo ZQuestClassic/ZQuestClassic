@@ -793,6 +793,87 @@ void do_liner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
+void do_linesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+    //sdci[1]=layer
+    //sdci[2]=array[10] = { x, y, x2, y2, colour, scale, rx, ry, angle, opacity }
+	
+    //sdci[2]=x
+    //sdci[3]=y
+    //sdci[4]=x2
+    //sdci[5]=y2
+    //sdci[6]=color
+    //sdci[7]=scale factor
+    //sdci[8]=rotation anchor x
+    //sdci[9]=rotation anchor y
+    //sdci[10]=rotation angle
+    //sdci[11]=opacity
+    if(sdci[7]==0)  //scale
+    {
+        return;
+    }
+    
+    int sz = FFCore.getSize(sdci[2]/10000);
+	//Z_scripterrlog("PutPixels array size is%d: \n",sz);
+    int points[214740];// = script_drawing_commands[i].GetPtr();
+
+    for ( int q = 0; q < sz; q++ )
+	{	points[q] = (FFCore.getElement(sdci[2]/10000, q))/10000;
+		//Z_scripterrlog("PutPixels array index %d is %d: \n",q, points[q]);
+		
+	}
+	
+    for ( int q = 0; q < sz; q+=4 )
+    {
+	
+	    int x1 = points[q];
+	    int y1 = points[q+1];
+	    int x2 = points[q+2];
+	    int y2 = points[q+3];
+	    
+	    if( points[q+5] != 10000)
+	    {
+		int w=x2-x1+1;
+		int h=y2-y1+1;
+		int w2=int(w*((double)points[q+5]));
+		int h2=int(h*((double)points[q+5]));
+		x1=x1-((w2-w)/2);
+		x2=x2+((w2-w)/2);
+		y1=y1-((h2-h)/2);
+		y2=y2+((h2-h)/2);
+	    }
+	    
+	    int color  = points[q+4];
+	    
+	    if(points[q+9] <= 127) //translucent
+	    {
+		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	    }
+	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+	    
+	    if( points[q+8] !=0 ) //rotation
+	    {
+		int xy[4];
+		int rx = points[q+6];
+		int ry = points[q+7];
+		fixed ra1=itofix(points[q+8] % 1);
+		fixed ra2=itofix(points[q+8]);
+		fixed ra=ra1+ra2;
+		
+		xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
+		xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
+		xy[ 2]=rx + fixtoi((fixcos(ra) * (x2 - rx) - fixsin(ra) * (y2 - ry)));     //x2
+		xy[ 3]=ry + fixtoi((fixsin(ra) * (x2 - rx) + fixcos(ra) * (y2 - ry)));     //y2
+		x1=xy[0];
+		y1=xy[1];
+		x2=xy[2];
+		y2=xy[3];
+	    }
+	    
+	    line(bmp, x1+xoffset, y1+yoffset, x2+xoffset, y2+yoffset, color);
+    }
+    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+}
 
 void do_spliner(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
@@ -1252,6 +1333,35 @@ void do_fasttiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
         overtile16(bmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0);
 }
 
+void do_fasttilesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+    /* layer, x, y, tile, color opacity */
+    
+    //sdci[1]=layer
+    //sdci[2]=array {x,y,tile,colour,opacity}
+    
+    int sz = FFCore.getSize(sdci[2]/10000);
+	//Z_scripterrlog("PutPixels array size is%d: \n",sz);
+    int points[214745];// = script_drawing_commands[i].GetPtr();
+
+    for ( int q = 0; q < sz; q++ )
+    {	
+	    points[q] = (FFCore.getElement(sdci[2]/10000, q))/10000;
+		//Z_scripterrlog("PutPixels array index %d is %d: \n",q, points[q]);
+		
+    }
+	
+    for ( int q = 0; q < sz; q+=5 )
+    {
+	    
+	    if(points[q+4] < 128)
+		overtiletranslucent16(bmp, points[q], xoffset+(points[q+1]), yoffset+(points[q+2]), points[q+3], 0, points[q+4]);
+	    else
+		overtile16(bmp, points[q], xoffset+(points[q+1]), yoffset+(points[q+2]), points[q+3], 0);
+    }
+}
+
+
 
 void do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 {
@@ -1284,6 +1394,42 @@ void do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		overcomboblock(bmp, xoffset+x1, yoffset+y1, sdci[4]/10000, sdci[5]/10000, 1, 1);
 	}
 }
+
+void do_fastcombosr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
+{
+    /* layer, x, y, combo, cset, opacity */
+    
+    //sdci[1]=layer
+    //sdci[2]=array {x,y,combo,cset,opacity}
+    
+    int sz = FFCore.getSize(sdci[2]/10000);
+	//Z_scripterrlog("PutPixels array size is%d: \n",sz);
+    int points[214745];// = script_drawing_commands[i].GetPtr();
+
+    for ( int q = 0; q < sz; q++ )
+    {	
+	    points[q] = (FFCore.getElement(sdci[2]/10000, q))/10000;
+		//Z_scripterrlog("PutPixels array index %d is %d: \n",q, points[q]);
+		
+    }
+	
+    for ( int q = 0; q < sz; q+=5 )
+    {
+	    
+	    if(points[q+4] < 128)
+	{
+		//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
+		overcomboblocktranslucent(bmp, xoffset+points[q], yoffset+points[q+1], points[q+2], points[q+3], 1, 1, 128);
+
+	}
+	else
+	{
+		//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
+		overcomboblock(bmp, xoffset+points[q], yoffset+points[q+1], points[q+2], points[q+3], 1, 1);
+	}
+    }
+}
+
 
 
 
@@ -6967,6 +7113,29 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
             do_putpixelsr(bmp, sdci, xoffset, yoffset);
         }
         break;
+	
+	case TILEARRAYR:
+        {
+		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
+            do_fasttilesr(bmp, sdci, xoffset, yoffset);
+        }
+        break;
+	
+	case LINESARRAY:
+        {
+		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
+            do_linesr(bmp, sdci, xoffset, yoffset);
+        }
+        break;
+	
+	case COMBOARRAYR:
+        {
+		 //Z_scripterrlog("Reached case PIXELARRAYR\n");
+            do_fastcombosr(bmp, sdci, xoffset, yoffset);
+        }
+        break;
+	
+	
         
         case DRAWTILER:
         {
