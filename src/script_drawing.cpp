@@ -5365,8 +5365,8 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	}
     
     
-	dx = dx + xoffset;
-	dy = dy + yoffset;
+	//dx = dx + xoffset; //don't do this here!
+	//dy = dy + yoffset;
     
 	if(stretched) {
 		if(masked) {	//stretched and masked
