@@ -1209,12 +1209,26 @@ void do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     int index = sdci[4]/10000;
     
     //if( index >= MAXCOMBOS ) return; //bleh.
+	/*
     const newcombo & c = combobuf[index];
     
     if(opacity < 128)
         overtiletranslucent16(bmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int)c.flip, opacity);
     else
         overtile16(bmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int)c.flip);
+	*/
+	
+	if(opacity < 128)
+	{
+		//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
+		overcomboblocktranslucent(bmp, xoffset+x1, yoffset+y1, sdci[5]/10000, sdci[6]/10000, 1, 1, 128);
+
+	}
+	else
+	{
+		//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
+		overcomboblock(bmp, xoffset+x1, yoffset+y1, sdci[5]/10000, sdci[6]/10000, 1, 1);
+	}
 }
 
 
@@ -4297,12 +4311,26 @@ void bmp_do_fastcombor(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if ( refbmp == NULL ) return;
     
     //if( index >= MAXCOMBOS ) return; //bleh.
+	/*
     const newcombo & c = combobuf[index];
     
     if(opacity < 128)
         overtiletranslucent16(refbmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int)c.flip, opacity);
     else
         overtile16(refbmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int)c.flip);
+	*/
+	
+	if(opacity < 128)
+	{
+		//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
+		overcomboblocktranslucent(bmp, xoffset+x1, yoffset+y1, sdci[5]/10000, sdci[6]/10000, 1, 1, 128);
+
+	}
+	else
+	{
+		//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
+		overcomboblock(bmp, xoffset+x1, yoffset+y1, sdci[5]/10000, sdci[6]/10000, 1, 1);
+	}
 }
 
 
@@ -6408,13 +6436,36 @@ void draw_mapscr(BITMAP *b, const mapscr& m, int x, int y, bool transparent)
         const int x2 = ((i&15)<<4) + x;
         const int y2 = (i&0xF0) + y;
         
-        const newcombo & c = combobuf[ m.data[i] ];
+        //const newcombo & c = combobuf[ m.data[i] ];
+	    
+	/*
+	newcombo c = combobuf[m.data[i]];
+	int csets[4];
+        int cofs = c.csets&15;
+        
+        if(cofs&8)
+            cofs |= ~int(0xF);
+            
+        for(int i=0; i<4; ++i)
+            csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
+	
+	
         const int tile = combo_tile(c, x2, y2);
+	    */
         
         if(transparent)
-            overtiletranslucent16(b, tile, x2, y2, m.cset[i], c.flip, 128);
+	{
+		//void overcomboblocktranslucent(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h, int opacity)
+		overcomboblocktranslucent(b, x2, y2, m.data[i], m.cset[i], 1, 1, 128);
+
+            //overtiletranslucent16(b, tile, x2, y2, m.cset[i], c.flip, 128);
+	}
         else
-            overtile16(b, tile, x2, y2, m.cset[i], c.flip);
+	{
+		//overcomboblock(BITMAP *dest, int x, int y, int cmbdat, int cset, int w, int h)
+		overcomboblock(b, x2, y2, m.data[i], m.cset[i], 1, 1);
+            //overtile16(b, tile, x2, y2, m.cset[i], c.flip);
+	}
     }
 }
 
@@ -6484,10 +6535,17 @@ void do_drawlayerr(BITMAP *bmp, int *sdci, int xoffset, int yoffset, bool isOffS
                 const int tile = combo_tile(c, x2, y2);
                 
                 if(opacity < 128)
-                    overtiletranslucent16(b, tile, x2, y2, l.cset[i], c.flip, opacity);
+		{	
+		    overcomboblocktranslucent(b, x2, y2, l.data[i], l.cset[i], 1, 1, 128);
+		
+		
+                    //overtiletranslucent16(b, tile, x2, y2, l.cset[i], c.flip, opacity);
+		}
                 else
-                    overtile16(b, tile, x2, y2, l.cset[i], c.flip);
-                    
+		{
+		    overcomboblock(b, x2, y2, l.data[i], l.cset[i], 1, 1);
+                    //overtile16(b, tile, x2, y2, l.cset[i], c.flip);
+		}
                 //putcombo( b, xx, yy, l.data[i], l.cset[i] );
             }
         }
