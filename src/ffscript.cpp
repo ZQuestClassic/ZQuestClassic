@@ -15931,6 +15931,7 @@ long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
             scb.script_created_bitmaps[id].height = h;
             scb.script_created_bitmaps[id].depth = d;
             scb.script_created_bitmaps[id].u_bmp = create_bitmap_ex(d,w,h);
+	    clear_bitmap(scb.script_created_bitmaps[id].u_bmp);
         }
 	return id;
 }
