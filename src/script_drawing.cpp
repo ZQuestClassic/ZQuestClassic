@@ -898,10 +898,14 @@ void do_putpixelsr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    //Z_scripterrlog("PutPixels()%s value is %d\n","x",x1);
 	    //Z_scripterrlog("PutPixels()%s value is %d\n","y",y1);
 	    //Z_scripterrlog("PutPixels()%s value is %d\n","colour",points[q+2]);
+	    if ( points[q+3] < 128 ) drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	    putpixel(bmp, x1+xoffset, y1+yoffset, points[q+2]);
-	    if ( points[q+3] < 128 ) drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-	    else drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	    //if ( points[q+3] < 128 ) 
+		
+	    //else drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
+    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
 void do_drawtiler(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
