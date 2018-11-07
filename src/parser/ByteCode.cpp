@@ -2430,6 +2430,21 @@ string OPutPixelRegister::toString()
     return "PUTPIXEL";
 }
 
+string OPutPixelArrayRegister::toString()
+{
+    return "PIXELARRAYR";
+}
+
+string OPutTileArrayRegister::toString()
+{
+    return "TILEARRAYR";
+}
+
+string OPutLinesArrayRegister::toString()
+{
+    return "LINESARRAY";
+}
+
 string ODrawCharRegister::toString()
 {
     return "DRAWCHAR";
@@ -2458,6 +2473,11 @@ string OFastTileRegister::toString()
 string OFastComboRegister::toString()
 {
     return "FASTCOMBO";
+}
+
+string OFastComboArrayRegister::toString()
+{
+    return "COMBOARRAYR";
 }
 
 string ODrawStringRegister::toString()
@@ -3998,108 +4018,108 @@ string OMonoHueR::toString()
 
 string OBMPRectangleRegister::toString()
 {
-    return "BMPRECT";
+    return "BMPRECTR";
 }
 
 string OBMPCircleRegister::toString()
 {
-    return "BMPCIRCLE";
+    return "BMPCIRCLER";
 }
 
 string OBMPArcRegister::toString()
 {
-    return "BMPARC";
+    return "BMPARCR";
 }
 
 string OBMPEllipseRegister::toString()
 {
-    return "BMPELLIPSE";
+    return "BMPELLIPSER";
 }
 
 string OBMPLineRegister::toString()
 {
-    return "BMPLINE";
+    return "BMPLINER";
 }
 
 string OBMPSplineRegister::toString()
 {
-    return "BMPBMPSPLINE";
+    return "BMPBMPSPLINER";
 }
 
 string OBMPPutPixelRegister::toString()
 {
-    return "BMPPUTPIXEL";
+    return "BMPPUTPIXELR";
 }
 
-string BMPODrawCharRegister::toString()
+string OBMPDrawCharRegister::toString()
 {
-    return "BMPDRAWCHAR";
+    return "BMPDRAWCHARR";
 }
 
 string OBMPDrawIntRegister::toString()
 {
-    return "BMPDRAWINT";
+    return "BMPDRAWINTR";
 }
 
 string OBMPDrawTileRegister::toString()
 {
-    return "BMPDRAWTILE";
+    return "BMPDRAWTILER";
 }
 
 string OBMPDrawComboRegister::toString()
 {
-    return "BMPDRAWCOMBO";
+    return "BMPDRAWCOMBOR";
 }
 
 string OBMPFastTileRegister::toString()
 {
-    return "BMPFASTTILE";
+    return "BMPFASTTILER";
 }
 
 string OBMPFastComboRegister::toString()
 {
-    return "BMPFASTCOMBO";
+    return "BMPFASTCOMBOR";
 }
 
 string OBMPDrawStringRegister::toString()
 {
-    return "BMPDRAWSTRING";
+    return "BMPDRAWSTRINGR";
 }
 
 string OBMPDrawBitmapExRegister::toString()
 {
-    return "BMPBITMAPEXR";
+    return "BMPBLIT";
 }
 
 string OBMPQuadRegister::toString()
 {
-    return "BMPQUAD";
+    return "BMPQUADR";
 }
 
 string OBMPTriangleRegister::toString()
 {
-    return "BMPTRIANGLE";
+    return "BMPTRIANGLER";
 }
 
 
 string OBMPQuad3DRegister::toString()
 {
-    return "BMPQUAD3D";
+    return "BMPQUAD3DR";
 }
 
 string OBMPTriangle3DRegister::toString()
 {
-    return "BMPTRIANGLE3D";
+    return "BMPTRIANGLE3DR";
 }
 
 string OBMPDrawLayerRegister::toString()
 {
-    return "BMPDRAWLAYER";
+    return "BMPDRAWLAYERR";
 }
 
 string OBMPDrawScreenRegister::toString()
 {
-    return "BMPDRAWSCREEN";
+    return "BMPDRAWSCREENR";
 }
 
 

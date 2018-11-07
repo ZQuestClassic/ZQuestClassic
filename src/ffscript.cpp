@@ -4497,8 +4497,11 @@ case LOADMAPDATA:
         break;
 
 case CREATEBITMAP:
+{
+	Z_scripterrlog("Creating a bitmap for bitmap ref: %d\n", ri->bitmapref);
         ret=FFCore.do_create_bitmap();
         break;
+}
 
 
 case MAPDATAVALID:		GET_MAPDATA_VAR_BYTE(valid, "Valid"); break;		//b
@@ -4676,10 +4679,28 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//SetFFCInitD(ffindex, d, value)
 {
 	mapscr *m = &TheMaps[ri->mapsref]; 
+	int ffid = (ri->d[0]/10000) -1;
+	int indx = ri->d[1]/10000;
+		
+	if ( (unsigned)ffid > 31 ) 
+	{
+	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+	    ret = -10000;
+	}
+	else if ( (unsigned)indx > 7 )
+	{
+	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+            ret = -10000;
+	}
+	else
+	{ 
+	    ret = (m->initd[ffid][indx]);
+	}
+	
 	//int ffindex = ri->d[0]/10000;
 	//int d = ri->d[1]/10000;
 	//int v = (value/10000);
-	ret = (m->initd[(ri->d[0]/10000) - 1][(ri->d[1]/10000)]);
+	
 	break;
 }	
 	
@@ -4693,7 +4714,24 @@ case MAPDATAINITA:
 	//int ffindex = ri->d[0]/10000;
 	//int d = ri->d[1]/10000;
 	//int v = (value/10000);
-	ret = (m->inita[(ri->d[0]/10000)][(ri->d[1]/10000)]) * 10000;
+	
+	int ffid = (ri->d[0]/10000) -1;
+	int indx = ri->d[1]/10000;
+		
+	if ( (unsigned)ffid > 31 ) 
+	{
+	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+	    ret = -10000;
+	}
+	else if ( (unsigned)indx > 1 )
+	{
+	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+            ret = -10000;
+	}
+	else
+	{ 
+	    ret = (m->inita[ffid][indx]);
+	}
 	break;
 }	
 
@@ -9866,7 +9904,21 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//int ffindex = ri->d[0]/10000;
 	//int d = ri->d[1]/10000;
 	//int v = (value/10000);
-	m->initd[(ri->d[0]/10000) - 1][(ri->d[1]/10000)] = value;
+	int ffid = (ri->d[0]/10000) -1;
+	int indx = ri->d[1]/10000;
+		
+	if ( (unsigned)ffid > 31 ) 
+	{
+	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+	}
+	else if ( (unsigned)indx > 7 )
+	{
+	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+	}
+	else
+	{ 
+	     m->initd[ffid][indx] = value;
+	}
 	break;
 }	
 	
@@ -9881,7 +9933,22 @@ case MAPDATAINITA:
 	//int ffindex = ri->d[0]/10000;
 	//int d = ri->d[1]/10000;
 	//int v = (value/10000);
-	m->inita[(ri->d[0]/10000)][(ri->d[1]/10000)] = (value/10000);
+	int ffid = (ri->d[0]/10000) -1;
+	int indx = ri->d[1]/10000;
+		
+	if ( (unsigned)ffid > 31 ) 
+	{
+	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+	}
+	else if ( (unsigned)indx > 7 )
+	{
+	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+	}
+	else
+	{ 
+	     m->inita[ffid][indx] = value;
+	}
+	
 	break;
 }	
 	
@@ -13135,6 +13202,22 @@ void do_drawing_command(const int script_command)
     case PUTPIXELR:
         set_drawing_command_args(j, 8);
         break;
+    
+    case PIXELARRAYR:
+        set_drawing_command_args(j, 5);
+        break;
+    
+    case TILEARRAYR:
+        set_drawing_command_args(j, 2);
+        break;
+        
+    case LINESARRAY:
+        set_drawing_command_args(j, 2);
+        break;
+        
+    case COMBOARRAYR:
+        set_drawing_command_args(j, 2);
+        break;
         
     case DRAWTILER:
         set_drawing_command_args(j, 15);
@@ -13239,6 +13322,77 @@ void do_drawing_command(const int script_command)
         script_drawing_commands[j].SetString(str);
     }
     break;
+    
+     case 	BMPRECTR:	set_drawing_command_args(j, 12); break;
+	case 	BMPCIRCLER:	set_drawing_command_args(j, 11); break;
+	case 	BMPARCR:	set_drawing_command_args(j, 14); break;
+	case 	BMPELLIPSER:	set_drawing_command_args(j, 12); break;
+	case 	BMPLINER:	set_drawing_command_args(j, 11); break;
+	case 	BMPSPLINER:	set_drawing_command_args(j, 11); break;
+	case 	BMPPUTPIXELR:	set_drawing_command_args(j, 8); break;
+	case 	BMPDRAWTILER:	set_drawing_command_args(j, 15); break;
+	case 	BMPDRAWCOMBOR:	set_drawing_command_args(j, 16); break;
+	case 	BMPFASTTILER:	set_drawing_command_args(j, 6); break;
+	case 	BMPFASTCOMBOR:	set_drawing_command_args(j, 6); break;
+	case 	BMPDRAWCHARR:	set_drawing_command_args(j, 10); break;
+	case 	BMPDRAWINTR:	set_drawing_command_args(j, 11); break;
+	case 	BMPDRAWSTRINGR:	
+	{
+		set_drawing_command_args(j, 9);
+		// Unused
+		//const int index = script_drawing_commands[j][19] = j;
+		
+		string *str = script_drawing_commands.GetString();
+		ArrayH::getString(script_drawing_commands[j][8] / 10000, *str);
+		script_drawing_commands[j].SetString(str);
+		break;
+	}
+	case 	BMPQUADR:	set_drawing_command_args(j, 15); break;
+	case 	BMPQUAD3DR:
+	 {
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		v->resize(26, 0);
+		
+		long* pos = &v->at(0);
+		long* uv = &v->at(12);
+		long* col = &v->at(20);
+		long* size = &v->at(24);
+		
+		set_drawing_command_args(j, 8);
+		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 12);
+		ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 8);
+		ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 4);
+		ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+		
+		script_drawing_commands[j].SetVector(v);
+		break;
+	}
+	case 	BMPTRIANGLER:	set_drawing_command_args(j, 13); break;
+	case 	BMPTRIANGLE3DR:
+	{
+		std::vector<long> *v = script_drawing_commands.GetVector();
+		v->resize(20, 0);
+		
+		long* pos = &v->at(0);
+		long* uv = &v->at(9);
+		long* col = &v->at(15);
+		long* size = &v->at(18);
+		
+		set_drawing_command_args(j, 8);
+		ArrayH::getValues(script_drawing_commands[j][2] / 10000, pos, 8);
+		ArrayH::getValues(script_drawing_commands[j][3] / 10000, uv, 6);
+		ArrayH::getValues(script_drawing_commands[j][4] / 10000, col, 3);
+		ArrayH::getValues(script_drawing_commands[j][5] / 10000, size, 2);
+		
+		script_drawing_commands[j].SetVector(v);
+		break;
+	}
+	//case 	BMPPOLYGONR:
+	case 	BMPDRAWLAYERR: 	set_drawing_command_args(j, 8); break;
+	case 	BMPDRAWSCREENR:	set_drawing_command_args(j, 6); break;
+	case 	BMPBLIT:	set_drawing_command_args(j, 16); break;
+    
+    
     }
 }
 
@@ -15116,6 +15270,10 @@ case DMAPDATASETMUSICV: //command, string to load a music file
         case ELLIPSER:
         case LINER:
         case PUTPIXELR:
+        case PIXELARRAYR:
+        case TILEARRAYR:
+        case LINESARRAY:
+        case COMBOARRAYR:
         case DRAWTILER:
         case DRAWCOMBOR:
         case DRAWCHARR:
@@ -15132,6 +15290,28 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 	case BITMAPEXR:
         case DRAWLAYERR:
         case DRAWSCREENR:
+	case 	BMPRECTR:	
+	case 	BMPCIRCLER:
+	case 	BMPARCR:
+	case 	BMPELLIPSER:
+	case 	BMPLINER:
+	case 	BMPSPLINER:
+	case 	BMPPUTPIXELR:
+	case 	BMPDRAWTILER:
+	case 	BMPDRAWCOMBOR:
+	case 	BMPFASTTILER:
+	case 	BMPFASTCOMBOR:
+	case 	BMPDRAWCHARR:
+	case 	BMPDRAWINTR:
+	case 	BMPDRAWSTRINGR:
+	case 	BMPQUADR:
+	case 	BMPQUAD3DR:
+	case 	BMPTRIANGLER:
+	case 	BMPTRIANGLE3DR:
+	case 	BMPPOLYGONR:
+	case 	BMPDRAWLAYERR: 
+	case 	BMPDRAWSCREENR:
+	case 	BMPBLIT:
             do_drawing_command(scommand);
             break;
             
@@ -15732,20 +15912,24 @@ void FFScript::user_bitmaps_init()
 
 long FFScript::do_create_bitmap()
 {
-    
+	Z_scripterrlog("Begin running FFCore.do_create_bitmap()\n");
 	//CreateBitmap(h,w)
 	long h = (ri->d[0] / 10000);
 	long w = (ri->d[1]/10000);
 	//sanity checks
+	int id = 0;
+	
 	if ( highest_valid_user_bitmap() >= (MAX_USER_BITMAPS-1) )
 	{
 		ri->bitmapref = 0;
 		Z_scripterrlog("Script attempted to create a bitmap, but no bitmaps are available. Setting ri->bitmapref to: %d\n", ri->bitmapref);
-		return NULL;
+		return id;
 	}
 	else
 	{
-		int id = create_user_bitmap_ex(h,w,8);
+		Z_scripterrlog("do_create_bitmap() is %s\n","getting a bitmap ID with create_user_bitmap_ex()");
+		id = create_user_bitmap_ex(h,w,8);
+		Z_scripterrlog("do_create_bitmap() found a free bitmap ID of: %d\n",id);
 		//if ( id < rtSCREEN || id > (MAX_USER_BITMAPS-1) )
 		//{
 		//	ri->bitmapref = 0;
@@ -15754,7 +15938,9 @@ long FFScript::do_create_bitmap()
 		//else
 		//{	
 			ri->bitmapref = id; 
+			
 			Z_eventlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
+			Z_scripterrlog("Script created bitmap ID %d with height of %d and width of %d\n", id, h,w);
 			return id;
 		//}
 	}
@@ -15762,18 +15948,23 @@ long FFScript::do_create_bitmap()
 
 int FFScript::highest_valid_user_bitmap()
 {
-	return (scb.num_active)-1;
+	return (scb.num_active);
 }
 
 long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
 {
-        int id = get_free_bitmap();
+	int id;
+        do
+	{
+		id = get_free_bitmap();
+	} while (id < rtBMP6+1); //be sure not to overlay with system bitmaps!
         if ( id > 0 )
         {
             scb.script_created_bitmaps[id].width = w;
             scb.script_created_bitmaps[id].height = h;
             scb.script_created_bitmaps[id].depth = d;
             scb.script_created_bitmaps[id].u_bmp = create_bitmap_ex(d,w,h);
+	    clear_bitmap(scb.script_created_bitmaps[id].u_bmp);
         }
 	return id;
 }
@@ -15813,9 +16004,12 @@ int FFScript::get_free_bitmap()
         int num_free = scb.num_active;
         if ( num_free < ( MAX_USER_BITMAPS-1 ) )
         {
+		//num_free = scb.num_active; 
             ++scb.num_active;
-            return num_free;
+		Z_scripterrlog("get_free_bitmap() found a valid free bitmap with an ID of: %d\n",num_free);
+            return scb.num_active;
         }
+	Z_scripterrlog("get_free_bitmap() could not find a valid free bitmap!%s\n"," ");
         return 0;
 }
 

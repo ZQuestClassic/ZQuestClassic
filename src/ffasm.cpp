@@ -319,10 +319,10 @@ script_command command_list[NUMCOMMANDS+1]=
     { "POLYGONR",                0,   0,   0,   0},
     { "__RESERVED_FOR_POLYGON3DR",                0,   0,   0,   0},
     { "__RESERVED_FOR_SETRENDERSOURCE",                0,   0,   0,   0},
-    { "__RESERVED_FOR_CREATEBITMAP",                0,   0,   0,   0},
-    { "__RESERVED_FOR_PIXELARRAYR",                0,   0,   0,   0},
-    { "__RESERVED_FOR_TILEARRAYR",                0,   0,   0,   0},
-    { "__RESERVED_FOR_COMBOARRAYR",                0,   0,   0,   0},
+    { "LINESARRAY",                0,   0,   0,   0},
+    { "PIXELARRAYR",                0,   0,   0,   0},
+    { "TILEARRAYR",                0,   0,   0,   0},
+    { "COMBOARRAYR",                0,   0,   0,   0},
     { "RES0000",			   0,   0,   0,   0},
     { "RES0001",			   0,   0,   0,   0},
     { "RES0002",			   0,   0,   0,   0},
@@ -722,7 +722,7 @@ script_command command_list[NUMCOMMANDS+1]=
      { "BMPPOLYGONR",                0,   0,   0,   0},
      { "BMPDRAWLAYERR",                0,   0,   0,   0},
      { "BMPDRAWSCREENR",                0,   0,   0,   0},
-     
+     { "BMPBLIT",                0,   0,   0,   0},
      
      { "",                    0,   0,   0,   0}
 };

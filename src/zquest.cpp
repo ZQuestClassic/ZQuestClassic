@@ -12,6 +12,9 @@
   #define  INTERNAL_VERSION  0xA721
   */
 
+
+#define MIDI_TRACK_BUFFER_SIZE 50
+
 #include "precompiled.h" //always first
 
 #include <stdio.h>
@@ -2447,9 +2450,10 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
 }
 
 
-static char track_number_str_buf[32];
+static char track_number_str_buf[MIDI_TRACK_BUFFER_SIZE] = {0};
 const char *tracknumlist(int index, int *list_size)
 {
+    //memset(track_number_str_buf,0,50);
     if(index>=0)
     {
         bound(index,0,255);
@@ -10755,7 +10759,7 @@ const char *roomslist(int index, int *list_size)
     return NULL;
 }
 
-static char number_str_buf[32];
+static char number_str_buf[MIDI_TRACK_BUFFER_SIZE];
 int number_list_size=1;
 bool number_list_zero=false;
 
@@ -12660,9 +12664,10 @@ static TABPANEL editdmapmap_tabs[] =
 };
 
 int dmap_tracks=0;
-static char dmap_track_number_str_buf[32];
+static char dmap_track_number_str_buf[MIDI_TRACK_BUFFER_SIZE] = {0};
 const char *dmaptracknumlist(int index, int *list_size)
 {
+	//memset(dmap_track_number_str_buf,0,50);
     if(index>=0)
     {
         bound(index,0,255);
@@ -13521,6 +13526,9 @@ static DIALOG selectmidi_dlg[] =
     { jwin_win_proc,     24,   20,   273,  189,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Select music", NULL, NULL },
     { d_dummy_proc,      160,  56,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
     { d_midilist_proc,   31,   44,   164, (1+16)*8,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0, (void *) &custommidi_list, NULL, NULL },
+    //{ jwin_droplist_proc, 72-12,   60+4,   161,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,     0,             0, (void *) &tracknum_list, NULL, NULL },
+    //{ jwin_droplist_proc, 72-12,   60+4,   161,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,     0,             0, (void *) &custommidi_list, NULL, NULL },
+    
     { jwin_button_proc,     90,   160+12+12,  61,   21,   vc(14),  vc(1),  13,     D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
     { jwin_button_proc,     170,  160+12+12,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,             KEY_DEL, (void *) close_dlg, NULL, NULL },
@@ -13532,7 +13540,7 @@ int onMidis()
 {
     stopMusic();
     int ret;
-    char buf[40];
+    char buf[MIDI_TRACK_BUFFER_SIZE];
     number_list_size=MAXCUSTOMTUNES;
     number_list_zero=false;
     strcpy(temppath,midipath);
