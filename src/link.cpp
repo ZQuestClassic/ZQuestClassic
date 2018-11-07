@@ -678,6 +678,12 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
         }
     }
     
+	if(action==hopping)
+	{
+		hopclk = 0;
+		hopdir = -1;
+	}
+	
     if(new_action != attacking)
     {
         attackclk=0;
