@@ -65,6 +65,8 @@ byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
 bool midi_paused=false;
+extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
+
 //extern movingblock mblock2; //mblock[4]?
 //extern int db;
 
@@ -247,6 +249,12 @@ void load_game_configs()
     js_stick_2_y_offset = get_config_int(cfg_sect,"js_stick_2_y_offset",0) ? 128 : 0;
     analog_movement = get_config_int(cfg_sect,"analog_movement",1);
     
+     //cheat modifier keya
+    cheat_modifier_keys[0] = get_config_int(cfg_sect,"key_cheatmod_a1",KEY_ZC_LCONTROL);
+    cheat_modifier_keys[1] = get_config_int(cfg_sect,"key_cheatmod_a2",KEY_ZC_RCONTROL);
+    cheat_modifier_keys[2] = get_config_int(cfg_sect,"key_cheatmod_b1",KEY_LSHIFT);
+    cheat_modifier_keys[3] = get_config_int(cfg_sect,"key_cheatmod_b2",KEY_RSHIFT);
+   
     if((unsigned int)joystick_index >= MAX_JOYSTICKS)
         joystick_index = 0;
         
@@ -397,6 +405,14 @@ void save_game_configs()
     set_config_int(cfg_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
     set_config_int(cfg_sect,"analog_movement",analog_movement);
     
+	 //cheat modifier keya
+   
+    set_config_int(cfg_sect,"key_cheatmod_a1",cheat_modifier_keys[0]);
+    set_config_int(cfg_sect,"key_cheatmod_a2",cheat_modifier_keys[1]);
+    set_config_int(cfg_sect,"key_cheatmod_b1",cheat_modifier_keys[2]);
+    set_config_int(cfg_sect,"key_cheatmod_b2",cheat_modifier_keys[3]);
+   
+   
     set_config_int(cfg_sect,"key_a",Akey);
     set_config_int(cfg_sect,"key_b",Bkey);
     set_config_int(cfg_sect,"key_s",Skey);
@@ -4212,10 +4228,8 @@ void syskeys()
         
     if(get_debug() || cheat>=1)
     {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if( CheatModifierKeys() )
 	{
-		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-		{
 			if(ReadKey(KEY_ASTERISK) || ReadKey(KEY_H))   game->set_life(game->get_maxlife());
 			
 			if(ReadKey(KEY_SLASH_PAD) || ReadKey(KEY_M))  game->set_magic(game->get_maxmagic());
@@ -4231,31 +4245,27 @@ void syskeys()
 			{
 			    onCheatArrows();
 			}
-		}
 	}
     }
     
     if(get_debug() || cheat>=2)
     {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if( CheatModifierKeys() )
 	{
-		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-		{
 			if(rI())
 			{
 			    setClock(!getClock());
 			    cheat_superman=getClock();
 			}
-		}
+		
 	}
     }
     
     if(get_debug() || cheat>=4)
     {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if( CheatModifierKeys() )
 	{
-		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-		{
+		
 			if(rF11())
 			{
 			    onNoWalls();
@@ -4304,7 +4314,7 @@ void syskeys()
 			if(ReadKey(KEY_L))   onLightSwitch();
 			
 			if(ReadKey(KEY_V))   onIgnoreSideview();
-		}
+		
 	}
     }
     
@@ -4460,6 +4470,20 @@ void checkQuitKeys()
     
     if(ReadKey(KEY_F8))   f_Quit(qEXIT);
 #endif
+}
+
+bool CheatModifierKeys()
+{
+    if ( ( cheat_modifier_keys[0] <= 0 || key[cheat_modifier_keys[0]] ) ||
+        ( cheat_modifier_keys[1] <= 0 || key[cheat_modifier_keys[1]] ) )
+    {
+        if ( ( cheat_modifier_keys[2] <= 0 || key[cheat_modifier_keys[2]] ) ||
+            ( cheat_modifier_keys[3] <= 0 || key[cheat_modifier_keys[3]] ) )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 // 99*360 + 59*60
