@@ -37,6 +37,7 @@ void advanceframe(bool allowwavy, bool sfxcleaup = true);
 void updatescr(bool allowwavy);
 void syskeys();
 void checkQuitKeys();
+bool CheatModifierKeys();
 void System();
 void system_pal();
 void switch_out_callback();
@@ -60,6 +61,7 @@ void eat_buttons();
 extern bool control_state[18];
 extern bool drunk_toggle_state[11];
 extern bool button_press[18];
+extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
 
 extern bool button_hold[18];
 

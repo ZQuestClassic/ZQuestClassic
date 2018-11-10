@@ -83,6 +83,7 @@ int db=0;
 int detail_int[10];                                         //temporary holder for things you want to detail
 int lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
+int cheat_modifier_keys[4]; //two options each, default either control and either shift
 int strike_hint_counter=0;
 int strike_hint_timer=0;
 int strike_hint;
