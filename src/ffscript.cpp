@@ -385,7 +385,8 @@ public:
     
     static INLINE int checkGuyID(const long ID, const char * const str)
     {
-        return checkBounds(ID, 0, MAXGUYS-1, str);
+        //return checkBounds(ID, 0, MAXGUYS-1, str); //Can't create NPC ID 0
+        return checkBounds(ID, 1, MAXGUYS-1, str);
     }
     
     static INLINE int checkItemID(const long ID, const char * const str)
@@ -12931,7 +12932,7 @@ void FFScript::do_loadcombodata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > (MAXCOMBOS-1) )
+    if ( (unsigned)ID > (MAXCOMBOS-1) )
     {
 	Z_scripterrlog("Invalid Combo ID passed to Game->LoadComboData: %d\n", ID);
 	ri->combosref = 0;
@@ -12956,7 +12957,7 @@ void FFScript::do_loadmapdata(const bool v)
 	ri->mapsref = 0;
 	
     }
-    else if ( _scr < 0 || _scr > 129 ) //0x00 to 0x81 -Z
+    else if ( (unsigned)_scr > 129 ) //0x00 to 0x81 -Z
     {
 	Z_scripterrlog("Invalid Screen ID passed to Game->LoadMapData: %d\n", _scr);
 	ri->mapsref = 0;
@@ -12971,7 +12972,7 @@ void FFScript::do_loadshopdata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > 255 )
+    if ( (unsigned)ID > 255 )
     {
 	Z_scripterrlog("Invalid Shop ID passed to Game->LoadShopData: %d\n", ID);
 	ri->shopsref = 0;
@@ -12986,7 +12987,7 @@ void FFScript::do_loadinfoshopdata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > 255 )
+    if ( (unsigned)ID > 255 )
     {
 	Z_scripterrlog("Invalid Shop ID passed to Game->LoadShopData: %d\n", ID);
 	ri->shopsref = 0;
@@ -13035,7 +13036,7 @@ void FFScript::do_loadspritedata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > (MAXWPNS-1) )
+    if ( (unsigned)ID > (MAXWPNS-1) )
     {
 	Z_scripterrlog("Invalid Sprite ID passed to Game->LoadSpriteData: %d\n", ID);
 	ri->spritesref = 0; 
@@ -13050,7 +13051,7 @@ void FFScript::do_loadscreendata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > (MAXSCREENS-1) )
+    if ( (unsigned)ID > (MAXSCREENS-1) )
     {
 	Z_scripterrlog("Invalid Map ID passed to Game->LoadScreenData: %d\n", ID);
 	ri->screenref = 0; 
