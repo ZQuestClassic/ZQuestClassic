@@ -3773,7 +3773,6 @@ else \
 	#define GET_SCREENDATA_FLAG(member, str, indexbound) \
 	{ \
 		long flag =  (value/10000);  \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 		ret = (tmpscr->member&flag) ? 10000 : 0); \
 	} \
 
@@ -5554,7 +5553,7 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 //npcdata nd->member variable
 	#define	GET_NPCDATA_VAR_INT32(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			ret = -10000; \
@@ -5567,7 +5566,7 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 
 	#define	GET_NPCDATA_VAR_BYTE(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			ret = -10000; \
@@ -5580,7 +5579,7 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	
 	#define	GET_NPCDATA_VAR_INT16(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			ret = -10000; \
@@ -5594,12 +5593,12 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define GET_NPCDATA_VAR_INDEX(member, str, indexbound) \
 	{ \
 			int indx = ri->d[0] / 10000; \
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 				ret = -10000; \
 			} \
-			else if ( indx < 0 || indx > indexbound ) \
+			else if ( (unsigned)indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 				ret = -10000; \
@@ -5613,12 +5612,12 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define GET_NPCDATA_BYTE_INDEX(member, str, indexbound) \
 	{ \
 			int indx = ri->d[0] / 10000; \
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 				ret = -10000; \
 			} \
-			else if ( indx < 0 || indx > indexbound ) \
+			else if ( (unsigned)indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 				ret = -10000; \
@@ -5632,7 +5631,7 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define GET_NPCDATA_FLAG(member, str, indexbound) \
 	{ \
 		long flag =  (value/10000);  \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
@@ -10793,7 +10792,7 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	
 #define	SET_NPCDATA_VAR_INT(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
@@ -10805,7 +10804,7 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	
 	#define	SET_NPCDATA_VAR_DWORD(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
@@ -10817,7 +10816,7 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 
 	#define	SET_NPCDATA_VAR_BYTE(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
@@ -10830,11 +10829,11 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define SET_NPCDATA_VAR_INDEX(member, str, indexbound) \
 	{ \
 			int indx = ri->d[0] / 10000; \
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			} \
-			else if ( indx < 0 || indx > indexbound ) \
+			else if ( (unsigned)indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 			} \
@@ -10847,11 +10846,11 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define SET_NPCDATA_BYTE_INDEX(member, str, indexbound) \
 	{ \
 			int indx = ri->d[0] / 10000; \
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			} \
-			else if ( indx < 0 || indx > indexbound ) \
+			else if ( (unsigned)indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 			} \
@@ -10864,13 +10863,13 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define SET_NPCDATA_FLAG(member, str) \
 	{ \
 		long flag =  (value/10000);  \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
 		else \
 		{ \
-			if ( flag != 0 ) \
+			if ( flag ) \
 			{ \
 				guysbuf[ri->npcdataref].member|=flag; \
 			} \
