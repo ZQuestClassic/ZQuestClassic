@@ -31,6 +31,7 @@
 #include "gamedata.h"
 #include "ffscript.h"
 extern FFScript FFCore;
+extern ZModule zcm;
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;

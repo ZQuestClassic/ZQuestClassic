@@ -59,6 +59,7 @@ int d_stringloader(int msg,DIALOG *d,int c);
 extern FONT *lfont;
 extern LinkClass Link;
 extern FFScript FFCore;
+extern ZModule zcm;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 extern int loadlast;
 byte disable_direct_updating;

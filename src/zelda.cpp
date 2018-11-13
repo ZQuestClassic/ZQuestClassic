@@ -51,6 +51,7 @@
 #include "gamedata.h"
 #include "ffscript.h"
 extern FFScript FFCore; //the core script engine.
+extern ZModule zcm; //modules
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"

@@ -32,6 +32,7 @@
 #include "ffscript.h"
 extern FFScript FFCore;
 extern LinkClass Link;
+extern ZModule zcm;
 #include "mem_debug.h"
 #include "zscriptversion.h"
 

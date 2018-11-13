@@ -43,6 +43,7 @@ extern int loadlast;
 extern int skipcont;
 extern int skipicon;
 extern FFScript FFCore;
+extern ZModule zcm;
 
 bool load_custom_game(int file);
 

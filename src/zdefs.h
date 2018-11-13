@@ -3292,6 +3292,18 @@ struct zcmap
     bool subpTrans;
 };
 
+///////////////
+/// MODULES ///
+///////////////
+
+struct zcmodule
+{
+	char module_name[2048]; //filepath for current zcmodule file
+	char quests[10][255]; //first five quests, filenames
+	char skipnames[10][255]; //name entry passwords
+}; //zcmodule
+
+
 
 /******************/
 /**  Misc Stuff  **/

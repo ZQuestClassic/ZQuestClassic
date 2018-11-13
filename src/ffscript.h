@@ -83,6 +83,19 @@ struct script_bitmaps
 	user_bitmap script_created_bitmaps[MAX_USER_BITMAPS];
 };
 
+//Module System.
+//Putting this here for now.
+
+class ZModule
+{
+	public:
+		void init(bool d); //bool default
+		void load(bool zquest);
+		
+	private:
+		char n;
+};
+
 class FFScript
 {
 	
@@ -2817,3 +2830,8 @@ struct triangle3Dstruct
 #endif
 
 //extern FFCScript FFEngine;
+
+
+
+
+

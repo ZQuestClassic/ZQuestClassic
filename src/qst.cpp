@@ -38,6 +38,7 @@
 #include "ffscript.h"
 //FFScript FFCore;
 extern FFScript FFCore;
+extern ZModule zcm;
 //FFSCript   FFEngine;
 
 #ifdef _MSC_VER
