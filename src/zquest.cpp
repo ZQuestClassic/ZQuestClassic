@@ -24762,25 +24762,25 @@ void ZModule::init(bool d) //bool default
 		strcpy(moduledata->module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
 		
 		//quests
-		strcpy(moduledata->quests[0],get_config_string("ZCMODULE","first_qst","1st.qst"));
-		strcpy(moduledata->quests[1],get_config_string("ZCMODULE","second_qst","2nd.qst"));
-		strcpy(moduledata->quests[2],get_config_string("ZCMODULE","third_qst","3rd.qst"));
-		strcpy(moduledata->quests[3],get_config_string("ZCMODULE","fourth_qst","4th.qst"));
-		strcpy(moduledata->quests[4],get_config_string("ZCMODULE","fifth_qst","5th.qst"));
+		strcpy(moduledata->quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
+		strcpy(moduledata->quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
+		strcpy(moduledata->quests[2],get_config_string("QUESTS","third_qst","3rd.qst"));
+		strcpy(moduledata->quests[3],get_config_string("QUESTS","fourth_qst","4th.qst"));
+		strcpy(moduledata->quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
 		
 		//quest skip names
-		strcpy(moduledata->skipnames[0],get_config_string("ZCMODULE","first_qst_skip"," "));
-		strcpy(moduledata->skipnames[1],get_config_string("ZCMODULE","second_qst_skip","ZELDA"));
-		strcpy(moduledata->skipnames[2],get_config_string("ZCMODULE","third_qst_skip","ALPHA"));
-		strcpy(moduledata->skipnames[3],get_config_string("ZCMODULE","fourth_qst_skip","GANON"));
-		strcpy(moduledata->skipnames[4],get_config_string("ZCMODULE","fifth_qst_skip","JEAN"));
+		strcpy(moduledata->skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
+		strcpy(moduledata->skipnames[1],get_config_string("NAMEENTRY","second_qst_skip","ZELDA"));
+		strcpy(moduledata->skipnames[2],get_config_string("NAMEENTRY","third_qst_skip","ALPHA"));
+		strcpy(moduledata->skipnames[3],get_config_string("NAMEENTRY","fourth_qst_skip","GANON"));
+		strcpy(moduledata->skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
 		
 		//datafiles
-		strcpy(moduledata->datafiles[zelda_dat],get_config_string("ZCMODULE","zcplayer_datafile","zelda.dat"));
-		strcpy(moduledata->datafiles[zquest_dat],get_config_string("ZCMODULE","zquest_datafile","zquest.dat"));
-		strcpy(moduledata->datafiles[fonts_dat],get_config_string("ZCMODULE","fonts_datafile","fonts.dat"));
-		strcpy(moduledata->datafiles[sfx_dat],get_config_string("ZCMODULE","sounds_datafile","sfx.dat"));
-		strcpy(moduledata->datafiles[qst_dat],get_config_string("ZCMODULE","quest_tamplate_datafile","qst.dat"));
+		strcpy(moduledata->datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
+		strcpy(moduledata->datafiles[zquest_dat],get_config_string("DATAFILES","zquest_datafile","zquest.dat"));
+		strcpy(moduledata->datafiles[fonts_dat],get_config_string("DATAFILES","fonts_datafile","fonts.dat"));
+		strcpy(moduledata->datafiles[sfx_dat],get_config_string("DATAFILES","sounds_datafile","sfx.dat"));
+		strcpy(moduledata->datafiles[qst_dat],get_config_string("DATAFILES","quest_tamplate_datafile","qst.dat"));
 		
 		
 	}
