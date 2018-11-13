@@ -24749,8 +24749,6 @@ void FFScript::setLinkTile(int t)
 
 
 //ZModule Functions
-
-
 zcmodule *moduledata;
 
 void ZModule::init(bool d) //bool default
@@ -24762,6 +24760,7 @@ void ZModule::init(bool d) //bool default
 		strcpy(moduledata->module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
 		
 		//quests
+		moduledata->old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
 		strcpy(moduledata->quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
 		strcpy(moduledata->quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
 		strcpy(moduledata->quests[2],get_config_string("QUESTS","third_qst","3rd.qst"));
@@ -24780,7 +24779,7 @@ void ZModule::init(bool d) //bool default
 		strcpy(moduledata->datafiles[zquest_dat],get_config_string("DATAFILES","zquest_datafile","zquest.dat"));
 		strcpy(moduledata->datafiles[fonts_dat],get_config_string("DATAFILES","fonts_datafile","fonts.dat"));
 		strcpy(moduledata->datafiles[sfx_dat],get_config_string("DATAFILES","sounds_datafile","sfx.dat"));
-		strcpy(moduledata->datafiles[qst_dat],get_config_string("DATAFILES","quest_tamplate_datafile","qst.dat"));
+		strcpy(moduledata->datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
 		
 		
 	}
@@ -24792,6 +24791,8 @@ void ZModule::debug()
 	al_trace("Module field: %s, is: %s\n", "module_name", moduledata->module_name);
 	
 	//quests
+	
+	al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata->old_quest_serial_flow);
 	al_trace("Module field: %s, is: %s\n", "quests[0]",moduledata->quests[0]);
 	al_trace("Module field: %s, is: %s\n", "quests[1]",moduledata->quests[1]);
 	al_trace("Module field: %s, is: %s\n", "quests[2]",moduledata->quests[2]);
@@ -24812,6 +24813,7 @@ void ZModule::debug()
 	al_trace("Module field: %s, is: %s\n", "datafiles[sfx_dat]",moduledata->datafiles[sfx_dat]);
 	al_trace("Module field: %s, is: %s\n", "datafiles[qst_dat]",moduledata->datafiles[qst_dat]);
 }
+
 void ZModule::load(bool zquest)
 {
 	set_config_file(moduledata->module_name);

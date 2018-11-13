@@ -2,6 +2,7 @@
 current_module = default.zmod
 
 [QUESTS]
+quest_flow = 1
 first_qst = 1st.qst
 second_qst = 2nd.qst
 third_qst = 3rd.qst
@@ -20,7 +21,7 @@ zcplayer_datafile = zelda.dat
 zquest_datafile = zquest.dat
 fonts_datafile = fonts.dat
 sounds_datafile = sfx.dat
-quest_tamplate_datafile = qst.dat
+quest_template_datafile = qst.dat
 
 [ENEMIES]
 

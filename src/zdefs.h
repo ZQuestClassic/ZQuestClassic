@@ -3304,6 +3304,12 @@ struct zcmodule
 	char quests[10][255]; //first five quests, filenames
 	char skipnames[10][255]; //name entry passwords
 	char datafiles[5][255]; //qst.dat, zquest.dat, fonts.dat, sfx.dat, zelda.dat
+
+	byte old_quest_serial_flow; //Do we go from 3rd to 5th, 
+		//and from 5th to 4th, or just 1->2->3->4->5
+	//If this is 0, we do quests in strict order.
+	//if it is 1, then we use the old hardcoded quest flow.
+	
 }; //zcmodule
 
 
