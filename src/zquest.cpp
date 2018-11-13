@@ -21582,6 +21582,12 @@ int main(int argc,char **argv)
     
     Z_message("OK\n");                                      // Initializing Allegro...
     
+    //Initialise MODULES
+    //We'll read the data files from them, in the future, so this MUST occur here!
+    zcm.init(true);
+    zcm.load(true);
+    zcm.debug();
+    
     Z_message("Loading data files:\n");
     
     resolve_password(datapwd);
@@ -24739,6 +24745,73 @@ int FFScript::getQRBit(int rule)
 void FFScript::setLinkTile(int t)
 {
 	FF_link_tile = vbound(t, 0, NEWMAXTILES);
+}
+
+
+//ZModule Functions
+
+
+zcmodule *moduledata;
+
+void ZModule::init(bool d) //bool default
+{
+	memset(moduledata, 0, sizeof(moduledata));
+	if ( d )
+	{
+		//zcm path
+		strcpy(moduledata->module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
+		
+		//quests
+		strcpy(moduledata->quests[0],get_config_string("ZCMODULE","first_qst","1st.qst"));
+		strcpy(moduledata->quests[1],get_config_string("ZCMODULE","second_qst","2nd.qst"));
+		strcpy(moduledata->quests[2],get_config_string("ZCMODULE","third_qst","3rd.qst"));
+		strcpy(moduledata->quests[3],get_config_string("ZCMODULE","fourth_qst","4th.qst"));
+		strcpy(moduledata->quests[4],get_config_string("ZCMODULE","fifth_qst","5th.qst"));
+		
+		//quest skip names
+		strcpy(moduledata->skipnames[0],get_config_string("ZCMODULE","first_qst_skip"," "));
+		strcpy(moduledata->skipnames[1],get_config_string("ZCMODULE","second_qst_skip","ZELDA"));
+		strcpy(moduledata->skipnames[2],get_config_string("ZCMODULE","third_qst_skip","ALPHA"));
+		strcpy(moduledata->skipnames[3],get_config_string("ZCMODULE","fourth_qst_skip","GANON"));
+		strcpy(moduledata->skipnames[4],get_config_string("ZCMODULE","fifth_qst_skip","JEAN"));
+		
+		
+	}
+}
+
+//Prints out the current Module struct data to allegro.log
+void ZModule::debug()
+{
+	al_trace("Module field: %s, is: %s\n", "module_name", moduledata->module_name);
+	al_trace("Module field: %s, is: %s\n", "quests[0]",moduledata->quests[0]);
+	al_trace("Module field: %s, is: %s\n", "quests[1]",moduledata->quests[1]);
+	al_trace("Module field: %s, is: %s\n", "quests[2]",moduledata->quests[2]);
+	al_trace("Module field: %s, is: %s\n", "quests[3]",moduledata->quests[3]);
+	al_trace("Module field: %s, is: %s\n", "quests[4]",moduledata->quests[4]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[0]",moduledata->skipnames[0]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[1]",moduledata->skipnames[1]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[2]",moduledata->skipnames[2]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[3]",moduledata->skipnames[3]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[4]",moduledata->skipnames[4]);	
+}
+
+void ZModule::load(bool zquest)
+{
+	set_config_file(moduledata->module_name);
+	//load config settings
+	if ( zquest )
+	{
+		al_trace("ZModule::load() was called by: %s\n","ZQuest");
+		//load ZQuest section data
+		set_config_file("zquest.cfg"); //shift back when done
+	}
+	else
+	{
+		al_trace("ZModule::load() was called by: %s\n","ZC Player");
+		//load ZC section data
+		set_config_file("zc.cfg"); //shift back when done
+	}
+	
 }
 
 /* end */

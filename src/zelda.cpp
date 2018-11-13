@@ -3680,6 +3680,14 @@ int main(int argc, char* argv[])
     
     Z_message("OK\n");
     
+    
+    //Set up MODULES: This must occur before trying to load the default quests, as the 
+    //data for quest names and so forth is set by the MODULE file!
+    zcm.init(true);
+    zcm.load(true);
+    zcm.debug();
+    
+    
     // check for the included quest files
     if(!standalone_mode)
     {
