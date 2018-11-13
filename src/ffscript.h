@@ -91,6 +91,7 @@ class ZModule
 	public:
 		void init(bool d); //bool default
 		void load(bool zquest);
+		void debug(); //Print struct data to allegro.log.
 		
 	private:
 		char n;

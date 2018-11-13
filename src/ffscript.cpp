@@ -17625,17 +17625,35 @@ void ZModule::init(bool d) //bool default
 	}
 }
 
+//Prints out the current Module struct data to allegro.log
+void ZModule::debug()
+{
+	al_trace("Module field: %s, is: %s\n", "module_name", moduledata->module_name);
+	al_trace("Module field: %s, is: %s\n", "quests[0]",moduledata->quests[0]);
+	al_trace("Module field: %s, is: %s\n", "quests[1]",moduledata->quests[1]);
+	al_trace("Module field: %s, is: %s\n", "quests[2]",moduledata->quests[2]);
+	al_trace("Module field: %s, is: %s\n", "quests[3]",moduledata->quests[3]);
+	al_trace("Module field: %s, is: %s\n", "quests[4]",moduledata->quests[4]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[0]",moduledata->skipnames[0]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[1]",moduledata->skipnames[1]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[2]",moduledata->skipnames[2]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[3]",moduledata->skipnames[3]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[4]",moduledata->skipnames[4]);	
+}
+
 void ZModule::load(bool zquest)
 {
 	set_config_file(moduledata->module_name);
 	//load config settings
 	if ( zquest )
 	{
+		al_trace("ZModule::load() was called by: %s\n","ZQuest");
 		//load ZQuest section data
 		set_config_file("zquest.cfg"); //shift back when done
 	}
 	else
 	{
+		al_trace("ZModule::load() was called by: %s\n","ZC Player");
 		//load ZC section data
 		set_config_file("zc.cfg"); //shift back when done
 	}
