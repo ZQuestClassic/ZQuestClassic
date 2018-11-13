@@ -3296,11 +3296,14 @@ struct zcmap
 /// MODULES ///
 ///////////////
 
+enum { zelda_dat, zquest_dat, fonts_dat, sfx_dat, qst_dat };
+
 struct zcmodule
 {
 	char module_name[2048]; //filepath for current zcmodule file
 	char quests[10][255]; //first five quests, filenames
 	char skipnames[10][255]; //name entry passwords
+	char datafiles[5][255]; //qst.dat, zquest.dat, fonts.dat, sfx.dat, zelda.dat
 }; //zcmodule
 
 

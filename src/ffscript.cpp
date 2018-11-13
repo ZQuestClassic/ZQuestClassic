@@ -17621,6 +17621,13 @@ void ZModule::init(bool d) //bool default
 		strcpy(moduledata->skipnames[3],get_config_string("ZCMODULE","fourth_qst_skip","GANON"));
 		strcpy(moduledata->skipnames[4],get_config_string("ZCMODULE","fifth_qst_skip","JEAN"));
 		
+		//datafiles
+		strcpy(moduledata->datafiles[zelda_dat],get_config_string("ZCMODULE","zcplayer_datafile","zelda.dat"));
+		strcpy(moduledata->datafiles[zquest_dat],get_config_string("ZCMODULE","zquest_datafile","zquest.dat"));
+		strcpy(moduledata->datafiles[fonts_dat],get_config_string("ZCMODULE","fonts_datafile","fonts.dat"));
+		strcpy(moduledata->datafiles[sfx_dat],get_config_string("ZCMODULE","sounds_datafile","sfx.dat"));
+		strcpy(moduledata->datafiles[qst_dat],get_config_string("ZCMODULE","quest_tamplate_datafile","qst.dat"));
+		
 		
 	}
 }
@@ -17629,16 +17636,27 @@ void ZModule::init(bool d) //bool default
 void ZModule::debug()
 {
 	al_trace("Module field: %s, is: %s\n", "module_name", moduledata->module_name);
+	
+	//quests
 	al_trace("Module field: %s, is: %s\n", "quests[0]",moduledata->quests[0]);
 	al_trace("Module field: %s, is: %s\n", "quests[1]",moduledata->quests[1]);
 	al_trace("Module field: %s, is: %s\n", "quests[2]",moduledata->quests[2]);
 	al_trace("Module field: %s, is: %s\n", "quests[3]",moduledata->quests[3]);
 	al_trace("Module field: %s, is: %s\n", "quests[4]",moduledata->quests[4]);
+	
+	//skip codes
 	al_trace("Module field: %s, is: %s\n", "skipnames[0]",moduledata->skipnames[0]);
 	al_trace("Module field: %s, is: %s\n", "skipnames[1]",moduledata->skipnames[1]);
 	al_trace("Module field: %s, is: %s\n", "skipnames[2]",moduledata->skipnames[2]);
 	al_trace("Module field: %s, is: %s\n", "skipnames[3]",moduledata->skipnames[3]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[4]",moduledata->skipnames[4]);	
+	al_trace("Module field: %s, is: %s\n", "skipnames[4]",moduledata->skipnames[4]);
+
+	//datafiles
+	al_trace("Module field: %s, is: %s\n", "datafiles[zelda_dat]",moduledata->datafiles[zelda_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[zquest_dat]",moduledata->datafiles[zquest_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[fonts_dat]",moduledata->datafiles[fonts_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[sfx_dat]",moduledata->datafiles[sfx_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[qst_dat]",moduledata->datafiles[qst_dat]);
 }
 
 void ZModule::load(bool zquest)
