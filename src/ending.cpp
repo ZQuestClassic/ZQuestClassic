@@ -31,7 +31,8 @@
 #include "gamedata.h"
 #include "ffscript.h"
 extern FFScript FFCore;
-extern ZModule zcm;
+extern ZModule zcm; //modules
+extern zcmodule moduledata;
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -631,25 +632,34 @@ void inc_quest()
 	strcpy(name,game->get_name());
 	// Go to quest 3 if you got some heart containers,
 	// or quest 4 if you got them all.
-	int quest;
-    
-	if(game->get_quest()==2 && game->get_maxlife()>=HP_PER_HEART*16)
-		quest = 4;
-	else
-		quest = zc_min(game->get_quest()+1,5);
-
-	if(game->get_quest()==3 && game->get_maxlife()>=HP_PER_HEART*16)
-		quest = 4;
-        
+	int quest = game->get_quest(); //Don't leave uninitialised. 
+	
 	int deaths = game->get_deaths();
+	
+	if ( moduledata.old_quest_serial_flow )
+	{
+		if(game->get_quest()==2 && game->get_maxlife()>=HP_PER_HEART*16)
+			quest = 4;
+		else
+			quest = zc_min(game->get_quest()+1,MAX_INTERNAL_QUESTS);
 
-	// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
-	if(game->get_quest()==3 && deaths == 0)
-		quest = 5;
+		if(game->get_quest()==3 && game->get_maxlife()>=HP_PER_HEART*16)
+			quest = 4;
+        
+		
 
-	// Likewise, if you beat the 5th but died, go back to the 4th.
-	if(game->get_quest()==5 && deaths > 0)
-		quest = 4;
+		// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
+		if(game->get_quest()==3 && deaths == 0)
+			quest = 5;
+
+		// Likewise, if you beat the 5th but died, go back to the 4th.
+		if(game->get_quest()==5 && deaths > 0)
+			quest = 4;
+	}
+	else
+	{
+		quest = zc_min(game->get_quest()+1,MAX_INTERNAL_QUESTS);
+	}
 
 	game->Clear();
     

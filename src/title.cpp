@@ -43,7 +43,8 @@ extern int loadlast;
 extern int skipcont;
 extern int skipicon;
 extern FFScript FFCore;
-extern ZModule zcm;
+extern ZModule zcm; //modules
+extern zcmodule moduledata;
 
 bool load_custom_game(int file);
 
@@ -2524,16 +2525,16 @@ static bool register_name()
         strcpy(buf,name);
         strupr(buf);
         
-        if(!stricmp(buf,"ZELDA"))
+        if(!stricmp(buf,moduledata.skipnames[1]))
             quest=2;
             
-        if(!stricmp(buf,"ALPHA"))
+        if(!stricmp(buf,moduledata.skipnames[2]))
             quest=3;
             
-        if(!stricmp(buf,"GANON"))
+        if(!stricmp(buf,moduledata.skipnames[3]))
             quest=4;
            
-        if(!stricmp(buf,"JEAN")) // This is what BigJoe wanted. I have no problem with it.
+        if(!stricmp(buf,moduledata.skipnames[4])) // This is what BigJoe wanted. I have no problem with it.
 			quest=5;
         
         saves[s].set_quest(quest);
