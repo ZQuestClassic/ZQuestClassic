@@ -39,6 +39,7 @@
 //FFScript FFCore;
 extern FFScript FFCore;
 extern ZModule zcm;
+extern zcmodule moduledata;
 //FFSCript   FFEngine;
 
 #ifdef _MSC_VER
@@ -674,7 +675,8 @@ PACKFILE *open_quest_file(int *open_error, const char *filename, char *deletefil
 	}
     
 	box_out("Loading Quest: ");
-	if(strncasecmp(filename, "qst.dat", 7)!=0)
+	//if(strncasecmp(filename, "qst.dat", 7)!=0)
+	if(strncasecmp(filename, moduledata.datafiles[qst_dat], 7)!=0)
 		box_out(filename);
 	else
 		box_out("new quest"); // Or whatever
@@ -802,11 +804,14 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     PACKFILE *f=NULL;
     int open_error=0;
     deletefilename[0]=0;
-    
+    char qstdat_string[2048];
+	sprintf(qstdat_string,moduledata.datafiles[qst_dat]);
+	strcat(qstdat_string,"#NESQST_NEW_QST");
     if(Header->templatepath[0]==0)
     {
         filename=(char *)zc_malloc(23);
-        sprintf(filename, "qst.dat#NESQST_NEW_QST");
+        //sprintf(filename, "qst.dat#NESQST_NEW_QST");
+        sprintf(filename, qstdat_string);
     }
     else
     {
