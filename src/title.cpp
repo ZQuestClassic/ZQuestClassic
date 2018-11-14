@@ -2929,6 +2929,7 @@ int custom_game(int file)
 static int game_details(int file)
 {
 
+	al_trace("Running game_details(int file)\n");
     int pos=file%3;
     
     if(saves[file].get_quest()==0)

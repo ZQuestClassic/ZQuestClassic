@@ -1257,7 +1257,18 @@ int load_quest(gamedata *g, bool report)
     if(g->get_quest()<255)
     {
         // Check the ZC directory first for 1st-4th quests; check qstdir if they're not there
-        sprintf(qstpath, "%s.qst", ordinal(g->get_quest()));
+	switch(g->get_quest())
+	{
+		case 1: sprintf(qstpath, moduledata.quests[0], ordinal(g->get_quest())); break;
+		case 2: sprintf(qstpath, moduledata.quests[1], ordinal(g->get_quest())); break;
+		case 3: sprintf(qstpath, moduledata.quests[2], ordinal(g->get_quest())); break;
+		case 4: sprintf(qstpath, moduledata.quests[3], ordinal(g->get_quest())); break;
+		case 5: sprintf(qstpath, moduledata.quests[4], ordinal(g->get_quest())); break;
+			
+		default: break;
+	}
+        
+	//was sprintf(qstpath, "%s.qst", ordinal(g->get_quest()));
         
         if(!exists(qstpath))
         {
@@ -3624,6 +3635,10 @@ int main(int argc, char* argv[])
         load_game_configs();
         save_game_configs();
     }
+    //Set up MODULES: This must occur before trying to load the default quests, as the 
+    //data for quest names and so forth is set by the MODULE file!
+    zcm.init(true);
+    zcm.load(false);
     
     
 #ifdef _WIN32
@@ -3682,10 +3697,7 @@ int main(int argc, char* argv[])
     Z_message("OK\n");
     
     
-    //Set up MODULES: This must occur before trying to load the default quests, as the 
-    //data for quest names and so forth is set by the MODULE file!
-    zcm.init(true);
-    zcm.load(false);
+    
     
     
     // check for the included quest files
@@ -3909,7 +3921,7 @@ int main(int argc, char* argv[])
     sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
     sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
     
-    packfile_password(NULL); // Temporary measure. -L
+    packfile_password(""); // Temporary measure. -L
     Z_message("Zelda.Dat...");
     
     if((data=load_datafile(moduledata.datafiles[zelda_dat]))==NULL) 
