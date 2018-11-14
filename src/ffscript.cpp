@@ -19,6 +19,7 @@
 FFScript FFCore;
 zquestheader ZCheader;
 ZModule zcm;
+zcmodule moduledata;
  
 //miscQdata *Misc;
 
@@ -17597,74 +17598,110 @@ long FFScript::getQuestHeaderInfo(int type)
 //Modules
 //Putting this here, for now.
 
-zcmodule *moduledata;
+
 
 void ZModule::init(bool d) //bool default
 {
-	memset(moduledata, 0, sizeof(moduledata));
+	
+	
+	memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
+	memset(moduledata.quests, 0, sizeof(moduledata.quests));
+	memset(moduledata.skipnames, 0, sizeof(moduledata.skipnames));
+	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
+	moduledata.old_quest_serial_flow = 0;
+	
+	//strcpy(moduledata.module_name,"default.zmod");
+	al_trace("Module name set to %s\n",moduledata.module_name);
+	set_config_file(moduledata.module_name);
 	if ( d )
 	{
+		
 		//zcm path
-		strcpy(moduledata->module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
+		strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
+		set_config_file(moduledata.module_name);
+		al_trace("Module name set to %s\n",moduledata.module_name);
 		
 		//quests
-		moduledata->old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
-		strcpy(moduledata->quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
-		strcpy(moduledata->quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
-		strcpy(moduledata->quests[2],get_config_string("QUESTS","third_qst","3rd.qst"));
-		strcpy(moduledata->quests[3],get_config_string("QUESTS","fourth_qst","4th.qst"));
-		strcpy(moduledata->quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
+		moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
+		al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
+		strcpy(moduledata.quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
+		al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
+		strcpy(moduledata.quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
+		al_trace("Module quest 2 set to %s\n",moduledata.quests[1]);
+		strcpy(moduledata.quests[2],get_config_string("QUESTS","third_qst","3rd.qst"));
+		al_trace("Module quest 3 set to %s\n",moduledata.quests[2]);
+		strcpy(moduledata.quests[3],get_config_string("QUESTS","fourth_qst","4th.qst"));
+		al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
+		strcpy(moduledata.quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
+		al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
 		
 		//quest skip names
-		strcpy(moduledata->skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
-		strcpy(moduledata->skipnames[1],get_config_string("NAMEENTRY","second_qst_skip","ZELDA"));
-		strcpy(moduledata->skipnames[2],get_config_string("NAMEENTRY","third_qst_skip","ALPHA"));
-		strcpy(moduledata->skipnames[3],get_config_string("NAMEENTRY","fourth_qst_skip","GANON"));
-		strcpy(moduledata->skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
+		strcpy(moduledata.skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
+		al_trace("Module quest skip 1 set to %s\n",moduledata.skipnames[0]);
+		strcpy(moduledata.skipnames[1],get_config_string("NAMEENTRY","second_qst_skip","ZELDA"));
+		al_trace("Module quest skip 2 set to %s\n",moduledata.skipnames[1]);
+		strcpy(moduledata.skipnames[2],get_config_string("NAMEENTRY","third_qst_skip","ALPHA"));
+		al_trace("Module quest skip 3 set to %s\n",moduledata.skipnames[2]);
+		strcpy(moduledata.skipnames[3],get_config_string("NAMEENTRY","fourth_qst_skip","GANON"));
+		al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
+		strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
+		al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
 		
 		//datafiles
-		strcpy(moduledata->datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
-		strcpy(moduledata->datafiles[zquest_dat],get_config_string("DATAFILES","zquest_datafile","zquest.dat"));
-		strcpy(moduledata->datafiles[fonts_dat],get_config_string("DATAFILES","fonts_datafile","fonts.dat"));
-		strcpy(moduledata->datafiles[sfx_dat],get_config_string("DATAFILES","sounds_datafile","sfx.dat"));
-		strcpy(moduledata->datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
+		strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
+		al_trace("Module zelda_dat set to %s\n",moduledata.datafiles[zelda_dat]);
+		strcpy(moduledata.datafiles[zquest_dat],get_config_string("DATAFILES","zquest_datafile","zquest.dat"));
+		al_trace("Module zquest_dat set to %s\n",moduledata.datafiles[zquest_dat]);
+		strcpy(moduledata.datafiles[fonts_dat],get_config_string("DATAFILES","fonts_datafile","fonts.dat"));
+		al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
+		strcpy(moduledata.datafiles[sfx_dat],get_config_string("DATAFILES","sounds_datafile","sfx.dat"));
+		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
+		strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
+		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
 		
 		
 	}
+	set_config_file("zc.cfg"); //shift back when done
+	
+	int x = get_config_int("zeldadx","gui_colorset",0);
+	al_trace("Checking that we have reverted to zc.cfg: %d\n",x);
+	
 }
 
 //Prints out the current Module struct data to allegro.log
 void ZModule::debug()
 {
-	al_trace("Module field: %s, is: %s\n", "module_name", moduledata->module_name);
+	//al_trace("Module field: %s, is: %s\n", "module_name", moduledata.module_name);
+	//al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
 	
 	//quests
-	
-	al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata->old_quest_serial_flow);
-	al_trace("Module field: %s, is: %s\n", "quests[0]",moduledata->quests[0]);
-	al_trace("Module field: %s, is: %s\n", "quests[1]",moduledata->quests[1]);
-	al_trace("Module field: %s, is: %s\n", "quests[2]",moduledata->quests[2]);
-	al_trace("Module field: %s, is: %s\n", "quests[3]",moduledata->quests[3]);
-	al_trace("Module field: %s, is: %s\n", "quests[4]",moduledata->quests[4]);
+	/*
+	al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
+	al_trace("Module field: %s, is: %s\n", "quests[0]",moduledata.quests[0]);
+	al_trace("Module field: %s, is: %s\n", "quests[1]",moduledata.quests[1]);
+	al_trace("Module field: %s, is: %s\n", "quests[2]",moduledata.quests[2]);
+	al_trace("Module field: %s, is: %s\n", "quests[3]",moduledata.quests[3]);
+	al_trace("Module field: %s, is: %s\n", "quests[4]",moduledata.quests[4]);
 	
 	//skip codes
-	al_trace("Module field: %s, is: %s\n", "skipnames[0]",moduledata->skipnames[0]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[1]",moduledata->skipnames[1]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[2]",moduledata->skipnames[2]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[3]",moduledata->skipnames[3]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[4]",moduledata->skipnames[4]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[0]",moduledata.skipnames[0]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[1]",moduledata.skipnames[1]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[2]",moduledata.skipnames[2]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[3]",moduledata.skipnames[3]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[4]",moduledata.skipnames[4]);
 
 	//datafiles
-	al_trace("Module field: %s, is: %s\n", "datafiles[zelda_dat]",moduledata->datafiles[zelda_dat]);
-	al_trace("Module field: %s, is: %s\n", "datafiles[zquest_dat]",moduledata->datafiles[zquest_dat]);
-	al_trace("Module field: %s, is: %s\n", "datafiles[fonts_dat]",moduledata->datafiles[fonts_dat]);
-	al_trace("Module field: %s, is: %s\n", "datafiles[sfx_dat]",moduledata->datafiles[sfx_dat]);
-	al_trace("Module field: %s, is: %s\n", "datafiles[qst_dat]",moduledata->datafiles[qst_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[zelda_dat]",moduledata.datafiles[zelda_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[zquest_dat]",moduledata.datafiles[zquest_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[fonts_dat]",moduledata.datafiles[fonts_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[sfx_dat]",moduledata.datafiles[sfx_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[qst_dat]",moduledata.datafiles[qst_dat]);
+	*/
 }
 
 void ZModule::load(bool zquest)
 {
-	set_config_file(moduledata->module_name);
+	set_config_file(moduledata.module_name);
 	//load config settings
 	if ( zquest )
 	{

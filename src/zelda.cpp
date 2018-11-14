@@ -3685,7 +3685,6 @@ int main(int argc, char* argv[])
     //data for quest names and so forth is set by the MODULE file!
     zcm.init(true);
     zcm.load(true);
-    zcm.debug();
     
     
     // check for the included quest files
@@ -4200,8 +4199,9 @@ int main(int argc, char* argv[])
     
     //request_refresh_rate(60);
     
+    //is the config file wrong (not zc.cfg!) here? -Z
     if(used_switch(argc,argv,"-fullscreen") ||
-            (!used_switch(argc, argv, "-windowed") && get_config_int("zeldadx","fullscreen",1)==1))
+            (!used_switch(argc, argv, "-windowed") && get_config_int("zeldadx","fullscreen",0)==1))
     {
         al_trace("Used switch: -fullscreen\n");
         tempmode = GFX_AUTODETECT_FULLSCREEN;
