@@ -4206,7 +4206,7 @@ int main(int argc, char* argv[])
         al_trace("Used switch: -fullscreen\n");
         tempmode = GFX_AUTODETECT_FULLSCREEN;
     }
-    else if(used_switch(argc,argv,"-windowed") || get_config_int("zeldadx","fullscreen",1)==0)
+    else if(used_switch(argc,argv,"-windowed") || get_config_int("zeldadx","fullscreen",0)==0)
     {
         al_trace("Used switch: -windowed\n");
         tempmode=GFX_AUTODETECT_WINDOWED;
