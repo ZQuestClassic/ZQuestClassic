@@ -3,6 +3,7 @@ current_module = default.zmod
 
 [QUESTS]
 quest_flow = 1
+num_quest_files = 5
 first_qst = 1st.qst
 second_qst = 2nd.qst
 third_qst = 3rd.qst
