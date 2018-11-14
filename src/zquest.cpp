@@ -1,3 +1,4 @@
+
 //--------------------------------------------------------
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
@@ -473,6 +474,7 @@ char                fontsdat_sig[52];
 char                zquestdat_sig[52];
 char                qstdat_sig[52];
 char                sfxdat_sig[52];
+char		    qstdat_str[2048];
 
 int gme_track=0;
 
@@ -21599,7 +21601,7 @@ int main(int argc,char **argv)
     
     Z_message("Fonts.Dat...");
     
-    if((fontsdata=load_datafile("fonts.dat"))==NULL)
+    if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
@@ -21615,20 +21617,26 @@ int main(int argc,char **argv)
     
     Z_message("ZQuest.Dat...");
     
-    if((zcdata=load_datafile("zquest.dat"))==NULL)
+    if((zcdata=load_datafile(moduledata.datafiles[zquest_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
     }
     
-    datafile_str=(char *)"zquest.dat";
+    datafile_str=moduledata.datafiles[zquest_dat];
     Z_message("OK\n");
     
+    sprintf(qstdat_str,moduledata.datafiles[qst_dat]);
+    strcat(qstdat_str,"#_SIGNATURE");
+    //al_trace("qstdat_str is: %s\n", qstdat_str);
     
     sprintf(qstdat_sig,"QST.Dat %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);
     
     Z_message("QST.Dat...");
-    PACKFILE *f=pack_fopen_password("qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
+    
+    //PACKFILE *f=pack_fopen_password("qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
+    //PACKFILE *f=pack_fopen_password("classic_qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
+    PACKFILE *f=pack_fopen_password(qstdat_str, F_READ_PACKED, datapwd);
     
     if(!f)
     {
@@ -21668,7 +21676,7 @@ int main(int argc,char **argv)
     
     Z_message("SFX.Dat...");
     
-    if((sfxdata=load_datafile("sfx.dat"))==NULL)
+    if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
     {
         Z_error("failed %s", allegro_error);
         quit_game();
