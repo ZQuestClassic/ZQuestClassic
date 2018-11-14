@@ -238,6 +238,7 @@ int d_dummy_proc(int msg,DIALOG *d,int c)
 
 void load_game_configs()
 {
+	set_config_file("zc.cfg"); //shift back when done
     joystick_index = get_config_int(cfg_sect,"joystick_index",0);
     js_stick_1_x_stick = get_config_int(cfg_sect,"js_stick_1_x_stick",0);
     js_stick_1_x_axis = get_config_int(cfg_sect,"js_stick_1_x_axis",0);
@@ -323,6 +324,7 @@ void load_game_configs()
    
 // Fullscreen, page flipping may be problematic on newer windows systems.
 #ifdef _WIN32
+    
     fullscreen = get_config_int(cfg_sect,"fullscreen",0);
     disable_triplebuffer = (byte) get_config_int(cfg_sect,"doublebuffer",1);
     can_triplebuffer_in_windowed_mode = (byte) get_config_int(cfg_sect,"triplebuffer",0);
