@@ -52,6 +52,7 @@
 #include "ffscript.h"
 extern FFScript FFCore; //the core script engine.
 extern ZModule zcm; //modules
+extern zcmodule moduledata;
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -3694,41 +3695,41 @@ int main(int argc, char* argv[])
         
         char path[2048];
         
-        append_filename(path, qstdir, "1st.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[0], 2048);
         
-        if(!exists("1st.qst") && !exists(path))
+        if(!exists(moduledata.quests[0]) && !exists(path))
         {
             Z_error("\"1st.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "2nd.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[1], 2048);
         
-        if(!exists("2nd.qst") && !exists(path))
+        if(!exists(moduledata.quests[1]) && !exists(path))
         {
             Z_error("\"2nd.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "3rd.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[2], 2048);
         
-        if(!exists("3rd.qst") && !exists(path))
+        if(!exists(moduledata.quests[2]) && !exists(path))
         {
             Z_error("\"3rd.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "4th.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[3], 2048);
         
-        if(!exists("4th.qst") && !exists(path))
+        if(!exists(moduledata.quests[3]) && !exists(path))
         {
             Z_error("\"4th.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "5th.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[4], 2048);
         
-        if(!exists("5th.qst") && !exists(path))
+        if(!exists(moduledata.quests[4]) && !exists(path))
         {
             Z_error("\"5th.qst\" not found.");
             quit_game();
@@ -3911,7 +3912,7 @@ int main(int argc, char* argv[])
     packfile_password(NULL); // Temporary measure. -L
     Z_message("Zelda.Dat...");
     
-    if((data=load_datafile("zelda.dat"))==NULL)
+    if((data=load_datafile(moduledata.datafiles[zelda_dat]))==NULL) 
     {
         Z_error("failed");
         quit_game();
@@ -3928,7 +3929,7 @@ int main(int argc, char* argv[])
     
     Z_message("Fonts.Dat...");
     
-    if((fontsdata=load_datafile("fonts.dat"))==NULL)
+    if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
@@ -3947,7 +3948,7 @@ int main(int argc, char* argv[])
     
     Z_message("SFX.Dat...");
     
-    if((sfxdata=load_datafile("sfx.dat"))==NULL)
+    if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
