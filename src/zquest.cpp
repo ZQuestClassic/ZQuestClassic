@@ -23958,6 +23958,8 @@ int save_config_file()
     chop_path(imagepath2);
     chop_path(tmusicpath2);
     
+	set_config_string("ZCMODULE","current_module",moduledata.module_name);
+	
     set_config_string("zquest",data_path_name,datapath2);
     set_config_string("zquest",midi_path_name,midipath2);
     set_config_string("zquest",image_path_name,imagepath2);

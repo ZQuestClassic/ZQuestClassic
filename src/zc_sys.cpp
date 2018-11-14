@@ -60,6 +60,7 @@ extern FONT *lfont;
 extern LinkClass Link;
 extern FFScript FFCore;
 extern ZModule zcm;
+extern zcmodule moduledata;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, particles;
 extern int loadlast;
 byte disable_direct_updating;
@@ -79,10 +80,13 @@ static const char *ZC_str = "Zelda Classic";
 static  const char *qst_dir_name = "dos_qst_dir";
 #elif defined(ALLEGRO_WINDOWS)
 static  const char *qst_dir_name = "win_qst_dir";
+static  const char *qst_module_name = "current_module";
 #elif defined(ALLEGRO_LINUX)
 static  const char *qst_dir_name = "linux_qst_dir";
+static  const char *qst_module_name = "current_module";
 #elif defined(ALLEGRO_MACOSX)
 static  const char *qst_dir_name = "macosx_qst_dir";
+static  const char *qst_module_name = "current_module";
 #endif
 #ifdef ALLEGRO_LINUX
 static  const char *samplepath = "samplesoundset/patches.dat";
@@ -238,7 +242,9 @@ int d_dummy_proc(int msg,DIALOG *d,int c)
 
 void load_game_configs()
 {
-	set_config_file("zc.cfg"); //shift back when done
+	//set_config_file("zc.cfg"); //shift back when done
+	//load the module
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE",qst_module_name,"default.zmod"));
     joystick_index = get_config_int(cfg_sect,"joystick_index",0);
     js_stick_1_x_stick = get_config_int(cfg_sect,"js_stick_1_x_stick",0);
     js_stick_1_x_axis = get_config_int(cfg_sect,"js_stick_1_x_axis",0);
@@ -396,6 +402,8 @@ void save_game_configs()
 {
     packfile_password("");
  
+	set_config_string("ZCMODULE",qst_module_name,moduledata.module_name);
+	
     set_config_int(cfg_sect,"joystick_index",joystick_index);
     set_config_int(cfg_sect,"js_stick_1_x_stick",js_stick_1_x_stick);
     set_config_int(cfg_sect,"js_stick_1_x_axis",js_stick_1_x_axis);
