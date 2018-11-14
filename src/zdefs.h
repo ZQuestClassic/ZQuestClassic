@@ -3312,6 +3312,7 @@ struct zcmodule
 	//If this is 0, we do quests in strict order.
 	//if it is 1, then we use the old hardcoded quest flow.
 	
+	int max_quest_files;
 }; //zcmodule
 
 

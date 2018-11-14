@@ -639,26 +639,26 @@ void inc_quest()
 	if ( moduledata.old_quest_serial_flow )
 	{
 		if(game->get_quest()==2 && game->get_maxlife()>=HP_PER_HEART*16)
-			quest = 4;
+			quest = zc_min(4,moduledata.max_quest_files);// 4;
 		else
-			quest = zc_min(game->get_quest()+1,MAX_INTERNAL_QUESTS);
+			quest = zc_min(game->get_quest()+1,moduledata.max_quest_files);
 
 		if(game->get_quest()==3 && game->get_maxlife()>=HP_PER_HEART*16)
-			quest = 4;
+			quest = zc_min(4,moduledata.max_quest_files);// 4;
         
 		
 
 		// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
 		if(game->get_quest()==3 && deaths == 0)
-			quest = 5;
+			quest = zc_min(5,moduledata.max_quest_files);// 4;
 
 		// Likewise, if you beat the 5th but died, go back to the 4th.
 		if(game->get_quest()==5 && deaths > 0)
-			quest = 4;
+			quest = zc_min(4,moduledata.max_quest_files);// 4;
 	}
 	else
 	{
-		quest = zc_min(game->get_quest()+1,MAX_INTERNAL_QUESTS);
+		quest = zc_min(game->get_quest()+1,moduledata.max_quest_files);
 	}
 
 	game->Clear();

@@ -24765,6 +24765,7 @@ void ZModule::init(bool d) //bool default
 	//strcpy(moduledata.module_name,"default.zmod");
 	al_trace("Module name set to %s\n",moduledata.module_name);
 	set_config_file(moduledata.module_name);
+	moduledata.max_quest_files = 0;
 	if ( d )
 	{
 		
@@ -24775,7 +24776,9 @@ void ZModule::init(bool d) //bool default
 		
 		//quests
 		moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
+		moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",5);
 		al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
+		al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
 		strcpy(moduledata.quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
 		al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
 		strcpy(moduledata.quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
