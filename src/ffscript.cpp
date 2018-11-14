@@ -17613,13 +17613,16 @@ void ZModule::init(bool d) //bool default
 	
 	//strcpy(moduledata.module_name,"default.zmod");
 	al_trace("Module name set to %s\n",moduledata.module_name);
+	//We load the current module name from zc.cfg or zquest.cfg!
+	//Otherwise, we don't know what file to access to load the module vars! 
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
+		
 	set_config_file(moduledata.module_name);
 	if ( d )
 	{
 		
 		//zcm path
-		strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
-		set_config_file(moduledata.module_name);
+		set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
 		al_trace("Module name set to %s\n",moduledata.module_name);
 		
 		//quests
@@ -17664,10 +17667,10 @@ void ZModule::init(bool d) //bool default
 		
 		
 	}
-	set_config_file("zc.cfg"); //shift back when done
+	set_config_file("zc.cfg"); //shift back to the normal config file, when done
 	
-	int x = get_config_int("zeldadx","gui_colorset",0);
-	al_trace("Checking that we have reverted to zc.cfg: %d\n",x);
+	//int x = get_config_int("zeldadx","gui_colorset",0);
+	//al_trace("Checking that we have reverted to zc.cfg: %d\n",x);
 	
 }
 
