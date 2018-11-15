@@ -24826,6 +24826,28 @@ void ZModule::init(bool d) //bool default
 		strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
 		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
 		
+		const char enemy_family_strings[eeMAX] =
+		{
+			"ee_family_guy","ee_family_walk","ee_family_shoot","ee_family_tek","ee_family_lev",
+			"ee_family_pea","ee_family_zor","ee_family_rock","ee_family_gh","ee_family_arm",
+			"ee_family_ke","ee_family_ge","ee_family_zl","ee_family_rp","ee_family_gor",
+			"ee_family_trap","ee_family_wm","ee_family_jinx","ee_family_vir","ee_family_rike",
+			"ee_family_pol","ee_family_wiz","ee_family_aqu","ee_family_mold","ee_family_dod",
+			"ee_family_mhd","ee_family_glk""ee_family_dig","ee_family_go","ee_family_lan",
+			"ee_family_pat","ee_family_gan","ee_family_proj","ee_family_gtrib","ee_family_ztrib",
+			"ee_family_vitrib","ee_family_ketrib","ee_family_spintile","ee_family_none","ee_family_faerie",
+			"ee_family_otherflt","ee_family_other"
+		};
+		
+		const char default_enemy_types[eeMAX] =
+		{
+		    "-Guy","Walking Enemy","-Unused","Tektite","Leever","Peahat","Zora","Rock","Ghini","-Unused","Keese","-Unused","-Unused","-Unused",
+		    "-Unused","Trap","Wall Master","-Unused","-Unused","-Unused","-Unused","Wizzrobe","Aquamentus","Moldorm","Dodongo","Manhandla","Gleeok","Digdogger",
+		    "Gohma","Lanmola","Patra","Ganon","Projectile Shooter","-Unused","-Unused","-Unused","-Unused","Spin Tile","(None)","-Fairy","Other (Floating)","Other"
+		};
+		for ( int q = 0; q < eeMAX; q++ )
+		{
+			strcpy(moduledata.enem_type_names[q],get_config_string("ENEMIES",enemy_family_strings[q],default_enemy_types[q]));
 		
 	}
 	set_config_file("zquest.cfg"); //shift back to the normal config file, when done

@@ -1,0 +1,75 @@
+[ZCMODULE]
+current_module = default.zmod
+
+[QUESTS]
+quest_flow = 1
+num_quest_files = 5
+first_qst = classic_1st.qst
+second_qst = classic_2nd.qst
+third_qst = classic_3rd.qst
+fourth_qst = classic_4th.qst
+fifth_qst = classic_5th.qst
+
+[NAMEENTRY]
+first_qst_skip = 
+second_qst_skip = ZELDA
+third_qst_skip = ALPHA
+fourth_qst_skip = GANON
+fifth_qst_skip = JEAN
+
+[DATAFILES]
+zcplayer_datafile = classic_zelda.dat	
+zquest_datafile = classic_zquest.dat
+fonts_datafile = classic_fonts.dat
+sounds_datafile = classic_sfx.dat
+quest_template_datafile = classic_qst.dat 
+
+//more than four chars crashes ZC
+
+[ENEMIES]
+ee_family_guy = -Guy
+ee_family_walk = Walking Enemy
+ee_family_shoot = -Unused
+ee_family_tek = Tektite
+ee_family_lev = Leever
+ee_family_pea = Peahat
+ee_family_zor = Zora
+ee_family_rock = Rock
+ee_family_gh = Ghini
+ee_family_arm = -Unused
+ee_family_ke = Keese
+ee_family_ge = -Unused
+ee_family_zl = -Unused
+ee_family_rp = -Unused
+ee_family_gor = -Unused
+ee_family_trap = Trap
+ee_family_wm = Wall Master
+ee_family_jinx = -Unused
+ee_family_vir = -Unused
+ee_family_rike = -Unused
+ee_family_pol = -Unused
+ee_family_wiz = Wizzrobe
+ee_family_aqu = Aquamentus
+ee_family_mold = Moldorm
+ee_family_dod = Dodongo
+ee_family_mhd = Manhandla
+ee_family_glk = Gleeok
+ee_family_dig = Digdogger
+ee_family_goh = Gohma
+ee_family_lan = Lanmola
+ee_family_pat = Patra
+ee_family_gan = Ganon
+ee_family_proj = Projectile Shooter
+ee_family_gtrib = -Unused
+ee_family_ztrib = -Unused
+ee_family_vitrib = -Unused
+ee_family_ketrib = -Unused
+ee_family_spintile = Spin Tile
+ee_family_none = (None)
+ee_family_faerie = -Fairy
+ee_family_otherflt = Other (Floating)
+ee_family_other = Other
+
+[ITEMS]
+
+[COMBOS]

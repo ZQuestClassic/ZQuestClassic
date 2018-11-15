@@ -3313,6 +3313,8 @@ struct zcmodule
 	//if it is 1, then we use the old hardcoded quest flow.
 	
 	int max_quest_files;
+	
+	char enem_type_names[eeMAX][255];
 }; //zcmodule
 
 
