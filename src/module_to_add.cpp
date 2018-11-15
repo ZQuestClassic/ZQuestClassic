@@ -1,4 +1,50 @@
 item families (itype_max)
+//init.cpp
+//Item Class (Itemclass, itemdata family names in ZQuest.)
+const char itype_strings[itype_max] = 
+{ 
+	"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
+	"Bait", "Letters", "Potions", "Wands", "Rings", "Wallets", "Amulets", "Shields", "Bows", "Rafts",
+	"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", "Boots", "Hookshots", "Lenses", "Hammers",
+	"Din's Fire", "Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", "Keys", "Magic Containers",
+	"Triforce Pieces", "Maps", "Compasses", "Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", "Arrow Ammo",
+	"Fairies", "Magic", "Hearts", "Heart Containers", "Heart Pieces", "Kill All Enemies",
+	"Bomb Ammo", "Bomb Bags", "Roc Items", "Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer",
+	"Whisp Rings", "Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", "Scroll: Hurricane Spin", 
+	"Scroll: Super Quake",
+	"Stones of Agony", "Stomp Boots", "Whimsical Rings", "Peril Rings", "Non-gameplay Items",
+	"Custom Itemclass 01", "Custom Itemclass 02", "Custom Itemclass 03", "Custom Itemclass 04", "Custom Itemclass 05",
+	"Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", "Custom Itemclass 09", "Custom Itemclass 10",
+	"Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", "Custom Itemclass 14", "Custom Itemclass 15",
+	"Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", "Custom Itemclass 19", "Custom Itemclass 20",
+	"Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)"
+};
+				     
+const char itype_fields[itype_max][255] =
+{
+	"ic_sword","ic_arrow","ic_cand","ic_whis","ic_potion",
+	"ic_wand","ic_armour","ic_wallet","ic_amul","ic_shield",
+	"ic_bow","ic_raft","ic_ladder","ic_spellbook","ic_mkey",
+	"ic_glove","ic_flip","ic_boot","ic_grapple","ic_lens",
+	"ic_hammer","ic_firespell","ic_exitspell","ic_shieldspell","ic_bomb",
+	"ic_sbomb","ic_fobwatch","ic_key","ic_mcp","ic_mcguf",
+	"ic_map","ic_compass","ic_bkey","ic_quiv","ic_lkey",
+	"ic_cane","ic_money","ic_ammow_arrow","ic_faerie","ic_magic",
+	"ic_health","ic_hc","ic_hcp","ic_killall","ic_ammo_bomb",
+	"ic_bombbag","ic_feath","ic_hover","ic_spinat","ic_crossbeam",
+	"ic_quakeham","ic_ring_whisp","ic_ring_charge","ic_perilbeam","ic_wmedal",
+	"ic_ring_hp","ic_ring_mp","ic_multispin","ic_supquake","ic_dowse",
+	"ic_stomp","ic_ring_crit","ic_ring_peril","ic_ngongameplay","ic_cic01",
+	"ic_cic02","ic_cic03","ic_cic04","ic_cic05","ic_cic06",
+	"ic_cic07","ic_cic08","ic_cic09","ic_cic10","ic_cic11",
+	"ic_cic12","ic_cic13","ic_cic14","ic_cic15","ic_cic16",
+	"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle"
+};
+//New Item Classes dfor 2.54 andd above. 
+const char *itype_new_names[itype_max] = { "Script 1","Script 2","Script 3","Script 4","Script 5","Script 6","Script 7","Script 8","Script 9","Script 10", "Ice Rod"
+                                     };
+				     
+
 weapon types (wMax)
 com bo types (cMAX)
 
