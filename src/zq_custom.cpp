@@ -53,6 +53,8 @@ extern int jwin_lscheck_proc(int msg,DIALOG *d,int c);
 extern int biw_cnt;
 extern int biic_cnt;
 
+extern ZModule zcm;
+extern zcmodule moduledata;
 
 
 #ifdef _MSC_VER
@@ -3133,9 +3135,13 @@ void build_bief_list()
     
     for(int i=start; i<eeMAX; i++)
     {
+        //if(moduledata.enem_type_names[i][0]!='-')
         if(enetype_string[i][0]!='-')
         {
-            bief[bief_cnt].s = (char *)enetype_string[i];
+		//load these from the module
+	   // bief[bief_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
+            //bief[bief_cnt].s = (char *)enetype_string[i];
+            bief[bief_cnt].s = (char *)moduledata.enem_type_names[i];
             bief[bief_cnt].i = i;
             ++bief_cnt;
         }
