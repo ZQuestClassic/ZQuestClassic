@@ -3198,12 +3198,25 @@ void build_biea_list()
     
     for(int i=start; i<aMAX; i++)
     {
-        if(eneanim_string[i][0]!='-')
-        {
-            biea[biea_cnt].s = (char *)eneanim_string[i];
-            biea[biea_cnt].i = i;
-            ++biea_cnt;
-        }
+	    
+	if ( moduledata.enem_anim_type_names[1][0] != NULL )
+	{
+		if(eneanim_string[i][0]!='-')
+		{
+		    biea[biea_cnt].s = (char *)moduledata.enem_anim_type_names[i];
+		    biea[biea_cnt].i = i;
+		    ++biea_cnt;
+		}
+	}
+	else
+	{
+		if(eneanim_string[i][0]!='-')
+		{
+		    biea[biea_cnt].s = (char *)eneanim_string[i];
+		    biea[biea_cnt].i = i;
+		    ++biea_cnt;
+		}
+	}
     }
     
     for(int i=start; i<biea_cnt-1; i++)

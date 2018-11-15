@@ -24771,6 +24771,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.skipnames, 0, sizeof(moduledata.skipnames));
 	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
 	memset(moduledata.enem_type_names, 0, sizeof(moduledata.enem_type_names));
+	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
 	
@@ -24860,6 +24861,40 @@ void ZModule::init(bool d) //bool default
 			strcpy(moduledata.enem_type_names[q],get_config_string("ENEMIES",enemy_family_strings[q],default_enemy_types[q]));
 			al_trace("Enemy family ID %d is: %s\n", q, moduledata.enem_type_names[q]);
 		}
+		const char default_enemy_anims[aMAX][255] =
+		{
+			"(None)","Flip","-Unused","2-Frame","-Unused",
+			"Octorok (NES)","Tektite (NES)","Leever (NES)","Walker","Zora (NES)",
+			"Zora (4-Frame)","Ghini","Armos (NES)","Rope","Wall Master (NES)",
+			"Wall Master (4-Frame)","Darknut (NES)","Vire","3-Frame","Wizzrobe (NES)",
+			"Aquamentus","Dodongo (NES)","Manhandla","Gleeok","Digdogger",
+			"Gohma","Lanmola","2-Frame Flying","4-Frame 4-Dir + Tracking","4-Frame 8-Dir + Tracking",
+			"4-Frame 4-Dir + Firing","4-Frame 4-Dir","4-Frame 8-Dir + Firing","Armos (4-Frame)","4-Frame Flying 4-Dir",
+			"4-Frame Flying 8-Dir","-Unused","4-Frame 8-Dir Big","Tektite (4-Frame)","3-Frame 4-Dir",
+			"2-Frame 4-Dir","Leever (4-Frame)","2-Frame 4-Dir + Tracking","Wizzrobe (4-Frame)","Dodongo (4-Frame)",
+			"Dodongo BS (4-Frame)","4-Frame Flying 8-Dir + Firing","4-Frame Flying 4-Dir + Firing","4-Frame","Ganon",
+			"2-Frame Big"
+		};
+		const char enemy_anim_strings[aMAX][255] =
+		{
+			"ea_none","ea_flip","ea_unused1","ea_2frame","ea_unused2",
+			"ea_oct","ea_tek","ea_lev","ea_walk","ea_zor",
+			"ea_zor4","ea_gh","ea_arm","ea_rp","ea_wm",
+			"ea_wm4","ea_dkn","ea_vir", "ea_3f","ea_wiz",
+			"ea_aqu","ea_dod","ea_mhn","ea_gkl","ea_dig",
+			"ea_goh","ea_lan","ea_fly2","ea_4f4dT","ea_4f8dT",
+			"ea_4f4dF","ea_4f4d","ea_4f8dF","ea_arm","ea_fly_4f4d",
+			"ea_fly4f8d","ea_unused3","ea_4f8dLG","ea_tek4","ea_3f4d",
+			"ea_2f4d","ea_lev4","ea_2f4dT","ea_wiz4","ea_dod4",
+			"ea_bsdod","ea_fly4f4dT","ea_fly_4f4dF","ea_4f","ea_gan",
+			"ea_2fLG"
+		};
+		for ( int q = 0; q < aMAX; q++ )
+		{
+			strcpy(moduledata.enem_anim_type_names[q],get_config_string("ENEMIES",enemy_anim_strings[q],default_enemy_anims[q]));
+			al_trace("Enemy animation type ID %d is: %s\n", q, moduledata.enem_anim_type_names[q]);
+		}
+		
 	}
 	set_config_file("zquest.cfg"); //shift back to the normal config file, when done
 	

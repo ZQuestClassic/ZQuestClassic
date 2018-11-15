@@ -3315,6 +3315,7 @@ struct zcmodule
 	int max_quest_files;
 	
 	char enem_type_names[eeMAX][255];
+	char enem_anim_type_names[aMAX][255];
 }; //zcmodule
 
 
