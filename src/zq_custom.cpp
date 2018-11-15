@@ -3135,16 +3135,34 @@ void build_bief_list()
     
     for(int i=start; i<eeMAX; i++)
     {
+	//Load enemy names from the module
         //if(moduledata.enem_type_names[i][0]!='-')
-        if(enetype_string[i][0]!='-')
-        {
-		//load these from the module
-	   // bief[bief_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
-            //bief[bief_cnt].s = (char *)enetype_string[i];
-            bief[bief_cnt].s = (char *)moduledata.enem_type_names[i];
-            bief[bief_cnt].i = i;
-            ++bief_cnt;
-        }
+	if (moduledata.enem_type_names[i][0]!=NULL)
+	{
+		if(moduledata.enem_type_names[i][0]!='-')
+		{
+			//load these from the module
+		   // bief[bief_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
+		    //bief[bief_cnt].s = (char *)enetype_string[i];
+		    bief[bief_cnt].s = (char *)moduledata.enem_type_names[i];
+		    bief[bief_cnt].i = i;
+		    ++bief_cnt;
+		}
+	}
+	else //not set in the module file, so use the default
+	{
+		if(enetype_string[i][0]!='-')
+		{
+			//load these from the module
+		   // bief[bief_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
+		    //bief[bief_cnt].s = (char *)enetype_string[i];
+		    bief[bief_cnt].s = (char *)enetype_string[i];
+		    bief[bief_cnt].i = i;
+		    ++bief_cnt;
+		}
+		
+	}
+		
     }
     
     // No alphabetic sorting for this list
