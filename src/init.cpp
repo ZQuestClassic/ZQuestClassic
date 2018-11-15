@@ -1556,6 +1556,7 @@ void build_biic_list()
         
         fams[name] = i;
         famnames.insert(name);
+	
     }
     
     /*
@@ -1575,6 +1576,7 @@ void build_biic_list()
     
     for(int i=itype_last; i<itype_max; i++)
     {
+	/*
 	char *name = new char[10];
 	    
 	if ( i == 256 ) sprintf(name, "Script 01");
@@ -1601,6 +1603,34 @@ void build_biic_list()
         fams[sname] = i;
         famnames.insert(sname);
         delete[] name;
+	*/
+	//expanded names
+	if (moduledata.item_editor_type_names[i][0] != NULL ) //std::string name = std::string(moduledata.item_editor_type_names[i]);
+	{
+	    
+		std::string name = std::string(moduledata.item_editor_type_names[i]);
+		while(famnames.find(name) != famnames.end())
+		{
+		    name += ' '; 
+		}
+		
+		fams[name] = i;
+		famnames.insert(name);
+	}
+	else 
+	{
+		char *name = new char[10];
+		sprintf(name, "zz%03d", i);
+		std::string sname(name);
+		while(famnames.find(sname) != famnames.end())
+		{
+		    sname += ' ';
+		}
+		
+		fams[sname] = i;
+		famnames.insert(sname);
+		delete[] name;
+	}
     }
     /*
     //Set up new/special weapons for 2.54 and above. 
