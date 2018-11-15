@@ -27,6 +27,7 @@ quest_template_datafile = classic_qst.dat
 //more than four chars crashes ZC
 
 [ENEMIES]
+//Enemy Family
 ee_family_guy = -Guy
 ee_family_walk = Walking Enemy
 ee_family_shoot = -Unused
@@ -69,6 +70,59 @@ ee_family_none = (None)
 ee_family_faerie = -Fairy
 ee_family_otherflt = Other (Floating)
 ee_family_other = Other
+
+//Enemy Animation
+ea_none = (None) 
+ea_flip = Flip
+ea_unused1 = -Unused
+ea_2frame = 2-Frame
+ea_unused2 = -Unused
+ea_oct = Octorok (NES)
+ea_tek = Tektite (NES)
+ea_lev = Leever (NES)
+ea_walk = Walker
+ea_zor = Zora (NES)
+ea_zor4 = Zora (4-Frame)
+ea_gh = Ghini
+ea_arm = Armos (NES)
+ea_rp = Rope
+ea_wm = Wall Master (NES)
+ea_wm4 = Wall Master (4-Frame)
+ea_dkn = Darknut (NES)
+ea_vir = Vire
+ea_3f = 3-Frame
+ea_wiz = Wizzrobe (NES)
+ea_aqu = Aquamentus
+ea_dod = Dodongo (NES)
+ea_mhn = Manhandla
+ea_gkl = Gleeok
+ea_dig = Digdogger
+ea_goh = Gohma
+ea_lan = Lanmola
+ea_fly2 = 2-Frame Flying
+ea_4f4dT = 4-Frame 4-Dir + Tracking
+ea_4f8dT = 4-Frame 8-Dir + Tracking
+ea_4f4dF = 4-Frame 4-Dir + Firing
+ea_4f4d = 4-Frame 4-Dir
+ea_4f8dF = 4-Frame 8-Dir + Firing
+ea_arm = Armos (4-Frame)
+ea_fly_4f4d = 4-Frame Flying 4-Dir
+ea_fly4f8d = 4-Frame Flying 8-Dir
+ea_unused3 = -Unused
+ea_4f8dLG = 4-Frame 8-Dir Big
+ea_tek4 = Tektite (4-Frame)
+ea_3f4d = 3-Frame 4-Dir
+ea_2f4d = 2-Frame 4-Dir
+ea_lev4 = Leever (4-Frame)
+ea_2f4dT = 2-Frame 4-Dir + Tracking
+ea_wiz4 = Wizzrobe (4-Frame)
+ea_dod4 = Dodongo (4-Frame)
+ea_bsdod = Dodongo BS (4-Frame)
+ea_fly4f4dT = 4-Frame Flying 8-Dir + Firing
+ea_fly_4f4dF = 4-Frame Flying 4-Dir + Firing
+ea_4f = 4-Frame
+ea_gan = Ganon
+ea_2fLG = 2-Frame Big
 
 [ITEMS]
 
