@@ -24772,6 +24772,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
 	memset(moduledata.enem_type_names, 0, sizeof(moduledata.enem_type_names));
 	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
+	memset(moduledata.item_editor_type_names, 0, sizeof(moduledata.enem_anim_type_names));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
 	
@@ -24893,6 +24894,67 @@ void ZModule::init(bool d) //bool default
 		{
 			strcpy(moduledata.enem_anim_type_names[q],get_config_string("ENEMIES",enemy_anim_strings[q],default_enemy_anims[q]));
 			al_trace("Enemy animation type ID %d is: %s\n", q, moduledata.enem_anim_type_names[q]);
+		}
+		
+		
+		//item editor
+		
+		//item families
+		const char default_itype_strings[itype_max][255] = 
+		{ 
+			"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
+			"Bait", "Letters", "Potions", "Wands", "Rings", 
+			"Wallets", "Amulets", "Shields", "Bows", "Rafts",
+			"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", 
+			"Boots", "Hookshots", "Lenses", "Hammers", "Din's Fire", 
+			"Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", 
+			"Keys", "Magic Containers", "Triforce Pieces", "Maps", "Compasses", 
+			"Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", 
+			"Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", 
+			"Heart Pieces", "Kill All Enemies", "Bomb Ammo", "Bomb Bags", "Roc Items", 
+			"Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer","Whisp Rings", 
+			"Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", 
+			"Scroll: Hurricane Spin", "Scroll: Super Quake","Stones of Agony", "Stomp Boots", "Whimsical Rings", 
+			"Peril Rings", "Non-gameplay Items", "Custom Itemclass 01", "Custom Itemclass 02", "Custom Itemclass 03",
+			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
+			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
+			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
+			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)"
+		};
+						     
+		const char itype_fields[itype_max][255] =
+		{
+			"ic_sword","ic_brang", "ic_arrow","ic_cand","ic_whis",
+			"ic_meat", "ic_rx", "ic_potion", 
+			"ic_wand","ic_armour","ic_wallet","ic_amul","ic_shield",
+			//10
+			"ic_bow","ic_raft","ic_ladder","ic_spellbook","ic_mkey",
+			"ic_glove","ic_flip","ic_boot","ic_grapple","ic_lens",
+			//20
+			"ic_hammer","ic_firespell","ic_exitspell","ic_shieldspell","ic_bomb",
+			"ic_sbomb","ic_fobwatch","ic_key","ic_mcp","ic_mcguf",
+			//30
+			"ic_map","ic_compass","ic_bkey","ic_quiv","ic_lkey",
+			"ic_cane","ic_money","ic_ammow_arrow","ic_faerie","ic_magic",
+			//40
+			"ic_health","ic_hc","ic_hcp","ic_killall","ic_ammo_bomb",
+			"ic_bombbag","ic_feath","ic_hover","ic_spinat","ic_crossbeam",
+			//50
+			"ic_quakeham","ic_ring_whisp","ic_ring_charge","ic_perilbeam","ic_wmedal",
+			"ic_ring_hp","ic_ring_mp","ic_multispin","ic_supquake","ic_dowse",
+			//60
+			"ic_stomp","ic_ring_crit","ic_ring_peril","ic_ngongameplay","ic_cic01",
+			"ic_cic02","ic_cic03","ic_cic04","ic_cic05","ic_cic06",
+			//70
+			"ic_cic07","ic_cic08","ic_cic09","ic_cic10","ic_cic11",
+			"ic_cic12","ic_cic13","ic_cic14","ic_cic15","ic_cic16",
+			//80
+			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle"
+		};
+		for ( int q = 0; q < itype_max; q++ )
+		{
+			strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
+			al_trace("Item family ID %d is: %s\n", q, moduledata.item_editor_type_names[q]);
 		}
 		
 	}

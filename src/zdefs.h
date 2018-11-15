@@ -3316,6 +3316,7 @@ struct zcmodule
 	
 	char enem_type_names[eeMAX][255];
 	char enem_anim_type_names[aMAX][255];
+	char item_editor_type_names[itype_max][255];
 }; //zcmodule
 
 

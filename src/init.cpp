@@ -29,6 +29,10 @@
 #include "init.h"
 #include "zelda.h"
 #include "mem_debug.h"
+#include "zquest.h"
+//extern ZModule zcm;
+extern zcmodule moduledata;
+
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -40,6 +44,9 @@
 #define vc(x)  ((x)+224)                                    // offset to 'VGA color' x (row 14)
 
 //using namespace std;
+
+//modules
+
 
 extern int jwin_pal[jcMAX];
 extern FONT *sfont2;
@@ -1537,13 +1544,14 @@ void build_biic_list()
 
     for(int i=start; i<itype_last; i++)
     {
-        std::string name = std::string(itype_names[i]);
+        //std::string name = std::string(itype_names[i]);
+        std::string name = std::string(moduledata.item_editor_type_names[i]);
 	    
 	    
         
         while(famnames.find(name) != famnames.end())
         {
-            name += ' ';
+            name += ' '; 
         }
         
         fams[name] = i;
