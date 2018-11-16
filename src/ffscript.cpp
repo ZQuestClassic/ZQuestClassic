@@ -17617,6 +17617,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.roomtype_names, 0, sizeof(moduledata.roomtype_names));
 	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
 	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
+	memset(moduledata.guy_type_names, 0, sizeof(moduledata.guy_type_names));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;

@@ -3584,7 +3584,7 @@ void drawpanel(int pnl)
             textprintf_disabled(menu1,pfont,panel[3].x+6,panel[0].y+8,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Guy:");
             textprintf_disabled(menu1,pfont,panel[3].x+6,panel[0].y+16,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"String:");
             textprintf_disabled(menu1,pfont,panel[3].x+6,panel[0].y+24,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Room:");
-            textprintf_ex(menu1,pfont,panel[3].x+40-16,panel[3].y+8,jwin_pal[jcBOXFG],-1,"%s",guy_string[scr->guy]);
+            textprintf_ex(menu1,pfont,panel[3].x+40-16,panel[3].y+8,jwin_pal[jcBOXFG],-1,"%s",moduledata.guy_type_names[scr->guy]);
             textprintf_ex(menu1,pfont,panel[3].x+40-6,panel[3].y+16,jwin_pal[jcBOXFG],-1,"%s",shortbuf);
             //textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",roomtype_string[scr->room]);
             textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",(char *)moduledata.roomtype_names[scr->room]);
@@ -16228,15 +16228,15 @@ void build_bie_list(bool hide)
 
 void build_big_list(bool hide)
 {
-    big[0].s = (char *)"(None)";
-    big[0].i = 0;
-    big_cnt=1;
-    
-    for(int i=gABEI; i<gDUMMY1; i++)
+    //big[0].s = (char *)"(None)";
+    //big[0].i = 0;
+    //big_cnt=1;
+    big_cnt=0;
+    for(int i=0; i<gDUMMY1; i++)
     {
-        if(guy_string[i][strlen(guy_string[i])-1]!=' ' || !hide)
+        if(moduledata.guy_type_names[i][0]!=' ' || !hide)
         {
-            big[big_cnt].s = (char *)guy_string[i];
+            big[big_cnt].s = (char *)moduledata.guy_type_names[i];
             big[big_cnt].i = i;
             ++big_cnt;
         }
@@ -24781,6 +24781,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.roomtype_names, 0, sizeof(moduledata.roomtype_names));
 	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
 	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
+	memset(moduledata.guy_type_names, 0, sizeof(moduledata.guy_type_names));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
@@ -25121,6 +25122,24 @@ void ZModule::init(bool d) //bool default
 			strcpy(moduledata.walkmisc9_names[q],get_config_string("ENEMYWALKSTYLE",enemy_walk_style_cats[q],enemy_walk_type_defaults[q]));
 			al_trace("Map Flag ID %d is: %s\n", q, moduledata.walkmisc9_names[q]);
 		}
+		const char guy_types[gDUMMY1][255]=
+		{
+			"gNONE", "gOLDMAN", "gOLDWOMAN", "gDUDE", "gORC",
+		    "gFIRE", "gFAIRY", "gGRUMBLE", "gPRINCESS", "gOLDMAN2",
+		    "gEMPTY"
+		};
+
+		const char guy_default_names[gDUMMY1][255]=
+		{
+			"(None)","Abei","Ama","Merchant","Moblin","Fire",
+			"Fairy","Goriya","Zelda","Abei 2","Empty"
+		};
+		for ( int q = 0; q < gDUMMY1; q++ )
+		{
+			strcpy(moduledata.guy_type_names[q],get_config_string("GUYS",guy_types[q],guy_default_names[q]));
+			al_trace("Map Flag ID %d is: %s\n", q, moduledata.guy_type_names[q]);
+		}
+		
 	}
 	set_config_file("zquest.cfg"); //shift back to the normal config file, when done
 	

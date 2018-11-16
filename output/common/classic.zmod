@@ -1087,3 +1087,17 @@ rMUPGRADE = 1/2 Magic Upgrade
 rLEARNSLASH = Learn Slash
 rARROWS = More Arrows
 rTAKEONE = Take One Item
+
+
+[GUYS]
+gNONE = (None)
+gOLDMAN = Abei
+gOLDWOMAN = Ama
+gDUDE = Merchant
+gORC = Moblin
+gFIRE = Fire
+gFAIRY = Fairy
+gGRUMBLE = Goriya
+gPRINCESS = Zelda
+gOLDMAN2 = Abei 2
+gEMPTY = Empty
