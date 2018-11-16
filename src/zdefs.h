@@ -580,7 +580,7 @@ enum
 	//140
 	mfSCRITPTW7TRIG, mfSCRITPTW8TRIG, mfSCRITPTW9TRIG, mfSCRITPTW10TRIG, mfTROWEL, 
 	//145
-	mfTROWELNEXT, mfTROWELSPECIALITEM,mfSLASHPOT, 	mcLIFTPOT,	mfLIFTORSLASH, 
+	mfTROWELNEXT, mfTROWELSPECIALITEM,mfSLASHPOT, 	mfLIFTPOT,	mfLIFTORSLASH, 
 	//150
 	mfLIFTROCK, 	mfLIFTROCKHEAVY, mfDROPITEM, 	mfSPECIALITEM, 	mfDROPKEY, 
 	//155
@@ -3318,6 +3318,7 @@ struct zcmodule
 	char enem_anim_type_names[aMAX][255];
 	char item_editor_type_names[itype_max][255];
 	char combo_type_names[cMAX][255];
+	char combo_flag_names[MAXFLAGS][255];
 }; //zcmodule
 
 
