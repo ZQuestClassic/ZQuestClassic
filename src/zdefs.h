@@ -3318,7 +3318,7 @@ struct zcmodule
 	char enem_anim_type_names[aMAX][255];
 	char item_editor_type_names[itype_max][255];
 	char combo_type_names[cMAX][255];
-	char combo_flag_names[MAXFLAGS][255];
+	char combo_flag_names[mfMAX][255];
 }; //zcmodule
 
 

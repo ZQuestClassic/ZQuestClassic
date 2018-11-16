@@ -17612,6 +17612,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
 	memset(moduledata.item_editor_type_names, 0, sizeof(moduledata.enem_anim_type_names));
 	memset(moduledata.combo_type_names, 0, sizeof(moduledata.combo_type_names));
+	memset(moduledata.combo_flag_names, 0, sizeof(moduledata.combo_flag_names));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
 	
