@@ -1,4 +1,6 @@
 
+subscreen counters
+defence results?
 weapon types (wMax)
 
 guy names (e.g. Abei) : done for the screen menu. 

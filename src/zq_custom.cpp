@@ -479,7 +479,10 @@ const char *itemdata_weaponlist(int index, int *list_size)
     {
         bound(index,0,40);
         
-        switch(index)
+	if ( moduledata.player_weapon_names[index][0] == '-' ) return "n/a";
+	else return (char *)moduledata.player_weapon_names[index];
+    /*
+	switch(index)
         {
 
 	case 0: return "None";
@@ -540,6 +543,7 @@ const char *itemdata_weaponlist(int index, int *list_size)
           //  sprintf(counterlist_str_buf,"Script %d",index-7);
           //  return counterlist_str_buf;
         }
+	*/
     }
     
     *list_size = 41;
@@ -556,7 +560,10 @@ const char *itemdata_weapontypelist(int index, int *list_size)
     {
         bound(index,0,40);
         
-        switch(index)
+	if ( moduledata.player_weapon_names[index][0] == '-' ) return "n/a";
+	else return (char *)moduledata.player_weapon_names[index];
+	/*
+	switch(index)
         {
 	case 0: return "None";
 	case 1: return "Sword"; 
@@ -616,6 +623,7 @@ const char *itemdata_weapontypelist(int index, int *list_size)
           //  sprintf(counterlist_str_buf,"Script %d",index-7);
           //  return counterlist_str_buf;
         }
+	*/
     }
     
     *list_size = 41;
@@ -665,8 +673,9 @@ const char *counterlist(int index, int *list_size)
     if(index >= 0)
     {
         bound(index,0,32);
-        
-        switch(index)
+        return (char *)moduledata.counter_names[index];
+        /*
+	switch(index)
         {
         case 0:
             return "None";
@@ -747,6 +756,7 @@ const char *counterlist(int index, int *list_size)
             sprintf(counterlist_str_buf,"Script %d",index-7);
             return counterlist_str_buf;
         }
+	*/
     }
     
     *list_size = 33;

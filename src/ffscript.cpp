@@ -17619,6 +17619,8 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
 	memset(moduledata.guy_type_names, 0, sizeof(moduledata.guy_type_names));
 	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
+	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
+	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
@@ -17778,6 +17780,53 @@ void ZModule::init(bool d) //bool default
 		{
 			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
 			al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
+		}
+		const char lweapon_cats[wIce+1][255]=
+		{
+			"lwNone","lwSword","lwBeam","lwBrang","lwBomb","lwSBomb","lwLitBomb",
+			"lwLitSBomb","lwArrow","lwFire","lwWhistle","lwMeat","lwWand","lwMagic","lwCatching",
+			"lwWind","lwRefMagic","lwRefFireball","lwRefRock", "lwHammer","lwGrapple", "lwHSHandle", 
+			"lwHSChain", "lwSSparkle","lwFSparkle", "lwSmack", "lwPhantom", 
+			"lwCane","lwRefBeam", "lwStomp","lwScript1", "lwScript2", "lwScript3", 
+			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce"
+		};
+		const char lweapon_default_names[wIce+1][255]=
+		{
+			"(None)","Sword","Sword Beam","Boomerang","Bomb","Super Bomb","Lit Bomb",
+			"Lit Super Bomb","Arrow","Fire","Whistle","Bait","Wand","Magic","-Catching",
+			"Wind","Reflected Magic","Reflected Fireball","Reflected Rock", "Hammer","Hookshit", "-HSHandle", 
+			"-HSChain", "Sparkle","-FSparkle", "-Smack", "-Phantom", 
+			"Cane of Byrna","Reflected Sword Beam", "-Stomp","Script1", "Script2", "Script3", 
+			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice"
+		};
+		for ( int q = 0; q < wIce+1; q++ )
+		{
+			strcpy(moduledata.player_weapon_names[q],get_config_string("LEAPONS",lweapon_cats[q],lweapon_default_names[q]));
+			al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
+		}
+		const char counter_cats[33][255]=
+		{
+			"crNONE","crLIFE","crMONEY","crBOMBS","crARROWS","crMAGIC","crKEYS",
+			"crSBOMBS","crCUSTOM1","crCUSTOM2","crCUSTOM3","crCUSTOM4","crCUSTOM5","crCUSTOM6",
+			"crCUSTOM7","crCUSTOM8","crCUSTOM9","crCUSTOM10","crCUSTOM11","crCUSTOM12","crCUSTOM13",
+			"crCUSTOM14","crCUSTOM15","crCUSTOM16","crCUSTOM17","crCUSTOM18","crCUSTOM19",
+			"crCUSTOM20","crCUSTOM21","crCUSTOM22","crCUSTOM23","crCUSTOM24","crCUSTOM25"
+		};
+
+		const char counter_default_names[33][255]=
+		{
+			"None","Life","Rupees", "Bombs","Arrows","Magic",
+			"Keys","Super Bombs","Custom 1","Custom 2","Custom 3",
+			"Custom 4","Custom 5","Custom 6","Custom 7","Custom 8",
+			"Custom 9","Custom 10","Custom 11","Custom 12",
+			"Custom 13","Custom 14","Custom 15","Custom 16","Custom 17",
+			"Custom 18","Custom 19","Custom 20","Custom 21","Custom 22"
+			"Custom 23","Custom 24","Custom 25"	
+		};
+		for ( int q = 0; q < 33; q++ )
+		{
+			strcpy(moduledata.counter_names[q],get_config_string("COUNTERS",counter_cats[q],counter_default_names[q]));
+			al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
 		}
 		
 		
