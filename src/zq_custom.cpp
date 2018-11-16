@@ -3189,7 +3189,7 @@ const char *enetypelist(int index, int *list_size)
     return bief[index].s;
 }
 
-list_data_struct biea[wMAX];
+list_data_struct biea[aMAX];
 int biea_cnt=-1;
 
 void build_biea_list()
@@ -3259,9 +3259,11 @@ void build_biew_list()
     
     for(int i=0; i<wMax-wEnemyWeapons; i++)
     {
-        if(eweapon_string[i][0]!='-')
+        //if(eweapon_string[i][0]!='-')
+        if(moduledata.enemy_weapon_names[i][0]!='-')
         {
-            biew[biew_cnt].s = (char *)eweapon_string[i];
+            //biew[biew_cnt].s = (char *)eweapon_string[i];
+            biew[biew_cnt].s = (char *)moduledata.enemy_weapon_names[i];
             biew[biew_cnt].i = i;
             ++biew_cnt;
         }

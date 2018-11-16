@@ -24782,6 +24782,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
 	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
 	memset(moduledata.guy_type_names, 0, sizeof(moduledata.guy_type_names));
+	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
@@ -25140,6 +25141,57 @@ void ZModule::init(bool d) //bool default
 			al_trace("Map Flag ID %d is: %s\n", q, moduledata.guy_type_names[q]);
 		}
 		
+		const char enemy_weapon_cats[wMax-wEnemyWeapons][255]=
+		{
+			"ewNone",
+			"ewFireball",
+			"ewArrow",
+			"ewBrang",
+			"ewSword",
+			"ewRock",
+			"ewMagic",
+			"ewBomb",
+			"ewSBomb",
+			"ewLitBomb",
+			"ewLitSBomb",
+			"ewFireTrail",
+			"ewFlame",
+			"ewWind",
+			"ewFlame2",
+			"ewFlame2Trail",
+			"ewIce",
+			"ewFireball2"
+		};
+		
+		const char enemy_weapon_default_names[wMax-wEnemyWeapons][255]=
+		{
+			"(None)",
+			"Fireball",
+			"Arrow",
+			"Boomerang",
+			"Sword",
+			"Rock",
+			"Magic",
+			"Bomb Blast",
+			"Super Bomb Blast",
+			"Lit Bomb",
+			"Lit Super Bomb",
+			"Fire Trail",
+			"Flame",
+			"Wind",
+			"Flame 2",
+			"-Flame 2 Trail <unused>",
+			"-Ice <unused>",
+			"Fireball (Rising)"
+		};
+		
+		for ( int q = 0; q < sizeof(enemy_weapon_default_names)/255; q++ )
+		{
+			strcpy(moduledata.enemy_weapon_names[q],get_config_string("EWEAPONS",enemy_weapon_cats[q],enemy_weapon_default_names[q]));
+			al_trace("EWeapon ID %d is: %s\n", q, moduledata.enemy_weapon_names[q]);
+		}
+
+				
 	}
 	set_config_file("zquest.cfg"); //shift back to the normal config file, when done
 	

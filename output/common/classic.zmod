@@ -1101,3 +1101,23 @@ gGRUMBLE = Goriya
 gPRINCESS = Zelda
 gOLDMAN2 = Abei 2
 gEMPTY = Empty
+
+[EWEAPONS]
+ewNone = (None)
+ewFireball = FIREVOLT
+ewArrow = Arrow
+ewBrang = Boomerang
+ewSword = Sword
+ewRock = Rock
+ewMagic = Magic
+ewBomb = Bomb Blast
+ewSBomb = Super Bomb Blast
+ewLitBomb = Lit Bomb
+ewLitSBomb = Lit Super Bomb
+ewFireTrail = Fire Trail
+ewFlame = Flame
+ewWind = Wind
+ewFlame2 = Flame 2
+ewFlame2Trail = -Flame 2 Trail <unused>
+ewIce = -Ice <unused>
+ewFireball2 = Fireball (Rising)
