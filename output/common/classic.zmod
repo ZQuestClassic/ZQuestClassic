@@ -124,6 +124,13 @@ ea_4f = 4-Frame
 ea_gan = Ganon
 ea_2fLG = 2-Frame Big
 
+[ENEMYWALKSTYLE]
+wsNormal = Normal
+wsCharge = Rope
+wsHopSplit = Vire
+wsHop = Pols Voice
+wsStatue = Armos
+
 [ITEMS]
 ic_sword = Swords
 ic_brang = Boomerangs

@@ -3338,7 +3338,8 @@ const char *walkmisc9list(int index, int *list_size)
     if(index>=0)
     {
         bound(index,0,e9tARMOS);
-        return walkmisc9_string[index];
+        //return walkmisc9_string[index];
+        return (char *)moduledata.walkmisc9_names[index];
     }
     
     *list_size = e9tARMOS+1;

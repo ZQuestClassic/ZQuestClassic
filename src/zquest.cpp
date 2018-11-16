@@ -25106,6 +25106,21 @@ void ZModule::init(bool d) //bool default
 			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
 			al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
 		}
+		
+		const char enemy_walk_type_defaults[e9tARMOS+1][255] =
+		{
+		    "Normal", "Rope", "Vire", "Pols Voice", "Armos"
+		};
+
+		const char enemy_walk_style_cats[e9tARMOS+1][255]=
+		{
+			"wsNormal","wsCharge","wsHopSplit","wsHop","wsStatue"
+		};
+		for ( int q = 0; q < e9tARMOS+1; q++ )
+		{
+			strcpy(moduledata.walkmisc9_names[q],get_config_string("ENEMYWALKSTYLE",enemy_walk_style_cats[q],enemy_walk_type_defaults[q]));
+			al_trace("Map Flag ID %d is: %s\n", q, moduledata.walkmisc9_names[q]);
+		}
 	}
 	set_config_file("zquest.cfg"); //shift back to the normal config file, when done
 	
