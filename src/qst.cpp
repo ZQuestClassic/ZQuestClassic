@@ -7005,7 +7005,15 @@ int init_combo_classes()
     for(int i=0; i<cMAX; i++)
     {
         combo_class_buf[i] = default_combo_classes[i];
-        continue;
+	if ( moduledata.combo_type_names[i][0] != NULL )
+	{
+		al_trace("Copying over a combo type name from a module: %s\n",(char *)moduledata.combo_type_names[i]);
+		for ( int q = 0; q < 64; q++ )
+		{
+			combo_class_buf[i].name[q] = moduledata.combo_type_names[i][q];
+		}
+	}
+	    continue;
         /*
             al_trace("===== %03d (%s)=====\n", i, ctype_name[i]);
             al_trace("name:  %s\n", combo_class_buf[i].name);
