@@ -17613,6 +17613,11 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.item_editor_type_names, 0, sizeof(moduledata.enem_anim_type_names));
 	memset(moduledata.combo_type_names, 0, sizeof(moduledata.combo_type_names));
 	memset(moduledata.combo_flag_names, 0, sizeof(moduledata.combo_flag_names));
+	
+	memset(moduledata.roomtype_names, 0, sizeof(moduledata.roomtype_names));
+	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
+	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
+	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
 	
@@ -17752,6 +17757,25 @@ void ZModule::init(bool d) //bool default
 		{
 			strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
 			al_trace("Item family ID %d is: %s\n", q, moduledata.item_editor_type_names[q]);
+		}
+		
+		const char roomtype_cats[rMAX][256] =
+		{
+			"rNONE","rSP_ITEM","rINFO","rMONEY","rGAMBLE","rREPAIR","rRP_HC","rGRUMBLE",
+			"rQUESTOBJ","rP_SHOP","rSHOP","rBOMBS","rSWINDLE","r10RUPIES","rWARP","rMAINBOSS","rWINGAME",
+			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE"
+		};
+		const char roomtype_defaults[rMAX][255] =
+		{
+		    "(None)","Special Item","Pay for Info","Secret Money","Gamble",
+		    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
+		    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
+		    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
+		};
+		for ( int q = 0; q < rMAX; q++ )
+		{
+			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
+			al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
 		}
 		
 		

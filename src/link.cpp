@@ -33,6 +33,7 @@
 extern FFScript FFCore;
 extern LinkClass Link;
 extern ZModule zcm;
+extern zcmodule moduledata;
 #include "mem_debug.h"
 #include "zscriptversion.h"
 
@@ -11961,7 +11962,7 @@ bool LinkClass::dowarp(int type, int index)
     {
         if(DMaps[currdmap].flags&dmfGUYCAVES)
             Z_eventlog("Entered %s containing %s.\n",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar",
-                       roomtype_string[tmpscr[1].room]);
+                       (char *)moduledata.roomtype_names[tmpscr[1].room]);
         else
             Z_eventlog("Entered %s.",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar");
     }

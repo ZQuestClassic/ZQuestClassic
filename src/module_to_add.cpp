@@ -1,6 +1,28 @@
 
 weapon types (wMax)
 
+rNONE,
+rSP_ITEM,
+rINFO,
+rMONEY,
+rGAMBLE,
+rREPAIR,
+rRP_HC,
+rGRUMBLE,
+rQUESTOBJ,
+rP_SHOP,
+rSHOP,
+rBOMBS,
+rSWINDLE,
+r10RUPIES,
+rWARP,
+rMAINBOSS,
+rWINGAME,
+rITEMPOND,
+rMUPGRADE,
+rLEARNSLASH,
+rARROWS,
+rTAKEONE,
 
 const char *roomtype_string[MAXROOMTYPES] =
 {

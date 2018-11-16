@@ -1056,3 +1056,27 @@ mf252 = -Unused
 mf253 = -Unused
 mf254 = -Unused
 mfEXTENDED = 255 Extended (Extended Flag Editor)
+
+[ROOMTYPES]
+rNONE = (None)
+rSP_ITEM = Special Item
+rINFO = Pay for Info
+rMONEY = Secret Money
+rGAMBLE = Gamble
+rREPAIR = Door Repair
+rRP_HC = Red Potion or Heart Container
+rGRUMBLE = Feed the Goriya
+rQUESTOBJ = Level 9 Entrance
+rP_SHOP = Potion Shop
+rSHOP = Shop
+rBOMBS = More Bombs
+rSWINDLE = Leave Money or Life
+r10RUPIES = 10 Rupees
+rWARP = 3-Stair Warp
+rMAINBOSS = Ganon
+rWINGAME = Zelda
+rITEMPOND = -<item pond>
+rMUPGRADE = 1/2 Magic Upgrade
+rLEARNSLASH = Learn Slash
+rARROWS = More Arrows
+rTAKEONE = Take One Item

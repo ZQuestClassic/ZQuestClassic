@@ -3586,7 +3586,8 @@ void drawpanel(int pnl)
             textprintf_disabled(menu1,pfont,panel[3].x+6,panel[0].y+24,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Room:");
             textprintf_ex(menu1,pfont,panel[3].x+40-16,panel[3].y+8,jwin_pal[jcBOXFG],-1,"%s",guy_string[scr->guy]);
             textprintf_ex(menu1,pfont,panel[3].x+40-6,panel[3].y+16,jwin_pal[jcBOXFG],-1,"%s",shortbuf);
-            textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",roomtype_string[scr->room]);
+            //textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",roomtype_string[scr->room]);
+            textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",(char *)moduledata.roomtype_names[scr->room]);
             int rtype=scr->room;
             
             if(strcmp(catchall_string[rtype]," "))
@@ -9831,9 +9832,9 @@ void build_bir_list()
     
     for(int i=0; i<rMAX; i++)
     {
-        if(roomtype_string[i][0]!='-')
+        if(moduledata.roomtype_names[i][0]!='-')
         {
-            bir[bir_cnt].s = (char *)roomtype_string[i];
+            bir[bir_cnt].s = (char *)moduledata.roomtype_names[i];
             bir[bir_cnt].i = i;
             ++bir_cnt;
         }
@@ -24776,6 +24777,11 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.item_editor_type_names, 0, sizeof(moduledata.enem_anim_type_names));
 	memset(moduledata.combo_type_names, 0, sizeof(moduledata.combo_type_names));
 	memset(moduledata.combo_flag_names, 0, sizeof(moduledata.combo_flag_names));
+	
+	memset(moduledata.roomtype_names, 0, sizeof(moduledata.roomtype_names));
+	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
+	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
+	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
 	
@@ -25082,7 +25088,24 @@ void ZModule::init(bool d) //bool default
 			strcpy(moduledata.combo_flag_names[q],get_config_string("MAPFLAGS",map_flag_cats[q],map_flag_default_string[q]));
 			al_trace("Map Flag ID %d is: %s\n", q, moduledata.combo_flag_names[q]);
 		}
-		
+		const char roomtype_cats[rMAX][256] =
+		{
+			"rNONE","rSP_ITEM","rINFO","rMONEY","rGAMBLE","rREPAIR","rRP_HC","rGRUMBLE",
+			"rQUESTOBJ","rP_SHOP","rSHOP","rBOMBS","rSWINDLE","r10RUPIES","rWARP","rMAINBOSS","rWINGAME",
+			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE"
+		};
+		const char roomtype_defaults[rMAX][255] =
+		{
+		    "(None)","Special Item","Pay for Info","Secret Money","Gamble",
+		    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
+		    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
+		    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
+		};
+		for ( int q = 0; q < rMAX; q++ )
+		{
+			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
+			al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
+		}
 	}
 	set_config_file("zquest.cfg"); //shift back to the normal config file, when done
 	

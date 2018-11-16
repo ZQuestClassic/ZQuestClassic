@@ -3319,6 +3319,11 @@ struct zcmodule
 	char item_editor_type_names[itype_max][255];
 	char combo_type_names[cMAX][255];
 	char combo_flag_names[mfMAX][255];
+	char roomtype_names[rMAX][255];
+	char walkmisc7_names[e7tEATHURT+1][255];
+	char walkmisc9_names[e9tARMOS+1][255];
+	
+	char delete_quest_data_on_wingame[20]; //Do we purge items, scripts, and other data when moving to the next quest?
 }; //zcmodule
 
 
