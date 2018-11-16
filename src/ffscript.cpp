@@ -385,7 +385,8 @@ public:
     
     static INLINE int checkGuyID(const long ID, const char * const str)
     {
-        return checkBounds(ID, 0, MAXGUYS-1, str);
+        //return checkBounds(ID, 0, MAXGUYS-1, str); //Can't create NPC ID 0
+        return checkBounds(ID, 1, MAXGUYS-1, str);
     }
     
     static INLINE int checkItemID(const long ID, const char * const str)
@@ -3773,7 +3774,6 @@ else \
 	#define GET_SCREENDATA_FLAG(member, str, indexbound) \
 	{ \
 		long flag =  (value/10000);  \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
 		ret = (tmpscr->member&flag) ? 10000 : 0); \
 	} \
 
@@ -4678,29 +4678,36 @@ case MAPDATAFFSCRIPT:       GET_MAPDATA_FFC_INDEX32(ffscript, "FFCScript", 31); 
 case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//SetFFCInitD(ffindex, d, value)
 {
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	int ffid = (ri->d[0]/10000) -1;
-	int indx = ri->d[1]/10000;
-		
-	if ( (unsigned)ffid > 31 ) 
+	if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
 	{
-	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
-	    ret = -10000;
-	}
-	else if ( (unsigned)indx > 7 )
-	{
-	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
-            ret = -10000;
+		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
+		ret = -10000;
 	}
 	else
-	{ 
-	    ret = (m->initd[ffid][indx]);
-	}
-	
-	//int ffindex = ri->d[0]/10000;
-	//int d = ri->d[1]/10000;
-	//int v = (value/10000);
-	
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		int ffid = (ri->d[0]/10000) -1;
+		int indx = ri->d[1]/10000;
+			
+		if ( (unsigned)ffid > 31 ) 
+		{
+		    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+		    ret = -10000;
+		}
+		else if ( (unsigned)indx > 7 )
+		{
+		    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+		    ret = -10000;
+		}
+		else
+		{ 
+		    ret = (m->initd[ffid][indx]);
+		}
+		
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+	}	
 	break;
 }	
 	
@@ -4710,29 +4717,37 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 case MAPDATAINITA: 		
 	//same form as SetScreenD
 {
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	//int ffindex = ri->d[0]/10000;
-	//int d = ri->d[1]/10000;
-	//int v = (value/10000);
-	
-	int ffid = (ri->d[0]/10000) -1;
-	int indx = ri->d[1]/10000;
-		
-	if ( (unsigned)ffid > 31 ) 
+	if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
 	{
-	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
-	    ret = -10000;
-	}
-	else if ( (unsigned)indx > 1 )
-	{
-	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
-            ret = -10000;
+		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
+		ret = -10000;
 	}
 	else
-	{ 
-	    ret = (m->inita[ffid][indx]);
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		
+		int ffid = (ri->d[0]/10000) -1;
+		int indx = ri->d[1]/10000;
+			
+		if ( (unsigned)ffid > 31 ) 
+		{
+		    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+		    ret = -10000;
+		}
+		else if ( (unsigned)indx > 1 )
+		{
+		    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+		    ret = -10000;
+		}
+		else
+		{ 
+		    ret = (m->inita[ffid][indx]);
+		}
+		break;
 	}
-	break;
 }	
 
 	//inita	//INT32, 32 OF THESE, EACH WITH 2
@@ -5539,7 +5554,7 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 //npcdata nd->member variable
 	#define	GET_NPCDATA_VAR_INT32(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			ret = -10000; \
@@ -5552,7 +5567,7 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 
 	#define	GET_NPCDATA_VAR_BYTE(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			ret = -10000; \
@@ -5565,7 +5580,7 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	
 	#define	GET_NPCDATA_VAR_INT16(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			ret = -10000; \
@@ -5579,12 +5594,12 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define GET_NPCDATA_VAR_INDEX(member, str, indexbound) \
 	{ \
 			int indx = ri->d[0] / 10000; \
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 				ret = -10000; \
 			} \
-			else if ( indx < 0 || indx > indexbound ) \
+			else if ( (unsigned)indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 				ret = -10000; \
@@ -5598,12 +5613,12 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define GET_NPCDATA_BYTE_INDEX(member, str, indexbound) \
 	{ \
 			int indx = ri->d[0] / 10000; \
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 				ret = -10000; \
 			} \
-			else if ( indx < 0 || indx > indexbound ) \
+			else if ( (unsigned)indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 				ret = -10000; \
@@ -5617,7 +5632,7 @@ case COMBODBLOCKWPNLEVEL:	GET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define GET_NPCDATA_FLAG(member, str, indexbound) \
 	{ \
 		long flag =  (value/10000);  \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
@@ -9900,26 +9915,34 @@ case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(ffscript, "FFCScript", 
 case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//SetFFCInitD(ffindex, d, value)
 {
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	//int ffindex = ri->d[0]/10000;
-	//int d = ri->d[1]/10000;
-	//int v = (value/10000);
-	int ffid = (ri->d[0]/10000) -1;
-	int indx = ri->d[1]/10000;
-		
-	if ( (unsigned)ffid > 31 ) 
+	if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
 	{
-	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
-	}
-	else if ( (unsigned)indx > 7 )
-	{
-	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitD()");
+		break;
 	}
 	else
-	{ 
-	     m->initd[ffid][indx] = value;
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int ffid = (ri->d[0]/10000) -1;
+		int indx = ri->d[1]/10000;
+			
+		if ( (unsigned)ffid > 31 ) 
+		{
+		    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+		}
+		else if ( (unsigned)indx > 7 )
+		{
+		    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+		}
+		else
+		{ 
+		     m->initd[ffid][indx] = value;
+		}
+		break;
 	}
-	break;
 }	
 	
 
@@ -9929,27 +9952,35 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 case MAPDATAINITA: 		
 	//same form as SetScreenD
 {
-	mapscr *m = &TheMaps[ri->mapsref]; 
-	//int ffindex = ri->d[0]/10000;
-	//int d = ri->d[1]/10000;
-	//int v = (value/10000);
-	int ffid = (ri->d[0]/10000) -1;
-	int indx = ri->d[1]/10000;
-		
-	if ( (unsigned)ffid > 31 ) 
+	if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
 	{
-	    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
-	}
-	else if ( (unsigned)indx > 7 )
-	{
-	    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitA()");
+		break;
 	}
 	else
-	{ 
-	     m->inita[ffid][indx] = value;
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int ffid = (ri->d[0]/10000) -1;
+		int indx = ri->d[1]/10000;
+			
+		if ( (unsigned)ffid > 31 ) 
+		{
+		    Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
+		}
+		else if ( (unsigned)indx > 7 )
+		{
+		    Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
+		}
+		else
+		{ 
+		     m->inita[ffid][indx] = value;
+		}
+		
+		break;
 	}
-	
-	break;
 }	
 	
 case MAPDATAFFINITIALISED: 	SET_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
@@ -10762,7 +10793,7 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	
 #define	SET_NPCDATA_VAR_INT(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
@@ -10774,7 +10805,7 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	
 	#define	SET_NPCDATA_VAR_DWORD(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
@@ -10786,7 +10817,7 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 
 	#define	SET_NPCDATA_VAR_BYTE(member, str) \
 	{ \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
@@ -10799,11 +10830,11 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define SET_NPCDATA_VAR_INDEX(member, str, indexbound) \
 	{ \
 			int indx = ri->d[0] / 10000; \
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			} \
-			else if ( indx < 0 || indx > indexbound ) \
+			else if ( (unsigned)indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 			} \
@@ -10816,11 +10847,11 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define SET_NPCDATA_BYTE_INDEX(member, str, indexbound) \
 	{ \
 			int indx = ri->d[0] / 10000; \
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 			} \
-			else if ( indx < 0 || indx > indexbound ) \
+			else if ( (unsigned)indx > indexbound ) \
 			{ \
 				Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
 			} \
@@ -10833,13 +10864,13 @@ case COMBODBLOCKWPNLEVEL:	SET_COMBOCLASS_VAR_BYTE(block_weapon_lvl, "BlockWeapon
 	#define SET_NPCDATA_FLAG(member, str) \
 	{ \
 		long flag =  (value/10000);  \
-		if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) \
+		if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 		{ \
 			Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
 		} \
 		else \
 		{ \
-			if ( flag != 0 ) \
+			if ( flag ) \
 			{ \
 				guysbuf[ri->npcdataref].member|=flag; \
 			} \
@@ -12901,7 +12932,7 @@ void FFScript::do_loadcombodata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > (MAXCOMBOS-1) )
+    if ( (unsigned)ID > (MAXCOMBOS-1) )
     {
 	Z_scripterrlog("Invalid Combo ID passed to Game->LoadComboData: %d\n", ID);
 	ri->combosref = 0;
@@ -12926,7 +12957,7 @@ void FFScript::do_loadmapdata(const bool v)
 	ri->mapsref = 0;
 	
     }
-    else if ( _scr < 0 || _scr > 129 ) //0x00 to 0x81 -Z
+    else if ( (unsigned)_scr > 129 ) //0x00 to 0x81 -Z
     {
 	Z_scripterrlog("Invalid Screen ID passed to Game->LoadMapData: %d\n", _scr);
 	ri->mapsref = 0;
@@ -12941,7 +12972,7 @@ void FFScript::do_loadshopdata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > 255 )
+    if ( (unsigned)ID > 255 )
     {
 	Z_scripterrlog("Invalid Shop ID passed to Game->LoadShopData: %d\n", ID);
 	ri->shopsref = 0;
@@ -12956,7 +12987,7 @@ void FFScript::do_loadinfoshopdata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > 255 )
+    if ( (unsigned)ID > 255 )
     {
 	Z_scripterrlog("Invalid Shop ID passed to Game->LoadShopData: %d\n", ID);
 	ri->shopsref = 0;
@@ -13005,7 +13036,7 @@ void FFScript::do_loadspritedata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > (MAXWPNS-1) )
+    if ( (unsigned)ID > (MAXWPNS-1) )
     {
 	Z_scripterrlog("Invalid Sprite ID passed to Game->LoadSpriteData: %d\n", ID);
 	ri->spritesref = 0; 
@@ -13020,7 +13051,7 @@ void FFScript::do_loadscreendata(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
     
-    if ( ID < 0 || ID > (MAXSCREENS-1) )
+    if ( (unsigned)ID > (MAXSCREENS-1) )
     {
 	Z_scripterrlog("Invalid Map ID passed to Game->LoadScreenData: %d\n", ID);
 	ri->screenref = 0; 

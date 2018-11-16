@@ -68,6 +68,7 @@ byte midi_patch_fix;
 bool midi_paused=false;
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Link, etc. 
+extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
 
 //extern movingblock mblock2; //mblock[4]?
 //extern int db;
@@ -250,10 +251,16 @@ void load_game_configs()
     js_stick_2_y_axis = get_config_int(cfg_sect,"js_stick_2_y_axis",1);
     js_stick_2_y_offset = get_config_int(cfg_sect,"js_stick_2_y_offset",0) ? 128 : 0;
     analog_movement = get_config_int(cfg_sect,"analog_movement",1);
-    
+   
+    //cheat modifier keya
+    cheat_modifier_keys[0] = get_config_int(cfg_sect,"key_cheatmod_a1",KEY_ZC_LCONTROL);
+    cheat_modifier_keys[1] = get_config_int(cfg_sect,"key_cheatmod_a2",KEY_ZC_RCONTROL);
+    cheat_modifier_keys[2] = get_config_int(cfg_sect,"key_cheatmod_b1",KEY_LSHIFT);
+    cheat_modifier_keys[3] = get_config_int(cfg_sect,"key_cheatmod_b2",KEY_RSHIFT);
+   
     if((unsigned int)joystick_index >= MAX_JOYSTICKS)
         joystick_index = 0;
-        
+       
     Akey = get_config_int(cfg_sect,"key_a",KEY_ALT);
     Bkey = get_config_int(cfg_sect,"key_b",KEY_ZC_LCONTROL);
     Skey = get_config_int(cfg_sect,"key_s",KEY_ENTER);
@@ -264,12 +271,12 @@ void load_game_configs()
     Exkey2 = get_config_int(cfg_sect,"key_ex2",KEY_W);
     Exkey3 = get_config_int(cfg_sect,"key_ex3",KEY_A);
     Exkey4 = get_config_int(cfg_sect,"key_ex4",KEY_S);
-    
+   
     DUkey = get_config_int(cfg_sect,"key_up",   KEY_UP);
     DDkey = get_config_int(cfg_sect,"key_down", KEY_DOWN);
     DLkey = get_config_int(cfg_sect,"key_left", KEY_LEFT);
     DRkey = get_config_int(cfg_sect,"key_right",KEY_RIGHT);
-    
+   
     Abtn = get_config_int(cfg_sect,"btn_a",2);
     Bbtn = get_config_int(cfg_sect,"btn_b",1);
     Sbtn = get_config_int(cfg_sect,"btn_s",10);
@@ -281,12 +288,12 @@ void load_game_configs()
     Exbtn2 = get_config_int(cfg_sect,"btn_ex2",8);
     Exbtn3 = get_config_int(cfg_sect,"btn_ex3",4);
     Exbtn4 = get_config_int(cfg_sect,"btn_ex4",3);
-    
+   
     DUbtn = get_config_int(cfg_sect,"btn_up",13);
     DDbtn = get_config_int(cfg_sect,"btn_down",14);
     DLbtn = get_config_int(cfg_sect,"btn_left",15);
     DRbtn = get_config_int(cfg_sect,"btn_right",16);
-    
+   
     digi_volume = get_config_int(cfg_sect,"digi",248);
     midi_volume = get_config_int(cfg_sect,"midi",255);
     sfx_volume = get_config_int(cfg_sect,"sfx",248);
@@ -304,15 +311,15 @@ void load_game_configs()
     NESquit = get_config_int(cfg_sect,"fastquit",0)!=0;
     ClickToFreeze = get_config_int(cfg_sect,"clicktofreeze",1)!=0;
     title_version = get_config_int(cfg_sect,"title",2);
-    
+   
     //default - scale x2, 640 x 480
     resx = get_config_int(cfg_sect,"resx",640);
     resy = get_config_int(cfg_sect,"resy",480);
     //screen_scale = get_config_int(cfg_sect,"screen_scale",2);
-    
+   
     scanlines = get_config_int(cfg_sect,"scanlines",0)!=0;
     loadlast = get_config_int(cfg_sect,"load_last",0);
-    
+   
 // Fullscreen, page flipping may be problematic on newer windows systems.
 #ifdef _WIN32
     fullscreen = get_config_int(cfg_sect,"fullscreen",0);
@@ -323,9 +330,9 @@ void load_game_configs()
     disable_triplebuffer = (byte) get_config_int(cfg_sect,"doublebuffer",0);
     can_triplebuffer_in_windowed_mode = (byte) get_config_int(cfg_sect,"triplebuffer",0);
 #endif
-    
+   
     zc_color_depth = (byte) get_config_int(cfg_sect,"color_depth",8);
-    
+   
     //workaround for the 100% CPU bug. -Gleeok
 #ifdef ALLEGRO_MACOSX //IIRC rest(0) was a mac issue fix.
     frame_rest_suggest = (byte) get_config_int(cfg_sect,"frame_rest_suggest",0);
@@ -333,31 +340,31 @@ void load_game_configs()
     frame_rest_suggest = (byte) get_config_int(cfg_sect,"frame_rest_suggest",1);
 #endif
     frame_rest_suggest = zc_min(2, frame_rest_suggest);
-    
+   
     forceExit = (byte) get_config_int(cfg_sect,"force_exit",0);
-    
+   
 #ifdef _WIN32
     use_debug_console = (byte) get_config_int(cfg_sect,"debug_console",0);
     //use_win7_keyboard_fix = (byte) get_config_int(cfg_sect,"use_win7_key_fix",0);
     use_win32_proc = (byte) get_config_int(cfg_sect,"zc_win_proc_fix",0); //buggy
-    
+   
     // This seems to fix some problems on Windows 7
     disable_direct_updating = (byte) get_config_int("graphics","disable_direct_updating",1);
-    
+   
     // This one's for Aero
     use_dwm_flush = (byte) get_config_int("zeldadx","use_dwm_flush",0);
-	
-	// And this one fixes patches unloading on some MIDI setups
-	midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",0);
+   
+    // And this one fixes patches unloading on some MIDI setups
+    midi_patch_fix = (byte) get_config_int("zeldadx","midi_patch_fix",0);
 #endif
-    
+   
 #ifdef ALLEGRO_MACOSX
     const char *default_path="../../../";
 #else
     const char *default_path="";
 #endif
     strcpy(qstdir,get_config_string(cfg_sect,qst_dir_name,default_path));
-    
+   
     if(strlen(qstdir)==0)
     {
         getcwd(qstdir,2048);
@@ -369,9 +376,9 @@ void load_game_configs()
     {
         chop_path(qstdir);
     }
-    
+   
     strcpy(qstpath,qstdir); //qstpath is the local (for this run of ZC) quest path, qstdir is the universal quest dir.
-	ss_enable = get_config_int(cfg_sect,"ss_enable",1) ? 1 : 0;
+    ss_enable = get_config_int(cfg_sect,"ss_enable",1) ? 1 : 0;
     ss_after = vbound(get_config_int(cfg_sect,"ss_after",14), 0, 14);
     ss_speed = vbound(get_config_int(cfg_sect,"ss_speed",2), 0, 6);
     ss_density = vbound(get_config_int(cfg_sect,"ss_density",3), 0, 6);
@@ -384,8 +391,8 @@ void load_game_configs()
 
 void save_game_configs()
 {
-	packfile_password("");
-
+    packfile_password("");
+ 
     set_config_int(cfg_sect,"joystick_index",joystick_index);
     set_config_int(cfg_sect,"js_stick_1_x_stick",js_stick_1_x_stick);
     set_config_int(cfg_sect,"js_stick_1_x_axis",js_stick_1_x_axis);
@@ -400,7 +407,17 @@ void save_game_configs()
     set_config_int(cfg_sect,"js_stick_2_y_axis",js_stick_2_y_axis);
     set_config_int(cfg_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
     set_config_int(cfg_sect,"analog_movement",analog_movement);
-    
+   
+    //cheat modifier keya
+   
+    set_config_int(cfg_sect,"key_cheatmod_a1",cheat_modifier_keys[0]);
+    set_config_int(cfg_sect,"key_cheatmod_a2",cheat_modifier_keys[1]);
+    set_config_int(cfg_sect,"key_cheatmod_b1",cheat_modifier_keys[2]);
+    set_config_int(cfg_sect,"key_cheatmod_b2",cheat_modifier_keys[3]);
+   
+   
+   
+   
     set_config_int(cfg_sect,"key_a",Akey);
     set_config_int(cfg_sect,"key_b",Bkey);
     set_config_int(cfg_sect,"key_s",Skey);
@@ -411,12 +428,12 @@ void save_game_configs()
     set_config_int(cfg_sect,"key_ex2",Exkey2);
     set_config_int(cfg_sect,"key_ex3",Exkey3);
     set_config_int(cfg_sect,"key_ex4",Exkey4);
-    
+   
     set_config_int(cfg_sect,"key_up",   DUkey);
     set_config_int(cfg_sect,"key_down", DDkey);
     set_config_int(cfg_sect,"key_left", DLkey);
     set_config_int(cfg_sect,"key_right",DRkey);
-    
+   
     set_config_int(cfg_sect,"btn_a",Abtn);
     set_config_int(cfg_sect,"btn_b",Bbtn);
     set_config_int(cfg_sect,"btn_s",Sbtn);
@@ -428,12 +445,12 @@ void save_game_configs()
     set_config_int(cfg_sect,"btn_ex2",Exbtn2);
     set_config_int(cfg_sect,"btn_ex3",Exbtn3);
     set_config_int(cfg_sect,"btn_ex4",Exbtn4);
-    
+   
     set_config_int(cfg_sect,"btn_up",DUbtn);
     set_config_int(cfg_sect,"btn_down",DDbtn);
     set_config_int(cfg_sect,"btn_left",DLbtn);
     set_config_int(cfg_sect,"btn_right",DRbtn);
-    
+   
     set_config_int(cfg_sect,"digi",digi_volume);
     set_config_int(cfg_sect,"midi",midi_volume);
     set_config_int(cfg_sect,"sfx",sfx_volume);
@@ -450,15 +467,15 @@ void save_game_configs()
     set_config_int(cfg_sect,"fastquit",(int)NESquit);
     set_config_int(cfg_sect,"clicktofreeze", (int)ClickToFreeze);
     set_config_int(cfg_sect,"title",title_version);
-    
+   
     set_config_int(cfg_sect,"resx",resx);
     set_config_int(cfg_sect,"resy",resy);
-    
+   
     //sbig depricated as of 2.5 RC3. handled exclusively by resx, resy now.
     //set_config_int(cfg_sect,"screen_scale",screen_scale);
     //set_config_int(cfg_sect,"sbig",sbig);
     //set_config_int(cfg_sect,"sbig2",sbig2);
-    
+   
     set_config_int(cfg_sect,"scanlines",scanlines);
     set_config_int(cfg_sect,"load_last",loadlast);
     chop_path(qstdir);
@@ -476,22 +493,22 @@ void save_game_configs()
     set_config_int(cfg_sect,"color_depth",zc_color_depth);
     set_config_int(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
     set_config_int(cfg_sect,"force_exit",forceExit);
-    
+   
 #ifdef _WIN32
     set_config_int(cfg_sect,"debug_console",use_debug_console);
     //set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
     set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc);
     set_config_int("graphics","disable_direct_updating",disable_direct_updating);
     set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
-	set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
+    set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
 #endif
-    
+   
 #ifdef ALLEGRO_LINUX
     set_config_string("sound","patches",samplepath); // set to sample sound path set for DIGMIDI driver in Linux ~ Takuya
 #endif
-    
+   
     set_config_int(cfg_sect,"save_indicator",use_save_indicator);
-    
+   
     flush_config_file();
 }
 
@@ -4435,10 +4452,8 @@ void syskeys()
         
     if(get_debug() || cheat>=1)
     {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if( CheatModifierKeys() )
 	{
-		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-		{
 			if(ReadKey(KEY_ASTERISK) || ReadKey(KEY_H))   game->set_life(game->get_maxlife());
 			
 			if(ReadKey(KEY_SLASH_PAD) || ReadKey(KEY_M))  game->set_magic(game->get_maxmagic());
@@ -4454,31 +4469,26 @@ void syskeys()
 			{
 			    onCheatArrows();
 			}
-		}
 	}
     }
     
     if(get_debug() || cheat>=2)
     {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if( CheatModifierKeys() )
 	{
-		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-		{
 			if(rI())
 			{
 			    setClock(!getClock());
 			    cheat_superman=getClock();
 			}
-		}
+		
 	}
     }
     
     if(get_debug() || cheat>=4)
     {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if( CheatModifierKeys() )
 	{
-		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-		{
 			if(rF11())
 			{
 			    onNoWalls();
@@ -4527,7 +4537,6 @@ void syskeys()
 			if(ReadKey(KEY_L))   onLightSwitch();
 			
 			if(ReadKey(KEY_V))   onIgnoreSideview();
-		}
 	}
     }
     
@@ -4683,6 +4692,20 @@ void checkQuitKeys()
     
     if(ReadKey(KEY_F8))   f_Quit(qEXIT);
 #endif
+}
+
+bool CheatModifierKeys()
+{
+    if ( ( cheat_modifier_keys[0] <= 0 || key[cheat_modifier_keys[0]] ) ||
+        ( cheat_modifier_keys[1] <= 0 || key[cheat_modifier_keys[1]] ) )
+    {
+        if ( ( cheat_modifier_keys[2] <= 0 || key[cheat_modifier_keys[2]] ) ||
+            ( cheat_modifier_keys[3] <= 0 || key[cheat_modifier_keys[3]] ) )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 // 99*360 + 59*60
