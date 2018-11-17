@@ -17700,7 +17700,7 @@ void ZModule::init(bool d) //bool default
 			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
 			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
 			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
-			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)", "last"
+			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)", "zz089"
 		};
 						     
 		const char itype_fields[itype_max][255] =
