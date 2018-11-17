@@ -38,6 +38,8 @@
 #include "ffscript.h"
 //FFScript FFCore;
 extern FFScript FFCore;
+extern ZModule zcm;
+extern zcmodule moduledata;
 //FFSCript   FFEngine;
 
 #ifdef _MSC_VER
@@ -83,6 +85,8 @@ bool combosread=false;
 bool mapsread=false;
 bool fixffcs=false;
 bool fixpolsvoice=false;
+
+char qstdat_string[2048] = { 0 };
 
 int memDBGwatch[8]= {0,0,0,0,0,0,0,0}; //So I can monitor memory crap
 
@@ -655,7 +659,9 @@ bool valid_zqt(const char *filename)
 
 PACKFILE *open_quest_file(int *open_error, const char *filename, char *deletefilename, bool compressed,bool encrypted, bool show_progress)
 {
-	char tmpfilename[32];
+	char tmpfilename[64]; 	// This WAS [32]. I had to increase its size to prevent crashes 
+				// when changing qst.dat to a longer filename in the module file! -Z
+		
 	temp_name(tmpfilename);
 	char percent_done[30];
 	int current_method=0;
@@ -673,10 +679,26 @@ PACKFILE *open_quest_file(int *open_error, const char *filename, char *deletefil
 	}
     
 	box_out("Loading Quest: ");
-	if(strncasecmp(filename, "qst.dat", 7)!=0)
+	//if(strncasecmp(filename, "qst.dat", 7)!=0)
+	//int qstdat_str_size = 0;
+	//for ( int q = 0; q < 255; q++ ) //find the length of the string
+	//{
+	//	if ( moduledata.datafiles[qst_dat][q] != 0 ) qstdat_str_size++;
+	//	else break;
+	//}
+	//if(strncasecmp(filename, moduledata.datafiles[qst_dat], 7)!=0)
+	al_trace("Trying to do strncasecmp() when loading a quest\n");
+	int qstdat_filename_size = strlen(moduledata.datafiles[qst_dat]);
+	al_trace("Filename size of qst.dat file %s is %d.\n", moduledata.datafiles[qst_dat], qstdat_filename_size);
+	//if(strncasecmp(filename, moduledata.datafiles[qst_dat], qstdat_filename_size)!=0)
+	if(strcmp(filename, moduledata.datafiles[qst_dat])!=0)
+	{
 		box_out(filename);
+	}
 	else
+	{
 		box_out("new quest"); // Or whatever
+	}
 	box_out("...");
 	box_eol();
 	box_eol();
@@ -802,10 +824,13 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     int open_error=0;
     deletefilename[0]=0;
     
+	sprintf(qstdat_string,moduledata.datafiles[qst_dat]);
+	strcat(qstdat_string,"#NESQST_NEW_QST");
     if(Header->templatepath[0]==0)
     {
-        filename=(char *)zc_malloc(23);
-        sprintf(filename, "qst.dat#NESQST_NEW_QST");
+        filename=(char *)zc_malloc(2048);
+        //sprintf(filename, "qst.dat#NESQST_NEW_QST");
+        sprintf(filename, qstdat_string);
     }
     else
     {
@@ -6980,7 +7005,15 @@ int init_combo_classes()
     for(int i=0; i<cMAX; i++)
     {
         combo_class_buf[i] = default_combo_classes[i];
-        continue;
+	if ( moduledata.combo_type_names[i][0] != NULL )
+	{
+		al_trace("Copying over a combo type name from a module: %s\n",(char *)moduledata.combo_type_names[i]);
+		for ( int q = 0; q < 64; q++ )
+		{
+			combo_class_buf[i].name[q] = moduledata.combo_type_names[i][q];
+		}
+	}
+	    continue;
         /*
             al_trace("===== %03d (%s)=====\n", i, ctype_name[i]);
             al_trace("name:  %s\n", combo_class_buf[i].name);

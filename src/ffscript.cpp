@@ -18,6 +18,9 @@
 #include "ffscript.h"
 FFScript FFCore;
 zquestheader ZCheader;
+ZModule zcm;
+zcmodule moduledata;
+ 
 //miscQdata *Misc;
 
 #include "zelda.h"
@@ -17591,3 +17594,299 @@ long FFScript::getQuestHeaderInfo(int type)
 {
     return quest_format[type];
 }
+
+//Modules
+//Putting this here, for now.
+
+
+
+void ZModule::init(bool d) //bool default
+{
+	
+	
+	memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
+	memset(moduledata.quests, 0, sizeof(moduledata.quests));
+	memset(moduledata.skipnames, 0, sizeof(moduledata.skipnames));
+	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
+	memset(moduledata.enem_type_names, 0, sizeof(moduledata.enem_type_names));
+	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
+	memset(moduledata.item_editor_type_names, 0, sizeof(moduledata.enem_anim_type_names));
+	memset(moduledata.combo_type_names, 0, sizeof(moduledata.combo_type_names));
+	memset(moduledata.combo_flag_names, 0, sizeof(moduledata.combo_flag_names));
+	
+	memset(moduledata.roomtype_names, 0, sizeof(moduledata.roomtype_names));
+	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
+	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
+	memset(moduledata.guy_type_names, 0, sizeof(moduledata.guy_type_names));
+	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
+	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
+	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
+	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
+	moduledata.old_quest_serial_flow = 0;
+	moduledata.max_quest_files = 0;
+	
+	//strcpy(moduledata.module_name,"default.zmod");
+	al_trace("Module name set to %s\n",moduledata.module_name);
+	//We load the current module name from zc.cfg or zquest.cfg!
+	//Otherwise, we don't know what file to access to load the module vars! 
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
+		
+	set_config_file(moduledata.module_name);
+	if ( d )
+	{
+		
+		//zcm path
+		set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
+		al_trace("Module name set to %s\n",moduledata.module_name);
+		
+		//quests
+		moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
+		moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",5);
+		al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
+		al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
+		strcpy(moduledata.quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
+		al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
+		strcpy(moduledata.quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
+		al_trace("Module quest 2 set to %s\n",moduledata.quests[1]);
+		strcpy(moduledata.quests[2],get_config_string("QUESTS","third_qst","3rd.qst"));
+		al_trace("Module quest 3 set to %s\n",moduledata.quests[2]);
+		strcpy(moduledata.quests[3],get_config_string("QUESTS","fourth_qst","4th.qst"));
+		al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
+		strcpy(moduledata.quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
+		al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
+		
+		//quest skip names
+		strcpy(moduledata.skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
+		al_trace("Module quest skip 1 set to %s\n",moduledata.skipnames[0]);
+		strcpy(moduledata.skipnames[1],get_config_string("NAMEENTRY","second_qst_skip","ZELDA"));
+		al_trace("Module quest skip 2 set to %s\n",moduledata.skipnames[1]);
+		strcpy(moduledata.skipnames[2],get_config_string("NAMEENTRY","third_qst_skip","ALPHA"));
+		al_trace("Module quest skip 3 set to %s\n",moduledata.skipnames[2]);
+		strcpy(moduledata.skipnames[3],get_config_string("NAMEENTRY","fourth_qst_skip","GANON"));
+		al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
+		strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
+		al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
+		
+		//datafiles
+		strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
+		al_trace("Module zelda_dat set to %s\n",moduledata.datafiles[zelda_dat]);
+		strcpy(moduledata.datafiles[zquest_dat],get_config_string("DATAFILES","zquest_datafile","zquest.dat"));
+		al_trace("Module zquest_dat set to %s\n",moduledata.datafiles[zquest_dat]);
+		strcpy(moduledata.datafiles[fonts_dat],get_config_string("DATAFILES","fonts_datafile","fonts.dat"));
+		al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
+		strcpy(moduledata.datafiles[sfx_dat],get_config_string("DATAFILES","sounds_datafile","sfx.dat"));
+		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
+		strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
+		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
+		
+		//item families
+		const char default_itype_strings[itype_max][255] = 
+		{ 
+			"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
+			"Bait", "Letters", "Potions", "Wands", "Rings", 
+			"Wallets", "Amulets", "Shields", "Bows", "Rafts",
+			"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", 
+			"Boots", "Hookshots", "Lenses", "Hammers", "Din's Fire", 
+			"Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", 
+			"Keys", "Magic Containers", "Triforce Pieces", "Maps", "Compasses", 
+			"Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", 
+			"Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", 
+			"Heart Pieces", "Kill All Enemies", "Bomb Ammo", "Bomb Bags", "Roc Items", 
+			"Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer","Whisp Rings", 
+			"Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", 
+			"Scroll: Hurricane Spin", "Scroll: Super Quake","Stones of Agony", "Stomp Boots", "Whimsical Rings", 
+			"Peril Rings", "Non-gameplay Items", "Custom Itemclass 01", "Custom Itemclass 02", "Custom Itemclass 03",
+			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
+			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
+			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
+			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)"
+		};
+						     
+		const char itype_fields[itype_max][255] =
+		{
+			"ic_sword","ic_brang", "ic_arrow","ic_cand","ic_whis",
+			"ic_meat", "ic_rx", "ic_potion", 
+			"ic_wand","ic_armour","ic_wallet","ic_amul","ic_shield",
+			//10
+			"ic_bow","ic_raft","ic_ladder","ic_spellbook","ic_mkey",
+			"ic_glove","ic_flip","ic_boot","ic_grapple","ic_lens",
+			//20
+			"ic_hammer","ic_firespell","ic_exitspell","ic_shieldspell","ic_bomb",
+			"ic_sbomb","ic_fobwatch","ic_key","ic_mcp","ic_mcguf",
+			//30
+			"ic_map","ic_compass","ic_bkey","ic_quiv","ic_lkey",
+			"ic_cane","ic_money","ic_ammow_arrow","ic_faerie","ic_magic",
+			//40
+			"ic_health","ic_hc","ic_hcp","ic_killall","ic_ammo_bomb",
+			"ic_bombbag","ic_feath","ic_hover","ic_spinat","ic_crossbeam",
+			//50
+			"ic_quakeham","ic_ring_whisp","ic_ring_charge","ic_perilbeam","ic_wmedal",
+			"ic_ring_hp","ic_ring_mp","ic_multispin","ic_supquake","ic_dowse",
+			//60
+			"ic_stomp","ic_ring_crit","ic_ring_peril","ic_ngongameplay","ic_cic01",
+			"ic_cic02","ic_cic03","ic_cic04","ic_cic05","ic_cic06",
+			//70
+			"ic_cic07","ic_cic08","ic_cic09","ic_cic10","ic_cic11",
+			"ic_cic12","ic_cic13","ic_cic14","ic_cic15","ic_cic16",
+			//80
+			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle",
+			"ic_89","ic_90","ic_91","ic_92","ic_93","ic_94","ic_95","ic_96","ic_97","ic_98","ic_99","ic_100","ic_101","ic_102","ic_103","ic_104",
+			"ic_105","ic_106","ic_107","ic_108","ic_109","ic_111","ic_112","ic_113","ic_114","ic_115","ic_116","ic_117","ic_118","ic_119","ic_120","ic_121",
+			"ic_122","ic_123","ic_124","ic_125","ic_126","ic_127","ic_128","ic_129","ic_130","ic_131","ic_132","ic_133","ic_134","ic_135","ic_136","ic_137",
+			"ic_138","ic_139","ic_140","ic_141","ic_142","ic_143","ic_144","ic_145","ic_146","ic_147","ic_148","ic_149","ic_150","ic_151","ic_152","ic_153",
+			"ic_154","ic_155","ic_156","ic_157","ic_158","ic_159","ic_160","ic_161","ic_162","ic_163","ic_164","ic_165","ic_166","ic_167","ic_168","ic_169",
+			"ic_170","ic_171","ic_172","ic_173","ic_174","ic_175","ic_176","ic_177","ic_178","ic_179","ic_180","ic_181","ic_182","ic_183","ic_184","ic_185",
+			"ic_186","ic_187","ic_188","ic_189","ic_190","ic_191","ic_192","ic_193","ic_194","ic_195","ic_196","ic_197","ic_198","ic_199","ic_200","ic_201",
+			"ic_202","ic_203","ic_204","ic_205","ic_206","ic_207","ic_208","ic_209","ic_210","ic_211","ic_212","ic_213","ic_214","ic_215","ic_216","ic_217",
+			"ic_218","ic_219","ic_220","ic_221","ic_222","ic_223","ic_224","ic_225","ic_226","ic_227","ic_228","ic_229","ic_230","ic_231","ic_232","ic_233",
+			"ic_234","ic_235","ic_236","ic_237","ic_238","ic_239","ic_240","ic_241","ic_242","ic_243","ic_244","ic_245","ic_246","ic_247","ic_248","ic_249",
+			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255","ic_256","ic_257","ic_258","ic_259","ic_260","ic_261","ic_262","ic_263","ic_264","ic_265",
+			"ic_266","ic_267","ic_267","ic_269","ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
+			"ic_286","ic_287","ic_288","ic_289","ic_290","ic_291","ic_292","ic_293","ic_294","ic_295","ic_296","ic_297","ic_298","ic_299","ic_300","ic_301","ic_302","ic_303","ic_304",
+			"ic_305","ic_306","ic_307","ic_308","ic_309","ic_311","ic_312","ic_313","ic_314","ic_315","ic_316","ic_317","ic_318","ic_319","ic_320","ic_321",
+			"ic_322","ic_323","ic_324","ic_325","ic_326","ic_327","ic_328","ic_329","ic_330","ic_331","ic_332","ic_333","ic_334","ic_335","ic_336","ic_337",
+			"ic_338","ic_339","ic_340","ic_341","ic_342","ic_343","ic_344","ic_345","ic_346","ic_347","ic_348","ic_349","ic_350","ic_351","ic_352","ic_353",
+			"ic_354","ic_355","ic_356","ic_357","ic_358","ic_359","ic_360","ic_361","ic_362","ic_363","ic_364","ic_365","ic_366","ic_367","ic_368","ic_369",
+			"ic_370","ic_371","ic_372","ic_373","ic_374","ic_375","ic_376","ic_377","ic_378","ic_379","ic_380","ic_381","ic_382","ic_383","ic_384","ic_385",
+			"ic_386","ic_387","ic_388","ic_389","ic_390","ic_391","ic_392","ic_393","ic_394","ic_395","ic_396","ic_397","ic_398","ic_399","ic_400","ic_401","ic_402","ic_403","ic_404",
+			"ic_405","ic_406","ic_407","ic_408","ic_409","ic_411","ic_412","ic_413","ic_414","ic_415","ic_416","ic_417","ic_418","ic_419","ic_420","ic_421",
+			"ic_422","ic_423","ic_424","ic_425","ic_426","ic_427","ic_428","ic_429","ic_430","ic_431","ic_432","ic_433","ic_434","ic_435","ic_436","ic_437",
+			"ic_438","ic_439","ic_440","ic_441","ic_442","ic_443","ic_444","ic_445","ic_446","ic_447","ic_448","ic_449","ic_450","ic_451","ic_452","ic_453",
+			"ic_454","ic_455","ic_456","ic_457","ic_458","ic_459","ic_460","ic_461","ic_462","ic_463","ic_464","ic_465","ic_466","ic_467","ic_468","ic_469",
+			"ic_470","ic_471","ic_472","ic_473","ic_474","ic_475","ic_476","ic_477","ic_478","ic_479","ic_480","ic_481","ic_482","ic_483","ic_484","ic_485",
+			"ic_486","ic_487","ic_488","ic_489","ic_490","ic_491","ic_492","ic_493","ic_494","ic_495","ic_496","ic_497","ic_498","ic_499","ic_500","ic_501","ic_502","ic_503","ic_504",
+			"ic_505","ic_506","ic_507","ic_508","ic_509","ic_511"
+		};
+		for ( int q = 0; q < itype_max; q++ )
+		{
+			strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
+			al_trace("Item family ID %d is: %s\n", q, moduledata.item_editor_type_names[q]);
+		}
+		
+		const char roomtype_cats[rMAX][256] =
+		{
+			"rNONE","rSP_ITEM","rINFO","rMONEY","rGAMBLE","rREPAIR","rRP_HC","rGRUMBLE",
+			"rQUESTOBJ","rP_SHOP","rSHOP","rBOMBS","rSWINDLE","r10RUPIES","rWARP","rMAINBOSS","rWINGAME",
+			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE"
+		};
+		const char roomtype_defaults[rMAX][255] =
+		{
+		    "(None)","Special Item","Pay for Info","Secret Money","Gamble",
+		    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
+		    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
+		    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
+		};
+		for ( int q = 0; q < rMAX; q++ )
+		{
+			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
+			al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
+		}
+		const char lweapon_cats[wIce+1][255]=
+		{
+			"lwNone","lwSword","lwBeam","lwBrang","lwBomb","lwSBomb","lwLitBomb",
+			"lwLitSBomb","lwArrow","lwFire","lwWhistle","lwMeat","lwWand","lwMagic","lwCatching",
+			"lwWind","lwRefMagic","lwRefFireball","lwRefRock", "lwHammer","lwGrapple", "lwHSHandle", 
+			"lwHSChain", "lwSSparkle","lwFSparkle", "lwSmack", "lwPhantom", 
+			"lwCane","lwRefBeam", "lwStomp","lwScript1", "lwScript2", "lwScript3", 
+			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce"
+		};
+		const char lweapon_default_names[wIce+1][255]=
+		{
+			"(None)","Sword","Sword Beam","Boomerang","Bomb","Super Bomb","Lit Bomb",
+			"Lit Super Bomb","Arrow","Fire","Whistle","Bait","Wand","Magic","-Catching",
+			"Wind","Reflected Magic","Reflected Fireball","Reflected Rock", "Hammer","Hookshit", "-HSHandle", 
+			"-HSChain", "Sparkle","-FSparkle", "-Smack", "-Phantom", 
+			"Cane of Byrna","Reflected Sword Beam", "-Stomp","Script1", "Script2", "Script3", 
+			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice"
+		};
+		for ( int q = 0; q < wIce+1; q++ )
+		{
+			strcpy(moduledata.player_weapon_names[q],get_config_string("LEAPONS",lweapon_cats[q],lweapon_default_names[q]));
+			al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
+		}
+		const char counter_cats[33][255]=
+		{
+			"crNONE","crLIFE","crMONEY","crBOMBS","crARROWS","crMAGIC","crKEYS",
+			"crSBOMBS","crCUSTOM1","crCUSTOM2","crCUSTOM3","crCUSTOM4","crCUSTOM5","crCUSTOM6",
+			"crCUSTOM7","crCUSTOM8","crCUSTOM9","crCUSTOM10","crCUSTOM11","crCUSTOM12","crCUSTOM13",
+			"crCUSTOM14","crCUSTOM15","crCUSTOM16","crCUSTOM17","crCUSTOM18","crCUSTOM19",
+			"crCUSTOM20","crCUSTOM21","crCUSTOM22","crCUSTOM23","crCUSTOM24","crCUSTOM25"
+		};
+
+		const char counter_default_names[33][255]=
+		{
+			"None","Life","Rupees", "Bombs","Arrows","Magic",
+			"Keys","Super Bombs","Custom 1","Custom 2","Custom 3",
+			"Custom 4","Custom 5","Custom 6","Custom 7","Custom 8",
+			"Custom 9","Custom 10","Custom 11","Custom 12",
+			"Custom 13","Custom 14","Custom 15","Custom 16","Custom 17",
+			"Custom 18","Custom 19","Custom 20","Custom 21","Custom 22"
+			"Custom 23","Custom 24","Custom 25"	
+		};
+		for ( int q = 0; q < 33; q++ )
+		{
+			strcpy(moduledata.counter_names[q],get_config_string("COUNTERS",counter_cats[q],counter_default_names[q]));
+			al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
+		}
+		
+		
+	}
+	set_config_file("zc.cfg"); //shift back to the normal config file, when done
+	
+	//int x = get_config_int("zeldadx","gui_colorset",0);
+	//al_trace("Checking that we have reverted to zc.cfg: %d\n",x);
+	
+}
+
+//Prints out the current Module struct data to allegro.log
+void ZModule::debug()
+{
+	//al_trace("Module field: %s, is: %s\n", "module_name", moduledata.module_name);
+	//al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
+	
+	//quests
+	/*
+	al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
+	al_trace("Module field: %s, is: %s\n", "quests[0]",moduledata.quests[0]);
+	al_trace("Module field: %s, is: %s\n", "quests[1]",moduledata.quests[1]);
+	al_trace("Module field: %s, is: %s\n", "quests[2]",moduledata.quests[2]);
+	al_trace("Module field: %s, is: %s\n", "quests[3]",moduledata.quests[3]);
+	al_trace("Module field: %s, is: %s\n", "quests[4]",moduledata.quests[4]);
+	
+	//skip codes
+	al_trace("Module field: %s, is: %s\n", "skipnames[0]",moduledata.skipnames[0]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[1]",moduledata.skipnames[1]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[2]",moduledata.skipnames[2]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[3]",moduledata.skipnames[3]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[4]",moduledata.skipnames[4]);
+
+	//datafiles
+	al_trace("Module field: %s, is: %s\n", "datafiles[zelda_dat]",moduledata.datafiles[zelda_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[zquest_dat]",moduledata.datafiles[zquest_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[fonts_dat]",moduledata.datafiles[fonts_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[sfx_dat]",moduledata.datafiles[sfx_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[qst_dat]",moduledata.datafiles[qst_dat]);
+	*/
+}
+
+void ZModule::load(bool zquest)
+{
+	set_config_file(moduledata.module_name);
+	//load config settings
+	if ( zquest )
+	{
+		al_trace("ZModule::load() was called by: %s\n","ZQuest");
+		//load ZQuest section data
+		set_config_file("zquest.cfg"); //shift back when done
+	}
+	else
+	{
+		al_trace("ZModule::load() was called by: %s\n","ZC Player");
+		//load ZC section data
+		set_config_file("zc.cfg"); //shift back when done
+	}
+	
+}
+
+
+

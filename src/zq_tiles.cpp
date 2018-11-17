@@ -34,6 +34,8 @@
 #include "questReport.h"
 #include "mem_debug.h"
 
+extern zcmodule moduledata;
+
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif
@@ -11061,16 +11063,38 @@ void build_bict_list()
     bict[0].i = 0;
     bict_cnt=1;
     
-    for(int i=1; i<cMAX; i++)
+    for(int i=0; i<cMAX; i++)
     {
 //    if(combotype_string[i][0]!='-')
-        if(combo_class_buf[i].name[0]!='-')
-        {
-//      bict[bict_cnt].s = combotype_string[i];
-            bict[bict_cnt].s = combo_class_buf[i].name;
-            bict[bict_cnt].i = i;
-            ++bict_cnt;
-        }
+	if ( moduledata.combo_type_names[i][0] != NULL )
+	{
+		//al_trace("copying over module combo type ID %d to bict[%d]",i,i);
+		if(moduledata.combo_type_names[i][0]!='-')
+		{
+			bict[bict_cnt].s = (char *)moduledata.combo_type_names[i];
+			//al_trace("the module value for combo ID %d, type is: %s\n",i,(char *)moduledata.combo_type_names[i]);
+			//al_trace("built in combo ID %d has a string of %s for its type\n",i,bict[bict_cnt].s);
+			bict[bict_cnt].i = i;
+			++bict_cnt;
+		}
+		
+	}
+        else
+	{
+		if ( i == 0 ) 
+		{
+			bict[bict_cnt].s = (char *)"(None)";
+			continue;
+		}
+		if(combo_class_buf[i].name[0]!='-')
+		{
+	//      bict[bict_cnt].s = combotype_string[i];
+		    bict[bict_cnt].s = combo_class_buf[i].name;
+		    bict[bict_cnt].i = i;
+		    ++bict_cnt;
+		}
+	}
+	
     }
     
     for(int i=1; i<bict_cnt-1; i++)

@@ -33,6 +33,7 @@ char *item_string[ITEMCNT];
 extern zinitdata zinit;
 #ifndef IS_ZQUEST
 	extern FFScript FFCore;
+	extern ZModule zcm;
 #endif
 
 int fairy_cnt=0;

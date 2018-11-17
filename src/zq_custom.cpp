@@ -53,6 +53,8 @@ extern int jwin_lscheck_proc(int msg,DIALOG *d,int c);
 extern int biw_cnt;
 extern int biic_cnt;
 
+extern ZModule zcm;
+extern zcmodule moduledata;
 
 
 #ifdef _MSC_VER
@@ -477,7 +479,10 @@ const char *itemdata_weaponlist(int index, int *list_size)
     {
         bound(index,0,40);
         
-        switch(index)
+	if ( moduledata.player_weapon_names[index][0] == '-' ) return "n/a";
+	else return (char *)moduledata.player_weapon_names[index];
+    /*
+	switch(index)
         {
 
 	case 0: return "None";
@@ -538,6 +543,7 @@ const char *itemdata_weaponlist(int index, int *list_size)
           //  sprintf(counterlist_str_buf,"Script %d",index-7);
           //  return counterlist_str_buf;
         }
+	*/
     }
     
     *list_size = 41;
@@ -554,7 +560,10 @@ const char *itemdata_weapontypelist(int index, int *list_size)
     {
         bound(index,0,40);
         
-        switch(index)
+	if ( moduledata.player_weapon_names[index][0] == '-' ) return "n/a";
+	else return (char *)moduledata.player_weapon_names[index];
+	/*
+	switch(index)
         {
 	case 0: return "None";
 	case 1: return "Sword"; 
@@ -614,6 +623,7 @@ const char *itemdata_weapontypelist(int index, int *list_size)
           //  sprintf(counterlist_str_buf,"Script %d",index-7);
           //  return counterlist_str_buf;
         }
+	*/
     }
     
     *list_size = 41;
@@ -663,8 +673,9 @@ const char *counterlist(int index, int *list_size)
     if(index >= 0)
     {
         bound(index,0,32);
-        
-        switch(index)
+        return (char *)moduledata.counter_names[index];
+        /*
+	switch(index)
         {
         case 0:
             return "None";
@@ -745,6 +756,7 @@ const char *counterlist(int index, int *list_size)
             sprintf(counterlist_str_buf,"Script %d",index-7);
             return counterlist_str_buf;
         }
+	*/
     }
     
     *list_size = 33;
@@ -3133,12 +3145,34 @@ void build_bief_list()
     
     for(int i=start; i<eeMAX; i++)
     {
-        if(enetype_string[i][0]!='-')
-        {
-            bief[bief_cnt].s = (char *)enetype_string[i];
-            bief[bief_cnt].i = i;
-            ++bief_cnt;
-        }
+	//Load enemy names from the module
+        //if(moduledata.enem_type_names[i][0]!='-')
+	if (moduledata.enem_type_names[i][0]!=NULL)
+	{
+		if(moduledata.enem_type_names[i][0]!='-')
+		{
+			//load these from the module
+		   // bief[bief_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
+		    //bief[bief_cnt].s = (char *)enetype_string[i];
+		    bief[bief_cnt].s = (char *)moduledata.enem_type_names[i];
+		    bief[bief_cnt].i = i;
+		    ++bief_cnt;
+		}
+	}
+	else //not set in the module file, so use the default
+	{
+		if(enetype_string[i][0]!='-')
+		{
+			//load these from the module
+		   // bief[bief_cnt].s, = (char *)moduledata.enem_type_names[i]); //, (char *)enetype_string[i]);
+		    //bief[bief_cnt].s = (char *)enetype_string[i];
+		    bief[bief_cnt].s = (char *)enetype_string[i];
+		    bief[bief_cnt].i = i;
+		    ++bief_cnt;
+		}
+		
+	}
+		
     }
     
     // No alphabetic sorting for this list
@@ -3165,7 +3199,7 @@ const char *enetypelist(int index, int *list_size)
     return bief[index].s;
 }
 
-list_data_struct biea[wMAX];
+list_data_struct biea[aMAX];
 int biea_cnt=-1;
 
 void build_biea_list()
@@ -3174,12 +3208,25 @@ void build_biea_list()
     
     for(int i=start; i<aMAX; i++)
     {
-        if(eneanim_string[i][0]!='-')
-        {
-            biea[biea_cnt].s = (char *)eneanim_string[i];
-            biea[biea_cnt].i = i;
-            ++biea_cnt;
-        }
+	    
+	if ( moduledata.enem_anim_type_names[1][0] != NULL )
+	{
+		if(eneanim_string[i][0]!='-')
+		{
+		    biea[biea_cnt].s = (char *)moduledata.enem_anim_type_names[i];
+		    biea[biea_cnt].i = i;
+		    ++biea_cnt;
+		}
+	}
+	else
+	{
+		if(eneanim_string[i][0]!='-')
+		{
+		    biea[biea_cnt].s = (char *)eneanim_string[i];
+		    biea[biea_cnt].i = i;
+		    ++biea_cnt;
+		}
+	}
     }
     
     for(int i=start; i<biea_cnt-1; i++)
@@ -3222,9 +3269,11 @@ void build_biew_list()
     
     for(int i=0; i<wMax-wEnemyWeapons; i++)
     {
-        if(eweapon_string[i][0]!='-')
+        //if(eweapon_string[i][0]!='-')
+        if(moduledata.enemy_weapon_names[i][0]!='-')
         {
-            biew[biew_cnt].s = (char *)eweapon_string[i];
+            //biew[biew_cnt].s = (char *)eweapon_string[i];
+            biew[biew_cnt].s = (char *)moduledata.enemy_weapon_names[i];
             biew[biew_cnt].i = i;
             ++biew_cnt;
         }
@@ -3301,7 +3350,8 @@ const char *walkmisc9list(int index, int *list_size)
     if(index>=0)
     {
         bound(index,0,e9tARMOS);
-        return walkmisc9_string[index];
+        //return walkmisc9_string[index];
+        return (char *)moduledata.walkmisc9_names[index];
     }
     
     *list_size = e9tARMOS+1;

@@ -1,31 +1,33 @@
-struct module
+struct zcmodule
 {
-	char module_name[2048]; //filepath for current module file
+	char module_name[2048]; //filepath for current zcmodule file
 	char quests[10][255]; //first five quests, filenames
 	char skipnames[10][255]; //name entry passwords
-}; //module
+}; //zcmodule
+
+zcmodule zcm;
 
 void ZModule::init(bool default)
 {
-	memset(module, 0, sizeof(module));
+	memset(zcm, 0, sizeof(zcm));
 	if ( default )
 	{
-		//module path
-		strcpy(module.module_name,get_config_string("ZCMODULE",current_module,"default.zmod"));
+		//zcm path
+		strcpy(zcm->module_name,get_config_string("ZCMODULE",current_module,"default.zmod"));
 		
 		//quests
-		strcpy(module.quests[0],get_config_string("ZCMODULE",first_qst,"1st.qst"));
-		strcpy(module.quests[1],get_config_string("ZCMODULE",second_qst,"2nd.qst"));
-		strcpy(module.quests[2],get_config_string("ZCMODULE",third_qst,"3rd.qst"));
-		strcpy(module.quests[3],get_config_string("ZCMODULE",fourth_qst,"4th.qst"));
-		strcpy(module.quests[4],get_config_string("ZCMODULE",fifth_qst,"5th.qst"));
+		strcpy(zcm->quests[0],get_config_string("ZCMODULE",first_qst,"1st.qst"));
+		strcpy(zcm->quests[1],get_config_string("ZCMODULE",second_qst,"2nd.qst"));
+		strcpy(zcm->quests[2],get_config_string("ZCMODULE",third_qst,"3rd.qst"));
+		strcpy(zcm->quests[3],get_config_string("ZCMODULE",fourth_qst,"4th.qst"));
+		strcpy(zcm->quests[4],get_config_string("ZCMODULE",fifth_qst,"5th.qst"));
 		
 		//quest skip names
-		strcpy(module.skipnames[0],get_config_string("ZCMODULE",first_qst_skip," "));
-		strcpy(module.skipnames[1],get_config_string("ZCMODULE",second_qst_skip,"ZELDA"));
-		strcpy(module.skipnames[2],get_config_string("ZCMODULE",third_qst_skip,"ALPHA"));
-		strcpy(module.skipnames[3],get_config_string("ZCMODULE",fourth_qst_skip,"GANON"));
-		strcpy(module.skipnames[4],get_config_string("ZCMODULE",fifth_qst_skip,"JEAN"));
+		strcpy(zcm->skipnames[0],get_config_string("ZCMODULE",first_qst_skip," "));
+		strcpy(zcm->skipnames[1],get_config_string("ZCMODULE",second_qst_skip,"ZELDA"));
+		strcpy(zcm->skipnames[2],get_config_string("ZCMODULE",third_qst_skip,"ALPHA"));
+		strcpy(zcm->skipnames[3],get_config_string("ZCMODULE",fourth_qst_skip,"GANON"));
+		strcpy(zcm->skipnames[4],get_config_string("ZCMODULE",fifth_qst_skip,"JEAN"));
 		
 		
 	}
@@ -33,7 +35,7 @@ void ZModule::init(bool default)
 
 void ZModule::load(bool zquest)
 {
-	set_config_file(module.module_name);
+	set_config_file(zcm->module_name);
 	//load config settings
 	if ( zquest )
 	{
