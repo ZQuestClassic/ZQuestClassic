@@ -17621,6 +17621,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
 	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
 	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
+	memset(moduledata.itemclass_help_strings, 0, sizeof(moduledata.itemclass_help_strings));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
