@@ -35,6 +35,7 @@ extern LinkClass Link;
 extern zinitdata zinit;
 extern int directWpn;
 extern FFScript FFCore;
+extern ZModule zcm;
 extern enemy Enemy;
 
 /**************************************/

@@ -1,3 +1,4 @@
+
 //--------------------------------------------------------
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
@@ -145,6 +146,8 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 using std::vector;
 
 FFScript FFCore;
+ZModule zcm;
+zcmodule moduledata;
 
 void do_previewtext();
 
@@ -471,6 +474,7 @@ char                fontsdat_sig[52];
 char                zquestdat_sig[52];
 char                qstdat_sig[52];
 char                sfxdat_sig[52];
+char		    qstdat_str[2048];
 
 int gme_track=0;
 
@@ -3580,9 +3584,10 @@ void drawpanel(int pnl)
             textprintf_disabled(menu1,pfont,panel[3].x+6,panel[0].y+8,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Guy:");
             textprintf_disabled(menu1,pfont,panel[3].x+6,panel[0].y+16,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"String:");
             textprintf_disabled(menu1,pfont,panel[3].x+6,panel[0].y+24,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Room:");
-            textprintf_ex(menu1,pfont,panel[3].x+40-16,panel[3].y+8,jwin_pal[jcBOXFG],-1,"%s",guy_string[scr->guy]);
+            textprintf_ex(menu1,pfont,panel[3].x+40-16,panel[3].y+8,jwin_pal[jcBOXFG],-1,"%s",moduledata.guy_type_names[scr->guy]);
             textprintf_ex(menu1,pfont,panel[3].x+40-6,panel[3].y+16,jwin_pal[jcBOXFG],-1,"%s",shortbuf);
-            textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",roomtype_string[scr->room]);
+            //textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",roomtype_string[scr->room]);
+            textprintf_ex(menu1,pfont,panel[3].x+40-10,panel[3].y+24,jwin_pal[jcBOXFG],-1,"%s",(char *)moduledata.roomtype_names[scr->room]);
             int rtype=scr->room;
             
             if(strcmp(catchall_string[rtype]," "))
@@ -9827,9 +9832,9 @@ void build_bir_list()
     
     for(int i=0; i<rMAX; i++)
     {
-        if(roomtype_string[i][0]!='-')
+        if(moduledata.roomtype_names[i][0]!='-')
         {
-            bir[bir_cnt].s = (char *)roomtype_string[i];
+            bir[bir_cnt].s = (char *)moduledata.roomtype_names[i];
             bir[bir_cnt].i = i;
             ++bir_cnt;
         }
@@ -10737,8 +10742,9 @@ const char *flaglist(int index, int *list_size)
     {
         if(index>=MAXFLAGS)
             index=MAXFLAGS-1;
-            
-        return flag_string[index];
+	
+	return (char *)moduledata.combo_flag_names[index];
+        //return flag_string[index];
     }
     
     *list_size=MAXFLAGS;
@@ -16222,15 +16228,15 @@ void build_bie_list(bool hide)
 
 void build_big_list(bool hide)
 {
-    big[0].s = (char *)"(None)";
-    big[0].i = 0;
-    big_cnt=1;
-    
-    for(int i=gABEI; i<gDUMMY1; i++)
+    //big[0].s = (char *)"(None)";
+    //big[0].i = 0;
+    //big_cnt=1;
+    big_cnt=0;
+    for(int i=0; i<gDUMMY1; i++)
     {
-        if(guy_string[i][strlen(guy_string[i])-1]!=' ' || !hide)
+        if(moduledata.guy_type_names[i][0]!=' ' || !hide)
         {
-            big[big_cnt].s = (char *)guy_string[i];
+            big[big_cnt].s = (char *)moduledata.guy_type_names[i];
             big[big_cnt].i = i;
             ++big_cnt;
         }
@@ -21581,6 +21587,12 @@ int main(int argc,char **argv)
     
     Z_message("OK\n");                                      // Initializing Allegro...
     
+    //Initialise MODULES
+    //We'll read the data files from them, in the future, so this MUST occur here!
+    zcm.init(true);
+    //zcm.load(true);
+    zcm.debug();
+    
     Z_message("Loading data files:\n");
     
     resolve_password(datapwd);
@@ -21591,7 +21603,7 @@ int main(int argc,char **argv)
     
     Z_message("Fonts.Dat...");
     
-    if((fontsdata=load_datafile("fonts.dat"))==NULL)
+    if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
@@ -21607,20 +21619,26 @@ int main(int argc,char **argv)
     
     Z_message("ZQuest.Dat...");
     
-    if((zcdata=load_datafile("zquest.dat"))==NULL)
+    if((zcdata=load_datafile(moduledata.datafiles[zquest_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
     }
     
-    datafile_str=(char *)"zquest.dat";
+    datafile_str=moduledata.datafiles[zquest_dat];
     Z_message("OK\n");
     
+    sprintf(qstdat_str,moduledata.datafiles[qst_dat]);
+    strcat(qstdat_str,"#_SIGNATURE");
+    //al_trace("qstdat_str is: %s\n", qstdat_str);
     
     sprintf(qstdat_sig,"QST.Dat %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);
     
     Z_message("QST.Dat...");
-    PACKFILE *f=pack_fopen_password("qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
+    
+    //PACKFILE *f=pack_fopen_password("qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
+    //PACKFILE *f=pack_fopen_password("classic_qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
+    PACKFILE *f=pack_fopen_password(qstdat_str, F_READ_PACKED, datapwd);
     
     if(!f)
     {
@@ -21660,7 +21678,7 @@ int main(int argc,char **argv)
     
     Z_message("SFX.Dat...");
     
-    if((sfxdata=load_datafile("sfx.dat"))==NULL)
+    if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
     {
         Z_error("failed %s", allegro_error);
         quit_game();
@@ -23950,6 +23968,8 @@ int save_config_file()
     chop_path(imagepath2);
     chop_path(tmusicpath2);
     
+	set_config_string("ZCMODULE","current_module",moduledata.module_name);
+	
     set_config_string("zquest",data_path_name,datapath2);
     set_config_string("zquest",midi_path_name,midipath2);
     set_config_string("zquest",image_path_name,imagepath2);
@@ -24738,6 +24758,541 @@ int FFScript::getQRBit(int rule)
 void FFScript::setLinkTile(int t)
 {
 	FF_link_tile = vbound(t, 0, NEWMAXTILES);
+}
+
+
+//ZModule Functions
+
+
+void ZModule::init(bool d) //bool default
+{
+	
+	
+	memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
+	memset(moduledata.quests, 0, sizeof(moduledata.quests));
+	memset(moduledata.skipnames, 0, sizeof(moduledata.skipnames));
+	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
+	memset(moduledata.enem_type_names, 0, sizeof(moduledata.enem_type_names));
+	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
+	memset(moduledata.item_editor_type_names, 0, sizeof(moduledata.enem_anim_type_names));
+	memset(moduledata.combo_type_names, 0, sizeof(moduledata.combo_type_names));
+	memset(moduledata.combo_flag_names, 0, sizeof(moduledata.combo_flag_names));
+	
+	memset(moduledata.roomtype_names, 0, sizeof(moduledata.roomtype_names));
+	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
+	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
+	memset(moduledata.guy_type_names, 0, sizeof(moduledata.guy_type_names));
+	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
+	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
+	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
+	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
+	moduledata.old_quest_serial_flow = 0;
+	moduledata.max_quest_files = 0;
+	
+	//strcpy(moduledata.module_name,"default.zmod");
+	al_trace("Module name set to %s\n",moduledata.module_name);
+	//We load the current module name from zc.cfg or zquest.cfg!
+	//Otherwise, we don't know what file to access to load the module vars! 
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
+		
+	if ( d )
+	{
+		
+		//zcm path
+		set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
+		al_trace("Module name set to %s\n",moduledata.module_name);
+		
+		//quests
+		moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
+		moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",5);
+		al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
+		al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
+		strcpy(moduledata.quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
+		al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
+		strcpy(moduledata.quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
+		al_trace("Module quest 2 set to %s\n",moduledata.quests[1]);
+		strcpy(moduledata.quests[2],get_config_string("QUESTS","third_qst","3rd.qst"));
+		al_trace("Module quest 3 set to %s\n",moduledata.quests[2]);
+		strcpy(moduledata.quests[3],get_config_string("QUESTS","fourth_qst","4th.qst"));
+		al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
+		strcpy(moduledata.quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
+		al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
+		
+		//quest skip names
+		strcpy(moduledata.skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
+		al_trace("Module quest skip 1 set to %s\n",moduledata.skipnames[0]);
+		strcpy(moduledata.skipnames[1],get_config_string("NAMEENTRY","second_qst_skip","ZELDA"));
+		al_trace("Module quest skip 2 set to %s\n",moduledata.skipnames[1]);
+		strcpy(moduledata.skipnames[2],get_config_string("NAMEENTRY","third_qst_skip","ALPHA"));
+		al_trace("Module quest skip 3 set to %s\n",moduledata.skipnames[2]);
+		strcpy(moduledata.skipnames[3],get_config_string("NAMEENTRY","fourth_qst_skip","GANON"));
+		al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
+		strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
+		al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
+		
+		//datafiles
+		strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
+		al_trace("Module zelda_dat set to %s\n",moduledata.datafiles[zelda_dat]);
+		strcpy(moduledata.datafiles[zquest_dat],get_config_string("DATAFILES","zquest_datafile","zquest.dat"));
+		al_trace("Module zquest_dat set to %s\n",moduledata.datafiles[zquest_dat]);
+		strcpy(moduledata.datafiles[fonts_dat],get_config_string("DATAFILES","fonts_datafile","fonts.dat"));
+		al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
+		strcpy(moduledata.datafiles[sfx_dat],get_config_string("DATAFILES","sounds_datafile","sfx.dat"));
+		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
+		strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
+		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
+		
+		const char enemy_family_strings[eeMAX][255] =
+		{
+			"ee_family_guy","ee_family_walk","ee_family_shoot","ee_family_tek","ee_family_lev",
+			"ee_family_pea","ee_family_zor","ee_family_rock","ee_family_gh","ee_family_arm",
+			//10
+			"ee_family_ke","ee_family_ge","ee_family_zl","ee_family_rp","ee_family_gor",
+			"ee_family_trap","ee_family_wm","ee_family_jinx","ee_family_vir","ee_family_rike",
+			//20
+			"ee_family_pol","ee_family_wiz","ee_family_aqu","ee_family_mold","ee_family_dod",
+			"ee_family_mhd","ee_family_glk","ee_family_dig","ee_family_go","ee_family_lan",
+			//30
+			"ee_family_pat","ee_family_gan","ee_family_proj","ee_family_gtrib","ee_family_ztrib",
+			"ee_family_vitrib","ee_family_ketrib","ee_family_spintile","ee_family_none","ee_family_faerie",
+			//40
+			"ee_family_otherflt","ee_family_other"
+		};
+		
+		const char default_enemy_types[eeMAX][255] =
+		{
+		    "-Guy","Walking Enemy","-Unused","Tektite","Leever",
+			"Peahat","Zora","Rock","Ghini","-Unused",
+			"Keese","-Unused","-Unused","-Unused","-Unused",//goriya
+			"Trap","Wall Master","-Unused","-Unused","-Unused",//likelike
+			"-Unused","Wizzrobe","Aquamentus","Moldorm","Dodongo",
+			"Manhandla","Gleeok","Digdogger","Gohma","Lanmola",
+			"Patra","Ganon","Projectile Shooter","-Unused","-Unused",//zol trib
+			"-Unused","-Unused","Spin Tile","(None)","-Fairy","Other (Floating)","Other"
+		};
+		for ( int q = 0; q < eeMAX; q++ )
+		{
+			strcpy(moduledata.enem_type_names[q],get_config_string("ENEMIES",enemy_family_strings[q],default_enemy_types[q]));
+			al_trace("Enemy family ID %d is: %s\n", q, moduledata.enem_type_names[q]);
+		}
+		const char default_enemy_anims[aMAX][255] =
+		{
+			"(None)","Flip","-Unused","2-Frame","-Unused",
+			"Octorok (NES)","Tektite (NES)","Leever (NES)","Walker","Zora (NES)",
+			"Zora (4-Frame)","Ghini","Armos (NES)","Rope","Wall Master (NES)",
+			"Wall Master (4-Frame)","Darknut (NES)","Vire","3-Frame","Wizzrobe (NES)",
+			"Aquamentus","Dodongo (NES)","Manhandla","Gleeok","Digdogger",
+			"Gohma","Lanmola","2-Frame Flying","4-Frame 4-Dir + Tracking","4-Frame 8-Dir + Tracking",
+			"4-Frame 4-Dir + Firing","4-Frame 4-Dir","4-Frame 8-Dir + Firing","Armos (4-Frame)","4-Frame Flying 4-Dir",
+			"4-Frame Flying 8-Dir","-Unused","4-Frame 8-Dir Big","Tektite (4-Frame)","3-Frame 4-Dir",
+			"2-Frame 4-Dir","Leever (4-Frame)","2-Frame 4-Dir + Tracking","Wizzrobe (4-Frame)","Dodongo (4-Frame)",
+			"Dodongo BS (4-Frame)","4-Frame Flying 8-Dir + Firing","4-Frame Flying 4-Dir + Firing","4-Frame","Ganon",
+			"2-Frame Big"
+		};
+		const char enemy_anim_strings[aMAX][255] =
+		{
+			"ea_none","ea_flip","ea_unused1","ea_2frame","ea_unused2",
+			"ea_oct","ea_tek","ea_lev","ea_walk","ea_zor",
+			"ea_zor4","ea_gh","ea_arm","ea_rp","ea_wm",
+			"ea_wm4","ea_dkn","ea_vir", "ea_3f","ea_wiz",
+			"ea_aqu","ea_dod","ea_mhn","ea_gkl","ea_dig",
+			"ea_goh","ea_lan","ea_fly2","ea_4f4dT","ea_4f8dT",
+			"ea_4f4dF","ea_4f4d","ea_4f8dF","ea_arm","ea_fly_4f4d",
+			"ea_fly4f8d","ea_unused3","ea_4f8dLG","ea_tek4","ea_3f4d",
+			"ea_2f4d","ea_lev4","ea_2f4dT","ea_wiz4","ea_dod4",
+			"ea_bsdod","ea_fly4f4dT","ea_fly_4f4dF","ea_4f","ea_gan",
+			"ea_2fLG"
+		};
+		for ( int q = 0; q < aMAX; q++ )
+		{
+			strcpy(moduledata.enem_anim_type_names[q],get_config_string("ENEMIES",enemy_anim_strings[q],default_enemy_anims[q]));
+			al_trace("Enemy animation type ID %d is: %s\n", q, moduledata.enem_anim_type_names[q]);
+		}
+		
+		
+		//item editor
+		
+		//item families
+		const char default_itype_strings[itype_max][255] = 
+		{ 
+			"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
+			"Bait", "Letters", "Potions", "Wands", "Rings", 
+			"Wallets", "Amulets", "Shields", "Bows", "Rafts",
+			"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", 
+			"Boots", "Hookshots", "Lenses", "Hammers", "Din's Fire", 
+			"Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", 
+			"Keys", "Magic Containers", "Triforce Pieces", "Maps", "Compasses", 
+			"Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", 
+			"Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", 
+			"Heart Pieces", "Kill All Enemies", "Bomb Ammo", "Bomb Bags", "Roc Items", 
+			"Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer","Whisp Rings", 
+			"Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", 
+			"Scroll: Hurricane Spin", "Scroll: Super Quake","Stones of Agony", "Stomp Boots", "Whimsical Rings", 
+			"Peril Rings", "Non-gameplay Items", "Custom Itemclass 01", "Custom Itemclass 02", "Custom Itemclass 03",
+			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
+			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
+			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
+			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)"
+		};
+						     
+		const char itype_fields[itype_max][255] =
+		{
+			"ic_sword","ic_brang", "ic_arrow","ic_cand","ic_whis",
+			"ic_meat", "ic_rx", "ic_potion", 
+			"ic_wand","ic_armour","ic_wallet","ic_amul","ic_shield",
+			//10
+			"ic_bow","ic_raft","ic_ladder","ic_spellbook","ic_mkey",
+			"ic_glove","ic_flip","ic_boot","ic_grapple","ic_lens",
+			//20
+			"ic_hammer","ic_firespell","ic_exitspell","ic_shieldspell","ic_bomb",
+			"ic_sbomb","ic_fobwatch","ic_key","ic_mcp","ic_mcguf",
+			//30
+			"ic_map","ic_compass","ic_bkey","ic_quiv","ic_lkey",
+			"ic_cane","ic_money","ic_ammow_arrow","ic_faerie","ic_magic",
+			//40
+			"ic_health","ic_hc","ic_hcp","ic_killall","ic_ammo_bomb",
+			"ic_bombbag","ic_feath","ic_hover","ic_spinat","ic_crossbeam",
+			//50
+			"ic_quakeham","ic_ring_whisp","ic_ring_charge","ic_perilbeam","ic_wmedal",
+			"ic_ring_hp","ic_ring_mp","ic_multispin","ic_supquake","ic_dowse",
+			//60
+			"ic_stomp","ic_ring_crit","ic_ring_peril","ic_ngongameplay","ic_cic01",
+			"ic_cic02","ic_cic03","ic_cic04","ic_cic05","ic_cic06",
+			//70
+			"ic_cic07","ic_cic08","ic_cic09","ic_cic10","ic_cic11",
+			"ic_cic12","ic_cic13","ic_cic14","ic_cic15","ic_cic16",
+			//80
+			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle",
+			
+			"ic_89","ic_90","ic_91","ic_92","ic_93","ic_94","ic_95","ic_96","ic_97","ic_98","ic_99","ic_100","ic_101","ic_102","ic_103","ic_104",
+			"ic_105","ic_106","ic_107","ic_108","ic_109","ic_111","ic_112","ic_113","ic_114","ic_115","ic_116","ic_117","ic_118","ic_119","ic_120","ic_121",
+			"ic_122","ic_123","ic_124","ic_125","ic_126","ic_127","ic_128","ic_129","ic_130","ic_131","ic_132","ic_133","ic_134","ic_135","ic_136","ic_137",
+			"ic_138","ic_139","ic_140","ic_141","ic_142","ic_143","ic_144","ic_145","ic_146","ic_147","ic_148","ic_149","ic_150","ic_151","ic_152","ic_153",
+			"ic_154","ic_155","ic_156","ic_157","ic_158","ic_159","ic_160","ic_161","ic_162","ic_163","ic_164","ic_165","ic_166","ic_167","ic_168","ic_169",
+			"ic_170","ic_171","ic_172","ic_173","ic_174","ic_175","ic_176","ic_177","ic_178","ic_179","ic_180","ic_181","ic_182","ic_183","ic_184","ic_185",
+			"ic_186","ic_187","ic_188","ic_189","ic_190","ic_191","ic_192","ic_193","ic_194","ic_195","ic_196","ic_197","ic_198","ic_199","ic_200","ic_201",
+			"ic_202","ic_203","ic_204","ic_205","ic_206","ic_207","ic_208","ic_209","ic_210","ic_211","ic_212","ic_213","ic_214","ic_215","ic_216","ic_217",
+			"ic_218","ic_219","ic_220","ic_221","ic_222","ic_223","ic_224","ic_225","ic_226","ic_227","ic_228","ic_229","ic_230","ic_231","ic_232","ic_233",
+			"ic_234","ic_235","ic_236","ic_237","ic_238","ic_239","ic_240","ic_241","ic_242","ic_243","ic_244","ic_245","ic_246","ic_247","ic_248","ic_249",
+			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255","ic_256","ic_257","ic_258","ic_259","ic_260","ic_261","ic_262","ic_263","ic_264","ic_265",
+			"ic_266","ic_267","ic_267","ic_269""ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
+			"ic_286","ic_287","ic_288","ic_289","ic_290","ic_291","ic_292","ic_293","ic_294","ic_295","ic_296","ic_297","ic_298","ic_299","ic_300","ic_301","ic_302","ic_303","ic_304",
+			"ic_305","ic_306","ic_307","ic_308","ic_309","ic_311","ic_312","ic_313","ic_314","ic_315","ic_316","ic_317","ic_318","ic_319","ic_320","ic_321",
+			"ic_322","ic_323","ic_324","ic_325","ic_326","ic_327","ic_328","ic_329","ic_330","ic_331","ic_332","ic_333","ic_334","ic_335","ic_336","ic_337",
+			"ic_338","ic_339","ic_340","ic_341","ic_342","ic_343","ic_344","ic_345","ic_346","ic_347","ic_348","ic_349","ic_350","ic_351","ic_352","ic_353",
+			"ic_354","ic_355","ic_356","ic_357","ic_358","ic_359","ic_360","ic_361","ic_362","ic_363","ic_364","ic_365","ic_366","ic_367","ic_368","ic_369",
+			"ic_370","ic_371","ic_372","ic_373","ic_374","ic_375","ic_376","ic_377","ic_378","ic_379","ic_380","ic_381","ic_382","ic_383","ic_384","ic_385",
+			"ic_386","ic_387","ic_388","ic_389","ic_390","ic_391","ic_392","ic_393","ic_394","ic_395","ic_396","ic_397","ic_398","ic_399","ic_400","ic_401","ic_402","ic_403","ic_404",
+			"ic_405","ic_406","ic_407","ic_408","ic_409","ic_411","ic_412","ic_413","ic_414","ic_415","ic_416","ic_417","ic_418","ic_419","ic_420","ic_421",
+			"ic_422","ic_423","ic_424","ic_425","ic_426","ic_427","ic_428","ic_429","ic_430","ic_431","ic_432","ic_433","ic_434","ic_435","ic_436","ic_437",
+			"ic_438","ic_439","ic_440","ic_441","ic_442","ic_443","ic_444","ic_445","ic_446","ic_447","ic_448","ic_449","ic_450","ic_451","ic_452","ic_453",
+			"ic_454","ic_455","ic_456","ic_457","ic_458","ic_459","ic_460","ic_461","ic_462","ic_463","ic_464","ic_465","ic_466","ic_467","ic_468","ic_469",
+			"ic_470","ic_471","ic_472","ic_473","ic_474","ic_475","ic_476","ic_477","ic_478","ic_479","ic_480","ic_481","ic_482","ic_483","ic_484","ic_485",
+			"ic_486","ic_487","ic_488","ic_489","ic_490","ic_491","ic_492","ic_493","ic_494","ic_495","ic_496","ic_497","ic_498","ic_499","ic_500","ic_501","ic_502","ic_503","ic_504",
+			"ic_505","ic_506","ic_507","ic_508","ic_509","ic_511"
+		};
+		for ( int q = 0; q < itype_max; q++ )
+		{
+			strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
+			al_trace("Item family ID %d is: %s\n", q, moduledata.item_editor_type_names[q]);
+		}
+		
+		//combo editor
+		const char combo_name_fields[cMAX][255]=
+		{
+		    "cNONE", "cSTAIR", "cCAVE", "cWATER", "cSTATUE", "cGRAVE", "cDOCK",
+		    "cUNDEF", "cPUSH_WAIT", "cPUSH_HEAVY", "cPUSH_HW", "cL_STATUE", "cR_STATUE",
+		    "cWALKSLOW", "cCVUP", "cCVDOWN", "cCVLEFT", "cCVRIGHT", "cSWIMWARP", "cDIVEWARP",
+		    "cLADDERORGRAPPLE", "cTRIGNOFLAG", "cTRIGFLAG", "cWINGAME", "cSLASH", "cSLASHITEM",
+		    "cPUSH_HEAVY2", "cPUSH_HW2", "cPOUND", "cHSGRAB", "cHSBRIDGE", "cDAMAGE1",
+		    "cDAMAGE2", "cDAMAGE3", "cDAMAGE4", "cC_STATUE", "cTRAP_H", "cTRAP_V", "cTRAP_4",
+		    "cTRAP_LR", "cTRAP_UD", "cPIT", "cGRAPPLEONLY", "cOVERHEAD", "cNOFLYZONE", "cMIRROR",
+		    "cMIRRORSLASH", "cMIRRORBACKSLASH", "cMAGICPRISM", "cMAGICPRISM4",
+		    "cMAGICSPONGE", "cCAVE2", "cEYEBALL_A", "cEYEBALL_B", "cNOJUMPZONE", "cBUSH",
+		    "cFLOWERS", "cTALLGRASS", "cSHALLOWWATER", "cLOCKBLOCK", "cLOCKBLOCK2",
+		    "cBOSSLOCKBLOCK", "cBOSSLOCKBLOCK2", "cLADDERONLY", "cBSGRAVE",
+		    "cCHEST", "cCHEST2", "cLOCKEDCHEST", "cLOCKEDCHEST2", "cBOSSCHEST", "cBOSSCHEST2",
+		    "cRESET", "cSAVE", "cSAVE2", "cCAVEB", "cCAVEC", "cCAVED",
+		    "cSTAIRB", "cSTAIRC", "cSTAIRD", "cPITB", "cPITC", "cPITD",
+		    "cCAVE2B", "cCAVE2C", "cCAVE2D", "cSWIMWARPB", "cSWIMWARPC", "cSWIMWARPD",
+		    "cDIVEWARPB", "cDIVEWARPC", "cDIVEWARPD", "cSTAIRR", "cPITR",
+		    "cAWARPA", "cAWARPB", "cAWARPC", "cAWARPD", "cAWARPR",
+		    "cSWARPA", "cSWARPB", "cSWARPC", "cSWARPD", "cSWARPR", "cSTRIGNOFLAG", "cSTRIGFLAG",
+		    "cSTEP", "cSTEPSAME", "cSTEPALL", "cSTEPCOPY", "cNOENEMY", "cBLOCKARROW1", "cBLOCKARROW2",
+		    "cBLOCKARROW3", "cBLOCKBRANG1", "cBLOCKBRANG2", "cBLOCKBRANG3", "cBLOCKSBEAM", "cBLOCKALL",
+		    "cBLOCKFIREBALL", "cDAMAGE5", "cDAMAGE6", "cDAMAGE7", "cCHANGE", "cSPINTILE1", "cSPINTILE2",
+		    "cSCREENFREEZE", "cSCREENFREEZEFF", "cNOGROUNDENEMY", "cSLASHNEXT", "cSLASHNEXTITEM", "cBUSHNEXT"
+		    "cSLASHTOUCHY", "cSLASHITEMTOUCHY", "cBUSHTOUCHY", "cFLOWERSTOUCHY", "cTALLGRASSTOUCHY",
+		    "cSLASHNEXTTOUCHY", "cSLASHNEXTITEMTOUCHY", "cBUSHNEXTTOUCHY", "cEYEBALL_4", "cTALLGRASSNEXT",
+		    "cSCRIPT1", "cSCRIPT2", "cSCRIPT3", "cSCRIPT4", "cSCRIPT5",
+		    "cSCRIPT6", "cSCRIPT7", "cSCRIPT8", "cSCRIPT9", "cSCRIPT10",
+		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
+		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20"
+		    
+		};
+		
+		for ( int q = 0; q < cMAX; q++ )
+		{
+			strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],""));
+			al_trace("Combo ID %d TYPE is: %s\n", q, moduledata.combo_type_names[q]);
+		}
+		
+		//map flags
+		
+		const char map_flag_cats[mfMAX][256]=
+		{
+			"mfNONE","mfPUSHUD","mfPUSH4","mfWHISTLE","mfBCANDLE","mfARROW","mfBOMB","mfFAIRY","mfRAFT","mfSTATUE_SECRET","mfSTATUE_ITEM","mfSBOMB","mfRAFT_BRANCH","mfDIVE_ITEM","mfLENSMARKER","mfWINGAME",
+			"mfSECRETS01","mfSECRETS02","mfSECRETS03","mfSECRETS04","mfSECRETS05","mfSECRETS06","mfSECRETS07","mfSECRETS08","mfSECRETS09","mfSECRETS10","mfSECRETS11","mfSECRETS12","mfSECRETS13","mfSECRETS14","mfSECRETS15","mfSECRETS16",
+			"mfTRAP_H","mfTRAP_V","mfTRAP_4","mfTRAP_LR","mfTRAP_UD","mfENEMY0","mfENEMY1","mfENEMY2","mfENEMY3","mfENEMY4","mfENEMY5","mfENEMY6","mfENEMY7","mfENEMY8","mfENEMY9","mfPUSHLR",
+			"mfPUSHU","mfPUSHD","mfPUSHL","mfPUSHR","mfPUSHUDNS","mfPUSHLRNS","mfPUSH4NS","mfPUSHUNS","mfPUSHDNS","mfPUSHLNS","mfPUSHRNS","mfPUSHUDINS","mfPUSHLRINS","mfPUSH4INS","mfPUSHUINS","mfPUSHDINS",
+			"mfPUSHLINS","mfPUSHRINS","mfBLOCKTRIGGER","mfNOBLOCKS","mfBRANG","mfMBRANG","mfFBRANG","mfSARROW","mfGARROW","mfRCANDLE","mfWANDFIRE","mfDINSFIRE","mfWANDMAGIC","mfREFMAGIC","mfREFFIREBALL","mfSWORD",
+			"mfWSWORD","mfMSWORD","mfXSWORD","mfSWORDBEAM","mfWSWORDBEAM","mfMSWORDBEAM","mfXSWORDBEAM","mfGRAPPLE","mfWAND","mfHAMMER","mfSTRIKE","mfBLOCKHOLE","mfMAGICFAIRY","mfALLFAIRY","mfSINGLE","mfSINGLE16",
+			"mfNOENEMY","mfNOGROUNDENEMY","mfSCRIPT1","mfSCRIPT2","mfSCRIPT3","mfSCRIPT4","mfSCRIPT5","mfRAFT_BOUNCE","mfPUSHED","mfSCRIPT6","mfSCRIPT7","mfSCRIPT8","mfSCRIPT9","mfSCRIPT10","mfSCRIPT11","mfSCRIPT12",
+			"mfSCRIPT13","mfSCRIPT14","mfSCRIPT15","mfSCRIPT16","mfSCRIPT17","mfSCRIPT18","mfSCRIPT19","mfSCRIPT20","mfPITHOLE","mfPITFALLFLOOR","mfLAVA","mfICE","mfICEDAMAGE","mfDAMAGE1","mfDAMAGE2","mfDAMAGE4",
+			"mfDAMAGE8","mfDAMAGE16","mfDAMAGE32","mfFREEZEALL","mfFREZEALLANSFFCS","mfFREEZEFFCSOLY","mfSCRITPTW1TRIG","mfSCRITPTW2TRIG","mfSCRITPTW3TRIG","mfSCRITPTW4TRIG","mfSCRITPTW5TRIG","mfSCRITPTW6TRIG","mfSCRITPTW7TRIG","mfSCRITPTW8TRIG","mfSCRITPTW9TRIG","mfSCRITPTW10TRIG",
+			"mfTROWEL","mfTROWELNEXT","mfTROWELSPECIALITEM","mfSLASHPOT","mfLIFTPOT","mfLIFTORSLASH","mfLIFTROCK","mfLIFTROCKHEAVY","mfDROPITEM","mfSPECIALITEM","mfDROPKEY","mfDROPLKEY","mfDROPCOMPASS","mfDROPMAP","mfDROPBOSSKEY","mfSPAWNNPC",
+			"mfSWITCHHOOK","mf161","mf162","mf163","mf164","mf165","mf166","mf167","mf168","mf169","mf170","mf171","mf172","mf173","mf174","mf175",
+			"mf176","mf177","mf178","mf179","mf180","mf181","mf182","mf183","mf184","mf185","mf186","mf187","mf188","mf189","mf190","mf191",
+			"mf192","mf193","mf194","mf195","mf196","mf197","mf198","mf199","mf200","mf201","mf202","mf203","mf204","mf205","mf206","mf207",
+			"mf208","mf209","mf210","mf211","mf212","mf213","mf214","mf215","mf216","mf217","mf218","mf219","mf220","mf221","mf222","mf223",
+			"mf224","mf225","mf226","mf227","mf228","mf229","mf230","mf231","mf232","mf233","mf234","mf235","mf236","mf237","mf238","mf239",
+			"mf240","mf241","mf242","mf243","mf244","mf245","mf246","mf247","mf248","mf249","mf250","mf251","mf252","mf253","mf254","mfEXTENDED"
+		};
+		const char map_flag_default_string[mfMAX][255] =
+		{
+		    "  0 (None)",    "  1 Push Block (Vertical, Trigger)",    "  2 Push Block (4-Way, Trigger)",    "  3 Whistle Trigger",    "  4 Burn Trigger (Any)",    "  5 Arrow Trigger (Any)",    "  6 Bomb Trigger (Any)",    "  7 Fairy Ring (Life)",
+		    "  8 Raft Path",    "  9 Armos -> Secret",    " 10 Armos/Chest -> Item",    " 11 Bomb (Super)",    " 12 Raft Branch",    " 13 Dive -> Item",    " 14 Lens Marker",    " 15 Zelda (Win Game)",
+		    " 16 Secret Tile 0",    " 17 Secret Tile 1",    " 18 Secret Tile 2",    " 19 Secret Tile 3",    " 20 Secret Tile 4",    " 21 Secret Tile 5",    " 22 Secret Tile 6",    " 23 Secret Tile 7",
+		    " 24 Secret Tile 8",    " 25 Secret Tile 9",    " 26 Secret Tile 10",    " 27 Secret Tile 11",    " 28 Secret Tile 12",    " 29 Secret Tile 13",    " 30 Secret Tile 14",    " 31 Secret Tile 15",
+		    " 32 Trap (Horizontal, Line of Sight)",    " 33 Trap (Vertical, Line of Sight)",    " 34 Trap (4-Way, Line of Sight)",    " 35 Trap (Horizontal, Constant)",    " 36 Trap (Vertical, Constant)",    " 37 Enemy 0",    " 38 Enemy 1",    " 39 Enemy 2",
+		    " 40 Enemy 3",    " 41 Enemy 4",    " 42 Enemy 5",    " 43 Enemy 6",    " 44 Enemy 7",    " 45 Enemy 8",    " 46 Enemy 9",    " 47 Push Block (Horiz, Once, Trigger)",
+		    " 48 Push Block (Up, Once, Trigger)",    " 49 Push Block (Down, Once, Trigger)",    " 50 Push Block (Left, Once, Trigger)",    " 51 Push Block (Right, Once, Trigger)",    " 52 Push Block (Vert, Once)",    " 53 Push Block (Horizontal, Once)",    " 54 Push Block (4-Way, Once)",    " 55 Push Block (Up, Once)",
+		    " 56 Push Block (Down, Once)",    " 57 Push Block (Left, Once)",    " 58 Push Block (Right, Once)",    " 59 Push Block (Vertical, Many)",    " 60 Push Block (Horizontal, Many)",    " 61 Push Block (4-Way, Many)",    " 62 Push Block (Up, Many)",    " 63 Push Block (Down, Many)",
+		    " 64 Push Block (Left, Many)",    " 65 Push Block (Right, Many)",    " 66 Block Trigger",    " 67 No Push Blocks",    " 68 Boomerang Trigger (Any)",    " 69 Boomerang Trigger (Magic +)",    " 70 Boomerang Trigger (Fire)",    " 71 Arrow Trigger (Silver +)",
+		    " 72 Arrow Trigger (Golden)",    " 73 Burn Trigger (Red Candle +)",    " 74 Burn Trigger (Wand Fire)",    " 75 Burn Trigger (Din's Fire)",    " 76 Magic Trigger (Wand)",    " 77 Magic Trigger (Reflected)",    " 78 Fireball Trigger (Reflected)",    " 79 Sword Trigger (Any)",
+		    " 80 Sword Trigger (White +)",    " 81 Sword Trigger (Magic +)",    " 82 Sword Trigger (Master)",    " 83 Sword Beam Trigger (Any)",    " 84 Sword Beam Trigger (White +)",    " 85 Sword Beam Trigger (Magic +)",    " 86 Sword Beam Trigger (Master)",    " 87 Hookshot Trigger",
+		    " 88 Wand Trigger",    " 89 Hammer Trigger",    " 90 Strike Trigger",    " 91 Block Hole (Block -> Next)",    " 92 Fairy Ring (Magic)",    " 93 Fairy Ring (All)",    " 94 Trigger -> Self Only",    " 95 Trigger -> Self, Secret Tiles",
+		    " 96 No Enemies",    " 97 No Ground Enemies",    " 98 General Purpose 1 (Scripts)",    " 99 General Purpose 2 (Scripts)",    "100 General Purpose 3 (Scripts)",    "101 General Purpose 4 (Scripts)",    "102 General Purpose 5 (Scripts)",    "103 Raft Bounce",
+		     "104 Pushed",    "105 General Purpose 6 (Scripts)",    "106 General Purpose 7 (Scripts)",    "107 General Purpose 8 (Scripts)",    "108 General Purpose 9 (Scripts)",    "109 General Purpose 10 (Scripts)",    "110 General Purpose 11 (Scripts)",    "111 General Purpose 12 (Scripts)",
+		    "112 General Purpose 13 (Scripts)",    "113 General Purpose 14 (Scripts)",    "114 General Purpose 15 (Scripts)",    "115 General Purpose 16 (Scripts)",    "116 General Purpose 17 (Scripts)",    "117 General Purpose 18 (Scripts)",    "118 General Purpose 19 (Scripts)",    "119 General Purpose 20 (Scripts)",
+		    "120 Pit or Hole (Scripted)",    "121 Pit or Hole, Fall Down Floor (Scripted)",    "122 Fire or Lava (Scripted)",    "123 Ice (Scripted)",    "124 Ice, Damaging (Scripted)",    "125 Damage-1 (Scripted)",    "126 Damage-2 (Scripted)",    "127 Damage-4 (Scripted)",
+		    "128 Damage-8 (Scripted)",    "129 Damage-16 (Scripted)",    "130 Damage-32 (Scripted)",    "131 Freeze Screen (Unimplemented)",    "132 Freeze Screen, Except FFCs (Unimplemented)",    "133 Freeze FFCs Only (Unimplemented)",    "134 Trigger LW_SCRIPT1 (Unimplemented)",    "135 Trigger LW_SCRIPT2 (Unimplemented)",
+		    "136 Trigger LW_SCRIPT3 (Unimplemented)",    "137 Trigger LW_SCRIPT4 (Unimplemented)",    "138 Trigger LW_SCRIPT5 (Unimplemented)",    "139 Trigger LW_SCRIPT6 (Unimplemented)",    "140 Trigger LW_SCRIPT7 (Unimplemented)",    "141 Trigger LW_SCRIPT8 (Unimplemented)",    "142 Trigger LW_SCRIPT9 (Unimplemented)",    "143 Trigger LW_SCRIPT10 (Unimplemented)",
+		    "144 Dig Spot (Scripted)",    "145 Dig Spot, Next (Scripted)",    "146 Dig Spot, Special Item (Scripted)",    "147 Pot, Slashable (Scripted)",    "148 Pot, Liftable (Scripted)",    "149 Pot, Slash or Lift (Scripted)",    "150 Rock, Lift Normal (Scripted)",    "151 Rock, Lift Heavy (Scripted)",
+		    "152 Dropset Item (Scripted)",    "153 Special Item (Scripted)",    "154 Drop Key (Scripted)",    "155 Drop level-Specific Key (Scripted)",    "156 Drop Compass (Scripted)",    "157 Drop Map (Scripted)",    "158 Drop Bosskey (Scripted)",    "159 Spawn NPC (Scripted)",
+		    "160 SwitchHook Spot (Scripted)",    "161 mf161",    "162 mf162","163 mf163","164 mf164","165 mf165","166 mf166","167 mf167","168 mf168","169 mf169",    "170 mf170","171 mf171","172 mf172","173 mf173","174 mf174","175 mf175","176 mf176","177 mf177","178 mf178","179 mf179",
+		    "180 mf180","181 mf181","182 mf182","183 mf183","184 mf184","185 mf185","186 mf186","187 mf187","188 mf188","189 mf189",    "190 mf190","191 mf191","192 mf192","193 mf193","194 mf194","195 mf195","196 mf196","197 mf197","198 mf198","199 mf199",
+		    "200 mf200","201 mf201","202 mf202","203 mf203","204 mf204","205 mf205","206 mf206","207 mf207","208 mf208","209 mf209",    "210 mf210","211 mf211","212 mf212","213 mf213","214 mf214","215 mf215","216 mf216","217 mf217","218 mf218","219 mf219",
+		    "220 mf220","221 mf221","222 mf222","223 mf223","224 mf224","225 mf225","226 mf226","227 mf227","228 mf228","229 mf229",    "230 mf230","231 mf231","232 mf232","233 mf233","234 mf234","235 mf235","236 mf236","237 mf237","238 mf238","239 mf239",
+		    "240 mf240","241 mf241","242 mf242","243 mf243","244 mf244","245 mf245","246 mf246","247 mf247","248 mf248","249 mf249",    "250 mf250","251 mf251","252 mf252","253 mf253","254 mf254",
+		    "255 Extended (Extended Flag Editor)"
+		};
+		for ( int q = 0; q < mfMAX; q++ )
+		{
+			strcpy(moduledata.combo_flag_names[q],get_config_string("MAPFLAGS",map_flag_cats[q],map_flag_default_string[q]));
+			al_trace("Map Flag ID %d is: %s\n", q, moduledata.combo_flag_names[q]);
+		}
+		const char roomtype_cats[rMAX][256] =
+		{
+			"rNONE","rSP_ITEM","rINFO","rMONEY","rGAMBLE","rREPAIR","rRP_HC","rGRUMBLE",
+			"rQUESTOBJ","rP_SHOP","rSHOP","rBOMBS","rSWINDLE","r10RUPIES","rWARP","rMAINBOSS","rWINGAME",
+			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE"
+		};
+		const char roomtype_defaults[rMAX][255] =
+		{
+		    "(None)","Special Item","Pay for Info","Secret Money","Gamble",
+		    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
+		    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
+		    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
+		};
+		for ( int q = 0; q < rMAX; q++ )
+		{
+			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
+			al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
+		}
+		
+		const char enemy_walk_type_defaults[e9tARMOS+1][255] =
+		{
+		    "Normal", "Rope", "Vire", "Pols Voice", "Armos"
+		};
+
+		const char enemy_walk_style_cats[e9tARMOS+1][255]=
+		{
+			"wsNormal","wsCharge","wsHopSplit","wsHop","wsStatue"
+		};
+		for ( int q = 0; q < e9tARMOS+1; q++ )
+		{
+			strcpy(moduledata.walkmisc9_names[q],get_config_string("ENEMYWALKSTYLE",enemy_walk_style_cats[q],enemy_walk_type_defaults[q]));
+			al_trace("Map Flag ID %d is: %s\n", q, moduledata.walkmisc9_names[q]);
+		}
+		const char guy_types[gDUMMY1][255]=
+		{
+			"gNONE", "gOLDMAN", "gOLDWOMAN", "gDUDE", "gORC",
+		    "gFIRE", "gFAIRY", "gGRUMBLE", "gPRINCESS", "gOLDMAN2",
+		    "gEMPTY"
+		};
+
+		const char guy_default_names[gDUMMY1][255]=
+		{
+			"(None)","Abei","Ama","Merchant","Moblin","Fire",
+			"Fairy","Goriya","Zelda","Abei 2","Empty"
+		};
+		for ( int q = 0; q < gDUMMY1; q++ )
+		{
+			strcpy(moduledata.guy_type_names[q],get_config_string("GUYS",guy_types[q],guy_default_names[q]));
+			al_trace("Map Flag ID %d is: %s\n", q, moduledata.guy_type_names[q]);
+		}
+		
+		const char enemy_weapon_cats[wMax-wEnemyWeapons][255]=
+		{
+			"ewNone",
+			"ewFireball",
+			"ewArrow",
+			"ewBrang",
+			"ewSword",
+			"ewRock",
+			"ewMagic",
+			"ewBomb",
+			"ewSBomb",
+			"ewLitBomb",
+			"ewLitSBomb",
+			"ewFireTrail",
+			"ewFlame",
+			"ewWind",
+			"ewFlame2",
+			"ewFlame2Trail",
+			"ewIce",
+			"ewFireball2"
+		};
+		
+		const char enemy_weapon_default_names[wMax-wEnemyWeapons][255]=
+		{
+			"(None)",
+			"Fireball",
+			"Arrow",
+			"Boomerang",
+			"Sword",
+			"Rock",
+			"Magic",
+			"Bomb Blast",
+			"Super Bomb Blast",
+			"Lit Bomb",
+			"Lit Super Bomb",
+			"Fire Trail",
+			"Flame",
+			"Wind",
+			"Flame 2",
+			"-Flame 2 Trail <unused>",
+			"-Ice <unused>",
+			"Fireball (Rising)"
+		};
+		
+		for ( int q = 0; q < sizeof(enemy_weapon_default_names)/255; q++ )
+		{
+			strcpy(moduledata.enemy_weapon_names[q],get_config_string("EWEAPONS",enemy_weapon_cats[q],enemy_weapon_default_names[q]));
+			al_trace("EWeapon ID %d is: %s\n", q, moduledata.enemy_weapon_names[q]);
+		}
+		const char lweapon_cats[wIce+1][255]=
+		{
+			"lwNone","lwSword","lwBeam","lwBrang","lwBomb","lwSBomb","lwLitBomb",
+			"lwLitSBomb","lwArrow","lwFire","lwWhistle","lwMeat","lwWand","lwMagic","lwCatching",
+			"lwWind","lwRefMagic","lwRefFireball","lwRefRock", "lwHammer","lwGrapple", "lwHSHandle", 
+			"lwHSChain", "lwSSparkle","lwFSparkle", "lwSmack", "lwPhantom", 
+			"lwCane","lwRefBeam", "lwStomp","lwScript1", "lwScript2", "lwScript3", 
+			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce"
+		};
+		const char lweapon_default_names[wIce+1][255]=
+		{
+			"(None)","Sword","Sword Beam","Boomerang","Bomb","Super Bomb","Lit Bomb",
+			"Lit Super Bomb","Arrow","Fire","Whistle","Bait","Wand","Magic","-Catching",
+			"Wind","Reflected Magic","Reflected Fireball","Reflected Rock", "Hammer","Hookshit", "-HSHandle", 
+			"-HSChain", "Sparkle","-FSparkle", "-Smack", "-Phantom", 
+			"Cane of Byrna","Reflected Sword Beam", "-Stomp","Script1", "Script2", "Script3", 
+			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice"
+		};
+		for ( int q = 0; q < wIce+1; q++ )
+		{
+			strcpy(moduledata.player_weapon_names[q],get_config_string("LEAPONS",lweapon_cats[q],lweapon_default_names[q]));
+			al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
+		}
+		const char counter_cats[33][255]=
+		{
+			"crNONE","crLIFE","crMONEY","crBOMBS","crARROWS","crMAGIC","crKEYS",
+			"crSBOMBS","crCUSTOM1","crCUSTOM2","crCUSTOM3","crCUSTOM4","crCUSTOM5","crCUSTOM6",
+			"crCUSTOM7","crCUSTOM8","crCUSTOM9","crCUSTOM10","crCUSTOM11","crCUSTOM12","crCUSTOM13",
+			"crCUSTOM14","crCUSTOM15","crCUSTOM16","crCUSTOM17","crCUSTOM18","crCUSTOM19",
+			"crCUSTOM20","crCUSTOM21","crCUSTOM22","crCUSTOM23","crCUSTOM24","crCUSTOM25"
+		};
+
+		const char counter_default_names[33][255]=
+		{
+			"None","Life","Rupees", "Bombs","Arrows","Magic",
+			"Keys","Super Bombs","Custom 1","Custom 2","Custom 3",
+			"Custom 4","Custom 5","Custom 6","Custom 7","Custom 8",
+			"Custom 9","Custom 10","Custom 11","Custom 12",
+			"Custom 13","Custom 14","Custom 15","Custom 16","Custom 17",
+			"Custom 18","Custom 19","Custom 20","Custom 21","Custom 22"
+			"Custom 23","Custom 24","Custom 25"	
+		};
+		for ( int q = 0; q < 33; q++ )
+		{
+			strcpy(moduledata.counter_names[q],get_config_string("COUNTERS",counter_cats[q],counter_default_names[q]));
+			al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
+		}
+				
+	}
+	set_config_file("zquest.cfg"); //shift back to the normal config file, when done
+	
+}
+
+//Prints out the current Module struct data to allegro.log
+void ZModule::debug()
+{
+	//al_trace("Module field: %s, is: %s\n", "module_name", moduledata.module_name);
+	//al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
+	
+	//quests
+	/*
+	al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
+	al_trace("Module field: %s, is: %s\n", "quests[0]",moduledata.quests[0]);
+	al_trace("Module field: %s, is: %s\n", "quests[1]",moduledata.quests[1]);
+	al_trace("Module field: %s, is: %s\n", "quests[2]",moduledata.quests[2]);
+	al_trace("Module field: %s, is: %s\n", "quests[3]",moduledata.quests[3]);
+	al_trace("Module field: %s, is: %s\n", "quests[4]",moduledata.quests[4]);
+	
+	//skip codes
+	al_trace("Module field: %s, is: %s\n", "skipnames[0]",moduledata.skipnames[0]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[1]",moduledata.skipnames[1]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[2]",moduledata.skipnames[2]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[3]",moduledata.skipnames[3]);
+	al_trace("Module field: %s, is: %s\n", "skipnames[4]",moduledata.skipnames[4]);
+
+	//datafiles
+	al_trace("Module field: %s, is: %s\n", "datafiles[zelda_dat]",moduledata.datafiles[zelda_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[zquest_dat]",moduledata.datafiles[zquest_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[fonts_dat]",moduledata.datafiles[fonts_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[sfx_dat]",moduledata.datafiles[sfx_dat]);
+	al_trace("Module field: %s, is: %s\n", "datafiles[qst_dat]",moduledata.datafiles[qst_dat]);
+	*/
+}
+
+void ZModule::load(bool zquest)
+{
+	set_config_file(moduledata.module_name);
+	//load config settings
+	if ( zquest )
+	{
+		al_trace("ZModule::load() was called by: %s\n","ZQuest");
+		//load ZQuest section data
+		set_config_file("zquest.cfg"); //shift back when done
+	}
+	else
+	{
+		al_trace("ZModule::load() was called by: %s\n","ZC Player");
+		//load ZC section data
+		set_config_file("zc.cfg"); //shift back when done
+	}
+	
 }
 
 /* end */

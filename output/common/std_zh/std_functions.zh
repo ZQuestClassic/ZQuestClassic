@@ -3296,7 +3296,7 @@ int NumberEnemies()
 			
 
 //Returns if there are enemy NPCs alive on the current screen.
-bool EnemiessAlive()
+bool EnemiesAlive()
 {
 	bool alive = false; 
 	for ( int q = Screen->NumNPCs(); q > 0; --q )

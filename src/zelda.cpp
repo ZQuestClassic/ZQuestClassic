@@ -51,6 +51,8 @@
 #include "gamedata.h"
 #include "ffscript.h"
 extern FFScript FFCore; //the core script engine.
+extern ZModule zcm; //modules
+extern zcmodule moduledata;
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -1255,7 +1257,18 @@ int load_quest(gamedata *g, bool report)
     if(g->get_quest()<255)
     {
         // Check the ZC directory first for 1st-4th quests; check qstdir if they're not there
-        sprintf(qstpath, "%s.qst", ordinal(g->get_quest()));
+	switch(g->get_quest())
+	{
+		case 1: sprintf(qstpath, moduledata.quests[0], ordinal(g->get_quest())); break;
+		case 2: sprintf(qstpath, moduledata.quests[1], ordinal(g->get_quest())); break;
+		case 3: sprintf(qstpath, moduledata.quests[2], ordinal(g->get_quest())); break;
+		case 4: sprintf(qstpath, moduledata.quests[3], ordinal(g->get_quest())); break;
+		case 5: sprintf(qstpath, moduledata.quests[4], ordinal(g->get_quest())); break;
+			
+		default: break;
+	}
+        
+	//was sprintf(qstpath, "%s.qst", ordinal(g->get_quest()));
         
         if(!exists(qstpath))
         {
@@ -3622,6 +3635,13 @@ int main(int argc, char* argv[])
         load_game_configs();
         save_game_configs();
     }
+    //Set up MODULES: This must occur before trying to load the default quests, as the 
+    //data for quest names and so forth is set by the MODULE file!
+    //strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module", moduledata.module_name));
+    //al_trace("Before zcm.init, the current module is: %s\n", moduledata.module_name);
+    zcm.init(true);
+    zcm.load(false);
+    
     
     
 #ifdef _WIN32
@@ -3679,6 +3699,10 @@ int main(int argc, char* argv[])
     
     Z_message("OK\n");
     
+    
+    
+    
+    
     // check for the included quest files
     if(!standalone_mode)
     {
@@ -3686,41 +3710,41 @@ int main(int argc, char* argv[])
         
         char path[2048];
         
-        append_filename(path, qstdir, "1st.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[0], 2048);
         
-        if(!exists("1st.qst") && !exists(path))
+        if(!exists(moduledata.quests[0]) && !exists(path))
         {
             Z_error("\"1st.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "2nd.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[1], 2048);
         
-        if(!exists("2nd.qst") && !exists(path))
+        if(!exists(moduledata.quests[1]) && !exists(path))
         {
             Z_error("\"2nd.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "3rd.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[2], 2048);
         
-        if(!exists("3rd.qst") && !exists(path))
+        if(!exists(moduledata.quests[2]) && !exists(path))
         {
             Z_error("\"3rd.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "4th.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[3], 2048);
         
-        if(!exists("4th.qst") && !exists(path))
+        if(!exists(moduledata.quests[3]) && !exists(path))
         {
             Z_error("\"4th.qst\" not found.");
             quit_game();
         }
         
-        append_filename(path, qstdir, "5th.qst", 2048);
+        append_filename(path, qstdir, moduledata.quests[4], 2048);
         
-        if(!exists("5th.qst") && !exists(path))
+        if(!exists(moduledata.quests[4]) && !exists(path))
         {
             Z_error("\"5th.qst\" not found.");
             quit_game();
@@ -3900,10 +3924,10 @@ int main(int argc, char* argv[])
     sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
     sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
     
-    packfile_password(NULL); // Temporary measure. -L
+    packfile_password(""); // Temporary measure. -L
     Z_message("Zelda.Dat...");
     
-    if((data=load_datafile("zelda.dat"))==NULL)
+    if((data=load_datafile(moduledata.datafiles[zelda_dat]))==NULL) 
     {
         Z_error("failed");
         quit_game();
@@ -3920,7 +3944,7 @@ int main(int argc, char* argv[])
     
     Z_message("Fonts.Dat...");
     
-    if((fontsdata=load_datafile("fonts.dat"))==NULL)
+    if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
@@ -3939,7 +3963,7 @@ int main(int argc, char* argv[])
     
     Z_message("SFX.Dat...");
     
-    if((sfxdata=load_datafile("sfx.dat"))==NULL)
+    if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
     {
         Z_error("failed");
         quit_game();
@@ -4191,13 +4215,14 @@ int main(int argc, char* argv[])
     
     //request_refresh_rate(60);
     
+    //is the config file wrong (not zc.cfg!) here? -Z
     if(used_switch(argc,argv,"-fullscreen") ||
-            (!used_switch(argc, argv, "-windowed") && get_config_int("zeldadx","fullscreen",1)==1))
+            (!used_switch(argc, argv, "-windowed") && get_config_int("zeldadx","fullscreen",0)==1))
     {
         al_trace("Used switch: -fullscreen\n");
         tempmode = GFX_AUTODETECT_FULLSCREEN;
     }
-    else if(used_switch(argc,argv,"-windowed") || get_config_int("zeldadx","fullscreen",1)==0)
+    else if(used_switch(argc,argv,"-windowed") || get_config_int("zeldadx","fullscreen",0)==0)
     {
         al_trace("Used switch: -windowed\n");
         tempmode=GFX_AUTODETECT_WINDOWED;

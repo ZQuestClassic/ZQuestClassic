@@ -13,6 +13,7 @@
 #include "zelda.h"
 #include "ffscript.h"
 extern FFScript FFCore;
+extern ZModule zcm;
 extern refInfo *ri;
 #include <stdio.h>
 
@@ -5335,12 +5336,20 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	//bugfix
 	sx = vbound(sx, 0, sourceBitmap->w);
+	Z_scripterrlog("Blit %s is: %d\n", "sx", sx);
+	Z_scripterrlog("Blit %s is: %d\n", "source->w", sourceBitmap->w);
 	sy = vbound(sy, 0, sourceBitmap->h);
+	Z_scripterrlog("Blit %s is: %d\n", "sy", sy);
+	Z_scripterrlog("Blit %s is: %d\n", "source->h", sourceBitmap->h);
 	sw = vbound(sw, 0, sourceBitmap->w - sx); //keep the w/h within range as well
+	Z_scripterrlog("Blit %s is: %d\n", "sw", sw);
 	sh = vbound(sh, 0, sourceBitmap->h - sy);
+	Z_scripterrlog("Blit %s is: %d\n", "sh", sh);
 
+	Z_scripterrlog("Blit %s is: %d\n", "dh", dh);
+	Z_scripterrlog("Blit %s is: %d\n", "dw", dw);
 	bool stretched = (sw != dw || sh != dh);
-
+	Z_scripterrlog("Blit %s is: %s\n", "stretched", stretched ? "true" : "false");
 	//BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
 	
 	

@@ -29,6 +29,10 @@
 #include "init.h"
 #include "zelda.h"
 #include "mem_debug.h"
+#include "zquest.h"
+//extern ZModule zcm;
+extern zcmodule moduledata;
+
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -40,6 +44,9 @@
 #define vc(x)  ((x)+224)                                    // offset to 'VGA color' x (row 14)
 
 //using namespace std;
+
+//modules
+
 
 extern int jwin_pal[jcMAX];
 extern FONT *sfont2;
@@ -1537,17 +1544,19 @@ void build_biic_list()
 
     for(int i=start; i<itype_last; i++)
     {
-        std::string name = std::string(itype_names[i]);
+        //std::string name = std::string(itype_names[i]);
+        std::string name = std::string(moduledata.item_editor_type_names[i]);
 	    
 	    
         
         while(famnames.find(name) != famnames.end())
         {
-            name += ' ';
+            name += ' '; 
         }
         
         fams[name] = i;
         famnames.insert(name);
+	
     }
     
     /*
@@ -1567,6 +1576,7 @@ void build_biic_list()
     
     for(int i=itype_last; i<itype_max; i++)
     {
+	/*
 	char *name = new char[10];
 	    
 	if ( i == 256 ) sprintf(name, "Script 01");
@@ -1593,6 +1603,34 @@ void build_biic_list()
         fams[sname] = i;
         famnames.insert(sname);
         delete[] name;
+	*/
+	//expanded names
+	if (moduledata.item_editor_type_names[i][0] != NULL ) //std::string name = std::string(moduledata.item_editor_type_names[i]);
+	{
+	    
+		std::string name = std::string(moduledata.item_editor_type_names[i]);
+		while(famnames.find(name) != famnames.end())
+		{
+		    name += ' '; 
+		}
+		
+		fams[name] = i;
+		famnames.insert(name);
+	}
+	else 
+	{
+		char *name = new char[10];
+		sprintf(name, "zz%03d", i);
+		std::string sname(name);
+		while(famnames.find(sname) != famnames.end())
+		{
+		    sname += ' ';
+		}
+		
+		fams[sname] = i;
+		famnames.insert(sname);
+		delete[] name;
+	}
     }
     /*
     //Set up new/special weapons for 2.54 and above. 

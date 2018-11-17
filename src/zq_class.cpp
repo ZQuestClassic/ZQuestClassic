@@ -43,6 +43,10 @@
 #include "zq_subscr.h"
 #include "mem_debug.h"
 
+extern ZModule zcm;
+extern zcmodule moduledata;
+
+
 using std::string;
 using std::pair;
 #define EPSILON 0.01 // Define your own tolerance
@@ -5701,9 +5705,14 @@ extern BITMAP *bmap;
 
 int init_quest(const char *templatefile)
 {
+	char qstdat_string[2048];
+	sprintf(qstdat_string,moduledata.datafiles[qst_dat]);
+	strcat(qstdat_string,"#NESQST_NEW_QST");
+
     char buf[2048];
     templatefile=templatefile; //here to prevent compiler warnings
-    load_quest("qst.dat#NESQST_NEW_QST",true,true);
+    //load_quest("qst.dat#NESQST_NEW_QST",true,true);
+    load_quest(qstdat_string,true,true);
     sprintf(buf,"ZQuest - Untitled Quest");
     set_window_title(buf);
     zinit.last_map = 0;

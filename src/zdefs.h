@@ -99,11 +99,11 @@
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       41                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "2.55 Alpha, PureZC Expo 2018 Edition"                    //version of the program as presented in text
+#define ZELDA_VERSION_STR   "Necromancer (v2.55) Alpha 1"                    //version of the program as presented in text
 #define IS_BETA             -1                         //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        1
-#define DATE_STR            "20th October, 2018"
-#define ZELDA_ABOUT_STR 	    "ZC Player 'Necromancer', 2018 PureZC Expo Edition"
+#define DATE_STR            "14th November, 2018"
+#define ZELDA_ABOUT_STR 	    "ZC Player 'Necromancer', Alpha 1"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -118,6 +118,8 @@
 #define QSTDAT_BUILD          30                            //build of qst.dat
 #define ZQUESTDAT_VERSION     0x0211                        //version of zquest.dat
 #define ZQUESTDAT_BUILD       18                            //build of zquest.dat
+
+#define MAX_INTERNAL_QUESTS 	5
 
 enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_211B18, ENC_METHOD_MAX};
 
@@ -578,11 +580,11 @@ enum
 	//140
 	mfSCRITPTW7TRIG, mfSCRITPTW8TRIG, mfSCRITPTW9TRIG, mfSCRITPTW10TRIG, mfTROWEL, 
 	//145
-	mfTROWELNEXT, mfTROWELSPECIALITEM,mfSLASHPOT, 	mcLIFTPOT,	mfLIFTORSLASH, 
+	mfTROWELNEXT, mfTROWELSPECIALITEM,mfSLASHPOT, 	mfLIFTPOT,	mfLIFTORSLASH, 
 	//150
 	mfLIFTROCK, 	mfLIFTROCKHEAVY, mfDROPITEM, 	mfSPECIALITEM, 	mfDROPKEY, 
 	//155
-	mfDROPLKEY, 	mfDROPCOMPASS, 	mfDROPMAP, 	mcDROPBOSSKEY, mfSPAWNNPC, 
+	mfDROPLKEY, 	mfDROPCOMPASS, 	mfDROPMAP, 	mfDROPBOSSKEY, mfSPAWNNPC, 
 	//160
 	mfSWITCHHOOK, 	mf161,
     
@@ -3291,6 +3293,43 @@ struct zcmap
     bool subaTrans;
     bool subpTrans;
 };
+
+///////////////
+/// MODULES ///
+///////////////
+
+enum { zelda_dat, zquest_dat, fonts_dat, sfx_dat, qst_dat };
+
+struct zcmodule
+{
+	char module_name[2048]; //filepath for current zcmodule file
+	char quests[10][255]; //first five quests, filenames
+	char skipnames[10][255]; //name entry passwords
+	char datafiles[5][255]; //qst.dat, zquest.dat, fonts.dat, sfx.dat, zelda.dat
+
+	byte old_quest_serial_flow; //Do we go from 3rd to 5th, 
+		//and from 5th to 4th, or just 1->2->3->4->5
+	//If this is 0, we do quests in strict order.
+	//if it is 1, then we use the old hardcoded quest flow.
+	
+	int max_quest_files;
+	
+	char enem_type_names[eeMAX][255];
+	char enem_anim_type_names[aMAX][255];
+	char item_editor_type_names[itype_max][255];
+	char combo_type_names[cMAX][255];
+	char combo_flag_names[mfMAX][255];
+	char roomtype_names[rMAX][255];
+	char walkmisc7_names[e7tEATHURT+1][255];
+	char walkmisc9_names[e9tARMOS+1][255];
+	char guy_type_names[gDUMMY1][255];
+	char enemy_weapon_names[wMax-wEnemyWeapons][255];
+	char player_weapon_names[wIce+1][255];
+	char counter_names[33][255];
+	
+	char delete_quest_data_on_wingame[20]; //Do we purge items, scripts, and other data when moving to the next quest?
+}; //zcmodule
+
 
 
 /******************/
