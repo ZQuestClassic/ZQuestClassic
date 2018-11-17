@@ -6483,13 +6483,13 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			{
 				if(get_bit(quest_rules,qr_NONBUBBLEMEDICINE))
 				{
-					tempitem.flags |= ITEM_FLAG3;
-					if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
-					else tempitem.flags &= ~ITEM_FLAG4;
+					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
 				}
 				else
 				{
-					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+					tempitem.flags |= ITEM_FLAG3;
+					if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+					else tempitem.flags &= ~ITEM_FLAG4;
 				}
 			}
 			else if(tempitem.family == itype_triforcepiece)
