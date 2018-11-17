@@ -24867,8 +24867,6 @@ const char *itemclass_help_string_cats[itype_max*3]=
 		    "The Sword, Wand and Hammer will occasionally do","increased damage in a single strike.","",
 		    "Divides the damage that Link takes when his","health is below a certain level.","",
 		    "These items have no built-in effect.","They will not be dropped in an Item Drop Set.","",
-		    "Displays the bow and arrow together as a single item.","No item should use this class; it is intended","for use in subscreens only.",
-		    "Represents either the letter or a potion, whichever is","available at the moment. No item should use this class;","It is intended for use in subscreens only.",
 		    //ic67 to 86, custom IC
 		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
 		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
@@ -24891,6 +24889,8 @@ const char *itemclass_help_string_cats[itype_max*3]=
 		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
 		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
 		    //ic87
+		    "Displays the bow and arrow together as a single item.","No item should use this class; it is intended","for use in subscreens only.",
+		    "Represents either the letter or a potion, whichever is","available at the moment. No item should use this class;","It is intended for use in subscreens only.",
 		    "Undefined Item Class: This type currently", "has no use, but its purpose may change","in future versions of Zelda Classic.",
 		"Undefined Item Class: This type currently", "has no use, but its purpose may change","in future versions of Zelda Classic.",
 		"Undefined Item Class: This type currently", "has no use, but its purpose may change","in future versions of Zelda Classic.",
