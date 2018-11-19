@@ -60,6 +60,140 @@ savedicon iconbuffer[15];
 
 static bool chosecustomquest = false;
 
+
+FONT *get_zcfont(int index)
+{
+    //return getfont(index);
+    switch(index)
+    {
+    default:
+        return zfont;
+        
+    case font_z3font:
+        return z3font;
+        
+    case font_z3smallfont:
+        return z3smallfont;
+        
+    case font_deffont:
+        return deffont;
+        
+    case font_lfont:
+        return lfont;
+        
+    case font_lfont_l:
+        return lfont_l;
+        
+    case font_pfont:
+        return pfont;
+        
+    case font_mfont:
+        return mfont;
+        
+    case font_ztfont:
+        return ztfont;
+        
+    case font_sfont:
+        return sfont;
+        
+    case font_sfont2:
+        return sfont2;
+        
+    case font_spfont:
+        return spfont;
+        
+    case font_ssfont1:
+        return ssfont1;
+        
+    case font_ssfont2:
+        return ssfont2;
+        
+    case font_ssfont3:
+        return ssfont3;
+        
+    case font_ssfont4:
+        return ssfont4;
+        
+    case font_gblafont:
+        return gblafont;
+        
+    case font_goronfont:
+        return goronfont;
+        
+    case font_zoranfont:
+        return zoranfont;
+        
+    case font_hylian1font:
+        return hylian1font;
+        
+    case font_hylian2font:
+        return hylian2font;
+        
+    case font_hylian3font:
+        return hylian3font;
+        
+    case font_hylian4font:
+        return hylian4font;
+        
+    case font_gboraclefont:
+        return gboraclefont;
+        
+    case font_gboraclepfont:
+        return gboraclepfont;
+        
+    case font_dsphantomfont:
+        return dsphantomfont;
+        
+    case font_dsphantompfont:
+        return dsphantompfont;
+     case font_atari800font: return atari800font;
+		 case font_acornfont: return acornfont;
+		 case font_adosfont: return adosfont;
+		 case font_baseallegrofont: return  baseallegrofont;  
+		 case font_apple2font: return apple2font;
+		 case font_apple280colfont: return apple280colfont;   
+		 case font_apple2gsfont: return  apple2gsfont;
+		 case font_aquariusfont: return  aquariusfont;  
+		 case font_atari400font: return  atari400font;  
+		 case font_c64font: return c64font;   
+		 case font_c64hiresfont: return c64hiresfont;   
+		 case font_cgafont: return cgafont;   
+		 case font_cocofont: return cocofont;
+		 case font_coco2font: return coco2font;
+		 case font_coupefon: return  coupefont;
+		 case font_cpcfon: return  cpcfont;
+		 case font_fantasyfon: return  fantasyfont;
+		 case font_fdskanafon: return  fdskanafont;
+		 case font_fdslikefon: return  fdslikefont;
+		 case font_fdsromanfon: return fdsromanfont; 
+		 case font_finalffont: return finalffont; 
+		 case font_futharkfont: return  futharkfont;
+		 case font_gaiafont: return gaiafont; 
+		 case font_hirafont: return hirafont; 
+		 case font_jpfont: return jpfont; 
+		 case font_kongfont: return  kongfont;
+		 case font_manafont: return manafont; 
+		 case font_mlfont: return  mlfont;
+		 case font_motfont: return motfont;
+		 case font_msxmode0font: return  msxmode0font;
+		 case font_msxmode1font: return  msxmode1font;
+		 case font_petfont: return  petfont;
+		 case font_pstartfont: return  pstartfont;
+		 case font_saturnfont: return  saturnfont;
+		 case font_scififont: return  scififont;
+		 case font_sherwoodfont: return sherwoodfont;
+		 case font_sinqlfont: return  sinqlfont;
+		 case font_spectrumfont: return  spectrumfont;
+		 case font_speclgfont: return  speclgfont;
+		 case font_ti99font: return  ti99font;
+		 case font_trsfont: return  trsfont;
+		 case font_z2font: return  z2font;
+		 case font_zxfont: return zxfont;
+		 case font_lisafont: return lisafont;
+    }
+}
+
+
 /********************************/
 /*****   NES title screen   *****/
 /********************************/
@@ -165,12 +299,31 @@ static void mainscreen(int f)
     {
         blit((BITMAP*)data[BMP_TITLE_NES].dat,scrollbuf,0,0,0,0,256,224);
         blit(scrollbuf,framebuf,0,0,0,0,256,224);
-        char tbuf[80];
-        sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
-        textout_ex(framebuf,zfont,tbuf,104,128,13,-1);
-        sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
+        char tbuf[2048]; char tbuf2[2048];
+	char copyrbuf[2][2048];
+	//const char *copy_year = (char *)moduledata.copyright_strings[2];
+	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
+	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
+	strcpy(tbuf,"(C)");
+	strcat(tbuf,moduledata.copyright_strings[0]);
+	strcpy(tbuf2,"(C)");
+	strcat(tbuf2,moduledata.copyright_strings[2]);
+	strcat(tbuf2," ");
+	strcat(tbuf2,moduledata.copyright_strings[1]);
+	sprintf(copyrbuf[0],tbuf,0xBB);
+	sprintf(copyrbuf[1],tbuf2,0xBC);
+	    
+       // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
+        //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
+        //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
+        //textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+        al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[0] > 0 ? get_zcfont(moduledata.copyright_string_vars[0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+       // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
+     //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
         //tbuf[0]=(char)0xBC;
-        textout_ex(framebuf,zfont,tbuf,104,136,13,-1);
+       // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+        textout_ex(framebuf,(moduledata.copyright_string_vars[5] > 0 ? get_zcfont(moduledata.copyright_string_vars[1]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
     }
     
     if(f<554+192+10)
@@ -582,7 +735,9 @@ static void DX_mainscreen(int f)
     set_uformat(U_ASCII);
     
     static int pic=0;
-    char tbuf[80];
+    //char tbuf[80];
+	char tbuf[2048]; char tbuf2[2048];
+	char copyrbuf[2][2048];
     
     if(f>=1010)
         return;
@@ -602,12 +757,40 @@ static void DX_mainscreen(int f)
         pic = (pic+1)%6;
         blit(bmp,framebuf, 0,0, 0,0, 256,224);
         //    text_mode(-1);
+	    /*
         sprintf(tbuf, "%c1986 Nintendo",0xBB);
         //tbuf[0]=0xBB;
         textout_ex(framebuf,font,tbuf,46,138,255,-1);
         sprintf(tbuf, "%c" COPYRIGHT_YEAR " Armageddon Games",0xBC);
         //tbuf[0]=0xBC;
         textout_ex(framebuf,font,tbuf,46,146,255,-1);
+	    
+	    */
+	      
+	//const char *copy_year = (char *)moduledata.copyright_strings[2];
+	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
+	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
+	strcpy(tbuf,"(C)");
+	strcat(tbuf,moduledata.copyright_strings[0]);
+	strcpy(tbuf2,"(C)");
+	strcat(tbuf2,moduledata.copyright_strings[2]);
+	strcat(tbuf2," ");
+	strcat(tbuf2,moduledata.copyright_strings[1]);
+	sprintf(copyrbuf[0],tbuf,0xBB);
+	sprintf(copyrbuf[1],tbuf2,0xBC);
+	    
+       // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
+        //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
+        //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
+        //textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+        al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[0] > 0 ? get_zcfont(moduledata.copyright_string_vars[0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+       // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
+     //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
+        //tbuf[0]=(char)0xBC;
+       // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+        textout_ex(framebuf,(moduledata.copyright_string_vars[5] > 0 ? get_zcfont(moduledata.copyright_string_vars[1]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+   
         //    text_mode(0);
     }
     
@@ -695,8 +878,9 @@ static void v25_mainscreen(int f)
     set_uformat(U_ASCII);
     
     static int pic=0;
-    char tbuf[80];
-    
+    //char tbuf[80];
+    char tbuf[2048]; char tbuf2[2048];
+    char copyrbuf[2][2048];
     if(f>=1010)
         return;
         
@@ -710,19 +894,48 @@ static void v25_mainscreen(int f)
     }
     
     if(f<680+256 && (f&15)==0)
-    {
+    {  
         bmp = (BITMAP*)dat[pic<5 ? pic : 8-pic].dat;
         pic = (pic+1)%8;
         blit(bmp,framebuf, 0,0, 0,0, 256,224);
         //    text_mode(-1);
+	    /*
         sprintf(tbuf, "%c1986 Nintendo",0xBB);
         //tbuf[0]=0xBB;
         textout_ex(framebuf,font,tbuf,80,134,255,-1);
         sprintf(tbuf, "%c" COPYRIGHT_YEAR " Armageddon Games",0xBC);
         //tbuf[0]=0xBC;
         textout_ex(framebuf,font,tbuf,80,142,255,-1);
+	    */
+	    
+	//const char *copy_year = (char *)moduledata.copyright_strings[2];
+	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
+	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
+	strcpy(tbuf,"(C)");
+	strcat(tbuf,moduledata.copyright_strings[0]);
+	strcpy(tbuf2,"(C)");
+	strcat(tbuf2,moduledata.copyright_strings[2]);
+	strcat(tbuf2," ");
+	strcat(tbuf2,moduledata.copyright_strings[1]);
+	sprintf(copyrbuf[0],tbuf,0xBB);
+	sprintf(copyrbuf[1],tbuf2,0xBC);
+	    
+       // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
+        //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
+        //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
+        //textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+        //al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[0] > 0 ? get_zcfont(moduledata.copyright_string_vars[0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+       // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
+     //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
+        //tbuf[0]=(char)0xBC;
+       // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+        textout_ex(framebuf,(moduledata.copyright_string_vars[5] > 0 ? get_zcfont(moduledata.copyright_string_vars[1]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+   
         //    text_mode(0);
     }
+    
+    
     
     if(f>=680 && f<680+256 && (f%3)==0)
     {

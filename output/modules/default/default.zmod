@@ -38,6 +38,21 @@ gameover_track =
 dungeon_track =
 overworld_track =
 lastlevel_track =
+copy_string_0 = 1986 NINTENDO
+copy_string_1 = AGN
+copy_string_year = 2019
+cpystr_var_font = 0
+cpystr_var_0 = 74
+cpystr_var_1 = 130
+//colour
+cpystr_var_2 = 15
+//4 is decent for colour
+cpystr_var_3 = -1
+cpystr_var_font2 =
+cpystr_var_4 = 74
+cpystr_var_5 = 140
+cpystr_var_6 = 15
+cpystr_var_7 = -1
 
 //more than four chars crashes ZC
 

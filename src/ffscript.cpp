@@ -17624,6 +17624,8 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.itemclass_help_strings, 0, sizeof(moduledata.itemclass_help_strings));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
+	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));
+	memset(moduledata.copyright_string_vars, 0, sizeof(moduledata.copyright_string_vars));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
 	
@@ -17720,6 +17722,31 @@ void ZModule::init(bool d) //bool default
 		moduledata.dungeon_track = get_config_int("DATAFILES","dungeon_track",0);
 		moduledata.overworld_track = get_config_int("DATAFILES","overworld_track",0);
 		moduledata.lastlevel_track = get_config_int("DATAFILES","lastlevel_track",0);
+		
+		strcpy(moduledata.copyright_strings[0],get_config_string("DATAFILES","copy_string_0","1986 NINTENDO"));
+		if( moduledata.copyright_strings[0][0] == '-' ) strcpy(moduledata.copyright_strings[0],"");
+		strcpy(moduledata.copyright_strings[1],get_config_string("DATAFILES","copy_string_1"," AG"));
+		if( moduledata.copyright_strings[1][0] == '-' ) strcpy(moduledata.copyright_strings[1],"");
+		//year
+		strcpy(moduledata.copyright_strings[2],get_config_string("DATAFILES","copy_string_year",COPYRIGHT_YEAR));
+		if( moduledata.copyright_strings[2][0] == '-' ) strcpy(moduledata.copyright_strings[1],"");
+		
+		
+		moduledata.copyright_string_vars[0] = get_config_int("DATAFILES","cpystr_var_font",0);//zfont);
+		moduledata.copyright_string_vars[1] = get_config_int("DATAFILES","cpystr_var_0",104);
+		moduledata.copyright_string_vars[2] = get_config_int("DATAFILES","cpystr_var_1",128);
+		moduledata.copyright_string_vars[3] = get_config_int("DATAFILES","cpystr_var_2",13);
+		moduledata.copyright_string_vars[4] = get_config_int("DATAFILES","cpystr_var_3",-1);
+		
+		moduledata.copyright_string_vars[5] = get_config_int("DATAFILES","cpystr_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[6] = get_config_int("DATAFILES","cpystr_var_4",104);
+		moduledata.copyright_string_vars[7] = get_config_int("DATAFILES","cpystr_var_5",136);
+		moduledata.copyright_string_vars[8] = get_config_int("DATAFILES","cpystr_var_6",13);
+		moduledata.copyright_string_vars[9] = get_config_int("DATAFILES","cpystr_var_7",-1);
+		
+		
+		
+		
 		//item families
 		const char default_itype_strings[itype_max][255] = 
 		{ 

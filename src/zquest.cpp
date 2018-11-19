@@ -25360,6 +25360,8 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
 	memset(moduledata.itemclass_help_strings, 0, sizeof(moduledata.itemclass_help_strings));
 	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
+	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));
+	memset(moduledata.copyright_string_vars, 0, sizeof(moduledata.copyright_string_vars));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;

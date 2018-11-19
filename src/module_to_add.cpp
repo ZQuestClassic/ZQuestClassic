@@ -1,3 +1,15 @@
+load_game_icon
+load_game_icon_to_buffer
+
+resetItems --called by init_game() in zelda.cpp, if (firstplay)
+	
+write (game->_hasplayed = true to prevent this.
+
+In init_game() (zeldaq.cpp),   game->Clear() is what clears all of the data between quests.
+
+Allowing serial quests without clearing data will need a completely
+new set of functions. 
+
 
 subscreen counters
 defence results?
