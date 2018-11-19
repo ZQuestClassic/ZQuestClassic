@@ -3909,8 +3909,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeGHINI, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeGHINI, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -3923,8 +3923,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eePEAHAT, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eePEAHAT, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -3937,8 +3937,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeZORA, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeZORA, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -3951,8 +3951,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeSPINTILE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeSPINTILE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -3965,8 +3965,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeFIRE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeFIRE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -3979,8 +3979,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeOTHER, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeOTHER, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -3993,8 +3993,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
