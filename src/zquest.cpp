@@ -25425,7 +25425,7 @@ void ZModule::init(bool d) //bool default
 			"ee_family_trap","ee_family_wm","ee_family_jinx","ee_family_vir","ee_family_rike",
 			//20
 			"ee_family_pol","ee_family_wiz","ee_family_aqu","ee_family_mold","ee_family_dod",
-			"ee_family_mhd","ee_family_glk","ee_family_dig","ee_family_go","ee_family_lan",
+			"ee_family_mhd","ee_family_glk","ee_family_dig","ee_family_goh","ee_family_lan",
 			//30
 			"ee_family_pat","ee_family_gan","ee_family_proj","ee_family_gtrib","ee_family_ztrib",
 			"ee_family_vitrib","ee_family_ketrib","ee_family_spintile","ee_family_none","ee_family_faerie",

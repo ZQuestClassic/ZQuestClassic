@@ -221,6 +221,7 @@ ic_cic19 = Custom Itemclass 19
 ic_cic20 = Custom Itemclass 20
 ic_bowandarr = Bow and Arrow (Subscreen Only)
 ic_bottle = Letter or Potion (Subscreen Only)
+ic_last = 
 ic_89 = 
 ic_90 = 
 ic_91 = 
@@ -1470,9 +1471,9 @@ ichs_66_0 =
 ichs_66_1 = 
 ichs_66_2 = 
 
-ichs_67_0 = Used by the Mirror
-ichs_67_1 = to warp Link back to 
-ichs_67_2 = the Light World
+ichs_67_0 = 
+ichs_67_1 = 
+ichs_67_2 = 
 
 ichs_68_0 = 
 ichs_68_1 = 
@@ -2266,9 +2267,9 @@ ichs_265_0 =
 ichs_265_1 = 
 ichs_265_2 = 
 
-ichs_266_0 = 
-ichs_266_1 = 
-ichs_266_2 = 
+ichs_266_0 =
+ichs_266_1 = -
+ichs_266_2 = -
 
 ichs_267_0 = 
 ichs_267_1 = 
