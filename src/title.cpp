@@ -520,7 +520,7 @@ static void NES_titlescreen()
     fcnt=0;
     trstr=0;
     set_palette(black_palette);
-    try_zcmusic((char*)moduledata.base_NSF_file,0, ZC_MIDI_TITLE);
+    try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
     clear_bitmap(screen);
     clear_bitmap(framebuf);
     init_NES_mode();
@@ -554,7 +554,7 @@ static void NES_titlescreen()
             clear_bitmap(framebuf);
             loadtitlepal(0x36,titlepal,4);
             music_stop();
-            try_zcmusic((char*)moduledata.base_NSF_file,0, ZC_MIDI_TITLE);
+            try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
         }
         
         advanceframe(true);
@@ -637,7 +637,7 @@ static void DX_titlescreen()
     trstr=0;
     set_palette(black_palette);
     
-    try_zcmusic((char*)moduledata.base_NSF_file,0, ZC_MIDI_TITLE);
+    try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
     clear_to_color(screen,BLACK);
     clear_bitmap(framebuf);
     init_NES_mode();
@@ -667,7 +667,7 @@ static void DX_titlescreen()
             trstr=f=0;
             clear_bitmap(framebuf);
             music_stop();
-            try_zcmusic((char*)moduledata.base_NSF_file,0, ZC_MIDI_TITLE);
+            try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
         }
         
         advanceframe(true);
@@ -750,7 +750,7 @@ static void v25_titlescreen()
     trstr=0;
     set_palette(black_palette);
     
-    try_zcmusic((char*)moduledata.base_NSF_file,0, ZC_MIDI_TITLE);
+    try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
     clear_to_color(screen,BLACK);
     clear_bitmap(framebuf);
     init_NES_mode();
@@ -780,7 +780,7 @@ static void v25_titlescreen()
             trstr=f=0;
             clear_bitmap(framebuf);
             music_stop();
-            try_zcmusic((char*)moduledata.base_NSF_file,0, ZC_MIDI_TITLE);
+            try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
         }
         
         advanceframe(true);

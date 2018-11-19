@@ -25364,6 +25364,9 @@ void ZModule::init(bool d) //bool default
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
 	
+	moduledata.title_track = moduledata.tf_track = moduledata.gameover_track = moduledata.ending_track = moduledata.dungeon_track = moduledata.overworld_track = moduledata.lastlevel_track = 0;
+	
+	
 	//strcpy(moduledata.module_name,"default.zmod");
 	al_trace("Module name set to %s\n",moduledata.module_name);
 	//We load the current module name from zc.cfg or zquest.cfg!
@@ -25416,6 +25419,18 @@ void ZModule::init(bool d) //bool default
 		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
 		strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
 		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
+		
+		
+		strcpy(moduledata.base_NSF_file,get_config_string("DATAFILES","base_NSF_file","zelda.nsf"));
+		al_trace("Base NSF file: %s\n", moduledata.base_NSF_file);
+		
+		moduledata.title_track = get_config_int("DATAFILES","title_track",0);
+		moduledata.ending_track = get_config_int("DATAFILES","ending_track",1);
+		moduledata.tf_track = get_config_int("DATAFILES","tf_track",5);
+		moduledata.gameover_track = get_config_int("DATAFILES","gameover_track",0);
+		moduledata.dungeon_track = get_config_int("DATAFILES","dungeon_track",0);
+		moduledata.overworld_track = get_config_int("DATAFILES","overworld_track",0);
+		moduledata.lastlevel_track = get_config_int("DATAFILES","lastlevel_track",0);
 		
 		const char enemy_family_strings[eeMAX][255] =
 		{
@@ -25831,9 +25846,6 @@ void ZModule::init(bool d) //bool default
 			//strcpy(moduledata.itemclass_help_strings[q],get_config_string("ITEMHELP",itemclass_help_string_cats[q],itemclass_help_string_defaults[q]));
 			al_trace("Item Help String %d is: %s\n", q, moduledata.itemclass_help_strings[q]);
 		}
-		strcpy(moduledata.base_NSF_file,get_config_string("DATAFILES","base_NSF_file","zelda.nsf"));
-		al_trace("Base NSF file: %s\n", moduledata.base_NSF_file);
-				
 	}
 	set_config_file("zquest.cfg"); //shift back to the normal config file, when done
 	

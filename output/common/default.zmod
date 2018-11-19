@@ -21,6 +21,13 @@ fonts_datafile = default_fonts.dat
 sounds_datafile = default_sfx.dat
 quest_template_datafile = default_qst.dat 
 base_NSF_file = default.nsf
+title_track = 0
+ending_track = 1
+tf_track = 5
+gameover_track =
+dungeon_track =
+overworld_track =
+lastlevel_track =
 
 //more than four chars crashes ZC
 
