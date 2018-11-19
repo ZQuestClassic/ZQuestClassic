@@ -15501,7 +15501,7 @@ void LinkClass::getTriforce(int id2)
     if(itemsbuf[id2].misc1)
         jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
     else
-        try_zcmusic((char*)"zelda.nsf",5, ZC_MIDI_TRIFORCE);
+        try_zcmusic((char*)moduledata.base_NSF_file,5, ZC_MIDI_TRIFORCE);
         
     if(itemsbuf[id2].flags & ITEM_GAMEDATA)
     {

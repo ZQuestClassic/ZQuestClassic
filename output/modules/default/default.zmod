@@ -20,6 +20,7 @@ zquest_datafile = default_zquest.dat
 fonts_datafile = default_fonts.dat
 sounds_datafile = default_sfx.dat
 quest_template_datafile = default_qst.dat 
+base_NSF_file = default.nsf
 
 //more than four chars crashes ZC
 

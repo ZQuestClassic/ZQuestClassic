@@ -17623,6 +17623,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
 	memset(moduledata.itemclass_help_strings, 0, sizeof(moduledata.itemclass_help_strings));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
+	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
 	
@@ -17830,7 +17831,8 @@ void ZModule::init(bool d) //bool default
 			al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
 		}
 		
-		
+		strcpy(moduledata.base_NSF_file,get_config_string("DATAFILES","base_NSF_file","zelda.nsf"));
+		al_trace("Base NSF file: %s\n", moduledata.base_NSF_file);
 	}
 	set_config_file("zc.cfg"); //shift back to the normal config file, when done
 	

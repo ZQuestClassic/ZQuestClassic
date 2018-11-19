@@ -25359,6 +25359,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
 	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
 	memset(moduledata.itemclass_help_strings, 0, sizeof(moduledata.itemclass_help_strings));
+	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
@@ -25830,22 +25831,8 @@ void ZModule::init(bool d) //bool default
 			//strcpy(moduledata.itemclass_help_strings[q],get_config_string("ITEMHELP",itemclass_help_string_cats[q],itemclass_help_string_defaults[q]));
 			al_trace("Item Help String %d is: %s\n", q, moduledata.itemclass_help_strings[q]);
 		}
-		/*
-		for ( int q = 0; q < itype_max*3; q++ )
-		{
-			//char temp_help_str[512];
-			strcpy(moduledata.itemclass_help_strings[q],get_config_string("ITEMHELP",itemclass_help_string_cats[q],itemclass_help_string_defaults[q]));
-			//if ( temp_help_str[q] != NULL )
-			//{
-			//	strcpy(moduledata.itemclass_help_strings[q],temp_help_str);
-			//}
-			//else
-			//{
-			//	strcpy(moduledata.itemclass_help_strings[q],itemclass_help_string_defaults[q]);
-			//}
-			al_trace("Item Help String %d is: %s\n", q, moduledata.itemclass_help_strings[q]);
-		}
-		*/
+		strcpy(moduledata.base_NSF_file,get_config_string("DATAFILES","base_NSF_file","zelda.nsf"));
+		al_trace("Base NSF file: %s\n", moduledata.base_NSF_file);
 				
 	}
 	set_config_file("zquest.cfg"); //shift back to the normal config file, when done

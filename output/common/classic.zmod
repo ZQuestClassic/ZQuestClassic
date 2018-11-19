@@ -1,6 +1,3 @@
-[ZCMODULE]
-current_module = default.zmod
-
 [QUESTS]
 quest_flow = 1
 num_quest_files = 5
@@ -23,6 +20,7 @@ zquest_datafile = classic_zquest.dat
 fonts_datafile = classic_fonts.dat
 sounds_datafile = classic_sfx.dat
 quest_template_datafile = classic_qst.dat 
+base_NSF_file = zelda.nsf
 
 //more than four chars crashes ZC
 
