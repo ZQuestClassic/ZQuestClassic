@@ -2525,6 +2525,17 @@ static bool register_name()
         strcpy(buf,name);
         strupr(buf);
         
+	for ( int q = 2; q < moduledata.max_quest_files+1; q++)
+	{
+		al_trace("Quest number is: %d\n",q);
+		al_trace("Quest skip string is: %s",moduledata.skipnames[q-1]);
+		if(!stricmp(buf,moduledata.skipnames[q-1]))
+		{
+			quest=q;  
+		}
+		  
+	}
+	/*
         if(!stricmp(buf,moduledata.skipnames[1]))
             quest=2;
             
@@ -2536,7 +2547,7 @@ static bool register_name()
            
         if(!stricmp(buf,moduledata.skipnames[4])) // This is what BigJoe wanted. I have no problem with it.
 			quest=5;
-        
+        */
         saves[s].set_quest(quest);
         
 //	setPackfilePassword(datapwd);

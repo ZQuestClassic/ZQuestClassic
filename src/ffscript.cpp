@@ -17646,7 +17646,8 @@ void ZModule::init(bool d) //bool default
 		
 		//quests
 		moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
-		moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",5);
+		moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",10);
+		moduledata.max_quest_files = vbound(moduledata.max_quest_files,1,10); //Clamp to maximum valid quests and 1.
 		
 		al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
 		al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
@@ -17660,6 +17661,20 @@ void ZModule::init(bool d) //bool default
 		al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
 		strcpy(moduledata.quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
 		al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
+		strcpy(moduledata.quests[5],get_config_string("QUESTS","sixth_qst",""));
+		al_trace("Module quest 6 set to %s\n",moduledata.quests[5]);
+		strcpy(moduledata.quests[6],get_config_string("QUESTS","seventh_qst",""));
+		al_trace("Module quest 6 set to %s\n",moduledata.quests[6]);
+		strcpy(moduledata.quests[7],get_config_string("QUESTS","eighth_qst",""));
+		al_trace("Module quest 8 set to %s\n",moduledata.quests[7]);
+		strcpy(moduledata.quests[8],get_config_string("QUESTS","ninth_qst",""));
+		al_trace("Module quest 9 set to %s\n",moduledata.quests[8]);
+		strcpy(moduledata.quests[9],get_config_string("QUESTS","tenth_qst",""));
+		al_trace("Module quest 10 set to %s\n",moduledata.quests[9]);
+		for ( int q = 0; q < 10; q++ )
+		{
+			if ( moduledata.quests[q][0] == '-' ) strcpy(moduledata.quests[q],"");
+		}
 		
 		//quest skip names
 		strcpy(moduledata.skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
@@ -17672,6 +17687,16 @@ void ZModule::init(bool d) //bool default
 		al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
 		strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
 		al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
+		strcpy(moduledata.skipnames[5],get_config_string("NAMEENTRY","sixth_qst_skip",""));
+		al_trace("Module quest skip 6 set to %s\n",moduledata.skipnames[5]);
+		strcpy(moduledata.skipnames[6],get_config_string("NAMEENTRY","seventh_qst_skip",""));
+		al_trace("Module quest skip 7 set to %s\n",moduledata.skipnames[6]);
+		strcpy(moduledata.skipnames[7],get_config_string("NAMEENTRY","eighth_qst_skip",""));
+		al_trace("Module quest skip 8 set to %s\n",moduledata.skipnames[7]);
+		strcpy(moduledata.skipnames[8],get_config_string("NAMEENTRY","ninth_qst_skip",""));
+		al_trace("Module quest skip 9 set to %s\n",moduledata.skipnames[8]);
+		strcpy(moduledata.skipnames[9],get_config_string("NAMEENTRY","tenth_qst_skip",""));
+		al_trace("Module quest skip 10 set to %s\n",moduledata.skipnames[9]);
 		
 		//datafiles
 		strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));

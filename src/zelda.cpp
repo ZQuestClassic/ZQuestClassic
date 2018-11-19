@@ -3710,6 +3710,17 @@ int main(int argc, char* argv[])
         
         char path[2048];
         
+	    
+	for ( int q = 0; q < moduledata.max_quest_files; q++ )
+	{
+		append_filename(path, qstdir, moduledata.quests[q], 2048);
+		if(!exists(moduledata.quests[q]) && !exists(path))
+		{
+		    Z_error("%s not found.\n", moduledata.quests[q]);
+		    quit_game();
+		}
+	}	
+	/*
         append_filename(path, qstdir, moduledata.quests[0], 2048);
         
         if(!exists(moduledata.quests[0]) && !exists(path))
@@ -3749,7 +3760,7 @@ int main(int argc, char* argv[])
             Z_error("\"5th.qst\" not found.");
             quit_game();
         }
-        
+        */
         Z_message("OK\n");
     }
     
