@@ -1739,7 +1739,26 @@ void setLabels(int iclass)
 void itemdata_help(int id)
 {
     if(id < 0 || id > itype_max) return;
+
+    al_trace("Current item class name is: %s\n",(char *)moduledata.item_editor_type_names[id]);
+    al_trace("Current item class value is: %d\n",id);
+    al_trace("Current help string pt 1 is: %s\n",(char *)moduledata.itemclass_help_strings[id*3]);
+    al_trace("Current help string pt 2 is: %s\n",(char *)moduledata.itemclass_help_strings[id*3+1]);
+    al_trace("Current help string pt 3 is: %s\n",(char *)moduledata.itemclass_help_strings[id*3+2]);
+	
+    //if ( id < itype_last )
+    //{
+	jwin_alert((char *)moduledata.item_editor_type_names[id], (char *)moduledata.itemclass_help_strings[id*3],(char *)moduledata.itemclass_help_strings[(id*3)+1],
+		(char *)moduledata.itemclass_help_strings[(id*3)+2],"O&K",NULL,'k',0,lfont);
+    //}
+    //else
+    //{
+	
+	//jwin_alert("Undefined Item Class",(char *)moduledata.itemclass_help_strings[id*3],(char *)moduledata.itemclass_help_strings[(id*3)+1],
+	//	(char *)moduledata.itemclass_help_strings[(id*3)+2],"O&K",NULL,'k',0,lfont);
+    //}
     
+    	/*
     if(id >= itype_custom1 && id <= itype_custom20)
     {
         jwin_alert(itype_names[id],"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","","O&K",NULL,'k',0,lfont);
@@ -1752,6 +1771,7 @@ void itemdata_help(int id)
         jwin_alert(itype_names[id],itemclass_help_string[id*3],itemclass_help_string[1+(id*3)],itemclass_help_string[2+(id*3)],"O&K",NULL,'k',0,lfont);
     else // Beyond itype_custom20...
         jwin_alert(itype_names[id],itemclass_help_string[(id-20)*3],itemclass_help_string[1+((id-20)*3)],itemclass_help_string[2+((id-20)*3)],"O&K",NULL,'k',0,lfont);
+	*/
 }
 
 void test_item(itemdata test, int x, int y)
@@ -2396,6 +2416,7 @@ void edit_itemdata(int index)
         
         if(ret == 40)
         {
+	    //al_trace("Pressed Help for item family: %d", test.family);
             itemdata_help(test.family);
         }
         
