@@ -6,6 +6,11 @@ second_qst = classic_2nd.qst
 third_qst = classic_3rd.qst
 fourth_qst = classic_4th.qst
 fifth_qst = classic_5th.qst
+sixth_qst = 
+seventh_qst = 
+eighth_qst = 
+ninth_qst = 
+tenth_qst = 
 
 [NAMEENTRY]
 first_qst_skip = 
@@ -13,6 +18,11 @@ second_qst_skip = ZELDA
 third_qst_skip = ALPHA
 fourth_qst_skip = GANON
 fifth_qst_skip = JEAN
+sixth_qst_skip = -
+seventh_qst_skip = -
+eighth_qst_skip = -
+ninth_qst_skip = -
+tenth_qst_skip = -
 
 [DATAFILES]
 zcplayer_datafile = classic_zelda.dat	

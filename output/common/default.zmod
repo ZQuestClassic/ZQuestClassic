@@ -6,13 +6,23 @@ second_qst = default.qst
 third_qst = default.qst
 fourth_qst = default.qst
 fifth_qst = default.qst
+sixth_qst = 
+seventh_qst = 
+eighth_qst = 
+ninth_qst = 
+tenth_qst = 
 
 [NAMEENTRY]
 first_qst_skip = 
-second_qst_skip = \t
-third_qst_skip = \t
-fourth_qst_skip = \t
-fifth_qst_skip = \t
+second_qst_skip = -
+third_qst_skip = -
+fourth_qst_skip = -
+fifth_qst_skip = -
+sixth_qst_skip = -
+seventh_qst_skip -
+eighth_qst_skip = -
+ninth_qst_skip = -
+tenth_qst_skip = -
 
 [DATAFILES]
 zcplayer_datafile = default_zcplayer.dat	
