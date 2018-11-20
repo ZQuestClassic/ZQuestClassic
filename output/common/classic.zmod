@@ -38,23 +38,47 @@ gameover_track =
 dungeon_track =
 overworld_track =
 lastlevel_track =
+
+//Copyright Strings
 copy_string_0 = 1986 NINTENDO
 copy_string_1 = AGN
 copy_string_year = 2019
-cpystr_var_font = 0
-cpystr_var_0 = 74
-cpystr_var_1 = 130
-//colour
-cpystr_var_2 = 15
-//4 is decent for colour
-cpystr_var_3 = -1
-cpystr_var_font2 =
-cpystr_var_4 = 74
-cpystr_var_5 = 140
-cpystr_var_6 = 15
-cpystr_var_7 = -1
 
-//more than four chars crashes ZC
+//2.50 Title (five frames)
+cpystr_5frame_var_font = 0
+cpystr_5frame_var_x = 80
+cpystr_5frame_var_y = 134
+cpystr_5frame_var_col = 255
+cpystr_5frame_var_sz = -1
+cpystr_5frame_var_font2 = 0
+cpystr_5frame_var_x2 = 80
+cpystr_5frame_var_y2 = 142
+cpystr_5frame_var_col2 = 15
+cpystr_5frame_var_sz2 = -1
+
+//2.10 Title (four frames)
+cpystr_4frame_var_font = 0
+cpystr_4frame_var_x = 46
+cpystr_4frame_var_y = 138
+cpystr_4frame_var_col = 255
+cpystr_4frame_var_sz = -1
+cpystr_4frame_var_font2 = 0
+cpystr_4frame_var_x2 = 46
+cpystr_4frame_var_y2 = 146
+cpystr_4frame_var_col2 = 255
+cpystr_4frame_var_sz2 = -1
+
+//Original Title (one frame)
+cpystr_1frame_var_font = 0
+cpystr_1frame_var_x = 86
+cpystr_1frame_var_y = 128
+cpystr_1frame_var_col = 13
+cpystr_1frame_var_sz = -1
+cpystr_1frame_var_font2 = 0
+cpystr_1frame_var_x2 = 86
+cpystr_1frame_var_y2 = 136
+cpystr_1frame_var_col2 = 13
+cpystr_1frame_var_sz2 = -1
 
 [ENEMIES]
 //Enemy Family

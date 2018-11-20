@@ -3332,12 +3332,15 @@ struct zcmodule
 	
 	char base_NSF_file[1024];
 	char copyright_strings[3][2048];
-	int copyright_string_vars[10]; //font, 104,136,13,-1
+	int copyright_string_vars[10*3]; //font, 104,136,13,-1
 	
 	char delete_quest_data_on_wingame[20]; //Do we purge items, scripts, and other data when moving to the next quest?
 }; //zcmodule
 
 
+#define titleScreen250 0
+#define titleScreen210 11
+#define titleScreenMAIN 21
 
 /******************/
 /**  Misc Stuff  **/

@@ -17732,17 +17732,41 @@ void ZModule::init(bool d) //bool default
 		if( moduledata.copyright_strings[2][0] == '-' ) strcpy(moduledata.copyright_strings[1],"");
 		
 		
-		moduledata.copyright_string_vars[0] = get_config_int("DATAFILES","cpystr_var_font",0);//zfont);
-		moduledata.copyright_string_vars[1] = get_config_int("DATAFILES","cpystr_var_0",104);
-		moduledata.copyright_string_vars[2] = get_config_int("DATAFILES","cpystr_var_1",128);
-		moduledata.copyright_string_vars[3] = get_config_int("DATAFILES","cpystr_var_2",13);
-		moduledata.copyright_string_vars[4] = get_config_int("DATAFILES","cpystr_var_3",-1);
+		moduledata.copyright_string_vars[titleScreen250+0] = get_config_int("DATAFILES","cpystr_5frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen250+1] = get_config_int("DATAFILES","cpystr_5frame_var_x",80);
+		moduledata.copyright_string_vars[titleScreen250+2] = get_config_int("DATAFILES","cpystr_5frame_var_y",134);
+		moduledata.copyright_string_vars[titleScreen250+3] = get_config_int("DATAFILES","cpystr_5frame_var_col",255);
+		moduledata.copyright_string_vars[titleScreen250+4] = get_config_int("DATAFILES","cpystr_5frame_var_sz",-1);
 		
-		moduledata.copyright_string_vars[5] = get_config_int("DATAFILES","cpystr_var_font2",0);//zfont);
-		moduledata.copyright_string_vars[6] = get_config_int("DATAFILES","cpystr_var_4",104);
-		moduledata.copyright_string_vars[7] = get_config_int("DATAFILES","cpystr_var_5",136);
-		moduledata.copyright_string_vars[8] = get_config_int("DATAFILES","cpystr_var_6",13);
-		moduledata.copyright_string_vars[9] = get_config_int("DATAFILES","cpystr_var_7",-1);
+		moduledata.copyright_string_vars[titleScreen250+5] = get_config_int("DATAFILES","cpystr_5frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen250+6] = get_config_int("DATAFILES","cpystr_5frame_var_x2",80);
+		moduledata.copyright_string_vars[titleScreen250+7] = get_config_int("DATAFILES","cpystr_5frame_var_y2",142);
+		moduledata.copyright_string_vars[titleScreen250+8] = get_config_int("DATAFILES","cpystr_5frame_var_col2",255);
+		moduledata.copyright_string_vars[titleScreen250+9] = get_config_int("DATAFILES","cpystr_5frame_var_sz2",-1);
+		
+		moduledata.copyright_string_vars[titleScreen210+0] = get_config_int("DATAFILES","cpystr_4frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen210+1] = get_config_int("DATAFILES","cpystr_4frame_var_x",46);
+		moduledata.copyright_string_vars[titleScreen210+2] = get_config_int("DATAFILES","cpystr_4frame_var_y",138);
+		moduledata.copyright_string_vars[titleScreen210+3] = get_config_int("DATAFILES","cpystr_4frame_var_col",255);
+		moduledata.copyright_string_vars[titleScreen210+4] = get_config_int("DATAFILES","cpystr_4frame_var_sz",-1);
+		
+		moduledata.copyright_string_vars[titleScreen210+5] = get_config_int("DATAFILES","cpystr_4frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen210+6] = get_config_int("DATAFILES","cpystr_4frame_var_x2",46);
+		moduledata.copyright_string_vars[titleScreen210+7] = get_config_int("DATAFILES","cpystr_4frame_var_y2",146);
+		moduledata.copyright_string_vars[titleScreen210+8] = get_config_int("DATAFILES","cpystr_4frame_var_col2",255);
+		moduledata.copyright_string_vars[titleScreen210+9] = get_config_int("DATAFILES","cpystr_4frame_var_sz2",-1);
+		
+		moduledata.copyright_string_vars[titleScreenMAIN+0] = get_config_int("DATAFILES","cpystr_1frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreenMAIN+1] = get_config_int("DATAFILES","cpystr_1frame_var_x",86);
+		moduledata.copyright_string_vars[titleScreenMAIN+2] = get_config_int("DATAFILES","cpystr_1frame_var_y",128);
+		moduledata.copyright_string_vars[titleScreenMAIN+3] = get_config_int("DATAFILES","cpystr_1frame_var_col",13);
+		moduledata.copyright_string_vars[titleScreenMAIN+4] = get_config_int("DATAFILES","cpystr_1frame_var_sz",-1);
+		
+		moduledata.copyright_string_vars[titleScreenMAIN+5] = get_config_int("DATAFILES","cpystr_1frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreenMAIN+6] = get_config_int("DATAFILES","cpystr_1frame_var_x2",86);
+		moduledata.copyright_string_vars[titleScreenMAIN+7] = get_config_int("DATAFILES","cpystr_1frame_var_y2",136);
+		moduledata.copyright_string_vars[titleScreenMAIN+8] = get_config_int("DATAFILES","cpystr_1frame_var_col2",13);
+		moduledata.copyright_string_vars[titleScreenMAIN+9] = get_config_int("DATAFILES","cpystr_1frame_var_sz2",-1);
 		
 		
 		

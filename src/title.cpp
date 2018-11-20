@@ -299,31 +299,47 @@ static void mainscreen(int f)
     {
         blit((BITMAP*)data[BMP_TITLE_NES].dat,scrollbuf,0,0,0,0,256,224);
         blit(scrollbuf,framebuf,0,0,0,0,256,224);
-        char tbuf[2048]; char tbuf2[2048];
-	char copyrbuf[2][2048];
+        char tbuf[2048] = {0}; char tbuf2[2048] = {0};
+	char copyrbuf[2][2048] = { {NULL }, {NULL} };
 	//const char *copy_year = (char *)moduledata.copyright_strings[2];
 	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
 	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
-	strcpy(tbuf,"(C)");
-	strcat(tbuf,moduledata.copyright_strings[0]);
-	strcpy(tbuf2,"(C)");
-	strcat(tbuf2,moduledata.copyright_strings[2]);
-	strcat(tbuf2," ");
-	strcat(tbuf2,moduledata.copyright_strings[1]);
+	if ( moduledata.copyright_strings[0][0] != NULL ) 
+	{
+		strcpy(tbuf,"(C)");
+		strcat(tbuf,moduledata.copyright_strings[0]);
+	}
+	if ( moduledata.copyright_strings[1][0] != NULL ) 
+	{	
+		strcpy(tbuf2,"(C)");
+		strcat(tbuf2,moduledata.copyright_strings[2]);
+		strcat(tbuf2," ");
+		strcat(tbuf2,moduledata.copyright_strings[1]);
+	}
 	sprintf(copyrbuf[0],tbuf,0xBB);
 	sprintf(copyrbuf[1],tbuf2,0xBC);
+	al_trace("Original title screen. Font: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+0]);
+	al_trace("Original title screen. X: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+1]);
+	al_trace("Original title screen. Y: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+2]);
+	al_trace("Original title screen. col: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+3]);
+	al_trace("Original title screen. sz: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+4]);
 	    
+	al_trace("Original title screen. Font2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+5]);
+	al_trace("Original title screen. X2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+6]);
+	al_trace("Original title screen. Y2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+7]);
+	al_trace("Original title screen. col2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+8]);
+	al_trace("Original title screen. sz2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+9]);
        // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
         //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
         //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
         //textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
-        al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
-	textout_ex(framebuf,(moduledata.copyright_string_vars[0] > 0 ? get_zcfont(moduledata.copyright_string_vars[0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+        //al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+0] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreenMAIN+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreenMAIN+1],moduledata.copyright_string_vars[titleScreenMAIN+2],moduledata.copyright_string_vars[titleScreenMAIN+3],moduledata.copyright_string_vars[4]);
        // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
      //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
         //tbuf[0]=(char)0xBC;
        // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
-        textout_ex(framebuf,(moduledata.copyright_string_vars[5] > 0 ? get_zcfont(moduledata.copyright_string_vars[1]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+        textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+5] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreenMAIN+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreenMAIN+6],moduledata.copyright_string_vars[titleScreenMAIN+7],moduledata.copyright_string_vars[titleScreenMAIN+8],moduledata.copyright_string_vars[titleScreenMAIN+9]);
     }
     
     if(f<554+192+10)
@@ -736,8 +752,8 @@ static void DX_mainscreen(int f)
     
     static int pic=0;
     //char tbuf[80];
-	char tbuf[2048]; char tbuf2[2048];
-	char copyrbuf[2][2048];
+	char tbuf[2048] = {0}; char tbuf2[2048] = {0};
+	char copyrbuf[2][2048] = { {NULL }, {NULL} };
     
     if(f>=1010)
         return;
@@ -770,26 +786,51 @@ static void DX_mainscreen(int f)
 	//const char *copy_year = (char *)moduledata.copyright_strings[2];
 	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
 	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
+	if ( moduledata.copyright_strings[0][0] != NULL ) 
+	{
+		strcpy(tbuf,"(C)");
+		strcat(tbuf,moduledata.copyright_strings[0]);
+	}
+	if ( moduledata.copyright_strings[1][0] != NULL ) 
+	{	
+		strcpy(tbuf2,"(C)");
+		strcat(tbuf2,moduledata.copyright_strings[2]);
+		strcat(tbuf2," ");
+		strcat(tbuf2,moduledata.copyright_strings[1]);
+	}
+	/*    
 	strcpy(tbuf,"(C)");
 	strcat(tbuf,moduledata.copyright_strings[0]);
 	strcpy(tbuf2,"(C)");
 	strcat(tbuf2,moduledata.copyright_strings[2]);
 	strcat(tbuf2," ");
 	strcat(tbuf2,moduledata.copyright_strings[1]);
+	*/
 	sprintf(copyrbuf[0],tbuf,0xBB);
 	sprintf(copyrbuf[1],tbuf2,0xBC);
+	
+	al_trace("2.10 title screen. Font: %d\n",moduledata.copyright_string_vars[titleScreen210+0]);
+	al_trace("2.10 title screen. X: %d\n",moduledata.copyright_string_vars[titleScreen210+1]);
+	al_trace("2.10 title screen. Y: %d\n",moduledata.copyright_string_vars[titleScreen210+2]);
+	al_trace("2.10 title screen. col: %d\n",moduledata.copyright_string_vars[titleScreen210+3]);
+	al_trace("2.10 title screen. sz: %d\n",moduledata.copyright_string_vars[titleScreen210+4]);
 	    
+	al_trace("2.10 title screen. Font2: %d\n",moduledata.copyright_string_vars[titleScreen210+5]);
+	al_trace("2.10 title screen. X2: %d\n",moduledata.copyright_string_vars[titleScreen210+6]);
+	al_trace("2.10 title screen. Y2: %d\n",moduledata.copyright_string_vars[titleScreen210+7]);
+	al_trace("2.10 title screen. col2: %d\n",moduledata.copyright_string_vars[titleScreen210+8]);
+	al_trace("2.10 title screen. sz2: %d\n",moduledata.copyright_string_vars[titleScreen210+9]);
        // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
         //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
         //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
         //textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
         al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
-	textout_ex(framebuf,(moduledata.copyright_string_vars[0] > 0 ? get_zcfont(moduledata.copyright_string_vars[0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+0] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreen210+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreen210+1],moduledata.copyright_string_vars[titleScreen210+2],moduledata.copyright_string_vars[titleScreen210+3],moduledata.copyright_string_vars[titleScreen210+4]);
        // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
      //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
         //tbuf[0]=(char)0xBC;
        // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
-        textout_ex(framebuf,(moduledata.copyright_string_vars[5] > 0 ? get_zcfont(moduledata.copyright_string_vars[1]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+        textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+5] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreen210+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreen210+6],moduledata.copyright_string_vars[titleScreen210+7],moduledata.copyright_string_vars[titleScreen210+8],moduledata.copyright_string_vars[titleScreen210+9]);
    
         //    text_mode(0);
     }
@@ -879,8 +920,8 @@ static void v25_mainscreen(int f)
     
     static int pic=0;
     //char tbuf[80];
-    char tbuf[2048]; char tbuf2[2048];
-    char copyrbuf[2][2048];
+    char tbuf[2048] = {0}; char tbuf2[2048] = {0};
+    char copyrbuf[2][2048] = { {NULL }, {NULL} };
     if(f>=1010)
         return;
         
@@ -911,26 +952,51 @@ static void v25_mainscreen(int f)
 	//const char *copy_year = (char *)moduledata.copyright_strings[2];
 	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
 	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
+	if ( moduledata.copyright_strings[0][0] != NULL ) 
+	{
+		strcpy(tbuf,"(C)");
+		strcat(tbuf,moduledata.copyright_strings[0]);
+	}
+	if ( moduledata.copyright_strings[1][0] != NULL ) 
+	{	
+		strcpy(tbuf2,"(C)");
+		strcat(tbuf2,moduledata.copyright_strings[2]);
+		strcat(tbuf2," ");
+		strcat(tbuf2,moduledata.copyright_strings[1]);
+	}
+	/*
 	strcpy(tbuf,"(C)");
 	strcat(tbuf,moduledata.copyright_strings[0]);
 	strcpy(tbuf2,"(C)");
 	strcat(tbuf2,moduledata.copyright_strings[2]);
 	strcat(tbuf2," ");
 	strcat(tbuf2,moduledata.copyright_strings[1]);
+	*/
 	sprintf(copyrbuf[0],tbuf,0xBB);
 	sprintf(copyrbuf[1],tbuf2,0xBC);
 	    
+	al_trace("2.50 title screen. Font: %d\n",moduledata.copyright_string_vars[titleScreen250+0]);
+	al_trace("2.50 title screen. X: %d\n",moduledata.copyright_string_vars[titleScreen250+1]);
+	al_trace("2.50 title screen. Y: %d\n",moduledata.copyright_string_vars[titleScreen250+2]);
+	al_trace("2.50 title screen. col: %d\n",moduledata.copyright_string_vars[titleScreen250+3]);
+	al_trace("2.50 title screen. sz: %d\n",moduledata.copyright_string_vars[titleScreen250+4]);
+	    
+	al_trace("2.50 title screen. Font2: %d\n",moduledata.copyright_string_vars[titleScreen250+5]);
+	al_trace("2.50 title screen. X2: %d\n",moduledata.copyright_string_vars[titleScreen250+6]);
+	al_trace("2.50 title screen. Y2: %d\n",moduledata.copyright_string_vars[titleScreen250+7]);
+	al_trace("2.50 title screen. col2: %d\n",moduledata.copyright_string_vars[titleScreen250+8]);
+	al_trace("2.50 title screen. sz2: %d\n",moduledata.copyright_string_vars[titleScreen250+9]);
        // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
         //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
         //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
         //textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
         //al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
-	textout_ex(framebuf,(moduledata.copyright_string_vars[0] > 0 ? get_zcfont(moduledata.copyright_string_vars[0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+0] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreen250+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreen250+1],moduledata.copyright_string_vars[titleScreen250+2],moduledata.copyright_string_vars[titleScreen250+3],moduledata.copyright_string_vars[titleScreen250+4]);
        // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
      //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
         //tbuf[0]=(char)0xBC;
        // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
-        textout_ex(framebuf,(moduledata.copyright_string_vars[5] > 0 ? get_zcfont(moduledata.copyright_string_vars[1]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+        textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+5] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreen250+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreen250+6],moduledata.copyright_string_vars[titleScreen250+7],moduledata.copyright_string_vars[titleScreen250+8],moduledata.copyright_string_vars[titleScreen250+9]);
    
         //    text_mode(0);
     }
