@@ -341,59 +341,61 @@ static void mainscreen(int f)
        // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
         textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+5] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreenMAIN+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreenMAIN+6],moduledata.copyright_string_vars[titleScreenMAIN+7],moduledata.copyright_string_vars[titleScreenMAIN+8],moduledata.copyright_string_vars[titleScreenMAIN+9]);
     }
-    
-    if(f<554+192+10)
+    if ( !moduledata.animate_NES_title ) //if we aren't disabling this
     {
-        blit(scrollbuf,framebuf,80,160,80,160,32,64);
-        
-        if(f&8)
-        {
-            puttile16(framebuf,200,80,160,4,0);
-            puttile16(framebuf,201,96,160,4,0);
-        }
-        else
-        {
-            puttile16(framebuf,202,80,160,4,0);
-            puttile16(framebuf,203,96,160,4,0);
-        }
-        
-        cyclewaves();
+	    if(f<554+192+10)
+	    {
+		blit(scrollbuf,framebuf,80,160,80,160,32,64);
+		
+		if(f&8)
+		{
+		    puttile16(framebuf,200,80,160,4,0);
+		    puttile16(framebuf,201,96,160,4,0);
+		}
+		else
+		{
+		    puttile16(framebuf,202,80,160,4,0);
+		    puttile16(framebuf,203,96,160,4,0);
+		}
+		
+		cyclewaves();
+	    }
+	    
+	    if(f<58*9)
+		++fcnt;
+		
+	    if(fcnt==tridelay[tri])
+	    {
+		fcnt=0;
+		tri = tri<5 ? tri+1 : 0;
+		RAMpal[CSET(2)+2]=NESpal(tricolor[tri]);
+		refreshpal=true;
+	    }
+	    
+	    for(int i=0; i<8; i++)
+	    {
+		if(f==dusktime[i])
+		    loadtitlepal(duskcolor[i],titlepal,4);
+	    }
+	    
+	    if(f==554)
+		loadtitlepal(0x0F,darkpal1,4);
+		
+	    if(f==554+192)
+		loadtitlepal(0x0F,darkpal2,4);
+		
+	    if(f==554+192+6)
+		loadtitlepal(0x0F,darkpal3,4);
+		
+	    if(f==554+192+10)
+	    {
+		clear_bitmap(framebuf);
+		clear_bitmap(scrollbuf);
+	    }
+	    
+	    if(f==554+192+10+193)
+		loadtitlepal(0x0F,itemspal,0);
     }
-    
-    if(f<58*9)
-        ++fcnt;
-        
-    if(fcnt==tridelay[tri])
-    {
-        fcnt=0;
-        tri = tri<5 ? tri+1 : 0;
-        RAMpal[CSET(2)+2]=NESpal(tricolor[tri]);
-        refreshpal=true;
-    }
-    
-    for(int i=0; i<8; i++)
-    {
-        if(f==dusktime[i])
-            loadtitlepal(duskcolor[i],titlepal,4);
-    }
-    
-    if(f==554)
-        loadtitlepal(0x0F,darkpal1,4);
-        
-    if(f==554+192)
-        loadtitlepal(0x0F,darkpal2,4);
-        
-    if(f==554+192+6)
-        loadtitlepal(0x0F,darkpal3,4);
-        
-    if(f==554+192+10)
-    {
-        clear_bitmap(framebuf);
-        clear_bitmap(scrollbuf);
-    }
-    
-    if(f==554+192+10+193)
-        loadtitlepal(0x0F,itemspal,0);
 }
 
 void putstring(int x,int y,const char* str,int cset)

@@ -79,6 +79,7 @@ cpystr_1frame_var_x2 = 86
 cpystr_1frame_var_y2 = 136
 cpystr_1frame_var_col2 = 13
 cpystr_1frame_var_sz2 = -1
+disable_title_NES_animation 0
 
 [ENEMIES]
 //Enemy Family

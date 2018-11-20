@@ -17628,7 +17628,7 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.copyright_string_vars, 0, sizeof(moduledata.copyright_string_vars));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
-	
+	moduledata.animate_NES_title = 0;
 	moduledata.title_track = moduledata.tf_track = moduledata.gameover_track = moduledata.ending_track = moduledata.dungeon_track = moduledata.overworld_track = moduledata.lastlevel_track = 0;
 	
 	
@@ -17768,7 +17768,7 @@ void ZModule::init(bool d) //bool default
 		moduledata.copyright_string_vars[titleScreenMAIN+8] = get_config_int("DATAFILES","cpystr_1frame_var_col2",13);
 		moduledata.copyright_string_vars[titleScreenMAIN+9] = get_config_int("DATAFILES","cpystr_1frame_var_sz2",-1);
 		
-		
+		moduledata.animate_NES_title =  get_config_int("DATAFILES","disable_title_NES_animation",0);
 		
 		
 		//item families
