@@ -176,7 +176,9 @@ class LinkClass : public sprite
     
     void execute(WalkflagInfo info);
     
-    bool autostep,superman,inwallm,tapping,stomping,last_hurrah;
+    
+public:
+	bool autostep,superman,inwallm,tapping,stomping,last_hurrah;
     int refilling,
         ladderx,
         laddery,
@@ -285,10 +287,10 @@ class LinkClass : public sprite
     
     int get_scroll_step(int scrolldir);
     int get_scroll_delay(int scrolldir);
-public:
     void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames);
-private:
     void scrollscr(int dir,int destscr = -1, int destdmap = -1);
+    
+private:
     void walkdown(bool opening);
     void walkup(bool opening);
     void walkdown2(bool opening);
