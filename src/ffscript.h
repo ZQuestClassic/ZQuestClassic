@@ -25,6 +25,12 @@
 #define MAX_INTERNAL_BITMAP 6 //RT_BITMAP6
 #define FFRULES_SIZE 1024
 
+//Link->WarpEx Flags
+#define warpFlagKILLSCRIPTDRAWS 0x01
+#define warpFlagKILLSOUNDS 0x02
+#define warpFlagKILLMUSIC 0x04
+enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
+
 //unum FFCoreFlags[] { 
 enum {
 	FFCORE_SCRIPTED_MIDI_VOLUME 	= 0x0001,
@@ -112,6 +118,7 @@ void setLinkTile(int t);
 int getLinkTile();
 void setLinkAction(int a);
 int getLinkAction();
+void Play_Level_Music();
 
 long getQuestHeaderInfo(int type);
 
@@ -124,7 +131,10 @@ long getQuestHeaderInfo(int type)
 
 */
 
-
+//Script-only Warp, Link->WarpEx(int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir)
+//Script-only Warp, Link->WarpEx(int array[])
+//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
+bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir);
 
 void user_bitmaps_init();
 
@@ -144,6 +154,7 @@ long do_create_bitmap();
 
 void do_adjustsfxvolume(const bool v);
 void do_adjustvolume(const bool v);
+void do_warp_ex(const bool v);
 //FFScript();
 //static void init();
 
@@ -1661,6 +1672,8 @@ enum ASM_DEFINE
 	BMPDRAWLAYERR,
 	BMPDRAWSCREENR,
 	BMPBLIT,
+	LINKWARPEXR,
+	LINKWARPEXV,
 
 	NUMCOMMANDS           //0x013B
 };

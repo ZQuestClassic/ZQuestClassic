@@ -238,7 +238,7 @@ INLINE void sfx(int index,int pan)
     sfx(index,vbound(pan, 0, 255) ,false);
 }
 
-bool isSideViewGravity();
+bool isSideViewGravity(int t);
 
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 

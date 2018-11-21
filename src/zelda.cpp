@@ -4715,7 +4715,7 @@ void quit_game()
     //  dumb_exit();
 }
 
-bool isSideViewGravity()
+bool isSideViewGravity(int t)
 {
 	
 	return ((tmpscr[t].flags7 & fSIDEVIEW)!=0 || (DMaps[currdmap].sideview));

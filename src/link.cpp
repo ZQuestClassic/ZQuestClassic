@@ -11191,7 +11191,7 @@ bool LinkClass::dowarp(int type, int index)
     int wrindex = 0;
     //int lastent_org = lastentrance;
     //int lastdmap_org = lastentrance_dmap;
-    bool wasSideview = isSideViewGravity(); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
+    bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
     
     // Drawing commands probably shouldn't carry over...
     script_drawing_commands.Clear();
