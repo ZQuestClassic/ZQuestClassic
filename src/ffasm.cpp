@@ -724,6 +724,9 @@ script_command command_list[NUMCOMMANDS+1]=
      { "BMPDRAWSCREENR",                0,   0,   0,   0},
      { "BMPBLIT",                0,   0,   0,   0},
      
+     { "LINKWARPEXR",             1,   0,   0,   0},
+     { "LINKWARPEXV",             1,   1,   0,   0},
+     
      { "",                    0,   0,   0,   0}
 };
 

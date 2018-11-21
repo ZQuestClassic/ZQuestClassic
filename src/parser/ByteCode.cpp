@@ -4122,6 +4122,10 @@ string OBMPDrawScreenRegister::toString()
     return "BMPDRAWSCREENR";
 }
 
+string OLinkWarpExRegister::toString()
+{
+    return "LINKWARPEXR " + getArgument()->toString();
+}
 
 string OReturn::toString()
 {

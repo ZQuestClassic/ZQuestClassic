@@ -16,6 +16,8 @@
 #include "zc_math.h"
 #include "zc_array.h"
 #include "ffscript.h"
+#include "zc_subscr.h"
+//#include "zc_sys.h"
 FFScript FFCore;
 zquestheader ZCheader;
 ZModule zcm;
@@ -13463,6 +13465,468 @@ int FFScript::do_get_internal_uid_eweapon(int index)
 	return ((int)Ewpns.spr(index)->getUID());
 }
 
+static inline bool is_Side_view()
+{
+    return (((tmpscr->flags7&fSIDEVIEW)!=0 || DMaps[currdmap].sideview != 0) && !ignoreSideview); //DMap Enable Sideview on All Screens -Z //2.54 Alpha 27
+}
+
+//enum { warpFlagKILLSCRIPTDRAWS, warpFlagKILLSOUNDS, warpFlagKILLMUSIC };
+//enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectMozaic, warpEffectOpen }; 
+//valid warpTypes: tile, side, exit, cancel, instant
+bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir)
+{
+	byte t = 0;
+	t=(currscr<128)?0:1;
+	bool overlay=false;
+	bool intradmap = (dmapID == currdmap);
+	if ( (unsigned)dmapID >= MAXDMAPS ) return false;
+	if ( (unsigned)scrID > MAXSCREENS ) return false;
+	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,currscr); return false; }
+	int mapID = (DMaps[dmapID].map+1);
+        
+	mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
+	int wx = 0, wy = 0;
+	if ( warpDestX < 0 )
+	{
+		warpDestX *= -1;
+		--warpDestX;
+		
+		wx = m->warpreturnx[( vbound(warpDestX,0,3) )];
+	}
+	else 
+	{
+		wx = warpDestX;
+	}
+	if ( warpDestY < 0 )
+	{
+		warpDestY *= -1;
+		--warpDestY;
+		
+		wy = m->warpreturny[( vbound(warpDestY,0,3) )];
+	}
+	else 
+	{
+		wy = warpDestY;
+	}
+	//warp coordinates are wx, wy, not x, y! -Z
+	if ( !(warpFlags&warpFlagKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
+	int wrindex = 0;
+	//we also need to check if dmaps are sideview here! -Z
+	//Likewise, we need to add that check to the normal Link:;dowarp(0
+	bool wasSideview = isSideViewGravity(t); //((tmpscr[t].flags7 & fSIDEVIEW)!=0 || DMaps[currdmap].sideview) && !ignoreSideview;
+	sfx(warpSound);
+	switch(warpType)
+	{
+		case wtIWARP:
+		case wtIWARPBLK:
+		case wtIWARPOPEN:
+		case wtIWARPZAP:
+		case wtIWARPWAVE: 
+		{
+			bool wasswimming = (Link.getAction()==swimming);
+			byte olddiveclk = Link.diveclk;
+			ALLOFF();
+			if ( !(warpFlags&warpFlagKILLMUSIC) ) music_stop();
+			if ( !(warpFlags&warpFlagKILLSOUNDS) ) kill_sfx();
+			if(wasswimming)
+			{
+				Link.setAction(swimming); FFCore.setLinkAction(swimming);
+				Link.diveclk = olddiveclk;
+			}
+            
+			switch(warpEffect)
+			{
+				case warpEffectZap: zapout(); break;
+				case warpEffectWave: wavyout(false); break;
+				case warpEffectInstant: 
+				{
+				    //bool b2 = COOLSCROLL&&cavewarp;
+				    //blackscr(30,b2?false:true);
+				    blackscr(30,true);
+				    break;
+				}
+				case warpEffectMozaic: 
+				{
+					
+					break;
+				}
+				case warpEffectOpen:
+				{
+					
+					break;
+				}
+				case warpEffectNONE:
+				default: break;
+			}
+			int c = DMaps[currdmap].color;
+			currdmap = dmapID;
+			dlevel = DMaps[currdmap].level;
+			currmap = DMaps[currdmap].map;
+			init_dmap();
+			update_subscreens(dmapID);
+			
+			ringcolor(false);
+			
+			if(DMaps[currdmap].color != c)
+			    loadlvlpal(DMaps[currdmap].color);
+			    
+			homescr = currscr = scrID + DMaps[currdmap].xoff;
+			
+			lightingInstant(); // Also sets naturaldark
+			
+			loadscr(0,currdmap,currscr,-1,overlay);
+			
+			Link.x = (fix)wx;
+			Link.y = (fix)wy;
+			
+			if ( linkFacesDir != -1 )
+			{
+				if((int)Link.x==(fix)0)  
+				{
+					Link.dir=right;
+				}
+				if((int)Link.x==(fix)240) 
+				{
+					Link.dir=left;
+				}
+				
+				if((int)Link.y==(fix)0)   
+				{
+					Link.dir=down;
+				}
+				
+				if((int)Link.y==(fix)160) 
+				{
+					Link.dir=up;
+				}
+			}
+			
+			markBmap(Link.dir^1);
+			
+			if(iswater(MAPCOMBO((int)Link.x,(int)Link.y+8)) && _walkflag((int)Link.x,(int)Link.y+8,0) && current_item(itype_flippers))
+			{
+			    Link.hopclk=0xFF;
+			    Link.attackclk = Link.charging = Link.spins = 0;
+			    Link.setAction(swimming); FFCore.setLinkAction(swimming);
+			}
+			else
+			{
+			    Link.setAction(none); FFCore.setLinkAction(none);
+			}
+			    
+			//preloaded freeform combos
+			ffscript_engine(true);
+			
+			putscr(scrollbuf,0,0,tmpscr);
+			putscrdoors(scrollbuf,0,0,tmpscr);
+			
+			switch(warpEffect)
+			{
+				case warpEffectZap:  zapin(); break;
+				case warpEffectWave: wavyin(); break;
+				case warpEffectMozaic: 
+				{
+					
+					break;
+				}
+				case warpEffectOpen:
+				{
+					openscreen();
+					break;
+				}
+				case warpEffectNONE:
+				default: break;
+			}
+			show_subscreen_life=true;
+			show_subscreen_numbers=true;
+			if ( !(warpFlags&warpFlagKILLMUSIC) ) Play_Level_Music();
+			currcset=DMaps[currdmap].color;
+			dointro();
+			Link.setEntryPoints((int)Link.x,(int)Link.y);
+			
+			break;
+		}
+		
+		
+		case wtEXIT:
+		{
+			lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
+			ALLOFF();
+			if ( !(warpFlags&warpFlagKILLMUSIC) ) music_stop();
+			if ( !(warpFlags&warpFlagKILLSOUNDS) ) kill_sfx();
+			blackscr(30,false);
+			currdmap = dmapID;
+			dlevel=DMaps[currdmap].level;
+			currmap=DMaps[currdmap].map;
+			init_dmap();
+			update_subscreens(dmapID);
+			loadfullpal();
+			ringcolor(false);
+			loadlvlpal(DMaps[currdmap].color);
+			//lastentrance_dmap = currdmap;
+			homescr = currscr = scrID + DMaps[currdmap].xoff;
+			loadscr(0,currdmap,currscr,-1,overlay);
+			
+			if(tmpscr->flags&fDARK)
+			{
+			    if(get_bit(quest_rules,qr_FADE))
+			    {
+				interpolatedfade();
+			    }
+			    else
+			    {
+				loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
+			    }
+			    
+			    darkroom=naturaldark=true;
+			}
+			else
+			{
+			    darkroom=naturaldark=false;
+			}
+			
+			
+			if(((wx>0||wy>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
+			{
+			    if(dlevel)
+			    {
+				lastentrance = currscr;
+			    }
+			    else
+			    {
+				lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			    }
+			    
+			    lastentrance_dmap = dmapID;
+			}
+			
+			//Move Link's coordinates
+			Link.x = (fix)wx;
+			Link.y = (fix)wy;
+			//set his dir
+			if ( linkFacesDir != -1 ) 
+			{
+				Link.dir=down; //could be = linkFacesDir
+			
+				if((int)Link.x==(fix)0)  
+				{			
+					Link.dir = right;
+				} 
+				
+				if((int)Link.x==(fix)240) 
+				{
+					Link.dir = left;
+				}
+				
+				if((int)Link.y==(fix)0)   
+				{
+					Link.dir = down;
+				}
+				
+				if((int)Link.y==(fix)160)
+				{	
+					Link.dir = up;
+				}
+			}
+			
+			if(dlevel)
+			{
+			    // reset enemy kill counts
+			    for(int i=0; i<128; i++)
+			    {
+				game->guys[(currmap*MAPSCRSNORMAL)+i] = 0;
+				game->maps[(currmap*MAPSCRSNORMAL)+i] &= ~mTMPNORET;
+			    }
+			}
+			
+			markBmap(Link.dir^1);
+			//preloaded freeform combos
+			ffscript_engine(true);
+			Link.reset_hookshot();
+			
+			if(isdungeon())
+			{
+			    openscreen();
+			    if(get_bit(extra_rules, er_SHORTDGNWALK)==0)
+				Link.stepforward(Link.diagonalMovement?11:12, false);
+			    else
+				// Didn't walk as far pre-1.93, and some quests depend on that
+				Link.stepforward(8, false);
+			}
+			else
+			{
+			    openscreen();
+			}
+			
+			show_subscreen_life=true;
+			show_subscreen_numbers=true;
+			Play_Level_Music();
+			currcset=DMaps[currdmap].color;
+			dointro();
+			Link.setEntryPoints((int)Link.x,(int)Link.y);
+			
+			for(int i=0; i<6; i++)
+			    visited[i]=-1;
+			    
+			break;
+			
+		}
+		case wtSCROLL:                                          // scrolling warp
+		{
+			int c = DMaps[currdmap].color;
+			currmap = DMaps[dmapID].map;
+			update_subscreens(dmapID);
+			
+			dlevel = DMaps[dmapID].level;
+			    //check if Link has the map for the new location before updating the subscreen. ? -Z
+			    //This works only in one direction, if Link had a map, to not having one.
+			    //If Link does not have a map, and warps somewhere where he does, then the map still briefly shows. 
+			update_subscreens(dmapID);
+			    
+			if ( has_item(itype_map, dlevel) ) 
+			{
+				//Blank the map during an intra-dmap scrolling warp. 
+				dlevel = -1; //a hack for the minimap. This works!! -Z
+			}
+			    
+			// fix the scrolling direction, if it was a tile or instant warp
+			Link.sdir = vbound(Link.dir,0,3);
+			
+			
+			Link.scrollscr(Link.sdir, scrID+DMaps[dmapID].xoff, dmapID);
+			dlevel = DMaps[dmapID].level; //Fix dlevel and draw the map (end hack). -Z
+			
+			Link.reset_hookshot();
+			
+			if(!intradmap)
+			{
+			    currdmap = dmapID;
+			    dlevel = DMaps[currdmap].level;
+			    homescr = currscr = scrID + DMaps[dmapID].xoff;
+			    init_dmap();
+			    
+			    
+			    if(((wx>0||wy>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!get_bit(quest_rules,qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
+			    {
+				if(dlevel)
+				{
+				    lastentrance = currscr;
+				}
+				else
+				{
+				    lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+				}
+				
+				lastentrance_dmap = dmapID;
+			    }
+			}
+			
+			if(DMaps[currdmap].color != c)
+			{
+			    lighting(false, true);
+			}
+			
+			Play_Level_Music();
+			currcset=DMaps[currdmap].color;
+			dointro();
+			break;
+		}
+	}
+	// Stop Link from drowning!
+	if(Link.getAction()==drowning)
+	{
+		Link.drownclk=0;
+		Link.setAction(none); FFCore.setLinkAction(none);
+	}
+	    
+	// But keep him swimming if he ought to be!
+	if(Link.getAction()!=rafting && iswater(MAPCOMBO((int)Link.x,(int)Link.y+8)) && (_walkflag((int)Link.x,(int)Link.y+8,0) || get_bit(quest_rules,qr_DROWN))
+		    && (current_item(itype_flippers)) && (Link.getAction()!=inwind))
+	{
+		Link.hopclk=0xFF;
+		Link.setAction(swimming); FFCore.setLinkAction(swimming);
+	}
+	    
+	newscr_clk=frame;
+	activated_timed_warp=false;
+	eat_buttons();
+	    
+	if(warpType!=wtIWARP) { Link.attackclk=0; }
+		
+	Link.didstuff=0;
+	map_bkgsfx(true);
+	loadside=Link.dir^1;
+	whistleclk=-1;
+	    
+	if((int)Link.z>0 && is_Side_view())
+	{
+		Link.y-=Link.z;
+		Link.z=0;
+	}
+	else if(!is_Side_view())
+	{
+		Link.fall=0;
+	}
+	    
+	// If warping between top-down and sideview screens,
+	// fix enemies that are carried over by Full Screen Warp
+	const bool tmpscr_is_sideview = is_Side_view();
+	    
+	if(!wasSideview && tmpscr_is_sideview)
+	{
+		for(int i=0; i<guys.Count(); i++)
+		{
+		    if(guys.spr(i)->z > 0)
+		    {
+			guys.spr(i)->y -= guys.spr(i)->z;
+			guys.spr(i)->z = 0;
+		    }
+		    
+		    if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
+			guys.spr(i)->yofs += 2;
+		}
+	}
+	else if(wasSideview && !tmpscr_is_sideview)
+	{
+		for(int i=0; i<guys.Count(); i++)
+		{
+		    if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
+			guys.spr(i)->yofs -= 2;
+		}
+	}
+	if ( warpType == wtEXIT )
+	{
+		game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
+		game->set_continue_dmap(currdmap);
+		lastentrance_dmap = currdmap;
+		lastentrance = game->get_continue_scrn();
+	}
+	if(tmpscr->flags4&fAUTOSAVE)
+	{
+		save_game(true,0);
+	}
+	    
+	if(tmpscr->flags6&fCONTINUEHERE)
+	{
+		lastentrance_dmap = currdmap;
+		lastentrance = homescr;
+	}
+	    
+	update_subscreens();
+	verifyBothWeapons();
+	Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,currscr,
+                        warpType==wtEXIT ? "Entrance/Exit" :
+                        warpType==wtSCROLL ? "Scrolling Warp" :
+                        warpType==wtNOWARP ? "Cancel Warp" :
+                        "Insta-Warp");
+                        
+	eventlog_mapflags();
+	return true;
+	
+	
+	
+}
+
 void FFScript::do_adjustvolume(const bool v)
 {
 	long perc = SH::get_arg(sarg1, v) / 10000;
@@ -15542,6 +16006,17 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 	case MONOHUE:
 	{
             FFCore.gfxmonohue();
+            break;
+	}
+	
+	case LINKWARPEXR:
+	{
+            FFCore.do_warp_ex(false);
+            break;
+	}
+	case LINKWARPEXV:
+	{
+            FFCore.do_warp_ex(true);
             break;
 	}
 	
@@ -17982,3 +18457,96 @@ void ZModule::load(bool zquest)
 
 
 
+void FFScript::Play_Level_Music()
+{
+    int m=tmpscr->screen_midi;
+    
+    switch(m)
+    {
+    case -2:
+        music_stop();
+        break;
+        
+    case -1:
+        play_DmapMusic();
+        break;
+        
+    case 1:
+        jukebox(ZC_MIDI_OVERWORLD);
+        break;
+        
+    case 2:
+        jukebox(ZC_MIDI_DUNGEON);
+        break;
+        
+    case 3:
+        jukebox(ZC_MIDI_LEVEL9);
+        break;
+        
+    default:
+        if(m>=4 && m<4+MAXCUSTOMMIDIS)
+            jukebox(m-4+ZC_MIDI_COUNT);
+        else
+            music_stop();
+    }
+}
+
+void FFScript::do_warp_ex(bool v)
+{
+	int zscript_array_ptr = get_register(sarg1) / 10000;
+	int zscript_array_size = getSize(zscript_array_ptr);
+	bool success;
+	switch(zscript_array_size)
+	{
+		case 8:
+			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags}
+		{
+			
+			success = warp_link( getElement(zscript_array_ptr,0),getElement(zscript_array_ptr,1),getElement(zscript_array_ptr,2),
+				getElement(zscript_array_ptr,3), getElement(zscript_array_ptr,4), getElement(zscript_array_ptr,5),
+				getElement(zscript_array_ptr,6), getElement(zscript_array_ptr,7),-1 );
+			if (!success) 
+			{ 
+				Z_scripterrlog("Could not successfully warp Link with Link->WarpEx() using the following args:\n");
+				Z_scripterrlog("type: %d\n",getElement(zscript_array_ptr,0));
+				Z_scripterrlog("dmap: %d\n",getElement(zscript_array_ptr,1));
+				Z_scripterrlog("screen: %d\n",getElement(zscript_array_ptr,2));
+				Z_scripterrlog("x: %d\n",getElement(zscript_array_ptr,3));
+				Z_scripterrlog("y: %d\n",getElement(zscript_array_ptr,4));
+				Z_scripterrlog("effect: %d\n",getElement(zscript_array_ptr,5));
+				Z_scripterrlog("sound: %d\n",getElement(zscript_array_ptr,6));
+				Z_scripterrlog("flags: %d\n",getElement(zscript_array_ptr,7));
+				Z_scripterrlog("dir: %d\n",getElement(zscript_array_ptr,8));
+			}
+			break;
+		}
+		case 9:
+			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
+		{
+			success = warp_link( getElement(zscript_array_ptr,0),getElement(zscript_array_ptr,1),getElement(zscript_array_ptr,2),
+				getElement(zscript_array_ptr,3), getElement(zscript_array_ptr,4), getElement(zscript_array_ptr,5),
+				getElement(zscript_array_ptr,6), getElement(zscript_array_ptr,7), getElement(zscript_array_ptr,8) );
+			if (!success) 
+			{ 
+				Z_scripterrlog("Could not successfully warp Link with Link->WarpEx() using the following args:\n");
+				Z_scripterrlog("type: %d\n",getElement(zscript_array_ptr,0));
+				Z_scripterrlog("dmap: %d\n",getElement(zscript_array_ptr,1));
+				Z_scripterrlog("screen: %d\n",getElement(zscript_array_ptr,2));
+				Z_scripterrlog("x: %d\n",getElement(zscript_array_ptr,3));
+				Z_scripterrlog("y: %d\n",getElement(zscript_array_ptr,4));
+				Z_scripterrlog("effect: %d\n",getElement(zscript_array_ptr,5));
+				Z_scripterrlog("sound: %d\n",getElement(zscript_array_ptr,6));
+				Z_scripterrlog("flags: %d\n",getElement(zscript_array_ptr,7));
+				Z_scripterrlog("dir: %d\n",getElement(zscript_array_ptr,8));
+			}
+			break;
+			
+		}
+		default: 
+		{
+			Z_scripterrlog("Array supplied to Link->WarpEx() is the wrong size!\n The array size was: &d, and valid sizes are [8] and [9].\n",zscript_array_size);
+			break;
+		}
+		
+	}
+}
