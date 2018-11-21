@@ -13483,31 +13483,38 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	if ( (unsigned)scrID > MAXSCREENS ) return false;
 	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,currscr); return false; }
 	int mapID = (DMaps[dmapID].map+1);
-        
+        int warp_return_index = -1;
 	mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
 	int wx = 0, wy = 0;
 	if ( warpDestX < 0 )
 	{
 		warpDestX *= -1;
-		--warpDestX;
-		
-		wx = m->warpreturnx[( vbound(warpDestX,0,3) )];
+		if ( (unsigned)warpDestY < 4 )
+		{
+			wx = m->warpreturnx[warpDestY];
+			wx = m->warpreturny[warpDestY];
+		}
+		else
+		{
+			Z_scripterrlog("Invalid Warp Return Square Type (%d) provided as an arg to Link->WarpEx().\n",warpDestY);
+			return false;
+		}
 	}
 	else 
 	{
-		wx = warpDestX;
-	}
-	if ( warpDestY < 0 )
-	{
-		warpDestY *= -1;
-		--warpDestY;
+		if ( (unsigned)warpDestX < 256 && (unsigned)warpDestY < 176 )
+		{
+			wx = warpDestX;
+			wy = warpDestY;
+		}
+		else
+		{
+			Z_scripterrlog("Invalid pixel coordinates of x = %d, y = %d, supplied to Link->WarpEx()\n",warpDestX,warpDestY);
+			return false;
+		}
 		
-		wy = m->warpreturny[( vbound(warpDestY,0,3) )];
 	}
-	else 
-	{
-		wy = warpDestY;
-	}
+	
 	//warp coordinates are wx, wy, not x, y! -Z
 	if ( !(warpFlags&warpFlagKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
 	int wrindex = 0;
