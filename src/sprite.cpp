@@ -710,7 +710,7 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 /********** Sprite List ***********/
 /**********************************/
 
-#define SLMAX 255
+#define SLMAX 255*256
 
 //class enemy;
 
@@ -1119,7 +1119,7 @@ void sprite::explode(int type)
                             particle *p = (particle*)(particles.spr(k));
                             p->step=3;
 			    p->cset=cs;
-			    p->color= rand()%15+1;
+			    p->color= rand()%4+1;
                         }
                         
 			else if(type ==1)  // Sands of Hours
@@ -1131,7 +1131,7 @@ void sprite::explode(int type)
                             
                             if(rand()%10 < 2)
                             {
-                                p->color= rand()%15+1;
+                                p->color= rand()%4+1;
                                 p->cset=cs;
                             }
                         }
@@ -1145,7 +1145,7 @@ void sprite::explode(int type)
                             p->angle=rand();
                             p->step=(((double)j)/8);
                             p->yofs=yofs;
-			    p->color= rand()%15+1;
+			    p->color= rand()%4+1;
 			    p->cset=cs;
                         }
 			

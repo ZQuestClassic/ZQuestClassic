@@ -131,7 +131,7 @@ public:
 /********** Sprite List ***********/
 /**********************************/
 
-#define SLMAX 255
+#define SLMAX 255*256
 
 class sprite_list
 {
