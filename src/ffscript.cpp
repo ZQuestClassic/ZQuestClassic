@@ -13484,15 +13484,19 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,currscr); return false; }
 	int mapID = (DMaps[dmapID].map+1);
         int warp_return_index = -1;
-	mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
+	//mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
+	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + scrID)];
+	
 	int wx = 0, wy = 0;
 	if ( warpDestX < 0 )
 	{
-		warpDestX *= -1;
+		Z_scripterrlog("WarpEx() was set to warp return point:%d\n", warpDestY); 
 		if ( (unsigned)warpDestY < 4 )
 		{
 			wx = m->warpreturnx[warpDestY];
-			wx = m->warpreturny[warpDestY];
+			wy = m->warpreturny[warpDestY];
+			Z_scripterrlog("WarpEx Return Point X is: %d\n",wx);
+			Z_scripterrlog("WarpEx Return Point Y is: %d\n",wy);
 		}
 		else
 		{
@@ -18509,42 +18513,42 @@ void FFScript::do_warp_ex(bool v)
 			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags}
 		{
 			
-			success = warp_link( getElement(zscript_array_ptr,0),getElement(zscript_array_ptr,1),getElement(zscript_array_ptr,2),
-				getElement(zscript_array_ptr,3), getElement(zscript_array_ptr,4), getElement(zscript_array_ptr,5),
-				getElement(zscript_array_ptr,6), getElement(zscript_array_ptr,7),-1 );
+			success = warp_link( getElement(zscript_array_ptr,0)/10000,getElement(zscript_array_ptr,1)/10000,getElement(zscript_array_ptr,2)/10000,
+				getElement(zscript_array_ptr,3)/10000, getElement(zscript_array_ptr,4)/10000, getElement(zscript_array_ptr,5)/10000,
+				getElement(zscript_array_ptr,6)/10000, getElement(zscript_array_ptr,7)/10000,-1 );
 			if (!success) 
 			{ 
 				Z_scripterrlog("Could not successfully warp Link with Link->WarpEx() using the following args:\n");
-				Z_scripterrlog("type: %d\n",getElement(zscript_array_ptr,0));
-				Z_scripterrlog("dmap: %d\n",getElement(zscript_array_ptr,1));
-				Z_scripterrlog("screen: %d\n",getElement(zscript_array_ptr,2));
-				Z_scripterrlog("x: %d\n",getElement(zscript_array_ptr,3));
-				Z_scripterrlog("y: %d\n",getElement(zscript_array_ptr,4));
-				Z_scripterrlog("effect: %d\n",getElement(zscript_array_ptr,5));
-				Z_scripterrlog("sound: %d\n",getElement(zscript_array_ptr,6));
-				Z_scripterrlog("flags: %d\n",getElement(zscript_array_ptr,7));
-				Z_scripterrlog("dir: %d\n",getElement(zscript_array_ptr,8));
+				Z_scripterrlog("type: %d\n",getElement(zscript_array_ptr,0)/10000);
+				Z_scripterrlog("dmap: %d\n",getElement(zscript_array_ptr,1)/10000);
+				Z_scripterrlog("screen: %d\n",getElement(zscript_array_ptr,2)/10000);
+				Z_scripterrlog("x: %d\n",getElement(zscript_array_ptr,3)/10000);
+				Z_scripterrlog("y: %d\n",getElement(zscript_array_ptr,4)/10000);
+				Z_scripterrlog("effect: %d\n",getElement(zscript_array_ptr,5)/10000);
+				Z_scripterrlog("sound: %d\n",getElement(zscript_array_ptr,6)/10000);
+				Z_scripterrlog("flags: %d\n",getElement(zscript_array_ptr,7)/10000);
+				Z_scripterrlog("dir: %d\n",getElement(zscript_array_ptr,8)/10000);
 			}
 			break;
 		}
 		case 9:
 			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
 		{
-			success = warp_link( getElement(zscript_array_ptr,0),getElement(zscript_array_ptr,1),getElement(zscript_array_ptr,2),
-				getElement(zscript_array_ptr,3), getElement(zscript_array_ptr,4), getElement(zscript_array_ptr,5),
-				getElement(zscript_array_ptr,6), getElement(zscript_array_ptr,7), getElement(zscript_array_ptr,8) );
+			success = warp_link( getElement(zscript_array_ptr,0)/10000,getElement(zscript_array_ptr,1)/10000,getElement(zscript_array_ptr,2)/10000,
+				getElement(zscript_array_ptr,3)/10000, getElement(zscript_array_ptr,4)/10000, getElement(zscript_array_ptr,5)/10000,
+				getElement(zscript_array_ptr,6)/10000, getElement(zscript_array_ptr,7)/10000, getElement(zscript_array_ptr,8)/10000 );
 			if (!success) 
 			{ 
 				Z_scripterrlog("Could not successfully warp Link with Link->WarpEx() using the following args:\n");
-				Z_scripterrlog("type: %d\n",getElement(zscript_array_ptr,0));
-				Z_scripterrlog("dmap: %d\n",getElement(zscript_array_ptr,1));
-				Z_scripterrlog("screen: %d\n",getElement(zscript_array_ptr,2));
-				Z_scripterrlog("x: %d\n",getElement(zscript_array_ptr,3));
-				Z_scripterrlog("y: %d\n",getElement(zscript_array_ptr,4));
-				Z_scripterrlog("effect: %d\n",getElement(zscript_array_ptr,5));
-				Z_scripterrlog("sound: %d\n",getElement(zscript_array_ptr,6));
-				Z_scripterrlog("flags: %d\n",getElement(zscript_array_ptr,7));
-				Z_scripterrlog("dir: %d\n",getElement(zscript_array_ptr,8));
+				Z_scripterrlog("type: %d\n",getElement(zscript_array_ptr,0)/10000);
+				Z_scripterrlog("dmap: %d\n",getElement(zscript_array_ptr,1)/10000);
+				Z_scripterrlog("screen: %d\n",getElement(zscript_array_ptr,2)/10000);
+				Z_scripterrlog("x: %d\n",getElement(zscript_array_ptr,3)/10000);
+				Z_scripterrlog("y: %d\n",getElement(zscript_array_ptr,4)/10000);
+				Z_scripterrlog("effect: %d\n",getElement(zscript_array_ptr,5)/10000);
+				Z_scripterrlog("sound: %d\n",getElement(zscript_array_ptr,6)/10000);
+				Z_scripterrlog("flags: %d\n",getElement(zscript_array_ptr,7)/10000);
+				Z_scripterrlog("dir: %d\n",getElement(zscript_array_ptr,8)/10000);
 			}
 			break;
 			
