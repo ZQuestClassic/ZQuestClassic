@@ -30,6 +30,8 @@
 #include "parser/Compiler.h"
 #include "zc_alleg.h"
 #include "mem_debug.h"
+#include "particles.h"
+sprite_list particles;
 void setZScriptVersion(int) { } //bleh...
 
 #include <png.h>

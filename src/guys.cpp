@@ -445,18 +445,20 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
         wpn = 0;
 }
 
+/*
 void enemy::explode(int type)
 {
 	al_trace("Trying to explode enemy tile: %d\n",o_tile);
-	//tiledata *temptilebuf;
+	tiledata *temptilebuf = NULL;
+	memset(temptilebuf, 0, sizeof(temptilebuf));
 	static int tempx, tempy;
 	static byte linktilebuf[256];
 	int ltile=0;
 	int lflip=0;
-	unpack_tile(newtilebuf, tile, flip, true);
+	unpack_tile(temptilebuf, tile, flip, true);
 	//unpack_tile(temptilebuf, tile, flip, true);
 	//unpack_tile(temptilebuf, o_tile, 0, true);
-	memcpy(linktilebuf, unpackbuf, 256);
+	memcpy(linktilebuf, temptilebuf, 256);
 	tempx=x;
 	tempy=y;
 	for(int i=0; i<16; ++i)
@@ -500,7 +502,7 @@ void enemy::explode(int type)
                 }
 	}
 }
-
+*/
 
 
 int enemy::getScriptUID() { return script_UID; }

@@ -48,6 +48,7 @@ public:
     {
         return uid;
     }
+    
     fix x,y,z,fall;
     int tile,shadowtile,cs,flip,c_clk,clk,misc;
     
@@ -120,6 +121,7 @@ public:
     virtual int hitdir(int tx,int ty,int txsz,int tysz,int dir);
     virtual void move(fix dx,fix dy);
     virtual void move(fix s);
+    void explode(int mode);
     //void explode(int type);
 };
 

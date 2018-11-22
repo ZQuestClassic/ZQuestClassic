@@ -16071,9 +16071,13 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 		    if(GuyH::loadNPC(ri->guyref, "npc->Explode()") == SH::_NoError)
 		    {
 			al_trace("npc->Explode() is loading the npc into a pointer.\n");
-			enemy *e = (enemy*)guys.spr(ri->guyref);
+			//enemy *e = (enemy*)guys.spr(ri->guyref);
 			al_trace("npc->Explode() is calling enemy::explode.\n");
-			e->explode(mode);
+			//(enemy *) guys.explode(eid);
+			//e->explode(mode);
+			    //enemy *en=GuyH::getNPC();
+			    //en->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
+				guys.spr(GuyH::getNPCIndex(ri->guyref))->explode(mode);
 		    }
 	    }
             break;

@@ -1081,6 +1081,80 @@ void sprite_list::checkConsistency()
         assert(sprites[i] == getByUID(sprites[i]->getUID()));
 }
 
+void sprite::explode(int type)
+{
+	al_trace("Trying to explode enemy tile: %d\n",tile);
+	
+	/*
+	tiledata *temptilebuf = NULL;
+	memset(temptilebuf, 0, sizeof(temptilebuf));
+	static int tempx, tempy;
+	static byte linktilebuf[256];
+	int ltile=0;
+	int lflip=0;
+	unpack_tile(temptilebuf, tile, flip, true);
+	//unpack_tile(temptilebuf, tile, flip, true);
+	//unpack_tile(temptilebuf, o_tile, 0, true);
+	memcpy(linktilebuf, temptilebuf, 256);
+	tempx=x;
+	tempy=y;
+	*/
+	
+	static int tempx, tempy;
+	static byte spritetilebuf[256];
+	int ltile=0;
+	int lflip=0;
+	bool shieldModify=true;
+	unpack_tile(newtilebuf, tile, flip, true);
+	memcpy(spritetilebuf, unpackbuf, 256);	
+	
+	for(int i=0; i<16; ++i)
+	{
+                for(int j=0; j<16; ++j)
+                {
+                    if(spritetilebuf[i*16+j])
+                    {
+                        if(type==0)  // Twilight
+                        {
+                            particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (rand()%8)+i*4));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=3;
+                        }
+                        
+			else if(type ==1)  // Sands of Hours
+                        {
+                            particles.add(new pTwilight(x+j, y-z+i, 5, 1, 2, (rand()%16)+i*2));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=4;
+                            
+                            if(rand()%10 < 2)
+                            {
+                                p->color=1;
+                                p->cset=0;
+                            }
+                        }
+                        else //explode
+                        {
+                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, spritetilebuf[i*16+j], rand()%96));
+                            
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->angular=true;
+                            p->angle=rand();
+                            p->step=(((double)j)/8);
+                            p->yofs=yofs;
+                        }
+			
+                    }
+                }
+	}
+	
+}
+
+
+
 /*
 void sprite::explode(int type)
 {

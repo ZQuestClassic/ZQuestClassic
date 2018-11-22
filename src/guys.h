@@ -106,7 +106,7 @@ public:
     
     int getScriptUID();
     void setScriptUID(int new_id);
-    void explode(int type);
+    //void explode(int type);
     
     fix  getX();
     fix  getY();
