@@ -1100,11 +1100,9 @@ void sprite::explode(int type)
 	tempy=y;
 	*/
 	
-	static int tempx, tempy;
-	static byte spritetilebuf[256];
+	byte spritetilebuf[256];
 	int ltile=0;
 	int lflip=0;
-	bool shieldModify=true;
 	unpack_tile(newtilebuf, tile, flip, true);
 	memcpy(spritetilebuf, unpackbuf, 256);	
 	
@@ -1120,6 +1118,8 @@ void sprite::explode(int type)
                             int k=particles.Count()-1;
                             particle *p = (particle*)(particles.spr(k));
                             p->step=3;
+			    p->cset=cs;
+			    p->color= rand()%15+1;
                         }
                         
 			else if(type ==1)  // Sands of Hours
@@ -1131,8 +1131,8 @@ void sprite::explode(int type)
                             
                             if(rand()%10 < 2)
                             {
-                                p->color=1;
-                                p->cset=0;
+                                p->color= rand()%15+1;
+                                p->cset=cs;
                             }
                         }
                         else //explode
@@ -1145,6 +1145,8 @@ void sprite::explode(int type)
                             p->angle=rand();
                             p->step=(((double)j)/8);
                             p->yofs=yofs;
+			    p->color= rand()%15+1;
+			    p->cset=cs;
                         }
 			
                     }
