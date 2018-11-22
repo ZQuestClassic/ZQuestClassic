@@ -13525,7 +13525,9 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	//we also need to check if dmaps are sideview here! -Z
 	//Likewise, we need to add that check to the normal Link:;dowarp(0
 	bool wasSideview = isSideViewGravity(t); //((tmpscr[t].flags7 & fSIDEVIEW)!=0 || DMaps[currdmap].sideview) && !ignoreSideview;
-	sfx(warpSound);
+	
+	//int last_entr_scr = -1;
+	//int last_entr_dmap = -1;
 	switch(warpType)
 	{
 		case wtIWARP:
@@ -13539,6 +13541,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			ALLOFF();
 			if ( !(warpFlags&warpFlagKILLMUSIC) ) music_stop();
 			if ( !(warpFlags&warpFlagKILLSOUNDS) ) kill_sfx();
+			sfx(warpSound);
 			if(wasswimming)
 			{
 				Link.setAction(swimming); FFCore.setLinkAction(swimming);
@@ -13661,10 +13664,12 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		
 		case wtEXIT:
 		{
+			Z_scripterrlog("%s was called with a warp type of Entrance/Exit\n", "Link->WarpEx()");
 			lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
 			ALLOFF();
 			if ( !(warpFlags&warpFlagKILLMUSIC) ) music_stop();
 			if ( !(warpFlags&warpFlagKILLSOUNDS) ) kill_sfx();
+			sfx(warpSound);
 			blackscr(30,false);
 			currdmap = dmapID;
 			dlevel=DMaps[currdmap].level;
@@ -13696,20 +13701,6 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			    darkroom=naturaldark=false;
 			}
 			
-			
-			if(((wx>0||wy>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
-			{
-			    if(dlevel)
-			    {
-				lastentrance = currscr;
-			    }
-			    else
-			    {
-				lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
-			    }
-			    
-			    lastentrance_dmap = dmapID;
-			}
 			
 			//Move Link's coordinates
 			Link.x = (fix)wx;
@@ -13779,6 +13770,9 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			for(int i=0; i<6; i++)
 			    visited[i]=-1;
 			    
+			//last_entr_scr = scrID;
+			//last_entr_dmap = dmapID;
+			
 			break;
 			
 		}
@@ -13907,10 +13901,18 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	}
 	if ( warpType == wtEXIT )
 	{
-		game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
-		game->set_continue_dmap(currdmap);
-		lastentrance_dmap = currdmap;
-		lastentrance = game->get_continue_scrn();
+		//game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
+		game->set_continue_scrn(scrID);
+		game->set_continue_dmap(dmapID);
+		lastentrance = scrID;
+		lastentrance = scrID;
+		Z_scripterrlog("Setting Last Entrance to: %d\n", scrID);
+		Z_scripterrlog("lastentrance = %d\n",lastentrance);
+		lastentrance_dmap = dmapID;
+		Z_scripterrlog("Setting Last Entrance DMap to: %d\n", dmapID);
+		Z_scripterrlog("lastentrance_dmap = %d\n",lastentrance_dmap);
+		//lastentrance_dmap = currdmap;
+		//lastentrance = game->get_continue_scrn();
 	}
 	if(tmpscr->flags4&fAUTOSAVE)
 	{
