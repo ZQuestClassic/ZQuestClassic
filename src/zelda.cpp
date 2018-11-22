@@ -4715,6 +4715,13 @@ void quit_game()
     //  dumb_exit();
 }
 
+bool isSideViewGravity(int t)
+{
+	
+	return ((tmpscr[t].flags7 & fSIDEVIEW)!=0 || (DMaps[currdmap].sideview));
+	
+}
+
 
 int d_timer_proc(int, DIALOG *, int)
 {

@@ -6855,6 +6855,17 @@ namespace ZScript
 			return new OBMPRectangleRegister();
 		}
 	};
+	
+	class OLinkWarpExRegister : public UnaryOpcode
+	{
+	public:
+		OLinkWarpExRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLinkWarpExRegister(a->clone());
+		}
+	};
 
 	
 	class OReturn : public Opcode
