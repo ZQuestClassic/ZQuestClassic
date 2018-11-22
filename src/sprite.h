@@ -120,6 +120,7 @@ public:
     virtual int hitdir(int tx,int ty,int txsz,int tysz,int dir);
     virtual void move(fix dx,fix dy);
     virtual void move(fix s);
+    //void explode(int type);
 };
 
 /***************************************************************************/

@@ -16661,4 +16661,8 @@ void LinkClass::explode(int type)
                 }
 	}
 }
+
+//int LinkClass::getTileModifier() { return item_tile_mod(shieldModify); }
+int LinkClass::getTileModifier() { return item_tile_mod(true); } //how best to read shieldcanmodify? -Z
+void LinkClass::setTileModifier(int new_tile_mod) { /*item_tile_mod = new_tile_mod;*/ }
 /*** end of link.cpp ***/

@@ -254,6 +254,8 @@ public:
 	
     // Methods below here.
     void explode(int type);
+    int getTileModifier();
+    void setTileModifier(int ntemod);
     void movelink();
     void move(int d);
     void hitlink(int hit);

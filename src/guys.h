@@ -106,6 +106,7 @@ public:
     
     int getScriptUID();
     void setScriptUID(int new_id);
+    void explode(int type);
     
     fix  getX();
     fix  getY();
@@ -237,6 +238,7 @@ protected:
     void tiledir_big(int ndir, bool fourdir);
     // Enemies that cannot ever be penetrated by weapons
     bool cannotpenetrate();
+    
     
 private:
     bool shieldCanBlock;
