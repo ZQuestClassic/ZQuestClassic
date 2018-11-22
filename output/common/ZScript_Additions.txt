@@ -1,0 +1,2692 @@
+
+/////////////////
+///  ZScript  ///
+/////////////////
+
+The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
+	versions 2.54, and 2.55. 
+	
+Document for: 2.55, Alpha 1
+Document Revision: 22-11-2018
+
+
+////////////////////////////////////////////////////
+/// ZSCRIPT PARSER AND LEXER ///////////////////////
+////////////////////////////////////////////////////
+
+////////////////////
+// Comment Blocks //
+////////////////////
+
+	The ZScript language now supports C-Style comment blocks using the traditional syntax of:
+
+	[example--
+
+		/* 
+			COMMENT BLOCK
+			
+		*/
+		
+	--end example]
+
+////////////////////////////////////
+// Array Declaration Improvements //
+////////////////////////////////////
+
+	Arrays now support being declared with any constant expression.:
+
+	[example--
+
+		int arr[10*4]; 
+		//This is now the same as int arr[40];
+		
+	--end example]
+
+	Nesting array calls should now work properly. (e.g. arrA[ arrB[ arrC[ arrd[4] ] ] ] )
+
+	Further, you may now use constants in array declarations:
+
+	[example--
+
+		const int sARR_MAX = 20;
+		int arr[sARR_MAX];
+		
+	--end example]
+
+/////////////////////
+// String Literals //
+/////////////////////
+
+	You may now use C-style string literals at any non-global scope.
+
+	[example--
+
+		TraceS("Trace this string.";
+		
+	--end example]
+
+
+	You may use standard C-style escape characters in string literals:
+
+	- \a\b\f\n\r\t\v for the standard values,
+	- \" for quotes
+	- You can escape a newline to make it not appear in the string
+
+	Additionally, adjacent strings are merged by the compiler.
+
+	
+/////////////////////
+// Global Pointers //
+/////////////////////
+
+	You may now declare any datatype, including arrays for any datatype at a global scope.
+	*	Data saved to these may become invalid and require manual clensing by the user!
+	*	Only the value of a pointer is saved, not the struct data associated with that pointer.
+
+/////////////////
+// Switch-Case //
+/////////////////
+
+	ZScript now supports C-style switch statements. Case values must be numeric literals,
+	or constant expressions. Switch-case cases must end in a break instruction, and a you
+	may provide a default case.
+
+	[example-- 
+
+		const int SOME_CONST = 11;
+
+		switch(var)
+		{
+			case 1:
+			{
+				DoSomething(); 
+				break
+			}
+			case SOME_CONST:
+			{
+				DoSomethingElse();
+				break:
+			}
+			case SOME_CONST+(10*2)
+			{
+				DoOther();
+				break;
+			}
+			default:
+			{
+				DoDefault();
+				break;
+			}
+		}
+
+	--end example]
+
+/////////////
+// Typedef //
+/////////////
+
+	You can now define your own types using typedef using normal C syntax:
+
+	typedef old_type new_type;
+
+	[example--
+		typedef object ffc; //Allows you to declare object vars that are typed to ffc. 
+
+		typedef const int DEFINE;
+		//Allows you to use the token DEFINE to declare constant ints. 
+		
+	--end example]
+
+
+///////////////////////////////
+/// Expanded Array Literals ///
+///////////////////////////////
+
+	Array Literals of the following form may be used in lots of places,
+	not just array variable declarations.
+
+	{0, 1, 2}
+	(int[]){0, 1, 2}
+	(int[3]){}
+	(int[3]){4}
+
+	[example--
+	
+		RunFFCScript(script_no, (int[8]){arg1, arg2, arg3});
+		
+	--end example]
+
+//////////////////////////////////
+/// Mechanical and AST Changes ///
+//////////////////////////////////
+
+	Assignment is now an expression instead of a statement. You can theoretically assign 
+	inside of a statement now.
+	
+	[example--
+		
+		ffc script foo
+		{
+			void run()
+			{
+				int x = 0;
+				while( (x+=2) < 20 ) Waitframe();
+			}
+		}
+		
+	--end example]
+
+	Constants are now treated as normal (unassignable) variables up through type checking. 
+	If at that point the constant's value is known, it is stripped out of the AST and its 
+	value is saved to the symbol table, similar to how it worked before.
+
+	If the constant's value is not known at compile time, it is instead treated as a normal, 
+	unassignable variable by the parser. (It still uses no stack space.)
+
+	Constants can now be declared in any scope, not just global scope, and the constant is only
+	valid within its scope, so you may now have constants on a per-script, or per-scope basis. 
+	
+	[exmaple--
+	
+		ffc script foo
+		{
+			void run()
+			{
+				const int X = 10;
+				int a = X;
+			}
+		}
+	
+	--end example]
+	
+	You may assign a value to a constant using any constant expression.
+	
+	[example--
+	
+		const int A = 5;
+		const int B = 10;
+		const int C = A*(Pow(B,2));
+	
+	--end example]
+
+///////////////////////////
+/// Compiler Directives ///
+///////////////////////////
+
+	There's a new compile_error directive that ignores the next compiler error/warning of the 
+	specified number, that you can use to suppress warnings or halts. 
+
+	Syntax:
+	compile_error (error_number) {error_generating_code}
+
+
+///////////////////
+// New Datatypes //
+///////////////////
+
+	untyped : A special datatype that can be cast to and from any other type.
+	This cannot be invoked by the user in a declaration, and exists solely for
+		use by internal functions, and by internal variables.
+
+	npcdata: 
+
+	combodata:
+
+	spritedata:
+
+	mapdata: 
+
+	dmapdata : 
+
+	messagedata :
+
+	shopdata :
+
+
+	dropdata : t/b/a
+	bitmap : t/b/a
+	warpring : t/b/a
+	doorset : t/b/a
+	misccolors : t/b/a
+	rgbdata : t/b/a
+	palette : t/b/a
+	zcmidi : t/b/a
+	palcycle : t/b/a
+	gamedata : t/b/a
+	cheats : t/b/a
+
+
+//////////////////
+// New Pointers //
+//////////////////
+
+	Graphics->
+
+	Audio->
+
+	Input->
+
+	Text->
+
+
+
+////////////////////////////////////////////////////
+/// NEW ZSCRIPT INSTRUCTIONS ///////////////////////
+////////////////////////////////////////////////////
+
+//////////////
+//  Global  //
+//////////////
+ 
+void OverlayTile(int firsttile, int secondtile);		
+Overlay one tile onto another.
+
+int SizeOfArray(bool array[]);
+* SizeOfArray() now returns the size of all datatypes.
+
+void Trace(untyped)
+* The Trace() instruction now supports all datatypes.
+
+untyped Untype(any)
+* Converts the value of any datatype to another, similar to typecasting.
+* Example:
+int x; 
+npc n = Screen->LoadNPC(10);
+x = Untype(n);
+
+/************************************************************************************************************/
+
+////////////
+//  Game  //
+////////////
+
+bitmap CreateBitmap()int height, int width);
+* Creates a bitmap with a size of height, width, and returns its pointer.
+
+int LItems[512];
+* The size of this array has been corrected to 512, from the prior size of 256.
+
+LKeys[512];
+* The size of this array has been corrected to 512, from the prior size of 256.
+
+combodata LoadComboData(int id);
+* Loads a Combo Editor table data ref for combo 'id', to a 'combdata' typed pointer.
+
+npcdata LoadNPCData(intid);
+* Loads an Enemy Editor table data ref for NPC 'id', to a 'npdcata' typed pointer.
+
+mapdata LoadMapData(int map, int screen);
+* Loads a screen data ref for screen ID 'screen', of Map ID 'map', to a 'mapdata' typed pointer.
+
+spritedata LoadSpriteData(int id);
+* Loads an Weapon Sprite Editor table data ref for sprite 'id', to a 'spritedata' typed pointer.
+
+messagedata LoadMessageData(int id);
+* Loads an String Table Editor table data ref for ZQ Message String 'id', to a 'messagedata' typed pointer.
+
+bitmap LoadBitmapID(int id);
+* Loads one of the six internal bitmaps as a ref to a 'bitmap' typed pointer.
+
+shopdata LoadShopData(int shop);
+* Loads a Shop Editor table ref for an item shop with an ID of 'id' to a 'shopdata' typed pointer.
+	
+shopdata LoadInfoShopData(int shop);
+* Loads a Shop Editor table ref for an info shop with an ID of 'id' to a 'shopdata' typed pointer.
+* !! I may make 'infoshopdata' its own type, to prevent conflicts and reduce future shops expansion overhead. -Z
+
+bool TypingMode;
+* If set true, all keyboard presses that would ordinarily perform an in-engine action are suppressed.
+* 	Example: The 'z' key is bound to the 'A Button'; the user presses the3 'z' key.
+*	if TypingMode == true, then that keystroke will not cause the engine to rehister a Button A Press.
+*
+*	Enable this if you wish to create a text prompt using Input->Key[] or Input->ReadKey[].
+	
+untyped Misc[32];
+* An array of 32 misc values that is always available.
+* Data does not persist between sessions.
+* The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
+* !! Verify that Game->Misc[] is now untyped, to match all other Misc[] arrays. -Z
+
+
+	
+int HighestStringID;
+* Returns the highest valid ID of the strings in the ZQuest String Editor.
+
+int NumMessages;
+* Returns the number of valid strings in the ZQuest String Editor.
+
+int GameOverScreen[12];
+* INCOMPLETE
+* An array of 12 values that affect the visual, and auditory components of the internal
+*	'Game Over' screen, including fonts, colours, sound effects, and cursor tiles.
+
+int GameOverStrings[3]; //
+* INCOMPLETE
+* An array of 3 values that contain the IDs of custom strings for the 'Game Over' screen.
+	
+int MapCount()				
+* Returns the number of maps used by a quest. 
+
+
+void PauseSound(int soundid)	
+* Pauses one of the quest's playing sound effects. Use the SFX_ constants in
+
+void ResumeSound(int soundid)
+* Resumes one of the quest's paused sound effects. Use the SFX_ constants in
+
+void EndSound(int soundid)
+* Kills one of the quest's playing sound effects. Use the SFX_ constants in
+
+void GreyscaleOn()
+* Renders the entire display in greyscale.
+
+void GreyscaleOff() 
+* Returns the display rendering to colour. 
+
+int DMapPalette[512]
+* Set or get the Level Palette for each DMap
+
+void SetMessage(int message, int str[])
+* Places string 'str[]' into ZQ Message 'message'.
+
+void SetMapName(int dmap, int str[])
+* Places string 'str[]' into DMap Name for DMap with ID 'dmap'
+
+void SetMapTitle(int dmap, int str[])
+* Places string 'str[]' into DMap Title for DMap with ID 'dmap'
+
+void SetMapIntro(int dmap, int str[])
+* Places string 'str[]' into DMap Intro for DMap with ID 'dmap'
+
+//bool CappedFPS		
+//* Check if the game is uncapped. 
+
+int Version;				
+* Returns the version of ZC being used.  
+
+int Build;			
+* Returns the Build ID of the version of ZC being used.  
+			
+int Beta;				
+* Returns the Beta ID of the version of ZC being used. If the build is not a beta, this returns 0. 
+	
+bool DisableActiveSubscreen;		
+* If set true, the active subscreen will not fall into view ehen the player presses Start.
+
+int GetPointer(bool *ptr[]);
+* Returns the pointer of a bool array as a float. 
+
+/* The following have been deprecated by other pointer types.
+
+	int GetScreenEnemy(int map, int screen, int enemy_index)			
+	* Reads values from enemy lists anywhere in the game. 
+
+	int SetScreenEnemy(int map, int screen, int enemy_index, int enemy_id)			
+	* Sets values to enemy lists anywhere in the game.
+
+	int GetScreenDoor(int map, int screen, int index)			
+	* Reads value of a door on any screen in the game environment.
+
+	int SetScreenDoor(int map, int screen, int index, int type)			
+	* Sets the value of a door on any screen in the game environment.
+
+	void ContinueSound(int sfx); 					
+									
+	void AdjustSound(int sfx, int pan, bool loop);			
+	* Adjusts properties of a sound effect. 
+
+	void PauseMusic()	
+	* Pauses the present, playing MIDI or Enhanced Music file. 
+
+	void ResumeMusic()
+	* Resumes the present, playing MIDI or Enhanced Music file. 
+
+*/
+
+/************************************************************************************************************/
+
+////////////////
+///  Screen  ///
+////////////////
+
+lweapon CreateLWeaponDx(int type, int baseitem)
+* Create an lweapon with sprites, sounds, and other values set as if it was generated by a specific item.
+
+TriggerSecret(int secret);
+* Triggers a specific secret type on the screen.
+
+void WavyIn();
+* Replicates the warping screen wave effect (inbound) from a tile warp. 
+
+void WavyOut();		
+* Replicates the warping screen wave effect (outbound) from a tile warp. 
+
+void ZapIn();			
+* Replicates the warping screen zap effect (inbound) from a tile warp. 
+
+void ZapOut();		
+* Replicates the warping screen zap effect (outbound) from a tile warp. 
+
+void OpeningWipe();	
+* Replicates the opening wipe screen effect (using the quest rule for its type) from a tile warp. 
+
+
+void DrawBitmapEx	( int layer, 
+			int bitmap_id, 
+			int source_x, int source_y, int source_w, int source_h, 
+			int dest_x, int dest_y, int dest_w, int dest_h, 
+			float rotation, int cx, int cy, int mode, int lit,  bool mask);
+
+* As DrawBitmap(), except that it can do more things. 
+
+
+void FastCombo()
+void DrawScreen()
+void DrawLayer()
+* These now support Combo CSet values.
+
+void PutPixels(int layer, int ptr[])
+Puts multiple pixels to the screen in one function call.
+PutPixels() expects an array as its arg, with the array in the format of
+repeating blocks of { x, y, colour, trans }
+	Example: PutPixels(1, { 25, 10, 5, OP_OPAQUE, 26, 10, 6, OP_OPAQUE } );
+	This draws two pixels to the screen.
+	The first is at coordinates x==25, y == 10, colour == 5, and it is opaque.
+	The second is at coordinates x==25, y==10, colour == 6, and opaque.
+	
+void DrawTiles(int layer, int ptr[])
+* Similar to FastTile(), but it draws multiple tiles in one call.
+The arg *ptr[] should be an array with repeating sets of:
+	{x,y,tile,colour,opacity} 
+	...per tile that you want to draw.
+
+void DrawCombos(int layer, int ptr[]);
+* Similar to FastCombo, but draws multiple combos in one call.
+The arg *ptr[] should be an array with repeating sets of: 
+	{x,y,combo,cset,opacity} 
+	...per combo that you want to draw.
+
+void Lines(int layer, int ptr[]);
+* Similar to Line(0, but draws multiple lines in one call.
+The arg *ptr[] should be an array with repeating sets of: 
+	{ x, y, x2, y2, colour, scale, rx, ry, angle, opacity }
+	...per line that you want to draw.
+
+int Valid;
+* ?
+
+int Guy;
+* The screen guy.
+
+int String;
+* The screen string.
+
+int RoomType;
+* The screen room type.
+
+int Item;
+* The screen item.
+
+int HasItem;
+* ?
+
+int TileWarpType[4];
+* The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3] respectively.
+* See std_constants.zh TWTYPE_* constants for valid types.
+	
+int TileWarpOverlayFlags;
+* Combos carry over?
+
+int DoorComboSet;
+* The doorset used by the screen, for NES dungeon doors.
+	
+int WarpReturnX[4];
+* The X-component for each of the four 2.50+ (blue) warp return squares.
+	
+int WarpReturnY[4];
+* The Y-component for each of the four 2.50+ (blue) warp return squares.
+	
+int WarpReturnC;
+* ?
+
+int StairsX;
+* The X component for where a Stairs secret appears on the screen.
+	
+int StairsY;
+* The Y component for where a Stairs secret appears on the screen.
+	
+int ItemX;
+* The X component for the item location on the screen.
+	
+int ItemY;
+* The Y component for the item location on the screen.
+
+int CSet;
+* ? The screen palette. ?
+
+int TileWarpDMap[4];
+* The destination DMap for each of the four warp types.
+	
+int TileWarpScreen[4];
+* The destination screen for each of the four warp types.
+
+int Enemy[10];
+* The IDs of the enemies that spawn on the screen.
+
+int EnemyFlags;
+* A flagset for enemies on the screen (E.Flags).
+* Valid values (ORd) together, are:
+*
+*
+
+int Pattern;
+* Ths enemy 'Spawn Pattern'.
+
+int SideWarpType[4];
+* The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3] respectively.
+* See std_constants.zh SWTYPE_* constants for valid types.
+	
+int SideWarpOverlayFlags;
+* Carryover?
+
+int SideWarpScreen[4];
+* The destination screen for each of the four sidewarps.
+	
+int SideWarpDMap[4];
+* The destination DMap for each of the four sidewarps.
+	
+int SideWarpIndex;
+* The warp return?? If so, should this be an array, or are these ORd values?
+
+int WarpArrivalX;
+* The X-component for the pre-2.50 (green) arrival square.
+	
+int WarpArrivalY;
+* The X-component for the pre-2.50 (green) arrival square.
+	
+int MazePath[4];
+* The four Maze Path directions.
+
+int ExitDir;
+* The Maze Path 'Exit Direction'.
+
+int UnderCombo;
+* The undercombo ID used by the screen.
+
+int UnderCSet;
+* The CSet of the undercombo used by the screen.
+
+int Catchall;
+* The screen 'Catchall' value. 
+
+int CSensitive;
+* The value of Damage Combo Sensitivity for the screen.
+	
+int NoReset;
+* The No Reset Flagset. Values are ORd together s follows:
+* Secrets		0x
+* Items			0x
+* Special Item		0x
+* Lock Block		0x
+* Boss Lock Block	0x
+* Chest			0x
+* Secrets		0x
+* Locked Chest		0x
+* Boss Locked Chest	0x
+* Door Up [0]		0x
+* Door Down[1]		0x
+* Door Left [2]		0x
+* Door Right [3]	0x
+
+int NoCarry;
+* The No Carru Over Flagset. Values are ORd together s follows:
+* Secrets		0x
+* Items			0x
+* Special Item		0x
+* Lock Block		0x
+* Boss Lock Block	0x
+* Chest			0x
+* Secrets		0x
+* Locked Chest		0x
+* Boss Locked Chest	0x
+
+int LayerMap[6];
+* The Map IDs used by screen layers 1 through 6, represented as [0] through [5].
+* I should adjust this array to begin a t1. -Z
+
+int LayerScreen[6];
+* The Screen IDs used by screen layers 1 through 6, represented as [0] through [5].
+* I should adjust this array to begin a t1. -Z
+
+int LayerOpacity[6];
+* The opacity value for each layer used by this screen.
+* Valid layers are 1 through 6, represented as [0] through [5].
+* I should adjust this array to begin a t1. -Z
+
+int TimedWarpTimer;
+* The timer used by 'Time Warp Tics' in Screen Data->T.Warp
+
+int NextMap;
+* ?
+int NextScreen;
+*?
+
+
+int SecretCombo[128];
+* The Combo IDs used by 'Secret Combos' on this screen.
+* See SCR_SEC_* in std_constants.zh for more information.
+	
+int SecretCSet[128];
+* The CSets used by 'Secret Combos' on this screen.
+* See SCR_SEC_* in std_constants.zh for more information.
+	
+int SecretFlags[128];
+* The Combo Flags used by 'Secret Combos' on this screen.
+* See SCR_SEC_* in std_constants.zh for more information.
+	
+int ViewX;
+* Unused at this time. Represents the visible width of the screen.
+
+int ViewY;
+* Unused at this time. Represents the visible height of the screen.
+
+int Width;
+* Unused at this time. Represents the physical;e width of the screen.
+
+int Height;
+* Unused at this time. Represents the physical height of the screen.
+
+int EntryX;
+* The X-coordinate at which Link entered the screen (his last spawn point).
+* If Link is respawned by falling in water, he will appear at this X-component. 
+
+int EntryY;
+* The Y-coordinate at which Link entered the screen (his last spawn point).
+* If Link is respawned by falling in water, he will appear at this Y-component. 
+
+int ScriptEntry;
+* ?
+int ScriptOccupancy;
+* ?
+int ExitScript;
+* ?
+
+int OceanSFX;
+* The 'Ambient Sound' under S.Data2. 
+* Rename this to AmbientSFX, or just SFX.
+
+int BossSFX;
+* The Boss Roar sound for this screen.
+	
+int SecretSFX;
+* The sound that will play on this screen, when secrets are triggered.
+
+int ItemSFX;
+* The sound that will play if Link holds an item over his head on this screen.
+	
+int MIDI;
+* The MIDI that plays on this screen.
+
+int LensLayer;
+* The layer to which Lens of Truth graphics are drawn.
+
+int ScreenFlags[10];
+* A set of flagsets that contain special data for thiws screen.
+* These represent S.Flags1 and S.Flags2 flags.
+* See std_constants.zh (SFG* for the screen flag froup, 
+*	and SFX* for the screen flag value) for more information. 
+	
+int NumFFCs;
+* ? The number of ffcs running scripts?
+
+//int Script; t/b/a
+
+/************************************************************************************************************/
+
+/////////////
+///  FFC  ///
+/////////////
+
+int ID;	
+* The screen ref of the ffc. Used primarily for this->ID.
+
+//bool Running; //need to add this to match mapdata. int val
+
+
+/************************************************************************************************************/
+
+//////////////
+///  Item  ///
+//////////////
+
+untyped Misc[32];
+* The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
+
+int Pickup;
+* The pick-up type for this item.
+	
+int PickupString;
+* If this is > 0, then when Link touches the item, ZC will display a ZQ String Editor message string
+* equal to its vaue.
+* The precise behaviour of this is affected by PickupFlags.
+
+int PickupStringFlags;
+* A flagset that determines the behaviour of string display.
+* Values are ORd together, as follows:
+*
+*
+*
+
+int SizeFlags;
+* A flagset that determines how internal engine sizing of items is applied.
+* Values are ORd together, as follows:
+*
+*
+
+
+float UID;	
+* Each item created by ZC in in a given session is assigned a unique ID (UID).
+* Returns the UID of an item.
+* UIDs begin at 00000.0001 and overflow at 214748.3748. 
+*	Note: This allows for 2,147,483,748 unique items, per-session.
+
+int AClock 
+* The clock used for the item's animation cycle. 
+
+/************************************************************************************************************/	
+
+/////////////////
+///  *weapon  ///
+/////////////////
+
+int Parent;
+* The ID of the item, or npc (respectively for lweapon, and for eweapon) that created this weapon.
+* Weapons created by script have a default Parent of -1.
+	
+int Level;
+* The Level value associated with the weapon. 
+
+float UID;
+* Each weapon created by ZC in in a given session is assigned a unique ID (UID).
+* Returns the UID of a weapon.
+* UIDs begin at 00000.0001 and overflow at 214748.3748. 
+*	Note: This allows for 2,147,483,748 unique items, per-session.
+
+
+untyped Misc[32];		
+* Epanded from a size of [16] to [32]. An array of 32 miscellaneous variables for you to use as you please.
+* The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
+
+///////////////////////////
+///  LWeapon  Specific  ///
+///////////////////////////
+
+int Range;
+* NEEDS TO BE REIMPLEMENTED
+* The range of boomerang and hookshot lweapons in pixels; and arrow lweapons in frames.
+
+int AClock 
+* The clock used for the item's animation cycle. 
+
+/************************************************************************************************************/		
+
+/////////////
+///  NPC  ///
+/////////////
+
+untyped Attributes[32];
+* Epanded to size [32], and made datatype-insensitive.
+
+int WeaponSprite;
+* The sprite (Quest->Graphics->Sprites->Weapons) used to draw the weapon fired by the npc.
+
+bool Shield[5];
+* The shield state of the enemy. Index values:
+*
+*
+*
+*
+*
+
+
+bool Core;
+* This returns true if the NPC is the core segment of a segmented engine enemy.
+
+**************************************************************
+
+untyped HitBy[10];
+* Stores the ID/UIDs of objects that hurt the npc this frame.
+* Indices:
+
+* The first four indices are for the *screen index* of objects:
+
+* Description		Index	Status
+* HIT_BY_NPC 		[0] 	Not used at this time. 
+* HIT_BY_EWEAPON 	[1] 	Not used at this time. 
+* HIT_BY_LWEAPON 	[2]	In use by the engine.
+* HIT_BY_FFC 		[3] 	Not used at this time. 
+
+* The next four, are for the FFCore 'script' UIDs of objects:
+
+* Description		Index	Status
+* HIT_BY_NPC_UID 	[4] 	Not used at this time. 
+* HIT_BY_EWEAPON_UID 	[5] 	Not used at this time. 
+* HIT_BY_LWEAPON_UID 	[6]	In use by the engine.
+* HIT_BY_FFC_UID 	[7] 	Not used at this time. 
+
+* The last two, are reserved for special damage-object types. 
+
+* Description		Index	Status
+* HIT_BY_COMBO 		[8]	Not used at this time. 
+* HIT_BY_MAPFLAG 	[9] 	Not used at this time. 
+
+* These indices are uniform across all HitBy[] array members, for any datatype with that member. 
+
+* Some lweapons, notably some melee weapons such as swords (but not sword beams), and boomerangs
+* are not yet implemented in this mechanic. 
+
+**************************************************************
+
+int Defense[42];
+int Defense[MAX_DEFENSE];		
+* Expanded to a size of 42 to cover new defense categories.
+
+untyped Misc[32];		
+* Epanded from a size of [16] to [32]. An array of 32 miscellaneous variables for you to use as you please.
+* The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
+
+float UID;
+* Each npc created by ZC in in a given session is assigned a unique ID (UID).
+* Returns the UID of an npc.
+* UIDs begin at 00000.0001 and overflow at 214748.3748. 
+*	Note: This allows for 2,147,483,748 unique npcs, per-session.
+
+int InvFrames;				
+* Returns the number of remaining invincibility frames if the enemy is invincible, otherwise 0. 
+
+int Invincible;			
+* Returns if the enemy is invincible, because of ( superman variable ). 
+
+bool HasItem;				
+* Returns if the enemy is holding the screen item.
+
+bool Ringleader;			
+* Returns if the enemy is a 'ringleader'.
+
+
+/* The following commands are valid, but do not yet have in-engine use, */
+
+int Frozen;
+* Returns the number of frames for which the npc remains frozen
+int FrozenTile;
+int FrozenCSet;
+
+int npcscript;
+* The script ID used by this NPC.
+untyped InitD[8];
+* InitialD for the npc script.
+untyped IntiA[2];
+* InitialA for the npc script.
+
+int Movement[32];
+* NPC Movement patterns, and args.
+int WeaponPattern[32];
+* NPC weapon movement patterns and args.
+int FireSound;
+* The sound that plays when the npc fires a weapon.
+
+/************************************************************************************************************/
+
+//////////////
+///  Link  ///
+//////////////
+
+bool Item[256];
+* Reading from, or writing to this array no longer causes lag.
+
+untyped Misc[32];		
+* Epanded from a size of [16] to [32]. An array of 32 miscellaneous variables for you to use as you please.
+* The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
+
+**************************************************************
+
+untyped HitBy[10];
+* Stores the ID/UIDs of objects that hurt the Link this frame.
+
+* Indices:
+
+* The first four indices are for the *screen index* of objects:
+
+* Description		Index	Status
+* HIT_BY_NPC 		[0] 	In use by the engine. 
+* HIT_BY_EWEAPON 	[1] 	In use by the engine.
+* HIT_BY_LWEAPON 	[2]	Not used at this time.
+* HIT_BY_FFC 		[3] 	Not used at this time. 
+
+* The next four, are for the FFCore 'script' UIDs of objects:
+
+* Description		Index	Status
+* HIT_BY_NPC_UID 	[4] 	Not used at this time. 
+* HIT_BY_EWEAPON_UID 	[5] 	Not used at this time. 
+* HIT_BY_LWEAPON_UID 	[6]	Not used at this time.
+* HIT_BY_LWEAPON_UID 	[6]	Not used at this time.
+* HIT_BY_FFC_UID 	[7] 	Not used at this time. 
+
+* The last two, are reserved for special damage-object types. 
+
+* Description		Index	Status
+* HIT_BY_COMBO 		[8]	Not used at this time. 
+* HIT_BY_MAPFLAG 	[9] 	Not used at this time. 
+
+* These indices are uniform across all HitBy[] array members, for any datatype with that member. 
+
+* Some lweapons, notably some melee weapons such as swords (but not sword beams), and boomerangs
+* are not yet implemented in this mechanic. 
+
+**************************************************************
+
+int Stun;
+* Returns the number of frames for which Link will; remain stunned.
+* Writing to this causes Link to be stunned for 'n' frames.
+* This decrements once per frame.
+
+int Pushing;
+* Returns the number of frames that Link has been pushing against a solid object.
+
+int Defense[]; 
+* Unused at this time.
+
+int ScriptTile;
+* If this is > 0, then Link will be drawn using this tile ID.
+* The specific tile is drawn. This is not an offset, nor OTile.
+
+int ScriptFlip;
+* If this is > 0, then Link's tile will be drawn using this flip value.
+
+bool DisableItem[256];
+* An array of 256 values that represents whether items are disabeld on the current DMap.
+
+int InvFrames;				 
+* This returns how long Link will remain invincible, 0 if not invincible. Can be set. 
+
+bool InvFlicker;			
+* If set false, Link will neither flash, nor flicker when invincible. 
+
+int HurtSound;				
+* The sound that plays when Link is injured. By default this is '16', but you may change it at any time.  
+
+int Eaten;				
+* It returns 0 if Link is not eaten, otherwise it returns the duration of him being eaten.
+
+int Equipment;				
+* Link->Equipment is now read-write, and needs testing.
+
+int ItemA;				
+* Contains the item IDs of what is currently equiped to Link's A button.
+
+int ItemB;				
+* Contains the item IDs of what is currently equiped to Link's B button.
+
+int SetItemSlot(int itm_id, int button, int force);				
+* This allows you to set Link's button items without binary operation with options for forcing them.
+
+int UsingItem;			
+* Returns the ID of an item used when Link uses an item. Returns -1 if Link is not using an item this frame. 
+
+int UsingItemA;		
+* Returns the ID of an item used when Link uses an item on button A. Returns -1 if Link is not using an item this frame. 
+
+int UsingItemB;	
+* Returns the ID of an item used when Link uses an item on button B. Returns -1 if Link is not using an item this frame. 
+
+bool Diagonal;	
+* This corresponds to whether 'Diagonal Movement' is enabled, or not. 
+
+bool BigHitbox;		
+* This corresponds to whether 'Big Hitbox' is enabled, or not. 
+	
+int Attack; 
+
+/* The following have not been ported from 2.future to Canonical ZC:
+
+	int Animation;				
+	* Link;s Animation style, as set in Quest->Graphics->Sprites->Link
+						
+	int WalkASpeed;				
+	* Link's Walking Animation speed as set in Quest->Graphics->Sprites->Link
+
+	int SwimASpeed;				
+	* Link's Swiming Animation speed as set in Quest->Graphics->Sprites->Link
+
+	int HitHeight;				
+	* link's Hitbox height in pixels starting from his 0x,0y (upper-left) corner, going down. 
+			
+	int HitWidth;				
+	* Link's Hitbox width in pixels starting from his x0,y0 (upper-left) corner, going right. 
+
+	int HitXOffset;				
+	* The X offset of Link's hitbox, or collision rectangle.
+		
+	int HitYOffset;				
+	* The Y offset of Link's hitbox, or collision rectangle.
+
+	int Extend;			
+	* Sets the extend value for all of Link's various actions.
+*/
+
+void WarpEx(int ptr[])
+
+* Similar to Link->Warp, but with more options. This takes an array, or
+  an array literal as its arguments. 
+  
+  Valid array params are:
+	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags})
+	and
+	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags,forcedir}
+
+	type:
+		Warp types are:
+			wtIWARP: Acts like a tile warp.
+			wtExit: An entrance/exit warp.
+			wtSCROLL: A scrolling warp.
+			wtNONE: A cancel warp. 
+			
+	dmap:
+		The Destination DMap
+		
+	screen: 
+		The Destination Screen
+		
+	x, y:
+		Either raw pixel coordinates, or a warp return square ID.
+		
+			Link->WarpEx() Coordinates Versus Warp Return Square:
+				If 'x' and 'y' are both > -1, then they are raw coordinates as always.
+				If 'x' < 0, THEN 'y' is the warp return square type, using positive integers.
+
+				This allows using the warp return constants in std.zh, and it prevents a 
+				possible ID clash from both values trying to establish the square ID. 
+
+	effect:
+		Warp Effects are:
+		warpEffectNONE: No visual effect.
+		warpEffectZap: Zap Effects
+		warpEffectWave: Wave Effects
+		warpEffectInstant: Black screen.
+		warpEffectOpen: Calls the opening wipe.
+
+	sound:
+		You may play a special sound (e.g. Magic Mirror) during the warp.
+
+	flags:
+		Warp Flags are:
+		warpFlagKILLSCRIPTDRAWS: Don't kill script drawing during the warp.
+		warpFlagKILLSOUNDS: Don't kill playing sounds during the warp.
+		warpFlagKILLMUSIC: Don't kill playing music during the warp.
+
+		Their values are:
+		warpFlagKILLSCRIPTDRAWS 0x01
+		warpFlagKILLSOUNDS 0x02
+		warpFlagKILLMUSIC 0x04
+
+		Add them together to calculate a flag.
+
+	forcedir:
+		You can either accept the engine's setting for what Link's Dir should be
+		after warping him, or force a dir.
+
+
+
+
+/************************************************************************************************************/
+
+//////////////////
+///  itemdata  ///
+//////////////////
+
+int ID;		
+* Returns the item number of the item in question.
+
+int Modifier;	
+* The Link Tile Modifier
+
+int Tile;	
+* The tile used by the item.
+
+int CSet;	
+* The CSet of the tile used by the item.
+	
+int Flash;		
+* The Flash value for the CSet
+	
+int AFrames;		
+* The number of animation frames in the item's tile animation. 
+
+int ASpeed;		
+* The speed of the item's animation.
+	
+int Delay;	
+* The Delay value, before the animation begins. 
+
+int Script;		
+* The Action Script for the item.
+
+int PScript;	
+* The Pickup Script for the item.
+
+int MagicCost;	
+* The item's maic (or rupees, if this is set) cost.
+
+int MinHearts;		
+* The minimum number of hearts required to pick up the item.
+
+float Attributes[10] 
+* An array of ten integers that correspond to the ten <Misc> text entries on the item editor Data tab.
+* Now datatype-insensitive.
+
+int Sprites[10]
+* An array of ten integers that correspond to the ten sprite pulldowns on the item editor Action tab.
+
+bool Flags[5]
+* An array of five boolean flags that correspond to the five flag tickboxes on the item editor Data tab.
+
+bool Combine;	
+* Corresponds to 'Upgrade when collected twice'.
+	
+bool Downgrade;	
+* Corresponds to the 'Remove When Used' option on the Action tab of the item editor. 
+	
+bool KeepOld;
+* Corresponds to 'Keep lower level items on the Pickup tab of the item editor. 
+	
+bool RupeeCost;	
+* Corresponds to the 'Use Rupees Instead of Magic' option on the item editor 'Action' tab.
+* Deprecated by CostCounter.
+	
+bool Edible;	
+* Corresponds to the 'Can be Eaten by Enemies' box on the Pickup tab of the item editor. 
+	
+bool GainLower;	
+* Corresponds to the 'Gain All Lower Level Items' box on the Pickup tab of the item editor. 
+
+untyped InitD[8];
+* The eight D* args used by both item scripts. Accepts all datatypes.
+
+int Family;
+* The item class.
+
+int Level;
+* The item's Level.
+
+int Power; 
+* The amount of damage generated by the primary weapon for this item, if any.
+
+int Amount;
+int Max; 
+int MaxIncrement;
+int Keep;
+int Counter; //should be renamed to IncreaseCounter
+
+int MagicCostTimer //needsto be CostTimer
+* The number of frames between counter decrements, when using an item with a perpetual 
+* 	upkeep cost, such as Boots and Cane items.
+
+int UseSound;
+* The sound that will play when the item is used.
+
+int Pickup; 
+* The Pickup type for this item See IP_* in std_constants.zh.
+	
+int PickupFlags;
+* A flagset used by the Item Editor UI to determine special conditions for item pick-up.
+* Values are ORd together:
+*
+*
+
+int PickupString;
+* The ZQ String Editor (message) string that will appear when Link collects this item.
+* Note: The exact nature of hw frequently the string will be shown per game session can be
+*	modified using 'int PickupStringFlags'.
+
+int PickupStringFlags;
+* A flagset that determines how frequently the PickupString for an item is displayed per game session.
+* You may set the string to always show, only show once per game session, or other intervals
+* using the following flagset (values are ORd together):
+*
+*
+*
+
+int Cost; //may need to rename MagicCost, to Cost
+* The cost of the item, in units. Whenever the item is used, this value is decremented from 
+* 	the counter supplied to 'CostCounter'. 
+* If the item runs for more than one frame, this amount will be decremented every n frames,
+* 	where n is the value of 'CostTimer'.
+
+int CostCounter;
+* The counter to use when decrementing the item cost. The default is 'CR_MAGIC'.
+* Some item classes (e.g. Bombs) reduce a counter, whether this is set or not.
+* In the case that this is set on such an uitem, it acts as a secobdary cost.
+
+int DrawXOffset;
+* The horizontal draw offset of the item. 
+* Note: SizeFlags[??] must be enabled for this to function.
+	
+int DrawYOffset;
+* The vertical draw offset of the item. 
+* Note: SizeFlags[??] must be enabled for this to function.
+
+int HitXOffset;
+* The horizontal hitbox offset of the item. 
+* Note: SizeFlags[??] must be enabled for this to function.
+
+int HitYOffset;
+* The vertical hitbox offset of the item. 
+* Note: SizeFlags[??] must be enabled for this to function.
+
+int HitWidth;
+* The hitbox width (X component), in pixels, for the enemy.
+* Note: SizeFlags[??] must be enabled for this to function.
+
+int HitHeight;
+* The hitbox height (Y component), in pixels, for the enemy. 
+* Note: SizeFlags[??] must be enabled for this to function.
+
+int TileWidth;
+* The drawn width (X component) of the item in increments of one tile.
+* Note: SizeFlags[??] must be enabled for this to function.
+	
+int TileHeight;
+* The drawn height (Y component) of the item in increments of one tile.
+* Note: SizeFlags[??] must be enabled for this to function.
+
+int OverrideFlags;
+* ? Is this the same as SizeFlags? 
+
+int SizeFlags;
+* A flagset that determines which Item Editor 'Size' tab attribute values are applied to the
+* item, overriding engine defaults.
+
+int CollectFlags;
+* ?
+
+void GetName(int buffer[]);
+* Loads the item's name into 'buffer'.
+
+//Unimplemented for Weapon Editor: 
+int Weapon;
+int Defense;
+int Range;
+int Duration;
+untyped WeaponD[8];
+untyped WeaponMisc[32];
+int Duplicates;
+int DrawLayer; 
+int CollectFlags;
+int WeaponScript;
+int WeapomnHitXOffset;
+int WeaponHitYOffset;
+int WeaponHitHeight;
+int WeaponHitWidth;
+int WeaponHitZHeight;
+int WeaponDrawXOffset; 
+int WeaponDrawYOffset;
+int WeaponDrawZOffset;
+int WeaponOverrideFlags;
+
+t/b/a
+itemdata GetItem(name[]);
+
+/************************************************************************************************************/
+
+/////////////////////
+///  messagedata  ///
+/////////////////////
+
+void Set(int buffer[]);
+* Assigns the ZString buffer[] to the messagedata pointer's string.
+
+void Get(int buffer[]);
+* Copies the string value from the messagedata pointer, to the array buffer[].
+
+
+int buffer_str[80];
+
+int Next;
+* Next message in list.
+
+int Tile;
+int CSet;
+int Font;
+int X;
+int Y;
+int Width;
+int Height;
+int Sound;
+int ListPosition;
+int VSpace;
+int HSpace;
+int Flags;
+bool Transparent; (unused at this time).
+	
+//////////////////
+///  dmapdata  ///
+//////////////////
+
+	1.	Sideview Gravity on All Screens (uses Dmaps[].sideview, new var.
+	2.	Layer 3 is Background on All Screens (uses DMaps[].flgs&dmfLAYER3BG)
+	3.	Layer 2 is Background on All Screens (uses DMaps[].flgs&dmfLAYER2BG
+	
+int Map;
+int Level;
+int Offset;
+int Compass;
+int Palette;
+int MIDI;
+int Continue;
+int Type;
+int MusicTrack;
+int ActiveSubscreen;
+int PassiveSubscreen;
+int Grid[8];
+int MiniMapTile[2];
+int MiniMapCSet[2];
+int MapTile[2];
+int MapCSet[2];
+int DisabledItems[256];
+int Flags;
+bool Sideview;
+	
+void SetName(int buffer[]);
+void GetName(int buffer[]);
+void SetTitle(int buffer[]);
+void GetTitle(int buffer[]);
+void SetIntro(int buffer[]);
+void GetIntro(int buffe[]);
+
+void SetMusic(); //enh music
+void GetMusic();
+
+
+//////////////////
+///  shopdata  ///
+//////////////////
+
+	shop->Price[3]
+	infoshop->Price[3]
+	infoshop->String[3]
+	shop->Item[3]
+	shop->HasItem[3]
+
+/////////////////
+///  mapdata  ///
+/////////////////
+
+int Valid;
+* ?
+
+int Guy;
+* The screen guy.
+
+int String;
+* The screen string.
+
+int RoomType;
+* The screen room type.
+
+int Item;
+* The screen item.
+
+int HasItem;
+* ?
+
+int TileWarpType[4];
+* The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3] respectively.
+* See std_constants.zh TWTYPE_* constants for valid types.
+	
+int TileWarpOverlayFlags;
+* Combos carry over?
+
+int DoorComboSet;
+* The doorset used by the screen, for NES dungeon doors.
+	
+int WarpReturnX[4];
+* The X-component for each of the four 2.50+ (blue) warp return squares.
+	
+int WarpReturnY[4];
+* The Y-component for each of the four 2.50+ (blue) warp return squares.
+	
+int WarpReturnC;
+* ?
+
+int StairsX;
+* The X component for where a Stairs secret appears on the screen.
+	
+int StairsY;
+* The Y component for where a Stairs secret appears on the screen.
+	
+int ItemX;
+* The X component for the item location on the screen.
+	
+int ItemY;
+* The Y component for the item location on the screen.
+
+int CSet;
+* ? The screen palette. ?
+
+int Door[4];
+* The door state for the screen. See D_* constants for direction and door type.
+	
+int TileWarpDMap[4];
+* The destination DMap for each of the four warp types.
+	
+int TileWarpScreen[4];
+* The destination screen for each of the four warp types.
+
+int Enemy[10];
+* The IDs of the enemies that spawn on the screen.
+
+int EnemyFlags;
+* A flagset for enemies on the screen (E.Flags).
+* Valid values (ORd) together, are:
+*
+*
+
+int Pattern;
+* Ths enemy 'Spawn Pattern'.
+
+int SideWarpType[4];
+* The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3] respectively.
+* See std_constants.zh SWTYPE_* constants for valid types.
+	
+int SideWarpOverlayFlags;
+* Carryover?
+
+int SideWarpScreen[4];
+* The destination screen for each of the four sidewarps.
+	
+int SideWarpDMap[4];
+* The destination DMap for each of the four sidewarps.
+	
+int SideWarpIndex;
+* The warp return?? If so, should this be an array, or are these ORd values?
+
+int WarpArrivalX;
+* The X-component for the pre-2.50 (green) arrival square.
+	
+int WarpArrivalY;
+* The X-component for the pre-2.50 (green) arrival square.
+	
+int MazePath[4];
+* The four Maze Path directions.
+
+int ExitDir;
+* The Maze Path 'Exit Direction'.
+
+int UnderCombo;
+* The undercombo ID used by the screen.
+
+int UnderCSet;
+* The CSet of the undercombo used by the screen.
+
+int Catchall;
+* The screen 'Catchall' value. 
+
+int CSensitive;
+* The value of Damage Combo Sensitivity for the screen.
+	
+int NoReset;
+* The No Reset Flagset. Values are ORd together s follows:
+* Secrets		0x
+* Items			0x
+* Special Item		0x
+* Lock Block		0x
+* Boss Lock Block	0x
+* Chest			0x
+* Secrets		0x
+* Locked Chest		0x
+* Boss Locked Chest	0x
+* Door Up [0]		0x
+* Door Down[1]		0x
+* Door Left [2]		0x
+* Door Right [3]	0x
+
+
+int NoCarry;
+* The No Carru Over Flagset. Values are ORd together s follows:
+* Secrets		0x
+* Items			0x
+* Special Item		0x
+* Lock Block		0x
+* Boss Lock Block	0x
+* Chest			0x
+* Secrets		0x
+* Locked Chest		0x
+* Boss Locked Chest	0x
+
+int LayerMap[6];
+* The Map IDs used by screen layers 1 through 6, represented as [0] through [5].
+* I should adjust this array to begin a t1. -Z
+
+int LayerScreen[6];
+* The Screen IDs used by screen layers 1 through 6, represented as [0] through [5].
+* I should adjust this array to begin a t1. -Z
+
+int LayerOpacity[6];
+* The opacity value for each layer used by this screen.
+* Valid layers are 1 through 6, represented as [0] through [5].
+* I should adjust this array to begin a t1. -Z
+
+int TimedWarpTimer;
+* The timer used by 'Time Warp Tics' in Screen Data->T.Warp
+
+int NextMap;
+* ?
+int NextScreen;
+*?
+
+
+int SecretCombo[128];
+* The Combo IDs used by 'Secret Combos' on this screen.
+* See SCR_SEC_* in std_constants.zh for more information.
+	
+int SecretCSet[128];
+* The CSets used by 'Secret Combos' on this screen.
+* See SCR_SEC_* in std_constants.zh for more information.
+	
+int SecretFlags[128];
+* The Combo Flags used by 'Secret Combos' on this screen.
+* See SCR_SEC_* in std_constants.zh for more information.
+	
+int ViewX;
+* Unused at this time. Represents the visible width of the screen.
+
+int ViewY;
+* Unused at this time. Represents the visible height of the screen.
+
+int Width;
+* Unused at this time. Represents the physical;e width of the screen.
+
+int Height;
+* Unused at this time. Represents the physical height of the screen.
+
+int EntryX;
+* The X-coordinate at which Link entered the screen (his last spawn point).
+* If Link is respawned by falling in water, he will appear at this X-component. 
+
+int EntryY;
+* The Y-coordinate at which Link entered the screen (his last spawn point).
+* If Link is respawned by falling in water, he will appear at this Y-component. 
+
+
+int ScriptEntry;
+* ?
+int ScriptOccupancy;
+* ?
+int ExitScript;
+* ?
+
+int OceanSFX;
+* The 'Ambient Sound' under S.Data2. 
+* Rename this to AmbientSFX, or just SFX.
+
+int BossSFX;
+* The Boss Roar sound for this screen.
+	
+int SecretSFX;
+* The sound that will play on this screen, when secrets are triggered.
+
+int ItemSFX;
+* The sound that will play if Link holds an item over his head on this screen.
+	
+int MIDI;
+* The MIDI that plays on this screen.
+
+int LensLayer;
+* The layer to which Lens of Truth graphics are drawn.
+
+int Flags[10];
+* A set of flagsets that contain special data for thiws screen.
+* These represent S.Flags1 and S.Flags2 flags.
+* See std_constants.zh (SFG* for the screen flag froup, 
+*	and SFX* for the screen flag value) for more information. 
+	
+int D[8];
+* Improperly implemented. Was meant to relate as Screen->D, except that
+* 	Screen->D is not bound to layermap.
+
+int ComboD[176];
+* The IDs of each of the 176 combos used on the screen.
+
+int ComboC[176];
+* The CSets of each of the 176 combos used on the screen.
+
+int ComboF[176];
+* The placed (map) flags for each of the 176 combo positions used by this screen.
+
+
+int ComboS[176];
+* The inherent flags of each of the 176 combos used on the screen.
+
+int State[32];
+* The screen states used by this screen. Identical to Screen->State[], but for mapdata screens.
+
+int EFlags[3];
+* The Screen Data E.Flags flagsets. 
+* Values are:
+*
+
+
+int NumFFCs;
+* ? The number of ffcs running scripts?
+
+int FFCEffectWidth[32];
+* The EffectWidth variable for each of the 32 ffcs on the screen.
+* See ffc->EffectWidth for more details. 
+		
+int FFCEffectHeight[32];
+* The EffectHeight variable for each of the 32 ffcs on the screen.
+* See ffc->EffectHeight for more details. 
+	
+int FFCTileWidth[32];
+* The TileWidth variable for each of the 32 ffcs on the screen.
+* See ffc->TilwWidth for more details. 
+	
+int FFCTileHeight[32];
+* The TileHeighr variable for each of the 32 ffcs on the screen.
+* See ffc->TilwHeight for more details. 
+
+int FFCData[32];
+* The Data (combo ID) variable for each of the 32 ffcs on the screen.
+* See ffc->Data for more details. 
+	
+int FFCCSet[32];
+* The CSet variable for each of thr 32 ffcs on the screen.
+* See ffc->CSet for more details. 
+	
+int FFCDelay[32];
+* The Delay variable for each of thr 32 ffcs on the screen.
+* See ffc->Delay for more details. 
+	
+int FFCX[32];
+* The X variable for each of thr 32 ffcs on the screen.
+* See ffc->X for more details. 
+	
+int FFCY[32];
+* The Y variable for each of thr 32 ffcs on the screen.
+* See ffc->Y for more details. 
+	
+int FFCVx[32];
+* The Vx variable for each of thr 32 ffcs on the screen.
+* See ffc->Vx for more details. 
+	
+int FFCVy[32];
+* The Vy variable for each of thr 32 ffcs on the screen.
+* See ffc->Vy for more details. 
+	
+int FFCAx[32];
+* The Ax variable for each of thr 32 ffcs on the screen.
+* See ffc->Ax for more details. 
+	
+int FFCAy[32];
+* The Vy variable for each of thr 32 ffcs on the screen.
+* See ffc->Vy for more details. 
+	
+int FFCFlags[32];
+* The Flags variable for each of thr 32 ffcs on the screen.
+* See ffc->Flags for more details. 
+	
+int FFCLink[32];
+* The Link variable for each of thr 32 ffcs on the screen.
+* See ffc->Link for more details. 
+	
+int FFCScript[32];
+* The Script variable for each of thr 32 ffcs on the screen.
+* See ffc->Script for more details. 
+	
+bool FFCRunning[32];
+* Returns true if the specified ffc is running a script?
+* May be used to pause/resume ffc script execution?
+* This needs to be cloned over to ffc->Running -Z
+
+ //Functions
+int GetFFCInitD(int ffc_index, int n);
+* Returns the value of InitD[n] for the ffc on the scrrrn with an ID of ffc_index.
+* This needs to be converted to the type 'untyped' to comply
+* 	with the change of float ffc->InitD[] to untyped ffc->InitD[]
+* 	Note: Expressed as a function due to lack of 2D arrays in ZScript. 
+* 	With 2D arrays, this would simply be FFCInitD[32][8].
+
+void SetFFCInitD(int ffc_index, int n, float value);
+* Sets the value of InitD[n] for the ffc on the scrrrn with an ID of ffc_index.
+* 'int value' needs to be converted to the type 'untyped' to comply
+* 	with the change of float ffc->InitD[] to untyped ffc->InitD[]
+* 	Note: Expressed as a function due to lack of 2D arrays in ZScript. 
+* 	With 2D arrays, this would simply be FFCInitD[32][8].
+
+
+int GetFFCInitA(int ffc_index, int n);
+* Returns the value of InitA[n] for the ffc on the scrrrn with an ID of ffc_index.
+* 	Note: Expressed as a function due to lack of 2D arrays in ZScript. 
+* 	With 2D arrays, this would simply be FFCInitA[32][2].
+
+
+void SetFFCIniA(int ffc_index, int init_a, float value);
+* Sets the value of InitA[n] for the ffc on the scrrrn with an ID of ffc_index.
+* 	Note: Expressed as a function due to lack of 2D arrays in ZScript. 
+* 	With 2D arrays, this would simply be FFCInitA[32][2].
+
+
+
+
+///////////////////
+///  combodata  ///
+///////////////////
+
+int Type; 
+* The 'type' of the combo, in the Combo Editor. 
+* Setting this changes the combo type variables. ?
+
+int Tile; 
+* The tile ID used by the combo.
+
+int Flip; 
+* The flip settings for the combo tile.
+	
+int Walk;
+* The walkability flags value. 
+* Walk flags are OR'd together using values of:
+*	
+*	
+
+int CSet; 
+* The CSet values for the combo.
+* 	How is CSet2 stored?
+
+int Foo; 
+* Unused.
+
+int Frames; 
+* The number of frames of animation.
+
+int NextData;
+* 
+int NextCSet; 
+*
+int NextTimer; 
+*
+
+int Flag; 
+* The inherent flag bound to the combo.
+
+int SkipAnim; //needs to be renamed to SkipAnimX
+* Corresponds to 'A.SkipX' in the Combo Editor.
+
+int SkipAnimY; 
+* Corresponds to 'A.SkipX' in the Combo Editor.
+
+int AnimFlags;
+* This contains flag data for the Combo Editor settings:
+*	0x	Refresh Animation on Room Entry
+* 	0x 	Refresh Animation When Cycled To
+
+int Expansion[6]; 
+* Reserved for future use by the Combo Editor.
+	
+int Attributes[4]; 
+* Corresponds to Attributes[0] through Attributes[3] on the 'Attributes'
+* 	tab in the Combo Editor.
+
+int UserFlags;
+* Corresponds to the 'Misc Flags' on the Attributes tab of the Combo Editor.
+* These values are ORd together.
+
+int TriggerFlags[3]; 
+* Corresponds to the flags on the 'Triggered By' tabs of the Combo Editor
+* 	where the indices and flag values are:
+*	
+*	
+
+int TriggerLevel; 
+* Corresponds to the 'Minimum Level' field on the 'Triggered By (1)' tab of 
+*	the Combo Editor.
+
+/* Combo Types
+*	These values contain data that is used by ZC to determine the Combo Type.
+*	Using combodata in ZScript, it is possible to define wholly new types
+*	by combining sets of these values.
+*/
+
+int BlockNPC; 
+int BlockHole; 
+int BlockTrigger; 
+int BlockWeapon[32];
+int ConveyorSpeedX; 
+int ConveyorSpeedY; 
+int SpawnNPC; 
+int SpawnNPCWhen; 
+int SpawnNPCChange;
+int DirChange; 
+int DistanceChangeTiles; 
+int DiveItem; 
+int Dock; 
+int Fairy; 
+int FFCAttributeChange; 
+int DecorationTile; 
+int DecorationType; 
+int Hookshot;
+int Ladder; 
+int LockBlock; 
+int LockBlockChange; 
+int Mirror; 
+int DamageAmount; 
+int DamageDelay;
+int DamageType; 
+int MagicAmount; 
+int MagicDelay; 
+int MagicType; 
+int NoPushBlocks;
+int Overhead; 
+int PlaceNPC; 
+int PushDir; 
+int PushDelay; 
+int PushHeavy; 
+int Pushed; 
+int Raft;
+int ResetRoom; 
+int SavePoint; 
+int FreezeScreen; 
+int SecretCombo; 
+int Singular (self-only);
+int SlowWalk; 
+int Statue; 
+int Step; 
+int StepChange; 
+int Strike[32]; 
+int StrikeRemnants;
+int StrikeRemnantsType; 
+int StrikeChange; 
+int StrikeItem; 
+int TouchItem;	
+int TouchStairs; 
+int TriggerType; 
+int TriggerSensitivity; 
+int Warp; 
+int WarpSensitivity;
+int WarpDirect; 
+int WarpLocation; 
+int Water; 
+int Whistle; 
+int WinGame; 
+int BlockWeaponLevel;
+
+// t/b/a
+//void GetLabel() / GetName()
+//void SetLabel / SetName()
+//combodata GetCombo(int label[])
+//int Game->GetCombo(int name[])
+
+	triggerflags[3]
+	combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
+	combodata->Flags and Screen->ComboFlags[pos] -- Maybe ComboMisc[pos] to avoid confusion?
+	Combo QR rules will become ComboMisc[] ! 
+
+////////////////////
+///  Graphics->  ///
+////////////////////
+
+void Monochrome(int mode);
+* Sets the entire display to monmochrome output, using a hue mode that you may select, and either distributed,
+or uniform colour distribution.
+* This respects the current DMap (level) palette, and it affects the entire main game palette. 
+
+void MonoHue(int red, int green, int blue, bool distributed);
+* Sets the entire display to monmochrome output, using either distributed using a uniform mode, or
+a differential mode selected from `bool distributed`, using a hue based on the values that you supply
+as `red`, `green`, and `blue`. 
+* This respects the current DMap (level) palette, and it affects the entire main game palette. 
+
+void Tint(int red, int green, blue);
+* Tints the entire display with a palette shift using the values that you supply as `red`, `green`, and `blue`.
+* This respects the current DMap (level) palette, and it affects the entire main game palette. 
+
+void ClearTint();
+* Clears all tints, and monochrome/greyscale states back to the original game palette, and normalises it for
+the given DMap palette. 
+
+void Wavy(bool wavyin); 
+* Creates a wavy visual effect, identical to 'Wavy' Warp effects.
+* There are two styles, 'WavyIn', and 'WavyOut'. Select from these using paramater 1. 
+
+void Zap(bool zapin);
+* Creates a wavy visual effect, identical to 'Zap' Warp effects.
+* There are two styles, 'ZapIn', and 'ZapOut'. Select from these using paramater 1. 
+
+void Greyscale(bool enable);
+* Converts the game to monochrome greyscale, or reverts from greyscale to colour.
+* This is useful for simulating 'Gameboy' style displays.
+	
+//void Monochrome(int hue);
+// t/b/a, would allow monochrome in red, blue, green, or amber hues.
+
+/////////////////
+///  Audio->  ///
+/////////////////
+
+void PlaySound(int soundid);	ZASM Instruction: 
+					PLAYSOUNDR
+					PLAYSOUNDV
+	/**
+	* Plays one of the quest's sound effects. Use the SFX_ constants in
+	* std.zh as values of soundid.
+	*/ Example Use: !#!
+	
+void EndSound(int soundid);
+* If sfx_id is playing, calling this immediately stops that sound.
+
+void PauseSound(int soundid);
+* If sfx_id is playing, calling this pauses it, halting it from playing, in
+* a manner that you may later resume it from the point at which it was paused.
+* See also: Audio->ResumeSound(int sfx_id) and Audio->ContinueSound(int sfx_id).
+
+void ResumeSound(int soundid);
+* Resumes a sound effect with an ID of sfx_id, that has been paused.
+
+void ContinueSound(int soundid);
+* Resumes a sound effect with an ID of sfx_id, that has been paused.
+
+void AdjustMusicVolume(int percent); 
+* Adjusts the volume of all MIDI, DIGI, and Enhanced Music.
+* The parameter 'int percent' is the percentage of its present volume.
+* To double the volume, you would pass '200' to paramater 1; to reduce it by half, you
+*	would pass '50' to paramater 1.
+
+void AdjustSFXVolume(int percent);
+* Adjusts the volume of all Soune Effects (WAV).
+* The parameter 'int percent' is the percentage of its present volume.
+* To double the volume, you would pass '200' to paramater 1; to reduce it by half, you
+*	would pass '50' to paramater 1.
+
+void AdjustSound(int, int, bool)
+
+void PauseCurMIDI();
+* Pauses the current MIDI in a manner that permits resuming it.
+* Note: This does not affect Enhanced Music playback.
+* See also: Audio->ResumeCurMIDI().
+
+void ResumeCurMIDI();
+* Resumes MIDI playback, if it has been paused.
+* Note: This does not affect Enhanced Music playback.
+* See also: Audio->PauseCurMIDI().
+
+void PlayMIDI(int MIDIid);	ZASM Instruction: 
+					PLAYMIDIR
+					PLAYMIDIV
+	/**
+	* Changes the current screen MIDI to MIDIid.
+	* Will revert to the DMap (or screen) MIDI upon leaving the screen.
+	*/ Example Use: !#!
+
+bool PlayEnhancedMusic(int filename[], int track);
+		
+					ZASM Instruction: 
+					PLAYENHMUSIC
+	/**
+	* Play the specified enhanced music if it's available. If the music
+	* cannot be played, the current music will continue. The music will
+	* revert to normal upon leaving the screen.
+	* Returns true if the music file was loaded successfully.
+	* The filename cannot be more than 255 characters. If the music format
+	* does not support multiple tracks, the track argument will be ignored.
+	*/ Example Use: 
+	
+		int music[]="myfile.mp3"; // Make a string with the filename of the music to play.
+		if ( !Game->PlayEnhancedMusic(music, 1) ) Game->PlayMIDI(midi_id);
+		
+		// Plays the enhanced music file 'myfle.mp3', track 1. 
+		// If the file is mssing, the game will instead play 
+		// the midi specified as midi_id.
+
+int PanStyle;
+* Set or get the audio panning. See PAN_* constants in std_constants.zh for valid values.
+
+//int Volume[4]
+* Deprecated; raw access to the UI audio controls. (Now unsupported officially.)
+
+////////////////
+///  Text->  ///
+////////////////
+
+t/b/a
+
+/////////////////
+///  Input->  ///
+/////////////////
+
+Input->Press[18];
+* An array of boolean values that correspond to whether a control button, or a keyboard
+* 	key bound to a control button, was pressed this frame.
+*	Replaces Link->Press*.
+
+
+Button[18], 
+
+bool Hold[18];
+* An array of boolean values that correspond to whether a control button, oir a keyboard
+* 	key bound to a control button, was held down this frame.
+*	Replaces Link->Input*.
+
+bool Key[127];
+* Read-Only: An array of boolean values that read as 'true'
+* 	if the corresponding keyboard key was pressed this frame.
+	
+ReadKey[127] ( should become a function ReadKey() )
+	
+bool Joypad[18]; //this is erroneously set up as TYPE_FLOAT in the parser.
+* Similar to Press, except that it only returns presses from a joystick device, not a keyboard.
+
+float Mouse[6];
+* An array of boolean values that correspond to whether a mouse button, was clicked this frame,
+ plus the x/y components of the mouse.
+*	Replaces mouse variables under Link->.
+
+//int Type //this is a dummy function in the table.
+	
+/////////////////
+///  npcdata  ///
+/////////////////
+
+
+/*
+The npcdata datatype allows the user to load and manipulate Enemy Editor
+data, and to r/w that information.
+
+Like itemdata, this persists only until the quest exits.
+
+To use npcdata, you must declare an npcdata typed pointer, then load a npc ID
+to that pointer. 
+
+npcdata nd = Game->LoadNPCData(1); // Load enemy ID 1 to the pointer 'nd'.
+
+From here, you may access the member functions, and variables as normal:
+
+nd->HP = 32;
+
+*/
+
+int Tile;
+* The base tile used by the enemy.
+
+int Flags, 
+int Flags2, 
+
+int Width;
+* The 'width' (W) of base tile used by the enemy.
+
+int Height;
+* The 'height' (H) of base tile used by the enemy.
+
+int STile;
+* The base 'special' tile used by the enemy.
+
+int SWidth;
+* The 'width' (W) of base 'special' tile used by the enemy.
+
+int SHeight;
+* The 'height' (H) of base 'special' tile used by the enemy.
+
+int ExTile;
+* The base EXPANDED ('New') tile used by the enemy.
+
+int ExWidth;
+* The 'width' (W) of base EXPANDED ('New') tile used by the enemy.
+
+int ExHeight;
+* The 'height' (H) of base EXPANDED ('New') tile used by the enemy.
+
+int HP;
+* The enemy's base hit points.
+
+int Family;
+* The 'Type' of the enemy.
+
+int CSet, 
+* Thge CSet used to render the enemy.
+
+int Anim;
+* The 'O.Anim' used by the enemy.
+
+int ExAnim;
+* The 'E.Anim' used by the enemy.
+
+int Framerate;
+* The 'O.Anim' animation framerate used by the enemy.
+
+int ExFramerate;
+* The 'E.Anim' animation framerate used by the enemy.
+
+int TouchDamage;
+* The amount of contact damage that the enemy causes when it collides with Link.
+
+int WeaponDamage;
+* The power of the weapons fired by the enemy.
+
+int Weapon;
+* The weapon type used by the enemy.
+
+int Random;
+* The 'random rate' of the enemy.
+
+int Haltrate;
+* The 'turn frequency' used by the enemy during its movement phase.
+
+int Step;
+* The enem's step speed.
+
+int Homing;
+* The homing factor of the enemy. Greater values home more keenly on Link. 
+
+int Hunger;
+* The 'hunger' value of the enemy. 
+* Higher values make it more likely that the enemy is attracted to Bait.
+* Vald only for NPCT_WALKING enemies.
+
+int Dropset;
+* The dropset used by the enemy.
+
+int BGSFX;
+* The Ambient sound that the enemy emits.
+
+int DeathSFX;
+* The sound that is played when the enemy dies.
+
+int HitSFX;
+* The sound that is played when the enemy is hit by an lweapon.
+
+int DrawXOffset;
+* The horizontal draw offset of the enemy. 
+* Note: SizeFlag[??] must be enabled for this to function.
+	
+int DrawYOffset;
+* The vertical draw offset of the enemy. 
+* Note: SizeFlag[??] must be enabled for this to function.
+	
+int DrawZOffset;
+* The depth draw offset of the enemy. 
+* Note: SizeFlag[??] must be enabled for this to function.
+	
+int HitXOffset;
+* The horizontal hitbox offset of the enemy. 
+* Note: SizeFlag[??] must be enabled for this to function.
+
+int HitYOffset;
+* The vertical hitbox offset of the enemy. 
+* Note: SizeFlag[??] must be enabled for this to function.
+
+int HitWidth;
+* The hitbox width (X component), in pixels, for the enemy.
+* Note: SizeFlag[??] must be enabled for this to function.
+
+int HitHeight;
+* The hitbox height (Y component), in pixels, for the enemy. 
+* Note: SizeFlag[??] must be enabled for this to function.
+
+int HitZHeight;
+* The hitbox height (Z component), in pixels, for the enemy. 
+* Note: SizeFlag[??] must be enabled for this to function.
+	
+int TileWidth;
+* The drawn width (X component) of the enemy in increments of one tile.
+* Note: SizeFlag[??] must be enabled for this to function.
+	
+int TileHeight;
+* The drawn height (Y component) of the enemy in increments of one tile.
+* Note: SizeFlag[??] must be enabled for this to function.
+	
+int WeaponSprite;
+* The sprite used to draw the enemy weapon.
+
+int Defense[42];
+* The defense categories for the enemy.
+
+int SizeFlag[2];
+* A set of flags that determine if the values for the Enemy Editor 'Size' tab
+* 	are rendered by the engine.
+
+int Attributes[32];
+* The 'Misc. Attributes' of the enemy; now 32 of these; and datatype-insensitive.
+
+bool Shield[5];
+* The shield status of the enemy.
+* [0] through [3] correspond to DIR* constants.
+[4] corresponds to ???.
+
+int FrozenTile;
+* The base tile used to draw the enemy, when the enemy is frozen solid. //Not yet implemented in-engine.
+int FrozenCSet;
+* The CSet value used to render the enemy, when the enemy is frozen solid. //Not yet implemented in-engine.
+
+t/b/a
+//int Movement[32]
+//* The Movement Pattern values used by the enemy.
+//int WeaponMovement[32]
+//* The Weapon Movement Pattern values used by the enemy.
+
+//FireSFX
+//* The sound played when the enemy uses its weapon.
+
+
+
+////////////////////
+///  spritedata  ///
+////////////////////
+
+/*
+The spritedata datatype allows the user to load and manipulate weapon sprite struct
+data, and to r/w that information.
+
+Like itemdata, this persists only until the quest exits.
+
+To use spritedata, you must declare a spritedata typed pointer, then load a sprite ID
+to that pointer. 
+
+spritedata sd = Game->LoadSpriteData(1); // Load weapon sprite 1 to the pointer 'sd'.
+
+From here, you may access the member functions, and variables as normal:
+
+sd->Tile = 600;
+
+*/
+
+int Tile;
+* The tile used by the weapon sprite.
+
+int Misc;
+* The Misc Type. (or is this Type?)
+
+int CSet;
+* The CSet used by the sprite.
+
+int Frames;
+* The number of frames in the animation cycle.
+
+int Speed;
+* The speed of the animation cycle.
+
+int Type;
+* The Misc Type. (or is this Misc?)
+
+//Where are Flash, and Flags?! -Z
+
+//////////////////
+///  dropdata  ///
+//////////////////
+
+t/b/a
+
+////////////////
+///  bitmap  ///
+////////////////
+
+float GetPixel(int x, int y);
+* Returns the palette index value of a pixel on the current bitmap pointer (set by Game->LoadBitmapID).
+
+bitmap Create(int height, int width);
+Creates a bitmap with a size of height, width, and returns its pointer.
+
+void Blit(int layer, int target, ...);
+
+void Rectangle(...);
+* Identical to Screen->Rectangle(), but it draws to a target bitmap.
+
+void Circle(...);
+* Identical to Screen->Circle(), but it draws to a target bitmap.
+
+void Arc(...);
+* Identical to Screen->Arc(), but it draws to a target bitmap.
+
+void Ellipse(...);
+* Identical to Screen->Ellipse(), but it draws to a target bitmap.
+
+void Line(...);
+* Identical to Screen->Line(), but it draws to a target bitmap.
+
+void Spline(...);
+* Identical to Screen->Spline(), but it draws to a target bitmap.
+
+void PutPixel(...);
+* Identical to Screen->PutPixel(), but it draws to a target bitmap.
+
+void DrawCharacter(...);
+* Identical to Screen->DrawCharacter(), but it draws to a target bitmap.
+
+void DrawInteger(...);
+* Identical to Screen->DrawInteger(), but it draws to a target bitmap.
+
+void DrawTile(...);
+* Identical to Screen->DrawTile(), but it draws to a target bitmap.
+
+void DrawCombo(...);
+* Identical to Screen->DrawCombo(), but it draws to a target bitmap.
+
+void DrawString(...);
+* Identical to Screen->DrawString(), but it draws to a target bitmap.
+
+void DrawLayer(...);
+* Identical to Screen->DrawLayer(), but it draws to a target bitmap.
+
+void Quad(...);
+* Identical to Screen->Quad(), but it draws to a target bitmap.
+
+void Triangle(...);
+* Identical to Screen->Triangle(), but it draws to a target bitmap.
+
+void Quad3D(...);
+* Identical to Screen->Quad(), but it draws to a target bitmap.
+
+void Triangle3D(...);
+* Identical to Screen->Triangle(), but it draws to a target bitmap.
+
+void FastTile(...);
+* Identical to Screen->FastTile(), but it draws to a target bitmap.
+
+void FastCombo(...);
+* Identical to Screen->FastCombo(), but it draws to a target bitmap.
+
+
+// Load()
+// Create()
+// Destroy()
+// All screen drawing instructions.
+// Blit()
+// Resize?
+// int Width (read-only)
+// int Height (read-only)
+// int Depth (read-only)
+// Transform() 
+// RenderTo(target, mode, args[])
+// RenderFrom(target, mode, args[])
+
+
+t/b/a
+
+//////////////////
+///  ponddata  ///
+//////////////////
+
+t/b/a
+
+//////////////////
+///  warpring  ///
+//////////////////
+
+t/b/a
+
+/////////////////
+///  doorset  ///
+/////////////////
+
+t/b/a
+
+////////////////////
+///  misccolors  ///
+////////////////////
+
+t/b/a
+
+/////////////////
+///  rgbdata  ///
+/////////////////
+
+t/b/a
+
+/////////////////
+///  palette  ///
+/////////////////
+
+t/b/a
+
+////////////////
+///  zcmidi  ///
+////////////////
+
+t/b/a
+
+//////////////////
+///  palcycle  ///
+//////////////////
+
+t/b/a
+
+//////////////////
+///  gamedata  ///
+//////////////////
+
+t/b/a
+
+////////////////
+///  cheats  ///
+////////////////
+
+t/b/a
+
+/////////////////
+///  Debug->  ///
+/////////////////
+
+untyped NULL;
+untyped Null;
+untyped Null();
+untyped NULL();
+* You may assign this function to any datatype to clear it to NULL.
+* Example:
+lweapon l = Screen->LoadLWeapon(16);
+l->Dir = DIR_UP;
+l = NULL(); // Clear the pointer to NULL.
+
+float D[256];
+* This is the value of the ri->d[] registers. 
+* These vary depending on the function, or the instruction.
+* For variable access, SETTER: ri->d[0] is the value being passed to the variable.
+* For variable access, GETTER: ri->d[0] *MIGHT BE* the value read from ther variable. (Need to verify.)
+* For array access, SETTER: ri->d[0] is the array index, and ri->d[1] is the value.
+* For array access, GETTER: ri->d[0] is the array index. Not sure on the RVal at this time.
+
+* For functions, ri->d[n] are the args passed to the functions.
+* 	Typically, the order is ri->d[0] for the first parameter, and each additional param is one index higher.
+*	Some functions might pop values in weird ways. 
+*	It should be possible to purely write functions as SETTER and GETTER types, so that their params
+* 	are simply the ri->d[] values, in order. 
+
+* Script drawing commands use sdci[] (&script_drawing_commands[n1][n2]), which is different.
+* Their params should still be available via ri->d[], but some values, may not. 
+* 	The frirst param for any script drawing instruction is the BITMAP that it uses. 
+* 	For bitmap-> pointer drawing commands, the bitmap ID is ri->bitmapref, set by Game->LoadBitmapID().
+* 	Otherwise, the BITMAP pointer is set by SetRenderTarget(), qand held in sdci[18].
+*	The other params follow, as inputs from the instruction (function params passed to it).
+*	last, the playfield offsets typically follow the function params.
+* 	Of these, on;y the sdci[] values would be available to ri->d[], if nothing eats them beforehand.
+
+GDR[256]
+Debug->GetFFCPointer(), SetFFCPointer(), GetItemPointer(), SetItemPointer(), GetItemdataPointer(), SetItemdataPointer()
+	GetNPCPointer(), SetNPCPointer(), GetLWeaponPointer(), SetLWeaponPointer(), GetEWeaponPointer(),
+	SetEWeaponPointer(), RefFFC, RefItem, RefItemdata, RefLWeapon, RefEWeapon, RefNPC, SP
+,
+
+
+
+/************************************************************************************************************/
+Game->DEBUGGING: These might find their way into namespace Debug-> instead of Game-> in the future. 
+/************************************************************************************************************/	
+
+int RefFFC; 				ZASM Instruction:
+					REFFFC
+	/**
+	* Returns the present ffc refrence from the stack. FOR DEBUGGING ONLY!
+	* THIS WILL BE DISABLED IN RELEASE BUILDS !
+	*/ Example Use:
+	
+/************************************************************************************************************/	
+
+int RefItem; 				ZASM Instruction:
+					REFITEM
+	/**
+	* Returns the present item refrence from the stack. FOR DEBUGGING ONLY!
+	* THIS WILL BE DISABLED IN RELEASE BUILDS !
+	*/ Example Use:
+	
+/************************************************************************************************************/	
+
+int RefItemdata; 			ZASM Instruction:
+					REFIDATA
+	/**
+	* Returns the present itemdata refrence from the stack. FOR DEBUGGING ONLY!
+	* THIS WILL BE DISABLED IN RELEASE BUILDS !
+	*/ Example Use:
+	
+/************************************************************************************************************/	
+
+int RefLWeapon; 			ZASM Instruction:
+					REFLWPN
+	/**
+	* Returns the present lweapon refrence from the stack. FOR DEBUGGING ONLY!
+	* THIS WILL BE DISABLED IN RELEASE BUILDS !
+	*/ Example Use:
+	
+/************************************************************************************************************/	
+
+int RefEWeapon; 			ZASM Instruction:
+					REFEWPN
+	/**
+	* Returns the present eweapon refrence from the stack. FOR DEBUGGING ONLY!
+	* THIS WILL BE DISABLED IN RELEASE BUILDS !
+	*/ Example Use:
+	
+/************************************************************************************************************/	
+
+int RefNPC; 				ZASM Instruction:
+					REFNPC
+	/**
+	* Returns the present npc refrence from the stack. FOR DEBUGGING ONLY!
+	* THIS WILL BE DISABLED IN RELEASE BUILDS !
+	*/ Example Use:
+	
+/************************************************************************************************************/	
+
+int SP; 				ZASM Instruction:
+					SP
+	/**
+	* Returns the value of the stack pointer. FOR DEBUGGING ONLY!
+	* THIS WILL BE DISABLED IN RELEASE BUILDS !
+	*/ Example Use:
+
+
+////////////////////////
+/// Not Implemented  ///
+////////////////////////
+
+void ComboArray	( int layer, int number_of_combos, 
+			int combos[], 
+			int x_positions[], 
+			int y_positions[], 
+			int csets[]);
+			
+			ZASM: COMBOARRAY
+			
+/**
+*
+* Draws a number of combos specified by 'number_of_combos' to 'layer'.
+* Specify the combos by populating an array with their IDs and passing the array ointer to 'combos'.
+* Specify the X coordinate for each by passing an array with their x coordinates to 'x_positions'.
+* Specify the Y coordinate for each by passing an array with their y coordinates to 'y_positions'.
+* Specify the CSet for each by passing an array with their csets to 'csets'.
+*
+* This function counts as a single draw.
+*
+* Transparency is not yet imlemented, but you may draw to a bitmap and render it translucent.
+*// Example:
+
+int combos[4] = {16,19,31,20};
+int cmbx[4]= {0, 16, 32, 48}:
+int cmby[4]={8, 8, 8, 8);
+int cmbc[4]={0,0,0,0};
+Screen->ComboArray(6, 4, combos, cmbx, cmby, cmbc);
+
+
+
+void TileArray	( int layer, int number_of_tiles, 
+			int tiles[], 
+			int x_positions[], 
+			int y_positions[], 
+			int csets[]);
+			
+			ZASM: TILEARRAY
+			
+/**
+*
+* Draws a number of tiles specified by 'number_of_tiles' to 'layer'.
+* Specify the tiles by populating an array with their IDs and passing the array ointer to 'tiles'.
+* Specify the X coordinate for each by passing an array with their x coordinates to 'x_positions'.
+* Specify the Y coordinate for each by passing an array with their y coordinates to 'y_positions'.
+* Specify the CSet for each by passing an array with their csets to 'csets'.
+*
+* This function counts as a single draw.
+*
+* Transparency is not yet imlemented, but you may draw to a bitmap and render it translucent.
+*// Example:
+
+int tiles[4] = {16,19,31,20};
+int tilx[4]= {0, 16, 32, 48}:
+int tily[4]={8, 8, 8, 8);
+int tilc[4]={0,0,0,0};
+Screen->TileArray(6, 4, tiles, tilx, tily, tilc);
+
+
+/************************************************************************************************************/
+
+void PixelArray	( int layer, int number_of_pixels, 
+			int x_positions[], 
+			int y_positions[], 
+			int colours[]);
+			
+			ZASM: PIXELARRAY
+			
+/**
+*
+* Draws a number of pixel, similar to PutPixel, specified by 'number_of_pixels' to 'layer'.
+* Specify the X coordinate for each by passing an array with their x coordinates to 'x_positions'.
+* Specify the Y coordinate for each by passing an array with their y coordinates to 'y_positions'.
+* Specify the colour for each by passing an array with their csets to 'colours'.
+*
+* This function counts as a single draw.
+*
+* Transparency is not yet imlemented, but you may draw to a bitmap and render it translucent.
+*// Example:
+
+int pix[4] = {16,19,31,20};
+int px[4]= {0, 16, 32, 48}:
+int py[4]={8, 8, 8, 8);
+int pc[4]={0x12,0xB0,0xDA,0x4F};
+Screen->TileArray(6, 4, pix, px, py, pc);
+
+/************************************************************************************************************/
+
+CreateBitmap(int id, int xsize, int ysize)
+
+* Min size 1, max 2048
+/************************************************************************************************************/
+
+SetRenderSource(int target, int x, int y, int w, int h)
+
+/************************************************************************************************************/
+
+void Polygon	( int layer, ... );
+			
+			ZASM: POLYGON
+			
+* Adding to Beta 9 : Postponed -Z
+
+/************************************************************************************************************/
+
+//To add:
+Game->Freeze(int type) or Game->Suspend() 
+datatype->Create(), Load(), Destroy()
