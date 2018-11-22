@@ -6866,6 +6866,17 @@ namespace ZScript
 			return new OLinkWarpExRegister(a->clone());
 		}
 	};
+	
+	class OLinkExplodeRegister : public UnaryOpcode
+	{
+	public:
+		OLinkExplodeRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLinkExplodeRegister(a->clone());
+		}
+	};
 
 	
 	class OReturn : public Opcode

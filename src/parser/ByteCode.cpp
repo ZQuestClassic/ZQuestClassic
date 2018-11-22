@@ -4127,6 +4127,11 @@ string OLinkWarpExRegister::toString()
     return "LINKWARPEXR " + getArgument()->toString();
 }
 
+string OLinkExplodeRegister::toString()
+{
+    return "LINKEXPLODER " + getArgument()->toString();
+}
+
 string OReturn::toString()
 {
 	return "RETURN";

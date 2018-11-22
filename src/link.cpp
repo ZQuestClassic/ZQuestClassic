@@ -36,6 +36,7 @@ extern ZModule zcm;
 extern zcmodule moduledata;
 #include "mem_debug.h"
 #include "zscriptversion.h"
+#include "particles.h"
 
 using std::set;
 
@@ -62,6 +63,8 @@ int whistleitem=-1;
 extern word g_doscript;
 
 void playLevelMusic();
+
+extern sprite_list particles;
 
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
@@ -16606,4 +16609,56 @@ LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator !()
     return ret;
 }
 
+void LinkClass::explode(int type)
+{
+	static int tempx, tempy;
+	static byte linktilebuf[256];
+	int ltile=0;
+	int lflip=0;
+	bool shieldModify=true;
+	unpack_tile(newtilebuf, tile, flip, true);
+	memcpy(linktilebuf, unpackbuf, 256);
+	tempx=Link.getX();
+	tempy=Link.getY();
+	for(int i=0; i<16; ++i)
+	{
+                for(int j=0; j<16; ++j)
+                {
+                    if(linktilebuf[i*16+j])
+                    {
+                        if(type==0)  // Twilight
+                        {
+                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (rand()%8)+i*4));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=3;
+                        }
+                        else if(type ==1)  // Sands of Hours
+                        {
+                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (rand()%16)+i*2));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=4;
+                            
+                            if(rand()%10 < 2)
+                            {
+                                p->color=1;
+                                p->cset=0;
+                            }
+                        }
+                        else
+                        {
+                            particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], rand()%96));
+                            
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->angular=true;
+                            p->angle=rand();
+                            p->step=(((double)j)/8);
+                            p->yofs=Link.getYOfs();
+                        }
+                    }
+                }
+	}
+}
 /*** end of link.cpp ***/

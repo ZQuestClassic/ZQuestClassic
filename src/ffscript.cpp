@@ -16027,9 +16027,10 @@ case DMAPDATASETMUSICV: //command, string to load a music file
             FFCore.do_warp_ex(false);
             break;
 	}
-	case LINKWARPEXV:
+	
+	case LINKEXPLODER:
 	{
-            FFCore.do_warp_ex(true);
+            Link.explode(get_register(sarg1) / 10000);
             break;
 	}
 	

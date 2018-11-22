@@ -89,6 +89,9 @@ class LinkClass : public sprite
         {
             return newhopclk;
         }
+	
+	
+	
         int getHopDir()
         {
             return newhopdir;
@@ -250,6 +253,7 @@ public:
 	long misc_internal_link_flags;// Flags to hold data temporarily for misc handling
 	
     // Methods below here.
+    void explode(int type);
     void movelink();
     void move(int d);
     void hitlink(int hit);

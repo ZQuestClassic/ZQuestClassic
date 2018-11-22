@@ -726,6 +726,8 @@ script_command command_list[NUMCOMMANDS+1]=
      
      { "LINKWARPEXR",             1,   0,   0,   0},
      { "LINKWARPEXV",             1,   1,   0,   0},
+     { "LINKEXPLODER",             1,   0,   0,   0},
+     { "LINKEXPLODEV",             1,   1,   0,   0},
      
      { "",                    0,   0,   0,   0}
 };
