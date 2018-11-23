@@ -1057,8 +1057,9 @@ using namespace std;
 #define GRAPHICSMONO 	992
 #define GRAPHICSTINT 	993
 #define CREATEBITMAP 	994
+#define LINKTILEMOD 	995
 
-#define LAST_BYTECODE 		995
+#define LAST_BYTECODE 		996
 
 //END OF BYTECODE
 
@@ -6875,6 +6876,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OLinkExplodeRegister(a->clone());
+		}
+	};
+
+	class ONPCExplodeRegister : public UnaryOpcode
+	{
+	public:
+		ONPCExplodeRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ONPCExplodeRegister(a->clone());
 		}
 	};
 

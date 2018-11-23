@@ -1665,6 +1665,7 @@ string VarArgument::toString()
 	case DEBUGD: return "DEBUGD";
 	case GETPIXEL: return "GETPIXEL";
 	case DOUNTYPE: return "DOUNTYPE";
+	case LINKTILEMOD: return "LINKTILEMOD";
 	
 	
     default:
@@ -4130,6 +4131,11 @@ string OLinkWarpExRegister::toString()
 string OLinkExplodeRegister::toString()
 {
     return "LINKEXPLODER " + getArgument()->toString();
+}
+
+string ONPCExplodeRegister::toString()
+{
+    return "NPCEXPLODER " + getArgument()->toString();
 }
 
 string OReturn::toString()

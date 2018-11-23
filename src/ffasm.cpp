@@ -728,6 +728,8 @@ script_command command_list[NUMCOMMANDS+1]=
      { "LINKWARPEXV",             1,   1,   0,   0},
      { "LINKEXPLODER",             1,   0,   0,   0},
      { "LINKEXPLODEV",             1,   1,   0,   0},
+     { "NPCEXPLODER",             1,   0,   0,   0},
+     { "NPCEXPLODEV",             1,   1,   0,   0},
      
      { "",                    0,   0,   0,   0}
 };
@@ -1715,6 +1717,7 @@ script_variable variable_list[]=
 	{"NPCBEHAVIOUR", NPCBEHAVIOUR, 0, 0 },
 	{"NPCDATABEHAVIOUR", NPCDATABEHAVIOUR, 0, 0 },
 	{"CREATEBITMAP", CREATEBITMAP, 0, 0 },
+	{"LINKTILEMOD", LINKTILEMOD, 0, 0 },
 	
 	
 	

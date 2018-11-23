@@ -1406,6 +1406,10 @@ long get_register(const long arg)
 	ret = Awpn *10000;
 	break;
     
+    case LINKTILEMOD:
+	ret = Link.getTileModifier() * 10000;
+	break;
+    
     case LINKDIAG:
 	ret=Link.getDiagMove()?10000:0;
 	break;
@@ -6510,6 +6514,13 @@ void set_register(const long arg, const long value)
 	game->items_off[value/10000] = 0;
 	//directItemB = directItem;
 	break;
+    }
+    
+    case LINKTILEMOD:
+    {
+	Link.setTileModifier(value/10000);
+	break;
+	    
     }
 
 
@@ -13470,7 +13481,7 @@ static inline bool is_Side_view()
     return (((tmpscr->flags7&fSIDEVIEW)!=0 || DMaps[currdmap].sideview != 0) && !ignoreSideview); //DMap Enable Sideview on All Screens -Z //2.54 Alpha 27
 }
 
-//enum { warpFlagKILLSCRIPTDRAWS, warpFlagKILLSOUNDS, warpFlagKILLMUSIC };
+//enum { warpFlagDONTKILLSCRIPTDRAWS, warpFlagDONTKILLSOUNDS, warpFlagDONTKILLMUSIC };
 //enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectMozaic, warpEffectOpen }; 
 //valid warpTypes: tile, side, exit, cancel, instant
 bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir)
@@ -13520,7 +13531,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	}
 	
 	//warp coordinates are wx, wy, not x, y! -Z
-	if ( !(warpFlags&warpFlagKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
+	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
 	int wrindex = 0;
 	//we also need to check if dmaps are sideview here! -Z
 	//Likewise, we need to add that check to the normal Link:;dowarp(0
@@ -13539,8 +13550,8 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			bool wasswimming = (Link.getAction()==swimming);
 			byte olddiveclk = Link.diveclk;
 			ALLOFF();
-			if ( !(warpFlags&warpFlagKILLMUSIC) ) music_stop();
-			if ( !(warpFlags&warpFlagKILLSOUNDS) ) kill_sfx();
+			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
+			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
 			sfx(warpSound);
 			if(wasswimming)
 			{
@@ -13653,7 +13664,7 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			}
 			show_subscreen_life=true;
 			show_subscreen_numbers=true;
-			if ( !(warpFlags&warpFlagKILLMUSIC) ) Play_Level_Music();
+			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) Play_Level_Music();
 			currcset=DMaps[currdmap].color;
 			dointro();
 			Link.setEntryPoints((int)Link.x,(int)Link.y);
@@ -13667,8 +13678,8 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 			Z_scripterrlog("%s was called with a warp type of Entrance/Exit\n", "Link->WarpEx()");
 			lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
 			ALLOFF();
-			if ( !(warpFlags&warpFlagKILLMUSIC) ) music_stop();
-			if ( !(warpFlags&warpFlagKILLSOUNDS) ) kill_sfx();
+			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
+			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
 			sfx(warpSound);
 			blackscr(30,false);
 			currdmap = dmapID;
@@ -13905,14 +13916,22 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 		game->set_continue_scrn(scrID);
 		game->set_continue_dmap(dmapID);
 		lastentrance = scrID;
-		lastentrance = scrID;
-		Z_scripterrlog("Setting Last Entrance to: %d\n", scrID);
-		Z_scripterrlog("lastentrance = %d\n",lastentrance);
+		//Z_scripterrlog("Setting Last Entrance to: %d\n", scrID);
+		//Z_scripterrlog("lastentrance = %d\n",lastentrance);
 		lastentrance_dmap = dmapID;
-		Z_scripterrlog("Setting Last Entrance DMap to: %d\n", dmapID);
-		Z_scripterrlog("lastentrance_dmap = %d\n",lastentrance_dmap);
+		//Z_scripterrlog("Setting Last Entrance DMap to: %d\n", dmapID);
+		//Z_scripterrlog("lastentrance_dmap = %d\n",lastentrance_dmap);
 		//lastentrance_dmap = currdmap;
 		//lastentrance = game->get_continue_scrn();
+	}
+	else
+	{
+		if ( !(warpFlags&warpFlagSETENTRANCESCREEN) ) lastentrance = scrID;
+		if ( !(warpFlags&warpFlagSETENTRANCEDMAP) ) lastentrance_dmap = dmapID;
+		if ( !(warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(scrID);
+		if ( !(warpFlags&warpFlagSETCONTINUEDMAP) ) game->set_continue_dmap(dmapID);
+		
+		
 	}
 	if(tmpscr->flags4&fAUTOSAVE)
 	{
@@ -16030,7 +16049,37 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 	
 	case LINKEXPLODER:
 	{
-            Link.explode(get_register(sarg1) / 10000);
+	    int mode = get_register(sarg1) / 10000;
+	    if ( (unsigned) mode > 2 ) 
+	    {
+		    Z_scripterrlog("Invalid mode (%d) passed to Link->Explode(int mode)\n",mode);
+            }
+	    else Link.explode(mode);
+            break;
+	}
+	case NPCEXPLODER:
+	{
+	    
+	    int mode = get_register(sarg1) / 10000;
+		al_trace("Called npc->Explode(%d), for enemy index %d\n", mode, ri->guyref);
+	    if ( (unsigned) mode > 2 ) 
+	    {
+		    Z_scripterrlog("Invalid mode (%d) passed to npc->Explode(int mode)\n",mode);
+	    }
+	    else
+	    {
+		    if(GuyH::loadNPC(ri->guyref, "npc->Explode()") == SH::_NoError)
+		    {
+			al_trace("npc->Explode() is loading the npc into a pointer.\n");
+			//enemy *e = (enemy*)guys.spr(ri->guyref);
+			al_trace("npc->Explode() is calling enemy::explode.\n");
+			//(enemy *) guys.explode(eid);
+			//e->explode(mode);
+			    //enemy *en=GuyH::getNPC();
+			    //en->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
+				guys.spr(GuyH::getNPCIndex(ri->guyref))->explode(mode);
+		    }
+	    }
             break;
 	}
 	

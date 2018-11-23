@@ -26,9 +26,13 @@
 #define FFRULES_SIZE 1024
 
 //Link->WarpEx Flags
-#define warpFlagKILLSCRIPTDRAWS 0x01
-#define warpFlagKILLSOUNDS 0x02
-#define warpFlagKILLMUSIC 0x04
+#define warpFlagDONTKILLSCRIPTDRAWS 0x01
+#define warpFlagDONTKILLSOUNDS 0x02
+#define warpFlagDONTKILLMUSIC 0x04
+#define warpFlagSETENTRANCESCREEN 0x08
+#define warpFlagSETENTRANCEDMAP 0x10
+#define warpFlagSETCONTINUESCREEN 0x20
+#define warpFlagSETCONTINUEDMAP 0x040
 enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
 
 //unum FFCoreFlags[] { 
@@ -1676,6 +1680,8 @@ enum ASM_DEFINE
 	LINKWARPEXV,
 	LINKEXPLODER,
 	LINKEXPLODEV,
+	NPCEXPLODER,
+	NPCEXPLODEV,
 
 	NUMCOMMANDS           //0x013B
 };
@@ -2807,6 +2813,7 @@ enum ASM_DEFINE
 #define GRAPHICSMONO			0x1319	
 #define GRAPHICSTINT			0x131A	
 #define CREATEBITMAP			0x131B	
+#define LINKTILEMOD			0x131C	
 
 //bytecode
 
@@ -2814,7 +2821,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x131C
+#define NUMVARIABLES         0x131D
 
 
 // Script types

@@ -24,6 +24,8 @@
 #include "defdata.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
+#include "particles.h"
+extern sprite_list particles;
 
 extern FFScript FFCore;
 extern ZModule zcm;
@@ -442,6 +444,65 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))
         wpn = 0;
 }
+
+/*
+void enemy::explode(int type)
+{
+	al_trace("Trying to explode enemy tile: %d\n",o_tile);
+	tiledata *temptilebuf = NULL;
+	memset(temptilebuf, 0, sizeof(temptilebuf));
+	static int tempx, tempy;
+	static byte linktilebuf[256];
+	int ltile=0;
+	int lflip=0;
+	unpack_tile(temptilebuf, tile, flip, true);
+	//unpack_tile(temptilebuf, tile, flip, true);
+	//unpack_tile(temptilebuf, o_tile, 0, true);
+	memcpy(linktilebuf, temptilebuf, 256);
+	tempx=x;
+	tempy=y;
+	for(int i=0; i<16; ++i)
+	{
+                for(int j=0; j<16; ++j)
+                {
+                    if(linktilebuf[i*16+j])
+                    {
+                        if(type==0)  // Twilight
+                        {
+                            particles.add(new pTwilight((fix)x+j, (fix)y-(fix)z+i, 5, 0, 0, (rand()%8)+i*4));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=3;
+                        }
+                        else if(type ==1)  // Sands of Hours
+                        {
+                            particles.add(new pTwilight((fix)x+j, (fix)y-(fix)z+i, 5, 1, 2, (rand()%16)+i*2));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=4;
+                            
+                            if(rand()%10 < 2)
+                            {
+                                p->color=1;
+                                p->cset=0;
+                            }
+                        }
+                        else
+                        {
+                            particles.add(new pFaroresWindDust((fix)x+j, (fix)y-(fix)z+i, 5, 6, linktilebuf[i*16+j], rand()%96));
+                            
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->angular=true;
+                            p->angle=rand();
+                            p->step=(((double)j)/8);
+                            p->yofs=0;//yofs;
+                        }
+                    }
+                }
+	}
+}
+*/
 
 
 int enemy::getScriptUID() { return script_UID; }
