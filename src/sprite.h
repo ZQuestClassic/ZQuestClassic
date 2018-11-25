@@ -103,6 +103,7 @@ public:
     sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs);
     virtual ~sprite();
     virtual void draw(BITMAP* dest);                        // main layer
+    virtual void old_draw(BITMAP* dest);                        // main layer
     virtual void draw8(BITMAP* dest);                       // main layer
     virtual void drawcloaked(BITMAP* dest);                 // main layer
     virtual void drawshadow(BITMAP* dest, bool translucent);// main layer

@@ -1689,6 +1689,85 @@ bool enemy::dont_draw()
     return false;
 }
 
+// drawingng used in 2.50.x
+void enemy::old_draw(BITMAP *dest)
+{
+    if(dont_draw())
+        return;
+        
+    int cshold=cs;
+    
+    if(dying)
+    {
+        if(clk2>=19)
+        {
+            if(!(clk2&2))
+                sprite::draw(dest);
+                
+            return;
+        }
+        
+        flip = 0;
+        tile = wpnsbuf[iwDeath].newtile;
+	//The scale of this tile shouldx be based on the enemy size. -Z
+        
+        if(BSZ)
+            tile += zc_min((15-clk2)/3,4);
+        else if(clk2>6 && clk2<=12)
+            ++tile;
+            
+        /* trying to get more death frames here
+          if(wpnsbuf[wid].frames)
+          {
+          if(++clk2 >= wpnsbuf[wid].speed)
+          {
+          clk2 = 0;
+          if(++aframe >= wpnsbuf[wid].frames)
+          aframe = 0;
+          }
+          tile = wpnsbuf[wid].tile + aframe;
+          }
+          */
+        
+        if(BSZ || fading==fade_blue_poof)
+            cs = wpnsbuf[iwDeath].csets&15;
+        else
+            cs = (((clk2+5)>>1)&3)+6;
+    }
+    else if(hclk>0)
+    {
+        if(family==eeGANON)
+            cs=(((hclk-1)>>1)&3)+6;
+        else if(hclk<33 && !get_bit(quest_rules,qr_ENEMIESFLICKER))
+            cs=(((hclk-1)>>1)&3)+6;
+    }
+    
+    if((tmpscr->flags3&fINVISROOM) &&
+            !(current_item(itype_amulet)) &&
+            !((get_bit(quest_rules,qr_LENSSEESENEMIES) || (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5) ) &&
+              lensclk) && family!=eeGANON)
+    {
+        sprite::drawcloaked(dest);
+    }
+    else
+    {
+	    if ( frozenclock < 0 )
+	    {
+		if ( frozentile > 0 ) tile = frozentile;
+		loadpalset(csBOSS,frozencset);
+	    }
+        if(family !=eeGANON && hclk>0 && get_bit(quest_rules,qr_ENEMIESFLICKER))
+        {
+            if((frame&1)==1)
+                sprite::draw(dest);
+        }
+        else
+            sprite::draw(dest);
+    }
+    
+    cs=cshold;
+}
+
 #define DRAW_NORMAL 1
 #define DRAW_CLOAKED 1
 #define DRAW_INVIS 0
@@ -1696,6 +1775,15 @@ bool enemy::dont_draw()
 // sprite::draw()
 void enemy::draw(BITMAP *dest)
 {
+    //Temporary fix for bugs when drawing some enemies. -Z
+    //Statues need the invis flag set by the quest loader.
+    //I'm not sure what specifiuc segment of lanmolas is intended to be invisible.
+    //if ( family == eePROJECTILE || family == eeGANON || family == eeLANM ) 
+    //{
+    //    old_draw(dest);
+    //    return;
+    //}
+    
 	//Let's clen up this logic; shall we?
     byte canSee = DRAW_INVIS;
     if ( editorflags & ENEMY_FLAG1 )
@@ -1754,7 +1842,7 @@ void enemy::draw(BITMAP *dest)
     {
 	    //new enemy editor behaviour flags for Ganon
 	
-	if ( family == eeGANON ) 
+	if ( family == eeGANON ) return;
 	/*
 	{
 	    //if ( editorflags & ENEMY_FLAG1 || ( (editorflags & ENEMY_FLAG2) && ( misc13 >= 0 : game->item[misc13] ? (linkhasitemclass((misc13*-1)) ) ) //ganon is visible to level 2 amulet
