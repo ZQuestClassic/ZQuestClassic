@@ -230,66 +230,63 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		{
 			ScriptType type = program.getScript(scriptname)->getType();
 			
-			switch(type)
+			if (type == ScriptType::ffc )
 			{
-				case ScriptType::ffc:
-				{
-					funccode.push_back(
-						new OSetRegister(new VarArgument(EXP2),
-						                 new VarArgument(REFFFC)));
-					break;
-					
-				}
-				case ScriptType::item:
-				{
-					funccode.push_back(
-						new OSetRegister(new VarArgument(EXP2),
-						                 new VarArgument(REFITEMCLASS)));
-					break;
-				}
-				case ScriptType::npc:
-				{
-					funccode.push_back(
-						new OSetRegister(new VarArgument(EXP2),
-						                 new VarArgument(REFNPC)));
-					break;
-				}
-				case ScriptType::lweapon:
-				{
-					funccode.push_back(
-						new OSetRegister(new VarArgument(EXP2),
-						                 new VarArgument(REFLWPN)));
-					break;
-				}
-				case ScriptType::eweapon:
-				{
-					funccode.push_back(
-						new OSetRegister(new VarArgument(EXP2),
-						                 new VarArgument(REFEWPN)));
-					break;
-				}
-				case ScriptType::dmap:
-				{
-					funccode.push_back(
-						new OSetRegister(new VarArgument(EXP2),
-						                 new VarArgument(LOADMAPDATA)));
-					break;
-				}
-				/* Do we want these here--ever? -Z
-				case ScriptType::link:
-				{
-					funccode.push_back(
-						new OSetRegister(new VarArgument(EXP2),
-						                 new VarArgument(link?)));
-					break;
-				}
-				case ScriptType::screen:
-				{
-					funccode.push_back(
-						new OSetRegister(new VarArgument(EXP2),
-						                 new VarArgument(tempscr?)));
-					break;
-				}
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFFFC)));
+				
+				
+			}
+			else if (type == ScriptType::item )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFITEMCLASS)));
+				
+			}
+			else if (type == ScriptType::npc )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFNPC)));
+				
+			}
+			else if (type == ScriptType::lweapon )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFLWPN)));
+			}
+			else if (type == ScriptType::eweapon )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFEWPN)));
+				
+			}
+			else if (type == ScriptType::dmap )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(LOADMAPDATA)));
+			
+			}
+			/* Do we want these here--ever? -Z
+			else if (type == ScriptType::link )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(link?)));
+				
+			}
+			else if (type == ScriptType::screen )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(tempscr?)));
+				
+			}
 				*/
 				
 			}
