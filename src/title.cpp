@@ -60,6 +60,7 @@ savedicon iconbuffer[15];
 
 static bool chosecustomquest = false;
 
+extern char runningItemScripts[256];
 
 FONT *get_zcfont(int index)
 {
@@ -682,6 +683,8 @@ static void treasures(int f)
 static void NES_titlescreen()
 {
     FFCore.kb_typing_mode = false;
+    for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+
     int f=0;
     bool done=false;
     wave[0]=0;
@@ -750,6 +753,8 @@ static void NES_titlescreen()
 static void DX_mainscreen(int f)
 {
     FFCore.kb_typing_mode = false;
+    for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+	
     set_uformat(U_ASCII);
     
     static int pic=0;
@@ -858,6 +863,8 @@ static void DX_titlescreen()
 {
     //  JGMOD *yea;
     FFCore.kb_typing_mode = false;
+	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+
     int f=0;
     bool done=false;
     trstr=0;
@@ -918,6 +925,8 @@ static void DX_titlescreen()
 static void v25_mainscreen(int f)
 {
     FFCore.kb_typing_mode = false;
+	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+	
     set_uformat(U_ASCII);
     
     static int pic=0;
@@ -1025,6 +1034,8 @@ static void v25_mainscreen(int f)
 static void v25_titlescreen()
 {
     FFCore.kb_typing_mode = false;
+	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+
     //  JGMOD *yea;
     int f=0;
     bool done=false;

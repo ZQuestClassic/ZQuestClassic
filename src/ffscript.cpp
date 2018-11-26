@@ -16285,7 +16285,10 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 			memset(stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 			stack = pvsstack;
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ri->idata].script, (ri->idata) & 0xFFF);
-			//if ( mode ) runningItemScripts[ri->idata] = 2; //2 == script forced
+			if ( mode ) 
+			{
+				runningItemScripts[ri->idata] = 2; //2 == script forced
+			}
 		//}
 		break;
 	}
@@ -18872,10 +18875,11 @@ void FFScript::itemScriptEngine()
 					runningItemScripts[q] = 0;
 				}
 			}
-			//else if ( runningItemScripts[q] == 2 ) //forced to run perpetually by itemdata->RunScript(int mode)
-			//{
-			//	ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-			//}
+			else if ( runningItemScripts[q] == 2 ) //forced to run perpetually by itemdata->RunScript(int mode)
+			{
+				Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+			}
 		//}
 		    
 	}
