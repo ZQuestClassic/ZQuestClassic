@@ -18852,13 +18852,14 @@ void FFScript::clearRunningItemScripts()
 }
 
 
-void FFScript::newScriptEngine()
+bool FFScript::newScriptEngine()
 {
 	itemScriptEngine();
 	advanceframe(true);
+	return false;
 }
 
-void FFScript::itemScriptEngine()
+bool FFScript::itemScriptEngine()
 {
 	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
 	for ( int q = 0; q < 256; q++ )
@@ -18891,5 +18892,5 @@ void FFScript::itemScriptEngine()
 		    
 	}
 	
-	//return 0;
+	return false;
 }

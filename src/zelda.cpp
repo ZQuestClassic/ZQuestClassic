@@ -2830,6 +2830,10 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
 	#endif
         Lwpns.animate();
+        #if LOGGAMELOOP > 0
+	al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
+	#endif
+        FFCore.itemScriptEngine();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
 	#endif

@@ -130,8 +130,8 @@ long getQuestHeaderInfo(int type);
 
 
 void clearRunningItemScripts();
-void itemScriptEngine();
-void newScriptEngine();
+bool itemScriptEngine();
+bool newScriptEngine();
 
 /*
 long getQuestHeaderInfo(int type)
