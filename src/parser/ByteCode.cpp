@@ -4150,6 +4150,16 @@ string OItemExplodeRegister::toString()
     return "ITEMEXPLODER " + getArgument()->toString();
 }
 
+string ORunItemScript::toString()
+{
+    return "RUNITEMSCRIPT " + getArgument()->toString();
+}
+
+//string ORunItemScript::toString()
+//{
+//    return "RUNITEMSCRIPT";
+//}
+
 string OReturn::toString()
 {
 	return "RETURN";

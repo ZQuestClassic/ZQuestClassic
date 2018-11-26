@@ -16266,6 +16266,33 @@ case DMAPDATASETMUSICV: //command, string to load a music file
             break;
 	}
 	
+	case RUNITEMSCRIPT:
+	{
+		Z_scripterrlog("Trying to run the script on item: %d\n",ri->idata);
+		Z_scripterrlog("The script ID is: %d\n",itemsbuf[ri->idata].script);
+		int mode = get_register(sarg1) / 10000;
+		//int script_id = itemsbuf[ri->idata].script;
+		//if ( !script_id ) 
+		//{
+		//	set_register(sarg1, 0);
+		//}
+		//else
+		//{
+		//	set_register(sarg1, script_id*10000);
+			curscript = 0;
+			long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+			stack = &(item_stack[ri->idata]);
+			memset(stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+			stack = pvsstack;
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ri->idata].script, (ri->idata) & 0xFFF);
+			if ( mode ) 
+			{
+				runningItemScripts[ri->idata] = 2; //2 == script forced
+			}
+		//}
+		break;
+	}
+	
 	//case NPCData
 	
 	case 	GETNPCDATATILE: FFScript::getNPCData_tile(); break;
@@ -18847,6 +18874,11 @@ void FFScript::itemScriptEngine()
 				{
 					runningItemScripts[q] = 0;
 				}
+			}
+			else if ( runningItemScripts[q] == 2 ) //forced to run perpetually by itemdata->RunScript(int mode)
+			{
+				Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
 			}
 		//}
 		    

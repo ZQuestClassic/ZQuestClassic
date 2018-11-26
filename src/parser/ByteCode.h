@@ -6922,8 +6922,28 @@ namespace ZScript
 			return new OItemExplodeRegister(a->clone());
 		}
 	};
-
 	
+	class ORunItemScript : public UnaryOpcode
+	{
+	public:
+		ORunItemScript(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new ORunItemScript(a->clone());
+		}
+	};
+	/*
+	class ORunItemScript : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new ORunItemScript();
+		}
+	};
+	*/
 	class OReturn : public Opcode
 	{
 	public:

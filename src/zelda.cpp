@@ -1444,6 +1444,7 @@ int init_game()
     srand(time(0));
     //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.kb_typing_mode = false;
+	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 	draw_screen_clip_rect_x1=0; //Prevent the ending sequence from carrying over through 'Reset System' -Z
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
@@ -4460,12 +4461,13 @@ int main(int argc, char* argv[])
             show_subscreen_life=true;
             show_ff_scripts=false;
             introclk=intropos=0;
-            
-            initZScriptGlobalRAM();
+            for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+
+            initZScriptGlobalRAM(); //Should we not be calling this AFTER running the exit script!!
 		
 	    //Run Global script OnExit
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
-            
+           
             if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
             
 		
@@ -4503,11 +4505,13 @@ int main(int argc, char* argv[])
             show_subscreen_numbers=true;
             show_subscreen_items=true;
             show_subscreen_life=true;
-            
+            for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+
             initZScriptGlobalRAM();
 	    //Run global script OnExit
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
 		
+	    
 		
             ending();
         }
