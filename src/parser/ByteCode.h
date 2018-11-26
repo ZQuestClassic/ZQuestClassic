@@ -6889,6 +6889,39 @@ namespace ZScript
 			return new ONPCExplodeRegister(a->clone());
 		}
 	};
+	
+	class OLWeaponExplodeRegister : public UnaryOpcode
+	{
+	public:
+		OLWeaponExplodeRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OLWeaponExplodeRegister(a->clone());
+		}
+	};
+
+	class OEWeaponExplodeRegister : public UnaryOpcode
+	{
+	public:
+		OEWeaponExplodeRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OEWeaponExplodeRegister(a->clone());
+		}
+	};
+
+	class OItemExplodeRegister : public UnaryOpcode
+	{
+	public:
+		OItemExplodeRegister(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OItemExplodeRegister(a->clone());
+		}
+	};
 
 	
 	class OReturn : public Opcode

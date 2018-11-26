@@ -3068,6 +3068,7 @@ static AccessorTable itemTable[] =
     { "setPickupStringFlags",              ZVARTYPEID_VOID,          SETTER,       ITEMPSTRINGFLAGS,           1,      {  ZVARTYPEID_ITEM,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getSizeFlags",              ZVARTYPEID_FLOAT,         GETTER,       ITEMOVERRIDEFLAGS,           1,      {  ZVARTYPEID_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setSizeFlags",              ZVARTYPEID_VOID,          SETTER,       ITEMOVERRIDEFLAGS,           1,      {  ZVARTYPEID_ITEM,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "Explode",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_ITEM,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -3091,6 +3092,21 @@ void ItemSymbols::generateCode()
         code.push_back(first);
         //Check validity
         code.push_back(new OIsValidItem(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //void Explode(ITEM, int)
+    {
+	    Function* function = getFunction("Explode");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OItemExplodeRegister(new VarArgument(EXP1)));
         code.push_back(new OReturn());
         function->giveCode(code);
     }
@@ -5519,7 +5535,7 @@ void NPCSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
-    //void GetName(npc, int)
+    //void Explode(npc, int)
     {
 	    Function* function = getFunction("Explode");
         int label = function->getLabel();
@@ -5637,7 +5653,8 @@ static AccessorTable lwpnTable[] =
     { "getLevel",          ZVARTYPEID_FLOAT,         GETTER,       LWPNLEVEL,            1,      {  ZVARTYPEID_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setLevel",          ZVARTYPEID_VOID,          SETTER,       LWPNLEVEL,            1,      {  ZVARTYPEID_LWPN,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getUID",          ZVARTYPEID_FLOAT,         GETTER,       LWEAPONSCRIPTUID,            1,      {  ZVARTYPEID_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-   
+    { "Explode",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_LWPN,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
    
 
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
@@ -5662,6 +5679,21 @@ void LinkWeaponSymbols::generateCode()
         code.push_back(first);
         //Check validity
         code.push_back(new OIsValidLWpn(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //void Explode(lweapon, int)
+    {
+	    Function* function = getFunction("Explode");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OLWeaponExplodeRegister(new VarArgument(EXP1)));
         code.push_back(new OReturn());
         function->giveCode(code);
     }
@@ -5767,6 +5799,8 @@ static AccessorTable ewpnTable[] =
     { "setCollDetection", 	  ZVARTYPEID_VOID,          SETTER,       EWPNCOLLDET,          1,      {  ZVARTYPEID_EWPN,          ZVARTYPEID_BOOL,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "getUID",          ZVARTYPEID_FLOAT,         GETTER,       EWEAPONSCRIPTUID,            1,      {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 
+    { "Explode",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
@@ -5789,6 +5823,21 @@ void EnemyWeaponSymbols::generateCode()
         code.push_back(first);
         //Check validity
         code.push_back(new OIsValidEWpn(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //void Explode(eweapon, int)
+    {
+	    Function* function = getFunction("Explode");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OEWeaponExplodeRegister(new VarArgument(EXP1)));
         code.push_back(new OReturn());
         function->giveCode(code);
     }

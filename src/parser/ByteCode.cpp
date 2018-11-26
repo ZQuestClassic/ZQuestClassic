@@ -4137,6 +4137,18 @@ string ONPCExplodeRegister::toString()
 {
     return "NPCEXPLODER " + getArgument()->toString();
 }
+string OLWeaponExplodeRegister::toString()
+{
+    return "LWEAPONEXPLODER " + getArgument()->toString();
+}
+string OEWeaponExplodeRegister::toString()
+{
+    return "EWEAPONEXPLODER " + getArgument()->toString();
+}
+string OItemExplodeRegister::toString()
+{
+    return "ITEMEXPLODER " + getArgument()->toString();
+}
 
 string OReturn::toString()
 {

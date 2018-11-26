@@ -23,6 +23,11 @@ zquestheader ZCheader;
 ZModule zcm;
 zcmodule moduledata;
  
+//item *FFCore.temp_ff_item = NULL;
+//enemy *FFCore.temp_ff_enemy = NULL;
+//weapon *FFCore.temp_ff_lweapon = NULL;
+//weapon *FFCore.temp_ff_eweapon = NULL;
+
 //miscQdata *Misc;
 
 #include "zelda.h"
@@ -442,6 +447,9 @@ public:
 ///------------------------------------------------//
 //MUST call AND check load functions before trying to use other functions
 
+
+    
+
 //Guy Helper
 class GuyH : public SH
 {
@@ -586,6 +594,17 @@ public:
         return _NoError;
     }
     
+    static int getItemIndex(const long iid)
+    {
+        for(word i = 0; i < items.Count(); i++)
+        {
+            if(items.spr(i)->getUID() == iid)
+                return i;
+        }
+        
+        return -1;
+    }
+    
     static INLINE item* getItem()
     {
         return tempitem;
@@ -626,6 +645,17 @@ public:
         return _NoError;
     }
     
+    static int getLWeaponIndex(const long lwid)
+    {
+        for(word i = 0; i < Lwpns.Count(); i++)
+        {
+            if(Lwpns.spr(i)->getUID() == lwid)
+                return i;
+        }
+        
+        return -1;
+    }
+    
     static INLINE weapon *getWeapon()
     {
         return tempweapon;
@@ -664,6 +694,17 @@ public:
         }
         
         return _NoError;
+    }
+    
+    static int getEWeaponIndex(const long ewid)
+    {
+        for(word i = 0; i < Ewpns.Count(); i++)
+        {
+            if(Ewpns.spr(i)->getUID() == ewid)
+                return i;
+        }
+        
+        return -1;
     }
     
     static INLINE weapon *getWeapon()
@@ -16078,6 +16119,61 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 			    //enemy *en=GuyH::getNPC();
 			    //en->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
 				guys.spr(GuyH::getNPCIndex(ri->guyref))->explode(mode);
+		    }
+	    }
+            break;
+	}
+	
+	case ITEMEXPLODER:
+	{
+	    
+	    int mode = get_register(sarg1) / 10000;
+		al_trace("Called item->Explode(%d), for item index %d\n", mode, ri->itemref);
+	    if ( (unsigned) mode > 2 ) 
+	    {
+		    Z_scripterrlog("Invalid mode (%d) passed to item->Explode(int mode)\n",mode);
+	    }
+	    else
+	    {
+		    if(ItemH::loadItem(ri->itemref, "item->Explode()") == SH::_NoError)
+		    {
+				items.spr(ItemH::getItemIndex(ri->itemref))->explode(mode);
+		    }
+	    }
+            break;
+	}
+	case LWEAPONEXPLODER:
+	{
+	    
+	    int mode = get_register(sarg1) / 10000;
+		al_trace("Called lweapon->Explode(%d), for lweapon index %d\n", mode, ri->lwpn);
+	    if ( (unsigned) mode > 2 ) 
+	    {
+		    Z_scripterrlog("Invalid mode (%d) passed to lweapon->Explode(int mode)\n",mode);
+	    }
+	    else
+	    {
+		    if(LwpnH::loadWeapon(ri->itemref, "lweapon->Explode()") == SH::_NoError)
+		    {
+				Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn))->explode(mode);
+		    }
+	    }
+            break;
+	}
+	case EWEAPONEXPLODER:
+	{
+	    
+	    int mode = get_register(sarg1) / 10000;
+		al_trace("Called eweapon->Explode(%d), for eweapon index %d\n", mode, ri->ewpn);
+	    if ( (unsigned) mode > 2 ) 
+	    {
+		    Z_scripterrlog("Invalid mode (%d) passed to eweapon->Explode(int mode)\n",mode);
+	    }
+	    else
+	    {
+		    if(EwpnH::loadWeapon(ri->ewpn, "eweapon->Explode()") == SH::_NoError)
+		    {
+				Ewpns.spr(EwpnH::getEWeaponIndex(ri->lwpn))->explode(mode);
 		    }
 	    }
             break;

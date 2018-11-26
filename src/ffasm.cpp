@@ -731,6 +731,13 @@ script_command command_list[NUMCOMMANDS+1]=
      { "NPCEXPLODER",             1,   0,   0,   0},
      { "NPCEXPLODEV",             1,   1,   0,   0},
      
+     { "ITEMEXPLODER",             1,   0,   0,   0},
+     { "ITEMEXPLODEV",             1,   1,   0,   0},
+     { "LWEAPONEXPLODER",             1,   0,   0,   0},
+     { "LWEAPONEXPLODEV",             1,   1,   0,   0},
+     { "EWEAPONEXPLODER",             1,   0,   0,   0},
+     { "EWEAPONEXPLODEV",             1,   1,   0,   0},
+     
      { "",                    0,   0,   0,   0}
 };
 
