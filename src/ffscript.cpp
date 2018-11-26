@@ -22,6 +22,8 @@ FFScript FFCore;
 zquestheader ZCheader;
 ZModule zcm;
 zcmodule moduledata;
+
+char runningItemScripts[256] = {0};
  
 //item *FFCore.temp_ff_item = NULL;
 //enemy *FFCore.temp_ff_enemy = NULL;
@@ -135,7 +137,7 @@ refInfo lweaponScriptData[256]; //should this be lweapon and eweapon, separate s
 refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
 refInfo itemactiveScriptData[256];
 
-char runningItemScripts[256] = {0};
+//char runningItemScripts[256] = {0};
 
 //The stacks
 //This is where we need to change the formula. These stacks need to be variable in some manner
@@ -14708,6 +14710,7 @@ int run_script(const byte type, const word script, const byte i)
         memcpy(ri->a, itemsbuf[i].initiala, 2 * sizeof(long));
         
         ri->idata = i; //'this' pointer
+	//FFCore.runningItemScripts[i] = 1;
 	runningItemScripts[i] = 1;
         
     }
@@ -16599,6 +16602,7 @@ case DMAPDATASETMUSICV: //command, string to load a music file
             break;
             
         case SCRIPT_ITEM:
+	    //FFCore.runningItemScripts[i] = 0;
 	    runningItemScripts[i] = 0;
             break; //item scripts aren't gonna go again anyway
         }
@@ -16639,22 +16643,6 @@ int ffscript_engine(const bool preload)
             
         ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
         tmpscr->initialized[i] = true;
-    }
-    Z_scripterrlog("Trying to check if an %s is running.\n","item script");
-    for ( byte i = 0; i < 256; i++ )
-    {
-	Z_scripterrlog("Checking item ID: %d\n",i);
-	if ( itemsbuf[i].script == 0 ) continue;
-	//if ( runningItemScripts[i] == 1 )
-	//{
-		Z_scripterrlog("Found a script running on item ID: %d\n",i);
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-		Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[i].script);
-		//if ( itemsbuf[items.spr(i)->id].script > 0 )
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i & 0xFFF);
-	//}
-	    
     }
     
     return 0;
@@ -18236,7 +18224,7 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
-	
+	//clearRunningItemScripts();
 }
 
 
@@ -18810,4 +18798,42 @@ void FFScript::do_warp_ex(bool v)
 		}
 		
 	}
+}
+
+
+
+void FFScript::clearRunningItemScripts()
+{
+	//for ( byte q = 0; q < 256; q++ ) runningItemScripts[q] = 0;
+}
+
+
+void FFScript::newScriptEngine()
+{
+	itemScriptEngine();
+	advanceframe(true);
+}
+
+void FFScript::itemScriptEngine()
+{
+	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
+	for ( int q = 0; q < 256; q++ )
+	{
+		//Z_scripterrlog("Checking item ID: %d\n",q);
+		if ( itemsbuf[q].script == 0 ) continue;
+		//if ( runningItemScripts[i] == 1 )
+		//{
+			//Z_scripterrlog("Found a script running on item ID: %d\n",q);
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+			//Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[q].script);
+			if ( runningItemScripts[q] )
+			{
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+			}
+		//}
+		    
+	}
+	
+	//return 0;
 }

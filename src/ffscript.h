@@ -96,6 +96,8 @@ struct script_bitmaps
 //Module System.
 //Putting this here for now.
 
+//char runningItemScripts[256];
+
 class ZModule
 {
 	public:
@@ -125,6 +127,11 @@ int getLinkAction();
 void Play_Level_Music();
 
 long getQuestHeaderInfo(int type);
+
+
+void clearRunningItemScripts();
+void itemScriptEngine();
+void newScriptEngine();
 
 /*
 long getQuestHeaderInfo(int type)

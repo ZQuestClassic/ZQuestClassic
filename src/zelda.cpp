@@ -53,6 +53,7 @@
 extern FFScript FFCore; //the core script engine.
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
+extern char runningItemScripts[256];
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -2765,6 +2766,7 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "items.animate()\n");
 	#endif
         items.animate();
+	
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
 	#endif
@@ -2865,6 +2867,8 @@ void game_loop()
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
     }
+    
+    
     
     #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "draw_screen()\n");
@@ -4432,7 +4436,9 @@ int main(int argc, char* argv[])
             
 #endif
             game_loop();
-            advanceframe(true);
+	    //Perpetual item Script:
+	    FFCore.newScriptEngine();
+            
 		
 	     //clear Link's last hits 
 	     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible 
