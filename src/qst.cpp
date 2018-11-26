@@ -8489,7 +8489,8 @@ int setupsubscreens()
 extern ffscript *ffscripts[NUMSCRIPTFFC];
 extern ffscript *itemscripts[NUMSCRIPTITEM];
 extern ffscript *guyscripts[NUMSCRIPTGUYS];
-extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+extern ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
+extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
 extern ffscript *linkscripts[NUMSCRIPTLINK];
 extern ffscript *screenscripts[NUMSCRIPTSCREEN];
@@ -8552,11 +8553,18 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
         {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &wpnscripts[i]);
+            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &lwpnscripts[i]);
             
             if(ret != 0) return qe_invalid;
         }
-        
+	/*
+	for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+        {
+            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i]);
+            
+            if(ret != 0) return qe_invalid;
+        }
+        */
         for(int i = 0; i < NUMSCRIPTSCREEN; i++)
         {
             ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &screenscripts[i]);
@@ -8722,7 +8730,12 @@ void reset_scripts()
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
@@ -8761,8 +8774,14 @@ void reset_scripts()
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
+    }
+    
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)

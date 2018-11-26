@@ -122,11 +122,18 @@ word curScriptNum;
 
 //Global script data
 refInfo globalScriptData;
+refInfo linkScriptData;
+refInfo screenScriptData;
+refInfo dmapScriptData;
 word g_doscript = 1;
 bool global_wait = false;
 
-//Item script data
+//Sprite script data
 refInfo itemScriptData;
+refInfo npcScriptData[256];
+refInfo lweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
+refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
+refInfo itemactiveScriptData[256];
 
 //The stacks
 //This is where we need to change the formula. These stacks need to be variable in some manner
@@ -14648,6 +14655,33 @@ int run_script(const byte type, const word script, const byte i)
     }
     break;
     
+    case SCRIPT_NPC:
+    {
+		ri = &(npcScriptData[i]);
+		curscript = guyscripts[script];
+		stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
+		ri->guyref = i; //'this' pointer
+    }
+    break;
+    
+    case SCRIPT_LWPN:
+    {
+		ri = &(lweaponScriptData[i]);
+		curscript = lwpnscripts[script];
+		stack = &(Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn))->stack);
+		ri->lwpn = i; //'this' pointer
+    }
+    break;
+    
+    case SCRIPT_EWPN:
+    {
+		ri = &(eweaponScriptData[i]);
+		curscript = ewpnscripts[script];
+		stack = &(Ewpns.spr(EwpnH::getEWeaponIndex(ri->ewpn))->stack);
+		ri->ewpn = i; //'this' pointer
+    }
+    break;
+	    
     case SCRIPT_ITEM:
     {
         ri = &itemScriptData;
@@ -14677,7 +14711,7 @@ int run_script(const byte type, const word script, const byte i)
     case SCRIPT_GLOBAL:
     {
         ri = &globalScriptData;
-	    //needs to become ri = &(globalScriptData[global_slot]);
+	    //should this become ri = &(globalScriptData[global_slot]);
         
         curscript = globalscripts[script];
         stack = &global_stack[GLOBAL_STACK_MAIN];
@@ -14687,8 +14721,8 @@ int run_script(const byte type, const word script, const byte i)
     
     case SCRIPT_LINK:
     {
-        ri = &globalScriptData;
-	    //needs to become ri = &(globalScriptData[link_slot]);
+        ri = &linkScriptData;
+	    //should this become ri = &(globalScriptData[link_slot]);
         
         curscript = linkscripts[script];
         stack = &global_stack[GLOBAL_STACK_LINK];
@@ -14698,10 +14732,10 @@ int run_script(const byte type, const word script, const byte i)
     
     case SCRIPT_SCREEN:
     {
-        ri = &globalScriptData;
+        ri = &screenScriptData;
         
         curscript = screenscripts[script];
-	    //needs to become ri = &(globalScriptData[screen_slot]);
+	    //should this become ri = &(globalScriptData[screen_slot]);
         stack = &global_stack[GLOBAL_STACK_SCREEN];
 	    //
     }
@@ -14709,8 +14743,8 @@ int run_script(const byte type, const word script, const byte i)
     
     case SCRIPT_DMAP:
     {
-        ri = &globalScriptData;
-	    //needs to become ri = &(globalScriptData[dmap_slot]);
+        ri = &dmapScriptData;
+	    //should this become ri = &(globalScriptData[dmap_slot]);
         
         curscript = dmapscripts[script];
         stack = &global_stack[GLOBAL_STACK_DMAP];

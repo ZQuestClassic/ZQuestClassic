@@ -374,12 +374,16 @@ ffscript *globalscripts[NUMSCRIPTGLOBAL];
 
 //If only...
 ffscript *guyscripts[NUMSCRIPTGUYS];
-ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
+ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
 ffscript *dmapscripts[NUMSCRIPTSDMAP];
 
 extern refInfo globalScriptData;
+extern refInfo linkScriptData;
+extern refInfo screenScriptData;
+extern refInfo dmapScriptData;
 extern word g_doscript;
 extern bool global_wait;
 
@@ -4122,8 +4126,13 @@ int main(int argc, char* argv[])
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
+    }
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
@@ -4665,39 +4674,48 @@ void quit_game()
     
     al_trace("Script buffers... \n");
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         if(ffscripts[i]!=NULL) delete [] ffscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         if(itemscripts[i]!=NULL) delete [] itemscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         if(guyscripts[i]!=NULL) delete [] guyscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
+        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         if(screenscripts[i]!=NULL) delete [] screenscripts[i];
     }
+    
     
     for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
         if(globalscripts[i]!=NULL) delete [] globalscripts[i];
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
     }
     
     delete zscriptDrawingRenderTarget;
