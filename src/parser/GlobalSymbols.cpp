@@ -3141,6 +3141,7 @@ static AccessorTable itemclassTable[] =
     { "getInitD[]",             ZVARTYPEID_UNTYPED,         GETTER,       ITEMCLASSINITDD,      2,      {  ZVARTYPEID_ITEMCLASS,     ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setInitD[]",             ZVARTYPEID_VOID,          SETTER,       ITEMCLASSINITDD,      2,      {  ZVARTYPEID_ITEMCLASS,     ZVARTYPEID_FLOAT,         ZVARTYPEID_UNTYPED,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "GetName",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_ITEMCLASS,     ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "RunScript",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_ITEMCLASS,     ZVARTYPEID_BOOL,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
     { "getModifier",               ZVARTYPEID_FLOAT,         GETTER,       IDATALTM,       1,      {  ZVARTYPEID_ITEMCLASS,    -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },      
     { "setModifier",               ZVARTYPEID_VOID,          SETTER,       IDATALTM,       1,      {  ZVARTYPEID_ITEMCLASS,     ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -3306,9 +3307,10 @@ ItemclassSymbols::ItemclassSymbols()
 
 void ItemclassSymbols::generateCode()
 {
+    /*
     //void GetName(itemclass, int)
     {
-	    Function* function = getFunction("GetName");
+	Function* function = getFunction("GetName");
         int label = function->getLabel();
         vector<Opcode *> code;
         //pop off the param
@@ -3321,6 +3323,74 @@ void ItemclassSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
+	*/
+    
+    //bool isValid(npc)
+    //bool RunScript(itemdata)
+	/*
+    {
+	Function* function = getFunction("RunScript");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the pointer
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //Check validity
+        code.push_back(new ORunItemScript(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    */
+    /*
+    //void RunScript(itemdata)
+    {
+	Function* function = getFunction("RunScript");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop pointer, and ignore it
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+	code.push_back(new ORunItemScript());
+	//code.push_back(new ORunItemScript(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    
+     //void RunScript(itemdata)
+    {
+	Function* function = getFunction("RunScript");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        Opcode *first = new ORunItemScript();
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new OReturn());
+        
+        function->giveCode(code);
+    }
+    */
+    
+    //void Explode(npc, int)
+    {
+	Function* function = getFunction("RunScript");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop off the param
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
+        first->setLabel(label);
+        code.push_back(first);
+        //pop pointer, and ignore it
+        code.push_back(new OPopRegister(new VarArgument(NUL)));
+        code.push_back(new ORunItemScript(new VarArgument(EXP1)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    
 }
 
 GameSymbols GameSymbols::singleton = GameSymbols();
