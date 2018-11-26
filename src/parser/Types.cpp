@@ -438,6 +438,12 @@ namespace // file local
 		{"global", ZVARTYPEID_VOID},
 		{"ffc", ZVARTYPEID_FFC},
 		{"item", ZVARTYPEID_ITEMCLASS},
+		{"npc", ZVARTYPEID_NPC},
+		{"lweapon", ZVARTYPEID_LWPN},
+		{"eweapon", ZVARTYPEID_EWPN},
+		{"link", ZVARTYPEID_LINK},
+		{"screen", ZVARTYPEID_SCREEN},
+		{"dmap", ZVARTYPEID_DMAPDATA},
 	};
 }
 
@@ -445,6 +451,12 @@ ScriptType const ScriptType::invalid(idInvalid);
 ScriptType const ScriptType::global(idGlobal);
 ScriptType const ScriptType::ffc(idFfc);
 ScriptType const ScriptType::item(idItem);
+ScriptType const ScriptType::npc(idNPC);
+ScriptType const ScriptType::lweapon(idLWeapon);
+ScriptType const ScriptType::eweapon(idEWeapon);
+ScriptType const ScriptType::link(idLink);
+ScriptType const ScriptType::screen(idScreen);
+ScriptType const ScriptType::dmap(idDMap);
 
 string const& ScriptType::getName() const
 {

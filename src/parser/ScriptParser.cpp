@@ -229,6 +229,71 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		if (isRun)
 		{
 			ScriptType type = program.getScript(scriptname)->getType();
+			
+			switch(type)
+			{
+				case ScriptType::ffc:
+				{
+					funccode.push_back(
+						new OSetRegister(new VarArgument(EXP2),
+						                 new VarArgument(REFFFC)));
+					break;
+					
+				}
+				case ScriptType::item:
+				{
+					funccode.push_back(
+						new OSetRegister(new VarArgument(EXP2),
+						                 new VarArgument(REFITEMCLASS)));
+					break;
+				}
+				case ScriptType::npc:
+				{
+					funccode.push_back(
+						new OSetRegister(new VarArgument(EXP2),
+						                 new VarArgument(REFNPC)));
+					break;
+				}
+				case ScriptType::lweapon:
+				{
+					funccode.push_back(
+						new OSetRegister(new VarArgument(EXP2),
+						                 new VarArgument(REFLWPN)));
+					break;
+				}
+				case ScriptType::eweapon:
+				{
+					funccode.push_back(
+						new OSetRegister(new VarArgument(EXP2),
+						                 new VarArgument(REFEWPN)));
+					break;
+				}
+				case ScriptType::dmap:
+				{
+					funccode.push_back(
+						new OSetRegister(new VarArgument(EXP2),
+						                 new VarArgument(LOADMAPDATA)));
+					break;
+				}
+				/* Do we want these here--ever? -Z
+				case ScriptType::link:
+				{
+					funccode.push_back(
+						new OSetRegister(new VarArgument(EXP2),
+						                 new VarArgument(link?)));
+					break;
+				}
+				case ScriptType::screen:
+				{
+					funccode.push_back(
+						new OSetRegister(new VarArgument(EXP2),
+						                 new VarArgument(tempscr?)));
+					break;
+				}
+				*/
+				
+			}
+			/*
 			if (type == ScriptType::ffc)
 				funccode.push_back(
 						new OSetRegister(new VarArgument(EXP2),
@@ -237,7 +302,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 				funccode.push_back(
 						new OSetRegister(new VarArgument(EXP2),
 						                 new VarArgument(REFITEMCLASS)));
-            
+			*/
 			funccode.push_back(new OPushRegister(new VarArgument(EXP2)));
 		}
         

@@ -329,6 +329,13 @@ namespace ZScript
 			idGlobal = idStart,
 			idFfc,
 			idItem,
+			idNPC,
+			idEWeapon,
+			idLWeapon,
+			idLink,
+			idScreen,
+			idDMap,
+			
 			idEnd
 		};
 	

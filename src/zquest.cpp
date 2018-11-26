@@ -19263,6 +19263,38 @@ int onCompileScript()
             {
 	            string const& name = it->first;
 	            ZScript::ScriptType type = it->second;
+                    switch(type)
+                    {
+                        case ZScript::ScriptType::ffc:
+                            asffcscripts.push_back(name); break;
+                        case ZScript::ScriptType::item:
+                            asitemscripts.push_back(name); break;
+                        case ZScript::ScriptType::npc:
+                            asnpcscripts.push_back(name); break;
+                        case ZScript::ScriptType::eweapon:
+                            aseweaponscripts.push_back(name); break;
+                        case ZScript::ScriptType::lweapon:
+                            aslweaponscripts.push_back(name); break;
+                        case ZScript::ScriptType::link:
+                            aslinkscripts.push_back(name); break;
+                        case ZScript::ScriptType::dmap:
+                            asdmapscripts.push_back(name); break;
+                        case ZScript::ScriptType::screen:
+                            asscreenscripts.push_back(name); break;
+                        case ZScript::ScriptType::global:
+                        {
+                            if (name != "~Init")
+                            {
+                                asglobalscripts.push_back(name);
+                            }
+                            break;
+                            
+                        }
+                        
+                        
+                        
+                    } 
+                    /*
 	            if (type == ZScript::ScriptType::ffc)
                     asffcscripts.push_back(name);
 	            else if (type == ZScript::ScriptType::item)
@@ -19272,6 +19304,7 @@ int onCompileScript()
 	                     // script, bad things could happen
 	                     && name != "~Init")
 		            asglobalscripts.push_back(name);
+                    */
             }
             
             assignscript_dlg[0].dp2 = lfont;
