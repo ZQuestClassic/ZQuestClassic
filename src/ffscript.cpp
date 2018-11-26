@@ -16593,18 +16593,28 @@ case DMAPDATASETMUSICV: //command, string to load a music file
     {
         switch(type)
         {
-        case SCRIPT_FFC:
-            tmpscr->ffscript[i] = 0;
-            break;
-            
-        case SCRIPT_GLOBAL:
-            g_doscript = 0;
-            break;
-            
-        case SCRIPT_ITEM:
-	    //FFCore.runningItemScripts[i] = 0;
-	    runningItemScripts[i] = 0;
-            break; //item scripts aren't gonna go again anyway
+		case SCRIPT_FFC:
+		    tmpscr->ffscript[i] = 0;
+		    break;
+		    
+		case SCRIPT_GLOBAL:
+		    g_doscript = 0;
+		    break;
+		    
+		case SCRIPT_ITEM:
+		{
+		    //FFCore.runningItemScripts[i] = 0;
+		    runningItemScripts[i] = 0;
+		    //ri = &(itemScriptData[i]);
+		    //ri->Clear();
+		    curscript = 0;
+		    long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+		    stack = &(item_stack[i]);
+		    memset(stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+		    stack = pvsstack;
+		    //stack = NULL;
+		    break; //item scripts aren't gonna go again anyway
+		}
         }
     }
     else
@@ -18827,9 +18837,16 @@ void FFScript::itemScriptEngine()
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
 			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 			//Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[q].script);
-			if ( runningItemScripts[q] )
+			if ( runningItemScripts[q] == 1 )
 			{
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+				if ( get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING) )
+				{
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+				}
+				else //if the QR isn't set, treat Waitframe as Quit()
+				{
+					runningItemScripts[q] = 0;
+				}
 			}
 		//}
 		    

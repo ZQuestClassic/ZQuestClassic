@@ -835,7 +835,7 @@ enum
     qr_BROKENBOOKCOST,
     qr_OLDSIDEVIEWSPIKES,
 	qr_OLDINFMAGIC/* Compatibility */, //Infinite magic prevents items from draining rupees
-	qr_NEVERDISABLEAMMOONSUBSCREEN,
+	qr_NEVERDISABLEAMMOONSUBSCREEN, qr_ITEMSCRIPTSKEEPRUNNING,
     qr_MAX
 };
 
