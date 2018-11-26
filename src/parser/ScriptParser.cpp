@@ -289,7 +289,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 			}
 				*/
 				
-			}
+		
 			/*
 			if (type == ScriptType::ffc)
 				funccode.push_back(

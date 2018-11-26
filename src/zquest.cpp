@@ -179,6 +179,20 @@ std::vector<string> asglobalscripts;
 extern std::map<int, pair<string, string> > itemmap;
 std::vector<string> asitemscripts;
 
+
+extern std::map<int, pair<string, string> > npcmap;
+std::vector<string> asnpcscripts;
+extern std::map<int, pair<string, string> > ewpnmap;
+std::vector<string> aseweaponscripts;
+extern std::map<int, pair<string, string> > lwpnmap;
+std::vector<string> aslweaponscripts;
+extern std::map<int, pair<string, string> > linkmap;
+std::vector<string> aslinkscripts;
+extern std::map<int, pair<string, string> > dmapmap;
+std::vector<string> asdmapscripts;
+extern std::map<int, pair<string, string> > screenmap;
+std::vector<string> asscreenscripts;
+
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
 //editbox_data temp_eb_data;
@@ -19257,43 +19271,51 @@ int onCompileScript()
             asglobalscripts.push_back("<none>");
             asitemscripts.clear();
             asitemscripts.push_back("<none>");
+            asnpcscripts.clear();
+            asnpcscripts.push_back("<none>");
+            aseweaponscripts.clear();
+            aseweaponscripts.push_back("<none>");
+            aslweaponscripts.clear();
+            aslweaponscripts.push_back("<none>");
+            aslinkscripts.clear();
+            aslinkscripts.push_back("<none>");
+            asdmapscripts.clear();
+            asdmapscripts.push_back("<none>");
+            asscreenscripts.clear();
+            asscreenscripts.push_back("<none>");
             
             for (std::map<string, ZScript::ScriptType>::iterator it =
 	                 stypes.begin(); it != stypes.end(); ++it)
             {
 	            string const& name = it->first;
 	            ZScript::ScriptType type = it->second;
-                    switch(type)
+                    if ( type == ZScript::ScriptType::ffc )
+                    {        asffcscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::item )
+                    {        asitemscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::npc )
+                    {        asnpcscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::eweapon )
+                    {        aseweaponscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::lweapon )
+                    {        aslweaponscripts.push_back(name); } 
+                    else if ( type == ZScript::ScriptType::link )
+                    {        aslinkscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::dmap )
+                    {        asdmapscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::screen )
+                    {        asscreenscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::global )
                     {
-                        case ZScript::ScriptType::ffc:
-                            asffcscripts.push_back(name); break;
-                        case ZScript::ScriptType::item:
-                            asitemscripts.push_back(name); break;
-                        case ZScript::ScriptType::npc:
-                            asnpcscripts.push_back(name); break;
-                        case ZScript::ScriptType::eweapon:
-                            aseweaponscripts.push_back(name); break;
-                        case ZScript::ScriptType::lweapon:
-                            aslweaponscripts.push_back(name); break;
-                        case ZScript::ScriptType::link:
-                            aslinkscripts.push_back(name); break;
-                        case ZScript::ScriptType::dmap:
-                            asdmapscripts.push_back(name); break;
-                        case ZScript::ScriptType::screen:
-                            asscreenscripts.push_back(name); break;
-                        case ZScript::ScriptType::global:
+                        if (name != "~Init")
                         {
-                            if (name != "~Init")
-                            {
-                                asglobalscripts.push_back(name);
-                            }
-                            break;
-                            
+                            asglobalscripts.push_back(name);
                         }
+                    }
                         
                         
                         
-                    } 
+                    
                     /*
 	            if (type == ZScript::ScriptType::ffc)
                     asffcscripts.push_back(name);
@@ -19377,23 +19399,23 @@ int onCompileScript()
                 } 
                 for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
                 {
-                    if(eweaponmap[i].second == "")
+                    if(ewpnmap[i].second == "")
                         sprintf(temp, "Slot %d: <none>", i+1);
-                    else if(scripts.find(eweaponmap[i].second) != scripts.end())
-                        sprintf(temp, "Slot %d: %s", i+1, eweaponmap[i].second.c_str());
+                    else if(scripts.find(ewpnmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, ewpnmap[i].second.c_str());
                     else // Previously loaded script not found
-                        sprintf(temp, "Slot %d: **%s**", i+1, eweaponmap[i].second.c_str());
-                    eweaponmap[i].first = temp;
+                        sprintf(temp, "Slot %d: **%s**", i+1, ewpnmap[i].second.c_str());
+                    ewpnmap[i].first = temp;
                 }
                 for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
                 {
-                    if(lweaponmap[i].second == "")
+                    if(lwpnmap[i].second == "")
                         sprintf(temp, "Slot %d: <none>", i+1);
-                    else if(scripts.find(lweaponmap[i].second) != scripts.end())
-                        sprintf(temp, "Slot %d: %s", i+1, lweaponmap[i].second.c_str());
+                    else if(scripts.find(lwpnmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, lwpnmap[i].second.c_str());
                     else // Previously loaded script not found
-                        sprintf(temp, "Slot %d: **%s**", i+1, lweaponmap[i].second.c_str());
-                    lweaponmap[i].first = temp;
+                        sprintf(temp, "Slot %d: **%s**", i+1, lwpnmap[i].second.c_str());
+                    lwpnmap[i].first = temp;
                 }
                 for(int i = 0; i < NUMSCRIPTLINK-1; i++)
                 {
@@ -19606,7 +19628,7 @@ int onCompileScript()
                             guyscripts[it->first+1][0].command = 0xFFFF;
                         }
                     }
-                    for(std::map<int, pair<string,string> >::iterator it = lweaponmap.begin(); it != lweaponmap.end(); it++)
+                    for(std::map<int, pair<string,string> >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
                     {
                         if(it->second.second != "")
                         {
@@ -19646,7 +19668,7 @@ int onCompileScript()
                             lwpnscripts[it->first+1][0].command = 0xFFFF;
                         }
                     }
-                    for(std::map<int, pair<string,string> >::iterator it = eweaponmap.begin(); it != eweaponmap.end(); it++)
+                    for(std::map<int, pair<string,string> >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
                     {
                         if(it->second.second != "")
                         {
