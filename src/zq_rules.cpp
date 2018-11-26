@@ -636,6 +636,58 @@ int onCompatRules()
     return D_O_K;
 }
 
+static DIALOG scriptrules_dlg[] =
+{
+    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "Quest Rules - Items", NULL, NULL },
+    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)scriptrules_dlg },
+    // 3
+    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    
+    // rules //6
+    { jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Item Scripts Continue To Run", NULL, NULL },
+    
+    
+    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+};
+
+
+static int scriptrules[] =
+{
+    qr_ITEMSCRIPTSKEEPRUNNING,
+    -1
+};
+
+int onScriptRules()
+{
+    if(is_large)
+        large_dialog(scriptrules_dlg);
+        
+    scriptrules_dlg[0].dp2=lfont;
+    
+    for(int i=0; scriptrules[i]!=-1; i++)
+    {
+        scriptrules_dlg[i+6].flags = get_bit(quest_rules,scriptrules[i]) ? D_SELECTED : 0;
+    }
+    
+    int ret = zc_popup_dialog(scriptrules_dlg,4);
+    
+    if(ret==4)
+    {
+        saved=false;
+        
+        for(int i=0; scriptrules[i]!=-1; i++)
+        {
+            set_bit(quest_rules, scriptrules[i], scriptrules_dlg[i+6].flags & D_SELECTED);
+        }
+    }
+    
+    return D_O_K;
+}
+
 void center_zq_rules_dialog()
 {
     jwin_center_dialog(animationrules_dlg);
@@ -645,5 +697,6 @@ void center_zq_rules_dialog()
     jwin_center_dialog(fixesrules_dlg);
     jwin_center_dialog(miscrules_dlg);
     jwin_center_dialog(compatrules_dlg);
+    jwin_center_dialog(scriptrules_dlg);
 }
 

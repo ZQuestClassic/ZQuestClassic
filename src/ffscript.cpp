@@ -22,6 +22,8 @@ FFScript FFCore;
 zquestheader ZCheader;
 ZModule zcm;
 zcmodule moduledata;
+
+char runningItemScripts[256] = {0};
  
 //item *FFCore.temp_ff_item = NULL;
 //enemy *FFCore.temp_ff_enemy = NULL;
@@ -122,19 +124,35 @@ word curScriptNum;
 
 //Global script data
 refInfo globalScriptData;
+refInfo linkScriptData;
+refInfo screenScriptData;
+refInfo dmapScriptData;
 word g_doscript = 1;
 bool global_wait = false;
 
-//Item script data
-refInfo itemScriptData;
+//Sprite script data
+refInfo itemScriptData[256];
+refInfo npcScriptData[256];
+refInfo lweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
+refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
+refInfo itemactiveScriptData[256];
+
+//char runningItemScripts[256] = {0};
 
 //The stacks
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
+
+#define GLOBAL_STACK_MAIN 0
+#define GLOBAL_STACK_DMAP 1
+#define GLOBAL_STACK_SCREEN 2
+#define GLOBAL_STACK_LINK 3
+#define GLOBAL_STACK_MAX 4
+
 long(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 long ffc_stack[32][MAX_SCRIPT_REGISTERS];
-long global_stack[MAX_SCRIPT_REGISTERS];
-long item_stack[MAX_SCRIPT_REGISTERS];
+long global_stack[GLOBAL_STACK_MAX][MAX_SCRIPT_REGISTERS];
+long item_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
 refInfo ffcScriptData[32];
 
@@ -145,7 +163,8 @@ void clear_ffc_stack(const byte i)
 
 void clear_global_stack()
 {
-    memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+    //memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+    memset(global_stack, 0, sizeof(global_stack));
 }
 
 //ScriptHelper
@@ -14640,15 +14659,47 @@ int run_script(const byte type, const word script, const byte i)
     }
     break;
     
+    case SCRIPT_NPC:
+    {
+		ri = &(npcScriptData[i]);
+		curscript = guyscripts[script];
+		stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
+		ri->guyref = i; //'this' pointer
+    }
+    break;
+    
+    case SCRIPT_LWPN:
+    {
+		ri = &(lweaponScriptData[i]);
+		curscript = lwpnscripts[script];
+		stack = &(Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn))->stack);
+		ri->lwpn = i; //'this' pointer
+    }
+    break;
+    
+    case SCRIPT_EWPN:
+    {
+		ri = &(eweaponScriptData[i]);
+		curscript = ewpnscripts[script];
+		stack = &(Ewpns.spr(EwpnH::getEWeaponIndex(ri->ewpn))->stack);
+		ri->ewpn = i; //'this' pointer
+    }
+    break;
+	    
     case SCRIPT_ITEM:
     {
-        ri = &itemScriptData;
-        ri->Clear(); //Only runs for one frame so we just zero it out
+        ri = &(itemScriptData[i]);
+        //ri->Clear(); //Only runs for one frame so we just zero it out
 	    //What would happen if we don't do this? -Z
         
         curscript = itemscripts[script];
-        stack = &item_stack;
-        memset(stack, 0, 256 * sizeof(long)); //zero here too //and don't do this? -Z
+        stack = &(item_stack[i]);
+	    
+	//Should we want to allow item scripts to continue running, we'd need a way to mark them as running
+	//in the first place, and a way to re-run them every frame. -Z (26th November, 2018)
+	//I commented out the clear() and memset() on the above date. -Z
+	
+        //memset(stack, 0, 256 * sizeof(long)); //zero here too //and don't do this? -Z
 	    //If we can make item scripts capable of running for more than one frame, then we can
 	    //copy the behaviour to npcs, weapons, and items.
 	    //In theory, if we keep the screen caps on these, then we would have 256 or 512 stacks
@@ -14659,6 +14710,8 @@ int run_script(const byte type, const word script, const byte i)
         memcpy(ri->a, itemsbuf[i].initiala, 2 * sizeof(long));
         
         ri->idata = i; //'this' pointer
+	//FFCore.runningItemScripts[i] = 1;
+	runningItemScripts[i] = 1;
         
     }
     break;
@@ -14669,9 +14722,43 @@ int run_script(const byte type, const word script, const byte i)
     case SCRIPT_GLOBAL:
     {
         ri = &globalScriptData;
+	    //should this become ri = &(globalScriptData[global_slot]);
         
         curscript = globalscripts[script];
-        stack = &global_stack;
+        stack = &global_stack[GLOBAL_STACK_MAIN];
+	    //
+    }
+    break;
+    
+    case SCRIPT_LINK:
+    {
+        ri = &linkScriptData;
+	    //should this become ri = &(globalScriptData[link_slot]);
+        
+        curscript = linkscripts[script];
+        stack = &global_stack[GLOBAL_STACK_LINK];
+	    //
+    }
+    break;
+    
+    case SCRIPT_SCREEN:
+    {
+        ri = &screenScriptData;
+        
+        curscript = screenscripts[script];
+	    //should this become ri = &(globalScriptData[screen_slot]);
+        stack = &global_stack[GLOBAL_STACK_SCREEN];
+	    //
+    }
+    break;
+    
+    case SCRIPT_DMAP:
+    {
+        ri = &dmapScriptData;
+	    //should this become ri = &(globalScriptData[dmap_slot]);
+        
+        curscript = dmapscripts[script];
+        stack = &global_stack[GLOBAL_STACK_DMAP];
 	    //
     }
     break;
@@ -16506,16 +16593,28 @@ case DMAPDATASETMUSICV: //command, string to load a music file
     {
         switch(type)
         {
-        case SCRIPT_FFC:
-            tmpscr->ffscript[i] = 0;
-            break;
-            
-        case SCRIPT_GLOBAL:
-            g_doscript = 0;
-            break;
-            
-        case SCRIPT_ITEM:
-            break; //item scripts aren't gonna go again anyway
+		case SCRIPT_FFC:
+		    tmpscr->ffscript[i] = 0;
+		    break;
+		    
+		case SCRIPT_GLOBAL:
+		    g_doscript = 0;
+		    break;
+		    
+		case SCRIPT_ITEM:
+		{
+		    //FFCore.runningItemScripts[i] = 0;
+		    runningItemScripts[i] = 0;
+		    //ri = &(itemScriptData[i]);
+		    //ri->Clear();
+		    curscript = 0;
+		    long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+		    stack = &(item_stack[i]);
+		    memset(stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+		    stack = pvsstack;
+		    //stack = NULL;
+		    break; //item scripts aren't gonna go again anyway
+		}
         }
     }
     else
@@ -16538,6 +16637,7 @@ case DMAPDATASETMUSICV: //command, string to load a music file
     return 0;
 }
 
+//This keeps ffc scripts running beyond the first frame. 
 int ffscript_engine(const bool preload)
 {
     for(byte i = 0; i < MAXFFCS; i++)
@@ -18134,7 +18234,7 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
-	
+	//clearRunningItemScripts();
 }
 
 
@@ -18708,4 +18808,49 @@ void FFScript::do_warp_ex(bool v)
 		}
 		
 	}
+}
+
+
+
+void FFScript::clearRunningItemScripts()
+{
+	//for ( byte q = 0; q < 256; q++ ) runningItemScripts[q] = 0;
+}
+
+
+void FFScript::newScriptEngine()
+{
+	itemScriptEngine();
+	advanceframe(true);
+}
+
+void FFScript::itemScriptEngine()
+{
+	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
+	for ( int q = 0; q < 256; q++ )
+	{
+		//Z_scripterrlog("Checking item ID: %d\n",q);
+		if ( itemsbuf[q].script == 0 ) continue;
+		//if ( runningItemScripts[i] == 1 )
+		//{
+			//Z_scripterrlog("Found a script running on item ID: %d\n",q);
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+			//Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[q].script);
+			if ( runningItemScripts[q] == 1 )
+			{
+				if ( get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING) )
+				{
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+				}
+				else //if the QR isn't set, treat Waitframe as Quit()
+				{
+					runningItemScripts[q] = 0;
+				}
+			}
+		//}
+		    
+	}
+	
+	//return 0;
 }

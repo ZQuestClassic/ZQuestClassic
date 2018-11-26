@@ -675,6 +675,7 @@ enum
     cmdIntegrityCheck,
     cmdSaveZQuestSettings,
     cmdOnClearQuestFilepath,
+    cmdOnScriptRules,
     cmdMAX
 };
 
@@ -990,6 +991,7 @@ int RulesPage_10();
 int onAnimationRules();
 int onComboRules();
 int onItemRules();
+int onScriptRules();
 int onEnemyRules();
 int onFixesRules();
 int onMiscRules();

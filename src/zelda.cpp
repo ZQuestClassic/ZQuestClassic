@@ -53,6 +53,7 @@
 extern FFScript FFCore; //the core script engine.
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
+extern char runningItemScripts[256];
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -374,11 +375,16 @@ ffscript *globalscripts[NUMSCRIPTGLOBAL];
 
 //If only...
 ffscript *guyscripts[NUMSCRIPTGUYS];
-ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
+ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
+ffscript *dmapscripts[NUMSCRIPTSDMAP];
 
 extern refInfo globalScriptData;
+extern refInfo linkScriptData;
+extern refInfo screenScriptData;
+extern refInfo dmapScriptData;
 extern word g_doscript;
 extern bool global_wait;
 
@@ -2760,6 +2766,7 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "items.animate()\n");
 	#endif
         items.animate();
+	
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
 	#endif
@@ -2860,6 +2867,8 @@ void game_loop()
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
     }
+    
+    
     
     #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "draw_screen()\n");
@@ -4101,31 +4110,36 @@ int main(int argc, char* argv[])
         guy_string[i] = new char[64];
     }
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         ffscripts[i] = new ffscript[1];
         ffscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         itemscripts[i] = new ffscript[1];
         itemscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         guyscripts[i] = new ffscript[1];
         guyscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
+    }
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         screenscripts[i] = new ffscript[1];
         screenscripts[i][0].command = 0xFFFF;
@@ -4137,10 +4151,16 @@ int main(int argc, char* argv[])
         globalscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         linkscripts[i] = new ffscript[1];
         linkscripts[i][0].command = 0xFFFF;
+    }
+    
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        dmapscripts[i] = new ffscript[1];
+        dmapscripts[i][0].command = 0xFFFF;
     }
     
     //script drawing bitmap allocation
@@ -4416,7 +4436,9 @@ int main(int argc, char* argv[])
             
 #endif
             game_loop();
-            advanceframe(true);
+	    //Perpetual item Script:
+	    FFCore.newScriptEngine();
+            
 		
 	     //clear Link's last hits 
 	     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible 
@@ -4658,39 +4680,48 @@ void quit_game()
     
     al_trace("Script buffers... \n");
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         if(ffscripts[i]!=NULL) delete [] ffscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         if(itemscripts[i]!=NULL) delete [] itemscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         if(guyscripts[i]!=NULL) delete [] guyscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
+        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         if(screenscripts[i]!=NULL) delete [] screenscripts[i];
     }
+    
     
     for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
         if(globalscripts[i]!=NULL) delete [] globalscripts[i];
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
     }
     
     delete zscriptDrawingRenderTarget;

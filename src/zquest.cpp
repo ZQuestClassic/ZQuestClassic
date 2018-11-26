@@ -303,10 +303,12 @@ BITMAP *hw_screen, *scrtmp;
 ffscript *ffscripts[NUMSCRIPTFFC];
 ffscript *itemscripts[NUMSCRIPTITEM];
 ffscript *guyscripts[NUMSCRIPTGUYS];
-ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
+ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *globalscripts[NUMSCRIPTGLOBAL];
 ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
+ffscript *dmapscripts[NUMSCRIPTSDMAP];
 
 // Dummy - needed to compile, but unused
 refInfo ffcScriptData[32];
@@ -663,6 +665,7 @@ static MENU rules_menu[] =
     { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
     { (char *)"&Other",                     onMiscRules,               NULL,                     0,            NULL   },
     { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
+    { (char *)"&Scripts",    		    onScriptRules,             NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -22792,46 +22795,58 @@ int main(int argc,char **argv)
         memset(guy_string[i], 0, 64);
     }
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         ffscripts[i] = new ffscript[1];
         ffscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         itemscripts[i] = new ffscript[1];
         itemscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         guyscripts[i] = new ffscript[1];
         guyscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
+    }
+    
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         screenscripts[i] = new ffscript[1];
         screenscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
         globalscripts[i] = new ffscript[1];
         globalscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         linkscripts[i] = new ffscript[1];
         linkscripts[i][0].command = 0xFFFF;
+    }
+    
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        dmapscripts[i] = new ffscript[1];
+        dmapscripts[i][0].command = 0xFFFF;
     }
     
     zScript = std::string();
@@ -23285,39 +23300,49 @@ void quit_game()
     
     al_trace("Cleaning script buffer. \n");
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         if(ffscripts[i]!=NULL) delete [] ffscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         if(itemscripts[i]!=NULL) delete [] itemscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         if(guyscripts[i]!=NULL) delete [] guyscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         if(screenscripts[i]!=NULL) delete [] screenscripts[i];
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
         if(globalscripts[i]!=NULL) delete [] globalscripts[i];
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
     }
     
     al_trace("Cleaning qst buffers. \n");
@@ -24355,6 +24380,7 @@ command_pair commands[cmdMAX]=
     { "Report: Integrity Check",              0, (intF) onIntegrityCheckAll                                    },
     { "Save ZQuest Settings",              0, (intF) onSaveZQuestSettings                                    },
     { "Clear Quest Filepath",              0, (intF) onClearQuestFilepath                                    },
+    { "Script Rules",              0, (intF) onScriptRules                                   },
     
 
 };
