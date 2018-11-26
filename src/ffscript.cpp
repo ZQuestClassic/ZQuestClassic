@@ -131,9 +131,16 @@ refInfo itemScriptData;
 //The stacks
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
+
+#define GLOBAL_STACK_MAIN 0
+#define GLOBAL_STACK_DMAP 1
+#define GLOBAL_STACK_SCREEN 2
+#define GLOBAL_STACK_LINK 3
+#define GLOBAL_STACK_MAX 4
+
 long(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 long ffc_stack[32][MAX_SCRIPT_REGISTERS];
-long global_stack[MAX_SCRIPT_REGISTERS];
+long global_stack[GLOBAL_STACK_MAX][MAX_SCRIPT_REGISTERS];
 long item_stack[MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
 refInfo ffcScriptData[32];
@@ -145,7 +152,8 @@ void clear_ffc_stack(const byte i)
 
 void clear_global_stack()
 {
-    memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+    //memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+    memset(global_stack, 0, sizeof(global_stack));
 }
 
 //ScriptHelper
@@ -14669,9 +14677,43 @@ int run_script(const byte type, const word script, const byte i)
     case SCRIPT_GLOBAL:
     {
         ri = &globalScriptData;
+	    //needs to become ri = &(globalScriptData[global_slot]);
         
         curscript = globalscripts[script];
-        stack = &global_stack;
+        stack = &global_stack[GLOBAL_STACK_MAIN];
+	    //
+    }
+    break;
+    
+    case SCRIPT_LINK:
+    {
+        ri = &globalScriptData;
+	    //needs to become ri = &(globalScriptData[link_slot]);
+        
+        curscript = linkscripts[script];
+        stack = &global_stack[GLOBAL_STACK_LINK];
+	    //
+    }
+    break;
+    
+    case SCRIPT_SCREEN:
+    {
+        ri = &globalScriptData;
+        
+        curscript = screenscripts[script];
+	    //needs to become ri = &(globalScriptData[screen_slot]);
+        stack = &global_stack[GLOBAL_STACK_SCREEN];
+	    //
+    }
+    break;
+    
+    case SCRIPT_DMAP:
+    {
+        ri = &globalScriptData;
+	    //needs to become ri = &(globalScriptData[dmap_slot]);
+        
+        curscript = dmapscripts[script];
+        stack = &global_stack[GLOBAL_STACK_DMAP];
 	    //
     }
     break;

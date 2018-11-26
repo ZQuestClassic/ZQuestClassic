@@ -8486,13 +8486,14 @@ int setupsubscreens()
     return 0;
 }
 
-extern ffscript *ffscripts[512];
-extern ffscript *itemscripts[256];
-extern ffscript *guyscripts[256];
-extern ffscript *wpnscripts[256];
+extern ffscript *ffscripts[NUMSCRIPTFFC];
+extern ffscript *itemscripts[NUMSCRIPTITEM];
+extern ffscript *guyscripts[NUMSCRIPTGUYS];
+extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
-extern ffscript *linkscripts[3];
-extern ffscript *screenscripts[256];
+extern ffscript *linkscripts[NUMSCRIPTLINK];
+extern ffscript *screenscripts[NUMSCRIPTSCREEN];
+extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
 
 int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
@@ -8562,7 +8563,14 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(ret != 0) return qe_invalid;
         }
-        
+	/*
+	for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+        {
+            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i]);
+            
+            if(ret != 0) return qe_invalid;
+        }
+        */
         if(s_version > 4)
         {
             for(int i = 0; i < NUMSCRIPTGLOBAL; i++)

@@ -2100,6 +2100,7 @@ struct ffscript
 #define SCRIPT_NPC             6
 #define SCRIPT_SUBSCREEN       7
 #define SCRIPT_EWPN            8
+#define SCRIPT_DMAP            9
 
 
 enum
@@ -3872,6 +3873,7 @@ extern void removeFromItemCache(int itemid);
 #define NUMSCRIPTGLOBALOLD	3
 #define NUMSCRIPTLINK		3
 #define NUMSCRIPTSCREEN		256
+#define NUMSCRIPTSDMAP		256
 
 #define GLOBAL_SCRIPT_INIT 		0
 #define GLOBAL_SCRIPT_GAME		1
