@@ -129,11 +129,13 @@ word g_doscript = 1;
 bool global_wait = false;
 
 //Sprite script data
-refInfo itemScriptData;
+refInfo itemScriptData[256];
 refInfo npcScriptData[256];
 refInfo lweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
 refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
 refInfo itemactiveScriptData[256];
+
+char runningItemScripts[256] = {0};
 
 //The stacks
 //This is where we need to change the formula. These stacks need to be variable in some manner
@@ -148,7 +150,7 @@ refInfo itemactiveScriptData[256];
 long(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 long ffc_stack[32][MAX_SCRIPT_REGISTERS];
 long global_stack[GLOBAL_STACK_MAX][MAX_SCRIPT_REGISTERS];
-long item_stack[MAX_SCRIPT_REGISTERS];
+long item_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
 refInfo ffcScriptData[32];
 
@@ -14684,13 +14686,18 @@ int run_script(const byte type, const word script, const byte i)
 	    
     case SCRIPT_ITEM:
     {
-        ri = &itemScriptData;
-        ri->Clear(); //Only runs for one frame so we just zero it out
+        ri = &(itemScriptData[i]);
+        //ri->Clear(); //Only runs for one frame so we just zero it out
 	    //What would happen if we don't do this? -Z
         
         curscript = itemscripts[script];
-        stack = &item_stack;
-        memset(stack, 0, 256 * sizeof(long)); //zero here too //and don't do this? -Z
+        stack = &(item_stack[i]);
+	    
+	//Should we want to allow item scripts to continue running, we'd need a way to mark them as running
+	//in the first place, and a way to re-run them every frame. -Z (26th November, 2018)
+	//I commented out the clear() and memset() on the above date. -Z
+	
+        //memset(stack, 0, 256 * sizeof(long)); //zero here too //and don't do this? -Z
 	    //If we can make item scripts capable of running for more than one frame, then we can
 	    //copy the behaviour to npcs, weapons, and items.
 	    //In theory, if we keep the screen caps on these, then we would have 256 or 512 stacks
@@ -14701,6 +14708,7 @@ int run_script(const byte type, const word script, const byte i)
         memcpy(ri->a, itemsbuf[i].initiala, 2 * sizeof(long));
         
         ri->idata = i; //'this' pointer
+	runningItemScripts[i] = 1;
         
     }
     break;
@@ -16591,6 +16599,7 @@ case DMAPDATASETMUSICV: //command, string to load a music file
             break;
             
         case SCRIPT_ITEM:
+	    runningItemScripts[i] = 0;
             break; //item scripts aren't gonna go again anyway
         }
     }
@@ -16614,6 +16623,7 @@ case DMAPDATASETMUSICV: //command, string to load a music file
     return 0;
 }
 
+//This keeps ffc scripts running beyond the first frame. 
 int ffscript_engine(const bool preload)
 {
     for(byte i = 0; i < MAXFFCS; i++)
@@ -16629,6 +16639,22 @@ int ffscript_engine(const bool preload)
             
         ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
         tmpscr->initialized[i] = true;
+    }
+    Z_scripterrlog("Trying to check if an %s is running.\n","item script");
+    for ( byte i = 0; i < 256; i++ )
+    {
+	Z_scripterrlog("Checking item ID: %d\n",i);
+	if ( itemsbuf[i].script == 0 ) continue;
+	//if ( runningItemScripts[i] == 1 )
+	//{
+		Z_scripterrlog("Found a script running on item ID: %d\n",i);
+		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
+		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+		Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[i].script);
+		//if ( itemsbuf[items.spr(i)->id].script > 0 )
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i & 0xFFF);
+	//}
+	    
     }
     
     return 0;
