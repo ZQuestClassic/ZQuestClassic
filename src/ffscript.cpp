@@ -16279,8 +16279,13 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 		//else
 		//{
 		//	set_register(sarg1, script_id*10000);
+			curscript = 0;
+			long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+			stack = &(item_stack[ri->idata]);
+			memset(stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+			stack = pvsstack;
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ri->idata].script, (ri->idata) & 0xFFF);
-			if ( mode ) runningItemScripts[ri->idata] = 2; //2 == script forced
+			//if ( mode ) runningItemScripts[ri->idata] = 2; //2 == script forced
 		//}
 		break;
 	}
@@ -18867,10 +18872,10 @@ void FFScript::itemScriptEngine()
 					runningItemScripts[q] = 0;
 				}
 			}
-			else if ( runningItemScripts[q] == 2 ) //forced to run perpetually by itemdata->RunScript(int mode)
-			{
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-			}
+			//else if ( runningItemScripts[q] == 2 ) //forced to run perpetually by itemdata->RunScript(int mode)
+			//{
+			//	ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+			//}
 		//}
 		    
 	}
