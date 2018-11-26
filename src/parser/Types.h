@@ -349,6 +349,12 @@ namespace ZScript
 		static ScriptType const global;
 		static ScriptType const ffc;
 		static ScriptType const item;
+		static ScriptType const npc;
+		static ScriptType const eweapon;
+		static ScriptType const lweapon;
+		static ScriptType const link;
+		static ScriptType const dmap;
+		static ScriptType const screen;
 
 	private:
 		ScriptType(Id id) : id_(id) {}
