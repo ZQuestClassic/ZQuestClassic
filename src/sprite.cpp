@@ -50,6 +50,7 @@ sprite::sprite()
     drawstyle=0;
     extend=0;
     wpnsprite = 0; //wpnsprite is new for 2.6 -Z
+    memset(stack,0,sizeof(stack));
     
     /*ewpnclass=0;
     lwpnclass=0;
@@ -156,6 +157,11 @@ ewpnclass(other.ewpnclass)*/
     for(int i=0; i<32; i++) miscellaneous[i] = other.miscellaneous[i];
     
     scriptcoldet = other.scriptcoldet;
+    
+    for ( int q = 0; q < MAX_SCRIPT_REGISTERS; q++ )
+    {
+	stack[q] = other.stack[q];
+    }
 }
 
 sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):

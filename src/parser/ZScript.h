@@ -7,6 +7,8 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 
+#define MAX_SCRIPT_REGISTERS 1024
+
 namespace ZScript
 {
 	class CompileErrorHandler;
