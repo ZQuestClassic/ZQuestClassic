@@ -333,6 +333,7 @@ namespace ZScript
 			idEWeapon,
 			idLWeapon,
 			idLink,
+			idPlayer,
 			idScreen,
 			idDMap,
 			
@@ -353,8 +354,9 @@ namespace ZScript
 		static ScriptType const eweapon;
 		static ScriptType const lweapon;
 		static ScriptType const link;
-		static ScriptType const dmap;
-		static ScriptType const screen;
+		static ScriptType const player;
+		static ScriptType const dmapdata;
+		static ScriptType const screendata;
 
 	private:
 		ScriptType(Id id) : id_(id) {}

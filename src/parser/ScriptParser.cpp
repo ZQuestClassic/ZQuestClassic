@@ -265,7 +265,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 							 new VarArgument(REFEWPN)));
 				
 			}
-			else if (type == ScriptType::dmap )
+			else if (type == ScriptType::dmapdata )
 			{
 				funccode.push_back(
 					new OSetRegister(new VarArgument(EXP2),

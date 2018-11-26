@@ -19301,9 +19301,11 @@ int onCompileScript()
                     {        aslweaponscripts.push_back(name); } 
                     else if ( type == ZScript::ScriptType::link )
                     {        aslinkscripts.push_back(name); }
-                    else if ( type == ZScript::ScriptType::dmap )
+                    else if ( type == ZScript::ScriptType::player )
+                    {        aslinkscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::dmapdata )
                     {        asdmapscripts.push_back(name); }
-                    else if ( type == ZScript::ScriptType::screen )
+                    else if ( type == ZScript::ScriptType::screendata )
                     {        asscreenscripts.push_back(name); }
                     else if ( type == ZScript::ScriptType::global )
                     {

@@ -111,8 +111,9 @@ shopdata	TOKEN( SHOP );
 spritedata	TOKEN( SPRITE );
 musicdata		TOKEN( TUNE );
 warpring	TOKEN( WARPRING );
+screendata	TOKEN( SCREEN );
+player	TOKEN( PLAYER );
 link	TOKEN( LINK );
-screen	TOKEN( SCREEN );
 
  /* Syntax */
 ","		TOKEN( COMMA );
