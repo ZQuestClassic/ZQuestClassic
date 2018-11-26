@@ -131,21 +131,21 @@ refInfo itemScriptData;
 //The stacks
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
-long(*stack)[256] = NULL;
-long ffc_stack[32][256];
-long global_stack[256];
-long item_stack[256];
+long(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
+long ffc_stack[32][MAX_SCRIPT_REGISTERS];
+long global_stack[MAX_SCRIPT_REGISTERS];
+long item_stack[MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
 refInfo ffcScriptData[32];
 
 void clear_ffc_stack(const byte i)
 {
-    memset(ffc_stack[i], 0, 256 * sizeof(long));
+    memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 void clear_global_stack()
 {
-    memset(global_stack, 0, 256 * sizeof(long));
+    memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 //ScriptHelper
@@ -6027,7 +6027,7 @@ case AUDIOPAN:
     {
         if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
         else if(arg >= A(0) && arg <= A(1))		ret = ri->a[arg - A(0)];
-        else if(arg >= GD(0) && arg <= GD(255))	ret = game->global_d[arg - GD(0)];
+        else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))	ret = game->global_d[arg - GD(0)];
         
         break;
     }
@@ -9466,7 +9466,7 @@ break;
         break;
     
     case DEBUGSP:
-        ri->sp = vbound((value / 10000),0,256);
+        ri->sp = vbound((value / 10000),0,MAX_SCRIPT_REGISTERS-1);
         break;
         
     case DEBUGREFFFC:
@@ -11303,7 +11303,7 @@ case AUDIOPAN:
     {
         if(arg >= D(0) && arg <= D(7))			ri->d[arg - D(0)] = value;
         else if(arg >= A(0) && arg <= A(1))		ri->a[arg - A(0)] = value;
-        else if(arg >= GD(0) && arg <= GD(255))	game->global_d[arg-GD(0)] = value;
+        else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))	game->global_d[arg-GD(0)] = value;
         
         break;
     }
@@ -17090,12 +17090,12 @@ int FFScript::whichlayer(long scr)
 
 void FFScript::clear_ffc_stack(const byte i)
 {
-    memset(ffc_stack[i], 0, 256 * sizeof(long));
+    memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 void FFScript::clear_global_stack()
 {
-    memset(global_stack, 0, 256 * sizeof(long));
+    memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 void FFScript::do_zapout()

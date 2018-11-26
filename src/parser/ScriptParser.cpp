@@ -76,7 +76,7 @@ ScriptsData* ZScript::compile(string const& filename)
 		return NULL;
     
 	FunctionData fd(program);
-	if (fd.globalVariables.size() > 256)
+	if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
 	{
 		box_out_err(CompileError::TooManyGlobal(NULL));
 		return NULL;

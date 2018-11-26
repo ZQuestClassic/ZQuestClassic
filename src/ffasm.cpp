@@ -843,7 +843,7 @@ script_variable variable_list[]=
     { "NPCBOSSPAL",        NPCBOSSPAL,           0,             0 },
     { "NPCBGSFX",          NPCBGSFX,             0,             0 },
     { "NPCCOUNT",          NPCCOUNT,             0,             0 },
-    { "GD",                GD(0),              256,             0 },
+    { "GD",                GD(0),              1024,             0 },
     { "SDD",               SDD,                  0,             0 },
     { "GDD",               GDD,                  0,             0 },
     { "SDDD",              SDDD,                 0,             0 },
