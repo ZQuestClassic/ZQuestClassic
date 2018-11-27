@@ -98,6 +98,14 @@ CScriptDrawingCommands script_drawing_commands;
 using std::string;
 using std::pair;
 extern std::map<int, pair<string,string> > ffcmap;
+extern std::map<int, pair<string,string> > globalmap;
+extern std::map<int, pair<string, string> > itemmap;
+extern std::map<int, pair<string, string> > npcmap;
+extern std::map<int, pair<string, string> > ewpnmap;
+extern std::map<int, pair<string, string> > lwpnmap;
+extern std::map<int, pair<string, string> > linkmap;
+extern std::map<int, pair<string, string> > dmapmap;
+extern std::map<int, pair<string, string> > screenmap;
 
 int zq_screen_w, zq_screen_h;
 int passive_subscreen_height=56;
@@ -2822,6 +2830,10 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
 	#endif
         Lwpns.animate();
+        #if LOGGAMELOOP > 0
+	al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
+	#endif
+        FFCore.itemScriptEngine();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
 	#endif

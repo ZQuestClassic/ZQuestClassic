@@ -179,6 +179,20 @@ std::vector<string> asglobalscripts;
 extern std::map<int, pair<string, string> > itemmap;
 std::vector<string> asitemscripts;
 
+
+extern std::map<int, pair<string, string> > npcmap;
+std::vector<string> asnpcscripts;
+extern std::map<int, pair<string, string> > ewpnmap;
+std::vector<string> aseweaponscripts;
+extern std::map<int, pair<string, string> > lwpnmap;
+std::vector<string> aslweaponscripts;
+extern std::map<int, pair<string, string> > linkmap;
+std::vector<string> aslinkscripts;
+extern std::map<int, pair<string, string> > dmapmap;
+std::vector<string> asdmapscripts;
+extern std::map<int, pair<string, string> > screenmap;
+std::vector<string> asscreenscripts;
+
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
 //editbox_data temp_eb_data;
@@ -18950,6 +18964,7 @@ static DIALOG compile_dlg[] =
 static int as_ffc_list[] = { 4, 5, 6, -1};
 static int as_global_list[] = { 7, 8, 9, -1}; //Why does putting 15 in here not place my message only on the global tab? ~Joe
 static int as_item_list[] = { 10, 11, 12, -1};
+static int as_npc_list[] = { 18, 19, 20, -1}; //npc scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -18957,6 +18972,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"FFC",     D_SELECTED,  as_ffc_list,    0, NULL },
     { (char *)"Global",	 0,         as_global_list, 0, NULL },
     { (char *)"Item",		 0,         as_item_list,   0, NULL },
+    { (char *)"NPC",		 0,         as_npc_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
@@ -18992,6 +19008,16 @@ const char *assignitemlist(int index, int *list_size)
     
     return itemmap[index].first.c_str();
 }
+const char *assignnpclist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)npcmap.size();
+        return NULL;
+    }
+    
+    return npcmap[index].first.c_str();
+}
 
 const char *assignffcscriptlist(int index, int *list_size)
 {
@@ -19026,12 +19052,25 @@ const char *assignitemscriptlist(int index, int *list_size)
     return asitemscripts[index].c_str();
 }
 
+const char *assignnpcscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)asnpcscripts.size();
+        return NULL;
+    }
+    
+    return asnpcscripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
 static ListData assignglobalscript_list(assignglobalscriptlist, &font);
 static ListData assignitem_list(assignitemlist, &font);
 static ListData assignitemscript_list(assignitemscriptlist, &font);
+static ListData assignnpc_list(assignnpclist, &font);
+static ListData assignnpcscript_list(assignnpcscriptlist, &font);
 
 static DIALOG assignscript_dlg[] =
 {
@@ -19042,22 +19081,34 @@ static DIALOG assignscript_dlg[] =
     { jwin_button_proc,	  182,	191,	61,		21,		vc(14), vc(1),	'k',	    D_EXIT,	0,	0,	(void *) "O&K", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffc_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffcscript_list, NULL, NULL },
+    //6
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobal_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobalscript_list, NULL, NULL },
+    //9
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitem_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemscript_list, NULL, NULL },
+    //12
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
-    
+    //13
     { jwin_check_proc,      22,  195,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Output ZASM code to allegro.log", NULL, NULL },
     { jwin_text_proc,       22,  158,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated. Scripts marked", NULL, NULL },
     { jwin_text_proc,       22,  168,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "with ** were not found in the buffer and will not function.", NULL, NULL },
+    //16
     { jwin_text_proc,       22,  178,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Global scripts named 'Init' will be appended to '~Init'", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //npc scripts
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpc_list, NULL, NULL },
+    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpcscript_list, NULL, NULL },
+    //20
+    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    
+    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
     
 };
+
 
 //editbox_data zscript_edit_data;
 
@@ -19129,6 +19180,47 @@ static DIALOG gscript_sel_dlg[] =
     { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
     { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &gscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+//npc script slots
+static char npcscript_str_buf2[32];
+
+const char *npcscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(npcmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, npcmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(npcscript_str_buf2,"%d: %s",index+1, buf);
+        return npcscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTGUYS-1);
+    return NULL;
+}
+
+
+static ListData npcscript_sel_dlg_list(npcscriptlist2, &font);
+
+static DIALOG npcscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &npcscript_sel_dlg_list, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -19257,12 +19349,54 @@ int onCompileScript()
             asglobalscripts.push_back("<none>");
             asitemscripts.clear();
             asitemscripts.push_back("<none>");
+            asnpcscripts.clear();
+            asnpcscripts.push_back("<none>");
+            aseweaponscripts.clear();
+            aseweaponscripts.push_back("<none>");
+            aslweaponscripts.clear();
+            aslweaponscripts.push_back("<none>");
+            aslinkscripts.clear();
+            aslinkscripts.push_back("<none>");
+            asdmapscripts.clear();
+            asdmapscripts.push_back("<none>");
+            asscreenscripts.clear();
+            asscreenscripts.push_back("<none>");
             
             for (std::map<string, ZScript::ScriptType>::iterator it =
 	                 stypes.begin(); it != stypes.end(); ++it)
             {
 	            string const& name = it->first;
 	            ZScript::ScriptType type = it->second;
+                    if ( type == ZScript::ScriptType::ffc )
+                    {        asffcscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::item )
+                    {        asitemscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::npc )
+                    {        asnpcscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::eweapon )
+                    {        aseweaponscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::lweapon )
+                    {        aslweaponscripts.push_back(name); } 
+                    else if ( type == ZScript::ScriptType::link )
+                    {        aslinkscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::player )
+                    {        aslinkscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::dmapdata )
+                    {        asdmapscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::screendata )
+                    {        asscreenscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::global )
+                    {
+                        if (name != "~Init")
+                        {
+                            asglobalscripts.push_back(name);
+                        }
+                    }
+                        
+                        
+                        
+                    
+                    /*
 	            if (type == ZScript::ScriptType::ffc)
                     asffcscripts.push_back(name);
 	            else if (type == ZScript::ScriptType::item)
@@ -19272,6 +19406,7 @@ int onCompileScript()
 	                     // script, bad things could happen
 	                     && name != "~Init")
 		            asglobalscripts.push_back(name);
+                    */
             }
             
             assignscript_dlg[0].dp2 = lfont;
@@ -19330,6 +19465,67 @@ int onCompileScript()
                     else // Previously loaded script not found
                         sprintf(temp, "Slot %d: **%s**", i+1, itemmap[i].second.c_str());
                     itemmap[i].first = temp;
+                }
+                
+                for(int i = 0; i < NUMSCRIPTGUYS-1; i++)
+                {
+                    if(npcmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(npcmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, npcmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, npcmap[i].second.c_str());
+                    npcmap[i].first = temp;
+                } 
+                for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
+                {
+                    if(ewpnmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(ewpnmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, ewpnmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, ewpnmap[i].second.c_str());
+                    ewpnmap[i].first = temp;
+                }
+                for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
+                {
+                    if(lwpnmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(lwpnmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, lwpnmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, lwpnmap[i].second.c_str());
+                    lwpnmap[i].first = temp;
+                }
+                for(int i = 0; i < NUMSCRIPTLINK-1; i++)
+                {
+                    if(linkmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(linkmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, linkmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, linkmap[i].second.c_str());
+                    linkmap[i].first = temp;
+                }
+                for(int i = 0; i < NUMSCRIPTSCREEN-1; i++)
+                {
+                    if(screenmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(screenmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, screenmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, screenmap[i].second.c_str());
+                    screenmap[i].first = temp;
+                }
+                for(int i = 0; i < NUMSCRIPTSDMAP-1; i++)
+                {
+                    if(dmapmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(dmapmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, dmapmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, dmapmap[i].second.c_str());
+                    dmapmap[i].first = temp;
                 }
                 
                 if(is_large)
@@ -19472,7 +19668,246 @@ int onCompileScript()
                             itemscripts[it->first+1][0].command = 0xFFFF;
                         }
                     }
-                    
+                    for(std::map<int, pair<string,string> >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&guyscripts[it->first+1],"tmp",false);
+                        }
+                        else if(guyscripts[it->first+1])
+                        {
+                            delete[] guyscripts[it->first+1];
+                            guyscripts[it->first+1] = new ffscript[1];
+                            guyscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&lwpnscripts[it->first+1],"tmp",false);
+                        }
+                        else if(lwpnscripts[it->first+1])
+                        {
+                            delete[] lwpnscripts[it->first+1];
+                            lwpnscripts[it->first+1] = new ffscript[1];
+                            lwpnscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&ewpnscripts[it->first+1],"tmp",false);
+                        }
+                        else if(ewpnscripts[it->first+1])
+                        {
+                            delete[] ewpnscripts[it->first+1];
+                            ewpnscripts[it->first+1] = new ffscript[1];
+                            ewpnscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&linkscripts[it->first+1],"tmp",false);
+                        }
+                        else if(linkscripts[it->first+1])
+                        {
+                            delete[] linkscripts[it->first+1];
+                            linkscripts[it->first+1] = new ffscript[1];
+                            linkscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&dmapscripts[it->first+1],"tmp",false);
+                        }
+                        else if(dmapscripts[it->first+1])
+                        {
+                            delete[] dmapscripts[it->first+1];
+                            dmapscripts[it->first+1] = new ffscript[1];
+                            dmapscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&screenscripts[it->first+1],"tmp",false);
+                        }
+                        else if(screenscripts[it->first+1])
+                        {
+                            delete[] screenscripts[it->first+1];
+                            screenscripts[it->first+1] = new ffscript[1];
+                            screenscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
                     unlink("tmp");
                     jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
                     build_biffs_list();
@@ -19488,7 +19923,7 @@ int onCompileScript()
                     
                     return D_O_K;
                 }
-                
+                //Left off here for the day. -Z
                 case 6:
                     //<<, FFC
                 {
@@ -19553,6 +19988,26 @@ int onCompileScript()
                     else
                     {
                         itemmap[lind].second = asitemscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 20:
+                    //<<, NPC
+                {
+                    int lind = assignscript_dlg[18].d1;
+                    int rind = assignscript_dlg[19].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asnpcscripts[rind] == "<none>")
+                    {
+                        npcmap[lind].second = "";
+                    }
+                    else
+                    {
+                        npcmap[lind].second = asnpcscripts[rind];
                     }
                     
                     break;

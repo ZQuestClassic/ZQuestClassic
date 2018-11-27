@@ -131,6 +131,7 @@ DataTypeSimple const DataType::BOOL(ZVARTYPEID_BOOL, "bool");
 DataTypeArray const DataType::STRING(FLOAT);
 DataTypeClass const DataType::GAME(ZCLASSID_GAME, "Game");
 DataTypeClass const DataType::LINK(ZCLASSID_LINK, "Link");
+//DataTypeClass const DataType::PLAYER(ZCLASSID_LINK, "Player");
 DataTypeClass const DataType::SCREEN(ZCLASSID_SCREEN, "Screen");
 DataTypeClass const DataType::FFC(ZCLASSID_FFC, "FFC");
 DataTypeClass const DataType::ITEM(ZCLASSID_ITEM, "Item");
@@ -438,6 +439,13 @@ namespace // file local
 		{"global", ZVARTYPEID_VOID},
 		{"ffc", ZVARTYPEID_FFC},
 		{"item", ZVARTYPEID_ITEMCLASS},
+		{"npc", ZVARTYPEID_NPC},
+		{"eweapon", ZVARTYPEID_EWPN},
+		{"lweapon", ZVARTYPEID_LWPN},
+		{"link", ZVARTYPEID_LINK},
+		{"player", ZVARTYPEID_LINK},
+		{"screendata", ZVARTYPEID_SCREEN},
+		{"dmapdata", ZVARTYPEID_DMAPDATA},
 	};
 }
 
@@ -445,6 +453,13 @@ ScriptType const ScriptType::invalid(idInvalid);
 ScriptType const ScriptType::global(idGlobal);
 ScriptType const ScriptType::ffc(idFfc);
 ScriptType const ScriptType::item(idItem);
+ScriptType const ScriptType::npc(idNPC);
+ScriptType const ScriptType::lweapon(idLWeapon);
+ScriptType const ScriptType::eweapon(idEWeapon);
+ScriptType const ScriptType::link(idLink);
+ScriptType const ScriptType::player(idPlayer);
+ScriptType const ScriptType::screendata(idScreen);
+ScriptType const ScriptType::dmapdata(idDMap);
 
 string const& ScriptType::getName() const
 {

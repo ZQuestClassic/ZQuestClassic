@@ -329,6 +329,14 @@ namespace ZScript
 			idGlobal = idStart,
 			idFfc,
 			idItem,
+			idNPC,
+			idEWeapon,
+			idLWeapon,
+			idLink,
+			idPlayer,
+			idScreen,
+			idDMap,
+			
 			idEnd
 		};
 	
@@ -342,6 +350,13 @@ namespace ZScript
 		static ScriptType const global;
 		static ScriptType const ffc;
 		static ScriptType const item;
+		static ScriptType const npc;
+		static ScriptType const eweapon;
+		static ScriptType const lweapon;
+		static ScriptType const link;
+		static ScriptType const player;
+		static ScriptType const dmapdata;
+		static ScriptType const screendata;
 
 	private:
 		ScriptType(Id id) : id_(id) {}

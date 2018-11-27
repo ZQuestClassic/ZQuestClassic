@@ -90,6 +90,13 @@ extern int skipcont;
 extern std::map<int, std::pair<string,string> > ffcmap;
 extern std::map<int, std::pair<string,string> > itemmap;
 extern std::map<int, std::pair<string,string> > globalmap;
+extern std::map<int, std::pair<string, string> > itemmap;
+extern std::map<int, std::pair<string, string> > npcmap;
+extern std::map<int, std::pair<string, string> > ewpnmap;
+extern std::map<int, std::pair<string, string> > lwpnmap;
+extern std::map<int, std::pair<string, string> > linkmap;
+extern std::map<int, std::pair<string, string> > dmapmap;
+extern std::map<int, std::pair<string, string> > screenmap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
 PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
@@ -14705,6 +14712,12 @@ int run_script(const byte type, const word script, const byte i)
 	    //In theory, if we keep the screen caps on these, then we would have 256 or 512 stacks
 	    //for each type at all times. That's an awful lot of wasted RAM.
 	    //Suggestions? -Z
+	    
+	    //Note: I decided to put stacks in the sprite class. We'll need to depete stacks from particles
+	    //and from internal phantom weapons or objects that can naver run scripts, but this should suffice.
+	    
+	    //We can't just free or delete a stack that isn't in use on normal user-controlled objects,
+	    //because they can set `->script = n` at any time. 
         
         memcpy(ri->d, itemsbuf[i].initiald, 8 * sizeof(long));
         memcpy(ri->a, itemsbuf[i].initiala, 2 * sizeof(long));
@@ -18845,13 +18858,14 @@ void FFScript::clearRunningItemScripts()
 }
 
 
-void FFScript::newScriptEngine()
+bool FFScript::newScriptEngine()
 {
 	itemScriptEngine();
 	advanceframe(true);
+	return false;
 }
 
-void FFScript::itemScriptEngine()
+bool FFScript::itemScriptEngine()
 {
 	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
 	for ( int q = 0; q < 256; q++ )
@@ -18884,5 +18898,5 @@ void FFScript::itemScriptEngine()
 		    
 	}
 	
-	//return 0;
+	return false;
 }

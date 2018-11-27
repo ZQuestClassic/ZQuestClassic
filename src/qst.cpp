@@ -80,6 +80,12 @@ string				             zScript;
 std::map<int, pair<string,string> > ffcmap;
 std::map<int, pair<string,string> > globalmap;
 std::map<int, pair<string,string> > itemmap;
+std::map<int, pair<string, string> > npcmap;
+std::map<int, pair<string, string> > ewpnmap;
+std::map<int, pair<string, string> > lwpnmap;
+std::map<int, pair<string, string> > linkmap;
+std::map<int, pair<string, string> > dmapmap;
+std::map<int, pair<string, string> > screenmap;
 
 bool combosread=false;
 bool mapsread=false;
