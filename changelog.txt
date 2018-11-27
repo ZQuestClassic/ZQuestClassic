@@ -1,5 +1,38 @@
 //2.55 and 2.54 Changes
 
+//Alpha 3
+
+Begin Adding Script Slot Dialogue:
+	I need to look at the case values 6, 9, 12 for script types at the point
+where I left off for the day.
+
+Fix: Conflict with script types and common identifiers, and begin adding Player.
+	Changed screen and dmap script types to screendata and dmapdata
+	scripts, to avoid conflicts with the common script variable identifiers
+	`int screen` and `int dmap`.
+
+Started adding second instances of `Link->` and `link script` as
+	`Player->` and `player script`, respectively.
+
+Started adding new script types to the parser and implementing their slots in ZQuest.
+
+	New types are:
+	npc scriptm (this-> is npc)
+	lweapon script (this-> is lweapon)
+	eweapon script (this-> is eweapon)
+	dmapdata script (this-> is dmapdata)
+	screendata script (no this-> at present)
+	link script (no this-> at present)
+
+Feat: Begin Adding New Script Types to Parser & ZQuest
+Fix: Add missing script types to parser/Types.h
+
+Try to Ensure that Item Scripts Have Better Timing
+	Calling FFCore.itemScriptEngine() after LWpns.animate() AND calling
+	FFCore.newScriptEngine() might do the trick.
+	If I only call the former, then ZASM goes bonkers.
+
+
 //Alpha 2
 
 Updated changelog to current. 
