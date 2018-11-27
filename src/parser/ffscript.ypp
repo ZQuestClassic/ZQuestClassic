@@ -133,6 +133,9 @@ extern YYLTYPE noloc;
 %token SPRITE
 %token TUNE
 %token WARPRING
+%token SCREEN
+%token PLAYER
+%token LINK
 
  // Syntax
 %token COMMA
@@ -443,6 +446,13 @@ Script_Type :
 	GLOBAL {$$ = new ASTScriptType(ScriptType::global, @$);}
 	| FFC {$$ = new ASTScriptType(ScriptType::ffc, @$);}
 	| ITEM {$$ = new ASTScriptType(ScriptType::item, @$);}
+	| EWEAPON {$$ = new ASTScriptType(ScriptType::eweapon, @$);}
+	| LWEAPON {$$ = new ASTScriptType(ScriptType::lweapon, @$);}
+	| NPC {$$ = new ASTScriptType(ScriptType::npc, @$);}
+	| SCREEN {$$ = new ASTScriptType(ScriptType::screendata, @$);}
+	| DMAP {$$ = new ASTScriptType(ScriptType::dmapdata, @$);}
+	| LINK {$$ = new ASTScriptType(ScriptType::link, @$);}
+	| PLAYER {$$ = new ASTScriptType(ScriptType::player, @$);}
 	| IDENTIFIER {
 		ASTString* name = static_cast<ASTString*>($1);
 		$$ = new ASTScriptType(name->getValue(), @$);

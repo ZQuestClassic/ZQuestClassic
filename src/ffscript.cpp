@@ -90,6 +90,13 @@ extern int skipcont;
 extern std::map<int, std::pair<string,string> > ffcmap;
 extern std::map<int, std::pair<string,string> > itemmap;
 extern std::map<int, std::pair<string,string> > globalmap;
+extern std::map<int, std::pair<string, string> > itemmap;
+extern std::map<int, std::pair<string, string> > npcmap;
+extern std::map<int, std::pair<string, string> > ewpnmap;
+extern std::map<int, std::pair<string, string> > lwpnmap;
+extern std::map<int, std::pair<string, string> > linkmap;
+extern std::map<int, std::pair<string, string> > dmapmap;
+extern std::map<int, std::pair<string, string> > screenmap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
 PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
@@ -18851,13 +18858,14 @@ void FFScript::clearRunningItemScripts()
 }
 
 
-void FFScript::newScriptEngine()
+bool FFScript::newScriptEngine()
 {
 	itemScriptEngine();
 	advanceframe(true);
+	return false;
 }
 
-void FFScript::itemScriptEngine()
+bool FFScript::itemScriptEngine()
 {
 	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
 	for ( int q = 0; q < 256; q++ )
@@ -18890,5 +18898,5 @@ void FFScript::itemScriptEngine()
 		    
 	}
 	
-	//return 0;
+	return false;
 }
