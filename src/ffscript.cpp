@@ -14705,6 +14705,12 @@ int run_script(const byte type, const word script, const byte i)
 	    //In theory, if we keep the screen caps on these, then we would have 256 or 512 stacks
 	    //for each type at all times. That's an awful lot of wasted RAM.
 	    //Suggestions? -Z
+	    
+	    //Note: I decided to put stacks in the sprite class. We'll need to depete stacks from particles
+	    //and from internal phantom weapons or objects that can naver run scripts, but this should suffice.
+	    
+	    //We can't just free or delete a stack that isn't in use on normal user-controlled objects,
+	    //because they can set `->script = n` at any time. 
         
         memcpy(ri->d, itemsbuf[i].initiald, 8 * sizeof(long));
         memcpy(ri->a, itemsbuf[i].initiala, 2 * sizeof(long));
