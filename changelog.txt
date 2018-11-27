@@ -2,6 +2,15 @@
 
 //Alpha 3
 
+Added NPC Scripts to the Compile->Assign Script Dialogue.
+	They work, and are compiled properly.
+	What remains:
+		Save the script with the quest.
+		(Increment the save format.)
+		Read NPC scripts in, when loading a quest that is >- save ID.
+		Add the script selection to the enemy editor.
+		Call the code in the game_loop()
+		Hope that it all works as-is. 
 Begin Adding Script Slot Dialogue:
 	I need to look at the case values 6, 9, 12 for script types at the point
 where I left off for the day.
