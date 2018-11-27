@@ -18964,6 +18964,7 @@ static DIALOG compile_dlg[] =
 static int as_ffc_list[] = { 4, 5, 6, -1};
 static int as_global_list[] = { 7, 8, 9, -1}; //Why does putting 15 in here not place my message only on the global tab? ~Joe
 static int as_item_list[] = { 10, 11, 12, -1};
+static int as_npc_list[] = { 18, 19, 20, -1}; //npc scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -18971,6 +18972,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"FFC",     D_SELECTED,  as_ffc_list,    0, NULL },
     { (char *)"Global",	 0,         as_global_list, 0, NULL },
     { (char *)"Item",		 0,         as_item_list,   0, NULL },
+    { (char *)"NPC",		 0,         as_npc_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
@@ -19006,6 +19008,16 @@ const char *assignitemlist(int index, int *list_size)
     
     return itemmap[index].first.c_str();
 }
+const char *assignnpclist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)npcmap.size();
+        return NULL;
+    }
+    
+    return npcmap[index].first.c_str();
+}
 
 const char *assignffcscriptlist(int index, int *list_size)
 {
@@ -19040,12 +19052,25 @@ const char *assignitemscriptlist(int index, int *list_size)
     return asitemscripts[index].c_str();
 }
 
+const char *assignnpcscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)asnpcscripts.size();
+        return NULL;
+    }
+    
+    return asnpcscripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
 static ListData assignglobalscript_list(assignglobalscriptlist, &font);
 static ListData assignitem_list(assignitemlist, &font);
 static ListData assignitemscript_list(assignitemscriptlist, &font);
+static ListData assignnpc_list(assignnpclist, &font);
+static ListData assignnpcscript_list(assignnpcscriptlist, &font);
 
 static DIALOG assignscript_dlg[] =
 {
@@ -19056,22 +19081,34 @@ static DIALOG assignscript_dlg[] =
     { jwin_button_proc,	  182,	191,	61,		21,		vc(14), vc(1),	'k',	    D_EXIT,	0,	0,	(void *) "O&K", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffc_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffcscript_list, NULL, NULL },
+    //6
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobal_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobalscript_list, NULL, NULL },
+    //9
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitem_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemscript_list, NULL, NULL },
+    //12
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
-    
+    //13
     { jwin_check_proc,      22,  195,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Output ZASM code to allegro.log", NULL, NULL },
     { jwin_text_proc,       22,  158,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated. Scripts marked", NULL, NULL },
     { jwin_text_proc,       22,  168,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "with ** were not found in the buffer and will not function.", NULL, NULL },
+    //16
     { jwin_text_proc,       22,  178,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Global scripts named 'Init' will be appended to '~Init'", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //npc scripts
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpc_list, NULL, NULL },
+    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpcscript_list, NULL, NULL },
+    //20
+    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    
+    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
     
 };
+
 
 //editbox_data zscript_edit_data;
 
@@ -19143,6 +19180,47 @@ static DIALOG gscript_sel_dlg[] =
     { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
     { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &gscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+//npc script slots
+static char npcscript_str_buf2[32];
+
+const char *npcscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(npcmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, npcmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(npcscript_str_buf2,"%d: %s",index+1, buf);
+        return npcscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTGUYS-1);
+    return NULL;
+}
+
+
+static ListData npcscript_sel_dlg_list(npcscriptlist2, &font);
+
+static DIALOG npcscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &npcscript_sel_dlg_list, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -19910,6 +19988,26 @@ int onCompileScript()
                     else
                     {
                         itemmap[lind].second = asitemscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 20:
+                    //<<, NPC
+                {
+                    int lind = assignscript_dlg[18].d1;
+                    int rind = assignscript_dlg[19].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asnpcscripts[rind] == "<none>")
+                    {
+                        npcmap[lind].second = "";
+                    }
+                    else
+                    {
+                        npcmap[lind].second = asnpcscripts[rind];
                     }
                     
                     break;
