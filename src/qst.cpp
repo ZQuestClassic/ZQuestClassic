@@ -8621,6 +8621,18 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
             
         }
+        else //Is this trip really necessary?
+        {
+            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            {
+                
+                ewpnscripts[i] = NULL;
+            }
+            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            {
+                dmapscripts[i] = NULL;
+            }
+        }
         
     }
     
