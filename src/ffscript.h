@@ -1160,7 +1160,7 @@ extern PALETTE tempgreypal; //script greyscale
 extern PALETTE userPALETTE[256];
 
 long get_register(const long arg);
-int run_script(const byte type, const word script, const byte i = -1); //Global scripts don't need 'i'
+int run_script(const byte type, const word script, const long i = -1); //Global scripts don't need 'i'
 int ffscript_engine(const bool preload);
 
 void clear_ffc_stack(const byte i);

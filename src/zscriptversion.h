@@ -30,7 +30,7 @@ public:
     }
     
     //Only one if check at quest load, rather than each time we use the function
-    static inline int RunScript(const byte type, const word script, const byte i = -1)
+    static inline int RunScript(const byte type, const word script, const long i = -1)
     {
         return (*Interpreter)(type, script, i);
     }
@@ -42,7 +42,7 @@ public:
     
 private:
     static int CurrentVersion;
-    static int (*Interpreter)(const byte, const word, const byte);
+    static int (*Interpreter)(const byte, const word, const long);
     static void (*onScrolling)(int, int, int, int, bool);
     
     //Couldn't do anything with old ZScript
