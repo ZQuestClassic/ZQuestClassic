@@ -10482,18 +10482,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 new_return(ret);
             }
         }
-	/*
-	for(int i=0; i<NUMSCRIPTWEAPONS; i++)
-        {
-            int ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
-            fake_pack_writing=(writecycle==0);
-            
-            if(ret!=0)
-            {
-                new_return(ret);
-            }
-        }
-        */
+        
         for(int i=0; i<NUMSCRIPTSCREEN; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &screenscripts[i]);
@@ -10526,7 +10515,18 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 new_return(ret);
             }
         }
-	/*
+	
+        for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+        {
+            int ret = write_one_ffscript(f, Header, i, &ewpnscripts[i]);
+            fake_pack_writing=(writecycle==0);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+        
 	for(int i=0; i<NUMSCRIPTSDMAP; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &dmapscripts[i]);
@@ -10537,7 +10537,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
                 new_return(ret);
             }
         }
-        */
+        
         if(!p_iputl((long)zScript.size(), f))
         {
             new_return(2001);

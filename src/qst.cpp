@@ -8501,6 +8501,7 @@ extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
 extern ffscript *linkscripts[NUMSCRIPTLINK];
 extern ffscript *screenscripts[NUMSCRIPTSCREEN];
 extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
+//ffscript *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
 
 int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
@@ -8563,28 +8564,15 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(ret != 0) return qe_invalid;
         }
-	/*
-	for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i]);
-            
-            if(ret != 0) return qe_invalid;
-        }
-        */
+        
+	
         for(int i = 0; i < NUMSCRIPTSCREEN; i++)
         {
             ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &screenscripts[i]);
             
             if(ret != 0) return qe_invalid;
         }
-	/*
-	for(int i = 0; i < NUMSCRIPTSDMAP; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i]);
-            
-            if(ret != 0) return qe_invalid;
-        }
-        */
+	
         if(s_version > 4)
         {
             for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
@@ -8616,6 +8604,24 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(ret != 0) return qe_invalid;
         }
+        if(s_version > 7)
+        {
+            
+            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i]);
+                
+                if(ret != 0) return qe_invalid;
+            }
+            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i]);
+            
+                if(ret != 0) return qe_invalid;
+            }
+            
+        }
+        
     }
     
     if(s_version > 2)
