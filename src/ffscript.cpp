@@ -14684,7 +14684,7 @@ int run_script(const byte type, const word script, const long i)
 		//enemy::animate(index) runs by screen index, so, getting the enemy by its index should be fine
 		//as we'd call ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
 		//thus, from 'index', we'd use: stack = &(guys.spr(GuyH::getNPCIndex(i))->stack);
-		//and ri->guyref = i;
+		//and ri->guyref = guys.spr(i)->getUID();;
     }
     break;
     
