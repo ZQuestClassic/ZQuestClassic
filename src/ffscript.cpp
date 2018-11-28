@@ -14671,7 +14671,10 @@ int run_script(const byte type, const word script, const long i)
 		ri = &(npcScriptData[i]);
 		curscript = guyscripts[script];
 		stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
+		//stack = &(guys.spr(guys.getByUID(i))->stack);
+	    
 		ri->guyref = i; //'this' pointer
+		//ri->guyref = getNPCIndex(guys.getByUID(i)); //'this' pointer
     }
     break;
     
