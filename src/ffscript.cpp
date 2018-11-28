@@ -14675,6 +14675,11 @@ int run_script(const byte type, const word script, const long i)
 	    
 		ri->guyref = i; //'this' pointer
 		//ri->guyref = getNPCIndex(guys.getByUID(i)); //'this' pointer
+		//ZScriptVersion::RunScript(SCRIPT_NPC, guys.spr(i)->.script, guys.spr(i)->getUID());
+			    
+		//Perhaps it would be better to add a new function that passes the npc pointer to here?
+		//or a direct pointer to the sprite's stack?
+		//but we'd still need the refinfo ID
     }
     break;
     
