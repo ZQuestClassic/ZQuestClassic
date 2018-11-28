@@ -14680,6 +14680,11 @@ int run_script(const byte type, const word script, const long i)
 		//Perhaps it would be better to add a new function that passes the npc pointer to here?
 		//or a direct pointer to the sprite's stack?
 		//but we'd still need the refinfo ID
+	    
+		//enemy::animate(index) runs by screen index, so, getting the enemy by its index should be fine
+		//as we'd call ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
+		//thus, from 'index', we'd use: stack = &(guys.spr(GuyH::getNPCIndex(i))->stack);
+		//and ri->guyref = i;
     }
     break;
     
