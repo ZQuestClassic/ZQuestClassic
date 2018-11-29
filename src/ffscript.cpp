@@ -18959,7 +18959,7 @@ int FFScript::getTime(int type)
 			int month = tm_struct->tm_mon +1;         /* month */
 			//Months start at 0, but we want 1->12
 			//al_trace("The current month is: %d\n",month);
-			rval = month +1; break;
+			rval = month; break;
 		}
 		case curday_month:
 		{
