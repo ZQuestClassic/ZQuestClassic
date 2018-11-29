@@ -11706,7 +11706,7 @@ void do_rnd(const bool v)
 void FFScript::getRTC(const bool v)
 {
 	//long type = SH::get_arg(sarg2, v) / 10000;
-	set_register(sarg1, getTime((byte)(SH::get_arg(sarg2, v) / 10000)));
+	set_register(sarg1, getTime((byte)(SH::get_arg(sarg2, v) / 10000)) * 10000);
 }
 
 void do_factorial(const bool v)

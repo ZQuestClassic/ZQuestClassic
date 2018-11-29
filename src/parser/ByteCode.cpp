@@ -4135,7 +4135,7 @@ string OLinkExplodeRegister::toString()
 
 string OGetSystemRTCRegister::toString()
 {
-    return "GETRTCTIMER " + getArgument()->toString();
+    return "GETRTCTIMER " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string ONPCExplodeRegister::toString()

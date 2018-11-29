@@ -6879,14 +6879,14 @@ namespace ZScript
 		}
 	};
 	
-	class OGetSystemRTCRegister : public UnaryOpcode
+	class OGetSystemRTCRegister : public BinaryOpcode
 	{
 	public:
-		OGetSystemRTCRegister(Argument *A) : UnaryOpcode(A) {}
+		OGetSystemRTCRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		string toString();
 		Opcode *clone()
 		{
-			return new OGetSystemRTCRegister(a->clone());
+			return new OGetSystemRTCRegister(a->clone(), b->clone());
 		}
 	};
 
