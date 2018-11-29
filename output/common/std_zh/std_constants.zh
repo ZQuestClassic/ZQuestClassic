@@ -2401,7 +2401,8 @@ define RTC_HOUR		= 4;
 define RTC_MINUTE	= 5;
 define RTC_SECOND	= 6;
 define RTC_DAYOFYEAR	= 7;
-define RTC_LAST		= 8;
+define RTC_DAYLIGHTTIME	= 8;
+define RTC_LAST		= 9;
 
 //Warp types. Use with Screen->SetSideWarp
 //and Link->WarpEx()
