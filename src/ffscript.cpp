@@ -18949,7 +18949,7 @@ int FFScript::getTime(int type)
 		{
 			int year = tm_struct->tm_year;        /* year */
 			//year format starts at 1900, so we add it to the return
-			al_trace("GetSystemTime(year): The current year is: %d\n",year);
+			//al_trace("GetSystemTime(year): The current year is: %d\n",year);
 			rval = year + 1900; break;
 			
 		}

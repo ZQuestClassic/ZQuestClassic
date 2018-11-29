@@ -129,7 +129,7 @@ void setLinkAction(int a);
 int getLinkAction();
 void Play_Level_Music();
 int getTime(int type); //get system RTC Information.
-
+void getRTC(const bool v);
 long getQuestHeaderInfo(int type);
 
 
@@ -1942,6 +1942,8 @@ enum ASM_DEFINE
 	EWEAPONEXPLODER,
 	EWEAPONEXPLODEV,
 	RUNITEMSCRIPT,
+	GETRTCTIMER,
+	GETRTCTIMEV,
 
 	NUMCOMMANDS           //0x013B
 };
