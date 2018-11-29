@@ -11705,14 +11705,15 @@ void do_rnd(const bool v)
 //Returns the system Real-Time-Clock value for a specific type. 
 void FFScript::getRTC(const bool v)
 {
-	long type = SH::get_arg(sarg2, v) / 10000;
-	Z_scripterrlog("FFCore.getRTC() type == %d\n",type);
-	int time = getTime(type);
-	Z_scripterrlog("FFCore.getRTC() time == %d\n",time);
+	//long type = get_register(sarg1) / 10000;
+	//Z_scripterrlog("FFCore.getRTC() type == %d\n",type);
+	//int time = getTime(type);
+	//Z_scripterrlog("FFCore.getRTC() time == %d\n",time);
 	//Z_scripterrlog("FFCore.getRTC() time * 10000 == %d\n",time);
 	//set_register(sarg1, getTime((byte)(SH::get_arg(sarg2, v) / 10000)) * 10000);
-	set_register(sarg1, time * 10000);
+	set_register(sarg1, getTime((get_register(sarg1) / 10000)) * 10000);
 }
+
 
 void do_factorial(const bool v)
 {

@@ -25251,7 +25251,7 @@ void FFScript::setLinkTile(int t)
 	FF_link_tile = vbound(t, 0, NEWMAXTILES);
 }
 
-int FFScript::getTime(byte type)
+int FFScript::getTime(int type)
 {
 	//struct tm *tm_struct = localtime(time(NULL));
 	struct tm * tm_struct;

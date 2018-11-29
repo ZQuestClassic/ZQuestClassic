@@ -652,19 +652,20 @@ void GlobalSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
+    
     //int GetSystemTime(int category)
     {
 	    Function* function = getFunction("GetSystemTime");
         int label = function->getLabel();
         vector<Opcode *> code;
-        //pop maxval
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
+        Opcode *first = new OPopRegister(new VarArgument(EXP1));
         first->setLabel(label);
         code.push_back(first);
-        code.push_back(new OGetSystemRTCRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+        code.push_back(new OGetSystemRTCRegister(new VarArgument(EXP1)));
         code.push_back(new OReturn());
         function->giveCode(code);
     }
+    
     //void Quit()
     {
 	    Function* function = getFunction("Quit");
