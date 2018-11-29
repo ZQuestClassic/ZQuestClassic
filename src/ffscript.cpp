@@ -11705,8 +11705,13 @@ void do_rnd(const bool v)
 //Returns the system Real-Time-Clock value for a specific type. 
 void FFScript::getRTC(const bool v)
 {
-	//long type = SH::get_arg(sarg2, v) / 10000;
-	set_register(sarg1, getTime((byte)(SH::get_arg(sarg2, v) / 10000)) * 10000);
+	long type = SH::get_arg(sarg2, v) / 10000;
+	Z_scripterrlog("FFCore.getRTC() type == %d\n",type);
+	int time = getTime(type);
+	Z_scripterrlog("FFCore.getRTC() time == %d\n",time);
+	//Z_scripterrlog("FFCore.getRTC() time * 10000 == %d\n",time);
+	//set_register(sarg1, getTime((byte)(SH::get_arg(sarg2, v) / 10000)) * 10000);
+	set_register(sarg1, time * 10000);
 }
 
 void do_factorial(const bool v)
@@ -18929,74 +18934,80 @@ bool FFScript::itemScriptEngine()
 	return false;
 }
 
-int FFScript::getTime(byte type)
+int FFScript::getTime(int type)
 {
 	//struct tm *tm_struct = localtime(time(NULL));
 	struct tm * tm_struct;
 	time_t rawtime;
 	time (&rawtime);
 	tm_struct = localtime (&rawtime);
+	int rval = -1;
 	
 	switch(type)
 	{
 		case curyear:
 		{
-			int year = tm_struct->tm_year + 1900;        /* year */
+			int year = tm_struct->tm_year;        /* year */
 			//year format starts at 1900, so we add it to the return
-			al_trace("The current year is: %d\n",year);
-			return year;
+			al_trace("GetSystemTime(year): The current year is: %d\n",year);
+			rval = year + 1900; break;
 			
 		}
 		case curmonth:
 		{
 			int month = tm_struct->tm_mon +1;         /* month */
 			//Months start at 0, but we want 1->12
-			al_trace("The current month is: %d\n",month);
-			return month;
+			//al_trace("The current month is: %d\n",month);
+			rval = month +1; break;
 		}
 		case curday_month:
 		{
 			int day_month = tm_struct->tm_mday;        /* day of the month */
-			al_trace("The current day of the month is: %d\n",day_month);
-			return day_month;
+			//al_trace("The current day of the month is: %d\n",day_month);
+			rval = day_month; break;
 		}
 		case curday_week: 
 		{
 			int day_week = tm_struct->tm_wday;        /* day of the week */
-			al_trace("The current day of the week is: %d\n",day_week);
-			return day_week;
+			//al_trace("The current day of the week is: %d\n",day_week);
+			rval = day_week; break;
 		}
 		case curhour:
 		{
 			int hour = tm_struct->tm_hour;        /* hours */
-			al_trace("The current hour is: %d\n",hour);
-			return hour;
+			//al_trace("The current hour is: %d\n",hour);
+			rval = hour; break;
 		}
 		case curminute: 
 		{
 			int minutes = tm_struct->tm_min;         /* minutes */
-			al_trace("The current hour is: %d\n",minutes);
-			return minutes;
+			//al_trace("The current hour is: %d\n",minutes);
+			rval = minutes; break;
 		}
 		case cursecond:
 		{
 			int secs = tm_struct->tm_sec;         /* seconds */
-			al_trace("The current second is: %d\n",secs);
-			return secs;
+			//al_trace("The current second is: %d\n",secs);
+			rval = secs; break;
 		}
 		case curdayyear:
 		{
 			int day_year = tm_struct->tm_yday;        /* day in the year */
-			al_trace("The current day out of the year is: %d\n",day_year);
-			return day_year;
+			//al_trace("The current day out of the year is: %d\n",day_year);
+			rval = day_year; break;
 		}
 		case curDST:
 		{
 			int isDST = tm_struct->tm_isdst;       /* daylight saving time */
-			al_trace("The current DSTis: %d\n",isDST);
-			return isDST;
+			//al_trace("The current DSTis: %d\n",isDST);
+			rval = isDST; break;
 		}
-		default: return -1;
+		default: 
+		{
+			al_trace("Invalid category passed to GetSystemTime(%d)\n",type);
+			rval = -1;  break;
+		}
 		
 	}
+	return rval;
 }
