@@ -8621,6 +8621,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
             
         }
+        /*
         else //Is this trip really necessary?
         {
             for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
@@ -8633,6 +8634,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 dmapscripts[i] = NULL;
             }
         }
+        */
         
     }
     
