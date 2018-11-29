@@ -2403,3 +2403,15 @@ const int TINT_AMBER = 7;
 const int TINT_CYAN = 8;
 const int TINT_MODE_UNIFORM = 0;
 const int TINT_MODE_DISTRIBUTED = 1000;
+
+
+//System Real Time Clock (RTC) categories for GetSystemTime(int category)
+define RTC_YEAR		= 0;
+define RTC_MONTH	= 1;
+define RTC_DAYOFMONTH	= 2;
+define RTC_DAYOFWEEK	= 3;
+define RTC_HOUR		= 4;
+define RTC_MINUTE	= 5;
+define RTC_SECOND	= 6;
+define RTC_DAYOFYEAR	= 7;
+define RTC_LAST		= 8;

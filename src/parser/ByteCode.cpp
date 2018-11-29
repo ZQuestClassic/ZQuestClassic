@@ -4133,6 +4133,11 @@ string OLinkExplodeRegister::toString()
     return "LINKEXPLODER " + getArgument()->toString();
 }
 
+string OGetSystemRTCRegister::toString()
+{
+    return "GETRTCTIMER " + getArgument()->toString();
+}
+
 string ONPCExplodeRegister::toString()
 {
     return "NPCEXPLODER " + getArgument()->toString();

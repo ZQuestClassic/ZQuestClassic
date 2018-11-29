@@ -21869,9 +21869,12 @@ int main(int argc,char **argv)
     switch(IS_BETA)
     {
     case -1:
+    {
         Z_title("ZQuest %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-        break;
+        //Print the current time to allegro.log as a test.
         
+        break;
+    }
     case 1:
         Z_title("ZQuest %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
         break;
@@ -22842,7 +22845,12 @@ int main(int argc,char **argv)
                   tempmode, get_color_depth(), zq_screen_w*zqwin_scale, zq_screen_h*zqwin_scale);
         //Z_message("OK\n");
     }
-    
+    //check and log RTC date and time
+
+        for (int q = 0; q < curTimeLAST; q++) 
+        {
+            int t_time_v = FFCore.getTime(q);
+        }
     scrtmp = screen;
     hw_screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
     screen = hw_screen;
@@ -25243,6 +25251,77 @@ void FFScript::setLinkTile(int t)
 	FF_link_tile = vbound(t, 0, NEWMAXTILES);
 }
 
+int FFScript::getTime(byte type)
+{
+	//struct tm *tm_struct = localtime(time(NULL));
+	struct tm * tm_struct;
+	time_t rawtime;
+	time (&rawtime);
+	tm_struct = localtime (&rawtime);
+	
+	switch(type)
+	{
+		case curyear:
+		{
+			int year = tm_struct->tm_year + 1900;        /* year */
+			//year format starts at 1900, so we add it to the return
+			al_trace("The current year is: %d\n",year);
+			return year;
+			
+		}
+		case curmonth:
+		{
+			int month = tm_struct->tm_mon +1;         /* month */
+			//Months start at 0, but we want 1->12
+			al_trace("The current month is: %d\n",month);
+			return month;
+		}
+		case curday_month:
+		{
+			int day_month = tm_struct->tm_mday;        /* day of the month */
+			al_trace("The current day of the month is: %d\n",day_month);
+			return day_month;
+		}
+		case curday_week: 
+		{
+			int day_week = tm_struct->tm_wday;        /* day of the week */
+			al_trace("The current day of the week is: %d\n",day_week);
+			return day_week;
+		}
+		case curhour:
+		{
+			int hour = tm_struct->tm_hour;        /* hours */
+			al_trace("The current hour is: %d\n",hour);
+			return hour;
+		}
+		case curminute: 
+		{
+			int minutes = tm_struct->tm_min;         /* minutes */
+			al_trace("The current hour is: %d\n",minutes);
+			return minutes;
+		}
+		case cursecond:
+		{
+			int secs = tm_struct->tm_sec;         /* seconds */
+			al_trace("The current second is: %d\n",secs);
+			return secs;
+		}
+		case curdayyear:
+		{
+			int day_year = tm_struct->tm_yday;        /* day in the year */
+			al_trace("The current day out of the year is: %d\n",day_year);
+			return day_year;
+		}
+		case curDST:
+		{
+			int isDST = tm_struct->tm_isdst;       /* daylight saving time */
+			al_trace("The current DSTis: %d\n",isDST);
+			return isDST;
+		}
+		default: return -1;
+		
+	}
+}
 
 const char *itemclass_help_string_cats[itype_max*3]=
 		{

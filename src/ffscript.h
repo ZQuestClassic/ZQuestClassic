@@ -44,6 +44,8 @@ enum {
 	FFCORE_SCRIPTED_PANSTYLE 	= 0x0010
 };
 
+enum { curyear, curmonth, curday_month, curday_week, curhour, curminute, cursecond, curdayyear, curDST, curTimeLAST };
+
 
 
 	//Allow or forbid drawing during specific game events. 
@@ -125,7 +127,8 @@ int getLinkTile();
 void setLinkAction(int a);
 int getLinkAction();
 void Play_Level_Music();
-
+int getTime(byte type); //get system RTC Information.
+void getRTC(const bool v);
 long getQuestHeaderInfo(int type);
 
 
@@ -1938,6 +1941,8 @@ enum ASM_DEFINE
 	EWEAPONEXPLODER,
 	EWEAPONEXPLODEV,
 	RUNITEMSCRIPT,
+	GETRTCTIMER,
+	GETRTCTIMEV,
 
 	NUMCOMMANDS           //0x013B
 };

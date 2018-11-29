@@ -591,8 +591,9 @@ static AccessorTable GlobalTable[] =
     { "OverlayTile",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     //{ "NUL",               ScriptParser::TYPE_UNTYPED,          FUNCTION,     0,                    1,      {  -1,        -1,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     //{ "Null",               ScriptParser::TYPE_UNTYPED,          FUNCTION,     0,                    1,      {  ScriptParser::TYPE_UNTYPED,        -1,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-   { "Untype",               ZVARTYPEID_UNTYPED,          FUNCTION,     0,                    1,      {  ZVARTYPEID_UNTYPED,        -1,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-   //
+    { "Untype",               ZVARTYPEID_UNTYPED,          FUNCTION,     0,                    1,      {  ZVARTYPEID_UNTYPED,        -1,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    //
+    { "GetSystemTime",          ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_FLOAT,        -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
     //TYPE_UNTYPED
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
@@ -648,6 +649,19 @@ void GlobalSymbols::generateCode()
         first->setLabel(label);
         code.push_back(first);
         code.push_back(new ORandRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+        code.push_back(new OReturn());
+        function->giveCode(code);
+    }
+    //int GetSystemTime(int category)
+    {
+	    Function* function = getFunction("GetSystemTime");
+        int label = function->getLabel();
+        vector<Opcode *> code;
+        //pop maxval
+        Opcode *first = new OPopRegister(new VarArgument(EXP2));
+        first->setLabel(label);
+        code.push_back(first);
+        code.push_back(new OGetSystemRTCRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         code.push_back(new OReturn());
         function->giveCode(code);
     }

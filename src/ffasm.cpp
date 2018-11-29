@@ -738,6 +738,9 @@ script_command command_list[NUMCOMMANDS+1]=
      { "EWEAPONEXPLODER",             1,   0,   0,   0},
      { "EWEAPONEXPLODEV",             1,   1,   0,   0},
      { "RUNITEMSCRIPT",			   0,   0,   0,   0},
+     { "GETRTCTIMER",             1,   0,   0,   0},
+     { "GETRTCTIMEV",             1,   1,   0,   0},
+     
      { "",                    0,   0,   0,   0}
 };
 
