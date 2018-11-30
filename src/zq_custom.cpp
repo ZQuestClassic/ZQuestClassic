@@ -2925,6 +2925,7 @@ static int enemy_script_tabs_list[] =
 
 static int enemy_scripts_list[] =
 {
+    334,335,
     -1
 };
 
@@ -4058,10 +4059,24 @@ std::map<int, EnemyNameInfo *> *getEnemyNameMap()
     return enamemap;
 }
 
+const char *npcscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = binpcs_cnt;
+        return NULL;
+    }
+    
+    return binpcs[index].first.c_str();
+}
+
+
 static ListData itemset_list(itemsetlist, &font);
 static ListData eneanim_list(eneanimlist, &font);
 static ListData enetype_list(enetypelist, &font);
 static ListData eweapon_list(eweaponlist, &font);
+static ListData npcscript_list(npcscriptdroplist, &pfont);
+
 
 
 static ListData walkerspawn_list(walkerspawnlist, &font);
@@ -4722,6 +4737,9 @@ static DIALOG enedata_dlg[] =
     {  jwin_edit_proc,        6,     56+(18*6),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 //334
+    { jwin_text_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10,  47+38+10*2 + 18,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
+    
     /*
 	  // 248 scripts
 	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_script_tabs,     NULL, (void *)enedata_dlg   },
@@ -4979,6 +4997,21 @@ void edit_enemydata(int index)
     char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
 	char weapsprite[8];
     build_biw_list();
+    //begin npc script
+    build_binpcs_list();
+    int script = 0;
+    
+    for(int j = 0; j < binpcs_cnt; j++)
+    {
+        if(binpcs[j].second == guysbuf[index].npcscript - 1)
+        {
+            script = j;
+        }
+    }
+    
+    itemdata_dlg[335].d1 = script;
+    //end npc script
+    
     //disable the missing dialog items!
     //else they will lurk in the background
     //stealing mouse focus -DD
@@ -5423,6 +5456,10 @@ void edit_enemydata(int index)
         enedata_dlg[333].dp = attribs[31];
         
         ret = zc_popup_dialog(enedata_dlg,3);
+        
+        //begin npc scripts
+        test.npcscript = binpcs[itemdata_dlg[335].d1].second + 1;
+        //end npc scripts
         
         test.tile  = enedata_dlg[247].d1;
         test.cset = enedata_dlg[247].d2;

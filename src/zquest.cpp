@@ -18755,6 +18755,8 @@ script_struct biffs[NUMSCRIPTFFC]; //ff script
 int biffs_cnt = -1;
 script_struct biitems[NUMSCRIPTFFC]; //item script
 int biitems_cnt = -1;
+script_struct binpcs[NUMSCRIPTGUYS]; //item script
+int binpcs_cnt = -1;
 //static char ffscript_str_buf[32];
 
 void build_biffs_list()
@@ -18797,6 +18799,49 @@ void build_biffs_list()
     for(int i = 0; i < NUMSCRIPTFFC; i++)
         if(biffs[i].first.length() > 0)
             biffs_cnt = i+1;
+}
+
+//npc scripts
+void build_binpcs_list()
+{
+    binpcs[0].first = "(None)";
+    binpcs[0].second = -1;
+    binpcs_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTGUYS - 1; i++)
+    {
+        if(npcmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << npcmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        binpcs[binpcs_cnt].first = ss.str();
+        binpcs[binpcs_cnt].second = i;
+        binpcs_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=binpcs_cnt; i<NUMSCRIPTGUYS; i++)
+    {
+        binpcs[i].first="";
+        binpcs[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < binpcs_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < binpcs_cnt; j++)
+        {
+            if(stricmp(binpcs[i].first.c_str(),binpcs[j].first.c_str()) > 0 && strcmp(binpcs[j].first.c_str(),""))
+                zc_swap(binpcs[i],binpcs[j]);
+        }
+    }
+    
+    binpcs_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTGUYS; i++)
+        if(binpcs[i].first.length() > 0)
+            binpcs_cnt = i+1;
 }
 
 void build_biitems_list()
