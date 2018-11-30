@@ -4999,8 +4999,8 @@ void edit_enemydata(int index)
     char attribs[32][8];
     char enemynumstr[75];
     char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
-	char weapsprite[8], 
-    build_biw_list();
+	char weapsprite[8];
+    
     //begin npc script
     int j = 0; build_binpcs_list(); //npc scripts lister
     for(j = 0; j < binpcs_cnt; j++)
