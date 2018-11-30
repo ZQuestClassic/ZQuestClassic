@@ -1964,13 +1964,19 @@ void LogPrint(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int
 //	`int args` is an array literal with the following format required:
 //	{ LAYER, X, Y, FONT, TEXT_COLOUR, TEXT_BG_COLOUR, FORMAT, OPCITY }
 
+//Prints a formatted string to the screen. 
+//	`int v` can be a string, a float, or an int and is inserted to 
+//	the string using the tokens `%s`, `%f`, and `%d` respectively.
+//	`int args` is an array literal with the following format required:
+//	{ LAYER, X, Y, FONT, TEXT_COLOUR, TEXT_BG_COLOUR, FORMAT, OPCITY }
+
 void ScreenPrint(int s, int v, int args) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
-	int args_size = SizeOfArray(args)
-	if ( args-size < 8 )
+	int args_size = SizeOfArray(args);
+	if ( args_size < 8 )
 	{
-		LogError("Size of array args[] passed to ScreenPrint(s,v,args) was too small. The supplied size was: %d\n",SizeOfArray(args));
-		LogError("The required size of the array is at least [%d]\n", 8); //WE COULD SUPPORT VARIABLE ARGS
+		LogPrint("Size of array args[] passed to ScreenPrint(s,v,args) was too small. The supplied size was: %d\n",SizeOfArray(args));
+		LogPrint("The required size of the array is at least [%d]\n", 8); //WE COULD SUPPORT VARIABLE ARGS
 		return;
 	}
 	int main_buf[2048];
@@ -2059,5 +2065,5 @@ void ScreenPrint(int s, int v, int args) //what if we use an array literal for t
 	}
 	//main_buf[buffer_pos+1] = '\n'; Put this in the string!
         //TraceS(main_buf); //TraceNL();
-	Screen->DrawString(args[0], args[1], args[2], args[3], args[4], args[5], args[6], buffer, args[7]);
+	Screen->DrawString(args[0], args[1], args[2], args[3], args[4], args[5], args[6], main_buf, args[7]);
 }
