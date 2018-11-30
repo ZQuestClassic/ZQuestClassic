@@ -9811,7 +9811,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			new_return(87);
 		    }
 	    }
-	    if(!p_iputw(guysbuf[i].npcscript,f))
+	    if(!p_iputw(guysbuf[i].script,f))
             {
                 new_return(88);
             }

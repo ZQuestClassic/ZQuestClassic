@@ -10196,10 +10196,11 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 				return qe_invalid;
 			}
 		}
-		if(!p_igetw(&(tempguy.npcscript),f,keepdata))
+		if(!p_igetw(&(tempguy.script),f,keepdata))
 		{
 			return qe_invalid;
 		} 
+                al_trace("NPC Script ID is: %d\n",tempguy.script);
 		for ( int q = 0; q < 8; q++ )
 		{
 			if(!p_igetl(&(tempguy.initD[q]),f,keepdata))
@@ -10346,7 +10347,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		
 		//NPC Script attributes.
-		tempguy.npcscript = 0; //No scripted enemies existed. -Z
+		tempguy.script = 0; //No scripted enemies existed. -Z
 		for ( int q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
 		for ( int q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
 		

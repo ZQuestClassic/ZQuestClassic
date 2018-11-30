@@ -1679,7 +1679,7 @@ struct guydata
     long new_weapon[32]; //Reserved for weapon patterns and args.
     long initD[8], initA[2];
     
-    word npcscript; //For future npc action scripts. 
+    word script; //For future npc action scripts. 
     //short parentCore; //Probably not needed here. -Z
     long editorflags;
     

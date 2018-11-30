@@ -4738,7 +4738,9 @@ static DIALOG enedata_dlg[] =
     {  jwin_edit_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 //334
     { d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       10,  40+20,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
+    {  jwin_edit_proc,        10,     60,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    //{ jwin_droplist_proc,       10,  40+20,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
     { jwin_text_proc,           11,  40+12,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "NPC Action Script:",                      NULL,   NULL                  },
     { d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
     
@@ -4997,21 +4999,31 @@ void edit_enemydata(int index)
     char attribs[32][8];
     char enemynumstr[75];
     char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
-	char weapsprite[8];
+	char weapsprite[8], scriptnum[8];
     build_biw_list();
     //begin npc script
     build_binpcs_list();
-    int script = 0;
+    int curscript = 0;
     
+    al_trace("Enemy Editor Enemy has npc script ID: %d\n", guysbuf[index].script);
+    /*for(int j = 0; j < binpcs_cnt; j++)
+    {
+        al_trace("binpcs[j].second = %d\n",binpcs[j].second); //I believe that this validates if a script is still in the system? -Z
+        if(binpcs[j].second == guysbuf[index].script - 1)
+        {
+            curscript = j;
+        }
+    }*/
+    al_trace("binpcs_cnt is: %d\n",binpcs_cnt);
     for(int j = 0; j < binpcs_cnt; j++)
     {
-        if(binpcs[j].second == guysbuf[index].npcscript - 1)
-        {
-            script = j;
-        }
+        al_trace("binpcs[j].second = %d\n",binpcs[j].second); //I believe that this validates if a script is still in the system? -Z
     }
     
-    itemdata_dlg[335].d1 = script;
+    //itemdata_dlg[335].d1 = curscript;
+    //itemdata_dlg[335].d1 = guysbuf[index].npcscript;
+    sprintf(scriptnum,"%d",guysbuf[index].script);
+    enedata_dlg[335].dp = scriptnum;
     //end npc script
     
     //disable the missing dialog items!
@@ -5459,9 +5471,7 @@ void edit_enemydata(int index)
         
         ret = zc_popup_dialog(enedata_dlg,3);
         
-        //begin npc scripts
-        test.npcscript = binpcs[itemdata_dlg[335].d1].second + 1;
-        //end npc scripts
+        
         
         test.tile  = enedata_dlg[247].d1;
         test.cset = enedata_dlg[247].d2;
@@ -5642,9 +5652,19 @@ void edit_enemydata(int index)
             test.editorflags |= ENEMY_FLAG15;
 	if(enedata_dlg[269].flags & D_SELECTED)
             test.editorflags |= ENEMY_FLAG16;
+        
+        //begin npc scripts
+        //test.npcscript = itemdata_dlg[335].d1;//binpcs[itemdata_dlg[335].d1].second + 1;
+        test.script = atoi(scriptnum);
+        //test.script = binpcs[itemdata_dlg[335].d1].second + 1;
+        //end npc scripts
 	
         if(ret==252) //OK Button
         {
+            //al_trace("The selected script in the enemy editor when the user clicked OK was: %d\n",binpcs[itemdata_dlg[335].d1].second + 1);
+           // al_trace("...and the literal field value [334] was: %d\n",itemdata_dlg[334].d1);
+            //al_trace("...and the literal field value [335] was: %d\n",itemdata_dlg[335].d1);
+            //al_trace("...and the literal field value [336] was: %d\n",itemdata_dlg[336].d1);
             strcpy(guy_string[index],name);
             guysbuf[index] = test;
             saved = false;
