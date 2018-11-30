@@ -8724,6 +8724,140 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 delete[] buf;
             }
         }
+        	//(v9+)
+	//npc scripts
+	if(s_version > 8)
+        {
+            word numnpcbindings;
+            p_igetw(&numnpcbindings, f, true);
+            
+            for(int i=0; i<numnpcbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTGUYS-1)
+                    npcmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//
+	//lweapon
+	if(s_version > 8)
+        {
+            word numlwpnbindings;
+            p_igetw(&numlwpnbindings, f, true);
+            
+            for(int i=0; i<numlwpnbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTWEAPONS-1)
+                    lwpnmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//eweapon
+	if(s_version > 8)
+        {
+            word numewpnbindings;
+            p_igetw(&numewpnbindings, f, true);
+            
+            for(int i=0; i<numewpnbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTWEAPONS-1)
+                    ewpnmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//link
+	if(s_version > 8)
+        {
+            word numlinkbindings;
+            p_igetw(&numlinkbindings, f, true);
+            
+            for(int i=0; i<numlinkbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTLINK-1)
+                    linkmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//dmaps
+	if(s_version > 8)
+        {
+            word numdmapbindings;
+            p_igetw(&numdmapbindings, f, true);
+            
+            for(int i=0; i<numdmapbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTDMAP-1)
+                    dmapmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+		//screen
+	if(s_version > 8)
+        {
+            word numscreenbindings;
+            p_igetw(&numscreenbindings, f, true);
+            
+            for(int i=0; i<numscreenbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTSCREEN-1)
+                    screenmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
     }
     
     return 0;

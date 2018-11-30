@@ -10656,6 +10656,234 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
+        //new script types
+        //npc scripts
+        word numnpcbindings=0;
+        
+        for(std::map<int, pair<string, string> >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                numnpcbindings++;
+            }
+        }
+        
+        if(!p_iputw(numnpcbindings, f))
+        {
+            new_return(2015);
+        }
+        
+        for(std::map<int, pair<string, string> >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2016);
+                }
+                
+                if(!p_iputl((long)it->second.second.size(), f))
+                {
+                    new_return(2017);
+                }
+                
+                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                {
+                    new_return(2018);
+                }
+            }
+        }
+        
+        //lweapon
+	
+	word numlwpnbindings=0;
+        
+        for(std::map<int, pair<string, string> >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                numlwpnbindings++;
+            }
+        }
+        
+        if(!p_iputw(numlwpnbindings, f))
+        {
+            new_return(2019);
+        }
+        
+        for(std::map<int, pair<string, string> >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2020);
+                }
+                
+                if(!p_iputl((long)it->second.second.size(), f))
+                {
+                    new_return(2021);
+                }
+                
+                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                {
+                    new_return(2022);
+                }
+            }
+        }
+	
+	//////
+	
+	//eweapon
+	
+	
+        word numewpnbindings=0;
+        
+        for(std::map<int, pair<string, string> >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                numewpnbindings++;
+            }
+        }
+        
+        if(!p_iputw(numewpnbindings, f))
+        {
+            new_return(2023);
+        }
+        
+        for(std::map<int, pair<string, string> >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2024);
+                }
+                
+                if(!p_iputl((long)it->second.second.size(), f))
+                {
+                    new_return(2025);
+                }
+                
+                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                {
+                    new_return(2026);
+                }
+            }
+        }
+	
+	//link scripts
+	word numlinkbindings=0;
+        
+        for(std::map<int, pair<string, string> >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                numlinkbindings++;
+            }
+        }
+        
+        if(!p_iputw(numlinkbindings, f))
+        {
+            new_return(2027);
+        }
+        
+        for(std::map<int, pair<string, string> >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2028);
+                }
+                
+                if(!p_iputl((long)it->second.second.size(), f))
+                {
+                    new_return(2029);
+                }
+                
+                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                {
+                    new_return(2030);
+                }
+            }
+        }
+	
+	//dmap scripts
+	word numdmapbindings=0;
+        
+        for(std::map<int, pair<string, string> >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                numdmapbindings++;
+            }
+        }
+        
+        if(!p_iputw(numdmapbindings, f))
+        {
+            new_return(2031);
+        }
+        
+        for(std::map<int, pair<string, string> >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2032);
+                }
+                
+                if(!p_iputl((long)it->second.second.size(), f))
+                {
+                    new_return(2033);
+                }
+                
+                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                {
+                    new_return(2034);
+                }
+            }
+        }
+	
+	//screen scripts
+	word numscreenbindings=0;
+        
+        for(std::map<int, pair<string, string> >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                numscreenbindings++;
+            }
+        }
+        
+        if(!p_iputw(numscreenbindings, f))
+        {
+            new_return(2035);
+        }
+        
+        for(std::map<int, pair<string, string> >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+        {
+            if(it->second.second != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2036);
+                }
+                
+                if(!p_iputl((long)it->second.second.size(), f))
+                {
+                    new_return(2037);
+                }
+                
+                if(!pfwrite((void *)it->second.second.c_str(), (long)it->second.second.size(),f))
+                {
+                    new_return(2038);
+                }
+            }
+        }
+        
         if(writecycle==0)
         {
             section_size=writesize;
@@ -10698,6 +10926,7 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **scri
     
     for(int j=0; j<num_commands; j++)
     {
+        al_trace("Current FFScript XCommand Being Written: %d\n", (*script)[j].command);
         if(!p_iputw((*script)[j].command,f))
         {
             new_return(7);
