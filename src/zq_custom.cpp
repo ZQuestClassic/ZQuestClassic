@@ -2925,7 +2925,7 @@ static int enemy_script_tabs_list[] =
 
 static int enemy_scripts_list[] =
 {
-    334,335,
+    334,335,336,337,
     -1
 };
 
@@ -4737,8 +4737,10 @@ static DIALOG enedata_dlg[] =
     {  jwin_edit_proc,        6,     56+(18*6),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 //334
-    { jwin_text_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10,  47+38+10*2 + 18,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
+    { d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       10,  40+20,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           11,  40+12,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "NPC Action Script:",                      NULL,   NULL                  },
+    { d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
     
     /*
 	  // 248 scripts
