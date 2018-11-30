@@ -18939,69 +18939,57 @@ int FFScript::getTime(int type)
 {
 	//struct tm *tm_struct = localtime(time(NULL));
 	struct tm * tm_struct;
-	time_t rawtime;
-	time (&rawtime);
-	tm_struct = localtime (&rawtime);
+	time_t sysRTC;
+	time (&sysRTC);
+	tm_struct = localtime (&sysRTC);
 	int rval = -1;
 	
 	switch(type)
 	{
 		case curyear:
 		{
-			int year = tm_struct->tm_year;        /* year */
-			//year format starts at 1900, so we add it to the return
-			//al_trace("GetSystemTime(year): The current year is: %d\n",year);
-			rval = year + 1900; break;
+			//Year format starts at 1900, yeat
+			//A raw read of '2018' would be '118', so we add 1900 to it to derive the actual year. 
+			rval = tm_struct->tm_year + 1900; break;
 			
 		}
 		case curmonth:
 		{
-			int month = tm_struct->tm_mon +1;         /* month */
 			//Months start at 0, but we want 1->12
 			//al_trace("The current month is: %d\n",month);
-			rval = month; break;
+			rval = tm_struct->tm_mon +1; break;
 		}
 		case curday_month:
 		{
-			int day_month = tm_struct->tm_mday;        /* day of the month */
-			//al_trace("The current day of the month is: %d\n",day_month);
-			rval = day_month; break;
+			rval = tm_struct->tm_mday; break;
 		}
 		case curday_week: 
 		{
-			int day_week = tm_struct->tm_wday;        /* day of the week */
-			//al_trace("The current day of the week is: %d\n",day_week);
-			rval = day_week; break;
+			//It seems that weekdays are a value range of 1 to 7.
+			rval = tm_struct->tm_wday; break;
 		}
 		case curhour:
 		{
-			int hour = tm_struct->tm_hour;        /* hours */
-			//al_trace("The current hour is: %d\n",hour);
-			rval = hour; break;
+			rval = tm_struct->tm_hour; break;
 		}
 		case curminute: 
 		{
-			int minutes = tm_struct->tm_min;         /* minutes */
-			//al_trace("The current hour is: %d\n",minutes);
-			rval = minutes; break;
+			rval = tm_struct->tm_min; break;
 		}
 		case cursecond:
 		{
-			int secs = tm_struct->tm_sec;         /* seconds */
-			//al_trace("The current second is: %d\n",secs);
-			rval = secs; break;
+			rval = tm_struct->tm_sec; break;
 		}
 		case curdayyear:
 		{
-			int day_year = tm_struct->tm_yday;        /* day in the year */
-			//al_trace("The current day out of the year is: %d\n",day_year);
-			rval = day_year; break;
+			//The day (n/365) out of the entire year. 
+			rval = tm_struct->tm_yday; break;
 		}
 		case curDST:
 		{
-			int isDST = tm_struct->tm_isdst;       /* daylight saving time */
-			//al_trace("The current DSTis: %d\n",isDST);
-			rval = isDST; break;
+			//Returns if the user is in a Time Zone with Daylight TIme of some sort. 
+			//View the time.h docs for the actual values of this struct element.
+			rval = tm_struct->tm_isdst;; break;
 		}
 		default: 
 		{
