@@ -4069,13 +4069,13 @@ const char *npcscriptdroplist(int index, int *list_size)
     
     return binpcs[index].first.c_str();
 }
-
+static ListData npcscript_list(npcscriptdroplist, &font);
 
 static ListData itemset_list(itemsetlist, &font);
 static ListData eneanim_list(eneanimlist, &font);
 static ListData enetype_list(enetypelist, &font);
 static ListData eweapon_list(eweaponlist, &font);
-static ListData npcscript_list(npcscriptdroplist, &pfont);
+
 
 
 
@@ -4738,9 +4738,10 @@ static DIALOG enedata_dlg[] =
     {  jwin_edit_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 //334
     { d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
-    {  jwin_edit_proc,        10,     60,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
     
-    //{ jwin_droplist_proc,       10,  40+20,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
+    { jwin_droplist_proc,       10,  40+20,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
+    { jwin_edit_proc,        10,     90,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    
     { jwin_text_proc,           11,  40+12,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "NPC Action Script:",                      NULL,   NULL                  },
     { d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
     
@@ -4991,6 +4992,7 @@ int d_ecstile_proc(int msg,DIALOG *d,int c)
 
 void edit_enemydata(int index)
 {
+    //guysbuf[index].script = 1;
     char hp[8], dp[8], wdp[8], rat[8], hrt[8], hom[8], grm[8], spd[8],
          frt[8], efr[8], bsp[8];
     char w[8],h[8],sw[8],sh[8],ew[8],eh[8];
@@ -5002,28 +5004,34 @@ void edit_enemydata(int index)
 	char weapsprite[8], scriptnum[8];
     build_biw_list();
     //begin npc script
-    build_binpcs_list();
-    int curscript = 0;
     
+    int curscript = 0;
+    int j = 0; int guyscript = guysbuf[index].script -1;
     al_trace("Enemy Editor Enemy has npc script ID: %d\n", guysbuf[index].script);
-    /*for(int j = 0; j < binpcs_cnt; j++)
+    al_trace("Trying to match ID: %d\n", guyscript);
+    for(j = 0; j < binpcs_cnt; j++)
     {
         al_trace("binpcs[j].second = %d\n",binpcs[j].second); //I believe that this validates if a script is still in the system? -Z
-        if(binpcs[j].second == guysbuf[index].script - 1)
+        if(binpcs[j].second == guyscript)
         {
-            curscript = j;
+            al_trace("Matched npc script: %d\n", j);
+            enedata_dlg[335].d1 = j; //binpcs[j].second;
+            break;
         }
-    }*/
+    }
     al_trace("binpcs_cnt is: %d\n",binpcs_cnt);
-    for(int j = 0; j < binpcs_cnt; j++)
+    for(int k = 0; j < binpcs_cnt; j++)
     {
         al_trace("binpcs[j].second = %d\n",binpcs[j].second); //I believe that this validates if a script is still in the system? -Z
     }
+    al_trace("NPC Script Dialogue Field Value is: %d\n",itemdata_dlg[335].d1);
     
     //itemdata_dlg[335].d1 = curscript;
     //itemdata_dlg[335].d1 = guysbuf[index].npcscript;
-    sprintf(scriptnum,"%d",guysbuf[index].script);
-    enedata_dlg[335].dp = scriptnum;
+    /*sprintf(scriptnum,"%d",guysbuf[index].script);*/
+    sprintf(scriptnum,"%d",(binpcs[j].second+1));
+    enedata_dlg[336].dp = scriptnum;
+    al_trace("scriptnum: %s\n",scriptnum);
     //end npc script
     
     //disable the missing dialog items!
@@ -5655,7 +5663,8 @@ void edit_enemydata(int index)
         
         //begin npc scripts
         //test.npcscript = itemdata_dlg[335].d1;//binpcs[itemdata_dlg[335].d1].second + 1;
-        test.script = atoi(scriptnum);
+        test.script = binpcs[enedata_dlg[335].d1].second + 1;
+        //test.script = atoi(scriptnum);
         //test.script = binpcs[itemdata_dlg[335].d1].second + 1;
         //end npc scripts
 	
@@ -5762,7 +5771,10 @@ int onCustomEnemies()
         else
         {
             if(index != 0)
+            {
+                build_binpcs_list();
                 edit_enemydata(index);
+            }
         }
         
         index = select_enemy("Select Enemy",index,true,true,foo);
