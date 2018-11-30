@@ -15348,6 +15348,15 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         globalmap.clear();
         ffcmap.clear();
         itemmap.clear();
+        //new script types
+        //new script types -- prevent carrying over to a quest that you load after reading them
+        //e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
+        npcmap.clear();
+        ewpnmap.clear();
+        lwpnmap.clear();
+        linkmap.clear();
+        dmapmap.clear();
+        screenmap.clear();
         
         for(int i=0; i<NUMSCRIPTFFC-1; i++)
         {
@@ -15365,6 +15374,33 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         for(int i=0; i<NUMSCRIPTITEM-1; i++)
         {
             itemmap[i] = pair<string,string>("","");
+        }
+        
+        //new script types -- prevent carrying over to a quest that you load after reading them
+        //e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
+        for(int i=0; i<NUMSCRIPTGUYS-1; i++)
+        {
+            npcmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTWEAPONS-1; i++)
+        {
+            lwpnmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTWEAPONS-1; i++)
+        {
+            ewpnmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTLINK-1; i++)
+        {
+            linkmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTSDMAP-1; i++)
+        {
+            dmapmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTSCREEN-1; i++)
+        {
+            screenmap[i] = pair<string,string>("","");
         }
         
         reset_scripts();
