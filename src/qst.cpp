@@ -8830,7 +8830,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 buf[bufsize]=0;
                 
                 //fix this too
-                if(keepdata && id <NUMSCRIPTDMAP-1)
+                if(keepdata && id <NUMSCRIPTSDMAP-1)
                     dmapmap[id].second = buf;
                     
                 delete[] buf;
@@ -8852,7 +8852,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 buf[bufsize]=0;
                 
                 //fix this too
-                if(keepdata && id <NUMSCRIPTSCREEN-1)
+                if(keepdata && id <NUMSCRIPTSDMAP-1)
                     screenmap[id].second = buf;
                     
                 delete[] buf;
