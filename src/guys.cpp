@@ -367,7 +367,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     for ( int q = 0; q < 32; q++ ) movement[q] = d->movement[q];
     for ( int q = 0; q < 32; q++ ) new_weapon[q] = d->new_weapon[q];
     
-    npcscript = (d->npcscript >= 0) ? d->npcscript : 0; //Dont assign invalid data. 
+    script = (d->script >= 0) ? d->script : 0; //Dont assign invalid data. 
     
     for ( int q = 0; q < 8; q++ ) initD[q] = d->initD[q];
     for ( int q = 0; q < 2; q++ ) initA[q] = d->initA[q];

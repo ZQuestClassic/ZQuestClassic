@@ -2925,6 +2925,7 @@ static int enemy_script_tabs_list[] =
 
 static int enemy_scripts_list[] =
 {
+    334,335,336,
     -1
 };
 
@@ -4058,10 +4059,24 @@ std::map<int, EnemyNameInfo *> *getEnemyNameMap()
     return enamemap;
 }
 
+const char *npcscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = binpcs_cnt;
+        return NULL;
+    }
+    
+    return binpcs[index].first.c_str();
+}
+static ListData npcscript_list(npcscriptdroplist, &font);
+
 static ListData itemset_list(itemsetlist, &font);
 static ListData eneanim_list(eneanimlist, &font);
 static ListData enetype_list(enetypelist, &font);
 static ListData eweapon_list(eweaponlist, &font);
+
+
 
 
 static ListData walkerspawn_list(walkerspawnlist, &font);
@@ -4722,6 +4737,12 @@ static DIALOG enedata_dlg[] =
     {  jwin_edit_proc,        6,     56+(18*6),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 //334
+    { d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
+    
+    { jwin_droplist_proc,       10,  40+20,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
+    { jwin_edit_proc,        10,     90,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    
     /*
 	  // 248 scripts
 	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_script_tabs,     NULL, (void *)enedata_dlg   },
@@ -4969,6 +4990,7 @@ int d_ecstile_proc(int msg,DIALOG *d,int c)
 
 void edit_enemydata(int index)
 {
+    //guysbuf[index].script = 1;
     char hp[8], dp[8], wdp[8], rat[8], hrt[8], hom[8], grm[8], spd[8],
          frt[8], efr[8], bsp[8];
     char w[8],h[8],sw[8],sh[8],ew[8],eh[8];
@@ -4978,7 +5000,19 @@ void edit_enemydata(int index)
     char enemynumstr[75];
     char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
 	char weapsprite[8];
-    build_biw_list();
+    
+    //begin npc script
+    int j = 0; build_binpcs_list(); //npc scripts lister
+    for(j = 0; j < binpcs_cnt; j++)
+    {
+        if(binpcs[j].second == guysbuf[index].script -1)
+        {
+            enedata_dlg[335].d1 = j; 
+            break;
+        }
+    }
+    //end npc script
+    
     //disable the missing dialog items!
     //else they will lurk in the background
     //stealing mouse focus -DD
@@ -5424,6 +5458,8 @@ void edit_enemydata(int index)
         
         ret = zc_popup_dialog(enedata_dlg,3);
         
+        
+        
         test.tile  = enedata_dlg[247].d1;
         test.cset = enedata_dlg[247].d2;
         test.s_tile  = enedata_dlg[248].d1;
@@ -5603,6 +5639,10 @@ void edit_enemydata(int index)
             test.editorflags |= ENEMY_FLAG15;
 	if(enedata_dlg[269].flags & D_SELECTED)
             test.editorflags |= ENEMY_FLAG16;
+        
+        //begin npc scripts
+        test.script = binpcs[enedata_dlg[335].d1].second + 1; 
+        //end npc scripts
 	
         if(ret==252) //OK Button
         {
@@ -5703,7 +5743,9 @@ int onCustomEnemies()
         else
         {
             if(index != 0)
+            {
                 edit_enemydata(index);
+            }
         }
         
         index = select_enemy("Select Enemy",index,true,true,foo);

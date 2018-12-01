@@ -199,7 +199,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_LINKSPRITES      5
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         7
+#define V_FFSCRIPT         9
 #define V_SFX              7
 #define V_FAVORITES        1
 //= V_SHOPS is under V_MISC
@@ -1679,7 +1679,7 @@ struct guydata
     long new_weapon[32]; //Reserved for weapon patterns and args.
     long initD[8], initA[2];
     
-    word npcscript; //For future npc action scripts. 
+    word script; //For future npc action scripts. 
     //short parentCore; //Probably not needed here. -Z
     long editorflags;
     

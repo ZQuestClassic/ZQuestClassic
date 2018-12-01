@@ -3516,8 +3516,16 @@ int main(int argc, char* argv[])
     {
     
     case -1:
+    {
         Z_title("Zelda Classic %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+        //Print the current time to allegro.log as a test.
+        
+        //for (int q = 0; q < curTimeLAST; q++) 
+        //{
+        //    int t_time_v = FFCore.getTime(q);
+        //}
         break;
+    }
         
     case 1:
         Z_title("Zelda Classic %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
@@ -4425,6 +4433,7 @@ int main(int argc, char* argv[])
     }
     
 #endif
+    
     
     while(Quit!=qEXIT)
     {

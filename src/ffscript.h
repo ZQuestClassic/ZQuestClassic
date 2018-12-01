@@ -44,6 +44,9 @@ enum {
 	FFCORE_SCRIPTED_PANSTYLE 	= 0x0010
 };
 
+enum { curyear, curmonth, curday_month, curday_week, curhour, 
+	curminute, cursecond, curdayyear, curDST, curTimeLAST };
+
 
 
 	//Allow or forbid drawing during specific game events. 
@@ -125,7 +128,8 @@ int getLinkTile();
 void setLinkAction(int a);
 int getLinkAction();
 void Play_Level_Music();
-
+int getTime(int type); //get system RTC Information.
+void getRTC(const bool v);
 long getQuestHeaderInfo(int type);
 
 
@@ -1160,7 +1164,7 @@ extern PALETTE tempgreypal; //script greyscale
 extern PALETTE userPALETTE[256];
 
 long get_register(const long arg);
-int run_script(const byte type, const word script, const byte i = -1); //Global scripts don't need 'i'
+int run_script(const byte type, const word script, const long i = -1); //Global scripts don't need 'i'
 int ffscript_engine(const bool preload);
 
 void clear_ffc_stack(const byte i);
@@ -1938,6 +1942,8 @@ enum ASM_DEFINE
 	EWEAPONEXPLODER,
 	EWEAPONEXPLODEV,
 	RUNITEMSCRIPT,
+	GETRTCTIMER,
+	GETRTCTIMEV,
 
 	NUMCOMMANDS           //0x013B
 };

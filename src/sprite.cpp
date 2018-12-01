@@ -72,7 +72,7 @@ sprite::sprite()
         dummy_bool[i]=false;
     }
     
-    /*for(int i=0;i<8;i++)
+    for(int i=0;i<8;i++)
     {
       if(i<2) a[i]=0;
       d[i]=0;
@@ -81,12 +81,21 @@ sprite::sprite()
     pc=0;
     sp=0;
     itemclass=0;
-    ffcref=0; */
-    //scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
-    //doscript=1;
+    ffcref=0;
+    scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
+    doscript=1;
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
+    
+    itemref = 0;
+    guyref = 0;
+    lwpnref = 0;
+    ewpnref = 0;
+    guyclass = 0; //Not implemented
+    lwpnclass = 0;
+    ewpnclass = 0;
+    script = 0;
 }
 
 sprite::sprite(sprite const & other):
@@ -120,9 +129,9 @@ sprite::sprite(sprite const & other):
     lasthitclk(other.lasthitclk),
     drawstyle(other.drawstyle),
     extend(other.extend),
-    wpnsprite(other.wpnsprite)
-    //scriptData(other.scriptData),
-/*ffcref(other.ffcref),
+    wpnsprite(other.wpnsprite),
+    scriptData(other.scriptData),
+ffcref(other.ffcref),
 itemref(other.itemref),
 guyref(other.guyref),
 lwpnref(other.lwpnref),
@@ -131,10 +140,11 @@ sp(other.sp),
 pc(other.pc),
 scriptflag(other.scriptflag),
 doscript(other.doscript),
-itemclass(other.itemclass)
+itemclass(other.itemclass),
 guyclass(other.guyclass),
 lwpnclass(other.lwpnclass),
-ewpnclass(other.ewpnclass)*/
+ewpnclass(other.ewpnclass),
+script(other.script)
 {
     uid = getNextUID();
     
@@ -146,14 +156,14 @@ ewpnclass(other.ewpnclass)*/
         dummy_bool[i]=other.dummy_bool[i];
     }
     
-    /*for (int i=0; i<8; ++i)
+    for (int i=0; i<8; ++i)
     {
       d[i]=other.d[i];
     }
     for (int i=0; i<2; ++i)
     {
       a[i]=other.a[i];
-    }*/
+    }
     for(int i=0; i<32; i++) miscellaneous[i] = other.miscellaneous[i];
     
     scriptcoldet = other.scriptcoldet;
@@ -177,7 +187,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     angular=canfreeze=false;
     extend=0;
     
-    /*for(int i=0;i<8;i++)
+    for(int i=0;i<8;i++)
     {
       if(i<2) a[i]=0;
       d[i]=0;
@@ -186,20 +196,21 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     pc=0;
     sp=0;
     ffcref=0;
-    doscript=1;*/
-    //itemclass=0;
+    doscript=1;
+    itemclass=0;
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
     
-    //scriptData.Clear();
-    /*ewpnclass=0;
+    scriptData.Clear();
+    ewpnclass=0;
     lwpnclass=0;
-    guyclass=0;*/ //Not implemented
-    /*ewpnref=0;
+    guyclass=0;
+    ewpnref=0;
     lwpnref=0;
     guyref=0;
-    itemref=0;*/
+    itemref=0;
+    script = 0;
     drawstyle=0;
     lasthitclk=0;
     lasthit=0;

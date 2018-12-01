@@ -80,8 +80,8 @@ public:
     //Are you kidding? Really? 256 * sizeof(long) = 2048 bytes = 2kb of wasted memory for every sprite, and it'll never
     //even get used because item scripts only run for one frame. Gah! Maybe when we have npc scripts, not not now...
     
-    //refInfo scriptData; //For when we have npc scripts maybe
-    /*long d[8];
+    refInfo scriptData; //For when we have npc scripts maybe
+    long d[8];
     long a[2];
     byte ffcref;
     dword itemref;
@@ -92,10 +92,11 @@ public:
     word pc;
     dword scriptflag;
     word doscript;
-    byte itemclass;*/
-    //byte guyclass; //Not implemented
-    //byte lwpnclass;
-    //byte ewpnclass;
+    byte itemclass;
+    byte guyclass; 
+    byte lwpnclass;
+    byte ewpnclass;
+    word script;
     
     
     sprite();

@@ -1724,19 +1724,6 @@ const int SL_LWPNS              = 3; // Link's weapons
 const int SL_DECORATIONS        = 4; // Grass clippings, Hover boots glow, etc.
 const int SL_PARTICLES          = 5; // Farore's Wind particles
 
-//Warp types. Use with Screen->SetSideWarp
-const int WT_CAVE			= 0;
-const int WT_PASSAGE			= 1;
-const int WT_ENTRANCEEXIT		= 2;
-const int WT_SCROLLING			= 3;
-const int WT_IAWARP			= 4;
-const int WT_IWARPBLACKOUT		= 5;
-const int WT_IWARPOPENWIPE		= 6;
-const int WT_IWARPZAP			= 7;
-const int WT_IWARPWAVE		  	= 8;
-const int WT_NOWARP			= 9;
-
-
 ///////////////////
 /// Link Properties
 
@@ -2392,6 +2379,7 @@ define DMAP_BSOVERWORLD = 3;
 	Graphics->Monochrome(TINT_NONE); 
 */
 
+//Tint Options
 const int TINT_NONE = 0;
 const int TINT_GREY = 1;
 const int TINT_RED = 2;
@@ -2403,3 +2391,44 @@ const int TINT_AMBER = 7;
 const int TINT_CYAN = 8;
 const int TINT_MODE_UNIFORM = 0;
 const int TINT_MODE_DISTRIBUTED = 1000;
+
+//System Real Time Clock (RTC) categories for GetSystemTime(int category)
+define RTC_YEAR		= 0;
+define RTC_MONTH	= 1;
+define RTC_DAYOFMONTH	= 2;
+define RTC_DAYOFWEEK	= 3;
+define RTC_HOUR		= 4;
+define RTC_MINUTE	= 5;
+define RTC_SECOND	= 6;
+define RTC_DAYOFYEAR	= 7;
+define RTC_DAYLIGHTTIME	= 8;
+define RTC_LAST		= 9;
+
+//Warp types. Use with Screen->SetSideWarp
+//and Link->WarpEx()
+const int WT_CAVE			= 0;
+const int WT_PASSAGE			= 1;
+const int WT_ENTRANCEEXIT		= 2;
+const int WT_SCROLLING			= 3;
+const int WT_IWARP			= 4;
+const int WT_IWARPBLACKOUT		= 5;
+const int WT_IWARPOPENWIPE		= 6;
+const int WT_IWARPZAP			= 7;
+const int WT_IWARPWAVE		  	= 8;
+const int WT_NOWARP			= 9;
+
+//Warp Eddects for Link->WarpEx
+define WARPEFFECT_NONE = 0;
+define WARPEFFECT_ZAP = 1;
+define WARPEFFECT_WAVE = 2;
+define WARPEFFECT_INSTANT = 3;
+define WARPEFFECT_OPENWIPE = 4;
+
+//Warp Flags for Link->WarpEx()
+define WARP_FLAG_PLAYSOUNDS 		= 0x02;
+define WARP_FLAG_PLAYMUSIC 		= 0x04;
+define WARP_FLAG_SCRIPTDRAW 		= 0x01;
+define WARP_FLAG_SETENTRANCESCREEN 	= x008;
+define WARP_FLAG_SETENTRANCEDMAP 	= 0x10;
+define WARP_FLAG_SETCONTINUESCREEN 	= 0x20;
+define WARP_FLAG_SETCONTINUEDMAP 	= 0x40;

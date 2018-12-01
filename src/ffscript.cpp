@@ -17,6 +17,7 @@
 #include "zc_array.h"
 #include "ffscript.h"
 #include "zc_subscr.h"
+#include <time.h>
 //#include "zc_sys.h"
 FFScript FFCore;
 zquestheader ZCheader;
@@ -11701,6 +11702,19 @@ void do_rnd(const bool v)
 		set_register(sarg1, 0); // Just return 0. (Do not log an error)
 }
 
+//Returns the system Real-Time-Clock value for a specific type. 
+void FFScript::getRTC(const bool v)
+{
+	//long type = get_register(sarg1) / 10000;
+	//Z_scripterrlog("FFCore.getRTC() type == %d\n",type);
+	//int time = getTime(type);
+	//Z_scripterrlog("FFCore.getRTC() time == %d\n",time);
+	//Z_scripterrlog("FFCore.getRTC() time * 10000 == %d\n",time);
+	//set_register(sarg1, getTime((byte)(SH::get_arg(sarg2, v) / 10000)) * 10000);
+	set_register(sarg1, getTime((get_register(sarg1) / 10000)) * 10000);
+}
+
+
 void do_factorial(const bool v)
 {
     long temp;
@@ -14624,7 +14638,7 @@ void do_combotile(const bool v)
 ///----------------------------------------------------------------------------------------------------//
 
 // Let's do this
-int run_script(const byte type, const word script, const byte i)
+int run_script(const byte type, const word script, const long i)
 {
     if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
         return 1;
@@ -14671,7 +14685,20 @@ int run_script(const byte type, const word script, const byte i)
 		ri = &(npcScriptData[i]);
 		curscript = guyscripts[script];
 		stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
+		//stack = &(guys.spr(guys.getByUID(i))->stack);
+	    
 		ri->guyref = i; //'this' pointer
+		//ri->guyref = getNPCIndex(guys.getByUID(i)); //'this' pointer
+		//ZScriptVersion::RunScript(SCRIPT_NPC, guys.spr(i)->.script, guys.spr(i)->getUID());
+			    
+		//Perhaps it would be better to add a new function that passes the npc pointer to here?
+		//or a direct pointer to the sprite's stack?
+		//but we'd still need the refinfo ID
+	    
+		//enemy::animate(index) runs by screen index, so, getting the enemy by its index should be fine
+		//as we'd call ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
+		//thus, from 'index', we'd use: stack = &(guys.spr(GuyH::getNPCIndex(i))->stack);
+		//and ri->guyref = guys.spr(i)->getUID();;
     }
     break;
     
@@ -15142,6 +15169,13 @@ int run_script(const byte type, const word script, const byte i)
             
         case RNDV:
             do_rnd(true);
+            break;
+	
+	case GETRTCTIMER:
+            FFCore.getRTC(false);
+            break;
+	case GETRTCTIMEV:
+            FFCore.getRTC(true);
             break;
             
         case FACTORIAL:
@@ -18899,4 +18933,70 @@ bool FFScript::itemScriptEngine()
 	}
 	
 	return false;
+}
+
+int FFScript::getTime(int type)
+{
+	//struct tm *tm_struct = localtime(time(NULL));
+	struct tm * tm_struct;
+	time_t sysRTC;
+	time (&sysRTC);
+	tm_struct = localtime (&sysRTC);
+	int rval = -1;
+	
+	switch(type)
+	{
+		case curyear:
+		{
+			//Year format starts at 1900, yeat
+			//A raw read of '2018' would be '118', so we add 1900 to it to derive the actual year. 
+			rval = tm_struct->tm_year + 1900; break;
+			
+		}
+		case curmonth:
+		{
+			//Months start at 0, but we want 1->12
+			//al_trace("The current month is: %d\n",month);
+			rval = tm_struct->tm_mon +1; break;
+		}
+		case curday_month:
+		{
+			rval = tm_struct->tm_mday; break;
+		}
+		case curday_week: 
+		{
+			//It seems that weekdays are a value range of 1 to 7.
+			rval = tm_struct->tm_wday; break;
+		}
+		case curhour:
+		{
+			rval = tm_struct->tm_hour; break;
+		}
+		case curminute: 
+		{
+			rval = tm_struct->tm_min; break;
+		}
+		case cursecond:
+		{
+			rval = tm_struct->tm_sec; break;
+		}
+		case curdayyear:
+		{
+			//The day (n/365) out of the entire year. 
+			rval = tm_struct->tm_yday; break;
+		}
+		case curDST:
+		{
+			//Returns if the user is in a Time Zone with Daylight TIme of some sort. 
+			//View the time.h docs for the actual values of this struct element.
+			rval = tm_struct->tm_isdst;; break;
+		}
+		default: 
+		{
+			al_trace("Invalid category passed to GetSystemTime(%d)\n",type);
+			rval = -1;  break;
+		}
+		
+	}
+	return rval;
 }

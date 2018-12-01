@@ -8501,6 +8501,7 @@ extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
 extern ffscript *linkscripts[NUMSCRIPTLINK];
 extern ffscript *screenscripts[NUMSCRIPTSCREEN];
 extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
+//ffscript *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
 
 int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
@@ -8563,28 +8564,15 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(ret != 0) return qe_invalid;
         }
-	/*
-	for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i]);
-            
-            if(ret != 0) return qe_invalid;
-        }
-        */
+        
+	
         for(int i = 0; i < NUMSCRIPTSCREEN; i++)
         {
             ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &screenscripts[i]);
             
             if(ret != 0) return qe_invalid;
         }
-	/*
-	for(int i = 0; i < NUMSCRIPTSDMAP; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i]);
-            
-            if(ret != 0) return qe_invalid;
-        }
-        */
+	
         if(s_version > 4)
         {
             for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
@@ -8616,6 +8604,38 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(ret != 0) return qe_invalid;
         }
+        if(s_version > 7)
+        {
+            
+            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i]);
+                
+                if(ret != 0) return qe_invalid;
+            }
+            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i]);
+            
+                if(ret != 0) return qe_invalid;
+            }
+            
+        }
+        /*
+        else //Is this trip really necessary?
+        {
+            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            {
+                
+                ewpnscripts[i] = NULL;
+            }
+            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            {
+                dmapscripts[i] = NULL;
+            }
+        }
+        */
+        
     }
     
     if(s_version > 2)
@@ -8700,6 +8720,140 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 //fix this too
                 if(keepdata && id <NUMSCRIPTITEM-1)
                     itemmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+        	//(v9+)
+	//npc scripts
+	if(s_version > 8)
+        {
+            word numnpcbindings;
+            p_igetw(&numnpcbindings, f, true);
+            
+            for(int i=0; i<numnpcbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTGUYS-1)
+                    npcmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//
+	//lweapon
+	if(s_version > 8)
+        {
+            word numlwpnbindings;
+            p_igetw(&numlwpnbindings, f, true);
+            
+            for(int i=0; i<numlwpnbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTWEAPONS-1)
+                    lwpnmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//eweapon
+	if(s_version > 8)
+        {
+            word numewpnbindings;
+            p_igetw(&numewpnbindings, f, true);
+            
+            for(int i=0; i<numewpnbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTWEAPONS-1)
+                    ewpnmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//link
+	if(s_version > 8)
+        {
+            word numlinkbindings;
+            p_igetw(&numlinkbindings, f, true);
+            
+            for(int i=0; i<numlinkbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTLINK-1)
+                    linkmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//dmaps
+	if(s_version > 8)
+        {
+            word numdmapbindings;
+            p_igetw(&numdmapbindings, f, true);
+            
+            for(int i=0; i<numdmapbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTSDMAP-1)
+                    dmapmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+		//screen
+	if(s_version > 8)
+        {
+            word numscreenbindings;
+            p_igetw(&numscreenbindings, f, true);
+            
+            for(int i=0; i<numscreenbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTSDMAP-1)
+                    screenmap[id].second = buf;
                     
                 delete[] buf;
             }
@@ -10042,10 +10196,11 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 				return qe_invalid;
 			}
 		}
-		if(!p_igetw(&(tempguy.npcscript),f,keepdata))
+		if(!p_igetw(&(tempguy.script),f,keepdata))
 		{
 			return qe_invalid;
 		} 
+                al_trace("NPC Script ID is: %d\n",tempguy.script);
 		for ( int q = 0; q < 8; q++ )
 		{
 			if(!p_igetl(&(tempguy.initD[q]),f,keepdata))
@@ -10192,7 +10347,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		
 		//NPC Script attributes.
-		tempguy.npcscript = 0; //No scripted enemies existed. -Z
+		tempguy.script = 0; //No scripted enemies existed. -Z
 		for ( int q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
 		for ( int q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
 		
@@ -15194,6 +15349,15 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         globalmap.clear();
         ffcmap.clear();
         itemmap.clear();
+        //new script types
+        //new script types -- prevent carrying over to a quest that you load after reading them
+        //e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
+        npcmap.clear();
+        ewpnmap.clear();
+        lwpnmap.clear();
+        linkmap.clear();
+        dmapmap.clear();
+        screenmap.clear();
         
         for(int i=0; i<NUMSCRIPTFFC-1; i++)
         {
@@ -15211,6 +15375,33 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         for(int i=0; i<NUMSCRIPTITEM-1; i++)
         {
             itemmap[i] = pair<string,string>("","");
+        }
+        
+        //new script types -- prevent carrying over to a quest that you load after reading them
+        //e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
+        for(int i=0; i<NUMSCRIPTGUYS-1; i++)
+        {
+            npcmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTWEAPONS-1; i++)
+        {
+            lwpnmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTWEAPONS-1; i++)
+        {
+            ewpnmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTLINK-1; i++)
+        {
+            linkmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTSDMAP-1; i++)
+        {
+            dmapmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTSCREEN-1; i++)
+        {
+            screenmap[i] = pair<string,string>("","");
         }
         
         reset_scripts();
