@@ -6959,7 +6959,9 @@ bool eStalfos::animate(int index)
         KillWeapon();
         return Dead(index);
     }
-    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide()))  //Split into enemies
+    //2.10 checked !fslide(), but nothing uses that now anyway. -Z
+    //Perhaps the problem occurs when vires die because they have < 0 HP, in this check?
+    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() /*&& !fslide()*/ ))  //Split into enemies
     {
         stop_bgsfx(index);
         int kids = guys.Count();
