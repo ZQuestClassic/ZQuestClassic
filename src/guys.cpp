@@ -6992,7 +6992,8 @@ bool eStalfos::animate(int index)
             
         return true;
     }
-    else if((dmisc2==e2tSPLITHIT && hp<=0 /*&&!slide()*/ ))  //Possible vires fix; or could cause goodness knows what. -Z
+    /*
+    else if((dmisc2==e2tSPLITHIT && hp<=0 &&!slide()))  //Possible vires fix; or could cause goodness knows what. -Z
     {
         stop_bgsfx(index);
         int kids = guys.Count();
@@ -7020,7 +7021,7 @@ bool eStalfos::animate(int index)
                     
         return true;
     }
-    
+    */
     if(fading)
     {
         if(++clk4 > 60)
@@ -7533,7 +7534,7 @@ int eStalfos::takehit(weapon *w)
     int ret = enemy::takehit(w);
     
     if(sclk && dmisc2==e2tSPLITHIT)
-        sclk+=128;
+        sclk+=128; //Fuck these arbitrary values with no explanation. Fuck vires, too. -Z
         
     return ret;
 }
@@ -7586,11 +7587,21 @@ void eStalfos::charge_attack()
 void eStalfos::vire_hop()
 {
     //if ( sclk > 0 ) return; //Don't hop during knockback.
+  
+//    if(dmisc9!=e9tPOLSVOICE)
+//    {
+//        //if( slide() /*sclk!=0*/ && dmisc2==e2tSPLIT) //Vires with split on hit, only! -Z
+//        if( sclk!=0 && dmisc2==e2tSPLIT) //Vires with split on hit, only! -Z
+//            return; //the enemy should split if it is sliding!
+//        //else sclk=0; //might need this here, too. -Z
+//    }
     if(dmisc9!=e9tPOLSVOICE)
     {
-        if(sclk!=0 && dmisc2==e2tSPLIT) //Vires with split on hit, only! -Z
-            return;
-        else sclk=0; //might need this here, too. -Z
+        if(sclk!=0)
+        {
+            if (dmisc2==e2tSPLITHIT) return;
+            //return;
+        }
     }
     else sclk=0;
     
