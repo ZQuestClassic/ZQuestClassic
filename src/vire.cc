@@ -52,3 +52,85 @@ public:
     }
   }
 };
+
+  // makes the enemy slide backwards when hit
+  // sclk: first byte is clk, second byte is dir
+  bool slide()
+  {
+    if(sclk==0 || hp<=0)
+      return false;
+    if((sclk&255)==16 && !canmove(sclk>>8,12,0)) {
+      sclk=0;
+      return false;
+      }
+    sclk--;
+    switch(sclk>>8) {
+    case up:    y-=4; break;
+    case down:  y+=4; break;
+    case left:  x-=4; break;
+    case right: x+=4; break;
+    }
+    if(!canmove(sclk>>8,0,0)) {
+      switch(sclk>>8) {
+      case up:
+      case down:
+        if( (int(y)&15) > 7 )
+          y=(int(y)&0xF0)+16;
+        else
+          y=(int(y)&0xF0);
+        break;
+      case left:
+      case right:
+        if( (int(x)&15) > 7 )
+          x=(int(x)&0xF0)+16;
+        else
+          x=(int(x)&0xF0);
+        break;
+      }
+      sclk=0;
+      clk3=0;
+     }
+    if((sclk&255)==0)
+      sclk=0;
+    return true;
+  }
+  
+bool fslide()
+  {
+    if(sclk==0 || hp<=0)
+      return false;
+    if((sclk&255)==16 && !canmove(sclk>>8,12,spw_floater)) {
+      sclk=0;
+      return false;
+      }
+    sclk--;
+    switch(sclk>>8) {
+    case up:    y-=4; break;
+    case down:  y+=4; break;
+    case left:  x-=4; break;
+    case right: x+=4; break;
+    }
+    if(!canmove(sclk>>8,0,spw_floater)) {
+      switch(sclk>>8) {
+      case up:
+      case down:
+        if( (int(y)&15) > 7 )
+          y=(int(y)&0xF0)+16;
+        else
+          y=(int(y)&0xF0);
+        break;
+      case left:
+      case right:
+        if( (int(x)&15) > 7 )
+          x=(int(x)&0xF0)+16;
+        else
+          x=(int(x)&0xF0);
+        break;
+      }
+      sclk=0;
+      clk3=0;
+     }
+    if((sclk&255)==0)
+      sclk=0;
+    return true;
+  }
