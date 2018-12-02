@@ -6992,6 +6992,37 @@ bool eStalfos::animate(int index)
             
         return true;
     }
+    else if((dmisc2==e2tSPLITHIT && hp<=0 /*&&!slide()*/ ))  //Possible vires fix; or could cause goodness knows what. -Z
+    {
+        stop_bgsfx(index);
+        int kids = guys.Count();
+        int id2=dmisc3;
+        
+        for(int i=0; i < dmisc4; i++)
+        {
+//	    if (addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((i+1)<<12)),-21-(i%4)))
+            if(addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : (i<<12)),-21-(i%4)))
+                ((enemy*)guys.spr(kids+i))->count_enemy = false;
+        }
+        
+        if(itemguy) // Hand down the carried item
+        {
+            guycarryingitem = guys.Count()-1;
+            ((enemy*)guys.spr(guycarryingitem))->itemguy = true;
+            itemguy = false;
+        }
+        
+        if(haslink)
+        {
+            Link.setEaten(0);
+            haslink=false;
+        }
+        
+        if(deadsfx > 0 && dmisc2==e2tSPLIT)
+            sfx(deadsfx,pan(int(x)));
+            
+        return true;
+    }
     
     if(fading)
     {
