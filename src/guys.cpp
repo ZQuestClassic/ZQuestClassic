@@ -7585,10 +7585,12 @@ void eStalfos::charge_attack()
 
 void eStalfos::vire_hop()
 {
+    //if ( sclk > 0 ) return; //Don't hop during knockback.
     if(dmisc9!=e9tPOLSVOICE)
     {
         if(sclk!=0 && dmisc2==e2tSPLIT) //Vires with split on hit, only! -Z
             return;
+        else sclk=0; //might need this here, too. -Z
     }
     else sclk=0;
     
