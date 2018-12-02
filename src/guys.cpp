@@ -7017,10 +7017,7 @@ bool eStalfos::animate(int index)
             Link.setEaten(0);
             haslink=false;
         }
-        
-        if(deadsfx > 0 && dmisc2==e2tSPLIT)
-            sfx(deadsfx,pan(int(x)));
-            
+                    
         return true;
     }
     
