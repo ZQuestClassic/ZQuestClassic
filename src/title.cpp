@@ -2337,11 +2337,11 @@ static void selectscreen()
     //  loadfullpal();
     loadlvlpal(1);
     clear_bitmap(scrollbuf);
-    QMisc.colors.blueframe_tile = 237;
-    QMisc.colors.blueframe_cset = 0;
+    QMisc.colors.blueframe_tile = 237; //hardcoded frame tile -- move to module
+    QMisc.colors.blueframe_cset = 0; //hardcoded frame cset -- move to module
 //  blueframe(scrollbuf,&QMisc,24,48,26,20);
     frame2x2(scrollbuf,&QMisc,24,48,QMisc.colors.blueframe_tile,QMisc.colors.blueframe_cset,26,20,0,1,0);
-    textout_ex(scrollbuf,zfont,"- S E L E C T -",64,24,1,0);
+    textout_ex(scrollbuf,zfont,"- S E L E C T -",64,24,1,0); //could be in module at some point
     textout_ex(scrollbuf,zfont," NAME ",80,48,1,0);
     textout_ex(scrollbuf,zfont," LIFE ",152,48,1,0);
     select_mode();
@@ -2373,6 +2373,7 @@ static void list_save(int save_num, int ypos)
             textprintf_ex(framebuf,zfont,72,ypos+24,1,0,"%3d",saves[save_num].get_deaths());
             
         if(saves[save_num].get_quest()==2)
+            //hardcoded quest icons -- move to module
             overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
             
         if(saves[save_num].get_quest()==3)
@@ -2406,7 +2407,7 @@ static void list_save(int save_num, int ypos)
     
     hold = colordata;
     colordata = saves[save_num].pal;
-    loadpalset((save_num%3)+10,0);
+    loadpalset((save_num%3)+10,0); //quest number changes the palettem -- move to module
     colordata = hold;
     
     textout_ex(framebuf,zfont,"-",136,ypos+16,1,0);

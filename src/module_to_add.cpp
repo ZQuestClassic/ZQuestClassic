@@ -1,3 +1,91 @@
+//name entry tiles
+
+int title_screen_frame_tile = 237
+
+static void selectscreen()
+{
+    FFCore.kb_typing_mode = false;
+    //  text_mode(0);
+    init_NES_mode();
+    //  loadfullpal();
+    loadlvlpal(1);
+    clear_bitmap(scrollbuf);
+    QMisc.colors.blueframe_tile = 237;
+    QMisc.colors.blueframe_cset = 0;
+//  blueframe(scrollbuf,&QMisc,24,48,26,20);
+    frame2x2(scrollbuf,&QMisc,24,48,QMisc.colors.blueframe_tile,QMisc.colors.blueframe_cset,26,20,0,1,0);
+    textout_ex(scrollbuf,zfont,"- S E L E C T -",64,24,1,0);
+    textout_ex(scrollbuf,zfont," NAME ",80,48,1,0);
+    textout_ex(scrollbuf,zfont," LIFE ",152,48,1,0);
+    select_mode();
+    RAMpal[CSET(9)+1]=NESpal(0x15);
+    RAMpal[CSET(9)+2]=NESpal(0x27);
+    RAMpal[CSET(9)+3]=NESpal(0x30);
+    RAMpal[CSET(13)+1]=NESpal(0x30);
+}
+
+
+//hardcoded quest icons:
+//these are called by overtile16 in this function:
+static void list_save(int save_num, int ypos)
+{
+    bool r = refreshpal;
+    
+    if(save_num<savecnt)
+    {
+        game->set_maxlife(saves[save_num].get_maxlife());
+        game->set_life(saves[save_num].get_maxlife());
+        wpnsbuf[iwQuarterHearts].newtile = 4;
+        //boogie!
+        lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(HP_PER_HEART))?8:0),0,0);
+        textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);
+        
+        if(saves[save_num].get_quest())
+            textprintf_ex(framebuf,zfont,72,ypos+24,1,0,"%3d",saves[save_num].get_deaths());
+            
+        if(saves[save_num].get_quest()==2)
+            //2nd quest hardcoded icon
+            overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
+            
+        if(saves[save_num].get_quest()==3)
+        {
+            overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
+            overtile16(framebuf,41,41,ypos+14,9,0);             //put sword on third quests
+        }
+        
+        if(saves[save_num].get_quest()==4)
+        {
+            overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+            overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+        }
+
+		if(saves[save_num].get_quest()==5)
+		{
+			overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+			overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+		}
+
+        textprintf_ex(framebuf,zfont,72,ypos+16,1,0,"%s",saves[save_num].get_name());
+    }
+    
+    byte *hold = newtilebuf[0].data;
+    byte holdformat=newtilebuf[0].format;
+    newtilebuf[0].format=tf4Bit;
+    newtilebuf[0].data = saves[save_num].icon;
+    overtile16(framebuf,0,48,ypos+17,(save_num%3)+10,0);               //link
+    newtilebuf[0].format=holdformat;
+    newtilebuf[0].data = hold;
+    
+    hold = colordata;
+    colordata = saves[save_num].pal;
+    loadpalset((save_num%3)+10,0); //quest number changes the palette
+    colordata = hold;
+    
+    textout_ex(framebuf,zfont,"-",136,ypos+16,1,0);
+    
+    refreshpal = r;
+}
+
 load_game_icon
 load_game_icon_to_buffer
 
