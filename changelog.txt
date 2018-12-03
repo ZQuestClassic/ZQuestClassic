@@ -2,6 +2,10 @@
 
 //Alpha 3
 
+Fix npc scripts mucking up stack pointer:
+	Changed memset(stack,0) to memset(stack,0xFFFF).
+	( ZoriaRPG, 3rd December, 2018 )
+
 ** Known Issue: For some reason, the ri->guysref is either improperly
 cleared, or something is reading it improperly:
 
