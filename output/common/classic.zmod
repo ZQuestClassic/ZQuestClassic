@@ -24,7 +24,7 @@ eighth_qst_skip = -
 ninth_qst_skip = -
 tenth_qst_skip = -
 
-
+//Name Entry Graphics
 sels_tile_frame = 237
 sels_tile_questicon_1A = 0
 sels_tile_questicon_1B = 0
