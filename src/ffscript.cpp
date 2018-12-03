@@ -18406,6 +18406,32 @@ long FFScript::getQuestHeaderInfo(int type)
 //Modules
 //Putting this here, for now.
 
+const char * select_screen_tile_cats[sels_tile_LAST] =
+{
+	"sels_tile_frame", "sels_tile_questicon_1A", "sels_tile_questicon_1B", "sels_tile_questicon_2A",
+	"sels_tile_questicon_2B", "sels_tile_questicon_3A", "sels_tile_questicon_3B", "sels_tile_questicon_4A",
+	"sels_tile_questicon_4B", "sels_tile_questicon_5A", "sels_tile_questicon_5B", "sels_tile_questicon_6A",
+	"sels_tile_questicon_6B", "sels_tile_questicon_7A", "sels_tile_questicon_7B", "sels_tile_questicon_8A",
+	"sels_tile_questicon_8B", "sels_tile_questicon_9A", "sels_tile_questicon_9B", "sels_tile_questicon_10A",
+	"sels_tile_questicon_10B",
+	    //x positions
+	"sels_tile_questicon_1A_X", "sels_tile_questicon_1B_X", "sels_tile_questicon_2A_X", "sels_tile_questicon_2B_X",
+	"sels_tile_questicon_3A_X", "sels_tile_questicon_3B_X", "sels_tile_questicon_4A_X", "sels_tile_questicon_4B_X",
+	"sels_tile_questicon_5A_X", "sels_tile_questicon_5B_X", "sels_tile_questicon_6A_X", "sels_tile_questicon_6B_X",
+	"sels_tile_questicon_7A_X", "sels_tile_questicon_7B_X", "sels_tile_questicon_8A_X", "sels_tile_questicon_8B_X",
+	"sels_tile_questicon_9A_X", "sels_tile_questicon_9B_X", "sels_tile_questicon_10A_X", "sels_tile_questicon_10B_X"
+	
+};
+
+const char * select_screen_tile_cset_cats[sels_tile_LAST] =
+{
+	"sels_tile_frame_cset", "sels_tile_questicon_1A_cset", "sels_tile_questicon_1B_cset", "sels_tile_questicon_2A_cset",
+	"sels_tile_questicon_2B_cset", "sels_tile_questicon_3A_cset", "sels_tile_questicon_3B_cset", "sels_tile_questicon_4A_cset",
+	"sels_tile_questicon_4B_cset", "sels_tile_questicon_5A_cset", "sels_tile_questicon_5B_cset", "sels_tile_questicon_6A_cset",
+	"sels_tile_questicon_6B_cset", "sels_tile_questicon_7A_cset", "sels_tile_questicon_7B_cset", "sels_tile_questicon_8A_cset",
+	"sels_tile_questicon_8B_cset", "sels_tile_questicon_9A_cset", "sels_tile_questicon_9B_cset", "sels_tile_questicon_10A_cset",
+	"sels_tile_questicon_10B_cset", "change_cset_on_quest_3"
+};
 
 
 void ZModule::init(bool d) //bool default
@@ -18434,6 +18460,8 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
 	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));
 	memset(moduledata.copyright_string_vars, 0, sizeof(moduledata.copyright_string_vars));
+	memset(moduledata.select_screen_tiles, 0, sizeof(moduledata.select_screen_tiles));
+	memset(moduledata.select_screen_tile_csets, 0, sizeof(moduledata.select_screen_tile_csets));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
 	moduledata.animate_NES_title = 0;
@@ -18507,6 +18535,17 @@ void ZModule::init(bool d) //bool default
 		al_trace("Module quest skip 9 set to %s\n",moduledata.skipnames[8]);
 		strcpy(moduledata.skipnames[9],get_config_string("NAMEENTRY","tenth_qst_skip",""));
 		al_trace("Module quest skip 10 set to %s\n",moduledata.skipnames[9]);
+		
+		
+		//name entry icons, tiles, and csets
+		for ( int q = 0; q < sels_tile_LAST; q++ ) 
+		{
+			moduledata.select_screen_tiles[q] = get_config_int("NAMEENTRY",select_screen_tile_cats[q],0);
+		}
+		for ( int q = 0; q < sels_tile_cset_LAST; q++ ) 
+		{
+			moduledata.select_screen_tile_csets[q] = get_config_int("NAMEENTRY",select_screen_tile_cset_cats[q],( q == 0 ? 0 : 9 )); //the player icon csets are 9 by default, and the tile frame is 0
+		}
 		
 		//datafiles
 		strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));

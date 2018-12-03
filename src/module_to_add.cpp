@@ -1,30 +1,9 @@
 //name entry tiles
 
-int title_screen_frame_tile = 237
+hardcoded selector tile
 
-static void selectscreen()
-{
-    FFCore.kb_typing_mode = false;
-    //  text_mode(0);
-    init_NES_mode();
-    //  loadfullpal();
-    loadlvlpal(1);
-    clear_bitmap(scrollbuf);
-    QMisc.colors.blueframe_tile = 237;
-    QMisc.colors.blueframe_cset = 0;
-//  blueframe(scrollbuf,&QMisc,24,48,26,20);
-    frame2x2(scrollbuf,&QMisc,24,48,QMisc.colors.blueframe_tile,QMisc.colors.blueframe_cset,26,20,0,1,0);
-    textout_ex(scrollbuf,zfont,"- S E L E C T -",64,24,1,0);
-    textout_ex(scrollbuf,zfont," NAME ",80,48,1,0);
-    textout_ex(scrollbuf,zfont," LIFE ",152,48,1,0);
-    select_mode();
-    RAMpal[CSET(9)+1]=NESpal(0x15);
-    RAMpal[CSET(9)+2]=NESpal(0x27);
-    RAMpal[CSET(9)+3]=NESpal(0x30);
-    RAMpal[CSET(13)+1]=NESpal(0x30);
-}
-
-
+// overtile16(framebuf,0,48,ypos+17,(save_num%3)+10,0);               //link
+//! reposition this call and allow settig the tile data in the module
 //hardcoded quest icons:
 //these are called by overtile16 in this function:
 static void list_save(int save_num, int ypos)
