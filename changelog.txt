@@ -2,6 +2,161 @@
 
 //Alpha 3
 
+** Known Issue: For some reason, the ri->guysref is either improperly
+cleared, or something is reading it improperly:
+
+When you F6->Retry, and there are running npc scripts, they corrupt the ZScript stacks.
+
+Closing ZC and reopening it fixes this, so I must have missed something
+that clears this data. 
+
+**
+
+Added npc->InitD[8] to ZScript
+Set InitD values on script load.
+Removed extraneous vars in sprite class
+
+Update build date.
+
+Added initD[8] to sprites.
+Added npc->InitD[8] to ZScript.
+Populated ri->d with npc->initD[] when the npc script is called.
+
+NPC Scripts: Add Initial D[8] to Enemy Editor
+NPC Scripts: Fix Editor Dialogue
+	Somehow, my commit of this editor fix was lost or corrupted.
+
+	This again fixes the editor dialogue object placement.
+
+NPC script stacks will now clear when their scope ends.
+I also fixed some issues with the 'this' pointer in npc scripts.
+
+NPCs now run scripts assigned to them.
+
+Modules: Update Default and Classic Module files.
+
+Added the following vars to the file select screen (NAMEENTRY)
+	in the mopdule format:
+
+	sels_cursor_tile // The cursor tile. Default is 0
+	sels_heart_tile  //The tile used to draw hearts.
+	sels_linktile // The base tile used to draw Link. Might be wrong.
+
+	sels_heart_tilettile_cset // The default CSet used to draw hearts.
+
+	draw_link_first // If set to non-zero, then Link's tile will be drawn before other
+	decorations (e.g. sword for 2nd quest). Otherwise, if == 0, we use the
+	normal Z1 behaviour.
+
+	//If these values are < 15, then the tile will be drawn in the specificed cset
+	sels_cusror_cset = 16
+	sels_link_cset = 16
+
+Modules: Update Default and Classic ZMOD files.
+Modules: Add Name Entry Graphics to Module Format 
+	The quest icons (all TEN supported quests) are now set by the
+	module, along with their csets and X positions.
+
+	The file select frame tile, and cset is now set by the module.
+
+	The colour shift on quest 3+ is now in the module format, but disabled,
+	pending other tests.
+
+Updated the classic module file with the new vars.
+	( ZoriaRPG, 3rd December, 2018 )
+
+Modules: Marked locations of hardcoded file select elements to move to modules.
+May be a fix for issues with vires.
+	My sanity can only take so much more of this.
+	Why didn't they just keep vire/polsvoice in their own class, as in 2.10?!
+
+Possible fix for Vires
+Added file Vire.cc - 2.10 Vire Code as Reference
+	( ZoriaRPG, 2nd December, 2018 )
+
+Cleaned up code for the NPC Script selection in the Enemy Editor,
+	and removed traces and unused vars.
+
+It is now possible to set the npc script slot in the Enemy Editor,
+	and to properly save your selection in the quest.
+
+Clear script bindings left over from a prior quest. 
+	If you set an npc script, then load any other quest; the second
+	quest thinks that the script is set there, too.
+
+	The inverse was also possible: Open a quest with scripts saved, after having
+	opened (or created) a blank quest, and the blank quest fields would carry over.
+
+	This *should* fix that issue.
+
+Added script bindings for new script types to quest saving/loading.
+
+Increased V_FFSCRIPT to `9`
+
+NPC Scripts: Clean Up Enemy Editor Scripts Pane
+Fix: Errors in ScreenPrint()
+NPC Scripts: Begin Adding to Enemy Editor
+Slight cleanup of FFCore.getTime()
+Add LogPrint() and ScreenPrint to string_functions.zh
+	( ZoriaRPG, 30th November, 2018 )
+
+Add test quest and script for GetSystemClock()
+Removed erroneous +2 from 'month' return.
+Changed RTC to a Unary opcode and corrected its inpur param
+	value, when read from the stack.
+
+Fix Crash on Saving Scripts: I was trying to save to a NULL pointer.
+	The NULL pointer assign (see below) is wrong. I redacted it. 
+
+Add missing constant for RTC_DST
+Update std_constants.zh for Link->WarpEx() and GetSystemTime()
+
+I had a unary opcode constructor for GetSystemTime(), where it
+	needed a binary opcode constructor. This commit fixes that, and it corrects
+	the return value to stack arg 2, by multiplying it by 10,000.
+
+Added GetSystemTIme(int category) to return the current system
+	Real Time Clock (RTC) value for a specific field of the time struct (time.h).
+
+	The parameter options are:
+
+	define RTC_YEAR		= 0;
+	define RTC_MONTH	= 1;
+	define RTC_DAYOFMONTH	= 2;
+	define RTC_DAYOFWEEK	= 3;
+	define RTC_HOUR		= 4;
+	define RTC_MINUTE	= 5;
+	define RTC_SECOND	= 6;
+	define RTC_DAYOFYEAR	= 7;
+	define RTC_LAST		= 8;
+	( ZoriaRPG, 29th November, 2018 )
+
+Changed the stack index from const byte to const long.
+
+	Sprite scripts will need this to use as their pointer value, then somehow
+	associate that with their stack.
+
+	Perhaps as `stack = &(guys.spr(getbyUID(i))->stack);`
+
+	...although `stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);`
+	may suffice. Not sure.
+
+Pre-emptively set new script type pointers to null for older quests.
+Increased V_FFSCRIPT to `8`.
+	Added routines to save, and to load new script types, or to skip
+	loading them based on section version.
+
+	Do the pointers for them need to be memset/NULLified for old quests?!
+
+	Scripts that used to load into %wpnscripts now load into &lwpnscripts.
+	EWeapon scripts load into a new pointer.
+	( ZoriaRPG, 28th November, 2018 )
+
+Added file log.zh to /std_zh
+Changed button text on 'Import' button in 'Compile ZScript' dialogue.
+	The new button text is 'Load', and the new hotkey is 'L'.
+	( ZoriaRPG, 27th November, 2018 )
+
 Added NPC Scripts to the Compile->Assign Script Dialogue.
 	They work, and are compiled properly.
 	What remains:
