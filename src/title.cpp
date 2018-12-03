@@ -2366,14 +2366,21 @@ static void list_save(int save_num, int ypos)
     {
         game->set_maxlife(saves[save_num].get_maxlife());
         game->set_life(saves[save_num].get_maxlife());
-        wpnsbuf[iwQuarterHearts].newtile = 4;
+        wpnsbuf[iwQuarterHearts].newtile = moduledata.select_screen_tiles[sels_heart_tile];
+        wpnsbuf[iwQuarterHearts].csets = moduledata.select_screen_tile_csets[sels_heart_tilettile_cset];
+        //wpnsbuf[iwQuarterHearts].newtile = 4;
         //boogie!
         lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(HP_PER_HEART))?8:0),0,0);
         textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);
         
         if(saves[save_num].get_quest())
             textprintf_ex(framebuf,zfont,72,ypos+24,1,0,"%3d",saves[save_num].get_deaths());
-            
+	
+	if ( moduledata.select_screen_tiles[draw_link_first]) 
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_linktile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_link_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_link_cset] : (save_num%3)+10,0); 
+
+
+
         if(saves[save_num].get_quest()==1)
         {
             //hardcoded quest icons -- move to module
@@ -2480,7 +2487,10 @@ static void list_save(int save_num, int ypos)
     byte holdformat=newtilebuf[0].format;
     newtilebuf[0].format=tf4Bit;
     newtilebuf[0].data = saves[save_num].icon;
-    overtile16(framebuf,0,48,ypos+17,(save_num%3)+10,0);               //link
+    if ( !moduledata.select_screen_tiles[draw_link_first]) 
+	    //overtile16(framebuf,moduledata.select_screen_tiles[sels_linktile],48,ypos+17,(save_num%3)+10,0);               //link
+	overtile16(framebuf,moduledata.select_screen_tiles[sels_linktile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_link_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_link_cset] : (save_num%3)+10,0); 
+
     newtilebuf[0].format=holdformat;
     newtilebuf[0].data = hold;
     
@@ -2528,12 +2538,14 @@ static void list_saves()
 
 static void draw_cursor(int pos,int mode)
 {
-    int cs = (mode==3)?13:9;
+    int cs = 0;
+	if ( (unsigned)moduledata.select_screen_tile_csets[sels_cusror_cset] < 15 ) cs = moduledata.select_screen_tile_csets[sels_cusror_cset];
+	else cs = (mode==3)?13:9;
     
     if(pos<3)
-        overtile8(framebuf,0,40,pos*24+77,cs,0);
+        overtile8(framebuf,moduledata.select_screen_tiles[sels_cursor_tile],40,pos*24+77,cs,0);
     else
-        overtile8(framebuf,0,40,(pos-3)*16+153,cs,0);
+        overtile8(framebuf,moduledata.select_screen_tiles[sels_cursor_tile],40,(pos-3)*16+153,cs,0);
 }
 
 static bool register_name()

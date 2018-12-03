@@ -2931,7 +2931,8 @@ static int enemy_scripts_list[] =
 
 static int enemy_scripts_initdata_list[] =
 {
-    -1
+    337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,
+	-1
 };
 static int enemy_movement_list[] =
 {
@@ -4740,8 +4741,24 @@ static DIALOG enedata_dlg[] =
     { d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
     
     { jwin_droplist_proc,       10,  40+20,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
-    { jwin_edit_proc,        10,     90,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-    
+    { jwin_text_proc,           11,  40+12,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "NPC Action Script:",                      NULL,   NULL                  },
+	//337
+    { jwin_text_proc,       6+10,   10+29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
+    { jwin_text_proc,       6+10,   10+47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D1:", NULL, NULL },
+    { jwin_text_proc,       6+10,   10+65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D2:", NULL, NULL },
+    { jwin_text_proc,       6+10,   10+83+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D3:", NULL, NULL },
+    { jwin_text_proc,       6+10,  10+101+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D4:", NULL, NULL },
+    { jwin_text_proc,       6+10,  10+119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
+    { jwin_text_proc,       6+10,  10+137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
+    { jwin_text_proc,       6+10,  10+155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
+    { jwin_edit_proc,      34+10,   10+25+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,   10+43+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,   10+61+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,   10+79+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,   10+97+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,  10+115+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,  10+133+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      34+10,  10+151+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     
     /*
 	  // 248 scripts
@@ -5001,6 +5018,7 @@ void edit_enemydata(int index)
     char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
 	char weapsprite[8];
     
+	char initdvals[8][13];
     //begin npc script
     int j = 0; build_binpcs_list(); //npc scripts lister
     for(j = 0; j < binpcs_cnt; j++)
@@ -5010,6 +5028,15 @@ void edit_enemydata(int index)
             enedata_dlg[335].d1 = j; 
             break;
         }
+    }
+    
+    
+    for ( int q = 0; q < 8; q++ )
+    {
+	    
+	sprintf(initdvals[q],"%.4f",guysbuf[index].initD[q]/10000.0);
+	 
+	enedata_dlg[345+q].dp = initdvals[q];
     }
     //end npc script
     
@@ -5642,6 +5669,10 @@ void edit_enemydata(int index)
         
         //begin npc scripts
         test.script = binpcs[enedata_dlg[335].d1].second + 1; 
+	for ( int q = 0; q < 8; q++ )
+	{
+		test.initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+	}
         //end npc scripts
 	
         if(ret==252) //OK Button

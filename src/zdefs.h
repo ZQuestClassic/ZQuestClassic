@@ -102,7 +102,7 @@
 #define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 3"                    //version of the program as presented in text
 #define IS_BETA             -3                         //is this a beta? (1: beta, -1: alpha)
 #define VERSION_BETA        3
-#define DATE_STR            "27th November, 2018"
+#define DATE_STR            "3rd December, 2018"
 #define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 3"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
@@ -3317,6 +3317,9 @@ enum {
     sels_tile_questicon_5A_X, sels_tile_questicon_5B_X, sels_tile_questicon_6A_X, sels_tile_questicon_6B_X, 
     sels_tile_questicon_7A_X, sels_tile_questicon_7B_X, sels_tile_questicon_8A_X, sels_tile_questicon_8B_X, 
     sels_tile_questicon_9A_X, sels_tile_questicon_9B_X, sels_tile_questicon_10A_X, sels_tile_questicon_10B_X,
+	
+	
+    sels_cursor_tile, sels_heart_tile, sels_linktile, draw_link_first,
     sels_tile_LAST
 };
 
@@ -3326,7 +3329,11 @@ enum {
     sels_tile_questicon_4B_cset, sels_tile_questicon_5A_cset, sels_tile_questicon_5B_cset, sels_tile_questicon_6A_cset, 
     sels_tile_questicon_6B_cset, sels_tile_questicon_7A_cset, sels_tile_questicon_7B_cset, sels_tile_questicon_8A_cset, 
     sels_tile_questicon_8B_cset, sels_tile_questicon_9A_cset, sels_tile_questicon_9B_cset, sels_tile_questicon_10A_cset, 
-    sels_tile_questicon_10B_cset, change_cset_on_quest_3, sels_tile_cset_LAST
+    sels_tile_questicon_10B_cset, change_cset_on_quest_3, 
+	sels_cusror_cset, sels_heart_tilettile_cset, sels_link_cset,
+	
+	sels_tile_cset_LAST
+	
 };
 
 struct zcmodule

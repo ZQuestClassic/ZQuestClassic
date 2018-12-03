@@ -1058,8 +1058,9 @@ using namespace std;
 #define GRAPHICSTINT 	993
 #define CREATEBITMAP 	994
 #define LINKTILEMOD 	995
+#define NPCINITD 	996
 
-#define LAST_BYTECODE 		996
+#define LAST_BYTECODE 		997
 
 //END OF BYTECODE
 

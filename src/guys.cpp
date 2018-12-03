@@ -369,7 +369,13 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     
     script = (d->script >= 0) ? d->script : 0; //Dont assign invalid data. 
     
-    for ( int q = 0; q < 8; q++ ) initD[q] = d->initD[q];
+    for ( int q = 0; q < 8; q++ ) 
+    {
+	    initD[q] = d->initD[q];
+	    //al_trace("Guys.cpp: Assigning guy.initD[%d]: %d\n",q, d->initD.initD[q]);
+	    //al_trace("Guys.cpp: Assigning guy.initD[%d] from d->initD[%d]: %d\n",q,q, d->initD[q]);
+	    //al_trace("Guys.cpp: guy.initD[%d] is: %d\n",q, initD[q]);
+    }
     for ( int q = 0; q < 2; q++ ) initA[q] = d->initA[q];
     
     dialogue_str = 0; //set by spawn flags. 
@@ -646,6 +652,12 @@ bool enemy::animate(int index)
     scored=false;
     
     ++c_clk;
+    
+    //Run its script
+    if ( script > 0 ) 
+    {
+	ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
+    }
     
     // returns true when enemy is defeated
     return Dead(index);
