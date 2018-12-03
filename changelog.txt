@@ -1,5 +1,9 @@
 ChangeLog for 2.53.0 
 
+//Beta 26
+Probably fixed issues that Avataro reported with Vire enemies.
+	( ZoriaRPG, 3rd December, 2018 )
+
 //Beta 25
 Backported fix for crash on getWpnPressed(0 on Win10 from 2.55 to
 	2.53. I'm not sure why 2.53 didn't crash from this, but, it
