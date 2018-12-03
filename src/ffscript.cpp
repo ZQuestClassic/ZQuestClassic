@@ -18419,7 +18419,8 @@ const char * select_screen_tile_cats[sels_tile_LAST] =
 	"sels_tile_questicon_3A_X", "sels_tile_questicon_3B_X", "sels_tile_questicon_4A_X", "sels_tile_questicon_4B_X",
 	"sels_tile_questicon_5A_X", "sels_tile_questicon_5B_X", "sels_tile_questicon_6A_X", "sels_tile_questicon_6B_X",
 	"sels_tile_questicon_7A_X", "sels_tile_questicon_7B_X", "sels_tile_questicon_8A_X", "sels_tile_questicon_8B_X",
-	"sels_tile_questicon_9A_X", "sels_tile_questicon_9B_X", "sels_tile_questicon_10A_X", "sels_tile_questicon_10B_X"
+	"sels_tile_questicon_9A_X", "sels_tile_questicon_9B_X", "sels_tile_questicon_10A_X", "sels_tile_questicon_10B_X",
+	"sels_cursor_tile", "sels_heart_tile", "sels_linktile", "draw_link_first"
 	
 };
 
@@ -18430,7 +18431,8 @@ const char * select_screen_tile_cset_cats[sels_tile_LAST] =
 	"sels_tile_questicon_4B_cset", "sels_tile_questicon_5A_cset", "sels_tile_questicon_5B_cset", "sels_tile_questicon_6A_cset",
 	"sels_tile_questicon_6B_cset", "sels_tile_questicon_7A_cset", "sels_tile_questicon_7B_cset", "sels_tile_questicon_8A_cset",
 	"sels_tile_questicon_8B_cset", "sels_tile_questicon_9A_cset", "sels_tile_questicon_9B_cset", "sels_tile_questicon_10A_cset",
-	"sels_tile_questicon_10B_cset", "change_cset_on_quest_3"
+	"sels_tile_questicon_10B_cset", "change_cset_on_quest_3", 
+	"sels_cusror_cset", "sels_heart_tilettile_cset", "sels_link_cset"
 };
 
 
@@ -18544,7 +18546,8 @@ void ZModule::init(bool d) //bool default
 		}
 		for ( int q = 0; q < sels_tile_cset_LAST; q++ ) 
 		{
-			moduledata.select_screen_tile_csets[q] = get_config_int("NAMEENTRY",select_screen_tile_cset_cats[q],( q == 0 ? 0 : 9 )); //the player icon csets are 9 by default, and the tile frame is 0
+			
+			moduledata.select_screen_tile_csets[q] = get_config_int("NAMEENTRY",select_screen_tile_cset_cats[q],( ( q == 0 || q == sels_heart_tilettile_cset || q == sels_cusror_cset )  ? 0 : 9 )); //the player icon csets are 9 by default, and the tile frame is 0
 		}
 		
 		//datafiles
