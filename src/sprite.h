@@ -81,22 +81,24 @@ public:
     //even get used because item scripts only run for one frame. Gah! Maybe when we have npc scripts, not not now...
     
     refInfo scriptData; //For when we have npc scripts maybe
-    long d[8];
-    long a[2];
-    byte ffcref;
-    dword itemref;
-    dword guyref;
-    dword lwpnref;
-    dword ewpnref;
-    byte sp;
-    word pc;
+    //long d[8];
+    //long a[2];
+    //byte ffcref;
+    //dword itemref;
+    //dword guyref;
+    //dword lwpnref;
+    //dword ewpnref;
+    //byte sp;
+    //word pc;
     dword scriptflag;
     word doscript;
-    byte itemclass;
-    byte guyclass; 
-    byte lwpnclass;
-    byte ewpnclass;
+    //byte itemclass;
+    //byte guyclass; 
+    //byte lwpnclass;
+    //byte ewpnclass;
     word script;
+    long initD[8];
+    long initA[2];
     
     
     sprite();

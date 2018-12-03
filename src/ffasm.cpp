@@ -1728,6 +1728,7 @@ script_variable variable_list[]=
 	{"NPCDATABEHAVIOUR", NPCDATABEHAVIOUR, 0, 0 },
 	{"CREATEBITMAP", CREATEBITMAP, 0, 0 },
 	{"LINKTILEMOD", LINKTILEMOD, 0, 0 },
+	{"NPCINITD", NPCINITD, 0, 0 },
 	
 	
 	

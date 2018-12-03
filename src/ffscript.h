@@ -3076,6 +3076,7 @@ enum ASM_DEFINE
 #define GRAPHICSTINT			0x131A	
 #define CREATEBITMAP			0x131B	
 #define LINKTILEMOD			0x131C	
+#define NPCINITD			0x131D	
 
 //bytecode
 
@@ -3083,7 +3084,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x131D
+#define NUMVARIABLES         0x131E
 
 
 // Script types

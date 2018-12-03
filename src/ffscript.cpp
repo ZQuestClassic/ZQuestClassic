@@ -2675,6 +2675,19 @@ long get_register(const long arg)
             ret = GuyH::getNPC()->miscellaneous[a];
     }
     break;
+    case NPCINITD:
+    {
+        int a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") != SH::_NoError )
+            ret = -10000;
+        else
+	{
+		//enemy *e = (enemy*)guys.spr(ri->guyref);
+		ret = (int)GuyH::getNPC()->initD[a];
+	}
+    }
+    break;
     
     case NPCDD: //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
     {
@@ -8424,6 +8437,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
             
     }
     
+    break;
+    
+    case NPCINITD:
+    {
+	long a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->Misc") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(ri->guyref);
+		//e->initD[a] = value; 
+		GuyH::getNPC()->initD[a] = value;
+	}
+    }
     break;
     
     //npc->Attributes[] setter -Z
@@ -14684,10 +14710,24 @@ int run_script(const byte type, const word script, const long i)
     {
 		ri = &(npcScriptData[i]);
 		curscript = guyscripts[script];
-		stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
+		stack = &(guys.spr(i)->stack);
+	        ri->guyref = guys.spr(i)->getUID();
+	    
+		for ( int q = 0; q < 8; q++ ) 
+		{
+			enemy *e = (enemy*)guys.spr(i);
+			ri->d[q] = e->initD[q];
+			guys.spr(i)->initD[q] = e->initD[q];
+			
+			//al_trace("InitD[%d] for this npc is: %d\n", q, e->initD[q]);
+			//al_trace("GUYSBUF InitD[%d] for this npc is: %d\n", q, guysbuf[guys.spr(i)->id & 0xFFF].initD[q]);
+		}
+		//memcpy(ri->d, guys.spr(i)->initD, 8 * sizeof(long));
+		
+		//stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
 		//stack = &(guys.spr(guys.getByUID(i))->stack);
 	    
-		ri->guyref = i; //'this' pointer
+		//ri->guyref = i; //'this' pointer
 		//ri->guyref = getNPCIndex(guys.getByUID(i)); //'this' pointer
 		//ZScriptVersion::RunScript(SCRIPT_NPC, guys.spr(i)->.script, guys.spr(i)->getUID());
 			    
@@ -16689,6 +16729,18 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 		    //stack = NULL;
 		    break; //item scripts aren't gonna go again anyway
 		}
+		case SCRIPT_NPC:
+		{
+		
+			
+			long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+			stack = &(guys.spr(i)->stack); 
+			memset(stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+			stack = pvsstack;
+			guys.spr(i)->script = 0;
+			ri->guyref = guys.spr(i)->getUID();
+			break;
+		}
         }
     }
     else
@@ -18419,7 +18471,8 @@ const char * select_screen_tile_cats[sels_tile_LAST] =
 	"sels_tile_questicon_3A_X", "sels_tile_questicon_3B_X", "sels_tile_questicon_4A_X", "sels_tile_questicon_4B_X",
 	"sels_tile_questicon_5A_X", "sels_tile_questicon_5B_X", "sels_tile_questicon_6A_X", "sels_tile_questicon_6B_X",
 	"sels_tile_questicon_7A_X", "sels_tile_questicon_7B_X", "sels_tile_questicon_8A_X", "sels_tile_questicon_8B_X",
-	"sels_tile_questicon_9A_X", "sels_tile_questicon_9B_X", "sels_tile_questicon_10A_X", "sels_tile_questicon_10B_X"
+	"sels_tile_questicon_9A_X", "sels_tile_questicon_9B_X", "sels_tile_questicon_10A_X", "sels_tile_questicon_10B_X",
+	"sels_cursor_tile", "sels_heart_tile", "sels_linktile", "draw_link_first"
 	
 };
 
@@ -18430,7 +18483,8 @@ const char * select_screen_tile_cset_cats[sels_tile_LAST] =
 	"sels_tile_questicon_4B_cset", "sels_tile_questicon_5A_cset", "sels_tile_questicon_5B_cset", "sels_tile_questicon_6A_cset",
 	"sels_tile_questicon_6B_cset", "sels_tile_questicon_7A_cset", "sels_tile_questicon_7B_cset", "sels_tile_questicon_8A_cset",
 	"sels_tile_questicon_8B_cset", "sels_tile_questicon_9A_cset", "sels_tile_questicon_9B_cset", "sels_tile_questicon_10A_cset",
-	"sels_tile_questicon_10B_cset", "change_cset_on_quest_3"
+	"sels_tile_questicon_10B_cset", "change_cset_on_quest_3", 
+	"sels_cusror_cset", "sels_heart_tilettile_cset", "sels_link_cset"
 };
 
 
@@ -18544,7 +18598,8 @@ void ZModule::init(bool d) //bool default
 		}
 		for ( int q = 0; q < sels_tile_cset_LAST; q++ ) 
 		{
-			moduledata.select_screen_tile_csets[q] = get_config_int("NAMEENTRY",select_screen_tile_cset_cats[q],( q == 0 ? 0 : 9 )); //the player icon csets are 9 by default, and the tile frame is 0
+			
+			moduledata.select_screen_tile_csets[q] = get_config_int("NAMEENTRY",select_screen_tile_cset_cats[q],( ( q == 0 || q == sels_heart_tilettile_cset || q == sels_cusror_cset )  ? 0 : 9 )); //the player icon csets are 9 by default, and the tile frame is 0
 		}
 		
 		//datafiles
