@@ -6948,8 +6948,10 @@ void eStalfos::vire_hop()
 {
     if(dmisc9!=e9tPOLSVOICE)
     {
-        if(sclk!=0 && dmisc2==e2tSPLIT) //Vires with split on hit, only! -Z
-            return;
+        if(sclk!=0) //Vires with split on hit, only! -Z
+	{
+            if (dmisc2==e2tSPLITHIT) return;
+	}
     }
     else sclk=0;
     
