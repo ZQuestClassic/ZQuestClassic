@@ -2675,6 +2675,16 @@ long get_register(const long arg)
             ret = GuyH::getNPC()->miscellaneous[a];
     }
     break;
+    case NPCINITD:
+    {
+        int a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") != SH::_NoError )
+            ret = -10000;
+        else
+            ret = GuyH::getNPC()->initD[a]*10000;
+    }
+    break;
     
     case NPCDD: //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
     {
@@ -8424,6 +8434,15 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
             
     }
     
+    break;
+    
+    case NPCINITD:
+    {
+	long a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->Misc") == SH::_NoError)
+            GuyH::getNPC()->initD[a] = value/10000;    
+    }
     break;
     
     //npc->Attributes[] setter -Z
@@ -14686,6 +14705,8 @@ int run_script(const byte type, const word script, const long i)
 		curscript = guyscripts[script];
 		stack = &(guys.spr(i)->stack);
 	        ri->guyref = guys.spr(i)->getUID();
+	    
+		memcpy(ri->d, guys.spr(i)->initD, 8 * sizeof(long));
 		
 		//stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
 		//stack = &(guys.spr(guys.getByUID(i))->stack);

@@ -97,6 +97,7 @@ public:
     byte lwpnclass;
     byte ewpnclass;
     word script;
+    long initD[8];
     
     
     sprite();

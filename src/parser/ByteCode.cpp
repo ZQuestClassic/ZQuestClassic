@@ -1666,6 +1666,7 @@ string VarArgument::toString()
 	case GETPIXEL: return "GETPIXEL";
 	case DOUNTYPE: return "DOUNTYPE";
 	case LINKTILEMOD: return "LINKTILEMOD";
+	case NPCINITD: return "NPCINITD";
 	
 	
     default:

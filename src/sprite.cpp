@@ -96,6 +96,10 @@ sprite::sprite()
     lwpnclass = 0;
     ewpnclass = 0;
     script = 0;
+    for ( int q = 0; q < 8; q++ )
+    {
+	    initD[q] = 0;
+    }
 }
 
 sprite::sprite(sprite const & other):
@@ -171,6 +175,10 @@ script(other.script)
     for ( int q = 0; q < MAX_SCRIPT_REGISTERS; q++ )
     {
 	stack[q] = other.stack[q];
+    }
+    for (int i=0; i<8; ++i)
+    {
+      initD[i]=other.initD[i];
     }
 }
 
