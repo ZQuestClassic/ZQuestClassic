@@ -14684,8 +14684,9 @@ int run_script(const byte type, const word script, const long i)
     {
 		ri = &(npcScriptData[i]);
 		curscript = guyscripts[script];
-	        ri->guyref = guys.spr(i)->getUID();;
 		stack = &(guys.spr(i)->stack);
+	        ri->guyref = guys.spr(i)->getUID();
+		
 		//stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
 		//stack = &(guys.spr(guys.getByUID(i))->stack);
 	    
@@ -16690,6 +16691,18 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 		    stack = pvsstack;
 		    //stack = NULL;
 		    break; //item scripts aren't gonna go again anyway
+		}
+		case SCRIPT_NPC:
+		{
+		
+			
+			long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+			stack = &(guys.spr(i)->stack); 
+			memset(stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+			stack = pvsstack;
+			guys.spr(i)->script = 0;
+			ri->guyref = guys.spr(i)->getUID();
+			break;
 		}
         }
     }
