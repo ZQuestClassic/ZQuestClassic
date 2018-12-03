@@ -16724,7 +16724,7 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 		    curscript = 0;
 		    long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
 		    stack = &(item_stack[i]);
-		    memset(stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+		    memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
 		    stack = pvsstack;
 		    //stack = NULL;
 		    break; //item scripts aren't gonna go again anyway
@@ -16735,7 +16735,7 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 			
 			long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
 			stack = &(guys.spr(i)->stack); 
-			memset(stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+			memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
 			stack = pvsstack;
 			guys.spr(i)->script = 0;
 			ri->guyref = guys.spr(i)->getUID();
