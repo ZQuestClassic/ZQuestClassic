@@ -18540,11 +18540,11 @@ void ZModule::init(bool d) //bool default
 		//name entry icons, tiles, and csets
 		for ( int q = 0; q < sels_tile_LAST; q++ ) 
 		{
-			moduledata.select_screen_tiles = get_config_int("NAMEENTRY",select_screen_tile_cats[q],0);
+			moduledata.select_screen_tiles[q] = get_config_int("NAMEENTRY",select_screen_tile_cats[q],0);
 		}
 		for ( int q = 0; q < sels_tile_cset_LAST; q++ ) 
 		{
-			moduledata.select_screen_tile_csets = get_config_int("NAMEENTRY",select_screen_tile_cset_cats[q],( q == 0 ? 0 : 9 )); //the player icon csets are 9 by default, and the tile frame is 0
+			moduledata.select_screen_tile_csets[q] = get_config_int("NAMEENTRY",select_screen_tile_cset_cats[q],( q == 0 ? 0 : 9 )); //the player icon csets are 9 by default, and the tile frame is 0
 		}
 		
 		//datafiles

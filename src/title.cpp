@@ -2432,7 +2432,7 @@ static void list_save(int save_num, int ypos)
             if ( moduledata.select_screen_tiles[sels_tile_questicon_6A] > 0 )
                 overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6A],moduledata.select_screen_tiles[sels_tile_questicon_6A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6A_cset],0);   
             if ( moduledata.select_screen_tiles[sels_tile_questicon_6B] > 0 )
-                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6B],moduledata.select_screen_tiles[sels_tile_questicon_6B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6b_cset],0);   
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6B],moduledata.select_screen_tiles[sels_tile_questicon_6B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6B_cset],0);   
         }
 
         if(saves[save_num].get_quest()==7)
