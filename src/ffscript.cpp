@@ -2682,7 +2682,10 @@ long get_register(const long arg)
         if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") != SH::_NoError )
             ret = -10000;
         else
-            ret = GuyH::getNPC()->initD[a]*10000;
+	{
+		//enemy *e = (enemy*)guys.spr(ri->guyref);
+		ret = (int)GuyH::getNPC()->initD[a];
+	}
     }
     break;
     
@@ -8441,7 +8444,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	long a = ri->d[0] / 10000;
         
         if(GuyH::loadNPC(ri->guyref, "npc->Misc") == SH::_NoError)
-            GuyH::getNPC()->initD[a] = value/10000;    
+	{
+		//enemy *e = (enemy*)guys.spr(ri->guyref);
+		//e->initD[a] = value; 
+		GuyH::getNPC()->initD[a] = value;
+	}
     }
     break;
     
@@ -14706,7 +14713,16 @@ int run_script(const byte type, const word script, const long i)
 		stack = &(guys.spr(i)->stack);
 	        ri->guyref = guys.spr(i)->getUID();
 	    
-		memcpy(ri->d, guys.spr(i)->initD, 8 * sizeof(long));
+		for ( int q = 0; q < 8; q++ ) 
+		{
+			enemy *e = (enemy*)guys.spr(i);
+			ri->d[q] = e->initD[q];
+			guys.spr(i)->initD[q] = e->initD[q];
+			
+			//al_trace("InitD[%d] for this npc is: %d\n", q, e->initD[q]);
+			//al_trace("GUYSBUF InitD[%d] for this npc is: %d\n", q, guysbuf[guys.spr(i)->id & 0xFFF].initD[q]);
+		}
+		//memcpy(ri->d, guys.spr(i)->initD, 8 * sizeof(long));
 		
 		//stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
 		//stack = &(guys.spr(guys.getByUID(i))->stack);
