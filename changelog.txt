@@ -2,6 +2,8 @@
 
 //Alpha 3
 
+Fix crash on calling any decorations sprite, due to tryint to initialise
+	EIGHT indices of sprite->InitA[2] to 0 !!
 Fix npc scripts mucking up stack pointer:
 	Changed memset(stack,0) to memset(stack,0xFFFF).
 	( ZoriaRPG, 3rd December, 2018 )
