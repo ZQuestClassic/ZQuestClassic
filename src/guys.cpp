@@ -647,6 +647,12 @@ bool enemy::animate(int index)
     
     ++c_clk;
     
+    //Run its script
+    if ( script > 0 ) 
+    {
+	ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
+    }
+    
     // returns true when enemy is defeated
     return Dead(index);
 }

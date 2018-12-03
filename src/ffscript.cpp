@@ -14684,10 +14684,12 @@ int run_script(const byte type, const word script, const long i)
     {
 		ri = &(npcScriptData[i]);
 		curscript = guyscripts[script];
-		stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
+	        ri->guyref = guys.spr(i)->getUID();;
+		stack = &(guys.spr(i)->stack);
+		//stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
 		//stack = &(guys.spr(guys.getByUID(i))->stack);
 	    
-		ri->guyref = i; //'this' pointer
+		//ri->guyref = i; //'this' pointer
 		//ri->guyref = getNPCIndex(guys.getByUID(i)); //'this' pointer
 		//ZScriptVersion::RunScript(SCRIPT_NPC, guys.spr(i)->.script, guys.spr(i)->getUID());
 			    
