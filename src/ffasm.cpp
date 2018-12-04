@@ -741,6 +741,31 @@ script_command command_list[NUMCOMMANDS+1]=
      { "GETRTCTIMER",             1,   0,   0,   0},
      { "GETRTCTIMEV",             1,   1,   0,   0},
      
+     //new npc functions for npc scripts
+      { "NPCDEAD",                0,   0,   0,   0},
+      { "NPCKICKBUCKET",                0,   0,   0,   0},
+      { "NPCSTOPBGSFX",                0,   0,   0,   0},
+      { "NPCCANMOVE",                0,   0,   0,   0},
+      { "NPCNEWDIR8",                0,   0,   0,   0},
+      { "NPCNEWDIR",                0,   0,   0,   0},
+      { "NPCCONSTWALK",                0,   0,   0,   0},
+      { "NPCCONSTWALK8",                0,   0,   0,   0},
+      { "NPCVARWALK",                0,   0,   0,   0},
+      { "NPCVARWALK8",                0,   0,   0,   0},
+      { "NPCHALTWALK",                0,   0,   0,   0},
+      { "NPCHALTWALK8",                0,   0,   0,   0},
+      { "NPCFLOATWALK",                0,   0,   0,   0},
+      //{ "NPCLINEDUP",                0,   0,   0,   0},
+      { "NPCLINKINRANGE",                0,   0,   0,   0},
+      { "NPCATTACK",                0,   0,   0,   0},
+      { "NPCPLACEONAXIS",                0,   0,   0,   0},
+      { "NPCADD",                0,   0,   0,   0},
+      { "NPCFIREBREATH",                0,   0,   0,   0},
+      { "NPCCANSLIDE",                0,   0,   0,   0},
+      { "NPCSLIDE",                0,   0,   0,   0},
+      { "NPCHITWITH",                0,   0,   0,   0},
+      //{ "NPCCOLLISION",                0,   0,   0,   0}, //how to implement this?
+     
      { "",                    0,   0,   0,   0}
 };
 
@@ -1729,6 +1754,8 @@ script_variable variable_list[]=
 	{"CREATEBITMAP", CREATEBITMAP, 0, 0 },
 	{"LINKTILEMOD", LINKTILEMOD, 0, 0 },
 	{"NPCINITD", NPCINITD, 0, 0 },
+	{"NPCCOLLISION", NPCCOLLISION, 0, 0 },
+	{"NPCLINEDUP", NPCLINEDUP, 0, 0 },
 	
 	
 	

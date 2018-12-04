@@ -7,7 +7,7 @@
     // Basic animation code that all derived classes should call.
     // The one with an index is the one that is called by
     // the guys sprite list; index is the enemy's index in the list.
-    virtual bool animate(int index);
+ 
     
     // auomatically kill off enemy (for rooms with ringleaders)
     virtual void kickbucket();
