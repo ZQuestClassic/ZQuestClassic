@@ -292,7 +292,7 @@ void do_npc_newdir8();
 long npc_collision();
 long npc_linedup();
 void do_npc_link_in_range(const bool v);
-void do_npc_link_in_range(const bool v);
+void do_npc_simulate_hit(const bool v);
 void do_npc_add(const bool v);
 void do_npc_canmove(const bool v);
 
