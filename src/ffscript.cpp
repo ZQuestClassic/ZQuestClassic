@@ -4586,6 +4586,14 @@ case LOADMAPDATA:
         ret=FFScript::loadMapData();
         break;
 
+case NPCCOLLISION:
+        ret=FFScript::npc_collision();
+        break;
+
+case NPCLINEDUP:
+        ret=FFScript::npc_linedup();
+        break;
+
 case CREATEBITMAP:
 {
 	Z_scripterrlog("Creating a bitmap for bitmap ref: %d\n", ri->bitmapref);
@@ -16662,7 +16670,87 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 	case	SETCONTINUESCREEN: FFScript::FFChangeSubscreenText();
 	case	SETCONTINUESTRING: FFScript::FFSetSaveScreenSetting();
 	
+	//new npc functions for npc scripts
 	
+	case NPCDEAD:
+            FFCore.do_isdeadnpc();
+            break;
+	
+	case NPCCANSLIDE:
+            FFCore.do_canslidenpc();
+            break;
+	
+	case NPCSLIDE:
+            FFCore.do_slidenpc();
+            break;
+	
+	case NPCKICKBUCKET:
+            FFCore.do_npckickbucket();
+            break;
+	
+	case NPCSTOPBGSFX:
+            FFCore.do_npc_stopbgsfx();
+            break;
+	
+	case NPCATTACK:
+            FFCore.do_npcattack();
+            break;
+	
+	case NPCNEWDIR:
+            FFCore.do_npc_newdir();
+            break;
+	
+	case NPCCONSTWALK:
+            FFCore.do_npc_constwalk();
+            break;
+	
+	case NPCVARWALK:
+            FFCore.do_npc_varwalk();
+            break;
+	
+	case NPCVARWALK8:
+            FFCore.do_npc_varwalk8();
+            break;
+	
+	case NPCCONSTWALK8:
+            FFCore.do_npc_constwalk8();
+            break;
+	
+	case NPCHALTWALK:
+            FFCore.do_npc_haltwalk();
+            break;
+	
+	case NPCHALTWALK8:
+            FFCore.do_npc_haltwalk8();
+            break;
+	
+	case NPCFLOATWALK:
+            FFCore.do_npc_floatwalk();
+            break;
+	
+	case NPCFIREBREATH:
+            FFCore.do_npc_breathefire();
+            break;
+	
+	case NPCNEWDIR8:
+            FFCore.do_npc_newdir8();
+            break;
+	
+	case NPCLINKINRANGE:
+            FFCore.do_npc_link_in_range(false);
+            break;
+	
+	case NPCCANMOVE:
+            FFCore.do_npc_canmove(false);
+            break;
+	
+	case NPCHITWITH:
+            FFCore.do_npc_simulate_hit(false);
+            break;
+	
+	case NPCADD:
+            do_npc_add(false);
+            break;
 	
         default:
             Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
@@ -16851,7 +16939,7 @@ long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
         do
 	{
 		id = get_free_bitmap();
-	} while (id < rtBMP6+1); //be sure not to overlay with system bitmaps!
+	} while (id < firstUserGeneratedBitmap); //be sure not to overlay with system bitmaps!
         if ( id > 0 )
         {
             scb.script_created_bitmaps[id].width = w;
@@ -19412,8 +19500,6 @@ void FFScript::do_npc_newdir8()
 	}
 }
 
-enum { obj_type_lweapon, obj_type_eweapon, obj_type_npc, obj_type_link, 
-	obj_type_ffc, obj_type_combo_pos, obj_type_item, obj_type_LAST };
 	
 long FFScript::npc_collision()
 {
@@ -19509,9 +19595,9 @@ void FFScript::do_npc_link_in_range(const bool v)
 	set_register(sarg1, ( in_range ? 10000 : 0));
 }
 
-enum { simulate_hit_type_weapon, simulate_hit_type_sprite };
 
-void FFScript::do_npc_link_in_range(const bool v)
+
+void FFScript::do_npc_simulate_hit(const bool v)
 {
 	long arrayptr = SH::get_arg(sarg1, v) / 10000;
 	int sz = FFCore.getSize(arrayptr);
@@ -19603,4 +19689,40 @@ void FFScript::do_npc_add(const bool v)
             
 		Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", guy_string[id], ri->guyref);
 	}
+}
+
+void FFScript::do_npc_canmove(const bool v)
+{
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	bool can_mv = false;
+	if(GuyH::loadNPC(ri->guyref, "npc->CanMove()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guysref));
+		if ( sz == 1 ) //bool canmove(int ndir): dir only, uses 'step' IIRC
+		{
+			can_mv = e->canmove((FFCore.getElement(arrayptr, 0)/10000));
+		}
+		if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
+		{
+			can_mv = e->canmove((FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000));
+		}
+		if ( sz == 3 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
+		{
+			can_mv = e->canmove((FFCore.getElement(arrayptr, 0)/10000), (fix)(FFCore.getElement(arrayptr, 1)/10000), (FFCore.getElement(arrayptr, 2)/10000));
+		}
+		if ( sz == 7 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
+		{
+			can_mv = e->canmove((FFCore.getElement(arrayptr, 0)/10000), 
+			(fix)(FFCore.getElement(arrayptr, 1)/10000), (FFCore.getElement(arrayptr, 2)/10000),
+			(FFCore.getElement(arrayptr, 3)/10000), (FFCore.getElement(arrayptr, 4)/10000), 
+			(FFCore.getElement(arrayptr, 5)/10000), (FFCore.getElement(arrayptr, 5)/10000)	);
+		}
+		else 
+		{
+			Z_scripterrlog("Invalid array size (%d) passed to npc->CanMove(). The array size must be [1], [2], [3], or [7].\n". sz);
+			ishit = false;
+		}
+	}
+	set_register(sarg1, ( can_mv ? 10000 : 0));
 }

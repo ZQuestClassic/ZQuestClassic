@@ -33,9 +33,23 @@
 #define warpFlagSETENTRANCEDMAP 0x10
 #define warpFlagSETCONTINUESCREEN 0x20
 #define warpFlagSETCONTINUEDMAP 0x040
+
+//Visual Warp Effect Types for Link->WarpEx()
 enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
 
-//unum FFCoreFlags[] { 
+//npc function enums
+// npc_collision()
+	//bool npc->Collision
+enum { obj_type_lweapon, obj_type_eweapon, obj_type_npc, obj_type_link, 
+	obj_type_ffc, obj_type_combo_pos, obj_type_item, obj_type_LAST };
+	
+//do_npc_simulate_hit
+	//npc->SimulateHit()
+enum { simulate_hit_type_weapon, simulate_hit_type_sprite };	
+
+//Flags for SetVolume() and GetVolume() that are set in FFCoreFlags[] 
+//these determine what is under script control and are used for automatic restoration
+//of user volume settings on quest exit.
 enum {
 	FFCORE_SCRIPTED_MIDI_VOLUME 	= 0x0001,
 	FFCORE_SCRIPTED_DIGI_VOLUME 	= 0x0002,
@@ -44,22 +58,25 @@ enum {
 	FFCORE_SCRIPTED_PANSTYLE 	= 0x0010
 };
 
+//SYstem Date and Time Categories for GetSystemTime()
 enum { curyear, curmonth, curday_month, curday_week, curhour, 
 	curminute, cursecond, curdayyear, curDST, curTimeLAST };
 
+//Script drawing: (t/b/a)
+//Allow or forbid drawing during specific game events. 
+enum{
+	scdrDRAW_WHILE_SCROLLING, scdrDRAW_DURING_SCREEN_TRANSITION, scdrDRAW_DURING_WARP,
+	scdrDRAW_DURING_WIPES, scdrLAST
+};
 
-
-	//Allow or forbid drawing during specific game events. 
-	enum{
-		scdrDRAW_WHILE_SCROLLING, scdrDRAW_DURING_SCREEN_TRANSITION, scdrDRAW_DURING_WARP,
-		scdrDRAW_DURING_WIPES, scdrLAST
-	};
-
+//UID types for ->Script_UID
 enum
 {
 	UID_TYPE_NPC, UID_TYPE_WEAPON, UID_TYPE_ITEM, UID_TYPES
 };
 
+//Quest Version Information Categories
+//These reflect the version details from when the quest was last saved.
 enum 
 {
 	vZelda, qQuestNumber, vBuild, vBeta, vHeader, vRules, vStrings, vMisc,
@@ -71,11 +88,13 @@ enum
 	
 };
 
+//Quest Header 'User Set Version' categories. Not in use at present.
 enum
 {
 	 qQuestVersion, qMinQuestVersion, qvLAST
 };
 
+//User-generated / Script-Generated bitmap object
 struct user_bitmap
 {
 	BITMAP* u_bmp;
@@ -84,12 +103,17 @@ struct user_bitmap
 	int depth;
 };
 
+//Old, 2.50 bitmap IDs
 enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1, 
-	rtBMP2, rtBMP3, rtBMP4, rtBMP5, rtBMP6 };
+	rtBMP2, rtBMP3, rtBMP4, rtBMP5, rtBMP6, firstUserGeneratedBitmap };
+//bitmap constants
 #define MAX_USER_BITMAPS 256
 #define MIN_USER_BITMAPS 7 //starts at rtBMP6 +1
 #define MIN_OLD_RENDERTARGETS -1 //old script drawing
 #define MAX_OLD_RENDERTARGETS 6
+	
+//Holds all of the user-generated / script-generated bitmaps and their information.
+	//User bitmap lowest viable ID is 'rtBMP6+1' (firstUserGeneratedBitmap)
 struct script_bitmaps
 {
 	int num_active;
@@ -101,6 +125,7 @@ struct script_bitmaps
 
 //char runningItemScripts[256];
 
+//ZC and ZQuest System Modules
 class ZModule
 {
 	public:
@@ -246,6 +271,31 @@ void do_loadnpc_by_script_uid(const bool v);
 void do_loaditem_by_script_uid(const bool v);
 void do_loadlweapon_by_script_uid(const bool v);
 void do_loadeweapon_by_script_uid(const bool v);
+
+//new npc functions for npc scripts
+void do_isdeadnpc();
+void do_canslidenpc();
+void do_slidenpc();
+void do_npckickbucket();
+void do_npc_stopbgsfx();
+void do_npcattack();
+void do_npc_newdir();
+void do_npc_constwalk();
+void do_npc_varwalk();
+void do_npc_varwalk8();
+void do_npc_constwalk8();
+void do_npc_haltwalk();
+void do_npc_haltwalk8();
+void do_npc_floatwalk();
+void do_npc_breathefire();
+void do_npc_newdir8();
+long npc_collision();
+long npc_linedup();
+void do_npc_link_in_range(const bool v);
+void do_npc_link_in_range(const bool v);
+void do_npc_add(const bool v);
+void do_npc_canmove(const bool v);
+
 //int do_get_internal_uid
 
     //virtual ~FFScript();
