@@ -3322,7 +3322,7 @@ ItemclassSymbols::ItemclassSymbols()
 
 void ItemclassSymbols::generateCode()
 {
-    /*
+
     //void GetName(itemclass, int)
     {
 	Function* function = getFunction("GetName");
@@ -3338,59 +3338,7 @@ void ItemclassSymbols::generateCode()
         code.push_back(new OReturn());
         function->giveCode(code);
     }
-	*/
-    
-    //bool isValid(npc)
-    //bool RunScript(itemdata)
-	/*
-    {
-	Function* function = getFunction("RunScript");
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the pointer
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //Check validity
-        code.push_back(new ORunItemScript(new VarArgument(EXP1)));
-        code.push_back(new OReturn());
-        function->giveCode(code);
-    }
-    */
-    /*
-    //void RunScript(itemdata)
-    {
-	Function* function = getFunction("RunScript");
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop pointer, and ignore it
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-	code.push_back(new ORunItemScript());
-	//code.push_back(new ORunItemScript(new VarArgument(EXP1)));
-        code.push_back(new OReturn());
-        function->giveCode(code);
-    }
-    
-     //void RunScript(itemdata)
-    {
-	Function* function = getFunction("RunScript");
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new ORunItemScript();
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OReturn());
-        
-        function->giveCode(code);
-    }
-    */
-    
-    //void Explode(npc, int)
+    //void RunScript(itemclass)
     {
 	Function* function = getFunction("RunScript");
         int label = function->getLabel();
@@ -5566,7 +5514,29 @@ static AccessorTable npcTable[] =
     { "getFrozenCSet",             ZVARTYPEID_FLOAT,         GETTER,       NPCFROZENCSET,            1,      {  ZVARTYPEID_NPC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     { "setFrozenCSet",              ZVARTYPEID_VOID,          SETTER,       NPCFROZENCSET,            1,      {  ZVARTYPEID_NPC,           ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
     
-    
+    { "isDead",			  ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "CanSlide",			  ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "Slide",			  ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "Remove",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "StopBGSFX",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "Attack",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "NewDir",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "ConstantWalk",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "ConstantWalk8",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "VariableWalk",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "VariableWalk8",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "HaltingWalk",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "HaltingWalk8",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "FloatingWalk",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "BreathAttack",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_BOOL,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "NewDir8",			  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "Collision",			  ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_UNTYPED,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "LinedUp",			  ZVARTYPEID_FLOAT,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               ZVARTYPEID_BOOL,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "LinkInRange",			  ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "CanMove",			  ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "SimulateHit",			  ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    { "Create",			  ZVARTYPEID_NPC,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+   
     { "",                      -1,                               -1,           -1,                   -1,      { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
 
@@ -5578,79 +5548,392 @@ NPCSymbols::NPCSymbols()
 
 void NPCSymbols::generateCode()
 {
-    //bool isValid(npc)
-    {
-	    Function* function = getFunction("isValid");
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the pointer
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //Check validity
-        code.push_back(new OIsValidNPC(new VarArgument(EXP1)));
-        code.push_back(new OReturn());
-        function->giveCode(code);
-    }
-    /*
-    {
-	Function* function = getFunction("Explode");
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        Opcode *first = new OPopRegister(new VarArgument(EXP2));
-        first->setLabel(label);
-        code.push_back(first);
-	//pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new ONPCExplodeRegister(new VarArgument(EXP2)));
-        code.push_back(new OReturn());
-        function->giveCode(code);
-    }
-    */
-    //void GetName(npc, int)
-    {
-	Function* function = getFunction("GetName");
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new OGetNPCName(new VarArgument(EXP1)));
-        code.push_back(new OReturn());
-        function->giveCode(code);
-    }
-    //void Explode(npc, int)
-    {
-	    Function* function = getFunction("Explode");
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the param
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //pop pointer, and ignore it
-        code.push_back(new OPopRegister(new VarArgument(NUL)));
-        code.push_back(new ONPCExplodeRegister(new VarArgument(EXP1)));
-        code.push_back(new OReturn());
-        function->giveCode(code);
-    }
-    //void BreakShield(npc)
-    {
-	    Function* function = getFunction("BreakShield");
-        int label = function->getLabel();
-        vector<Opcode *> code;
-        //pop off the pointer
-        Opcode *first = new OPopRegister(new VarArgument(EXP1));
-        first->setLabel(label);
-        code.push_back(first);
-        //Break shield
-        code.push_back(new OBreakShield(new VarArgument(EXP1)));
-        code.push_back(new OReturn());
-        function->giveCode(code);
-    }
+	//bool isValid(npc)
+	{
+		Function* function = getFunction("isValid");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//Check validity
+		code.push_back(new OIsValidNPC(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void GetName(npc, int)
+	{
+		Function* function = getFunction("GetName");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OGetNPCName(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void Explode(npc, int)
+	{
+		    Function* function = getFunction("Explode");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCExplodeRegister(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void BreakShield(npc)
+	{
+		Function* function = getFunction("BreakShield");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//Break shield
+		code.push_back(new OBreakShield(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//bool isDead(npc)
+	{
+		Function* function = getFunction("isDead");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//Check validity
+		code.push_back(new ONPCDead(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//bool CanSlide(npc)
+	{
+		Function* function = getFunction("CanSlide");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//Check validity
+		code.push_back(new ONPCCanSlide(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//bool Slide(npc)
+	{
+		Function* function = getFunction("Slide");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//Check validity
+		code.push_back(new ONPCSlide(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void Remove(npc)
+	{
+		Function* function = getFunction("Remove");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//Break shield
+		code.push_back(new ONPCRemove(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		 function->giveCode(code);
+	}
+	//void StopBGSFX(npc)
+	{
+		Function* function = getFunction("StopBGSFX");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//Break shield
+		code.push_back(new ONPCStopSFX(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		 function->giveCode(code);
+	}
+	//void Attack(npc)
+	{
+		Function* function = getFunction("Attack");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the pointer
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//Break shield
+		code.push_back(new ONPCAttack(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		 function->giveCode(code);
+	}
+	//void NewDir(int arr[])
+	{
+		Function* function = getFunction("NewDir");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCNewDir(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void ConstantWalk(int arr[])
+	{
+		Function* function = getFunction("ConstantWalk");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCConstWalk(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	
+	//void ConstantWalk8(int arr[])
+	{
+		Function* function = getFunction("ConstantWalk8");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCConstWalk8(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	
+	//void VariableWalk(int arr[])
+	{
+		Function* function = getFunction("VariableWalk");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCVarWalk(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void VariableWalk8(int arr[])
+	{
+		Function* function = getFunction("VariableWalk8");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCVarWalk8(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void HaltingWalk(int arr[])
+	{
+		Function* function = getFunction("HaltingWalk");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCHaltWalk(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void HaltingWalk8(int arr[])
+	{
+		Function* function = getFunction("HaltingWalk8");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCHaltWalk8(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void FloatingWalk(int arr[])
+	{
+		Function* function = getFunction("FloatingWalk");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCFloatWalk(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void BreathAttack(bool seeklink)
+	{
+		Function* function = getFunction("BreathAttack");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCBreatheFire(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//void NewDir8(int arr[])
+	{
+		Function* function = getFunction("NewDir8");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCNewDir8(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//bool Collision(int obj_type, untyped obj_pointer)
+	{
+		Function* function = getFunction("Collision");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(NPCCOLLISION)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//int LinedUp(int range, bool dir8)
+	{
+		Function* function = getFunction("LinedUp");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the params
+		Opcode *first = new OPopRegister(new VarArgument(INDEX2));
+		first->setLabel(label);
+		code.push_back(first);
+		code.push_back(new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(NPCLINEDUP)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//bool LinkInRange(int dist_in_pixels)
+	{
+		Function* function = getFunction("LinkInRange");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCLinkInRange(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+    
+	//npc Create(int array[])
+	{
+		Function* function = getFunction("Create");
+        
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCAdd(new VarArgument(EXP1)));
+		code.push_back(new OSetRegister(new VarArgument(EXP1), new VarArgument(REFNPC)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//bool CanMove(int array[])
+	{
+		Function* function = getFunction("CanMove");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCCanMove(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
+	//bool SimulateHit(int array[])
+	{
+		Function* function = getFunction("SimulateHit");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new ONPCHitWith(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
     
 }
 
