@@ -10249,6 +10249,38 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		tempguy.misc15 = 0; 
 	    }
 	    
+	    if ( guyversion >= 39 )
+	    {
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&(tempguy.initD_label[q][w]),f,keepdata))
+				{
+					return qe_invalid;
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&(tempguy.weapon_initD_label[q][w]),f,keepdata))
+				{
+					return qe_invalid;
+				} 
+			}
+		}
+		    
+		    
+	    }
+	    if ( guyversion < 39 ) //apply old InitD strings to both
+	    {
+		al_trace("Populating InitD Label Fields for NPCS\n");
+		for ( int q = 0; q < 8; q++ )
+		{
+			sprintf(tempguy.initD_label[q],"InitD[%d]",q);
+			sprintf(tempguy.weapon_initD_label[q],"InitD[%d]",q);
+		}
+	    }
+	    
 	    
 	    //All ports of QRs to Enemy Editor Flags go HERE! -Z
 	    

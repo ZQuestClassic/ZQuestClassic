@@ -4743,22 +4743,44 @@ static DIALOG enedata_dlg[] =
     { jwin_droplist_proc,       10,  40+20,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
     { jwin_text_proc,           11,  40+12,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "NPC Action Script:",                      NULL,   NULL                  },
 	//337
-    { jwin_text_proc,       6+10,   10+29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
-    { jwin_text_proc,       6+10,   10+47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D1:", NULL, NULL },
-    { jwin_text_proc,       6+10,   10+65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D2:", NULL, NULL },
-    { jwin_text_proc,       6+10,   10+83+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D3:", NULL, NULL },
-    { jwin_text_proc,       6+10,  10+101+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D4:", NULL, NULL },
-    { jwin_text_proc,       6+10,  10+119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
-    { jwin_text_proc,       6+10,  10+137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
-    { jwin_text_proc,       6+10,  10+155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
-    { jwin_edit_proc,      34+10,   10+25+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   10+43+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   10+61+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   10+79+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   10+97+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,  10+115+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,  10+133+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,  10+151+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //npc Script InitD Labels (not editable)
+    //{ jwin_text_proc,       6+10,   10+29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   10+47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D1:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   10+65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D2:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   10+83+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D3:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  10+101+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D4:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  10+119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  10+137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  10+155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
+    
+    //editable npc script InitD fields
+    {  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+83+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+101+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    //{ jwin_edit_proc,       6+10,   10+29+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,   10+47+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,   10+65+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,   10+83+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,  10+101+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,  10+119+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,  10+137+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,  10+155+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+   
+    //NPC InitD Data fields
+    { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+83+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+101+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     
     /*
 	  // 248 scripts
@@ -5016,7 +5038,7 @@ void edit_enemydata(int index)
     char attribs[32][8];
     char enemynumstr[75];
     char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
-	char weapsprite[8];
+	char weapsprite[8]; char npc_initd_labels[8][65];
     
 	char initdvals[8][13];
     //begin npc script
@@ -5038,6 +5060,16 @@ void edit_enemydata(int index)
 	 
 	enedata_dlg[345+q].dp = initdvals[q];
     }
+    
+    for ( int q = 0; q < 8; q++ )
+    {
+	al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
+	strcpy(npc_initd_labels[q], guysbuf[index].initD_label[q]);
+	enedata_dlg[337+q].dp = npc_initd_labels[q];
+	//sprintf();
+	    
+    }
+
     //end npc script
     
     //disable the missing dialog items!
@@ -5673,11 +5705,18 @@ void edit_enemydata(int index)
 	{
 		test.initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
 	}
+	
+	 
+	
         //end npc scripts
 	
         if(ret==252) //OK Button
         {
             strcpy(guy_string[index],name);
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		strcpy(test.initD_label[q], npc_initd_labels[q]);
+	    }
             guysbuf[index] = test;
             saved = false;
         }
