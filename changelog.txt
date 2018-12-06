@@ -1,5 +1,628 @@
 //2.55 and 2.54 Changes
 
+//Alpha 3
+
+Fix crash on calling any decorations sprite, due to tryint to initialise
+	EIGHT indices of sprite->InitA[2] to 0 !!
+Fix npc scripts mucking up stack pointer:
+	Changed memset(stack,0) to memset(stack,0xFFFF).
+	( ZoriaRPG, 3rd December, 2018 )
+
+** Known Issue: For some reason, the ri->guysref is either improperly
+cleared, or something is reading it improperly:
+
+When you F6->Retry, and there are running npc scripts, they corrupt the ZScript stacks.
+
+Closing ZC and reopening it fixes this, so I must have missed something
+that clears this data. 
+
+**
+
+Added npc->InitD[8] to ZScript
+Set InitD values on script load.
+Removed extraneous vars in sprite class
+
+Update build date.
+
+Added initD[8] to sprites.
+Added npc->InitD[8] to ZScript.
+Populated ri->d with npc->initD[] when the npc script is called.
+
+NPC Scripts: Add Initial D[8] to Enemy Editor
+NPC Scripts: Fix Editor Dialogue
+	Somehow, my commit of this editor fix was lost or corrupted.
+
+	This again fixes the editor dialogue object placement.
+
+NPC script stacks will now clear when their scope ends.
+I also fixed some issues with the 'this' pointer in npc scripts.
+
+NPCs now run scripts assigned to them.
+
+Modules: Update Default and Classic Module files.
+
+Added the following vars to the file select screen (NAMEENTRY)
+	in the mopdule format:
+
+	sels_cursor_tile // The cursor tile. Default is 0
+	sels_heart_tile  //The tile used to draw hearts.
+	sels_linktile // The base tile used to draw Link. Might be wrong.
+
+	sels_heart_tilettile_cset // The default CSet used to draw hearts.
+
+	draw_link_first // If set to non-zero, then Link's tile will be drawn before other
+	decorations (e.g. sword for 2nd quest). Otherwise, if == 0, we use the
+	normal Z1 behaviour.
+
+	//If these values are < 15, then the tile will be drawn in the specificed cset
+	sels_cusror_cset = 16
+	sels_link_cset = 16
+
+Modules: Update Default and Classic ZMOD files.
+Modules: Add Name Entry Graphics to Module Format 
+	The quest icons (all TEN supported quests) are now set by the
+	module, along with their csets and X positions.
+
+	The file select frame tile, and cset is now set by the module.
+
+	The colour shift on quest 3+ is now in the module format, but disabled,
+	pending other tests.
+
+Updated the classic module file with the new vars.
+	( ZoriaRPG, 3rd December, 2018 )
+
+Modules: Marked locations of hardcoded file select elements to move to modules.
+May be a fix for issues with vires.
+	My sanity can only take so much more of this.
+	Why didn't they just keep vire/polsvoice in their own class, as in 2.10?!
+
+Possible fix for Vires
+Added file Vire.cc - 2.10 Vire Code as Reference
+	( ZoriaRPG, 2nd December, 2018 )
+
+Cleaned up code for the NPC Script selection in the Enemy Editor,
+	and removed traces and unused vars.
+
+It is now possible to set the npc script slot in the Enemy Editor,
+	and to properly save your selection in the quest.
+
+Clear script bindings left over from a prior quest. 
+	If you set an npc script, then load any other quest; the second
+	quest thinks that the script is set there, too.
+
+	The inverse was also possible: Open a quest with scripts saved, after having
+	opened (or created) a blank quest, and the blank quest fields would carry over.
+
+	This *should* fix that issue.
+
+Added script bindings for new script types to quest saving/loading.
+
+Increased V_FFSCRIPT to `9`
+
+NPC Scripts: Clean Up Enemy Editor Scripts Pane
+Fix: Errors in ScreenPrint()
+NPC Scripts: Begin Adding to Enemy Editor
+Slight cleanup of FFCore.getTime()
+Add LogPrint() and ScreenPrint to string_functions.zh
+	( ZoriaRPG, 30th November, 2018 )
+
+Add test quest and script for GetSystemClock()
+Removed erroneous +2 from 'month' return.
+Changed RTC to a Unary opcode and corrected its inpur param
+	value, when read from the stack.
+
+Fix Crash on Saving Scripts: I was trying to save to a NULL pointer.
+	The NULL pointer assign (see below) is wrong. I redacted it. 
+
+Add missing constant for RTC_DST
+Update std_constants.zh for Link->WarpEx() and GetSystemTime()
+
+I had a unary opcode constructor for GetSystemTime(), where it
+	needed a binary opcode constructor. This commit fixes that, and it corrects
+	the return value to stack arg 2, by multiplying it by 10,000.
+
+Added GetSystemTIme(int category) to return the current system
+	Real Time Clock (RTC) value for a specific field of the time struct (time.h).
+
+	The parameter options are:
+
+	define RTC_YEAR		= 0;
+	define RTC_MONTH	= 1;
+	define RTC_DAYOFMONTH	= 2;
+	define RTC_DAYOFWEEK	= 3;
+	define RTC_HOUR		= 4;
+	define RTC_MINUTE	= 5;
+	define RTC_SECOND	= 6;
+	define RTC_DAYOFYEAR	= 7;
+	define RTC_LAST		= 8;
+	( ZoriaRPG, 29th November, 2018 )
+
+Changed the stack index from const byte to const long.
+
+	Sprite scripts will need this to use as their pointer value, then somehow
+	associate that with their stack.
+
+	Perhaps as `stack = &(guys.spr(getbyUID(i))->stack);`
+
+	...although `stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);`
+	may suffice. Not sure.
+
+Pre-emptively set new script type pointers to null for older quests.
+Increased V_FFSCRIPT to `8`.
+	Added routines to save, and to load new script types, or to skip
+	loading them based on section version.
+
+	Do the pointers for them need to be memset/NULLified for old quests?!
+
+	Scripts that used to load into %wpnscripts now load into &lwpnscripts.
+	EWeapon scripts load into a new pointer.
+	( ZoriaRPG, 28th November, 2018 )
+
+Added file log.zh to /std_zh
+Changed button text on 'Import' button in 'Compile ZScript' dialogue.
+	The new button text is 'Load', and the new hotkey is 'L'.
+	( ZoriaRPG, 27th November, 2018 )
+
+Added NPC Scripts to the Compile->Assign Script Dialogue.
+	They work, and are compiled properly.
+	What remains:
+		Save the script with the quest.
+		(Increment the save format.)
+		Read NPC scripts in, when loading a quest that is >- save ID.
+		Add the script selection to the enemy editor.
+		Call the code in the game_loop()
+		Hope that it all works as-is. 
+Begin Adding Script Slot Dialogue:
+	I need to look at the case values 6, 9, 12 for script types at the point
+where I left off for the day.
+
+Fix: Conflict with script types and common identifiers, and begin adding Player.
+	Changed screen and dmap script types to screendata and dmapdata
+	scripts, to avoid conflicts with the common script variable identifiers
+	`int screen` and `int dmap`.
+
+Started adding second instances of `Link->` and `link script` as
+	`Player->` and `player script`, respectively.
+
+Started adding new script types to the parser and implementing their slots in ZQuest.
+
+	New types are:
+	npc scriptm (this-> is npc)
+	lweapon script (this-> is lweapon)
+	eweapon script (this-> is eweapon)
+	dmapdata script (this-> is dmapdata)
+	screendata script (no this-> at present)
+	link script (no this-> at present)
+
+Feat: Begin Adding New Script Types to Parser & ZQuest
+Fix: Add missing script types to parser/Types.h
+
+Try to Ensure that Item Scripts Have Better Timing
+	Calling FFCore.itemScriptEngine() after LWpns.animate() AND calling
+	FFCore.newScriptEngine() might do the trick.
+	If I only call the former, then ZASM goes bonkers.
+
+
+//Alpha 2
+
+Updated changelog to current. 
+Update version and date strings.
+Tests: Update test quest files for item scripts.
+Fix: Probably Fix Item Script Stack Corruption 
+	When Link.cpp calls a new item script, it also clears the script
+	stack. This should prevent multiple instances of a script tryint to use the
+	same stack at different stack frames.
+
+	It seems to work now, but obviously, it needs more testing, particularly for
+	collect scripts, and with the QR off.
+	( ZoriaRPG, 27th November, 2018 )
+
+Update version strings and change Necromancer to AEternal
+
+Fix: Don't continue running item scripts after game exit:
+	Stopped perpetual item scripts running from carrying over after
+	F6, or otherwise quitting/winning the game.
+
+Made some modifications to itemdata->RunScript()
+
+I disabled bool perpetual for itemdata->RunScript(bool) for the
+	present. it corrupts the stacks. I cleared the stack for now, and setting	
+	the bool does nothing.
+
+Perhaps clearing the item stack would suffice?
+Added itemdata->RunScript(bool perpetual) to ZScript.
+	If (perpetual == true), then the script will continue running for more than
+	one frame, even if the QR is off. If the QR 'Item Scripts Continue Running'
+	is enabled, then this boolean does nothing.
+Feat: Item Scripts Can Have Infinite Loops:
+	Added a QR (and a new Script Rules category):
+	Item Scripts Continue to Run (until they call Quit)
+	Added stacks for 256 item scripts.
+
+	Added control code under FFCore.newScriptEngine() to control item scripts
+	and all other new script types in the future.
+	-->This may have timing issues at present.
+
+	Set up other stacks and code for future implementation.
+
+	If an item script has a Waitframe loop, then it will set runningItemScripts[id].
+
+	If runningItemScripts[id] == 1, then that script will continue to run until aborted.
+
+	I had to put advance_frame(true) in the FFCore.newScriptEngine() function to prevent
+	the game loop from running infinitely.
+
+	There must be a better way to do this, for proper timing, but it suffices for now.
+	Now the scripts run, as intended, and you can abort them; however if you
+	try to run them a second time, ZC crashes.
+I decided to try to implement item scripts that run perpetually.
+	While I figured out how to make them run, I have yet to fingure out how
+	to properly control the loop so that it releases control back to the player
+	and so that it only occurs when there are item scripts that are properly
+	initialised by the player.
+Split weaponscripts into lweaponscripts and eweaponscripts.
+Added pointers for script types.
+Added set-up code.
+Added cases tol ffscript.cpp for running new types.
+Generally set up for the new types.
+Start setting up for screen, dmap, and Link scripts.
+Increased max ZASm registers from 256 to 1024.
+Increased stack sizes from 256 to 1024.
+Added stacks to sprites.
+Completed the addition of Explode(0 to all sprite classes in ZScript.
+	Untested at this time. I followed the same methods as npc->Explode, however
+	I had to add some functions to the SH classes.
+	( ZoriaRPG, 26th November, 2018 )
+
+//Alpha 1
+
+I had an open if statement in enemy::draw, in the statement:
+	`if (dontdraw()`
+
+	The statement was: `if (family == eeGANON)`, and this needed its own return instruction
+	to prevent drawing enemies that should always be invisible.
+	I also added old_draw(), in the event that we need to reference it in the future.
+
+	Further, we need to update enemy::drawblock() for enemies larger than 1x1.	
+	( ZoriaRPG, 25th November, 2018 )
+
+I increased the sprite cap from 255 to 255*256.
+	This fixed particle issues with npcs, but I don't want particles to end up
+	with stack[256] when we add sprite scripts, or to have such an increase
+	cause other ill side-effects, so we need a better long-term solution.
+Added cset, and colour and other values to sprite::explode.
+	The reason that not all enemies explode if called in a loop, is because
+	each pixel counts as one sprite, and exploding all of them exceeds the
+	per-screen sprite cap!
+Calling npc->Explode() no longer crashes ZC, and it works for
+	some npcs.
+	It seems that explosions only occur for some CSets.
+Began adding explode() functions to create particle explosions
+	on enemies, and in future, all sprites. (Unstable in this commit!)
+	I also renamed the flags for Link->WarpEx(),to clarify their intent, and I
+	added flags to WarpEx() to allow setting continue points and entrance points
+	on all warp types.
+Added Link->Explode(int type) to call the particle explosions
+	used by Farore's Wind, at any time, by script.
+Corrected placement of call to sfx() in Link->WarpEx() to
+	ensure that warp sounds play.
+Fixed setting Entrance/Continue Screen and DMap for calls made with a type
+	of Entrance/Exit.	
+Fixed values in array for Link->WarpEx(int ptr[]) not being
+	divided by 10000, and fixed warp return point selection (mapscreen ID).
+	( ZoriaRPG, 22nd November, 2018 )
+	
+Docs: Added docs for Link->WarpEx() as LinkWarpEx.txt
+Refactor: Link->WarpEx() Coordinates Versus Warp Return Square 
+	I changed the behaviour of selecting either raw coordinates, or
+	selecting a warp return square with Link->WarpEx()
+
+		If 'x' and 'y' are both > -1, then they are raw coordinates as always.
+		If 'x' < 0, THEN 'y' is the warp return square type, using positive integers.
+
+	This allows using the warp return constants in std.zh, and it prevents a
+	possible ID clash from both values trying to establish the square ID.
+Added Link->WarpEx(int ptr[])
+	This takes an array as its args, sized as either 8 or 9!
+
+	Valid array params are:
+	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags})
+	and
+	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags,forcedir}
+
+		If x, or y is < 0, then the function will use the negative value as a warp
+		return square.
+
+		e.g., -1 is Warp Return A, -2 is Warp Return B
+
+		You can either accept the engine's setting for what Link's Dir should be
+		after warping him, or force a dir.
+
+		Warp Flags are:
+		warpFlagKILLSCRIPTDRAWS: Don't kill script drawing during the warp.
+		warpFlagKILLSOUNDS: Don't kill playing sounds during the warp.
+		warpFlagKILLMUSIC: Don't kill playing music during the warp.
+
+		Their values are:
+		warpFlagKILLSCRIPTDRAWS 0x01
+		warpFlagKILLSOUNDS 0x02
+		warpFlagKILLMUSIC 0x04
+
+		Add them together to calculate a flag.
+
+		Warp types are:
+
+		Warp Effects are:
+		warpEffectNONE: No visual effect.
+		warpEffectZap: Zap Effects
+		warpEffectWave: Wave Effects
+		warpEffectInstant: Black screen.
+		warpEffectOpen: Calls the opening wipe.
+
+	You may play a special sound (e.g. Magic Mirror) during the warp.
+Move private vars and functions into public (Link.h)
+	To speed up the process of testing Link->WarpEx(), I moved a
+	large number of private vars and functions into public.
+
+	I'll move them back, and make public accessors, once I'm sure that everything
+	works as I intend.
+	( ZoriaRPG, 21st November, 2018 )
+
+Modules: Allow Suppressing NES Title Screen Animation
+Modules: Add Separate Values for All Three Title Screen Types
+	Added separate fields for all copyright string values, for each
+	of the three title screen types. Further, starting a string with a hyphen
+	will prevent it from being displayed.
+Updated module files, and set up default strings in Default Module.
+	( ZoriaRPG, 20th November, 2018 )
+
+Modules: Add Title Screen Copyright Strings 
+	I added vars for copyright strings on the title screen, but I
+	only tested them on the 2.5 title screen.
+Module Files: Update for new 6th->10th quest fields.
+Modules: Added 6th->10th Quests and Use `num_quest_files`.
+	Quest filename validation, and quest title screen skip names
+	now use `num_quest_files` to determine how many entries exist.
+
+	Added fields for 6th, 7th 8th, 9th, and 10th.
+
+	Clamped valid quest IDs (moduledata.num_quest_files) between 1 and 10.
+Modules: Add Default NSF Tracks to Module
+Corrected behaviour to display 'Misc. Attr. 10' on Data 2 tab
+	of the enemy editor for the enemy types that we added to the EE field name
+	functions in 2.55.
+	We were cloning eeNONE before, which had a yes/no menu that is not valid on
+	these other types.
+Modules: Add base_NSF to Modules.
+	Removed hardcoded 'zelda.nsf' from source. The base NSF used
+	by the title screen, ending sequence, and other game facets is now set
+	by the module file.
+Modules: Added itemclass help strings.
+	All itemclass help strings may now be set by the user.
+Modules Fix: Gohma Family String 
+	Fixed enemy family type token for module file, for Gohma family.
+	( ZoriaRPG, 19th November, 2018 )
+
+Modules Chore: Adjust item class strings.
+	Adjusted default values for item classes 89 through 255.
+	Fixed 'ic_last' not to display as 'last'.
+Module Fixes: Correct Offsets for iclass_script1 and fix crashes.
+	Corrected offsets for script type item classes, and for ice rod
+	item class. I had forgotten to put "iclass_last" in the string arrays. :/
+Fix crash when trying to read item names > 88.
+Modules (Fix): Correct order of Custom Items and Special Combined Items 
+	Corrected the order of the strings (item class help) for the following:
+		Bow & Arrow Class
+		Potion Or Letter Class
+		Custom 01 through Custom 20
+	I previously had Bow/Arrow and Potion/Letter BEFORE custom classes, but they
+	belong AFTER them, and before the strings for undefined weapons.
+Modules: Added Item Class Help Strings to Modules
+	Added help strings for all item classes to the module format.
+	If the module fields are blank, then ZQuest will use the internal defaults.
+
+	Module data for these help strings is an OVERRIDE!
+	( ZoriaRPG, 17th Noivember, 2018 )
+	
+Fix: Inverted porting of qr_NONBUBBLEMEDICINE
+	If the QR is active, the flag should NOT be active; this behavior was inverted previously.
+	( Venrob, 17th November, 2018)
+	
+Add Modules to ZC and to ZQuest in main 2.55 branch. 
+	( ZoriaRPG, 17th November, 2018 )
+
+Modules: Added Counters (in Item Editor) and LWeapon Types (Item Editor, or future)
+Modules: Add EWeapon Names in Enemy Editor to Modules
+Modules: Add Built-In Guy Names to Modules
+Modules: Add Enemy Walk Styles to Modules
+Modules: Added Room Types to Modules
+Modules: Add Map Flags to Modules
+Fix: mcDROPBOSSKEY to mfDROPBOSSKEY
+Fixed type of mcLIFTPOT to mfLIFTPOT
+	Begin adding map flags to modules.
+Modules: Update classic.zmod with Combo Types
+Modules: Add Combo Types
+	( ZoriaRPG, 16th November, 2018 )
+
+Module: Update Classic Module:
+	Added the remainder of the 511 item families to the Classic Module
+Module: Support all 511 Item Families:
+	The user can now set all 511 Item Families in the module file.
+	Families left blank will retain their 'zz' number.
+Modules: Add Item Families to Module:
+	The user can now establish custom item names (excluding the
+	new 'Script' weapon items for the present), in their module files.
+	The string values are for the Item Editor, and Link's Init Item Data.
+Modules: Next set of strings to add.
+Module: Add Enemy Anims to Classic Module
+Modules: Add Enemy Animations 
+	Added enemy animation types to the module format.
+Module: Use Default for Enemy family if Not Set:
+	If the module lacks an entry for an enemy family name, we use
+	the old default.
+Modules: Set Enemy Family from Module File:
+	Added the ability to set enemy family type names from a
+	module file. This seems to work as expected.
+Modules: Begin adding Enemy Family Names
+	( ZoriaRPG, 15th November, 2018 )
+
+Fixed when the module filename is loaded, so that we can change
+	the filename from default.zmod.
+Module: Fix crash on longer `qst.dat` filenames:
+	Increased temp_filename[32] to [64] to allow for longer
+	filenames for `qst.dat` when using modules.
+Modules: Fix crashes with qst.dat
+Module: Fix ZQuest not using module datafiles.
+Removed extra 's' in EnemiesAlive() [std_functions.zh]
+Update build information.
+ZC and ZQuest now properly save the current installed module to
+	their config files, and ZC now properly releases config(module) back to
+	config(zc.cfg) after loading a module.
+The number of serialised quests is now set in the module.x
+Update `default` module file.
+Quest skip names (e.g. ZELDA, JEAN') are now set by the module
+	file, and the behaviour for incrementing the quest after winning the game
+	is also determined by the module file.
+Zelda Classic Player now uses the module data for default quests,
+	and for default datafiles. It does not yet use the skip names, or the quest
+	ordering var.
+Fixed ZC (AGAIN!!) so that fullscreen is NOT the default. 
+Ensure we're using zc.cfg where it belongs.
+Fix a modules crash.
+	( ZoriaRPG, 14th November, 2018 )
+
+Added a byte to determine if we use the old hardcoded behaviour
+	for determining in what border the player plays the quests, or if we run
+	them in a strict linear sequence.
+Added a default module file (default.zmod), and split module file into the following sections:
+	[ZCMODULE] : Basic Settings
+	[QUESTS] : Quest filenames
+	[NAMEENTRY] : Names to enter on the name entry menu to skip quests.
+	[DATAFILES] : The main datafiles used by ZC and ZQuest.
+	[ENEMIES] : Enemy names, and family names; property names.
+	[ITEMS] : Item Family names.
+	[COMBOS] : Combo type, and flag names.
+Added datafiles to the modules structs and class functions.
+Try loading and tracing module data.
+Added a debug routine to trace what is loaded into the zcmodule
+struct fields as ZCModule::debug() 
+Began incorporating modules for ZC and ZQuest in the live code.
+	Set up the struct, the class, and the pointers.
+Begin adding a module system to ZC and ZQuest:
+	This consists of `class ZModule` and `struct module`.
+
+Optimised data loaders to use (unsigned), and fixed BC::checkGuy
+	so that it uses 1 to MAX, not 0 to MAX. You can't create npc ID 0!
+Optimised npcdata macros to use ( unsigned ).
+I also fixed a typo in a screendata macro (that isn't called).
+	It was trying to validate ri->npcdataref, but it uses tempscr!
+Added a sanity check to mapdata->Get/SetFFCInitD() to validate
+	the ri->mapsref value, prior to accessing a map.
+	( ZoriaRPG, 13th November, 2018 )
+
+Merge and update cheat modifier keys. 
+	( ZoriaRPG, 10th November, 2018 )
+
+Fix: Don't offset blits from bitmaps!
+Added Screen->Lines(int layer, int arr[]),
+	Screen->DrawTiles(int layer, int arr[]),
+	Screen->DrawCombos(int layer, int arr[])
+Fixed how user bitmaps work, and fixed bitmap->Blit()
+	The user bitmaps now work, although some offsets may be incorrect.
+When invoking PutPixels(), the drawing mode wasn't being reset to
+	drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+	This created visual bugs that modified the UI colours and generated other,
+	random colour events.
+	This fixes that issue.
+Added Screen->DrawPixels() to ZScript
+	This is wholly new, and not based on Gleeok's original function PixelArray()
+	in the old master repos.
+	The args are: int layer, int points[]={x,y,colour,opacity}, int rx, int ry, float deg.
+
+	Example:
+
+	int points[16] = { 20,20,3,128, 20,21,4,128, 20,22,0x11,64, 20,23,0x12,128 };
+		Screen->PutPixels(5,points,0,0,0);
+
+Corrected the indices of sdci[] that FastCombo() uses.
+Added a fix for ensuring that DrawScreen(),
+	DrawLayer(), and FastCombo() respect the CSet2 value of combos.
+	It does not yet affect DrawCombo().
+Fixed crashes and visual bugs when editing MIDIs that have
+	filenames longer than 26 characters.
+Clear User Created Bitmap on Creation.
+Changed param 2 in Blit(0 from float to untyped.
+	This allows passing a bitmap pointer, or specifying a value.
+Added all drawing functions to the bitmap type.
+Added bitmap->Blit(). This uses the same format as DrawBitmapEx(), except
+	that instead of a source bitmap, it uses a destination bitmap.
+	( ZoriaRPG, 6th November, 2018 )
+
+Changelog: Added error returns to mapdata->
+   GetFFCInitD(), SetFFCInitD(), GetFFCInitA(), SetFFCInitA()
+   ...if ffc id or index is out of bounds.
+	( ZoriaRPG, 5th November, 2018 )
+
+Allow custom cheat modifier keys: Save/Load config added for cheat mod keys.
+Fixed FFC InitD pulling wrong FFC data,. Properly offset FFC indexes
+	( Venrob, 31st October, 2018 )
+
+Added FFCBF_ constants to std_constants.zh for use with mapdata->FFCFlags[]
+	( Venrob (27th October, 2018 )
+
+
+Changed array sizes for mapdata ffc arrays from size 32 to size 33.
+	Index[0] will now return an error.
+	This is to ensure uniformity between the old ffc namespace and the mapdata namespace:
+	FFC uses a range of 1 to 32, and mapdata  (previously using a range of 0 to 31), is now identical.-Z
+
+Also fixed compiler error in previous commit -V
+
+Corrected behaviour of all mapdata FFC variables and arrays. -Z
+Corrected transposed values for mapdata->FFCEffect*[] and mapdata->FFCTile*[] height 
+and width.
+Further removed erroneous vbounding madness. What was I thinking?! -Z
+	( Venrob, for ZoriaRPG, 27th October, 2018 )
+	
+Added missing case for BITMAPEXR to script_drawing.cpp switch(command) per ZoriaRPG.
+Re-added case for BITMAPEXR that was lost in migration from DD Master. -Z
+	( Venrob, for ZoriaRPG, 26th October, 2018 )
+
+Fix VBound range limit on some tints.
+	( Venrob, 25th october, 2018 )
+
+Fix Link's invisibility state not being properly cleared. 
+	( Venrob, 24th october, 2018 )
+
+Fix: Crash when loading invalid map, dmapdata->Map wrong return:
+	Sanity checks added for map data. dmapdata->Map now adds +1 in the getter, 
+	and -1 in the setter, to offset the values so 
+	that they match Game->LoadMapData's parameter for map.
+Fixed crash when compiling any scripts due to gametable 'Create' and not 'CreateBitmap' 
+	entry in table. The parser could not match the tokens and was getting confused. 
+	* There is no handling for an entry in the arrays with no matching body! -Z
+	( Venrob, 23rd October, 2018 )
+
+Began adding drawing commands to *bitmap.
+Added Bitmap->Create(h,w), and Game->CreateBitmap(h,w)
+Integrated GetPixel with user bitmaps.
+	( ZoriaRPG, 23rd October, 2018 )
+
+Fix Tint Palette leaking into title screen and in dark rooms. Added tempgreypal checks 
+in loadfadepal and moved palette restore from in game_over to just after all quit 
+conditions in main().
+	( Venrob, 23rd October, 2018 )
+
+Fix Tint/Monochrome DMap transition issues. There is still an issue with dark rooms! 
+	Don't know how to fix it, but pretty much everything else seems okay? 
+	I didn't test Ganon/Winning the game/Picking up ganon's triforce from the 
+	dust pile, though.
+	( Venrob, 22nd october, 2018 )
+
+Fixed tokens for dmapdata, and for combodata, mididata, musicdata.
+Added some constants to std.zh.
+	(ZoriaRPG, 21st Oct, 2018 )
+
 //2.55 Alpha 1 (Candidates)
 
 //PureZC 2018 Fall Expo Build
@@ -531,7 +1154,7 @@ the declaration type.
 	( grayswandir, 1st September, 2018 )
 	
 Added constants for GetScreenEFlags()
-	( venrob, 31st August, 2018 )
+	( Venrob, 31st August, 2018 )
 	
 
 //2.55 Preliminary 8
@@ -558,7 +1181,7 @@ Added npc->HitBy[LW_PARENTITEM] : This stores the parent Item ID that generated 
 ( ZoriaRPG, 29th August, 2018 )
 
 Fixed values for new combo flag constants, starting with 106. 
- ( VenRob, 29th August, 2018 )
+ ( Venrob, 29th August, 2018 )
 
 //2.55 Preliminary 6
 

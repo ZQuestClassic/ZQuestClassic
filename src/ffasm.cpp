@@ -724,6 +724,49 @@ script_command command_list[NUMCOMMANDS+1]=
      { "BMPDRAWSCREENR",                0,   0,   0,   0},
      { "BMPBLIT",                0,   0,   0,   0},
      
+     { "LINKWARPEXR",             1,   0,   0,   0},
+     { "LINKWARPEXV",             1,   1,   0,   0},
+     { "LINKEXPLODER",             1,   0,   0,   0},
+     { "LINKEXPLODEV",             1,   1,   0,   0},
+     { "NPCEXPLODER",             1,   0,   0,   0},
+     { "NPCEXPLODEV",             1,   1,   0,   0},
+     
+     { "ITEMEXPLODER",             1,   0,   0,   0},
+     { "ITEMEXPLODEV",             1,   1,   0,   0},
+     { "LWEAPONEXPLODER",             1,   0,   0,   0},
+     { "LWEAPONEXPLODEV",             1,   1,   0,   0},
+     { "EWEAPONEXPLODER",             1,   0,   0,   0},
+     { "EWEAPONEXPLODEV",             1,   1,   0,   0},
+     { "RUNITEMSCRIPT",			   0,   0,   0,   0},
+     { "GETRTCTIMER",             1,   0,   0,   0},
+     { "GETRTCTIMEV",             1,   1,   0,   0},
+     
+     //new npc functions for npc scripts
+      { "NPCDEAD",                0,   0,   0,   0},
+      { "NPCKICKBUCKET",                0,   0,   0,   0},
+      { "NPCSTOPBGSFX",                0,   0,   0,   0},
+      { "NPCCANMOVE",                0,   0,   0,   0},
+      { "NPCNEWDIR8",                0,   0,   0,   0},
+      { "NPCNEWDIR",                0,   0,   0,   0},
+      { "NPCCONSTWALK",                0,   0,   0,   0},
+      { "NPCCONSTWALK8",                0,   0,   0,   0},
+      { "NPCVARWALK",                0,   0,   0,   0},
+      { "NPCVARWALK8",                0,   0,   0,   0},
+      { "NPCHALTWALK",                0,   0,   0,   0},
+      { "NPCHALTWALK8",                0,   0,   0,   0},
+      { "NPCFLOATWALK",                0,   0,   0,   0},
+      // moved to a var: { "NPCLINEDUP",                0,   0,   0,   0},
+      { "NPCLINKINRANGE",                0,   0,   0,   0},
+      { "NPCATTACK",                0,   0,   0,   0},
+      { "NPCPLACEONAXIS",                0,   0,   0,   0},
+      { "NPCADD",                0,   0,   0,   0},
+      { "NPCFIREBREATH",                0,   0,   0,   0},
+      { "NPCCANSLIDE",                0,   0,   0,   0},
+      { "NPCSLIDE",                0,   0,   0,   0},
+      { "NPCHITWITH",                0,   0,   0,   0},
+      { "NPCGETINITDLABEL",                0,   0,   0,   0},
+      // moved to a var: { "NPCCOLLISION",                0,   0,   0,   0}, //how to implement this?
+      
      { "",                    0,   0,   0,   0}
 };
 
@@ -829,7 +872,7 @@ script_variable variable_list[]=
     { "NPCBOSSPAL",        NPCBOSSPAL,           0,             0 },
     { "NPCBGSFX",          NPCBGSFX,             0,             0 },
     { "NPCCOUNT",          NPCCOUNT,             0,             0 },
-    { "GD",                GD(0),              256,             0 },
+    { "GD",                GD(0),              1024,             0 },
     { "SDD",               SDD,                  0,             0 },
     { "GDD",               GDD,                  0,             0 },
     { "SDDD",              SDDD,                 0,             0 },
@@ -1710,6 +1753,14 @@ script_variable variable_list[]=
 	{"NPCBEHAVIOUR", NPCBEHAVIOUR, 0, 0 },
 	{"NPCDATABEHAVIOUR", NPCDATABEHAVIOUR, 0, 0 },
 	{"CREATEBITMAP", CREATEBITMAP, 0, 0 },
+	{"LINKTILEMOD", LINKTILEMOD, 0, 0 },
+	{"NPCINITD", NPCINITD, 0, 0 },
+	{"NPCCOLLISION", NPCCOLLISION, 0, 0 },
+	{"NPCLINEDUP", NPCLINEDUP, 0, 0 },
+	
+	{"NPCDATAINITD", NPCLINEDUP, 0, 0 },
+	{"NPCDATASCRIPT", NPCDATASCRIPT, 0, 0 },
+	{"NPCMATCHINITDLABEL", NPCMATCHINITDLABEL, 0, 0 },
 	
 	
 	

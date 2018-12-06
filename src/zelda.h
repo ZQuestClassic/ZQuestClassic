@@ -238,6 +238,8 @@ INLINE void sfx(int index,int pan)
     sfx(index,vbound(pan, 0, 255) ,false);
 }
 
+bool isSideViewGravity(int t);
+
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 
 /**********************************/
@@ -401,14 +403,16 @@ extern mapscr tmpscr[2];
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];
-extern ffscript *ffscripts[512];
-extern ffscript *itemscripts[256];
+extern ffscript *ffscripts[NUMSCRIPTFFC];
+extern ffscript *itemscripts[NUMSCRIPTITEM];
 extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
 
-extern ffscript *guyscripts[256];
-extern ffscript *wpnscripts[256];
-extern ffscript *linkscripts[3];
-extern ffscript *screenscripts[256];
+extern ffscript *guyscripts[NUMSCRIPTGUYS];
+extern ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
+extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
+extern ffscript *linkscripts[NUMSCRIPTLINK];
+extern ffscript *screenscripts[NUMSCRIPTSCREEN];
+extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern int sfxdat;
 

@@ -89,6 +89,9 @@ class LinkClass : public sprite
         {
             return newhopclk;
         }
+	
+	
+	
         int getHopDir()
         {
             return newhopdir;
@@ -176,7 +179,9 @@ class LinkClass : public sprite
     
     void execute(WalkflagInfo info);
     
-    bool autostep,superman,inwallm,tapping,stomping,last_hurrah;
+    
+public:
+	bool autostep,superman,inwallm,tapping,stomping,last_hurrah;
     int refilling,
         ladderx,
         laddery,
@@ -248,6 +253,9 @@ class LinkClass : public sprite
 	long misc_internal_link_flags;// Flags to hold data temporarily for misc handling
 	
     // Methods below here.
+    void explode(int type);
+    int getTileModifier();
+    void setTileModifier(int ntemod);
     void movelink();
     void move(int d);
     void hitlink(int hit);
@@ -285,10 +293,10 @@ class LinkClass : public sprite
     
     int get_scroll_step(int scrolldir);
     int get_scroll_delay(int scrolldir);
-public:
     void run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool end_frames);
-private:
     void scrollscr(int dir,int destscr = -1, int destdmap = -1);
+    
+private:
     void walkdown(bool opening);
     void walkup(bool opening);
     void walkdown2(bool opening);

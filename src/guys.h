@@ -106,10 +106,13 @@ public:
     
     int getScriptUID();
     void setScriptUID(int new_id);
+    //void explode(int type);
     
     fix  getX();
     fix  getY();
     int  getID();
+    
+    
     enemy(fix X,fix Y,int Id,int Clk);                      // : sprite()
     virtual ~enemy();
     
@@ -133,46 +136,8 @@ public:
     virtual bool hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
     virtual bool hit(weapon *w);
     virtual void break_shield() {}; // Overridden by types that can have shields
-    virtual bool ignore_msg_freeze()
-    {
-        return false;
-    }
     
-
-protected:
-    int  clk2,sclk;
-    int  starting_hp;
-    int  ox, oy;
-    word  s_tile; //secondary (additional) tile(s)
-    
-    // to allow for different sfx on defeating enemy
-    virtual void death_sfx();
-    virtual void move(fix dx,fix dy);
-    virtual void removearmos(int ax,int ay);
-    virtual void move(fix s);
-    void leave_item();
-    
-    // take damage or ignore it
-    virtual bool hitshield(int wpnx, int wpny, int xdir);
-    virtual int defend(int wpnId, int *power, int edef);
-    //virtual int defend_wdmg(int wpnId, int dmg, int edef);
-    bool candamage(int power, int edef);
-    int defenditemclass(int wpnId, int *power);
-    
-    bool dont_draw();
-    // base drawing function to be used by all derived classes instead of
-    // sprite::draw()
-    virtual void draw(BITMAP *dest);
-    // similar to the overblock function--can do up to a 32x32 sprite
-    void drawblock(BITMAP *dest,int mask);
-    virtual void drawshadow(BITMAP *dest, bool translucent);
-    void masked_draw(BITMAP *dest,int mx,int my,int mw,int mh);
-    
-    //                         --==**==--
-    //   Movement routines that can be used by derived classes as needed
-    //                         --==**==--
-    void fix_coords(bool bound=false);
-    // returns true if next step is ok, false if there is something there
+     // returns true if next step is ok, false if there is something there
     bool canmove(int ndir,fix s,int special,int dx1,int dy1,int dx2,int dy2);
     bool canmove(int ndir,fix s,int special);
     bool canmove(int ndir,int special);
@@ -237,6 +202,49 @@ protected:
     void tiledir_big(int ndir, bool fourdir);
     // Enemies that cannot ever be penetrated by weapons
     bool cannotpenetrate();
+    
+    virtual bool ignore_msg_freeze()
+    {
+        return false;
+    }
+    
+
+protected:
+    int  clk2,sclk;
+    int  starting_hp;
+    int  ox, oy;
+    word  s_tile; //secondary (additional) tile(s)
+    
+    // to allow for different sfx on defeating enemy
+    virtual void death_sfx();
+    virtual void move(fix dx,fix dy);
+    virtual void removearmos(int ax,int ay);
+    virtual void move(fix s);
+    void leave_item();
+    
+    // take damage or ignore it
+    virtual bool hitshield(int wpnx, int wpny, int xdir);
+    virtual int defend(int wpnId, int *power, int edef);
+    //virtual int defend_wdmg(int wpnId, int dmg, int edef);
+    bool candamage(int power, int edef);
+    int defenditemclass(int wpnId, int *power);
+    
+    bool dont_draw();
+    // base drawing function to be used by all derived classes instead of
+    // sprite::draw()
+    virtual void draw(BITMAP *dest);
+    virtual void old_draw(BITMAP *dest);
+    // similar to the overblock function--can do up to a 32x32 sprite
+    void drawblock(BITMAP *dest,int mask);
+    virtual void drawshadow(BITMAP *dest, bool translucent);
+    void masked_draw(BITMAP *dest,int mx,int my,int mw,int mh);
+    
+    //                         --==**==--
+    //   Movement routines that can be used by derived classes as needed
+    //                         --==**==--
+    void fix_coords(bool bound=false);
+   
+    
     
 private:
     bool shieldCanBlock;

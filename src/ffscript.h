@@ -25,7 +25,31 @@
 #define MAX_INTERNAL_BITMAP 6 //RT_BITMAP6
 #define FFRULES_SIZE 1024
 
-//unum FFCoreFlags[] { 
+//Link->WarpEx Flags
+#define warpFlagDONTKILLSCRIPTDRAWS 0x01
+#define warpFlagDONTKILLSOUNDS 0x02
+#define warpFlagDONTKILLMUSIC 0x04
+#define warpFlagSETENTRANCESCREEN 0x08
+#define warpFlagSETENTRANCEDMAP 0x10
+#define warpFlagSETCONTINUESCREEN 0x20
+#define warpFlagSETCONTINUEDMAP 0x040
+
+//Visual Warp Effect Types for Link->WarpEx()
+enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
+
+//npc function enums
+// npc_collision()
+	//bool npc->Collision
+enum { obj_type_lweapon, obj_type_eweapon, obj_type_npc, obj_type_link, 
+	obj_type_ffc, obj_type_combo_pos, obj_type_item, obj_type_LAST };
+	
+//do_npc_simulate_hit
+	//npc->SimulateHit()
+enum { simulate_hit_type_weapon, simulate_hit_type_sprite };	
+
+//Flags for SetVolume() and GetVolume() that are set in FFCoreFlags[] 
+//these determine what is under script control and are used for automatic restoration
+//of user volume settings on quest exit.
 enum {
 	FFCORE_SCRIPTED_MIDI_VOLUME 	= 0x0001,
 	FFCORE_SCRIPTED_DIGI_VOLUME 	= 0x0002,
@@ -34,19 +58,25 @@ enum {
 	FFCORE_SCRIPTED_PANSTYLE 	= 0x0010
 };
 
+//SYstem Date and Time Categories for GetSystemTime()
+enum { curyear, curmonth, curday_month, curday_week, curhour, 
+	curminute, cursecond, curdayyear, curDST, curTimeLAST };
 
+//Script drawing: (t/b/a)
+//Allow or forbid drawing during specific game events. 
+enum{
+	scdrDRAW_WHILE_SCROLLING, scdrDRAW_DURING_SCREEN_TRANSITION, scdrDRAW_DURING_WARP,
+	scdrDRAW_DURING_WIPES, scdrLAST
+};
 
-	//Allow or forbid drawing during specific game events. 
-	enum{
-		scdrDRAW_WHILE_SCROLLING, scdrDRAW_DURING_SCREEN_TRANSITION, scdrDRAW_DURING_WARP,
-		scdrDRAW_DURING_WIPES, scdrLAST
-	};
-
+//UID types for ->Script_UID
 enum
 {
 	UID_TYPE_NPC, UID_TYPE_WEAPON, UID_TYPE_ITEM, UID_TYPES
 };
 
+//Quest Version Information Categories
+//These reflect the version details from when the quest was last saved.
 enum 
 {
 	vZelda, qQuestNumber, vBuild, vBeta, vHeader, vRules, vStrings, vMisc,
@@ -58,11 +88,13 @@ enum
 	
 };
 
+//Quest Header 'User Set Version' categories. Not in use at present.
 enum
 {
 	 qQuestVersion, qMinQuestVersion, qvLAST
 };
 
+//User-generated / Script-Generated bitmap object
 struct user_bitmap
 {
 	BITMAP* u_bmp;
@@ -71,12 +103,17 @@ struct user_bitmap
 	int depth;
 };
 
+//Old, 2.50 bitmap IDs
 enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1, 
-	rtBMP2, rtBMP3, rtBMP4, rtBMP5, rtBMP6 };
+	rtBMP2, rtBMP3, rtBMP4, rtBMP5, rtBMP6, firstUserGeneratedBitmap };
+//bitmap constants
 #define MAX_USER_BITMAPS 256
 #define MIN_USER_BITMAPS 7 //starts at rtBMP6 +1
 #define MIN_OLD_RENDERTARGETS -1 //old script drawing
 #define MAX_OLD_RENDERTARGETS 6
+	
+//Holds all of the user-generated / script-generated bitmaps and their information.
+	//User bitmap lowest viable ID is 'rtBMP6+1' (firstUserGeneratedBitmap)
 struct script_bitmaps
 {
 	int num_active;
@@ -86,6 +123,9 @@ struct script_bitmaps
 //Module System.
 //Putting this here for now.
 
+//char runningItemScripts[256];
+
+//ZC and ZQuest System Modules
 class ZModule
 {
 	public:
@@ -112,8 +152,15 @@ void setLinkTile(int t);
 int getLinkTile();
 void setLinkAction(int a);
 int getLinkAction();
-
+void Play_Level_Music();
+int getTime(int type); //get system RTC Information.
+void getRTC(const bool v);
 long getQuestHeaderInfo(int type);
+
+
+void clearRunningItemScripts();
+bool itemScriptEngine();
+bool newScriptEngine();
 
 /*
 long getQuestHeaderInfo(int type)
@@ -124,7 +171,10 @@ long getQuestHeaderInfo(int type)
 
 */
 
-
+//Script-only Warp, Link->WarpEx(int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir)
+//Script-only Warp, Link->WarpEx(int array[])
+//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
+bool warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir);
 
 void user_bitmaps_init();
 
@@ -144,6 +194,7 @@ long do_create_bitmap();
 
 void do_adjustsfxvolume(const bool v);
 void do_adjustvolume(const bool v);
+void do_warp_ex(const bool v);
 //FFScript();
 //static void init();
 
@@ -220,12 +271,274 @@ void do_loadnpc_by_script_uid(const bool v);
 void do_loaditem_by_script_uid(const bool v);
 void do_loadlweapon_by_script_uid(const bool v);
 void do_loadeweapon_by_script_uid(const bool v);
+
+//new npc functions for npc scripts
+void do_isdeadnpc();
+void do_canslidenpc();
+void do_slidenpc();
+void do_npckickbucket();
+void do_npc_stopbgsfx();
+void do_npcattack();
+void do_npc_newdir();
+void do_npc_constwalk();
+void do_npc_varwalk();
+void do_npc_varwalk8();
+void do_npc_constwalk8();
+void do_npc_haltwalk();
+void do_npc_haltwalk8();
+void do_npc_floatwalk();
+void do_npc_breathefire();
+void do_npc_newdir8();
+long npc_collision();
+long npc_linedup();
+void do_npc_link_in_range(const bool v);
+void do_npc_simulate_hit(const bool v);
+void do_npc_add(const bool v);
+void do_npc_canmove(const bool v);
+void get_npcdata_initd_label(const bool v);
+
 //int do_get_internal_uid
 
     //virtual ~FFScript();
     
-	
-	
+    /*
+    static item *temp_ff_item
+    static enemy *temp_ff_enemy;
+    static weapon *temp_ff_lweapon;
+    static weapon *temp_ff_eweapon;
+
+    static int load_enemy(const long eid, const char * const funcvar)
+    {
+        temp_ff_enemy = (enemy *) guys.getByUID(eid);
+        
+        if(temp_ff_enemy == NULL)
+        {
+            Z_scripterrlog("Invalid NPC with UID %ld passed to %s\nNPCs on screen have UIDs ", eid, funcvar);
+            
+            for(word i = 0; i < guys.Count(); i++)
+                Z_scripterrlog("%ld ", guys.spr(i)->getUID());
+                
+            Z_scripterrlog("\n");
+            return _InvalidSpriteUID;
+        }
+        
+        return _NoError;
+    }
+    
+    static INLINE enemy *get_enemy()
+    {
+        return temp_ff_enemy;
+    }
+    
+    // Currently only used in a context where the enemy is known to be valid,
+    // so there's no need to print an error
+    static int get_enemy_Index(const long eid)
+    {
+        for(word i = 0; i < guys.Count(); i++)
+        {
+            if(guys.spr(i)->getUID() == eid)
+                return i;
+        }
+        
+        return -1;
+    }
+    
+    static long get_enemy_Misc(const byte a)
+    {
+        switch(a)
+        {
+        case 0: return temp_ff_enemy->dmisc1;
+        case 1: return temp_ff_enemy->dmisc2;
+        case 2: return temp_ff_enemy->dmisc3;
+        case 3: return temp_ff_enemy->dmisc4;
+        case 4: return temp_ff_enemy->dmisc5;
+        case 5: return temp_ff_enemy->dmisc6;
+        case 6: return temp_ff_enemy->dmisc7;
+        case 7: return temp_ff_enemy->dmisc8;
+        case 8: return temp_ff_enemy->dmisc9;
+        case 9: return temp_ff_enemy->dmisc10;
+        case 10: return temp_ff_enemy->dmisc11;
+        case 11: return temp_ff_enemy->dmisc12;
+        case 12: return temp_ff_enemy->dmisc13;
+        case 13: return temp_ff_enemy->dmisc14;
+        case 14: return temp_ff_enemy->dmisc15;
+        case 15: return temp_ff_enemy->dmisc16;
+        case 16: return temp_ff_enemy->dmisc17;
+        case 17: return temp_ff_enemy->dmisc18;
+        case 18: return temp_ff_enemy->dmisc19;
+        case 19: return temp_ff_enemy->dmisc20;
+        case 20: return temp_ff_enemy->dmisc21;
+        case 21: return temp_ff_enemy->dmisc22;
+        case 22: return temp_ff_enemy->dmisc23;
+        case 23: return temp_ff_enemy->dmisc24;
+        case 24: return temp_ff_enemy->dmisc25;
+        case 25: return temp_ff_enemy->dmisc26;
+        case 26: return temp_ff_enemy->dmisc27;
+        case 27: return temp_ff_enemy->dmisc28;
+        case 28: return temp_ff_enemy->dmisc29;
+        case 29: return temp_ff_enemy->dmisc30;
+        case 30: return temp_ff_enemy->dmisc31;
+        case 31: return temp_ff_enemy->dmisc32;
+        }
+        
+        return 0;
+    }
+    
+    static bool enemy_hasLink()
+    {
+        if(temp_ff_enemy->family == eeWALLM)
+            return ((eWallM *) temp_ff_enemy)->haslink;
+            
+        if(temp_ff_enemy->family == eeWALK)
+            return ((eStalfos *) temp_ff_enemy)->haslink;
+            
+        return false;
+    }
+    
+    static long get_enemy_Misc_Flags()
+    {
+        flagpos = 5;
+        // Must be in the same order as in the Enemy Editor pane
+        return (temp_ff_enemy->flags&0x1F)
+               | ornextflag(temp_ff_enemy->flags&(lens_only))
+               | ornextflag(temp_ff_enemy->flags2&(guy_flashing))
+               | ornextflag(temp_ff_enemy->flags2&(guy_blinking))
+               | ornextflag(temp_ff_enemy->flags2&(guy_transparent))
+               | ornextflag(temp_ff_enemy->flags&(inv_front))
+               | ornextflag(temp_ff_enemy->flags&(inv_left))
+               | ornextflag(temp_ff_enemy->flags&(inv_right))
+               | ornextflag(temp_ff_enemy->flags&(inv_back))
+               | ornextflag(temp_ff_enemy->flags&(guy_bkshield));
+    }
+    
+    static INLINE void cleartemp_ff_enemy()
+    {
+        temp_ff_enemy = NULL;
+    }
+    
+
+
+
+    static int load_Item(const long iid, const char * const funcvar)
+    {
+        temp_ff_item = (item *) items.getByUID(iid);
+        
+        if(temp_ff_item == NULL)
+        {
+            Z_scripterrlog("Invalid item with UID %ld passed to %s\nItems on screen have UIDs ", iid, funcvar);
+            
+            for(word i = 0; i < items.Count(); i++)
+                Z_scripterrlog("%ld ", items.spr(i)->getUID());
+                
+            Z_scripterrlog("\n");
+            return _InvalidSpriteUID;
+        }
+        
+        return _NoError;
+    }
+    
+    static int getItemIndex(const long iid)
+    {
+        for(word i = 0; i < items.Count(); i++)
+        {
+            if(items.spr(i)->getUID() == iid)
+                return i;
+        }
+        
+        return -1;
+    }
+    
+    static INLINE item* get_Item()
+    {
+        return tempitem;
+    }
+    
+    static INLINE void clearTempItem()
+    {
+        temp_ff_item = NULL;
+    }
+    
+
+
+
+    static int load_LWeapon(const long wid, const char * const funcvar)
+    {
+        temp_ff_lweapon = (weapon *) Lwpns.getByUID(wid);
+        
+        if(temp_ff_lweapon == NULL)
+        {
+            Z_scripterrlog("Invalid lweapon with UID %ld passed to %s\nLWeapons on screen have UIDs ", wid, funcvar);
+            
+            for(word i = 0; i < Lwpns.Count(); i++)
+                Z_scripterrlog("%ld ", Lwpns.spr(i)->getUID());
+                
+            Z_scripterrlog("\n");
+            return _InvalidSpriteUID;
+        }
+        
+        return _NoError;
+    }
+    
+    static int getLWeaponIndex(const long lwid)
+    {
+        for(word i = 0; i < Lwpns.Count(); i++)
+        {
+            if(Lwpns.spr(i)->getUID() == lwid)
+                return i;
+        }
+        
+        return -1;
+    }
+    
+    static INLINE weapon *get_LWeapon()
+    {
+        return temp_ff_lweapon;
+    }
+    
+    //eweapon
+    static INLINE void clearTempLWeapon()
+    {
+        temp_ff_lweapon = NULL;
+    }
+    static int load_EWeapon(const long wid, const char * const funcvar)
+    {
+        temp_ff_eweapon = (weapon *) Ewpns.getByUID(wid);
+        
+        if(temp_ff_eweapon == NULL)
+        {
+            Z_scripterrlog("Invalid eweapon with UID %ld passed to %s\nEWeapons on screen have UIDs ", wid, funcvar);
+            
+            for(word i = 0; i < Ewpns.Count(); i++)
+                Z_scripterrlog("%ld ", Ewpns.spr(i)->getUID());
+                
+            Z_scripterrlog("\n");
+            return _InvalidSpriteUID;
+        }
+        
+        return _NoError;
+    }
+    
+    static int getEWeaponIndex(const long lwid)
+    {
+        for(word i = 0; i < Ewpns.Count(); i++)
+        {
+            if(Ewpns.spr(i)->getUID() == lwid)
+                return i;
+        }
+        
+        return -1;
+    }
+    
+    static INLINE weapon *get_EWeapon()
+    {
+        return temp_ff_eweapon;
+    }
+    
+    static INLINE void clearTempEWeapon()
+    {
+        temp_ff_eweapon = NULL;
+    }	
+    */
 
 
 	static INLINE int ZSbound_byte(int val)
@@ -888,6 +1201,9 @@ enum __Error
     
     private:
     long sid;
+    
+    
+    
   
     
 };
@@ -899,7 +1215,7 @@ extern PALETTE tempgreypal; //script greyscale
 extern PALETTE userPALETTE[256];
 
 long get_register(const long arg);
-int run_script(const byte type, const word script, const byte i = -1); //Global scripts don't need 'i'
+int run_script(const byte type, const word script, const long i = -1); //Global scripts don't need 'i'
 int ffscript_engine(const bool preload);
 
 void clear_ffc_stack(const byte i);
@@ -955,6 +1271,9 @@ void do_getscreenItem();
 void do_getscreendoor();
 long get_screennpc(mapscr *m, int index);
 void do_getscreennpc();
+
+
+    
 
 
 
@@ -1661,6 +1980,47 @@ enum ASM_DEFINE
 	BMPDRAWLAYERR,
 	BMPDRAWSCREENR,
 	BMPBLIT,
+	LINKWARPEXR,
+	LINKWARPEXV,
+	LINKEXPLODER,
+	LINKEXPLODEV,
+	NPCEXPLODER,
+	NPCEXPLODEV,
+	ITEMEXPLODER,
+	ITEMEXPLODEV,
+	LWEAPONEXPLODER,
+	LWEAPONEXPLODEV,
+	EWEAPONEXPLODER,
+	EWEAPONEXPLODEV,
+	RUNITEMSCRIPT,
+	GETRTCTIMER,
+	GETRTCTIMEV,
+	
+	//new npc functions for npc scripts
+	NPCDEAD,
+	NPCKICKBUCKET,
+	NPCSTOPBGSFX,
+	NPCCANMOVE,
+	NPCNEWDIR8,
+	NPCNEWDIR,
+	NPCCONSTWALK,
+	NPCCONSTWALK8,
+	NPCVARWALK,
+	NPCVARWALK8,
+	NPCHALTWALK,
+	NPCHALTWALK8,
+	NPCFLOATWALK,
+	// moved to a var: NPCLINEDUP,
+	NPCLINKINRANGE,
+	NPCATTACK,
+	NPCPLACEONAXIS,
+	NPCADD,
+	NPCFIREBREATH,
+	NPCCANSLIDE,
+	NPCSLIDE,
+	NPCHITWITH,
+	// moved to a var: NPCCOLLISION 
+	NPCGETINITDLABEL,
 
 	NUMCOMMANDS           //0x013B
 };
@@ -2792,6 +3152,13 @@ enum ASM_DEFINE
 #define GRAPHICSMONO			0x1319	
 #define GRAPHICSTINT			0x131A	
 #define CREATEBITMAP			0x131B	
+#define LINKTILEMOD			0x131C	
+#define NPCINITD			0x131D	
+#define NPCCOLLISION			0x131E	
+#define NPCLINEDUP			0x131F	
+#define NPCDATAINITD			0x1320
+#define NPCDATASCRIPT			0x1321	
+#define NPCMATCHINITDLABEL			0x1322	
 
 //bytecode
 
@@ -2799,7 +3166,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x131C
+#define NUMVARIABLES         0x1323
 
 
 // Script types

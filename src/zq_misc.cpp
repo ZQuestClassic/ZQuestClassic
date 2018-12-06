@@ -1205,6 +1205,7 @@ int onHeader();
 int onAnimationRules();
 int onComboRules();
 int onItemRules();
+int onScriptRules();
 int onEnemyRules();
 int onFixesRules();
 int onMiscRules();

@@ -7,7 +7,7 @@
 
 extern LinkClass Link;
 
-int (*ZScriptVersion::Interpreter)(const byte, const word, const byte) = &run_script;
+int (*ZScriptVersion::Interpreter)(const byte, const word, const long) = &run_script;
 void (*ZScriptVersion::onScrolling)(int, int, int, int, bool) = &ScrollingScript;
 int    ZScriptVersion::CurrentVersion = V_FFSCRIPT; //Set to current version by default
 

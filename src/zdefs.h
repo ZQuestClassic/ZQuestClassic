@@ -99,11 +99,11 @@
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       41                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "Necromancer (v2.55) Alpha 1"                    //version of the program as presented in text
-#define IS_BETA             -1                         //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        1
-#define DATE_STR            "14th November, 2018"
-#define ZELDA_ABOUT_STR 	    "ZC Player 'Necromancer', Alpha 1"
+#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 3"                    //version of the program as presented in text
+#define IS_BETA             -3                         //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        3
+#define DATE_STR            "3rd December, 2018"
+#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 3"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -120,6 +120,9 @@
 #define ZQUESTDAT_BUILD       18                            //build of zquest.dat
 
 #define MAX_INTERNAL_QUESTS 	5
+
+#define MAX_SCRIPT_REGISTERS 1024
+#define MAX_SCRIPT_REGISTERS_250 256
 
 enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_211B18, ENC_METHOD_MAX};
 
@@ -188,15 +191,15 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        19
-#define V_GUYS            38
+#define V_GUYS            39
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        11
+#define V_SAVEGAME        12
 #define V_COMBOALIASES     3
 #define V_LINKSPRITES      5
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         7
+#define V_FFSCRIPT         9
 #define V_SFX              7
 #define V_FAVORITES        1
 //= V_SHOPS is under V_MISC
@@ -832,7 +835,7 @@ enum
     qr_BROKENBOOKCOST,
     qr_OLDSIDEVIEWSPIKES,
 	qr_OLDINFMAGIC/* Compatibility */, //Infinite magic prevents items from draining rupees
-	qr_NEVERDISABLEAMMOONSUBSCREEN,
+	qr_NEVERDISABLEAMMOONSUBSCREEN, qr_ITEMSCRIPTSKEEPRUNNING,
     qr_MAX
 };
 
@@ -1676,9 +1679,12 @@ struct guydata
     long new_weapon[32]; //Reserved for weapon patterns and args.
     long initD[8], initA[2];
     
-    word npcscript; //For future npc action scripts. 
+    word script; //For future npc action scripts. 
     //short parentCore; //Probably not needed here. -Z
     long editorflags;
+    
+    char initD_label[8][65];
+    char weapon_initD_label[8][65];
     
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02
@@ -2097,6 +2103,7 @@ struct ffscript
 #define SCRIPT_NPC             6
 #define SCRIPT_SUBSCREEN       7
 #define SCRIPT_EWPN            8
+#define SCRIPT_DMAP            9
 
 
 enum
@@ -3037,7 +3044,7 @@ struct gamedata
     byte  icon[128];
     byte  pal[48];
     long  screen_d[MAXDMAPS*MAPSCRSNORMAL][8];                // script-controlled screen variables
-    long  global_d[256];                                      // script-controlled global variables
+    long  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
     std::vector< ZCArray <long> > globalRAM;
     
     byte awpn, bwpn;											// Currently selected weapon slots
@@ -3300,6 +3307,38 @@ struct zcmap
 
 enum { zelda_dat, zquest_dat, fonts_dat, sfx_dat, qst_dat };
 
+enum {
+    sels_tile_frame, sels_tile_questicon_1A, sels_tile_questicon_1B, sels_tile_questicon_2A,
+    sels_tile_questicon_2B, sels_tile_questicon_3A, sels_tile_questicon_3B, sels_tile_questicon_4A, 
+    sels_tile_questicon_4B, sels_tile_questicon_5A, sels_tile_questicon_5B, sels_tile_questicon_6A, 
+    sels_tile_questicon_6B, sels_tile_questicon_7A, sels_tile_questicon_7B, sels_tile_questicon_8A, 
+    sels_tile_questicon_8B, sels_tile_questicon_9A, sels_tile_questicon_9B, sels_tile_questicon_10A, 
+    sels_tile_questicon_10B, 
+    //x positions
+    sels_tile_questicon_1A_X, sels_tile_questicon_1B_X, sels_tile_questicon_2A_X, sels_tile_questicon_2B_X,
+    sels_tile_questicon_3A_X, sels_tile_questicon_3B_X, sels_tile_questicon_4A_X, sels_tile_questicon_4B_X, 
+    sels_tile_questicon_5A_X, sels_tile_questicon_5B_X, sels_tile_questicon_6A_X, sels_tile_questicon_6B_X, 
+    sels_tile_questicon_7A_X, sels_tile_questicon_7B_X, sels_tile_questicon_8A_X, sels_tile_questicon_8B_X, 
+    sels_tile_questicon_9A_X, sels_tile_questicon_9B_X, sels_tile_questicon_10A_X, sels_tile_questicon_10B_X,
+	
+	
+    sels_cursor_tile, sels_heart_tile, sels_linktile, draw_link_first,
+    sels_tile_LAST
+};
+
+enum {
+    sels_tile_frame_cset, sels_tile_questicon_1A_cset, sels_tile_questicon_1B_cset, sels_tile_questicon_2A_cset,
+    sels_tile_questicon_2B_cset, sels_tile_questicon_3A_cset, sels_tile_questicon_3B_cset, sels_tile_questicon_4A_cset, 
+    sels_tile_questicon_4B_cset, sels_tile_questicon_5A_cset, sels_tile_questicon_5B_cset, sels_tile_questicon_6A_cset, 
+    sels_tile_questicon_6B_cset, sels_tile_questicon_7A_cset, sels_tile_questicon_7B_cset, sels_tile_questicon_8A_cset, 
+    sels_tile_questicon_8B_cset, sels_tile_questicon_9A_cset, sels_tile_questicon_9B_cset, sels_tile_questicon_10A_cset, 
+    sels_tile_questicon_10B_cset, change_cset_on_quest_3, 
+	sels_cusror_cset, sels_heart_tilettile_cset, sels_link_cset,
+	
+	sels_tile_cset_LAST
+	
+};
+
 struct zcmodule
 {
 	char module_name[2048]; //filepath for current zcmodule file
@@ -3313,6 +3352,7 @@ struct zcmodule
 	//if it is 1, then we use the old hardcoded quest flow.
 	
 	int max_quest_files;
+	int title_track, tf_track, gameover_track, ending_track, dungeon_track, overworld_track, lastlevel_track;
 	
 	char enem_type_names[eeMAX][255];
 	char enem_anim_type_names[aMAX][255];
@@ -3327,10 +3367,24 @@ struct zcmodule
 	char player_weapon_names[wIce+1][255];
 	char counter_names[33][255];
 	
+	char itemclass_help_strings[itype_max*3][512];
+	
+	char base_NSF_file[1024];
+	char copyright_strings[3][2048];
+	int copyright_string_vars[10*3]; //font, 104,136,13,-1
+	char animate_NES_title;
 	char delete_quest_data_on_wingame[20]; //Do we purge items, scripts, and other data when moving to the next quest?
+        
+        int select_screen_tiles[sels_tile_LAST];
+        char select_screen_tile_csets[sels_tile_cset_LAST];
+        
+
 }; //zcmodule
 
 
+#define titleScreen250 0
+#define titleScreen210 11
+#define titleScreenMAIN 21
 
 /******************/
 /**  Misc Stuff  **/
@@ -3859,6 +3913,7 @@ extern void removeFromItemCache(int itemid);
 #define NUMSCRIPTGLOBALOLD	3
 #define NUMSCRIPTLINK		3
 #define NUMSCRIPTSCREEN		256
+#define NUMSCRIPTSDMAP		256
 
 #define GLOBAL_SCRIPT_INIT 		0
 #define GLOBAL_SCRIPT_GAME		1

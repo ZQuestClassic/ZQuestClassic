@@ -350,7 +350,7 @@ void ending()
         if(f==861)
         {
             blit(scrollbuf,framebuf,0,0,0,playing_field_offset!=0?168:0,256,passive_subscreen_height);
-            try_zcmusic((char*)"zelda.nsf", 1, ZC_MIDI_ENDING);
+            try_zcmusic((char*)moduledata.base_NSF_file, moduledata.ending_track, ZC_MIDI_ENDING);
             
             for(int y=0; y<224; y++)
             {

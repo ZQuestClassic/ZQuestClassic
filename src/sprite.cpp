@@ -21,6 +21,8 @@
 #include "zdefs.h"
 #include "sprite.h"
 #include "tiles.h"
+#include "particles.h"
+extern sprite_list particles;
 
 extern bool get_debug();
 extern bool halt;
@@ -48,6 +50,7 @@ sprite::sprite()
     drawstyle=0;
     extend=0;
     wpnsprite = 0; //wpnsprite is new for 2.6 -Z
+    memset(stack,0,sizeof(stack));
     
     /*ewpnclass=0;
     lwpnclass=0;
@@ -69,21 +72,38 @@ sprite::sprite()
         dummy_bool[i]=false;
     }
     
-    /*for(int i=0;i<8;i++)
-    {
-      if(i<2) a[i]=0;
-      d[i]=0;
-    }
+    //for(int i=0;i<8;i++)
+    //{
+    //  if(i<2) a[i]=0;
+    //  d[i]=0;
+    //}
     scriptflag=0;
-    pc=0;
-    sp=0;
-    itemclass=0;
-    ffcref=0; */
+    //pc=0;
+    //sp=0;
+    //itemclass=0;
+    //ffcref=0;
     //scriptData.Clear(); //when we have npc scripts we'll need this again, for now not.
-    //doscript=1;
+    doscript=1;
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
+    
+    //itemref = 0;
+    //guyref = 0;
+    //lwpnref = 0;
+    //ewpnref = 0;
+    //guyclass = 0; //Not implemented
+    //lwpnclass = 0;
+    //ewpnclass = 0;
+    script = 0;
+    for ( int q = 0; q < 8; q++ )
+    {
+	    initD[q] = 0;
+    }
+    for ( int q = 0; q < 2; q++ )
+    {
+	    initA[q] = 0;
+    }
 }
 
 sprite::sprite(sprite const & other):
@@ -117,21 +137,22 @@ sprite::sprite(sprite const & other):
     lasthitclk(other.lasthitclk),
     drawstyle(other.drawstyle),
     extend(other.extend),
-    wpnsprite(other.wpnsprite)
+    wpnsprite(other.wpnsprite),
     //scriptData(other.scriptData),
-/*ffcref(other.ffcref),
-itemref(other.itemref),
-guyref(other.guyref),
-lwpnref(other.lwpnref),
-ewpnref(other.ewpnref),
-sp(other.sp),
-pc(other.pc),
+//ffcref(other.ffcref),
+//itemref(other.itemref),
+//guyref(other.guyref),
+//lwpnref(other.lwpnref),
+//ewpnref(other.ewpnref),
+//sp(other.sp),
+//pc(other.pc),
 scriptflag(other.scriptflag),
 doscript(other.doscript),
-itemclass(other.itemclass)
-guyclass(other.guyclass),
-lwpnclass(other.lwpnclass),
-ewpnclass(other.ewpnclass)*/
+//itemclass(other.itemclass),
+//guyclass(other.guyclass),
+//lwpnclass(other.lwpnclass),
+//ewpnclass(other.ewpnclass),
+script(other.script)
 {
     uid = getNextUID();
     
@@ -143,17 +164,31 @@ ewpnclass(other.ewpnclass)*/
         dummy_bool[i]=other.dummy_bool[i];
     }
     
-    /*for (int i=0; i<8; ++i)
-    {
-      d[i]=other.d[i];
-    }
-    for (int i=0; i<2; ++i)
-    {
-      a[i]=other.a[i];
-    }*/
+    //for (int i=0; i<8; ++i)
+    //{
+    //  d[i]=other.d[i];
+    //}
+    //for (int i=0; i<2; ++i)
+    //{
+    //  a[i]=other.a[i];
+    //}
     for(int i=0; i<32; i++) miscellaneous[i] = other.miscellaneous[i];
     
     scriptcoldet = other.scriptcoldet;
+    
+    for ( int q = 0; q < MAX_SCRIPT_REGISTERS; q++ )
+    {
+	stack[q] = other.stack[q];
+    }
+    for (int i=0; i<8; ++i)
+    {
+      initD[i]=other.initD[i];
+	   // al_trace("Sprite.cpp: Assigning other.initD[%d] is: %d\n",i, other.initD[i]);
+    }
+    for (int i=0; i<2; ++i)
+    {
+      initA[i]=other.initA[i];
+    }
 }
 
 sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
@@ -169,29 +204,30 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     angular=canfreeze=false;
     extend=0;
     
-    /*for(int i=0;i<8;i++)
-    {
-      if(i<2) a[i]=0;
-      d[i]=0;
-    }
+    //for(int i=0;i<8;i++)
+    //{
+    //  if(i<2) a[i]=0;
+    //  d[i]=0;
+    //}
     scriptflag=0;
-    pc=0;
-    sp=0;
-    ffcref=0;
-    doscript=1;*/
+    //pc=0;
+    //sp=0;
+    //ffcref=0;
+    doscript=1;
     //itemclass=0;
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
     
     //scriptData.Clear();
-    /*ewpnclass=0;
-    lwpnclass=0;
-    guyclass=0;*/ //Not implemented
-    /*ewpnref=0;
-    lwpnref=0;
-    guyref=0;
-    itemref=0;*/
+    //ewpnclass=0;
+    //lwpnclass=0;
+    //guyclass=0;
+    //ewpnref=0;
+    //lwpnref=0;
+    //guyref=0;
+    //itemref=0;
+    script = 0;
     drawstyle=0;
     lasthitclk=0;
     lasthit=0;
@@ -200,6 +236,8 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     misc=0;
     c_clk=0;
     shadowtile=0;
+    for ( int q = 0; q < 8; q++ ) initD[q] = 0;
+    for ( int q = 0; q < 2; q++ ) initA[q] = 0;
 }
 
 sprite::~sprite()
@@ -616,6 +654,261 @@ void sprite::draw(BITMAP* dest)
         rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs),x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs))-1,vc((id+16)%255));
 }
 
+void sprite::old_draw(BITMAP* dest)
+{
+    if(!show_sprites)
+    {
+        return;
+    }
+    
+    int sx = real_x(x+xofs);
+    int sy = real_y(y+yofs)-real_z(z+zofs);
+    
+    if(id<0)
+        return;
+        
+    int e = extend>=3 ? 3 : extend;
+    
+    if(clk>=0)
+    {
+        switch(e)
+        {
+            BITMAP *temp;
+            
+        case 1:
+            temp = create_bitmap_ex(8,16,32);
+            blit(dest, temp, sx, sy-16, 0, 0, 16, 32);
+            
+            if(drawstyle==0 || drawstyle==3)
+            {
+                overtile16(temp,tile-TILES_PER_ROW,0,0,cs,flip);
+                overtile16(temp,tile,0,16,cs,flip);
+            }
+            
+            if(drawstyle==1)
+            {
+                overtiletranslucent16(temp,tile-TILES_PER_ROW,0,0,cs,flip,128);
+                overtiletranslucent16(temp,tile,0,16,cs,flip,128);
+            }
+            
+            if(drawstyle==2)
+            {
+                overtilecloaked16(temp,tile-TILES_PER_ROW,0,0,flip);
+                overtilecloaked16(temp,tile,0,16,flip);
+            }
+            
+            masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+            destroy_bitmap(temp);
+            break;
+            
+        case 2:
+            temp = create_bitmap_ex(8,48,32);
+            blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
+            
+            if(drawstyle==0 || drawstyle==3)
+            {
+                overtile16(temp,tile-TILES_PER_ROW,16,0,cs,flip);
+                overtile16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,cs,flip);
+                overtile16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,cs,flip);
+                overtile16(temp,tile,16,16,cs,flip);
+                overtile16(temp,tile-(flip?-1:1),0,16,cs,flip);
+                overtile16(temp,tile+(flip?-1:1),32,16,cs,flip);
+            }
+            
+            if(drawstyle==1)
+            {
+                overtiletranslucent16(temp,tile-TILES_PER_ROW,16,0,cs,flip,128);
+                overtiletranslucent16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,cs,flip,128);
+                overtiletranslucent16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,cs,flip,128);
+                overtiletranslucent16(temp,tile,16,16,cs,flip,128);
+                overtiletranslucent16(temp,tile-(flip?-1:1),0,16,cs,flip,128);
+                overtiletranslucent16(temp,tile+(flip?-1:1),32,16,cs,flip,128);
+            }
+            
+            if(drawstyle==2)
+            {
+                overtilecloaked16(temp,tile-TILES_PER_ROW,16,0,flip);
+                overtilecloaked16(temp,tile-TILES_PER_ROW-(flip?-1:1),0,0,flip);
+                overtilecloaked16(temp,tile-TILES_PER_ROW+(flip?-1:1),32,0,flip);
+                overtilecloaked16(temp,tile,16,16,flip);
+                overtilecloaked16(temp,tile-(flip?-1:1),0,16,flip);
+                overtilecloaked16(temp,tile+(flip?-1:1),32,16,flip);
+            }
+            
+            masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
+            destroy_bitmap(temp);
+            break;
+            
+        case 3:
+        {
+            int tileToDraw;
+            
+            switch(flip)
+            {
+            case 1:
+                for(int i=0; i<tysz; i++)
+                {
+                    for(int j=txsz-1; j>=0; j--)
+                    {
+                        tileToDraw=tile+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j) // Wrapped around
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,flip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,flip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,flip);
+                    }
+                }
+                
+                break;
+                
+            case 2:
+                for(int i=tysz-1; i>=0; i--)
+                {
+                    for(int j=0; j<txsz; j++)
+                    {
+                        tileToDraw=tile+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j)
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,flip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,flip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,flip);
+                    }
+                }
+                
+                break;
+                
+            case 3:
+                for(int i=tysz-1; i>=0; i--)
+                {
+                    for(int j=txsz-1; j>=0; j--)
+                    {
+                        tileToDraw=tile+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j)
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,flip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,flip);
+                    }
+                }
+                
+                break;
+                
+            case 0:
+                for(int i=0; i<tysz; i++)
+                {
+                    for(int j=0; j<txsz; j++)
+                    {
+                        tileToDraw=tile+(i*TILES_PER_ROW)+j;
+                        
+                        if(tileToDraw%TILES_PER_ROW<j)
+                            tileToDraw+=TILES_PER_ROW*(tysz-1);
+                            
+                        if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+i*16,cs,flip);
+                        else if(drawstyle==1) overtiletranslucent16(dest,tileToDraw,sx+j*16,sy+i*16,cs,flip,128);
+                        else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+i*16,flip);
+                    }
+                }
+                
+                break;
+            }
+            
+            case 0:
+            default:
+                if(drawstyle==0 || drawstyle==3)
+                    overtile16(dest,tile,sx,sy,cs,flip);
+                else if(drawstyle==1)
+                    overtiletranslucent16(dest,tile,sx,sy,cs,flip,128);
+                else if(drawstyle==2)
+                    overtilecloaked16(dest,tile,sx,sy,flip);
+                    
+                break;
+            }
+            break;
+        }
+    }
+    else
+    {
+        if(e!=3)
+        {
+            int t  = wpnsbuf[iwSpawn].newtile;
+            int cs2 = wpnsbuf[iwSpawn].csets&15;
+            
+            if(BSZ)
+            {
+                if(clk>=-10) ++t;
+                
+                if(clk>=-5) ++t;
+            }
+            else
+            {
+                if(clk>=-12) ++t;
+                
+                if(clk>=-6) ++t;
+            }
+            
+            overtile16(dest,t,sx,sy,cs2,0);
+        }
+        else
+        {
+            sprite w((fix)sx,(fix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
+            w.xofs = xofs;
+            w.yofs = yofs;
+            w.zofs = zofs;
+            w.txsz = txsz;
+            w.tysz = tysz;
+            w.extend = 3;
+            
+            if(BSZ)
+            {
+                if(clk>=-10)
+                {
+                    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+                        w.tile+=txsz;
+                    else
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                }
+                
+                if(clk>=-5)
+                {
+                    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+                        w.tile+=txsz;
+                    else
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                }
+            }
+            else
+            {
+                if(clk>=-12)
+                {
+                    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+                        w.tile+=txsz;
+                    else
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                }
+                
+                if(clk>=-6)
+                {
+                    if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
+                        w.tile+=txsz;
+                    else
+                        w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
+                }
+            }
+            
+            w.draw(dest);
+        }
+    }
+    
+    if(show_hitboxes && !is_zquest())
+        rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs),x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs))-1,vc((id+16)%255));
+}
+
 void sprite::draw8(BITMAP* dest)
 {
     int sx = real_x(x+xofs);
@@ -708,7 +1001,7 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 /********** Sprite List ***********/
 /**********************************/
 
-#define SLMAX 255
+#define SLMAX 255*256
 
 //class enemy;
 
@@ -1078,6 +1371,136 @@ void sprite_list::checkConsistency()
     for(int i=0; i<count; i++)
         assert(sprites[i] == getByUID(sprites[i]->getUID()));
 }
+
+void sprite::explode(int type)
+{
+	al_trace("Trying to explode enemy tile: %d\n",tile);
+	
+	/*
+	tiledata *temptilebuf = NULL;
+	memset(temptilebuf, 0, sizeof(temptilebuf));
+	static int tempx, tempy;
+	static byte linktilebuf[256];
+	int ltile=0;
+	int lflip=0;
+	unpack_tile(temptilebuf, tile, flip, true);
+	//unpack_tile(temptilebuf, tile, flip, true);
+	//unpack_tile(temptilebuf, o_tile, 0, true);
+	memcpy(linktilebuf, temptilebuf, 256);
+	tempx=x;
+	tempy=y;
+	*/
+	
+	byte spritetilebuf[256];
+	int ltile=0;
+	int lflip=0;
+	unpack_tile(newtilebuf, tile, flip, true);
+	memcpy(spritetilebuf, unpackbuf, 256);	
+	
+	for(int i=0; i<16; ++i)
+	{
+                for(int j=0; j<16; ++j)
+                {
+                    if(spritetilebuf[i*16+j])
+                    {
+                        if(type==0)  // Twilight
+                        {
+                            particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (rand()%8)+i*4));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=3;
+			    p->cset=cs;
+			    p->color= rand()%4+1;
+                        }
+                        
+			else if(type ==1)  // Sands of Hours
+                        {
+                            particles.add(new pTwilight(x+j, y-z+i, 5, 1, 2, (rand()%16)+i*2));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=4;
+                            
+                            if(rand()%10 < 2)
+                            {
+                                p->color= rand()%4+1;
+                                p->cset=cs;
+                            }
+                        }
+                        else //explode
+                        {
+                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, spritetilebuf[i*16+j], rand()%96));
+                            
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->angular=true;
+                            p->angle=rand();
+                            p->step=(((double)j)/8);
+                            p->yofs=yofs;
+			    p->color= rand()%4+1;
+			    p->cset=cs;
+                        }
+			
+                    }
+                }
+	}
+	
+}
+
+
+
+/*
+void sprite::explode(int type)
+{
+	static int tempx, tempy;
+	static byte linktilebuf[256];
+	int ltile=0;
+	int lflip=0;
+	unpack_tile(newtilebuf, tile, flip, true);
+	memcpy(linktilebuf, unpackbuf, 256);
+	tempx=x;
+	tempy=y;
+	for(int i=0; i<16; ++i)
+	{
+                for(int j=0; j<16; ++j)
+                {
+                    if(linktilebuf[i*16+j])
+                    {
+                        if(type==0)  // Twilight
+                        {
+                            particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (rand()%8)+i*4));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=3;
+                        }
+                        else if(type ==1)  // Sands of Hours
+                        {
+                            particles.add(new pTwilight(x+j, y-z()+i, 5, 1, 2, (rand()%16)+i*2));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=4;
+                            
+                            if(rand()%10 < 2)
+                            {
+                                p->color=1;
+                                p->cset=0;
+                            }
+                        }
+                        else
+                        {
+                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, linktilebuf[i*16+j], rand()%96));
+                            
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->angular=true;
+                            p->angle=rand();
+                            p->step=(((double)j)/8);
+                            p->yofs=yofs;
+                        }
+                    }
+                }
+	}
+}
+*/
 
 /**********************************/
 /********** Moving Block **********/

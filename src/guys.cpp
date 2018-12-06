@@ -24,6 +24,8 @@
 #include "defdata.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
+#include "particles.h"
+extern sprite_list particles;
 
 extern FFScript FFCore;
 extern ZModule zcm;
@@ -365,9 +367,15 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     for ( int q = 0; q < 32; q++ ) movement[q] = d->movement[q];
     for ( int q = 0; q < 32; q++ ) new_weapon[q] = d->new_weapon[q];
     
-    npcscript = (d->npcscript >= 0) ? d->npcscript : 0; //Dont assign invalid data. 
+    script = (d->script >= 0) ? d->script : 0; //Dont assign invalid data. 
     
-    for ( int q = 0; q < 8; q++ ) initD[q] = d->initD[q];
+    for ( int q = 0; q < 8; q++ ) 
+    {
+	    initD[q] = d->initD[q];
+	    //al_trace("Guys.cpp: Assigning guy.initD[%d]: %d\n",q, d->initD.initD[q]);
+	    //al_trace("Guys.cpp: Assigning guy.initD[%d] from d->initD[%d]: %d\n",q,q, d->initD[q]);
+	    //al_trace("Guys.cpp: guy.initD[%d] is: %d\n",q, initD[q]);
+    }
     for ( int q = 0; q < 2; q++ ) initA[q] = d->initA[q];
     
     dialogue_str = 0; //set by spawn flags. 
@@ -442,6 +450,65 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     if((wpn==ewBomb || wpn==ewSBomb) && family!=eeOTHER && family!=eeFIRE && (family!=eeWALK || dmisc2 != e2tBOMBCHU))
         wpn = 0;
 }
+
+/*
+void enemy::explode(int type)
+{
+	al_trace("Trying to explode enemy tile: %d\n",o_tile);
+	tiledata *temptilebuf = NULL;
+	memset(temptilebuf, 0, sizeof(temptilebuf));
+	static int tempx, tempy;
+	static byte linktilebuf[256];
+	int ltile=0;
+	int lflip=0;
+	unpack_tile(temptilebuf, tile, flip, true);
+	//unpack_tile(temptilebuf, tile, flip, true);
+	//unpack_tile(temptilebuf, o_tile, 0, true);
+	memcpy(linktilebuf, temptilebuf, 256);
+	tempx=x;
+	tempy=y;
+	for(int i=0; i<16; ++i)
+	{
+                for(int j=0; j<16; ++j)
+                {
+                    if(linktilebuf[i*16+j])
+                    {
+                        if(type==0)  // Twilight
+                        {
+                            particles.add(new pTwilight((fix)x+j, (fix)y-(fix)z+i, 5, 0, 0, (rand()%8)+i*4));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=3;
+                        }
+                        else if(type ==1)  // Sands of Hours
+                        {
+                            particles.add(new pTwilight((fix)x+j, (fix)y-(fix)z+i, 5, 1, 2, (rand()%16)+i*2));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=4;
+                            
+                            if(rand()%10 < 2)
+                            {
+                                p->color=1;
+                                p->cset=0;
+                            }
+                        }
+                        else
+                        {
+                            particles.add(new pFaroresWindDust((fix)x+j, (fix)y-(fix)z+i, 5, 6, linktilebuf[i*16+j], rand()%96));
+                            
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->angular=true;
+                            p->angle=rand();
+                            p->step=(((double)j)/8);
+                            p->yofs=0;//yofs;
+                        }
+                    }
+                }
+	}
+}
+*/
 
 
 int enemy::getScriptUID() { return script_UID; }
@@ -585,6 +652,12 @@ bool enemy::animate(int index)
     scored=false;
     
     ++c_clk;
+    
+    //Run its script
+    if ( script > 0 ) 
+    {
+	ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
+    }
     
     // returns true when enemy is defeated
     return Dead(index);
@@ -1628,6 +1701,85 @@ bool enemy::dont_draw()
     return false;
 }
 
+// drawingng used in 2.50.x
+void enemy::old_draw(BITMAP *dest)
+{
+    if(dont_draw())
+        return;
+        
+    int cshold=cs;
+    
+    if(dying)
+    {
+        if(clk2>=19)
+        {
+            if(!(clk2&2))
+                sprite::draw(dest);
+                
+            return;
+        }
+        
+        flip = 0;
+        tile = wpnsbuf[iwDeath].newtile;
+	//The scale of this tile shouldx be based on the enemy size. -Z
+        
+        if(BSZ)
+            tile += zc_min((15-clk2)/3,4);
+        else if(clk2>6 && clk2<=12)
+            ++tile;
+            
+        /* trying to get more death frames here
+          if(wpnsbuf[wid].frames)
+          {
+          if(++clk2 >= wpnsbuf[wid].speed)
+          {
+          clk2 = 0;
+          if(++aframe >= wpnsbuf[wid].frames)
+          aframe = 0;
+          }
+          tile = wpnsbuf[wid].tile + aframe;
+          }
+          */
+        
+        if(BSZ || fading==fade_blue_poof)
+            cs = wpnsbuf[iwDeath].csets&15;
+        else
+            cs = (((clk2+5)>>1)&3)+6;
+    }
+    else if(hclk>0)
+    {
+        if(family==eeGANON)
+            cs=(((hclk-1)>>1)&3)+6;
+        else if(hclk<33 && !get_bit(quest_rules,qr_ENEMIESFLICKER))
+            cs=(((hclk-1)>>1)&3)+6;
+    }
+    
+    if((tmpscr->flags3&fINVISROOM) &&
+            !(current_item(itype_amulet)) &&
+            !((get_bit(quest_rules,qr_LENSSEESENEMIES) || (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5) ) &&
+              lensclk) && family!=eeGANON)
+    {
+        sprite::drawcloaked(dest);
+    }
+    else
+    {
+	    if ( frozenclock < 0 )
+	    {
+		if ( frozentile > 0 ) tile = frozentile;
+		loadpalset(csBOSS,frozencset);
+	    }
+        if(family !=eeGANON && hclk>0 && get_bit(quest_rules,qr_ENEMIESFLICKER))
+        {
+            if((frame&1)==1)
+                sprite::draw(dest);
+        }
+        else
+            sprite::draw(dest);
+    }
+    
+    cs=cshold;
+}
+
 #define DRAW_NORMAL 1
 #define DRAW_CLOAKED 1
 #define DRAW_INVIS 0
@@ -1635,6 +1787,15 @@ bool enemy::dont_draw()
 // sprite::draw()
 void enemy::draw(BITMAP *dest)
 {
+    //Temporary fix for bugs when drawing some enemies. -Z
+    //Statues need the invis flag set by the quest loader.
+    //I'm not sure what specifiuc segment of lanmolas is intended to be invisible.
+    //if ( family == eePROJECTILE || family == eeGANON || family == eeLANM ) 
+    //{
+    //    old_draw(dest);
+    //    return;
+    //}
+    
 	//Let's clen up this logic; shall we?
     byte canSee = DRAW_INVIS;
     if ( editorflags & ENEMY_FLAG1 )
@@ -1693,7 +1854,7 @@ void enemy::draw(BITMAP *dest)
     {
 	    //new enemy editor behaviour flags for Ganon
 	
-	if ( family == eeGANON ) 
+	if ( family == eeGANON ) return;
 	/*
 	{
 	    //if ( editorflags & ENEMY_FLAG1 || ( (editorflags & ENEMY_FLAG2) && ( misc13 >= 0 : game->item[misc13] ? (linkhasitemclass((misc13*-1)) ) ) //ganon is visible to level 2 amulet
@@ -6810,7 +6971,9 @@ bool eStalfos::animate(int index)
         KillWeapon();
         return Dead(index);
     }
-    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide()))  //Split into enemies
+    //2.10 checked !fslide(), but nothing uses that now anyway. -Z
+    //Perhaps the problem occurs when vires die because they have < 0 HP, in this check?
+    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() /*&& !fslide()*/ ))  //Split into enemies
     {
         stop_bgsfx(index);
         int kids = guys.Count();
@@ -6841,7 +7004,36 @@ bool eStalfos::animate(int index)
             
         return true;
     }
-    
+    /*
+    else if((dmisc2==e2tSPLITHIT && hp<=0 &&!slide()))  //Possible vires fix; or could cause goodness knows what. -Z
+    {
+        stop_bgsfx(index);
+        int kids = guys.Count();
+        int id2=dmisc3;
+        
+        for(int i=0; i < dmisc4; i++)
+        {
+//	    if (addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((i+1)<<12)),-21-(i%4)))
+            if(addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : (i<<12)),-21-(i%4)))
+                ((enemy*)guys.spr(kids+i))->count_enemy = false;
+        }
+        
+        if(itemguy) // Hand down the carried item
+        {
+            guycarryingitem = guys.Count()-1;
+            ((enemy*)guys.spr(guycarryingitem))->itemguy = true;
+            itemguy = false;
+        }
+        
+        if(haslink)
+        {
+            Link.setEaten(0);
+            haslink=false;
+        }
+                    
+        return true;
+    }
+    */
     if(fading)
     {
         if(++clk4 > 60)
@@ -7354,7 +7546,7 @@ int eStalfos::takehit(weapon *w)
     int ret = enemy::takehit(w);
     
     if(sclk && dmisc2==e2tSPLITHIT)
-        sclk+=128;
+        sclk+=128; //Fuck these arbitrary values with no explanation. Fuck vires, too. -Z
         
     return ret;
 }
@@ -7406,10 +7598,22 @@ void eStalfos::charge_attack()
 
 void eStalfos::vire_hop()
 {
+    //if ( sclk > 0 ) return; //Don't hop during knockback.
+  
+//    if(dmisc9!=e9tPOLSVOICE)
+//    {
+//        //if( slide() /*sclk!=0*/ && dmisc2==e2tSPLIT) //Vires with split on hit, only! -Z
+//        if( sclk!=0 && dmisc2==e2tSPLIT) //Vires with split on hit, only! -Z
+//            return; //the enemy should split if it is sliding!
+//        //else sclk=0; //might need this here, too. -Z
+//    }
     if(dmisc9!=e9tPOLSVOICE)
     {
-        if(sclk!=0 && dmisc2==e2tSPLIT) //Vires with split on hit, only! -Z
-            return;
+        if(sclk!=0)
+        {
+            if (dmisc2==e2tSPLITHIT) return;
+            //return;
+        }
     }
     else sclk=0;
     

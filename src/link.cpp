@@ -36,6 +36,12 @@ extern ZModule zcm;
 extern zcmodule moduledata;
 #include "mem_debug.h"
 #include "zscriptversion.h"
+#include "particles.h"
+
+extern refInfo itemScriptData[256];
+extern long item_stack[256][MAX_SCRIPT_REGISTERS];
+extern refInfo *ri; //= NULL;
+extern long(*stack)[MAX_SCRIPT_REGISTERS];
 
 using std::set;
 
@@ -62,6 +68,8 @@ int whistleitem=-1;
 extern word g_doscript;
 
 void playLevelMusic();
+
+extern sprite_list particles;
 
 const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
@@ -2225,7 +2233,14 @@ void LinkClass::checkstab()
                             
                         if(itemsbuf[items.spr(j)->id].collect_script)
                         {
+				//clear item script stack. 
+				ri = &(itemScriptData[items.spr(j)->id]);
+				ri->Clear();
+				for ( int q = 0; q < 1024; q++ ) item_stack[items.spr(j)->id][q] = 0;
+			
                             ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[items.spr(j)->id].collect_script, items.spr(j)->id & 0xFFF);
+			    //runningItemScripts[items.spr(j)->id] = 0;
+				
                         }
                         
                         getitem(items.spr(j)->id);
@@ -3639,6 +3654,10 @@ void LinkClass::hitlink(int hit2)
         // Stomp Boots script
         if(itemsbuf[itemid].script != 0)
         {
+		//clear the item script stack for a new script
+		ri = &(itemScriptData[itemid]);
+				ri->Clear();
+				for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
             ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
         }
         
@@ -6061,6 +6080,10 @@ void do_lens()
 		
 		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
 		{
+			//clear the item script stack for a new script
+				ri = &(itemScriptData[itemid]);
+				ri->Clear();
+				for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
 		    ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 		    did_scriptl=true;
 		}
@@ -6106,6 +6129,10 @@ void do_210_lens()
         
         if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl)
         {
+		//clear the item script stack for a new script
+		ri = &(itemScriptData[itemid]);
+				ri->Clear();
+				for ( int q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
             ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
             did_scriptl=true;
         }
@@ -6657,6 +6684,10 @@ void LinkClass::movelink()
 		
 		if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && checkmagiccost(dowpn))
 		{
+			//clear the item script stack for a new script
+		ri = &(itemScriptData[dowpn]);
+				ri->Clear();
+				for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0;
 		    ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
 		    did_scripta=true;
 		}
@@ -6779,7 +6810,10 @@ void LinkClass::movelink()
             // for the item's main use.
             if(!paidmagic && attack!=wWand)
                 paymagiccost(dowpn);
-                
+                //clear the item script stack for a new script
+		ri = &(itemScriptData[dowpn]);
+				ri->Clear();
+				for ( int q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0;
             ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
             did_scriptb=true;
         }
@@ -11191,7 +11225,7 @@ bool LinkClass::dowarp(int type, int index)
     int wrindex = 0;
     //int lastent_org = lastentrance;
     //int lastdmap_org = lastentrance_dmap;
-    bool wasSideview = (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
+    bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
     
     // Drawing commands probably shouldn't carry over...
     script_drawing_commands.Clear();
@@ -15098,6 +15132,10 @@ void LinkClass::checkitems(int index)
         
     if(itemsbuf[id2].collect_script)
     {
+	    //clear the item script stack for a new script
+		ri = &(itemScriptData[id2]);
+				ri->Clear();
+				for ( int q = 0; q < 1024; q++ ) item_stack[id2][q] = 0;
         ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, id2 & 0xFFF);
     }
     
@@ -15501,7 +15539,7 @@ void LinkClass::getTriforce(int id2)
     if(itemsbuf[id2].misc1)
         jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
     else
-        try_zcmusic((char*)"zelda.nsf",5, ZC_MIDI_TRIFORCE);
+        try_zcmusic((char*)moduledata.base_NSF_file,moduledata.tf_track, ZC_MIDI_TRIFORCE);
         
     if(itemsbuf[id2].flags & ITEM_GAMEDATA)
     {
@@ -16606,4 +16644,60 @@ LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator !()
     return ret;
 }
 
+void LinkClass::explode(int type)
+{
+	static int tempx, tempy;
+	static byte linktilebuf[256];
+	int ltile=0;
+	int lflip=0;
+	bool shieldModify=true;
+	unpack_tile(newtilebuf, tile, flip, true);
+	memcpy(linktilebuf, unpackbuf, 256);
+	tempx=Link.getX();
+	tempy=Link.getY();
+	for(int i=0; i<16; ++i)
+	{
+                for(int j=0; j<16; ++j)
+                {
+                    if(linktilebuf[i*16+j])
+                    {
+                        if(type==0)  // Twilight
+                        {
+                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (rand()%8)+i*4));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=3;
+                        }
+                        else if(type ==1)  // Sands of Hours
+                        {
+                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (rand()%16)+i*2));
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->step=4;
+                            
+                            if(rand()%10 < 2)
+                            {
+                                p->color=1;
+                                p->cset=0;
+                            }
+                        }
+                        else
+                        {
+                            particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], rand()%96));
+                            
+                            int k=particles.Count()-1;
+                            particle *p = (particle*)(particles.spr(k));
+                            p->angular=true;
+                            p->angle=rand();
+                            p->step=(((double)j)/8);
+                            p->yofs=Link.getYOfs();
+                        }
+                    }
+                }
+	}
+}
+
+//int LinkClass::getTileModifier() { return item_tile_mod(shieldModify); }
+int LinkClass::getTileModifier() { return item_tile_mod(true); } //how best to read shieldcanmodify? -Z
+void LinkClass::setTileModifier(int new_tile_mod) { /*item_tile_mod = new_tile_mod;*/ }
 /*** end of link.cpp ***/

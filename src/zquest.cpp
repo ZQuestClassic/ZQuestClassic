@@ -30,6 +30,8 @@
 #include "parser/Compiler.h"
 #include "zc_alleg.h"
 #include "mem_debug.h"
+#include "particles.h"
+sprite_list particles;
 void setZScriptVersion(int) { } //bleh...
 
 #include <png.h>
@@ -177,6 +179,20 @@ std::vector<string> asglobalscripts;
 extern std::map<int, pair<string, string> > itemmap;
 std::vector<string> asitemscripts;
 
+
+extern std::map<int, pair<string, string> > npcmap;
+std::vector<string> asnpcscripts;
+extern std::map<int, pair<string, string> > ewpnmap;
+std::vector<string> aseweaponscripts;
+extern std::map<int, pair<string, string> > lwpnmap;
+std::vector<string> aslweaponscripts;
+extern std::map<int, pair<string, string> > linkmap;
+std::vector<string> aslinkscripts;
+extern std::map<int, pair<string, string> > dmapmap;
+std::vector<string> asdmapscripts;
+extern std::map<int, pair<string, string> > screenmap;
+std::vector<string> asscreenscripts;
+
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
 //editbox_data temp_eb_data;
@@ -301,10 +317,12 @@ BITMAP *hw_screen, *scrtmp;
 ffscript *ffscripts[NUMSCRIPTFFC];
 ffscript *itemscripts[NUMSCRIPTITEM];
 ffscript *guyscripts[NUMSCRIPTGUYS];
-ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
+ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *globalscripts[NUMSCRIPTGLOBAL];
 ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
+ffscript *dmapscripts[NUMSCRIPTSDMAP];
 
 // Dummy - needed to compile, but unused
 refInfo ffcScriptData[32];
@@ -661,6 +679,7 @@ static MENU rules_menu[] =
     { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
     { (char *)"&Other",                     onMiscRules,               NULL,                     0,            NULL   },
     { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
+    { (char *)"&Scripts",    		    onScriptRules,             NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -18736,6 +18755,8 @@ script_struct biffs[NUMSCRIPTFFC]; //ff script
 int biffs_cnt = -1;
 script_struct biitems[NUMSCRIPTFFC]; //item script
 int biitems_cnt = -1;
+script_struct binpcs[NUMSCRIPTGUYS]; //item script
+int binpcs_cnt = -1;
 //static char ffscript_str_buf[32];
 
 void build_biffs_list()
@@ -18778,6 +18799,49 @@ void build_biffs_list()
     for(int i = 0; i < NUMSCRIPTFFC; i++)
         if(biffs[i].first.length() > 0)
             biffs_cnt = i+1;
+}
+
+//npc scripts
+void build_binpcs_list()
+{
+    binpcs[0].first = "(None)";
+    binpcs[0].second = -1;
+    binpcs_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTGUYS - 1; i++)
+    {
+        if(npcmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << npcmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        binpcs[binpcs_cnt].first = ss.str();
+        binpcs[binpcs_cnt].second = i;
+        binpcs_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=binpcs_cnt; i<NUMSCRIPTGUYS; i++)
+    {
+        binpcs[i].first="";
+        binpcs[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < binpcs_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < binpcs_cnt; j++)
+        {
+            if(stricmp(binpcs[i].first.c_str(),binpcs[j].first.c_str()) > 0 && strcmp(binpcs[j].first.c_str(),""))
+                zc_swap(binpcs[i],binpcs[j]);
+        }
+    }
+    
+    binpcs_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTGUYS; i++)
+        if(binpcs[i].first.length() > 0)
+            binpcs_cnt = i+1;
 }
 
 void build_biitems_list()
@@ -18934,7 +18998,7 @@ static DIALOG compile_dlg[] =
     { jwin_win_proc,		0,		0,		200,	118,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Compile ZScript", NULL, NULL },
     { jwin_button_proc,		109,	89,		61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
     { jwin_button_proc,		131,	30,		61,		21,		vc(14),	vc(1),	'e',	D_EXIT,	0,	0,	(void *) "&Edit", NULL, NULL },
-    { jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'i',	D_EXIT,	0,	0,	(void *) "&Import", NULL, NULL },
+    { jwin_button_proc,		30,		60,		61,		21,		vc(14), vc(1),	'l',	D_EXIT,	0,	0,	(void *) "&Load", NULL, NULL },
     { jwin_text_proc,		8,		35,		61,		21,		vc(14),	vc(1),	0,	0,		0,	0,	(void *) zScriptBytes, NULL, NULL },
     { jwin_button_proc,		30,		89,		61,		21,		vc(14),	vc(1),  'c',	D_EXIT,	0,	0,	(void *) "&Compile!", NULL, NULL },
     { jwin_button_proc,		109,	60,		61,		21,		vc(14),	vc(1),	'x',	D_EXIT,	0,	0,	(void *) "E&xport", NULL, NULL },
@@ -18945,6 +19009,7 @@ static DIALOG compile_dlg[] =
 static int as_ffc_list[] = { 4, 5, 6, -1};
 static int as_global_list[] = { 7, 8, 9, -1}; //Why does putting 15 in here not place my message only on the global tab? ~Joe
 static int as_item_list[] = { 10, 11, 12, -1};
+static int as_npc_list[] = { 18, 19, 20, -1}; //npc scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -18952,6 +19017,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"FFC",     D_SELECTED,  as_ffc_list,    0, NULL },
     { (char *)"Global",	 0,         as_global_list, 0, NULL },
     { (char *)"Item",		 0,         as_item_list,   0, NULL },
+    { (char *)"NPC",		 0,         as_npc_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
@@ -18987,6 +19053,16 @@ const char *assignitemlist(int index, int *list_size)
     
     return itemmap[index].first.c_str();
 }
+const char *assignnpclist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)npcmap.size();
+        return NULL;
+    }
+    
+    return npcmap[index].first.c_str();
+}
 
 const char *assignffcscriptlist(int index, int *list_size)
 {
@@ -19021,12 +19097,25 @@ const char *assignitemscriptlist(int index, int *list_size)
     return asitemscripts[index].c_str();
 }
 
+const char *assignnpcscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)asnpcscripts.size();
+        return NULL;
+    }
+    
+    return asnpcscripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
 static ListData assignglobalscript_list(assignglobalscriptlist, &font);
 static ListData assignitem_list(assignitemlist, &font);
 static ListData assignitemscript_list(assignitemscriptlist, &font);
+static ListData assignnpc_list(assignnpclist, &font);
+static ListData assignnpcscript_list(assignnpcscriptlist, &font);
 
 static DIALOG assignscript_dlg[] =
 {
@@ -19037,22 +19126,34 @@ static DIALOG assignscript_dlg[] =
     { jwin_button_proc,	  182,	191,	61,		21,		vc(14), vc(1),	'k',	    D_EXIT,	0,	0,	(void *) "O&K", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffc_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffcscript_list, NULL, NULL },
+    //6
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobal_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobalscript_list, NULL, NULL },
+    //9
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitem_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemscript_list, NULL, NULL },
+    //12
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
-    
+    //13
     { jwin_check_proc,      22,  195,   90,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Output ZASM code to allegro.log", NULL, NULL },
     { jwin_text_proc,       22,  158,   90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Slots with matching names have been updated. Scripts marked", NULL, NULL },
     { jwin_text_proc,       22,  168,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "with ** were not found in the buffer and will not function.", NULL, NULL },
+    //16
     { jwin_text_proc,       22,  178,  90,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Global scripts named 'Init' will be appended to '~Init'", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    //npc scripts
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpc_list, NULL, NULL },
+    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpcscript_list, NULL, NULL },
+    //20
+    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    
+    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
     
 };
+
 
 //editbox_data zscript_edit_data;
 
@@ -19124,6 +19225,47 @@ static DIALOG gscript_sel_dlg[] =
     { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
     { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &gscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+//npc script slots
+static char npcscript_str_buf2[32];
+
+const char *npcscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(npcmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, npcmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(npcscript_str_buf2,"%d: %s",index+1, buf);
+        return npcscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTGUYS-1);
+    return NULL;
+}
+
+
+static ListData npcscript_sel_dlg_list(npcscriptlist2, &font);
+
+static DIALOG npcscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &npcscript_sel_dlg_list, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -19252,12 +19394,54 @@ int onCompileScript()
             asglobalscripts.push_back("<none>");
             asitemscripts.clear();
             asitemscripts.push_back("<none>");
+            asnpcscripts.clear();
+            asnpcscripts.push_back("<none>");
+            aseweaponscripts.clear();
+            aseweaponscripts.push_back("<none>");
+            aslweaponscripts.clear();
+            aslweaponscripts.push_back("<none>");
+            aslinkscripts.clear();
+            aslinkscripts.push_back("<none>");
+            asdmapscripts.clear();
+            asdmapscripts.push_back("<none>");
+            asscreenscripts.clear();
+            asscreenscripts.push_back("<none>");
             
             for (std::map<string, ZScript::ScriptType>::iterator it =
 	                 stypes.begin(); it != stypes.end(); ++it)
             {
 	            string const& name = it->first;
 	            ZScript::ScriptType type = it->second;
+                    if ( type == ZScript::ScriptType::ffc )
+                    {        asffcscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::item )
+                    {        asitemscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::npc )
+                    {        asnpcscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::eweapon )
+                    {        aseweaponscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::lweapon )
+                    {        aslweaponscripts.push_back(name); } 
+                    else if ( type == ZScript::ScriptType::link )
+                    {        aslinkscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::player )
+                    {        aslinkscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::dmapdata )
+                    {        asdmapscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::screendata )
+                    {        asscreenscripts.push_back(name); }
+                    else if ( type == ZScript::ScriptType::global )
+                    {
+                        if (name != "~Init")
+                        {
+                            asglobalscripts.push_back(name);
+                        }
+                    }
+                        
+                        
+                        
+                    
+                    /*
 	            if (type == ZScript::ScriptType::ffc)
                     asffcscripts.push_back(name);
 	            else if (type == ZScript::ScriptType::item)
@@ -19267,6 +19451,7 @@ int onCompileScript()
 	                     // script, bad things could happen
 	                     && name != "~Init")
 		            asglobalscripts.push_back(name);
+                    */
             }
             
             assignscript_dlg[0].dp2 = lfont;
@@ -19325,6 +19510,67 @@ int onCompileScript()
                     else // Previously loaded script not found
                         sprintf(temp, "Slot %d: **%s**", i+1, itemmap[i].second.c_str());
                     itemmap[i].first = temp;
+                }
+                
+                for(int i = 0; i < NUMSCRIPTGUYS-1; i++)
+                {
+                    if(npcmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(npcmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, npcmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, npcmap[i].second.c_str());
+                    npcmap[i].first = temp;
+                } 
+                for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
+                {
+                    if(ewpnmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(ewpnmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, ewpnmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, ewpnmap[i].second.c_str());
+                    ewpnmap[i].first = temp;
+                }
+                for(int i = 0; i < NUMSCRIPTWEAPONS-1; i++)
+                {
+                    if(lwpnmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(lwpnmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, lwpnmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, lwpnmap[i].second.c_str());
+                    lwpnmap[i].first = temp;
+                }
+                for(int i = 0; i < NUMSCRIPTLINK-1; i++)
+                {
+                    if(linkmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(linkmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, linkmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, linkmap[i].second.c_str());
+                    linkmap[i].first = temp;
+                }
+                for(int i = 0; i < NUMSCRIPTSCREEN-1; i++)
+                {
+                    if(screenmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(screenmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, screenmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, screenmap[i].second.c_str());
+                    screenmap[i].first = temp;
+                }
+                for(int i = 0; i < NUMSCRIPTSDMAP-1; i++)
+                {
+                    if(dmapmap[i].second == "")
+                        sprintf(temp, "Slot %d: <none>", i+1);
+                    else if(scripts.find(dmapmap[i].second) != scripts.end())
+                        sprintf(temp, "Slot %d: %s", i+1, dmapmap[i].second.c_str());
+                    else // Previously loaded script not found
+                        sprintf(temp, "Slot %d: **%s**", i+1, dmapmap[i].second.c_str());
+                    dmapmap[i].first = temp;
                 }
                 
                 if(is_large)
@@ -19467,7 +19713,246 @@ int onCompileScript()
                             itemscripts[it->first+1][0].command = 0xFFFF;
                         }
                     }
-                    
+                    for(std::map<int, pair<string,string> >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&guyscripts[it->first+1],"tmp",false);
+                        }
+                        else if(guyscripts[it->first+1])
+                        {
+                            delete[] guyscripts[it->first+1];
+                            guyscripts[it->first+1] = new ffscript[1];
+                            guyscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&lwpnscripts[it->first+1],"tmp",false);
+                        }
+                        else if(lwpnscripts[it->first+1])
+                        {
+                            delete[] lwpnscripts[it->first+1];
+                            lwpnscripts[it->first+1] = new ffscript[1];
+                            lwpnscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&ewpnscripts[it->first+1],"tmp",false);
+                        }
+                        else if(ewpnscripts[it->first+1])
+                        {
+                            delete[] ewpnscripts[it->first+1];
+                            ewpnscripts[it->first+1] = new ffscript[1];
+                            ewpnscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&linkscripts[it->first+1],"tmp",false);
+                        }
+                        else if(linkscripts[it->first+1])
+                        {
+                            delete[] linkscripts[it->first+1];
+                            linkscripts[it->first+1] = new ffscript[1];
+                            linkscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&dmapscripts[it->first+1],"tmp",false);
+                        }
+                        else if(dmapscripts[it->first+1])
+                        {
+                            delete[] dmapscripts[it->first+1];
+                            dmapscripts[it->first+1] = new ffscript[1];
+                            dmapscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
+                    for(std::map<int, pair<string,string> >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+                    {
+                        if(it->second.second != "")
+                        {
+                            tempfile = fopen("tmp","w");
+                            
+                            if(!tempfile)
+                            {
+                                jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                                return D_O_K;
+                            }
+                            
+                            if(output)
+                            {
+                                al_trace("\n");
+                                al_trace("%s",it->second.second.c_str());
+                                al_trace("\n");
+                            }
+                            
+                            for(vector<ZScript::Opcode *>::iterator line = scripts[it->second.second].begin(); line != scripts[it->second.second].end(); line++)
+                            {
+                                string theline = (*line)->printLine();
+                                fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+                                
+                                if(output)
+                                {
+                                    al_trace("%s",theline.c_str());
+                                }
+                            }
+                            
+                            fclose(tempfile);
+                            parse_script_file(&screenscripts[it->first+1],"tmp",false);
+                        }
+                        else if(screenscripts[it->first+1])
+                        {
+                            delete[] screenscripts[it->first+1];
+                            screenscripts[it->first+1] = new ffscript[1];
+                            screenscripts[it->first+1][0].command = 0xFFFF;
+                        }
+                    }
                     unlink("tmp");
                     jwin_alert("Done!","ZScripts successfully loaded into script slots",NULL,NULL,"O&K",NULL,'k',0,lfont);
                     build_biffs_list();
@@ -19483,7 +19968,7 @@ int onCompileScript()
                     
                     return D_O_K;
                 }
-                
+                //Left off here for the day. -Z
                 case 6:
                     //<<, FFC
                 {
@@ -19548,6 +20033,26 @@ int onCompileScript()
                     else
                     {
                         itemmap[lind].second = asitemscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 20:
+                    //<<, NPC
+                {
+                    int lind = assignscript_dlg[18].d1;
+                    int rind = assignscript_dlg[19].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asnpcscripts[rind] == "<none>")
+                    {
+                        npcmap[lind].second = "";
+                    }
+                    else
+                    {
+                        npcmap[lind].second = asnpcscripts[rind];
                     }
                     
                     break;
@@ -21409,9 +21914,12 @@ int main(int argc,char **argv)
     switch(IS_BETA)
     {
     case -1:
+    {
         Z_title("ZQuest %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-        break;
+        //Print the current time to allegro.log as a test.
         
+        break;
+    }
     case 1:
         Z_title("ZQuest %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
         break;
@@ -22382,7 +22890,12 @@ int main(int argc,char **argv)
                   tempmode, get_color_depth(), zq_screen_w*zqwin_scale, zq_screen_h*zqwin_scale);
         //Z_message("OK\n");
     }
-    
+    //check and log RTC date and time
+
+        for (int q = 0; q < curTimeLAST; q++) 
+        {
+            int t_time_v = FFCore.getTime(q);
+        }
     scrtmp = screen;
     hw_screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
     screen = hw_screen;
@@ -22790,46 +23303,58 @@ int main(int argc,char **argv)
         memset(guy_string[i], 0, 64);
     }
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         ffscripts[i] = new ffscript[1];
         ffscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         itemscripts[i] = new ffscript[1];
         itemscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         guyscripts[i] = new ffscript[1];
         guyscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
+    }
+    
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         screenscripts[i] = new ffscript[1];
         screenscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
         globalscripts[i] = new ffscript[1];
         globalscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         linkscripts[i] = new ffscript[1];
         linkscripts[i][0].command = 0xFFFF;
+    }
+    
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        dmapscripts[i] = new ffscript[1];
+        dmapscripts[i][0].command = 0xFFFF;
     }
     
     zScript = std::string();
@@ -23283,39 +23808,49 @@ void quit_game()
     
     al_trace("Cleaning script buffer. \n");
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         if(ffscripts[i]!=NULL) delete [] ffscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         if(itemscripts[i]!=NULL) delete [] itemscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         if(guyscripts[i]!=NULL) delete [] guyscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         if(screenscripts[i]!=NULL) delete [] screenscripts[i];
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
     {
         if(globalscripts[i]!=NULL) delete [] globalscripts[i];
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
     }
     
     al_trace("Cleaning qst buffers. \n");
@@ -24353,6 +24888,7 @@ command_pair commands[cmdMAX]=
     { "Report: Integrity Check",              0, (intF) onIntegrityCheckAll                                    },
     { "Save ZQuest Settings",              0, (intF) onSaveZQuestSettings                                    },
     { "Clear Quest Filepath",              0, (intF) onClearQuestFilepath                                    },
+    { "Script Rules",              0, (intF) onScriptRules                                   },
     
 
 };
@@ -24760,6 +25296,650 @@ void FFScript::setLinkTile(int t)
 	FF_link_tile = vbound(t, 0, NEWMAXTILES);
 }
 
+int FFScript::getTime(int type)
+{
+	//struct tm *tm_struct = localtime(time(NULL));
+	struct tm * tm_struct;
+	time_t rawtime;
+	time (&rawtime);
+	tm_struct = localtime (&rawtime);
+	
+	switch(type)
+	{
+		case curyear:
+		{
+			int year = tm_struct->tm_year + 1900;        /* year */
+			//year format starts at 1900, so we add it to the return
+			al_trace("The current year is: %d\n",year);
+			return year;
+			
+		}
+		case curmonth:
+		{
+			int month = tm_struct->tm_mon +1;         /* month */
+			//Months start at 0, but we want 1->12
+			al_trace("The current month is: %d\n",month);
+			return month;
+		}
+		case curday_month:
+		{
+			int day_month = tm_struct->tm_mday;        /* day of the month */
+			al_trace("The current day of the month is: %d\n",day_month);
+			return day_month;
+		}
+		case curday_week: 
+		{
+			int day_week = tm_struct->tm_wday;        /* day of the week */
+			al_trace("The current day of the week is: %d\n",day_week);
+			return day_week;
+		}
+		case curhour:
+		{
+			int hour = tm_struct->tm_hour;        /* hours */
+			al_trace("The current hour is: %d\n",hour);
+			return hour;
+		}
+		case curminute: 
+		{
+			int minutes = tm_struct->tm_min;         /* minutes */
+			al_trace("The current hour is: %d\n",minutes);
+			return minutes;
+		}
+		case cursecond:
+		{
+			int secs = tm_struct->tm_sec;         /* seconds */
+			al_trace("The current second is: %d\n",secs);
+			return secs;
+		}
+		case curdayyear:
+		{
+			int day_year = tm_struct->tm_yday;        /* day in the year */
+			al_trace("The current day out of the year is: %d\n",day_year);
+			return day_year;
+		}
+		case curDST:
+		{
+			int isDST = tm_struct->tm_isdst;       /* daylight saving time */
+			al_trace("The current DSTis: %d\n",isDST);
+			return isDST;
+		}
+		default: return -1;
+		
+	}
+}
+
+const char *itemclass_help_string_cats[itype_max*3]=
+		{
+			"ichs_0_0", "ichs_0_1", "ichs_0_2", "ichs_1_0", "ichs_1_1", "ichs_1_2", "ichs_2_0", "ichs_2_1", "ichs_2_2", "ichs_3_0", "ichs_3_1", "ichs_3_2", "ichs_4_0", "ichs_4_1", "ichs_4_2", "ichs_5_0", "ichs_5_1", "ichs_5_2", "ichs_6_0", "ichs_6_1", "ichs_6_2", "ichs_7_0", "ichs_7_1", "ichs_7_2", "ichs_8_0", "ichs_8_1", "ichs_8_2", "ichs_9_0", "ichs_9_1", "ichs_9_2", "ichs_10_0", "ichs_10_1", "ichs_10_2", "ichs_11_0", "ichs_11_1", "ichs_11_2", "ichs_12_0", "ichs_12_1", "ichs_12_2", "ichs_13_0", "ichs_13_1", "ichs_13_2", "ichs_14_0", "ichs_14_1", "ichs_14_2", "ichs_15_0", "ichs_15_1", "ichs_15_2", "ichs_16_0", "ichs_16_1", "ichs_16_2", 
+			"ichs_17_0", "ichs_17_1", "ichs_17_2", "ichs_18_0", "ichs_18_1", "ichs_18_2", "ichs_19_0", "ichs_19_1", "ichs_19_2", "ichs_20_0", "ichs_20_1", "ichs_20_2", "ichs_21_0", "ichs_21_1", "ichs_21_2", "ichs_22_0", "ichs_22_1", "ichs_22_2", "ichs_23_0", "ichs_23_1", "ichs_23_2", "ichs_24_0", "ichs_24_1", "ichs_24_2", "ichs_25_0", "ichs_25_1", "ichs_25_2", "ichs_26_0", "ichs_26_1", "ichs_26_2", "ichs_27_0", "ichs_27_1", "ichs_27_2", "ichs_28_0", "ichs_28_1", "ichs_28_2", "ichs_29_0", "ichs_29_1", "ichs_29_2", "ichs_30_0", "ichs_30_1", "ichs_30_2", "ichs_31_0", "ichs_31_1", "ichs_31_2", "ichs_32_0", "ichs_32_1", "ichs_32_2", 
+			"ichs_33_0", "ichs_33_1", "ichs_33_2", "ichs_34_0", "ichs_34_1", "ichs_34_2", "ichs_35_0", "ichs_35_1", "ichs_35_2", "ichs_36_0", "ichs_36_1", "ichs_36_2", "ichs_37_0", "ichs_37_1", "ichs_37_2", "ichs_38_0", "ichs_38_1", "ichs_38_2", "ichs_39_0", "ichs_39_1", "ichs_39_2", "ichs_40_0", "ichs_40_1", "ichs_40_2", "ichs_41_0", "ichs_41_1", "ichs_41_2", "ichs_42_0", "ichs_42_1", "ichs_42_2", "ichs_43_0", "ichs_43_1", "ichs_43_2", "ichs_44_0", "ichs_44_1", "ichs_44_2", "ichs_45_0", "ichs_45_1", "ichs_45_2", "ichs_46_0", "ichs_46_1", "ichs_46_2", "ichs_47_0", "ichs_47_1", "ichs_47_2", "ichs_48_0", "ichs_48_1", "ichs_48_2", 
+			"ichs_49_0", "ichs_49_1", "ichs_49_2", "ichs_50_0", "ichs_50_1", "ichs_50_2", "ichs_51_0", "ichs_51_1", "ichs_51_2", "ichs_52_0", "ichs_52_1", "ichs_52_2", "ichs_53_0", "ichs_53_1", "ichs_53_2", "ichs_54_0", "ichs_54_1", "ichs_54_2", "ichs_55_0", "ichs_55_1", "ichs_55_2", "ichs_56_0", "ichs_56_1", "ichs_56_2", "ichs_57_0", "ichs_57_1", "ichs_57_2", "ichs_58_0", "ichs_58_1", "ichs_58_2", "ichs_59_0", "ichs_59_1", "ichs_59_2", "ichs_60_0", "ichs_60_1", "ichs_60_2", "ichs_61_0", "ichs_61_1", "ichs_61_2", "ichs_62_0", "ichs_62_1", "ichs_62_2", "ichs_63_0", "ichs_63_1", "ichs_63_2", "ichs_64_0", "ichs_64_1", "ichs_64_2", 
+			"ichs_65_0", "ichs_65_1", "ichs_65_2", "ichs_66_0", "ichs_66_1", "ichs_66_2", "ichs_67_0", "ichs_67_1", "ichs_67_2", "ichs_68_0", "ichs_68_1", "ichs_68_2", "ichs_69_0", "ichs_69_1", "ichs_69_2", "ichs_70_0", "ichs_70_1", "ichs_70_2", "ichs_71_0", "ichs_71_1", "ichs_71_2", "ichs_72_0", "ichs_72_1", "ichs_72_2", "ichs_73_0", "ichs_73_1", "ichs_73_2", "ichs_74_0", "ichs_74_1", "ichs_74_2", "ichs_75_0", "ichs_75_1", "ichs_75_2", "ichs_76_0", "ichs_76_1", "ichs_76_2", "ichs_77_0", "ichs_77_1", "ichs_77_2", "ichs_78_0", "ichs_78_1", "ichs_78_2", "ichs_79_0", "ichs_79_1", "ichs_79_2", "ichs_80_0", "ichs_80_1", "ichs_80_2", 
+			"ichs_81_0", "ichs_81_1", "ichs_81_2", "ichs_82_0", "ichs_82_1", "ichs_82_2", "ichs_83_0", "ichs_83_1", "ichs_83_2", "ichs_84_0", "ichs_84_1", "ichs_84_2", "ichs_85_0", "ichs_85_1", "ichs_85_2", "ichs_86_0", "ichs_86_1", "ichs_86_2", "ichs_87_0", "ichs_87_1", "ichs_87_2", "ichs_88_0", "ichs_88_1", "ichs_88_2", "ichs_89_0", "ichs_89_1", "ichs_89_2", "ichs_90_0", "ichs_90_1", "ichs_90_2", "ichs_91_0", "ichs_91_1", "ichs_91_2", "ichs_92_0", "ichs_92_1", "ichs_92_2", "ichs_93_0", "ichs_93_1", "ichs_93_2", "ichs_94_0", "ichs_94_1", "ichs_94_2", "ichs_95_0", "ichs_95_1", "ichs_95_2", "ichs_96_0", "ichs_96_1", "ichs_96_2", 
+			"ichs_97_0", "ichs_97_1", "ichs_97_2", "ichs_98_0", "ichs_98_1", "ichs_98_2", "ichs_99_0", "ichs_99_1", "ichs_99_2", "ichs_100_0", "ichs_100_1", "ichs_100_2", "ichs_101_0", "ichs_101_1", "ichs_101_2", "ichs_102_0", "ichs_102_1", "ichs_102_2", "ichs_103_0", "ichs_103_1", "ichs_103_2", "ichs_104_0", "ichs_104_1", "ichs_104_2", "ichs_105_0", "ichs_105_1", "ichs_105_2", "ichs_106_0", "ichs_106_1", "ichs_106_2", "ichs_107_0", "ichs_107_1", "ichs_107_2", "ichs_108_0", "ichs_108_1", "ichs_108_2", "ichs_109_0", "ichs_109_1", "ichs_109_2", "ichs_110_0", "ichs_110_1", "ichs_110_2", "ichs_111_0", "ichs_111_1", "ichs_111_2", "ichs_112_0", "ichs_112_1", "ichs_112_2", 
+			"ichs_113_0", "ichs_113_1", "ichs_113_2", "ichs_114_0", "ichs_114_1", "ichs_114_2", "ichs_115_0", "ichs_115_1", "ichs_115_2", "ichs_116_0", "ichs_116_1", "ichs_116_2", "ichs_117_0", "ichs_117_1", "ichs_117_2", "ichs_118_0", "ichs_118_1", "ichs_118_2", "ichs_119_0", "ichs_119_1", "ichs_119_2", "ichs_120_0", "ichs_120_1", "ichs_120_2", "ichs_121_0", "ichs_121_1", "ichs_121_2", "ichs_122_0", "ichs_122_1", "ichs_122_2", "ichs_123_0", "ichs_123_1", "ichs_123_2", "ichs_124_0", "ichs_124_1", "ichs_124_2", "ichs_125_0", "ichs_125_1", "ichs_125_2", "ichs_126_0", "ichs_126_1", "ichs_126_2", "ichs_127_0", "ichs_127_1", "ichs_127_2", "ichs_128_0", "ichs_128_1", "ichs_128_2", 
+			"ichs_129_0", "ichs_129_1", "ichs_129_2", "ichs_130_0", "ichs_130_1", "ichs_130_2", "ichs_131_0", "ichs_131_1", "ichs_131_2", "ichs_132_0", "ichs_132_1", "ichs_132_2", "ichs_133_0", "ichs_133_1", "ichs_133_2", "ichs_134_0", "ichs_134_1", "ichs_134_2", "ichs_135_0", "ichs_135_1", "ichs_135_2", "ichs_136_0", "ichs_136_1", "ichs_136_2", "ichs_137_0", "ichs_137_1", "ichs_137_2", "ichs_138_0", "ichs_138_1", "ichs_138_2", "ichs_139_0", "ichs_139_1", "ichs_139_2", "ichs_140_0", "ichs_140_1", "ichs_140_2", "ichs_141_0", "ichs_141_1", "ichs_141_2", "ichs_142_0", "ichs_142_1", "ichs_142_2", "ichs_143_0", "ichs_143_1", "ichs_143_2", "ichs_144_0", "ichs_144_1", "ichs_144_2", 
+			"ichs_145_0", "ichs_145_1", "ichs_145_2", "ichs_146_0", "ichs_146_1", "ichs_146_2", "ichs_147_0", "ichs_147_1", "ichs_147_2", "ichs_148_0", "ichs_148_1", "ichs_148_2", "ichs_149_0", "ichs_149_1", "ichs_149_2", "ichs_150_0", "ichs_150_1", "ichs_150_2", "ichs_151_0", "ichs_151_1", "ichs_151_2", "ichs_152_0", "ichs_152_1", "ichs_152_2", "ichs_153_0", "ichs_153_1", "ichs_153_2", "ichs_154_0", "ichs_154_1", "ichs_154_2", "ichs_155_0", "ichs_155_1", "ichs_155_2", "ichs_156_0", "ichs_156_1", "ichs_156_2", "ichs_157_0", "ichs_157_1", "ichs_157_2", "ichs_158_0", "ichs_158_1", "ichs_158_2", "ichs_159_0", "ichs_159_1", "ichs_159_2", "ichs_160_0", "ichs_160_1", "ichs_160_2", 
+			"ichs_161_0", "ichs_161_1", "ichs_161_2", "ichs_162_0", "ichs_162_1", "ichs_162_2", "ichs_163_0", "ichs_163_1", "ichs_163_2", "ichs_164_0", "ichs_164_1", "ichs_164_2", "ichs_165_0", "ichs_165_1", "ichs_165_2", "ichs_166_0", "ichs_166_1", "ichs_166_2", "ichs_167_0", "ichs_167_1", "ichs_167_2", "ichs_168_0", "ichs_168_1", "ichs_168_2", "ichs_169_0", "ichs_169_1", "ichs_169_2", "ichs_170_0", "ichs_170_1", "ichs_170_2", "ichs_171_0", "ichs_171_1", "ichs_171_2", "ichs_172_0", "ichs_172_1", "ichs_172_2", "ichs_173_0", "ichs_173_1", "ichs_173_2", "ichs_174_0", "ichs_174_1", "ichs_174_2", "ichs_175_0", "ichs_175_1", "ichs_175_2", "ichs_176_0", "ichs_176_1", "ichs_176_2", 
+			"ichs_177_0", "ichs_177_1", "ichs_177_2", "ichs_178_0", "ichs_178_1", "ichs_178_2", "ichs_179_0", "ichs_179_1", "ichs_179_2", "ichs_180_0", "ichs_180_1", "ichs_180_2", "ichs_181_0", "ichs_181_1", "ichs_181_2", "ichs_182_0", "ichs_182_1", "ichs_182_2", "ichs_183_0", "ichs_183_1", "ichs_183_2", "ichs_184_0", "ichs_184_1", "ichs_184_2", "ichs_185_0", "ichs_185_1", "ichs_185_2", "ichs_186_0", "ichs_186_1", "ichs_186_2", "ichs_187_0", "ichs_187_1", "ichs_187_2", "ichs_188_0", "ichs_188_1", "ichs_188_2", "ichs_189_0", "ichs_189_1", "ichs_189_2", "ichs_190_0", "ichs_190_1", "ichs_190_2", "ichs_191_0", "ichs_191_1", "ichs_191_2", "ichs_192_0", "ichs_192_1", "ichs_192_2", 
+			"ichs_193_0", "ichs_193_1", "ichs_193_2", "ichs_194_0", "ichs_194_1", "ichs_194_2", "ichs_195_0", "ichs_195_1", "ichs_195_2", "ichs_196_0", "ichs_196_1", "ichs_196_2", "ichs_197_0", "ichs_197_1", "ichs_197_2", "ichs_198_0", "ichs_198_1", "ichs_198_2", "ichs_199_0", "ichs_199_1", "ichs_199_2", "ichs_200_0", "ichs_200_1", "ichs_200_2", "ichs_201_0", "ichs_201_1", "ichs_201_2", "ichs_202_0", "ichs_202_1", "ichs_202_2", "ichs_203_0", "ichs_203_1", "ichs_203_2", "ichs_204_0", "ichs_204_1", "ichs_204_2", "ichs_205_0", "ichs_205_1", "ichs_205_2", "ichs_206_0", "ichs_206_1", "ichs_206_2", "ichs_207_0", "ichs_207_1", "ichs_207_2", "ichs_208_0", "ichs_208_1", "ichs_208_2", 
+			"ichs_209_0", "ichs_209_1", "ichs_209_2", "ichs_210_0", "ichs_210_1", "ichs_210_2", "ichs_211_0", "ichs_211_1", "ichs_211_2", "ichs_212_0", "ichs_212_1", "ichs_212_2", "ichs_213_0", "ichs_213_1", "ichs_213_2", "ichs_214_0", "ichs_214_1", "ichs_214_2", "ichs_215_0", "ichs_215_1", "ichs_215_2", "ichs_216_0", "ichs_216_1", "ichs_216_2", "ichs_217_0", "ichs_217_1", "ichs_217_2", "ichs_218_0", "ichs_218_1", "ichs_218_2", "ichs_219_0", "ichs_219_1", "ichs_219_2", "ichs_220_0", "ichs_220_1", "ichs_220_2", "ichs_221_0", "ichs_221_1", "ichs_221_2", "ichs_222_0", "ichs_222_1", "ichs_222_2", "ichs_223_0", "ichs_223_1", "ichs_223_2", "ichs_224_0", "ichs_224_1", "ichs_224_2", 
+			"ichs_225_0", "ichs_225_1", "ichs_225_2", "ichs_226_0", "ichs_226_1", "ichs_226_2", "ichs_227_0", "ichs_227_1", "ichs_227_2", "ichs_228_0", "ichs_228_1", "ichs_228_2", "ichs_229_0", "ichs_229_1", "ichs_229_2", "ichs_230_0", "ichs_230_1", "ichs_230_2", "ichs_231_0", "ichs_231_1", "ichs_231_2", "ichs_232_0", "ichs_232_1", "ichs_232_2", "ichs_233_0", "ichs_233_1", "ichs_233_2", "ichs_234_0", "ichs_234_1", "ichs_234_2", "ichs_235_0", "ichs_235_1", "ichs_235_2", "ichs_236_0", "ichs_236_1", "ichs_236_2", "ichs_237_0", "ichs_237_1", "ichs_237_2", "ichs_238_0", "ichs_238_1", "ichs_238_2", "ichs_239_0", "ichs_239_1", "ichs_239_2", "ichs_240_0", "ichs_240_1", "ichs_240_2", 
+			"ichs_241_0", "ichs_241_1", "ichs_241_2", "ichs_242_0", "ichs_242_1", "ichs_242_2", "ichs_243_0", "ichs_243_1", "ichs_243_2", "ichs_244_0", "ichs_244_1", "ichs_244_2", "ichs_245_0", "ichs_245_1", "ichs_245_2", "ichs_246_0", "ichs_246_1", "ichs_246_2", "ichs_247_0", "ichs_247_1", "ichs_247_2", "ichs_248_0", "ichs_248_1", "ichs_248_2", "ichs_249_0", "ichs_249_1", "ichs_249_2", "ichs_250_0", "ichs_250_1", "ichs_250_2", "ichs_251_0", "ichs_251_1", "ichs_251_2", "ichs_252_0", "ichs_252_1", "ichs_252_2", "ichs_253_0", "ichs_253_1", "ichs_253_2", "ichs_254_0", "ichs_254_1", "ichs_254_2", "ichs_255_0", "ichs_255_1", "ichs_255_2", "ichs_256_0", "ichs_256_1", "ichs_256_2", 
+			"ichs_257_0", "ichs_257_1", "ichs_257_2", "ichs_258_0", "ichs_258_1", "ichs_258_2", "ichs_259_0", "ichs_259_1", "ichs_259_2", "ichs_260_0", "ichs_260_1", "ichs_260_2", "ichs_261_0", "ichs_261_1", "ichs_261_2", "ichs_262_0", "ichs_262_1", "ichs_262_2", "ichs_263_0", "ichs_263_1", "ichs_263_2", "ichs_264_0", "ichs_264_1", "ichs_264_2", "ichs_265_0", "ichs_265_1", "ichs_265_2", "ichs_266_0", "ichs_266_1", "ichs_266_2", "ichs_267_0", "ichs_267_1", "ichs_267_2", "ichs_268_0", "ichs_268_1", "ichs_268_2", "ichs_269_0", "ichs_269_1", "ichs_269_2", "ichs_270_0", "ichs_270_1", "ichs_270_2", "ichs_271_0", "ichs_271_1", "ichs_271_2", "ichs_272_0", "ichs_272_1", "ichs_272_2", 
+			"ichs_273_0", "ichs_273_1", "ichs_273_2", "ichs_274_0", "ichs_274_1", "ichs_274_2", "ichs_275_0", "ichs_275_1", "ichs_275_2", "ichs_276_0", "ichs_276_1", "ichs_276_2", "ichs_277_0", "ichs_277_1", "ichs_277_2", "ichs_278_0", "ichs_278_1", "ichs_278_2", "ichs_279_0", "ichs_279_1", "ichs_279_2", "ichs_280_0", "ichs_280_1", "ichs_280_2", "ichs_281_0", "ichs_281_1", "ichs_281_2", "ichs_282_0", "ichs_282_1", "ichs_282_2", "ichs_283_0", "ichs_283_1", "ichs_283_2", "ichs_284_0", "ichs_284_1", "ichs_284_2", "ichs_285_0", "ichs_285_1", "ichs_285_2", "ichs_286_0", "ichs_286_1", "ichs_286_2", "ichs_287_0", "ichs_287_1", "ichs_287_2", "ichs_288_0", "ichs_288_1", "ichs_288_2", 
+			"ichs_289_0", "ichs_289_1", "ichs_289_2", "ichs_290_0", "ichs_290_1", "ichs_290_2", "ichs_291_0", "ichs_291_1", "ichs_291_2", "ichs_292_0", "ichs_292_1", "ichs_292_2", "ichs_293_0", "ichs_293_1", "ichs_293_2", "ichs_294_0", "ichs_294_1", "ichs_294_2", "ichs_295_0", "ichs_295_1", "ichs_295_2", "ichs_296_0", "ichs_296_1", "ichs_296_2", "ichs_297_0", "ichs_297_1", "ichs_297_2", "ichs_298_0", "ichs_298_1", "ichs_298_2", "ichs_299_0", "ichs_299_1", "ichs_299_2", "ichs_300_0", "ichs_300_1", "ichs_300_2", "ichs_301_0", "ichs_301_1", "ichs_301_2", "ichs_302_0", "ichs_302_1", "ichs_302_2", "ichs_303_0", "ichs_303_1", "ichs_303_2", "ichs_304_0", "ichs_304_1", "ichs_304_2", 
+			"ichs_305_0", "ichs_305_1", "ichs_305_2", "ichs_306_0", "ichs_306_1", "ichs_306_2", "ichs_307_0", "ichs_307_1", "ichs_307_2", "ichs_308_0", "ichs_308_1", "ichs_308_2", "ichs_309_0", "ichs_309_1", "ichs_309_2", "ichs_310_0", "ichs_310_1", "ichs_310_2", "ichs_311_0", "ichs_311_1", "ichs_311_2", "ichs_312_0", "ichs_312_1", "ichs_312_2", "ichs_313_0", "ichs_313_1", "ichs_313_2", "ichs_314_0", "ichs_314_1", "ichs_314_2", "ichs_315_0", "ichs_315_1", "ichs_315_2", "ichs_316_0", "ichs_316_1", "ichs_316_2", "ichs_317_0", "ichs_317_1", "ichs_317_2", "ichs_318_0", "ichs_318_1", "ichs_318_2", "ichs_319_0", "ichs_319_1", "ichs_319_2", "ichs_320_0", "ichs_320_1", "ichs_320_2", 
+			"ichs_321_0", "ichs_321_1", "ichs_321_2", "ichs_322_0", "ichs_322_1", "ichs_322_2", "ichs_323_0", "ichs_323_1", "ichs_323_2", "ichs_324_0", "ichs_324_1", "ichs_324_2", "ichs_325_0", "ichs_325_1", "ichs_325_2", "ichs_326_0", "ichs_326_1", "ichs_326_2", "ichs_327_0", "ichs_327_1", "ichs_327_2", "ichs_328_0", "ichs_328_1", "ichs_328_2", "ichs_329_0", "ichs_329_1", "ichs_329_2", "ichs_330_0", "ichs_330_1", "ichs_330_2", "ichs_331_0", "ichs_331_1", "ichs_331_2", "ichs_332_0", "ichs_332_1", "ichs_332_2", "ichs_333_0", "ichs_333_1", "ichs_333_2", "ichs_334_0", "ichs_334_1", "ichs_334_2", "ichs_335_0", "ichs_335_1", "ichs_335_2", "ichs_336_0", "ichs_336_1", "ichs_336_2", 
+			"ichs_337_0", "ichs_337_1", "ichs_337_2", "ichs_338_0", "ichs_338_1", "ichs_338_2", "ichs_339_0", "ichs_339_1", "ichs_339_2", "ichs_340_0", "ichs_340_1", "ichs_340_2", "ichs_341_0", "ichs_341_1", "ichs_341_2", "ichs_342_0", "ichs_342_1", "ichs_342_2", "ichs_343_0", "ichs_343_1", "ichs_343_2", "ichs_344_0", "ichs_344_1", "ichs_344_2", "ichs_345_0", "ichs_345_1", "ichs_345_2", "ichs_346_0", "ichs_346_1", "ichs_346_2", "ichs_347_0", "ichs_347_1", "ichs_347_2", "ichs_348_0", "ichs_348_1", "ichs_348_2", "ichs_349_0", "ichs_349_1", "ichs_349_2", "ichs_350_0", "ichs_350_1", "ichs_350_2", "ichs_351_0", "ichs_351_1", "ichs_351_2", "ichs_352_0", "ichs_352_1", "ichs_352_2", 
+			"ichs_353_0", "ichs_353_1", "ichs_353_2", "ichs_354_0", "ichs_354_1", "ichs_354_2", "ichs_355_0", "ichs_355_1", "ichs_355_2", "ichs_356_0", "ichs_356_1", "ichs_356_2", "ichs_357_0", "ichs_357_1", "ichs_357_2", "ichs_358_0", "ichs_358_1", "ichs_358_2", "ichs_359_0", "ichs_359_1", "ichs_359_2", "ichs_360_0", "ichs_360_1", "ichs_360_2", "ichs_361_0", "ichs_361_1", "ichs_361_2", "ichs_362_0", "ichs_362_1", "ichs_362_2", "ichs_363_0", "ichs_363_1", "ichs_363_2", "ichs_364_0", "ichs_364_1", "ichs_364_2", "ichs_365_0", "ichs_365_1", "ichs_365_2", "ichs_366_0", "ichs_366_1", "ichs_366_2", "ichs_367_0", "ichs_367_1", "ichs_367_2", "ichs_368_0", "ichs_368_1", "ichs_368_2", 
+			"ichs_369_0", "ichs_369_1", "ichs_369_2", "ichs_370_0", "ichs_370_1", "ichs_370_2", "ichs_371_0", "ichs_371_1", "ichs_371_2", "ichs_372_0", "ichs_372_1", "ichs_372_2", "ichs_373_0", "ichs_373_1", "ichs_373_2", "ichs_374_0", "ichs_374_1", "ichs_374_2", "ichs_375_0", "ichs_375_1", "ichs_375_2", "ichs_376_0", "ichs_376_1", "ichs_376_2", "ichs_377_0", "ichs_377_1", "ichs_377_2", "ichs_378_0", "ichs_378_1", "ichs_378_2", "ichs_379_0", "ichs_379_1", "ichs_379_2", "ichs_380_0", "ichs_380_1", "ichs_380_2", "ichs_381_0", "ichs_381_1", "ichs_381_2", "ichs_382_0", "ichs_382_1", "ichs_382_2", "ichs_383_0", "ichs_383_1", "ichs_383_2", "ichs_384_0", "ichs_384_1", "ichs_384_2", 
+			"ichs_385_0", "ichs_385_1", "ichs_385_2", "ichs_386_0", "ichs_386_1", "ichs_386_2", "ichs_387_0", "ichs_387_1", "ichs_387_2", "ichs_388_0", "ichs_388_1", "ichs_388_2", "ichs_389_0", "ichs_389_1", "ichs_389_2", "ichs_390_0", "ichs_390_1", "ichs_390_2", "ichs_391_0", "ichs_391_1", "ichs_391_2", "ichs_392_0", "ichs_392_1", "ichs_392_2", "ichs_393_0", "ichs_393_1", "ichs_393_2", "ichs_394_0", "ichs_394_1", "ichs_394_2", "ichs_395_0", "ichs_395_1", "ichs_395_2", "ichs_396_0", "ichs_396_1", "ichs_396_2", "ichs_397_0", "ichs_397_1", "ichs_397_2", "ichs_398_0", "ichs_398_1", "ichs_398_2", "ichs_399_0", "ichs_399_1", "ichs_399_2", "ichs_400_0", "ichs_400_1", "ichs_400_2", 
+			"ichs_401_0", "ichs_401_1", "ichs_401_2", "ichs_402_0", "ichs_402_1", "ichs_402_2", "ichs_403_0", "ichs_403_1", "ichs_403_2", "ichs_404_0", "ichs_404_1", "ichs_404_2", "ichs_405_0", "ichs_405_1", "ichs_405_2", "ichs_406_0", "ichs_406_1", "ichs_406_2", "ichs_407_0", "ichs_407_1", "ichs_407_2", "ichs_408_0", "ichs_408_1", "ichs_408_2", "ichs_409_0", "ichs_409_1", "ichs_409_2", "ichs_410_0", "ichs_410_1", "ichs_410_2", "ichs_411_0", "ichs_411_1", "ichs_411_2", "ichs_412_0", "ichs_412_1", "ichs_412_2", "ichs_413_0", "ichs_413_1", "ichs_413_2", "ichs_414_0", "ichs_414_1", "ichs_414_2", "ichs_415_0", "ichs_415_1", "ichs_415_2", "ichs_416_0", "ichs_416_1", "ichs_416_2", 
+			"ichs_417_0", "ichs_417_1", "ichs_417_2", "ichs_418_0", "ichs_418_1", "ichs_418_2", "ichs_419_0", "ichs_419_1", "ichs_419_2", "ichs_420_0", "ichs_420_1", "ichs_420_2", "ichs_421_0", "ichs_421_1", "ichs_421_2", "ichs_422_0", "ichs_422_1", "ichs_422_2", "ichs_423_0", "ichs_423_1", "ichs_423_2", "ichs_424_0", "ichs_424_1", "ichs_424_2", "ichs_425_0", "ichs_425_1", "ichs_425_2", "ichs_426_0", "ichs_426_1", "ichs_426_2", "ichs_427_0", "ichs_427_1", "ichs_427_2", "ichs_428_0", "ichs_428_1", "ichs_428_2", "ichs_429_0", "ichs_429_1", "ichs_429_2", "ichs_430_0", "ichs_430_1", "ichs_430_2", "ichs_431_0", "ichs_431_1", "ichs_431_2", "ichs_432_0", "ichs_432_1", "ichs_432_2", 
+			"ichs_433_0", "ichs_433_1", "ichs_433_2", "ichs_434_0", "ichs_434_1", "ichs_434_2", "ichs_435_0", "ichs_435_1", "ichs_435_2", "ichs_436_0", "ichs_436_1", "ichs_436_2", "ichs_437_0", "ichs_437_1", "ichs_437_2", "ichs_438_0", "ichs_438_1", "ichs_438_2", "ichs_439_0", "ichs_439_1", "ichs_439_2", "ichs_440_0", "ichs_440_1", "ichs_440_2", "ichs_441_0", "ichs_441_1", "ichs_441_2", "ichs_442_0", "ichs_442_1", "ichs_442_2", "ichs_443_0", "ichs_443_1", "ichs_443_2", "ichs_444_0", "ichs_444_1", "ichs_444_2", "ichs_445_0", "ichs_445_1", "ichs_445_2", "ichs_446_0", "ichs_446_1", "ichs_446_2", "ichs_447_0", "ichs_447_1", "ichs_447_2", "ichs_448_0", "ichs_448_1", "ichs_448_2", 
+			"ichs_449_0", "ichs_449_1", "ichs_449_2", "ichs_450_0", "ichs_450_1", "ichs_450_2", "ichs_451_0", "ichs_451_1", "ichs_451_2", "ichs_452_0", "ichs_452_1", "ichs_452_2", "ichs_453_0", "ichs_453_1", "ichs_453_2", "ichs_454_0", "ichs_454_1", "ichs_454_2", "ichs_455_0", "ichs_455_1", "ichs_455_2", "ichs_456_0", "ichs_456_1", "ichs_456_2", "ichs_457_0", "ichs_457_1", "ichs_457_2", "ichs_458_0", "ichs_458_1", "ichs_458_2", "ichs_459_0", "ichs_459_1", "ichs_459_2", "ichs_460_0", "ichs_460_1", "ichs_460_2", "ichs_461_0", "ichs_461_1", "ichs_461_2", "ichs_462_0", "ichs_462_1", "ichs_462_2", "ichs_463_0", "ichs_463_1", "ichs_463_2", "ichs_464_0", "ichs_464_1", "ichs_464_2", 
+			"ichs_465_0", "ichs_465_1", "ichs_465_2", "ichs_466_0", "ichs_466_1", "ichs_466_2", "ichs_467_0", "ichs_467_1", "ichs_467_2", "ichs_468_0", "ichs_468_1", "ichs_468_2", "ichs_469_0", "ichs_469_1", "ichs_469_2", "ichs_470_0", "ichs_470_1", "ichs_470_2", "ichs_471_0", "ichs_471_1", "ichs_471_2", "ichs_472_0", "ichs_472_1", "ichs_472_2", "ichs_473_0", "ichs_473_1", "ichs_473_2", "ichs_474_0", "ichs_474_1", "ichs_474_2", "ichs_475_0", "ichs_475_1", "ichs_475_2", "ichs_476_0", "ichs_476_1", "ichs_476_2", "ichs_477_0", "ichs_477_1", "ichs_477_2", "ichs_478_0", "ichs_478_1", "ichs_478_2", "ichs_479_0", "ichs_479_1", "ichs_479_2", "ichs_480_0", "ichs_480_1", "ichs_480_2", 
+			"ichs_481_0", "ichs_481_1", "ichs_481_2", "ichs_482_0", "ichs_482_1", "ichs_482_2", "ichs_483_0", "ichs_483_1", "ichs_483_2", "ichs_484_0", "ichs_484_1", "ichs_484_2", "ichs_485_0", "ichs_485_1", "ichs_485_2", "ichs_486_0", "ichs_486_1", "ichs_486_2", "ichs_487_0", "ichs_487_1", "ichs_487_2", "ichs_488_0", "ichs_488_1", "ichs_488_2", "ichs_489_0", "ichs_489_1", "ichs_489_2", "ichs_490_0", "ichs_490_1", "ichs_490_2", "ichs_491_0", "ichs_491_1", "ichs_491_2", "ichs_492_0", "ichs_492_1", "ichs_492_2", "ichs_493_0", "ichs_493_1", "ichs_493_2", "ichs_494_0", "ichs_494_1", "ichs_494_2", "ichs_495_0", "ichs_495_1", "ichs_495_2", "ichs_496_0", "ichs_496_1", "ichs_496_2", 
+			"ichs_497_0", "ichs_497_1", "ichs_497_2", "ichs_498_0", "ichs_498_1", "ichs_498_2", "ichs_499_0", "ichs_499_1", "ichs_499_2", "ichs_500_0", "ichs_500_1", "ichs_500_2", "ichs_501_0", "ichs_501_1", "ichs_501_2", "ichs_502_0", "ichs_502_1", "ichs_502_2", "ichs_503_0", "ichs_503_1", "ichs_503_2", "ichs_504_0", "ichs_504_1", "ichs_504_2", "ichs_505_0", "ichs_505_1", "ichs_505_2", "ichs_506_0", "ichs_506_1", "ichs_506_2", "ichs_507_0", "ichs_507_1", "ichs_507_2", "ichs_508_0", "ichs_508_1", "ichs_508_2", "ichs_509_0", "ichs_509_1", "ichs_509_2", "ichs_510_0", "ichs_510_1", "ichs_510_2", "ichs_511_0", "ichs_511_1", "ichs_511_2"
+		};
+
+		
+		const char *itemclass_help_string_defaults[itype_max*3] =
+		{
+		    "Link's most versatile weapon. When wielded, it can","stab, slash and fire sword beams. It is used to","perform several Tiger Scroll techniques, too.",
+		    "When wielded, it flies out, hurting enemies, and","collecting items, before returning to Link. Can be","thrown diagonally. Can optionally drop damaging sparkles.",
+		    "When wielded, it flies and collects items before","hitting an enemy. Requires the Bow. Expends either 1 rupee","or 1 arrow ammo. Can drop damaging sparkles.",
+		    "When wielded, a damaging flame drifts out, which","lights dark screens until it expires. Can optionally","have wand-style stab and slash sprites.",
+		    "When wielded, plays strange music and summons a","whirlwind that warps you to the Warp Ring locations.","Can also dry Water combos on specific screens.",
+		    "When wielded, drops bait that attracts Walking Enemies","depending on their Hunger stat. Removed when used","in 'Feed The Goriya' room types.",
+		    "When wielded in 'Potion Shop' room types, activates","the shop and all other Potion Shops in the quest.","Is overridden by Potions if you have them.",
+		    "When wielded, Link regains hearts and/or magic.","Can also cure jinxes, depending on the Quest Rules.","",
+		    "When wielded, shoots damaging magic. The magic","is affected by your current Magic Book item. Can also","damage enemies by stabbing and slashing.",
+		    "Divides the damage that Link takes, and changes his palette.","If a magic cost is set, Link loses magic when he takes","damage, and the item is disabled without magic.",
+		    "Can provide infinite rupees to Link,","or provide a regenerating supply of rupees.","Typically also set to increase his Rupee max.",
+		    "Also called the Cross, this makes invisible","enemies visible. Currently does not affect Ganon.","",
+		    "When Link isn't wielding an item, this deflects or","reflects enemy projectiles from the front.","The Block Flags are listed on the Wiki.",
+		    "Required to wield the Arrow. This affects the speed of","the arrow fired. The Action settings are not used.","",
+		    "Allows Link to traverse Raft Paths. When at a Raft","Branch combo flag, hold the arrow keys to","decide which path the raft will take.",
+		    "Used to cross Water combos and certain combo types.","If Four-Way > 1, Link can step sideways off the ladder.","",
+		    "Affects the sprite and damage of the magic shot","by the Wand. If 'Fire Magic' is set, a 1-damage flame is","created at the place where the magic stops.",
+		    "Provides unlimited keys in a specific dungeon","level, or all dungeon levels up to a point.","The Action settings are not used.",
+		    "Allows Link to push Heavy or Very Heavy push block","combos. Can be limited to one push per screen.","The Action settings are not used.",
+		    "Allows Link to swim in Water combos. The Power","and Action settings are not used.","",
+		    "Prevents damage from certain Damage combos. Can","require magic to use, which is drained as","Link touches the combos.",
+		    "When wielded, shoots a hook and chain that collects","items and hurt enemies, before retracting back to","Link. Best used with the Hookshot Grab combo type.",
+		    "When wielded, restricts your vision and reveals","certain combo flags, as well as hiding or","showing certain layers on a screen.",
+		    "When wielded, pounds and breaks Walking Enemies'","shields. It is used to perform the Quake Hammer","and Super Quake techniques, too.",
+		    "When wielded, casts a spell which sends out","a wide ring of flames from Link's body.","Link is invincible while casting the spell.",
+		    "When wielded, teleports Link to the","Continue screen of the current DMap.","",
+		    "When wielded, casts a spell which surrounds Link","with a magic shield that nullifies all","damage taken until it expires.",
+		    "When wielded, places a bomb which explodes to","momentarily hurt foes. Expends 1 bomb ammo. Remote bombs only","explode when you press the button again after placing.",
+		    "Similar to Bomb, but has a much larger blast","radius, and expends 1 super bomb ammo.","",
+		    "When collected, freezes most enemies and makes","Link invincible for a limited time.","",
+		    "No built-in effect, but is typically set to","increase your Key count by 1 when collected.","",
+		    "No built-in effect, but is typically set to","increase your maximum Magic by 32 when collected.","",
+		    "When collected, enables the Triforce for the","current dungeon level and plays a cutscene. May warp","Link out using the current screen's Side Warp A.",
+		    "When collected, enables the Subscreen Map","for the current dungeon level.","",
+		    "When collected, enables the Compass","for the current dungeon level.","",
+		    "When collected, enables the Boss Key","for the current dungeon level, letting Link unlock","Boss Lock Blocks, Boss Chest combos and Boss doors.",
+		    "Can provide infinite arrow ammo to Link,","or provide a regenerating supply of ammo.","Typically also set to increase his arrow ammo max.",
+		    "When collected, increases the Level-Specific","Key count for the current dungeon level. These","keys are used in place of normal keys if possible.",
+		    "When wielded, creates one or more beams that circle Link.","Beams can be dismissed by pressing the button again.","Can optionally have wand-style stab and slash sprites.",
+		    "No built-in effect, but is typically set to","increase your Rupee count when collected.","",
+		    "No built-in effect, but is typically set to","increase your Arrow ammo when collected.","",
+		    "Flies around the screen at a certain speed.","When collected, Link regains hearts and/or magic.","Can also cure jinxes, depending on the Quest Rules.",
+		    "No built-in effect, but is typically set to","increase your Magic when collected.","",
+		    "No built-in effect, but is typically set to","restore Link's hearts when collected.","",
+		    "No built-in effect, but is typically set to","increase Link's max. health when collected.","",
+		    "When collected, increases Link's Heart Piece count by 1.","If the 'Per HC' amount (in Init Data) is reached,","Link's max. health is increased by 1 heart.",
+		    "When collected, all beatable enemies on the","screen are instantly and silently killed.","",
+		    "No built-in effect, but is typically set to","increase Link's bomb ammo when collected.","",
+		    "Can provide infinite bomb ammo to Link,","or provide a regenerating supply of ammo.","Typically also set to increase his bomb ammo max.",
+		    "When wielded, Link jumps into the air through","the 'Z-axis', with an initial Jump speed","of 0.8 times the Height Multiplier.",
+		    "When Link is at the apex of a jump, he hovers","in the air for a specified time. In sideview,","can be dismissed by pressing Down.",
+		    "When wielding the Sword, Link can hold the button","to tap solid combos to find bombable locations","and release to spin the sword around him.",
+		    "When performing a Spin Attack with a sword that","can fire beams, four beams are released","from the sword during each spin.",
+		    "When wielding the Hammer, Link can hold the","button and release to pound for extra damage,","and stunning most nearby ground enemies.",
+		    "Reduces the duration of jinxes given by certain","enemies, or (if Divisor is 0) prevents them entirely.","The Action settings are not used.",
+		    "Reduces the time it takes to charge the","Spin Attack/Quake Hammer (Charging) and","Hurricane Spin/Super Quake (Magic C.) abilities.",
+		    "Enables the Sword to fire sword beams","when Link's health is below a certain amount.","The Action settings are not used.",
+		    "In Shop room types, shop prices are multiplied","by the Discount Amount, making the items cheaper.","",
+		    "Gradually restores Link's health in certain","quantities over a certain duration.","The Action settings are not used.",
+		    "Gradually restores Link's magic in certain quantities","over a certain duration. Can also provide","infinite magic to Link. The Action settings are unused.",
+		    "After charging the Spin Attack, holding down the","button longer enables a stronger attack","with faster and more numerous spins.",
+		    "After charging the Quake Hammer, holding down the","button longer enables a stronger attack","which stuns more enemies for longer.",
+		    "Link's sprite faintly vibrates when he stands","on or near secret-triggering combo flags.","Sensitivity increases the distance at which it works.",
+		    "If Link, while jumping, lands on an enemy,","that enemy takes a certain amount of","damage, instead of damaging Link.",
+		    "The Sword, Wand and Hammer will occasionally do","increased damage in a single strike.","",
+		    "Divides the damage that Link takes when his","health is below a certain level.","",
+		    "These items have no built-in effect.","They will not be dropped in an Item Drop Set.","",
+		    //ic67 to 86, custom IC
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    "This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		    //ic87
+		    "Displays the bow and arrow together as a single item.","No item should use this class; it is intended","for use in subscreens only.",
+		    "Represents either the letter or a potion, whichever is","available at the moment. No item should use this class;","It is intended for use in subscreens only.",
+		    "This item class is", "reserved for future", "versions of ZC", //ic_last, 89
+		    //90
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+			"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","",
+		
+			//256 == script01
+			"This item class is used to create", "LW_SCRIPT_01 type lweapons with", "properties defined by the Item Editor.",
+			//257 == script02
+			"This item class is used to create", "LW_SCRIPT_02 type lweapons with", "properties defined by the Item Editor.",
+			//258 == script03
+			"This item class is used to create", "LW_SCRIPT_03 type lweapons with", "properties defined by the Item Editor.",
+			//258 == script04
+			"This item class is used to create", "LW_SCRIPT_04 type lweapons with", "properties defined by the Item Editor.",
+			//259 == script05
+			"This item class is used to create", "LW_SCRIPT_05 type lweapons with", "properties defined by the Item Editor.",
+			//260 == script06
+			"This item class is used to create", "LW_SCRIPT_06 type lweapons with", "properties defined by the Item Editor.",
+			//261 == script07
+			"This item class is used to create", "LW_SCRIPT_07 type lweapons with", "properties defined by the Item Editor.",
+			//262 == script08
+			"This item class is used to create", "LW_SCRIPT_08 type lweapons with", "properties defined by the Item Editor.",
+			//263 == script09
+			"This item class is used to create", "LW_SCRIPT_09 type lweapons with", "properties defined by the Item Editor.",
+			//264 == script10
+			"This item class is used to create", "LW_SCRIPT_10 type lweapons with", "properties defined by the Item Editor.",
+			//265 == icerod
+			"This item class is", "reserved for the Ice Rod", "in a future version of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			//270
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			//300
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			//400
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			//500
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC",
+			"This item class is", "reserved for future", "versions of ZC"
+			    
+	};
 
 //ZModule Functions
 
@@ -24785,9 +25965,18 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
 	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
 	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
+	memset(moduledata.itemclass_help_strings, 0, sizeof(moduledata.itemclass_help_strings));
+	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
+	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));
+	memset(moduledata.copyright_string_vars, 0, sizeof(moduledata.copyright_string_vars));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
+	memset(moduledata.select_screen_tile_csets, 0, sizeof(moduledata.select_screen_tile_csets));
+	memset(moduledata.select_screen_tiles, 0, sizeof(moduledata.select_screen_tiles));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
+	moduledata.animate_NES_title = 0;
+	moduledata.title_track = moduledata.tf_track = moduledata.gameover_track = moduledata.ending_track = moduledata.dungeon_track = moduledata.overworld_track = moduledata.lastlevel_track = 0;
+	
 	
 	//strcpy(moduledata.module_name,"default.zmod");
 	al_trace("Module name set to %s\n",moduledata.module_name);
@@ -24842,6 +26031,18 @@ void ZModule::init(bool d) //bool default
 		strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
 		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
 		
+		
+		strcpy(moduledata.base_NSF_file,get_config_string("DATAFILES","base_NSF_file","zelda.nsf"));
+		al_trace("Base NSF file: %s\n", moduledata.base_NSF_file);
+		
+		moduledata.title_track = get_config_int("DATAFILES","title_track",0);
+		moduledata.ending_track = get_config_int("DATAFILES","ending_track",1);
+		moduledata.tf_track = get_config_int("DATAFILES","tf_track",5);
+		moduledata.gameover_track = get_config_int("DATAFILES","gameover_track",0);
+		moduledata.dungeon_track = get_config_int("DATAFILES","dungeon_track",0);
+		moduledata.overworld_track = get_config_int("DATAFILES","overworld_track",0);
+		moduledata.lastlevel_track = get_config_int("DATAFILES","lastlevel_track",0);
+		
 		const char enemy_family_strings[eeMAX][255] =
 		{
 			"ee_family_guy","ee_family_walk","ee_family_shoot","ee_family_tek","ee_family_lev",
@@ -24851,7 +26052,7 @@ void ZModule::init(bool d) //bool default
 			"ee_family_trap","ee_family_wm","ee_family_jinx","ee_family_vir","ee_family_rike",
 			//20
 			"ee_family_pol","ee_family_wiz","ee_family_aqu","ee_family_mold","ee_family_dod",
-			"ee_family_mhd","ee_family_glk","ee_family_dig","ee_family_go","ee_family_lan",
+			"ee_family_mhd","ee_family_glk","ee_family_dig","ee_family_goh","ee_family_lan",
 			//30
 			"ee_family_pat","ee_family_gan","ee_family_proj","ee_family_gtrib","ee_family_ztrib",
 			"ee_family_vitrib","ee_family_ketrib","ee_family_spintile","ee_family_none","ee_family_faerie",
@@ -24932,7 +26133,7 @@ void ZModule::init(bool d) //bool default
 			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
 			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
 			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
-			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)"
+			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)", "zz089"
 		};
 						     
 		const char itype_fields[itype_max][255] =
@@ -24962,7 +26163,7 @@ void ZModule::init(bool d) //bool default
 			"ic_cic07","ic_cic08","ic_cic09","ic_cic10","ic_cic11",
 			"ic_cic12","ic_cic13","ic_cic14","ic_cic15","ic_cic16",
 			//80
-			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle",
+			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle","ic_last",
 			
 			"ic_89","ic_90","ic_91","ic_92","ic_93","ic_94","ic_95","ic_96","ic_97","ic_98","ic_99","ic_100","ic_101","ic_102","ic_103","ic_104",
 			"ic_105","ic_106","ic_107","ic_108","ic_109","ic_111","ic_112","ic_113","ic_114","ic_115","ic_116","ic_117","ic_118","ic_119","ic_120","ic_121",
@@ -25239,7 +26440,23 @@ void ZModule::init(bool d) //bool default
 			strcpy(moduledata.counter_names[q],get_config_string("COUNTERS",counter_cats[q],counter_default_names[q]));
 			al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
 		}
-				
+		
+		for ( int q = 0; q < itype_max*3; q++ )
+		{
+			char temp_help_str[512];
+			strcpy(temp_help_str,get_config_string("ITEMHELP",itemclass_help_string_cats[q],""));
+			if ( temp_help_str[0] == NULL ) 
+			{
+				strcpy(temp_help_str,itemclass_help_string_defaults[q]);
+			}
+			if ( temp_help_str[0] == '-' )
+			{
+				strcpy(temp_help_str,"");
+			}
+			strcpy(moduledata.itemclass_help_strings[q],temp_help_str);
+			//strcpy(moduledata.itemclass_help_strings[q],get_config_string("ITEMHELP",itemclass_help_string_cats[q],itemclass_help_string_defaults[q]));
+			al_trace("Item Help String %d is: %s\n", q, moduledata.itemclass_help_strings[q]);
+		}
 	}
 	set_config_file("zquest.cfg"); //shift back to the normal config file, when done
 	

@@ -80,6 +80,12 @@ string				             zScript;
 std::map<int, pair<string,string> > ffcmap;
 std::map<int, pair<string,string> > globalmap;
 std::map<int, pair<string,string> > itemmap;
+std::map<int, pair<string, string> > npcmap;
+std::map<int, pair<string, string> > ewpnmap;
+std::map<int, pair<string, string> > lwpnmap;
+std::map<int, pair<string, string> > linkmap;
+std::map<int, pair<string, string> > dmapmap;
+std::map<int, pair<string, string> > screenmap;
 
 bool combosread=false;
 bool mapsread=false;
@@ -6483,13 +6489,13 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			{
 				if(get_bit(quest_rules,qr_NONBUBBLEMEDICINE))
 				{
-					tempitem.flags |= ITEM_FLAG3;
-					if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
-					else tempitem.flags &= ~ITEM_FLAG4;
+					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
 				}
 				else
 				{
-					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+					tempitem.flags |= ITEM_FLAG3;
+					if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+					else tempitem.flags &= ~ITEM_FLAG4;
 				}
 			}
 			else if(tempitem.family == itype_triforcepiece)
@@ -8486,13 +8492,16 @@ int setupsubscreens()
     return 0;
 }
 
-extern ffscript *ffscripts[512];
-extern ffscript *itemscripts[256];
-extern ffscript *guyscripts[256];
-extern ffscript *wpnscripts[256];
+extern ffscript *ffscripts[NUMSCRIPTFFC];
+extern ffscript *itemscripts[NUMSCRIPTITEM];
+extern ffscript *guyscripts[NUMSCRIPTGUYS];
+extern ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
+extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
-extern ffscript *linkscripts[3];
-extern ffscript *screenscripts[256];
+extern ffscript *linkscripts[NUMSCRIPTLINK];
+extern ffscript *screenscripts[NUMSCRIPTSCREEN];
+extern ffscript *dmapscripts[NUMSCRIPTSDMAP];
+//ffscript *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
 
 int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
@@ -8551,18 +8560,19 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
         {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &wpnscripts[i]);
+            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &lwpnscripts[i]);
             
             if(ret != 0) return qe_invalid;
         }
         
+	
         for(int i = 0; i < NUMSCRIPTSCREEN; i++)
         {
             ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &screenscripts[i]);
             
             if(ret != 0) return qe_invalid;
         }
-        
+	
         if(s_version > 4)
         {
             for(int i = 0; i < NUMSCRIPTGLOBAL; i++)
@@ -8594,6 +8604,38 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(ret != 0) return qe_invalid;
         }
+        if(s_version > 7)
+        {
+            
+            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i]);
+                
+                if(ret != 0) return qe_invalid;
+            }
+            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i]);
+            
+                if(ret != 0) return qe_invalid;
+            }
+            
+        }
+        /*
+        else //Is this trip really necessary?
+        {
+            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            {
+                
+                ewpnscripts[i] = NULL;
+            }
+            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            {
+                dmapscripts[i] = NULL;
+            }
+        }
+        */
+        
     }
     
     if(s_version > 2)
@@ -8682,6 +8724,140 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 delete[] buf;
             }
         }
+        	//(v9+)
+	//npc scripts
+	if(s_version > 8)
+        {
+            word numnpcbindings;
+            p_igetw(&numnpcbindings, f, true);
+            
+            for(int i=0; i<numnpcbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTGUYS-1)
+                    npcmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//
+	//lweapon
+	if(s_version > 8)
+        {
+            word numlwpnbindings;
+            p_igetw(&numlwpnbindings, f, true);
+            
+            for(int i=0; i<numlwpnbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTWEAPONS-1)
+                    lwpnmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//eweapon
+	if(s_version > 8)
+        {
+            word numewpnbindings;
+            p_igetw(&numewpnbindings, f, true);
+            
+            for(int i=0; i<numewpnbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTWEAPONS-1)
+                    ewpnmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//link
+	if(s_version > 8)
+        {
+            word numlinkbindings;
+            p_igetw(&numlinkbindings, f, true);
+            
+            for(int i=0; i<numlinkbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTLINK-1)
+                    linkmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+	//dmaps
+	if(s_version > 8)
+        {
+            word numdmapbindings;
+            p_igetw(&numdmapbindings, f, true);
+            
+            for(int i=0; i<numdmapbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTSDMAP-1)
+                    dmapmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
+		//screen
+	if(s_version > 8)
+        {
+            word numscreenbindings;
+            p_igetw(&numscreenbindings, f, true);
+            
+            for(int i=0; i<numscreenbindings; i++)
+            {
+                word id;
+                p_igetw(&id, f, true);
+                p_igetl(&bufsize, f, true);
+                buf = new char[bufsize+1];
+                pfread(buf, bufsize, f, true);
+                buf[bufsize]=0;
+                
+                //fix this too
+                if(keepdata && id <NUMSCRIPTSDMAP-1)
+                    screenmap[id].second = buf;
+                    
+                delete[] buf;
+            }
+        }
     }
     
     return 0;
@@ -8714,7 +8890,12 @@ void reset_scripts()
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
@@ -8753,8 +8934,14 @@ void reset_scripts()
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
+    }
+    
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
@@ -10009,10 +10196,11 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 				return qe_invalid;
 			}
 		}
-		if(!p_igetw(&(tempguy.npcscript),f,keepdata))
+		if(!p_igetw(&(tempguy.script),f,keepdata))
 		{
 			return qe_invalid;
 		} 
+                al_trace("NPC Script ID is: %d\n",tempguy.script);
 		for ( int q = 0; q < 8; q++ )
 		{
 			if(!p_igetl(&(tempguy.initD[q]),f,keepdata))
@@ -10059,6 +10247,38 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		tempguy.misc13 = 0; 
 		tempguy.misc14 = 0; 
 		tempguy.misc15 = 0; 
+	    }
+	    
+	    if ( guyversion >= 39 )
+	    {
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&(tempguy.initD_label[q][w]),f,keepdata))
+				{
+					return qe_invalid;
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_getc(&(tempguy.weapon_initD_label[q][w]),f,keepdata))
+				{
+					return qe_invalid;
+				} 
+			}
+		}
+		    
+		    
+	    }
+	    if ( guyversion < 39 ) //apply old InitD strings to both
+	    {
+		al_trace("Populating InitD Label Fields for NPCS\n");
+		for ( int q = 0; q < 8; q++ )
+		{
+			sprintf(tempguy.initD_label[q],"InitD[%d]",q);
+			sprintf(tempguy.weapon_initD_label[q],"InitD[%d]",q);
+		}
 	    }
 	    
 	    
@@ -10159,7 +10379,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		
 		//NPC Script attributes.
-		tempguy.npcscript = 0; //No scripted enemies existed. -Z
+		tempguy.script = 0; //No scripted enemies existed. -Z
 		for ( int q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
 		for ( int q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
 		
@@ -15161,6 +15381,15 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         globalmap.clear();
         ffcmap.clear();
         itemmap.clear();
+        //new script types
+        //new script types -- prevent carrying over to a quest that you load after reading them
+        //e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
+        npcmap.clear();
+        ewpnmap.clear();
+        lwpnmap.clear();
+        linkmap.clear();
+        dmapmap.clear();
+        screenmap.clear();
         
         for(int i=0; i<NUMSCRIPTFFC-1; i++)
         {
@@ -15178,6 +15407,33 @@ int loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctun
         for(int i=0; i<NUMSCRIPTITEM-1; i++)
         {
             itemmap[i] = pair<string,string>("","");
+        }
+        
+        //new script types -- prevent carrying over to a quest that you load after reading them
+        //e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
+        for(int i=0; i<NUMSCRIPTGUYS-1; i++)
+        {
+            npcmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTWEAPONS-1; i++)
+        {
+            lwpnmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTWEAPONS-1; i++)
+        {
+            ewpnmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTLINK-1; i++)
+        {
+            linkmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTSDMAP-1; i++)
+        {
+            dmapmap[i] = pair<string,string>("","");
+        }
+        for(int i=0; i<NUMSCRIPTSCREEN-1; i++)
+        {
+            screenmap[i] = pair<string,string>("","");
         }
         
         reset_scripts();

@@ -76,7 +76,7 @@ ScriptsData* ZScript::compile(string const& filename)
 		return NULL;
     
 	FunctionData fd(program);
-	if (fd.globalVariables.size() > 256)
+	if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
 	{
 		box_out_err(CompileError::TooManyGlobal(NULL));
 		return NULL;
@@ -229,6 +229,68 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		if (isRun)
 		{
 			ScriptType type = program.getScript(scriptname)->getType();
+			
+			if (type == ScriptType::ffc )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFFFC)));
+				
+				
+			}
+			else if (type == ScriptType::item )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFITEMCLASS)));
+				
+			}
+			else if (type == ScriptType::npc )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFNPC)));
+				
+			}
+			else if (type == ScriptType::lweapon )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFLWPN)));
+			}
+			else if (type == ScriptType::eweapon )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(REFEWPN)));
+				
+			}
+			else if (type == ScriptType::dmapdata )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(LOADMAPDATA)));
+			
+			}
+			/* Do we want these here--ever? -Z
+			else if (type == ScriptType::link )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(link?)));
+				
+			}
+			else if (type == ScriptType::screen )
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							 new VarArgument(tempscr?)));
+				
+			}
+				*/
+				
+		
+			/*
 			if (type == ScriptType::ffc)
 				funccode.push_back(
 						new OSetRegister(new VarArgument(EXP2),
@@ -237,7 +299,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 				funccode.push_back(
 						new OSetRegister(new VarArgument(EXP2),
 						                 new VarArgument(REFITEMCLASS)));
-            
+			*/
 			funccode.push_back(new OPushRegister(new VarArgument(EXP2)));
 		}
         

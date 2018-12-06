@@ -53,6 +53,7 @@
 extern FFScript FFCore; //the core script engine.
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
+extern char runningItemScripts[256];
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -97,6 +98,14 @@ CScriptDrawingCommands script_drawing_commands;
 using std::string;
 using std::pair;
 extern std::map<int, pair<string,string> > ffcmap;
+extern std::map<int, pair<string,string> > globalmap;
+extern std::map<int, pair<string, string> > itemmap;
+extern std::map<int, pair<string, string> > npcmap;
+extern std::map<int, pair<string, string> > ewpnmap;
+extern std::map<int, pair<string, string> > lwpnmap;
+extern std::map<int, pair<string, string> > linkmap;
+extern std::map<int, pair<string, string> > dmapmap;
+extern std::map<int, pair<string, string> > screenmap;
 
 int zq_screen_w, zq_screen_h;
 int passive_subscreen_height=56;
@@ -374,11 +383,16 @@ ffscript *globalscripts[NUMSCRIPTGLOBAL];
 
 //If only...
 ffscript *guyscripts[NUMSCRIPTGUYS];
-ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
+ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *linkscripts[NUMSCRIPTLINK];
 ffscript *screenscripts[NUMSCRIPTSCREEN];
+ffscript *dmapscripts[NUMSCRIPTSDMAP];
 
 extern refInfo globalScriptData;
+extern refInfo linkScriptData;
+extern refInfo screenScriptData;
+extern refInfo dmapScriptData;
 extern word g_doscript;
 extern bool global_wait;
 
@@ -1438,6 +1452,7 @@ int init_game()
     srand(time(0));
     //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.kb_typing_mode = false;
+	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 	draw_screen_clip_rect_x1=0; //Prevent the ending sequence from carrying over through 'Reset System' -Z
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
@@ -2760,6 +2775,7 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "items.animate()\n");
 	#endif
         items.animate();
+	
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
 	#endif
@@ -2814,6 +2830,10 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
 	#endif
         Lwpns.animate();
+        #if LOGGAMELOOP > 0
+	al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
+	#endif
+        FFCore.itemScriptEngine();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
 	#endif
@@ -2860,6 +2880,8 @@ void game_loop()
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
     }
+    
+    
     
     #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "draw_screen()\n");
@@ -3494,8 +3516,16 @@ int main(int argc, char* argv[])
     {
     
     case -1:
+    {
         Z_title("Zelda Classic %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
+        //Print the current time to allegro.log as a test.
+        
+        //for (int q = 0; q < curTimeLAST; q++) 
+        //{
+        //    int t_time_v = FFCore.getTime(q);
+        //}
         break;
+    }
         
     case 1:
         Z_title("Zelda Classic %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
@@ -3710,6 +3740,17 @@ int main(int argc, char* argv[])
         
         char path[2048];
         
+	    
+	for ( int q = 0; q < moduledata.max_quest_files; q++ )
+	{
+		append_filename(path, qstdir, moduledata.quests[q], 2048);
+		if(!exists(moduledata.quests[q]) && !exists(path))
+		{
+		    Z_error("%s not found.\n", moduledata.quests[q]);
+		    quit_game();
+		}
+	}	
+	/*
         append_filename(path, qstdir, moduledata.quests[0], 2048);
         
         if(!exists(moduledata.quests[0]) && !exists(path))
@@ -3749,7 +3790,7 @@ int main(int argc, char* argv[])
             Z_error("\"5th.qst\" not found.");
             quit_game();
         }
-        
+        */
         Z_message("OK\n");
     }
     
@@ -4090,31 +4131,36 @@ int main(int argc, char* argv[])
         guy_string[i] = new char[64];
     }
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         ffscripts[i] = new ffscript[1];
         ffscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         itemscripts[i] = new ffscript[1];
         itemscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         guyscripts[i] = new ffscript[1];
         guyscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        wpnscripts[i] = new ffscript[1];
-        wpnscripts[i][0].command = 0xFFFF;
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
+    }
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         screenscripts[i] = new ffscript[1];
         screenscripts[i][0].command = 0xFFFF;
@@ -4126,10 +4172,16 @@ int main(int argc, char* argv[])
         globalscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         linkscripts[i] = new ffscript[1];
         linkscripts[i][0].command = 0xFFFF;
+    }
+    
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        dmapscripts[i] = new ffscript[1];
+        dmapscripts[i][0].command = 0xFFFF;
     }
     
     //script drawing bitmap allocation
@@ -4382,6 +4434,7 @@ int main(int argc, char* argv[])
     
 #endif
     
+    
     while(Quit!=qEXIT)
     {
         // this is here to continually fix the keyboard repeat
@@ -4405,7 +4458,9 @@ int main(int argc, char* argv[])
             
 #endif
             game_loop();
-            advanceframe(true);
+	    //Perpetual item Script:
+	    FFCore.newScriptEngine();
+            
 		
 	     //clear Link's last hits 
 	     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing this here makes it impossible 
@@ -4427,12 +4482,13 @@ int main(int argc, char* argv[])
             show_subscreen_life=true;
             show_ff_scripts=false;
             introclk=intropos=0;
-            
-            initZScriptGlobalRAM();
+            for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+
+            initZScriptGlobalRAM(); //Should we not be calling this AFTER running the exit script!!
 		
 	    //Run Global script OnExit
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
-            
+           
             if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
             
 		
@@ -4470,11 +4526,13 @@ int main(int argc, char* argv[])
             show_subscreen_numbers=true;
             show_subscreen_items=true;
             show_subscreen_life=true;
-            
+            for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+
             initZScriptGlobalRAM();
 	    //Run global script OnExit
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
 		
+	    
 		
             ending();
         }
@@ -4647,39 +4705,48 @@ void quit_game()
     
     al_trace("Script buffers... \n");
     
-    for(int i=0; i<512; i++)
+    for(int i=0; i<NUMSCRIPTFFC; i++)
     {
         if(ffscripts[i]!=NULL) delete [] ffscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTITEM; i++)
     {
         if(itemscripts[i]!=NULL) delete [] itemscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTGUYS; i++)
     {
         if(guyscripts[i]!=NULL) delete [] guyscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
+        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
     }
     
-    for(int i=0; i<256; i++)
+    for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
         if(screenscripts[i]!=NULL) delete [] screenscripts[i];
     }
+    
     
     for(int i=0; i<NUMSCRIPTGLOBAL; i++)
     {
         if(globalscripts[i]!=NULL) delete [] globalscripts[i];
     }
     
-    for(int i=0; i<3; i++)
+    for(int i=0; i<NUMSCRIPTLINK; i++)
     {
         if(linkscripts[i]!=NULL) delete [] linkscripts[i];
+    }
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
     }
     
     delete zscriptDrawingRenderTarget;
@@ -4702,6 +4769,13 @@ void quit_game()
     //if(TheMaps != NULL) zc_free(TheMaps);
     //if(ZCMaps != NULL) zc_free(ZCMaps);
     //  dumb_exit();
+}
+
+bool isSideViewGravity(int t)
+{
+	
+	return ((tmpscr[t].flags7 & fSIDEVIEW)!=0 || (DMaps[currdmap].sideview));
+	
 }
 
 

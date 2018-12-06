@@ -242,7 +242,12 @@ weapon::weapon(weapon const & other):
     family_level(other.family_level),	//byte		Item Level
     flags(other.flags),			//word		A misc flagset. 
     collectflags(other.collectflags),	//long		A flagset that determines of the weapon can collect an item.
-    script_UID(FFCore.GetScriptObjectUID(UID_TYPE_WEAPON))	
+    duplicates(other.duplicates),	//long		A flagset that determines of the weapon can collect an item.
+    script_UID(FFCore.GetScriptObjectUID(UID_TYPE_WEAPON)),
+//Enemy Editor Weapon Sprite
+    wpnsprite(other.wpnsprite),
+    magiccosttimer(other.magiccosttimer),
+    ScriptGenerated(other.ScriptGenerated)  
     
 	
 	//End Weapon editor non-arrays. 
@@ -277,6 +282,14 @@ weapon::weapon(weapon const & other):
     {
 	ffmisc[q] = other.ffmisc[q];		//long -The base wpn->Misc[32] set from the editor
     }
+    for ( int q = 0; q < FFSCRIPT_MISC; q++ ) 
+    {
+	wpn_misc_d[q] = other.wpn_misc_d[q];		//long -The base wpn->Misc[32] set from the editor
+    }
+    for ( int q = 0; q < 128; q++ ) 
+    {
+	weapname[q] = 0;		//long -The base wpn->Misc[32] set from the editor
+    }
     
    
     
@@ -291,10 +304,7 @@ weapon::weapon(weapon const & other):
       a[i]=other.a[i];
     }*/
     
-    //Enemy Editor Weapon Sprite
-    wpnsprite = other.wpnsprite;
-    magiccosttimer = other.magiccosttimer;
-    ScriptGenerated = other.ScriptGenerated;
+    
     //if ( parentid > 0 ) wpnsprite = guysbuf[parentid].wpnsprite;
     //else wpnsprite  = -1;
 }
@@ -389,6 +399,24 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     hxsz=15;
     hysz=15;
     hzsz=8;
+    useweapon = usedefence = 0;
+    weaprange = weapduration = 0;
+    weaponscript = 0;
+    tilemod = 0;
+    drawlayer = 0;
+    family_class = family_level = 0;
+    flags = 0;
+    collectflags = 0;
+    duplicates = 0;
+    count1 = count2 = count3 = count4 = count5 = 0;
+    temp1 = 0;
+    scriptrange = blastsfx = wpnsprite = magiccosttimer = 0;
+    for ( int q = 0; q < FFSCRIPT_MISC; q++ ) ffmisc[q] = 0;
+    for ( int q = 0; q < 128; q++ ) weapname[q] = 0;
+    for ( int q = 0; q < 8; q++ ) initiald[q] = 0;
+    for ( int q = 0; q < FFSCRIPT_MISC; q++ ) wpn_misc_d[q] = 0;
+    for ( int q = 0; q < 2; q++ ) initiala[q] = 0;
+    for ( int q = 0; q < WEAPON_CLOCKS; q++ ) clocks[q] = 0;
     isLit = false;
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
@@ -1701,7 +1729,10 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
     case wRefMagic:
     case ewMagic:
-        if ( parentid > -1 )
+    {
+        //reached case wRefMagic in weapons.cpp
+        //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",1734);
+        if ( parentid > -1 && !script_gen)
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1745,16 +1776,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
         if(id==wRefMagic)
         {
+            //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",1779);
             ignorecombo=(((int)y&0xF0)+((int)x>>4));
         }
         
         break;
-        
+    }
     case ewFlame:
     case ewFlame2:
 	if(id==ewFlame)
 	{
-		if ( parentid > -1 )
+		if ( parentid > -1  && !script_gen)
 		{
 			enemy *e = (enemy*)guys.getByUID(parentid);
 			int enemy_wpnsprite = e->wpnsprite; 
@@ -1765,7 +1797,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	}
         else
 	{
-		if ( parentid > -1 )
+		if ( parentid > -1 && !script_gen)
 		{
 			enemy *e = (enemy*)guys.getByUID(parentid);
 			int enemy_wpnsprite = e->wpnsprite; 
@@ -1812,7 +1844,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewFireTrail:
-        if ( parentid > -1 )
+        if ( parentid > -1 && !script_gen)
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1846,7 +1878,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			hxsz=hysz=16;
 		}
 		
-        if ( parentid > -1 )
+        if ( parentid > -1 && !script_gen)
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite;
@@ -3372,7 +3404,7 @@ bool weapon::animate(int)
 	if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
 	{
 		
-	
+                //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3407);
 		if((id==wMagic && current_item(itype_book) &&
 			itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 		{
@@ -3383,6 +3415,7 @@ bool weapon::animate(int)
 	}
 	else
 	{
+                //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3418);
 		 if((id==wMagic && miscellaneous[31] && itemsbuf[miscellaneous[31]].family == itype_book &&
                 itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 		{

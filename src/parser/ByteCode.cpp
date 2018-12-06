@@ -1665,6 +1665,14 @@ string VarArgument::toString()
 	case DEBUGD: return "DEBUGD";
 	case GETPIXEL: return "GETPIXEL";
 	case DOUNTYPE: return "DOUNTYPE";
+	case LINKTILEMOD: return "LINKTILEMOD";
+	case NPCINITD: return "NPCINITD";
+	
+	case NPCCOLLISION: return "NPCCOLLISION";
+	case NPCLINEDUP: return "NPCLINEDUP";
+	case NPCDATAINITD: return "NPCDATAINITD";
+	case NPCDATASCRIPT: return "NPCDATASCRIPT";
+	case NPCMATCHINITDLABEL: return "NPCMATCHINITDLABEL";
 	
 	
     default:
@@ -2283,6 +2291,11 @@ string OPlayEnhancedMusic::toString()
 string OGetDMapMusicFilename::toString()
 {
     return "GETMUSICFILE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OGetNPCDataInitDLabel::toString()
+{
+    return "NPCGETINITDLABEL " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OGetDMapMusicTrack::toString()
@@ -4122,6 +4135,131 @@ string OBMPDrawScreenRegister::toString()
     return "BMPDRAWSCREENR";
 }
 
+string OLinkWarpExRegister::toString()
+{
+    return "LINKWARPEXR " + getArgument()->toString();
+}
+
+string OLinkExplodeRegister::toString()
+{
+    return "LINKEXPLODER " + getArgument()->toString();
+}
+
+
+string OGetSystemRTCRegister::toString()
+{
+    return "GETRTCTIMER " + getArgument()->toString();
+}
+
+
+string ONPCExplodeRegister::toString()
+{
+    return "NPCEXPLODER " + getArgument()->toString();
+}
+string OLWeaponExplodeRegister::toString()
+{
+    return "LWEAPONEXPLODER " + getArgument()->toString();
+}
+string OEWeaponExplodeRegister::toString()
+{
+    return "EWEAPONEXPLODER " + getArgument()->toString();
+}
+string OItemExplodeRegister::toString()
+{
+    return "ITEMEXPLODER " + getArgument()->toString();
+}
+
+string ORunItemScript::toString()
+{
+    return "RUNITEMSCRIPT " + getArgument()->toString();
+}
+
+//new npc-> functions for npc scripts
+string ONPCDead::toString()
+{
+    return "NPCDEAD " + getArgument()->toString();
+}
+string ONPCCanSlide::toString()
+{
+    return "NPCCANSLIDE " + getArgument()->toString();
+}
+string ONPCSlide::toString()
+{
+    return "NPCSLIDE " + getArgument()->toString();
+}
+string ONPCBreatheFire::toString()
+{
+    return "NPCFIREBREATH " + getArgument()->toString();
+}
+string ONPCNewDir8::toString()
+{
+    return "NPCNEWDIR8 " + getArgument()->toString();
+}
+string ONPCRemove::toString()
+{
+    return "NPCKICKBUCKET " + getArgument()->toString();
+}
+string ONPCStopSFX::toString()
+{
+    return "NPCSTOPBGSFX " + getArgument()->toString();
+}
+string ONPCAttack::toString()
+{
+    return "NPCATTACK " + getArgument()->toString();
+}
+string ONPCNewDir::toString()
+{
+    return "NPCNEWDIR " + getArgument()->toString();
+}
+string ONPCConstWalk::toString()
+{
+    return "NPCCONSTWALK " + getArgument()->toString();
+}
+string ONPCConstWalk8::toString()
+{
+    return "NPCCONSTWALK8 " + getArgument()->toString();
+}
+string ONPCVarWalk::toString()
+{
+    return "NPCVARWALK " + getArgument()->toString();
+}
+string ONPCVarWalk8::toString()
+{
+    return "NPCVARWALK8 " + getArgument()->toString();
+}
+string ONPCHaltWalk::toString()
+{
+    return "NPCHALTWALK " + getArgument()->toString();
+}
+string ONPCHaltWalk8::toString()
+{
+    return "NPCHALTWALK8 " + getArgument()->toString();
+}
+string ONPCFloatWalk::toString()
+{
+    return "NPCFLOATWALK " + getArgument()->toString();
+}
+string ONPCLinkInRange::toString()
+{
+    return "NPCLINKINRANGE " + getArgument()->toString();
+}
+string ONPCAdd::toString()
+{
+    return "NPCADD " + getArgument()->toString();
+}
+string ONPCCanMove::toString()
+{
+    return "NPCCANMOVE " + getArgument()->toString();
+}
+string ONPCHitWith::toString()
+{
+    return "NPCHITWITH " + getArgument()->toString();
+}
+
+//string ORunItemScript::toString()
+//{
+//    return "RUNITEMSCRIPT";
+//}
 
 string OReturn::toString()
 {

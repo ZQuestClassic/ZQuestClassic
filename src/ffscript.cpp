@@ -16,11 +16,21 @@
 #include "zc_math.h"
 #include "zc_array.h"
 #include "ffscript.h"
+#include "zc_subscr.h"
+#include <time.h>
+//#include "zc_sys.h"
 FFScript FFCore;
 zquestheader ZCheader;
 ZModule zcm;
 zcmodule moduledata;
+
+char runningItemScripts[256] = {0};
  
+//item *FFCore.temp_ff_item = NULL;
+//enemy *FFCore.temp_ff_enemy = NULL;
+//weapon *FFCore.temp_ff_lweapon = NULL;
+//weapon *FFCore.temp_ff_eweapon = NULL;
+
 //miscQdata *Misc;
 
 #include "zelda.h"
@@ -30,7 +40,7 @@ zcmodule moduledata;
 //extern int directItemB = -1;
 
 #include "guys.h"
-
+//enemy enemyclass;
 #include "gamedata.h"
 #include "zc_init.h"
 #include "zsys.h"
@@ -81,6 +91,13 @@ extern int skipcont;
 extern std::map<int, std::pair<string,string> > ffcmap;
 extern std::map<int, std::pair<string,string> > itemmap;
 extern std::map<int, std::pair<string,string> > globalmap;
+extern std::map<int, std::pair<string, string> > itemmap;
+extern std::map<int, std::pair<string, string> > npcmap;
+extern std::map<int, std::pair<string, string> > ewpnmap;
+extern std::map<int, std::pair<string, string> > lwpnmap;
+extern std::map<int, std::pair<string, string> > linkmap;
+extern std::map<int, std::pair<string, string> > dmapmap;
+extern std::map<int, std::pair<string, string> > screenmap;
 
 PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochrome()
 PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
@@ -115,30 +132,47 @@ word curScriptNum;
 
 //Global script data
 refInfo globalScriptData;
+refInfo linkScriptData;
+refInfo screenScriptData;
+refInfo dmapScriptData;
 word g_doscript = 1;
 bool global_wait = false;
 
-//Item script data
-refInfo itemScriptData;
+//Sprite script data
+refInfo itemScriptData[256];
+refInfo npcScriptData[256];
+refInfo lweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
+refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
+refInfo itemactiveScriptData[256];
+
+//char runningItemScripts[256] = {0};
 
 //The stacks
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
-long(*stack)[256] = NULL;
-long ffc_stack[32][256];
-long global_stack[256];
-long item_stack[256];
+
+#define GLOBAL_STACK_MAIN 0
+#define GLOBAL_STACK_DMAP 1
+#define GLOBAL_STACK_SCREEN 2
+#define GLOBAL_STACK_LINK 3
+#define GLOBAL_STACK_MAX 4
+
+long(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
+long ffc_stack[32][MAX_SCRIPT_REGISTERS];
+long global_stack[GLOBAL_STACK_MAX][MAX_SCRIPT_REGISTERS];
+long item_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
 refInfo ffcScriptData[32];
 
 void clear_ffc_stack(const byte i)
 {
-    memset(ffc_stack[i], 0, 256 * sizeof(long));
+    memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 void clear_global_stack()
 {
-    memset(global_stack, 0, 256 * sizeof(long));
+    //memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+    memset(global_stack, 0, sizeof(global_stack));
 }
 
 //ScriptHelper
@@ -440,6 +474,9 @@ public:
 ///------------------------------------------------//
 //MUST call AND check load functions before trying to use other functions
 
+
+    
+
 //Guy Helper
 class GuyH : public SH
 {
@@ -584,6 +621,17 @@ public:
         return _NoError;
     }
     
+    static int getItemIndex(const long iid)
+    {
+        for(word i = 0; i < items.Count(); i++)
+        {
+            if(items.spr(i)->getUID() == iid)
+                return i;
+        }
+        
+        return -1;
+    }
+    
     static INLINE item* getItem()
     {
         return tempitem;
@@ -624,6 +672,17 @@ public:
         return _NoError;
     }
     
+    static int getLWeaponIndex(const long lwid)
+    {
+        for(word i = 0; i < Lwpns.Count(); i++)
+        {
+            if(Lwpns.spr(i)->getUID() == lwid)
+                return i;
+        }
+        
+        return -1;
+    }
+    
     static INLINE weapon *getWeapon()
     {
         return tempweapon;
@@ -662,6 +721,17 @@ public:
         }
         
         return _NoError;
+    }
+    
+    static int getEWeaponIndex(const long ewid)
+    {
+        for(word i = 0; i < Ewpns.Count(); i++)
+        {
+            if(Ewpns.spr(i)->getUID() == ewid)
+                return i;
+        }
+        
+        return -1;
     }
     
     static INLINE weapon *getWeapon()
@@ -1402,6 +1472,10 @@ long get_register(const long arg)
     case LINKITEMA:
 	    //Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 	ret = Awpn *10000;
+	break;
+    
+    case LINKTILEMOD:
+	ret = Link.getTileModifier() * 10000;
 	break;
     
     case LINKDIAG:
@@ -2599,6 +2673,19 @@ long get_register(const long arg)
             ret = -10000;
         else
             ret = GuyH::getNPC()->miscellaneous[a];
+    }
+    break;
+    case NPCINITD:
+    {
+        int a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") != SH::_NoError )
+            ret = -10000;
+        else
+	{
+		//enemy *e = (enemy*)guys.spr(ri->guyref);
+		ret = (int)GuyH::getNPC()->initD[a];
+	}
     }
     break;
     
@@ -4499,6 +4586,14 @@ case LOADMAPDATA:
         ret=FFScript::loadMapData();
         break;
 
+case NPCCOLLISION:
+        ret=FFCore.npc_collision();
+        break;
+
+case NPCLINEDUP:
+        ret=FFCore.npc_linedup();
+        break;
+
 case CREATEBITMAP:
 {
 	Z_scripterrlog("Creating a bitmap for bitmap ref: %d\n", ri->bitmapref);
@@ -4713,7 +4808,8 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 	}	
 	break;
 }	
-	
+
+
 
 //initd	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
 
@@ -5683,10 +5779,12 @@ case NPCDATAHYOFS: GET_NPCDATA_VAR_INT32(hyofs, "HitYOffset"); break;
 case NPCDATAHITWIDTH: GET_NPCDATA_VAR_INT32(hxsz, "HitWidth"); break;
 case NPCDATAHITHEIGHT: GET_NPCDATA_VAR_INT32(hysz, "HitHeight"); break;
 case NPCDATAHITZ: GET_NPCDATA_VAR_INT32(hzsz, "HitZHeight"); break;
+case NPCDATASCRIPT: GET_NPCDATA_VAR_INT32(script, "Script"); break;
 case NPCDATATILEWIDTH: GET_NPCDATA_VAR_INT32(txsz, "TileWidth"); break;
 case NPCDATATILEHEIGHT: GET_NPCDATA_VAR_INT32(tysz, "TileHeight"); break;
 case NPCDATAWPNSPRITE: GET_NPCDATA_VAR_INT32(wpnsprite, "WeaponSprite"); break;
 case NPCDATADEFENSE: GET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
+case NPCDATAINITD: GET_NPCDATA_VAR_INDEX(initD, "InitD", 8); break;
 case NPCDATASIZEFLAG: GET_NPCDATA_VAR_INT32(SIZEflags, "SizeFlags"); break;
 
 case NPCDATAFROZENTILE: GET_NPCDATA_VAR_INT32(frozentile, "FrozenTile"); break;
@@ -5854,6 +5952,30 @@ case NPCDATASHIELD:
 		}
 	} 
 }
+
+case NPCMATCHINITDLABEL: 	 //Same form as SetScreenD()
+	//bool npcdata->MatchInitDLabel("label", d)
+{
+	
+	if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
+	{ 
+		Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), "MatchInitDLabel()"); 
+		ret = 0; 
+		break;
+	} 
+	
+	long arrayptr = get_register(sarg1) / 10000;
+	long init_d_index = get_register(sarg2) / 10000;
+	
+	string name;
+	int num=-1;
+	ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
+	
+	bool match = (!( strcmp(name.c_str(), guysbuf[ri->npcdataref].initD_label[init_d_index] )));
+	
+	ret = ( match ? 10000 : 0 );
+	break;
+}	
     
     
 ///----------------------------------------------------------------------------------------------------//
@@ -5980,7 +6102,7 @@ case AUDIOPAN:
     {
         if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
         else if(arg >= A(0) && arg <= A(1))		ret = ri->a[arg - A(0)];
-        else if(arg >= GD(0) && arg <= GD(255))	ret = game->global_d[arg - GD(0)];
+        else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))	ret = game->global_d[arg - GD(0)];
         
         break;
     }
@@ -6508,6 +6630,13 @@ void set_register(const long arg, const long value)
 	game->items_off[value/10000] = 0;
 	//directItemB = directItem;
 	break;
+    }
+    
+    case LINKTILEMOD:
+    {
+	Link.setTileModifier(value/10000);
+	break;
+	    
     }
 
 
@@ -8345,6 +8474,19 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
     break;
     
+    case NPCINITD:
+    {
+	long a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->Misc") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(ri->guyref);
+		//e->initD[a] = value; 
+		GuyH::getNPC()->initD[a] = value;
+	}
+    }
+    break;
+    
     //npc->Attributes[] setter -Z
     case NPCDD:
     {
@@ -9412,7 +9554,7 @@ break;
         break;
     
     case DEBUGSP:
-        ri->sp = vbound((value / 10000),0,256);
+        ri->sp = vbound((value / 10000),0,MAX_SCRIPT_REGISTERS-1);
         break;
         
     case DEBUGREFFFC:
@@ -10891,6 +11033,7 @@ case NPCDATASWIDTH: SET_NPCDATA_VAR_BYTE(s_width, "SWidth"); break;
 case NPCDATASHEIGHT: SET_NPCDATA_VAR_BYTE(s_height, "SHeight"); break;
 case NPCDATAETILE: SET_NPCDATA_VAR_INT(e_tile, "ExTile"); break;
 case NPCDATAEWIDTH: SET_NPCDATA_VAR_BYTE(e_width, "ExWidth"); break;
+case NPCDATASCRIPT: SET_NPCDATA_VAR_BYTE(script, "Script"); break;
 case NPCDATAEHEIGHT: SET_NPCDATA_VAR_BYTE(e_height, "ExHeight"); break;
 case NPCDATAHP: SET_NPCDATA_VAR_DWORD(hp, "HP"); break;
 case NPCDATAFAMILY: SET_NPCDATA_VAR_DWORD(family, "Family"); break;
@@ -10923,6 +11066,7 @@ case NPCDATATILEWIDTH: SET_NPCDATA_VAR_INT(txsz, "TileWidth"); break;
 case NPCDATATILEHEIGHT: SET_NPCDATA_VAR_INT(tysz, "TileHeight"); break;
 case NPCDATAWPNSPRITE: SET_NPCDATA_VAR_INT(wpnsprite, "WeaponSprite"); break;
 case NPCDATADEFENSE: SET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
+case NPCDATAINITD: SET_NPCDATA_VAR_INDEX(initD, "InitD", 8); break;
 case NPCDATASIZEFLAG: SET_NPCDATA_VAR_INT(SIZEflags, "SizeFlags"); break;
 
 case NPCDATAFROZENTILE: SET_NPCDATA_VAR_INT(frozentile, "FrozenTile"); break;
@@ -11249,7 +11393,7 @@ case AUDIOPAN:
     {
         if(arg >= D(0) && arg <= D(7))			ri->d[arg - D(0)] = value;
         else if(arg >= A(0) && arg <= A(1))		ri->a[arg - A(0)] = value;
-        else if(arg >= GD(0) && arg <= GD(255))	game->global_d[arg-GD(0)] = value;
+        else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))	game->global_d[arg-GD(0)] = value;
         
         break;
     }
@@ -11620,6 +11764,19 @@ void do_rnd(const bool v)
 	else
 		set_register(sarg1, 0); // Just return 0. (Do not log an error)
 }
+
+//Returns the system Real-Time-Clock value for a specific type. 
+void FFScript::getRTC(const bool v)
+{
+	//long type = get_register(sarg1) / 10000;
+	//Z_scripterrlog("FFCore.getRTC() type == %d\n",type);
+	//int time = getTime(type);
+	//Z_scripterrlog("FFCore.getRTC() time == %d\n",time);
+	//Z_scripterrlog("FFCore.getRTC() time * 10000 == %d\n",time);
+	//set_register(sarg1, getTime((byte)(SH::get_arg(sarg2, v) / 10000)) * 10000);
+	set_register(sarg1, getTime((get_register(sarg1) / 10000)) * 10000);
+}
+
 
 void do_factorial(const bool v)
 {
@@ -12768,7 +12925,8 @@ void FFScript::do_loaddmapdata(const bool v)
 
 void FFScript::do_getDMapData_dmapname(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     
     if(BC::checkDMapID(ID, "dmapdata->GetName()") != SH::_NoError)
@@ -12780,7 +12938,8 @@ void FFScript::do_getDMapData_dmapname(const bool v)
 
 void FFScript::do_setDMapData_dmapname(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
 
     string filename_str;
@@ -12796,7 +12955,8 @@ void FFScript::do_setDMapData_dmapname(const bool v)
 
 void FFScript::do_getDMapData_dmaptitle(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     
     if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
@@ -12808,7 +12968,8 @@ void FFScript::do_getDMapData_dmaptitle(const bool v)
 
 void FFScript::do_setDMapData_dmaptitle(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     string filename_str;
     
@@ -12823,7 +12984,8 @@ void FFScript::do_setDMapData_dmaptitle(const bool v)
 
 void FFScript::do_getDMapData_dmapintro(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     
     if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
@@ -12835,7 +12997,8 @@ void FFScript::do_getDMapData_dmapintro(const bool v)
 
 void FFScript::do_setDMapData_dmapintro(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     string filename_str;
     
@@ -12850,7 +13013,8 @@ void FFScript::do_setDMapData_dmapintro(const bool v)
 
 void FFScript::do_getDMapData_music(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     
     if(BC::checkDMapID(ID, "dmapdata->GetMusic()") != SH::_NoError)
@@ -12862,7 +13026,8 @@ void FFScript::do_getDMapData_music(const bool v)
 
 void FFScript::do_setDMapData_music(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     string filename_str;
     
@@ -13463,6 +13628,489 @@ int FFScript::do_get_internal_uid_eweapon(int index)
 	return ((int)Ewpns.spr(index)->getUID());
 }
 
+static inline bool is_Side_view()
+{
+    return (((tmpscr->flags7&fSIDEVIEW)!=0 || DMaps[currdmap].sideview != 0) && !ignoreSideview); //DMap Enable Sideview on All Screens -Z //2.54 Alpha 27
+}
+
+//enum { warpFlagDONTKILLSCRIPTDRAWS, warpFlagDONTKILLSOUNDS, warpFlagDONTKILLMUSIC };
+//enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectMozaic, warpEffectOpen }; 
+//valid warpTypes: tile, side, exit, cancel, instant
+bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int warpDestY, int warpEffect, int warpSound, int warpFlags, int linkFacesDir)
+{
+	byte t = 0;
+	t=(currscr<128)?0:1;
+	bool overlay=false;
+	bool intradmap = (dmapID == currdmap);
+	if ( (unsigned)dmapID >= MAXDMAPS ) return false;
+	if ( (unsigned)scrID > MAXSCREENS ) return false;
+	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,currscr); return false; }
+	int mapID = (DMaps[dmapID].map+1);
+        int warp_return_index = -1;
+	//mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
+	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + scrID)];
+	
+	int wx = 0, wy = 0;
+	if ( warpDestX < 0 )
+	{
+		Z_scripterrlog("WarpEx() was set to warp return point:%d\n", warpDestY); 
+		if ( (unsigned)warpDestY < 4 )
+		{
+			wx = m->warpreturnx[warpDestY];
+			wy = m->warpreturny[warpDestY];
+			Z_scripterrlog("WarpEx Return Point X is: %d\n",wx);
+			Z_scripterrlog("WarpEx Return Point Y is: %d\n",wy);
+		}
+		else
+		{
+			Z_scripterrlog("Invalid Warp Return Square Type (%d) provided as an arg to Link->WarpEx().\n",warpDestY);
+			return false;
+		}
+	}
+	else 
+	{
+		if ( (unsigned)warpDestX < 256 && (unsigned)warpDestY < 176 )
+		{
+			wx = warpDestX;
+			wy = warpDestY;
+		}
+		else
+		{
+			Z_scripterrlog("Invalid pixel coordinates of x = %d, y = %d, supplied to Link->WarpEx()\n",warpDestX,warpDestY);
+			return false;
+		}
+		
+	}
+	
+	//warp coordinates are wx, wy, not x, y! -Z
+	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
+	int wrindex = 0;
+	//we also need to check if dmaps are sideview here! -Z
+	//Likewise, we need to add that check to the normal Link:;dowarp(0
+	bool wasSideview = isSideViewGravity(t); //((tmpscr[t].flags7 & fSIDEVIEW)!=0 || DMaps[currdmap].sideview) && !ignoreSideview;
+	
+	//int last_entr_scr = -1;
+	//int last_entr_dmap = -1;
+	switch(warpType)
+	{
+		case wtIWARP:
+		case wtIWARPBLK:
+		case wtIWARPOPEN:
+		case wtIWARPZAP:
+		case wtIWARPWAVE: 
+		{
+			bool wasswimming = (Link.getAction()==swimming);
+			byte olddiveclk = Link.diveclk;
+			ALLOFF();
+			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
+			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
+			sfx(warpSound);
+			if(wasswimming)
+			{
+				Link.setAction(swimming); FFCore.setLinkAction(swimming);
+				Link.diveclk = olddiveclk;
+			}
+            
+			switch(warpEffect)
+			{
+				case warpEffectZap: zapout(); break;
+				case warpEffectWave: wavyout(false); break;
+				case warpEffectInstant: 
+				{
+				    //bool b2 = COOLSCROLL&&cavewarp;
+				    //blackscr(30,b2?false:true);
+				    blackscr(30,true);
+				    break;
+				}
+				case warpEffectMozaic: 
+				{
+					
+					break;
+				}
+				case warpEffectOpen:
+				{
+					
+					break;
+				}
+				case warpEffectNONE:
+				default: break;
+			}
+			int c = DMaps[currdmap].color;
+			currdmap = dmapID;
+			dlevel = DMaps[currdmap].level;
+			currmap = DMaps[currdmap].map;
+			init_dmap();
+			update_subscreens(dmapID);
+			
+			ringcolor(false);
+			
+			if(DMaps[currdmap].color != c)
+			    loadlvlpal(DMaps[currdmap].color);
+			    
+			homescr = currscr = scrID + DMaps[currdmap].xoff;
+			
+			lightingInstant(); // Also sets naturaldark
+			
+			loadscr(0,currdmap,currscr,-1,overlay);
+			
+			Link.x = (fix)wx;
+			Link.y = (fix)wy;
+			
+			if ( linkFacesDir != -1 )
+			{
+				if((int)Link.x==(fix)0)  
+				{
+					Link.dir=right;
+				}
+				if((int)Link.x==(fix)240) 
+				{
+					Link.dir=left;
+				}
+				
+				if((int)Link.y==(fix)0)   
+				{
+					Link.dir=down;
+				}
+				
+				if((int)Link.y==(fix)160) 
+				{
+					Link.dir=up;
+				}
+			}
+			
+			markBmap(Link.dir^1);
+			
+			if(iswater(MAPCOMBO((int)Link.x,(int)Link.y+8)) && _walkflag((int)Link.x,(int)Link.y+8,0) && current_item(itype_flippers))
+			{
+			    Link.hopclk=0xFF;
+			    Link.attackclk = Link.charging = Link.spins = 0;
+			    Link.setAction(swimming); FFCore.setLinkAction(swimming);
+			}
+			else
+			{
+			    Link.setAction(none); FFCore.setLinkAction(none);
+			}
+			    
+			//preloaded freeform combos
+			ffscript_engine(true);
+			
+			putscr(scrollbuf,0,0,tmpscr);
+			putscrdoors(scrollbuf,0,0,tmpscr);
+			
+			switch(warpEffect)
+			{
+				case warpEffectZap:  zapin(); break;
+				case warpEffectWave: wavyin(); break;
+				case warpEffectMozaic: 
+				{
+					
+					break;
+				}
+				case warpEffectOpen:
+				{
+					openscreen();
+					break;
+				}
+				case warpEffectNONE:
+				default: break;
+			}
+			show_subscreen_life=true;
+			show_subscreen_numbers=true;
+			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) Play_Level_Music();
+			currcset=DMaps[currdmap].color;
+			dointro();
+			Link.setEntryPoints((int)Link.x,(int)Link.y);
+			
+			break;
+		}
+		
+		
+		case wtEXIT:
+		{
+			Z_scripterrlog("%s was called with a warp type of Entrance/Exit\n", "Link->WarpEx()");
+			lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
+			ALLOFF();
+			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
+			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
+			sfx(warpSound);
+			blackscr(30,false);
+			currdmap = dmapID;
+			dlevel=DMaps[currdmap].level;
+			currmap=DMaps[currdmap].map;
+			init_dmap();
+			update_subscreens(dmapID);
+			loadfullpal();
+			ringcolor(false);
+			loadlvlpal(DMaps[currdmap].color);
+			//lastentrance_dmap = currdmap;
+			homescr = currscr = scrID + DMaps[currdmap].xoff;
+			loadscr(0,currdmap,currscr,-1,overlay);
+			
+			if(tmpscr->flags&fDARK)
+			{
+			    if(get_bit(quest_rules,qr_FADE))
+			    {
+				interpolatedfade();
+			    }
+			    else
+			    {
+				loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
+			    }
+			    
+			    darkroom=naturaldark=true;
+			}
+			else
+			{
+			    darkroom=naturaldark=false;
+			}
+			
+			
+			//Move Link's coordinates
+			Link.x = (fix)wx;
+			Link.y = (fix)wy;
+			//set his dir
+			if ( linkFacesDir != -1 ) 
+			{
+				Link.dir=down; //could be = linkFacesDir
+			
+				if((int)Link.x==(fix)0)  
+				{			
+					Link.dir = right;
+				} 
+				
+				if((int)Link.x==(fix)240) 
+				{
+					Link.dir = left;
+				}
+				
+				if((int)Link.y==(fix)0)   
+				{
+					Link.dir = down;
+				}
+				
+				if((int)Link.y==(fix)160)
+				{	
+					Link.dir = up;
+				}
+			}
+			
+			if(dlevel)
+			{
+			    // reset enemy kill counts
+			    for(int i=0; i<128; i++)
+			    {
+				game->guys[(currmap*MAPSCRSNORMAL)+i] = 0;
+				game->maps[(currmap*MAPSCRSNORMAL)+i] &= ~mTMPNORET;
+			    }
+			}
+			
+			markBmap(Link.dir^1);
+			//preloaded freeform combos
+			ffscript_engine(true);
+			Link.reset_hookshot();
+			
+			if(isdungeon())
+			{
+			    openscreen();
+			    if(get_bit(extra_rules, er_SHORTDGNWALK)==0)
+				Link.stepforward(Link.diagonalMovement?11:12, false);
+			    else
+				// Didn't walk as far pre-1.93, and some quests depend on that
+				Link.stepforward(8, false);
+			}
+			else
+			{
+			    openscreen();
+			}
+			
+			show_subscreen_life=true;
+			show_subscreen_numbers=true;
+			Play_Level_Music();
+			currcset=DMaps[currdmap].color;
+			dointro();
+			Link.setEntryPoints((int)Link.x,(int)Link.y);
+			
+			for(int i=0; i<6; i++)
+			    visited[i]=-1;
+			    
+			//last_entr_scr = scrID;
+			//last_entr_dmap = dmapID;
+			
+			break;
+			
+		}
+		case wtSCROLL:                                          // scrolling warp
+		{
+			int c = DMaps[currdmap].color;
+			currmap = DMaps[dmapID].map;
+			update_subscreens(dmapID);
+			
+			dlevel = DMaps[dmapID].level;
+			    //check if Link has the map for the new location before updating the subscreen. ? -Z
+			    //This works only in one direction, if Link had a map, to not having one.
+			    //If Link does not have a map, and warps somewhere where he does, then the map still briefly shows. 
+			update_subscreens(dmapID);
+			    
+			if ( has_item(itype_map, dlevel) ) 
+			{
+				//Blank the map during an intra-dmap scrolling warp. 
+				dlevel = -1; //a hack for the minimap. This works!! -Z
+			}
+			    
+			// fix the scrolling direction, if it was a tile or instant warp
+			Link.sdir = vbound(Link.dir,0,3);
+			
+			
+			Link.scrollscr(Link.sdir, scrID+DMaps[dmapID].xoff, dmapID);
+			dlevel = DMaps[dmapID].level; //Fix dlevel and draw the map (end hack). -Z
+			
+			Link.reset_hookshot();
+			
+			if(!intradmap)
+			{
+			    currdmap = dmapID;
+			    dlevel = DMaps[currdmap].level;
+			    homescr = currscr = scrID + DMaps[dmapID].xoff;
+			    init_dmap();
+			    
+			    
+			    if(((wx>0||wy>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!get_bit(quest_rules,qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
+			    {
+				if(dlevel)
+				{
+				    lastentrance = currscr;
+				}
+				else
+				{
+				    lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+				}
+				
+				lastentrance_dmap = dmapID;
+			    }
+			}
+			
+			if(DMaps[currdmap].color != c)
+			{
+			    lighting(false, true);
+			}
+			
+			Play_Level_Music();
+			currcset=DMaps[currdmap].color;
+			dointro();
+			break;
+		}
+	}
+	// Stop Link from drowning!
+	if(Link.getAction()==drowning)
+	{
+		Link.drownclk=0;
+		Link.setAction(none); FFCore.setLinkAction(none);
+	}
+	    
+	// But keep him swimming if he ought to be!
+	if(Link.getAction()!=rafting && iswater(MAPCOMBO((int)Link.x,(int)Link.y+8)) && (_walkflag((int)Link.x,(int)Link.y+8,0) || get_bit(quest_rules,qr_DROWN))
+		    && (current_item(itype_flippers)) && (Link.getAction()!=inwind))
+	{
+		Link.hopclk=0xFF;
+		Link.setAction(swimming); FFCore.setLinkAction(swimming);
+	}
+	    
+	newscr_clk=frame;
+	activated_timed_warp=false;
+	eat_buttons();
+	    
+	if(warpType!=wtIWARP) { Link.attackclk=0; }
+		
+	Link.didstuff=0;
+	map_bkgsfx(true);
+	loadside=Link.dir^1;
+	whistleclk=-1;
+	    
+	if((int)Link.z>0 && is_Side_view())
+	{
+		Link.y-=Link.z;
+		Link.z=0;
+	}
+	else if(!is_Side_view())
+	{
+		Link.fall=0;
+	}
+	    
+	// If warping between top-down and sideview screens,
+	// fix enemies that are carried over by Full Screen Warp
+	const bool tmpscr_is_sideview = is_Side_view();
+	    
+	if(!wasSideview && tmpscr_is_sideview)
+	{
+		for(int i=0; i<guys.Count(); i++)
+		{
+		    if(guys.spr(i)->z > 0)
+		    {
+			guys.spr(i)->y -= guys.spr(i)->z;
+			guys.spr(i)->z = 0;
+		    }
+		    
+		    if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
+			guys.spr(i)->yofs += 2;
+		}
+	}
+	else if(wasSideview && !tmpscr_is_sideview)
+	{
+		for(int i=0; i<guys.Count(); i++)
+		{
+		    if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)
+			guys.spr(i)->yofs -= 2;
+		}
+	}
+	if ( warpType == wtEXIT )
+	{
+		//game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
+		game->set_continue_scrn(scrID);
+		game->set_continue_dmap(dmapID);
+		lastentrance = scrID;
+		//Z_scripterrlog("Setting Last Entrance to: %d\n", scrID);
+		//Z_scripterrlog("lastentrance = %d\n",lastentrance);
+		lastentrance_dmap = dmapID;
+		//Z_scripterrlog("Setting Last Entrance DMap to: %d\n", dmapID);
+		//Z_scripterrlog("lastentrance_dmap = %d\n",lastentrance_dmap);
+		//lastentrance_dmap = currdmap;
+		//lastentrance = game->get_continue_scrn();
+	}
+	else
+	{
+		if ( !(warpFlags&warpFlagSETENTRANCESCREEN) ) lastentrance = scrID;
+		if ( !(warpFlags&warpFlagSETENTRANCEDMAP) ) lastentrance_dmap = dmapID;
+		if ( !(warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(scrID);
+		if ( !(warpFlags&warpFlagSETCONTINUEDMAP) ) game->set_continue_dmap(dmapID);
+		
+		
+	}
+	if(tmpscr->flags4&fAUTOSAVE)
+	{
+		save_game(true,0);
+	}
+	    
+	if(tmpscr->flags6&fCONTINUEHERE)
+	{
+		lastentrance_dmap = currdmap;
+		lastentrance = homescr;
+	}
+	    
+	update_subscreens();
+	verifyBothWeapons();
+	Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,currscr,
+                        warpType==wtEXIT ? "Entrance/Exit" :
+                        warpType==wtSCROLL ? "Scrolling Warp" :
+                        warpType==wtNOWARP ? "Cancel Warp" :
+                        "Insta-Warp");
+                        
+	eventlog_mapflags();
+	return true;
+	
+	
+	
+}
+
 void FFScript::do_adjustvolume(const bool v)
 {
 	long perc = SH::get_arg(sarg1, v) / 10000;
@@ -14061,7 +14709,7 @@ void do_combotile(const bool v)
 ///----------------------------------------------------------------------------------------------------//
 
 // Let's do this
-int run_script(const byte type, const word script, const byte i)
+int run_script(const byte type, const word script, const long i)
 {
     if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
         return 1;
@@ -14103,25 +14751,92 @@ int run_script(const byte type, const word script, const byte i)
     }
     break;
     
+    case SCRIPT_NPC:
+    {
+		ri = &(npcScriptData[i]);
+		curscript = guyscripts[script];
+		stack = &(guys.spr(i)->stack);
+	        ri->guyref = guys.spr(i)->getUID();
+	    
+		for ( int q = 0; q < 8; q++ ) 
+		{
+			enemy *e = (enemy*)guys.spr(i);
+			ri->d[q] = e->initD[q];
+			guys.spr(i)->initD[q] = e->initD[q];
+			
+			//al_trace("InitD[%d] for this npc is: %d\n", q, e->initD[q]);
+			//al_trace("GUYSBUF InitD[%d] for this npc is: %d\n", q, guysbuf[guys.spr(i)->id & 0xFFF].initD[q]);
+		}
+		//memcpy(ri->d, guys.spr(i)->initD, 8 * sizeof(long));
+		
+		//stack = &(guys.spr(GuyH::getNPCIndex(ri->guyref))->stack);
+		//stack = &(guys.spr(guys.getByUID(i))->stack);
+	    
+		//ri->guyref = i; //'this' pointer
+		//ri->guyref = getNPCIndex(guys.getByUID(i)); //'this' pointer
+		//ZScriptVersion::RunScript(SCRIPT_NPC, guys.spr(i)->.script, guys.spr(i)->getUID());
+			    
+		//Perhaps it would be better to add a new function that passes the npc pointer to here?
+		//or a direct pointer to the sprite's stack?
+		//but we'd still need the refinfo ID
+	    
+		//enemy::animate(index) runs by screen index, so, getting the enemy by its index should be fine
+		//as we'd call ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
+		//thus, from 'index', we'd use: stack = &(guys.spr(GuyH::getNPCIndex(i))->stack);
+		//and ri->guyref = guys.spr(i)->getUID();;
+    }
+    break;
+    
+    case SCRIPT_LWPN:
+    {
+		ri = &(lweaponScriptData[i]);
+		curscript = lwpnscripts[script];
+		stack = &(Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn))->stack);
+		ri->lwpn = i; //'this' pointer
+    }
+    break;
+    
+    case SCRIPT_EWPN:
+    {
+		ri = &(eweaponScriptData[i]);
+		curscript = ewpnscripts[script];
+		stack = &(Ewpns.spr(EwpnH::getEWeaponIndex(ri->ewpn))->stack);
+		ri->ewpn = i; //'this' pointer
+    }
+    break;
+	    
     case SCRIPT_ITEM:
     {
-        ri = &itemScriptData;
-        ri->Clear(); //Only runs for one frame so we just zero it out
+        ri = &(itemScriptData[i]);
+        //ri->Clear(); //Only runs for one frame so we just zero it out
 	    //What would happen if we don't do this? -Z
         
         curscript = itemscripts[script];
-        stack = &item_stack;
-        memset(stack, 0, 256 * sizeof(long)); //zero here too //and don't do this? -Z
+        stack = &(item_stack[i]);
+	    
+	//Should we want to allow item scripts to continue running, we'd need a way to mark them as running
+	//in the first place, and a way to re-run them every frame. -Z (26th November, 2018)
+	//I commented out the clear() and memset() on the above date. -Z
+	
+        //memset(stack, 0, 256 * sizeof(long)); //zero here too //and don't do this? -Z
 	    //If we can make item scripts capable of running for more than one frame, then we can
 	    //copy the behaviour to npcs, weapons, and items.
 	    //In theory, if we keep the screen caps on these, then we would have 256 or 512 stacks
 	    //for each type at all times. That's an awful lot of wasted RAM.
 	    //Suggestions? -Z
+	    
+	    //Note: I decided to put stacks in the sprite class. We'll need to depete stacks from particles
+	    //and from internal phantom weapons or objects that can naver run scripts, but this should suffice.
+	    
+	    //We can't just free or delete a stack that isn't in use on normal user-controlled objects,
+	    //because they can set `->script = n` at any time. 
         
         memcpy(ri->d, itemsbuf[i].initiald, 8 * sizeof(long));
         memcpy(ri->a, itemsbuf[i].initiala, 2 * sizeof(long));
         
         ri->idata = i; //'this' pointer
+	//FFCore.runningItemScripts[i] = 1;
+	runningItemScripts[i] = 1;
         
     }
     break;
@@ -14132,9 +14847,43 @@ int run_script(const byte type, const word script, const byte i)
     case SCRIPT_GLOBAL:
     {
         ri = &globalScriptData;
+	    //should this become ri = &(globalScriptData[global_slot]);
         
         curscript = globalscripts[script];
-        stack = &global_stack;
+        stack = &global_stack[GLOBAL_STACK_MAIN];
+	    //
+    }
+    break;
+    
+    case SCRIPT_LINK:
+    {
+        ri = &linkScriptData;
+	    //should this become ri = &(globalScriptData[link_slot]);
+        
+        curscript = linkscripts[script];
+        stack = &global_stack[GLOBAL_STACK_LINK];
+	    //
+    }
+    break;
+    
+    case SCRIPT_SCREEN:
+    {
+        ri = &screenScriptData;
+        
+        curscript = screenscripts[script];
+	    //should this become ri = &(globalScriptData[screen_slot]);
+        stack = &global_stack[GLOBAL_STACK_SCREEN];
+	    //
+    }
+    break;
+    
+    case SCRIPT_DMAP:
+    {
+        ri = &dmapScriptData;
+	    //should this become ri = &(globalScriptData[dmap_slot]);
+        
+        curscript = dmapscripts[script];
+        stack = &global_stack[GLOBAL_STACK_DMAP];
 	    //
     }
     break;
@@ -14505,6 +15254,13 @@ int run_script(const byte type, const word script, const byte i)
             
         case RNDV:
             do_rnd(true);
+            break;
+	
+	case GETRTCTIMER:
+            FFCore.getRTC(false);
+            break;
+	case GETRTCTIMEV:
+            FFCore.getRTC(true);
             break;
             
         case FACTORIAL:
@@ -15545,6 +16301,130 @@ case DMAPDATASETMUSICV: //command, string to load a music file
             break;
 	}
 	
+	case LINKWARPEXR:
+	{
+            FFCore.do_warp_ex(false);
+            break;
+	}
+	
+	case LINKEXPLODER:
+	{
+	    int mode = get_register(sarg1) / 10000;
+	    if ( (unsigned) mode > 2 ) 
+	    {
+		    Z_scripterrlog("Invalid mode (%d) passed to Link->Explode(int mode)\n",mode);
+            }
+	    else Link.explode(mode);
+            break;
+	}
+	case NPCEXPLODER:
+	{
+	    
+	    int mode = get_register(sarg1) / 10000;
+		al_trace("Called npc->Explode(%d), for enemy index %d\n", mode, ri->guyref);
+	    if ( (unsigned) mode > 2 ) 
+	    {
+		    Z_scripterrlog("Invalid mode (%d) passed to npc->Explode(int mode)\n",mode);
+	    }
+	    else
+	    {
+		    if(GuyH::loadNPC(ri->guyref, "npc->Explode()") == SH::_NoError)
+		    {
+			al_trace("npc->Explode() is loading the npc into a pointer.\n");
+			//enemy *e = (enemy*)guys.spr(ri->guyref);
+			al_trace("npc->Explode() is calling enemy::explode.\n");
+			//(enemy *) guys.explode(eid);
+			//e->explode(mode);
+			    //enemy *en=GuyH::getNPC();
+			    //en->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
+				guys.spr(GuyH::getNPCIndex(ri->guyref))->explode(mode);
+		    }
+	    }
+            break;
+	}
+	
+	case ITEMEXPLODER:
+	{
+	    
+	    int mode = get_register(sarg1) / 10000;
+		al_trace("Called item->Explode(%d), for item index %d\n", mode, ri->itemref);
+	    if ( (unsigned) mode > 2 ) 
+	    {
+		    Z_scripterrlog("Invalid mode (%d) passed to item->Explode(int mode)\n",mode);
+	    }
+	    else
+	    {
+		    if(ItemH::loadItem(ri->itemref, "item->Explode()") == SH::_NoError)
+		    {
+				items.spr(ItemH::getItemIndex(ri->itemref))->explode(mode);
+		    }
+	    }
+            break;
+	}
+	case LWEAPONEXPLODER:
+	{
+	    
+	    int mode = get_register(sarg1) / 10000;
+		al_trace("Called lweapon->Explode(%d), for lweapon index %d\n", mode, ri->lwpn);
+	    if ( (unsigned) mode > 2 ) 
+	    {
+		    Z_scripterrlog("Invalid mode (%d) passed to lweapon->Explode(int mode)\n",mode);
+	    }
+	    else
+	    {
+		    if(LwpnH::loadWeapon(ri->itemref, "lweapon->Explode()") == SH::_NoError)
+		    {
+				Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn))->explode(mode);
+		    }
+	    }
+            break;
+	}
+	case EWEAPONEXPLODER:
+	{
+	    
+	    int mode = get_register(sarg1) / 10000;
+		al_trace("Called eweapon->Explode(%d), for eweapon index %d\n", mode, ri->ewpn);
+	    if ( (unsigned) mode > 2 ) 
+	    {
+		    Z_scripterrlog("Invalid mode (%d) passed to eweapon->Explode(int mode)\n",mode);
+	    }
+	    else
+	    {
+		    if(EwpnH::loadWeapon(ri->ewpn, "eweapon->Explode()") == SH::_NoError)
+		    {
+				Ewpns.spr(EwpnH::getEWeaponIndex(ri->lwpn))->explode(mode);
+		    }
+	    }
+            break;
+	}
+	
+	case RUNITEMSCRIPT:
+	{
+		Z_scripterrlog("Trying to run the script on item: %d\n",ri->idata);
+		Z_scripterrlog("The script ID is: %d\n",itemsbuf[ri->idata].script);
+		int mode = get_register(sarg1) / 10000;
+		//int script_id = itemsbuf[ri->idata].script;
+		//if ( !script_id ) 
+		//{
+		//	set_register(sarg1, 0);
+		//}
+		//else
+		//{
+		//	set_register(sarg1, script_id*10000);
+			curscript = 0;
+			long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+			stack = &(item_stack[ri->idata]);
+			memset(stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+			stack = pvsstack;
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ri->idata].script, (ri->idata) & 0xFFF);
+			if ( mode ) 
+			{
+				runningItemScripts[ri->idata] = 2; //2 == script forced
+			}
+		//}
+		break;
+	}
+	
 	//case NPCData
 	
 	case 	GETNPCDATATILE: FFScript::getNPCData_tile(); break;
@@ -15827,7 +16707,91 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 	case	SETCONTINUESCREEN: FFScript::FFChangeSubscreenText();
 	case	SETCONTINUESTRING: FFScript::FFSetSaveScreenSetting();
 	
+	//new npc functions for npc scripts
 	
+	case NPCDEAD:
+            FFCore.do_isdeadnpc();
+            break;
+	
+	case NPCCANSLIDE:
+            FFCore.do_canslidenpc();
+            break;
+	
+	case NPCSLIDE:
+            FFCore.do_slidenpc();
+            break;
+	
+	case NPCKICKBUCKET:
+            FFCore.do_npckickbucket();
+            break;
+	
+	case NPCSTOPBGSFX:
+            FFCore.do_npc_stopbgsfx();
+            break;
+	
+	case NPCATTACK:
+            FFCore.do_npcattack();
+            break;
+	
+	case NPCNEWDIR:
+            FFCore.do_npc_newdir();
+            break;
+	
+	case NPCCONSTWALK:
+            FFCore.do_npc_constwalk();
+            break;
+	
+	case NPCVARWALK:
+            FFCore.do_npc_varwalk();
+            break;
+	
+	case NPCVARWALK8:
+            FFCore.do_npc_varwalk8();
+            break;
+	
+	case NPCCONSTWALK8:
+            FFCore.do_npc_constwalk8();
+            break;
+	
+	case NPCHALTWALK:
+            FFCore.do_npc_haltwalk();
+            break;
+	
+	case NPCHALTWALK8:
+            FFCore.do_npc_haltwalk8();
+            break;
+	
+	case NPCFLOATWALK:
+            FFCore.do_npc_floatwalk();
+            break;
+	
+	case NPCFIREBREATH:
+            FFCore.do_npc_breathefire();
+            break;
+	
+	case NPCNEWDIR8:
+            FFCore.do_npc_newdir8();
+            break;
+	
+	case NPCLINKINRANGE:
+            FFCore.do_npc_link_in_range(false);
+            break;
+	
+	case NPCCANMOVE:
+            FFCore.do_npc_canmove(false);
+            break;
+	
+	case NPCHITWITH:
+            FFCore.do_npc_simulate_hit(false);
+            break;
+	
+	case NPCGETINITDLABEL:
+            FFCore.get_npcdata_initd_label(false);
+            break;
+	
+	case NPCADD:
+            FFCore.do_npc_add(false);
+            break;
 	
         default:
             Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
@@ -15872,16 +16836,40 @@ case DMAPDATASETMUSICV: //command, string to load a music file
     {
         switch(type)
         {
-        case SCRIPT_FFC:
-            tmpscr->ffscript[i] = 0;
-            break;
-            
-        case SCRIPT_GLOBAL:
-            g_doscript = 0;
-            break;
-            
-        case SCRIPT_ITEM:
-            break; //item scripts aren't gonna go again anyway
+		case SCRIPT_FFC:
+		    tmpscr->ffscript[i] = 0;
+		    break;
+		    
+		case SCRIPT_GLOBAL:
+		    g_doscript = 0;
+		    break;
+		    
+		case SCRIPT_ITEM:
+		{
+		    //FFCore.runningItemScripts[i] = 0;
+		    runningItemScripts[i] = 0;
+		    //ri = &(itemScriptData[i]);
+		    //ri->Clear();
+		    curscript = 0;
+		    long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+		    stack = &(item_stack[i]);
+		    memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+		    stack = pvsstack;
+		    //stack = NULL;
+		    break; //item scripts aren't gonna go again anyway
+		}
+		case SCRIPT_NPC:
+		{
+		
+			
+			long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+			stack = &(guys.spr(i)->stack); 
+			memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+			stack = pvsstack;
+			guys.spr(i)->script = 0;
+			//ri->guyref = guys.spr(i)->getUID();
+			break;
+		}
         }
     }
     else
@@ -15904,6 +16892,7 @@ case DMAPDATASETMUSICV: //command, string to load a music file
     return 0;
 }
 
+//This keeps ffc scripts running beyond the first frame. 
 int ffscript_engine(const bool preload)
 {
     for(byte i = 0; i < MAXFFCS; i++)
@@ -15991,7 +16980,7 @@ long FFScript::create_user_bitmap_ex(int w, int h, int d = 8)
         do
 	{
 		id = get_free_bitmap();
-	} while (id < rtBMP6+1); //be sure not to overlay with system bitmaps!
+	} while (id < firstUserGeneratedBitmap); //be sure not to overlay with system bitmaps!
         if ( id > 0 )
         {
             scb.script_created_bitmaps[id].width = w;
@@ -16456,12 +17445,12 @@ int FFScript::whichlayer(long scr)
 
 void FFScript::clear_ffc_stack(const byte i)
 {
-    memset(ffc_stack[i], 0, 256 * sizeof(long));
+    memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 void FFScript::clear_global_stack()
 {
-    memset(global_stack, 0, 256 * sizeof(long));
+    memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 void FFScript::do_zapout()
@@ -17500,7 +18489,7 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
-	
+	//clearRunningItemScripts();
 }
 
 
@@ -17598,6 +18587,34 @@ long FFScript::getQuestHeaderInfo(int type)
 //Modules
 //Putting this here, for now.
 
+const char * select_screen_tile_cats[sels_tile_LAST] =
+{
+	"sels_tile_frame", "sels_tile_questicon_1A", "sels_tile_questicon_1B", "sels_tile_questicon_2A",
+	"sels_tile_questicon_2B", "sels_tile_questicon_3A", "sels_tile_questicon_3B", "sels_tile_questicon_4A",
+	"sels_tile_questicon_4B", "sels_tile_questicon_5A", "sels_tile_questicon_5B", "sels_tile_questicon_6A",
+	"sels_tile_questicon_6B", "sels_tile_questicon_7A", "sels_tile_questicon_7B", "sels_tile_questicon_8A",
+	"sels_tile_questicon_8B", "sels_tile_questicon_9A", "sels_tile_questicon_9B", "sels_tile_questicon_10A",
+	"sels_tile_questicon_10B",
+	    //x positions
+	"sels_tile_questicon_1A_X", "sels_tile_questicon_1B_X", "sels_tile_questicon_2A_X", "sels_tile_questicon_2B_X",
+	"sels_tile_questicon_3A_X", "sels_tile_questicon_3B_X", "sels_tile_questicon_4A_X", "sels_tile_questicon_4B_X",
+	"sels_tile_questicon_5A_X", "sels_tile_questicon_5B_X", "sels_tile_questicon_6A_X", "sels_tile_questicon_6B_X",
+	"sels_tile_questicon_7A_X", "sels_tile_questicon_7B_X", "sels_tile_questicon_8A_X", "sels_tile_questicon_8B_X",
+	"sels_tile_questicon_9A_X", "sels_tile_questicon_9B_X", "sels_tile_questicon_10A_X", "sels_tile_questicon_10B_X",
+	"sels_cursor_tile", "sels_heart_tile", "sels_linktile", "draw_link_first"
+	
+};
+
+const char * select_screen_tile_cset_cats[sels_tile_LAST] =
+{
+	"sels_tile_frame_cset", "sels_tile_questicon_1A_cset", "sels_tile_questicon_1B_cset", "sels_tile_questicon_2A_cset",
+	"sels_tile_questicon_2B_cset", "sels_tile_questicon_3A_cset", "sels_tile_questicon_3B_cset", "sels_tile_questicon_4A_cset",
+	"sels_tile_questicon_4B_cset", "sels_tile_questicon_5A_cset", "sels_tile_questicon_5B_cset", "sels_tile_questicon_6A_cset",
+	"sels_tile_questicon_6B_cset", "sels_tile_questicon_7A_cset", "sels_tile_questicon_7B_cset", "sels_tile_questicon_8A_cset",
+	"sels_tile_questicon_8B_cset", "sels_tile_questicon_9A_cset", "sels_tile_questicon_9B_cset", "sels_tile_questicon_10A_cset",
+	"sels_tile_questicon_10B_cset", "change_cset_on_quest_3", 
+	"sels_cusror_cset", "sels_heart_tilettile_cset", "sels_link_cset"
+};
 
 
 void ZModule::init(bool d) //bool default
@@ -17621,9 +18638,18 @@ void ZModule::init(bool d) //bool default
 	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
 	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
 	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
+	memset(moduledata.itemclass_help_strings, 0, sizeof(moduledata.itemclass_help_strings));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
+	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
+	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));
+	memset(moduledata.copyright_string_vars, 0, sizeof(moduledata.copyright_string_vars));
+	memset(moduledata.select_screen_tiles, 0, sizeof(moduledata.select_screen_tiles));
+	memset(moduledata.select_screen_tile_csets, 0, sizeof(moduledata.select_screen_tile_csets));
 	moduledata.old_quest_serial_flow = 0;
 	moduledata.max_quest_files = 0;
+	moduledata.animate_NES_title = 0;
+	moduledata.title_track = moduledata.tf_track = moduledata.gameover_track = moduledata.ending_track = moduledata.dungeon_track = moduledata.overworld_track = moduledata.lastlevel_track = 0;
+	
 	
 	//strcpy(moduledata.module_name,"default.zmod");
 	al_trace("Module name set to %s\n",moduledata.module_name);
@@ -17641,7 +18667,9 @@ void ZModule::init(bool d) //bool default
 		
 		//quests
 		moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
-		moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",5);
+		moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",10);
+		moduledata.max_quest_files = vbound(moduledata.max_quest_files,1,10); //Clamp to maximum valid quests and 1.
+		
 		al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
 		al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
 		strcpy(moduledata.quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
@@ -17654,6 +18682,20 @@ void ZModule::init(bool d) //bool default
 		al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
 		strcpy(moduledata.quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
 		al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
+		strcpy(moduledata.quests[5],get_config_string("QUESTS","sixth_qst",""));
+		al_trace("Module quest 6 set to %s\n",moduledata.quests[5]);
+		strcpy(moduledata.quests[6],get_config_string("QUESTS","seventh_qst",""));
+		al_trace("Module quest 6 set to %s\n",moduledata.quests[6]);
+		strcpy(moduledata.quests[7],get_config_string("QUESTS","eighth_qst",""));
+		al_trace("Module quest 8 set to %s\n",moduledata.quests[7]);
+		strcpy(moduledata.quests[8],get_config_string("QUESTS","ninth_qst",""));
+		al_trace("Module quest 9 set to %s\n",moduledata.quests[8]);
+		strcpy(moduledata.quests[9],get_config_string("QUESTS","tenth_qst",""));
+		al_trace("Module quest 10 set to %s\n",moduledata.quests[9]);
+		for ( int q = 0; q < 10; q++ )
+		{
+			if ( moduledata.quests[q][0] == '-' ) strcpy(moduledata.quests[q],"");
+		}
 		
 		//quest skip names
 		strcpy(moduledata.skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
@@ -17666,6 +18708,28 @@ void ZModule::init(bool d) //bool default
 		al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
 		strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
 		al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
+		strcpy(moduledata.skipnames[5],get_config_string("NAMEENTRY","sixth_qst_skip",""));
+		al_trace("Module quest skip 6 set to %s\n",moduledata.skipnames[5]);
+		strcpy(moduledata.skipnames[6],get_config_string("NAMEENTRY","seventh_qst_skip",""));
+		al_trace("Module quest skip 7 set to %s\n",moduledata.skipnames[6]);
+		strcpy(moduledata.skipnames[7],get_config_string("NAMEENTRY","eighth_qst_skip",""));
+		al_trace("Module quest skip 8 set to %s\n",moduledata.skipnames[7]);
+		strcpy(moduledata.skipnames[8],get_config_string("NAMEENTRY","ninth_qst_skip",""));
+		al_trace("Module quest skip 9 set to %s\n",moduledata.skipnames[8]);
+		strcpy(moduledata.skipnames[9],get_config_string("NAMEENTRY","tenth_qst_skip",""));
+		al_trace("Module quest skip 10 set to %s\n",moduledata.skipnames[9]);
+		
+		
+		//name entry icons, tiles, and csets
+		for ( int q = 0; q < sels_tile_LAST; q++ ) 
+		{
+			moduledata.select_screen_tiles[q] = get_config_int("NAMEENTRY",select_screen_tile_cats[q],0);
+		}
+		for ( int q = 0; q < sels_tile_cset_LAST; q++ ) 
+		{
+			
+			moduledata.select_screen_tile_csets[q] = get_config_int("NAMEENTRY",select_screen_tile_cset_cats[q],( ( q == 0 || q == sels_heart_tilettile_cset || q == sels_cusror_cset )  ? 0 : 9 )); //the player icon csets are 9 by default, and the tile frame is 0
+		}
 		
 		//datafiles
 		strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
@@ -17678,6 +18742,65 @@ void ZModule::init(bool d) //bool default
 		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
 		strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
 		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
+		
+		strcpy(moduledata.base_NSF_file,get_config_string("DATAFILES","base_NSF_file","zelda.nsf"));
+		al_trace("Base NSF file: %s\n", moduledata.base_NSF_file);
+		
+		moduledata.title_track = get_config_int("DATAFILES","title_track",0);
+		moduledata.ending_track = get_config_int("DATAFILES","ending_track",1);
+		moduledata.tf_track = get_config_int("DATAFILES","tf_track",5);
+		moduledata.gameover_track = get_config_int("DATAFILES","gameover_track",0);
+		moduledata.dungeon_track = get_config_int("DATAFILES","dungeon_track",0);
+		moduledata.overworld_track = get_config_int("DATAFILES","overworld_track",0);
+		moduledata.lastlevel_track = get_config_int("DATAFILES","lastlevel_track",0);
+		
+		strcpy(moduledata.copyright_strings[0],get_config_string("DATAFILES","copy_string_0","1986 NINTENDO"));
+		if( moduledata.copyright_strings[0][0] == '-' ) strcpy(moduledata.copyright_strings[0],"");
+		strcpy(moduledata.copyright_strings[1],get_config_string("DATAFILES","copy_string_1"," AG"));
+		if( moduledata.copyright_strings[1][0] == '-' ) strcpy(moduledata.copyright_strings[1],"");
+		//year
+		strcpy(moduledata.copyright_strings[2],get_config_string("DATAFILES","copy_string_year",COPYRIGHT_YEAR));
+		if( moduledata.copyright_strings[2][0] == '-' ) strcpy(moduledata.copyright_strings[1],"");
+		
+		
+		moduledata.copyright_string_vars[titleScreen250+0] = get_config_int("DATAFILES","cpystr_5frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen250+1] = get_config_int("DATAFILES","cpystr_5frame_var_x",80);
+		moduledata.copyright_string_vars[titleScreen250+2] = get_config_int("DATAFILES","cpystr_5frame_var_y",134);
+		moduledata.copyright_string_vars[titleScreen250+3] = get_config_int("DATAFILES","cpystr_5frame_var_col",255);
+		moduledata.copyright_string_vars[titleScreen250+4] = get_config_int("DATAFILES","cpystr_5frame_var_sz",-1);
+		
+		moduledata.copyright_string_vars[titleScreen250+5] = get_config_int("DATAFILES","cpystr_5frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen250+6] = get_config_int("DATAFILES","cpystr_5frame_var_x2",80);
+		moduledata.copyright_string_vars[titleScreen250+7] = get_config_int("DATAFILES","cpystr_5frame_var_y2",142);
+		moduledata.copyright_string_vars[titleScreen250+8] = get_config_int("DATAFILES","cpystr_5frame_var_col2",255);
+		moduledata.copyright_string_vars[titleScreen250+9] = get_config_int("DATAFILES","cpystr_5frame_var_sz2",-1);
+		
+		moduledata.copyright_string_vars[titleScreen210+0] = get_config_int("DATAFILES","cpystr_4frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen210+1] = get_config_int("DATAFILES","cpystr_4frame_var_x",46);
+		moduledata.copyright_string_vars[titleScreen210+2] = get_config_int("DATAFILES","cpystr_4frame_var_y",138);
+		moduledata.copyright_string_vars[titleScreen210+3] = get_config_int("DATAFILES","cpystr_4frame_var_col",255);
+		moduledata.copyright_string_vars[titleScreen210+4] = get_config_int("DATAFILES","cpystr_4frame_var_sz",-1);
+		
+		moduledata.copyright_string_vars[titleScreen210+5] = get_config_int("DATAFILES","cpystr_4frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen210+6] = get_config_int("DATAFILES","cpystr_4frame_var_x2",46);
+		moduledata.copyright_string_vars[titleScreen210+7] = get_config_int("DATAFILES","cpystr_4frame_var_y2",146);
+		moduledata.copyright_string_vars[titleScreen210+8] = get_config_int("DATAFILES","cpystr_4frame_var_col2",255);
+		moduledata.copyright_string_vars[titleScreen210+9] = get_config_int("DATAFILES","cpystr_4frame_var_sz2",-1);
+		
+		moduledata.copyright_string_vars[titleScreenMAIN+0] = get_config_int("DATAFILES","cpystr_1frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreenMAIN+1] = get_config_int("DATAFILES","cpystr_1frame_var_x",86);
+		moduledata.copyright_string_vars[titleScreenMAIN+2] = get_config_int("DATAFILES","cpystr_1frame_var_y",128);
+		moduledata.copyright_string_vars[titleScreenMAIN+3] = get_config_int("DATAFILES","cpystr_1frame_var_col",13);
+		moduledata.copyright_string_vars[titleScreenMAIN+4] = get_config_int("DATAFILES","cpystr_1frame_var_sz",-1);
+		
+		moduledata.copyright_string_vars[titleScreenMAIN+5] = get_config_int("DATAFILES","cpystr_1frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreenMAIN+6] = get_config_int("DATAFILES","cpystr_1frame_var_x2",86);
+		moduledata.copyright_string_vars[titleScreenMAIN+7] = get_config_int("DATAFILES","cpystr_1frame_var_y2",136);
+		moduledata.copyright_string_vars[titleScreenMAIN+8] = get_config_int("DATAFILES","cpystr_1frame_var_col2",13);
+		moduledata.copyright_string_vars[titleScreenMAIN+9] = get_config_int("DATAFILES","cpystr_1frame_var_sz2",-1);
+		
+		moduledata.animate_NES_title =  get_config_int("DATAFILES","disable_title_NES_animation",0);
+		
 		
 		//item families
 		const char default_itype_strings[itype_max][255] = 
@@ -17699,7 +18822,7 @@ void ZModule::init(bool d) //bool default
 			"Custom Itemclass 04", "Custom Itemclass 05", "Custom Itemclass 06", "Custom Itemclass 07", "Custom Itemclass 08", 
 			"Custom Itemclass 09", "Custom Itemclass 10", "Custom Itemclass 11", "Custom Itemclass 12", "Custom Itemclass 13", 
 			"Custom Itemclass 14", "Custom Itemclass 15", "Custom Itemclass 16", "Custom Itemclass 17", "Custom Itemclass 18", 
-			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)"
+			"Custom Itemclass 19", "Custom Itemclass 20","Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)", "zz089"
 		};
 						     
 		const char itype_fields[itype_max][255] =
@@ -17729,7 +18852,7 @@ void ZModule::init(bool d) //bool default
 			"ic_cic07","ic_cic08","ic_cic09","ic_cic10","ic_cic11",
 			"ic_cic12","ic_cic13","ic_cic14","ic_cic15","ic_cic16",
 			//80
-			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle",
+			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle", "ic_last",
 			"ic_89","ic_90","ic_91","ic_92","ic_93","ic_94","ic_95","ic_96","ic_97","ic_98","ic_99","ic_100","ic_101","ic_102","ic_103","ic_104",
 			"ic_105","ic_106","ic_107","ic_108","ic_109","ic_111","ic_112","ic_113","ic_114","ic_115","ic_116","ic_117","ic_118","ic_119","ic_120","ic_121",
 			"ic_122","ic_123","ic_124","ic_125","ic_126","ic_127","ic_128","ic_129","ic_130","ic_131","ic_132","ic_133","ic_134","ic_135","ic_136","ic_137",
@@ -17890,3 +19013,775 @@ void ZModule::load(bool zquest)
 
 
 
+void FFScript::Play_Level_Music()
+{
+    int m=tmpscr->screen_midi;
+    
+    switch(m)
+    {
+    case -2:
+        music_stop();
+        break;
+        
+    case -1:
+        play_DmapMusic();
+        break;
+        
+    case 1:
+        jukebox(ZC_MIDI_OVERWORLD);
+        break;
+        
+    case 2:
+        jukebox(ZC_MIDI_DUNGEON);
+        break;
+        
+    case 3:
+        jukebox(ZC_MIDI_LEVEL9);
+        break;
+        
+    default:
+        if(m>=4 && m<4+MAXCUSTOMMIDIS)
+            jukebox(m-4+ZC_MIDI_COUNT);
+        else
+            music_stop();
+    }
+}
+
+void FFScript::do_warp_ex(bool v)
+{
+	int zscript_array_ptr = get_register(sarg1) / 10000;
+	int zscript_array_size = getSize(zscript_array_ptr);
+	bool success;
+	switch(zscript_array_size)
+	{
+		case 8:
+			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags}
+		{
+			
+			success = warp_link( getElement(zscript_array_ptr,0)/10000,getElement(zscript_array_ptr,1)/10000,getElement(zscript_array_ptr,2)/10000,
+				getElement(zscript_array_ptr,3)/10000, getElement(zscript_array_ptr,4)/10000, getElement(zscript_array_ptr,5)/10000,
+				getElement(zscript_array_ptr,6)/10000, getElement(zscript_array_ptr,7)/10000,-1 );
+			if (!success) 
+			{ 
+				Z_scripterrlog("Could not successfully warp Link with Link->WarpEx() using the following args:\n");
+				Z_scripterrlog("type: %d\n",getElement(zscript_array_ptr,0)/10000);
+				Z_scripterrlog("dmap: %d\n",getElement(zscript_array_ptr,1)/10000);
+				Z_scripterrlog("screen: %d\n",getElement(zscript_array_ptr,2)/10000);
+				Z_scripterrlog("x: %d\n",getElement(zscript_array_ptr,3)/10000);
+				Z_scripterrlog("y: %d\n",getElement(zscript_array_ptr,4)/10000);
+				Z_scripterrlog("effect: %d\n",getElement(zscript_array_ptr,5)/10000);
+				Z_scripterrlog("sound: %d\n",getElement(zscript_array_ptr,6)/10000);
+				Z_scripterrlog("flags: %d\n",getElement(zscript_array_ptr,7)/10000);
+				Z_scripterrlog("dir: %d\n",getElement(zscript_array_ptr,8)/10000);
+			}
+			break;
+		}
+		case 9:
+			//{int type, int dmap, int screen, int x, int y, int effect, int sound, int flags, int dir}
+		{
+			success = warp_link( getElement(zscript_array_ptr,0)/10000,getElement(zscript_array_ptr,1)/10000,getElement(zscript_array_ptr,2)/10000,
+				getElement(zscript_array_ptr,3)/10000, getElement(zscript_array_ptr,4)/10000, getElement(zscript_array_ptr,5)/10000,
+				getElement(zscript_array_ptr,6)/10000, getElement(zscript_array_ptr,7)/10000, getElement(zscript_array_ptr,8)/10000 );
+			if (!success) 
+			{ 
+				Z_scripterrlog("Could not successfully warp Link with Link->WarpEx() using the following args:\n");
+				Z_scripterrlog("type: %d\n",getElement(zscript_array_ptr,0)/10000);
+				Z_scripterrlog("dmap: %d\n",getElement(zscript_array_ptr,1)/10000);
+				Z_scripterrlog("screen: %d\n",getElement(zscript_array_ptr,2)/10000);
+				Z_scripterrlog("x: %d\n",getElement(zscript_array_ptr,3)/10000);
+				Z_scripterrlog("y: %d\n",getElement(zscript_array_ptr,4)/10000);
+				Z_scripterrlog("effect: %d\n",getElement(zscript_array_ptr,5)/10000);
+				Z_scripterrlog("sound: %d\n",getElement(zscript_array_ptr,6)/10000);
+				Z_scripterrlog("flags: %d\n",getElement(zscript_array_ptr,7)/10000);
+				Z_scripterrlog("dir: %d\n",getElement(zscript_array_ptr,8)/10000);
+			}
+			break;
+			
+		}
+		default: 
+		{
+			Z_scripterrlog("Array supplied to Link->WarpEx() is the wrong size!\n The array size was: &d, and valid sizes are [8] and [9].\n",zscript_array_size);
+			break;
+		}
+		
+	}
+}
+
+
+
+void FFScript::clearRunningItemScripts()
+{
+	//for ( byte q = 0; q < 256; q++ ) runningItemScripts[q] = 0;
+}
+
+
+bool FFScript::newScriptEngine()
+{
+	itemScriptEngine();
+	advanceframe(true);
+	return false;
+}
+
+bool FFScript::itemScriptEngine()
+{
+	//Z_scripterrlog("Trying to check if an %s is running.\n","item script");
+	for ( int q = 0; q < 256; q++ )
+	{
+		//Z_scripterrlog("Checking item ID: %d\n",q);
+		if ( itemsbuf[q].script == 0 ) continue;
+		//if ( runningItemScripts[i] == 1 )
+		//{
+			//Z_scripterrlog("Found a script running on item ID: %d\n",q);
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script);
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+			//Z_scripterrlog("Script Detected for that item is: %d\n",itemsbuf[q].script);
+			if ( runningItemScripts[q] == 1 )
+			{
+				if ( get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING) )
+				{
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+				}
+				else //if the QR isn't set, treat Waitframe as Quit()
+				{
+					runningItemScripts[q] = 0;
+				}
+			}
+			else if ( runningItemScripts[q] == 2 ) //forced to run perpetually by itemdata->RunScript(int mode)
+			{
+				Z_scripterrlog("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
+			}
+		//}
+		    
+	}
+	
+	return false;
+}
+
+int FFScript::getTime(int type)
+{
+	//struct tm *tm_struct = localtime(time(NULL));
+	struct tm * tm_struct;
+	time_t sysRTC;
+	time (&sysRTC);
+	tm_struct = localtime (&sysRTC);
+	int rval = -1;
+	
+	switch(type)
+	{
+		case curyear:
+		{
+			//Year format starts at 1900, yeat
+			//A raw read of '2018' would be '118', so we add 1900 to it to derive the actual year. 
+			rval = tm_struct->tm_year + 1900; break;
+			
+		}
+		case curmonth:
+		{
+			//Months start at 0, but we want 1->12
+			//al_trace("The current month is: %d\n",month);
+			rval = tm_struct->tm_mon +1; break;
+		}
+		case curday_month:
+		{
+			rval = tm_struct->tm_mday; break;
+		}
+		case curday_week: 
+		{
+			//It seems that weekdays are a value range of 1 to 7.
+			rval = tm_struct->tm_wday; break;
+		}
+		case curhour:
+		{
+			rval = tm_struct->tm_hour; break;
+		}
+		case curminute: 
+		{
+			rval = tm_struct->tm_min; break;
+		}
+		case cursecond:
+		{
+			rval = tm_struct->tm_sec; break;
+		}
+		case curdayyear:
+		{
+			//The day (n/365) out of the entire year. 
+			rval = tm_struct->tm_yday; break;
+		}
+		case curDST:
+		{
+			//Returns if the user is in a Time Zone with Daylight TIme of some sort. 
+			//View the time.h docs for the actual values of this struct element.
+			rval = tm_struct->tm_isdst;; break;
+		}
+		default: 
+		{
+			al_trace("Invalid category passed to GetSystemTime(%d)\n",type);
+			rval = -1;  break;
+		}
+		
+	}
+	return rval;
+}
+
+void FFScript::do_isdeadnpc()
+{
+	//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+	if(GuyH::loadNPC(ri->guyref, "npc->isDead") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		int dead = (int)e->Dead(GuyH::getNPCIndex(ri->guyref));
+		set_register(sarg1, (dead ? 10000 : 0));
+	}
+	else set_register(sarg1, -10000);
+}
+
+
+void FFScript::do_canslidenpc()
+{
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->CanSlide") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		bool candoit = e->can_slide();
+		set_register(sarg1, (candoit ? 10000 : 0));
+	}
+	else set_register(sarg1, -10000);
+}
+
+void FFScript::do_slidenpc()
+{
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->Slide()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		bool candoit = e->slide();
+		set_register(sarg1, (candoit ? 10000 : 0));
+	}
+	else set_register(sarg1, -10000);
+}
+
+void FFScript::do_npckickbucket()
+{
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		e->kickbucket();
+	}
+	//else Z_scripterrlog
+}
+
+void FFScript::do_npc_stopbgsfx()
+{
+	//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+	if(GuyH::loadNPC(ri->guyref, "npc->StopBGSFX()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		e->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
+	}
+}
+
+void FFScript::do_npcattack()
+{
+	if(GuyH::loadNPC(ri->guyref, "npc->Attack()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		e->FireWeapon();
+	}
+}
+void FFScript::do_npc_newdir()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->NewDir()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz > 0 ) 
+		{
+			if ( sz > 3 ) 
+			{
+				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+				return;
+			}
+			e->newdir( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000) );
+		}
+		else e->newdir();
+		
+		
+	}
+}
+
+void FFScript::do_npc_constwalk()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz > 0 ) 
+		{
+			if ( sz > 3 ) 
+			{
+				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+				return;
+			}
+			e->constant_walk( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000) );
+		}
+		else e->constant_walk();
+		
+		
+	}
+}
+
+void FFScript::do_npc_varwalk()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 3 ) 
+		{
+			
+			e->variable_walk( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000) );
+		}
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+		
+		
+	}
+}
+
+void FFScript::do_npc_varwalk8()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	//void variable_walk_8(int rate,int homing,int newclk,int special);
+	// same as above but with variable enemy size
+	//void variable_walk_8(int rate,int homing,int newclk,int special,int dx1,int dy1,int dx2,int dy2);
+    
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk8()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 4 ) 
+		{
+			e->variable_walk_8( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000), (FFCore.getElement(arrayptr, 3)/10000) );
+		}
+		else if ( sz == 8 ) 
+		{
+			e->variable_walk_8( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000), (FFCore.getElement(arrayptr, 3)/10000),
+				(FFCore.getElement(arrayptr, 4)/10000), (FFCore.getElement(arrayptr, 5)/10000),
+				(FFCore.getElement(arrayptr, 6)/10000), (FFCore.getElement(arrayptr, 7)/10000)
+			);
+		}
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+	}
+}
+
+void FFScript::do_npc_constwalk8()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	//void variable_walk_8(int rate,int homing,int newclk,int special);
+	// same as above but with variable enemy size
+	//void variable_walk_8(int rate,int homing,int newclk,int special,int dx1,int dy1,int dx2,int dy2);
+    
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk8()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 3 ) 
+		{
+			e->constant_walk_8( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000) );
+		}
+		
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+	}
+}
+
+
+void FFScript::do_npc_haltwalk()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 5 ) 
+		{
+			
+			e->halting_walk( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000), (FFCore.getElement(arrayptr, 3)/10000),
+				(FFCore.getElement(arrayptr, 4)/10000));
+		}
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+		
+		
+	}
+}
+
+void FFScript::do_npc_haltwalk8()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk8()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 6 ) 
+		{
+			
+			e->halting_walk_8( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000), (FFCore.getElement(arrayptr, 3)/10000),
+				(FFCore.getElement(arrayptr, 4)/10000),(FFCore.getElement(arrayptr, 5)/10000));
+		}
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+		
+		
+	}
+}
+
+
+void FFScript::do_npc_floatwalk()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->FloatingWalk()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 3 ) 
+		{
+			
+			e->floater_walk( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(fix)(FFCore.getElement(arrayptr, 2)/10000));
+		
+		}
+		else if ( sz == 7 ) 
+		{
+			
+			e->floater_walk( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(fix)(FFCore.getElement(arrayptr, 2)/10000), (fix)(FFCore.getElement(arrayptr, 3)/10000),
+				(FFCore.getElement(arrayptr, 4)/10000),(FFCore.getElement(arrayptr, 5)/10000),
+				(FFCore.getElement(arrayptr, 6)/10000));
+		}
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+		
+		
+	}
+}
+
+void FFScript::do_npc_breathefire()
+{
+	bool seek = (get_register(sarg2));
+	if(GuyH::loadNPC(ri->guyref, "npc->BreathAttack()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		e->FireBreath(seek);
+		
+	}
+}
+
+
+void FFScript::do_npc_newdir8()
+{
+	long arrayptr = get_register(sarg2) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->NewDir8()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		
+		if ( sz == 3 ) 
+		{
+			
+			e->newdir_8( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000));
+		
+		}
+		else if ( sz == 7 ) 
+		{
+			
+			e->newdir_8( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000), (FFCore.getElement(arrayptr, 3)/10000),
+				(FFCore.getElement(arrayptr, 4)/10000),(FFCore.getElement(arrayptr, 5)/10000),
+				(FFCore.getElement(arrayptr, 6)/10000));
+		}
+		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
+		
+		
+	}
+}
+
+	
+long FFScript::npc_collision()
+{
+	long isColl = 0;
+	if(GuyH::loadNPC(ri->guyref, "npc->Collision()") != SH::_NoError)
+	{
+		long _obj_type = (ri->d[0] / 10000);
+		long _obj_ptr = (ri->d[1]);
+		
+		switch(_obj_type)
+		{
+			case obj_type_lweapon:
+			{
+				Z_scripterrlog("Checking collision on npc (%d) against lweapon (%d)\n", ri->guyref, _obj_ptr);
+				isColl = 0;
+				break;
+			}
+			case obj_type_eweapon:
+			{
+				Z_scripterrlog("Checking collision on npc (%d) against eweapon (%d)\n", ri->guyref, _obj_ptr);
+				isColl = 0;
+				break;
+			}
+			case obj_type_npc:
+			{
+				Z_scripterrlog("Checking collision on npc (%d) against npc (%d)\n", ri->guyref, _obj_ptr);
+				isColl = 0;
+				break;
+			}
+			case obj_type_link:
+			{
+				Z_scripterrlog("Checking collision on npc (%d) against Player\n", ri->guyref);
+				isColl = 0;
+				break;
+			}
+			case obj_type_ffc:
+			{
+				_obj_ptr *= 10000; _obj_ptr -= 1;
+				Z_scripterrlog("Checking collision on npc (%d) against ffc (%d)\n", ri->guyref, _obj_ptr);
+				isColl = 0;
+				break;
+			}
+			case obj_type_combo_pos:
+			{
+				_obj_ptr *= 10000;
+				Z_scripterrlog("Checking collision on npc (%d) against combo position (%d)\n", ri->guyref, _obj_ptr);
+				isColl = 0;
+				break;
+			}
+			case obj_type_item:
+			{
+				Z_scripterrlog("Checking collision on npc (%d) against item (%d)\n", ri->guyref, _obj_ptr);
+				isColl = 0;
+				break;
+			}
+			default: 
+			{
+				Z_scripterrlog("Invalid object type (%d) passed to npc->Collidion(int type, int ptr)\n", _obj_type);
+				isColl = 0;
+				break;
+			}
+		}
+	}
+	
+    return isColl;
+}
+
+
+long FFScript::npc_linedup()
+{
+	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") != SH::_NoError)
+	{
+		long range = (ri->d[0] / 10000);
+		bool dir8 = (ri->d[1]);
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		return (long)e->lined_up(range,dir8);
+	}
+	
+    return 0;
+}
+
+
+void FFScript::do_npc_link_in_range(const bool v)
+{
+	int dist = (int)SH::get_arg(sarg1, v) / 10000;
+	bool in_range = false;
+	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") != SH::_NoError)
+	{
+		long range = (ri->d[0] / 10000);
+		bool dir8 = (ri->d[1]);
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		in_range = (e->LinkInRange(dist));
+	}
+	set_register(sarg1, ( in_range ? 10000 : 0));
+}
+
+
+
+void FFScript::do_npc_simulate_hit(const bool v)
+{
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	bool ishit = false;
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->SimulateHit()") != SH::_NoError)
+	{
+		Z_scripterrlog("Trying to simulate a hit on npc\n");
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		if ( sz == 2 ) //type and pointer
+		{
+			int type = FFCore.getElement(arrayptr, 0)/10000;
+			
+			//switch(type)
+			//{
+			//	case simulate_hit_type_weapon:
+			//	{
+			//		ishit = e->hit(*);
+			//		break;
+			//	}
+			//	case simulate_hit_type_sprite:
+			//	{
+			//		ishit = e->hit(*);
+			//		break;
+			//	}
+			//}
+			ishit = false;
+		}
+		if ( sz == 6 ) //hit(int tx,int ty,int tz,int txsz,int tysz,int tzsz);
+		{
+			ishit = e->hit( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
+				(FFCore.getElement(arrayptr, 2)/10000), (FFCore.getElement(arrayptr, 3)/10000), 
+				(FFCore.getElement(arrayptr, 4)/10000), (FFCore.getElement(arrayptr, 5)/10000) );			
+			
+		}
+		else 
+		{
+			Z_scripterrlog("Invalid array size (%d) passed to npc->SimulateHit(). The array size must be [1] or [3].\n", sz);
+			ishit = false;
+		}
+	}
+	set_register(sarg1, ( ishit ? 10000 : 0));
+}
+
+
+void FFScript::do_npc_add(const bool v)
+{
+   
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	
+	int id = 0, nx = 0, ny = 0, clk = -10;
+	
+	if ( sz < 1 ) 
+	{
+		Z_scripterrlog("Invalid array size (%d) passed to npc->Create(). The array size must be [1] or [3].\n", sz);
+		return;
+	}
+	else //size is valid
+	{
+		id = (FFCore.getElement(arrayptr, 0)/10000);
+		
+		if ( sz == 3 ) //x and y
+		{
+			nx = (FFCore.getElement(arrayptr, 1)/10000);
+			ny = (FFCore.getElement(arrayptr, 2)/10000);
+		}
+	}
+	
+    
+	if(BC::checkGuyID(id, "npc->Create()") != SH::_NoError)
+		return;
+        
+	//If we make a segmented enemy there'll be more than one sprite created
+	word numcreated = addenemy(nx, ny, id, -10);
+    
+	if(numcreated == 0)
+	{
+		ri->guyref = LONG_MAX;
+		Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", guy_string[id]);
+	}
+	else
+	{
+		word index = guys.Count() - numcreated; //Get the main enemy, not a segment
+		ri->guyref = guys.spr(index)->getUID();
+        
+		for(; index<guys.Count(); index++)
+			((enemy*)guys.spr(index))->script_spawned=true;
+            
+		Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", guy_string[id], ri->guyref);
+	}
+}
+
+void FFScript::do_npc_canmove(const bool v)
+{
+	long arrayptr = SH::get_arg(sarg1, v) / 10000;
+	int sz = FFCore.getSize(arrayptr);
+	bool can_mv = false;
+	if(GuyH::loadNPC(ri->guyref, "npc->CanMove()") != SH::_NoError)
+	{
+		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		if ( sz == 1 ) //bool canmove(int ndir): dir only, uses 'step' IIRC
+		{
+			Z_scripterrlog("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
+			can_mv = e->canmove(getElement(arrayptr, 0)/10000);
+		}
+		if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
+		{
+			can_mv = e->canmove((getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000));
+		}
+		if ( sz == 3 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
+		{
+			can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
+		}
+		if ( sz == 7 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
+		{
+			can_mv = e->canmove((getElement(arrayptr, 0)/10000), 
+			(fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000),
+			(getElement(arrayptr, 3)/10000), (getElement(arrayptr, 4)/10000), 
+			(getElement(arrayptr, 5)/10000), (getElement(arrayptr, 5)/10000)	);
+		}
+		else 
+		{
+			Z_scripterrlog("Invalid array size (%d) passed to npc->CanMove(). The array size must be [1], [2], [3], or [7].\n", sz);
+			can_mv = false;
+		}
+	}
+	set_register(sarg1, ( can_mv ? 10000 : 0));
+}
+
+//void do_get_enh_music_filename(const bool v)
+void FFScript::get_npcdata_initd_label(const bool v)
+{
+    long init_d_index = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    
+    if((unsigned)init_d_index > 7)
+    {
+	Z_scripterrlog("Invalid InitD[] index (%d) passed to npcdata->GetInitDLabel().\n", init_d_index);
+	return;
+    }
+        
+    if(ArrayH::setArray(arrayptr, string(guysbuf[ri->npcdataref].initD_label[init_d_index])) == SH::_Overflow)
+        Z_scripterrlog("Array supplied to 'npcdata->GetInitDLabel()' not large enough\n");
+}

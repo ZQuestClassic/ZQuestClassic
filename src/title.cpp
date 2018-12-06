@@ -60,6 +60,141 @@ savedicon iconbuffer[15];
 
 static bool chosecustomquest = false;
 
+extern char runningItemScripts[256];
+
+FONT *get_zcfont(int index)
+{
+    //return getfont(index);
+    switch(index)
+    {
+    default:
+        return zfont;
+        
+    case font_z3font:
+        return z3font;
+        
+    case font_z3smallfont:
+        return z3smallfont;
+        
+    case font_deffont:
+        return deffont;
+        
+    case font_lfont:
+        return lfont;
+        
+    case font_lfont_l:
+        return lfont_l;
+        
+    case font_pfont:
+        return pfont;
+        
+    case font_mfont:
+        return mfont;
+        
+    case font_ztfont:
+        return ztfont;
+        
+    case font_sfont:
+        return sfont;
+        
+    case font_sfont2:
+        return sfont2;
+        
+    case font_spfont:
+        return spfont;
+        
+    case font_ssfont1:
+        return ssfont1;
+        
+    case font_ssfont2:
+        return ssfont2;
+        
+    case font_ssfont3:
+        return ssfont3;
+        
+    case font_ssfont4:
+        return ssfont4;
+        
+    case font_gblafont:
+        return gblafont;
+        
+    case font_goronfont:
+        return goronfont;
+        
+    case font_zoranfont:
+        return zoranfont;
+        
+    case font_hylian1font:
+        return hylian1font;
+        
+    case font_hylian2font:
+        return hylian2font;
+        
+    case font_hylian3font:
+        return hylian3font;
+        
+    case font_hylian4font:
+        return hylian4font;
+        
+    case font_gboraclefont:
+        return gboraclefont;
+        
+    case font_gboraclepfont:
+        return gboraclepfont;
+        
+    case font_dsphantomfont:
+        return dsphantomfont;
+        
+    case font_dsphantompfont:
+        return dsphantompfont;
+     case font_atari800font: return atari800font;
+		 case font_acornfont: return acornfont;
+		 case font_adosfont: return adosfont;
+		 case font_baseallegrofont: return  baseallegrofont;  
+		 case font_apple2font: return apple2font;
+		 case font_apple280colfont: return apple280colfont;   
+		 case font_apple2gsfont: return  apple2gsfont;
+		 case font_aquariusfont: return  aquariusfont;  
+		 case font_atari400font: return  atari400font;  
+		 case font_c64font: return c64font;   
+		 case font_c64hiresfont: return c64hiresfont;   
+		 case font_cgafont: return cgafont;   
+		 case font_cocofont: return cocofont;
+		 case font_coco2font: return coco2font;
+		 case font_coupefon: return  coupefont;
+		 case font_cpcfon: return  cpcfont;
+		 case font_fantasyfon: return  fantasyfont;
+		 case font_fdskanafon: return  fdskanafont;
+		 case font_fdslikefon: return  fdslikefont;
+		 case font_fdsromanfon: return fdsromanfont; 
+		 case font_finalffont: return finalffont; 
+		 case font_futharkfont: return  futharkfont;
+		 case font_gaiafont: return gaiafont; 
+		 case font_hirafont: return hirafont; 
+		 case font_jpfont: return jpfont; 
+		 case font_kongfont: return  kongfont;
+		 case font_manafont: return manafont; 
+		 case font_mlfont: return  mlfont;
+		 case font_motfont: return motfont;
+		 case font_msxmode0font: return  msxmode0font;
+		 case font_msxmode1font: return  msxmode1font;
+		 case font_petfont: return  petfont;
+		 case font_pstartfont: return  pstartfont;
+		 case font_saturnfont: return  saturnfont;
+		 case font_scififont: return  scififont;
+		 case font_sherwoodfont: return sherwoodfont;
+		 case font_sinqlfont: return  sinqlfont;
+		 case font_spectrumfont: return  spectrumfont;
+		 case font_speclgfont: return  speclgfont;
+		 case font_ti99font: return  ti99font;
+		 case font_trsfont: return  trsfont;
+		 case font_z2font: return  z2font;
+		 case font_zxfont: return zxfont;
+		 case font_lisafont: return lisafont;
+    }
+}
+
+
 /********************************/
 /*****   NES title screen   *****/
 /********************************/
@@ -165,66 +300,103 @@ static void mainscreen(int f)
     {
         blit((BITMAP*)data[BMP_TITLE_NES].dat,scrollbuf,0,0,0,0,256,224);
         blit(scrollbuf,framebuf,0,0,0,0,256,224);
-        char tbuf[80];
-        sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
-        textout_ex(framebuf,zfont,tbuf,104,128,13,-1);
-        sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
+        char tbuf[2048] = {0}; char tbuf2[2048] = {0};
+	char copyrbuf[2][2048] = { {NULL }, {NULL} };
+	//const char *copy_year = (char *)moduledata.copyright_strings[2];
+	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
+	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
+	if ( moduledata.copyright_strings[0][0] != NULL ) 
+	{
+		strcpy(tbuf,"(C)");
+		strcat(tbuf,moduledata.copyright_strings[0]);
+	}
+	if ( moduledata.copyright_strings[1][0] != NULL ) 
+	{	
+		strcpy(tbuf2,"(C)");
+		strcat(tbuf2,moduledata.copyright_strings[2]);
+		strcat(tbuf2," ");
+		strcat(tbuf2,moduledata.copyright_strings[1]);
+	}
+	sprintf(copyrbuf[0],tbuf,0xBB);
+	sprintf(copyrbuf[1],tbuf2,0xBC);
+	al_trace("Original title screen. Font: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+0]);
+	al_trace("Original title screen. X: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+1]);
+	al_trace("Original title screen. Y: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+2]);
+	al_trace("Original title screen. col: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+3]);
+	al_trace("Original title screen. sz: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+4]);
+	    
+	al_trace("Original title screen. Font2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+5]);
+	al_trace("Original title screen. X2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+6]);
+	al_trace("Original title screen. Y2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+7]);
+	al_trace("Original title screen. col2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+8]);
+	al_trace("Original title screen. sz2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+9]);
+       // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
+        //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
+        //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
+        //textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+        //al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+0] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreenMAIN+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreenMAIN+1],moduledata.copyright_string_vars[titleScreenMAIN+2],moduledata.copyright_string_vars[titleScreenMAIN+3],moduledata.copyright_string_vars[4]);
+       // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
+     //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
         //tbuf[0]=(char)0xBC;
-        textout_ex(framebuf,zfont,tbuf,104,136,13,-1);
+       // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+        textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+5] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreenMAIN+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreenMAIN+6],moduledata.copyright_string_vars[titleScreenMAIN+7],moduledata.copyright_string_vars[titleScreenMAIN+8],moduledata.copyright_string_vars[titleScreenMAIN+9]);
     }
-    
-    if(f<554+192+10)
+    if ( !moduledata.animate_NES_title ) //if we aren't disabling this
     {
-        blit(scrollbuf,framebuf,80,160,80,160,32,64);
-        
-        if(f&8)
-        {
-            puttile16(framebuf,200,80,160,4,0);
-            puttile16(framebuf,201,96,160,4,0);
-        }
-        else
-        {
-            puttile16(framebuf,202,80,160,4,0);
-            puttile16(framebuf,203,96,160,4,0);
-        }
-        
-        cyclewaves();
+	    if(f<554+192+10)
+	    {
+		blit(scrollbuf,framebuf,80,160,80,160,32,64);
+		
+		if(f&8)
+		{
+		    puttile16(framebuf,200,80,160,4,0);
+		    puttile16(framebuf,201,96,160,4,0);
+		}
+		else
+		{
+		    puttile16(framebuf,202,80,160,4,0);
+		    puttile16(framebuf,203,96,160,4,0);
+		}
+		
+		cyclewaves();
+	    }
+	    
+	    if(f<58*9)
+		++fcnt;
+		
+	    if(fcnt==tridelay[tri])
+	    {
+		fcnt=0;
+		tri = tri<5 ? tri+1 : 0;
+		RAMpal[CSET(2)+2]=NESpal(tricolor[tri]);
+		refreshpal=true;
+	    }
+	    
+	    for(int i=0; i<8; i++)
+	    {
+		if(f==dusktime[i])
+		    loadtitlepal(duskcolor[i],titlepal,4);
+	    }
+	    
+	    if(f==554)
+		loadtitlepal(0x0F,darkpal1,4);
+		
+	    if(f==554+192)
+		loadtitlepal(0x0F,darkpal2,4);
+		
+	    if(f==554+192+6)
+		loadtitlepal(0x0F,darkpal3,4);
+		
+	    if(f==554+192+10)
+	    {
+		clear_bitmap(framebuf);
+		clear_bitmap(scrollbuf);
+	    }
+	    
+	    if(f==554+192+10+193)
+		loadtitlepal(0x0F,itemspal,0);
     }
-    
-    if(f<58*9)
-        ++fcnt;
-        
-    if(fcnt==tridelay[tri])
-    {
-        fcnt=0;
-        tri = tri<5 ? tri+1 : 0;
-        RAMpal[CSET(2)+2]=NESpal(tricolor[tri]);
-        refreshpal=true;
-    }
-    
-    for(int i=0; i<8; i++)
-    {
-        if(f==dusktime[i])
-            loadtitlepal(duskcolor[i],titlepal,4);
-    }
-    
-    if(f==554)
-        loadtitlepal(0x0F,darkpal1,4);
-        
-    if(f==554+192)
-        loadtitlepal(0x0F,darkpal2,4);
-        
-    if(f==554+192+6)
-        loadtitlepal(0x0F,darkpal3,4);
-        
-    if(f==554+192+10)
-    {
-        clear_bitmap(framebuf);
-        clear_bitmap(scrollbuf);
-    }
-    
-    if(f==554+192+10+193)
-        loadtitlepal(0x0F,itemspal,0);
 }
 
 void putstring(int x,int y,const char* str,int cset)
@@ -511,6 +683,8 @@ static void treasures(int f)
 static void NES_titlescreen()
 {
     FFCore.kb_typing_mode = false;
+    for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+
     int f=0;
     bool done=false;
     wave[0]=0;
@@ -520,7 +694,7 @@ static void NES_titlescreen()
     fcnt=0;
     trstr=0;
     set_palette(black_palette);
-    try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
+    try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
     clear_bitmap(screen);
     clear_bitmap(framebuf);
     init_NES_mode();
@@ -554,7 +728,7 @@ static void NES_titlescreen()
             clear_bitmap(framebuf);
             loadtitlepal(0x36,titlepal,4);
             music_stop();
-            try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
+            try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
         }
         
         advanceframe(true);
@@ -579,10 +753,14 @@ static void NES_titlescreen()
 static void DX_mainscreen(int f)
 {
     FFCore.kb_typing_mode = false;
+    for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+	
     set_uformat(U_ASCII);
     
     static int pic=0;
-    char tbuf[80];
+    //char tbuf[80];
+	char tbuf[2048] = {0}; char tbuf2[2048] = {0};
+	char copyrbuf[2][2048] = { {NULL }, {NULL} };
     
     if(f>=1010)
         return;
@@ -602,12 +780,65 @@ static void DX_mainscreen(int f)
         pic = (pic+1)%6;
         blit(bmp,framebuf, 0,0, 0,0, 256,224);
         //    text_mode(-1);
+	    /*
         sprintf(tbuf, "%c1986 Nintendo",0xBB);
         //tbuf[0]=0xBB;
         textout_ex(framebuf,font,tbuf,46,138,255,-1);
         sprintf(tbuf, "%c" COPYRIGHT_YEAR " Armageddon Games",0xBC);
         //tbuf[0]=0xBC;
         textout_ex(framebuf,font,tbuf,46,146,255,-1);
+	    
+	    */
+	      
+	//const char *copy_year = (char *)moduledata.copyright_strings[2];
+	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
+	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
+	if ( moduledata.copyright_strings[0][0] != NULL ) 
+	{
+		strcpy(tbuf,"(C)");
+		strcat(tbuf,moduledata.copyright_strings[0]);
+	}
+	if ( moduledata.copyright_strings[1][0] != NULL ) 
+	{	
+		strcpy(tbuf2,"(C)");
+		strcat(tbuf2,moduledata.copyright_strings[2]);
+		strcat(tbuf2," ");
+		strcat(tbuf2,moduledata.copyright_strings[1]);
+	}
+	/*    
+	strcpy(tbuf,"(C)");
+	strcat(tbuf,moduledata.copyright_strings[0]);
+	strcpy(tbuf2,"(C)");
+	strcat(tbuf2,moduledata.copyright_strings[2]);
+	strcat(tbuf2," ");
+	strcat(tbuf2,moduledata.copyright_strings[1]);
+	*/
+	sprintf(copyrbuf[0],tbuf,0xBB);
+	sprintf(copyrbuf[1],tbuf2,0xBC);
+	
+	al_trace("2.10 title screen. Font: %d\n",moduledata.copyright_string_vars[titleScreen210+0]);
+	al_trace("2.10 title screen. X: %d\n",moduledata.copyright_string_vars[titleScreen210+1]);
+	al_trace("2.10 title screen. Y: %d\n",moduledata.copyright_string_vars[titleScreen210+2]);
+	al_trace("2.10 title screen. col: %d\n",moduledata.copyright_string_vars[titleScreen210+3]);
+	al_trace("2.10 title screen. sz: %d\n",moduledata.copyright_string_vars[titleScreen210+4]);
+	    
+	al_trace("2.10 title screen. Font2: %d\n",moduledata.copyright_string_vars[titleScreen210+5]);
+	al_trace("2.10 title screen. X2: %d\n",moduledata.copyright_string_vars[titleScreen210+6]);
+	al_trace("2.10 title screen. Y2: %d\n",moduledata.copyright_string_vars[titleScreen210+7]);
+	al_trace("2.10 title screen. col2: %d\n",moduledata.copyright_string_vars[titleScreen210+8]);
+	al_trace("2.10 title screen. sz2: %d\n",moduledata.copyright_string_vars[titleScreen210+9]);
+       // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
+        //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
+        //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
+        //textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+        al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+0] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreen210+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreen210+1],moduledata.copyright_string_vars[titleScreen210+2],moduledata.copyright_string_vars[titleScreen210+3],moduledata.copyright_string_vars[titleScreen210+4]);
+       // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
+     //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
+        //tbuf[0]=(char)0xBC;
+       // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+        textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+5] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreen210+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreen210+6],moduledata.copyright_string_vars[titleScreen210+7],moduledata.copyright_string_vars[titleScreen210+8],moduledata.copyright_string_vars[titleScreen210+9]);
+   
         //    text_mode(0);
     }
     
@@ -632,12 +863,14 @@ static void DX_titlescreen()
 {
     //  JGMOD *yea;
     FFCore.kb_typing_mode = false;
+	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+
     int f=0;
     bool done=false;
     trstr=0;
     set_palette(black_palette);
     
-    try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
+    try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
     clear_to_color(screen,BLACK);
     clear_bitmap(framebuf);
     init_NES_mode();
@@ -667,7 +900,7 @@ static void DX_titlescreen()
             trstr=f=0;
             clear_bitmap(framebuf);
             music_stop();
-            try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
+            try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
         }
         
         advanceframe(true);
@@ -692,11 +925,14 @@ static void DX_titlescreen()
 static void v25_mainscreen(int f)
 {
     FFCore.kb_typing_mode = false;
+	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+	
     set_uformat(U_ASCII);
     
     static int pic=0;
-    char tbuf[80];
-    
+    //char tbuf[80];
+    char tbuf[2048] = {0}; char tbuf2[2048] = {0};
+    char copyrbuf[2][2048] = { {NULL }, {NULL} };
     if(f>=1010)
         return;
         
@@ -710,19 +946,73 @@ static void v25_mainscreen(int f)
     }
     
     if(f<680+256 && (f&15)==0)
-    {
+    {  
         bmp = (BITMAP*)dat[pic<5 ? pic : 8-pic].dat;
         pic = (pic+1)%8;
         blit(bmp,framebuf, 0,0, 0,0, 256,224);
         //    text_mode(-1);
+	    /*
         sprintf(tbuf, "%c1986 Nintendo",0xBB);
         //tbuf[0]=0xBB;
         textout_ex(framebuf,font,tbuf,80,134,255,-1);
         sprintf(tbuf, "%c" COPYRIGHT_YEAR " Armageddon Games",0xBC);
         //tbuf[0]=0xBC;
         textout_ex(framebuf,font,tbuf,80,142,255,-1);
+	    */
+	    
+	//const char *copy_year = (char *)moduledata.copyright_strings[2];
+	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
+	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
+	if ( moduledata.copyright_strings[0][0] != NULL ) 
+	{
+		strcpy(tbuf,"(C)");
+		strcat(tbuf,moduledata.copyright_strings[0]);
+	}
+	if ( moduledata.copyright_strings[1][0] != NULL ) 
+	{	
+		strcpy(tbuf2,"(C)");
+		strcat(tbuf2,moduledata.copyright_strings[2]);
+		strcat(tbuf2," ");
+		strcat(tbuf2,moduledata.copyright_strings[1]);
+	}
+	/*
+	strcpy(tbuf,"(C)");
+	strcat(tbuf,moduledata.copyright_strings[0]);
+	strcpy(tbuf2,"(C)");
+	strcat(tbuf2,moduledata.copyright_strings[2]);
+	strcat(tbuf2," ");
+	strcat(tbuf2,moduledata.copyright_strings[1]);
+	*/
+	sprintf(copyrbuf[0],tbuf,0xBB);
+	sprintf(copyrbuf[1],tbuf2,0xBC);
+	    
+	al_trace("2.50 title screen. Font: %d\n",moduledata.copyright_string_vars[titleScreen250+0]);
+	al_trace("2.50 title screen. X: %d\n",moduledata.copyright_string_vars[titleScreen250+1]);
+	al_trace("2.50 title screen. Y: %d\n",moduledata.copyright_string_vars[titleScreen250+2]);
+	al_trace("2.50 title screen. col: %d\n",moduledata.copyright_string_vars[titleScreen250+3]);
+	al_trace("2.50 title screen. sz: %d\n",moduledata.copyright_string_vars[titleScreen250+4]);
+	    
+	al_trace("2.50 title screen. Font2: %d\n",moduledata.copyright_string_vars[titleScreen250+5]);
+	al_trace("2.50 title screen. X2: %d\n",moduledata.copyright_string_vars[titleScreen250+6]);
+	al_trace("2.50 title screen. Y2: %d\n",moduledata.copyright_string_vars[titleScreen250+7]);
+	al_trace("2.50 title screen. col2: %d\n",moduledata.copyright_string_vars[titleScreen250+8]);
+	al_trace("2.50 title screen. sz2: %d\n",moduledata.copyright_string_vars[titleScreen250+9]);
+       // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
+        //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
+        //sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
+        //textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+        //al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+0] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreen250+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreen250+1],moduledata.copyright_string_vars[titleScreen250+2],moduledata.copyright_string_vars[titleScreen250+3],moduledata.copyright_string_vars[titleScreen250+4]);
+       // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
+     //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
+        //tbuf[0]=(char)0xBC;
+       // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+        textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+5] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreen250+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreen250+6],moduledata.copyright_string_vars[titleScreen250+7],moduledata.copyright_string_vars[titleScreen250+8],moduledata.copyright_string_vars[titleScreen250+9]);
+   
         //    text_mode(0);
     }
+    
+    
     
     if(f>=680 && f<680+256 && (f%3)==0)
     {
@@ -744,13 +1034,15 @@ static void v25_mainscreen(int f)
 static void v25_titlescreen()
 {
     FFCore.kb_typing_mode = false;
+	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
+
     //  JGMOD *yea;
     int f=0;
     bool done=false;
     trstr=0;
     set_palette(black_palette);
     
-    try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
+    try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
     clear_to_color(screen,BLACK);
     clear_bitmap(framebuf);
     init_NES_mode();
@@ -780,7 +1072,7 @@ static void v25_titlescreen()
             trstr=f=0;
             clear_bitmap(framebuf);
             music_stop();
-            try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
+            try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
         }
         
         advanceframe(true);
@@ -1287,14 +1579,27 @@ int readsaves(gamedata *savedata, PACKFILE *f)
                     }
                 }
             }
-            
-            for(int j=0; j<256; j++)
-            {
-                if(!p_igetl(&savedata[i].global_d[j],f,true))
-                {
-                    return 45;
-                }
-            }
+            if ( section_version >= 12 )
+	    {
+		    for(int j=0; j<MAX_SCRIPT_REGISTERS; j++)
+		    {
+			if(!p_igetl(&savedata[i].global_d[j],f,true))
+			{
+			    return 45;
+			}
+		    }
+	    }
+	    else
+	    {
+		for(int j=0; j<256; j++)
+		{
+			if(!p_igetl(&savedata[i].global_d[j],f,true))
+			{
+			    return 45;
+			}
+		}    
+		    
+	    }
         }
         
         if(section_version>2)
@@ -1768,7 +2073,7 @@ int writesaves(gamedata *savedata, PACKFILE *f)
             }
         }
         
-        for(int j=0; j<256; j++)
+        for(int j=0; j<MAX_SCRIPT_REGISTERS; j++)
         {
             if(!p_iputl(savedata[i].global_d[j],f))
             {
@@ -2032,11 +2337,13 @@ static void selectscreen()
     //  loadfullpal();
     loadlvlpal(1);
     clear_bitmap(scrollbuf);
-    QMisc.colors.blueframe_tile = 237;
-    QMisc.colors.blueframe_cset = 0;
+    //QMisc.colors.blueframe_tile = 237; //hardcoded frame tile -- move to module
+    QMisc.colors.blueframe_tile = moduledata.select_screen_tiles[sels_tile_frame]; //hardcoded frame tile -- move to module
+    //QMisc.colors.blueframe_cset = 0; //hardcoded frame cset -- move to module
+    QMisc.colors.blueframe_cset = moduledata.select_screen_tile_csets[sels_tile_frame_cset]; //hardcoded frame cset -- move to module
 //  blueframe(scrollbuf,&QMisc,24,48,26,20);
     frame2x2(scrollbuf,&QMisc,24,48,QMisc.colors.blueframe_tile,QMisc.colors.blueframe_cset,26,20,0,1,0);
-    textout_ex(scrollbuf,zfont,"- S E L E C T -",64,24,1,0);
+    textout_ex(scrollbuf,zfont,"- S E L E C T -",64,24,1,0); //could be in module at some point
     textout_ex(scrollbuf,zfont," NAME ",80,48,1,0);
     textout_ex(scrollbuf,zfont," LIFE ",152,48,1,0);
     select_mode();
@@ -2059,34 +2366,119 @@ static void list_save(int save_num, int ypos)
     {
         game->set_maxlife(saves[save_num].get_maxlife());
         game->set_life(saves[save_num].get_maxlife());
-        wpnsbuf[iwQuarterHearts].newtile = 4;
+        wpnsbuf[iwQuarterHearts].newtile = moduledata.select_screen_tiles[sels_heart_tile];
+        wpnsbuf[iwQuarterHearts].csets = moduledata.select_screen_tile_csets[sels_heart_tilettile_cset];
+        //wpnsbuf[iwQuarterHearts].newtile = 4;
         //boogie!
         lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(HP_PER_HEART))?8:0),0,0);
         textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);
         
         if(saves[save_num].get_quest())
             textprintf_ex(framebuf,zfont,72,ypos+24,1,0,"%3d",saves[save_num].get_deaths());
-            
+	
+	if ( moduledata.select_screen_tiles[draw_link_first]) 
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_linktile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_link_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_link_cset] : (save_num%3)+10,0); 
+
+
+
+        if(saves[save_num].get_quest()==1)
+        {
+            //hardcoded quest icons -- move to module
+            //overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_1A] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_1A],moduledata.select_screen_tiles[sels_tile_questicon_1A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_1A_cset],0);   
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_1B] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_1B],moduledata.select_screen_tiles[sels_tile_questicon_1B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_1B_cset],0);   
+        }
         if(saves[save_num].get_quest()==2)
-            overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
+        {
+           //hardcoded quest icons -- move to module
+            //overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_2A] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_2A],moduledata.select_screen_tiles[sels_tile_questicon_2A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_2A_cset],0);   
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_2B] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_2B],moduledata.select_screen_tiles[sels_tile_questicon_2B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_2B_cset],0);   
+        }
+            
             
         if(saves[save_num].get_quest()==3)
         {
-            overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
-            overtile16(framebuf,41,41,ypos+14,9,0);             //put sword on third quests
+            //overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
+            //overtile16(framebuf,41,41,ypos+14,9,0);             //put sword on third quests
+        
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_3A] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_3A],moduledata.select_screen_tiles[sels_tile_questicon_3A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_3A_cset],0);   
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_3B] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_3B],moduledata.select_screen_tiles[sels_tile_questicon_3B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_3B_cset],0);   
         }
         
         if(saves[save_num].get_quest()==4)
         {
-            overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-            overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+            //overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+            //overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_4A] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_4A],moduledata.select_screen_tiles[sels_tile_questicon_4A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_4A_cset],0);   
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_4B] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_4B],moduledata.select_screen_tiles[sels_tile_questicon_4B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_4B_cset],0);   
         }
 
-		if(saves[save_num].get_quest()==5)
-		{
-			overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-			overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-		}
+        if(saves[save_num].get_quest()==5)
+        {
+                //overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+                //overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_5A] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_5A],moduledata.select_screen_tiles[sels_tile_questicon_5A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_5A_cset],0);   
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_5B] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_5B],moduledata.select_screen_tiles[sels_tile_questicon_5B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_5B_cset],0);   
+        }
+        
+        if(saves[save_num].get_quest()==6)
+        {
+                //overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+                //overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_6A] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6A],moduledata.select_screen_tiles[sels_tile_questicon_6A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6A_cset],0);   
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_6B] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6B],moduledata.select_screen_tiles[sels_tile_questicon_6B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6B_cset],0);   
+        }
+
+        if(saves[save_num].get_quest()==7)
+        {
+                //overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+                //overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_7A] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_7A],moduledata.select_screen_tiles[sels_tile_questicon_7A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_7A_cset],0);   
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_7B] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_7B],moduledata.select_screen_tiles[sels_tile_questicon_7B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_7B_cset],0);   
+        }
+        if(saves[save_num].get_quest()==8)
+        {
+                //overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+                //overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_8A] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_8A],moduledata.select_screen_tiles[sels_tile_questicon_8A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_8A_cset],0);   
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_8B] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_8B],moduledata.select_screen_tiles[sels_tile_questicon_8B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_8B_cset],0);   
+        }
+        
+        if(saves[save_num].get_quest()==9)
+        {
+                //overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+                //overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_9A] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_9A],moduledata.select_screen_tiles[sels_tile_questicon_9A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_9A_cset],0);   
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_9B] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_9B],moduledata.select_screen_tiles[sels_tile_questicon_9B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_9B_cset],0);   
+        }
+        if(saves[save_num].get_quest()==10)
+        {
+                //overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+                //overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_10A] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10A],moduledata.select_screen_tiles[sels_tile_questicon_10A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10A_cset],0);   
+            if ( moduledata.select_screen_tiles[sels_tile_questicon_10B] > 0 )
+                overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10B],moduledata.select_screen_tiles[sels_tile_questicon_10B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10B_cset],0);   
+        }
 
         textprintf_ex(framebuf,zfont,72,ypos+16,1,0,"%s",saves[save_num].get_name());
     }
@@ -2095,13 +2487,17 @@ static void list_save(int save_num, int ypos)
     byte holdformat=newtilebuf[0].format;
     newtilebuf[0].format=tf4Bit;
     newtilebuf[0].data = saves[save_num].icon;
-    overtile16(framebuf,0,48,ypos+17,(save_num%3)+10,0);               //link
+    if ( !moduledata.select_screen_tiles[draw_link_first]) 
+	    //overtile16(framebuf,moduledata.select_screen_tiles[sels_linktile],48,ypos+17,(save_num%3)+10,0);               //link
+	overtile16(framebuf,moduledata.select_screen_tiles[sels_linktile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_link_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_link_cset] : (save_num%3)+10,0); 
+
     newtilebuf[0].format=holdformat;
     newtilebuf[0].data = hold;
     
     hold = colordata;
     colordata = saves[save_num].pal;
-    loadpalset((save_num%3)+10,0);
+    //if ( moduledata.select_screen_tile_csets[change_cset_on_quest_3] ) loadpalset((save_num%3)+10,0); //quest number changes the palette -- move to module
+    loadpalset((save_num%3)+10,0); //quest number changes the palette -- move to module
     colordata = hold;
     
     textout_ex(framebuf,zfont,"-",136,ypos+16,1,0);
@@ -2142,12 +2538,14 @@ static void list_saves()
 
 static void draw_cursor(int pos,int mode)
 {
-    int cs = (mode==3)?13:9;
+    int cs = 0;
+	if ( (unsigned)moduledata.select_screen_tile_csets[sels_cusror_cset] < 15 ) cs = moduledata.select_screen_tile_csets[sels_cusror_cset];
+	else cs = (mode==3)?13:9;
     
     if(pos<3)
-        overtile8(framebuf,0,40,pos*24+77,cs,0);
+        overtile8(framebuf,moduledata.select_screen_tiles[sels_cursor_tile],40,pos*24+77,cs,0);
     else
-        overtile8(framebuf,0,40,(pos-3)*16+153,cs,0);
+        overtile8(framebuf,moduledata.select_screen_tiles[sels_cursor_tile],40,(pos-3)*16+153,cs,0);
 }
 
 static bool register_name()
@@ -2525,6 +2923,17 @@ static bool register_name()
         strcpy(buf,name);
         strupr(buf);
         
+	for ( int q = 2; q < moduledata.max_quest_files+1; q++)
+	{
+		al_trace("Quest number is: %d\n",q);
+		al_trace("Quest skip string is: %s",moduledata.skipnames[q-1]);
+		if(!stricmp(buf,moduledata.skipnames[q-1]))
+		{
+			quest=q;  
+		}
+		  
+	}
+	/*
         if(!stricmp(buf,moduledata.skipnames[1]))
             quest=2;
             
@@ -2536,7 +2945,7 @@ static bool register_name()
            
         if(!stricmp(buf,moduledata.skipnames[4])) // This is what BigJoe wanted. I have no problem with it.
 			quest=5;
-        
+        */
         saves[s].set_quest(quest);
         
 //	setPackfilePassword(datapwd);

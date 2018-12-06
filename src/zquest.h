@@ -509,6 +509,12 @@ void build_biitems_list();
 extern script_struct biitems[NUMSCRIPTFFC]; //item script
 extern int biitems_cnt;
 
+
+//npc script list for editors
+void build_binpcs_list();
+extern script_struct binpcs[NUMSCRIPTGUYS]; //item script
+extern int binpcs_cnt;
+
 //extern script_struct biffs[NUMSCRIPTFFC];
 
 typedef struct command_struct
@@ -675,6 +681,7 @@ enum
     cmdIntegrityCheck,
     cmdSaveZQuestSettings,
     cmdOnClearQuestFilepath,
+    cmdOnScriptRules,
     cmdMAX
 };
 
@@ -990,6 +997,7 @@ int RulesPage_10();
 int onAnimationRules();
 int onComboRules();
 int onItemRules();
+int onScriptRules();
 int onEnemyRules();
 int onFixesRules();
 int onMiscRules();

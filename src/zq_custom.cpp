@@ -1739,7 +1739,26 @@ void setLabels(int iclass)
 void itemdata_help(int id)
 {
     if(id < 0 || id > itype_max) return;
+
+    al_trace("Current item class name is: %s\n",(char *)moduledata.item_editor_type_names[id]);
+    al_trace("Current item class value is: %d\n",id);
+    al_trace("Current help string pt 1 is: %s\n",(char *)moduledata.itemclass_help_strings[id*3]);
+    al_trace("Current help string pt 2 is: %s\n",(char *)moduledata.itemclass_help_strings[id*3+1]);
+    al_trace("Current help string pt 3 is: %s\n",(char *)moduledata.itemclass_help_strings[id*3+2]);
+	
+    //if ( id < itype_last )
+    //{
+	jwin_alert((char *)moduledata.item_editor_type_names[id], (char *)moduledata.itemclass_help_strings[id*3],(char *)moduledata.itemclass_help_strings[(id*3)+1],
+		(char *)moduledata.itemclass_help_strings[(id*3)+2],"O&K",NULL,'k',0,lfont);
+    //}
+    //else
+    //{
+	
+	//jwin_alert("Undefined Item Class",(char *)moduledata.itemclass_help_strings[id*3],(char *)moduledata.itemclass_help_strings[(id*3)+1],
+	//	(char *)moduledata.itemclass_help_strings[(id*3)+2],"O&K",NULL,'k',0,lfont);
+    //}
     
+    	/*
     if(id >= itype_custom1 && id <= itype_custom20)
     {
         jwin_alert(itype_names[id],"This has no built-in effect, but can be given","special significance using ZScripts or ZASM.","","O&K",NULL,'k',0,lfont);
@@ -1752,6 +1771,7 @@ void itemdata_help(int id)
         jwin_alert(itype_names[id],itemclass_help_string[id*3],itemclass_help_string[1+(id*3)],itemclass_help_string[2+(id*3)],"O&K",NULL,'k',0,lfont);
     else // Beyond itype_custom20...
         jwin_alert(itype_names[id],itemclass_help_string[(id-20)*3],itemclass_help_string[1+((id-20)*3)],itemclass_help_string[2+((id-20)*3)],"O&K",NULL,'k',0,lfont);
+	*/
 }
 
 void test_item(itemdata test, int x, int y)
@@ -2396,6 +2416,7 @@ void edit_itemdata(int index)
         
         if(ret == 40)
         {
+	    //al_trace("Pressed Help for item family: %d", test.family);
             itemdata_help(test.family);
         }
         
@@ -2904,12 +2925,14 @@ static int enemy_script_tabs_list[] =
 
 static int enemy_scripts_list[] =
 {
+    334,335,336,
     -1
 };
 
 static int enemy_scripts_initdata_list[] =
 {
-    -1
+    337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,
+	-1
 };
 static int enemy_movement_list[] =
 {
@@ -3888,8 +3911,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeGHINI, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeGHINI, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -3902,8 +3925,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eePEAHAT, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eePEAHAT, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -3916,8 +3939,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeZORA, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeZORA, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -3930,8 +3953,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeSPINTILE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeSPINTILE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -3944,8 +3967,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeFIRE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeFIRE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -3958,8 +3981,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeOTHER, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeOTHER, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -3972,8 +3995,8 @@ static EnemyNameInfo enameinf[]=
 	}	
     },
     {
-        eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
-        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list },
+        eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
+        { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
@@ -4037,10 +4060,24 @@ std::map<int, EnemyNameInfo *> *getEnemyNameMap()
     return enamemap;
 }
 
+const char *npcscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = binpcs_cnt;
+        return NULL;
+    }
+    
+    return binpcs[index].first.c_str();
+}
+static ListData npcscript_list(npcscriptdroplist, &font);
+
 static ListData itemset_list(itemsetlist, &font);
 static ListData eneanim_list(eneanimlist, &font);
 static ListData enetype_list(enetypelist, &font);
 static ListData eweapon_list(eweaponlist, &font);
+
+
 
 
 static ListData walkerspawn_list(walkerspawnlist, &font);
@@ -4701,6 +4738,50 @@ static DIALOG enedata_dlg[] =
     {  jwin_edit_proc,        6,     56+(18*6),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 //334
+    { d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
+    
+    { jwin_droplist_proc,       10,  40+20,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           11,  40+12,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "NPC Action Script:",                      NULL,   NULL                  },
+	//337
+    //npc Script InitD Labels (not editable)
+    //{ jwin_text_proc,       6+10,   10+29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   10+47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D1:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   10+65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D2:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   10+83+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D3:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  10+101+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D4:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  10+119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  10+137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  10+155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
+    
+    //editable npc script InitD fields
+    {  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+83+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+101+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    //{ jwin_edit_proc,       6+10,   10+29+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,   10+47+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,   10+65+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,   10+83+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,  10+101+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,  10+119+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,  10+137+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+    //{ jwin_edit_proc,       6+10,  10+155+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
+   
+    //NPC InitD Data fields
+    { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+83+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+101+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    
     /*
 	  // 248 scripts
 	  {  jwin_tab_proc,                        4,     34,    312,    184,    0,                      0,                       0,    0,          0,          0, (void *) enemy_script_tabs,     NULL, (void *)enedata_dlg   },
@@ -4948,6 +5029,7 @@ int d_ecstile_proc(int msg,DIALOG *d,int c)
 
 void edit_enemydata(int index)
 {
+    //guysbuf[index].script = 1;
     char hp[8], dp[8], wdp[8], rat[8], hrt[8], hom[8], grm[8], spd[8],
          frt[8], efr[8], bsp[8];
     char w[8],h[8],sw[8],sh[8],ew[8],eh[8];
@@ -4956,8 +5038,40 @@ void edit_enemydata(int index)
     char attribs[32][8];
     char enemynumstr[75];
     char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
-	char weapsprite[8];
-    build_biw_list();
+	char weapsprite[8]; char npc_initd_labels[8][65];
+    
+	char initdvals[8][13];
+    //begin npc script
+    int j = 0; build_binpcs_list(); //npc scripts lister
+    for(j = 0; j < binpcs_cnt; j++)
+    {
+        if(binpcs[j].second == guysbuf[index].script -1)
+        {
+            enedata_dlg[335].d1 = j; 
+            break;
+        }
+    }
+    
+    
+    for ( int q = 0; q < 8; q++ )
+    {
+	    
+	sprintf(initdvals[q],"%.4f",guysbuf[index].initD[q]/10000.0);
+	 
+	enedata_dlg[345+q].dp = initdvals[q];
+    }
+    
+    for ( int q = 0; q < 8; q++ )
+    {
+	al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
+	strcpy(npc_initd_labels[q], guysbuf[index].initD_label[q]);
+	enedata_dlg[337+q].dp = npc_initd_labels[q];
+	//sprintf();
+	    
+    }
+
+    //end npc script
+    
     //disable the missing dialog items!
     //else they will lurk in the background
     //stealing mouse focus -DD
@@ -5403,6 +5517,8 @@ void edit_enemydata(int index)
         
         ret = zc_popup_dialog(enedata_dlg,3);
         
+        
+        
         test.tile  = enedata_dlg[247].d1;
         test.cset = enedata_dlg[247].d2;
         test.s_tile  = enedata_dlg[248].d1;
@@ -5582,10 +5698,25 @@ void edit_enemydata(int index)
             test.editorflags |= ENEMY_FLAG15;
 	if(enedata_dlg[269].flags & D_SELECTED)
             test.editorflags |= ENEMY_FLAG16;
+        
+        //begin npc scripts
+        test.script = binpcs[enedata_dlg[335].d1].second + 1; 
+	for ( int q = 0; q < 8; q++ )
+	{
+		test.initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+	}
+	
+	 
+	
+        //end npc scripts
 	
         if(ret==252) //OK Button
         {
             strcpy(guy_string[index],name);
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		strcpy(test.initD_label[q], npc_initd_labels[q]);
+	    }
             guysbuf[index] = test;
             saved = false;
         }
@@ -5682,7 +5813,9 @@ int onCustomEnemies()
         else
         {
             if(index != 0)
+            {
                 edit_enemydata(index);
+            }
         }
         
         index = select_enemy("Select Enemy",index,true,true,foo);
