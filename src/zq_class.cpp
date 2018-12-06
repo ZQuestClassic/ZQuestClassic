@@ -9846,6 +9846,26 @@ int writeguys(PACKFILE *f, zquestheader *Header)
             {
                 new_return(94);
             }
+	    
+	    //Enemy Editor InitD[] labels
+	    for ( int q = 0; q < 8; q++ )
+	    {
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(guysbuf[i].initD_label[q][w],f))
+				{
+					new_return(95);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(guysbuf[i].weapon_initD_label[q][w],f))
+				{
+					new_return(95);
+				} 
+			}
+	    }
+		
         }
         
         if(writecycle==0)
