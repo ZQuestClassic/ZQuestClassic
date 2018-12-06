@@ -1061,8 +1061,11 @@ using namespace std;
 #define NPCINITD 	996
 #define NPCCOLLISION 	997
 #define NPCLINEDUP 	998
+#define NPCDATAINITD 	999
+#define NPCDATASCRIPT 	1000
+#define NPCMATCHINITDLABEL 	1001
 
-#define LAST_BYTECODE 		999
+#define LAST_BYTECODE 		1002
 
 //END OF BYTECODE
 
@@ -2593,6 +2596,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OGetDMapMusicFilename(a->clone(), b->clone());
+		}
+	};
+	
+	class OGetNPCDataInitDLabel : public BinaryOpcode
+	{
+	public:
+		OGetNPCDataInitDLabel(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OGetNPCDataInitDLabel(a->clone(), b->clone());
 		}
 	};
 

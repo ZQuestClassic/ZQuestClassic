@@ -1670,6 +1670,9 @@ string VarArgument::toString()
 	
 	case NPCCOLLISION: return "NPCCOLLISION";
 	case NPCLINEDUP: return "NPCLINEDUP";
+	case NPCDATAINITD: return "NPCDATAINITD";
+	case NPCDATASCRIPT: return "NPCDATASCRIPT";
+	case NPCMATCHINITDLABEL: return "NPCMATCHINITDLABEL";
 	
 	
     default:
@@ -2288,6 +2291,11 @@ string OPlayEnhancedMusic::toString()
 string OGetDMapMusicFilename::toString()
 {
     return "GETMUSICFILE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OGetNPCDataInitDLabel::toString()
+{
+    return "NPCGETINITDLABEL " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OGetDMapMusicTrack::toString()

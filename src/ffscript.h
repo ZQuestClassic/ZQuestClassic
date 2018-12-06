@@ -295,6 +295,7 @@ void do_npc_link_in_range(const bool v);
 void do_npc_simulate_hit(const bool v);
 void do_npc_add(const bool v);
 void do_npc_canmove(const bool v);
+void get_npcdata_initd_label(const bool v);
 
 //int do_get_internal_uid
 
@@ -2009,7 +2010,7 @@ enum ASM_DEFINE
 	NPCHALTWALK,
 	NPCHALTWALK8,
 	NPCFLOATWALK,
-	//NPCLINEDUP,
+	// moved to a var: NPCLINEDUP,
 	NPCLINKINRANGE,
 	NPCATTACK,
 	NPCPLACEONAXIS,
@@ -2018,7 +2019,8 @@ enum ASM_DEFINE
 	NPCCANSLIDE,
 	NPCSLIDE,
 	NPCHITWITH,
-	//NPCCOLLISION,
+	// moved to a var: NPCCOLLISION 
+	NPCGETINITDLABEL,
 
 	NUMCOMMANDS           //0x013B
 };
@@ -3154,6 +3156,9 @@ enum ASM_DEFINE
 #define NPCINITD			0x131D	
 #define NPCCOLLISION			0x131E	
 #define NPCLINEDUP			0x131F	
+#define NPCDATAINITD			0x1320
+#define NPCDATASCRIPT			0x1321	
+#define NPCMATCHINITDLABEL			0x1322	
 
 //bytecode
 
@@ -3161,7 +3166,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x1320
+#define NUMVARIABLES         0x1323
 
 
 // Script types

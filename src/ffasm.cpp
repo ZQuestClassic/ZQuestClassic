@@ -755,7 +755,7 @@ script_command command_list[NUMCOMMANDS+1]=
       { "NPCHALTWALK",                0,   0,   0,   0},
       { "NPCHALTWALK8",                0,   0,   0,   0},
       { "NPCFLOATWALK",                0,   0,   0,   0},
-      //{ "NPCLINEDUP",                0,   0,   0,   0},
+      // moved to a var: { "NPCLINEDUP",                0,   0,   0,   0},
       { "NPCLINKINRANGE",                0,   0,   0,   0},
       { "NPCATTACK",                0,   0,   0,   0},
       { "NPCPLACEONAXIS",                0,   0,   0,   0},
@@ -764,8 +764,9 @@ script_command command_list[NUMCOMMANDS+1]=
       { "NPCCANSLIDE",                0,   0,   0,   0},
       { "NPCSLIDE",                0,   0,   0,   0},
       { "NPCHITWITH",                0,   0,   0,   0},
-      //{ "NPCCOLLISION",                0,   0,   0,   0}, //how to implement this?
-     
+      { "NPCGETINITDLABEL",                0,   0,   0,   0},
+      // moved to a var: { "NPCCOLLISION",                0,   0,   0,   0}, //how to implement this?
+      
      { "",                    0,   0,   0,   0}
 };
 
@@ -1756,6 +1757,10 @@ script_variable variable_list[]=
 	{"NPCINITD", NPCINITD, 0, 0 },
 	{"NPCCOLLISION", NPCCOLLISION, 0, 0 },
 	{"NPCLINEDUP", NPCLINEDUP, 0, 0 },
+	
+	{"NPCDATAINITD", NPCLINEDUP, 0, 0 },
+	{"NPCDATASCRIPT", NPCDATASCRIPT, 0, 0 },
+	{"NPCMATCHINITDLABEL", NPCMATCHINITDLABEL, 0, 0 },
 	
 	
 	

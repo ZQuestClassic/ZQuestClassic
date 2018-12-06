@@ -4808,7 +4808,8 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 	}	
 	break;
 }	
-	
+
+
 
 //initd	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
 
@@ -5778,10 +5779,12 @@ case NPCDATAHYOFS: GET_NPCDATA_VAR_INT32(hyofs, "HitYOffset"); break;
 case NPCDATAHITWIDTH: GET_NPCDATA_VAR_INT32(hxsz, "HitWidth"); break;
 case NPCDATAHITHEIGHT: GET_NPCDATA_VAR_INT32(hysz, "HitHeight"); break;
 case NPCDATAHITZ: GET_NPCDATA_VAR_INT32(hzsz, "HitZHeight"); break;
+case NPCDATASCRIPT: GET_NPCDATA_VAR_INT32(script, "Script"); break;
 case NPCDATATILEWIDTH: GET_NPCDATA_VAR_INT32(txsz, "TileWidth"); break;
 case NPCDATATILEHEIGHT: GET_NPCDATA_VAR_INT32(tysz, "TileHeight"); break;
 case NPCDATAWPNSPRITE: GET_NPCDATA_VAR_INT32(wpnsprite, "WeaponSprite"); break;
 case NPCDATADEFENSE: GET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
+case NPCDATAINITD: GET_NPCDATA_VAR_INDEX(initD, "InitD", 8); break;
 case NPCDATASIZEFLAG: GET_NPCDATA_VAR_INT32(SIZEflags, "SizeFlags"); break;
 
 case NPCDATAFROZENTILE: GET_NPCDATA_VAR_INT32(frozentile, "FrozenTile"); break;
@@ -5949,6 +5952,30 @@ case NPCDATASHIELD:
 		}
 	} 
 }
+
+case NPCMATCHINITDLABEL: 	 //Same form as SetScreenD()
+	//bool npcdata->MatchInitDLabel("label", d)
+{
+	
+	if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
+	{ 
+		Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), "MatchInitDLabel()"); 
+		ret = 0; 
+		break;
+	} 
+	
+	long arrayptr = get_register(sarg1) / 10000;
+	long init_d_index = get_register(sarg2) / 10000;
+	
+	string name;
+	int num=-1;
+	ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
+	
+	bool match = (!( strcmp(name.c_str(), guysbuf[ri->npcdataref].initD_label[init_d_index] )));
+	
+	ret = ( match ? 10000 : 0 );
+	break;
+}	
     
     
 ///----------------------------------------------------------------------------------------------------//
@@ -11006,6 +11033,7 @@ case NPCDATASWIDTH: SET_NPCDATA_VAR_BYTE(s_width, "SWidth"); break;
 case NPCDATASHEIGHT: SET_NPCDATA_VAR_BYTE(s_height, "SHeight"); break;
 case NPCDATAETILE: SET_NPCDATA_VAR_INT(e_tile, "ExTile"); break;
 case NPCDATAEWIDTH: SET_NPCDATA_VAR_BYTE(e_width, "ExWidth"); break;
+case NPCDATASCRIPT: SET_NPCDATA_VAR_BYTE(script, "Script"); break;
 case NPCDATAEHEIGHT: SET_NPCDATA_VAR_BYTE(e_height, "ExHeight"); break;
 case NPCDATAHP: SET_NPCDATA_VAR_DWORD(hp, "HP"); break;
 case NPCDATAFAMILY: SET_NPCDATA_VAR_DWORD(family, "Family"); break;
@@ -11038,6 +11066,7 @@ case NPCDATATILEWIDTH: SET_NPCDATA_VAR_INT(txsz, "TileWidth"); break;
 case NPCDATATILEHEIGHT: SET_NPCDATA_VAR_INT(tysz, "TileHeight"); break;
 case NPCDATAWPNSPRITE: SET_NPCDATA_VAR_INT(wpnsprite, "WeaponSprite"); break;
 case NPCDATADEFENSE: SET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
+case NPCDATAINITD: SET_NPCDATA_VAR_INDEX(initD, "InitD", 8); break;
 case NPCDATASIZEFLAG: SET_NPCDATA_VAR_INT(SIZEflags, "SizeFlags"); break;
 
 case NPCDATAFROZENTILE: SET_NPCDATA_VAR_INT(frozentile, "FrozenTile"); break;
@@ -12896,7 +12925,8 @@ void FFScript::do_loaddmapdata(const bool v)
 
 void FFScript::do_getDMapData_dmapname(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     
     if(BC::checkDMapID(ID, "dmapdata->GetName()") != SH::_NoError)
@@ -12908,7 +12938,8 @@ void FFScript::do_getDMapData_dmapname(const bool v)
 
 void FFScript::do_setDMapData_dmapname(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
 
     string filename_str;
@@ -12924,7 +12955,8 @@ void FFScript::do_setDMapData_dmapname(const bool v)
 
 void FFScript::do_getDMapData_dmaptitle(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     
     if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
@@ -12936,7 +12968,8 @@ void FFScript::do_getDMapData_dmaptitle(const bool v)
 
 void FFScript::do_setDMapData_dmaptitle(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     string filename_str;
     
@@ -12951,7 +12984,8 @@ void FFScript::do_setDMapData_dmaptitle(const bool v)
 
 void FFScript::do_getDMapData_dmapintro(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     
     if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
@@ -12963,7 +12997,8 @@ void FFScript::do_getDMapData_dmapintro(const bool v)
 
 void FFScript::do_setDMapData_dmapintro(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     string filename_str;
     
@@ -12978,7 +13013,8 @@ void FFScript::do_setDMapData_dmapintro(const bool v)
 
 void FFScript::do_getDMapData_music(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     
     if(BC::checkDMapID(ID, "dmapdata->GetMusic()") != SH::_NoError)
@@ -12990,7 +13026,8 @@ void FFScript::do_getDMapData_music(const bool v)
 
 void FFScript::do_setDMapData_music(const bool v)
 {
-    long ID = ri->zmsgref;
+    //long ID = ri->zmsgref;
+    long ID = ri->dmapsref;
     long arrayptr = get_register(sarg2) / 10000;
     string filename_str;
     
@@ -16748,6 +16785,10 @@ case DMAPDATASETMUSICV: //command, string to load a music file
             FFCore.do_npc_simulate_hit(false);
             break;
 	
+	case NPCGETINITDLABEL:
+            FFCore.get_npcdata_initd_label(false);
+            break;
+	
 	case NPCADD:
             FFCore.do_npc_add(false);
             break;
@@ -16826,7 +16867,7 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 			memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
 			stack = pvsstack;
 			guys.spr(i)->script = 0;
-			ri->guyref = guys.spr(i)->getUID();
+			//ri->guyref = guys.spr(i)->getUID();
 			break;
 		}
         }
@@ -19702,22 +19743,23 @@ void FFScript::do_npc_canmove(const bool v)
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		if ( sz == 1 ) //bool canmove(int ndir): dir only, uses 'step' IIRC
 		{
-			can_mv = e->canmove((FFCore.getElement(arrayptr, 0)/10000));
+			Z_scripterrlog("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
+			can_mv = e->canmove(getElement(arrayptr, 0)/10000);
 		}
 		if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
 		{
-			can_mv = e->canmove((FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000));
+			can_mv = e->canmove((getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000));
 		}
 		if ( sz == 3 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
 		{
-			can_mv = e->canmove((FFCore.getElement(arrayptr, 0)/10000), (fix)(FFCore.getElement(arrayptr, 1)/10000), (FFCore.getElement(arrayptr, 2)/10000));
+			can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
 		}
 		if ( sz == 7 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
 		{
-			can_mv = e->canmove((FFCore.getElement(arrayptr, 0)/10000), 
-			(fix)(FFCore.getElement(arrayptr, 1)/10000), (FFCore.getElement(arrayptr, 2)/10000),
-			(FFCore.getElement(arrayptr, 3)/10000), (FFCore.getElement(arrayptr, 4)/10000), 
-			(FFCore.getElement(arrayptr, 5)/10000), (FFCore.getElement(arrayptr, 5)/10000)	);
+			can_mv = e->canmove((getElement(arrayptr, 0)/10000), 
+			(fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000),
+			(getElement(arrayptr, 3)/10000), (getElement(arrayptr, 4)/10000), 
+			(getElement(arrayptr, 5)/10000), (getElement(arrayptr, 5)/10000)	);
 		}
 		else 
 		{
@@ -19726,4 +19768,20 @@ void FFScript::do_npc_canmove(const bool v)
 		}
 	}
 	set_register(sarg1, ( can_mv ? 10000 : 0));
+}
+
+//void do_get_enh_music_filename(const bool v)
+void FFScript::get_npcdata_initd_label(const bool v)
+{
+    long init_d_index = SH::get_arg(sarg1, v) / 10000;
+    long arrayptr = get_register(sarg2) / 10000;
+    
+    if((unsigned)init_d_index > 7)
+    {
+	Z_scripterrlog("Invalid InitD[] index (%d) passed to npcdata->GetInitDLabel().\n", init_d_index);
+	return;
+    }
+        
+    if(ArrayH::setArray(arrayptr, string(guysbuf[ri->npcdataref].initD_label[init_d_index])) == SH::_Overflow)
+        Z_scripterrlog("Array supplied to 'npcdata->GetInitDLabel()' not large enough\n");
 }
