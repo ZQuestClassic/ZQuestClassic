@@ -5707,6 +5707,62 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 				//lensflagNOXRAY New option, not an old rule. -Z
 			}
 		}
+		if ( s_version >= 44 )  //! cost counter
+		{
+			for ( int q = 0; q < 8; q++ )
+			{
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&(tempitem.initD_label[q][w]),f,keepdata))
+					{
+						return qe_invalid;
+					} 
+				}
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&(tempitem.weapon_initD_label[q][w]),f,keepdata))
+					{
+						return qe_invalid;
+					} 
+				}
+				for ( int w = 0; w < 65; w++ )
+				{
+					if(!p_getc(&(tempitem.sprite_initD_label[q][w]),f,keepdata))
+					{
+						return qe_invalid;
+					} 
+				}
+				if(!igetw(&(tempitem.sprite_initiald[q]),f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+			}
+			for ( int q = 0; q < 2; q++ )
+			{
+				if(!getc(&(tempitem.sprite_initiala[q]),f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
+			//Pickup Type
+			if(!p_igetw(&tempitem.sprite_script,f,true))
+                        {
+                            return qe_invalid;
+                        }
+		}
+		if ( s_version < 44 ) //InitD Labels and Sprite Script Data
+		{
+			for ( int q = 0; q < 8; q++ )
+			{
+				sprintf(tempitem.initD_label[q],"InitD[%d]",q);
+				sprintf(tempitem.weapon_initD_label[q],"InitD[%d]",q);
+				sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
+				tempitem.sprite_initiald[q] = 0;
+			}
+			for ( int q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
+			tempitem.sprite_script = 0;
+		}
 		
 		
         }

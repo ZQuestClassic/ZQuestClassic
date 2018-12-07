@@ -7703,6 +7703,47 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		    new_return(84);
 		}
 		
+		//InitD[] labels
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].initD_label[q][w],f))
+				{
+					new_return(85);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
+				{
+					new_return(86);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
+				{
+					new_return(87);
+				} 
+			}
+			if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
+			{
+				new_return(88);
+			} 
+		}
+		for ( int q = 0; q < 2; q++ )
+		{
+			if(!p_iputc(itemsbuf[i].sprite_initiala[q],f))
+			{
+				new_return(89);
+			} 
+			
+		}
+		if(!p_iputw(itemsbuf[i].sprite_script,f))
+		{
+			new_return(90);
+		} 
 		
 	    
         }
@@ -9861,7 +9902,7 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			{
 				if(!p_putc(guysbuf[i].weapon_initD_label[q][w],f))
 				{
-					new_return(95);
+					new_return(96);
 				} 
 			}
 	    }
