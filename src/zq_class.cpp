@@ -10455,6 +10455,8 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
 extern ffscript *ffscripts[NUMSCRIPTFFC];
 extern ffscript *itemscripts[NUMSCRIPTITEM];
 extern ffscript *guyscripts[NUMSCRIPTGUYS];
+extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
@@ -10535,7 +10537,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
+            int ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -10578,6 +10580,17 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         }
 	
         for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+        {
+            int ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
+            fake_pack_writing=(writecycle==0);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+	
+	for(int i=0; i<NUMSCRIPTWEAPONS; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &ewpnscripts[i]);
             fake_pack_writing=(writecycle==0);

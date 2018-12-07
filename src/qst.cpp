@@ -8551,6 +8551,7 @@ int setupsubscreens()
 extern ffscript *ffscripts[NUMSCRIPTFFC];
 extern ffscript *itemscripts[NUMSCRIPTITEM];
 extern ffscript *guyscripts[NUMSCRIPTGUYS];
+extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
@@ -8616,7 +8617,7 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
         {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &lwpnscripts[i]);
+            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &wpnscripts[i]);
             
             if(ret != 0) return qe_invalid;
         }
@@ -8660,10 +8661,33 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(ret != 0) return qe_invalid;
         }
-        if(s_version > 7)
+        if(s_version > 8 && s_version < 10)
         {
             
             for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i]);
+                
+                if(ret != 0) return qe_invalid;
+            }
+            for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i]);
+            
+                if(ret != 0) return qe_invalid;
+            }
+            
+        }
+	if(s_version >= 10)
+        {
+            
+            for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+            {
+                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &lwpnscripts[i]);
+                
+                if(ret != 0) return qe_invalid;
+            }
+	    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
             {
                 ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i]);
                 
