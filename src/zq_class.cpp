@@ -7734,7 +7734,7 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		}
 		for ( int q = 0; q < 2; q++ )
 		{
-			if(!p_iputc(itemsbuf[i].sprite_initiala[q],f))
+			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
 			{
 				new_return(89);
 			} 
