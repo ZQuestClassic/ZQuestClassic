@@ -3092,7 +3092,7 @@ case NPCBEHAVIOUR: {
 		int a = vbound((ri->d[0] / 10000),0,7);
 		if(0!=(s=checkLWpn(ri->lwpn,"InitD[]")))
 		{
-			ret=(((weapon*)(s))-initiald[a]; //should this be *10000?
+			ret=(((weapon*)(s))->initiald[a]);
 		}
 		break;
 	}
