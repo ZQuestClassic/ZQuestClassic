@@ -5732,7 +5732,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 						return qe_invalid;
 					} 
 				}
-				if(!igetw(&(tempitem.sprite_initiald[q]),f,keepdata))
+				if(!p_igetl(&(tempitem.sprite_initiald[q]),f,keepdata))
 				{
 					return qe_invalid;
 				}
@@ -5740,7 +5740,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 			}
 			for ( int q = 0; q < 2; q++ )
 			{
-				if(!getc(&(tempitem.sprite_initiala[q]),f,keepdata))
+				if(!p_getc(&(tempitem.sprite_initiala[q]),f,keepdata))
 				{
 					return qe_invalid;
 				}
