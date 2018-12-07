@@ -247,12 +247,26 @@ weapon::weapon(weapon const & other):
 //Enemy Editor Weapon Sprite
     wpnsprite(other.wpnsprite),
     magiccosttimer(other.magiccosttimer),
-    ScriptGenerated(other.ScriptGenerated)  
+    ScriptGenerated(other.ScriptGenerated),
+    isLWeapon(other.isLWeapon),
+    canrunscript(other.canrunscript)
     
 	
 	//End Weapon editor non-arrays. 
 
 {
+	if ( parentitem > -1 ) 
+	{
+		
+		weaponscript = itemsbuf[parentitem].weaponscript; //Set the weapon script based on the item editor data.
+		for ( int q = 0; q < INITIAL_D; q++ ) 
+		{
+			initiald[q] = itemsbuf[parentitem].weap_initiald[q];
+			
+		}
+		
+	}
+	
     for(int i=0; i<10; ++i)
     {
         dummy_int[i]=other.dummy_int[i];
@@ -260,6 +274,9 @@ weapon::weapon(weapon const & other):
         dummy_float[i]=other.dummy_float[i];
         dummy_bool[i]=other.dummy_bool[i];
     }
+    
+    //memset(stack,0,sizeof(stack));
+    memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
     
     //Weapon Editor Arrays
     for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
@@ -274,10 +291,10 @@ weapon::weapon(weapon const & other):
     {
 	initiala[q] = other.initiala[q];		//byte	InitA[]
     }
-    for ( int q = 0; q < INITIAL_D; q++ ) 
-    {
-	initiald[q] = other.initiald[q];		//long	InitD[]
-    }
+    //for ( int q = 0; q < INITIAL_D; q++ ) 
+    //{
+//	initiald[q] = other.initiald[q];		//long	InitD[]
+    //}
     for ( int q = 0; q < FFSCRIPT_MISC; q++ ) 
     {
 	ffmisc[q] = other.ffmisc[q];		//long -The base wpn->Misc[32] set from the editor
@@ -378,7 +395,7 @@ weapon::~weapon()
 }
 
 //ZScript-only
-weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen) : sprite(), parentid(prntid)
+weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW) : sprite(), parentid(prntid)
 {
     x=X;
     y=Y;
@@ -401,7 +418,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     hzsz=8;
     useweapon = usedefence = 0;
     weaprange = weapduration = 0;
-    weaponscript = 0;
+    if ( Parentitem > -1 )
+    {
+	weaponscript = itemsbuf[Parentitem].weaponscript;
+    }
+    else weaponscript = 0;
     tilemod = 0;
     drawlayer = 0;
     family_class = family_level = 0;
@@ -413,7 +434,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     scriptrange = blastsfx = wpnsprite = magiccosttimer = 0;
     for ( int q = 0; q < FFSCRIPT_MISC; q++ ) ffmisc[q] = 0;
     for ( int q = 0; q < 128; q++ ) weapname[q] = 0;
-    for ( int q = 0; q < 8; q++ ) initiald[q] = 0;
+    for ( int q = 0; q < 8; q++ ) 
+    {
+	    if ( Parentitem > -1 )
+	    {
+		    initiald[q] = itemsbuf[Parentitem].weap_initiald[q];
+	    }
+	    else
+	    {
+		    initiald[q] = 0;
+	    }
+    }
     for ( int q = 0; q < FFSCRIPT_MISC; q++ ) wpn_misc_d[q] = 0;
     for ( int q = 0; q < 2; q++ ) initiala[q] = 0;
     for ( int q = 0; q < WEAPON_CLOCKS; q++ ) clocks[q] = 0;
@@ -421,6 +452,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
 		//This will need an input in the params! -Z
+		
+	isLWeapon = isLW;
+	canrunscript = 0;
+    //memset(stack,0,sizeof(stack));
+    memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
     
     int defaultw, itemid = parentitem;
     
@@ -1993,6 +2029,20 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 
 int weapon::getScriptUID() { return script_UID; }
 void weapon::setScriptUID(int new_id) { script_UID = new_id; }
+bool weapon::isLinkWeapon()
+{
+	if ( isLWeapon > 0 ) return true;
+	if ( id < lwMax ) return true;
+	if ( id < wEnemyWeapons && isLWeapon > 0 ) return true;
+	return false;
+}
+bool weapon::isLinkMelee()
+{
+	int family = itemsbuf[parentitem].family;
+	if ( family == itype_sword && id != wBeam ) return true;
+	//if ( id == wBeam )  return true;
+	return false;
+}
 
 
 void weapon::LOADGFX(int wpn)
@@ -2174,10 +2224,13 @@ bool weapon::blocked(int xOffset, int yOffset)
     return false;
 }
 
-bool weapon::animate(int)
+bool weapon::animate(int index)
 {
     // do special timing stuff
     bool hooked=false;
+//	Z_scripterrlog("Weapon script is: %d\n",weaponscript);
+	
+    
     
     // fall down
     switch(id)
@@ -2335,6 +2388,7 @@ bool weapon::animate(int)
         {
             dead=23;
         }
+	++canrunscript;
         
     case ewSword:
         if(blocked())
@@ -4020,6 +4074,43 @@ mirrors:
     if(dead>0)
     {
         --dead;
+    }
+    
+    if ( weaponscript > 0 ) 
+    {
+	if ( isLinkWeapon() )
+	{
+		int w_index = -1; //Give the script the correct index! -Z
+		for(word i = 0; i < Lwpns.Count(); i++)
+		{
+			if(Lwpns.spr(i)->getUID() == getUID())
+			w_index = i;
+			//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+		}
+		if ( !isLinkMelee() ) 
+		{
+			al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+			ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);
+		}
+		//else if ( canrunscript > 0 ) 
+		//{
+		//	al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+		//	ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);
+		//}
+		
+			
+	}
+	else //eweapons
+	{
+		int w_index = -1; //Give the script the correct index! -Z
+		for(word i = 0; i < Lwpns.Count(); i++)
+		{
+			if(Lwpns.spr(i)->getUID() == getUID())
+			w_index = i;
+		}
+		//Z_scripterrlog("Running an EWeapon script (script ID: %d) for item index: %d\n", weaponscript, index);
+		ZScriptVersion::RunScript(SCRIPT_EWPN, weaponscript, w_index);
+	}
     }
     
     return dead==0;

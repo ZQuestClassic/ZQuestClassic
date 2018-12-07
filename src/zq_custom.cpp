@@ -452,6 +452,14 @@ static int itemdata_weaponargs_list[] =
     199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215,216,217,218,219,220, -1
 };
 
+static int itemdata_weaponscript_list[] =
+{
+    // dialog control number
+	275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,
+	292,
+	-1
+};
+
 
 static TABPANEL itemdata_tabs[] =
 {
@@ -462,6 +470,7 @@ static TABPANEL itemdata_tabs[] =
     { (char *)"Pickup",       0,             itemdata_pickup_list,        0, NULL },
     { (char *)"Action",       0,             itemdata_action_list,        0, NULL },
     { (char *)"Scripts",      0,             itemdata_scriptargs_list,    0, NULL },
+    { (char *)"W. Script",      0,             itemdata_weaponscript_list,    0, NULL },
     { (char *)"Size",      0,             itemdata_itemsize_list,    0, NULL },
    //  { (char *)"Weapon",      0,             itemdata_weaponargs_list,    0, NULL },
     { (char *)"Weapon Size",      0,             itemdata_weaponsize_list,    0, NULL },
@@ -895,6 +904,21 @@ const char *itemscriptdroplist(int index, int *list_size)
 //droplist like the dialog proc, naming scheme for this stuff is awful...
 static ListData itemscript_list(itemscriptdroplist, &pfont);
 
+const char *lweaponscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = bilweapons_cnt;
+        return NULL;
+    }
+    
+    return bilweapons[index].first.c_str();
+}
+
+
+//droplist like the dialog proc, naming scheme for this stuff is awful...
+static ListData lweaponscript_list(lweaponscriptdroplist, &pfont);
+
 static DIALOG itemdata_special_dlg[] =
 {
     { jwin_text_proc,           8,     48,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
@@ -1042,8 +1066,8 @@ static DIALOG itemdata_dlg[] =
     { jwin_edit_proc,         107,     80,     35,     16,    vc(12),                 vc(1),                   0,       0,           5,    0,  NULL,                                           NULL,   NULL                  },
     
     //101
-    { jwin_text_proc,          112+10,    47+38,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Pickup Script:",                            NULL,   NULL                  },
-    { jwin_droplist_proc,      112+10,    47+38+10,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,          112+10+20+34+1-4,    10+39+32+3+8-5,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Pickup Script:",                            NULL,   NULL                  },
+    { jwin_droplist_proc,      112+10+20+34-4,    10+47+40-5+7-5,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemscript_list,                   NULL,   NULL 				   },
     //{ jwin_edit_proc,          55,     98,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     //103
     { jwin_text_proc,          8,    102,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Sound:",                              NULL,   NULL                  },
@@ -1084,8 +1108,8 @@ static DIALOG itemdata_dlg[] =
     { d_dummy_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                 },
     
     //131
-    { jwin_text_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
-    { jwin_droplist_proc,       112+10,  47+38+10*2 + 18,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34+1-4,  10+29+12+7,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemscript_list,                   NULL,   NULL 				   },
     //{ jwin_edit_proc,          55,     44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
     { jwin_text_proc,           8,     48,     44,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Cost:",                              NULL,   NULL                  },
     { jwin_edit_proc,         32,     44,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
@@ -1149,28 +1173,49 @@ static DIALOG itemdata_dlg[] =
     { d_dummy_proc,             0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                 },
     
     //179
-    { jwin_text_proc,       6+10,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
-    { jwin_text_proc,       6+10,   47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D1:", NULL, NULL },
-    { jwin_text_proc,       6+10,   65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D2:", NULL, NULL },
-    { jwin_text_proc,       6+10,   83+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D3:", NULL, NULL },
-    { jwin_text_proc,       6+10,  101+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D4:", NULL, NULL },
-    { jwin_text_proc,       6+10,  119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
-    { jwin_text_proc,       6+10,  137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
-    { jwin_text_proc,       6+10,  155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
-    { jwin_edit_proc,      34+10,   25+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   43+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   61+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   79+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,   97+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,  115+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,  133+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      34+10,  151+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_text_proc,       6+10,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D1:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D2:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,   83+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D3:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  101+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D4:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
+    //{ jwin_text_proc,       6+10,  155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
+    //{ jwin_edit_proc,      34+10,   25+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,   43+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,   61+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,   79+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,   97+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,  115+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,  133+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      34+10,  151+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    {  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+83+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+101+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+83+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+101+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    
+    
     //195
-    { jwin_text_proc,       112+10,  29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A1:", NULL, NULL },
-    { jwin_text_proc,       112+10,  47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A2:", NULL, NULL },
+    { jwin_text_proc,       212+10-16+50, 10+137+20+4,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A1:", NULL, NULL },
+    { jwin_text_proc,       212+10-16+50,  10+155+20+4,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A2:", NULL, NULL },
     //197
-    { jwin_edit_proc,      140+10,  25+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      140+10,  43+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      140+10,  10+137+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
+    //{ jwin_edit_proc,      140+10,  10+155+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      212+10+50,  10+137+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      212+10+50,  10+155+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
     //199
     //Magic Cost Timer, 199
     { jwin_text_proc,         145,     48,     30,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Timer:",                              NULL,   NULL                  },
@@ -1289,6 +1334,27 @@ static DIALOG itemdata_dlg[] =
     { jwin_check_proc,        6,     172,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[13]",                        NULL,   NULL                  },
     { jwin_check_proc,        6,    182,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[14]",                        NULL,   NULL                  },
     { jwin_check_proc,        6,    192,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[15]",                        NULL,   NULL                  },
+    //275 Weapon Scripts
+    {  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+83+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+101+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+83+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+101+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    
+    { jwin_text_proc,           112+10+20+34+1-4,  10+29+12+7,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &lweaponscript_list,                   NULL,   NULL 				   },
     
     { NULL,                     0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
 };
@@ -1866,8 +1932,39 @@ void edit_itemdata(int index)
 	char i_pickupstring[8]; //item pickup type
 	
     char i_weap_tileh[8], i_weap_tilew[8], i_weap_hxofs[8], i_weap_hyofs[8], i_weap_hxsz[8], i_weap_hysz[8], i_weap_hzsz[8], i_weap_xofs[8], i_weap_yofs[8]; //weapon sizing
+    char item_initd_labels[8][65];
+    char weapon_initd_labels[8][65];
+	char weap_initdvals[8][13];
+	
+	//Weapon Scripts for lweapons
+    int j = 0; build_bilweapons_list(); //lweapon scripts lister
+	
+	for(j = 0; j < bilweapons_cnt; j++)
+	{
+		if(bilweapons[j].second == itemsbuf[index].weaponscript -1)
+		{
+			itemdata_dlg[292].d1 = j; 
+			break;
+		}
+	}
     
+	for ( int q = 0; q < 8; q++ )
+	{
+	    
+		sprintf(weap_initdvals[q],"%.4f",itemsbuf[index].weap_initiald[q]/10000.0);
+	 
+		itemdata_dlg[283+q].dp = weap_initdvals[q];
+	}
     
+	for ( int q = 0; q < 8; q++ )
+	{
+		//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, itemsbuf[index].initD_label[q]);
+		strcpy(weapon_initd_labels[q], itemsbuf[index].weapon_initD_label[q]);
+		itemdata_dlg[275+q].dp = weapon_initd_labels[q];
+		//sprintf();
+	    
+	}
+	
     sprintf(itemnumstr,"Item %d: %s", index, item_string[index]);
     sprintf(fcs,"%d",itemsbuf[index].csets>>4);
     sprintf(frm,"%d",itemsbuf[index].frames);
@@ -1894,6 +1991,15 @@ void edit_itemdata(int index)
     sprintf(pow,"%d",itemsbuf[index].power);
     sprintf(asn,"%d",itemsbuf[index].usesound);
     sprintf(name,"%s",item_string[index]);
+    
+    for ( int q = 0; q < 8; q++ )
+    {
+	//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
+	strcpy(item_initd_labels[q], itemsbuf[index].initD_label[q]);
+	itemdata_dlg[179+q].dp = item_initd_labels[q];
+	//sprintf();
+	    
+    }
     
     //Magic cost timer
     sprintf(mgtimer, "%d", itemsbuf[index].magiccosttimer);
@@ -2413,6 +2519,19 @@ void edit_itemdata(int index)
             
         test.initiala[0] = vbound(atoi(da[8])*10000,0,320000);
         test.initiala[1] = vbound(atoi(da[9])*10000,0,320000);
+	
+	for ( int q = 0; q < 8; q++ )
+        {
+	    strcpy(test.initD_label[q], item_initd_labels[q]);
+        }
+	
+	//begin lweapon scripts
+        test.weaponscript = bilweapons[itemdata_dlg[292].d1].second + 1; 
+	for ( int q = 0; q < 8; q++ )
+	{
+		test.weap_initiald[q] = vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
+		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
+	}
         
         if(ret == 40)
         {
@@ -2925,13 +3044,13 @@ static int enemy_script_tabs_list[] =
 
 static int enemy_scripts_list[] =
 {
-    334,335,336,
+    
+    334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,
     -1
 };
 
-static int enemy_scripts_initdata_list[] =
+static int enemy_weapon_scripts_list[] =
 {
-    337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,
 	-1
 };
 static int enemy_movement_list[] =
@@ -3095,8 +3214,8 @@ static TABPANEL enemy_movement_tabs[] =
 
 static TABPANEL enemy_script_tabs[] =
 {
-    { (char *)"Script",	 D_SELECTED,               enemy_scripts_list,   0, NULL },
-    { (char *)"Initial Data",	 0,               enemy_scripts_initdata_list,   0, NULL },
+    { (char *)"Action Script",	 D_SELECTED,               enemy_scripts_list,   0, NULL },
+    { (char *)"Weapon Script",	 0,               enemy_weapon_scripts_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
 };
 
@@ -3154,7 +3273,7 @@ static TABPANEL enedata_tabs[] =
    // { (char *)"Sound Effects",	 0,               enemy_sounds_tabs_list,   0, NULL },
     { (char *)"Graphics",	 0,               enemy_graphics_tabs_list,   0, NULL },
     { (char *)"Attributes",	 0,               enemy_attributes_tabs_list,   0, NULL },
-    { (char *)"Script",	 0,               enemy_script_tabs_list,   0, NULL },
+    { (char *)"Scripts",	 0,               enemy_script_tabs_list,   0, NULL },
     { NULL,                   0,               NULL,                  0, NULL }
 };
 
@@ -4740,8 +4859,8 @@ static DIALOG enedata_dlg[] =
 //334
     { d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
     
-    { jwin_droplist_proc,       10,  40+20,     150,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
-    { jwin_text_proc,           11,  40+12,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "NPC Action Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,      112+10+20+34+1-6,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
+    { jwin_text_proc,           112+10+20+34-4,   10+29+12+7,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "NPC Action Script:",                      NULL,   NULL                  },
 	//337
     //npc Script InitD Labels (not editable)
     //{ jwin_text_proc,       6+10,   10+29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
@@ -4773,14 +4892,14 @@ static DIALOG enedata_dlg[] =
     //{ jwin_edit_proc,       6+10,  10+155+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
    
     //NPC InitD Data fields
-    { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10,   10+83+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10,   10+101+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+83+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+101+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     
     /*
 	  // 248 scripts
@@ -5063,7 +5182,7 @@ void edit_enemydata(int index)
     
     for ( int q = 0; q < 8; q++ )
     {
-	al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
+	//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
 	strcpy(npc_initd_labels[q], guysbuf[index].initD_label[q]);
 	enedata_dlg[337+q].dp = npc_initd_labels[q];
 	//sprintf();

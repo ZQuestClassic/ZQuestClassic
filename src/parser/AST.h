@@ -692,7 +692,7 @@ namespace ZScript
 		owning_vector<ASTExpr> dimensions;
 
 		// If this declares an a sized array.
-		bool hasSize() const {return dimensions.size();}
+		bool hasSize() const {return (dimensions.size());}
 
 		// Get the total size of this array at compile time.
 		optional<int> getCompileTimeSize(

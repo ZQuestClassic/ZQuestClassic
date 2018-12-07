@@ -1761,6 +1761,9 @@ script_variable variable_list[]=
 	{"NPCDATAINITD", NPCLINEDUP, 0, 0 },
 	{"NPCDATASCRIPT", NPCDATASCRIPT, 0, 0 },
 	{"NPCMATCHINITDLABEL", NPCMATCHINITDLABEL, 0, 0 },
+	//lweapon scripts
+	{"LWPNSCRIPT", LWPNSCRIPT, 0, 0 },
+	{"LWPNINITD", LWPNINITD, 0, 0 },
 	
 	
 	

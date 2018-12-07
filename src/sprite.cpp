@@ -50,7 +50,8 @@ sprite::sprite()
     drawstyle=0;
     extend=0;
     wpnsprite = 0; //wpnsprite is new for 2.6 -Z
-    memset(stack,0,sizeof(stack));
+    //memset(stack,0,sizeof(stack));
+    memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
     
     /*ewpnclass=0;
     lwpnclass=0;

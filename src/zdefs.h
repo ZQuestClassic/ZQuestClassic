@@ -185,7 +185,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            19
 #define V_DMAPS            11
 #define V_DOORS            1
-#define V_ITEMS           43
+#define V_ITEMS           44
 #define V_WEAPONS          7
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -199,7 +199,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_LINKSPRITES      5
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         9
+#define V_FFSCRIPT         10
 #define V_SFX              7
 #define V_FAVORITES        1
 //= V_SHOPS is under V_MISC
@@ -1493,6 +1493,13 @@ struct itemdata
     int magiccosttimer; //TImer for timed magic costs. 
     char cost_counter; //replaces mp cost with a list
     
+    char initD_label[8][65];
+    char weapon_initD_label[8][65];
+    char sprite_initD_label[8][65];
+    
+    long sprite_initiald[INITIAL_D];
+    byte sprite_initiala[INITIAL_A];
+    word sprite_script;
 };
 
 struct wpndata

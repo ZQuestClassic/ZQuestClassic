@@ -515,6 +515,11 @@ void build_binpcs_list();
 extern script_struct binpcs[NUMSCRIPTGUYS]; //item script
 extern int binpcs_cnt;
 
+//lweapon script list for editors
+void build_bilweapons_list();
+extern script_struct bilweapons[NUMSCRIPTGUYS]; //item script
+extern int bilweapons_cnt;
+
 //extern script_struct biffs[NUMSCRIPTFFC];
 
 typedef struct command_struct

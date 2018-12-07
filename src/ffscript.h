@@ -3159,6 +3159,8 @@ enum ASM_DEFINE
 #define NPCDATAINITD			0x1320
 #define NPCDATASCRIPT			0x1321	
 #define NPCMATCHINITDLABEL			0x1322	
+#define LWPNSCRIPT			0x1323
+#define LWPNINITD			0x1324	
 
 //bytecode
 
@@ -3166,7 +3168,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x1323
+#define NUMVARIABLES         0x1325
 
 
 // Script types

@@ -383,6 +383,7 @@ ffscript *globalscripts[NUMSCRIPTGLOBAL];
 
 //If only...
 ffscript *guyscripts[NUMSCRIPTGUYS];
+ffscript *wpnscripts[NUMSCRIPTWEAPONS];
 ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
 ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *linkscripts[NUMSCRIPTLINK];
@@ -2690,6 +2691,20 @@ void do_dcounters()
 
 void game_loop()
 {
+	
+	//for ( int qq = 0; qq < 256; qq++ )
+    //{
+	    
+	// al_trace("ZC Init: LWeapon Script (0), Instruction (%d) is: %d\n", qq,lwpnscripts[0][qq].command); 
+	    
+    //}
+    //for ( int qq = 0; qq < 256; qq++ )
+    //{
+	    
+	// al_trace("ZC Init: LWeapon Script (1), Instruction (%d) is: %d\n", qq,lwpnscripts[1][qq].command); 
+	    
+    //}
+    
     //clear Link's last hits 
     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing these here makes checking them fail both before and after waitdraw.
     //Link.ClearhitLinkUIDs();
@@ -4151,13 +4166,8 @@ int main(int argc, char* argv[])
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        ewpnscripts[i] = new ffscript[1];
-        ewpnscripts[i][0].command = 0xFFFF;
-    }
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        lwpnscripts[i] = new ffscript[1];
-        lwpnscripts[i][0].command = 0xFFFF;
+        wpnscripts[i] = new ffscript[1];
+        wpnscripts[i][0].command = 0xFFFF;
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
@@ -4178,11 +4188,24 @@ int main(int argc, char* argv[])
         linkscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
+    }
+     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
+    }
+    
+     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
         dmapscripts[i] = new ffscript[1];
         dmapscripts[i][0].command = 0xFFFF;
     }
+    
+    
     
     //script drawing bitmap allocation
     zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();

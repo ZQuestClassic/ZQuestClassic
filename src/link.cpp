@@ -871,8 +871,8 @@ void LinkClass::init()
     
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
-    bigHitbox=get_bit(quest_rules, qr_LTTPCOLLISION);
-    diagonalMovement=get_bit(quest_rules,qr_LTTPWALK);
+    bigHitbox=(get_bit(quest_rules, qr_LTTPCOLLISION));
+    diagonalMovement=(get_bit(quest_rules,qr_LTTPWALK));
     
     //2.6
 	preventsubscreenfalling = false;  //-Z
@@ -3587,7 +3587,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
     
     int hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
     
-    bool global_ring = (itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1);
+    bool global_ring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
     bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
     
     int itemid = current_item_id(itype_boots);
@@ -5289,7 +5289,12 @@ bool LinkClass::startwpn(int itemid)
             temppower = DAMAGE_MULTIPLIER*itemsbuf[itemid].misc2;
         }
         
+        //Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
+	//Add weapon script to sword beams.
         Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
+	weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //the pointer to this beam
+	w->weaponscript = itemsbuf[itemid].weaponscript;
+	w->canrunscript = 0;
         sfx(WAV_BEAM,pan(wx));
     }
     break;
