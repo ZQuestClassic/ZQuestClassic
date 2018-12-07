@@ -1066,8 +1066,10 @@ using namespace std;
 #define NPCMATCHINITDLABEL 	1001
 #define LWPNSCRIPT 	1002
 #define LWPNINITD 	1003
+#define ITEMFAMILY 	1004
+#define ITEMLEVEL 	1005
 
-#define LAST_BYTECODE 		1004
+#define LAST_BYTECODE 		1006
 
 //END OF BYTECODE
 

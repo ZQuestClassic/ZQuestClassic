@@ -1676,6 +1676,8 @@ string VarArgument::toString()
 	//lweapon scripts
 	case LWPNSCRIPT: return "LWPNSCRIPT";
 	case LWPNINITD: return "LWPNINITD";
+	case ITEMFAMILY: return "ITEMFAMILY";
+	case ITEMLEVEL: return "ITEMLEVEL";
 	
 	
     default:

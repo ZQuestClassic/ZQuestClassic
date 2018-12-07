@@ -42,6 +42,8 @@ public:
     word pickup_string_flags;
     //int script_UID;
     int overrideFLAGS; //Override flags.
+    long family;
+    byte lvl;
     //int weapoverrideFLAGS; 
     
     //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
