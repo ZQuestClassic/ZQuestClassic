@@ -274,6 +274,9 @@ weapon::weapon(weapon const & other):
         dummy_bool[i]=other.dummy_bool[i];
     }
     
+    //memset(stack,0,sizeof(stack));
+    memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+    
     //Weapon Editor Arrays
     for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
     {
@@ -450,6 +453,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		//This will need an input in the params! -Z
 		
 	isLWeapon = isLW;
+    //memset(stack,0,sizeof(stack));
+    memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
     
     int defaultw, itemid = parentitem;
     
@@ -2022,7 +2027,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 
 int weapon::getScriptUID() { return script_UID; }
 void weapon::setScriptUID(int new_id) { script_UID = new_id; }
-void weapon::isLinkWeapon()
+bool weapon::isLinkWeapon()
 {
 	if ( isLWeapon > 0 ) return true;
 	if ( id < lwMax ) return true;
@@ -2210,10 +2215,13 @@ bool weapon::blocked(int xOffset, int yOffset)
     return false;
 }
 
-bool weapon::animate(int)
+bool weapon::animate(int index)
 {
     // do special timing stuff
     bool hooked=false;
+//	Z_scripterrlog("Weapon script is: %d\n",weaponscript);
+	
+    
     
     // fall down
     switch(id)
@@ -4057,17 +4065,28 @@ mirrors:
     {
         --dead;
     }
-    if ( script > 0 ) 
+    
+    if ( weaponscript > 0 ) 
     {
 	if ( isLinkWeapon() )
 	{
-		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);
+		int w_index = -1;
+		for(word i = 0; i < Lwpns.Count(); i++)
+		{
+			if(Lwpns.spr(i)->getUID() == getUID())
+			w_index = i;
+			al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+		}
+		Z_scripterrlog("Running an LWeapon script (script ID: %d) for item index: %d\n", weaponscript, index);
+		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);
 	}
 	else //eweapons
 	{
+		Z_scripterrlog("Running an EWeapon script (script ID: %d) for item index: %d\n", weaponscript, index);
 		ZScriptVersion::RunScript(SCRIPT_EWPN, weaponscript, index);
 	}
     }
+    
     return dead==0;
 }
 

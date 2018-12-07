@@ -14822,13 +14822,28 @@ int run_script(const byte type, const word script, const long i)
     case SCRIPT_LWPN:
     {
 		ri = &(lweaponScriptData[i]);
+	        weapon *w = (weapon*)Lwpns.spr(i);
 		curscript = lwpnscripts[script];
-		stack = &(Lwpns.spr(i)->stack);
+		
+	        al_trace("FFScript is trying to run lweapon script: %I\n", curscript);
+	        for ( int q = 0; q < 256; q++ )
+	        {
+			
+			al_trace("Instruction (%d) in the current script is: %d\n", q, lwpnscripts[script][q]);
+			
+		}
+		
+		//stack = &(Lwpns.spr(i)->stack);
+		stack = &(w->stack);
+		for ( int q = 0; q < 256; q++ )
+		{
+			al_trace("Current LWeapon Stack Instruction is: %d\n", stack[q]);
+		}
 	        ri->lwpn = Lwpns.spr(i)->getUID();
 	    
 		for ( int q = 0; q < 8; q++ ) 
 		{
-			weapon *w = (weapon*)Lwpns.spr(i);
+			
 			al_trace("Reading InitD[%d] from a weapon script as: %d\n", q, (int)w->initiald[q]);
 			ri->d[q] = w->initiald[q];
 			//guys.spr(i)->initD[q] = e->initD[q];
@@ -16863,6 +16878,7 @@ case DMAPDATASETMUSICV: //command, string to load a music file
             break;
 	
         default:
+	{
             Z_scripterrlog("Invalid ZASM command %ld reached\n", scommand);
             break;
         }
@@ -16942,12 +16958,13 @@ case DMAPDATASETMUSICV: //command, string to load a music file
 		case SCRIPT_LWPN:
 		{
 		
-			
+			weapon *w = (weapon*)Lwpns.spr(i);
 			long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
-			stack = &(Lwpns.spr(i)->stack);
+			//stack = &(Lwpns.spr(i)->stack);
+			stack = &(w->stack);
 			memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
 			stack = pvsstack;
-			Lwpns.spr(i)->script = 0;
+			w->script = 0;
 			break;
 		}
         }
