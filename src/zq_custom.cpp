@@ -2524,6 +2524,14 @@ void edit_itemdata(int index)
         {
 	    strcpy(test.initD_label[q], item_initd_labels[q]);
         }
+	
+	//begin lweapon scripts
+        test.weaponscript = bilweapons[itemdata_dlg[292].d1].second + 1; 
+	for ( int q = 0; q < 8; q++ )
+	{
+		test.weap_initiald[q] = vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
+		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
+	}
         
         if(ret == 40)
         {
