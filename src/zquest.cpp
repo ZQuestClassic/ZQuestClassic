@@ -19066,6 +19066,17 @@ const char *assignnpclist(int index, int *list_size)
     return npcmap[index].first.c_str();
 }
 
+const char *assignlweaponlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)lwpnmap.size();
+        return NULL;
+    }
+    
+    return lwpnmap[index].first.c_str();
+}
+
 const char *assignffcscriptlist(int index, int *list_size)
 {
     if(index<0)
