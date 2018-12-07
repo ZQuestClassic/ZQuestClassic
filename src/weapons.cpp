@@ -257,6 +257,11 @@ weapon::weapon(weapon const & other):
 	{
 		
 		weaponscript = itemsbuf[parentitem].weaponscript; //Set the weapon script based on the item editor data.
+		for ( int q = 0; q < INITIAL_D; q++ ) 
+		{
+			initiald[q] = itemsbuf[parentitem].weap_initiald[q];
+			
+		}
 		
 	}
 	
@@ -281,10 +286,10 @@ weapon::weapon(weapon const & other):
     {
 	initiala[q] = other.initiala[q];		//byte	InitA[]
     }
-    for ( int q = 0; q < INITIAL_D; q++ ) 
-    {
-	initiald[q] = other.initiald[q];		//long	InitD[]
-    }
+    //for ( int q = 0; q < INITIAL_D; q++ ) 
+    //{
+//	initiald[q] = other.initiald[q];		//long	InitD[]
+    //}
     for ( int q = 0; q < FFSCRIPT_MISC; q++ ) 
     {
 	ffmisc[q] = other.ffmisc[q];		//long -The base wpn->Misc[32] set from the editor
