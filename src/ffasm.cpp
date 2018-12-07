@@ -1764,6 +1764,8 @@ script_variable variable_list[]=
 	//lweapon scripts
 	{"LWPNSCRIPT", LWPNSCRIPT, 0, 0 },
 	{"LWPNINITD", LWPNINITD, 0, 0 },
+	{"ITEMFAMILY", ITEMFAMILY, 0, 0 },
+	{"ITEMLEVEL", ITEMLEVEL, 0, 0 },
 	
 	
 	

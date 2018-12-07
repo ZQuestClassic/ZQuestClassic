@@ -216,7 +216,8 @@ item::item(fix X,fix Y,fix Z,int i,int p,int c, bool isDummy) : sprite()
     o_delay = itemsbuf[id].delay;
     frames = itemsbuf[id].frames;
     flip = itemsbuf[id].misc>>2;
-    
+    family = itemsbuf[id].family;
+    lvl = itemsbuf[id].fam_type;
     overrideFLAGS = itemsbuf[id].overrideFLAGS; 
     pstring = itemsbuf[id].pstring;
     pickup_string_flags = itemsbuf[id].pickup_string_flags;

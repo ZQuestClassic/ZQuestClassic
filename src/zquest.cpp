@@ -26222,7 +26222,14 @@ void ZModule::init(bool d) //bool default
 			"ee_family_pat","ee_family_gan","ee_family_proj","ee_family_gtrib","ee_family_ztrib",
 			"ee_family_vitrib","ee_family_ketrib","ee_family_spintile","ee_family_none","ee_family_faerie",
 			//40
-			"ee_family_otherflt","ee_family_other"
+			"ee_family_otherflt","ee_family_other", "max250",
+			"Custom_01", "Custom_02", "Custom_03", "Custom_04", "Custom_05",
+			"Custom_06", "Custom_07", "Custom_08", "Custom_09", "Custom_10",
+			"Custom_11", "Custom_12", "Custom_13", "Custom_14", "Custom_15",
+			"Custom_16", "Custom_17", "Custom_18", "Custom_19", "Custom_20",
+			"Friendly_NPC_01", "Friendly_NPC_02", "Friendly_NPC_03", "Friendly_NPC_04",
+			"Friendly_NPC_05", "Friendly_NPC_06", "Friendly_NPC_07",
+			"Friendly_NPC_08", "Friendly_NPC_09", "Friendly_NPC_10"
 		};
 		
 		const char default_enemy_types[eeMAX][255] =
@@ -26234,7 +26241,15 @@ void ZModule::init(bool d) //bool default
 			"-Unused","Wizzrobe","Aquamentus","Moldorm","Dodongo",
 			"Manhandla","Gleeok","Digdogger","Gohma","Lanmola",
 			"Patra","Ganon","Projectile Shooter","-Unused","-Unused",//zol trib
-			"-Unused","-Unused","Spin Tile","(None)","-Fairy","Other (Floating)","Other"
+			"-Unused","-Unused","Spin Tile","(None)","-Fairy","Other (Floating)","Other",
+			"-max250",
+  		        "Custom 01", "Custom 02", "Custom 03", "Custom 04", "Custom 05",
+		        "Custom 06", "Custom 07", "Custom 08", "Custom 09", "Custom 10",
+		        "Custom 11", "Custom 12", "Custom 13", "Custom 14", "Custom 15",
+		        "Custom 16", "Custom 17", "Custom 18", "Custom 19", "Custom 20",
+		        "Friendly NPC 01", "Friendly NPC 02", "Friendly NPC 03", "Friendly NPC 04",
+		        "Friendly NPC 05", "Friendly NPC 06", "Friendly NPC 07",
+		        "Friendly NPC 08", "Friendly NPC 09", "Friendly NPC 10"
 		};
 		for ( int q = 0; q < eeMAX; q++ )
 		{

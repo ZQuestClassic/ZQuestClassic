@@ -1773,6 +1773,22 @@ long get_register(const long arg)
         
         break;
 	
+	case ITEMFAMILY:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((int)((item*)(s))->family)*10000;
+        }
+        
+        break;
+	
+	case ITEMLEVEL:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((int)((item*)(s))->lvl)*10000;
+        }
+        
+        break;
+	
     case ITEMSCRIPTUID:
         if(0!=(s=checkItem(ri->itemref)))
         {
@@ -6968,6 +6984,23 @@ void set_register(const long arg, const long value)
         
 ///----------------------------------------------------------------------------------------------------//
 //Item Variables
+	
+	case ITEMFAMILY:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+		(((item *)s)->family)=value/10000;
+        }
+        
+        break;
+	
+	case ITEMLEVEL:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+		(((item *)s)->lvl)=value/10000;
+        }
+        
+        break;
+	
     case ITEMX:
         if(0!=(s=checkItem(ri->itemref)))
         {

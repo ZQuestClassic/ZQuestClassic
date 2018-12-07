@@ -3161,6 +3161,8 @@ enum ASM_DEFINE
 #define NPCMATCHINITDLABEL			0x1322	
 #define LWPNSCRIPT			0x1323
 #define LWPNINITD			0x1324	
+#define ITEMFAMILY			0x1325	
+#define ITEMLEVEL			0x1326	
 
 //bytecode
 
@@ -3168,7 +3170,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x1325
+#define NUMVARIABLES         0x1327
 
 
 // Script types
