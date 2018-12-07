@@ -248,7 +248,8 @@ weapon::weapon(weapon const & other):
     wpnsprite(other.wpnsprite),
     magiccosttimer(other.magiccosttimer),
     ScriptGenerated(other.ScriptGenerated),
-    isLWeapon(other.isLWeapon)
+    isLWeapon(other.isLWeapon),
+    canrunscript(other.canrunscript)
     
 	
 	//End Weapon editor non-arrays. 
@@ -453,6 +454,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		//This will need an input in the params! -Z
 		
 	isLWeapon = isLW;
+	canrunscript = 0;
     //memset(stack,0,sizeof(stack));
     memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
     
@@ -2034,6 +2036,13 @@ bool weapon::isLinkWeapon()
 	if ( id < wEnemyWeapons && isLWeapon > 0 ) return true;
 	return false;
 }
+bool weapon::isLinkMelee()
+{
+	int family = itemsbuf[parentitem].family;
+	if ( family == itype_sword && id != wBeam ) return true;
+	//if ( id == wBeam )  return true;
+	return false;
+}
 
 
 void weapon::LOADGFX(int wpn)
@@ -2379,6 +2388,7 @@ bool weapon::animate(int index)
         {
             dead=23;
         }
+	++canrunscript;
         
     case ewSword:
         if(blocked())
@@ -4077,8 +4087,18 @@ mirrors:
 			w_index = i;
 			//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 		}
-		//Z_scripterrlog("Running an LWeapon script (script ID: %d) for item index: %d\n", weaponscript, index);
-		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);
+		if ( !isLinkMelee() ) 
+		{
+			al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+			ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);
+		}
+		//else if ( canrunscript > 0 ) 
+		//{
+		//	al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+		//	ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);
+		//}
+		
+			
 	}
 	else //eweapons
 	{
