@@ -2091,7 +2091,7 @@ long get_register(const long arg)
     {
 	    
 	int a = vbound((ri->d[0] / 10000),0,7);
-        ret=(itemsbuf[ri->idata].weap_initiald[a])*10000;
+        ret=(itemsbuf[ri->idata].weap_initiald[a]);
     }
     break;
     case IDATAWEAPHXOFS:
@@ -3080,6 +3080,22 @@ case NPCBEHAVIOUR: {
             ret=(((weapon*)(s))->type)*10000;
             
         break;
+	
+    case LWPNSCRIPT:
+        if(0!=(s=checkLWpn(ri->lwpn,"Script")))
+            ret=(((weapon*)(s))->weaponscript)*10000;
+            
+        break;
+	
+	case LWPNINITD:
+	{
+		int a = vbound((ri->d[0] / 10000),0,7);
+		if(0!=(s=checkLWpn(ri->lwpn,"InitD[]")))
+		{
+			ret=(((weapon*)(s))-initiald[a]; //should this be *10000?
+		}
+		break;
+	}
 	
     case LWEAPONSCRIPTUID:
 	if(0!=(s=checkLWpn(ri->lwpn,"ScriptUID")))
@@ -7334,7 +7350,7 @@ void set_register(const long arg, const long value)
     {
 	    
 	int a = vbound((ri->d[0] / 10000),0,7);
-	(itemsbuf[ri->idata].weap_initiald[a])=(value/10000);
+	(itemsbuf[ri->idata].weap_initiald[a])=(value);
     }
     break;
     case IDATAWEAPHXOFS:
@@ -7920,6 +7936,22 @@ void set_register(const long arg, const long value)
             (((weapon*)(s))->type)=value/10000;
             
         break;
+	
+	case LWPNSCRIPT:
+        if(0!=(s=checkLWpn(ri->lwpn,"Script")))
+		(((weapon*)(s))->weaponscript)=value/10000;
+            
+        break;
+	
+	case LWPNINITD:
+	{
+		int a = vbound((ri->d[0] / 10000),0,7);
+		if(0!=(s=checkLWpn(ri->lwpn,"InitD[]")))
+		{
+			(((weapon*)(s))->initiald[a])=value;
+		}
+		break;
+	}
         
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables

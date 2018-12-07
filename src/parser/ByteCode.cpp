@@ -1673,6 +1673,9 @@ string VarArgument::toString()
 	case NPCDATAINITD: return "NPCDATAINITD";
 	case NPCDATASCRIPT: return "NPCDATASCRIPT";
 	case NPCMATCHINITDLABEL: return "NPCMATCHINITDLABEL";
+	//lweapon scripts
+	case LWPNSCRIPT: return "LWPNSCRIPT";
+	case LWPNINITD: return "LWPNINITD";
 	
 	
     default:
