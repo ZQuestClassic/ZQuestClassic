@@ -2022,6 +2022,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 
 int weapon::getScriptUID() { return script_UID; }
 void weapon::setScriptUID(int new_id) { script_UID = new_id; }
+void weapon::isLinkWeapon()
+{
+	if ( isLWeapon > 0 ) return true;
+	if ( id < lwMax ) return true;
+	if ( id < wEnemyWeapons && isLWeapon > 0 ) return true;
+	return false;
+}
 
 
 void weapon::LOADGFX(int wpn)
@@ -4050,7 +4057,17 @@ mirrors:
     {
         --dead;
     }
-    
+    if ( script > 0 ) 
+    {
+	if ( isLinkWeapon() )
+	{
+		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);
+	}
+	else //eweapons
+	{
+		ZScriptVersion::RunScript(SCRIPT_EWPN, weaponscript, index);
+	}
+    }
     return dead==0;
 }
 

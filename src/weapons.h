@@ -85,7 +85,7 @@ public:
     int script_UID;
     int getScriptUID();
     void setScriptUID(int new_id);
-    
+    bool isLinkWeapon();
     //2.6 ZScript -Z
     int scriptrange,blastsfx;
     
