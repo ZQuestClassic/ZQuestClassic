@@ -19010,6 +19010,7 @@ static int as_ffc_list[] = { 4, 5, 6, -1};
 static int as_global_list[] = { 7, 8, 9, -1}; //Why does putting 15 in here not place my message only on the global tab? ~Joe
 static int as_item_list[] = { 10, 11, 12, -1};
 static int as_npc_list[] = { 18, 19, 20, -1}; //npc scripts TAB
+static int as_lweapon_list[] = { 21, 22, 23, -1}; //npc scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -19018,6 +19019,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"Global",	 0,         as_global_list, 0, NULL },
     { (char *)"Item",		 0,         as_item_list,   0, NULL },
     { (char *)"NPC",		 0,         as_npc_list,   0, NULL },
+    { (char *)"LWeapon",		 0,         as_lweapon_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
@@ -19108,6 +19110,17 @@ const char *assignnpcscriptlist(int index, int *list_size)
     return asnpcscripts[index].c_str();
 }
 
+const char *assignlweaponscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)aslweaponscripts.size();
+        return NULL;
+    }
+    
+    return aslweaponscripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
@@ -19116,6 +19129,8 @@ static ListData assignitem_list(assignitemlist, &font);
 static ListData assignitemscript_list(assignitemscriptlist, &font);
 static ListData assignnpc_list(assignnpclist, &font);
 static ListData assignnpcscript_list(assignnpcscriptlist, &font);
+static ListData assignlweapon_list(assignlweaponlist, &font);
+static ListData assignlweaponscript_list(assignlweaponscriptlist, &font);
 
 static DIALOG assignscript_dlg[] =
 {
@@ -19147,6 +19162,11 @@ static DIALOG assignscript_dlg[] =
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpc_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpcscript_list, NULL, NULL },
     //20
+    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //21
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlweapon_list, NULL, NULL },
+    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlweaponscript_list, NULL, NULL },
+    //23
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     
     
@@ -19266,6 +19286,48 @@ static DIALOG npcscript_sel_dlg[] =
     { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
     { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &npcscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+//lweapon scripts
+//npc script slots
+static char lweaponscript_str_buf2[32];
+
+const char *lweaponscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(lwpnmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, lwpnmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(lweaponscript_str_buf2,"%d: %s",index+1, buf);
+        return lweaponscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTWEAPONS-1);
+    return NULL;
+}
+
+
+static ListData lweaponscript_sel_dlg_list(lweaponscriptlist2, &font);
+
+static DIALOG lweaponscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &lweaponscript_sel_dlg_list, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -20053,6 +20115,26 @@ int onCompileScript()
                     else
                     {
                         npcmap[lind].second = asnpcscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 23:
+                    //<<, LWeapon
+                {
+                    int lind = assignscript_dlg[21].d1;
+                    int rind = assignscript_dlg[22].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(aslweaponscripts[rind] == "<none>")
+                    {
+                        lwpnmap[lind].second = "";
+                    }
+                    else
+                    {
+                        lwpnmap[lind].second = aslweaponscripts[rind];
                     }
                     
                     break;
