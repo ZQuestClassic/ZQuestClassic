@@ -209,6 +209,39 @@ ee_family_faerie = -Fairy
 ee_family_otherflt = Other (Floating)
 ee_family_other = Other
 
+//New Types as of 2.55 Alpha 4
+max250 = -last index in 2.50
+Custom_01 = Custom 01
+Custom_02 = Custom 02
+Custom_03 = Custom 03
+Custom_04 = Custom 04
+Custom_05 = Custom 05
+Custom_06 = Custom 06
+Custom_07 = Custom 07
+Custom_08 = Custom 08
+Custom_09 = Custom 09
+Custom_10 = Custom 10
+Custom_11 = Custom 11
+Custom_12 = Custom 12
+Custom_13 = Custom 13
+Custom_14 = Custom 14
+Custom_15 = Custom 15
+Custom_16 = Custom 16
+Custom_17 = Custom 17
+Custom_18 = Custom 18
+Custom_19 = Custom 19
+Custom_20 = Custom 20
+Friendly_NPC_01 = Friendly NPC 01
+Friendly_NPC_02 = Friendly NPC 02
+Friendly_NPC_03 = Friendly NPC 03
+Friendly_NPC_04 = Friendly NPC 04
+Friendly_NPC_05 = Friendly NPC 05
+Friendly_NPC_06 = Friendly NPC 06
+Friendly_NPC_07 = Friendly NPC 07
+Friendly_NPC_08 = Friendly NPC 08
+Friendly_NPC_09 = Friendly NPC 09
+Friendly_NPC_10 = Friendly NPC 10
+
 //Enemy Animation
 ea_none = (None) 
 ea_flip = Flip
