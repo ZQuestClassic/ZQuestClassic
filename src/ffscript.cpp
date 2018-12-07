@@ -14825,20 +14825,20 @@ int run_script(const byte type, const word script, const long i)
 			weapon *w = (weapon*)Lwpns.spr(i);
 			curscript = lwpnscripts[script];
 			
-			al_trace("FFScript is trying to run lweapon script: %I\n", curscript);
-			for ( int q = 0; q < 256; q++ )
-			{
+			//Z_scripterrlog("FFScript is trying to run lweapon script: %d\n", curscript);
+			//for ( int q = 0; q < 256; q++ )
+			//{
 				
-				al_trace("Instruction (%d) in the current script is: %d\n", q, lwpnscripts[script][q]);
+			//	Z_scripterrlog("Instruction (%d) in the current script is: %d\n", q, lwpnscripts[script][q].command);
 				
-			}
+			//}
 			
-			//stack = &(Lwpns.spr(i)->stack);
-			stack = &(w->stack);
-			for ( int q = 0; q < 256; q++ )
-			{
-				al_trace("Current LWeapon Stack Instruction is: %d\n", stack[q]);
-			}
+			stack = &(Lwpns.spr(i)->stack);
+			//stack = &(w->stack);
+			//for ( int q = 0; q < 256; q++ )
+			//{
+			//	al_trace("Current LWeapon Stack Instruction is: %d\n", stack[q]);
+			//}
 			ri->lwpn = Lwpns.spr(i)->getUID();
 		    
 			for ( int q = 0; q < 8; q++ ) 
@@ -16965,10 +16965,12 @@ int run_script(const byte type, const word script, const long i)
 			weapon *w = (weapon*)Lwpns.spr(i);
 			long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
 			//stack = &(Lwpns.spr(i)->stack);
-			stack = &(w->stack);
+			//stack = &(w->stack);
+			stack = &(Lwpns.spr(i)->stack);
 			memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
 			stack = pvsstack;
-			w->script = 0;
+			//Lwpns.spr(i)->weaponscript = 0;
+			w->weaponscript = 0;
 			break;
 		}
         }
