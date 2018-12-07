@@ -253,6 +253,13 @@ weapon::weapon(weapon const & other):
 	//End Weapon editor non-arrays. 
 
 {
+	if ( parentitem > -1 ) 
+	{
+		
+		weaponscript = itemsbuf[parentitem].weaponscript; //Set the weapon script based on the item editor data.
+		
+	}
+	
     for(int i=0; i<10; ++i)
     {
         dummy_int[i]=other.dummy_int[i];
