@@ -8970,13 +8970,10 @@ void reset_scripts()
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete [] wpnscripts[i];
     }
     
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
-    }
+    
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
     {
@@ -8993,6 +8990,20 @@ void reset_scripts()
         if(linkscripts[i]!=NULL) delete [] linkscripts[i];
     }
     
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(ewpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        if(ewpnscripts[i]!=NULL) delete [] ewpnscripts[i];
+    }
+    
+    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        if(dmapscripts[i]!=NULL) delete [] ewpnscripts[i];
+    }
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
     {
@@ -9015,13 +9026,7 @@ void reset_scripts()
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
         lwpnscripts[i] = new ffscript[1];
-        lwpnscripts[i][0].command = 0xFFFF;
-    }
-    
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        ewpnscripts[i] = new ffscript[1];
-        ewpnscripts[i][0].command = 0xFFFF;
+        wpnscripts[i][0].command = 0xFFFF;
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
@@ -9040,6 +9045,23 @@ void reset_scripts()
     {
         linkscripts[i] = new ffscript[1];
         linkscripts[i][0].command = 0xFFFF;
+    }
+    
+     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
+    }
+     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
+    }
+    
+     for(int i=0; i<NUMSCRIPTSDMAP; i++)
+    {
+        dmapscripts[i] = new ffscript[1];
+        dmapscripts[i][0].command = 0xFFFF;
     }
 }
 
@@ -9103,6 +9125,7 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
             if(keepdata)
             {
                 (*script)[j].command = temp_script.command;
+		    al_trace("Current FFScript XCommand Being Read: %d\n", (*script)[j].command);
                 (*script)[j].arg1 = temp_script.arg1;
                 (*script)[j].arg2 = temp_script.arg2;
                 // I'll comment this out until the whole routine is finished using ptr
