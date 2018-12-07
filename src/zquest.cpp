@@ -18757,6 +18757,9 @@ script_struct biitems[NUMSCRIPTFFC]; //item script
 int biitems_cnt = -1;
 script_struct binpcs[NUMSCRIPTGUYS]; //item script
 int binpcs_cnt = -1;
+
+script_struct bilweapons[NUMSCRIPTWEAPONS]; //item script
+int bilweapons_cnt = -1;
 //static char ffscript_str_buf[32];
 
 void build_biffs_list()
@@ -18844,6 +18847,51 @@ void build_binpcs_list()
             binpcs_cnt = i+1;
 }
 
+
+//lweapon scripts
+void build_bilweapons_list()
+{
+    bilweapons[0].first = "(None)";
+    bilweapons[0].second = -1;
+    bilweapons_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
+    {
+        if(lwpnmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << lwpnmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bilweapons[bilweapons_cnt].first = ss.str();
+        bilweapons[bilweapons_cnt].second = i;
+        bilweapons_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bilweapons_cnt; i<NUMSCRIPTWEAPONS; i++)
+    {
+        bilweapons[i].first="";
+        bilweapons[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bilweapons_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bilweapons_cnt; j++)
+        {
+            if(stricmp(bilweapons[i].first.c_str(),bilweapons[j].first.c_str()) > 0 && strcmp(bilweapons[j].first.c_str(),""))
+                zc_swap(bilweapons[i],bilweapons[j]);
+        }
+    }
+    
+    bilweapons_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+        if(bilweapons[i].first.length() > 0)
+            bilweapons_cnt = i+1;
+}
+
+
 void build_biitems_list()
 {
     biitems[0].first = "(None)";
@@ -18886,6 +18934,28 @@ const char *ffscriptlist(int index, int *list_size)
     }
     
     return biffs[index].first.c_str();
+}
+
+const char *lweaponscriptlist(int index, int *list_size)
+{
+    if(index < 0)
+    {
+        *list_size = bilweapons_cnt;
+        return NULL;
+    }
+    
+    return bilweapons[index].first.c_str();
+}
+
+const char *npcscriptlist(int index, int *list_size)
+{
+    if(index < 0)
+    {
+        *list_size = binpcs_cnt;
+        return NULL;
+    }
+    
+    return binpcs[index].first.c_str();
 }
 
 static char itemscript_str_buf[32];

@@ -452,6 +452,14 @@ static int itemdata_weaponargs_list[] =
     199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215,216,217,218,219,220, -1
 };
 
+static int itemdata_weaponscript_list[] =
+{
+    // dialog control number
+	275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,
+	292,
+	-1
+};
+
 
 static TABPANEL itemdata_tabs[] =
 {
@@ -462,6 +470,7 @@ static TABPANEL itemdata_tabs[] =
     { (char *)"Pickup",       0,             itemdata_pickup_list,        0, NULL },
     { (char *)"Action",       0,             itemdata_action_list,        0, NULL },
     { (char *)"Scripts",      0,             itemdata_scriptargs_list,    0, NULL },
+    { (char *)"W. Script",      0,             itemdata_weaponscript_list,    0, NULL },
     { (char *)"Size",      0,             itemdata_itemsize_list,    0, NULL },
    //  { (char *)"Weapon",      0,             itemdata_weaponargs_list,    0, NULL },
     { (char *)"Weapon Size",      0,             itemdata_weaponsize_list,    0, NULL },
@@ -895,6 +904,21 @@ const char *itemscriptdroplist(int index, int *list_size)
 //droplist like the dialog proc, naming scheme for this stuff is awful...
 static ListData itemscript_list(itemscriptdroplist, &pfont);
 
+const char *lweaponscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = bilweapons_cnt;
+        return NULL;
+    }
+    
+    return bilweapons[index].first.c_str();
+}
+
+
+//droplist like the dialog proc, naming scheme for this stuff is awful...
+static ListData lweaponscript_list(lweaponscriptdroplist, &pfont);
+
 static DIALOG itemdata_special_dlg[] =
 {
     { jwin_text_proc,           8,     48,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
@@ -1310,6 +1334,27 @@ static DIALOG itemdata_dlg[] =
     { jwin_check_proc,        6,     172,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[13]",                        NULL,   NULL                  },
     { jwin_check_proc,        6,    182,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[14]",                        NULL,   NULL                  },
     { jwin_check_proc,        6,    192,     95,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[15]",                        NULL,   NULL                  },
+    //275 Weapon Scripts
+    {  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+83+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+101+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+83+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+101+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    
+    { jwin_text_proc,           112+10+20+34+1-4,  10+29+12+7,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &lweaponscript_list,                   NULL,   NULL 				   },
     
     { NULL,                     0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
 };
@@ -1888,7 +1933,38 @@ void edit_itemdata(int index)
 	
     char i_weap_tileh[8], i_weap_tilew[8], i_weap_hxofs[8], i_weap_hyofs[8], i_weap_hxsz[8], i_weap_hysz[8], i_weap_hzsz[8], i_weap_xofs[8], i_weap_yofs[8]; //weapon sizing
     char item_initd_labels[8][65];
+    char weapon_initd_labels[8][65];
+	char weap_initdvals[8][13];
+	
+	//Weapon Scripts for lweapons
+    int j = 0; build_bilweapons_list(); //lweapon scripts lister
+	
+	for(j = 0; j < bilweapons_cnt; j++)
+	{
+		if(bilweapons[j].second == itemsbuf[index].weaponscript -1)
+		{
+			itemdata_dlg[292].d1 = j; 
+			break;
+		}
+	}
     
+	for ( int q = 0; q < 8; q++ )
+	{
+	    
+		sprintf(weap_initdvals[q],"%.4f",itemsbuf[index].weap_initiald[q]/10000.0);
+	 
+		itemdata_dlg[283+q].dp = weap_initdvals[q];
+	}
+    
+	for ( int q = 0; q < 8; q++ )
+	{
+		//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, itemsbuf[index].initD_label[q]);
+		strcpy(weapon_initd_labels[q], itemsbuf[index].weapon_initD_label[q]);
+		itemdata_dlg[275+q].dp = weapon_initd_labels[q];
+		//sprintf();
+	    
+	}
+	
     sprintf(itemnumstr,"Item %d: %s", index, item_string[index]);
     sprintf(fcs,"%d",itemsbuf[index].csets>>4);
     sprintf(frm,"%d",itemsbuf[index].frames);
