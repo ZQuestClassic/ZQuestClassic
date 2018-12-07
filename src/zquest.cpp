@@ -317,6 +317,7 @@ BITMAP *hw_screen, *scrtmp;
 ffscript *ffscripts[NUMSCRIPTFFC];
 ffscript *itemscripts[NUMSCRIPTITEM];
 ffscript *guyscripts[NUMSCRIPTGUYS];
+ffscript *wpnscripts[NUMSCRIPTWEAPONS];
 ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
 ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *globalscripts[NUMSCRIPTGLOBAL];
