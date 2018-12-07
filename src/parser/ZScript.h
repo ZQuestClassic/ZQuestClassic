@@ -52,7 +52,7 @@ namespace ZScript
 		// Return a list of all errors in the script declaration.
 		std::vector<CompileError const*> getErrors() const;
 		// Does this script have a declaration error?
-		bool hasError() const {return getErrors().size();}
+		bool hasError() const {return (getErrors().size());}
 
 	private:
 		std::map<std::string, Script*> scriptsByName_;

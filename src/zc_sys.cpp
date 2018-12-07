@@ -258,7 +258,7 @@ void load_game_configs()
     js_stick_2_y_stick = get_config_int(cfg_sect,"js_stick_2_y_stick",1);
     js_stick_2_y_axis = get_config_int(cfg_sect,"js_stick_2_y_axis",1);
     js_stick_2_y_offset = get_config_int(cfg_sect,"js_stick_2_y_offset",0) ? 128 : 0;
-    analog_movement = get_config_int(cfg_sect,"analog_movement",1);
+    analog_movement = (get_config_int(cfg_sect,"analog_movement",1));
    
     //cheat modifier keya
     cheat_modifier_keys[0] = get_config_int(cfg_sect,"key_cheatmod_a1",KEY_ZC_LCONTROL);
@@ -6610,7 +6610,7 @@ int onJoystickDir()
     int ret = zc_popup_dialog(btndir_dlg,15);
     
     if(ret==15) // OK
-        analog_movement = btndir_dlg[14].flags&D_SELECTED;
+        analog_movement = (btndir_dlg[14].flags&D_SELECTED);
     else // Cancel
     {
         DUbtn = up;
