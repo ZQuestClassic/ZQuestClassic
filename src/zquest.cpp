@@ -26222,7 +26222,14 @@ void ZModule::init(bool d) //bool default
 			"ee_family_pat","ee_family_gan","ee_family_proj","ee_family_gtrib","ee_family_ztrib",
 			"ee_family_vitrib","ee_family_ketrib","ee_family_spintile","ee_family_none","ee_family_faerie",
 			//40
-			"ee_family_otherflt","ee_family_other"
+			"ee_family_otherflt","ee_family_other", "max250",
+			"Custom_01", "Custom_02", "Custom_03", "Custom_04", "Custom_05",
+			"Custom_06", "Custom_07", "Custom_08", "Custom_09", "Custom_10",
+			"Custom_11", "Custom_12", "Custom_13", "Custom_14", "Custom_15",
+			"Custom_16", "Custom_17", "Custom_18", "Custom_19", "Custom_20",
+			"Friendly_NPC_01", "Friendly_NPC_02", "Friendly_NPC_03", "Friendly_NPC_04",
+			"Friendly_NPC_05", "Friendly_NPC_06", "Friendly_NPC_07",
+			"Friendly_NPC_08", "Friendly_NPC_09", "Friendly_NPC_10"
 		};
 		
 		const char default_enemy_types[eeMAX][255] =
