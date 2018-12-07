@@ -7069,7 +7069,7 @@ int init_combo_classes()
         combo_class_buf[i] = default_combo_classes[i];
 	if ( moduledata.combo_type_names[i][0] != NULL )
 	{
-		al_trace("Copying over a combo type name from a module: %s\n",(char *)moduledata.combo_type_names[i]);
+		//al_trace("Copying over a combo type name from a module: %s\n",(char *)moduledata.combo_type_names[i]);
 		for ( int q = 0; q < 64; q++ )
 		{
 			combo_class_buf[i].name[q] = moduledata.combo_type_names[i][q];
@@ -9125,7 +9125,7 @@ int read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int , word s_v
             if(keepdata)
             {
                 (*script)[j].command = temp_script.command;
-		    al_trace("Current FFScript XCommand Being Read: %d\n", (*script)[j].command);
+		    //al_trace("Current FFScript XCommand Being Read: %d\n", (*script)[j].command);
                 (*script)[j].arg1 = temp_script.arg1;
                 (*script)[j].arg2 = temp_script.arg2;
                 // I'll comment this out until the whole routine is finished using ptr
@@ -10303,7 +10303,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			return qe_invalid;
 		} 
-                al_trace("NPC Script ID is: %d\n",tempguy.script);
+                //al_trace("NPC Script ID is: %d\n",tempguy.script);
 		for ( int q = 0; q < 8; q++ )
 		{
 			if(!p_igetl(&(tempguy.initD[q]),f,keepdata))

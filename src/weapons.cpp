@@ -4070,20 +4070,26 @@ mirrors:
     {
 	if ( isLinkWeapon() )
 	{
-		int w_index = -1;
+		int w_index = -1; //Give the script the correct index! -Z
 		for(word i = 0; i < Lwpns.Count(); i++)
 		{
 			if(Lwpns.spr(i)->getUID() == getUID())
 			w_index = i;
-			al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+			//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 		}
-		Z_scripterrlog("Running an LWeapon script (script ID: %d) for item index: %d\n", weaponscript, index);
+		//Z_scripterrlog("Running an LWeapon script (script ID: %d) for item index: %d\n", weaponscript, index);
 		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);
 	}
 	else //eweapons
 	{
-		Z_scripterrlog("Running an EWeapon script (script ID: %d) for item index: %d\n", weaponscript, index);
-		ZScriptVersion::RunScript(SCRIPT_EWPN, weaponscript, index);
+		int w_index = -1; //Give the script the correct index! -Z
+		for(word i = 0; i < Lwpns.Count(); i++)
+		{
+			if(Lwpns.spr(i)->getUID() == getUID())
+			w_index = i;
+		}
+		//Z_scripterrlog("Running an EWeapon script (script ID: %d) for item index: %d\n", weaponscript, index);
+		ZScriptVersion::RunScript(SCRIPT_EWPN, weaponscript, w_index);
 	}
     }
     

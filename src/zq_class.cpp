@@ -11012,7 +11012,7 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **scri
         }
         else
         {
-		al_trace("Current FFScript XCommand Being Written: %d\n", (*script)[j].command);
+		//al_trace("Current FFScript XCommand Being Written: %d\n", (*script)[j].command);
             if(!p_iputl((*script)[j].arg1,f))
             {
                 new_return(8);

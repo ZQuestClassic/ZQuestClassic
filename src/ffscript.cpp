@@ -14844,7 +14844,7 @@ int run_script(const byte type, const word script, const long i)
 			for ( int q = 0; q < 8; q++ ) 
 			{
 				
-				al_trace("Reading InitD[%d] from a weapon script as: %d\n", q, (int)w->initiald[q]);
+				//al_trace("Reading InitD[%d] from a weapon script as: %d\n", q, (int)w->initiald[q]);
 				ri->d[q] = w->initiald[q];
 				//guys.spr(i)->initD[q] = e->initD[q];
 				
@@ -18756,46 +18756,46 @@ void ZModule::init(bool d) //bool default
 	
 	
 	//strcpy(moduledata.module_name,"default.zmod");
-	al_trace("Module name set to %s\n",moduledata.module_name);
+	//al_trace("Module name set to %s\n",moduledata.module_name);
 	//We load the current module name from zc.cfg or zquest.cfg!
 	//Otherwise, we don't know what file to access to load the module vars! 
 	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
-		
+	al_trace("The Current ZQuest Player is: %s\n",moduledata.module_name); 
 	set_config_file(moduledata.module_name);
 	if ( d )
 	{
 		
 		//zcm path
 		set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
-		al_trace("Module name set to %s\n",moduledata.module_name);
+		//al_trace("Module name set to %s\n",moduledata.module_name);
 		
 		//quests
 		moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
 		moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",10);
 		moduledata.max_quest_files = vbound(moduledata.max_quest_files,1,10); //Clamp to maximum valid quests and 1.
 		
-		al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
-		al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
+		//al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
+		//al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
 		strcpy(moduledata.quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
-		al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
+		//al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
 		strcpy(moduledata.quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
-		al_trace("Module quest 2 set to %s\n",moduledata.quests[1]);
+		//al_trace("Module quest 2 set to %s\n",moduledata.quests[1]);
 		strcpy(moduledata.quests[2],get_config_string("QUESTS","third_qst","3rd.qst"));
-		al_trace("Module quest 3 set to %s\n",moduledata.quests[2]);
+		//al_trace("Module quest 3 set to %s\n",moduledata.quests[2]);
 		strcpy(moduledata.quests[3],get_config_string("QUESTS","fourth_qst","4th.qst"));
-		al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
+		//al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
 		strcpy(moduledata.quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
-		al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
+		//al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
 		strcpy(moduledata.quests[5],get_config_string("QUESTS","sixth_qst",""));
-		al_trace("Module quest 6 set to %s\n",moduledata.quests[5]);
+		//al_trace("Module quest 6 set to %s\n",moduledata.quests[5]);
 		strcpy(moduledata.quests[6],get_config_string("QUESTS","seventh_qst",""));
-		al_trace("Module quest 6 set to %s\n",moduledata.quests[6]);
+		//al_trace("Module quest 6 set to %s\n",moduledata.quests[6]);
 		strcpy(moduledata.quests[7],get_config_string("QUESTS","eighth_qst",""));
-		al_trace("Module quest 8 set to %s\n",moduledata.quests[7]);
+		//al_trace("Module quest 8 set to %s\n",moduledata.quests[7]);
 		strcpy(moduledata.quests[8],get_config_string("QUESTS","ninth_qst",""));
-		al_trace("Module quest 9 set to %s\n",moduledata.quests[8]);
+		//al_trace("Module quest 9 set to %s\n",moduledata.quests[8]);
 		strcpy(moduledata.quests[9],get_config_string("QUESTS","tenth_qst",""));
-		al_trace("Module quest 10 set to %s\n",moduledata.quests[9]);
+		//al_trace("Module quest 10 set to %s\n",moduledata.quests[9]);
 		for ( int q = 0; q < 10; q++ )
 		{
 			if ( moduledata.quests[q][0] == '-' ) strcpy(moduledata.quests[q],"");
@@ -18803,25 +18803,25 @@ void ZModule::init(bool d) //bool default
 		
 		//quest skip names
 		strcpy(moduledata.skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
-		al_trace("Module quest skip 1 set to %s\n",moduledata.skipnames[0]);
+		//al_trace("Module quest skip 1 set to %s\n",moduledata.skipnames[0]);
 		strcpy(moduledata.skipnames[1],get_config_string("NAMEENTRY","second_qst_skip","ZELDA"));
-		al_trace("Module quest skip 2 set to %s\n",moduledata.skipnames[1]);
+		//al_trace("Module quest skip 2 set to %s\n",moduledata.skipnames[1]);
 		strcpy(moduledata.skipnames[2],get_config_string("NAMEENTRY","third_qst_skip","ALPHA"));
-		al_trace("Module quest skip 3 set to %s\n",moduledata.skipnames[2]);
+		//al_trace("Module quest skip 3 set to %s\n",moduledata.skipnames[2]);
 		strcpy(moduledata.skipnames[3],get_config_string("NAMEENTRY","fourth_qst_skip","GANON"));
-		al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
+		//al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
 		strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
-		al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
+		//al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
 		strcpy(moduledata.skipnames[5],get_config_string("NAMEENTRY","sixth_qst_skip",""));
-		al_trace("Module quest skip 6 set to %s\n",moduledata.skipnames[5]);
+		//al_trace("Module quest skip 6 set to %s\n",moduledata.skipnames[5]);
 		strcpy(moduledata.skipnames[6],get_config_string("NAMEENTRY","seventh_qst_skip",""));
-		al_trace("Module quest skip 7 set to %s\n",moduledata.skipnames[6]);
+		//al_trace("Module quest skip 7 set to %s\n",moduledata.skipnames[6]);
 		strcpy(moduledata.skipnames[7],get_config_string("NAMEENTRY","eighth_qst_skip",""));
-		al_trace("Module quest skip 8 set to %s\n",moduledata.skipnames[7]);
+		//al_trace("Module quest skip 8 set to %s\n",moduledata.skipnames[7]);
 		strcpy(moduledata.skipnames[8],get_config_string("NAMEENTRY","ninth_qst_skip",""));
-		al_trace("Module quest skip 9 set to %s\n",moduledata.skipnames[8]);
+		//al_trace("Module quest skip 9 set to %s\n",moduledata.skipnames[8]);
 		strcpy(moduledata.skipnames[9],get_config_string("NAMEENTRY","tenth_qst_skip",""));
-		al_trace("Module quest skip 10 set to %s\n",moduledata.skipnames[9]);
+		//al_trace("Module quest skip 10 set to %s\n",moduledata.skipnames[9]);
 		
 		
 		//name entry icons, tiles, and csets
@@ -18987,7 +18987,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < itype_max; q++ )
 		{
 			strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
-			al_trace("Item family ID %d is: %s\n", q, moduledata.item_editor_type_names[q]);
+			//al_trace("Item family ID %d is: %s\n", q, moduledata.item_editor_type_names[q]);
 		}
 		
 		const char roomtype_cats[rMAX][256] =
@@ -19006,7 +19006,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < rMAX; q++ )
 		{
 			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
-			al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
+			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
 		}
 		const char lweapon_cats[wIce+1][255]=
 		{
@@ -19029,7 +19029,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < wIce+1; q++ )
 		{
 			strcpy(moduledata.player_weapon_names[q],get_config_string("LEAPONS",lweapon_cats[q],lweapon_default_names[q]));
-			al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
+			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
 		const char counter_cats[33][255]=
 		{
@@ -19053,7 +19053,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < 33; q++ )
 		{
 			strcpy(moduledata.counter_names[q],get_config_string("COUNTERS",counter_cats[q],counter_default_names[q]));
-			al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
+			//al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
 		}
 		
 		
