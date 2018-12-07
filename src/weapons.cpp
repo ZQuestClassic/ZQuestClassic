@@ -247,7 +247,8 @@ weapon::weapon(weapon const & other):
 //Enemy Editor Weapon Sprite
     wpnsprite(other.wpnsprite),
     magiccosttimer(other.magiccosttimer),
-    ScriptGenerated(other.ScriptGenerated)  
+    ScriptGenerated(other.ScriptGenerated),
+    isLWeapon(other.isLWeapon)
     
 	
 	//End Weapon editor non-arrays. 
@@ -390,7 +391,7 @@ weapon::~weapon()
 }
 
 //ZScript-only
-weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen) : sprite(), parentid(prntid)
+weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem, int prntid, bool isDummy, byte script_gen, byte isLW) : sprite(), parentid(prntid)
 {
     x=X;
     y=Y;
@@ -413,7 +414,11 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     hzsz=8;
     useweapon = usedefence = 0;
     weaprange = weapduration = 0;
-    weaponscript = 0;
+    if ( Parentitem > -1 )
+    {
+	weaponscript = itemsbuf[Parentitem].weaponscript;
+    }
+    else weaponscript = 0;
     tilemod = 0;
     drawlayer = 0;
     family_class = family_level = 0;
@@ -425,7 +430,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     scriptrange = blastsfx = wpnsprite = magiccosttimer = 0;
     for ( int q = 0; q < FFSCRIPT_MISC; q++ ) ffmisc[q] = 0;
     for ( int q = 0; q < 128; q++ ) weapname[q] = 0;
-    for ( int q = 0; q < 8; q++ ) initiald[q] = 0;
+    for ( int q = 0; q < 8; q++ ) 
+    {
+	    if ( Parentitem > -1 )
+	    {
+		    initiald[q] = itemsbuf[Parentitem].weap_initiald[q];
+	    }
+	    else
+	    {
+		    initiald[q] = 0;
+	    }
+    }
     for ( int q = 0; q < FFSCRIPT_MISC; q++ ) wpn_misc_d[q] = 0;
     for ( int q = 0; q < 2; q++ ) initiala[q] = 0;
     for ( int q = 0; q < WEAPON_CLOCKS; q++ ) clocks[q] = 0;
@@ -433,6 +448,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
 		//This will need an input in the params! -Z
+		
+	isLWeapon = isLW;
     
     int defaultw, itemid = parentitem;
     
