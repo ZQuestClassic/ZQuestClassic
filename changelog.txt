@@ -1,5 +1,130 @@
 //2.55 and 2.54 Changes
 
+//Alpha 4
+
+Added item->Family and item->Level to ZScript.
+
+Ensured that all classes have ->Family and ->Type. Both do the same thing.
+	Weapons use ->Family, ->Type, and ->ID in the same manner.
+
+Set Labels on New Enemy Types: Skipping this would have caused crashes.
+
+Module: Added Default Strings for New Enemy Types to ZQuest
+Modules: Added new npc family fields to the modules.
+
+Add New NPC Types for Scripts
+	Changelog: Added 20 generic npc types to the system.
+	Added 10 'friendly' npc types for RPG-style guys.
+Updated build details to Alpha 4.
+
+Implement LWeapon Scripts + Editor Improvements
+LWeapon Scripts Fix: Stop Swords from Running Scripts 
+	Prevent swords from running scripts (for the present), and
+	try to forward the script to the beam.
+
+Disabled calls to al_trace() in module loading, lweapon scripts,
+	npc scripts, and date & time code.
+
+LWeapon Scripts: Seem to Have Fixed issues with lweapon script stacks.
+Clear script data in order.
+Try a different saving order.
+FFScript: Add some disassembly information to lweapon scripts. 
+	LW Scripts believe that they have all sorts of invalid commands. Something
+	awful is happening with their memory map!
+
+LWeapon Scripts: Add code to run them.
+LWeapon Scripts: Fix lw->InitD[] in ZScript
+LWeapon Scripts: Add lw->Script and lw->InitD[] to ZScript
+LWeapon Scripts: Add a way to determine if a weapon is an LWeapon, and
+	forward script data to weapons.
+
+You can set the Script, the InitD, and the InitD Labels for
+	LWeapon Scripts in the Item Editor. 
+	ZQuest will save and retain the data.
+
+Began adding lweapon scripts to ZC and to ZQuest.
+
+Added Item Script InitD Labels to the ZQuest Item Editor UI.
+Moved the NPC InitD fields all under the 'Action Script' tab.
+
+	The selection for the script, and all of its InitD values, are now on one tab.
+
+Renamed 'InitD' tab to 'Weapon Script' It is blank at this time.
+
+Started adding the same form of editable fields for Item Script
+	InitD to ZQuest.
+
+	Added vars in preparation for item sprite scripts.
+
+	Bumped V_ITEMS by +1.
+	( ZoriaRPG, 7th December, 2018 )
+	
+Added the following to NPCData:
+	npcdata->GetInitDLabel(int array[], int d_index)
+	npcdata->MatchInitDLabel("label", d_index)
+	npcdata->InitD[8]
+	npcdata->Script
+
+I also inserted a change into the FFScript.cpp engine, for npc scripts, so
+	that when a script exits, it does not set ri->npcref to anything.
+
+	I think that may have been the cause of some earlier, erratic behaviour in npc scripts.
+
+NPC Editor InitD Labels Can Be Changed 
+	You can now set custom labels for the eight InitD args used by
+	npc scripts. These are saved on a per-npc basis, and set in the enemy editor.
+
+	V_GUYS is now 39, and I prepared guydata for npc weapon InitD labels, too.
+	( ZoriaRPG, 6th December, 2018 )
+	
+Added New npc-> Functions for Use by NPC Scripts:
+	bool isDead() //Returns if the NPC is dead, or dying
+	bool CanSlide() //Checks if the npc can be knocked back
+	bool Slide() //Engine knockback
+	void Remove() //Instantly kills an npc
+	void StopBGSFX() //Stops the background sounds that the npc is generating.
+	void Attack() //Causes the npc to attack with its weapon.
+	void NewDir(int arr[]) //The npc chooses a new direction.
+	//Uses an array literal for its args.
+	void NewDir8(int arr[]) //As NewDir(), but 8-directions
+	void ConstantWalk(int arr[]) //Causes the npc to walk.
+	//Uses an array literal for its args.
+	void ConstantWalk8(int arr[]) //As ConstantWalk(), but 8-dir
+	void VariableWalk(int arr[])
+	void VariableWalk8(int arr[])
+	void HaltingWalk(int arr[])
+	void HaltingWalk8(int arr[])
+	void FloatingWalk(int arr[])
+	bool LinkInRange(int dist_in_pixels) //returns true if Link is within
+	//'range' pixels of the enemy
+	bool CanMove(int array[]) //Returns true if the npc can move in a
+	//given direction.
+	//Uses an array literal for varying args.
+	//Overloaded for a number of options.
+	bool SimulateHit(int array[]) //Simulates hitting the npc with a weapon,
+	//another sprite, or an arbitrary set of values passed as an
+	//overloaded array literal.
+	int LinedUp(int range, bool dir8) Checks if enemy is lined up with Link.
+	//If so, returns direction Link is at as compared to enemy.
+	npc Create(int array[]) //Similar to Screen->CreateNPC(), except:
+	// (1) It uses an arry literal for its args, with varying size.
+	// You can either create an npc onnly by its ID, or you can do
+	// that and set its spawn coordinates at the same time.
+	// (2) It works based on an existing pointer, such as:
+	// npc n; n->Create{args});
+	//Returns -1 if not lined up. Range is inclusive.
+	void BreathAttack(bool seeklink) //Fires the breath weapon set to the enemy.
+	bool Collision(int obj_type, untyped obj_pointer)
+	//Returns if either an object is collding with the npc,
+	//or if an arbitrary set of coordinates would collide.
+
+Fixed crash when creating LW_REFMAGIC by script.
+	( ZoriaRPG, 5th December, 2018 )
+	
+Fixed the accidental removal of itemdata->Getname()
+Began to add new npc functions for use by npc scripts.#
+	( ZoriaRPG, 4th December, 2018 )
+
 //Alpha 3
 
 Fix crash on calling any decorations sprite, due to tryint to initialise
