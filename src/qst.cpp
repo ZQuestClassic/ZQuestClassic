@@ -8970,7 +8970,7 @@ void reset_scripts()
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(lwpnscripts[i]!=NULL) delete [] wpnscripts[i];
+        if(wpnscripts[i]!=NULL) delete [] wpnscripts[i];
     }
     
     
@@ -8992,7 +8992,7 @@ void reset_scripts()
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        if(ewpnscripts[i]!=NULL) delete [] lwpnscripts[i];
+        if(lwpnscripts[i]!=NULL) delete [] lwpnscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
@@ -9002,7 +9002,7 @@ void reset_scripts()
     
     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
-        if(dmapscripts[i]!=NULL) delete [] ewpnscripts[i];
+        if(dmapscripts[i]!=NULL) delete [] dmapscripts[i];
     }
     
     for(int i=0; i<NUMSCRIPTFFC; i++)
@@ -9025,7 +9025,7 @@ void reset_scripts()
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        lwpnscripts[i] = new ffscript[1];
+        wpnscripts[i] = new ffscript[1];
         wpnscripts[i][0].command = 0xFFFF;
     }
     
