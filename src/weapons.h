@@ -105,8 +105,10 @@ public:
     bool isScriptGenerated();
     bool clip();
     bool blocked();
+    void runscript(int index);
     virtual bool blocked(int xOffset, int yOffset);
     virtual bool animate(int index);
+    virtual bool animateandrunscript(int index);
     virtual void onhit(bool clipped);
     virtual void onhit(bool clipped, int special, int linkdir);
     // override hit detection to check for invicibility, etc
