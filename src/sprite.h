@@ -97,8 +97,11 @@ public:
     //byte lwpnclass;
     //byte ewpnclass;
     word script;
+    word weaponscript;
     long initD[8];
     long initA[2];
+    long weap_initd[8];
+    long weap_inita[2];
     
     
     sprite();

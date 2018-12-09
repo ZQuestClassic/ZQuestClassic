@@ -3108,7 +3108,7 @@ case NPCBEHAVIOUR: {
 		int a = vbound((ri->d[0] / 10000),0,7);
 		if(0!=(s=checkLWpn(ri->lwpn,"InitD[]")))
 		{
-			ret=(((weapon*)(s))->initiald[a]);
+			ret=(((weapon*)(s))->weap_initd[a]);
 		}
 		break;
 	}
@@ -7981,7 +7981,7 @@ void set_register(const long arg, const long value)
 		int a = vbound((ri->d[0] / 10000),0,7);
 		if(0!=(s=checkLWpn(ri->lwpn,"InitD[]")))
 		{
-			(((weapon*)(s))->initiald[a])=value;
+			(((weapon*)(s))->weap_initd[a])=value;
 		}
 		break;
 	}
@@ -14855,7 +14855,7 @@ int run_script(const byte type, const word script, const long i)
 	    case SCRIPT_LWPN:
 	    {
 			ri = &(lweaponScriptData[i]);
-			weapon *w = (weapon*)Lwpns.spr(i);
+			//weapon *w = (weapon*)Lwpns.spr(i);
 			curscript = lwpnscripts[script];
 			
 			//Z_scripterrlog("FFScript is trying to run lweapon script: %d\n", curscript);
@@ -14878,7 +14878,7 @@ int run_script(const byte type, const word script, const long i)
 			{
 				
 				//al_trace("Reading InitD[%d] from a weapon script as: %d\n", q, (int)w->initiald[q]);
-				ri->d[q] = w->initiald[q];
+				ri->d[q] = Lwpns.spr(i)->weap_initd[q]; //w->initiald[q];
 				//guys.spr(i)->initD[q] = e->initD[q];
 				
 				//al_trace("InitD[%d] for this npc is: %d\n", q, e->initD[q]);
@@ -16995,15 +16995,17 @@ int run_script(const byte type, const word script, const long i)
 		case SCRIPT_LWPN:
 		{
 		
-			weapon *w = (weapon*)Lwpns.spr(i);
-			long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
+			//weapon *w = (weapon*)Lwpns.spr(i);
+			//long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
 			//stack = &(Lwpns.spr(i)->stack);
 			//stack = &(w->stack);
-			stack = &(Lwpns.spr(i)->stack);
-			memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
-			stack = pvsstack;
+			//stack = &(Lwpns.spr(i)->stack);
+			//memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+			//stack = pvsstack;
 			//Lwpns.spr(i)->weaponscript = 0;
-			w->weaponscript = 0;
+			Lwpns.spr(i)->doscript = 0;
+			Lwpns.spr(i)->weaponscript = 0;
+			//w->weaponscript = 0;
 			break;
 		}
         }

@@ -235,7 +235,7 @@ weapon::weapon(weapon const & other):
     usedefence(other.usedefence),	//byte		The defence type to evaluate in do_enemy_hit()
     weaprange(other.weaprange),		//int		The range or distance of the weapon before removing it. 
     weapduration(other.weapduration),	//int		The number of frames that must elapse before removing it
-    weaponscript(other.weaponscript),	//word		The weapon action script. 
+   	//word		The weapon action script. 
     tilemod(other.tilemod),		//long		The LTM to use when the weapon is active. 
     drawlayer(other.drawlayer),		//byte		The layer onto which we draw the weapon.
     family_class(other.family_class),	//byte		Item Class
@@ -248,8 +248,7 @@ weapon::weapon(weapon const & other):
     wpnsprite(other.wpnsprite),
     magiccosttimer(other.magiccosttimer),
     ScriptGenerated(other.ScriptGenerated),
-    isLWeapon(other.isLWeapon),
-    canrunscript(other.canrunscript)
+    isLWeapon(other.isLWeapon)
     
 	
 	//End Weapon editor non-arrays. 
@@ -261,7 +260,7 @@ weapon::weapon(weapon const & other):
 		weaponscript = itemsbuf[parentitem].weaponscript; //Set the weapon script based on the item editor data.
 		for ( int q = 0; q < INITIAL_D; q++ ) 
 		{
-			initiald[q] = itemsbuf[parentitem].weap_initiald[q];
+			weap_initd[q] = itemsbuf[parentitem].weap_initiald[q];
 			
 		}
 		
@@ -276,7 +275,7 @@ weapon::weapon(weapon const & other):
     }
     
     //memset(stack,0,sizeof(stack));
-    memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+    //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
     
     //Weapon Editor Arrays
     for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
@@ -287,10 +286,10 @@ weapon::weapon(weapon const & other):
     {
 	clocks[q] = other.clocks[q];		//long	An array of misc clocks. 
     }
-    for ( int q = 0; q < INITIAL_A; q++ )
-    {
-	initiala[q] = other.initiala[q];		//byte	InitA[]
-    }
+   // for ( int q = 0; q < INITIAL_A; q++ )
+    //{
+	//initiala[q] = other.initiala[q];		//byte	InitA[]
+    //}
     //for ( int q = 0; q < INITIAL_D; q++ ) 
     //{
 //	initiald[q] = other.initiald[q];		//long	InitD[]
@@ -308,7 +307,10 @@ weapon::weapon(weapon const & other):
 	weapname[q] = 0;		//long -The base wpn->Misc[32] set from the editor
     }
     
-   
+    if ( parentitem > -1 )
+    {
+	weaponscript = itemsbuf[parentitem].weaponscript;
+    }
     
 	//! END Weapon Editor
     
@@ -422,7 +424,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
 	weaponscript = itemsbuf[Parentitem].weaponscript;
     }
-    else weaponscript = 0;
+    
     tilemod = 0;
     drawlayer = 0;
     family_class = family_level = 0;
@@ -434,19 +436,9 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     scriptrange = blastsfx = wpnsprite = magiccosttimer = 0;
     for ( int q = 0; q < FFSCRIPT_MISC; q++ ) ffmisc[q] = 0;
     for ( int q = 0; q < 128; q++ ) weapname[q] = 0;
-    for ( int q = 0; q < 8; q++ ) 
-    {
-	    if ( Parentitem > -1 )
-	    {
-		    initiald[q] = itemsbuf[Parentitem].weap_initiald[q];
-	    }
-	    else
-	    {
-		    initiald[q] = 0;
-	    }
-    }
+    
     for ( int q = 0; q < FFSCRIPT_MISC; q++ ) wpn_misc_d[q] = 0;
-    for ( int q = 0; q < 2; q++ ) initiala[q] = 0;
+    //for ( int q = 0; q < 2; q++ ) initiala[q] = 0;
     for ( int q = 0; q < WEAPON_CLOCKS; q++ ) clocks[q] = 0;
     isLit = false;
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
@@ -454,9 +446,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		//This will need an input in the params! -Z
 		
 	isLWeapon = isLW;
-	canrunscript = 0;
     //memset(stack,0,sizeof(stack));
-    memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+    //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
     
     int defaultw, itemid = parentitem;
     
@@ -2379,6 +2370,7 @@ bool weapon::animate(int index)
     
     case wBeam:
     case wRefBeam:
+    {
         for(int i2=0; i2<=zc_min(type-1,3) && dead!=23; i2++)
         {
             if(findentrance(x,y,mfSWORDBEAM+i2,true)) dead=23;
@@ -2388,8 +2380,28 @@ bool weapon::animate(int index)
         {
             dead=23;
         }
-	++canrunscript;
-        
+        if ( doscript && weaponscript > 0 ) 
+        {
+                if ( Dead() )
+                {
+                        doscript = 0;
+                        weaponscript = 0;
+                }
+                else
+                {
+                        int w_index = -1; //Give the script the correct index! -Z
+                        for(word i = 0; i < Lwpns.Count(); i++)
+                        {
+                                if(Lwpns.spr(i)->getUID() == getUID())
+                                w_index = i;
+                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        }
+                                
+                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);		
+                }
+        }
+    }
     case ewSword:
         if(blocked())
         {
@@ -2624,12 +2636,34 @@ bool weapon::animate(int index)
         break;
         
     case wWhistle:
+    {
         if(clk)
         {
             dead=1;
         }
-        
+        if ( doscript && weaponscript > 0 ) 
+        {
+                if ( Dead() )
+                {
+                        doscript = 0;
+                        weaponscript = 0;
+                }
+                else
+                {
+                        int w_index = -1; //Give the script the correct index! -Z
+                        for(word i = 0; i < Lwpns.Count(); i++)
+                        {
+                                if(Lwpns.spr(i)->getUID() == getUID())
+                                w_index = i;
+                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        }
+                                
+                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);		
+                }
+        }
         break;
+    }
         
     case wWind:
     {
@@ -2753,7 +2787,27 @@ bool weapon::animate(int index)
             isLit=false;
             checkLightSources();
         }
-        
+        if ( doscript && weaponscript > 0 ) 
+        {
+                if ( Dead() )
+                {
+                        doscript = 0;
+                        weaponscript = 0;
+                }
+                else
+                {
+                        int w_index = -1; //Give the script the correct index! -Z
+                        for(word i = 0; i < Lwpns.Count(); i++)
+                        {
+                                if(Lwpns.spr(i)->getUID() == getUID())
+                                w_index = i;
+                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        }
+                                
+                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);		
+                }
+        }
         break;
     }
     
@@ -2942,10 +2996,33 @@ bool weapon::animate(int index)
             dead=4;
         }
         
+        if ( doscript && weaponscript > 0 ) 
+        {
+                if ( Dead() )
+                {
+                        doscript = 0;
+                        weaponscript = 0;
+                }
+                else
+                {
+                        int w_index = -1; //Give the script the correct index! -Z
+                        for(word i = 0; i < Lwpns.Count(); i++)
+                        {
+                                if(Lwpns.spr(i)->getUID() == getUID())
+                                w_index = i;
+                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        }
+                                
+                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);		
+                }
+        }
+        
         break;
     }
     
     case wSSparkle:
+    {
         if(blocked())  //no spakle area?
         {
             dead=1;
@@ -2957,8 +3034,10 @@ bool weapon::animate(int index)
         }
         
         break;
+    }
         
     case wFSparkle:
+    {
         if(blocked())  //no sparkle area?
         {
             dead=1;
@@ -2970,8 +3049,9 @@ bool weapon::animate(int index)
         }
         
         break;
-        
+    }
     case wBait:
+    {
         if(blocked())  //no bait area?
         {
             dead=23;
@@ -2981,9 +3061,29 @@ bool weapon::animate(int index)
         {
             dead=1;
         }
-        
+        if ( doscript && weaponscript > 0 ) 
+        {
+                if ( Dead() )
+                {
+                        doscript = 0;
+                        weaponscript = 0;
+                }
+                else
+                {
+                        int w_index = -1; //Give the script the correct index! -Z
+                        for(word i = 0; i < Lwpns.Count(); i++)
+                        {
+                                if(Lwpns.spr(i)->getUID() == getUID())
+                                w_index = i;
+                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        }
+                                
+                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);		
+                }
+        }
         break;
-        
+    }
     case wBrang:
     {
         if(dead==0)  // Set by ZScript
@@ -3148,6 +3248,28 @@ bool weapon::animate(int index)
             }
             
             seekLink();
+        }
+        //call before the sfx
+        if ( doscript && weaponscript > 0 ) 
+        {
+                if ( Dead() )
+                {
+                        doscript = 0;
+                        weaponscript = 0;
+                }
+                else
+                {
+                        int w_index = -1; //Give the script the correct index! -Z
+                        for(word i = 0; i < Lwpns.Count(); i++)
+                        {
+                                if(Lwpns.spr(i)->getUID() == getUID())
+                                w_index = i;
+                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        }
+                                
+                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);		
+                }
         }
         
         sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true,false);
@@ -3335,6 +3457,7 @@ bool weapon::animate(int index)
     break;
     
     case wHSHandle:
+    {
         if(hookshot_used==false)
         {
             dead=0;
@@ -3347,8 +3470,9 @@ bool weapon::animate(int index)
         }
         
         break;
-        
+    }
     case wPhantom:
+    {
         switch(type)
         {
         case pDINSFIREROCKET:
@@ -3440,7 +3564,7 @@ bool weapon::animate(int index)
         }
         
         break;
-        
+    }
     case wRefMagic:
     case wMagic:
     case ewMagic:
@@ -3737,6 +3861,28 @@ mirrors:
                 dead=0;
             }
         }
+        //:Weapon Only
+        if ( doscript && weaponscript > 0 && (id == wMagic || id == wRefMagic) ) 
+        {
+                if ( Dead() )
+                {
+                        doscript = 0;
+                        weaponscript = 0;
+                }
+                else
+                {
+                        int w_index = -1; //Give the script the correct index! -Z
+                        for(word i = 0; i < Lwpns.Count(); i++)
+                        {
+                                if(Lwpns.spr(i)->getUID() == getUID())
+                                w_index = i;
+                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        }
+                                
+                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);		
+                }
+        }
     }
     break;
     
@@ -3876,6 +4022,27 @@ mirrors:
             dead=1;
         }
         
+        if ( doscript && weaponscript > 0 && id == wRefFireball) 
+        {
+                if ( Dead() )
+                {
+                        doscript = 0;
+                        weaponscript = 0;
+                }
+                else
+                {
+                        int w_index = -1; //Give the script the correct index! -Z
+                        for(word i = 0; i < Lwpns.Count(); i++)
+                        {
+                                if(Lwpns.spr(i)->getUID() == getUID())
+                                w_index = i;
+                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        }
+                                
+                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+                        ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);		
+                }
+        }
         break;
     }
     
@@ -4075,7 +4242,7 @@ mirrors:
     {
         --dead;
     }
-    
+    /*
     if ( weaponscript > 0 ) 
     {
 	if ( isLinkWeapon() )
@@ -4111,7 +4278,8 @@ mirrors:
 		//Z_scripterrlog("Running an EWeapon script (script ID: %d) for item index: %d\n", weaponscript, index);
 		ZScriptVersion::RunScript(SCRIPT_EWPN, weaponscript, w_index);
 	}
-    }
+        
+    }*/
     
     return dead==0;
 }
