@@ -2217,7 +2217,7 @@ bool weapon::blocked(int xOffset, int yOffset)
 
 void weapon::runscript(int index)
 {
-    
+    return;
 	switch(id)
 	{
 	    case wBeam:
