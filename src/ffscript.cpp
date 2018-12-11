@@ -14854,7 +14854,9 @@ int run_script(const byte type, const word script, const long i)
 	    
 	    case SCRIPT_LWPN:
 	    {
-			ri = &(lweaponScriptData[i]);
+			int npc_index = GuyH::getNPCIndex(i);
+			//ri = &(lweaponScriptData[i]);
+			ri = &(lweaponScriptData[LwpnH::getLWeaponIndex(i)]);
 			//weapon *w = (weapon*)Lwpns.spr(i);
 			curscript = lwpnscripts[script];
 			
@@ -14866,19 +14868,20 @@ int run_script(const byte type, const word script, const long i)
 				
 			//}
 			
-			stack = &(Lwpns.spr(i)->stack);
+			stack = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->stack);
 			//stack = &(w->stack);
 			//for ( int q = 0; q < 256; q++ )
 			//{
 			//	al_trace("Current LWeapon Stack Instruction is: %d\n", stack[q]);
 			//}
-			ri->lwpn = Lwpns.spr(i)->getUID();
+			//ri->lwpn = Lwpns.spr(i)->getUID();
+			ri->lwpn = i;
 		    
 			for ( int q = 0; q < 8; q++ ) 
 			{
 				
 				//al_trace("Reading InitD[%d] from a weapon script as: %d\n", q, (int)w->initiald[q]);
-				ri->d[q] = Lwpns.spr(i)->weap_initd[q]; //w->initiald[q];
+				ri->d[q] = Lwpns.spr(LwpnH::getLWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
 				//guys.spr(i)->initD[q] = e->initD[q];
 				
 				//al_trace("InitD[%d] for this npc is: %d\n", q, e->initD[q]);
@@ -17003,8 +17006,13 @@ int run_script(const byte type, const word script, const long i)
 			//memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
 			//stack = pvsstack;
 			//Lwpns.spr(i)->weaponscript = 0;
-			Lwpns.spr(i)->doscript = 0;
-			Lwpns.spr(i)->weaponscript = 0;
+			
+			//Lwpns.spr(i)->doscript = 0;
+			//Lwpns.spr(i)->weaponscript = 0;
+			
+			Lwpns.spr(LwpnH::getLWeaponIndex(i))->doscript = 0;
+			Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
+			
 			//w->weaponscript = 0;
 			break;
 		}

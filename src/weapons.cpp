@@ -2233,7 +2233,8 @@ void weapon::runscript(int index)
 			else
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				//ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
 			}
 		}
 		break;
@@ -2251,7 +2252,8 @@ void weapon::runscript(int index)
 			else
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				//ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
 			}
 		}
 		break;
@@ -2274,7 +2276,8 @@ void weapon::runscript(int index)
 			else
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				//ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
 			}
 		}
 		break;
@@ -2304,7 +2307,8 @@ void weapon::runscript(int index)
 			else
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				//ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
 			}
 		}
 		
@@ -2332,14 +2336,15 @@ void weapon::runscript(int index)
 			else
 			{
                             //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                            ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+                            //ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+                            ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
 			}
 		}
 		break;
 	    }
 	    case wBrang:
 	    {
-                /*|
+                
 		if ( doscript && weaponscript > 0 ) 
 		{
 			if ( Dead() )
@@ -2350,10 +2355,11 @@ void weapon::runscript(int index)
 			else
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				//ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
 			}
 		}
-                */
+	
 		
 		break;
 	    }
@@ -2384,7 +2390,8 @@ void weapon::runscript(int index)
 			else
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				//ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
 			}
 		}
 	    }
@@ -2402,7 +2409,8 @@ void weapon::runscript(int index)
 			else
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				//ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
 			}
 		}
 		break;
@@ -2428,7 +2436,8 @@ void weapon::runscript(int index)
 			else
 			{
 				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				//ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
 			}
 		}
 		break;
@@ -3389,6 +3398,7 @@ bool weapon::animate(int index)
         }
         //call before the sfx
         //call before the sfx
+	/*
         if ( doscript && weaponscript > 0 ) 
         {
                 if ( Dead() )
@@ -3410,6 +3420,7 @@ bool weapon::animate(int index)
                         ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);		
                 }
         }
+	*/
         
         sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true,false);
         
