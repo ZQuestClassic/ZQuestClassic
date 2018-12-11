@@ -17015,7 +17015,8 @@ int run_script(const byte type, const word script, const long i)
 			
 			//Lwpns.spr(i)->doscript = 0;
 			//Lwpns.spr(i)->weaponscript = 0;
-			
+			Z_scripterrlog("Cleaning up a script weapon, ID: %d\n",i);
+			Z_scripterrlog("Cleaning up a script weapon, ri->lwpn: %d\n",ri->lwpn);
 			Lwpns.spr(LwpnH::getLWeaponIndex(i))->doscript = 0;
 			Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
 			
@@ -19301,6 +19302,7 @@ void FFScript::lweaponScriptEngine()
 				{
 					Lwpns.spr(q)->doscript = 0;
 					Lwpns.spr(q)->weaponscript = 0;
+					//memset(w->stack, 0xFFFF, sizeof(w->stack));
 					break;
 				}
 				else
