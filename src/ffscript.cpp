@@ -19283,6 +19283,10 @@ void FFScript::lweaponScriptEngine()
 		//ri->lwpn = Lwpns.spr(q)->getUID();
 		Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->lwpn (%d)\n", Lwpns.spr(q)->getUID(), ri->lwpn);
 		//ri->lwpn = Lwpns.spr(q)->getUID();
+		weapon *wp = (weapon*)Lwpns.spr(q);
+		if ( wp->Dead() ) continue;
+		if ( Lwpns.spr(q)->weaponscript == 0 ) continue;
+		if ( Lwpns.spr(q)->doscript == 0 ) continue;
 		switch(Lwpns.spr(q)->id)
 		{
 		    case wBeam:
@@ -19305,6 +19309,7 @@ void FFScript::lweaponScriptEngine()
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
+					ri->lwpn = w->getUID();
 					ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
@@ -19330,6 +19335,7 @@ void FFScript::lweaponScriptEngine()
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());	
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);
+					ri->lwpn = w->getUID();
 					ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());
 				}
 			}
@@ -19360,6 +19366,7 @@ void FFScript::lweaponScriptEngine()
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);
 					ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());
+					ri->lwpn = w->getUID();
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
 				}
 			}
@@ -19396,7 +19403,8 @@ void FFScript::lweaponScriptEngine()
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
+					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+					ri->lwpn = w->getUID();					
 					ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
@@ -19431,7 +19439,8 @@ void FFScript::lweaponScriptEngine()
 				    //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 				    //ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
 				    //ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-				    //ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
+				    //ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+				    ri->lwpn = w->getUID();
 				    ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
@@ -19456,6 +19465,7 @@ void FFScript::lweaponScriptEngine()
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
+					ri->lwpn = w->getUID();
 					ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
@@ -19494,12 +19504,13 @@ void FFScript::lweaponScriptEngine()
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
+					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+					ri->lwpn = w->getUID();
 					ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
+			break;
 		    }
-		    break;
 		    
 		    case wRefFireball:
 		    {
@@ -19519,7 +19530,8 @@ void FFScript::lweaponScriptEngine()
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
+					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+					ri->lwpn = w->getUID();
 					ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
@@ -19537,7 +19549,7 @@ void FFScript::lweaponScriptEngine()
 		    case wScript10:
 		    {
 			weapon *wa = (weapon*)Lwpns.spr(q);
-			if ( wa->Dead() ) break;
+			//if ( wa->Dead() ) break;
 			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
 			{
 				weapon *w = (weapon*)Lwpns.spr(q);
@@ -19552,7 +19564,8 @@ void FFScript::lweaponScriptEngine()
 					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
 					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
+					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);	
+					ri->lwpn = w->getUID();
 					ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 				}
 			}
