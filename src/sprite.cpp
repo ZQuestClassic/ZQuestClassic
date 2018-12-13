@@ -51,7 +51,7 @@ sprite::sprite()
     extend=0;
     wpnsprite = 0; //wpnsprite is new for 2.6 -Z
     //memset(stack,0,sizeof(stack));
-    memset(stack, 0, sizeof(stack));
+    memset(stack, 0xFFFF, sizeof(stack));
     
     /*ewpnclass=0;
     lwpnclass=0;
@@ -185,7 +185,7 @@ weaponscript(other.weaponscript)
     //{
 //	stack[q] = other.stack[q];
     //}
-    memset(stack, 0, sizeof(stack));
+    memset(stack, 0xFFFF, sizeof(stack));
     for (int i=0; i<8; ++i)
     {
       initD[i]=other.initD[i];
@@ -255,7 +255,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
         initA[q] = 0;
         weap_inita[q] = 0;
     }
-    memset(stack, 0, sizeof(stack));
+    memset(stack, 0xFFFF, sizeof(stack));
 }
 
 sprite::~sprite()
