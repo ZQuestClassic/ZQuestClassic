@@ -440,12 +440,17 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     for ( int q = 0; q < FFSCRIPT_MISC; q++ ) wpn_misc_d[q] = 0;
     //for ( int q = 0; q < 2; q++ ) initiala[q] = 0;
     for ( int q = 0; q < WEAPON_CLOCKS; q++ ) clocks[q] = 0;
+    for ( int q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
+    {
+	weap_pattern[q] = 0; //int	The movement pattern and args.
+    }
     isLit = false;
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
 		//This will need an input in the params! -Z
 		
 	isLWeapon = isLW;
+    minX = minY = maxX = maxY = 0;
     //memset(stack,0,sizeof(stack));
     //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
     
