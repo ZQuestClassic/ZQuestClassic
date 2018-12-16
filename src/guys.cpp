@@ -1883,41 +1883,46 @@ bool enemy::slide()
     
     switch(sclk>>8)
     {
-    case up:
-        if(y<=16)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
-        
-    case down:
-        if(y>=160)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
-        
-    case left:
-        if(x<=16)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
-        
-    case right:
-        if(x>=240)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
+	    case up:
+	    {
+		if(y<=16)
+		{
+		    sclk=0;
+		    return false;
+		}
+		
+		break;
+	    }
+	    case down:
+	    {
+		if(y>=150) //was 160 --changed for vires bug. 
+		{
+		    sclk=0;
+		    return false;
+		}
+		
+		break;
+	    }
+	    case left:
+	    {
+		if(x<=16)
+		{
+		    sclk=0;
+		    return false;
+		}
+		
+		break;
+	    }
+	    case right:
+	    {
+		if(x>=240)
+		{
+		    sclk=0;
+		    return false;
+		}
+		
+		break;
+	    }
     }
     
     switch(sclk>>8)
@@ -6350,7 +6355,8 @@ bool eStalfos::animate(int index)
         KillWeapon();
         return Dead(index);
     }
-    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide()))  //Split into enemies
+    //vire split
+    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() && (sclk&255)<=1))  //Split into enemies
     {
         stop_bgsfx(index);
         int kids = guys.Count();
