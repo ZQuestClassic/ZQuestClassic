@@ -1,6 +1,7 @@
 ChangeLog for 2.53.0 
 
 //Beta 27
+Fixed Ganon's HP in 1st/2nd. On the NES, he has 30, not 32.
 Fixed vires splitting before their slide() ends.
 Fixed MP3s with metadata not playing. 
 	Let's hope that this fix doesn't fuck up 2.50.0 or 2.50.1 quests.
