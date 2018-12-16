@@ -1,6 +1,11 @@
 ChangeLog for 2.53.0 
 
 //Beta 26
+Fixed vires splitting before their slide() ends.
+Fixed MP3s with metadata not playing. 
+	Let's hope that this fix doesn't fuck up 2.50.0 or 2.50.1 quests.
+	( ZoriaRPG, 16th December, 2018 )
+	
 Probably fixed issues that Avataro reported with Vire enemies.
 	( ZoriaRPG, 3rd December, 2018 )
 
