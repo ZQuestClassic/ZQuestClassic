@@ -1895,7 +1895,7 @@ bool enemy::slide()
 	    }
 	    case down:
 	    {
-		if(y>=150) //was 160 --changed for vires bug. 
+		if(y>=(dmisc2==e2tSPLITHIT ? 150 : 160)) //was 160 --changed for vires bug. 
 		{
 		    sclk=0;
 		    return false;
