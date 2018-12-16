@@ -1885,12 +1885,12 @@ bool enemy::slide()
     {
 	    case up:
 	    {
-		if(y<=(dmisc2==e2tSPLITHIT ? 0 : 16))
+		if(y<=(dmisc2==e2tSPLITHIT ? 0 : 16)) //vires
 		{
 		    sclk=0;
 		    return false;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; }
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
 		
 		break;
 	    }
@@ -1901,7 +1901,7 @@ bool enemy::slide()
 		    sclk=0;
 		    return false;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; }
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
 		
 		break;
 	    }
@@ -1918,12 +1918,12 @@ bool enemy::slide()
 	    }
 	    case right:
 	    {
-		if(x>=(dmisc2==e2tSPLITHIT ? 255 : 240))
+		if(x>=(dmisc2==e2tSPLITHIT ? 255 : 240)) //vires
 		{
 		    sclk=0;
 		    return false;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; }
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
 		break;
 	    }
     }
