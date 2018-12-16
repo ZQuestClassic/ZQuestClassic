@@ -846,6 +846,26 @@ MP3FILE *load_mp3_file(char *filename)
     if((f = pack_fopen_password(filename, F_READ,""))==NULL)
         goto error;
     
+    // ID3 tags sometimes cause problems with almp3, so try to skip them
+    if((len = pack_fread(data, 10, f)) <= 0)
+        goto error;
+    
+    if(strncmp(data, "ID3", 3)==0)
+    {
+        int id3Size=10;
+        
+        id3Size=((data[6]&0x7F)<<21)|((data[7]&0x7F)<<14)|((data[8]&0x7F)<<7)|(data[9]&0x7F);
+        pack_fseek(f, id3Size-10);
+        if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
+            goto error;
+    }
+    else // no ID3
+    {
+        //if((len = pack_fread(data+10, (zcmusic_bufsz_private*512)-10, f)) <= 0)
+        if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
+            goto error;
+    }
+    
     if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
         goto error;
     
