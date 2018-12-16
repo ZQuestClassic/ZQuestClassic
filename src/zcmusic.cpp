@@ -852,7 +852,7 @@ MP3FILE *load_mp3_file(char *filename)
     else // no ID3
     {
         //if((len = pack_fread(data+10, (zcmusic_bufsz_private*512)-10, f)) <= 0)
-        if((len = pack_fread(data, (zcmusic_bufsz_private*512)-10, f)) <= 0)
+        if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
             goto error;
     }
     
