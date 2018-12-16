@@ -2451,12 +2451,14 @@ void enemy::newdir_8(int newrate,int newhoming,int special)
 
 // makes the enemy slide backwards when hit
 // sclk: first byte is clk, second byte is dir
+// makes the enemy slide backwards when hit
+// sclk: first byte is clk, second byte is dir
 bool enemy::slide()
 {
     if(sclk==0 || hp<=0)
         return false;
         
-    if((sclk&255)==16 && !canmove(sclk>>8,(fix)12,0))
+    if((sclk&255)==16 && !canmove(sclk>>8,(fix) (dmisc2==e2tSPLITHIT ? 1 : 12),0))
     {
         sclk=0;
         return false;
@@ -2466,41 +2468,49 @@ bool enemy::slide()
     
     switch(sclk>>8)
     {
-    case up:
-        if(y<=16)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
-        
-    case down:
-        if(y>=160)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
-        
-    case left:
-        if(x<=16)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
-        
-    case right:
-        if(x>=240)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
+	    case up:
+	    {
+		if(y<=(dmisc2==e2tSPLITHIT ? 0 : 16)) //vires
+		{
+		    sclk=0;
+		    return false;
+		}
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
+		
+		break;
+	    }
+	    case down:
+	    {
+		if(y>=(dmisc2==e2tSPLITHIT ? 150 : 160)) //was 160 --changed for vires bug. 
+		{
+		    sclk=0;
+		    return false;
+		}
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
+		
+		break;
+	    }
+	    case left:
+	    {
+		if(x<=(dmisc2==e2tSPLITHIT ? 0 : 16))
+		{
+		    sclk=0;
+		    return false;
+		}
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; }
+		
+		break;
+	    }
+	    case right:
+	    {
+		if(x>=(dmisc2==e2tSPLITHIT ? 255 : 240)) //vires
+		{
+		    sclk=0;
+		    return false;
+		}
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
+		break;
+	    }
     }
     
     switch(sclk>>8)
@@ -6971,9 +6981,10 @@ bool eStalfos::animate(int index)
         KillWeapon();
         return Dead(index);
     }
+    //vire split
     //2.10 checked !fslide(), but nothing uses that now anyway. -Z
     //Perhaps the problem occurs when vires die because they have < 0 HP, in this check?
-    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() /*&& !fslide()*/ ))  //Split into enemies
+    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() && (sclk&255)<=1))  //Split into enemies
     {
         stop_bgsfx(index);
         int kids = guys.Count();
