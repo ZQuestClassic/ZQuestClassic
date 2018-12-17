@@ -966,6 +966,14 @@ void Z_scripterrlog(const char * const format,...)
         case SCRIPT_GLOBAL:
             al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
             break;
+	
+	case SCRIPT_LWPN:
+            al_trace("LWeapon script %u (%s): ", curScriptNum+1, lwpnmap[curScriptNum].second.c_str());
+            break;
+	
+	case SCRIPT_NPC:
+            al_trace("LWeapon script %u (%s): ", curScriptNum+1, npcmap[curScriptNum].second.c_str());
+            break;
             
         case SCRIPT_FFC:
             al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].second.c_str());
@@ -2845,6 +2853,7 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
 	#endif
         Lwpns.animate();
+	FFCore.lweaponScriptEngine();
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
 	#endif

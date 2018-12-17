@@ -5292,9 +5292,9 @@ bool LinkClass::startwpn(int itemid)
         //Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
 	//Add weapon script to sword beams.
         Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
-	weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //the pointer to this beam
-	w->weaponscript = itemsbuf[itemid].weaponscript;
-	w->canrunscript = 0;
+	//weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //the pointer to this beam
+	//w->weaponscript = itemsbuf[itemid].weaponscript;
+	//w->canrunscript = 0;
         sfx(WAV_BEAM,pan(wx));
     }
     break;

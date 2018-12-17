@@ -34,6 +34,8 @@ extern int conveyclk;
 /**********************************/
 /******* Sprite Base Class ********/
 /**********************************/
+// Forward reference
+class refInfo;
 
 class sprite
 {
@@ -79,7 +81,7 @@ public:
     long stack[MAX_SCRIPT_REGISTERS];
     //Are you kidding? Really? 256 * sizeof(long) = 2048 bytes = 2kb of wasted memory for every sprite, and it'll never
     //even get used because item scripts only run for one frame. Gah! Maybe when we have npc scripts, not not now...
-    
+    refInfo* refinfo;
     //refInfo scriptData; //For when we have npc scripts maybe
     //long d[8];
     //long a[2];
@@ -97,8 +99,11 @@ public:
     //byte lwpnclass;
     //byte ewpnclass;
     word script;
+    word weaponscript;
     long initD[8];
     long initA[2];
+    long weap_initd[8];
+    long weap_inita[2];
     
     
     sprite();

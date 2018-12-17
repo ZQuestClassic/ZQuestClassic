@@ -51,7 +51,7 @@ sprite::sprite()
     extend=0;
     wpnsprite = 0; //wpnsprite is new for 2.6 -Z
     //memset(stack,0,sizeof(stack));
-    memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
+    memset(stack, 0xFFFF, sizeof(stack));
     
     /*ewpnclass=0;
     lwpnclass=0;
@@ -72,7 +72,7 @@ sprite::sprite()
         dummy_float[i]=0;
         dummy_bool[i]=false;
     }
-    
+    refinfo = 0;
     //for(int i=0;i<8;i++)
     //{
     //  if(i<2) a[i]=0;
@@ -97,13 +97,16 @@ sprite::sprite()
     //lwpnclass = 0;
     //ewpnclass = 0;
     script = 0;
+    weaponscript = 0;
     for ( int q = 0; q < 8; q++ )
     {
 	    initD[q] = 0;
+	    weap_initd[q] = 0;
     }
     for ( int q = 0; q < 2; q++ )
     {
 	    initA[q] = 0;
+	    weap_inita[q] = 0;
     }
 }
 
@@ -139,6 +142,7 @@ sprite::sprite(sprite const & other):
     drawstyle(other.drawstyle),
     extend(other.extend),
     wpnsprite(other.wpnsprite),
+    refinfo(other.refinfo),
     //scriptData(other.scriptData),
 //ffcref(other.ffcref),
 //itemref(other.itemref),
@@ -153,7 +157,8 @@ doscript(other.doscript),
 //guyclass(other.guyclass),
 //lwpnclass(other.lwpnclass),
 //ewpnclass(other.ewpnclass),
-script(other.script)
+script(other.script),
+weaponscript(other.weaponscript)
 {
     uid = getNextUID();
     
@@ -177,18 +182,21 @@ script(other.script)
     
     scriptcoldet = other.scriptcoldet;
     
-    for ( int q = 0; q < MAX_SCRIPT_REGISTERS; q++ )
-    {
-	stack[q] = other.stack[q];
-    }
+    //for ( int q = 0; q < MAX_SCRIPT_REGISTERS; q++ )
+    //{
+//	stack[q] = other.stack[q];
+    //}
+    memset(stack, 0xFFFF, sizeof(stack));
     for (int i=0; i<8; ++i)
     {
       initD[i]=other.initD[i];
+      weap_initd[i]=other.weap_initd[i];
 	   // al_trace("Sprite.cpp: Assigning other.initD[%d] is: %d\n",i, other.initD[i]);
     }
     for (int i=0; i<2; ++i)
     {
       initA[i]=other.initA[i];
+      weap_inita[i]=other.weap_inita[i];
     }
 }
 
@@ -219,7 +227,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = 1;
-    
+    refinfo = 0;
     //scriptData.Clear();
     //ewpnclass=0;
     //lwpnclass=0;
@@ -229,6 +237,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     //guyref=0;
     //itemref=0;
     script = 0;
+    weaponscript = 0;
     drawstyle=0;
     lasthitclk=0;
     lasthit=0;
@@ -237,12 +246,22 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     misc=0;
     c_clk=0;
     shadowtile=0;
-    for ( int q = 0; q < 8; q++ ) initD[q] = 0;
-    for ( int q = 0; q < 2; q++ ) initA[q] = 0;
+    for ( int q = 0; q < 8; q++ ) 
+    {
+        initD[q] = 0;
+        weap_initd[q] = 0;
+    }
+    for ( int q = 0; q < 2; q++ ) 
+    {
+        initA[q] = 0;
+        weap_inita[q] = 0;
+    }
+    memset(stack, 0xFFFF, sizeof(stack));
 }
 
 sprite::~sprite()
 {
+  delete refinfo;
 }
 
 long sprite::getNextUID()
