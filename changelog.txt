@@ -1,5 +1,55 @@
 //2.55 and 2.54 Changes
 
+//Alpha 5
+
+Vers: Update to Alpha 5
+Remove traces for LWeapon Scripts
+	( ZoriaRPG, 17th December, 2018 )
+	
+LWeapon Scripts: Associate refInfo with each sprite
+	This fixes stability issues with them.
+	( Peter Hull, 17th December, 2018 )
+	
+Skip over ID3 metadata to ensure that most MP3 files play.
+	*Copied from 2.53b27
+Lib: Update csound.lib for MSVC (MP3 fixes)
+Fix where vires create new enemies when they split, and the
+	distances that they can slide.
+	*Copied from 2.53b27.
+	( ZoriaRPG, 16th December, 2018 )
+	
+Try memsetting the sprite stack to 0xFFFF
+Fix: Uninitialised weapon values.
+	( ZoriaRPG, 13th December, 2018 )
+
+Added some traces
+
+Fixed crash, it seems. needs further testing.
+	Sometimes some lweapon types still refuse to run their script, despite
+	everything seeming to be correct. I suspect some cleanup code is running
+	that should not run.
+
+Fixed issues with incorrect or corrupt stacks, but now scripts
+	can crash. it seems as if ri->lwpn and w->getUID() can be mismatched???
+LWeapon Scripts: Try getting data by UID instead of by Index
+	( ZoriaRPG, 11th December, 2018 )
+
+File: Add screenWipe.cpp from 2.50.2
+	( ZoriaRPG, 10th December, 2018 )
+	
+LWeapon Scripts: Split Up Animate and Run Script
+Refactored lweapon scripts.
+
+	Stacks are no longer memset other than on creation.
+	They now use doscript = 1 to help determine if they should run.
+
+	Issues: bait once again doesn't want to run scripts once it times out on
+	a screen.
+
+	Sword beams still cause stack underflows, but magic seems to be fine.
+	( ZoriaRPG, 9th December, 2018 )
+	
+	
 //Alpha 4
 
 Added item->Family and item->Level to ZScript.
