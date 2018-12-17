@@ -14881,9 +14881,9 @@ int run_script(const byte type, const word script, const long i)
 			weapon *wa = (weapon*)Lwpns.spr(LwpnH::getLWeaponIndex(i));
 			ri->lwpn = wa->getUID();
 			//i; //Lwpns.spr(LwpnH::getLWeaponIndex(i))->getUID();
-			Z_scripterrlog("Trying to run an lw script. ri->lwpn is: %d\n", ri->lwpn);
-			Z_scripterrlog("Trying to run an lw script. Script ID passed is: %d\n", script);
-			Z_scripterrlog("Trying to run an lw script. Script ID for weapon is: %d\n", Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript);
+			//Z_scripterrlog("Trying to run an lw script. ri->lwpn is: %d\n", ri->lwpn);
+			//Z_scripterrlog("Trying to run an lw script. Script ID passed is: %d\n", script);
+			//Z_scripterrlog("Trying to run an lw script. Script ID for weapon is: %d\n", Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript);
 		    
 			for ( int q = 0; q < 8; q++ ) 
 			{
@@ -19284,7 +19284,7 @@ void FFScript::lweaponScriptEngine()
 	for ( int q = 0; q < Lwpns.Count(); q++ )
 	{
 		//ri->lwpn = Lwpns.spr(q)->getUID();
-		Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->lwpn (%d)\n", Lwpns.spr(q)->getUID(), ri->lwpn);
+		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->lwpn (%d)\n", Lwpns.spr(q)->getUID(), ri->lwpn);
 		//ri->lwpn = Lwpns.spr(q)->getUID();
 		weapon *wp = (weapon*)Lwpns.spr(q);
 		if ( wp->Dead() ) continue;
