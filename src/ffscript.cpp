@@ -14856,11 +14856,13 @@ int run_script(const byte type, const word script, const long i)
 	    {
 			int lwpn_index = LwpnH::getLWeaponIndex(i);
 			//ri = &(lweaponScriptData[i]);
-			ri = &(lweaponScriptData[LwpnH::getLWeaponIndex(i)]);
-			//weapon *w = (weapon*)Lwpns.spr(i);
+			weapon *w = (weapon*)Lwpns.spr(lwpn_index);
+			ri = w->refinfo;
+			if (!ri) {
+			  ri = w->refinfo = new refInfo;
+			}
 			//curscript = lwpnscripts[script];
 			curscript = lwpnscripts[Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript];
-			
 			//Z_scripterrlog("FFScript is trying to run lweapon script: %d\n", curscript);
 			//for ( int q = 0; q < 256; q++ )
 			//{
