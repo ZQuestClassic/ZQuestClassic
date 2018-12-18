@@ -5271,7 +5271,9 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 
 	int bitmapIndex = sdci[2]/10000;
 	//Z_scripterrlog("Blit() bitmapIndex is: %d\n", bitmapIndex);
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("Blit() found a dest bitmap ID of: %d\n",bitmapIndex);
+	#endif
 	if ( bitmapIndex > 10000 )
 	{
 		bitmapIndex = bitmapIndex / 10000;
@@ -5283,9 +5285,9 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	int sx = sdci[3]/10000;
 	int sy = sdci[4]/10000;
 	int sw = sdci[5]/10000;
-	Z_scripterrlog("sh is: %d\n",sdci[5]/10000);
+	//Z_scripterrlog("sh is: %d\n",sdci[5]/10000);
 	int sh = sdci[6]/10000;
-	Z_scripterrlog("sh is: %d\n",sdci[6]/10000);
+	//Z_scripterrlog("sh is: %d\n",sdci[6]/10000);
 	int dx = sdci[7]/10000;
 	int dy = sdci[8]/10000;
 	int dw = sdci[9]/10000;
@@ -5298,8 +5300,9 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	bool masked = (sdci[16] != 0);
 	
 	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ri->bitmapref);
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("bitmap->Blit() is trying to blit ri->bitmapref: %d\n",ri->bitmapref);
-
+	#endif
 	if(!sourceBitmap)
 	{
 		Z_message("Warning: blit(%d) source bitmap contains invalid data or is not initialized.\n", ri->bitmapref);
@@ -5335,7 +5338,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	if ( bitmapIndex == -1 ) 
 	{
 	
-		Z_scripterrlog("blit() is trying to blit to the scren!%s\n"," ");
+		//Z_scripterrlog("blit() is trying to blit to the scren!%s\n"," ");
 		destBMP = framebuf;
 		//masked_blit(sourceBitmap, framebuf, 0, 0, 0, 0, 64, 64);
 		//return;
@@ -5343,20 +5346,31 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	
 	//bugfix
 	//sx = vbound(sx, 0, sourceBitmap->w);
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("Blit %s is: %d\n", "sx", sx);
 	Z_scripterrlog("Blit %s is: %d\n", "source->w", sourceBitmap->w);
+	#endif
 	//sy = vbound(sy, 0, sourceBitmap->h);
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("Blit %s is: %d\n", "sy", sy);
 	Z_scripterrlog("Blit %s is: %d\n", "source->h", sourceBitmap->h);
+	#endif
 	//sw = vbound(sw, 0, sourceBitmap->w - sx); //keep the w/h within range as well
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("Blit %s is: %d\n", "sw", sw);
+	#endif
 	//sh = vbound(sh, 0, sourceBitmap->h - sy);
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("Blit %s is: %d\n", "sh", sh);
 
 	Z_scripterrlog("Blit %s is: %d\n", "dh", dh);
 	Z_scripterrlog("Blit %s is: %d\n", "dw", dw);
-	bool stretched = (sw != dw || sh != dh);
+	#endif
+	//bool stretched = (sw != dw || sh != dh);
+	bool stretched = (sourceBitmap->w != destBMP->w || sourceBitmap->h != destBMP->h);
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("Blit %s is: %s\n", "stretched", stretched ? "true" : "false");
+	#endif
 	//BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
 	
 	
