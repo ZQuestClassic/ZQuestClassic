@@ -2052,8 +2052,9 @@ long get_register(const long arg)
         {
             int a = vbound(ri->d[0]/10000,0,31);
             ret=(((item*)(s))->miscellaneous[a]);
-            break;
+            
         }
+	break;
         
 ///----------------------------------------------------------------------------------------------------//
 //Itemdata Variables
@@ -2788,16 +2789,21 @@ long get_register(const long arg)
 				}
 			}
 		}
+		else
+		{
+			ret = -10000;
+			break;
+		}
 	}
 	
 	case NPCFROZENTILE:
-        GET_NPC_VAR_INT(frozentile, "npc->FrozenTile") break;
+        GET_NPC_VAR_INT(frozentile, "npc->FrozenTile"); break;
 	
 	case NPCFROZENCSET:
-        GET_NPC_VAR_INT(frozencset, "npc->FrozenCSet") break;
+        GET_NPC_VAR_INT(frozencset, "npc->FrozenCSet"); break;
 	
 	case NPCFROZEN:
-        GET_NPC_VAR_INT(frozenclock, "npc->Frozen") break;
+        GET_NPC_VAR_INT(frozenclock, "npc->Frozen"); break;
 	
 	
 case NPCBEHAVIOUR: {
@@ -4706,6 +4712,7 @@ case MAPDATAFFWIDTH:
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
         ret = -10000;
+	break;
     }
     else
     {
@@ -4733,6 +4740,7 @@ case MAPDATAFFHEIGHT:
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
         ret = -10000;
+	break;
     }
     else
     {
@@ -4759,6 +4767,7 @@ case MAPDATAFFEFFECTWIDTH:
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
         ret = -10000;
+	break;
     }
     else
     {
@@ -4783,6 +4792,7 @@ case MAPDATAFFEFFECTHEIGHT:
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
         ret = -10000;
+	break;
     }
     else
     {
@@ -4812,6 +4822,7 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 	{
 		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
 		ret = -10000;
+		break;
 	}
 	else
 	{
@@ -4852,6 +4863,7 @@ case MAPDATAINITA:
 	{
 		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
 		ret = -10000;
+		break;
 	}
 	else
 	{
@@ -5159,6 +5171,7 @@ case DMAPDATAGRID:	//byte[8] --array
 	{
 		Z_scripterrlog("Invalid index supplied to dmapdata->Grid[]: %d\n", indx);
 		ret = -10000;
+		break;
 	}
 	else
 	{
@@ -5179,6 +5192,7 @@ case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
 			break;
 		}
 	}
+	break;
 }
 case DMAPDATAMINIMAPCSET:	//byte - two of these, so let's do MinimapCSet[2]
 {
@@ -5224,6 +5238,7 @@ case DMAPDATALARGEMAPCSET:	//word -- two of these, so let's to LargemaCSet[2]
 			break;
 		}
 	}
+	break;
 }
 case DMAPDATAMUISCTRACK:	//byte
 {
@@ -5265,10 +5280,14 @@ case MESSAGEDATANEXT: //W
 	long ID = ri->zmsgref;	
 
 	if(BC::checkMessage(ID, "messagedata->Next") != SH::_NoError)
-		ret = -10000;
+	{
+		ret = -10000; break;
+	}
 	else 
+	{
 		ret = ((int)MsgStrings[ID].nextstring) * 10000;
-	break;
+		break;
+	}
 }	
 
 case MESSAGEDATATILE: //W
@@ -5606,10 +5625,10 @@ case COMBODSKIPANIM:		GET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;				//C
 case COMBODNEXTTIMER:		GET_COMBO_VAR_DWORD(nexttimer, "NextTimer"); break;				//W
 case COMBODAKIMANIMY:		GET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;				//C
 case COMBODANIMFLAGS:		GET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;				//C
-case COMBODEXPANSION:		GET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6);				//C , 6 INDICES
-case COMBODATTRIBUTES: 		GET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); 				//LONG, 4 INDICES, INDIVIDUAL VALUES
+case COMBODEXPANSION:		GET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;				//C , 6 INDICES
+case COMBODATTRIBUTES: 		GET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
-case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);				//LONG 3 INDICES AS FLAGSETS
+case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 
 //COMBOCLASS STRUCT
@@ -5617,7 +5636,7 @@ case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;
 case COMBODBLOCKNPC:		GET_COMBOCLASS_VAR_BYTE(block_enemies, "BlockNPC"); break;			//C
 case COMBODBLOCKHOLE:		GET_COMBOCLASS_VAR_BYTE(block_hole, "BlockHole"); break;			//C
 case COMBODBLOCKTRIG:		GET_COMBOCLASS_VAR_BYTE(block_trigger,	"BlockTrigger"); break; 		//C
-case COMBODBLOCKWEAPON:		GET_COMBOCLASS_BYTE_INDEX(block_weapon,	"BlockWeapon[]", 32); 			//C, 32 INDICES
+case COMBODBLOCKWEAPON:		GET_COMBOCLASS_BYTE_INDEX(block_weapon,	"BlockWeapon[]", 32); break;		//C, 32 INDICES
 case COMBODCONVXSPEED:		GET_COMBOCLASS_VAR_DWORD(conveyor_x_speed, "ConveyorSpeedX"); break;		//SHORT
 case COMBODCONVYSPEED:		GET_COMBOCLASS_VAR_DWORD(conveyor_y_speed, "ConveyorSpeedY"); break;		//SHORT
 case COMBODSPAWNNPC:		GET_COMBOCLASS_VAR_DWORD(create_enemy, "SpawnNPC"); break;			//W
@@ -5641,7 +5660,7 @@ case COMBODMODHPDELAY:		GET_COMBOCLASS_VAR_BYTE(modify_hp_delay, "DamageDelay");
 case COMBODMODHPTYPE:		GET_COMBOCLASS_VAR_BYTE(modify_hp_type,	"DamageType"); break; 			//C
 case COMBODNMODMPAMOUNT:	GET_COMBOCLASS_VAR_DWORD(modify_mp_amount, "MagicAmount"); break;		//SHORT
 case COMBODMODMPDELAY:		GET_COMBOCLASS_VAR_BYTE(modify_mp_delay, "MagicDelay"); break;			//C
-case COMBODMODMPTYPE:		GET_COMBOCLASS_VAR_BYTE(modify_mp_type,	"MagicType");				//C
+case COMBODMODMPTYPE:		GET_COMBOCLASS_VAR_BYTE(modify_mp_type,	"MagicType");	break;			//C
 case COMBODNOPUSHBLOCK:		GET_COMBOCLASS_VAR_BYTE(no_push_blocks, "NoPushBlocks"); break;			//C
 case COMBODOVERHEAD:		GET_COMBOCLASS_VAR_BYTE(overhead, "Overhead"); break;				//C
 case COMBODPLACENPC:		GET_COMBOCLASS_VAR_BYTE(place_enemy, "PlaceNPC"); break;			//C
@@ -5659,7 +5678,7 @@ case COMBODSLOWWALK:		GET_COMBOCLASS_VAR_BYTE(slow_movement, "SlowWalk"); break;
 case COMBODSTATUETYPE:		GET_COMBOCLASS_VAR_BYTE(statue_type, "Statue"); break;				//C
 case COMBODSTEPTYPE:		GET_COMBOCLASS_VAR_BYTE(step_type, "Step"); break;				//C
 case COMBODSTEPCHANGEINTO:	GET_COMBOCLASS_VAR_INT(step_change_to, "StepChange"); break;			//LONG
-case COMBODSTRIKEWEAPONS:	GET_COMBOCLASS_BYTE_INDEX(strike_weapons, "Strike[]", 32);			//BYTE, 32 INDICES. 
+case COMBODSTRIKEWEAPONS:	GET_COMBOCLASS_BYTE_INDEX(strike_weapons, "Strike[]", 32); break;			//BYTE, 32 INDICES. 
 case COMBODSTRIKEREMNANTS:	GET_COMBOCLASS_VAR_INT(strike_remnants,	"StrikeRemnants"); break;		//LONG
 case COMBODSTRIKEREMNANTSTYPE:	GET_COMBOCLASS_VAR_BYTE(strike_remnants_type, "StrikeRemnantsType"); break;	//C
 case COMBODSTRIKECHANGE:	GET_COMBOCLASS_VAR_INT(strike_change, "StrikeChange"); break;			//LONG
@@ -5945,6 +5964,7 @@ case NPCDATASHIELD:
 	{ 
 		Z_scripterrlog("Invalid NPC ID passed to npcdata->Shield[]: %d\n", (ri->npcdataref*10000)); 
 		ret = -10000; 
+		break;
 	} 
 	else 
 	{ 
@@ -8670,11 +8690,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
 	}
 	
 	case NPCFROZENTILE:
-        SET_NPC_VAR_INT(frozentile, "npc->FrozenTile") break;
+        SET_NPC_VAR_INT(frozentile, "npc->FrozenTile"); break;
 	case NPCFROZENCSET:
-        SET_NPC_VAR_INT(frozencset, "npc->FrozenCSet") break;
+        SET_NPC_VAR_INT(frozencset, "npc->FrozenCSet"); break;
 	case NPCFROZEN:
-        SET_NPC_VAR_INT(frozenclock, "npc->Frozen") break;
+        SET_NPC_VAR_INT(frozenclock, "npc->Frozen"); break;
 	
 	case NPCBEHAVIOUR: 
 	{
@@ -10348,16 +10368,19 @@ case MAPDATAMISCD:
 		if ( indx < 0 || indx > 2 ) 
 		{ 
 			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Item"); 
+			break;
 		} 
 		else 
 		{ 
 			if ( isInfo ) 
 			{ 
 				Z_scripterrlog("Attempted to write an 'item' to an infoshop, using shop ID: %d\n", ri->shopsref); 
+				break;
 			} 
 			else 
 			{ 
 				QMisc.shop[ref].item[indx] = (byte)(vbound((value/10000), 0, 255)); 
+				break;
 			} 
 		} 
 	} 
@@ -10372,16 +10395,18 @@ case MAPDATAMISCD:
 		if ( indx < 0 || indx > 2 ) 
 		{ 
 			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+			break;
 		} 
 		else 
 		{ 
 			if ( isInfo ) 
 			{ 
 				Z_scripterrlog("Attempted to write 'hasitem' to an infoshop, using shop ID: %d\n", ri->shopsref); 
+				break;
 			} 
 			else 
 			{ 
-				QMisc.shop[ref].hasitem[indx] = (byte)(vbound((value/10000), 0, 255)); 
+				QMisc.shop[ref].hasitem[indx] = (byte)(vbound((value/10000), 0, 255)); break;
 			} 
 		} 
 	} 
@@ -10396,16 +10421,19 @@ case MAPDATAMISCD:
 		if ( indx < 0 || indx > 2 ) 
 		{ 
 			Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Price"); 
+			break;
 		} 
 		else 
 		{ 
 			if ( isInfo ) 
 			{ 
 				QMisc.shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
+				break;
 			} 
 			else 
 			{ 
 				QMisc.shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
+				break;
 			} 
 		} 
 	} 
@@ -10427,16 +10455,19 @@ case SHOPDATASTRING:
 			if ( indx < 0 || indx > 2 ) 
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "HasItem"); 
+				break;
 			} 
 			else 
 			{ 
 				if ( isInfo ) 
 				{ 
 					QMisc.info[ref].str[indx] = (word)(vbound((value/10000), 0, 32767));
+					break;
 				} 
 				else 
 				{ 
 					QMisc.shop[ref].str[indx] = (word)(vbound((value/10000), 0, 32767));
+					break;
 				} 
 			} 
 	
@@ -10510,6 +10541,7 @@ case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
 			break;
 		}
 	}
+	break;
 }
 case DMAPDATAMINIMAPCSET:	//byte - two of these, so let's do MinimapCSet[2]
 {
@@ -10524,6 +10556,7 @@ case DMAPDATAMINIMAPCSET:	//byte - two of these, so let's do MinimapCSet[2]
 			break;
 		}
 	}
+	break;
 }
 case DMAPDATALARGEMAPTILE:	//word -- two of these, so let's to LargemapTile[2]
 {
@@ -10538,6 +10571,7 @@ case DMAPDATALARGEMAPTILE:	//word -- two of these, so let's to LargemapTile[2]
 			break;
 		}
 	}
+	break;
 }
 case DMAPDATALARGEMAPCSET:	//word -- two of these, so let's to LargemaCSet[2]
 {
@@ -10552,6 +10586,7 @@ case DMAPDATALARGEMAPCSET:	//word -- two of these, so let's to LargemaCSet[2]
 			break;
 		}
 	}
+	break;
 }
 case DMAPDATAMUISCTRACK:	//byte
 {
@@ -10925,10 +10960,10 @@ case COMBODSKIPANIM:	SET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;					//C
 case COMBODNEXTTIMER:	SET_COMBO_VAR_DWORD(nexttimer, "NextTimer"); break;					//W
 case COMBODAKIMANIMY:	SET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;					//C
 case COMBODANIMFLAGS:	SET_COMBO_VAR_BYTE(animflags, "AnimFlags"); break;					//C
-case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6);					//C , 6 INDICES
-case COMBODATTRIBUTES: 	SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); 					//LONG, 4 INDICES, INDIVIDUAL VALUES
+case COMBODEXPANSION:	SET_COMBO_BYTE_INDEX(expansion, "Expansion[]", 6); break;					//C , 6 INDICES
+case COMBODATTRIBUTES: 	SET_COMBO_VAR_INDEX(attributes,	"Attributes[]", 4); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
-case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);				//LONG 3 INDICES AS FLAGSETS
+case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 
 //COMBOCLASS STRUCT
@@ -10960,13 +10995,13 @@ case COMBODMODHPDELAY:		SET_COMBOCLASS_VAR_BYTE(modify_hp_delay, "DamageDelay");
 case COMBODMODHPTYPE:		SET_COMBOCLASS_VAR_BYTE(modify_hp_type,	"DamageType"); break; 			//C
 case COMBODNMODMPAMOUNT:	SET_COMBOCLASS_VAR_DWORD(modify_mp_amount, "MagicAmount"); break;		//SHORT
 case COMBODMODMPDELAY:		SET_COMBOCLASS_VAR_BYTE(modify_mp_delay, "MagicDelay"); break;			//C
-case COMBODMODMPTYPE:		SET_COMBOCLASS_VAR_BYTE(modify_mp_type,	"MagicType"); 				//C
+case COMBODMODMPTYPE:		SET_COMBOCLASS_VAR_BYTE(modify_mp_type,	"MagicType"); break;				//C
 case COMBODNOPUSHBLOCK:		SET_COMBOCLASS_VAR_BYTE(no_push_blocks, "NoPushBlocks"); break;			//C
 case COMBODOVERHEAD:		SET_COMBOCLASS_VAR_BYTE(overhead, "Overhead"); break;				//C
 case COMBODPLACENPC:		SET_COMBOCLASS_VAR_BYTE(place_enemy, "PlaceNPC"); break;			//C
 case COMBODPUSHDIR:		SET_COMBOCLASS_VAR_BYTE(push_direction,	"PushDir"); break; 			//C
 case COMBODPUSHWAIT:		SET_COMBOCLASS_VAR_BYTE(push_wait, "PushDelay"); break;				//C
-case COMBODPUSHHEAVY:		SET_COMBOCLASS_VAR_BYTE(push_weight, "PushHeavy");				//C
+case COMBODPUSHHEAVY:		SET_COMBOCLASS_VAR_BYTE(push_weight, "PushHeavy"); break;				//C
 case COMBODPUSHED:		SET_COMBOCLASS_VAR_BYTE(pushed, "Pushed"); break;				//C
 case COMBODRAFT:		SET_COMBOCLASS_VAR_BYTE(raft, "Raft"); break;					//C
 case COMBODRESETROOM:		SET_COMBOCLASS_VAR_BYTE(reset_room, "ResetRoom"); break;			//C
@@ -10978,7 +11013,7 @@ case COMBODSLOWWALK:		SET_COMBOCLASS_VAR_BYTE(slow_movement, "SlowWalk"); break;
 case COMBODSTATUETYPE:		SET_COMBOCLASS_VAR_BYTE(statue_type, "Statue"); break;				//C
 case COMBODSTEPTYPE:		SET_COMBOCLASS_VAR_BYTE(step_type, "Step"); break;				//C
 case COMBODSTEPCHANGEINTO:	SET_COMBOCLASS_VAR_INT(step_change_to, "StepChange"); break;			//LONG
-case COMBODSTRIKEWEAPONS:	SET_COMBOCLASS_BYTE_INDEX(strike_weapons, "Strike[]", 32);			//BYTE, 32 INDICES. 
+case COMBODSTRIKEWEAPONS:	SET_COMBOCLASS_BYTE_INDEX(strike_weapons, "Strike[]", 32); break;			//BYTE, 32 INDICES. 
 case COMBODSTRIKEREMNANTS:	SET_COMBOCLASS_VAR_INT(strike_remnants,	"StrikeRemnants"); break;		//LONG
 case COMBODSTRIKEREMNANTSTYPE:	SET_COMBOCLASS_VAR_BYTE(strike_remnants_type, "StrikeRemnantsType"); break;	//C
 case COMBODSTRIKECHANGE:	SET_COMBOCLASS_VAR_INT(strike_change, "StrikeChange"); break;			//LONG
@@ -11270,6 +11305,7 @@ case NPCDATASHIELD:
 	if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
 	{ 
 		Z_scripterrlog("Invalid NPC ID passed to npcdata->Shield[]: %d\n", (ri->npcdataref*10000));
+		break;
 	} 
 	else 
 	{ 
@@ -11306,6 +11342,7 @@ case NPCDATASHIELD:
 				break;
 			}
 		}
+		break;
 	} 
 }
 
@@ -16147,9 +16184,14 @@ int run_script(const byte type, const word script, const long i)
 				if(BC::checkMapID(map, "Game->SetScreenDoor(...map...)") != SH::_NoError ||
 					BC::checkBounds(scrn, 0, 0x87, "Game->SetScreenDoor(...screen...)") != SH::_NoError ||
 					BC::checkBounds(index, 0, 3, "Game->SetScreenDoor(...doorindex...)") != SH::_NoError)
-					return -10000;
-		      
-				FFScript::set_screendoor(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+				{
+					return -10000; break;
+				}
+				else
+				{
+					FFScript::set_screendoor(&TheMaps[map * MAPSCRS + scrn], index, nn); 
+					break;
+				}
 				
 		    }
 		    
@@ -16819,24 +16861,24 @@ int run_script(const byte type, const word script, const long i)
 		//SpriteData
 		
 		//case	GETSPRITEDATASTRING: 
-		case	GETSPRITEDATATILE: FFScript::getSpriteDataTile();
-		case	GETSPRITEDATAMISC: FFScript::getSpriteDataCSets();
-		case	GETSPRITEDATACGETS: FFScript::getSpriteDataCSets();
-		case	GETSPRITEDATAFRAMES: FFScript::getSpriteDataFrames();
-		case	GETSPRITEDATASPEED: FFScript::getSpriteDataSpeed();
-		case	GETSPRITEDATATYPE: FFScript::getSpriteDataType();
+		case	GETSPRITEDATATILE: FFScript::getSpriteDataTile(); break;
+		case	GETSPRITEDATAMISC: FFScript::getSpriteDataCSets(); break;
+		case	GETSPRITEDATACGETS: FFScript::getSpriteDataCSets(); break;
+		case	GETSPRITEDATAFRAMES: FFScript::getSpriteDataFrames(); break;
+		case	GETSPRITEDATASPEED: FFScript::getSpriteDataSpeed(); break;
+		case	GETSPRITEDATATYPE: FFScript::getSpriteDataType(); break;
 
 		//case	SETSPRITEDATASTRING:
-		case	SETSPRITEDATATILE: FFScript::setSpriteDataTile();
-		case	SETSPRITEDATAMISC: FFScript::setSpriteDataMisc();
-		case	SETSPRITEDATACSETS: FFScript::setSpriteDataCSets();
-		case	SETSPRITEDATAFRAMES: FFScript::setSpriteDataFrames();
-		case	SETSPRITEDATASPEED: FFScript::setSpriteDataSpeed();
-		case	SETSPRITEDATATYPE: FFScript::setSpriteDataType();
+		case	SETSPRITEDATATILE: FFScript::setSpriteDataTile(); break;
+		case	SETSPRITEDATAMISC: FFScript::setSpriteDataMisc(); break;
+		case	SETSPRITEDATACSETS: FFScript::setSpriteDataCSets(); break;
+		case	SETSPRITEDATAFRAMES: FFScript::setSpriteDataFrames(); break;
+		case	SETSPRITEDATASPEED: FFScript::setSpriteDataSpeed(); break;
+		case	SETSPRITEDATATYPE: FFScript::setSpriteDataType(); break;
 		
 		//Game over Screen
-		case	SETCONTINUESCREEN: FFScript::FFChangeSubscreenText();
-		case	SETCONTINUESTRING: FFScript::FFSetSaveScreenSetting();
+		case	SETCONTINUESCREEN: FFScript::FFChangeSubscreenText(); break;
+		case	SETCONTINUESTRING: FFScript::FFSetSaveScreenSetting(); break;
 		
 		//new npc functions for npc scripts
 		
