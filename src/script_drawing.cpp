@@ -2399,6 +2399,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -2674,6 +2675,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -2950,6 +2952,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip(bmp, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -3222,6 +3225,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
 					pivot_sprite_v_flip(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -5313,9 +5317,9 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		case 5:
 		case 6: //old system bitmaps (render targets)
 		{
-		    destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
+		    destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
 		}
-		default: destBMP = FFCore.get_user_bitmap(bitmapIndex);
+		default: destBMP = FFCore.get_user_bitmap(bitmapIndex); break;
 	}
 	
 	//BITMAP *destBMP = FFCore.GetScriptBitmap(bitmapIndex);
@@ -5417,6 +5421,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -5692,6 +5697,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -5968,6 +5974,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -6240,6 +6247,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
