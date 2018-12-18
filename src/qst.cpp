@@ -13581,7 +13581,6 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
 		for ( int q = ZC250MAXTILES; q < NEWMAXTILES; ++q )
 		{
 			
-			buf[q].data=(byte *)zc_malloc(tilesize(tf4Bit));
 			//memcpy(buf[q].data,temp_tile,tilesize(buf[q].format));
 			reset_tile(buf,q,tf4Bit);
 			
