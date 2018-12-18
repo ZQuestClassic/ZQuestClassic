@@ -1,5 +1,13 @@
 //2.55 and 2.54 Changes
 
+//Alpha 6
+Fix creation and blitting of user bitmaps.
+Fix a number of fallthrough cases in ffscript.cpp.
+Fix fallthrough cases in Screen->DrawBitmapEx() and bitmap->Blit()
+Fix an overflow condition in ffasm.cpp where the command string tempvar
+	char array was too small. (Changed from tempvar[20] to tempvar[80]).
+	( ZoriaRPG, 18th December, 2018 )
+
 //Alpha 5
 
 Vers: Update to Alpha 5
