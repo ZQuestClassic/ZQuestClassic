@@ -2124,7 +2124,7 @@ int set_argument(char *argbuf, ffscript **script, int com, int argument)
     }
     
     int i=0;
-    char tempvar[20];
+    char tempvar[80];
     
     while(variable_list[i].id>-1)
     {
