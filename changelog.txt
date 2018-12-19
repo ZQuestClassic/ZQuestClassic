@@ -17,6 +17,7 @@ Installed Link scripts into ZC, and expanded their number.
 	( ZoriaRPG, 19th December, 2018 )
 	
 //Alpha 6
+Fixed Ganon's HP in 1st.qst and in 2nd.qst.
 Fix creation and blitting of user bitmaps.
 Fix a number of fallthrough cases in ffscript.cpp.
 Fix fallthrough cases in Screen->DrawBitmapEx() and bitmap->Blit()
