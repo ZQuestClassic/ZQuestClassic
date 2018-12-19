@@ -34,6 +34,7 @@ extern FFScript FFCore;
 extern LinkClass Link;
 extern ZModule zcm;
 extern zcmodule moduledata;
+extern refInfo linkScriptData;
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "particles.h"
@@ -78,6 +79,14 @@ const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 static inline bool isSideview()
 {
     return (((tmpscr->flags7&fSIDEVIEW)!=0 || DMaps[currdmap].sideview != 0) && !ignoreSideview); //DMap Enable Sideview on All Screens -Z //2.54 Alpha 27
+}
+
+
+void initLinkScripts()
+{
+    link_doscript = 1;
+    linkScriptData.Clear();
+    clear_link_stack();
 }
 
 int LinkClass::DrunkClock()
@@ -4362,6 +4371,9 @@ bool LinkClass::animate(int)
             drunkclk=0;
 	    link_is_stunned = 0;
 	    FFCore.setLinkAction(dying);
+	    //initLinkScripts();
+	    //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+	    //if ( link_doscript ) { last_hurrah = false; return false; }
             gameover();
             
             return true;
@@ -15855,6 +15867,10 @@ void LinkClass::gameover()
 	int f=0;
     
 	action=none; FFCore.setLinkAction(dying); //mayhaps a new action of 'gameover'? -Z
+	initLinkScripts();
+	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+	//while(link_doscript) { advanceframe(true); } //Not safe. The script runs for only one frame at present.
+	
 	Playing=false;
     
 	if(!debug_enabled)
@@ -16713,3 +16729,7 @@ void LinkClass::explode(int type)
 int LinkClass::getTileModifier() { return item_tile_mod(true); } //how best to read shieldcanmodify? -Z
 void LinkClass::setTileModifier(int new_tile_mod) { /*item_tile_mod = new_tile_mod;*/ }
 /*** end of link.cpp ***/
+
+
+
+

@@ -4591,6 +4591,9 @@ int main(int argc, char* argv[])
             initZScriptGlobalRAM();
             initZScriptLinkScripts();
 	    //Run global script OnExit
+            ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+	    //while(link_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
+		//We need a special routine for win and death link scripts. Otherwise, they work. 
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
 		
 	    
