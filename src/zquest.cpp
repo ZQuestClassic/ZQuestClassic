@@ -19082,6 +19082,7 @@ static int as_global_list[] = { 7, 8, 9, -1}; //Why does putting 15 in here not 
 static int as_item_list[] = { 10, 11, 12, -1};
 static int as_npc_list[] = { 18, 19, 20, -1}; //npc scripts TAB
 static int as_lweapon_list[] = { 21, 22, 23, -1}; //npc scripts TAB
+static int as_eweapon_list[] = { 24, 25, 26, -1}; //npc scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -19091,6 +19092,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"Item",		 0,         as_item_list,   0, NULL },
     { (char *)"NPC",		 0,         as_npc_list,   0, NULL },
     { (char *)"LWeapon",		 0,         as_lweapon_list,   0, NULL },
+    { (char *)"EWeapon",		 0,         as_eweapon_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
@@ -19148,6 +19150,17 @@ const char *assignlweaponlist(int index, int *list_size)
     return lwpnmap[index].first.c_str();
 }
 
+const char *assigneweaponlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)ewpnmap.size();
+        return NULL;
+    }
+    
+    return ewpnmap[index].first.c_str();
+}
+
 const char *assignffcscriptlist(int index, int *list_size)
 {
     if(index<0)
@@ -19203,6 +19216,17 @@ const char *assignlweaponscriptlist(int index, int *list_size)
     return aslweaponscripts[index].c_str();
 }
 
+const char *assigneweaponscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)aseweaponscripts.size();
+        return NULL;
+    }
+    
+    return aseweaponscripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
@@ -19213,6 +19237,8 @@ static ListData assignnpc_list(assignnpclist, &font);
 static ListData assignnpcscript_list(assignnpcscriptlist, &font);
 static ListData assignlweapon_list(assignlweaponlist, &font);
 static ListData assignlweaponscript_list(assignlweaponscriptlist, &font);
+static ListData assigneweapon_list(assigneweaponlist, &font);
+static ListData assigneweaponscript_list(assigneweaponscriptlist, &font);
 
 static DIALOG assignscript_dlg[] =
 {
@@ -19249,6 +19275,11 @@ static DIALOG assignscript_dlg[] =
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlweapon_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlweaponscript_list, NULL, NULL },
     //23
+    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //24
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigneweapon_list, NULL, NULL },
+    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigneweaponscript_list, NULL, NULL },
+    //26
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     
     
@@ -19373,7 +19404,6 @@ static DIALOG npcscript_sel_dlg[] =
 };
 
 //lweapon scripts
-//npc script slots
 static char lweaponscript_str_buf2[32];
 
 const char *lweaponscriptlist2(int index, int *list_size)
@@ -19410,6 +19440,46 @@ static DIALOG lweaponscript_sel_dlg[] =
     { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
     { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &lweaponscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+static char eweaponscript_str_buf2[32];
+
+const char *eweaponscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(ewpnmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, ewpnmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(eweaponscript_str_buf2,"%d: %s",index+1, buf);
+        return eweaponscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTWEAPONS-1);
+    return NULL;
+}
+
+
+static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font);
+
+static DIALOG eweaponscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &eweaponscript_sel_dlg_list, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -20217,6 +20287,26 @@ int onCompileScript()
                     else
                     {
                         lwpnmap[lind].second = aslweaponscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 26:
+                    //<<, EWeapon
+                {
+                    int lind = assignscript_dlg[24].d1;
+                    int rind = assignscript_dlg[25].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(aseweaponscripts[rind] == "<none>")
+                    {
+                        ewpnmap[lind].second = "";
+                    }
+                    else
+                    {
+                        ewpnmap[lind].second = aseweaponscripts[rind];
                     }
                     
                     break;
