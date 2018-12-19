@@ -1,5 +1,21 @@
 //2.55 and 2.54 Changes
 
+//Alpha 7
+Added the following script types to the 'Compile ZScript' dialogue in ZQuest:
+	eweapon, link, dmapdata (DMap), screendata (Screen)
+	You can compile all of these, and assign them to slots.
+
+Installed Link scripts into ZC, and expanded their number.
+	They work in a similar manner to global scripts, and may call Waitdraw().
+	At present, these are the viable slots:
+		Init (1)
+		Active (2)
+		onDeath (3)
+		onWin (4)
+	Slots 1, 3 and 4 can run for only one frame at this time.
+	Increased V_FFSCRIPT to '11'.
+	( ZoriaRPG, 19th December, 2018 )
+	
 //Alpha 6
 Fix creation and blitting of user bitmaps.
 Fix a number of fallthrough cases in ffscript.cpp.
