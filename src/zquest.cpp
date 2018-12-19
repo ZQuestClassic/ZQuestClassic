@@ -19084,6 +19084,7 @@ static int as_npc_list[] = { 18, 19, 20, -1}; //npc scripts TAB
 static int as_lweapon_list[] = { 21, 22, 23, -1}; //lweapon scripts TAB
 static int as_eweapon_list[] = { 24, 25, 26, -1}; //eweapon scripts TAB
 static int as_link_list[] = { 27, 28, 29, -1}; //link scripts TAB
+static int as_screen_list[] = { 30, 31, 32, -1}; //link scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -19095,6 +19096,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"LWeapon",		 0,         as_lweapon_list,   0, NULL },
     { (char *)"EWeapon",		 0,         as_eweapon_list,   0, NULL },
     { (char *)"Link",		 0,         as_link_list,   0, NULL },
+    { (char *)"Screen",		 0,         as_screen_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
@@ -19174,6 +19176,17 @@ const char *assignlinklist(int index, int *list_size)
     return linkmap[index].first.c_str();
 }
 
+const char *assignscreenlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)screenmap.size();
+        return NULL;
+    }
+    
+    return screenmap[index].first.c_str();
+}
+
 const char *assignffcscriptlist(int index, int *list_size)
 {
     if(index<0)
@@ -19251,6 +19264,17 @@ const char *assignlinkscriptlist(int index, int *list_size)
     return aslinkscripts[index].c_str();
 }
 
+const char *assignscreenscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)asscreenscripts.size();
+        return NULL;
+    }
+    
+    return asscreenscripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
@@ -19267,6 +19291,9 @@ static ListData assigneweaponscript_list(assigneweaponscriptlist, &font);
 static ListData assignlink_list(assignlinklist, &font);
 static ListData assignlinkscript_list(assignlinkscriptlist, &font);
 
+static ListData assignscreen_list(assignscreenlist, &font);
+static ListData assignscreenscript_list(assignscreenscriptlist, &font);
+	
 static DIALOG assignscript_dlg[] =
 {
     //						x		y		w		h		fg		bg		key	flags	d1	d2	dp
@@ -19281,7 +19308,7 @@ static DIALOG assignscript_dlg[] =
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobal_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobalscript_list, NULL, NULL },
     //9
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_button_proc,	  154,	93,	15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitem_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemscript_list, NULL, NULL },
     //12
@@ -19312,6 +19339,11 @@ static DIALOG assignscript_dlg[] =
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlink_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlinkscript_list, NULL, NULL },
     //29
+    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //30
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignscreen_list, NULL, NULL },
+    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignscreenscript_list, NULL, NULL },
+    //32
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     
     
@@ -19550,6 +19582,47 @@ static DIALOG linkscript_sel_dlg[] =
     { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
     { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &linkscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+
+static char screenscript_str_buf2[32];
+
+const char *screenscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(screenmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, screenmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(screenscript_str_buf2,"%d: %s",index+1, buf);
+        return screenscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTSCREEN-1);
+    return NULL;
+}
+
+static ListData screenscript_sel_dlg_list(screenscriptlist2, &font);
+
+static DIALOG screenscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &screenscript_sel_dlg_list, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -20399,6 +20472,26 @@ int onCompileScript()
                     else
                     {
                         linkmap[lind].second = aslinkscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 32:
+                    //<<, Screendata
+                {
+                    int lind = assignscript_dlg[30].d1;
+                    int rind = assignscript_dlg[31].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asscreenscripts[rind] == "<none>")
+                    {
+                        screenmap[lind].second = "";
+                    }
+                    else
+                    {
+                        screenmap[lind].second = asscreenscripts[rind];
                     }
                     
                     break;
