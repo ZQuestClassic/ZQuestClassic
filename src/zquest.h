@@ -517,7 +517,7 @@ extern int binpcs_cnt;
 
 //lweapon script list for editors
 void build_bilweapons_list();
-extern script_struct bilweapons[NUMSCRIPTGUYS]; //item script
+extern script_struct bilweapons[NUMSCRIPTWEAPONS]; //item script
 extern int bilweapons_cnt;
 
 //extern script_struct biffs[NUMSCRIPTFFC];
