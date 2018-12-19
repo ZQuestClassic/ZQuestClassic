@@ -18756,11 +18756,23 @@ script_struct biffs[NUMSCRIPTFFC]; //ff script
 int biffs_cnt = -1;
 script_struct biitems[NUMSCRIPTFFC]; //item script
 int biitems_cnt = -1;
-script_struct binpcs[NUMSCRIPTGUYS]; //item script
+script_struct binpcs[NUMSCRIPTGUYS]; //npc script
 int binpcs_cnt = -1;
 
-script_struct bilweapons[NUMSCRIPTWEAPONS]; //item script
+script_struct bilweapons[NUMSCRIPTWEAPONS]; //lweapon script
 int bilweapons_cnt = -1;
+
+script_struct bieweapons[NUMSCRIPTWEAPONS]; //eweapon script
+int bieweapons_cnt = -1;
+
+script_struct bilinks[NUMSCRIPTLINK]; //link script
+int bilinks_cnt = -1;
+
+script_struct biscreens[NUMSCRIPTSCREEN]; //screen (screendata) script
+int biscreens_cnt = -1;
+
+script_struct bidmaps[NUMSCRIPTSDMAP]; //dmap (dmapdata) script
+int bidmaps_cnt = -1;
 //static char ffscript_str_buf[32];
 
 void build_biffs_list()
@@ -18890,6 +18902,178 @@ void build_bilweapons_list()
     for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
         if(bilweapons[i].first.length() > 0)
             bilweapons_cnt = i+1;
+}
+
+//eweapon scripts
+void build_bieweapons_list()
+{
+    bieweapons[0].first = "(None)";
+    bieweapons[0].second = -1;
+    bieweapons_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
+    {
+        if(ewpnmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << ewpnmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bieweapons[bieweapons_cnt].first = ss.str();
+        bieweapons[bieweapons_cnt].second = i;
+        bieweapons_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bieweapons_cnt; i<NUMSCRIPTWEAPONS; i++)
+    {
+        bieweapons[i].first="";
+        bieweapons[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bieweapons_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bieweapons_cnt; j++)
+        {
+            if(stricmp(bieweapons[i].first.c_str(),bieweapons[j].first.c_str()) > 0 && strcmp(bieweapons[j].first.c_str(),""))
+                zc_swap(bieweapons[i],bieweapons[j]);
+        }
+    }
+    
+    bieweapons_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+        if(bieweapons[i].first.length() > 0)
+            bieweapons_cnt = i+1;
+}
+
+//link scripts
+void build_bilinks_list()
+{
+    bilinks[0].first = "(None)";
+    bilinks[0].second = -1;
+    bilinks_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTLINK - 1; i++)
+    {
+        if(linkmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << linkmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bilinks[bilinks_cnt].first = ss.str();
+        bilinks[bilinks_cnt].second = i;
+        bilinks_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bilinks_cnt; i<NUMSCRIPTLINK; i++)
+    {
+        bilinks[i].first="";
+        bilinks[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bilinks_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bilinks_cnt; j++)
+        {
+            if(stricmp(bilinks[i].first.c_str(),bilinks[j].first.c_str()) > 0 && strcmp(bilinks[j].first.c_str(),""))
+                zc_swap(bilinks[i],bilinks[j]);
+        }
+    }
+    
+    bilinks_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTLINK; i++)
+        if(bilinks[i].first.length() > 0)
+            bilinks_cnt = i+1;
+}
+
+//dmap scripts
+void build_bidmaps_list()
+{
+    bidmaps[0].first = "(None)";
+    bidmaps[0].second = -1;
+    bidmaps_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTSDMAP - 1; i++)
+    {
+        if(dmapmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << dmapmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bidmaps[bidmaps_cnt].first = ss.str();
+        bidmaps[bidmaps_cnt].second = i;
+        bidmaps_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bidmaps_cnt; i<NUMSCRIPTSDMAP; i++)
+    {
+        bidmaps[i].first="";
+        bidmaps[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bidmaps_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bidmaps_cnt; j++)
+        {
+            if(stricmp(bidmaps[i].first.c_str(),bidmaps[j].first.c_str()) > 0 && strcmp(bidmaps[j].first.c_str(),""))
+                zc_swap(bidmaps[i],bidmaps[j]);
+        }
+    }
+    
+    bidmaps_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+        if(bidmaps[i].first.length() > 0)
+            bidmaps_cnt = i+1;
+}
+
+//screen scripts
+void build_biscreens_list()
+{
+    biscreens[0].first = "(None)";
+    biscreens[0].second = -1;
+    biscreens_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTSCREEN - 1; i++)
+    {
+        if(screenmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << screenmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        biscreens[biscreens_cnt].first = ss.str();
+        biscreens[biscreens_cnt].second = i;
+        biscreens_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=biscreens_cnt; i<NUMSCRIPTSCREEN; i++)
+    {
+        biscreens[i].first="";
+        biscreens[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < biscreens_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < biscreens_cnt; j++)
+        {
+            if(stricmp(biscreens[i].first.c_str(),biscreens[j].first.c_str()) > 0 && strcmp(biscreens[j].first.c_str(),""))
+                zc_swap(biscreens[i],biscreens[j]);
+        }
+    }
+    
+    biscreens_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTSCREEN; i++)
+        if(biscreens[i].first.length() > 0)
+            biscreens_cnt = i+1;
 }
 
 

@@ -520,6 +520,26 @@ void build_bilweapons_list();
 extern script_struct bilweapons[NUMSCRIPTWEAPONS]; //item script
 extern int bilweapons_cnt;
 
+//eweapon script list for editors
+void build_bieweapons_list();
+extern script_struct bieweapons[NUMSCRIPTWEAPONS]; //item script
+extern int bieweapons_cnt;
+
+//link script list for editors
+void build_bilinks_list();
+extern script_struct bilinks[NUMSCRIPTLINK]; //item script
+extern int bilinks_cnt;
+
+//screen script list for editors
+void build_biscreens_list();
+extern script_struct biscreens[NUMSCRIPTSCREEN]; //item script
+extern int biscreens_cnt;
+
+//dmap script list for editors
+void build_bidmaps_list();
+extern script_struct bidmaps[NUMSCRIPTSDMAP]; //item script
+extern int bidmaps_cnt;
+
 //extern script_struct biffs[NUMSCRIPTFFC];
 
 typedef struct command_struct
