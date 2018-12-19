@@ -199,7 +199,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_LINKSPRITES      5
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         10
+#define V_FFSCRIPT         11
 #define V_SFX              7
 #define V_FAVORITES        1
 //= V_SHOPS is under V_MISC
@@ -3924,7 +3924,8 @@ extern void removeFromItemCache(int itemid);
 #define NUMSCRIPTWEAPONS	256
 #define NUMSCRIPTGLOBAL		4
 #define NUMSCRIPTGLOBALOLD	3
-#define NUMSCRIPTLINK		3
+#define NUMSCRIPTLINKOLD		3
+#define NUMSCRIPTLINK		5
 #define NUMSCRIPTSCREEN		256
 #define NUMSCRIPTSDMAP		256
 
@@ -3932,6 +3933,11 @@ extern void removeFromItemCache(int itemid);
 #define GLOBAL_SCRIPT_GAME		1
 #define GLOBAL_SCRIPT_END		2
 #define GLOBAL_SCRIPT_CONTINUE 	3
+
+#define SCRIPT_LINK_INIT 1
+#define SCRIPT_LINK_ACTIVE 2
+#define SCRIPT_LINK_DEATH 3
+#define SCRIPT_LINK_WIN 4
 
 //Link Internal Flags
 #define LF_PAID_SWORD_COST		0x01

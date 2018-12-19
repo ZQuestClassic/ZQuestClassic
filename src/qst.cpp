@@ -8655,12 +8655,35 @@ int readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
             globalscripts[GLOBAL_SCRIPT_CONTINUE][0].command = 0xFFFF;
         }
         
-        for(int i = 0; i < NUMSCRIPTLINK; i++)
+	if(s_version > 10) //expanded the number of Link scripts to 5. 
         {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &linkscripts[i]);
-            
-            if(ret != 0) return qe_invalid;
+		for(int i = 0; i < NUMSCRIPTLINK; i++)
+		{
+		    ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &linkscripts[i]);
+		    
+		    if(ret != 0) return qe_invalid;
+		}
         }
+	else
+	{
+		for(int i = 0; i < NUMSCRIPTLINKOLD; i++)
+		{
+		    ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &linkscripts[i]);
+		    
+		    if(ret != 0) return qe_invalid;
+		}
+		if(linkscripts[3] != NULL)
+                delete [] linkscripts[3];
+                
+		linkscripts[3] = new ffscript[1];
+		linkscripts[3][0].command = 0xFFFF;
+		
+		if(linkscripts[4] != NULL)
+                delete [] linkscripts[4];
+                
+		linkscripts[4] = new ffscript[1];
+		linkscripts[4][0].command = 0xFFFF;
+	}
         if(s_version > 8 && s_version < 10)
         {
             

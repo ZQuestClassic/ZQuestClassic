@@ -136,7 +136,9 @@ refInfo linkScriptData;
 refInfo screenScriptData;
 refInfo dmapScriptData;
 word g_doscript = 1;
+word link_doscript = 1;
 bool global_wait = false;
+bool link_waitdraw = false;
 
 //Sprite script data
 refInfo itemScriptData[256];
@@ -162,6 +164,7 @@ long ffc_stack[32][MAX_SCRIPT_REGISTERS];
 long global_stack[GLOBAL_STACK_MAX][MAX_SCRIPT_REGISTERS];
 long item_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
+long link_stack[MAX_SCRIPT_REGISTERS];
 refInfo ffcScriptData[32];
 
 void clear_ffc_stack(const byte i)
@@ -173,6 +176,11 @@ void clear_global_stack()
 {
     //memset(global_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
     memset(global_stack, 0, sizeof(global_stack));
+}
+
+void clear_link_stack()
+{
+    memset(link_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
 
 //ScriptHelper
@@ -15026,7 +15034,7 @@ int run_script(const byte type, const word script, const long i)
 		    //should this become ri = &(globalScriptData[link_slot]);
 		
 		curscript = linkscripts[script];
-		stack = &global_stack[GLOBAL_STACK_LINK];
+		stack = &link_stack;
 		    //
 	    }
 	    break;
@@ -17001,6 +17009,10 @@ int run_script(const byte type, const word script, const long i)
             global_wait = true;
             break;
             
+	case SCRIPT_LINK:
+		link_waitdraw = true;
+		break;
+	
         default:
             Z_scripterrlog("Waitdraw can only be used in the active global script\n");
             break;
@@ -17017,6 +17029,10 @@ int run_script(const byte type, const word script, const long i)
 		    
 		case SCRIPT_GLOBAL:
 		    g_doscript = 0;
+		    break;
+		
+		case SCRIPT_LINK:
+		    link_doscript = 0;
 		    break;
 		    
 		case SCRIPT_ITEM:
