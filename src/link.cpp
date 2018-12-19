@@ -51,6 +51,7 @@ extern int draw_screen_clip_rect_y1;
 extern int draw_screen_clip_rect_y2;
 //extern bool draw_screen_clip_rect_show_link;
 extern bool global_wait;
+extern bool link_waitdraw;
 
 int link_count = -1;
 int link_animation_speed = 1; //lower is faster animation
@@ -66,6 +67,7 @@ int directItemB = -1;
 int directWpn = -1;
 int whistleitem=-1;
 extern word g_doscript;
+extern word link_doscript;
 
 void playLevelMusic();
 
@@ -13139,7 +13141,8 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
     
     if(g_doscript)
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-        
+    if (link_doscript)
+	    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
     x = storex, y = storey;
 }
 
@@ -13330,7 +13333,11 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
     }
-    
+    if ( link_waitdraw )
+    {
+	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+        link_waitdraw = false;
+    }
     do
     {
         draw_screen(tmpscr);

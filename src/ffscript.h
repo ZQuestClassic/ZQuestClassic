@@ -1221,6 +1221,7 @@ int ffscript_engine(const bool preload);
 
 void clear_ffc_stack(const byte i);
 void clear_global_stack();
+void clear_link_stack();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 

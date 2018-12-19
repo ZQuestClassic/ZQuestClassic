@@ -395,7 +395,9 @@ extern refInfo linkScriptData;
 extern refInfo screenScriptData;
 extern refInfo dmapScriptData;
 extern word g_doscript;
+extern word link_doscript;
 extern bool global_wait;
+extern bool link_waitdraw;
 
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
@@ -459,6 +461,13 @@ void initZScriptGlobalRAM()
     g_doscript = 1;
     globalScriptData.Clear();
     clear_global_stack();
+}
+
+void initZScriptLinkScripts()
+{
+    link_doscript = 1;
+    linkScriptData.Clear();
+    clear_link_stack();
 }
 
 dword getNumGlobalArrays()
@@ -965,6 +974,10 @@ void Z_scripterrlog(const char * const format,...)
         {
         case SCRIPT_GLOBAL:
             al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
+            break;
+	
+	case SCRIPT_LINK:
+            al_trace("Link script %u (%s): ", curScriptNum+1, linkmap[curScriptNum].second.c_str());
             break;
 	
 	case SCRIPT_LWPN:
@@ -1764,6 +1777,7 @@ int init_game()
     
     initZScriptArrayRAM(firstplay);
     initZScriptGlobalRAM();
+    initZScriptLinkScripts();
     
     //Run the init script or the oncontinue script with the highest priority.
     //GLobal Script Init ~Init
@@ -1877,10 +1891,12 @@ int init_game()
     {
         memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
     }
     else
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
+        ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
     }
     
     if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
@@ -1903,6 +1919,7 @@ int init_game()
         
     
     initZScriptGlobalRAM(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+    initZScriptLinkScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     ffscript_engine(true);  //Here is a much safer place...
     
     return 0;
@@ -2017,6 +2034,7 @@ int cont_game()
     }
     
     initZScriptGlobalRAM();
+    initZScriptLinkScripts();
     return 0;
 }
 
@@ -2787,6 +2805,10 @@ void game_loop()
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
     }
+    if(!freezemsg && link_doscript)
+    {
+        ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+    }
     
     if(!freeze && !freezemsg)
     {
@@ -2903,6 +2925,11 @@ void game_loop()
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
+    }
+    if ( link_waitdraw )
+    {
+	    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+	    link_waitdraw = false;
     }
     
     
@@ -4517,6 +4544,7 @@ int main(int argc, char* argv[])
             for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
             initZScriptGlobalRAM(); //Should we not be calling this AFTER running the exit script!!
+            initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
 		
 	    //Run Global script OnExit
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
@@ -4561,6 +4589,7 @@ int main(int argc, char* argv[])
             for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
             initZScriptGlobalRAM();
+            initZScriptLinkScripts();
 	    //Run global script OnExit
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
 		
