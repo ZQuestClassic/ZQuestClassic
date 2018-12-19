@@ -19586,7 +19586,7 @@ const char *linkscriptlist2(int index, int *list_size)
     if(index>=0)
     {
         char buf[20];
-        bound(index,0,254);
+        bound(index,0,3);
         
         if(linkmap[index].second=="")
             strcpy(buf, "<none>");
@@ -19606,7 +19606,7 @@ const char *linkscriptlist2(int index, int *list_size)
             sprintf(linkscript_str_buf2,"Death: %s", buf);
             
         
-        sprintf(linkscript_str_buf2,"%d: %s",index+1, buf);
+        //sprintf(linkscript_str_buf2,"%d: %s",index+1, buf);
         return linkscript_str_buf2;
     }
     
