@@ -10406,8 +10406,17 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			sprintf(tempguy.weapon_initD_label[q],"InitD[%d]",q);
 		}
 	    }
-	    
-	    
+	    if ( guyversion >= 40 )
+	    {
+		    if(!p_igetw(&(tempguy.weaponscript),f,keepdata))
+		    {
+				return qe_invalid;
+		    } 
+	    }
+	    if ( guyversion < 40 ) 
+	    {
+		    tempguy.weaponscript = 0;
+	    }
 	    //All ports of QRs to Enemy Editor Flags go HERE! -Z
 	    
 	    
