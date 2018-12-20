@@ -1,5 +1,44 @@
 //2.55 and 2.54 Changes
 
+//Alpha 8
+
+Added DMap scripts, in entirety.
+
+Added the following variables and arrays to ZScript:
+	npc->Script
+	npc->initD[8]
+	lweapon->Script
+	lweapon->InitD[8]
+	eweapon->Script
+	eweapon->InitD[8]
+	npcdata->Script
+	npcdata->InitD[8]
+	npcdata->WeaponScript
+	npcdata->WeaponInitD[8]
+	itemdata->WeaponScript
+	itemdata->WeaponInitD[8]
+
+	Itemdata was alredy in the system, as were a few of these, but
+	I completed the set. I renamed WeaponD to WeaponInitD to prevent confusion.
+Added EWeapon Scripts to ZQuest and to the ZC Player
+	Added vars to npcs for the weaponscript,m the initD, and for the InitA.
+	Added the Enemy Editor dialogue data to set the script and the script InitD.
+	Added the code to transfer data from the guys struct to the weapon, when the weapon is generated.
+	Added the script control code in ffscript.cpp.
+	
+	EWeapon Scripts: Make them functional. 
+		Added code to transfer the script ID from
+		the guys struct to the weapon.
+	Added the code that causes the script to run.
+	EWeapon Scripts: Add vars to guys.h/cpp and initialise them.
+	EWeapon Scripts: Add eweapon script and related fields to the Enemy Editor.
+	EWeapon Scripts: Add weaponscript, weap_initiald and weap_initiala to guys.
+	( ZoriaRPG, 20th December, 2018 )
+
+Fixed some missing calls to vbound in ffscript.cpp.
+Fixed a memory leak caused by not freeing memory used for tile allocation.
+	( Peter Hull, 19th December, 2018 )
+
 //Alpha 7
 Added the following script types to the 'Compile ZScript' dialogue in ZQuest:
 	eweapon, link, dmapdata (DMap), screendata (Screen)
