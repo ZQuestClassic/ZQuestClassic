@@ -53,6 +53,7 @@ extern int draw_screen_clip_rect_y2;
 //extern bool draw_screen_clip_rect_show_link;
 extern bool global_wait;
 extern bool link_waitdraw;
+extern bool dmap_waitdraw;
 
 int link_count = -1;
 int link_animation_speed = 1; //lower is faster animation
@@ -69,6 +70,7 @@ int directWpn = -1;
 int whistleitem=-1;
 extern word g_doscript;
 extern word link_doscript;
+extern word dmap_doscript;
 
 void playLevelMusic();
 
@@ -11306,6 +11308,10 @@ bool LinkClass::dowarp(int type, int index)
     }
     
     bool intradmap = (wdmap == currdmap);
+    //if ( intradmap ) 
+    //{
+	//FFCore.initZScriptDMapScripts();   //Not needed. 
+    //} 
     rehydratelake(type!=wtSCROLL);
     
     switch(wtype)
@@ -13154,7 +13160,10 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
     if(g_doscript)
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
     if (link_doscript)
-	    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+    if ( dmap_doscript ) 
+	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script);
+    
     x = storex, y = storey;
 }
 
@@ -13349,6 +13358,11 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     {
 	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
         link_waitdraw = false;
+    }
+    if ( dmap_waitdraw )
+    {
+	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script);
+	dmap_waitdraw = false;
     }
     do
     {

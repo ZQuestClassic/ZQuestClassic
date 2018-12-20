@@ -3931,6 +3931,31 @@ int readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, wo
         }
 	if(s_version < 10) tempDMap.sideview = 0;
         
+	//Dmap Scripts
+	if(s_version >= 12)
+        {
+            if(!p_igetw(&tempDMap.script,f,keepdata))
+            {
+                return qe_invalid;
+            }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_igetl(&tempDMap.initD[q],f,keepdata))
+                {
+                return qe_invalid;
+                }    
+		    
+	    }
+        }
+	if ( s_version < 12 )
+	{
+		tempDMap.script = 0;
+		for ( int q = 0; q < 8; q++ )
+		{
+			tempDMap.initD[q] = 0;
+		}
+	}
+	
         if(keepdata==true)
         {
             memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));

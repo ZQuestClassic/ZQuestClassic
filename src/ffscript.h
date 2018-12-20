@@ -248,6 +248,8 @@ void gfxmonohue();
 void Tint();
 void clearTint();
 
+void initZScriptDMapScripts();
+
 int GetScriptObjectUID(int type);
     
 byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
@@ -1223,6 +1225,8 @@ int ffscript_engine(const bool preload);
 void clear_ffc_stack(const byte i);
 void clear_global_stack();
 void clear_link_stack();
+void clear_dmap_stack();
+void initZScriptLinkScripts();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 

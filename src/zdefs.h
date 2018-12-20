@@ -99,11 +99,11 @@
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       41                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 7"                    //version of the program as presented in text
-#define IS_BETA             -7                         //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        7
-#define DATE_STR            "19th December, 2018"
-#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 7"
+#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 8"                    //version of the program as presented in text
+#define IS_BETA             -8                         //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        8
+#define DATE_STR            "20th December, 2018"
+#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 8"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -183,7 +183,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOS           11
 #define V_CSETS            4
 #define V_MAPS            19
-#define V_DMAPS            11
+#define V_DMAPS            12
 #define V_DOORS            1
 #define V_ITEMS           44
 #define V_WEAPONS          7
@@ -2616,6 +2616,8 @@ struct dmap
     //long init_d[8];
     //long script;
     char sideview;
+    word script;
+    long initD[8];
 };
 
 // DMap flags
