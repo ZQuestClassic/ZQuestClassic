@@ -6753,6 +6753,18 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
             {
                 new_return(30);
             }
+	    if(!p_iputw(DMaps[i].script,f))
+            {
+                new_return(31);
+            }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(DMaps[i].initD[q],f))
+	        {
+			new_return(32);
+		}
+		    
+	    }
         }
         
         if(writecycle==0)
