@@ -19476,6 +19476,34 @@ void FFScript::lweaponScriptEngine()
 		if ( Lwpns.spr(q)->doscript == 0 ) continue;
 		switch(Lwpns.spr(q)->id)
 		{
+		    /* We can't have this, because the same script would run on the sword, and on the swordbeam!
+		    case wSword:
+		    {
+			weapon *wa = (weapon*)Lwpns.spr(q);
+			if ( wa->Dead() ) break;
+			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
+			{
+				weapon *w = (weapon*)Lwpns.spr(q);
+				if ( w->Dead() )
+				{
+					Lwpns.spr(q)->doscript = 0;
+					Lwpns.spr(q)->weaponscript = 0;
+					//memset(w->stack, 0xFFFF, sizeof(w->stack));
+					break;
+				}
+				else
+				{
+					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
+					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
+					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
+					ri->lwpn = w->getUID();
+					ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
+				}
+			}
+			break;
+		    }
+		    */
 		    case wBeam:
 		    case wRefBeam:
 		    {
