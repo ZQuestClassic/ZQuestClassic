@@ -436,7 +436,9 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
 	weaponscript = itemsbuf[Parentitem].weaponscript;
     }
-    if ( prntid > -1 )
+    
+    if ( isLW ) goto skip_eweapon_script;
+    if ( prntid > -1 && prntid != Link.getUID()  ) //eweapon scripts
     {
 	//Z_scripterrlog("Eweapon created with a prntid of: %d\n",prntid);
 	enemy *s = (enemy *)guys.getByUID(prntid);
@@ -446,7 +448,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	//weaponscript = guysbuf[prntid].weaponscript;
 	weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
     }
-    
+    skip_eweapon_script:
     tilemod = 0;
     drawlayer = 0;
     family_class = family_level = 0;
