@@ -175,12 +175,7 @@ void endingpal()
 
 void ending()
 {
-	do
-	{
-		
-		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
-		FFCore.Waitframe();
-	}while(link_doscript);
+	
     /*
       *************************
       * WIN THE GAME SEQUENCE *
@@ -221,7 +216,12 @@ void ending()
     kill_sfx();
     sfx(WAV_ZELDA);
     Quit=0;
-    
+    //do
+	//{
+		
+	//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+	//	FFCore.Waitframe();
+	//}while(link_doscript);
     game->set_cheat(game->get_cheat() | (cheat>1)?1:0);
     
     draw_screen_clip_rect_x1=0;
@@ -233,6 +233,11 @@ void ending()
     
     for(int f=0; f<365; f++)
     {
+	if ( link_doscript ) 
+	{
+		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+		--f; load_control_state(); goto adv;
+	}
         if(f==363)
         {
             //363  WIPE complete, DOT out, A/B items out
@@ -259,7 +264,7 @@ void ending()
             draw_screen_clip_rect_x2-=8;
             //draw_screen_clip_rect_show_guys=true;
         }
-        
+        adv:
         draw_screen(tmpscr);
         advanceframe(true);
         
@@ -303,6 +308,8 @@ void ending()
     
     for(int f=408; f<927; f++)
     {
+	//Z_scripterrlog("f = %d and link_doscript = %d\n", f, link_doscript);
+	//if ( link_doscript ) ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
         /*
           668  LINK out, ZELDA out
           669  LINK in (TRIFORCE overhead), ZELDA in (TRIFORCE overhead)
