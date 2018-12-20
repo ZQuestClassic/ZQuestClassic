@@ -86,7 +86,7 @@ std::map<int, pair<string, string> > lwpnmap;
 std::map<int, pair<string, string> > linkmap;
 std::map<int, pair<string, string> > dmapmap;
 std::map<int, pair<string, string> > screenmap;
-
+void free_newtilebuf();
 bool combosread=false;
 bool mapsread=false;
 bool fixffcs=false;
@@ -1231,6 +1231,7 @@ int get_qst_buffers()
     memrequested+=(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)));
     Z_message("Allocating tile buffer (%s)... ", byte_conversion2(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)),memrequested,-1,-1));
     
+    free_newtilebuf();
     if((newtilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
         return 0;
         
@@ -1315,6 +1316,7 @@ void free_newtilebuf()
                 zc_free(newtilebuf[i].data);
                 
         zc_free(newtilebuf);
+	newtilebuf = 0;
     }
 }
 
@@ -1328,6 +1330,7 @@ void free_grabtilebuf()
                 if(grabtilebuf[i].data) zc_free(grabtilebuf[i].data);
                 
             zc_free(grabtilebuf);
+	    grabtilebuf = 0;
         }
     }
 }
@@ -13613,7 +13616,6 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
 		for ( int q = ZC250MAXTILES; q < NEWMAXTILES; ++q )
 		{
 			
-			buf[q].data=(byte *)zc_malloc(tilesize(tf4Bit));
 			//memcpy(buf[q].data,temp_tile,tilesize(buf[q].format));
 			reset_tile(buf,q,tf4Bit);
 			
