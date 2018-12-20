@@ -1960,6 +1960,7 @@ void edit_itemdata(int index)
 	{
 		//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, itemsbuf[index].initD_label[q]);
 		strcpy(weapon_initd_labels[q], itemsbuf[index].weapon_initD_label[q]);
+		if ( weapon_initd_labels[q][0] == NULL ) sprintf(weapon_initd_labels[q],"InitD[%d]",q);
 		itemdata_dlg[275+q].dp = weapon_initd_labels[q];
 		//sprintf();
 	    
@@ -1996,6 +1997,7 @@ void edit_itemdata(int index)
     {
 	//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
 	strcpy(item_initd_labels[q], itemsbuf[index].initD_label[q]);
+	if ( initD_label[q][0] == NULL ) sprintf(initD_label[q],"InitD[%d]",q);
 	itemdata_dlg[179+q].dp = item_initd_labels[q];
 	//sprintf();
 	    
@@ -5664,6 +5666,7 @@ void edit_enemydata(int index)
     {
 	//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
 	strcpy(npc_initd_labels[q], guysbuf[index].initD_label[q]);
+	if ( npc_initd_labels[q][0] == NULL ) sprintf(npc_initd_labels[q],"InitD[%d]",q);
 	enedata_dlg[337+q].dp = npc_initd_labels[q];
 	//sprintf();
 	    
@@ -5673,6 +5676,7 @@ void edit_enemydata(int index)
     {
 		//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
 		strcpy(weapon_initd_labels[q], guysbuf[index].weapon_initD_label[q]);
+		if ( weapon_initd_labels[q][0] == NULL ) sprintf(weapon_initd_labels[q],"InitD[%d]",q);
 		enedata_dlg[353+q].dp = weapon_initd_labels[q];
 		//sprintf();
 	    
@@ -6330,6 +6334,7 @@ void edit_enemydata(int index)
 	    for ( int q = 0; q < 8; q++ )
 	    {
 		strcpy(test.initD_label[q], npc_initd_labels[q]);
+		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
 	    }
             guysbuf[index] = test;
             saved = false;
