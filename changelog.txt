@@ -2,6 +2,16 @@
 
 //Alpha 8
 
+Link's onDeath script, and Link's onWin script, can both run
+	for multiple frames.
+Fix when Link's Init script runs.
+	It now runs after Link.init(), but before setting his entry points
+	and before the opening wipe.
+	This ensures that any changes that the init script executes,
+	such as setting Link->Invisible, aren't seen by the player;
+	and that Screen->EntryX, and Screen->EntryY have the correct
+	coordinates at the start of the game, if Link's init script sets these.
+
 If the user clears an initD label to a blank link, it will reset to 
 	the default value of 'InitD[%d]'.
 Added DMap scripts, in entirety.

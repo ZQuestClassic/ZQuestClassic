@@ -4376,6 +4376,25 @@ bool LinkClass::animate(int)
 	    //initLinkScripts();
 	    //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
 	    //if ( link_doscript ) { last_hurrah = false; return false; }
+		initLinkScripts(); //Get ready to run his death script.
+		int fc = 0;
+		BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
+				clear_bitmap(subscrbmp);
+		do
+		{
+			if ( link_doscript ) 
+			{
+				ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+				load_control_state(); 
+				
+			}
+			draw_screen(tmpscr);
+			blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+			advanceframe(true);
+			if (!link_doscript ) ++fc;
+			
+		}
+		while(fc < 1 );
             gameover();
             
             return true;
@@ -15882,25 +15901,25 @@ void LinkClass::gameover()
 	int f=0;
     
 	action=none; FFCore.setLinkAction(dying); //mayhaps a new action of 'gameover'? -Z
-	initLinkScripts(); //Get ready to run his death script.
+	
 	kill_sfx();  //call before the onDeath script.
 	
-	do
-	{
+	//do
+	//{
 		
-		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
-		FFCore.Waitframe();
-	}while(link_doscript);
+	//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+	//	FFCore.Waitframe();
+	//}while(link_doscript);
 	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
 	//while(link_doscript) { advanceframe(true); } //Not safe. The script runs for only one frame at present.
 	
-	Playing=false;
+	//Playing=false;
     
 	if(!debug_enabled)
 	{
 		Paused=false;
 	}
-    
+    /*
 	game->set_deaths(zc_min(game->get_deaths()+1,999));
 	dir=down;
 	music_stop();
@@ -15910,14 +15929,7 @@ void LinkClass::gameover()
     
 	for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
-	//get rid off all sprites but Link
-	guys.clear();
-	items.clear();
-	Ewpns.clear();
-	Lwpns.clear();
-	Sitems.clear();
-	chainlinks.clear();
-	decorations.clear();
+	
     
 	playing_field_offset=56; // otherwise, red_shift() may go past the bottom of the screen
 	quakeclk=wavy=0;
@@ -15935,9 +15947,66 @@ void LinkClass::gameover()
 	clear_bitmap(subscrbmp);
 	put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, false, sspUP);
 	QMisc.colors.link_dot = tmp_link_dot;
+    */
     
+	BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
+				clear_bitmap(subscrbmp);
+				//get rid off all sprites but Link
+				guys.clear();
+				items.clear();
+				Ewpns.clear();
+				Lwpns.clear();
+				Sitems.clear();
+				chainlinks.clear();
+				decorations.clear();
+				Playing = false;
+					
+				game->set_deaths(zc_min(game->get_deaths()+1,999));
+				dir=down;
+				music_stop();
+				
+				attackclk=hclk=superman=0;
+				scriptcoldet = 1;
+			    
+				for(int i=0; i<32; i++) miscellaneous[i] = 0;
+			    
+				
+			    
+				playing_field_offset=56; // otherwise, red_shift() may go past the bottom of the screen
+				quakeclk=wavy=0;
+			    
+				//in original Z1, Link marker vanishes at death.
+				//code in subscr.cpp, put_passive_subscr checks the following value.
+				//color 255 is a GUI color, so quest makers shouldn't be using this value.
+				//Also, subscreen is static after death in Z1.
+				int tmp_link_dot = QMisc.colors.link_dot;
+				QMisc.colors.link_dot = 255;
+				//doesn't work
+				//scrollbuf is tampered with by draw_screen()
+				//put_passive_subscr(scrollbuf, &QMisc, 256, passive_subscreen_offset, false, false);//save this and reuse it.
+				
+				put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+				QMisc.colors.link_dot = tmp_link_dot;
+        bool clearedit = false;
 	do
 	{
+		//if ( link_doscript ) 
+		//{
+		//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+			//if ( f ) --f; 
+		//	load_control_state(); //goto adv;
+		//}
+		//else
+		//{
+		//	if ( !clearedit )
+		//	{
+				
+				
+		//		clearedit = true;
+				
+		//	}
+		//}
+		//else Playing = false;
 		if(f<254)
 		{
 			if(f<=32)
@@ -16180,9 +16249,10 @@ void LinkClass::gameover()
 			sfx(WAV_MSG);
 			break;
 		}
-        
+		//adv:
 		advanceframe(true);
 		++f;
+		//if (!link_doscript ) ++f;
 	}
 	while(f<353 && !Quit);
     
