@@ -2,6 +2,8 @@
 
 //Alpha 8
 
+If the user clears an initD label to a blank link, it will reset to 
+	the default value of 'InitD[%d]'.
 Added DMap scripts, in entirety.
 
 Added the following variables and arrays to ZScript:
