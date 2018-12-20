@@ -1767,6 +1767,20 @@ script_variable variable_list[]=
 	{"ITEMFAMILY", ITEMFAMILY, 0, 0 },
 	{"ITEMLEVEL", ITEMLEVEL, 0, 0 },
 	
+	{"EWPNSCRIPT", EWPNSCRIPT, 0, 0 },
+	{"EWPNINITD", EWPNINITD, 0, 0 },
+	
+	{"NPCSCRIPT", NPCSCRIPT, 0, 0 },
+	
+	{"DMAPSCRIPT", DMAPSCRIPT, 0, 0 },
+	{"DMAPINITD", DMAPINITD, 0, 0 },
+	
+	{"SCREENSCRIPT", SCREENSCRIPT, 0, 0 },
+	{"SCREENINITD", SCREENINITD, 0, 0 },
+	
+	{"LINKINITD", LINKINITD, 0, 0 },
+	{"NPCDATAWEAPONINITD", NPCDATAWEAPONINITD, 0, 0 },
+	{"NPCDATAWEAPONSCRIPT", NPCDATAWEAPONSCRIPT, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }

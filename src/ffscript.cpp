@@ -2714,6 +2714,20 @@ long get_register(const long arg)
     }
     break;
     
+    case NPCSCRIPT:
+    {
+        int a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->Script") != SH::_NoError )
+            ret = -10000;
+        else
+	{
+		//enemy *e = (enemy*)guys.spr(ri->guyref);
+		ret = (int)GuyH::getNPC()->script;
+	}
+    }
+    break;
+    
     case NPCDD: //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
     {
         int a = ri->d[0] / 10000;
@@ -3371,6 +3385,22 @@ case NPCBEHAVIOUR: {
             ret=(((weapon*)(s))->script_UID); //literal, not *10000
             
         break;
+	
+	case EWPNSCRIPT:
+        if(0!=(s=checkEWpn(ri->ewpn,"Script")))
+            ret=(((weapon*)(s))->weaponscript)*10000;
+            
+        break;
+	
+	case EWPNINITD:
+	{
+		int a = vbound((ri->d[0] / 10000),0,7);
+		if(0!=(s=checkEWpn(ri->ewpn,"InitD[]")))
+		{
+			ret=(((weapon*)(s))->weap_initd[a]);
+		}
+		break;
+	}
 	
 	/*
 	case LWEAPONSCRIPTUID:
@@ -5842,8 +5872,10 @@ case NPCDATASCRIPT: GET_NPCDATA_VAR_INT32(script, "Script"); break;
 case NPCDATATILEWIDTH: GET_NPCDATA_VAR_INT32(txsz, "TileWidth"); break;
 case NPCDATATILEHEIGHT: GET_NPCDATA_VAR_INT32(tysz, "TileHeight"); break;
 case NPCDATAWPNSPRITE: GET_NPCDATA_VAR_INT32(wpnsprite, "WeaponSprite"); break;
+case NPCDATAWEAPONSCRIPT: GET_NPCDATA_VAR_INT32(weaponscript, "WeaponScript"); break;
 case NPCDATADEFENSE: GET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
 case NPCDATAINITD: GET_NPCDATA_VAR_INDEX(initD, "InitD", 8); break;
+case NPCDATAWEAPONINITD: GET_NPCDATA_VAR_INDEX(weap_initiald, "WeaponInitD", 8); break;
 case NPCDATASIZEFLAG: GET_NPCDATA_VAR_INT32(SIZEflags, "SizeFlags"); break;
 
 case NPCDATAFROZENTILE: GET_NPCDATA_VAR_INT32(frozentile, "FrozenTile"); break;
@@ -8240,6 +8272,22 @@ void set_register(const long arg, const long value)
             (((weapon*)(s))->parentid)=vbound((value/10000),0,511);
             
         break;
+	
+	case EWPNSCRIPT:
+        if(0!=(s=checkEWpn(ri->ewpn,"Script")))
+		(((weapon*)(s))->weaponscript)=value/10000;
+            
+        break;
+	
+	case EWPNINITD:
+	{
+		int a = vbound((ri->d[0] / 10000),0,7);
+		if(0!=(s=checkEWpn(ri->ewpn,"InitD[]")))
+		{
+			(((weapon*)(s))->weap_initd[a])=value;
+		}
+		break;
+	}
         
 ///----------------------------------------------------------------------------------------------------//
 //NPC Variables
@@ -8571,11 +8619,24 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     {
 	long a = ri->d[0] / 10000;
         
-        if(GuyH::loadNPC(ri->guyref, "npc->Misc") == SH::_NoError)
+        if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") == SH::_NoError)
 	{
 		//enemy *e = (enemy*)guys.spr(ri->guyref);
 		//e->initD[a] = value; 
 		GuyH::getNPC()->initD[a] = value;
+	}
+    }
+    break;
+    
+    case NPCSCRIPT:
+    {
+	long a = ri->d[0] / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->Script") == SH::_NoError)
+	{
+		//enemy *e = (enemy*)guys.spr(ri->guyref);
+		//e->initD[a] = value; 
+		GuyH::getNPC()->script = value;
 	}
     }
     break;
@@ -11173,7 +11234,9 @@ case NPCDATAHITZ: SET_NPCDATA_VAR_INT(hzsz, "HitZHeight"); break;
 case NPCDATATILEWIDTH: SET_NPCDATA_VAR_INT(txsz, "TileWidth"); break;
 case NPCDATATILEHEIGHT: SET_NPCDATA_VAR_INT(tysz, "TileHeight"); break;
 case NPCDATAWPNSPRITE: SET_NPCDATA_VAR_INT(wpnsprite, "WeaponSprite"); break;
+case NPCDATAWEAPONSCRIPT: SET_NPCDATA_VAR_INT(weaponscript, "WeaponScript"); break;
 case NPCDATADEFENSE: SET_NPCDATA_VAR_INDEX(defense, "Defense", 42); break;
+case NPCDATAWEAPONINITD: SET_NPCDATA_VAR_INDEX(weap_initiald, "WeaponInitD", 8); break;
 case NPCDATAINITD: SET_NPCDATA_VAR_INDEX(initD, "InitD", 8); break;
 case NPCDATASIZEFLAG: SET_NPCDATA_VAR_INT(SIZEflags, "SizeFlags"); break;
 

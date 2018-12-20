@@ -3167,13 +3167,25 @@ enum ASM_DEFINE
 #define ITEMFAMILY			0x1325	
 #define ITEMLEVEL			0x1326	
 
+#define EWPNSCRIPT			0x1327	
+#define EWPNINITD			0x1328	
+#define NPCSCRIPT			0x1329
+#define DMAPSCRIPT			0x132A	
+#define DMAPINITD			0x132B	
+#define SCREENSCRIPT			0x132C	
+#define SCREENINITD			0x132D	
+#define LINKINITD			0x132E	
+
+#define NPCDATAWEAPONINITD 		0x132F
+#define NPCDATAWEAPONSCRIPT 		0x1330
+
 //bytecode
 
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x1327
+#define NUMVARIABLES         0x1331
 
 
 // Script types
