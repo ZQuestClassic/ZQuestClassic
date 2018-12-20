@@ -137,8 +137,10 @@ refInfo screenScriptData;
 refInfo dmapScriptData;
 word g_doscript = 1;
 word link_doscript = 1;
+word dmap_doscript = 1;
 bool global_wait = false;
 bool link_waitdraw = false;
+bool dmap_waitdraw = false;
 
 //Sprite script data
 refInfo itemScriptData[256];
@@ -165,6 +167,7 @@ long global_stack[GLOBAL_STACK_MAX][MAX_SCRIPT_REGISTERS];
 long item_stack[256][MAX_SCRIPT_REGISTERS];
 long ffmisc[32][16];
 long link_stack[MAX_SCRIPT_REGISTERS];
+long dmap_stack[MAX_SCRIPT_REGISTERS];
 refInfo ffcScriptData[32];
 
 void clear_ffc_stack(const byte i)
@@ -182,6 +185,20 @@ void clear_link_stack()
 {
     memset(link_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
 }
+
+void clear_dmap_stack()
+{
+    memset(dmap_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(long));
+}
+
+
+void FFScript::initZScriptDMapScripts()
+{
+    dmap_doscript = 1;
+    dmapScriptData.Clear();
+    clear_dmap_stack();
+}
+
 
 //ScriptHelper
 class SH
@@ -13752,6 +13769,10 @@ bool FFScript::warp_link(int warpType, int dmapID, int scrID, int warpDestX, int
 	t=(currscr<128)?0:1;
 	bool overlay=false;
 	bool intradmap = (dmapID == currdmap);
+	//if ( intradmap ) 
+	//{
+	//	initZScriptDMapScripts();    //Not needed.
+	//}
 	if ( (unsigned)dmapID >= MAXDMAPS ) return false;
 	if ( (unsigned)scrID > MAXSCREENS ) return false;
 	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,currscr); return false; }
@@ -15039,6 +15060,15 @@ int run_script(const byte type, const word script, const long i)
 	    }
 	    break;
 	    
+	    case SCRIPT_DMAP:
+	    {
+		//we will need to clear this whenever we change dmaps.
+		ri = &dmapScriptData;
+		curscript = dmapscripts[script];
+		stack = &dmap_stack;
+	    }
+	    break;
+	    
 	    case SCRIPT_SCREEN:
 	    {
 		ri = &screenScriptData;
@@ -15050,16 +15080,6 @@ int run_script(const byte type, const word script, const long i)
 	    }
 	    break;
 	    
-	    case SCRIPT_DMAP:
-	    {
-		ri = &dmapScriptData;
-		    //should this become ri = &(globalScriptData[dmap_slot]);
-		
-		curscript = dmapscripts[script];
-		stack = &global_stack[GLOBAL_STACK_DMAP];
-		    //
-	    }
-	    break;
 	    
 	    default:
 	    {
@@ -17013,6 +17033,10 @@ int run_script(const byte type, const word script, const long i)
 		link_waitdraw = true;
 		break;
 	
+	case SCRIPT_DMAP:
+		dmap_waitdraw = true;
+		break;
+	
         default:
             Z_scripterrlog("Waitdraw can only be used in the active global script\n");
             break;
@@ -17033,6 +17057,10 @@ int run_script(const byte type, const word script, const long i)
 		
 		case SCRIPT_LINK:
 		    link_doscript = 0;
+		    break;
+		
+		case SCRIPT_DMAP:
+		    //dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
 		    break;
 		    
 		case SCRIPT_ITEM:
