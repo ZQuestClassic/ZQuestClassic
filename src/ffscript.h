@@ -247,6 +247,10 @@ void do_monochromatic(const bool v);
 void gfxmonohue();
 void Tint();
 void clearTint();
+//Advances the game frame without checking 'Quit' variable status.
+//Used for making scripts such as Link's onWin and onDeath scripts
+//run for multiple frames.
+void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
 

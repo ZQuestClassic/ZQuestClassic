@@ -15876,64 +15876,6 @@ void slide_in_color(int color)
     refreshpal=true;
 }
 
-void advanceframe3(bool allowwavy, bool sfxcleanup)
-{
-    if(zcmusic!=NULL)
-    {
-        zcmusic_poll();
-    }
-    
-    while(Paused && !Advance && !Quit)
-    {
-        // have to call this, otherwise we'll get an infinite loop
-        syskeys();
-        // to keep fps constant
-        updatescr(allowwavy);
-        throttleFPS();
-        /*
-#ifdef _WIN32
-        
-        if(use_dwm_flush)
-        {
-            do_DwmFlush();
-        }
-        
-#endif
-        */
-        // to keep music playing
-        if(zcmusic!=NULL)
-        {
-            zcmusic_poll();
-        }
-    }
-    
-    //if(Quit)
-        //return;
-        /*
-    if(Playing && game->get_time()<MAXTIME)
-        game->change_time(1);
-        */
-    Advance=false;
-    ++frame;
-    
-    syskeys();
-    // Someday... maybe install a Turbo button here?
-    updatescr(allowwavy);
-    throttleFPS();
-    /*
-#ifdef _WIN32
-    
-    if(use_dwm_flush)
-    {
-        do_DwmFlush();
-    }
-    
-#endif
-    */
-    //textprintf_ex(screen,font,0,72,254,BLACK,"%d %d", lastentrance, lastentrance_dmap);
-    if(sfxcleanup)
-        sfx_cleanup();
-}
 
 void LinkClass::gameover()
 {
@@ -15941,11 +15883,13 @@ void LinkClass::gameover()
     
 	action=none; FFCore.setLinkAction(dying); //mayhaps a new action of 'gameover'? -Z
 	initLinkScripts(); //Get ready to run his death script.
+	kill_sfx();  //call before the onDeath script.
+	
 	do
 	{
 		
 		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
-		advanceframe3(true,true);
+		FFCore.Waitframe();
 	}while(link_doscript);
 	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
 	//while(link_doscript) { advanceframe(true); } //Not safe. The script runs for only one frame at present.
@@ -15960,7 +15904,7 @@ void LinkClass::gameover()
 	game->set_deaths(zc_min(game->get_deaths()+1,999));
 	dir=down;
 	music_stop();
-	kill_sfx();
+	
 	attackclk=hclk=superman=0;
 	scriptcoldet = 1;
     

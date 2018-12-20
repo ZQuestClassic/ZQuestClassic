@@ -13,6 +13,7 @@
 
 #include "ffasm.h"
 #include "zc_sys.h"
+extern byte use_dwm_flush;
 #include "zc_math.h"
 #include "zc_array.h"
 #include "ffscript.h"
@@ -20875,4 +20876,67 @@ void FFScript::get_npcdata_initd_label(const bool v)
         
     if(ArrayH::setArray(arrayptr, string(guysbuf[ri->npcdataref].initD_label[init_d_index])) == SH::_Overflow)
         Z_scripterrlog("Array supplied to 'npcdata->GetInitDLabel()' not large enough\n");
+}
+
+
+//Advances the game frame without checking 'Quit' variable status.
+//Used for making scripts such as Link's onWin and onDeath scripts
+//run for multiple frames.
+void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
+{
+    if(zcmusic!=NULL)
+    {
+        zcmusic_poll();
+    }
+    
+    while(Paused && !Advance && !Quit)
+    {
+        // have to call this, otherwise we'll get an infinite loop
+        syskeys();
+        // to keep fps constant
+        updatescr(allowwavy);
+        throttleFPS();
+        
+#ifdef _WIN32
+        
+        if(use_dwm_flush)
+        {
+            do_DwmFlush();
+        }
+        
+#endif
+        
+        // to keep music playing
+        if(zcmusic!=NULL)
+        {
+            zcmusic_poll();
+        }
+    }
+    
+    //if(Quit)
+        //return;
+        /*
+    if(Playing && game->get_time()<MAXTIME)
+        game->change_time(1);
+        */
+    Advance=false;
+    ++frame;
+    
+    syskeys();
+    // Someday... maybe install a Turbo button here?
+    updatescr(allowwavy);
+    throttleFPS();
+    
+#ifdef _WIN32
+    
+    if(use_dwm_flush)
+    {
+        do_DwmFlush();
+    }
+    
+#endif
+    
+    //textprintf_ex(screen,font,0,72,254,BLACK,"%d %d", lastentrance, lastentrance_dmap);
+    if(sfxcleanup)
+        sfx_cleanup();
 }
