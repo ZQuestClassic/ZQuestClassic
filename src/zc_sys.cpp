@@ -63,6 +63,7 @@ extern int loadlast;
 byte disable_direct_updating;
 byte use_dwm_flush;
 byte use_save_indicator;
+byte zc_192b163_compatibility;
 byte midi_patch_fix;
 bool midi_paused=false;
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
@@ -384,6 +385,7 @@ void load_game_configs()
     sfxdat = get_config_int(cfg_sect,"use_sfx_dat",1);
     fullscreen = get_config_int(cfg_sect,"fullscreen",1);
     use_save_indicator = get_config_int(cfg_sect,"save_indicator",0);
+    zc_192b163_compatibility = get_config_int(cfg_sect,"zc_192b163_compatibility",0);
 }
 
 void save_game_configs()
@@ -503,6 +505,7 @@ void save_game_configs()
 #endif
     
     set_config_int(cfg_sect,"save_indicator",use_save_indicator);
+    set_config_int(cfg_sect,"zc_192b163_compatibility",zc_192b163_compatibility);
     
     flush_config_file();
 }
@@ -4872,37 +4875,6 @@ int OnSaveZCConfig()
 	else return D_O_K;
 }
 
-int onDebugConsole()
-{
-	if ( !zconsole ) {
-		if(jwin_alert3(
-			"WARNING: Closing the Debug Console", 
-			"WARNING: Closing the console window by using the close window widget will TERMINATE ZC!", 
-			"To SAFELY close the debug console, use the SHOW DEBUG CONSOLE menu uption again!",
-			"Are you seure that you wish to open the debug console?",
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		NULL, 
-		lfont) == 1)
-		{
-			DebugConsole::Open();
-
-			zconsole = true;
-			return D_O_K;
-		}
-		else return D_O_K;
-	}
-	else { 
-		
-		zconsole = false;
-		DebugConsole::Close();
-		return D_O_K;
-	}
-}
-
 
 int onFrameSkip()
 {
@@ -6557,6 +6529,8 @@ int onSaveIndicator()
     return D_O_K;
 }
 
+
+
 int onTriforce()
 {
     for(int i=0; i<MAXINITTABS; ++i)
@@ -6943,8 +6917,55 @@ static MENU settings_menu[] =
     { (char *)"S&napshot Format",           NULL,                    snapshot_format_menu,      0, NULL },
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Debu&g",                     onDebug,                 NULL,                      0, NULL },
+    
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
+
+
+
+int on192b163compatibility()
+{
+    zc_192b163_compatibility=!zc_192b163_compatibility;
+    return D_O_K;
+}
+
+static MENU compat_patch_menu[] =
+{
+    { (char *)"1.92b163 Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
+    { NULL,                                 NULL,                    NULL,                      0, NULL }
+};
+
+
+int onDebugConsole()
+{
+	if ( !zconsole ) {
+		if(jwin_alert3(
+			"WARNING: Closing the Debug Console", 
+			"WARNING: Closing the console window by using the close window widget will TERMINATE ZC!", 
+			"To SAFELY close the debug console, use the SHOW DEBUG CONSOLE menu uption again!",
+			"Are you seure that you wish to open the debug console?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+		{
+			DebugConsole::Open();
+
+			zconsole = true;
+			return D_O_K;
+		}
+		else return D_O_K;
+	}
+	else { 
+		
+		zconsole = false;
+		DebugConsole::Close();
+		return D_O_K;
+	}
+}
 
 static MENU misc_menu[] =
 {
@@ -6959,10 +6980,16 @@ static MENU misc_menu[] =
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
     { (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
+    //{ (char *)"1.92b163 Compat.",                     on192b163compatibility,                 NULL,                      0, NULL },
     { (char *)"Save ZC Configuration",           OnSaveZCConfig,           NULL,                      0, NULL },
      { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
+
+
+
+
+
 
 static MENU refill_menu[] =
 {
@@ -7023,7 +7050,9 @@ MENU the_menu[] =
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
     { (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
+    { (char *)"&Compatibility",                      NULL,                    compat_patch_menu,                 0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
+    
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -7031,6 +7060,7 @@ MENU the_menu2[] =
 {
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
+    { (char *)"&Compatibility",                      NULL,                    compat_patch_menu,                 0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -7976,6 +8006,10 @@ void System()
         name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
         name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
         name_entry_mode_menu[2].flags = (NameEntryMode==2)?D_SELECTED:0;
+	//menu flags here
+	
+	compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
+	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
         
         /*
           if(!Playing || (!zcheats.flags && !debug))

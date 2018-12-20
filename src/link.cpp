@@ -31,6 +31,8 @@
 #include "ffscript.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
+#include "zc_sys.h"
+extern byte zc_192b163_compatibility;
 
 extern  zquestheader QHeader;
 extern LinkClass Link;
@@ -10681,6 +10683,7 @@ bool LinkClass::dowarp(int type, int index)
     // Drawing commands probably shouldn't carry over...
     script_drawing_commands.Clear();
     
+    
     switch(type)
     {
     case 0:                                                 // tile warp
@@ -11171,6 +11174,22 @@ bool LinkClass::dowarp(int type, int index)
     case wtIWARPZAP:
     case wtIWARPWAVE:                                       // insta-warps
     {
+	bool old_192 = false;
+	if ( zc_192b163_compatibility )
+	{
+		if ( wtype == wtIWARPWAVE )
+		{
+			wtype = wtIWARPWAVE;
+			old_192 = true;
+		}
+		if ( old_192 )
+		{
+			al_trace("Encountered a warp in a 1.92b163 style quest, that was set as a Wave Warp.\n %s\n", "Trying to redirect it into a Cancel Effect");
+			didpit=false;
+			update_subscreens();
+			return false;
+		}
+	}
         //for determining whether to exit cave
         int type1 = combobuf[MAPCOMBO(x,y-16)].type;
         int type2 = combobuf[MAPCOMBO(x,y)].type;
@@ -11305,6 +11324,155 @@ bool LinkClass::dowarp(int type, int index)
     
     
     case wtNOWARP:
+    {
+	bool old_192 = false;
+	if ( zc_192b163_compatibility )
+	{
+		wtype = wtIWARPWAVE;
+		old_192 = true;
+	}
+	if ( old_192 )
+	{
+		al_trace("Encountered a warp in a 1.92b163 style quest, that was set as a Cancel Warp.\n %s\n", "Trying to redirect it into a Wave Effect");
+		//for determining whether to exit cave
+		int type1 = combobuf[MAPCOMBO(x,y-16)].type;
+		int type2 = combobuf[MAPCOMBO(x,y)].type;
+		int type3 = combobuf[MAPCOMBO(x,y+16)].type;
+		
+		bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
+				 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
+				 
+		if(!(tmpscr->flags3&fIWARPFULLSCREEN))
+		{
+		    //ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
+		    bool wasswimming = (action == swimming);
+		    byte olddiveclk = diveclk;
+		    ALLOFF();
+		    
+		    if(wasswimming)
+		    {
+			action = swimming;
+			diveclk = olddiveclk;
+		    }
+		    
+		    kill_sfx();
+		}
+			
+		if(wtype==wtIWARPZAP)
+		{
+		    zapout();
+		}
+		else if(wtype==wtIWARPWAVE)
+		{
+		    //only draw Link if he's not in a cave -DD
+		    wavyout(!cavewarp);
+		}
+		else if(wtype!=wtIWARP)
+		{
+		    bool b2 = COOLSCROLL&&cavewarp;
+		    blackscr(30,b2?false:true);
+		}
+		
+		int c = DMaps[currdmap].color;
+		currdmap = wdmap;
+		dlevel = DMaps[currdmap].level;
+		currmap = DMaps[currdmap].map;
+		init_dmap();
+		update_subscreens(wdmap);
+		
+		ringcolor(false);
+		
+		if(DMaps[currdmap].color != c)
+		    loadlvlpal(DMaps[currdmap].color);
+		    
+		homescr = currscr = wscr + DMaps[currdmap].xoff;
+		
+		lightingInstant(); // Also sets naturaldark
+		
+		loadscr(0,currdmap,currscr,-1,overlay);
+		
+		x = tmpscr->warpreturnx[wrindex];
+		y = tmpscr->warpreturny[wrindex];
+		
+		if(didpit)
+		{
+		    didpit=false;
+		    x=pitx;
+		    y=pity;
+		}
+			
+		type1 = combobuf[MAPCOMBO(x,y-16)].type;
+		type2 = combobuf[MAPCOMBO(x,y)].type;
+		type3 = combobuf[MAPCOMBO(x,y+16)].type;
+		
+		if(x==0)   dir=right;
+		
+		if(x==240) dir=left;
+		
+		if(y==0)   dir=down;
+		
+		if(y==160) dir=up;
+		
+		markBmap(dir^1);
+		
+		if(iswater(MAPCOMBO(x,y+8)) && _walkflag(x,y+8,0) && current_item(itype_flippers))
+		{
+		    hopclk=0xFF;
+		    attackclk = charging = spins = 0;
+		    action=swimming;
+		}
+		else
+		    action = none;
+		    
+		//preloaded freeform combos
+		ffscript_engine(true);
+		
+		putscr(scrollbuf,0,0,tmpscr);
+		putscrdoors(scrollbuf,0,0,tmpscr);
+		
+		if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
+		{
+		    reset_pal_cycling();
+		    putscr(scrollbuf,0,0,tmpscr);
+		    putscrdoors(scrollbuf,0,0,tmpscr);
+		    walkup(COOLSCROLL);
+		}
+		else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
+		{
+		    reset_pal_cycling();
+		    putscr(scrollbuf,0,0,tmpscr);
+		    putscrdoors(scrollbuf,0,0,tmpscr);
+		    walkdown2(COOLSCROLL);
+		}
+		else if(wtype==wtIWARPZAP)
+		{
+		    zapin();
+		}
+		else if(wtype==wtIWARPWAVE)
+		{
+		    wavyin();
+		}
+		else if(wtype==wtIWARPOPEN)
+		{
+		    openscreen();
+		}
+			
+		show_subscreen_life=true;
+		show_subscreen_numbers=true;
+		playLevelMusic();
+		currcset=DMaps[currdmap].color;
+		dointro();
+		setEntryPoints(x,y);
+		break;
+	}
+	else
+	{
+		didpit=false;
+		update_subscreens();
+		return false;
+	}
+	
+    }
     default:
         didpit=false;
         update_subscreens();
