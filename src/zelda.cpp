@@ -1807,9 +1807,15 @@ int init_game()
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
     FFCore.init(); ///Initialise new ffscript engine core. 
     Link.init();
-    Link.resetflags(true);
-    Link.setEntryPoints(LinkX(),LinkY());
-    if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); }
+    if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); } //Do this prior to the Link init script, so that if the 
+								//init script makes him invisible, he stays that way. 
+    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
+								//positional data, sprites, tiles, csets, invisibility states, and the like.
+    initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script. 
+    Link.resetflags(true); //This should probably occur after running Link's init script. 
+    Link.setEntryPoints(LinkX(),LinkY()); //This should be after the init script, so that Link->X and Link->Y set by the script
+					//are properly set by the engine.
+    
     
     copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
     loadfullpal();
@@ -1894,12 +1900,12 @@ int init_game()
     {
         memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
-	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
+	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
     }
     else
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
-        ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
+        //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
     }
     
     if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
