@@ -7700,23 +7700,23 @@ void set_register(const long arg, const long value)
 			itemsbuf[ri->idata].wpn=vbound(value/10000, 0, 255);
 		    break;
 		    case 1:
-			itemsbuf[ri->idata].wpn2=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn2=vbound(value/10000, 0, 255); break;
 		    case 2:
-			itemsbuf[ri->idata].wpn3=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn3=vbound(value/10000, 0, 255); break;
 		    case 3:
-			itemsbuf[ri->idata].wpn4=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn4=vbound(value/10000, 0, 255); break;
 		    case 4:
-			itemsbuf[ri->idata].wpn5=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn5=vbound(value/10000, 0, 255); break;
 		    case 5:
-			itemsbuf[ri->idata].wpn6=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn6=vbound(value/10000, 0, 255); break;
 		    case 6:
-			itemsbuf[ri->idata].wpn7=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn7=vbound(value/10000, 0, 255); break;
 		    case 7:
-			itemsbuf[ri->idata].wpn8=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn8=vbound(value/10000, 0, 255); break;
 		    case 8:
-			itemsbuf[ri->idata].wpn9=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn9=vbound(value/10000, 0, 255); break;
 		    case 9:
-			itemsbuf[ri->idata].wpn10=(value/10000, 0, 255); break;
+			itemsbuf[ri->idata].wpn10=vbound(value/10000, 0, 255); break;
 		    
 		    default: 
 			    break;
@@ -7730,11 +7730,11 @@ void set_register(const long arg, const long value)
         break;
 	//Pickup script
     case IDATAPSCRIPT:
-        itemsbuf[ri->idata].collect_script=(value/10000, 1, 255);
+        itemsbuf[ri->idata].collect_script=vbound(value/10000, 1, 255);
         break;
     //pickup string
     case IDATAPSTRING:
-        itemsbuf[ri->idata].pstring=(value/10000, 1, 255);
+        itemsbuf[ri->idata].pstring=vbound(value/10000, 1, 255);
         break;
     //magic cost
      case IDATAMAGCOST:
