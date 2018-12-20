@@ -254,13 +254,25 @@ weapon::weapon(weapon const & other):
 	//End Weapon editor non-arrays. 
 
 {
-	if ( parentitem > -1 ) 
+	if ( parentitem > -1 ) //lweapons
 	{
 		
 		weaponscript = itemsbuf[parentitem].weaponscript; //Set the weapon script based on the item editor data.
 		for ( int q = 0; q < INITIAL_D; q++ ) 
 		{
 			weap_initd[q] = itemsbuf[parentitem].weap_initiald[q];
+			
+		}
+		
+	}
+	if ( parentid > -1 ) //eweapons
+	{
+		Z_scripterrlog("weapons.cpp created an eweapon with a parentid of: %d\n",parentid);
+		Z_scripterrlog("THat weapon should have a script of: %d\n",guysbuf[parentid].weaponscript);
+		weaponscript = guysbuf[parentid].weaponscript; //Set the weapon script based on the item editor data.
+		for ( int q = 0; q < INITIAL_D; q++ ) 
+		{
+			weap_initd[q] = guysbuf[parentid].weap_initiald[q];
 			
 		}
 		
@@ -423,6 +435,16 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     if ( Parentitem > -1 )
     {
 	weaponscript = itemsbuf[Parentitem].weaponscript;
+    }
+    if ( prntid > -1 )
+    {
+	//Z_scripterrlog("Eweapon created with a prntid of: %d\n",prntid);
+	enemy *s = (enemy *)guys.getByUID(prntid);
+	//int parent_enemy_id = 0;
+	//parent_enemy_id = s->id & 0xFFF;
+	//Z_scripterrlog("The enemy ID that created it was: %d\n",s->id & 0xFFF);
+	//weaponscript = guysbuf[prntid].weaponscript;
+	weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
     }
     
     tilemod = 0;
