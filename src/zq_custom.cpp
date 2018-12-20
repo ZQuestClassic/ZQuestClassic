@@ -1997,7 +1997,7 @@ void edit_itemdata(int index)
     {
 	//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
 	strcpy(item_initd_labels[q], itemsbuf[index].initD_label[q]);
-	if ( initD_label[q][0] == NULL ) sprintf(initD_label[q],"InitD[%d]",q);
+	if ( item_initd_labels[q][0] == NULL ) sprintf(item_initd_labels[q],"InitD[%d]",q);
 	itemdata_dlg[179+q].dp = item_initd_labels[q];
 	//sprintf();
 	    
