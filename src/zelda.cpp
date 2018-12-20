@@ -4611,10 +4611,10 @@ int main(int argc, char* argv[])
             for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
             initZScriptGlobalRAM();
-            initZScriptLinkScripts();
+            initZScriptLinkScripts(); //get ready for the onWin script
             FFCore.initZScriptDMapScripts();
 	    //Run global script OnExit
-            ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+            //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN); //runs in ending()
 	    //while(link_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
 		//We need a special routine for win and death link scripts. Otherwise, they work. 
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
