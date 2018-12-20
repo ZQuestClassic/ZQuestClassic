@@ -191,7 +191,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        19
-#define V_GUYS            39
+#define V_GUYS            40
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        12
@@ -1641,7 +1641,8 @@ struct item_drop_object
 #define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
 #define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
 
-#define MAX_NPC_ATRIBUTES 15
+#define MAX_NPC_ATRIBUTES 31
+
 
 struct guydata
 {
@@ -1699,6 +1700,10 @@ struct guydata
     char initD_label[8][65];
     char weapon_initD_label[8][65];
     
+    word weaponscript;
+    long weap_initiald[INITIAL_D];
+    byte weap_initiala[INITIAL_A];
+    
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02
 #define ENEMY_FLAG3     0x04
@@ -1717,6 +1722,7 @@ struct guydata
 #define ENEMY_FLAG16     0x8000
     
 };
+
 
 class refInfo
 {

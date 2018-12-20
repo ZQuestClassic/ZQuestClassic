@@ -9906,6 +9906,10 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 				} 
 			}
 	    }
+	    if(!p_iputw(guysbuf[i].weaponscript,f))
+            {
+                new_return(97);
+            }
 		
         }
         

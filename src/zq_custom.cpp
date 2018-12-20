@@ -3051,6 +3051,9 @@ static int enemy_scripts_list[] =
 
 static int enemy_weapon_scripts_list[] =
 {
+	353,354,355,356,357,358,359,360,
+	361,362,363,364,365,366,367,368,
+	369,370,
 	-1
 };
 static int enemy_movement_list[] =
@@ -4617,6 +4620,20 @@ static ListData enetype_list(enetypelist, &font);
 static ListData eweapon_list(eweaponlist, &font);
 
 
+const char *eweaponscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = bieweapons_cnt;
+        return NULL;
+    }
+    
+    return bieweapons[index].first.c_str();
+}
+
+
+//droplist like the dialog proc, naming scheme for this stuff is awful...
+static ListData eweaponscript_list(eweaponscriptdroplist, &pfont);
 
 
 static ListData walkerspawn_list(walkerspawnlist, &font);
@@ -5293,6 +5310,7 @@ static DIALOG enedata_dlg[] =
     //{ jwin_text_proc,       6+10,  10+155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
     
     //editable npc script InitD fields
+    //337
     {  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
@@ -5312,6 +5330,7 @@ static DIALOG enedata_dlg[] =
     //{ jwin_edit_proc,       6+10,  10+155+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
    
     //NPC InitD Data fields
+    //345
     { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
@@ -5320,6 +5339,27 @@ static DIALOG enedata_dlg[] =
     { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //353
+    {  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+83+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+101+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+83+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,   10+101+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    
+    { jwin_text_proc,           112+10+20+34+1-4,  10+29+12+7,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "EWeapon Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &eweaponscript_list,                   NULL,   NULL 				   },
     
     /*
 	  // 248 scripts
@@ -5578,6 +5618,8 @@ void edit_enemydata(int index)
     char enemynumstr[75];
     char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
 	char weapsprite[8]; char npc_initd_labels[8][65];
+	char weapon_initd_labels[8][65];
+	char weap_initdvals[8][13];
     
 	char initdvals[8][13];
     //begin npc script
@@ -5591,6 +5633,16 @@ void edit_enemydata(int index)
         }
     }
     
+    int j2 = 0; 
+    build_bieweapons_list(); //lweapon scripts lister
+    for(j2 = 0; j2 < bieweapons_cnt; j2++)
+    {
+		if(bieweapons[j2].second == guysbuf[index].weaponscript -1)
+		{
+			enedata_dlg[370].d1 = j2; 
+			break;
+		}
+    }
     
     for ( int q = 0; q < 8; q++ )
     {
@@ -5602,10 +5654,27 @@ void edit_enemydata(int index)
     
     for ( int q = 0; q < 8; q++ )
     {
+	    
+		sprintf(weap_initdvals[q],"%.4f",guysbuf[index].weap_initiald[q]/10000.0);
+	 
+		enedata_dlg[361+q].dp = weap_initdvals[q];
+    }
+    
+    for ( int q = 0; q < 8; q++ )
+    {
 	//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
 	strcpy(npc_initd_labels[q], guysbuf[index].initD_label[q]);
 	enedata_dlg[337+q].dp = npc_initd_labels[q];
 	//sprintf();
+	    
+    }
+    
+    for ( int q = 0; q < 8; q++ )
+    {
+		//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, guysbuf[index].initD_label[q]);
+		strcpy(weapon_initd_labels[q], guysbuf[index].weapon_initD_label[q]);
+		enedata_dlg[353+q].dp = weapon_initd_labels[q];
+		//sprintf();
 	    
     }
 
@@ -6244,7 +6313,13 @@ void edit_enemydata(int index)
 	{
 		test.initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
 	}
-	
+	//eweapon script
+	test.weaponscript = bieweapons[enedata_dlg[370].d1].second + 1; 
+	for ( int q = 0; q < 8; q++ )
+	{
+		test.weap_initiald[q] = vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
+		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
+	}
 	 
 	
         //end npc scripts

@@ -368,15 +368,21 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     for ( int q = 0; q < 32; q++ ) new_weapon[q] = d->new_weapon[q];
     
     script = (d->script >= 0) ? d->script : 0; //Dont assign invalid data. 
+    weaponscript = (d->weaponscript >= 0) ? d->weaponscript : 0; //Dont assign invalid data. 
     
     for ( int q = 0; q < 8; q++ ) 
     {
 	    initD[q] = d->initD[q];
+	    weap_initiald[q] = d->weap_initiald[q];
 	    //al_trace("Guys.cpp: Assigning guy.initD[%d]: %d\n",q, d->initD.initD[q]);
 	    //al_trace("Guys.cpp: Assigning guy.initD[%d] from d->initD[%d]: %d\n",q,q, d->initD[q]);
 	    //al_trace("Guys.cpp: guy.initD[%d] is: %d\n",q, initD[q]);
     }
-    for ( int q = 0; q < 2; q++ ) initA[q] = d->initA[q];
+    for ( int q = 0; q < 2; q++ ) 
+    {
+	    initA[q] = d->initA[q];
+	    weap_initiala[q] = d->weap_initiala[q];
+    }
     
     dialogue_str = 0; //set by spawn flags. 
     editorflags = d->editorflags; //set by Enemy Editor 

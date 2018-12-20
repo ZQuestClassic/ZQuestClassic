@@ -100,6 +100,9 @@ public:
     long new_weapon[32]; //Reserved for weapon patterns and args.
     word npcscript; 
     long initD[8], initA[2];
+    word weaponscript;
+    long weap_initiald[8];
+    long weap_initiala[2];
     
     long dialogue_str; //WIll be set in spawn flags. 
     long editorflags; //Enemy editor flags 1 to 16

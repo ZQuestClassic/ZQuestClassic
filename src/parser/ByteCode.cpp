@@ -1679,6 +1679,17 @@ string VarArgument::toString()
 	case ITEMFAMILY: return "ITEMFAMILY";
 	case ITEMLEVEL: return "ITEMLEVEL";
 	
+	case EWPNSCRIPT: return "EWPNSCRIPT";
+	case EWPNINITD: return "EWPNINITD";
+	case NPCSCRIPT: return "NPCSCRIPT";
+	case DMAPSCRIPT: return "DMAPSCRIPT";
+	case DMAPINITD: return "DMAPINITD";
+	case SCREENSCRIPT: return "SCREENSCRIPT";
+	case SCREENINITD: return "SCREENINITD";
+	case LINKINITD: return "LINKINITD";
+	case NPCDATAWEAPONINITD: return "NPCDATAWEAPONINITD";
+	case NPCDATAWEAPONSCRIPT: return "NPCDATAWEAPONSCRIPT";
+	
 	
     default:
     {
