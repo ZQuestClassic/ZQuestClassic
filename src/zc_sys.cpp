@@ -7296,7 +7296,7 @@ MENU the_menu[] =
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
     { (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
-    { (char *)"&Compatibility",                      NULL,                    compat_patch_menu,                 0, NULL },
+    { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -7305,7 +7305,7 @@ MENU the_menu2[] =
 {
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
-    { (char *)"&Compatibility",                      NULL,                    compat_patch_menu,                 0, NULL },
+    { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
