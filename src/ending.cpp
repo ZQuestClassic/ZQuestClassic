@@ -212,9 +212,9 @@ void ending()
     chainlinks.clear();
     decorations.clear();
     
-    music_stop();
+    
     kill_sfx();
-    sfx(WAV_ZELDA);
+    
     Quit=0;
     //do
 	//{
@@ -238,6 +238,7 @@ void ending()
 		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
 		--f; load_control_state(); goto adv;
 	}
+	if ( f == 0 ) { sfx(WAV_ZELDA); music_stop(); }
         if(f==363)
         {
             //363  WIPE complete, DOT out, A/B items out

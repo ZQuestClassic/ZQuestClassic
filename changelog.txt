@@ -1,6 +1,20 @@
 //2.55 and 2.54 Changes
 
+//Alpha 9
+Fixed crashes when creating lweapons, caused by trying to read
+	enemy* for parentID of lweapons (weapon scriot read for eweapon scripts).
+Fixed Link Death and Win scripts to run at the proper times.
+Link's onDeath script, and Link's onWin script, can both run
+	for multiple frames.
+
 //Alpha 8
+Fix when Link's Init script runs.
+	It now runs after Link.init(), but before setting his entry points
+	and before the opening wipe.
+	This ensures that any changes that the init script executes,
+	such as setting Link->Invisible, aren't seen by the player;
+	and that Screen->EntryX, and Screen->EntryY have the correct
+	coordinates at the start of the game, if Link's init script sets these.
 
 If the user clears an initD label to a blank link, it will reset to 
 	the default value of 'InitD[%d]'.
