@@ -1,5 +1,16 @@
 //2.55 and 2.54 Changes
 
+//Alpha 10
+
+I forgot to save the weappon InitD[] in guys version 40.
+	V_GUYS is now 41.
+	InitD[] valuesvare saved, and read by the quest loaders.
+	Weapon InitD[] is properly loaded into the weapon, and forwarded
+	to ffscript.
+Some eweapon types were checking if ScriptGenerated, and that check only applies to one lweapon type.
+	I removed the extraneous check.
+	( ZoriaRPG, 21st December, 2018 )
+
 //Alpha 9
 Fixed crashes when creating lweapons, caused by trying to read
 	enemy* for parentID of lweapons (weapon scriot read for eweapon scripts).
