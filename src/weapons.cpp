@@ -254,6 +254,22 @@ weapon::weapon(weapon const & other):
 	//End Weapon editor non-arrays. 
 
 {
+	if ( isLWeapon ) goto skip_eweapon_script_init;
+	if ( parentid > -1 && parentid != Link.getUID() ) //eweapons
+	{
+		enemy *s = (enemy *)guys.getByUID(parentid);
+	
+		weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
+		for ( int q = 0; q < INITIAL_D; q++ ) 
+		{
+			//Z_scripterrlog("(weapon::weapon(weapon const & other)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
+		
+			weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];
+			
+		}
+		
+	}
+	skip_eweapon_script_init:
 	if ( parentitem > -1 ) //lweapons
 	{
 		
@@ -265,18 +281,7 @@ weapon::weapon(weapon const & other):
 		}
 		
 	}
-	if ( parentid > -1 ) //eweapons
-	{
-		Z_scripterrlog("weapons.cpp created an eweapon with a parentid of: %d\n",parentid);
-		Z_scripterrlog("THat weapon should have a script of: %d\n",guysbuf[parentid].weaponscript);
-		weaponscript = guysbuf[parentid].weaponscript; //Set the weapon script based on the item editor data.
-		for ( int q = 0; q < INITIAL_D; q++ ) 
-		{
-			weap_initd[q] = guysbuf[parentid].weap_initiald[q];
-			
-		}
-		
-	}
+	
 	
     for(int i=0; i<10; ++i)
     {
@@ -319,10 +324,10 @@ weapon::weapon(weapon const & other):
 	weapname[q] = 0;		//long -The base wpn->Misc[32] set from the editor
     }
     
-    if ( parentitem > -1 )
-    {
-	weaponscript = itemsbuf[parentitem].weaponscript;
-    }
+    //if ( parentitem > -1 )
+    //{
+	//weaponscript = itemsbuf[parentitem].weaponscript;
+    //}
     
 	//! END Weapon Editor
     
@@ -435,6 +440,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     if ( Parentitem > -1 )
     {
 	weaponscript = itemsbuf[Parentitem].weaponscript;
+	//load initd
+	for ( int q = 0; q < 8; q++ )
+	{
+		//load InitD
+		weap_initd[q] = itemsbuf[Parentitem].weap_initiald[q];
+		    
+	}
     }
     
     if ( isLW ) goto skip_eweapon_script;
@@ -447,6 +459,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	//Z_scripterrlog("The enemy ID that created it was: %d\n",s->id & 0xFFF);
 	//weaponscript = guysbuf[prntid].weaponscript;
 	weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
+	for ( int q = 0; q < 8; q++ )
+	{
+		//load InitD
+		//Z_scripterrlog("(weapon::weapon(fix)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
+		weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];
+		    
+	}
     }
     skip_eweapon_script:
     tilemod = 0;

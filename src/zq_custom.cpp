@@ -6316,15 +6316,13 @@ void edit_enemydata(int index)
 	for ( int q = 0; q < 8; q++ )
 	{
 		test.initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+		test.weap_initiald[q] = vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
+		strcpy(test.initD_label[q], npc_initd_labels[q]);
+		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
 	}
 	//eweapon script
 	test.weaponscript = bieweapons[enedata_dlg[370].d1].second + 1; 
-	for ( int q = 0; q < 8; q++ )
-	{
-		test.weap_initiald[q] = vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
-		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
-	}
-	 
+	
 	
         //end npc scripts
 	
@@ -6333,6 +6331,8 @@ void edit_enemydata(int index)
             strcpy(guy_string[index],name);
 	    for ( int q = 0; q < 8; q++ )
 	    {
+		test.initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+		test.weap_initiald[q] = vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
 		strcpy(test.initD_label[q], npc_initd_labels[q]);
 		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
 	    }

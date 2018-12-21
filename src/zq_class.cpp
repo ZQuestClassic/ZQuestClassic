@@ -9922,6 +9922,14 @@ int writeguys(PACKFILE *f, zquestheader *Header)
             {
                 new_return(97);
             }
+	    //eweapon initD
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].weap_initiald[q],f))
+		{
+			new_return(98);
+		}
+	    }
 		
         }
         

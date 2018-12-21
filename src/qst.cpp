@@ -10445,8 +10445,24 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    {
 		    tempguy.weaponscript = 0;
 	    }
-	    //All ports of QRs to Enemy Editor Flags go HERE! -Z
-	    
+	    //eweapon script InitD
+	    if ( guyversion >= 41 )
+	    {
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			    if(!p_igetl(&(tempguy.weap_initiald[q]),f,keepdata))
+			    {
+					return qe_invalid;
+			    } 
+		    }
+	    }
+	    if ( guyversion < 41 ) 
+	    {
+		    for ( int q = 0; q < 8; q++ )
+		    {
+			tempguy.weap_initiald[q] = 0;
+		    }
+	    }
 	    
 	    //default weapon sprites (quest version < 2.54)
 	    //port over old defaults -Z

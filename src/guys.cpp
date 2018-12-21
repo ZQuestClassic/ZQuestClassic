@@ -373,6 +373,7 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     for ( int q = 0; q < 8; q++ ) 
     {
 	    initD[q] = d->initD[q];
+	    //Z_scripterrlog("(enemy::enemy(fix)): Loading weapon InitD[%d] to an enemy with a value of (%d)\n",q,d->weap_initiald[q]);
 	    weap_initiald[q] = d->weap_initiald[q];
 	    //al_trace("Guys.cpp: Assigning guy.initD[%d]: %d\n",q, d->initD.initD[q]);
 	    //al_trace("Guys.cpp: Assigning guy.initD[%d] from d->initD[%d]: %d\n",q,q, d->initD[q]);
