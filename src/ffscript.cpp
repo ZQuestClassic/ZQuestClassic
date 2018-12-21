@@ -20062,7 +20062,7 @@ void FFScript::eweaponScriptEngine()
 		    {
 			weapon *wa = (weapon*)Ewpns.spr(q);
 			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 && wa->ScriptGenerated ) 
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
 			{
 				weapon *w = (weapon*)Ewpns.spr(q);
 				if ( w->Dead() )
@@ -20088,7 +20088,7 @@ void FFScript::eweaponScriptEngine()
 		    {
 			weapon *wa = (weapon*)Ewpns.spr(q);
 			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 && wa->ScriptGenerated ) 
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
 			{
 				weapon *w = (weapon*)Ewpns.spr(q);
 				if ( w->Dead() )
@@ -20113,7 +20113,7 @@ void FFScript::eweaponScriptEngine()
 		    {
 			weapon *wa = (weapon*)Ewpns.spr(q);
 			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 && wa->ScriptGenerated ) 
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
 			{
 				weapon *w = (weapon*)Ewpns.spr(q);
 				if ( w->Dead() )
@@ -20138,7 +20138,7 @@ void FFScript::eweaponScriptEngine()
 		    {
 			weapon *wa = (weapon*)Ewpns.spr(q);
 			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 && wa->ScriptGenerated ) 
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
 			{
 				weapon *w = (weapon*)Ewpns.spr(q);
 				if ( w->Dead() )
@@ -20163,7 +20163,7 @@ void FFScript::eweaponScriptEngine()
 		    {
 			weapon *wa = (weapon*)Ewpns.spr(q);
 			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 && wa->ScriptGenerated ) 
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
 			{
 				weapon *w = (weapon*)Ewpns.spr(q);
 				if ( w->Dead() )
@@ -20189,7 +20189,7 @@ void FFScript::eweaponScriptEngine()
 		    {
 			weapon *wa = (weapon*)Ewpns.spr(q);
 			if ( wa->Dead() ) break;
-			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 && wa->ScriptGenerated ) 
+			if ( Ewpns.spr(q)->doscript && Ewpns.spr(q)->weaponscript > 0 ) 
 			{
 				weapon *w = (weapon*)Ewpns.spr(q);
 				if ( w->Dead() )
