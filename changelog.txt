@@ -2,6 +2,15 @@
 
 //Alpha 10
 
+Renamed entry [0] in Emulation Menu to 'Flip-Flip Cancel and Wave Warps'
+	Disabled this option if the current quest was made in 2.10 or
+	( ZoriaRPG, 22nd December, 2018 )
+	
+Added a new menu to ZC Player: 'Emulation'. 
+	This is used for enabling/disabling certain internal behaviour, when playing some
+	legacy quests where it is desirable to have this option. 
+	( ZoriaRPG, 21st December, 2018 )
+	
 I forgot to save the weappon InitD[] in guys version 40.
 	V_GUYS is now 41.
 	InitD[] valuesvare saved, and read by the quest loaders.
