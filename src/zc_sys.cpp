@@ -7214,7 +7214,7 @@ int on192b163compatibility()
 
 static MENU compat_patch_menu[] =
 {
-    { (char *)"1.92b163 Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
+    { (char *)"Flip-Flop Cancel and Wave Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -8251,7 +8251,9 @@ void System()
         name_entry_mode_menu[2].flags = (NameEntryMode==2)?D_SELECTED:0;
        
 	//menu flags here
-	compat_patch_menu[0].flags =(zc_192b163_warp_compatibility)?D_SELECTED:0;
+	//compat_patch_menu[0].flags =(zc_192b163_warp_compatibility)?D_SELECTED:0;
+	compat_patch_menu[0].flags = ( FFCore.quest_format[vZelda] >= 0x210 ) ? D_DISABLED : ((zc_192b163_warp_compatibility)?D_SELECTED:0);
+	
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
         /*
           if(!Playing || (!zcheats.flags && !debug))
