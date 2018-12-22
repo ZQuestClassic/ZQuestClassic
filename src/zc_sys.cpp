@@ -8011,7 +8011,7 @@ void System()
         name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
         name_entry_mode_menu[2].flags = (NameEntryMode==2)?D_SELECTED:0;
 	//menu flags here
-	al_trace("Quest was made in: %d\n",quest_header_zelda_version);
+	//al_trace("Quest was made in: %d\n",quest_header_zelda_version);
 	
 	compat_patch_menu[0].flags = ( quest_header_zelda_version >= 0x210 ) ? D_DISABLED : ((zc_192b163_compatibility)?D_SELECTED:0);
 	
