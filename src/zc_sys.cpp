@@ -68,6 +68,10 @@ byte midi_patch_fix;
 bool midi_paused=false;
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
 
+
+extern word quest_header_zelda_version; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
+extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
+
 //extern movingblock mblock2; //mblock[4]?
 //extern int db;
 
@@ -6931,7 +6935,7 @@ int on192b163compatibility()
 
 static MENU compat_patch_menu[] =
 {
-    { (char *)"1.92b163 Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
+    { (char *)"Flip-Flop Cancel and Wave Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -7050,7 +7054,7 @@ MENU the_menu[] =
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
     { (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
-    { (char *)"&Compatibility",                      NULL,                    compat_patch_menu,                 0, NULL },
+    { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
     
     { NULL,                                 NULL,                    NULL,                      0, NULL }
@@ -7060,7 +7064,7 @@ MENU the_menu2[] =
 {
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
-    { (char *)"&Compatibility",                      NULL,                    compat_patch_menu,                 0, NULL },
+    { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -8007,8 +8011,11 @@ void System()
         name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
         name_entry_mode_menu[2].flags = (NameEntryMode==2)?D_SELECTED:0;
 	//menu flags here
+	al_trace("Quest was made in: %d\n",quest_header_zelda_version);
 	
-	compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
+	compat_patch_menu[0].flags = ( quest_header_zelda_version >= 0x210 ) ? D_DISABLED : ((zc_192b163_compatibility)?D_SELECTED:0);
+	
+	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
         
         /*
