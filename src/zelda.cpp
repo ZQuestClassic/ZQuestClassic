@@ -96,6 +96,8 @@ int passive_subscreen_height=56;
 int original_playing_field_offset=56;
 int playing_field_offset=original_playing_field_offset;
 int passive_subscreen_offset=0;
+extern word quest_header_zelda_version; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
+extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 extern int directItem;
 extern int directItemA;
 extern int directItemB;

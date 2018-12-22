@@ -80,6 +80,9 @@ bool mapsread=false;
 bool fixffcs=false;
 bool fixpolsvoice=false;
 
+word quest_header_zelda_version = 0; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
+word quest_header_zelda_build = 0; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
+
 int memDBGwatch[8]= {0,0,0,0,0,0,0,0}; //So I can monitor memory crap
 
 //enum { qe_OK, qe_notfound, qe_invalid, qe_version, qe_obsolete,
@@ -325,6 +328,8 @@ int get_version_and_build(PACKFILE *f, word *version, word *build)
     memcpy(midi_flags, temp_midi_flags, MIDIFLAGS_SIZE);
     *version=tempheader.zelda_version;
     *build=tempheader.build;
+    quest_header_zelda_version = tempheader.zelda_version;
+    quest_header_zelda_build = tempheader.build;
     return 0;
 }
 
@@ -2064,7 +2069,8 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
         cvs_MD5Init(&ctx);
         cvs_MD5Update(&ctx, (const unsigned char*)temp_pwd2, (unsigned)strlen(temp_pwd2));
         cvs_MD5Final(tempheader.pwd_hash, &ctx);
-        
+	
+	
         if(tempheader.zelda_version < 0x177)                       // lacks new header stuff...
         {
             //memset(tempheader.minver,0,20);                          //   char minver[9], byte build, byte foo[10]
@@ -2322,6 +2328,10 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
         map_count=temp_map_count;
         memcpy(midi_flags, temp_midi_flags, MIDIFLAGS_SIZE);
     }
+    
+    quest_header_zelda_version = tempheader.zelda_version;
+    quest_header_zelda_build = tempheader.build;
+        
     
     return 0;
 }
