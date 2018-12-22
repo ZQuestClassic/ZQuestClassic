@@ -1,5 +1,15 @@
 ChangeLog for 2.53.0 
 
+//Beta 28
+Renamed entry [0] in Emulation Menu to 'Flip-Flip Cancel and Wave Warps'
+	Disabled this option if the current quest was made in 2.10 or
+	( ZoriaRPG, 22nd December, 2018 )
+	
+Added a new menu to ZC Player: 'Emulation'. 
+	This is used for enabling/disabling certain internal behaviour, when playing some
+	legacy quests where it is desirable to have this option. 
+	( ZoriaRPG, 21st December, 2018 )
+	
 //Beta 27
 Fixed Ganon's HP in 1st/2nd. On the NES, he has 30, not 32.
 Fixed vires splitting before their slide() ends.
