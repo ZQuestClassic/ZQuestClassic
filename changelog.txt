@@ -2,6 +2,9 @@
 
 //Alpha 11
 
+Fixed a bounds check wrror for mapdata:
+	map 1, Screen 0, is ri->mapsref 0, so we can't check != 0!!!
+Fixed getters for all of the mapdata->Combo[] arrays.
 Fixed issues with npc scripts, causing stack corruption:
 	They use the same *ri mechanic as lweapon acripts, but they run in
 	enemy::animate(), which is itself a sort of proof that weapon scripts
