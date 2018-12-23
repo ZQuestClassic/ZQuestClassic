@@ -410,6 +410,9 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     }
     
     tile=0;
+    scripttile = -1;
+    scriptflip = -1;
+    do_animation = 1;
     
     // If they forgot the invisibility flag, here's another failsafe:
     if(o_tile==0 && family!=eeSPINTILE)
@@ -661,9 +664,9 @@ bool enemy::animate(int index)
     ++c_clk;
     
     //Run its script
-    if ( script > 0 ) 
+    if ( script > 0 && doscript ) 
     {
-	ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
+	ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID());
     }
     
     // returns true when enemy is defeated

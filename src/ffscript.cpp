@@ -15088,7 +15088,43 @@ int run_script(const byte type, const word script, const long i)
 		ri->ffcref = i; //'this' pointer
 	    }
 	    break;
-	    
+	    case SCRIPT_NPC:
+	    {
+			int npc_index = GuyH::getNPCIndex(i);
+			enemy *w = (enemy*)guys.spr(npc_index);
+			ri = w->refinfo;
+			if (!ri) {
+			  ri = w->refinfo = new refInfo;
+			}
+			//curscript = guyscripts[script];
+			curscript = guyscripts[guys.spr(GuyH::getNPCIndex(i))->script];
+			
+			stack = &(guys.spr(GuyH::getNPCIndex(i))->stack);
+			
+			//stack = &(guys.spr(i)->stack);
+			
+			enemy *wa = (enemy*)guys.spr(GuyH::getNPCIndex(i));
+			ri->guyref = wa->getUID();
+			
+			//ri->guyref = guys.spr(i)->getUID();
+		    
+			for ( int q = 0; q < 8; q++ ) 
+			{
+				
+				ri->d[q] = guys.spr(GuyH::getNPCIndex(i))->initD[q]; //w->initiald[q];
+			}
+			
+			//Perhaps it would be better to add a new function that passes the npc pointer to here?
+			//or a direct pointer to the sprite's stack?
+			//but we'd still need the refinfo ID
+		    
+			//enemy::animate(index) runs by screen index, so, getting the enemy by its index should be fine
+			//as we'd call ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
+			//thus, from 'index', we'd use: stack = &(guys.spr(GuyH::getNPCIndex(i))->stack);
+			//and ri->guyref = guys.spr(i)->getUID();;
+	    }
+	    break;
+	    /*
 	    case SCRIPT_NPC:
 	    {
 			ri = &(npcScriptData[i]);
@@ -15124,6 +15160,7 @@ int run_script(const byte type, const word script, const long i)
 			//and ri->guyref = guys.spr(i)->getUID();;
 	    }
 	    break;
+	    */
 	    
 	    case SCRIPT_LWPN:
 	    {
@@ -17313,13 +17350,16 @@ int run_script(const byte type, const word script, const long i)
 		case SCRIPT_NPC:
 		{
 		
-			
+			guys.spr(GuyH::getNPCIndex(i))->doscript = 0;
+			guys.spr(GuyH::getNPCIndex(i))->weaponscript = 0;
+			/*
 			long(*pvsstack)[MAX_SCRIPT_REGISTERS] = stack;
 			stack = &(guys.spr(i)->stack); 
 			memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(long));
 			stack = pvsstack;
 			guys.spr(i)->script = 0;
 			//ri->guyref = guys.spr(i)->getUID();
+			*/
 			break;
 		}
 		case SCRIPT_LWPN:
