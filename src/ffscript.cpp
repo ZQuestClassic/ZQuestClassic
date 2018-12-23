@@ -4673,7 +4673,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
             Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
             ret = -10000; \
         } \
-        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        else if ( ri->mapsref == LONG_MAX ) \
         { \
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
             ret = -10000; \
@@ -4693,7 +4693,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
             Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
             ret = -10000; \
         } \
-        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        else if ( ri->mapsref == LONG_MAX ) \
         { \
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
             ret = -10000; \
@@ -4713,7 +4713,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
             Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
             ret = -10000; \
         } \
-        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        else if ( ri->mapsref == LONG_MAX ) \
         { \
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
             ret = -10000; \
@@ -4813,7 +4813,7 @@ case MAPDATAFFFLAGS:        GET_MAPDATA_FFC_INDEX32(ffflags, "FFCFlags", 31); br
  
 case MAPDATAFFWIDTH:       
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
         ret = -10000;
@@ -4841,7 +4841,7 @@ case MAPDATAFFWIDTH:
 //GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");  //B, 32 OF THESE
 case MAPDATAFFHEIGHT:      
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX  )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
         ret = -10000;
@@ -4868,7 +4868,7 @@ case MAPDATAFFHEIGHT:
 //GET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"  //B, 32 OF THESE
 case MAPDATAFFEFFECTWIDTH:     
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX  )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
         ret = -10000;
@@ -4893,7 +4893,7 @@ case MAPDATAFFEFFECTWIDTH:
 //GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");    //B, 32 OF THESE
 case MAPDATAFFEFFECTHEIGHT:
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX  )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
         ret = -10000;
@@ -4923,7 +4923,7 @@ case MAPDATAFFSCRIPT:       GET_MAPDATA_FFC_INDEX32(ffscript, "FFCScript", 31); 
 case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//SetFFCInitD(ffindex, d, value)
 {
-	if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+	if ( ri->mapsref == LONG_MAX  )
 	{
 		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
 		ret = -10000;
@@ -4964,7 +4964,7 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 case MAPDATAINITA: 		
 	//same form as SetScreenD
 {
-	if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+	if ( ri->mapsref == LONG_MAX  )
 	{
 		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
 		ret = -10000;
@@ -5058,33 +5058,180 @@ case MAPDATAMISCD:
 }
 
     case MAPDATACOMBODD:
-        GET_SCREENDATA_COMBO_VAR(data,  "mapdata->ComboD") break;
+    {
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboD[]()",ri->mapsref);
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int pos = ri->d[0] / 10000;
+		if(BC::checkComboPos(pos, "mapdata->ComboD[pos]") != SH::_NoError)
+		{
+			ret = -10000; break;
+			
+		}
+		else
+		{
+			ret = m->data[pos] * 10000;
+			break;
+		}
+		
+	}
+        //GET_SCREENDATA_COMBO_VAR(data,  "mapdata->ComboD") break;
+    }
         
     case MAPDATACOMBOCD:
-        GET_SCREENDATA_COMBO_VAR(cset,  "mapdata->ComboC") break;
+    {
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboC[]()",ri->mapsref);
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int pos = ri->d[0] / 10000;
+		if(BC::checkComboPos(pos, "mapdata->ComboC[pos]") != SH::_NoError)
+		{
+			ret = -10000; break;
+			
+		}
+		else
+		{
+			ret = m->cset[pos] * 10000;
+			break;
+		}
+		
+	}
+    }
+        //GET_SCREENDATA_COMBO_VAR(cset,  "mapdata->ComboC") break;
         
     case MAPDATACOMBOFD:
-        GET_SCREENDATA_COMBO_VAR(sflag, "mapdata->ComboF") break;
+    {
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboF[]()",ri->mapsref);
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int pos = ri->d[0] / 10000;
+		if(BC::checkComboPos(pos, "mapdata->ComboF[pos]") != SH::_NoError)
+		{
+			ret = -10000; break;
+			
+		}
+		else
+		{
+			ret = m->sflag[pos] * 10000;
+			break;
+		}
+		
+	}
+    }
+        //GET_SCREENDATA_COMBO_VAR(sflag, "mapdata->ComboF") break;
         
 
         
     case MAPDATACOMBOTD:
-        GET_MAPDATA_COMBO_VAR_BUF(type, "mapdata->ComboT") break;
+    {
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboT[]()",ri->mapsref);
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int pos = ri->d[0] / 10000;
+		if(BC::checkComboPos(pos, "mapdata->ComboT[pos]") != SH::_NoError)
+		{
+			ret = -10000; break;
+			
+		}
+		else
+		{
+			ret = combobuf[m->data[pos]].type * 10000;
+			break;
+		}
+		
+	}
+    }
+        //GET_MAPDATA_COMBO_VAR_BUF(type, "mapdata->ComboT") break;
         
     case MAPDATACOMBOID:
-        GET_MAPDATA_COMBO_VAR_BUF(flag, "mapdata->ComboI") break;
+    {
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboI[]()",ri->mapsref);
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int pos = ri->d[0] / 10000;
+		if(BC::checkComboPos(pos, "mapdata->ComboI[pos]") != SH::_NoError)
+		{
+			ret = -10000; break;
+			
+		}
+		else
+		{
+			ret = combobuf[m->data[pos]].flag * 10000;
+			break;
+		}
+		
+	}
+        //GET_SCREENDATA_COMBO_VAR(data,  "mapdata->ComboD") break;
+    }
+        //GET_MAPDATA_COMBO_VAR_BUF(flag, "mapdata->ComboI") break;
         
     case MAPDATACOMBOSD:
     {
-        int pos = ri->d[0] / 10000;
-	mapscr *m = &TheMaps[ri->mapsref];
-        
-        if(BC::checkComboPos(pos, "mapdata->ComboS") != SH::_NoError)
-            ret = -10000;
-        else
-            ret = (combobuf[m->data[pos]].walk & 0xF) * 10000;
+	if ( ri->mapsref == LONG_MAX )
+	{
+		Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","mapdata->ComboS[]()", ri->mapsref);
+		break;
+	}
+	else
+	{
+		mapscr *m = &TheMaps[ri->mapsref]; 
+		//int ffindex = ri->d[0]/10000;
+		//int d = ri->d[1]/10000;
+		//int v = (value/10000);
+		int pos = ri->d[0] / 10000;
+		if(BC::checkComboPos(pos, "mapdata->ComboS[pos]") != SH::_NoError)
+		{
+			ret = -10000; break;
+			
+		}
+		else
+		{
+			ret = (combobuf[m->data[pos]].walk & 0xF) * 10000;
+			break;
+		}
+		
+	}
     }
-    break;
     
     case MAPDATASCREENSTATED:
     {
@@ -10108,7 +10255,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
             Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
             break; \
         } \
-        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        else if ( ri->mapsref == LONG_MAX ) \
         { \
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
             break; \
@@ -10128,7 +10275,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
             Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), str); \
             break; \
         } \
-        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        else if ( ri->mapsref == LONG_MAX ) \
         { \
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
             break; \
@@ -10154,7 +10301,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
             Z_scripterrlog("Invalid value assigned to mapdata->%s[]: %d\n", (indx+1), str); \
             break; \
         } \
-        else if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 ) \
+        else if ( ri->mapsref == LONG_MAX ) \
         { \
             Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); \
             break; \
@@ -10240,7 +10387,7 @@ case MAPDATAFFFLAGS:        SET_MAPDATA_FFC_INDEX32(ffflags, "FFCFlags", 31); br
 */
 case MAPDATAFFWIDTH:       
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
         break;
@@ -10269,7 +10416,7 @@ case MAPDATAFFWIDTH:
 //SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");  //B, 32 OF THESE
 case MAPDATAFFHEIGHT:      
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
         break;
@@ -10299,7 +10446,7 @@ case MAPDATAFFHEIGHT:
 //SET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"  //B, 32 OF THESE
 case MAPDATAFFEFFECTWIDTH:     
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
         break;
@@ -10327,7 +10474,7 @@ case MAPDATAFFEFFECTWIDTH:
 //SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");    //B, 32 OF THESE
 case MAPDATAFFEFFECTHEIGHT:
 {
-    if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+    if ( ri->mapsref == LONG_MAX )
     {
         Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
         break;
@@ -10359,7 +10506,7 @@ case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(ffscript, "FFCScript", 
 case MAPDATAINTID: 	 //Same form as SetScreenD()
 	//SetFFCInitD(ffindex, d, value)
 {
-	if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+	if ( ri->mapsref == LONG_MAX )
 	{
 		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitD()");
 		break;
@@ -10396,7 +10543,7 @@ case MAPDATAINTID: 	 //Same form as SetScreenD()
 case MAPDATAINITA: 		
 	//same form as SetScreenD
 {
-	if ( ri->mapsref == LONG_MAX || ri->mapsref == 0 )
+	if ( ri->mapsref == LONG_MAX )
 	{
 		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitA()");
 		break;
