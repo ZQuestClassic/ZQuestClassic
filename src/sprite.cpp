@@ -100,6 +100,7 @@ sprite::sprite()
     weaponscript = 0;
     scripttile = -1;
     scriptflip = -1;
+    do_animation = 1;
     for ( int q = 0; q < 8; q++ )
     {
 	    initD[q] = 0;
@@ -162,7 +163,9 @@ doscript(other.doscript),
 script(other.script),
 weaponscript(other.weaponscript),
 scripttile(other.scripttile),
-scriptflip(other.scriptflip)
+scriptflip(other.scriptflip),
+do_animation(other.do_animation)
+
 {
     uid = getNextUID();
     
@@ -244,6 +247,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     weaponscript = 0;
     scripttile = -1;
     scriptflip = -1;
+    do_animation = 1;
     drawstyle=0;
     lasthitclk=0;
     lasthit=0;

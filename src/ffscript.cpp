@@ -1341,6 +1341,10 @@ long get_register(const long arg)
     case LINKINVINC:
         ret = (int)(Link.scriptcoldet)*10000;
         break;
+    
+    case LINKENGINEANIMATE:
+        ret = (int)(Link.do_animation)*10000;
+        break;
         
     case LINKLADDERX:
         ret=(int)(Link.getLadderX())*10000;
@@ -2493,6 +2497,9 @@ long get_register(const long arg)
         
     case NPCCOLLDET:
         GET_NPC_VAR_INT(scriptcoldet, "npc->ColDetection") break;
+    
+    case NPCENGINEANIMATE:
+        GET_NPC_VAR_INT(do_animation, "npc->Animation") break;
         
     case NPCSTUN:
         GET_NPC_VAR_INT(stunclk, "npc->Stun") break;
@@ -3149,6 +3156,12 @@ case NPCBEHAVIOUR: {
             
         break;
 	
+    case LWPNENGINEANIMATE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Animation")))
+            ret=(((weapon*)(s))->do_animation)*10000;
+            
+        break;
+	
     case LWPNPARENT:
         if(0!=(s=checkLWpn(ri->lwpn,"Parent")))
             ret=(((weapon*)(s))->parentitem)*10000;
@@ -3419,6 +3432,12 @@ case NPCBEHAVIOUR: {
     case EWPNCOLLDET:
         if(0!=(s=checkEWpn(ri->ewpn,"CollDetection")))
             ret=(((weapon*)(s))->scriptcoldet)*10000;
+            
+        break;
+    
+    case EWPNENGINEANIMATE:
+        if(0!=(s=checkEWpn(ri->ewpn,"Animation")))
+            ret=(((weapon*)(s))->do_animation)*10000;
             
         break;
 	
@@ -6636,6 +6655,10 @@ void set_register(const long arg, const long value)
     case LINKINVINC:
         Link.scriptcoldet=(value/10000);
         break;
+    
+    case LINKENGINEANIMATE:
+        Link.do_animation=(value/10000);
+        break;
         
     case LINKSWORDJINX:
         Link.setSwordClk(value/10000);
@@ -7953,7 +7976,7 @@ void set_register(const long arg, const long value)
 	
     case LWPNSCRIPTFLIP:
         if(0!=(s=checkLWpn(ri->lwpn,"ScriptFlip")))
-            ((weapon*)s)->scriptflip=vbound((value/10000),-1,256);
+            ((weapon*)s)->scriptflip=vbound((value/10000),-1,127);
             
         break;
         
@@ -8092,6 +8115,12 @@ void set_register(const long arg, const long value)
             
         break;
 	
+    case LWPNENGINEANIMATE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Animation")))
+            (((weapon*)(s))->do_animation)=value/10000;
+            
+        break;
+	
     case LWPNPARENT:
     {
 	    //int pitm = (vbound(value/10000,1,(MAXITEMS-1)));
@@ -8218,7 +8247,7 @@ void set_register(const long arg, const long value)
 	
     case EWPNSCRIPTFLIP:
         if(0!=(s=checkEWpn(ri->ewpn,"ScriptFlip")))
-            ((weapon*)s)->scriptflip=vbound((value/10000),-1, 256);
+            ((weapon*)s)->scriptflip=vbound((value/10000),-1, 127);
             
         break;
         
@@ -8354,6 +8383,12 @@ void set_register(const long arg, const long value)
     case EWPNCOLLDET:
         if(0!=(s=checkEWpn(ri->ewpn,"CollDetection")))
             (((weapon*)(s))->scriptcoldet)=value/10000;
+            
+        break;
+	
+    case EWPNENGINEANIMATE:
+        if(0!=(s=checkEWpn(ri->ewpn,"Animation")))
+            (((weapon*)(s))->do_animation)=value/10000;
             
         break;
 	
@@ -8553,6 +8588,9 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case NPCCOLLDET:
         SET_NPC_VAR_INT(scriptcoldet, "npc->CollDetection") break;
         
+    case NPCENGINEANIMATE:
+        SET_NPC_VAR_INT(do_animation, "npc->Animation") break;
+        
     case NPCSTUN:
         SET_NPC_VAR_INT(stunclk, "npc->Stun") break;
         
@@ -8624,9 +8662,8 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     {
         long tile = value / 10000;
         
-        if(GuyH::loadNPC(ri->guyref, "npc->Tile") == SH::_NoError &&
-                BC::checkTile(tile, "npc->Tile") == SH::_NoError)
-            GuyH::getNPC()->scriptflip = vbound(value, -1, 256);
+        if(GuyH::loadNPC(ri->guyref, "npc->ScriptFlip") == SH::_NoError )
+            GuyH::getNPC()->scriptflip = vbound(value, -1, 127);
     }
     break;
     
