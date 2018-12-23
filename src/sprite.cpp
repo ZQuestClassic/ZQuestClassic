@@ -98,6 +98,8 @@ sprite::sprite()
     //ewpnclass = 0;
     script = 0;
     weaponscript = 0;
+    scripttile = -1;
+    scriptflip = -1;
     for ( int q = 0; q < 8; q++ )
     {
 	    initD[q] = 0;
@@ -158,7 +160,9 @@ doscript(other.doscript),
 //lwpnclass(other.lwpnclass),
 //ewpnclass(other.ewpnclass),
 script(other.script),
-weaponscript(other.weaponscript)
+weaponscript(other.weaponscript),
+scripttile(other.scripttile),
+scriptflip(other.scriptflip)
 {
     uid = getNextUID();
     
@@ -238,6 +242,8 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     //itemref=0;
     script = 0;
     weaponscript = 0;
+    scripttile = -1;
+    scriptflip = -1;
     drawstyle=0;
     lasthitclk=0;
     lasthit=0;

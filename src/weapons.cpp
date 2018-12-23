@@ -2049,7 +2049,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
             
         default:
-            tile=0;
+            tile=  scripttile > -1 ? scripttile : 0;
             break;
         }
         
@@ -2091,7 +2091,9 @@ void weapon::LOADGFX(int wpn)
         
     wid = wpn;
     flash = wpnsbuf[wid].misc&3;
-    tile  = wpnsbuf[wid].newtile;
+    //tile  = wpnsbuf[wid].newtile;
+    
+    tile  =  scripttile > -1 ? scripttile : wpnsbuf[wid].newtile;
     cs = wpnsbuf[wid].csets&15;
     o_tile = wpnsbuf[wid].newtile;
     o_cset = wpnsbuf[wid].csets;
@@ -2738,17 +2740,17 @@ bool weapon::animate(int index)
                     else if(dir==down)
                         flip |= 2;  // vert
                 }
-                tile=o_tile;
+                tile= scripttile > -1 ? scripttile  : o_tile;
                 
                 if(dir&2)
                 {
                     if(frames>1)
                     {
-                        tile+=frames;
+                        if ( scripttile <= -1 ) tile+=frames;
                     }
                     else
                     {
-                        ++tile;
+                        if ( scripttile <= -1 ) ++tile;
                     }
                 }
                 
@@ -2772,17 +2774,17 @@ bool weapon::animate(int index)
                     else if(dir==down)
                         flip |= 2;  // vert
                 }
-                tile=o_tile;
+                tile=  scripttile > -1 ? scripttile  : o_tile;
                 
                 if(dir&2)
                 {
                     if(frames>1)
                     {
-                        tile+=frames;
+                        if ( scripttile <= -1 ) tile+=frames;
                     }
                     else
                     {
-                        ++tile;
+                        if ( scripttile <= -1 ) ++tile;
                     }
                 }
                 
@@ -2821,7 +2823,7 @@ bool weapon::animate(int index)
                             w->flip=2;
                             
                         case up:
-                            w->tile = w->o_tile;
+                            w->tile = w->scripttile > -1 ? w->scripttile : w->o_tile;
                             w->hyofs=2;
                             w->hysz=12;
                             break;
@@ -2830,7 +2832,7 @@ bool weapon::animate(int index)
                             w->flip=1;
                             
                         case right:
-                            w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+                            w->tile= w->scripttile > -1 ? w->scripttile : (w->o_tile+((w->frames>1)?w->frames:1));
                             w->hxofs=2;
                             w->hxsz=12;
                             break;
@@ -2870,7 +2872,7 @@ bool weapon::animate(int index)
                         w->flip=2;
                         
                     case up:
-                        w->tile = w->o_tile;
+                        w->tile =  w->scripttile > -1 ? w->scripttile : w->o_tile;
                         w->hyofs=2;
                         w->hysz=12;
                         break;
@@ -2879,7 +2881,7 @@ bool weapon::animate(int index)
                         w->flip=1;
                         
                     case right:
-                        w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+                        w->tile=  w->scripttile > -1 ? w->scripttile  : (w->o_tile+((w->frames>1)?w->frames:1));
                         w->hxofs=2;
                         w->hxsz=12;
                         break;
@@ -3887,17 +3889,17 @@ mirrors:
                         w->flip ^= 3;
                 }
                 
-                w->tile=w->o_tile;
+                w->tile=  w->scripttile > -1 ? w->scripttile  : w->o_tile;
                 
                 if(w->dir&2)
                 {
                     if(w->frames>1)
                     {
-                        w->tile+=w->frames;
+                        if ( w->scripttile <= -1 ) w->tile+=w->frames;
                     }
                     else
                     {
-                        ++w->tile;
+                        if ( w->scripttile <= -1 ) ++w->tile;
                     }
                 }
                 
@@ -3933,17 +3935,17 @@ mirrors:
                         w->flip ^= 1;
                 }
                 
-                w->tile=w->o_tile;
+                w->tile=  w->scripttile > -1 ? w->scripttile  : w->o_tile;
                 
                 if(w->dir&2)
                 {
                     if(w->frames>1)
                     {
-                        w->tile+=w->frames;
+                        if ( w->scripttile <= -1 ) w->tile+=w->frames;
                     }
                     else
                     {
-                        ++w->tile;
+                        if ( w->scripttile <= -1 ) ++w->tile;
                     }
                 }
                 
@@ -3983,7 +3985,7 @@ mirrors:
                             w->flip=2;
                             
                         case up:
-                            w->tile = w->o_tile;
+                            w->tile = w->scripttile > -1 ? w->scripttile : w->o_tile;
                             w->hyofs=2;
                             w->hysz=12;
                             break;
@@ -3992,7 +3994,7 @@ mirrors:
                             w->flip=1;
                             
                         case right:
-                            w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+                            w->tile=  w->scripttile > -1 ? w->scripttile  : (w->o_tile+((w->frames>1)?w->frames:1));
                             w->hxofs=2;
                             w->hxsz=12;
                             break;
@@ -4033,7 +4035,7 @@ mirrors:
                         w->flip=2;
                         
                     case up:
-                        w->tile = w->o_tile;
+                        w->tile =  w->scripttile > -1 ? w->scripttile  : w->o_tile;
                         w->hyofs=2;
                         w->hysz=12;
                         break;
@@ -4042,7 +4044,7 @@ mirrors:
                         w->flip=1;
                         
                     case right:
-                        w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+                        w->tile=  w->scripttile > -1 ? w->scripttile  : (w->o_tile+((w->frames>1)?w->frames:1));
                         w->hxofs=2;
                         w->hxsz=12;
                         break;
@@ -4710,17 +4712,17 @@ bool weapon::animateandrunscript(int ii)
                     else if(dir==down)
                         flip |= 2;  // vert
                 }
-                tile=o_tile;
+                tile = scripttile > -1 ? scripttile  : o_tile;
                 
                 if(dir&2)
                 {
                     if(frames>1)
                     {
-                        tile+=frames;
+                        if ( scripttile <= -1 ) tile+=frames;
                     }
                     else
                     {
-                        ++tile;
+                        if ( scripttile <= -1 ) ++tile;
                     }
                 }
                 
@@ -4744,17 +4746,17 @@ bool weapon::animateandrunscript(int ii)
                     else if(dir==down)
                         flip |= 2;  // vert
                 }
-                tile=o_tile;
+                tile = scripttile > -1 ? scripttile  : o_tile;
                 
                 if(dir&2)
                 {
                     if(frames>1)
                     {
-                        tile+=frames;
+                        if ( scripttile <= -1 ) tile+=frames;
                     }
                     else
                     {
-                        ++tile;
+                        if ( scripttile <= -1 ) ++tile;
                     }
                 }
                 
@@ -4793,7 +4795,7 @@ bool weapon::animateandrunscript(int ii)
                             w->flip=2;
                             
                         case up:
-                            w->tile = w->o_tile;
+                            w->tile =  w->scripttile > -1 ? w->scripttile  : w->o_tile;
                             w->hyofs=2;
                             w->hysz=12;
                             break;
@@ -4802,7 +4804,7 @@ bool weapon::animateandrunscript(int ii)
                             w->flip=1;
                             
                         case right:
-                            w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+                            w->tile=  w->scripttile > -1 ? w->scripttile  : (w->o_tile+((w->frames>1)?w->frames:1));
                             w->hxofs=2;
                             w->hxsz=12;
                             break;
@@ -4842,7 +4844,7 @@ bool weapon::animateandrunscript(int ii)
                         w->flip=2;
                         
                     case up:
-                        w->tile = w->o_tile;
+                        w->tile =  w->scripttile > -1 ? w->scripttile : w->o_tile;
                         w->hyofs=2;
                         w->hysz=12;
                         break;
@@ -4851,7 +4853,7 @@ bool weapon::animateandrunscript(int ii)
                         w->flip=1;
                         
                     case right:
-                        w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+                        w->tile=  w->scripttile > -1 ? w->scripttile  : (w->o_tile+((w->frames>1)?w->frames:1));
                         w->hxofs=2;
                         w->hxsz=12;
                         break;
@@ -5930,17 +5932,17 @@ mirrors:
                         w->flip ^= 3;
                 }
                 
-                w->tile=w->o_tile;
+                w->tile=  w->scripttile > -1 ? w->scripttile : w->o_tile;
                 
                 if(w->dir&2)
                 {
                     if(w->frames>1)
                     {
-                        w->tile+=w->frames;
+                        if ( w->scripttile <= -1 ) w->tile+=w->frames;
                     }
                     else
                     {
-                        ++w->tile;
+                        if ( w->scripttile <= -1 ) ++w->tile;
                     }
                 }
                 
@@ -5976,17 +5978,17 @@ mirrors:
                         w->flip ^= 1;
                 }
                 
-                w->tile=w->o_tile;
+                w->tile=  w->scripttile > -1 ? w->scripttile  : w->o_tile;
                 
                 if(w->dir&2)
                 {
                     if(w->frames>1)
                     {
-                        w->tile+=w->frames;
+                        if ( w->scripttile <= -1 ) w->tile+=w->frames;
                     }
                     else
                     {
-                        ++w->tile;
+                        if ( w->scripttile <= -1 ) ++w->tile;
                     }
                 }
                 
@@ -6026,7 +6028,7 @@ mirrors:
                             w->flip=2;
                             
                         case up:
-                            w->tile = w->o_tile;
+                            w->tile =  w->scripttile > -1 ? w->scripttile  : w->o_tile;
                             w->hyofs=2;
                             w->hysz=12;
                             break;
@@ -6035,7 +6037,7 @@ mirrors:
                             w->flip=1;
                             
                         case right:
-                            w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+                            w->tile=  w->scripttile > -1 ? w->scripttile  : (w->o_tile+((w->frames>1)?w->frames:1));
                             w->hxofs=2;
                             w->hxsz=12;
                             break;
@@ -6076,7 +6078,7 @@ mirrors:
                         w->flip=2;
                         
                     case up:
-                        w->tile = w->o_tile;
+                        w->tile =  w->scripttile > -1 ? w->scripttile  : w->o_tile;
                         w->hyofs=2;
                         w->hysz=12;
                         break;
@@ -6085,7 +6087,7 @@ mirrors:
                         w->flip=1;
                         
                     case right:
-                        w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+                        w->tile=  w->scripttile > -1 ? w->scripttile  : (w->o_tile+((w->frames>1)?w->frames:1));
                         w->hxofs=2;
                         w->hxsz=12;
                         break;
@@ -6846,7 +6848,7 @@ void weapon::update_weapon_frame(int change, int orig)
         tile=orig+(txsz*change)+(extra_rows*TILES_PER_ROW);
     }
     else
-        tile=orig+change;
+        tile = scripttile > -1 ? scripttile : (orig+change);
 }
 
 void weapon::draw(BITMAP *dest)
@@ -6939,15 +6941,17 @@ void weapon::draw(BITMAP *dest)
             cs = o_cset>>4;
             
         if(type2==3 && (f&2))
-            ++tile;
+	{
+            if ( scripttile <= -1 ) ++tile;
+	}
             
-        if(!type2 || f==0 || (type2>1 && f==3)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset-2-ofs-(z+zofs),cs,0);
+        if(!type2 || f==0 || (type2>1 && f==3)) overtile16(dest, (scripttile > -1 ? scripttile : tile),x-2-ofs,y+playing_field_offset-2-ofs-(z+zofs),cs,0);
         
-        if(!type2 || f==2 || (type2>1 && f==1)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset-2-ofs-(z+zofs),cs,1);
+        if(!type2 || f==2 || (type2>1 && f==1)) overtile16(dest, ( scripttile > -1 ? scripttile  : tile),x+2+ofs,y+playing_field_offset-2-ofs-(z+zofs),cs,1);
         
-        if(!type2 || f==1 || (type2>1 && f==2)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset+2+ofs-(z+zofs),cs,2);
+        if(!type2 || f==1 || (type2>1 && f==2)) overtile16(dest, ( scripttile > -1 ? scripttile : tile),x-2-ofs,y+playing_field_offset+2+ofs-(z+zofs),cs,2);
         
-        if(!type2 || f==3 || (type2>1 && f==0)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset+2+ofs-(z+zofs),cs,3);
+        if(!type2 || f==3 || (type2>1 && f==0)) overtile16(dest, ( scripttile > -1 ? scripttile : tile),x+2+ofs,y+playing_field_offset+2+ofs-(z+zofs),cs,3);
     }
     
     return;                                               // don't draw sword
@@ -7008,28 +7012,30 @@ void weapon::draw(BITMAP *dest)
             int perframe = (boomframes >= 34 ? 1 : (boomframes + 34)/boomframes);
             
             if(clk > misc)
-                tile += (clk-misc)/perframe;
+	    {
+                if ( scripttile <= -1 ) tile += (clk-misc)/perframe;
+	    }
                 
             //update_weapon_frame((clk-misc)/perframe,tile);
         }
         else if(clk>misc+22)
         {
-            ++tile;
+            if ( scripttile <= -1 ) ++tile;
             //update_weapon_frame(1,tile);
         }
         
-        overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-13-(z+zofs),cs,0);
-        overtile16(dest,tile,x,y+yofs-(z+zofs),cs,0);
-        overtile16(dest,tile,x+((clk&1)?-14:14),y+yofs-(z+zofs),cs,0);
-        overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+14-(z+zofs),cs,0);
+        overtile16(dest,( scripttile > -1 ? scripttile : tile),x+((clk&1)?7:-7),y+yofs-13-(z+zofs),cs,0);
+        overtile16(dest,( scripttile > -1 ? scripttile : tile),x,y+yofs-(z+zofs),cs,0);
+        overtile16(dest,( scripttile > -1 ? scripttile : tile),x+((clk&1)?-14:14),y+yofs-(z+zofs),cs,0);
+        overtile16(dest,( scripttile > -1 ? scripttile : tile),x+((clk&1)?-7:7),y+yofs+14-(z+zofs),cs,0);
         
         if(id==wSBomb||id==ewSBomb)
         {
-            overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-27-(z+zofs),cs,0);
-            overtile16(dest,tile,x+((clk&1)?-21:21),y+yofs-13-(z+zofs),cs,0);
-            overtile16(dest,tile,x+((clk&1)?-28:28),y+yofs-(z+zofs),cs,0);
-            overtile16(dest,tile,x+((clk&1)?21:-21),y+yofs+14-(z+zofs),cs,0);
-            overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+28-(z+zofs),cs,0);
+            overtile16(dest,( scripttile > -1 ? scripttile : tile),x+((clk&1)?7:-7),y+yofs-27-(z+zofs),cs,0);
+            overtile16(dest,( scripttile > -1 ? scripttile : tile),x+((clk&1)?-21:21),y+yofs-13-(z+zofs),cs,0);
+            overtile16(dest,( scripttile > -1 ? scripttile : tile),x+((clk&1)?-28:28),y+yofs-(z+zofs),cs,0);
+            overtile16(dest,( scripttile > -1 ? scripttile : tile),x+((clk&1)?21:-21),y+yofs+14-(z+zofs),cs,0);
+            overtile16(dest,( scripttile > -1 ? scripttile : tile),x+((clk&1)?-7:7),y+yofs+28-(z+zofs),cs,0);
         }
         else
         {
@@ -7048,7 +7054,7 @@ void weapon::draw(BITMAP *dest)
         if(dead>0 && !bounce)
         {
             cs=7;
-            tile=54;
+            if ( scripttile <= -1 ) tile=54;
             flip=0;
         }
         
@@ -7070,27 +7076,27 @@ void weapon::draw(BITMAP *dest)
         
         if(parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG1))
         {
-            tile = o_tile;
+            tile =  scripttile > -1 ? scripttile  : o_tile;
             
             if(BSZ)
                 flip = bszboomflip[(clk>>2)&3];
             else
             {
                 //tile = boomframe[clk&0xE] + o_tile;
-                update_weapon_frame(boomframe[clk&0xE],o_tile);
+                update_weapon_frame(boomframe[clk&0xE],( scripttile > -1 ? scripttile : o_tile));
                 flip = boomframe[(clk&0xE)+1];
             }
             
             if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
             {
-                update_weapon_frame((BSZ?1:4)*dir,tile);
+                update_weapon_frame((BSZ?1:4)*dir,( scripttile > -1 ? scripttile : tile));
             }
         }
         else
         {
             if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
             {
-                update_weapon_frame(zc_max(frames,1)*dir,tile);
+                update_weapon_frame(zc_max(frames,1)*dir,( scripttile > -1 ? scripttile : tile));
             }
         }
         
@@ -7098,12 +7104,12 @@ void weapon::draw(BITMAP *dest)
         {
             if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG1)
             {
-                tile=o_tile+(frames*(itemsbuf[parentitem].flags & ITEM_FLAG2)?8:1);
+                tile=  scripttile > -1 ? scripttile : (o_tile+(frames*(itemsbuf[parentitem].flags & ITEM_FLAG2)?8:1));
             }
             else
             {
                 cs=7;
-                tile=54;
+                if ( scripttile <= -1 )tile=54;
                 flip=0;
             }
         }
@@ -7118,7 +7124,7 @@ void weapon::draw(BITMAP *dest)
             flip ^= o_flip;
             
         if((dead!=-1) && !BSZ)
-            tile = temp1;//wpnsbuf[wFIRE].tile;
+            tile =  scripttile > -1 ? scripttile : temp1;//wpnsbuf[wFIRE].tile;
             
         break;
         

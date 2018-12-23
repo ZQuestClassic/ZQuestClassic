@@ -104,7 +104,7 @@ public:
     long initA[2];
     long weap_initd[8];
     long weap_inita[2];
-    
+    int scripttile, scriptflip; 
     
     sprite();
     sprite(sprite const & other);

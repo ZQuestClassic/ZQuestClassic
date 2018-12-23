@@ -2517,6 +2517,12 @@ long get_register(const long arg)
         
     case NPCTILE:
         GET_NPC_VAR_INT(tile, "npc->Tile") break;
+    
+    case NPCSCRIPTTILE:
+        GET_NPC_VAR_INT(scripttile, "npc->ScriptTile") break;
+        
+    case NPCSCRIPTFLIP:
+        GET_NPC_VAR_INT(scriptflip, "npc->ScriptFlip") break;
         
     case NPCWEAPON:
         GET_NPC_VAR_INT(wpn, "npc->Weapon") break;
@@ -2991,6 +2997,18 @@ case NPCBEHAVIOUR: {
             ret=((weapon*)(s))->tile*10000;
             
         break;
+	
+    case LWPNSCRIPTTILE:
+        if(0!=(s=checkLWpn(ri->lwpn,"ScriptTile")))
+            ret=((weapon*)(s))->scripttile*10000;
+            
+        break;
+	
+    case LWPNSCRIPTFLIP:
+        if(0!=(s=checkLWpn(ri->lwpn,"ScriptFlip")))
+            ret=((weapon*)(s))->scriptflip*10000;
+            
+        break;
         
     case LWPNCSET:
         if(0!=(s=checkLWpn(ri->lwpn,"CSet")))
@@ -3250,6 +3268,18 @@ case NPCBEHAVIOUR: {
     case EWPNTILE:
         if(0!=(s=checkEWpn(ri->ewpn,"Tile")))
             ret=((weapon*)(s))->tile*10000;
+            
+        break;
+	
+    case EWPNSCRIPTTILE:
+        if(0!=(s=checkEWpn(ri->ewpn,"ScriptTile")))
+            ret=((weapon*)(s))->scripttile*10000;
+            
+        break;
+    
+    case EWPNSCRIPTFLIP:
+        if(0!=(s=checkEWpn(ri->ewpn,"ScriptFlip")))
+            ret=((weapon*)(s))->scriptflip*10000;
             
         break;
         
@@ -5204,6 +5234,10 @@ case DMAPDATAPALETTE:	//word
 {
 	ret = ((word)DMaps[ri->dmapsref].color) * 10000; break;
 }
+case DMAPSCRIPT:	//word
+{
+	ret = (DMaps[ri->dmapsref].script) * 10000; break;
+}
 case DMAPDATAMIDI:	//byte
 {
 	ret = ((byte)DMaps[ri->dmapsref].midi) * 10000; break;
@@ -5232,6 +5266,20 @@ case DMAPDATAGRID:	//byte[8] --array
 	else
 	{
 		ret = ((byte)DMaps[ri->dmapsref].grid[indx]) * 10000;  break;
+	}
+}
+case DMAPINITD:	//byte[8] --array
+{
+	int indx = ri->d[0] / 10000;
+	if ( indx < 0 || indx > 7 ) 
+	{
+		Z_scripterrlog("Invalid index supplied to dmapdata->InitD[]: %d\n", indx);
+		ret = -10000;
+		break;
+	}
+	else
+	{
+		ret = ((byte)DMaps[ri->dmapsref].initD[indx]);  break;
 	}
 }
 case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
@@ -6757,10 +6805,10 @@ void set_register(const long arg, const long value)
 	Link.setStunClock(value/10000);
 	break;
       case LINKSCRIPTTILE:
-	script_link_sprite=(value/10000);
+	script_link_sprite=vbound((value/10000), -1, NEWMAXTILES-1);
 	break;
       case LINKSCRIPFLIP:
-	script_link_flip=(value/10000);
+	script_link_flip=vbound((value/10000),-1,256);
 	break;
     
       case GAMESETA:
@@ -7896,6 +7944,18 @@ void set_register(const long arg, const long value)
             ((weapon*)s)->tile=(value/10000);
             
         break;
+	
+    case LWPNSCRIPTTILE:
+        if(0!=(s=checkLWpn(ri->lwpn,"ScriptTile")))
+            ((weapon*)s)->scripttile=vbound((value/10000),-1,NEWMAXTILES-1);
+            
+        break;
+	
+    case LWPNSCRIPTFLIP:
+        if(0!=(s=checkLWpn(ri->lwpn,"ScriptFlip")))
+            ((weapon*)s)->scriptflip=vbound((value/10000),-1,256);
+            
+        break;
         
     case LWPNCSET:
         if(0!=(s=checkLWpn(ri->lwpn,"CSet")))
@@ -8038,7 +8098,7 @@ void set_register(const long arg, const long value)
 	    //Z_scripterrlog("Attempting to set ParentItem to: %d\n", pitm); 
 				
         if(0!=(s=checkLWpn(ri->lwpn,"Parent")))
-            (((weapon*)(s))->parentitem)=(vbound(value/10000,1,(MAXITEMS-1)));
+            (((weapon*)(s))->parentitem)=(vbound(value/10000,-1,(MAXITEMS-1)));
     }
         break;
 
@@ -8050,7 +8110,7 @@ void set_register(const long arg, const long value)
 	
 	case LWPNSCRIPT:
         if(0!=(s=checkLWpn(ri->lwpn,"Script")))
-		(((weapon*)(s))->weaponscript)=value/10000;
+		(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
             
         break;
 	
@@ -8147,6 +8207,18 @@ void set_register(const long arg, const long value)
     case EWPNTILE:
         if(0!=(s=checkEWpn(ri->ewpn,"Tile")))
             ((weapon*)s)->tile=(value/10000);
+            
+        break;
+        
+    case EWPNSCRIPTTILE:
+        if(0!=(s=checkEWpn(ri->ewpn,"ScriptTile")))
+            ((weapon*)s)->scripttile=vbound((value/10000),-1, NEWMAXTILES-1);
+            
+        break;
+	
+    case EWPNSCRIPTFLIP:
+        if(0!=(s=checkEWpn(ri->ewpn,"ScriptFlip")))
+            ((weapon*)s)->scriptflip=vbound((value/10000),-1, 256);
             
         break;
         
@@ -8287,13 +8359,13 @@ void set_register(const long arg, const long value)
 	
    case EWPNPARENT:
         if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
-            (((weapon*)(s))->parentid)=vbound((value/10000),0,511);
+            (((weapon*)(s))->parentid)=vbound((value/10000),-1,511);
             
         break;
 	
 	case EWPNSCRIPT:
         if(0!=(s=checkEWpn(ri->ewpn,"Script")))
-		(((weapon*)(s))->weaponscript)=value/10000;
+		(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
             
         break;
 	
@@ -8538,6 +8610,26 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     }
     break;
     
+    case NPCSCRIPTTILE:
+    {
+        long tile = value / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->Tile") == SH::_NoError &&
+                BC::checkTile(tile, "npc->Tile") == SH::_NoError)
+            GuyH::getNPC()->scripttile = vbound(tile, -1, NEWMAXTILES-1);
+    }
+    break;
+    
+    case NPCSCRIPTFLIP:
+    {
+        long tile = value / 10000;
+        
+        if(GuyH::loadNPC(ri->guyref, "npc->Tile") == SH::_NoError &&
+                BC::checkTile(tile, "npc->Tile") == SH::_NoError)
+            GuyH::getNPC()->scriptflip = vbound(value, -1, 256);
+    }
+    break;
+    
     case NPCWEAPON:
     {
         long weapon = value / 10000;
@@ -8648,13 +8740,11 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
     case NPCSCRIPT:
     {
-	long a = ri->d[0] / 10000;
-        
         if(GuyH::loadNPC(ri->guyref, "npc->Script") == SH::_NoError)
 	{
 		//enemy *e = (enemy*)guys.spr(ri->guyref);
 		//e->initD[a] = value; 
-		GuyH::getNPC()->script = value;
+		GuyH::getNPC()->script = vbound((value/10000), 0, NUMSCRIPTGUYS-1);
 	}
     }
     break;
@@ -10599,6 +10689,10 @@ case DMAPDATATYPE:	//byte
 {
 	DMaps[ri->dmapsref].type = ((byte)(value / 10000)); break;
 }
+case DMAPSCRIPT:	//byte
+{
+	DMaps[ri->dmapsref].type = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
+}
 case DMAPDATASIDEVIEW:	//byte, treat as bool
 {
 	DMaps[ri->dmapsref].type = ((byte)((value / 10000)!=0 ? 1 : 0)); break;
@@ -10613,6 +10707,18 @@ case DMAPDATAGRID:	//byte[8] --array
 	else
 	{
 		DMaps[ri->dmapsref].grid[indx] = ((byte)(value / 10000)); break;
+	}
+}
+case DMAPINITD:
+{
+	int indx = ri->d[0] / 10000;
+	if ( indx < 0 || indx > 7 ) 
+	{
+		Z_scripterrlog("Invalid index supplied to dmapdata->InitD[]: %d\n", indx); break;
+	}
+	else
+	{
+		DMaps[ri->dmapsref].initD[indx] = value; break;
 	}
 }
 case DMAPDATAMINIMAPTILE:	//word - two of these, so let's do MinimapTile[2]
