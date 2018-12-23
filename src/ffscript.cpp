@@ -3977,14 +3977,15 @@ else \
 	#define GET_SCREENDATA_LAYER_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
-		if(indx < 0 || indx > indexbound ) \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if(indx < 1 || indx > indexbound ) \
 		{ \
 			Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
 			ret = -10000; \
 		} \
 		else \
 		{ \
-			ret = (tmpscr->member[indx] *10000); \
+			ret = (tmpscr->member[indx-1] *10000); \
 		} \
 	} \
 	
@@ -4050,9 +4051,9 @@ case SCREENDATACATCHALL:	 	GET_SCREENDATA_VAR_INT32(catchall,	"Catchall"); break
 case SCREENDATACSENSITIVE: 	GET_SCREENDATA_VAR_BYTE(csensitive, "CSensitive"); break;	//B
 case SCREENDATANORESET: 		GET_SCREENDATA_VAR_INT32(noreset, "NoReset"); break;	//W
 case SCREENDATANOCARRY: 		GET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
-case SCREENDATALAYERMAP:	 	GET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
-case SCREENDATALAYERSCREEN: 	GET_SCREENDATA_LAYER_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
-case SCREENDATALAYEROPACITY: 	GET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case SCREENDATALAYERMAP:	 	GET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
+case SCREENDATALAYERSCREEN: 	GET_SCREENDATA_LAYER_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
+case SCREENDATALAYEROPACITY: 	GET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
 case SCREENDATATIMEDWARPTICS: 	GET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case SCREENDATANEXTMAP: 		GET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case SCREENDATANEXTSCREEN: 	GET_SCREENDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
@@ -4388,12 +4389,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 //mapdata m-> variables
     #define	GET_MAPDATA_VAR_INT32(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			ret = -10000; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			ret = -10000; \
@@ -4407,12 +4403,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 
 	#define	GET_MAPDATA_VAR_INT16(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			ret = -10000; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			ret = -10000; \
@@ -4426,12 +4417,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 
 	#define	GET_MAPDATA_VAR_BYTE(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			ret = -10000; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			ret = -10000; \
@@ -4453,12 +4439,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		} \
 		else \
 		{ \
-			if ( ri->mapsref == 0 ) \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-				ret = -10000; \
-			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			if ( ri->mapsref == LONG_MAX ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 				ret = -10000; \
@@ -4481,12 +4462,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		} \
 		else \
 		{ \
-			if ( ri->mapsref == 0 ) \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-				ret = -10000; \
-			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			if ( ri->mapsref == LONG_MAX ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 				ret = -10000; \
@@ -4509,12 +4485,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		} \
 		else \
 		{ \
-			if ( ri->mapsref == 0 ) \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-				ret = -10000; \
-			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			if ( ri->mapsref == LONG_MAX ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 				ret = -10000; \
@@ -4546,19 +4517,15 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 	#define GET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
-		if(indx < 0 || indx > indexbound ) \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if(indx < 1 || indx > indexbound ) \
 		{ \
 			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
 			ret = -10000; \
 		} \
 		else \
 		{ \
-			if ( ri->mapsref == 0 ) \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-				ret = -10000; \
-			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			if ( ri->mapsref == LONG_MAX ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 				ret = -10000; \
@@ -4566,7 +4533,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 			else \
 			{ \
 				mapscr *m = &TheMaps[ri->mapsref]; \
-				ret = (m->member[indx] *10000); \
+				ret = (m->member[indx-1] *10000); \
 			} \
 		} \
 	} \
@@ -4581,12 +4548,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		} \
 		else \
 		{ \
-			if ( ri->mapsref == 0 ) \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-				ret = -10000; \
-			} \
-			else if ( ri->mapsref == LONG_MAX ) \
+			if ( ri->mapsref == LONG_MAX ) \
 			{ \
 				Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 				ret = -10000; \
@@ -4602,12 +4564,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 	#define GET_MAPDATA_FLAG(member, str) \
 	{ \
 		long flag =  (value/10000);  \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			ret = -10000; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			ret = -10000; \
@@ -4621,12 +4578,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 	
 	#define GET_SCREENDATA_COMBO_VAR(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			ret = -10000; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			ret = -10000; \
@@ -4644,12 +4596,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 
 	#define GET_MAPDATA_COMBO_VAR_BUF(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			ret = -10000; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			ret = -10000; \
@@ -9597,7 +9544,13 @@ case COMBODDM:
 	#define SET_SCREENDATA_LAYER_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
-		tmpscr->member[indx] = vbound((value / 10000),0,255); \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if(indx < 1 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			ret = -10000; \
+		} \
+		tmpscr->member[indx-1] = vbound((value / 10000),0,255); \
 	}
 	
 	#define SET_SCREENDATA_FLAG(member, str) \
@@ -10068,12 +10021,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 	//mapdata m-> Variables
 	#define	SET_MAPDATA_VAR_INT32(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -10087,12 +10035,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 	
 	#define	SET_MAPDATA_VAR_INT16(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -10106,12 +10049,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 
 	#define	SET_MAPDATA_VAR_BYTE(member, str) \
 	{ \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -10131,12 +10069,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
 			break; \
 		} \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -10156,12 +10089,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
 			break; \
 		} \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -10181,12 +10109,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
 			break; \
 		} \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -10198,6 +10121,27 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		} \
 	}\
 	
+	#define SET_MAPDATA_LAYER_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if(indx < 1 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			break; \
+		} \
+		if ( ri->mapsref == LONG_MAX ) \
+		{ \
+			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
+			break; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			m->member[indx-1] = vbound((value / 10000),0,255); \
+		} \
+	}\
+	
 	#define SET_MAPDATA_BOOL_INDEX(member, str, indexbound) \
 	{ \
 		int indx = ri->d[0] / 10000; \
@@ -10206,12 +10150,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
 			break; \
 		} \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -10226,12 +10165,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 	#define SET_MAPDATA_FLAG(member, str) \
 	{ \
 		long flag =  (value/10000);  \
-		if ( ri->mapsref == 0 ) \
-		{ \
-			Z_scripterrlog("Script attempted to use a mapdata->%s pointer that is uninitialised\n",str); \
-			break; \
-		} \
-		else if ( ri->mapsref == LONG_MAX ) \
+		if ( ri->mapsref == LONG_MAX ) \
 		{ \
 			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
 			break; \
@@ -10355,9 +10289,9 @@ case MAPDATANOCARRY: 		SET_MAPDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
 //! Layer arrays should be a size of 7, and return the current screen / map / and OP_OPAQUE 
 //! if you try to read 0, so that they correspond to actual layer IDs. 
 //! 
-case MAPDATALAYERMAP:	 	SET_MAPDATA_BYTE_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
-case MAPDATALAYERSCREEN: 	SET_MAPDATA_BYTE_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
-case MAPDATALAYEROPACITY: 	SET_MAPDATA_BYTE_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
+case MAPDATALAYERMAP:	 	SET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
+case MAPDATALAYERSCREEN: 	SET_MAPDATA_LAYER_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
+case MAPDATALAYEROPACITY: 	SET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
 case MAPDATATIMEDWARPTICS: 	SET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case MAPDATANEXTMAP: 		SET_MAPDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
 case MAPDATANEXTSCREEN: 	SET_MAPDATA_VAR_BYTE(nextscr, "NextScreen"); break;	//B
