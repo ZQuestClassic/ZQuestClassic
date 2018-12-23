@@ -1,6 +1,11 @@
 //2.55 and 2.54 Changes
 
 //Alpha 11
+Setters for Screen->LayerScreen[] and mapdata->LayerScreen[] were not
+	properly vbounded. 
+	^ They needed to be bounded between 0 and MAPSCRS. (Should this be MAPSCRS-1?)
+	I also fixed the order of %s and %d parameters in some macros.
+
 Fixed more mapdata macros issuing an error for map 1, screen 0 when
 	ri->mapsref == 0.
 
