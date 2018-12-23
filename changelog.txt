@@ -1,7 +1,47 @@
 //2.55 and 2.54 Changes
 
-//Alpha 10
+//Alpha 11
 
+Fixed issues with npc scripts, causing stack corruption:
+	They use the same *ri mechanic as lweapon acripts, but they run in
+	enemy::animate(), which is itself a sort of proof that weapon scripts
+	could probably also run from animate(), now.
+Added checks for do_animation to guys.cpp.
+	Segmented boss enemies do not obey do_animation. Script your own
+	segmented bosses using the new enemy types.
+Note: Added a note about enemy::drawblock()
+Enable do_animation for weapons.
+
+Add scriptflip and scripttile to sprite::draw():
+	sprite::draw(), sprite::old_draw(), sprite::draw8(), and sprite::drawcloaked()
+	will all check scripttile and scriptflip, and use those values in the place of
+	tile and flip, if those values are > -1.
+
+	I'm trying this for now. I don't think that it will suffice, though, because
+	ZC is still making internal adjustments to those tiles.
+
+	I may add a bool->OverrideEngineTileManagement or something, so that ZScript
+	users can have the benefit of either option.
+
+Reverted weapons.cpp to immediately before the last commit.
+	We'll do this in sprite::draw(), instead.
+
+Added scripttile and scriptflip to all sprites. Both init at -1.
+	Added running code for scripttile to weapons.cpp.
+
+	Added the following instructions to ZScript:
+	dmapdata->Script, dmapdata->InitD[8]
+	lweapon->ScriptFlip, lweapon->ScriptTile
+	eweapon->ScriptFlip, eweapon->ScriptTile
+	npc->ScriptFlip, npc->ScriptTile
+
+	VBounded all ScriptTile (including Link!) setters between -1 and NEWMAXTILES-1.
+	VBounded all ScriptFlip (including Link!) setters between -1 anbd 256.
+
+	VBounded npc->Script, lweapon->Script, and eweapon->Script between 0 and NUMSCRIPT-1.
+	( ZoriaRPG, 23rd December, 2018 )
+	
+//Alpha 10
 Renamed entry [0] in Emulation Menu to 'Flip-Flip Cancel and Wave Warps'
 	Disabled this option if the current quest was made in 2.10 or
 	( ZoriaRPG, 22nd December, 2018 )
