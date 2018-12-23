@@ -3187,13 +3187,25 @@ enum ASM_DEFINE
 #define NPCDATAWEAPONINITD 		0x132F
 #define NPCDATAWEAPONSCRIPT 		0x1330
 
+#define NPCSCRIPTTILE 		0x1331
+#define NPCSCRIPTFLIP 		0x1332
+#define LWPNSCRIPTTILE 		0x1333
+#define LWPNSCRIPTFLIP 		0x1334
+#define EWPNSCRIPTTILE 		0x1335
+#define EWPNSCRIPTFLIP 		0x1336
+
+#define LINKENGINEANIMATE 		0x1337
+#define NPCENGINEANIMATE 		0x1338
+#define LWPNENGINEANIMATE 		0x1339
+#define EWPNENGINEANIMATE 		0x133A
+
 //bytecode
 
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x1331
+#define NUMVARIABLES         0x133B
 
 
 // Script types

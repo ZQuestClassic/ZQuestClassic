@@ -904,7 +904,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         LOADGFX(defaultw);
         flash = 1;
         cs = 6;
-        
+        if ( do_animation ) 
+	{
         switch(dir)
         {
         case down:
@@ -931,7 +932,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
         }
         
-        if(id==wRefBeam)
+	}
+	if(id==wRefBeam)
         {
             ignorecombo=(((int)y&0xF0)+((int)x>>4));
         }
@@ -974,6 +976,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 		}
 	}    
 
+	if ( do_animation ) 
+	{
 	switch(dir)
         {
         case down:
@@ -1012,7 +1016,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
         }
         
-        if(itemid >-1)
+	}       
+	if(itemid >-1)
             misc = itemsbuf[itemid].misc1;
             
         break;
@@ -1327,7 +1332,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	//Z_message("TileWidth: %d\n",txsz);
 	//Z_message("TileHeight: %d\n",tysz);
         step = (BSZ ? 3 : 2.5);
-        
+        if ( do_animation ) 
+	{
         switch(dir)
         {
         case down:
@@ -1351,8 +1357,9 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	//12;
             break;
         }
-        
+	}
         break;
+	
     }
     
     case wBrang:
@@ -1426,6 +1433,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         clk2=256;
         
 	//Size Tab Settings here would be broken, IMO. -Z
+	if ( do_animation ) 
+	{
         switch(dir)
         {
         case down:
@@ -1460,7 +1469,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
         }
         
-        break;
+	}
+	break;
         
     case wHSHandle:
         step = 0;
@@ -1476,7 +1486,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             defaultw = wHSHANDLE;
             
         LOADGFX(defaultw);
-        
+        if ( do_animation ) 
+	{
         switch(dir)
         {
         case down:
@@ -1511,7 +1522,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
         }
         
-        break;
+	}
+	break;
         
     case wHSChain:
     {
@@ -1583,7 +1595,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             misc=2;
         else
             step=3;
-            
+	if ( do_animation ) 
+	{
         switch(dir)
         {
         case down:
@@ -1600,7 +1613,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             update_weapon_frame(((frames>1)?frames:1),o_tile);
             break;
         }
-        
+	}
         break;
         
     case ewLitSBomb:
@@ -1624,7 +1637,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             misc=2;
         else
             step=3;
-            
+	if ( do_animation ) 
+	{
         switch(dir)
         {
         case down:
@@ -1642,7 +1656,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
         }
         
-        break;
+	}
+	break;
         
     case ewBrang:
         if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
@@ -1734,7 +1749,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	}
 	else LOADGFX(ewARROW);
         step=2;
-        
+        if ( do_animation ) 
+	{
         switch(dir)
         {
         case down:
@@ -1755,7 +1771,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
         }
         
-        break;
+	}
+	break;
         
     case ewSword:
         if ( parentid > -1 )
@@ -1781,7 +1798,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         }
         
         step=3;
-        
+        if ( do_animation ) 
+	{
         switch(dir)
         {
         case down:
@@ -1800,7 +1818,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
         }
         
-        break;
+	}
+	break;
         
     case wRefMagic:
     case ewMagic:
@@ -1830,7 +1849,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         }
         
         step=3;
-        
+        if ( do_animation ) 
+	{
         switch(dir)
         {
         case down:
@@ -1849,7 +1869,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             break;
         }
         
-        if(id==wRefMagic)
+	}
+	if(id==wRefMagic)
         {
             //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",1779);
             ignorecombo=(((int)y&0xF0)+((int)x>>4));
@@ -2738,19 +2759,22 @@ bool weapon::animate(int index)
                     else if(dir==down)
                         flip |= 2;  // vert
                 }
-                tile=o_tile;
+		if ( do_animation ) 
+		{
+			tile=o_tile;
                 
-                if(dir&2)
-                {
-                    if(frames>1)
-                    {
-                        tile+=frames;
-                    }
-                    else
-                    {
-                        ++tile;
-                    }
-                }
+			if(dir&2)
+			{
+			    if(frames>1)
+			    {
+				tile+=frames;
+			    }
+			    else
+			    {
+				++tile;
+			    }
+			}
+		}
                 
                 ignoreLink=false;
                 ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
@@ -2761,31 +2785,33 @@ bool weapon::animate(int index)
             if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
             {
                 id = wRefBeam;
-                dir ^= 2;
-                {
-                    if(dir==right)
-                        flip &= ~1; // not horiz
-                    else if(dir==left)
-                        flip |= 1;  // horiz
-                    else if(dir==up)
-                        flip &= ~2; // not vert
-                    else if(dir==down)
-                        flip |= 2;  // vert
+		if ( do_animation ) 
+		{
+			dir ^= 2;
+			{
+			    if(dir==right)
+				flip &= ~1; // not horiz
+			    else if(dir==left)
+				flip |= 1;  // horiz
+			    else if(dir==up)
+				flip &= ~2; // not vert
+			    else if(dir==down)
+				flip |= 2;  // vert
+			}
+			tile=o_tile;
+			
+			if(dir&2)
+			{
+			    if(frames>1)
+			    {
+				tile+=frames;
+			    }
+			    else
+			    {
+				++tile;
+			    }
+			}
                 }
-                tile=o_tile;
-                
-                if(dir&2)
-                {
-                    if(frames>1)
-                    {
-                        tile+=frames;
-                    }
-                    else
-                    {
-                        ++tile;
-                    }
-                }
-                
                 ignoreLink=false;
                 ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
                 y=(int)posy&0xF0;
@@ -2814,7 +2840,8 @@ bool weapon::animate(int index)
                         w->hyofs = w->hxofs = 0;
                         //also set up the magic's correct animation -DD
                         w->flip=0;
-                        
+                        if ( do_animation ) 
+			{
                         switch(w->dir)
                         {
                         case down:
@@ -2836,7 +2863,8 @@ bool weapon::animate(int index)
                             break;
                         }
                         
-                        Lwpns.add(w);
+			}
+			Lwpns.add(w);
                     }
                 }
                 
@@ -2863,7 +2891,8 @@ bool weapon::animate(int index)
                     w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
                     //also set up the magic's correct animation -DD
                     w->flip=0;
-                    
+                    if ( do_animation ) 
+		    {
                     switch(w->dir)
                     {
                     case down:
@@ -2885,7 +2914,8 @@ bool weapon::animate(int index)
                         break;
                     }
                     
-                    Lwpns.add(w);
+		    }
+		    Lwpns.add(w);
                 }
                 
                 dead=0;
@@ -3882,25 +3912,28 @@ mirrors:
                 if(w->id != wWind)
                 {
                     w->id = wRefMagic;
-                    
-                    if((w->dir==1)||(w->dir==2))
-                        w->flip ^= 3;
+                    if ( do_animation ) 
+	            {
+			if((w->dir==1)||(w->dir==2))
+				w->flip ^= 3;
+	            }
                 }
-                
-                w->tile=w->o_tile;
-                
-                if(w->dir&2)
-                {
-                    if(w->frames>1)
-                    {
-                        w->tile+=w->frames;
-                    }
-                    else
-                    {
-                        ++w->tile;
-                    }
+                if ( do_animation ) 
+		{
+			w->tile=w->o_tile;
+			
+			if(w->dir&2)
+			{
+			    if(w->frames>1)
+			    {
+				w->tile+=w->frames;
+			    }
+			    else
+			    {
+				++w->tile;
+			    }
+			}
                 }
-                
                 w->ignoreLink=false;
                 w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
                 w->y=checky&0xF0;
@@ -3920,33 +3953,37 @@ mirrors:
                 {
                     w=this;
                 }
-                
-                w->dir ^= 2;
+                if ( do_animation ) 
+		{
+			w->dir ^= 2;
+		}
                 
                 if(w->id != wWind)
                 {
                     w->id = wRefMagic;
-                    
-                    if(w->dir&1)
-                        w->flip ^= 2;
-                    else
-                        w->flip ^= 1;
-                }
-                
-                w->tile=w->o_tile;
-                
-                if(w->dir&2)
-                {
-                    if(w->frames>1)
                     {
-                        w->tile+=w->frames;
-                    }
-                    else
-                    {
-                        ++w->tile;
-                    }
+			    if(w->dir&1)
+				w->flip ^= 2;
+			    else
+				w->flip ^= 1;
+		    }
                 }
-                
+                if ( do_animation ) 
+		{
+			w->tile=w->o_tile;
+			
+			if(w->dir&2)
+			{
+			    if(w->frames>1)
+			    {
+				w->tile+=w->frames;
+			    }
+			    else
+			    {
+				++w->tile;
+			    }
+			}
+                }
                 w->ignoreLink=false;
                 w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
                 w->y=checky&0xF0;
@@ -3976,28 +4013,30 @@ mirrors:
                         w->hyofs = w->hxofs = 0;
                         w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
                         
-                        //also set up the magic's correct animation -DD
-                        switch(w->dir)
-                        {
-                        case down:
-                            w->flip=2;
-                            
-                        case up:
-                            w->tile = w->o_tile;
-                            w->hyofs=2;
-                            w->hysz=12;
-                            break;
-                            
-                        case left:
-                            w->flip=1;
-                            
-                        case right:
-                            w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-                            w->hxofs=2;
-                            w->hxsz=12;
-                            break;
+			if ( do_animation ) 
+			{
+				//also set up the magic's correct animation -DD
+				switch(w->dir)
+				{
+				case down:
+				    w->flip=2;
+				    
+				case up:
+				    w->tile = w->o_tile;
+				    w->hyofs=2;
+				    w->hysz=12;
+				    break;
+				    
+				case left:
+				    w->flip=1;
+				    
+				case right:
+				    w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+				    w->hxofs=2;
+				    w->hxsz=12;
+				    break;
+				}
                         }
-                        
                         Lwpns.add(w);
                     }
                 }
@@ -4025,29 +4064,30 @@ mirrors:
                     w->ignoreLink = false;
                     w->hyofs = w->hxofs = 0;
                     w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                    
-                    //also set up the magic's correct animation -DD
-                    switch(w->dir)
-                    {
-                    case down:
-                        w->flip=2;
-                        
-                    case up:
-                        w->tile = w->o_tile;
-                        w->hyofs=2;
-                        w->hysz=12;
-                        break;
-                        
-                    case left:
-                        w->flip=1;
-                        
-                    case right:
-                        w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-                        w->hxofs=2;
-                        w->hxsz=12;
-                        break;
+                    if ( do_animation ) 
+		    {
+			    //also set up the magic's correct animation -DD
+			    switch(w->dir)
+			    {
+			    case down:
+				w->flip=2;
+				
+			    case up:
+				w->tile = w->o_tile;
+				w->hyofs=2;
+				w->hysz=12;
+				break;
+				
+			    case left:
+				w->flip=1;
+				
+			    case right:
+				w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+				w->hxofs=2;
+				w->hxsz=12;
+				break;
+			    }
                     }
-                    
                     Lwpns.add(w);
                 }
                 
@@ -4699,31 +4739,33 @@ bool weapon::animateandrunscript(int ii)
             if(hitcombo(checkx,checky,cMIRRORSLASH))
             {
                 id = wRefBeam;
-                dir = 3-dir;
-                {
-                    if(dir==right)
-                        flip &= ~1; // not horiz
-                    else if(dir==left)
-                        flip |= 1;  // horiz
-                    else if(dir==up)
-                        flip &= ~2; // not vert
-                    else if(dir==down)
-                        flip |= 2;  // vert
+		if ( do_animation ) 
+		{
+			dir = 3-dir;
+			{
+			    if(dir==right)
+				flip &= ~1; // not horiz
+			    else if(dir==left)
+				flip |= 1;  // horiz
+			    else if(dir==up)
+				flip &= ~2; // not vert
+			    else if(dir==down)
+				flip |= 2;  // vert
+			}
+			tile=o_tile;
+			
+			if(dir&2)
+			{
+			    if(frames>1)
+			    {
+				tile+=frames;
+			    }
+			    else
+			    {
+				++tile;
+			    }
+			}
                 }
-                tile=o_tile;
-                
-                if(dir&2)
-                {
-                    if(frames>1)
-                    {
-                        tile+=frames;
-                    }
-                    else
-                    {
-                        ++tile;
-                    }
-                }
-                
                 ignoreLink=false;
                 ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
                 y=(int)posy&0xF0;
@@ -4735,29 +4777,34 @@ bool weapon::animateandrunscript(int ii)
                 id = wRefBeam;
                 dir ^= 2;
                 {
-                    if(dir==right)
-                        flip &= ~1; // not horiz
-                    else if(dir==left)
-                        flip |= 1;  // horiz
-                    else if(dir==up)
-                        flip &= ~2; // not vert
-                    else if(dir==down)
-                        flip |= 2;  // vert
+			if ( do_animation ) 
+			{
+			    if(dir==right)
+				flip &= ~1; // not horiz
+			    else if(dir==left)
+				flip |= 1;  // horiz
+			    else if(dir==up)
+				flip &= ~2; // not vert
+			    else if(dir==down)
+				flip |= 2;  // vert
+			}
                 }
-                tile=o_tile;
-                
-                if(dir&2)
-                {
-                    if(frames>1)
-                    {
-                        tile+=frames;
-                    }
-                    else
-                    {
-                        ++tile;
-                    }
+		if ( do_animation ) 
+		{
+			tile=o_tile;
+			
+			if(dir&2)
+			{
+			    if(frames>1)
+			    {
+				tile+=frames;
+			    }
+			    else
+			    {
+				++tile;
+			    }
+			}
                 }
-                
                 ignoreLink=false;
                 ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
                 y=(int)posy&0xF0;
@@ -4786,28 +4833,29 @@ bool weapon::animateandrunscript(int ii)
                         w->hyofs = w->hxofs = 0;
                         //also set up the magic's correct animation -DD
                         w->flip=0;
-                        
-                        switch(w->dir)
-                        {
-                        case down:
-                            w->flip=2;
-                            
-                        case up:
-                            w->tile = w->o_tile;
-                            w->hyofs=2;
-                            w->hysz=12;
-                            break;
-                            
-                        case left:
-                            w->flip=1;
-                            
-                        case right:
-                            w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-                            w->hxofs=2;
-                            w->hxsz=12;
-                            break;
+                        if ( do_animation ) 
+			{
+				switch(w->dir)
+				{
+				case down:
+				    w->flip=2;
+				    
+				case up:
+				    w->tile = w->o_tile;
+				    w->hyofs=2;
+				    w->hysz=12;
+				    break;
+				    
+				case left:
+				    w->flip=1;
+				    
+				case right:
+				    w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+				    w->hxofs=2;
+				    w->hxsz=12;
+				    break;
+				}
                         }
-                        
                         Lwpns.add(w);
                     }
                 }
@@ -4835,28 +4883,29 @@ bool weapon::animateandrunscript(int ii)
                     w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
                     //also set up the magic's correct animation -DD
                     w->flip=0;
-                    
-                    switch(w->dir)
-                    {
-                    case down:
-                        w->flip=2;
-                        
-                    case up:
-                        w->tile = w->o_tile;
-                        w->hyofs=2;
-                        w->hysz=12;
-                        break;
-                        
-                    case left:
-                        w->flip=1;
-                        
-                    case right:
-                        w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-                        w->hxofs=2;
-                        w->hxsz=12;
-                        break;
+                    if ( do_animation ) 
+		    {
+			    switch(w->dir)
+			    {
+			    case down:
+				w->flip=2;
+				
+			    case up:
+				w->tile = w->o_tile;
+				w->hyofs=2;
+				w->hysz=12;
+				break;
+				
+			    case left:
+				w->flip=1;
+				
+			    case right:
+				w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+				w->hxofs=2;
+				w->hxsz=12;
+				break;
+			    }
                     }
-                    
                     Lwpns.add(w);
                 }
                 
@@ -5925,25 +5974,28 @@ mirrors:
                 if(w->id != wWind)
                 {
                     w->id = wRefMagic;
-                    
-                    if((w->dir==1)||(w->dir==2))
-                        w->flip ^= 3;
+			if ( do_animation ) 
+			{
+				if((w->dir==1)||(w->dir==2))
+				w->flip ^= 3;
+			}
                 }
-                
-                w->tile=w->o_tile;
-                
-                if(w->dir&2)
-                {
-                    if(w->frames>1)
-                    {
-                        w->tile+=w->frames;
-                    }
-                    else
-                    {
-                        ++w->tile;
-                    }
+                if ( do_animation ) 
+		{
+			w->tile=w->o_tile;
+			
+			if(w->dir&2)
+			{
+			    if(w->frames>1)
+			    {
+				w->tile+=w->frames;
+			    }
+			    else
+			    {
+				++w->tile;
+			    }
+			}
                 }
-                
                 w->ignoreLink=false;
                 w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
                 w->y=checky&0xF0;
@@ -5969,26 +6021,30 @@ mirrors:
                 if(w->id != wWind)
                 {
                     w->id = wRefMagic;
-                    
-                    if(w->dir&1)
-                        w->flip ^= 2;
-                    else
-                        w->flip ^= 1;
+			if ( do_animation ) 
+			{
+				if(w->dir&1)
+					w->flip ^= 2;
+				else
+					w->flip ^= 1;
+			}
                 }
-                
-                w->tile=w->o_tile;
-                
-                if(w->dir&2)
-                {
-                    if(w->frames>1)
-                    {
-                        w->tile+=w->frames;
-                    }
-                    else
-                    {
-                        ++w->tile;
-                    }
-                }
+                if ( do_animation ) 
+		{
+			w->tile=w->o_tile;
+			
+			if(w->dir&2)
+			{
+			    if(w->frames>1)
+			    {
+				w->tile+=w->frames;
+			    }
+			    else
+			    {
+				++w->tile;
+			    }
+			}
+		}
                 
                 w->ignoreLink=false;
                 w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
@@ -6018,29 +6074,30 @@ mirrors:
                         w->ignoreLink = false;
                         w->hyofs = w->hxofs = 0;
                         w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                        
-                        //also set up the magic's correct animation -DD
-                        switch(w->dir)
-                        {
-                        case down:
-                            w->flip=2;
-                            
-                        case up:
-                            w->tile = w->o_tile;
-                            w->hyofs=2;
-                            w->hysz=12;
-                            break;
-                            
-                        case left:
-                            w->flip=1;
-                            
-                        case right:
-                            w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-                            w->hxofs=2;
-                            w->hxsz=12;
-                            break;
+                        if ( do_animation ) 
+			{
+				//also set up the magic's correct animation -DD
+				switch(w->dir)
+				{
+				case down:
+				    w->flip=2;
+				    
+				case up:
+				    w->tile = w->o_tile;
+				    w->hyofs=2;
+				    w->hysz=12;
+				    break;
+				    
+				case left:
+				    w->flip=1;
+				    
+				case right:
+				    w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+				    w->hxofs=2;
+				    w->hxsz=12;
+				    break;
+				}
                         }
-                        
                         Lwpns.add(w);
                     }
                 }
@@ -6069,28 +6126,30 @@ mirrors:
                     w->hyofs = w->hxofs = 0;
                     w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
                     
-                    //also set up the magic's correct animation -DD
-                    switch(w->dir)
-                    {
-                    case down:
-                        w->flip=2;
-                        
-                    case up:
-                        w->tile = w->o_tile;
-                        w->hyofs=2;
-                        w->hysz=12;
-                        break;
-                        
-                    case left:
-                        w->flip=1;
-                        
-                    case right:
-                        w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-                        w->hxofs=2;
-                        w->hxsz=12;
-                        break;
+		    if ( do_animation ) 
+		    {
+			    //also set up the magic's correct animation -DD
+			    switch(w->dir)
+			    {
+			    case down:
+				w->flip=2;
+				
+			    case up:
+				w->tile = w->o_tile;
+				w->hyofs=2;
+				w->hysz=12;
+				break;
+				
+			    case left:
+				w->flip=1;
+				
+			    case right:
+				w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+				w->hxofs=2;
+				w->hxsz=12;
+				break;
+			    }
                     }
-                    
                     Lwpns.add(w);
                 }
                 
@@ -6911,7 +6970,10 @@ void weapon::draw(BITMAP *dest)
         }
         
         //tile = o_tile+aframe;
-        update_weapon_frame(aframe,o_tile);
+	if ( do_animation ) 
+	{
+		update_weapon_frame(aframe,o_tile);
+	}
     }
     
     // do special case stuff
@@ -6937,10 +6999,11 @@ void weapon::draw(BITMAP *dest)
         
         if(type2)
             cs = o_cset>>4;
-            
-        if(type2==3 && (f&2))
-            ++tile;
-            
+	if ( do_animation ) 
+	{
+		if(type2==3 && (f&2))
+		++tile;
+	}
         if(!type2 || f==0 || (type2>1 && f==3)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset-2-ofs-(z+zofs),cs,0);
         
         if(!type2 || f==2 || (type2>1 && f==1)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset-2-ofs-(z+zofs),cs,1);
@@ -7006,15 +7069,16 @@ void weapon::draw(BITMAP *dest)
         {
             //equally divide up the explosion time among the frames
             int perframe = (boomframes >= 34 ? 1 : (boomframes + 34)/boomframes);
-            
-            if(clk > misc)
-                tile += (clk-misc)/perframe;
-                
+            if ( do_animation ) 
+	    {
+		if(clk > misc)
+			tile += (clk-misc)/perframe;
+	    }
             //update_weapon_frame((clk-misc)/perframe,tile);
         }
         else if(clk>misc+22)
         {
-            ++tile;
+            if ( do_animation ) ++tile;
             //update_weapon_frame(1,tile);
         }
         
@@ -7047,9 +7111,12 @@ void weapon::draw(BITMAP *dest)
     case ewArrow:
         if(dead>0 && !bounce)
         {
-            cs=7;
-            tile=54;
-            flip=0;
+		if ( do_animation ) 
+		{
+			cs=7;
+			tile=54;
+			flip=0;
+		}
         }
         
         break;
@@ -7059,7 +7126,7 @@ void weapon::draw(BITMAP *dest)
     case wFire:
     
         //if no animation, flip tile
-        if(frames==0)
+        if(frames==0 && do_animation ) //do_animation is a ZScript setting. -Z
             flip = o_flip & (clk>>2);
             
         break;
@@ -7070,27 +7137,30 @@ void weapon::draw(BITMAP *dest)
         
         if(parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG1))
         {
-            tile = o_tile;
-            
-            if(BSZ)
-                flip = bszboomflip[(clk>>2)&3];
-            else
-            {
-                //tile = boomframe[clk&0xE] + o_tile;
-                update_weapon_frame(boomframe[clk&0xE],o_tile);
-                flip = boomframe[(clk&0xE)+1];
-            }
-            
-            if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
-            {
-                update_weapon_frame((BSZ?1:4)*dir,tile);
-            }
+	    if ( do_animation ) 
+	    {
+		    tile = o_tile;
+		    
+		    if(BSZ)
+			flip = bszboomflip[(clk>>2)&3];
+		    else
+		    {
+			//tile = boomframe[clk&0xE] + o_tile;
+			update_weapon_frame(boomframe[clk&0xE],o_tile);
+			flip = boomframe[(clk&0xE)+1];
+		    }
+		    
+		    if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
+		    {
+			update_weapon_frame((BSZ?1:4)*dir,tile);
+		    }
+	    }
         }
         else
         {
             if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
             {
-                update_weapon_frame(zc_max(frames,1)*dir,tile);
+                if ( do_animation )update_weapon_frame(zc_max(frames,1)*dir,tile);
             }
         }
         
@@ -7098,13 +7168,19 @@ void weapon::draw(BITMAP *dest)
         {
             if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG1)
             {
-                tile=o_tile+(frames*(itemsbuf[parentitem].flags & ITEM_FLAG2)?8:1);
+		if ( do_animation ) 
+		{
+			tile=o_tile+(frames*(itemsbuf[parentitem].flags & ITEM_FLAG2)?8:1);
+		}
             }
             else
             {
-                cs=7;
-                tile=54;
-                flip=0;
+		if ( do_animation ) 
+		{
+			cs=7;
+			tile=54;
+			flip=0;
+		}
             }
         }
         
@@ -7114,10 +7190,10 @@ void weapon::draw(BITMAP *dest)
         break;
         
     case wWind:
-        if(frames==0)
+        if(frames==0 && do_animation)
             flip ^= o_flip;
             
-        if((dead!=-1) && !BSZ)
+        if((dead!=-1) && !BSZ && do_animation)
             tile = temp1;//wpnsbuf[wFIRE].tile;
             
         break;
