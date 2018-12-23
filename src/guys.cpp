@@ -2061,6 +2061,7 @@ void enemy::draw(BITMAP *dest)
 }
 
 // similar to the overblock function--can do up to a 32x32 sprite
+//will this play nicely with scripttile, solely using the modifications in sprite::draw()?
 void enemy::drawblock(BITMAP *dest,int mask)
 {
     int thold=tile;
