@@ -3779,7 +3779,7 @@ void updatescr(bool allowwavy)
         if(quakeclk>0) rectfill(target,scrx+32,scry+8+224,scrx+32+256,scry+8+232,BLACK);
     }
     
-    if(ShowFPS)
+    if(ShowFPS &&(frame&1))
         show_fps(target);
         
     if(Paused)
