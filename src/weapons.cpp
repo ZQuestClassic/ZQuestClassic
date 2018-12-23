@@ -2664,8 +2664,15 @@ bool weapon::animate(int index)
         z = LinkZ();
         
         if(parentitem>-1)
+	{
             sfx(itemsbuf[parentitem].usesound,pan(int(x)),true,false);
+	}
+	if ( doscript )
+	{
+		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
     }
+    
     break;
     
     case wBeam:
@@ -2679,7 +2686,7 @@ bool weapon::animate(int index)
         if(blocked())
         {
             dead=23;
-        }
+        }		 
         
     }
     case ewSword:
@@ -2748,21 +2755,21 @@ bool weapon::animate(int index)
             if(hitcombo(checkx,checky,cMIRRORSLASH))
             {
                 id = wRefBeam;
-                dir = 3-dir;
-                {
-                    if(dir==right)
-                        flip &= ~1; // not horiz
-                    else if(dir==left)
-                        flip |= 1;  // horiz
-                    else if(dir==up)
-                        flip &= ~2; // not vert
-                    else if(dir==down)
-                        flip |= 2;  // vert
-                }
 		if ( do_animation ) 
 		{
+			dir = 3-dir;
+			{
+			    if(dir==right)
+				flip &= ~1; // not horiz
+			    else if(dir==left)
+				flip |= 1;  // horiz
+			    else if(dir==up)
+				flip &= ~2; // not vert
+			    else if(dir==down)
+				flip |= 2;  // vert
+			}
 			tile=o_tile;
-                
+			
 			if(dir&2)
 			{
 			    if(frames>1)
@@ -2774,8 +2781,7 @@ bool weapon::animate(int index)
 				++tile;
 			    }
 			}
-		}
-                
+                }
                 ignoreLink=false;
                 ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
                 y=(int)posy&0xF0;
@@ -2785,9 +2791,9 @@ bool weapon::animate(int index)
             if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
             {
                 id = wRefBeam;
-		if ( do_animation ) 
-		{
-			dir ^= 2;
+                dir ^= 2;
+                {
+			if ( do_animation ) 
 			{
 			    if(dir==right)
 				flip &= ~1; // not horiz
@@ -2798,6 +2804,9 @@ bool weapon::animate(int index)
 			    else if(dir==down)
 				flip |= 2;  // vert
 			}
+                }
+		if ( do_animation ) 
+		{
 			tile=o_tile;
 			
 			if(dir&2)
@@ -2842,29 +2851,28 @@ bool weapon::animate(int index)
                         w->flip=0;
                         if ( do_animation ) 
 			{
-                        switch(w->dir)
-                        {
-                        case down:
-                            w->flip=2;
-                            
-                        case up:
-                            w->tile = w->o_tile;
-                            w->hyofs=2;
-                            w->hysz=12;
-                            break;
-                            
-                        case left:
-                            w->flip=1;
-                            
-                        case right:
-                            w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-                            w->hxofs=2;
-                            w->hxsz=12;
-                            break;
+				switch(w->dir)
+				{
+				case down:
+				    w->flip=2;
+				    
+				case up:
+				    w->tile = w->o_tile;
+				    w->hyofs=2;
+				    w->hysz=12;
+				    break;
+				    
+				case left:
+				    w->flip=1;
+				    
+				case right:
+				    w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+				    w->hxofs=2;
+				    w->hxsz=12;
+				    break;
+				}
                         }
-                        
-			}
-			Lwpns.add(w);
+                        Lwpns.add(w);
                     }
                 }
                 
@@ -2893,35 +2901,48 @@ bool weapon::animate(int index)
                     w->flip=0;
                     if ( do_animation ) 
 		    {
-                    switch(w->dir)
-                    {
-                    case down:
-                        w->flip=2;
-                        
-                    case up:
-                        w->tile = w->o_tile;
-                        w->hyofs=2;
-                        w->hysz=12;
-                        break;
-                        
-                    case left:
-                        w->flip=1;
-                        
-                    case right:
-                        w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-                        w->hxofs=2;
-                        w->hxsz=12;
-                        break;
+			    switch(w->dir)
+			    {
+			    case down:
+				w->flip=2;
+				
+			    case up:
+				w->tile = w->o_tile;
+				w->hyofs=2;
+				w->hysz=12;
+				break;
+				
+			    case left:
+				w->flip=1;
+				
+			    case right:
+				w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+				w->hxofs=2;
+				w->hxsz=12;
+				break;
+			    }
                     }
-                    
-		    }
-		    Lwpns.add(w);
+                    Lwpns.add(w);
                 }
                 
                 dead=0;
             }
         }
         
+	
+	if ( ( id == wRefBeam && ScriptGenerated )  || id == wBeam )
+	{
+		if ( doscript )
+		{
+			ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		}
+	}
+	if ( id == ewSword )
+	{
+		//eweqapon script here, later
+		
+	}
+	
         break;
         
     case wWhistle:
@@ -2931,6 +2952,10 @@ bool weapon::animate(int index)
             dead=1;
         }
         
+	if ( doscript )
+	{
+		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
         break;
     }
         
@@ -2968,6 +2993,10 @@ bool weapon::animate(int index)
         if((parentitem==-1 && get_bit(quest_rules,qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & ITEM_FLAG3))
             goto mirrors;
             
+	if ( doscript )
+	{
+		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
         break;
     }
     
@@ -3056,16 +3085,15 @@ bool weapon::animate(int index)
             isLit=false;
             checkLightSources();
         }
-        
+        if ( doscript )
+	{
+		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
         break;
     }
     
     case wLitBomb:
     case wBomb:
-    case ewLitBomb:
-    case ewBomb:
-    case ewLitSBomb:
-    case ewSBomb:
     case wLitSBomb:
     case wSBomb:
     {
@@ -3198,14 +3226,163 @@ bool weapon::animate(int index)
                 dead=1;
             }
         }
+        if ( doscript )
+	{
+		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
+        break;
+    }
+        case ewLitBomb:
+    case ewBomb:
+    case ewLitSBomb:
+    case ewSBomb:
+    {
+        if(!misc)
+        {
+            break;
+        }
         
+        // Naaah.
+        /*if (blocked())
+        {
+          dead=1;
+        }*/
+        if(clk==(misc-2) && step==0)
+        {
+            id = (id>wEnemyWeapons ? (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb)
+                      : parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb)
+                      : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb));
+            hxofs=2000;
+        }
+        
+        if(clk==(misc-1) && step==0)
+    {
+            sfx((id>=wEnemyWeapons || parentitem<0) ? WAV_BOMB :
+                itemsbuf[parentitem].usesound,pan(int(x)));
+                
+            if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
+            {
+                hxofs=hyofs=-16;
+                hxsz=hysz=48;
+            }
+            else
+            {
+                hxofs=hyofs=-8;
+                hxsz=hysz=32;
+            }
+            
+            hzsz=16;
+        }
+        
+        int boomend = (misc+(((id == wBomb || id == wSBomb || id == wLitBomb || id == wLitSBomb) &&
+                              (parentitem>-1 && itemsbuf[parentitem].flags & ITEM_FLAG1)) ? 35 : 31));
+                              
+        if(clk==boomend && step==0)
+        {
+            hxofs=2000;
+        }
+        
+        if(id<wEnemyWeapons)
+        {
+            if(clk==(misc-1))
+            {
+                int f1 = (id==wSBomb || id==wLitSBomb) ? 16 : 0; // Large SBomb triggerbox
+                
+                for(int tx=-f1; tx<=f1; tx+=8)  // -16,-8,0,8,16
+                {
+                    int f2 = 0;
+                    
+                    if(tx==-8 || tx==8)
+                        f2 = f1;
+                        
+                    for(int ty=-f2; ty<=f2; ty+=32)
+                    {
+                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfBOMB,true);
+                        
+                        if(id==wSBomb || id==wLitSBomb)
+                        {
+                            findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSBOMB,true);
+                        }
+                        
+                        findentrance(x+tx,y+ty+(tmpscr->flags7&fSIDEVIEW?2:-3),mfSTRIKE,true);
+                    }
+                }
+            }
+            
+            if(!get_bit(quest_rules,qr_NOBOMBPALFLASH))
+            {
+                if(!usebombpal)
+                {
+                    if(clk==misc || clk==misc+5)
+                    {
+                    
+                        usebombpal=true;
+                        memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
+                        
+                        //grayscale entire screen
+                        if(get_bit(quest_rules,qr_FADE))
+                        {
+                            for(int i=CSET(0); i < CSET(15); i++)
+                            {
+                                int g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
+                                g = (g >> 1) + 32;
+                                RAMpal[i] = _RGB(g,g,g);
+                            }
+                            
+                        }
+                        else
+                        {
+                            // this is awkward. NES Z1 converts colors based on the global
+                            // NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+                            for(int i=CSET(0); i < CSET(15); i++)
+                            {
+                                RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
+                            }
+                        }
+                        
+                        refreshpal = true;
+                    }
+                }
+                
+                if((clk==misc+4 || clk==misc+9) && usebombpal)
+                {
+                    // undo grayscale
+                    usebombpal=false;
+                    memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
+                    refreshpal = true;
+                }
+            }
+            
+            if(clk==misc+30)
+            {
+                bombdoor(x,y);
+            }
+        }
+        
+        if(clk==misc+34)
+        {
+            if(step==0)
+            {
+                dead=1;
+            }
+        }
+	//eweapon script, again, later
+       //if ( doscript )
+	//{
+	//	ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	///}
         break;
     }
     
     case wArrow:
     {
+	
         if(dead>0)
         {
+	    if ( doscript )
+	    {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    }
             break;
         }
         
@@ -3244,9 +3421,10 @@ bool weapon::animate(int index)
         {
             dead=4;
         }
-        
-        
-        
+        if ( doscript )
+	{
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
         break;
     }
     
@@ -3283,30 +3461,23 @@ bool weapon::animate(int index)
     {
         if(blocked())  //no bait area?
         {
+	    if ( doscript )
+	    {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    }
             dead=23;
+	    goto skip_second_bait_script;
         }
         
-        if(parentitem>-1 && clk>=itemsbuf[parentitem].misc1) 
+        if(parentitem>-1 && clk>=itemsbuf[parentitem].misc1)
         {
             dead=1;
         }
-        /*
-        {
-            int w_index = -1; //Give the script the correct index! -Z
-                        for(word i = 0; i < Lwpns.Count(); i++)
-                        {
-                                if(Lwpns.spr(i)->getUID() == getUID())
-                                w_index = i;
-                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        }
-                                
-                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);
-         }
-        */
-        
-
-        
+        if ( doscript )
+	{
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
+	skip_second_bait_script:
         break;
     }
     case wBrang:
@@ -3314,6 +3485,10 @@ bool weapon::animate(int index)
         if(dead==0)  // Set by ZScript
         {
             stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
+	    if ( doscript )
+	    {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    }
             break;
         }
         
@@ -3405,6 +3580,10 @@ bool weapon::animate(int index)
         {
             ++clk;
             sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true);
+	    if ( doscript )
+	    {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    }
             return false;
         }
         
@@ -3468,37 +3647,20 @@ bool weapon::animate(int index)
                 {
                     getdraggeditem(dragging);
                 }
-                
+                if ( doscript )
+	        {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	        }
                 return true;
             }
             
             seekLink();
         }
         //call before the sfx
-        //call before the sfx
-	/*
-        if ( doscript && weaponscript > 0 ) 
-        {
-                if ( Dead() )
-                {
-                        doscript = 0;
-                        weaponscript = 0;
-                }
-                else
-                {
-                        int w_index = -1; //Give the script the correct index! -Z
-                        for(word i = 0; i < Lwpns.Count(); i++)
-                        {
-                                if(Lwpns.spr(i)->getUID() == getUID())
-                                w_index = i;
-                                //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        }
-                                
-                        //al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-                        ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, w_index);		
-                }
-        }
-	*/
+        if ( doscript )
+	{
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
         
         sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true,false);
         
@@ -3627,7 +3789,10 @@ bool weapon::animate(int index)
             {
                 sfx(itemsbuf[parentitem].usesound,pan(int(x)),true);
             }
-            
+            if ( doscript )
+	    {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    }
             return false;
         }
         
@@ -3665,7 +3830,10 @@ bool weapon::animate(int index)
                 {
                     getdraggeditem(dragging);
                 }
-                
+                if ( doscript )
+	        {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	        }
                 return true;
             }
         }
@@ -3681,6 +3849,10 @@ bool weapon::animate(int index)
             if(dead != -1)
                 dead=1;
         }
+    }
+    if ( doscript )
+    {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
     }
     break;
     
@@ -3793,8 +3965,318 @@ bool weapon::animate(int index)
         
         break;
     }
-    case wRefMagic:
+        case wRefMagic:
     case wMagic:
+    {
+        if((id==wMagic)&&(findentrance(x,y,mfWANDMAGIC,true))) dead=0;
+        
+        if((id==wRefMagic)&&(findentrance(x,y,mfREFMAGIC,true))) dead=0;
+        
+        if((id!=ewMagic)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
+	
+	    
+	
+       
+	//Create an ER to use this in older quests -V
+	if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
+	{
+		
+                //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3407);
+		if((id==wMagic && current_item(itype_book) &&
+			itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+		{
+		    findentrance(x,y,mfBCANDLE,true);
+		    findentrance(x,y,mfRCANDLE,true);
+		    findentrance(x,y,mfWANDFIRE,true);
+		}
+	}
+	else
+	{
+                //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3418);
+		 if((id==wMagic && miscellaneous[31] && itemsbuf[miscellaneous[31]].family == itype_book &&
+                itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+		{
+		    findentrance(x,y,mfBCANDLE,true);
+		    findentrance(x,y,mfRCANDLE,true);
+		    findentrance(x,y,mfWANDFIRE,true);
+		}
+	}
+		
+        
+//mirrors: //the latter instance should suffice
+        int checkx=0, checky=0;
+        
+        switch(dir)
+        {
+        case up:
+            checkx=x+7;
+            checky=y+8;
+            break;
+            
+        case down:
+            checkx=x+7;
+            checky=y;
+            break;
+            
+        case left:
+            checkx=x+8;
+            checky=y+7;
+            break;
+            
+        case right:
+            checkx=x;
+            checky=y+7;
+            break;
+        }
+        
+        if(ignorecombo!=(((int)checky&0xF0)+((int)checkx>>4)))
+        {
+            if(hitcombo(checkx,checky,cMIRROR))
+            {
+                weapon *w=new weapon(*this);
+                
+                if(id==ewMagic)
+                {
+                    Lwpns.add(w);
+                    dead=0;
+                }
+                else
+                {
+                    w=this;
+                }
+                
+                
+                w->dir ^= 1;
+                
+                if(w->id != wWind)
+                {
+                    w->id = wRefMagic;
+                    
+                    if(w->dir&2)
+                        w->flip ^= 1;
+                    else
+                        w->flip ^= 2;
+                }
+                
+                w->ignoreLink=false;
+                w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+                w->y=checky&0xF0;
+                w->x=checkx&0xF0;
+            }
+            
+            if(hitcombo(checkx,checky,cMIRRORSLASH))
+            {
+                weapon *w=new weapon(*this);
+                
+                if(id==ewMagic)
+                {
+                    Lwpns.add(w);
+                    dead=0;
+                }
+                else
+                {
+                    w=this;
+                }
+                
+                w->dir = 3-w->dir;
+                
+                if(w->id != wWind)
+                {
+                    w->id = wRefMagic;
+			if ( do_animation ) 
+			{
+				if((w->dir==1)||(w->dir==2))
+				w->flip ^= 3;
+			}
+                }
+                if ( do_animation ) 
+		{
+			w->tile=w->o_tile;
+			
+			if(w->dir&2)
+			{
+			    if(w->frames>1)
+			    {
+				w->tile+=w->frames;
+			    }
+			    else
+			    {
+				++w->tile;
+			    }
+			}
+                }
+                w->ignoreLink=false;
+                w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+                w->y=checky&0xF0;
+                w->x=checkx&0xF0;
+            }
+            
+            if(hitcombo(checkx,checky,cMIRRORBACKSLASH))
+            {
+                weapon *w=new weapon(*this);
+                
+                if(id==ewMagic)
+                {
+                    Lwpns.add(w);
+                    dead=0;
+                }
+                else
+                {
+                    w=this;
+                }
+                
+                w->dir ^= 2;
+                
+                if(w->id != wWind)
+                {
+                    w->id = wRefMagic;
+			if ( do_animation ) 
+			{
+				if(w->dir&1)
+					w->flip ^= 2;
+				else
+					w->flip ^= 1;
+			}
+                }
+                if ( do_animation ) 
+		{
+			w->tile=w->o_tile;
+			
+			if(w->dir&2)
+			{
+			    if(w->frames>1)
+			    {
+				w->tile+=w->frames;
+			    }
+			    else
+			    {
+				++w->tile;
+			    }
+			}
+		}
+                
+                w->ignoreLink=false;
+                w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+                w->y=checky&0xF0;
+                w->x=checkx&0xF0;
+            }
+            
+            if(hitcombo(checkx,checky,cMAGICPRISM) && (id != wWind))
+            {
+                int newx, newy;
+                newy=checky&0xF0;
+                newx=checkx&0xF0;
+                
+                for(int tdir=0; tdir<4; tdir++)
+                {
+                    if(dir!=(tdir^1))
+                    {
+                        weapon *w=new weapon(*this);
+                        w->dir=tdir;
+                        w->x=newx;
+                        w->y=newy;
+                        w->z=z;
+                        w->id=wRefMagic;
+                        w->parentid=parentid;
+                        w->parentitem=parentitem;
+                        w->flip = 0;
+                        w->ignoreLink = false;
+                        w->hyofs = w->hxofs = 0;
+                        w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+                        if ( do_animation ) 
+			{
+				//also set up the magic's correct animation -DD
+				switch(w->dir)
+				{
+				case down:
+				    w->flip=2;
+				    
+				case up:
+				    w->tile = w->o_tile;
+				    w->hyofs=2;
+				    w->hysz=12;
+				    break;
+				    
+				case left:
+				    w->flip=1;
+				    
+				case right:
+				    w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+				    w->hxofs=2;
+				    w->hxsz=12;
+				    break;
+				}
+                        }
+                        Lwpns.add(w);
+                    }
+                }
+                
+                dead=0;
+            }
+            
+            if(hitcombo(checkx,checky,cMAGICPRISM4) && (id != wWind))
+            {
+                int newx, newy;
+                newy=checky&0xF0;
+                newx=checkx&0xF0;
+                
+                for(int tdir=0; tdir<4; tdir++)
+                {
+                    weapon *w=new weapon(*this);
+                    w->dir=tdir;
+                    w->x=newx;
+                    w->y=newy;
+                    w->z=z;
+                    w->id=wRefMagic;
+                    w->parentid=parentid;
+                    w->parentitem=parentitem;
+                    w->flip = 0;
+                    w->ignoreLink = false;
+                    w->hyofs = w->hxofs = 0;
+                    w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
+                    
+		    if ( do_animation ) 
+		    {
+			    //also set up the magic's correct animation -DD
+			    switch(w->dir)
+			    {
+			    case down:
+				w->flip=2;
+				
+			    case up:
+				w->tile = w->o_tile;
+				w->hyofs=2;
+				w->hysz=12;
+				break;
+				
+			    case left:
+				w->flip=1;
+				
+			    case right:
+				w->tile=w->o_tile+((w->frames>1)?w->frames:1);
+				w->hxofs=2;
+				w->hxsz=12;
+				break;
+			    }
+                    }
+                    Lwpns.add(w);
+                }
+                
+                dead=0;
+            }
+            
+            if(blocked(0, 0))
+            {
+                dead=0;
+            }
+        }
+        //:Weapon Only
+        if ( doscript )
+	{
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
+    }
+    break;
     case ewMagic:
     {
         if((id==wMagic)&&(findentrance(x,y,mfWANDMAGIC,true))) dead=0;
@@ -3912,11 +4394,11 @@ mirrors:
                 if(w->id != wWind)
                 {
                     w->id = wRefMagic;
-                    if ( do_animation ) 
-	            {
-			if((w->dir==1)||(w->dir==2))
+			if ( do_animation ) 
+			{
+				if((w->dir==1)||(w->dir==2))
 				w->flip ^= 3;
-	            }
+			}
                 }
                 if ( do_animation ) 
 		{
@@ -3953,20 +4435,19 @@ mirrors:
                 {
                     w=this;
                 }
-                if ( do_animation ) 
-		{
-			w->dir ^= 2;
-		}
+                
+                w->dir ^= 2;
                 
                 if(w->id != wWind)
                 {
                     w->id = wRefMagic;
-                    {
-			    if(w->dir&1)
-				w->flip ^= 2;
-			    else
-				w->flip ^= 1;
-		    }
+			if ( do_animation ) 
+			{
+				if(w->dir&1)
+					w->flip ^= 2;
+				else
+					w->flip ^= 1;
+			}
                 }
                 if ( do_animation ) 
 		{
@@ -3983,7 +4464,8 @@ mirrors:
 				++w->tile;
 			    }
 			}
-                }
+		}
+                
                 w->ignoreLink=false;
                 w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
                 w->y=checky&0xF0;
@@ -4012,8 +4494,7 @@ mirrors:
                         w->ignoreLink = false;
                         w->hyofs = w->hxofs = 0;
                         w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                        
-			if ( do_animation ) 
+                        if ( do_animation ) 
 			{
 				//also set up the magic's correct animation -DD
 				switch(w->dir)
@@ -4064,7 +4545,8 @@ mirrors:
                     w->ignoreLink = false;
                     w->hyofs = w->hxofs = 0;
                     w->ignorecombo=(((int)checky&0xF0)+((int)checkx>>4));
-                    if ( do_animation ) 
+                    
+		    if ( do_animation ) 
 		    {
 			    //also set up the magic's correct animation -DD
 			    switch(w->dir)
@@ -4100,7 +4582,11 @@ mirrors:
             }
         }
         //:Weapon Only
-        
+        //eweapon, later
+	//if ( doscript )
+	//{
+	//	   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	//}
     }
     break;
     
@@ -4167,7 +4653,10 @@ mirrors:
                 
             return dead==0;
         }
-        
+        if ( id == wRefFireball && ScriptGenerated && doscript )
+	{
+		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
         break;
     }
     
@@ -4380,6 +4869,29 @@ mirrors:
             dead = 1;
         }
     }
+    
+    //script weapon types:
+    case wScript1:
+	case wScript2:
+	case wScript3:
+	case wScript4:
+	case wScript5:
+	case wScript6:
+	case wScript7:
+	case wScript8:
+	case wScript9:
+	case wScript10:
+	{
+		if ( doscript && getUID() == Link.getUID() || isLWeapon )
+		{
+			   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+		}
+		break;
+	}
+		
+	case wIce: break;
+    
+    
     }
     
     // move sprite, check clipping
@@ -4440,49 +4952,9 @@ mirrors:
     {
         --dead;
     }
-    /*
-    if ( weaponscript > 0 ) 
-    {
-	if ( isLinkWeapon() )
-	{
-		int w_index = -1; //Give the script the correct index! -Z
-		for(word i = 0; i < Lwpns.Count(); i++)
-		{
-			if(Lwpns.spr(i)->getUID() == getUID())
-			w_index = i;
-			//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-		}
-		if ( !isLinkMelee() ) 
-		{
-			al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-			ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);
-		}
-		//else if ( canrunscript > 0 ) 
-		//{
-		//	al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-		//	ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, ii);
-		//}
-		
-			
-	}
-	else //eweapons
-	{
-		int w_index = -1; //Give the script the correct index! -Z
-		for(word i = 0; i < Lwpns.Count(); i++)
-		{
-			if(Lwpns.spr(i)->getUID() == getUID())
-			w_index = i;
-		}
-		//Z_scripterrlog("Running an EWeapon script (script ID: %d) for item index: %d\n", weaponscript, index);
-		ZScriptVersion::RunScript(SCRIPT_EWPN, weaponscript, w_index);
-	}
-        
-    }*/
-    runscript(index);
+    
     return dead==0;
 }
-
-
 
 
 bool weapon::animateandrunscript(int ii)
