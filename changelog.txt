@@ -1,6 +1,18 @@
 //2.55 and 2.54 Changes
 
 //Alpha 11
+Fixed more mapdata macros issuing an error for map 1, screen 0 when
+	ri->mapsref == 0.
+
+Changed the behaviour of Screen->LayerMap[], LayerScreen[], and LayerOpacity[]
+	so that the array index matches the layer ID used in the editor.
+	^ Thus, Screen->LayerMap[1] is Layer 1, not Layer 2.
+
+	I copied this to mapdata->LayerMap[], LayerScreen[], and LayerOpacity[]
+
+	I also added a version check to the MACRO, so that quests made in 2.54, or older
+		builds of 2.55 (V_FFSCRIPT < 11 ) will work normally, although if the questmaker
+		re-saves them, then they will need to update their scripts!
 
 Fixed a bounds check wrror for mapdata:
 	map 1, Screen 0, is ri->mapsref 0, so we can't check != 0!!!
