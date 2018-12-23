@@ -3980,7 +3980,7 @@ else \
 		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
 		if(indx < 1 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", str, indx); \
 			ret = -10000; \
 		} \
 		else \
@@ -4434,7 +4434,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			ret = -10000; \
 		} \
 		else \
@@ -4457,7 +4457,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			ret = -10000; \
 		} \
 		else \
@@ -4480,7 +4480,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			ret = -10000; \
 		} \
 		else \
@@ -4520,7 +4520,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
 		if(indx < 1 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			ret = -10000; \
 		} \
 		else \
@@ -4543,7 +4543,7 @@ case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			ret = -10000; \
 		} \
 		else \
@@ -9547,10 +9547,26 @@ case COMBODDM:
 		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
 		if(indx < 1 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
-			ret = -10000; \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 		} \
-		tmpscr->member[indx-1] = vbound((value / 10000),0,255); \
+		else tmpscr->member[indx-1] = vbound((value / 10000),0,255); \
+	}
+	///max screen id is higher! vbound properly... -Z
+	#define SET_SCREENDATA_LAYERSCREEN_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		int scrn_id = value/10000; \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		if(indx < 1 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
+		} \
+		else if ( scrn_id > MAPSCRS ) \
+		{ \
+			Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
+			Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
+		} \
+		else tmpscr->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
 	}
 	
 	#define SET_SCREENDATA_FLAG(member, str) \
@@ -9615,7 +9631,7 @@ case SCREENDATACSENSITIVE: 	SET_SCREENDATA_VAR_BYTE(csensitive, "CSensitive"); b
 case SCREENDATANORESET: 		SET_SCREENDATA_VAR_INT32(noreset, "NoReset"); break;	//W
 case SCREENDATANOCARRY: 		SET_SCREENDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
 case SCREENDATALAYERMAP:	 	SET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 5); break;	//B, 6 OF THESE
-case SCREENDATALAYERSCREEN: 	SET_SCREENDATA_LAYER_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
+case SCREENDATALAYERSCREEN: 	SET_SCREENDATA_LAYERSCREEN_INDEX(layerscreen, "LayerScreen", 5); break;	//B, 6 OF THESE
 case SCREENDATALAYEROPACITY: 	SET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
 case SCREENDATATIMEDWARPTICS: 	SET_SCREENDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case SCREENDATANEXTMAP: 		SET_SCREENDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
@@ -10066,7 +10082,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			break; \
 		} \
 		if ( ri->mapsref == LONG_MAX ) \
@@ -10086,7 +10102,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			break; \
 		} \
 		if ( ri->mapsref == LONG_MAX ) \
@@ -10106,7 +10122,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			break; \
 		} \
 		if ( ri->mapsref == LONG_MAX ) \
@@ -10127,7 +10143,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
 		if(indx < 1 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			break; \
 		} \
 		if ( ri->mapsref == LONG_MAX ) \
@@ -10140,6 +10156,34 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 			mapscr *m = &TheMaps[ri->mapsref]; \
 			m->member[indx-1] = vbound((value / 10000),0,255); \
 		} \
+	} \
+	
+	#define SET_MAPDATA_LAYERSCREEN_INDEX(member, str, indexbound) \
+	{ \
+		int indx = ri->d[0] / 10000; \
+		if ( FFCore.quest_format[vFFScript] < 11 ) ++indx; \
+		int scrn_id = value/10000; \
+		if(indx < 1 || indx > indexbound ) \
+		{ \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
+			break; \
+		} \
+		if ( ri->mapsref == LONG_MAX ) \
+		{ \
+			Z_scripterrlog("Script attempted to use a mapdata->%s on a pointer that is uninitialised\n",str); \
+			break; \
+		} \
+		else if ( scrn_id > MAPSCRS ) \
+		{ \
+			Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
+			Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
+			break; \
+		} \
+		else \
+		{ \
+			mapscr *m = &TheMaps[ri->mapsref]; \
+			m->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
+		} \
 	}\
 	
 	#define SET_MAPDATA_BOOL_INDEX(member, str, indexbound) \
@@ -10147,7 +10191,7 @@ case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		int indx = ri->d[0] / 10000; \
 		if(indx < 0 || indx > indexbound ) \
 		{ \
-			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), str); \
+			Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			break; \
 		} \
 		if ( ri->mapsref == LONG_MAX ) \
@@ -10290,7 +10334,7 @@ case MAPDATANOCARRY: 		SET_MAPDATA_VAR_INT32(nocarry, "NoCarry"); break;	//W
 //! if you try to read 0, so that they correspond to actual layer IDs. 
 //! 
 case MAPDATALAYERMAP:	 	SET_MAPDATA_LAYER_INDEX(layermap, "LayerMap", 6); break;	//B, 6 OF THESE
-case MAPDATALAYERSCREEN: 	SET_MAPDATA_LAYER_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
+case MAPDATALAYERSCREEN: 	SET_MAPDATA_LAYERSCREEN_INDEX(layerscreen, "LayerScreen", 6); break;	//B, 6 OF THESE
 case MAPDATALAYEROPACITY: 	SET_MAPDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 6); break;	//B, 6 OF THESE
 case MAPDATATIMEDWARPTICS: 	SET_MAPDATA_VAR_INT32(timedwarptics, "TimedWarpTimer"); break;	//W
 case MAPDATANEXTMAP: 		SET_MAPDATA_VAR_BYTE(nextmap, "NextMap"); break;	//B
