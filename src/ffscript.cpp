@@ -6255,28 +6255,27 @@ case NPCMATCHINITDLABEL: 	 //Same form as SetScreenD()
 case AUDIOVOLUME:
 {
 	int indx = ri->d[0] / 10000;
-	int r;
 	switch(indx)
 	{
 		
 		case 0: //midi volume
 		{
-			r = FFScript::do_getMIDI_volume() * 10000;
+			ret = FFScript::do_getMIDI_volume() * 10000;
 			break;
 		}
 		case 1: //digi volume
 		{
-			r = FFScript::do_getDIGI_volume() * 10000;
+			ret = FFScript::do_getDIGI_volume() * 10000;
 			break;
 		}
 		case 2: //emh music volume
 		{
-			r = FFScript::do_getMusic_volume() * 10000;
+			ret = FFScript::do_getMusic_volume() * 10000;
 			break;
 		}
 		case 3: //sfx volume
 		{
-			r = FFScript::do_getSFX_volume() * 10000;
+			ret = FFScript::do_getSFX_volume() * 10000;
 			break;
 		}
 		default:
@@ -6286,8 +6285,6 @@ case AUDIOVOLUME:
 			break;
 		}
 	}
-	
-	ret = r; break;
 }
 
 case AUDIOPAN:
