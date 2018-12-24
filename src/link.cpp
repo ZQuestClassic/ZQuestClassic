@@ -2006,7 +2006,7 @@ void LinkClass::checkstab()
     
     int wx=0,wy=0,wz=0,wxsz=0,wysz=0;
     bool found = false;
-    int melee_weapon_index;
+    int melee_weapon_index = 0;
 	int parentitem=-1;
     
     for(int i=0; i<Lwpns.Count(); i++)
@@ -9420,7 +9420,7 @@ void LinkClass::checklocked()
 	if ( diagonalMovement && pushing < 8 ) return; //Allow wall walking Should I add a quest rule for this? -Z
     
 	
-	bool found;
+	bool found = false;
 	for ( int q = 0; q < 4; q++ ) {
 		if ( tmpscr->door[q] == dLOCKED || tmpscr->door[q] == dBOSS ) { found = true; }
 	}
@@ -14116,7 +14116,7 @@ bool checkmagiccost(int itemid)
 	{
 		if ( current_item_power(itype_wallet) ) return true;
 		return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
-		break;
+		//break;
 	}
 	case 4: //magic
 	{
@@ -14130,7 +14130,7 @@ bool checkmagiccost(int itemid)
 		{
 			return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
 		}
-		break;
+		//break;
 	}
 	
 	default:
@@ -14138,13 +14138,13 @@ bool checkmagiccost(int itemid)
 		//all other counters.
 		//no need for the QR here, as old quests could only use specific counters.
 		return (game->get_counter(itemsbuf[itemid].cost_counter)+game->get_dcounter(itemsbuf[itemid].cost_counter)>=itemsbuf[itemid].magic);
-		break;
+		//break;
 	}
 	    
     }
     
     
-    return 1;
+    //return 1;
 }
 
 void paymagiccost(int itemid, bool ignoreTimer)
