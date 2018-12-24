@@ -2856,7 +2856,7 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "Ewpns.animate()\n");
 	#endif
         Ewpns.animate();
-	//FFCore.eweaponScriptEngine();
+	FFCore.eweaponScriptEngine();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is setting: %s\n", "checklink=true()\n");
 	#endif
