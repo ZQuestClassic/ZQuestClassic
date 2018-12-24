@@ -277,6 +277,8 @@ void ending()
     draw_screen(tmpscr);
     advanceframe(true);
     
+    if ( FFCore.skip_ending_credits ) goto credits_skip;
+    
     draw_screen_clip_rect_x1=0;
     draw_screen_clip_rect_x2=255;
     //draw_screen_clip_rect_show_guys=false;
@@ -583,6 +585,8 @@ void ending()
     }
     while(!rSbtn());
     
+    credits_skip:
+    
     if(game->get_quest()>0 && game->get_quest()<=5)
     {
         inc_quest();
@@ -627,6 +631,7 @@ void ending()
         zcmusic_unload_file(zcmusic);
         zcmusic = NULL;
     }
+    FFCore.skip_ending_credits = 0;
     
 //  setPackfilePassword(datapwd);
     load_quest(game);

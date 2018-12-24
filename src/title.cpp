@@ -683,6 +683,7 @@ static void treasures(int f)
 static void NES_titlescreen()
 {
     FFCore.kb_typing_mode = false;
+    FFCore.skip_ending_credits = 0;
     for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
     int f=0;
@@ -753,6 +754,7 @@ static void NES_titlescreen()
 static void DX_mainscreen(int f)
 {
     FFCore.kb_typing_mode = false;
+    FFCore.skip_ending_credits = 0;
     for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 	
     set_uformat(U_ASCII);
@@ -863,6 +865,7 @@ static void DX_titlescreen()
 {
     //  JGMOD *yea;
     FFCore.kb_typing_mode = false;
+    FFCore.skip_ending_credits = 0;
 	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
     int f=0;
@@ -925,6 +928,7 @@ static void DX_titlescreen()
 static void v25_mainscreen(int f)
 {
     FFCore.kb_typing_mode = false;
+    FFCore.skip_ending_credits = 0;
 	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 	
     set_uformat(U_ASCII);
@@ -1034,6 +1038,7 @@ static void v25_mainscreen(int f)
 static void v25_titlescreen()
 {
     FFCore.kb_typing_mode = false;
+    FFCore.skip_ending_credits = 0;
 	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
     //  JGMOD *yea;
@@ -1102,6 +1107,7 @@ extern char *SAVE_FILE;
 int readsaves(gamedata *savedata, PACKFILE *f)
 {
     FFCore.kb_typing_mode = false;
+    FFCore.skip_ending_credits = 0;
     //word item_count;
     word qstpath_len;
     word save_count;
@@ -1720,6 +1726,7 @@ void set_up_standalone_save()
 int load_savedgames()
 {
     FFCore.kb_typing_mode = false;
+    FFCore.skip_ending_credits = 0;
     char *fname = SAVE_FILE;
     char *iname = (char *)zc_malloc(2048);
     int ret;
@@ -2332,6 +2339,7 @@ static void delete_mode()
 static void selectscreen()
 {
     FFCore.kb_typing_mode = false;
+    FFCore.skip_ending_credits = 0;
     //  text_mode(0);
     init_NES_mode();
     //  loadfullpal();
@@ -3622,6 +3630,7 @@ void titlescreen(int lsave)
     Quit=0;
     Playing=Paused=false;
     FFCore.kb_typing_mode = false;
+    FFCore.skip_ending_credits = 0;
     
     if(q==qCONT)
     {
@@ -3701,6 +3710,7 @@ void titlescreen(int lsave)
 void game_over(int type)
 {
     FFCore.kb_typing_mode = false; 
+    FFCore.skip_ending_credits = 0;
     kill_sfx();
     music_stop();
     clear_to_color(screen,BLACK);

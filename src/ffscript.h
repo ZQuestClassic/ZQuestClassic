@@ -201,7 +201,7 @@ void do_warp_ex(const bool v);
 //static void init();
 
 long quest_format[versiontypesLAST];
-
+byte skip_ending_credits; //checked in ending.cpp. If > 0, then we skip the game credits, but not Link's Win script. -Z
 
 long coreflags;
 long script_UIDs[UID_TYPES];
@@ -2032,7 +2032,7 @@ enum ASM_DEFINE
 	NPCHITWITH,
 	// moved to a var: NPCCOLLISION 
 	NPCGETINITDLABEL,
-
+	GAMECONTINUE,
 	NUMCOMMANDS           //0x013B
 };
 
@@ -3199,13 +3199,15 @@ enum ASM_DEFINE
 #define LWPNENGINEANIMATE 		0x1339
 #define EWPNENGINEANIMATE 		0x133A
 
+#define SKIPCREDITS 		0x133B
+
 //bytecode
 
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x133B
+#define NUMVARIABLES         0x133C
 
 
 // Script types

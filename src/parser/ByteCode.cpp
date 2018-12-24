@@ -1702,6 +1702,8 @@ string VarArgument::toString()
 	case LWPNENGINEANIMATE: return "LWPNENGINEANIMATE";
 	case EWPNENGINEANIMATE: return "EWPNENGINEANIMATE";
 	
+	case SKIPCREDITS: return "SKIPCREDITS";
+	
 	
     default:
     {
@@ -2755,6 +2757,11 @@ string OGetScreenEFlags::toString()
 string OEnd::toString()
 {
     return "GAMEEND";
+}
+
+string OGameContinue::toString()
+{
+    return "GAMECONTINUE";
 }
 
 string OComboTile::toString()

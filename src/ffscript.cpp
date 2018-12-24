@@ -3537,6 +3537,10 @@ case NPCBEHAVIOUR: {
     case TYPINGMODE:
         ret=FFCore.kb_typing_mode?10000:0;
         break;
+    
+    case SKIPCREDITS:
+        ret=FFCore.skip_ending_credits?10000:0;
+        break;
         
     case GAMESTANDALONE:
         ret=standalone_mode?10000:0;
@@ -9115,6 +9119,10 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     
     case TYPINGMODE:
         FFCore.kb_typing_mode = ((value/10000)?true:false);
+        break;
+    
+    case SKIPCREDITS:
+        FFCore.skip_ending_credits = ((value/10000)?true:false);
         break;
         
     case GAMEGUYCOUNT:
@@ -16811,6 +16819,12 @@ int run_script(const byte type, const word script, const long i)
 		    skipcont = 1;
 		    scommand = 0xFFFF;
 		    break;
+		
+		case GAMECONTINUE:
+		    Quit = qCONT;
+		    skipcont = 1;
+		    scommand = 0xFFFF;
+		    break;
 		    
 		case SAVE:
 		    if(scriptCanSave)
@@ -19108,6 +19122,7 @@ FFScript::FFScript()
 void FFScript::init()
 {
 	coreflags = 0;
+	skip_ending_credits = 0;
 	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	setFFRules(); //copy the quest rules over. 
