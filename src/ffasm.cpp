@@ -767,7 +767,9 @@ script_command command_list[NUMCOMMANDS+1]=
       { "NPCGETINITDLABEL",                0,   0,   0,   0},
       // moved to a var: { "NPCCOLLISION",                0,   0,   0,   0}, //how to implement this?
       { "GAMECONTINUE",             0,   0,   0,   0},
-     { "",                    0,   0,   0,   0}
+      { "MAPDATAISSOLID",             1,   0,   0,   0},
+    
+      { "",                    0,   0,   0,   0}
 };
 
 

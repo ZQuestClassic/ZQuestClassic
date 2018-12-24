@@ -12485,6 +12485,24 @@ void do_issolid()
     set_register(sarg1, (_walkflag(x, y, 1) ? 10000 : 0));
 }
 
+void do_mapdataissolid()
+{
+	if ( ri->mapsref == LONG_MAX  )
+	{
+		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","isSolid()");
+		set_register(sarg1,10000);
+	}
+	else
+	{
+		//mapscr *m = &TheMaps[ri->mapsref]; 
+		int x = int(ri->d[0] / 10000);
+		int y = int(ri->d[1] / 10000);
+    
+    
+		set_register(sarg1, (_walkflag(x, y, 1, ri->mapsref) ? 10000 : 0));
+	}
+}
+
 void do_setsidewarp()
 {
     long warp   = SH::read_stack(ri->sp + 3) / 10000;
@@ -16509,6 +16527,10 @@ int run_script(const byte type, const word script, const long i)
 		    
 		case ISSOLID:
 		    do_issolid();
+		    break;
+		
+		case MAPDATAISSOLID:
+		    do_mapdataissolid();
 		    break;
 		    
 		case SETSIDEWARP:

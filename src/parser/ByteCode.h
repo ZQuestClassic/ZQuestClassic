@@ -2827,6 +2827,17 @@ namespace ZScript
 		}
 	};
 
+	class OIsSolidMapdata : public UnaryOpcode
+	{
+	public:
+		OIsSolidMapdata(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OIsSolidMapdata(a->clone());
+		}
+	};
+
 	class OSetSideWarpRegister : public Opcode
 	{
 	public:

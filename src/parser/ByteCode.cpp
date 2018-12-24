@@ -2604,6 +2604,11 @@ string OIsSolid::toString()
     return "ISSOLID " + getArgument()->toString();
 }
 
+string OIsSolidMapdata::toString()
+{
+    return "MAPDATAISSOLID " + getArgument()->toString();
+}
+
 string OSetSideWarpRegister::toString()
 {
     return "SETSIDEWARP";
