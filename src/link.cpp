@@ -4382,9 +4382,10 @@ bool LinkClass::animate(int)
 				clear_bitmap(subscrbmp);
 		do
 		{
+			script_drawing_commands.Clear();
 			if ( link_doscript ) 
 			{
-				ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+				ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
 				load_control_state(); 
 				
 			}

@@ -233,6 +233,7 @@ void ending()
     
     for(int f=0; f<365; f++)
     {
+	script_drawing_commands.Clear();
 	if ( link_doscript ) 
 	{
 		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
