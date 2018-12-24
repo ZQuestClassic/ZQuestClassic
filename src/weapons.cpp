@@ -2619,6 +2619,10 @@ bool weapon::animate(int index)
     {
         // Link's weapons
     case wSword:
+	if ( doscript && itemsbuf[parentitem].misc10 == 50 )
+	{
+		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
     case wWand:
     case wHammer:
         if(LinkAction()!=attacking && LinkAction()!=ischarging && !LinkCharged())
@@ -3097,6 +3101,10 @@ bool weapon::animate(int index)
     case wLitSBomb:
     case wSBomb:
     {
+	if ( doscript )
+	{
+		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
         if(!misc)
         {
             break;
@@ -3226,10 +3234,10 @@ bool weapon::animate(int index)
                 dead=1;
             }
         }
-        if ( doscript )
-	{
-		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	}
+        //if ( doscript )
+	//{
+	//	ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	//}
         break;
     }
         case ewLitBomb:
@@ -3376,13 +3384,14 @@ bool weapon::animate(int index)
     
     case wArrow:
     {
-	
+	//Z_scripterrlog("Arrow weaponscript is: %d\n", weaponscript);
+	if ( doscript )
+	{
+		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
         if(dead>0)
         {
-	    if ( doscript )
-	    {
-		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	    }
+	    
             break;
         }
         
@@ -3421,10 +3430,7 @@ bool weapon::animate(int index)
         {
             dead=4;
         }
-        if ( doscript )
-	{
-		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	}
+        
         break;
     }
     
