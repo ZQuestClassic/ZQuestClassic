@@ -269,7 +269,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 			{
 				funccode.push_back(
 					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(LOADMAPDATA)));
+							 new VarArgument(REFDMAPDATA)));
 			
 			}
 			/* Do we want these here--ever? -Z

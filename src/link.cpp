@@ -13182,7 +13182,7 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
     if (link_doscript)
 	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
     if ( dmap_doscript ) 
-	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script);
+	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
     
     x = storex, y = storey;
 }
@@ -13381,7 +13381,7 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
     }
     if ( dmap_waitdraw )
     {
-	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script);
+	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 	dmap_waitdraw = false;
     }
     do

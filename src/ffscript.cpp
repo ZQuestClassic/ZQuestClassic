@@ -138,7 +138,7 @@ refInfo screenScriptData;
 refInfo dmapScriptData;
 word g_doscript = 1;
 word link_doscript = 1;
-word dmap_doscript = 1;
+word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop() will set it to 1. 
 bool global_wait = false;
 bool link_waitdraw = false;
 bool dmap_waitdraw = false;
@@ -13724,14 +13724,24 @@ void FFScript::do_loadscreendata(const bool v)
 void FFScript::do_loadbitmapid(const bool v)
 {
     long ID = SH::get_arg(sarg1, v) / 10000;
-    
-    if ( ID < MIN_INTERNAL_BITMAP || ID > MAX_INTERNAL_BITMAP )
+    switch(ID)
     {
-	Z_scripterrlog("Invalid Bitmap ID passed to Game->Load BitmapID: %d\n", ID);
-	ri->bitmapref = 0; 
+	case -1:
+	case 0:
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+	case 6:
+		ri->bitmapref = ID; break;
+	default:
+	{
+		Z_scripterrlog("Invalid Bitmap ID passed to Game->Load BitmapID: %d\n", ID);
+		ri->bitmapref = 0; break;
+	}
     }
-
-    else ri->bitmapref = ID;
+    
     //Z_eventlog("Script loaded mapdata with ID = %ld\n", ri->idata);
 }
 
@@ -15494,6 +15504,7 @@ int run_script(const byte type, const word script, const long i)
 		ri = &dmapScriptData;
 		curscript = dmapscripts[script];
 		stack = &dmap_stack;
+		ri->dmapsref = i;
 	    }
 	    break;
 	    
@@ -17503,7 +17514,7 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		
 		case SCRIPT_DMAP:
-		    //dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
+		    dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
 		    break;
 		    
 		case SCRIPT_ITEM:
@@ -17697,11 +17708,11 @@ BITMAP* FFScript::get_user_bitmap(int id)
 BITMAP* FFScript::GetScriptBitmap(int id)
 {
 	
-    if ( id < MIN_OLD_RENDERTARGETS || id > highest_valid_user_bitmap() ) 
-    {
-	    Z_scripterrlog("Attempted to get a bitmap with an invalid bitmap ID: (%d).\n", id);
-	    return NULL;
-    }
+    //if ( id < MIN_OLD_RENDERTARGETS || id > highest_valid_user_bitmap() ) 
+    //{
+//	    Z_scripterrlog("Attempted to get a bitmap with an invalid bitmap ID: (%d).\n", id);
+//	    return NULL;
+ //   }
     switch(id)
     {
         case rtSCREEN:
@@ -17715,7 +17726,15 @@ BITMAP* FFScript::GetScriptBitmap(int id)
         {
             return zscriptDrawingRenderTarget->GetBitmapPtr(id);
         }
-        default: return  get_user_bitmap(id);
+        default: 
+	{
+		if ( id > highest_valid_user_bitmap() )
+		{
+			Z_scripterrlog("Attempted to get a bitmap with an invalid bitmap ID: (%d).\n", id);
+			return NULL;
+		}
+		else return  get_user_bitmap(id);
+	}
     }
 }
 

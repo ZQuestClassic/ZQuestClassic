@@ -92,7 +92,7 @@ int strike_hint_timer=0;
 int strike_hint;
 int slot_arg, slot_arg2;
 char *SAVE_FILE = (char *)"zc.sav";
-
+int previous_DMap = -1;
 CScriptDrawingCommands script_drawing_commands;
 
 using std::string;
@@ -1721,7 +1721,7 @@ int init_game()
         resetItems(game,&zinit,true);
     }
     
-    currdmap = warpscr = worldscr=game->get_continue_dmap();
+    previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
     init_dmap();
     
     if(game->get_continue_scrn() >= 0x80)
@@ -2822,7 +2822,7 @@ void game_loop()
     }
     if(!freezemsg && dmap_doscript)
     {
-        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script);
+        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
     }
     
     if(!freeze && !freezemsg)
@@ -2949,7 +2949,7 @@ void game_loop()
     }
     if ( dmap_waitdraw )
     {
-        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script);
+        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 	dmap_waitdraw = false;
     }
     
@@ -3121,6 +3121,11 @@ void game_loop()
             playing_field_offset=56;
         }
         
+	if ( previous_DMap != currdmap )
+	{
+		FFCore.initZScriptDMapScripts();
+		previous_DMap = currdmap;
+	}
         // Other effects in zc_sys.cpp
     }
     
