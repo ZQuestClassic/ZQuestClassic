@@ -2289,6 +2289,37 @@ void weapon::runscript(int index)
     return;
 	switch(id)
 	{
+	    case wScript1:
+	    case wScript2:
+	    case wScript3:
+	    case wScript4:
+	    case wScript5:
+	    case wScript6:
+	    case wScript7:
+	    case wScript8:
+	    case wScript9:
+	    case wScript10:
+	    {
+		Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
+		ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());	
+		/*
+                if ( doscript && weaponscript > 0 ) 
+                {
+			if ( Dead() )
+			{
+				doscript = 0;
+				weaponscript = 0;
+			}
+			else
+			{
+				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+				//ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
+			}
+		}
+		    */
+		break;
+	    }
 	    case wBeam:
 	    case wRefBeam:
 	    {
@@ -2484,33 +2515,7 @@ void weapon::runscript(int index)
 		}
 		break;
 	    }
-	    case wScript1:
-	    case wScript2:
-	    case wScript3:
-	    case wScript4:
-	    case wScript5:
-	    case wScript6:
-	    case wScript7:
-	    case wScript8:
-	    case wScript9:
-	    case wScript10:
-	    {
-                if ( doscript && weaponscript > 0 ) 
-                {
-			if ( Dead() )
-			{
-				doscript = 0;
-				weaponscript = 0;
-			}
-			else
-			{
-				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-				//ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
-				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
-			}
-		}
-		break;
-	    }
+	    
 	    default: break;
 	}
 }
@@ -2617,6 +2622,47 @@ bool weapon::animate(int index)
         
     switch(id)
     {
+	case wScript1:
+	    case wScript2:
+	    case wScript3:
+	    case wScript4:
+	    case wScript5:
+	    case wScript6:
+	    case wScript7:
+	    case wScript8:
+	    case wScript9:
+	    case wScript10:
+	    {
+		//Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
+		if ( parentitem > -1 || (isLWeapon && ScriptGenerated) )
+		{
+		    //Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
+		    if ( doscript ) ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());	
+		}
+		//Disabled for now because FFCore.eweaponScriptEngine() runs the enemy weapon scripts. -Z (25-Dec-2018)
+		//else if ( parentid > -1 && parentid != Link.getUID() && !isLWeapon )
+		//{
+			
+		//	ZScriptVersion::RunScript(SCRIPT_EWPN, weaponscript, getUID());	
+		//}
+		/*
+                if ( doscript && weaponscript > 0 ) 
+                {
+			if ( Dead() )
+			{
+				doscript = 0;
+				weaponscript = 0;
+			}
+			else
+			{
+				//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
+				//ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, index);		
+				ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());		
+			}
+		}
+		    */
+		break;
+	    }
         // Link's weapons
     case wSword:
 	if ( doscript && itemsbuf[parentitem].misc10 == 50 )
@@ -4875,7 +4921,7 @@ mirrors:
             dead = 1;
         }
     }
-    
+    /*
     //script weapon types:
     case wScript1:
 	case wScript2:
@@ -4896,7 +4942,7 @@ mirrors:
 	}
 		
 	case wIce: break;
-    
+	*/
     
     }
     

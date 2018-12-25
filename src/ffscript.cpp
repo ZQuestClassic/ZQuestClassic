@@ -4259,9 +4259,16 @@ case SCREENCATCH:
 		//Z_scripterrlog("GetLinkExtend rid->[2] is (%i), trying to use for '%s'\n", ri->d[2], "ri->d[2]");
 	    //Z_scripterrlog("GetLinkExtend rid->[1] is (%i), trying to use for '%s'\n", state, "state");
 	    //Z_scripterrlog("GetLinkExtend rid->[0] is (%i), trying to use for '%s'\n", dir, "dir");
-	
-		Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,itemid,false,1,Link.getUID(),1));
-		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+		if ( Lwpns.Count() < 256 )
+		{
+			Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,itemid,false,1,Link.getUID(),1));
+			ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+		}
+		else
+		{
+			Z_scripterrlog("Tried to create too many LWeapons on the screen. The current LWeapon count is: %d\n", Lwpns.Count());
+			ri->lwpn = LONG_MAX;
+		}
 		
 		/* Z_scripterrlog("CreateLWeaponDx ri->d[0] is (%i), trying to use for '%s'\n", ID, "ID");
 	    Z_scripterrlog("CreateLWeaponDx ri->d[1] is (%i), trying to use for '%s'\n", itemid, "itemid");
@@ -13751,7 +13758,20 @@ void do_createlweapon(const bool v)
     
     if(BC::checkWeaponID(ID, "Screen->CreateLWeapon") != SH::_NoError)
         return;
-        
+    
+	if ( Lwpns.Count() < 256 )
+	{
+			Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
+			ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
+			Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
+	}
+	else
+	{
+		ri->lwpn = LONG_MAX;
+		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
+	}
+	return;
+        //old version is below
     Lwpns.add(new weapon((fix)0,(fix)0,(fix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
 		
     //addLwpn(0, 0, 0, ID, 0, 0, 0, Link.getUID());
