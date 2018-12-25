@@ -2890,6 +2890,7 @@ void game_loop()
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
 	#endif
+	//perhaps add sprite.waitdraw, and call sprite script here too?
         Lwpns.animate();
 	//FFCore.lweaponScriptEngine();
         #if LOGGAMELOOP > 0
