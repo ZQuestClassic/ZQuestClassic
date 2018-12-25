@@ -3534,13 +3534,18 @@ bool weapon::animate(int index)
     }
     case wBrang:
     {
+	    //run first? brang scripts were being killed on WDS_BOUNCE, so this may fix that.
+	if ( doscript )
+	{
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	}
         if(dead==0)  // Set by ZScript
         {
             stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
-	    if ( doscript )
-	    {
-		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	    }
+	    //if ( doscript )
+	    //{
+		//   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    //}
             break;
         }
         
@@ -3632,10 +3637,10 @@ bool weapon::animate(int index)
         {
             ++clk;
             sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true);
-	    if ( doscript )
-	    {
-		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	    }
+	    //if ( doscript )
+	    //{
+		//   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    //}
             return false;
         }
         
@@ -3709,10 +3714,7 @@ bool weapon::animate(int index)
             seekLink();
         }
         //call before the sfx
-        if ( doscript )
-	{
-		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	}
+        
         
         sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true,false);
         
