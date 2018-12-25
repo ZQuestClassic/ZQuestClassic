@@ -2,6 +2,9 @@
 
 //Alpha 12
 
+Reset combo animations on Game->Continue()
+Call AllOff() prior to running Link's onDeth script.
+
 Fixed new npc functions in ffasm.cpp:
 	The 'args' value in ffasm.cpp was set to 0, for
 	getter functions. these needed to be set to '1' to return the
