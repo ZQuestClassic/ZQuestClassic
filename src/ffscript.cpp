@@ -20794,9 +20794,9 @@ void FFScript::do_npc_newdir()
 	{
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		
-		if ( sz > 0 && arrayptr != NULL ) 
+		if ( sz != -1 ) 
 		{
-			if ( sz > 3 ) 
+			if ( sz != 3 ) 
 			{
 				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
 				return;
@@ -20817,21 +20817,24 @@ void FFScript::do_npc_constwalk()
 {
 	long arrayptr = get_register(sarg2) / 10000;
 	int sz = FFCore.getSize(arrayptr);
+	Z_scripterrlog("Array size passed to do_npc_constwalk: %d\n", sz);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk()") == SH::_NoError)
 	{
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		
-		if ( sz > 0 && arrayptr != NULL ) 
+		if ( sz != -1 ) 
 		{
-			if ( sz > 3 ) 
+			if ( sz != 3 ) 
 			{
 				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int arr[])\n",sz);
 				return;
 			}
-			GuyH::getNPC()->constant_walk( (FFCore.getElement(arrayptr, 0)/10000), (FFCore.getElement(arrayptr, 1)/10000),
-				(FFCore.getElement(arrayptr, 2)/10000) );
+			Z_scripterrlog("Calling npc->ConstantWalk( %d, %d, %d ).\n", (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
+				(getElement(arrayptr, 2)/10000));
+			GuyH::getNPC()->constant_walk( (getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000),
+				(getElement(arrayptr, 2)/10000) );
 		}
 		else GuyH::getNPC()->constant_walk();//e->constant_walk();
 		
@@ -21238,7 +21241,7 @@ void FFScript::do_npc_canmove(const bool v)
 	//bool can_mv = false;
 	if(GuyH::loadNPC(ri->guyref, "npc->CanMove()") == SH::_NoError)
 	{
-		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		if ( sz == 1 ) //bool canmove(int ndir): dir only, uses 'step' IIRC
 		{
 			Z_scripterrlog("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
