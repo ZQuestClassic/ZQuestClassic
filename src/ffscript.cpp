@@ -3537,6 +3537,14 @@ case NPCBEHAVIOUR: {
     case TYPINGMODE:
         ret=FFCore.kb_typing_mode?10000:0;
         break;
+    
+    case SKIPCREDITS:
+        ret=FFCore.skip_ending_credits?10000:0;
+        break;
+    
+    case SKIPF6:
+        ret=skipcont?10000:0;
+        break;
         
     case GAMESTANDALONE:
         ret=standalone_mode?10000:0;
@@ -6255,28 +6263,27 @@ case NPCMATCHINITDLABEL: 	 //Same form as SetScreenD()
 case AUDIOVOLUME:
 {
 	int indx = ri->d[0] / 10000;
-	int r;
 	switch(indx)
 	{
 		
 		case 0: //midi volume
 		{
-			r = FFScript::do_getMIDI_volume() * 10000;
+			ret = FFScript::do_getMIDI_volume() * 10000;
 			break;
 		}
 		case 1: //digi volume
 		{
-			r = FFScript::do_getDIGI_volume() * 10000;
+			ret = FFScript::do_getDIGI_volume() * 10000;
 			break;
 		}
 		case 2: //emh music volume
 		{
-			r = FFScript::do_getMusic_volume() * 10000;
+			ret = FFScript::do_getMusic_volume() * 10000;
 			break;
 		}
 		case 3: //sfx volume
 		{
-			r = FFScript::do_getSFX_volume() * 10000;
+			ret = FFScript::do_getSFX_volume() * 10000;
 			break;
 		}
 		default:
@@ -6286,8 +6293,6 @@ case AUDIOVOLUME:
 			break;
 		}
 	}
-	
-	ret = r; break;
 }
 
 case AUDIOPAN:
@@ -9119,6 +9124,16 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case TYPINGMODE:
         FFCore.kb_typing_mode = ((value/10000)?true:false);
         break;
+    
+    case SKIPCREDITS:
+        FFCore.skip_ending_credits = ((value/10000)?true:false);
+        break;
+    
+    case SKIPF6:
+        skipcont = ((value/10000)?true:false);
+        break;
+    
+    
         
     case GAMEGUYCOUNT:
     {
@@ -12478,6 +12493,24 @@ void do_issolid()
     int y = int(ri->d[1] / 10000);
     
     set_register(sarg1, (_walkflag(x, y, 1) ? 10000 : 0));
+}
+
+void do_mapdataissolid()
+{
+	if ( ri->mapsref == LONG_MAX  )
+	{
+		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","isSolid()");
+		set_register(sarg1,10000);
+	}
+	else
+	{
+		//mapscr *m = &TheMaps[ri->mapsref]; 
+		int x = int(ri->d[0] / 10000);
+		int y = int(ri->d[1] / 10000);
+    
+    
+		set_register(sarg1, (_walkflag(x, y, 1, ri->mapsref) ? 10000 : 0));
+	}
 }
 
 void do_setsidewarp()
@@ -16505,6 +16538,10 @@ int run_script(const byte type, const word script, const long i)
 		case ISSOLID:
 		    do_issolid();
 		    break;
+		
+		case MAPDATAISSOLID:
+		    do_mapdataissolid();
+		    break;
 		    
 		case SETSIDEWARP:
 		    do_setsidewarp();
@@ -16814,6 +16851,13 @@ int run_script(const byte type, const word script, const long i)
 		    skipcont = 1;
 		    scommand = 0xFFFF;
 		    break;
+		
+		case GAMECONTINUE:
+		    Quit = qCONT;
+		    //skipcont = 1;
+			//cont_game();
+		    scommand = 0xFFFF;
+		    break;
 		    
 		case SAVE:
 		    if(scriptCanSave)
@@ -16825,6 +16869,10 @@ int run_script(const byte type, const word script, const long i)
 		    
 		case SAVESCREEN:
 		    do_showsavescreen();
+		    break;
+		
+		case SHOWF6SCREEN:
+		    game_over(0); //0 == show three choices, 1 == show two
 		    break;
 		    
 		case SAVEQUITSCREEN:
@@ -19111,6 +19159,7 @@ FFScript::FFScript()
 void FFScript::init()
 {
 	coreflags = 0;
+	skip_ending_credits = 0;
 	for ( int q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	setFFRules(); //copy the quest rules over. 

@@ -1092,7 +1092,10 @@ using namespace std;
 #define LWPNENGINEANIMATE 		1024
 #define EWPNENGINEANIMATE 		1025
 
-#define LAST_BYTECODE 		1026
+#define SKIPCREDITS 		1026
+#define SKIPF6 			1027
+
+#define LAST_BYTECODE 		1028
 
 //END OF BYTECODE
 
@@ -2825,6 +2828,17 @@ namespace ZScript
 		}
 	};
 
+	class OIsSolidMapdata : public UnaryOpcode
+	{
+	public:
+		OIsSolidMapdata(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OIsSolidMapdata(a->clone());
+		}
+	};
+
 	class OSetSideWarpRegister : public Opcode
 	{
 	public:
@@ -3470,6 +3484,26 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OEnd();
+		}
+	};
+	
+	class OGameContinue : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OGameContinue();
+		}
+	};
+
+	class OShowF6Screen : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OShowF6Screen();
 		}
 	};
 

@@ -232,7 +232,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 /******** System functions ********/
 /**********************************/
 
-static char cfg_sect[] = "zeldadx";
+static char cfg_sect[] = "zeldadx"; //We need to rename this.
 
 int d_dummy_proc(int msg,DIALOG *d,int c)
 {
@@ -3779,7 +3779,7 @@ void updatescr(bool allowwavy)
         if(quakeclk>0) rectfill(target,scrx+32,scry+8+224,scrx+32+256,scry+8+232,BLACK);
     }
     
-    if(ShowFPS)
+    if(ShowFPS &&(frame&1))
         show_fps(target);
         
     if(Paused)
@@ -3817,9 +3817,9 @@ int onGUISnapshot()
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "../../../zc_quest_screenshot%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-        sprintf(buf, "zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "zc_quest_screenshot%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
     }
     while(num<999 && exists(buf));
@@ -3847,7 +3847,7 @@ int onNonGUISnapshot()
     
     do
     {
-        sprintf(buf, "zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "zc_quest_screenshot%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
     }
     while(num<999 && exists(buf));
     
@@ -3911,9 +3911,9 @@ int onSaveMapPic()
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zelda%03d.png", ++num);
+        sprintf(buf, "../../../zc_quest_screenshot%03d.png", ++num);
 #else
-        sprintf(buf, "zelda%03d.png", ++num);
+        sprintf(buf, "zc_quest_screenshot%03d.png", ++num);
 #endif
     }
     while(num<999 && exists(buf));

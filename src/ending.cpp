@@ -233,6 +233,7 @@ void ending()
     
     for(int f=0; f<365; f++)
     {
+	script_drawing_commands.Clear();
 	if ( link_doscript ) 
 	{
 		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
@@ -275,6 +276,8 @@ void ending()
     clear_bitmap(msgdisplaybuf);
     draw_screen(tmpscr);
     advanceframe(true);
+    
+    if ( FFCore.skip_ending_credits ) goto credits_skip;
     
     draw_screen_clip_rect_x1=0;
     draw_screen_clip_rect_x2=255;
@@ -582,6 +585,8 @@ void ending()
     }
     while(!rSbtn());
     
+    credits_skip:
+    
     if(game->get_quest()>0 && game->get_quest()<=5)
     {
         inc_quest();
@@ -626,6 +631,7 @@ void ending()
         zcmusic_unload_file(zcmusic);
         zcmusic = NULL;
     }
+    FFCore.skip_ending_credits = 0;
     
 //  setPackfilePassword(datapwd);
     load_quest(game);

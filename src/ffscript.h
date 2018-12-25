@@ -201,7 +201,7 @@ void do_warp_ex(const bool v);
 //static void init();
 
 long quest_format[versiontypesLAST];
-
+byte skip_ending_credits; //checked in ending.cpp. If > 0, then we skip the game credits, but not Link's Win script. -Z
 
 long coreflags;
 long script_UIDs[UID_TYPES];
@@ -980,7 +980,7 @@ enum __Error
     
     
     //only if the player is messing with their pointers...
-    static ZScriptArray& InvalidError(const long ptr)
+       static ZScriptArray& InvalidError(const long ptr)
     {
         //Z_scripterrlog("Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
         return INVALIDARRAY;
@@ -2032,7 +2032,9 @@ enum ASM_DEFINE
 	NPCHITWITH,
 	// moved to a var: NPCCOLLISION 
 	NPCGETINITDLABEL,
-
+	GAMECONTINUE,
+	MAPDATAISSOLID,
+	SHOWF6SCREEN,
 	NUMCOMMANDS           //0x013B
 };
 
@@ -3199,13 +3201,16 @@ enum ASM_DEFINE
 #define LWPNENGINEANIMATE 		0x1339
 #define EWPNENGINEANIMATE 		0x133A
 
+#define SKIPCREDITS 		0x133B
+#define SKIPF6 		0x133C
+
 //bytecode
 
 //#define DMAPDATAGRAVITY 	//unimplemented
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x133B
+#define NUMVARIABLES         0x133C
 
 
 // Script types

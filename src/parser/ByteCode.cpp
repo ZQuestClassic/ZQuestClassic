@@ -1702,6 +1702,9 @@ string VarArgument::toString()
 	case LWPNENGINEANIMATE: return "LWPNENGINEANIMATE";
 	case EWPNENGINEANIMATE: return "EWPNENGINEANIMATE";
 	
+	case SKIPCREDITS: return "SKIPCREDITS";
+	case SKIPF6: return "SKIPF6";
+	
 	
     default:
     {
@@ -2602,6 +2605,11 @@ string OIsSolid::toString()
     return "ISSOLID " + getArgument()->toString();
 }
 
+string OIsSolidMapdata::toString()
+{
+    return "MAPDATAISSOLID " + getArgument()->toString();
+}
+
 string OSetSideWarpRegister::toString()
 {
     return "SETSIDEWARP";
@@ -2755,6 +2763,16 @@ string OGetScreenEFlags::toString()
 string OEnd::toString()
 {
     return "GAMEEND";
+}
+
+string OGameContinue::toString()
+{
+    return "GAMECONTINUE";
+}
+
+string OShowF6Screen::toString()
+{
+    return "SHOWF6SCREEN";
 }
 
 string OComboTile::toString()
