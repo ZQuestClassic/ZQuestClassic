@@ -20715,7 +20715,7 @@ int FFScript::getTime(int type)
 void FFScript::do_isdeadnpc()
 {
 	//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-	if(GuyH::loadNPC(ri->guyref, "npc->isDead") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->isDead") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		int dead = (int)e->Dead(GuyH::getNPCIndex(ri->guyref));
@@ -20728,7 +20728,7 @@ void FFScript::do_isdeadnpc()
 void FFScript::do_canslidenpc()
 {
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->CanSlide") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->CanSlide") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		bool candoit = e->can_slide();
@@ -20740,7 +20740,7 @@ void FFScript::do_canslidenpc()
 void FFScript::do_slidenpc()
 {
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->Slide()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->Slide()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		bool candoit = e->slide();
@@ -20752,7 +20752,7 @@ void FFScript::do_slidenpc()
 void FFScript::do_npckickbucket()
 {
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		e->kickbucket();
@@ -20763,7 +20763,7 @@ void FFScript::do_npckickbucket()
 void FFScript::do_npc_stopbgsfx()
 {
 	//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-	if(GuyH::loadNPC(ri->guyref, "npc->StopBGSFX()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->StopBGSFX()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		e->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
@@ -20772,10 +20772,12 @@ void FFScript::do_npc_stopbgsfx()
 
 void FFScript::do_npcattack()
 {
-	if(GuyH::loadNPC(ri->guyref, "npc->Attack()") != SH::_NoError)
+	
+	if(GuyH::loadNPC(ri->guyref, "npc->Attack()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		e->FireWeapon();
+		//we could just do: GuyH::getNPC()->FireWeapon();
 	}
 }
 void FFScript::do_npc_newdir()
@@ -20784,7 +20786,7 @@ void FFScript::do_npc_newdir()
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->NewDir()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->NewDir()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		
@@ -20810,7 +20812,7 @@ void FFScript::do_npc_constwalk()
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		
@@ -20836,7 +20838,7 @@ void FFScript::do_npc_varwalk()
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		
@@ -20862,7 +20864,7 @@ void FFScript::do_npc_varwalk8()
 	//void variable_walk_8(int rate,int homing,int newclk,int special,int dx1,int dy1,int dx2,int dy2);
     
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk8()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk8()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		
@@ -20893,7 +20895,7 @@ void FFScript::do_npc_constwalk8()
 	//void variable_walk_8(int rate,int homing,int newclk,int special,int dx1,int dy1,int dx2,int dy2);
     
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk8()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk8()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		
@@ -20914,7 +20916,7 @@ void FFScript::do_npc_haltwalk()
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		
@@ -20937,7 +20939,7 @@ void FFScript::do_npc_haltwalk8()
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk8()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk8()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		
@@ -20961,7 +20963,7 @@ void FFScript::do_npc_floatwalk()
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->FloatingWalk()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->FloatingWalk()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		
@@ -20989,7 +20991,7 @@ void FFScript::do_npc_floatwalk()
 void FFScript::do_npc_breathefire()
 {
 	bool seek = (get_register(sarg2));
-	if(GuyH::loadNPC(ri->guyref, "npc->BreathAttack()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->BreathAttack()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		e->FireBreath(seek);
@@ -21004,7 +21006,7 @@ void FFScript::do_npc_newdir8()
 	int sz = FFCore.getSize(arrayptr);
 	 //(FFCore.getElement(sdci[2]/10000, q))/10000;
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->NewDir8()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->NewDir8()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		
@@ -21033,7 +21035,7 @@ void FFScript::do_npc_newdir8()
 long FFScript::npc_collision()
 {
 	long isColl = 0;
-	if(GuyH::loadNPC(ri->guyref, "npc->Collision()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->Collision()") == SH::_NoError)
 	{
 		long _obj_type = (ri->d[0] / 10000);
 		long _obj_ptr = (ri->d[1]);
@@ -21099,7 +21101,7 @@ long FFScript::npc_collision()
 
 long FFScript::npc_linedup()
 {
-	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
 	{
 		long range = (ri->d[0] / 10000);
 		bool dir8 = (ri->d[1]);
@@ -21115,7 +21117,7 @@ void FFScript::do_npc_link_in_range(const bool v)
 {
 	int dist = (int)SH::get_arg(sarg1, v) / 10000;
 	bool in_range = false;
-	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
 	{
 		long range = (ri->d[0] / 10000);
 		bool dir8 = (ri->d[1]);
@@ -21133,7 +21135,7 @@ void FFScript::do_npc_simulate_hit(const bool v)
 	int sz = FFCore.getSize(arrayptr);
 	bool ishit = false;
 	
-	if(GuyH::loadNPC(ri->guyref, "npc->SimulateHit()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->SimulateHit()") == SH::_NoError)
 	{
 		Z_scripterrlog("Trying to simulate a hit on npc\n");
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
@@ -21226,28 +21228,36 @@ void FFScript::do_npc_canmove(const bool v)
 	long arrayptr = SH::get_arg(sarg1, v) / 10000;
 	int sz = FFCore.getSize(arrayptr);
 	bool can_mv = false;
-	if(GuyH::loadNPC(ri->guyref, "npc->CanMove()") != SH::_NoError)
+	if(GuyH::loadNPC(ri->guyref, "npc->CanMove()") == SH::_NoError)
 	{
 		enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		if ( sz == 1 ) //bool canmove(int ndir): dir only, uses 'step' IIRC
 		{
 			Z_scripterrlog("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
 			can_mv = e->canmove(getElement(arrayptr, 0)/10000);
+			set_register(sarg1, ( can_mv ? 10000 : 0));
+			return;
 		}
-		if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
+		else if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
 		{
 			can_mv = e->canmove((getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000));
+			set_register(sarg1, ( can_mv ? 10000 : 0));
+			return;
 		}
-		if ( sz == 3 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
+		else if ( sz == 3 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
 		{
 			can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
+			set_register(sarg1, ( can_mv ? 10000 : 0));
+			return;
 		}
-		if ( sz == 7 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
+		else if ( sz == 7 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
 		{
 			can_mv = e->canmove((getElement(arrayptr, 0)/10000), 
 			(fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000),
 			(getElement(arrayptr, 3)/10000), (getElement(arrayptr, 4)/10000), 
 			(getElement(arrayptr, 5)/10000), (getElement(arrayptr, 5)/10000)	);
+			set_register(sarg1, ( can_mv ? 10000 : 0));
+			return;
 		}
 		else 
 		{
