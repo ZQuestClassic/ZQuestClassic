@@ -2,6 +2,19 @@
 
 //Alpha 12
 
+Fix Script Type LWeapons not running their scripts. 
+
+Refuse to permit CreateLWeapon() or CreateLWeaponDx() to create 
+	an lweapon if there are 255 or more on the screen.
+
+Fixed DMap Scripts. They now run properly, at the correct time,
+and run when Link warps without massive fiddling. They do not run
+forever if they run out of scope (they certaintly DID!!), and they
+have the correct refinfo pointer (REFDMAPDATA, not LOADMAPDATA!!).
+
+Fixed issues with LoadBitmapID() and GetScriptBitmap() not liking
+the old internal bitmap IDs.
+
 Added the following to ZScript:
 	bool Game->SkipF6 : This skips over display of the save/continue/retry MENU
 		when the player pressed F6, but it still gives them the 'Exit, Confirm (Y/N)' DIALOGUE.
