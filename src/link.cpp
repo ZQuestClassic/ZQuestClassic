@@ -4385,6 +4385,7 @@ bool LinkClass::animate(int)
 			script_drawing_commands.Clear();
 			if ( link_doscript ) 
 			{
+				ALLOFF(true,true);
 				ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
 				load_control_state(); 
 				

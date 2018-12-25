@@ -16903,6 +16903,9 @@ int run_script(const byte type, const word script, const long i)
 		    break;
 		
 		case GAMECONTINUE:
+		    reset_combo_animations();
+		    reset_combo_animations2();
+		
 		    Quit = qCONT;
 		    //skipcont = 1;
 			//cont_game();
@@ -16914,6 +16917,7 @@ int run_script(const byte type, const word script, const long i)
 		    {
 			save_game(false);
 			scriptCanSave=false;
+			
 		    }
 		    break;
 		    
