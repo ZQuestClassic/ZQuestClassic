@@ -15113,6 +15113,25 @@ void do_getffcscript()
     set_register(sarg1, num * 10000);
 }
 
+void do_npc_link_in_range()
+{
+	int dist = get_register(sarg1) / 10000;
+	Z_scripterrlog("LinkInrange dist is: %d\n", dist);
+	//bool in_range = false;
+	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
+	{
+		//long range = (ri->d[0] / 10000);
+		//bool dir8 = (ri->d[1]);
+		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
+		//in_range = (e->LinkInRange(dist));
+		Z_scripterrlog("LinkInRange returned: %s\n", (GuyH::getNPC()->LinkInRange(dist) ? "true" : "false"));
+		bool in_range = GuyH::getNPC()->LinkInRange(dist);
+		//set_register(sarg2, in_range ? 10000 : 0); //This isn't setting the right value, it seems. 
+		//set_register(sarg1, (in_range ? 10000 : 0));
+		set_register(sarg1, 0);
+	}
+	else set_register(sarg1, 0);
+}
 
 void do_getitemscript()
 {
@@ -21114,6 +21133,7 @@ long FFScript::npc_linedup()
 	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
 	{
 		long range = (ri->d[0] / 10000);
+		//Z_scripterrlog("LinedUp distance is: %d\n", range);
 		bool dir8 = (ri->d[1]);
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		return (long)GuyH::getNPC()->lined_up(range,dir8);
@@ -21125,18 +21145,26 @@ long FFScript::npc_linedup()
 
 void FFScript::do_npc_link_in_range(const bool v)
 {
-	int dist = (int)SH::get_arg(sarg1, v) / 10000;
+	int dist = get_register(sarg1) / 10000;
+	//Z_scripterrlog("LinkInrange dist is: %d\n", dist);
 	//bool in_range = false;
 	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
 	{
-		long range = (ri->d[0] / 10000);
-		bool dir8 = (ri->d[1]);
+		//long range = (ri->d[0] / 10000);
+		//bool dir8 = (ri->d[1]);
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		//in_range = (e->LinkInRange(dist));
-		set_register(sarg1, ( (GuyH::getNPC()->LinkInRange(dist)) ? 10000 : 0));
+		//Z_scripterrlog("LinkInRange returned: %s\n", (GuyH::getNPC()->LinkInRange(dist) ? "true" : "false"));
+		bool in_range = GuyH::getNPC()->LinkInRange(dist);
+		set_register(sarg1, (in_range ? 10000 : 0)); //This isn't setting the right value, it seems. 
+		//set_register(sarg1, (in_range ? 10000 : 0));
+		//set_register(sarg1, 0);
 	}
-	else set_register(sarg1, 0);
+	else set_register(sarg2, 0);
 }
+
+
+
 
 
 
