@@ -2,6 +2,11 @@
 
 //Alpha 12
 
+Fixed new npc functions in ffasm.cpp:
+	The 'args' value in ffasm.cpp was set to 0, for
+	getter functions. these needed to be set to '1' to return the
+	proper value.
+
 Fix new npc functions.
 	Correct their bounds checks, change them to use GuyH::getNPC()
 	and fix some array size checks.
