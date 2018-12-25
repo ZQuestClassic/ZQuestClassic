@@ -2,6 +2,12 @@
 
 //Alpha 12
 
+Fix new npc functions.
+	Correct their bounds checks, change them to use GuyH::getNPC()
+	and fix some array size checks.
+	
+Probably fix wBrang weapon scripts aborting on WDS_BOUNCE.
+
 Fix Script Type LWeapons not running their scripts. 
 
 Refuse to permit CreateLWeapon() or CreateLWeaponDx() to create 
