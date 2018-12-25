@@ -1,5 +1,52 @@
 //2.55 and 2.54 Changes
 
+//Alpha 12
+
+Added the following to ZScript:
+	bool Game->SkipF6 : This skips over display of the save/continue/retry MENU
+		when the player pressed F6, but it still gives them the 'Exit, Confirm (Y/N)' DIALOGUE.
+
+	Game->ShowContinueScreen() : As Game->ShowSaveScreen(), but gives all three
+		choices (SAVE, CONTINUE, RETRY).
+	( ZoriaRPG, 25th December, 2018 )
+	
+Probably fixed a bug in Game->Continue(), where pressing F6 would not show
+the continue screen during play, if you call this.
+Added mapdata->isSolid(x,y)
+Added Game->Continue() to ZScript. This should function
+	in the same way as Game->End(), but it should cause the game to
+	resume as with the Continue option in the normal game over menu.
+
+Added bool Game->SkipCredits to ZScript. This should cause the game
+	to skip over the WIn Game credits, but still advance the quest, normally.
+
+Fixed Link OnDeath and OnWin Clear Script Draws 
+	Script Draws do not remain static during Link's onWin
+	and onDeath scripts, and now clear normally, every frame.
+	This prevents stuff such as DrawTile() from persisting across multiple
+	frames.
+
+Re-enable eweapon scripts after some lweapon script modifications.
+
+Fix uninitialised var in ZASM AUDIOVOLUME
+Disabled an extraneous call to the lweapon script engine.
+
+LWeapon Scripts: Swords Can Run Scripts & Fix Arrows 
+EXPERIMENTAL!!
+	The melee part of a sword item will run a script if the value
+	of Attributes[9] for its parent item == 50. (Misc10 == 50)
+	This also fixes arrows not running scripts.
+
+Fix potentially uninitialised vars in Link.cpp. (Not my fault!!)
+	( ZoriaRPG, 24th December 2018 )
+
+Rename Screenshot Base Filename from zelda%03d.png, to zc_quest_screenshot%03d.png
+Now showfps does textprint_ex when (frame&1), whic increased the
+	running speed of ZC by about 12.5%.
+Moved the calls to run LWeapon Scripts back into Lwpns.animate(),
+	and removed the deadstate restriction.
+	( ZoriaRPG, 23rd December, 2018 )
+
 //Alpha 11
 Setters for Screen->LayerScreen[] and mapdata->LayerScreen[] were not
 	properly vbounded. 
