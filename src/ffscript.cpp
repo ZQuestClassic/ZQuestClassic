@@ -21234,38 +21234,49 @@ void FFScript::do_npc_canmove(const bool v)
 		if ( sz == 1 ) //bool canmove(int ndir): dir only, uses 'step' IIRC
 		{
 			Z_scripterrlog("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
-			can_mv = e->canmove(getElement(arrayptr, 0)/10000);
-			set_register(sarg1, ( can_mv ? 10000 : 0));
-			return;
+			//can_mv = e->canmove(getElement(arrayptr, 0)/10000);
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? 10000 : 0);
+			//Z_scripterrlog("npc->CanMove(dir) returned: %s\n", (GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? "true" : "false");
+			//return;
 		}
 		else if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
 		{
-			can_mv = e->canmove((getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000));
-			set_register(sarg1, ( can_mv ? 10000 : 0));
-			return;
+			Z_scripterrlog("npc->CanMove(%d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000));
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000))) ? 10000 : 0);
+			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000));
+			//set_register(sarg1, ( can_mv ? 10000 : 0));
+			//return;
 		}
 		else if ( sz == 3 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
 		{
-			can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
-			set_register(sarg1, ( can_mv ? 10000 : 0));
-			return;
+			Z_scripterrlog("npc->CanMove(%d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000));
+			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
+			//set_register(sarg1, ( can_mv ? 10000 : 0));
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000))) ? 10000 : 0);
+			//return;
 		}
 		else if ( sz == 7 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
 		{
-			can_mv = e->canmove((getElement(arrayptr, 0)/10000), 
-			(fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000),
-			(getElement(arrayptr, 3)/10000), (getElement(arrayptr, 4)/10000), 
-			(getElement(arrayptr, 5)/10000), (getElement(arrayptr, 5)/10000)	);
-			set_register(sarg1, ( can_mv ? 10000 : 0));
-			return;
+			Z_scripterrlog("npc->CanMove(%d, %d, %d, %d, %d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000));
+			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
+			//set_register(sarg1, ( can_mv ? 10000 : 0));
+			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000))) ? 10000 : 0);
+			
+			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), 
+			//(fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000),
+			//(getElement(arrayptr, 3)/10000), (getElement(arrayptr, 4)/10000), 
+			//(getElement(arrayptr, 5)/10000), (getElement(arrayptr, 5)/10000)	);
+			//set_register(sarg1, ( can_mv ? 10000 : 0));
+			//return;
 		}
 		else 
 		{
 			Z_scripterrlog("Invalid array size (%d) passed to npc->CanMove(). The array size must be [1], [2], [3], or [7].\n", sz);
-			can_mv = false;
+			//can_mv = false;
+			set_register(sarg1, 0);
 		}
 	}
-	set_register(sarg1, ( can_mv ? 10000 : 0));
+	//set_register(sarg1, ( can_mv ? 10000 : 0));
 }
 
 //void do_get_enh_music_filename(const bool v)
