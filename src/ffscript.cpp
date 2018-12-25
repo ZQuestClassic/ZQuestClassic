@@ -3541,6 +3541,10 @@ case NPCBEHAVIOUR: {
     case SKIPCREDITS:
         ret=FFCore.skip_ending_credits?10000:0;
         break;
+    
+    case SKIPF6:
+        ret=skipcont?10000:0;
+        break;
         
     case GAMESTANDALONE:
         ret=standalone_mode?10000:0;
@@ -9124,6 +9128,12 @@ if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
     case SKIPCREDITS:
         FFCore.skip_ending_credits = ((value/10000)?true:false);
         break;
+    
+    case SKIPF6:
+        skipcont = ((value/10000)?true:false);
+        break;
+    
+    
         
     case GAMEGUYCOUNT:
     {
@@ -16844,7 +16854,8 @@ int run_script(const byte type, const word script, const long i)
 		
 		case GAMECONTINUE:
 		    Quit = qCONT;
-		    skipcont = 1;
+		    //skipcont = 1;
+			//cont_game();
 		    scommand = 0xFFFF;
 		    break;
 		    
@@ -16858,6 +16869,10 @@ int run_script(const byte type, const word script, const long i)
 		    
 		case SAVESCREEN:
 		    do_showsavescreen();
+		    break;
+		
+		case SHOWF6SCREEN:
+		    game_over(0); //0 == show three choices, 1 == show two
 		    break;
 		    
 		case SAVEQUITSCREEN:

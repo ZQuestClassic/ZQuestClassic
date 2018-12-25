@@ -1093,8 +1093,9 @@ using namespace std;
 #define EWPNENGINEANIMATE 		1025
 
 #define SKIPCREDITS 		1026
+#define SKIPF6 			1027
 
-#define LAST_BYTECODE 		1027
+#define LAST_BYTECODE 		1028
 
 //END OF BYTECODE
 
@@ -3493,6 +3494,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OGameContinue();
+		}
+	};
+
+	class OShowF6Screen : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OShowF6Screen();
 		}
 	};
 

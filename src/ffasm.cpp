@@ -768,7 +768,7 @@ script_command command_list[NUMCOMMANDS+1]=
       // moved to a var: { "NPCCOLLISION",                0,   0,   0,   0}, //how to implement this?
       { "GAMECONTINUE",             0,   0,   0,   0},
       { "MAPDATAISSOLID",             1,   0,   0,   0},
-    
+      { "SHOWF6SCREEN",             0,   0,   0,   0},
       { "",                    0,   0,   0,   0}
 };
 
@@ -1796,6 +1796,7 @@ script_variable variable_list[]=
 	{"LWPNENGINEANIMATE", LWPNENGINEANIMATE, 0, 0 },
 	{"EWPNENGINEANIMATE", EWPNENGINEANIMATE, 0, 0 },
 	{"SKIPCREDITS", SKIPCREDITS, 0, 0 },
+	{"SKIPF6", SKIPF6, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }

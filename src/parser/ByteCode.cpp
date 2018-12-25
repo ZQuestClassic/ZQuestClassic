@@ -1703,6 +1703,7 @@ string VarArgument::toString()
 	case EWPNENGINEANIMATE: return "EWPNENGINEANIMATE";
 	
 	case SKIPCREDITS: return "SKIPCREDITS";
+	case SKIPF6: return "SKIPF6";
 	
 	
     default:
@@ -2767,6 +2768,11 @@ string OEnd::toString()
 string OGameContinue::toString()
 {
     return "GAMECONTINUE";
+}
+
+string OShowF6Screen::toString()
+{
+    return "SHOWF6SCREEN";
 }
 
 string OComboTile::toString()

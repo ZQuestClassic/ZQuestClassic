@@ -4677,7 +4677,7 @@ quick_quit:
     Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
     
     __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
-    
+    skipcont = 0;
     if(forceExit) //fix for the allegro at_exit() hang.
         exit(0);
         

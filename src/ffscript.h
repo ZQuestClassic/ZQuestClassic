@@ -980,7 +980,7 @@ enum __Error
     
     
     //only if the player is messing with their pointers...
-    static ZScriptArray& InvalidError(const long ptr)
+       static ZScriptArray& InvalidError(const long ptr)
     {
         //Z_scripterrlog("Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
         return INVALIDARRAY;
@@ -2034,6 +2034,7 @@ enum ASM_DEFINE
 	NPCGETINITDLABEL,
 	GAMECONTINUE,
 	MAPDATAISSOLID,
+	SHOWF6SCREEN,
 	NUMCOMMANDS           //0x013B
 };
 
@@ -3201,6 +3202,7 @@ enum ASM_DEFINE
 #define EWPNENGINEANIMATE 		0x133A
 
 #define SKIPCREDITS 		0x133B
+#define SKIPF6 		0x133C
 
 //bytecode
 
