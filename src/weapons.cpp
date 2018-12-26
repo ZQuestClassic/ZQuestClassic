@@ -3535,24 +3535,33 @@ bool weapon::animate(int index)
     case wBrang:
     {
 	    //run first? brang scripts were being killed on WDS_BOUNCE, so this may fix that.
-	if ( doscript )
-	{
-		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	}
+	
         if(dead==0)  // Set by ZScript
         {
             stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
-	    //if ( doscript )
-	    //{
-		//   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	    //}
+	    if ( doscript )
+	    {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    }
             break;
         }
         
         else if(dead==1) // Set by ZScript
         {
+	    if ( doscript )
+	    {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    }
             onhit(false);
         }
+	else
+	{
+	    if ( doscript )
+	    {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    }
+	}
+	
         
         int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:1;
         
@@ -3704,10 +3713,7 @@ bool weapon::animate(int index)
                 {
                     getdraggeditem(dragging);
                 }
-                if ( doscript )
-	        {
-		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	        }
+                
                 return true;
             }
             
@@ -3715,7 +3721,11 @@ bool weapon::animate(int index)
         }
         //call before the sfx
         
-        
+        //if ( doscript )
+	//{
+		//Z_scripterrlog("Engine Brang DeadState is: %d\n",dead);
+	//	ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	//}
         sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true,false);
         
         break;
@@ -5004,6 +5014,7 @@ mirrors:
     
     if(dead>0)
     {
+	    
         --dead;
     }
     
@@ -7310,7 +7321,7 @@ offscreenCheck:
         {
             clk2=256;
             int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:4;
-            
+		Z_scripterrlog("weapons.cpp, line %d\n", 7314);
             if(clipped)
             {
                 dead=deadval;

@@ -19891,9 +19891,6 @@ void FFScript::lweaponScriptEngine()
 		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->lwpn (%d)\n", Lwpns.spr(q)->getUID(), ri->lwpn);
 		//ri->lwpn = Lwpns.spr(q)->getUID();
 		weapon *wp = (weapon*)Lwpns.spr(q);
-		if ( wp->Dead() ) continue;
-		if ( Lwpns.spr(q)->weaponscript == 0 ) continue;
-		if ( Lwpns.spr(q)->doscript == 0 ) continue;
 		switch(Lwpns.spr(q)->id)
 		{
 		    /* We can't have this, because the same script would run on the sword, and on the swordbeam!
@@ -20085,25 +20082,11 @@ void FFScript::lweaponScriptEngine()
 		    case wBrang:
 		    {
 			weapon *wa = (weapon*)Lwpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
+			    
+			if ( Lwpns.spr(q)->doscript ) 
 			{
 				weapon *w = (weapon*)Lwpns.spr(q);
-				if ( w->Dead() )
-				{
-					Lwpns.spr(q)->doscript = 0;
-					Lwpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
-					ri->lwpn = w->getUID();
-					ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
-				}
+				ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 			}
 		
 			
@@ -21276,7 +21259,7 @@ void FFScript::do_npc_canmove(const bool v)
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		if ( sz == 1 ) //bool canmove(int ndir): dir only, uses 'step' IIRC
 		{
-			Z_scripterrlog("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
+			//Z_scripterrlog("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
 			//can_mv = e->canmove(getElement(arrayptr, 0)/10000);
 			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? 10000 : 0);
 			//Z_scripterrlog("npc->CanMove(dir) returned: %s\n", (GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? "true" : "false");
@@ -21284,7 +21267,7 @@ void FFScript::do_npc_canmove(const bool v)
 		}
 		else if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
 		{
-			Z_scripterrlog("npc->CanMove(%d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000));
+			//Z_scripterrlog("npc->CanMove(%d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000));
 			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000))) ? 10000 : 0);
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
@@ -21292,7 +21275,7 @@ void FFScript::do_npc_canmove(const bool v)
 		}
 		else if ( sz == 3 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
 		{
-			Z_scripterrlog("npc->CanMove(%d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000));
+			//Z_scripterrlog("npc->CanMove(%d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000));
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
 			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000))) ? 10000 : 0);
