@@ -997,7 +997,15 @@ const char *enetype_string[eeMAX] =
     "(None)",
     "-Fairy",
     "Other (Floating)",
-    "Other"
+    "Other",
+    "-max250",
+    "Custom 01", "Custom 02", "Custom 03", "Custom 04", "Custom 05",
+    "Custom 06", "Custom 07", "Custom 08", "Custom 09", "Custom 10",
+    "Custom 11", "Custom 12", "Custom 13", "Custom 14", "Custom 15",
+    "Custom 16", "Custom 17", "Custom 18", "Custom 19", "Custom 20",
+    "Friendly NPC 01", "Friendly NPC 02", "Friendly NPC 03", "Friendly NPC 04",
+    "Friendly NPC 05", "Friendly NPC 06", "Friendly NPC 07",
+    "Friendly NPC 08", "Friendly NPC 09", "Friendly NPC 10"
 };
 
 const char *eneanim_string[aMAX] =

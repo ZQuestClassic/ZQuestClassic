@@ -99,11 +99,11 @@
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       41                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 3"                    //version of the program as presented in text
-#define IS_BETA             -3                         //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        3
-#define DATE_STR            "3rd December, 2018"
-#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 3"
+#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 12"                    //version of the program as presented in text
+#define IS_BETA             -12                         //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        12
+#define DATE_STR            "25th December, 2018"
+#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 12"
 #define COPYRIGHT_YEAR      "2018"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -183,15 +183,15 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOS           11
 #define V_CSETS            4
 #define V_MAPS            19
-#define V_DMAPS            11
+#define V_DMAPS            12
 #define V_DOORS            1
-#define V_ITEMS           43
+#define V_ITEMS           44
 #define V_WEAPONS          7
 #define V_COLORS           3 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        19
-#define V_GUYS            39
+#define V_GUYS            41
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        12
@@ -199,7 +199,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_LINKSPRITES      5
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         9
+#define V_FFSCRIPT         11
 #define V_SFX              7
 #define V_FAVORITES        1
 //= V_SHOPS is under V_MISC
@@ -1027,10 +1027,12 @@ enum
 	//35
     wScript5, wScript6, wScript7, wScript8,
 	//39
-    wScript9, wScript10, wIce, //wSound // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
-	//wThrowRock, wPot //Thrown pot or rock -Z
-	//wLit //Lightning or Electric -Z
-	//wBombos, wEther, wQuake -Z
+    wScript9, wScript10, wIce, wFlame, //ice rod, fire rod
+    wSound, // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
+	wThrowRock, wPot, //Thrown pot or rock -Z
+	wLit, //Lightning or Electric -Z
+	wBombos, wEther, wQuake,// -Z
+	wSword180, wSwordLA, 
     // Enemy weapons
     wEnemyWeapons=128,
     //129
@@ -1125,7 +1127,11 @@ enum
     eeWALLM, eeBUBBLE/*DEPRECATED*/, eeVIRE/*DEPRECATED*/, eeLIKE/*DEPRECATED*/, eePOLSV/*DEPRECATED*/, eeWIZZ, eeAQUA, eeMOLD,
     eeDONGO, eeMANHAN, eeGLEEOK, eeDIG, eeGHOMA, eeLANM, eePATRA, eeGANON,
     eePROJECTILE, eeGELTRIB/*DEPRECATED*/, eeZOLTRIB/*DEPRECATED*/, eeVIRETRIB/*DEPRECATED*/, eeKEESETRIB/*DEPRECATED*/, eeSPINTILE, eeNONE,
-    eeFAIRY, eeFIRE, eeOTHER,
+    eeFAIRY, eeFIRE, eeOTHER, eeMAX250,
+    eeSCRIPT01, eeSCRIPT02, eeSCRIPT03, eeSCRIPT04, eeSCRIPT05, eeSCRIPT06, eeSCRIPT07, eeSCRIPT08, eeSCRIPT09, eeSCRIPT10,
+    eeSCRIPT11, eeSCRIPT12, eeSCRIPT13, eeSCRIPT14, eeSCRIPT15, eeSCRIPT16, eeSCRIPT17, eeSCRIPT18, eeSCRIPT19, eeSCRIPT20,
+    eeFFRIENDLY01, eeFFRIENDLY02, eeFFRIENDLY03, eeFFRIENDLY04, eeFFRIENDLY05, eeFFRIENDLY06, eeFFRIENDLY07, eeFFRIENDLY08,
+    eeFFRIENDLY09, eeFFRIENDLY10,
     eeMAX
 };
 
@@ -1493,6 +1499,13 @@ struct itemdata
     int magiccosttimer; //TImer for timed magic costs. 
     char cost_counter; //replaces mp cost with a list
     
+    char initD_label[8][65];
+    char weapon_initD_label[8][65];
+    char sprite_initD_label[8][65];
+    
+    long sprite_initiald[INITIAL_D];
+    byte sprite_initiala[INITIAL_A];
+    word sprite_script;
 };
 
 struct wpndata
@@ -1628,7 +1641,8 @@ struct item_drop_object
 #define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
 #define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
 
-#define MAX_NPC_ATRIBUTES 15
+#define MAX_NPC_ATRIBUTES 31
+
 
 struct guydata
 {
@@ -1686,6 +1700,10 @@ struct guydata
     char initD_label[8][65];
     char weapon_initD_label[8][65];
     
+    word weaponscript;
+    long weap_initiald[INITIAL_D];
+    byte weap_initiala[INITIAL_A];
+    
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02
 #define ENEMY_FLAG3     0x04
@@ -1704,6 +1722,7 @@ struct guydata
 #define ENEMY_FLAG16     0x8000
     
 };
+
 
 class refInfo
 {
@@ -2597,6 +2616,8 @@ struct dmap
     //long init_d[8];
     //long script;
     char sideview;
+    word script;
+    long initD[8];
 };
 
 // DMap flags
@@ -3911,7 +3932,8 @@ extern void removeFromItemCache(int itemid);
 #define NUMSCRIPTWEAPONS	256
 #define NUMSCRIPTGLOBAL		4
 #define NUMSCRIPTGLOBALOLD	3
-#define NUMSCRIPTLINK		3
+#define NUMSCRIPTLINKOLD		3
+#define NUMSCRIPTLINK		5
 #define NUMSCRIPTSCREEN		256
 #define NUMSCRIPTSDMAP		256
 
@@ -3919,6 +3941,11 @@ extern void removeFromItemCache(int itemid);
 #define GLOBAL_SCRIPT_GAME		1
 #define GLOBAL_SCRIPT_END		2
 #define GLOBAL_SCRIPT_CONTINUE 	3
+
+#define SCRIPT_LINK_INIT 1
+#define SCRIPT_LINK_ACTIVE 2
+#define SCRIPT_LINK_DEATH 3
+#define SCRIPT_LINK_WIN 4
 
 //Link Internal Flags
 #define LF_PAID_SWORD_COST		0x01

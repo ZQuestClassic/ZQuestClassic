@@ -1,5 +1,414 @@
 //2.55 and 2.54 Changes
 
+//Alpha 12
+
+Reset combo animations on Game->Continue()
+Call AllOff() prior to running Link's onDeth script.
+
+Fixed new npc functions in ffasm.cpp:
+	The 'args' value in ffasm.cpp was set to 0, for
+	getter functions. these needed to be set to '1' to return the
+	proper value.
+
+Fix new npc functions.
+	Correct their bounds checks, change them to use GuyH::getNPC()
+	and fix some array size checks.
+	
+Probably fix wBrang weapon scripts aborting on WDS_BOUNCE.
+
+Fix Script Type LWeapons not running their scripts. 
+
+Refuse to permit CreateLWeapon() or CreateLWeaponDx() to create 
+	an lweapon if there are 255 or more on the screen.
+
+Fixed DMap Scripts. They now run properly, at the correct time,
+and run when Link warps without massive fiddling. They do not run
+forever if they run out of scope (they certaintly DID!!), and they
+have the correct refinfo pointer (REFDMAPDATA, not LOADMAPDATA!!).
+
+Fixed issues with LoadBitmapID() and GetScriptBitmap() not liking
+the old internal bitmap IDs.
+
+Added the following to ZScript:
+	bool Game->SkipF6 : This skips over display of the save/continue/retry MENU
+		when the player pressed F6, but it still gives them the 'Exit, Confirm (Y/N)' DIALOGUE.
+
+	Game->ShowContinueScreen() : As Game->ShowSaveScreen(), but gives all three
+		choices (SAVE, CONTINUE, RETRY).
+	( ZoriaRPG, 25th December, 2018 )
+	
+Probably fixed a bug in Game->Continue(), where pressing F6 would not show
+the continue screen during play, if you call this.
+Added mapdata->isSolid(x,y)
+Added Game->Continue() to ZScript. This should function
+	in the same way as Game->End(), but it should cause the game to
+	resume as with the Continue option in the normal game over menu.
+
+Added bool Game->SkipCredits to ZScript. This should cause the game
+	to skip over the WIn Game credits, but still advance the quest, normally.
+
+Fixed Link OnDeath and OnWin Clear Script Draws 
+	Script Draws do not remain static during Link's onWin
+	and onDeath scripts, and now clear normally, every frame.
+	This prevents stuff such as DrawTile() from persisting across multiple
+	frames.
+
+Re-enable eweapon scripts after some lweapon script modifications.
+
+Fix uninitialised var in ZASM AUDIOVOLUME
+Disabled an extraneous call to the lweapon script engine.
+
+LWeapon Scripts: Swords Can Run Scripts & Fix Arrows 
+EXPERIMENTAL!!
+	The melee part of a sword item will run a script if the value
+	of Attributes[9] for its parent item == 50. (Misc10 == 50)
+	This also fixes arrows not running scripts.
+
+Fix potentially uninitialised vars in Link.cpp. (Not my fault!!)
+	( ZoriaRPG, 24th December 2018 )
+
+Rename Screenshot Base Filename from zelda%03d.png, to zc_quest_screenshot%03d.png
+Now showfps does textprint_ex when (frame&1), whic increased the
+	running speed of ZC by about 12.5%.
+Moved the calls to run LWeapon Scripts back into Lwpns.animate(),
+	and removed the deadstate restriction.
+	( ZoriaRPG, 23rd December, 2018 )
+
+//Alpha 11
+Setters for Screen->LayerScreen[] and mapdata->LayerScreen[] were not
+	properly vbounded. 
+	^ They needed to be bounded between 0 and MAPSCRS. (Should this be MAPSCRS-1?)
+	I also fixed the order of %s and %d parameters in some macros.
+
+Fixed more mapdata macros issuing an error for map 1, screen 0 when
+	ri->mapsref == 0.
+
+Changed the behaviour of Screen->LayerMap[], LayerScreen[], and LayerOpacity[]
+	so that the array index matches the layer ID used in the editor.
+	^ Thus, Screen->LayerMap[1] is Layer 1, not Layer 2.
+
+	I copied this to mapdata->LayerMap[], LayerScreen[], and LayerOpacity[]
+
+	I also added a version check to the MACRO, so that quests made in 2.54, or older
+		builds of 2.55 (V_FFSCRIPT < 11 ) will work normally, although if the questmaker
+		re-saves them, then they will need to update their scripts!
+
+Fixed a bounds check wrror for mapdata:
+	map 1, Screen 0, is ri->mapsref 0, so we can't check != 0!!!
+Fixed getters for all of the mapdata->Combo[] arrays.
+Fixed issues with npc scripts, causing stack corruption:
+	They use the same *ri mechanic as lweapon acripts, but they run in
+	enemy::animate(), which is itself a sort of proof that weapon scripts
+	could probably also run from animate(), now.
+Added checks for do_animation to guys.cpp.
+	Segmented boss enemies do not obey do_animation. Script your own
+	segmented bosses using the new enemy types.
+Note: Added a note about enemy::drawblock()
+Enable do_animation for weapons.
+
+Add scriptflip and scripttile to sprite::draw():
+	sprite::draw(), sprite::old_draw(), sprite::draw8(), and sprite::drawcloaked()
+	will all check scripttile and scriptflip, and use those values in the place of
+	tile and flip, if those values are > -1.
+
+	I'm trying this for now. I don't think that it will suffice, though, because
+	ZC is still making internal adjustments to those tiles.
+
+	I may add a bool->OverrideEngineTileManagement or something, so that ZScript
+	users can have the benefit of either option.
+
+Reverted weapons.cpp to immediately before the last commit.
+	We'll do this in sprite::draw(), instead.
+
+Added scripttile and scriptflip to all sprites. Both init at -1.
+	Added running code for scripttile to weapons.cpp.
+
+	Added the following instructions to ZScript:
+	dmapdata->Script, dmapdata->InitD[8]
+	lweapon->ScriptFlip, lweapon->ScriptTile
+	eweapon->ScriptFlip, eweapon->ScriptTile
+	npc->ScriptFlip, npc->ScriptTile
+
+	VBounded all ScriptTile (including Link!) setters between -1 and NEWMAXTILES-1.
+	VBounded all ScriptFlip (including Link!) setters between -1 anbd 256.
+
+	VBounded npc->Script, lweapon->Script, and eweapon->Script between 0 and NUMSCRIPT-1.
+	( ZoriaRPG, 23rd December, 2018 )
+	
+//Alpha 10
+Renamed entry [0] in Emulation Menu to 'Flip-Flip Cancel and Wave Warps'
+	Disabled this option if the current quest was made in 2.10 or
+	( ZoriaRPG, 22nd December, 2018 )
+	
+Added a new menu to ZC Player: 'Emulation'. 
+	This is used for enabling/disabling certain internal behaviour, when playing some
+	legacy quests where it is desirable to have this option. 
+	( ZoriaRPG, 21st December, 2018 )
+	
+I forgot to save the weappon InitD[] in guys version 40.
+	V_GUYS is now 41.
+	InitD[] valuesvare saved, and read by the quest loaders.
+	Weapon InitD[] is properly loaded into the weapon, and forwarded
+	to ffscript.
+Some eweapon types were checking if ScriptGenerated, and that check only applies to one lweapon type.
+	I removed the extraneous check.
+	( ZoriaRPG, 21st December, 2018 )
+
+//Alpha 9
+Fixed crashes when creating lweapons, caused by trying to read
+	enemy* for parentID of lweapons (weapon scriot read for eweapon scripts).
+Fixed Link Death and Win scripts to run at the proper times.
+Link's onDeath script, and Link's onWin script, can both run
+	for multiple frames.
+
+//Alpha 8
+Fix when Link's Init script runs.
+	It now runs after Link.init(), but before setting his entry points
+	and before the opening wipe.
+	This ensures that any changes that the init script executes,
+	such as setting Link->Invisible, aren't seen by the player;
+	and that Screen->EntryX, and Screen->EntryY have the correct
+	coordinates at the start of the game, if Link's init script sets these.
+
+If the user clears an initD label to a blank link, it will reset to 
+	the default value of 'InitD[%d]'.
+Added DMap scripts, in entirety.
+
+Added the following variables and arrays to ZScript:
+	npc->Script
+	npc->initD[8]
+	lweapon->Script
+	lweapon->InitD[8]
+	eweapon->Script
+	eweapon->InitD[8]
+	npcdata->Script
+	npcdata->InitD[8]
+	npcdata->WeaponScript
+	npcdata->WeaponInitD[8]
+	itemdata->WeaponScript
+	itemdata->WeaponInitD[8]
+
+	Itemdata was alredy in the system, as were a few of these, but
+	I completed the set. I renamed WeaponD to WeaponInitD to prevent confusion.
+Added EWeapon Scripts to ZQuest and to the ZC Player
+	Added vars to npcs for the weaponscript,m the initD, and for the InitA.
+	Added the Enemy Editor dialogue data to set the script and the script InitD.
+	Added the code to transfer data from the guys struct to the weapon, when the weapon is generated.
+	Added the script control code in ffscript.cpp.
+	
+	EWeapon Scripts: Make them functional. 
+		Added code to transfer the script ID from
+		the guys struct to the weapon.
+	Added the code that causes the script to run.
+	EWeapon Scripts: Add vars to guys.h/cpp and initialise them.
+	EWeapon Scripts: Add eweapon script and related fields to the Enemy Editor.
+	EWeapon Scripts: Add weaponscript, weap_initiald and weap_initiala to guys.
+	( ZoriaRPG, 20th December, 2018 )
+
+Fixed some missing calls to vbound in ffscript.cpp.
+Fixed a memory leak caused by not freeing memory used for tile allocation.
+	( Peter Hull, 19th December, 2018 )
+
+//Alpha 7
+Added the following script types to the 'Compile ZScript' dialogue in ZQuest:
+	eweapon, link, dmapdata (DMap), screendata (Screen)
+	You can compile all of these, and assign them to slots.
+
+Installed Link scripts into ZC, and expanded their number.
+	They work in a similar manner to global scripts, and may call Waitdraw().
+	At present, these are the viable slots:
+		Init (1)
+		Active (2)
+		onDeath (3)
+		onWin (4)
+	Slots 1, 3 and 4 can run for only one frame at this time.
+	Increased V_FFSCRIPT to '11'.
+	( ZoriaRPG, 19th December, 2018 )
+	
+//Alpha 6
+Fixed Ganon's HP in 1st.qst and in 2nd.qst.
+Fix creation and blitting of user bitmaps.
+Fix a number of fallthrough cases in ffscript.cpp.
+Fix fallthrough cases in Screen->DrawBitmapEx() and bitmap->Blit()
+Fix an overflow condition in ffasm.cpp where the command string tempvar
+	char array was too small. (Changed from tempvar[20] to tempvar[80]).
+	( ZoriaRPG, 18th December, 2018 )
+
+//Alpha 5
+
+Vers: Update to Alpha 5
+Remove traces for LWeapon Scripts
+	( ZoriaRPG, 17th December, 2018 )
+	
+LWeapon Scripts: Associate refInfo with each sprite
+	This fixes stability issues with them.
+	( Peter Hull, 17th December, 2018 )
+	
+Skip over ID3 metadata to ensure that most MP3 files play.
+	*Copied from 2.53b27
+Lib: Update csound.lib for MSVC (MP3 fixes)
+Fix where vires create new enemies when they split, and the
+	distances that they can slide.
+	*Copied from 2.53b27.
+	( ZoriaRPG, 16th December, 2018 )
+	
+Try memsetting the sprite stack to 0xFFFF
+Fix: Uninitialised weapon values.
+	( ZoriaRPG, 13th December, 2018 )
+
+Added some traces
+
+Fixed crash, it seems. needs further testing.
+	Sometimes some lweapon types still refuse to run their script, despite
+	everything seeming to be correct. I suspect some cleanup code is running
+	that should not run.
+
+Fixed issues with incorrect or corrupt stacks, but now scripts
+	can crash. it seems as if ri->lwpn and w->getUID() can be mismatched???
+LWeapon Scripts: Try getting data by UID instead of by Index
+	( ZoriaRPG, 11th December, 2018 )
+
+File: Add screenWipe.cpp from 2.50.2
+	( ZoriaRPG, 10th December, 2018 )
+	
+LWeapon Scripts: Split Up Animate and Run Script
+Refactored lweapon scripts.
+
+	Stacks are no longer memset other than on creation.
+	They now use doscript = 1 to help determine if they should run.
+
+	Issues: bait once again doesn't want to run scripts once it times out on
+	a screen.
+
+	Sword beams still cause stack underflows, but magic seems to be fine.
+	( ZoriaRPG, 9th December, 2018 )
+	
+	
+//Alpha 4
+
+Added item->Family and item->Level to ZScript.
+
+Ensured that all classes have ->Family and ->Type. Both do the same thing.
+	Weapons use ->Family, ->Type, and ->ID in the same manner.
+
+Set Labels on New Enemy Types: Skipping this would have caused crashes.
+
+Module: Added Default Strings for New Enemy Types to ZQuest
+Modules: Added new npc family fields to the modules.
+
+Add New NPC Types for Scripts
+	Changelog: Added 20 generic npc types to the system.
+	Added 10 'friendly' npc types for RPG-style guys.
+Updated build details to Alpha 4.
+
+Implement LWeapon Scripts + Editor Improvements
+LWeapon Scripts Fix: Stop Swords from Running Scripts 
+	Prevent swords from running scripts (for the present), and
+	try to forward the script to the beam.
+
+Disabled calls to al_trace() in module loading, lweapon scripts,
+	npc scripts, and date & time code.
+
+LWeapon Scripts: Seem to Have Fixed issues with lweapon script stacks.
+Clear script data in order.
+Try a different saving order.
+FFScript: Add some disassembly information to lweapon scripts. 
+	LW Scripts believe that they have all sorts of invalid commands. Something
+	awful is happening with their memory map!
+
+LWeapon Scripts: Add code to run them.
+LWeapon Scripts: Fix lw->InitD[] in ZScript
+LWeapon Scripts: Add lw->Script and lw->InitD[] to ZScript
+LWeapon Scripts: Add a way to determine if a weapon is an LWeapon, and
+	forward script data to weapons.
+
+You can set the Script, the InitD, and the InitD Labels for
+	LWeapon Scripts in the Item Editor. 
+	ZQuest will save and retain the data.
+
+Began adding lweapon scripts to ZC and to ZQuest.
+
+Added Item Script InitD Labels to the ZQuest Item Editor UI.
+Moved the NPC InitD fields all under the 'Action Script' tab.
+
+	The selection for the script, and all of its InitD values, are now on one tab.
+
+Renamed 'InitD' tab to 'Weapon Script' It is blank at this time.
+
+Started adding the same form of editable fields for Item Script
+	InitD to ZQuest.
+
+	Added vars in preparation for item sprite scripts.
+
+	Bumped V_ITEMS by +1.
+	( ZoriaRPG, 7th December, 2018 )
+	
+Added the following to NPCData:
+	npcdata->GetInitDLabel(int array[], int d_index)
+	npcdata->MatchInitDLabel("label", d_index)
+	npcdata->InitD[8]
+	npcdata->Script
+
+I also inserted a change into the FFScript.cpp engine, for npc scripts, so
+	that when a script exits, it does not set ri->npcref to anything.
+
+	I think that may have been the cause of some earlier, erratic behaviour in npc scripts.
+
+NPC Editor InitD Labels Can Be Changed 
+	You can now set custom labels for the eight InitD args used by
+	npc scripts. These are saved on a per-npc basis, and set in the enemy editor.
+
+	V_GUYS is now 39, and I prepared guydata for npc weapon InitD labels, too.
+	( ZoriaRPG, 6th December, 2018 )
+	
+Added New npc-> Functions for Use by NPC Scripts:
+	bool isDead() //Returns if the NPC is dead, or dying
+	bool CanSlide() //Checks if the npc can be knocked back
+	bool Slide() //Engine knockback
+	void Remove() //Instantly kills an npc
+	void StopBGSFX() //Stops the background sounds that the npc is generating.
+	void Attack() //Causes the npc to attack with its weapon.
+	void NewDir(int arr[]) //The npc chooses a new direction.
+	//Uses an array literal for its args.
+	void NewDir8(int arr[]) //As NewDir(), but 8-directions
+	void ConstantWalk(int arr[]) //Causes the npc to walk.
+	//Uses an array literal for its args.
+	void ConstantWalk8(int arr[]) //As ConstantWalk(), but 8-dir
+	void VariableWalk(int arr[])
+	void VariableWalk8(int arr[])
+	void HaltingWalk(int arr[])
+	void HaltingWalk8(int arr[])
+	void FloatingWalk(int arr[])
+	bool LinkInRange(int dist_in_pixels) //returns true if Link is within
+	//'range' pixels of the enemy
+	bool CanMove(int array[]) //Returns true if the npc can move in a
+	//given direction.
+	//Uses an array literal for varying args.
+	//Overloaded for a number of options.
+	bool SimulateHit(int array[]) //Simulates hitting the npc with a weapon,
+	//another sprite, or an arbitrary set of values passed as an
+	//overloaded array literal.
+	int LinedUp(int range, bool dir8) Checks if enemy is lined up with Link.
+	//If so, returns direction Link is at as compared to enemy.
+	npc Create(int array[]) //Similar to Screen->CreateNPC(), except:
+	// (1) It uses an arry literal for its args, with varying size.
+	// You can either create an npc onnly by its ID, or you can do
+	// that and set its spawn coordinates at the same time.
+	// (2) It works based on an existing pointer, such as:
+	// npc n; n->Create{args});
+	//Returns -1 if not lined up. Range is inclusive.
+	void BreathAttack(bool seeklink) //Fires the breath weapon set to the enemy.
+	bool Collision(int obj_type, untyped obj_pointer)
+	//Returns if either an object is collding with the npc,
+	//or if an arbitrary set of coordinates would collide.
+
+Fixed crash when creating LW_REFMAGIC by script.
+	( ZoriaRPG, 5th December, 2018 )
+	
+Fixed the accidental removal of itemdata->Getname()
+Began to add new npc functions for use by npc scripts.#
+	( ZoriaRPG, 4th December, 2018 )
+
 //Alpha 3
 
 Fix crash on calling any decorations sprite, due to tryint to initialise

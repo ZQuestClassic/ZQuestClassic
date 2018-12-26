@@ -33,6 +33,7 @@
 extern FFScript FFCore;
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
+extern word link_doscript;
 
 extern LinkClass   Link;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -174,6 +175,7 @@ void endingpal()
 
 void ending()
 {
+	
     /*
       *************************
       * WIN THE GAME SEQUENCE *
@@ -210,11 +212,16 @@ void ending()
     chainlinks.clear();
     decorations.clear();
     
-    music_stop();
-    kill_sfx();
-    sfx(WAV_ZELDA);
-    Quit=0;
     
+    kill_sfx();
+    
+    Quit=0;
+    //do
+	//{
+		
+	//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+	//	FFCore.Waitframe();
+	//}while(link_doscript);
     game->set_cheat(game->get_cheat() | (cheat>1)?1:0);
     
     draw_screen_clip_rect_x1=0;
@@ -226,6 +233,13 @@ void ending()
     
     for(int f=0; f<365; f++)
     {
+	script_drawing_commands.Clear();
+	if ( link_doscript ) 
+	{
+		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+		--f; load_control_state(); goto adv;
+	}
+	if ( f == 0 ) { sfx(WAV_ZELDA); music_stop(); }
         if(f==363)
         {
             //363  WIPE complete, DOT out, A/B items out
@@ -252,7 +266,7 @@ void ending()
             draw_screen_clip_rect_x2-=8;
             //draw_screen_clip_rect_show_guys=true;
         }
-        
+        adv:
         draw_screen(tmpscr);
         advanceframe(true);
         
@@ -262,6 +276,8 @@ void ending()
     clear_bitmap(msgdisplaybuf);
     draw_screen(tmpscr);
     advanceframe(true);
+    
+    if ( FFCore.skip_ending_credits ) goto credits_skip;
     
     draw_screen_clip_rect_x1=0;
     draw_screen_clip_rect_x2=255;
@@ -296,6 +312,8 @@ void ending()
     
     for(int f=408; f<927; f++)
     {
+	//Z_scripterrlog("f = %d and link_doscript = %d\n", f, link_doscript);
+	//if ( link_doscript ) ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
         /*
           668  LINK out, ZELDA out
           669  LINK in (TRIFORCE overhead), ZELDA in (TRIFORCE overhead)
@@ -567,6 +585,8 @@ void ending()
     }
     while(!rSbtn());
     
+    credits_skip:
+    
     if(game->get_quest()>0 && game->get_quest()<=5)
     {
         inc_quest();
@@ -611,6 +631,7 @@ void ending()
         zcmusic_unload_file(zcmusic);
         zcmusic = NULL;
     }
+    FFCore.skip_ending_credits = 0;
     
 //  setPackfilePassword(datapwd);
     load_quest(game);

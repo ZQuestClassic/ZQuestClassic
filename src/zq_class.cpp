@@ -6753,6 +6753,18 @@ int writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_
             {
                 new_return(30);
             }
+	    if(!p_iputw(DMaps[i].script,f))
+            {
+                new_return(31);
+            }
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(DMaps[i].initD[q],f))
+	        {
+			new_return(32);
+		}
+		    
+	    }
         }
         
         if(writecycle==0)
@@ -7703,6 +7715,47 @@ int writeitems(PACKFILE *f, zquestheader *Header)
 		    new_return(84);
 		}
 		
+		//InitD[] labels
+		for ( int q = 0; q < 8; q++ )
+		{
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].initD_label[q][w],f))
+				{
+					new_return(85);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
+				{
+					new_return(86);
+				} 
+			}
+			for ( int w = 0; w < 65; w++ )
+			{
+				if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
+				{
+					new_return(87);
+				} 
+			}
+			if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
+			{
+				new_return(88);
+			} 
+		}
+		for ( int q = 0; q < 2; q++ )
+		{
+			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
+			{
+				new_return(89);
+			} 
+			
+		}
+		if(!p_iputw(itemsbuf[i].sprite_script,f))
+		{
+			new_return(90);
+		} 
 		
 	    
         }
@@ -9861,9 +9914,21 @@ int writeguys(PACKFILE *f, zquestheader *Header)
 			{
 				if(!p_putc(guysbuf[i].weapon_initD_label[q][w],f))
 				{
-					new_return(95);
+					new_return(96);
 				} 
 			}
+	    }
+	    if(!p_iputw(guysbuf[i].weaponscript,f))
+            {
+                new_return(97);
+            }
+	    //eweapon initD
+	    for ( int q = 0; q < 8; q++ )
+	    {
+		if(!p_iputl(guysbuf[i].weap_initiald[q],f))
+		{
+			new_return(98);
+		}
 	    }
 		
         }
@@ -10414,6 +10479,8 @@ int write_one_subscreen(PACKFILE *f, zquestheader *Header, int i)
 extern ffscript *ffscripts[NUMSCRIPTFFC];
 extern ffscript *itemscripts[NUMSCRIPTITEM];
 extern ffscript *guyscripts[NUMSCRIPTGUYS];
+extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
+extern ffscript *wpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 extern ffscript *globalscripts[NUMSCRIPTGLOBAL];
@@ -10494,7 +10561,7 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         
         for(int i=0; i<NUMSCRIPTWEAPONS; i++)
         {
-            int ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
+            int ret = write_one_ffscript(f, Header, i, &wpnscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -10537,6 +10604,17 @@ int writeffscript(PACKFILE *f, zquestheader *Header)
         }
 	
         for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+        {
+            int ret = write_one_ffscript(f, Header, i, &lwpnscripts[i]);
+            fake_pack_writing=(writecycle==0);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+	
+	for(int i=0; i<NUMSCRIPTWEAPONS; i++)
         {
             int ret = write_one_ffscript(f, Header, i, &ewpnscripts[i]);
             fake_pack_writing=(writecycle==0);
@@ -10946,7 +11024,7 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **scri
     
     for(int j=0; j<num_commands; j++)
     {
-        al_trace("Current FFScript XCommand Being Written: %d\n", (*script)[j].command);
+        
         if(!p_iputw((*script)[j].command,f))
         {
             new_return(7);
@@ -10958,6 +11036,7 @@ int write_one_ffscript(PACKFILE *f, zquestheader *Header, int i, ffscript **scri
         }
         else
         {
+		//al_trace("Current FFScript XCommand Being Written: %d\n", (*script)[j].command);
             if(!p_iputl((*script)[j].arg1,f))
             {
                 new_return(8);

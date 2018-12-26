@@ -92,7 +92,7 @@ int strike_hint_timer=0;
 int strike_hint;
 int slot_arg, slot_arg2;
 char *SAVE_FILE = (char *)"zc.sav";
-
+int previous_DMap = -1;
 CScriptDrawingCommands script_drawing_commands;
 
 using std::string;
@@ -383,6 +383,7 @@ ffscript *globalscripts[NUMSCRIPTGLOBAL];
 
 //If only...
 ffscript *guyscripts[NUMSCRIPTGUYS];
+ffscript *wpnscripts[NUMSCRIPTWEAPONS];
 ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
 ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *linkscripts[NUMSCRIPTLINK];
@@ -394,7 +395,11 @@ extern refInfo linkScriptData;
 extern refInfo screenScriptData;
 extern refInfo dmapScriptData;
 extern word g_doscript;
+extern word link_doscript;
+extern word dmap_doscript;
 extern bool global_wait;
+extern bool link_waitdraw;
+extern bool dmap_waitdraw;
 
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
@@ -458,6 +463,13 @@ void initZScriptGlobalRAM()
     g_doscript = 1;
     globalScriptData.Clear();
     clear_global_stack();
+}
+
+void initZScriptLinkScripts()
+{
+    link_doscript = 1;
+    linkScriptData.Clear();
+    clear_link_stack();
 }
 
 dword getNumGlobalArrays()
@@ -964,6 +976,18 @@ void Z_scripterrlog(const char * const format,...)
         {
         case SCRIPT_GLOBAL:
             al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].second.c_str());
+            break;
+	
+	case SCRIPT_LINK:
+            al_trace("Link script %u (%s): ", curScriptNum+1, linkmap[curScriptNum].second.c_str());
+            break;
+	
+	case SCRIPT_LWPN:
+            al_trace("LWeapon script %u (%s): ", curScriptNum+1, lwpnmap[curScriptNum].second.c_str());
+            break;
+	
+	case SCRIPT_NPC:
+            al_trace("LWeapon script %u (%s): ", curScriptNum+1, npcmap[curScriptNum].second.c_str());
             break;
             
         case SCRIPT_FFC:
@@ -1697,7 +1721,7 @@ int init_game()
         resetItems(game,&zinit,true);
     }
     
-    currdmap = warpscr = worldscr=game->get_continue_dmap();
+    previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
     init_dmap();
     
     if(game->get_continue_scrn() >= 0x80)
@@ -1755,6 +1779,8 @@ int init_game()
     
     initZScriptArrayRAM(firstplay);
     initZScriptGlobalRAM();
+    initZScriptLinkScripts();
+    FFCore.initZScriptDMapScripts();
     
     //Run the init script or the oncontinue script with the highest priority.
     //GLobal Script Init ~Init
@@ -1781,9 +1807,15 @@ int init_game()
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
     FFCore.init(); ///Initialise new ffscript engine core. 
     Link.init();
-    Link.resetflags(true);
-    Link.setEntryPoints(LinkX(),LinkY());
-    if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); }
+    if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); } //Do this prior to the Link init script, so that if the 
+								//init script makes him invisible, he stays that way. 
+    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
+								//positional data, sprites, tiles, csets, invisibility states, and the like.
+    initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script. 
+    Link.resetflags(true); //This should probably occur after running Link's init script. 
+    Link.setEntryPoints(LinkX(),LinkY()); //This should be after the init script, so that Link->X and Link->Y set by the script
+					//are properly set by the engine.
+    
     
     copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
     loadfullpal();
@@ -1868,10 +1900,12 @@ int init_game()
     {
         memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
     }
     else
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
+        //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
     }
     
     if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
@@ -1894,6 +1928,8 @@ int init_game()
         
     
     initZScriptGlobalRAM(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+    initZScriptLinkScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+    FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     ffscript_engine(true);  //Here is a much safer place...
     
     return 0;
@@ -2008,6 +2044,8 @@ int cont_game()
     }
     
     initZScriptGlobalRAM();
+    initZScriptLinkScripts();
+    FFCore.initZScriptDMapScripts();
     return 0;
 }
 
@@ -2690,6 +2728,20 @@ void do_dcounters()
 
 void game_loop()
 {
+	
+	//for ( int qq = 0; qq < 256; qq++ )
+    //{
+	    
+	// al_trace("ZC Init: LWeapon Script (0), Instruction (%d) is: %d\n", qq,lwpnscripts[0][qq].command); 
+	    
+    //}
+    //for ( int qq = 0; qq < 256; qq++ )
+    //{
+	    
+	// al_trace("ZC Init: LWeapon Script (1), Instruction (%d) is: %d\n", qq,lwpnscripts[1][qq].command); 
+	    
+    //}
+    
     //clear Link's last hits 
     //for ( int q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing these here makes checking them fail both before and after waitdraw.
     //Link.ClearhitLinkUIDs();
@@ -2764,6 +2816,14 @@ void game_loop()
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
     }
+    if(!freezemsg && link_doscript)
+    {
+        ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+    }
+    if(!freezemsg && dmap_doscript)
+    {
+        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+    }
     
     if(!freeze && !freezemsg)
     {
@@ -2796,6 +2856,7 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "Ewpns.animate()\n");
 	#endif
         Ewpns.animate();
+	FFCore.eweaponScriptEngine();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is setting: %s\n", "checklink=true()\n");
 	#endif
@@ -2829,7 +2890,9 @@ void game_loop()
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
 	#endif
+	//perhaps add sprite.waitdraw, and call sprite script here too?
         Lwpns.animate();
+	//FFCore.lweaponScriptEngine();
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
 	#endif
@@ -2879,6 +2942,16 @@ void game_loop()
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
+    }
+    if ( link_waitdraw )
+    {
+	    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+	    link_waitdraw = false;
+    }
+    if ( dmap_waitdraw )
+    {
+        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+	dmap_waitdraw = false;
     }
     
     
@@ -3049,6 +3122,11 @@ void game_loop()
             playing_field_offset=56;
         }
         
+	if ( previous_DMap != currdmap )
+	{
+		FFCore.initZScriptDMapScripts();
+		previous_DMap = currdmap;
+	}
         // Other effects in zc_sys.cpp
     }
     
@@ -4151,13 +4229,8 @@ int main(int argc, char* argv[])
     
     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
     {
-        ewpnscripts[i] = new ffscript[1];
-        ewpnscripts[i][0].command = 0xFFFF;
-    }
-    for(int i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        lwpnscripts[i] = new ffscript[1];
-        lwpnscripts[i][0].command = 0xFFFF;
+        wpnscripts[i] = new ffscript[1];
+        wpnscripts[i][0].command = 0xFFFF;
     }
     
     for(int i=0; i<NUMSCRIPTSCREEN; i++)
@@ -4178,11 +4251,24 @@ int main(int argc, char* argv[])
         linkscripts[i][0].command = 0xFFFF;
     }
     
-    for(int i=0; i<NUMSCRIPTSDMAP; i++)
+     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        lwpnscripts[i] = new ffscript[1];
+        lwpnscripts[i][0].command = 0xFFFF;
+    }
+     for(int i=0; i<NUMSCRIPTWEAPONS; i++)
+    {
+        ewpnscripts[i] = new ffscript[1];
+        ewpnscripts[i][0].command = 0xFFFF;
+    }
+    
+     for(int i=0; i<NUMSCRIPTSDMAP; i++)
     {
         dmapscripts[i] = new ffscript[1];
         dmapscripts[i][0].command = 0xFFFF;
     }
+    
+    
     
     //script drawing bitmap allocation
     zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
@@ -4485,6 +4571,8 @@ int main(int argc, char* argv[])
             for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
             initZScriptGlobalRAM(); //Should we not be calling this AFTER running the exit script!!
+            initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
+            FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
 		
 	    //Run Global script OnExit
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
@@ -4529,7 +4617,12 @@ int main(int argc, char* argv[])
             for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
             initZScriptGlobalRAM();
+            initZScriptLinkScripts(); //get ready for the onWin script
+            FFCore.initZScriptDMapScripts();
 	    //Run global script OnExit
+            //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN); //runs in ending()
+	    //while(link_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
+		//We need a special routine for win and death link scripts. Otherwise, they work. 
             ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
 		
 	    
@@ -4590,7 +4683,7 @@ quick_quit:
     Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
     
     __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
-    
+    skipcont = 0;
     if(forceExit) //fix for the allegro at_exit() hang.
         exit(0);
         

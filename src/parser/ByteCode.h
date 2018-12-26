@@ -1064,8 +1064,38 @@ using namespace std;
 #define NPCDATAINITD 	999
 #define NPCDATASCRIPT 	1000
 #define NPCMATCHINITDLABEL 	1001
+#define LWPNSCRIPT 	1002
+#define LWPNINITD 	1003
+#define ITEMFAMILY 	1004
+#define ITEMLEVEL 	1005
 
-#define LAST_BYTECODE 		1002
+#define EWPNSCRIPT			1006	
+#define EWPNINITD			1007	
+#define NPCSCRIPT			1008	
+#define DMAPSCRIPT			1009	
+#define DMAPINITD			1010	
+#define SCREENSCRIPT			1011	
+#define SCREENINITD			1012	
+#define LINKINITD			1013	
+#define NPCDATAWEAPONINITD 		1014
+#define NPCDATAWEAPONSCRIPT 	1015
+
+#define NPCSCRIPTTILE 		1016
+#define NPCSCRIPTFLIP 		1017
+#define LWPNSCRIPTTILE 		1018
+#define LWPNSCRIPTFLIP 		1019
+#define EWPNSCRIPTTILE 		1020
+#define EWPNSCRIPTFLIP 		1021
+
+#define LINKENGINEANIMATE 		1022
+#define NPCENGINEANIMATE 		1023
+#define LWPNENGINEANIMATE 		1024
+#define EWPNENGINEANIMATE 		1025
+
+#define SKIPCREDITS 		1026
+#define SKIPF6 			1027
+
+#define LAST_BYTECODE 		1028
 
 //END OF BYTECODE
 
@@ -2798,6 +2828,17 @@ namespace ZScript
 		}
 	};
 
+	class OIsSolidMapdata : public UnaryOpcode
+	{
+	public:
+		OIsSolidMapdata(Argument *A) : UnaryOpcode(A) {}
+		string toString();
+		Opcode *clone()
+		{
+			return new OIsSolidMapdata(a->clone());
+		}
+	};
+
 	class OSetSideWarpRegister : public Opcode
 	{
 	public:
@@ -3443,6 +3484,26 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OEnd();
+		}
+	};
+	
+	class OGameContinue : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OGameContinue();
+		}
+	};
+
+	class OShowF6Screen : public Opcode
+	{
+	public:
+		string toString();
+		Opcode *clone()
+		{
+			return new OShowF6Screen();
 		}
 	};
 

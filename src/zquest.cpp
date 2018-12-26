@@ -317,6 +317,7 @@ BITMAP *hw_screen, *scrtmp;
 ffscript *ffscripts[NUMSCRIPTFFC];
 ffscript *itemscripts[NUMSCRIPTITEM];
 ffscript *guyscripts[NUMSCRIPTGUYS];
+ffscript *wpnscripts[NUMSCRIPTWEAPONS];
 ffscript *lwpnscripts[NUMSCRIPTWEAPONS];
 ffscript *ewpnscripts[NUMSCRIPTWEAPONS];
 ffscript *globalscripts[NUMSCRIPTGLOBAL];
@@ -12656,6 +12657,15 @@ static int editdmap_flags_list[] =
     110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,127,128,129,-1
 };
 
+static int editdmap_scripts_list[] =
+{
+    // dialog control number
+	130,131,132,133,134,135,136,137,138,139,
+	140,141,142,143,144,145,146,
+	147, 
+	-1
+};
+
 static TABPANEL editdmap_tabs[] =
 {
     // (text)
@@ -12665,6 +12675,7 @@ static TABPANEL editdmap_tabs[] =
     { (char *)"Maps",           0,           editdmap_subscreenmaps_list,  0,  NULL },
     { (char *)"Flags",          0,           editdmap_flags_list,          0,  NULL },
     { (char *)"Disable",        0, 		   editdmap_disableitems_list,   0,  NULL },
+    { (char *)"Scripts",        0, 		   editdmap_scripts_list,   0,  NULL },
     { NULL,                     0,           NULL,                         0,  NULL }
 };
 
@@ -12714,10 +12725,27 @@ static ListData dmaptracknum_list(dmaptracknumlist, &font);
 static ListData type_list(typelist, &font);
 static ListData gotomap_list(gotomaplist, &font);
 
+
+const char *dmapscriptdroplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = bidmaps_cnt;
+        return NULL;
+    }
+    
+    return bidmaps[index].first.c_str();
+}
+
+
+//droplist like the dialog proc, naming scheme for this stuff is awful...
+static ListData dmapscript_list(dmapscriptdroplist, &pfont);
+
+
 static DIALOG editdmap_dlg[] =
 {
     // (dialog proc)                (x)     (y)     (w)     (h)     (fg)                    (bg)                 (key)     (flags)   (d1)           (d2)   (dp)                                                   (dp2)                 (dp3)
-    {  jwin_win_proc,                 0,      0,    312,    256,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    D_EXIT,      0,             0, (void *) "DMap Editor",                                NULL,                 NULL                  },
+    {  jwin_win_proc,                 0,      0,    320,    256,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    D_EXIT,      0,             0, (void *) "DMap Editor",                                NULL,                 NULL                  },
     {  jwin_button_proc,             89,    218,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "OK",                                         NULL,                 NULL                  },
     {  jwin_button_proc,            164,    218,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        27,    D_EXIT,      0,             0, (void *) "Cancel",                                     NULL,                 NULL                  },
     {  jwin_text_proc,               10,     29,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Name: ",                                     NULL,                 NULL                  },
@@ -12872,7 +12900,42 @@ static DIALOG editdmap_dlg[] =
     {  jwin_check_proc,              12,    175,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Enable Sideview on All Screens",      NULL,                 NULL                  },
     {  jwin_check_proc,              12,    185,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Layer 3 is Background on All Screens",      NULL,                 NULL                  },
     {  jwin_check_proc,              12,    195,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Layer 2 is Background on All Screens",      NULL,                 NULL                  },
-   
+    //130
+    /*
+     { jwin_text_proc,       6+10,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
+    { jwin_text_proc,       6+10,   47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D1:", NULL, NULL },
+    { jwin_text_proc,       6+10,   65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D2:", NULL, NULL },
+    { jwin_text_proc,       6+10,   83+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D3:", NULL, NULL },
+    { jwin_text_proc,       6+10,  101+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D4:", NULL, NULL },
+    { jwin_text_proc,       6+10,  119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
+    { jwin_text_proc,       6+10,  137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
+    { jwin_text_proc,       6+10,  155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
+   */
+    //130
+    // If I make it possible to edit these, too, they'd be here. -Z
+    {  jwin_edit_proc,         6+10-4-2,     10+29+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+47+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+65+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+83+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+101+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+119+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+137+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    {  jwin_edit_proc,         6+10-4-2,     10+155+20+3+1,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+    
+    //138
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+29+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+47+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+65+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+83+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,   10+101+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+119+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+137+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,      (90-24)+34+10-4-2,  10+155+20+3+1,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
+    //146
+    { jwin_text_proc,           112+10+20+34+1-4-4-3-2,  10+29+12+7+3+1,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                      NULL,   NULL                  },
+    { jwin_droplist_proc,       112+10+20+34-4-4-3-2,  10+29+20+7+3+1,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &dmapscript_list,                   NULL,   NULL 				   },
+    
+    
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
@@ -12882,6 +12945,28 @@ void editdmap(int index)
     char *tmfname;
     byte gridstring[8];
     static int xy[2];
+	
+	char initdvals[8][13]; //script
+	char initd_labels[8][65];
+	//We'll add this properly int he future, but for now, we will hardcode these.
+	strcpy(initd_labels[0], "InitD[0]");
+	strcpy(initd_labels[1], "InitD[1]");
+	strcpy(initd_labels[2], "InitD[2]");
+	strcpy(initd_labels[3], "InitD[3]");
+	strcpy(initd_labels[4], "InitD[4]");
+	strcpy(initd_labels[5], "InitD[5]");
+	strcpy(initd_labels[6], "InitD[6]");
+	strcpy(initd_labels[7], "InitD[7]");
+	
+	for ( int q = 0; q < 8; q++ )
+	{
+		//al_trace("Enemy Editor: InitD[%d] string for the npc is: %s\n", q, itemsbuf[index].initD_label[q]);
+		//strcpy(weapon_initd_labels[q], itemsbuf[index].weapon_initD_label[q]);
+		editdmap_dlg[130+q].dp = initd_labels[q];
+		//sprintf();
+	    
+	}
+	
     sprintf(levelstr,"%d",DMaps[index].level);
     sprintf(dmapnumstr,"Edit DMap (%d)",index);
     sprintf(compassstr,"%02X",DMaps[index].compass);
@@ -12890,6 +12975,27 @@ void editdmap(int index)
     sprintf(dmap_name,"%s",DMaps[index].name);
     sprintf(dmap_intro,"%s",DMaps[index].intro);
     sprintf(tmusicstr,"%s",DMaps[index].tmusic);
+	
+	//dmap script
+	int j = 0; build_bidmaps_list(); //lweapon scripts lister
+	
+	for(j = 0; j < bidmaps_cnt; j++)
+	{
+		if(bidmaps[j].second == DMaps[index].script -1)
+		{
+			editdmap_dlg[147].d1 = j; 
+			break;
+		}
+	}
+    
+	for ( int q = 0; q < 8; q++ )
+	{
+	    
+		sprintf(initdvals[q],"%.4f",DMaps[index].initD[q]/10000.0);
+	 
+		editdmap_dlg[138+q].dp = initdvals[q];
+	}
+	
     editdmap_dlg[0].dp=dmapnumstr;
     editdmap_dlg[0].dp2=lfont;
     editdmap_dlg[4].dp=dmap_name;
@@ -13143,6 +13249,11 @@ void editdmap(int index)
         DMaps[index].flags = f;
 	
 	DMaps[index].sideview = editdmap_dlg[127].flags & D_SELECTED ? 1:0;
+	DMaps[index].script = bidmaps[editdmap_dlg[147].d1].second + 1; 
+	for ( int q = 0; q < 8; q++ )
+	{
+		DMaps[index].initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+	}
     }
 }
 
@@ -18755,8 +18866,23 @@ script_struct biffs[NUMSCRIPTFFC]; //ff script
 int biffs_cnt = -1;
 script_struct biitems[NUMSCRIPTFFC]; //item script
 int biitems_cnt = -1;
-script_struct binpcs[NUMSCRIPTGUYS]; //item script
+script_struct binpcs[NUMSCRIPTGUYS]; //npc script
 int binpcs_cnt = -1;
+
+script_struct bilweapons[NUMSCRIPTWEAPONS]; //lweapon script
+int bilweapons_cnt = -1;
+
+script_struct bieweapons[NUMSCRIPTWEAPONS]; //eweapon script
+int bieweapons_cnt = -1;
+
+script_struct bilinks[NUMSCRIPTLINK]; //link script
+int bilinks_cnt = -1;
+
+script_struct biscreens[NUMSCRIPTSCREEN]; //screen (screendata) script
+int biscreens_cnt = -1;
+
+script_struct bidmaps[NUMSCRIPTSDMAP]; //dmap (dmapdata) script
+int bidmaps_cnt = -1;
 //static char ffscript_str_buf[32];
 
 void build_biffs_list()
@@ -18844,6 +18970,223 @@ void build_binpcs_list()
             binpcs_cnt = i+1;
 }
 
+
+//lweapon scripts
+void build_bilweapons_list()
+{
+    bilweapons[0].first = "(None)";
+    bilweapons[0].second = -1;
+    bilweapons_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
+    {
+        if(lwpnmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << lwpnmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bilweapons[bilweapons_cnt].first = ss.str();
+        bilweapons[bilweapons_cnt].second = i;
+        bilweapons_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bilweapons_cnt; i<NUMSCRIPTWEAPONS; i++)
+    {
+        bilweapons[i].first="";
+        bilweapons[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bilweapons_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bilweapons_cnt; j++)
+        {
+            if(stricmp(bilweapons[i].first.c_str(),bilweapons[j].first.c_str()) > 0 && strcmp(bilweapons[j].first.c_str(),""))
+                zc_swap(bilweapons[i],bilweapons[j]);
+        }
+    }
+    
+    bilweapons_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+        if(bilweapons[i].first.length() > 0)
+            bilweapons_cnt = i+1;
+}
+
+//eweapon scripts
+void build_bieweapons_list()
+{
+    bieweapons[0].first = "(None)";
+    bieweapons[0].second = -1;
+    bieweapons_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTWEAPONS - 1; i++)
+    {
+        if(ewpnmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << ewpnmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bieweapons[bieweapons_cnt].first = ss.str();
+        bieweapons[bieweapons_cnt].second = i;
+        bieweapons_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bieweapons_cnt; i<NUMSCRIPTWEAPONS; i++)
+    {
+        bieweapons[i].first="";
+        bieweapons[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bieweapons_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bieweapons_cnt; j++)
+        {
+            if(stricmp(bieweapons[i].first.c_str(),bieweapons[j].first.c_str()) > 0 && strcmp(bieweapons[j].first.c_str(),""))
+                zc_swap(bieweapons[i],bieweapons[j]);
+        }
+    }
+    
+    bieweapons_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTWEAPONS; i++)
+        if(bieweapons[i].first.length() > 0)
+            bieweapons_cnt = i+1;
+}
+
+//link scripts
+void build_bilinks_list()
+{
+    bilinks[0].first = "(None)";
+    bilinks[0].second = -1;
+    bilinks_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTLINK - 1; i++)
+    {
+        if(linkmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << linkmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bilinks[bilinks_cnt].first = ss.str();
+        bilinks[bilinks_cnt].second = i;
+        bilinks_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bilinks_cnt; i<NUMSCRIPTLINK; i++)
+    {
+        bilinks[i].first="";
+        bilinks[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bilinks_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bilinks_cnt; j++)
+        {
+            if(stricmp(bilinks[i].first.c_str(),bilinks[j].first.c_str()) > 0 && strcmp(bilinks[j].first.c_str(),""))
+                zc_swap(bilinks[i],bilinks[j]);
+        }
+    }
+    
+    bilinks_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTLINK; i++)
+        if(bilinks[i].first.length() > 0)
+            bilinks_cnt = i+1;
+}
+
+//dmap scripts
+void build_bidmaps_list()
+{
+    bidmaps[0].first = "(None)";
+    bidmaps[0].second = -1;
+    bidmaps_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTSDMAP - 1; i++)
+    {
+        if(dmapmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << dmapmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bidmaps[bidmaps_cnt].first = ss.str();
+        bidmaps[bidmaps_cnt].second = i;
+        bidmaps_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=bidmaps_cnt; i<NUMSCRIPTSDMAP; i++)
+    {
+        bidmaps[i].first="";
+        bidmaps[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < bidmaps_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < bidmaps_cnt; j++)
+        {
+            if(stricmp(bidmaps[i].first.c_str(),bidmaps[j].first.c_str()) > 0 && strcmp(bidmaps[j].first.c_str(),""))
+                zc_swap(bidmaps[i],bidmaps[j]);
+        }
+    }
+    
+    bidmaps_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTSDMAP; i++)
+        if(bidmaps[i].first.length() > 0)
+            bidmaps_cnt = i+1;
+}
+
+//screen scripts
+void build_biscreens_list()
+{
+    biscreens[0].first = "(None)";
+    biscreens[0].second = -1;
+    biscreens_cnt = 1;
+    
+    for(int i = 0; i < NUMSCRIPTSCREEN - 1; i++)
+    {
+        if(screenmap[i].second.length()==0)
+            continue;
+            
+        std::stringstream ss;
+        ss << screenmap[i].second << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        biscreens[biscreens_cnt].first = ss.str();
+        biscreens[biscreens_cnt].second = i;
+        biscreens_cnt++;
+    }
+    
+    // Blank out the rest of the list
+    for(int i=biscreens_cnt; i<NUMSCRIPTSCREEN; i++)
+    {
+        biscreens[i].first="";
+        biscreens[i].second=-1;
+    }
+    
+    //Bubble sort! (doesn't account for gaps between scripts)
+    for(int i = 0; i < biscreens_cnt - 1; i++)
+    {
+        for(int j = i + 1; j < biscreens_cnt; j++)
+        {
+            if(stricmp(biscreens[i].first.c_str(),biscreens[j].first.c_str()) > 0 && strcmp(biscreens[j].first.c_str(),""))
+                zc_swap(biscreens[i],biscreens[j]);
+        }
+    }
+    
+    biscreens_cnt = 0;
+    
+    for(int i = 0; i < NUMSCRIPTSCREEN; i++)
+        if(biscreens[i].first.length() > 0)
+            biscreens_cnt = i+1;
+}
+
+
 void build_biitems_list()
 {
     biitems[0].first = "(None)";
@@ -18886,6 +19229,28 @@ const char *ffscriptlist(int index, int *list_size)
     }
     
     return biffs[index].first.c_str();
+}
+
+const char *lweaponscriptlist(int index, int *list_size)
+{
+    if(index < 0)
+    {
+        *list_size = bilweapons_cnt;
+        return NULL;
+    }
+    
+    return bilweapons[index].first.c_str();
+}
+
+const char *npcscriptlist(int index, int *list_size)
+{
+    if(index < 0)
+    {
+        *list_size = binpcs_cnt;
+        return NULL;
+    }
+    
+    return binpcs[index].first.c_str();
 }
 
 static char itemscript_str_buf[32];
@@ -19010,6 +19375,11 @@ static int as_ffc_list[] = { 4, 5, 6, -1};
 static int as_global_list[] = { 7, 8, 9, -1}; //Why does putting 15 in here not place my message only on the global tab? ~Joe
 static int as_item_list[] = { 10, 11, 12, -1};
 static int as_npc_list[] = { 18, 19, 20, -1}; //npc scripts TAB
+static int as_lweapon_list[] = { 21, 22, 23, -1}; //lweapon scripts TAB
+static int as_eweapon_list[] = { 24, 25, 26, -1}; //eweapon scripts TAB
+static int as_link_list[] = { 27, 28, 29, -1}; //link scripts TAB
+static int as_screen_list[] = { 30, 31, 32, -1}; //screendata scripts TAB
+static int as_dmap_list[] = { 33, 34, 35, -1}; //dmapdata scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -19018,6 +19388,11 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"Global",	 0,         as_global_list, 0, NULL },
     { (char *)"Item",		 0,         as_item_list,   0, NULL },
     { (char *)"NPC",		 0,         as_npc_list,   0, NULL },
+    { (char *)"LWeapon",		 0,         as_lweapon_list,   0, NULL },
+    { (char *)"EWeapon",		 0,         as_eweapon_list,   0, NULL },
+    { (char *)"Link",		 0,         as_link_list,   0, NULL },
+    { (char *)"DMap",		 0,         as_dmap_list,   0, NULL },
+    { (char *)"Screen",		 0,         as_screen_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
@@ -19064,6 +19439,61 @@ const char *assignnpclist(int index, int *list_size)
     return npcmap[index].first.c_str();
 }
 
+const char *assignlweaponlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)lwpnmap.size();
+        return NULL;
+    }
+    
+    return lwpnmap[index].first.c_str();
+}
+
+const char *assigneweaponlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)ewpnmap.size();
+        return NULL;
+    }
+    
+    return ewpnmap[index].first.c_str();
+}
+
+const char *assignlinklist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)linkmap.size();
+        return NULL;
+    }
+    
+    return linkmap[index].first.c_str();
+}
+
+const char *assigndmaplist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)dmapmap.size();
+        return NULL;
+    }
+    
+    return dmapmap[index].first.c_str();
+}
+
+const char *assignscreenlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)screenmap.size();
+        return NULL;
+    }
+    
+    return screenmap[index].first.c_str();
+}
+
 const char *assignffcscriptlist(int index, int *list_size)
 {
     if(index<0)
@@ -19108,6 +19538,61 @@ const char *assignnpcscriptlist(int index, int *list_size)
     return asnpcscripts[index].c_str();
 }
 
+const char *assignlweaponscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)aslweaponscripts.size();
+        return NULL;
+    }
+    
+    return aslweaponscripts[index].c_str();
+}
+
+const char *assigneweaponscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)aseweaponscripts.size();
+        return NULL;
+    }
+    
+    return aseweaponscripts[index].c_str();
+}
+
+const char *assignlinkscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)aslinkscripts.size();
+        return NULL;
+    }
+    
+    return aslinkscripts[index].c_str();
+}
+
+const char *assigndmapscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)asdmapscripts.size();
+        return NULL;
+    }
+    
+    return asdmapscripts[index].c_str();
+}
+
+const char *assignscreenscriptlist(int index, int *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int)asscreenscripts.size();
+        return NULL;
+    }
+    
+    return asscreenscripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
@@ -19116,7 +19601,20 @@ static ListData assignitem_list(assignitemlist, &font);
 static ListData assignitemscript_list(assignitemscriptlist, &font);
 static ListData assignnpc_list(assignnpclist, &font);
 static ListData assignnpcscript_list(assignnpcscriptlist, &font);
+static ListData assignlweapon_list(assignlweaponlist, &font);
+static ListData assignlweaponscript_list(assignlweaponscriptlist, &font);
+static ListData assigneweapon_list(assigneweaponlist, &font);
+static ListData assigneweaponscript_list(assigneweaponscriptlist, &font);
 
+static ListData assignlink_list(assignlinklist, &font);
+static ListData assignlinkscript_list(assignlinkscriptlist, &font);
+
+static ListData assigndmap_list(assigndmaplist, &font);
+static ListData assigndmapscript_list(assigndmapscriptlist, &font);
+
+static ListData assignscreen_list(assignscreenlist, &font);
+static ListData assignscreenscript_list(assignscreenscriptlist, &font);
+	
 static DIALOG assignscript_dlg[] =
 {
     //						x		y		w		h		fg		bg		key	flags	d1	d2	dp
@@ -19131,7 +19629,7 @@ static DIALOG assignscript_dlg[] =
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobal_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignglobalscript_list, NULL, NULL },
     //9
-    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    { jwin_button_proc,	  154,	93,	15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitem_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignitemscript_list, NULL, NULL },
     //12
@@ -19147,6 +19645,31 @@ static DIALOG assignscript_dlg[] =
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpc_list, NULL, NULL },
     { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignnpcscript_list, NULL, NULL },
     //20
+    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //21
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlweapon_list, NULL, NULL },
+    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlweaponscript_list, NULL, NULL },
+    //23
+    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //24
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigneweapon_list, NULL, NULL },
+    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigneweaponscript_list, NULL, NULL },
+    //26
+    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //27
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlink_list, NULL, NULL },
+    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlinkscript_list, NULL, NULL },
+    //29
+    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //30
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignscreen_list, NULL, NULL },
+    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignscreenscript_list, NULL, NULL },
+    //32
+    { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //33
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigndmap_list, NULL, NULL },
+    { jwin_abclist_proc,    174,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigndmapscript_list, NULL, NULL },
+    //35
     { jwin_button_proc,	  154,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     
     
@@ -19269,6 +19792,218 @@ static DIALOG npcscript_sel_dlg[] =
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
+
+//lweapon scripts
+static char lweaponscript_str_buf2[32];
+
+const char *lweaponscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(lwpnmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, lwpnmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(lweaponscript_str_buf2,"%d: %s",index+1, buf);
+        return lweaponscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTWEAPONS-1);
+    return NULL;
+}
+
+
+static ListData lweaponscript_sel_dlg_list(lweaponscriptlist2, &font);
+
+static DIALOG lweaponscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &lweaponscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+static char eweaponscript_str_buf2[32];
+
+const char *eweaponscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(ewpnmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, ewpnmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(eweaponscript_str_buf2,"%d: %s",index+1, buf);
+        return eweaponscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTWEAPONS-1);
+    return NULL;
+}
+
+static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font);
+
+static DIALOG eweaponscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &eweaponscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+static char linkscript_str_buf2[32];
+
+const char *linkscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,3);
+        
+        if(linkmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, linkmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+	
+	if(index==0)
+            sprintf(linkscript_str_buf2,"Init: %s", buf);
+            
+        if(index==1)
+            sprintf(linkscript_str_buf2,"Active: %s", buf);
+	
+	if(index==2)
+            sprintf(linkscript_str_buf2,"Death: %s", buf);
+            
+        
+        //sprintf(linkscript_str_buf2,"%d: %s",index+1, buf);
+        return linkscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTLINK-1);
+    return NULL;
+}
+
+static ListData linkscript_sel_dlg_list(linkscriptlist2, &font);
+
+static DIALOG linkscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &linkscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+static char dmapscript_str_buf2[32];
+
+const char *dmapscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(dmapmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, dmapmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(dmapscript_str_buf2,"%d: %s",index+1, buf);
+        return dmapscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTSDMAP-1);
+    return NULL;
+}
+
+static ListData dmapscript_sel_dlg_list(dmapscriptlist2, &font);
+
+static DIALOG dmapscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &dmapscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
+
+static char screenscript_str_buf2[32];
+
+const char *screenscriptlist2(int index, int *list_size)
+{
+    if(index>=0)
+    {
+        char buf[20];
+        bound(index,0,254);
+        
+        if(screenmap[index].second=="")
+            strcpy(buf, "<none>");
+        else
+        {
+            strncpy(buf, screenmap[index].second.c_str(), 19);
+            buf[19]='\0';
+        }
+        
+        sprintf(screenscript_str_buf2,"%d: %s",index+1, buf);
+        return screenscript_str_buf2;
+    }
+    
+    *list_size=(NUMSCRIPTSCREEN-1);
+    return NULL;
+}
+
+static ListData screenscript_sel_dlg_list(screenscriptlist2, &font);
+
+static DIALOG screenscript_sel_dlg[] =
+{
+    { jwin_win_proc,        0,    0,    200, 159, vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Choose Slot And Name", NULL, NULL },
+    { jwin_text_proc,       8,    80,   36,  8,   vc(14),   vc(1),     0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       44,   80-4, 146, 16,  vc(12),   vc(1),     0,       0,          19,            0,       NULL, NULL, NULL },
+    { jwin_button_proc,     35,   132,  61,   21, vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
+    { jwin_button_proc,     104,  132,  61,   21, vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_droplist_proc,   26,   45,   146,   16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &screenscript_sel_dlg_list, NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+
 
 
 int onCompileScript()
@@ -19544,6 +20279,7 @@ int onCompileScript()
                 }
                 for(int i = 0; i < NUMSCRIPTLINK-1; i++)
                 {
+			/*
                     if(linkmap[i].second == "")
                         sprintf(temp, "Slot %d: <none>", i+1);
                     else if(scripts.find(linkmap[i].second) != scripts.end())
@@ -19551,6 +20287,25 @@ int onCompileScript()
                     else // Previously loaded script not found
                         sprintf(temp, "Slot %d: **%s**", i+1, linkmap[i].second.c_str());
                     linkmap[i].first = temp;
+			*/
+		    char buffer[64];
+                    const char* format;
+                    const char* asterisks;
+                    switch(i)
+                    {
+                        case 0: format="Init: %s%s%s"; break;
+                        case 1: format="Active: %s%s%s"; break;
+                        case 2: format="onDeath: %s%s%s"; break;
+                        case 3: format="onWin: %s%s%s"; break;
+                    }
+                    if(linkmap[i].second == "")
+                        asterisks="";
+                    else if(scripts.find(linkmap[i].second) != scripts.end())
+                        asterisks="";
+                    else // Unloaded
+                        asterisks="**";
+                    snprintf(buffer, 50, format, asterisks, linkmap[i].second.c_str(), asterisks);
+                    linkmap[i].first=buffer;
                 }
                 for(int i = 0; i < NUMSCRIPTSCREEN-1; i++)
                 {
@@ -20053,6 +20808,106 @@ int onCompileScript()
                     else
                     {
                         npcmap[lind].second = asnpcscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 23:
+                    //<<, LWeapon
+                {
+                    int lind = assignscript_dlg[21].d1;
+                    int rind = assignscript_dlg[22].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(aslweaponscripts[rind] == "<none>")
+                    {
+                        lwpnmap[lind].second = "";
+                    }
+                    else
+                    {
+                        lwpnmap[lind].second = aslweaponscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 26:
+                    //<<, EWeapon
+                {
+                    int lind = assignscript_dlg[24].d1;
+                    int rind = assignscript_dlg[25].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(aseweaponscripts[rind] == "<none>")
+                    {
+                        ewpnmap[lind].second = "";
+                    }
+                    else
+                    {
+                        ewpnmap[lind].second = aseweaponscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 29:
+                    //<<, Link
+                {
+                    int lind = assignscript_dlg[27].d1;
+                    int rind = assignscript_dlg[28].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(aslinkscripts[rind] == "<none>")
+                    {
+                        linkmap[lind].second = "";
+                    }
+                    else
+                    {
+                        linkmap[lind].second = aslinkscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 32:
+                    //<<, Screendata
+                {
+                    int lind = assignscript_dlg[30].d1;
+                    int rind = assignscript_dlg[31].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asscreenscripts[rind] == "<none>")
+                    {
+                        screenmap[lind].second = "";
+                    }
+                    else
+                    {
+                        screenmap[lind].second = asscreenscripts[rind];
+                    }
+                    
+                    break;
+                }
+		case 35:
+                    //<<, Screendata
+                {
+                    int lind = assignscript_dlg[33].d1;
+                    int rind = assignscript_dlg[34].d1;
+                    
+                    if(lind < 0 || rind < 0)
+                        break;
+                        
+                    if(asdmapscripts[rind] == "<none>")
+                    {
+                        dmapmap[lind].second = "";
+                    }
+                    else
+                    {
+                        dmapmap[lind].second = asdmapscripts[rind];
                     }
                     
                     break;
@@ -25310,7 +26165,7 @@ int FFScript::getTime(int type)
 		{
 			int year = tm_struct->tm_year + 1900;        /* year */
 			//year format starts at 1900, so we add it to the return
-			al_trace("The current year is: %d\n",year);
+			//al_trace("The current year is: %d\n",year);
 			return year;
 			
 		}
@@ -25318,49 +26173,49 @@ int FFScript::getTime(int type)
 		{
 			int month = tm_struct->tm_mon +1;         /* month */
 			//Months start at 0, but we want 1->12
-			al_trace("The current month is: %d\n",month);
+			//al_trace("The current month is: %d\n",month);
 			return month;
 		}
 		case curday_month:
 		{
 			int day_month = tm_struct->tm_mday;        /* day of the month */
-			al_trace("The current day of the month is: %d\n",day_month);
+			//al_trace("The current day of the month is: %d\n",day_month);
 			return day_month;
 		}
 		case curday_week: 
 		{
 			int day_week = tm_struct->tm_wday;        /* day of the week */
-			al_trace("The current day of the week is: %d\n",day_week);
+			//al_trace("The current day of the week is: %d\n",day_week);
 			return day_week;
 		}
 		case curhour:
 		{
 			int hour = tm_struct->tm_hour;        /* hours */
-			al_trace("The current hour is: %d\n",hour);
+			//al_trace("The current hour is: %d\n",hour);
 			return hour;
 		}
 		case curminute: 
 		{
 			int minutes = tm_struct->tm_min;         /* minutes */
-			al_trace("The current hour is: %d\n",minutes);
+			//al_trace("The current hour is: %d\n",minutes);
 			return minutes;
 		}
 		case cursecond:
 		{
 			int secs = tm_struct->tm_sec;         /* seconds */
-			al_trace("The current second is: %d\n",secs);
+			//al_trace("The current second is: %d\n",secs);
 			return secs;
 		}
 		case curdayyear:
 		{
 			int day_year = tm_struct->tm_yday;        /* day in the year */
-			al_trace("The current day out of the year is: %d\n",day_year);
+			//al_trace("The current day out of the year is: %d\n",day_year);
 			return day_year;
 		}
 		case curDST:
 		{
 			int isDST = tm_struct->tm_isdst;       /* daylight saving time */
-			al_trace("The current DSTis: %d\n",isDST);
+			//al_trace("The current DSTis: %d\n",isDST);
 			return isDST;
 		}
 		default: return -1;
@@ -25979,45 +26834,46 @@ void ZModule::init(bool d) //bool default
 	
 	
 	//strcpy(moduledata.module_name,"default.zmod");
-	al_trace("Module name set to %s\n",moduledata.module_name);
+	//al_trace("Module name set to %s\n",moduledata.module_name);
 	//We load the current module name from zc.cfg or zquest.cfg!
 	//Otherwise, we don't know what file to access to load the module vars! 
 	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","default.zmod"));
+	al_trace("The Current ZQuest Editor Module is: %s\n",moduledata.module_name); 
 		
 	if ( d )
 	{
 		
 		//zcm path
 		set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
-		al_trace("Module name set to %s\n",moduledata.module_name);
+		//al_trace("Module name set to %s\n",moduledata.module_name);
 		
 		//quests
 		moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
 		moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",5);
-		al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
-		al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
+		//al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
+		//al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
 		strcpy(moduledata.quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
-		al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
+		//al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
 		strcpy(moduledata.quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
-		al_trace("Module quest 2 set to %s\n",moduledata.quests[1]);
+		//al_trace("Module quest 2 set to %s\n",moduledata.quests[1]);
 		strcpy(moduledata.quests[2],get_config_string("QUESTS","third_qst","3rd.qst"));
-		al_trace("Module quest 3 set to %s\n",moduledata.quests[2]);
+		//al_trace("Module quest 3 set to %s\n",moduledata.quests[2]);
 		strcpy(moduledata.quests[3],get_config_string("QUESTS","fourth_qst","4th.qst"));
-		al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
+		//al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
 		strcpy(moduledata.quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
-		al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
+		//al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
 		
 		//quest skip names
 		strcpy(moduledata.skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
-		al_trace("Module quest skip 1 set to %s\n",moduledata.skipnames[0]);
+		//al_trace("Module quest skip 1 set to %s\n",moduledata.skipnames[0]);
 		strcpy(moduledata.skipnames[1],get_config_string("NAMEENTRY","second_qst_skip","ZELDA"));
-		al_trace("Module quest skip 2 set to %s\n",moduledata.skipnames[1]);
+		//al_trace("Module quest skip 2 set to %s\n",moduledata.skipnames[1]);
 		strcpy(moduledata.skipnames[2],get_config_string("NAMEENTRY","third_qst_skip","ALPHA"));
-		al_trace("Module quest skip 3 set to %s\n",moduledata.skipnames[2]);
+		//al_trace("Module quest skip 3 set to %s\n",moduledata.skipnames[2]);
 		strcpy(moduledata.skipnames[3],get_config_string("NAMEENTRY","fourth_qst_skip","GANON"));
-		al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
+		//al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
 		strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
-		al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
+		//al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
 		
 		//datafiles
 		strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
@@ -26057,7 +26913,14 @@ void ZModule::init(bool d) //bool default
 			"ee_family_pat","ee_family_gan","ee_family_proj","ee_family_gtrib","ee_family_ztrib",
 			"ee_family_vitrib","ee_family_ketrib","ee_family_spintile","ee_family_none","ee_family_faerie",
 			//40
-			"ee_family_otherflt","ee_family_other"
+			"ee_family_otherflt","ee_family_other", "max250",
+			"Custom_01", "Custom_02", "Custom_03", "Custom_04", "Custom_05",
+			"Custom_06", "Custom_07", "Custom_08", "Custom_09", "Custom_10",
+			"Custom_11", "Custom_12", "Custom_13", "Custom_14", "Custom_15",
+			"Custom_16", "Custom_17", "Custom_18", "Custom_19", "Custom_20",
+			"Friendly_NPC_01", "Friendly_NPC_02", "Friendly_NPC_03", "Friendly_NPC_04",
+			"Friendly_NPC_05", "Friendly_NPC_06", "Friendly_NPC_07",
+			"Friendly_NPC_08", "Friendly_NPC_09", "Friendly_NPC_10"
 		};
 		
 		const char default_enemy_types[eeMAX][255] =
@@ -26069,12 +26932,20 @@ void ZModule::init(bool d) //bool default
 			"-Unused","Wizzrobe","Aquamentus","Moldorm","Dodongo",
 			"Manhandla","Gleeok","Digdogger","Gohma","Lanmola",
 			"Patra","Ganon","Projectile Shooter","-Unused","-Unused",//zol trib
-			"-Unused","-Unused","Spin Tile","(None)","-Fairy","Other (Floating)","Other"
+			"-Unused","-Unused","Spin Tile","(None)","-Fairy","Other (Floating)","Other",
+			"-max250",
+  		        "Custom 01", "Custom 02", "Custom 03", "Custom 04", "Custom 05",
+		        "Custom 06", "Custom 07", "Custom 08", "Custom 09", "Custom 10",
+		        "Custom 11", "Custom 12", "Custom 13", "Custom 14", "Custom 15",
+		        "Custom 16", "Custom 17", "Custom 18", "Custom 19", "Custom 20",
+		        "Friendly NPC 01", "Friendly NPC 02", "Friendly NPC 03", "Friendly NPC 04",
+		        "Friendly NPC 05", "Friendly NPC 06", "Friendly NPC 07",
+		        "Friendly NPC 08", "Friendly NPC 09", "Friendly NPC 10"
 		};
 		for ( int q = 0; q < eeMAX; q++ )
 		{
 			strcpy(moduledata.enem_type_names[q],get_config_string("ENEMIES",enemy_family_strings[q],default_enemy_types[q]));
-			al_trace("Enemy family ID %d is: %s\n", q, moduledata.enem_type_names[q]);
+			//al_trace("Enemy family ID %d is: %s\n", q, moduledata.enem_type_names[q]);
 		}
 		const char default_enemy_anims[aMAX][255] =
 		{
@@ -26107,7 +26978,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < aMAX; q++ )
 		{
 			strcpy(moduledata.enem_anim_type_names[q],get_config_string("ENEMIES",enemy_anim_strings[q],default_enemy_anims[q]));
-			al_trace("Enemy animation type ID %d is: %s\n", q, moduledata.enem_anim_type_names[q]);
+			//al_trace("Enemy animation type ID %d is: %s\n", q, moduledata.enem_anim_type_names[q]);
 		}
 		
 		
@@ -26195,7 +27066,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < itype_max; q++ )
 		{
 			strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
-			al_trace("Item family ID %d is: %s\n", q, moduledata.item_editor_type_names[q]);
+			//al_trace("Item family ID %d is: %s\n", q, moduledata.item_editor_type_names[q]);
 		}
 		
 		//combo editor
@@ -26235,7 +27106,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < cMAX; q++ )
 		{
 			strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],""));
-			al_trace("Combo ID %d TYPE is: %s\n", q, moduledata.combo_type_names[q]);
+			//al_trace("Combo ID %d TYPE is: %s\n", q, moduledata.combo_type_names[q]);
 		}
 		
 		//map flags
@@ -26291,7 +27162,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < mfMAX; q++ )
 		{
 			strcpy(moduledata.combo_flag_names[q],get_config_string("MAPFLAGS",map_flag_cats[q],map_flag_default_string[q]));
-			al_trace("Map Flag ID %d is: %s\n", q, moduledata.combo_flag_names[q]);
+			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.combo_flag_names[q]);
 		}
 		const char roomtype_cats[rMAX][256] =
 		{
@@ -26309,7 +27180,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < rMAX; q++ )
 		{
 			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
-			al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
+			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
 		}
 		
 		const char enemy_walk_type_defaults[e9tARMOS+1][255] =
@@ -26324,7 +27195,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < e9tARMOS+1; q++ )
 		{
 			strcpy(moduledata.walkmisc9_names[q],get_config_string("ENEMYWALKSTYLE",enemy_walk_style_cats[q],enemy_walk_type_defaults[q]));
-			al_trace("Map Flag ID %d is: %s\n", q, moduledata.walkmisc9_names[q]);
+			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.walkmisc9_names[q]);
 		}
 		const char guy_types[gDUMMY1][255]=
 		{
@@ -26341,7 +27212,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < gDUMMY1; q++ )
 		{
 			strcpy(moduledata.guy_type_names[q],get_config_string("GUYS",guy_types[q],guy_default_names[q]));
-			al_trace("Map Flag ID %d is: %s\n", q, moduledata.guy_type_names[q]);
+			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.guy_type_names[q]);
 		}
 		
 		const char enemy_weapon_cats[wMax-wEnemyWeapons][255]=
@@ -26391,7 +27262,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < sizeof(enemy_weapon_default_names)/255; q++ )
 		{
 			strcpy(moduledata.enemy_weapon_names[q],get_config_string("EWEAPONS",enemy_weapon_cats[q],enemy_weapon_default_names[q]));
-			al_trace("EWeapon ID %d is: %s\n", q, moduledata.enemy_weapon_names[q]);
+			//al_trace("EWeapon ID %d is: %s\n", q, moduledata.enemy_weapon_names[q]);
 		}
 		const char lweapon_cats[wIce+1][255]=
 		{
@@ -26414,7 +27285,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < wIce+1; q++ )
 		{
 			strcpy(moduledata.player_weapon_names[q],get_config_string("LEAPONS",lweapon_cats[q],lweapon_default_names[q]));
-			al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
+			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
 		const char counter_cats[33][255]=
 		{
@@ -26438,7 +27309,7 @@ void ZModule::init(bool d) //bool default
 		for ( int q = 0; q < 33; q++ )
 		{
 			strcpy(moduledata.counter_names[q],get_config_string("COUNTERS",counter_cats[q],counter_default_names[q]));
-			al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
+			//al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
 		}
 		
 		for ( int q = 0; q < itype_max*3; q++ )
@@ -26455,7 +27326,7 @@ void ZModule::init(bool d) //bool default
 			}
 			strcpy(moduledata.itemclass_help_strings[q],temp_help_str);
 			//strcpy(moduledata.itemclass_help_strings[q],get_config_string("ITEMHELP",itemclass_help_string_cats[q],itemclass_help_string_defaults[q]));
-			al_trace("Item Help String %d is: %s\n", q, moduledata.itemclass_help_strings[q]);
+			//al_trace("Item Help String %d is: %s\n", q, moduledata.itemclass_help_strings[q]);
 		}
 	}
 	set_config_file("zquest.cfg"); //shift back to the normal config file, when done

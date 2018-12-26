@@ -34,6 +34,7 @@ extern FFScript FFCore;
 extern LinkClass Link;
 extern ZModule zcm;
 extern zcmodule moduledata;
+extern refInfo linkScriptData;
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "particles.h"
@@ -51,6 +52,8 @@ extern int draw_screen_clip_rect_y1;
 extern int draw_screen_clip_rect_y2;
 //extern bool draw_screen_clip_rect_show_link;
 extern bool global_wait;
+extern bool link_waitdraw;
+extern bool dmap_waitdraw;
 
 int link_count = -1;
 int link_animation_speed = 1; //lower is faster animation
@@ -66,6 +69,8 @@ int directItemB = -1;
 int directWpn = -1;
 int whistleitem=-1;
 extern word g_doscript;
+extern word link_doscript;
+extern word dmap_doscript;
 
 void playLevelMusic();
 
@@ -76,6 +81,14 @@ const byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 static inline bool isSideview()
 {
     return (((tmpscr->flags7&fSIDEVIEW)!=0 || DMaps[currdmap].sideview != 0) && !ignoreSideview); //DMap Enable Sideview on All Screens -Z //2.54 Alpha 27
+}
+
+
+void initLinkScripts()
+{
+    link_doscript = 1;
+    linkScriptData.Clear();
+    clear_link_stack();
 }
 
 int LinkClass::DrunkClock()
@@ -871,8 +884,8 @@ void LinkClass::init()
     
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
-    bigHitbox=get_bit(quest_rules, qr_LTTPCOLLISION);
-    diagonalMovement=get_bit(quest_rules,qr_LTTPWALK);
+    bigHitbox=(get_bit(quest_rules, qr_LTTPCOLLISION));
+    diagonalMovement=(get_bit(quest_rules,qr_LTTPWALK));
     
     //2.6
 	preventsubscreenfalling = false;  //-Z
@@ -1993,7 +2006,7 @@ void LinkClass::checkstab()
     
     int wx=0,wy=0,wz=0,wxsz=0,wysz=0;
     bool found = false;
-    int melee_weapon_index;
+    int melee_weapon_index = 0;
 	int parentitem=-1;
     
     for(int i=0; i<Lwpns.Count(); i++)
@@ -3587,7 +3600,7 @@ bool LinkClass::checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer,
     
     int hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
     
-    bool global_ring = (itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1);
+    bool global_ring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
     bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
     
     int itemid = current_item_id(itype_boots);
@@ -4360,6 +4373,30 @@ bool LinkClass::animate(int)
             drunkclk=0;
 	    link_is_stunned = 0;
 	    FFCore.setLinkAction(dying);
+	    //initLinkScripts();
+	    //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+	    //if ( link_doscript ) { last_hurrah = false; return false; }
+		initLinkScripts(); //Get ready to run his death script.
+		int fc = 0;
+		BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
+				clear_bitmap(subscrbmp);
+		do
+		{
+			script_drawing_commands.Clear();
+			if ( link_doscript ) 
+			{
+				ALLOFF(true,true);
+				ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+				load_control_state(); 
+				
+			}
+			draw_screen(tmpscr);
+			blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+			advanceframe(true);
+			if (!link_doscript ) ++fc;
+			
+		}
+		while(fc < 1 );
             gameover();
             
             return true;
@@ -5289,7 +5326,12 @@ bool LinkClass::startwpn(int itemid)
             temppower = DAMAGE_MULTIPLIER*itemsbuf[itemid].misc2;
         }
         
+        //Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
+	//Add weapon script to sword beams.
         Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wBeam,itemsbuf[itemid].fam_type,int(temppower),dir,itemid,getUID()));
+	//weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //the pointer to this beam
+	//w->weaponscript = itemsbuf[itemid].weaponscript;
+	//w->canrunscript = 0;
         sfx(WAV_BEAM,pan(wx));
     }
     break;
@@ -9380,7 +9422,7 @@ void LinkClass::checklocked()
 	if ( diagonalMovement && pushing < 8 ) return; //Allow wall walking Should I add a quest rule for this? -Z
     
 	
-	bool found;
+	bool found = false;
 	for ( int q = 0; q < 4; q++ ) {
 		if ( tmpscr->door[q] == dLOCKED || tmpscr->door[q] == dBOSS ) { found = true; }
 	}
@@ -11287,6 +11329,10 @@ bool LinkClass::dowarp(int type, int index)
     }
     
     bool intradmap = (wdmap == currdmap);
+    //if ( intradmap ) 
+    //{
+	//FFCore.initZScriptDMapScripts();   //Not needed. 
+    //} 
     rehydratelake(type!=wtSCROLL);
     
     switch(wtype)
@@ -13134,7 +13180,11 @@ void LinkClass::run_scrolling_script(int scrolldir, int cx, int sx, int sy, bool
     
     if(g_doscript)
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-        
+    if (link_doscript)
+	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+    if ( dmap_doscript ) 
+	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+    
     x = storex, y = storey;
 }
 
@@ -13325,7 +13375,16 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
         global_wait=false;
     }
-    
+    if ( link_waitdraw )
+    {
+	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+        link_waitdraw = false;
+    }
+    if ( dmap_waitdraw )
+    {
+	ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+	dmap_waitdraw = false;
+    }
     do
     {
         draw_screen(tmpscr);
@@ -14059,7 +14118,7 @@ bool checkmagiccost(int itemid)
 	{
 		if ( current_item_power(itype_wallet) ) return true;
 		return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
-		break;
+		//break;
 	}
 	case 4: //magic
 	{
@@ -14073,7 +14132,7 @@ bool checkmagiccost(int itemid)
 		{
 			return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
 		}
-		break;
+		//break;
 	}
 	
 	default:
@@ -14081,13 +14140,13 @@ bool checkmagiccost(int itemid)
 		//all other counters.
 		//no need for the QR here, as old quests could only use specific counters.
 		return (game->get_counter(itemsbuf[itemid].cost_counter)+game->get_dcounter(itemsbuf[itemid].cost_counter)>=itemsbuf[itemid].magic);
-		break;
+		//break;
 	}
 	    
     }
     
     
-    return 1;
+    //return 1;
 }
 
 void paymagiccost(int itemid, bool ignoreTimer)
@@ -15838,35 +15897,41 @@ void slide_in_color(int color)
     refreshpal=true;
 }
 
+
 void LinkClass::gameover()
 {
 	int f=0;
     
 	action=none; FFCore.setLinkAction(dying); //mayhaps a new action of 'gameover'? -Z
-	Playing=false;
+	
+	kill_sfx();  //call before the onDeath script.
+	
+	//do
+	//{
+		
+	//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+	//	FFCore.Waitframe();
+	//}while(link_doscript);
+	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+	//while(link_doscript) { advanceframe(true); } //Not safe. The script runs for only one frame at present.
+	
+	//Playing=false;
     
 	if(!debug_enabled)
 	{
 		Paused=false;
 	}
-    
+    /*
 	game->set_deaths(zc_min(game->get_deaths()+1,999));
 	dir=down;
 	music_stop();
-	kill_sfx();
+	
 	attackclk=hclk=superman=0;
 	scriptcoldet = 1;
     
 	for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
-	//get rid off all sprites but Link
-	guys.clear();
-	items.clear();
-	Ewpns.clear();
-	Lwpns.clear();
-	Sitems.clear();
-	chainlinks.clear();
-	decorations.clear();
+	
     
 	playing_field_offset=56; // otherwise, red_shift() may go past the bottom of the screen
 	quakeclk=wavy=0;
@@ -15884,9 +15949,66 @@ void LinkClass::gameover()
 	clear_bitmap(subscrbmp);
 	put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, false, sspUP);
 	QMisc.colors.link_dot = tmp_link_dot;
+    */
     
+	BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
+				clear_bitmap(subscrbmp);
+				//get rid off all sprites but Link
+				guys.clear();
+				items.clear();
+				Ewpns.clear();
+				Lwpns.clear();
+				Sitems.clear();
+				chainlinks.clear();
+				decorations.clear();
+				Playing = false;
+					
+				game->set_deaths(zc_min(game->get_deaths()+1,999));
+				dir=down;
+				music_stop();
+				
+				attackclk=hclk=superman=0;
+				scriptcoldet = 1;
+			    
+				for(int i=0; i<32; i++) miscellaneous[i] = 0;
+			    
+				
+			    
+				playing_field_offset=56; // otherwise, red_shift() may go past the bottom of the screen
+				quakeclk=wavy=0;
+			    
+				//in original Z1, Link marker vanishes at death.
+				//code in subscr.cpp, put_passive_subscr checks the following value.
+				//color 255 is a GUI color, so quest makers shouldn't be using this value.
+				//Also, subscreen is static after death in Z1.
+				int tmp_link_dot = QMisc.colors.link_dot;
+				QMisc.colors.link_dot = 255;
+				//doesn't work
+				//scrollbuf is tampered with by draw_screen()
+				//put_passive_subscr(scrollbuf, &QMisc, 256, passive_subscreen_offset, false, false);//save this and reuse it.
+				
+				put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+				QMisc.colors.link_dot = tmp_link_dot;
+        bool clearedit = false;
 	do
 	{
+		//if ( link_doscript ) 
+		//{
+		//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN);
+			//if ( f ) --f; 
+		//	load_control_state(); //goto adv;
+		//}
+		//else
+		//{
+		//	if ( !clearedit )
+		//	{
+				
+				
+		//		clearedit = true;
+				
+		//	}
+		//}
+		//else Playing = false;
 		if(f<254)
 		{
 			if(f<=32)
@@ -16129,9 +16251,10 @@ void LinkClass::gameover()
 			sfx(WAV_MSG);
 			break;
 		}
-        
+		//adv:
 		advanceframe(true);
 		++f;
+		//if (!link_doscript ) ++f;
 	}
 	while(f<353 && !Quit);
     
@@ -16701,3 +16824,7 @@ void LinkClass::explode(int type)
 int LinkClass::getTileModifier() { return item_tile_mod(true); } //how best to read shieldcanmodify? -Z
 void LinkClass::setTileModifier(int new_tile_mod) { /*item_tile_mod = new_tile_mod;*/ }
 /*** end of link.cpp ***/
+
+
+
+

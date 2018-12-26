@@ -2399,6 +2399,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -2674,6 +2675,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -2950,6 +2952,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip(bmp, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -3222,6 +3225,7 @@ void do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
 					pivot_sprite_v_flip(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -5265,9 +5269,12 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	//BITMAP *refbmp = FFCore.GetScriptBitmap(ri->bitmapref);
 	//if ( refbmp == NULL ) return;
 
-	int bitmapIndex = sdci[2];
+	int bitmapIndex = sdci[2]/10000;
+	//Z_scripterrlog("Blit() bitmapIndex is: %d\n", bitmapIndex);
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("Blit() found a dest bitmap ID of: %d\n",bitmapIndex);
-	if ( (unsigned) bitmapIndex > 10000 )
+	#endif
+	if ( bitmapIndex > 10000 )
 	{
 		bitmapIndex = bitmapIndex / 10000;
 	}
@@ -5278,7 +5285,9 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	int sx = sdci[3]/10000;
 	int sy = sdci[4]/10000;
 	int sw = sdci[5]/10000;
+	//Z_scripterrlog("sh is: %d\n",sdci[5]/10000);
 	int sh = sdci[6]/10000;
+	//Z_scripterrlog("sh is: %d\n",sdci[6]/10000);
 	int dx = sdci[7]/10000;
 	int dy = sdci[8]/10000;
 	int dw = sdci[9]/10000;
@@ -5291,8 +5300,9 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	bool masked = (sdci[16] != 0);
 	
 	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ri->bitmapref);
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("bitmap->Blit() is trying to blit ri->bitmapref: %d\n",ri->bitmapref);
-
+	#endif
 	if(!sourceBitmap)
 	{
 		Z_message("Warning: blit(%d) source bitmap contains invalid data or is not initialized.\n", ri->bitmapref);
@@ -5313,9 +5323,9 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		case 5:
 		case 6: //old system bitmaps (render targets)
 		{
-		    destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
+		    destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
 		}
-		default: destBMP = FFCore.get_user_bitmap(bitmapIndex);
+		default: destBMP = FFCore.get_user_bitmap(bitmapIndex); break;
 	}
 	
 	//BITMAP *destBMP = FFCore.GetScriptBitmap(bitmapIndex);
@@ -5325,31 +5335,42 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
-	if ( bitmapIndex == -1 ) Z_scripterrlog("blit() is trying to blit to the scren!%s\n"," ");
+	if ( bitmapIndex == -1 ) 
 	{
 	
-		Z_scripterrlog("bitmap->Blit() is trying is blitting!%s\n"," ");
+		//Z_scripterrlog("blit() is trying to blit to the scren!%s\n"," ");
 		destBMP = framebuf;
 		//masked_blit(sourceBitmap, framebuf, 0, 0, 0, 0, 64, 64);
 		//return;
 	}
 	
 	//bugfix
-	sx = vbound(sx, 0, sourceBitmap->w);
+	//sx = vbound(sx, 0, sourceBitmap->w);
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("Blit %s is: %d\n", "sx", sx);
 	Z_scripterrlog("Blit %s is: %d\n", "source->w", sourceBitmap->w);
-	sy = vbound(sy, 0, sourceBitmap->h);
+	#endif
+	//sy = vbound(sy, 0, sourceBitmap->h);
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("Blit %s is: %d\n", "sy", sy);
 	Z_scripterrlog("Blit %s is: %d\n", "source->h", sourceBitmap->h);
-	sw = vbound(sw, 0, sourceBitmap->w - sx); //keep the w/h within range as well
+	#endif
+	//sw = vbound(sw, 0, sourceBitmap->w - sx); //keep the w/h within range as well
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("Blit %s is: %d\n", "sw", sw);
-	sh = vbound(sh, 0, sourceBitmap->h - sy);
+	#endif
+	//sh = vbound(sh, 0, sourceBitmap->h - sy);
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("Blit %s is: %d\n", "sh", sh);
 
 	Z_scripterrlog("Blit %s is: %d\n", "dh", dh);
 	Z_scripterrlog("Blit %s is: %d\n", "dw", dw);
-	bool stretched = (sw != dw || sh != dh);
+	#endif
+	//bool stretched = (sw != dw || sh != dh);
+	bool stretched = (sourceBitmap->w != destBMP->w || sourceBitmap->h != destBMP->h);
+	#ifdef LOG_BMPBLIT
 	Z_scripterrlog("Blit %s is: %s\n", "stretched", stretched ? "true" : "false");
+	#endif
 	//BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
 	
 	
@@ -5417,6 +5438,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -5692,6 +5714,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -5968,6 +5991,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h
@@ -6240,6 +6264,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 						//pivot + v flip
 					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					break;
 					
 					case 8: 
 						//vlip h

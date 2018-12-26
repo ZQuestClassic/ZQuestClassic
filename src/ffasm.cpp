@@ -742,10 +742,10 @@ script_command command_list[NUMCOMMANDS+1]=
      { "GETRTCTIMEV",             1,   1,   0,   0},
      
      //new npc functions for npc scripts
-      { "NPCDEAD",                0,   0,   0,   0},
+      { "NPCDEAD",                1,   0,   0,   0},
       { "NPCKICKBUCKET",                0,   0,   0,   0},
       { "NPCSTOPBGSFX",                0,   0,   0,   0},
-      { "NPCCANMOVE",                0,   0,   0,   0},
+      { "NPCCANMOVE",                1,   0,   0,   0},
       { "NPCNEWDIR8",                0,   0,   0,   0},
       { "NPCNEWDIR",                0,   0,   0,   0},
       { "NPCCONSTWALK",                0,   0,   0,   0},
@@ -756,18 +756,20 @@ script_command command_list[NUMCOMMANDS+1]=
       { "NPCHALTWALK8",                0,   0,   0,   0},
       { "NPCFLOATWALK",                0,   0,   0,   0},
       // moved to a var: { "NPCLINEDUP",                0,   0,   0,   0},
-      { "NPCLINKINRANGE",                0,   0,   0,   0},
+      { "NPCLINKINRANGE",                1,   0,   0,   0},
       { "NPCATTACK",                0,   0,   0,   0},
       { "NPCPLACEONAXIS",                0,   0,   0,   0},
-      { "NPCADD",                0,   0,   0,   0},
+      { "NPCADD",                1,   0,   0,   0},
       { "NPCFIREBREATH",                0,   0,   0,   0},
-      { "NPCCANSLIDE",                0,   0,   0,   0},
-      { "NPCSLIDE",                0,   0,   0,   0},
-      { "NPCHITWITH",                0,   0,   0,   0},
+      { "NPCCANSLIDE",                1,   0,   0,   0},
+      { "NPCSLIDE",                1,   0,   0,   0},
+      { "NPCHITWITH",                1,   0,   0,   0},
       { "NPCGETINITDLABEL",                0,   0,   0,   0},
       // moved to a var: { "NPCCOLLISION",                0,   0,   0,   0}, //how to implement this?
-      
-     { "",                    0,   0,   0,   0}
+      { "GAMECONTINUE",             0,   0,   0,   0},
+      { "MAPDATAISSOLID",             1,   0,   0,   0},
+      { "SHOWF6SCREEN",             0,   0,   0,   0},
+      { "",                    0,   0,   0,   0}
 };
 
 
@@ -1761,7 +1763,40 @@ script_variable variable_list[]=
 	{"NPCDATAINITD", NPCLINEDUP, 0, 0 },
 	{"NPCDATASCRIPT", NPCDATASCRIPT, 0, 0 },
 	{"NPCMATCHINITDLABEL", NPCMATCHINITDLABEL, 0, 0 },
+	//lweapon scripts
+	{"LWPNSCRIPT", LWPNSCRIPT, 0, 0 },
+	{"LWPNINITD", LWPNINITD, 0, 0 },
+	{"ITEMFAMILY", ITEMFAMILY, 0, 0 },
+	{"ITEMLEVEL", ITEMLEVEL, 0, 0 },
 	
+	{"EWPNSCRIPT", EWPNSCRIPT, 0, 0 },
+	{"EWPNINITD", EWPNINITD, 0, 0 },
+	
+	{"NPCSCRIPT", NPCSCRIPT, 0, 0 },
+	
+	{"DMAPSCRIPT", DMAPSCRIPT, 0, 0 },
+	{"DMAPINITD", DMAPINITD, 0, 0 },
+	
+	{"SCREENSCRIPT", SCREENSCRIPT, 0, 0 },
+	{"SCREENINITD", SCREENINITD, 0, 0 },
+	
+	{"LINKINITD", LINKINITD, 0, 0 },
+	{"NPCDATAWEAPONINITD", NPCDATAWEAPONINITD, 0, 0 },
+	{"NPCDATAWEAPONSCRIPT", NPCDATAWEAPONSCRIPT, 0, 0 },
+	
+	{"NPCSCRIPTTILE", NPCSCRIPTTILE, 0, 0 },
+	{"NPCSCRIPTFLIP", NPCSCRIPTFLIP, 0, 0 },
+	{"LWPNSCRIPTTILE", LWPNSCRIPTTILE, 0, 0 },
+	{"LWPNSCRIPTFLIP", LWPNSCRIPTFLIP, 0, 0 },
+	{"EWPNSCRIPTTILE", EWPNSCRIPTTILE, 0, 0 },
+	{"EWPNSCRIPTFLIP", EWPNSCRIPTFLIP, 0, 0 },
+	
+	{"LINKENGINEANIMATE", LINKENGINEANIMATE, 0, 0 },
+	{"NPCENGINEANIMATE", NPCENGINEANIMATE, 0, 0 },
+	{"LWPNENGINEANIMATE", LWPNENGINEANIMATE, 0, 0 },
+	{"EWPNENGINEANIMATE", EWPNENGINEANIMATE, 0, 0 },
+	{"SKIPCREDITS", SKIPCREDITS, 0, 0 },
+	{"SKIPF6", SKIPF6, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }
@@ -2119,7 +2154,7 @@ int set_argument(char *argbuf, ffscript **script, int com, int argument)
     }
     
     int i=0;
-    char tempvar[20];
+    char tempvar[80];
     
     while(variable_list[i].id>-1)
     {

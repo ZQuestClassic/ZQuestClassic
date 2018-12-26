@@ -368,15 +368,22 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     for ( int q = 0; q < 32; q++ ) new_weapon[q] = d->new_weapon[q];
     
     script = (d->script >= 0) ? d->script : 0; //Dont assign invalid data. 
+    weaponscript = (d->weaponscript >= 0) ? d->weaponscript : 0; //Dont assign invalid data. 
     
     for ( int q = 0; q < 8; q++ ) 
     {
 	    initD[q] = d->initD[q];
+	    //Z_scripterrlog("(enemy::enemy(fix)): Loading weapon InitD[%d] to an enemy with a value of (%d)\n",q,d->weap_initiald[q]);
+	    weap_initiald[q] = d->weap_initiald[q];
 	    //al_trace("Guys.cpp: Assigning guy.initD[%d]: %d\n",q, d->initD.initD[q]);
 	    //al_trace("Guys.cpp: Assigning guy.initD[%d] from d->initD[%d]: %d\n",q,q, d->initD[q]);
 	    //al_trace("Guys.cpp: guy.initD[%d] is: %d\n",q, initD[q]);
     }
-    for ( int q = 0; q < 2; q++ ) initA[q] = d->initA[q];
+    for ( int q = 0; q < 2; q++ ) 
+    {
+	    initA[q] = d->initA[q];
+	    weap_initiala[q] = d->weap_initiala[q];
+    }
     
     dialogue_str = 0; //set by spawn flags. 
     editorflags = d->editorflags; //set by Enemy Editor 
@@ -403,6 +410,9 @@ enemy::enemy(fix X,fix Y,int Id,int Clk) : sprite()
     }
     
     tile=0;
+    scripttile = -1;
+    scriptflip = -1;
+    do_animation = 1;
     
     // If they forgot the invisibility flag, here's another failsafe:
     if(o_tile==0 && family!=eeSPINTILE)
@@ -654,9 +664,9 @@ bool enemy::animate(int index)
     ++c_clk;
     
     //Run its script
-    if ( script > 0 ) 
+    if ( script > 0 && doscript ) 
     {
-	ZScriptVersion::RunScript(SCRIPT_NPC, script, index);
+	ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID());
     }
     
     // returns true when enemy is defeated
@@ -797,7 +807,7 @@ void enemy::FireBreath(bool seeklink)
     if(wpn==ewFlame && wpnsbuf[ewFLAME].frames>1)
     {
         ew->aframe=rand()%wpnsbuf[ewFLAME].frames;
-        ew->tile+=ew->aframe;
+        if ( ew->do_animation ) ew->tile+=ew->aframe;
     }
     
     for(int j=Ewpns.Count()-1; j>0; j--)
@@ -1722,12 +1732,13 @@ void enemy::old_draw(BITMAP *dest)
         flip = 0;
         tile = wpnsbuf[iwDeath].newtile;
 	//The scale of this tile shouldx be based on the enemy size. -Z
-        
-        if(BSZ)
-            tile += zc_min((15-clk2)/3,4);
-        else if(clk2>6 && clk2<=12)
-            ++tile;
-            
+        if ( do_animation ) 
+	{
+		if(BSZ)
+		    tile += zc_min((15-clk2)/3,4);
+		else if(clk2>6 && clk2<=12)
+		    ++tile;
+	}
         /* trying to get more death frames here
           if(wpnsbuf[wid].frames)
           {
@@ -1933,12 +1944,13 @@ void enemy::draw(BITMAP *dest)
         flip = 0;
         tile = wpnsbuf[iwDeath].newtile;
 	//The scale of this tile shouldx be based on the enemy size. -Z
-        
-        if(BSZ)
-            tile += zc_min((15-clk2)/3,4);
-        else if(clk2>6 && clk2<=12)
-            ++tile;
-            
+        if ( do_animation ) 
+	{
+		if(BSZ)
+		    tile += zc_min((15-clk2)/3,4);
+		else if(clk2>6 && clk2<=12)
+		    ++tile;
+	}
         /* trying to get more death frames here
           if(wpnsbuf[wid].frames)
           {
@@ -2054,6 +2066,7 @@ void enemy::draw(BITMAP *dest)
 }
 
 // similar to the overblock function--can do up to a 32x32 sprite
+//will this play nicely with scripttile, solely using the modifications in sprite::draw()?
 void enemy::drawblock(BITMAP *dest,int mask)
 {
     int thold=tile;
@@ -2451,12 +2464,14 @@ void enemy::newdir_8(int newrate,int newhoming,int special)
 
 // makes the enemy slide backwards when hit
 // sclk: first byte is clk, second byte is dir
+// makes the enemy slide backwards when hit
+// sclk: first byte is clk, second byte is dir
 bool enemy::slide()
 {
     if(sclk==0 || hp<=0)
         return false;
         
-    if((sclk&255)==16 && !canmove(sclk>>8,(fix)12,0))
+    if((sclk&255)==16 && !canmove(sclk>>8,(fix) (dmisc2==e2tSPLITHIT ? 1 : 12),0))
     {
         sclk=0;
         return false;
@@ -2466,41 +2481,49 @@ bool enemy::slide()
     
     switch(sclk>>8)
     {
-    case up:
-        if(y<=16)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
-        
-    case down:
-        if(y>=160)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
-        
-    case left:
-        if(x<=16)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
-        
-    case right:
-        if(x>=240)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
+	    case up:
+	    {
+		if(y<=(dmisc2==e2tSPLITHIT ? 0 : 16)) //vires
+		{
+		    sclk=0;
+		    return false;
+		}
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
+		
+		break;
+	    }
+	    case down:
+	    {
+		if(y>=(dmisc2==e2tSPLITHIT ? 150 : 160)) //was 160 --changed for vires bug. 
+		{
+		    sclk=0;
+		    return false;
+		}
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
+		
+		break;
+	    }
+	    case left:
+	    {
+		if(x<=(dmisc2==e2tSPLITHIT ? 0 : 16))
+		{
+		    sclk=0;
+		    return false;
+		}
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; }
+		
+		break;
+	    }
+	    case right:
+	    {
+		if(x>=(dmisc2==e2tSPLITHIT ? 255 : 240)) //vires
+		{
+		    sclk=0;
+		    return false;
+		}
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
+		break;
+	    }
     }
     
     switch(sclk>>8)
@@ -3224,7 +3247,7 @@ void enemy::n_frame_n_dir(int frames, int ndir, int f4)
     switch(family)
     {
     case eeWALK:
-        if(dmisc9==e9tPOLSVOICE && clk2>=0)
+        if(dmisc9==e9tPOLSVOICE && clk2>=0 && do_animation)
         {
             tile=s_tile;
             t=s_tile;
@@ -3233,7 +3256,7 @@ void enemy::n_frame_n_dir(int frames, int ndir, int f4)
         break;
         
     case eeTRAP:
-        if(dummy_int[1] && guysbuf[id].flags2 & eneflag_trp2)  // Just to make sure
+        if(dummy_int[1] && guysbuf[id].flags2 & eneflag_trp2 && do_animation)  // Just to make sure
         {
             tile=s_tile;
             t=s_tile;
@@ -3242,7 +3265,7 @@ void enemy::n_frame_n_dir(int frames, int ndir, int f4)
         break;
         
     case eeSPINTILE:
-        if(misc>=96)
+        if(misc>=96 && do_animation)
         {
             tile=o_tile+frames*ndir;
             t=tile;
@@ -3250,30 +3273,33 @@ void enemy::n_frame_n_dir(int frames, int ndir, int f4)
         
         break;
     }
-    
-    if(ndir!=0) switch(frames)
-        {
-        case 2:
-            tiledir_small(dir,ndir==4);
-            break;
-            
-        case 3:
-            tiledir_three(dir);
-            break;
-            
-        case 4:
-            tiledir(dir,ndir==4);
-            break;
-        }
-        
-    if(family==eeWALK)
-        tile=zc_min(tile+f4, t+frames*(zc_max(dir, 0)+1)-1);
-    else
-        tile+=f4;
+    if ( do_animation ) 
+    {
+	    if(ndir!=0) switch(frames)
+		{
+		case 2:
+		    tiledir_small(dir,ndir==4);
+		    break;
+		    
+		case 3:
+		    tiledir_three(dir);
+		    break;
+		    
+		case 4:
+		    tiledir(dir,ndir==4);
+		    break;
+		}
+
+	    if(family==eeWALK)
+		tile=zc_min(tile+f4, t+frames*(zc_max(dir, 0)+1)-1);
+	    else
+		tile+=f4;
+	}
 }
 
 void enemy::tiledir_three(int ndir)
 {
+    if ( !do_animation ) return;
     flip=0;
     
     switch(ndir)
@@ -3294,6 +3320,7 @@ void enemy::tiledir_three(int ndir)
 
 void enemy::tiledir_small(int ndir, bool fourdir)
 {
+    if ( !do_animation ) return;
     flip=0;
     
     switch(ndir)
@@ -3362,6 +3389,7 @@ void enemy::tiledir_small(int ndir, bool fourdir)
 
 void enemy::tiledir(int ndir, bool fourdir)
 {
+    if ( !do_animation ) return;
     flip=0;
     
     switch(ndir)
@@ -3432,6 +3460,7 @@ void enemy::tiledir(int ndir, bool fourdir)
 
 void enemy::tiledir_big(int ndir, bool fourdir)
 {
+    if ( !do_animation ) return;
     flip=0;
     
     switch(ndir)
@@ -3500,6 +3529,7 @@ void enemy::tiledir_big(int ndir, bool fourdir)
 
 void enemy::update_enemy_frame()
 {
+    if ( !do_animation ) return;
     int newfrate = zc_max(frate,4);
     int f4=clk/(newfrate/4); // casts clk to [0,1,2,3]
     int f2=clk/(newfrate/2); // casts clk to [0,1]
@@ -6971,9 +7001,10 @@ bool eStalfos::animate(int index)
         KillWeapon();
         return Dead(index);
     }
+    //vire split
     //2.10 checked !fslide(), but nothing uses that now anyway. -Z
     //Perhaps the problem occurs when vires die because they have < 0 HP, in this check?
-    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() /*&& !fslide()*/ ))  //Split into enemies
+    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() && (sclk&255)<=1))  //Split into enemies
     {
         stop_bgsfx(index);
         int kids = guys.Count();
@@ -7308,7 +7339,7 @@ bool eStalfos::animate(int index)
         if(wpn==ewFIRETRAIL && wpnsbuf[ewFIRETRAIL].frames>1)
         {
             ew->aframe=rand()%wpnsbuf[ewFIRETRAIL].frames;
-            ew->tile+=ew->aframe;
+            if ( ew->do_animation ) ew->tile+=ew->aframe;
         }
     }
     // Goriya
@@ -7372,7 +7403,7 @@ bool eStalfos::animate(int index)
             
             if((clk5>24)&&(clk5<52))
             {
-                tile+=20;                                         //firing
+                if ( do_animation )tile+=20;                                         //firing
                 
                 if(!fired&&(clk5>=38))
                 {
@@ -7480,7 +7511,7 @@ void eStalfos::draw(BITMAP *dest)
     
     if((dmisc2==e2tBOMBCHU)&&dashing)
     {
-        tile+=20;
+        if ( do_animation )tile+=20;
     }
     
     enemy::draw(dest);
@@ -8758,7 +8789,7 @@ void eAquamentus::draw(BITMAP *dest)
     if(get_bit(quest_rules,qr_NEWENEMYTILES))
     {
         xofs=(dmisc1?-16:0);
-        tile=o_tile+((clk&24)>>2)+(clk3>-32?(clk3>0?40:80):0);
+        if ( do_animation ) tile=o_tile+((clk&24)>>2)+(clk3>-32?(clk3>0?40:80):0);
         
         if(dying)
         {
@@ -8780,23 +8811,26 @@ void eAquamentus::draw(BITMAP *dest)
             enemy::draw(dest);
             return;
         }
-        
-        // face (0=firing, 2=resting)
-        tile=o_tile+((clk3>0)?0:2);
-        enemy::draw(dest);
-        // tail (
-        tile=o_tile+((clk&16)?1:3);
-        xofs=xblockofs;
-        enemy::draw(dest);
-        // body
-        yofs+=16;
-        xofs=0;
-        tile=o_tile+((clk&16)?20:22);
-        enemy::draw(dest);
-        xofs=xblockofs;
-        tile=o_tile+((clk&16)?21:23);
-        enemy::draw(dest);
-        yofs-=16;
+        if ( do_animation ) 
+	{
+		// face (0=firing, 2=resting)
+		tile=o_tile+((clk3>0)?0:2);
+		enemy::draw(dest);
+		// tail (
+		tile=o_tile+((clk&16)?1:3);
+		xofs=xblockofs;
+		enemy::draw(dest);
+		// body
+		yofs+=16;
+		xofs=0;
+		tile=o_tile+((clk&16)?20:22);
+		enemy::draw(dest);
+		xofs=xblockofs;
+		tile=o_tile+((clk&16)?21:23);
+		enemy::draw(dest);
+		yofs-=16;
+	}
+	else enemy::draw(dest);
     }
 }
 
@@ -8908,6 +8942,8 @@ void eGohma::draw(BITMAP *dest)
     
     if(get_bit(quest_rules,qr_NEWENEMYTILES))
     {
+	///if ( do_animation ) 
+	    //Yuck. Gohma can just not have this capability right now. 
         // left side
         xofs=-16;
         flip=0;
@@ -9035,56 +9071,58 @@ void eLilDig::draw(BITMAP *dest)
     int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
            efrate:((clk>=(frate>>1))?1:0);
            
-           
-    if(get_bit(quest_rules,qr_NEWENEMYTILES))
+    if ( do_animation ) 
     {
-        switch(dir-8)                                           //directions get screwed up after 8.  *shrug*
-        {
-        case up:                                              //u
-            flip=0;
-            break;
-            
-        case l_up:                                            //d
-            flip=0;
-            tile+=4;
-            break;
-            
-        case l_down:                                          //l
-            flip=0;
-            tile+=8;
-            break;
-            
-        case left:                                            //r
-            flip=0;
-            tile+=12;
-            break;
-            
-        case r_down:                                          //ul
-            flip=0;
-            tile+=20;
-            break;
-            
-        case down:                                            //ur
-            flip=0;
-            tile+=24;
-            break;
-            
-        case r_up:                                            //dl
-            flip=0;
-            tile+=28;
-            break;
-            
-        case right:                                           //dr
-            flip=0;
-            tile+=32;
-            break;
-        }
-        
-        tile+=f2;
-    }
-    else
-    {
-        tile+=(clk>=6)?1:0;
+	    if(get_bit(quest_rules,qr_NEWENEMYTILES))
+	    {
+		switch(dir-8)                                           //directions get screwed up after 8.  *shrug*
+		{
+		case up:                                              //u
+		    flip=0;
+		    break;
+		    
+		case l_up:                                            //d
+		    flip=0;
+		    tile+=4;
+		    break;
+		    
+		case l_down:                                          //l
+		    flip=0;
+		    tile+=8;
+		    break;
+		    
+		case left:                                            //r
+		    flip=0;
+		    tile+=12;
+		    break;
+		    
+		case r_down:                                          //ul
+		    flip=0;
+		    tile+=20;
+		    break;
+		    
+		case down:                                            //ur
+		    flip=0;
+		    tile+=24;
+		    break;
+		    
+		case r_up:                                            //dl
+		    flip=0;
+		    tile+=28;
+		    break;
+		    
+		case right:                                           //dr
+		    flip=0;
+		    tile+=32;
+		    break;
+		}
+		
+		tile+=f2;
+	    }
+	    else
+	    {
+		tile+=(clk>=6)?1:0;
+	    }
     }
     
     enemy::draw(dest);
@@ -9175,58 +9213,61 @@ void eBigDig::draw(BITMAP *dest)
     
     int f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
            efrate:((clk>=(frate>>1))?1:0);
-           
-    if(get_bit(quest_rules,qr_NEWENEMYTILES))
-    {
-        switch(dir-8)                                           //directions get screwed up after 8.  *shrug*
-        {
-        case up:                                              //u
-            flip=0;
-            break;
-            
-        case l_up:                                            //d
-            flip=0;
-            tile+=8;
-            break;
-            
-        case l_down:                                          //l
-            flip=0;
-            tile+=40;
-            break;
-            
-        case left:                                            //r
-            flip=0;
-            tile+=48;
-            break;
-            
-        case r_down:                                          //ul
-            flip=0;
-            tile+=80;
-            break;
-            
-        case down:                                            //ur
-            flip=0;
-            tile+=88;
-            
-            break;
-            
-        case r_up:                                            //dl
-            flip=0;
-            tile+=120;
-            break;
-            
-        case right:                                           //dr
-            flip=0;
-            tile+=128;
-            break;
-        }
-        
-        tile+=(f2*2);
-    }
-    else
-    {
-        tile+=(f2)?0:2;
-        flip=(clk&1)?1:0;
+       
+    if ( do_animation ) 
+    {	    
+	    if(get_bit(quest_rules,qr_NEWENEMYTILES))
+	    {
+		switch(dir-8)                                           //directions get screwed up after 8.  *shrug*
+		{
+		case up:                                              //u
+		    flip=0;
+		    break;
+		    
+		case l_up:                                            //d
+		    flip=0;
+		    tile+=8;
+		    break;
+		    
+		case l_down:                                          //l
+		    flip=0;
+		    tile+=40;
+		    break;
+		    
+		case left:                                            //r
+		    flip=0;
+		    tile+=48;
+		    break;
+		    
+		case r_down:                                          //ul
+		    flip=0;
+		    tile+=80;
+		    break;
+		    
+		case down:                                            //ur
+		    flip=0;
+		    tile+=88;
+		    
+		    break;
+		    
+		case r_up:                                            //dl
+		    flip=0;
+		    tile+=120;
+		    break;
+		    
+		case right:                                           //dr
+		    flip=0;
+		    tile+=128;
+		    break;
+		}
+		
+		tile+=(f2*2);
+	    }
+	    else
+	    {
+		tile+=(f2)?0:2;
+		flip=(clk&1)?1:0;
+	    }
     }
     
     xofs-=8;
@@ -9554,7 +9595,7 @@ eGanon::eGanon(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
     mainguy=!getmapflag();
 }
 
-bool eGanon::animate(int index)
+bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this version of GANON!! -Z
 {
     if(dying)
     
@@ -9644,6 +9685,7 @@ bool eGanon::animate(int index)
             }
             
             sfx(WAV_CLEARED);
+	    al_trace("Trying to add the Triforce Drop from a Ganon battle!\n");
             items.add(new item(x+8,y+8,(fix)0,iBigTri,ipBIGTRI,0));
             setmapflag();
         }
@@ -9915,7 +9957,8 @@ bool eMoldorm::animate(int index)
                 y=segment->y;
             }
             
-            segment->o_tile=tile;
+            segment->o_tile=tile; //I refuse to fuck with adding scripttile to segmented enemies. -Z
+	    //Script your own blasted segmented bosses!! -Z
             
             if((i==index+segcnt)&&(i!=index+1))                   //tail
             {

@@ -160,6 +160,8 @@ long getQuestHeaderInfo(int type);
 
 void clearRunningItemScripts();
 bool itemScriptEngine();
+void lweaponScriptEngine();
+void eweaponScriptEngine();
 bool newScriptEngine();
 
 /*
@@ -199,7 +201,7 @@ void do_warp_ex(const bool v);
 //static void init();
 
 long quest_format[versiontypesLAST];
-
+byte skip_ending_credits; //checked in ending.cpp. If > 0, then we skip the game credits, but not Link's Win script. -Z
 
 long coreflags;
 long script_UIDs[UID_TYPES];
@@ -245,6 +247,12 @@ void do_monochromatic(const bool v);
 void gfxmonohue();
 void Tint();
 void clearTint();
+//Advances the game frame without checking 'Quit' variable status.
+//Used for making scripts such as Link's onWin and onDeath scripts
+//run for multiple frames.
+void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
+
+void initZScriptDMapScripts();
 
 int GetScriptObjectUID(int type);
     
@@ -972,7 +980,7 @@ enum __Error
     
     
     //only if the player is messing with their pointers...
-    static ZScriptArray& InvalidError(const long ptr)
+       static ZScriptArray& InvalidError(const long ptr)
     {
         //Z_scripterrlog("Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
         return INVALIDARRAY;
@@ -1220,6 +1228,9 @@ int ffscript_engine(const bool preload);
 
 void clear_ffc_stack(const byte i);
 void clear_global_stack();
+void clear_link_stack();
+void clear_dmap_stack();
+void initZScriptLinkScripts();
 void deallocateArray(const long ptrval);
 void clearScriptHelperData();
 
@@ -2021,7 +2032,9 @@ enum ASM_DEFINE
 	NPCHITWITH,
 	// moved to a var: NPCCOLLISION 
 	NPCGETINITDLABEL,
-
+	GAMECONTINUE,
+	MAPDATAISSOLID,
+	SHOWF6SCREEN,
 	NUMCOMMANDS           //0x013B
 };
 
@@ -3159,6 +3172,37 @@ enum ASM_DEFINE
 #define NPCDATAINITD			0x1320
 #define NPCDATASCRIPT			0x1321	
 #define NPCMATCHINITDLABEL			0x1322	
+#define LWPNSCRIPT			0x1323
+#define LWPNINITD			0x1324	
+#define ITEMFAMILY			0x1325	
+#define ITEMLEVEL			0x1326	
+
+#define EWPNSCRIPT			0x1327	
+#define EWPNINITD			0x1328	
+#define NPCSCRIPT			0x1329
+#define DMAPSCRIPT			0x132A	
+#define DMAPINITD			0x132B	
+#define SCREENSCRIPT			0x132C	
+#define SCREENINITD			0x132D	
+#define LINKINITD			0x132E	
+
+#define NPCDATAWEAPONINITD 		0x132F
+#define NPCDATAWEAPONSCRIPT 		0x1330
+
+#define NPCSCRIPTTILE 		0x1331
+#define NPCSCRIPTFLIP 		0x1332
+#define LWPNSCRIPTTILE 		0x1333
+#define LWPNSCRIPTFLIP 		0x1334
+#define EWPNSCRIPTTILE 		0x1335
+#define EWPNSCRIPTFLIP 		0x1336
+
+#define LINKENGINEANIMATE 		0x1337
+#define NPCENGINEANIMATE 		0x1338
+#define LWPNENGINEANIMATE 		0x1339
+#define EWPNENGINEANIMATE 		0x133A
+
+#define SKIPCREDITS 		0x133B
+#define SKIPF6 		0x133C
 
 //bytecode
 
@@ -3166,7 +3210,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x1323
+#define NUMVARIABLES         0x133C
 
 
 // Script types

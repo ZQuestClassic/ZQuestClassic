@@ -1673,6 +1673,37 @@ string VarArgument::toString()
 	case NPCDATAINITD: return "NPCDATAINITD";
 	case NPCDATASCRIPT: return "NPCDATASCRIPT";
 	case NPCMATCHINITDLABEL: return "NPCMATCHINITDLABEL";
+	//lweapon scripts
+	case LWPNSCRIPT: return "LWPNSCRIPT";
+	case LWPNINITD: return "LWPNINITD";
+	case ITEMFAMILY: return "ITEMFAMILY";
+	case ITEMLEVEL: return "ITEMLEVEL";
+	
+	case EWPNSCRIPT: return "EWPNSCRIPT";
+	case EWPNINITD: return "EWPNINITD";
+	case NPCSCRIPT: return "NPCSCRIPT";
+	case DMAPSCRIPT: return "DMAPSCRIPT";
+	case DMAPINITD: return "DMAPINITD";
+	case SCREENSCRIPT: return "SCREENSCRIPT";
+	case SCREENINITD: return "SCREENINITD";
+	case LINKINITD: return "LINKINITD";
+	case NPCDATAWEAPONINITD: return "NPCDATAWEAPONINITD";
+	case NPCDATAWEAPONSCRIPT: return "NPCDATAWEAPONSCRIPT";
+	
+	case NPCSCRIPTTILE: return "NPCSCRIPTTILE";
+	case NPCSCRIPTFLIP: return "NPCSCRIPTFLIP";
+	case LWPNSCRIPTTILE: return "LWPNSCRIPTTILE";
+	case LWPNSCRIPTFLIP: return "LWPNSCRIPTFLIP";
+	case EWPNSCRIPTTILE: return "EWPNSCRIPTTILE";
+	case EWPNSCRIPTFLIP: return "EWPNSCRIPTFLIP";
+	
+	case LINKENGINEANIMATE: return "LINKENGINEANIMATE";
+	case NPCENGINEANIMATE: return "NPCENGINEANIMATE";
+	case LWPNENGINEANIMATE: return "LWPNENGINEANIMATE";
+	case EWPNENGINEANIMATE: return "EWPNENGINEANIMATE";
+	
+	case SKIPCREDITS: return "SKIPCREDITS";
+	case SKIPF6: return "SKIPF6";
 	
 	
     default:
@@ -2574,6 +2605,11 @@ string OIsSolid::toString()
     return "ISSOLID " + getArgument()->toString();
 }
 
+string OIsSolidMapdata::toString()
+{
+    return "MAPDATAISSOLID " + getArgument()->toString();
+}
+
 string OSetSideWarpRegister::toString()
 {
     return "SETSIDEWARP";
@@ -2727,6 +2763,16 @@ string OGetScreenEFlags::toString()
 string OEnd::toString()
 {
     return "GAMEEND";
+}
+
+string OGameContinue::toString()
+{
+    return "GAMECONTINUE";
+}
+
+string OShowF6Screen::toString()
+{
+    return "SHOWF6SCREEN";
 }
 
 string OComboTile::toString()
