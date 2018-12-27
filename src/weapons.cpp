@@ -1694,7 +1694,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
         //fallthrough
     case ewFireball:
-    case wRefFireball:
+    {
         if ( parentid > -1 )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
@@ -1712,6 +1712,20 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         else misc=-1;
         
         break;
+    }
+    case wRefFireball:
+    {
+        LOADGFX(ewFIREBALL);
+        step=1.75;
+        
+        if(Type&2)
+        {
+            seekLink();
+        }
+        else misc=-1;
+        
+        break;
+    }
         
     case ewRock:
         if ( parentid > -1 )
