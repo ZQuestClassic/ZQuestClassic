@@ -8136,8 +8136,11 @@ void set_register(const long arg, const long value)
         
     case LWPNOTILE:
         if(0!=(s=checkLWpn(ri->lwpn,"OriginalTile")))
+	{
+	Z_scripterrlog("LWPNOTILE before write: %d\n", ((weapon*)s)->o_tile);
             ((weapon*)s)->o_tile=(value/10000);
-            
+	Z_scripterrlog("LWPNOTILE after write: %d\n", ((weapon*)s)->o_tile);
+	}
         break;
         
     case LWPNOCSET:

@@ -531,6 +531,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	case wScript10:
 	case wIce:
     {
+	    Z_scripterrlog("LW_SCRIPT o_tile is: %d\n",o_tile);
 	if(parentitem >-1)
 	{
 		
@@ -572,7 +573,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			}
 		}
 	}
-	
+	else 
+	{
+		if ( !o_tile )
+		{
+		LOADGFX(0);
+		}
+	}
 	break;
     } 
     case wSword: // Link's sword
@@ -7775,6 +7782,21 @@ void weapon::draw(BITMAP *dest)
             break;
         }
         
+	case wScript1:
+	case wScript2:
+	case wScript3:
+	case wScript4:
+	case wScript5:
+	case wScript6:
+	case wScript7:
+	case wScript8:
+	case wScript9:
+	case wScript10:
+	{
+		if ( do_animation ) tile = o_tile;
+		Z_scripterrlog("weapon::draw() o_tile is: %d\n", o_tile);
+	}
+	
         break;
     }
     
