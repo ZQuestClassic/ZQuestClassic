@@ -323,6 +323,7 @@ weapon::weapon(weapon const & other):
     {
 	weapname[q] = 0;		//long -The base wpn->Misc[32] set from the editor
     }
+    script_wrote_otile = 0;
     
     //if ( parentitem > -1 )
     //{
@@ -437,6 +438,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     hzsz=8;
     useweapon = usedefence = 0;
     weaprange = weapduration = 0;
+    script_wrote_otile = 0;
     if ( Parentitem > -1 )
     {
 	weaponscript = itemsbuf[Parentitem].weaponscript;
@@ -7793,11 +7795,19 @@ void weapon::draw(BITMAP *dest)
 	case wScript9:
 	case wScript10:
 	{
-		if ( do_animation ) tile = o_tile;
+		if ( do_animation && ScriptGenerated ) 
+		{
+			if (script_wrote_otile) 
+			{
+				tile = o_tile;
+				script_wrote_otile = 0;
+			}
+		}
 		Z_scripterrlog("weapon::draw() o_tile is: %d\n", o_tile);
 	}
 	
         break;
+	
     }
     
     // draw it

@@ -8137,9 +8137,10 @@ void set_register(const long arg, const long value)
     case LWPNOTILE:
         if(0!=(s=checkLWpn(ri->lwpn,"OriginalTile")))
 	{
-	Z_scripterrlog("LWPNOTILE before write: %d\n", ((weapon*)s)->o_tile);
+	//Z_scripterrlog("LWPNOTILE before write: %d\n", ((weapon*)s)->o_tile);
             ((weapon*)s)->o_tile=(value/10000);
-	Z_scripterrlog("LWPNOTILE after write: %d\n", ((weapon*)s)->o_tile);
+            ((weapon*)s)->script_wrote_otile=1;
+	//Z_scripterrlog("LWPNOTILE after write: %d\n", ((weapon*)s)->o_tile);
 	}
         break;
         
@@ -13928,7 +13929,7 @@ void do_drawing_command(const int script_command)
         break;
     
     case PIXELARRAYR:
-        set_drawing_command_args(j, 5);
+        set_drawing_command_args(j, 2);
         break;
     
     case TILEARRAYR:
