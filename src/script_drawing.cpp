@@ -809,10 +809,10 @@ void do_linesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[9]=rotation anchor y
     //sdci[10]=rotation angle
     //sdci[11]=opacity
-    if(sdci[7]==0)  //scale
-    {
-        return;
-    }
+    //if(sdci[7]==0)  //scale
+    //{
+    //    return;
+    //}
     
     int sz = FFCore.getSize(sdci[2]/10000);
 	//Z_scripterrlog("PutPixels array size is%d: \n",sz);
@@ -832,6 +832,10 @@ void do_linesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 	    int x2 = points[q+2];
 	    int y2 = points[q+3];
 	    
+	    int color  = points[q+4];
+	    
+	    if (points[q+5] == 0) return; //scale
+	    
 	    if( points[q+5] != 10000)
 	    {
 		int w=x2-x1+1;
@@ -844,7 +848,7 @@ void do_linesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		y2=y2+((h2-h)/2);
 	    }
 	    
-	    int color  = points[q+4];
+	    
 	    
 	    if(points[q+9] <= 127) //translucent
 	    {
