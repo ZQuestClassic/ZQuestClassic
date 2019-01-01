@@ -20266,9 +20266,13 @@ void FFScript::eweaponScriptEngine()
 		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
 		//ri->ewpn = Ewpns.spr(q)->getUID();
 		weapon *wp = (weapon*)Ewpns.spr(q);
-		if ( wp->Dead() ) continue;
-		if ( Ewpns.spr(q)->weaponscript == 0 ) continue;
-		if ( Ewpns.spr(q)->doscript == 0 ) continue;
+		if ( wp->isLWeapon ) continue;
+		//if ( wp->Dead() ) continue;
+		//if ( Ewpns.spr(q)->weaponscript == 0 ) continue;
+		//if ( Ewpns.spr(q)->doscript == 0 ) continue;
+		if ( wp->doscript ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, wp->getUID());		
+				
+		/*
 		switch(Ewpns.spr(q)->id)
 		{
 		    case ewSword:
@@ -20674,6 +20678,7 @@ void FFScript::eweaponScriptEngine()
 		    }
 		    default: break;
 		}
+		*/
 	}
 }
 
