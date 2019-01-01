@@ -1704,7 +1704,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         //fallthrough
     case ewFireball:
     {
-        if ( parentid > -1 )
+        if ( parentid > -1 && !isLWeapon )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1737,7 +1737,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     }
         
     case ewRock:
-        if ( parentid > -1 )
+        if ( parentid > -1 && !isLWeapon )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1763,7 +1763,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewArrow:
-        if ( parentid > -1 )
+        if ( parentid > -1 && !isLWeapon )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1798,7 +1798,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	break;
         
     case ewSword:
-        if ( parentid > -1 )
+        if ( parentid > -1 && !isLWeapon )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1849,7 +1849,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
         //reached case wRefMagic in weapons.cpp
         //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",1734);
-        if ( parentid > -1 && !script_gen)
+        if ( parentid > -1 && !script_gen && (!(id == ewMagic && isLWeapon)) )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1905,7 +1905,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case ewFlame2:
 	if(id==ewFlame)
 	{
-		if ( parentid > -1  && !script_gen)
+		if ( parentid > -1  && !script_gen && !isLWeapon)
 		{
 			enemy *e = (enemy*)guys.getByUID(parentid);
 			int enemy_wpnsprite = e->wpnsprite; 
@@ -1916,7 +1916,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	}
         else
 	{
-		if ( parentid > -1 && !script_gen)
+		if ( parentid > -1 && !script_gen &&!isLWeapon )
 		{
 			enemy *e = (enemy*)guys.getByUID(parentid);
 			int enemy_wpnsprite = e->wpnsprite; 
@@ -1963,7 +1963,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewFireTrail:
-        if ( parentid > -1 && !script_gen)
+        if ( parentid > -1 && !script_gen &&!isLWeapon)
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1997,7 +1997,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			hxsz=hysz=16;
 		}
 		
-        if ( parentid > -1 && !script_gen)
+        if ( parentid > -1 && !script_gen &&!isLWeapon)
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite;
