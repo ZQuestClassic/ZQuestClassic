@@ -13933,11 +13933,33 @@ void do_drawing_command(const int script_command)
         break;
     
     case TILEARRAYR:
-        set_drawing_command_args(j, 2);
+        set_drawing_command_args(j, 2); //perhaps, copy the entire array passed to sdci. I just don't know. -Z
         break;
         
     case LINESARRAY:
-        set_drawing_command_args(j, 2);
+	    set_drawing_command_args(j, 2);
+    
+    /*
+    historical-old-master
+    set_drawing_command_args(j, 6);
+			int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+			long* ptr = (long*)script_drawing_commands.AllocateDrawBuffer(3 * count * sizeof(long));
+			long* p = ptr;
+
+			ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+			ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+			ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+			script_drawing_commands[j].SetPtr(ptr);
+    */
+        // Unused
+        //const int index = script_drawing_commands[j][19] = j;
+        
+        //std::array    *aptr = script_drawing_commands.GetString();
+        //ArrayH::getString(script_drawing_commands[j][2] / 10000, *aptr);
+        //script_drawing_commands[j].SetArray(aptr);
+        //set_drawing_command_args(j, 2);
         break;
         
     case COMBOARRAYR:
