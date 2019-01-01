@@ -814,6 +814,7 @@ int LinkClass::getSpecialCave()
 
 void LinkClass::init()
 {
+	do_animation = 1;
     setMonochrome(false);
     if ( dontdraw != 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw link == 0
     hookshot_used=false;
@@ -11272,6 +11273,9 @@ bool LinkClass::dowarp(int type, int index)
     // Drawing commands probably shouldn't carry over...
     script_drawing_commands.Clear();
     
+    //KILL ambient sound
+//    mapscr *m = &TheMaps[ri->mapsref]
+    //oceansfx = 0; newscr->oceansfx
     switch(type)
     {
     case 0:                                                 // tile warp
@@ -11775,7 +11779,7 @@ bool LinkClass::dowarp(int type, int index)
         bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
                          ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
                          
-        if(!(tmpscr->flags3&fIWARPFULLSCREEN))
+        if(!(tmpscr->flags3&fIWARPFULLSCREEN)) //flags3 is used for carryover of sprites, too. 
         {
             //ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
             bool wasswimming = (action == swimming);

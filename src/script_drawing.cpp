@@ -809,10 +809,10 @@ void do_linesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
     //sdci[9]=rotation anchor y
     //sdci[10]=rotation angle
     //sdci[11]=opacity
-    if(sdci[7]==0)  //scale
-    {
-        return;
-    }
+    //if(sdci[7]==0)  //scale
+    //{
+    //    return;
+    //}
     
     int sz = FFCore.getSize(sdci[2]/10000);
 	//Z_scripterrlog("PutPixels array size is%d: \n",sz);
@@ -824,13 +824,21 @@ void do_linesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		
 	}
 	
-    for ( int q = 0; q < sz; q+=4 )
+    for ( int q = 0; q < sz; q+=10 )
     {
 	
 	    int x1 = points[q];
+	    Z_scripterrlog("Lines( x1 ) is: %d\n", x1);
 	    int y1 = points[q+1];
+	    Z_scripterrlog("Lines( x2 ) is: %d\n", y1);
 	    int x2 = points[q+2];
+	    Z_scripterrlog("Lines( x2 ) is: %d\n", x2);
 	    int y2 = points[q+3];
+	    Z_scripterrlog("Lines( y2 ) is: %d\n", y2);
+	    int color  = points[q+4];
+	    Z_scripterrlog("Lines( colour ) is: %d\n", color);
+	    Z_scripterrlog("Lines( scale ) is: %d\n", points[q+5]);
+	    if (points[q+5] == 0) { Z_scripterrlog("Lines() aborting due to scale\n"); return; }//scale
 	    
 	    if( points[q+5] != 10000)
 	    {
@@ -844,19 +852,24 @@ void do_linesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		y2=y2+((h2-h)/2);
 	    }
 	    
-	    int color  = points[q+4];
 	    
+	    Z_scripterrlog("Lines( opacity ) is: %d\n", points[q+9]);
 	    if(points[q+9] <= 127) //translucent
 	    {
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	    }
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-	    
+	    Z_scripterrlog("Lines( rotation ) is: %d\n", points[q+8]);
+	    Z_scripterrlog("Lines( rot_x ) is: %d\n", points[q+6]);
+	    Z_scripterrlog("Lines( rot_x ) is: %d\n", points[q+7]);
 	    if( points[q+8] !=0 ) //rotation
 	    {
 		int xy[4];
+		    
 		int rx = points[q+6];
+		    
 		int ry = points[q+7];
+		    
 		fixed ra1=itofix(points[q+8] % 1);
 		fixed ra2=itofix(points[q+8]);
 		fixed ra=ra1+ra2;
@@ -870,7 +883,8 @@ void do_linesr(BITMAP *bmp, int *sdci, int xoffset, int yoffset)
 		x2=xy[2];
 		y2=xy[3];
 	    }
-	    
+	    Z_scripterrlog("Lines( xofs ) is: %d\n", xoffset);
+	    Z_scripterrlog("Lines( yofs ) is: %d\n", yoffset);
 	    line(bmp, x1+xoffset, y1+yoffset, x2+xoffset, y2+yoffset, color);
     }
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);

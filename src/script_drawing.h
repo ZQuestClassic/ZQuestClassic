@@ -244,6 +244,11 @@ public:
         ptr = (void*)str;
     }
     
+    //void SetArray(std::array* aptr)
+    //{
+    //    ptr = (void*)aptr;
+    //}
+    
     void SetVector(std::vector<long>* v)
     {
         ptr = (void*)v;

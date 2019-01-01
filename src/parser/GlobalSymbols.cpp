@@ -2363,7 +2363,7 @@ void ScreenSymbols::generateCode()
         Opcode *first = new OPutPixelArrayRegister();
         first->setLabel(label);
         code.push_back(first);
-        POP_ARGS(5, EXP2);
+        POP_ARGS(2, EXP2);
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         
@@ -2378,7 +2378,7 @@ void ScreenSymbols::generateCode()
         Opcode *first = new OPutTileArrayRegister();
         first->setLabel(label);
         code.push_back(first);
-        POP_ARGS(5, EXP2);
+        POP_ARGS(2, EXP2);
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         
@@ -2393,7 +2393,7 @@ void ScreenSymbols::generateCode()
         Opcode *first = new OFastComboArrayRegister();
         first->setLabel(label);
         code.push_back(first);
-        POP_ARGS(5, EXP2);
+        POP_ARGS(2, EXP2);
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         
@@ -2408,7 +2408,7 @@ void ScreenSymbols::generateCode()
         Opcode *first = new OPutLinesArrayRegister();
         first->setLabel(label);
         code.push_back(first);
-        POP_ARGS(5, EXP2);
+        POP_ARGS(2, EXP2);
         //pop pointer, and ignore it
         code.push_back(new OPopRegister(new VarArgument(NUL)));
         
