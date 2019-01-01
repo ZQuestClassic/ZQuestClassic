@@ -2878,7 +2878,7 @@ void game_loop()
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "clear_script_one_frame_conditions()\n");
 	#endif
-        clear_script_one_frame_conditions(); //the timing on this may need adjustment. 
+        clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
 	
         for(int i = 0; i < (gofast ? 8 : 1); i++)
         {
@@ -2897,6 +2897,7 @@ void game_loop()
             
             checklink=false;
         }
+	FFCore.itemScriptEngine(); //run before lweapon scripts
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
 	#endif
@@ -2911,7 +2912,7 @@ void game_loop()
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
 	#endif
-        FFCore.itemScriptEngine();
+      
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
 	#endif
