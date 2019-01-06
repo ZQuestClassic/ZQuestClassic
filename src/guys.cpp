@@ -7843,11 +7843,11 @@ bool eKeese::animate(int index)
     
     if(dmisc1)
     {
-        floater_walk(rate,hrate,dstep/100,(fix)0,10,0,0);
+        floater_walk(rate,hrate,dstep/100,(fix)0,10,dmisc16,dmisc17);
     }
     else
     {
-        floater_walk(rate,hrate,dstep/100,dstep/1000,10,120,16);
+        floater_walk(rate,hrate,dstep/100,dstep/1000,10,dmisc16,dmisc17);
     }
     
     if(dmisc2 == e2tKEESETRIB)

@@ -9501,7 +9501,7 @@ extern const char *old_guy_string[OLDMAXGUYS];
 int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     dword dummy;
-    word dummy2;
+    word guy_cversion;
     word guyversion=0;
     
     if(Header->zelda_version >= 0x193)
@@ -9515,11 +9515,11 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	FFCore.quest_format[vGuys] = guyversion;
 	
         //al_trace("Guys version %d\n", guyversion);
-        if(!p_igetw(&dummy2,f,true))
+        if(!p_igetw(&guy_cversion,f,true))
         {
             return qe_invalid;
         }
-        
+        al_trace("Guy CVersion is: %d\n", guy_cversion);
         //section size
         if(!p_igetl(&dummy,f,true))
         {
@@ -10455,14 +10455,23 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 					return qe_invalid;
 			    } 
 		    }
-	    }
-	    if ( guyversion < 41 ) 
-	    {
-		    for ( int q = 0; q < 8; q++ )
+		    if ( guy_cversion < 4 )
 		    {
-			tempguy.weap_initiald[q] = 0;
+			if ( tempguy.family == eeKEESE )
+			{
+
+				if ( !tempguy.misc1 )
+				{
+					tempguy.misc16 = 120;
+					tempguy.misc17 = 16;
+					
+				}
+			}				
+			    
 		    }
 	    }
+	    
+	    
 	    
 	    //default weapon sprites (quest version < 2.54)
 	    //port over old defaults -Z
@@ -10664,7 +10673,23 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    {
 		    if ( tempguy.hitsfx == 0 ) tempguy.hitsfx = 11;
 	    }
-	 
+	    //Keese and bat halt rates.
+	    if ( guyversion < 42 && guy_cversion < 4  ) 
+	    {
+		    
+			if ( tempguy.family == eeKEESE )
+			{
+
+				if ( !tempguy.misc1 )
+				{
+					tempguy.misc16 = 120;
+					tempguy.misc17 = 16;
+					
+				}
+			}				
+			    
+		    
+	    }
 		
 	    
             //miscellaneous other corrections
