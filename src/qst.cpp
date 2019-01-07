@@ -10466,7 +10466,18 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 					tempguy.misc17 = 16;
 					
 				}
-			}				
+			}
+			if ( tempguy.family == eePEAHAT )
+			{	
+				tempguy.misc16 = 80;
+				tempguy.misc17 = 16;
+			}
+
+			if ( tempguy.family == eeGHINI )
+			{	
+				tempguy.misc16 = 120;
+				tempguy.misc17 = 10;
+			}			
 			    
 		    }
 	    }
@@ -10686,7 +10697,17 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 					tempguy.misc17 = 16;
 					
 				}
-			}				
+			}
+			if ( tempguy.family == eePEAHAT )
+			{	
+				tempguy.misc16 = 80;
+				tempguy.misc17 = 16;
+			}
+			if ( tempguy.family == eeGHINI )
+			{	
+				tempguy.misc16 = 120;
+				tempguy.misc17 = 10;
+			}			
 			    
 		    
 	    }

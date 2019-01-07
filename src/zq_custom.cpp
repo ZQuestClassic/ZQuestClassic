@@ -3943,8 +3943,8 @@ static EnemyNameInfo enameinf[]=
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Halt Duration",
+		(char *)"Acceleration Factor",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -4041,8 +4041,8 @@ static EnemyNameInfo enameinf[]=
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Halt Duration",
+		(char *)"Acceleration Factor",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -4055,8 +4055,8 @@ static EnemyNameInfo enameinf[]=
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"BFlags[11]:",(char *)"BFlags[12]:",
 		(char *)"BFlags[13]:",(char *)"BFlags[14]:",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Attributes[15]",
-		(char *)"Attributes[16]",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
+		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Halt Duration",
+		(char *)"Acceleration Factor",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
 		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
 		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
 		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
@@ -5433,23 +5433,24 @@ void setEnemyLabels(int family)
     //Enemy Attribute Labels, starting at 11
     for ( int q = 10; q < 16; q++ ) //check these numbers! -Z
     {
-	if(inf->flags[q]!=NULL)
+	if(inf->attributes[q]!=NULL)
             {
                 enedata_dlg[288+(q-10)].dp = (char*)inf->attributes[q];
             }
     }
     for ( int q = 16; q < 24; q++ ) //check these numbers! -Z
     {
-	if(inf->flags[q]!=NULL)
+	int w = 0;
+	if(inf->attributes[q]!=NULL)
             {
-                enedata_dlg[310+(q-16)].dp = (char*)inf->attributes[q];
+                enedata_dlg[302+(q-16)].dp = (char*)inf->attributes[q];
             }
     }
     for ( int q = 24; q < 32; q++ ) //check these numbers! -Z
     {
-	if(inf->flags[q]!=NULL)
+	if(inf->attributes[q]!=NULL)
             {
-                enedata_dlg[327+(q-24)].dp = (char*)inf->attributes[q];
+                enedata_dlg[319+(q-24)].dp = (char*)inf->attributes[q];
             }
     }
     
