@@ -1,5 +1,10 @@
 ChangeLog for 2.53.0 
 
+//Beta 29
+Fixed colour issues when using DrawScreen(), DrawLayer(), 
+	and FastCombo(), drawing combos with a CSet2 value.
+	( ZoriaRPG, 7th January, 2019 )
+	
 //Beta 28
 Renamed entry [0] in Emulation Menu to 'Flip-Flip Cancel and Wave Warps'
 	Disabled this option if the current quest was made in 2.10 or
