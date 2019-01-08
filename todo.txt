@@ -1,8 +1,8 @@
 **List of Things to Implement in 2. Prior to Gamma 1**
     
---done : Fix controller/ley dialogues: Re-implement setting button for map.
+--done B30: Fix controller/ley dialogues: Re-implement setting button for map.
 
---done : Verify triforce drop in ganon fight.
+--done B30: Verify triforce drop in ganon fight.
 
     Emulation:
     2.10
@@ -16,8 +16,9 @@
 
     1.92 or 1.90
 
-        Manhandla and lanmolas should alwas drop per segment.
-        
+        probably done  : Manhandla and lanmolas should alwas drop per segment.
+        B31:: I also added Moldorm to this list.
+	B31:: This needs verification and testing. 
         
         Version unsure; it was either 1.90 or 1.92, but 
         For reference, you basically had to stand like a half tile away from a hookshottable combo, 
