@@ -5273,7 +5273,7 @@ static DIALOG btn_dlg[] =
     { jwin_ctext_proc,      237,  180-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex2, NULL,  NULL },
     { jwin_ctext_proc,      237,  212-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex4, NULL,  NULL },
     
-    { d_jbutton_proc,      22,   90-40,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "A",     NULL, &Abtn},
+    
     { d_jbutton_proc,      22,   118-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "B",     NULL, &Bbtn},
     { d_jbutton_proc,      22,   146-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Start", NULL, &Sbtn},
     { d_jbutton_proc,      22,   178-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX1",     NULL, &Exbtn1},
@@ -5285,7 +5285,7 @@ static DIALOG btn_dlg[] =
     { d_jbutton_proc,      167,  210-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX4",   NULL, &Exbtn4},
     { d_jbutton_proc,      22,   242-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Menu",  NULL, &Mbtn},
     { jwin_ctext_proc,     92, 244-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_m, NULL,  NULL },
-    
+    { d_jbutton_proc,      22,   90-40,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "A",     NULL, &Abtn},
     { jwin_button_proc,    90,   274-40,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
     { jwin_button_proc,    170,  274-40,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
