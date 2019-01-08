@@ -2,7 +2,7 @@
     
 --done : Fix controller/ley dialogues: Re-implement setting button for map.
 
-Verify triforce drop in ganon fight.
+--done : Verify triforce drop in ganon fight.
 
     Emulation:
     2.10
