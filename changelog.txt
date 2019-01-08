@@ -1,5 +1,10 @@
 ChangeLog for 2.53.0 
 
+//Beta 30
+Re-added the 'Menu' button configuration option to
+	Joystick Button configs.
+	( ZoriaRPG, 8th January, 2019 )
+	
 //Beta 29
 Fixed colour issues when using DrawScreen(), DrawLayer(), 
 	and FastCombo(), drawing combos with a CSet2 value.
