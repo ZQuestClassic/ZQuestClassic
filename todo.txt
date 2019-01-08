@@ -30,6 +30,18 @@
     UP-FACING TILES HAVE ISSUES
     Hold-up item sprite tile is wrong. 
     
+    1.90 anim tiles
+	holdup (two hand): tile -=1 or tile = 31
+	one hand tile also = 31?
+	I need another **UNLOCKED** 1.90 quest to use as a reference to see 
+		what tiles this should use. 
+		
+	swimming
+	copy walking sprites to swimming sprites
+
+	attack/pound
+	might need to copy walk tiles here, too
+    
     Upward stab tile is wrong. 
     
     In 1.90, Gel and Keese Tribbles used to turn into Gels and Vires, not the tribble counterparts.
