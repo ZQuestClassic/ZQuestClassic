@@ -1,0 +1,48 @@
+**List of Things to Implement in 2. Prior to Gamma 1**
+    
+--done : Fix controller/ley dialogues: Re-implement setting button for map.
+
+Verify triforce drop in ganon fight.
+
+    Emulation:
+    2.10
+        Wind Wizzrobes should use blue/bat wizzrobe movement, not linedup.
+        DMap intros always repeat.
+        Half-tile trick is enabled. 
+    1.92 and 1.90
+        
+
+        1.92b50-ish; SOME SIDEWARPS MAY NOT WORK?
+
+    1.92 or 1.90
+
+        Manhandla and lanmolas should alwas drop per segment.
+        
+        
+        Version unsure; it was either 1.90 or 1.92, but 
+        For reference, you basically had to stand like a half tile away from a hookshottable combo, 
+        and if you did it right you could merge partially with the tile. 
+        And then once on that you could either get stuck or access places you're not meant to, depending on where it is
+        Some quests have secret areas and such that could be accessed in this way
+
+1.90 Issues
+
+    UP-FACING TILES HAVE ISSUES
+    Hold-up item sprite tile is wrong. 
+    
+    Upward stab tile is wrong. 
+    
+    In 1.90, Gel and Keese Tribbles used to turn into Gels and Vires, not the tribble counterparts.
+
+    "Swimming in 1.90 uses the walking tiles instead of the swimming tiles for BS-Link even if you make them, so I just made the Flippers an item that lets you walk on water. However, if you play the quest in 1.92 it will look glitchy."
+    --venrob Swim up
+        It fucks up
+        The other three directions seem right
+        But up is fucky
+
+    --P-tux And now it turns out using the hammer when facing up looks glitchy as well
+        Cheat yourself a hammer in the modded BA2 in #tools-discussion and behold(edited)
+        Seems diving has some issues too
+        It uses a weird sequence of Link tiles. @NightmareJames did you say diving was invisible in 1.90?
+
+1.90 quest icons may be corrrupt.
