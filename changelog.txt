@@ -1,5 +1,13 @@
 ChangeLog for 2.53.0 
 
+//Beta 31
+Added an Emulation Menu option to enable drop-per-segment
+	for Lanmola, Manhandla, and Moldorm. 
+	This needs testing in older quests, and further verification.
+	neither the menu option, nor the config section option
+	should work in 2.50+ quests.
+	( ZoriaRPG, 8th January, 2019 )
+	
 //Beta 30
 Re-added the 'Menu' button configuration option to
 	Joystick Button configs.
