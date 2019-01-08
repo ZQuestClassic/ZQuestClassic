@@ -67,7 +67,7 @@ byte zc_192b163_compatibility;
 byte midi_patch_fix;
 bool midi_paused=false;
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
-
+byte emulation_patches[16];
 
 extern word quest_header_zelda_version; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
@@ -390,6 +390,7 @@ void load_game_configs()
     fullscreen = get_config_int(cfg_sect,"fullscreen",1);
     use_save_indicator = get_config_int(cfg_sect,"save_indicator",0);
     zc_192b163_compatibility = get_config_int(cfg_sect,"zc_192b163_compatibility",0);
+    emulation_patches[emuITEMPERSEG] = get_config_int(cfg_sect,"zc_segment_drop_emulation",0);
 }
 
 void save_game_configs()
@@ -510,6 +511,8 @@ void save_game_configs()
     
     set_config_int(cfg_sect,"save_indicator",use_save_indicator);
     set_config_int(cfg_sect,"zc_192b163_compatibility",zc_192b163_compatibility);
+    set_config_int(cfg_sect,"zc_segment_drop_emulation",emulation_patches[emuITEMPERSEG]);
+    
     
     flush_config_file();
 }
@@ -6935,9 +6938,16 @@ int on192b163compatibility()
     return D_O_K;
 }
 
+int v210_segment_drops()
+{
+    emulation_patches[emuITEMPERSEG]=!emulation_patches[emuITEMPERSEG];
+    return D_O_K;
+}
+
 static MENU compat_patch_menu[] =
 {
     { (char *)"Flip-Flop Cancel and Wave Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
+    { (char *)"2.10 Segmented Enemy Drops",                     v210_segment_drops,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -8016,6 +8026,7 @@ void System()
 	//al_trace("Quest was made in: %d\n",quest_header_zelda_version);
 	
 	compat_patch_menu[0].flags = ( quest_header_zelda_version >= 0x210 ) ? D_DISABLED : ((zc_192b163_compatibility)?D_SELECTED:0);
+	compat_patch_menu[1].flags = ( quest_header_zelda_version >= 0x210 ) ? D_DISABLED : ((emulation_patches[emuITEMPERSEG])?D_SELECTED:0);
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;

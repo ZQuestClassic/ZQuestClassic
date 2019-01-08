@@ -38,6 +38,8 @@ int vhead=0;
 int guycarryingitem=0;
 
 char *guy_string[eMAXGUYS];
+extern byte emulation_patches[16];
+extern word quest_header_zelda_version;
 
 void never_return(int index);
 void playLevelMusic();
@@ -8900,7 +8902,7 @@ bool eMoldorm::animate(int index)
             if(flags&guy_neverret)
                 never_return(index);
                 
-            if(!dmisc2)
+            if(!dmisc2 || ( quest_header_zelda_version >= 0x210 && emulation_patches[emuITEMPERSEG]) )
                 leave_item();
                 
             stop_bgsfx(index);
@@ -9149,7 +9151,7 @@ bool eLanmola::animate(int index)
     {
         if(--clk2 == 0)
         {
-            if(!dmisc3)
+            if(!dmisc3 || ( quest_header_zelda_version >= 0x210 && emulation_patches[emuITEMPERSEG] ) )
                 leave_item();
                 
             stop_bgsfx(index);
@@ -9396,6 +9398,10 @@ bool eManhandla::animate(int index)
                 guys.swap(index+j+1,index+j+2);
                 
             }
+	    if( ( quest_header_zelda_version >= 0x210 && emulation_patches[emuITEMPERSEG] ) )
+	    {
+                leave_item();
+	    }
             
             --armcnt;
         }

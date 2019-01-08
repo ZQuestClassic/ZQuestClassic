@@ -724,6 +724,9 @@ enum
     isMAGIC, isMAGICBOMBS, isMAGICMONEY, isMAGICLIFE, isMAGIC2, isTALLGRASS, isMAX
 };
 
+//emulation patches
+enum { emuITEMPERSEG };
+
 // weapons (in qst data)
 enum
 {
