@@ -6934,13 +6934,15 @@ static MENU settings_menu[] =
 
 int on192b163compatibility()
 {
-    zc_192b163_compatibility=!zc_192b163_compatibility;
+    if ( zc_192b163_compatibility ) zc_192b163_compatibility = 0;
+    else zc_192b163_compatibility = 1;
     return D_O_K;
 }
 
 int v210_segment_drops()
 {
-    emulation_patches[emuITEMPERSEG]=!emulation_patches[emuITEMPERSEG];
+    if (emulation_patches[emuITEMPERSEG] ) emulation_patches[emuITEMPERSEG] = 0;
+    else emulation_patches[emuITEMPERSEG] = 1;
     return D_O_K;
 }
 
@@ -8026,7 +8028,7 @@ void System()
 	//al_trace("Quest was made in: %d\n",quest_header_zelda_version);
 	
 	compat_patch_menu[0].flags = ( quest_header_zelda_version >= 0x210 ) ? D_DISABLED : ((zc_192b163_compatibility)?D_SELECTED:0);
-	compat_patch_menu[1].flags = ( quest_header_zelda_version >= 0x210 ) ? D_DISABLED : ((emulation_patches[emuITEMPERSEG])?D_SELECTED:0);
+	compat_patch_menu[1].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuITEMPERSEG])?D_SELECTED:0);
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
