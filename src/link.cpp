@@ -13988,7 +13988,8 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
 // How much to reduce Link's damage, taking into account various rings.
 int LinkClass::ringpower(int dmg)
 {
-    int result = 1;
+    int divisor = 1;
+	float percentage = 1;
     int itemid = current_item_id(itype_ring);
     bool usering = false;
     
@@ -13996,7 +13997,14 @@ int LinkClass::ringpower(int dmg)
     {
         usering = true;
         paymagiccost(itemid);
-        result *= itemsbuf[itemid].power;
+		if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+		{
+			percentage *= itemsbuf[itemid].power/100.0;
+		}
+		else
+		{
+			divisor *= itemsbuf[itemid].power;
+		}
     }
     
     /* Now for the Peril Ring */
@@ -14006,15 +14014,24 @@ int LinkClass::ringpower(int dmg)
     {
         usering = true;
         paymagiccost(itemid);
-        result *= itemsbuf[itemid].power;
+        if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+		{
+			percentage *= itemsbuf[itemid].power/100.0;
+		}
+		else
+		{
+			divisor *= itemsbuf[itemid].power;
+		}
     }
     
     // Ring divisor of 0 = no damage. -L
-    if(usering && result==0) //Change dto allow negative power rings. -Z
+    if(usering && (divisor==0 || percentage==0)) //Change dto allow negative power rings. -Z
         return 0;
-        
-    if ( result < 0 ) return dmg * (result*-1);
-    return dmg/( result != 0 ? result : 1 ); //zc_max(result, 1); // well, better safe...
+	
+	if( percentage < 0 ) percentage = (percentage * -1) + 1; //Negative percentage = that percent MORE damage -V
+	
+    if ( divisor < 0 ) return dmg * percentage * (divisor*-1);
+    return dmg*percentage/( divisor != 0 ? divisor : 1 ); //zc_max(divisor, 1); // well, better safe...
 }
 
 // Should swinging the hammer make the 'pound' sound?
