@@ -229,7 +229,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define CV_ICONS           1
 #define CV_GRAPHICSPACK    1
 #define CV_INITDATA       15
-#define CV_GUYS            3
+#define CV_GUYS            4
 #define CV_MIDIS           3
 #define CV_CHEATS          1
 #define CV_SAVEGAME        5

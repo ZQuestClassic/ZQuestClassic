@@ -1313,6 +1313,21 @@ void BuildOpcodes::arrayLiteralDeclaration(
 		addOpcode(new OSetRegister(new VarArgument(SCRIPTRAM),
 		                           new VarArgument(EXP1)));
 	}
+	
+	////////////////////////////////////////////////////////////////
+	// Actual Code.
+/* I added this because calling an 'internal function with an array literal, inside a user
+	created function is using SETV with bizarre values. -ZScript
+	//Didn't work.
+	int offset = *getStackOffset(manager) * 10000L;
+	// Local variable, get its value from the stack.
+	addOpcode(new OSetRegister(new VarArgument(SFTEMP),
+	                           new VarArgument(SFRAME)));
+	addOpcode(new OAddImmediate(new VarArgument(SFTEMP),
+	                            new LiteralArgument(offset)));
+	addOpcode(new OLoadIndirect(new VarArgument(EXP1),
+	                            new VarArgument(SFTEMP)));
+	*/
 }
 
 void BuildOpcodes::arrayLiteralFree(

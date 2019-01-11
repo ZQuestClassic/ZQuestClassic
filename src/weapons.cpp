@@ -323,6 +323,7 @@ weapon::weapon(weapon const & other):
     {
 	weapname[q] = 0;		//long -The base wpn->Misc[32] set from the editor
     }
+    script_wrote_otile = 0;
     
     //if ( parentitem > -1 )
     //{
@@ -437,6 +438,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     hzsz=8;
     useweapon = usedefence = 0;
     weaprange = weapduration = 0;
+    script_wrote_otile = 0;
     if ( Parentitem > -1 )
     {
 	weaponscript = itemsbuf[Parentitem].weaponscript;
@@ -531,6 +533,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	case wScript10:
 	case wIce:
     {
+	    Z_scripterrlog("LW_SCRIPT o_tile is: %d\n",o_tile);
 	if(parentitem >-1)
 	{
 		
@@ -572,7 +575,13 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			}
 		}
 	}
-	
+	else 
+	{
+		if ( !o_tile )
+		{
+		LOADGFX(0);
+		}
+	}
 	break;
     } 
     case wSword: // Link's sword
@@ -1694,8 +1703,8 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
         //fallthrough
     case ewFireball:
-    case wRefFireball:
-        if ( parentid > -1 )
+    {
+        if ( parentid > -1 && !isLWeapon )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1712,9 +1721,23 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         else misc=-1;
         
         break;
+    }
+    case wRefFireball:
+    {
+        LOADGFX(ewFIREBALL);
+        step=1.75;
+        
+        if(Type&2)
+        {
+            seekLink();
+        }
+        else misc=-1;
+        
+        break;
+    }
         
     case ewRock:
-        if ( parentid > -1 )
+        if ( parentid > -1 && !isLWeapon )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1740,7 +1763,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewArrow:
-        if ( parentid > -1 )
+        if ( parentid > -1 && !isLWeapon )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1775,7 +1798,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	break;
         
     case ewSword:
-        if ( parentid > -1 )
+        if ( parentid > -1 && !isLWeapon )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1826,7 +1849,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     {
         //reached case wRefMagic in weapons.cpp
         //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",1734);
-        if ( parentid > -1 && !script_gen)
+        if ( parentid > -1 && !script_gen && (!(id == ewMagic && isLWeapon)) )
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1882,7 +1905,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
     case ewFlame2:
 	if(id==ewFlame)
 	{
-		if ( parentid > -1  && !script_gen)
+		if ( parentid > -1  && !script_gen && !isLWeapon)
 		{
 			enemy *e = (enemy*)guys.getByUID(parentid);
 			int enemy_wpnsprite = e->wpnsprite; 
@@ -1893,7 +1916,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 	}
         else
 	{
-		if ( parentid > -1 && !script_gen)
+		if ( parentid > -1 && !script_gen &&!isLWeapon )
 		{
 			enemy *e = (enemy*)guys.getByUID(parentid);
 			int enemy_wpnsprite = e->wpnsprite; 
@@ -1940,7 +1963,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         break;
         
     case ewFireTrail:
-        if ( parentid > -1 && !script_gen)
+        if ( parentid > -1 && !script_gen &&!isLWeapon)
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite; 
@@ -1974,7 +1997,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
 			hxsz=hysz=16;
 		}
 		
-        if ( parentid > -1 && !script_gen)
+        if ( parentid > -1 && !script_gen &&!isLWeapon)
 	{
 		enemy *e = (enemy*)guys.getByUID(parentid);
 		int enemy_wpnsprite = e->wpnsprite;
@@ -3535,24 +3558,33 @@ bool weapon::animate(int index)
     case wBrang:
     {
 	    //run first? brang scripts were being killed on WDS_BOUNCE, so this may fix that.
-	if ( doscript )
-	{
-		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	}
+	
         if(dead==0)  // Set by ZScript
         {
             stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
-	    //if ( doscript )
-	    //{
-		//   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	    //}
+	    if ( doscript )
+	    {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    }
             break;
         }
         
         else if(dead==1) // Set by ZScript
         {
+	    if ( doscript )
+	    {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    }
             onhit(false);
         }
+	else
+	{
+	    if ( doscript )
+	    {
+		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	    }
+	}
+	
         
         int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:1;
         
@@ -3704,10 +3736,7 @@ bool weapon::animate(int index)
                 {
                     getdraggeditem(dragging);
                 }
-                if ( doscript )
-	        {
-		   ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
-	        }
+                
                 return true;
             }
             
@@ -3715,7 +3744,11 @@ bool weapon::animate(int index)
         }
         //call before the sfx
         
-        
+        //if ( doscript )
+	//{
+		//Z_scripterrlog("Engine Brang DeadState is: %d\n",dead);
+	//	ZScriptVersion::RunScript(SCRIPT_LWPN, weaponscript, getUID());
+	//}
         sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int(x)),true,false);
         
         break;
@@ -5004,6 +5037,7 @@ mirrors:
     
     if(dead>0)
     {
+	    
         --dead;
     }
     
@@ -7310,7 +7344,7 @@ offscreenCheck:
         {
             clk2=256;
             int deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:4;
-            
+		Z_scripterrlog("weapons.cpp, line %d\n", 7314);
             if(clipped)
             {
                 dead=deadval;
@@ -7750,7 +7784,30 @@ void weapon::draw(BITMAP *dest)
             break;
         }
         
+	case wScript1:
+	case wScript2:
+	case wScript3:
+	case wScript4:
+	case wScript5:
+	case wScript6:
+	case wScript7:
+	case wScript8:
+	case wScript9:
+	case wScript10:
+	{
+		if ( do_animation && ScriptGenerated ) 
+		{
+			if (script_wrote_otile) 
+			{
+				tile = o_tile;
+				script_wrote_otile = 0;
+			}
+		}
+		Z_scripterrlog("weapon::draw() o_tile is: %d\n", o_tile);
+	}
+	
         break;
+	
     }
     
     // draw it

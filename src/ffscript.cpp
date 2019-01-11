@@ -8136,8 +8136,12 @@ void set_register(const long arg, const long value)
         
     case LWPNOTILE:
         if(0!=(s=checkLWpn(ri->lwpn,"OriginalTile")))
+	{
+	//Z_scripterrlog("LWPNOTILE before write: %d\n", ((weapon*)s)->o_tile);
             ((weapon*)s)->o_tile=(value/10000);
-            
+            ((weapon*)s)->script_wrote_otile=1;
+	//Z_scripterrlog("LWPNOTILE after write: %d\n", ((weapon*)s)->o_tile);
+	}
         break;
         
     case LWPNOCSET:
@@ -13925,15 +13929,37 @@ void do_drawing_command(const int script_command)
         break;
     
     case PIXELARRAYR:
-        set_drawing_command_args(j, 5);
+        set_drawing_command_args(j, 2);
         break;
     
     case TILEARRAYR:
-        set_drawing_command_args(j, 2);
+        set_drawing_command_args(j, 2); //perhaps, copy the entire array passed to sdci. I just don't know. -Z
         break;
         
     case LINESARRAY:
-        set_drawing_command_args(j, 2);
+	    set_drawing_command_args(j, 2);
+    
+    /*
+    historical-old-master
+    set_drawing_command_args(j, 6);
+			int count = script_drawing_commands[j][2] / 10000; //todo: errcheck
+
+			long* ptr = (long*)script_drawing_commands.AllocateDrawBuffer(3 * count * sizeof(long));
+			long* p = ptr;
+
+			ArrayH::getValues(script_drawing_commands[j][3] / 10000, p, count); p += count;
+			ArrayH::getValues(script_drawing_commands[j][4] / 10000, p, count); p += count;
+			ArrayH::getValues(script_drawing_commands[j][5] / 10000, p, count);
+
+			script_drawing_commands[j].SetPtr(ptr);
+    */
+        // Unused
+        //const int index = script_drawing_commands[j][19] = j;
+        
+        //std::array    *aptr = script_drawing_commands.GetString();
+        //ArrayH::getString(script_drawing_commands[j][2] / 10000, *aptr);
+        //script_drawing_commands[j].SetArray(aptr);
+        //set_drawing_command_args(j, 2);
         break;
         
     case COMBOARRAYR:
@@ -19891,9 +19917,6 @@ void FFScript::lweaponScriptEngine()
 		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->lwpn (%d)\n", Lwpns.spr(q)->getUID(), ri->lwpn);
 		//ri->lwpn = Lwpns.spr(q)->getUID();
 		weapon *wp = (weapon*)Lwpns.spr(q);
-		if ( wp->Dead() ) continue;
-		if ( Lwpns.spr(q)->weaponscript == 0 ) continue;
-		if ( Lwpns.spr(q)->doscript == 0 ) continue;
 		switch(Lwpns.spr(q)->id)
 		{
 		    /* We can't have this, because the same script would run on the sword, and on the swordbeam!
@@ -20085,25 +20108,11 @@ void FFScript::lweaponScriptEngine()
 		    case wBrang:
 		    {
 			weapon *wa = (weapon*)Lwpns.spr(q);
-			if ( wa->Dead() ) break;
-			if ( Lwpns.spr(q)->doscript && Lwpns.spr(q)->weaponscript > 0 ) 
+			    
+			if ( Lwpns.spr(q)->doscript ) 
 			{
 				weapon *w = (weapon*)Lwpns.spr(q);
-				if ( w->Dead() )
-				{
-					Lwpns.spr(q)->doscript = 0;
-					Lwpns.spr(q)->weaponscript = 0;
-					break;
-				}
-				else
-				{
-					//al_trace("Found an lweapon index of: %d, when trying to run an lweapon script.\n",w_index);
-					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, index);		
-					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, Lwpns.spr(q)->getUID());		
-					//ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, ri->lwpn);		
-					ri->lwpn = w->getUID();
-					ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
-				}
+				ZScriptVersion::RunScript(SCRIPT_LWPN, Lwpns.spr(q)->weaponscript, w->getUID());		
 			}
 		
 			
@@ -20257,9 +20266,13 @@ void FFScript::eweaponScriptEngine()
 		//Z_scripterrlog("lweaponScriptEngine(): UID (%d) ri->ewpn (%d)\n", Ewpns.spr(q)->getUID(), ri->ewpn);
 		//ri->ewpn = Ewpns.spr(q)->getUID();
 		weapon *wp = (weapon*)Ewpns.spr(q);
-		if ( wp->Dead() ) continue;
-		if ( Ewpns.spr(q)->weaponscript == 0 ) continue;
-		if ( Ewpns.spr(q)->doscript == 0 ) continue;
+		if ( wp->isLWeapon ) continue;
+		//if ( wp->Dead() ) continue;
+		//if ( Ewpns.spr(q)->weaponscript == 0 ) continue;
+		//if ( Ewpns.spr(q)->doscript == 0 ) continue;
+		if ( wp->doscript ) ZScriptVersion::RunScript(SCRIPT_EWPN, Ewpns.spr(q)->weaponscript, wp->getUID());		
+				
+		/*
 		switch(Ewpns.spr(q)->id)
 		{
 		    case ewSword:
@@ -20665,6 +20678,7 @@ void FFScript::eweaponScriptEngine()
 		    }
 		    default: break;
 		}
+		*/
 	}
 }
 
@@ -21276,7 +21290,7 @@ void FFScript::do_npc_canmove(const bool v)
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		if ( sz == 1 ) //bool canmove(int ndir): dir only, uses 'step' IIRC
 		{
-			Z_scripterrlog("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
+			//Z_scripterrlog("npc->CanMove(%d)\n",getElement(arrayptr, 0)/10000);
 			//can_mv = e->canmove(getElement(arrayptr, 0)/10000);
 			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? 10000 : 0);
 			//Z_scripterrlog("npc->CanMove(dir) returned: %s\n", (GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000))) ? "true" : "false");
@@ -21284,7 +21298,7 @@ void FFScript::do_npc_canmove(const bool v)
 		}
 		else if ( sz == 2 ) //bool canmove(int ndir, int special): I think that this also uses the default 'step'
 		{
-			Z_scripterrlog("npc->CanMove(%d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000));
+			//Z_scripterrlog("npc->CanMove(%d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000));
 			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000))) ? 10000 : 0);
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (getElement(arrayptr, 1)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
@@ -21292,7 +21306,7 @@ void FFScript::do_npc_canmove(const bool v)
 		}
 		else if ( sz == 3 ) //bool canmove(int ndir,fix s,int special) : I'm pretty sure that 'fix s' is 'step' here. 
 		{
-			Z_scripterrlog("npc->CanMove(%d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000));
+			//Z_scripterrlog("npc->CanMove(%d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000));
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (fix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
 			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(fix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000))) ? 10000 : 0);

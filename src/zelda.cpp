@@ -967,6 +967,12 @@ extern word curScriptNum;
 extern std::map<int, std::pair<std::string, std::string> > ffcmap;
 extern std::map<int, std::pair<std::string, std::string> > globalmap;
 extern std::map<int, std::pair<std::string, std::string> > itemmap;
+extern std::map<int, std::pair<std::string, std::string> > npcmap;
+extern std::map<int, std::pair<std::string, std::string> > ewpnmap;
+extern std::map<int, std::pair<std::string, std::string> > lwpnmap;
+extern std::map<int, std::pair<std::string, std::string> > linkmap;
+extern std::map<int, std::pair<std::string, std::string> > dmapmap;
+extern std::map<int, std::pair<std::string, std::string> > screenmap;
 
 void Z_scripterrlog(const char * const format,...)
 {
@@ -979,15 +985,15 @@ void Z_scripterrlog(const char * const format,...)
             break;
 	
 	case SCRIPT_LINK:
-            al_trace("Link script %u (%s): ", curScriptNum+1, linkmap[curScriptNum].second.c_str());
+            al_trace("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].second.c_str());
             break;
 	
 	case SCRIPT_LWPN:
-            al_trace("LWeapon script %u (%s): ", curScriptNum+1, lwpnmap[curScriptNum].second.c_str());
+            al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].second.c_str());
             break;
 	
 	case SCRIPT_NPC:
-            al_trace("LWeapon script %u (%s): ", curScriptNum+1, npcmap[curScriptNum].second.c_str());
+            al_trace("LWeapon script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].second.c_str());
             break;
             
         case SCRIPT_FFC:
@@ -996,6 +1002,14 @@ void Z_scripterrlog(const char * const format,...)
             
         case SCRIPT_ITEM:
             al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+            break;
+        
+	case SCRIPT_DMAP:
+            al_trace("DMap script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
+            break;
+        
+	case SCRIPT_SCREEN:
+            al_trace("Screen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].second.c_str());
             break;
         }
         
@@ -2864,7 +2878,7 @@ void game_loop()
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "clear_script_one_frame_conditions()\n");
 	#endif
-        clear_script_one_frame_conditions(); //the timing on this may need adjustment. 
+        clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
 	
         for(int i = 0; i < (gofast ? 8 : 1); i++)
         {
@@ -2883,6 +2897,7 @@ void game_loop()
             
             checklink=false;
         }
+	FFCore.itemScriptEngine(); //run before lweapon scripts
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
 	#endif
@@ -2891,12 +2906,13 @@ void game_loop()
 	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
 	#endif
 	//perhaps add sprite.waitdraw, and call sprite script here too?
-        Lwpns.animate();
+        //FFCore.lweaponScriptEngine();
+	Lwpns.animate();
 	//FFCore.lweaponScriptEngine();
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
 	#endif
-        FFCore.itemScriptEngine();
+      
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
 	#endif

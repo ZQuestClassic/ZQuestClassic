@@ -4868,7 +4868,7 @@ bool eGhini::animate(int index)
             if(clk4>160)
                 misc=2;
                 
-            floater_walk((misc==1)?0:rate,hrate,dstep/100.0,dstep/1000.0,10,120,10);
+            floater_walk((misc==1)?0:rate,hrate,dstep/100.0,dstep/1000.0,10,dmisc16,dmisc17); //120,10);
             removearmos(x,y);
         }
         else if(clk4>=60)
@@ -5186,7 +5186,7 @@ void eItemFairy::draw(BITMAP *dest)
 ePeahat::ePeahat(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 {
     //floater_walk(int rate,int newclk,fix ms,fix ss,int s,int p, int g)
-    floater_walk(misc?rate:0,      hrate, dstep/100.0,dstep/1000.0, 10,  80, 16);
+    floater_walk(misc?rate:0,      hrate, dstep/100.0,dstep/1000.0, 10, dmisc16,dmisc17); // 80, 16);
     dir=8;
     movestatus=1;
     clk=0;
@@ -7843,11 +7843,11 @@ bool eKeese::animate(int index)
     
     if(dmisc1)
     {
-        floater_walk(rate,hrate,dstep/100,(fix)0,10,0,0);
+        floater_walk(rate,hrate,dstep/100,(fix)0,10,dmisc16,dmisc17);
     }
     else
     {
-        floater_walk(rate,hrate,dstep/100,dstep/1000,10,120,16);
+        floater_walk(rate,hrate,dstep/100,dstep/1000,10,dmisc16,dmisc17);
     }
     
     if(dmisc2 == e2tKEESETRIB)

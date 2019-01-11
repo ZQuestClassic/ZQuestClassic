@@ -49,6 +49,7 @@ public:
     bool bounce, ignoreLink;
     word flash,wid,aframe,csclk;
     int o_tile, o_cset, o_speed, o_type, frames, o_flip;
+	byte script_wrote_otile;
     int temp1;
     bool behind;
 
