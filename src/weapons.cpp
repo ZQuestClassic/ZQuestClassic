@@ -3630,6 +3630,7 @@ bool weapon::animate(int index)
 		
         
         if(findentrance(x,y,mfSTRIKE,true)) dead=deadval;
+		if((itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG8) && findentrance(x,y,mfBCANDLE,true)) dead=deadval;
         
         if(blocked())
         {
