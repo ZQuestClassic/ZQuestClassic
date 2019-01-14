@@ -9412,7 +9412,7 @@ bool eManhandla::animate(int index)
             }
 	    //al_trace("Manhandla arm died in quest version: %d\n", quest_header_zelda_version);
 	    //al_trace("emulation_patches[emuITEMPERSEG] is: %d\n",emulation_patches[emuITEMPERSEG]);
-	    if( ( quest_header_zelda_version == 0x210 && emulation_patches[emuITEMPERSEG] ) ) //They only did this in 2.10
+	    if( ( quest_header_zelda_version <= 0x210 && emulation_patches[emuITEMPERSEG] ) ) //They only did this in 2.10
 	    {
                 leave_item();
 	    }
