@@ -1,5 +1,7 @@
 **List of Things to Implement in 2. Prior to Gamma 1**
     
+Triforce Piece in Item Cellar should warp Link in 2.10, or earlier.
+
 --done B30: Fix controller/ley dialogues: Re-implement setting button for map.
 
 --done B30: Verify triforce drop in ganon fight.
@@ -7,8 +9,8 @@
     Emulation:
     2.10
         Wind Wizzrobes should use blue/bat wizzrobe movement, not linedup.
-        DMap intros always repeat.
-        Half-tile trick is enabled. 
+        --seems to be only a 2.50 bug? DMap intros always repeat.
+        --done, except that I may need to reduce the version coverage. Half-tile trick is enabled. 
     1.92 and 1.90
         
 
@@ -16,9 +18,9 @@
 
     1.92 or 1.90
 
-        probably done  : Manhandla and lanmolas should alwas drop per segment.
-        B31:: I also added Moldorm to this list.
-	B31:: This needs verification and testing. 
+        --done (B32), covers 1.92 and 2.10, ONLY probably done  : Manhandla and lanmolas should alwas drop per segment.
+		B31:: I also added Moldorm to this list.
+		B31:: This needs verification and testing. 
         
         Version unsure; it was either 1.90 or 1.92, but 
         For reference, you basically had to stand like a half tile away from a hookshottable combo, 
@@ -32,11 +34,12 @@
     Hold-up item sprite tile is wrong. 
     
     1.90 anim tiles
+    --I added some options to the Emulation menu in B32. let's see if they work. -Z	
 	holdup (two hand): tile -=1 or tile = 31
 	one hand tile also = 31?
 	I need another **UNLOCKED** 1.90 quest to use as a reference to see 
 		what tiles this should use. 
-		
+	
 	swimming
 	copy walking sprites to swimming sprites
 
