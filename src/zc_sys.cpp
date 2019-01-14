@@ -8117,8 +8117,8 @@ void System()
 	compat_patch_menu[1].flags = ( quest_header_zelda_version > 0x210 || quest_header_zelda_version < 0x192 ) ? D_DISABLED : ((emulation_patches[emuITEMPERSEG])?D_SELECTED:0);
 	//Link off-grid collision --what was the default in 2.50.0?
 	compat_patch_menu[2].flags = ( (quest_header_zelda_version > 0x210 && quest_header_zelda_build > 24) || (quest_header_zelda_version < 0x210) ) ? D_DISABLED : ((emulation_patches[emuGRIDCOLLISION])?D_SELECTED:0);
-	//Old Tribbles (1.92?)
-	compat_patch_menu[3].flags = ( quest_header_zelda_version >= 0x210 ) ? D_DISABLED : ((emulation_patches[emuOLDTRIBBLES])?D_SELECTED:0);
+	//Old Tribbles (1.90-only)
+	compat_patch_menu[3].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuOLDTRIBBLES])?D_SELECTED:0);
 	//Toggle BS Animation, 1.90 only
 	compat_patch_menu[4].flags = ( quest_header_zelda_version >= 0x192 ) ? D_DISABLED : ((emulation_patches[emu190LINKSPRITES])?D_SELECTED:0);
 	compat_patch_menu[5].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuCOPYSWIMSPRITES])?D_DISABLED:0);
