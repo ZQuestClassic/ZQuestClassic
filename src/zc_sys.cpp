@@ -6995,15 +6995,33 @@ int v190_swimsprites()
 {
 	//if ( quest_header_zelda_version == 0x190 )
     //{
-	for ( int q = 0; q < 4; q++ ) //dir
+	//if ( zinit.linkanimationstyle != las_bszelda ) return D_O_K; //ab ort, this is only for 1.90 fixes to BS Animation Styles
+	if(jwin_alert3(
+			"WARNING: Copy Link Sprites (v1.90)", 
+			"You are about to copy all of Link's Walk Sprites over his Swimming and Diving Sprites.",
+			"This cannot be undone!",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
 	{
-		for ( int w = 0; q < 3; w++ )
+	
+		for ( int q = 0; q < 4; q++ ) //dir
 		{
-			swimspr[q][w] = walkspr[q][w];
-			divespr[q][w] = walkspr[q][w];
+			for ( int w = 0; w < 3; w++ )
+			{
+				swimspr[q][w] = walkspr[q][w];
+				divespr[q][w] = walkspr[q][w];
+			}
 		}
+		emulation_patches[emuCOPYSWIMSPRITES] = 1;
+		
+		return D_O_K;
 	}
-	    
     //}
 	return D_O_K;
 	
@@ -8103,7 +8121,7 @@ void System()
 	compat_patch_menu[3].flags = ( quest_header_zelda_version >= 0x210 ) ? D_DISABLED : ((emulation_patches[emuOLDTRIBBLES])?D_SELECTED:0);
 	//Toggle BS Animation, 1.90 only
 	compat_patch_menu[4].flags = ( quest_header_zelda_version >= 0x192 ) ? D_DISABLED : ((emulation_patches[emu190LINKSPRITES])?D_SELECTED:0);
-	compat_patch_menu[4].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuCOPYSWIMSPRITES])?D_SELECTED:0);
+	compat_patch_menu[5].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuCOPYSWIMSPRITES])?D_DISABLED:0);
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
