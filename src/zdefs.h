@@ -725,7 +725,7 @@ enum
 };
 
 //emulation patches
-enum { emuITEMPERSEG };
+enum { emuITEMPERSEG, emuGRIDCOLLISION, emuOLDTRIBBLES, emu190LINKSPRITES };
 
 // weapons (in qst data)
 enum

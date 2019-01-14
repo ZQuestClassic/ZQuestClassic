@@ -67,11 +67,11 @@ byte zc_192b163_compatibility;
 byte midi_patch_fix;
 bool midi_paused=false;
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
-byte emulation_patches[16];
+byte emulation_patches[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 extern word quest_header_zelda_version; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
-
+//extern byte deprecated_rules[QUESTRULES_SIZE];
 //extern movingblock mblock2; //mblock[4]?
 //extern int db;
 
@@ -390,7 +390,7 @@ void load_game_configs()
     fullscreen = get_config_int(cfg_sect,"fullscreen",1);
     use_save_indicator = get_config_int(cfg_sect,"save_indicator",0);
     zc_192b163_compatibility = get_config_int(cfg_sect,"zc_192b163_compatibility",0);
-    emulation_patches[emuITEMPERSEG] = get_config_int(cfg_sect,"zc_segment_drop_emulation",0);
+    //emulation_patches[emuITEMPERSEG] = get_config_int(cfg_sect,"zc_segment_drop_emulation",0);
 }
 
 void save_game_configs()
@@ -511,7 +511,7 @@ void save_game_configs()
     
     set_config_int(cfg_sect,"save_indicator",use_save_indicator);
     set_config_int(cfg_sect,"zc_192b163_compatibility",zc_192b163_compatibility);
-    set_config_int(cfg_sect,"zc_segment_drop_emulation",emulation_patches[emuITEMPERSEG]);
+    //set_config_int(cfg_sect,"zc_segment_drop_emulation",emulation_patches[emuITEMPERSEG]);
     
     
     flush_config_file();
@@ -6946,10 +6946,58 @@ int v210_segment_drops()
     return D_O_K;
 }
 
+int v210_grid_collision()
+{
+    if (emulation_patches[emuGRIDCOLLISION] ) emulation_patches[emuGRIDCOLLISION] = 0;
+    
+    else emulation_patches[emuGRIDCOLLISION] = 1;
+	if ( get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX) ) set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 0);
+	else set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 1);
+    return D_O_K;
+}
+
+int v192_tribbles()
+{
+	
+    if (emulation_patches[emuOLDTRIBBLES] ) emulation_patches[emuOLDTRIBBLES] = 0;
+    else emulation_patches[emuOLDTRIBBLES] = 1;
+	//if ( get_bit(deprecated_rules, qr_OLDTRIBBLES_DEP) ) set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, 0);
+	//else set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, 1);
+	//What is the purpose of deprecated_rules?
+	
+	if ( get_bit(quest_rules, qr_OLDTRIBBLES_DEP) ) set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 0);
+	else set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 1);
+    return D_O_K;
+	
+}
+
+int v190_linksprites()
+{
+	
+    if (emulation_patches[emu190LINKSPRITES] ) 
+    {
+	    emulation_patches[emu190LINKSPRITES] = 0;
+	    zinit.linkanimationstyle = las_bszelda;
+    }
+    else
+    {
+	    emulation_patches[emu190LINKSPRITES] = 1;
+	
+		//disable BS animation
+		zinit.linkanimationstyle = las_original;
+		//but copy the swim to walk sprite
+    }
+    return D_O_K;
+	
+}
+
 static MENU compat_patch_menu[] =
 {
-    { (char *)"Flip-Flop Cancel and Wave Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
-    { (char *)"2.10 Segmented Enemy Drops",                     v210_segment_drops,                 NULL,                      0, NULL },
+    { (char *)"&Flip-Flop Cancel and Wave Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
+    { (char *)"2.10 &Segmented Enemy Drops",                     v210_segment_drops,                 NULL,                      0, NULL },
+    { (char *)"Toggle Half-Tile &Collision",                     v210_grid_collision,                 NULL,                      0, NULL },
+    { (char *)"Old &Tribbles",                     v192_tribbles,                 NULL,                      0, NULL },
+    { (char *)"Toggle &BS Animation",                     v190_linksprites,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -8028,7 +8076,14 @@ void System()
 	//al_trace("Quest was made in: %d\n",quest_header_zelda_version);
 	
 	compat_patch_menu[0].flags = ( quest_header_zelda_version >= 0x210 ) ? D_DISABLED : ((zc_192b163_compatibility)?D_SELECTED:0);
+	//segmented enemy drops
 	compat_patch_menu[1].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuITEMPERSEG])?D_SELECTED:0);
+	//Link off-grid collision --what was the default in 2.50.0?
+	compat_patch_menu[2].flags = ( (quest_header_zelda_version > 0x210 && quest_header_zelda_build > 24) || (quest_header_zelda_version < 0x210) ) ? D_DISABLED : ((emulation_patches[emuGRIDCOLLISION])?D_SELECTED:0);
+	//Old Tribbles (1.92?)
+	compat_patch_menu[3].flags = ( quest_header_zelda_version >= 0x210 ) ? D_DISABLED : ((emulation_patches[emuOLDTRIBBLES])?D_SELECTED:0);
+	//Toggle BS Animation, 1.90 only
+	compat_patch_menu[4].flags = ( quest_header_zelda_version >= 0x192 ) ? D_DISABLED : ((emulation_patches[emu190LINKSPRITES])?D_SELECTED:0);
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;

@@ -9151,8 +9151,17 @@ bool eLanmola::animate(int index)
     {
         if(--clk2 == 0)
         {
-            if(!dmisc3 || ( quest_header_zelda_version >= 0x210 && emulation_patches[emuITEMPERSEG] ) )
-                leave_item();
+	    //al_trace("Thinking about leaving a lanmola drop: %s\n"," ");
+            //if( ( !dmisc3 && quest_header_zelda_version > 0x210 ) || ( quest_header_zelda_version <= 0x210 && emulation_patches[emuITEMPERSEG] == 1 ) )
+	    //{
+		//al_trace("Leaving a lanmola drop\n");
+             //   leave_item();
+	    //}
+	    if(!dmisc3) //is this INTENTIONALLY backwards? -Z (14th January, 2019)
+                leave_item(); //oh, is this for the CORE? Flidd. I think this is to leave a drop for the CORE. 
+		//I'm unsure if the core left a drop in all older versions, but I suspect that it did. 
+		//The decision to drop per segment is in esLanmola::animate(), and the way this works, is that
+		//the engine sets the dropset to 0 if we are not leaving a segment-drop. 
                 
             stop_bgsfx(index);
             return true;
@@ -9257,9 +9266,12 @@ bool esLanmola::animate(int index)
     if(dying)
     {
         xofs=0;
-        
-        if(!dmisc3)
+        //al_trace("Thinking about leaving a esLanmola drop: %s\n"," ");
+        if( ( !dmisc3 ) || ( quest_header_zelda_version <= 0x210 && emulation_patches[emuITEMPERSEG] == 0 ) )
+	{
+	    //al_trace("Setting a esLanmola dropset %d to 0.\n",item_set);
             item_set=0;
+	}
             
         return Dead(index);
     }
@@ -9398,7 +9410,9 @@ bool eManhandla::animate(int index)
                 guys.swap(index+j+1,index+j+2);
                 
             }
-	    if( ( quest_header_zelda_version >= 0x210 && emulation_patches[emuITEMPERSEG] ) )
+	    //al_trace("Manhandla arm died in quest version: %d\n", quest_header_zelda_version);
+	    //al_trace("emulation_patches[emuITEMPERSEG] is: %d\n",emulation_patches[emuITEMPERSEG]);
+	    if( ( quest_header_zelda_version == 0x210 && emulation_patches[emuITEMPERSEG] ) ) //They only did this in 2.10
 	    {
                 leave_item();
 	    }
