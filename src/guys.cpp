@@ -6793,7 +6793,25 @@ bool eStalfos::animate(int index)
     if(clk4==(dmisc5 ? dmisc5 : 256) && (dmisc2==e2tTRIBBLE) && dmisc3 && dmisc4)
     {
         int kids = guys.Count();
-        int id2=dmisc3;
+        int id2=dmisc3; 
+	if ( emulation_patches[emuOLDTRIBBLES] ) //1.90 quests, ONLY -Z
+	{
+		al_trace("Emulation Tribble--BASE ENEMY (%d)\n", id);
+		
+		switch(id)
+		{
+			case eGEL: id2 = eZOL; break;
+			case eKEESE1: id2 = eVIRE; break;
+			case eKEESE2: id2 = eVIRE; break;
+			case eKEESE3: id2 = eVIRE; break;
+			default: 
+			{
+				al_trace("Error: Could not match the enemy to tribble\n");
+				id2 = dmisc3;
+			}
+		}
+	
+	}
         
         for(int i=0; i<dmisc4; i++)
         {

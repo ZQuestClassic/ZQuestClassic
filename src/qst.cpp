@@ -35,6 +35,7 @@
 #include "zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
+#include "zc_sys.h"
 
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
@@ -82,6 +83,8 @@ bool fixpolsvoice=false;
 
 word quest_header_zelda_version = 0; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 word quest_header_zelda_build = 0; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
+
+extern byte emulation_patches[16];
 
 int memDBGwatch[8]= {0,0,0,0,0,0,0,0}; //So I can monitor memory crap
 
@@ -9257,6 +9260,12 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
     }
     
+    if ( quest_header_zelda_version == 0x190 ) 
+    {
+	    Z_eventlog("Loaded a quest made in %x, and enabling Emulation toggle(%s) by default.\n", quest_header_zelda_version, "1.90 Tribbles");
+	    emulation_patches[emuOLDTRIBBLES] = 1;
+    }
+
     return 0;
 }
 

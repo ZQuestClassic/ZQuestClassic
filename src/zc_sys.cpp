@@ -6965,8 +6965,8 @@ int v192_tribbles()
 	//else set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, 1);
 	//What is the purpose of deprecated_rules?
 	
-	if ( get_bit(quest_rules, qr_OLDTRIBBLES_DEP) ) set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 0);
-	else set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 1);
+	//if ( get_bit(quest_rules, qr_OLDTRIBBLES_DEP) ) set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 0);
+	//else set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 1);
     return D_O_K;
 	
 }
