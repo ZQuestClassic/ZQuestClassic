@@ -1,6 +1,7 @@
 ChangeLog for 2.53.0 
 
 //Beta 32
+Fixed emulation (item/segment) appearing in quests older than 1.92. 
 Clear emulation array, except on F6/GameOver->Continue.
 Added the ability to copy Link#s walking sprites over his swimming
 	and diving sprites in 1.90 quests with BS Link Animation.
