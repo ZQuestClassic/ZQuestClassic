@@ -1,5 +1,13 @@
 ChangeLog for 2.53.0 
 
+//Beta 32
+Begin adding 1.90 BS Animation Toggle
+Begin adding 1.9x Tribble Emulation.
+Begin adding emulation of half-tile (off-grid) collision.
+Fix emulationm of segmented enemy drops.
+Fix crash when saving screenshots caused by filename buffer overflow. 
+	( ZoriaRPG, 14th January, 2019 )
+
 //Beta 31
 Added an Emulation Menu option to enable drop-per-segment
 	for Lanmola, Manhandla, and Moldorm. 
