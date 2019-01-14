@@ -6991,6 +6991,24 @@ int v190_linksprites()
 	
 }
 
+int v190_swimsprites()
+{
+	//if ( quest_header_zelda_version == 0x190 )
+    //{
+	for ( int q = 0; q < 4; q++ ) //dir
+	{
+		for ( int w = 0; q < 3; w++ )
+		{
+			swimspr[q][w] = walkspr[q][w];
+			divespr[q][w] = walkspr[q][w];
+		}
+	}
+	    
+    //}
+	return D_O_K;
+	
+}
+
 static MENU compat_patch_menu[] =
 {
     { (char *)"&Flip-Flop Cancel and Wave Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
@@ -6998,6 +7016,7 @@ static MENU compat_patch_menu[] =
     { (char *)"Toggle Half-Tile &Collision",                     v210_grid_collision,                 NULL,                      0, NULL },
     { (char *)"Old &Tribbles",                     v192_tribbles,                 NULL,                      0, NULL },
     { (char *)"Toggle &BS Animation",                     v190_linksprites,                 NULL,                      0, NULL },
+    { (char *)"Copy Walk to Swim and Dive Sprites",                     v190_swimsprites,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -8084,6 +8103,7 @@ void System()
 	compat_patch_menu[3].flags = ( quest_header_zelda_version >= 0x210 ) ? D_DISABLED : ((emulation_patches[emuOLDTRIBBLES])?D_SELECTED:0);
 	//Toggle BS Animation, 1.90 only
 	compat_patch_menu[4].flags = ( quest_header_zelda_version >= 0x192 ) ? D_DISABLED : ((emulation_patches[emu190LINKSPRITES])?D_SELECTED:0);
+	compat_patch_menu[4].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuCOPYSWIMSPRITES])?D_SELECTED:0);
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
