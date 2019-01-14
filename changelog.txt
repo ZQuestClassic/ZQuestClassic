@@ -1,6 +1,8 @@
 ChangeLog for 2.53.0 
 
 //Beta 32
+Added the ability to copy Link#s walking sprites over his swimming
+	and diving sprites in 1.90 quests with BS Link Animation.
 Begin adding 1.90 BS Animation Toggle
 Begin adding 1.9x Tribble Emulation.
 Begin adding emulation of half-tile (off-grid) collision.
