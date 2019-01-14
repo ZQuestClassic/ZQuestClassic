@@ -3579,7 +3579,7 @@ PALETTE sys_pal;
 
 int onGUISnapshot()
 {
-    char buf[20];
+    char buf[200];
     int num=0;
     
     do
@@ -3610,7 +3610,7 @@ int onNonGUISnapshot()
     get_palette(temppal);
     bool realpal=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
     
-    char buf[20];
+    char buf[200];
     int num=0;
     
     do
@@ -3654,7 +3654,7 @@ int onSnapshot()
 int onSaveMapPic()
 {
     int mapres2 = 0;
-    char buf[20];
+    char buf[200];
     int num=0;
     mapscr tmpscr_b[2];
     mapscr tmpscr_c[6];
