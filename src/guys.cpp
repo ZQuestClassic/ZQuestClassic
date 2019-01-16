@@ -6794,26 +6794,7 @@ bool eStalfos::animate(int index)
     {
         int kids = guys.Count();
         int id2=dmisc3; 
-	//if ( emulation_patches[emuOLDTRIBBLES] ) //1.90 quests, ONLY -Z
-	//{
-	//	al_trace("Emulation Tribble--BASE ENEMY (%d)\n", id);
-		
-	//	switch(id)
-	//	{
-	//		case eGEL: id2 = eZOL; break;
-	//		case eGELTRIB: id2 = eZOL; break;
-	//		case eKEESE1: id2 = eVIRE; break;
-	//		case eKEESE2: id2 = eVIRE; break;
-	//		case eKEESE3: id2 = eVIRE; break;
-	//		case eKEESETRIB: id2 = eVIRE; break;
-	//		default: 
-	//		{
-	//			al_trace("Error: Could not match the enemy to tribble\n");
-	//			id2 = dmisc3;
-	//		}
-	//	}
 	
-	//}
         
         for(int i=0; i<dmisc4; i++)
         {
@@ -7173,26 +7154,7 @@ bool eKeese::animate(int index)
                 int kids = guys.Count();
                 bool success = false;
                 int id2=dmisc3;
-		//if ( emulation_patches[emuOLDTRIBBLES] ) //1.90 quests, ONLY -Z
-		//{
-		//	al_trace("Emulation Tribble--BASE ENEMY (%d)\n", id);
-			
-		//	switch(id)
-		//	{
-		//		case eGEL: id2 = eZOL; break;
-		//		case eGELTRIB: id2 = eZOL; break;
-		//		case eKEESE1: id2 = eVIRE; break;
-		//		case eKEESE2: id2 = eVIRE; break;
-		//		case eKEESE3: id2 = eVIRE; break;
-		//		case eKEESETRIB: id2 = eVIRE; break;
-		//		default: 
-		///		{
-		//			al_trace("Error: Could not match the enemy to tribble\n");
-		//			id2 = dmisc3;
-		//		}
-		//	}
-		
-		//}
+	
 		
                 success = 0 != addenemy((fix)x,(fix)y,id2,-24);
                 
