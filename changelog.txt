@@ -1,6 +1,7 @@
 ChangeLog for 2.53.0 
 
 //Beta 34
+Fix: Try again to fix 2.10 Windrobes.
 Fix: Wizzrobes appearing in dungeon walls in 1.84 quests.
 Fix GEL and KEESE tribbles, in 1.90 (or earlier) quests.
 	This now occurs in readguys.
