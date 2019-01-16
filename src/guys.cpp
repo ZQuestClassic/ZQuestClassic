@@ -7267,7 +7267,7 @@ bool eWizzrobe::animate(int index)
 		    // Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
 		    // but should not appear on dungeon walls.	
 		    if ( quest_header_zelda_version <= 0x190 ) place_on_axis(true, false); //1.84, and probably 1.90 wizzrobes should NEVER appear in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by Chris Miller).
-                    else if ( quest_header_zelda_version == 0x210 && id == eWWIZ && emulation_patches[emu210WINDROBES] ) 
+                    else if ( (quest_header_zelda_version == 0x210 || quest_header_zelda_version == 0x192 ) && id == eWWIZ && emulation_patches[emu210WINDROBES] ) 
 		    {
 			    //2.10 Windrobe
 			    //randomise location and face Link

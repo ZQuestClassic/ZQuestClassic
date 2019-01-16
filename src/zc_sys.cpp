@@ -8149,7 +8149,7 @@ void System()
 	//compat_patch_menu[5].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuCOPYSWIMSPRITES])?D_DISABLED:0);
 	compat_patch_menu[4].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuCOPYSWIMSPRITES])?0:0);
 	//Try to restore 2.10 Windrobes
-	compat_patch_menu[5].flags = ( quest_header_zelda_version != 0x210 ) ? D_DISABLED : ((emulation_patches[emu210WINDROBES])?D_SELECTED:0);
+	compat_patch_menu[5].flags = (quest_header_zelda_version == 0x210 || quest_header_zelda_version == 0x192) ? ((emulation_patches[emu210WINDROBES])?D_SELECTED:0) : D_DISABLED;
 	//DMap Intros Always Repeat in early 2.50 quests
 	compat_patch_menu[6].flags = ( quest_header_zelda_version != 0x250 ) ? D_DISABLED : ((emulation_patches[emu250DMAPINTOREPEAT])?D_SELECTED:0);
 	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
