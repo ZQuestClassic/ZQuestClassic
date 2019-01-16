@@ -33,7 +33,7 @@
 #include "zscriptversion.h"
 #include "zc_sys.h"
 extern byte zc_192b163_compatibility;
-
+extern word quest_header_zelda_version;
 extern  zquestheader QHeader;
 extern LinkClass Link;
 
@@ -15079,7 +15079,8 @@ void LinkClass::getTriforce(int id2)
     //draw_screen_clip_rect_show_link=true;
     show_subscreen_items=true;
     
-    if(itemsbuf[id2].flags & ITEM_FLAG1 && currscr < 128)
+    //Warp Link out of item cellars, in 2.10 and earlier quests. -Z ( 16th January, 2019 )
+    if(itemsbuf[id2].flags & ITEM_FLAG1 && ( quest_header_zelda_version < 0x250 ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
     {
         sdir=dir;
         dowarp(1,0); //side warp
