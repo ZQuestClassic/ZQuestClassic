@@ -1,5 +1,11 @@
 ChangeLog for 2.53.0 
 
+//Beta 34
+Fix GEL and KEESE tribbles, in 1.90 (or earlier) quests.
+	This now occurs in readguys.
+Remove Emulation flag for OLD TRIBBLES.
+	( ZoriaRPG, 16th January, 2019 )
+
 //Beta 33
 Potentially fixed Triforce Warp-Out in item cellars (2.10 and earlier, no rule, no emulation flag).
 	Added a ternary statement in getTriforcePiece()
