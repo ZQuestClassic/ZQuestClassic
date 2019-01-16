@@ -1,6 +1,6 @@
 **List of Things to Implement in 2. Prior to Gamma 1**
     
-Triforce Piece in Item Cellar should warp Link in 2.10, or earlier.
+--may be fixed (B33) Triforce Piece in Item Cellar should warp Link in 2.10, or earlier.
 
 --done B30: Fix controller/ley dialogues: Re-implement setting button for map.
 
@@ -8,7 +8,7 @@ Triforce Piece in Item Cellar should warp Link in 2.10, or earlier.
 
     Emulation:
     2.10
-        Wind Wizzrobes should use blue/bat wizzrobe movement, not linedup.
+        --potentially fixed in B33: Wind Wizzrobes should use blue/bat wizzrobe movement, not linedup.
         --seems to be only a 2.50 bug? DMap intros always repeat.
         --done, except that I may need to reduce the version coverage. Half-tile trick is enabled. 
     1.92 and 1.90
@@ -29,7 +29,7 @@ Triforce Piece in Item Cellar should warp Link in 2.10, or earlier.
         Some quests have secret areas and such that could be accessed in this way
 
 1.90 Issues
-
+	--fix (B33) did not work. We need to manually inspect tiles in older quests. -Z
     UP-FACING TILES HAVE ISSUES
     Hold-up item sprite tile is wrong. 
     
