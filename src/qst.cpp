@@ -8530,6 +8530,8 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eCENT1].misc3 = 0;
         guysbuf[eCENT2].misc3 = 0;
         guysbuf[eMOLDORM].misc2 = 0;
+	guysbuf[eKEESETRIB].misc3 = eVIRE; //1.90 and earlier, keese and gel tribbles grew up into 
+	guysbuf[eGELTRIB].misc3 = eZOL; //normal vires, and zols -Z (16th January, 2019 )
     }
     else if(Header->zelda_version <= 0x210)
     {
@@ -9185,6 +9187,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                         tempguy.family = eeKEESE;
                         tempguy.misc2 = e2tKEESETRIB;
                         tempguy.misc1 = 0;
+			
                     }
                     
                     tempguy.rate = 2;
@@ -9251,7 +9254,8 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 	    }
 	    
-	   
+	    //Fix 1.84 and 1.90 tribbles, forever. 
+
             
             if(keepdata)
             {
@@ -9260,12 +9264,6 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         }
     }
     
-    if ( quest_header_zelda_version == 0x190 ) 
-    {
-	    Z_eventlog("Loaded a quest made in %x, and enabling Emulation toggle(%s) by default.\n", quest_header_zelda_version, "1.90 Tribbles");
-	    emulation_patches[emuOLDTRIBBLES] = 1;
-    }
-
     return 0;
 }
 
