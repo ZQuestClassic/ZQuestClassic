@@ -7361,7 +7361,7 @@ bool eWizzrobe::animate(int index)
                 
 			    
 			//wizzrobe_attack(); //COmplaint about 2.10 Windrobes not behaving as they did in 2.10. Let's try it this way. -Z
-			wizzrobe_attack_for_real();
+			//wizzrobe_attack_for_real(); //doing this makes them fire twice. The rest is correct.
 		    }
 		    else place_on_axis(true, dmisc4!=0);
                 }
