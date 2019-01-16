@@ -6939,10 +6939,31 @@ int on192b163compatibility()
     return D_O_K;
 }
 
+int v250_dmap_intro_repeat()
+{
+    if (emulation_patches[emu250DMAPINTOREPEAT] ) emulation_patches[emu250DMAPINTOREPEAT] = 0;
+    else emulation_patches[emu250DMAPINTOREPEAT] = 1;
+    return D_O_K;
+}
+
 int v210_segment_drops()
 {
     if (emulation_patches[emuITEMPERSEG] ) emulation_patches[emuITEMPERSEG] = 0;
     else emulation_patches[emuITEMPERSEG] = 1;
+    return D_O_K;
+}
+
+int v210_fix_triforce_cellar()
+{
+    if (emulation_patches[emuFIXTRIFORCECELLAR] ) emulation_patches[emuFIXTRIFORCECELLAR] = 0;
+    else emulation_patches[emuFIXTRIFORCECELLAR] = 1;
+    return D_O_K;
+}
+
+int v210_windrobes()
+{
+    if (emulation_patches[emu210WINDROBES] ) emulation_patches[emu210WINDROBES] = 0;
+    else emulation_patches[emu210WINDROBES] = 1;
     return D_O_K;
 }
 
@@ -7034,7 +7055,10 @@ static MENU compat_patch_menu[] =
     { (char *)"Toggle Half-Tile &Collision",                     v210_grid_collision,                 NULL,                      0, NULL },
     { (char *)"Old &Tribbles",                     v192_tribbles,                 NULL,                      0, NULL },
     { (char *)"Toggle &BS Animation",                     v190_linksprites,                 NULL,                      0, NULL },
-    { (char *)"Copy Walk to Swim and Dive Sprites",                     v190_swimsprites,                 NULL,                      0, NULL },
+    { (char *)"Copy &Walk to Swim and Dive Sprites",                     v190_swimsprites,                 NULL,                      0, NULL },
+    { (char *)"&Restore 2.10 Windrobes",                     v210_windrobes,                 NULL,                      0, NULL },
+    { (char *)"&DMap Intros Always Repeat",                     v250_dmap_intro_repeat,                 NULL,                      0, NULL },
+    //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -8121,7 +8145,16 @@ void System()
 	compat_patch_menu[3].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuOLDTRIBBLES])?D_SELECTED:0);
 	//Toggle BS Animation, 1.90 only
 	compat_patch_menu[4].flags = ( quest_header_zelda_version >= 0x192 ) ? D_DISABLED : ((emulation_patches[emu190LINKSPRITES])?D_SELECTED:0);
-	compat_patch_menu[5].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuCOPYSWIMSPRITES])?D_DISABLED:0);
+	//1.90 Copy Link's Walk Sprite to Swim/Dive --why does this not persist?!
+	//compat_patch_menu[5].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuCOPYSWIMSPRITES])?D_DISABLED:0);
+	compat_patch_menu[5].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuCOPYSWIMSPRITES])?0:0);
+	//Try to restore 2.10 Windrobes
+	compat_patch_menu[6].flags = ( quest_header_zelda_version != 0x210 ) ? D_DISABLED : ((emulation_patches[emu210WINDROBES])?D_SELECTED:0);
+	//DMap Intros Always Repeat in early 2.50 quests
+	compat_patch_menu[7].flags = ( quest_header_zelda_version != 0x250 ) ? D_DISABLED : ((emulation_patches[emu250DMAPINTOREPEAT])?D_SELECTED:0);
+	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
+	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
+	//compat_patch_menu[8].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuFIXTRIFORCECELLAR])?D_SELECTED:0);
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
