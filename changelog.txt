@@ -1,5 +1,20 @@
 ChangeLog for 2.53.0 
 
+//Beta 33
+Potentially fixed Triforce Warp-Out in item cellars (2.10 and earlier, no rule, no emulation flag).
+	Added a ternary statement in getTriforcePiece()
+Begin Adding Emulation Menu Options:
+	Restore 2.10 Windrobes
+	DMap Intros Always Repeat
+	--removed this one, because I have a possible in-source fix: Fix Triforce Cellars
+Try to fix wizzrobes in 1.90/1.84 quests.
+	They were spawning in walls, and never should.
+Try to make it possible for Windrobes in 2.10 quests to nbot line up.
+	( ZoriaRPG, 16th January, 2019 )
+	
+Fix some emulation options. 
+	( ZoriaRPG, 14th January, 2019 )
+
 //Beta 32
 Fixed emulation (item/segment) appearing in quests older than 1.92. 
 Clear emulation array, except on F6/GameOver->Continue.
