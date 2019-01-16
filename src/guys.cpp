@@ -7305,7 +7305,64 @@ bool eWizzrobe::animate(int index)
 		    // Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
 		    // but should not appear on dungeon walls.	
 		    if ( quest_header_zelda_version <= 0x190 ) place_on_axis(true, false); //1.84, and probably 1.90 wizzrobes should NEVER appear in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by Chris Miller).
-                    else if ( quest_header_zelda_version == 0x210 && id == eWWIZ && emulation_patches[emu210WINDROBES] ) wizzrobe_attack(); //COmplaint about 2.10 Windrobes not behaving as they did in 2.10. Let's try it this way. -Z
+                    else if ( quest_header_zelda_version == 0x210 && id == eWWIZ && emulation_patches[emu210WINDROBES] ) 
+		    {
+			    //2.10 Windrobe
+			    //randomise location and face Link
+			int t=0;
+			bool placed=false;
+                    
+			while(!placed && t<160)
+			{
+				if(isdungeon())
+				{
+					x=((rand()%12)+2)*16;
+					y=((rand()%7)+2)*16;
+				}
+				else
+				{
+					x=((rand()%14)+1)*16;
+					y=((rand()%9)+1)*16;
+				}
+                        
+				if(!m_walkflag(x,y,spw_door)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
+				{
+					placed=true;
+				}
+                        
+				++t;
+			}
+                    
+			if(abs(x-Link.getX())<abs(y-Link.getY()))
+			{
+				if(y<Link.getY())
+				{
+					dir=down;
+				}
+				else
+				{
+					dir=up;
+				}
+			}
+			else
+			{
+				if(x<Link.getX())
+				{
+					dir=right;
+				}
+				else
+				{
+					dir=left;
+				}
+			}
+                    
+			if(!placed)                                       // can't place him, he's gone
+				return true;
+                
+			    
+			//wizzrobe_attack(); //COmplaint about 2.10 Windrobes not behaving as they did in 2.10. Let's try it this way. -Z
+			wizzrobe_attack_for_real();
+		    }
 		    else place_on_axis(true, dmisc4!=0);
                 }
                 else
