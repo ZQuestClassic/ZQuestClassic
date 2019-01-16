@@ -1,5 +1,10 @@
 ChangeLog for 2.53.0 
 
+//Beta 35
+Apply 2.10 windrobe emulation, also to 1.92.
+Final fix of 1.92 vand 2.10 Windrobe mmechanics, removing extra shot.
+Clean up tribble emulation.
+
 //Beta 34
 Implemented Emulation Option 'DMap Intros Always Repeat' for 2.55 quests.
 Fix: Try again to fix 2.10 Windrobes.
