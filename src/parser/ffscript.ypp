@@ -148,6 +148,7 @@ extern YYLTYPE noloc;
 %token RBRACKET
 %token LBRACE
 %token RBRACE
+%token QMARK
 
  // Operators
 %token ARROW
