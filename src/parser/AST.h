@@ -1401,6 +1401,9 @@ namespace ZScript
 		owning_ptr<ASTExpr> left;
 		owning_ptr<ASTExpr> middle;
 		owning_ptr<ASTExpr> right;
+
+		DataType const* getReadType() const {return &DataType::UNTYPED;}
+		DataType const* getWriteType() const {return NULL;}
 	};
 
 	// Literals
