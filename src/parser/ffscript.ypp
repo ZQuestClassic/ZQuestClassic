@@ -865,7 +865,7 @@ Expr_14 : Expr_13 {$$ = $1;}
 	
 Expr_15 : Expr_14 {$$ = $1;}
 	//Ternary
-	| Expr_15 QMARK Expr_14 COLON Expr_14
+	| Expr_14 QMARK Expr_15 COLON Expr_15
 	{
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* middle = (ASTExpr*)$3;
