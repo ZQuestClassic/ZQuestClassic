@@ -1,6 +1,9 @@
 ChangeLog for 2.53.0 
 
 //Beta 35
+Add jwin alert messages to all Emulation menu options, to explain what they do.
+Apply 1.90 Swim Sprites to all calls to linktile() in link.cpp
+	( ZoriaRPG, 22nd January, 2019 )
 Apply 2.10 windrobe emulation, also to 1.92.
 Final fix of 1.92 vand 2.10 Windrobe mmechanics, removing extra shot.
 Clean up tribble emulation.
