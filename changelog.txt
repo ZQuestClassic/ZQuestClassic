@@ -1,6 +1,9 @@
 ChangeLog for 2.53.0 
 
 //Beta 35
+Added Emulation menu option 'Don't Flip Firetrails'.
+	If enabled (2.10 or earlier), then firetrails on brang weapomns
+	will not flip on bounce, and may be allowed to hit and harm enemies.
 Add jwin alert messages to all Emulation menu options, to explain what they do.
 Apply 1.90 Swim Sprites to all calls to linktile() in link.cpp
 	( ZoriaRPG, 22nd January, 2019 )
