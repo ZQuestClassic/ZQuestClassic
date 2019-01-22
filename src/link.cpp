@@ -3610,7 +3610,7 @@ void LinkClass::addsparkle(int wpn)
         }
         
         // Damaging boomerang sparkle?
-        if(wpn3 && itemtype==itype_brang)
+        if(wpn3 && itemtype==itype_brang && !emulation_patches[emuNOFLIPFIRETRAIL])
         {
             // If the boomerang just bounced, flip the sparkle direction so it doesn't hit
             // whatever it just bounced off of if it's shielded from that direction.

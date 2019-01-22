@@ -7145,6 +7145,27 @@ int v190_swimsprites()
 	
 }
 
+int v210_brang_firetrail()
+{
+	if(jwin_alert3(
+			"EMULATION: Toggle v2.10 Brang Firetrail", 
+			"This action will change the behaviour of firetrail on Boomerang items.",
+			"If enabled, the direction of the firetrail will not flip, allowing it to hit enemies.. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emuNOFLIPFIRETRAIL] ) emulation_patches[emuNOFLIPFIRETRAIL] = 0;
+	    else emulation_patches[emuNOFLIPFIRETRAIL] = 1;
+	}
+    return D_O_K;
+}
+
 static MENU compat_patch_menu[] =
 {
     { (char *)"&Flip-Flop Cancel and Wave Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
@@ -7155,6 +7176,7 @@ static MENU compat_patch_menu[] =
     { (char *)"Copy &Walk to Swim and Dive Sprites",                     v190_swimsprites,                 NULL,                      0, NULL },
     { (char *)"&Restore 2.10 Windrobes",                     v210_windrobes,                 NULL,                      0, NULL },
     { (char *)"&DMap Intros Always Repeat",                     v250_dmap_intro_repeat,                 NULL,                      0, NULL },
+    { (char *)"Don't Flip F&iretrails",                     v210_brang_firetrail,                 NULL,                      0, NULL },
     //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -8249,6 +8271,8 @@ void System()
 	compat_patch_menu[5].flags = (quest_header_zelda_version == 0x210 || quest_header_zelda_version == 0x192) ? ((emulation_patches[emu210WINDROBES])?D_SELECTED:0) : D_DISABLED;
 	//DMap Intros Always Repeat in early 2.50 quests
 	compat_patch_menu[6].flags = ( quest_header_zelda_version != 0x250 ) ? D_DISABLED : ((emulation_patches[emu250DMAPINTOREPEAT])?D_SELECTED:0);
+	//Don't flip fire trails on brang weapons.
+	compat_patch_menu[7].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuNOFLIPFIRETRAIL])?D_SELECTED:0);
 	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
 	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
 	//compat_patch_menu[8].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuFIXTRIFORCECELLAR])?D_SELECTED:0);
