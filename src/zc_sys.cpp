@@ -3590,7 +3590,7 @@ int onGUISnapshot()
         sprintf(buf, "zc_quest_screenshot%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     BITMAP *b = create_bitmap_ex(8,resx,resy);
     
@@ -3617,7 +3617,7 @@ int onNonGUISnapshot()
     {
         sprintf(buf, "zc_quest_screenshot%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     BITMAP *panorama = create_bitmap_ex(8,256,168);
     
@@ -3684,7 +3684,7 @@ int onSaveMapPic()
         sprintf(buf, "zc_quest_screenshot%03d.png", ++num);
 #endif
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     BITMAP* mappic = NULL;
     
