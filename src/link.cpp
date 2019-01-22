@@ -36,6 +36,7 @@ extern byte zc_192b163_compatibility;
 extern word quest_header_zelda_version;
 extern  zquestheader QHeader;
 extern LinkClass Link;
+extern byte emulation_patches[16];
 
 using std::set;
 
@@ -1463,7 +1464,12 @@ attack:
             }
             else if(action==swimming || action==swimhit || hopclk==0xFF)
             {
-                linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+		    if ( emulation_patches[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+			linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
                 
                 if(lstep>=6)
                 {
@@ -1479,7 +1485,14 @@ attack:
                 
                 if(diveclk>30)
                 {
-                    linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+		    if ( emulation_patches[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+		    }
                     tile+=((frame>>3) & 1)*(extend==2?2:1);
                 }
             }
@@ -1533,9 +1546,16 @@ attack:
             if(action==drowning)
             {
                 if(inwater)
-                {
-                    linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_dive, dir, zinit.linkanimationstyle);
-                    tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                { //Not sure if drowning should use the walking sprites in 1.90, BS ANim, too. -Z (22-Jan-2019)
+		    //if ( emulation_patches[emuCOPYSWIMSPRITES] ) 
+		    //{
+		//	linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		  //  }
+		    //else
+		    //{
+			linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_dive, dir, zinit.linkanimationstyle);
+                    //}
+		    tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
                 else
                 {
@@ -1546,12 +1566,26 @@ attack:
             }
             else if(action==swimming || action==swimhit || hopclk==0xFF)
             {
-                linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
-                tile += anim_3_4(lstep,7)*(extend==2?2:1);
+		    if ( emulation_patches[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+		    }
+		    tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 
                 if(diveclk>30)
                 {
-                    linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+		    if ( emulation_patches[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+		    }
                     tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
             }
@@ -1604,12 +1638,26 @@ attack:
             }
             else if(action == swimming || action==swimhit || hopclk==0xFF)
             {
-                linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
-                tile += anim_3_4(lstep,7)*(extend==2?2:1);
+		    if ( emulation_patches[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+		    }
+		    tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 
                 if(diveclk>30)
                 {
-                    linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+		    if ( emulation_patches[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+		    }
                     tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
             }
