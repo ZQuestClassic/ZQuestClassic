@@ -6934,22 +6934,64 @@ static MENU settings_menu[] =
 
 int on192b163compatibility()
 {
-    if ( zc_192b163_compatibility ) zc_192b163_compatibility = 0;
-    else zc_192b163_compatibility = 1;
+	if(jwin_alert3(
+			"EMULATION: Warp Compatibility Patch", 
+			"This action will change the behaviour of some warps. Some quests may have warps",
+			"that cause the player to become stuck. Toggling this may help to overcome this situation.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if ( zc_192b163_compatibility ) zc_192b163_compatibility = 0;
+	    else zc_192b163_compatibility = 1;
+	}
     return D_O_K;
 }
 
 int v250_dmap_intro_repeat()
 {
-    if (emulation_patches[emu250DMAPINTOREPEAT] ) emulation_patches[emu250DMAPINTOREPEAT] = 0;
-    else emulation_patches[emu250DMAPINTOREPEAT] = 1;
+	if(jwin_alert3(
+			"EMULATION: Repeat DMap Intros", 
+			"This action will change the behaviour of DMap Intro Messages.",
+			"If enabled, the intro text will always repeat when revisiting DMaps.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emu250DMAPINTOREPEAT] ) emulation_patches[emu250DMAPINTOREPEAT] = 0;
+	    else emulation_patches[emu250DMAPINTOREPEAT] = 1;
+	}
     return D_O_K;
 }
 
 int v210_segment_drops()
 {
-    if (emulation_patches[emuITEMPERSEG] ) emulation_patches[emuITEMPERSEG] = 0;
-    else emulation_patches[emuITEMPERSEG] = 1;
+	if(jwin_alert3(
+			"EMULATION: Drop-Per-Segment", 
+			"This action will change the drop pattern for segmented enemies.",
+			"If enabled, segmented enemies will drop per segment.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emuITEMPERSEG] ) emulation_patches[emuITEMPERSEG] = 0;
+	    else emulation_patches[emuITEMPERSEG] = 1;
+	}
     return D_O_K;
 }
 
@@ -6962,32 +7004,73 @@ int v210_fix_triforce_cellar()
 
 int v210_windrobes()
 {
-    if (emulation_patches[emu210WINDROBES] ) emulation_patches[emu210WINDROBES] = 0;
-    else emulation_patches[emu210WINDROBES] = 1;
+	if(jwin_alert3(
+			"EMULATION: Toggle v2.10 Windrobes", 
+			"This action will change the behaviour of Windrobe enemies. If enabled, they",
+			"will spawn in random places, and not align with the player. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emu210WINDROBES] ) emulation_patches[emu210WINDROBES] = 0;
+	    else emulation_patches[emu210WINDROBES] = 1;
+	}
     return D_O_K;
 }
 
 int v210_grid_collision()
 {
-    if (emulation_patches[emuGRIDCOLLISION] ) emulation_patches[emuGRIDCOLLISION] = 0;
-    
-    else emulation_patches[emuGRIDCOLLISION] = 1;
-	if ( get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX) ) set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 0);
-	else set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 1);
+	if(jwin_alert3(
+			"EMULATION: v2.10 Style Link Collision", 
+			"This action will change whether the player must be on the grid for weapons to ",
+			"collide with him. If enabled, he must be on the grid. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emuGRIDCOLLISION] ) emulation_patches[emuGRIDCOLLISION] = 0;
+	    
+	    else emulation_patches[emuGRIDCOLLISION] = 1;
+		if ( get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX) ) set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 0);
+		else set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 1);
+	}
     return D_O_K;
 }
 
 int v192_tribbles()
 {
-	
-    if (emulation_patches[emuOLDTRIBBLES] ) emulation_patches[emuOLDTRIBBLES] = 0;
-    else emulation_patches[emuOLDTRIBBLES] = 1;
-	//if ( get_bit(deprecated_rules, qr_OLDTRIBBLES_DEP) ) set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, 0);
-	//else set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, 1);
-	//What is the purpose of deprecated_rules?
-	
-	//if ( get_bit(quest_rules, qr_OLDTRIBBLES_DEP) ) set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 0);
-	//else set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 1);
+    if(jwin_alert3(
+			"EMULATION: Old Tribbles", 
+			"This action will change the behaviour of gel and keese tribble enemies.",
+			"If enabled, they will use their 1.92 style behaviour. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emuOLDTRIBBLES] ) emulation_patches[emuOLDTRIBBLES] = 0;
+	    else emulation_patches[emuOLDTRIBBLES] = 1;
+		//if ( get_bit(deprecated_rules, qr_OLDTRIBBLES_DEP) ) set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, 0);
+		//else set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, 1);
+		//What is the purpose of deprecated_rules?
+		
+		//if ( get_bit(quest_rules, qr_OLDTRIBBLES_DEP) ) set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 0);
+		//else set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 1);
+	}
     return D_O_K;
 	
 }
@@ -6995,18 +7078,32 @@ int v192_tribbles()
 int v190_linksprites()
 {
 	
-    if (emulation_patches[emu190LINKSPRITES] ) 
-    {
-	    emulation_patches[emu190LINKSPRITES] = 0;
-	    zinit.linkanimationstyle = las_bszelda;
-    }
-    else
-    {
-	    emulation_patches[emu190LINKSPRITES] = 1;
-	
-		//disable BS animation
-		zinit.linkanimationstyle = las_original;
-		//but copy the swim to walk sprite
+	if(jwin_alert3(
+			"EMULATION: Toggle BS Animation", 
+			"This action will change BS ANimation to Normal Animation, or",
+			"change Normal Animation to BS Animation.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emu190LINKSPRITES] ) 
+	    {
+		    emulation_patches[emu190LINKSPRITES] = 0;
+		    zinit.linkanimationstyle = las_bszelda;
+	    }
+	    else
+	    {
+		    emulation_patches[emu190LINKSPRITES] = 1;
+		
+			//disable BS animation
+			zinit.linkanimationstyle = las_original;
+			//but copy the swim to walk sprite
+	    }
     }
     return D_O_K;
 	
