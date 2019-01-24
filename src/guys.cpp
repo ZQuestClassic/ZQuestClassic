@@ -8645,8 +8645,10 @@ eGanon::eGanon(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 bool eGanon::animate(int index)
 {
     if(dying)
-    
+    {
+	hxofs = -32768; //Don't hurt Link when he is dying. -Z ( 24th January, 2019 )
         return Dead(index);
+    }
         
     if(clk==0)
     {
