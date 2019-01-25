@@ -182,6 +182,7 @@ extern YYLTYPE noloc;
  // Others
 %token IDENTIFIER
 %token QUOTEDSTRING
+%token IMPORTSTRING
 %token SINGLECHAR
 %token NUMBER
 
@@ -223,7 +224,7 @@ Global_Statement :
 ////////////////////////////////////////////////////////////////
 // Import Declaration
 
-Import : IMPORT QUOTEDSTRING {
+Import : IMPORT IMPORTSTRING {
 	ASTString* str = (ASTString*)$2;
 	$$ = new ASTImportDecl(str->getValue(), @$);
 	delete str;}
