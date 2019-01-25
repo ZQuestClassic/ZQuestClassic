@@ -48,7 +48,7 @@ bool item::animate(int)
 	    (
 		(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
 		||
-		(can_drop(x,y) && ipDUMMY && miscellaneous[15] == eeGANON )
+		(can_drop(x,y) && ipDUMMY && miscellaneous[15] == eeGANON ) //big triforce dropped by Ganon fight, in sideview. 
 	    )
             {
                 y+=fall/100;

@@ -8713,9 +8713,13 @@ bool eGanon::animate(int index)
         
         sfx(WAV_GANON);
 	//Ganon's dustpile; fall in sideview. -Z
-            item *dustpile = new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0);
-	    dustpile->miscellaneous[15] = eeGANON;
-        //items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
+            //item *dustpile = new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0);
+	    //dustpile->miscellaneous[15] = eeGANON;
+        items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
+	item *dustpile = NULL;
+	//dustpile = (item *)items.spr(items.Count() - 1)->getUID();
+	dustpile = (item *)items.spr(items.Count() - 1);
+	dustpile->miscellaneous[15] = eeGANON;
         break;
     }
     case 4:
