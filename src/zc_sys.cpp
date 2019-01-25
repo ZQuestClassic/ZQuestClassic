@@ -7075,6 +7075,29 @@ int v192_tribbles()
 	
 }
 
+int continuous_sword_triggers()
+{
+	if(jwin_alert3(
+			"EMULATION: Continuous Sword Triggers", 
+			"This action will change the behaviour of sword triggers.",
+			"If enabled, they will be continuous, which was true in older 2.50 and 2.10 builds. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emuSWORDTRIGARECONTINUOUS] ) emulation_patches[emuSWORDTRIGARECONTINUOUS] = 0;
+	    else emulation_patches[emuSWORDTRIGARECONTINUOUS] = 1;
+		
+	}
+    return D_O_K;
+	
+}
+
 int v190_linksprites()
 {
 	
@@ -7177,6 +7200,7 @@ static MENU compat_patch_menu[] =
     { (char *)"&Restore 2.10 Windrobes",                     v210_windrobes,                 NULL,                      0, NULL },
     { (char *)"&DMap Intros Always Repeat",                     v250_dmap_intro_repeat,                 NULL,                      0, NULL },
     { (char *)"Don't Flip F&iretrails",                     v210_brang_firetrail,                 NULL,                      0, NULL },
+    { (char *)"C&ontinuous Sword Triggers",                     continuous_sword_triggers,                 NULL,                      0, NULL },
     //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -8273,6 +8297,9 @@ void System()
 	compat_patch_menu[6].flags = ( quest_header_zelda_version != 0x250 ) ? D_DISABLED : ((emulation_patches[emu250DMAPINTOREPEAT])?D_SELECTED:0);
 	//Don't flip fire trails on brang weapons.
 	compat_patch_menu[7].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuNOFLIPFIRETRAIL])?D_SELECTED:0);
+	//Continuous sword triggers, old 2.50 and 2.10
+	//compat_patch_menu[8].flags = ( quest_header_zelda_version < 0x210 || ( quest_header_zelda_version > 0x250 ) || ( quest_header_zelda_version == 0x250 && quest_header_zelda_build > 411 )  ) ? D_DISABLED : ((emulation_patches[emuSWORDTRIGARECONTINUOUS])?D_SELECTED:0);
+	compat_patch_menu[8].flags = ( quest_header_zelda_version < 0x210 || ( quest_header_zelda_version > 0x250 )  ) ? D_DISABLED : ((emulation_patches[emuSWORDTRIGARECONTINUOUS])?D_SELECTED:0);
 	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
 	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
 	//compat_patch_menu[8].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuFIXTRIFORCECELLAR])?D_SELECTED:0);

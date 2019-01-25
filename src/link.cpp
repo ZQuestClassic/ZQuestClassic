@@ -2423,7 +2423,7 @@ void LinkClass::check_slash_block(int bx, int by)
     
     if(!ignorescreen)
     {
-        if(!isTouchyType(type)) set_bit(screengrid,i,1);
+        if(!isTouchyType(type) && !emulation_patches[emuSWORDTRIGARECONTINUOUS]) set_bit(screengrid,i,1);
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
@@ -2466,7 +2466,7 @@ void LinkClass::check_slash_block(int bx, int by)
     
     if(!ignoreffc)
     {
-        if(!isTouchyType(type)) set_bit(ffcgrid, current_ffcombo, 1);
+        if(!isTouchyType(type) && !emulation_patches[emuSWORDTRIGARECONTINUOUS]) set_bit(ffcgrid, current_ffcombo, 1);
         
         if(isCuttableItemType(type2))
         {
