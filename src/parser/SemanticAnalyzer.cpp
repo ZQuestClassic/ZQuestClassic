@@ -900,6 +900,23 @@ void SemanticAnalyzer::caseExprRShift(ASTExprRShift& host, void*)
 	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
+void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
+{
+	visit(host.left.get());
+	if (breakRecursion(host)) return;
+	checkCast(*host.left->getReadType(), DataType::BOOL, &host);
+	if (breakRecursion(host)) return;
+	
+	visit(host.middle.get());
+	if (breakRecursion(host)) return;
+	visit(host.right.get());
+	if (breakRecursion(host)) return;
+	checkCast(*host.middle->getReadType(), *host.right->getReadType(), &host);
+	if (breakRecursion(host)) return;
+	checkCast(*host.right->getReadType(), *host.middle->getReadType(), &host);
+	if (breakRecursion(host)) return;
+}
+
 // Literals
 
 void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
