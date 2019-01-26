@@ -74,6 +74,7 @@ namespace ZScript
 		void caseExprBitXor(ASTExprBitXor& host, void* = NULL);
 		void caseExprLShift(ASTExprLShift& host, void* = NULL);
 		void caseExprRShift(ASTExprRShift& host, void* = NULL);
+		void caseExprTernary(ASTTernaryExpr& host, void* = NULL);
 		// Literals
 		void caseStringLiteral(ASTStringLiteral& host, void* = NULL);
 		void caseArrayLiteral(ASTArrayLiteral& host, void* = NULL);

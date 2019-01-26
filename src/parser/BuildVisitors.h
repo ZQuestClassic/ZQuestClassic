@@ -68,6 +68,7 @@ namespace ZScript
 		virtual void caseExprBitXor(ASTExprBitXor &host, void *param);
 		virtual void caseExprLShift(ASTExprLShift &host, void *param);
 		virtual void caseExprRShift(ASTExprRShift &host, void *param);
+		virtual void caseExprTernary(ASTTernaryExpr &host, void *param);
 		// Literals
 		virtual void caseNumberLiteral(ASTNumberLiteral& host, void* param);
 		virtual void caseBoolLiteral(ASTBoolLiteral& host, void* param);

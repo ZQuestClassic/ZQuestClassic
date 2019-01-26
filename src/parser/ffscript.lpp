@@ -131,6 +131,7 @@ link	TOKEN( LINK );
 "]"		TOKEN( RBRACKET );
 "{"		TOKEN( LBRACE );
 "}"		TOKEN( RBRACE );
+"?"		TOKEN( QMARK ); //for ternary
 
  /* Operators (in order of operations) */
 "->"		TOKEN( ARROW );
