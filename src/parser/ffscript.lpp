@@ -315,6 +315,45 @@ link	TOKEN( LINK );
 	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
 }
 
+\'\\[^\n]\'	{
+	switch(yytext[yyleng-2])
+	{
+		case 'a':
+			yytext[yyleng-3] = '\a';
+			break;
+		case 'b':
+			yytext[yyleng-3] = '\b';
+			break;
+		case 'f':
+			yytext[yyleng-3] = '\f';
+			break;
+		case 'n':
+			yytext[yyleng-3] = '\n';
+			break;
+		case 'r':
+			yytext[yyleng-3] = '\r';
+			break;
+		case 't':
+			yytext[yyleng-3] = '\t';
+			break;
+		case 'v':
+			yytext[yyleng-3] = '\v';
+			break;
+		/*default:
+			yytext[yyleng-3] = yytext[yyleng-2];*/
+		case '\'':
+		case '\\':
+			yytext[yyleng-3] = yytext[yyleng-2];
+			break;
+		default:
+			yymsg("ERROR: Unknown escape character.", srow, scol);
+			return 0;
+	}
+	yytext[yyleng-2] = yytext[yyleng-1];
+	yytext[yyleng-1] = 0;
+	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
+}
+
  /* Whitespace */
 [ \t\r]*\n	NEWLINE;
 [ \t\r]+	ADVANCE;
