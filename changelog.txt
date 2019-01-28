@@ -1,5 +1,24 @@
 ChangeLog for 2.53.0 
 
+//Beta 36
+Fix 'OK' button in joystick button config not saving.
+Fix screenshot numbering format to have a width of 5, not 3.
+	( ZoriaRPG, 28th January, 2019 )
+Added an Emulation toggle to try to permit continuous sword triggers
+	in 2.10 and 2.50 quests.
+	I'm not sure what the latest 2.50 build is, that should permit this, but if LI
+	was saved in a later build, and needs it, then here it is.
+Try to fix tall grash animation during scrolling.
+Try to fix Ganon's Ashes not spawning.
+	( ZoriaRPG, 25th January, 2019 )
+	
+Possible fix for the following reported issue:
+	`Ganon can hurt you when he's red, and doesn't hurt you when he's flashing, but for one frame his hurtbox comes back when he explodes` -P-Tux
+
+Reposition timing of creation of the hammer smack sprites to try to
+	prevent them from appearing int he wrong spot if the player changes direction abruptly.
+	( ZoriaRPG, 24th January, 2019 )
+
 //Beta 35
 Added Emulation menu option 'Don't Flip Firetrails'.
 	If enabled (2.10 or earlier), then firetrails on brang weapomns
