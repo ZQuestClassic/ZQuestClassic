@@ -9,8 +9,7 @@
         
 
         1.92b50-ish; SOME SIDEWARPS MAY NOT WORK?
-	1.92b183 : Brang does not reflect if Link->invframes
-		Did it EVER do this?
+	
     
 ***GRAPHICAL***
 
@@ -25,17 +24,13 @@
 	one hand tile also = 31?
 	I need another **UNLOCKED** 1.90 quest to use as a reference to see 
 		what tiles this should use. 
-	
-	swimming
-	copy walking sprites to swimming sprites
 
 	attack/pound
 	might need to copy walk tiles here, too
     
     Upward stab tile is wrong. 
     
-    --should be done, B34: In 1.90, Gel and Keese Tribbles used to turn into Gels and Vires, not the tribble counterparts.
-
+    
     "Swimming in 1.90 uses the walking tiles instead of the swimming tiles for BS-Link even if you make them, so I just made the Flippers an item that lets you walk on water. However, if you play the quest in 1.92 it will look glitchy."
     --venrob Swim up
         It fucks up
@@ -52,6 +47,10 @@
 
 
 ***DONE***
+
+
+--done [b35--emulation] copy walking sprites to swimming sprites
+--done, B34: In 1.90, Gel and Keese Tribbles used to turn into Gels and Vires, not the tribble counterparts.
 
 --done (B32), covers 1.92 and 2.10, ONLY probably done  : Manhandla and lanmolas should alwas drop per segment.
 		B31:: I also added Moldorm to this list.
@@ -78,3 +77,7 @@
         and if you did it right you could merge partially with the tile. 
         And then once on that you could either get stuck or access places you're not meant to, depending on where it is
         Some quests have secret areas and such that could be accessed in this way
+	
+***NOT A BUG***
+1.92b183 : Brang does not reflect if Link->invframes
+		Did it EVER do this? --no, it did not. 
