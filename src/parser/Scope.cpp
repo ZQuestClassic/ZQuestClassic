@@ -73,8 +73,12 @@ vector<Scope*> ZScript::lookupScopes(Scope const& scope, vector<string> const& n
 	vector<Scope*> scopes;
 	for (Scope* current = const_cast<Scope*>(&scope);
 	     current; current = current->getParent())
+	{
+		if(current == getRoot(*current) && scopes.size() != 0)
+			break;
 		if (Scope* descendant = getDescendant(*current, names))
 			scopes.push_back(descendant);
+	}
 	return scopes;
 }
 
