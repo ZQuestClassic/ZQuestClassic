@@ -565,6 +565,15 @@ Scope* FileScope::makeChild(std::string const& name)
 	return result;
 }
 
+ScriptScope* FileScope::makeScriptChild(Script& script)
+{
+	ScriptScope* result = BasicScope::makeScriptChild(script);
+	if (!result) return NULL;
+	if (!getRoot(*this)->registerChild(script.getName(), result))
+		result = NULL;
+	return result;
+}
+
 DataType const* FileScope::addDataType(
 		std::string const& name, DataType const* type, AST* node)
 {
