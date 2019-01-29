@@ -98,8 +98,8 @@
 #define ZC_VERSION 25300 //Version ID for ZScript Game->Version
 #define ABOUT_VERSION 0x0253
 #define VERSION_BUILD       31                              //build number of this version
-#define ZELDA_VERSION_STR   "Omnius, 2.53 Beta 36"               //version of the program as presented in text
-#define IS_BETA             36                        //is this a beta? (1: beta, -1: alpha)
+#define ZELDA_VERSION_STR   "Omnius, 2.53 Gamma 1"               //version of the program as presented in text
+#define IS_BETA             0                        //is this a beta? (1: beta, -1: alpha)
 #define DATE_STR            "28th January, 2019"
 #define ZELDA_ABOUT_STR 	    "Zelda Classic 'Omnius'"
 #define COPYRIGHT_YEAR      "2018"     
