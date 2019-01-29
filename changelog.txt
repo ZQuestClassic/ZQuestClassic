@@ -1,6 +1,9 @@
 ChangeLog for 2.53.0 
 
 //Gamma 1
+Updated ZCL to 2.6.10:
+	The main in-focus page is once again ZC.
+	Added the new UI Coloursets (Dark, and October).
 Link was not fully cropped during the credits scroll.
 	Pixels of his hat were left behind as artefacts. This fixes the issue,
 	by resizing the call to rectfill().
