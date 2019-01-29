@@ -1,5 +1,11 @@
 ChangeLog for 2.53.0 
 
+//Gamma 1
+Link was not fully cropped during the credits scroll.
+	Pixels of his hat were left behind as artefacts. This fixes the issue,
+	by resizing the call to rectfill().
+	( ZoriaRPG, 29th January, 2019 )
+
 //Beta 36
 Fix 'OK' button in joystick button config not saving.
 Fix screenshot numbering format to have a width of 5, not 3.
