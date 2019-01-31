@@ -235,6 +235,33 @@ link	TOKEN( LINK );
 			case 't': ESC_CHAR('\t');
 			case 'v': ESC_CHAR('\v');
 			case '\n': NEWLINE; break;
+			case 'x':
+			{
+				std::stringstream escstr;
+				escstr.str("");
+				int ch = yyinput();
+				if((ch >= '0' && ch <= '9')||(ch>='a'&&ch<='f')||(ch>='A'&&ch<='F'))
+					escstr << ((char)ch);
+				else
+				{
+					yymsg("ERROR: Hex-insert escape code '\\x' has no value.", srow, scol);
+					return 0;
+				}
+				ch = yyinput();
+				if((ch >= '0' && ch <= '9')||(ch>='a'&&ch<='f')||(ch>='A'&&ch<='F'))
+					escstr << ((char)ch);
+				else
+				{
+					unput(ch);
+					//yymsg("ERROR: Hex-insert escape code '\\x' has one digit. These must have exactly two digits", srow, scol);
+					//return 0;
+				}
+				std::stringstream buf;
+				int temp;
+				buf << std::hex << escstr.str();
+				buf >> temp;
+				ESC_CHAR((char)temp);
+			}
 			case EOF:
 				yymsg("ERROR: String does not end.", srow, scol);
 				return 0;
@@ -346,8 +373,6 @@ link	TOKEN( LINK );
 		case 'v':
 			yytext[yyleng-3] = '\v';
 			break;
-		/*default:
-			yytext[yyleng-3] = yytext[yyleng-2];*/
 		case '\'':
 		case '\\':
 		case '\"':
@@ -360,6 +385,25 @@ link	TOKEN( LINK );
 	}
 	yytext[yyleng-2] = yytext[yyleng-1];
 	yytext[yyleng-1] = 0;
+	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
+}
+
+\'\\x[0-9a-fA-F][0-9a-fA-F]?\' {
+	int x = yytext[yyleng-3]=='x' ? yyleng-3 : yyleng-4;
+	std::stringstream escstr;
+	escstr.str("");
+	escstr << yytext[x+1];
+	if(yytext[x+2]!='\'')
+		escstr << yytext[x+2];
+	std::stringstream buf;
+	int temp;
+	buf << std::hex << escstr.str();
+	buf >> temp;
+	yytext[x-1] = (char)temp;
+	yytext[x] = '\'';
+	//Clear the extra space
+	for(int q = x+1; q < yyleng; ++q)
+		yytext[q] = 0;
 	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
 }
 
