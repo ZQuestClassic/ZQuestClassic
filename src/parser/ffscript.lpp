@@ -227,18 +227,25 @@ link	TOKEN( LINK );
 		// Read in the escaped character.
 		register int c = yyinput();
 		switch (c) {
-		case 'a': ESC_CHAR('\a');
-		case 'b': ESC_CHAR('\b');
-		case 'f': ESC_CHAR('\f');
-		case 'n': ESC_CHAR('\n');
-		case 'r': ESC_CHAR('\r');
-		case 't': ESC_CHAR('\t');
-		case 'v': ESC_CHAR('\v');
-		case '\n': NEWLINE; break;
-		case EOF:
-			yymsg("ERROR: String does not end.", srow, scol);
-			return 0;
-		default: ESC_CHAR((char)c);
+			case 'a': ESC_CHAR('\a');
+			case 'b': ESC_CHAR('\b');
+			case 'f': ESC_CHAR('\f');
+			case 'n': ESC_CHAR('\n');
+			case 'r': ESC_CHAR('\r');
+			case 't': ESC_CHAR('\t');
+			case 'v': ESC_CHAR('\v');
+			case '\n': NEWLINE; break;
+			case EOF:
+				yymsg("ERROR: String does not end.", srow, scol);
+				return 0;
+			case '\'':
+			case '\\':
+			case '\"':
+			case '\?':
+				ESC_CHAR((char)c);
+			default:
+				yymsg("ERROR: Unknown escape character.", srow, scol);
+				return 0;
 		}
 	}
 	[^\"\n\\]*\"		{
@@ -343,6 +350,8 @@ link	TOKEN( LINK );
 			yytext[yyleng-3] = yytext[yyleng-2];*/
 		case '\'':
 		case '\\':
+		case '\"':
+		case '\?':
 			yytext[yyleng-3] = yytext[yyleng-2];
 			break;
 		default:
