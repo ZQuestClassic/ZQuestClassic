@@ -88,6 +88,7 @@ OPTION_VALUE	TOKEN( OPTIONVALUE );
 
  /* Types */
 void		TOKEN( ZVOID );
+untyped		TOKEN( UNTYPED );
 bool		TOKEN( ZBOOL );
 float		TOKEN( ZFLOAT );
 int		TOKEN( ZFLOAT );
