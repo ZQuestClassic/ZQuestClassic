@@ -2754,7 +2754,7 @@ long get_register(const long arg)
         else
 	{
 		//enemy *e = (enemy*)guys.spr(ri->guyref);
-		ret = (int)GuyH::getNPC()->script;
+		ret = (int)GuyH::getNPC()->script * 10000;
 	}
     }
     break;
