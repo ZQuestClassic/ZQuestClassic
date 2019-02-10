@@ -57,6 +57,9 @@ yycol += yyleng + 1; \
 qstr << CHAR; \
 break
 
+#define TERMINATE \
+BEGIN( INITIAL ); \
+return 0
 %}
 
  /* Keywords */
@@ -191,7 +194,7 @@ link	TOKEN( LINK );
 	"*"+"/"			ADVANCE; BEGIN( INITIAL );
 	<<EOF>>			{
 		yymsg("WARNING: Comment does not end.", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 }
 
@@ -217,7 +220,7 @@ link	TOKEN( LINK );
 <STRING>{
 	<<EOF>>			{
 		yymsg("ERROR: String does not end.", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	[^\"\n\\]*		ADVANCE; qstr << yytext;
 	[^\"\n\\]*\n		NEWLINE; qstr << yytext;
@@ -238,7 +241,7 @@ link	TOKEN( LINK );
 		case '\n': NEWLINE; break;
 		case EOF:
 			yymsg("ERROR: String does not end.", srow, scol);
-			return 0;
+			TERMINATE;
 		default: ESC_CHAR((char)c);
 		}
 	}
@@ -259,11 +262,11 @@ link	TOKEN( LINK );
  <IMPORTING>{
 	<<EOF>>			{
 		yymsg("ERROR: Import without string", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	[^\"\n]*\n]		{ //newline, without open quotation
 		yymsg("ERROR: Import without string", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	\" {
 		BEGIN( IMPORTSTR );
@@ -277,7 +280,7 @@ link	TOKEN( LINK );
  <IMPORTSTR>{
 	<<EOF>>			{
 		yymsg("ERROR: String does not end.", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	[^\"\n]*		ADVANCE; qstr << yytext;
 	[^\"\n]*\n		NEWLINE; qstr << yytext;
@@ -348,7 +351,7 @@ link	TOKEN( LINK );
 			break;
 		default:
 			yymsg("ERROR: Unknown escape character.", srow, scol);
-			return 0;
+			TERMINATE;
 	}
 	yytext[yyleng-2] = yytext[yyleng-1];
 	yytext[yyleng-1] = 0;
