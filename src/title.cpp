@@ -43,6 +43,8 @@ extern int loadlast;
 extern int skipcont;
 extern int skipicon;
 
+extern byte emulation_patches[16];
+
 bool load_custom_game(int file);
 
 struct savedicon
@@ -507,6 +509,7 @@ static void treasures(int f)
 
 static void NES_titlescreen()
 {
+	memset(emulation_patches,0,sizeof(emulation_patches));
     int f=0;
     bool done=false;
     wave[0]=0;
@@ -575,7 +578,7 @@ static void NES_titlescreen()
 static void DX_mainscreen(int f)
 {
     set_uformat(U_ASCII);
-    
+    memset(emulation_patches,0,sizeof(emulation_patches));
     static int pic=0;
     char tbuf[80];
     
@@ -630,7 +633,7 @@ static void DX_titlescreen()
     bool done=false;
     trstr=0;
     set_palette(black_palette);
-    
+    memset(emulation_patches,0,sizeof(emulation_patches));
     try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
     clear_to_color(screen,BLACK);
     clear_bitmap(framebuf);
@@ -686,7 +689,7 @@ static void DX_titlescreen()
 static void v25_mainscreen(int f)
 {
     set_uformat(U_ASCII);
-    
+    memset(emulation_patches,0,sizeof(emulation_patches));
     static int pic=0;
     char tbuf[80];
     
@@ -741,7 +744,7 @@ static void v25_titlescreen()
     bool done=false;
     trstr=0;
     set_palette(black_palette);
-    
+    memset(emulation_patches,0,sizeof(emulation_patches));
     try_zcmusic((char*)"zelda.nsf",0, ZC_MIDI_TITLE);
     clear_to_color(screen,BLACK);
     clear_bitmap(framebuf);
@@ -801,6 +804,7 @@ extern char *SAVE_FILE;
 
 int readsaves(gamedata *savedata, PACKFILE *f)
 {
+	memset(emulation_patches,0,sizeof(emulation_patches));
     //word item_count;
     word qstpath_len;
     word save_count;
@@ -1405,6 +1409,7 @@ void set_up_standalone_save()
 // call once at startup
 int load_savedgames()
 {
+	memset(emulation_patches,0,sizeof(emulation_patches));
     char *fname = SAVE_FILE;
     char *iname = (char *)zc_malloc(2048);
     int ret;
@@ -3304,7 +3309,7 @@ void game_over(int type)
     //  int htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
     int htile = 2;
     bool done=false;
-    
+   
     do load_control_state();
     
     while(rSbtn());
@@ -3386,11 +3391,15 @@ void game_over(int type)
         {
             if(standalone_mode && !skip_title)
             {
+		memset(emulation_patches,0,sizeof(emulation_patches));
                 Quit=qRESET;
+		//memset(emulation_patches,0,sizeof(emulation_patches));
             }
             else
             {
+		memset(emulation_patches,0,sizeof(emulation_patches));
                 Quit=qQUIT;
+		//memset(emulation_patches,0,sizeof(emulation_patches));
             }
         }
         else

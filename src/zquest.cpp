@@ -12,6 +12,8 @@
   #define  INTERNAL_VERSION  0xA721
   */
 
+#define MIDI_TRACK_BUFFER_SIZE 50
+
 #include "precompiled.h" //always first
 
 #include <stdio.h>
@@ -137,6 +139,7 @@ FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
+byte emulation_patches[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 void do_previewtext();
 
@@ -157,6 +160,8 @@ int zq_scale_small, zq_scale_large, zq_scale;
 bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
+extern word quest_header_zelda_version; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
+extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 
 // Used to find FFC script names
 extern std::map<int, pair<string,string> > ffcmap;
@@ -2431,7 +2436,7 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
 }
 
 
-static char track_number_str_buf[32];
+static char track_number_str_buf[MIDI_TRACK_BUFFER_SIZE];
 const char *tracknumlist(int index, int *list_size)
 {
     if(index>=0)
@@ -10736,7 +10741,7 @@ const char *roomslist(int index, int *list_size)
     return NULL;
 }
 
-static char number_str_buf[32];
+static char number_str_buf[MIDI_TRACK_BUFFER_SIZE];
 int number_list_size=1;
 bool number_list_zero=false;
 
@@ -12641,7 +12646,7 @@ static TABPANEL editdmapmap_tabs[] =
 };
 
 int dmap_tracks=0;
-static char dmap_track_number_str_buf[32];
+static char dmap_track_number_str_buf[MIDI_TRACK_BUFFER_SIZE];
 const char *dmaptracknumlist(int index, int *list_size)
 {
     if(index>=0)
@@ -13500,7 +13505,7 @@ int onMidis()
 {
     stopMusic();
     int ret;
-    char buf[40];
+    char buf[MIDI_TRACK_BUFFER_SIZE];
     number_list_size=MAXCUSTOMTUNES;
     number_list_zero=false;
     strcpy(temppath,midipath);
@@ -17457,7 +17462,8 @@ static DIALOG orgcomboa_dlg[] =
     { jwin_text_proc,     10,   50,   33,		9,       0,       0,      0,       0,          0,             0, (void *) "", NULL, NULL },
     // { jwin_radio_proc,		10,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				0,			0,			(void*) "Move", NULL, NULL },
     { jwin_radio_proc,		10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				0,			0,	(void*) "Swap", NULL, NULL },
-    /* 6 */  { jwin_edit_proc,      110,   35,   32,   16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
+    /* 6 */  
+    { jwin_edit_proc,      110,   35,   32,   16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      110,   55,   32,   16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
     { jwin_text_proc,     60,   40,   80,   8,       0,       0,      0,       0,          0,             0, (void *) "Source", NULL, NULL },
     { jwin_text_proc,     60,   60,   80,   8,       0,       0,      0,       0,          0,             0, (void *) "Dest", NULL, NULL},
@@ -17574,78 +17580,100 @@ int getcurrentcomboalias();
 
 int onOrgComboAliases()
 {
-    char cSrc[4];
-    char cDest[4];
-    int iSrc;
-    int iDest;
+    char cSrc[8];
+    char cDest[8];
+	strcpy(cSrc,"0");
+	strcpy(cDest,"0");
+    int iSrc = 0;
+    int iDest = 0;
     
-    sprintf(cSrc,"0");
-    sprintf(cDest,"0");
+    //sprintf(cSrc,"0");
+    //sprintf(cDest,"0");
     orgcomboa_dlg[0].dp2=lfont;
     orgcomboa_dlg[6].dp= cSrc;
     orgcomboa_dlg[7].dp= cDest;
-    
+    int ret = 1;
     if(is_large)
         large_dialog(orgcomboa_dlg);
-        
-    int ret = zc_popup_dialog(orgcomboa_dlg,-1);
-    
-    if(ret!=1) return ret;
-    
-    iSrc=atoi((char*) orgcomboa_dlg[6].dp);
-    iDest=atoi((char*) orgcomboa_dlg[7].dp);
-    
-    if(iSrc<0 || iSrc > MAXCOMBOALIASES-1)
+    do
     {
-        char buf[60];
-        snprintf(buf, 60, "Invalid source (range 0-%d)", MAXCOMBOALIASES-1);
-        buf[59]='\0';
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-        return ret;
+	    iSrc = atoi((char*)orgcomboa_dlg[6].dp);
+	    iDest = atoi((char*)orgcomboa_dlg[7].dp);
+	    //al_trace("iSrc is: %d\n",iSrc);
+	    //al_trace("iDest is: %d\n",iDest);
+	    ret = zc_popup_dialog(orgcomboa_dlg,-1);
+	    //al_trace("Initial ret value is %d\n", ret);
+	    
+	    if(ret!=1) return ret;
+	    char src_alias[10];
+	    char dest_alias[10];
+	    //while(ret == 1)
+	    
+		    strcpy(src_alias, (char*) orgcomboa_dlg[6].dp);
+		    strcpy(dest_alias, (char*) orgcomboa_dlg[7].dp);
+		    //al_trace("Source Alias: %s\n", src_alias);
+		    //al_trace("Dest Alias: %s\n", dest_alias);
+		    iSrc = atoi(src_alias);
+		    iDest = atoi(dest_alias);
+		    //iSrc=atoi((char*) orgcomboa_dlg[6].dp);
+		    //iDest=atoi((char*) orgcomboa_dlg[7].dp);
+		    //al_trace("Combo alias src is: %d\n", iSrc);
+		    //al_trace("Combo alias dest is: %d\n", iDest);
+		    //if(iSrc<0 || iSrc > MAXCOMBOALIASES-1)
+		    if((atoi((char*) orgcomboa_dlg[6].dp))<0 || (atoi((char*) orgcomboa_dlg[6].dp)) > MAXCOMBOALIASES-1)
+		    {
+			char buf[100];
+			snprintf(buf, 100, "Invalid source (range 0-%d)", MAXCOMBOALIASES-1);
+			buf[99]='\0';
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			ret = 1;
+		    }
+		    
+		    // 10,11=ins, del
+		    if(orgcomboa_dlg[10].flags & D_SELECTED)  //insert
+		    {
+			for(int j=MAXCOMBOALIASES-1; j>(atoi((char*) orgcomboa_dlg[6].dp)); --j)  copyComboAlias(j-1,j);
+			
+			ret = -1;
+		    }
+		    
+		    if(orgcomboa_dlg[11].flags & D_SELECTED)  //delete
+		    {
+			for(int j=(atoi((char*) orgcomboa_dlg[6].dp)); j<MAXCOMBOALIASES-1; ++j)  copyComboAlias(j+1,j);
+			
+			ret = -1;
+		    }
+		    
+		    if((atoi((char*) orgcomboa_dlg[6].dp)) == (atoi((char*) orgcomboa_dlg[7].dp)))
+		    {
+			jwin_alert("Error","Source and dest can't be the same.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+			ret = 1;
+		    }
+		    
+		    if((atoi((char*) orgcomboa_dlg[7].dp)) < 0 || (atoi((char*) orgcomboa_dlg[7].dp)) > MAXCOMBOALIASES-1)
+		    {
+			char buf[100];
+			snprintf(buf, 100, "Invalid dest (range 0-%d)", MAXCOMBOALIASES-1);
+			buf[99]='\0';
+			
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			ret = 1;
+		    }
+		    
+		    if(orgcomboa_dlg[3].flags & D_SELECTED)  //copy
+		    {
+			copyComboAlias((atoi((char*) orgcomboa_dlg[6].dp)),(atoi((char*) orgcomboa_dlg[7].dp)));
+			ret = -1;
+		    }
+		    
+		    if(orgcomboa_dlg[5].flags & D_SELECTED)  //swap
+		    {
+			swapComboAlias((atoi((char*) orgcomboa_dlg[6].dp)),(atoi((char*) orgcomboa_dlg[7].dp)));
+			ret = -1;
+		    }
+	    //}
     }
-    
-    // 10,11=ins, del
-    if(orgcomboa_dlg[10].flags & D_SELECTED)  //insert
-    {
-        for(int j=MAXCOMBOALIASES-1; j>iSrc; --j)  copyComboAlias(j-1,j);
-        
-        return ret;
-    }
-    
-    if(orgcomboa_dlg[11].flags & D_SELECTED)  //delete
-    {
-        for(int j=iSrc; j<MAXCOMBOALIASES-1; ++j)  copyComboAlias(j+1,j);
-        
-        return ret;
-    }
-    
-    if(iSrc == iDest)
-    {
-        jwin_alert("Error","Source and dest can't be the same.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-        return ret;
-    }
-    
-    if(iDest < 0 || iDest > MAXCOMBOALIASES-1)
-    {
-        char buf[60];
-        snprintf(buf, 60, "Invalid dest (range 0-%d)", MAXCOMBOALIASES-1);
-        buf[59]='\0';
-        
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-        return ret;
-    }
-    
-    if(orgcomboa_dlg[3].flags & D_SELECTED)  //copy
-    {
-        copyComboAlias(iSrc,iDest);
-    }
-    
-    if(orgcomboa_dlg[5].flags & D_SELECTED)  //swap
-    {
-        swapComboAlias(iSrc,iDest);
-    }
-    
-    
+    while(ret==1);
     return ret;
 }
 

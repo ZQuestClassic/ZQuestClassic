@@ -925,12 +925,12 @@ void draw_checkbox(BITMAP *dest,int x,int y,int bg,int fg, bool value)
     //  line(dest,x+1,y+7,x+7,y+1,value?fg:bg);
     
     jwin_draw_frame(dest, x, y, 9, 9, FR_DEEP);
-    rectfill(dest, x+2, y+2, x+9-3, y+9-3, jwin_pal[jcLIGHT]);
+    rectfill(dest, x+2, y+2, x+9-3, y+9-3, jwin_pal[jcTEXTBG]);
     
     if(value)
     {
-        line(dest, x+2, y+2, x+9-3, y+9-3, jwin_pal[jcDARK]);
-        line(dest, x+2, y+9-3, x+9-3, y+2, jwin_pal[jcDARK]);
+        line(dest, x+2, y+2, x+9-3, y+9-3, jwin_pal[jcTEXTFG]);
+        line(dest, x+2, y+9-3, x+9-3, y+2, jwin_pal[jcTEXTFG]);
     }
     
 }

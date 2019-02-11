@@ -78,6 +78,7 @@ int db=0;
 int detail_int[10];                                         //temporary holder for things you want to detail
 int lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
+int cheat_modifier_keys[4]; //two options each, default either control and either shift
 int strike_hint_counter=0;
 int strike_hint_timer=0;
 int strike_hint;
@@ -95,10 +96,12 @@ int passive_subscreen_height=56;
 int original_playing_field_offset=56;
 int playing_field_offset=original_playing_field_offset;
 int passive_subscreen_offset=0;
+extern word quest_header_zelda_version; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
+extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
 extern int directItem;
 extern int directItemA;
 extern int directItemB;
-
+extern byte emulation_patches[16];
 bool is_large=false;
 
 bool standalone_mode=false;
@@ -664,7 +667,7 @@ void dismissmsg()
 
 void dointro()
 {
-    if(game->visited[currdmap]!=1 || (DMaps[currdmap].flags&dmfALWAYSMSG)!=0)
+    if(game->visited[currdmap]!=1 || (DMaps[currdmap].flags&dmfALWAYSMSG)!=0 || emulation_patches[emu250DMAPINTOREPEAT])
     {
         dmapmsgclk=0;
         game->visited[currdmap]=1;

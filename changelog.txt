@@ -1,12 +1,143 @@
 ChangeLog for 2.53.0 
 
+//Gamma 1
+Updated ZCL to 2.6.10:
+	The main in-focus page is once again ZC.
+	Added the new UI Coloursets (Dark, and October).
+Link was not fully cropped during the credits scroll.
+	Pixels of his hat were left behind as artefacts. This fixes the issue,
+	by resizing the call to rectfill().
+	( ZoriaRPG, 29th January, 2019 )
+
+//Beta 36
+Fix 'OK' button in joystick button config not saving.
+Fix screenshot numbering format to have a width of 5, not 3.
+	( ZoriaRPG, 28th January, 2019 )
+Added an Emulation toggle to try to permit continuous sword triggers
+	in 2.10 and 2.50 quests.
+	I'm not sure what the latest 2.50 build is, that should permit this, but if LI
+	was saved in a later build, and needs it, then here it is.
+Try to fix tall grash animation during scrolling.
+Try to fix Ganon's Ashes not spawning.
+	( ZoriaRPG, 25th January, 2019 )
+	
+Possible fix for the following reported issue:
+	`Ganon can hurt you when he's red, and doesn't hurt you when he's flashing, but for one frame his hurtbox comes back when he explodes` -P-Tux
+
+Reposition timing of creation of the hammer smack sprites to try to
+	prevent them from appearing int he wrong spot if the player changes direction abruptly.
+	( ZoriaRPG, 24th January, 2019 )
+
+//Beta 35
+Added Emulation menu option 'Don't Flip Firetrails'.
+	If enabled (2.10 or earlier), then firetrails on brang weapomns
+	will not flip on bounce, and may be allowed to hit and harm enemies.
+Add jwin alert messages to all Emulation menu options, to explain what they do.
+Apply 1.90 Swim Sprites to all calls to linktile() in link.cpp
+Increased screenshot numbering cap from 999, to 99999.
+	( ZoriaRPG, 22nd January, 2019 )
+Apply 2.10 windrobe emulation, also to 1.92.
+Final fix of 1.92 vand 2.10 Windrobe mmechanics, removing extra shot.
+Clean up tribble emulation.
+
+//Beta 34
+Implemented Emulation Option 'DMap Intros Always Repeat' for 2.55 quests.
+Fix: Try again to fix 2.10 Windrobes.
+Fix: Wizzrobes appearing in dungeon walls in 1.84 quests.
+Fix GEL and KEESE tribbles, in 1.90 (or earlier) quests.
+	This now occurs in readguys.
+Remove Emulation flag for OLD TRIBBLES.
+	( ZoriaRPG, 16th January, 2019 )
+
+//Beta 33
+Potentially fixed Triforce Warp-Out in item cellars (2.10 and earlier, no rule, no emulation flag).
+	Added a ternary statement in getTriforcePiece()
+Begin Adding Emulation Menu Options:
+	Restore 2.10 Windrobes
+	DMap Intros Always Repeat
+	--removed this one, because I have a possible in-source fix: Fix Triforce Cellars
+Try to fix wizzrobes in 1.90/1.84 quests.
+	They were spawning in walls, and never should.
+Try to make it possible for Windrobes in 2.10 quests to nbot line up.
+	( ZoriaRPG, 16th January, 2019 )
+	
+Fix some emulation options. 
+	( ZoriaRPG, 14th January, 2019 )
+
+//Beta 32
+Fixed emulation (item/segment) appearing in quests older than 1.92. 
+Clear emulation array, except on F6/GameOver->Continue.
+Added the ability to copy Link#s walking sprites over his swimming
+	and diving sprites in 1.90 quests with BS Link Animation.
+Begin adding 1.90 BS Animation Toggle
+Begin adding 1.9x Tribble Emulation.
+Begin adding emulation of half-tile (off-grid) collision.
+Fix emulationm of segmented enemy drops.
+Fix crash when saving screenshots caused by filename buffer overflow. 
+	( ZoriaRPG, 14th January, 2019 )
+
+//Beta 31
+Added an Emulation Menu option to enable drop-per-segment
+	for Lanmola, Manhandla, and Moldorm. 
+	This needs testing in older quests, and further verification.
+	neither the menu option, nor the config section option
+	should work in 2.50+ quests.
+	( ZoriaRPG, 8th January, 2019 )
+	
+//Beta 30
+Re-added the 'Menu' button configuration option to
+	Joystick Button configs.
+	( ZoriaRPG, 8th January, 2019 )
+	
+//Beta 29
+Fixed colour issues when using DrawScreen(), DrawLayer(), 
+	and FastCombo(), drawing combos with a CSet2 value.
+	( ZoriaRPG, 7th January, 2019 )
+	
+//Beta 28
+Renamed entry [0] in Emulation Menu to 'Flip-Flip Cancel and Wave Warps'
+	Disabled this option if the current quest was made in 2.10 or
+	( ZoriaRPG, 22nd December, 2018 )
+	
+Added a new menu to ZC Player: 'Emulation'. 
+	This is used for enabling/disabling certain internal behaviour, when playing some
+	legacy quests where it is desirable to have this option. 
+	( ZoriaRPG, 21st December, 2018 )
+	
+//Beta 27
+Fixed Ganon's HP in 1st/2nd. On the NES, he has 30, not 32.
+Fixed vires splitting before their slide() ends.
+Fixed MP3s with metadata not playing. 
+	Let's hope that this fix doesn't fuck up 2.50.0 or 2.50.1 quests.
+	( ZoriaRPG, 16th December, 2018 )
+
+//Beta 26
+Probably fixed issues that Avataro reported with Vire enemies.
+	( ZoriaRPG, 3rd December, 2018 )
+
+//Beta 25
+Backported fix for crash on getWpnPressed(0 on Win10 from 2.55 to
+	2.53. I'm not sure why 2.53 didn't crash from this, but, it
+	surely would cause problems at some point. 
+Backported the UI Widget (radio button) fixes for dark themes
+	from 2.55. Let's hope thet these changes don't break
+	any of the old 1.9x themes!!
+	( ZoriaRPG, 21st October, 2018 )
+
+Backport UI/Theme fixes for tooltips from 2.55
+( 19th October, 2018 )
+
 //Beta 24
 Added a DARK theme, and the 2018 PureZC Autumn Expo (Halloween)
 theme to ZC and ZQuest. Their gui_colorset IDs are 2019 and 201018 respectively.
 
+Fixed Dodongo death sfx in 3rd, 5th, and 4th quests.
 Rebuilt clean, fixing some stability issues when ZC and ZQ were running as
 background processes.
 ( ZoriaRPG, 17th October, 2018 )
+
+Fixed Dodongo death sound in 1st.qst and 2nd.qst.
+	( NightmareJames, 17th October, 2018 )
 
 Re-fixed the sound that 2.10 Dodongos (and BS Dodongos) make when they die.
 The prior patch didn't work, but this one seems fine.

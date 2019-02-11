@@ -98,10 +98,10 @@
 #define ZC_VERSION 25300 //Version ID for ZScript Game->Version
 #define ABOUT_VERSION 0x0253
 #define VERSION_BUILD       31                              //build number of this version
-#define ZELDA_VERSION_STR   "Omnius, 2.53 Beta 24"                    //version of the program as presented in text
-#define IS_BETA             24                           //is this a beta? (1: beta, -1: alpha)
-#define DATE_STR            "18th October, 2018"
-#define ZELDA_ABOUT_STR 	    "Zelda Classic 'Omnius'"
+#define ZELDA_VERSION_STR   "Omnius, 2.53 Gamma 1"               //version of the program as presented in text
+#define IS_BETA             0                        //is this a beta? (1: beta, -1: alpha)
+#define DATE_STR            "29th January, 2019"
+#define ZELDA_ABOUT_STR 	    "Zelda Classic 'Omnius' Gamma 1"
 #define COPYRIGHT_YEAR      "2018"     
                      //shown on title screen and in ending
 
@@ -722,6 +722,14 @@ enum
 {
     isNONE, isDEFAULT, isBOMBS, isMONEY, isLIFE, isBOMB100, isSBOMB100,
     isMAGIC, isMAGICBOMBS, isMAGICMONEY, isMAGICLIFE, isMAGIC2, isTALLGRASS, isMAX
+};
+
+//emulation patches
+enum 
+{ 
+	emuITEMPERSEG, emuGRIDCOLLISION, emuOLDTRIBBLES, emu190LINKSPRITES, emuCOPYSWIMSPRITES, emu210WINDROBES,
+	emu250DMAPINTOREPEAT, emuFIXTRIFORCECELLAR, emuNOFLIPFIRETRAIL, emuSWORDTRIGARECONTINUOUS, emuLAST
+		
 };
 
 // weapons (in qst data)

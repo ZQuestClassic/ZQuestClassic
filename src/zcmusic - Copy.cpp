@@ -81,7 +81,7 @@ typedef struct OGGFILE : public ZCMUSICBASE
 
 typedef struct MP3FILE : public ZCMUSICBASE
 {
-    ALMP3_MP3STREAM *s;
+    ALMP3_MP3 *s;
     PACKFILE *f;
     char *fname;
     int vol;
@@ -292,6 +292,7 @@ extern "C"
             return NULL;
         }
         
+        al_trace("Revised MP3s\n");
         al_trace("Trying to load %s\n", filename);
         
         if(strlen(filename)>255)
@@ -336,7 +337,8 @@ extern "C"
             
             if(!p)
             {
-                al_trace("MP3 file '%s' not found.\n",filename);
+		al_trace("Trying to fix mp3 files (%d)\n",1);
+                al_trace("mp3 file '%s' not found.\n",filename);
                 goto error;
             }
             
@@ -482,7 +484,7 @@ error:
                 if(((MP3FILE*)zcm)->s != NULL)
                 {
                     /*pan*/
-                    almp3_adjust_mp3stream(((MP3FILE*)zcm)->s, vol, 128, 1000/*speed*/);
+                    almp3_adjust_mp3(((MP3FILE*)zcm)->s, vol, 128, 1000/*speed*/, TRUE);
                     ((MP3FILE*)zcm)->vol = vol;
                 }
                 
@@ -524,7 +526,7 @@ error:
             case ZCMF_MP3:
                 if(((MP3FILE*)zcm)->s != NULL)
                 {
-                    if(almp3_play_mp3stream(((MP3FILE*)zcm)->s, (zcmusic_bufsz_private*1024), vol, 128) != ALMP3_OK)
+                    if(almp3_play_mp3(((MP3FILE*)zcm)->s, (zcmusic_bufsz_private*1024), vol, 128) != ALMP3_OK)
                         ret = FALSE;
                         
                     ((MP3FILE*)zcm)->vol = vol;
@@ -826,7 +828,7 @@ MP3FILE *load_mp3_file(char *filename)
 {
     MP3FILE *p = NULL;
     PACKFILE *f = NULL;
-    ALMP3_MP3STREAM *s = NULL;
+    ALMP3_MP3 *s = NULL;
     char *data = new char[(zcmusic_bufsz_private*512)];
     int len;
     
@@ -836,37 +838,17 @@ MP3FILE *load_mp3_file(char *filename)
     if((f = pack_fopen_password(filename, F_READ,""))==NULL)
         goto error;
     
-    // ID3 tags sometimes cause problems with almp3, so try to skip them
-    if((len = pack_fread(data, 10, f)) <= 0)
-        goto error;
-    
-    if(strncmp(data, "ID3", 3)==0)
-    {
-        int id3Size=10;
-        
-        id3Size=((data[6]&0x7F)<<21)|((data[7]&0x7F)<<14)|((data[8]&0x7F)<<7)|(data[9]&0x7F);
-        pack_fseek(f, id3Size-10);
-        if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
-            goto error;
-    }
-    else // no ID3
-    {
-        //if((len = pack_fread(data+10, (zcmusic_bufsz_private*512)-10, f)) <= 0)
-        if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
-            goto error;
-    }
-    
     if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
         goto error;
     
     if(len < (zcmusic_bufsz_private*512))
     {
-        if((s = almp3_create_mp3stream(data, len, TRUE))==NULL)
+        if((s = almp3_create_mp3(data, len))==NULL)
             goto error;
     }
     else
     {
-        if((s = almp3_create_mp3stream(data, (zcmusic_bufsz_private*512), FALSE))==NULL)
+        if((s = almp3_create_mp3(data, (zcmusic_bufsz_private*512)))==NULL)
             goto error;
     }
     
@@ -891,26 +873,27 @@ int poll_mp3_file(MP3FILE *mp3)
 {
     if(mp3 == NULL) return ALMP3_POLL_NOTPLAYING;
     
-    if(mp3->s == NULL) return ALMP3_POLL_NOTPLAYING;
+    //if(mp3->s == NULL) return ALMP3_POLL_NOTPLAYING;
     
-    char *data = (char *)almp3_get_mp3stream_buffer(mp3->s);
+    //char *data = (char *)almp3_get_mp3stream_buffer(mp3->s);
     
-    if(data)
-    {
-        long len = pack_fread(data, (zcmusic_bufsz_private*512), mp3->f);
+    //if(data)
+    //{
+    //    long len = pack_fread(data, (zcmusic_bufsz_private*512), mp3->f);
         
-        if(len < (zcmusic_bufsz_private*512))
-            almp3_free_mp3stream_buffer(mp3->s, len);
-        else
-            almp3_free_mp3stream_buffer(mp3->s, -1);
-    }
+    //    if(len < (zcmusic_bufsz_private*512))
+    //        almp3_free_mp3stream_buffer(mp3->s, len);
+    //    else
+    //        almp3_free_mp3stream_buffer(mp3->s, -1);
+    //}
     
-    int ret = almp3_poll_mp3stream(mp3->s);
+    //int ret = almp3_poll_mp3stream(mp3->s);
+    int ret = almp3_poll_mp3(mp3->s);
     
     if(ret != ALMP3_OK)
     {
         mp3_reset(mp3);
-        almp3_play_mp3stream(mp3->s, (zcmusic_bufsz_private*1024), mp3->vol, 128);
+        almp3_play_mp3(mp3->s, (zcmusic_bufsz_private*1024), mp3->vol, 128);
         mp3->playing = ZCM_PLAYING;
     }
     
@@ -929,12 +912,14 @@ void unload_mp3_file(MP3FILE *mp3)
         
         if(mp3->s != NULL)
         {
-            AUDIOSTREAM* a = almp3_get_audiostream_mp3stream(mp3->s);
+	    almp3_stop_mp3(mp3->s);
+	    almp3_destroy_mp3(mp3->s);
+            //AUDIOSTREAM* a = almp3_get_audiostream_mp3stream(mp3->s);
             
-            if(a != NULL)
-                voice_stop(a->voice);
+            //if(a != NULL)
+            //    voice_stop(a->voice);
                 
-            almp3_destroy_mp3stream(mp3->s);
+            //almp3_destroy_mp3(mp3->s);
             mp3->s = NULL;
         }
         
@@ -948,38 +933,44 @@ void unload_mp3_file(MP3FILE *mp3)
 
 bool mp3_pause(MP3FILE *mp3)
 {
-    AUDIOSTREAM* a = NULL;
+    almp3_stop_mp3(mp3->s);
+    //AUDIOSTREAM* a = NULL;
     
-    if(mp3->s != NULL)
-        a = almp3_get_audiostream_mp3stream(mp3->s);
+    //if(mp3->s != NULL)
+    //    a = almp3_get_audiostream_mp3stream(mp3->s);
         
-    if(a != NULL)
-    {
-        voice_stop(a->voice);
+    //if(a != NULL)
+    //{
+    //    voice_stop(a->voice);
         return true;
-    }
+    //}
     
-    return false;
+    //return false;
 }
 
 bool mp3_resume(MP3FILE *mp3)
 {
-    AUDIOSTREAM* a = NULL;
+	almp3_play_mp3(mp3->s, (zcmusic_bufsz_private*1024), mp3->vol, 128);
+	return true;
+    //AUDIOSTREAM* a = NULL;
     
-    if(mp3->s != NULL)
-        a = almp3_get_audiostream_mp3stream(mp3->s);
+    //if(mp3->s != NULL)
+      //  a = almp3_get_audiostream_mp3stream(mp3->s);
         
-    if(a != NULL)
-    {
-        voice_start(a->voice);
-        return true;
-    }
+    //if(a != NULL)
+    //{
+    //    voice_start(a->voice);
+    //    return true;
+    //}
     
     return false;
 }
 
 bool mp3_reset(MP3FILE *mp3)
 {
+	almp3_stop_mp3(mp3->s);
+	almp3_rewind_mp3(mp3->s);
+	/*
     if(mp3->fname != NULL)
     {
         if(mp3->f != NULL)
@@ -1010,12 +1001,16 @@ bool mp3_reset(MP3FILE *mp3)
             return true;
         }
     }
+    */
     
-    return false;
+    //return false;
+    return true;
 }
 
 void mp3_stop(MP3FILE *mp3)
 {
+	almp3_stop_mp3(mp3->s);
+	/*
     if(mp3->fname != NULL)
     {
         if(mp3->f != NULL)
@@ -1035,6 +1030,7 @@ void mp3_stop(MP3FILE *mp3)
             mp3->s = NULL;
         }
     }
+    */
 }
 
 OGGFILE *load_ogg_file(char *filename)

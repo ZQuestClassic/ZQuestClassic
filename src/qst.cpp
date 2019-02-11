@@ -35,6 +35,7 @@
 #include "zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
+#include "zc_sys.h"
 
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
@@ -79,6 +80,11 @@ bool combosread=false;
 bool mapsread=false;
 bool fixffcs=false;
 bool fixpolsvoice=false;
+
+word quest_header_zelda_version = 0; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
+word quest_header_zelda_build = 0; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
+
+extern byte emulation_patches[16];
 
 int memDBGwatch[8]= {0,0,0,0,0,0,0,0}; //So I can monitor memory crap
 
@@ -325,6 +331,8 @@ int get_version_and_build(PACKFILE *f, word *version, word *build)
     memcpy(midi_flags, temp_midi_flags, MIDIFLAGS_SIZE);
     *version=tempheader.zelda_version;
     *build=tempheader.build;
+    quest_header_zelda_version = tempheader.zelda_version;
+    quest_header_zelda_build = tempheader.build;
     return 0;
 }
 
@@ -2064,7 +2072,8 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
         cvs_MD5Init(&ctx);
         cvs_MD5Update(&ctx, (const unsigned char*)temp_pwd2, (unsigned)strlen(temp_pwd2));
         cvs_MD5Final(tempheader.pwd_hash, &ctx);
-        
+	
+	
         if(tempheader.zelda_version < 0x177)                       // lacks new header stuff...
         {
             //memset(tempheader.minver,0,20);                          //   char minver[9], byte build, byte foo[10]
@@ -2322,6 +2331,10 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
         map_count=temp_map_count;
         memcpy(midi_flags, temp_midi_flags, MIDIFLAGS_SIZE);
     }
+    
+    quest_header_zelda_version = tempheader.zelda_version;
+    quest_header_zelda_build = tempheader.build;
+        
     
     return 0;
 }
@@ -8509,6 +8522,12 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    guysbuf[eDODONGO].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
 	guysbuf[eDODONGOBS].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
     }
+    if(Header->zelda_version == 0x190)
+    {
+	al_trace("Setting Tribble Properties for Version: %x", Header->zelda_version);
+	guysbuf[eKEESETRIB].misc3 = eVIRE; //1.90 and earlier, keese and gel tribbles grew up into 
+	guysbuf[eGELTRIB].misc3 = eZOL; //normal vires, and zols -Z (16th January, 2019 )
+    }
     
     // The versions here may not be correct
     // zelda_version>=0x211 handled at guyversion<24
@@ -8517,6 +8536,8 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eCENT1].misc3 = 0;
         guysbuf[eCENT2].misc3 = 0;
         guysbuf[eMOLDORM].misc2 = 0;
+	//guysbuf[eKEESETRIB].misc3 = eVIRE; //1.90 and earlier, keese and gel tribbles grew up into 
+	//guysbuf[eGELTRIB].misc3 = eZOL; //normal vires, and zols -Z (16th January, 2019 )
     }
     else if(Header->zelda_version <= 0x210)
     {
@@ -9172,6 +9193,7 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                         tempguy.family = eeKEESE;
                         tempguy.misc2 = e2tKEESETRIB;
                         tempguy.misc1 = 0;
+			
                     }
                     
                     tempguy.rate = 2;
@@ -9238,7 +9260,8 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 	    }
 	    
-	   
+	    //Fix 1.84 and 1.90 tribbles, forever. 
+
             
             if(keepdata)
             {

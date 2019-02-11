@@ -63,8 +63,15 @@ extern int loadlast;
 byte disable_direct_updating;
 byte use_dwm_flush;
 byte use_save_indicator;
+byte zc_192b163_compatibility;
 byte midi_patch_fix;
 bool midi_paused=false;
+extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
+byte emulation_patches[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+extern word quest_header_zelda_version; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
+extern word quest_header_zelda_build; //2.53 ONLY. In 2.55, we have an array for this in FFCore! -Z
+//extern byte deprecated_rules[QUESTRULES_SIZE];
 //extern movingblock mblock2; //mblock[4]?
 //extern int db;
 
@@ -247,6 +254,12 @@ void load_game_configs()
     js_stick_2_y_offset = get_config_int(cfg_sect,"js_stick_2_y_offset",0) ? 128 : 0;
     analog_movement = get_config_int(cfg_sect,"analog_movement",1);
     
+     //cheat modifier keya
+    cheat_modifier_keys[0] = get_config_int(cfg_sect,"key_cheatmod_a1",KEY_ZC_LCONTROL);
+    cheat_modifier_keys[1] = get_config_int(cfg_sect,"key_cheatmod_a2",KEY_ZC_RCONTROL);
+    cheat_modifier_keys[2] = get_config_int(cfg_sect,"key_cheatmod_b1",KEY_LSHIFT);
+    cheat_modifier_keys[3] = get_config_int(cfg_sect,"key_cheatmod_b2",KEY_RSHIFT);
+   
     if((unsigned int)joystick_index >= MAX_JOYSTICKS)
         joystick_index = 0;
         
@@ -376,6 +389,8 @@ void load_game_configs()
     sfxdat = get_config_int(cfg_sect,"use_sfx_dat",1);
     fullscreen = get_config_int(cfg_sect,"fullscreen",1);
     use_save_indicator = get_config_int(cfg_sect,"save_indicator",0);
+    zc_192b163_compatibility = get_config_int(cfg_sect,"zc_192b163_compatibility",0);
+    //emulation_patches[emuITEMPERSEG] = get_config_int(cfg_sect,"zc_segment_drop_emulation",0);
 }
 
 void save_game_configs()
@@ -397,6 +412,14 @@ void save_game_configs()
     set_config_int(cfg_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
     set_config_int(cfg_sect,"analog_movement",analog_movement);
     
+	 //cheat modifier keya
+   
+    set_config_int(cfg_sect,"key_cheatmod_a1",cheat_modifier_keys[0]);
+    set_config_int(cfg_sect,"key_cheatmod_a2",cheat_modifier_keys[1]);
+    set_config_int(cfg_sect,"key_cheatmod_b1",cheat_modifier_keys[2]);
+    set_config_int(cfg_sect,"key_cheatmod_b2",cheat_modifier_keys[3]);
+   
+   
     set_config_int(cfg_sect,"key_a",Akey);
     set_config_int(cfg_sect,"key_b",Bkey);
     set_config_int(cfg_sect,"key_s",Skey);
@@ -487,6 +510,9 @@ void save_game_configs()
 #endif
     
     set_config_int(cfg_sect,"save_indicator",use_save_indicator);
+    set_config_int(cfg_sect,"zc_192b163_compatibility",zc_192b163_compatibility);
+    //set_config_int(cfg_sect,"zc_segment_drop_emulation",emulation_patches[emuITEMPERSEG]);
+    
     
     flush_config_file();
 }
@@ -3521,7 +3547,7 @@ void updatescr(bool allowwavy)
         if(quakeclk>0) rectfill(target,scrx+32,scry+8+224,scrx+32+256,scry+8+232,BLACK);
     }
     
-    if(ShowFPS)
+    if(ShowFPS && (frame&1))
         show_fps(target);
         
     if(Paused)
@@ -3553,18 +3579,18 @@ PALETTE sys_pal;
 
 int onGUISnapshot()
 {
-    char buf[20];
+    char buf[200];
     int num=0;
     
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "../../../zc_quest_screenshot%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-        sprintf(buf, "zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "zc_quest_screenshot%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     BITMAP *b = create_bitmap_ex(8,resx,resy);
     
@@ -3584,14 +3610,14 @@ int onNonGUISnapshot()
     get_palette(temppal);
     bool realpal=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
     
-    char buf[20];
+    char buf[200];
     int num=0;
     
     do
     {
-        sprintf(buf, "zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "zc_quest_screenshot%05.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     BITMAP *panorama = create_bitmap_ex(8,256,168);
     
@@ -3628,7 +3654,7 @@ int onSnapshot()
 int onSaveMapPic()
 {
     int mapres2 = 0;
-    char buf[20];
+    char buf[200];
     int num=0;
     mapscr tmpscr_b[2];
     mapscr tmpscr_c[6];
@@ -3653,12 +3679,12 @@ int onSaveMapPic()
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zelda%03d.png", ++num);
+        sprintf(buf, "../../../zc_quest_screenshot%05d.png", ++num);
 #else
-        sprintf(buf, "zelda%03d.png", ++num);
+        sprintf(buf, "zc_quest_screenshot%05d.png", ++num);
 #endif
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     BITMAP* mappic = NULL;
     
@@ -4212,10 +4238,8 @@ void syskeys()
         
     if(get_debug() || cheat>=1)
     {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if( CheatModifierKeys() )
 	{
-		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-		{
 			if(ReadKey(KEY_ASTERISK) || ReadKey(KEY_H))   game->set_life(game->get_maxlife());
 			
 			if(ReadKey(KEY_SLASH_PAD) || ReadKey(KEY_M))  game->set_magic(game->get_maxmagic());
@@ -4231,31 +4255,27 @@ void syskeys()
 			{
 			    onCheatArrows();
 			}
-		}
 	}
     }
     
     if(get_debug() || cheat>=2)
     {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if( CheatModifierKeys() )
 	{
-		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-		{
 			if(rI())
 			{
 			    setClock(!getClock());
 			    cheat_superman=getClock();
 			}
-		}
+		
 	}
     }
     
     if(get_debug() || cheat>=4)
     {
-	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	if( CheatModifierKeys() )
 	{
-		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-		{
+		
 			if(rF11())
 			{
 			    onNoWalls();
@@ -4304,7 +4324,7 @@ void syskeys()
 			if(ReadKey(KEY_L))   onLightSwitch();
 			
 			if(ReadKey(KEY_V))   onIgnoreSideview();
-		}
+		
 	}
     }
     
@@ -4460,6 +4480,20 @@ void checkQuitKeys()
     
     if(ReadKey(KEY_F8))   f_Quit(qEXIT);
 #endif
+}
+
+bool CheatModifierKeys()
+{
+    if ( ( cheat_modifier_keys[0] <= 0 || key[cheat_modifier_keys[0]] ) ||
+        ( cheat_modifier_keys[1] <= 0 || key[cheat_modifier_keys[1]] ) )
+    {
+        if ( ( cheat_modifier_keys[2] <= 0 || key[cheat_modifier_keys[2]] ) ||
+            ( cheat_modifier_keys[3] <= 0 || key[cheat_modifier_keys[3]] ) )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 // 99*360 + 59*60
@@ -4848,37 +4882,6 @@ int OnSaveZCConfig()
 	else return D_O_K;
 }
 
-int onDebugConsole()
-{
-	if ( !zconsole ) {
-		if(jwin_alert3(
-			"WARNING: Closing the Debug Console", 
-			"WARNING: Closing the console window by using the close window widget will TERMINATE ZC!", 
-			"To SAFELY close the debug console, use the SHOW DEBUG CONSOLE menu uption again!",
-			"Are you seure that you wish to open the debug console?",
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		NULL, 
-		lfont) == 1)
-		{
-			DebugConsole::Open();
-
-			zconsole = true;
-			return D_O_K;
-		}
-		else return D_O_K;
-	}
-	else { 
-		
-		zconsole = false;
-		DebugConsole::Close();
-		return D_O_K;
-	}
-}
-
 
 int onFrameSkip()
 {
@@ -5254,38 +5257,40 @@ static DIALOG keydir_dlg[] =
 static DIALOG btn_dlg[] =
 {
     // (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3)
-    { jwin_win_proc,       8,    44,   304,  228,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Joystick Buttons", NULL,  NULL },
+    { jwin_win_proc,       8,    24,   304,  236,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Joystick Buttons", NULL,  NULL },
     { d_stringloader,      0,    0,    2,    0,    0,       0,       0,       0,         0,        0,       NULL, NULL,  NULL },
-    { jwin_frame_proc,     14,   70,   148,  105,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_frame_proc,     158,  70,   148,  105,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_frame_proc,     14,  171,   292,  67,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_text_proc,      30,   76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Standard", NULL,  NULL },
-    { jwin_text_proc,      175,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Extended", NULL,  NULL },
+    { jwin_frame_proc,     14,   41,   294,  192,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { d_dummy_proc,     158,  70,   148,  105,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { d_dummy_proc,     14,  171,   292,  67,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { d_dummy_proc,      30,   76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Standard", NULL,  NULL },
+    { d_dummy_proc,      175,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Extended", NULL,  NULL },
     
-    { jwin_ctext_proc,      92,   92,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_a, NULL,  NULL },
-    { jwin_ctext_proc,      92,   120,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_b, NULL,  NULL },
-    { jwin_ctext_proc,      92,   148,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_s, NULL,  NULL },
-    { jwin_ctext_proc,      92,   180,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex1, NULL,  NULL },
-    { jwin_ctext_proc,      92,   212,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex3, NULL,  NULL },
-    { jwin_ctext_proc,      237,  92,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_l, NULL,  NULL },
-    { jwin_ctext_proc,      237,  120,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_r, NULL,  NULL },
-    { jwin_ctext_proc,      237,  148,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_p, NULL,  NULL },
-    { jwin_ctext_proc,      237,  180,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex2, NULL,  NULL },
-    { jwin_ctext_proc,      237,  212,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex4, NULL,  NULL },
+    { jwin_ctext_proc,      92,   92-40,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_a, NULL,  NULL },
+    { jwin_ctext_proc,      92,   120-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_b, NULL,  NULL },
+    { jwin_ctext_proc,      92,   148-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_s, NULL,  NULL },
+    { jwin_ctext_proc,      92,   180-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex1, NULL,  NULL },
+    { jwin_ctext_proc,      92,   212-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex3, NULL,  NULL },
+    { jwin_ctext_proc,      237,  92-40,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_l, NULL,  NULL },
+    { jwin_ctext_proc,      237,  120-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_r, NULL,  NULL },
+    { jwin_ctext_proc,      237,  148-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_p, NULL,  NULL },
+    { jwin_ctext_proc,      237,  180-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex2, NULL,  NULL },
+    { jwin_ctext_proc,      237,  212-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex4, NULL,  NULL },
     
-    { d_jbutton_proc,      22,   90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "A",     NULL, &Abtn},
-    { d_jbutton_proc,      22,   118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "B",     NULL, &Bbtn},
-    { d_jbutton_proc,      22,   146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Start", NULL, &Sbtn},
-    { d_jbutton_proc,      22,   178,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX1",     NULL, &Exbtn1},
-    { d_jbutton_proc,      22,   210,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX3", NULL, &Exbtn3},
-    { d_jbutton_proc,      167,  90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "L",     NULL, &Lbtn},
-    { d_jbutton_proc,      167,  118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "R",     NULL, &Rbtn},
-    { d_jbutton_proc,      167,  146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Map",   NULL, &Pbtn},
-    { d_jbutton_proc,      167,  178,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX2",     NULL, &Exbtn2},
-    { d_jbutton_proc,      167,  210,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX4",   NULL, &Exbtn4},
     
-    { jwin_button_proc,    90,   240,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
-    { jwin_button_proc,    170,  240,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
+    { d_jbutton_proc,      22,   118-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "B",     NULL, &Bbtn},
+    { d_jbutton_proc,      22,   146-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Start", NULL, &Sbtn},
+    { d_jbutton_proc,      22,   178-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX1",     NULL, &Exbtn1},
+    { d_jbutton_proc,      22,   210-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX3", NULL, &Exbtn3},
+    { d_jbutton_proc,      167,  90-40,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "L",     NULL, &Lbtn},
+    { d_jbutton_proc,      167,  118-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "R",     NULL, &Rbtn},
+    { d_jbutton_proc,      167,  146-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Map",   NULL, &Pbtn},
+    { d_jbutton_proc,      167,  178-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX2",     NULL, &Exbtn2},
+    { d_jbutton_proc,      167,  210-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX4",   NULL, &Exbtn4},
+    { d_jbutton_proc,      22,   242-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Menu",  NULL, &Mbtn},
+    { jwin_ctext_proc,     92, 244-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_m, NULL,  NULL },
+    { d_jbutton_proc,      22,   90-40,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "A",     NULL, &Abtn},
+    { jwin_button_proc,    90,   274-40,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
+    { jwin_button_proc,    170,  274-40,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -6315,7 +6320,7 @@ int onJoystick()
     int ret = zc_popup_dialog(btn_dlg,27);
     
     // not OK'd
-    if(ret != 27)
+    if(ret != 29)
     {
         Abtn = a;
         Bbtn = b;
@@ -6532,6 +6537,8 @@ int onSaveIndicator()
     use_save_indicator=!use_save_indicator;
     return D_O_K;
 }
+
+
 
 int onTriforce()
 {
@@ -6919,8 +6926,316 @@ static MENU settings_menu[] =
     { (char *)"S&napshot Format",           NULL,                    snapshot_format_menu,      0, NULL },
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Debu&g",                     onDebug,                 NULL,                      0, NULL },
+    
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
+
+
+
+int on192b163compatibility()
+{
+	if(jwin_alert3(
+			"EMULATION: Warp Compatibility Patch", 
+			"This action will change the behaviour of some warps. Some quests may have warps",
+			"that cause the player to become stuck. Toggling this may help to overcome this situation.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if ( zc_192b163_compatibility ) zc_192b163_compatibility = 0;
+	    else zc_192b163_compatibility = 1;
+	}
+    return D_O_K;
+}
+
+int v250_dmap_intro_repeat()
+{
+	if(jwin_alert3(
+			"EMULATION: Repeat DMap Intros", 
+			"This action will change the behaviour of DMap Intro Messages.",
+			"If enabled, the intro text will always repeat when revisiting DMaps.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emu250DMAPINTOREPEAT] ) emulation_patches[emu250DMAPINTOREPEAT] = 0;
+	    else emulation_patches[emu250DMAPINTOREPEAT] = 1;
+	}
+    return D_O_K;
+}
+
+int v210_segment_drops()
+{
+	if(jwin_alert3(
+			"EMULATION: Drop-Per-Segment", 
+			"This action will change the drop pattern for segmented enemies.",
+			"If enabled, segmented enemies will drop per segment.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emuITEMPERSEG] ) emulation_patches[emuITEMPERSEG] = 0;
+	    else emulation_patches[emuITEMPERSEG] = 1;
+	}
+    return D_O_K;
+}
+
+int v210_fix_triforce_cellar()
+{
+    if (emulation_patches[emuFIXTRIFORCECELLAR] ) emulation_patches[emuFIXTRIFORCECELLAR] = 0;
+    else emulation_patches[emuFIXTRIFORCECELLAR] = 1;
+    return D_O_K;
+}
+
+int v210_windrobes()
+{
+	if(jwin_alert3(
+			"EMULATION: Toggle v2.10 Windrobes", 
+			"This action will change the behaviour of Windrobe enemies. If enabled, they",
+			"will spawn in random places, and not align with the player. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emu210WINDROBES] ) emulation_patches[emu210WINDROBES] = 0;
+	    else emulation_patches[emu210WINDROBES] = 1;
+	}
+    return D_O_K;
+}
+
+int v210_grid_collision()
+{
+	if(jwin_alert3(
+			"EMULATION: v2.10 Style Link Collision", 
+			"This action will change whether the player must be on the grid for weapons to ",
+			"collide with him. If enabled, he must be on the grid. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emuGRIDCOLLISION] ) emulation_patches[emuGRIDCOLLISION] = 0;
+	    
+	    else emulation_patches[emuGRIDCOLLISION] = 1;
+		if ( get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX) ) set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 0);
+		else set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 1);
+	}
+    return D_O_K;
+}
+
+int v192_tribbles()
+{
+    if(jwin_alert3(
+			"EMULATION: Old Tribbles", 
+			"This action will change the behaviour of gel and keese tribble enemies.",
+			"If enabled, they will use their 1.92 style behaviour. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emuOLDTRIBBLES] ) emulation_patches[emuOLDTRIBBLES] = 0;
+	    else emulation_patches[emuOLDTRIBBLES] = 1;
+		//if ( get_bit(deprecated_rules, qr_OLDTRIBBLES_DEP) ) set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, 0);
+		//else set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, 1);
+		//What is the purpose of deprecated_rules?
+		
+		//if ( get_bit(quest_rules, qr_OLDTRIBBLES_DEP) ) set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 0);
+		//else set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 1);
+	}
+    return D_O_K;
+	
+}
+
+int continuous_sword_triggers()
+{
+	if(jwin_alert3(
+			"EMULATION: Continuous Sword Triggers", 
+			"This action will change the behaviour of sword triggers.",
+			"If enabled, they will be continuous, which was true in older 2.50 and 2.10 builds. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emuSWORDTRIGARECONTINUOUS] ) emulation_patches[emuSWORDTRIGARECONTINUOUS] = 0;
+	    else emulation_patches[emuSWORDTRIGARECONTINUOUS] = 1;
+		
+	}
+    return D_O_K;
+	
+}
+
+int v190_linksprites()
+{
+	
+	if(jwin_alert3(
+			"EMULATION: Toggle BS Animation", 
+			"This action will change BS ANimation to Normal Animation, or",
+			"change Normal Animation to BS Animation.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emu190LINKSPRITES] ) 
+	    {
+		    emulation_patches[emu190LINKSPRITES] = 0;
+		    zinit.linkanimationstyle = las_bszelda;
+	    }
+	    else
+	    {
+		    emulation_patches[emu190LINKSPRITES] = 1;
+		
+			//disable BS animation
+			zinit.linkanimationstyle = las_original;
+			//but copy the swim to walk sprite
+	    }
+    }
+    return D_O_K;
+	
+}
+
+int v190_swimsprites()
+{
+	//if ( quest_header_zelda_version == 0x190 )
+    //{
+	//if ( zinit.linkanimationstyle != las_bszelda ) return D_O_K; //ab ort, this is only for 1.90 fixes to BS Animation Styles
+	if(jwin_alert3(
+			"WARNING: Copy Link Sprites (v1.90)", 
+			"You are about to copy all of Link's Walk Sprites over his Swimming and Diving Sprites.",
+			"This cannot be undone!",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	
+		for ( int q = 0; q < 4; q++ ) //dir
+		{
+			for ( int w = 0; w < 3; w++ )
+			{
+				swimspr[q][w] = walkspr[q][w];
+				divespr[q][w] = walkspr[q][w];
+			}
+		}
+		emulation_patches[emuCOPYSWIMSPRITES] = 1;
+		
+		return D_O_K;
+	}
+    //}
+	return D_O_K;
+	
+}
+
+int v210_brang_firetrail()
+{
+	if(jwin_alert3(
+			"EMULATION: Toggle v2.10 Brang Firetrail", 
+			"This action will change the behaviour of firetrail on Boomerang items.",
+			"If enabled, the direction of the firetrail will not flip, allowing it to hit enemies.. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emuNOFLIPFIRETRAIL] ) emulation_patches[emuNOFLIPFIRETRAIL] = 0;
+	    else emulation_patches[emuNOFLIPFIRETRAIL] = 1;
+	}
+    return D_O_K;
+}
+
+static MENU compat_patch_menu[] =
+{
+    { (char *)"&Flip-Flop Cancel and Wave Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
+    { (char *)"2.10 &Segmented Enemy Drops",                     v210_segment_drops,                 NULL,                      0, NULL },
+    { (char *)"Toggle Half-Tile &Collision",                     v210_grid_collision,                 NULL,                      0, NULL },
+    //{ (char *)"Old &Tribbles",                     v192_tribbles,                 NULL,                      0, NULL },
+    { (char *)"Toggle &BS Animation",                     v190_linksprites,                 NULL,                      0, NULL },
+    { (char *)"Copy &Walk to Swim and Dive Sprites",                     v190_swimsprites,                 NULL,                      0, NULL },
+    { (char *)"&Restore 2.10 Windrobes",                     v210_windrobes,                 NULL,                      0, NULL },
+    { (char *)"&DMap Intros Always Repeat",                     v250_dmap_intro_repeat,                 NULL,                      0, NULL },
+    { (char *)"Don't Flip F&iretrails",                     v210_brang_firetrail,                 NULL,                      0, NULL },
+    { (char *)"C&ontinuous Sword Triggers",                     continuous_sword_triggers,                 NULL,                      0, NULL },
+    //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
+    { NULL,                                 NULL,                    NULL,                      0, NULL }
+};
+
+
+int onDebugConsole()
+{
+	if ( !zconsole ) {
+		if(jwin_alert3(
+			"WARNING: Closing the Debug Console", 
+			"WARNING: Closing the console window by using the close window widget will TERMINATE ZC!", 
+			"To SAFELY close the debug console, use the SHOW DEBUG CONSOLE menu uption again!",
+			"Are you seure that you wish to open the debug console?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+		{
+			DebugConsole::Open();
+
+			zconsole = true;
+			return D_O_K;
+		}
+		else return D_O_K;
+	}
+	else { 
+		
+		zconsole = false;
+		DebugConsole::Close();
+		return D_O_K;
+	}
+}
 
 static MENU misc_menu[] =
 {
@@ -6935,10 +7250,16 @@ static MENU misc_menu[] =
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
     { (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
+    //{ (char *)"1.92b163 Compat.",                     on192b163compatibility,                 NULL,                      0, NULL },
     { (char *)"Save ZC Configuration",           OnSaveZCConfig,           NULL,                      0, NULL },
      { (char *)"Show Debug Console",           onDebugConsole,           NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
+
+
+
+
+
 
 static MENU refill_menu[] =
 {
@@ -6999,7 +7320,9 @@ MENU the_menu[] =
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
     { (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
+    { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
+    
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -7007,6 +7330,7 @@ MENU the_menu2[] =
 {
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
+    { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -7952,6 +8276,36 @@ void System()
         name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
         name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
         name_entry_mode_menu[2].flags = (NameEntryMode==2)?D_SELECTED:0;
+	//menu flags here
+	//al_trace("Quest was made in: %d\n",quest_header_zelda_version);
+	
+	compat_patch_menu[0].flags = ( quest_header_zelda_version >= 0x210 ) ? D_DISABLED : ((zc_192b163_compatibility)?D_SELECTED:0);
+	//segmented enemy drops
+	compat_patch_menu[1].flags = ( quest_header_zelda_version > 0x210 || quest_header_zelda_version < 0x192 ) ? D_DISABLED : ((emulation_patches[emuITEMPERSEG])?D_SELECTED:0);
+	//Link off-grid collision --what was the default in 2.50.0?
+	compat_patch_menu[2].flags = ( (quest_header_zelda_version > 0x210 && quest_header_zelda_build > 24) || (quest_header_zelda_version < 0x210) ) ? D_DISABLED : ((emulation_patches[emuGRIDCOLLISION])?D_SELECTED:0);
+	//Old Tribbles (1.90-only)
+	//compat_patch_menu[3].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuOLDTRIBBLES])?D_SELECTED:0);
+	//Toggle BS Animation, 1.90 only
+	compat_patch_menu[3].flags = ( quest_header_zelda_version >= 0x192 ) ? D_DISABLED : ((emulation_patches[emu190LINKSPRITES])?D_SELECTED:0);
+	//1.90 Copy Link's Walk Sprite to Swim/Dive --why does this not persist?!
+	//compat_patch_menu[5].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuCOPYSWIMSPRITES])?D_DISABLED:0);
+	compat_patch_menu[4].flags = ( quest_header_zelda_version != 0x190 ) ? D_DISABLED : ((emulation_patches[emuCOPYSWIMSPRITES])?0:0);
+	//Try to restore 2.10 Windrobes
+	compat_patch_menu[5].flags = (quest_header_zelda_version == 0x210 || quest_header_zelda_version == 0x192) ? ((emulation_patches[emu210WINDROBES])?D_SELECTED:0) : D_DISABLED;
+	//DMap Intros Always Repeat in early 2.50 quests
+	compat_patch_menu[6].flags = ( quest_header_zelda_version != 0x250 ) ? D_DISABLED : ((emulation_patches[emu250DMAPINTOREPEAT])?D_SELECTED:0);
+	//Don't flip fire trails on brang weapons.
+	compat_patch_menu[7].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuNOFLIPFIRETRAIL])?D_SELECTED:0);
+	//Continuous sword triggers, old 2.50 and 2.10
+	//compat_patch_menu[8].flags = ( quest_header_zelda_version < 0x210 || ( quest_header_zelda_version > 0x250 ) || ( quest_header_zelda_version == 0x250 && quest_header_zelda_build > 411 )  ) ? D_DISABLED : ((emulation_patches[emuSWORDTRIGARECONTINUOUS])?D_SELECTED:0);
+	compat_patch_menu[8].flags = ( quest_header_zelda_version < 0x210 || ( quest_header_zelda_version > 0x250 )  ) ? D_DISABLED : ((emulation_patches[emuSWORDTRIGARECONTINUOUS])?D_SELECTED:0);
+	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
+	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
+	//compat_patch_menu[8].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuFIXTRIFORCECELLAR])?D_SELECTED:0);
+	
+	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
+	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
         
         /*
           if(!Playing || (!zcheats.flags && !debug))

@@ -38,6 +38,8 @@ int vhead=0;
 int guycarryingitem=0;
 
 char *guy_string[eMAXGUYS];
+extern byte emulation_patches[16];
+extern word quest_header_zelda_version;
 
 void never_return(int index);
 void playLevelMusic();
@@ -1873,7 +1875,7 @@ bool enemy::slide()
     if(sclk==0 || hp<=0)
         return false;
         
-    if((sclk&255)==16 && !canmove(sclk>>8,(fix)12,0))
+    if((sclk&255)==16 && !canmove(sclk>>8,(fix) (dmisc2==e2tSPLITHIT ? 1 : 12),0))
     {
         sclk=0;
         return false;
@@ -1883,41 +1885,49 @@ bool enemy::slide()
     
     switch(sclk>>8)
     {
-    case up:
-        if(y<=16)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
-        
-    case down:
-        if(y>=160)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
-        
-    case left:
-        if(x<=16)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
-        
-    case right:
-        if(x>=240)
-        {
-            sclk=0;
-            return false;
-        }
-        
-        break;
+	    case up:
+	    {
+		if(y<=(dmisc2==e2tSPLITHIT ? 0 : 16)) //vires
+		{
+		    sclk=0;
+		    return false;
+		}
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
+		
+		break;
+	    }
+	    case down:
+	    {
+		if(y>=(dmisc2==e2tSPLITHIT ? 150 : 160)) //was 160 --changed for vires bug. 
+		{
+		    sclk=0;
+		    return false;
+		}
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
+		
+		break;
+	    }
+	    case left:
+	    {
+		if(x<=(dmisc2==e2tSPLITHIT ? 0 : 16))
+		{
+		    sclk=0;
+		    return false;
+		}
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; }
+		
+		break;
+	    }
+	    case right:
+	    {
+		if(x>=(dmisc2==e2tSPLITHIT ? 255 : 240)) //vires
+		{
+		    sclk=0;
+		    return false;
+		}
+		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(fix)(4),0) ) { sclk=0; return false; } //vires
+		break;
+	    }
     }
     
     switch(sclk>>8)
@@ -6350,7 +6360,8 @@ bool eStalfos::animate(int index)
         KillWeapon();
         return Dead(index);
     }
-    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide()))  //Split into enemies
+    //vire split
+    else if((hp<=0 && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() && (sclk&255)<=1))  //Split into enemies
     {
         stop_bgsfx(index);
         int kids = guys.Count();
@@ -6782,7 +6793,8 @@ bool eStalfos::animate(int index)
     if(clk4==(dmisc5 ? dmisc5 : 256) && (dmisc2==e2tTRIBBLE) && dmisc3 && dmisc4)
     {
         int kids = guys.Count();
-        int id2=dmisc3;
+        int id2=dmisc3; 
+	
         
         for(int i=0; i<dmisc4; i++)
         {
@@ -6948,8 +6960,10 @@ void eStalfos::vire_hop()
 {
     if(dmisc9!=e9tPOLSVOICE)
     {
-        if(sclk!=0 && dmisc2==e2tSPLIT) //Vires with split on hit, only! -Z
-            return;
+        if(sclk!=0) //Vires with split on hit, only! -Z
+	{
+            if (dmisc2==e2tSPLITHIT) return;
+	}
     }
     else sclk=0;
     
@@ -7140,6 +7154,8 @@ bool eKeese::animate(int index)
                 int kids = guys.Count();
                 bool success = false;
                 int id2=dmisc3;
+	
+		
                 success = 0 != addenemy((fix)x,(fix)y,id2,-24);
                 
                 if(success)
@@ -7250,7 +7266,66 @@ bool eWizzrobe::animate(int index)
                 {
 		    // Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
 		    // but should not appear on dungeon walls.	
-                    place_on_axis(true, dmisc4!=0);
+		    if ( quest_header_zelda_version <= 0x190 ) place_on_axis(true, false); //1.84, and probably 1.90 wizzrobes should NEVER appear in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by Chris Miller).
+                    else if ( (quest_header_zelda_version == 0x210 || quest_header_zelda_version == 0x192 ) && id == eWWIZ && emulation_patches[emu210WINDROBES] ) 
+		    {
+			    //2.10 Windrobe
+			    //randomise location and face Link
+			int t=0;
+			bool placed=false;
+                    
+			while(!placed && t<160)
+			{
+				if(isdungeon())
+				{
+					x=((rand()%12)+2)*16;
+					y=((rand()%7)+2)*16;
+				}
+				else
+				{
+					x=((rand()%14)+1)*16;
+					y=((rand()%9)+1)*16;
+				}
+                        
+				if(!m_walkflag(x,y,spw_door)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
+				{
+					placed=true;
+				}
+                        
+				++t;
+			}
+                    
+			if(abs(x-Link.getX())<abs(y-Link.getY()))
+			{
+				if(y<Link.getY())
+				{
+					dir=down;
+				}
+				else
+				{
+					dir=up;
+				}
+			}
+			else
+			{
+				if(x<Link.getX())
+				{
+					dir=right;
+				}
+				else
+				{
+					dir=left;
+				}
+			}
+                    
+			if(!placed)                                       // can't place him, he's gone
+				return true;
+                
+			    
+			//wizzrobe_attack(); //COmplaint about 2.10 Windrobes not behaving as they did in 2.10. Let's try it this way. -Z
+			//wizzrobe_attack_for_real(); //doing this makes them fire twice. The rest is correct.
+		    }
+		    else place_on_axis(true, dmisc4!=0);
                 }
                 else
                 {
@@ -8570,8 +8645,10 @@ eGanon::eGanon(fix X,fix Y,int Id,int Clk) : enemy(X,Y,Id,Clk)
 bool eGanon::animate(int index)
 {
     if(dying)
-    
+    {
+	hxofs = -32768; //Don't hurt Link when he is dying. -Z ( 24th January, 2019 )
         return Dead(index);
+    }
         
     if(clk==0)
     {
@@ -8636,9 +8713,13 @@ bool eGanon::animate(int index)
         
         sfx(WAV_GANON);
 	//Ganon's dustpile; fall in sideview. -Z
-            item *dustpile = new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0);
-	    dustpile->miscellaneous[15] = eeGANON;
-        //items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
+            //item *dustpile = new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0);
+	    //dustpile->miscellaneous[15] = eeGANON;
+        items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
+	item *dustpile = NULL;
+	//dustpile = (item *)items.spr(items.Count() - 1)->getUID();
+	dustpile = (item *)items.spr(items.Count() - 1);
+	dustpile->miscellaneous[15] = eeGANON;
         break;
     }
     case 4:
@@ -8889,7 +8970,7 @@ bool eMoldorm::animate(int index)
             if(flags&guy_neverret)
                 never_return(index);
                 
-            if(!dmisc2)
+            if(!dmisc2 || ( quest_header_zelda_version >= 0x210 && emulation_patches[emuITEMPERSEG]) )
                 leave_item();
                 
             stop_bgsfx(index);
@@ -9138,8 +9219,17 @@ bool eLanmola::animate(int index)
     {
         if(--clk2 == 0)
         {
-            if(!dmisc3)
-                leave_item();
+	    //al_trace("Thinking about leaving a lanmola drop: %s\n"," ");
+            //if( ( !dmisc3 && quest_header_zelda_version > 0x210 ) || ( quest_header_zelda_version <= 0x210 && emulation_patches[emuITEMPERSEG] == 1 ) )
+	    //{
+		//al_trace("Leaving a lanmola drop\n");
+             //   leave_item();
+	    //}
+	    if(!dmisc3) //is this INTENTIONALLY backwards? -Z (14th January, 2019)
+                leave_item(); //oh, is this for the CORE? Flidd. I think this is to leave a drop for the CORE. 
+		//I'm unsure if the core left a drop in all older versions, but I suspect that it did. 
+		//The decision to drop per segment is in esLanmola::animate(), and the way this works, is that
+		//the engine sets the dropset to 0 if we are not leaving a segment-drop. 
                 
             stop_bgsfx(index);
             return true;
@@ -9244,9 +9334,12 @@ bool esLanmola::animate(int index)
     if(dying)
     {
         xofs=0;
-        
-        if(!dmisc3)
+        //al_trace("Thinking about leaving a esLanmola drop: %s\n"," ");
+        if( ( !dmisc3 ) || ( quest_header_zelda_version <= 0x210 && emulation_patches[emuITEMPERSEG] == 0 ) )
+	{
+	    //al_trace("Setting a esLanmola dropset %d to 0.\n",item_set);
             item_set=0;
+	}
             
         return Dead(index);
     }
@@ -9385,6 +9478,12 @@ bool eManhandla::animate(int index)
                 guys.swap(index+j+1,index+j+2);
                 
             }
+	    //al_trace("Manhandla arm died in quest version: %d\n", quest_header_zelda_version);
+	    //al_trace("emulation_patches[emuITEMPERSEG] is: %d\n",emulation_patches[emuITEMPERSEG]);
+	    if( ( quest_header_zelda_version <= 0x210 && emulation_patches[emuITEMPERSEG] ) ) //They only did this in 2.10
+	    {
+                leave_item();
+	    }
             
             --armcnt;
         }
