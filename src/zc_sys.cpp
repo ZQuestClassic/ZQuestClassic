@@ -3616,7 +3616,7 @@ int onNonGUISnapshot()
     
     do
     {
-        sprintf(buf, "zc_quest_screenshot%05.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "zc_quest_screenshot%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
     }
     while(num<99999 && exists(buf));
     
@@ -3650,7 +3650,6 @@ int onSnapshot()
     
     return D_O_K;
 }
-
 
 int onSaveMapPic()
 {
