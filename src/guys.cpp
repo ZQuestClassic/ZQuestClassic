@@ -13098,7 +13098,7 @@ void setupscreen()
         if(itemid >= 0)
         {
             if(itemsbuf[itemid].flags & ITEM_FLAG1)
-                prices[i]*=(itemsbuf[itemid].misc1/100);
+                prices[i]*=(itemsbuf[itemid].misc1/100.0);
             else
                 prices[i]+=itemsbuf[itemid].misc1;
         }
