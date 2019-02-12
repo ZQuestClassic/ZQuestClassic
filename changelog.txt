@@ -1,5 +1,38 @@
 ChangeLog for 2.53.0 
 
+//Gamma 2
+Fixed default sound for magic book on quest load for older quests, and
+	set to 13 (WAV_FIRE) in qst.dat for default blank quest.
+	(Updated qst.dat)
+Corrected copyright year in zdefs.h. 
+Fixed the following in std.zh:
+	Added revised behaviour to RotatePointX() and RotatePointY().
+	Added toggle for old/new RotatePointX() and RotatePointY() behaviour.
+	Probably fixed issues with catsizes() in ScreenFlag() and ScreenEFlag().
+	Swap lit bomb and bomb returns in int WeaponTypeToID(int wpnt).
+	Remove extraneous 's' in bool EnemiesAlive().
+	Add float LargeDistance(int x1, int y1, int x2, int y2, int divisor).
+
+	Somehow the file size on disc decreased in the process. Not sure on this one.
+Possibly fix some issues with the hammer.
+Fixed screenshots saving without using modifier keys.
+	This had nothing to do with the cheat system, but rather, was an invalid sprintf
+	format in onNonGUISnapshot.
+Emulation: Restrict Repeating DMap Intros to 2.11.x
+Enabling or disabling the Debig Console (win32 only) now updates and saves
+	the zc.cfg file setting for debug_console under zeldadx.
+Fixed Link->Misc being multiplied and divided by 10000. 
+	( ZoriaRPG, 12th February, 2019 )
+
+Fixed Wealth Medals in Bomb/Arrow upgrade rooms which use percentage zero 
+	out cost (integer division != double division) (guys.cpp)
+	No code was ever in place to give the discount? (link.cpp)
+	( Venrob, 11th February, 2019 )
+	
+Fixed Combo Aliad dialogue not doing copy/swap for aliases
+	greater than 999. Required refactor.
+	( ZoriaRPG, 30th January, 2019 )
+
 //Gamma 1
 Updated ZCL to 2.6.10:
 	The main in-focus page is once again ZC.
