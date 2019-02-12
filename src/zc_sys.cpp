@@ -503,6 +503,7 @@ void save_game_configs()
     set_config_int("graphics","disable_direct_updating",disable_direct_updating);
     set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
 	set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
+	set_config_int("zeldadx","debug_console",zconsole);
 #endif
     
 #ifdef ALLEGRO_LINUX
@@ -7223,15 +7224,20 @@ int onDebugConsole()
 		lfont) == 1)
 		{
 			DebugConsole::Open();
-
+			
 			zconsole = true;
+			
+			save_game_configs();
 			return D_O_K;
 		}
+		
 		else return D_O_K;
 	}
 	else { 
 		
 		zconsole = false;
+		
+		save_game_configs();
 		DebugConsole::Close();
 		return D_O_K;
 	}
