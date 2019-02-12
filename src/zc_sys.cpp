@@ -8300,7 +8300,7 @@ void System()
 	//Try to restore 2.10 Windrobes
 	compat_patch_menu[5].flags = (quest_header_zelda_version == 0x210 || quest_header_zelda_version == 0x192) ? ((emulation_patches[emu210WINDROBES])?D_SELECTED:0) : D_DISABLED;
 	//DMap Intros Always Repeat in early 2.50 quests
-	compat_patch_menu[6].flags = ( quest_header_zelda_version != 0x250 ) ? D_DISABLED : ((emulation_patches[emu250DMAPINTOREPEAT])?D_SELECTED:0);
+	compat_patch_menu[6].flags = ( quest_header_zelda_version == 0x211 ) ? D_DISABLED : ((emulation_patches[emu250DMAPINTOREPEAT])?D_SELECTED:0);
 	//Don't flip fire trails on brang weapons.
 	compat_patch_menu[7].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuNOFLIPFIRETRAIL])?D_SELECTED:0);
 	//Continuous sword triggers, old 2.50 and 2.10
