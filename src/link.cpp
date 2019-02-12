@@ -2221,8 +2221,19 @@ void LinkClass::checkstab()
             check_wand_block(wx+wxsz-8,y+8);
         }
     }
+    
+    /*
+    int quakescr = current_item_id(itype_quakescroll);
+if ( quakescr >= 0 )
+{
+	
+	
+}
+    */
+    else if((attack==wHammer) && ((attackclk==15) || ( spins==1 && attackclk >=15 ))) //quake hammer should be spins == 1
     //else if((attack==wHammer) && (attackclk==15))
-    else if((attack==wHammer) && (attackclk>=15)) //>= instead of == for time it takes to charge up hammer with quake scrolls.
+    //reverting this, because it breaks multiple-hit pegs
+    //else if((attack==wHammer) && (attackclk>=15)) //>= instead of == for time it takes to charge up hammer with quake scrolls.
     {
         // poundable blocks
         for(int q=0; q<176; q++)
