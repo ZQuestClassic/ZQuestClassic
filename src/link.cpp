@@ -4998,12 +4998,12 @@ bool LinkClass::startwpn(int itemid)
         
         if(paybook)
             paymagiccost(current_item_id(itype_book));
-	if ( quest_header_zelda_version < 0x250 || ( quest_header_zelda_version == 0x250 && quest_header_zelda_build < 32 ) )
-	{
-		sfx(WAV_FIRE,pan(wx));
-	}
-	else
-	{
+	//if ( quest_header_zelda_version < 0x250 || ( quest_header_zelda_version == 0x250 && quest_header_zelda_build < 32 ) )
+	//{
+	//	sfx(WAV_FIRE,pan(wx));
+	//}
+	//else
+	//{
 		if(bookid != -1)
 		{
 		    sfx(itemsbuf[bookid].usesound,pan(wx));
@@ -5012,7 +5012,7 @@ bool LinkClass::startwpn(int itemid)
 		{
 		    sfx(itemsbuf[itemid].usesound,pan(wx));
 		}
-	}
+	//}
     }
     /*
     //    Fireball Wand

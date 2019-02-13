@@ -5848,13 +5848,13 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
             if(tempitem.fam_type==0)  // Always do this
                 tempitem.fam_type=1;
 	    
-	    al_trace("Current `version`: %x\n", version);
-	    al_trace("Current `build`: %d\n", build);
+	    //al_trace("Current `version`: %x\n", version);
+	    //al_trace("Current `build`: %d\n", build);
 	    
-	    if ( version < 0x250 || ( version == 0x250 && build < 32 ) )
-	    {
-		    if ( tempitem.family == itype_book ) tempitem.usesound = WAV_FIRE;
-	    }
+	    //if ( version < 0x250 || ( version == 0x250 && build < 32 ) )
+	    //{
+		//    if ( tempitem.family == itype_book ) tempitem.usesound = WAV_FIRE;
+	    //}
                 
             memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
             
