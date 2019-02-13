@@ -1,6 +1,8 @@
 ChangeLog for 2.53.0 
 
 //Gamma 2
+Reverted the usesound value for the Magic Book in qst.dat.
+Reverted the last two changes, and hardcoded WAV_FIRE in weapons.cpp.
 Hardcoded wand fire sfx for quests made in builds prior to 2.53 Gamma 2 (2.50 Build 32)
 Increased Build ID to 32, and updated qst.dat (again).
 	( ZoriaRPG, 13th February, 2019 )
