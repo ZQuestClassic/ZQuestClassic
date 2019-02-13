@@ -34,6 +34,7 @@
 #include "zc_sys.h"
 extern byte zc_192b163_compatibility;
 extern word quest_header_zelda_version;
+extern word quest_header_zelda_build; 
 extern  zquestheader QHeader;
 extern LinkClass Link;
 extern byte emulation_patches[16];
@@ -4973,7 +4974,7 @@ bool LinkClass::startwpn(int itemid)
         if(Lwpns.idCount(wBeam))
             Lwpns.del(Lwpns.idFirst(wBeam));
             
-        int type, pow;
+        int type = -1; int pow = -1;
 		if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
 		{
 			type = bookid != -1 ? current_item(itype_book) : itemsbuf[itemid].fam_type;
@@ -4997,11 +4998,21 @@ bool LinkClass::startwpn(int itemid)
         
         if(paybook)
             paymagiccost(current_item_id(itype_book));
-            
-        if(bookid != -1)
-            sfx(itemsbuf[bookid].usesound,pan(wx));
-        else
-            sfx(itemsbuf[itemid].usesound,pan(wx));
+	if ( quest_header_zelda_version < 0x250 || ( quest_header_zelda_version == 0x250 && quest_header_zelda_build < 32 ) )
+	{
+		sfx(WAV_FIRE,pan(wx));
+	}
+	else
+	{
+		if(bookid != -1)
+		{
+		    sfx(itemsbuf[bookid].usesound,pan(wx));
+		}
+		else
+		{
+		    sfx(itemsbuf[itemid].usesound,pan(wx));
+		}
+	}
     }
     /*
     //    Fireball Wand

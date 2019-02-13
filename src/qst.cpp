@@ -5851,7 +5851,7 @@ int readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode
 	    al_trace("Current `version`: %x\n", version);
 	    al_trace("Current `build`: %d\n", build);
 	    
-	    if ( version < 0x250 || ( version == 0x250 && build < 31 ) )
+	    if ( version < 0x250 || ( version == 0x250 && build < 32 ) )
 	    {
 		    if ( tempitem.family == itype_book ) tempitem.usesound = WAV_FIRE;
 	    }
