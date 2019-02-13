@@ -1,6 +1,9 @@
 ChangeLog for 2.53.0 
 
 //Gamma 2
+Hardcoded wand fire sfx for quests made in builds prior to 2.53 Gamma 2 (2.50 Build 32)
+Increased Build ID to 32, and updated qst.dat (again).
+	( ZoriaRPG, 13th February, 2019 )
 Fixed default sound for magic book on quest load for older quests, and
 	set to 13 (WAV_FIRE) in qst.dat for default blank quest.
 	(Updated qst.dat)
