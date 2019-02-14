@@ -4620,8 +4620,15 @@ bool ePeahat::animate(int index)
     if(watch && get_bit(quest_rules,qr_PEAHATCLOCKVULN))
         superman=0;
     else
-        superman=(movestatus && !get_bit(quest_rules,qr_ENEMIESZAXIS)) ? 1 : 0;
-    stunclk=0;
+	superman=(movestatus && !get_bit(quest_rules,qr_ENEMIESZAXIS)) ? 1 : 0;
+	//stunclk=0; //Not sure what was going on here, or what was intended. Why was this set to 0? -Z
+    if ( quest_header_zelda_version >= 0x250 )
+    {
+	if ( stunclk ) --stunclk;
+    }
+    else stunclk = 0; //Was probably this way in 2.10 quests. if not, then we never need to clear it. -Z
+    //Pretty sure this was always an error. -Z ( 14FEB2019 )
+    
     
     if(x<16) dir=right; //this is ugly, but so is moving or creating these guys with scripts.
     
@@ -11242,7 +11249,7 @@ int GuyHit(int tx,int ty,int tz,int txsz,int tysz,int tzsz)
     {
         if(guys.spr(i)->hit(tx,ty,tz,txsz,tysz,tzsz))
         {
-            if(((enemy*)guys.spr(i))->stunclk==0 && (!get_bit(quest_rules, qr_SAFEENEMYFADE) || ((enemy*)guys.spr(i))->fading != fade_flicker)
+	    if(((enemy*)guys.spr(i))->stunclk==0 && (!get_bit(quest_rules, qr_SAFEENEMYFADE) || ((enemy*)guys.spr(i))->fading != fade_flicker)
                     &&(((enemy*)guys.spr(i))->d->family != eeGUY || ((enemy*)guys.spr(i))->dmisc1))
             {
                 return i;
@@ -11253,7 +11260,7 @@ int GuyHit(int tx,int ty,int tz,int txsz,int tysz,int tzsz)
     return -1;
 }
 
-// For Link's hit detection. Count them if they are dying.
+// For Link's hit detection. Count them if they are dying. //This needs a quest rule, or enemy flag, Dying Enemy Doesn't  Hurt Link
 int GuyHit(int index,int tx,int ty,int tz,int txsz,int tysz,int tzsz)
 {
     enemy *e = (enemy*)guys.spr(index);
