@@ -1,6 +1,13 @@
 ChangeLog for 2.53.0 
 
+//Gamma 3
+Fix stunned peahats hurting Link in 2.50+ quests.
+	( ZoriaRPG, 14th February, 2019 )
+
 //Gamma 2
+Changed the default length of the short hookshot to 8. 
+	At one point, the distance was in pixels, then someone
+	changed it to tiles. We'll make pixels an option again in 2.55. 
 Reverted the usesound value for the Magic Book in qst.dat.
 Reverted the last two changes, and hardcoded WAV_FIRE in weapons.cpp.
 Hardcoded wand fire sfx for quests made in builds prior to 2.53 Gamma 2 (2.50 Build 32)
