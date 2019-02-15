@@ -1,6 +1,12 @@
 ChangeLog for 2.53.0 
 
 //Gamma 3
+Reverted the patch that stopped Ganon from hurting Link if Link
+	is standing on Ganon when Ganon dies. 
+	We can apply this as a general rule or fix to all enemy behaviour in 2.55.
+
+	The NES Ganon hurts Link. 
+
 Cleared Link's attackclk before calling saved_Zelda(). 
 	This prevents a charged sword, or other weapon, from carrying
 	over to the ending sequence as a visual artefact. 
