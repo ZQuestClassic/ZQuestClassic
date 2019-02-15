@@ -15780,6 +15780,8 @@ void LinkClass::ganon_intro()
 
 void LinkClass::saved_Zelda()
 {
+    setCharging(0); //don't have the sword out during the ending. 
+    setSwordClk(0); //don't have the sword out during the ending. 
     Playing=Paused=false;
     action=won;
     Quit=qWON;

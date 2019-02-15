@@ -3746,6 +3746,8 @@ int main(int argc, char* argv[])
         case qWON:
         {
             Link.setDontDraw(false);
+		//Link.setCharging(0);//don't have the sword out during the ending. 
+		//Link.setSwordClk(0);
             show_subscreen_dmap_dots=true;
             show_subscreen_numbers=true;
             show_subscreen_items=true;
