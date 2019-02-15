@@ -1,6 +1,7 @@
 ChangeLog for 2.53.0 
 
 //Gamma 3
+Stop playing byrna beam sfx as soon as the beams die in Link.cpp
 Fix stunned peahats hurting Link in 2.50+ quests.
 	( ZoriaRPG, 14th February, 2019 )
 
