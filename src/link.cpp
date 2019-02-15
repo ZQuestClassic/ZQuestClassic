@@ -4114,6 +4114,9 @@ bool LinkClass::animate(int)
                 
                 if(w->id==wCByrna)
                     w->dead=1;
+		
+		//kill the sound effect for the orbits -Z 14FEB2019
+		stop_sfx(itemsbuf[itemid].usesound);
             }
         }
         else paymagiccost(itemid);
