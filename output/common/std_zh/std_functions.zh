@@ -888,7 +888,7 @@ float RotatePointX(float x, float y, float centerX, float centerY, float degrees
   
 	if ( REVISED_ROTATEPOINT_X_FUNCTION )
 	{
-		int distance = Cutscene_LargeDistance(centerX, centerY, x, y, 10);
+		int distance = LargeDistance(centerX, centerY, x, y, 10);
 		int angle = Angle(centerX, centerY, x, y);
 		return centerX+VectorX(distance, angle+degrees);
 	}
@@ -905,7 +905,7 @@ float RotatePointY(float x, float y, float centerX, float centerY, float degrees
 {
 	if ( REVISED_ROTATEPOINT_Y_FUNCTION )
 	{
-		int distance = Cutscene_LargeDistance(centerX, centerY, x, y, 10);
+		int distance = LargeDistance(centerX, centerY, x, y, 10);
 		int angle = Angle(centerX, centerY, x, y);
 		return centerY+VectorY(distance, angle+degrees);
 	}
