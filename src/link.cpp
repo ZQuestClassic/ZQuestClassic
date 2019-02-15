@@ -10369,6 +10369,9 @@ void LinkClass::checkspecial2(int *ls)
     
     if(flag==mfZELDA||flag2==mfZELDA||flag3==mfZELDA || combo_class_buf[type].win_game)
     {
+	
+	    attackclk = 0; //get rid of Link's sword if it was stuck out, charged. 
+	 
         saved_Zelda();
         return;
     }
@@ -15780,8 +15783,7 @@ void LinkClass::ganon_intro()
 
 void LinkClass::saved_Zelda()
 {
-    setCharging(0); //don't have the sword out during the ending. 
-    setSwordClk(0); //don't have the sword out during the ending. 
+	
     Playing=Paused=false;
     action=won;
     Quit=qWON;
