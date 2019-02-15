@@ -1,6 +1,8 @@
 ChangeLog for 2.53.0 
 
 //Gamma 3
+Fixed a secret rupee in Lv9 (1st.qst) not being secret.
+	( NightmareJames, 31st January, 2019; file added to Gamma 3, 14th February, 2019 )
 Reverted the patch that stopped Ganon from hurting Link if Link
 	is standing on Ganon when Ganon dies. 
 	We can apply this as a general rule or fix to all enemy behaviour in 2.55.
