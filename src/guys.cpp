@@ -8653,7 +8653,9 @@ bool eGanon::animate(int index)
 {
     if(dying)
     {
-	hxofs = -32768; //Don't hurt Link when he is dying. -Z ( 24th January, 2019 )
+	//hxofs = -32768; //Don't hurt Link when he is dying. -Z ( 24th January, 2019 )
+	    //disabling this, for now, because it changes NES behaviour. 
+	    //We'll fix this all with a rule or flags in 2.55, for all enemies. 
         return Dead(index);
     }
         
