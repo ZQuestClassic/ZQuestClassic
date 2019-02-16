@@ -16838,7 +16838,14 @@ int onHeader()
 			if ( header_dlg[q].flags&D_GOTFOCUS )
 			{
 				key[KEY_ENTER] = 0; 
-				ret = q;
+				//Always save if the proc type is a text edit field. 
+				if ( header_dlg[q].proc == jwin_edit_proc || header_dlg[q].proc == d_showedit_proc ) 
+				{
+					ret = 17; //always SAVE on Enter key from A TEXT PROC
+					break;
+				}
+				else if ( header_dlg[q].proc == jwin_textbox_proc ) break; //allow CR in these boxes. 
+				else ret = q;
 				break;
 			}
 		}
@@ -16859,8 +16866,15 @@ int onHeader()
 		{
 			if ( header_dlg[q].flags&D_GOTFOCUS )
 			{
-				key[KEY_ENTER] = 0; 
-				ret = q;
+				key[KEY_ENTER_PAD] = 0; 
+				//Always save if the proc type is a text edit field. 
+				if ( header_dlg[q].proc == jwin_edit_proc || header_dlg[q].proc == d_showedit_proc ) 
+				{
+					ret = 17; //always SAVE on Enter key from A TEXT PROC
+					break;
+				}
+				else if ( header_dlg[q].proc == jwin_textbox_proc ) break; //allow CR in these boxes. 
+				else ret = q;
 				break;
 			}
 		}
