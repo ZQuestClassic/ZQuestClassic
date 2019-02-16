@@ -234,6 +234,7 @@ class LinkClass : public sprite
     bool dontdraw;
     bool diagonalMovement;
     bool bigHitbox;
+    byte last_cane_of_byrna_item_id; 
     
 	int last_lens_id;// The item ID of the last Lens of Truth type item used
 	
@@ -404,6 +405,7 @@ public:
 	
 	int getLastLensID();	
 	void setLastLensID(int p_item);
+	void cleanupByrna();
 };
 
 bool isRaftFlag(int flag);

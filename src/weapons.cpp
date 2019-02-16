@@ -414,7 +414,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         
         if(parentitem>-1)
         {
-            cont_sfx(itemsbuf[parentitem].usesound);
+            cont_sfx(itemsbuf[parentitem].usesound); //COuld be another place where the byrna orbit sound bug originates. -Z
         }
         
         break;
@@ -1603,7 +1603,7 @@ bool weapon::animate(int)
         y = (fix)((double)LinkY() + ydiff);
         z = LinkZ();
         
-        if(parentitem>-1)
+        if(parentitem>-1 && dead != 1) //Perhaps don't play the sound if the weapon is dead?
             sfx(itemsbuf[parentitem].usesound,pan(int(x)),true,false);
     }
     break;

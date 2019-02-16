@@ -2504,6 +2504,8 @@ void game_loop()
             
             checklink=false;
         }
+	
+	Link.cleanupByrna();
         
         do_magic_casting();
         Lwpns.animate();
