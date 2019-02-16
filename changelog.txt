@@ -1,6 +1,7 @@
 ChangeLog for 2.53.0 
 
 //Gamma 3
+Updated include 'tango.zh', and its associated demo to current versions of both.
 Pressing the Enter key, or the numpad Enter key, while viewing
 the Quest Header dialogue now EITHER activates the selected element, 
 	or saves the dialogue changes, instead of opening the
