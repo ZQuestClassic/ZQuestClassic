@@ -16806,7 +16806,7 @@ int onHeader()
     strcpy(minver,header.minver);
     strcpy(author,header.author);
     strcpy(title,header.title);
-    
+    //header_dlg[17].flags |= D_GOTFOCUS
     header_dlg[0].dp2 = lfont;
     header_dlg[3].dp = zver_str;
     header_dlg[5].dp = q_num;
@@ -16829,22 +16829,40 @@ int onHeader()
     
     do
     {
-        ret=zc_popup_dialog(header_dlg,-1);
+        ret=zc_popup_dialog(header_dlg,17);
 	    
 	if ( key[KEY_ENTER] )
 	{
-		//if ( ret == -1 )
+		for ( int q = 0; q < 22; q++ )
 		{
-			key[KEY_ENTER] = 0; 
-			ret = 17;
+			if ( header_dlg[q].flags&D_GOTFOCUS )
+			{
+				key[KEY_ENTER] = 0; 
+				ret = q;
+				break;
+			}
 		}
+		//if ( ret == -1 )
+		//{
+		//	key[KEY_ENTER] = 0; 
+		//	ret = 17;
+		//}
 	}
 	if ( key[KEY_ENTER_PAD] )
 	{
 		//if ( ret == -1 )
+		//{
+		//	key[KEY_ENTER_PAD] = 0; 
+		//	ret = 17;
+		//}
+		for ( int q = 0; q < 22; q++ )
 		{
-			key[KEY_ENTER_PAD] = 0; 
-			ret = 17;
+			if ( header_dlg[q].flags&D_GOTFOCUS )
+			{
+				key[KEY_ENTER] = 0; 
+				ret = q;
+				break;
+			}
 		}
 	}
 		
