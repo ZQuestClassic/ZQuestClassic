@@ -1,6 +1,19 @@
 ChangeLog for 2.53.0 
 
 //Gamma 3
+Pressing the Enter key, or the numpad Enter key, while viewing
+the Quest Header dialogue now EITHER activates the selected element, 
+	or saves the dialogue changes, instead of opening the
+	'Change Quest password' sub-dialogue. 
+	It will auto-save if the selected element is OK, or any TEXT field.
+	Otherwise, it triggers the selected element.
+	This should also work from the numpad Enter key. 
+	I also made the changes as an EXAMPLE chain, for making all
+	JWin DIALOGUES more user-friendly, in the future. 
+		See Commits: 
+			b479871e9d38d8245874bc6cffc2f72e93f6cd5a
+			c638d67cd856cc09e2e937c5a7da3dc9e0743952
+			93956d00d4bb933236c6625cb778eb6ddd5caba4
 Added a new function, Link.cleanupByrna() and called it in game_loop() (zelda.cpp).
 Added a sfx cleanup for the byrna beam to weapons.cpp.
 Added a new LinkClass variable, byte last_cane_of_byrna, that functions similar to
