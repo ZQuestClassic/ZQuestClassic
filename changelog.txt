@@ -1,6 +1,37 @@
 ChangeLog for 2.53.0 
 
 //Gamma 3
+Added a new function, Link.cleanupByrna() and called it in game_loop() (zelda.cpp).
+Added a sfx cleanup for the byrna beam to weapons.cpp.
+Added a new LinkClass variable, byte last_cane_of_byrna, that functions similar to
+	last_lens_id.
+	It inits at -1, then when Link uses a cane, it is set to that cane's ID.
+	It is reset to -1 in Link.cleanupByrna().
+Added kill_sfx() call to three other possible places where the Cane of Byyrna
+	sound should probably be terminated:
+	Whenever we call stopCaneOfByrna()
+	If we can't pay the cost during item / weapon init
+	If the beams aren't created during init, for some reason. 
+Re-adjust qr_OFFSETEWPNCOLLISIONFIX in qst.cpp, to force it on for 2.50.0 build < 24, 
+	instead of build |< 29 (as Gleeok forced it). 
+
+	I tested SIX quest files, CREATED in three versions of ZQuest:
+		2.50.0, bit set off (b24)
+		2.50.0, bit set on (b24)
+		2.50.1, bit set off (b28)
+		2.50.1, bit set on (b28)
+		2.50.2, bit set off (b29)
+		2.50.2, bit set on (b29)
+	If we check build < 29, then quests made in 2.50.0 and possibly 2.50.1 have
+	the bit forced on, when it wasn't intended.
+    
+	Unless the actual BEHAVIOUR of this bit has changed (this needs verification), 
+	then builds 24, 28, 29, 30, 31, and 32 should never force this bit on. 
+	
+	It is certainly possible that quests made prior to build 24 (2.50.0 release) have this wrong.
+	I would need to check every RC to see, and backtrack from there. 
+	( ZoriaRPG, 16th February, 2019 )
+	
 Fixed a secret rupee in Lv9 (1st.qst) not being secret.
 	( NightmareJames, 31st January, 2019; file added to Gamma 3, 14th February, 2019 )
 Reverted the patch that stopped Ganon from hurting Link if Link
