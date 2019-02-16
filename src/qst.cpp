@@ -2475,15 +2475,35 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(quest_rules, qr_OFFSCREENWEAPONS, 1);
     }
     
-    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
+    //if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29)) //Gleeok's thing here. 
+    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<24)) //ZoriaRPG, here. 
     {
         // qr_OFFSETEWPNCOLLISIONFIX
         // All 'official' quests need this disabled.
         // All 2.10 and lower quests need this enabled to preseve compatability.
         // All 2.11 - 2.5.1 quests should have it set also, due to a bug in about half of all the betas.
-
+	    
+	
 	    //~Gleeok
 		set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 1); //This has to be set!!!!
+	/*
+	  I have no clue what Gleeok means here. I tested SIX quest files, CREATED in three versions of ZQuest:
+		2.50.0, bit set off (b24)
+		2.50.0, bit set on (b24)
+		2.50.1, bit set off (b28)
+		2.50.1, bit set on (b28)
+		2.50.2, bit set off (b29)
+		2.50.2, bit set on (b29)
+		If we check build < 29, then quests made in 2.50.0 and possibly 2.50.1 have
+		the bit forced on, when it wasn't intended.
+	    
+		Unless the actual BEHAVIOUR of this bit has changed (this needs verification), 
+		then builds 24, 28, 29, 30, 31, and 32 should never force this bit on. 
+		
+		It is certainly possible that quests made prior to build 24 (2.50.0 release) have this wrong.
+		I would need to check every RC to see, and backtrack from there. 
+		-ZoriaRPG ( 16th February, 2019 )
+	*/
 		
 		// Broke in build 695
 		if(tempheader.zelda_version>=0x211 && tempheader.build>=18)
