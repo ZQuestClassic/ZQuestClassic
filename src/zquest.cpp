@@ -16825,11 +16825,30 @@ int onHeader()
         large_dialog(password_dlg);
     }
     
-    int ret;
+    int ret = -1;
     
     do
     {
         ret=zc_popup_dialog(header_dlg,-1);
+	    
+	if ( key[KEY_ENTER] )
+	{
+		//if ( ret == -1 )
+		{
+			key[KEY_ENTER] = 0; 
+			ret = 17;
+		}
+	}
+	if ( key[KEY_ENTER_PAD] )
+	{
+		//if ( ret == -1 )
+		{
+			key[KEY_ENTER_PAD] = 0; 
+			ret = 17;
+		}
+	}
+		
+	//if (ReadKey(KEY_ENTER)||ReadKey(KEY_ENTER_PAD) && ret == -1) ret = 17; 
         
         if(ret==20)
             questrev_help();
