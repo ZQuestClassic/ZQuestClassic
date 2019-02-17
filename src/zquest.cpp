@@ -11557,12 +11557,16 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
             blit(bigbmp,screen,0,0,x+2,y+2,w,h);
             destroy_bitmap(bigbmp);
         }
+	//Item editor power display in Select Item dialogue. 
         if(bii[d->d1].i>=0)
         {
             textprintf_ex(screen,spfont,x,y+20*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d  ",bii[d->d1].i);
             
             textprintf_ex(screen,spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pow:    ");
-            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
+		char itempower[10]; 
+		sprintf(itempower, "%03d", itemsbuf[bii[d->d1].i].power); //Give leading zeros so that we don't have graphical corruption in the display. 
+            //textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
         }
         
         // Might be a bit confusing for new users
