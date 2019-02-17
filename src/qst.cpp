@@ -4371,6 +4371,8 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
         }
     }
     
+    
+    
     //Wind warps are now just another warp ring.
     if(s_version <= 5)
     {
@@ -4686,6 +4688,7 @@ int readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
             }
         }
     }
+    
     
     if(keepdata==true)
     {
@@ -11748,6 +11751,16 @@ int readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word s
                 }
             }
         }
+	//A quick way to clear out rubbish palette cycle data from the default quest.
+	//palcycle null_palcycle[1][3];
+	//memset(null_palcycle, 0, sizeof(null_palcycle));
+	    //strip out palette cycles from every palette
+	//    for(int i=0; i<256; i++)
+	//	{
+	//		for ( int q = 0; q < 3; q++ ) 
+	//		temp_misc.cycles[i][q] = null_palcycle[0][q];
+		   
+	//	}
         
         if(keepdata==true)
         {
