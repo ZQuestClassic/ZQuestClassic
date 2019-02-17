@@ -1,6 +1,12 @@
 ChangeLog for 2.53.0 
 
 //Gamma 3
+Added leading zeros to the 'Select Item' 'Pow: ' field, so that
+items with powers greater than 10 don't carry over digits to items with
+powers < 10.
+	( ZoriaRPG, 17th February, 2019 )
+Re-fix 1st.qst Level 9 Rupee issue. I had set the wrong type. 
+	( NightmareJames, 16th February, 2019 )
 Updated include 'tango.zh', and its associated demo to current versions of both.
 Pressing the Enter key, or the numpad Enter key, while viewing
 the Quest Header dialogue now EITHER activates the selected element, 
