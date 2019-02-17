@@ -1,6 +1,27 @@
 ChangeLog for 2.53.0 
 
 //Gamma 3
+
+Updated qst.dat, to strip out some remaining rubbish pal cycle data. 
+Fixes for Palette Cycle Issues:
+	Palettes above 256 were not set up to have palette cycles in 2.50.
+	The array in QMisc is [256][3], where it should have been [512][3].
+
+	Because of this, palettes above 0xFF had rubbish data associated to their cycle data.
+
+	To remedy this, I have done the following:
+
+		All palettes > 255 have a null palette loaded into them, in the editor and as
+		palette data, to zero out their cycle information.
+
+		This should occur both in ZC, and in ZQuest.
+
+		I disabled clicking the Cycle button in the Level palette editor, and display
+		a jwin-alert that the palette doesn't support cycling.
+
+	Let's hope this doesn't cause crashes in any quests, in ZC.
+
+
 Added leading zeros to the 'Select Item' 'Pow: ' field, so that
 items with powers greater than 10 don't carry over digits to items with
 powers < 10.
