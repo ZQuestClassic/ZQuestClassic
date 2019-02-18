@@ -7103,7 +7103,7 @@ int eight_way_shot_sfx_fix()
 	if(jwin_alert3(
 			"EMULATION: Eight-Way-Shot Sound Fix", 
 			"This action will change the sound made by 8-way shots.",
-			"If enabled, they will be be forced to SFX_FIRE, which was true in older 2.50 and 2.10 builds. ",
+			"If enabled, they will be forced to SFX_FIRE, which was true in older 2.50 and 2.10 builds. ",
 			"Proceed?",
 		 "&Yes", 
 		"&No", 
@@ -7115,6 +7115,30 @@ int eight_way_shot_sfx_fix()
 	{
 	    if (emulation_patches[emu8WAYSHOTSFX] ) emulation_patches[emu8WAYSHOTSFX] = 0;
 	    else emulation_patches[emu8WAYSHOTSFX] = 1;
+		
+	}
+    return D_O_K;
+	
+}
+
+
+int v210_bombchus()
+{
+	if(jwin_alert3(
+			"EMULATION: Restore Large Bombchu Blast Radius",
+			"This action will change the blast size for Bombchu enemies.",
+			"If enabled, they will be superbomb blasts, which was true in older 2.50 and 2.10 builds. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (emulation_patches[emu210BOMBCHU] ) emulation_patches[emu210BOMBCHU] = 0;
+	    else emulation_patches[emu210BOMBCHU] = 1;
 		
 	}
     return D_O_K;
@@ -7218,13 +7242,14 @@ static MENU compat_patch_menu[] =
     { (char *)"2.10 &Segmented Enemy Drops",                     v210_segment_drops,                 NULL,                      0, NULL },
     { (char *)"Toggle Half-Tile &Collision",                     v210_grid_collision,                 NULL,                      0, NULL },
     //{ (char *)"Old &Tribbles",                     v192_tribbles,                 NULL,                      0, NULL },
-    { (char *)"Toggle &BS Animation",                     v190_linksprites,                 NULL,                      0, NULL },
+    { (char *)"Toggle BS &Animation",                     v190_linksprites,                 NULL,                      0, NULL },
     { (char *)"Copy &Walk to Swim and Dive Sprites",                     v190_swimsprites,                 NULL,                      0, NULL },
     { (char *)"&Restore 2.10 Windrobes",                     v210_windrobes,                 NULL,                      0, NULL },
     { (char *)"&DMap Intros Always Repeat",                     v250_dmap_intro_repeat,                 NULL,                      0, NULL },
     { (char *)"Don't Flip F&iretrails",                     v210_brang_firetrail,                 NULL,                      0, NULL },
     { (char *)"C&ontinuous Sword Triggers",                     continuous_sword_triggers,                 NULL,                      0, NULL },
     { (char *)"&Eight Way Shot Uses Flame Sound",                     eight_way_shot_sfx_fix,                 NULL,                      0, NULL },
+    { (char *)"&Bombchus Use Superbomb Blasts",                     v210_bombchus,                 NULL,                      0, NULL },
     //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -8331,6 +8356,8 @@ void System()
 	compat_patch_menu[8].flags = ( quest_header_zelda_version < 0x210 || ( quest_header_zelda_version > 0x250 )  ) ? D_DISABLED : ((emulation_patches[emuSWORDTRIGARECONTINUOUS])?D_SELECTED:0);
 	//8-way shots always make WAV_FIRE sound. 
 	compat_patch_menu[9].flags = ( quest_header_zelda_version > 0x250 || ( quest_header_zelda_version == 0x250 && quest_header_zelda_build >= 32 )  ) ? D_DISABLED : ((emulation_patches[emu8WAYSHOTSFX])?D_SELECTED:0);
+	//Bombchus use superbomb when contacting link.
+	compat_patch_menu[9].flags = ( quest_header_zelda_version > 0x250 || ( quest_header_zelda_version == 0x250 && quest_header_zelda_build > 28 )  ) ? D_DISABLED : ((emulation_patches[emu210BOMBCHU])?D_SELECTED:0);
 	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
 	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
 	//compat_patch_menu[8].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuFIXTRIFORCECELLAR])?D_SELECTED:0);

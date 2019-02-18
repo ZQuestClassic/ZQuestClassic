@@ -6495,26 +6495,66 @@ bool eStalfos::animate(int index)
                     {
                         if(dmisc2==e2tBOMBCHU && LinkInRange(16) && wpn+dmisc3 > wEnemyWeapons) //Bombchu
                         {
-                            hp=-1000;
+				
+			    if (  emulation_patches[emu210BOMBCHU]  ) 
+			    {
+				    hp=-1000;
                             
-                            int wpn2;
-                            if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
-                                wpn2=wpn;
-                            else
-                                wpn2=wpn;
-                            
-                            weapon *ew=new weapon(x,y,z, wpn2, 0, dmisc4, dir,-1,getUID());
-                            Ewpns.add(ew);
-                            
-                            if(wpn2==ewSBomb || wpn2==ewBomb)
-                            {
-                                ew->step=0;
-                                ew->id=wpn2;
-                                ew->misc=50;
-                                ew->clk=48;
-                            }
-                            
-                            fired=true;
+				    if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
+				    {
+					weapon *ew=new weapon(x,y,z, wpn+dmisc3, 0, dmisc4, dir,-1,getUID());
+					Ewpns.add(ew);
+					
+					if(wpn==ewSBomb || wpn==ewBomb)
+					{
+					    ew->step=0;
+					    ew->id=wpn+dmisc3;
+					    ew->misc=50;
+					    ew->clk=48;
+					}
+					
+					fired=true;
+				    }
+				    else
+				    {
+					weapon *ew=new weapon(x,y,z, wpn, 0, dmisc4, dir,-1,getUID());
+					Ewpns.add(ew);
+					
+					if(wpn==ewSBomb || wpn==ewBomb)
+					{
+					    ew->step=0;
+					    ew->id=wpn;
+					    ew->misc=50;
+					    ew->clk=48;
+					}
+					
+					fired=true;
+				    }
+			    }
+			    
+			    else
+			    {
+				    hp=-1000;
+				    
+				    int wpn2;
+				    if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
+					wpn2=wpn;
+				    else
+					wpn2=wpn;
+				    
+				    weapon *ew=new weapon(x,y,z, wpn2, 0, dmisc4, dir,-1,getUID());
+				    Ewpns.add(ew);
+				    
+				    if(wpn2==ewSBomb || wpn2==ewBomb)
+				    {
+					ew->step=0;
+					ew->id=wpn2;
+					ew->misc=50;
+					ew->clk=48;
+				    }
+				    
+				    fired=true;
+			    }
                         }
                     }
                     
