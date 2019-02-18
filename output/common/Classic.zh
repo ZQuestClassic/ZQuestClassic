@@ -1,0 +1,42 @@
+//Classic.zh
+
+item script HalfMagic
+{
+	void run()
+	{
+		Game->Generic[GEN_MAGICDRAINRATE] = 1;
+	}
+}
+
+item script LearnShash
+{
+	void run()
+	{
+		Game->Generic[GEN_CANSLASH] = 1;
+	}
+}
+
+ffc script SignPost
+{
+	void run(int m)
+	{
+		if ( Link->Y > this->Y + 8 )
+		{
+			if ( Abs(Link->X-this->X) < 8 )
+			{
+				if ( Link->PressA || Link->PressB )
+				{
+					Screen->Message(m);
+				}
+			}
+		}
+	}
+}
+
+ffc script PermSecrets
+{
+	void run()
+	{
+		
+	}
+}
