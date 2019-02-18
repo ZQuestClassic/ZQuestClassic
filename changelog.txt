@@ -1,6 +1,9 @@
 ChangeLog for 2.53.0 
 
 //Gamma 4
+Corrected power rating of remote bombs. 
+	This will only affect quests saved in 2.53, and 
+	only if the power of the bomb is > 1. 
 Reverted back to Gleeok's forced on bit for half tile collision 
 	in quests made in 2.50.0 and 2.50.1 Or lower 2.50 builds).
 Expanded the Emulation menu toggle to cover builds through 2.50.1. 
