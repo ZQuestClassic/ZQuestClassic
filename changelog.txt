@@ -1,6 +1,10 @@
 ChangeLog for 2.53.0 
 
 //Gamma 4
+Reverted back to Gleeok's forced on bit for half tile collision 
+	in quests made in 2.50.0 and 2.50.1 Or lower 2.50 builds).
+Expanded the Emulation menu toggle to cover builds through 2.50.1. 
+	I'm tired of this one, too. 
 Began adding some default scripts to Classic (as Classic.zh), and 
 	corrected some constants in the included scripts, to match.
 Fixed the selection mark for Bombchu Emulation, and ensured that
