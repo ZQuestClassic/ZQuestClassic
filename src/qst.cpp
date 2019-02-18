@@ -2485,8 +2485,9 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(quest_rules, qr_OFFSCREENWEAPONS, 1);
     }
     
-    //if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29)) //Gleeok's thing here. 
-    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<24)) //ZoriaRPG, here. 
+    //Fuck it. Now the user can toggle this for 2.50.0 and 2.50.1 quests. 
+    if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29)) //Gleeok's thing here. 
+    //if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<24)) //ZoriaRPG, here. 
     {
         // qr_OFFSETEWPNCOLLISIONFIX
         // All 'official' quests need this disabled.
