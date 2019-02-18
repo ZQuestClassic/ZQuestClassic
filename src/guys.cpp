@@ -7451,7 +7451,34 @@ void eWizzrobe::wizzrobe_attack_for_real()
         addEwpn(x,y,z,wpn,0,wdp,r_up,getUID());
         addEwpn(x,y,z,wpn,0,wdp,l_down,getUID());
         addEwpn(x,y,z,wpn,0,wdp,r_down,getUID());
-        sfx(WAV_FIRE,pan(int(x)));
+	    
+	if (  emulation_patches[emu8WAYSHOTSFX] ) sfx(WAV_FIRE,pan(int(x))); 
+	else
+	{
+		switch(wpn)
+		{
+			case ewFireball: sfx(40,pan(int(x))); break;
+				
+			case ewArrow: sfx(1,pan(int(x))); break; //Ghost.zh has 0?
+			case ewBrang: sfx(4,pan(int(x))); break; //Ghost.zh has 0?
+			case ewSword: sfx(20,pan(int(x))); break; //Ghost.zh has 0?
+			case ewRock: sfx(51,pan(int(x))); break;
+			case ewMagic: sfx(32,pan(int(x))); break;
+			case ewBomb: sfx(3,pan(int(x))); break; //Ghost.zh has 0?
+			case ewSBomb: sfx(3,pan(int(x))); break; //Ghost.zh has 0?
+			case ewLitBomb: sfx(21,pan(int(x))); break; //Ghost.zh has 0?
+			case ewLitSBomb:  sfx(21,pan(int(x))); break; //Ghost.zh has 0?
+			case ewFireTrail:  sfx(13,pan(int(x))); break;
+			case ewFlame: sfx(13,pan(int(x))); break;
+			case ewWind: sfx(32,pan(int(x))); break;
+			case ewFlame2: sfx(13,pan(int(x))); break;
+			case ewFlame2Trail: sfx(13,pan(int(x))); break;
+			case ewIce: sfx(44,pan(int(x))); break;
+			case ewFireball2: sfx(40,pan(int(x))); break; //fireball (rising)
+			default: sfx(WAV_FIRE,pan(int(x)));  break;
+			
+		}
+	}
     }
     else if(dmisc2==2)  // summons specific enemy
     {

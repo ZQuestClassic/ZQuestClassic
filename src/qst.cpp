@@ -2334,6 +2334,11 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     quest_header_zelda_version = tempheader.zelda_version;
     quest_header_zelda_build = tempheader.build;
+    //forced emulation patches, on by default
+    if ( quest_header_zelda_version < 0x250 ) 
+    {
+	emulation_patches[emu8WAYSHOTSFX] = 1;    
+    }
         
     
     return 0;
