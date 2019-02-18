@@ -1,6 +1,31 @@
 ChangeLog for 2.53.0 
 
 //Gamma 4
+Default quest changes:
+Added call to Classic.zh in the buffer.
+	Updated all active subscreens to include the new items. 
+	Added items: 'Scroll: Learn Slash', 'Scroll: Half Magic'
+	Placed default FFCs with scripts attached on map 1, screen 0x82. 
+		These have their icon set, and their Ethereal flag set. 
+	Added the following scripts:
+	Default active script with Tango and Ghost.
+	Half Magic Item (item, pickup)
+	Learn Slash Item (item, pickup)
+	Change Room Guy (ffc)
+	Perm. Secrets (ffc) 
+	Signpost (ffc)
+	
+	Added freezeall and freeze only ffc default combos to combo page 3:
+		
+	Added tiles on page 61 for icons to represent the FFC scripts. 
+	(Tile IDs: 16002, 16003, 16004, 16005, 16023, 16024, 16061, 16062)
+	Added combos for ffc icons to combo page 3:
+		IDs: 892, 893
+		Icons for the above, are combos: 888, 889. 
+	Added tiles for the icon combos for freeze combos to tile page 61 as 
+		tiles: 16000, and 16001. 
+Commented out some conflicting constants in stdExtra.zh
+Moved stdWeapons and Laser.zh into an 'extras' path.
 Corrected power rating of remote bombs. 
 	This will only affect quests saved in 2.53, and 
 	only if the power of the bomb is > 1. 
