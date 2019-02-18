@@ -413,6 +413,15 @@ void RecursiveVisitor::caseExprRShift(ASTExprRShift& host, void* param)
 	visit(host.right.get(), param);
 }
 
+void RecursiveVisitor::caseExprTernary(ASTTernaryExpr& host, void* param)
+{
+	visit(host.left.get(), param);
+	if (breakRecursion(host, param)) return;
+	visit(host.middle.get(), param);
+	if (breakRecursion(host, param)) return;
+	visit(host.right.get(), param);
+}
+
 // Literals
 
 void RecursiveVisitor::caseNumberLiteral(ASTNumberLiteral& host, void* param)

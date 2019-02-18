@@ -106,6 +106,7 @@ extern YYLTYPE noloc;
 
  // Types
 %token ZVOID
+%token UNTYPED
 %token ZBOOL
 %token ZFLOAT
 %token BITMAP
@@ -148,6 +149,7 @@ extern YYLTYPE noloc;
 %token RBRACKET
 %token LBRACE
 %token RBRACE
+%token QMARK
 
  // Operators
 %token ARROW
@@ -182,6 +184,7 @@ extern YYLTYPE noloc;
  // Others
 %token IDENTIFIER
 %token QUOTEDSTRING
+%token IMPORTSTRING
 %token SINGLECHAR
 %token NUMBER
 
@@ -223,7 +226,7 @@ Global_Statement :
 ////////////////////////////////////////////////////////////////
 // Import Declaration
 
-Import : IMPORT QUOTEDSTRING {
+Import : IMPORT IMPORTSTRING {
 	ASTString* str = (ASTString*)$2;
 	$$ = new ASTImportDecl(str->getValue(), @$);
 	delete str;}
@@ -262,7 +265,7 @@ DataTypeDef : TYPEDEF DataType IDENTIFIER {
 
 DataType :
 	ZVOID {$$ = new ASTDataType(DataType::ZVOID, @$);}
-//	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
+	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
 	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}
 	| ZFLOAT {$$ = new ASTDataType(DataType::FLOAT, @$);}
 	| BITMAP {$$ = new ASTDataType(DataType::BITMAP, @$);}
@@ -861,37 +864,48 @@ Expr_14 : Expr_13 {$$ = $1;}
 	// Logical Or
 	| Expr_14 OR Expr_13 {BINARY(ASTExprOr, $$, $1, $3, @$)}
 	;
-
+	
 Expr_15 : Expr_14 {$$ = $1;}
+	//Ternary
+	| Expr_14 QMARK Expr_15 COLON Expr_15
+	{
+		ASTExpr* left = (ASTExpr*)$1;
+		ASTExpr* middle = (ASTExpr*)$3;
+		ASTExpr* right = (ASTExpr*)$5;
+		$$ = new ASTTernaryExpr(left, middle, right, @$);
+	}
+	;
+
+Expr_16 : Expr_15 {$$ = $1;}
 	// Assignment
-	| Expr_14 ASSIGN Expr_15 {BINARY(ASTExprAssign, $$, $1, $3, @$)}
+	| Expr_15 ASSIGN Expr_16 {BINARY(ASTExprAssign, $$, $1, $3, @$)}
 	// Addition Assignment
-	| Expr_14 PLUSASSIGN Expr_15 {SHORTCUT(ASTExprPlus, $$, $1, $3, @$, @3)}
+	| Expr_15 PLUSASSIGN Expr_16 {SHORTCUT(ASTExprPlus, $$, $1, $3, @$, @3)}
 	// Subtraction Assignment
-	| Expr_14 MINUSASSIGN Expr_15 {SHORTCUT(ASTExprMinus, $$, $1, $3, @$, @3)}
+	| Expr_15 MINUSASSIGN Expr_16 {SHORTCUT(ASTExprMinus, $$, $1, $3, @$, @3)}
 	// Multiplication Assignment
-	| Expr_14 TIMESASSIGN Expr_15 {SHORTCUT(ASTExprTimes, $$, $1, $3, @$, @3)}
+	| Expr_15 TIMESASSIGN Expr_16 {SHORTCUT(ASTExprTimes, $$, $1, $3, @$, @3)}
 	// Division Assignment
-	| Expr_14 DIVIDEASSIGN Expr_15 {SHORTCUT(ASTExprDivide, $$, $1, $3, @$, @3)}
+	| Expr_15 DIVIDEASSIGN Expr_16 {SHORTCUT(ASTExprDivide, $$, $1, $3, @$, @3)}
 	// Modulus Assignment
-	| Expr_14 MODULOASSIGN Expr_15 {SHORTCUT(ASTExprModulo, $$, $1, $3, @$, @3)}
+	| Expr_15 MODULOASSIGN Expr_16 {SHORTCUT(ASTExprModulo, $$, $1, $3, @$, @3)}
 	// Left Shift Assignment
-	| Expr_14 LSHIFTASSIGN Expr_15 {SHORTCUT(ASTExprLShift, $$, $1, $3, @$, @3)}
+	| Expr_15 LSHIFTASSIGN Expr_16 {SHORTCUT(ASTExprLShift, $$, $1, $3, @$, @3)}
 	// Right Shift Assignment
-	| Expr_14 RSHIFTASSIGN Expr_15 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
+	| Expr_15 RSHIFTASSIGN Expr_16 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
 	// Bitwise And Assignment
-	| Expr_14 BITANDASSIGN Expr_15 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
+	| Expr_15 BITANDASSIGN Expr_16 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
 	// Bitwise Xor Assignment
-	| Expr_14 BITXORASSIGN Expr_15 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
+	| Expr_15 BITXORASSIGN Expr_16 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
 	// Bitwise Or Assignment
-	| Expr_14 BITORASSIGN Expr_15 {SHORTCUT(ASTExprBitOr, $$, $1, $3, @$, @3)}
+	| Expr_15 BITORASSIGN Expr_16 {SHORTCUT(ASTExprBitOr, $$, $1, $3, @$, @3)}
 	// Logical And Assignment
-	| Expr_14 ANDASSIGN Expr_15 {SHORTCUT(ASTExprAnd, $$, $1, $3, @$, @3)}
+	| Expr_15 ANDASSIGN Expr_16 {SHORTCUT(ASTExprAnd, $$, $1, $3, @$, @3)}
 	// Logical Or Assignment
-	| Expr_14 ORASSIGN Expr_15 {SHORTCUT(ASTExprOr, $$, $1, $3, @$, @3)}
+	| Expr_15 ORASSIGN Expr_16 {SHORTCUT(ASTExprOr, $$, $1, $3, @$, @3)}
 		 ;
 
-Expression : Expr_15 {$$ = $1;};
+Expression : Expr_16 {$$ = $1;};
 
 Expression_Constant :
 	Expression {

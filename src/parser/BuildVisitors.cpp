@@ -1068,6 +1068,31 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
     addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 }
 
+void BuildOpcodes::caseExprTernary(ASTTernaryExpr& host, void* param)
+{
+	if (host.getCompileTimeValue())
+	{
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+		return;
+	}
+
+	// Works just like an if/else, except for the "getCompileTimeValue()" above!
+	visit(host.left.get(), param);
+	int elseif = ScriptParser::getUniqueLabelID();
+	int endif = ScriptParser::getUniqueLabelID();
+	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+	addOpcode(new OGotoTrueImmediate(new LabelArgument(elseif)));
+	visit(host.middle.get(), param); //Use middle section
+	addOpcode(new OGotoImmediate(new LabelArgument(endif))); //Skip right
+	Opcode *next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
+	next->setLabel(elseif);
+	addOpcode(next); //Add label for between middle and right
+	visit(host.right.get(), param); //Use right section
+	next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
+	next->setLabel(endif);
+	addOpcode(next); //Add label for after right
+}
+
 // Literals
 
 void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)

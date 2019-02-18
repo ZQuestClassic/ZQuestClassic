@@ -1487,6 +1487,48 @@ optional<long> ASTExprRShift::getCompileTimeValue(
 	return ((*leftValue / 10000L) >> (*rightValue / 10000L)) * 10000L;
 }
 
+// ASTTernaryExpr
+
+ASTTernaryExpr::ASTTernaryExpr(ASTExpr* left, ASTExpr* middle, ASTExpr* right,
+							 LocationData const& location)
+	: ASTExpr(location), left(left), middle(middle), right(right)
+{}
+
+bool ASTTernaryExpr::isConstant() const
+{
+	if (left && !left->isConstant()) return false;
+	if (middle && !middle->isConstant()) return false;
+	if (right && !right->isConstant()) return false;
+	return true;
+}
+
+void ASTTernaryExpr::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprTernary(*this, param);
+}
+
+optional<long> ASTTernaryExpr::getCompileTimeValue(
+		CompileErrorHandler* errorHandler)
+		const
+{
+	if (!left || !middle || !right) return nullopt;
+	optional<long> leftValue = left->getCompileTimeValue(errorHandler);
+	if (!leftValue) return nullopt;
+	optional<long> middleValue = middle->getCompileTimeValue(errorHandler);
+	optional<long> rightValue = right->getCompileTimeValue(errorHandler);
+	
+	if(*leftValue)
+	{
+		if(!middleValue) return nullopt;
+		return *middleValue;
+	}
+	else
+	{
+		if (!rightValue) return nullopt;
+		return *rightValue;
+	}
+}
+
 ////////////////////////////////////////////////////////////////
 // Literals
 

@@ -119,6 +119,7 @@ namespace ZScript
 	class ASTShiftExpr; // virtual
 	class ASTExprLShift;
 	class ASTExprRShift;
+	class ASTTernaryExpr;
 	// Literals
 	class ASTLiteral; // virtual
 	class ASTNumberLiteral;
@@ -1378,6 +1379,31 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL)
 				const;
+	};
+	
+	class ASTTernaryExpr : public ASTExpr
+	{
+	public:
+		ASTTernaryExpr(ASTExpr* left = NULL,
+		              ASTExpr* middle = NULL,
+		              ASTExpr* right = NULL,
+		              LocationData const& location = LocationData::NONE);
+		ASTTernaryExpr* clone() const {return new ASTTernaryExpr(*this);};
+
+		bool isConstant() const;
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler = NULL)
+				const;
+
+		owning_ptr<ASTExpr> left;
+		owning_ptr<ASTExpr> middle;
+		owning_ptr<ASTExpr> right;
+
+		DataType const* getReadType() const {return middle->getReadType();}
+		DataType const* getWriteType() const {return NULL;}
 	};
 
 	// Literals
