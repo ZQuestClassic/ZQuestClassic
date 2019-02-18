@@ -1,7 +1,20 @@
 ChangeLog for 2.53.0 
 
-//Gamma 3
+//Gamma 4
+Began adding some default scripts to Classic (as Classic.zh), and 
+	corrected some constants in the included scripts, to match.
+Fixed the selection mark for Bombchu Emulation, and ensured that
+	it is enabled by default for 2.50.0 and 2.50.1 quests. 
+Added an emulation option to restore the large blast radius 
+	(superbomb) if Link is hit by a charging bombchu.
+	This is enabled by default for 2.50.1 and earlier quests, and disabled in 2.53 quests
+Fixed 8-way shots always using WAV_FIRE.
+	Added an emulation memu option to force using WAV_FIRE for all 8-way shots.
+	This is enabled by default in quests < 2.50.
+	This menu option is disabled in 2.53+ quests.
+	( ZoriaRPG, 18th February, 2019 )
 
+//Gamma 3
 Updated qst.dat, to strip out some remaining rubbish pal cycle data. 
 Fixes for Palette Cycle Issues:
 	Palettes above 256 were not set up to have palette cycles in 2.50.
