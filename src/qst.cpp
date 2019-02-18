@@ -2340,7 +2340,7 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
 	emulation_patches[emu8WAYSHOTSFX] = 1;    
 	emulation_patches[emu210BOMBCHU] = 1;    
     }
-    if ( quest_header_zelda_version < 0x250 && quest_header_zelda_build < 29 )
+    if ( quest_header_zelda_version == 0x250 && quest_header_zelda_build < 29 )
     {
 	emulation_patches[emu210BOMBCHU] = 1;
     }
