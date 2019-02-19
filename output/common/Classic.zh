@@ -1,5 +1,11 @@
 //Classic.zh
 
+import "ffcscript.zh"
+import "stdExtra.zh"
+import "ghost.zh"
+import "tango.zh"
+
+
 item script HalfMagic
 {
 	void run()
@@ -8,11 +14,19 @@ item script HalfMagic
 	}
 }
 
-item script LearnShash
+item script LearnSlash
 {
 	void run()
 	{
 		Game->Generic[GEN_CANSLASH] = 1;
+	}
+}
+
+item script ItemMessage
+{
+	void run(int m)
+	{
+		Screen->Message(m);
 	}
 }
 
@@ -33,10 +47,346 @@ ffc script SignPost
 	}
 }
 
-ffc script PermSecrets
+//ffc script PermSecrets
+//{
+//    void run(int reg)
+//    {
+//        while(1)
+//        {
+//            if ( !Screen->D[reg] )
+//            {
+//                if ( Screen->State[ST_SECRET] ) 
+//                {
+//                    Screen->D[reg] = 1;
+//                }
+//            }
+//            else 
+//            {
+//                Screen->TriggerSecrets();
+//                Quit();
+//            }
+//            Waitframe();
+//        }
+//    }
+//}
+
+ffc script ChangeRoomGuy
 {
-	void run()
+	void run(int t, int cs)
 	{
+		if ( t < 0 ) Quit();
+		Waitframes(4);
+		for ( int q = Screen->NumNPCs(); q > 0; --q )
+		{
+			npc g = Screen->LoadNPC(q);
+			if ( g->Type == NPCT_GUY )
+			{
+				g->OriginalTile = t;
+				if ( cs > 0 ) 
+					g->CSet = cs;
+				break;
+			}
+		}
+	}
+}
+
+ffc script PermBlockSecrets
+{
+	void run(int reg)
+	{
+		int cnt;
+		while(1)
+		{
+			if ( Screen->D[reg] )
+			{
+				Screen->State[ST_SECRET] = true;
+				Screen->TriggerSecrets();
+				Game->PlaySound(SFX_SECRET);
+				Quit();
+			}
+			cnt = 0; 
+			for ( int q = 0; q < 176; ++q )
+			{
+				if ( Screen->ComboF[q] == CF_BLOCKTRIGGER ) ++cnt;
+				if ( Screen->ComboI[q] == CF_BLOCKTRIGGER ) ++cnt;
+			}
+			if ( !cnt ) 
+			{
+				Screen->State[ST_SECRET] = true;
+				Screen->D[reg] = 1; 
+				break;
+			}
+			Waitframe(); 
+		}
+				
+		//count the number of block triggers on the screen
+		//then, if there are none, set the screen state
 		
 	}
 }
+
+ffc script PermBlockShutters
+{
+	void run(int reg)
+	{
+		int cnt;
+		while(1)
+		{
+			if ( Screen->D[reg] )
+			{
+				Game->PlaySound(SFX_SECRET);
+				//Screen->Flags[SF_SECRETS] &= ~1;
+				for ( int q = 0; q < 4; ++q )
+				{
+					if ( Screen->Door[q] == D_SHUTTER ) Screen->Door[q] = D_OPEN;
+				}
+				Quit();
+			}
+			cnt = 0; 
+			for ( int q = 0; q < 176; ++q )
+			{
+				if ( Screen->ComboF[q] == CF_BLOCKTRIGGER ) ++cnt;
+				if ( Screen->ComboI[q] == CF_BLOCKTRIGGER ) ++cnt;
+			}
+			if ( !cnt ) 
+			{
+				Screen->State[ST_SECRET] = true;
+				Screen->D[reg] = 1; 
+				break;
+			}
+			Waitframe(); 
+		}
+				
+		//count the number of block triggers on the screen
+		//then, if there are none, set the screen state
+		
+	}
+}
+
+global script Active
+{
+    void run()
+    {
+        StartGhostZH();
+        Tango_Start();
+	    
+        while(true)
+        {
+            UpdateGhostZH1();
+	    Tango_Update1();
+            Waitdraw();
+            UpdateGhostZH2();
+	    Tango_Update2();
+            Waitframe();
+        }
+    }
+}
+
+
+//Used by Daira and Lizalfos "Mace only"
+//Type: Other
+//Animation: 4-Frame 4 Direction
+//Attr 1: And the numbers below for abilities
+//1 throws weapon
+//2 reduced knockback "I gave my Lizalfos this, it is optional"
+//4 shielded "Lizalfos have shields, it is optional. See SPINATTACK_SHIELD_OVERRIDE constant below for info"
+//Attr 11: GH_INVISIBLE_COMBO "-1 by default"
+//Attr 12: Script slot number with daira
+//Step speed, random rate, homing factor, & hunger are used.
+
+//Melee weapons arranged in the right 4 columns in up down left right for each respective row of animation.
+//Thrown weapons are on the last row beneath the enemy sprites and use 4 frames and need a custom sprite made.
+//Scripted weapons are used for melee and beams are used for ranged.
+
+//PROTIP: COPY THE SPRITES FROM THE ZELDA AWAKENING ENEMY SHEET AND USE THOSE AS A BASE FOR YOUR EDITS!
+//This is shared by Lizalfos, Ironknuckels, Fokkas, and DairaLizalfos
+const int SPINATTACK_SHIELD_OVERRIDE = 0; //if this on the spin attack will ignore the enemies shields.
+
+ffc script Daira
+{
+	void run(int enemyID)
+	{
+		//Init
+		npc ghost;
+		ghost = Ghost_InitAutoGhost(this, enemyID);
+
+		//Flags
+		Ghost_SetFlag(GHF_NORMAL);
+		if(ghost->Attributes[0]&2)
+			Ghost_SetFlag(GHF_REDUCED_KNOCKBACK);
+
+		//Original Tile
+		int OTile = ghost->OriginalTile;
+
+		//Movement Variables
+		float counter = -1;
+		int step = ghost->Step;
+		int rate = ghost->Rate;
+		int homing = ghost->Homing;
+		int hunger = ghost->Hunger;
+		
+		//Weapon Variables
+		eweapon wpn;
+		int damage = ghost->WeaponDamage;
+		int attackTimer;
+		int attackWait; //Time between swings. 
+		bool throw = (ghost->Attributes[0]&1);
+		bool shielded = ghost->Attributes[0]&4;
+		int wSprite = Ghost_GetAttribute(ghost,1,-1);
+
+		//Behavior
+		while(true)
+		{
+			//Movement
+			counter = Ghost_ConstantWalk4(counter, step, rate, homing, hunger);
+
+			//Attacking
+			if(Distance(Link->X, Link->Y, Ghost_X, Ghost_Y) < 80 && attackTimer==0) //Attacks when close to Link.
+			{
+				attackWait--;
+				if(attackWait<=0)
+				{
+					attackTimer = 21;
+					attackWait = 60;
+				}
+			}
+
+			if(attackTimer>0) //Attacking?
+			{
+				if(ghost->OriginalTile == OTile)
+				{
+					wpn = FireNonAngularEWeapon(EW_SCRIPT1, Ghost_X, Ghost_Y, -1, 0, damage, 0, 0, NULL);
+					SetEWeaponLifespan(wpn, EWL_TIMER, 21);
+					SetEWeaponDeathEffect(wpn, EWD_VANISH, 0);
+					wpn->CSet = Ghost_CSet;
+				}
+				else if(!wpn->isValid())
+				{
+					ghost->OriginalTile = OTile;
+					DairaLizalfos_Waitframe(this,ghost,shielded);
+					attackTimer = 0;
+					continue;
+				}
+				ghost->OriginalTile = OTile + 20*Div(28-attackTimer, 7);
+				wpn->Tile = ghost->OriginalTile+Ghost_Dir+16;
+				wpn->X = Ghost_X;
+				wpn->Y = Ghost_Y;
+				wpn->DeadState = WDS_ALIVE;
+				if(attackTimer>14)
+				{
+					if((Ghost_Dir == DIR_UP || Ghost_Dir == DIR_DOWN))
+						wpn->Y -= 16;
+					else wpn->X -= InFrontX(Ghost_Dir, 0);
+				}
+				else if(attackTimer>7)
+				{
+					if(Ghost_Dir == DIR_UP || Ghost_Dir == DIR_DOWN)
+					{
+						if(Ghost_Dir == DIR_UP || Ghost_FlagIsSet(GHF_REDUCED_KNOCKBACK))
+						wpn->Y -= 16;
+					}
+					else
+					{
+						wpn->X += InFrontX(Ghost_Dir, 0);
+					}
+				}
+				else
+				{
+					wpn->X += InFrontX(Ghost_Dir,0);
+					wpn->Y += InFrontY(Ghost_Dir,0);
+				}
+				//the weapon hit boxes are small.
+				SetWpnHitOffsets(wpn, Ghost_FlagIsSet(GHF_REDUCED_KNOCKBACK), Div(28-attackTimer, 7), Ghost_Dir);
+				attackTimer--;
+			}
+			else if(wpn->isValid())
+			{
+				ghost->OriginalTile = OTile;
+				if(throw)
+				{
+					eweapon e = FireNonAngularEWeapon(EW_BEAM, wpn->X, wpn->Y, Ghost_Dir, 200, damage, wSprite, -1, NULL);
+					e->OriginalTile = ghost->OriginalTile + 80 + (Ghost_Dir*4);
+					e->CSet = Ghost_CSet;
+				}
+			}
+			if(!DairaLizalfos_Waitframe(this,ghost,shielded))
+			{
+				if(wpn->isValid())
+					wpn->DeadState = WDS_DEAD;
+					Quit();
+			}
+		}
+	}
+	void SetWpnHitOffsets(eweapon wpn, bool lizalfos, int frame, int dir)
+	{
+		//Set Default Collision Properties
+		wpn->CollDetection = true;
+		wpn->HitXOffset = 0;
+		wpn->HitYOffset = 0;
+		wpn->HitWidth = 16;
+		wpn->HitHeight = 16;
+
+		//Modify it based off attack frame.
+		if(frame == 1)
+		{
+			if(dir == DIR_UP || dir == DIR_DOWN)
+			{
+				wpn->CollDetection = false;
+				return;
+			}
+			else
+				wpn->HitWidth = 8;
+			if(dir == DIR_RIGHT)
+				wpn->HitXOffset = 8;
+		}
+		else if(frame == 2)
+		{
+			if(dir == DIR_UP || dir==DIR_DOWN)
+			{
+				if(lizalfos) wpn->HitYOffset = 8;
+				wpn->HitHeight = 8;
+				return;
+			}
+			else
+				wpn->HitWidth = 8;
+			if(dir == DIR_LEFT)
+			wpn->HitXOffset = 8; 
+		}
+		else if(frame == 3)
+		{
+			wpn->HitXOffset = Cond(dir==DIR_LEFT, 8, 0);
+			wpn->HitYOffset = Cond(dir==DIR_UP, 8, 0);
+			wpn->HitWidth = Cond(dir==DIR_LEFT||dir==DIR_RIGHT, 8, 16);
+			wpn->HitHeight = Cond(dir==DIR_UP||dir==DIR_DOWN, 8, 16);
+		}
+		else //Out of range.
+		{
+			wpn->DeadState = WDS_DEAD;
+			return;
+		}
+	}
+	bool DairaLizalfos_Waitframe(ffc this, npc ghost, bool shielded)
+	{
+		if(shielded) return Shielded_Waitframe(this,ghost,true,true);
+		else return Ghost_Waitframe(this,ghost,true,false);
+	}
+	bool Shielded_Waitframe(ffc this, npc ghost, bool clearondeath, bool quitondeath)
+	{
+		if(Link->Action==LA_SPINNING && SPINATTACK_SHIELD_OVERRIDE)
+		{
+			ghost->Defense[NPCD_SWORD]=NPCDT_IGNORE;
+			lweapon sword = LoadLWeaponOf(LW_SWORD);
+			if(sword->isValid() && Collision(ghost,sword))
+			{
+				Ghost_HP-=sword->Damage;
+				Ghost_StartFlashing();
+				Game->PlaySound(SFX_EHIT);
+			}
+		}
+		else
+			ghost->Defense[NPCD_SWORD]=NPCDT_NONE;
+		return Ghost_Waitframe(this,ghost,clearondeath,quitondeath);
+	}
+}
+
+
