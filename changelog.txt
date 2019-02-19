@@ -1,7 +1,20 @@
 ChangeLog for 2.53.0 
 
 //Gamma 4
+Fixed ZCL 'Skip Logo' selection not saving. 
+	ZCL is now v2.6.11. 
 Default quest changes:
+Added ffc scripts:
+	PermBlockSecrets : This triggers normal screen secrets.
+	PermBlockShutter : Block->Shutter secrets in NES Dungeons
+	Daira (autoghost)
+Removed ffc script PermSecret
+Fixed name of 'CanSlash' item script. 
+Added item script 'ItemMessage'
+Added Daira enemy as npc ID: 177
+Added Daira script to classic.zh
+Added Daira tiles to tile page 38 (tiles 9880, through 9959)
+	( ZoriaRPG, 19th February, 2019 )
 Added call to Classic.zh in the buffer.
 	Updated all active subscreens to include the new items. 
 	Added items: 'Scroll: Learn Slash', 'Scroll: Half Magic'
