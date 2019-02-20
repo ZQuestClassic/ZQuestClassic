@@ -5,6 +5,17 @@ import "stdExtra.zh"
 import "ghost.zh"
 import "tango.zh"
 
+const int I_HALFMAGIC 			= 144;
+const int I_LEARNSLASH 			= 143;
+const int NPC_DAIRA1 			= 177;
+const int NPC_DAIRA2 			= 178;
+
+const int _BOSS_EXPLODE_SPRITE 		= 100;
+const int _BOSS_EXPLODE_DUR 		= 90;
+const int _BOSS_EXPLODE_SFX 		= 66;
+const int _BOSS_EXPLODE_DELAY 		= 10;
+const int _BOSS_EXPLODE_RANDOM_MIN 	= -10;
+const int _BOSS_EXPLODE_RANDOM_MAX 	= 10;
 
 item script HalfMagic
 {
@@ -30,6 +41,76 @@ item script ItemMessage
 	}
 }
 
+item script ItemSound
+{
+	void run(int s)
+	{
+		Game->PlaySound(s);
+	}
+}
+
+ffc script BossExplode
+{
+	void run()
+	{
+		npc boss; int x; int y; int width; int height; 
+		for ( int q = Screen->NumNPCs(); q > 0; --q )
+		{
+			npc n = Screen->LoadNPC(q);
+			if ( _classic_zh__isBoss(n) ) 
+			{
+				boss = n; 
+				width = n->TileWidth;
+				height = n->TileHeight;
+				x = n->X;
+				y = n->Y;
+				break;
+			}
+			
+		}
+		if ( !(boss->isValid()) ) Quit();
+		while(boss->HP > 0)
+		{
+			x = boss->X;
+			y = boss->Y;
+			Waitframe();
+		}
+		//boss is dead
+		for ( int q = _BOSS_EXPLODE_DUR; q > 0; --q )
+		{
+			//do explosions
+			Game->PlaySound(_BOSS_EXPLODE_SFX);
+			lweapon l = Screen->CreateLWeapon(LW_SPARKLE);
+			l->CollDetection = false;
+			l->UseSprite(_BOSS_EXPLODE_SPRITE);
+			l->X = x+(Rand((_BOSS_EXPLODE_RANDOM_MIN-width), _BOSS_EXPLODE_RANDOM_MAX+width));
+			l->Y = y+(Rand((_BOSS_EXPLODE_RANDOM_MIN-height), _BOSS_EXPLODE_RANDOM_MAX+height));
+			//wait n frames between explosions
+			for ( int w = 0; q < _BOSS_EXPLODE_DELAY; ++w )
+			{
+				Waitframe(); ++q; //Increment the main loop at the same time.
+			}
+			Waitframe();
+		}
+		Quit();
+		
+	}
+}
+
+bool _classic_zh__isBoss(npc n)
+{
+	if ( n->Type == NPCT_AQUAMENTUS ) return true;
+	if ( n->Type == NPCT_MOLDORM ) return true;
+	if ( n->Type == NPCT_DODONGO ) return true;
+	if ( n->Type == NPCT_GLEEOK ) return true;
+	if ( n->Type == NPCT_DIGDOGGER ) return true;
+	if ( n->Type == NPCT_GOHMA ) return true;
+	if ( n->Type == NPCT_LANMOLA ) return true;
+	if ( n->Type == NPCT_PATRA ) return true;
+	if ( n->Type == NPCT_GANON ) return true;
+	return false;
+}
+	
 ffc script SignPost
 {
 	void run(int m)
