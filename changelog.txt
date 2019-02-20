@@ -1,6 +1,31 @@
 ChangeLog for 2.53.0 
 
 //Gamma 4
+
+NOTE: Need to add explosion sprite graphics and sound for boss explosion ffc
+TO-DO: Add Generic Boss Victory music FFC, and MIDIs.
+
+Classic.zh:
+	Added item script 'ItemSound'
+	Added FFC script 'BossExplode'
+	Added constants:
+		const int _BOSS_EXPLODE_SPRITE
+		const int _BOSS_EXPLODE_DUR
+		const int _BOSS_EXPLODE_SFX
+		const int _BOSS_EXPLODE_DELAY
+		const int _BOSS_EXPLODE_RANDOM_MIN
+		const int _BOSS_EXPLODE_RANDOM_MAX
+	
+		const int I_HALFMAGIC = 	144;
+		const int I_LEARNSLASH =	143;
+		const int NPC_DAIRA1 = 		177;
+		const int NPC_DAIRA2 = 		178;
+	
+Add item: Message (Example) as item 145.
+Adjusted stats of both Daira enemies, and set their defences. 
+	Note: 1/4 Arrow damage is intentional for L2, to reflect
+	better armour/scales. 
+Add Daira (L2) [blue] as enemy 178, renamed Daira to Daira (L1) [red].
 Fixed ZCL 'Skip Logo' selection not saving. 
 	ZCL is now v2.6.11. 
 Default quest changes:
