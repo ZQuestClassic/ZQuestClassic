@@ -5,6 +5,20 @@ ChangeLog for 2.53.0
 NOTE: Need to add explosion sprite graphics and sound for boss explosion ffc
 TO-DO: Add Generic Boss Victory music FFC, and MIDIs.
 
+Added overload functions to Collision() that function as LinkCollision(). 
+
+Updated ffc scripts in classic.zh to clear their combo on init. 
+Fixed signpost script. 
+Added default fireworks ffc to copy and paste, on map 1, screen 0x82. 
+Added combo using the Fire Work tile to combo page 3, as combo 904.
+Added tile to use as  marker for fireworks ffc to tile page 61, as tile 16025.
+Modified fireworks script constants. 
+Added fireworks SFX as sound 61. 
+Added fireworks weapon sprite as Sprite 88. 
+Added tiles for fireworks to tile page 39 as tiles 10140, 10141, 10142.
+Fixed daira tiles on page 38. 
+	( ZoriaRPG, 21st February, 2019 )
+	
 Classic.zh:
 	Added item script 'ItemSound'
 	Added FFC script 'BossExplode'
