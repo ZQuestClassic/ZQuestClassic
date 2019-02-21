@@ -1331,6 +1331,54 @@ bool LinkCollision(ffc f) {
   return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
 }
 
+// Returns true if there is a collision between Link's hitbox and the eweapon's.
+// This only checks hitboxes.
+bool Collision(eweapon b) {
+  int ax = Link->X + Link->HitXOffset;
+  int bx = b->X + b->HitXOffset;
+  int ay = Link->Y + Link->HitYOffset;
+  int by = b->Y + b->HitYOffset;
+  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the lweapon's.
+// This only checks hitboxes.
+bool Collision(lweapon b) {
+  int ax = Link->X + Link->HitXOffset;
+  int bx = b->X + b->HitXOffset;
+  int ay = Link->Y + Link->HitYOffset;
+  int by = b->Y + b->HitYOffset;
+  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the item's.
+// This only checks hitboxes.
+bool Collision(item b) {
+  int ax = Link->X + Link->HitXOffset;
+  int bx = b->X + b->HitXOffset;
+  int ay = Link->Y + Link->HitYOffset;
+  int by = b->Y + b->HitYOffset;
+  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the npc's.
+// This only checks hitboxes.  Uses TileWidth and TileHeight to find the centre of the FFCs.
+bool Collision(npc b) {
+  int ax = Link->X + Link->HitXOffset;
+  int bx = b->X + b->HitXOffset;
+  int ay = Link->Y + Link->HitYOffset;
+  int by = b->Y + b->HitYOffset;
+  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the FFC's.
+// This only checks hitboxes.
+bool Collision(ffc f) {
+  int ax = Link->X + Link->HitXOffset;
+  int ay = Link->Y + Link->HitYOffset;
+  return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
+}
+
 // Returns the X coordinate of the left edge of the hitbox.
 int HitboxLeft(eweapon a) {
   return (a->X + a->HitXOffset);
