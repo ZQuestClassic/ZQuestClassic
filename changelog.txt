@@ -1,9 +1,19 @@
 ChangeLog for 2.53.0 
 
 //Gamma 4
+Updated qst.dat with all of the new goodies. 
 
-NOTE: Need to add explosion sprite graphics and sound for boss explosion ffc
-TO-DO: Add Generic Boss Victory music FFC, and MIDIs.
+Added constants to Classic.zh:
+	const int _classic_zc__TRK_BOSS = 25;
+	const int _classic_zh__MIDI_VICTORY = 1;
+	const int _classic_zh__TILE_FIREWORK = 10140;
+
+Added file Classic.nsf, from klop422 (Legend of Zelda NSF  from the PZC Database). 
+	We use track 25 for boss music here.
+Added a victory jingle MIDI as MIDI ID 1. 
+Add combo to use for Boss Audio FFC to combo page 3 as combo ID 905.
+Added BossMusic ffc to classic.zh. This is compatible with the BossExplosion ffc.
+Added tile for Boss Audio to tile page 61 as tile 16026.
 
 Added overload functions to Collision() that function as LinkCollision(). 
 
