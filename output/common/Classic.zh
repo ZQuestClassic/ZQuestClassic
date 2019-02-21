@@ -10,12 +10,14 @@ const int I_LEARNSLASH 			= 143;
 const int NPC_DAIRA1 			= 177;
 const int NPC_DAIRA2 			= 178;
 
-const int _BOSS_EXPLODE_SPRITE 		= 100;
-const int _BOSS_EXPLODE_DUR 		= 90;
-const int _BOSS_EXPLODE_SFX 		= 66;
-const int _BOSS_EXPLODE_DELAY 		= 10;
+const int _BOSS_EXPLODE_SPRITE 		= 88;
+const int _BOSS_EXPLODE_DUR 		= 150;
+const int _BOSS_EXPLODE_SFX 		= 61;
+const int _BOSS_EXPLODE_DELAY 		= 16;
 const int _BOSS_EXPLODE_RANDOM_MIN 	= -10;
 const int _BOSS_EXPLODE_RANDOM_MAX 	= 10;
+
+const int CMB_INVISIBLE = 1;
 
 item script HalfMagic
 {
@@ -53,6 +55,8 @@ ffc script BossExplode
 {
 	void run()
 	{
+		this->Data = CMB_INVISIBLE;
+		Waitframes(5);
 		npc boss; int x; int y; int width; int height; 
 		for ( int q = Screen->NumNPCs(); q > 0; --q )
 		{
@@ -64,6 +68,8 @@ ffc script BossExplode
 				height = n->TileHeight;
 				x = n->X;
 				y = n->Y;
+				int s1[]="Boss ID is: ";
+				TraceS(s1); Trace(boss->Type);
 				break;
 			}
 			
@@ -88,7 +94,7 @@ ffc script BossExplode
 			//wait n frames between explosions
 			for ( int w = 0; q < _BOSS_EXPLODE_DELAY; ++w )
 			{
-				Waitframe(); ++q; //Increment the main loop at the same time.
+				Waitframe(); //--q; //Increment the main loop at the same time.
 			}
 			Waitframe();
 		}
@@ -115,15 +121,20 @@ ffc script SignPost
 {
 	void run(int m)
 	{
-		if ( Link->Y > this->Y + 8 )
+		this->Data = CMB_INVISIBLE;
+		while(1)
 		{
-			if ( Abs(Link->X-this->X) < 8 )
+			if ( Link->Y > this->Y + 8 )
 			{
-				if ( Link->PressA || Link->PressB )
+				if ( Abs(Link->X-this->X) < 8 )
 				{
-					Screen->Message(m);
+					if ( Link->PressA || Link->PressB )
+					{
+						Screen->Message(m);
+					}
 				}
 			}
+			Waitframe();
 		}
 	}
 }
@@ -155,6 +166,7 @@ ffc script ChangeRoomGuy
 {
 	void run(int t, int cs)
 	{
+		this->Data = CMB_INVISIBLE;
 		if ( t < 0 ) Quit();
 		Waitframes(4);
 		for ( int q = Screen->NumNPCs(); q > 0; --q )
@@ -175,6 +187,7 @@ ffc script PermBlockSecrets
 {
 	void run(int reg)
 	{
+		this->Data = CMB_INVISIBLE;
 		int cnt;
 		while(1)
 		{
@@ -210,6 +223,7 @@ ffc script PermBlockShutters
 {
 	void run(int reg)
 	{
+		this->Data = CMB_INVISIBLE;
 		int cnt;
 		while(1)
 		{
