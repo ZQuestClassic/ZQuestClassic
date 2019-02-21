@@ -17,6 +17,11 @@ const int _BOSS_EXPLODE_DELAY 		= 16;
 const int _BOSS_EXPLODE_RANDOM_MIN 	= -10;
 const int _BOSS_EXPLODE_RANDOM_MAX 	= 10;
 
+
+const int _classic_zc__TRK_BOSS = 25;
+const int _classic_zh__MIDI_VICTORY = 1;
+const int _classic_zh__TILE_FIREWORK = 10140;
+
 const int CMB_INVISIBLE = 1;
 
 item script HalfMagic
@@ -48,6 +53,30 @@ item script ItemSound
 	void run(int s)
 	{
 		Game->PlaySound(s);
+	}
+}
+
+ffc script BossMusic
+{
+	void run()
+	{
+		this->Data = CMB_INVISIBLE;
+		int filenm[]="Classic.nsf";
+		Waitframes(5);
+		Game->PlayEnhancedMusic(filenm,_classic_zc__TRK_BOSS);
+		while(EnemiesAlive()) Waitframe();
+		for ( int q = Screen->NumLWeapons(); q > 0; --q ) 
+		{
+			lweapon isFirework = Screen->LoadLWeapon(q);
+			if ( isFirework->OriginalTile == _classic_zh__TILE_FIREWORK ) 
+			{
+				while(isFirework->isValid()) Waitframe();
+				
+			}
+		}
+		Game->PlayMIDI(_classic_zh__MIDI_VICTORY);
+		for ( int q = 0; q < 601; ++q ) Waitframe();
+		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
 	}
 }
 
