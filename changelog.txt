@@ -1,6 +1,9 @@
 ChangeLog for 2.53.0 
 
 //Gamma 4
+Added a case for r_down dir on 8-way EW_MAGIC shots. 
+	( ZoriaRPG, 22nd February, 2019 )
+	
 Updated qst.dat with all of the new goodies. 
 
 Added constants to Classic.zh:
