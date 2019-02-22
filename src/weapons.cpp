@@ -1085,6 +1085,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(dir)
         {
         case down:
+        case r_down: //fix 8-way shot wizzrone magic No. 2 -Z (22FEB19)
             flip=2;
             
         case up:
