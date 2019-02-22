@@ -1,6 +1,11 @@
 ChangeLog for 2.53.0 
 
 //Gamma 4
+Added scripts 'DropTRIFORCE' and 'DropHEARTCONTAINER' to Classic.zh.
+	Fixed issue where invalid weapons were loaded by 'BossMusic' ffc script
+	because of a Waitframe in the loop.
+	Removed traces.
+
 Added a case for r_down dir on 8-way EW_MAGIC shots. 
 	( ZoriaRPG, 22nd February, 2019 )
 	
