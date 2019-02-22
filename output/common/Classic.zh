@@ -56,16 +56,22 @@ item script ItemSound
 	}
 }
 
+const int REG_BOSS_EXPLODING = 1;
+const int REG_BOSS_DEAD = 2;
+const int REG_BOSS_DROPPED_HEART = 3;
+const int REG_BOSS_DROPPED_TRIFORCE = 4;
+
 ffc script BossMusic
 {
-	void run()
+	void run(int reg)
 	{
 		this->Data = CMB_INVISIBLE;
 		int filenm[]="Classic.nsf";
 		Waitframes(5);
 		Game->PlayEnhancedMusic(filenm,_classic_zc__TRK_BOSS);
 		while(EnemiesAlive()) Waitframe();
-		for ( int q = Screen->NumLWeapons(); q > 0; --q ) 
+		//for ( int q = Screen->NumLWeapons(); q > 0; --q ) //the number changes, so we need to refresh...
+		for ( int q = 1; q < Screen->NumLWeapons(); ++q ) 
 		{
 			lweapon isFirework = Screen->LoadLWeapon(q);
 			if ( isFirework->OriginalTile == _classic_zh__TILE_FIREWORK ) 
@@ -77,12 +83,13 @@ ffc script BossMusic
 		Game->PlayMIDI(_classic_zh__MIDI_VICTORY);
 		for ( int q = 0; q < 601; ++q ) Waitframe();
 		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
+		Screen->D[reg] = REG_BOSS_DEAD;
 	}
 }
 
 ffc script BossExplode
 {
-	void run()
+	void run(int reg)
 	{
 		this->Data = CMB_INVISIBLE;
 		Waitframes(5);
@@ -97,8 +104,6 @@ ffc script BossExplode
 				height = n->TileHeight;
 				x = n->X;
 				y = n->Y;
-				int s1[]="Boss ID is: ";
-				TraceS(s1); Trace(boss->Type);
 				break;
 			}
 			
@@ -111,6 +116,7 @@ ffc script BossExplode
 			Waitframe();
 		}
 		//boss is dead
+		Screen->D[reg] = REG_BOSS_EXPLODING;
 		for ( int q = _BOSS_EXPLODE_DUR; q > 0; --q )
 		{
 			//do explosions
@@ -127,6 +133,7 @@ ffc script BossExplode
 			}
 			Waitframe();
 		}
+		Screen->D[reg] = REG_BOSS_DEAD;
 		Quit();
 		
 	}
@@ -514,3 +521,47 @@ ffc script Daira
 }
 
 
+ffc script DropTRIFORCE
+{
+	void run(int reg, int min)
+	{
+		this->Data = CMB_INVISIBLE;
+		if ( min < 1 ) min = REG_BOSS_DROPPED_HEART;
+		item hc = Screen->CreateItem(I_TRIFORCE);
+		hc->X = 1; hc->Y = 1; hc->DrawYOffset = -10000; hc->HitYOffset = -10000; hc->Z = 256;
+		while ( Screen->D[reg] < min ) { hc->Z = 256; Waitframe(); }
+		//boss is dead. Position the heart container over Link.
+		hc->X = Link->X; hc->Y = Link->Y; 
+		hc->DrawYOffset = 0; hc->HitYOffset = 0; 
+		while(hc->isValid())
+		{
+			
+			//Do we need to manually set its Jump/Fall?
+			Waitframe();
+			
+		}
+	}	
+}
+
+ffc script DropHEARTCONTAINER
+{
+	void run(int reg, int min)
+	{
+		this->Data = CMB_INVISIBLE;
+		if ( min < 1 ) min = REG_BOSS_DEAD;
+		item hc = Screen->CreateItem(I_HEARTCONTAINER);
+		hc->X = 1; hc->Y = 1; hc->DrawYOffset = -10000; hc->HitYOffset = -10000; hc->Z = 256;
+		while ( Screen->D[reg] < min ) { hc->Z = 256; Waitframe();}
+		//boss is dead. Position the heart container over Link.
+		hc->X = Link->X; hc->Y = Link->Y; 
+		hc->DrawYOffset = 0; hc->HitYOffset = 0; 
+		while(hc->isValid())
+		{
+			
+			//Do we need to manually set its Jump/Fall?
+			Waitframe();
+			
+		}
+		Screen->D[reg] = REG_BOSS_DROPPED_HEART;
+	}	
+}
