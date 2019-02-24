@@ -4114,7 +4114,9 @@ bool LinkClass::animate(int)
                 weapon *w = ((weapon*)Lwpns.spr(i));
                 
                 if(w->id==wCByrna)
+		{
                     w->dead=1;
+		}
 		
             }
 	    //kill the sound effect for the orbits -Z 14FEB2019
@@ -14017,6 +14019,7 @@ void LinkClass::cleanupByrna()
 {
 	if ( last_cane_of_byrna_item_id > -1 )
 	{
+		//al_trace("Last cane id is: %d\n", last_cane_of_byrna_item_id);
 		if ( !(Lwpns.idCount(wCByrna)) )
 		{
 			stop_sfx(itemsbuf[last_cane_of_byrna_item_id].usesound);
