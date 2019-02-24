@@ -1,6 +1,9 @@
 ChangeLog for 2.53.0 
 
 //Gamma 4
+Fixed Byrna Cleanup Routine killing SFX 30. This was caused by
+	`last_cane_of_byrna_item_id` never being able to be -1 because it was declared
+	as byte, instead of int.
 
 Classic.zh Fixes and Improvements:
 	Renamed constants to prevent future conflicts.
