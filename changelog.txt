@@ -1,6 +1,26 @@
 ChangeLog for 2.53.0 
 
 //Gamma 4
+
+Classic.zh Fixes and Improvements:
+	Renamed constants to prevent future conflicts.
+	BossMusic ffc: 
+		Fixed a bug that caused the victory music to re-play when the
+		player revisited the screen.
+		Added InitD variables to allow customisation by the user.
+	BossExplode ffc:
+		Added InitD variables to allow customisation by the user.
+	DropTRIFORCE ffc:
+	DropHEARTCONTAINER ffc:
+		Fixed a bug that caused the TF drop to repeat if the player revisited
+		the screen.
+		Added a dropshadow to the object when falling.
+		Slowed falling descent. 
+		Clamped screen coordinates of drop to ensure that the object does
+		not fall partway off the edges of the screen.
+	( ZoriaRPG, 24th February, 2019 )
+
+
 Added scripts 'DropTRIFORCE' and 'DropHEARTCONTAINER' to Classic.zh.
 	Fixed issue where invalid weapons were loaded by 'BossMusic' ffc script
 	because of a Waitframe in the loop.
