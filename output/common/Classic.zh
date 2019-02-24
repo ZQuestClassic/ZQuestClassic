@@ -5,24 +5,29 @@ import "stdExtra.zh"
 import "ghost.zh"
 import "tango.zh"
 
-const int I_HALFMAGIC 			= 144;
-const int I_LEARNSLASH 			= 143;
-const int NPC_DAIRA1 			= 177;
-const int NPC_DAIRA2 			= 178;
+const int I_HALFMAGIC 					= 144;
+const int I_LEARNSLASH 					= 143;
+const int NPC_DAIRA1 					= 177;
+const int NPC_DAIRA2 					= 178;
 
-const int _BOSS_EXPLODE_SPRITE 		= 88;
-const int _BOSS_EXPLODE_DUR 		= 150;
-const int _BOSS_EXPLODE_SFX 		= 61;
-const int _BOSS_EXPLODE_DELAY 		= 16;
-const int _BOSS_EXPLODE_RANDOM_MIN 	= -10;
-const int _BOSS_EXPLODE_RANDOM_MAX 	= 10;
+const int _classic_zh__BOSS_EXPLODE_SPRITE 		= 88;
+const int _classic_zh__BOSS_EXPLODE_DUR 		= 150;
+const int _classic_zh__BOSS_EXPLODE_SFX 		= 61;
+const int _classic_zh__BOSS_EXPLODE_DELAY 		= 16;
+const int _classic_zh__BOSS_EXPLODE_RANDOM_MIN 		= -10;
+const int _classic_zh__BOSS_EXPLODE_RANDOM_MAX 		= 10;
 
 
-const int _classic_zc__TRK_BOSS = 25;
-const int _classic_zh__MIDI_VICTORY = 1;
-const int _classic_zh__TILE_FIREWORK = 10140;
+const int _classic_zh__TRK_BOSS 			= 25;
+const int _classic_zh__MIDI_VICTORY 			= 1;
+const int _classic_zh__TILE_FIREWORK 			= 10140;
 
-const int CMB_INVISIBLE = 1;
+const int _classic_zh__REG_BOSS_EXPLODING 		= 1;
+const int _classic_zh__REG_BOSS_DEAD 			= 2;
+const int _classic_zh__REG_BOSS_DROPPED_HEART 		= 3;
+const int _classic_zh__REG_BOSS_DROPPED_TRIFORCE 	= 4;
+
+const int CMB_INVISIBLE 				= 1;
 
 item script HalfMagic
 {
@@ -56,42 +61,47 @@ item script ItemSound
 	}
 }
 
-const int REG_BOSS_EXPLODING = 1;
-const int REG_BOSS_DEAD = 2;
-const int REG_BOSS_DROPPED_HEART = 3;
-const int REG_BOSS_DROPPED_TRIFORCE = 4;
-
 ffc script BossMusic
 {
-	void run(int reg)
+	void run(int reg, int origtile, int mid, int trk)
 	{
 		this->Data = CMB_INVISIBLE;
+		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DEAD ) Quit(); //Don't play victory music if we return to the screen.
+		if ( origtile < 1 ) origtile = _classic_zh__TILE_FIREWORK;
+		if ( trk < 1 ) trk = _classic_zh__TRK_BOSS;
+		if ( mid < 1 ) mid = _classic_zh__MIDI_VICTORY;
 		int filenm[]="Classic.nsf";
 		Waitframes(5);
-		Game->PlayEnhancedMusic(filenm,_classic_zc__TRK_BOSS);
+		Game->PlayEnhancedMusic(filenm,trk);
 		while(EnemiesAlive()) Waitframe();
 		//for ( int q = Screen->NumLWeapons(); q > 0; --q ) //the number changes, so we need to refresh...
 		for ( int q = 1; q < Screen->NumLWeapons(); ++q ) 
 		{
 			lweapon isFirework = Screen->LoadLWeapon(q);
-			if ( isFirework->OriginalTile == _classic_zh__TILE_FIREWORK ) 
+			if ( isFirework->OriginalTile == origtile ) 
 			{
 				while(isFirework->isValid()) Waitframe();
 				
 			}
 		}
-		Game->PlayMIDI(_classic_zh__MIDI_VICTORY);
+		Game->PlayMIDI(mid);
 		for ( int q = 0; q < 601; ++q ) Waitframe();
 		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
-		Screen->D[reg] = REG_BOSS_DEAD;
+		Screen->D[reg] = _classic_zh__REG_BOSS_DEAD;
 	}
 }
 
 ffc script BossExplode
 {
-	void run(int reg)
+	void run(int reg, int spr, int dur, int sfx, int delay, int rmin, int rmax)
 	{
 		this->Data = CMB_INVISIBLE;
+		if ( spr < 1 ) spr = _classic_zh__BOSS_EXPLODE_SPRITE;
+		if ( dur < 1 ) dur = _classic_zh__BOSS_EXPLODE_DUR;
+		if ( sfx < 1 ) sfx = _classic_zh__BOSS_EXPLODE_SFX;
+		if ( delay < 1 ) delay = _classic_zh__BOSS_EXPLODE_DELAY;
+		if ( rmin < 1 ) rmin = _classic_zh__BOSS_EXPLODE_RANDOM_MIN;
+		if ( rmax < 1 ) rmax = _classic_zh__BOSS_EXPLODE_RANDOM_MAX;
 		Waitframes(5);
 		npc boss; int x; int y; int width; int height; 
 		for ( int q = Screen->NumNPCs(); q > 0; --q )
@@ -116,24 +126,24 @@ ffc script BossExplode
 			Waitframe();
 		}
 		//boss is dead
-		Screen->D[reg] = REG_BOSS_EXPLODING;
-		for ( int q = _BOSS_EXPLODE_DUR; q > 0; --q )
+		Screen->D[reg] = _classic_zh__REG_BOSS_EXPLODING;
+		for ( int q = dur; q > 0; --q )
 		{
 			//do explosions
-			Game->PlaySound(_BOSS_EXPLODE_SFX);
+			Game->PlaySound(sfx);
 			lweapon l = Screen->CreateLWeapon(LW_SPARKLE);
 			l->CollDetection = false;
-			l->UseSprite(_BOSS_EXPLODE_SPRITE);
-			l->X = x+(Rand((_BOSS_EXPLODE_RANDOM_MIN-width), _BOSS_EXPLODE_RANDOM_MAX+width));
-			l->Y = y+(Rand((_BOSS_EXPLODE_RANDOM_MIN-height), _BOSS_EXPLODE_RANDOM_MAX+height));
+			l->UseSprite(spr);
+			l->X = x+(Rand((rmin-width), rmax+width));
+			l->Y = y+(Rand((rmin-height), rmax+height));
 			//wait n frames between explosions
-			for ( int w = 0; q < _BOSS_EXPLODE_DELAY; ++w )
+			for ( int w = 0; q < delay; ++w )
 			{
 				Waitframe(); //--q; //Increment the main loop at the same time.
 			}
 			Waitframe();
 		}
-		Screen->D[reg] = REG_BOSS_DEAD;
+		Screen->D[reg] = _classic_zh__REG_BOSS_DEAD;
 		Quit();
 		
 	}
@@ -526,20 +536,29 @@ ffc script DropTRIFORCE
 	void run(int reg, int min)
 	{
 		this->Data = CMB_INVISIBLE;
-		if ( min < 1 ) min = REG_BOSS_DROPPED_HEART;
+		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DROPPED_TRIFORCE ) Quit();
+		if ( min < 1 ) min = _classic_zh__REG_BOSS_DROPPED_HEART;
 		item hc = Screen->CreateItem(I_TRIFORCE);
+		int yy;
 		hc->X = 1; hc->Y = 1; hc->DrawYOffset = -10000; hc->HitYOffset = -10000; hc->Z = 256;
 		while ( Screen->D[reg] < min ) { hc->Z = 256; Waitframe(); }
 		//boss is dead. Position the heart container over Link.
-		hc->X = Link->X; hc->Y = Link->Y; 
+		hc->X = (Clamp(Link->X, 0, 250)); yy = (Clamp(Link->Y, 0, 150)); //Don't drop partway offscreen.
+		hc->Y = yy;
 		hc->DrawYOffset = 0; hc->HitYOffset = 0; 
+		lweapon shadow = Screen->CreateLWeapon(LW_SCRIPT1);
+		shadow->UseSprite(50);
+		shadow->X = hc->X; shadow->Y = yy+8;
+		shadow->CollDetection = false;
 		while(hc->isValid())
 		{
-			
-			//Do we need to manually set its Jump/Fall?
+			if ( hc->Z > 8 ) ++hc->Z; //Slow its descent. 
+			if ( hc->Z == 0 && hc->Jump < 0.4) Remove(shadow);
+			if ( Collision(hc) ) Screen->D[reg] = _classic_zh__REG_BOSS_DROPPED_TRIFORCE; //If Link touches it. 
 			Waitframe();
 			
 		}
+		Screen->D[reg] = _classic_zh__REG_BOSS_DROPPED_TRIFORCE;
 	}	
 }
 
@@ -548,20 +567,26 @@ ffc script DropHEARTCONTAINER
 	void run(int reg, int min)
 	{
 		this->Data = CMB_INVISIBLE;
-		if ( min < 1 ) min = REG_BOSS_DEAD;
+		if ( Screen->D[reg] >= _classic_zh__REG_BOSS_DROPPED_HEART ) Quit();
+		if ( min < 1 ) min = _classic_zh__REG_BOSS_DEAD;
 		item hc = Screen->CreateItem(I_HEARTCONTAINER);
+		int yy;
 		hc->X = 1; hc->Y = 1; hc->DrawYOffset = -10000; hc->HitYOffset = -10000; hc->Z = 256;
 		while ( Screen->D[reg] < min ) { hc->Z = 256; Waitframe();}
 		//boss is dead. Position the heart container over Link.
-		hc->X = Link->X; hc->Y = Link->Y; 
+		hc->X = (Clamp(Link->X, 0, 250)); yy = (Clamp(Link->Y, 0, 150)); //Don't drop partway offscreen.
+		hc->Y = yy;
 		hc->DrawYOffset = 0; hc->HitYOffset = 0; 
+		lweapon shadow = Screen->CreateLWeapon(LW_SCRIPT1);
+		shadow->UseSprite(50);
+		shadow->X = hc->X; shadow->Y = yy+8;
+		shadow->CollDetection = false;
 		while(hc->isValid())
 		{
-			
-			//Do we need to manually set its Jump/Fall?
+			if ( hc->Z > 8 ) ++hc->Z; //Slow its descent. 
+			if ( hc->Z == 0 && hc->Jump < 0.4) Remove(shadow); 
 			Waitframe();
-			
 		}
-		Screen->D[reg] = REG_BOSS_DROPPED_HEART;
+		Screen->D[reg] = _classic_zh__REG_BOSS_DROPPED_HEART;
 	}	
 }
