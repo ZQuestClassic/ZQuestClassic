@@ -1,6 +1,21 @@
 ChangeLog for 2.53.0 
 
 //Gamma 4
+
+Fix: Quests Have Wrong Hit SOund in ZQuest
+
+Quests made in 2.53 Gamma 0/1 or earlier (build 31) now load
+	WAV_EHIT into the enemy editor hitsfx field when the editor opens.
+	This prevents corruption of the quest by modifying the value on quest load,
+	and ensures that the value only changes if the user saves the quest in 2.53.
+
+2.50.2 AND EARLIER play SFX_HIT even if Enemy Editor Hit Sound is 0. 
+	Thus, I added a special case that causes this to happen in guys.cpp, based
+	on header version and build. 
+
+	Arbitrary enemy policy 15610. :P
+	( ZoriaRPG, 25th February, 2019 )
+
 Fixed Byrna Cleanup Routine killing SFX 30. This was caused by
 	`last_cane_of_byrna_item_id` never being able to be -1 because it was declared
 	as byte, instead of int.
