@@ -59,6 +59,8 @@ extern int biic_cnt;
 #define stricmp _stricmp
 #endif
 
+extern word quest_header_zelda_version;
+extern word quest_header_zelda_build;
 
 int link_animation_speed = 1; //lower is faster animation
 
@@ -3024,6 +3026,13 @@ void edit_enemydata(int index)
     //sprintf(sfx,"%d",guysbuf[index].bgsfx);
     enedata_dlg[182].d1= (int)guysbuf[index].bgsfx;
     enedata_dlg[183].d1= (int)guysbuf[index].hitsfx;
+    if ( ( enedata_dlg[183].d1 == 0 ) && quest_header_zelda_version < 0x250 || (( quest_header_zelda_version == 0x250 ) && quest_header_zelda_build < 32 ) )
+    {
+	    //If no user-set hit sound was in place, and the quest was made in a version before 2.53.0 Gamma 2:
+		enedata_dlg[183].d1 = WAV_EHIT; //Fix quests using the wrong hit sound when loading this. 
+		//Force SFX_HIT here. 
+	    
+    }
     enedata_dlg[184].d1= (int)guysbuf[index].deadsfx;
     
     sprintf(bsp,"%d",guysbuf[index].bosspal);
