@@ -40,6 +40,7 @@ int guycarryingitem=0;
 char *guy_string[eMAXGUYS];
 extern byte emulation_patches[16];
 extern word quest_header_zelda_version;
+extern word quest_header_zelda_build;
 
 void never_return(int index);
 void playLevelMusic();
@@ -1345,14 +1346,21 @@ hitclock:
     {
         fading=fade_blue_poof;
     }
-    
-    if( hitsfx > 0 ) //user-set hit sound. 
+    if ( quest_header_zelda_version >= 0x250 && quest_header_zelda_build > 31 ) //2.53 Gamma 2 and later
     {
-	    if (!dying) //don't play the hit sound on death! -Z
-		sfx(hitsfx, pan(int(x)));
+	    if( hitsfx > 0 ) //user-set hit sound. 
+	    {
+		    if (!dying) //don't play the hit sound on death! -Z
+			sfx(hitsfx, pan(int(x)));
+	    }
+	    else sfx(WAV_EHIT, pan(int(x))); //Don't play the hardcoded sound if the user sets a custom one. 
     }
-    else sfx(WAV_EHIT, pan(int(x))); //Don't play the hardcoded sound if the user sets a custom one. 
-    
+    else //2.50.2 or earlier
+    {
+	sfx(WAV_EHIT, pan(int(x)));
+	sfx(hitsfx, pan(int(x)));
+    }
+	    
         
     if(family==eeGUY)
         sfx(WAV_EDEAD, pan(int(x)));
