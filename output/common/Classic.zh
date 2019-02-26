@@ -96,6 +96,7 @@ ffc script BossExplode
 	void run(int reg, int spr, int dur, int sfx, int delay, int rmin, int rmax)
 	{
 		this->Data = CMB_INVISIBLE;
+		int type;
 		if ( spr < 1 ) spr = _classic_zh__BOSS_EXPLODE_SPRITE;
 		if ( dur < 1 ) dur = _classic_zh__BOSS_EXPLODE_DUR;
 		if ( sfx < 1 ) sfx = _classic_zh__BOSS_EXPLODE_SFX;
@@ -103,7 +104,7 @@ ffc script BossExplode
 		if ( rmin < 1 ) rmin = _classic_zh__BOSS_EXPLODE_RANDOM_MIN;
 		if ( rmax < 1 ) rmax = _classic_zh__BOSS_EXPLODE_RANDOM_MAX;
 		Waitframes(5);
-		npc boss; int x; int y; int width; int height; 
+		npc boss; int x; int y; int width; int height; bool alive = true;
 		for ( int q = Screen->NumNPCs(); q > 0; --q )
 		{
 			npc n = Screen->LoadNPC(q);
@@ -114,18 +115,45 @@ ffc script BossExplode
 				height = n->TileHeight;
 				x = n->X;
 				y = n->Y;
+				type = boss->Type;
 				break;
 			}
 			
 		}
 		if ( !(boss->isValid()) ) Quit();
-		while(boss->HP > 0)
+		while(alive)
 		{
-			x = boss->X;
-			y = boss->Y;
+			while(boss->isValid()) //boss->HP > 0)
+			{
+				x = boss->X; Trace(x);
+				y = boss->Y; Trace(y);
+				Waitframe();
+				continue;
+			}
+			//Check for more pieces of the boss
+			if ( EnemiesAlive() )
+			{
+				//Find the next piece of it
+				for ( int q = Screen->NumNPCs(); q > 0; --q )
+				{
+					npc n = Screen->LoadNPC(q);
+					if ( n->Type == type ) 
+					{
+						boss = n; 
+						width = n->TileWidth;
+						height = n->TileHeight;
+						x = n->X;
+						y = n->Y;
+						type = boss->Type;
+						break;
+					}
+					
+				}
+			}
+			else { alive = false; break; }
 			Waitframe();
 		}
-		//boss is dead
+			
 		Screen->D[reg] = _classic_zh__REG_BOSS_EXPLODING;
 		for ( int q = dur; q > 0; --q )
 		{
@@ -158,6 +186,7 @@ bool _classic_zh__isBoss(npc n)
 	if ( n->Type == NPCT_DIGDOGGER ) return true;
 	if ( n->Type == NPCT_GOHMA ) return true;
 	if ( n->Type == NPCT_LANMOLA ) return true;
+	if ( n->Type == NPCT_MANHANDLA ) return true;
 	if ( n->Type == NPCT_PATRA ) return true;
 	if ( n->Type == NPCT_GANON ) return true;
 	return false;
