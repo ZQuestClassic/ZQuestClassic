@@ -2462,10 +2462,10 @@ float LargeDistance(int x1, int y1, int x2, int y2, int divisor)
 //Returns if Link is facing an ffc.
 bool Facing(ffc f)
 {
-	if ( Link->Dir == DIR_UP && Link->Y < f->Y ) return true;
-	if ( Link->Dir == DIR_DOWN && Link->Y > f->Y ) return true;
-	if ( Link->Dir == DIR_RIGHT && Link->X > f->X ) return true;
-	if ( Link->Dir == DIR_LEFT && Link->X < f->X ) return true;
+	if ( Link->Dir == DIR_UP && Link->Y > f->Y ) return true;
+	if ( Link->Dir == DIR_DOWN && Link->Y < f->Y ) return true;
+	if ( Link->Dir == DIR_RIGHT && Link->X < f->X ) return true;
+	if ( Link->Dir == DIR_LEFT && Link->X > f->X ) return true;
 	return false;
 }
 
@@ -2499,9 +2499,9 @@ bool RightOf(lweapon n){ return Link->X > n->X; }
 //returns true if Link is within 'dist' distance of an ffc on both its X and its Y axis. 
 bool DistXY(ffc a, int dist)
 {
-	if ( Abs(Link->X - a->X) < dist )
+	if ( Abs(Link->X - a->X) <= dist )
 	{
-		if ( Abs(Link->Y - a->Y) < dist ) return true;
+		if ( Abs(Link->Y - a->Y) <= dist ) return true;
 	}
 	return false;
 }
