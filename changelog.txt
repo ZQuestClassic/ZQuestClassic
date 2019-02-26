@@ -6,6 +6,7 @@ Updated qst.dat
 
 Fixed the SignPost ffc script.
 
+Moved the new functions from Classic.zh to std_functions.zh.
 Added some relativity functions to Classic.zh--should move to std_functions.zh:
 	DistXY(ffc, int), LeftOf(), RightOf(), Above(), Below(), Facing(ffc).
 
