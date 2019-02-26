@@ -1,6 +1,9 @@
 ChangeLog for 2.53.0 
 
-//Gamma 5
+//Gamma 4
+
+Classic.zh: Fix BossExplode ffc to work with all segmented bosses. 
+
 Resize fields for text entry to fit five chars. 
 Fixed Init Data (and cheat data) field sizes for:
 	Heart Containers (was a field size of 2, now 3)
@@ -8,9 +11,6 @@ Fixed Init Data (and cheat data) field sizes for:
 	Starting Magic (was size 3, now 5)
 	Max Magic (was size 3, now 5)
 	Super Bomb Ratio (was size 2, now 3)
-
-
-//Gamma 4
 
 Updated qst.dat 
 
