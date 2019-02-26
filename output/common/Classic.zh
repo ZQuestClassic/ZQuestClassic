@@ -162,24 +162,38 @@ bool _classic_zh__isBoss(npc n)
 	if ( n->Type == NPCT_GANON ) return true;
 	return false;
 }
-	
+const int _classic_zh__SIGNPOST_DIST = 12;
 ffc script SignPost
 {
-	void run(int m)
+	void run(int m, int max_dist)
 	{
 		this->Data = CMB_INVISIBLE;
+		if ( max_dist < 1 ) max_dist = _classic_zh__SIGNPOST_DIST;
 		while(1)
 		{
-			if ( Link->Y > this->Y + 8 )
+			if ( Below(this) )
 			{
-				if ( Abs(Link->X-this->X) < 8 )
+				if ( Facing(this) )
 				{
-					if ( Link->PressA || Link->PressB )
+					if ( DistXY(this, max_dist) )
 					{
-						Screen->Message(m);
+						if ( Link->PressA || Link->PressB )
+						{
+							Screen->Message(m);
+						}
 					}
 				}
 			}
+			//if ( Link->Y > this->Y + 8 )
+			//{
+			//	if ( Abs(Link->X-this->X) < 8 )
+			//	{
+			//		if ( Link->PressA || Link->PressB )
+			//		{
+			//			Screen->Message(m);
+			//		}
+			//	}
+			//}
 			Waitframe();
 		}
 	}
@@ -590,3 +604,4 @@ ffc script DropHEARTCONTAINER
 		Screen->D[reg] = _classic_zh__REG_BOSS_DROPPED_HEART;
 	}	
 }
+

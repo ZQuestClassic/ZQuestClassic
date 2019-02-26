@@ -2459,4 +2459,49 @@ float LargeDistance(int x1, int y1, int x2, int y2, int divisor)
     return Distance(x1, y1, cx, cy)*divisor;
 }
 
-			
+//Returns if Link is facing an ffc.
+bool Facing(ffc f)
+{
+	if ( Link->Dir == DIR_UP && Link->Y < f->Y ) return true;
+	if ( Link->Dir == DIR_DOWN && Link->Y > f->Y ) return true;
+	if ( Link->Dir == DIR_RIGHT && Link->X > f->X ) return true;
+	if ( Link->Dir == DIR_LEFT && Link->X < f->X ) return true;
+	return false;
+}
+
+//Returns if Link is above an npc.
+bool Above(npc n){ return Link->Y < n->Y; }
+//Returns if Link is below an npc.
+bool Below(npc n){ return Link->Y > n->Y; }
+//Returns if Link is left of an npc.
+bool LeftOf(npc n){ return Link->X < n->X; }
+//Returns if Link is right of an npc.
+bool RightOf(npc n){ return Link->X > n->X; }
+
+//Returns if Link is above, below, left of, or right of an ffc.
+bool Above(ffc n){ return Link->Y < n->Y; }
+bool Below(ffc n){ return Link->Y > n->Y; }
+bool LeftOf(ffc n){ return Link->X < n->X; }
+bool RightOf(ffc n){ return Link->X > n->X; }
+
+//Returns if Link is above, below, left of, or right of an eweapon.
+bool Above(eweapon n){ return Link->Y < n->Y; }
+bool Below(eweapon n){ return Link->Y > n->Y; }
+bool LeftOf(eweapon n){ return Link->X < n->X; }
+bool RightOf(eweapon n){ return Link->X > n->X; }
+
+//Returns if Link is above, below, left of, or right of an lweapon.
+bool Above(lweapon n){ return Link->Y < n->Y; }
+bool Below(lweapon n){ return Link->Y > n->Y; }
+bool LeftOf(lweapon n){ return Link->X < n->X; }
+bool RightOf(lweapon n){ return Link->X > n->X; }
+
+//returns true if Link is within 'dist' distance of an ffc on both its X and its Y axis. 
+bool DistXY(ffc a, int dist)
+{
+	if ( Abs(Link->X - a->X) < dist )
+	{
+		if ( Abs(Link->Y - a->Y) < dist ) return true;
+	}
+	return false;
+}
