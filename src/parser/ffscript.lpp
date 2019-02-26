@@ -57,6 +57,9 @@ yycol += yyleng + 1; \
 qstr << CHAR; \
 break
 
+#define TERMINATE \
+BEGIN( INITIAL ); \
+return 0
 %}
 
  /* Keywords */
@@ -88,6 +91,7 @@ OPTION_VALUE	TOKEN( OPTIONVALUE );
 
  /* Types */
 void		TOKEN( ZVOID );
+untyped		TOKEN( UNTYPED );
 bool		TOKEN( ZBOOL );
 float		TOKEN( ZFLOAT );
 int		TOKEN( ZFLOAT );
@@ -190,7 +194,7 @@ link	TOKEN( LINK );
 	"*"+"/"			ADVANCE; BEGIN( INITIAL );
 	<<EOF>>			{
 		yymsg("WARNING: Comment does not end.", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 }
 
@@ -216,7 +220,7 @@ link	TOKEN( LINK );
 <STRING>{
 	<<EOF>>			{
 		yymsg("ERROR: String does not end.", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	[^\"\n\\]*		ADVANCE; qstr << yytext;
 	[^\"\n\\]*\n		NEWLINE; qstr << yytext;
@@ -237,7 +241,7 @@ link	TOKEN( LINK );
 		case '\n': NEWLINE; break;
 		case EOF:
 			yymsg("ERROR: String does not end.", srow, scol);
-			return 0;
+			TERMINATE;
 		default: ESC_CHAR((char)c);
 		}
 	}
@@ -258,11 +262,11 @@ link	TOKEN( LINK );
  <IMPORTING>{
 	<<EOF>>			{
 		yymsg("ERROR: Import without string", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	[^\"\n]*\n]		{ //newline, without open quotation
 		yymsg("ERROR: Import without string", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	\" {
 		BEGIN( IMPORTSTR );
@@ -276,7 +280,7 @@ link	TOKEN( LINK );
  <IMPORTSTR>{
 	<<EOF>>			{
 		yymsg("ERROR: String does not end.", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	[^\"\n]*		ADVANCE; qstr << yytext;
 	[^\"\n]*\n		NEWLINE; qstr << yytext;
@@ -312,6 +316,45 @@ link	TOKEN( LINK );
 
  /* Char */
 \'[^\']?\' {
+	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
+}
+
+\'\\[^\n]\'	{
+	switch(yytext[yyleng-2])
+	{
+		case 'a':
+			yytext[yyleng-3] = '\a';
+			break;
+		case 'b':
+			yytext[yyleng-3] = '\b';
+			break;
+		case 'f':
+			yytext[yyleng-3] = '\f';
+			break;
+		case 'n':
+			yytext[yyleng-3] = '\n';
+			break;
+		case 'r':
+			yytext[yyleng-3] = '\r';
+			break;
+		case 't':
+			yytext[yyleng-3] = '\t';
+			break;
+		case 'v':
+			yytext[yyleng-3] = '\v';
+			break;
+		/*default:
+			yytext[yyleng-3] = yytext[yyleng-2];*/
+		case '\'':
+		case '\\':
+			yytext[yyleng-3] = yytext[yyleng-2];
+			break;
+		default:
+			yymsg("ERROR: Unknown escape character.", srow, scol);
+			TERMINATE;
+	}
+	yytext[yyleng-2] = yytext[yyleng-1];
+	yytext[yyleng-1] = 0;
 	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
 }
 
