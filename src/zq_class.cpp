@@ -50,6 +50,8 @@ using std::pair;
 
 //const char zqsheader[30]="Zelda Classic String Table\n\x01";
 extern char msgbuf[MSGSIZE*3];
+extern word quest_header_zelda_version;
+extern word quest_header_zelda_build;
 
 extern string zScript;
 extern std::map<int, pair<string, string> > ffcmap;
@@ -9301,7 +9303,13 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                     new_return(46);
                 }
             }
-            
+            if ( quest_header_zelda_version < 0x250 || (( quest_header_zelda_version == 0x250 ) && quest_header_zelda_build < 32 ) )
+	    {
+	    //If no user-set hit sound was in place, and the quest was made in a version before 2.53.0 Gamma 2:
+		if ( guysbuf[i].hitsfx == 0 ) guysbuf[i].hitsfx = WAV_EHIT; //Fix quests using the wrong hit sound when loading this. 
+		//Force SFX_HIT here. 
+	    
+            }
             if(!p_putc(guysbuf[i].hitsfx,f))
             {
                 new_return(47);
