@@ -162,7 +162,7 @@ bool _classic_zh__isBoss(npc n)
 	if ( n->Type == NPCT_GANON ) return true;
 	return false;
 }
-const int _classic_zh__SIGNPOST_DIST = 12;
+const int _classic_zh__SIGNPOST_DIST = 16;
 ffc script SignPost
 {
 	void run(int m, int max_dist)
@@ -173,10 +173,13 @@ ffc script SignPost
 		{
 			if ( Below(this) )
 			{
+				//Trace(1);
 				if ( Facing(this) )
 				{
+					//Trace(2);
 					if ( DistXY(this, max_dist) )
 					{
+						//Trace(3);
 						if ( Link->PressA || Link->PressB )
 						{
 							Screen->Message(m);
