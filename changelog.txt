@@ -2,7 +2,16 @@ ChangeLog for 2.53.0
 
 //Gamma 4
 
-Fix: Quests Have Wrong Hit SOund in ZQuest
+Updated qst.dat 
+
+Fixed the SignPost ffc script.
+
+Added some relativity functions to Classic.zh--should move to std_functions.zh:
+	DistXY(ffc, int), LeftOf(), RightOf(), Above(), Below(), Facing(ffc).
+
+2.50.x quests with a build < 31, or quests with a header 
+	version < 0x250 will now write hitsfx = WAV_EHIT, for all guys where 
+	the hitsfx sound == 0, on saving a quest in 2.53.
 
 Quests made in 2.53 Gamma 0/1 or earlier (build 31) now load
 	WAV_EHIT into the enemy editor hitsfx field when the editor opens.
