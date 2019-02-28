@@ -7823,6 +7823,8 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
     temp.yofs=0;
     temp.clk2=aclk;
     temp.aframe=aframe;
+    temp.doscript = 0;
+    temp.script = 0;
     temp.animate(0);
     temp.draw(dest);
     aclk=temp.clk2;
