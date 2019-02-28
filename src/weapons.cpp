@@ -7823,9 +7823,9 @@ void putweapon(BITMAP *dest,int x,int y,int weapon_id, int type, int dir, int &a
     temp.yofs=0;
     temp.clk2=aclk;
     temp.aframe=aframe;
-    temp.doscript = 0;
-    temp.script = 0;
-    temp.animate(0);
+    temp.doscript = 0; //Running q script would cause a crash, as this weapon has no parent data to use to determine if it should run an lweapon, or eweapon script.
+    temp.script = 0; //Can not have script data.
+    temp.animate(0); //Scripts run in this function. Call after forcing script data to 0.
     temp.draw(dest);
     aclk=temp.clk2;
     aframe=temp.aframe;
