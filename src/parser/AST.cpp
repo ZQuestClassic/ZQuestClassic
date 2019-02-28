@@ -1300,7 +1300,7 @@ optional<long> ASTExprDivide::getCompileTimeValue(
 			errorHandler->handleError(CompileError::DivByZero(this));
 		return nullopt;
 	}
-	return *leftValue / *rightValue * 10000L;
+	return (*leftValue * 1.0) / (*rightValue * 1.0) * (10000.0);
 }
 
 // ASTExprModulo
