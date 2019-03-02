@@ -357,6 +357,7 @@ namespace ZScript
 		// Override to also register in the root scope, and fail if already
 		// present there as well.
 		virtual Scope* makeChild(std::string const& name);
+		virtual ScriptScope* makeScriptChild(Script& script);
 		virtual DataType const* addDataType(
 				std::string const& name, DataType const* type,
 				AST* node = NULL);
