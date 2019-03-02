@@ -24,7 +24,7 @@ string LocationData::asString() const
 		out << fname << " ";
 	if (first_line == last_line)
 	{
-		out << "Line " << first_line << " ";
+		out << "Line " << first_line << " @ ";
 		if (first_column == last_column)
 			out << "Column " << first_column;
 		else
@@ -33,9 +33,9 @@ string LocationData::asString() const
 	}
 	else
 	{
-		out << "Line " << first_line << " Column " << first_column
+		out << "Line " << first_line << " @ Column " << first_column
 		    << " - "
-		    << "Line " << last_line << " Column " << last_column;
+		    << "Line " << last_line << " @ Column " << last_column;
 	}
 	return out.str();
 }

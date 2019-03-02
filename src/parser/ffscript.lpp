@@ -57,6 +57,9 @@ yycol += yyleng + 1; \
 qstr << CHAR; \
 break
 
+#define TERMINATE \
+BEGIN( INITIAL ); \
+return 0
 %}
 
  /* Keywords */
@@ -88,6 +91,7 @@ OPTION_VALUE	TOKEN( OPTIONVALUE );
 
  /* Types */
 void		TOKEN( ZVOID );
+untyped		TOKEN( UNTYPED );
 bool		TOKEN( ZBOOL );
 float		TOKEN( ZFLOAT );
 int		TOKEN( ZFLOAT );
@@ -190,7 +194,7 @@ link	TOKEN( LINK );
 	"*"+"/"			ADVANCE; BEGIN( INITIAL );
 	<<EOF>>			{
 		yymsg("WARNING: Comment does not end.", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 }
 
@@ -216,7 +220,7 @@ link	TOKEN( LINK );
 <STRING>{
 	<<EOF>>			{
 		yymsg("ERROR: String does not end.", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	[^\"\n\\]*		ADVANCE; qstr << yytext;
 	[^\"\n\\]*\n		NEWLINE; qstr << yytext;
@@ -226,7 +230,8 @@ link	TOKEN( LINK );
 		qstr << yytext;
 		// Read in the escaped character.
 		register int c = yyinput();
-		switch (c) {
+		switch (c)
+    {
 			case 'a': ESC_CHAR('\a');
 			case 'b': ESC_CHAR('\b');
 			case 'f': ESC_CHAR('\f');
@@ -245,7 +250,7 @@ link	TOKEN( LINK );
 				else
 				{
 					yymsg("ERROR: Hex-insert escape code '\\x' has no value.", srow, scol);
-					return 0;
+					TERMINATE;
 				}
 				ch = yyinput();
 				if((ch >= '0' && ch <= '9')||(ch>='a'&&ch<='f')||(ch>='A'&&ch<='F'))
@@ -254,7 +259,7 @@ link	TOKEN( LINK );
 				{
 					unput(ch);
 					//yymsg("ERROR: Hex-insert escape code '\\x' has one digit. These must have exactly two digits", srow, scol);
-					//return 0;
+					//TERMINATE;
 				}
 				std::stringstream buf;
 				int temp;
@@ -264,7 +269,7 @@ link	TOKEN( LINK );
 			}
 			case EOF:
 				yymsg("ERROR: String does not end.", srow, scol);
-				return 0;
+				TERMINATE;
 			case '\'':
 			case '\\':
 			case '\"':
@@ -272,7 +277,7 @@ link	TOKEN( LINK );
 				ESC_CHAR((char)c);
 			default:
 				yymsg("ERROR: Unknown escape character.", srow, scol);
-				return 0;
+				TERMINATE;
 		}
 	}
 	[^\"\n\\]*\"		{
@@ -292,11 +297,11 @@ link	TOKEN( LINK );
  <IMPORTING>{
 	<<EOF>>			{
 		yymsg("ERROR: Import without string", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	[^\"\n]*\n]		{ //newline, without open quotation
 		yymsg("ERROR: Import without string", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	\" {
 		BEGIN( IMPORTSTR );
@@ -310,7 +315,7 @@ link	TOKEN( LINK );
  <IMPORTSTR>{
 	<<EOF>>			{
 		yymsg("ERROR: String does not end.", srow, scol);
-		return 0;
+		TERMINATE;
 	}
 	[^\"\n]*		ADVANCE; qstr << yytext;
 	[^\"\n]*\n		NEWLINE; qstr << yytext;
@@ -381,7 +386,7 @@ link	TOKEN( LINK );
 			break;
 		default:
 			yymsg("ERROR: Unknown escape character.", srow, scol);
-			return 0;
+			TERMINATE;
 	}
 	yytext[yyleng-2] = yytext[yyleng-1];
 	yytext[yyleng-1] = 0;

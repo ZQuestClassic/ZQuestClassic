@@ -14720,10 +14720,21 @@ void dospecialmoney(int index)
     break;
     
     case rBOMBS:
+	{
         if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
             return;
             
-        game->change_drupy(-abs(tmpscr[tmp].catchall));
+		int price = -abs(tmpscr[tmp].catchall);
+		int wmedal = current_item_id(itype_wealthmedal);
+		if(wmedal >= 0)
+		{
+			if(itemsbuf[wmedal].flags & ITEM_FLAG1)
+				price*=(itemsbuf[wmedal].misc1/100.0);
+			else
+				price+=itemsbuf[wmedal].misc1;
+		}
+		
+        game->change_drupy(price);
         setmapflag();
         game->change_maxbombs(4);
         game->set_bombs(game->get_maxbombs());
@@ -14749,12 +14760,24 @@ void dospecialmoney(int index)
         //    putscr(scrollbuf,0,0,tmpscr);
         verifyBothWeapons();
         break;
+	}
         
     case rARROWS:
+	{
         if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
             return;
             
-        game->change_drupy(-abs(tmpscr[tmp].catchall));
+        int price = -abs(tmpscr[tmp].catchall);
+		int wmedal = current_item_id(itype_wealthmedal);
+		if(wmedal >= 0)
+		{
+			if(itemsbuf[wmedal].flags & ITEM_FLAG1)
+				price*=(itemsbuf[wmedal].misc1/100.0);
+			else
+				price+=itemsbuf[wmedal].misc1;
+		}
+		
+        game->change_drupy(price);
         setmapflag();
         game->change_maxarrows(10);
         game->set_arrows(game->get_maxarrows());
@@ -14766,6 +14789,7 @@ void dospecialmoney(int index)
         //    putscr(scrollbuf,0,0,tmpscr);
         verifyBothWeapons();
         break;
+	}
         
     case rSWINDLE:
         if(items.spr(index)->id==iRupy)

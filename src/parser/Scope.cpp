@@ -73,8 +73,12 @@ vector<Scope*> ZScript::lookupScopes(Scope const& scope, vector<string> const& n
 	vector<Scope*> scopes;
 	for (Scope* current = const_cast<Scope*>(&scope);
 	     current; current = current->getParent())
+	{
+		if(current == getRoot(*current) && scopes.size() != 0)
+			break;
 		if (Scope* descendant = getDescendant(*current, names))
 			scopes.push_back(descendant);
+	}
 	return scopes;
 }
 
@@ -561,6 +565,15 @@ Scope* FileScope::makeChild(std::string const& name)
 	Scope* result = BasicScope::makeChild(name);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerChild(name, result))
+		result = NULL;
+	return result;
+}
+
+ScriptScope* FileScope::makeScriptChild(Script& script)
+{
+	ScriptScope* result = BasicScope::makeScriptChild(script);
+	if (!result) return NULL;
+	if (!getRoot(*this)->registerChild(script.getName(), result))
 		result = NULL;
 	return result;
 }
