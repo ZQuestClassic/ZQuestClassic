@@ -139,3 +139,9 @@ optional<CompileOptionValue> CompileOption::getDefault() const
 	if (!isValid()) return nullopt;
 	return entries[id_].defaultValue;
 }
+
+void CompileOption::setDefault(CompileOptionValue value)
+{
+	if(!isValid()) return;
+	entries[id_].defaultValue = value;
+}
