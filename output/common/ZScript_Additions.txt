@@ -296,6 +296,15 @@ To use these, call the #option directive, followed by the flag macro, and (on | 
 		On by default.
 		If set 'off', then all calls to trace() functions will be ignored. 
 		
+Options reset with each imported file (each differing file scope) to their 'default'
+value. If you wish for an option to inherit from the previous scope, such as from
+the buffer, you must explicitely call '#option MACRO inherit' in that file.
+
+Note: 	You can use any constant expression, or constant value that is non-zero to represent 'on',
+	and any constant expression, or constant value that is zero to represent 'off'.
+	The options 'inherit', and 'default' are specific, and not bound to any literal value. 
+	Thus, you cannot create macros for them, or otherwise trigger them with constant expressions.
+	
 
 ///////////////////////////////////////
 // Single Character Escape Sequences //
