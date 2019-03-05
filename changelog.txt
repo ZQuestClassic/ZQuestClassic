@@ -1,7 +1,139 @@
 //2.55 and 2.54 Changes
 
-//Alpha 12
+//Alpha 13
 
+Allow all ZScript data types to be declared globally.
+Add allowing declaration of const untyped and const bool.
+	Const untyped will work if the value is a literal number.
+	Const bool will not yet accept an assign of true/false, but will accept a numeric literal.
+	( ZoriaRPG, 5th March, 2019 )
+	
+Merge pull request #284 from venrob/2.55-QUOTEDSTRING-escchar-fix 
+Merge pull request #283 from venrob/2.55-parser-scoperes-fix 
+	( Venrob, 2nd March, 2019 )
+Merge pull request #282 from venrob/2.55-compileErrorUpdate
+Merge pull request #281 from venrob/2.55-putweaponFix
+	( Venrob, 1st March, 2019 )
+Update: Compile error format
+Docs: Add comments to `putweapon`
+Fix: `putweapon` dummy weapons crashing by attempting to run weapon scripts. -Z
+	( 28th February, 2019 )
+Fix: More Bombs / More Arrows rooms and Wealth Medals
+Fixed: Wealth Medals which use percentage zero out cost (integer division != double division) (guys.cpp)
+Fixed: No code was ever in place to give the discount? (link.cpp)
+	( Venrob, 12th February, 2019 )
+Fix: Error carryover error when error is thrown in a block.
+	( Venrob, 10th February, 2019 )
+Must always `BEGIN( INITIAL )` before returning! Added `TERMINATE` macro to handle this.
+	( Venrob, 9th February, 2019 )
+Declare `untyped` data, fix `npc->Script` return *10000
+Fix: `npc->Script` return didn't `*10000`
+	( Venrob, 7th February, 2019 )
+Feat: Allow declaration of `untyped` data
+	( Venrob, 2nd February, 2019 )
+Feat: Add `\xFF` hex-insertion escape character for QUOTEDSTRING and SINGLECHAR
+Fix: Invalid escape characters should throw error
+	( Venrob, 31st January, 2019 )
+
+2.55 SINGLECHAR escape characters
+	( Venrob, 30th January, 2019 )
+
+Fix scope resolution for local functions and vars in scripts:	
+	Typedefs of both kinds must be processed before imports are processed, or they do not properly work across files.
+	Only check RootScope->descChildren_ if no valid scope has already been found.
+	Scripts were not registered to `RootScope->descChildren_`!
+	( Venrob, 28th January, 2019 )
+
+Feat: SINGLECHAR can accept escape characters
+	( Venrob, 27th January, 2019 )
+Merge pull request #275 from KoolAidWannaBe/2.55-Parser-Ternary-Working-Except-Untyped-Resolution
+	 ( Venrob, 26th January, 2019 )
+Import tokens now use TOK_IMPORTSTRING instead of TOK_QUOTEDSTRING
+	- TOK_IMPORTSTRING does not parse `\` as an escape, instead parsing it literally.
+	( Venrob, 25th January, 2019 )
+Merge pull request #2 from KoolAidWannaBe/2.55-TernaryTyped
+Fix: Slight Order of Operations issue
+Feat: Return middle type rather than untyped. Fix: Missed SemanticAnalyzer.cpp/.h sections
+	Slight issues occur if the middle expression is untyped.
+Fix: Add overrides for getReadType() and getWriteType() for ASTTernaryExpr
+	This causes Ternary to be functional! As it is currently set, Ternary automatically untypes the output, so that it may be used for any type.
+	( Venrob, 19th January, 2019 )
+Parser: Preliminary layout for Ternary Expressions
+	( Venrob, 18th January, 2019 )
+Parser: Add QMark (?) token
+	( KoolAidWannaBe, 18th January, 2019 )
+Feat: Ring/PerilRing Flag 2 - "Divisor is Percentage Multiplier"
+	( Venrob, 14th January, 2019 )
+
+Increased the buffer size for the screenshot name
+	to prevent a crash on overflow.
+	( ZoriaRPG, 14th January, 2019 )
+	
+Fire BRang Flag 8: `Triggers 'Fire(Any)'`
+	( Venrob, 12th January, 2019 )
+	
+Modified `LinkClass::ringpower(int dmg)` to handle percentage multipliers 
+	instead of divisors, if the flag is set. It can also handle both at once 
+	(ring of one mode, peril ring of the other) without issue.
+Feat: BRang Flag 8 - "Triggers 'Fire(Any)'"
+	( Venrob, 11th January, 2019 )
+	
+Re-added the Menu button to Joypad Config
+	( ZoriaRPG, 8th January, 2019 )
+	
+Added Halt Duration and Acceleration Factor to the
+	Enemy Editor, for Peahata, and for Phantom Ghinis.
+	Fixed the dialogue to use the correct enemy label fields.	
+	( ZoriaRPG, 7th January, 2019 )
+	
+
+You can now set the halt duration, and acceleration
+	factor for flying enemies in the enemy editor, for keese and
+	bats. Perhaps Peahats also need this?
+	( ZoriaRPG, 6th January, 2019 )
+	
+Move item script timing for 2nd frame (and onwards)
+	to take place immediate;y after Link.animate().
+	This preserved the old system timing for item scripts.
+	
+Don't try to load an enemy for weapons with eweapon
+	IDs, but not eweapon signatures. 2.50 allowed stupid stuff, such as
+	Screen->CreateLWeapon(EW_FIREBALL) !!!
+Fix: Eweapon scripts check !isLWeapon and run w/o checking Dead()
+Fix: Z_eventlog will now use the correct script types when logging events, from new script types.
+
+Fixed one issue with array draws, for Lines()
+	where the array iterator was wrong.
+
+	Copied a code block from historical/old-master where Gleeok first
+	tried to set this up.
+
+	The issue is that the array becomes invalid (scope) prior to
+	the enqueued draws taking place, so there is no data for them to use.
+
+	The values need to be pushed into a vector and used, later.
+	( ZoriaRPG, 1st January, 2019 )
+
+Fixed an early return condition in Screen->Lines that
+	would always cause it to abort, and fixed use of the wrong args order.
+POP the correct number of args for array-based draws,
+	such as lines()
+Writing to LW_SCRIPT* o_tile works again.
+
+Fixed a spot where an enemy pointer was being used to try
+	to load graphics to an lweapon (wRefFireball) because it was based
+	on a fallthrough of ewFireball.
+	( ZoriaRPG, 27th December, 2018 )
+	
+WDS_BOUNCE is a write-only condition that calls
+	`onhit(false)` for LW_BRANG weapons. It has a literal value of (1)
+	and the engine never uses it otherwise.
+
+	LWeapon scripts now interact properly with it.
+	( ZoriaRPG, 26th December, 2018 )
+	
+
+//Alpha 12
 Reset combo animations on Game->Continue()
 Call AllOff() prior to running Link's onDeth script.
 
