@@ -1300,6 +1300,13 @@ optional<long> ASTExprDivide::getCompileTimeValue(
 			errorHandler->handleError(CompileError::DivByZero(this));
 		return nullopt;
 	}
+	
+	if(*lookupOption(*scope, CompileOption::OPT_TRUNCATE_DIVISION_BY_LITERAL_BUG)
+		&& left->isLiteral() && right->isLiteral())
+	{
+		return *leftValue / *rightValue * 10000L;
+	}
+	
 	return static_cast<long>((*leftValue * 1.0) / (*rightValue * 1.0) * (10000L));
 }
 

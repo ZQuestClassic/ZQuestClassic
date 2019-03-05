@@ -1,4 +1,4 @@
 // Table of compile options.
-//	Name,                       Default Value
-X(	Trace,                              10000)
-X(	LiteralIntegerDivision,             00000)
+//	Name,                                        Default Value
+X(	LOGGING,                                            10000)
+X(	TRUNCATE_DIVISION_BY_LITERAL_BUG,                   00000)
