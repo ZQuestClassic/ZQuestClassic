@@ -325,7 +325,7 @@ namespace ZScript
 		virtual std::string asString() const;
 
 		CompileOptionSetting getSetting(
-				CompileErrorHandler* = NULL) const;
+				CompileErrorHandler* = NULL, Scope* scope = NULL) const;
 	
 		std::string name;
 		CompileOption option;
@@ -697,7 +697,7 @@ namespace ZScript
 
 		// Get the total size of this array at compile time.
 		optional<int> getCompileTimeSize(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -751,7 +751,7 @@ namespace ZScript
 		// Return this expression's value if it has already been resolved at
 		// compile time.
 		virtual optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const
 		{return nullopt;}
 
@@ -774,7 +774,7 @@ namespace ZScript
 		bool isConstant() const {return true;}
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 		DataType const* getReadType() const {
 			return content ? content->getReadType() : NULL;}
@@ -796,7 +796,7 @@ namespace ZScript
 		bool isConstant() const {return right && right->isConstant();}
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 		DataType const* getReadType() const {
 			return right ? right->getReadType() : NULL;}
@@ -822,7 +822,7 @@ namespace ZScript
 		void markConstant() {constant_ = true;}
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 		DataType const* getReadType() const;
 		DataType const* getWriteType() const;
@@ -924,7 +924,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 		DataType const* getReadType() const {return &DataType::FLOAT;}
 		DataType const* getWriteType() const {return NULL;}
@@ -939,7 +939,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 		DataType const* getReadType() const {return &DataType::BOOL;}
 		DataType const* getWriteType() const {return NULL;}
@@ -954,7 +954,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 		DataType const* getReadType() const {return &DataType::FLOAT;}
 		DataType const* getWriteType() const {return NULL;}
@@ -1063,7 +1063,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1078,7 +1078,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1106,7 +1106,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1121,7 +1121,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1136,7 +1136,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1151,7 +1151,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1166,7 +1166,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1181,7 +1181,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1209,7 +1209,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1224,7 +1224,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1252,7 +1252,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1267,7 +1267,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1282,7 +1282,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1308,7 +1308,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1322,7 +1322,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1336,7 +1336,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1363,7 +1363,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 
@@ -1377,7 +1377,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 	};
 	
@@ -1395,7 +1395,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 
 		owning_ptr<ASTExpr> left;
@@ -1433,7 +1433,7 @@ namespace ZScript
 		bool isConstant() const {return true;}
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
 		DataType const* getReadType() const {return &DataType::FLOAT;}
 	
@@ -1453,7 +1453,7 @@ namespace ZScript
 		bool isConstant() const {return true;}
 
 		optional<long> getCompileTimeValue(
-				CompileErrorHandler* errorHandler = NULL)
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const {
 			return value ? 10000L : 0L;}
 		DataType const* getReadType() const {return &DataType::BOOL;}
