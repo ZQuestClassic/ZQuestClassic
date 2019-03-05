@@ -297,8 +297,8 @@ DataType :
 			ASTString *name = (ASTString*)$1;
 			$$ = new ASTDataType(DataTypeUnresolved(name->getValue()), @$);
 			delete name;}
-	| ZCONST ZFLOAT {$$ = new ASTDataType(new DataTypeConstFloat(), @$);
-	| ZCONST ZBOOL {$$ = new ASTDataType(new DataTypeConstFloat(), @$);
+	| ZCONST ZFLOAT {$$ = new ASTDataType(new DataTypeConstFloat(), @$); }
+	| ZCONST ZBOOL {$$ = new ASTDataType(new DataTypeConstFloat(), @$); }
 	| ZCONST UNTYPED {$$ = new ASTDataType(new DataTypeConstFloat(), @$);}
 	;
 
