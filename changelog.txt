@@ -17,34 +17,35 @@ Add allowing declaration of const untyped and const bool.
 	Const bool will not yet accept an assign of true/false, but will accept a numeric literal.
 	( ZoriaRPG, 5th March, 2019 )
 	
-Merge pull request #284 from venrob/2.55-QUOTEDSTRING-escchar-fix 
-Merge pull request #283 from venrob/2.55-parser-scoperes-fix 
-	( Venrob, 2nd March, 2019 )
-Merge pull request #282 from venrob/2.55-compileErrorUpdate
-Merge pull request #281 from venrob/2.55-putweaponFix
-	( Venrob, 1st March, 2019 )
-Update: Compile error format
+Update: Compile error format.
+	Now reads "Line # @ Column # - ERROR # MSG"
 Docs: Add comments to `putweapon`
-Fix: `putweapon` dummy weapons crashing by attempting to run weapon scripts. -Z
-	( 28th February, 2019 )
+	( Venrob, 1st March 2019 )
+	
+Fix: `putweapon` dummy weapons crashing by attempting to run weapon scripts.
+	( ZoriaRPG, 28th February, 2019 )
+	
 Fix: More Bombs / More Arrows rooms and Wealth Medals
-Fixed: Wealth Medals which use percentage zero out cost (integer division != double division) (guys.cpp)
-Fixed: No code was ever in place to give the discount? (link.cpp)
+	- Wealth Medals which use percentage zero out cost (integer division != double division) (guys.cpp)
+	- No code was ever in place to give the discount? (link.cpp)
 	( Venrob, 12th February, 2019 )
-Fix: Error carryover error when error is thrown in a block.
-	( Venrob, 10th February, 2019 )
+	
 Must always `BEGIN( INITIAL )` before returning! Added `TERMINATE` macro to handle this.
+	This fixes an issue where you would get an error, because the parser did not exit a mode.
 	( Venrob, 9th February, 2019 )
+	
 Declare `untyped` data, fix `npc->Script` return *10000
 Fix: `npc->Script` return didn't `*10000`
 	( Venrob, 7th February, 2019 )
+	
 Feat: Allow declaration of `untyped` data
 	( Venrob, 2nd February, 2019 )
+	
 Feat: Add `\xFF` hex-insertion escape character for QUOTEDSTRING and SINGLECHAR
 Fix: Invalid escape characters should throw error
 	( Venrob, 31st January, 2019 )
 
-2.55 SINGLECHAR escape characters
+Updated SINGLECHAR escape characters
 	( Venrob, 30th January, 2019 )
 
 Fix scope resolution for local functions and vars in scripts:	
@@ -53,25 +54,28 @@ Fix scope resolution for local functions and vars in scripts:
 	Scripts were not registered to `RootScope->descChildren_`!
 	( Venrob, 28th January, 2019 )
 
-Feat: SINGLECHAR can accept escape characters
+Feat: SINGLECHAR can now accept escape characters
 	( Venrob, 27th January, 2019 )
-Merge pull request #275 from KoolAidWannaBe/2.55-Parser-Ternary-Working-Except-Untyped-Resolution
-	 ( Venrob, 26th January, 2019 )
+	
 Import tokens now use TOK_IMPORTSTRING instead of TOK_QUOTEDSTRING
-	- TOK_IMPORTSTRING does not parse `\` as an escape, instead parsing it literally.
+	- TOK_IMPORTSTRING does not parse `\` as an escape, instead parsing it literally. This allows `C:\User\Test\` as a valid path,
+	rather than skipping the backslashes.
 	( Venrob, 25th January, 2019 )
-Merge pull request #2 from KoolAidWannaBe/2.55-TernaryTyped
+
 Fix: Slight Order of Operations issue
-Feat: Return middle type rather than untyped. Fix: Missed SemanticAnalyzer.cpp/.h sections
-	Slight issues occur if the middle expression is untyped.
+Fix: Missed SemanticAnalyzer.cpp/.h sections
 Fix: Add overrides for getReadType() and getWriteType() for ASTTernaryExpr
-	This causes Ternary to be functional! As it is currently set, Ternary automatically untypes the output, so that it may be used for any type.
+	Ternary is now functional. The return type is the type of the middle expression.
+	Slight issues may occur if the middle expression is untyped.
 	( Venrob, 19th January, 2019 )
+	
 Parser: Preliminary layout for Ternary Expressions
-	( Venrob, 18th January, 2019 )
 Parser: Add QMark (?) token
-	( KoolAidWannaBe, 18th January, 2019 )
+	( KoolAidWannaBe & Venrob, 18th January, 2019 )
+	
 Feat: Ring/PerilRing Flag 2 - "Divisor is Percentage Multiplier"
+	As the name says, the number in the divisor field will be treated as a percentage to multiply if the flag is turned on. This allows things
+	such as '50%' for halving, or '150%' for increases less than double.
 	( Venrob, 14th January, 2019 )
 
 Increased the buffer size for the screenshot name
@@ -84,7 +88,6 @@ Fire BRang Flag 8: `Triggers 'Fire(Any)'`
 Modified `LinkClass::ringpower(int dmg)` to handle percentage multipliers 
 	instead of divisors, if the flag is set. It can also handle both at once 
 	(ring of one mode, peril ring of the other) without issue.
-Feat: BRang Flag 8 - "Triggers 'Fire(Any)'"
 	( Venrob, 11th January, 2019 )
 	
 Re-added the Menu button to Joypad Config
