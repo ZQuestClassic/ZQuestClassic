@@ -336,7 +336,8 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 
 bool DataTypeSimple::canBeGlobal() const
 {
-	return simpleId == ZVARTYPEID_FLOAT || simpleId == ZVARTYPEID_BOOL;
+	return true; //All types can be global, now. 
+	//return simpleId == ZVARTYPEID_FLOAT || simpleId == ZVARTYPEID_BOOL;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -345,6 +346,7 @@ bool DataTypeSimple::canBeGlobal() const
 bool DataTypeConstFloat::canCastTo(DataType const& target) const
 {
 	if (target == UNTYPED) return true;
+	if (target == BOOL) return true; //Not enough, it seems. Where do we check assigns to const? -Z
 	
 	if (*this == target) return true;
 	return DataType::FLOAT.canCastTo(target);
