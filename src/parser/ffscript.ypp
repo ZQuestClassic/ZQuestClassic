@@ -977,6 +977,16 @@ Literal_Array :
 		al->location = @$;
 		$$ = al;
 	}
+	// (int){1, 2, 3}
+	| LPAREN DataType RPAREN
+		  LBRACE Literal_Array_Body RBRACE
+	{
+		ASTDataType* type = (ASTDataType*)$2;
+		ASTArrayLiteral* al = (ASTArrayLiteral*)$5;
+		al->type = type;
+		al->location = @$;
+		$$ = al;
+	}
 	// (int[5]){}
 	| LPAREN DataType LBRACKET Expression_Constant RBRACKET
 		  RPAREN LBRACE RBRACE
@@ -994,10 +1004,17 @@ Literal_Array :
 		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
 		al->type = type;
 		$$ = al;}
+	// (int){}
+	| LPAREN DataType RPAREN LBRACE RBRACE {
+		ASTDataType* type = (ASTDataType*)$2;
+		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
+		al->type = type;
+		$$ = al;}
 	// {1, 2, 3}
 	| LBRACE Literal_Array_Body RBRACE {
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$2;
 		al->location = @$;
+		al->type new ASTDataType(DataType::UNTYPED, @$);
 		$$ = al;}
 	;
 
