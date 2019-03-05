@@ -12,9 +12,9 @@ using namespace ZScript;
 /////////////////////////////////////////////////////////////////////////////////
 // BuildOpcodes
 
-BuildOpcodes::BuildOpcodes()
+BuildOpcodes::BuildOpcodes(Scope* curScope)
 	: returnlabelid(-1), continuelabelid(-1), breaklabelid(-1), 
-	  returnRefCount(0), continueRefCount(0), breakRefCount(0)
+	  returnRefCount(0), continueRefCount(0), breakRefCount(0), scope(curScope)
 {
 	opcodeTargets.push_back(&result);
 }
@@ -27,7 +27,7 @@ void BuildOpcodes::visit(AST& node, void* param)
 		 it != node.compileErrorCatches.end(); ++it)
 	{
 		ASTExprConst& idNode = **it;
-		optional<long> errorId = idNode.getCompileTimeValue();
+		optional<long> errorId = idNode.getCompileTimeValue(NULL, scope);
 		assert(errorId);
 		handleError(CompileError::MissingCompileError(
 				            &node, int(*errorId / 10000L)));
@@ -628,9 +628,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 
 void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -642,9 +642,9 @@ void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 
 void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -655,9 +655,9 @@ void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
 
 void BuildOpcodes::caseExprBitNot(ASTExprBitNot& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -741,9 +741,9 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 
 void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -761,9 +761,9 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 
 void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -779,9 +779,9 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 
 void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -798,9 +798,9 @@ void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)
 
 void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -815,9 +815,9 @@ void BuildOpcodes::caseExprGE(ASTExprGE& host, void* param)
 
 void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -834,9 +834,9 @@ void BuildOpcodes::caseExprLT(ASTExprLT& host, void* param)
 
 void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -854,9 +854,9 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
     // Special case for booleans.
     bool isBoolean = (*host.left->getReadType() == DataType::BOOL);
 
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -881,9 +881,9 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
     // Special case for booleans.
     bool isBoolean = (*host.left->getReadType() == DataType::BOOL);
 
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -905,9 +905,9 @@ void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 
 void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -921,9 +921,9 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 
 void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -938,9 +938,9 @@ void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 
 void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -954,9 +954,9 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 
 void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -971,9 +971,9 @@ void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 
 void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -988,9 +988,9 @@ void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 
 void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -1004,9 +1004,9 @@ void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 
 void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -1020,9 +1020,9 @@ void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 
 void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -1036,9 +1036,9 @@ void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 
 void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -1053,9 +1053,9 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 
 void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
 {
-    if (host.getCompileTimeValue())
+    if (host.getCompileTimeValue(NULL, scope))
     {
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
 
@@ -1070,13 +1070,13 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
 
 void BuildOpcodes::caseExprTernary(ASTTernaryExpr& host, void* param)
 {
-	if (host.getCompileTimeValue())
+	if (host.getCompileTimeValue(NULL, scope))
 	{
-		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
 		return;
 	}
 
-	// Works just like an if/else, except for the "getCompileTimeValue()" above!
+	// Works just like an if/else, except for the "getCompileTimeValue(NULL, scope)" above!
 	visit(host.left.get(), param);
 	int elseif = ScriptParser::getUniqueLabelID();
 	int endif = ScriptParser::getUniqueLabelID();
@@ -1097,8 +1097,8 @@ void BuildOpcodes::caseExprTernary(ASTTernaryExpr& host, void* param)
 
 void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
 {
-    if (host.getCompileTimeValue())
-        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+    if (host.getCompileTimeValue(NULL, scope))
+        addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
     else
     {
         pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue());
@@ -1113,7 +1113,7 @@ void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
 
 void BuildOpcodes::caseBoolLiteral(ASTBoolLiteral& host, void*)
 {
-    addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this))));
+    addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
 }
 
 void BuildOpcodes::caseStringLiteral(ASTStringLiteral& host, void* param)
@@ -1271,7 +1271,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	int size = -1;
 	// From this literal?
 	if (host.size)
-		if (optional<long> s = host.size->getCompileTimeValue(this))
+		if (optional<long> s = host.size->getCompileTimeValue(this, scope))
 			size = *s / 10000L;
 	// From the declaration?
 	if (size == -1 && declaration.extraArrays.size() == 1)
@@ -1365,7 +1365,7 @@ void BuildOpcodes::arrayLiteralFree(
 	// If there's an explicit size, grab it.
 	if (host.size)
 	{
-		if (optional<long> s = host.size->getCompileTimeValue(this))
+		if (optional<long> s = host.size->getCompileTimeValue(this, scope))
 			size = *s / 10000L;
 		else
 		{
@@ -1530,7 +1530,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     //but first save the value of EXP1
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
-    BuildOpcodes oc;
+    BuildOpcodes oc(NULL);
     oc.visit(host.left.get(), param);
 	addOpcodes(oc.getResult());
     
@@ -1544,7 +1544,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
     //and push the index, if indexed
     if(isIndexed)
     {
-        BuildOpcodes oc2;
+        BuildOpcodes oc2(NULL);
         oc2.visit(host.index.get(), param);
 		addOpcodes(oc2.getResult());
         addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -1575,7 +1575,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
 	// Get and push the array pointer.
-	BuildOpcodes buildOpcodes1;
+	BuildOpcodes buildOpcodes1(NULL);
 	buildOpcodes1.visit(host.array.get(), param);
 	opcodes = buildOpcodes1.getResult();
 	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)
@@ -1583,7 +1583,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
 	// Get the index.
-	BuildOpcodes buildOpcodes2;
+	BuildOpcodes buildOpcodes2(NULL);
 	buildOpcodes2.visit(host.index.get(), param);
 	opcodes = buildOpcodes2.getResult();
 	for (vector<Opcode*>::iterator it = opcodes.begin(); it != opcodes.end(); ++it)

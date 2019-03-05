@@ -103,7 +103,7 @@ void SemanticAnalyzer::caseSetOption(ASTSetOption& host, void*)
 	// If the option name is "all", set the default option instead.
 	if (host.name == "all")
 	{
-		CompileOptionSetting setting = host.getSetting(this);
+		CompileOptionSetting setting = host.getSetting(this, scope);
 		if (!setting) return; // error
 		scope->setDefaultOption(setting);
 		return;
@@ -117,7 +117,7 @@ void SemanticAnalyzer::caseSetOption(ASTSetOption& host, void*)
 	}
 
 	// Set the option to the provided value.
-	CompileOptionSetting setting = host.getSetting(this);
+	CompileOptionSetting setting = host.getSetting(this, scope);
 	if (!setting) return; // error
 	scope->setOption(host.option, setting);
 }
@@ -309,7 +309,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		}
 
 		// Inline the constant if possible.
-		isConstant = host.getInitializer()->getCompileTimeValue(this);
+		isConstant = host.getInitializer()->getCompileTimeValue(this, scope);
 	}
 
 	if (isConstant)
@@ -320,7 +320,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 			return;
 		}
 		
-		long value = *host.getInitializer()->getCompileTimeValue(this);
+		long value = *host.getInitializer()->getCompileTimeValue(this, scope);
 		Constant::create(*scope, host, type, value, this);
 	}
 	
@@ -368,7 +368,7 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 		}
 
 		// Make sure that the size is constant.
-		if (!size.getCompileTimeValue(this))
+		if (!size.getCompileTimeValue(this, scope))
 		{
 			handleError(CompileError::ExprNotConstant(&host));
 			return;
@@ -468,7 +468,7 @@ void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)
 	RecursiveVisitor::caseExprConst(host);
 	if (breakRecursion(host)) return;
 
-	if (!host.getCompileTimeValue())
+	if (!host.getCompileTimeValue(this, scope))
 	{
 		handleError(CompileError::ExprNotConstant(&host));
 		return;
@@ -757,7 +757,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	}
 
 	// Is this a call to a disabled tracing function?
-	if (!*lookupOption(*scope, CompileOption::OPT_trace)
+	if (!*lookupOption(*scope, CompileOption::OPT_LOGGING)
 	    && bestFunctions.front()->isTracing())
 	{
 		host.disable();
