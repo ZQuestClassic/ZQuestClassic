@@ -2,6 +2,9 @@
 
 //Alpha 13
 
+Fixed crashes and other issues when saving screenshots. 
+	( ZoriaRPG, 5th March, 2019 )
+
 The Export ZScript dialogue now saved with a .zs extension by default. 
 
 	Parser Fixes and Improvements ( Venrob, and ZoriaRPG, cumulative through to 5th March, 2019 )
@@ -155,8 +158,11 @@ Merge pull request #281 from venrob/2.55-putweaponFix
 	( Venrob, 1st March, 2019 )
 Update: Compile error format
 Docs: Add comments to `putweapon`
-Fix: `putweapon` dummy weapons crashing by attempting to run weapon scripts. -Z
+
+Fixed the lens hints for some items crashign ZC. This was caused by the hint graphic trying to run a script: 
+	This fixes `putweapon` dummy weapons crashing by attempting to run weapon scripts. -Z
 	( 28th February, 2019 )
+	
 Fix: More Bombs / More Arrows rooms and Wealth Medals
 Fixed: Wealth Medals which use percentage zero out cost (integer division != double division) (guys.cpp)
 Fixed: No code was ever in place to give the discount? (link.cpp)
