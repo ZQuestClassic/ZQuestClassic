@@ -1,7 +1,16 @@
 ChangeLog for 2.53.0 
 
-//Gamma 4
+//Gamma 5
+THe Export ZScript now uses the .zs extension by default (no ZLIB conflicts).
+ZCL version is now 2.6.12:
+	Fixed default pane of the ZQuest tab in ZCL.
+	Removed duplicate 'Misaligns' option box in ZCL.
+Cleaned all intermediates, all project files, and all CMake files.
+	Built clean.
+Changed l_down sprites on 8-way enemy shots to face down.
+	( ZoriaRPG, 5th March, 2019 )
 
+//Gamma 4
 Classic.zh: Fix BossExplode ffc to work with all segmented bosses. 
 
 Resize fields for text entry to fit five chars. 
