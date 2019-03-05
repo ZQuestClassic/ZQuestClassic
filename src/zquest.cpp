@@ -20068,7 +20068,7 @@ int onCompileScript()
         case 6:
             //Export
         {
-            if(!getname("Save ZScript (.z)", "z", NULL,datapath,false))
+            if(!getname("Save ZScript (.zs)", "zs", NULL,datapath,false))
                 break;
                 
             if(exists(temppath))

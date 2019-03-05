@@ -6,13 +6,89 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 12
-Document Revision: 25-12-2018
+Document for: 2.55, Alpha 13
+Document Revision: 5th March, 2019
 
 
 ////////////////////////////////////////////////////
 /// ZSCRIPT PARSER AND LEXER ///////////////////////
 ////////////////////////////////////////////////////
+
+//////////////
+// Bugfixes //
+//////////////
+
+	//Alpha 13
+	
+	Fixed a bug where division of a constant would result in truncation that did not occur in 2.50.x
+	Fixed issues with division by an integer, where values would be truncated.
+	Added #option TRUNCATE_DIVISION_BY_LITERAL_BUG as a compiler flag to enable the old, 2.50.x behaviour
+	Fixed scope resolution for identifiers and variables when used across
+		imported files.
+		Example:
+
+			//buffer
+
+			import "bar.zs"
+			void foo()
+			{
+				scrid.bar();
+			}
+			////////////////////end of buffer
+			
+			//bar.zs
+			
+			ffc script scrid
+			{
+				void run(){}
+				voud bar(){ Trace(1); }
+			}
+		
+		This worked in 2.50.x, but broke at some point in 2.55, and the
+		correct behaviour has been restored. 
+			
+		Scoped identifiers must be read-in, in linear order. Thus, this
+		would not be valid:
+			
+			//buffer
+
+			
+			void foo()
+			{
+				scrid.bar();
+			}
+			
+			import "bar.zs"
+			////////////////////end of buffer
+			
+			//bar.zs
+			
+			ffc script scrid
+			{
+				void run(){}
+				voud bar(){ Trace(1); }
+			}
+			
+		The import directive containing the token that you are resolving must be declared first,
+		or be processed first, before it can be used. 
+			
+	Script errors will now give line and column references prior to the
+		error type.
+			
+		Old:
+			Error S007: Variable X can't have type VOID.
+				@ LINE 4 COLUMNS 1-11
+			
+		New: 
+			LINE 4 @ COLUMNS 1-11 - ERROR S007: Variable X can't have type VOID.
+			
+	Fixed some issues where compiler errors improperly carried over. 
+
+	Fixed import directive pathing with backslashes:
+		Importing in zscript with a path such as scripts\scriptfile.z used to work, in prior versions. 
+		As of 2.55, it reads \ as an escape character, and parses the file path improperly. 
+		This has now been corrected, so that you may use / or \ as a valid path token, however, / is the better option.
+			
 
 //////////////////
 // Script Types //
@@ -181,6 +257,109 @@ It is now possible to permit item scripts to run for more than one frame.
 	This rule is disabled by default, and disabled for all legacy quests, for compatibility
 	reasons.
 
+
+///////////////////////////
+/// Compiler Directives ///
+///////////////////////////
+
+	There's a new compile_error directive that ignores the next compiler error/warning of the 
+	specified number, that you can use to suppress warnings or halts. 
+
+	Syntax:
+	compile_error (error_number) {error_generating_code}
+	
+
+///////////////////////////
+// Compiler Option Flags //
+///////////////////////////
+
+There are now compiler flags that you may enable, or disable, to
+emulate old bugs, or to toggle certain actions.
+
+To use these, call the #option directive, followed by the flag macro, and (on | off | inherit).
+	#option LOGGING off
+	
+	Flag types:
+		on : This enables the option.
+		off: This disables the option.
+		inherit: This causes the option to inherit from its last state (e.g., from an imported file). 
+		default: Use the default ZQuest value for this option. (t/b/a, as a config file setting).
+	
+	MACROS
+	
+	TRUNCATE_DIVISION_BY_LITERAL_BUG
+		Off by default.
+		Enable this to force scripts to comply to the 2.50.x
+			bug, where division by a literal resulted in truncation.
+	
+	LOGGING
+		On by default.
+		If set 'off', then all calls to trace() functions will be ignored. 
+		
+Options reset with each imported file (each differing file scope) to their 'default'
+value. If you wish for an option to inherit from the previous scope, such as from
+the buffer, you must explicitely call '#option MACRO inherit' in that file.
+
+Note: 	You can use any constant expression, or constant value that is non-zero to represent 'on',
+	and any constant expression, or constant value that is zero to represent 'off'.
+	The options 'inherit', and 'default' are specific, and not bound to any literal value. 
+	Thus, you cannot create macros for them, or otherwise trigger them with constant expressions.
+	
+
+///////////////////////////////////////
+// Single Character Escape Sequences //
+///////////////////////////////////////
+
+You may now use escape sequences in a SINGLECHAR type:
+	int tab = '\t';
+	
+	Valid Escape Characters
+	\a     		Alert (Beep, Bell) (added in C89)[1]
+	\b    		Backspace
+	\f     		Formfeed Page Break
+	\n     		Newline (Line Feed); see notes below
+	\r     		Carriage Return
+	\t     		Horizontal Tab
+	\v     		Vertical Tab
+	\\     		Backslash
+	\'     		Single quotation mark
+	\"     		Double quotation mark
+	\?     		Question mark (used to avoid trigraphs) 
+	\x0 to \xFF   	Normal ANSI characters, as hex value. 
+	
+
+/////////////////////////
+// Ternary Expressions //
+/////////////////////////
+
+You may now use C-style ternary expressions:
+
+	int x = Rand(6,8);
+	int y = x > 7 ? 1 : 0;
+	
+	Assigns, and operations inside ternary blocks must be in parens:
+		bool V = true;
+		int b;
+		int a = V ? ( b =  5 ) ? ( b = 4 );
+		
+		int c = V ? ( b -= 2 ) ? 0; 
+		
+		int y; int z; 
+		int x = (y += 10) ? (z = 5) : (a -= 2);
+		
+	In all of these cases, parens are mandatory. 
+	
+	Further, compound ternary expressions should be placed in parens:
+		int a = (V ? 1 : 0) ? 5 : 6
+		
+	The default, is to evaluate in a linear sequence.
+			
+	Thus, 
+		bool ? int : int ? bool : int
+	...would evaluate as: 
+		bool ? int : (int ? bool : int)
+	
+	Using parens to define your order of operations and scope, is prudent. 
 
 ////////////////////
 // Comment Blocks //
@@ -377,15 +556,6 @@ It is now possible to permit item scripts to run for more than one frame.
 	
 	--end example]
 
-///////////////////////////
-/// Compiler Directives ///
-///////////////////////////
-
-	There's a new compile_error directive that ignores the next compiler error/warning of the 
-	specified number, that you can use to suppress warnings or halts. 
-
-	Syntax:
-	compile_error (error_number) {error_generating_code}
 
 
 ///////////////////
