@@ -2,6 +2,8 @@
 
 //Alpha 13
 
+The Export ZScript dialogue now saved with a .zs extension by default. 
+
 	Parser Fixes and Improvements ( Venrob, and ZoriaRPG, cumulative through to 5th March, 2019 )
 
 	You can now declare any type globally.
