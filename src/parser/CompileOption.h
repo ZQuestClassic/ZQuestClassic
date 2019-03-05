@@ -75,6 +75,7 @@ namespace ZScript
 	
 		// Get the default option value.
 		optional<CompileOptionValue> getDefault() const;
+		void setDefault(CompileOptionValue value);
 	
 	private:
 		int id_;

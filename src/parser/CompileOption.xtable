@@ -1,7 +1,4 @@
 // Table of compile options.
-//	Name,		Default Value
-X(	TestOption1,	10000)
-X(	TestOption2,	20000)
-X(	TestOption3,	30000)
-X(	TestOption4,	40000)
-X(	trace,		10000)
+//	Name,                                        Default Value
+X(	LOGGING,                                            10000)
+X(	TRUNCATE_DIVISION_BY_LITERAL_BUG,                   00000)

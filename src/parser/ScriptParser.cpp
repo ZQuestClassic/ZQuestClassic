@@ -161,6 +161,7 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 {
 	Program& program = fdata.program;
+	Scope* scope = &program.getScope();
 	TypeStore* typeStore = &program.getTypeStore();
 	vector<Datum*>& globalVariables = fdata.globalVariables;
 
@@ -189,7 +190,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
         
 		OpcodeContext oc(typeStore);
         
-		BuildOpcodes bo;
+		BuildOpcodes bo(scope);
 		node.execute(bo, &oc);
 		if (bo.hasError()) failure = true;
 		appendElements(rval->globalsInit, oc.initCode);
@@ -213,7 +214,10 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		string scriptname;
 		Script* functionScript = function.getScript();
 		if (functionScript)
+		{
 			scriptname = functionScript->getName();
+		}
+		scope = function.internalScope;
         
 		vector<Opcode *> funccode;
         
@@ -311,7 +315,7 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 		funccode.push_back(new OSetRegister(new VarArgument(SFRAME),
 		                                    new VarArgument(SP)));
 		OpcodeContext oc(typeStore);
-		BuildOpcodes bo;
+		BuildOpcodes bo(scope);
 		node.execute(bo, &oc);
         
 		if (bo.hasError()) failure = true;

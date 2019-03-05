@@ -13,7 +13,7 @@ namespace ZScript
 	class BuildOpcodes : public RecursiveVisitor
 	{
 	public:
-		BuildOpcodes();
+		BuildOpcodes(Scope* curScope);
 
 		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
@@ -83,6 +83,7 @@ namespace ZScript
 		list<long> *getArrayRefs() {return &arrayRefs;}
 		list<long> const *getArrayRefs() const {return &arrayRefs;}
 		void castFromBool(vector<Opcode *> &result, int reg);
+
 	private:
 		void addOpcode(Opcode* code);
 
@@ -92,6 +93,9 @@ namespace ZScript
 		void deallocateArrayRef(long arrayRef);
 		void deallocateRefsUntilCount(int count);
 
+		// Current scope.
+		ZScript::Scope* scope;
+		
 		vector<Opcode *> result;
 		int returnlabelid;
 		int returnRefCount;
