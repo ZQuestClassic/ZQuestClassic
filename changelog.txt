@@ -2,6 +2,15 @@
 
 //Alpha 13
 
+Fixed issues with division in the parser, and added some compiler flags:
+	Added `isLiteral()` to `ASTExpr`, for the literal int division bug flag
+	Renamed `Trace` to `LOGGING`
+	Renamed `LiteralIntegerDivision` to `TRUNCATE_DIVISION_BY_LITERAL_BUG`
+	Added `scope` to the `BuildOpCodes` class, and everything that comes along with making that work.
+	Passed `scope` to all `getCompileTimeValue()` calls from `BuildVisitors.cpp`
+	( Venrob, 5th March, 2019 )
+	
+Update included version of ZCLaunch to 2.6.12.
 Allow all ZScript data types to be declared globally.
 Add allowing declaration of const untyped and const bool.
 	Const untyped will work if the value is a literal number.
