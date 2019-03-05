@@ -269,8 +269,12 @@ string CompileError::toString() const
 	
 	ostringstream oss;
 
+	// Output location data.
+	if (AST const* source = pimpl_->getSource())
+	    oss << "\n" << source->location.asString();
+
 	// Error or warning?
-	oss << (isStrict() ? "Error" : "Warning");
+	oss << " - " << (isStrict() ? "Error" : "Warning");
 
 	// Error Code and Id
 	oss << " " << entry.code
@@ -279,10 +283,6 @@ string CompileError::toString() const
 
 	// Message.
 	oss << pimpl_->getMessage();
-
-	// Output location data.
-	if (AST const* source = pimpl_->getSource())
-	    oss << "\n    @ " << source->location.asString();
 
 	return oss.str();
 }

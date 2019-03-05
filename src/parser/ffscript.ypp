@@ -106,6 +106,7 @@ extern YYLTYPE noloc;
 
  // Types
 %token ZVOID
+%token UNTYPED
 %token ZBOOL
 %token ZFLOAT
 %token BITMAP
@@ -264,7 +265,7 @@ DataTypeDef : TYPEDEF DataType IDENTIFIER {
 
 DataType :
 	ZVOID {$$ = new ASTDataType(DataType::ZVOID, @$);}
-//	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
+	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
 	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}
 	| ZFLOAT {$$ = new ASTDataType(DataType::FLOAT, @$);}
 	| BITMAP {$$ = new ASTDataType(DataType::BITMAP, @$);}
