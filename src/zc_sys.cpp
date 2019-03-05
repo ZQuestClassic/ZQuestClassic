@@ -3817,12 +3817,12 @@ int onGUISnapshot()
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zc_quest_screenshot%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "../../../zc_quest_screenshot%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-        sprintf(buf, "zc_quest_screenshot%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "zc_quest_screenshot%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     BITMAP *b = create_bitmap_ex(8,resx,resy);
     
@@ -3847,9 +3847,9 @@ int onNonGUISnapshot()
     
     do
     {
-        sprintf(buf, "zc_quest_screenshot%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "zc_quest_screenshot%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     BITMAP *panorama = create_bitmap_ex(8,256,168);
     
@@ -3882,7 +3882,6 @@ int onSnapshot()
     return D_O_K;
 }
 
-
 int onSaveMapPic()
 {
     int mapres2 = 0;
@@ -3911,12 +3910,12 @@ int onSaveMapPic()
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zc_quest_screenshot%03d.png", ++num);
+        sprintf(buf, "../../../zc_quest_screenshot%05d.png", ++num);
 #else
-        sprintf(buf, "zc_quest_screenshot%03d.png", ++num);
+        sprintf(buf, "zc_quest_screenshot%05d.png", ++num);
 #endif
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     BITMAP* mappic = NULL;
     
@@ -4017,11 +4016,13 @@ int onSaveMapPic()
 int onSaveMapPic()
 {
     BITMAP* mappic = NULL;
+    BITMAP* _screen_draw_buffer = NULL;
+    _screen_draw_buffer = create_bitmap_ex(8,256,224);
     int mapres2 = 0;
     char buf[20];
     int num=0;
-    set_clip_state(temp_buf,1);
-    set_clip_rect(temp_buf,0,0,temp_buf->w, temp_buf->h);
+    set_clip_state(_screen_draw_buffer,1);
+    set_clip_rect(_screen_draw_buffer,0,0,_screen_draw_buffer->w, _screen_draw_buffer->h);
     
     do
     {
@@ -4058,18 +4059,18 @@ int onSaveMapPic()
             
             if(!displayOnMap(x, y))
             {
-                rectfill(temp_buf, 0, 0, 255, 223, WHITE);
+                rectfill(_screen_draw_buffer, 0, 0, 255, 223, WHITE);
             }
             else
             {
-                loadscr(1,currdmap,s,-1,false);
-                putscr(temp_buf, 0, 0, tmpscr+1);
+                loadscr(TEMPSCR_FUNCTION_SWAP_SPACE,currdmap,s,-1,false);
+                putscr(_screen_draw_buffer, 0, 0, tmpscr+1);
                 
                 for(int k=0; k<4; k++)
                 {
                     if(k==2)
                     {
-                        putscrdoors(temp_buf, 0, 0, tmpscr+1);
+                        putscrdoors(_screen_draw_buffer, 0, 0, tmpscr+1);
                     }
                     
                     layermap=TheMaps[currmap*MAPSCRS+s].layermap[k]-1;
@@ -4082,14 +4083,14 @@ int onSaveMapPic()
                         {
                             for(int i=0; i<176; i++)
                             {
-                                overcombo(temp_buf,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
+                                overcombo(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
                             }
                         }
                         else
                         {
                             for(int i=0; i<176; i++)
                             {
-                                overcombotranslucent(temp_buf,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
+                                overcombotranslucent(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
                             }
                         }
                     }
@@ -4100,7 +4101,7 @@ int onSaveMapPic()
 //          if (COMBOTYPE((i&15)<<4,i&0xF0)==cOLD_OVERHEAD)
                     if(combo_class_buf[COMBOTYPE((i&15)<<4,i&0xF0)].overhead)
                     {
-                        overcombo(temp_buf,((i&15)<<4)+x2,(i&0xF0),MAPCOMBO((i&15)<<4,i&0xF0),MAPCSET((i&15)<<4,i&0xF0));
+                        overcombo(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),MAPCOMBO((i&15)<<4,i&0xF0),MAPCSET((i&15)<<4,i&0xF0));
                     }
                 }
                 
@@ -4116,21 +4117,21 @@ int onSaveMapPic()
                         {
                             for(int i=0; i<176; i++)
                             {
-                                overcombo(temp_buf,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
+                                overcombo(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
                             }
                         }
                         else
                         {
                             for(int i=0; i<176; i++)
                             {
-                                overcombotranslucent(temp_buf,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
+                                overcombotranslucent(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
                             }
                         }
                     }
                 }
             }
             
-            stretch_blit(temp_buf, mappic, 0, 0, 256, 176,
+            stretch_blit(_screen_draw_buffer, mappic, 0, 0, 256, 176,
                          x<<(8-mapres2), (y*176)>>mapres2, 256>>mapres2, 176>>mapres2);
         }
         
@@ -4138,6 +4139,7 @@ int onSaveMapPic()
     
     save_bitmap(buf,mappic,RAMpal);
     destroy_bitmap(mappic);
+    destroy_bitmap(_screen_draw_buffer);
     return D_O_K;
 }
 */
