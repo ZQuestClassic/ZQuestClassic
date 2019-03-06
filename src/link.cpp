@@ -5205,8 +5205,14 @@ bool LinkClass::startwpn(int itemid)
         {
             weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitBomb)));
             
-            while(Lwpns.idCount(wLitBomb) && ew->misc == 0)
+             while(Lwpns.idCount(wLitBomb) && ew->misc == 0)
             {
+		//If this ever needs a version check, in the future. -z
+		if ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 31 ) )
+		{
+			if ( ew->power > 1 ) //Don't reduce 1 to 0. -Z
+				ew->power *= 0.5; //Remote bombs were dealing double damage. -Z
+		}
                 ew->misc=50;
                 ew->clk=ew->misc-3;
                 ew->id=wBomb;
