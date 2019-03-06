@@ -2896,19 +2896,19 @@ int load_the_pic(BITMAP **dst, PALETTE dstpal)
 
 int mapMaker(BITMAP * _map, PALETTE _mappal)
 {
-    char buf[50];
+    char buf[200];
     int num=0;
     
     do
     {
 #ifdef ALLEGRO_MACOSX
-        snprintf(buf, 50, "../../../zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        snprintf(buf, 200, "../../../zquest_map%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-        snprintf(buf, 50, "zelda%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        snprintf(buf, 200, "zquest_map%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
-        buf[49]='\0';
+        buf[199]='\0';
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     save_bitmap(buf,_map,_mappal);
     
