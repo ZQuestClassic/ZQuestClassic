@@ -76,5 +76,6 @@ X(	UnresolvedScriptType,		T,	A,	E,	STR,	VOID,	"Script Type %s has not been decla
 X(	RedefScriptType,		T,	A,	E,	STR,	STR,	"Script Type %s has already been defined as %s."    	     				)
 X(	ArrayInvalidSize,		T,	A,	E,	VOID,	VOID,	"An array's size must be between 1 and 214748"	    	      		    			)
 X(	ArrayDecimal,		T,	A,	W,	VOID,	VOID,	"Array sizes containing decimals will be truncated"	    	      		    			)
+X(	ConstNotConstant,			S,	A,	E,	STR,	VOID,	"Constant %s is global or script scope, and the value is not constant at compile-time."				)
 
 #undef STR
