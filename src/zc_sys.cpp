@@ -3586,9 +3586,9 @@ int onGUISnapshot()
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zc_quest_screenshot%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "../../../zc_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-        sprintf(buf, "zc_quest_screenshot%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "zc_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
     }
     while(num<99999 && exists(buf));
@@ -3616,7 +3616,7 @@ int onNonGUISnapshot()
     
     do
     {
-        sprintf(buf, "zc_quest_screenshot%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "zc_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
     }
     while(num<99999 && exists(buf));
     
@@ -3679,9 +3679,9 @@ int onSaveMapPic()
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zc_quest_screenshot%05d.png", ++num);
+        sprintf(buf, "../../../zc_screen%05d.png", ++num);
 #else
-        sprintf(buf, "zc_quest_screenshot%05d.png", ++num);
+        sprintf(buf, "zc_screen%05d.png", ++num);
 #endif
     }
     while(num<99999 && exists(buf));
