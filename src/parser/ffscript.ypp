@@ -264,13 +264,11 @@ DataTypeDef : TYPEDEF DataType IDENTIFIER {
 	;
 
 DataType :
+	//Standard types
 	ZVOID {$$ = new ASTDataType(DataType::ZVOID, @$);}
 	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
 	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}
 	| ZFLOAT {$$ = new ASTDataType(DataType::FLOAT, @$);}
-	| ZCONST UNTYPED {$$ = new ASTDataType(DataType::CUNTYPED, @$);}
-	| ZCONST ZBOOL {$$ = new ASTDataType(DataType::CBOOL, @$); }
-	| ZCONST ZFLOAT {$$ = new ASTDataType(DataType::CFLOAT, @$); }
 	| BITMAP {$$ = new ASTDataType(DataType::BITMAP, @$);}
 	| CHEAT {$$ = new ASTDataType(DataType::CHEATS, @$);}
 	| COMBO {$$ = new ASTDataType(DataType::COMBOS, @$);}
@@ -296,6 +294,36 @@ DataType :
 	| SPRITE {$$ = new ASTDataType(DataType::SPRITEDATA, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
+	//Constant Types
+	| ZCONST UNTYPED {$$ = new ASTDataType(DataType::CUNTYPED, @$);}
+	| ZCONST ZBOOL {$$ = new ASTDataType(DataType::CBOOL, @$); }
+	| ZCONST ZFLOAT {$$ = new ASTDataType(DataType::CFLOAT, @$); }
+	| ZCONST BITMAP {$$ = new ASTDataType(DataType::CBITMAP, @$);}
+	| ZCONST CHEAT {$$ = new ASTDataType(DataType::CCHEATS, @$);}
+	| ZCONST COMBO {$$ = new ASTDataType(DataType::CCOMBOS, @$);}
+	| ZCONST DOORSET {$$ = new ASTDataType(DataType::CDOORSET, @$);}
+	| ZCONST DROPSET {$$ = new ASTDataType(DataType::CDROPSET, @$);}
+	| ZCONST DMAP {$$ = new ASTDataType(DataType::CDMAPDATA, @$);}
+	| ZCONST EWEAPON	{$$ = new ASTDataType(DataType::CEWPN, @$);}
+	| ZCONST FFC {$$ = new ASTDataType(DataType::CFFC, @$);}
+	| ZCONST GAMEDATA	{$$ = new ASTDataType(DataType::CGAMEDATA, @$);}
+	| ZCONST ITEM {$$ = new ASTDataType(DataType::CITEM, @$);}
+	| ZCONST ITEMCLASS {$$ = new ASTDataType(DataType::CITEMCLASS, @$);}
+	| ZCONST LWEAPON {$$ = new ASTDataType(DataType::CLWPN, @$);}
+	| ZCONST MAP {$$ = new ASTDataType(DataType::CMAPDATA, @$);}
+	| ZCONST MESSAGE {$$ = new ASTDataType(DataType::CZMESSAGE, @$);}
+	| ZCONST MISCCOLOR {$$ = new ASTDataType(DataType::CZUICOLOURS, @$);}
+	| ZCONST NPC {$$ = new ASTDataType(DataType::CNPC, @$);}
+	| ZCONST NPCDATA {$$ = new ASTDataType(DataType::CNPCDATA, @$);}
+	| ZCONST PALCYCLE {$$ = new ASTDataType(DataType::CPALCYCLE, @$);}
+	| ZCONST PALETTE {$$ = new ASTDataType(DataType::CPALETTE, @$);}
+	| ZCONST POND {$$ = new ASTDataType(DataType::CPONDS, @$);}
+	| ZCONST RGB {$$ = new ASTDataType(DataType::CRGBDATA, @$);}
+	| ZCONST SHOP {$$ = new ASTDataType(DataType::CSHOPDATA, @$);}
+	| ZCONST SPRITE {$$ = new ASTDataType(DataType::CSPRITEDATA, @$);}
+	| ZCONST TUNE {$$ = new ASTDataType(DataType::CTUNES, @$);}
+	| ZCONST WARPRING	{$$ = new ASTDataType(DataType::CWARPRING, @$);}
+	//Typedef types
 	| IDENTIFIER {
 			ASTString *name = (ASTString*)$1;
 			$$ = new ASTDataType(DataTypeUnresolved(name->getValue()), @$);
