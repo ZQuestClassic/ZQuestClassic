@@ -2,6 +2,7 @@ ChangeLog for 2.53.0
 
 //Gamma 5
 
+Updated all default active subscreens in qst.dat, with the new items. 
 Added the following item scripts to Classic.zh, and items
 	to the default quest in qst.dat:
 	
