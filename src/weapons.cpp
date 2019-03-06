@@ -1609,13 +1609,16 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(dir)
         {
         case down:
+	case l_down:
+	case r_down:
             flip=2;
             
+	case l_up:
+	case r_up:
         case up:
             break;
             
         case left:
-	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -1651,13 +1654,16 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(dir)
         {
         case down:
+	case l_down:
+	case r_down:
             flip=2;
             
         case up:
+	case r_up:
+	case l_up:
             break;
             
         case left:
-	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -1777,15 +1783,18 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(dir)
         {
         case down:
+	case l_down:
+	case r_down:
             flip=2;
             
+	case r_up:
+	case l_up:
         case up:
             xofs=-4;
             hxsz=8;
             break;
             
         case left:
-	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -1826,13 +1835,16 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(dir)
         {
         case down:
+	case l_down:
+	case r_down:
             flip=2;
             
         case up:
+	case r_up:
+	case l_up:
             break;
             
         case left:
-	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -1877,13 +1889,16 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(dir)
         {
         case down:
+	case l_down:
+	case r_down:
             flip=2;
             
         case up:
+	case r_up:
+	case l_up:
             break;
             
         case left:
-	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
