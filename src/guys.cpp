@@ -9920,7 +9920,7 @@ bool eMoldorm::animate(int index)
             if(flags&guy_neverret)
                 never_return(index);
                 
-            if(!dmisc2)
+            if(!dmisc2 || ( FFCore.getQuestHeaderInfo(vZelda) >= 0x210 && FFCore.emulation[emuITEMPERSEG]) )
                 leave_item();
                 
             stop_bgsfx(index);
@@ -10171,7 +10171,7 @@ bool eLanmola::animate(int index)
     {
         if(--clk2 == 0)
         {
-            if(!dmisc3)
+	    if(!dmisc3 || ( FFCore.getQuestHeaderInfo(vZelda) >= 0x210 && FFCore.emulation[emuITEMPERSEG]) )
                 leave_item();
                 
             stop_bgsfx(index);
@@ -10419,7 +10419,10 @@ bool eManhandla::animate(int index)
                 guys.swap(index+j+1,index+j+2);
                 
             }
-            
+            if( ( FFCore.getQuestHeaderInfo(vZelda) <= 0x210 && FFCore.emulation[emuITEMPERSEG] ) ) //They only did this in 2.10
+	    {
+                leave_item();
+	    }
             --armcnt;
         }
     }
