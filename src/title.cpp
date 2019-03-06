@@ -682,6 +682,7 @@ static void treasures(int f)
 
 static void NES_titlescreen()
 {
+    memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
     FFCore.skip_ending_credits = 0;
     for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
@@ -753,6 +754,7 @@ static void NES_titlescreen()
 
 static void DX_mainscreen(int f)
 {
+    memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
     FFCore.skip_ending_credits = 0;
     for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
@@ -864,6 +866,7 @@ static void DX_mainscreen(int f)
 static void DX_titlescreen()
 {
     //  JGMOD *yea;
+    memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
     FFCore.skip_ending_credits = 0;
 	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
@@ -927,6 +930,7 @@ static void DX_titlescreen()
 
 static void v25_mainscreen(int f)
 {
+    memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
     FFCore.skip_ending_credits = 0;
 	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
@@ -1037,6 +1041,7 @@ static void v25_mainscreen(int f)
 
 static void v25_titlescreen()
 {
+    memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
     FFCore.skip_ending_credits = 0;
 	for ( int q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
@@ -1106,6 +1111,7 @@ extern char *SAVE_FILE;
 
 int readsaves(gamedata *savedata, PACKFILE *f)
 {
+    memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
     FFCore.skip_ending_credits = 0;
     //word item_count;
@@ -1725,6 +1731,7 @@ void set_up_standalone_save()
 // call once at startup
 int load_savedgames()
 {
+    memset(FFCore.emulation,0,sizeof(FFCore.emulation));
     FFCore.kb_typing_mode = false;
     FFCore.skip_ending_credits = 0;
     char *fname = SAVE_FILE;
@@ -3709,6 +3716,7 @@ void titlescreen(int lsave)
 
 void game_over(int type)
 {
+
     FFCore.kb_typing_mode = false; 
     FFCore.skip_ending_credits = 0;
     kill_sfx();
@@ -3823,10 +3831,12 @@ void game_over(int type)
         {
             if(standalone_mode && !skip_title)
             {
+		memset(FFCore.emulation,0,sizeof(FFCore.emulation));
                 Quit=qRESET;
             }
             else
             {
+		memset(FFCore.emulation,0,sizeof(FFCore.emulation));
                 Quit=qQUIT;
             }
         }
