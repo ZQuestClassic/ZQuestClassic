@@ -7,6 +7,12 @@ import "tango.zh"
 
 const int I_HALFMAGIC 					= 144;
 const int I_LEARNSLASH 					= 143;
+
+const int I_MAGICBOSSKEY 				= 146;
+const int I_MAGICMAP 					= 147;
+const int I_MAGICCOMPASS 				= 148;
+
+
 const int NPC_DAIRA1 					= 177;
 const int NPC_DAIRA2 					= 178;
 
@@ -637,3 +643,39 @@ ffc script DropHEARTCONTAINER
 	}	
 }
 
+
+//Collect script for Magic Boss Key--works in a levels
+item script MagicBossKey
+{
+	void run()
+	{
+		for ( int q = 0; q < 512; ++q )
+		{
+			Game->LItems[q] |= LI_BOSSKEY;
+		}
+	}
+}
+
+//Collect script for Magic Map--works in a levels
+item script MagicMap
+{
+	void run()
+	{
+		for ( int q = 0; q < 512; ++q )
+		{
+			Game->LItems[q] |= LI_MAP;
+		}
+	}
+}
+
+//Collect script for Magic Compass-works in all levels
+item script MagicCompass
+{
+	void run()
+	{
+		for ( int q = 0; q < 512; ++q )
+		{
+			Game->LItems[q] |= LI_COMPASS;
+		}
+	}
+}
