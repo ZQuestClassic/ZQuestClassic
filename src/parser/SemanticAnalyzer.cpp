@@ -705,11 +705,9 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 		int castCount = 0;
 		for (int i = 0; i < parameterTypes.size(); ++i)
 		{
-			DataType const& from = getBaseType(*parameterTypes[i]);
-			DataType const& to = getBaseType(*function.paramTypes[i]);
+			DataType const& from = getNaiveType(*parameterTypes[i]);
+			DataType const& to = getNaiveType(*function.paramTypes[i]);
 			if (from == to) continue;
-			if(from.isConstant() && getNaiveType(from) == to) continue;
-			if(to.isConstant() && getNaiveType(to) == from) continue;
 			++castCount;
 		}
 
