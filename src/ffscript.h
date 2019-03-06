@@ -203,6 +203,8 @@ void do_warp_ex(const bool v);
 long quest_format[versiontypesLAST];
 byte skip_ending_credits; //checked in ending.cpp. If > 0, then we skip the game credits, but not Link's Win script. -Z
 
+long emulation[emuLAST];
+
 long coreflags;
 long script_UIDs[UID_TYPES];
 long usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
