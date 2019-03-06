@@ -11601,12 +11601,16 @@ int d_ilist_proc(int msg,DIALOG *d,int c)
             blit(bigbmp,screen,0,0,x+2,y+2,w,h);
             destroy_bitmap(bigbmp);
         }
+        //Item editor power display in Select Item dialogue. 
         if(bii[d->d1].i>=0)
         {
             textprintf_ex(screen,spfont,x,y+20*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d  ",bii[d->d1].i);
             
             textprintf_ex(screen,spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pow:    ");
-            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
+		char itempower[10]; 
+		sprintf(itempower, "%03d", itemsbuf[bii[d->d1].i].power); //Give leading zeros so that we don't have graphical corruption in the display. 
+            //textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
+            textprintf_ex(screen,spfont,x+int(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
         }
         
         // Might be a bit confusing for new users
@@ -17002,7 +17006,7 @@ int onHeader()
     strcpy(minver,header.minver);
     strcpy(author,header.author);
     strcpy(title,header.title);
-    
+    //header_dlg[17].flags |= D_GOTFOCUS
     header_dlg[0].dp2 = lfont;
     header_dlg[3].dp = zver_str;
     header_dlg[5].dp = q_num;
@@ -17021,11 +17025,62 @@ int onHeader()
         large_dialog(password_dlg);
     }
     
-    int ret;
+    int ret = -1;
     
     do
     {
-        ret=zc_popup_dialog(header_dlg,-1);
+        ret=zc_popup_dialog(header_dlg,17);
+	    
+	if ( key[KEY_ENTER] )
+	{
+		for ( int q = 0; q < 22; q++ )
+		{
+			if ( header_dlg[q].flags&D_GOTFOCUS )
+			{
+				key[KEY_ENTER] = 0; 
+				//Always save if the proc type is a text edit field. 
+				if ( header_dlg[q].proc == jwin_edit_proc || header_dlg[q].proc == d_showedit_proc ) 
+				{
+					ret = 17; //always SAVE on Enter key from A TEXT PROC
+					break;
+				}
+				else if ( header_dlg[q].proc == jwin_textbox_proc ) break; //allow CR in these boxes. 
+				else ret = q;
+				break;
+			}
+		}
+		//if ( ret == -1 )
+		//{
+		//	key[KEY_ENTER] = 0; 
+		//	ret = 17;
+		//}
+	}
+	if ( key[KEY_ENTER_PAD] )
+	{
+		//if ( ret == -1 )
+		//{
+		//	key[KEY_ENTER_PAD] = 0; 
+		//	ret = 17;
+		//}
+		for ( int q = 0; q < 22; q++ )
+		{
+			if ( header_dlg[q].flags&D_GOTFOCUS )
+			{
+				key[KEY_ENTER_PAD] = 0; 
+				//Always save if the proc type is a text edit field. 
+				if ( header_dlg[q].proc == jwin_edit_proc || header_dlg[q].proc == d_showedit_proc ) 
+				{
+					ret = 17; //always SAVE on Enter key from A TEXT PROC
+					break;
+				}
+				else if ( header_dlg[q].proc == jwin_textbox_proc ) break; //allow CR in these boxes. 
+				else ret = q;
+				break;
+			}
+		}
+	}
+		
+	//if (ReadKey(KEY_ENTER)||ReadKey(KEY_ENTER_PAD) && ret == -1) ret = 17; 
         
         if(ret==20)
             questrev_help();
