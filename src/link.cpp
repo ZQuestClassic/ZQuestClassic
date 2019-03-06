@@ -14212,6 +14212,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
     activated_timed_warp=false;
     loadside = scrolldir^1;
     eventlog_mapflags();
+    decorations.animate(); //continue to animate tall grass during scrolling
 }
 
 // How much to reduce Link's damage, taking into account various rings.
