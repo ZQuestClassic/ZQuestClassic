@@ -7405,7 +7405,12 @@ offscreenCheck:
 			(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
 		    Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
-		    sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
+		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
+		    {
+			sfx(WAV_FIRE,pan(x));
+		    }
+			
+		    else sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
 		}
 	}
 	else
@@ -7414,7 +7419,11 @@ offscreenCheck:
 			(itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
 		    Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,miscellaneous[31],-1));
-		    sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
+		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
+		    {
+			sfx(WAV_FIRE,pan(x));
+		    }
+		    else sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
 		}
         }
         break;
