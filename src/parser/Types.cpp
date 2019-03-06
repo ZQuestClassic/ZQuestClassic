@@ -288,7 +288,7 @@ DataType const& ZScript::getNaiveType(DataType const& type)
 	DataType const* t = &type;
 	while (t->isArray()) //Avoid dynamic_cast<>
 	{
-		DataTypeArray const* ta = static_cast<DataTypeArray const*>(t))
+		DataTypeArray const* ta = static_cast<DataTypeArray const*>(t);
 		t = &ta->getElementType();
 	}
 	
