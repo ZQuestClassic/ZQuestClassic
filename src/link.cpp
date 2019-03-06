@@ -2110,7 +2110,7 @@ void LinkClass::checkstab()
 				
 				if(attackclk==12 && z==0 && sideviewhammerpound())
 				{
-			decorations.add(new dHammerSmack((fix)wx, (fix)wy, dHAMMERSMACK, 0));
+			//decorations.add(new dHammerSmack((fix)wx, (fix)wy, dHAMMERSMACK, 0));
 					/* The hammer smack sprites weren't being positioned properly if Link changed directions on the same frame that they are created.
 			switch(dir)
 					{
@@ -4971,7 +4971,33 @@ bool LinkClass::animate(int)
     
     check_conveyor();
     PhantomsCleanup();
-    
+    //Try to time the hammer pound so that Link can;t change direction while it occurs. 
+    if(attack==wHammer)
+    {
+        if(attackclk==12 && z==0 && sideviewhammerpound())
+	{
+		switch(dir) //Link's dir
+		{
+			case up:
+			    decorations.add(new dHammerSmack(x-1, y-4, dHAMMERSMACK, 0));
+			    break;
+			    
+			case down:
+			    decorations.add(new dHammerSmack(x+8, y+28, dHAMMERSMACK, 0));
+			    break;
+			    
+			case left:
+			    decorations.add(new dHammerSmack(x-13, y+14, dHAMMERSMACK, 0));
+			    break;
+			    
+			case right:
+			    decorations.add(new dHammerSmack(x+21, y+14, dHAMMERSMACK, 0));
+			    break;
+		}
+            
+	}
+	
+    }
     return false;
 }
 
