@@ -1,0 +1,46 @@
+1>------ Build started: Project: zelda, Configuration: Release Win32 ------
+1>Compiling...
+1>link.cpp
+1>.\src\link.cpp(842) : warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+1>.\src\link.cpp(843) : warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+1>.\src\link.cpp(10828) : warning C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
+1>.\src\link.cpp(11351) : warning C4800: 'byte' : forcing value to bool 'true' or 'false' (performance warning)
+1>.\src\link.cpp(11358) : warning C4800: 'byte' : forcing value to bool 'true' or 'false' (performance warning)
+1>.\src\link.cpp(11594) : warning C4800: 'byte' : forcing value to bool 'true' or 'false' (performance warning)
+1>.\src\link.cpp(11601) : warning C4800: 'byte' : forcing value to bool 'true' or 'false' (performance warning)
+1>.\src\link.cpp(11819) : warning C4800: 'byte' : forcing value to bool 'true' or 'false' (performance warning)
+1>.\src\link.cpp(11823) : warning C4800: 'byte' : forcing value to bool 'true' or 'false' (performance warning)
+1>Linking...
+1>al_gif.lib(algif.obj) : MSIL .netmodule or module compiled with /GL found; restarting link with /LTCG; add /LTCG to the link command line to improve linker performance
+1>Generating code
+1>Finished generating code
+1>al_gif.lib(gif.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\al_gif.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngrutil.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngwutil.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngread.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngset.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngwio.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libjpgal.lib(io.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libjpgal.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libjpgal.lib(jpgalleg.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libjpgal.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>loadpng.lib(regpng.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\loadpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>al_gif.lib(algif.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\al_gif.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngmem.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngrio.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngrtran.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngerror.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngwrite.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libjpgal.lib(encode.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libjpgal.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>loadpng.lib(loadpng.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\loadpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>al_gif.lib(lzw.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\al_gif.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngwtran.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngtrans.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngget.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(png.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>libjpgal.lib(decode.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libjpgal.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>loadpng.lib(savepng.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\loadpng.lib' or at 'E:\ZC\__2.54\Release\vc80.pdb'; linking object as if no debug info
+1>Embedding manifest...
+1>Build log was saved at "file://e:\ZC\__2.54\zelda.dir\Release\BuildLog.htm"
+1>zelda - 0 error(s), 33 warning(s)
+2>------ Skipped Build: Project: ALL_BUILD, Configuration: Release Win32 ------
+2>Project not selected to build for this solution configuration 
+========== Build: 1 succeeded, 0 failed, 4 up-to-date, 1 skipped ==========

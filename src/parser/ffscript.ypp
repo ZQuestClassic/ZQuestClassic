@@ -990,12 +990,13 @@ Literal_Array :
 		al->size = size;
 		$$ = al;
 	}
+	/*0-sized arrays should not be allowed!!
 	// (int[]){}
 	| LPAREN DataType LBRACKET RBRACKET RPAREN LBRACE RBRACE {
 		ASTDataType* type = (ASTDataType*)$2;
 		ASTArrayLiteral* al = new ASTArrayLiteral(@$);
 		al->type = type;
-		$$ = al;}
+		$$ = al;}*/
 	// {1, 2, 3}
 	| LBRACE Literal_Array_Body RBRACE {
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$2;

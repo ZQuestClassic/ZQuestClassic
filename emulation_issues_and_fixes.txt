@@ -1,0 +1,8 @@
+1.  Half-Tile Damage Trick:  2.10 and above
+2.  Lanmola/Manhandla segements:  1.92 (all versions) and 2.10.  1.90 they don't drop items.
+3.  Tribbles should turn into normal enemies and not tribbles:  1.90
+4.  Windrobes should be random and not in line:  1.92 (all versions) and 2.10
+5.  DMap Intro shows up all the time:  2.10 (I wouldn't bother, but this is your call)
+6.  Icons need default values so they don't show up blank or weird - Quests that originate in 1.84 and 1.90, possibly 1.92 as well
+7.  Sidewarp issue - 1.92 B 163, don't know any other quests that have this problem offhand in other versions, need to test old quests in 2.55 again
+8.  Triforce in Cellars:  2.10 and below, warps to dungeon entrance on the other map.

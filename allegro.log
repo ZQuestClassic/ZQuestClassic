@@ -1,0 +1,142 @@
+Allocating quest path buffers (4.00k/4.00k)...OK
+Allocating map buffer (448.91k/452.91k)... OK
+Allocating combo buffer (5.98k/458.88k)... OK
+Allocating string buffer (688.00k/1.12M)... OK
+Allocating door combo buffer (159.50k/1.28M)... OK
+Allocating dmap buffer (244.00k/1.51M)... OK
+Allocating combo buffer (3.98M/5.50M)... OK
+Allocating color data buffer (314.11k/5.81M)... OK
+Allocating tile buffer (27.82M/33.63M)... OK
+Allocating trash buffer (97.66k/33.72M)... OK
+Allocating item buffer (517.01k/34.23M)... OK
+Allocating weapon buffer (4.00k/34.23M)... OK
+Allocating guy buffer (842.00k/35.05M)... OK
+Allocating combo class buffer (36.70k/35.09M)... OK
+Initializing Allegro... The Current ZQuest Player is: default.zmod
+Module zelda_dat set to zelda.dat
+Module zquest_dat set to zquest.dat
+Module fonts_dat set to fonts.dat
+Module sfx_dat set to sfx.dat
+Module qst_dat set to qst.dat
+Base NSF file: zelda.nsf
+ZModule::load() was called by: ZC Player
+OK
+Checking Files... 1st.qst not found.
+
+Allocating quest path buffers (4.00k/4.00k)...OK
+Allocating map buffer (447.31k/451.31k)... OK
+Allocating combo buffer (5.98k/457.29k)... OK
+Allocating string buffer (688.00k/1.12M)... OK
+Allocating door combo buffer (159.50k/1.27M)... OK
+Allocating dmap buffer (244.00k/1.51M)... OK
+Allocating combo buffer (3.98M/5.50M)... Allocating tunes buffer (16.00k/16.00k)... OK
+Allocating map buffer (447.31k/463.31k)... OK
+Allocating combo buffer (5.98k/469.29k)... OK
+Allocating string buffer (688.00k/1.13M)... OK
+Allocating door combo buffer (159.50k/1.29M)... OK
+Allocating dmap buffer (244.00k/1.52M)... OK
+Allocating combo buffer (3.98M/5.51M)... OK
+Allocating color data buffer (314.11k/5.82M)... OK
+Allocating tile buffer (27.82M/33.64M)... OK
+Allocating tile grab buffer (1.64M/61.46M)... OK
+Allocating trash buffer (97.66k/61.55M)... OK
+Allocating item buffer (517.01k/62.06M)... OK
+Allocating weapon buffer (4.00k/62.06M)... OK
+Allocating guy buffer (842.00k/62.88M)... OK
+Allocating combo class buffer (36.70k/62.92M)... OK
+Allocating combo undo buffer (3.98M/66.90M)... OK
+Allocating new tile undo buffer (1.64M/68.54M)... OK
+Resetting new tile buffer...OK
+Allocating file path buffers (14.00k/68.55M)... OK
+Initializing Allegro... al-main INFO: Allegro initialised (instance 1)
+al-gfx INFO: Called set_gfx_mode(-1, 80, 50, 0, 0).
+al-gfx INFO: First call, remembering console state.
+al-gfx INFO: Closing, restoring original console state.
+al-gfx INFO: Graphic mode closed.
+OK
+The Current ZQuest Editor Module is: default.zmod
+Module zelda_dat set to zelda.dat
+Module zquest_dat set to zquest.dat
+Module fonts_dat set to fonts.dat
+Module sfx_dat set to sfx.dat
+Module qst_dat set to qst.dat
+Base NSF file: zelda.nsf
+Loading data files:
+Fonts.Dat...failed
+Allocating quest path buffers (4.00k/4.00k)...OK
+Allocating map buffer (447.31k/451.31k)... OK
+Allocating combo buffer (5.98k/457.29k)... OK
+Allocating string buffer (688.00k/1.12M)... OK
+Allocating door combo buffer (159.50k/1.27M)... OK
+Allocating dmap buffer (244.00k/1.51M)... OK
+Allocating combo buffer (3.98M/5.50M)... OK
+Allocating color data buffer (314.11k/5.80M)... OK
+Allocating tile buffer (27.82M/33.62M)... OK
+Allocating trash buffer (97.66k/33.72M)... OK
+Allocating item buffer (517.01k/34.22M)... OK
+Allocating weapon buffer (4.00k/34.23M)... OK
+Allocating guy buffer (842.00k/35.05M)... OK
+Allocating combo class buffer (36.70k/35.09M)... OK
+Initializing Allegro... al-main INFO: Allegro initialised (instance 1)
+The Current ZQuest Player is: default.zmod
+Module zelda_dat set to zelda.dat
+Module zquest_dat set to zquest.dat
+Module fonts_dat set to fonts.dat
+Module sfx_dat set to sfx.dat
+Module qst_dat set to qst.dat
+Base NSF file: zelda.nsf
+ZModule::load() was called by: ZC Player
+OK
+Checking Files... 1st.qst not found.
+
+Allocating quest path buffers (4.00k/4.00k)...OK
+Allocating map buffer (448.91k/452.91k)... OK
+Allocating combo buffer (5.98k/458.88k)... OK
+Allocating string buffer (688.00k/1.12M)... OK
+Allocating door combo buffer (159.50k/1.28M)... OK
+Allocating dmap buffer (244.00k/1.51M)... OK
+Allocating combo buffer (3.98M/5.50M)... OK
+Allocating color data buffer (314.11k/5.81M)... OK
+Allocating tile buffer (27.82M/33.63M)... OK
+Allocating trash buffer (97.66k/33.72M)... OK
+Allocating item buffer (517.01k/34.23M)... OK
+Allocating weapon buffer (4.00k/34.23M)... OK
+Allocating guy buffer (842.00k/35.05M)... OK
+Allocating combo class buffer (36.70k/35.09M)... OK
+Initializing Allegro... The Current ZQuest Player is: default.zmod
+Module zelda_dat set to zelda.dat
+Module zquest_dat set to zquest.dat
+Module fonts_dat set to fonts.dat
+Module sfx_dat set to sfx.dat
+Module qst_dat set to qst.dat
+Base NSF file: zelda.nsf
+ZModule::load() was called by: ZC Player
+OK
+Checking Files... 1st.qst not found.
+
+Allocating quest path buffers (4.00k/4.00k)...OK
+Allocating map buffer (447.31k/451.31k)... OK
+Allocating combo buffer (5.98k/457.29k)... OK
+Allocating string buffer (688.00k/1.12M)... OK
+Allocating door combo buffer (159.50k/1.27M)... OK
+Allocating dmap buffer (244.00k/1.51M)... OK
+Allocating combo buffer (3.98M/5.50M)... OK
+Allocating color data buffer (314.11k/5.80M)... OK
+Allocating tile buffer (27.82M/33.62M)... OK
+Allocating trash buffer (97.66k/33.72M)... OK
+Allocating item buffer (517.01k/34.22M)... OK
+Allocating weapon buffer (4.00k/34.23M)... OK
+Allocating guy buffer (842.00k/35.05M)... OK
+Allocating combo class buffer (36.70k/35.09M)... OK
+Initializing Allegro... al-main INFO: Allegro initialised (instance 1)
+The Current ZQuest Player is: default.zmod
+Module zelda_dat set to zelda.dat
+Module zquest_dat set to zquest.dat
+Module fonts_dat set to fonts.dat
+Module sfx_dat set to sfx.dat
+Module qst_dat set to qst.dat
+Base NSF file: zelda.nsf
+ZModule::load() was called by: ZC Player
+OK
+Checking Files... 1st.qst not found.
+

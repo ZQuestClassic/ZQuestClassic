@@ -1,0 +1,352 @@
+1>------ Build started: Project: zelda, Configuration: Release Win32 ------
+2>------ Build started: Project: zquest, Configuration: Release Win32 ------
+1>Linking...
+2>[BISON][ZScriptParser] Building parser with bison 3.0.4
+1>al_gif.lib(algif.obj) : MSIL .netmodule or module compiled with /GL found; restarting link with /LTCG; add /LTCG to the link command line to improve linker performance
+1>Generating code
+2>Compiling...
+2>lex.yy.cpp
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>y.tab.cpp
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>.\src\parser\y.tab.cpp(3822) : warning C4065: switch statement contains 'default' but no 'case' labels
+2>ZScript.cpp
+1>Finished generating code
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(53) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>.\src\parser\ZScript.cpp(17) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\ZScript.cpp(18) : error C2511: 'ZScript::Program::Program(ZScript::ASTFile &,CompileErrorHandler *)' : overloaded member function not found in 'ZScript::Program'
+2>        e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(28) : see declaration of 'ZScript::Program'
+2>.\src\parser\ZScript.cpp(432) : fatal error C1004: unexpected end-of-file found
+2>Types.cpp
+1>libjpgal.lib(decode.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libjpgal.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>loadpng.lib(savepng.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\loadpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>al_gif.lib(gif.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\al_gif.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngrutil.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngwutil.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngread.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngset.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngwio.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libjpgal.lib(io.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libjpgal.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libjpgal.lib(jpgalleg.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libjpgal.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>loadpng.lib(regpng.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\loadpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>al_gif.lib(algif.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\al_gif.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngmem.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngrio.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngrtran.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngerror.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngwrite.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libjpgal.lib(encode.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libjpgal.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>loadpng.lib(loadpng.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\loadpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>al_gif.lib(lzw.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\al_gif.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngwtran.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+1>libpng.lib(pngtrans.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(pngget.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+1>libpng.lib(png.obj) : warning LNK4099: PDB 'vc80.pdb' was not found with 'libs\win32\libpng.lib' or at 'E:\ZC\__2.55\ZeldaClassic\Release\vc80.pdb'; linking object as if no debug info
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(53) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>SemanticAnalyzer.cpp
+1>Embedding manifest...
+1>Build log was saved at "file://e:\ZC\__2.55\ZeldaClassic\zelda.dir\Release\BuildLog.htm"
+1>zelda - 0 error(s), 24 warning(s)
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(53) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>.\src\parser\SemanticAnalyzer.cpp(645) : warning C4018: '<' : signed/unsigned mismatch
+2>.\src\parser\SemanticAnalyzer.cpp(672) : warning C4018: '<' : signed/unsigned mismatch
+2>ScriptParser.cpp
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(53) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>Scope.cpp
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(53) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>.\src\parser\Scope.cpp(494) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\Scope.cpp(495) : error C2511: 'bool ZScript::BasicScope::add(ZScript::Datum &,CompileErrorHandler *)' : overloaded member function not found in 'ZScript::BasicScope'
+2>        e:\zc\__2.55\zeldaclassic\src\parser\Scope.h(245) : see declaration of 'ZScript::BasicScope'
+2>.\src\parser\Scope.cpp(591) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\Scope.cpp(592) : error C2511: 'bool ZScript::FileScope::add(ZScript::Datum &,CompileErrorHandler *)' : overloaded member function not found in 'ZScript::FileScope'
+2>        e:\zc\__2.55\zeldaclassic\src\parser\Scope.h(337) : see declaration of 'ZScript::FileScope'
+2>GlobalSymbols.cpp
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(53) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>DataStructs.cpp
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(53) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>CompileOption.cpp
+2>CompileError.cpp
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>ByteCode.cpp
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(53) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>BuildVisitors.cpp
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(53) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>ASTVisitors.cpp
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>AST.cpp
+2>e:\zc\__2.55\zeldaclassic\src\parser\AST.h(756) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(111) : warning C4800: 'const int' : forcing value to bool 'true' or 'false' (performance warning)
+2>e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(53) : warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+2>.\src\parser\AST.cpp(366) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(367) : error C2511: 'ZScript::CompileOptionSetting ZScript::ASTSetOption::getSetting(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTSetOption'
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(321) : see declaration of 'ZScript::ASTSetOption'
+2>.\src\parser\AST.cpp(1133) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1135) : error C2511: 'optional<Type> ZScript::ASTDataDeclExtraArray::getCompileTimeSize(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTDataDeclExtraArray'
+2>        with
+2>        [
+2>            Type=ZScript::DataTypeId
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(741) : see declaration of 'ZScript::ASTDataDeclExtraArray'
+2>.\src\parser\AST.cpp(1229) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1231) : error C2511: 'optional<Type> ZScript::ASTExprConst::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprConst'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(822) : see declaration of 'ZScript::ASTExprConst'
+2>.\src\parser\AST.cpp(1270) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1272) : error C2511: 'optional<Type> ZScript::ASTExprAssign::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprAssign'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(846) : see declaration of 'ZScript::ASTExprAssign'
+2>.\src\parser\AST.cpp(1320) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1322) : error C2511: 'optional<Type> ZScript::ASTExprIdentifier::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprIdentifier'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(873) : see declaration of 'ZScript::ASTExprIdentifier'
+2>.\src\parser\AST.cpp(1537) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1539) : error C2511: 'optional<Type> ZScript::ASTExprNegate::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprNegate'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(995) : see declaration of 'ZScript::ASTExprNegate'
+2>.\src\parser\AST.cpp(1569) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1571) : error C2511: 'optional<Type> ZScript::ASTExprNot::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprNot'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1012) : see declaration of 'ZScript::ASTExprNot'
+2>.\src\parser\AST.cpp(1601) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1603) : error C2511: 'optional<Type> ZScript::ASTExprBitNot::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprBitNot'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1029) : see declaration of 'ZScript::ASTExprBitNot'
+2>.\src\parser\AST.cpp(1776) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1778) : error C2511: 'optional<Type> ZScript::ASTExprAnd::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprAnd'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1151) : see declaration of 'ZScript::ASTExprAnd'
+2>.\src\parser\AST.cpp(1809) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1811) : error C2511: 'optional<Type> ZScript::ASTExprOr::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprOr'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1168) : see declaration of 'ZScript::ASTExprOr'
+2>.\src\parser\AST.cpp(1858) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1860) : error C2511: 'optional<Type> ZScript::ASTExprGT::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprGT'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1201) : see declaration of 'ZScript::ASTExprGT'
+2>.\src\parser\AST.cpp(1891) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1893) : error C2511: 'optional<Type> ZScript::ASTExprGE::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprGE'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1218) : see declaration of 'ZScript::ASTExprGE'
+2>.\src\parser\AST.cpp(1924) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1926) : error C2511: 'optional<Type> ZScript::ASTExprLT::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprLT'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1235) : see declaration of 'ZScript::ASTExprLT'
+2>.\src\parser\AST.cpp(1957) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1959) : error C2511: 'optional<Type> ZScript::ASTExprLE::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprLE'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1252) : see declaration of 'ZScript::ASTExprLE'
+2>.\src\parser\AST.cpp(1990) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(1992) : error C2511: 'optional<Type> ZScript::ASTExprEQ::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprEQ'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1269) : see declaration of 'ZScript::ASTExprEQ'
+2>.\src\parser\AST.cpp(2023) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(2025) : error C2511: 'optional<Type> ZScript::ASTExprNE::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprNE'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1286) : see declaration of 'ZScript::ASTExprNE'
+2>.\src\parser\AST.cpp(2072) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(2074) : error C2511: 'optional<Type> ZScript::ASTExprPlus::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprPlus'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1319) : see declaration of 'ZScript::ASTExprPlus'
+2>.\src\parser\AST.cpp(2105) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(2107) : error C2511: 'optional<Type> ZScript::ASTExprMinus::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprMinus'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1336) : see declaration of 'ZScript::ASTExprMinus'
+2>.\src\parser\AST.cpp(2154) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(2156) : error C2511: 'optional<Type> ZScript::ASTExprTimes::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprTimes'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1369) : see declaration of 'ZScript::ASTExprTimes'
+2>.\src\parser\AST.cpp(2188) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(2190) : error C2511: 'optional<Type> ZScript::ASTExprDivide::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprDivide'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1386) : see declaration of 'ZScript::ASTExprDivide'
+2>.\src\parser\AST.cpp(2228) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(2230) : error C2511: 'optional<Type> ZScript::ASTExprModulo::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprModulo'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1403) : see declaration of 'ZScript::ASTExprModulo'
+2>.\src\parser\AST.cpp(2284) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(2286) : error C2511: 'optional<Type> ZScript::ASTExprBitAnd::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprBitAnd'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1435) : see declaration of 'ZScript::ASTExprBitAnd'
+2>.\src\parser\AST.cpp(2318) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(2320) : error C2511: 'optional<Type> ZScript::ASTExprBitOr::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprBitOr'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1451) : see declaration of 'ZScript::ASTExprBitOr'
+2>.\src\parser\AST.cpp(2352) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(2354) : error C2511: 'optional<Type> ZScript::ASTExprBitXor::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprBitXor'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1467) : see declaration of 'ZScript::ASTExprBitXor'
+2>.\src\parser\AST.cpp(2402) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(2404) : error C2511: 'optional<Type> ZScript::ASTExprLShift::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprLShift'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1499) : see declaration of 'ZScript::ASTExprLShift'
+2>.\src\parser\AST.cpp(2443) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(2445) : error C2511: 'optional<Type> ZScript::ASTExprRShift::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTExprRShift'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1515) : see declaration of 'ZScript::ASTExprRShift'
+2>.\src\parser\AST.cpp(2506) : error C2872: 'CompileErrorHandler' : ambiguous symbol
+2>        could be 'e:\zc\__2.55\zeldaclassic\src\parser\ZScript.h(10) : CompileErrorHandler'
+2>        or       'e:\zc\__2.55\zeldaclassic\src\parser\CompileError.h(95) : ZScript::CompileErrorHandler'
+2>.\src\parser\AST.cpp(2508) : error C2511: 'optional<Type> ZScript::ASTNumberLiteral::getCompileTimeValue(CompileErrorHandler *) const' : overloaded member function not found in 'ZScript::ASTNumberLiteral'
+2>        with
+2>        [
+2>            Type=ZScript::CompileOptionValue
+2>        ]
+2>        e:\zc\__2.55\zeldaclassic\src\parser\AST.h(1549) : see declaration of 'ZScript::ASTNumberLiteral'
+2>zquest.cpp
+2>Generating Code...
+2>Build log was saved at "file://e:\ZC\__2.55\ZeldaClassic\zquest.dir\Release\BuildLog.htm"
+2>zquest - 61 error(s), 40 warning(s)
+3>------ Skipped Build: Project: ALL_BUILD, Configuration: Release Win32 ------
+3>Project not selected to build for this solution configuration 
+========== Build: 1 succeeded, 1 failed, 3 up-to-date, 1 skipped ==========

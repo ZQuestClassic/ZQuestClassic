@@ -1,0 +1,30 @@
+[ZCMODULE]
+current_module = default.zmod
+
+[QUESTS]
+quest_flow = 1
+first_qst = 1st.qst
+second_qst = 2nd.qst
+third_qst = 3rd.qst
+fourth_qst = 4th.qst
+fifth_qst = 5th.qst
+
+[NAMEENTRY]
+first_qst_skip = 
+second_qst_skip = ZELDA
+third_qst_skip = ALPHA
+fourth_qst_skip = GANON
+fifth_qst_skip = JEAN
+
+[DATAFILES]
+zcplayer_datafile = zelda.dat
+zquest_datafile = zquest.dat
+fonts_datafile = fonts.dat
+sounds_datafile = sfx.dat
+quest_template_datafile = qst.dat
+
+[ENEMIES]
+
+[ITEMS]
+
+[COMBOS]

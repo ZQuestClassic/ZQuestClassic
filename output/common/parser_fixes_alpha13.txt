@@ -1,0 +1,127 @@
+Parser Fixes and Improvements
+
+You can now declare any type globally.
+	You can now declare untyped variables, and arrays.
+	You can now have a function return type of 'untyped'.
+	
+	Typedef now works across multiple files.
+	
+	Added type 'const untyped'. Can only be initialised with a numeric literal, or const float/int, but typecasts to all datatypes.
+	Added type 'const bool' (cannot yet be initialised with true/false). t/b/a
+	
+Fixed a bug where division of a constant would result in truncation that did not occur in 2.50.x
+Fixed issues with division by an integer, where values would be truncated.
+Added #option TRUNCATE_DIVISION_BY_LITERAL_BUG as a compiler flag:
+	This is OFF by default.
+	#option TRUNCATE_DIVISION_BY_LITERAL_BUG on
+		Forces old 2.50 behaviour (truncate division by a literal).
+	#option TRUNCATE_DIVISION_BY_LITERAL_BUG off
+		Use new behaviour (never truncate)
+
+Added escape character sequences to SINGLECHAR:
+	\a     		Alert (Beep, Bell) (added in C89)[1]
+	\b    		Backspace
+	\f     		Formfeed Page Break
+	\n     		Newline (Line Feed); see notes below
+	\r     		Carriage Return
+	\t     		Horizontal Tab
+	\v     		Vertical Tab
+	\\     		Backslash
+	\'     		Single quotation mark
+	\"     		Double quotation mark
+	\?     		Question mark (used to avoid trigraphs) 
+	\x0 to \xFF   	Normal ANSI characters, as hex value. 
+	
+Fixed scope resolution for identifiers and variables when used across
+	imported files.
+	Example:
+
+		//buffer
+
+		import "bar.zs"
+		void foo()
+		{
+			scrid.bar();
+		}
+		////////////////////end of buffer
+		
+		//bar.zs
+		
+		ffc script scrid
+		{
+			void run(){}
+			voud bar(){ Trace(1); }
+		}
+	
+	This worked in 2.50.x, but broke at some point in 2.55, and the
+	correct behaviour has been restored. 
+		
+	Scoped identifiers must be read-in, in linear order. Thus, this
+	would not be valid:
+		
+		//buffer
+
+		
+		void foo()
+		{
+			scrid.bar();
+		}
+		
+		import "bar.zs"
+		////////////////////end of buffer
+		
+		//bar.zs
+		
+		ffc script scrid
+		{
+			void run(){}
+			voud bar(){ Trace(1); }
+		}
+		
+	The import directive containing the token that you are resolving must be declared first,
+	or be processed first, before it can be used. 
+		
+Script errors will now give line and column references prior to the
+	error type.
+		
+	Old:
+		Error S007: Variable X can't have type VOID.
+			@ LINE 4 COLUMNS 1-11
+		
+	New: 
+		LINE 4 @ COLUMNS 1-11 - ERROR S007: Variable X can't have type VOID.
+		
+Fixed some issues where compiler errors improperly carried over. 
+
+Fixed import directive pathing with backslashes:
+	Importing in zscript with a path such as scripts\scriptfile.z used to work, in prior versions. 
+	As of 2.55, it reads \ as an escape character, and parses the file path improperly. 
+	This has now been corrected, so that you may use / or \ as a valid path token, however, / is the better option.
+		
+Added ternary expressions.
+	int x = Rand(6,8);
+	int y = x > 7 ? 1 : 0;
+	
+	Assigns, and operations inside ternary blocks must be in parens:
+		bool V = true;
+		int b;
+		int a = V ? ( b =  5 ) ? ( b = 4 );
+		
+		int c = V ? ( b -= 2 ) ? 0; 
+		
+		int y; int z; 
+		int x = (y += 10) ? (z = 5) : (a -= 2);
+		
+	In all of these cases, parens are mandatory. 
+	
+	Further, compound ternary expressions should be placed in parens:
+		int a = (V ? 1 : 0) ? 5 : 6
+		
+	The default, is to evaluate in a linear sequence.
+			
+	Thus, 
+		bool ? int : int ? bool : int
+	...would evaluate as: 
+		bool ? int : (int ? bool : int)
+	
+	Using parens to define your order of operations and scope, is prudent. 
