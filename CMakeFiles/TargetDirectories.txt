@@ -1,6 +1,0 @@
-E:/ZC/__2.55/ZeldaClassic/CMakeFiles/zcsound.dir
-E:/ZC/__2.55/ZeldaClassic/CMakeFiles/romview.dir
-E:/ZC/__2.55/ZeldaClassic/CMakeFiles/zelda.dir
-E:/ZC/__2.55/ZeldaClassic/CMakeFiles/zquest.dir
-E:/ZC/__2.55/ZeldaClassic/CMakeFiles/ALL_BUILD.dir
-E:/ZC/__2.55/ZeldaClassic/CMakeFiles/ZERO_CHECK.dir

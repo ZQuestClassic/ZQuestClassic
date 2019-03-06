@@ -1657,7 +1657,7 @@ Ported qr_SLOWCHARGINGWALK to ITEM_FLAG10 of swords
 	Set qr_SLOWCHARGINGWALK's checkbox type to dummy
 	Ported the flag for V_ITEMS<41
 	Marked qr /*DEPRECATED*/ in zq_rules.cpp
-Ported qr_SWORDMIRROR to ITEM_FLAG9 of swords  …
+Ported qr_SWORDMIRROR to ITEM_FLAG9 of swords  ?
 	Renamed QR to reflect its' effect on enemies/scripted sword beams
 	Named flag in zq_custom.cpp
 Renamed "Sword Beams reflect off mirrors" to "Sword Beams Reflect off Prism/Mirror Combos"
