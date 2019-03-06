@@ -1,6 +1,232 @@
 //2.55 and 2.54 Changes
 
+//Alpha 14
+Port over all fixes applied to 2.53 from 2nd December, 2018; through 6th March, 2019.
+	
+The following log events from the 2.53 changelog have now been committed to 2.55 (between rows of hashes):
+##############################################################################################################
+Renamed all system-wide screenshot files as follows:
+	ZC: 
+		zc_screen#####.png
+	ZQuest:
+		Maps:
+			zq_map#####.png
+		Screen:
+			zq_screen#####.png
+	( ZoriaRPG, 6th March, 2019 )
+
+The Export ZScript now uses the .zs extension by default (no ZLIB conflicts).
+ZCL version is now 2.6.12:
+	Fixed default pane of the ZQuest tab in ZCL.
+	Removed duplicate 'Misaligns' option box in ZCL.
+Cleaned all intermediates, all project files, and all CMake files.
+	Built clean.
+Changed l_down sprites on 8-way enemy shots to face down.
+	( ZoriaRPG, 5th March, 2019 )
+Resize fields for text entry to fit five chars. 
+Fixed Init Data (and cheat data) field sizes for:
+	Heart Containers (was a field size of 2, now 3)
+	Starting HP (in hearts, was 3 now size 5)
+	Starting Magic (was size 3, now 5)
+	Max Magic (was size 3, now 5)
+	Super Bomb Ratio (was size 2, now 3)
+2.50.x quests with a build < 31, or quests with a header 
+	version < 0x250 will now write hitsfx = WAV_EHIT, for all guys where 
+	the hitsfx sound == 0, on saving a quest in 2.53.
+Quests made in 2.53 Gamma 0/1 or earlier (build 31) now load
+	WAV_EHIT into the enemy editor hitsfx field when the editor opens.
+	This prevents corruption of the quest by modifying the value on quest load,
+	and ensures that the value only changes if the user saves the quest in 2.53.
+2.50.2 AND EARLIER play SFX_HIT even if Enemy Editor Hit Sound is 0. 
+	Thus, I added a special case that causes this to happen in guys.cpp, based
+	on header version and build. 
+
+	Arbitrary enemy policy 15610. :P
+	( ZoriaRPG, 25th February, 2019 )
+Fixed Byrna Cleanup Routine killing SFX 30. This was caused by
+	`last_cane_of_byrna_item_id` never being able to be -1 because it was declared
+	as byte, instead of int.
+Added a case for r_down dir on 8-way EW_MAGIC shots. 
+	( ZoriaRPG, 22nd February, 2019 )
+Fixed ZCL 'Skip Logo' selection not saving. 
+	ZCL is now v2.6.11. 
+Commented out some conflicting constants in stdExtra.zh
+Moved stdWeapons and Laser.zh into an 'extras' path.
+Corrected power rating of remote bombs. 
+	This will only affect quests saved in 2.53, and 
+	only if the power of the bomb is > 1. 
+Expanded the Emulation menu toggle to cover builds through 2.50.1. 
+	I'm tired of this one, too. 
+Fixed the selection mark for Bombchu Emulation, and ensured that
+	it is enabled by default for 2.50.0 and 2.50.1 quests. 
+Added an emulation option to restore the large blast radius 
+	(superbomb) if Link is hit by a charging bombchu.
+	This is enabled by default for 2.50.1 and earlier quests, and disabled in 2.53 quests
+Fixed 8-way shots always using WAV_FIRE.
+	Added an emulation memu option to force using WAV_FIRE for all 8-way shots.
+	This is enabled by default in quests < 2.50.
+	This menu option is disabled in 2.53+ quests.
+	( ZoriaRPG, 18th February, 2019 )
+Fixes for Palette Cycle Issues:
+	Palettes above 256 were not set up to have palette cycles in 2.50.
+	The array in QMisc is [256][3], where it should have been [512][3].
+
+	Because of this, palettes above 0xFF had rubbish data associated to their cycle data.
+
+	To remedy this, I have done the following:
+
+		All palettes > 255 have a null palette loaded into them, in the editor and as
+		palette data, to zero out their cycle information.
+
+		This should occur both in ZC, and in ZQuest.
+
+		I disabled clicking the Cycle button in the Level palette editor, and display
+		a jwin-alert that the palette doesn't support cycling.
+
+	Let's hope this doesn't cause crashes in any quests, in ZC.
+Added leading zeros to the 'Select Item' 'Pow: ' field, so that
+items with powers greater than 10 don't carry over digits to items with
+powers < 10.
+	( ZoriaRPG, 17th February, 2019 )
+Updated include 'tango.zh', and its associated demo to current versions of both.
+Pressing the Enter key, or the numpad Enter key, while viewing
+the Quest Header dialogue now EITHER activates the selected element, 
+	or saves the dialogue changes, instead of opening the
+	'Change Quest password' sub-dialogue. 
+	It will auto-save if the selected element is OK, or any TEXT field.
+	Otherwise, it triggers the selected element.
+	This should also work from the numpad Enter key. 
+	I also made the changes as an EXAMPLE chain, for making all
+	JWin DIALOGUES more user-friendly, in the future. 
+		See Commits in branch 2.53: 
+			b479871e9d38d8245874bc6cffc2f72e93f6cd5a
+			c638d67cd856cc09e2e937c5a7da3dc9e0743952
+			93956d00d4bb933236c6625cb778eb6ddd5caba4
+Added a new function, Link.cleanupByrna() and called it in game_loop() (zelda.cpp).
+Added a sfx cleanup for the byrna beam to weapons.cpp.
+Added a new LinkClass variable, byte last_cane_of_byrna, that functions similar to
+	last_lens_id.
+	It inits at -1, then when Link uses a cane, it is set to that cane's ID.
+	It is reset to -1 in Link.cleanupByrna().
+Added kill_sfx() call to three other possible places where the Cane of Byyrna
+	sound should probably be terminated:
+	Whenever we call stopCaneOfByrna()
+	If we can't pay the cost during item / weapon init
+	If the beams aren't created during init, for some reason. 	
+Cleared Link's attackclk before calling saved_Zelda(). 
+	This prevents a charged sword, or other weapon, from carrying
+	over to the ending sequence as a visual artefact. 
+Stop playing byrna beam sfx as soon as the beams die in Link.cpp
+Fix stunned peahats hurting Link in 2.50+ quests.
+	( ZoriaRPG, 14th February, 2019 )
+Hardcoded WAV_FIRE in weapons.cpp with version check.
+Corrected copyright year in zdefs.h. 
+Possibly fix some issues with the hammer.
+Fixed screenshots saving without using modifier keys.
+	This had nothing to do with the cheat system, but rather, was an invalid sprintf
+	format in onNonGUISnapshot.
+Emulation: Restrict Repeating DMap Intros to 2.11.x
+Enabling or disabling the Debug Console (win32 only) now updates and saves
+	the zc.cfg file setting for debug_console under zeldadx.
+Fixed Wealth Medals in Bomb/Arrow upgrade rooms which use percentage zero 
+	out cost (integer division != double division) (guys.cpp)
+	No code was ever in place to give the discount? (link.cpp)
+	( Venrob, 11th February, 2019 )
+Fixed Combo Aliad dialogue not doing copy/swap for aliases
+	greater than 999. Required refactor.
+	( ZoriaRPG, 30th January, 2019 )
+Updated ZCL to 2.6.10:
+	The main in-focus page is once again ZC.
+	Added the new UI Coloursets (Dark, and October).
+Link was not fully cropped during the credits scroll.
+	Pixels of his hat were left behind as artefacts. This fixes the issue,
+	by resizing the call to rectfill().
+	( ZoriaRPG, 29th January, 2019 )
+Fix 'OK' button in joystick button config not saving.
+Fix screenshot numbering format to have a width of 5, not 3.
+	( ZoriaRPG, 28th January, 2019 )
+Added an Emulation toggle to try to permit continuous sword triggers
+	in 2.10 and 2.50 quests.
+	I'm not sure what the latest 2.50 build is, that should permit this, but if LI
+	was saved in a later build, and needs it, then here it is.
+Try to fix tall grash animation during scrolling.
+Try to fix Ganon's Ashes not spawning.
+	( ZoriaRPG, 25th January, 2019 )
+Reposition timing of creation of the hammer smack sprites to try to
+	prevent them from appearing int he wrong spot if the player changes direction abruptly.
+	( ZoriaRPG, 24th January, 2019 )
+Added Emulation menu option 'Don't Flip Firetrails'.
+	If enabled (2.10 or earlier), then firetrails on brang weapomns
+	will not flip on bounce, and may be allowed to hit and harm enemies.
+Add jwin alert messages to all Emulation menu options, to explain what they do.
+Apply 1.90 Swim Sprites to all calls to linktile() in link.cpp
+Increased screenshot numbering cap from 999, to 99999.
+	( ZoriaRPG, 22nd January, 2019 )
+Apply 2.10 windrobe emulation, also to 1.92.
+Final fix of 1.92 vand 2.10 Windrobe mmechanics, removing extra shot.
+Clean up tribble emulation.
+Implemented Emulation Option 'DMap Intros Always Repeat' for 2.55 quests.
+Fix: Try again to fix 2.10 Windrobes.
+Fix: Wizzrobes appearing in dungeon walls in 1.84 quests.
+Fix GEL and KEESE tribbles, in 1.90 (or earlier) quests.
+	This now occurs in readguys.
+Remove Emulation flag for OLD TRIBBLES.
+	( ZoriaRPG, 16th January, 2019 )
+Potentially fixed Triforce Warp-Out in item cellars (2.10 and earlier, no rule, no emulation flag).
+	Added a ternary statement in getTriforcePiece()
+Begin Adding Emulation Menu Options:
+	Restore 2.10 Windrobes
+	DMap Intros Always Repeat
+	--removed this one, because I have a possible in-source fix: Fix Triforce Cellars
+Try to fix wizzrobes in 1.90/1.84 quests.
+	They were spawning in walls, and never should.
+Try to make it possible for Windrobes in 2.10 quests to nbot line up.
+	( ZoriaRPG, 16th January, 2019 )
+Fix some emulation options. 
+	( ZoriaRPG, 14th January, 2019 )
+Fixed emulation (item/segment) appearing in quests older than 1.92. 
+Clear emulation array, except on F6/GameOver->Continue.
+Added the ability to copy Link#s walking sprites over his swimming
+	and diving sprites in 1.90 quests with BS Link Animation.
+Begin adding 1.90 BS Animation Toggle
+Begin adding 1.9x Tribble Emulation.
+Begin adding emulation of half-tile (off-grid) collision.
+Fix emulationm of segmented enemy drops.
+Fix crash when saving screenshots caused by filename buffer overflow. 
+	( ZoriaRPG, 14th January, 2019 )
+Added an Emulation Menu option to enable drop-per-segment
+	for Lanmola, Manhandla, and Moldorm. 
+	This needs testing in older quests, and further verification.
+	neither the menu option, nor the config section option
+	should work in 2.50+ quests.
+	( ZoriaRPG, 8th January, 2019 )
+Re-added the 'Menu' button configuration option to
+	Joystick Button configs.
+	( ZoriaRPG, 8th January, 2019 )
+Renamed entry [0] in Emulation Menu to 'Flip-Flip Cancel and Wave Warps'
+	Disabled this option if the current quest was made in 2.10 or
+	( ZoriaRPG, 22nd December, 2018 )
+Added a new menu to ZC Player: 'Emulation'. 
+	This is used for enabling/disabling certain internal behaviour, when playing some
+	legacy quests where it is desirable to have this option. 
+	( ZoriaRPG, 21st December, 2018 )
+Fixed vires splitting before their slide() ends.
+Fixed MP3s with metadata not playing. 
+	Let's hope that this fix doesn't fuck up 2.50.0 or 2.50.1 quests.
+	( ZoriaRPG, 16th December, 2018 )
+Probably fixed issues that Avataro reported with Vire enemies.
+	( ZoriaRPG, 3rd December, 2018 )
+##############################################################################################################
+	Full commit of ports, to Alpha 14:
+	( ZoriaRPG, 6th March, 2019 )
+
 //Alpha 13
+Don't allow declaration of empty array literalsm (size of 0), or any array with a size < 1; or > 214748. 
+Complete implementation/integration of const bool and const untyped.
+	( Venrob, 6th March, 2019 )
+
+Fixed crashes and other issues when saving screenshots. 
+	( ZoriaRPG, 5th March, 2019 )
 
 The Export ZScript dialogue now saved with a .zs extension by default. 
 
@@ -149,11 +375,12 @@ Add allowing declaration of const untyped and const bool.
 	
 Update: Compile error format.
 	Now reads "Line # @ Column # - ERROR # MSG"
-Docs: Add comments to `putweapon`
-	( Venrob, 1st March 2019 )
+	( Venrob, 1st March, 2019 )
 	
-Fix: `putweapon` dummy weapons crashing by attempting to run weapon scripts.
-	( ZoriaRPG, 28th February, 2019 )
+Docs: Add comments to `putweapon`
+Fixed the lens hints for some items crashign ZC. This was caused by the hint graphic trying to run a script: 
+	This fixes `putweapon` dummy weapons crashing by attempting to run weapon scripts. -Z
+	( Venrob, ZoriaRPG, 28th February, 2019 )
 	
 Fix: More Bombs / More Arrows rooms and Wealth Medals
 	- Wealth Medals which use percentage zero out cost (integer division != double division) (guys.cpp)
@@ -1430,7 +1657,7 @@ Ported qr_SLOWCHARGINGWALK to ITEM_FLAG10 of swords
 	Set qr_SLOWCHARGINGWALK's checkbox type to dummy
 	Ported the flag for V_ITEMS<41
 	Marked qr /*DEPRECATED*/ in zq_rules.cpp
-Ported qr_SWORDMIRROR to ITEM_FLAG9 of swords  …
+Ported qr_SWORDMIRROR to ITEM_FLAG9 of swords  ?
 	Renamed QR to reflect its' effect on enemies/scripted sword beams
 	Named flag in zq_custom.cpp
 Renamed "Sword Beams reflect off mirrors" to "Sword Beams Reflect off Prism/Mirror Combos"

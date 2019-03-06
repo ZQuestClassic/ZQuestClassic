@@ -99,11 +99,11 @@
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       41                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 13"                    //version of the program as presented in text
-#define IS_BETA             -13                         //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        13
-#define DATE_STR            "5th March, 2019"
-#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 13"
+#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 14"                    //version of the program as presented in text
+#define IS_BETA             -14                         //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        14
+#define DATE_STR            "6th March, 2019"
+#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 14"
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -938,6 +938,17 @@ enum                                                        // value matters bec
 #define shFLAME		0x040
 #define shSCRIPT	0x080
 #define shFIREBALL2	0x100 // Boss fireball, not ewFireball2
+
+
+//emulation patches
+enum 
+{ 
+	emuITEMPERSEG, emuGRIDCOLLISION, emuOLDTRIBBLES, emu190LINKSPRITES, emuCOPYSWIMSPRITES, emu210WINDROBES,
+	emu250DMAPINTOREPEAT, emuFIXTRIFORCECELLAR, emuNOFLIPFIRETRAIL, emuSWORDTRIGARECONTINUOUS, emu8WAYSHOTSFX, emu210BOMBCHU, emu192b163, 
+	emuLAST
+		
+};
+
 
 // item sets
 enum

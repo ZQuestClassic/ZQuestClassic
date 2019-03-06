@@ -1609,13 +1609,16 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(dir)
         {
         case down:
+	case l_down:
+	case r_down:
             flip=2;
             
+	case l_up:
+	case r_up:
         case up:
             break;
             
         case left:
-	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -1651,13 +1654,16 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(dir)
         {
         case down:
+	case l_down:
+	case r_down:
             flip=2;
             
         case up:
+	case r_up:
+	case l_up:
             break;
             
         case left:
-	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -1777,15 +1783,18 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(dir)
         {
         case down:
+	case l_down:
+	case r_down:
             flip=2;
             
+	case r_up:
+	case l_up:
         case up:
             xofs=-4;
             hxsz=8;
             break;
             
         case left:
-	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -1826,13 +1835,16 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(dir)
         {
         case down:
+	case l_down:
+	case r_down:
             flip=2;
             
         case up:
+	case r_up:
+	case l_up:
             break;
             
         case left:
-	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -1877,13 +1889,16 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
         switch(dir)
         {
         case down:
+	case l_down:
+	case r_down:
             flip=2;
             
         case up:
+	case r_up:
+	case l_up:
             break;
             
         case left:
-	case l_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -2736,7 +2751,7 @@ bool weapon::animate(int index)
         y = (fix)((double)LinkY() + ydiff);
         z = LinkZ();
         
-        if(parentitem>-1)
+	if(parentitem>-1 && dead != 1) //Perhaps don't play the sound if the weapon is dead?
 	{
             sfx(itemsbuf[parentitem].usesound,pan(int(x)),true,false);
 	}
@@ -7405,7 +7420,12 @@ offscreenCheck:
 			(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
 		    Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,current_item_id(itype_book),-1));
-		    sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
+		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
+		    {
+			sfx(WAV_FIRE,pan(x));
+		    }
+			
+		    else sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
 		}
 	}
 	else
@@ -7414,7 +7434,11 @@ offscreenCheck:
 			(itemsbuf[miscellaneous[31]].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
 		    Lwpns.add(new weapon(x,y,z,wFire,2,1*DAMAGE_MULTIPLIER,0,miscellaneous[31],-1));
-		    sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
+		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
+		    {
+			sfx(WAV_FIRE,pan(x));
+		    }
+		    else sfx(itemsbuf[miscellaneous[31]].usesound > 0 ? itemsbuf[miscellaneous[31]].usesound : WAV_FIRE,pan(x));
 		}
         }
         break;

@@ -33,6 +33,8 @@
 #include "ffasm.h"
 #include "defdata.h"
 #include "zc_malloc.h"
+#include "ffscript.h"
+extern FFScript FFCore;
 
 extern int ex;
 extern void reset_itembuf(itemdata *item, int id);
@@ -5922,6 +5924,13 @@ void edit_enemydata(int index)
     //sprintf(sfx,"%d",guysbuf[index].bgsfx);
     enedata_dlg[182].d1= (int)guysbuf[index].bgsfx;
     enedata_dlg[183].d1= (int)guysbuf[index].hitsfx;
+    if ( ( enedata_dlg[183].d1 == 0 ) && FFCore.getQuestHeaderInfo(vZelda) < 0x250 || (( FFCore.getQuestHeaderInfo(vZelda) == 0x250 ) && FFCore.getQuestHeaderInfo(vBuild) < 32 ) )
+    {
+	    //If no user-set hit sound was in place, and the quest was made in a version before 2.53.0 Gamma 2:
+		enedata_dlg[183].d1 = WAV_EHIT; //Fix quests using the wrong hit sound when loading this. 
+		//Force SFX_HIT here. 
+	    
+    }
     enedata_dlg[184].d1= (int)guysbuf[index].deadsfx;
     
     //2.6 Enemy Weapon Sprite -Z

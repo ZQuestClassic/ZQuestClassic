@@ -9621,21 +9621,28 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             guysbuf[eDODONGO].bosspal=spDIG;
         }
     }
- //2.10 fixes   
-    // Not sure when this first changed, but it's necessary for 2.10, at least
+ // Not sure when this first changed, but it's necessary for 2.10, at least
+    // @TODO: @BUG:1.92 - 1.84? Figure this out exactly for the final 2.50 release.
+//2.10 Fixes  
     if(Header->zelda_version <= 0x210)
     {
         guysbuf[eGLEEOK1F].misc6 = 16;
         guysbuf[eGLEEOK2F].misc6 = 16;
         guysbuf[eGLEEOK3F].misc6 = 16;
         guysbuf[eGLEEOK4F].misc6 = 16;
-        
-        guysbuf[eWIZ1].misc4 = 1;
+	    
+        guysbuf[eWIZ1].misc4 = 1; //only set the enemy that needs backward compat, not all of them.
         guysbuf[eBATROBE].misc4 = 1;
-        guysbuf[eSUMMONER].misc4 = 1;
+        //guysbuf[eSUMMONER].misc4 = 1;
         guysbuf[eWWIZ].misc4 = 1;
-	guysbuf[eDODONGO].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
+	    guysbuf[eDODONGO].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
 	guysbuf[eDODONGOBS].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
+    }
+    if(Header->zelda_version == 0x190)
+    {
+	al_trace("Setting Tribble Properties for Version: %x", Header->zelda_version);
+	guysbuf[eKEESETRIB].misc3 = eVIRE; //1.90 and earlier, keese and gel tribbles grew up into 
+	guysbuf[eGELTRIB].misc3 = eZOL; //normal vires, and zols -Z (16th January, 2019 )
     }
     
     // The versions here may not be correct
@@ -9645,6 +9652,8 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eCENT1].misc3 = 0;
         guysbuf[eCENT2].misc3 = 0;
         guysbuf[eMOLDORM].misc2 = 0;
+	//guysbuf[eKEESETRIB].misc3 = eVIRE; //1.90 and earlier, keese and gel tribbles grew up into 
+	//guysbuf[eGELTRIB].misc3 = eZOL; //normal vires, and zols -Z (16th January, 2019 )
     }
     else if(Header->zelda_version <= 0x210)
     {

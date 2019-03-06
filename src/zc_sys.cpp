@@ -52,6 +52,8 @@
 #include "particles.h"
 #include "mem_debug.h"
 #include "zconsole.h"
+#include "ffscript.h"
+extern FFScript FFCore;
 
 int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
@@ -514,6 +516,7 @@ void save_game_configs()
     set_config_int("graphics","disable_direct_updating",disable_direct_updating);
     set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
     set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
+    set_config_int("zeldadx","debug_console",zconsole);
 #endif
    
 #ifdef ALLEGRO_LINUX
@@ -3817,12 +3820,12 @@ int onGUISnapshot()
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zc_quest_screenshot%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "../../../zc_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-        sprintf(buf, "zc_quest_screenshot%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "zc_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     BITMAP *b = create_bitmap_ex(8,resx,resy);
     
@@ -3847,9 +3850,9 @@ int onNonGUISnapshot()
     
     do
     {
-        sprintf(buf, "zc_quest_screenshot%03d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "zc_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     BITMAP *panorama = create_bitmap_ex(8,256,168);
     
@@ -3882,7 +3885,6 @@ int onSnapshot()
     return D_O_K;
 }
 
-
 int onSaveMapPic()
 {
     int mapres2 = 0;
@@ -3911,12 +3913,12 @@ int onSaveMapPic()
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zc_quest_screenshot%03d.png", ++num);
+        sprintf(buf, "../../../zc_screen%05d.png", ++num);
 #else
-        sprintf(buf, "zc_quest_screenshot%03d.png", ++num);
+        sprintf(buf, "zc_screen%05d.png", ++num);
 #endif
     }
-    while(num<999 && exists(buf));
+    while(num<99999 && exists(buf));
     
     BITMAP* mappic = NULL;
     
@@ -4017,11 +4019,13 @@ int onSaveMapPic()
 int onSaveMapPic()
 {
     BITMAP* mappic = NULL;
+    BITMAP* _screen_draw_buffer = NULL;
+    _screen_draw_buffer = create_bitmap_ex(8,256,224);
     int mapres2 = 0;
     char buf[20];
     int num=0;
-    set_clip_state(temp_buf,1);
-    set_clip_rect(temp_buf,0,0,temp_buf->w, temp_buf->h);
+    set_clip_state(_screen_draw_buffer,1);
+    set_clip_rect(_screen_draw_buffer,0,0,_screen_draw_buffer->w, _screen_draw_buffer->h);
     
     do
     {
@@ -4058,18 +4062,18 @@ int onSaveMapPic()
             
             if(!displayOnMap(x, y))
             {
-                rectfill(temp_buf, 0, 0, 255, 223, WHITE);
+                rectfill(_screen_draw_buffer, 0, 0, 255, 223, WHITE);
             }
             else
             {
-                loadscr(1,currdmap,s,-1,false);
-                putscr(temp_buf, 0, 0, tmpscr+1);
+                loadscr(TEMPSCR_FUNCTION_SWAP_SPACE,currdmap,s,-1,false);
+                putscr(_screen_draw_buffer, 0, 0, tmpscr+1);
                 
                 for(int k=0; k<4; k++)
                 {
                     if(k==2)
                     {
-                        putscrdoors(temp_buf, 0, 0, tmpscr+1);
+                        putscrdoors(_screen_draw_buffer, 0, 0, tmpscr+1);
                     }
                     
                     layermap=TheMaps[currmap*MAPSCRS+s].layermap[k]-1;
@@ -4082,14 +4086,14 @@ int onSaveMapPic()
                         {
                             for(int i=0; i<176; i++)
                             {
-                                overcombo(temp_buf,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
+                                overcombo(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
                             }
                         }
                         else
                         {
                             for(int i=0; i<176; i++)
                             {
-                                overcombotranslucent(temp_buf,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
+                                overcombotranslucent(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
                             }
                         }
                     }
@@ -4100,7 +4104,7 @@ int onSaveMapPic()
 //          if (COMBOTYPE((i&15)<<4,i&0xF0)==cOLD_OVERHEAD)
                     if(combo_class_buf[COMBOTYPE((i&15)<<4,i&0xF0)].overhead)
                     {
-                        overcombo(temp_buf,((i&15)<<4)+x2,(i&0xF0),MAPCOMBO((i&15)<<4,i&0xF0),MAPCSET((i&15)<<4,i&0xF0));
+                        overcombo(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),MAPCOMBO((i&15)<<4,i&0xF0),MAPCSET((i&15)<<4,i&0xF0));
                     }
                 }
                 
@@ -4116,21 +4120,21 @@ int onSaveMapPic()
                         {
                             for(int i=0; i<176; i++)
                             {
-                                overcombo(temp_buf,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
+                                overcombo(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
                             }
                         }
                         else
                         {
                             for(int i=0; i<176; i++)
                             {
-                                overcombotranslucent(temp_buf,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
+                                overcombotranslucent(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
                             }
                         }
                     }
                 }
             }
             
-            stretch_blit(temp_buf, mappic, 0, 0, 256, 176,
+            stretch_blit(_screen_draw_buffer, mappic, 0, 0, 256, 176,
                          x<<(8-mapres2), (y*176)>>mapres2, 256>>mapres2, 176>>mapres2);
         }
         
@@ -4138,6 +4142,7 @@ int onSaveMapPic()
     
     save_bitmap(buf,mappic,RAMpal);
     destroy_bitmap(mappic);
+    destroy_bitmap(_screen_draw_buffer);
     return D_O_K;
 }
 */
@@ -5121,19 +5126,24 @@ int onDebugConsole()
 		NULL, 
 		'y', 
 		'n', 
-		0, 
+		NULL, 
 		lfont) == 1)
 		{
 			DebugConsole::Open();
-
+			
 			zconsole = true;
+			
+			save_game_configs();
 			return D_O_K;
 		}
+		
 		else return D_O_K;
 	}
 	else { 
 		
 		zconsole = false;
+		
+		save_game_configs();
 		DebugConsole::Close();
 		return D_O_K;
 	}
@@ -5533,6 +5543,7 @@ static DIALOG btn_dlg[] =
     { jwin_ctext_proc,      237,  180-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex2, NULL,  NULL },
     { jwin_ctext_proc,      237,  212-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_ex4, NULL,  NULL },
     
+    
     { d_jbutton_proc,      22,   118-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "B",     NULL, &Bbtn},
     { d_jbutton_proc,      22,   146-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Start", NULL, &Sbtn},
     { d_jbutton_proc,      22,   178-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "EX1",     NULL, &Exbtn1},
@@ -5545,7 +5556,6 @@ static DIALOG btn_dlg[] =
     { d_jbutton_proc,      22,   242-40,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Menu",  NULL, &Mbtn},
     { jwin_ctext_proc,     92, 244-40,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_m, NULL,  NULL },
     { d_jbutton_proc,      22,   90-40,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "A",     NULL, &Abtn},
-    
     { jwin_button_proc,    90,   274-40,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
     { jwin_button_proc,    170,  274-40,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
@@ -6574,10 +6584,10 @@ int onJoystick()
     if(is_large)
         large_dialog(btn_dlg);
         
-    int ret = zc_popup_dialog(btn_dlg,27);
+    int ret = zc_popup_dialog(btn_dlg,29);
     
     // not OK'd
-    if(ret != 27)
+    if(ret != 29)
     {
         Abtn = a;
         Bbtn = b;
@@ -7208,15 +7218,326 @@ static MENU settings_menu[] =
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
+
 int on192b163compatibility()
 {
-    zc_192b163_warp_compatibility=!zc_192b163_warp_compatibility;
+	if(jwin_alert3(
+			"EMULATION: Warp Compatibility Patch", 
+			"This action will change the behaviour of some warps. Some quests may have warps",
+			"that cause the player to become stuck. Toggling this may help to overcome this situation.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if ( FFCore.emulation[emu192b163] ) FFCore.emulation[emu192b163] = 0;
+	    else FFCore.emulation[emu192b163] = 1;
+	}
+    return D_O_K;
+}
+
+int v250_dmap_intro_repeat()
+{
+	if(jwin_alert3(
+			"EMULATION: Repeat DMap Intros", 
+			"This action will change the behaviour of DMap Intro Messages.",
+			"If enabled, the intro text will always repeat when revisiting DMaps.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (FFCore.emulation[emu250DMAPINTOREPEAT] ) FFCore.emulation[emu250DMAPINTOREPEAT] = 0;
+	    else FFCore.emulation[emu250DMAPINTOREPEAT] = 1;
+	}
+    return D_O_K;
+}
+
+int v210_segment_drops()
+{
+	if(jwin_alert3(
+			"EMULATION: Drop-Per-Segment", 
+			"This action will change the drop pattern for segmented enemies.",
+			"If enabled, segmented enemies will drop per segment.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (FFCore.emulation[emuITEMPERSEG] ) FFCore.emulation[emuITEMPERSEG] = 0;
+	    else FFCore.emulation[emuITEMPERSEG] = 1;
+	}
+    return D_O_K;
+}
+
+int v210_fix_triforce_cellar()
+{
+    if (FFCore.emulation[emuFIXTRIFORCECELLAR] ) FFCore.emulation[emuFIXTRIFORCECELLAR] = 0;
+    else FFCore.emulation[emuFIXTRIFORCECELLAR] = 1;
+    return D_O_K;
+}
+
+int v210_windrobes()
+{
+	if(jwin_alert3(
+			"EMULATION: Toggle v2.10 Windrobes", 
+			"This action will change the behaviour of Windrobe enemies. If enabled, they",
+			"will spawn in random places, and not align with the player. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (FFCore.emulation[emu210WINDROBES] ) FFCore.emulation[emu210WINDROBES] = 0;
+	    else FFCore.emulation[emu210WINDROBES] = 1;
+	}
+    return D_O_K;
+}
+
+int v210_grid_collision()
+{
+	if(jwin_alert3(
+			"EMULATION: v2.10 Style Link Collision", 
+			"This action will change whether the player must be on the grid for weapons to ",
+			"collide with him. If enabled, he must be on the grid. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (FFCore.emulation[emuGRIDCOLLISION] ) FFCore.emulation[emuGRIDCOLLISION] = 0;
+	    
+	    else FFCore.emulation[emuGRIDCOLLISION] = 1;
+		if ( get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX) ) set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 0);
+		else set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 1);
+	}
+    return D_O_K;
+}
+
+int v192_tribbles()
+{
+    if(jwin_alert3(
+			"EMULATION: Old Tribbles", 
+			"This action will change the behaviour of gel and keese tribble enemies.",
+			"If enabled, they will use their 1.92 style behaviour. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (FFCore.emulation[emuOLDTRIBBLES] ) FFCore.emulation[emuOLDTRIBBLES] = 0;
+	    else FFCore.emulation[emuOLDTRIBBLES] = 1;
+		//if ( get_bit(deprecated_rules, qr_OLDTRIBBLES_DEP) ) set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, 0);
+		//else set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, 1);
+		//What is the purpose of deprecated_rules?
+		
+		//if ( get_bit(quest_rules, qr_OLDTRIBBLES_DEP) ) set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 0);
+		//else set_bit(quest_rules, qr_OLDTRIBBLES_DEP, 1);
+	}
+    return D_O_K;
+	
+}
+
+int continuous_sword_triggers()
+{
+	if(jwin_alert3(
+			"EMULATION: Continuous Sword Triggers", 
+			"This action will change the behaviour of sword triggers.",
+			"If enabled, they will be continuous, which was true in older 2.50 and 2.10 builds. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (FFCore.emulation[emuSWORDTRIGARECONTINUOUS] ) FFCore.emulation[emuSWORDTRIGARECONTINUOUS] = 0;
+	    else FFCore.emulation[emuSWORDTRIGARECONTINUOUS] = 1;
+		
+	}
+    return D_O_K;
+	
+}
+
+int eight_way_shot_sfx_fix()
+{
+	if(jwin_alert3(
+			"EMULATION: Eight-Way-Shot Sound Fix", 
+			"This action will change the sound made by 8-way shots.",
+			"If enabled, they will be forced to SFX_FIRE, which was true in older 2.50 and 2.10 builds. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (FFCore.emulation[emu8WAYSHOTSFX] ) FFCore.emulation[emu8WAYSHOTSFX] = 0;
+	    else FFCore.emulation[emu8WAYSHOTSFX] = 1;
+		
+	}
+    return D_O_K;
+	
+}
+
+
+int v210_bombchus()
+{
+	if(jwin_alert3(
+			"EMULATION: Restore Large Bombchu Blast Radius",
+			"This action will change the blast size for Bombchu enemies.",
+			"If enabled, they will be superbomb blasts, which was true in older 2.50 and 2.10 builds. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (FFCore.emulation[emu210BOMBCHU] ) FFCore.emulation[emu210BOMBCHU] = 0;
+	    else FFCore.emulation[emu210BOMBCHU] = 1;
+		
+	}
+    return D_O_K;
+	
+}
+
+int v190_linksprites()
+{
+	
+	if(jwin_alert3(
+			"EMULATION: Toggle BS Animation", 
+			"This action will change BS ANimation to Normal Animation, or",
+			"change Normal Animation to BS Animation.",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (FFCore.emulation[emu190LINKSPRITES] ) 
+	    {
+		    FFCore.emulation[emu190LINKSPRITES] = 0;
+		    zinit.linkanimationstyle = las_bszelda;
+	    }
+	    else
+	    {
+		    FFCore.emulation[emu190LINKSPRITES] = 1;
+		
+			//disable BS animation
+			zinit.linkanimationstyle = las_original;
+			//but copy the swim to walk sprite
+	    }
+    }
+    return D_O_K;
+	
+}
+
+int v190_swimsprites()
+{
+	//if ( FFCore.getQuestHeaderInfo(vZelda) == 0x190 )
+    //{
+	//if ( zinit.linkanimationstyle != las_bszelda ) return D_O_K; //ab ort, this is only for 1.90 fixes to BS Animation Styles
+	if(jwin_alert3(
+			"WARNING: Copy Link Sprites (v1.90)", 
+			"You are about to copy all of Link's Walk Sprites over his Swimming and Diving Sprites.",
+			"This cannot be undone!",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	
+		for ( int q = 0; q < 4; q++ ) //dir
+		{
+			for ( int w = 0; w < 3; w++ )
+			{
+				swimspr[q][w] = walkspr[q][w];
+				divespr[q][w] = walkspr[q][w];
+			}
+		}
+		FFCore.emulation[emuCOPYSWIMSPRITES] = 1;
+		
+		return D_O_K;
+	}
+    //}
+	return D_O_K;
+	
+}
+
+int v210_brang_firetrail()
+{
+	if(jwin_alert3(
+			"EMULATION: Toggle v2.10 Brang Firetrail", 
+			"This action will change the behaviour of firetrail on Boomerang items.",
+			"If enabled, the direction of the firetrail will not flip, allowing it to hit enemies.. ",
+			"Proceed?",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		NULL, 
+		lfont) == 1)
+	{
+	    if (FFCore.emulation[emuNOFLIPFIRETRAIL] ) FFCore.emulation[emuNOFLIPFIRETRAIL] = 0;
+	    else FFCore.emulation[emuNOFLIPFIRETRAIL] = 1;
+	}
     return D_O_K;
 }
 
 static MENU compat_patch_menu[] =
 {
-    { (char *)"Flip-Flop Cancel and Wave Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
+    { (char *)"&Flip-Flop Cancel and Wave Warps",                     on192b163compatibility,                 NULL,                      0, NULL },
+    { (char *)"2.10 &Segmented Enemy Drops",                     v210_segment_drops,                 NULL,                      0, NULL },
+    { (char *)"Toggle Half-Tile &Collision",                     v210_grid_collision,                 NULL,                      0, NULL },
+    //{ (char *)"Old &Tribbles",                     v192_tribbles,                 NULL,                      0, NULL },
+    { (char *)"Toggle BS &Animation",                     v190_linksprites,                 NULL,                      0, NULL },
+    { (char *)"Copy &Walk to Swim and Dive Sprites",                     v190_swimsprites,                 NULL,                      0, NULL },
+    { (char *)"&Restore 2.10 Windrobes",                     v210_windrobes,                 NULL,                      0, NULL },
+    { (char *)"&DMap Intros Always Repeat",                     v250_dmap_intro_repeat,                 NULL,                      0, NULL },
+    { (char *)"Don't Flip F&iretrails",                     v210_brang_firetrail,                 NULL,                      0, NULL },
+    { (char *)"C&ontinuous Sword Triggers",                     continuous_sword_triggers,                 NULL,                      0, NULL },
+    { (char *)"&Eight Way Shot Uses Flame Sound",                     eight_way_shot_sfx_fix,                 NULL,                      0, NULL },
+    { (char *)"&Bombchus Use Superbomb Blasts",                     v210_bombchus,                 NULL,                      0, NULL },
+    //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -8253,10 +8574,40 @@ void System()
         name_entry_mode_menu[2].flags = (NameEntryMode==2)?D_SELECTED:0;
        
 	//menu flags here
-	//compat_patch_menu[0].flags =(zc_192b163_warp_compatibility)?D_SELECTED:0;
-	compat_patch_menu[0].flags = ( FFCore.quest_format[vZelda] >= 0x210 ) ? D_DISABLED : ((zc_192b163_warp_compatibility)?D_SELECTED:0);
+	//al_trace("Quest was made in: %d\n",FFCore.getQuestHeaderInfo(vZelda));
 	
+	compat_patch_menu[0].flags = ( FFCore.getQuestHeaderInfo(vZelda) >= 0x210 ) ? D_DISABLED : ((FFCore.emulation[emu192b163])?D_SELECTED:0);
+	//segmented enemy drops
+	compat_patch_menu[1].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x210 || FFCore.getQuestHeaderInfo(vZelda) < 0x192 ) ? D_DISABLED : ((FFCore.emulation[emuITEMPERSEG])?D_SELECTED:0);
+	//Link off-grid collision --what was the default in 2.50.0?
+	compat_patch_menu[2].flags = ( (FFCore.getQuestHeaderInfo(vZelda) > 0x210 && FFCore.getQuestHeaderInfo(vBuild) > 28) || (FFCore.getQuestHeaderInfo(vZelda) < 0x210) ) ? D_DISABLED : ((FFCore.emulation[emuGRIDCOLLISION])?D_SELECTED:0);
+	//Old Tribbles (1.90-only)
+	//compat_patch_menu[3].flags = ( FFCore.getQuestHeaderInfo(vZelda) != 0x190 ) ? D_DISABLED : ((FFCore.emulation[emuOLDTRIBBLES])?D_SELECTED:0);
+	//Toggle BS Animation, 1.90 only
+	compat_patch_menu[3].flags = ( FFCore.getQuestHeaderInfo(vZelda) >= 0x192 ) ? D_DISABLED : ((FFCore.emulation[emu190LINKSPRITES])?D_SELECTED:0);
+	//1.90 Copy Link's Walk Sprite to Swim/Dive --why does this not persist?!
+	//compat_patch_menu[5].flags = ( FFCore.getQuestHeaderInfo(vZelda) != 0x190 ) ? D_DISABLED : ((FFCore.emulation[emuCOPYSWIMSPRITES])?D_DISABLED:0);
+	compat_patch_menu[4].flags = ( FFCore.getQuestHeaderInfo(vZelda) != 0x190 ) ? D_DISABLED : ((FFCore.emulation[emuCOPYSWIMSPRITES])?0:0);
+	//Try to restore 2.10 Windrobes
+	compat_patch_menu[5].flags = (FFCore.getQuestHeaderInfo(vZelda) == 0x210 || FFCore.getQuestHeaderInfo(vZelda) == 0x192) ? ((FFCore.emulation[emu210WINDROBES])?D_SELECTED:0) : D_DISABLED;
+	//DMap Intros Always Repeat in early 2.50 quests
+	compat_patch_menu[6].flags = ( FFCore.getQuestHeaderInfo(vZelda) == 0x211 ) ? D_DISABLED : ((FFCore.emulation[emu250DMAPINTOREPEAT])?D_SELECTED:0);
+	//Don't flip fire trails on brang weapons.
+	compat_patch_menu[7].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x210 ) ? D_DISABLED : ((FFCore.emulation[emuNOFLIPFIRETRAIL])?D_SELECTED:0);
+	//Continuous sword triggers, old 2.50 and 2.10
+	//compat_patch_menu[8].flags = ( FFCore.getQuestHeaderInfo(vZelda) < 0x210 || ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 ) || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 411 )  ) ? D_DISABLED : ((FFCore.emulation[emuSWORDTRIGARECONTINUOUS])?D_SELECTED:0);
+	compat_patch_menu[8].flags = ( FFCore.getQuestHeaderInfo(vZelda) < 0x210 || ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 )  ) ? D_DISABLED : ((FFCore.emulation[emuSWORDTRIGARECONTINUOUS])?D_SELECTED:0);
+	//8-way shots always make WAV_FIRE sound. 
+	compat_patch_menu[9].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) >= 32 )  ) ? D_DISABLED : ((FFCore.emulation[emu8WAYSHOTSFX])?D_SELECTED:0);
+	//Bombchus use superbomb when contacting link.
+	compat_patch_menu[10].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 28 )  ) ? D_DISABLED : ((FFCore.emulation[emu210BOMBCHU])?D_SELECTED:0);
+	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
+	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
+	//compat_patch_menu[8].flags = ( FFCore.getQuestHeaderInfo(vZelda) > 0x210 ) ? D_DISABLED : ((FFCore.emulation[emuFIXTRIFORCECELLAR])?D_SELECTED:0);
+	
+	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
+        
         /*
           if(!Playing || (!zcheats.flags && !debug))
           {
