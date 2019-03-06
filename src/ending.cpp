@@ -327,7 +327,7 @@ void ending()
           */
         if(f==668)
         {
-            rectfill(framebuf,120,129,152,145,0);
+            rectfill(framebuf,120,127,152,145,0); //y1 == 129 was showing tiny bits left over from Link's sprite. 
             blit(framebuf, tmp_bmp, 120,113, 0,0, 32,32);
         }
         

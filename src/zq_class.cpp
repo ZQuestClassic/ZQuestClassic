@@ -42,6 +42,8 @@
 #include "zq_strings.h"
 #include "zq_subscr.h"
 #include "mem_debug.h"
+#include "ffscript.h"
+extern FFScript FFCore;
 
 extern ZModule zcm;
 extern zcmodule moduledata;
@@ -9678,6 +9680,14 @@ int writeguys(PACKFILE *f, zquestheader *Header)
                 }
             }
             
+	    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x250 || (( FFCore.getQuestHeaderInfo(vZelda) == 0x250 ) && FFCore.getQuestHeaderInfo(vBuild) < 32 ) )
+	    {
+	    //If no user-set hit sound was in place, and the quest was made in a version before 2.53.0 Gamma 2:
+		if ( guysbuf[i].hitsfx == 0 ) guysbuf[i].hitsfx = WAV_EHIT; //Fix quests using the wrong hit sound when loading this. 
+		//Force SFX_HIT here. 
+	    
+            }
+	    
             if(!p_putc(guysbuf[i].hitsfx,f))
             {
                 new_return(47);
