@@ -310,6 +310,12 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 
 		// Inline the constant if possible.
 		isConstant = host.getInitializer()->getCompileTimeValue(this, scope);
+		//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
+		if(!isConstant && (scope->isGlobal() || scope->isScript()))
+		{
+			handleError(CompileError::ConstNotConstant(&host, host.name));
+			return;
+		}
 	}
 
 	if (isConstant)
