@@ -2,6 +2,10 @@
 
 //Alpha 13
 
+Don't allow declaration of empty array literalsm (size of 0), or any array with a size < 1; or > 214748. 
+Complete implementation/integration of const bool and const untyped.
+	( Venrob, 6th March, 2019 )
+
 Fixed crashes and other issues when saving screenshots. 
 	( ZoriaRPG, 5th March, 2019 )
 
@@ -152,18 +156,12 @@ Add allowing declaration of const untyped and const bool.
 	
 Update: Compile error format.
 	Now reads "Line # @ Column # - ERROR # MSG"
+	( Venrob, 1st March, 2019 )
+	
 Docs: Add comments to `putweapon`
-<<<<<<< HEAD
-
 Fixed the lens hints for some items crashign ZC. This was caused by the hint graphic trying to run a script: 
 	This fixes `putweapon` dummy weapons crashing by attempting to run weapon scripts. -Z
-	( 28th February, 2019 )
-=======
-	( Venrob, 1st March 2019 )
-	
-Fix: `putweapon` dummy weapons crashing by attempting to run weapon scripts.
-	( ZoriaRPG, 28th February, 2019 )
->>>>>>> e19f2311082356b60e4030c3abd7ec3675c1b655
+	( Venrob, ZoriaRPG, 28th February, 2019 )
 	
 Fix: More Bombs / More Arrows rooms and Wealth Medals
 	- Wealth Medals which use percentage zero out cost (integer division != double division) (guys.cpp)
