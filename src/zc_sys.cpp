@@ -6317,7 +6317,7 @@ int onJoystick()
     if(is_large)
         large_dialog(btn_dlg);
         
-    int ret = zc_popup_dialog(btn_dlg,27);
+    int ret = zc_popup_dialog(btn_dlg,29);
     
     // not OK'd
     if(ret != 29)
