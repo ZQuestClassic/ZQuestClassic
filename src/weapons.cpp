@@ -2736,7 +2736,7 @@ bool weapon::animate(int index)
         y = (fix)((double)LinkY() + ydiff);
         z = LinkZ();
         
-        if(parentitem>-1)
+	if(parentitem>-1 && dead != 1) //Perhaps don't play the sound if the weapon is dead?
 	{
             sfx(itemsbuf[parentitem].usesound,pan(int(x)),true,false);
 	}

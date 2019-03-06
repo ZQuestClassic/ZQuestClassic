@@ -880,8 +880,9 @@ void LinkClass::init()
     falling_oldy = y;
     magiccastclk=0;
     magicitem = nayruitem = -1;
-	last_lens_id = 0;
+	last_lens_id = 0; //Should be -1 (-Z)
 	misc_internal_link_flags = 0;
+	last_cane_of_byrna_item_id = -1; 
     
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -4398,10 +4399,15 @@ bool LinkClass::animate(int)
                 weapon *w = ((weapon*)Lwpns.spr(i));
                 
                 if(w->id==wCByrna)
+		{
                     w->dead=1;
+		}
+		
             }
+	    //kill the sound effect for the orbits -Z 14FEB2019
+	    stop_sfx(itemsbuf[itemid].usesound);
         }
-	else paymagiccost(itemid);
+        else paymagiccost(itemid);
 	
     }
     
@@ -5822,18 +5828,23 @@ bool LinkClass::startwpn(int itemid)
         if(Lwpns.idCount(wCByrna))
         {
             stopCaneOfByrna();
-			misc_internal_link_flags &= ~LF_PAID_CBYRNA_COST;
             return false;
         }
         
-        if(!(misc_internal_link_flags & LF_PAID_CBYRNA_COST) && !checkmagiccost(itemid))
-            return false;
-		if(!(misc_internal_link_flags & LF_PAID_CBYRNA_COST))
-			paymagiccost(itemid);
-        else misc_internal_link_flags &= ~LF_PAID_CBYRNA_COST;
-		
+        if(!checkmagiccost(itemid))
+	{
+		stop_sfx(itemsbuf[itemid].usesound); //if we can't pay the cost, kill the sound. 
+		//last_cane_of_byrna_item_id = -1; //no, we'd do this in a byrna cleanup function. 
+		return false;
+	}
+            
+        paymagiccost(itemid);
+	last_cane_of_byrna_item_id = itemid; 
+        
         for(int i=0; i<itemsbuf[itemid].misc3; i++)
             Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+	if(!(Lwpns.idCount(wCByrna))) stop_sfx(itemsbuf[itemid].usesound); //If we can't create the beams, kill the sound. 
+	
     }
     break;
     
@@ -14652,13 +14663,36 @@ int Bweapon(int pos)
 
 void stopCaneOfByrna()
 {
-    for(int i=0; i<Lwpns.Count(); i++)
-    {
-        weapon *w = ((weapon*)Lwpns.spr(i));
+	byte prnt_cane = -1; 
+	weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wCByrna)));
+        prnt_cane = ew->parentitem;
+	for(int i=0; i<Lwpns.Count(); i++)
+	{
+		weapon *w = ((weapon*)Lwpns.spr(i));
         
-        if(w->id==wCByrna)
-            w->dead=1;
-    }
+		if(w->id==wCByrna)
+		{
+			w->dead=1;
+		}
+	}
+	if ( prnt_cane > -1 )
+	{
+		stop_sfx(itemsbuf[prnt_cane].usesound);
+	}
+}
+
+//Check if there are no beams, kill sfx, and reset last_cane_of_byrna_item_id
+void LinkClass::cleanupByrna()
+{
+	if ( last_cane_of_byrna_item_id > -1 )
+	{
+		//al_trace("Last cane id is: %d\n", last_cane_of_byrna_item_id);
+		if ( !(Lwpns.idCount(wCByrna)) )
+		{
+			stop_sfx(itemsbuf[last_cane_of_byrna_item_id].usesound);
+			last_cane_of_byrna_item_id = -1; 
+		}
+	}
 }
 
 // Used to find out if an item family is attached to one of the buttons currently pressed.

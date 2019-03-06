@@ -2901,6 +2901,7 @@ void game_loop()
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
 	#endif
+	Link.cleanupByrna(); //Prevent sfx glitches with Cane of Byrna if it fails to initialise; ported from 2.53. -Z
         do_magic_casting();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
