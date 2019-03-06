@@ -1663,7 +1663,12 @@ attack:
             }
             else if(action==swimming || action==swimhit || hopclk==0xFF)
             {
-                linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+                if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+			linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
                 
                 if(lstep>=6)
                 {
@@ -1679,8 +1684,15 @@ attack:
                 
                 if(diveclk>30)
                 {
-                    linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-                    if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+                    if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+		    }
+		    if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
                 }
             }
             else if(charging > 0 && attack != wHammer)
@@ -1746,12 +1758,26 @@ attack:
             }
             else if(action==swimming || action==swimhit || hopclk==0xFF)
             {
-                linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
-                if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+		    }
+		if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 
                 if(diveclk>30)
                 {
-                    linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+                    if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+		    }
                     if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
             }
@@ -1804,13 +1830,27 @@ attack:
             }
             else if(action == swimming || action==swimhit || hopclk==0xFF)
             {
-                linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
-                if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+		    }
+		if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 
                 if(diveclk>30)
                 {
-                    linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-                    if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                    if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+		    } 
+		    if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
             }
             else if(charging > 0 && attack != wHammer)
@@ -2587,7 +2627,7 @@ void LinkClass::check_slash_block(int bx, int by)
     
     if(!ignorescreen)
     {
-        if(!isTouchyType(type)) set_bit(screengrid,i,1);
+        if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(screengrid,i,1);
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
@@ -2630,7 +2670,7 @@ void LinkClass::check_slash_block(int bx, int by)
     
     if(!ignoreffc)
     {
-        if(!isTouchyType(type)) set_bit(ffcgrid, current_ffcombo, 1);
+        if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(ffcgrid, current_ffcombo, 1);
         
         if(isCuttableItemType(type2))
         {
@@ -3833,7 +3873,7 @@ void LinkClass::addsparkle(int wpn)
         }
         
         // Damaging boomerang sparkle?
-        if(wpn3 && itemtype==itype_brang)
+        if(wpn3 && itemtype==itype_brang && !FFCore.emulation[emuNOFLIPFIRETRAIL])
         {
             // If the boomerang just bounced, flip the sparkle direction so it doesn't hit
             // whatever it just bounced off of if it's shielded from that direction.
