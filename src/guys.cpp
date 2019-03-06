@@ -5223,8 +5223,15 @@ bool ePeahat::animate(int index)
     if(watch && get_bit(quest_rules,qr_PEAHATCLOCKVULN))
         superman=0;
     else
-        superman=(movestatus && !get_bit(quest_rules,qr_ENEMIESZAXIS)) ? 1 : 0;
-    stunclk=0;
+	superman=(movestatus && !get_bit(quest_rules,qr_ENEMIESZAXIS)) ? 1 : 0;
+	//stunclk=0; //Not sure what was going on here, or what was intended. Why was this set to 0? -Z
+    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x250 )
+    {
+	if ( stunclk ) --stunclk;
+    }
+    else stunclk = 0; //Was probably this way in 2.10 quests. if not, then we never need to clear it. -Z
+    //Pretty sure this was always an error. -Z ( 14FEB2019 )
+    
     
     if(x<16) dir=right; //this is ugly, but so is moving or creating these guys with scripts.
     
@@ -12307,6 +12314,7 @@ void kill_em_all()
     }
 }
 
+//This needs a quest rule, or enemy flag, Dying Enemy Doesn't  Hurt Link
 // For Link's hit detection. Don't count them if they are stunned or are guys.
 int GuyHit(int tx,int ty,int tz,int txsz,int tysz,int tzsz)
 {
