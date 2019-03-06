@@ -708,10 +708,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 			DataType const& from = getBaseType(*parameterTypes[i]);
 			DataType const& to = getBaseType(*function.paramTypes[i]);
 			if (from == to) continue;
-			if ((from == DataType::CFLOAT && to == DataType::FLOAT)
-				|| (from == DataType::CBOOL && to == DataType::BOOL)
-				|| (from == DataType::CUNTYPED && to == DataType::UNTYPED))
-				continue;
+			if(from.isConstant() && getNaiveType(from) == to) continue;
+			if(to.isConstant() && getNaiveType(to) == from) continue;
 			++castCount;
 		}
 
