@@ -75,9 +75,9 @@ namespace ZScript
 		ZVARTYPEID_BOOL,
 		ZVARTYPEID_PRIMITIVE_END,
 
-		ZVARTYPEID_CONST_FLOAT = ZVARTYPEID_PRIMITIVE_END,
+		//ZVARTYPEID_CONST_FLOAT = ZVARTYPEID_PRIMITIVE_END,
 
-		ZVARTYPEID_CLASS_START,
+		ZVARTYPEID_CLASS_START = ZVARTYPEID_PRIMITIVE_END,
 		ZVARTYPEID_GAME = ZVARTYPEID_CLASS_START,
 		ZVARTYPEID_LINK,
 		ZVARTYPEID_SCREEN,
@@ -117,7 +117,8 @@ namespace ZScript
 	};
 
 	class DataTypeSimple;
-	class DataTypeConstFloat;
+	class DataTypeSimpleConst;
+	//class DataTypeConstFloat;
 	class DataTypeClass;
 	class DataTypeArray;
 
@@ -139,6 +140,7 @@ namespace ZScript
 		// Derived class info.
 		virtual bool isArray() const {return false;}
 		virtual bool isClass() const {return false;}
+		virtual bool isConstant() const {return false;}
 
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
 		int compare(DataType const& rhs) const;
@@ -154,7 +156,10 @@ namespace ZScript
 		static DataTypeSimple const ZVOID;
 		static DataTypeSimple const FLOAT;
 		static DataTypeSimple const BOOL;
-		static DataTypeConstFloat const CONST_FLOAT;
+		static DataTypeSimpleConst const CUNTYPED;
+		static DataTypeSimpleConst const CFLOAT;
+		static DataTypeSimpleConst const CBOOL;
+		//static DataTypeConstFloat const CONST_FLOAT;
 		static DataTypeArray const STRING;
 		static DataTypeClass const FFC;
 		static DataTypeClass const ITEM;
@@ -235,17 +240,29 @@ namespace ZScript
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target) const;
 		virtual bool canBeGlobal() const;
+		virtual bool isConstant() const {return false;}
 
 		int getId() const {return simpleId;}
 
-	private:
+	protected:
 		int simpleId;
 		std::string name;
 
 		int selfCompare(DataType const& rhs) const;
 	};
+	
+	class DataTypeSimpleConst : public DataTypeSimple
+	{
+	public:
+		DataTypeSimpleConst(int simpleId, std::string const& name);
+		DataTypeSimpleConst* clone() const {return new DataTypeSimpleConst(*this);}
+		
+		virtual DataTypeSimpleConst* resolve(ZScript::Scope&) {return this;}
+		
+		virtual bool isConstant() const {return true;}
+	};
 
-	// Temporary while only floats can be constant.
+	/*// Temporary while only floats can be constant.
 	class DataTypeConstFloat : public DataType
 	{
 	public:
@@ -261,7 +278,7 @@ namespace ZScript
 
 	private:
 		int selfCompare(DataType const& other) const {return 0;};
-	};
+	};*/
 
 	class DataTypeClass : public DataType
 	{

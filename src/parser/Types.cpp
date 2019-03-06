@@ -128,6 +128,9 @@ DataTypeSimple const DataType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped");
 DataTypeSimple const DataType::ZVOID(ZVARTYPEID_VOID, "void");
 DataTypeSimple const DataType::FLOAT(ZVARTYPEID_FLOAT, "float");
 DataTypeSimple const DataType::BOOL(ZVARTYPEID_BOOL, "bool");
+DataTypeSimpleConst const DataType::CFLOAT(ZVARTYPEID_FLOAT, "const float");
+DataTypeSimpleConst const DataType::CBOOL(ZVARTYPEID_BOOL, "const bool");
+DataTypeSimpleConst const DataType::CUNTYPED(ZVARTYPEID_UNTYPED, "const untyped");
 DataTypeArray const DataType::STRING(FLOAT);
 DataTypeClass const DataType::GAME(ZCLASSID_GAME, "Game");
 DataTypeClass const DataType::LINK(ZCLASSID_LINK, "Link");
@@ -163,7 +166,7 @@ DataTypeClass const DataType::TUNES(ZCLASSID_TUNES, "Tunes");
 DataTypeClass const DataType::PALCYCLE(ZCLASSID_PALCYCLE, "PalCycle");
 DataTypeClass const DataType::GAMEDATA(ZCLASSID_GAMEDATA, "GameData");
 DataTypeClass const DataType::CHEATS(ZCLASSID_CHEATS, "Cheats");
-DataTypeConstFloat const DataType::CONST_FLOAT;
+//DataTypeConstFloat const DataType::CONST_FLOAT;
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -185,7 +188,7 @@ DataType const* DataType::get(DataTypeId id)
 	case ZVARTYPEID_VOID: return &ZVOID;
 	case ZVARTYPEID_FLOAT: return &FLOAT;
 	case ZVARTYPEID_BOOL: return &BOOL;
-	case ZVARTYPEID_CONST_FLOAT: return &CONST_FLOAT;
+	//case ZVARTYPEID_CONST_FLOAT: return &CONST_FLOAT;
 	case ZVARTYPEID_GAME: return &GAME;
 	case ZVARTYPEID_LINK: return &LINK;
 	case ZVARTYPEID_SCREEN: return &SCREEN;
@@ -255,7 +258,10 @@ bool ZScript::operator>=(DataType const& lhs, DataType const& rhs)
 
 DataType const& ZScript::getNaiveType(DataType const& type)
 {
-	if (type == DataType::CONST_FLOAT) return DataType::FLOAT;
+	//Convert constants
+	if(type == DataType::CFLOAT) return DataType::FLOAT;
+	if(type == DataType::CBOOL) return DataType::BOOL;
+	if(type == DataType::CUNTYPED) return DataType::UNTYPED;
 
 	DataType const* t = &type;
 	while (DataTypeArray const* ta = dynamic_cast<DataTypeArray const*>(t))
@@ -310,9 +316,9 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 	if (simpleId == ZVARTYPEID_UNTYPED) return true;
 	if (target == UNTYPED) return true;
 	
-	if (DataTypeConstFloat const* t =
+	/*if (DataTypeConstFloat const* t =
 			dynamic_cast<DataTypeConstFloat const*>(&target))
-		return canCastTo(DataType::FLOAT);
+		return canCastTo(DataType::FLOAT);*/
 
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
@@ -341,16 +347,23 @@ bool DataTypeSimple::canBeGlobal() const
 }
 
 ////////////////////////////////////////////////////////////////
+// DataTypeSimpleConst
+
+DataTypeSimpleConst::DataTypeSimpleConst(int simpleId, string const& name)
+	: DataTypeSimple(simpleId, name)
+{}
+
+////////////////////////////////////////////////////////////////
 // DataTypeConstFloat
 
-bool DataTypeConstFloat::canCastTo(DataType const& target) const
+/*bool DataTypeConstFloat::canCastTo(DataType const& target) const
 {
 	if (target == UNTYPED) return true;
 	if (target == BOOL) return true; //Not enough, it seems. Where do we check assigns to const? -Z
 	
 	if (*this == target) return true;
 	return DataType::FLOAT.canCastTo(target);
-}
+}*/
 
 ////////////////////////////////////////////////////////////////
 // DataTypeClass

@@ -299,7 +299,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 
 	// Is it a constant?
 	bool isConstant = false;
-	if (type == DataType::CONST_FLOAT)
+	if (type.isConstant())
 	{
 		// A constant without an initializer doesn't make sense.
 		if (!host.getInitializer())
@@ -504,7 +504,7 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 	checkCast(*rtype, *ltype, &host);
 	if (breakRecursion(host)) return;	
 
-	if (*ltype == DataType::CONST_FLOAT)
+	if (ltype->isConstant())
 		handleError(CompileError::LValConst(&host, host.left->asString()));
 	if (breakRecursion(host)) return;	
 }
@@ -523,7 +523,7 @@ void SemanticAnalyzer::caseExprIdentifier(
 	// Can't write to a constant.
 	if (param == paramWrite || param == paramReadWrite)
 	{
-		if (host.binding->type == DataType::CONST_FLOAT)
+		if (host.binding->type.isConstant())
 		{
 			handleError(CompileError::LValConst(&host, host.asString()));
 			return;
@@ -708,7 +708,9 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 			DataType const& from = getBaseType(*parameterTypes[i]);
 			DataType const& to = getBaseType(*function.paramTypes[i]);
 			if (from == to) continue;
-			if (from == DataType::CONST_FLOAT && to == DataType::FLOAT)
+			if ((from == DataType::CFLOAT && to == DataType::FLOAT)
+				|| (from == DataType::CBOOL && to == DataType::BOOL)
+				|| (from == DataType::CUNTYPED && to == DataType::UNTYPED))
 				continue;
 			++castCount;
 		}

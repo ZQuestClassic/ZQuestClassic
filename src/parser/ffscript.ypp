@@ -268,6 +268,9 @@ DataType :
 	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
 	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}
 	| ZFLOAT {$$ = new ASTDataType(DataType::FLOAT, @$);}
+	| ZCONST UNTYPED {$$ = new ASTDataType(DataType::CUNTYPED, @$);}
+	| ZCONST ZBOOL {$$ = new ASTDataType(DataType::CBOOL, @$); }
+	| ZCONST ZFLOAT {$$ = new ASTDataType(DataType::CFLOAT, @$); }
 	| BITMAP {$$ = new ASTDataType(DataType::BITMAP, @$);}
 	| CHEAT {$$ = new ASTDataType(DataType::CHEATS, @$);}
 	| COMBO {$$ = new ASTDataType(DataType::COMBOS, @$);}
@@ -297,9 +300,6 @@ DataType :
 			ASTString *name = (ASTString*)$1;
 			$$ = new ASTDataType(DataTypeUnresolved(name->getValue()), @$);
 			delete name;}
-	| ZCONST ZFLOAT {$$ = new ASTDataType(new DataTypeConstFloat(), @$); }
-	| ZCONST ZBOOL {$$ = new ASTDataType(new DataTypeConstFloat(), @$); }
-	| ZCONST UNTYPED {$$ = new ASTDataType(new DataTypeConstFloat(), @$);}
 	;
 
 ScriptTypeDef : SCRIPT TYPEDEF Script_Type IDENTIFIER {
