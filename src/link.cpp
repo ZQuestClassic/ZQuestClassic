@@ -10922,6 +10922,7 @@ void LinkClass::checkspecial2(int *ls)
     
     if(flag==mfZELDA||flag2==mfZELDA||flag3==mfZELDA || combo_class_buf[type].win_game)
     {
+	attackclk = 0; //get rid of Link's sword if it was stuck out, charged. 
         saved_Zelda();
         return;
     }
