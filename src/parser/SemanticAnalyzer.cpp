@@ -373,6 +373,20 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 			handleError(CompileError::ExprNotConstant(&host));
 			return;
 		}
+		
+		if(optional<long> theSize = size.getCompileTimeValue(this, scope))
+		{
+			if(*theSize % 10000)
+			{
+				handleError(CompileError::ArrayDecimal(&host));
+			}
+			theSize = (*theSize / 10000);
+			if(*theSize < 1 || *theSize > 214748)
+			{
+				handleError(CompileError::ArrayInvalidSize(&host));
+				return;
+			}
+		}
 	}
 }
 
@@ -951,7 +965,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		handleError(CompileError::ArrayLiteralResize(&host));
 		return;
 	}
-
+	
 	// If present, resolve the explicit type.
 	if (host.type)
 	{
@@ -977,12 +991,12 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 						DataTypeArray(elementType)));
 	}
 
-	// Otherwise, grab the type from the first element.
+	// Otherwise, default to Untyped -V
 	else
 	{
 		host.setReadType(
 				program.getTypeStore().getCanonicalType(
-						DataTypeArray(*host.elements[0]->getReadType())));
+						DataTypeArray(DataType::UNTYPED)));
 	}
 
 	// If initialized, check that each element can be cast to type.
