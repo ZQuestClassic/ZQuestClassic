@@ -27462,3 +27462,7 @@ void ZModule::load(bool zquest)
 
 /* end */
 
+long FFScript::getQuestHeaderInfo(int type)
+{
+    return quest_format[type];
+}

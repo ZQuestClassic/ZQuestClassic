@@ -1660,13 +1660,27 @@ hitclock:
     }
     else sfx(WAV_EHIT, pan(int(x))); //Don't play this one if the user sets a custom sound!
 */
-    
+/*
     if( hitsfx > 0 ) //A sound is set. 
     {
 	if ( !dying ) //Don't play the hit sound when dying. 
 		sfx(hitsfx, pan(int(x)));
     }
-    
+*/
+     if ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 31 )) //2.53 Gamma 2 and later
+    {
+	    if( hitsfx > 0 ) //user-set hit sound. 
+	    {
+		    if (!dying) //don't play the hit sound on death! -Z
+			sfx(hitsfx, pan(int(x)));
+	    }
+	    else sfx(WAV_EHIT, pan(int(x))); //Don't play the hardcoded sound if the user sets a custom one. 
+    }
+    else //2.50.2 or earlier
+    {
+	sfx(WAV_EHIT, pan(int(x)));
+	sfx(hitsfx, pan(int(x)));
+    }
     if(family==eeGUY)
         sfx(WAV_EDEAD, pan(int(x)));
         
