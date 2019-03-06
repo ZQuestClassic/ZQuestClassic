@@ -7160,26 +7160,66 @@ bool eStalfos::animate(int index)
                     {
                         if(dmisc2==e2tBOMBCHU && LinkInRange(16) && wpn+dmisc3 > wEnemyWeapons) //Bombchu
                         {
-                            hp=-1000;
+				
+			    if (  FFCore.emulation[emu210BOMBCHU]  ) 
+			    {
+				    hp=-1000;
                             
-                            int wpn2;
-                            if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
-                                wpn2=wpn;
-                            else
-                                wpn2=wpn;
-                            
-                            weapon *ew=new weapon(x,y,z, wpn2, 0, dmisc4, dir,-1,getUID());
-                            Ewpns.add(ew);
-                            
-                            if(wpn2==ewSBomb || wpn2==ewBomb)
-                            {
-                                ew->step=0;
-                                ew->id=wpn2;
-                                ew->misc=50;
-                                ew->clk=48;
-                            }
-                            
-                            fired=true;
+				    if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
+				    {
+					weapon *ew=new weapon(x,y,z, wpn+dmisc3, 0, dmisc4, dir,-1,getUID());
+					Ewpns.add(ew);
+					
+					if(wpn==ewSBomb || wpn==ewBomb)
+					{
+					    ew->step=0;
+					    ew->id=wpn+dmisc3;
+					    ew->misc=50;
+					    ew->clk=48;
+					}
+					
+					fired=true;
+				    }
+				    else
+				    {
+					weapon *ew=new weapon(x,y,z, wpn, 0, dmisc4, dir,-1,getUID());
+					Ewpns.add(ew);
+					
+					if(wpn==ewSBomb || wpn==ewBomb)
+					{
+					    ew->step=0;
+					    ew->id=wpn;
+					    ew->misc=50;
+					    ew->clk=48;
+					}
+					
+					fired=true;
+				    }
+			    }
+			    
+			    else
+			    {
+				    hp=-1000;
+				    
+				    int wpn2;
+				    if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
+					wpn2=wpn;
+				    else
+					wpn2=wpn;
+				    
+				    weapon *ew=new weapon(x,y,z, wpn2, 0, dmisc4, dir,-1,getUID());
+				    Ewpns.add(ew);
+				    
+				    if(wpn2==ewSBomb || wpn2==ewBomb)
+				    {
+					ew->step=0;
+					ew->id=wpn2;
+					ew->misc=50;
+					ew->clk=48;
+				    }
+				    
+				    fired=true;
+			    }
                         }
                     }
                     
@@ -7969,7 +8009,66 @@ bool eWizzrobe::animate(int index)
                 {
 		    // Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
 		    // but should not appear on dungeon walls.	
-                    place_on_axis(true, dmisc4!=0);
+                    if ( FFCore.getQuestHeaderInfo(vZelda) <= 0x190 ) place_on_axis(true, false); //1.84, and probably 1.90 wizzrobes should NEVER appear in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by Chris Miller).
+                    else if ( (FFCore.getQuestHeaderInfo(vZelda) == 0x210 || FFCore.getQuestHeaderInfo(vZelda) == 0x192 ) && id == eWWIZ && FFCore.emulation[emu210WINDROBES] ) 
+		    {
+			    //2.10 Windrobe
+			    //randomise location and face Link
+			int t=0;
+			bool placed=false;
+                    
+			while(!placed && t<160)
+			{
+				if(isdungeon())
+				{
+					x=((rand()%12)+2)*16;
+					y=((rand()%7)+2)*16;
+				}
+				else
+				{
+					x=((rand()%14)+1)*16;
+					y=((rand()%9)+1)*16;
+				}
+                        
+				if(!m_walkflag(x,y,spw_door)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
+				{
+					placed=true;
+				}
+                        
+				++t;
+			}
+                    
+			if(abs(x-Link.getX())<abs(y-Link.getY()))
+			{
+				if(y<Link.getY())
+				{
+					dir=down;
+				}
+				else
+				{
+					dir=up;
+				}
+			}
+			else
+			{
+				if(x<Link.getX())
+				{
+					dir=right;
+				}
+				else
+				{
+					dir=left;
+				}
+			}
+                    
+			if(!placed)                                       // can't place him, he's gone
+				return true;
+                
+			    
+			//wizzrobe_attack(); //COmplaint about 2.10 Windrobes not behaving as they did in 2.10. Let's try it this way. -Z
+			//wizzrobe_attack_for_real(); //doing this makes them fire twice. The rest is correct.
+		    }
+		    else place_on_axis(true, dmisc4!=0);
                 }
                 else
                 {
@@ -8089,6 +8188,33 @@ void eWizzrobe::wizzrobe_attack_for_real()
         addEwpn(x,y,z,wpn,0,wdp,l_down,getUID());
         addEwpn(x,y,z,wpn,0,wdp,r_down,getUID());
         sfx(WAV_FIRE,pan(int(x)));
+	if (  FFCore.emulation[emu8WAYSHOTSFX] ) sfx(WAV_FIRE,pan(int(x))); 
+	else
+	{
+		switch(wpn)
+		{
+			case ewFireball: sfx(40,pan(int(x))); break;
+				
+			case ewArrow: sfx(1,pan(int(x))); break; //Ghost.zh has 0?
+			case ewBrang: sfx(4,pan(int(x))); break; //Ghost.zh has 0?
+			case ewSword: sfx(20,pan(int(x))); break; //Ghost.zh has 0?
+			case ewRock: sfx(51,pan(int(x))); break;
+			case ewMagic: sfx(32,pan(int(x))); break;
+			case ewBomb: sfx(3,pan(int(x))); break; //Ghost.zh has 0?
+			case ewSBomb: sfx(3,pan(int(x))); break; //Ghost.zh has 0?
+			case ewLitBomb: sfx(21,pan(int(x))); break; //Ghost.zh has 0?
+			case ewLitSBomb:  sfx(21,pan(int(x))); break; //Ghost.zh has 0?
+			case ewFireTrail:  sfx(13,pan(int(x))); break;
+			case ewFlame: sfx(13,pan(int(x))); break;
+			case ewWind: sfx(32,pan(int(x))); break;
+			case ewFlame2: sfx(13,pan(int(x))); break;
+			case ewFlame2Trail: sfx(13,pan(int(x))); break;
+			case ewIce: sfx(44,pan(int(x))); break;
+			case ewFireball2: sfx(40,pan(int(x))); break; //fireball (rising)
+			default: sfx(WAV_FIRE,pan(int(x)));  break;
+			
+		}
+	}
     }
     else if(dmisc2==2)  // summons specific enemy
     {
