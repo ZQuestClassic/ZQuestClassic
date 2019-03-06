@@ -1,6 +1,17 @@
 ChangeLog for 2.53.0 
 
 //Gamma 5
+
+Added the following item scripts to Classic.zh, and items
+	to the default quest in qst.dat:
+	
+	MagicBossKey: Acts like the Magical Key, for Boss Locks.
+		Set to item ID: 146
+	MagicalMap: Gives the player the dungeon map to every dungeon.
+		Set to item ID: 147
+	Magical Compass: Gives the player the compass item to every dungeon.
+		Set to item ID: 148
+
 Renamed all system-wide screenshot files as follows:
 	ZC: 
 		zc_screen#####.png
