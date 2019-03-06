@@ -1,7 +1,17 @@
 ChangeLog for 2.53.0 
 
 //Gamma 5
-THe Export ZScript now uses the .zs extension by default (no ZLIB conflicts).
+Renamed all system-wide screenshot files as follows:
+	ZC: 
+		zc_screen#####.png
+	ZQuest:
+		Maps:
+			zq_map#####.png
+		Screen:
+			zq_screen#####.png
+	( ZoriaRPG, 6th March, 2019 )
+
+The Export ZScript now uses the .zs extension by default (no ZLIB conflicts).
 ZCL version is now 2.6.12:
 	Fixed default pane of the ZQuest tab in ZCL.
 	Removed duplicate 'Misaligns' option box in ZCL.
