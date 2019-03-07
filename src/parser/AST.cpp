@@ -536,6 +536,37 @@ void ASTDataDeclList::addDeclaration(ASTDataDecl* declaration)
 	declarations_.push_back(declaration);
 }
 
+// ASTDataEnum
+
+ASTDataEnum::ASTDataEnum(LocationData const& location)
+	: ASTDataDeclList(location), nextVal(0)
+{
+	baseType = new ASTDataType(DataType::CFLOAT, location);
+}
+
+void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseDataEnum(*this, param);
+}
+
+void ASTDataEnum::addDeclaration(ASTDataDecl* declaration)
+{
+	if(ASTExpr* init = declaration->getInitializer())
+	{
+		if(init->getCompileTimeValue())
+		{
+			nextVal = *init->getCompileTimeValue() / 10000;
+		}
+	}
+	else
+	{
+		ASTNumberLiteral* value = new ASTNumberLiteral(new ASTFloat(nextVal, ASTFloat::TYPE_DECIMAL, location), location);
+		declaration->setInitializer(value);
+	}
+	++nextVal;
+	ASTDataDeclList::addDeclaration(declaration);
+}
+
 // ASTDataDecl
 
 ASTDataDecl::ASTDataDecl(LocationData const& location)

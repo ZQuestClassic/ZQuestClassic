@@ -38,6 +38,7 @@ namespace ZScript
 		void caseDataTypeDef(ASTDataTypeDef& host, void* = NULL);
 		void caseScriptTypeDef(ASTScriptTypeDef& host, void* = NULL);
 		void caseDataDeclList(ASTDataDeclList& host, void* = NULL);
+		void caseDataEnum(ASTDataEnum& host, void* = NULL);
 		void caseDataDecl(ASTDataDecl& host, void* = NULL);
 		void caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void* = NULL);
 		void caseFuncDecl(ASTFuncDecl& host, void* = NULL);

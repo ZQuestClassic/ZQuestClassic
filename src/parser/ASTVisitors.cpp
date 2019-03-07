@@ -195,6 +195,13 @@ void RecursiveVisitor::caseDataDeclList(ASTDataDeclList& host, void* param)
 	visit(host, host.getDeclarations(), param);
 }
 
+void RecursiveVisitor::caseDataEnum(ASTDataEnum& host, void* param)
+{
+	visit(host.baseType.get(), param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.getDeclarations(), param);
+}
+
 void RecursiveVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 {
 	visit(host.baseType.get(), param);
