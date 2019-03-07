@@ -75,9 +75,7 @@ namespace ZScript
 		ZVARTYPEID_BOOL,
 		ZVARTYPEID_PRIMITIVE_END,
 
-		ZVARTYPEID_CONST_FLOAT = ZVARTYPEID_PRIMITIVE_END,
-
-		ZVARTYPEID_CLASS_START,
+		ZVARTYPEID_CLASS_START = ZVARTYPEID_PRIMITIVE_END,
 		ZVARTYPEID_GAME = ZVARTYPEID_CLASS_START,
 		ZVARTYPEID_LINK,
 		ZVARTYPEID_SCREEN,
@@ -117,8 +115,9 @@ namespace ZScript
 	};
 
 	class DataTypeSimple;
-	class DataTypeConstFloat;
+	class DataTypeSimpleConst;
 	class DataTypeClass;
+	class DataTypeClassConst;
 	class DataTypeArray;
 
 	class DataType
@@ -139,6 +138,8 @@ namespace ZScript
 		// Derived class info.
 		virtual bool isArray() const {return false;}
 		virtual bool isClass() const {return false;}
+		virtual bool isConstant() const {return false;}
+		virtual bool isUntyped() const {return false;}
 
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
 		int compare(DataType const& rhs) const;
@@ -154,41 +155,71 @@ namespace ZScript
 		static DataTypeSimple const ZVOID;
 		static DataTypeSimple const FLOAT;
 		static DataTypeSimple const BOOL;
-		static DataTypeConstFloat const CONST_FLOAT;
+		static DataTypeSimpleConst const CUNTYPED;
+		static DataTypeSimpleConst const CFLOAT;
+		static DataTypeSimpleConst const CBOOL;
 		static DataTypeArray const STRING;
-		static DataTypeClass const FFC;
-		static DataTypeClass const ITEM;
-		static DataTypeClass const ITEMCLASS;
-		static DataTypeClass const NPC;
-		static DataTypeClass const LWPN;
-		static DataTypeClass const EWPN;
+		//Classes: Global Pointer
 		static DataTypeClass const GAME;
 		static DataTypeClass const LINK;
 		static DataTypeClass const SCREEN;
 		static DataTypeClass const AUDIO;
 		static DataTypeClass const DEBUG;
-		static DataTypeClass const NPCDATA;
-		static DataTypeClass const COMBOS;
-		static DataTypeClass const SPRITEDATA;
 		static DataTypeClass const GRAPHICS;
-		static DataTypeClass const BITMAP;
-		static DataTypeClass const TEXT;
 		static DataTypeClass const INPUT;
-		static DataTypeClass const MAPDATA;
-		static DataTypeClass const DMAPDATA;
-		static DataTypeClass const ZMESSAGE;
-		static DataTypeClass const SHOPDATA;
-		static DataTypeClass const DROPSET;
-		static DataTypeClass const PONDS;
-		static DataTypeClass const WARPRING;
-		static DataTypeClass const DOORSET;
-		static DataTypeClass const ZUICOLOURS;
-		static DataTypeClass const RGBDATA;
-		static DataTypeClass const PALETTE;
-		static DataTypeClass const TUNES;
-		static DataTypeClass const PALCYCLE;
-		static DataTypeClass const GAMEDATA;
+		static DataTypeClass const TEXT;
+		//Class: Var Types
+		static DataTypeClass const BITMAP;
 		static DataTypeClass const CHEATS;
+		static DataTypeClass const COMBOS;
+		static DataTypeClass const DOORSET;
+		static DataTypeClass const DROPSET;
+		static DataTypeClass const DMAPDATA;
+		static DataTypeClass const EWPN;
+		static DataTypeClass const FFC;
+		static DataTypeClass const GAMEDATA;
+		static DataTypeClass const ITEM;
+		static DataTypeClass const ITEMCLASS;
+		static DataTypeClass const LWPN;
+		static DataTypeClass const MAPDATA;
+		static DataTypeClass const ZMESSAGE;
+		static DataTypeClass const ZUICOLOURS;
+		static DataTypeClass const NPC;
+		static DataTypeClass const NPCDATA;
+		static DataTypeClass const PALCYCLE;
+		static DataTypeClass const PALETTE;
+		static DataTypeClass const PONDS;
+		static DataTypeClass const RGBDATA;
+		static DataTypeClass const SHOPDATA;
+		static DataTypeClass const SPRITEDATA;
+		static DataTypeClass const TUNES;
+		static DataTypeClass const WARPRING;
+		//Class: Const Types
+		static DataTypeClassConst const CBITMAP;
+		static DataTypeClassConst const CCHEATS;
+		static DataTypeClassConst const CCOMBOS;
+		static DataTypeClassConst const CDOORSET;
+		static DataTypeClassConst const CDROPSET;
+		static DataTypeClassConst const CDMAPDATA;
+		static DataTypeClassConst const CEWPN;
+		static DataTypeClassConst const CFFC;
+		static DataTypeClassConst const CGAMEDATA;
+		static DataTypeClassConst const CITEM;
+		static DataTypeClassConst const CITEMCLASS;
+		static DataTypeClassConst const CLWPN;
+		static DataTypeClassConst const CMAPDATA;
+		static DataTypeClassConst const CZMESSAGE;
+		static DataTypeClassConst const CZUICOLOURS;
+		static DataTypeClassConst const CNPC;
+		static DataTypeClassConst const CNPCDATA;
+		static DataTypeClassConst const CPALCYCLE;
+		static DataTypeClassConst const CPALETTE;
+		static DataTypeClassConst const CPONDS;
+		static DataTypeClassConst const CRGBDATA;
+		static DataTypeClassConst const CSHOPDATA;
+		static DataTypeClassConst const CSPRITEDATA;
+		static DataTypeClassConst const CTUNES;
+		static DataTypeClassConst const CWARPRING;
 		static DataType const* get(DataTypeId id);
 	};
 
@@ -235,32 +266,27 @@ namespace ZScript
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target) const;
 		virtual bool canBeGlobal() const;
+		virtual bool isConstant() const {return false;}
+		virtual bool isUntyped() const {return simpleId == ZVARTYPEID_UNTYPED;}
 
 		int getId() const {return simpleId;}
 
-	private:
+	protected:
 		int simpleId;
 		std::string name;
 
 		int selfCompare(DataType const& rhs) const;
 	};
-
-	// Temporary while only floats can be constant.
-	class DataTypeConstFloat : public DataType
+	
+	class DataTypeSimpleConst : public DataTypeSimple
 	{
 	public:
-		DataTypeConstFloat() {}
-		DataType* clone() const {return new DataTypeConstFloat(*this);}
+		DataTypeSimpleConst(int simpleId, std::string const& name);
+		DataTypeSimpleConst* clone() const {return new DataTypeSimpleConst(*this);}
 		
-		virtual DataTypeConstFloat* resolve(ZScript::Scope& scope) {
-			return this;}
-
-		virtual std::string getName() const {return "const float";}
-		virtual bool canCastTo(DataType const& target) const;
-		virtual bool canBeGlobal() const {return true;}
-
-	private:
-		int selfCompare(DataType const& other) const {return 0;};
+		virtual DataTypeSimpleConst* resolve(ZScript::Scope&) {return this;}
+		
+		virtual bool isConstant() const {return true;}
 	};
 
 	class DataTypeClass : public DataType
@@ -276,15 +302,27 @@ namespace ZScript
 		virtual bool canCastTo(DataType const& target) const;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool isClass() const {return true;}
+		virtual bool isConstant() const {return false;}
 
 		std::string getClassName() const {return className;}
 		int getClassId() const {return classId;}
 		
-	private:
+	protected:
 		int classId;
 		std::string className;
 
 		int selfCompare(DataType const& other) const;
+	};
+	
+	class DataTypeClassConst : public DataTypeClass
+	{
+	public:
+		DataTypeClassConst(int classId, std::string const& name);
+		DataTypeClassConst* clone() const {return new DataTypeClassConst(*this);}
+		
+		virtual DataTypeClassConst* resolve(ZScript::Scope&) {return this;}
+		
+		virtual bool isConstant() const {return true;}
 	};
 
 	class DataTypeArray : public DataType

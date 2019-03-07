@@ -1,5 +1,5 @@
 //std_functions.zh
-//24th September, 2018 for ZC 2.55
+//7th March, 2019 for ZC 2.55.0, Alpha 14
 
 //
 // Some utility routines
@@ -258,35 +258,6 @@ bool ComboFI(int loc, int flag){
 	return Screen->ComboF[loc] == flag || Screen->ComboI[loc] == flag;
 }
 
-//Sets bit 'bit' of Screen->D[] register 'd' to 'state'
-void SetScreenDBit(int dmap, int screen, int d, int bit, bool state){
-	int curstate = Game->GetDMapScreenD(dmap, screen, d);
-	if(state)	Game->SetDMapScreenD(dmap, screen, d, curstate |  (1 << bit));
-	else 		Game->SetDMapScreenD(dmap, screen, d, curstate & ~(1 << bit));
-}
-void SetScreenDBit(int screen, int d, int bit, bool state){
-	int curstate = Game->GetScreenD(screen, d);
-	if(state)	Game->SetScreenD(screen, d, curstate |  (1 << bit));
-	else 		Game->SetScreenD(screen, d, curstate & ~(1 << bit));
-}
-void SetScreenDBit(int d, int bit, bool state){
-    if(state)	Screen->D[d] |= (1 << bit);
-    else		Screen->D[d] &= ~(1 << bit);
-}
-
-//Returns the state of bit 'bit' of Screen->D[] register 'd'
-bool GetScreenDBit(int dmap, int screen, int d, int bit){
-	return ( Game->GetDMapScreenD(dmap, screen, d) & (1 << bit) );
-}
-bool GetScreenDBit(int screen, int d, int bit){
-	return ( Game->GetScreenD(screen, d) & (1 << bit) );
-}
-bool GetScreenDBit(int d, int bit){
-    return (Screen->D[d] & (1 << bit));
-}
-
-//A shorthand way to get a combo on the current layer.
-//Layer 0 is the screen itself.
 int GetLayerComboC(int layer, int pos) 
 {
 	if (layer < 0 )
@@ -954,6 +925,35 @@ void SetLayerComboS(int layer, int pos, int combo)
 	}
 }
 
+
+//Sets bit 'bit' of Screen->D[] register 'd' to 'state'
+void SetScreenDBit(int dmap, int screen, int d, int bit, bool state){
+	int curstate = Game->GetDMapScreenD(dmap, screen, d);
+	if(state)	Game->SetDMapScreenD(dmap, screen, d, curstate |  (1 << bit));
+	else 		Game->SetDMapScreenD(dmap, screen, d, curstate & ~(1 << bit));
+}
+void SetScreenDBit(int screen, int d, int bit, bool state){
+	int curstate = Game->GetScreenD(screen, d);
+	if(state)	Game->SetScreenD(screen, d, curstate |  (1 << bit));
+	else 		Game->SetScreenD(screen, d, curstate & ~(1 << bit));
+}
+void SetScreenDBit(int d, int bit, bool state){
+    if(state)	Screen->D[d] |= (1 << bit);
+    else		Screen->D[d] &= ~(1 << bit);
+}
+
+//Returns the state of bit 'bit' of Screen->D[] register 'd'
+bool GetScreenDBit(int dmap, int screen, int d, int bit){
+	return ( Game->GetDMapScreenD(dmap, screen, d) & (1 << bit) );
+}
+bool GetScreenDBit(int screen, int d, int bit){
+	return ( Game->GetScreenD(screen, d) & (1 << bit) );
+}
+bool GetScreenDBit(int d, int bit){
+    return (Screen->D[d] & (1 << bit));
+}
+
+
 //Copies the combos and csets from one screen to another.
 //Only copies layer 0!
 void ScreenCopy(int destmap, int destscr, int srcmap, int srcscr) {
@@ -1090,17 +1090,38 @@ float VectorY(int len, float angle) {
 }
 
 //rotates X about a center point by an amount of degrees
-float RotatePointX(float x, float y, float centerX, float centerY, float degrees) {
-  float dx = x - centerX;
-  float dy = y - centerY;
-  return (Cos(degrees) * dx) - (Sin(degrees) * dy) + centerX;
+float RotatePointX(float x, float y, float centerX, float centerY, float degrees) 
+{
+  
+	if ( REVISED_ROTATEPOINT_X_FUNCTION )
+	{
+		int distance = LargeDistance(centerX, centerY, x, y, 10);
+		int angle = Angle(centerX, centerY, x, y);
+		return centerX+VectorX(distance, angle+degrees);
+	}
+	else
+	{
+		float dx = x - centerX;
+		float dy = y - centerY;
+		return (Cos(degrees) * dx) - (Sin(degrees) * dy) + centerX;
+	}
 }
 
 //rotates Y about a center point by an amount of degrees
-float RotatePointY(float x, float y, float centerX, float centerY, float degrees) {
-  float dx = x - centerX;
-  float dy = y - centerY;
-  return (Sin(degrees) * dx) - (Cos(degrees) * dy) + centerY;
+float RotatePointY(float x, float y, float centerX, float centerY, float degrees) 
+{
+	if ( REVISED_ROTATEPOINT_Y_FUNCTION )
+	{
+		int distance = LargeDistance(centerX, centerY, x, y, 10);
+		int angle = Angle(centerX, centerY, x, y);
+		return centerY+VectorY(distance, angle+degrees);
+	}
+	else
+	{
+		float dx = x - centerX;
+		float dy = y - centerY;
+		return (Sin(degrees) * dx) - (Cos(degrees) * dy) + centerY;
+	}
 }
 
 //scales X to centerX by a given scale
@@ -1517,6 +1538,54 @@ bool LinkCollision(ffc f) {
   return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
 }
 
+// Returns true if there is a collision between Link's hitbox and the eweapon's.
+// This only checks hitboxes.
+bool Collision(eweapon b) {
+  int ax = Link->X + Link->HitXOffset;
+  int bx = b->X + b->HitXOffset;
+  int ay = Link->Y + Link->HitYOffset;
+  int by = b->Y + b->HitYOffset;
+  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the lweapon's.
+// This only checks hitboxes.
+bool Collision(lweapon b) {
+  int ax = Link->X + Link->HitXOffset;
+  int bx = b->X + b->HitXOffset;
+  int ay = Link->Y + Link->HitYOffset;
+  int by = b->Y + b->HitYOffset;
+  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the item's.
+// This only checks hitboxes.
+bool Collision(item b) {
+  int ax = Link->X + Link->HitXOffset;
+  int bx = b->X + b->HitXOffset;
+  int ay = Link->Y + Link->HitYOffset;
+  int by = b->Y + b->HitYOffset;
+  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the npc's.
+// This only checks hitboxes.  Uses TileWidth and TileHeight to find the centre of the FFCs.
+bool Collision(npc b) {
+  int ax = Link->X + Link->HitXOffset;
+  int bx = b->X + b->HitXOffset;
+  int ay = Link->Y + Link->HitYOffset;
+  int by = b->Y + b->HitYOffset;
+  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the FFC's.
+// This only checks hitboxes.
+bool Collision(ffc f) {
+  int ax = Link->X + Link->HitXOffset;
+  int ay = Link->Y + Link->HitYOffset;
+  return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
+}
+
 // Returns the X coordinate of the left edge of the hitbox.
 int HitboxLeft(eweapon a) {
   return (a->X + a->HitXOffset);
@@ -1649,7 +1718,8 @@ int NumTriforcePieces(){
 //Returns 1 if Screen Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
 //Flags are numbered starting from 0
 int ScreenFlag(int category, int flag) {
-	int catsizes[] = {3,7,5,3,2,4,4,2,3,7};
+	int catsizes[] = {3,7,4,5,2,4,4,2,3,7}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
+	//int catsizes[] = {3,7,5,3,2,4,4,2,3,7}; //old value, plain wrong -Z ( 12th February, 2019 )
 	if(flag < 0 || flag >= catsizes[category]) return -1;
 	return Screen->Flags[category]&(1<<flag);
 }
@@ -1657,7 +1727,9 @@ int ScreenFlag(int category, int flag) {
 //Returns 1 if Screen Enemy Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
 //Flags are numbered starting from 0
 int ScreenEFlag(int category, int flag) {
-	int catsizes[] = {6,6,5};
+	int catsizes[] = {5,5,4}; //this is what the editor shows. 
+	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
+	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
 	if(flag < 0 || flag >= catsizes[category]) return -1;
 	return Screen->EFlags[category]&(1<<flag);
 }
@@ -1861,9 +1933,9 @@ int WeaponTypeToID(int wpnt)
 	else if(wpnt == WPN_ENEMYSWORD)		return EW_BEAM;
 	else if(wpnt == WPN_ENEMYROCK)		return EW_ROCK;
 	else if(wpnt == WPN_ENEMYMAGIC)		return EW_MAGIC;
-	else if(wpnt == WPN_ENEMYBOMB)		return EW_BOMB;
+	else if(wpnt == WPN_ENEMYBOMB)		return EW_BOMBBLAST; //flipped bomb and lit bomb in older versions of this file. -Z ( 12th February, 2019 )
 	else if(wpnt == WPN_ENEMYSBOMB)		return EW_SBOMB;
-	else if(wpnt == WPN_ENEMYLITBOMB)	return EW_BOMBBLAST;
+	else if(wpnt == WPN_ENEMYLITBOMB)	return EW_BOMB;
 	else if(wpnt == WPN_ENEMYLITSBOMB)	return EW_SBOMBBLAST;
 	else if(wpnt == WPN_ENEMYFIRETRAIL)	return EW_FIRETRAIL;
 	else if(wpnt == WPN_ENEMYFLAME2)	return EW_FIRE2;
@@ -2286,28 +2358,6 @@ itemdata GetItemData(item i)
 	return Game->LoadItemData(i->ID);
 }
 
-/* Submitted by Grayswandir. Needs repair.
-int GetHighestLevelItemOwned(int itemclass)
-{
-    int highestId = -1;
-    int highestLevel = -1;
-    for (int id = 0; id < 256; ++id)
-    {
-        // Check ownership.
-        if (!Link->Item[id]) continue;
-        // Check item class.
-        itemdata idata = Game->LoadItemData(i);
-        if (idata->Family != itemclass) continue;
-        // Check level.
-        if (idata->Level <= highestLevel) continue;
-        // Highest so far, so remember.
-        highestId = id;
-        highestLevel = idata->Level;
-    }
-    return highestId;
-}
-*/
-
 //Returns the item ID of the item with the highest level of a given class that Link owns. 
 //Returns -1 on failure. 
 //Note that this may be a slow process if used in iteration, because of the array sorting involved! -Z
@@ -2494,12 +2544,12 @@ void old_SetLayerComboI(int layer, int pos, int solidity) {
 
 //Returns true if Link is on a Dungeon (flagged) screen
 bool IsDungeonFlag() {
-	return ((Screen->Flags[SF_ROOMTYPE]) & 1);
+	return Screen->Flags[SF_ROOMTYPE] & 1;
 }
 
 //Returns true if Link is on an Interior (flagged) screen
 bool IsInteriorFlag() {
-	return ((Screen->Flags[SF_ROOMTYPE]) & 2);
+	return Screen->Flags[SF_ROOMTYPE] & 2;
 }
 
 
@@ -2598,677 +2648,6 @@ bool InputMiddleClick() {
 	return (Link->InputMouseB&MB_MIDDLECLICK);
 }
 
-bool HasKey(int level)
-{
-    return Game->LKeys[level]>0 || Game->Counter[CR_KEYS]>0;
-}
-
-bool HasKey()
-{
-    return HasKey(Game->GetCurLevel());
-}
-
-int NumKeys(int level)
-{
-    return Game->LKeys[level]+Game->Counter[CR_KEYS];
-}
-
-int NumKeys()
-{
-    return NumKeys(Game->GetCurLevel());
-}
-
-bool ConsumeKey(int level)
-{
-    if(Game->LKeys[level]>0)
-    {
-        Game->LKeys[level]--;
-        return true;
-    }
-    else if(Game->Counter[CR_KEYS]>0)
-    {
-        Game->Counter[CR_KEYS]--;
-        return true;
-    }
-    else
-        return false;
-}
-
-bool ConsumeKey()
-{
-    return ConsumeKey(Game->GetCurLevel());
-}
-
-
-//itemdata for 2.54+
-
-int GetItemID(item i){
-	return i->ID;
-}
-
-int GetLinkTileModifier(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Modifier;
-}
-
-void SetLinkTileModifier(item i, int mod){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Modifier = mod;
-}
-
-//Possible conflicts with item->Tile, item->Cset, and similar. 
-//We need separate functions for these between class item and class itemdats. 
-//perhaps bool global to chose between a screen item, and the global itemdata?
-int GetItemTile(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Tile;
-}
-
-void SetItemTile(item i, int tile){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Tile = tile;
-}
-
-int GetItemCSet(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->CSet;
-}
-
-void SetItemCSet(item i, int cset){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->CSet = cset;
-}
-
-int GetItemFlash(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Flash;
-}
-
-void SetItemFlash(item i, int flash){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Flash = flash;
-}
-
-int GetItemFAFrames(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->AFrames;
-}
-
-void SetItemAFrames(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->AFrames = a;
-}
-
-int GetItemASpeed(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->ASpeed;
-}
-
-void SetItemASpeed(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->ASpeed = a;
-}
-
-int GetItemDelay(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Delay;
-}
-
-void SetItemDelay(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Delay = a;
-}
-
-int GetItemScript(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Script;
-}
-
-void SetItemScript(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	//Game->GetItemScript(int str) would be usefiul here. 
-	ii->Script = a;
-}
-
-int GetItemPickupScript(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->PScript;
-}
-
-void SetItemPickupScript(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	//Game->GetItemScript(int str) would be usefiul here. 
-	ii->PScript = a;
-}
-
-int GetItemMagicCost(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->MagicCost;
-}
-
-void SetItemMagicCost(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->MagicCost = a;
-}
-
-int GetItemMinHearts(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->MinHearts;
-}
-
-void SetItemMinHearts(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->MinHearts = a;
-}
-
-bool GetItemCombine(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Combine;
-}
-
-void SetItemCombine(item i, bool a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Combine = a;
-}
-
-bool GetItemDowngrade(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Downgrade;
-}
-
-void SetItemDowngrade(item i, bool a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Downgrade = a;
-}
-
-bool GetItemKeepOld(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->KeepOld;
-}
-
-void SetItemKeepOld(item i, bool a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->KeepOld = a;
-}
-
-bool GetItemUseRupees(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->RupeeCost;
-}
-
-void SetItemUseRupees(item i, bool a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->RupeeCost = a;
-}
-
-bool GetItemEdible(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Edible;
-}
-
-void SetItemEdible(item i, bool a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Edible = a;
-}
-
-bool GetItemGainLower(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->GainLower;
-}
-
-void SetItemGainLower(item i, bool a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->GainLower = a;
-}
-
-void SetItemFlag(item i, int flag, bool a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Flags[flag] = a;
-}
-
-bool GetItemFlag(item i, int flag){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Flags[flag];
-}
-
-void SetItemInitD(item i, int d, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->InitD[d] = a;
-}
-
-int GetItemInitD(item i, int d){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->InitD[d];
-}
-
-void GetItemName(item i, int buffer){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->GetName(buffer);
-}
-
-int GetItemFamily(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Family;
-}
-
-void SetItemFamily(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Family = a;
-}
-
-int GetItemLevel(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Level;
-}
-
-void SetItemLevel(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Level = a;
-}
-
-int GetItemPower(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Power;
-}
-
-void SetItemPower(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Power = a;
-}
-
-int GetItemIncreaseAmount(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Amount;
-}
-
-void SetItemIncreaseAmount(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Amount = a;
-}
-
-int GetItemFullMax(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Max;
-}
-
-void SetItemFullMax(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Max = a;
-}
-
-int GetItemMaxIncrement(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->MaxIncrement;
-}
-
-void SetItemMaxIncrement(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->MaxIncrement = a;
-}
-
-
-bool GetItemKeep(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Keep;
-}
-
-void SetItemKeep(item i, bool a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Keep = a;
-}
-
-int GetItemCounter(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Counter;
-}
-
-void SetItemCounter(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Counter = a;
-}
-
-int GetItemSound(item i){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->UseSound;
-}
-
-void SetItemSound(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->UseSound = a;
-}
-
-int GetItemAttribute(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Attributes[a];
-}
-
-void SetItemAttribute(item i, int a, int v){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Attributes[a] = v;
-}
-
-int GetItemSprite(item i, int a){
-	itemdata ii = Game->LoadItemData(i->ID);
-	return ii->Sprites[a];
-}
-
-void SetItemSprite(item i, int a, int v){
-	itemdata ii = Game->LoadItemData(i->ID);
-	ii->Sprites[a] = v;
-}
-
-int GetLinkTileModifier(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Modifier;
-}
-
-void SetLinkTileModifier(int i){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Modifier = i;
-}
-
-
-int GetItemTile(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Tile;
-}
-
-void SetItemTile(int i, int tile){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Tile = tile;
-}
-
-int GetItemCSet(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->CSet;
-}
-
-void SetItemCSet(int i, int cset){
-	itemdata ii = Game->LoadItemData(i);
-	ii->CSet = cset;
-}
-
-int GetItemFlash(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Flash;
-}
-
-void SetItemFlash(int i, int flash){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Flash = flash;
-}
-
-int GetItemFAFrames(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->AFrames;
-}
-
-void SetItemAFrames(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->AFrames = a;
-}
-
-int GetItemASpeed(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->ASpeed;
-}
-
-void SetItemASpeed(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->ASpeed = a;
-}
-
-int GetItemDelay(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Delay;
-}
-
-void SetItemDelay(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Delay = a;
-}
-
-int GetItemScript(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Script;
-}
-
-void SetItemScript(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	//Game->GetItemScript(int str) would be usefiul here. 
-	ii->Script = a;
-}
-
-int GetItemPickupScript(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->PScript;
-}
-
-void SetItemPickupScript(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	//Game->GetItemScript(int str) would be usefiul here. 
-	ii->PScript = a;
-}
-
-int GetItemMagicCost(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->MagicCost;
-}
-
-void SetItemMagicCost(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->MagicCost = a;
-}
-
-int GetItemMinHearts(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->MinHearts;
-}
-
-void SetItemMinHearts(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->MinHearts = a;
-}
-
-bool GetItemCombine(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Combine;
-}
-
-void SetItemCombine(int i, bool a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Combine = a;
-}
-
-bool GetItemDowngrade(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Downgrade;
-}
-
-void SetItemDowngrade(int i, bool a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Downgrade = a;
-}
-
-bool GetItemKeepOld(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->KeepOld;
-}
-
-void SetItemKeepOld(int i, bool a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->KeepOld = a;
-}
-
-bool GetItemUseRupees(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->RupeeCost;
-}
-
-void SetItemUseRupees(int i, bool a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->RupeeCost = a;
-}
-
-bool GetItemEdible(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Edible;
-}
-
-void SetItemEdible(int i, bool a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Edible = a;
-}
-
-bool GetItemGainLower(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->GainLower;
-}
-
-void SetItemGainLower(int i, bool a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->GainLower = a;
-}
-
-void SetItemFlag(int i, int flag, bool a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Flags[flag] = a;
-}
-
-bool GetItemFlag(int i, int flag){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Flags[flag];
-}
-
-void SetItemInitD(int i, int d, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->InitD[d] = a;
-}
-
-int GetItemInitD(int i, int d){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->InitD[d];
-}
-
-void GetItemName(int i, int buffer){
-	itemdata ii = Game->LoadItemData(i);
-	ii->GetName(buffer);
-}
-
-int GetItemFamily(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Family;
-}
-
-void SetItemFamily(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Family = a;
-}
-
-int GetItemLevel(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Level;
-}
-
-void SetItemLevel(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Level = a;
-}
-
-int GetItemPower(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Power;
-}
-
-void SetItemPower(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Power = a;
-}
-
-int GetItemIncreaseAmount(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Amount;
-}
-
-void SetItemIncreaseAmount(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Amount = a;
-}
-
-int GetItemFullMax(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Max;
-}
-
-void SetItemFullMax(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Max = a;
-}
-
-int GetItemMaxIncrement(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->MaxIncrement;
-}
-
-void SetItemMaxIncrement(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->MaxIncrement = a;
-}
-
-
-bool GetItemKeep(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Keep;
-}
-
-void SetItemKeep(int i, bool a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Keep = a;
-}
-
-int GetItemCounter(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Counter;
-}
-
-void SetItemCounter(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Counter = a;
-}
-
-int GetItemSound(int i){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->UseSound;
-}
-
-void SetItemSound(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	ii->UseSound = a;
-}
-
-int GetItemAttribute(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Attributes[a];
-}
-
-void SetItemAttribute(int i, int a, int v){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Attributes[a] = v;
-}
-
-int GetItemSprite(int i, int a){
-	itemdata ii = Game->LoadItemData(i);
-	return ii->Sprites[a];
-}
-
-void SetItemSprite(int i, int a, int v){
-	itemdata ii = Game->LoadItemData(i);
-	ii->Sprites[a] = v;
-}
-
-//nil Null() { return 0; }
-//nil NULL() { return 0; }
-
 
 //Returns the number of enemy NPCs on the current screen.
 int NumberEnemies()
@@ -3318,4 +2697,60 @@ bool EnemiesAlive()
 	}
 	return alive;
 }
-			
+
+//Function to get a distance that would otherwise be too large and overflow Distance().
+//Get the distance between two points, divided up by divisor. This avoids causing problems 
+//with the Distance function doing calculations that go over the max constant
+float LargeDistance(int x1, int y1, int x2, int y2, int divisor)
+{
+    int cx = x1+(x2-x1)/divisor;
+    int cy = y1+(y2-y1)/divisor;
+    return Distance(x1, y1, cx, cy)*divisor;
+}
+
+//Returns if Link is facing an ffc.
+bool Facing(ffc f)
+{
+	if ( Link->Dir == DIR_UP && Link->Y > f->Y ) return true;
+	if ( Link->Dir == DIR_DOWN && Link->Y < f->Y ) return true;
+	if ( Link->Dir == DIR_RIGHT && Link->X < f->X ) return true;
+	if ( Link->Dir == DIR_LEFT && Link->X > f->X ) return true;
+	return false;
+}
+
+//Returns if Link is above an npc.
+bool Above(npc n){ return Link->Y < n->Y; }
+//Returns if Link is below an npc.
+bool Below(npc n){ return Link->Y > n->Y; }
+//Returns if Link is left of an npc.
+bool LeftOf(npc n){ return Link->X < n->X; }
+//Returns if Link is right of an npc.
+bool RightOf(npc n){ return Link->X > n->X; }
+
+//Returns if Link is above, below, left of, or right of an ffc.
+bool Above(ffc n){ return Link->Y < n->Y; }
+bool Below(ffc n){ return Link->Y > n->Y; }
+bool LeftOf(ffc n){ return Link->X < n->X; }
+bool RightOf(ffc n){ return Link->X > n->X; }
+
+//Returns if Link is above, below, left of, or right of an eweapon.
+bool Above(eweapon n){ return Link->Y < n->Y; }
+bool Below(eweapon n){ return Link->Y > n->Y; }
+bool LeftOf(eweapon n){ return Link->X < n->X; }
+bool RightOf(eweapon n){ return Link->X > n->X; }
+
+//Returns if Link is above, below, left of, or right of an lweapon.
+bool Above(lweapon n){ return Link->Y < n->Y; }
+bool Below(lweapon n){ return Link->Y > n->Y; }
+bool LeftOf(lweapon n){ return Link->X < n->X; }
+bool RightOf(lweapon n){ return Link->X > n->X; }
+
+//returns true if Link is within 'dist' distance of an ffc on both its X and its Y axis. 
+bool DistXY(ffc a, int dist)
+{
+	if ( Abs(Link->X - a->X) <= dist )
+	{
+		if ( Abs(Link->Y - a->Y) <= dist ) return true;
+	}
+	return false;
+}

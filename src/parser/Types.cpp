@@ -128,42 +128,72 @@ DataTypeSimple const DataType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped");
 DataTypeSimple const DataType::ZVOID(ZVARTYPEID_VOID, "void");
 DataTypeSimple const DataType::FLOAT(ZVARTYPEID_FLOAT, "float");
 DataTypeSimple const DataType::BOOL(ZVARTYPEID_BOOL, "bool");
+DataTypeSimpleConst const DataType::CFLOAT(ZVARTYPEID_FLOAT, "const float");
+DataTypeSimpleConst const DataType::CBOOL(ZVARTYPEID_BOOL, "const bool");
+DataTypeSimpleConst const DataType::CUNTYPED(ZVARTYPEID_UNTYPED, "const untyped");
 DataTypeArray const DataType::STRING(FLOAT);
+//Classes: Global Pointer
 DataTypeClass const DataType::GAME(ZCLASSID_GAME, "Game");
 DataTypeClass const DataType::LINK(ZCLASSID_LINK, "Link");
 //DataTypeClass const DataType::PLAYER(ZCLASSID_LINK, "Player");
 DataTypeClass const DataType::SCREEN(ZCLASSID_SCREEN, "Screen");
-DataTypeClass const DataType::FFC(ZCLASSID_FFC, "FFC");
-DataTypeClass const DataType::ITEM(ZCLASSID_ITEM, "Item");
-DataTypeClass const DataType::ITEMCLASS(ZCLASSID_ITEMCLASS, "ItemData");
-DataTypeClass const DataType::NPC(ZCLASSID_NPC, "NPC");
-DataTypeClass const DataType::LWPN(ZCLASSID_LWPN, "LWeapon");
-DataTypeClass const DataType::EWPN(ZCLASSID_EWPN, "EWeapon");
 DataTypeClass const DataType::AUDIO(ZCLASSID_AUDIO, "Audio");
 DataTypeClass const DataType::DEBUG(ZCLASSID_DEBUG, "Debug");
-DataTypeClass const DataType::NPCDATA(ZCLASSID_NPCDATA, "NPCData");
-DataTypeClass const DataType::COMBOS(ZCLASSID_COMBOS, "Combos");
-DataTypeClass const DataType::SPRITEDATA(ZCLASSID_SPRITEDATA, "SpriteData");
 DataTypeClass const DataType::GRAPHICS(ZCLASSID_GRAPHICS, "Graphics");
-DataTypeClass const DataType::BITMAP(ZCLASSID_BITMAP, "Bitmap");
-DataTypeClass const DataType::TEXT(ZCLASSID_TEXT, "Text");
 DataTypeClass const DataType::INPUT(ZCLASSID_INPUT, "Input");
-DataTypeClass const DataType::MAPDATA(ZCLASSID_MAPDATA, "MapData");
-DataTypeClass const DataType::DMAPDATA(ZCLASSID_DMAPDATA, "DMapData");
-DataTypeClass const DataType::ZMESSAGE(ZCLASSID_ZMESSAGE, "ZMessage");
-DataTypeClass const DataType::SHOPDATA(ZCLASSID_SHOPDATA, "ShopData");
-DataTypeClass const DataType::DROPSET(ZCLASSID_DROPSET, "DropSet");
-DataTypeClass const DataType::PONDS(ZCLASSID_PONDS, "Ponds");
-DataTypeClass const DataType::WARPRING(ZCLASSID_WARPRING, "WarpRing");
-DataTypeClass const DataType::DOORSET(ZCLASSID_DOORSET, "DoorSet");
-DataTypeClass const DataType::ZUICOLOURS(ZCLASSID_ZUICOLOURS, "ZuiColours");
-DataTypeClass const DataType::RGBDATA(ZCLASSID_RGBDATA, "RgbData");
-DataTypeClass const DataType::PALETTE(ZCLASSID_PALETTE, "Palette");
-DataTypeClass const DataType::TUNES(ZCLASSID_TUNES, "Tunes");
-DataTypeClass const DataType::PALCYCLE(ZCLASSID_PALCYCLE, "PalCycle");
-DataTypeClass const DataType::GAMEDATA(ZCLASSID_GAMEDATA, "GameData");
+DataTypeClass const DataType::TEXT(ZCLASSID_TEXT, "Text");
+//Class: Var Types
+DataTypeClass const DataType::BITMAP(ZCLASSID_BITMAP, "Bitmap");
 DataTypeClass const DataType::CHEATS(ZCLASSID_CHEATS, "Cheats");
-DataTypeConstFloat const DataType::CONST_FLOAT;
+DataTypeClass const DataType::COMBOS(ZCLASSID_COMBOS, "Combos");
+DataTypeClass const DataType::DOORSET(ZCLASSID_DOORSET, "DoorSet");
+DataTypeClass const DataType::DROPSET(ZCLASSID_DROPSET, "DropSet");
+DataTypeClass const DataType::DMAPDATA(ZCLASSID_DMAPDATA, "DMapData");
+DataTypeClass const DataType::EWPN(ZCLASSID_EWPN, "EWeapon");
+DataTypeClass const DataType::FFC(ZCLASSID_FFC, "FFC");
+DataTypeClass const DataType::GAMEDATA(ZCLASSID_GAMEDATA, "GameData");
+DataTypeClass const DataType::ITEM(ZCLASSID_ITEM, "Item");
+DataTypeClass const DataType::ITEMCLASS(ZCLASSID_ITEMCLASS, "ItemData");
+DataTypeClass const DataType::LWPN(ZCLASSID_LWPN, "LWeapon");
+DataTypeClass const DataType::MAPDATA(ZCLASSID_MAPDATA, "MapData");
+DataTypeClass const DataType::ZMESSAGE(ZCLASSID_ZMESSAGE, "ZMessage");
+DataTypeClass const DataType::ZUICOLOURS(ZCLASSID_ZUICOLOURS, "ZuiColours");
+DataTypeClass const DataType::NPC(ZCLASSID_NPC, "NPC");
+DataTypeClass const DataType::NPCDATA(ZCLASSID_NPCDATA, "NPCData");
+DataTypeClass const DataType::PALCYCLE(ZCLASSID_PALCYCLE, "PalCycle");
+DataTypeClass const DataType::PALETTE(ZCLASSID_PALETTE, "Palette");
+DataTypeClass const DataType::PONDS(ZCLASSID_PONDS, "Ponds");
+DataTypeClass const DataType::RGBDATA(ZCLASSID_RGBDATA, "RgbData");
+DataTypeClass const DataType::SHOPDATA(ZCLASSID_SHOPDATA, "ShopData");
+DataTypeClass const DataType::SPRITEDATA(ZCLASSID_SPRITEDATA, "SpriteData");
+DataTypeClass const DataType::TUNES(ZCLASSID_TUNES, "Tunes");
+DataTypeClass const DataType::WARPRING(ZCLASSID_WARPRING, "WarpRing");
+//Class: Const Types
+DataTypeClassConst const DataType::CBITMAP(ZCLASSID_BITMAP, "const Bitmap");
+DataTypeClassConst const DataType::CCHEATS(ZCLASSID_CHEATS, "const Cheats");
+DataTypeClassConst const DataType::CCOMBOS(ZCLASSID_COMBOS, "const Combos");
+DataTypeClassConst const DataType::CDOORSET(ZCLASSID_DOORSET, "const DoorSet");
+DataTypeClassConst const DataType::CDROPSET(ZCLASSID_DROPSET, "const DropSet");
+DataTypeClassConst const DataType::CDMAPDATA(ZCLASSID_DMAPDATA, "const DMapData");
+DataTypeClassConst const DataType::CEWPN(ZCLASSID_EWPN, "const EWeapon");
+DataTypeClassConst const DataType::CFFC(ZCLASSID_FFC, "const FFC");
+DataTypeClassConst const DataType::CGAMEDATA(ZCLASSID_GAMEDATA, "const GameData");
+DataTypeClassConst const DataType::CITEM(ZCLASSID_ITEM, "const Item");
+DataTypeClassConst const DataType::CITEMCLASS(ZCLASSID_ITEMCLASS, "const ItemData");
+DataTypeClassConst const DataType::CLWPN(ZCLASSID_LWPN, "const LWeapon");
+DataTypeClassConst const DataType::CMAPDATA(ZCLASSID_MAPDATA, "const MapData");
+DataTypeClassConst const DataType::CZMESSAGE(ZCLASSID_ZMESSAGE, "const ZMessage");
+DataTypeClassConst const DataType::CZUICOLOURS(ZCLASSID_ZUICOLOURS, "const ZuiColours");
+DataTypeClassConst const DataType::CNPC(ZCLASSID_NPC, "const NPC");
+DataTypeClassConst const DataType::CNPCDATA(ZCLASSID_NPCDATA, "const NPCData");
+DataTypeClassConst const DataType::CPALCYCLE(ZCLASSID_PALCYCLE, "const PalCycle");
+DataTypeClassConst const DataType::CPALETTE(ZCLASSID_PALETTE, "const Palette");
+DataTypeClassConst const DataType::CPONDS(ZCLASSID_PONDS, "const Ponds");
+DataTypeClassConst const DataType::CRGBDATA(ZCLASSID_RGBDATA, "const RgbData");
+DataTypeClassConst const DataType::CSHOPDATA(ZCLASSID_SHOPDATA, "const ShopData");
+DataTypeClassConst const DataType::CSPRITEDATA(ZCLASSID_SPRITEDATA, "const SpriteData");
+DataTypeClassConst const DataType::CTUNES(ZCLASSID_TUNES, "const Tunes");
+DataTypeClassConst const DataType::CWARPRING(ZCLASSID_WARPRING, "const WarpRing");
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -185,7 +215,6 @@ DataType const* DataType::get(DataTypeId id)
 	case ZVARTYPEID_VOID: return &ZVOID;
 	case ZVARTYPEID_FLOAT: return &FLOAT;
 	case ZVARTYPEID_BOOL: return &BOOL;
-	case ZVARTYPEID_CONST_FLOAT: return &CONST_FLOAT;
 	case ZVARTYPEID_GAME: return &GAME;
 	case ZVARTYPEID_LINK: return &LINK;
 	case ZVARTYPEID_SCREEN: return &SCREEN;
@@ -255,11 +284,27 @@ bool ZScript::operator>=(DataType const& lhs, DataType const& rhs)
 
 DataType const& ZScript::getNaiveType(DataType const& type)
 {
-	if (type == DataType::CONST_FLOAT) return DataType::FLOAT;
 
 	DataType const* t = &type;
-	while (DataTypeArray const* ta = dynamic_cast<DataTypeArray const*>(t))
+	while (t->isArray()) //Avoid dynamic_cast<>
+	{
+		DataTypeArray const* ta = static_cast<DataTypeArray const*>(t);
 		t = &ta->getElementType();
+	}
+	
+	//Convert constant types to their variable counterpart
+	if(t->isConstant())
+	{
+		if(DataTypeSimpleConst const* ts = dynamic_cast<DataTypeSimpleConst const*>(t))
+		{
+			t = DataType::get(ts->getId());
+		}
+		
+		if(DataTypeClassConst const* tc = dynamic_cast<DataTypeClassConst const*>(t))
+		{
+			t = DataType::get(tc->getClassId());
+		}
+	}
 
 	return *t;
 }
@@ -307,12 +352,8 @@ int DataTypeSimple::selfCompare(DataType const& rhs) const
 
 bool DataTypeSimple::canCastTo(DataType const& target) const
 {
-	if (simpleId == ZVARTYPEID_UNTYPED) return true;
-	if (target == UNTYPED) return true;
-	
-	if (DataTypeConstFloat const* t =
-			dynamic_cast<DataTypeConstFloat const*>(&target))
-		return canCastTo(DataType::FLOAT);
+	if (isUntyped()) return true;
+	if (target.isUntyped()) return true;
 
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
@@ -341,16 +382,11 @@ bool DataTypeSimple::canBeGlobal() const
 }
 
 ////////////////////////////////////////////////////////////////
-// DataTypeConstFloat
+// DataTypeSimpleConst
 
-bool DataTypeConstFloat::canCastTo(DataType const& target) const
-{
-	if (target == UNTYPED) return true;
-	if (target == BOOL) return true; //Not enough, it seems. Where do we check assigns to const? -Z
-	
-	if (*this == target) return true;
-	return DataType::FLOAT.canCastTo(target);
-}
+DataTypeSimpleConst::DataTypeSimpleConst(int simpleId, string const& name)
+	: DataTypeSimple(simpleId, name)
+{}
 
 ////////////////////////////////////////////////////////////////
 // DataTypeClass
@@ -382,13 +418,17 @@ string DataTypeClass::getName() const
 
 bool DataTypeClass::canCastTo(DataType const& target) const
 {
-	if (target == UNTYPED) return true;
+	if (target.isUntyped()) return true;
 	
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
 		return canCastTo(getBaseType(*t));
 
-	return *this == target;
+	if (DataTypeClass const* t =
+			dynamic_cast<DataTypeClass const*>(&target))
+		return classId == t->classId;
+		
+	return false;
 }
 
 int DataTypeClass::selfCompare(DataType const& rhs) const
@@ -398,11 +438,18 @@ int DataTypeClass::selfCompare(DataType const& rhs) const
 }
 
 ////////////////////////////////////////////////////////////////
+// DataTypeClassConst
+
+DataTypeClassConst::DataTypeClassConst(int classId, string const& name)
+	: DataTypeClass(classId, name)
+{}
+
+////////////////////////////////////////////////////////////////
 // DataTypeArray
 
 bool DataTypeArray::canCastTo(DataType const& target) const
 {
-	if (target == UNTYPED) return true;
+	if (target.isUntyped()) return true;
 	
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
