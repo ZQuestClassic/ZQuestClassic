@@ -260,6 +260,35 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 	visit(host, host.getDeclarations());
 }
 
+void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void*)
+{
+	//This should always be `DataType::CFLOAT`, but let's put the type checks here just in case... -V
+	// Resolve the base type.
+	DataType const& baseType = host.baseType->resolve(*scope);
+	if (!baseType.isResolved())
+	{
+		handleError(CompileError::UnresolvedType(&host, baseType.getName()));
+		return;
+	}
+
+	// Don't allow void type.
+	if (baseType == DataType::ZVOID)
+	{
+		handleError(CompileError::VoidVar(&host, host.asString()));
+		return;
+	}
+
+	// Check for disallowed global types.
+	if (scope->isGlobal() && !baseType.canBeGlobal())
+	{
+		handleError(CompileError::RefVar(&host, baseType.getName()));
+		return;
+	}
+
+	// Recurse on list contents.
+	visit(host, host.getDeclarations());
+}
+
 void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 {
 	// First do standard recursing.
