@@ -2,6 +2,23 @@
 
 //Alpha 14
 
+Fix Fireball eweapon being called FIREVOLT in CLassic Module. 
+Removed Daira ffc script. 
+Added __CLASSIC_ZH_VERSION macro to Classic.zh
+Modified default quest file (classic_qst.dat) to use the npc and eweapon scripts,
+	instead of the Autoghost script.
+Reconfigured Daira L1, and L2 enemies in Classic.qst.
+Added Daira Axe Controller script to Classic.zh
+	The script file is in demo_scripts/eweapon_scripts/daira_axe.zs
+Added Daira npc script to Classic.zh. 
+	The script file is in demo_scripts/npc_scripts/daira.zs
+	( ZoriaRPG, 7th March, 2019 )
+	
+Added enum to ZScript, as follows:
+	enum { A, B, C = 5, D, E = 10, F };
+	...where A == 0, B == 1, C == 5, D == 6, E == 10, and F == 11
+	( Venrob, 7th March, 2019 )
+
 Updated classic_qst.dat, with the improvements/includes from 2.53.
 
 Added bobomb npc as NPC ID 179 to Classic.qst.

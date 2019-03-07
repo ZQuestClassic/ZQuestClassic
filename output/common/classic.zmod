@@ -1,11 +1,11 @@
 [QUESTS]
 quest_flow = 1
 num_quest_files = 5
-first_qst = classic_1st.qst
-second_qst = classic_2nd.qst
-third_qst = classic_3rd.qst
-fourth_qst = classic_4th.qst
-fifth_qst = classic_5th.qst
+first_qst = modules/classic/classic_1st.qst
+second_qst = modules/classic/classic_2nd.qst
+third_qst = modules/classic/classic_3rd.qst
+fourth_qst = modules/classic/classic_4th.qst
+fifth_qst = modules/classic/classic_5th.qst
 sixth_qst = 
 seventh_qst = 
 eighth_qst = 
@@ -108,12 +108,12 @@ sels_cusror_cset = 16
 sels_link_cset = 16
 
 [DATAFILES]
-zcplayer_datafile = classic_zelda.dat	
-zquest_datafile = classic_zquest.dat
-fonts_datafile = classic_fonts.dat
-sounds_datafile = classic_sfx.dat
-quest_template_datafile = classic_qst.dat 
-base_NSF_file = zelda.nsf
+zcplayer_datafile = modules/classic/classic_zelda.dat	
+zquest_datafile = modules/classic/classic_zquest.dat
+fonts_datafile = modules/classic/classic_fonts.dat
+sounds_datafile = modules/classic/classic_sfx.dat
+quest_template_datafile = modules/classic/classic_qst.dat 
+base_NSF_file = modules/classic/zelda.nsf
 title_track = 0
 ending_track = 1
 tf_track = 5
@@ -1276,7 +1276,7 @@ gEMPTY = Empty
 
 [EWEAPONS]
 ewNone = (None)
-ewFireball = FIREVOLT
+ewFireball = Fireball
 ewArrow = Arrow
 ewBrang = Boomerang
 ewSword = Sword
