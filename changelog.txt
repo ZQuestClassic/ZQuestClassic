@@ -4,7 +4,7 @@
 
 Added enum to ZScript, as follows:
 	enum { A, B, C = 5, D, E = 10, F };
-	...where A == 1, B == 2, D == 6, and F == 11
+	...where A == 0, B == 1, C == 5, D == 6, E == 10, and F == 11
 	( Venrob, 7th March, 2019 )
 
 Updated classic_qst.dat, with the improvements/includes from 2.53.
