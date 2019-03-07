@@ -1016,10 +1016,11 @@ static DIALOG cycle_dlg[] =
 void edit_cycles(int level)
 {
     char buf[15][8];
-    
+    palcycle cycle_none[1][3];  //create a null palette cycle here. -Z
+	memset(cycle_none, 0, sizeof(cycle_none)); 
     for(int i=0; i<3; i++)
     {
-        palcycle c = misc.cycles[level][i];
+        palcycle c = ( level < 256 ) ? misc.cycles[level][i] : cycle_none[0][i]; //Only level palettes 0 through 255 have valid data in 2.50.x. -Z
         sprintf(buf[i*5  ],"%d",c.first>>4);
         sprintf(buf[i*5+1],"%X",c.first&15);
         sprintf(buf[i*5+2],"%X",c.count&15);
@@ -1386,6 +1387,7 @@ int EditColors(const char *caption,int first,int count,byte *label)
     colors_dlg[1].w  = bw + 6;
     colors_dlg[1].h  = bh + 6;
     colors_dlg[21].proc = (count==pdLEVEL) ? jwin_button_proc : d_dummy_proc;
+    //if the palette is > 255, disable button [21]
     colors_dlg[21].dp   = get_bit(quest_rules,qr_FADE) ? (void *) "Cycle" : (void *) "Dark";
     colors_dlg[26].dp   =  tempstuff;
     colors_dlg[25].x    =(count==pdLEVEL)?colors_dlg[0].x+60:colors_dlg[0].x+12;
@@ -1504,14 +1506,20 @@ int EditColors(const char *caption,int first,int count,byte *label)
         
         if(ret==21)
         {
-            if(!get_bit(quest_rules,qr_FADE))
-            {
-                calc_dark(first);
-            }
-            else
-            {
-                edit_cycles((first-poLEVEL)/pdLEVEL);
-            }
+		int curpal = (first/pdLEVEL+poLEVEL)-10; 
+		
+		
+		    if(!get_bit(quest_rules,qr_FADE))
+		    {
+			calc_dark(first);
+		    }
+		    else
+		    {
+			if ( curpal < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data. 
+				edit_cycles((first-poLEVEL)/pdLEVEL);
+			else jwin_alert("Notice","Palettes above 0xFF do not have Palette Cycles",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		    }
+		
         }
         
         if(ret==22)

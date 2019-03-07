@@ -537,10 +537,11 @@ void cycle_palette()
         return;
         
     int level = (Link.getSpecialCave()==0) ? DMaps[currdmap].color : (Link.getSpecialCave()<GUYCAVE ? 11 : 10);
-    
+    palcycle cycle_none[1][3];  //create a null palette cycle here. -Z
+	memset(cycle_none, 0, sizeof(cycle_none)); 
     for(int i=0; i<3; i++)
     {
-        palcycle c = QMisc.cycles[level][i];
+        palcycle c = ( level < 256 ) ? QMisc.cycles[level][i] : cycle_none[0][i]; //Only 0 through 255 have valid data in 2.50.x. -Z
         
         if(c.count&0xF0)
         {

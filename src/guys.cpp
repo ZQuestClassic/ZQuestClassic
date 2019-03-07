@@ -1660,13 +1660,27 @@ hitclock:
     }
     else sfx(WAV_EHIT, pan(int(x))); //Don't play this one if the user sets a custom sound!
 */
-    
+/*
     if( hitsfx > 0 ) //A sound is set. 
     {
 	if ( !dying ) //Don't play the hit sound when dying. 
 		sfx(hitsfx, pan(int(x)));
     }
-    
+*/
+     if ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 31 )) //2.53 Gamma 2 and later
+    {
+	    if( hitsfx > 0 ) //user-set hit sound. 
+	    {
+		    if (!dying) //don't play the hit sound on death! -Z
+			sfx(hitsfx, pan(int(x)));
+	    }
+	    else sfx(WAV_EHIT, pan(int(x))); //Don't play the hardcoded sound if the user sets a custom one. 
+    }
+    else //2.50.2 or earlier
+    {
+	sfx(WAV_EHIT, pan(int(x)));
+	sfx(hitsfx, pan(int(x)));
+    }
     if(family==eeGUY)
         sfx(WAV_EDEAD, pan(int(x)));
         
@@ -5223,8 +5237,15 @@ bool ePeahat::animate(int index)
     if(watch && get_bit(quest_rules,qr_PEAHATCLOCKVULN))
         superman=0;
     else
-        superman=(movestatus && !get_bit(quest_rules,qr_ENEMIESZAXIS)) ? 1 : 0;
-    stunclk=0;
+	superman=(movestatus && !get_bit(quest_rules,qr_ENEMIESZAXIS)) ? 1 : 0;
+	//stunclk=0; //Not sure what was going on here, or what was intended. Why was this set to 0? -Z
+    if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x250 )
+    {
+	if ( stunclk ) --stunclk;
+    }
+    else stunclk = 0; //Was probably this way in 2.10 quests. if not, then we never need to clear it. -Z
+    //Pretty sure this was always an error. -Z ( 14FEB2019 )
+    
     
     if(x<16) dir=right; //this is ugly, but so is moving or creating these guys with scripts.
     
@@ -7160,26 +7181,66 @@ bool eStalfos::animate(int index)
                     {
                         if(dmisc2==e2tBOMBCHU && LinkInRange(16) && wpn+dmisc3 > wEnemyWeapons) //Bombchu
                         {
-                            hp=-1000;
+				
+			    if (  FFCore.emulation[emu210BOMBCHU]  ) 
+			    {
+				    hp=-1000;
                             
-                            int wpn2;
-                            if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
-                                wpn2=wpn;
-                            else
-                                wpn2=wpn;
-                            
-                            weapon *ew=new weapon(x,y,z, wpn2, 0, dmisc4, dir,-1,getUID());
-                            Ewpns.add(ew);
-                            
-                            if(wpn2==ewSBomb || wpn2==ewBomb)
-                            {
-                                ew->step=0;
-                                ew->id=wpn2;
-                                ew->misc=50;
-                                ew->clk=48;
-                            }
-                            
-                            fired=true;
+				    if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
+				    {
+					weapon *ew=new weapon(x,y,z, wpn+dmisc3, 0, dmisc4, dir,-1,getUID());
+					Ewpns.add(ew);
+					
+					if(wpn==ewSBomb || wpn==ewBomb)
+					{
+					    ew->step=0;
+					    ew->id=wpn+dmisc3;
+					    ew->misc=50;
+					    ew->clk=48;
+					}
+					
+					fired=true;
+				    }
+				    else
+				    {
+					weapon *ew=new weapon(x,y,z, wpn, 0, dmisc4, dir,-1,getUID());
+					Ewpns.add(ew);
+					
+					if(wpn==ewSBomb || wpn==ewBomb)
+					{
+					    ew->step=0;
+					    ew->id=wpn;
+					    ew->misc=50;
+					    ew->clk=48;
+					}
+					
+					fired=true;
+				    }
+			    }
+			    
+			    else
+			    {
+				    hp=-1000;
+				    
+				    int wpn2;
+				    if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
+					wpn2=wpn;
+				    else
+					wpn2=wpn;
+				    
+				    weapon *ew=new weapon(x,y,z, wpn2, 0, dmisc4, dir,-1,getUID());
+				    Ewpns.add(ew);
+				    
+				    if(wpn2==ewSBomb || wpn2==ewBomb)
+				    {
+					ew->step=0;
+					ew->id=wpn2;
+					ew->misc=50;
+					ew->clk=48;
+				    }
+				    
+				    fired=true;
+			    }
                         }
                     }
                     
@@ -7969,7 +8030,66 @@ bool eWizzrobe::animate(int index)
                 {
 		    // Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
 		    // but should not appear on dungeon walls.	
-                    place_on_axis(true, dmisc4!=0);
+                    if ( FFCore.getQuestHeaderInfo(vZelda) <= 0x190 ) place_on_axis(true, false); //1.84, and probably 1.90 wizzrobes should NEVER appear in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by Chris Miller).
+                    else if ( (FFCore.getQuestHeaderInfo(vZelda) == 0x210 || FFCore.getQuestHeaderInfo(vZelda) == 0x192 ) && id == eWWIZ && FFCore.emulation[emu210WINDROBES] ) 
+		    {
+			    //2.10 Windrobe
+			    //randomise location and face Link
+			int t=0;
+			bool placed=false;
+                    
+			while(!placed && t<160)
+			{
+				if(isdungeon())
+				{
+					x=((rand()%12)+2)*16;
+					y=((rand()%7)+2)*16;
+				}
+				else
+				{
+					x=((rand()%14)+1)*16;
+					y=((rand()%9)+1)*16;
+				}
+                        
+				if(!m_walkflag(x,y,spw_door)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
+				{
+					placed=true;
+				}
+                        
+				++t;
+			}
+                    
+			if(abs(x-Link.getX())<abs(y-Link.getY()))
+			{
+				if(y<Link.getY())
+				{
+					dir=down;
+				}
+				else
+				{
+					dir=up;
+				}
+			}
+			else
+			{
+				if(x<Link.getX())
+				{
+					dir=right;
+				}
+				else
+				{
+					dir=left;
+				}
+			}
+                    
+			if(!placed)                                       // can't place him, he's gone
+				return true;
+                
+			    
+			//wizzrobe_attack(); //COmplaint about 2.10 Windrobes not behaving as they did in 2.10. Let's try it this way. -Z
+			//wizzrobe_attack_for_real(); //doing this makes them fire twice. The rest is correct.
+		    }
+		    else place_on_axis(true, dmisc4!=0);
                 }
                 else
                 {
@@ -8089,6 +8209,33 @@ void eWizzrobe::wizzrobe_attack_for_real()
         addEwpn(x,y,z,wpn,0,wdp,l_down,getUID());
         addEwpn(x,y,z,wpn,0,wdp,r_down,getUID());
         sfx(WAV_FIRE,pan(int(x)));
+	if (  FFCore.emulation[emu8WAYSHOTSFX] ) sfx(WAV_FIRE,pan(int(x))); 
+	else
+	{
+		switch(wpn)
+		{
+			case ewFireball: sfx(40,pan(int(x))); break;
+				
+			case ewArrow: sfx(1,pan(int(x))); break; //Ghost.zh has 0?
+			case ewBrang: sfx(4,pan(int(x))); break; //Ghost.zh has 0?
+			case ewSword: sfx(20,pan(int(x))); break; //Ghost.zh has 0?
+			case ewRock: sfx(51,pan(int(x))); break;
+			case ewMagic: sfx(32,pan(int(x))); break;
+			case ewBomb: sfx(3,pan(int(x))); break; //Ghost.zh has 0?
+			case ewSBomb: sfx(3,pan(int(x))); break; //Ghost.zh has 0?
+			case ewLitBomb: sfx(21,pan(int(x))); break; //Ghost.zh has 0?
+			case ewLitSBomb:  sfx(21,pan(int(x))); break; //Ghost.zh has 0?
+			case ewFireTrail:  sfx(13,pan(int(x))); break;
+			case ewFlame: sfx(13,pan(int(x))); break;
+			case ewWind: sfx(32,pan(int(x))); break;
+			case ewFlame2: sfx(13,pan(int(x))); break;
+			case ewFlame2Trail: sfx(13,pan(int(x))); break;
+			case ewIce: sfx(44,pan(int(x))); break;
+			case ewFireball2: sfx(40,pan(int(x))); break; //fireball (rising)
+			default: sfx(WAV_FIRE,pan(int(x)));  break;
+			
+		}
+	}
     }
     else if(dmisc2==2)  // summons specific enemy
     {
@@ -9664,9 +9811,14 @@ bool eGanon::animate(int index) //DO NOT ADD a check for do_animation to this ve
         
         sfx(WAV_GANON);
 	    //Ganon's dustpile; fall in sideview. -Z
-            item *dustpile = new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0);
-	    dustpile->miscellaneous[31] = eeGANON;
-            setmapflag();
+            //item *dustpile = new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0);
+	    //dustpile->miscellaneous[31] = eeGANON;
+	    items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
+		item *dustpile = NULL;
+		//dustpile = (item *)items.spr(items.Count() - 1)->getUID();
+		dustpile = (item *)items.spr(items.Count() - 1);
+		dustpile->miscellaneous[31] = eeGANON;
+            //setmapflag(); //Could be why the Triforce doesn't drop. Disabling this now. -Z ( 6th March, 2019 )
         //items.add(new item(x+8,y+8,(fix)0,iPile,ipDUMMY,0));
         break;
     }
@@ -9920,7 +10072,7 @@ bool eMoldorm::animate(int index)
             if(flags&guy_neverret)
                 never_return(index);
                 
-            if(!dmisc2)
+            if(!dmisc2 || ( FFCore.getQuestHeaderInfo(vZelda) >= 0x210 && FFCore.emulation[emuITEMPERSEG]) )
                 leave_item();
                 
             stop_bgsfx(index);
@@ -10171,7 +10323,7 @@ bool eLanmola::animate(int index)
     {
         if(--clk2 == 0)
         {
-            if(!dmisc3)
+	    if(!dmisc3 || ( FFCore.getQuestHeaderInfo(vZelda) >= 0x210 && FFCore.emulation[emuITEMPERSEG]) )
                 leave_item();
                 
             stop_bgsfx(index);
@@ -10419,7 +10571,10 @@ bool eManhandla::animate(int index)
                 guys.swap(index+j+1,index+j+2);
                 
             }
-            
+            if( ( FFCore.getQuestHeaderInfo(vZelda) <= 0x210 && FFCore.emulation[emuITEMPERSEG] ) ) //They only did this in 2.10
+	    {
+                leave_item();
+	    }
             --armcnt;
         }
     }
@@ -12173,6 +12328,7 @@ void kill_em_all()
     }
 }
 
+//This needs a quest rule, or enemy flag, Dying Enemy Doesn't  Hurt Link
 // For Link's hit detection. Don't count them if they are stunned or are guys.
 int GuyHit(int tx,int ty,int tz,int txsz,int tysz,int tzsz)
 {

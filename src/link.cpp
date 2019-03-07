@@ -880,8 +880,9 @@ void LinkClass::init()
     falling_oldy = y;
     magiccastclk=0;
     magicitem = nayruitem = -1;
-	last_lens_id = 0;
+	last_lens_id = 0; //Should be -1 (-Z)
 	misc_internal_link_flags = 0;
+	last_cane_of_byrna_item_id = -1; 
     
     for(int i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -1663,7 +1664,12 @@ attack:
             }
             else if(action==swimming || action==swimhit || hopclk==0xFF)
             {
-                linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+                if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+			linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
                 
                 if(lstep>=6)
                 {
@@ -1679,8 +1685,15 @@ attack:
                 
                 if(diveclk>30)
                 {
-                    linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-                    if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+                    if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+		    }
+		    if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
                 }
             }
             else if(charging > 0 && attack != wHammer)
@@ -1746,12 +1759,26 @@ attack:
             }
             else if(action==swimming || action==swimhit || hopclk==0xFF)
             {
-                linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
-                if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+		    }
+		if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 
                 if(diveclk>30)
                 {
-                    linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+                    if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+		    }
                     if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
             }
@@ -1804,13 +1831,27 @@ attack:
             }
             else if(action == swimming || action==swimhit || hopclk==0xFF)
             {
-                linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
-                if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+		    }
+		if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 
                 if(diveclk>30)
                 {
-                    linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-                    if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+                    if ( FFCore.emulation[emuCOPYSWIMSPRITES] ) 
+		    {
+			linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+		    }
+		    else
+		    {
+			linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+		    } 
+		    if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
                 }
             }
             else if(charging > 0 && attack != wHammer)
@@ -2070,7 +2111,7 @@ void LinkClass::checkstab()
 				
 				if(attackclk==12 && z==0 && sideviewhammerpound())
 				{
-			decorations.add(new dHammerSmack((fix)wx, (fix)wy, dHAMMERSMACK, 0));
+			//decorations.add(new dHammerSmack((fix)wx, (fix)wy, dHAMMERSMACK, 0));
 					/* The hammer smack sprites weren't being positioned properly if Link changed directions on the same frame that they are created.
 			switch(dir)
 					{
@@ -2386,7 +2427,10 @@ void LinkClass::checkstab()
             check_wand_block(wx+wxsz-8,y+8);
         }
     }
-    else if((attack==wHammer) && (attackclk>=15)) //>= instead of == for time it takes to charge up hammer with quake scrolls.
+    else if((attack==wHammer) && ((attackclk==15) || ( spins==1 && attackclk >=15 ))) //quake hammer should be spins == 1
+    //else if((attack==wHammer) && (attackclk==15))
+    //reverting this, because it breaks multiple-hit pegs
+    //else if((attack==wHammer) && (attackclk>=15)) //>= instead of == for time it takes to charge up hammer with quake scrolls.
     {
         // poundable blocks
         for(int q=0; q<176; q++)
@@ -2587,7 +2631,7 @@ void LinkClass::check_slash_block(int bx, int by)
     
     if(!ignorescreen)
     {
-        if(!isTouchyType(type)) set_bit(screengrid,i,1);
+        if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(screengrid,i,1);
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
         {
@@ -2630,7 +2674,7 @@ void LinkClass::check_slash_block(int bx, int by)
     
     if(!ignoreffc)
     {
-        if(!isTouchyType(type)) set_bit(ffcgrid, current_ffcombo, 1);
+        if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(ffcgrid, current_ffcombo, 1);
         
         if(isCuttableItemType(type2))
         {
@@ -3833,7 +3877,7 @@ void LinkClass::addsparkle(int wpn)
         }
         
         // Damaging boomerang sparkle?
-        if(wpn3 && itemtype==itype_brang)
+        if(wpn3 && itemtype==itype_brang && !FFCore.emulation[emuNOFLIPFIRETRAIL])
         {
             // If the boomerang just bounced, flip the sparkle direction so it doesn't hit
             // whatever it just bounced off of if it's shielded from that direction.
@@ -4355,10 +4399,15 @@ bool LinkClass::animate(int)
                 weapon *w = ((weapon*)Lwpns.spr(i));
                 
                 if(w->id==wCByrna)
+		{
                     w->dead=1;
+		}
+		
             }
+	    //kill the sound effect for the orbits -Z 14FEB2019
+	    stop_sfx(itemsbuf[itemid].usesound);
         }
-	else paymagiccost(itemid);
+        else paymagiccost(itemid);
 	
     }
     
@@ -4931,7 +4980,33 @@ bool LinkClass::animate(int)
     
     check_conveyor();
     PhantomsCleanup();
-    
+    //Try to time the hammer pound so that Link can;t change direction while it occurs. 
+    if(attack==wHammer)
+    {
+        if(attackclk==12 && z==0 && sideviewhammerpound())
+	{
+		switch(dir) //Link's dir
+		{
+			case up:
+			    decorations.add(new dHammerSmack(x-1, y-4, dHAMMERSMACK, 0));
+			    break;
+			    
+			case down:
+			    decorations.add(new dHammerSmack(x+8, y+28, dHAMMERSMACK, 0));
+			    break;
+			    
+			case left:
+			    decorations.add(new dHammerSmack(x-13, y+14, dHAMMERSMACK, 0));
+			    break;
+			    
+			case right:
+			    decorations.add(new dHammerSmack(x+21, y+14, dHAMMERSMACK, 0));
+			    break;
+		}
+            
+	}
+	
+    }
     return false;
 }
 
@@ -5130,8 +5205,14 @@ bool LinkClass::startwpn(int itemid)
         {
             weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wLitBomb)));
             
-            while(Lwpns.idCount(wLitBomb) && ew->misc == 0)
+             while(Lwpns.idCount(wLitBomb) && ew->misc == 0)
             {
+		//If this ever needs a version check, in the future. -z
+		if ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 31 ) )
+		{
+			if ( ew->power > 1 ) //Don't reduce 1 to 0. -Z
+				ew->power *= 0.5; //Remote bombs were dealing double damage. -Z
+		}
                 ew->misc=50;
                 ew->clk=ew->misc-3;
                 ew->id=wBomb;
@@ -5753,18 +5834,23 @@ bool LinkClass::startwpn(int itemid)
         if(Lwpns.idCount(wCByrna))
         {
             stopCaneOfByrna();
-			misc_internal_link_flags &= ~LF_PAID_CBYRNA_COST;
             return false;
         }
         
-        if(!(misc_internal_link_flags & LF_PAID_CBYRNA_COST) && !checkmagiccost(itemid))
-            return false;
-		if(!(misc_internal_link_flags & LF_PAID_CBYRNA_COST))
-			paymagiccost(itemid);
-        else misc_internal_link_flags &= ~LF_PAID_CBYRNA_COST;
-		
+        if(!checkmagiccost(itemid))
+	{
+		stop_sfx(itemsbuf[itemid].usesound); //if we can't pay the cost, kill the sound. 
+		//last_cane_of_byrna_item_id = -1; //no, we'd do this in a byrna cleanup function. 
+		return false;
+	}
+            
+        paymagiccost(itemid);
+	last_cane_of_byrna_item_id = itemid; 
+        
         for(int i=0; i<itemsbuf[itemid].misc3; i++)
             Lwpns.add(new weapon((fix)wx,(fix)wy,(fix)wz,wCByrna,i,itemsbuf[itemid].power*DAMAGE_MULTIPLIER,dir,itemid,getUID()));
+	if(!(Lwpns.idCount(wCByrna))) stop_sfx(itemsbuf[itemid].usesound); //If we can't create the beams, kill the sound. 
+	
     }
     break;
     
@@ -10853,6 +10939,7 @@ void LinkClass::checkspecial2(int *ls)
     
     if(flag==mfZELDA||flag2==mfZELDA||flag3==mfZELDA || combo_class_buf[type].win_game)
     {
+	attackclk = 0; //get rid of Link's sword if it was stuck out, charged. 
         saved_Zelda();
         return;
     }
@@ -11771,6 +11858,22 @@ bool LinkClass::dowarp(int type, int index)
     case wtIWARPZAP:
     case wtIWARPWAVE:                                       // insta-warps
     {
+	bool old_192 = false;
+	if ( FFCore.emulation[emu192b163] )
+	{
+		if ( wtype == wtIWARPWAVE )
+		{
+			wtype = wtIWARPWAVE;
+			old_192 = true;
+		}
+		if ( old_192 )
+		{
+			al_trace("Encountered a warp in a 1.92b163 style quest, that was set as a Wave Warp.\n %s\n", "Trying to redirect it into a Cancel Effect");
+			didpit=false;
+			update_subscreens();
+			return false;
+		}
+	}
         //for determining whether to exit cave
         int type1 = combobuf[MAPCOMBO(x,y-16)].type;
         int type2 = combobuf[MAPCOMBO(x,y)].type;
@@ -11779,7 +11882,7 @@ bool LinkClass::dowarp(int type, int index)
         bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
                          ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
                          
-        if(!(tmpscr->flags3&fIWARPFULLSCREEN)) //flags3 is used for carryover of sprites, too. 
+        if(!(tmpscr->flags3&fIWARPFULLSCREEN))
         {
             //ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
             bool wasswimming = (action == swimming);
@@ -11788,7 +11891,7 @@ bool LinkClass::dowarp(int type, int index)
             
             if(wasswimming)
             {
-                action=swimming; FFCore.setLinkAction(swimming);
+                action = swimming;
                 diveclk = olddiveclk;
             }
             
@@ -11856,12 +11959,10 @@ bool LinkClass::dowarp(int type, int index)
         {
             hopclk=0xFF;
             attackclk = charging = spins = 0;
-            action=swimming; FFCore.setLinkAction(swimming);
+            action=swimming;
         }
         else
-	{
-            action=none; FFCore.setLinkAction(none);
-	}
+            action = none;
             
         //preloaded freeform combos
         ffscript_engine(true);
@@ -11907,6 +12008,155 @@ bool LinkClass::dowarp(int type, int index)
     
     
     case wtNOWARP:
+    {
+	bool old_192 = false;
+	if ( FFCore.emulation[emu192b163] )
+	{
+		wtype = wtIWARPWAVE;
+		old_192 = true;
+	}
+	if ( old_192 )
+	{
+		al_trace("Encountered a warp in a 1.92b163 style quest, that was set as a Cancel Warp.\n %s\n", "Trying to redirect it into a Wave Effect");
+		//for determining whether to exit cave
+		int type1 = combobuf[MAPCOMBO(x,y-16)].type;
+		int type2 = combobuf[MAPCOMBO(x,y)].type;
+		int type3 = combobuf[MAPCOMBO(x,y+16)].type;
+		
+		bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
+				 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
+				 
+		if(!(tmpscr->flags3&fIWARPFULLSCREEN))
+		{
+		    //ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
+		    bool wasswimming = (action == swimming);
+		    byte olddiveclk = diveclk;
+		    ALLOFF();
+		    
+		    if(wasswimming)
+		    {
+			action = swimming;
+			diveclk = olddiveclk;
+		    }
+		    
+		    kill_sfx();
+		}
+			
+		if(wtype==wtIWARPZAP)
+		{
+		    zapout();
+		}
+		else if(wtype==wtIWARPWAVE)
+		{
+		    //only draw Link if he's not in a cave -DD
+		    wavyout(!cavewarp);
+		}
+		else if(wtype!=wtIWARP)
+		{
+		    bool b2 = COOLSCROLL&&cavewarp;
+		    blackscr(30,b2?false:true);
+		}
+		
+		int c = DMaps[currdmap].color;
+		currdmap = wdmap;
+		dlevel = DMaps[currdmap].level;
+		currmap = DMaps[currdmap].map;
+		init_dmap();
+		update_subscreens(wdmap);
+		
+		ringcolor(false);
+		
+		if(DMaps[currdmap].color != c)
+		    loadlvlpal(DMaps[currdmap].color);
+		    
+		homescr = currscr = wscr + DMaps[currdmap].xoff;
+		
+		lightingInstant(); // Also sets naturaldark
+		
+		loadscr(0,currdmap,currscr,-1,overlay);
+		
+		x = tmpscr->warpreturnx[wrindex];
+		y = tmpscr->warpreturny[wrindex];
+		
+		if(didpit)
+		{
+		    didpit=false;
+		    x=pitx;
+		    y=pity;
+		}
+			
+		type1 = combobuf[MAPCOMBO(x,y-16)].type;
+		type2 = combobuf[MAPCOMBO(x,y)].type;
+		type3 = combobuf[MAPCOMBO(x,y+16)].type;
+		
+		if(x==0)   dir=right;
+		
+		if(x==240) dir=left;
+		
+		if(y==0)   dir=down;
+		
+		if(y==160) dir=up;
+		
+		markBmap(dir^1);
+		
+		if(iswater(MAPCOMBO(x,y+8)) && _walkflag(x,y+8,0) && current_item(itype_flippers))
+		{
+		    hopclk=0xFF;
+		    attackclk = charging = spins = 0;
+		    action=swimming;
+		}
+		else
+		    action = none;
+		    
+		//preloaded freeform combos
+		ffscript_engine(true);
+		
+		putscr(scrollbuf,0,0,tmpscr);
+		putscrdoors(scrollbuf,0,0,tmpscr);
+		
+		if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
+		{
+		    reset_pal_cycling();
+		    putscr(scrollbuf,0,0,tmpscr);
+		    putscrdoors(scrollbuf,0,0,tmpscr);
+		    walkup(COOLSCROLL);
+		}
+		else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
+		{
+		    reset_pal_cycling();
+		    putscr(scrollbuf,0,0,tmpscr);
+		    putscrdoors(scrollbuf,0,0,tmpscr);
+		    walkdown2(COOLSCROLL);
+		}
+		else if(wtype==wtIWARPZAP)
+		{
+		    zapin();
+		}
+		else if(wtype==wtIWARPWAVE)
+		{
+		    wavyin();
+		}
+		else if(wtype==wtIWARPOPEN)
+		{
+		    openscreen();
+		}
+			
+		show_subscreen_life=true;
+		show_subscreen_numbers=true;
+		playLevelMusic();
+		currcset=DMaps[currdmap].color;
+		dointro();
+		setEntryPoints(x,y);
+		break;
+	}
+	else
+	{
+		didpit=false;
+		update_subscreens();
+		return false;
+	}
+	
+    }
     default:
         didpit=false;
         update_subscreens();
@@ -13983,6 +14233,7 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
     activated_timed_warp=false;
     loadside = scrolldir^1;
     eventlog_mapflags();
+    decorations.animate(); //continue to animate tall grass during scrolling
 }
 
 // How much to reduce Link's damage, taking into account various rings.
@@ -14418,13 +14669,36 @@ int Bweapon(int pos)
 
 void stopCaneOfByrna()
 {
-    for(int i=0; i<Lwpns.Count(); i++)
-    {
-        weapon *w = ((weapon*)Lwpns.spr(i));
+	byte prnt_cane = -1; 
+	weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wCByrna)));
+        prnt_cane = ew->parentitem;
+	for(int i=0; i<Lwpns.Count(); i++)
+	{
+		weapon *w = ((weapon*)Lwpns.spr(i));
         
-        if(w->id==wCByrna)
-            w->dead=1;
-    }
+		if(w->id==wCByrna)
+		{
+			w->dead=1;
+		}
+	}
+	if ( prnt_cane > -1 )
+	{
+		stop_sfx(itemsbuf[prnt_cane].usesound);
+	}
+}
+
+//Check if there are no beams, kill sfx, and reset last_cane_of_byrna_item_id
+void LinkClass::cleanupByrna()
+{
+	if ( last_cane_of_byrna_item_id > -1 )
+	{
+		//al_trace("Last cane id is: %d\n", last_cane_of_byrna_item_id);
+		if ( !(Lwpns.idCount(wCByrna)) )
+		{
+			stop_sfx(itemsbuf[last_cane_of_byrna_item_id].usesound);
+			last_cane_of_byrna_item_id = -1; 
+		}
+	}
 }
 
 // Used to find out if an item family is attached to one of the buttons currently pressed.
@@ -15782,7 +16056,8 @@ void LinkClass::getTriforce(int id2)
     //draw_screen_clip_rect_show_link=true;
     show_subscreen_items=true;
     
-    if(itemsbuf[id2].flags & ITEM_FLAG1 && currscr < 128)
+    //Warp Link out of item cellars, in 2.10 and earlier quests. -Z ( 16th January, 2019 )
+    if(itemsbuf[id2].flags & ITEM_FLAG1 && ( FFCore.getQuestHeaderInfo(vZelda) < 0x250 ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
     {
         sdir=dir;
         dowarp(1,0); //side warp
