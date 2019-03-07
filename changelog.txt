@@ -204,6 +204,14 @@ Fixed Ganon's HP in 1st/2nd. On the NES, he has 30, not 32.
 	The NES Ganon hurts Link. 
 ##############################################################################################################
 
+Added const bitmap, const cheat, const combodata, const doorset, const dropset, const dmapdata, const eweapon, 
+	const ffc, const gamedata, const item, const itemdata, const lweapon, const mapdata,
+	const messagedata, const misccolor, const npc, const npcdata, const palcycle, 
+	const palette, const ponddata, const rgb, const shopdata, const spritedata, 
+	const musicdata, and const warpring to the system.
+Fixed a crash caused by permitting using function returns to initialise constants.
+	( Venrob, 6th March, 2019 )
+
 Port over all fixes applied to 2.53 from 2nd December, 2018; through 6th March, 2019.
 	
 The following log events from the 2.53 changelog have now been committed to 2.55 (between rows of hashes):
