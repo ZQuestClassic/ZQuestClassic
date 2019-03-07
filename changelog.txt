@@ -1,6 +1,209 @@
 //2.55 and 2.54 Changes
 
 //Alpha 14
+
+Updated classic_qst.dat, with the improvements/includes from 2.53.
+
+Added bobomb npc as NPC ID 179 to Classic.qst.
+
+Added bobomb npc script , as: demo_scripts/npc_scripts/bobomb.zs
+
+Modified glost_zh/2.8/other.zh, to fix conflict (default as identifier).s
+
+Added test_scripts path, and copied over all old test scripts from Alpha 13.
+Added demo_scripts path.
+Added demo_scripts/npc_scripts path
+Added demo_scripts/lweapon_scripts path
+Added demo_scripts/eweapon_scripts path
+Added demo_scripts/dmap_scripts path
+Added demo_scripts/link_scripts path
+Added demo_scripts/item_scripts path
+Added demo_scripts/ffc_scripts path
+Added demo_scripts/global_scripts path
+
+Merged std.zh from 2.53 and 2.55, hopefully with no loss of content.
+
+Moves modules into their own paths, as:
+	./
+		modules/
+			classic/
+			default/
+			demo/
+			demojer/
+			expo/
+			
+	All of the module (.zmod) files are in ./modules, and all
+	datafiles and quests are called using relative paths.
+	( ZoriaRPG, 7th March, 2019 )
+
+Ported over all Classic.zh, classic.qst (qst.dat), and related includes
+from 2.53. This includes all of the following from the 2.53 changelog (between
+the rows of hashes):
+	( ZoriaRPG, 7th March, 2019 )
+##############################################################################################################
+Updated all default active subscreens in qst.dat, with the new items. 
+Added the following item scripts to Classic.zh, and items
+	to the default quest in qst.dat:
+	
+	MagicBossKey: Acts like the Magical Key, for Boss Locks.
+		Set to item ID: 146
+	MagicalMap: Gives the player the dungeon map to every dungeon.
+		Set to item ID: 147
+	Magical Compass: Gives the player the compass item to every dungeon.
+		Set to item ID: 148
+	
+Classic.zh: Fix BossExplode ffc to work with all segmented bosses. 
+
+Updated qst.dat 
+
+Fixed the SignPost ffc script.
+
+Moved the new functions from Classic.zh to std_functions.zh.
+Added some relativity functions to Classic.zh--should move to std_functions.zh:
+	DistXY(ffc, int), LeftOf(), RightOf(), Above(), Below(), Facing(ffc).
+
+
+Classic.zh Fixes and Improvements:
+	Renamed constants to prevent future conflicts.
+	BossMusic ffc: 
+		Fixed a bug that caused the victory music to re-play when the
+		player revisited the screen.
+		Added InitD variables to allow customisation by the user.
+	BossExplode ffc:
+		Added InitD variables to allow customisation by the user.
+	DropTRIFORCE ffc:
+	DropHEARTCONTAINER ffc:
+		Fixed a bug that caused the TF drop to repeat if the player revisited
+		the screen.
+		Added a dropshadow to the object when falling.
+		Slowed falling descent. 
+		Clamped screen coordinates of drop to ensure that the object does
+		not fall partway off the edges of the screen.
+	( ZoriaRPG, 24th February, 2019 )
+
+
+Added scripts 'DropTRIFORCE' and 'DropHEARTCONTAINER' to Classic.zh.
+	Fixed issue where invalid weapons were loaded by 'BossMusic' ffc script
+	because of a Waitframe in the loop.
+	Removed traces.
+
+
+Updated qst.dat with all of the new goodies. 
+
+Added constants to Classic.zh:
+	const int _classic_zc__TRK_BOSS = 25;
+	const int _classic_zh__MIDI_VICTORY = 1;
+	const int _classic_zh__TILE_FIREWORK = 10140;
+
+Added file Classic.nsf, from klop422 (Legend of Zelda NSF  from the PZC Database). 
+	We use track 25 for boss music here.
+Added a victory jingle MIDI as MIDI ID 1. 
+Add combo to use for Boss Audio FFC to combo page 3 as combo ID 905.
+Added BossMusic ffc to classic.zh. This is compatible with the BossExplosion ffc.
+Added tile for Boss Audio to tile page 61 as tile 16026.
+
+Added overload functions to Collision() that function as LinkCollision(). 
+
+Updated ffc scripts in classic.zh to clear their combo on init. 
+Fixed signpost script. 
+Added default fireworks ffc to copy and paste, on map 1, screen 0x82. 
+Added combo using the Fire Work tile to combo page 3, as combo 904.
+Added tile to use as  marker for fireworks ffc to tile page 61, as tile 16025.
+Modified fireworks script constants. 
+Added fireworks SFX as sound 61. 
+Added fireworks weapon sprite as Sprite 88. 
+Added tiles for fireworks to tile page 39 as tiles 10140, 10141, 10142.
+Fixed daira tiles on page 38. 
+	( ZoriaRPG, 21st February, 2019 )
+	
+Classic.zh:
+	Added item script 'ItemSound'
+	Added FFC script 'BossExplode'
+	Added constants:
+		const int _BOSS_EXPLODE_SPRITE
+		const int _BOSS_EXPLODE_DUR
+		const int _BOSS_EXPLODE_SFX
+		const int _BOSS_EXPLODE_DELAY
+		const int _BOSS_EXPLODE_RANDOM_MIN
+		const int _BOSS_EXPLODE_RANDOM_MAX
+	
+		const int I_HALFMAGIC = 	144;
+		const int I_LEARNSLASH =	143;
+		const int NPC_DAIRA1 = 		177;
+		const int NPC_DAIRA2 = 		178;
+	
+Add item: Message (Example) as item 145.
+Adjusted stats of both Daira enemies, and set their defences. 
+	Note: 1/4 Arrow damage is intentional for L2, to reflect
+	better armour/scales. 
+Add Daira (L2) [blue] as enemy 178, renamed Daira to Daira (L1) [red].
+
+Default quest changes:
+Added ffc scripts:
+	PermBlockSecrets : This triggers normal screen secrets.
+	PermBlockShutter : Block->Shutter secrets in NES Dungeons
+	Daira (autoghost)
+Removed ffc script PermSecret
+Fixed name of 'CanSlash' item script. 
+Added item script 'ItemMessage'
+Added Daira enemy as npc ID: 177
+Added Daira script to classic.zh
+Added Daira tiles to tile page 38 (tiles 9880, through 9959)
+	( ZoriaRPG, 19th February, 2019 )
+Added call to Classic.zh in the buffer.
+	Updated all active subscreens to include the new items. 
+	Added items: 'Scroll: Learn Slash', 'Scroll: Half Magic'
+	Placed default FFCs with scripts attached on map 1, screen 0x82. 
+		These have their icon set, and their Ethereal flag set. 
+	Added the following scripts:
+	Default active script with Tango and Ghost.
+	Half Magic Item (item, pickup)
+	Learn Slash Item (item, pickup)
+	Change Room Guy (ffc)
+	Perm. Secrets (ffc) 
+	Signpost (ffc)
+	
+	Added freezeall and freeze only ffc default combos to combo page 3:
+		
+	Added tiles on page 61 for icons to represent the FFC scripts. 
+	(Tile IDs: 16002, 16003, 16004, 16005, 16023, 16024, 16061, 16062)
+	Added combos for ffc icons to combo page 3:
+		IDs: 892, 893
+		Icons for the above, are combos: 888, 889. 
+	Added tiles for the icon combos for freeze combos to tile page 61 as 
+		tiles: 16000, and 16001. 
+
+Began adding some default scripts to Classic (as Classic.zh), and 
+	corrected some constants in the included scripts, to match.
+
+Updated qst.dat, to strip out some remaining rubbish pal cycle data. 
+
+Re-fix 1st.qst Level 9 Rupee issue. I had set the wrong type. 
+	( NightmareJames, 16th February, 2019 )
+
+Fixed a secret rupee in Lv9 (1st.qst) not being secret.
+	( NightmareJames, 31st January, 2019; file added to Gamma 3, 14th February, 2019 )
+
+Changed the default length of the short hookshot to 8. 
+	At one point, the distance was in pixels, then someone
+	changed it to tiles. We'll make pixels an option again in 2.55. 
+
+
+Fixed the following in std.zh:
+	Added revised behaviour to RotatePointX() and RotatePointY().
+	Added toggle for old/new RotatePointX() and RotatePointY() behaviour.
+	Probably fixed issues with catsizes() in ScreenFlag() and ScreenEFlag().
+	Swap lit bomb and bomb returns in int WeaponTypeToID(int wpnt).
+	Remove extraneous 's' in bool EnemiesAlive().
+	Add float LargeDistance(int x1, int y1, int x2, int y2, int divisor).
+
+	Somehow the file size on disc decreased in the process. Not sure on this one.
+
+Fixed Ganon's HP in 1st/2nd. On the NES, he has 30, not 32.
+	
+	The NES Ganon hurts Link. 
+##############################################################################################################
+
 Port over all fixes applied to 2.53 from 2nd December, 2018; through 6th March, 2019.
 	
 The following log events from the 2.53 changelog have now been committed to 2.55 (between rows of hashes):
