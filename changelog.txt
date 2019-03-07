@@ -2,6 +2,7 @@
 
 //Alpha 14
 
+Fix Fireball eweapon being called FIREVOLT in CLassic Module. 
 Removed Daira ffc script. 
 Added __CLASSIC_ZH_VERSION macro to Classic.zh
 Modified default quest file (classic_qst.dat) to use the npc and eweapon scripts,
