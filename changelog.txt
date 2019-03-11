@@ -1,7 +1,33 @@
 //2.55 and 2.54 Changes
 
-//Alpha 14
+//Alpha 15
 
+Updated to Alpha 15, and added an unused QR to ZDefs.h
+Restored the ability to set a default tile for Link, and a CSet to
+	use on the title screen, for Modules.
+	Note: Changing the CSet, WILL potentially make custom quest icons messy, as
+		it is a global override.
+Rewrote much of static void list_save(int save_num, int ypos)
+	to fix Game Icons not being loaded, and yet preserve module customisation.
+	Let's hope that none of the customisation allowed by the ZMOD format broke here.
+Added QRs to enable draws during screen scrolling, warping, and
+	Link stepping forward on dungeon screens.
+The global init script now runs earlier, populating arrays prior to
+	playing = true.
+		This permits the Link init script to access those arrays, as the array declarations
+	and any variables declared at a global scope, are not created until the
+	global init script runs. (File scope declarations occur from the global init slot!)
+Fixed dmap script InitD truncating decimals in the DMap Editor.
+Fixed npc, npc weapon, and item weapon InitD truncating decimals
+	in their respective editors.
+Fixed population of npc InitD from run() params.
+Fixed DMap scripts not getting their InitD set from the DMap Editor.
+	( ZoriaRPG, 11th March, 2019 )
+
+Parser: Change `EXPECT_ERROR` to `#ignore error`/`#ignore warning`
+	( Venrob, 7th march, 2019 )
+
+//Alpha 14
 Fix Fireball eweapon being called FIREVOLT in CLassic Module. 
 Removed Daira ffc script. 
 Added __CLASSIC_ZH_VERSION macro to Classic.zh

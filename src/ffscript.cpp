@@ -15343,8 +15343,9 @@ int run_script(const byte type, const word script, const long i)
 		    
 			for ( int q = 0; q < 8; q++ ) 
 			{
-				
-				ri->d[q] = guys.spr(GuyH::getNPCIndex(i))->initD[q]; //w->initiald[q];
+				//ri->d[q] = (int)GuyH::getNPC()->initD[q];
+				ri->d[q] = wa->initD[q];
+				//ri->d[q] = guys.spr(GuyH::getNPCIndex(i))->initD[q]; //w->initiald[q];
 			}
 			
 			//Perhaps it would be better to add a new function that passes the npc pointer to here?
@@ -15570,6 +15571,12 @@ int run_script(const byte type, const word script, const long i)
 		curscript = dmapscripts[script];
 		stack = &dmap_stack;
 		ri->dmapsref = i;
+		for ( int q = 0; q < 8; q++ ) 
+		{
+			//ri->d[q] = (int)GuyH::getNPC()->initD[q];
+			ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
+			//ri->d[q] = guys.spr(GuyH::getNPCIndex(i))->initD[q]; //w->initiald[q];
+		}
 	    }
 	    break;
 	    

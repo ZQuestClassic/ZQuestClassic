@@ -2533,7 +2533,7 @@ void edit_itemdata(int index)
         test.weaponscript = bilweapons[itemdata_dlg[292].d1].second + 1; 
 	for ( int q = 0; q < 8; q++ )
 	{
-		test.weap_initiald[q] = vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
+		test.weap_initiald[q] = vbound(ffparse(weap_initdvals[q]),-2147483647, 2147483647);
 		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
 	}
         
@@ -5651,7 +5651,7 @@ void edit_enemydata(int index)
     
     for ( int q = 0; q < 8; q++ )
     {
-	    
+	//NPC InitD
 	sprintf(initdvals[q],"%.4f",guysbuf[index].initD[q]/10000.0);
 	 
 	enedata_dlg[345+q].dp = initdvals[q];
@@ -6325,8 +6325,10 @@ void edit_enemydata(int index)
         test.script = binpcs[enedata_dlg[335].d1].second + 1; 
 	for ( int q = 0; q < 8; q++ )
 	{
-		test.initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
-		test.weap_initiald[q] = vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
+		test.initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);
+		
+		test.weap_initiald[q] = vbound(ffparse(weap_initdvals[q]),-2147483647, 2147483647);
+		//vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
 		strcpy(test.initD_label[q], npc_initd_labels[q]);
 		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
 	}
@@ -6341,8 +6343,11 @@ void edit_enemydata(int index)
             strcpy(guy_string[index],name);
 	    for ( int q = 0; q < 8; q++ )
 	    {
-		test.initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
-		test.weap_initiald[q] = vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
+		test.initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);
+		
+		test.weap_initiald[q] = vbound(ffparse(weap_initdvals[q]),-2147483647, 2147483647);
+		//test.initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+		//test.weap_initiald[q] = vbound(atoi(weap_initdvals[q])*10000,-2147483647, 2147483647);
 		strcpy(test.initD_label[q], npc_initd_labels[q]);
 		strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
 	    }

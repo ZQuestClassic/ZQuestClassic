@@ -1821,6 +1821,12 @@ int init_game()
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
     FFCore.init(); ///Initialise new ffscript engine core. 
     Link.init();
+    if(firstplay) //Move up here, so that arrays are initialised before we run Link's Init script.
+    {
+        memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
+        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
+    }
     if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); } //Do this prior to the Link init script, so that if the 
 								//init script makes him invisible, he stays that way. 
     ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
@@ -1910,13 +1916,14 @@ int init_game()
     
     
     
-    if(firstplay)
-    {
-        memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+    //if(firstplay)
+    //{
+    //    memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(long));
+    //    ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
 	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);
-    }
-    else
+    //}
+    //else
+    if(!firstplay)
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_CONTINUE); //Do this after global arrays have been loaded
         //ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT);

@@ -649,6 +649,9 @@ static DIALOG scriptrules_dlg[] =
     
     // rules //6
     { jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Item Scripts Continue To Run", NULL, NULL },
+    { jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
+    { jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Scrolling", NULL, NULL },
+    { jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
     
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -657,7 +660,7 @@ static DIALOG scriptrules_dlg[] =
 
 static int scriptrules[] =
 {
-    qr_ITEMSCRIPTSKEEPRUNNING,
+    qr_ITEMSCRIPTSKEEPRUNNING, qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_SCRIPTDRAWSWHENSCROLLING, qr_SCRIPTDRAWSINWARPS,
     -1
 };
 

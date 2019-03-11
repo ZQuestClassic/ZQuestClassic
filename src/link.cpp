@@ -4432,7 +4432,7 @@ bool LinkClass::animate(int)
 				clear_bitmap(subscrbmp);
 		do
 		{
-			script_drawing_commands.Clear();
+			script_drawing_commands.Clear(); //Maybe only one time, on a variable?
 			if ( link_doscript ) 
 			{
 				ALLOFF(true,true);
@@ -11358,7 +11358,8 @@ bool LinkClass::dowarp(int type, int index)
     bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
     
     // Drawing commands probably shouldn't carry over...
-    script_drawing_commands.Clear();
+    if ( !get_bit(quest_rules,qr_SCRIPTDRAWSINWARPS) )
+	script_drawing_commands.Clear();
     
     //KILL ambient sound
 //    mapscr *m = &TheMaps[ri->mapsref]
@@ -12492,6 +12493,16 @@ void LinkClass::stepforward(int steps, bool adjust)
             }
         }
         
+	if ( get_bit(quest_rules,qr_SCRIPTSRUNINLINKSTEPFORWARD) )
+	{
+		if(g_doscript)
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+		if (link_doscript)
+			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+		if ( dmap_doscript ) 
+			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+	}
+	
         draw_screen(tmpscr);
         advanceframe(true);
         
@@ -13657,8 +13668,8 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
         ++cx;
     }
     while(cx < 32);
-    
-    script_drawing_commands.Clear();
+    if ( !get_bit(quest_rules,qr_SCRIPTDRAWSWHENSCROLLING))
+	script_drawing_commands.Clear();
     
     
     //clear Link's last hits 
@@ -13827,7 +13838,8 @@ fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, fa
             return;
         }
         
-        script_drawing_commands.Clear();
+	if ( !get_bit(quest_rules,qr_SCRIPTDRAWSWHENSCROLLING) )
+		script_drawing_commands.Clear();
         
         // For rafting (and possibly other esoteric things)
         // Link's action should remain unchanged while scrolling,
