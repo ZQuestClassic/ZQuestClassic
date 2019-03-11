@@ -2381,8 +2381,11 @@ static void list_save(int save_num, int ypos)
     {
         game->set_maxlife(saves[save_num].get_maxlife());
         game->set_life(saves[save_num].get_maxlife());
-        wpnsbuf[iwQuarterHearts].tile = 4;
-        //boogie!
+	//wpnsbuf[iwQuarterHearts].newtile = 4;
+        wpnsbuf[iwQuarterHearts].newtile = moduledata.select_screen_tiles[sels_heart_tile];
+        wpnsbuf[iwQuarterHearts].csets = moduledata.select_screen_tile_csets[sels_heart_tilettile_cset];
+
+	//boogie!
         lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(HP_PER_HEART))?8:0),0,0);
         textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);
         
