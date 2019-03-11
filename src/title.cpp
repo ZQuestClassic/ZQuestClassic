@@ -2498,7 +2498,9 @@ static void list_save(int save_num, int ypos)
     byte holdformat=newtilebuf[0].format;
     newtilebuf[0].format=tf4Bit;
     newtilebuf[0].data = saves[save_num].icon;
-    overtile16(framebuf,0,48,ypos+17,(save_num%3)+10,0);               //link
+    overtile16(framebuf,moduledata.select_screen_tiles[sels_linktile] > 1 ? moduledata.select_screen_tiles[sels_linktile] : 0,48,ypos+17,
+    (unsigned)moduledata.select_screen_tile_csets[sels_link_cset] < 15 ? (unsigned)moduledata.select_screen_tile_csets[sels_link_cset] < 15 :
+    (save_num%3)+10,0);               //link
     newtilebuf[0].format=holdformat;
     newtilebuf[0].data = hold;
     
