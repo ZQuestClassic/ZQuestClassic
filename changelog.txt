@@ -2,6 +2,9 @@
 
 //Alpha 15
 
+Restored some module settings, that were being overwritten by the last change
+	and fixed sels_linktile so that setting it affects the default
+	quest icons, but not icons set in the actual (custom) quests.
 Updated to Alpha 15, and added an unused QR to ZDefs.h
 Restored the ability to set a default tile for Link, and a CSet to
 	use on the title screen, for Modules.
