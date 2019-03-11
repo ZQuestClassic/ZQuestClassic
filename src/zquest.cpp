@@ -13256,7 +13256,8 @@ void editdmap(int index)
 	DMaps[index].script = bidmaps[editdmap_dlg[147].d1].second + 1; 
 	for ( int q = 0; q < 8; q++ )
 	{
-		DMaps[index].initD[q] = vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+		DMaps[index].initD[q] = vbound(ffparse(initdvals[q]),-2147483647, 2147483647);
+		//vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
 	}
     }
 }
