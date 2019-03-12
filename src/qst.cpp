@@ -6867,7 +6867,7 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if ( Header->zelda_version < 0x193 ) 
 	{
 		tempweapon.newtile = tempweapon.tile;
-		al_trace("Reading a tempwpn tile ID (%d) from a quest built in: %x", tempweapon.tile, Header->zelda_version);
+		//al_trace("Reading a tempwpn tile ID (%d) from a quest built in: %x", tempweapon.tile, Header->zelda_version);
 	}
         
         if(s_version < 6)
