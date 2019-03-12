@@ -896,6 +896,7 @@ weapon::weapon(fix X,fix Y,fix Z,int Id,int Type,int pow,int Dir, int Parentitem
             
         case left:
 	case l_down:
+	case r_down:
             flip=1;
             
         case right: /*tile=o_tile+((frames>1)?frames:1)*/
