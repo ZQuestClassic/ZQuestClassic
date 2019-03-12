@@ -15288,7 +15288,10 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
         temp_zinit.max_rupees=999;
         temp_zinit.rupies=999;
     }
-    
+    if(Header->zelda_version < 0x190) //1.84 bugfix. -Z
+    {
+	temp_zinit.items[iBombBag] = true;
+    }
     if(keepdata==true)
     {
         memcpy(&zinit, &temp_zinit, sizeof(zinitdata));
