@@ -6851,7 +6851,7 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
 		    return qe_invalid;
 		}	    
 	}
-	if ( s_version < 7 ) 
+	if ( s_version < 7 && Header->zelda_version >= 0x193 ) 
 	{
 		tempweapon.newtile = tempweapon.tile;
 	}
@@ -6863,6 +6863,12 @@ int readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
                 return qe_invalid;
             }
         }
+	
+	if ( Header->zelda_version < 0x193 ) 
+	{
+		tempweapon.newtile = tempweapon.tile;
+		al_trace("Reading a tempwpn tile ID (%d) from a quest built in: %x", tempweapon.tile, Header->zelda_version);
+	}
         
         if(s_version < 6)
         {
@@ -13571,7 +13577,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
     byte *temp_tile = new byte[tilesize(tf32Bit)];
 	
     //Tile Expansion
-    if ( build < 41 ) 
+    if ( version >= 0x254 && build >= 41 )
     {
 	    //al_trace("Build was < 41 when reading tiles\n");
 	    max_tiles = ZC250MAXTILES;
@@ -13657,7 +13663,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         
         tiles_used=zc_min(tiles_used, max_tiles);
         
-	if ( version < 0x254 && build < 41 )
+	if ( version < 0x254 || ( version >= 0x254 && build < 41 ))
 	{
 		tiles_used=zc_min(tiles_used, ZC250MAXTILES-start_tile);
 	}
@@ -13735,7 +13741,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
     if(keepdata==true)
     {
 	    //al_trace("calling reset_tile()");
-	if ( build < 41 ) 
+	if ( version < 0x254 || ( version >= 0x254 && build < 41 ))
 	{
 		for(int i=start_tile+tiles_used; i<max_tiles; ++i)
 		{
@@ -13761,7 +13767,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
                 byte tempbyte;
                 int floattile=wpnsbuf[iwSwim].tile;
                 
-                for(int i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order
+                for(int i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order //does this include swim tiles?
                 {
                     tempbyte=buf[23].data[i];
                     buf[23].data[i]=buf[24].data[i];
@@ -13769,7 +13775,7 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
                     buf[25].data[i]=buf[26].data[i];
                     buf[26].data[i]=tempbyte;
                 }
-                
+                //swim tiles are out of order, too, but nobody cared? -Z 
                 for(int i=0; i<tilesize(tf4Bit); i++)
                 {
                     tempbyte=buf[floattile+11].data[i];
