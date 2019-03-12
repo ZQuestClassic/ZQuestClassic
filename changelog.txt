@@ -2,6 +2,9 @@
 
 //Alpha 15
 
+Set bobomb enemy script in classic_qst.dat.
+	( ZoriaRPG, 12th March, 2019 )
+	
 Restored some module settings, that were being overwritten by the last change
 	and fixed sels_linktile so that setting it affects the default
 	quest icons, but not icons set in the actual (custom) quests.
