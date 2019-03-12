@@ -2,6 +2,18 @@
 
 //Alpha 15
 
+1.92 and earlier used a completely different tile for the 2x2 frame
+	subscreen object. As this could not be changed, we now read that tile directly
+	if the quest was made in the old version.
+
+We were only checking build ID, which used to be used for the beta ID
+	of builds before 2.50. This now checks vZelda and vBuild, more appropriately,
+	and adds in some weapon patches for weapon `newtile` values for old versions.
+
+It seems that 1.84 quests do not start with a bomb bag, but
+	they should, as the item did not exist in those old versions; and thus,
+	the player cannot pick up bombs in quests made using them.
+
 Set bobomb enemy script in classic_qst.dat.
 	( ZoriaRPG, 12th March, 2019 )
 	
