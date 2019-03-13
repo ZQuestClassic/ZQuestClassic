@@ -2169,7 +2169,7 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,i
       */
     if(tile==0)
     {
-        tile=misc->colors.new_blueframe_tile;
+	tile= FFCore.getQuestHeaderInfo(vZelda) >= 0x250 ? misc->colors.new_blueframe_tile : misc->colors.blueframe_tile;
     }
     
     int t8 = tile<<2;
@@ -3506,7 +3506,8 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
             {
 		//al_trace("2x2 Frame tile is: %d\n",css->objects[i].d1);
 		    //in 1.92 and earlier, the 2x2 frame object was tile 278
-                frame2x2(dest, misc, x, y, FFCore.getQuestHeaderInfo(vZelda) < 0x193 ? 278 : css->objects[i].d1, subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
+                frame2x2(dest, misc, x, y, css->objects[i].d1, subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
+                //frame2x2(dest, misc, x, y, FFCore.getQuestHeaderInfo(vZelda) < 0x193 ? 278 : css->objects[i].d1, subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
             }
             break;
             
