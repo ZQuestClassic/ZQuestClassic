@@ -15297,7 +15297,23 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
     if(Header->zelda_version < 0x190) //1.84 bugfix. -Z
     {
 	temp_zinit.items[iBombBag] = true;
+	temp_zinit.max_bombs = 8;
     }
+    
+    //time to ensure that we port all new values properly:
+    if(Header->zelda_version < 0x255)
+    {
+	temp_zinit.nBombs = temp_zinit.bombs;
+	temp_zinit.nSbombs = temp_zinit.super_bombs;
+	temp_zinit.nBombmax = temp_zinit.max_bombs;
+	temp_zinit.nSbombs = (temp_zinit.max_bombs/temp_zinit.bomb_ratio);
+	temp_zinit.nArrows = temp_zinit.arrows;
+	temp_zinit.nArrowmax = temp_zinit.max_arrows;
+    }	    
+    
+    
+    
+    
     if(keepdata==true)
     {
         memcpy(&zinit, &temp_zinit, sizeof(zinitdata));
