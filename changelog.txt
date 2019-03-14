@@ -2,6 +2,33 @@
 
 //Alpha 15
 
+Attempt to correct new Init Data values being improperly
+	initialised.
+Cap max bombs in <= 1.84 quests at 8.
+	( ZoriaRPG, 14th March, 2019 )
+
+The value for `new_blueframe_tile` is now properly populated
+	for quests made in 2.10 and earlier, by the saving routine in ZQuest.
+
+	This prevents corruption of that tile.
+
+	Any more of these old tile conversions that I've missed? -Z
+
+My prior fix did not cover enough ground.:
+	After reverting the previous change, I fixed the issue now, in:
+		`void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,int h,int /*flip*/,bool overlay,bool trans)`
+		inside `subscr.cpp`.
+
+	I do not know yet, if loading a <= 2.10 quest in 2.55, then saving, will break this
+	again. 
+	
+	It seems that when you loaded an old quest in 2.50, it populated the QMisc tiles somehow.
+
+	I'm not yet sure where, but, because we check section_version in 2.55 to populate QMisc newtiles,
+	if that part of the quest load does not convert to the newtile instead of the (old) tile,
+	then it'll be the same issue all over again with the newly saved 2.55 quest.
+	( ZoriaRPG, 13th March, 2019 )
+
 1.92 and earlier used a completely different tile for the 2x2 frame
 	subscreen object. As this could not be changed, we now read that tile directly
 	if the quest was made in the old version.
