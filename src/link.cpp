@@ -16069,7 +16069,8 @@ void LinkClass::getTriforce(int id2)
     show_subscreen_items=true;
     
     //Warp Link out of item cellars, in 2.10 and earlier quests. -Z ( 16th January, 2019 )
-    if(itemsbuf[id2].flags & ITEM_FLAG1 && ( FFCore.getQuestHeaderInfo(vZelda) < 0x250 ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
+    //Added a QR for this, to Other->2, as `Triforce in Cellar Warps Link Out`. -Z 15th March, 2019 
+    if(itemsbuf[id2].flags & ITEM_FLAG1 && ( get_bit(quest_rules,qr_SIDEVIEWTRIFORCECELLAR) ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
     {
         sdir=dir;
         dowarp(1,0); //side warp
