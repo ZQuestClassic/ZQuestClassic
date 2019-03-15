@@ -2661,6 +2661,11 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules, qr_OLDINFMAGIC, 1);
 	}
 	
+	if((tempheader.zelda_version < 0x250)) //2.10 and earlier allowed the triforce to Warp Link out of Item Cellars in Dungeons. -Z (15th March, 2019 )
+	{
+		set_bit(quest_rules,qr_SIDEVIEWTRIFORCECELLAR,1);
+	}
+	
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
@@ -13663,7 +13668,8 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         
         tiles_used=zc_min(tiles_used, max_tiles);
         
-	if ( version < 0x254 || ( version >= 0x254 && build < 41 ))
+	//if ( version < 0x254 || ( version >= 0x254 && build < 41 )) //don't do this, it crashes ZQuest. -Z
+	if ( version < 0x254 && build < 41 )
 	{
 		tiles_used=zc_min(tiles_used, ZC250MAXTILES-start_tile);
 	}
