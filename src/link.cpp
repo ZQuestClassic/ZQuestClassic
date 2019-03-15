@@ -12749,6 +12749,47 @@ bool LinkClass::edge_of_dmap(int side)
     return false;
 }
 
+bool LinkClass::lookaheadraftflag(int d2)
+{
+    // Helper for scrollscr that gets next combo on next screen.
+    // Can use destscr for scrolling warps,
+    // but assumes currmap is correct.
+    
+    int cx = x;
+    int cy = y + 8;
+	
+	bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	//y+8 could be 168  //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
+	//Applying this here, too. -Z
+    
+    switch(d2)
+    {
+    case up:
+        cy=160;
+        break;
+        
+    case down:
+        cy=0;
+        break;
+        
+    case left:
+        cx=240;
+        break;
+        
+    case right:
+        cx=0;
+        break;
+    }
+    
+    int combo = (cy&0xF0)+(cx>>4);
+    
+    if(combo>175)
+        return 0;
+    return ( isRaftFlag(combobuf[tmpscr[0].data[combo]].flag) || isRaftFlag(tmpscr[0].sflag[combo]));
+    
+}
+
 int LinkClass::lookahead(int d2)                       // Helper for scrollscr that gets next combo on next screen.
 {
     // Can use destscr for scrolling warps,
@@ -13174,9 +13215,11 @@ void LinkClass::scrollscr(int scrolldir, int destscr, int destdmap)
 
     if(lastaction != inwind)
     {
-        if(lastaction == rafting && isRaftFlag(aheadflag))
+        if(lastaction == rafting )
+		//&& isRaftFlag(aheadflag))
         {
-            action = rafting;
+		if ( lookaheadraftflag(scrolldir) )
+			action = rafting;
         }
         else if(iswater(ahead) && (current_item(itype_flippers)))
         {
