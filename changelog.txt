@@ -2,6 +2,12 @@
 
 //Alpha 15
 
+Added 'Triforce in Cellar Warps Link Out' to Quest Rules->Other->2.
+
+Fixed a crash when writing tiles, and added a rule patch for the 2.10
+	Triforce in Item Cellar Warp Out rule.
+	( ZoriaRPG, 15th March, 2019 )
+
 Attempt to correct new Init Data values being improperly
 	initialised.
 Cap max bombs in <= 1.84 quests at 8.
