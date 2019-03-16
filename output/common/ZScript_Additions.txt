@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 14
-Document Revision: 7th March, 2019
+Document for: 2.55, Alpha 15
+Document Revision: 12th March, 2019
 
 
 ////////////////////////////////////////////////////
@@ -266,7 +266,8 @@ It is now possible to permit item scripts to run for more than one frame.
 	specified number, that you can use to suppress warnings or halts. 
 
 	Syntax:
-	compile_error (error_number) {error_generating_code}
+	#ignore error(error_number) {error_generating_code}
+	#ignore warning(error_number) {error_generating_code}
 	
 
 ///////////////////////////

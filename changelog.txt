@@ -2,6 +2,57 @@
 
 //Alpha 15
 
+Added 'Triforce in Cellar Warps Link Out' to Quest Rules->Other->2.
+
+Fixed a crash when writing tiles, and added a rule patch for the 2.10
+	Triforce in Item Cellar Warp Out rule.
+	( ZoriaRPG, 15th March, 2019 )
+
+Attempt to correct new Init Data values being improperly
+	initialised.
+Cap max bombs in <= 1.84 quests at 8.
+	( ZoriaRPG, 14th March, 2019 )
+
+The value for `new_blueframe_tile` is now properly populated
+	for quests made in 2.10 and earlier, by the saving routine in ZQuest.
+
+	This prevents corruption of that tile.
+
+	Any more of these old tile conversions that I've missed? -Z
+
+My prior fix did not cover enough ground.:
+	After reverting the previous change, I fixed the issue now, in:
+		`void frame2x2(BITMAP *dest,miscQdata *misc,int x,int y,int tile,int cset,int w,int h,int /*flip*/,bool overlay,bool trans)`
+		inside `subscr.cpp`.
+
+	I do not know yet, if loading a <= 2.10 quest in 2.55, then saving, will break this
+	again. 
+	
+	It seems that when you loaded an old quest in 2.50, it populated the QMisc tiles somehow.
+
+	I'm not yet sure where, but, because we check section_version in 2.55 to populate QMisc newtiles,
+	if that part of the quest load does not convert to the newtile instead of the (old) tile,
+	then it'll be the same issue all over again with the newly saved 2.55 quest.
+	( ZoriaRPG, 13th March, 2019 )
+
+1.92 and earlier used a completely different tile for the 2x2 frame
+	subscreen object. As this could not be changed, we now read that tile directly
+	if the quest was made in the old version.
+
+We were only checking build ID, which used to be used for the beta ID
+	of builds before 2.50. This now checks vZelda and vBuild, more appropriately,
+	and adds in some weapon patches for weapon `newtile` values for old versions.
+
+It seems that 1.84 quests do not start with a bomb bag, but
+	they should, as the item did not exist in those old versions; and thus,
+	the player cannot pick up bombs in quests made using them.
+
+Set bobomb enemy script in classic_qst.dat.
+	( ZoriaRPG, 12th March, 2019 )
+	
+Restored some module settings, that were being overwritten by the last change
+	and fixed sels_linktile so that setting it affects the default
+	quest icons, but not icons set in the actual (custom) quests.
 Updated to Alpha 15, and added an unused QR to ZDefs.h
 Restored the ability to set a default tile for Link, and a CSet to
 	use on the title screen, for Modules.

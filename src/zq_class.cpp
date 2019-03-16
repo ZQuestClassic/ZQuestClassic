@@ -6989,12 +6989,27 @@ int writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         {
             new_return(37);
         }
-        
-        if(!p_iputl(Misc->colors.new_blueframe_tile,f))
-        {
-            new_return(38);
+	//Older (2.10 and earlier) quests did not have a proper tile here, so we need to write it.
+	//this routine, uses the tile loaded into RAM as 'bluetile_frame' when the old quest was
+	//loaded by 2.55 in its ORIGINAL (old) format, then writes it into the quest file
+	//in the space allocated for `new_blueframe_tile`. -Z (13th March, 2019 )
+	if ( FFCore.getQuestHeaderInfo(vZelda) <= 0x210 )
+	{
+		if(!p_iputl(Misc->colors.blueframe_tile,f))
+		{
+		    new_return(38);
+		}
+		
+	}
+	//Otherwise, if the quest was made in 2.50 or later, then is data is copied by the quest loader
+	//into the new var `new_blueframe_tile`, so we just write that out. -Z (13th March, 2019 )
+	else
+	{
+		if(!p_iputl(Misc->colors.new_blueframe_tile,f))
+		{
+			new_return(38);
+		}
         }
-        
         if(!p_iputl(Misc->colors.new_HCpieces_tile,f))
         {
             new_return(39);
