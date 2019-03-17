@@ -14039,21 +14039,11 @@ int Bweapon(int pos)
 
 void stopCaneOfByrna()
 {
-	byte prnt_cane = -1; 
-	weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wCByrna)));
-        prnt_cane = ew->parentitem;
 	for(int i=0; i<Lwpns.Count(); i++)
 	{
 		weapon *w = ((weapon*)Lwpns.spr(i));
-        
 		if(w->id==wCByrna)
-		{
 			w->dead=1;
-		}
-	}
-	if ( prnt_cane > -1 )
-	{
-		stop_sfx(itemsbuf[prnt_cane].usesound);
 	}
 }
 
