@@ -1941,6 +1941,9 @@ void get_questpwd(char *encrypted_pwd, short pwdkey, char *pwd)
 
 bool check_questpwd(zquestheader *Header, char *pwd)
 {
+    #if DEVLEVEL > 1 
+	return true;
+    #endif
     cvs_MD5Context ctx;
     unsigned char md5sum[16];
     
