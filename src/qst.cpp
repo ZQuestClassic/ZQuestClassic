@@ -13585,7 +13585,8 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
     byte *temp_tile = new byte[tilesize(tf32Bit)];
 	
     //Tile Expansion
-    if ( version >= 0x254 && build >= 41 )
+    //if ( version >= 0x254 && build >= 41 )
+    if (version < 0x254 && build < 41)
     {
 	    //al_trace("Build was < 41 when reading tiles\n");
 	    max_tiles = ZC250MAXTILES;
@@ -13672,11 +13673,13 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         tiles_used=zc_min(tiles_used, max_tiles);
         
 	//if ( version < 0x254 || ( version >= 0x254 && build < 41 )) //don't do this, it crashes ZQuest. -Z
-	if ( version < 0x254 && build < 41 )
+	//if ( version < 0x254 && build < 41 )
+	if ( version < 0x254 || (version == 0x254 && build < 41) )
+	//if ( build < 41 )
 	{
 		tiles_used=zc_min(tiles_used, ZC250MAXTILES-start_tile);
 	}
-	else 
+	else //2.55
 	{
 		tiles_used = zc_min(tiles_used,NEWMAXTILES-start_tile); 
 	}
