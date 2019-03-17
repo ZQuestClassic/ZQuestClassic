@@ -265,6 +265,7 @@ public:
     bool nextcombo_solid(int d);
     int  lookahead(int d);
     int  lookaheadflag(int d);
+    bool  lookaheadraftflag(int d);
     void checkhit();
     bool checkdamagecombos(int dx, int dy);
     bool checkdamagecombos(int dx1, int dx2, int dy1, int dy2, int layer = -1, bool solid = false);

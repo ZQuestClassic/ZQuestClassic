@@ -2,6 +2,7 @@
 
 //Alpha 15
 
+Ported Link.lookaheadraftflag() from 2.53. 
 Maybe Fix New Tile-Based Crashes
 Ported the fix for 1.84 quests starting with 30 MAX Bombs from 2.53.
 Added hotkeys for the following Lv4 Cheats
