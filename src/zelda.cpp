@@ -1433,6 +1433,8 @@ int init_game()
     
     bool firstplay = (game->get_hasplayed() == 0);
     
+    
+    
     BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
     //setuplinktiles(zinit.linkanimationstyle);
     
@@ -1450,6 +1452,7 @@ int init_game()
     {
         game->set_continue_dmap(zinit.start_dmap);
         resetItems(game,&zinit,true);
+	if ( quest_header_zelda_version < 0x190 ) { game->set_maxbombs(8); al_trace("Starting bombs set to %d for a quest made in ZC %x\n", game->get_maxbombs(), quest_header_zelda_version); }
     }
     
     currdmap = warpscr = worldscr=game->get_continue_dmap();
