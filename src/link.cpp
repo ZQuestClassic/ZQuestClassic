@@ -14681,6 +14681,17 @@ int Bweapon(int pos)
 
 void stopCaneOfByrna()
 {
+	for(int i=0; i<Lwpns.Count(); i++)
+	{
+		weapon *w = ((weapon*)Lwpns.spr(i));
+		if(w->id==wCByrna)
+			w->dead=1;
+	}
+}
+
+/* Crashes if used by ffscript.cpp, in case LINKITEMD
+void stopCaneOfByrna()
+{
 	byte prnt_cane = -1; 
 	weapon *ew = (weapon*)(Lwpns.spr(Lwpns.idFirst(wCByrna)));
         prnt_cane = ew->parentitem;
@@ -14698,7 +14709,7 @@ void stopCaneOfByrna()
 		stop_sfx(itemsbuf[prnt_cane].usesound);
 	}
 }
-
+*/
 //Check if there are no beams, kill sfx, and reset last_cane_of_byrna_item_id
 void LinkClass::cleanupByrna()
 {
