@@ -1,7 +1,26 @@
 ChangeLog for 2.53.0 
 
-//Gamma 5
+//Gamma 6
+Don't allow infinite max bombs in 1,.84 quests. 
+	( ZoriaRPG, 17th March 2019 )
+	
+Moved the ffscript debug namespace into ffscript.cpp.
+Added hotkeys for the following Lv4 Cheats
+	Kill All Enemies (K)
+	Show Overhead (O)
+	Show Push Blocks (P)
+	Show Hitboxes (C; for Collision)
+	Show FFScript Names (F)
+Fixed Crash When Removing Cane of Byrna By Script
+	( ZoriaRPG, 16th March, 2019 ) 
+	
+It seems that 1.84 quests do not start with a bomb bag, but
+	they should, as the item did not exist in those old versions; and thus,
+	the player cannot pick up bombs in quests made using them.
+Added another fix to 8-way shots.
+	( ZoriaRPG, 12th March, 2019 )
 
+//Gamma 5
 Updated all default active subscreens in qst.dat, with the new items. 
 Added the following item scripts to Classic.zh, and items
 	to the default quest in qst.dat:
