@@ -1909,6 +1909,7 @@ void get_questpwd(char *encrypted_pwd, short pwdkey, char *pwd)
 
 bool check_questpwd(zquestheader *Header, char *pwd)
 {
+	//return true; //Ignore password prompt.
     cvs_MD5Context ctx;
     unsigned char md5sum[16];
     
