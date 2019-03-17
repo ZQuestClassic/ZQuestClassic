@@ -1,7 +1,9 @@
 ChangeLog for 2.53.0 
 
 //Gamma 6
-Don't allow infinite max bombs in 1,.84 quests. 
+
+Don't allow infinite max bombs in 1.84 quests. 
+	Max bombs now set to 8 in zelda.cpp, on `firstplay`. 
 	( ZoriaRPG, 17th March 2019 )
 	
 Moved the ffscript debug namespace into ffscript.cpp.
