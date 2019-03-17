@@ -7367,7 +7367,7 @@ static MENU cheat_menu[] =
     { (char *)"Walk Through &Walls\tF11",   onNoWalls,               NULL,                      0, NULL },
     { (char *)"Link Ignores Side&view\tV",  onIgnoreSideview,        NULL,                      0, NULL },
     { (char *)"&Quick Movement\tQ",         onGoFast,                NULL,                      0, NULL },
-    { (char *)"&Kill All Enemies\tT",          onKillCheat,             NULL,                      0, NULL },
+    { (char *)"&Kill All Enemies\tK",          onKillCheat,             NULL,                      0, NULL },
     { (char *)"Show/Hide Layer",            NULL,                    show_menu,                 0, NULL },
     { (char *)"Toggle Light\tL",            onLightSwitch,           NULL,                      0, NULL },
     { (char *)"&Goto Location...\tG",       onGoTo,                  NULL,                      0, NULL },
