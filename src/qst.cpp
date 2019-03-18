@@ -9676,6 +9676,25 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eMOLDORM].misc2 = 0;
     }
     
+    if ( Header->zelda_version < 0x211 ) //Default rest rates for phantom ghinis, peahats and keese in < 2.50 quests
+    {
+	guysbuf[eKEESE1].misc16 = 120;
+	guysbuf[eKEESE2].misc16 = 120;
+	guysbuf[eKEESE3].misc16 = 120;
+	guysbuf[eKEESETRIB].misc16 = 120;
+	guysbuf[eKEESE1].misc17 = 16;
+	guysbuf[eKEESE2].misc17 = 16;
+	guysbuf[eKEESE3].misc17 = 16;
+	guysbuf[eKEESETRIB].misc17 = 16;
+	    
+	guysbuf[ePEAHAT].misc16 = 80;
+	guysbuf[ePEAHAT].misc17 = 16;
+	    
+	guysbuf[eGHINI2].misc16 = 120;
+	guysbuf[eGHINI2].misc17 = 10;	
+	    
+    }
+    
     if(guyversion<=2)
     {
         return readlinksprites2(f, guyversion==2?0:-1, 0, keepdata);
