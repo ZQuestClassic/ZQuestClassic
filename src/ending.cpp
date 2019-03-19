@@ -107,7 +107,7 @@ namespace
         { "You finished a",   72, 816, white },
         { "custom quest.",    76, 832, white },
         { "ZELDA CLASSIC",    76, 880, white },
-        { "\2741999-2017",    88, 896, white },
+        { "\2741999-2019",    88, 896, white },
         { "Armageddon Games", 64, 912, blue }
     };
 }
