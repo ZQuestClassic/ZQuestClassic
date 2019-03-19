@@ -7592,7 +7592,7 @@ static MENU show_menu[] =
     { (char *)"",                           NULL,                     NULL,                      0, NULL },
     { (char *)"Walkability\tW",		  onShowLayerW,                 NULL,                      0, NULL },
     { (char *)"Current FFC Scripts\tF",	  onShowFFScripts,              NULL,                      0, NULL },
-    { (char *)"Hitboxes\C",				  onShowHitboxes,               NULL,                      0, NULL },
+    { (char *)"Hitboxes\tC",				  onShowHitboxes,               NULL,                      0, NULL },
     { NULL,                                 NULL,                     NULL,                      0, NULL }
 };
 
