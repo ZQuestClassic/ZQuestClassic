@@ -15327,7 +15327,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     if(Header->zelda_version < 0x190) //1.84 bugfix. -Z
     {
-	temp_zinit.items[iBombBag] = true;
+	//temp_zinit.items[iBombBag] = true; //No, this is 30 max bombs!
 	temp_zinit.max_bombs = 8;
     }
     
