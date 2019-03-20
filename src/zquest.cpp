@@ -875,6 +875,28 @@ static MENU etc_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+//New ZScript Menu for 2.55 Alpha 16
+static MENU zscript_menu[] =
+{
+    { (char *)"Compile &ZScript...",        onCompileScript,           NULL,                     0,            NULL   },
+    //divider
+        { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Import ASM &FFC Script",     onImportFFScript,          NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Item Script",    onImportItemScript,        NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Global Script",  onImportGScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &NPC Script",  onImportGScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &LWeapon Script",  onImportGScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &EWeapon Script",  onImportGScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Hero Script",  onImportGScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &DMap Script",  onImportGScript,           NULL,                     0,            NULL   },
+	//divider
+        { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Compiler Settings",        onCompileScript,           NULL,                     0,            NULL   },
+    { (char *)"Quest Script Settings",        onCompileScript,           NULL,                     0,            NULL   },
+
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 MENU the_menu[] =
 {
     { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
@@ -883,6 +905,7 @@ MENU the_menu[] =
     { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
     { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
+    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
     { (char *)"Et&c",                       NULL, (MENU *) etc_menu,        0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -19468,7 +19491,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"NPC",		 0,         as_npc_list,   0, NULL },
     { (char *)"LWeapon",		 0,         as_lweapon_list,   0, NULL },
     { (char *)"EWeapon",		 0,         as_eweapon_list,   0, NULL },
-    { (char *)"Link",		 0,         as_link_list,   0, NULL },
+    { (char *)"Hero",		 0,         as_link_list,   0, NULL },
     { (char *)"DMap",		 0,         as_dmap_list,   0, NULL },
     { (char *)"Screen",		 0,         as_screen_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
