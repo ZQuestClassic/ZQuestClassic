@@ -21050,6 +21050,35 @@ int onImportFFScript()
     return D_O_K;
 }
 
+int onImportNPCScript()
+{
+    char name[20]="";
+    
+    npcscript_sel_dlg[0].dp2 = lfont;
+    npcscript_sel_dlg[2].dp = name;
+    npcscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(npcscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(npcscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&guyscripts[npcscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)npcscript_sel_dlg[2].dp)>0)
+                npcmap[npcscript_sel_dlg[5].d1].second=(char *)npcscript_sel_dlg[2].dp;
+            else
+                npcmap[npcscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_binpcs_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
 int onImportItemScript()
 {
     char name[20]="";

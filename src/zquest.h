@@ -485,6 +485,7 @@ int onSecretCombo();
 int onUnderCombo();
 int onImportFFScript();
 int onImportItemScript();
+int onImportNPCScript();
 int onImportGScript();
 int onCompileScript();
 
