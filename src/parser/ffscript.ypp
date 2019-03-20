@@ -104,6 +104,7 @@ extern YYLTYPE noloc;
 %token OPTIONVALUE
 %token DEFINE
 %token ENUM
+%token NAMESPACE
 
  // Types
 %token ZVOID
@@ -212,6 +213,7 @@ Global_List :
 
 Global_Statement :
 	Import {$$ = $1;}
+	| Namespace {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
 	| ScriptTypeDef SEMICOLON {$$ = $1;}
 	| Data SEMICOLON {$$ = $1;}
@@ -219,6 +221,71 @@ Global_Statement :
 	| Script {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Global_Statement {
+		ASTExprConst* errorId = (ASTExprConst*)$3;
+		ASTDecl* declaration = (ASTDecl*)$5;
+		declaration->compileErrorCatches.push_back(errorId);
+		$$ = declaration;}
+	;
+
+////////////////////////////////////////////////////////////////
+// Namespace Declaration
+
+Namespace :
+	NAMESPACE IDENTIFIER LBRACE RBRACE {
+		ASTString* name = (ASTString*)$2;
+		ASTNamespace* namesp = new ASTNamespace(@$, name->getValue());
+		delete name;
+		$$ = namesp;
+	}
+	| NAMESPACE IDENTIFIER LBRACE Namespace_Block_List RBRACE {
+		ASTString* name = (ASTString*)$2;
+		ASTNamespace* namesp = (ASTNamespace*)$4;
+		namesp->setName(name->getValue());
+		namesp->location = @$;
+		delete name;
+		$$ = namesp;
+	}
+	;
+
+Namespace_Block_List :
+	Namespace_Block_List Namespace_Statement {
+		ASTNamespace* namesp = (ASTNamespace*)$1;
+		ASTDecl* declaration = (ASTDecl*)$2;
+		namesp->addDeclaration(*declaration);
+		namesp->location = @$;
+		$$ = namesp;}
+	| Namespace_Block_List Option {
+		ASTNamespace* namesp = (ASTNamespace*)$1;
+		ASTSetOption* option = (ASTSetOption*)$2;
+		namesp->options.push_back(option);
+		namesp->location = @$;
+		$$ = namesp;
+		if (!namesp->variables.empty()
+		    || !namesp->functions.empty()
+		    || !namesp->dataTypes.empty()
+		    || !namesp->scriptTypes.empty()) {
+			yymsg("WARNING: Options should come before everything else.");}}
+	| Namespace_Statement {
+		ASTNamespace* namesp = new ASTNamespace(@$);
+		ASTDecl* declaration = (ASTDecl*)$1;
+		namesp->addDeclaration(*declaration);
+		$$ = namesp;}
+	| Option {
+		ASTNamespace* namesp = new ASTNamespace(@$);
+		ASTSetOption* option = (ASTSetOption*)$1;
+		namesp->options.push_back(option);
+		$$ = namesp;}
+	;
+
+Namespace_Statement:
+	Namespace {$$ = $1;}
+	| DataTypeDef SEMICOLON {$$ = $1;}
+	| ScriptTypeDef SEMICOLON {$$ = $1;}
+	| Data SEMICOLON {$$ = $1;}
+	| Function {$$ = $1;}
+	| Script {$$ = $1;}
+	| DataEnum SEMICOLON {$$ = $1;}
+	| EXPECTERROR LPAREN Expression_Constant RPAREN Namespace_Statement {
 		ASTExprConst* errorId = (ASTExprConst*)$3;
 		ASTDecl* declaration = (ASTDecl*)$5;
 		declaration->compileErrorCatches.push_back(errorId);

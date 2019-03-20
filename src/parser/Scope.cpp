@@ -442,6 +442,21 @@ ScriptScope* BasicScope::makeScriptChild(Script& script)
 	return child;
 }
 
+NamespaceScope* BasicScope::makeNamespaceChild(ASTNamespace& node)
+{
+	string name = node.name;
+	if (Scope* scope = find<Scope*>(children_, name).value_or(NULL))
+	{
+		if(scope->isNamespace()) return static_cast<NamespaceScope*>(scope);
+		else return NULL;
+	}
+	Namespace* namesp = new Namespace(node);
+	NamespaceScope* result = new NamespaceScope(this, namesp);
+	namesp->setScope(result);
+	children_[name] = result;
+	return result;
+}
+
 FunctionScope* BasicScope::makeFunctionChild(Function& function)
 {
 	FunctionScope* child = new FunctionScope(this, function);
@@ -575,6 +590,35 @@ ScriptScope* FileScope::makeScriptChild(Script& script)
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerChild(script.getName(), result))
 		result = NULL;
+	return result;
+}
+
+NamespaceScope* FileScope::makeNamespaceChild(ASTNamespace& node)
+{
+	string name = node.name;
+	if (Scope* scope = find<Scope*>(children_, name).value_or(NULL))
+	{
+		if(scope->isNamespace())
+		{
+			NamespaceScope* result = static_cast<NamespaceScope*>(scope);
+			return result;
+		}
+		else return NULL;
+	}
+	if (Scope* scope = getRoot(*this)->getChild(name))
+	{
+		if(scope->isNamespace())
+		{
+			NamespaceScope* result = static_cast<NamespaceScope*>(scope);
+			return result;
+		}
+		else return NULL;
+	}
+	Namespace* namesp = new Namespace(node);
+	NamespaceScope* result = new NamespaceScope(this, namesp);
+	namesp->setScope(result);
+	children_[name] = result;
+	getRoot(*this)->registerChild(name, result);
 	return result;
 }
 
@@ -841,6 +885,8 @@ bool RootScope::registerChild(string const& name, Scope* child)
 	return true;
 }
 
+
+
 bool RootScope::registerDataType(string const& name, DataType const* type)
 {
 	if (getLocalDataType(name)) return false;
@@ -918,6 +964,13 @@ optional<int> FunctionScope::getRootStackSize() const
 	}
 	return stackSize;
 }
+
+////////////////////////////////////////////////////////////////
+// NamespaceScope
+
+NamespaceScope::NamespaceScope(Scope* parent, Namespace* namesp)
+	: BasicScope(parent, namesp->getName()), namesp(namesp)
+{}
 
 ////////////////////////////////////////////////////////////////
 // ZClass

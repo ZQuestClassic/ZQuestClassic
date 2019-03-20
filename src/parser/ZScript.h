@@ -16,12 +16,14 @@ namespace ZScript
 	class TypeStore;
 	class Program;
 	class Script;
+	class Namespace;
 	class Variable;
 	class BuiltinVariable;
 	class Function;
 	class Scope;
 	class RootScope;
 	class ScriptScope;
+	class NamespaceScope;
 	class FunctionScope;
 	
 	////////////////////////////////////////////////////////////////
@@ -41,7 +43,9 @@ namespace ZScript
 		std::vector<Script*> scripts;
 		Script* getScript(std::string const& name) const;
 		Script* getScript(ASTScript* node) const;
-		Script* addScript(ASTScript&, Scope&, CompileErrorHandler*);
+		Script* addScript(ASTScript& node, Scope& parentScope, CompileErrorHandler* handler);
+		Namespace* addNamespace(
+			ASTNamespace& node, Scope& parentScope, CompileErrorHandler* handler);
 
 		// Gets the non-internal (user-defined) global scope functions.
 		std::vector<Function*> getUserGlobalFunctions() const;
@@ -141,6 +145,29 @@ namespace ZScript
 	Function* getRunFunction(Script const&);
 	optional<int> getLabel(Script const&);
 
+	
+	////////////////////////////////////////////////////////////////
+	// Namespace
+	
+	class Namespace
+	{
+		friend Namespace* createNamespace(Program& program, Scope& parentScope, ASTNamespace& node, CompileErrorHandler* errorHandler);
+		
+	public:
+		Namespace(ASTNamespace& namesp);
+		std::string const& getName() const {return name;}
+		NamespaceScope& getScope() {return *scope;}
+		NamespaceScope const& getScope() const {return *scope;}
+		void setScope(NamespaceScope* newscope) {scope = newscope;}
+		
+	private:
+		
+		NamespaceScope* scope;
+		std::string name;
+	};
+	
+	Namespace* createNamespace(Program& program, Scope& parentScope, ASTNamespace& node, CompileErrorHandler* errorHandler = NULL);
+	
 	////////////////////////////////////////////////////////////////
 	// Datum
 	

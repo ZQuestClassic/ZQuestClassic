@@ -84,6 +84,9 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 	case ASTDecl::TYPE_SCRIPTTYPE:
 		scriptTypes.push_back(static_cast<ASTScriptTypeDef*>(declaration));
 		break;
+	case ASTDecl::TYPE_NAMESPACE:
+		namespaces.push_back(static_cast<ASTNamespace*>(declaration));
+		break;
 	}
 }
 
@@ -94,7 +97,8 @@ bool ASTFile::hasDeclarations() const
 		|| !functions.empty()
 		|| !dataTypes.empty()
 		|| !scriptTypes.empty()
-		|| !scripts.empty();
+		|| !scripts.empty()
+		|| !namespaces.empty();
 }
 
 // ASTFloat
@@ -468,6 +472,42 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 		types.push_back(static_cast<ASTDataTypeDef*>(&declaration));
 		break;
 	}
+}
+
+// ASTNamespace
+
+ASTNamespace::ASTNamespace(LocationData const& location, std::string name)
+	: ASTDecl(location), name(name)
+{}
+
+void ASTNamespace::addDeclaration(ASTDecl& declaration)
+{
+	switch (declaration.getDeclarationType())
+	{
+	case ASTDecl::TYPE_SCRIPT:
+		scripts.push_back(static_cast<ASTScript*>(&declaration));
+		break;
+	case ASTDecl::TYPE_FUNCTION:
+		functions.push_back(static_cast<ASTFuncDecl*>(&declaration));
+		break;
+	case ASTDecl::TYPE_DATALIST:
+		variables.push_back(static_cast<ASTDataDeclList*>(&declaration));
+		break;
+	case ASTDecl::TYPE_DATATYPE:
+		dataTypes.push_back(static_cast<ASTDataTypeDef*>(&declaration));
+		break;
+	case ASTDecl::TYPE_SCRIPTTYPE:
+		scriptTypes.push_back(static_cast<ASTScriptTypeDef*>(&declaration));
+		break;
+	case ASTDecl::TYPE_NAMESPACE:
+		namespaces.push_back(static_cast<ASTNamespace*>(&declaration));
+		break;
+	}
+}
+
+void ASTNamespace::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseNamespace(*this, param);
 }
 
 // ASTImportDecl

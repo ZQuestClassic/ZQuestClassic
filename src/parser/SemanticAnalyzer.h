@@ -43,6 +43,7 @@ namespace ZScript
 		void caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void* = NULL);
 		void caseFuncDecl(ASTFuncDecl& host, void* = NULL);
 		void caseScript(ASTScript& host, void* = NULL);
+		void caseNamespace(ASTNamespace& host, void* = NULL);
 		// Expressions
 		void caseExprConst(ASTExprConst& host, void* = NULL);
 		void caseExprAssign(ASTExprAssign& host, void* = NULL);

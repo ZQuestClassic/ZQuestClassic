@@ -14,6 +14,7 @@ namespace ZScript
 	
 	// AST.h
 	class AST;
+	class ASTNamespace;
 
 	// CompileError.h
 	class CompileErrorHandler;
@@ -26,6 +27,7 @@ namespace ZScript
 	// ZScript.h
 	class Script;
 	class Datum;
+	class Namespace;
 	class Function;
 	class FunctionSignature;
 
@@ -35,6 +37,7 @@ namespace ZScript
 	class FileScope;
 	class ScriptScope;
 	class FunctionScope;
+	class NamespaceScope;
 
 	////////////////////////////////////////////////////////////////
 	
@@ -50,6 +53,9 @@ namespace ZScript
 		// Scope type.
 		virtual bool isGlobal() const {return false;}
 		virtual bool isScript() const {return false;}
+		virtual bool isFunction() const {return false;}
+		virtual bool isNamespace() const {return false;}
+		virtual bool isNamedEnum() const {return false;}
 		
 		// Accessors
 		TypeStore const& getTypeStore() const {return typeStore_;}
@@ -91,6 +97,7 @@ namespace ZScript
 		virtual Scope* makeChild(std::string const& name) = 0;
 		virtual FileScope* makeFileChild(std::string const& filename) = 0;
 		virtual ScriptScope* makeScriptChild(Script& script) = 0;
+		virtual NamespaceScope* makeNamespaceChild(ASTNamespace& node) = 0;
 		virtual FunctionScope* makeFunctionChild(Function& function) = 0;
 		virtual DataType const* addDataType(
 				std::string const& name, DataType const* type, AST* node)
@@ -288,6 +295,7 @@ namespace ZScript
 		virtual Scope* makeChild(std::string const& name);
 		virtual FileScope* makeFileChild(std::string const& filename);
 		virtual ScriptScope* makeScriptChild(Script& script);
+		virtual NamespaceScope* makeNamespaceChild(ASTNamespace& node);
 		virtual FunctionScope* makeFunctionChild(Function& function);
 		virtual DataType const* addDataType(
 				std::string const& name, DataType const* type,
@@ -358,6 +366,7 @@ namespace ZScript
 		// present there as well.
 		virtual Scope* makeChild(std::string const& name);
 		virtual ScriptScope* makeScriptChild(Script& script);
+		virtual NamespaceScope* makeNamespaceChild(ASTNamespace& node);
 		virtual DataType const* addDataType(
 				std::string const& name, DataType const* type,
 				AST* node = NULL);
@@ -466,6 +475,14 @@ namespace ZScript
 		optional<int> getRootStackSize() const;
 	private:
 		mutable optional<int> stackSize;
+	};
+	
+	class NamespaceScope : public BasicScope
+	{
+	public:
+		NamespaceScope(Scope* parent, Namespace* namesp);
+		virtual bool isNamespace() const {return true;};
+		Namespace* namesp;
 	};
 
 	enum ZClassIdBuiltin

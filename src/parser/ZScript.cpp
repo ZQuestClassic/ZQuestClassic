@@ -56,6 +56,14 @@ Script* Program::addScript(
 	return script;
 }
 
+Namespace* Program::addNamespace(ASTNamespace& node, Scope& parentScope, CompileErrorHandler* handler)
+{
+	Namespace* namesp = createNamespace(*this, parentScope, node, handler);
+	if(!namesp) return NULL;
+	
+	return namesp;
+}
+
 vector<Function*> Program::getUserGlobalFunctions() const
 {
 	vector<Function*> functions = rootScope_->getLocalFunctions();
@@ -189,6 +197,23 @@ optional<int> ZScript::getLabel(Script const& script)
 	if (Function* run = getRunFunction(script))
 		return run->getLabel();
 	return nullopt;
+}
+
+////////////////////////////////////////////////////////////////
+// ZScript::Namespace
+
+Namespace::Namespace(ASTNamespace& namesp)
+	: name(namesp.name)
+{}
+
+Namespace* ZScript::createNamespace(
+		Program& program, Scope& parentScope, ASTNamespace& node,
+		CompileErrorHandler* errorHandler)
+{
+	NamespaceScope* scope = parentScope.makeNamespaceChild(node);
+	Namespace* namesp = scope->namesp;
+
+	return namesp;
 }
 
 ////////////////////////////////////////////////////////////////

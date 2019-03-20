@@ -71,6 +71,7 @@ namespace ZScript
 	// Declarations
 	class ASTDecl; // virtual
 	class ASTScript;
+	class ASTNamespace;
 	class ASTImportDecl;
 	class ASTFuncDecl;
 	class ASTDataDeclList;
@@ -269,6 +270,7 @@ namespace ZScript
 		owning_vector<ASTDataTypeDef> dataTypes;
 		owning_vector<ASTScriptTypeDef> scriptTypes;
 		owning_vector<ASTScript> scripts;
+		owning_vector<ASTNamespace> namespaces;
 	};
 
 	class ASTFloat : public AST
@@ -533,7 +535,8 @@ namespace ZScript
 			TYPE_DATALIST,
 			TYPE_DATA,
 			TYPE_DATATYPE,
-			TYPE_SCRIPTTYPE
+			TYPE_SCRIPTTYPE,
+			TYPE_NAMESPACE
 		};
 
 		ASTDecl(LocationData const& location = LocationData::NONE);
@@ -563,6 +566,31 @@ namespace ZScript
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
 		owning_vector<ASTDataTypeDef> types;
+	};
+
+	class ASTNamespace : public ASTDecl
+	{
+	public:
+		ASTNamespace(LocationData const& location = LocationData::NONE, std::string name = "");
+		ASTNamespace* clone() const {return new ASTNamespace(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		Type getDeclarationType() const /*override*/ {return TYPE_NAMESPACE;}
+		
+		void setName(std::string newname) {name = newname;}
+    
+		// Adds a declaration to the proper vector.
+		void addDeclaration(ASTDecl& declaration);
+
+		owning_vector<ASTSetOption> options;
+		owning_vector<ASTDataDeclList> variables;
+		owning_vector<ASTFuncDecl> functions;
+		owning_vector<ASTDataTypeDef> dataTypes;
+		owning_vector<ASTScriptTypeDef> scriptTypes;
+		owning_vector<ASTScript> scripts;
+		owning_vector<ASTNamespace> namespaces;
+		std::string name;
 	};
 
 	class ASTImportDecl : public ASTDecl

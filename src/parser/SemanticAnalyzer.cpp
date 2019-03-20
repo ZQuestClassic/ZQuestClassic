@@ -510,6 +510,18 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 	}
 }
 
+void SemanticAnalyzer::caseNamespace(ASTNamespace& host, void*)
+{
+	Namespace& namesp = *program.addNamespace(host, *scope, this);
+	if (breakRecursion(host)) return;
+
+	// Recurse on script elements with its scope.
+	scope = &namesp.getScope();
+	RecursiveVisitor::caseNamespace(host);
+	scope = scope->getParent();
+	if (breakRecursion(host)) return;
+}
+
 // Expressions
 
 void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)

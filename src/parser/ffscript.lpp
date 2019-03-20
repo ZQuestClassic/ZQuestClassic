@@ -91,6 +91,7 @@ typedef		TOKEN( TYPEDEF );
 OPTION_VALUE	TOKEN( OPTIONVALUE );
 "#define"		TOKEN( DEFINE );
 enum			TOKEN( ENUM );
+namespace		TOKEN( NAMESPACE );
 
  /* Types */
 void		TOKEN( ZVOID );
