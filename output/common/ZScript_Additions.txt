@@ -164,17 +164,17 @@ TOKEN: lweapon script
 
 
 ////////////////////
-/// Link Scripts ///
+/// Hero Scripts ///
 ////////////////////
 
-TOKEN: link script
+TOKEN: hero script, player script; link script (deprecated)
 
-* You can now compile and assign scripts to Link.
-* These do not have a 'this' pointer, at present.
+* You can now compile and assign scripts to the Hero.
+* These do not have a 'this' pointer, at present..
 * When you compile this script type, you can assign it to one of the following slots,
 * 	which determines when it runs, and how often it runs:
 *
-* 	LINK INIT
+* 	HERO INIT
 * 	This script runs FOR ONE FRAME at the start of every game session (not on F6 Continue), 
 *		and it allows you to set up initial values for Link, BEFORE the opening wipe,
 *		such as his Invisibility state, or his screen position.
@@ -184,25 +184,25 @@ TOKEN: link script
 *			by script, reading those values from the Screen pointer, should 
 * 			give you accurate data.
 *
-*	LINK ACTIVE
-*	This script runs after LINK INIT, and also after the GLOBAL ACTIVE script.
-*	The LINK ACTIVE script can run for multiple frames, until either it runs out of
+*	HERO ACTIVE
+*	This script runs after HERO INIT, and also after the GLOBAL ACTIVE script.
+*	The HERO ACTIVE script can run for multiple frames, until either it runs out of
 *		scope, or you call Quit() inside the script body.
 * 	You may use Waitdraw() in this script type. 
 *	
-*	If Link dies, this script halts.
-*	If Link wins the game, this script halts.
+*	If Hero dies, this script halts.
+*	If Hero wins the game, this script halts.
 *
-*	LINK DEATH
-*	This script runs when Link DIES. 
-*	It runs AFTER the GLOBAL EXIT script, and after link is DEAD, with no chance of revival.
+*	HERO DEATH
+*	This script runs when Hero DIES. 
+*	It runs AFTER the GLOBAL EXIT script, and after Hero is DEAD, with no chance of revival.
 *		^ If you need to revive Link, such as with a Faerie in a Bottle, use his Active
 *		^ script for this effect. 
 *
 *	This script can run for multiple frames, and is intended to permit you to construct your
 *		own Game Over sequences.
 *
-*	LINK WIN
+*	HERO WIN
 *	This script runs if Link WINS THE GAME (Flag 15).
 *	It can run for more than one frame, and it is intended to permit you to make your own
 *		Game Ending scenes, or credits scroll.
@@ -577,8 +577,25 @@ standard C-style syntax of:
 ///////////////////
 
 	untyped : A special datatype that can be cast to and from any other type.
-	This cannot be invoked by the user in a declaration, and exists solely for
-		use by internal functions, and by internal variables.
+	This has no distinct type of its own.
+	
+	Example:
+		untyped ptrs[4];
+		ffc f = Screen->LoadFFC(2);
+		npc n = Screen->CreateNPC(16);
+		lweapon l = Screen->CreateLWeapon(LW_SCRIPT);
+		bitmap bitty = Game->CreateBitmap(160,240);
+		
+		ptrs[0] = f;
+		ptrs[1] = n;
+		ptrs[2] = l;
+		ptrs[3] = bitty;
+		
+		//These now contain the raw literal value of the pointers to those objects.
+		
+		bool a = true;
+		untyped b = a; //b == 0.0001
+		int c = b; //c == 0.0001 
 
 	npcdata: 
 
@@ -612,6 +629,12 @@ standard C-style syntax of:
 // New Pointers //
 //////////////////
 
+	Hero->
+	Player->
+	
+		These are synonimous with the old Link-> pointer, which is now deprecatedm but retained
+		for compatibility purposes. 
+	
 	Graphics->
 
 	Audio->
