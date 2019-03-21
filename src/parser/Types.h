@@ -392,7 +392,6 @@ namespace ZScript
 		static ScriptType const eweapon;
 		static ScriptType const lweapon;
 		static ScriptType const link;
-		static ScriptType const player;
 		static ScriptType const dmapdata;
 		static ScriptType const screendata;
 

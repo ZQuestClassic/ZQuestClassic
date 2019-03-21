@@ -1,7 +1,30 @@
 //2.55 and 2.54 Changes
 
-//Alpha 15
+//Alpha 16
 
+Convert the values for Halt Duration, and Accel Factor for
+	Keese, Peahats, and Phantom Ghini enemies in 2.10 and earlier quests on
+	file load.
+Re-added LogPrint() and ScreenPrint() to string_functions.zh.
+	The build package lost these in a file overwrite at some prior point.
+	( ZoriaRPG, 18th March, 2019 )
+
+
+//Alpha 15
+Ported Link.lookaheadraftflag() from 2.53. 
+Maybe Fix New Tile-Based Crashes
+Ported the fix for 1.84 quests starting with 30 MAX Bombs from 2.53.
+Added hotkeys for the following Lv4 Cheats
+	Kill All Enemies (K)
+	Show Overhead (O)
+	Show Push Blocks (P)
+	Show Hitboxes (C; for Collision)
+	Show FFScript Names (F)
+	Ported from 2.53 Gamma 6, including the fix to the K key in the menus.
+Ported the fix for the crash when removing a Cane of Byrna item by script from 2.53.
+Added Developer Status Flag
+	( ZoriaRPG, 17th march, 2019 )
+	
 Added 'Triforce in Cellar Warps Link Out' to Quest Rules->Other->2.
 
 Fixed a crash when writing tiles, and added a rule patch for the 2.10

@@ -137,7 +137,6 @@ extern YYLTYPE noloc;
 %token TUNE
 %token WARPRING
 %token SCREEN
-%token PLAYER
 %token LINK
 
  // Syntax
@@ -554,7 +553,6 @@ Script_Type :
 	| SCREEN {$$ = new ASTScriptType(ScriptType::screendata, @$);}
 	| DMAP {$$ = new ASTScriptType(ScriptType::dmapdata, @$);}
 	| LINK {$$ = new ASTScriptType(ScriptType::link, @$);}
-	| PLAYER {$$ = new ASTScriptType(ScriptType::player, @$);}
 	| IDENTIFIER {
 		ASTString* name = static_cast<ASTString*>($1);
 		$$ = new ASTScriptType(name->getValue(), @$);

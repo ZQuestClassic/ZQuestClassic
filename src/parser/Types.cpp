@@ -135,7 +135,6 @@ DataTypeArray const DataType::STRING(FLOAT);
 //Classes: Global Pointer
 DataTypeClass const DataType::GAME(ZCLASSID_GAME, "Game");
 DataTypeClass const DataType::LINK(ZCLASSID_LINK, "Link");
-//DataTypeClass const DataType::PLAYER(ZCLASSID_LINK, "Player");
 DataTypeClass const DataType::SCREEN(ZCLASSID_SCREEN, "Screen");
 DataTypeClass const DataType::AUDIO(ZCLASSID_AUDIO, "Audio");
 DataTypeClass const DataType::DEBUG(ZCLASSID_DEBUG, "Debug");
@@ -492,7 +491,6 @@ namespace // file local
 		{"eweapon", ZVARTYPEID_EWPN},
 		{"lweapon", ZVARTYPEID_LWPN},
 		{"link", ZVARTYPEID_LINK},
-		{"player", ZVARTYPEID_LINK},
 		{"screendata", ZVARTYPEID_SCREEN},
 		{"dmapdata", ZVARTYPEID_DMAPDATA},
 	};
@@ -506,7 +504,6 @@ ScriptType const ScriptType::npc(idNPC);
 ScriptType const ScriptType::lweapon(idLWeapon);
 ScriptType const ScriptType::eweapon(idEWeapon);
 ScriptType const ScriptType::link(idLink);
-ScriptType const ScriptType::player(idPlayer);
 ScriptType const ScriptType::screendata(idScreen);
 ScriptType const ScriptType::dmapdata(idDMap);
 

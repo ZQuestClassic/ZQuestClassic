@@ -1941,6 +1941,9 @@ void get_questpwd(char *encrypted_pwd, short pwdkey, char *pwd)
 
 bool check_questpwd(zquestheader *Header, char *pwd)
 {
+    #if DEVLEVEL > 1 
+	return true;
+    #endif
     cvs_MD5Context ctx;
     unsigned char md5sum[16];
     
@@ -9673,6 +9676,25 @@ int readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         guysbuf[eMOLDORM].misc2 = 0;
     }
     
+    if ( Header->zelda_version < 0x211 ) //Default rest rates for phantom ghinis, peahats and keese in < 2.50 quests
+    {
+	guysbuf[eKEESE1].misc16 = 120;
+	guysbuf[eKEESE2].misc16 = 120;
+	guysbuf[eKEESE3].misc16 = 120;
+	guysbuf[eKEESETRIB].misc16 = 120;
+	guysbuf[eKEESE1].misc17 = 16;
+	guysbuf[eKEESE2].misc17 = 16;
+	guysbuf[eKEESE3].misc17 = 16;
+	guysbuf[eKEESETRIB].misc17 = 16;
+	    
+	guysbuf[ePEAHAT].misc16 = 80;
+	guysbuf[ePEAHAT].misc17 = 16;
+	    
+	guysbuf[eGHINI2].misc16 = 120;
+	guysbuf[eGHINI2].misc17 = 10;	
+	    
+    }
+    
     if(guyversion<=2)
     {
         return readlinksprites2(f, guyversion==2?0:-1, 0, keepdata);
@@ -13582,7 +13604,8 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
     byte *temp_tile = new byte[tilesize(tf32Bit)];
 	
     //Tile Expansion
-    if ( version >= 0x254 && build >= 41 )
+    //if ( version >= 0x254 && build >= 41 )
+    if (version < 0x254 && build < 41)
     {
 	    //al_trace("Build was < 41 when reading tiles\n");
 	    max_tiles = ZC250MAXTILES;
@@ -13669,11 +13692,13 @@ int readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, wo
         tiles_used=zc_min(tiles_used, max_tiles);
         
 	//if ( version < 0x254 || ( version >= 0x254 && build < 41 )) //don't do this, it crashes ZQuest. -Z
-	if ( version < 0x254 && build < 41 )
+	//if ( version < 0x254 && build < 41 )
+	if ( version < 0x254 || (version == 0x254 && build < 41) )
+	//if ( build < 41 )
 	{
 		tiles_used=zc_min(tiles_used, ZC250MAXTILES-start_tile);
 	}
-	else 
+	else //2.55
 	{
 		tiles_used = zc_min(tiles_used,NEWMAXTILES-start_tile); 
 	}
@@ -15302,7 +15327,7 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     if(Header->zelda_version < 0x190) //1.84 bugfix. -Z
     {
-	temp_zinit.items[iBombBag] = true;
+	//temp_zinit.items[iBombBag] = true; //No, this is 30 max bombs!
 	temp_zinit.max_bombs = 8;
     }
     

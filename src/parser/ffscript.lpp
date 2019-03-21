@@ -125,8 +125,9 @@ spritedata	TOKEN( SPRITE );
 musicdata		TOKEN( TUNE );
 warpring	TOKEN( WARPRING );
 screendata	TOKEN( SCREEN );
-player	TOKEN( PLAYER );
+player	TOKEN( LINK );
 link	TOKEN( LINK );
+hero	TOKEN( LINK );
 
  /* Syntax */
 ","		TOKEN( COMMA );
