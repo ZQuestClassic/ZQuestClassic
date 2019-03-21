@@ -680,7 +680,7 @@ static MENU rules_menu[] =
     { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
     { (char *)"&Other",                     onMiscRules,               NULL,                     0,            NULL   },
     { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
-    { (char *)"&Scripts",    		    onScriptRules,             NULL,                     0,            NULL   },
+    //{ (char *)"&Scripts",    		    onScriptRules,             NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -891,8 +891,9 @@ static MENU zscript_menu[] =
     { (char *)"Import ASM &DMap Script",  onImportGScript,           NULL,                     0,            NULL   },
 	//divider
         { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Compiler Settings",        onCompileScript,           NULL,                     0,            NULL   },
-    { (char *)"Quest Script Settings",        onCompileScript,           NULL,                     0,            NULL   },
+    { (char *)"Compiler Settings",        onZScriptCompilerSettings,           NULL,                     0,            NULL   },
+    { (char *)"Quest Script Settings",        onZScriptSettings,           NULL,                     0,            NULL   },
+    //{ (char *)"Set Include Path",        onZScriptSetIncludePath,           NULL,                     0,            NULL   },
 
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -19778,6 +19779,121 @@ static DIALOG assignscript_dlg[] =
     
 };
 
+static DIALOG zscript_settings_dlg[] =
+{
+    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Settings", NULL, NULL },
+    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_settings_dlg },
+    // 3
+    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    
+    // rules //6
+    { jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Item Scripts Continue To Run", NULL, NULL },
+    { jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
+    { jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Scrolling", NULL, NULL },
+    { jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
+    
+    
+    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+};
+
+
+static int zscriptrules[] =
+{
+    qr_ITEMSCRIPTSKEEPRUNNING, qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_SCRIPTDRAWSWHENSCROLLING, qr_SCRIPTDRAWSINWARPS,
+    -1
+};
+
+int onZScriptSettings()
+{
+    if(is_large)
+        large_dialog(zscript_settings_dlg);
+        
+    zscript_settings_dlg[0].dp2=lfont;
+    
+    for(int i=0; zscriptrules[i]!=-1; i++)
+    {
+        zscript_settings_dlg[i+6].flags = get_bit(quest_rules,zscriptrules[i]) ? D_SELECTED : 0;
+    }
+    
+    int ret = zc_popup_dialog(zscript_settings_dlg,4);
+    
+    if(ret==4)
+    {
+        saved=false;
+        
+        for(int i=0; zscriptrules[i]!=-1; i++)
+        {
+            set_bit(quest_rules, zscriptrules[i], zscript_settings_dlg[i+6].flags & D_SELECTED);
+        }
+    }
+    
+    return D_O_K;
+}
+
+static DIALOG zscript_parser_dlg[] =
+{
+    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
+    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
+    // 3
+    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    
+    // rules //6
+    { jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
+    //{ jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
+    //{ jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Scrolling", NULL, NULL },
+    //{ jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
+    
+    
+    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+};
+
+
+static int zscripparsertrules[] =
+{
+    qr_PARSER_250DIVISION,
+    -1
+};
+
+int onZScriptCompilerSettings()
+{
+    if(is_large)
+        large_dialog(zscript_parser_dlg);
+        
+    zscript_parser_dlg[0].dp2=lfont;
+    
+    for(int i=0; zscripparsertrules[i]!=-1; i++)
+    {
+        zscript_parser_dlg[i+6].flags = get_bit(quest_rules,zscripparsertrules[i]) ? D_SELECTED : 0;
+    }
+    
+    int ret = zc_popup_dialog(zscript_parser_dlg,4);
+    
+    if(ret==4)
+    {
+        saved=false;
+        
+        for(int i=0; zscripparsertrules[i]!=-1; i++)
+        {
+            set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
+        }
+    }
+    
+    return D_O_K;
+}
+
+void centre_zscript_dialogs()
+{
+    jwin_center_dialog(zscript_settings_dlg);
+    jwin_center_dialog(zscript_parser_dlg);
+}
 
 //editbox_data zscript_edit_data;
 
@@ -24946,6 +25062,7 @@ void center_zquest_dialogs()
     jwin_center_dialog(warp_dlg);
     jwin_center_dialog(warpring_dlg);
     jwin_center_dialog(wlist_dlg);
+    centre_zscript_dialogs();
 }
 
 
@@ -25871,7 +25988,7 @@ command_pair commands[cmdMAX]=
     { "Report: Integrity Check",              0, (intF) onIntegrityCheckAll                                    },
     { "Save ZQuest Settings",              0, (intF) onSaveZQuestSettings                                    },
     { "Clear Quest Filepath",              0, (intF) onClearQuestFilepath                                    },
-    { "Script Rules",              0, (intF) onScriptRules                                   },
+    { "Script Settings",              0, (intF) onZScriptSettings                                   },
     
 
 };
