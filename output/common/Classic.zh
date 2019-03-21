@@ -5,11 +5,17 @@ import "stdExtra.zh"
 import "ghost.zh"
 import "tango.zh"
 
-const int __CLASSIC_ZH_VERSION = 2.00; 
+const int __CLASSIC_ZH_VERSION = 2.02; 
 
 import "demo_scripts/npc_scripts/bobomb.zs"
 import "demo_scripts/npc_scripts/daira.zs"
 import "demo_scripts/eweapon_scripts/daira_axe.zs"
+import "demo_scripts/eweapon_scripts/ewZigZag.zs"
+import "demo_scripts/lweapon_scripts/lwZigZag.zs"
+import "demo_scripts/lweapon_scripts/lwBombArrow.zs"
+import "demo_scripts/lweapon_scripts/replaceOnDeath.zs"
+import "demo_scripts/lweapon_scripts/firerod.zs"
+import "demo_scripts/lweapon_scripts/mobileBait.zs"
 
 const int I_HALFMAGIC 					= 144;
 const int I_LEARNSLASH 					= 143;

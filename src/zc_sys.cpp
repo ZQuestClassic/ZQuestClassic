@@ -4556,6 +4556,12 @@ void syskeys()
 			if(ReadKey(KEY_L))   onLightSwitch();
 			
 			if(ReadKey(KEY_V))   onIgnoreSideview();
+			
+			if(ReadKey(KEY_K))   onKillCheat();
+			if(ReadKey(KEY_O))   onShowLayerO();
+			if(ReadKey(KEY_P))   onShowLayerP();
+			if(ReadKey(KEY_C))   onShowHitboxes();
+			if(ReadKey(KEY_F))   onShowFFScripts();
 	}
     }
     
@@ -7564,9 +7570,9 @@ static MENU refill_menu[] =
 {
     { (char *)"&Life\t*, H",                onRefillLife,            NULL,                      0, NULL },
     { (char *)"&Magic\t/, M",               onRefillMagic,           NULL,                      0, NULL },
-    { (char *)"&Bombs\tb",                  onCheatBombs,            NULL,                      0, NULL },
-    { (char *)"&Rupees\tr",                 onCheatRupies,           NULL,                      0, NULL },
-    { (char *)"&Arrows\ta",                 onCheatArrows,           NULL,                      0, NULL },
+    { (char *)"&Bombs\tB",                  onCheatBombs,            NULL,                      0, NULL },
+    { (char *)"&Rupees\tR",                 onCheatRupies,           NULL,                      0, NULL },
+    { (char *)"&Arrows\tA",                 onCheatArrows,           NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
@@ -7579,14 +7585,14 @@ static MENU show_menu[] =
     { (char *)"Layer 4\t4",             onShowLayer4,                 NULL,                      0, NULL },
     { (char *)"Layer 5\t5",             onShowLayer5,                 NULL,                      0, NULL },
     { (char *)"Layer 6\t6",             onShowLayer6,                 NULL,                      0, NULL },
-    { (char *)"Overhead Combos",        onShowLayerO,                 NULL,                      0, NULL },
-    { (char *)"Push Blocks",            onShowLayerP,                 NULL,                      0, NULL },
+    { (char *)"Overhead Combos\tO",        onShowLayerO,                 NULL,                      0, NULL },
+    { (char *)"Push Blocks\tP",            onShowLayerP,                 NULL,                      0, NULL },
     { (char *)"Freeform Combos\t7",	  onShowLayerF,                 NULL,                      0, NULL },
     { (char *)"Sprites\t8",			  onShowLayerS,                 NULL,                      0, NULL },
     { (char *)"",                           NULL,                     NULL,                      0, NULL },
-    { (char *)"Walkability\tw",		  onShowLayerW,                 NULL,                      0, NULL },
-    { (char *)"Current FFC Scripts",	  onShowFFScripts,              NULL,                      0, NULL },
-    { (char *)"Hitboxes",				  onShowHitboxes,               NULL,                      0, NULL },
+    { (char *)"Walkability\tW",		  onShowLayerW,                 NULL,                      0, NULL },
+    { (char *)"Current FFC Scripts\tF",	  onShowFFScripts,              NULL,                      0, NULL },
+    { (char *)"Hitboxes\tC",				  onShowHitboxes,               NULL,                      0, NULL },
     { NULL,                                 NULL,                     NULL,                      0, NULL }
 };
 
@@ -7596,7 +7602,7 @@ static MENU cheat_menu[] =
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Re&fill",                    NULL,                    refill_menu,               0, NULL },
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
-    { (char *)"&Clock\ti",                  onClock,                 NULL,                      0, NULL },
+    { (char *)"&Clock\tI",                  onClock,                 NULL,                      0, NULL },
     { (char *)"Ma&x Bombs...",              onMaxBombs,              NULL,                      0, NULL },
     { (char *)"&Heart Containers...",       onHeartC,                NULL,                      0, NULL },
     { (char *)"&Magic Containers...",       onMagicC,                NULL,                      0, NULL },
@@ -7604,12 +7610,12 @@ static MENU cheat_menu[] =
     { (char *)"&Link Data...",              onCheatConsole,          NULL,                      0, NULL },
     { (char *)"",                           NULL,                    NULL,                      0, NULL },
     { (char *)"Walk Through &Walls\tF11",   onNoWalls,               NULL,                      0, NULL },
-    { (char *)"Link Ignores Side&view\tv",  onIgnoreSideview,        NULL,                      0, NULL },
-    { (char *)"&Quick Movement\tq",         onGoFast,                NULL,                      0, NULL },
-    { (char *)"&Kill All Enemies",          onKillCheat,             NULL,                      0, NULL },
+    { (char *)"Link Ignores Side&view\tV",  onIgnoreSideview,        NULL,                      0, NULL },
+    { (char *)"&Quick Movement\tQ",         onGoFast,                NULL,                      0, NULL },
+    { (char *)"&Kill All Enemies\tK",          onKillCheat,             NULL,                      0, NULL },
     { (char *)"Show/Hide Layer",            NULL,                    show_menu,                 0, NULL },
-    { (char *)"Toggle Light\tl",            onLightSwitch,           NULL,                      0, NULL },
-    { (char *)"&Goto Location...\tg",       onGoTo,                  NULL,                      0, NULL },
+    { (char *)"Toggle Light\tL",            onLightSwitch,           NULL,                      0, NULL },
+    { (char *)"&Goto Location...\tG",       onGoTo,                  NULL,                      0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 

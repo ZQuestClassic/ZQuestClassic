@@ -20237,8 +20237,6 @@ int onCompileScript()
                     {        aslweaponscripts.push_back(name); } 
                     else if ( type == ZScript::ScriptType::link )
                     {        aslinkscripts.push_back(name); }
-                    else if ( type == ZScript::ScriptType::player )
-                    {        aslinkscripts.push_back(name); }
                     else if ( type == ZScript::ScriptType::dmapdata )
                     {        asdmapscripts.push_back(name); }
                     else if ( type == ZScript::ScriptType::screendata )
