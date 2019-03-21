@@ -884,7 +884,7 @@ static MENU zscript_menu[] =
     { (char *)"Import ASM &FFC Script",     onImportFFScript,          NULL,                     0,            NULL   },
     { (char *)"Import ASM &Item Script",    onImportItemScript,        NULL,                     0,            NULL   },
     { (char *)"Import ASM &Global Script",  onImportGScript,           NULL,                     0,            NULL   },
-    { (char *)"Import ASM &NPC Script",  onImportGScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &NPC Script",  onImportNPCScript,           NULL,                     0,            NULL   },
     { (char *)"Import ASM &LWeapon Script",  onImportGScript,           NULL,                     0,            NULL   },
     { (char *)"Import ASM &EWeapon Script",  onImportGScript,           NULL,                     0,            NULL   },
     { (char *)"Import ASM &Hero Script",  onImportGScript,           NULL,                     0,            NULL   },
