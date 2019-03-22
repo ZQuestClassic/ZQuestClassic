@@ -158,18 +158,18 @@ namespace ZScript
 	// Repeatedly get a child namespace with the names in order. Fail if any
 	// name does not resolve.
 	Scope* getDescendant(
-			Scope const&, std::vector<std::string> const& names);
+			Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters);
 
 	// Find a scope with the given name in this scope.
 	Scope* lookupScope(Scope const&, std::string const& name);
 
 	// Find first scope with the given ancestry in this scope.
-	Scope* lookupScope(Scope const&, std::vector<std::string> const& names);
+	Scope* lookupScope(Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters);
 
 	// Find all scopes with the given ancestry in this scope. Note than an
 	// empty name list will the current scope and its ancestry.
 	std::vector<Scope*> lookupScopes(
-			Scope const&, std::vector<std::string> const& names);
+			Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters);
 
 	// Get the most distant parent.
 	RootScope* getRoot(Scope const&);
@@ -188,7 +188,7 @@ namespace ZScript
 
 	// Attempt to resolve name to a variable under scope.
 	Datum* lookupDatum(Scope const&, std::string const& name);
-	Datum* lookupDatum(Scope const&, std::vector<std::string> const& name);
+	Datum* lookupDatum(Scope const&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters);
 	
 	// Attempt to resolve name to a getter under scope.
 	Function* lookupGetter(Scope const&, std::string const& name);
@@ -203,7 +203,7 @@ namespace ZScript
 	std::vector<Function*> lookupFunctions(
 			Scope const&, std::string const& name);
 	std::vector<Function*> lookupFunctions(
-			Scope const&, std::vector<std::string> const& name);
+			Scope const&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters);
 
 	// Resolve an option value under the scope. Will only return empty if
 	// the provided option is invalid. If the option is valid but not set,

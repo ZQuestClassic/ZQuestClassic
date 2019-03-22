@@ -516,9 +516,11 @@ void SemanticAnalyzer::caseNamespace(ASTNamespace& host, void*)
 	if (breakRecursion(host)) return;
 
 	// Recurse on script elements with its scope.
+	// Namespaces' parent scope is RootScope*, not FileScope*. Store the FileScope* temporarily.
+	Scope* temp = scope;
 	scope = &namesp.getScope();
 	RecursiveVisitor::caseNamespace(host);
-	scope = scope->getParent();
+	scope = temp;
 	if (breakRecursion(host)) return;
 }
 
@@ -574,7 +576,7 @@ void SemanticAnalyzer::caseExprIdentifier(
 		ASTExprIdentifier& host, void* param)
 {
 	// Bind to named variable.
-	host.binding = lookupDatum(*scope, host.components);
+	host.binding = lookupDatum(*scope, host.components, host.delimiters);
 	if (!host.binding)
 	{
 		handleError(CompileError::VarUndeclared(&host, host.asString()));
@@ -719,7 +721,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	// Grab functions with the proper name.
 	vector<Function*> functions =
 		identifier
-		? lookupFunctions(*scope, identifier->components)
+		? lookupFunctions(*scope, identifier->components, identifier->delimiters)
 		: lookupFunctions(*arrow->leftClass, arrow->right);
 
 	// Filter out invalid functions.

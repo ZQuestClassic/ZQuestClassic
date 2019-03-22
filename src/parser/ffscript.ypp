@@ -143,6 +143,7 @@ extern YYLTYPE noloc;
 %token COMMA
 %token DOT
 %token SEMICOLON
+%token SCOPERES
 %token COLON
 %token LPAREN
 %token RPAREN
@@ -230,19 +231,64 @@ Global_Statement :
 // Namespace Declaration
 
 Namespace :
-	NAMESPACE IDENTIFIER LBRACE RBRACE {
-		ASTString* name = (ASTString*)$2;
-		ASTNamespace* namesp = new ASTNamespace(@$, name->getValue());
-		delete name;
+	NAMESPACE Scoperes_Identifier_List LBRACE RBRACE {
+		ASTExprIdentifier* idens = (ASTExprIdentifier*)$2;
+		ASTNamespace* namesp = new ASTNamespace(@$, idens->components.front());
+		std::vector<std::string> components = idens->components;
+		if(components.size() > 1)
+			for(std::vector<std::string>::const_iterator it = components.begin() + 1;
+				it != components.end(); ++it)
+			{
+				string name = *it;
+				ASTNamespace* subsp = new ASTNamespace(@$, name);
+				namesp->namespaces.push_back(subsp);
+			}
+		delete idens;
 		$$ = namesp;
 	}
-	| NAMESPACE IDENTIFIER LBRACE Namespace_Block_List RBRACE {
-		ASTString* name = (ASTString*)$2;
-		ASTNamespace* namesp = (ASTNamespace*)$4;
-		namesp->setName(name->getValue());
-		namesp->location = @$;
-		delete name;
-		$$ = namesp;
+	| NAMESPACE Scoperes_Identifier_List LBRACE Namespace_Block_List RBRACE {
+		ASTExprIdentifier* idens = (ASTExprIdentifier*)$2;
+		std::vector<std::string> components = idens->components;
+		std::string name = components.front();
+		int size = idens->components.size();
+		if(size == 1)
+		{
+			ASTNamespace* namesp = (ASTNamespace*)$4;
+			namesp->setName(name);
+			namesp->location = @$;
+			delete idens;
+			$$ = namesp;
+		}
+		else if(size == 2)
+		{
+			ASTNamespace* top = new ASTNamespace(@$, name);
+			ASTNamespace* namesp = (ASTNamespace*)$4;
+			namesp->setName(components[1]);
+			namesp->location = @$;
+			delete idens;
+			$$ = top;
+		}
+		else
+		{
+			ASTNamespace* top = new ASTNamespace(@$, name);
+			ASTNamespace* temp = top;
+			ASTNamespace* temp2;
+			ASTNamespace* namesp = (ASTNamespace*)$4;
+			namesp->setName(components.back());
+			components.pop_back();
+			namesp->location = @$;
+			for(std::vector<std::string>::const_iterator it = components.begin() + 1;
+				it != components.end(); ++it)
+			{
+				name = *it;
+				temp2 = new ASTNamespace(@$, name);
+				temp->namespaces.push_back(temp2);
+				temp = temp2;
+			}
+			temp->namespaces.push_back(namesp);
+			delete idens;
+			$$ = top;
+		}
 	}
 	;
 
@@ -835,14 +881,97 @@ Enum_Block:
 // Expression Helpers
 
 Identifier_List :
-	Identifier_List DOT Identifier {
+	Mixed_Identifier_List {$$ = $1;}
+	| idlist_scopres {$$ = $1;}
+	| idlist_dot {$$ = $1;}
+	| Ambigious_Iden_List {$$ = $1;}
+	;
+	
+Scoperes_Identifier_List:
+	idlist_scopres {$$ = $1;}
+	| Ambigious_Iden_List {$$ = $1;}
+	;
+	
+/*Dot_Identifier_List:
+	idlist_dot {$$ = $1;}
+	| Ambigious_Iden_List {$$ = $1}
+	;*/
+
+Mixed_Identifier_List:
+	Mixed_Identifier_List DOT Identifier {
 		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
 		ASTString* name = (ASTString*)$3;
 		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back(".");
 		identifier->location = @$;
 		$$ = identifier;
 		delete name;}
-	| Identifier {
+	| idlist_scopres DOT Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back(".");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	| Mixed_Identifier_List SCOPERES Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back("::");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	| idlist_dot SCOPERES Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back("::");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	;
+	
+idlist_scopres:
+	idlist_scopres SCOPERES Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back("::");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	| Ambigious_Iden_List SCOPERES Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back("::");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	;
+	
+idlist_dot:
+	idlist_dot DOT Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back(".");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	| Ambigious_Iden_List DOT Identifier {
+		ASTExprIdentifier* identifier = (ASTExprIdentifier*)$1;
+		ASTString* name = (ASTString*)$3;
+		identifier->components.push_back(name->getValue());
+		identifier->delimiters.push_back(".");
+		identifier->location = @$;
+		$$ = identifier;
+		delete name;}
+	;
+	
+Ambigious_Iden_List:
+	Identifier {
 		ASTString* name = (ASTString*)$1;
 		$$ = new ASTExprIdentifier(name->getValue(), @$);
 		delete name;}

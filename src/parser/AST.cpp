@@ -805,11 +805,13 @@ void ASTExprIdentifier::execute(ASTVisitor& visitor, void* param)
 string ASTExprIdentifier::asString() const
 {
 	string s = components.front();
+	vector<string>::const_iterator del = delimiters.begin();
 	for (vector<string>::const_iterator it = components.begin() + 1;
 	   it != components.end();
 	   ++it)
 	{
-		s = s + "." + *it;
+		s = s + *del + *it;
+		++del;
 	}
 
 	return s;

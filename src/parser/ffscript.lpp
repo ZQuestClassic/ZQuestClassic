@@ -133,6 +133,7 @@ hero	TOKEN( LINK );
 ","		TOKEN( COMMA );
 "."		TOKEN( DOT );
 ";"		TOKEN( SEMICOLON );
+"::"	TOKEN( SCOPERES );
 ":"		TOKEN( COLON );
 "("		TOKEN( LPAREN );
 ")"		TOKEN( RPAREN );

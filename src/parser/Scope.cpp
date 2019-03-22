@@ -29,12 +29,20 @@ void Scope::invalidateStackSize()
 
 // Inheritance
 
-Scope* ZScript::getDescendant(Scope const& scope, vector<string> const& names)
+Scope* ZScript::getDescendant(Scope const& scope, vector<string> const& names, std::vector<std::string> const& delimiters)
 {
 	Scope* child = const_cast<Scope*>(&scope);
+	vector<string>::const_iterator del = delimiters.begin();
 	for (vector<string>::const_iterator it = names.begin();
 	     child && it != names.end(); ++it)
+	{
 		child = child->getChild(*it);
+		string str = *del;
+		//Only allow `.` for scripts, and `::` for namespaces, when delimiting scope. -V
+		if(child->isScript() && str.compare(".") || child->isNamespace() && str.compare("::"))
+			return NULL;
+		++del;
+	}
 	return child;
 }
 
@@ -56,19 +64,21 @@ Scope* ZScript::lookupScope(Scope const& scope, string const& name)
 	return NULL;
 }
 
-Scope* ZScript::lookupScope(Scope const& scope, vector<string> const& names)
+Scope* ZScript::lookupScope(Scope const& scope, vector<string> const& names, std::vector<std::string> const& delimiters)
 {
 	// Travel as far up the tree as needed for the first scope.
 	Scope* current = lookupScope(scope, names.front());
 	if (!current) return NULL;
-	if (names.size() == 1) return current;
-
+	//string str = ;
+	if(current->isScript() && delimiters.front().compare(".") || current->isNamespace() && delimiters.front().compare("::"))
+			return NULL;
 	// Descend with the rest of the names from the first found scope.
 	vector<string> restOfNames(++names.begin(), names.end());
-	return getDescendant(*current, restOfNames);
+	vector<string> restOfDelimiters(++delimiters.begin(), delimiters.end());
+	return getDescendant(*current, restOfNames, restOfDelimiters);
 }
 
-vector<Scope*> ZScript::lookupScopes(Scope const& scope, vector<string> const& names)
+vector<Scope*> ZScript::lookupScopes(Scope const& scope, vector<string> const& names, std::vector<std::string> const& delimiters)
 {
 	vector<Scope*> scopes;
 	for (Scope* current = const_cast<Scope*>(&scope);
@@ -76,7 +86,7 @@ vector<Scope*> ZScript::lookupScopes(Scope const& scope, vector<string> const& n
 	{
 		if(current == getRoot(*current) && scopes.size() != 0)
 			break;
-		if (Scope* descendant = getDescendant(*current, names))
+		if (Scope* descendant = getDescendant(*current, names, delimiters))
 			scopes.push_back(descendant);
 	}
 	return scopes;
@@ -129,7 +139,7 @@ Datum* ZScript::lookupDatum(Scope const& scope, string const& name)
 	return NULL;
 }
 
-Datum* ZScript::lookupDatum(Scope const& scope, vector<string> const& names)
+Datum* ZScript::lookupDatum(Scope const& scope, vector<string> const& names, std::vector<std::string> const& delimiters)
 {
 	if (names.size() == 0)
 		return NULL;
@@ -137,7 +147,7 @@ Datum* ZScript::lookupDatum(Scope const& scope, vector<string> const& names)
 		return lookupDatum(scope, names[0]);
 
 	vector<string> childNames(names.begin(), --names.end());
-	if (Scope* child = lookupScope(scope, childNames))
+	if (Scope* child = lookupScope(scope, childNames, delimiters))
 		return lookupDatum(*child, names.back());
 
 	return NULL;
@@ -184,7 +194,7 @@ vector<Function*> ZScript::lookupFunctions(Scope const& scope, string const& nam
 }
 
 vector<Function*> ZScript::lookupFunctions(
-		Scope const& scope, vector<string> const& names)
+		Scope const& scope, vector<string> const& names, vector<string> const& delimiters)
 {
 	if (names.size() == 0)
 		return vector<Function*>();
@@ -195,7 +205,7 @@ vector<Function*> ZScript::lookupFunctions(
 	string const& name = names.back();
 
 	vector<string> ancestry(names.begin(), --names.end());
-	vector<Scope*> scopes = lookupScopes(scope, ancestry);
+	vector<Scope*> scopes = lookupScopes(scope, ancestry, delimiters);
 	for (vector<Scope*>::const_iterator it = scopes.begin();
 	     it != scopes.end(); ++it)
 	{
@@ -445,7 +455,7 @@ ScriptScope* BasicScope::makeScriptChild(Script& script)
 NamespaceScope* BasicScope::makeNamespaceChild(ASTNamespace& node)
 {
 	string name = node.name;
-	if (Scope* scope = find<Scope*>(children_, name).value_or(NULL))
+	if (Scope* scope = getChild(name))
 	{
 		if(scope->isNamespace()) return static_cast<NamespaceScope*>(scope);
 		else return NULL;
@@ -615,7 +625,7 @@ NamespaceScope* FileScope::makeNamespaceChild(ASTNamespace& node)
 		else return NULL;
 	}
 	Namespace* namesp = new Namespace(node);
-	NamespaceScope* result = new NamespaceScope(this, namesp);
+	NamespaceScope* result = new NamespaceScope(getRoot(*this), namesp);
 	namesp->setScope(result);
 	children_[name] = result;
 	getRoot(*this)->registerChild(name, result);
