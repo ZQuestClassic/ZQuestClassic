@@ -3417,6 +3417,7 @@ struct zcmodule
         
         int select_screen_tiles[sels_tile_LAST];
         char select_screen_tile_csets[sels_tile_cset_LAST];
+	byte refresh_title_screen;
         
 
 }; //zcmodule

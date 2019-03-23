@@ -5896,6 +5896,7 @@ int zc_load_zmod_module_file()
 	    set_config_string("ZCMODULE","current_module",moduledata.module_name);
 	    //save_game_configs();
 	    zcm.init(true); //Load the module values.
+	    moduledata.refresh_title_screen = 1;
 //	    refresh_select_screen = 1;
 		
 	    return D_O_K;

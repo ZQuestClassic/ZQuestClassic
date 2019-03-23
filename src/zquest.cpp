@@ -27116,7 +27116,7 @@ void ZModule::init(bool d) //bool default
 	moduledata.max_quest_files = 0;
 	moduledata.animate_NES_title = 0;
 	moduledata.title_track = moduledata.tf_track = moduledata.gameover_track = moduledata.ending_track = moduledata.dungeon_track = moduledata.overworld_track = moduledata.lastlevel_track = 0;
-	
+	moduledata.refresh_title_screen = 0;
 	
 	//strcpy(moduledata.module_name,"default.zmod");
 	//al_trace("Module name set to %s\n",moduledata.module_name);
