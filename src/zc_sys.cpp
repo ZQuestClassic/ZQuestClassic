@@ -54,7 +54,7 @@
 #include "zconsole.h"
 #include "ffscript.h"
 extern FFScript FFCore;
-
+extern bool Playing;
 int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
 
@@ -5876,7 +5876,11 @@ bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const cha
 //The Dialogue that loads a ZMOD Module File
 int zc_load_zmod_module_file()
 {
-	
+    if ( Playing )
+    {
+	jwin_alert("Error","Cannot change module while playing a quest!",NULL,NULL,"O&K",NULL,'k',0,lfont);    
+	return -1;
+    }
     if(!zc_getname("Load Module (.zmod)","zmod",NULL,modulepath,false))
         return D_CLOSE;
     
