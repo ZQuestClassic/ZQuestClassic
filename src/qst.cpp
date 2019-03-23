@@ -15330,18 +15330,29 @@ int readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	//temp_zinit.items[iBombBag] = true; //No, this is 30 max bombs!
 	temp_zinit.max_bombs = 8;
     }
-    
+    al_trace("About to copy over new init data values for quest made in: %x\n", Header->zelda_version);
     //time to ensure that we port all new values properly:
     if(Header->zelda_version < 0x255)
     {
 	temp_zinit.nBombs = temp_zinit.bombs;
+	//al_trace("Copied over %s\n", "nbombs");
 	temp_zinit.nSbombs = temp_zinit.super_bombs;
+	    //al_trace("Copied over %s\n", "nSbombs");
 	temp_zinit.nBombmax = temp_zinit.max_bombs;
-	temp_zinit.nSbombs = (temp_zinit.max_bombs/temp_zinit.bomb_ratio);
+	    //al_trace("Copied over %s\n", "nBombmax");
+	    
+	    //al_trace("temp_zinit.max_bombs is %d\n", temp_zinit.max_bombs);
+	    //al_trace("temp_zinit.bomb_ratio is %d\n", temp_zinit.bomb_ratio);
+	if(Header->zelda_version < 0x250)
+	{//bomb ratio is 0 at this point in 2.50 quests for some reason. -Z ( 23rd March, 2019 )
+		temp_zinit.nSBombmax = temp_zinit.bomb_ratio > 0 ? ( temp_zinit.max_bombs/temp_zinit.bomb_ratio ) : (temp_zinit.max_bombs/4);
+	    //al_trace("Copied over %s\n", "nSBombmax");
+	}
 	temp_zinit.nArrows = temp_zinit.arrows;
+	    //al_trace("Copied over %s\n", "nArrows");
 	temp_zinit.nArrowmax = temp_zinit.max_arrows;
-    }	    
-    
+	    //al_trace("Copied over %s\n", "nArrowmax");
+    }	
     
     
     
