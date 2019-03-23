@@ -54,6 +54,7 @@ extern FFScript FFCore; //the core script engine.
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
 extern char runningItemScripts[256];
+extern char modulepath[2048];
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -1045,6 +1046,7 @@ LinkClass   Link;
 #include "ending.h"
 
 #include "zc_sys.h"
+//extern byte refresh_select_screen;
 
 // Wait... this is only used by ffscript.cpp!?
 void addLwpn(int x,int y,int z,int id,int type,int power,int dir, int parentid)
@@ -3604,7 +3606,8 @@ int onFullscreen()
 int main(int argc, char* argv[])
 {
     bool onlyInstance=true;
-    
+//	refresh_select_screen = 0;
+    memset(modulepath, 0, sizeof(modulepath));
 #ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
     if(!is_only_instance("zc.lck"))
     {

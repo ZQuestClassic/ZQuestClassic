@@ -45,7 +45,7 @@ extern int skipicon;
 extern FFScript FFCore;
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
-
+//extern byte refresh_select_screen;
 bool load_custom_game(int file);
 
 struct savedicon
