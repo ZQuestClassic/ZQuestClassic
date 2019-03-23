@@ -898,6 +898,15 @@ static MENU zscript_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+//New Modules Menu for 2.55+
+static MENU module_menu[] =
+{
+    { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
+    //divider
+   
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 MENU the_menu[] =
 {
     { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
@@ -907,6 +916,7 @@ MENU the_menu[] =
     { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
+    { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
     { (char *)"Et&c",                       NULL, (MENU *) etc_menu,        0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -21136,6 +21146,36 @@ int onCompileScript()
     
 // return D_O_K;//unreachable
 }
+
+//The Dialogue that loads a ZMOD Module File
+int load_zmod_module_file()
+{
+	
+    if(!getname("Load Module (.zmod)","zmod",NULL,datapath,false))
+        return D_CLOSE;
+    
+    FILE *tempmodule = fopen(temppath,"r");
+            
+            if(tempmodule == NULL)
+            {
+                jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                return -1;
+            }
+	    
+	    
+	    //Set the module path:
+	    memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
+	    strcpy(moduledata.module_name, temppath);
+	    al_trace("New Module Path is: %s \n", moduledata.module_name);
+	    set_config_string("ZCMODULE","current_module",moduledata.module_name);
+	    //save_game_configs();
+	    zcm.init(true); //Load the module values.
+		
+	    return D_O_K;
+}
+
+
+
 
 int onImportFFScript()
 {

@@ -483,6 +483,7 @@ int d_comboalist_proc(int msg,DIALOG *d,int c);
 int onSecretF();
 int onSecretCombo();
 int onUnderCombo();
+int load_zmod_module_file();
 int onImportFFScript();
 int onImportItemScript();
 int onImportNPCScript();
