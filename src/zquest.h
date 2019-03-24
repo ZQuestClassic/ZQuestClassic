@@ -487,6 +487,11 @@ int load_zmod_module_file();
 int onImportFFScript();
 int onImportItemScript();
 int onImportNPCScript();
+int onImportSCREENScript();
+int onImportHEROScript();
+int onImportDMapScript();
+int onImportLWPNScript();
+int onImportEWPNScript();
 int onImportGScript();
 int onCompileScript();
 

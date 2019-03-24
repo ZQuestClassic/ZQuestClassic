@@ -885,14 +885,15 @@ static MENU zscript_menu[] =
     { (char *)"Import ASM &Item Script",    onImportItemScript,        NULL,                     0,            NULL   },
     { (char *)"Import ASM &Global Script",  onImportGScript,           NULL,                     0,            NULL   },
     { (char *)"Import ASM &NPC Script",  onImportNPCScript,           NULL,                     0,            NULL   },
-    { (char *)"Import ASM &LWeapon Script",  onImportGScript,           NULL,                     0,            NULL   },
-    { (char *)"Import ASM &EWeapon Script",  onImportGScript,           NULL,                     0,            NULL   },
-    { (char *)"Import ASM &Hero Script",  onImportGScript,           NULL,                     0,            NULL   },
-    { (char *)"Import ASM &DMap Script",  onImportGScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &LWeapon Script",  onImportLWPNScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &EWeapon Script",  onImportEWPNScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Hero Script",  onImportHEROScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &DMap Script",  onImportDMapScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Screen Script",  onImportSCREENScript,           NULL,                     0,            NULL   },
 	//divider
         { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Compiler Settings",        onZScriptCompilerSettings,           NULL,                     0,            NULL   },
-    { (char *)"Quest Script Settings",        onZScriptSettings,           NULL,                     0,            NULL   },
+    { (char *)"&Compiler Settings",        onZScriptCompilerSettings,           NULL,                     0,            NULL   },
+    { (char *)"&Quest Script Settings",        onZScriptSettings,           NULL,                     0,            NULL   },
     //{ (char *)"Set Include Path",        onZScriptSetIncludePath,           NULL,                     0,            NULL   },
 
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -21229,6 +21230,150 @@ int onImportNPCScript()
                 npcmap[npcscript_sel_dlg[5].d1].second="ASM script";
                 
             build_binpcs_list();
+        }
+    }
+    
+    return D_O_K;
+}
+int onImportSCREENScript()
+{
+    char name[20]="";
+    
+    screenscript_sel_dlg[0].dp2 = lfont;
+    screenscript_sel_dlg[2].dp = name;
+    screenscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(screenscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(screenscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&screenscripts[screenscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)screenscript_sel_dlg[2].dp)>0)
+                screenmap[screenscript_sel_dlg[5].d1].second=(char *)screenscript_sel_dlg[2].dp;
+            else
+                screenmap[screenscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_biscreens_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportHEROScript()
+{
+    char name[20]="";
+    
+    linkscript_sel_dlg[0].dp2 = lfont;
+    linkscript_sel_dlg[2].dp = name;
+    linkscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(linkscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(linkscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&linkscripts[linkscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)linkscript_sel_dlg[2].dp)>0)
+                linkmap[linkscript_sel_dlg[5].d1].second=(char *)linkscript_sel_dlg[2].dp;
+            else
+                linkmap[linkscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bilinks_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportDMapScript()
+{
+    char name[20]="";
+    
+    dmapscript_sel_dlg[0].dp2 = lfont;
+    dmapscript_sel_dlg[2].dp = name;
+    dmapscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(dmapscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(dmapscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&dmapscripts[dmapscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)dmapscript_sel_dlg[2].dp)>0)
+                dmapmap[dmapscript_sel_dlg[5].d1].second=(char *)dmapscript_sel_dlg[2].dp;
+            else
+                dmapmap[dmapscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bidmaps_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportEWPNScript()
+{
+    char name[20]="";
+    
+    eweaponscript_sel_dlg[0].dp2 = lfont;
+    eweaponscript_sel_dlg[2].dp = name;
+    eweaponscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(eweaponscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(eweaponscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&ewpnscripts[eweaponscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)eweaponscript_sel_dlg[2].dp)>0)
+                ewpnmap[eweaponscript_sel_dlg[5].d1].second=(char *)eweaponscript_sel_dlg[2].dp;
+            else
+                ewpnmap[eweaponscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bieweapons_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportLWPNScript()
+{
+    char name[20]="";
+    
+    lweaponscript_sel_dlg[0].dp2 = lfont;
+    lweaponscript_sel_dlg[2].dp = name;
+    lweaponscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(lweaponscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(lweaponscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&lwpnscripts[lweaponscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)lweaponscript_sel_dlg[2].dp)>0)
+                lwpnmap[lweaponscript_sel_dlg[5].d1].second=(char *)lweaponscript_sel_dlg[2].dp;
+            else
+                lwpnmap[lweaponscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bilweapons_list();
         }
     }
     
