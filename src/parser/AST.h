@@ -71,6 +71,7 @@ namespace ZScript
 	// Declarations
 	class ASTDecl; // virtual
 	class ASTScript;
+	class ASTNamespace;
 	class ASTImportDecl;
 	class ASTFuncDecl;
 	class ASTDataDeclList;
@@ -78,6 +79,7 @@ namespace ZScript
 	class ASTDataDeclExtraArray;
 	class ASTDataTypeDef;
 	class ASTScriptTypeDef;
+	class ASTUsingDecl;
 	// Expressions
 	class ASTExpr; // virtual
 	class ASTExprConst;
@@ -269,6 +271,8 @@ namespace ZScript
 		owning_vector<ASTDataTypeDef> dataTypes;
 		owning_vector<ASTScriptTypeDef> scriptTypes;
 		owning_vector<ASTScript> scripts;
+		owning_vector<ASTNamespace> namespaces;
+		owning_vector<ASTUsingDecl> use;
 	};
 
 	class ASTFloat : public AST
@@ -533,7 +537,9 @@ namespace ZScript
 			TYPE_DATALIST,
 			TYPE_DATA,
 			TYPE_DATATYPE,
-			TYPE_SCRIPTTYPE
+			TYPE_SCRIPTTYPE,
+			TYPE_NAMESPACE,
+			TYPE_USING
 		};
 
 		ASTDecl(LocationData const& location = LocationData::NONE);
@@ -563,6 +569,32 @@ namespace ZScript
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
 		owning_vector<ASTDataTypeDef> types;
+		owning_vector<ASTUsingDecl> use;
+	};
+
+	class ASTNamespace : public ASTDecl
+	{
+	public:
+		ASTNamespace(LocationData const& location = LocationData::NONE, std::string name = "");
+		ASTNamespace* clone() const {return new ASTNamespace(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		Type getDeclarationType() const /*override*/ {return TYPE_NAMESPACE;}
+		
+		void setName(std::string newname) {name = newname;}
+    
+		// Adds a declaration to the proper vector.
+		void addDeclaration(ASTDecl& declaration);
+
+		owning_vector<ASTSetOption> options;
+		owning_vector<ASTDataDeclList> variables;
+		owning_vector<ASTFuncDecl> functions;
+		owning_vector<ASTDataTypeDef> dataTypes;
+		owning_vector<ASTScriptTypeDef> scriptTypes;
+		owning_vector<ASTScript> scripts;
+		owning_vector<ASTNamespace> namespaces;
+		std::string name;
 	};
 
 	class ASTImportDecl : public ASTDecl
@@ -748,6 +780,22 @@ namespace ZScript
 		owning_ptr<ASTScriptType> oldType;
 		std::string newName;
 	};
+	
+	class ASTUsingDecl : public ASTDecl
+	{
+	public:
+		ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location = LocationData::NONE);
+		virtual ASTUsingDecl* clone() const {return new ASTUsingDecl(*this);}
+
+		virtual void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		Type getDeclarationType() const {return TYPE_USING;}
+		
+		ASTExprIdentifier* getIdentifier() const {return identifier;}
+		
+	private:
+		ASTExprIdentifier* identifier;
+	};
 
 	////////////////////////////////////////////////////////////////
 	// Expressions
@@ -843,8 +891,10 @@ namespace ZScript
 		DataType const* getReadType() const;
 		DataType const* getWriteType() const;
 	
-		// The identifier components separated by '.'.
+		// The identifier components separated by '.' or '::'.
 		std::vector<std::string> components;
+		//Which symbol was used to delimit each?
+		std::vector<std::string> delimiters;
 
 		// What this identifier refers to.
 		Datum* binding;

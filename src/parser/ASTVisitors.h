@@ -21,6 +21,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseSetOption(ASTSetOption& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseUsing(ASTUsingDecl& host, void* param = NULL) {
+			caseDefault(host, param);}
 		// Statements
 		virtual void caseBlock(ASTBlock& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -51,6 +53,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		// Declarations
 		virtual void caseScript(ASTScript& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseNamespace(ASTNamespace& host, void* param = NULL){
 			caseDefault(host, param);}
 		virtual void caseImportDecl(ASTImportDecl& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -219,6 +223,7 @@ namespace ZScript
 				ASTStmtReturnVal& host, void* param = NULL);
 		// Declarations
 		virtual void caseScript(ASTScript& host, void* param = NULL);
+		virtual void caseNamespace(ASTNamespace& host, void* param = NULL);
 		virtual void caseImportDecl(ASTImportDecl& host, void* param = NULL);
 		virtual void caseFuncDecl(ASTFuncDecl& host, void* param = NULL);
 		virtual void caseDataDeclList(ASTDataDeclList& host, void* param = NULL);

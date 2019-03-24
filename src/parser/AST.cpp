@@ -84,6 +84,12 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 	case ASTDecl::TYPE_SCRIPTTYPE:
 		scriptTypes.push_back(static_cast<ASTScriptTypeDef*>(declaration));
 		break;
+	case ASTDecl::TYPE_NAMESPACE:
+		namespaces.push_back(static_cast<ASTNamespace*>(declaration));
+		break;
+	case ASTDecl::TYPE_USING:
+		use.push_back(static_cast<ASTUsingDecl*>(declaration));
+		break;
 	}
 }
 
@@ -94,7 +100,8 @@ bool ASTFile::hasDeclarations() const
 		|| !functions.empty()
 		|| !dataTypes.empty()
 		|| !scriptTypes.empty()
-		|| !scripts.empty();
+		|| !scripts.empty()
+		|| !namespaces.empty();
 }
 
 // ASTFloat
@@ -467,7 +474,46 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 	case ASTDecl::TYPE_DATATYPE:
 		types.push_back(static_cast<ASTDataTypeDef*>(&declaration));
 		break;
+	case ASTDecl::TYPE_USING:
+		use.push_back(static_cast<ASTUsingDecl*>(&declaration));
+		break;
 	}
+}
+
+// ASTNamespace
+
+ASTNamespace::ASTNamespace(LocationData const& location, std::string name)
+	: ASTDecl(location), name(name)
+{}
+
+void ASTNamespace::addDeclaration(ASTDecl& declaration)
+{
+	switch (declaration.getDeclarationType())
+	{
+	case ASTDecl::TYPE_SCRIPT:
+		scripts.push_back(static_cast<ASTScript*>(&declaration));
+		break;
+	case ASTDecl::TYPE_FUNCTION:
+		functions.push_back(static_cast<ASTFuncDecl*>(&declaration));
+		break;
+	case ASTDecl::TYPE_DATALIST:
+		variables.push_back(static_cast<ASTDataDeclList*>(&declaration));
+		break;
+	case ASTDecl::TYPE_DATATYPE:
+		dataTypes.push_back(static_cast<ASTDataTypeDef*>(&declaration));
+		break;
+	case ASTDecl::TYPE_SCRIPTTYPE:
+		scriptTypes.push_back(static_cast<ASTScriptTypeDef*>(&declaration));
+		break;
+	case ASTDecl::TYPE_NAMESPACE:
+		namespaces.push_back(static_cast<ASTNamespace*>(&declaration));
+		break;
+	}
+}
+
+void ASTNamespace::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseNamespace(*this, param);
 }
 
 // ASTImportDecl
@@ -703,6 +749,17 @@ void ASTScriptTypeDef::execute(ASTVisitor& visitor, void* param)
 	visitor.caseScriptTypeDef(*this, param);
 }
 
+// ASTUsingDecl
+
+ASTUsingDecl::ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location)
+	: ASTDecl(location), identifier(iden)
+{}
+
+void ASTUsingDecl::execute(ASTVisitor& visitor, void* param)
+{
+	return visitor.caseUsing(*this, param);
+}
+
 ////////////////////////////////////////////////////////////////
 // Expressions
 
@@ -765,11 +822,13 @@ void ASTExprIdentifier::execute(ASTVisitor& visitor, void* param)
 string ASTExprIdentifier::asString() const
 {
 	string s = components.front();
+	vector<string>::const_iterator del = delimiters.begin();
 	for (vector<string>::const_iterator it = components.begin() + 1;
 	   it != components.end();
 	   ++it)
 	{
-		s = s + "." + *it;
+		s = s + *del + *it;
+		++del;
 	}
 
 	return s;
