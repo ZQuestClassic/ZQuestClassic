@@ -8326,10 +8326,12 @@ void domouse()
                         if(draw_mode != dm_alias)
                         {
                             favorite_combos[f]=-1;
+				saved = false;
                         }
                         else
                         {
                             favorite_comboaliases[f]=-1;
+				saved = false;
                         }
                         
                         break;
