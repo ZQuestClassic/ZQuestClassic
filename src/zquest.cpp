@@ -23045,7 +23045,7 @@ int main(int argc,char **argv)
                     commands[cmdDelete].flags = (Map.CurrScr()->valid&mVALID) ? 0 : D_DISABLED;
                     
         tool_menu[0].flags =
-            data_menu[7].flags =
+            //data_menu[7].flags = //Allow setting doors on template screens > 0x82. -Z ( 24th March, 2019 )
                 commands[cmdTemplate].flags =
                     commands[cmdDoors].flags = (Map.getCurrScr()<TEMPLATE) ? 0 : D_DISABLED;
                     
