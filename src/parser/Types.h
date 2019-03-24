@@ -374,6 +374,8 @@ namespace ZScript
 			idPlayer,
 			idScreen,
 			idDMap,
+			idItemSprite,
+			idUntyped,
 			
 			idEnd
 		};
@@ -394,6 +396,8 @@ namespace ZScript
 		static ScriptType const link;
 		static ScriptType const dmapdata;
 		static ScriptType const screendata;
+		static ScriptType const ScriptType::itemsprite;
+		static ScriptType const ScriptType::untyped;
 
 	private:
 		ScriptType(Id id) : id_(id) {}
