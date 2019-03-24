@@ -79,6 +79,7 @@ namespace ZScript
 	class ASTDataDeclExtraArray;
 	class ASTDataTypeDef;
 	class ASTScriptTypeDef;
+	class ASTUsingDecl;
 	// Expressions
 	class ASTExpr; // virtual
 	class ASTExprConst;
@@ -271,6 +272,7 @@ namespace ZScript
 		owning_vector<ASTScriptTypeDef> scriptTypes;
 		owning_vector<ASTScript> scripts;
 		owning_vector<ASTNamespace> namespaces;
+		owning_vector<ASTUsingDecl> use;
 	};
 
 	class ASTFloat : public AST
@@ -536,7 +538,8 @@ namespace ZScript
 			TYPE_DATA,
 			TYPE_DATATYPE,
 			TYPE_SCRIPTTYPE,
-			TYPE_NAMESPACE
+			TYPE_NAMESPACE,
+			TYPE_USING
 		};
 
 		ASTDecl(LocationData const& location = LocationData::NONE);
@@ -566,6 +569,7 @@ namespace ZScript
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
 		owning_vector<ASTDataTypeDef> types;
+		owning_vector<ASTUsingDecl> use;
 	};
 
 	class ASTNamespace : public ASTDecl
@@ -775,6 +779,22 @@ namespace ZScript
 
 		owning_ptr<ASTScriptType> oldType;
 		std::string newName;
+	};
+	
+	class ASTUsingDecl : public ASTDecl
+	{
+	public:
+		ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location = LocationData::NONE);
+		virtual ASTUsingDecl* clone() const {return new ASTUsingDecl(*this);}
+
+		virtual void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		Type getDeclarationType() const {return TYPE_USING;}
+		
+		ASTExprIdentifier* getIdentifier() const {return identifier;}
+		
+	private:
+		ASTExprIdentifier* identifier;
 	};
 
 	////////////////////////////////////////////////////////////////

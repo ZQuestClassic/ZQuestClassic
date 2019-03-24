@@ -45,6 +45,18 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 			analyzeFunctionInternals(**it);
 		scope = scope->getParent();
 	}
+	
+	for (vector<Namespace*>::iterator it = program.namespaces.begin();
+		 it != program.namespaces.end(); ++it)
+	{
+		Namespace& namesp = **it;
+		scope = &namesp.getScope();
+		functions = scope->getLocalFunctions();
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+			analyzeFunctionInternals(**it);
+		scope = scope->getParent();
+	}
 }
 
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
@@ -89,8 +101,10 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 
 void SemanticAnalyzer::caseFile(ASTFile& host, void*)
 {
+	//Set current FileScope, for use with namespaces -V
 	scope = scope->makeFileChild(host.asString());
 	RecursiveVisitor::caseFile(host);
+	//Restore previous scope
 	scope = scope->getParent();
 }
 
@@ -120,6 +134,34 @@ void SemanticAnalyzer::caseSetOption(ASTSetOption& host, void*)
 	CompileOptionSetting setting = host.getSetting(this, scope);
 	if (!setting) return; // error
 	scope->setOption(host.option, setting);
+}
+
+void SemanticAnalyzer::caseUsing(ASTUsingDecl& host, void*)
+{
+	//Handle adding scope
+	ASTExprIdentifier* iden = host.getIdentifier();
+	vector<string> components = iden->components;
+	int numMatches = scope->useNamespace(components, iden->delimiters);
+	if(numMatches > 1)
+		handleError(CompileError::TooManyUsing(&host, iden->asString()));
+	else if(!numMatches)
+	{
+		//handleError(CompileError::NoUsingMatch(&host, iden->asString()));
+		ASTNamespace* first = new ASTNamespace(host.location, components.front());
+		ASTNamespace* current = first;
+		for(vector<string>::iterator it = ++components.begin();
+			it != components.end(); ++it)
+		{
+			ASTNamespace* next = new ASTNamespace(host.location, *it);
+			current->namespaces.push_back(next);
+			current = next;
+		}
+		caseNamespace(*first);
+		numMatches = scope->useNamespace(components, iden->delimiters);
+	}
+	//-1 == duplicate; the namespace found had already been added to usingNamespaces for this scope! -V
+	else if(numMatches == -1)
+		handleError(CompileError::DuplicateUsing(&host, iden->asString()));
 }
 
 // Statements
@@ -576,7 +618,7 @@ void SemanticAnalyzer::caseExprIdentifier(
 		ASTExprIdentifier& host, void* param)
 {
 	// Bind to named variable.
-	host.binding = lookupDatum(*scope, host.components, host.delimiters);
+	host.binding = lookupDatum(*scope, host, this);
 	if (!host.binding)
 	{
 		handleError(CompileError::VarUndeclared(&host, host.asString()));

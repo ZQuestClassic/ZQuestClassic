@@ -61,6 +61,7 @@ Namespace* Program::addNamespace(ASTNamespace& node, Scope& parentScope, Compile
 	Namespace* namesp = createNamespace(*this, parentScope, node, handler);
 	if(!namesp) return NULL;
 	
+	namespaces.push_back(namesp);
 	return namesp;
 }
 

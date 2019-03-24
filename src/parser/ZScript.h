@@ -22,6 +22,7 @@ namespace ZScript
 	class Function;
 	class Scope;
 	class RootScope;
+	class FileScope;
 	class ScriptScope;
 	class NamespaceScope;
 	class FunctionScope;
@@ -41,6 +42,7 @@ namespace ZScript
 		RootScope& getScope() const {return *rootScope_;}
 
 		std::vector<Script*> scripts;
+		std::vector<Namespace*> namespaces;
 		Script* getScript(std::string const& name) const;
 		Script* getScript(ASTScript* node) const;
 		Script* addScript(ASTScript& node, Scope& parentScope, CompileErrorHandler* handler);

@@ -87,6 +87,9 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 	case ASTDecl::TYPE_NAMESPACE:
 		namespaces.push_back(static_cast<ASTNamespace*>(declaration));
 		break;
+	case ASTDecl::TYPE_USING:
+		use.push_back(static_cast<ASTUsingDecl*>(declaration));
+		break;
 	}
 }
 
@@ -471,6 +474,9 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 	case ASTDecl::TYPE_DATATYPE:
 		types.push_back(static_cast<ASTDataTypeDef*>(&declaration));
 		break;
+	case ASTDecl::TYPE_USING:
+		use.push_back(static_cast<ASTUsingDecl*>(&declaration));
+		break;
 	}
 }
 
@@ -741,6 +747,17 @@ ASTScriptTypeDef::ASTScriptTypeDef(ASTScriptType* oldType,
 void ASTScriptTypeDef::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseScriptTypeDef(*this, param);
+}
+
+// ASTUsingDecl
+
+ASTUsingDecl::ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location)
+	: ASTDecl(location), identifier(iden)
+{}
+
+void ASTUsingDecl::execute(ASTVisitor& visitor, void* param)
+{
+	return visitor.caseUsing(*this, param);
 }
 
 ////////////////////////////////////////////////////////////////

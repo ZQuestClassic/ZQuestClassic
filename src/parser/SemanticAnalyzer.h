@@ -25,6 +25,7 @@ namespace ZScript
 		// Cases
 		void caseFile(ASTFile& host, void* = NULL);
 		void caseSetOption(ASTSetOption& host, void* param = NULL);
+		void caseUsing(ASTUsingDecl& host, void* param = NULL);
 		// Statements
 		void caseBlock(ASTBlock& host, void* = NULL);
 		void caseStmtIf(ASTStmtIf& host, void* = NULL);

@@ -21,6 +21,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseSetOption(ASTSetOption& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseUsing(ASTUsingDecl& host, void* param = NULL) {
+			caseDefault(host, param);}
 		// Statements
 		virtual void caseBlock(ASTBlock& host, void* param = NULL) {
 			caseDefault(host, param);}
