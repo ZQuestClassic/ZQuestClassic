@@ -508,6 +508,9 @@ void ASTNamespace::addDeclaration(ASTDecl& declaration)
 	case ASTDecl::TYPE_NAMESPACE:
 		namespaces.push_back(static_cast<ASTNamespace*>(&declaration));
 		break;
+	case ASTDecl::TYPE_USING:
+		use.push_back(static_cast<ASTUsingDecl*>(&declaration));
+		break;
 	}
 }
 

@@ -594,6 +594,7 @@ namespace ZScript
 		owning_vector<ASTScriptTypeDef> scriptTypes;
 		owning_vector<ASTScript> scripts;
 		owning_vector<ASTNamespace> namespaces;
+		owning_vector<ASTUsingDecl> use;
 		std::string name;
 	};
 

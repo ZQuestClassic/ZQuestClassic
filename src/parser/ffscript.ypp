@@ -332,6 +332,7 @@ Namespace_Statement :
 	| Function {$$ = $1;}
 	| Script {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
+	| Using SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Namespace_Statement {
 		ASTExprConst* errorId = (ASTExprConst*)$3;
 		ASTDecl* declaration = (ASTDecl*)$5;
@@ -671,6 +672,7 @@ Statement :
 	Data SEMICOLON {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
+	| Using SEMICOLON {$$ = $1;}
 	// Normal Statements
 	| Expression SEMICOLON {$$ = $1;}
 	| Statement_Block {$$ = $1;}

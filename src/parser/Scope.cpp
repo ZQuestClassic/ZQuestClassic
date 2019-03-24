@@ -137,8 +137,8 @@ ZClass* ZScript::lookupClass(Scope const& scope, string const& name)
 Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool useNamespace)
 {
 	Datum* datum = NULL;
-	for (Scope const* current = &scope;
-	     current; current = current->getParent())
+	Scope const* current = &scope;
+	for (; current; current = current->getParent())
 	{
 		Datum* temp = current->getLocalDatum(name);
 		if(!datum)
@@ -159,9 +159,21 @@ Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdenti
 		}
 	}
 	if(!useNamespace) return datum; //End early
-	//Get the file scope's `using` namespace scopes, and check them as well
-	FileScope* file = scope.getFile();
-	vector<NamespaceScope*> namespaces = file->usingNamespaces;
+	current = &scope;
+	set<NamespaceScope*> namespaceSet;
+	bool foundFile = false;
+	for (; current; current = current->getParent())
+	{
+		vector<NamespaceScope*> currentNamespaces = current->usingNamespaces;
+		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+		if(current->isFile()) foundFile = true;
+	}
+	if(!foundFile) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) -V
+	{
+		vector<NamespaceScope*> currentNamespaces = scope.getFile()->usingNamespaces;
+		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+	}
+	vector<NamespaceScope*> namespaces(namespaceSet.begin(), namespaceSet.end());
 	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
 		it != namespaces.end(); ++it)
 	{
@@ -173,24 +185,6 @@ Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdenti
 		{
 			if(&datum != &temp)
 				errorHandler->handleError(CompileError::TooManyVar(&host, name));
-		}
-	}
-	//Get the script scope's `using` namespace scopes, and check them as well
-	if(ScriptScope* script = scope.getScript())
-	{
-		vector<NamespaceScope*> namespaces = script->usingNamespaces;
-		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
-			it != namespaces.end(); ++it)
-		{
-			NamespaceScope* nsscope = *it;
-			Datum* temp = nsscope->getLocalDatum(name);
-			if(!datum)
-				datum = temp;
-			else if(temp)
-			{
-				if(&datum != &temp)
-					errorHandler->handleError(CompileError::TooManyVar(&host, name));
-			}
 		}
 	}
 	return datum;
@@ -244,8 +238,20 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 	Scope const* current = &scope;
 	if(useNamespace)
 	{
-		//Get the file scope's `using` namespace scopes, and any functions from them
-		vector<NamespaceScope*> namespaces = scope.getFile()->usingNamespaces;
+		set<NamespaceScope*> namespaceSet;
+		bool foundFile = false;
+		for (; current; current = current->getParent())
+		{
+			vector<NamespaceScope*> currentNamespaces = current->usingNamespaces;
+			namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+			if(current->isFile()) foundFile = true;
+		}
+		if(!foundFile) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) -V
+		{
+			vector<NamespaceScope*> currentNamespaces = scope.getFile()->usingNamespaces;
+			namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+		}
+		vector<NamespaceScope*> namespaces(namespaceSet.begin(), namespaceSet.end());
 		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
 			it != namespaces.end(); ++it)
 		{
@@ -253,18 +259,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 			vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
 			functions.insert(currentFunctions.begin(), currentFunctions.end());
 		}
-		//Get the script scope's `using` namespace scopes, and any functions from them
-		if(ScriptScope* script = scope.getScript())
-		{
-			vector<NamespaceScope*> namespaces = script->usingNamespaces;
-			for(vector<NamespaceScope*>::iterator it = namespaces.begin();
-				it != namespaces.end(); ++it)
-			{
-				NamespaceScope* nsscope = *it;
-				vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
-				functions.insert(currentFunctions.begin(), currentFunctions.end());
-			}
-		}
+		current = &scope;
 	}
 	//Standard lookup loop
 	for (; current; current = current->getParent())

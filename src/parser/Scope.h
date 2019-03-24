@@ -154,6 +154,8 @@ namespace ZScript
 		//
 		bool operator==(Scope* other) {return id == other->getId();}
 		
+		std::vector<NamespaceScope*> usingNamespaces;
+		
 	protected:
 		TypeStore& typeStore_;
 		optional<std::string> name_;
