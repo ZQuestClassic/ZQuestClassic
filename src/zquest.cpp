@@ -680,7 +680,7 @@ static MENU rules_menu[] =
     { (char *)"&NES Fixes ",                onFixesRules,              NULL,                     0,            NULL   },
     { (char *)"&Other",                     onMiscRules,               NULL,                     0,            NULL   },
     { (char *)"&Backward compatibility",    onCompatRules,             NULL,                     0,            NULL   },
-    { (char *)"&Scripts",    		    onScriptRules,             NULL,                     0,            NULL   },
+    //{ (char *)"&Scripts",    		    onScriptRules,             NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -875,6 +875,39 @@ static MENU etc_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+//New ZScript Menu for 2.55 Alpha 16
+static MENU zscript_menu[] =
+{
+    { (char *)"Compile &ZScript...",        onCompileScript,           NULL,                     0,            NULL   },
+    //divider
+        { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"Import ASM &FFC Script",     onImportFFScript,          NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Item Script",    onImportItemScript,        NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Global Script",  onImportGScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &NPC Script",  onImportNPCScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &LWeapon Script",  onImportLWPNScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &EWeapon Script",  onImportEWPNScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Hero Script",  onImportHEROScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &DMap Script",  onImportDMapScript,           NULL,                     0,            NULL   },
+    { (char *)"Import ASM &Screen Script",  onImportSCREENScript,           NULL,                     0,            NULL   },
+	//divider
+        { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+    { (char *)"&Compiler Settings",        onZScriptCompilerSettings,           NULL,                     0,            NULL   },
+    { (char *)"&Quest Script Settings",        onZScriptSettings,           NULL,                     0,            NULL   },
+    //{ (char *)"Set Include Path",        onZScriptSetIncludePath,           NULL,                     0,            NULL   },
+
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
+//New Modules Menu for 2.55+
+static MENU module_menu[] =
+{
+    { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
+    //divider
+   
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 MENU the_menu[] =
 {
     { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
@@ -883,6 +916,8 @@ MENU the_menu[] =
     { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
     { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
+    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
+    { (char *)"&Modules",                       NULL, (MENU *) module_menu,        0,            NULL   },
     { (char *)"Et&c",                       NULL, (MENU *) etc_menu,        0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -8291,10 +8326,12 @@ void domouse()
                         if(draw_mode != dm_alias)
                         {
                             favorite_combos[f]=-1;
+				saved = false;
                         }
                         else
                         {
                             favorite_comboaliases[f]=-1;
+				saved = false;
                         }
                         
                         break;
@@ -19468,7 +19505,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"NPC",		 0,         as_npc_list,   0, NULL },
     { (char *)"LWeapon",		 0,         as_lweapon_list,   0, NULL },
     { (char *)"EWeapon",		 0,         as_eweapon_list,   0, NULL },
-    { (char *)"Link",		 0,         as_link_list,   0, NULL },
+    { (char *)"Hero",		 0,         as_link_list,   0, NULL },
     { (char *)"DMap",		 0,         as_dmap_list,   0, NULL },
     { (char *)"Screen",		 0,         as_screen_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
@@ -19755,6 +19792,121 @@ static DIALOG assignscript_dlg[] =
     
 };
 
+static DIALOG zscript_settings_dlg[] =
+{
+    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Settings", NULL, NULL },
+    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_settings_dlg },
+    // 3
+    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    
+    // rules //6
+    { jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Item Scripts Continue To Run", NULL, NULL },
+    { jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
+    { jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Scrolling", NULL, NULL },
+    { jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
+    
+    
+    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+};
+
+
+static int zscriptrules[] =
+{
+    qr_ITEMSCRIPTSKEEPRUNNING, qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_SCRIPTDRAWSWHENSCROLLING, qr_SCRIPTDRAWSINWARPS,
+    -1
+};
+
+int onZScriptSettings()
+{
+    if(is_large)
+        large_dialog(zscript_settings_dlg);
+        
+    zscript_settings_dlg[0].dp2=lfont;
+    
+    for(int i=0; zscriptrules[i]!=-1; i++)
+    {
+        zscript_settings_dlg[i+6].flags = get_bit(quest_rules,zscriptrules[i]) ? D_SELECTED : 0;
+    }
+    
+    int ret = zc_popup_dialog(zscript_settings_dlg,4);
+    
+    if(ret==4)
+    {
+        saved=false;
+        
+        for(int i=0; zscriptrules[i]!=-1; i++)
+        {
+            set_bit(quest_rules, zscriptrules[i], zscript_settings_dlg[i+6].flags & D_SELECTED);
+        }
+    }
+    
+    return D_O_K;
+}
+
+static DIALOG zscript_parser_dlg[] =
+{
+    /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
+    { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
+    { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
+    // 3
+    { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
+    
+    // rules //6
+    { jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
+    //{ jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
+    //{ jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Scrolling", NULL, NULL },
+    //{ jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
+    
+    
+    { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
+};
+
+
+static int zscripparsertrules[] =
+{
+    qr_PARSER_250DIVISION,
+    -1
+};
+
+int onZScriptCompilerSettings()
+{
+    if(is_large)
+        large_dialog(zscript_parser_dlg);
+        
+    zscript_parser_dlg[0].dp2=lfont;
+    
+    for(int i=0; zscripparsertrules[i]!=-1; i++)
+    {
+        zscript_parser_dlg[i+6].flags = get_bit(quest_rules,zscripparsertrules[i]) ? D_SELECTED : 0;
+    }
+    
+    int ret = zc_popup_dialog(zscript_parser_dlg,4);
+    
+    if(ret==4)
+    {
+        saved=false;
+        
+        for(int i=0; zscripparsertrules[i]!=-1; i++)
+        {
+            set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
+        }
+    }
+    
+    return D_O_K;
+}
+
+void centre_zscript_dialogs()
+{
+    jwin_center_dialog(zscript_settings_dlg);
+    jwin_center_dialog(zscript_parser_dlg);
+}
 
 //editbox_data zscript_edit_data;
 
@@ -20998,6 +21150,36 @@ int onCompileScript()
 // return D_O_K;//unreachable
 }
 
+//The Dialogue that loads a ZMOD Module File
+int load_zmod_module_file()
+{
+	
+    if(!getname("Load Module (.zmod)","zmod",NULL,datapath,false))
+        return D_O_K;
+    
+    FILE *tempmodule = fopen(temppath,"r");
+            
+            if(tempmodule == NULL)
+            {
+                jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                return -1;
+            }
+	    
+	    
+	    //Set the module path:
+	    memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
+	    strcpy(moduledata.module_name, temppath);
+	    al_trace("New Module Path is: %s \n", moduledata.module_name);
+	    set_config_string("ZCMODULE","current_module",moduledata.module_name);
+	    //save_game_configs();
+	    zcm.init(true); //Load the module values.
+		
+	    return D_O_K;
+}
+
+
+
+
 int onImportFFScript()
 {
     char name[20]="";
@@ -21021,6 +21203,179 @@ int onImportFFScript()
                 ffcmap[ffscript_sel_dlg[5].d1].second="ASM script";
                 
             build_biffs_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportNPCScript()
+{
+    char name[20]="";
+    
+    npcscript_sel_dlg[0].dp2 = lfont;
+    npcscript_sel_dlg[2].dp = name;
+    npcscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(npcscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(npcscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&guyscripts[npcscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)npcscript_sel_dlg[2].dp)>0)
+                npcmap[npcscript_sel_dlg[5].d1].second=(char *)npcscript_sel_dlg[2].dp;
+            else
+                npcmap[npcscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_binpcs_list();
+        }
+    }
+    
+    return D_O_K;
+}
+int onImportSCREENScript()
+{
+    char name[20]="";
+    
+    screenscript_sel_dlg[0].dp2 = lfont;
+    screenscript_sel_dlg[2].dp = name;
+    screenscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(screenscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(screenscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&screenscripts[screenscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)screenscript_sel_dlg[2].dp)>0)
+                screenmap[screenscript_sel_dlg[5].d1].second=(char *)screenscript_sel_dlg[2].dp;
+            else
+                screenmap[screenscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_biscreens_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportHEROScript()
+{
+    char name[20]="";
+    
+    linkscript_sel_dlg[0].dp2 = lfont;
+    linkscript_sel_dlg[2].dp = name;
+    linkscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(linkscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(linkscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&linkscripts[linkscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)linkscript_sel_dlg[2].dp)>0)
+                linkmap[linkscript_sel_dlg[5].d1].second=(char *)linkscript_sel_dlg[2].dp;
+            else
+                linkmap[linkscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bilinks_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportDMapScript()
+{
+    char name[20]="";
+    
+    dmapscript_sel_dlg[0].dp2 = lfont;
+    dmapscript_sel_dlg[2].dp = name;
+    dmapscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(dmapscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(dmapscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&dmapscripts[dmapscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)dmapscript_sel_dlg[2].dp)>0)
+                dmapmap[dmapscript_sel_dlg[5].d1].second=(char *)dmapscript_sel_dlg[2].dp;
+            else
+                dmapmap[dmapscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bidmaps_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportEWPNScript()
+{
+    char name[20]="";
+    
+    eweaponscript_sel_dlg[0].dp2 = lfont;
+    eweaponscript_sel_dlg[2].dp = name;
+    eweaponscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(eweaponscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(eweaponscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&ewpnscripts[eweaponscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)eweaponscript_sel_dlg[2].dp)>0)
+                ewpnmap[eweaponscript_sel_dlg[5].d1].second=(char *)eweaponscript_sel_dlg[2].dp;
+            else
+                ewpnmap[eweaponscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bieweapons_list();
+        }
+    }
+    
+    return D_O_K;
+}
+
+int onImportLWPNScript()
+{
+    char name[20]="";
+    
+    lweaponscript_sel_dlg[0].dp2 = lfont;
+    lweaponscript_sel_dlg[2].dp = name;
+    lweaponscript_sel_dlg[5].d1 = 0;
+    
+    if(is_large)
+        large_dialog(lweaponscript_sel_dlg);
+        
+    int ret=zc_popup_dialog(lweaponscript_sel_dlg,0);
+    
+    if(ret==3)
+    {
+        if(parse_script(&lwpnscripts[lweaponscript_sel_dlg[5].d1+1])==D_O_K)
+        {
+            if(strlen((char *)lweaponscript_sel_dlg[2].dp)>0)
+                lwpnmap[lweaponscript_sel_dlg[5].d1].second=(char *)lweaponscript_sel_dlg[2].dp;
+            else
+                lwpnmap[lweaponscript_sel_dlg[5].d1].second="ASM script";
+                
+            build_bilweapons_list();
         }
     }
     
@@ -24544,7 +24899,7 @@ int main(int argc,char **argv)
                     commands[cmdDelete].flags = (Map.CurrScr()->valid&mVALID) ? 0 : D_DISABLED;
                     
         tool_menu[0].flags =
-            data_menu[7].flags =
+            //data_menu[7].flags = //Allow setting doors on template screens > 0x82. -Z ( 24th March, 2019 )
                 commands[cmdTemplate].flags =
                     commands[cmdDoors].flags = (Map.getCurrScr()<TEMPLATE) ? 0 : D_DISABLED;
                     
@@ -24894,6 +25249,7 @@ void center_zquest_dialogs()
     jwin_center_dialog(warp_dlg);
     jwin_center_dialog(warpring_dlg);
     jwin_center_dialog(wlist_dlg);
+    centre_zscript_dialogs();
 }
 
 
@@ -25819,7 +26175,7 @@ command_pair commands[cmdMAX]=
     { "Report: Integrity Check",              0, (intF) onIntegrityCheckAll                                    },
     { "Save ZQuest Settings",              0, (intF) onSaveZQuestSettings                                    },
     { "Clear Quest Filepath",              0, (intF) onClearQuestFilepath                                    },
-    { "Script Rules",              0, (intF) onScriptRules                                   },
+    { "Script Settings",              0, (intF) onZScriptSettings                                   },
     
 
 };
@@ -26907,7 +27263,7 @@ void ZModule::init(bool d) //bool default
 	moduledata.max_quest_files = 0;
 	moduledata.animate_NES_title = 0;
 	moduledata.title_track = moduledata.tf_track = moduledata.gameover_track = moduledata.ending_track = moduledata.dungeon_track = moduledata.overworld_track = moduledata.lastlevel_track = 0;
-	
+	moduledata.refresh_title_screen = 0;
 	
 	//strcpy(moduledata.module_name,"default.zmod");
 	//al_trace("Module name set to %s\n",moduledata.module_name);

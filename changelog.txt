@@ -2,6 +2,59 @@
 
 //Alpha 16
 
+Added the ability to import LWeapon, EWeapon, DMap, Hero, and
+	Screen ASM scripts to the ZScript menu.
+Prevent changing module while playing a quest.
+Loading a module in ZC player now refreshes the title screen.
+Added a Modules menu, and Load Module to ZC Player.
+	The file select screen does not yet refresh on loading a new module, but
+	it does refresh on selecting a quest.
+Fixed a crash when loading 2.50 quests, caused by trying to initialise
+	zinit.SBombmax with division by 0 in qst.cpp.
+Added a Modules menu to ZQuest, and added Load Module to it.
+It is now possible to load a module at any time.
+	( ZoriaRPG, 24th march, 2019 )
+
+Added dialogues to the ZScript Menu for 'Quest ZScript Settings',
+	and for ZScript Compiler Options. 
+	These are stored with the quest as rules.
+Removed Scripts rules from QR dialogue. 
+	We now have them in the ZScript dialogue.
+The Assign ASM NPC Script menu option now opens the appropriate dialogue.
+	( ZoriaRPG, 21st march, 2019 )
+
+Added Import NPC ASM Script to ZQuest
+Added a new menu to ZQuest, 'ZScript'.
+Renamed the Link tab in the Compile ZScript dialogue to 'Hero'.
+Updated ZScript_Additions.txt
+	( ZoriaRPG, 20th march, 2019 )
+
+Added the following tokens to ZScript:
+	Pointer Hero->
+	Pointer Player->
+	hero script
+	player script
+	These are synonymous with Link-> and link script, both of which
+		are now deprecated, but still legal for compatibility reasons
+		with older scripts.
+	( Venrob, 20th March, 2019 )
+
+Fixed illegal esc char in menus.
+Fixed copyright year on ending.
+Updated Music.zh to v1.3.4
+Added file mobileBait.zh, with lweapon script MovingBait.
+	Call that script by import in Classic.zh.
+	Classic.zh version is now 2.02.
+The bomb bag (L1) starts Link with 30 bombs. We only want him to
+	have 8, so we set his max_bombs in Init Data. We don't give him this item.
+Added files: lweapon scripts FireRod, replaceOnDeath, lwBombArrow, and lwZigZag
+Added files: eweapon script ewZigZag
+Classic.zh
+	Updated to v2.01
+	Adds calls to import lweapon scripts FireRod, replaceOnDeath, lwBombArrow, and lwZigZag
+	Adds call to import eweapon script ewZigZag
+	( ZoriaRPG, 19th march, 2019 )
+
 Convert the values for Halt Duration, and Accel Factor for
 	Keese, Peahats, and Phantom Ghini enemies in 2.10 and earlier quests on
 	file load.

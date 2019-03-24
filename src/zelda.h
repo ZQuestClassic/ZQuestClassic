@@ -30,6 +30,7 @@
 int isFullScreen();
 int onFullscreen();
 
+
 #define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMTUNES
 
 #define MAX_IDLE      72000                                 // 20 minutes

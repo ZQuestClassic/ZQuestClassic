@@ -45,7 +45,7 @@ extern int skipicon;
 extern FFScript FFCore;
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
-
+//extern byte refresh_select_screen;
 bool load_custom_game(int file);
 
 struct savedicon
@@ -2571,6 +2571,11 @@ static bool register_name()
     if(savecnt>=MAXSAVES)
         return false;
         
+    if ( moduledata.refresh_title_screen ) //refresh
+    {
+	selectscreen();
+	moduledata.refresh_title_screen = 0;
+    }
     int NameEntryMode2=NameEntryMode;
     
     saves[savecnt].set_maxlife(3*HP_PER_HEART);
@@ -3486,6 +3491,11 @@ static void select_game()
     
     do
     {
+	if ( moduledata.refresh_title_screen ) //refresh
+	{
+		selectscreen();
+		moduledata.refresh_title_screen = 0;
+	}
         load_control_state();
         sfxdat=1;
         blit(scrollbuf,framebuf,0,0,0,0,256,224);

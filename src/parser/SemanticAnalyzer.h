@@ -25,6 +25,7 @@ namespace ZScript
 		// Cases
 		void caseFile(ASTFile& host, void* = NULL);
 		void caseSetOption(ASTSetOption& host, void* param = NULL);
+		void caseUsing(ASTUsingDecl& host, void* param = NULL);
 		// Statements
 		void caseBlock(ASTBlock& host, void* = NULL);
 		void caseStmtIf(ASTStmtIf& host, void* = NULL);
@@ -43,6 +44,7 @@ namespace ZScript
 		void caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void* = NULL);
 		void caseFuncDecl(ASTFuncDecl& host, void* = NULL);
 		void caseScript(ASTScript& host, void* = NULL);
+		void caseNamespace(ASTNamespace& host, void* = NULL);
 		// Expressions
 		void caseExprConst(ASTExprConst& host, void* = NULL);
 		void caseExprAssign(ASTExprAssign& host, void* = NULL);

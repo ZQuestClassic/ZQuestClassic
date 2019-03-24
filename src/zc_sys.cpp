@@ -54,7 +54,7 @@
 #include "zconsole.h"
 #include "ffscript.h"
 extern FFScript FFCore;
-
+extern bool Playing;
 int sfx_voice[WAV_COUNT];
 int d_stringloader(int msg,DIALOG *d,int c);
 
@@ -71,10 +71,11 @@ byte use_save_indicator;
 byte midi_patch_fix;
 bool midi_paused=false;
 byte zc_192b163_warp_compatibility;
+char modulepath[2048];
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Link, etc. 
 extern int cheat_modifier_keys[4]; //two options each, default either control and either shift
-
+//extern byte refresh_select_screen;
 //extern movingblock mblock2; //mblock[4]?
 //extern int db;
 
@@ -5831,6 +5832,91 @@ static DIALOG items_dlg[] =
   { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };*/
 
+
+
+bool zc_getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
+{
+    go();
+    int ret=0;
+    ret = zc_getname_nogo(prompt,ext,list,def,usefilename);
+    comeback();
+    return ret != 0;
+}
+
+
+bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
+{
+    if(def!=modulepath)
+        strcpy(modulepath,def);
+        
+    if(!usefilename)
+    {
+        int i=(int)strlen(modulepath);
+        
+        while(i>=0 && modulepath[i]!='\\' && modulepath[i]!='/')
+            modulepath[i--]=0;
+    }
+    
+    //  int ret = file_select_ex(prompt,modulepath,ext,255,-1,-1);
+    int ret=0;
+    int sel=0;
+    
+    if(list==NULL)
+    {
+        ret = jwin_file_select_ex(prompt,modulepath,ext,2048,-1,-1,lfont);
+    }
+    else
+    {
+        ret = jwin_file_browse_ex(prompt, modulepath, list, &sel, 2048, -1, -1, lfont);
+    }
+    
+    return ret!=0;
+}
+
+//The Dialogue that loads a ZMOD Module File
+int zc_load_zmod_module_file()
+{
+    if ( Playing )
+    {
+	jwin_alert("Error","Cannot change module while playing a quest!",NULL,NULL,"O&K",NULL,'k',0,lfont);    
+	return -1;
+    }
+    if(!zc_getname("Load Module (.zmod)","zmod",NULL,modulepath,false))
+        return D_CLOSE;
+    
+    FILE *tempmodule = fopen(modulepath,"r");
+            
+            if(tempmodule == NULL)
+            {
+                jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                return -1;
+            }
+	    
+	    
+	    //Set the module path:
+	    memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
+	    strcpy(moduledata.module_name, modulepath);
+	    al_trace("New Module Path is: %s \n", moduledata.module_name);
+	    set_config_string("ZCMODULE","current_module",moduledata.module_name);
+	    //save_game_configs();
+	    zcm.init(true); //Load the module values.
+	    moduledata.refresh_title_screen = 1;
+//	    refresh_select_screen = 1;
+		
+	    return D_O_K;
+}
+
+
+
+//New Modules Menu for 2.55+
+static MENU zcmodule_menu[] =
+{
+    { (char *)"&Load Module...",        zc_load_zmod_module_file,           NULL,                     0,            NULL   },
+    //divider
+   
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static DIALOG credits_dlg[] =
 {
     /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
@@ -7626,6 +7712,7 @@ MENU the_menu[] =
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
     { (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
     { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
+    { (char *)"M&odules",                      NULL,                    zcmodule_menu,                 0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -7635,6 +7722,7 @@ MENU the_menu2[] =
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
     { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
     { (char *)"&Emulation",                      NULL,                    compat_patch_menu,                 0, NULL },
+    { (char *)"M&odules",                      NULL,                    zcmodule_menu,                 0, NULL },
     { (char *)"&Misc",                      NULL,                    misc_menu,                 0, NULL },
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
