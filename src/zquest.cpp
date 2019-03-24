@@ -21155,7 +21155,7 @@ int load_zmod_module_file()
 {
 	
     if(!getname("Load Module (.zmod)","zmod",NULL,datapath,false))
-        return D_CLOSE;
+        return D_O_K;
     
     FILE *tempmodule = fopen(temppath,"r");
             
