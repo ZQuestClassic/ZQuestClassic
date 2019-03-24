@@ -610,7 +610,9 @@ enum
     qr_SMASWIPE, qr_NOSOLIDDAMAGECOMBOS /* Compatibility */, qr_SHOPCHEAT, qr_HOOKSHOTDOWNBUG /* Compatibility */,
     qr_OLDHOOKSHOTGRAB /* Compatibility */, qr_PEAHATCLOCKVULN /* Compatibility */, qr_VERYFASTSCROLLING, qr_OFFSCREENWEAPONS /* Compatibility */,
     // 20
-    qr_BROKENSTATUES /* Compatibility */, qr_NOSCRIPTSDURINGSCROLL /* Not Implemented */, qr_ITEMPICKUPSETSBELOW /* Compatibility */,
+    qr_BROKENSTATUES /* Compatibility */, qr_BOMBCHUSUPERBOMB,
+    //qr_NOSCRIPTSDURINGSCROLL /* Not Implemented */, 
+    qr_ITEMPICKUPSETSBELOW /* Compatibility */,
     qr_NOGANONINTRO, //bugfix, Ganon DMap Intro
     qr_MELEEMAGICCOST,
     qr_OLDMIRRORCOMBOS,

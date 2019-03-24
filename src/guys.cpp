@@ -6504,7 +6504,7 @@ bool eStalfos::animate(int index)
                         if(dmisc2==e2tBOMBCHU && LinkInRange(16) && wpn+dmisc3 > wEnemyWeapons) //Bombchu
                         {
 				
-			    if (  emulation_patches[emu210BOMBCHU]  ) 
+			    if (  emulation_patches[emu210BOMBCHU] || get_bit(quest_rules,qr_BOMBCHUSUPERBOMB) ) 
 			    {
 				    hp=-1000;
                             
