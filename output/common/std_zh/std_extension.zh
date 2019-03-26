@@ -1,44 +1,5 @@
-//New FUNCTIONS. Requires other std.zh update files, std_constants_2.50.2.zh, and std.cfg
-//05-JULY-2016 Standalone File
-
-
-//Returns true if Link is on a Dungeon (flagged) screen
-bool IsDungeonFlag() {
-	return Screen->Flags[SF_ROOMTYPE] & 1;
-}
-
-//Returns true if Link is on an Interior (flagged) screen
-bool IsInteriorFlag() {
-	return Screen->Flags[SF_ROOMTYPE] & 2;
-}
-
-//Layer 0 is the screen itself.
-int GetLayerComboI(int layer, int pos) {
-	if (layer==0) return Screen->ComboI[pos];
-	else return Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo inherent flag on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboI(int layer, int pos, int flag) {
-	if (layer == 0) Screen->ComboI[pos] = flag;
-	else Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, flag);
-}
-
-//A shorthand way to get a combo CSet on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboC(int layer, int pos) {
-	if (layer==0) return Screen->ComboC[pos];
-	else return Game->GetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo CSet on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboC(int layer, int pos, int cset) {
-	if (layer == 0) Screen->ComboC[pos] = cset;
-	else Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, cset);
-}
-
+//Extended functions for 2.53.0
+//26th March, 2019
 
 
 //Fairly select between true or false.
@@ -86,10 +47,6 @@ bool ChooseB(bool a, bool b, bool c, bool d, bool e, bool f) {
 	else return f;
 }
 
-
-
-
-
 //Randomly returns true, or false. 
 bool RandB(){
 	int a = Rand(0,1);
@@ -104,9 +61,6 @@ bool RandB(int percentTrue){
 	if ( a <= percentTrue ) return true;
 	else return false;
 }
-
-
-
 //Safe Sqrt functions if an irrational number would be involved.
 //Returns '464' (square root of 215296), if the value passed is negative. 
 //Returns '0' on Sqrt(0).
@@ -129,7 +83,6 @@ float SafeSqrt(float val){
 }
 
 
-
 //Returns square root of 'val'. Returns 'specifyNegRet' if a negative value is passed as 'val'. Returns '0' for Sqrt(0).
 float SafeSqrt(float val, float specifyNegRet){
 	if ( val > 214747.9999 ) val = 214747.9999;
@@ -137,23 +90,6 @@ float SafeSqrt(float val, float specifyNegRet){
 	if ( val < 0 ) return specifyNegRet;
 	return 0;
 }
-
-
-//Safely sets an equipment item, without lagging ZC. 
-//Sets an item 'itm' true if it is false, and false if it is true.
-void SetLinkItem(int itm){
-	if ( !Link->Item[itm] ) Link->Item[itm] = true;
-	else if ( Link->Item[itm] ) Link->Item[itm] = false;
-}
-
-//Sets an item 'itm' to the boolean value of 'state'.
-void SetLinkItem(int itm, bool state){
-	if ( !Link->Item[itm] && state ) Link->Item[itm] = true;
-	else if ( Link->Item[itm] && !state ) Link->Item[itm] = false;
-}
-
-
-
 
 //Trace the indices of an array, with a space between each. max 20 per line. 
 //NOT overloaded to accept all array types. Trace() does nto work on ffc, item, itemdata, lweapon, or eweapon!
@@ -255,12 +191,6 @@ void EndFFC(int ffc_id){
 }
 
 
-//Returns true if the central mouse button (if equipped) is pressed
-bool InputMiddleClick() {
-	return (Link->InputMouseB&MB_MIDDLECLICK) != 0;
-}
-
-
 //Negates engine knockback for Link on land, or in water.
 void NoLinkKnockback(){
 	if ( Link->Action == LA_GOTHURTLAND || Link->Action == LA_GOTHURTWATER ) Link->HitDir = -1;
@@ -288,7 +218,6 @@ int BoolToInt(bool input) {
 }
 
 
-
 //Draws a screen specified by 'sourceMap and sourceScreen;, from layers specified by 'layerMin and layerMax', 
 //at a desired opacity, to the layer specified by 'destLayer' of the current screen.
 void ScreenToLayer(int sourceMap, int sourceScreen, int layerMin, int layerMax, int drawOpacity, int destLayer){
@@ -304,7 +233,6 @@ void ScreenToLayer(int sourceMap, int sourceScreen, int drawOpacity, int destLay
 		Screen->DrawLayer(destLayer, sourceMap, sourceScreen, i, 0, 0, 0, drawOpacity);
 	}
 }
-
 
 //Takes a float as input 'n', and returns the integer portion as int. 
 int GetHighFloat(int n) {
@@ -357,20 +285,6 @@ bool Xor(bool valA, bool valB){
 	return false;
 }
 
-//Xor comparison of two boolean values. 
-bool Xor(bool valA, bool valB){
-	if ( !valA && valB ) return true;
-	else if ( valA && !valB ) return true;
-	return false;
-}
-
-
-//Collision functions, to avoid errors when using Collision() where LinkCOllision() is needed. 
-
-bool Collision(ffc f) {
-	return LinkCollision(f);
-}
-
 bool Collision(npc n){
 	return LinkCollision(n);
 }
@@ -387,14 +301,8 @@ bool Collision(item i){
 	return LinkCollision(i);
 }
 
-// A very simple layer 0 tile drawing routine.
-void DrawTileSimple(int x, int y, int tile, int color) {
-	Screen->FastTile(0, x, y, tile, color, 128);
-}
-
-
 //Returns the distance between two sets of coordinates using Pythagoras' Theorem
-float Distance(int x1, int y1, int x2, int y2) {
+float Distance2(int x1, int y1, int x2, int y2) {
 	int x = (x1-x2);
 	int y = (y1-y2);
 	if ( STD_FORCE_OLD_DISTANCE ) return Sqrt(x*x+y*y);
@@ -418,6 +326,7 @@ float Distance(int x1, int y1, int x2, int y2) {
 	}
 		//
 }
+
 
 //Returns the distance between two sets of coordinates using Pythagoras' Theorem
 //Allows scaling for large distance determinations.
@@ -447,6 +356,7 @@ float SafeDistance(int x1, int y1, int x2, int y2) {
 	else y = y2 - y1;
 	return Sqrt(x*x+y*y);
 }
+
 
 //Kills inputs from A, B, L, R, Start, Map, and Ex buttons. 
 void NoInput(){ 
@@ -516,6 +426,7 @@ void NoPress(bool stick){
 	}
 }
 
+
 //Returns a multiplication factor for ->Step based on direction.
 // Specifically, return the x component of a line with a length of 1 extending
 // in the given direction from origin.
@@ -550,7 +461,8 @@ int DirY(int dir) {
 //Returns true of any of the entries on the list match. 
 bool MatchLWeaponType(int list, lweapon l){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( l->ID == list[q] ) match = true;
 	}
 	return match;
@@ -560,7 +472,8 @@ bool MatchLWeaponType(int list, lweapon l){
 //Returns true of any of the entries on the list match. 
 bool MatchEWeaponType(int list, eweapon e){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( e->ID == list[q] ) match = true;
 	}
 	return match;
@@ -570,7 +483,8 @@ bool MatchEWeaponType(int list, eweapon e){
 //Returns true of any of the entries on the list match. 
 bool MatchNPC(int list, npc n){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( n->ID == list[q] ) match = true;
 	}
 	return match;
@@ -590,7 +504,8 @@ bool MatchNPCT(int list, npc n){
 //Returns true of any of the entries on the list match. 
 bool MatchItem(int list, item i){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( i->ID == list[q] ) match = true;
 	}
 	return match;
@@ -601,7 +516,8 @@ bool MatchItem(int list, item i){
 //Checks if the present Link->Action is one from a predefined list.
 bool MatchAction(int list){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( Link->Action == list[q] ) match = true;
 	}
 	return match;
@@ -611,7 +527,8 @@ bool MatchAction(int list){
 //Returns true of any of the entries on the list match its Data. 
 bool MatchComboD(int list, int cmb){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( Screen->ComboD[cmb] == list[q] ) match = true;
 	}
 	return match;
@@ -621,7 +538,8 @@ bool MatchComboD(int list, int cmb){
 //Returns true of any of the entries on the list match its Type.
 bool MatchComboT(int list, int cmb){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( Screen->ComboT[cmb] == list[q] ) match = true;
 	}
 	return match;
@@ -631,7 +549,8 @@ bool MatchComboT(int list, int cmb){
 //Returns true of any of the entries on the list match its CSet.
 bool MatchComboC(int list, int cmb){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( Screen->ComboC[cmb] == list[q] ) match = true;
 	}
 	return match;
@@ -641,7 +560,8 @@ bool MatchComboC(int list, int cmb){
 //Returns true of any of the entries on the list match its Flag.
 bool MatchComboF(int list, int cmb){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( Screen->ComboF[cmb] == list[q] ) match = true;
 	}
 	return match;
@@ -651,7 +571,8 @@ bool MatchComboF(int list, int cmb){
 //Returns true of any of the entries on the list match its Inherent Flag.
 bool MatchComboI(int list, int cmb){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( Screen->ComboI[cmb] == list[q] ) match = true;
 	}
 	return match;
@@ -661,7 +582,8 @@ bool MatchComboI(int list, int cmb){
 //Returns true of any of the entries on the list match its Solidity.
 bool MatchComboS(int list, int cmb){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( Screen->ComboS[cmb] == list[q] ) match = true;
 	}
 	return match;
@@ -671,7 +593,8 @@ bool MatchComboS(int list, int cmb){
 //Returns true of any of the entries on the list match its Data. 
 bool MatchLayerComboD(int list, int layer, int cmb){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( GetLayerComboD(layer,cmb) == list[q] ) match = true;
 	}
 	return match;
@@ -681,7 +604,8 @@ bool MatchLayerComboD(int list, int layer, int cmb){
 //Returns true of any of the entries on the list match its Type.
 bool MatchLayerComboT(int list, int layer, int cmb){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( GetLayerComboT(layer,cmb) == list[q] ) match = true;
 	}
 	return match;
@@ -691,7 +615,8 @@ bool MatchLayerComboT(int list, int layer, int cmb){
 //Returns true of any of the entries on the list match its CSet.
 bool MatchLayerComboC(int list, int layer, int cmb){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( GetLayerComboC(layer,cmb) == list[q] ) match = true;
 	}
 	return match;
@@ -701,7 +626,8 @@ bool MatchLayerComboC(int list, int layer, int cmb){
 //Returns true of any of the entries on the list match its Flag.
 bool MatchLayerComboF(int list, int layer, int cmb){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( GetLayerComboF(layer,cmb) == list[q] ) match = true;
 	}
 	return match;
@@ -711,7 +637,8 @@ bool MatchLayerComboF(int list, int layer, int cmb){
 //Returns true of any of the entries on the list match its Inherent Flag.
 bool MatchLayerComboI(int list, int layer, int cmb){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( GetLayerComboI(layer,cmb) == list[q] ) match = true;
 	}
 	return match;
@@ -721,14 +648,15 @@ bool MatchLayerComboI(int list, int layer, int cmb){
 //Returns true of any of the entries on the list match its Solidity.
 bool MatchLayerComboS(int list, int layer, int cmb){
 	bool match = false;
-	for ( int q = 0; q < SizeOfArray(list); q++ ) {
+	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+	{
 		if ( GetLayerComboS(layer,cmb) == list[q] ) match = true;
 	}
 	return match;
 }
 
 //Matches a running ffc script to script_id. Returns true if they match.
-int MatchScript(int script_id){
+int MatchFFCScript(int script_id){
 	for ( int q = 1; q < 32; q++ ) {
 		ffc MatchScript = Screen->LoadFFC(q);
 		if ( MatchScript->Script == script_id ) return q;
@@ -739,63 +667,18 @@ int MatchScript(int script_id){
 //Compares the scripts of all running ffcs, to all indices of an array 'list' searching for
 //a match to ffc script 'script_id'.
 //If there is a match, it MatchScript() will return the first match (FFC number) found. 
-int MatchScript(int script_id, int list){
+int MatchFFCScript(int script_id, int list){
 	bool match;
 	for ( int q = 1; q < 32; q++ ) {
 		ffc MatchScript = Screen->LoadFFC(q);
-		for ( int w = 0; w < SizeOfArray(list); w++ ) {
+		for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
+		{
 			if ( MatchScript->Script == script_id ) return q;
 		}
 	}
 	return 0;
 }
 
-
-//Returns if Link has the Triforce piece for a given level.
-int HasTriforce(int level){
-        if(Game->LItems[level]&LI_TRIFORCE) return 1;
-	return 0;
-}
-
-//Returns if Link has the compass for a given level.
-int HasCompass(int level){
-        if(Game->LItems[level]&LI_COMPASS) return 1;
-	return 0;
-}
-
-//Returns if Link has the map for a given level.
-int HasMap(int level){
-        if(Game->LItems[level]&LI_MAP) return 1;
-	return 0;
-}
-
-//Returns if Link has the map for a given level.
-int HasBossKey(int level){
-        if(Game->LItems[level]&LI_BOSSKEY) return 1;
-	return 0;
-}
-
-//Returns if Link has defeated the dungeon boss for a given level.
-int DefeatedLevelBoss(int level){
-        if(Game->LItems[level]&LI_BOSS) return 1;
-	return 0;
-}
-
-//Returns the item ID for the current screen, if there is one. 
-int ScreenItem(){
-	if ( Screen->RoomType == RT_SPECIALITEM ) return Screen->RoomData;
-	return -1;
-}
-
-
-//Returns the number of Triforce Pieces Link currently has.
-//Specify the highest level in your game with arg 'maxlevel'.
-int NumTriforcePieces(int maxlevel){
-    int ret = 0;
-    for(int i=1;i<=maxlevel;i++)
-        if(Game->LItems[i]&LI_TRIFORCE) ret++;
-    return ret;
-}
 
 
 //Sets the values for combo at position 'pos' to those specified. Pass -1 to leave a value unchanged.
@@ -847,37 +730,6 @@ void CloneLayerCombo(int layer_a, int layer_b, int pos_a, int pos_b){
 	SetLayerComboI(layer_b,pos_b,GetLayerComboI(layer_a,pos_a));
 	SetLayerComboC(layer_b,pos_b,GetLayerComboC(layer_a,pos_a));
 	SetLayerComboS(layer_b,pos_b,GetLayerComboS(layer_a,pos_a));
-}
-
-
-//A shorthand way to set a combo's solidity on the current layer.
-//Layer 0 is the screen itself.
-//Set layer0 to true to use LayerMap() to handle layer 0 combos. This should allow changes to remain static. 
-void SetLayerComboS(int layer, int pos, int solidity, bool layer0) {
-	if (layer==0 && !layer0) Screen->ComboS[pos] = solidity;
-	if ( MIN_CONSTANT > -214747.9999 ) { //Not compile don 2.50.3
-		if ( layer == 1 ) 
-		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
-		else if ( layer > 1 ) {
-			int str[]="Setting solidity on layers higher than 1 causes this version of ZC to crash.";
-			TraceS(str);
-		}
-	}
-	else Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
-}
-
-//Check for collisions of two squares given upper-left coordinates and a side length for each.
-bool SquareCollision(int c1x, int c1y, int side1, int c2x, int c2y, int side2) {
-	return RectCollision(c1x, c1y, c1x+side1, c1y+side1, c2x, c2y, c2x+side2, c2y+side2);
-}
-
-//Check for collisions of two squares given center coordinates and a halved side length for each.
-bool SquareCollision2(int c1x, int c1y, int radius1, int c2x, int c2y, int radius2) {
-	if( c1y + radius1 < c2y - radius2 ) return false;
-	else if( c1y - radius1 > c2y + radius2 ) return false;
-	else if( c1x + radius1 < c2x - radius2 ) return false;
-	else if( c1x - radius1 > c2x + radius2 ) return false;
-	return true;
 }
 
 
@@ -936,7 +788,6 @@ void ImpactVelocity(lweapon a, eweapon b, int massA, int velocityA, int massB, i
 	b->Step += accelB;
 }
 
-
 //Returns centre of lweapon, with option to use either its actual coordinates, or those of its sprite. 
 //Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
 int CenterX(lweapon anLWeapon, bool usehitbox) { 
@@ -993,8 +844,6 @@ int CenterY(item i, bool usehitbox) {
 	else return i->X+8*i->TileHeight + i->DrawYOffset;
 }
 
-
-////////////////
 
 //Returns centre of lweapon, with option to include its HitXOffset and DrawXOffset (individually).
 //Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
@@ -1084,8 +933,6 @@ int CenterY(item i, bool usehitbox, bool trueoffset, bool drawoffset) {
 	return iy;
 }
 
-////////////////
-
 //We need to modify these functions to allow the same options as the non-Link versions. g
 
 int CenterLinkX(bool hitoffset) { 
@@ -1111,7 +958,6 @@ int CenterLinkY(bool hitoffset, bool drawoffset) {
 	if ( drawoffset ) ly += Link->DrawYOffset;	
 	return ly;
 }
-
 
 //Returns the centre coordinates of a combo at position 'loc' similar to Center*() functions, and ComboX/Y.
 int CenterComboX(int loc){
@@ -1259,85 +1105,6 @@ bool Collision(int cmb){
 }
 
 
-//Returns angle of the given direction.
-int DirAngle(int dir){
-	dir &=7;
-	if (dir==DIR_UP) return 90;
-	if (dir==DIR_DOWN) return 270;
-	if (dir==DIR_LEFT) return 180;
-	if (dir==DIR_RIGHT) return 0;
-	if (dir==DIR_LEFTUP) return 135;
-	if (dir==DIR_RIGHTUP) return 45;
-	if (dir==DIR_LEFTDOWN) return 225;
-	if (dir==DIR_RIGHTDOWN) return 315;
-	return -1;
-}
-
-//Same as DirAngle, but return value is measured in radians.
-int DirRad(int dir){
-	return DirAngle(dir)*0.0174;
-}
-
-//Use SetCombo* on Layer 0 using LayerMap()
-//A shorthand way to set a combo on the current layer.
-//Layer 0 is the screen itself.
-//Set layer0 to true to use LayerMap() to handle layer 0 combos. This should allow changes to remain static. 
-void SetLayerComboD(int layer, int pos, int combo, bool layer0) {
-	if (layer==0 && !layer0) Screen->ComboD[pos] = combo;
-	else Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-}
-
-
-//A shorthand way to set a combo flag on the current layer.
-//Layer 0 is the screen itself.
-//Set layer0 to true to use LayerMap() to handle layer 0 combos. This should allow changes to remain static. 
-void SetLayerComboF(int layer, int pos, int flag, bool layer0) {
-	if (layer==0 && !layer0) Screen->ComboF[pos] = flag;
-	else Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, flag);
-}
-
-//Layer 0 is the screen itself.
-//Set layer0 to true to use LayerMap() to handle layer 0 combos. This should allow changes to remain static. 
-void SetLayerComboI(int layer, int pos, int flag, bool layer0) {
-	if (layer==0 && !layer0) Screen->ComboI[pos] = flag;
-	else Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, flag);
-}
-
-
-//A shorthand way to set a combo CSet on the current layer.
-//Layer 0 is the screen itself.
-//Set layer0 to true to use LayerMap() to handle layer 0 combos. This should allow changes to remain static. 
-void SetLayerComboC(int layer, int pos, int cset, bool layer0) {
-	if (layer==0 && !layer0) Screen->ComboC[pos] = cset;
-	else Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, cset);
-}
-
-
-//A shorthand way to set a combo type on the current layer.
-//Layer 0 is the screen itself.
-//Set layer0 to true to use LayerMap() to handle layer 0 combos. This should allow changes to remain static. 
-void SetLayerComboT(int layer, int pos, int type, bool layer0) {
-	if (layer==0 && !layer0) Screen->ComboT[pos] = type;
-	else Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, type);
-}
-
-
-//A shorthand way to set a combo's solidity on the current layer.
-//Layer 0 is the screen itself.
-//Set layer0 to true to use LayerMap() to handle layer 0 combos. This should allow changes to remain static. 
-void SetLayerComboS(int layer, int pos, int solidity, bool layer0) {
-	if (layer==0 && !layer0) Screen->ComboS[pos] = solidity;
-	if ( MIN_CONSTANT > -214747.9999 ) { //Not compile don 2.50.3
-		if ( layer == 1 ) 
-		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
-		else if ( layer > 1 ) {
-			int str[]="Setting solidity on layers higher than 1 causes this version of ZC to crash.";
-			TraceS(str);
-		}
-	}
-	else Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
-}
-
 //Read link's HitBox values
 int HitboxTop() {
   return (Link->Y + Link->HitYOffset);
@@ -1354,7 +1121,6 @@ int HitboxRight() {
 int HitboxBottom() {
   return (Link->Y + Link->HitYOffset + Link->HitHeight - 1);
 }
-
 
 //Converts the ID (type) of a given weapon to its opposite class. 
 //Returns -1 if the type is illegal.
@@ -1589,25 +1355,12 @@ int LtoEWeaponID(int type){
 	return LWeaponToEWeaponID(type);
 }
 	
-
-
-//Xor comparison of two calculations. ( e.g. Xor(n-x, n+y) ) 
-//Returns true if they do not match. 
-bool Xor(float calcA, float calcB){
-	if ( calcA != calcB ) return true;
-	return false;
-}
-
-
-//Randomly return true or false. 
-int Chance(){
-	return Rand(0,1);
-}
-
 //Randomly returns true, or false, using input 'percentChance' to determine the percentage change of a 'true return'
-bool Chance(int percentChance){
-	return RandB(percentChance);
+bool Chance(int percentChance)
+{
+	return (Rand(0,100)<=percentChance);
 }
+
 
 int ProximityX(ffc a, ffc b) {
 	if ( a->X > b->X ) return a->X - b->X;
@@ -3160,6 +2913,7 @@ int ProximityY(int b, int a, bool fromcentre ) {
 }
 
 
+
 //! Collision with hitbox constraints. 
 //Check for collision between ffc 'f' and a combo at location 'cmb'. 
 bool Collision(int cmb, ffc f, int a1, int b1, int c1, int d1, int a2, int b2, int c2, int d2){
@@ -3248,8 +3002,6 @@ bool Collision(int cmb,  int a1, int b1, int c1, int d1, int a2, int b2, int c2,
 }
 
 
-
-
 //Returns collision between an lweapon and a combo, only if its direction is 'dir'.
 //Set checkcoldetection true if you wish weapons without collision to automatically return false.
 bool CollisionDir(int cmb, lweapon l, int dir, bool checkcoldetection) {
@@ -3288,200 +3040,6 @@ bool CollisionDir(int cmb, lweapon l, int dir, bool facingspecificdir, bool chec
 	return RectCollision( c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7] );
 }
 
-//Feb 2016
-bool Pos(int val){ return ( val > 0 ); }
-bool Neg(int val){ return ( val < 0 ); }
-
-
-//Returns the lesser of values passed as args. Overloaded for up to eight values.
-int Lesser(int valA, int valB){
-	if ( valA < valB ) return valA;
-	else return valB;
-}
-
-int Lesser(int valA, int valB, int valC){
-	if ( valA < valB && valA < valC ) return valA;
-	else if ( valB < valA && valB < valC ) return valB;
-	else return valC;
-}
-
-int Lesser(int valA, int valB, int valC, int valD){
-	if ( valA < valB && valA < valC && valA < valD) return valA;
-	else if ( valB < valA && valB < valC && valB < valD ) return valB;
-	else if ( valC < valA && valC < valB && valC < valD ) return valC;
-	else return valD;
-}
-
-int Lesser(int valA, int valB, int valC, int valD, int valE){
-	if ( valA < valB && valA < valC && valA < valD && valA < valE) return valA;
-	else if ( valB < valA && valB < valC && valB < valD && valB < valE ) return valB;
-	else if ( valC < valA && valC < valB && valC < valD && valC < valE ) return valC;
-	else if ( valD < valA && valD < valB && valD < valC && valD < valE ) return valD;
-	else return valE;
-}
-
-
-int Lesser(int valA, int valB, int valC, int valD, int valE, int valF){
-	if ( valA < valB && valA < valC && valA < valD && valA < valE && valA < valF) return valA;
-	else if ( valB < valA && valB < valC && valB < valD && valB < valE && valB < valF ) return valB;
-	else if ( valC < valA && valC < valB && valC < valD && valC < valE && valC < valF ) return valC;
-	else if ( valD < valA && valD < valB && valD < valC && valD < valE && valD < valF ) return valD;
-	else if ( valE < valA && valE < valB && valE < valC && valE < valD && valE < valF ) return valE;
-	else return valF;
-}
-
-int Lesser(int valA, int valB, int valC, int valD, int valE, int valF, int valG){
-	if ( valA < valB && valA < valC && valA < valD && valA < valE && valA < valF && valA < valG) return valA;
-	else if ( valB < valA && valB < valC && valB < valD && valB < valE && valB < valF && valB < valG ) return valB;
-	else if ( valC < valA && valC < valB && valC < valD && valC < valE && valC < valF && valC < valG ) return valC;
-	else if ( valD < valA && valD < valB && valD < valC && valD < valE && valD < valF && valD < valG ) return valD;
-	else if ( valE < valA && valE < valB && valE < valC && valE < valD && valE < valF && valE < valG ) return valE;
-	else if ( valF < valA && valF < valB && valF < valC && valF < valD && valF < valE && valF < valG ) return valF;
-	else return valG;
-}
-
-int Lesser(int valA, int valB, int valC, int valD, int valE, int valF, int valG, int valH){
-	if ( valA < valB && valA < valC && valA < valD && valA < valE && valA < valF && valA < valG && valA < valH) return valA;
-	else if ( valB < valA && valB < valC && valB < valD && valB < valE && valB < valF && valB < valG && valB < valH ) return valB;
-	else if ( valC < valA && valC < valB && valC < valD && valC < valE && valC < valF && valC < valG && valC < valH) return valC;
-	else if ( valD < valA && valD < valB && valD < valC && valD < valE && valD < valF && valD < valG && valD < valH ) return valD;
-	else if ( valE < valA && valE < valB && valE < valC && valE < valD && valE < valF && valE < valG && valE < valH ) return valE;
-	else if ( valF < valA && valF < valB && valF < valC && valF < valD && valF < valE && valF < valG && valF < valH ) return valF;
-	else if ( valG < valA && valG < valB && valG < valC && valG < valD && valG < valE && valG < valF && valG < valH ) return valG;
-	else return valH;
-}
-
-//Returns the greater of passed args. Overloaded for up to eight values.
-int Greater(int valA, int valB){
-	if ( valA > valB ) return valA;
-	else return valB;
-}
-
-int Greater(int valA, int valB, int valC){
-	if ( valA > valB && valA > valC ) return valA;
-	else if ( valB > valA && valB > valC ) return valB;
-	else return valC;
-}
-
-int Greater(int valA, int valB, int valC, int valD){
-	if ( valA > valB && valA > valC && valA > valD) return valA;
-	else if ( valB > valA && valB > valC && valB > valD ) return valB;
-	else if ( valC > valA && valC > valB && valC > valD ) return valC;
-	else return valD;
-}
-
-int Greater(int valA, int valB, int valC, int valD, int valE){
-	if ( valA > valB && valA > valC && valA > valD && valA > valE) return valA;
-	else if ( valB > valA && valB > valC && valB > valD && valB > valE ) return valB;
-	else if ( valC > valA && valC > valB && valC > valD && valC > valE ) return valC;
-	else if ( valD > valA && valD > valB && valD > valC && valD > valE ) return valD;
-	else return valE;
-}
-
-
-int Greater(int valA, int valB, int valC, int valD, int valE, int valF){
-	if ( valA > valB && valA > valC && valA > valD && valA > valE && valA > valF) return valA;
-	else if ( valB > valA && valB > valC && valB > valD && valB > valE && valB > valF ) return valB;
-	else if ( valC > valA && valC > valB && valC > valD && valC > valE && valC > valF ) return valC;
-	else if ( valD > valA && valD > valB && valD > valC && valD > valE && valD > valF ) return valD;
-	else if ( valE > valA && valE > valB && valE > valC && valE > valD && valE > valF ) return valE;
-	else return valF;
-}
-
-int Greater(int valA, int valB, int valC, int valD, int valE, int valF, int valG){
-	if ( valA > valB && valA > valC && valA > valD && valA > valE && valA > valF && valA > valG) return valA;
-	else if ( valB > valA && valB > valC && valB > valD && valB > valE && valB > valF && valB > valG ) return valB;
-	else if ( valC > valA && valC > valB && valC > valD && valC > valE && valC > valF && valC > valG ) return valC;
-	else if ( valD > valA && valD > valB && valD > valC && valD > valE && valD > valF && valD > valG ) return valD;
-	else if ( valE > valA && valE > valB && valE > valC && valE > valD && valE > valF && valE > valG ) return valE;
-	else if ( valF > valA && valF > valB && valF > valC && valF > valD && valF > valE && valF > valG ) return valF;
-	else return valG;
-}
-
-int Greater(int valA, int valB, int valC, int valD, int valE, int valF, int valG, int valH){
-	if ( valA > valB && valA > valC && valA > valD && valA > valE && valA > valF && valA > valG && valA > valH) return valA;
-	else if ( valB > valA && valB > valC && valB > valD && valB > valE && valB > valF && valB > valG && valB > valH ) return valB;
-	else if ( valC > valA && valC > valB && valC > valD && valC > valE && valC > valF && valC > valG && valC > valH) return valC;
-	else if ( valD > valA && valD > valB && valD > valC && valD > valE && valD > valF && valD > valG && valD > valH ) return valD;
-	else if ( valE > valA && valE > valB && valE > valC && valE > valD && valE > valF && valE > valG && valE > valH ) return valE;
-	else if ( valF > valA && valF > valB && valF > valC && valF > valD && valF > valE && valF > valG && valF > valH ) return valF;
-	else if ( valG > valA && valG > valB && valG > valC && valG > valD && valG > valE && valG > valF && valG > valH ) return valG;
-	else return valH;
-}
-
-//Returns if arg valA is less than all other values passed. Overloaded to work with two, to eight values.
-bool IsLess(int valA, int valB){
-	if ( valA < valB ) return true;
-	else return false;
-}
-
-bool IsLess(int valA, int valB, int valC){
-	if ( valA < valB && valA < valC ) return true;
-	else return false;
-}
-
-bool IsLess(int valA, int valB, int valC, int valD){
-	if ( valA < valB && valA < valC && valA < valD) return true;
-	else return false;
-}
-
-bool IsLess(int valA, int valB, int valC, int valD, int valE){
-	if ( valA < valB && valA < valC && valA < valD && valA < valE) return true;
-	else return false;
-}
-
-
-bool IsLess(int valA, int valB, int valC, int valD, int valE, int valF){
-	if ( valA < valB && valA < valC && valA < valD && valA < valE && valA < valF) return true;
-	else return false;
-}
-
-bool IsLess(int valA, int valB, int valC, int valD, int valE, int valF, int valG){
-	if ( valA < valB && valA < valC && valA < valD && valA < valE && valA < valF && valA < valG) return true;
-	else return false;
-}
-
-bool IsLess(int valA, int valB, int valC, int valD, int valE, int valF, int valG, int valH){
-	if ( valA < valB && valA < valC && valA < valD && valA < valE && valA < valF && valA < valG && valA < valH) return true;
-	else return false;
-}
-
-//Returns if arg valA is greater than all other values passed. Overloaded for two, to eight values.
-bool IsMore(int valA, int valB){
-	if ( valA > valB ) return true;
-	else return false;
-}
-
-bool IsMore(int valA, int valB, int valC){
-	if ( valA > valB && valA > valC ) return true;
-	else return false;
-}
-
-bool IsMore(int valA, int valB, int valC, int valD){
-	if ( valA > valB && valA > valC && valA > valD) return true;
-	else return false;
-}
-
-bool IsMore(int valA, int valB, int valC, int valD, int valE){
-	if ( valA > valB && valA > valC && valA > valD && valA > valE) return true;
-	else return false;
-}
-
-
-bool IsMore(int valA, int valB, int valC, int valD, int valE, int valF){
-	if ( valA > valB && valA > valC && valA > valD && valA > valE && valA > valF) return true;
-	else return false;
-}
-
-bool IsMore(int valA, int valB, int valC, int valD, int valE, int valF, int valG){
-	if ( valA > valB && valA > valC && valA > valD && valA > valE && valA > valF && valA > valG) return true;
-	else return false;
-}
-
-bool IsMore(int valA, int valB, int valC, int valD, int valE, int valF, int valG, int valH){
-	if ( valA > valB && valA > valC && valA > valD && valA > valE && valA > valF && valA > valG && valA > valH) return true;
-	else return false;
-}
 
 //Returns the lowest value in an array
 int Least(int arr){
@@ -3555,36 +3113,118 @@ void GiveLinkItem(int itm_id){
 }
 
 
-
 //Constants for AdjacentCombo()
-
-//const int CMB_UPLEFT    = 0;
-//const int CMB_UP        = 1;
-//const int CMB_UPRIGHT   = 2;
-//const int CMB_RIGHT     = 3;
-//const int CMB_DOWNRIGHT = 4;
-//const int CMB_DOWN      = 5;
-//const int CMB_DOWNLEFT  = 6;
-//const int CMB_LEFT      = 7;
-//const int CMB_LEFTUP    = 0; //Not 8, as those are dir + shield
-
-//Returns the Nuth combo index of a combo based on a central point, and a direction.
+//This now uses DIR_* constants, so you can do AdjacentCombo(cmb,Link->Dir)
+//Returns the Nth combo index of a combo based on a central point, and a direction.
 //For example, combo 22 + COMBO_UPRIGHT returns '7', 
 //as combo 7 is to the upper-right of combo 22.
-int AdjacentCombo(int cmb, int dir){
-    int combooffsets[13]={-0x10,-0x0F,-0x0E,1,0x10,0x0F,0x0E,-1,-0x10};
+int AdjacentCombo(int cmb, int dir)
+{
+    int combooffsets[13]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11};
     if ( cmb % 16 == 0 ) combooffsets[9] = 1;
-    if ( (cmb & 15) == 1 ) combooffsets[10] = 1;
-    if ( cmb < 0x10 ) combooffsets[11] = 1;
-    if ( cmb < 0xAF ) combooffsets[12] = 1;
-    if ( combooffsets[9] && ( dir == CMB_LEFT || dir == CMB_UPLEFT || dir == CMB_DOWNLEFT || dir == CMB_LEFTUP ) ) return 0;
-    if ( combooffsets[10] && ( dir == CMB_RIGHT || dir == CMB_UPRIGHT || dir == CMB_DOWNRIGHT ) ) return 0;
-    if ( combooffsets[11] && ( dir == CMB_UP || dir == CMB_UPRIGHT || dir == CMB_UPLEFT || dir == CMB_DOWNLEFT ) ) return 0;
-    if ( combooffsets[12] && ( dir == CMB_DOWN || dir == CMB_DOWNRIGHT || dir == CMB_DOWNLEFT ) ) return 0;
-    else if ( cmb > 0 && cmb < 177 ) return cmb + combooffsets[dir];
-    else return 0;
-}
+    if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
+    if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
+    if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
+    if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN ) ) return 0; //if the left columb
+    if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return 0; //if the right column
+    if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP ) ) return 0; //if the top row
+    if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return 0; //if the bottom row
+    else if ( cmb >= 0 && cmb <= 176 ) return cmb + combooffsets[dir];
+    else return -1;
+}   
         
+///One of the following two versions of this function is bugged, and IDR which. -Z (17th January, 2018 )
+
+
+//! rETURNS THE COMBO id OF A COMBO BASED ON A LOCATION, IN A GIVEM DIRECTION, n COMBOS AWAY.
+int AdjacentCombo(int cmb, int dir, int dist){
+    int combooffsets[13]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11};
+    if ( cmb % 16 == 0 ) combooffsets[9] = 1;
+    if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
+    if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
+    if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
+    if ( combooffsets[9] && ( dir == CMB_LEFT || dir == CMB_UPLEFT || dir == CMB_DOWNLEFT || dir == CMB_LEFTUP ) ) return 0; //if the left columb
+    if ( combooffsets[10] && ( dir == CMB_RIGHT || dir == CMB_UPRIGHT || dir == CMB_DOWNRIGHT ) ) return 0; //if the right column
+    if ( combooffsets[11] && ( dir == CMB_UP || dir == CMB_UPRIGHT || dir == CMB_UPLEFT || dir == CMB_LEFTUP ) ) return 0; //if the top row
+    if ( combooffsets[12] && ( dir == CMB_DOWN || dir == CMB_DOWNRIGHT || dir == CMB_DOWNLEFT ) ) return 0; //if the bottom row
+    else if ( cmb >= 0 && cmb <= 176 ) {
+	    int cmbs[2];//needs a for loop to ensure that t returns the most valid combo
+	    
+		for ( cmbs[1] = 0; cmbs[1] < dist; cmbs[1]++ ) {
+			cmbs[0] = cmb;
+			cmb += (combooffsets[dir]);
+			if ( cmb < 0 || cmb > 175 ) return cmbs[0];
+			if ( cmb % 16 == 0 ) combooffsets[9] = 1;
+			if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
+			if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
+			if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
+			if ( combooffsets[9] && ( dir == CMB_LEFT || dir == CMB_UPLEFT || dir == CMB_DOWNLEFT || dir == CMB_LEFTUP ) ) return cmbs[0]; //if the left columb
+			if ( combooffsets[10] && ( dir == CMB_RIGHT || dir == CMB_UPRIGHT || dir == CMB_DOWNRIGHT ) ) return cmbs[0]; //if the right column
+			if ( combooffsets[11] && ( dir == CMB_UP || dir == CMB_UPRIGHT || dir == CMB_UPLEFT || dir == CMB_LEFTUP ) ) return cmbs[0]; //if the top row
+			if ( combooffsets[12] && ( dir == CMB_DOWN || dir == CMB_DOWNRIGHT || dir == CMB_DOWNLEFT ) ) return cmbs[0]; //if the bottom row
+			
+		}
+		return cmb;
+	}
+    else return -1;
+}   
+
+    ///March 2016
+    
+//Constants for AdjacentCombo()
+//This now uses DIR_* constants, so you can do AdjacentCombo(cmb,Link->Dir)
+//Returns the Nth combo index of a combo based on a central point, and a direction.
+//For example, combo 22 + COMBO_UPRIGHT returns '7', 
+//as combo 7 is to the upper-right of combo 22.
+//dist is the number of combos away from cmb
+
+//! rETURNS THE COMBO id OF A COMBO BASED ON A LOCATION, IN A GIVEM DIRECTION, n COMBOS AWAY.
+int AdjacentCombo2(int cmb, int dir, int dist)
+{
+	int combooffsets[13]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11};
+	if ( cmb % 16 == 0 ) combooffsets[9] = 1;
+	if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
+	if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
+	if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
+	if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN ) ) {
+	    return 0; //if the left columb
+	}
+	if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) {
+	    return 0; //if the left columb
+	}
+	if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP ) ) {
+	    return 0; //if the left columb
+	}
+	if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) {
+	    return 0; //if the left columb
+	}
+	int cmbs[2];//needs a for loop to ensure that t returns the most valid combo
+	    
+	if ( cmb >= 0 && cmb < 176 ) 
+	{
+		cmbs[0] = cmb;
+		for ( cmbs[1] = 0; cmbs[1] < dist; ++cmbs[1] ) {
+			if ( dir == DIR_LEFT && ComboX(cmbs[0]) == 0 ) return cmbs[0];
+			if ( dir == DIR_RIGHT && ComboX(cmbs[0]) == 240 ) return cmbs[0];
+			if ( dir == DIR_UP && ComboY(cmbs[0]) == 0 ) return cmbs[0];
+			if ( dir == DIR_DOWN && ComboY(cmbs[0]) == 160 ) return cmbs[0];
+			cmbs[0] += (combooffsets[dir]);
+			if ( cmbs[0] < 0 || cmbs[0] > 175 ) return cmbs[0]; //Did I mean -1 here? -Z
+			if ( cmb % 16 == 0 ) combooffsets[9] = 1;
+			if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
+			if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
+			if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
+			if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN || dir == DIR_LEFTUP ) ) return cmbs[0]; //if the left columb
+				//Did I want 0 here? -Z No, these are the last logical position that was valid. 
+			if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return cmbs[0]; //if the right column
+			if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP || dir == DIR_LEFTUP ) ) return cmbs[0]; //if the top row
+			if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return cmbs[0]; //if the bottom row
+		}
+		return cmbs[0];
+	}
+	else return -1;
+}  
+
 
 
 //Returns if two pointers are within a proximity of 'distance' in pixels.
@@ -4131,9 +3771,6 @@ bool DistY(item a, item b, int distance) {
     return ( dist <= distance );
 } 
 
-//21-March
-//Advanced tracing
-
 //Traces a float, or int; whether a variable, an internal variable, array index, or other
 //along with a given string in one function.
 void TraceStr(int string, int value){
@@ -4147,7 +3784,7 @@ void TraceStrB(int string, bool val){
     TraceNL(); TraceS(string); TraceB(val); TraceNL();
 }
 
-//June 2016
+
 
 //Returns if Link is facing an object. 
 bool LinkFacing(ffc f){
@@ -4204,3 +3841,119 @@ bool LinkFacing(int combo_pos){
 	return false;
 }
 
+
+//Returns the lesser of values passed as args. Overloaded for up to eight values.
+int Lesser(int valA, int valB){
+	if ( valA < valB ) return valA;
+	else return valB;
+}
+
+int Lesser(int valA, int valB, int valC){
+	if ( valA < valB && valA < valC ) return valA;
+	else if ( valB < valA && valB < valC ) return valB;
+	else return valC;
+}
+
+int Lesser(int valA, int valB, int valC, int valD){
+	if ( valA < valB && valA < valC && valA < valD) return valA;
+	else if ( valB < valA && valB < valC && valB < valD ) return valB;
+	else if ( valC < valA && valC < valB && valC < valD ) return valC;
+	else return valD;
+}
+
+int Lesser(int valA, int valB, int valC, int valD, int valE){
+	if ( valA < valB && valA < valC && valA < valD && valA < valE) return valA;
+	else if ( valB < valA && valB < valC && valB < valD && valB < valE ) return valB;
+	else if ( valC < valA && valC < valB && valC < valD && valC < valE ) return valC;
+	else if ( valD < valA && valD < valB && valD < valC && valD < valE ) return valD;
+	else return valE;
+}
+
+
+int Lesser(int valA, int valB, int valC, int valD, int valE, int valF){
+	if ( valA < valB && valA < valC && valA < valD && valA < valE && valA < valF) return valA;
+	else if ( valB < valA && valB < valC && valB < valD && valB < valE && valB < valF ) return valB;
+	else if ( valC < valA && valC < valB && valC < valD && valC < valE && valC < valF ) return valC;
+	else if ( valD < valA && valD < valB && valD < valC && valD < valE && valD < valF ) return valD;
+	else if ( valE < valA && valE < valB && valE < valC && valE < valD && valE < valF ) return valE;
+	else return valF;
+}
+
+int Lesser(int valA, int valB, int valC, int valD, int valE, int valF, int valG){
+	if ( valA < valB && valA < valC && valA < valD && valA < valE && valA < valF && valA < valG) return valA;
+	else if ( valB < valA && valB < valC && valB < valD && valB < valE && valB < valF && valB < valG ) return valB;
+	else if ( valC < valA && valC < valB && valC < valD && valC < valE && valC < valF && valC < valG ) return valC;
+	else if ( valD < valA && valD < valB && valD < valC && valD < valE && valD < valF && valD < valG ) return valD;
+	else if ( valE < valA && valE < valB && valE < valC && valE < valD && valE < valF && valE < valG ) return valE;
+	else if ( valF < valA && valF < valB && valF < valC && valF < valD && valF < valE && valF < valG ) return valF;
+	else return valG;
+}
+
+int Lesser(int valA, int valB, int valC, int valD, int valE, int valF, int valG, int valH){
+	if ( valA < valB && valA < valC && valA < valD && valA < valE && valA < valF && valA < valG && valA < valH) return valA;
+	else if ( valB < valA && valB < valC && valB < valD && valB < valE && valB < valF && valB < valG && valB < valH ) return valB;
+	else if ( valC < valA && valC < valB && valC < valD && valC < valE && valC < valF && valC < valG && valC < valH) return valC;
+	else if ( valD < valA && valD < valB && valD < valC && valD < valE && valD < valF && valD < valG && valD < valH ) return valD;
+	else if ( valE < valA && valE < valB && valE < valC && valE < valD && valE < valF && valE < valG && valE < valH ) return valE;
+	else if ( valF < valA && valF < valB && valF < valC && valF < valD && valF < valE && valF < valG && valF < valH ) return valF;
+	else if ( valG < valA && valG < valB && valG < valC && valG < valD && valG < valE && valG < valF && valG < valH ) return valG;
+	else return valH;
+}
+
+//Returns the greater of passed args. Overloaded for up to eight values.
+int Greater(int valA, int valB){
+	if ( valA > valB ) return valA;
+	else return valB;
+}
+
+int Greater(int valA, int valB, int valC){
+	if ( valA > valB && valA > valC ) return valA;
+	else if ( valB > valA && valB > valC ) return valB;
+	else return valC;
+}
+
+int Greater(int valA, int valB, int valC, int valD){
+	if ( valA > valB && valA > valC && valA > valD) return valA;
+	else if ( valB > valA && valB > valC && valB > valD ) return valB;
+	else if ( valC > valA && valC > valB && valC > valD ) return valC;
+	else return valD;
+}
+
+int Greater(int valA, int valB, int valC, int valD, int valE){
+	if ( valA > valB && valA > valC && valA > valD && valA > valE) return valA;
+	else if ( valB > valA && valB > valC && valB > valD && valB > valE ) return valB;
+	else if ( valC > valA && valC > valB && valC > valD && valC > valE ) return valC;
+	else if ( valD > valA && valD > valB && valD > valC && valD > valE ) return valD;
+	else return valE;
+}
+
+
+int Greater(int valA, int valB, int valC, int valD, int valE, int valF){
+	if ( valA > valB && valA > valC && valA > valD && valA > valE && valA > valF) return valA;
+	else if ( valB > valA && valB > valC && valB > valD && valB > valE && valB > valF ) return valB;
+	else if ( valC > valA && valC > valB && valC > valD && valC > valE && valC > valF ) return valC;
+	else if ( valD > valA && valD > valB && valD > valC && valD > valE && valD > valF ) return valD;
+	else if ( valE > valA && valE > valB && valE > valC && valE > valD && valE > valF ) return valE;
+	else return valF;
+}
+
+int Greater(int valA, int valB, int valC, int valD, int valE, int valF, int valG){
+	if ( valA > valB && valA > valC && valA > valD && valA > valE && valA > valF && valA > valG) return valA;
+	else if ( valB > valA && valB > valC && valB > valD && valB > valE && valB > valF && valB > valG ) return valB;
+	else if ( valC > valA && valC > valB && valC > valD && valC > valE && valC > valF && valC > valG ) return valC;
+	else if ( valD > valA && valD > valB && valD > valC && valD > valE && valD > valF && valD > valG ) return valD;
+	else if ( valE > valA && valE > valB && valE > valC && valE > valD && valE > valF && valE > valG ) return valE;
+	else if ( valF > valA && valF > valB && valF > valC && valF > valD && valF > valE && valF > valG ) return valF;
+	else return valG;
+}
+
+int Greater(int valA, int valB, int valC, int valD, int valE, int valF, int valG, int valH){
+	if ( valA > valB && valA > valC && valA > valD && valA > valE && valA > valF && valA > valG && valA > valH) return valA;
+	else if ( valB > valA && valB > valC && valB > valD && valB > valE && valB > valF && valB > valG && valB > valH ) return valB;
+	else if ( valC > valA && valC > valB && valC > valD && valC > valE && valC > valF && valC > valG && valC > valH) return valC;
+	else if ( valD > valA && valD > valB && valD > valC && valD > valE && valD > valF && valD > valG && valD > valH ) return valD;
+	else if ( valE > valA && valE > valB && valE > valC && valE > valD && valE > valF && valE > valG && valE > valH ) return valE;
+	else if ( valF > valA && valF > valB && valF > valC && valF > valD && valF > valE && valF > valG && valF > valH ) return valF;
+	else if ( valG > valA && valG > valB && valG > valC && valG > valD && valG > valE && valG > valF && valG > valH ) return valG;
+	else return valH;
+}
