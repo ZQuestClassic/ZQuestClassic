@@ -1,14 +1,15 @@
 ////////////////////////////////
 /// Music.zh                 ///
-/// v1.3.4 - 19th Mar, 2019  ///
+/// v1.3.5 - 26th Mar, 2019  ///
 /// By: ZoriaRPG             ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// A series of FFCs, and utility functions for playing MIDIs, Enhanced Music, and Sound Effects ///
 /// 1.3.3: Optimisation for inclusion with ZC 2.53 Gamma 4                                       ///
 /// 1.3.4: Fixes to NPC_MIDI and NPC_Music                                                       ///
+/// 1.3.5: More Fixes to NPC_MIDI and NPC_Music                                                  ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import "std.zh"
+//import "std.zh"
 //import "string.zh"
 
 const int MIDI_DEFEATBOSS = 0; //Set to default midi to play for Victory Music.
@@ -68,6 +69,7 @@ ffc script NPC_MIDI
 		//check for the npc and while it is on-screen
 		//change the midi
 		Waitframes(6);
+		LogPrint("NPC_MIDI passed %s \n", "Waitframes(6)");
 		//if it dies, change back
 		int q[4]; npc n; bool found;
 		int enh_music[256] = {0}; 
@@ -78,32 +80,69 @@ ffc script NPC_MIDI
 		bool enhanced =  ( enh_music[0] != 0 ); //is the dmap music enhanced?
 		
 		int originalmusic = Game->DMapMIDI[Game->GetCurDMap()];
-		while(!Screen->NumNPCs()) Waitframe();
+		while(!Screen->NumNPCs()) 
+		{
+			//LogPrint("NPC_MIDI is %s \n", "Waiting (!Screen->NumNPCs())");
+			Waitframe();
+		}
 		while(true){
 			for ( q[0] = Screen->NumNPCs(); q[0] > 0; --q[0] ) {
 				n = Screen->LoadNPC(q);
 				if ( n->ID == npc_ID ) 
 				{
+					//LogPrint("NPC_MIDI %s \n", "matched the input npc");
 					q[1] = 1; break;
 				}
 				q[1] = 0;
 			}
-			if ( q[1] ) 
+			if ( q[1] ) //found the npc
 			{
+				//LogPrint("NPC_MIDI %s \n", "if(q[1])");
 				if ( !q[2] ) 
 				{
+					//LogPrint("NPC_MIDI %s \n", "if(!q[2])");
 					Game->PlayMIDI( midi );
 					q[2] = 1;
 				}
 			}
-			if ( !NumNPCsOf(npc_ID) ) 
+			if ( q[2] ) break;
+			
+			Waitframe();
+		}
+		bool stillalive;
+		
+		while(1)
+		{
+			for ( int w = Screen->NumNPCs(); w > 0; --w )
 			{
-				Waitframes(10);
-				Game->PlayEnhancedMusic(enh_music, enh_trk);
-				
-				if ( !enhanced ) Game->PlayMIDI(originalmusic);
+				npc n = Screen->LoadNPC(w);
+				if ( n->ID == npc_ID )
+				{
+					//LogPrint("npc_ID is: %d \n", npc_ID);
+					//LogPrint("NPC_MIDI is at %s \n", "still alive");
+					stillalive = true;
+					break;
+				}
+				stillalive = false;
+			}
+			if ( stillalive ) { Waitframe(); continue; }
+			if ( !stillalive )
+			{
+				//LogPrint("NPC_MIDI is at %s \n", "!still alive");
+				break;
 			}
 			Waitframe();
+		}
+		
+		//LogPrint("NPC_MIDI is at %s \n", "!NumNPCsOf(npc_id)");
+		Waitframes(10);
+		//LogPrint("NPC_MIDI %s \n", "PlayEnhancedMusic");
+		Game->PlayEnhancedMusic(enh_music, enh_trk);
+		
+		if ( !enhanced ) 
+		{
+			//LogPrint("NPC_MIDI %s \n", "!enhanced");
+			Game->PlayMIDI(originalmusic);
 		}
 			
 	}
@@ -152,16 +191,41 @@ ffc script NPC_Music
 					q[2] = 1;
 				}
 			}
-			if ( !NumNPCsOf(npc_ID) ) 
+			if ( q[2] ) break;
+			
+			Waitframe();
+		}
+		bool stillalive;
+		while(1)
+		{
+			for ( int w = Screen->NumNPCs(); w > 0; --w )
 			{
-				Waitframes(10);
-				if ( enhanced ) Game->PlayEnhancedMusic(enh_music, enh_trk);
-				
-				if ( !enhanced ) Game->PlayMIDI(originalmusic);
+				npc n = Screen->LoadNPC(w);
+				if ( n->ID == npc_ID )
+				{
+					//LogPrint("npc_ID is: %d \n", npc_ID);
+					//LogPrint("NPC_MIDI is at %s \n", "still alive");
+					stillalive = true;
+					break;
+				}
+				stillalive = false;
+			}
+			if ( stillalive ) { Waitframe(); continue; }
+			if ( !stillalive )
+			{
+				//LogPrint("NPC_MIDI is at %s \n", "!still alive");
+				break;
 			}
 			Waitframe();
 		}
-			
+		//LogPrint("NPC_MIDI is at %s \n", "!NumNPCsOf(npc_id)");
+		Waitframes(10);
+		//LogPrint("NPC_MIDI %s \n", "PlayEnhancedMusic");
+		Game->PlayEnhancedMusic(enh_music, enh_trk);
+		
+		if ( enhanced ) Game->PlayEnhancedMusic(enh_music, enh_trk);
+				
+		else Game->PlayMIDI(originalmusic);
 	}
 }
 
