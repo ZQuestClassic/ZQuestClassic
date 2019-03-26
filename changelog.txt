@@ -2,8 +2,8 @@ ChangeLog for 2.53.0
 
 //Gamma 7
 
+Update Music.zh, fixing NPC_MIDI and NPC_Music scripts.
 Cleaned up std.zh:
-	Update Music.zh, fixing NPC_MIDI and NPC_Music scripts.
 	Prune functions and fix AdjacentCombo() in std_extensions.
 	Restructure std_update.zh, rename as std_extension.zh, 
 		and call by default. 
