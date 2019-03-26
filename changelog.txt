@@ -1,7 +1,33 @@
 ChangeLog for 2.53.0 
 
-//Gamma 6
+//Gamma 7
 
+Cleaned up std.zh:
+	Update Music.zh, fixing NPC_MIDI and NPC_Music scripts.
+	Prune functions and fix AdjacentCombo() in std_extensions.
+	Restructure std_update.zh, rename as std_extension.zh, 
+		and call by default. 
+	Delete std_shortcuts.zh.
+Fixed the screen info for 'Layer Used By' not updating properly
+	when changing maps.
+	( ZoriaRPG, 26th March, 2019 )
+
+Added a QR that causes bombchu explosions on contact with Link
+	to be superbomb sized. This used the absolute last, unused rule bit for 2.53.
+Allow Setting Doors on Mapscreens > 0x82
+Fixed the state of 'save' not being set when deleting a favourite
+	combo using the contextual menu.
+	( ZoriaRPG, 24th March, 2019 )
+
+Fixed illegal esc char in menu listing. 
+Fixed copyright year on game ending.
+	( ZoriaRPG, 19th March, 2019 )
+
+Fixed cheat hotkey (listed in menu) for Kill All Enemies.
+The actual Ky is K, but I had T in there.
+	( ZoriaRPG, 17th March, 2019 )
+
+//Gamma 6
 Don't allow infinite max bombs in 1.84 quests. 
 	Max bombs now set to 8 in zelda.cpp, on `firstplay`. 
 	( ZoriaRPG, 17th March 2019 )
