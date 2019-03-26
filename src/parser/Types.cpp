@@ -493,6 +493,8 @@ namespace // file local
 		{"link", ZVARTYPEID_LINK},
 		{"screendata", ZVARTYPEID_SCREEN},
 		{"dmapdata", ZVARTYPEID_DMAPDATA},
+		{"itemsprite", ZVARTYPEID_ITEM},
+		{"untyped", ZVARTYPEID_VOID},
 	};
 }
 
@@ -506,6 +508,8 @@ ScriptType const ScriptType::eweapon(idEWeapon);
 ScriptType const ScriptType::link(idLink);
 ScriptType const ScriptType::screendata(idScreen);
 ScriptType const ScriptType::dmapdata(idDMap);
+ScriptType const ScriptType::itemsprite(idItemSprite);
+ScriptType const ScriptType::untyped(idUntyped);
 
 string const& ScriptType::getName() const
 {

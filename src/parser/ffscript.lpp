@@ -129,6 +129,7 @@ screendata	TOKEN( SCREEN );
 player	TOKEN( LINK );
 link	TOKEN( LINK );
 hero	TOKEN( LINK );
+itemsprite	TOKEN( ITEMSPRITE );
 
  /* Syntax */
 ","		TOKEN( COMMA );
