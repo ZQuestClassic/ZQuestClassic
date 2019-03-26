@@ -234,6 +234,8 @@ int CenterX(eweapon anEWeapon) { return anEWeapon->X+8*anEWeapon->TileWidth; }
 int CenterY(eweapon anEWeapon) { return anEWeapon->Y+8*anEWeapon->TileHeight; }
 int CenterX(lweapon anLWeapon) { return anLWeapon->X+8*anLWeapon->TileWidth; }
 int CenterY(lweapon anLWeapon) { return anLWeapon->Y+8*anLWeapon->TileHeight; }
+int CenterX(item it) { return it->X+8*it->TileWidth; }
+int CenterY(item it) { return it->Y+8*it->TileHeight; }
 int CenterLinkX() { return Link->X+8; }
 int CenterLinkY() { return Link->Y+8; }
 

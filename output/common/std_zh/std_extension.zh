@@ -285,22 +285,6 @@ bool Xor(bool valA, bool valB){
 	return false;
 }
 
-bool Collision(npc n){
-	return LinkCollision(n);
-}
-
-bool Collision(lweapon l){
-	return LinkCollision(l);
-}
-
-bool Collision(eweapon e){
-	return LinkCollision(e);
-}
-
-bool Collision(item i){
-	return LinkCollision(i);
-}
-
 //Returns the distance between two sets of coordinates using Pythagoras' Theorem
 float Distance2(int x1, int y1, int x2, int y2) {
 	int x = (x1-x2);
@@ -3143,10 +3127,10 @@ int AdjacentCombo(int cmb, int dir, int dist){
     if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
     if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
     if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
-    if ( combooffsets[9] && ( dir == CMB_LEFT || dir == CMB_UPLEFT || dir == CMB_DOWNLEFT || dir == CMB_LEFTUP ) ) return 0; //if the left columb
-    if ( combooffsets[10] && ( dir == CMB_RIGHT || dir == CMB_UPRIGHT || dir == CMB_DOWNRIGHT ) ) return 0; //if the right column
-    if ( combooffsets[11] && ( dir == CMB_UP || dir == CMB_UPRIGHT || dir == CMB_UPLEFT || dir == CMB_LEFTUP ) ) return 0; //if the top row
-    if ( combooffsets[12] && ( dir == CMB_DOWN || dir == CMB_DOWNRIGHT || dir == CMB_DOWNLEFT ) ) return 0; //if the bottom row
+    if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN || dir == DIR_LEFTUP ) ) return 0; //if the left columb
+    if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return 0; //if the right column
+    if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP || dir == DIR_LEFTUP ) ) return 0; //if the top row
+    if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return 0; //if the bottom row
     else if ( cmb >= 0 && cmb <= 176 ) {
 	    int cmbs[2];//needs a for loop to ensure that t returns the most valid combo
 	    
@@ -3158,10 +3142,10 @@ int AdjacentCombo(int cmb, int dir, int dist){
 			if ( (cmb & 15) == 1 ) combooffsets[10] = 1; 
 			if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
 			if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
-			if ( combooffsets[9] && ( dir == CMB_LEFT || dir == CMB_UPLEFT || dir == CMB_DOWNLEFT || dir == CMB_LEFTUP ) ) return cmbs[0]; //if the left columb
-			if ( combooffsets[10] && ( dir == CMB_RIGHT || dir == CMB_UPRIGHT || dir == CMB_DOWNRIGHT ) ) return cmbs[0]; //if the right column
-			if ( combooffsets[11] && ( dir == CMB_UP || dir == CMB_UPRIGHT || dir == CMB_UPLEFT || dir == CMB_LEFTUP ) ) return cmbs[0]; //if the top row
-			if ( combooffsets[12] && ( dir == CMB_DOWN || dir == CMB_DOWNRIGHT || dir == CMB_DOWNLEFT ) ) return cmbs[0]; //if the bottom row
+			if ( combooffsets[9] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN || dir == DIR_LEFTUP ) ) return cmbs[0]; //if the left columb
+			if ( combooffsets[10] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return cmbs[0]; //if the right column
+			if ( combooffsets[11] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP || dir == DIR_LEFTUP ) ) return cmbs[0]; //if the top row
+			if ( combooffsets[12] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return cmbs[0]; //if the bottom row
 			
 		}
 		return cmb;
