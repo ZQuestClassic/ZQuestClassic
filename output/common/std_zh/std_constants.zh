@@ -2502,4 +2502,4 @@ enum
 	_ERR_TOOMANYUSING,
 	_ERR_DUPLICATEUSING,
 	_ERR_TOOMANYVAR
-}
+}; //@Venrob : Enums need $END
