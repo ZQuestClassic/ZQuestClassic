@@ -1,12 +1,13 @@
 ////////////////////////////////
 /// Music.zh                 ///
-/// v1.3.5 - 26th Mar, 2019  ///
+/// v1.3.6 - 26th Mar, 2019  ///
 /// By: ZoriaRPG             ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// A series of FFCs, and utility functions for playing MIDIs, Enhanced Music, and Sound Effects ///
 /// 1.3.3: Optimisation for inclusion with ZC 2.53 Gamma 4                                       ///
 /// 1.3.4: Fixes to NPC_MIDI and NPC_Music                                                       ///
 /// 1.3.5: More Fixes to NPC_MIDI and NPC_Music                                                  ///
+/// 1.3.6: Renamed BossMusic to MusicZH_BossMusic to avoid a conflict with Classic.zh.           ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //import "std.zh"
@@ -252,7 +253,7 @@ ffc script NPC_Music
 //	a positive value matching an enemy ID that is on the screen, if you want to play the Victory music when all enemies with that ID are dead. 
 
 
-ffc script BossMusic
+ffc script MusicZH_BossMusic
 {
 	void run(int bossMIDI, int reg, int victoryMIDI, int vict_dur, int enem)
 	{
