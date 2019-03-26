@@ -2,6 +2,8 @@
 
 //Alpha 16
 
+Added a config line 'logo_volume' to the 'zeldadx' section of zc.cfg to
+	set the sound volume of the AGN fire logo.
 Music.zh: Renamed BossMusic to MusicZH_BossMusic to avoid a conflict with Classic.zh
 Added missing $END token to the enum that Venrod added to
 	std_constants.zh.
