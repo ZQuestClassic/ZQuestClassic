@@ -69,7 +69,7 @@ ffc script NPC_MIDI
 		//check for the npc and while it is on-screen
 		//change the midi
 		Waitframes(6);
-		LogPrint("NPC_MIDI passed %s \n", "Waitframes(6)");
+		//LogPrint("NPC_MIDI passed %s \n", "Waitframes(6)");
 		//if it dies, change back
 		int q[4]; npc n; bool found;
 		int enh_music[256] = {0}; 
