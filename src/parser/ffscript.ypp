@@ -139,6 +139,7 @@ extern YYLTYPE noloc;
 %token WARPRING
 %token SCREEN
 %token LINK
+%token ITEMSPRITE
 
  // Syntax
 %token COMMA
@@ -610,6 +611,8 @@ Script_Type :
 	| SCREEN {$$ = new ASTScriptType(ScriptType::screendata, @$);}
 	| DMAP {$$ = new ASTScriptType(ScriptType::dmapdata, @$);}
 	| LINK {$$ = new ASTScriptType(ScriptType::link, @$);}
+	| ITEMSPRITE {$$ = new ASTScriptType(ScriptType::itemsprite, @$);}
+	| UNTYPED {$$ = new ASTScriptType(ScriptType::untyped, @$);}
 	| IDENTIFIER {
 		ASTString* name = static_cast<ASTString*>($1);
 		$$ = new ASTScriptType(name->getValue(), @$);
