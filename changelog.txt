@@ -2,6 +2,8 @@ ChangeLog for 2.53.0
 
 //Gamma 7
 
+Added a config line 'logo_volume' to the 'zeldadx' section of zc.cfg to
+	set the sound volume of the AGN fire logo.
 Update Music.zh, fixing NPC_MIDI and NPC_Music scripts.
 Cleaned up std.zh:
 	Prune functions and fix AdjacentCombo() in std_extensions.
