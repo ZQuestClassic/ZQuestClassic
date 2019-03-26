@@ -1,5 +1,5 @@
 //General-Use Arrays with Getter/Setter functions
-//13th February, 2016, 2016
+///26th March, 2019
 
 //A generic array, pre-included with all quests. 
 //float stdArray[4096]; //This should be called GlobalRAM[]
