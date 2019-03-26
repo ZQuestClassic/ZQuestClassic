@@ -17,6 +17,7 @@
 #include "zdefs.h"
 #include "zeldadat.h"
 #include "zc_malloc.h"
+int logovolume = 0;
 
 extern DATAFILE* data;
 
@@ -138,7 +139,8 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
     
     int fadecnt=0;
     bool blackout=false;
-    play_sample((SAMPLE*)data[WAV_00_AGFIRE].dat,255,128,1000,true);
+    logovolume = get_config_int("zeldadx","logo_volume",255);
+    play_sample((SAMPLE*)data[WAV_00_AGFIRE].dat,logovolume,128,1000,true);
     
     do
     {
