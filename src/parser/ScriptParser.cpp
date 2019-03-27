@@ -276,6 +276,12 @@ IntermediateData* ScriptParser::generateOCode(FunctionData& fdata)
 							 new VarArgument(REFDMAPDATA)));
 			
 			}
+			else if (type == ScriptType::itemsprite)
+			{
+				funccode.push_back(
+					new OSetRegister(new VarArgument(EXP2),
+							new VarArgument(REFITEM)));
+			}
 			/* Do we want these here--ever? -Z
 			else if (type == ScriptType::link )
 			{

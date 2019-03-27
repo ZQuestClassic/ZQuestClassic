@@ -1824,7 +1824,8 @@ int onIncMap()
     int m=Map.getCurrMap();
     int oldcolor=Map.getcolor();
     Map.setCurrMap(m+1>=map_count?0:m+1);
-    
+    Map.setCurrScr(Map.getCurrScr()); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
+    Map.setlayertarget(); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     if(m!=Map.getCurrMap())
     {
         memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
@@ -1846,6 +1847,8 @@ int onDecMap()
     int m=Map.getCurrMap();
     int oldcolor=Map.getcolor();
     Map.setCurrMap((m-1<0)?map_count-1:zc_min(m-1,map_count-1));
+    Map.setCurrScr(Map.getCurrScr()); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
+    Map.setlayertarget(); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     
     if(m!=Map.getCurrMap())
     {
@@ -4802,6 +4805,10 @@ void refresh(int flags)
         
         if(Map.getLayerTargetMap() > 0)
         {
+	    Map.setlayertarget(); //Now the text does not carry over when changing maps, but shifting back, it does not **re-appear** until you change screens.
+                //It was also required to set some updates in onDecMap and onIncMap. #
+		//This fixes Screen Info not displaying properly when changing maps. -Z 
+		//Needed to refresh the screen info. -Z ( 26th March, 2019 )
             int m = Map.getLayerTargetMultiple();
             sprintf(buf,"Used as a layer by screen %d:%02X",Map.getLayerTargetMap(),Map.getLayerTargetScr());
             char buf2[16];

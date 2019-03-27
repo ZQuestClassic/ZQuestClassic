@@ -6,8 +6,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 15
-Document Revision: 12th March, 2019
+Document for: 2.55, Alpha 16
+Document Revision: 26th March, 2019
 
 
 ////////////////////////////////////////////////////
@@ -362,6 +362,21 @@ You may now use C-style ternary expressions:
 	
 	Using parens to define your order of operations and scope, is prudent. 
 
+///////////////////////////
+// Variable Declarations //
+///////////////////////////
+
+You can now declare, and initialise variables on one line, as in C.
+	Format:
+	TYPE (identifier | identifier ASSIGN NUMBER) comma [repeating] SEMICOLON
+	Examples:
+		int a, b, c = 9, h = 16, f = c+h;
+		float n = 1.04, m = 6.03;
+		
+		These are equivalent to:
+		int a; int b; int c = 9; int h = 16; int f = c+h;
+		float n = 1.04; float m = 6.03;
+
 ///////////////////////
 // Enumerated Listss //
 ///////////////////////
@@ -389,6 +404,96 @@ standard C-style syntax of:
 		*/
 		
 	--end example]
+	
+///////////////
+// Namespace //
+///////////////
+
+ZScript now supports C-style namespaces.
+
+Declaration examples:
+
+namespace foo
+{
+	int x(){return 16;}
+}
+
+namespace bar
+{
+	int y(){return 32;}
+	namespace foobar
+	{
+		int z(){ return 64;}
+	}
+}
+
+namespace doh
+{
+	iny xyz(){return 128;}
+}
+
+Access examples:
+
+foo::x();
+bar::y();
+bar::foobar::z();
+
+/////////////////////
+// Using Namespace //
+/////////////////////
+
+You may invoke the 'using' token to bring the contents of a namespaces
+into the current scope, thus ignoring the requirement for scope-resolution
+(::) until the end of that scope.
+
+The following scopes are valid:
+
+global (buffer)
+file
+script
+function
+
+
+Using the above namespaces as examples:
+
+	//buffer
+	using namespace doh;
+	//now in scope in all files, functions, and scripts
+	//never falls out of scope
+
+	///file 1
+	using namespace foo;
+
+	//we can now ignore scope resolution for namespace foo
+	x(); //now equivalent to foo::x();
+	//end of file; namespace falls out of scope.
+
+	//file 2
+	using namespace bar::foobar;
+	z(); //now equivalent to bar:foobar::z();
+	//end of file; namespace falls out of scope.
+
+	//function
+	void main()
+	{
+		using namespace bar;
+		y();
+	} //namespace falls out of scope
+
+	ffc script f
+	{
+		using namespace foo; //whole script
+		void run()
+		{
+			using namespace bar; //only in run()
+			int v = x();
+			int w = y();
+		}
+		void n()
+		{
+			int r = y(); //illegal
+		}
+	}
 
 ////////////////////////////////////
 // Array Declaration Improvements //

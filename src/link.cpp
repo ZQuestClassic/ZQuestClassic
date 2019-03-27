@@ -6860,7 +6860,7 @@ void LinkClass::movelink()
         if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
         {
             attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
-			if((!itemsbuf[attackid].flags & ITEM_FLAG6) || checkmagiccost(attackid))
+			if((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid))
 			{
 				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_link_flags & LF_PAID_WAND_COST)){
 					paymagiccost(attackid,true);
@@ -6893,7 +6893,7 @@ void LinkClass::movelink()
                 && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
         {
             attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
-			if((!itemsbuf[attackid].flags & ITEM_FLAG6) || checkmagiccost(attackid))
+			if((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid))
 			{
 				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_link_flags & LF_PAID_CBYRNA_COST)){
 					paymagiccost(attackid,true);

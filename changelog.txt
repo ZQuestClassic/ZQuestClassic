@@ -2,6 +2,34 @@
 
 //Alpha 16
 
+Added a config line 'logo_volume' to the 'zeldadx' section of zc.cfg to
+	set the sound volume of the AGN fire logo.
+Music.zh: Renamed BossMusic to MusicZH_BossMusic to avoid a conflict with Classic.zh
+Added missing $END token to the enum that Venrod added to
+	std_constants.zh.
+Music.zh: Disable call to LogPrint
+Music.zh: Fix NPC_MIDI and NPC_MUSIC scripts. Bump to 1.3.5.
+Fixed the screen info for 'Layer Used By' not updating properly
+	when changing maps.
+	( ZoriaRPG, 26th March, 2019 )
+
+Parser: Add `itemsprite` and `untyped` script types, parser-side only.
+Changed _ERR constants to an enum.
+Fixed roken flag6 on wands, cbyrna 
+Add `using`, for both FileScope and ScriptScope 
+	Use: `using namespace NAME;` or `using namespace NAME1::NAME2;`
+	( Venrob, 24th March, 2019 )
+	
+Fix Compile: Missing comma in QRs
+Added a QR that causes bombchu explosions on contact with Link
+	to be superbomb sized. This used the absolute last, unused rule bit for 2.53.
+	This should be ported to a behavioural flag, set by qst.cpp on the enemy,
+		in the future.
+Don't terminate the ZQuest process if the user presses the CANCEL
+	button in the Load Module dialogue.
+Allow Setting Doors on Mapscreens > 0x82
+Fixed the state of 'save' not being set when deleting a favourite
+	combo using the contextual menu.
 Added the ability to import LWeapon, EWeapon, DMap, Hero, and
 	Screen ASM scripts to the ZScript menu.
 Prevent changing module while playing a quest.
@@ -14,6 +42,15 @@ Fixed a crash when loading 2.50 quests, caused by trying to initialise
 Added a Modules menu to ZQuest, and added Load Module to it.
 It is now possible to load a module at any time.
 	( ZoriaRPG, 24th march, 2019 )
+
+Namespace now registers directly to RootScope, skipping FileScope.
+Added SCOPERES operator ("::"), used exclusively in ASTExprIdentifier for namespace resolution.
+	`namespace::var` is valid. `script.var` is valid.
+	`namespace.var` is invalid. `script::var` is invalid.
+Namespace is now run directly after imports, rather than last. No clue why it was last before.
+Added several bison nonterminals, allowing now `Identifier_List` (containing any list of identifiers) as before, as well as `Scoperes_Identifier_List` which cannot contain `.`, and (commented out as it is currently unused) `Dot_Identifier_List`, which cannot contain `::`.
+Added a way to declare multiple namespaces at once: `namespace name::name2{}`. This declares a namespace `name`, then declares `name2` within it.
+	( Venrob, 22nd March, 2019 )
 
 Added dialogues to the ZScript Menu for 'Quest ZScript Settings',
 	and for ZScript Compiler Options. 
@@ -29,6 +66,12 @@ Renamed the Link tab in the Compile ZScript dialogue to 'Hero'.
 Updated ZScript_Additions.txt
 	( ZoriaRPG, 20th march, 2019 )
 
+Added `namespace` to ZScript.
+	Use:
+	namespace namespace_name
+	{
+	 ///vars, functions
+	}
 Added the following tokens to ZScript:
 	Pointer Hero->
 	Pointer Player->
@@ -151,6 +194,7 @@ Fixed population of npc InitD from run() params.
 Fixed DMap scripts not getting their InitD set from the DMap Editor.
 	( ZoriaRPG, 11th March, 2019 )
 
+std.zh: Add `_ERR_` constants, for `EXPECT_ERROR`
 Parser: Change `EXPECT_ERROR` to `#ignore error`/`#ignore warning`
 	( Venrob, 7th march, 2019 )
 
