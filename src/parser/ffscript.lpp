@@ -93,6 +93,7 @@ OPTION_VALUE	TOKEN( OPTIONVALUE );
 enum			TOKEN( ENUM );
 namespace		TOKEN( NAMESPACE );
 using			TOKEN( USING );
+always			TOKEN( ALWAYS );
 
  /* Types */
 void		TOKEN( ZVOID );

@@ -20,6 +20,7 @@ namespace ZScript
 	
 		virtual void caseDefault(AST& host, void* param);
 		virtual void caseSetOption(ASTSetOption& host, void* param);
+		virtual void caseUsing(ASTUsingDecl& host, void* param = NULL);
 		// Statements
 		virtual void caseBlock(ASTBlock &host, void *param);
 		virtual void caseStmtIf(ASTStmtIf &host, void *param);

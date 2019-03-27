@@ -78,6 +78,11 @@ void BuildOpcodes::caseSetOption(ASTSetOption&, void*)
 	// Do nothing, not even recurse.
 }
 
+void BuildOpcodes::caseUsing(ASTUsingDecl& host, void*)
+{
+	// Do nothing, not even recurse.
+}
+
 // Statements
 
 void BuildOpcodes::caseBlock(ASTBlock &host, void *param)

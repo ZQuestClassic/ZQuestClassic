@@ -101,10 +101,8 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 
 void SemanticAnalyzer::caseFile(ASTFile& host, void*)
 {
-	//Set current FileScope, for use with namespaces -V
 	scope = scope->makeFileChild(host.asString());
 	RecursiveVisitor::caseFile(host);
-	//Restore previous scope
 	scope = scope->getParent();
 }
 
@@ -141,7 +139,8 @@ void SemanticAnalyzer::caseUsing(ASTUsingDecl& host, void*)
 	//Handle adding scope
 	ASTExprIdentifier* iden = host.getIdentifier();
 	vector<string> components = iden->components;
-	int numMatches = scope->useNamespace(components, iden->delimiters);
+	Scope* temp = host.always ? getRoot(*scope) : scope;
+	int numMatches = temp->useNamespace(components, iden->delimiters);
 	if(numMatches > 1)
 		handleError(CompileError::TooManyUsing(&host, iden->asString()));
 	else if(!numMatches)
@@ -157,7 +156,7 @@ void SemanticAnalyzer::caseUsing(ASTUsingDecl& host, void*)
 			current = next;
 		}
 		caseNamespace(*first);
-		numMatches = scope->useNamespace(components, iden->delimiters);
+		numMatches = temp->useNamespace(components, iden->delimiters);
 	}
 	//-1 == duplicate; the namespace found had already been added to usingNamespaces for this scope! -V
 	else if(numMatches == -1)
