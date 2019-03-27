@@ -7,6 +7,7 @@
 /* declarations */
 %{
 #include "../precompiled.h"
+#include "parserDefs.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <cassert>
@@ -184,6 +185,8 @@ extern YYLTYPE noloc;
 %token ENDLINE
 %token OPTION
 %token INHERIT
+%token OPTVAL_ERROR
+%token OPTVAL_WARN
 
  // Others
 %token IDENTIFIER
@@ -376,6 +379,16 @@ Option :
 		ASTString* name = (ASTString*)$3;
 		$$ = new ASTSetOption(
 				name->getValue(), CompileOptionSetting::Default, @$);
+		delete name;}
+	| HASH OPTION IDENTIFIER OPTVAL_ERROR ENDLINE {
+		ASTString* name = (ASTString*)$3;
+		ASTExprConst* val = new ASTExprConst(new ASTNumberLiteral(new ASTFloat(OPT_ERROR, ASTFloat::TYPE_DECIMAL, @$), @$), @$);
+		$$ = new ASTSetOption(name->getValue(), val, @$);
+		delete name;}
+	| HASH OPTION IDENTIFIER OPTVAL_WARN ENDLINE {
+		ASTString* name = (ASTString*)$3;
+		ASTExprConst* val = new ASTExprConst(new ASTNumberLiteral(new ASTFloat(OPT_WARN, ASTFloat::TYPE_DECIMAL, @$), @$), @$);
+		$$ = new ASTSetOption(name->getValue(), val, @$);
 		delete name;}
 	;
 

@@ -1,4 +1,5 @@
 #include "../precompiled.h"
+#include "parserDefs.h"
 #include "Scope.h"
 
 #include <set>
@@ -1124,6 +1125,38 @@ bool RootScope::registerFunction(Function* function)
 	descFunctionsByName_[signature.name].push_back(function);
 	descFunctionsBySignature_[signature] = function;
 	return true;
+}
+
+bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHandler* errorHandler)
+{
+	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
+	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, node->getFilename()).value_or(NULL))
+	{
+		switch(headerGuard)
+		{
+			case OPT_ERROR:
+			{
+				errorHandler->handleError(CompileError::HeaderGuardErr(first, first->getFilename()));
+				errorHandler->handleError(CompileError::HeaderGuardErr(node, node->getFilename()));
+				return false; //Error, halt.
+			}
+			
+			case OPT_WARN:
+			{
+				errorHandler->handleError(CompileError::HeaderGuardWarn(first, first->getFilename(), "Using"));
+				errorHandler->handleError(CompileError::HeaderGuardWarn(node, node->getFilename(), "Skipping"));
+				return false; //Warn, and do not allow import
+			}
+				
+			default: //OPT_ON, or any invalid value, if the user sets it as such.
+			{
+				return false; //No message, guard against the duplicate import.
+			}
+				
+		}
+	}
+	importsByName_[node->getFilename()] = node;
+	return true; //Allow import
 }
 
 ////////////////////////////////////////////////////////////////

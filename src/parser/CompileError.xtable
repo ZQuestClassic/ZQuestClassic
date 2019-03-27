@@ -81,5 +81,7 @@ X(	TooManyUsing,				P,	A,	E,	STR,	VOID,	"'using' found too many matches for the 
 //X(	NoUsingMatch,				P,	A,	E,	STR,	VOID,	"'using' found no matches for the namespace %s."				)
 X(	DuplicateUsing,				P,	A,	E,	STR,	VOID,	"Namespace %s is already being used!"				)
 X(	TooManyVar,				P,	A,	E,	STR,	VOID,	"There are too many vars/consts named %s. Check your 'using' statements."				)
+X(	HeaderGuardErr,			P,	A,	E,	STR,	VOID,	"Duplicate file for filename %s!"				)
+X(	HeaderGuardWarn,		P,	A,	W,	STR,	STR,	"Duplicate file for filename %s. %s this instance."				)
 
 #undef STR

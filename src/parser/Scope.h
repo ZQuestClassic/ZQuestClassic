@@ -16,6 +16,7 @@ namespace ZScript
 	class AST;
 	class ASTNamespace;
 	class ASTExprIdentifier;
+	class ASTImportDecl;
 
 	// CompileError.h
 	class CompileErrorHandler;
@@ -465,6 +466,8 @@ namespace ZScript
 		bool registerSetter(std::string const& name, Function* setter);
 		bool registerFunction(Function* function);
 		
+		bool checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHandler* errorHandler);
+		
 	private:
 		mutable optional<int> stackSize_;
 
@@ -478,6 +481,7 @@ namespace ZScript
 		std::map<std::string, Function*> descSetters_;
 		std::map<std::string, std::vector<Function*> > descFunctionsByName_;
 		std::map<FunctionSignature, Function*> descFunctionsBySignature_;
+		std::map<std::string, ASTImportDecl*> importsByName_;
 	};
 	
 	////////////////////////////////////////////////////////////////
