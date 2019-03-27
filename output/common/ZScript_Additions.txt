@@ -399,9 +399,9 @@ You can now declare, and initialise variables on one line, as in C.
 		int a; int b; int c = 9; int h = 16; int f = c+h;
 		float n = 1.04; float m = 6.03;
 
-///////////////////////
-// Enumerated Listss //
-///////////////////////
+//////////////////////
+// Enumerated Lists //
+//////////////////////
 
 You can now define enumerated lists of constant values using the
 standard C-style syntax of:
