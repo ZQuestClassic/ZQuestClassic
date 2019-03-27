@@ -101,10 +101,8 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 
 void SemanticAnalyzer::caseFile(ASTFile& host, void*)
 {
-	//Set current FileScope, for use with namespaces -V
 	scope = scope->makeFileChild(host.asString());
 	RecursiveVisitor::caseFile(host);
-	//Restore previous scope
 	scope = scope->getParent();
 }
 

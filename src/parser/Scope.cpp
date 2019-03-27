@@ -166,13 +166,19 @@ Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdenti
 	{
 		vector<NamespaceScope*> currentNamespaces = current->getUsingNamespaces();
 		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
-		if(current->isFile()) foundFile = true;
+		if(current->isFile())
+		{
+			foundFile = true;
+			break; //Don't go to parent file!
+		}
 	}
 	if(!foundFile) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) -V
 	{
 		vector<NamespaceScope*> currentNamespaces = scope.getFile()->getUsingNamespaces();
 		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
 	}
+	vector<NamespaceScope*> currentNamespaces = getRoot(*scope)->getUsingNamespaces();
+	namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
 	vector<NamespaceScope*> namespaces(namespaceSet.begin(), namespaceSet.end());
 	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
 		it != namespaces.end(); ++it)
@@ -244,13 +250,19 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 		{
 			vector<NamespaceScope*> currentNamespaces = current->getUsingNamespaces();
 			namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
-			if(current->isFile()) foundFile = true;
+			if(current->isFile())
+			{
+				foundFile = true;
+				break; //Don't go to parent file!
+			}
 		}
 		if(!foundFile) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) -V
 		{
 			vector<NamespaceScope*> currentNamespaces = scope.getFile()->getUsingNamespaces();
 			namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
 		}
+		vector<NamespaceScope*> currentNamespaces = getRoot(*scope)->getUsingNamespaces();
+		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
 		vector<NamespaceScope*> namespaces(namespaceSet.begin(), namespaceSet.end());
 		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
 			it != namespaces.end(); ++it)
