@@ -754,8 +754,8 @@ void ASTScriptTypeDef::execute(ASTVisitor& visitor, void* param)
 
 // ASTUsingDecl
 
-ASTUsingDecl::ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location)
-	: ASTDecl(location), identifier(iden)
+ASTUsingDecl::ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location, bool always)
+	: ASTDecl(location), identifier(iden), always(always)
 {}
 
 void ASTUsingDecl::execute(ASTVisitor& visitor, void* param)

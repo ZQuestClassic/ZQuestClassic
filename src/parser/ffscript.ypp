@@ -106,6 +106,7 @@ extern YYLTYPE noloc;
 %token ENUM
 %token NAMESPACE
 %token USING
+%token ALWAYS
 
  // Types
 %token ZVOID
@@ -222,6 +223,7 @@ Global_Statement :
 	| Script {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
+	| AlwaysUsing SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Global_Statement {
 		ASTExprConst* errorId = (ASTExprConst*)$3;
 		ASTDecl* declaration = (ASTDecl*)$5;
@@ -347,7 +349,12 @@ Using :
 		ASTExprIdentifier* idlist = (ASTExprIdentifier*)$3;
 		$$ = new ASTUsingDecl(idlist, @$);
 	};
-
+	
+AlwaysUsing :
+	ALWAYS USING NAMESPACE Scoperes_Identifier_List {
+		ASTExprIdentifier* idlist = (ASTExprIdentifier*)$4;
+		$$ = new ASTUsingDecl(idlist, @$, true);
+	};
 
 ////////////////////////////////////////////////////////////////
 // Import Declaration

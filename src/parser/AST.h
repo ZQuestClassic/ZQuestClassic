@@ -785,7 +785,7 @@ namespace ZScript
 	class ASTUsingDecl : public ASTDecl
 	{
 	public:
-		ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location = LocationData::NONE);
+		ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location = LocationData::NONE, bool always = false);
 		virtual ASTUsingDecl* clone() const {return new ASTUsingDecl(*this);}
 
 		virtual void execute(ASTVisitor& visitor, void* param = NULL);
@@ -793,6 +793,8 @@ namespace ZScript
 		Type getDeclarationType() const {return TYPE_USING;}
 		
 		ASTExprIdentifier* getIdentifier() const {return identifier;}
+		
+		bool always;
 		
 	private:
 		ASTExprIdentifier* identifier;
