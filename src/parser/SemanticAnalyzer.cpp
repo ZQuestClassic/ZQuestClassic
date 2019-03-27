@@ -247,7 +247,15 @@ void SemanticAnalyzer::caseDataTypeDef(ASTDataTypeDef& host, void*)
 	}
 
 	// Add type to the current scope under its new name.
-	scope->addDataType(host.name, &type, &host);
+	if(!scope->addDataType(host.name, &type, &host))
+	{
+		DataType const& originalType = *lookupDataType(*scope, host.name);
+		if (originalType != type)
+			handleError(
+				CompileError::RedefDataType(
+					&host, host.name, originalType.getName()));
+		return;
+	}
 }
 
 void SemanticAnalyzer::caseScriptTypeDef(ASTScriptTypeDef& host, void*)
