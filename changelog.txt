@@ -2,6 +2,37 @@
 
 //Alpha 16
 
+Added details on #option HEADER_GUARD to ZScript_Additions.txt,
+	added 'always using', and corrected the docs for 'using' (scope).
+Default for Header Guard is now WARN
+	( ZoriaRPG, 27th March, 2019 )
+
+Allow disabling of any AST node
+	`node->disable();` to disable, `node->isDisabled()` to read. Cannot be re-enabled.
+	Disabled nodes are skipped by RecursiveVisitor::visit() and BuildOpCodes::visit(), 
+		effectively deleting the node, and everything inside it, from the output.
+	HEADER_GUARD now disables duplicate imports in this manner.
+	LOGGING also does, as I built this off of what that option did.
+Added parser #option HEADER_GUARD
+	Values:
+	`off` - nothing new
+	`on` - Ignore duplicate import statements
+	`error` - Throw duplication error on duplicate import statements
+	`warn` - Throw duplication warning on duplicate import statements, and ignore the duplicates.
+
+	Keywords: Reserved `error` and `warn` within HASH environment (#option)
+	`error` has a literal value of 2,
+	`warn` has a literal value of 3.
+Files: Add `parserDefs.h`, as a `zdefs.h` for the parser.
+Fixed src compile error. 
+Fixed accidentally using usingNamespaces from parent file.
+Added 'always using'
+	Usage: `always using namespace NAME;`
+	This can only be declared at the File Scope.
+	This declaration will make ALL code act under `using namespace NAME;`, regardless of being in a different file.
+Fix: Missed some changes in BuildVisitors.cpp/h and Scope.cpp/h
+	( Venrob, 27th March, 2019 )
+
 Added a config line 'logo_volume' to the 'zeldadx' section of zc.cfg to
 	set the sound volume of the AGN fire logo.
 Music.zh: Renamed BossMusic to MusicZH_BossMusic to avoid a conflict with Classic.zh
