@@ -1,1648 +1,19 @@
 //std_functions.zh
-//26th March, 2019 for ZC 2.53.0
+//27th March, 2019 for ZC 2.53.0
 
+//A
 
-//
-// Some utility routines
-//
+//Returns if Link is above an npc.
+bool Above(npc n){ return Link->Y < n->Y; }
 
-//Wait for n frames
-void Waitframes(int n) {
- while(n-- > 0) Waitframe();
-}
+//Returns if Link is above, below, left of, or right of an ffc.
+bool Above(ffc n){ return Link->Y < n->Y; }
 
-//Returns a if cond is true, else b. Overloaded.
-float Cond(bool cond, float a, float b) {
-  if (cond) return a;
-  else return b;
-}
-bool Cond(bool cond, bool a, bool b) {
-  if (cond) return a;
-  else return b;
-}
-npc Cond(bool cond, npc a, npc b) {
-  if (cond) return a;
-  else return b;
-}
-item Cond(bool cond, item a, item b) {
-  if (cond) return a;
-  else return b;
-}
-lweapon Cond(bool cond, lweapon a, lweapon b) {
-  if (cond) return a;
-  else return b;
-}
-eweapon Cond(bool cond, eweapon a, eweapon b) {
-  if (cond) return a;
-  else return b;
-}
-ffc Cond(bool cond, ffc a, ffc b) {
-  if (cond) return a;
-  else return b;
-}
-itemdata Cond(bool cond, itemdata a, itemdata b) {
-  if (cond) return a;
-  else return b;
-}
+//Returns if Link is above, below, left of, or right of an eweapon.
+bool Above(eweapon n){ return Link->Y < n->Y; }
 
-// Chooses one of the options randomly and fairly.
-float Choose(float a, float b) {
-  if (Rand(2)==0) return a;
-  else return b;
-}
-
-float Choose(float a, float b, float c) {
-  int r = Rand(3);
-  if (r==0) return a;
-  else if (r==1) return b;
-  else return c;
-}
-
-float Choose(float a, float b, float c, float d) {
-  int r = Rand(4);
-  if (r==0) return a;
-  else if (r==1) return b;
-  else if (r==2) return c;
-  else return d;
-}
-
-float Choose(float a, float b, float c, float d, float e) {
-  int r = Rand(5);
-  if (r==0) return a;
-  else if (r==1) return b;
-  else if (r==2) return c;
-  else if (r==3) return d;
-  else return e;
-}
-
-float Choose(float a, float b, float c, float d, float e, float f) {
-  int r = Rand(6);
-  if (r==0) return a;
-  else if (r==1) return b;
-  else if (r==2) return c;
-  else if (r==3) return d;
-  else if (r==4) return e;
-  else return f;
-}
-
-//Returns the logarithm of x to the given base
-float LogToBase(float x, float base){
-	return Ln(x)/Ln(base);
-}
-
-//Truncates x to an integer
-int Floor(float x) {
-	if(x < 0)
-		return (x-.9999)<<0;
-	return x<<0;
-}
-
-//Raises x to the nearest integer
-int Ceiling(float x) {
-	if(x < 0)
-		return x<<0;
-	return (x+.9999)<<0;
-}
-
-//Rounds x to the nearest integer
-float Round(float x) {
-	if(x < 0)
-		return (x-.5)<<0;
-	return (x+.5)<<0;
-}
-
-//Returns true if the integer is odd (or even in IsEven)
-bool IsOdd(int x)
-{
-	return ((x & 1) == 1);
-}
-
-bool IsEven(int x)
-{
-	return ((x & 1) == 0);
-}
-
-//Clamps x to the range of low, high.
-int Clamp(int x, int low, int high) {
-    if(x<low) x=low;
-    else if(x>high) x=high;
-    return x;
-}
-
-//same as Clamp, but with reversed values.
-int VBound(int x, int high, int low) {
-    if(x<low) x=low;
-    else if(x>high) x=high;
-    return x;
-}
-
-//Returns the Quotient only of x divided by y
-int Div(float x, float y) {
-	return (x/y)<<0;
-}
-
-//Returns a random integer in the bounds of min and max
-int Rand(int min, int max) {
-    return min+(Rand((1+max)-min));
-}
-
-//Returns a random floating point number up to n
-float Randf(float n) {
-	return (Rand(0x7fff)/0x7fff)*n;
-}
-
-//Returns a random floating point number between min and max
-float Randf(float n1, float n2) {
-	return n1 + (Rand(0x7fff)/(0x7fff))*(n2-n1);
-}
-
-//Converts 'd' in degrees to radians
-float DegtoRad(float d) {
-    return d*0.0174;
-}
-
-//Converts 'r' in radians to degrees
-float RadtoDeg(float r) {
-    return r*57.2958;
-}
-
-//Returns the sign of n
-int Sign(int n) {
-	if (n > 0) return 1;
-	else if (n < 0) return -1;
-	else return 0;
-}
-
-//Finds the location of a combo, given its (x,y) coordinates on the screen
-int ComboAt(int x, int y) {
-  x = VBound(x,255,0);
-  y = VBound(y,175,0);
-  return (y & 240)+(x>>4);
-}
-
-//Snaps 'x' to the combo grid
-//Equivalent to calling ComboX(ComboAt(x,foo));
-int GridX(int x) {
-    return (x >> 4) << 4;
-}
-
-//Snaps 'y' to the combo grid
-//Equivalent to calling ComboY(ComboAt(foo,y));
-int GridY(int y) {
-    return (y >> 4) << 4;
-}
-
-
-//Returns the correct offset to be at the front of a sprite facing in the direction 'dir'
-int AtFrontX(int dir) {
-
-	int x = 0;
-	if(dir == DIR_UP || dir == DIR_DOWN) x = 8;
-	else if(dir == DIR_RIGHT) x = 16;
-	return x;
-}
-
-int AtFrontY(int dir) {
-
-	int y = 0;
-	if(dir == DIR_DOWN) y = 16;
-	else if(dir == DIR_LEFT || dir == DIR_RIGHT) y = 8;
-	return y;
-}
-
-//Returns the correct offset to be 'dist' pixels away from the front of a sprite facing in the direction 'dir'
-int InFrontX(int dir, int dist) {
-	int x = 0;
-	if(dir == DIR_LEFT) x = -16+dist;
-	else if(dir == DIR_RIGHT) x = 16-dist;
-	return x;
-}
-
-int InFrontY(int dir, int dist){
-	int y = 0;
-	if(dir == DIR_UP) y = -16+dist;
-	else if(dir == DIR_DOWN) y = 16-dist;
-	return y;
-}
-
-// Get the X and Y coordinates at the center of a sprite
-int CenterX(ffc anFFC) { return anFFC->X+8*anFFC->TileWidth; }
-int CenterY(ffc anFFC) { return anFFC->Y+8*anFFC->TileHeight; }
-int CenterX(npc anNPC) { return anNPC->X+8*anNPC->TileWidth; }
-int CenterY(npc anNPC) { return anNPC->Y+8*anNPC->TileHeight; }
-int CenterX(eweapon anEWeapon) { return anEWeapon->X+8*anEWeapon->TileWidth; }
-int CenterY(eweapon anEWeapon) { return anEWeapon->Y+8*anEWeapon->TileHeight; }
-int CenterX(lweapon anLWeapon) { return anLWeapon->X+8*anLWeapon->TileWidth; }
-int CenterY(lweapon anLWeapon) { return anLWeapon->Y+8*anLWeapon->TileHeight; }
-int CenterX(item it) { return it->X+8*it->TileWidth; }
-int CenterY(item it) { return it->Y+8*it->TileHeight; }
-int CenterLinkX() { return Link->X+8; }
-int CenterLinkY() { return Link->Y+8; }
-
-//Return the coordinates of a combo on the screen
-int ComboX(int loc) {
-	return loc%16*16;
-}
-int ComboY(int loc) {
-    return loc&0xF0;
-}
-
-//Returns true if the combo at '(x, y)' has either an inherent or place flag of type 'flag'
-bool ComboFI(int x, int y, int flag){
-
-	int loc = ComboAt(x,y);
-
-	return Screen->ComboF[loc] == flag || Screen->ComboI[loc] == flag;
-}
-
-//Returns true if the combo at 'loc' has either an inherent or place flag of type 'flag'
-bool ComboFI(int loc, int flag){
-
-	return Screen->ComboF[loc] == flag || Screen->ComboI[loc] == flag;
-}
-
-//A shorthand way to get a combo on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboC(int layer, int pos) 
-{
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboC";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboC";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (!layer) //layer 0
-	{
-		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
-		{
-			return Screen->ComboC[pos];
-		}
-		else return Game->GetComboCSet(Game->GetCurMap(), Game->GetCurScreen(), pos);
-	}
-	
-	return Game->GetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboC(int layer, int pos, int combo) 
-{
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboC";
-		TraceError(err,layer);
-		return;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboC";
-		TraceError(err,layer);
-		return;
-	}
-	if (!layer) //layer 0
-	{
-		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
-		{
-			Game->SetComboCSet(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
-			return;
-		}
-		else
-		{
-			Screen->ComboC[pos] = combo;
-			return;
-		}
-	}
-	else
-	{
-		Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-	}
-}
-
-//A shorthand way to get a combo on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboI(int layer, int pos) 
-{
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboI";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboI";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (!layer) //layer 0
-	{
-		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
-		{
-			return Screen->ComboI[pos];
-		}
-		else return Game->GetComboInherentFlag(Game->GetCurMap(), Game->GetCurScreen(), pos);
-	}
-	
-	return Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboI(int layer, int pos, int combo) 
-{
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboI";
-		TraceError(err,layer);
-		return;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboI";
-		TraceError(err,layer);
-		return;
-	}
-	if (!layer) //layer 0
-	{
-		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
-		{
-			Game->SetComboInherentFlag(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
-			return;
-		}
-		else
-		{
-			Screen->ComboI[pos] = combo;
-			return;
-		}
-	}
-	else
-	{
-		Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-	}
-}
-
-//A shorthand way to get a combo on the current layer.
-//Layer 0 is the screen itself.
-int old_GetLayerComboD(int layer, int pos) {
-  if (layer==0)
-    return Screen->ComboD[pos];
-  else
-    return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo on the current layer.
-//Layer 0 is the screen itself.
-void old_SetLayerComboD(int layer, int pos, int combo) {
-  if (layer == 0)
-    Screen->ComboD[pos] = combo;
-  else
-    Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-}
-
-//A shorthand way to get a combo on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboD(int layer, int pos) 
-{
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboD";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboD";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (!layer) //layer 0
-	{
-		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
-		{
-			return Screen->ComboD[pos];
-		}
-		else return Game->GetComboData(Game->GetCurMap(), Game->GetCurScreen(), pos);
-	}
-	
-	return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboD(int layer, int pos, int combo) 
-{
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboD";
-		TraceError(err,layer);
-		return;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboD";
-		TraceError(err,layer);
-		return;
-	}
-	if (!layer) //layer 0
-	{
-		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
-		{
-			Game->SetComboData(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
-			return;
-		}
-		else
-		{
-			Screen->ComboD[pos] = combo;
-			return;
-		}
-	}
-	else
-	{
-		Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-	}
-}
-
-//A shorthand way to get a combo flag on the current layer.
-//Layer 0 is the screen itself.
-int old_GetLayerComboF(int layer, int pos) {
-  if (layer==0)
-    return Screen->ComboF[pos];
-  else
-    return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo flag on the current layer.
-//Layer 0 is the screen itself.
-void old_SetLayerComboF(int layer, int pos, int flag) {
-  if (layer == 0)
-    Screen->ComboF[pos] = flag;
-  else
-    Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, flag);
-}
-
-//A shorthand way to get a combo on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboF(int layer, int pos) 
-{
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboF";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboF";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (!layer) //layer 0
-	{
-		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
-		{
-			return Screen->ComboF[pos];
-		}
-		else return Game->GetComboFlag(Game->GetCurMap(), Game->GetCurScreen(), pos);
-	}
-	
-	return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboF(int layer, int pos, int combo) 
-{
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboF";
-		TraceError(err,layer);
-		return;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboF";
-		TraceError(err,layer);
-		return;
-	}
-	if (!layer) //layer 0
-	{
-		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
-		{
-			Game->SetComboFlag(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
-			return;
-		}
-		else
-		{
-			Screen->ComboF[pos] = combo;
-			return;
-		}
-	}
-	else
-	{
-		Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-	}
-}
-
-//A shorthand way to get a combo type on the current layer.
-//Layer 0 is the screen itself.
-int old_GetLayerComboT(int layer, int pos) {
-  if (layer==0)
-    return Screen->ComboT[pos];
-  else
-    return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo type on the current layer.
-//Layer 0 is the screen itself.
-void old_SetLayerComboT(int layer, int pos, int type) {
-  if (layer == 0)
-    Screen->ComboT[pos] = type;
-  else
-    Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, type);
-}
-
-//A shorthand way to get a combo on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboT(int layer, int pos) 
-{
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboT";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboT";
-		TraceError(err,layer);
-		return -1;
-	}
-	
-	if (!layer) //layer 0
-	{
-		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
-		{
-			return Screen->ComboT[pos];
-		}
-		else return Game->GetComboType(Game->GetCurMap(), Game->GetCurScreen(), pos);
-	}
-	
-	return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-
-}
-
-//A shorthand way to set a combo on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboT(int layer, int pos, int combo) 
-{
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboT";
-		TraceError(err,layer);
-		return;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboT";
-		TraceError(err,layer);
-		return;
-	}
-	
-	if (!layer) //layer 0
-	{
-		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
-		{
-			Game->SetComboType(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
-			return;
-		}
-		else
-		{
-			Screen->ComboT[pos] = combo;
-			return;
-		}
-	}
-	else
-	{
-		Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-	}
-	
-}
-
-//A shorthand way to get a combo's solidity on the current layer.
-//Layer 0 is the screen itself.
-int old_GetLayerComboS(int layer, int pos) {
-  if (layer==0)
-    return Screen->ComboS[pos];
-  else if(Screen->LayerMap(layer)<0)
-    // Special case for this one: return 0 if there's no layer
-    return 0;
-  else
-    return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo's solidity on the current layer.
-//Layer 0 is the screen itself.
-void old_SetLayerComboS(int layer, int pos, int solidity) {
-  if (layer == 0)
-    Screen->ComboS[pos] = solidity;
-  else
-    Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
-}
-
-//A shorthand way to get a combo on the current layer.
-//Layer 0 is the screen itself.
-int GetLayerComboS(int layer, int pos) 
-{
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to GetLayerComboS";
-		TraceError(err,layer);
-		return -1;
-	}
-	if (layer > 6 )
-	{	
-		int err[]="Invalid layer passed to GetLayerComboS";
-		TraceError(err,layer);
-		return -1;
-	}
-	
-	if (!layer) //layer 0
-	{
-		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
-		{
-			return Screen->ComboS[pos];
-		}
-		else return Game->GetComboSolid(Game->GetCurMap(), Game->GetCurScreen(), pos);
-	}
-	
-	return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
-}
-
-//A shorthand way to set a combo on the current layer.
-//Layer 0 is the screen itself.
-void SetLayerComboS(int layer, int pos, int combo) 
-{
-	if (layer < 0 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboS";
-		TraceError(err,layer);
-		return;
-	}
-	if (layer > 6 )
-	{
-		int err[]="Invalid layer passed to SetLayerComboS";
-		TraceError(err,layer);
-		return;
-	}
-	
-	if (!layer) //layer 0
-	{
-		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
-		{
-			Game->SetComboSolid(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
-			return;
-		}
-		else
-		{
-			Screen->ComboS[pos] = combo;
-			return;
-		}
-	}
-	else
-	{
-		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
-	}
-}
-
-
-//Sets bit 'bit' of Screen->D[] register 'd' to 'state'
-void SetScreenDBit(int dmap, int screen, int d, int bit, bool state){
-	int curstate = Game->GetDMapScreenD(dmap, screen, d);
-	if(state)	Game->SetDMapScreenD(dmap, screen, d, curstate |  (1 << bit));
-	else 		Game->SetDMapScreenD(dmap, screen, d, curstate & ~(1 << bit));
-}
-void SetScreenDBit(int screen, int d, int bit, bool state){
-	int curstate = Game->GetScreenD(screen, d);
-	if(state)	Game->SetScreenD(screen, d, curstate |  (1 << bit));
-	else 		Game->SetScreenD(screen, d, curstate & ~(1 << bit));
-}
-void SetScreenDBit(int d, int bit, bool state){
-    if(state)	Screen->D[d] |= (1 << bit);
-    else		Screen->D[d] &= ~(1 << bit);
-}
-
-//Returns the state of bit 'bit' of Screen->D[] register 'd'
-bool GetScreenDBit(int dmap, int screen, int d, int bit){
-	return ( Game->GetDMapScreenD(dmap, screen, d) & (1 << bit) );
-}
-bool GetScreenDBit(int screen, int d, int bit){
-	return ( Game->GetScreenD(screen, d) & (1 << bit) );
-}
-bool GetScreenDBit(int d, int bit){
-    return (Screen->D[d] & (1 << bit));
-}
-
-
-//Copies the combos and csets from one screen to another.
-//Only copies layer 0!
-void ScreenCopy(int destmap, int destscr, int srcmap, int srcscr) {
-  for (int i = 0; i < 176; i++) {
-    Game->SetComboData(destmap,destscr, i, Game->GetComboData(srcmap,srcscr,i));
-    Game->SetComboCSet(destmap,destscr, i, Game->GetComboCSet(srcmap,srcscr,i));
-  }
-}
-
-//Swaps a row of tiles of length 'length' between positions 'first' and 'second'
-void SwapTileRow(int first, int second, int length){
-	for(int i=0;i<length;i++) SwapTile(first+i,second+i);
-}
-
-//Copies a row of tiles of length 'length' from 'source' onto 'dest'
-void CopyTileRow(int source, int dest, int length){
-	for(int i=0;i<length;i++) CopyTile(source+i,dest+i);
-}
-
-//Clears a row of tiles of length 'length' starting from tile 'ref'
-void ClearTileRow(int ref, int length){
-	for(int i=0;i<length;i++) ClearTile(ref+i);
-}
-
-//Swaps a block of tiles defined by diagonal corners 'first' and 'last'
-//with the block starting with top left tile 'second'
-void SwapTileBlock(int first, int last, int second){
-	if(last < first){
-		int swap = first;
-		first = last;
-		last = swap;
-	}
-	int w = last%20-first%20;
-	if(w < 0){
-		first -= w;
-		last += w;
-		w = -w;
-	}
-	for(int i=0;i<=last-first;i++) if(i%20 <= w) SwapTile(first+i,second+i);
-}
-
-//Copies a block of tiles defined by diagonal corners 'sourcefirst' and 'sourcelast'
-//onto the block starting with top left tile 'destfirst'
-void CopyTileBlock(int sourcefirst, int sourcelast, int destfirst){
-	if(sourcelast < sourcefirst){
-		int swap = sourcefirst;
-		sourcefirst = sourcelast;
-		sourcelast = swap;
-	}
-	int w = sourcelast%20-sourcefirst%20;
-	if(w < 0){
-		sourcefirst -= w;
-		sourcelast += w;
-		w = -w;
-	}
-	for(int i=0;i<=sourcelast-sourcefirst;i++) if(i%20 <= w) CopyTile(sourcefirst+i,destfirst+i);
-}
-
-//Clears a block of tiles defined by diagonal corners 'reffirst' and 'reflast'
-void ClearTileBlock(int reffirst, int reflast){
-	if(reflast < reffirst){
-		int swap = reffirst;
-		reffirst = reflast;
-		reflast = swap;
-	}
-	int w = reflast%20-reffirst%20;
-	if(w < 0){
-		reffirst -= w;
-		reflast += w;
-		w = -w;
-	}
-	for(int i=0;i<=reflast-reffirst;i++) if(i%20 <= w) ClearTile(reffirst+i);
-}
-
-
-//Overload to Screen->DrawString which includes a position to start drawing from in the string
-//Does not check for overflow
-void DrawString(int layer, int x, int y, int font, int color, int background_color, int format, int opacity,
-				int string, int start){
-	int buffer[256];
-	for(int i=start;string[i]!=0;i++) buffer[i-start] = string[i];
-	Screen->DrawString(layer,x,y,font,color,background_color,format,opacity,buffer);
-}
-
-//Overload to Screen->DrawString which includes a start and end position to draw the string
-//Does not check for overflow
-void DrawString(int layer, int x, int y, int font, int color, int background_color, int format, int opacity,
-				int string, int start, int end){
-	int buffer[256];
-	for(int i=start;i<end;i++) buffer[i-start] = string[i];
-	Screen->DrawString(layer,x,y,font,color,background_color,format,opacity,buffer);
-}
-
-
-// A very simple layer 0 tile drawing routine.
-void DrawTileSimple(int x, int y, int tile, int color)
-{
-
-	Screen->FastTile(0, x, y, tile, color, 128);
-}
-
-
-//Returns the distance between two sets of coordinates using Pythagoras' Theorem
-float Distance(int x1, int y1, int x2, int y2) {
- int x = (x1-x2);
- int y = (y1-y2);
- return Sqrt(x*x+y*y);
-}
-
-//Returns the direction of the vector from point 1 to point 2, in degrees from -180 to 180. (0 = right)
-float Angle(int x1, int y1, int x2, int y2) {
-  return ArcTan(x2-x1, y2-y1)*57.2958;
-}
-
-//The above, but in radians.
-float RadianAngle(int x1, int y1, int x2, int y2) {
-  return ArcTan(x2-x1, y2-y1);
-}
-
-// Returns the X component of a vector with a degree angle.
-// A length of 3 and angle of 0 returns 3.
-// A length of 3 and angle of 45 returns approx. 1.57.
-// A length of 3 and angle of 90 returns 0.
-float VectorX(int len, float angle) {
-  return Cos(angle)*len;
-}
-
-// Returns the Y component of a vector with a degree angle.
-// A length of 3 and angle of 0 returns 0.
-// A length of 3 and angle of 45 returns approx. 1.57.
-// A length of 3 and angle of 90 returns 3.
-float VectorY(int len, float angle) {
-  return Sin(angle)*len;
-}
-
-//rotates X about a center point by an amount of degrees
-float RotatePointX(float x, float y, float centerX, float centerY, float degrees) 
-{
-  
-	if ( REVISED_ROTATEPOINT_X_FUNCTION )
-	{
-		int distance = LargeDistance(centerX, centerY, x, y, 10);
-		int angle = Angle(centerX, centerY, x, y);
-		return centerX+VectorX(distance, angle+degrees);
-	}
-	else
-	{
-		float dx = x - centerX;
-		float dy = y - centerY;
-		return (Cos(degrees) * dx) - (Sin(degrees) * dy) + centerX;
-	}
-}
-
-//rotates Y about a center point by an amount of degrees
-float RotatePointY(float x, float y, float centerX, float centerY, float degrees) 
-{
-	if ( REVISED_ROTATEPOINT_Y_FUNCTION )
-	{
-		int distance = LargeDistance(centerX, centerY, x, y, 10);
-		int angle = Angle(centerX, centerY, x, y);
-		return centerY+VectorY(distance, angle+degrees);
-	}
-	else
-	{
-		float dx = x - centerX;
-		float dy = y - centerY;
-		return (Sin(degrees) * dx) - (Cos(degrees) * dy) + centerY;
-	}
-}
-
-//scales X to centerX by a given scale
-float ScalePointX(float x, float centerX, float scale) {
-  return (scale * (x - centerX)) + centerX; 
-}
-
-//scales Y to centerY by a given scale
-float ScalePointY(float y, float centerY, float scale) {
-  return (scale * (y - centerY)) + centerY; 
-}
-
-//rotates and scales X about a center point by an amount of degrees
-float RotateScalePointX(float x, float y, float centerX, float centerY, float degrees, float scaleX, float scaleY) {
-  float dx = (x - centerX) * scaleX;
-  float dy = (y - centerY) * scaleY;
-  return (Cos(degrees) * dx) - (Sin(degrees) * dy) + centerX;
-}
-
-//rotates and scales Y about a center point by an amount of degrees
-float RotateScalePointY(float x, float y, float centerX, float centerY, float degrees, float scaleX, float scaleY) {
-  float dx = (x - centerX) * scaleX;
-  float dy = (y - centerY) * scaleY;
-  return (Sin(degrees) * dx) - (Cos(degrees) * dy) + centerY;
-}
-
-
-// Interpolates between p1 and p2 given 't' clamped within range 0,1.
-float Lerp(float p1, float p2, float t) {
-  return (p1 + (p2 - p1) * t);
-}
-
-// Returns the dot product of two vectors.
-float DotProduct( float x1, float y1, float x2, float y2 ) {
-  return (x1 * x2 + y1 * y2);
-}
-
-// Returns the cross product of two vectors.
-float CrossProduct( float x1, float y1, float x2, float y2 ) {
-  return (x1 * y2 - y1 * x2);
-}
-
-// Returns the squared distance of a vector.
-float DistanceSquared( float x, float y ) {
-  return (x * x + y * y);
-}
-
-// Finds the center of p1 and p2.
-float Midpoint(float p1, float p2) {
-  return Lerp(p1, p2, 0.5);
-}
-
-// Performs a "Smooth" Interpolation given 't' clamped within range 0,1.
-float SmoothStep(float p1, float p2, float t) {
-  t = (t * t) * (3.0 - (2.0 * t));
-  return Lerp(p1, p2, t);
-}
-
-// Returns an angle pointing (t)percentage more accurate to the target than the specified radian_angle.
-float TurnTowards( int X, int Y, int targetX, int targetY, float radian_angle, float t ) {
-  float a = ArcTan( targetX - X, targetY - Y );
-  float d = WrapAngle(a - radian_angle);
-  if ( d > PI )
-    d =-( PI2 - d );
-  else if ( d < -PI )
-    d = PI2 + d;
-  return WrapAngle(radian_angle + d * t);
-}
-
-// Wraps radian value towards the range of -PI,PI.
-float WrapAngle( float radians ) {
-  while (radians <= -PI) radians += PI2;
-  while (radians > PI) radians -= PI2;
-  return radians;
-}
-
-// Wraps degree value towards the range of -180,180.
-float WrapDegrees( float degrees ) {
-  while (degrees <= -180) degrees += 360;
-  while (degrees > 180) degrees -= 360;
-  return degrees;
-}
-
-// Converts a counterclockwise degree angle (from -180 to 180) into one of the eight
-// standard directions (DIR_UP etc.) used by ZC.
-int AngleDir8(float angle) {
-  if (angle <= 157.5 && angle > 112.5)
-    return DIR_LEFTDOWN;
-  else if (angle <= 112.5 && angle > 67.5)
-    return DIR_DOWN;
-  else if (angle <= 67.5 && angle > 22.5)
-    return DIR_RIGHTDOWN;
-  else if (angle <= 22.5 && angle > -22.5)
-    return DIR_RIGHT;
-  else if (angle <= -22.5 && angle > -67.5)
-    return DIR_RIGHTUP;
-  else if (angle <= -67.5 && angle > -112.5)
-    return DIR_UP;
-  else if (angle <= -112.5 && angle > -157.5)
-    return DIR_LEFTUP;
-  else
-    return DIR_LEFT;
-}
-
-//The above, but for radian angles.
-int RadianAngleDir8(float angle) {
-  return AngleDir8(angle*57.2958);
-}
-
-// Converts a counterclockwise degree angle (from -180 to 180) into one of the four
-// standard directions (DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT) used by ZC.
-int AngleDir4(float angle) {
-  if (angle <= 135 && angle > 45)
-    return DIR_DOWN;
-  else if (angle <= 45 && angle > -45)
-    return DIR_RIGHT;
-  else if (angle <= -45 && angle > -135)
-    return DIR_UP;
-  else
-    return DIR_LEFT;
-}
-
-//The above, but for radian angles.
-int RadianAngleDir4(float angle) {
-  return AngleDir4(angle*57.2958);
-}
-
-//Returns the opposite direction to angle 'dir'
-int OppositeDir(int dir) {
-	return Cond(dir < 4, dir^1b, dir^11b);
-}
-
-//Converts directions to go round in a circle rather than U, D, L, R
-int SpinDir(int dir) {
-    if(dir==0)
-        return DIR_UP;
-    else if(dir==1)
-        return DIR_RIGHT;
-    else if(dir==2)
-        return DIR_DOWN;
-    else if(dir==3)
-        return DIR_LEFT;
-	return -1;
-}
-
-//Draws an ffc to a given layer. If the ffc is larger than 1x1 its graphics must all be comboed
-void DrawToLayer(ffc f, int layer, int opacity){
-	Screen->DrawCombo(layer,f->X,f->Y,f->Data,f->TileWidth,f->TileHeight,f->CSet,-1,-1,0,0,0,-1,0,true,opacity);
-}
-
-//Draws an npc to a given layer
-void DrawToLayer(npc n, int layer, int opacity){
-	Screen->DrawTile(layer,n->X,n->Y,n->Tile,n->TileWidth,n->TileHeight,n->CSet,-1,-1,0,0,0,0,true,opacity);
-}
-
-//Draws an lweapon to a given layer
-void DrawToLayer(lweapon l, int layer, int opacity){
-	Screen->DrawTile(layer,l->X,l->Y,l->Tile,l->TileWidth,l->TileHeight,l->CSet,-1,-1,0,0,0,0,true,opacity);
-}
-
-//Draws an eweapon to a given layer
-void DrawToLayer(eweapon e, int layer, int opacity){
-	Screen->DrawTile(layer,e->X,e->Y,e->Tile,e->TileWidth,e->TileHeight,e->CSet,-1,-1,0,0,0,0,true,opacity);
-}
-
-//Draws an item to a given layer
-void DrawToLayer(item i, int layer, int opacity){
-	Screen->DrawTile(layer,i->X,i->Y,i->Tile,i->TileWidth,i->TileHeight,i->CSet,-1,-1,0,0,0,0,true,opacity);
-}
-
-//Generalized and optimized rectangle collision checking function.
-//Returns true if the bounding box of box1 and box2 overlap.
-bool RectCollision(int box1_x1, int box1_y1, int box1_x2, int box1_y2, int box2_x1, int box2_y1, int box2_x2, int box2_y2) {
-  if( box1_y2 < box2_y1 ) return false;
-  else if( box1_y1 > box2_y2 ) return false;
-  else if( box1_x2 < box2_x1 ) return false;
-  else if( box1_x1 > box2_x2 ) return false;
-  return true;
-}
-
-//Check for collisions of two squares given upper-left coordinates and a side length for each.
-bool SquareCollision(int c1x, int c1y, int side1, int c2x, int c2y, int side2) {
-  return RectCollision(c1x, c1y, c1x+side1, c1y+side1, c2x, c2y, c2x+side2, c2y+side2);
-}
-
-//Check for collisions of two squares given center coordinates and a halved side length for each.
-bool SquareCollision2(int c1x, int c1y, int radius1, int c2x, int c2y, int radius2) {
-  if( c1y + radius1 < c2y - radius2 ) return false;
-  else if( c1y - radius1 > c2y + radius2 ) return false;
-  else if( c1x + radius1 < c2x - radius2 ) return false;
-  else if( c1x - radius1 > c2x + radius2 ) return false;
-  return true;
-}
-
-//Returns true if the two circles c1 and c2 overlap.
-bool CircleCollision(int c1x, int c1y, int radius1, int c2x, int c2y, int radius2) {
-  return (Distance(c1x,c1y,c2x,c2y) <= (radius1+radius2));
-}
-
-//Returns true if there is a collision between the hitboxes of an lweapon and an eweapon.
-bool Collision(lweapon a, eweapon b) {
-  int ax = a->X + a->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = a->Y + a->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an lweapon and an lweapon.
-bool Collision(lweapon a, lweapon b) {
-  int ax = a->X + a->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = a->Y + a->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an eweapon and an eweapon.
-bool Collision(eweapon a, eweapon b) {
-  int ax = a->X + a->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = a->Y + a->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an lweapon and an npc.
-bool Collision(lweapon a, npc b) {
-  int ax = a->X + a->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = a->Y + a->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an eweapon and an npc.
-bool Collision(eweapon a, npc b) {
-  int ax = a->X + a->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = a->Y + a->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an npc and an npc.
-bool Collision(npc a, npc b) {
-  int ax = a->X + a->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = a->Y + a->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an item and an lweapon.
-bool Collision(item a, lweapon b) {
-  int ax = a->X + a->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = a->Y + a->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an item and an eweapon.
-bool Collision(item a, eweapon b) {
-  int ax = a->X + a->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = a->Y + a->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an item and an npc.
-bool Collision(item a, npc b) {
-  int ax = a->X + a->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = a->Y + a->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an item and an item.
-bool Collision(item a, item b) {
-  int ax = a->X + a->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = a->Y + a->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
-}
-
-//A collision between an ffc and an lweapon. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
-bool Collision(ffc f, lweapon b) {
-  int bx = b->X + b->HitXOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), bx, by, bx+b->HitWidth, by+b->HitHeight);
-}
-
-//A collision between an ffc and an eweapon. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
-bool Collision(ffc f, eweapon b) {
-  int bx = b->X + b->HitXOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), bx, by, bx+b->HitWidth, by+b->HitHeight);
-}
-
-//A collision between an ffc and an npc. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
-bool Collision(ffc f, npc b) {
-  int bx = b->X + b->HitXOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), bx, by, bx+b->HitWidth, by+b->HitHeight);
-}
-
-//A collision between an ffc and an item. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
-bool Collision(ffc f, item b) {
-  int bx = b->X + b->HitXOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), bx, by, bx+b->HitWidth, by+b->HitHeight);
-}
-
-//A collision between an ffc and an ffc. Uses TileWidth and TileHeight for the FFCs' bounding boxes.
-bool Collision(ffc f, ffc f2) {
-  return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), f2->X, f2->Y, f2->X+f2->TileWidth*16, f2->Y+f2->TileHeight*16);
-}
-
-//A circular collision between an ffc and an ffc. Uses TileWidth and TileHeight to find the centre of the FFCs.
-bool Collision(ffc f, int radius1, ffc f2, int radius2) {
-    return CircleCollision(f->X+f->TileWidth/2, f->Y+f->TileHeight/2, radius1,f2->X+f2->TileWidth/2, f2->Y+f2->TileHeight/2, radius2);
-}
-
-// So that you don't have to remember the ordering of the args
-bool Collision(eweapon a, lweapon b) {
-  return Collision(b, a);
-}
-
-bool Collision(npc a, lweapon b) {
-  return Collision(b, a);
-}
-
-bool Collision(npc a, eweapon b) {
-  return Collision(b, a);
-}
-
-bool Collision(lweapon a, item b) {
-  return Collision(b, a);
-}
-
-bool Collision(eweapon a, item b) {
-  return Collision(b, a);
-}
-
-bool Collision(npc a, item b) {
-  return Collision(b, a);
-}
-
-bool Collision(lweapon a, ffc b) {
-  return Collision(b, a);
-}
-
-bool Collision(eweapon a, ffc b) {
-  return Collision(b, a);
-}
-
-bool Collision(npc a, ffc b) {
-  return Collision(b, a);
-}
-
-bool Collision(item a, ffc b) {
-  return Collision(b, a);
-}
-
-// Returns true if there is a collision between Link's hitbox and the eweapon's.
-// This only checks hitboxes.
-bool LinkCollision(eweapon b) {
-  int ax = Link->X + Link->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = Link->Y + Link->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the lweapon's.
-// This only checks hitboxes.
-bool LinkCollision(lweapon b) {
-  int ax = Link->X + Link->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = Link->Y + Link->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the item's.
-// This only checks hitboxes.
-bool LinkCollision(item b) {
-  int ax = Link->X + Link->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = Link->Y + Link->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the npc's.
-// This only checks hitboxes.  Uses TileWidth and TileHeight to find the centre of the FFCs.
-bool LinkCollision(npc b) {
-  int ax = Link->X + Link->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = Link->Y + Link->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the FFC's.
-// This only checks hitboxes.
-bool LinkCollision(ffc f) {
-  int ax = Link->X + Link->HitXOffset;
-  int ay = Link->Y + Link->HitYOffset;
-  return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the eweapon's.
-// This only checks hitboxes.
-bool Collision(eweapon b) {
-  int ax = Link->X + Link->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = Link->Y + Link->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the lweapon's.
-// This only checks hitboxes.
-bool Collision(lweapon b) {
-  int ax = Link->X + Link->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = Link->Y + Link->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the item's.
-// This only checks hitboxes.
-bool Collision(item b) {
-  int ax = Link->X + Link->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = Link->Y + Link->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the npc's.
-// This only checks hitboxes.  Uses TileWidth and TileHeight to find the centre of the FFCs.
-bool Collision(npc b) {
-  int ax = Link->X + Link->HitXOffset;
-  int bx = b->X + b->HitXOffset;
-  int ay = Link->Y + Link->HitYOffset;
-  int by = b->Y + b->HitYOffset;
-  return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
-}
-
-// Returns true if there is a collision between Link's hitbox and the FFC's.
-// This only checks hitboxes.
-bool Collision(ffc f) {
-  int ax = Link->X + Link->HitXOffset;
-  int ay = Link->Y + Link->HitYOffset;
-  return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
-}
-
-// Returns the X coordinate of the left edge of the hitbox.
-int HitboxLeft(eweapon a) {
-  return (a->X + a->HitXOffset);
-}
-
-int HitboxLeft(lweapon a) {
-  return (a->X + a->HitXOffset);
-}
-
-int HitboxLeft(item a) {
-  return (a->X + a->HitXOffset);
-}
-
-int HitboxLeft(npc a) {
-  return (a->X + a->HitXOffset);
-}
-
-int HitboxLeft(ffc a) {
-  return a->X;
-}
-
-// Returns the X coordinate of the right edge of the hitbox.
-int HitboxRight(eweapon a) {
-  return (a->X + a->HitXOffset + a->HitWidth - 1);
-}
-
-int HitboxRight(lweapon a) {
-  return (a->X + a->HitXOffset + a->HitWidth - 1);
-}
-
-int HitboxRight(item a) {
-  return (a->X + a->HitXOffset + a->HitWidth - 1);
-}
-
-int HitboxRight(npc a) {
-  return (a->X + a->HitXOffset + a->HitWidth - 1);
-}
-
-int HitboxRight(ffc a) {
-  return a->X + a->TileWidth*16 - 1;
-}
-
-// Returns the Y coordinate of the top edge of the hitbox.
-int HitboxTop(eweapon a) {
-  return (a->Y + a->HitYOffset);
-}
-
-int HitboxTop(lweapon a) {
-  return (a->Y + a->HitYOffset);
-}
-
-int HitboxTop(item a) {
-  return (a->Y + a->HitYOffset);
-}
-
-int HitboxTop(npc a) {
-  return (a->Y + a->HitYOffset);
-}
-
-int HitboxTop(ffc a) {
-  return a->Y;
-}
-
-// Returns the Y coordinate of the bottom edge of the hitbox.
-int HitboxBottom(eweapon a) {
-  return (a->Y + a->HitYOffset + a->HitHeight - 1);
-}
-
-int HitboxBottom(lweapon a) {
-  return (a->Y + a->HitYOffset + a->HitHeight - 1);
-}
-
-int HitboxBottom(item a) {
-  return (a->Y + a->HitYOffset + a->HitHeight - 1);
-}
-
-int HitboxBottom(npc a) {
-  return (a->Y + a->HitYOffset + a->HitHeight - 1);
-}
-
-//Uses TileWidth and TileHeight for the FFC's bounding box. 
-int HitboxBottom(ffc a) {
-  return a->Y + (a->TileHeight*16) - 1;
-}
-
-//Returns the number of an FFC, and -1 for a non-valid FFC (which should never happen)
-int FFCNum(ffc f) {
-    for(int i=1; i<=32; i++)
-      if(f == Screen->LoadFFC(i))
-        return i;
-    return -1;
-}
-
-//Functions for those who are not comfortable with binary
-//Returns true if the left mouse button is pressed
-bool InputLeftClick() {
-	return (Link->InputMouseB&MB_LEFTCLICK);
-}
-
-//Returns true if the right mouse button is pressed
-bool InputRightClick() {
-	return (Link->InputMouseB&MB_RIGHTCLICK);
-}
-
-//Returns the item ID of the item equipped to Link's A button
-int GetEquipmentA() {
-	return (Link->Equipment&0xFF);
-}
-
-
-
-//Returns the item ID of the item equipped to Link's B button
-int GetEquipmentB() {
-	return ((Link->Equipment&0xFF00)>>8);
-}
-
-//Returns true if Link is using item 'id'
-bool UsingItem(int id){
-	return (GetEquipmentA() == id && Link->InputA) || (GetEquipmentB() == id && Link->InputB);
-}
-
-//Returns the number of Triforce Pieces Link currently has
-int NumTriforcePieces(){
-    int ret = 0;
-    for(int i=1;i<=8;i++)
-        if(Game->LItems[i]&LI_TRIFORCE) ret++;
-    return ret;
-}
-
-//Returns 1 if Screen Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
-//Flags are numbered starting from 0
-int ScreenFlag(int category, int flag) {
-	int catsizes[] = {3,7,4,5,2,4,4,2,3,7}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
-	//int catsizes[] = {3,7,5,3,2,4,4,2,3,7}; //old value, plain wrong -Z ( 12th February, 2019 )
-	if(flag < 0 || flag >= catsizes[category]) return -1;
-	return Screen->Flags[category]&(1<<flag);
-}
-
-//Returns 1 if Screen Enemy Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
-//Flags are numbered starting from 0
-int ScreenEFlag(int category, int flag) {
-	int catsizes[] = {5,5,4}; //this is what the editor shows. 
-	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
-	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
-	if(flag < 0 || flag >= catsizes[category]) return -1;
-	return Screen->EFlags[category]&(1<<flag);
-}
-
-//Returns true if DMap Flag 'flag' is set on dmap 'dmap'
-bool GetDMapFlag(int dmap, int flag){
-	return (Game->DMapFlags[dmap]&flag);
-}
-
-//Sets a certain DMap flag to 'state'
-void SetDMapFlag(int dmap, int flag, bool state){
-	if(state) Game->DMapFlags[dmap] |= flag;
-	else Game->DMapFlags[dmap] &= ~flag;
-}
-
-//Returns true if an item's Pickup state is set
-//Use the IP_ constants for the 'pickup' argument of this function
-bool GetItemPickup(item i, int pickup) {
-	return (i->Pickup&pickup);
-}
-
-//Sets an item's Pickup state to 'state'
-void SetItemPickup(item i, int pickup, bool state) {
-	if(state) i->Pickup |= pickup;
-	else i->Pickup &= ~pickup;
-}
-
-//Returns true if an npc's Misc. flag is set.
-bool GetNPCMiscFlag(npc e, int flag) {
-	return (e->MiscFlags&flag);
-}
-
-//Returns true if Link has the level item 'itm' from level 'level'
-//Overloaded to use the current level if no 'level' arg is entered
-//Use the LI_ constants for the 'itm' argument
-bool GetLevelItem(int level, int itm) {
-	return (Game->LItems[level]&itm);
-}
-bool GetLevelItem(int itm) {
-	return (Game->LItems[Game->GetCurLevel()]&itm);
-}
-//Gives or removes a level item from Link's inventory
-void SetLevelItem(int level, int itm, bool state) {
-	if(state) Game->LItems[level] |= itm;
-	else Game->LItems[level] &= ~itm;
-}
-void SetLevelItem(int itm, bool state) {
-	if(state) Game->LItems[Game->GetCurLevel()] |= itm;
-	else Game->LItems[Game->GetCurLevel()] &= ~itm;
-}
-
-//Create an NPC and set its X and Y position in one command
-npc CreateNPCAt(int id, int x, int y) {
-  npc nme = Screen->CreateNPC(id);
-  if(nme->isValid()) {
-    nme->X = x;
-    nme->Y = y;
-  }
-  return nme;
-}
-
-//Create an Item and set its X and Y position in one command
-item CreateItemAt(int id, int x, int y) {
-  item it = Screen->CreateItem(id);
-  if(it->isValid()) {
-    it->X = x;
-    it->Y = y;
-  }
-  return it;
-}
-
-//Create an LWeapon and set its X and Y position in one command
-lweapon CreateLWeaponAt(int id, int x, int y) {
-  lweapon lw = Screen->CreateLWeapon(id);
-  if(lw->isValid()) {
-    lw->X = x;
-    lw->Y = y;
-  }
-  return lw;
-}
-
-//Create an EWeapon and set its X and Y position in one command
-eweapon CreateEWeaponAt(int id, int x, int y) {
-  eweapon ew = Screen->CreateEWeapon(id);
-  if(ew->isValid()) {
-    ew->X = x;
-    ew->Y = y;
-  }
-  return ew;
-}
-
-
-//Creates an lweapon at 'distx,disty' away from where Link is facing
-lweapon NextToLink(int id, int distx, int disty) {
-	lweapon l = CreateLWeaponAt(id, Link->X+InFrontX(Link->Dir, distx), Link->Y+InFrontY(Link->Dir, disty));
-	if(l->isValid()) {
-    	l->Dir = Link->Dir;
-	}
-	return l;
-}
-
-//Creates an lweapon 'dist' pixels away from the front of Link
-lweapon NextToLink(int id, int dist) {
-	return NextToLink(id, dist, dist);
-}
-
-eweapon NextToNPC(npc n, int id, int distx, int disty) {
-	eweapon e = CreateEWeaponAt(id, n->X+InFrontX(n->Dir, distx), n->Y+InFrontY(n->Dir, disty));
-	if(e->isValid()) {
-    	e->Dir = n->Dir;
-	}
-	return e;
-}
-eweapon NextToNPC(npc n, int id, int dist) {
-	return NextToNPC(n, id, dist, dist);
-}
-
-
+//Returns if Link is above, below, left of, or right of an lweapon.
+bool Above(lweapon n){ return Link->Y < n->Y; }
 
 //Various methods for shooting at Link and at random
 void AimEWeapon(eweapon e, int aimtype)
@@ -1717,357 +88,81 @@ void AimLWeapon(lweapon l, int aimtype)
 	}
 }
 
-//Turns a WPN_ constant to an EW_ constant
-int WeaponTypeToID(int wpnt)
+//Returns the direction of the vector from point 1 to point 2, in degrees from -180 to 180. (0 = right)
+float Angle(int x1, int y1, int x2, int y2) 
 {
-	if(wpnt == WPN_ENEMYFLAME) 		return EW_FIRE;
-	else if(wpnt == WPN_ENEMYWIND)		return EW_WIND;
-	else if(wpnt == WPN_ENEMYFIREBALL)	return EW_FIREBALL;
-	else if(wpnt == WPN_ENEMYARROW)		return EW_ARROW;
-	else if(wpnt == WPN_ENEMYBRANG)		return EW_BRANG;
-	else if(wpnt == WPN_ENEMYSWORD)		return EW_BEAM;
-	else if(wpnt == WPN_ENEMYROCK)		return EW_ROCK;
-	else if(wpnt == WPN_ENEMYMAGIC)		return EW_MAGIC;
-	else if(wpnt == WPN_ENEMYBOMB)		return EW_BOMBBLAST; //flipped bomb and lit bomb in older versions of this file. -Z ( 12th February, 2019 )
-	else if(wpnt == WPN_ENEMYSBOMB)		return EW_SBOMB;
-	else if(wpnt == WPN_ENEMYLITBOMB)	return EW_BOMB;
-	else if(wpnt == WPN_ENEMYLITSBOMB)	return EW_SBOMBBLAST;
-	else if(wpnt == WPN_ENEMYFIRETRAIL)	return EW_FIRETRAIL;
-	else if(wpnt == WPN_ENEMYFLAME2)	return EW_FIRE2;
-	else if(wpnt == WPN_ENEMYFIREBALL2)	return EW_FIREBALL2;
-	return -1;
+	return ArcTan(x2-x1, y2-y1)*57.2958;
 }
 
-
-//Removes LWeapon 'l' from the screen
-void Remove(lweapon l){
-	if(!l->isValid()) return;
-	l->DeadState = WDS_DEAD;
-	l->X = 32768;
-}
-
-//Removes EWeapon 'e' from the screen
-void Remove(eweapon e){
-	if(!e->isValid()) return;
-	e->DeadState = WDS_DEAD;
-	e->X = 32768;
-}
-
-//Removes Item 'i' from the screen
-void Remove(item i){
-	if(!i->isValid()) return;
-	i->X = 32768;
-}
-
-//Removes NPC 'n' from the screen
-void Remove(npc n){
-	if(!n->isValid()) return;
-	n->X = 32768;
-	n->HP = -1000;
-}
-
-//Creates a timeout item (like a rupee or heart)
-item CreateTimeoutItem(int id, int x, int y) {
-	item Spawn = Screen->CreateItem(id);
-	SetItemPickup(Spawn, IP_TIMEOUT, true);
-	Spawn->HitWidth = 16; Spawn->HitHeight = 16;
-	Spawn->X = x; Spawn->Y = y;
-}
-
-// Use the I_ constants.
-// Warning: these iterate over every onscreen item.
-// Iterating over every onscreen lweapon multiple times per frame may
-// cause slowdown in Zelda Classic.
-int NumItemsOf(int type) {
- int ret = 0;
- item it;
- for (int i = Screen->NumItems(); i >0 ; i--) {
-  it = Screen->LoadItem(i);
-  if (it->ID == type)
-   ret++;
- }
- return ret;
-}
-
-
-// Use the LW_ constants.
-// Warning: these iterate over every onscreen lweapon.
-// Iterating over every onscreen lweapon multiple times per frame may
-// cause slowdown in Zelda Classic.
-int NumLWeaponsOf(int type) {
- int ret = 0;
- lweapon w;
- for (int i = Screen->NumLWeapons(); i > 0; i--) {
-  w = Screen->LoadLWeapon(i);
-  if (w->ID == type)
-   ret++;
- }
- return ret;
-}
-
-int NumEWeaponsOf(int type) {
- int ret = 0;
- eweapon w;
- for (int i = Screen->NumEWeapons(); i > 0; i--) {
-  w = Screen->LoadEWeapon(i);
-  if (w->ID == type)
-   ret++;
- }
- return ret;
-}
-
-int NumNPCsOf(int type) {
- int ret = 0;
- npc n;
- for (int i = Screen->NumNPCs(); i > 0 ; i--) {
-  n = Screen->LoadNPC(i);
-  if (n->ID == type)
-   ret++;
- }
- return ret;
-}
-
-// Returns the first LWeapon of the given type. Use the LW_ constants.
-// If none exist, it returns an uninitialised pointer.
-lweapon LoadLWeaponOf(int type) {
- lweapon w;
- for (int i=1; i <= Screen->NumLWeapons(); i++) {
-  w = Screen->LoadLWeapon(i);
-  if (w->ID == type) return w;
- }
- lweapon w2;
- return w2;
-}
-
-// Returns the first EWeapon of the given type. Use the EW_ constants.
-// If none exist, it returns an uninitialised pointer.
-eweapon LoadEWeaponOf(int type) {
- eweapon w;
- for (int i=1; i <= Screen->NumEWeapons(); i++) {
-  w = Screen->LoadEWeapon(i);
-  if (w->ID == type) return w;
- }
- eweapon w2;
- return w2;
-}
-
-// Returns the first NPC of the given type. Use the NPCT_ constants.
-// If none exist, it returns an uninitialised pointer.
-npc LoadNPCOfType(int type) {
- npc n;
- for (int i=1; i <= Screen->NumNPCs(); i++) {
-  n = Screen->LoadNPC(i);
-  if (n->Type == type) return n;
- }
- npc n2;
- return n2;
-}
-
-// Returns the first NPC of the given ID. Use the NPC_ constants.
-// If none exist, it returns an uninitialised pointer.
-npc LoadNPCOf(int type) {
- npc n;
- for (int i=1; i <= Screen->NumNPCs(); i++) {
-  n = Screen->LoadNPC(i);
-  if (n->ID == type) return n;
- }
- npc n2;
- return n2;
-}
-
-//Returns the position of the first instance of the given combo, or -1.
-int FirstComboOf(int t, int layer) {
-  for (int i = 0; i < 176; i++) {
-    if (layer == 0) {
-      if (Screen->ComboD[i] == t)
-	return i;
-    }
-    else {
-      if (GetLayerComboD(layer,i) == t)
-        return i;
-    }
-  }
-  return -1;
-}
-
-//Returns the position of the last instance of the given combo, or -1.
-int LastComboOf(int t, int layer) {
-  for (int i = 175; i >= 0; i--) {
-    if (layer == 0) {
-      if (Screen->ComboD[i] == t)
-	return i;
-    }
-    else {
-      if (GetLayerComboD(layer,i) == t)
-        return i;
-    }
-  }
-  return -1;
-}
-
-//Returns the position of the first instance of the given combo, or -1.
-int FirstComboTypeOf(int t, int layer) {
-  for (int i = 0; i < 176; i++) {
-    if (layer == 0) {
-      if (Screen->ComboT[i] == t)
-	return i;
-    }
-    else {
-      if (GetLayerComboT(layer,i) == t)
-        return i;
-    }
-  }
-  return -1;
-}
-
-//Returns the position of the last instance of the given combo, or -1.
-int LastComboTypeOf(int t, int layer) {
-  for (int i = 175; i >= 0; i--) {
-    if (layer == 0) {
-      if (Screen->ComboT[i] == t)
-	return i;
-    }
-    else {
-      if (GetLayerComboT(layer,i) == t)
-        return i;
-    }
-  }
-  return -1;
-}
-
-//Returns the position of the first instance of the given combo flag, or -1.
-//Checks inherent flags too!
-int FirstComboFlagOf(int t, int layer) {
-  for (int i = 0; i < 176; i++) {
-    if (layer == 0) {
-      if (Screen->ComboF[i] == t || Screen->ComboI[i] == t) return i;
-    }
-    else {
-      if (Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer),i) == t
-	  || Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer),i) == t)
-        return i;
-    }
-  }
-  return -1;
-}
-
-//Returns the position of the last instance of the given combo flag, or -1.
-//Checks inherent flags too!
-int LastComboFlagOf(int t, int layer) {
-  for (int i = 175; i >= 0; i--) {
-    if (layer == 0) {
-      if (Screen->ComboF[i] == t || Screen->ComboI[i] == t) return i;
-    }
-    else {
-      if (Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer),i) == t
-	  || Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer),i) == t)
-        return i;
-    }
-  }
-  return -1;
-}
-
-// Returns true if the combo at the given position is water.
-bool IsWater(int position)
+// Converts a counterclockwise degree angle (from -180 to 180) into one of the four
+// standard directions (DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT) used by ZC.
+int AngleDir4(float angle) 
 {
-    int combo=Screen->ComboT[position];
-    if(combo==CT_WATER || combo==CT_SWIMWARP || combo==CT_DIVEWARP || (combo>=CT_SWIMWARPB && combo<=CT_DIVEWARPD))
-        return true;
-    else
-        return false;
+	if (angle <= 135 && angle > 45)
+		return DIR_DOWN;
+	else if (angle <= 45 && angle > -45)
+		return DIR_RIGHT;
+	else if (angle <= -45 && angle > -135)
+		return DIR_UP;
+	else
+		return DIR_LEFT;
 }
 
-// Returns true if the combo at the given position is a pit.
-bool IsPit(int position)
+// Converts a counterclockwise degree angle (from -180 to 180) into one of the eight
+// standard directions (DIR_UP etc.) used by ZC.
+int AngleDir8(float angle) 
 {
-    int combo=Screen->ComboT[position];
-    if(combo==CT_PIT || combo==CT_PITR || (combo>=CT_PITB && combo<=CT_PITD))
-        return true;
-    else
-        return false;
+	if (angle <= 157.5 && angle > 112.5)
+		return DIR_LEFTDOWN;
+	else if (angle <= 112.5 && angle > 67.5)
+		return DIR_DOWN;
+	else if (angle <= 67.5 && angle > 22.5)
+		return DIR_RIGHTDOWN;
+	else if (angle <= 22.5 && angle > -22.5)
+		return DIR_RIGHT;
+	else if (angle <= -22.5 && angle > -67.5)
+		return DIR_RIGHTUP;
+	else if (angle <= -67.5 && angle > -112.5)
+		return DIR_UP;
+	else if (angle <= -112.5 && angle > -157.5)
+		return DIR_LEFTUP;
+	else
+		return DIR_LEFT;
 }
 
-//Creates and returns an exact copy of the passed LWeapon. Assumes that the passed pointer is valid.
-lweapon Duplicate(lweapon a) {
-  lweapon b = Screen->CreateLWeapon(a->ID);
-  b->X = a->X;
-  b->Y = a->Y;
-  b->Z = a->Z;
-  b->Jump = a->Jump;
-  b->Extend = a->Extend;
-  b->TileWidth = a->TileWidth;
-  b->TileHeight = a->TileHeight;
-  b->HitWidth = a->HitWidth;
-  b->HitHeight = a->HitHeight;
-  b->HitZHeight = a->HitZHeight;
-  b->HitXOffset = a->HitXOffset;
-  b->HitYOffset = a->HitYOffset;
-  b->DrawXOffset = a->DrawXOffset;
-  b->DrawYOffset = a->DrawYOffset;
-  b->DrawZOffset = a->DrawZOffset;
-  b->Tile = a->Tile;
-  b->CSet = a->CSet;
-  b->DrawStyle = a->DrawStyle;
-  b->Dir = a->Dir;
-  b->OriginalTile = a->OriginalTile;
-  b->OriginalCSet = a->OriginalCSet;
-  b->FlashCSet = a->FlashCSet;
-  b->NumFrames = a->NumFrames;
-  b->Frame = a->Frame;
-  b->ASpeed = a->ASpeed;
-  b->Damage = a->Damage;
-  b->Step = a->Step;
-  b->Angle = a->Angle;
-  b->Angular = a->Angular;
-  b->CollDetection = a->CollDetection;
-  b->DeadState = a->DeadState;
-  b->Flash = a->Flash;
-  b->Flip = a->Flip;
-  for (int i = 0; i < 16; i++)
-    b->Misc[i] = a->Misc[i];
-  return b;
+
+//Returns the correct offset to be at the front of a sprite facing in the direction 'dir'
+int AtFrontX(int dir) {
+
+	int x = 0;
+	if(dir == DIR_UP || dir == DIR_DOWN) x = 8;
+	else if(dir == DIR_RIGHT) x = 16;
+	return x;
 }
 
-//Creates and returns an exact copy of the passed EWeapon. Assumes that the passed pointer is valid.
-eweapon Duplicate(eweapon a) {
-  eweapon b = Screen->CreateEWeapon(a->ID);
-  b->X = a->X;
-  b->Y = a->Y;
-  b->Z = a->Z;
-  b->Jump = a->Jump;
-  b->Extend = a->Extend;
-  b->TileWidth = a->TileWidth;
-  b->TileHeight = a->TileHeight;
-  b->HitWidth = a->HitWidth;
-  b->HitHeight = a->HitHeight;
-  b->HitZHeight = a->HitZHeight;
-  b->HitXOffset = a->HitXOffset;
-  b->HitYOffset = a->HitYOffset;
-  b->DrawXOffset = a->DrawXOffset;
-  b->DrawYOffset = a->DrawYOffset;
-  b->DrawZOffset = a->DrawZOffset;
-  b->Tile = a->Tile;
-  b->CSet = a->CSet;
-  b->DrawStyle = a->DrawStyle;
-  b->Dir = a->Dir;
-  b->OriginalTile = a->OriginalTile;
-  b->OriginalCSet = a->OriginalCSet;
-  b->FlashCSet = a->FlashCSet;
-  b->NumFrames = a->NumFrames;
-  b->Frame = a->Frame;
-  b->ASpeed = a->ASpeed;
-  b->Damage = a->Damage;
-  b->Step = a->Step;
-  b->Angle = a->Angle;
-  b->Angular = a->Angular;
-  b->CollDetection = a->CollDetection;
-  b->DeadState = a->DeadState;
-  b->Flash = a->Flash;
-  b->Flip = a->Flip;
-  for (int i = 0; i < 16; i++)
-    b->Misc[i] = a->Misc[i];
-  return b;
+int AtFrontY(int dir) {
+
+	int y = 0;
+	if(dir == DIR_DOWN) y = 16;
+	else if(dir == DIR_LEFT || dir == DIR_RIGHT) y = 8;
+	return y;
 }
+
+//B
+
+//Returns if Link is below an npc.
+bool Below(npc n){ return Link->Y > n->Y; }
+
+//Returns if Link is above, below, left of, or right of an ffc.
+bool Below(ffc n){ return Link->Y > n->Y; }
+
+//Returns if Link is above, below, left of, or right of an eweapon.
+bool Below(eweapon n){ return Link->Y > n->Y; }
+
+//Returns if Link is above, below, left of, or right of an lweapon.
+bool Below(lweapon n){ return Link->Y > n->Y; }
+
+//C
 
 //This should allow any scripted object to easily mimic Link styled LOZ solidity collision
 //checking, be it Link, FFCs, or enemies.
@@ -2085,116 +180,930 @@ bool CanWalk(int x, int y, int dir, int step, bool full_tile) {
     return false; //invalid direction
 }
 
-//Returns true if Link is on a sideview screen
-bool IsSideview() {
-	return Screen->Flags[SF_ROOMTYPE] & 4;
-}
-
-//Returns true if the sprite at (x,y) is standing on a sideview platform on a sideview screen, as worked out
-//by ZC's internal code.
-//For 16 pixel high sprites only.
-bool OnSidePlatform(int x, int y) {
-    return ((Screen->isSolid(x+4,y+16) || Screen->isSolid(x+12,y+16)) && Screen->Flags[SF_ROOMTYPE]&4);
-}
-
-//Returns true if a sprite of height 'h' at position (x,y) with an offset of (xOff,yOff) is standing
-//on a sideview platform on a sideview screen.
-bool OnSidePlatform(int x, int y, int xOff, int yOff, int h) {
-    return ((Screen->isSolid((x+xOff)+4,(y+yOff)+h) || Screen->isSolid((x+xOff)+12,(y+yOff)+h)) && Screen->Flags[SF_ROOMTYPE]&4);
-}
-
-//Kills all of Link's inputs
-void NoAction()
+//Raises x to the nearest integer
+int Ceiling(float x) 
 {
-	Link->InputUp = false; Link->PressUp = false;
-	Link->InputDown = false; Link->PressDown = false;
-	Link->InputLeft = false; Link->PressLeft = false;
-	Link->InputRight = false; Link->PressRight = false;
-	Link->InputR = false; Link->PressR = false;
-	Link->InputL = false; Link->PressL = false;
-	Link->InputA = false; Link->PressA = false;
-	Link->InputB = false; Link->PressB = false;
-	Link->InputEx1 = false; Link->PressEx1 = false;
-	Link->InputEx2 = false; Link->PressEx2 = false;
-	Link->InputEx3 = false; Link->PressEx3 = false;
-	Link->InputEx4 = false; Link->PressEx4 = false;
+	if(x < 0)
+		return x<<0;
+	return (x+.9999)<<0;
 }
 
-//NoAction, then Waitframe or (equivalent of) Waitframes
-void WaitNoAction()
+// Get the X and Y coordinates at the center of a sprite
+int CenterLinkX() { return Link->X+8; }
+int CenterLinkY() { return Link->Y+8; }
+int CenterX(ffc anFFC) { return anFFC->X+8*anFFC->TileWidth; }
+int CenterX(npc anNPC) { return anNPC->X+8*anNPC->TileWidth; }
+int CenterX(eweapon anEWeapon) { return anEWeapon->X+8*anEWeapon->TileWidth; }
+int CenterX(lweapon anLWeapon) { return anLWeapon->X+8*anLWeapon->TileWidth; }
+int CenterX(item it) { return it->X+8*it->TileWidth; }
+int CenterY(ffc anFFC) { return anFFC->Y+8*anFFC->TileHeight; }
+int CenterY(npc anNPC) { return anNPC->Y+8*anNPC->TileHeight; }
+int CenterY(eweapon anEWeapon) { return anEWeapon->Y+8*anEWeapon->TileHeight; }
+int CenterY(lweapon anLWeapon) { return anLWeapon->Y+8*anLWeapon->TileHeight; }
+int CenterY(item it) { return it->Y+8*it->TileHeight; }
+
+
+// Chooses one of the options randomly and fairly.
+float Choose(float a, float b) 
 {
-	NoAction();
-	Waitframe();
-}
-void WaitNoAction(int frames)
-{
-	for(int i = 0; i < frames; i++)
-		WaitNoAction();
+	if (Rand(2)==0) return a;
+	else return b;
 }
 
-//Get an NPC's name from an ID
-void GetNPCName(int ID, int string)
+float Choose(float a, float b, float c) 
 {
-	npc n = Screen->CreateNPC(ID);
-	n->GetName(string);
-	Remove(n);
+	int r = Rand(3);
+	if (r==0) return a;
+	else if (r==1) return b;
+	else return c;
 }
 
-void GetMessage(int ID, int string)
+float Choose(float a, float b, float c, float d) 
 {
-	Game->GetMessage(ID, string);
-	int i;
-	for(i = MAX_MESSAGELENGTH-2; string[i] == ' '; i--);
-	string[i+1] = 0;
+	int r = Rand(4);
+	if (r==0) return a;
+	else if (r==1) return b;
+	else if (r==2) return c;
+	else return d;
 }
 
-itemdata GetItemData(item i)
+float Choose(float a, float b, float c, float d, float e) 
 {
-	return Game->LoadItemData(i->ID);
+	int r = Rand(5);
+	if (r==0) return a;
+	else if (r==1) return b;
+	else if (r==2) return c;
+	else if (r==3) return d;
+	else return e;
 }
 
-//Returns the item ID of the item with the highest level of a given class that Link owns. 
-//Returns -1 on failure. 
-//Note that this may be a slow process if used in iteration, because of the array sorting involved! -Z
-int GetHighestLevelItemOwned(int itemclass)
+float Choose(float a, float b, float c, float d, float e, float f) 
 {
-	itemdata id;
-	int ret = -1;
-	int items[256]; //holds the level of each item
-	int levels[8];  //holds the item ID of each level (1 to 8)
-	int i; int lv;
-	int curitem = -1; 
-	//143 is default max items, increase if you add lots of your own
-	for( i = 0; i <= 255; i++)
-	{
-		id = Game->LoadItemData(i);
-		if(id->Family != itemclass)
-			continue;
-		
-		items[i] = id->Level;
+	int r = Rand(6);
+	if (r==0) return a;
+	else if (r==1) return b;
+	else if (r==2) return c;
+	else if (r==3) return d;
+	else if (r==4) return e;
+	else return f;
+}
+
+//Returns true if the two circles c1 and c2 overlap.
+bool CircleCollision(int c1x, int c1y, int radius1, int c2x, int c2y, int radius2) 
+{
+	return (Distance(c1x,c1y,c2x,c2y) <= (radius1+radius2));
+}
+
+//Clamps x to the range of low, high.
+int Clamp(int x, int low, int high) 
+{
+	if(x<low) x=low;
+	else if(x>high) x=high;
+	return x;
+}
+
+//Clears a block of tiles defined by diagonal corners 'reffirst' and 'reflast'
+void ClearTileBlock(int reffirst, int reflast)
+{
+	if(reflast < reffirst){
+		int swap = reffirst;
+		reffirst = reflast;
+		reflast = swap;
 	}
-	//Sort the ids of the levels
-	for ( i = 0; i < 256; i++ )
+	int w = reflast%20-reffirst%20;
+	if(w < 0){
+		reffirst -= w;
+		reflast += w;
+		w = -w;
+	}
+	for(int i=0;i<=reflast-reffirst;++i) if(i%20 <= w) ClearTile(reffirst+i);
+}
+
+//Clears a row of tiles of length 'length' starting from tile 'ref'
+void ClearTileRow(int ref, int length)
+{
+	for(int i=0;i<length;++i) ClearTile(ref+i);
+}
+
+//Returns true if there is a collision between the hitboxes of an lweapon and an eweapon.
+bool Collision(lweapon a, eweapon b) 
+{
+	int ax = a->X + a->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = a->Y + a->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+}
+
+//A collision between an lweapon and an lweapon.
+bool Collision(lweapon a, lweapon b) 
+{
+	int ax = a->X + a->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = a->Y + a->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+}
+
+//A collision between an eweapon and an eweapon.
+bool Collision(eweapon a, eweapon b) 
+{
+	int ax = a->X + a->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = a->Y + a->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+}
+
+//A collision between an lweapon and an npc.
+bool Collision(lweapon a, npc b) 
+{
+	int ax = a->X + a->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = a->Y + a->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+}
+
+//A collision between an eweapon and an npc.
+bool Collision(eweapon a, npc b) 
+{
+	int ax = a->X + a->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = a->Y + a->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+}
+
+//A collision between an npc and an npc.
+bool Collision(npc a, npc b) 
+{
+	int ax = a->X + a->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = a->Y + a->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+}
+
+//A collision between an item and an lweapon.
+bool Collision(item a, lweapon b) 
+{
+	int ax = a->X + a->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = a->Y + a->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+}
+
+//A collision between an item and an eweapon.
+bool Collision(item a, eweapon b) 
+{
+	int ax = a->X + a->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = a->Y + a->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+}
+
+//A collision between an item and an npc.
+bool Collision(item a, npc b) 
+{
+	int ax = a->X + a->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = a->Y + a->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+}
+
+//A collision between an item and an item.
+bool Collision(item a, item b) 
+{
+	int ax = a->X + a->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = a->Y + a->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+a->HitWidth, ay+a->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (a->Z + a->HitZHeight >= b->Z) && (a->Z <= b->Z + b->HitZHeight);
+}
+
+//A collision between an ffc and an lweapon. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
+bool Collision(ffc f, lweapon b) 
+{
+	int bx = b->X + b->HitXOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), bx, by, bx+b->HitWidth, by+b->HitHeight);
+}
+
+//A collision between an ffc and an eweapon. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
+bool Collision(ffc f, eweapon b) 
+{
+	int bx = b->X + b->HitXOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), bx, by, bx+b->HitWidth, by+b->HitHeight);
+}
+
+//A collision between an ffc and an npc. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
+bool Collision(ffc f, npc b) 
+{
+	int bx = b->X + b->HitXOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), bx, by, bx+b->HitWidth, by+b->HitHeight);
+}
+
+//A collision between an ffc and an item. Uses TileWidth and TileHeight for the FFC's bounding box. Ignores the Z axis.
+bool Collision(ffc f, item b) 
+{
+	int bx = b->X + b->HitXOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), bx, by, bx+b->HitWidth, by+b->HitHeight);
+}
+
+//A collision between an ffc and an ffc. Uses TileWidth and TileHeight for the FFCs' bounding boxes.
+bool Collision(ffc f, ffc f2) 
+{
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), f2->X, f2->Y, f2->X+f2->TileWidth*16, f2->Y+f2->TileHeight*16);
+}
+
+//A circular collision between an ffc and an ffc. Uses TileWidth and TileHeight to find the centre of the FFCs.
+bool Collision(ffc f, int radius1, ffc f2, int radius2) 
+{
+	return CircleCollision(f->X+f->TileWidth/2, f->Y+f->TileHeight/2, radius1,f2->X+f2->TileWidth/2, f2->Y+f2->TileHeight/2, radius2);
+}
+
+// So that you don't have to remember the ordering of the args
+bool Collision(eweapon a, lweapon b) 
+{
+	return Collision(b, a);
+}
+
+bool Collision(npc a, lweapon b) 
+{
+	return Collision(b, a);
+}
+
+bool Collision(npc a, eweapon b) 
+{
+	return Collision(b, a);
+}
+
+bool Collision(lweapon a, item b) 
+{
+	return Collision(b, a);
+}
+
+bool Collision(eweapon a, item b) 
+{
+	return Collision(b, a);
+}
+
+bool Collision(npc a, item b) 
+{
+	return Collision(b, a);
+}
+
+bool Collision(lweapon a, ffc b) 
+{
+	return Collision(b, a);
+}
+
+bool Collision(eweapon a, ffc b) 
+{
+	return Collision(b, a);
+}
+
+bool Collision(npc a, ffc b) 
+{
+	return Collision(b, a);
+}
+
+bool Collision(item a, ffc b) 
+{
+	return Collision(b, a);
+}
+
+// Returns true if there is a collision between Link's hitbox and the eweapon's.
+// This only checks hitboxes.
+bool Collision(eweapon b) 
+{
+	int ax = Link->X + Link->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the lweapon's.
+// This only checks hitboxes.
+bool Collision(lweapon b) 
+{
+	int ax = Link->X + Link->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the item's.
+// This only checks hitboxes.
+bool Collision(item b) 
+{
+	int ax = Link->X + Link->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the npc's.
+// This only checks hitboxes.  Uses TileWidth and TileHeight to find the centre of the FFCs.
+bool Collision(npc b) 
+{
+	int ax = Link->X + Link->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the FFC's.
+// This only checks hitboxes.
+bool Collision(ffc f) 
+{
+	int ax = Link->X + Link->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
+}
+
+//Finds the location of a combo, given its (x,y) coordinates on the screen
+int ComboAt(int x, int y) 
+{
+	x = VBound(x,255,0);
+	y = VBound(y,175,0);
+	return (y & 240)+(x>>4);
+}
+
+//Returns true if the combo at '(x, y)' has either an inherent or place flag of type 'flag'
+bool ComboFI(int x, int y, int flag)
+{
+	int loc = ComboAt(x,y);
+	return Screen->ComboF[loc] == flag || Screen->ComboI[loc] == flag;
+}
+
+//Returns true if the combo at 'loc' has either an inherent or place flag of type 'flag'
+bool ComboFI(int loc, int flag)
+{
+	return Screen->ComboF[loc] == flag || Screen->ComboI[loc] == flag;
+}
+
+//Return the coordinates of a combo on the screen
+int ComboX(int loc) 
+{
+	return loc%16*16;
+}
+int ComboY(int loc) 
+{
+	return loc&0xF0;
+}
+
+//Returns a if cond is true, else b. Overloaded.
+float Cond(bool cond, float a, float b) 
+{
+	if (cond) return a;
+	else return b;
+}
+bool Cond(bool cond, bool a, bool b) 
+{
+	if (cond) return a;
+	else return b;
+}
+npc Cond(bool cond, npc a, npc b) 
+{
+	if (cond) return a;
+	else return b;
+}
+item Cond(bool cond, item a, item b) 
+{
+	if (cond) return a;
+	else return b;
+}
+lweapon Cond(bool cond, lweapon a, lweapon b) 
+{
+	if (cond) return a;
+	else return b;
+}
+eweapon Cond(bool cond, eweapon a, eweapon b) 
+{
+	if (cond) return a;
+	else return b;
+}
+ffc Cond(bool cond, ffc a, ffc b) 
+{
+	if (cond) return a;
+	else return b;
+}
+itemdata Cond(bool cond, itemdata a, itemdata b) 
+{
+	if (cond) return a;
+	else return b;
+}
+
+//Copies a block of tiles defined by diagonal corners 'sourcefirst' and 'sourcelast'
+//onto the block starting with top left tile 'destfirst'
+void CopyTileBlock(int sourcefirst, int sourcelast, int destfirst)
+{
+	if(sourcelast < sourcefirst){
+		int swap = sourcefirst;
+		sourcefirst = sourcelast;
+		sourcelast = swap;
+	}
+	int w = sourcelast%20-sourcefirst%20;
+	if(w < 0){
+		sourcefirst -= w;
+		sourcelast += w;
+		w = -w;
+	}
+	for(int i=0;i<=sourcelast-sourcefirst;++i) if(i%20 <= w) CopyTile(sourcefirst+i,destfirst+i);
+}
+
+//Copies a row of tiles of length 'length' from 'source' onto 'dest'
+void CopyTileRow(int source, int dest, int length)
+{
+	for(int i=0;i<length;++i) CopyTile(source+i,dest+i);
+}
+
+//Add to a counter without rollover.
+void CounterAdd(int counter, int amount)
+{
+	if ( amount + Game->Counter[counter] > MAX_COUNTER ) Game->Counter[counter] = MAX_COUNTER;
+	else Game->Counter[counter] += amount;
+}
+
+//Reduce a counter without rollvoer. 
+void CounterReduce(int counter, int amount)
+{
+	if ( Game->Counter[counter] - amount < 0 ) Game->Counter[counter] = 0; 
+	else Game->Counter[counter] -= amount;
+}
+
+//Create an EWeapon and set its X and Y position in one command
+eweapon CreateEWeaponAt(int id, int x, int y) 
+{
+	eweapon ew = Screen->CreateEWeapon(id);
+	if(ew->isValid()) 
 	{
-		if ( items[i] > 0 ) 
+		ew->X = x;
+		ew->Y = y;
+	}
+	return ew;
+}
+
+//Create an Item and set its X and Y position in one command
+item CreateItemAt(int id, int x, int y) 
+{
+	item it = Screen->CreateItem(id);
+	if(it->isValid()) 
+	{
+		it->X = x;
+		it->Y = y;
+	}
+	return it;
+}
+
+//Create an LWeapon and set its X and Y position in one command
+lweapon CreateLWeaponAt(int id, int x, int y) 
+{
+	lweapon lw = Screen->CreateLWeapon(id);
+	if(lw->isValid()) 
+	{
+		lw->X = x;
+		lw->Y = y;
+	}
+	return lw;
+}
+
+//Create an NPC and set its X and Y position in one command
+npc CreateNPCAt(int id, int x, int y) 
+{
+	npc nme = Screen->CreateNPC(id);
+	if(nme->isValid()) 
+	{
+		nme->X = x;
+		nme->Y = y;
+	}
+	return nme;
+}
+
+//Creates a timeout item (like a rupee or heart)
+item CreateTimeoutItem(int id, int x, int y) 
+{
+	item Spawn = Screen->CreateItem(id);
+	SetItemPickup(Spawn, IP_TIMEOUT, true);
+	Spawn->HitWidth = 16; Spawn->HitHeight = 16;
+	Spawn->X = x; Spawn->Y = y;
+}
+
+// Returns the cross product of two vectors.
+float CrossProduct( float x1, float y1, float x2, float y2 )
+{
+	return (x1 * y2 - y1 * x2);
+}
+
+//D
+
+//Add to a drain counter without rollover.
+void DCounterAdd(int counter, int amount)
+{
+	if ( amount + Game->DCounter[counter] > MAX_COUNTER ) Game->DCounter[counter] = MAX_COUNTER;
+	else Game->MCounter[counter] += amount;
+}
+
+//Reduce a drain counter without rollvoer. 
+void DCounterReduce(int counter, int amount)
+{
+	if ( Game->DCounter[counter] - amount < (MAX_COUNTER * -1) ) Game->DCounter[counter] = (MAX_COUNTER * -1); 
+	else Game->DCounter[counter] -= amount;
+}
+
+//Returns if Link has defeated the dungeon boss for a given level.
+int DefeatedLevelBoss(int level)
+{
+        if(Game->LItems[level]&LI_BOSS) return 1;
+	return 0;
+}
+
+//Converts 'd' in degrees to radians
+float DegtoRad(float d) 
+{
+    return d*0.0174;
+}
+
+
+//Returns angle of the given direction.
+int Dir4Angle(int dir)
+{
+	//dir &=7;
+	if (dir==DIR_UP) return DEG_DIR_UP;
+	if (dir==DIR_DOWN) return DEG_DIR_DOWN;
+	if (dir==DIR_LEFT) return DEG_DIR_LEFT;
+	if (dir==DIR_RIGHT) return DEG_DIR_RIGHT;
+	return -1;
+}
+
+//Returns angle of the given direction.
+int DirAngle(int dir)
+{
+	//dir &=7; //I do not recall why this is here. Removing it as it seems extraneous. -Z
+	if (dir==DIR_UP) return DEG_DIR_UP;
+	if (dir==DIR_DOWN) return DEG_DIR_DOWN;
+	if (dir==DIR_LEFT) return DEG_DIR_LEFT;
+	if (dir==DIR_RIGHT) return DEG_DIR_RIGHT;
+	if (dir==DIR_LEFTUP) return DEG_DIR_LEFTUP;
+	if (dir==DIR_RIGHTUP) return DEG_DIR_RIGHTUP;
+	if (dir==DIR_LEFTDOWN) return DEG_DIR_LEFTDOWN;
+	if (dir==DIR_RIGHTDOWN) return DEG_DIR_RIGHTDOWN;
+	return -1;
+}
+
+//Same as Dir4Angle, but return value is measured in radians.
+int Dir4Rad(int dir)
+{
+	if (dir==DIR_UP) return RAD_DIR_UP;
+	if (dir==DIR_DOWN) return RAD_DIR_DOWN;
+	if (dir==DIR_LEFT) return RAD_DIR_LEFT;
+	if (dir==DIR_RIGHT) return RAD_DIR_RIGHT;
+	return -1;
+} 
+
+//Same as DirAngle, but return value is measured in radians.
+int DirRad(int dir)
+{
+	//dir &=7;
+	if (dir==DIR_UP) return RAD_DIR_UP;
+	if (dir==DIR_DOWN) return RAD_DIR_DOWN;
+	if (dir==DIR_LEFT) return RAD_DIR_LEFT; //Pi
+	if (dir==DIR_RIGHT) return RAD_DIR_RIGHT;
+	if (dir==DIR_LEFTUP) return RAD_DIR_LEFTUP;
+	if (dir==DIR_RIGHTUP) return RAD_DIR_RIGHTUP;
+	if (dir==DIR_LEFTDOWN) return RAD_DIR_LEFTDOWN;
+	if (dir==DIR_RIGHTDOWN) return RAD_DIR_RIGHTDOWN;
+	return -1;
+} 
+
+//Returns the distance between two sets of coordinates using Pythagoras' Theorem
+float Distance(int x1, int y1, int x2, int y2) 
+{
+	int x = (x1-x2);
+	int y = (y1-y2);
+	return Sqrt(x*x+y*y);
+}
+
+// Returns the squared distance of a vector.
+float DistanceSquared( float x, float y ) 
+{
+	return (x * x + y * y);
+}
+
+//returns true if Link is within 'dist' distance of an ffc on both its X and its Y axis. 
+bool DistXY(ffc a, int dist)
+{
+	if ( Abs(Link->X - a->X) <= dist )
+	{
+		if ( Abs(Link->Y - a->Y) <= dist ) return true;
+	}
+	return false;
+}
+
+//Returns the Quotient only of x divided by y
+int Div(float x, float y) 
+{
+	return (x/y)<<0;
+}
+
+// Convert between map and DMap screens
+int DMapToMap(int screen, int dmap) 
+{
+	return screen+Game->DMapOffset[dmap];
+}
+
+// Returns the dot product of two vectors.
+float DotProduct( float x1, float y1, float x2, float y2 ) 
+{
+	return (x1 * x2 + y1 * y2);
+}
+
+
+//Overload to Screen->DrawString which includes a position to start drawing from in the string
+//Does not check for overflow
+void DrawString(int layer, int x, int y, int font, int color, int background_color, int format, int opacity,
+				int string, int start)
+{
+	int buffer[256];
+	for(int i=start;string[i]!=0;++i) buffer[i-start] = string[i];
+	Screen->DrawString(layer,x,y,font,color,background_color,format,opacity,buffer);
+}
+
+//Overload to Screen->DrawString which includes a start and end position to draw the string
+//Does not check for overflow
+void DrawString(int layer, int x, int y, int font, int color, int background_color, int format, int opacity,
+				int string, int start, int end)
+{
+	int buffer[256];
+	for(int i=start;i<end;++i) buffer[i-start] = string[i];
+	Screen->DrawString(layer,x,y,font,color,background_color,format,opacity,buffer);
+}
+
+// A very simple layer 0 tile drawing routine.
+void DrawTileSimple(int x, int y, int tile, int color)
+{
+	Screen->FastTile(0, x, y, tile, color, 128);
+}
+
+
+//Draws an ffc to a given layer. If the ffc is larger than 1x1 its graphics must all be comboed
+void DrawToLayer(ffc f, int layer, int opacity)
+{
+	Screen->DrawCombo(layer,f->X,f->Y,f->Data,f->TileWidth,f->TileHeight,f->CSet,-1,-1,0,0,0,-1,0,true,opacity);
+}
+
+//Draws an npc to a given layer
+void DrawToLayer(npc n, int layer, int opacity)
+{
+	Screen->DrawTile(layer,n->X,n->Y,n->Tile,n->TileWidth,n->TileHeight,n->CSet,-1,-1,0,0,0,0,true,opacity);
+}
+
+//Draws an lweapon to a given layer
+void DrawToLayer(lweapon l, int layer, int opacity)
+{
+	Screen->DrawTile(layer,l->X,l->Y,l->Tile,l->TileWidth,l->TileHeight,l->CSet,-1,-1,0,0,0,0,true,opacity);
+}
+
+//Draws an eweapon to a given layer
+void DrawToLayer(eweapon e, int layer, int opacity)
+{
+	Screen->DrawTile(layer,e->X,e->Y,e->Tile,e->TileWidth,e->TileHeight,e->CSet,-1,-1,0,0,0,0,true,opacity);
+}
+
+//Draws an item to a given layer
+void DrawToLayer(item i, int layer, int opacity)
+{
+	Screen->DrawTile(layer,i->X,i->Y,i->Tile,i->TileWidth,i->TileHeight,i->CSet,-1,-1,0,0,0,0,true,opacity);
+}
+
+
+
+//Creates and returns an exact copy of the passed LWeapon. Assumes that the passed pointer is valid.
+lweapon Duplicate(lweapon a) {
+	lweapon b = Screen->CreateLWeapon(a->ID);
+	b->X = a->X;
+	b->Y = a->Y;
+	b->Z = a->Z;
+	b->Jump = a->Jump;
+	b->Extend = a->Extend;
+	b->TileWidth = a->TileWidth;
+	b->TileHeight = a->TileHeight;
+	b->HitWidth = a->HitWidth;
+	b->HitHeight = a->HitHeight;
+	b->HitZHeight = a->HitZHeight;
+	b->HitXOffset = a->HitXOffset;
+	b->HitYOffset = a->HitYOffset;
+	b->DrawXOffset = a->DrawXOffset;
+	b->DrawYOffset = a->DrawYOffset;
+	b->DrawZOffset = a->DrawZOffset;
+	b->Tile = a->Tile;
+	b->CSet = a->CSet;
+	b->DrawStyle = a->DrawStyle;
+	b->Dir = a->Dir;
+	b->OriginalTile = a->OriginalTile;
+	b->OriginalCSet = a->OriginalCSet;
+	b->FlashCSet = a->FlashCSet;
+	b->NumFrames = a->NumFrames;
+	b->Frame = a->Frame;
+	b->ASpeed = a->ASpeed;
+	b->Damage = a->Damage;
+	b->Step = a->Step;
+	b->Angle = a->Angle;
+	b->Angular = a->Angular;
+	b->CollDetection = a->CollDetection;
+	b->DeadState = a->DeadState;
+	b->Flash = a->Flash;
+	b->Flip = a->Flip;
+	for (int i = 0; i < 16; ++i)
+		b->Misc[i] = a->Misc[i];
+	return b;
+}
+
+//Creates and returns an exact copy of the passed EWeapon. Assumes that the passed pointer is valid.
+eweapon Duplicate(eweapon a) {
+	eweapon b = Screen->CreateEWeapon(a->ID);
+	b->X = a->X;
+	b->Y = a->Y;
+	b->Z = a->Z;
+	b->Jump = a->Jump;
+	b->Extend = a->Extend;
+	b->TileWidth = a->TileWidth;
+	b->TileHeight = a->TileHeight;
+	b->HitWidth = a->HitWidth;
+	b->HitHeight = a->HitHeight;
+	b->HitZHeight = a->HitZHeight;
+	b->HitXOffset = a->HitXOffset;
+	b->HitYOffset = a->HitYOffset;
+	b->DrawXOffset = a->DrawXOffset;
+	b->DrawYOffset = a->DrawYOffset;
+	b->DrawZOffset = a->DrawZOffset;
+	b->Tile = a->Tile;
+	b->CSet = a->CSet;
+	b->DrawStyle = a->DrawStyle;
+	b->Dir = a->Dir;
+	b->OriginalTile = a->OriginalTile;
+	b->OriginalCSet = a->OriginalCSet;
+	b->FlashCSet = a->FlashCSet;
+	b->NumFrames = a->NumFrames;
+	b->Frame = a->Frame;
+	b->ASpeed = a->ASpeed;
+	b->Damage = a->Damage;
+	b->Step = a->Step;
+	b->Angle = a->Angle;
+	b->Angular = a->Angular;
+	b->CollDetection = a->CollDetection;
+	b->DeadState = a->DeadState;
+	b->Flash = a->Flash;
+	b->Flip = a->Flip;
+	for (int i = 0; i < 16; ++i)
+		b->Misc[i] = a->Misc[i];
+	return b;
+}
+
+//E
+
+//Returns if there are enemy NPCs alive on the current screen.
+bool EnemiesAlive()
+{
+	bool alive = false; 
+	for ( int q = Screen->NumNPCs(); q > 0; --q )
+	{
+		npc n = Screen->LoadNPC(q); 
+		if ( n->Type != NPCT_PROJECTILE )
 		{
-			lv = items[i];
-			levels[lv] = i;
+			if ( !(n->MiscFlags&NPCMF_NOT_BEATABLE) )
+			{
+				if ( n->Type != NPCT_FAIRY )
+				{
+					if ( n->Type != NPCT_GUY )
+					{
+						alive = true;
+					}
+				}
+			}
 		}
 	}
-	
-	//Determine if Link owns any of the items in levels
-	for ( i = 0; i < 8; i++ )
-	{
-		//Trace(levels[i]);
-		if ( Link->Item[ levels[i] ] ) 
-		{
-			curitem = levels[i];
-		}
-	}
-	return curitem;
+	return alive;
 }
 
+//F
+
+//Returns if Link is facing an ffc.
+bool Facing(ffc f)
+{
+	if ( Link->Dir == DIR_UP && Link->Y > f->Y ) return true;
+	if ( Link->Dir == DIR_DOWN && Link->Y < f->Y ) return true;
+	if ( Link->Dir == DIR_RIGHT && Link->X < f->X ) return true;
+	if ( Link->Dir == DIR_LEFT && Link->X > f->X ) return true;
+	return false;
+}
+
+//Returns the number of an FFC, and -1 for a non-valid FFC (which should never happen)
+int FFCNum(ffc f) 
+{
+	for(int i=1; i<=32; ++i)
+		if(f == Screen->LoadFFC(i))
+			return i;
+	return -1;
+}
+
+//Returns the position of the first instance of the given combo flag, or -1.
+//Checks inherent flags too!
+int FirstComboFlagOf(int t, int layer) 
+{
+	for (int i = 0; i < 176; ++i) 
+	{
+		if (!layer) //layer 0 
+		{
+			if ( Screen->ComboF[i] == t ) return i;
+			if ( Screen->ComboI[i] == t ) return i;
+		}
+		else 
+		{
+			if ( Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer),i) == t ) return i;
+			if ( Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer),i) == t ) return i;
+		}
+	}
+	return -1;
+}
+
+//Returns the position of the first instance of the given combo, or -1.
+int FirstComboTypeOf(int t, int layer) 
+{
+	for (int i = 0; i < 176; ++i) 
+	{
+		if (!layer) //layer 0 
+		{
+			if (Screen->ComboT[i] == t)
+				return i;
+		}
+		else 
+		{
+			if (GetLayerComboT(layer,i) == t)
+				return i;
+		}
+	}
+	return -1;
+}
+
+//Returns the position of the first instance of the given combo, or -1.
+int FirstComboOf(int t, int layer) 
+{
+	for (int i = 0; i < 176; ++i) 
+	{
+		if (!layer) //layer 0 
+		{
+			if (Screen->ComboD[i] == t)
+				return i;
+		}
+		else 
+		{
+			if (GetLayerComboD(layer,i) == t)
+				return i;
+		}
+	}
+	return -1;
+}
+
+//Truncates x to an integer
+int Floor(float x) 
+{
+	if(x < 0)
+		return (x-.9999)<<0;
+	return x<<0;
+}
+
+//G
+
+//Returns the item ID of the item equipped to Link's A button
+int GetEquipmentA() 
+{
+	return (Link->Equipment&0xFF);
+}
+
+//Returns the item ID of the item equipped to Link's B button
+int GetEquipmentB() 
+{
+	return ((Link->Equipment&0xFF00)>>8);
+}
+
+//Returns true if DMap Flag 'flag' is set on dmap 'dmap'
+bool GetDMapFlag(int dmap, int flag)
+{
+	return (Game->DMapFlags[dmap]&flag);
+}
 
 int GetHighestLevelItem(int itemclass)
 {
@@ -2202,7 +1111,7 @@ int GetHighestLevelItem(int itemclass)
 	int ret = -1;
 	int curlevel = -1000;
 	//143 is default max items, increase if you add lots of your own
-	for(int i = 0; i <= MAX_HIGHEST_LEVEL_ITEM_CHECK; i++)
+	for(int i = 0; i <= MAX_HIGHEST_LEVEL_ITEM_CHECK; ++i)
 	{
 		id = Game->LoadItemData(i);
 		if(id->Family != itemclass)
@@ -2223,7 +1132,7 @@ int GetHighestLevelItem(item i)
 	int curlevel = argid->Level;
 	itemdata id;
 	//143 is max items, decrease to improve speed if you need to
-	for(int i = 0; i <= MAX_HIGHEST_LEVEL_ITEM_CHECK; i++)
+	for(int i = 0; i <= MAX_HIGHEST_LEVEL_ITEM_CHECK; ++i )
 	{
 		id = Game->LoadItemData(i);
 		if(id->Family != argid->Family)
@@ -2237,168 +1146,807 @@ int GetHighestLevelItem(item i)
 	return ret;
 }
 
-// Convert between map and DMap screens
-int DMapToMap(int screen, int dmap) {
-    return screen+Game->DMapOffset[dmap];
-}
-
-int MapToDMap(int screen, int dmap) {
-    return screen-Game->DMapOffset[dmap];
-}
-
-//2.53.0
-
-//Returns angle of the given direction.
-int DirAngle(int dir){
-	//dir &=7; //I do not recall why this is here. Removing it as it seems extraneous. -Z
-	if (dir==DIR_UP) return DEG_DIR_UP;
-	if (dir==DIR_DOWN) return DEG_DIR_DOWN;
-	if (dir==DIR_LEFT) return DEG_DIR_LEFT;
-	if (dir==DIR_RIGHT) return DEG_DIR_RIGHT;
-	if (dir==DIR_LEFTUP) return DEG_DIR_LEFTUP;
-	if (dir==DIR_RIGHTUP) return DEG_DIR_RIGHTUP;
-	if (dir==DIR_LEFTDOWN) return DEG_DIR_LEFTDOWN;
-	if (dir==DIR_RIGHTDOWN) return DEG_DIR_RIGHTDOWN;
-	return -1;
-}
-
-//Returns angle of the given direction.
-int Dir4Angle(int dir){
-	//dir &=7;
-	if (dir==DIR_UP) return DEG_DIR_UP;
-	if (dir==DIR_DOWN) return DEG_DIR_DOWN;
-	if (dir==DIR_LEFT) return DEG_DIR_LEFT;
-	if (dir==DIR_RIGHT) return DEG_DIR_RIGHT;
-	return -1;
-}
-
-//Same as DirAngle, but return value is measured in radians.
-int DirRad(int dir){
-	//dir &=7;
-	if (dir==DIR_UP) return RAD_DIR_UP;
-	if (dir==DIR_DOWN) return RAD_DIR_DOWN;
-	if (dir==DIR_LEFT) return RAD_DIR_LEFT; //Pi
-	if (dir==DIR_RIGHT) return RAD_DIR_RIGHT;
-	if (dir==DIR_LEFTUP) return RAD_DIR_LEFTUP;
-	if (dir==DIR_RIGHTUP) return RAD_DIR_RIGHTUP;
-	if (dir==DIR_LEFTDOWN) return RAD_DIR_LEFTDOWN;
-	if (dir==DIR_RIGHTDOWN) return RAD_DIR_RIGHTDOWN;
-	return -1;
-} 
-
-//Same as Dir4Angle, but return value is measured in radians.
-int Dir4Rad(int dir){
-	if (dir==DIR_UP) return RAD_DIR_UP;
-	if (dir==DIR_DOWN) return RAD_DIR_DOWN;
-	if (dir==DIR_LEFT) return RAD_DIR_LEFT;
-	if (dir==DIR_RIGHT) return RAD_DIR_RIGHT;
-	return -1;
-} 
-
-//Returns true if Link is on a Dungeon (flagged) screen
-bool IsDungeonFlag() {
-	return Screen->Flags[SF_ROOMTYPE] & 1;
-}
-
-//Returns true if Link is on an Interior (flagged) screen
-bool IsInteriorFlag() {
-	return Screen->Flags[SF_ROOMTYPE] & 2;
+//Returns the item ID of the item with the highest level of a given class that Link owns. 
+//Returns -1 on failure. 
+//Note that this may be a slow process if used in iteration, because of the array sorting involved! -Z
+int GetHighestLevelItemOwned(int itemclass)
+{
+	itemdata id;
+	int ret = -1;
+	int items[256]; //holds the level of each item
+	int levels[8];  //holds the item ID of each level (1 to 8)
+	int i; int lv;
+	int curitem = -1; 
+	//143 is default max items, increase if you add lots of your own
+	for( i = 0; i <= 255; ++i)
+	{
+		id = Game->LoadItemData(i);
+		if(id->Family != itemclass)
+			continue;
+		
+		items[i] = id->Level;
+	}
+	//Sort the ids of the levels
+	for ( i = 0; i < 256; ++i )
+	{
+		if ( items[i] > 0 ) 
+		{
+			lv = items[i];
+			levels[lv] = i;
+		}
+	}
+	
+	//Determine if Link owns any of the items in levels
+	for ( i = 0; i < 8; ++i )
+	{
+		//Trace(levels[i]);
+		if ( Link->Item[ levels[i] ] ) 
+		{
+			curitem = levels[i];
+		}
+	}
+	return curitem;
 }
 
 
-//Returns if Link has the Triforce piece for a given level.
-int HasTriforce(int level){
-        if(Game->LItems[level]&LI_TRIFORCE) return 1;
+itemdata GetItemData(item i)
+{
+	return Game->LoadItemData(i->ID);
+}
+
+//Returns true if an item's Pickup state is set
+//Use the IP_ constants for the 'pickup' argument of this function
+bool GetItemPickup(item i, int pickup) 
+{
+	return (i->Pickup&pickup);
+}
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboC(int layer, int pos) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboC";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboC";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (!layer) //layer 0
+	{
+		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			return Screen->ComboC[pos];
+		}
+		else return Game->GetComboCSet(Game->GetCurMap(), Game->GetCurScreen(), pos);
+	}
+	
+	return Game->GetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboD(int layer, int pos) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboD";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboD";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (!layer) //layer 0
+	{
+		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			return Screen->ComboD[pos];
+		}
+		else return Game->GetComboData(Game->GetCurMap(), Game->GetCurScreen(), pos);
+	}
+	
+	return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboF(int layer, int pos) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboF";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboF";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (!layer) //layer 0
+	{
+		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			return Screen->ComboF[pos];
+		}
+		else return Game->GetComboFlag(Game->GetCurMap(), Game->GetCurScreen(), pos);
+	}
+	
+	return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboI(int layer, int pos) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboI";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboI";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (!layer) //layer 0
+	{
+		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			return Screen->ComboI[pos];
+		}
+		else return Game->GetComboInherentFlag(Game->GetCurMap(), Game->GetCurScreen(), pos);
+	}
+	
+	return Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboS(int layer, int pos) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboS";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (layer > 6 )
+	{	
+		int err[]="Invalid layer passed to GetLayerComboS";
+		TraceError(err,layer);
+		return -1;
+	}
+	
+	if (!layer) //layer 0
+	{
+		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			return Screen->ComboS[pos];
+		}
+		else return Game->GetComboSolid(Game->GetCurMap(), Game->GetCurScreen(), pos);
+	}
+	
+	return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int GetLayerComboT(int layer, int pos) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboT";
+		TraceError(err,layer);
+		return -1;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to GetLayerComboT";
+		TraceError(err,layer);
+		return -1;
+	}
+	
+	if (!layer) //layer 0
+	{
+		if ( !SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			return Screen->ComboT[pos];
+		}
+		else return Game->GetComboType(Game->GetCurMap(), Game->GetCurScreen(), pos);
+	}
+	
+	return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+
+}
+
+//Returns true if Link has the level item 'itm' from level 'level'
+//Overloaded to use the current level if no 'level' arg is entered
+//Use the LI_ constants for the 'itm' argument
+bool GetLevelItem(int level, int itm) 
+{
+	return (Game->LItems[level]&itm);
+}
+bool GetLevelItem(int itm) 
+{
+	return (Game->LItems[Game->GetCurLevel()]&itm);
+}
+
+void GetMessage(int ID, int string)
+{
+	Game->GetMessage(ID, string);
+	int i;
+	for(i = MAX_MESSAGELENGTH-2; string[i] == ' '; --i);
+	string[i+1] = 0;
+}
+
+//Returns true if an npc's Misc. flag is set.
+bool GetNPCMiscFlag(npc e, int flag) 
+{
+	return (e->MiscFlags&flag);
+}
+
+//Get an NPC's name from an ID
+void GetNPCName(int ID, int string)
+{
+	npc n = Screen->CreateNPC(ID);
+	n->GetName(string);
+	Remove(n);
+}
+
+//Returns the state of bit 'bit' of Screen->D[] register 'd'
+bool GetScreenDBit(int dmap, int screen, int d, int bit)
+{
+	return ( Game->GetDMapScreenD(dmap, screen, d) & (1 << bit) );
+}
+bool GetScreenDBit(int screen, int d, int bit)
+{
+	return ( Game->GetScreenD(screen, d) & (1 << bit) );
+}
+bool GetScreenDBit(int d, int bit)
+{
+	return (Screen->D[d] & (1 << bit));
+}
+
+
+//Snaps 'x' to the combo grid
+//Equivalent to calling ComboX(ComboAt(x,foo));
+int GridX(int x) 
+{
+	return (x >> 4) << 4;
+}
+
+//Snaps 'y' to the combo grid
+//Equivalent to calling ComboY(ComboAt(foo,y));
+int GridY(int y) 
+{
+	return (y >> 4) << 4;
+}
+
+//H
+
+//Returns if Link has the map for a given level.
+int HasBossKey(int level)
+{
+        if(Game->LItems[level]&LI_BOSSKEY) return 1;
 	return 0;
 }
 
 //Returns if Link has the compass for a given level.
-int HasCompass(int level){
+int HasCompass(int level)
+{
         if(Game->LItems[level]&LI_COMPASS) return 1;
 	return 0;
 }
 
 //Returns if Link has the map for a given level.
-int HasMap(int level){
+int HasMap(int level)
+{
         if(Game->LItems[level]&LI_MAP) return 1;
 	return 0;
 }
 
-//Returns if Link has the map for a given level.
-int HasBossKey(int level){
-        if(Game->LItems[level]&LI_BOSSKEY) return 1;
+//Returns if Link has the Triforce piece for a given level.
+int HasTriforce(int level)
+{
+        if(Game->LItems[level]&LI_TRIFORCE) return 1;
 	return 0;
 }
 
-//Returns if Link has defeated the dungeon boss for a given level.
-int DefeatedLevelBoss(int level){
-        if(Game->LItems[level]&LI_BOSS) return 1;
-	return 0;
+// Returns the Y coordinate of the bottom edge of the hitbox.
+int HitboxBottom(eweapon a) 
+{
+	return (a->Y + a->HitYOffset + a->HitHeight - 1);
 }
 
-//Returns the item ID for the current screen, if there is one. 
-int ScreenItem(){
-	if ( Screen->RoomType == RT_SPECIALITEM ) return Screen->RoomData;
+int HitboxBottom(lweapon a) 
+{
+	return (a->Y + a->HitYOffset + a->HitHeight - 1);
+}
+
+int HitboxBottom(item a) 
+{
+	return (a->Y + a->HitYOffset + a->HitHeight - 1);
+}
+
+int HitboxBottom(npc a) 
+{
+	return (a->Y + a->HitYOffset + a->HitHeight - 1);
+}
+
+//Uses TileWidth and TileHeight for the FFC's bounding box. 
+int HitboxBottom(ffc a) 
+{
+	return a->Y + (a->TileHeight*16) - 1;
+}
+
+// Returns the X coordinate of the left edge of the hitbox.
+int HitboxLeft(eweapon a) 
+{
+	return (a->X + a->HitXOffset);
+}
+
+int HitboxLeft(lweapon a) 
+{
+	return (a->X + a->HitXOffset);
+}
+
+int HitboxLeft(item a) 
+{
+	return (a->X + a->HitXOffset);
+}
+
+int HitboxLeft(npc a) 
+{
+	return (a->X + a->HitXOffset);
+}
+
+int HitboxLeft(ffc a) 
+{
+	return a->X;
+}
+
+
+
+// Returns the X coordinate of the right edge of the hitbox.
+int HitboxRight(eweapon a) 
+{
+	return (a->X + a->HitXOffset + a->HitWidth - 1);
+}
+
+int HitboxRight(lweapon a) 
+{
+	return (a->X + a->HitXOffset + a->HitWidth - 1);
+}
+
+int HitboxRight(item a) 
+{
+	return (a->X + a->HitXOffset + a->HitWidth - 1);
+}
+
+int HitboxRight(npc a) 
+{
+	return (a->X + a->HitXOffset + a->HitWidth - 1);
+}
+
+int HitboxRight(ffc a) 
+{
+	return a->X + a->TileWidth*16 - 1;
+}
+
+// Returns the Y coordinate of the top edge of the hitbox.
+int HitboxTop(eweapon a) 
+{
+	return (a->Y + a->HitYOffset);
+}
+
+int HitboxTop(lweapon a) 
+{
+	return (a->Y + a->HitYOffset);
+}
+
+int HitboxTop(item a) 
+{
+	return (a->Y + a->HitYOffset);
+}
+
+int HitboxTop(npc a) 
+{
+	return (a->Y + a->HitYOffset);
+}
+
+int HitboxTop(ffc a) 
+{
+	return a->Y;
+}
+
+
+//I
+
+//Returns the correct offset to be 'dist' pixels away from the front of a sprite facing in the direction 'dir'
+int InFrontX(int dir, int dist) 
+{
+	int x = 0;
+	if(dir == DIR_LEFT) x = -16+dist;
+	else if(dir == DIR_RIGHT) x = 16-dist;
+	return x;
+}
+
+int InFrontY(int dir, int dist)
+{
+	int y = 0;
+	if(dir == DIR_UP) y = -16+dist;
+	else if(dir == DIR_DOWN) y = 16-dist;
+	return y;
+}
+
+
+//Functions for those who are not comfortable with binary
+//Returns true if the left mouse button is pressed
+bool InputLeftClick() 
+{
+	return (Link->InputMouseB&MB_LEFTCLICK);
+}
+
+//Returns true if the central mouse button (if equipped) is pressed
+bool InputMiddleClick() 
+{
+	return (Link->InputMouseB&MB_MIDDLECLICK);
+}
+
+//Returns true if the right mouse button is pressed
+bool InputRightClick() 
+{
+	return (Link->InputMouseB&MB_RIGHTCLICK);
+}
+
+//Returns true if Link is on a Dungeon (flagged) screen
+bool IsDungeonFlag() 
+{
+	return Screen->Flags[SF_ROOMTYPE] & 1;
+}
+
+//Returns true if the integer is even.
+bool IsEven(int x)
+{
+	return ((x & 1) == 0);
+}
+
+//Returns true if Link is on an Interior (flagged) screen
+bool IsInteriorFlag() 
+{
+	return Screen->Flags[SF_ROOMTYPE] & 2;
+}
+
+//Returns true if the integer is odd.
+bool IsOdd(int x)
+{
+	return ((x & 1) == 1);
+}
+
+// Returns true if the combo at the given position is a pit.
+bool IsPit(int position)
+{
+	int combo=Screen->ComboT[position];
+	if ( combo==CT_PIT ) return true;
+	if ( combo==CT_PITR ) return true; 
+	if ( ( combo>=CT_PITB && combo<=CT_PITD) ) return true;
+	return false;
+}
+
+//Returns true if Link is on a sideview screen
+bool IsSideview() {
+	return Screen->Flags[SF_ROOMTYPE] & 4;
+}
+
+// Returns true if the combo at the given position is water.
+bool IsWater(int position)
+{
+	int combo=Screen->ComboT[position];
+	if ( combo==CT_WATER ) return true;
+	if ( combo==CT_SWIMWARP ) return true;
+	if ( combo==CT_DIVEWARP ) return true; 
+	if ((combo>=CT_SWIMWARPB && combo<=CT_DIVEWARPD)) return true;
+	return false;
+}
+
+//J
+
+//K
+
+//L
+
+//Function to get a distance that would otherwise be too large and overflow Distance().
+//Get the distance between two points, divided up by divisor. This avoids causing problems 
+//with the Distance function doing calculations that go over the max constant
+float LargeDistance(int x1, int y1, int x2, int y2, int divisor)
+{
+	int cx = x1+(x2-x1)/divisor;
+	int cy = y1+(y2-y1)/divisor;
+	return Distance(x1, y1, cx, cy)*divisor;
+}
+
+//Returns the position of the last instance of the given combo flag, or -1.
+//Checks inherent flags too!
+int LastComboFlagOf(int t, int layer) 
+{
+	for (int i = 175; i >= 0; --i) 
+	{
+		if (!layer) //layer 0 
+		{
+			if (Screen->ComboF[i] == t ) return i;
+			if ( Screen->ComboI[i] == t ) return i;
+		}
+		else 
+		{
+			if (Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer),i) == t ) return i;
+			if ( Game->GetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer),i) == t ) return i;
+		}
+	}
 	return -1;
 }
 
-//Returns the number of Level Keys Link currently has for a specific level
-//int NumTriforcePieces(int level){
-  //  int ret = 0;
-    //for(int i=1;i<=8;i++)
-      //  if(Game->LItems[level]&LI_TRIFORCE) ret++;
-    //return ret;
-//}
 
-//Returns the number of Triforce Pieces Link currently has.
-//Specify the highest level in your game with arg 'maxlevel'.
-int NumTriforcePieces(int maxlevel){
-    int ret = 0;
-    for(int i=1;i<=maxlevel;i++)
-        if(Game->LItems[i]&LI_TRIFORCE) ret++;
-    return ret;
+//Returns the position of the last instance of the given combo, or -1.
+int LastComboTypeOf(int t, int layer) 
+{
+	for (int i = 175; i >= 0; --i) 
+	{
+		if (!layer) //layer 0 
+		{
+			if (Screen->ComboT[i] == t)
+				return i;
+		}
+		else 
+		{
+			if (GetLayerComboT(layer,i) == t)
+				return i;
+		}
+	}
+	return -1;
 }
 
-
-//Add to a counter without rollover.
-void CounterAdd(int counter, int amount){
-	if ( amount + Game->Counter[counter] > MAX_COUNTER ) Game->Counter[counter] = MAX_COUNTER;
-	else Game->Counter[counter] += amount;
+//Returns the position of the last instance of the given combo, or -1.
+int LastComboOf(int t, int layer) 
+{
+	for (int i = 175; i >= 0; --i) 
+	{
+		if (!layer) //layer 0 
+		{
+			if (Screen->ComboD[i] == t)
+				return i;
+		}
+		else 
+		{
+			if (GetLayerComboD(layer,i) == t)
+				return i;
+		}
+	}
+	return -1;
 }
 
-//Reduce a counter without rollvoer. 
-void CounterReduce(int counter, int amount){
-	if ( Game->Counter[counter] - amount < 0 ) Game->Counter[counter] = 0; 
-	else Game->Counter[counter] -= amount;
+//Returns if Link is left of an npc.
+bool LeftOf(npc n){ return Link->X < n->X; }
+//Returns if Link is above, below, left of, or right of an ffc.
+bool LeftOf(ffc n){ return Link->X < n->X; }
+//Returns if Link is above, below, left of, or right of an eweapon.
+bool LeftOf(eweapon n){ return Link->X < n->X; }
+//Returns if Link is above, below, left of, or right of an lweapon.
+bool LeftOf(lweapon n){ return Link->X < n->X; }
+
+
+// Interpolates between p1 and p2 given 't' clamped within range 0,1.
+float Lerp(float p1, float p2, float t) 
+{
+	return (p1 + (p2 - p1) * t);
+}
+
+// Returns true if there is a collision between Link's hitbox and the eweapon's.
+// This only checks hitboxes.
+bool LinkCollision(eweapon b) 
+{
+	int ax = Link->X + Link->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the lweapon's.
+// This only checks hitboxes.
+bool LinkCollision(lweapon b) 
+{
+	int ax = Link->X + Link->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the item's.
+// This only checks hitboxes.
+bool LinkCollision(item b) 
+{
+	int ax = Link->X + Link->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the npc's.
+// This only checks hitboxes.  Uses TileWidth and TileHeight to find the centre of the FFCs.
+bool LinkCollision(npc b) 
+{
+	int ax = Link->X + Link->HitXOffset;
+	int bx = b->X + b->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+	int by = b->Y + b->HitYOffset;
+	return RectCollision(ax, ay, ax+Link->HitWidth, ay+Link->HitHeight, bx, by, bx+b->HitWidth, by+b->HitHeight) && (Link->Z + Link->HitZHeight >= b->Z) && (Link->Z <= b->Z + b->HitZHeight);
+}
+
+// Returns true if there is a collision between Link's hitbox and the FFC's.
+// This only checks hitboxes.
+bool LinkCollision(ffc f) 
+{
+	int ax = Link->X + Link->HitXOffset;
+	int ay = Link->Y + Link->HitYOffset;
+	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16), f->Y+(f->TileHeight*16), ax, ay, ax+Link->HitWidth, ay+Link->HitHeight);
+}
+
+// Returns the first EWeapon of the given type. Use the EW_ constants.
+// If none exist, it returns an uninitialised pointer.
+eweapon LoadEWeaponOf(int type) {
+	eweapon w;
+	for ( int i = Screen->NumEWeapons(); i > 0; --i )
+	{
+		w = Screen->LoadEWeapon(i);
+		if (w->ID == type) return w;
+	}
+	eweapon w2; //NULL
+	return w2;
+}
+
+// Returns the first LWeapon of the given type. Use the LW_ constants.
+// If none exist, it returns an uninitialised pointer.
+lweapon LoadLWeaponOf(int type) 
+{
+	lweapon w;
+	for ( int i = Screen->NumLWeapons(); i > 0; --i )
+	{
+		w = Screen->LoadLWeapon(i);
+		if (w->ID == type) return w;
+	}
+	lweapon w2; //NULL
+	return w2;
+}
+
+// Returns the first NPC of the given ID. Use the NPC_ constants.
+// If none exist, it returns an uninitialised pointer.
+npc LoadNPCOf(int type) 
+{
+	npc n;
+	for ( int i = Screen->NumNPCs(); i > 0; --i ) 
+	{
+		n = Screen->LoadNPC(i);
+		if (n->ID == type) return n;
+	}
+	npc n2; //NULL
+	return n2;
+}
+
+// Returns the first NPC of the given type. Use the NPCT_ constants.
+// If none exist, it returns an uninitialised pointer.
+npc LoadNPCOfType(int type) 
+{
+	npc n;
+	for ( int i = Screen->NumNPCs(); i > 0; --i )
+	{
+		n = Screen->LoadNPC(i);
+		if (n->Type == type) return n;
+	}
+	npc n2; //NULL
+	return n2;
+}
+
+//Returns the logarithm of x to the given base
+float LogToBase(float x, float base)
+{
+	return Ln(x)/Ln(base);
+}
+
+//M
+
+int MapToDMap(int screen, int dmap) 
+{
+	return screen-Game->DMapOffset[dmap];
 }
 
 //Add to a counter max without rollover.
-void MCounterAdd(int counter, int amount){
+void MCounterAdd(int counter, int amount)
+{
 	if ( amount + Game->MCounter[counter] > MAX_COUNTER ) Game->MCounter[counter] = MAX_COUNTER;
 	else Game->MCounter[counter] += amount;
 }
 
 //Reduce a counter max without rollvoer. 
-void MCounterReduce(int counter, int amount){
+void MCounterReduce(int counter, int amount)
+{
 	if ( Game->MCounter[counter] - amount < 0 ) Game->MCounter[counter] = 0; 
 	else Game->MCounter[counter] -= amount;
 }
 
-//Add to a drain counter without rollover.
-void DCounterAdd(int counter, int amount){
-	if ( amount + Game->DCounter[counter] > MAX_COUNTER ) Game->DCounter[counter] = MAX_COUNTER;
-	else Game->MCounter[counter] += amount;
+
+// Finds the center of p1 and p2.
+float Midpoint(float p1, float p2) 
+{
+	return Lerp(p1, p2, 0.5);
 }
 
-//Reduce a drain counter without rollvoer. 
-void DCounterReduce(int counter, int amount){
-	if ( Game->DCounter[counter] - amount < (MAX_COUNTER * -1) ) Game->DCounter[counter] = (MAX_COUNTER * -1); 
-	else Game->DCounter[counter] -= amount;
+//N
+
+//Creates an lweapon at 'distx,disty' away from where Link is facing
+lweapon NextToLink(int id, int distx, int disty) 
+{
+	lweapon l = CreateLWeaponAt(id, Link->X+InFrontX(Link->Dir, distx), Link->Y+InFrontY(Link->Dir, disty));
+	if(l->isValid()) 
+	{
+		l->Dir = Link->Dir;
+	}
+	return l;
 }
 
-//Returns true if the central mouse button (if equipped) is pressed
-bool InputMiddleClick() {
-	return (Link->InputMouseB&MB_MIDDLECLICK);
+//Creates an lweapon 'dist' pixels away from the front of Link
+lweapon NextToLink(int id, int dist) 
+{
+	return NextToLink(id, dist, dist);
+}
+
+eweapon NextToNPC(npc n, int id, int distx, int disty) 
+{
+	eweapon e = CreateEWeaponAt(id, n->X+InFrontX(n->Dir, distx), n->Y+InFrontY(n->Dir, disty));
+	if(e->isValid()) 
+	{
+		e->Dir = n->Dir;
+	}
+	return e;
+}
+eweapon NextToNPC(npc n, int id, int dist) 
+{
+	return NextToNPC(n, id, dist, dist);
+}
+
+//Kills all of Link's inputs
+void NoAction()
+{
+	Link->InputUp = false; Link->PressUp = false;
+	Link->InputDown = false; Link->PressDown = false;
+	Link->InputLeft = false; Link->PressLeft = false;
+	Link->InputRight = false; Link->PressRight = false;
+	Link->InputR = false; Link->PressR = false;
+	Link->InputL = false; Link->PressL = false;
+	Link->InputA = false; Link->PressA = false;
+	Link->InputB = false; Link->PressB = false;
+	Link->InputEx1 = false; Link->PressEx1 = false;
+	Link->InputEx2 = false; Link->PressEx2 = false;
+	Link->InputEx3 = false; Link->PressEx3 = false;
+	Link->InputEx4 = false; Link->PressEx4 = false;
 }
 
 
@@ -2425,87 +1973,835 @@ int NumberEnemies()
 	}
 	return count;
 }
-			
 
-//Returns if there are enemy NPCs alive on the current screen.
-bool EnemiesAlive()
+int NumEWeaponsOf(int type) 
 {
-	bool alive = false; 
-	for ( int q = Screen->NumNPCs(); q > 0; --q )
+	int ret = 0;
+	eweapon w;
+	for (int i = Screen->NumEWeapons(); i > 0; --i) 
 	{
-		npc n = Screen->LoadNPC(q); 
-		if ( n->Type != NPCT_PROJECTILE )
-		{
-			if ( !(n->MiscFlags&NPCMF_NOT_BEATABLE) )
-			{
-				if ( n->Type != NPCT_FAIRY )
-				{
-					if ( n->Type != NPCT_GUY )
-					{
-						alive = true;
-					}
-				}
-			}
-		}
+		w = Screen->LoadEWeapon(i);
+		if (w->ID == type)
+			++ret;
 	}
-	return alive;
+	return ret;
 }
-
-//Function to get a distance that would otherwise be too large and overflow Distance().
-//Get the distance between two points, divided up by divisor. This avoids causing problems 
-//with the Distance function doing calculations that go over the max constant
-float LargeDistance(int x1, int y1, int x2, int y2, int divisor)
+// Use the I_ constants.
+// Warning: these iterate over every onscreen item.
+// Iterating over every onscreen lweapon multiple times per frame may
+// cause slowdown in Zelda Classic.
+int NumItemsOf(int type) 
 {
-    int cx = x1+(x2-x1)/divisor;
-    int cy = y1+(y2-y1)/divisor;
-    return Distance(x1, y1, cx, cy)*divisor;
+	int ret = 0;
+	item it;
+	for (int i = Screen->NumItems(); i > 0 ; --i) 
+	{
+		it = Screen->LoadItem(i);
+		if (it->ID == type)
+			++ret;
+	}
+	return ret;
 }
 
-//Returns if Link is facing an ffc.
-bool Facing(ffc f)
+// Use the LW_ constants.
+// Warning: these iterate over every onscreen lweapon.
+// Iterating over every onscreen lweapon multiple times per frame may
+// cause slowdown in Zelda Classic.
+int NumLWeaponsOf(int type) 
 {
-	if ( Link->Dir == DIR_UP && Link->Y > f->Y ) return true;
-	if ( Link->Dir == DIR_DOWN && Link->Y < f->Y ) return true;
-	if ( Link->Dir == DIR_RIGHT && Link->X < f->X ) return true;
-	if ( Link->Dir == DIR_LEFT && Link->X > f->X ) return true;
-	return false;
+	int ret = 0;
+	lweapon w;
+	for (int i = Screen->NumLWeapons(); i > 0; --i) 
+	{
+		w = Screen->LoadLWeapon(i);
+		if (w->ID == type)
+			++ret;
+	}
+	return ret;
 }
 
-//Returns if Link is above an npc.
-bool Above(npc n){ return Link->Y < n->Y; }
-//Returns if Link is below an npc.
-bool Below(npc n){ return Link->Y > n->Y; }
-//Returns if Link is left of an npc.
-bool LeftOf(npc n){ return Link->X < n->X; }
+//Use NPCT_* constants.
+int NumNPCsOf(int type) 
+{
+	int ret = 0;
+	npc n;
+	for (int i = Screen->NumNPCs(); i > 0 ; --i) 
+	{
+		n = Screen->LoadNPC(i);
+		if (n->ID == type)
+			++ret;
+	}
+	return ret;
+}
+
+//Returns the number of Triforce Pieces Link currently has
+int NumTriforcePieces()
+{
+	int ret = 0;
+	for(int i=1;i<=8;++i)
+		if(Game->LItems[i]&LI_TRIFORCE) ++ret;
+	return ret;
+}
+
+//Returns the number of Triforce Pieces Link currently has.
+//Specify the highest level in your game with arg 'maxlevel'.
+int NumTriforcePieces(int maxlevel)
+{
+	int ret = 0;
+	for(int i=1;i<=maxlevel;++i)
+		if(Game->LItems[i]&LI_TRIFORCE) ++ret;
+	return ret;
+}
+
+
+//O
+
+//A shorthand way to get a combo on the current layer.
+//Layer 0 is the screen itself.
+int old_GetLayerComboD(int layer, int pos) {
+	if (!layer)
+		return Screen->ComboD[pos];
+	else
+		return Game->GetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void old_SetLayerComboD(int layer, int pos, int combo) {
+	if (!layer)
+		Screen->ComboD[pos] = combo;
+	else
+		Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+}
+
+//A shorthand way to get a combo flag on the current layer.
+//Layer 0 is the screen itself.
+int old_GetLayerComboF(int layer, int pos) {
+	if (!layer)
+		return Screen->ComboF[pos];
+	else
+		return Game->GetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo flag on the current layer.
+//Layer 0 is the screen itself.
+void old_SetLayerComboF(int layer, int pos, int flag) {
+	if (!layer)
+		Screen->ComboF[pos] = flag;
+	else
+		Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, flag);
+}
+
+//A shorthand way to get a combo's solidity on the current layer.
+//Layer 0 is the screen itself.
+int old_GetLayerComboS(int layer, int pos) {
+	if (!layer)
+		return Screen->ComboS[pos];
+	else if(Screen->LayerMap(layer)<0)
+	// Special case for this one: return 0 if there's no layer
+		return 0;
+	else
+		return Game->GetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo's solidity on the current layer.
+//Layer 0 is the screen itself.
+void old_SetLayerComboS(int layer, int pos, int solidity) {
+	if (!layer)
+		Screen->ComboS[pos] = solidity;
+	else
+		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, solidity);
+}
+
+//A shorthand way to get a combo type on the current layer.
+//Layer 0 is the screen itself.
+int old_GetLayerComboT(int layer, int pos) {
+	if (!layer)
+		return Screen->ComboT[pos];
+	else
+		return Game->GetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos);
+}
+
+//A shorthand way to set a combo type on the current layer.
+//Layer 0 is the screen itself.
+void old_SetLayerComboT(int layer, int pos, int type) {
+	if (!layer)
+		Screen->ComboT[pos] = type;
+	else
+		Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, type);
+}
+
+//Returns true if the sprite at (x,y) is standing on a sideview platform on a sideview screen, as worked out
+//by ZC's internal code.
+//For 16 pixel high sprites only.
+bool OnSidePlatform(int x, int y) {
+	return ((Screen->isSolid(x+4,y+16) || Screen->isSolid(x+12,y+16)) && Screen->Flags[SF_ROOMTYPE]&4);
+}
+
+//Returns true if a sprite of height 'h' at position (x,y) with an offset of (xOff,yOff) is standing
+//on a sideview platform on a sideview screen.
+bool OnSidePlatform(int x, int y, int xOff, int yOff, int h) {
+	return ((Screen->isSolid((x+xOff)+4,(y+yOff)+h) || Screen->isSolid((x+xOff)+12,(y+yOff)+h)) && Screen->Flags[SF_ROOMTYPE]&4);
+}
+//Returns the opposite direction to angle 'dir'
+int OppositeDir(int dir) 
+{
+	return Cond(dir < 4, dir^1b, dir^11b);
+}
+
+//P
+
+//Q
+
+//R
+
+//The above, but in radians.
+float RadianAngle(int x1, int y1, int x2, int y2) 
+{
+	return ArcTan(x2-x1, y2-y1);
+}
+
+//The above, but for radian angles.
+int RadianAngleDir4(float angle) 
+{
+	return AngleDir4(angle*57.2958);
+}
+
+//The above, but for radian angles.
+int RadianAngleDir8(float angle) 
+{
+	return AngleDir8(angle*57.2958);
+}
+
+//Converts 'r' in radians to degrees
+float RadtoDeg(float r) 
+{
+	return r*57.2958;
+}
+
+//Returns a random integer in the bounds of min and max
+int Rand(int min, int max) 
+{
+	return min+(Rand((1+max)-min));
+}
+
+//Returns a random floating point number up to n
+float Randf(float n) 
+{
+	return (Rand(0x7fff)/0x7fff)*n;
+}
+
+//Returns a random floating point number between min and max
+float Randf(float n1, float n2) 
+{
+	return n1 + (Rand(0x7fff)/(0x7fff))*(n2-n1);
+}
+
+//Generalized and optimized rectangle collision checking function.
+//Returns true if the bounding box of box1 and box2 overlap.
+bool RectCollision(int box1_x1, int box1_y1, int box1_x2, int box1_y2, int box2_x1, int box2_y1, int box2_x2, int box2_y2) 
+{
+	if( box1_y2 < box2_y1 ) return false;
+	else if( box1_y1 > box2_y2 ) return false;
+	else if( box1_x2 < box2_x1 ) return false;
+	else if( box1_x1 > box2_x2 ) return false;
+	return true;
+}
+
+//Removes LWeapon 'l' from the screen
+void Remove(lweapon l)
+{
+	if(!l->isValid()) return;
+	l->DeadState = WDS_DEAD;
+	l->X = 32768;
+}
+
+//Removes EWeapon 'e' from the screen
+void Remove(eweapon e)
+{
+	if(!e->isValid()) return;
+	e->DeadState = WDS_DEAD;
+	e->X = 32768;
+}
+
+//Removes Item 'i' from the screen
+void Remove(item i)
+{
+	if(!i->isValid()) return;
+	i->X = 32768;
+}
+
+//Removes NPC 'n' from the screen
+void Remove(npc n)
+{
+	if(!n->isValid()) return;
+	n->X = 32768;
+	n->HP = -1000;
+}
+
 //Returns if Link is right of an npc.
 bool RightOf(npc n){ return Link->X > n->X; }
-
 //Returns if Link is above, below, left of, or right of an ffc.
-bool Above(ffc n){ return Link->Y < n->Y; }
-bool Below(ffc n){ return Link->Y > n->Y; }
-bool LeftOf(ffc n){ return Link->X < n->X; }
 bool RightOf(ffc n){ return Link->X > n->X; }
-
 //Returns if Link is above, below, left of, or right of an eweapon.
-bool Above(eweapon n){ return Link->Y < n->Y; }
-bool Below(eweapon n){ return Link->Y > n->Y; }
-bool LeftOf(eweapon n){ return Link->X < n->X; }
 bool RightOf(eweapon n){ return Link->X > n->X; }
-
 //Returns if Link is above, below, left of, or right of an lweapon.
-bool Above(lweapon n){ return Link->Y < n->Y; }
-bool Below(lweapon n){ return Link->Y > n->Y; }
-bool LeftOf(lweapon n){ return Link->X < n->X; }
 bool RightOf(lweapon n){ return Link->X > n->X; }
 
-//returns true if Link is within 'dist' distance of an ffc on both its X and its Y axis. 
-bool DistXY(ffc a, int dist)
+//Rounds x to the nearest integer
+float Round(float x) 
 {
-	if ( Abs(Link->X - a->X) <= dist )
+	if(x < 0)
+		return (x-.5)<<0;
+	return (x+.5)<<0;
+}
+
+//rotates and scales X about a center point by an amount of degrees
+float RotateScalePointX(float x, float y, float centerX, float centerY, float degrees, float scaleX, float scaleY) 
+{
+	float dx = (x - centerX) * scaleX;
+	float dy = (y - centerY) * scaleY;
+	return (Cos(degrees) * dx) - (Sin(degrees) * dy) + centerX;
+}
+
+//rotates and scales Y about a center point by an amount of degrees
+float RotateScalePointY(float x, float y, float centerX, float centerY, float degrees, float scaleX, float scaleY) 
+{
+	float dx = (x - centerX) * scaleX;
+	float dy = (y - centerY) * scaleY;
+	return (Sin(degrees) * dx) - (Cos(degrees) * dy) + centerY;
+}
+
+//rotates X about a center point by an amount of degrees
+float RotatePointX(float x, float y, float centerX, float centerY, float degrees) 
+{
+  
+	if ( REVISED_ROTATEPOINT_X_FUNCTION )
 	{
-		if ( Abs(Link->Y - a->Y) <= dist ) return true;
+		int distance = LargeDistance(centerX, centerY, x, y, 10);
+		int angle = Angle(centerX, centerY, x, y);
+		return centerX+VectorX(distance, angle+degrees);
 	}
-	return false;
+	else
+	{
+		float dx = x - centerX;
+		float dy = y - centerY;
+		return (Cos(degrees) * dx) - (Sin(degrees) * dy) + centerX;
+	}
+}
+
+//rotates Y about a center point by an amount of degrees
+float RotatePointY(float x, float y, float centerX, float centerY, float degrees) 
+{
+	if ( REVISED_ROTATEPOINT_Y_FUNCTION )
+	{
+		int distance = LargeDistance(centerX, centerY, x, y, 10);
+		int angle = Angle(centerX, centerY, x, y);
+		return centerY+VectorY(distance, angle+degrees);
+	}
+	else
+	{
+		float dx = x - centerX;
+		float dy = y - centerY;
+		return (Sin(degrees) * dx) - (Cos(degrees) * dy) + centerY;
+	}
+}
+
+//S
+
+//scales X to centerX by a given scale
+float ScalePointX(float x, float centerX, float scale) 
+{
+	return (scale * (x - centerX)) + centerX; 
+}
+
+//scales Y to centerY by a given scale
+float ScalePointY(float y, float centerY, float scale) 
+{
+	return (scale * (y - centerY)) + centerY; 
+}
+
+//Copies the combos and csets from one screen to another.
+//Only copies layer 0!
+void ScreenCopy(int destmap, int destscr, int srcmap, int srcscr) 
+{
+	for (int i = 0; i < 176; ++i) 
+	{
+		Game->SetComboData(destmap,destscr, i, Game->GetComboData(srcmap,srcscr,i));
+		Game->SetComboCSet(destmap,destscr, i, Game->GetComboCSet(srcmap,srcscr,i));
+	}
 }
 
 
+//Returns 1 if Screen Enemy Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
+//Flags are numbered starting from 0
+int ScreenEFlag(int category, int flag) 
+{
+	int catsizes[] = {5,5,4}; //this is what the editor shows. 
+	//int catsizes[] = {1,5,4}; //this is what ffscript seems to think, anyway. 
+	//int catsizes[] = {6,6,5}; //old value, plain wrong. -Z ( 12th February, 2019 )
+	if(flag < 0 || flag >= catsizes[category]) return -1;
+	return Screen->EFlags[category]&(1<<flag);
+}
+
+//Returns 1 if Screen Flag 'flag' is set from category 'category', 0 if it's not and -1 if an invalid flag is passed
+//Flags are numbered starting from 0
+int ScreenFlag(int category, int flag) 
+{
+	int catsizes[] = {3,7,4,5,2,4,4,2,3,7}; //according to ffscript.cpp, the last flagset size is 3, but the editor is 7. 
+	//int catsizes[] = {3,7,5,3,2,4,4,2,3,7}; //old value, plain wrong -Z ( 12th February, 2019 )
+	if(flag < 0 || flag >= catsizes[category]) return -1;
+	return Screen->Flags[category]&(1<<flag);
+}
+
+//Returns the item ID for the current screen, if there is one. 
+int ScreenItem()
+{
+	if ( Screen->RoomType == RT_SPECIALITEM ) return Screen->RoomData;
+	return -1;
+}
+
+//Sets a certain DMap flag to 'state'
+void SetDMapFlag(int dmap, int flag, bool state)
+{
+	if(state) Game->DMapFlags[dmap] |= flag;
+	else Game->DMapFlags[dmap] &= ~flag;
+}
+
+//Sets an item's Pickup state to 'state'
+void SetItemPickup(item i, int pickup, bool state) 
+{
+	if(state) i->Pickup |= pickup;
+	else i->Pickup &= ~pickup;
+}
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboC(int layer, int pos, int combo) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboC";
+		TraceError(err,layer);
+		return;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboC";
+		TraceError(err,layer);
+		return;
+	}
+	if (!layer) //layer 0
+	{
+		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			Game->SetComboCSet(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+			return;
+		}
+		else
+		{
+			Screen->ComboC[pos] = combo;
+			return;
+		}
+	}
+	else
+	{
+		Game->SetComboCSet(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+	}
+}
+
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboD(int layer, int pos, int combo) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboD";
+		TraceError(err,layer);
+		return;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboD";
+		TraceError(err,layer);
+		return;
+	}
+	if (!layer) //layer 0
+	{
+		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			Game->SetComboData(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+			return;
+		}
+		else
+		{
+			Screen->ComboD[pos] = combo;
+			return;
+		}
+	}
+	else
+	{
+		Game->SetComboData(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+	}
+}
+
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboF(int layer, int pos, int combo) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboF";
+		TraceError(err,layer);
+		return;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboF";
+		TraceError(err,layer);
+		return;
+	}
+	if (!layer) //layer 0
+	{
+		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			Game->SetComboFlag(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+			return;
+		}
+		else
+		{
+			Screen->ComboF[pos] = combo;
+			return;
+		}
+	}
+	else
+	{
+		Game->SetComboFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+	}
+}
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboI(int layer, int pos, int combo) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboI";
+		TraceError(err,layer);
+		return;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboI";
+		TraceError(err,layer);
+		return;
+	}
+	if (!layer) //layer 0
+	{
+		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			Game->SetComboInherentFlag(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+			return;
+		}
+		else
+		{
+			Screen->ComboI[pos] = combo;
+			return;
+		}
+	}
+	else
+	{
+		Game->SetComboInherentFlag(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+	}
+}
+
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboS(int layer, int pos, int combo) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboS";
+		TraceError(err,layer);
+		return;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboS";
+		TraceError(err,layer);
+		return;
+	}
+	
+	if (!layer) //layer 0
+	{
+		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			Game->SetComboSolid(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+			return;
+		}
+		else
+		{
+			Screen->ComboS[pos] = combo;
+			return;
+		}
+	}
+	else
+	{
+		Game->SetComboSolid(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+	}
+}
+
+
+//A shorthand way to set a combo on the current layer.
+//Layer 0 is the screen itself.
+void SetLayerComboT(int layer, int pos, int combo) 
+{
+	if (layer < 0 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboT";
+		TraceError(err,layer);
+		return;
+	}
+	if (layer > 6 )
+	{
+		int err[]="Invalid layer passed to SetLayerComboT";
+		TraceError(err,layer);
+		return;
+	}
+	
+	if (!layer) //layer 0
+	{
+		if ( SETLAYERCOMBO_ALWAYS_USE_SETCOMBO )
+		{
+			Game->SetComboType(Game->GetCurMap(), Game->GetCurScreen(), pos, combo);
+			return;
+		}
+		else
+		{
+			Screen->ComboT[pos] = combo;
+			return;
+		}
+	}
+	else
+	{
+		Game->SetComboType(Screen->LayerMap(layer), Screen->LayerScreen(layer), pos, combo);
+	}
+	
+}
+
+//Gives or removes a level item from Link's inventory
+void SetLevelItem(int level, int itm, bool state) 
+{
+	if(state) Game->LItems[level] |= itm;
+	else Game->LItems[level] &= ~itm;
+}
+void SetLevelItem(int itm, bool state) 
+{
+	if(state) Game->LItems[Game->GetCurLevel()] |= itm;
+	else Game->LItems[Game->GetCurLevel()] &= ~itm;
+}
+
+//Sets bit 'bit' of Screen->D[] register 'd' to 'state'
+void SetScreenDBit(int dmap, int screen, int d, int bit, bool state)
+{
+	int curstate = Game->GetDMapScreenD(dmap, screen, d);
+	if(state)	Game->SetDMapScreenD(dmap, screen, d, curstate |  (1 << bit));
+	else 		Game->SetDMapScreenD(dmap, screen, d, curstate & ~(1 << bit));
+}
+void SetScreenDBit(int screen, int d, int bit, bool state)
+{
+	int curstate = Game->GetScreenD(screen, d);
+	if(state)	Game->SetScreenD(screen, d, curstate |  (1 << bit));
+	else 		Game->SetScreenD(screen, d, curstate & ~(1 << bit));
+}
+void SetScreenDBit(int d, int bit, bool state)
+{
+	if(state)	Screen->D[d] |= (1 << bit);
+	else		Screen->D[d] &= ~(1 << bit);
+}
+
+
+//Returns the sign of n
+int Sign(int n) 
+{
+	if (n > 0) return 1;
+	else if (n < 0) return -1;
+	else return 0;
+}
+
+// Performs a "Smooth" Interpolation given 't' clamped within range 0,1.
+float SmoothStep(float p1, float p2, float t) 
+{
+	t = (t * t) * (3.0 - (2.0 * t));
+	return Lerp(p1, p2, t);
+}
+
+//Converts directions to go round in a circle rather than U, D, L, R
+int SpinDir(int dir) 
+{
+	if(dir==0)
+		return DIR_UP;
+	else if(dir==1)
+		return DIR_RIGHT;
+	else if(dir==2)
+		return DIR_DOWN;
+	else if(dir==3)
+		return DIR_LEFT;
+	return -1;
+}
+
+//Check for collisions of two squares given upper-left coordinates and a side length for each.
+bool SquareCollision(int c1x, int c1y, int side1, int c2x, int c2y, int side2) 
+{
+	return RectCollision(c1x, c1y, c1x+side1, c1y+side1, c2x, c2y, c2x+side2, c2y+side2);
+}
+
+//Check for collisions of two squares given center coordinates and a halved side length for each.
+bool SquareCollision2(int c1x, int c1y, int radius1, int c2x, int c2y, int radius2) 
+{
+	if( c1y + radius1 < c2y - radius2 ) return false;
+	else if( c1y - radius1 > c2y + radius2 ) return false;
+	else if( c1x + radius1 < c2x - radius2 ) return false;
+	else if( c1x - radius1 > c2x + radius2 ) return false;
+	return true;
+}
+
+//Swaps a block of tiles defined by diagonal corners 'first' and 'last'
+//with the block starting with top left tile 'second'
+void SwapTileBlock(int first, int last, int second)
+{
+	if(last < first){
+		int swap = first;
+		first = last;
+		last = swap;
+	}
+	int w = last%20-first%20;
+	if(w < 0){
+		first -= w;
+		last += w;
+		w = -w;
+	}
+	for(int i=0;i<=last-first;++i) if(i%20 <= w) SwapTile(first+i,second+i);
+}
+
+//Swaps a row of tiles of length 'length' between positions 'first' and 'second'
+void SwapTileRow(int first, int second, int length)
+{
+	for(int i=0;i<length;++i) SwapTile(first+i,second+i);
+}
+
+//T
+
+// Returns an angle pointing (t)percentage more accurate to the target than the specified radian_angle.
+float TurnTowards( int X, int Y, int targetX, int targetY, float radian_angle, float t ) 
+{
+	float a = ArcTan( targetX - X, targetY - Y );
+	float d = WrapAngle(a - radian_angle);
+	if ( d > PI )
+		d =-( PI2 - d );
+	else if ( d < -PI )
+		d = PI2 + d;
+	return WrapAngle(radian_angle + d * t);
+}
+
+//U
+
+//Returns true if Link is using item 'id'
+bool UsingItem(int id)
+{
+	return (GetEquipmentA() == id && Link->InputA) || (GetEquipmentB() == id && Link->InputB);
+}
+
+//V
+
+//same as Clamp, but with reversed values.
+int VBound(int x, int high, int low) 
+{
+	if(x<low) x=low;
+	else if(x>high) x=high;
+	return x;
+}
+
+// Returns the X component of a vector with a degree angle.
+// A length of 3 and angle of 0 returns 3.
+// A length of 3 and angle of 45 returns approx. 1.57.
+// A length of 3 and angle of 90 returns 0.
+float VectorX(int len, float angle) 
+{
+	return Cos(angle)*len;
+}
+
+// Returns the Y component of a vector with a degree angle.
+// A length of 3 and angle of 0 returns 0.
+// A length of 3 and angle of 45 returns approx. 1.57.
+// A length of 3 and angle of 90 returns 3.
+float VectorY(int len, float angle) 
+{
+	return Sin(angle)*len;
+}
+
+//W
+
+//Wait for n frames
+void Waitframes(int n) 
+{
+	while( n-- > 0) Waitframe();
+}
+
+//NoAction, then Waitframe or (equivalent of) Waitframes
+void WaitNoAction()
+{
+	NoAction();
+	Waitframe();
+}
+void WaitNoAction(int frames)
+{
+	for(int i = 0; i < frames; ++i)
+		WaitNoAction();
+}
+
+//Turns a WPN_ constant to an EW_ constant
+int WeaponTypeToID(int wpnt)
+{
+	if(wpnt == WPN_ENEMYFLAME) 		return EW_FIRE;
+	else if(wpnt == WPN_ENEMYWIND)		return EW_WIND;
+	else if(wpnt == WPN_ENEMYFIREBALL)	return EW_FIREBALL;
+	else if(wpnt == WPN_ENEMYARROW)		return EW_ARROW;
+	else if(wpnt == WPN_ENEMYBRANG)		return EW_BRANG;
+	else if(wpnt == WPN_ENEMYSWORD)		return EW_BEAM;
+	else if(wpnt == WPN_ENEMYROCK)		return EW_ROCK;
+	else if(wpnt == WPN_ENEMYMAGIC)		return EW_MAGIC;
+	else if(wpnt == WPN_ENEMYBOMB)		return EW_BOMBBLAST; //flipped bomb and lit bomb in older versions of this file. -Z ( 12th February, 2019 )
+	else if(wpnt == WPN_ENEMYSBOMB)		return EW_SBOMB;
+	else if(wpnt == WPN_ENEMYLITBOMB)	return EW_BOMB;
+	else if(wpnt == WPN_ENEMYLITSBOMB)	return EW_SBOMBBLAST;
+	else if(wpnt == WPN_ENEMYFIRETRAIL)	return EW_FIRETRAIL;
+	else if(wpnt == WPN_ENEMYFLAME2)	return EW_FIRE2;
+	else if(wpnt == WPN_ENEMYFIREBALL2)	return EW_FIREBALL2;
+	return -1;
+}
+
+// Wraps radian value towards the range of -PI,PI.
+float WrapAngle( float radians ) 
+{
+	while (radians <= -PI) radians += PI2;
+	while (radians > PI) radians -= PI2;
+	return radians;
+}
+
+// Wraps degree value towards the range of -180,180.
+float WrapDegrees( float degrees ) 
+{
+	while (degrees <= -180) degrees += 360;
+	while (degrees > 180) degrees -= 360;
+	return degrees;
+}
+
+//X
+
+//Y
+
+//Z
