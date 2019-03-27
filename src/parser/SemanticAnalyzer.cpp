@@ -573,6 +573,10 @@ void SemanticAnalyzer::caseImportDecl(ASTImportDecl& host, void*)
 	{
 		RecursiveVisitor::caseImportDecl(host);
 	}
+	else
+	{
+		host.disable(); //Do not use this import; it is a duplicate, and duplicates have been disallowed! -V
+	}
 }
 
 // Expressions

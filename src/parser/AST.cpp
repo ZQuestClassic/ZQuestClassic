@@ -45,7 +45,7 @@ string LocationData::asString() const
 // AST
 
 AST::AST(LocationData const& location)
-	: location(location), disabled(false)
+	: location(location), errorDisabled(false), disabled_(false)
 {}
 
 // ASTFile
@@ -287,7 +287,7 @@ CompileOptionSetting ASTSetOption::getSetting(
 // ASTStmt
 
 ASTStmt::ASTStmt(LocationData const& location)
-	: AST(location), disabled_(false)
+	: AST(location)
 {}
 
 // ASTBlock
