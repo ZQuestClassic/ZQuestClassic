@@ -177,7 +177,7 @@ Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdenti
 		vector<NamespaceScope*> currentNamespaces = scope.getFile()->getUsingNamespaces();
 		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
 	}
-	vector<NamespaceScope*> currentNamespaces = getRoot(*scope)->getUsingNamespaces();
+	vector<NamespaceScope*> currentNamespaces = getRoot(scope)->getUsingNamespaces();
 	namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
 	vector<NamespaceScope*> namespaces(namespaceSet.begin(), namespaceSet.end());
 	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
@@ -261,7 +261,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 			vector<NamespaceScope*> currentNamespaces = scope.getFile()->getUsingNamespaces();
 			namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
 		}
-		vector<NamespaceScope*> currentNamespaces = getRoot(*scope)->getUsingNamespaces();
+		vector<NamespaceScope*> currentNamespaces = getRoot(scope)->getUsingNamespaces();
 		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
 		vector<NamespaceScope*> namespaces(namespaceSet.begin(), namespaceSet.end());
 		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
