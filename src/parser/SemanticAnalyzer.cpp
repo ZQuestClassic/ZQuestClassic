@@ -566,6 +566,19 @@ void SemanticAnalyzer::caseNamespace(ASTNamespace& host, void*)
 	if (breakRecursion(host)) return;
 }
 
+void SemanticAnalyzer::caseImportDecl(ASTImportDecl& host, void*)
+{
+	//Check if the import is valid, or to be stopped by header guard. -V
+	if(getRoot(*scope)->checkImport(&host, *lookupOption(*scope, CompileOption::OPT_HEADER_GUARD) / 10000.0, this))
+	{
+		RecursiveVisitor::caseImportDecl(host);
+	}
+	else
+	{
+		host.disable(); //Do not use this import; it is a duplicate, and duplicates have been disallowed! -V
+	}
+}
+
 // Expressions
 
 void SemanticAnalyzer::caseExprConst(ASTExprConst& host, void*)

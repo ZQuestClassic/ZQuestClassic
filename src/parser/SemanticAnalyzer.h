@@ -45,6 +45,7 @@ namespace ZScript
 		void caseFuncDecl(ASTFuncDecl& host, void* = NULL);
 		void caseScript(ASTScript& host, void* = NULL);
 		void caseNamespace(ASTNamespace& host, void* = NULL);
+		void caseImportDecl(ASTImportDecl& host, void* = NULL);
 		// Expressions
 		void caseExprConst(ASTExprConst& host, void* = NULL);
 		void caseExprAssign(ASTExprAssign& host, void* = NULL);

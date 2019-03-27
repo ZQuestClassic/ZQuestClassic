@@ -236,7 +236,11 @@ namespace ZScript
 		owning_vector<ASTExprConst> compileErrorCatches;
 
 		// If this node has been disabled due to an error.
-		bool disabled;
+		bool errorDisabled;
+		
+		bool isDisabled() const {return disabled_;}
+		void disable() {disabled_ = true;}
+	
 	
 		// Subclass Predicates (replacing typeof and such).
 		virtual bool isTypeArrow() const {return false;}
@@ -246,6 +250,10 @@ namespace ZScript
 		virtual bool isTypeArrayDecl() const {return false;}
 		virtual bool isStringLiteral() const {return false;}
 		virtual bool isArrayLiteral() const {return false;}
+		
+	private:
+		//If this node has been disabled, for some reason or other. This will prevent any visitor from visiting the node (instant return, without error)
+		bool disabled_;
 	};
 
 
@@ -345,12 +353,6 @@ namespace ZScript
 	public:
 		ASTStmt(LocationData const& location = LocationData::NONE);
 		virtual ASTStmt* clone() const = 0;
-
-		bool isDisabled() const {return disabled_;}
-		void disable() {disabled_ = true;}
-	
-	private:
-		bool disabled_;
 	};
     
 	class ASTBlock : public ASTStmt
