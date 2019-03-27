@@ -164,13 +164,13 @@ Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdenti
 	bool foundFile = false;
 	for (; current; current = current->getParent())
 	{
-		vector<NamespaceScope*> currentNamespaces = current->usingNamespaces;
+		vector<NamespaceScope*> currentNamespaces = current->getUsingNamespaces();
 		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
 		if(current->isFile()) foundFile = true;
 	}
 	if(!foundFile) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) -V
 	{
-		vector<NamespaceScope*> currentNamespaces = scope.getFile()->usingNamespaces;
+		vector<NamespaceScope*> currentNamespaces = scope.getFile()->getUsingNamespaces();
 		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
 	}
 	vector<NamespaceScope*> namespaces(namespaceSet.begin(), namespaceSet.end());
@@ -242,13 +242,13 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 		bool foundFile = false;
 		for (; current; current = current->getParent())
 		{
-			vector<NamespaceScope*> currentNamespaces = current->usingNamespaces;
+			vector<NamespaceScope*> currentNamespaces = current->getUsingNamespaces();
 			namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
 			if(current->isFile()) foundFile = true;
 		}
 		if(!foundFile) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) -V
 		{
-			vector<NamespaceScope*> currentNamespaces = scope.getFile()->usingNamespaces;
+			vector<NamespaceScope*> currentNamespaces = scope.getFile()->getUsingNamespaces();
 			namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
 		}
 		vector<NamespaceScope*> namespaces(namespaceSet.begin(), namespaceSet.end());
@@ -478,10 +478,14 @@ int BasicScope::useNamespace(vector<std::string> names, vector<std::string> deli
 int BasicScope::useNamespace(std::string name)
 {
 	NamespaceScope* namesp = NULL;
+	int numMatches = 0;
 	if(Scope* scope = getRoot(*this)->getChild(name))
 	{
 		if(scope->isNamespace())
+		{
 			namesp = static_cast<NamespaceScope*>(scope);
+			++numMatches;
+		}
 	}
 	for(vector<NamespaceScope*>::iterator it = usingNamespaces.begin();
 		it != usingNamespaces.end(); ++it)
@@ -498,12 +502,14 @@ int BasicScope::useNamespace(std::string name)
 				if(namesp)
 					return -1;
 				namesp = static_cast<NamespaceScope*>(scope2);
+				++numMatches;
 			}
 		}
 	}
-	if(!namesp) return 0;
-	usingNamespaces.push_back(namesp);
-	return 1;
+	if(!numMatches) return 0;
+	if(numMatches == 1)
+		usingNamespaces.push_back(namesp);
+	return numMatches;
 }
 
 // Lookup Local
