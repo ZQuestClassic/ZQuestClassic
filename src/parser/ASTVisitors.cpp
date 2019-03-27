@@ -15,7 +15,7 @@ using namespace ZScript;
 
 bool RecursiveVisitor::breakRecursion(AST& host, void* param) const
 {
-	return host.disabled || failure || breakNode;
+	return host.errorDisabled || failure || breakNode;
 }
 
 void RecursiveVisitor::handleError(CompileError const& error)
@@ -40,7 +40,7 @@ void RecursiveVisitor::handleError(CompileError const& error)
 				ancestor.compileErrorCatches.erase(it);
 				if (error.isStrict())
 				{
-					ancestor.disabled = true;
+					ancestor.errorDisabled = true;
 					breakNode = &ancestor;
 				}
 				return;
@@ -55,6 +55,7 @@ void RecursiveVisitor::handleError(CompileError const& error)
 
 void RecursiveVisitor::visit(AST& node, void* param)
 {
+	if(node.isDisabled()) return; //Don't visit disabled nodes.
 	if (breakRecursion(node, param)) return;
 	recursionStack.push_back(&node);
 	node.execute(*this, param);

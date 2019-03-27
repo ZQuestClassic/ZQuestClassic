@@ -93,6 +93,7 @@ OPTION_VALUE	TOKEN( OPTIONVALUE );
 enum			TOKEN( ENUM );
 namespace		TOKEN( NAMESPACE );
 using			TOKEN( USING );
+always			TOKEN( ALWAYS );
 
  /* Types */
 void		TOKEN( ZVOID );
@@ -210,11 +211,13 @@ itemsprite	TOKEN( ITEMSPRITE );
 <INITIAL>"#"		BEGIN( HASH ); TOKEN( HASH );
 <HASH>{
 	\\\n		NEWLINE;
-	\n		NEWLINE; BEGIN( INITIAL ); TOKEN( ENDLINE );
+	\n			NEWLINE; BEGIN( INITIAL ); TOKEN( ENDLINE );
 	option		TOKEN( OPTION );
 	inherit		TOKEN( INHERIT );
-	on		TOKEN( ZTRUE );
-	off		TOKEN( ZFALSE );
+	on			TOKEN( ZTRUE );
+	off			TOKEN( ZFALSE );
+	error		TOKEN( OPTVAL_ERROR );
+	warn		TOKEN( OPTVAL_WARN );
 }
 
  /* Strings */

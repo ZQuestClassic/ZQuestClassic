@@ -1,4 +1,5 @@
 #include "../precompiled.h"
+#include "parserDefs.h"
 #include "Scope.h"
 
 #include <set>
@@ -137,8 +138,8 @@ ZClass* ZScript::lookupClass(Scope const& scope, string const& name)
 Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool useNamespace)
 {
 	Datum* datum = NULL;
-	for (Scope const* current = &scope;
-	     current; current = current->getParent())
+	Scope const* current = &scope;
+	for (; current; current = current->getParent())
 	{
 		Datum* temp = current->getLocalDatum(name);
 		if(!datum)
@@ -159,9 +160,27 @@ Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdenti
 		}
 	}
 	if(!useNamespace) return datum; //End early
-	//Get the file scope's `using` namespace scopes, and check them as well
-	FileScope* file = scope.getFile();
-	vector<NamespaceScope*> namespaces = file->usingNamespaces;
+	current = &scope;
+	set<NamespaceScope*> namespaceSet;
+	bool foundFile = false;
+	for (; current; current = current->getParent())
+	{
+		vector<NamespaceScope*> currentNamespaces = current->getUsingNamespaces();
+		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+		if(current->isFile())
+		{
+			foundFile = true;
+			break; //Don't go to parent file!
+		}
+	}
+	if(!foundFile) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) -V
+	{
+		vector<NamespaceScope*> currentNamespaces = scope.getFile()->getUsingNamespaces();
+		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+	}
+	vector<NamespaceScope*> currentNamespaces = getRoot(scope)->getUsingNamespaces();
+	namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+	vector<NamespaceScope*> namespaces(namespaceSet.begin(), namespaceSet.end());
 	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
 		it != namespaces.end(); ++it)
 	{
@@ -173,24 +192,6 @@ Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdenti
 		{
 			if(&datum != &temp)
 				errorHandler->handleError(CompileError::TooManyVar(&host, name));
-		}
-	}
-	//Get the script scope's `using` namespace scopes, and check them as well
-	if(ScriptScope* script = scope.getScript())
-	{
-		vector<NamespaceScope*> namespaces = script->usingNamespaces;
-		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
-			it != namespaces.end(); ++it)
-		{
-			NamespaceScope* nsscope = *it;
-			Datum* temp = nsscope->getLocalDatum(name);
-			if(!datum)
-				datum = temp;
-			else if(temp)
-			{
-				if(&datum != &temp)
-					errorHandler->handleError(CompileError::TooManyVar(&host, name));
-			}
 		}
 	}
 	return datum;
@@ -244,8 +245,26 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 	Scope const* current = &scope;
 	if(useNamespace)
 	{
-		//Get the file scope's `using` namespace scopes, and any functions from them
-		vector<NamespaceScope*> namespaces = scope.getFile()->usingNamespaces;
+		set<NamespaceScope*> namespaceSet;
+		bool foundFile = false;
+		for (; current; current = current->getParent())
+		{
+			vector<NamespaceScope*> currentNamespaces = current->getUsingNamespaces();
+			namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+			if(current->isFile())
+			{
+				foundFile = true;
+				break; //Don't go to parent file!
+			}
+		}
+		if(!foundFile) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) -V
+		{
+			vector<NamespaceScope*> currentNamespaces = scope.getFile()->getUsingNamespaces();
+			namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+		}
+		vector<NamespaceScope*> currentNamespaces = getRoot(scope)->getUsingNamespaces();
+		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+		vector<NamespaceScope*> namespaces(namespaceSet.begin(), namespaceSet.end());
 		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
 			it != namespaces.end(); ++it)
 		{
@@ -253,18 +272,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 			vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
 			functions.insert(currentFunctions.begin(), currentFunctions.end());
 		}
-		//Get the script scope's `using` namespace scopes, and any functions from them
-		if(ScriptScope* script = scope.getScript())
-		{
-			vector<NamespaceScope*> namespaces = script->usingNamespaces;
-			for(vector<NamespaceScope*>::iterator it = namespaces.begin();
-				it != namespaces.end(); ++it)
-			{
-				NamespaceScope* nsscope = *it;
-				vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
-				functions.insert(currentFunctions.begin(), currentFunctions.end());
-			}
-		}
+		current = &scope;
 	}
 	//Standard lookup loop
 	for (; current; current = current->getParent())
@@ -483,10 +491,14 @@ int BasicScope::useNamespace(vector<std::string> names, vector<std::string> deli
 int BasicScope::useNamespace(std::string name)
 {
 	NamespaceScope* namesp = NULL;
+	int numMatches = 0;
 	if(Scope* scope = getRoot(*this)->getChild(name))
 	{
 		if(scope->isNamespace())
+		{
 			namesp = static_cast<NamespaceScope*>(scope);
+			++numMatches;
+		}
 	}
 	for(vector<NamespaceScope*>::iterator it = usingNamespaces.begin();
 		it != usingNamespaces.end(); ++it)
@@ -503,12 +515,14 @@ int BasicScope::useNamespace(std::string name)
 				if(namesp)
 					return -1;
 				namesp = static_cast<NamespaceScope*>(scope2);
+				++numMatches;
 			}
 		}
 	}
-	if(!namesp) return 0;
-	usingNamespaces.push_back(namesp);
-	return 1;
+	if(!numMatches) return 0;
+	if(numMatches == 1)
+		usingNamespaces.push_back(namesp);
+	return numMatches;
 }
 
 // Lookup Local
@@ -1124,6 +1138,38 @@ bool RootScope::registerFunction(Function* function)
 	descFunctionsByName_[signature.name].push_back(function);
 	descFunctionsBySignature_[signature] = function;
 	return true;
+}
+
+bool RootScope::checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHandler* errorHandler)
+{
+	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
+	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, node->getFilename()).value_or(NULL))
+	{
+		switch(headerGuard)
+		{
+			case OPT_ERROR:
+			{
+				errorHandler->handleError(CompileError::HeaderGuardErr(first, first->getFilename()));
+				errorHandler->handleError(CompileError::HeaderGuardErr(node, node->getFilename()));
+				return false; //Error, halt.
+			}
+			
+			case OPT_WARN:
+			{
+				errorHandler->handleError(CompileError::HeaderGuardWarn(first, first->getFilename(), "Using"));
+				errorHandler->handleError(CompileError::HeaderGuardWarn(node, node->getFilename(), "Skipping"));
+				return false; //Warn, and do not allow import
+			}
+				
+			default: //OPT_ON, or any invalid value, if the user sets it as such.
+			{
+				return false; //No message, guard against the duplicate import.
+			}
+				
+		}
+	}
+	importsByName_[node->getFilename()] = node;
+	return true; //Allow import
 }
 
 ////////////////////////////////////////////////////////////////

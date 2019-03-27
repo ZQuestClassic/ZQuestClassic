@@ -16,6 +16,7 @@ namespace ZScript
 	class AST;
 	class ASTNamespace;
 	class ASTExprIdentifier;
+	class ASTImportDecl;
 
 	// CompileError.h
 	class CompileErrorHandler;
@@ -100,6 +101,7 @@ namespace ZScript
 		virtual std::vector<Function*> getLocalSetters() const = 0;
 		virtual std::map<CompileOption, CompileOptionSetting>
 				getLocalOptions() const = 0;
+		virtual std::vector<NamespaceScope*> getUsingNamespaces() const = 0;
 
 		// Add
 		virtual Scope* makeChild() = 0;
@@ -154,9 +156,11 @@ namespace ZScript
 		//
 		bool operator==(Scope* other) {return id == other->getId();}
 		
+		
 	protected:
 		TypeStore& typeStore_;
 		optional<std::string> name_;
+		std::vector<NamespaceScope*> usingNamespaces;
 		long getId() const {return id;}
 
 	private:
@@ -307,6 +311,7 @@ namespace ZScript
 		virtual std::vector<ZScript::Function*> getLocalSetters() const;
 		virtual std::map<CompileOption, CompileOptionSetting>
 				getLocalOptions() const;
+		virtual std::vector<NamespaceScope*> getUsingNamespaces() const {return usingNamespaces;};
 
 		// Add
 		virtual Scope* makeChild();
@@ -340,8 +345,6 @@ namespace ZScript
 		// Stack
 		virtual int getLocalStackDepth() const {return stackDepth_;}
 		virtual optional<int> getLocalStackOffset(Datum const& datum) const;
-		
-		std::vector<NamespaceScope*> usingNamespaces;
 		
 	protected:
 		Scope* parent_;
@@ -465,6 +468,8 @@ namespace ZScript
 		bool registerSetter(std::string const& name, Function* setter);
 		bool registerFunction(Function* function);
 		
+		bool checkImport(ASTImportDecl* node, int headerGuard, CompileErrorHandler* errorHandler);
+		
 	private:
 		mutable optional<int> stackSize_;
 
@@ -478,6 +483,7 @@ namespace ZScript
 		std::map<std::string, Function*> descSetters_;
 		std::map<std::string, std::vector<Function*> > descFunctionsByName_;
 		std::map<FunctionSignature, Function*> descFunctionsBySignature_;
+		std::map<std::string, ASTImportDecl*> importsByName_;
 	};
 	
 	////////////////////////////////////////////////////////////////

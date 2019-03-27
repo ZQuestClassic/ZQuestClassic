@@ -45,7 +45,7 @@ string LocationData::asString() const
 // AST
 
 AST::AST(LocationData const& location)
-	: location(location), disabled(false)
+	: location(location), errorDisabled(false), disabled_(false)
 {}
 
 // ASTFile
@@ -287,7 +287,7 @@ CompileOptionSetting ASTSetOption::getSetting(
 // ASTStmt
 
 ASTStmt::ASTStmt(LocationData const& location)
-	: AST(location), disabled_(false)
+	: AST(location)
 {}
 
 // ASTBlock
@@ -507,6 +507,9 @@ void ASTNamespace::addDeclaration(ASTDecl& declaration)
 		break;
 	case ASTDecl::TYPE_NAMESPACE:
 		namespaces.push_back(static_cast<ASTNamespace*>(&declaration));
+		break;
+	case ASTDecl::TYPE_USING:
+		use.push_back(static_cast<ASTUsingDecl*>(&declaration));
 		break;
 	}
 }
@@ -751,8 +754,8 @@ void ASTScriptTypeDef::execute(ASTVisitor& visitor, void* param)
 
 // ASTUsingDecl
 
-ASTUsingDecl::ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location)
-	: ASTDecl(location), identifier(iden)
+ASTUsingDecl::ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location, bool always)
+	: ASTDecl(location), identifier(iden), always(always)
 {}
 
 void ASTUsingDecl::execute(ASTVisitor& visitor, void* param)

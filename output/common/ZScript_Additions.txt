@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 16
-Document Revision: 26th March, 2019
+Document Revision: 27th March, 2019
 
 
 ////////////////////////////////////////////////////
@@ -270,6 +270,28 @@ It is now possible to permit item scripts to run for more than one frame.
 	#ignore warning(error_number) {error_generating_code}
 	
 
+///////////////////
+// Header Guards //
+///////////////////
+
+The default behaviour for importing duplicate headers / files is now to issue a warning, and ignore the
+duplicate import directive. 
+
+You can toggle this behaviour as follows:
+	#option HEADER_GUARD warn
+		Enables protection, and issues warnings on duplication.
+		This is the default.
+	#option HEADER_GUARD on
+		Enables protection, but issues no warnings.
+	#option HEADER_GUARD error
+		Halts on finding a duplication.
+	#option HEADER_GUARD off
+		Halts, and does not give data, as 2.50.
+		
+If this option is set to anything other than 'off', then the compiler will detail the location of the
+original import, and the location of the duplicate, per instance of duplication. 
+	
+
 ///////////////////////////
 // Compiler Option Flags //
 ///////////////////////////
@@ -377,9 +399,9 @@ You can now declare, and initialise variables on one line, as in C.
 		int a; int b; int c = 9; int h = 16; int f = c+h;
 		float n = 1.04; float m = 6.03;
 
-///////////////////////
-// Enumerated Listss //
-///////////////////////
+//////////////////////
+// Enumerated Lists //
+//////////////////////
 
 You can now define enumerated lists of constant values using the
 standard C-style syntax of:
@@ -446,9 +468,10 @@ You may invoke the 'using' token to bring the contents of a namespaces
 into the current scope, thus ignoring the requirement for scope-resolution
 (::) until the end of that scope.
 
+You may also invoke 'using' as 'always using' to make that namespace global; this cannot be un-done.
+
 The following scopes are valid:
 
-global (buffer)
 file
 script
 function
@@ -457,9 +480,10 @@ function
 Using the above namespaces as examples:
 
 	//buffer
-	using namespace doh;
+	always using namespace doh;
 	//now in scope in all files, functions, and scripts
 	//never falls out of scope
+	//cannot be un-done
 
 	///file 1
 	using namespace foo;

@@ -21,6 +21,7 @@ BuildOpcodes::BuildOpcodes(Scope* curScope)
 
 void BuildOpcodes::visit(AST& node, void* param)
 {
+	if(node.isDisabled()) return; //Don't visit disabled nodes.
 	RecursiveVisitor::visit(node, param);
 	for (vector<ASTExprConst*>::const_iterator it =
 		     node.compileErrorCatches.begin();
@@ -73,6 +74,11 @@ void BuildOpcodes::deallocateRefsUntilCount(int count)
 }
 
 void BuildOpcodes::caseSetOption(ASTSetOption&, void*)
+{
+	// Do nothing, not even recurse.
+}
+
+void BuildOpcodes::caseUsing(ASTUsingDecl& host, void*)
 {
 	// Do nothing, not even recurse.
 }

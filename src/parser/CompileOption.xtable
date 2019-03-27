@@ -2,3 +2,4 @@
 //	Name,                                        Default Value
 X(	LOGGING,                                            10000)
 X(	TRUNCATE_DIVISION_BY_LITERAL_BUG,                   00000)
+X(	HEADER_GUARD,                                       30000)
