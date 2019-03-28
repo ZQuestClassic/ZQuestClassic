@@ -42,21 +42,25 @@ void __stdzh_IncV(int indx)
 }
 
 //Increase the value of any 'indx' by 'amount'.
-void __stdzh_IncV(int indx, int amount){
+void __stdzh_IncV(int indx, int amount)
+{
 	std_zh___GlobalRAM[indx] += amount;
 }
 
 //Decrease the value of any 'indx' by -1.
-void __stdzh_DecV(int indx){
+void __stdzh_DecV(int indx)
+{
 	--std_zh___GlobalRAM[indx];
 }
 
 //Decrease the value of any 'indx' by 'amount'.
-void __stdzh_DecV(int indx, int amount){
+void __stdzh_DecV(int indx, int amount)
+{
 	std_zh___GlobalRAM[indx] -= amount;
 }
 
 //Stores the pointer of any array to an inmdex of GlobalRAM to allow accessing it from any script. 
-void __stdzh_StoreArrayPointer(int arr, int indx){
+void __stdzh_StoreArrayPointer(int arr, int indx)
+{
     std_zh___GlobalRAM[indx] = arr;
 }
