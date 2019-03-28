@@ -664,7 +664,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 
 	// Grab the left side's class.
     DataTypeClass const* leftType = dynamic_cast<DataTypeClass const*>(
-		    &getNaiveType(*host.left->getReadType(scope)));
+		    &getNaiveType(*host.left->getReadType(scope), scope));
     if (!leftType)
 	{
 		handleError(CompileError::ArrowNotPointer(&host));
@@ -830,8 +830,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 		int castCount = 0;
 		for (int i = 0; i < parameterTypes.size(); ++i)
 		{
-			DataType const& from = getNaiveType(*parameterTypes[i]);
-			DataType const& to = getNaiveType(*function.paramTypes[i]);
+			DataType const& from = getNaiveType(*parameterTypes[i], scope);
+			DataType const& to = getNaiveType(*function.paramTypes[i], scope);
 			if (from == to) continue;
 			++castCount;
 		}

@@ -221,6 +221,7 @@ namespace ZScript
 		static DataTypeClassConst const CTUNES;
 		static DataTypeClassConst const CWARPRING;
 		static DataType const* get(DataTypeId id);
+		static DataTypeClass const* getClass(int classId);
 	};
 
 	bool operator==(DataType const&, DataType const&);
@@ -231,7 +232,7 @@ namespace ZScript
 	bool operator>=(DataType const&, DataType const&);
 
 	// Get the data type stripped of consts and arrays.
-	DataType const& getNaiveType(DataType const& type);
+	DataType const& getNaiveType(DataType const& type, Scope* scope);
 	
 	// Get the number of nested arrays at top level.
 	int getArrayDepth(DataType const&);

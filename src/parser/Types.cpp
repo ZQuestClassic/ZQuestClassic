@@ -210,44 +210,85 @@ DataType const* DataType::get(DataTypeId id)
 {
 	switch (id)
 	{
-	case ZVARTYPEID_UNTYPED: return &UNTYPED;
-	case ZVARTYPEID_VOID: return &ZVOID;
-	case ZVARTYPEID_FLOAT: return &FLOAT;
-	case ZVARTYPEID_BOOL: return &BOOL;
-	case ZVARTYPEID_GAME: return &GAME;
-	case ZVARTYPEID_LINK: return &LINK;
-	case ZVARTYPEID_SCREEN: return &SCREEN;
-	case ZVARTYPEID_FFC: return &FFC;
-	case ZVARTYPEID_ITEM: return &ITEM;
-	case ZVARTYPEID_ITEMCLASS: return &ITEMCLASS;
-	case ZVARTYPEID_NPC: return &NPC;
-	case ZVARTYPEID_LWPN: return &LWPN;
-	case ZVARTYPEID_EWPN: return &EWPN;
-	case ZVARTYPEID_NPCDATA: return &NPCDATA;
-	case ZVARTYPEID_DEBUG: return &DEBUG;
-	case ZVARTYPEID_AUDIO: return &AUDIO;
-	case ZVARTYPEID_COMBOS: return &COMBOS;
-	case ZVARTYPEID_SPRITEDATA: return &SPRITEDATA;
-	case ZVARTYPEID_GRAPHICS: return &GRAPHICS;
-	case ZVARTYPEID_BITMAP: return &BITMAP;
-	case ZVARTYPEID_TEXT: return &TEXT;
-	case ZVARTYPEID_INPUT: return &INPUT;
-	case ZVARTYPEID_MAPDATA: return &MAPDATA;
-	case ZVARTYPEID_DMAPDATA: return &DMAPDATA;
-	case ZVARTYPEID_ZMESSAGE: return &ZMESSAGE;
-	case ZVARTYPEID_SHOPDATA: return &SHOPDATA;
-	case ZVARTYPEID_DROPSET: return &DROPSET;
-	case ZVARTYPEID_PONDS: return &PONDS;
-	case ZVARTYPEID_WARPRING: return &WARPRING;
-	case ZVARTYPEID_DOORSET: return &DOORSET;
-	case ZVARTYPEID_ZUICOLOURS: return &ZUICOLOURS;
-	case ZVARTYPEID_RGBDATA: return &RGBDATA;
-	case ZVARTYPEID_PALETTE: return &PALETTE;
-	case ZVARTYPEID_TUNES: return &TUNES;
-	case ZVARTYPEID_PALCYCLE: return &PALCYCLE;
-	case ZVARTYPEID_GAMEDATA: return &GAMEDATA;
-	case ZVARTYPEID_CHEATS: return &CHEATS;
-	default: return NULL;
+		case ZVARTYPEID_UNTYPED: return &UNTYPED;
+		case ZVARTYPEID_VOID: return &ZVOID;
+		case ZVARTYPEID_FLOAT: return &FLOAT;
+		case ZVARTYPEID_BOOL: return &BOOL;
+		case ZVARTYPEID_GAME: return &GAME;
+		case ZVARTYPEID_LINK: return &LINK;
+		case ZVARTYPEID_SCREEN: return &SCREEN;
+		case ZVARTYPEID_FFC: return &FFC;
+		case ZVARTYPEID_ITEM: return &ITEM;
+		case ZVARTYPEID_ITEMCLASS: return &ITEMCLASS;
+		case ZVARTYPEID_NPC: return &NPC;
+		case ZVARTYPEID_LWPN: return &LWPN;
+		case ZVARTYPEID_EWPN: return &EWPN;
+		case ZVARTYPEID_NPCDATA: return &NPCDATA;
+		case ZVARTYPEID_DEBUG: return &DEBUG;
+		case ZVARTYPEID_AUDIO: return &AUDIO;
+		case ZVARTYPEID_COMBOS: return &COMBOS;
+		case ZVARTYPEID_SPRITEDATA: return &SPRITEDATA;
+		case ZVARTYPEID_GRAPHICS: return &GRAPHICS;
+		case ZVARTYPEID_BITMAP: return &BITMAP;
+		case ZVARTYPEID_TEXT: return &TEXT;
+		case ZVARTYPEID_INPUT: return &INPUT;
+		case ZVARTYPEID_MAPDATA: return &MAPDATA;
+		case ZVARTYPEID_DMAPDATA: return &DMAPDATA;
+		case ZVARTYPEID_ZMESSAGE: return &ZMESSAGE;
+		case ZVARTYPEID_SHOPDATA: return &SHOPDATA;
+		case ZVARTYPEID_DROPSET: return &DROPSET;
+		case ZVARTYPEID_PONDS: return &PONDS;
+		case ZVARTYPEID_WARPRING: return &WARPRING;
+		case ZVARTYPEID_DOORSET: return &DOORSET;
+		case ZVARTYPEID_ZUICOLOURS: return &ZUICOLOURS;
+		case ZVARTYPEID_RGBDATA: return &RGBDATA;
+		case ZVARTYPEID_PALETTE: return &PALETTE;
+		case ZVARTYPEID_TUNES: return &TUNES;
+		case ZVARTYPEID_PALCYCLE: return &PALCYCLE;
+		case ZVARTYPEID_GAMEDATA: return &GAMEDATA;
+		case ZVARTYPEID_CHEATS: return &CHEATS;
+		default: return NULL;
+	}
+}
+
+DataTypeClass const* DataType::getClass(int classId)
+{
+	switch (classId)
+	{
+		case ZCLASSID_GAME: return &GAME;
+		case ZCLASSID_LINK: return &LINK;
+		case ZCLASSID_SCREEN: return &SCREEN;
+		case ZCLASSID_FFC: return &FFC;
+		case ZCLASSID_ITEM: return &ITEM;
+		case ZCLASSID_ITEMCLASS: return &ITEMCLASS;
+		case ZCLASSID_NPC: return &NPC;
+		case ZCLASSID_LWPN: return &LWPN;
+		case ZCLASSID_EWPN: return &EWPN;
+		case ZCLASSID_NPCDATA: return &NPCDATA;
+		case ZCLASSID_DEBUG: return &DEBUG;
+		case ZCLASSID_AUDIO: return &AUDIO;
+		case ZCLASSID_COMBOS: return &COMBOS;
+		case ZCLASSID_SPRITEDATA: return &SPRITEDATA;
+		case ZCLASSID_GRAPHICS: return &GRAPHICS;
+		case ZCLASSID_BITMAP: return &BITMAP;
+		case ZCLASSID_TEXT: return &TEXT;
+		case ZCLASSID_INPUT: return &INPUT;
+		case ZCLASSID_MAPDATA: return &MAPDATA;
+		case ZCLASSID_DMAPDATA: return &DMAPDATA;
+		case ZCLASSID_ZMESSAGE: return &ZMESSAGE;
+		case ZCLASSID_SHOPDATA: return &SHOPDATA;
+		case ZCLASSID_DROPSET: return &DROPSET;
+		case ZCLASSID_PONDS: return &PONDS;
+		case ZCLASSID_WARPRING: return &WARPRING;
+		case ZCLASSID_DOORSET: return &DOORSET;
+		case ZCLASSID_ZUICOLOURS: return &ZUICOLOURS;
+		case ZCLASSID_RGBDATA: return &RGBDATA;
+		case ZCLASSID_PALETTE: return &PALETTE;
+		case ZCLASSID_TUNES: return &TUNES;
+		case ZCLASSID_PALCYCLE: return &PALCYCLE;
+		case ZCLASSID_GAMEDATA: return &GAMEDATA;
+		case ZCLASSID_CHEATS: return &CHEATS;
+		default: return NULL;
 	}
 }
 
@@ -281,7 +322,7 @@ bool ZScript::operator>=(DataType const& lhs, DataType const& rhs)
 	return lhs.compare(rhs) >= 0;
 }
 
-DataType const& ZScript::getNaiveType(DataType const& type)
+DataType const& ZScript::getNaiveType(DataType const& type, Scope* scope)
 {
 
 	DataType const* t = &type;
@@ -301,7 +342,7 @@ DataType const& ZScript::getNaiveType(DataType const& type)
 		
 		if(DataTypeClassConst const* tc = dynamic_cast<DataTypeClassConst const*>(t))
 		{
-			t = DataType::get(tc->getClassId());
+			t = DataType::getClass(tc->getClassId());
 		}
 	}
 
