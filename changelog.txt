@@ -2,6 +2,14 @@ ChangeLog for 2.53.0
 
 //Gamma 7
 
+Added second row of swim tiles to all Z3 animation styles
+	in the default classic tileset blank quest.
+std.zh: Optimise std_vars.zh
+Updated std.txt to cover all cleanup in std.zh, except for
+	std_extension (t/b/a).
+Added second row of swim tiles to Z3 animation pages in the classic tileset.
+	( ZoriaRPG, 28th March, 2019 )
+	
 std.zh: Optimise and Alphabetically Re-sort std_functions.zh
 	( ZoriaRPG, 27th March, 2019 )
 
