@@ -95,6 +95,8 @@ enum			TOKEN( ENUM );
 namespace		TOKEN( NAMESPACE );
 using			TOKEN( USING );
 always			TOKEN( ALWAYS );
+asm				TOKEN( ZASM );
+zasm			TOKEN( ZASM );
 
  /* Types */
 void		TOKEN( ZVOID );

@@ -108,6 +108,7 @@ extern YYLTYPE noloc;
 %token NAMESPACE
 %token USING
 %token ALWAYS
+%token ZASM
 
  // Types
 %token ZVOID
