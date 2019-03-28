@@ -1,5 +1,5 @@
 std.txt for ZC Versions 2.53.0 and higher.
-10th September, 2017
+28th March, 2019
 
 =================
 --- Constants ---
@@ -303,7 +303,11 @@ int Sign(int n)
 
 float Distance(int x1, int y1, int x2, int y2)
  * Returns the distance between two sets of coordinates using Pythagoras' Theorem
-
+ 
+float LargeDistance(int x1, int y1, int x2, int y2, int divisor);
+ * Calculates the distance over a scale 'divisor' that would otherwise 
+   overflow Distance(). 
+   
 float Angle(int x1, int y1, int x2, int y2)
  * Returns the direction of the vector from point 1 to point 2, in degrees from -180 to 180. (0 = right)
 
@@ -349,6 +353,18 @@ float WrapDegrees( float degrees )
 float TurnTowards( int X, int Y, int targetX, int targetY, float radian_angle, float t )
  * Returns an angle pointing (t)percentage more accurate to the target than the specified radian_angle.
 
+int DirAngle(int dir);
+ * Returns angle of the given direction.
+
+int Dir4Angle(int dir);
+ * Returns angle of the given direction.
+
+int DirRad(int dir);
+ * Same as DirAngle, but return value is measured in radians.
+
+int Dir4Rad(int dir);
+ * Same as Dir4Angle, but return value is measured in radians.
+ 
 -- Direction Functions --
 =========================
  * Make sure your angles are in the range -PI to PI (with WrapAngle) before using these functions
@@ -373,6 +389,26 @@ int OppositeDir(int dir)
 
 int SpinDir(int dir)
  * Converts directions to go round in a circle rather than U, D, L, R
+   
+bool Facing(ffc f);
+ * Returns true if Link is facing the ffc.
+
+bool Above(T);
+ * Returns true if Link is above the object T.
+ 
+bool Below(T);
+ * Returns true if Link is below the object T.
+
+bool LeftOf(T);
+ * Returns true if Link is to the left of the object T.
+ 
+bool RightOf(T);
+ * Returns true if Link is to the right of the object T.
+ 
+bool DistXY(ffc a, int dist);
+ * Returns true if Link is within 'dist' pixels distance 
+   of the ffc on both axis. 
+
 
 -- Drawing Functions --
 =======================
@@ -458,6 +494,30 @@ bool OnSidePlatform(int x, int y, int xOff, int yOff, int h)
 -- Functions for accessing data stored in binary format --
 ==========================================================
 
+bool IsSideview()
+ * Returns true if Link is on a sideview screen
+ 
+bool IsDungeonFlag();
+ * Returns true if Link is on a Dungeon (flagged) screen
+
+bool IsInteriorFlag();
+ * Returns true if Link is on an Interior (flagged) screen
+
+int HasTriforce(int level);
+ * Returns if Link has the Triforce piece for a given level.
+
+int HasCompass(int level);
+ * Returns if Link has the compass for a given level.
+
+int HasMap(int level);
+ * Returns if Link has the map for a given level.
+
+int HasBossKey(int level);
+ * Returns if Link has the map for a given level.
+
+int DefeatedLevelBoss(int level);
+ * Returns if Link has defeated the dungeon boss for a given level.
+
 void SetScreenDBit(int dmap, int screen, int d, int bit, bool state)
 void SetScreenDBit(int screen, int d, int bit, bool state)
 void SetScreenDBit(int d, int bit, bool state)
@@ -475,6 +535,10 @@ bool InputLeftClick()
 bool InputRightClick()
  * Returns true if the right mouse button is pressed
 
+bool InputMiddleClick()
+ * Returns true if the middle mouse button is pressed. 
+ * Note that not all mice have a middle button. 
+ 
 int GetEquipmentA()
  * Returns the item ID of the item equipped to Link's A button
 
@@ -567,6 +631,14 @@ int NumEWeaponsOf(int type)
 
 int NumNPCsOf(int type)
  * Returns the number of npcs of type 'type' currently on the screen
+
+int NumberEnemies();
+ * Returns the number of enemy NPCs on the current screen, ignoring 
+   guys, faeries, projectile shooters, unbeatable enemies, and similar.
+   
+bool EnemiesAlive();
+ * Returns true if there are any enemies on the screen that are beatable, 
+   excluding projectile statues, guys, and faeries. 
 
 int NumItemsOf(int type)
  * Returns the number of items of type 'type' currently on the screen
@@ -762,7 +834,11 @@ int FFCNum(ffc f)
  * Returns the number of an FFC, and -1 for a non-valid FFC (which should never happen)
 
 int NumTriforcePieces()
- * Returns the number of Triforce Pieces Link currently has
+ * Returns the number of Triforce Pieces Link currently has in his inventory.
+ 
+int NumTriforcePieces(int maxlevel);
+ * Returns the number of Triforce Pieces Link currently has in his inventory.
+ * Specify the highest level in your game with arg 'maxlevel'.
 
 void GetNPCName(int ID, int string[])
  * Puts the name of an npc into a string
@@ -776,76 +852,6 @@ itemdata GetItemData(item i)
 int GetHighestLevelItem(int itemclass)
 int GetHighestLevelItem(item i)
  * Returns the highest level item of a given itemclass, or of the class 'i' belongs to
-
-bool IsSideview()
- * Returns true if Link is on a sideview screen
-
-int DMapToMap(int screen, int dmap)
-int MapToDMap(int screen, int dmap)
- * Convert between map and DMap screen coordinates
-
- -- New Functions ( 2.53.0 ) -- 
- ==============================
-
-int GetLayerComboI(int layer, int pos)
- * A shorthand way to get a combo inherent flag on the specified layer.
- * Layer 0 is the screen itself.
-
-void SetLayerComboI(int layer, int pos, int flag)
- * A shorthand way to set a combo inherent flag on the specified layer.
- * Layer 0 is the screen itself.
-
-int GetLayerComboC(int layer, int pos)
- * A shorthand way to get a combo's CSet on the specified layer.
- * Layer 0 is the screen itself.
-
-void SetLayerComboC(int layer, int pos, int cset)
- * A shorthand way to set a combo's CSet on the specified layer.
- * Layer 0 is the screen itself.
- 
-bool InputMiddleClick()
- * Returns true if the middle mouse button is pressed. 
- * Note that not all mice have a middle button. 
-  
-int DirAngle(int dir);
- * Returns angle of the given direction.
-
-int Dir4Angle(int dir);
- * Returns angle of the given direction.
-
-int DirRad(int dir);
- * Same as DirAngle, but return value is measured in radians.
-
-int Dir4Rad(int dir);
- * Same as Dir4Angle, but return value is measured in radians.
-
-bool IsDungeonFlag();
- * Returns true if Link is on a Dungeon (flagged) screen
-
-bool IsInteriorFlag();
- * Returns true if Link is on an Interior (flagged) screen
-
-int HasTriforce(int level);
- * Returns if Link has the Triforce piece for a given level.
-
-int HasCompass(int level);
- * Returns if Link has the compass for a given level.
-
-int HasMap(int level);
- * Returns if Link has the map for a given level.
-
-int HasBossKey(int level);
- * Returns if Link has the map for a given level.
-
-int DefeatedLevelBoss(int level);
- * Returns if Link has defeated the dungeon boss for a given level.
-
-int ScreenItem();
- * Returns the item ID for the current screen, if there is one. 
- 
-int NumTriforcePieces(int maxlevel);
- * Returns the number of Triforce Pieces Link currently has.
- * Specify the highest level in your game with arg 'maxlevel'.
 
 void CounterAdd(int counter, int amount);
  * Add to a counter without rollover.
@@ -863,9 +869,15 @@ void DCounterAdd(int counter, int amount);
  * Add to a drain counter without rollover.
 
 void DCounterReduce(int counter, int amount);
- * Reduce a drain counter without rollvoer. 
+ * Reduce a drain counter without rollover. 
+
+int DMapToMap(int screen, int dmap)
+int MapToDMap(int screen, int dmap)
+ * Convert between map and DMap screen coordinates
  
- 
+ int ScreenItem();
+ * Returns the item ID for the current screen, if there is one. 
+
  ============================
  --  Bug Fixes ( 2.53.0 )  --
  ============================
@@ -877,7 +889,7 @@ SquareCollision now properly uses 'side2' arg for its calculation. (Bugfix)
  =============================
  -- New Includes ( 2.53.0 ) --
  =============================
- std.zh now includes some new files, that you will want to review. THe outline, scope, and purpose of 
+ std.zh now includes some new files, that you will want to review. The outline, scope, and purpose of 
  the new expansions is outlined below.
  
 /******************
@@ -888,6 +900,34 @@ std.zh now includes a SETTINGS FILE ( std.cfg ) that has a few options
 that you may enable, if you wish to change the behaviour of std.zh at compilation
 for your quests. These settings are disbaled by default, and affect only a handful of
 minimal mechanical differences as follows:
+
+MAX_HIGHEST_LEVEL_ITEM_CHECK
+ * The highest item ID to check, with GetHighestLevelItem. 
+   The default value is now 255.
+
+SETLAYERCOMBO_ALWAYS_USE_SETCOMBO
+ * If enabled, SetLayerCombo* functions will always use Screen->Combo*[]
+   for layer 0. Otherwise, they will use Game-> combo data. 
+   
+REVISED_ROTATEPOINT_X_FUNCTION
+REVISED_ROTATEPOINT_Y_FUNCTION
+ * If enabled. the new functions for RotatePoint*() will be used.
+ * If disabled, the old 2.50.x functions will run, instead.
+
+STD_FORCE_OLD_DISTANCE
+ * If enabled, Distance2() will use Sqrt() instead of SafeSqrt().
+
+STD_DISTANCE_USE_SAFESQRT
+ * If enabled, Distance2() will use SafeSqrt(); otherwise, it will
+ * use a hardcoded factor and return specific values on overflows/underflows.
+
+STD_NEVER_USE_SAFESQRT
+ * If enabled, SafeSqrt() calls run Sqrt() instead.
+
+STD_EMULATE_ENGINE_COLLISION
+ * Not implemented in this version of std.zh.
+STD_CENTERXY_USES_HITBOXES
+ * Not implemented in this version of std.zh.
 
 
 /*********************/
@@ -912,7 +952,7 @@ is 'UK/International English', with more to follow.
 *    GENERAL-USE ARRAY   * 
 /*************************/
 
-float GlobalRAM[4096]
+float std_zh___GlobalRAM[4096]
  * A base, general-purpose array with a size of 4096, and a float type. 
  
 std.zh now includes ONE BASE ARRAY with a float type. This is to allow users who are not versed in ZScript 
@@ -925,35 +965,24 @@ instruction in std.zh to prevent loading the general use array, and the function
 
 The following functions are in the std_vars.zh file, for use with the general-use array:
 
-float GetV(int index)
-* Returns the value of the Nth 'index' of the general use array stdArray[];
+float __stdzh_GetV(int index);
+* Returns the value of the Nth 'index' of the general use array std_zh___GlobalRAM[];
 
-void SetV(int index, int value)
-* Sets the value of stdArray['index'] to 'value'.
+void __stdzh_SetV(int index, int value);
+* Sets the value of std_zh___GlobalRAM['index'] to 'value'.
 
-void IncV(int index)
-* Increases an index value: Equivalent to doing stdArray['index']++  
+void __stdzh_IncV(int index);
+* Increases an index value: Equivalent to doing std_zh___GlobalRAM['index']++  
 
-void IncV(int index, int value)
-* Increases the value of stdArray['index'] by 'value'.
+void __stdzh_IncV(int index, int value);
+* Increases the value of std_zh___GlobalRAM['index'] by 'value'.
 
-void DecV(int index)
-* Decreases an index value: Equivalent to doing stdArray['index']--  
+void __stdzh_DecV(int index);
+* Decreases an index value: Equivalent to doing std_zh___GlobalRAM['index']--  
 
-void DecV(int index, int value)
-* Decreases the value of stdArray['index'] by 'value'.
+void __stdzh_DecV(int index, int value);
+* Decreases the value of std_zh___GlobalRAM['index'] by 'value'.
 
-
-/*************************/
-*   SHORTCUTS & MACROS   * 
-/*************************/
-
-The file std_shortcuts.zh includes many useful, time-saving shortcut functions that are equivalent to calling
-normal ZScript functions, except that the user need not worry about the left-of-the-arrow operator. 
-
-For example, Screen->Rectangle() can now be called simply as Rectangle() using this include. 
-
-Please review this file, and the documentation for it (std_shortcuts.txt) for more information on its use,
-and on the functions contained therein. 
-
+void __stdzh_StoreArrayPointer(int ptr, int index);
+ * Stores the pointer to an array 'ptr' min an index of std_zh___GlobalRAM.
 
