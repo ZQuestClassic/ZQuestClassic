@@ -844,12 +844,12 @@ optional<long> ASTExprIdentifier::getCompileTimeValue(
 	return binding ? binding->getCompileTimeValue() : nullopt;
 }
 
-DataType const* ASTExprIdentifier::getReadType() const
+DataType const* ASTExprIdentifier::getReadType(Scope* scope)
 {
 	return binding ? &binding->type : NULL;
 }
 
-DataType const* ASTExprIdentifier::getWriteType() const
+DataType const* ASTExprIdentifier::getWriteType(Scope* scope)
 {
 	return binding ? &binding->type : NULL;
 }
@@ -874,12 +874,12 @@ string ASTExprArrow::asString() const
 	return s;
 }
 
-DataType const* ASTExprArrow::getReadType() const
+DataType const* ASTExprArrow::getReadType(Scope* scope)
 {
 	return readFunction ? readFunction->returnType : NULL;
 }
 
-DataType const* ASTExprArrow::getWriteType() const
+DataType const* ASTExprArrow::getWriteType(Scope* scope)
 {
 	return writeFunction ? writeFunction->paramTypes.back() : NULL;
 }
@@ -902,9 +902,9 @@ bool ASTExprIndex::isConstant() const
 	return array->isConstant() && index->isConstant();
 }
 
-DataType const* ASTExprIndex::getReadType() const
+DataType const* ASTExprIndex::getReadType(Scope* scope)
 {
-	DataType const* type = array->getReadType();
+	DataType const* type = array->getReadType(scope);
 	if (type && type->isArray() && !array->isTypeArrow())
 	{
 		DataTypeArray const* atype = static_cast<DataTypeArray const*>(type);
@@ -913,9 +913,9 @@ DataType const* ASTExprIndex::getReadType() const
 	return type;
 }
 
-DataType const* ASTExprIndex::getWriteType() const
+DataType const* ASTExprIndex::getWriteType(Scope* scope)
 {
-	DataType const* type = array->getWriteType();
+	DataType const* type = array->getWriteType(scope);
 	if (type && type->isArray() && !array->isTypeArrow())
 	{
 		DataTypeArray const* atype = static_cast<DataTypeArray const*>(type);
@@ -935,12 +935,12 @@ void ASTExprCall::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprCall(*this, param);
 }
 
-DataType const* ASTExprCall::getReadType() const
+DataType const* ASTExprCall::getReadType(Scope* scope)
 {
 	return binding ? binding->returnType : NULL;
 }
 
-DataType const* ASTExprCall::getWriteType() const
+DataType const* ASTExprCall::getWriteType(Scope* scope)
 {
 	return NULL;
 }
@@ -1056,6 +1056,31 @@ ASTExprPreDecrement::ASTExprPreDecrement(LocationData const& location)
 void ASTExprPreDecrement::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprPreDecrement(*this, param);
+}
+
+// ASTExprCast
+
+ASTExprCast::ASTExprCast(ASTDataType* type, ASTExpr* expr, LocationData const& location)
+	: ASTUnaryExpr(location), type(type)
+{}
+
+void ASTExprCast::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprCast(*this, param);
+}
+
+optional<long> ASTExprCast::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+		const
+{
+	if (!operand) return nullopt;
+	return operand->getCompileTimeValue(errorHandler, scope);
+}
+
+DataType const* ASTExprCast::getReadType(Scope* scope)
+{
+	DataType const* result = &(*type).resolve(*scope);
+	return result;
 }
 
 // ASTBinaryExpr
@@ -1711,7 +1736,7 @@ void ASTStringLiteral::execute (ASTVisitor& visitor, void* param)
 	visitor.caseStringLiteral(*this, param);
 }
 
-DataTypeArray const* ASTStringLiteral::getReadType() const
+DataTypeArray const* ASTStringLiteral::getReadType(Scope* scope)
 {
 	return &DataType::STRING;
 }

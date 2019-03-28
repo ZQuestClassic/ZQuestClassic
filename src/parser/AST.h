@@ -96,6 +96,7 @@ namespace ZScript
 	class ASTExprPreIncrement;
 	class ASTExprDecrement;
 	class ASTExprPreDecrement;
+	class ASTExprCast;
 	class ASTBinaryExpr; // virtual
 	class ASTLogExpr; // virtual
 	class ASTExprAnd;
@@ -823,8 +824,8 @@ namespace ZScript
 
 		// Returns the read or write type for this expression. Null for either
 		// means that it can't be read from/written to.
-		virtual DataType const* getReadType() const {return NULL;}
-		virtual DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return NULL;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 	};
 
 	// Wrap around an expression to type it as constant.
@@ -843,9 +844,9 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		DataType const* getReadType() const {
-			return content ? content->getReadType() : NULL;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope) {
+			return content ? content->getReadType(scope) : NULL;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 	
 		owning_ptr<ASTExpr> content;
 	};
@@ -866,10 +867,10 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		DataType const* getReadType() const {
-			return right ? right->getReadType() : NULL;}
-		DataType const* getWriteType() const {
-			return right ? right->getWriteType() : NULL;}
+		virtual DataType const* getReadType(Scope* scope) {
+			return right ? right->getReadType(scope) : NULL;}
+		virtual DataType const* getWriteType(Scope* scope) {
+			return right ? right->getWriteType(scope) : NULL;}
 	
 		owning_ptr<ASTExpr> left;
 		owning_ptr<ASTExpr> right;
@@ -893,8 +894,8 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		DataType const* getReadType() const;
-		DataType const* getWriteType() const;
+		virtual DataType const* getReadType(Scope* scope);
+		virtual DataType const* getWriteType(Scope* scope);
 	
 		// The identifier components separated by '.' or '::'.
 		std::vector<std::string> components;
@@ -923,8 +924,8 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const;
-		DataType const* getWriteType() const;
+		virtual DataType const* getReadType(Scope* scope);
+		virtual DataType const* getWriteType(Scope* scope);
 	
 		owning_ptr<ASTExpr> left;
 		std::string right;
@@ -950,8 +951,8 @@ namespace ZScript
 		bool isConstant() const /*override*/;
 		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const /*override*/;
-		DataType const* getWriteType() const /*override*/;
+		virtual DataType const* getReadType(Scope* scope) /*override*/;
+		virtual DataType const* getWriteType(Scope* scope) /*override*/;
 	
 		owning_ptr<ASTExpr> array;
 		owning_ptr<ASTExpr> index;
@@ -968,8 +969,8 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const;
-		DataType const* getWriteType() const;
+		virtual DataType const* getReadType(Scope* scope);
+		virtual DataType const* getWriteType(Scope* scope);
 	
 		owning_ptr<ASTExpr> left;
 		owning_vector<ASTExpr> parameters;
@@ -985,8 +986,11 @@ namespace ZScript
 		virtual ASTUnaryExpr* clone() const = 0;
 
 		virtual bool isConstant() const {return operand->isConstant();}
-		bool isLiteral() const {return operand->isLiteral();}
+		virtual bool isLiteral() const {return operand->isLiteral();}
 
+		virtual DataType const* getReadType(Scope* scope) {return NULL;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		
 		owning_ptr<ASTExpr> operand;
 	};
 
@@ -1001,8 +1005,8 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 	};
 
 	class ASTExprNot : public ASTUnaryExpr
@@ -1016,8 +1020,8 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		DataType const* getReadType() const {return &DataType::BOOL;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::BOOL;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 	};
 
 	class ASTExprBitNot : public ASTUnaryExpr
@@ -1031,8 +1035,8 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 	};
 
 	class ASTExprIncrement : public ASTUnaryExpr
@@ -1046,9 +1050,9 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {
-			return operand ? operand->getWriteType() : NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope) {
+			return operand ? operand->getWriteType(scope) : NULL;}
 	};
 
 	class ASTExprPreIncrement : public ASTUnaryExpr
@@ -1062,9 +1066,9 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {
-			return operand ? operand->getWriteType() : NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope) {
+			return operand ? operand->getWriteType(scope) : NULL;}
 	};
 
 	class ASTExprDecrement : public ASTUnaryExpr
@@ -1078,9 +1082,9 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {
-			return operand ? operand->getWriteType() : NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope) {
+			return operand ? operand->getWriteType(scope) : NULL;}
 	};
 
 	class ASTExprPreDecrement : public ASTUnaryExpr
@@ -1095,9 +1099,26 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {
-			return operand ? operand->getWriteType() : NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope) {
+			return operand ? operand->getWriteType(scope) : NULL;}
+	};
+	
+	class ASTExprCast : public ASTUnaryExpr
+	{
+	public:
+		ASTExprCast(ASTDataType* type, ASTExpr* expr, LocationData const& location = LocationData::NONE);
+		ASTExprCast* clone() const {return new ASTExprCast(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		optional<long> getCompileTimeValue(
+				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
+				const;
+		virtual DataType const* getReadType(Scope* scope);
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		
+		owning_ptr<ASTDataType> type;
 	};
 
 	// virtual
@@ -1128,8 +1149,8 @@ namespace ZScript
 		           LocationData const& location = LocationData::NONE);
 		virtual ASTLogExpr* clone() const = 0;
 
-		DataType const* getReadType() const {return &DataType::BOOL;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::BOOL;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 	};
 
 	class ASTExprAnd : public ASTLogExpr
@@ -1171,8 +1192,8 @@ namespace ZScript
 		           LocationData const& location = LocationData::NONE);
 		virtual ASTRelExpr* clone() const = 0;
 
-		DataType const* getReadType() const {return &DataType::BOOL;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::BOOL;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 	};
 
 	class ASTExprGT : public ASTRelExpr
@@ -1274,8 +1295,8 @@ namespace ZScript
 		           LocationData const& location = LocationData::NONE);
 		virtual ASTAddExpr* clone() const = 0;
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 	};
 
 	class ASTExprPlus : public ASTAddExpr
@@ -1317,8 +1338,8 @@ namespace ZScript
 		            LocationData const& location = LocationData::NONE);
 		virtual ASTMultExpr* clone() const = 0;
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 	};
 
 	class ASTExprTimes : public ASTMultExpr
@@ -1374,8 +1395,8 @@ namespace ZScript
 		           LocationData const& location = LocationData::NONE);
 		virtual ASTBitExpr* clone() const = 0;
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 	};
 
 	class ASTExprBitAnd : public ASTBitExpr
@@ -1429,8 +1450,8 @@ namespace ZScript
 				LocationData const& location = LocationData::NONE);
 		virtual ASTShiftExpr* clone() const = 0;
 
-		DataType const* getReadType() const {return &DataType::FLOAT;}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 	};
 
 	class ASTExprLShift : public ASTShiftExpr
@@ -1483,8 +1504,8 @@ namespace ZScript
 		owning_ptr<ASTExpr> middle;
 		owning_ptr<ASTExpr> right;
 
-		DataType const* getReadType() const {return middle->getReadType();}
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getReadType(Scope* scope) {return middle->getReadType(scope);}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 	};
 
 	// Literals
@@ -1496,7 +1517,7 @@ namespace ZScript
 		ASTLiteral(LocationData const& location = LocationData::NONE);
 		virtual ASTLiteral* clone() const = 0;
 
-		DataType const* getWriteType() const {return NULL;}
+		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
 
 		Literal* manager;
 	};
@@ -1517,7 +1538,7 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		DataType const* getReadType() const {return &DataType::FLOAT;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
 	
 		owning_ptr<ASTFloat> value;
 	};
@@ -1539,7 +1560,7 @@ namespace ZScript
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const {
 			return value ? 10000L : 0L;}
-		DataType const* getReadType() const {return &DataType::BOOL;}
+		virtual DataType const* getReadType(Scope* scope) {return &DataType::BOOL;}
 	
 		bool value;
 	};
@@ -1565,7 +1586,7 @@ namespace ZScript
 		bool isConstant() const /*override*/ {return true;}
 		bool isLiteral() const {return true;}
 
-		DataTypeArray const* getReadType() const /*override*/;
+		DataTypeArray const* getReadType(Scope* scope) /*override*/;
 		
 		// The data declaration that this literal may be part of. If NULL that
 		// means this is not part of a data declaration. This should be managed by
@@ -1589,7 +1610,7 @@ namespace ZScript
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
 
-		DataTypeArray const* getReadType() const {return readType_;}
+		DataTypeArray const* getReadType(Scope* scope) {return readType_;}
 		void setReadType(DataTypeArray const* type) {readType_ = type;}
 
 		// The data declaration that this literal may be part of. If NULL that
@@ -1622,7 +1643,7 @@ namespace ZScript
 		virtual bool isConstant() const {return true;}
 		bool isLiteral() const {return false;} //Despite being an `ASTLiteral`, this is NOT a literal. Why is this under ASTLiteral? -V
 
-		virtual DataType const* getReadType() const {
+		virtual DataType const* getReadType(Scope* scope) {
 			return &DataType::FLOAT;}
 
 		std::string name;

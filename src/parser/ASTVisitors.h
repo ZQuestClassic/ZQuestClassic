@@ -107,6 +107,8 @@ namespace ZScript
 		virtual void caseExprPreDecrement(
 				ASTExprPreDecrement& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseExprCast(ASTExprCast& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseExprAnd(ASTExprAnd& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprOr(ASTExprOr& host, void* param = NULL) {
@@ -249,6 +251,7 @@ namespace ZScript
 				ASTExprDecrement& host, void* param = NULL);
 		virtual void caseExprPreDecrement(
 				ASTExprPreDecrement& host, void* param = NULL);
+		virtual void caseExprCast(ASTExprCast& host, void* = NULL);
 		virtual void caseExprAnd(ASTExprAnd& host, void* param = NULL);
 		virtual void caseExprOr(ASTExprOr& host, void* param = NULL);
 		virtual void caseExprGT(ASTExprGT& host, void* param = NULL);

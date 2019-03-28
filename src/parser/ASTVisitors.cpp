@@ -318,6 +318,11 @@ void RecursiveVisitor::caseExprPreDecrement(
 	visit(host.operand.get(), param);
 }
 
+void RecursiveVisitor::caseExprCast(ASTExprCast& host, void* param)
+{
+	visit(host.operand.get(), param);
+}
+
 void RecursiveVisitor::caseExprAnd(ASTExprAnd& host, void* param)
 {
 	visit(host.left.get(), param);
