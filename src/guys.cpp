@@ -1065,6 +1065,33 @@ int enemy::getWeaponID(weapon *w)
 		//Z_message("enemy::getWeaponID(*w), Step 1B, checking parentitem; parentitem > -1, and is: %d\n", w->parentitem);
 	
 		int usewpn = itemsbuf[w->parentitem].useweapon;
+		al_trace("getWeaponID() usewpn is %d\n",usewpn);
+		//al_trace("enemy::getWeaponID(*w), Step 2, getting itemsbuf[w->parentitem].useweapon; usewpn is: %d\n", usewpn);
+		//Z_message("enemy::getWeaponID(*w), Step 2, getting itemsbuf[w->parentitem].useweapon; usewpn is: %d\n", usewpn);
+	
+		if ( usewpn > 0 ) 
+		{ 
+			//al_trace("Assigning weapon id: %d\n", usewpn);
+			wpnID = usewpn; //Not forwarding to the weapon sprite?
+			//al_trace("enemy::getWeaponID(*w), Step 3A, useweapon > 0; setting wpnID = useweapon; wpnID is: %d\n", wpnID);
+			//Z_message("enemy::getWeaponID(*w), Step 3A, useweapon > 0; setting wpnID = useweapon; wpnID is: %d\n", wpnID);
+		}
+		else 
+		{
+			wpnID = w->id;
+			//al_trace("weaponToDefence() w->id is: %d\n", w->id);
+			//al_trace("enemy::getWeaponID(*w), Step 3A, useweapon !> 0; setting wpnID = w->id; wpnID is: %d\n", wpnID);
+			//Z_message("enemy::getWeaponID(*w), Step 3A, useweapon !> 0; setting wpnID = w->id; wpnID is: %d\n", wpnID);
+			
+		}
+		return wpnID;
+	}
+	else if ( w->parentitem == -1 && w->ScriptGenerated ) 
+	{
+		//al_trace("enemy::getWeaponID(*w), Step 1B, checking parentitem; parentitem > -1, and is: %d\n", w->parentitem);
+		//Z_message("enemy::getWeaponID(*w), Step 1B, checking parentitem; parentitem > -1, and is: %d\n", w->parentitem);
+		
+		int usewpn = w->useweapon;
 		//al_trace("weaponToDefence() usewpn is %d\n",usewpn);
 		//al_trace("enemy::getWeaponID(*w), Step 2, getting itemsbuf[w->parentitem].useweapon; usewpn is: %d\n", usewpn);
 		//Z_message("enemy::getWeaponID(*w), Step 2, getting itemsbuf[w->parentitem].useweapon; usewpn is: %d\n", usewpn);
@@ -1109,6 +1136,39 @@ int enemy::resolveEnemyDefence(weapon *w)
 	{
 		//al_trace("resolveEnemyDefence() w->parentitem is %d\n",w->parentitem);
 		int usedef = itemsbuf[w->parentitem].usedefence;
+		al_trace("UseDefence is %d\n", usedef);
+		
+		//al_trace("enemy::resolveEnemyDefence(), Step 2, reading itemsbuf[itm].usedefence: %d\n", usedef);
+		//Z_message("enemy::resolveEnemyDefence(), Step 2, reading itemsbuf[itm].usedefence: %d\n", usedef);
+		
+		//al_trace("enemy::resolveEnemyDefence(), Step 3, reading defense[wid]: %d\n", defense[wid]);
+		//Z_message("enemy::resolveEnemyDefence(), Step 3, reading defense[wid]: %d\n", defense[wid]);
+		if ( usedef > 0 ) 
+		{
+			weapondef = usedef;
+		}
+		else
+		{
+			al_trace("weaponToDefence(wid) is %d\n", weaponToDefence(wid));
+			weapondef = weaponToDefence(wid);
+		}
+		/*
+		if ( defense[weaponToDefence(wid)] == 0 ) {
+			weapondef = usedef;
+			//al_trace("enemy::resolveEnemyDefence(), Step 4A, defense[wid] == 0; edef = usedef; edef is: %d\n", weapondef);
+			//Z_message("enemy::resolveEnemyDefence(), Step 4A, defense[wid] == 0; edef = usedef; edef is: %d\n", weapondef);
+		}
+		else weapondef = defense[weaponToDefence(wid)]; //defense] is not in the same order as weapon id enum, is it?
+		*/
+		
+		//al_trace("enemy::resolveEnemyDefence(), Step 4A, defense[wid] != 0; edef = defense[wid]; edef is: %d\n", weapondef);
+		//Z_message("enemy::resolveEnemyDefence(), Step 4A, defense[wid] != 0; edef = defense[wid]; edef is: %d\n", weapondef);
+		//al_trace("resolveEnemyDefence() weapondef is: %d\n",weapondef);
+		return weapondef;
+	}
+	if ( w->parentitem == -1 && w->ScriptGenerated )
+	{
+		int usedef = w->usedefence;
 		
 		//al_trace("enemy::resolveEnemyDefence(), Step 2, reading itemsbuf[itm].usedefence: %d\n", usedef);
 		//Z_message("enemy::resolveEnemyDefence(), Step 2, reading itemsbuf[itm].usedefence: %d\n", usedef);
@@ -1136,11 +1196,14 @@ int enemy::resolveEnemyDefence(weapon *w)
 		//Z_message("enemy::resolveEnemyDefence(), Step 4A, defense[wid] != 0; edef = defense[wid]; edef is: %d\n", weapondef);
 		//al_trace("resolveEnemyDefence() weapondef is: %d\n",weapondef);
 		return weapondef;
+		
+		
 	}
 	//al_trace("enemy::resolveEnemyDefence(), Step 5, returning defense[wid]: %d\n", defense[wid]);
 	//Z_message("enemy::resolveEnemyDefence(), Step 5, returning defense[wid]: %d\n", defense[wid]);
 	//al_trace("resolveEnemyDefence() resolved to return defense[weaponToDefence(wid)]: %d\n",defense[weaponToDefence(wid)]);
-	return defense[weaponToDefence(wid)];
+	//return defense[weaponToDefence(wid)];
+	return weaponToDefence(wid);
 }
 
 
@@ -1151,221 +1214,18 @@ int enemy::resolveEnemyDefence(weapon *w)
 // -1: do damage
 int enemy::defendNew(int wpnId, int *power, int edef)
 {
-	//al_trace("defendNew() initial edef is %d\n",edef);
-	//al_trace("defendNew() enemy defense[edef] is %d\n",defense[edef]);
 	
-	/*
-		switch ( wpnId ){
-		    case wBrang:
-			al_trace("enemy::defend(), wpnID input is: LW_BRANG: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: BLW_BRANG: %d\n", wpnId);
-			break;
-			
-		    case wHookshot:
-			al_trace("enemy::defend(), wpnID input is: LW_HOOKSHOT: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_HOOKSHOT: %d\n", wpnId);
-			break;
-			
-			// Anyway...
-		    case wBomb:
-			al_trace("enemy::defend(), wpnID input is: LW_BOMB: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_BOMB: %d\n", wpnId);
-			break;
-			
-		    case wSBomb:
-			al_trace("enemy::defend(), wpnID input is: LW_SBOMB: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_SBOMB: %d\n", wpnId);;
-			break;
-			
-		    case wArrow:
-			al_trace("enemy::defend(), wpnID input is: LW_ARROW: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_ARROW: %d\n", wpnId);
-			break;
-			
-		    case wFire:
-			al_trace("enemy::defend(), wpnID input is: LW_FIRE: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_FIRE: %d\n", wpnId);
-			break;
-			
-		    case wWand:
-			al_trace("enemy::defend(), wpnID input is: LW_WAND: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_WAND: %d\n", wpnId);
-			break;
-			
-		    case wMagic:
-			al_trace("enemy::defend(), wpnID input is: LW_MAGIC: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_MAGIC: %d\n", wpnId);
-			break;
-			
-		    case wHammer:
-			al_trace("enemy::defend(), wpnID input is: LW_HAMMER: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_HAMMER: %d\n", wpnId);
-			break;
-			
-		    case wSword:
-			al_trace("enemy::defend(), wpnID input is: LW_SWORD: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_SWORD: %d\n", wpnId);
-			break;
-			
-		    case wBeam:
-			al_trace("enemy::defend(), wpnID input is: LW_BEAM: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_BEAM: %d\n", wpnId);
-			break;
-			
-		    case wRefBeam:
-			al_trace("enemy::defend(), wpnID input is: LW_REFBEAM: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_REFBEAM: %d\n", wpnId);
-			break;
-			
-		    case wRefMagic:
-			al_trace("enemy::defend(), wpnID input is: LW_REFMAGIC: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_REFMAGIC: %d\n", wpnId);
-			break;
-			
-		    case wRefFireball:
-			al_trace("enemy::defend(), wpnID input is: LW_REFFIREBALL: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_REFFIREBALL: %d\n", wpnId);
-			break;
-			
-		    case wRefRock:
-			al_trace("enemy::defend(), wpnID input is: LW_REFROCK: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_REFROCK: %d\n", wpnId);
-			break;
-			
-		    case wStomp:
-			al_trace("enemy::defend(), wpnID input is: LW_STOMP: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: LW_STOMP: %d\n", wpnId);
-			break;
-			
-		    case wCByrna:
-			al_trace("enemy::defend(), wpnID input is: LW_BYRNA: %d\n", wpnId);
-			Z_message("enemy::defend(), wpnID input is: L: %d\n", wpnId);
-			break;
-			
-			
-		    case wScript1:
-			    if(QHeader.zelda_version > 0x250) {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT1: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT1: %d\n", wpnId);
-			    }
-			    else {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			    }
-			break;
-		    
-		    case wScript2:
-			    if(QHeader.zelda_version > 0x250) {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT2: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT2: %d\n", wpnId);
-			    }
-			    else {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			    }
-			break;
-		    
-		    case wScript3:
-			    if(QHeader.zelda_version > 0x250) {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT3: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT3: %d\n", wpnId);
-			    }
-			    else {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			    }
-			break;
-		    
-		    case wScript4:
-			    if(QHeader.zelda_version > 0x250) {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT4: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT4: %d\n", wpnId);
-			    }
-			    else {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			    }
-			break;
-		    
-		    case wScript5:
-			    if(QHeader.zelda_version > 0x250) {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT5: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT5: %d\n", wpnId);
-			    }
-			    else {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			    }
-			break;
-		    
-		    case wScript6:
-			    if(QHeader.zelda_version > 0x250) {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT6: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT6: %d\n", wpnId);
-			    }
-			    else {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			    }
-			break;
-		    
-		    case wScript7:
-			    if(QHeader.zelda_version > 0x250) {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT7: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT7: %d\n", wpnId);
-			    }
-			    else {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			    }
-			break;
-		    
-		    case wScript8:
-			    if(QHeader.zelda_version > 0x250) {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT8: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT8: %d\n", wpnId);
-			    }
-			    else {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			    }
-			break;
-		    
-		    case wScript9:
-			    if(QHeader.zelda_version > 0x250) {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT9: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT9: %d\n", wpnId);
-			    }
-			    else {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			    }
-			break;
-		    
-		    case wScript10:
-			    if(QHeader.zelda_version > 0x250) {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT10: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version > 0x250; wpnID input is: LW_SCRIPT10: %d\n", wpnId);
-			    }
-			    else {
-				    al_trace("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			           Z_message("enemy::defend(), SCRIPT WEAPON, Quest Header Version !> 0x250; wpnID input is: LW_SCRIPT: %d\n", wpnId);
-			    }
-			break; 
-		    
-		
-		}
-		*/
 	//Weapon Editor, Default Defence if set aqnd npc defence is none. 
 	//otherwise, use enemy editor definitions.  -Z
+	/*
 	int the_defence = 0;
 	
 	//al_trace("enemy::defend(), Step 1, checking defense[edef]: %d\n", defense[edef]);
 	//Z_message("enemy::defend(), Step 1, checking defense[edef]: %d\n", defense[edef]);
 	if ( defense[edef] > 0 ) 
 	{ 
-		//al_trace("defendNew() is at: %s\n", "defense[edef] is > 0");
-		//al_trace("defendNew()defense[edef] is: %d\n",defense[edef]);
+		al_trace("defendNew() is at: %s\n", "defense[edef] is > 0");
+		al_trace("defendNew()defense[edef] is: %d\n",defense[edef]);
 	    the_defence = defense[edef]; 
 	   // al_trace("enemy::defend(), Step 2, defense[edef] > 0, setting defence: %d\n", defence);
 	    //Z_message("enemy::defend(), Step 2, defense[edef] > 0, setting defence: %d\n", defence);
@@ -1373,18 +1233,20 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 	} 
 	else 
 	{
-		//al_trace("defendNew() is at: %s\n", "defense[edef] is <= 0");
+		al_trace("defendNew() is at: %s\n", "defense[edef] is <= 0");
 	    the_defence = edef; //itemsbuf[id].usedefense;
 	    //al_trace("enemy::defend(), Step 3, defense[edef] !> 0, setting defence: %d\n", edef);
 	    //Z_message("enemy::defend(), Step 2, defense[edef] !> 0, setting defence: %d\n", edef);
 	}
 	//al_trace("defendNew() the_defence is: %d\n", the_defence);
 	//al_trace("defendNew() is at: %s\n", "is shieldCanBlock");
+	*/
     if(shieldCanBlock)
     {
 	   // al_trace("enemy::defend(), shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
 	  //  Z_message("enemy::defend(), shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
-        switch(the_defence)
+        //switch(the_defence)
+        switch(defense[edef]) //usedefence should be set as part of the edef input to this function
         {
         case edIGNORE:
             return 0;
@@ -1402,7 +1264,8 @@ int enemy::defendNew(int wpnId, int *power, int edef)
     //Z_message("enemy::defend(), !shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
     //al_trace("defendNew() is at: %s\n", "switch(the_defence)");
     //al_trace("defendNew() the_defence is: %d\n", the_defence);
-    switch(the_defence)
+    //switch(the_defence)
+    switch(defense[edef]) //usedefence should be set as part of the edef input to this function
     {
     case edSTUNORCHINK:
         if(*power <= 0)
@@ -2018,6 +1881,15 @@ int enemy::takehit(weapon *w)
 		}
 		
 	}
+	if ( parent_item == -1 && w->ScriptGenerated )
+	{
+		if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
+		{
+			wpnId = w->useweapon;
+		}
+		
+	}
+	al_trace("takehit wpnId is: %d\n",wpnId);
 	
 	//al_trace("takehit() useweapon is %d\n",itemsbuf[parent_item].useweapon);
 	
@@ -2178,7 +2050,8 @@ int enemy::takehit(weapon *w)
 		//al_trace("Whistle weapon in %s\n", "takehit flag != 0");
 		w->power = itemsbuf[parent_item].misc5;
 		    
-		int def = defendNew(wWhistle, &power,  resolveEnemyDefence(w));
+		//int def = defendNew(wWhistle, &power,  resolveEnemyDefence(w));
+		int def = defendNew(wpnId, &power,  resolveEnemyDefence(w));
 		//int def = defend(wWhistle, &power,  edefWhistle);
 		    
 		//al_trace("whistle def is: %d\n", def);
@@ -2324,7 +2197,7 @@ fsparkle:
     default:
         // Work out the defenses!
     {
-        int def = defenditemclassNew(wpnId, &power, w);
+        int def = defenditemclassNew(wpnId, &power, w); 
         
         if(def >= 0)
             return def;
