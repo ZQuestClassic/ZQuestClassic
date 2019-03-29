@@ -2719,6 +2719,266 @@ void LinkClass::check_slash_block(int bx, int by)
     }
 }
 
+
+void LinkClass::check_slash_block(weapon *w)
+{
+	//first things 
+	
+	int par_item = w->parentitem;
+	al_trace("check_slash_block(weapon *w): par_item is: %d\n", par_item);
+	int usewpn = -1;
+	if ( par_item > -1 )
+	{
+		usewpn = itemsbuf[par_item].useweapon;
+	}
+	else if ( par_item == -1 && w->ScriptGenerated ) 
+	{
+		usewpn = w->useweapon;
+	}
+	al_trace("check_slash_block(weapon *w): usewpn is: %d\n", usewpn);
+    if(usewpn != wSword) return;
+	
+	
+    int bx = 0, by = 0;
+	bx = (int)w->x;
+	by = (int)w->y;
+	al_trace("check_slash_block(weapon *w): bx is: %d\n", bx);
+	al_trace("check_slash_block(weapon *w): by is: %d\n", by);
+    //keep things inside the screen boundaries
+    bx=vbound(bx, 0, 255);
+    by=vbound(by, 0, 176);
+    int fx=vbound(bx, 0, 255);
+    int fy=vbound(by, 0, 176);
+    
+    
+        
+    //if(z>8 || attackclk==SWORDCHARGEFRAME  // is not charging>0, as tapping a wall reduces attackclk but retains charging
+    //        || (attackclk>SWORDTAPFRAME && tapping))
+    //    return;
+        
+    //find out which combo row/column the coordinates are in
+    bx &= 0xF0;
+    by &= 0xF0;
+    
+    int type = COMBOTYPE(bx,by);
+    int type2 = FFCOMBOTYPE(fx,fy);
+    int flag = MAPFLAG(bx,by);
+    int flag2 = MAPCOMBOFLAG(bx,by);
+    int flag3 = MAPFFCOMBOFLAG(fx,fy);
+    int i = (bx>>4) + by;
+    
+    if(i > 175)
+    {
+	    al_trace("check_slash_block(weapon *w): %s\n", "i > 175");
+        return;
+    }
+        
+    bool ignorescreen=false;
+    bool ignoreffc=false;
+    
+    if(get_bit(screengrid, i) != 0)
+    {
+        ignorescreen = true;
+    }
+    
+    int current_ffcombo = getFFCAt(fx,fy);
+    
+    if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
+    {
+        ignoreffc = true;
+    }
+    
+    if(!isCuttableType(type) &&
+            (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
+    {
+        ignorescreen = true;
+    }
+    
+    if(!isCuttableType(type2) &&
+            (flag3<mfSWORD || flag3>mfXSWORD) && flag3!=mfSTRIKE)
+    {
+        ignoreffc = true;
+    }
+    
+    mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+    
+    int sworditem = (par_item >-1 ? itemsbuf[par_item].fam_type : current_item(itype_sword)); //Get the level of the item, else the highest sword level in inventory.
+    
+    if(!ignorescreen)
+    {
+        if((flag >= 16)&&(flag <= 31))
+        {
+            s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
+            s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
+            s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
+        }
+        else if(flag == mfARMOS_SECRET)
+        {
+            s->data[i] = s->secretcombo[sSTAIRS];
+            s->cset[i] = s->secretcset[sSTAIRS];
+            s->sflag[i] = s->secretflag[sSTAIRS];
+            sfx(tmpscr->secretsfx);
+        }
+        else if(((flag>=mfSWORD&&flag<=mfXSWORD)||(flag==mfSTRIKE)))
+        {
+            for(int i2=0; i2<=zc_min(sworditem-1,3); i2++)
+            {
+                findentrance(bx,by,mfSWORD+i2,true);
+            }
+            
+            findentrance(bx,by,mfSTRIKE,true);
+        }
+        else if(((flag2 >= 16)&&(flag2 <= 31)))
+        {
+            s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
+            s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
+            s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
+        }
+        else if(flag2 == mfARMOS_SECRET)
+        {
+            s->data[i] = s->secretcombo[sSTAIRS];
+            s->cset[i] = s->secretcset[sSTAIRS];
+            s->sflag[i] = s->secretflag[sSTAIRS];
+            sfx(tmpscr->secretsfx);
+        }
+        else if(((flag2>=mfSWORD&&flag2<=mfXSWORD)||(flag2==mfSTRIKE)))
+        {
+            for(int i2=0; i2<=zc_min(sworditem-1,3); i2++)
+            {
+                findentrance(bx,by,mfSWORD+i2,true);
+            }
+            
+            findentrance(bx,by,mfSTRIKE,true);
+        }
+        else
+        {
+            if(isCuttableNextType(type))
+            {
+                s->data[i]++;
+            }
+            else
+            {
+                s->data[i] = s->undercombo;
+                s->cset[i] = s->undercset;
+                s->sflag[i] = 0;
+            }
+            
+            //pausenow=true;
+        }
+    }
+    
+    if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)
+    {
+        for(int i2=0; i2<=zc_min(sworditem-1,3); i2++)
+        {
+            findentrance(bx,by,mfSWORD+i2,true);
+        }
+        
+        findentrance(fx,fy,mfSTRIKE,true);
+    }
+    else if(!ignoreffc)
+    {
+        if(isCuttableNextType(type2))
+        {
+            s->ffdata[current_ffcombo]++;
+        }
+        else
+        {
+            s->ffdata[current_ffcombo] = s->undercombo;
+            s->ffcset[current_ffcombo] = s->undercset;
+        }
+    }
+    
+    if(!ignorescreen)
+    {
+        if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(screengrid,i,1);
+        
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && !getmapflag())
+        {
+            items.add(new item((fix)bx, (fix)by,(fix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP, 0));
+            sfx(tmpscr->secretsfx);
+        }
+        else if(isCuttableItemType(type))
+        {
+            int it = select_dropitem(12, bx, by);
+            
+            if(it!=-1)
+            {
+                items.add(new item((fix)bx, (fix)by,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+            }
+        }
+        
+        putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+        
+        if(isBushType(type) || isFlowersType(type) || isGrassType(type))
+        {
+            if(get_bit(quest_rules,qr_MORESOUNDS))
+            {
+                sfx(WAV_ZN1GRASSCUT,int(bx));
+            }
+            
+            if(isBushType(type))
+            {
+                decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0));
+            }
+            else if(isFlowersType(type))
+            {
+                decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0));
+            }
+            else if(isGrassType(type))
+            {
+                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0));
+            }
+        }
+    }
+    
+    if(!ignoreffc)
+    {
+        if(!isTouchyType(type) && !FFCore.emulation[emuSWORDTRIGARECONTINUOUS]) set_bit(ffcgrid, current_ffcombo, 1);
+        
+        if(isCuttableItemType(type2))
+        {
+            int it=-1;
+            int r=rand()%100;
+            
+            if(r<15)
+            {
+                it=iHeart;                                // 15%
+            }
+            else if(r<35)
+            {
+                it=iRupy;                                 // 20%
+            }
+            
+            if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
+            {
+                items.add(new item((fix)fx, (fix)fy,(fix)0, it, ipBIGRANGE + ipTIMER, 0));
+            }
+        }
+        
+        if(isBushType(type2) || isFlowersType(type2) || isGrassType(type2))
+        {
+            if(get_bit(quest_rules,qr_MORESOUNDS))
+            {
+                sfx(WAV_ZN1GRASSCUT,int(bx));
+            }
+            
+            if(isBushType(type2))
+            {
+                decorations.add(new dBushLeaves((fix)fx, (fix)fy, dBUSHLEAVES, 0));
+            }
+            else if(isFlowersType(type2))
+            {
+                decorations.add(new dFlowerClippings((fix)fx, (fix)fy, dFLOWERCLIPPINGS, 0));
+            }
+            else if(isGrassType(type2))
+            {
+                decorations.add(new dGrassClippings((fix)fx, (fix)fy, dGRASSCLIPPINGS, 0));
+            }
+        }
+    }
+}
+
 //TODO: Boomerang that cuts bushes. -L
 /*void LinkClass::slash_bush()
 {
