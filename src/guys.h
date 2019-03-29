@@ -228,9 +228,15 @@ protected:
     // take damage or ignore it
     virtual bool hitshield(int wpnx, int wpny, int xdir);
     virtual int defend(int wpnId, int *power, int edef);
+//New 2.55 Weapon System
+    int weaponToDefence(int wid);
+    int getWeaponID(weapon *w);
+    int resolveEnemyDefence(weapon *w);
+    virtual int defendNew(int wpnId, int *power, int edef);
     //virtual int defend_wdmg(int wpnId, int dmg, int edef);
     bool candamage(int power, int edef);
     int defenditemclass(int wpnId, int *power);
+    int defenditemclassNew(int wpnId, int *power, weapon *w);
     
     bool dont_draw();
     // base drawing function to be used by all derived classes instead of
