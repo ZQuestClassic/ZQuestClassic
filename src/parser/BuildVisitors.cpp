@@ -858,7 +858,7 @@ void BuildOpcodes::caseExprLE(ASTExprLE& host, void* param)
 void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 {
     // Special case for booleans.
-    bool isBoolean = (*host.left->getReadType(scope) == DataType::BOOL);
+    bool isBoolean = (*host.left->getReadType(scope, this) == DataType::BOOL);
 
     if (host.getCompileTimeValue(NULL, scope))
     {
@@ -885,7 +885,7 @@ void BuildOpcodes::caseExprEQ(ASTExprEQ& host, void* param)
 void BuildOpcodes::caseExprNE(ASTExprNE& host, void* param)
 {
     // Special case for booleans.
-    bool isBoolean = (*host.left->getReadType(scope) == DataType::BOOL);
+    bool isBoolean = (*host.left->getReadType(scope, this) == DataType::BOOL);
 
     if (host.getCompileTimeValue(NULL, scope))
     {

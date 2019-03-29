@@ -698,7 +698,7 @@ namespace ZScript
 
 		// Resolves the type, using either the list's or this node's own base type
 		// as appropriate.
-		DataType const* resolveType(Scope* scope);
+		DataType const* resolveType(Scope* scope, CompileErrorHandler* errorHandler);
 
 		// The list containing this declaration. Should be set by that list when
 		// this is added.
@@ -824,8 +824,8 @@ namespace ZScript
 
 		// Returns the read or write type for this expression. Null for either
 		// means that it can't be read from/written to.
-		virtual DataType const* getReadType(Scope* scope) {return NULL;}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	// Wrap around an expression to type it as constant.
@@ -844,9 +844,9 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		virtual DataType const* getReadType(Scope* scope) {
-			return content ? content->getReadType(scope) : NULL;}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return content ? content->getReadType(scope, errorHandler) : NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	
 		owning_ptr<ASTExpr> content;
 	};
@@ -867,10 +867,10 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		virtual DataType const* getReadType(Scope* scope) {
-			return right ? right->getReadType(scope) : NULL;}
-		virtual DataType const* getWriteType(Scope* scope) {
-			return right ? right->getWriteType(scope) : NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return right ? right->getReadType(scope, errorHandler) : NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return right ? right->getWriteType(scope, errorHandler) : NULL;}
 	
 		owning_ptr<ASTExpr> left;
 		owning_ptr<ASTExpr> right;
@@ -894,8 +894,8 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		virtual DataType const* getReadType(Scope* scope);
-		virtual DataType const* getWriteType(Scope* scope);
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
 	
 		// The identifier components separated by '.' or '::'.
 		std::vector<std::string> components;
@@ -924,8 +924,8 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 
-		virtual DataType const* getReadType(Scope* scope);
-		virtual DataType const* getWriteType(Scope* scope);
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
 	
 		owning_ptr<ASTExpr> left;
 		std::string right;
@@ -951,8 +951,8 @@ namespace ZScript
 		bool isConstant() const /*override*/;
 		bool isLiteral() const {return false;}
 
-		virtual DataType const* getReadType(Scope* scope) /*override*/;
-		virtual DataType const* getWriteType(Scope* scope) /*override*/;
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
 	
 		owning_ptr<ASTExpr> array;
 		owning_ptr<ASTExpr> index;
@@ -969,8 +969,8 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 
-		virtual DataType const* getReadType(Scope* scope);
-		virtual DataType const* getWriteType(Scope* scope);
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
 	
 		owning_ptr<ASTExpr> left;
 		owning_vector<ASTExpr> parameters;
@@ -988,8 +988,8 @@ namespace ZScript
 		virtual bool isConstant() const {return operand->isConstant();}
 		virtual bool isLiteral() const {return operand->isLiteral();}
 
-		virtual DataType const* getReadType(Scope* scope) {return NULL;}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 		
 		owning_ptr<ASTExpr> operand;
 	};
@@ -1005,8 +1005,8 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprNot : public ASTUnaryExpr
@@ -1020,8 +1020,8 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::BOOL;}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprBitNot : public ASTUnaryExpr
@@ -1035,8 +1035,8 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprIncrement : public ASTUnaryExpr
@@ -1050,9 +1050,9 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
-		virtual DataType const* getWriteType(Scope* scope) {
-			return operand ? operand->getWriteType(scope) : NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
 	};
 
 	class ASTExprPreIncrement : public ASTUnaryExpr
@@ -1066,9 +1066,9 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
-		virtual DataType const* getWriteType(Scope* scope) {
-			return operand ? operand->getWriteType(scope) : NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
 	};
 
 	class ASTExprDecrement : public ASTUnaryExpr
@@ -1082,9 +1082,9 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
-		virtual DataType const* getWriteType(Scope* scope) {
-			return operand ? operand->getWriteType(scope) : NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
 	};
 
 	class ASTExprPreDecrement : public ASTUnaryExpr
@@ -1099,9 +1099,9 @@ namespace ZScript
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
 
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
-		virtual DataType const* getWriteType(Scope* scope) {
-			return operand ? operand->getWriteType(scope) : NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {
+			return operand ? operand->getWriteType(scope, errorHandler) : NULL;}
 	};
 	
 	class ASTExprCast : public ASTUnaryExpr
@@ -1115,8 +1115,8 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		virtual DataType const* getReadType(Scope* scope);
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 		
 		owning_ptr<ASTDataType> type;
 	};
@@ -1149,8 +1149,8 @@ namespace ZScript
 		           LocationData const& location = LocationData::NONE);
 		virtual ASTLogExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::BOOL;}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprAnd : public ASTLogExpr
@@ -1192,8 +1192,8 @@ namespace ZScript
 		           LocationData const& location = LocationData::NONE);
 		virtual ASTRelExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::BOOL;}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprGT : public ASTRelExpr
@@ -1295,8 +1295,8 @@ namespace ZScript
 		           LocationData const& location = LocationData::NONE);
 		virtual ASTAddExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprPlus : public ASTAddExpr
@@ -1338,8 +1338,8 @@ namespace ZScript
 		            LocationData const& location = LocationData::NONE);
 		virtual ASTMultExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprTimes : public ASTMultExpr
@@ -1395,8 +1395,8 @@ namespace ZScript
 		           LocationData const& location = LocationData::NONE);
 		virtual ASTBitExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprBitAnd : public ASTBitExpr
@@ -1450,8 +1450,8 @@ namespace ZScript
 				LocationData const& location = LocationData::NONE);
 		virtual ASTShiftExpr* clone() const = 0;
 
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	class ASTExprLShift : public ASTShiftExpr
@@ -1504,8 +1504,8 @@ namespace ZScript
 		owning_ptr<ASTExpr> middle;
 		owning_ptr<ASTExpr> right;
 
-		virtual DataType const* getReadType(Scope* scope) {return middle->getReadType(scope);}
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return middle->getReadType(scope, errorHandler);}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 	};
 
 	// Literals
@@ -1517,7 +1517,7 @@ namespace ZScript
 		ASTLiteral(LocationData const& location = LocationData::NONE);
 		virtual ASTLiteral* clone() const = 0;
 
-		virtual DataType const* getWriteType(Scope* scope) {return NULL;}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
 
 		Literal* manager;
 	};
@@ -1538,7 +1538,7 @@ namespace ZScript
 		optional<long> getCompileTimeValue(
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const;
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::FLOAT;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::FLOAT;}
 	
 		owning_ptr<ASTFloat> value;
 	};
@@ -1560,7 +1560,7 @@ namespace ZScript
 				CompileErrorHandler* errorHandler = NULL, Scope* scope = NULL)
 				const {
 			return value ? 10000L : 0L;}
-		virtual DataType const* getReadType(Scope* scope) {return &DataType::BOOL;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return &DataType::BOOL;}
 	
 		bool value;
 	};
@@ -1586,7 +1586,7 @@ namespace ZScript
 		bool isConstant() const /*override*/ {return true;}
 		bool isLiteral() const {return true;}
 
-		DataTypeArray const* getReadType(Scope* scope) /*override*/;
+		DataTypeArray const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) /*override*/;
 		
 		// The data declaration that this literal may be part of. If NULL that
 		// means this is not part of a data declaration. This should be managed by
@@ -1610,7 +1610,7 @@ namespace ZScript
 		bool isConstant() const {return true;}
 		bool isLiteral() const {return true;}
 
-		DataTypeArray const* getReadType(Scope* scope) {return readType_;}
+		DataTypeArray const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {return readType_;}
 		void setReadType(DataTypeArray const* type) {readType_ = type;}
 
 		// The data declaration that this literal may be part of. If NULL that
@@ -1643,7 +1643,7 @@ namespace ZScript
 		virtual bool isConstant() const {return true;}
 		bool isLiteral() const {return false;} //Despite being an `ASTLiteral`, this is NOT a literal. Why is this under ASTLiteral? -V
 
-		virtual DataType const* getReadType(Scope* scope) {
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler) {
 			return &DataType::FLOAT;}
 
 		std::string name;
@@ -1684,9 +1684,12 @@ namespace ZScript
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
-		DataType const& resolve(Scope& scope);
+		DataType const& resolve(Scope& scope, CompileErrorHandler* errorHandler);
 
 		owning_ptr<DataType> type;
+		int constant_;
+	private:
+		bool wasResolved;
 	};
 }
 

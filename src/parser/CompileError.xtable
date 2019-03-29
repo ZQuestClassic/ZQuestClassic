@@ -84,5 +84,6 @@ X(	TooManyVar,				P,	A,	E,	STR,	VOID,	"There are too many vars/consts named %s. 
 X(	HeaderGuardErr,			P,	A,	E,	STR,	VOID,	"Duplicate file for filename %s!"				)
 X(	HeaderGuardWarn,		P,	A,	W,	STR,	STR,	"Duplicate file for filename %s. %s this instance."				)
 X(	RedefDataType,				T,	A,	W,	STR,	STR,	"Data Type %s has already been defined as %s."    			)
+X(	ConstAlreadyConstant,				T,	A,	E,	STR,	VOID,	"DataType '%s' is already constant, or cannot be made constant."				)
 
 #undef STR

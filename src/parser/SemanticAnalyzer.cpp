@@ -77,7 +77,8 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	{
 		ASTDataDecl& parameter = **it;
 		string const& name = parameter.name;
-		DataType const& type = *parameter.resolveType(&functionScope);
+		DataType const& type = *parameter.resolveType(&functionScope, this);
+		if (breakRecursion(parameter)) return;
 		Variable::create(functionScope, parameter, type, this);
 	}
 
@@ -182,7 +183,7 @@ void SemanticAnalyzer::caseStmtIf(ASTStmtIf& host, void*)
     RecursiveVisitor::caseStmtIf(host);
     if (breakRecursion(host)) return;
 
-	checkCast(*host.condition->getReadType(scope), DataType::BOOL, &host);
+	checkCast(*host.condition->getReadType(scope, this), DataType::BOOL, &host);
 }
 
 void SemanticAnalyzer::caseStmtIfElse(ASTStmtIfElse& host, void*)
@@ -190,7 +191,7 @@ void SemanticAnalyzer::caseStmtIfElse(ASTStmtIfElse& host, void*)
     RecursiveVisitor::caseStmtIfElse(host);
     if (breakRecursion(host)) return;
 
-	checkCast(*host.condition->getReadType(scope), DataType::BOOL, &host);
+	checkCast(*host.condition->getReadType(scope, this), DataType::BOOL, &host);
 }
 
 void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void*)
@@ -198,7 +199,7 @@ void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void*)
 	RecursiveVisitor::caseStmtSwitch(host);
 	if (breakRecursion(host)) return;
 
-	checkCast(*host.key->getReadType(scope), DataType::FLOAT, &host);
+	checkCast(*host.key->getReadType(scope, this), DataType::FLOAT, &host);
 }
 
 void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
@@ -209,7 +210,7 @@ void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
 	scope = scope->getParent();
     if (breakRecursion(host)) return;
 
-	checkCast(*host.test->getReadType(scope), DataType::BOOL, &host);
+	checkCast(*host.test->getReadType(scope, this), DataType::BOOL, &host);
 }
 
 void SemanticAnalyzer::caseStmtWhile(ASTStmtWhile& host, void*)
@@ -217,7 +218,7 @@ void SemanticAnalyzer::caseStmtWhile(ASTStmtWhile& host, void*)
 	RecursiveVisitor::caseStmtWhile(host);
 	if (breakRecursion(host)) return;
 
-	checkCast(*host.test->getReadType(scope), DataType::BOOL, &host);
+	checkCast(*host.test->getReadType(scope, this), DataType::BOOL, &host);
 }
 
 void SemanticAnalyzer::caseStmtReturn(ASTStmtReturn& host, void*)
@@ -231,7 +232,7 @@ void SemanticAnalyzer::caseStmtReturnVal(ASTStmtReturnVal& host, void*)
     RecursiveVisitor::caseStmtReturnVal(host);
     if (breakRecursion(host)) return;
 
-	checkCast(*host.value->getReadType(scope), *returnType, &host);
+	checkCast(*host.value->getReadType(scope, this), *returnType, &host);
 }
 
 // Declarations
@@ -239,7 +240,8 @@ void SemanticAnalyzer::caseStmtReturnVal(ASTStmtReturnVal& host, void*)
 void SemanticAnalyzer::caseDataTypeDef(ASTDataTypeDef& host, void*)
 {
 	// Resolve the base type under current scope.
-	DataType const& type = host.type->resolve(*scope);
+	DataType const& type = host.type->resolve(*scope, this);
+    if (breakRecursion(*host.type.get())) return;
 	if (!type.isResolved())
 	{
 		handleError(CompileError::UnresolvedType(&host, type.getName()));
@@ -284,7 +286,8 @@ void SemanticAnalyzer::caseScriptTypeDef(ASTScriptTypeDef& host, void*)
 void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 {
 	// Resolve the base type.
-	DataType const& baseType = host.baseType->resolve(*scope);
+	DataType const& baseType = host.baseType->resolve(*scope, this);
+    if (breakRecursion(*host.baseType.get())) return;
 	if (!baseType.isResolved())
 	{
 		handleError(CompileError::UnresolvedType(&host, baseType.getName()));
@@ -311,9 +314,9 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 
 void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void*)
 {
-	//This should always be `DataType::CFLOAT`, but let's put the type checks here just in case... -V
 	// Resolve the base type.
-	DataType const& baseType = host.baseType->resolve(*scope);
+	DataType const& baseType = host.baseType->resolve(*scope, this);
+    if (breakRecursion(*host.baseType.get())) return;
 	if (!baseType.isResolved())
 	{
 		handleError(CompileError::UnresolvedType(&host, baseType.getName()));
@@ -345,7 +348,8 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	if (breakRecursion(host)) return;
 
 	// Then resolve the type.
-	DataType const& type = *host.resolveType(scope);
+	DataType const& type = *host.resolveType(scope, this);
+	if (breakRecursion(host)) return;
 	if (!type.isResolved())
 	{
 		handleError(CompileError::UnresolvedType(&host, type.getName()));
@@ -423,7 +427,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	if (host.getInitializer())
 	{
 		// Make sure we can cast the initializer to the type.
-		DataType const& initType = *host.getInitializer()->getReadType(scope);
+		DataType const& initType = *host.getInitializer()->getReadType(scope, this);
 		checkCast(initType, type, &host);
 		if (breakRecursion(host)) return;
 
@@ -445,7 +449,7 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 		ASTExpr& size = **it;
 
 		// Make sure each size can cast to float.
-		if (!size.getReadType(scope)->canCastTo(DataType::FLOAT))
+		if (!size.getReadType(scope, this)->canCastTo(DataType::FLOAT))
 		{
 			handleError(CompileError::NonIntegerArraySize(&host));
 			return;
@@ -477,7 +481,8 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 {
 	// Resolve the return type under current scope.
-	DataType const& returnType = host.returnType->resolve(*scope);
+	DataType const& returnType = host.returnType->resolve(*scope, this);
+	if (breakRecursion(*host.returnType.get())) return;
 	if (!returnType.isResolved())
 	{
 		handleError(
@@ -494,7 +499,8 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		ASTDataDecl& decl = **it;
 
 		// Resolve the parameter type under current scope.
-		DataType const& type = *decl.resolveType(scope);
+		DataType const& type = *decl.resolveType(scope, this);
+		if (breakRecursion(decl)) return;
 		if (!type.isResolved())
 		{
 			handleError(CompileError::UnresolvedType(&decl, type.getName()));
@@ -608,7 +614,7 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 	visit(host.right.get(), paramRead);
 	if (breakRecursion(host)) return;	
 
-    DataType const* rtype = host.right->getReadType(scope);
+    DataType const* rtype = host.right->getReadType(scope, this);
 	if (!rtype)
 	{
 		handleError(
@@ -617,7 +623,7 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 		return;
 	}
     
-	DataType const* ltype = host.left->getWriteType(scope);
+	DataType const* ltype = host.left->getWriteType(scope, this);
 	if (!ltype)
 	{
 		handleError(
@@ -664,7 +670,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 
 	// Grab the left side's class.
     DataTypeClass const* leftType = dynamic_cast<DataTypeClass const*>(
-		    &getNaiveType(*host.left->getReadType(scope), scope));
+		    &getNaiveType(*host.left->getReadType(scope, this), scope));
     if (!leftType)
 	{
 		handleError(CompileError::ArrowNotPointer(&host));
@@ -724,7 +730,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		visit(host.index.get());
         if (breakRecursion(host)) return;
 
-        checkCast(*host.index->getReadType(scope), DataType::FLOAT,
+        checkCast(*host.index->getReadType(scope, this), DataType::FLOAT,
                   host.index.get());
         if (breakRecursion(host)) return;
     }
@@ -746,7 +752,7 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 	// The index must be a number.
     if (host.index)
     {
-	    checkCast(*host.index->getReadType(scope), DataType::FLOAT,
+	    checkCast(*host.index->getReadType(scope, this), DataType::FLOAT,
 	              host.index.get());
         if (breakRecursion(host)) return;
     }
@@ -775,10 +781,10 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 
 	// Gather parameter types.
 	vector<DataType const*> parameterTypes;
-	if (arrow) parameterTypes.push_back(arrow->left->getReadType(scope));
+	if (arrow) parameterTypes.push_back(arrow->left->getReadType(scope, this));
 	for (vector<ASTExpr*>::const_iterator it = host.parameters.begin();
 		 it != host.parameters.end(); ++it)
-		parameterTypes.push_back((*it)->getReadType(scope));
+		parameterTypes.push_back((*it)->getReadType(scope, this));
 
 	// Grab functions with the proper name.
 	vector<Function*> functions =
@@ -960,7 +966,7 @@ void SemanticAnalyzer::caseExprEQ(ASTExprEQ& host, void*)
 	RecursiveVisitor::caseExprEQ(host);
 	if (breakRecursion(host)) return;
 
-	checkCast(*host.right->getReadType(scope), *host.left->getReadType(scope));
+	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this));
 	if (breakRecursion(host)) return;
 }
 
@@ -969,7 +975,7 @@ void SemanticAnalyzer::caseExprNE(ASTExprNE& host, void*)
 	RecursiveVisitor::caseExprNE(host);
 	if (breakRecursion(host)) return;
 
-	checkCast(*host.right->getReadType(scope), *host.left->getReadType(scope));
+	checkCast(*host.right->getReadType(scope, this), *host.left->getReadType(scope, this));
 	if (breakRecursion(host)) return;
 }
 
@@ -1027,16 +1033,16 @@ void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
 {
 	visit(host.left.get());
 	if (breakRecursion(host)) return;
-	checkCast(*host.left->getReadType(scope), DataType::BOOL, &host);
+	checkCast(*host.left->getReadType(scope, this), DataType::BOOL, &host);
 	if (breakRecursion(host)) return;
 	
 	visit(host.middle.get());
 	if (breakRecursion(host)) return;
 	visit(host.right.get());
 	if (breakRecursion(host)) return;
-	checkCast(*host.middle->getReadType(scope), *host.right->getReadType(scope), &host);
+	checkCast(*host.middle->getReadType(scope, this), *host.right->getReadType(scope, this), &host);
 	if (breakRecursion(host)) return;
-	checkCast(*host.right->getReadType(scope), *host.middle->getReadType(scope), &host);
+	checkCast(*host.right->getReadType(scope, this), *host.middle->getReadType(scope, this), &host);
 	if (breakRecursion(host)) return;
 }
 
@@ -1045,7 +1051,7 @@ void SemanticAnalyzer::caseExprTernary(ASTTernaryExpr& host, void*)
 void SemanticAnalyzer::caseStringLiteral(ASTStringLiteral& host, void*)
 {
 	// Add to scope as a managed literal.
-	Literal::create(*scope, host, *host.getReadType(scope), this);
+	Literal::create(*scope, host, *host.getReadType(scope, this), this);
 }
 
 void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
@@ -1063,7 +1069,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	// If present, type check the explicit size.
 	if (host.size)
 	{
-		checkCast(*host.size->getReadType(scope), DataType::FLOAT,
+		checkCast(*host.size->getReadType(scope, this), DataType::FLOAT,
 		          host.size.get());
 		if (breakRecursion(host)) return;
 	}
@@ -1078,7 +1084,8 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	// If present, resolve the explicit type.
 	if (host.type)
 	{
-		DataType const& elementType = host.type->resolve(*scope);
+		DataType const& elementType = host.type->resolve(*scope, this);
+		if (breakRecursion(*host.type.get())) return;
 		if (!elementType.isResolved())
 		{
 			handleError(
@@ -1113,13 +1120,13 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 		 it != host.elements.end(); ++it)
 	{
 		ASTExpr& element = **it;
-		checkCast(*element.getReadType(scope),
-				  host.getReadType(scope)->getElementType(), &host);
+		checkCast(*element.getReadType(scope, this),
+				  host.getReadType(scope, this)->getElementType(), &host);
 		if (breakRecursion(host)) return;
 	}
 	
 	// Add to scope as a managed literal.
-	Literal::create(*scope, host, *host.getReadType(scope), this);
+	Literal::create(*scope, host, *host.getReadType(scope, this), this);
 }
 
 void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
@@ -1145,7 +1152,7 @@ void SemanticAnalyzer::analyzeUnaryExpr(
 	visit(host.operand.get());
 	if (breakRecursion(host)) return;
 	
-	checkCast(*host.operand->getReadType(scope), type, &host);
+	checkCast(*host.operand->getReadType(scope, this), type, &host);
 	if (breakRecursion(host)) return;
 }
 
@@ -1155,7 +1162,7 @@ void SemanticAnalyzer::analyzeIncrement(ASTUnaryExpr& host)
     if (breakRecursion(host)) return;
 
 	ASTExpr& operand = *host.operand;
-    checkCast(*operand.getReadType(scope), DataType::FLOAT, &host);
+    checkCast(*operand.getReadType(scope, this), DataType::FLOAT, &host);
     if (breakRecursion(host)) return;
 }
 
@@ -1165,12 +1172,12 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 {
 	visit(host.left.get());
 	if (breakRecursion(host)) return;
-	checkCast(*host.left->getReadType(scope), leftType, &host);
+	checkCast(*host.left->getReadType(scope, this), leftType, &host);
 	if (breakRecursion(host)) return;
 
 	visit(host.right.get());
 	if (breakRecursion(host)) return;
-	checkCast(*host.right->getReadType(scope), rightType, &host);
+	checkCast(*host.right->getReadType(scope, this), rightType, &host);
 	if (breakRecursion(host)) return;
 }
 
