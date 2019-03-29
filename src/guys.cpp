@@ -1143,9 +1143,10 @@ int enemy::resolveEnemyDefence(weapon *w)
 		
 		//al_trace("enemy::resolveEnemyDefence(), Step 3, reading defense[wid]: %d\n", defense[wid]);
 		//Z_message("enemy::resolveEnemyDefence(), Step 3, reading defense[wid]: %d\n", defense[wid]);
-		if ( usedef > 0 ) 
+		if ( usedef > 0 && defense[ ( itemsbuf[w->parentitem].useweapon > 0 ? weaponToDefence(itemsbuf[w->parentitem].useweapon) : usedef ) ] == 0 ) //only if that defence is set to none 
 		{
-			weapondef = usedef;
+			al_trace("Using a default defence of: %d\n", usedef);
+			weapondef = usedef*-1;
 		}
 		else
 		{
@@ -1175,12 +1176,14 @@ int enemy::resolveEnemyDefence(weapon *w)
 		
 		//al_trace("enemy::resolveEnemyDefence(), Step 3, reading defense[wid]: %d\n", defense[wid]);
 		//Z_message("enemy::resolveEnemyDefence(), Step 3, reading defense[wid]: %d\n", defense[wid]);
-		if ( usedef > 0 ) 
+		if ( usedef > 0 && defense[ ( w->useweapon > 0 ? weaponToDefence(w->useweapon) : usedef ) ] == 0 ) 
 		{
-			weapondef = usedef;
+			al_trace("Using a default defence of: %d\n", usedef);
+			weapondef = usedef*-1;
 		}
 		else
 		{
+			al_trace("weaponToDefence(wid) is %d\n", weaponToDefence(wid));
 			weapondef = weaponToDefence(wid);
 		}
 		/*
@@ -1212,9 +1215,16 @@ int enemy::resolveEnemyDefence(weapon *w)
 // 0: takehit returns 0
 // 1: takehit returns 1
 // -1: do damage
+//The input from resolveEnemyDefence() for the param 'edef' is negative if a specific defence RESULT is being used.
 int enemy::defendNew(int wpnId, int *power, int edef)
 {
-	
+	int the_defence = 0;
+	if ( edef < 0 ) //we are using a specific base default defence for a weapon
+	{
+		the_defence = edef*-1; //A specific defence type. 
+		
+	}
+	else the_defence = defense[edef];
 	//Weapon Editor, Default Defence if set aqnd npc defence is none. 
 	//otherwise, use enemy editor definitions.  -Z
 	/*
@@ -1246,7 +1256,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
 	   // al_trace("enemy::defend(), shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
 	  //  Z_message("enemy::defend(), shieldCanBlock, doing switch(defence) using a case of: %d\n", defence);
         //switch(the_defence)
-        switch(defense[edef]) //usedefence should be set as part of the edef input to this function
+        switch(the_defence) //usedefence should be set as part of the edef input to this function
         {
         case edIGNORE:
             return 0;
@@ -1265,7 +1275,7 @@ int enemy::defendNew(int wpnId, int *power, int edef)
     //al_trace("defendNew() is at: %s\n", "switch(the_defence)");
     //al_trace("defendNew() the_defence is: %d\n", the_defence);
     //switch(the_defence)
-    switch(defense[edef]) //usedefence should be set as part of the edef input to this function
+    switch(the_defence) //usedefence should be set as part of the edef input to this function
     {
     case edSTUNORCHINK:
         if(*power <= 0)
