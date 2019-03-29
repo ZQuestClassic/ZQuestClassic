@@ -569,7 +569,7 @@ bool Collision(int cmb, bool checkcoldetection)
 bool Collision(int cmb, ffc f)
 {
 	return RectCollision( ComboX(cmb), ComboY(cmb), (ComboX(cmb)+16), (ComboY(cmb)+16),
-		(f->X), (f->Y), ((f->X)+(f->EffectWidth)), ((f->y)+(f->EffectHeight)) );
+		(f->X), (f->Y), ((f->X)+(f->EffectWidth)), ((f->Y)+(f->EffectHeight)) );
 }
 
 
@@ -1158,8 +1158,8 @@ bool DistY(item a, item b, int distance)
 
 //E
 
-void EToLWeapon(lweapon b, eweapon a) { return EWeaponToLWeapon(a,b);}
-void EToLWeapon(eweapon a, lweapon b) { return EWeaponToLWeapon(a,b);}
+void EToLWeapon(lweapon b, eweapon a) { EWeaponToLWeapon(a,b);}
+void EToLWeapon(eweapon a, lweapon b) { EWeaponToLWeapon(a,b);}
 lweapon EtoLWeapon(eweapon a){return EtoLWeapon(a);}
 
 int EtoLWeaponID(int type)
@@ -1167,7 +1167,7 @@ int EtoLWeaponID(int type)
 	return EWeaponToLWeaponID(type);
 }
 
-void EWeaponToLWeapon(lweapon b, eweapon a) { return EWeaponToLWeapon(a,b);}
+void EWeaponToLWeapon(lweapon b, eweapon a) { EWeaponToLWeapon(a,b);}
 
 //Copy the attributes of a given eweapon to a new lweapon.
 //Returns -1 on error, including if the type (weap->ID) conversion is illegal.
@@ -1700,15 +1700,15 @@ bool LinkFacing(int combo_pos)
 	return false;
 }
 
-void LtoEWeapon(eweapon b, lweapon a) { return LWeaponToEWeapon(a,b);}
-void LtoEWeapon(lweapon a, eweapon b) { return LWeaponToEWeapon(a,b);}
+void LtoEWeapon(eweapon b, lweapon a) { LWeaponToEWeapon(a,b);}
+void LtoEWeapon(lweapon a, eweapon b) { LWeaponToEWeapon(a,b);}
 eweapon LtoEWeapon(lweapon a){return LtoEWeapon(a);}
 int LtoEWeaponID(int type)
 {
 	return LWeaponToEWeaponID(type);
 }
 
-void LWeaponToEWeapon(eweapon b, lweapon a) { return LWeaponToEWeapon(a,b);}
+void LWeaponToEWeapon(eweapon b, lweapon a) { LWeaponToEWeapon(a,b);}
 
 //Copy the attributes of a given lweapon to an eweapon.
 //Returns -1 on error, including if the type (weap->ID) conversion is illegal.
@@ -2838,7 +2838,7 @@ int ProximityY(item a, npc b)
 
 int ProximityY(item a, item b) 
 {
-	return (Abs(ComboY(b) - a->Y));
+	return (Abs(b->Y - a->Y));
 }
 
 int ProximityY(int b, ffc a) 
