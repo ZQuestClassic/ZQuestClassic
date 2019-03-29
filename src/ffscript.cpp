@@ -3180,6 +3180,18 @@ case NPCBEHAVIOUR: {
             
         break;
 	
+	case LWPNUSEWEAPON:
+        if(0!=(s=checkLWpn(ri->lwpn,"Weapon")))
+            ret=(((weapon*)(s))->useweapon)*10000;
+            
+        break;
+	
+	case LWPNUSEDEFENCE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Defense")))
+            ret=(((weapon*)(s))->usedefence)*10000;
+            
+        break;
+	
 	case LWPNINITD:
 	{
 		int a = vbound((ri->d[0] / 10000),0,7);
@@ -8250,6 +8262,18 @@ void set_register(const long arg, const long value)
 	case LWPNSCRIPT:
         if(0!=(s=checkLWpn(ri->lwpn,"Script")))
 		(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
+            
+        break;
+	
+	case LWPNUSEWEAPON:
+        if(0!=(s=checkLWpn(ri->lwpn,"Weapon")))
+		(((weapon*)(s))->useweapon)=vbound(value/10000,0,255);
+            
+        break;
+	
+	case LWPNUSEDEFENCE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Defense")))
+		(((weapon*)(s))->usedefence)=vbound(value/10000,0,255);
             
         break;
 	

@@ -1094,8 +1094,10 @@ using namespace std;
 
 #define SKIPCREDITS 		1026
 #define SKIPF6 			1027
+#define LWPNUSEWEAPON 			1028
+#define LWPNUSEDEFENCE 			1029
 
-#define LAST_BYTECODE 		1028
+#define LAST_BYTECODE 		1030
 
 //END OF BYTECODE
 

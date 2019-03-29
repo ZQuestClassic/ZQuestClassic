@@ -3205,6 +3205,8 @@ enum ASM_DEFINE
 
 #define SKIPCREDITS 		0x133B
 #define SKIPF6 		0x133C
+#define LWPNUSEWEAPON 		0x133D
+#define LWPNUSEDEFENCE 		0x133E
 
 //bytecode
 
@@ -3212,7 +3214,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x133C
+#define NUMVARIABLES         0x133F
 
 
 // Script types
