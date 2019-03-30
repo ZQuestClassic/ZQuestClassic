@@ -73,7 +73,7 @@ X(	UnknownOption,			C,	A,	E,	STR,	VOID,	"There is no option for \"%s\"." 	     	
 X(	NoReadType,			T,	A,	E,	STR,	VOID,	"\"%s\" cannot be read from."								)
 X(	NoWriteType,			T,	A,	E,	STR,	VOID,	"\"%s\" cannot be written to."								)
 X(	UnresolvedScriptType,		T,	A,	E,	STR,	VOID,	"Script Type %s has not been declared."    	     					)
-X(	RedefScriptType,		T,	A,	E,	STR,	STR,	"Script Type %s has already been defined as %s."    	     				)
+X(	RedefScriptType,		T,	A,	W,	STR,	STR,	"Script Type %s has already been defined as %s."    	     				)
 X(	ArrayInvalidSize,		T,	A,	E,	VOID,	VOID,	"An array's size must be between 1 and 214748"	    	      		    			)
 X(	ArrayDecimal,		T,	A,	W,	VOID,	VOID,	"Array sizes containing decimals will be truncated"	    	      		    			)
 X(	ConstNotConstant,			S,	A,	E,	STR,	VOID,	"Constant %s is global or script scope, and the value is not constant at compile-time."				)
@@ -83,5 +83,7 @@ X(	DuplicateUsing,				P,	A,	E,	STR,	VOID,	"Namespace %s is already being used!"	
 X(	TooManyVar,				P,	A,	E,	STR,	VOID,	"There are too many vars/consts named %s. Check your 'using' statements."				)
 X(	HeaderGuardErr,			P,	A,	E,	STR,	VOID,	"Duplicate file for filename %s!"				)
 X(	HeaderGuardWarn,		P,	A,	W,	STR,	STR,	"Duplicate file for filename %s. %s this instance."				)
+X(	RedefDataType,				T,	A,	W,	STR,	STR,	"Data Type %s has already been defined as %s."    			)
+X(	ConstAlreadyConstant,				T,	A,	E,	STR,	VOID,	"DataType '%s' is already constant, or cannot be made constant."				)
 
 #undef STR

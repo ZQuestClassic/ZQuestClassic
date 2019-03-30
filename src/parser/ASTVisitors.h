@@ -72,6 +72,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseDataTypeDef(ASTDataTypeDef& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseScriptTypeDef(ASTScriptTypeDef& host,
 		                               void* param = NULL) {
 			caseDefault(host, param);}
@@ -106,6 +108,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseExprPreDecrement(
 				ASTExprPreDecrement& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseExprCast(ASTExprCast& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprAnd(ASTExprAnd& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -232,6 +236,7 @@ namespace ZScript
 		virtual void caseDataDeclExtraArray(
 				ASTDataDeclExtraArray& host, void* param = NULL);
 		virtual void caseDataTypeDef(ASTDataTypeDef&, void* param = NULL);
+		virtual void caseCustomDataTypeDef(ASTCustomDataTypeDef&, void* param = NULL);
 		// Expressions
 		virtual void caseExprConst(ASTExprConst& host, void* param = NULL);
 		virtual void caseExprAssign(ASTExprAssign& host, void* param = NULL);
@@ -249,6 +254,7 @@ namespace ZScript
 				ASTExprDecrement& host, void* param = NULL);
 		virtual void caseExprPreDecrement(
 				ASTExprPreDecrement& host, void* param = NULL);
+		virtual void caseExprCast(ASTExprCast& host, void* = NULL);
 		virtual void caseExprAnd(ASTExprAnd& host, void* param = NULL);
 		virtual void caseExprOr(ASTExprOr& host, void* param = NULL);
 		virtual void caseExprGT(ASTExprGT& host, void* param = NULL);

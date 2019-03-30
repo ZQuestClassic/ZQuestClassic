@@ -37,6 +37,7 @@ namespace ZScript
 		void caseStmtReturnVal(ASTStmtReturnVal& host, void* = NULL);
 		// Declarations
 		void caseDataTypeDef(ASTDataTypeDef& host, void* = NULL);
+		void caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void* = NULL);
 		void caseScriptTypeDef(ASTScriptTypeDef& host, void* = NULL);
 		void caseDataDeclList(ASTDataDeclList& host, void* = NULL);
 		void caseDataEnum(ASTDataEnum& host, void* = NULL);
