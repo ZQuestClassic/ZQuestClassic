@@ -670,13 +670,18 @@ void ASTDataDecl::setInitializer(ASTExpr* initializer)
 	}
 }
 
-DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope)
+DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHandler* errorHandler)
 {
 	TypeStore& typeStore = scope->getTypeStore();
 
 	// First resolve the base type.
 	ASTDataType* baseTypeNode = list ? list->baseType.get() : baseType.get();
-	DataType const* type = &baseTypeNode->resolve(*scope);
+	DataType const* type = &baseTypeNode->resolve(*scope, errorHandler);
+	if(baseTypeNode->errorDisabled)
+	{
+		errorDisabled = true;
+		return type;
+	}
 
 	// If we have any arrays, tack them onto the base type.
 	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
@@ -737,6 +742,19 @@ ASTDataTypeDef::ASTDataTypeDef(
 void ASTDataTypeDef::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseDataTypeDef(*this, param);
+}
+
+//ASTCustomDataTypeDef
+
+ASTCustomDataTypeDef::ASTCustomDataTypeDef(
+		ASTDataType* type, std::string const& name, ASTDataEnum* defn,
+			LocationData const& location)
+		: ASTDataTypeDef(type, name, location), definition(defn)
+{}
+
+void ASTCustomDataTypeDef::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseCustomDataTypeDef(*this, param);
 }
 
 // ASTScriptTypeDef
@@ -844,12 +862,12 @@ optional<long> ASTExprIdentifier::getCompileTimeValue(
 	return binding ? binding->getCompileTimeValue() : nullopt;
 }
 
-DataType const* ASTExprIdentifier::getReadType() const
+DataType const* ASTExprIdentifier::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return binding ? &binding->type : NULL;
 }
 
-DataType const* ASTExprIdentifier::getWriteType() const
+DataType const* ASTExprIdentifier::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return binding ? &binding->type : NULL;
 }
@@ -874,12 +892,12 @@ string ASTExprArrow::asString() const
 	return s;
 }
 
-DataType const* ASTExprArrow::getReadType() const
+DataType const* ASTExprArrow::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return readFunction ? readFunction->returnType : NULL;
 }
 
-DataType const* ASTExprArrow::getWriteType() const
+DataType const* ASTExprArrow::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return writeFunction ? writeFunction->paramTypes.back() : NULL;
 }
@@ -902,9 +920,9 @@ bool ASTExprIndex::isConstant() const
 	return array->isConstant() && index->isConstant();
 }
 
-DataType const* ASTExprIndex::getReadType() const
+DataType const* ASTExprIndex::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
-	DataType const* type = array->getReadType();
+	DataType const* type = array->getReadType(scope, errorHandler);
 	if (type && type->isArray() && !array->isTypeArrow())
 	{
 		DataTypeArray const* atype = static_cast<DataTypeArray const*>(type);
@@ -913,9 +931,9 @@ DataType const* ASTExprIndex::getReadType() const
 	return type;
 }
 
-DataType const* ASTExprIndex::getWriteType() const
+DataType const* ASTExprIndex::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
-	DataType const* type = array->getWriteType();
+	DataType const* type = array->getWriteType(scope, errorHandler);
 	if (type && type->isArray() && !array->isTypeArrow())
 	{
 		DataTypeArray const* atype = static_cast<DataTypeArray const*>(type);
@@ -935,12 +953,12 @@ void ASTExprCall::execute(ASTVisitor& visitor, void* param)
 	visitor.caseExprCall(*this, param);
 }
 
-DataType const* ASTExprCall::getReadType() const
+DataType const* ASTExprCall::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return binding ? binding->returnType : NULL;
 }
 
-DataType const* ASTExprCall::getWriteType() const
+DataType const* ASTExprCall::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return NULL;
 }
@@ -1056,6 +1074,31 @@ ASTExprPreDecrement::ASTExprPreDecrement(LocationData const& location)
 void ASTExprPreDecrement::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseExprPreDecrement(*this, param);
+}
+
+// ASTExprCast
+
+ASTExprCast::ASTExprCast(ASTDataType* type, ASTExpr* expr, LocationData const& location)
+	: ASTUnaryExpr(location), type(type)
+{}
+
+void ASTExprCast::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprCast(*this, param);
+}
+
+optional<long> ASTExprCast::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+		const
+{
+	if (!operand) return nullopt;
+	return operand->getCompileTimeValue(errorHandler, scope);
+}
+
+DataType const* ASTExprCast::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+{
+	DataType const* result = &(*type).resolve(*scope, errorHandler);
+	return result;
 }
 
 // ASTBinaryExpr
@@ -1711,7 +1754,7 @@ void ASTStringLiteral::execute (ASTVisitor& visitor, void* param)
 	visitor.caseStringLiteral(*this, param);
 }
 
-DataTypeArray const* ASTStringLiteral::getReadType() const
+DataTypeArray const* ASTStringLiteral::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
 	return &DataType::STRING;
 }
@@ -1799,23 +1842,37 @@ ScriptType ZScript::resolveScriptType(ASTScriptType const& node,
 // ASTDataType
 
 ASTDataType::ASTDataType(DataType* type, LocationData const& location)
-	: AST(location), type(type)
+	: AST(location), type(type->clone()), constant_(0), wasResolved(false)
 {}
 
 ASTDataType::ASTDataType(DataType const& type, LocationData const& location)
-	: AST(location), type(type.clone())
+	: AST(location), type(type.clone()), constant_(0), wasResolved(false)
 {}
 
 void ASTDataType::execute(ASTVisitor& visitor, void* param)
-{
+{	
 	visitor.caseDataType(*this, param);
 }
 
-DataType const& ASTDataType::resolve(ZScript::Scope& scope)
+DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler)
 {
+	
 	DataType* resolved = type->resolve(scope);
-	if (resolved && type != resolved)
+	if(resolved && constant_ && !wasResolved)
+	{
+		string name = resolved->getName();
+		DataType* constType = resolved->getConstType() ? resolved->getConstType()->clone() : NULL;
+		if(constant_>1 || !constType)
+		{
+			errorHandler->handleError(CompileError::ConstAlreadyConstant(this, name));
+			return *type; //Can't null this, it breaks stuff! Don't know why! -V
+		}
+		if (constType && type != constType)
+			type.reset(constType);
+	}
+	else if (resolved && type != resolved)
 		type.reset(resolved);
+	wasResolved = true;
 	return *type;
 }
 

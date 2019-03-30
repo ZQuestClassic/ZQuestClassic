@@ -1797,6 +1797,8 @@ script_variable variable_list[]=
 	{"EWPNENGINEANIMATE", EWPNENGINEANIMATE, 0, 0 },
 	{"SKIPCREDITS", SKIPCREDITS, 0, 0 },
 	{"SKIPF6", SKIPF6, 0, 0 },
+	{"LWPNUSEWEAPON", LWPNUSEWEAPON, 0, 0 },
+	{"LWPNUSEDEFENCE", LWPNUSEDEFENCE, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }

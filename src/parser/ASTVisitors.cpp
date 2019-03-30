@@ -246,6 +246,13 @@ void RecursiveVisitor::caseDataTypeDef(ASTDataTypeDef& host, void* param)
 	visit(host.type.get(), param);
 }
 
+void RecursiveVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void* param)
+{
+	visit(host.type.get(), param);
+	if (breakRecursion(host, param)) return;
+	visit(host.definition.get(), param);
+}
+
 // Expressions
 
 void RecursiveVisitor::caseExprConst(ASTExprConst& host, void* param)
@@ -314,6 +321,11 @@ void RecursiveVisitor::caseExprDecrement(ASTExprDecrement& host, void* param)
 
 void RecursiveVisitor::caseExprPreDecrement(
 		ASTExprPreDecrement& host, void* param)
+{
+	visit(host.operand.get(), param);
+}
+
+void RecursiveVisitor::caseExprCast(ASTExprCast& host, void* param)
 {
 	visit(host.operand.get(), param);
 }

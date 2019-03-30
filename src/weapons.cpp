@@ -2565,7 +2565,7 @@ bool weapon::animate(int index)
 //	Z_scripterrlog("Weapon script is: %d\n",weaponscript);
 	
     
-    
+    Link.check_slash_block(this);
     // fall down
     switch(id)
     {

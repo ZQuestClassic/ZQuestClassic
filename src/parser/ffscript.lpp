@@ -88,12 +88,15 @@ typedef		TOKEN( TYPEDEF );
 "#IGNORE ERROR"		TOKEN( EXPECTERROR );
 "#ignore warning"	TOKEN( EXPECTERROR );
 "#IGNORE WARNING"	TOKEN( EXPECTERROR );
+catch			TOKEN( EXPECTERROR );
 OPTION_VALUE	TOKEN( OPTIONVALUE );
 "#define"		TOKEN( DEFINE );
 enum			TOKEN( ENUM );
 namespace		TOKEN( NAMESPACE );
 using			TOKEN( USING );
 always			TOKEN( ALWAYS );
+asm				TOKEN( ZASM );
+zasm			TOKEN( ZASM );
 
  /* Types */
 void		TOKEN( ZVOID );
@@ -151,6 +154,7 @@ itemsprite	TOKEN( ITEMSPRITE );
 "++"		TOKEN( INCREMENT );
 "--"		TOKEN( DECREMENT );
 "!"		TOKEN( NOT );
+not		TOKEN( NOT );
 "~"		TOKEN( BITNOT );
 "*"		TOKEN( TIMES );
 "/"		TOKEN( DIVIDE );
@@ -165,11 +169,17 @@ itemsprite	TOKEN( ITEMSPRITE );
 ">="		TOKEN( GE );
 "=="		TOKEN( EQ );
 "!="		TOKEN( NE );
+not_eq		TOKEN( NE );
 "&"		TOKEN( BITAND );
+bitand		TOKEN( BITAND );
 "^"		TOKEN( BITXOR );
+xor		TOKEN( BITXOR );
 "|"		TOKEN( BITOR );
+bitor		TOKEN( BITOR );
 "&&"		TOKEN( AND );
+and		TOKEN( AND );
 "||"		TOKEN( OR );
+or		TOKEN( OR );
 "="		TOKEN( ASSIGN );
 "+="		TOKEN( PLUSASSIGN );
 "-="		TOKEN( MINUSASSIGN );
@@ -179,10 +189,15 @@ itemsprite	TOKEN( ITEMSPRITE );
 "<<="		TOKEN( LSHIFTASSIGN );
 ">>="		TOKEN( RSHIFTASSIGN );
 "&="		TOKEN( BITANDASSIGN );
+and_eq		TOKEN( BITANDASSIGN );
 "^="		TOKEN( BITXORASSIGN );
+xor_eq		TOKEN( BITXORASSIGN );
 "|="		TOKEN( BITORASSIGN );
+or_eq		TOKEN( BITORASSIGN );
 "&&="		TOKEN( ANDASSIGN );
 "||="		TOKEN( ORASSIGN );
+ /*	cast		TOKEN( CAST );	*/
+ /*	static_cast		TOKEN( CAST );	*/
 
  /* Line Comments */
 "//".*		/* hit end of file */

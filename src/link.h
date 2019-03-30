@@ -241,7 +241,7 @@ public:
     bool diagonalMovement;
     bool bigHitbox;
     byte defence[wMax];
-    
+    void check_slash_block(weapon *w);
     
      bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
     int hurtsfx; //Link's Hurt SOund
@@ -318,6 +318,7 @@ private:
     void ganon_intro();
     void saved_Zelda();
     void check_slash_block(int bx, int by);
+    
     void check_wand_block(int bx, int by);
     void check_pound_block(int bx, int by);
     void check_conveyor();

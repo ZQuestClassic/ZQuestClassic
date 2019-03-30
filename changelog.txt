@@ -2,6 +2,11 @@
 
 //Alpha 16
 
+std.zh: Optimise std_vars.zh
+Updated std.txt to cover all cleanup in std.zh, except for
+	std_extension (t/b/a).
+	( ZoriaRPG, 28th March, 2019 )
+	
 Added details on #option HEADER_GUARD to ZScript_Additions.txt,
 	added 'always using', and corrected the docs for 'using' (scope).
 Default for Header Guard is now WARN

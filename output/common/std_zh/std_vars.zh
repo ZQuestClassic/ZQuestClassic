@@ -1,5 +1,5 @@
 //General-Use Arrays with Getter/Setter functions
-///26th March, 2019
+///28th March, 2019
 
 //A generic array, pre-included with all quests. 
 //float stdArray[4096]; //This should be called GlobalRAM[]
@@ -24,36 +24,43 @@ int std_zh___GlobalRAM[4096];
 //Data Handling Functions
 
 //Get the value of any 'indx' in the generic array.
-float __stdzh_GetV(int indx){
+float __stdzh_GetV(int indx)
+{
 	return std_zh___GlobalRAM[indx];
 }
 
 //Set the value of any 'indx', to a specific amount 'value'.
-void __stdzh_SetV(int indx, int value){
+void __stdzh_SetV(int indx, int value)
+{
 	std_zh___GlobalRAM[indx] = value;
 }
 
 //Increase the value of any 'indx' by +1.
-void __stdzh_IncV(int indx) {
-	std_zh___GlobalRAM[indx]++;
+void __stdzh_IncV(int indx) 
+{
+	++std_zh___GlobalRAM[indx];
 }
 
 //Increase the value of any 'indx' by 'amount'.
-void __stdzh_IncV(int indx, int amount){
+void __stdzh_IncV(int indx, int amount)
+{
 	std_zh___GlobalRAM[indx] += amount;
 }
 
 //Decrease the value of any 'indx' by -1.
-void __stdzh_DecV(int indx){
-	std_zh___GlobalRAM[indx]--;
+void __stdzh_DecV(int indx)
+{
+	--std_zh___GlobalRAM[indx];
 }
 
 //Decrease the value of any 'indx' by 'amount'.
-void __stdzh_DecV(int indx, int amount){
+void __stdzh_DecV(int indx, int amount)
+{
 	std_zh___GlobalRAM[indx] -= amount;
 }
 
 //Stores the pointer of any array to an inmdex of GlobalRAM to allow accessing it from any script. 
-void __stdzh_StoreArrayPointer(int arr, int indx){
+void __stdzh_StoreArrayPointer(int arr, int indx)
+{
     std_zh___GlobalRAM[indx] = arr;
 }

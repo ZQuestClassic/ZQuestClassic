@@ -448,6 +448,13 @@ static int itemdata_weaponsize_list[] =
 	228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254, -1
 };
 
+static int itemdata_weaponproperty_list[] =
+{
+    // dialog control number
+	293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,311,312,313,314,
+	-1
+};
+
 static int itemdata_weaponargs_list[] =
 {
     // dialog control number
@@ -475,6 +482,7 @@ static TABPANEL itemdata_tabs[] =
     { (char *)"W. Script",      0,             itemdata_weaponscript_list,    0, NULL },
     { (char *)"Size",      0,             itemdata_itemsize_list,    0, NULL },
    //  { (char *)"Weapon",      0,             itemdata_weaponargs_list,    0, NULL },
+    { (char *)"Weapon",      0,             itemdata_weaponproperty_list,    0, NULL },
     { (char *)"Weapon Size",      0,             itemdata_weaponsize_list,    0, NULL },
     { NULL,                   0,             NULL,                        0, NULL }
 };
@@ -1345,7 +1353,7 @@ static DIALOG itemdata_dlg[] =
     {  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
     {  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-    
+    //283
     { jwin_edit_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      (90-24)+34+10,   10+47+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      (90-24)+34+10,   10+65+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
@@ -1354,10 +1362,43 @@ static DIALOG itemdata_dlg[] =
     { jwin_edit_proc,      (90-24)+34+10,  10+119+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      (90-24)+34+10,  10+137+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    
+    //291
     { jwin_text_proc,           112+10+20+34+1-4,  10+29+12+7,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
     { jwin_droplist_proc,       112+10+20+34-4,  10+29+20+7,     140,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &lweaponscript_list,                   NULL,   NULL 				   },
-    
+    //293 --weapon editor
+    { jwin_text_proc,           8,     50,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Type",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     107,     48,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &itemdata_weapon_list,						 NULL,   NULL 				   },
+    //295
+    { jwin_text_proc,           8,     70,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Default Defense",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     107,     68,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &defense_list,						 NULL,   NULL 				   },
+    //297
+    { jwin_text_proc,           8,     90,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Pattern",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     107,     88,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &weapon_pattern_llist,						 NULL,   NULL 				   },
+    //299
+    { jwin_text_proc,           8,     110,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 1:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         107,     108,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //301
+    { jwin_text_proc,           8,     130,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 2:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         107,     128,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //303
+    { jwin_text_proc,           8,     150,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Range:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         107,     148,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //305
+    { jwin_text_proc,           8,     170,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Weapon Duration:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         107,     168,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //307
+     { jwin_text_proc,           177,     110,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 3:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         276,     108,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //309
+    { jwin_text_proc,           177,     130,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Movement Arg 4:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         276,     128,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //311
+    { jwin_text_proc,           177,     150,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Other 1:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         276,     148,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+    //313
+    { jwin_text_proc,           177,     170,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Other 2:",                              NULL,   NULL                  },
+    { jwin_edit_proc,         276,     168,     28,     16,    vc(12),                 vc(1),                   0,       0,           3,    0,  NULL,                                           NULL,   NULL                  },
+       
     { NULL,                     0,      0,      0,      0,    0,                      0,                       0,       0,           0,    0,  NULL,                                           NULL,   NULL                  },
 };
 
@@ -2067,7 +2108,7 @@ void edit_itemdata(int index)
     //pickup string flaga
     itemdata_dlg[260].flags = (itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS) ? D_SELECTED : 0;
     itemdata_dlg[261].flags = (itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP) ? D_SELECTED : 0;
-    /*
+    
     //New itemdata vars
     sprintf(wrange,"%d",itemsbuf[index].weaprange);
     sprintf(wdur,"%d",itemsbuf[index].weapduration);
@@ -2080,7 +2121,7 @@ void edit_itemdata(int index)
     sprintf(warg4,"%d",itemsbuf[index].weap_pattern[4]);
     sprintf(warg5,"%d",itemsbuf[index].weap_pattern[5]);
     sprintf(warg6,"%d",itemsbuf[index].weap_pattern[6]);
-  */
+  
     
     sprintf(name,"%s",item_string[index]);
     
@@ -2297,23 +2338,23 @@ void edit_itemdata(int index)
     
     itemdata_dlg[102].d1 = pickupscript;
     itemdata_dlg[132].d1 = script;
-    /*
+    
     //These cannot be .dp. That crashes ZQuest; but they are not being retained when changed. -Z
-     itemdata_dlg[200].d1 = itemsbuf[index].useweapon;
-    itemdata_dlg[202].d1 = itemsbuf[index].usedefence;
-    itemdata_dlg[204].d1 = itemsbuf[index].weap_pattern[0];
+     itemdata_dlg[294].d1 = itemsbuf[index].useweapon;
+    itemdata_dlg[296].d1 = itemsbuf[index].usedefence;
+    itemdata_dlg[298].d1 = itemsbuf[index].weap_pattern[0];
     
     //.dp is correcxt here, and these now work, and are retained. -Z
-    itemdata_dlg[206].dp = warg1; //itemsbuf[index].weap_pattern[1];
-    itemdata_dlg[208].dp = warg2; //itemsbuf[index].weap_pattern[2];
-    itemdata_dlg[210].dp = wrange; //itemsbuf[index].weaprange;
-    itemdata_dlg[212].dp = wdur; //itemsbuf[index].weapduration;
+    itemdata_dlg[300].dp = warg1; //itemsbuf[index].weap_pattern[1]; //move arg 1
+    itemdata_dlg[302].dp = warg2; //itemsbuf[index].weap_pattern[2]; //move arg 2
+    itemdata_dlg[304].dp = wrange; //itemsbuf[index].weaprange;
+    itemdata_dlg[306].dp = wdur; //itemsbuf[index].weapduration;
     
-     itemdata_dlg[214].dp = warg3; //itemsbuf[index].weap_pattern[1];
-    itemdata_dlg[216].dp = warg4; //itemsbuf[index].weap_pattern[2];
-    itemdata_dlg[218].dp = warg5; //itemsbuf[index].weaprange;
-    itemdata_dlg[220].dp = warg6; //itemsbuf[index].weapduration;
-    */
+     itemdata_dlg[308].dp = warg3; 
+    itemdata_dlg[310].dp = warg4; 
+    itemdata_dlg[312].dp = warg5; 
+    itemdata_dlg[314].dp = warg6; 
+    
     int ret;
     itemdata test;
     memset(&test, 0, sizeof(itemdata));
@@ -2415,14 +2456,14 @@ void edit_itemdata(int index)
 	if(itemdata_dlg[254].flags & D_SELECTED) test.weapoverrideFLAGS |= itemdataOVERRIDE_DRAW_Y_OFFSET;
         
 	//New itemdata vars -Z
-	/*
+	
 	//! These now store in the editor, but if you change the values, save the quest, and reload, 
 	//! ZQuest crashes on reading items (bad token)
-	test.usedefence =  itemdata_dlg[202].d1; //atoi(wdef);
+	test.usedefence =  itemdata_dlg[296].d1; //atoi(wdef);
 	test.weaprange = vbound(atoi(wrange),0,214747);
 	test.weapduration = vbound(atoi(wdur),0,214747);
-	test.useweapon = itemdata_dlg[200].d1;; //atoi(wweap);
-	test.weap_pattern[0] = itemdata_dlg[204].d1;; //atoi(wptrn);
+	test.useweapon = itemdata_dlg[294].d1;; //atoi(wweap);
+	test.weap_pattern[0] = itemdata_dlg[298].d1;; //atoi(wptrn);
 	test.weap_pattern[1] = vbound(atoi(warg1),-214747, 214747);
 	test.weap_pattern[2] =  vbound(atoi(warg2),-214747, 214747);
 	
@@ -2430,7 +2471,7 @@ void edit_itemdata(int index)
 	test.weap_pattern[4] =  vbound(atoi(warg4),-214747, 214747);
 	test.weap_pattern[5] =  vbound(atoi(warg5),-214747, 214747);
 	test.weap_pattern[6] =  vbound(atoi(warg6),-214747, 214747);
-        */
+        
         if(itemdata_dlg[14].flags & D_SELECTED)
             test.flags |= ITEM_GAMEDATA;
             
@@ -2594,7 +2635,7 @@ void edit_itemdata(int index)
             sprintf(asn,"%d",test.usesound);
 	    
 	    //New itemdata vars -Z
-	    /*
+	    
 	    sprintf(wrange,"%d",test.weaprange);
 	    sprintf(wdur,"%d",test.weapduration);
 	    sprintf(wdef,"%d",test.usedefence);
@@ -2602,7 +2643,11 @@ void edit_itemdata(int index)
 	    sprintf(wptrn,"%d",test.weap_pattern[0]);
 	    sprintf(warg1,"%d",test.weap_pattern[1]);
 	    sprintf(warg2,"%d",test.weap_pattern[2]);
-	    */
+	    sprintf(warg3,"%d",test.weap_pattern[3]);
+	    sprintf(warg4,"%d",test.weap_pattern[4]);
+	    sprintf(warg5,"%d",test.weap_pattern[5]);
+	    sprintf(warg6,"%d",test.weap_pattern[6]);
+	    
             sprintf(zname, "zz%03d", index);
             sprintf(name,"%s",index<iLast?old_item_string[index]:zname);
             
@@ -2701,22 +2746,19 @@ void edit_itemdata(int index)
 	    //Magic cost timer:
 	    itemdata_dlg[200].dp = mgtimer;
 	    
-            /*
-	    //! These now store in the editor, but if you change the values, save the quest, and reload, 
-	//! ZQuest crashes on reading items (bad token)
-			//string or int here? -Z
-			itemdata_dlg[200].d1 = test.useweapon; //atoi(wweap);
-			    itemdata_dlg[202].d1 = test.usedefence; //atoi(wdef);
-			    itemdata_dlg[204].d1 = test.weap_pattern[0]; //atoi(wptrn);
-			    itemdata_dlg[206].dp = warg1; //test.weap_pattern[1]; //atoi(warg1);
-			    itemdata_dlg[208].dp = warg2; //test.weap_pattern[2]; //atoi(warg2);
-			    itemdata_dlg[210].dp = wrange; //test.weaprange; //atoi(wrange);
-			    itemdata_dlg[212].dp = wdur;// = test.weapduration; //atoi(wdur);
-			    itemdata_dlg[214].dp = warg3; //test.weap_pattern[1]; //atoi(warg1);
-			    itemdata_dlg[216].dp = warg4; //test.weap_pattern[2]; //atoi(warg2);
-			    itemdata_dlg[218].dp = warg5; //test.weaprange; //atoi(wrange);
-			    itemdata_dlg[220].dp = warg6;// = test.weapduration; //atoi(wdur);
-	*/
+           
+	    itemdata_dlg[294].d1 = test.useweapon; //atoi(wweap);
+	    itemdata_dlg[296].d1 = test.usedefence; //atoi(wdef);
+	    itemdata_dlg[298].d1 = test.weap_pattern[0]; //atoi(wptrn);
+	    itemdata_dlg[300].dp = warg1; //test.weap_pattern[1]; //atoi(warg1);
+	    itemdata_dlg[302].dp = warg2; //test.weap_pattern[2]; //atoi(warg2);
+	    itemdata_dlg[304].dp = wrange; //test.weaprange; //atoi(wrange);
+	    itemdata_dlg[306].dp = wdur;// = test.weapduration; //atoi(wdur);
+	    itemdata_dlg[308].dp = warg3; //test.weap_pattern[1]; //atoi(warg1);
+	    itemdata_dlg[310].dp = warg4; //test.weap_pattern[2]; //atoi(warg2);
+	    itemdata_dlg[312].dp = warg5; //test.weaprange; //atoi(wrange);
+	    itemdata_dlg[314].dp = warg6;// = test.weapduration; //atoi(wdur);
+	
             for(int j=0; j<biw_cnt; j++)
             {
                 if(biw[j].i == test.wpn)

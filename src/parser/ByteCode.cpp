@@ -1704,6 +1704,8 @@ string VarArgument::toString()
 	
 	case SKIPCREDITS: return "SKIPCREDITS";
 	case SKIPF6: return "SKIPF6";
+	case LWPNUSEWEAPON: return "LWPNUSEWEAPON";
+	case LWPNUSEDEFENCE: return "LWPNUSEDEFENCE";
 	
 	
     default:
