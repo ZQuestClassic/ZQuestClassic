@@ -1139,8 +1139,10 @@ optional<long> ASTExprAnd::getCompileTimeValue(
 		const
 {
 	if (!left || !right) return nullopt;
+	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
 	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
+	if(short_circuit && !*leftValue) return 0L; //Cut it short if we already know the result, and the option is on.
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (*leftValue && *rightValue) ? 10000L : 0L;
@@ -1163,8 +1165,10 @@ optional<long> ASTExprOr::getCompileTimeValue(
 		const
 {
 	if (!left || !right) return nullopt;
+	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
 	optional<long> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
+	if(short_circuit && *leftValue) return 10000L; //Cut it short if we already know the result, and the option is on.
 	optional<long> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (*leftValue || *rightValue) ? 10000L : 0L;

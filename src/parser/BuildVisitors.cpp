@@ -754,13 +754,23 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
-
-    //compute both sides
+	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
+	int skip = short_circuit ? ScriptParser::getUniqueLabelID() : 0; //Only fetch an ID if short_circuit is true!
+    //Get left
     visit(host.left.get(), param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
+    castFromBool(result, EXP1); //Cast
+	if(short_circuit) //If false, skip second arg
+	{
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
+		addOpcode(new OGotoFalseImmediate(new LabelArgument(skip)));
+	}
+	//Get right
     visit(host.right.get(), param);
-    addOpcode(new OPopRegister(new VarArgument(EXP2)));
-    castFromBool(result, EXP1);
+	//Skip to here if first was false and short_circuit
+	Opcode* ocode = new OPopRegister(new VarArgument(EXP2));
+	if(short_circuit) ocode->setLabel(skip);
+    addOpcode(ocode);
     castFromBool(result, EXP2);
     addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(2)));
@@ -774,12 +784,24 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
-
-    //compute both sides
+	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
+	int skip = short_circuit ? ScriptParser::getUniqueLabelID() : 0; //Only fetch an ID if short_circuit is true!
+	//Get left
     visit(host.left.get(), param);
     addOpcode(new OPushRegister(new VarArgument(EXP1)));
+	castFromBool(result, EXP1); //Cast
+	if(short_circuit) //If false, skip second arg
+	{
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
+		addOpcode(new OGotoTrueImmediate(new LabelArgument(skip)));
+	}
+	//Get right
     visit(host.right.get(), param);
-    addOpcode(new OPopRegister(new VarArgument(EXP2)));
+	//Skip to here if first was false and short_circuit
+	Opcode* ocode = new OPopRegister(new VarArgument(EXP2));
+	if(short_circuit) ocode->setLabel(skip);
+    addOpcode(ocode);
+	castFromBool(result, EXP2);
     addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
     addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
     addOpcode(new OSetMore(new VarArgument(EXP1)));
