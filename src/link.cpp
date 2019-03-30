@@ -8514,6 +8514,7 @@ LEFTRIGHT:
     }
 }
 
+//solid ffc checking should probably be moved to here.
 void LinkClass::move(int d2)
 {
 //al_trace("%s\n",d2==up?"up":d2==down?"down":d2==left?"left":d2==right?"right":"?");
