@@ -7310,7 +7310,36 @@ void LinkClass::movelink()
                 
                 if(!info.isUnwalkable())
                 {
-                    move(up);
+			bool ffcwalk = true;
+			//check for solid ffcs here -Z
+			//This does work, however once the solif ffc stops Link from moving, the player can release the dpan, press again, and pass through it.
+			for ( int q = 0; q < 32; ++q )
+			{
+				//solid ffcs attampt -Z ( 30th March, 2019 )
+				if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
+				{
+					//al_trace("(int)tmpscr->ffy[0] is %d\n",(int)tmpscr->ffy[q]/10000);
+					//al_trace("(int)((tmpscr->ffheight[ri->ffcref]&0x3F)+1) is %d\n",(int)((tmpscr->ffheight[q]&0x3F)+1));
+					int max_y = (((int)tmpscr->ffy[q])/10000) + (int)((tmpscr->ffheight[q]&0x3F)+1);
+					//al_trace("max_y for ffc bottom edge is: %d\n", max_y);
+					//al_trace("int(lsteps[int(y)&7] is %d\n",int(lsteps[int(y)&7]));
+					//if ( (int)y - int(lsteps[int(y)&7]) == max_y ) //if the ffc bottom edge is in the step range
+					if ( (int)y == max_y ) //if the ffc bottom edge is in the step range
+					{
+						//al_trace("Link is under the ffc\n");
+						int linkwidthx = (int)x+(int)hxsz;
+						//al_trace("linkwidthx is: %d\n",linkwidthx);
+						if ( linkwidthx >= (((int)tmpscr->ffx[q])/10000) && (int)x < ( (((int)tmpscr->ffx[q])/10000) + (int)(tmpscr->ffwidth[q]&0x3F)+1) )
+						{
+							al_trace("Link is under X border of ffc\n");
+							//Link is under the ffc
+							ffcwalk = false;
+						}
+					}
+				}
+			}
+			
+			if ( ffcwalk ) move(up);
                 }
                 else
                 {
@@ -7329,6 +7358,35 @@ void LinkClass::movelink()
                 
                 if(!info.isUnwalkable())
                 {
+			
+			
+			bool ffcwalk = true;
+			//solid ffcs attampt -Z ( 30th March, 2019 )
+			//check for solid ffcs here -Z
+			for ( int q = 0; q < 32; ++q )
+			{
+				if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
+				{
+					int min_y = (((int)tmpscr->ffy[0])/10000);
+					//if ( (int)y+(int)hysz + int(lsteps[int(y)&7]) > min_y ) //if the ffc bottom edge is in the step range
+					//if ( (int)y+(int)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
+					if ( (int)y+(int)hysz == min_y ) //if the ffc bottom edge is in the step range
+					{
+						//al_trace("Link is under the ffc\n");
+						int linkwidthx = (int)x+(int)hxsz;
+						//al_trace("linkwidthx is: %d\n",linkwidthx);
+						if ( linkwidthx >= (((int)tmpscr->ffx[0])/10000) && (int)x < ( (((int)tmpscr->ffx[0])/10000) + (int)(tmpscr->ffwidth[0]&0x3F)+1) )
+						{
+						//	al_trace("Link is under X border of ffc\n");
+							//Link is under the ffc
+							ffcwalk = false;
+						}
+					}
+				}
+			}
+			
+			if ( ffcwalk )
+			
                     move(down);
                 }
                 else
