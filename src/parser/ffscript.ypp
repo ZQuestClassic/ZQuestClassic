@@ -1070,9 +1070,17 @@ Expr_1 :
 
 Expr_2 : Expr_1 {$$ = $1;}
 	//Casting
-	| CAST LT DataType GT LPAREN Expr_1 RPAREN {
+	//cast<type>(expr) //Not using this, yet at least. -V
+	/*| CAST LT DataType GT LPAREN Expr_2 RPAREN {
 		ASTDataType* type = (ASTDataType*)$3;
 		ASTExpr* expr = (ASTExpr*)$6;
+		ASTExprCast* cast = new ASTExprCast(type, expr, @$);
+		cast->operand = expr;
+		$$ = cast;}*/
+	//<type>expr
+	| LT DataType GT Expr_2 {
+		ASTDataType* type = (ASTDataType*)$2;
+		ASTExpr* expr = (ASTExpr*)$4;
 		ASTExprCast* cast = new ASTExprCast(type, expr, @$);
 		cast->operand = expr;
 		$$ = cast;}

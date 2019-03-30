@@ -196,8 +196,8 @@ xor_eq		TOKEN( BITXORASSIGN );
 or_eq		TOKEN( BITORASSIGN );
 "&&="		TOKEN( ANDASSIGN );
 "||="		TOKEN( ORASSIGN );
-cast		TOKEN( CAST );
-static_cast		TOKEN( CAST );
+ /*	cast		TOKEN( CAST );	*/
+ /*	static_cast		TOKEN( CAST );	*/
 
  /* Line Comments */
 "//".*		/* hit end of file */
