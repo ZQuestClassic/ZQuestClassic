@@ -1861,7 +1861,7 @@ DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler*
 	if(resolved && constant_ && !wasResolved)
 	{
 		string name = resolved->getName();
-		DataType* constType = resolved->getConstType()->clone();
+		DataType* constType = resolved->getConstType() ? resolved->getConstType()->clone() : NULL;
 		if(constant_>1 || !constType)
 		{
 			errorHandler->handleError(CompileError::ConstAlreadyConstant(this, name));
