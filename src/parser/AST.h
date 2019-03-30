@@ -657,6 +657,7 @@ namespace ZScript
 		std::vector<ASTDataDecl*> const& getDeclarations() const {
 			return declarations_.data();}
 		virtual void addDeclaration(ASTDataDecl* declaration);
+		virtual bool isEnum() const {return false;}
 
 		// The base type at the start of the line shared by all the declarations.
 		owning_ptr<ASTDataType> baseType;
@@ -674,6 +675,7 @@ namespace ZScript
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		virtual void addDeclaration(ASTDataDecl* declaration);
+		virtual bool isEnum() const {return true;}
 	private:
 		long nextVal;
 	};
@@ -761,9 +763,26 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
 
 		Type getDeclarationType() const /*override*/ {return TYPE_DATATYPE;}
+		bool isCustomDataType() const {return false;}
 
 		owning_ptr<ASTDataType> type;
 		std::string name;
+	};
+	
+	class ASTCustomDataTypeDef : public ASTDataTypeDef
+	{
+	public:
+		ASTCustomDataTypeDef(ASTDataType* type = NULL,
+					std::string const& name = "",
+					ASTDataEnum* defn = NULL,
+					LocationData const& location = LocationData::NONE);
+		ASTCustomDataTypeDef* clone() const {return new ASTCustomDataTypeDef(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		bool isCustomDataType() const {return true;}
+		
+		owning_ptr<ASTDataEnum> definition;
 	};
 
 	class ASTScriptTypeDef : public ASTDecl

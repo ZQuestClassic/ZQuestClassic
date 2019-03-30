@@ -260,6 +260,35 @@ void SemanticAnalyzer::caseDataTypeDef(ASTDataTypeDef& host, void*)
 	}
 }
 
+void SemanticAnalyzer::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void*)
+{
+	//Don't allow use of a name that already exists
+	if(DataType const* existingType = lookupDataType(*scope, host.name))
+	{
+		handleError(
+			CompileError::RedefDataType(
+				&host, host.name, existingType->getName()));
+		return;
+	}
+	
+	//Construct a new constant type
+	DataTypeCustomConst* newConstType = new DataTypeCustomConst(host.name);
+	//Construct the base type
+	DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, newConstType->getCustomId());
+	
+	//Set the type to the base type
+	host.type.reset(new ASTDataType(newBaseType, host.location));
+	//Set the enum type to the const type
+	host.definition->baseType.reset(new ASTDataType(newConstType, host.location));
+	
+	DataType::addCustom(newBaseType);
+	
+	//This call should never fail, because of the error check above.
+	scope->addDataType(host.name, newBaseType, &host);
+    if (breakRecursion(*host.type.get())) return;
+	RecursiveVisitor::caseCustomDataTypeDef(host);
+}
+
 void SemanticAnalyzer::caseScriptTypeDef(ASTScriptTypeDef& host, void*)
 {
 	// Resolve the base type under current scope.
@@ -288,7 +317,8 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 	// Resolve the base type.
 	DataType const& baseType = host.baseType->resolve(*scope, this);
     if (breakRecursion(*host.baseType.get())) return;
-	if (!baseType.isResolved())
+	if (!&baseType 
+		|| !baseType.isResolved())
 	{
 		handleError(CompileError::UnresolvedType(&host, baseType.getName()));
 		return;
@@ -337,7 +367,7 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void*)
 		return;
 	}
 
-	// Recurse on list contents.
+	// Recurse on list contents, while accepting FLOAT input.
 	visit(host, host.getDeclarations());
 }
 
@@ -428,7 +458,11 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	{
 		// Make sure we can cast the initializer to the type.
 		DataType const& initType = *host.getInitializer()->getReadType(scope, this);
-		checkCast(initType, type, &host);
+		//If this is in an `enum`, then the write type is `CFLOAT`.
+		ASTDataType* temp = new ASTDataType(DataType::CFLOAT, host.location);
+		DataType const& enumType = temp->resolve(*scope, this);
+
+		checkCast(initType, (host.list && host.list->isEnum()) ? enumType : type, &host);
 		if (breakRecursion(host)) return;
 
 		// TODO check for array casting here.

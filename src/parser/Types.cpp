@@ -292,6 +292,14 @@ DataTypeClass const* DataType::getClass(int classId)
 	}
 }
 
+void DataType::addCustom(DataTypeCustom* custom)
+{
+	customTypes[custom->getCustomId()] = custom;
+}
+
+int DataType::nextCustomId_;
+std::map<int, DataTypeCustom*> DataType::customTypes;
+
 bool ZScript::operator==(DataType const& lhs, DataType const& rhs)
 {
 	return lhs.compare(rhs) == 0;
@@ -343,6 +351,11 @@ DataType const& ZScript::getNaiveType(DataType const& type, Scope* scope)
 		if(DataTypeClassConst const* tc = dynamic_cast<DataTypeClassConst const*>(t))
 		{
 			t = DataType::getClass(tc->getClassId());
+		}
+		
+		if(DataTypeCustomConst const* tcu = dynamic_cast<DataTypeCustomConst const*>(t))
+		{
+			t = DataType::getCustom(tcu->getCustomId());
 		}
 	}
 
@@ -510,6 +523,42 @@ DataType const& ZScript::getBaseType(DataType const& type)
 	while (DataTypeArray const* t = dynamic_cast<DataTypeArray const*>(current))
 		current = &t->getElementType();
 	return *current;
+}
+
+////////////////////////////////////////////////////////////////
+// DataTypeCustom
+
+bool DataTypeCustom::canCastTo(DataType const& target) const
+{
+	if (target.isUntyped()) return true;
+
+	if (DataTypeArray const* t =
+			dynamic_cast<DataTypeArray const*>(&target))
+		return canCastTo(getBaseType(*t));
+
+	if (DataTypeSimple const* t =
+			dynamic_cast<DataTypeSimple const*>(&target))
+	{
+		//Enum-declared types can be cast to any non-void simple
+		return(t->getId() == ZVARTYPEID_UNTYPED
+			|| t->getId() == ZVARTYPEID_BOOL
+			|| t->getId() == ZVARTYPEID_FLOAT);
+	}
+	
+	if (DataTypeCustom const* t =
+			dynamic_cast<DataTypeCustom const*>(&target))
+	{
+		//Enum-declared types cannot cast to each other, only within themselves, or to simple
+		return id == t->id;
+	}
+	
+	return false;
+}
+
+int DataTypeCustom::selfCompare(DataType const& other) const
+{
+	DataTypeCustom const& o = static_cast<DataTypeCustom const&>(other);
+	return id - o.id;
 }
 
 ////////////////////////////////////////////////////////////////

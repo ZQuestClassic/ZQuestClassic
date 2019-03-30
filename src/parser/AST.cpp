@@ -744,6 +744,19 @@ void ASTDataTypeDef::execute(ASTVisitor& visitor, void* param)
 	visitor.caseDataTypeDef(*this, param);
 }
 
+//ASTCustomDataTypeDef
+
+ASTCustomDataTypeDef::ASTCustomDataTypeDef(
+		ASTDataType* type, std::string const& name, ASTDataEnum* defn,
+			LocationData const& location)
+		: ASTDataTypeDef(type, name, location), definition(defn)
+{}
+
+void ASTCustomDataTypeDef::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseCustomDataTypeDef(*this, param);
+}
+
 // ASTScriptTypeDef
 
 ASTScriptTypeDef::ASTScriptTypeDef(ASTScriptType* oldType,
@@ -1829,7 +1842,7 @@ ScriptType ZScript::resolveScriptType(ASTScriptType const& node,
 // ASTDataType
 
 ASTDataType::ASTDataType(DataType* type, LocationData const& location)
-	: AST(location), type(type), constant_(0), wasResolved(false)
+	: AST(location), type(type->clone()), constant_(0), wasResolved(false)
 {}
 
 ASTDataType::ASTDataType(DataType const& type, LocationData const& location)
@@ -1843,12 +1856,12 @@ void ASTDataType::execute(ASTVisitor& visitor, void* param)
 
 DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler)
 {
-	if(wasResolved) return *type;
+	
 	DataType* resolved = type->resolve(scope);
-	if(resolved && constant_)
+	if(resolved && constant_ && !wasResolved)
 	{
 		string name = resolved->getName();
-		DataType* constType = resolved->getConstType() ? resolved->getConstType()->resolve(scope) : NULL;
+		DataType* constType = resolved->getConstType()->clone();
 		if(constant_>1 || !constType)
 		{
 			errorHandler->handleError(CompileError::ConstAlreadyConstant(this, name));

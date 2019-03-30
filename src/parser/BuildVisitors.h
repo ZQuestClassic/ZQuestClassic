@@ -38,6 +38,7 @@ namespace ZScript
 		virtual void caseFuncDecl(ASTFuncDecl &host, void *param);
 		virtual void caseDataDecl(ASTDataDecl& host, void* param);
 		virtual void caseDataTypeDef(ASTDataTypeDef& host, void* param);
+		virtual void caseCustomDataTypeDef(ASTDataTypeDef& host, void* param);
 		// Expressions
 		virtual void caseExprAssign(ASTExprAssign &host, void *param);
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);

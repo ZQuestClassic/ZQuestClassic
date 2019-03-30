@@ -119,12 +119,14 @@ namespace ZScript
 	class DataTypeClass;
 	class DataTypeClassConst;
 	class DataTypeArray;
+	class DataTypeCustom;
+	class DataTypeCustomConst;
 
 	class DataType
 	{
 	public:
 		DataType(DataType* constType)
-			: constType(constType)
+			: constType(constType ? constType->clone() : NULL)
 		{}
 		
 		// Call derived class's copy constructor.
@@ -145,15 +147,27 @@ namespace ZScript
 		virtual bool isClass() const {return false;}
 		virtual bool isConstant() const {return false;}
 		virtual bool isUntyped() const {return false;}
+		virtual bool isCustom() const {return false;}
 
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
 		int compare(DataType const& rhs) const;
-	
+		
+		//Static functions
+		static DataType const* get(DataTypeId id);
+		static DataTypeClass const* getClass(int classId);
+		static DataTypeCustom const* getCustom(int customId) {return find<DataTypeCustom*>(customTypes, customId).value_or(NULL);};
+		static void addCustom(DataTypeCustom* custom);
+		static int getUniqueCustomId() {return nextCustomId_++;}
+		
 	private:
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
 		// rhs is guaranteed to be the same class as the derived type.
 		virtual int selfCompare(DataType const& rhs) const = 0;
 
+		//Static variables
+		static int nextCustomId_;
+		static std::map<int, DataTypeCustom*> customTypes;
+		
 		DataType* constType;
 		// Standard Types.
 	public:
@@ -226,9 +240,6 @@ namespace ZScript
 		static DataTypeClass SPRITEDATA;
 		static DataTypeClass TUNES;
 		static DataTypeClass WARPRING;
-		//Static functions
-		static DataType const* get(DataTypeId id);
-		static DataTypeClass const* getClass(int classId);
 	};
 
 	bool operator==(DataType const&, DataType const&);
@@ -354,6 +365,43 @@ namespace ZScript
 		DataType const& elementType;
 
 		int selfCompare(DataType const& other) const;
+	};
+	
+	class DataTypeCustom : public DataType
+	{
+	public:
+		DataTypeCustom(std::string name, DataType* constType, int id = getUniqueCustomId())
+			: DataType(constType), name(name), id(id)
+		{}
+		DataTypeCustom* clone() const {return new DataTypeCustom(*this);}
+		
+		virtual DataTypeCustom* resolve(ZScript::Scope& scope) {return this;}
+		
+		virtual bool isConstant() const {return false;}
+		virtual bool isCustom() const {return false;}
+		virtual bool canBeGlobal() const {return true;}
+		virtual std::string getName() const {return name;}
+		virtual bool canCastTo(DataType const& target) const;
+		int getCustomId() const {return id;}
+		
+	protected:
+		int id;
+		std::string name;
+
+		int selfCompare(DataType const& other) const;
+	};
+	
+	class DataTypeCustomConst : public DataTypeCustom
+	{
+	public:
+		DataTypeCustomConst(std::string name)
+			: DataTypeCustom(name, NULL)
+		{}
+		DataTypeCustomConst* clone() const {return new DataTypeCustomConst(*this);}
+		
+		virtual DataTypeCustomConst* resolve(ZScript::Scope& scope) {return this;}
+		
+		virtual bool isConstant() const {return true;}
 	};
 
 	DataType const& getBaseType(DataType const&);

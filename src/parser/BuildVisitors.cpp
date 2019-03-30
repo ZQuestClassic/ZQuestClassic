@@ -491,6 +491,8 @@ void BuildOpcodes::buildArrayUninit(
 
 void BuildOpcodes::caseDataTypeDef(ASTDataTypeDef&, void*) {}
 
+void BuildOpcodes::caseCustomDataTypeDef(ASTDataTypeDef&, void*) {}
+
 // Expressions
 
 void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
