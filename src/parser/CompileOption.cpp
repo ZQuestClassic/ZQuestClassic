@@ -4,10 +4,15 @@
 #include <map>
 #include <vector>
 
+//We need access to quest_rules, for option defaults. -V
+#include "../zdefs.h"
+#include "../zsys.h"
+
 using std::map;
 using std::string;
 using namespace ZScript;
 
+extern byte quest_rules[QUESTRULES_NEW_SIZE];
 ////////////////////////////////////////////////////////////////
 // CompileOptionSetting
 
@@ -66,10 +71,13 @@ namespace // file local
 	enum Id
 	{
 		ID_START = -1,
-#		define X(NAME, DEFAULT) \
+#		define X(NAME, DEFAULTQR, DEFAULTVAL) \
 		ID_##NAME,
+#		define START_GLOBAL(NUM) \
+		ID_GLOBAL = NUM,
 #		include "CompileOption.xtable"
 #		undef X
+#		undef START_GLOBAL
 		ID_END
 	};
 
@@ -78,8 +86,9 @@ namespace // file local
 	{
 		string name;
 		CompileOptionValue defaultValue;
-		Entry(string name = "", CompileOptionValue defaultValue = 0L)
-			: name(name), defaultValue(defaultValue) {}
+		int defaultqr;
+		Entry(string name = "", int defaultQR = 0L, long defaultValue = 0L)
+			: name(name), defaultValue(defaultValue), defaultqr(defaultQR) {}
 	};
 
 	// Table holding option data.
@@ -90,27 +99,58 @@ namespace // file local
 };
 
 // Define static instance for each option.
-#define X(NAME, DEFAULT) \
+#define X(NAME, DEFAULTQR, DEFAULTVAL) \
 CompileOption CompileOption::OPT_##NAME(ID_##NAME);
+#define START_GLOBAL(NUM) \
+//
 #include "CompileOption.xtable"
 #undef X
+#undef START_GLOBAL
 
 CompileOption CompileOption::Invalid(-1);
 
 void CompileOption::initialize()
 {
 	static bool initialized = false;
-	if (!initialized)
+	if (initialized)
+	{
+		//Load updates to the default options, regardless -V
+		for (int i = 0; i < ID_END; ++i)
+		{
+			if(i > ID_GLOBAL)
+			{
+				//Read from config ints.
+			}
+			else if(entries[i].defaultqr) //If this has a QR set in the xtable, use that
+			{
+				entries[i].defaultValue = get_bit(quest_rules, entries[i].defaultqr) ? 10000L : 0L;
+			}
+		}
+	}
+	else
 	{
 		// Fill entries table from xtable.
-#		define X(NAME, DEFAULT) \
-		entries[ID_##NAME] = Entry(#NAME, DEFAULT);
+#		define X(NAME, DEFAULTQR, DEFAULTVAL) \
+		entries[ID_##NAME] = Entry(#NAME, DEFAULTQR, DEFAULTVAL);
+#		define START_GLOBAL(NUM) \
+		//
 #		include "CompileOption.xtable"
 #		undef X
+#		undef START_GLOBAL
 
 		// Fill nameMap from entries table.
 		for (int i = 0; i < ID_END; ++i)
+		{
+			if(i > ID_GLOBAL)
+			{
+				//Read from config ints.
+			}
+			else if(entries[i].defaultqr) //If this has a QR set in the xtable, use that
+			{
+				entries[i].defaultValue = get_bit(quest_rules, entries[i].defaultqr) ? 10000L : 0L;
+			}
 			nameMap[entries[i].name] = CompileOption(i);
+		}
 		
 		initialized = true;
 	}

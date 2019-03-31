@@ -2669,6 +2669,11 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_SIDEVIEWTRIFORCECELLAR,1);
 	}
 	
+	if((tempheader.zelda_version < 0x255))
+	{
+		set_bit(quest_rules,qr_PARSER_250DIVISION,1);
+	}
+	
     if(keepdata==true)
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
