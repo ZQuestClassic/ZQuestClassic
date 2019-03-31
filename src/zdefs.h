@@ -844,8 +844,10 @@ enum
 	qr_DYINGENEMYESDONTHURTLINK, //t.b.a
 	qr_SIDEVIEWTRIFORCECELLAR,
 	
-	//ZScript Parser
-	qr_PARSER_250DIVISION = 80, //room for 20 of these
+	//ZScript Parser //room for 20 of these
+	qr_PARSER_250DIVISION = 80, //2.50 integer division bug emulation
+	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
+	qr_PARSER_SHORT_CIRCUIT, //Default off.
     qr_MAX
 };
 
