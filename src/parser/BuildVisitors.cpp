@@ -761,14 +761,14 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 		//Get left
 		visit(host.left.get(), param);
 		//Check left, skip if false
-		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
-		addOpcode(new OGotoLessImmediate(new LabelArgument(skip)));
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		addOpcode(new OGotoTrueImmediate(new LabelArgument(skip)));
 		//Get right
 		visit(host.right.get(), param);
-		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
-		Opcode* ocode =  new OSetMore(new VarArgument(EXP1));
+		Opcode* ocode =  new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1));
 		ocode->setLabel(skip);
 		addOpcode(ocode);
+		addOpcode(new OSetMore(new VarArgument(EXP1)));
 	}
 	else
 	{
