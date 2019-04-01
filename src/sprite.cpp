@@ -620,14 +620,39 @@ void sprite::draw(BITMAP* dest)
             
             case 0:
             default:
-                if(drawstyle==0 || drawstyle==3)
-                    overtile16(dest,((scripttile > -1) ? scripttile : tile),sx,sy,cs,((scriptflip > -1) ? scriptflip : flip));
-                else if(drawstyle==1)
-                    overtiletranslucent16(dest,((scripttile > -1) ? scripttile : tile),sx,sy,cs,((scriptflip > -1) ? scriptflip : flip),128);
-                else if(drawstyle==2)
-                    overtilecloaked16(dest,((scripttile > -1) ? scripttile : tile),sx,sy,((scriptflip > -1) ? scriptflip : flip));
-                    
-                break;
+		{
+			BITMAP* sprBMP = create_bitmap_ex(8,16,16);
+			clear_bitmap(sprBMP);
+			BITMAP* sprBMP2 = create_bitmap_ex(8,16,16);
+			clear_bitmap(sprBMP2);
+			if ( rotation )
+			{
+				if(drawstyle==0 || drawstyle==3)
+					overtile16(sprBMP,tile,0,0,cs,flip);
+				else if(drawstyle==1)
+					overtiletranslucent16(sprBMP,tile,0,0,cs,flip,128);
+				else if(drawstyle==2)
+					overtilecloaked16(sprBMP,tile,0,0,flip);
+				
+				rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+				draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+			}
+			else
+			{
+			
+			
+			
+				if(drawstyle==0 || drawstyle==3)
+				    overtile16(dest,tile,sx,sy,cs,flip);
+				else if(drawstyle==1)
+				    overtiletranslucent16(dest,tile,sx,sy,cs,flip,128);
+				else if(drawstyle==2)
+				    overtilecloaked16(dest,tile,sx,sy,flip);
+			}
+			destroy_bitmap(sprBMP);
+			destroy_bitmap(sprBMP2);
+			break;
+		}
             }
             break;
         }
