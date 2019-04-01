@@ -15144,6 +15144,21 @@ void do_getnpcname()
         Z_scripterrlog("Array supplied to 'npc->GetName' not large enough\n");
 }
 
+//npcdata->GetName
+void FFScript::do_getnpcdata_getname()
+{
+    long arrayptr = get_register(sarg1) / 10000;
+    int npc_id = ri->npcdataref;
+    if((unsigned)npc_id > 511)
+    {
+	Z_scripterrlog("Invalid npc ID (%d) passed to npcdata->GetName().\n", npc_id);
+	return;
+    }
+        
+    if(ArrayH::setArray(arrayptr, guy_string[npc_id]) == SH::_Overflow)
+        Z_scripterrlog("Array supplied to 'npcdata->GetName()' not large enough\n");
+}
+
 void do_getffcscript()
 {
     long arrayptr = get_register(sarg1) / 10000;
@@ -16364,6 +16379,10 @@ int run_script(const byte type, const word script, const long i)
 		    
 		case NPCNAME:
 		    do_getnpcname();
+		    break;
+		
+		case NPCDATAGETNAME:
+		    FFCore.do_getnpcdata_getname();
 		    break;
 		    
 		case GETSAVENAME:

@@ -9318,7 +9318,8 @@ static AccessorTable NPCDataTable[] =
 	{ "GetInitDLabel",      ZVARTYPEID_VOID,         FUNCTION,     0,                    1,      {  ZVARTYPEID_NPCDATA,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "MatchInitDLabel",      ZVARTYPEID_BOOL,         FUNCTION,     0,                    1,      {  ZVARTYPEID_NPCDATA,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
-	
+	{ "GetName",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,      {  ZVARTYPEID_NPCDATA,     ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+    
 	//Functions
 	//one inout, no return
 	{ "GetTile",              ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,      {  ZVARTYPEID_NPCDATA,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -9453,6 +9454,22 @@ void NPCDataSymbols::generateCode()
     
 	//GET_GUYDATA_MEMBER("Tile", ONDataBaseTile);
     }
+    
+    //void GetName(npcdata, int)
+	{
+		Function* function = getFunction("GetName");
+		int label = function->getLabel();
+		vector<Opcode *> code;
+		//pop off the param
+		Opcode *first = new OPopRegister(new VarArgument(EXP1));
+		first->setLabel(label);
+		code.push_back(first);
+		//pop pointer, and ignore it
+		code.push_back(new OPopRegister(new VarArgument(NUL)));
+		code.push_back(new OGetNPCDataName(new VarArgument(EXP1)));
+		code.push_back(new OReturn());
+		function->giveCode(code);
+	}
     //void GetInitDLabel(npc, int buffer[], int d)
      //void GetDMapMusicFilename(game, int, int)
     {

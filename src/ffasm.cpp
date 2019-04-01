@@ -769,6 +769,7 @@ script_command command_list[NUMCOMMANDS+1]=
       { "GAMECONTINUE",             0,   0,   0,   0},
       { "MAPDATAISSOLID",             1,   0,   0,   0},
       { "SHOWF6SCREEN",             0,   0,   0,   0},
+      { "NPCDATAGETNAME",             1,   0,   0,   0},
       { "",                    0,   0,   0,   0}
 };
 

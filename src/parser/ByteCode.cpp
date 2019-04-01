@@ -4309,6 +4309,11 @@ string ONPCHitWith::toString()
 //    return "RUNITEMSCRIPT";
 //}
 
+string OGetNPCDataName::toString()
+{
+    return "NPCDATAGETNAME " + getArgument()->toString();
+}
+
 string OReturn::toString()
 {
 	return "RETURN";
