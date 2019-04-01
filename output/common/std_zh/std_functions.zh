@@ -610,12 +610,12 @@ bool ConsumeKey(int level)
 {
 	if(Game->LKeys[level]>0)
 	{
-		Game->LKeys[level]--;
+		--Game->LKeys[level];
 		return true;
 	}
 	else if(Game->Counter[CR_KEYS]>0)
 	{
-		Game->Counter[CR_KEYS]--;
+		--Game->Counter[CR_KEYS];
 		return true;
 	}
 	else
