@@ -19869,6 +19869,7 @@ static DIALOG zscript_parser_dlg[] =
     { jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
     { jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
     { jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
+    { jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Relational Operators Give 0.0001 For True", NULL, NULL },
     
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -19880,6 +19881,7 @@ static int zscripparsertrules[] =
     qr_PARSER_250DIVISION,
     qr_PARSER_NO_LOGGING,
     qr_PARSER_SHORT_CIRCUIT,
+	qr_PARSER_RELOP_DECIMAL,
     -1
 };
 

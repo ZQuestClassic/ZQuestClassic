@@ -31,6 +31,20 @@ extern bool show_hitboxes;
 extern bool is_zquest();
 extern void debugging_box(int x1, int y1, int x2, int y2);
 
+#define degtoFix(d)     ((d)*0.7111111111111)
+#define radtoFix(d)     ((d)*40.743665431525)
+
+template<class T> inline
+fixed deg_to_fixed(T d)
+{
+    return ftofix(degtoFix(d));
+}
+template<class T> inline
+fixed rad_to_fixed(T d)
+{
+    return ftofix(radtoFix(d));
+}
+
 /**********************************/
 /******* Sprite Base Class ********/
 /**********************************/
@@ -101,6 +115,7 @@ sprite::sprite()
     scripttile = -1;
     scriptflip = -1;
     do_animation = 1;
+    rotation = 0;
     for ( int q = 0; q < 8; q++ )
     {
 	    initD[q] = 0;
@@ -164,6 +179,7 @@ script(other.script),
 weaponscript(other.weaponscript),
 scripttile(other.scripttile),
 scriptflip(other.scriptflip),
+rotation(other.rotation),
 do_animation(other.do_animation)
 
 {
@@ -247,6 +263,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     weaponscript = 0;
     scripttile = -1;
     scriptflip = -1;
+    rotation = 0;
     do_animation = 1;
     drawstyle=0;
     lasthitclk=0;
@@ -435,6 +452,7 @@ void sprite::move(fix s)
  //sprite::draw() before adding scripttile and scriptflip
 void sprite::draw(BITMAP* dest)
 {
+	
     if(!show_sprites)
     {
         return;
@@ -476,7 +494,9 @@ void sprite::draw(BITMAP* dest)
                 overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile),0,16,((scriptflip > -1) ? scriptflip : flip));
             }
             
-            masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+	    //if ( rotation != 0 ) rotate_sprite(dest, temp, sx, sy+playing_field_offset, deg_to_fixed(rotation));
+            /*else*/ masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+	    
             destroy_bitmap(temp);
             break;
             
@@ -514,7 +534,8 @@ void sprite::draw(BITMAP* dest)
                 overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,16,((scriptflip > -1) ? scriptflip : flip));
             }
             
-            masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
+	    //if ( rotation != 0 ) rotate_sprite(temp, dest, sx-8, sy-16, deg_to_fixed(rotation));
+            /*else*/ masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
             destroy_bitmap(temp);
             break;
             
@@ -599,14 +620,39 @@ void sprite::draw(BITMAP* dest)
             
             case 0:
             default:
-                if(drawstyle==0 || drawstyle==3)
-                    overtile16(dest,((scripttile > -1) ? scripttile : tile),sx,sy,cs,((scriptflip > -1) ? scriptflip : flip));
-                else if(drawstyle==1)
-                    overtiletranslucent16(dest,((scripttile > -1) ? scripttile : tile),sx,sy,cs,((scriptflip > -1) ? scriptflip : flip),128);
-                else if(drawstyle==2)
-                    overtilecloaked16(dest,((scripttile > -1) ? scripttile : tile),sx,sy,((scriptflip > -1) ? scriptflip : flip));
-                    
-                break;
+		{
+			BITMAP* sprBMP = create_bitmap_ex(8,16,16);
+			clear_bitmap(sprBMP);
+			BITMAP* sprBMP2 = create_bitmap_ex(8,16,16);
+			clear_bitmap(sprBMP2);
+			if ( rotation )
+			{
+				if(drawstyle==0 || drawstyle==3)
+					overtile16(sprBMP,tile,0,0,cs,flip);
+				else if(drawstyle==1)
+					overtiletranslucent16(sprBMP,tile,0,0,cs,flip,128);
+				else if(drawstyle==2)
+					overtilecloaked16(sprBMP,tile,0,0,flip);
+				
+				rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+				draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+			}
+			else
+			{
+			
+			
+			
+				if(drawstyle==0 || drawstyle==3)
+				    overtile16(dest,tile,sx,sy,cs,flip);
+				else if(drawstyle==1)
+				    overtiletranslucent16(dest,tile,sx,sy,cs,flip,128);
+				else if(drawstyle==2)
+				    overtilecloaked16(dest,tile,sx,sy,flip);
+			}
+			destroy_bitmap(sprBMP);
+			destroy_bitmap(sprBMP2);
+			break;
+		}
             }
             break;
         }

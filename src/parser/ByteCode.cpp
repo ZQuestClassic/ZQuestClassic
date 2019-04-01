@@ -1707,6 +1707,12 @@ string VarArgument::toString()
 	case LWPNUSEWEAPON: return "LWPNUSEWEAPON";
 	case LWPNUSEDEFENCE: return "LWPNUSEDEFENCE";
 	
+	case LWPNROTATION: return "LWPNROTATION";
+	case EWPNROTATION: return "EWPNROTATION";
+	case NPCROTATION: return "NPCROTATION";
+	case ITEMROTATION: return "ITEMROTATION";
+	case LINKROTATION: return "LINKROTATION";
+	
 	
     default:
     {
@@ -4308,6 +4314,11 @@ string ONPCHitWith::toString()
 //{
 //    return "RUNITEMSCRIPT";
 //}
+
+string OGetNPCDataName::toString()
+{
+    return "NPCDATAGETNAME " + getArgument()->toString();
+}
 
 string OReturn::toString()
 {

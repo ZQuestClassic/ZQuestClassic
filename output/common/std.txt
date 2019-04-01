@@ -1,9 +1,12 @@
-std.txt for ZC Versions 2.53.0 and higher.
-28th March, 2019
+std.txt for ZC Versions 2.55.0 Alpha 16 and higher.
+1st April, 2019
 
 =================
 --- Constants ---
 =================
+
+const float STD_VERSION; 
+ * The current header version. 
 
 const float PI, PI2, E
  * The mathematical constants pi, 2*pi and e.
@@ -245,18 +248,54 @@ const int AT_*
 const int TEX_BITMAP
  * Drawing texture Mode (2.50.3 experimental, and later)
 
-//Constants for AdjacentCombo()
-
-const int CMB_UPLEFT    = 0;
-const int CMB_UP        = 1;
-const int CMB_UPRIGHT   = 2;
-const int CMB_RIGHT     = 3;
-const int CMB_DOWNRIGHT = 4;
-const int CMB_DOWN      = 5;
-const int CMB_DOWNLEFT  = 6;
-const int CMB_LEFT      = 7;
-const int CMB_LEFTUP    = 0;
+const int FFCBF_*
+ * Bitwise flags for FFC Flags.
  
+const int GOS_*
+ * Game Over Screen Indices for Game->GameOverScreen[]
+ * Game Over Strings indives for Game->GameOverStrings[]
+ 
+const int BITDX_*
+ * BitmapEx drawing modes for DrawBitmapEx() and Blit()
+ 
+const int ITM_*
+ * Slot flags for Link->SetItemSlot
+ 
+const int MOUSE_*
+ * Indices of Input->Mouse[]
+ 
+const int SECCMB_*
+ * Indices of GetSecretCombo()
+
+const int VOL_*
+ * Indices of Audio->Volume
+ 
+const float DIR16_DEG_*
+ * Regree values for 16 built-in directions. 
+ 
+const float DIR16_RADS_*
+ * Radian values for 16 built-in directions.
+ 
+const int DMAP_*
+ * DMap Types for dmapdata->Type
+ 
+const int TINT_*
+ * Built-in tint presets for Monochrome() and Tint() functions.
+ 
+const int RTC_
+ * Values for the category param of GetSystemTime(int category)
+ 
+const int WT_*
+ * Warp Types for use with WarpEx() and Set/Get*Warp()
+
+const int WARPEFFECT_*
+ * Visual warp effects for WarpEx()
+ 
+const int WARP_FLAG_*
+ * Flagset values for WarpEx() flags. 
+ 
+_ERR_* 
+ * Error code values for #ignore error compiler flags. 
  
 =================
 --- Functions ---
@@ -875,8 +914,35 @@ int DMapToMap(int screen, int dmap)
 int MapToDMap(int screen, int dmap)
  * Convert between map and DMap screen coordinates
  
- int ScreenItem();
+int ScreenItem();
  * Returns the item ID for the current screen, if there is one. 
+
+bool HasKey(int level);
+ * Returns true if Link has keys that he can use in the specified level.
+ 
+bool HasKey();
+ * Returns true if Link has keys that he can use in the current level.
+ 
+int NumKeys(int level);
+ * Returns the total number of keys (normal, and level-specific) that Link
+ * has, that work in the specified level.
+ 
+int NumKeys();
+ * Returns the total number of keys (normal, and level-specific) that Link
+ * has, that work in the current level.
+
+bool ConsumeKey(int level);
+ * Uses a key for the current level. 
+ * If Link has a level key for this level, it uses this first.
+ * If Link does not have a level key for this level, it the tries to
+ * use a normal key.
+ * Returns true on success.
+ * Returns false if Link has no valid keys to use.
+ 
+bool ConsumeKey();
+ * As ConsumeKey(int level), except that it is for only the
+ * current level.
+
 
  ============================
  --  Bug Fixes ( 2.53.0 )  --
@@ -905,6 +971,14 @@ MAX_HIGHEST_LEVEL_ITEM_CHECK
  * The highest item ID to check, with GetHighestLevelItem. 
    The default value is now 255.
 
+SETLAYERCOMBO_USE_MAPDATA
+ * If enabled, all SetLayerCombo and GetlayerCombo functions
+ * will use *mapdata instead of Game->Get/SetCombo functions.
+
+SETLAYERCOMBO_ONLY_USE_MAPDATA
+ * If enabled, all SetlayerCombo and GetLayerCombo functions 
+ * will use *mapdata for combos on layer 0. 
+
 SETLAYERCOMBO_ALWAYS_USE_SETCOMBO
  * If enabled, SetLayerCombo* functions will always use Screen->Combo*[]
    for layer 0. Otherwise, they will use Game-> combo data. 
@@ -928,7 +1002,16 @@ STD_EMULATE_ENGINE_COLLISION
  * Not implemented in this version of std.zh.
 STD_CENTERXY_USES_HITBOXES
  * Not implemented in this version of std.zh.
+ 
+MAX_NOACTION_INPUT
+ * The highest input that NoAction(), NoInput(), and NoPress()
+ * will write false.
 
+NOACTION_SKIP_MAP
+ * If enabled, NoAction() will not write to the Map button.
+
+NOACTION_SKIP_START
+ * If enabled, NoAction() will not write to the Start button.
 
 /*********************/
 *   STRING HANDLING   * 
@@ -986,3 +1069,5 @@ void __stdzh_DecV(int index, int value);
 void __stdzh_StoreArrayPointer(int ptr, int index);
  * Stores the pointer to an array 'ptr' min an index of std_zh___GlobalRAM.
 
+float __stdzh_getVersion(); 
+ * Returns the version of std.zh that was used during compilation. 

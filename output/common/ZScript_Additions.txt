@@ -7,7 +7,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 16
-Document Revision: 27th March, 2019
+Document Revision: 1st April, 2019
 
 
 ////////////////////////////////////////////////////
@@ -18,7 +18,27 @@ Document Revision: 27th March, 2019
 // Bugfixes //
 //////////////
 
+	//Alpha 16
+	
+	///////////////////
+	// Short Circuit //
+	///////////////////
+	
+	Fixed short-circuiting. Logical AND and Logical OR now short-circuit as in C,
+	based on a compiler flag.
+	
+	If short-circuiting is enabled, the following occurs:
+	
+		if ( a && b ) 
+			//if 'a' is false, 'b' is skipped.
+		if ( a || b )
+			//if 'a' is true, 'b' is skipped. 
+	
 	//Alpha 13
+	
+	///////////////////////
+	// Constant Division //
+	///////////////////////
 	
 	Fixed a bug where division of a constant would result in truncation that did not occur in 2.50.x
 	Fixed issues with division by an integer, where values would be truncated.
@@ -399,6 +419,17 @@ You can now declare, and initialise variables on one line, as in C.
 		int a; int b; int c = 9; int h = 16; int f = c+h;
 		float n = 1.04; float m = 6.03;
 
+///////////////////
+// Explicit Cast //
+///////////////////
+
+You may not explicitely cast a value, using a type in angle braces.
+
+	ffc f = Screen->LoadFFC(15);
+	int x = <ffc>f;
+
+	f = <int>2;
+
 //////////////////////
 // Enumerated Lists //
 //////////////////////
@@ -411,6 +442,25 @@ standard C-style syntax of:
 	In this declaration, A == 0, B == 1, C == 2, D == 10, 
 		E == 11, F == 12, G == 100, and H == 101.
 		
+		
+You can also define a C style enumerated list with an identifier. 
+This act defines a pseudo-datatype, with assignable values limited to
+the values in the enumerated list.
+
+	enum actiontype { none, walk, attack };
+	
+	Now, you can declare 'action' as a datatype.
+	
+	actiontype act;
+	
+	If you wish to assign a value to it, the value must be validated
+	from the enumeration:
+		act = walk; //Legal
+		act = 7; //Error
+		
+	You can explicit cast values to these types to circumnavigate the
+	restrictions.
+		act = <int>7; //this is legal. 
 
 ////////////////////
 // Comment Blocks //
@@ -1367,6 +1417,27 @@ untyped Misc[32];
 ///////////////////////////
 ///  LWeapon  Specific  ///
 ///////////////////////////
+
+int Weapon;
+* The UseWeapon property for this weapon. 
+* If set to a value greater than 0, all collisions with npcs
+* will use this as if it was the weapon's ID for calculating
+* the defence value for it. 
+* e.g., if a LW_MAGIC weapon is set to a Weapon of LW_BRANG, when it
+* collides with an npc, the npc will use Defence[LW_BRANG] to resolve 
+* its effects.
+*
+* Some weapons will also trigger map flags, and screen combos as
+* if the natural weapon was the value set as ->Weapon.,
+* e.g. If you set a LW_BRANG weapon to a ->Weapon of LW_SWORD,
+* it will cut bushes. 
+
+int Defence;
+int Defense;
+* The default defence value for this weapon.
+* If set greater than 0, then when this weapon collides with an npc,
+* if that npc has its Defence[n] value set to NONE for this weapon's type,
+* it will resolve using this Defence value (e.g. Stun). 
 
 int Range;
 * NEEDS TO BE REIMPLEMENTED
@@ -2804,6 +2875,9 @@ From here, you may access the member functions, and variables as normal:
 nd->HP = 32;
 
 */
+
+void GetName(int ptr[]);
+* Puts the text of the Enemy Name field into string 'ptr'.
 
 void GetInitDLabel(int ptr[], int d_index);
 * Puts the text of the InitD label 'd_index' into string 'ptr'.

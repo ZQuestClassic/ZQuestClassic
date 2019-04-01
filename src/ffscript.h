@@ -306,6 +306,7 @@ void do_npc_simulate_hit(const bool v);
 void do_npc_add(const bool v);
 void do_npc_canmove(const bool v);
 void get_npcdata_initd_label(const bool v);
+void do_getnpcdata_getname();
 
 //int do_get_internal_uid
 
@@ -2037,6 +2038,7 @@ enum ASM_DEFINE
 	GAMECONTINUE,
 	MAPDATAISSOLID,
 	SHOWF6SCREEN,
+	NPCDATAGETNAME,
 	NUMCOMMANDS           //0x013B
 };
 
@@ -3207,6 +3209,11 @@ enum ASM_DEFINE
 #define SKIPF6 		0x133C
 #define LWPNUSEWEAPON 		0x133D
 #define LWPNUSEDEFENCE 		0x133E
+#define LWPNROTATION 		0x133F
+#define EWPNROTATION 		0x1340
+#define NPCROTATION 		0x1341
+#define ITEMROTATION 		0x1342
+#define LINKROTATION 		0x1343
 
 //bytecode
 
@@ -3214,7 +3221,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x133F
+#define NUMVARIABLES         0x1344
 
 
 // Script types

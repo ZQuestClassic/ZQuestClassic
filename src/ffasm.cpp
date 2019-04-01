@@ -769,6 +769,7 @@ script_command command_list[NUMCOMMANDS+1]=
       { "GAMECONTINUE",             0,   0,   0,   0},
       { "MAPDATAISSOLID",             1,   0,   0,   0},
       { "SHOWF6SCREEN",             0,   0,   0,   0},
+      { "NPCDATAGETNAME",             1,   0,   0,   0},
       { "",                    0,   0,   0,   0}
 };
 
@@ -1799,6 +1800,11 @@ script_variable variable_list[]=
 	{"SKIPF6", SKIPF6, 0, 0 },
 	{"LWPNUSEWEAPON", LWPNUSEWEAPON, 0, 0 },
 	{"LWPNUSEDEFENCE", LWPNUSEDEFENCE, 0, 0 },
+	{"LWPNROTATION", LWPNROTATION, 0, 0 },
+	{"EWPNROTATION", EWPNROTATION, 0, 0 },
+	{"NPCROTATION", NPCROTATION, 0, 0 },
+	{"ITEMROTATION", ITEMROTATION, 0, 0 },
+	{"LINKROTATION", LINKROTATION, 0, 0 },
 	
 	
 	{ " ",                       -1,             0,             0 }
