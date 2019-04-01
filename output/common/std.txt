@@ -1,9 +1,12 @@
 std.txt for ZC Versions 2.53.0 and higher.
-28th March, 2019
+1st April, 2019
 
 =================
 --- Constants ---
 =================
+
+const float STD_VERSION; 
+ * The current header version. 
 
 const float PI, PI2, E
  * The mathematical constants pi, 2*pi and e.
@@ -875,8 +878,35 @@ int DMapToMap(int screen, int dmap)
 int MapToDMap(int screen, int dmap)
  * Convert between map and DMap screen coordinates
  
- int ScreenItem();
+int ScreenItem();
  * Returns the item ID for the current screen, if there is one. 
+
+bool HasKey(int level);
+ * Returns true if Link has keys that he can use in the specified level.
+ 
+bool HasKey();
+ * Returns true if Link has keys that he can use in the current level.
+ 
+int NumKeys(int level);
+ * Returns the total number of keys (normal, and level-specific) that Link
+ * has, that work in the specified level.
+ 
+int NumKeys();
+ * Returns the total number of keys (normal, and level-specific) that Link
+ * has, that work in the current level.
+
+bool ConsumeKey(int level);
+ * Uses a key for the current level. 
+ * If Link has a level key for this level, it uses this first.
+ * If Link does not have a level key for this level, it the tries to
+ * use a normal key.
+ * Returns true on success.
+ * Returns false if Link has no valid keys to use.
+ 
+bool ConsumeKey();
+ * As ConsumeKey(int level), except that it is for only the
+ * current level.
+
 
  ============================
  --  Bug Fixes ( 2.53.0 )  --
@@ -986,3 +1016,5 @@ void __stdzh_DecV(int index, int value);
 void __stdzh_StoreArrayPointer(int ptr, int index);
  * Stores the pointer to an array 'ptr' min an index of std_zh___GlobalRAM.
 
+float __stdzh_getVersion(); 
+ * Returns the version of std.zh that was used during compilation. 

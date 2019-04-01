@@ -1,5 +1,5 @@
 //General-Use Arrays with Getter/Setter functions
-///28th March, 2019
+///1st April, 2019
 
 //A generic array, pre-included with all quests. 
 //float stdArray[4096]; //This should be called GlobalRAM[]
@@ -19,7 +19,9 @@ int std_zh___GlobalRAM[4096];
 //! It's essentially a catch-all for questmakers, as a way to later expand a quest, without breaking player
 //! save files, or requiring them to start from scratch, to play the update. 
 
+const float STD_VERSION = 1.5000;
 
+float __stdzh_getVersion() { return STD_VERSION; }
 
 //Data Handling Functions
 
