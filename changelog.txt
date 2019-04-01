@@ -2,7 +2,7 @@
 
 //Alpha 16
 
-Updated std.zh for 2.55 Alpga 16
+Updated std.zh for 2.55 Alpha 16
 	Version is 1.6000
 	Optimise all functions for new ZScript parser.
 	Revised some functions.
