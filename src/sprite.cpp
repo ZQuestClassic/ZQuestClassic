@@ -31,6 +31,20 @@ extern bool show_hitboxes;
 extern bool is_zquest();
 extern void debugging_box(int x1, int y1, int x2, int y2);
 
+#define degtoFix(d)     ((d)*0.7111111111111)
+#define radtoFix(d)     ((d)*40.743665431525)
+
+template<class T> inline
+fixed deg_to_fixed(T d)
+{
+    return ftofix(degtoFix(d));
+}
+template<class T> inline
+fixed rad_to_fixed(T d)
+{
+    return ftofix(radtoFix(d));
+}
+
 /**********************************/
 /******* Sprite Base Class ********/
 /**********************************/
@@ -101,6 +115,7 @@ sprite::sprite()
     scripttile = -1;
     scriptflip = -1;
     do_animation = 1;
+    rotation = 0;
     for ( int q = 0; q < 8; q++ )
     {
 	    initD[q] = 0;
@@ -164,6 +179,7 @@ script(other.script),
 weaponscript(other.weaponscript),
 scripttile(other.scripttile),
 scriptflip(other.scriptflip),
+rotation(other.rotation),
 do_animation(other.do_animation)
 
 {
@@ -247,6 +263,7 @@ sprite::sprite(fix X,fix Y,int T,int CS,int F,int Clk,int Yofs):
     weaponscript = 0;
     scripttile = -1;
     scriptflip = -1;
+    rotation = 0;
     do_animation = 1;
     drawstyle=0;
     lasthitclk=0;
@@ -476,7 +493,9 @@ void sprite::draw(BITMAP* dest)
                 overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile),0,16,((scriptflip > -1) ? scriptflip : flip));
             }
             
-            masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+	    if ( rotation != 0 ) rotate_sprite(temp, dest, sy-16, 16, deg_to_fixed(rotation));
+            else masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+	    
             destroy_bitmap(temp);
             break;
             
@@ -514,7 +533,8 @@ void sprite::draw(BITMAP* dest)
                 overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,16,((scriptflip > -1) ? scriptflip : flip));
             }
             
-            masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
+	    if ( rotation != 0 ) rotate_sprite(temp, dest, sx-8, sy-16, deg_to_fixed(rotation));
+            else masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
             destroy_bitmap(temp);
             break;
             

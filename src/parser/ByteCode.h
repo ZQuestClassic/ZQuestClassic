@@ -1096,8 +1096,13 @@ using namespace std;
 #define SKIPF6 			1027
 #define LWPNUSEWEAPON 			1028
 #define LWPNUSEDEFENCE 			1029
+#define LWPNROTATION 			1030
+#define EWPNROTATION 			1031
+#define NPCROTATION 			1032
+#define ITEMROTATION 			1033
+#define LINKROTATION 			1034
 
-#define LAST_BYTECODE 		1030
+#define LAST_BYTECODE 		1035
 
 //END OF BYTECODE
 

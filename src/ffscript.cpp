@@ -1404,6 +1404,10 @@ long get_register(const long arg)
         break;
         
         
+    case LINKROTATION:
+        ret = (int)(Link.rotation)*10000;
+        break;
+    
     case LINKHXOFS:
         ret = (int)(Link.hxofs)*10000;
         break;
@@ -1981,6 +1985,14 @@ long get_register(const long arg)
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=(((item*)(s))->hxofs)*10000;
+        }
+        
+        break;
+	
+	case ITEMROTATION:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=(((item*)(s))->rotation)*10000;
         }
         
         break;
@@ -2563,6 +2575,9 @@ long get_register(const long arg)
         
     case NPCHZSZ:
         GET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
+    
+    case NPCROTATION:
+        GET_NPC_VAR_INT(rotation, "npc->Rotation") break;
         
     case NPCTXSZ:
         GET_NPC_VAR_INT(txsz, "npc->TileWidth") break;
@@ -3208,6 +3223,12 @@ case NPCBEHAVIOUR: {
             
         break;
 	
+	case LWPNROTATION:
+        if(0!=(s=checkLWpn(ri->lwpn,"Rotation")))
+            ret=((weapon*)(s))->rotation*10000;
+            
+        break;
+	
     
         
 ///----------------------------------------------------------------------------------------------------//
@@ -3347,6 +3368,12 @@ case NPCBEHAVIOUR: {
     case EWPNFLIP:
         if(0!=(s=checkEWpn(ri->ewpn,"Flip")))
             ret=((weapon*)(s))->flip*10000;
+            
+        break;
+	
+	case EWPNROTATION:
+        if(0!=(s=checkEWpn(ri->ewpn,"Rotation")))
+            ret=((weapon*)(s))->rotation*10000;
             
         break;
         
@@ -6829,6 +6856,10 @@ void set_register(const long arg, const long value)
     case LINKHXOFS:
         (Link.hxofs)=(fix)(value/10000);
         break;
+    
+    case LINKROTATION:
+        (Link.rotation)=(value/10000);
+        break;
         
     case LINKHYOFS:
         (Link.hyofs)=(fix)(value/10000);
@@ -7453,6 +7484,14 @@ void set_register(const long arg, const long value)
         if(0!=(s=checkItem(ri->itemref)))
         {
             ((item*)(s))->hxofs=value/10000;
+        }
+        
+        break;
+        
+	case ITEMROTATION:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ((item*)(s))->rotation=value/10000;
         }
         
         break;
@@ -8139,6 +8178,12 @@ void set_register(const long arg, const long value)
             ((weapon*)s)->flip=(value/10000);
             
         break;
+	
+	case LWPNROTATION:
+        if(0!=(s=checkLWpn(ri->lwpn,"Rotation")))
+            ((weapon*)s)->rotation=(value/10000);
+            
+        break;
         
     case LWPNEXTEND:
         if(0!=(s=checkLWpn(ri->lwpn,"Extend")))
@@ -8427,6 +8472,12 @@ void set_register(const long arg, const long value)
             
         break;
         
+	case EWPNROTATION:
+        if(0!=(s=checkEWpn(ri->ewpn,"Rotation")))
+            ((weapon*)s)->rotation=(value/10000);
+            
+        break;
+        
     case EWPNEXTEND:
         if(0!=(s=checkEWpn(ri->ewpn,"Extend")))
             ((weapon*)s)->extend=(value/10000);
@@ -8627,6 +8678,13 @@ void set_register(const long arg, const long value)
     {
         if(GuyH::loadNPC(ri->guyref, "npc->DrawYOffset") == SH::_NoError)
             GuyH::getNPC()->yofs = fix(value / 10000) + playing_field_offset;
+    }
+    break;
+    
+    case NPCROTATION:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->Rotation") == SH::_NoError)
+            GuyH::getNPC()->rotation = (value / 10000);
     }
     break;
     
