@@ -1656,7 +1656,7 @@ bool IsDungeonFlag()
 //Returns true if the integer is even.
 bool IsEven(int x)
 {
-	return ((x & 1) == 0);
+	return (!(x & 1));
 }
 
 //Returns true if Link is on an Interior (flagged) screen
@@ -1668,7 +1668,7 @@ bool IsInteriorFlag()
 //Returns true if the integer is odd.
 bool IsOdd(int x)
 {
-	return ((x & 1) == 1);
+	return ((x & 1));
 }
 
 // Returns true if the combo at the given position is a pit.
@@ -1682,7 +1682,8 @@ bool IsPit(int position)
 }
 
 //Returns true if Link is on a sideview screen
-bool IsSideview() {
+bool IsSideview() 
+{
 	return Screen->Flags[SF_ROOMTYPE] & 4;
 }
 

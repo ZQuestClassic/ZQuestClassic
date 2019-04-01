@@ -1,5 +1,5 @@
 //Extended functions for 2.53.0
-//29th March, 2019
+//1st April, 2019
 
 //A
 
@@ -1504,29 +1504,23 @@ int HitboxTop()
 //Returns the net change that would affect both objects. 
 int ImpactVelocity(int mass1, int velocity1, int mass2, int velociy2 ) 
 { //, int time){ //time is sed here, as the amount of time that both objects are in contact.
-	int momentum1 = mass1*velocity1; //mv1
-	int momentum2 = mass2*velociy2; //mv2
 	//int accel1;
 	//int accel2;
-	return momentum1 - momentum2;
+	return (mass1*velocity1) - (mass2*velociy2);
 }
 
 //Accepts the mass, and velocity if two objects. Determins the acceleration on impact. 
 //Returns the change of acceleration for object 'B'. 
 int ImpactVelocityA(int massA, int velocityA, int massB, int velociyB ) 
 { //, int time){ //time is sed here, as the amount of time that both objects are in contact.
-	int momentumA = massA*velocityA; //mv1
-	int momentumB = massB*velociyB; //mv2
-	return momentumA - momentumB;
+	return (massA*velocityA) - (massB*velociyB);
 }
 
 //Accepts the mass, and velocity if two objects. Determins the acceleration on impact. 
 //Returns the change of acceleration for object 'B'.
 int ImpactVelocityB(int massA, int velocityA, int massB, int velociyB ) 
 { //, int time){ //time is sed here, as the amount of time that both objects are in contact.
-	int momentumA = massA*velocityA; //mv1
-	int momentumB = massB*velociyB; //mv2
-	return momentumB - momentumA;
+	return (massB*velociyB) - (massA*velocityA);
 }
 
 //Accepts the mass, and velocity if two weapons. Determins the acceleration on impact. 
@@ -2107,7 +2101,8 @@ void NoInput(bool stick)
 	Link->InputEx4 = false;
 	Link->InputStart = false;
 	Link->InputMap = false;
-	if ( stick ) {
+	if ( stick ) 
+	{
 		Link->InputAxisUp = false; 
 		Link->InputAxisDown = false; 
 		Link->InputAxisLeft = false; 
@@ -2162,7 +2157,8 @@ void NoPress(bool stick)
 	Link->PressEx4 = false;
 	Link->PressStart = false;
 	Link->PressMap = false;
-	if ( stick ) {
+	if ( stick ) 
+	{
 		Link->PressAxisUp = false; 
 		Link->PressAxisDown = false; 
 		Link->PressAxisLeft = false; 
@@ -3247,17 +3243,14 @@ int ProximityY(int b, int a, bool centre)
 //Randomly returns true, or false. 
 bool RandB()
 {
-	int a = Rand(0,1);
-	return ( a );
+	return (Rand(0,1));
 }
 
 
 //Randomly returns true, or false, using input percentTrue to determine the percentage change of a 'true return'
 bool RandB(int percentTrue)
 {
-	int a = Rand(1,100);
-	if ( a <= percentTrue ) return true;
-	else return false;
+	return ( (Rand(1,100)<=percentTrue) );
 }
 
 //S
@@ -3466,7 +3459,7 @@ void TraceStrB(int string, bool val)
 bool Xor(bool valA, bool valB)
 {
 	if ( !valA && valB ) return true;
-	else if ( valA && !valB ) return true;
+	if ( valA && !valB ) return true;
 	return false;
 }
 
@@ -3477,11 +3470,3 @@ bool Xor(bool valA, bool valB)
 //NOTES
 
 //ProximityX also could use precise variation. 
-
-
-
-
-
-
-
-
