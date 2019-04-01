@@ -2,6 +2,100 @@
 
 //Alpha 16
 
+Updated std.zh for 2.55 Alpga 16
+	Version is 1.6000
+	Optimise all functions for new ZScript parser.
+	Revised some functions.
+	Moved itemdata functions into idata.zh, inside namespace idata.
+	Added some configs to std.cfg.
+	Updated docs for std.zh and added std_extension.txt
+Added npcdata->GetName(int str[]) to ZScript.
+Corrected Controller Button Constants in std.zh
+Revamped all keyboard key dialogues:
+	Added the ability to clear any keyboard key setting from
+		the GUI using a new 'Clear' button.
+		This button is on all keyboard key dialogues.
+	Ensured that modifier key bindings must be unique against all other keybindings.
+	Ensured that a keybinding of 0 (None) does not need to be unique.
+Added a dialogue to configure cheat modifier keys.
+	( ZoriaRPG, 1st April, 2019 )
+
+Avoid using `GOTOLESS`, because it could cause `0.0001` to == false, depending on QR setting
+Parser: Optimize short-circuit behavior
+	Optimised ASM generated when short-circuiting is enabled.
+Feat: Option dialogue linked to options
+Parser: Improve option value handling
+	( Venrob, 31st March, 2019 )
+
+Added short-circuit logic to the parser.
+	When on, `||` and `&&` will short-circuit. i.e. `(true || foo())` 
+	and `(false && foo())` will not call `foo()`
+	Defaults to off. 
+Changed cast style
+	Now `<type>expr` instead of `cast<type>(expr)`
+	Tokens `cast` and `static_cast` are un-reserved
+Fixed custom const types  / need `const` in name!
+	( Venrob, 30th March, 2019 )
+
+Solid FFC: Added Note on Placement
+Initial Work on Solid FFCs
+	( ZoriaRPG, 30th March, 2019 )
+
+Fix: Re-add sanity check on `const typename`
+Parser: Add custom enum types, fix constant issue from previous commit
+	Usage:
+	`enum day { SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY };`
+	Then, `day d = SUNDAY;` or `const day TGIF = FRIDAY;`
+	`day d = 1;` is NOT valid. (You can use untyped or casting to bypass this, though)
+	These are not just renamed types, they are ACTUAL separate types!
+	They will cast to float/bool, though; `int d = SUNDAY;` would be fine, resulting in `d = 0;`
+	You can use floats in the initializer without issue 
+		(`enum foo { min = -1, zero, one, two, three, max };` won't give you a `cannot cast from float to foo` error)
+Internal: Fixed memory leak in constants. Remember to `clone()`!
+	( Venrob, 30th march, 2019 )
+
+std.zh: Added error codes _ERR_REDEFDATATYPE and _ERR_CONSTALREADYCONSTANT
+`const` is now separate from type keywords :
+	This means that you can now use `const` with typedef'd types.
+		Previously, `typedef int foo;` then `const foo f = 5;` would give an error, `unexpected token const`.
+		This has been rectified, now allowing this as a way to create a constant of type foo.
+		A new error code has been added, because `typedef const int define;` then `const define;` means `const const int`, which is an error.
+
+	Internal: `DataType->getTypeConst()` will now fetch the constant version of a naive type.
+	( Venrob, 29th march, 2019 )
+	
+Weapons with a UseType of Sword can now cut grass/bushes/pots,
+	and trigger sword triggers.
+Added the following to ZScript:
+	lweapon->Defense, lweapon->Defence : Sets the UseDefence property for an lweapon.
+	lweapon->Weapon : Sets the UseWeapon property for an lweapon
+
+Fixed some issues where the default weapon defence type would be
+	wrong, particularly if the weapon UseWeapon type value was not None.
+	Probably fixed some other, related bugs at the same time.
+Fixed some errors in the new weapon system. The weapon type override
+	seems to work fine now; however setting the 'default defence' is still broken.
+	It's giving the wrong value somewhere down the chain.
+Ported the New Weapon Defence System that I wrote for the DD 2.60
+	old master branch, to 2.55.
+
+	This does the following:
+
+	Items/lweapons now have a 'UseDefence' property.
+
+	Effects: If an enemy in the Enemy Editor has its defence category for that
+	weapon type set to 'None', and the weapon has a base defence type, then
+	that defence type (effect) will be applied as if the enemy had it set.
+
+	Items/lweapons now have a 'UseType' property.
+	Effects: When hit with this weapon type, the enemy will use the defence
+	category of the simulated 'UseType' weapon type, rather than the true weapon
+	type of the weapon.
+Ported the 'Weapon Properties' Item Editor tab that I wrote,
+	from the old DD 2.60 master branch, to 2.55.
+	( ZoriaRPG, 29th march, 2019 )
+
+Style: Matched braces in std_vars.zh
 std.zh: Optimise std_vars.zh
 Updated std.txt to cover all cleanup in std.zh, except for
 	std_extension (t/b/a).
