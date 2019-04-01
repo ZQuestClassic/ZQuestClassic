@@ -452,6 +452,7 @@ void sprite::move(fix s)
  //sprite::draw() before adding scripttile and scriptflip
 void sprite::draw(BITMAP* dest)
 {
+	
     if(!show_sprites)
     {
         return;
@@ -493,8 +494,8 @@ void sprite::draw(BITMAP* dest)
                 overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile),0,16,((scriptflip > -1) ? scriptflip : flip));
             }
             
-	    if ( rotation != 0 ) rotate_sprite(temp, dest, sy-16, 16, deg_to_fixed(rotation));
-            else masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
+	    //if ( rotation != 0 ) rotate_sprite(dest, temp, sx, sy+playing_field_offset, deg_to_fixed(rotation));
+            /*else*/ masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
 	    
             destroy_bitmap(temp);
             break;
@@ -533,8 +534,8 @@ void sprite::draw(BITMAP* dest)
                 overtilecloaked16(temp,((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) ),32,16,((scriptflip > -1) ? scriptflip : flip));
             }
             
-	    if ( rotation != 0 ) rotate_sprite(temp, dest, sx-8, sy-16, deg_to_fixed(rotation));
-            else masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
+	    //if ( rotation != 0 ) rotate_sprite(temp, dest, sx-8, sy-16, deg_to_fixed(rotation));
+            /*else*/ masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
             destroy_bitmap(temp);
             break;
             
