@@ -4982,7 +4982,7 @@ void kb_getkey(DIALOG *d)
 }
 
 //Clears key to 0. 
-//Only used by the Cheat Modifier Key Dialogue at present.
+//Used by all keyboard key settings dialogues.
 void kb_clearkey(DIALOG *d)
 {
     d->flags|=D_SELECTED;
@@ -5027,7 +5027,8 @@ int d_kbutton_proc(int msg,DIALOG *d,int c)
     
     return jwin_button_proc(msg,d,c);
 }
-//Only used by the Cheat Modifier Key Dialogue
+
+//Only used in keyboard settings dialogues to clear keys. 
 int d_k_clearbutton_proc(int msg,DIALOG *d,int c)
 {
     switch(msg)
