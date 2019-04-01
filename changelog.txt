@@ -1,7 +1,17 @@
 ChangeLog for 2.53.0 
 
-//Gamma 7
+//Gamma 8
 
+Revamped all keyboard key dialogues:
+	Added the ability to clear any keyboard key setting from 
+		the GUI using a new 'Clear' button. 
+		This button is on all keyboard key dialogues.
+	Ensured that modifier key bindings must be unique against all other keybindings.
+	Ensured that a keybinding of 0 (None) does not need to be unique.
+Added a dialogue to configure cheat modifier keys.
+	( ZoriaRPG, 1st April, 2019 )
+
+//Gamma 7
 Add docs for std_extension.zh as ./Docs/std_extension.txt
 Optimise, revamp, correct, and alphabetically sort std_extension.zh.
 	( ZoriaRPG, 29th March, 2019 )
