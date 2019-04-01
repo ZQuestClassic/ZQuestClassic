@@ -1,3 +1,7 @@
+//std_extension - Extended std.zh
+//Docs for 2.55 Alpha 16
+//1st April, 2019
+
 int AdjacentCombo(int cmb, int dir)
  * Returns the combo adjacent to a combo at position 'cmb' with a given direction.
 
