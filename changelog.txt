@@ -2,6 +2,13 @@ ChangeLog for 2.53.0
 
 //Gamma 8
 
+Revised the Bombchu emulation behaviour, and toggled the QR based on
+	quest header data.
+	2.50.0 and 2.50.1 quests have superbomb enabled by default.
+	2.50.2 and 2.50.3RC1 quests have normal bomb by default.
+	The emulation option is unavailable for quests made 
+	in 2.50.3RC1 or later. 
+
 Added the following to std.zh:
 	const float STD_VERSION;
 	float __stdzh_getVersion();

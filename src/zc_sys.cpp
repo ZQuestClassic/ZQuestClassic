@@ -7456,8 +7456,21 @@ int v210_bombchus()
 		NULL, 
 		lfont) == 1)
 	{
-	    if (emulation_patches[emu210BOMBCHU] ) emulation_patches[emu210BOMBCHU] = 0;
-	    else emulation_patches[emu210BOMBCHU] = 1;
+		
+		
+		if ( get_bit(quest_rules, qr_BOMBCHUSUPERBOMB) ) 
+		{
+			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
+			emulation_patches[emu210BOMBCHU] = 0;
+		}
+		else 
+		{
+			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
+			emulation_patches[emu210BOMBCHU] = 1;
+		}
+		
+	    //if (emulation_patches[emu210BOMBCHU] ) emulation_patches[emu210BOMBCHU] = 0;
+	    //else emulation_patches[emu210BOMBCHU] = 1;
 		
 	}
     return D_O_K;
@@ -8676,7 +8689,7 @@ void System()
 	//8-way shots always make WAV_FIRE sound. 
 	compat_patch_menu[9].flags = ( quest_header_zelda_version > 0x250 || ( quest_header_zelda_version == 0x250 && quest_header_zelda_build >= 32 )  ) ? D_DISABLED : ((emulation_patches[emu8WAYSHOTSFX])?D_SELECTED:0);
 	//Bombchus use superbomb when contacting link.
-	compat_patch_menu[10].flags = ( quest_header_zelda_version > 0x250 || ( quest_header_zelda_version == 0x250 && quest_header_zelda_build > 28 )  ) ? D_DISABLED : ((emulation_patches[emu210BOMBCHU])?D_SELECTED:0);
+	compat_patch_menu[10].flags = ( quest_header_zelda_version > 0x250 || ( quest_header_zelda_version == 0x250 && quest_header_zelda_build > 29 )  ) ? D_DISABLED : ((emulation_patches[emu210BOMBCHU])?D_SELECTED:0);
 	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
 	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
 	//compat_patch_menu[8].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuFIXTRIFORCECELLAR])?D_SELECTED:0);

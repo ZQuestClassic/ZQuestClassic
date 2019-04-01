@@ -2486,6 +2486,32 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
         set_bit(quest_rules, qr_OFFSCREENWEAPONS, 1);
     }
     
+    //Bombchu fix.
+    if(tempheader.zelda_version == 0x250)
+    {
+	    if ( tempheader.build == 24 ) //2.50.0
+	    {
+		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
+		    emulation_patches[emu210BOMBCHU] = 1;
+	    }
+	    if ( tempheader.build == 28 ) //2.50.1
+	    {
+		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
+		    emulation_patches[emu210BOMBCHU] = 1;
+	    }
+	    if ( tempheader.build == 29 ) //2.50.2
+	    {
+		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
+		    emulation_patches[emu210BOMBCHU] = 0;
+	    }
+	    if ( tempheader.build == 30 ) //2.50.3RC1
+	    {
+		    set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
+		    emulation_patches[emu210BOMBCHU] = 0;
+	    }
+    }
+		    
+    
     //Fuck it. Now the user can toggle this for 2.50.0 and 2.50.1 quests. 
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29)) //Gleeok's thing here. 
     //if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<24)) //ZoriaRPG, here. 
