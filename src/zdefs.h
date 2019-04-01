@@ -848,6 +848,7 @@ enum
 	qr_PARSER_250DIVISION = 80, //2.50 integer division bug emulation
 	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
 	qr_PARSER_SHORT_CIRCUIT, //Default off.
+	qr_PARSER_RELOP_DECIMAL, //Default off
     qr_MAX
 };
 
