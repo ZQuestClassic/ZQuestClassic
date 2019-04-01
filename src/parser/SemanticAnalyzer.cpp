@@ -113,8 +113,8 @@ void SemanticAnalyzer::caseSetOption(ASTSetOption& host, void*)
 	RecursiveVisitor::caseSetOption(host);
 	if (breakRecursion(host)) return;
 
-	// If the option name is "all", set the default option instead.
-	if (host.name == "all")
+	// If the option name is "default", set the default option instead.
+	if (host.name == "default")
 	{
 		CompileOptionSetting setting = host.getSetting(this, scope);
 		if (!setting) return; // error
@@ -920,7 +920,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void*)
 	}
 
 	// Is this a call to a disabled tracing function?
-	if (!*lookupOption(*scope, CompileOption::OPT_LOGGING)
+	if (*lookupOption(*scope, CompileOption::OPT_NO_LOGGING)
 	    && bestFunctions.front()->isTracing())
 	{
 		host.disable();

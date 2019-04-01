@@ -772,7 +772,7 @@ optional<int> BasicScope::getLocalStackOffset(Datum const& datum) const
 FileScope::FileScope(Scope* parent, string const& filename)
 	: BasicScope(parent, NULL), filename_(filename)
 {
-	defaultOption_ = CompileOptionSetting::Default;
+	//defaultOption_ = CompileOptionSetting::Default; //No, let it default to `Inherit`. -V
 }
 
 Scope* FileScope::makeChild(std::string const& name)

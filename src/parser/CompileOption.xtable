@@ -1,5 +1,8 @@
 // Table of compile options.
-//	Name,                                        Default Value
-X(	LOGGING,                                            10000)
-X(	TRUNCATE_DIVISION_BY_LITERAL_BUG,                   00000)
-X(	HEADER_GUARD,                                       30000)
+//	Name,                                                               Default QR,     Default Value
+X(	NO_LOGGING,                                               qr_PARSER_NO_LOGGING,             10000)
+X(	TRUNCATE_DIVISION_BY_LITERAL_BUG,                        qr_PARSER_250DIVISION,             00000)
+X(	SHORT_CIRCUIT,                                         qr_PARSER_SHORT_CIRCUIT,             00000)
+START_GLOBAL(2) //Zero-indexed index of the rule directly above it -V
+//	Name,                                                                        0,     Default Value
+X(	HEADER_GUARD,                                                                0,             30000)

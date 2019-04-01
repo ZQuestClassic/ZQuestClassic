@@ -231,8 +231,8 @@ or_eq		TOKEN( BITORASSIGN );
 	inherit		TOKEN( INHERIT );
 	on			TOKEN( ZTRUE );
 	off			TOKEN( ZFALSE );
-	error		TOKEN( OPTVAL_ERROR );
-	warn		TOKEN( OPTVAL_WARN );
+	error		VALUE( NUMBER, ASTFloat("2", ASTFloat::TYPE_DECIMAL, yylloc) );
+	warn		VALUE( NUMBER, ASTFloat("3", ASTFloat::TYPE_DECIMAL, yylloc) );
 }
 
  /* Strings */

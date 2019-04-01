@@ -754,17 +754,38 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
-
-    //compute both sides
-    visit(host.left.get(), param);
-    addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    visit(host.right.get(), param);
-    addOpcode(new OPopRegister(new VarArgument(EXP2)));
-    castFromBool(result, EXP1);
-    castFromBool(result, EXP2);
-    addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-    addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(2)));
-    addOpcode(new OSetMore(new VarArgument(EXP1)));
+	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
+    if(short_circuit)
+	{
+		int skip = ScriptParser::getUniqueLabelID();
+		//Get left
+		visit(host.left.get(), param);
+		//Check left, skip if false
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		addOpcode(new OGotoTrueImmediate(new LabelArgument(skip)));
+		//Get right
+		visit(host.right.get(), param);
+		Opcode* ocode =  new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1));
+		ocode->setLabel(skip);
+		addOpcode(ocode);
+		addOpcode(new OSetMore(new VarArgument(EXP1)));
+	}
+	else
+	{
+		//Get left
+		visit(host.left.get(), param);
+		//Store left for later
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		//Get right
+		visit(host.right.get(), param);
+		//Retrieve left
+		addOpcode(new OPopRegister(new VarArgument(EXP2)));
+		castFromBool(result, EXP1);
+		castFromBool(result, EXP2);
+		addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(2)));
+		addOpcode(new OSetMore(new VarArgument(EXP1)));
+	}
 }
 
 void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
@@ -774,15 +795,37 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
         return;
     }
-
-    //compute both sides
-    visit(host.left.get(), param);
-    addOpcode(new OPushRegister(new VarArgument(EXP1)));
-    visit(host.right.get(), param);
-    addOpcode(new OPopRegister(new VarArgument(EXP2)));
-    addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-    addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
-    addOpcode(new OSetMore(new VarArgument(EXP1)));
+	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
+	if(short_circuit)
+	{
+		int skip = ScriptParser::getUniqueLabelID();
+		//Get left
+		visit(host.left.get(), param);
+		//Check left, skip if true
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
+		addOpcode(new OGotoMoreImmediate(new LabelArgument(skip)));
+		//Get right
+		visit(host.right.get(), param);
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
+		//Set output
+		Opcode* ocode = new OSetMore(new VarArgument(EXP1));
+		if(short_circuit) ocode->setLabel(skip);
+		addOpcode(ocode);
+	}
+	else
+	{
+		//Get left
+		visit(host.left.get(), param);
+		//Store left for later
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		//Get right
+		visit(host.right.get(), param);
+		//Retrieve left
+		addOpcode(new OPopRegister(new VarArgument(EXP2)));
+		addOpcode(new OAddRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
+		addOpcode(new OSetMore(new VarArgument(EXP1)));		
+	}
 }
 
 void BuildOpcodes::caseExprGT(ASTExprGT& host, void* param)

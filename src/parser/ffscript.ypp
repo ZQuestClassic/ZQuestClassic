@@ -188,8 +188,6 @@ extern YYLTYPE noloc;
 %token ENDLINE
 %token OPTION
 %token INHERIT
-%token OPTVAL_ERROR
-%token OPTVAL_WARN
 
  // Others
 %token IDENTIFIER
@@ -390,16 +388,15 @@ Option :
 		$$ = new ASTSetOption(
 				name->getValue(), CompileOptionSetting::Default, @$);
 		delete name;}
-	| HASH OPTION IDENTIFIER OPTVAL_ERROR ENDLINE {
-		ASTString* name = (ASTString*)$3;
-		ASTExprConst* val = new ASTExprConst(new ASTNumberLiteral(new ASTFloat(OPT_ERROR, ASTFloat::TYPE_DECIMAL, @$), @$), @$);
-		$$ = new ASTSetOption(name->getValue(), val, @$);
-		delete name;}
-	| HASH OPTION IDENTIFIER OPTVAL_WARN ENDLINE {
-		ASTString* name = (ASTString*)$3;
-		ASTExprConst* val = new ASTExprConst(new ASTNumberLiteral(new ASTFloat(OPT_WARN, ASTFloat::TYPE_DECIMAL, @$), @$), @$);
-		$$ = new ASTSetOption(name->getValue(), val, @$);
-		delete name;}
+	| HASH OPTION DEFAULT Expression_Constant ENDLINE {
+		ASTExprConst* expr = (ASTExprConst*)$4;
+		$$ = new ASTSetOption("default", expr, @$);}
+	| HASH OPTION DEFAULT INHERIT ENDLINE {
+		$$ = new ASTSetOption(
+				"default", CompileOptionSetting::Inherit, @$);}
+	| HASH OPTION DEFAULT DEFAULT ENDLINE {
+		$$ = new ASTSetOption(
+				"default", CompileOptionSetting::Default, @$);}
 	;
 
 ////////////////////////////////////////////////////////////////

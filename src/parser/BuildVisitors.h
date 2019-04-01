@@ -4,6 +4,7 @@
 #include "ASTVisitors.h"
 #include "ByteCode.h"
 #include "ZScript.h"
+#include "Scope.h"
 #include <algorithm>
 #include <vector>
 #include <set>
