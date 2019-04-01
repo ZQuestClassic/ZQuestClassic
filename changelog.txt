@@ -2,6 +2,16 @@ ChangeLog for 2.53.0
 
 //Gamma 8
 
+Added the following to std.zh:
+	const float STD_VERSION;
+	float __stdzh_getVersion();
+	bool HasKey(int level);
+	bool HasKey();
+	int NumKeys(int level);
+	int NumKeys();
+	bool ConsumeKey(int level);
+	bool ConsumeKey();
+
 Revamped all keyboard key dialogues:
 	Added the ability to clear any keyboard key setting from 
 		the GUI using a new 'Clear' button. 
