@@ -3,6 +3,7 @@
 
 #include "../zsyssimple.h"
 #include "CompileError.h"
+#include "Scope.h"
 #include <assert.h>
 #include <cstdarg>
 
@@ -25,6 +26,7 @@ bool RecursiveVisitor::breakRecursion(void* param) const
 
 void RecursiveVisitor::handleError(CompileError const& error)
 {
+	bool skipError = (scope && *ZScript::lookupOption(*scope, CompileOption::OPT_NO_ERROR_HALT) != 0);
 	// Scan through the node stack looking for a handler.
 	for (vector<AST*>::const_reverse_iterator it = recursionStack.rbegin();
 		 it != recursionStack.rend(); ++it)
@@ -43,7 +45,7 @@ void RecursiveVisitor::handleError(CompileError const& error)
 			if (*errorId == *error.getId() * 10000L)
 			{
 				ancestor.compileErrorCatches.erase(it);
-				if (error.isStrict())
+				if (error.isStrict() && !skipError)
 				{
 					ancestor.errorDisabled = true;
 					breakNode = &ancestor;
@@ -54,7 +56,9 @@ void RecursiveVisitor::handleError(CompileError const& error)
 	}
 
 	// Actually handle the error.
-	if (error.isStrict()) failure = true;
+	if (error.isStrict())
+		if(skipError) failure_skipped = true;
+		else failure = true;
 	box_out_err(error);
 }
 
