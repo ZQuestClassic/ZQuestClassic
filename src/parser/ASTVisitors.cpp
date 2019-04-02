@@ -18,6 +18,11 @@ bool RecursiveVisitor::breakRecursion(AST& host, void* param) const
 	return host.errorDisabled || failure || breakNode;
 }
 
+bool RecursiveVisitor::breakRecursion(void* param) const
+{
+	return failure || breakNode;
+}
+
 void RecursiveVisitor::handleError(CompileError const& error)
 {
 	// Scan through the node stack looking for a handler.

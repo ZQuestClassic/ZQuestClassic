@@ -284,6 +284,7 @@ namespace ZScript
 		// of recursion. Should be called with the current node and param between
 		// each action that can fail.
 		virtual bool breakRecursion(AST& host, void* param = NULL) const;
+		virtual bool breakRecursion(void* param = NULL) const;
 
 		// Current stack of visited nodes.
 		std::vector<AST*> recursionStack;
