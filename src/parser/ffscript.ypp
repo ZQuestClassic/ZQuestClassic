@@ -273,6 +273,7 @@ Namespace :
 			ASTNamespace* namesp = (ASTNamespace*)$4;
 			namesp->setName(components[1]);
 			namesp->location = @$;
+			top->namespaces.push_back(namesp);
 			delete idens;
 			$$ = top;
 		}

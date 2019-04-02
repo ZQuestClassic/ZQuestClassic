@@ -51,28 +51,43 @@ Scope* ZScript::getDescendant(Scope const& scope, vector<string> const& names, v
 	return child;
 }
 
-Scope* ZScript::lookupScope(Scope const& scope, string const& name)
+Scope* ZScript::lookupScope(Scope const& scope, string const& name, AST& host, CompileErrorHandler* errorHandler)
 {
 	Scope* current = const_cast<Scope*>(&scope);
-	while (current)
+	Scope* first = current;
+	Scope* found = NULL;
+	while (current && !found)
 	{
 		if (Scope* child = current->getChild(name))
-	return child;
-
-		if (optional<string> const& currentName = current->getName())
-			if (*currentName == name)
-				return current;
+		{
+			if(current->isFile() || current->isRoot()) //Only continue if the scope was file/root
+				found = child;
+			else return child;
+		}
 
 		current = current->getParent();
 	}
-
-	return NULL;
+	//handle Using Namespaces
+	vector<NamespaceScope*> namespaces = lookupUsingNamespaces(*first);
+	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+		it != namespaces.end(); ++it)
+	{
+		Scope* usingscope = *it;
+		if (Scope* child = usingscope->getChild(name))
+		{
+			if(found && found != child)
+				errorHandler->handleError(CompileError::TooManyVar(&host, name));
+			
+			found = child;
+		}
+	}
+	return found;
 }
 
-Scope* ZScript::lookupScope(Scope const& scope, vector<string> const& names, std::vector<std::string> const& delimiters)
+Scope* ZScript::lookupScope(Scope const& scope, vector<string> const& names, std::vector<std::string> const& delimiters, AST& host, CompileErrorHandler* errorHandler)
 {
 	// Travel as far up the tree as needed for the first scope.
-	Scope* current = lookupScope(scope, names.front());
+	Scope* current = lookupScope(scope, names.front(), host, errorHandler);
 	if (!current) return NULL;
 	//string str = ;
 	if(current->isScript() && delimiters.front().compare(".") || current->isNamespace() && delimiters.front().compare("::"))
@@ -89,9 +104,16 @@ vector<Scope*> ZScript::lookupScopes(Scope const& scope, vector<string> const& n
 	for (Scope* current = const_cast<Scope*>(&scope);
 	     current; current = current->getParent())
 	{
-		if(current == getRoot(*current) && scopes.size() != 0)
+		if(current->isRoot() && scopes.size() != 0)
 			break;
 		if (Scope* descendant = getDescendant(*current, names, delimiters))
+			scopes.push_back(descendant);
+	}
+	vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
+	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+		it != namespaces.end(); ++it)
+	{
+		if (Scope* descendant = getDescendant(**it, names, delimiters))
 			scopes.push_back(descendant);
 	}
 	return scopes;
@@ -160,27 +182,7 @@ Datum* ZScript::lookupDatum(Scope& scope, std::string const& name, ASTExprIdenti
 		}
 	}
 	if(!useNamespace) return datum; //End early
-	current = &scope;
-	set<NamespaceScope*> namespaceSet;
-	bool foundFile = false;
-	for (; current; current = current->getParent())
-	{
-		vector<NamespaceScope*> currentNamespaces = current->getUsingNamespaces();
-		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
-		if(current->isFile())
-		{
-			foundFile = true;
-			break; //Don't go to parent file!
-		}
-	}
-	if(!foundFile) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) -V
-	{
-		vector<NamespaceScope*> currentNamespaces = scope.getFile()->getUsingNamespaces();
-		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
-	}
-	vector<NamespaceScope*> currentNamespaces = getRoot(scope)->getUsingNamespaces();
-	namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
-	vector<NamespaceScope*> namespaces(namespaceSet.begin(), namespaceSet.end());
+	vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
 	for(vector<NamespaceScope*>::iterator it = namespaces.begin();
 		it != namespaces.end(); ++it)
 	{
@@ -203,10 +205,10 @@ Datum* ZScript::lookupDatum(Scope& scope, ASTExprIdentifier& host, CompileErrorH
 	if (names.size() == 0)
 		return NULL;
 	else if (names.size() == 1)
-		return lookupDatum(scope, names[0], host, errorHandler, true);
+		return lookupDatum(scope, names[0], host, errorHandler, true); //This is a direct var name, i.e. `x`. Check UsingNamespaces for it, too! -V
 	vector<string> childNames(names.begin(), --names.end());
-	if (Scope* child = lookupScope(scope, childNames, host.delimiters))
-		return lookupDatum(*child, names.back(), host, errorHandler);
+	if (Scope* child = lookupScope(scope, childNames, host.delimiters, host, errorHandler))
+		return lookupDatum(*child, names.back(), host, errorHandler); //lookupScope() handles UsingNamespaces; don't handle it here! -V
 
 	return NULL;
 }
@@ -229,6 +231,7 @@ Function* ZScript::lookupSetter(Scope const& scope, string const& name)
 	return NULL;
 }
 
+/* Nothing calls this. Commenting it out so it can stay for reference. Not updating it, though. -V
 Function* ZScript::lookupFunction(Scope const& scope,
                          FunctionSignature const& signature)
 {
@@ -237,7 +240,7 @@ Function* ZScript::lookupFunction(Scope const& scope,
 		if (Function* function = current->getLocalFunction(signature))
 			return function;
 	return NULL;
-}
+}*/
 
 vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, bool useNamespace)
 {
@@ -245,26 +248,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, boo
 	Scope const* current = &scope;
 	if(useNamespace)
 	{
-		set<NamespaceScope*> namespaceSet;
-		bool foundFile = false;
-		for (; current; current = current->getParent())
-		{
-			vector<NamespaceScope*> currentNamespaces = current->getUsingNamespaces();
-			namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
-			if(current->isFile())
-			{
-				foundFile = true;
-				break; //Don't go to parent file!
-			}
-		}
-		if(!foundFile) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) -V
-		{
-			vector<NamespaceScope*> currentNamespaces = scope.getFile()->getUsingNamespaces();
-			namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
-		}
-		vector<NamespaceScope*> currentNamespaces = getRoot(scope)->getUsingNamespaces();
-		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
-		vector<NamespaceScope*> namespaces(namespaceSet.begin(), namespaceSet.end());
+		vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
 		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
 			it != namespaces.end(); ++it)
 		{
@@ -295,7 +279,7 @@ vector<Function*> ZScript::lookupFunctions(
 	string const& name = names.back();
 
 	vector<string> ancestry(names.begin(), --names.end());
-	vector<Scope*> scopes = lookupScopes(scope, ancestry, delimiters);
+	vector<Scope*> scopes = lookupScopes(scope, ancestry, delimiters); //lookupScopes handles `UsingNamespaces`.
 	for (vector<Scope*>::const_iterator it = scopes.begin();
 	     it != scopes.end(); ++it)
 	{
@@ -321,6 +305,35 @@ optional<long> ZScript::lookupOption(Scope const& scope, CompileOption option)
 		return *setting.getValue();
 	}
 	return *option.getDefault();
+}
+
+vector<NamespaceScope*> ZScript::lookupUsingNamespaces(Scope const& scope)
+{
+	Scope* first = const_cast<Scope*>(&scope);
+	Scope* current = first;
+	set<NamespaceScope*> namespaceSet;
+	bool foundFile = false;
+	for (; current; current = current->getParent())
+	{
+		if(current->isRoot()) break; //Don't check RootScope here!
+		vector<NamespaceScope*> currentNamespaces = current->getUsingNamespaces();
+		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+		if(current->isFile())
+		{
+			foundFile = true;
+			break; //Don't go to parent file!
+		}
+	}
+	if(!foundFile) //Get the file this is in, if it was not found through the looping. (i.e. this is within a namespace) -V
+	{
+		vector<NamespaceScope*> currentNamespaces = first->getFile()->getUsingNamespaces();
+		namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+	}
+	//Get `always using` things
+	vector<NamespaceScope*> currentNamespaces = getRoot(*first)->getUsingNamespaces();
+	namespaceSet.insert(currentNamespaces.begin(), currentNamespaces.end());
+	vector<NamespaceScope*> result(namespaceSet.begin(), namespaceSet.end());
+	return result;
 }
 
 // Stack
@@ -463,23 +476,13 @@ int BasicScope::useNamespace(vector<std::string> names, vector<std::string> deli
 		++numMatches;
 	}
 	//
-	for(vector<NamespaceScope*>::iterator it = usingNamespaces.begin();
-		it != usingNamespaces.end(); ++it)
+	if(namesp)
 	{
-		NamespaceScope* scope = *it;
-		vector<Scope*> scopes = lookupScopes(*this, ancestry, delimiters);
-		for (vector<Scope*>::const_iterator it = scopes.begin();
-			 it != scopes.end(); ++it)
+		vector<NamespaceScope*> namespaces = lookupUsingNamespaces(*this);
+		for(vector<NamespaceScope*>::iterator it = usingNamespaces.begin();
+			it != usingNamespaces.end(); ++it)
 		{
-			Scope& current = **it;
-			if(namesp)
-			{
-				if(current == namesp) return -1;
-			}
-			Scope* tmp = current.getChild(name);
-			if(!tmp || !tmp->isNamespace()) continue;
-			namesp = static_cast<NamespaceScope*>(tmp);
-			++numMatches;
+			if(*it == namesp) return -1; //Already using this namespace! -V
 		}
 	}
 	if(!namesp) return 0;

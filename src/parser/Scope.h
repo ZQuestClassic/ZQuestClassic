@@ -179,10 +179,10 @@ namespace ZScript
 			Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters);
 
 	// Find a scope with the given name in this scope.
-	Scope* lookupScope(Scope const&, std::string const& name);
+	Scope* lookupScope(Scope const&, std::string const& name, AST& host, CompileErrorHandler* errorHandler);
 
 	// Find first scope with the given ancestry in this scope.
-	Scope* lookupScope(Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters);
+	Scope* lookupScope(Scope const&, std::vector<std::string> const& names, std::vector<std::string> const& delimiters, AST& host, CompileErrorHandler* errorHandler);
 
 	// Find all scopes with the given ancestry in this scope. Note than an
 	// empty name list will the current scope and its ancestry.
@@ -215,7 +215,7 @@ namespace ZScript
 	Function* lookupSetter(Scope const&, std::string const& name);
 
 	// Attempt to resolve signature to a function under scope.
-	Function* lookupFunction(Scope const&, FunctionSignature const&);
+	//Function* lookupFunction(Scope const&, FunctionSignature const&); //Disabled, as nothing uses this. -V
 	
 	// Attempt to resolve name to possible functions under scope.
 	std::vector<Function*> lookupFunctions(
@@ -227,6 +227,8 @@ namespace ZScript
 	// the provided option is invalid. If the option is valid but not set,
 	// returns the default value for it.
 	optional<long> lookupOption(Scope const&, CompileOption);
+	
+	std::vector<NamespaceScope*> lookupUsingNamespaces(Scope const& scope);
 
 	////////////////
 	// Stack
