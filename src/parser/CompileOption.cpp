@@ -71,13 +71,10 @@ namespace // file local
 	enum Id
 	{
 		ID_START = -1,
-#		define X(NAME, DEFAULTQR, DEFAULTVAL) \
+#		define X(NAME, DEFAULTQR, TYPE, DEFAULTVAL) \
 		ID_##NAME,
-#		define START_GLOBAL(NUM) \
-		ID_GLOBAL = NUM,
 #		include "CompileOption.xtable"
 #		undef X
-#		undef START_GLOBAL
 		ID_END
 	};
 
@@ -86,9 +83,9 @@ namespace // file local
 	{
 		string name;
 		CompileOptionValue defaultValue;
-		int defaultqr;
-		Entry(string name = "", int defaultQR = 0L, long defaultValue = 0L)
-			: name(name), defaultValue(defaultValue), defaultqr(defaultQR) {}
+		int defaultqr, type;
+		Entry(string name = "", int defaultQR = 0, int type = 0, long defaultValue = 0L)
+			: name(name), defaultValue(defaultValue), type(type), defaultqr(defaultQR) {}
 	};
 
 	// Table holding option data.
@@ -99,60 +96,52 @@ namespace // file local
 };
 
 // Define static instance for each option.
-#define X(NAME, DEFAULTQR, DEFAULTVAL) \
+#define X(NAME, DEFAULTQR, TYPE, DEFAULTVAL) \
 CompileOption CompileOption::OPT_##NAME(ID_##NAME);
-#define START_GLOBAL(NUM) \
-//
 #include "CompileOption.xtable"
 #undef X
-#undef START_GLOBAL
 
 CompileOption CompileOption::Invalid(-1);
 
 void CompileOption::initialize()
 {
 	static bool initialized = false;
-	if (initialized)
-	{
-		//Load updates to the default options, regardless -V
-		for (int i = 0; i < ID_END; ++i)
-		{
-			if(i > ID_GLOBAL)
-			{
-				//Read from config ints.
-			}
-			else if(entries[i].defaultqr) //If this has a QR set in the xtable, use that
-			{
-				entries[i].defaultValue = get_bit(quest_rules, entries[i].defaultqr) ? 10000L : 0L;
-			}
-		}
-	}
-	else
+	if (!initialized)
 	{
 		// Fill entries table from xtable.
-#		define X(NAME, DEFAULTQR, DEFAULTVAL) \
-		entries[ID_##NAME] = Entry(#NAME, DEFAULTQR, DEFAULTVAL);
-#		define START_GLOBAL(NUM) \
-		//
+#		define X(NAME, DEFAULTQR, TYPE, DEFAULTVAL) \
+		entries[ID_##NAME] = Entry(#NAME, DEFAULTQR, TYPE, DEFAULTVAL);
 #		include "CompileOption.xtable"
 #		undef X
-#		undef START_GLOBAL
 
 		// Fill nameMap from entries table.
 		for (int i = 0; i < ID_END; ++i)
 		{
-			if(i > ID_GLOBAL)
-			{
-				//Read from config ints.
-			}
-			else if(entries[i].defaultqr) //If this has a QR set in the xtable, use that
-			{
-				entries[i].defaultValue = get_bit(quest_rules, entries[i].defaultqr) ? 10000L : 0L;
-			}
 			nameMap[entries[i].name] = CompileOption(i);
 		}
 		
 		initialized = true;
+	}
+	//Update default values, always:
+	updateDefaults();
+}
+
+void CompileOption::updateDefaults()
+{
+	for (int i = 0; i < ID_END; ++i)
+	{
+		switch(entries[i].type)
+		{
+			case OPTTYPE_QR:
+				if(entries[i].defaultqr)
+					entries[i].defaultValue = get_bit(quest_rules, entries[i].defaultqr) ? 10000L : 0L;
+				break;
+			
+			case OPTTYPE_CONFIG:
+				if(int temp = get_config_int("Compiler", entries[i].name.c_str(), 0))
+					entries[i].defaultValue = temp * 10000L;
+				break;
+		}
 	}
 }
 

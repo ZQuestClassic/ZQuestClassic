@@ -14,9 +14,10 @@ using namespace ZScript;
 
 BuildOpcodes::BuildOpcodes(Scope* curScope)
 	: returnlabelid(-1), continuelabelid(-1), breaklabelid(-1), 
-	  returnRefCount(0), continueRefCount(0), breakRefCount(0), scope(curScope)
+	  returnRefCount(0), continueRefCount(0), breakRefCount(0)
 {
 	opcodeTargets.push_back(&result);
+	scope = curScope;
 }
 
 void BuildOpcodes::visit(AST& node, void* param)

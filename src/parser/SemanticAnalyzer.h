@@ -86,12 +86,10 @@ namespace ZScript
 		void caseOptionValue(ASTOptionValue& host, void* = NULL);
 
 		////////////////
-		bool hasFailed() const {return failure;}
+		bool hasFailed() const {return failure || failure_skipped;}
 
 	private:
 		ZScript::Program& program;
-		// Current scope.
-		ZScript::Scope* scope;
 		// Current function return type.
 		ZScript::DataType const* returnType;
 
