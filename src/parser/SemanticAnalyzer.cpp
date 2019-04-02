@@ -78,9 +78,11 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		ASTDataDecl& parameter = **it;
 		string const& name = parameter.name;
 		DataType const& type = *parameter.resolveType(&functionScope, this);
-		if (breakRecursion(parameter)) return;
+		if (breakRecursion(parameter)) continue;
 		Variable::create(functionScope, parameter, type, this);
 	}
+	if(breakRecursion()) return;
+	
 
 	// If this is the script's run method, add "this" to the scope.
 	if (isRun(function))
