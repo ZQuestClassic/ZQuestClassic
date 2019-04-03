@@ -25,6 +25,8 @@ extern int screen_scale;
 extern int joystick_index;
 int logovolume = 0;
 
+extern FONT* dsphantompfont;
+
 static void SetCols(RGB* pal)
 {
 
