@@ -1,7 +1,12 @@
 ChangeLog for 2.53.0 
 
-//Gamma 8
+//Release 1
 
+Cleaned up the Cheat Modifier Key dialogue.
+Added 20th Anniversary banner.
+	( ZoriaRPG, 3rd April, 2019 )
+
+//Gamma 8
 Revised the Bombchu emulation behaviour, and toggled the QR based on
 	quest header data.
 	2.50.0 and 2.50.1 quests have superbomb enabled by default.
