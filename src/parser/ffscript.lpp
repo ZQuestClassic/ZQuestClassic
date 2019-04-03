@@ -228,6 +228,7 @@ or_eq		TOKEN( BITORASSIGN );
 	\\\n		NEWLINE;
 	\n			NEWLINE; BEGIN( INITIAL ); TOKEN( ENDLINE );
 	option		TOKEN( OPTION );
+	include		BEGIN( IMPORTING ); TOKEN( INCLUDE );
 	inherit		TOKEN( INHERIT );
 	on			TOKEN( ZTRUE );
 	off			TOKEN( ZFALSE );
@@ -322,11 +323,11 @@ or_eq		TOKEN( BITORASSIGN );
  /* Import String */
  <IMPORTING>{
 	<<EOF>>			{
-		yymsg("ERROR: Import without string", srow, scol);
+		yymsg("ERROR: Import/include without string", srow, scol);
 		TERMINATE;
 	}
 	[^\"\n]*\n]		{ //newline, without open quotation
-		yymsg("ERROR: Import without string", srow, scol);
+		yymsg("ERROR: Import/include without string", srow, scol);
 		TERMINATE;
 	}
 	\" {

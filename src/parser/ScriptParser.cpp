@@ -21,6 +21,8 @@
 #include "ZScript.h"
 using namespace std;
 using namespace ZScript;
+
+extern char ZQincludePaths[MAX_INCLUDE_PATHS][512];
 //#define PARSER_DEBUG
 
 ScriptsData* compile(string const& filename);
@@ -139,7 +141,41 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 		ASTImportDecl& importDecl = **it;
 
 		// Parse the imported file.
-		string filename = prepareFilename(importDecl.getFilename());
+		string* fname = NULL;
+		string includePath;
+		if(importDecl.isInclude())
+		{
+			string importname = importDecl.getFilename();
+			int importfound = importname.find_first_not_of("/\\");
+			if(importfound != string::npos) //If the import is not just `/`'s and `\`'s...
+			{
+				if(importfound != 0)
+					importname = importname.substr(importfound); //Remove leading `/` and `\`
+				//Convert the include string to a proper import path
+				for ( int q = 0; q < MAX_INCLUDE_PATHS && !fname; ++q ) //Loop through all include paths, or until valid file is found
+				{
+					if( ZQincludePaths[q][0] != '\0' )
+					{
+						includePath = &*ZQincludePaths[q];
+						//Add a `/` to the end of the include path, if it is missing
+						int lastnot = includePath.find_last_not_of("/\\");
+						int last = includePath.find_last_of("/\\");
+						if(lastnot != string::npos)
+						{
+							if(last == string::npos || last < lastnot)
+								includePath += "/";
+						}
+						includePath = prepareFilename(includePath + importname);
+						FILE* f = fopen(includePath.c_str(), "r");
+						if(!f) continue;
+						fclose(f);
+						fname = &includePath;
+					}
+				}
+			}
+			//Now just run it as though it were an import!
+		}
+		string filename = fname ? *fname : prepareFilename(importDecl.getFilename());
 		auto_ptr<ASTFile> imported(parseFile(filename));
 		if (!imported.get())
 		{

@@ -1,6 +1,7 @@
 #ifndef _FFSCRIPT_H_
 #define _FFSCRIPT_H_
 #include "zdefs.h"
+#include "parser/parserDefs.h"
 #include <utility>
 #include <string>
 #include <list>

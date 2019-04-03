@@ -605,7 +605,8 @@ namespace ZScript
 	{
 	public:
 		ASTImportDecl(std::string const& filename,
-		              LocationData const& location = LocationData::NONE);
+		              LocationData const& location = LocationData::NONE,
+					  bool isInclude = false);
 		ASTImportDecl* clone() /*override*/ const {
 			return new ASTImportDecl(*this);}
     
@@ -613,13 +614,16 @@ namespace ZScript
 
 		Type getDeclarationType() const /*override*/ {return TYPE_IMPORT;}
 
+		void setFilename(std::string name) {filename_ = name;}
 		std::string const& getFilename() const {return filename_;}
 		ASTFile* getTree() {return tree_.get();}
 		ASTFile const* getTree() const {return tree_.get();}
 		void giveTree(ASTFile* tree) {tree_ = tree;}
+		bool isInclude() const {return include_;}
 	
 	private:
 		std::string filename_;
+		bool include_;
 		owning_ptr<ASTFile> tree_;
 	};
 

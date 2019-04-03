@@ -10,5 +10,7 @@
 #define OPTTYPE_QR                  0
 #define OPTTYPE_CONFIG              1
 
+#define MAX_INCLUDE_PATHS           5
+
 #endif
 

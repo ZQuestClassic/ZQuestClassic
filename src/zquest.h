@@ -9,6 +9,7 @@
 #include "zcmusic.h"
 #include "sprite.h"
 #include "gamedata.h"
+#include "parser/parserDefs.h"
 
 #define  INTERNAL_VERSION  0xA721
 
