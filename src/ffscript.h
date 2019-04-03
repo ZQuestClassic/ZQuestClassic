@@ -163,6 +163,7 @@ bool itemScriptEngine();
 void lweaponScriptEngine();
 void eweaponScriptEngine();
 bool newScriptEngine();
+void initIncludePaths();
 
 /*
 long getQuestHeaderInfo(int type)
@@ -218,6 +219,9 @@ long FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
 long FF_subscreen_dimensions[4];
 long FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
 long FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
+
+char includePaths[MAX_INCLUDE_PATHS][512];
+char includePathString[(MAX_INCLUDE_PATHS+1)*512];
 
 #define FFSCRIPTCLASS_CLOCKS 10
 long FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 

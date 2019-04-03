@@ -212,6 +212,7 @@ void loadlvlpal(int level);
 bool get_debug();
 void set_debug(bool d);
 
+
 // quest data
 extern zquestheader        header;
 extern byte                quest_rules[QUESTRULES_NEW_SIZE];

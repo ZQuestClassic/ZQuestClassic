@@ -464,8 +464,6 @@ void myvsync_callback()
 
 END_OF_FUNCTION(myvsync_callback)
 
-
-
 // quest data
 zquestheader header;
 byte                quest_rules[QUESTRULES_NEW_SIZE];
@@ -26537,7 +26535,32 @@ void FFScript::init()
 	}
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
+	initIncludePaths();
 	
+}
+
+void FFScript::initIncludePaths()
+{
+	memset(includePaths,0,sizeof(includePaths));
+	memset(includePathString,0,sizeof(includePathString));
+	strcpy(includePathString,get_config_string("Compiler","include_path","include/"));
+	includePathString[((MAX_INCLUDE_PATHS+1)*512)-1] = '\0';
+	al_trace("Full path string is: %s\n",includePathString);
+	int pos = 0; int dest = 0; int pathnumber = 0;
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	{
+		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		{
+			includePaths[q][dest] = includePathString[pos];
+			pos++;
+			dest++;
+		}
+		++pos;
+		dest = 0;
+	}
+
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+		al_trace("Include path %d: %s\n",q,includePaths[q]);
 }
 
 void FFScript::setFFRules()
