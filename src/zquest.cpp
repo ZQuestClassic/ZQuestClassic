@@ -19852,23 +19852,115 @@ int onZScriptSettings()
     return D_O_K;
 }
 
+static int compiler_tab_list_global[] =
+{
+	10,11,12,13,14,15,16,
+	-1
+};
+
+static int compiler_tab_list_quest[] =
+{
+    6,7,8,9,
+	-1
+};
+
+static TABPANEL compiler_options_tabs[] =
+{
+    // (text)
+    { (char *)"Global Options",  D_SELECTED,  compiler_tab_list_global, 0, NULL },
+    { (char *)"Quest-Specific Options",  0,           compiler_tab_list_quest, 0, NULL },
+    { NULL,         0,           NULL, 0, NULL }
+};
+
+
+//static char zcompiler_halttype_str_buf[32];
+
+const char *zcompiler_haltlist(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,1);
+        
+	switch(index)
+        {
+        case 0:
+            return "Halt";
+            
+        case 1:
+            return "Do Not Halt";
+        }
+	
+    }
+    
+    *list_size = 2;
+    return NULL;
+}
+
+static ListData zcompiler_halt_list(zcompiler_haltlist, &pfont);
+
+const char *zcompiler_guardlist(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,3);
+        
+	switch(index)
+        {
+        case 0:
+            return "Off";
+            
+        case 1:
+            return "On";
+	
+	case 2:
+            return "Error";
+	
+	case 3:
+            return "Warn";
+        }
+	
+    }
+    
+    *list_size = 4;
+    return NULL;
+}
+
+static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
+
+
+char tempincludepath[(MAX_INCLUDE_PATHS+1)*512];
+
 static DIALOG zscript_parser_dlg[] =
 {
     /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
     { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
     { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
+    //{ d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
+    { jwin_tab_proc,            4,     23,    252,    182,    vc(0),      vc(15),      0,    0,          0,    0, (void *) compiler_options_tabs,     NULL, (void *)zscript_parser_dlg },
     // 3
     { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
     
     // rules //6
-    { jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
-    { jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
-    { jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
-    { jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Relational Operators Give 0.0001 For True", NULL, NULL },
-    
+    { jwin_check_proc,      10, 32+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
+    { jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
+    { jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
+    { jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Relational Operators Give 0.0001 For True", NULL, NULL },
+    //10
+    { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
+    { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
+   
+    { jwin_text_proc,           10,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) "Halt On Error:",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     60,     32+10,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_halt_list,						 NULL,   NULL 				   },
+    { jwin_text_proc,           10,     38+24,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) "Header Guard:",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     60,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
+    { jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) "Include Paths:",                  NULL,   NULL                  },
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -19890,10 +19982,27 @@ int onZScriptCompilerSettings()
         
     zscript_parser_dlg[0].dp2=lfont;
     
+    zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
+    zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
+    
+    //memset(tempincludepath,0,sizeof(tempincludepath));
+    strcpy(tempincludepath,FFCore.includePathString);
+    //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
+    zscript_parser_dlg[10].dp = tempincludepath;
+   
     for(int i=0; zscripparsertrules[i]!=-1; i++)
     {
+	    //This loop ignores trying to set bits in quest_rules, if the option is on the global settings tab.
+	    //These settings are stored in zquest.cfg, not in the quest file. -ZoriaRPG (3rd April, 2019 )
+	    for ( int q = 0; q < (sizeof(compiler_tab_list_global)/4); q++ ) //Only if the bit is quest-based, in quest_rules.
+	    {
+		if ( compiler_tab_list_global[q] == i ) continue;
+		    
+	    }
         zscript_parser_dlg[i+6].flags = get_bit(quest_rules,zscripparsertrules[i]) ? D_SELECTED : 0;
     }
+    
+ 
     
     int ret = zc_popup_dialog(zscript_parser_dlg,4);
     
@@ -19905,6 +20014,13 @@ int onZScriptCompilerSettings()
         {
             set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
         }
+	al_trace("Current include path string: %s\n", tempincludepath);
+	memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
+	strcpy(FFCore.includePathString,tempincludepath);
+	//set_config_string("Compiler","include_path",FFCore.includePathString);
+	set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
+	set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+	save_config_file();
     }
     
     return D_O_K;
@@ -25799,6 +25915,7 @@ int save_config_file()
     chop_path(tmusicpath2);
     
 	set_config_string("ZCMODULE","current_module",moduledata.module_name);
+	set_config_string("Compiler","include_path",FFCore.includePathString);
 	
     set_config_string("zquest",data_path_name,datapath2);
     set_config_string("zquest",midi_path_name,midipath2);
