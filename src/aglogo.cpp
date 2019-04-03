@@ -25,6 +25,8 @@ extern int screen_scale;
 extern int joystick_index;
 int logovolume = 0;
 
+extern FONT* dsphantompfont;
+
 static void SetCols(RGB* pal)
 {
 
@@ -147,7 +149,9 @@ int aglogo(BITMAP *frame, BITMAP *firebuf, int resx, int resy)
         CopyAvg(firebuf);
         blit(firebuf,frame,8,0,0,0,320,198);
         draw_rle_sprite(frame,(RLE_SPRITE*)data[RLE_AGTEXT].dat,24,90);
-        vsync();
+        textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79, 170, 2, -1);
+	 
+	vsync();
         
         if(sbig)
             stretch_blit(frame,screen, 0,0,320,198, (resx-(320*screen_scale))>>1, (resy-(198*screen_scale))>>1, 320*screen_scale,198*screen_scale);

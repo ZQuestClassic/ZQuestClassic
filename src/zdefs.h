@@ -101,11 +101,11 @@
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
 #define VERSION_BUILD       41                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 16"                    //version of the program as presented in text
-#define IS_BETA             -16                         //is this a beta? (1: beta, -1: alpha)
-#define VERSION_BETA        16
-#define DATE_STR            "1st April, 2019"
-#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 16"
+#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 17"                    //version of the program as presented in text
+#define IS_BETA             -17                         //is this a beta? (1: beta, -1: alpha)
+#define VERSION_BETA        17
+#define DATE_STR            "3rd April, 2019"
+#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 17"
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -125,6 +125,8 @@
 
 #define MAX_SCRIPT_REGISTERS 1024
 #define MAX_SCRIPT_REGISTERS_250 256
+
+#define MAX_INCLUDE_PATHS 3
 
 enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_211B18, ENC_METHOD_MAX};
 
@@ -845,7 +847,7 @@ enum
 	qr_SIDEVIEWTRIFORCECELLAR,
 	
 	//ZScript Parser //room for 20 of these
-	qr_PARSER_250DIVISION = 80, //2.50 integer division bug emulation
+	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation
 	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
 	qr_PARSER_SHORT_CIRCUIT, //Default off.
 	qr_PARSER_RELOP_DECIMAL, //Default off

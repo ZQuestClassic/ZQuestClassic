@@ -95,9 +95,6 @@ namespace ZScript
 	
 		void deallocateArrayRef(long arrayRef);
 		void deallocateRefsUntilCount(int count);
-
-		// Current scope.
-		ZScript::Scope* scope;
 		
 		vector<Opcode *> result;
 		int returnlabelid;

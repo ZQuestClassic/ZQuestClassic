@@ -178,7 +178,7 @@ namespace ZScript
 	class RecursiveVisitor : public ASTVisitor, public CompileErrorHandler
 	{
 	public:
-		RecursiveVisitor() : failure(false), breakNode(NULL) {}
+		RecursiveVisitor() : failure(false), breakNode(NULL), failure_skipped(false) {}
 	
 		// Mark as having failed.
 		void fail() {failure = true;}
@@ -284,7 +284,10 @@ namespace ZScript
 		// of recursion. Should be called with the current node and param between
 		// each action that can fail.
 		virtual bool breakRecursion(AST& host, void* param = NULL) const;
+		virtual bool breakRecursion(void* param = NULL) const;
 
+		//Current scope
+		ZScript::Scope* scope;
 		// Current stack of visited nodes.
 		std::vector<AST*> recursionStack;
 
@@ -293,6 +296,9 @@ namespace ZScript
 	
 		// Set to true if any errors have occured.
 		bool failure;
+		
+		// Set to true if any errors have occured, but `NO_ERROR_HALT` was set.
+		bool failure_skipped;
 	};
 }
 

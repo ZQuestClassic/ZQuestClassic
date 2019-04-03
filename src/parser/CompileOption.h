@@ -3,6 +3,7 @@
 
 #include <string>
 #include "CompilerUtils.h"
+#include "parserDefs.h"
 
 namespace ZScript
 {
@@ -51,15 +52,13 @@ namespace ZScript
 		static CompileOption Invalid;
 
 		// Declare static instance for each option.
-#		define X(NAME, DEFAULTQR, DEFAULTVAL) \
+#		define X(NAME, DEFAULTQR, TYPE, DEFAULTVAL) \
 		static CompileOption OPT_##NAME;
-#		define START_GLOBAL(NUM) \
-		//
 #		include "CompileOption.xtable"
 #		undef X
-#		undef START_GLOBAL
 
 		static void initialize();
+		static void updateDefaults();
 
 		static optional<CompileOption> get(std::string const& name);
 
