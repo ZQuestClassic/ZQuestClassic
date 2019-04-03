@@ -5269,32 +5269,39 @@ int set_buf(void *dp3, int d2)
 static DIALOG modkey_dlg[] =
 {
     // (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3)
-    { jwin_win_proc,       8,    44,   304,  228-24,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Cheat Modifier Keys", NULL,  NULL },
+    { jwin_win_proc,       8,    44,   304,  228-24-20-30,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Cheat Modifier Keys", NULL,  NULL },
     { d_stringloader,      0,    0,    0,    0,    0,       0,       0,       0,         0,        0,       NULL, NULL,  NULL },
-    { jwin_frame_proc,     14,   70,   148,  140,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_frame_proc,     158,  70,   148,  140,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     14,   70,   148,  140-58,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
+    { jwin_frame_proc,     158,  70,   148,  140-58,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
     { d_dummy_proc,     14,  171,   292,  67,  0,       0,       0,       0,         FR_ETCHED,0,       NULL, NULL,  NULL },
-    { jwin_text_proc,         30,   76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Set Binding", NULL,  NULL },
-    { jwin_text_proc,         175,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Clear Binding", NULL,  NULL },
+    { jwin_text_proc,         30,   76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Left", NULL,  NULL },
+    { jwin_text_proc,         175,  76,   160,  8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Right", NULL,  NULL },
     
-    { jwin_text_proc,      92,   92-1,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_leftmod1, NULL,  NULL },
-    { jwin_text_proc,      92,   120-1,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_leftmod2, NULL,  NULL },
-    { jwin_text_proc,      92,   148-1,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_rightmod1, NULL,  NULL },
-    { jwin_text_proc,      92,   176-1,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_rightmod2, NULL,  NULL },
+    { jwin_text_proc,      92-26,   92-1,   60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_leftmod1, NULL,  NULL },
+    { jwin_text_proc,      92-26,   120-1,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_leftmod2, NULL,  NULL },
+    { jwin_text_proc,      237-4-22,   92-1,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_rightmod1, NULL,  NULL },
+    { jwin_text_proc,      237-4-22,   120-1,  60,   8,    vc(7),   vc(11),  0,       0,         0,        0,       str_rightmod2, NULL,  NULL },
 
-    { d_kbutton_proc,      22,   90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Main (1)",     NULL, &cheat_modifier_keys[0]},
-    { d_kbutton_proc,      22,   118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Main (2)",     NULL, &cheat_modifier_keys[1]},
-    { d_kbutton_proc,      22,   146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Alt (1)", NULL, &cheat_modifier_keys[2]},
-    { d_kbutton_proc,      22,   174,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Alt (2)",     NULL, &cheat_modifier_keys[3]},
+    { d_kbutton_proc,      22,   90,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Main",     NULL, &cheat_modifier_keys[0]},
+    { d_kbutton_proc,      22,   118,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Second",     NULL, &cheat_modifier_keys[1]},
+    
+    { d_kbutton_proc,      167,   90,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Main", NULL, &cheat_modifier_keys[2]},
+    { d_kbutton_proc,      167,   118,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Second",     NULL, &cheat_modifier_keys[3]},
+    
+    { d_k_clearbutton_proc,      22+91,  90,   40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[0]},
+    { d_k_clearbutton_proc,      22+91,  118,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[1]},
+     { d_k_clearbutton_proc,      167+91,  90,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",   NULL, &cheat_modifier_keys[2]},
+    { d_k_clearbutton_proc,      167+91,  118,  40,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[3]},
+
+    
+    //{ d_kbutton_proc,      22,   146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Alt (1)", NULL, &cheat_modifier_keys[2]},
+    //{ d_kbutton_proc,      22,   174,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Alt (2)",     NULL, &cheat_modifier_keys[3]},
 //if ret == this, clear_cheat_modifier_key_0   
-    { d_k_clearbutton_proc,      167,  90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[0]},
-    { d_k_clearbutton_proc,      167,  118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[1]},
-    { d_k_clearbutton_proc,      167,  146,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",   NULL, &cheat_modifier_keys[2]},
-    { d_k_clearbutton_proc,      167,  174,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[3]},
-
-    
-    { jwin_button_proc,    90,   240-23,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
-    { jwin_button_proc,    170,  240-23,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
+    //{ d_k_clearbutton_proc,      167,  90,   61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[0]},
+    //{ d_k_clearbutton_proc,      167,  118,  61,   21,   vc(14),  vc(1),   0,       0,         0,        0, (void *) "Clear",     NULL, &cheat_modifier_keys[1]},
+   
+    { jwin_button_proc,    90,   240-23-20-30-3,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
+    { jwin_button_proc,    170,  240-23-20-30-3,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
