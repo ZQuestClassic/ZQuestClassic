@@ -2,6 +2,8 @@ ChangeLog for 2.53.0
 
 //Release 1
 
+Added Arigatou/ path, and included files on request by contributors and core testers. 
+	Thank you to all testers and to all contributors.
 Cleaned up the Cheat Modifier Key dialogue.
 Added 20th Anniversary banner.
 	( ZoriaRPG, 3rd April, 2019 )
