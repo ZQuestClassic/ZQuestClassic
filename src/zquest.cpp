@@ -19854,7 +19854,7 @@ int onZScriptSettings()
 
 static int compiler_tab_list_global[] =
 {
-	10,11,12,13,14,15,
+	10,11,12,13,14,15,16,
 	-1
 };
 
@@ -19959,7 +19959,9 @@ static DIALOG zscript_parser_dlg[] =
 		(void *) "Header Guard:",                  NULL,   NULL                  },
     { jwin_droplist_proc,     60,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
 		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
-
+    { jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) "Include Paths:",                  NULL,   NULL                  },
+    
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
