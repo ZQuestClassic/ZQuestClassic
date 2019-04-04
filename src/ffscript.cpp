@@ -20921,6 +20921,24 @@ void FFScript::do_npc_stopbgsfx()
 	}
 }
 
+void FFScript::updateIncludePaths()
+{
+	memset(includePaths,0,sizeof(includePaths));
+	int pos = 0; int dest = 0; int pathnumber = 0;
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	{
+		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		{
+			includePaths[q][dest] = includePathString[pos];
+			pos++;
+			dest++;
+		}
+		++pos;
+		dest = 0;
+	}
+}
+
+
 void FFScript::initIncludePaths()
 {
 	memset(includePaths,0,sizeof(includePaths));

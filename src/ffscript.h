@@ -165,6 +165,7 @@ void lweaponScriptEngine();
 void eweaponScriptEngine();
 bool newScriptEngine();
 void initIncludePaths();
+void updateIncludePaths();
 
 /*
 long getQuestHeaderInfo(int type)

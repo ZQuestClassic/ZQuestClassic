@@ -20028,7 +20028,7 @@ int onZScriptCompilerSettings()
         set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
         set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
         save_config_file();
-        FFCore.initIncludePaths();
+        FFCore.updateIncludePaths();
         memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
     }
     
@@ -26664,6 +26664,23 @@ void FFScript::init()
 	kb_typing_mode = false;
 	initIncludePaths();
 	
+}
+
+void FFScript::updateIncludePaths()
+{
+	memset(includePaths,0,sizeof(includePaths));
+	int pos = 0; int dest = 0; int pathnumber = 0;
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	{
+		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		{
+			includePaths[q][dest] = includePathString[pos];
+			pos++;
+			dest++;
+		}
+		++pos;
+		dest = 0;
+	}
 }
 
 void FFScript::initIncludePaths()
