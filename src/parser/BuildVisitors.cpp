@@ -1164,7 +1164,7 @@ void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
         addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
     else
     {
-        pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue());
+        pair<long, bool> val = ScriptParser::parseLong(host.value->parseValue(), scope);
 
         if (!val.second)
 	        handleError(CompileError::ConstTrunc(

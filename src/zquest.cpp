@@ -19856,13 +19856,13 @@ int onZScriptSettings()
 
 static int compiler_tab_list_global[] =
 {
-	10,11,12,13,14,15,16, 17,
+	11,12,13,14,15,16,17, 18,
 	-1
 };
 
 static int compiler_tab_list_quest[] =
 {
-    6,7,8,9,
+    6,7,8,9, 10,
 	-1
 };
 
@@ -19949,7 +19949,8 @@ static DIALOG zscript_parser_dlg[] =
     { jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
     { jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
     { jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Relational Operators Give 0.0001 For True", NULL, NULL },
-    //10
+    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow constant value 214748", NULL, NULL },
+    //11
     { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
     { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
    
@@ -19963,7 +19964,7 @@ static DIALOG zscript_parser_dlg[] =
 		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
     { jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) "Include Paths:",                  NULL,   NULL                  },
-    //17
+    //18
 	{ jwin_text_proc,           17+162+(MAX_INCLUDE_PATHS < 10 ? 5 : 0),     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		NULL,                  NULL,   NULL                  },
     
@@ -19977,6 +19978,7 @@ static int zscripparsertrules[] =
     qr_PARSER_NO_LOGGING,
     qr_PARSER_SHORT_CIRCUIT,
 	qr_PARSER_RELOP_DECIMAL,
+	qr_PARSER_MAX_INT_ONE_LARGER,
     -1
 };
 
@@ -19987,15 +19989,15 @@ int onZScriptCompilerSettings()
         
     zscript_parser_dlg[0].dp2=lfont;
     
-    zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
-    zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
+    zscript_parser_dlg[14].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
+    zscript_parser_dlg[16].d1 = get_config_int("Compiler","HEADER_GUARD",3);
 	char max_include[17]; //This would need to be made larger if (MAX_INCLUDE_PATHS > 99) -V
 	sprintf(max_include, "Max Includes: %d", MAX_INCLUDE_PATHS);
-    zscript_parser_dlg[17].dp = max_include;
+    zscript_parser_dlg[18].dp = max_include;
     //memset(tempincludepath,0,sizeof(tempincludepath));
     strcpy(tempincludepath,FFCore.includePathString);
     //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
-    zscript_parser_dlg[10].dp = tempincludepath;
+    zscript_parser_dlg[11].dp = tempincludepath;
    
     for(int i=0; zscripparsertrules[i]!=-1; i++)
     {
