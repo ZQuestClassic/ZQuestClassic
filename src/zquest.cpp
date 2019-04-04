@@ -193,6 +193,8 @@ std::vector<string> asdmapscripts;
 extern std::map<int, pair<string, string> > screenmap;
 std::vector<string> asscreenscripts;
 
+char ZQincludePaths[MAX_INCLUDE_PATHS][512];
+
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
 //editbox_data temp_eb_data;
@@ -19854,7 +19856,7 @@ int onZScriptSettings()
 
 static int compiler_tab_list_global[] =
 {
-	10,11,12,13,14,15,16,
+	10,11,12,13,14,15,16, 17,
 	-1
 };
 
@@ -19961,6 +19963,9 @@ static DIALOG zscript_parser_dlg[] =
 		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
     { jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		(void *) "Include Paths:",                  NULL,   NULL                  },
+    //17
+	{ jwin_text_proc,           17+162+(MAX_INCLUDE_PATHS < 10 ? 5 : 0),     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		NULL,                  NULL,   NULL                  },
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -19984,7 +19989,9 @@ int onZScriptCompilerSettings()
     
     zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
     zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
-    
+	char max_include[17]; //This would need to be made larger if (MAX_INCLUDE_PATHS > 99) -V
+	sprintf(max_include, "Max Includes: %d", MAX_INCLUDE_PATHS);
+    zscript_parser_dlg[17].dp = max_include;
     //memset(tempincludepath,0,sizeof(tempincludepath));
     strcpy(tempincludepath,FFCore.includePathString);
     //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
@@ -20014,13 +20021,15 @@ int onZScriptCompilerSettings()
         {
             set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
         }
-	al_trace("Current include path string: %s\n", tempincludepath);
-	memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
-	strcpy(FFCore.includePathString,tempincludepath);
-	//set_config_string("Compiler","include_path",FFCore.includePathString);
-	set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
-	set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
-	save_config_file();
+        al_trace("Current include path string: %s\n", tempincludepath);
+        memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
+        strcpy(FFCore.includePathString,tempincludepath);
+        //set_config_string("Compiler","include_path",FFCore.includePathString);
+        set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
+        set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+        save_config_file();
+        FFCore.initIncludePaths();
+        memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
     }
     
     return D_O_K;
@@ -24929,6 +24938,7 @@ int main(int argc,char **argv)
     time(&auto_save_time_start);
     
     FFCore.init();
+	memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
     
     while(!quit)
     {

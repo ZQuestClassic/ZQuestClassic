@@ -109,6 +109,7 @@ extern YYLTYPE noloc;
 %token USING
 %token ALWAYS
 %token ZASM
+%token INCLUDE
 
  // Types
 %token ZVOID
@@ -364,10 +365,15 @@ AlwaysUsing :
 ////////////////////////////////////////////////////////////////
 // Import Declaration
 
-Import : IMPORT IMPORTSTRING {
-	ASTString* str = (ASTString*)$2;
-	$$ = new ASTImportDecl(str->getValue(), @$);
-	delete str;}
+Import :
+	IMPORT IMPORTSTRING {
+		ASTString* str = (ASTString*)$2;
+		$$ = new ASTImportDecl(str->getValue(), @$);
+		delete str;}
+	| HASH INCLUDE IMPORTSTRING {
+		ASTString* str = (ASTString*)$3;
+		$$ = new ASTImportDecl(str->getValue(), @$, true);
+		delete str;}
 	;
 
 ////////////////////////////////////////////////////////////////
