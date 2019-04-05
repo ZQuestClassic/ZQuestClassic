@@ -19815,6 +19815,7 @@ static DIALOG zscript_settings_dlg[] =
     { jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
     { jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Scrolling", NULL, NULL },
     { jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
+    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite Coordinates are Float", NULL, NULL },
     
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -19823,7 +19824,7 @@ static DIALOG zscript_settings_dlg[] =
 
 static int zscriptrules[] =
 {
-    qr_ITEMSCRIPTSKEEPRUNNING, qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_SCRIPTDRAWSWHENSCROLLING, qr_SCRIPTDRAWSINWARPS,
+    qr_ITEMSCRIPTSKEEPRUNNING, qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_SCRIPTDRAWSWHENSCROLLING, qr_SCRIPTDRAWSINWARPS,qr_LINKXY_IS_FLOAT,
     -1
 };
 
@@ -19862,7 +19863,7 @@ static int compiler_tab_list_global[] =
 
 static int compiler_tab_list_quest[] =
 {
-    6,7,8,9,
+    6,7,8,9,//18,
 	-1
 };
 
@@ -19966,6 +19967,8 @@ static DIALOG zscript_parser_dlg[] =
     //17
 	{ jwin_text_proc,           17+162+(MAX_INCLUDE_PATHS < 10 ? 5 : 0),     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
 		NULL,                  NULL,   NULL                  },
+    //18
+    //{ jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Link->X, Y, Z are Float", NULL, NULL },
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -19977,6 +19980,15 @@ static int zscripparsertrules[] =
     qr_PARSER_NO_LOGGING,
     qr_PARSER_SHORT_CIRCUIT,
 	qr_PARSER_RELOP_DECIMAL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	
     -1
 };
 

@@ -1270,16 +1270,16 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        ret = long(Link.getX()) * 10000;
+        ret = long(Link.getX()) * ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000);
         break;
 
         
     case LINKY:
-        ret = long(Link.getY()) * 10000;
+        ret = long(Link.getY()) * ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000);
         break;
         
     case LINKZ:
-        ret = long(Link.getZ()) * 10000;
+        ret = long(Link.getZ()) * (get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000;
         break;
         
     case LINKJUMP:
@@ -6626,15 +6626,18 @@ void set_register(const long arg, const long value)
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        Link.setX(value/10000);
+    {
+        Link.setX(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)); //the function setX() would truncate it anyway. 
+	    //needs to be Link.x = fix(value / 10000.0), or something like that. 
+    }
         break;
         
     case LINKY:
-        Link.setY(value/10000);
+        Link.setY(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
         break;
         
     case LINKZ:
-        Link.setZ(value/10000);
+        Link.setZ(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
         break;
         
     case LINKJUMP:
