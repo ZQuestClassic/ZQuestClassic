@@ -427,7 +427,6 @@ namespace ZScript
 			idEWeapon,
 			idLWeapon,
 			idLink,
-			idPlayer,
 			idScreen,
 			idDMap,
 			idItemSprite,
