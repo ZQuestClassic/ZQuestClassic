@@ -27,6 +27,7 @@ bool RecursiveVisitor::breakRecursion(void* param) const
 void RecursiveVisitor::handleError(CompileError const& error)
 {
 	bool skipError = (scope && *ZScript::lookupOption(*scope, CompileOption::OPT_NO_ERROR_HALT) != 0);
+	recursionStack.back()->errorDisabled = true;
 	// Scan through the node stack looking for a handler.
 	for (vector<AST*>::const_reverse_iterator it = recursionStack.rbegin();
 		 it != recursionStack.rend(); ++it)
@@ -45,7 +46,7 @@ void RecursiveVisitor::handleError(CompileError const& error)
 			if (*errorId == *error.getId() * 10000L)
 			{
 				ancestor.compileErrorCatches.erase(it);
-				if (error.isStrict() && !skipError)
+				if (error.isStrict()) //Let errors be caught, if expected; don't disable this on skipError -V
 				{
 					ancestor.errorDisabled = true;
 					breakNode = &ancestor;
