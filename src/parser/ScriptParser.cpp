@@ -533,7 +533,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 	return rval;
 }
 
-pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
+pair<long,bool> ScriptParser::parseLong(pair<string, string> parts, Scope* scope)
 {
 	// Not sure if this should really check for negative numbers;
 	// in most contexts, that's checked beforehand. parts only
@@ -541,6 +541,7 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	bool negative=false;
 	pair<long, bool> rval;
 	rval.second=true;
+	bool intOneLarger = *lookupOption(*scope, CompileOption::OPT_MAX_INT_ONE_LARGER) != 0;
     
 	if(parts.first.data()[0]=='-')
 	{
@@ -561,8 +562,20 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	}
     
 	int firstpart = atoi(parts.first.c_str());
-    
-	if(firstpart > 214747)
+    bool noDec = false;
+	if(intOneLarger) //MAX_INT should be 214748, but if that is the value, there should be no float component. -V
+	{
+		if(firstpart > 214748)
+		{
+			firstpart = 214748;
+			rval.second = false;
+		}
+		else if(firstpart == 214748)
+		{
+			noDec = true;
+		}
+	}
+	else if(firstpart > 214747)
 	{
 		firstpart = 214747;
 		rval.second = false;
@@ -572,15 +585,16 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	//add fractional part; tricky!
 	int fpart = 0;
     
+	
 	while(parts.second.length() < 4)
 		parts.second += "0";
-        
+		
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		fpart *= 10;
 		fpart += parts.second[i] - '0';
 	}
-    
+	
 	/*for(unsigned int i=0; i<4; i++)
 	  {
 	  fpart*=10;
@@ -589,6 +603,13 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	  tmp[1] = 0;
 	  fpart += atoi(tmp);
 	  }*/
+	  
+	if(fpart && noDec)
+	{
+		fpart = 0;
+		rval.second = false;
+	}
+	
 	rval.first = intval + fpart;
 	if(negative)
 		rval.first = -rval.first;
