@@ -2409,8 +2409,8 @@ void do_primitives(BITMAP *targetBitmap, int type, mapscr *, int xoff, int yoff)
     //[][19]: unused
     
     // Trying to match the old behavior exactly...
-    const bool brokenOffset=get_bit(extra_rules, er_BITMAPOFFSET)!=0;
-    
+    const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
+     
     bool isTargetOffScreenBmp = false;
     const int type_mul_10000 = type * 10000;
     const int numDrawCommandsToProcess = script_drawing_commands.Count();

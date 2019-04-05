@@ -98,10 +98,10 @@
 #define ZC_VERSION 25300 //Version ID for ZScript Game->Version
 #define ABOUT_VERSION 0x0253
 #define VERSION_BUILD       32                             //build number of this version
-#define ZELDA_VERSION_STR   "Omnius, 2.53 Release 1"               //version of the program as presented in text
+#define ZELDA_VERSION_STR   "Omnius, 2.53 Release 2"               //version of the program as presented in text
 #define IS_BETA             0                        //is this a beta? (1: beta, -1: alpha)
-#define DATE_STR            "3rd April, 2019"
-#define ZELDA_ABOUT_STR 	    "Zelda Classic 'Omnius' Release 1"
+#define DATE_STR            "5th April, 2019"
+#define ZELDA_ABOUT_STR 	    "Zelda Classic 'Omnius' Release 2"
 #define COPYRIGHT_YEAR      "2019"     
                      //shown on title screen and in ending
 
@@ -574,7 +574,7 @@ enum
     qr_ENABLEMAGIC, qr_MAGICWAND_DEP/*DEPRECATED*/, qr_MAGICCANDLE_DEP/*DEPRECATED*/, qr_MAGICBOOTS_DEP/*DEPRECATED*/,
     qr_NONBUBBLEMEDICINE, qr_NONBUBBLEFAIRIES, qr_NONBUBBLETRIFORCE, qr_NEWENEMYTILES,
     // 8
-    qr_NOROPE2FLASH_DEP/*DEPRECATED*/, qr_NOBUBBLEFLASH_DEP/*DEPRECATED*/, qr_GHINI2BLINK_DEP, qr_WPNANIMFIX /* UNIMPLEMENTED */,
+    qr_NOROPE2FLASH_DEP/*DEPRECATED*/, qr_NOBUBBLEFLASH_DEP/*DEPRECATED*/, qr_GHINI2BLINK_DEP, qr_BITMAPOFFSETFIX, //qr_WPNANIMFIX /* UNIMPLEMENTED */,
     qr_PHANTOMGHINI2_DEP/*DEPRECATED*/, qr_Z3BRANG_HSHOT, qr_NOITEMMELEE, qr_SHADOWS,
     // 9
     qr_TRANSSHADOWS, qr_QUICKSWORD, qr_BOMBHOLDFIX, qr_EXPANDEDLTM,

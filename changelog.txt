@@ -1,7 +1,13 @@
 ChangeLog for 2.53.0 
 
+//Release 2
+Because of Quest 744...
+Added a quest rule to Compatibility Rules for pre-2.50.2
+DrawBitmap() offsets behaviour, and patched quest loader to most-approprately
+auto-set this bit.
+	( ZoriaRPG, 5th April, 2019 )
+	
 //Release 1
-
 Added Arigatou/ path, and included files on request by contributors and core testers. 
 	Thank you to all testers and to all contributors.
 Cleaned up the Cheat Modifier Key dialogue.
