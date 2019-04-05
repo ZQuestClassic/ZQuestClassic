@@ -94,6 +94,9 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 				function.thisVar =
 					BuiltinConstant::create(functionScope, DataType::LINK, "this", 0);
 				break;
+			case ZVARTYPEID_SCREEN:
+				function.thisVar =
+					BuiltinConstant::create(functionScope, DataType::SCREEN, "this", 0);
 			case ZVARTYPEID_VOID:
 				break;
 			default:
