@@ -1270,16 +1270,16 @@ long get_register(const long arg)
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        ret = long(Link.getX()) * 10000;
+        ret = long(Link.getX()) * ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000);
         break;
 
         
     case LINKY:
-        ret = long(Link.getY()) * 10000;
+        ret = long(Link.getY()) * ((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000);
         break;
         
     case LINKZ:
-        ret = long(Link.getZ()) * 10000;
+        ret = long(Link.getZ()) * (get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000;
         break;
         
     case LINKJUMP:
@@ -1407,6 +1407,13 @@ long get_register(const long arg)
     case LINKROTATION:
         ret = (int)(Link.rotation)*10000;
         break;
+    
+    case LINKSCALE:
+    {
+	//al_trace("Link's scale is: %d\n", Link.scale);
+        ret = (int)(Link.scale*100.0);
+        break;
+    }
     
     case LINKHXOFS:
         ret = (int)(Link.hxofs)*10000;
@@ -1799,7 +1806,15 @@ long get_register(const long arg)
         
 ///----------------------------------------------------------------------------------------------------//
 //Item Variables
-    case ITEMX:
+    case ITEMSCALE:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            ret=((int)((item*)(s))->scale)*100.0;
+        }
+        
+        break;
+	
+	case ITEMX:
         if(0!=(s=checkItem(ri->itemref)))
         {
             ret=((int)((item*)(s))->x)*10000;
@@ -2621,6 +2636,15 @@ long get_register(const long arg)
             ret = (long(-GuyH::getNPC()->fall / fix(100.0)) * 10000);
             
         break;
+	
+	
+	case NPCSCALE:
+        if(GuyH::loadNPC(ri->guyref, "npc->Scale") != SH::_NoError)
+            ret = -10000;
+        else
+            ret = (long(GuyH::getNPC()->scale) * 100.0);
+            
+        break;
         
     case NPCSTEP:
         if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
@@ -2930,7 +2954,13 @@ case NPCBEHAVIOUR: {
     
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
-    case LWPNX:
+    case LWPNSCALE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
+            ret=((int)((weapon*)(s))->scale)*100.0;
+            
+        break;
+	
+	case LWPNX:
         if(0!=(s=checkLWpn(ri->lwpn,"X")))
             ret=((int)((weapon*)(s))->x)*10000;
             
@@ -3233,7 +3263,13 @@ case NPCBEHAVIOUR: {
         
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables
-    case EWPNX:
+    case EWPNSCALE:
+        if(0!=(s=checkEWpn(ri->ewpn, "Scale")))
+            ret=((int)((weapon*)(s))->scale)*100.0;
+            
+        break;
+
+	case EWPNX:
         if(0!=(s=checkEWpn(ri->ewpn, "X")))
             ret=((int)((weapon*)(s))->x)*10000;
             
@@ -6590,15 +6626,18 @@ void set_register(const long arg, const long value)
 ///----------------------------------------------------------------------------------------------------//
 //Link's Variables
     case LINKX:
-        Link.setX(value/10000);
+    {
+        Link.setX(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000)); //the function setX() would truncate it anyway. 
+	    //needs to be Link.x = fix(value / 10000.0), or something like that. 
+    }
         break;
         
     case LINKY:
-        Link.setY(value/10000);
+        Link.setY(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
         break;
         
     case LINKZ:
-        Link.setZ(value/10000);
+        Link.setZ(value/((get_bit(quest_rules,qr_LINKXY_IS_FLOAT)) ? 10000.0 : 10000));
         break;
         
     case LINKJUMP:
@@ -6860,6 +6899,14 @@ void set_register(const long arg, const long value)
     case LINKROTATION:
         (Link.rotation)=(value/10000);
         break;
+    
+    case LINKSCALE:
+    {
+        (Link.scale)=(value/100.0);
+	//al_trace("Link.scale is: %d\n", Link.scale);
+	//al_trace("Trying to set Link.scale to: %d\n", value/100.0);
+        break;
+    }
         
     case LINKHYOFS:
         (Link.hyofs)=(fix)(value/10000);
@@ -7307,6 +7354,14 @@ void set_register(const long arg, const long value)
             // Move the Fairy enemy as well.
             if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
                 movefairy2(((item*)(s))->x,((item*)(s))->y,((item*)(s))->misc);
+        }
+        
+        break;
+	
+	case ITEMSCALE:
+        if(0!=(s=checkItem(ri->itemref)))
+        {
+            (s->scale)=(fix)(value/100.0);
         }
         
         break;
@@ -8036,11 +8091,19 @@ void set_register(const long arg, const long value)
     
 ///----------------------------------------------------------------------------------------------------//
 //LWeapon Variables
+    
+    case LWPNSCALE:
+        if(0!=(s=checkLWpn(ri->lwpn,"Scale")))
+            ((weapon*)s)->scale=(fix)(value/100.0);
+            
+        break;
+	
     case LWPNX:
         if(0!=(s=checkLWpn(ri->lwpn,"X")))
             ((weapon*)s)->x=(fix)(value/10000);
-            
-        break;
+		break;
+	
+	
         
     case LWPNY:
         if(0!=(s=checkLWpn(ri->lwpn,"Y")))
@@ -8334,7 +8397,13 @@ void set_register(const long arg, const long value)
         
 ///----------------------------------------------------------------------------------------------------//
 //EWeapon Variables
-    case EWPNX:
+    case EWPNSCALE:
+        if(0!=(s=checkEWpn(ri->ewpn,"Scale")))
+            ((weapon*)s)->scale=(fix)(value/100.0);
+            
+        break;
+	
+	case EWPNX:
         if(0!=(s=checkEWpn(ri->ewpn,"X")))
             ((weapon*)s)->x=(fix)(value/10000);
             
@@ -8611,6 +8680,15 @@ void set_register(const long arg, const long value)
             
             if(GuyH::hasLink())
                 Link.setX(fix(value / 10000));
+        }
+    }
+    break;
+    
+    case NPCSCALE:
+    {
+        if(GuyH::loadNPC(ri->guyref, "npc->Scale") == SH::_NoError)
+        {
+            GuyH::getNPC()->scale = (value / 100.0);
         }
     }
     break;
@@ -18202,7 +18280,8 @@ int FFScript::do_getpixel()
 	int xoff = 0; int yoff = 0; //IDR where these are normally read off-hand. 
 	//Sticking this here to do initial tests. Will fix later. 
 	//They're for the subscreen offsets. 
-	const bool brokenOffset=get_bit(extra_rules, er_BITMAPOFFSET)!=0;
+	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
+    
 	//bool isTargetOffScreenBmp = false;
 	//al_trace("Getpixel: The current bitmap ID is: %d /n",ri->bitmapref);
 	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->bitmapref);
@@ -20920,6 +20999,24 @@ void FFScript::do_npc_stopbgsfx()
 		GuyH::getNPC()->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
 	}
 }
+
+void FFScript::updateIncludePaths()
+{
+	memset(includePaths,0,sizeof(includePaths));
+	int pos = 0; int dest = 0; int pathnumber = 0;
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	{
+		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		{
+			includePaths[q][dest] = includePathString[pos];
+			pos++;
+			dest++;
+		}
+		++pos;
+		dest = 0;
+	}
+}
+
 
 void FFScript::initIncludePaths()
 {

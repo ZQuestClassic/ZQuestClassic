@@ -99,7 +99,7 @@
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
-#define VERSION_BUILD       41                              //build number of this version
+#define VERSION_BUILD       42                              //build number of this version
 //31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
 #define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 17"                    //version of the program as presented in text
 #define IS_BETA             -17                         //is this a beta? (1: beta, -1: alpha)
@@ -125,8 +125,6 @@
 
 #define MAX_SCRIPT_REGISTERS 1024
 #define MAX_SCRIPT_REGISTERS_250 256
-
-#define MAX_INCLUDE_PATHS 3
 
 enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_211B18, ENC_METHOD_MAX};
 
@@ -795,7 +793,7 @@ enum
     qr_ENABLEMAGIC, qr_MAGICWAND_DEP/*DEPRECATED*/, qr_MAGICCANDLE_DEP/*DEPRECATED*/, qr_MAGICBOOTS_DEP/*DEPRECATED*/,
     qr_NONBUBBLEMEDICINE, qr_NONBUBBLEFAIRIES, qr_NONBUBBLETRIFORCE, qr_NEWENEMYTILES,
     // 8
-    qr_NOROPE2FLASH_DEP/*DEPRECATED*/, qr_NOBUBBLEFLASH_DEP/*DEPRECATED*/, qr_GHINI2BLINK_DEP, qr_WPNANIMFIX /* UNIMPLEMENTED */,
+    qr_NOROPE2FLASH_DEP/*DEPRECATED*/, qr_NOBUBBLEFLASH_DEP/*DEPRECATED*/, qr_GHINI2BLINK_DEP, qr_BITMAPOFFSETFIX, /* UNIMPLEMENTED */
     qr_PHANTOMGHINI2_DEP/*DEPRECATED*/, qr_Z3BRANG_HSHOT, qr_NOITEMMELEE/*DEPRECATED*/, qr_SHADOWS,
     // 9
     qr_TRANSSHADOWS, qr_QUICKSWORD, qr_BOMBHOLDFIX, qr_EXPANDEDLTM,
@@ -832,7 +830,6 @@ enum
     qr_OLDHOOKSHOTGRAB /* Compatibility */, qr_PEAHATCLOCKVULN /* Compatibility */, qr_VERYFASTSCROLLING, qr_OFFSCREENWEAPONS /* Compatibility */,
     // 20
     qr_BROKENSTATUES /* Compatibility */, qr_BOMBCHUSUPERBOMB,
-    //qr_NOSCRIPTSDURINGSCROLL /* Not Implemented */, 
     qr_ITEMPICKUPSETSBELOW /* Compatibility */,
     
     qr_NOGANONINTRO, //bugfix//
@@ -851,13 +848,18 @@ enum
 	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
 	qr_PARSER_SHORT_CIRCUIT, //Default off.
 	qr_PARSER_RELOP_DECIMAL, //Default off
+	qr_LINKXY_IS_FLOAT,
+	qr_PARSER_MAX_INT_ONE_LARGER, //Default on
+	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
+	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
     qr_MAX
 };
 
 // Unsaved compatibility rules
 enum extraRules
 {
-    er_BITMAPOFFSET, er_SHORTDGNWALK,
+    er_BITMAPOFFSET, //to be deprecated by qr_BITMAPOFFSETFIX
+	er_SHORTDGNWALK,
 	er_MAGICCOSTSWORD, //BEAMS Only
 	er_BROKENCHARINTDRAWING, //pre-2.53 fix to DrawInteger() and DrarCharacter() -Z
 	er_SETENEMYWEAPONSPRITESONWPNCHANGE, //er_OLDSIDEVIEWSPIKES,

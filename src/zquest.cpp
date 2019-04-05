@@ -193,6 +193,8 @@ std::vector<string> asdmapscripts;
 extern std::map<int, pair<string, string> > screenmap;
 std::vector<string> asscreenscripts;
 
+char ZQincludePaths[MAX_INCLUDE_PATHS][512];
+
 int CSET_SIZE = 16;
 int CSET_SHFT = 4;
 //editbox_data temp_eb_data;
@@ -19813,6 +19815,7 @@ static DIALOG zscript_settings_dlg[] =
     { jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw When Stepping Forward In Dungeons", NULL, NULL },
     { jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Scrolling", NULL, NULL },
     { jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Scripts Draw During Warps", NULL, NULL },
+    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Sprite Coordinates are Float", NULL, NULL },
     
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
@@ -19821,7 +19824,7 @@ static DIALOG zscript_settings_dlg[] =
 
 static int zscriptrules[] =
 {
-    qr_ITEMSCRIPTSKEEPRUNNING, qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_SCRIPTDRAWSWHENSCROLLING, qr_SCRIPTDRAWSINWARPS,
+    qr_ITEMSCRIPTSKEEPRUNNING, qr_SCRIPTSRUNINLINKSTEPFORWARD, qr_SCRIPTDRAWSWHENSCROLLING, qr_SCRIPTDRAWSINWARPS,qr_LINKXY_IS_FLOAT,
     -1
 };
 
@@ -19852,23 +19855,156 @@ int onZScriptSettings()
     return D_O_K;
 }
 
+static int compiler_tab_list_global[] =
+{
+	10,11,12,13,14,15,16,18,19,
+	-1
+};
+
+static int compiler_tab_list_quest[] =
+{
+    6,7,8,9,17,
+	-1
+};
+
+static TABPANEL compiler_options_tabs[] =
+{
+    // (text)
+    { (char *)"Global Options",  D_SELECTED,  compiler_tab_list_global, 0, NULL },
+    { (char *)"Quest-Specific Options",  0,           compiler_tab_list_quest, 0, NULL },
+    { NULL,         0,           NULL, 0, NULL }
+};
+
+
+//static char zcompiler_halttype_str_buf[32];
+
+const char *zcompiler_haltlist(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,1);
+        
+	switch(index)
+        {
+        case 0:
+            return "Halt";
+            
+        case 1:
+            return "Do Not Halt";
+        }
+	
+    }
+    
+    *list_size = 2;
+    return NULL;
+}
+
+static ListData zcompiler_halt_list(zcompiler_haltlist, &pfont);
+
+const char *zcompiler_guardlist(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,3);
+        
+	switch(index)
+        {
+        case 0:
+            return "Disable";
+            
+        case 1:
+            return "Enable";
+	
+	case 2:
+            return "Error, Enable";
+	
+	case 3:
+            return "Warn, Enable";
+        }
+	
+    }
+    
+    *list_size = 4;
+    return NULL;
+}
+
+static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
+
+
+const char *zcompiler_num_include_paths(int index, int *list_size)
+{
+    if(index >= 0)
+    {
+        bound(index,0,MAX_INCLUDE_PATHS);
+        
+	switch(index)
+        {
+            
+	case 0:
+	    return "0";
+        case 1:
+            return "1";
+	case 2:
+            return "2";
+	case 3:
+            return "3";
+	case 4:
+            return "4";
+	case 5:
+            return "5";
+        }
+	
+    }
+    
+    *list_size = MAX_INCLUDE_PATHS+1;
+    return NULL;
+}
+
+static ListData zcompiler_number_include_paths_list(zcompiler_num_include_paths, &pfont);
+
+
+
+
+char tempincludepath[(MAX_INCLUDE_PATHS+1)*512];
+
 static DIALOG zscript_parser_dlg[] =
 {
     /* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
     { jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
     { d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
+    //{ d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
+    { jwin_tab_proc,            4,     23,    252,    182,    vc(0),      vc(15),      0,    0,          0,    0, (void *) compiler_options_tabs,     NULL, (void *)zscript_parser_dlg },
     // 3
     { jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
     
     // rules //6
-    { jwin_check_proc,      10, 21+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
-    { jwin_check_proc,      10, 21+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
-    { jwin_check_proc,      10, 21+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
-    { jwin_check_proc,      10, 21+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Relational Operators Give 0.0001 For True", NULL, NULL },
-    
+    { jwin_check_proc,      10, 32+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
+    { jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
+    { jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
+    { jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Relational Operators Give 0.0001 For True", NULL, NULL },
+    //10
+    { d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
+    { jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          64,            0,       tempincludepath, NULL, NULL },
+   
+    { jwin_text_proc,           86,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": On Error",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     10,     32+10,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_halt_list,						 NULL,   NULL 				   },
+    { jwin_text_proc,           86,     38+24,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": Header Guard",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     10,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
+    { jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) "Include Paths:",                  NULL,   NULL                  },
+    //17
+    { jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Allow Constant Value 214748", NULL, NULL },
+   
+    { jwin_text_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": Max Include Paths",                  NULL,   NULL                  },
+    { jwin_droplist_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_number_include_paths_list,						 NULL,   NULL 				   },
     
     { NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
@@ -19876,10 +20012,21 @@ static DIALOG zscript_parser_dlg[] =
 
 static int zscripparsertrules[] =
 {
-    qr_PARSER_250DIVISION,
-    qr_PARSER_NO_LOGGING,
-    qr_PARSER_SHORT_CIRCUIT,
+	qr_PARSER_250DIVISION,
+	qr_PARSER_NO_LOGGING,
+	qr_PARSER_SHORT_CIRCUIT,
 	qr_PARSER_RELOP_DECIMAL,
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	qr_PARSER_MAX_INT_ONE_LARGER,
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
     -1
 };
 
@@ -19890,10 +20037,28 @@ int onZScriptCompilerSettings()
         
     zscript_parser_dlg[0].dp2=lfont;
     
+    zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
+    zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
+    zscript_parser_dlg[19].d1 = get_config_int("Compiler","number_of_include_paths",5);
+    
+    //memset(tempincludepath,0,sizeof(tempincludepath));
+    strcpy(tempincludepath,FFCore.includePathString);
+    //al_trace("Include path string in editbox should be: %s\n",tempincludepath);
+    zscript_parser_dlg[10].dp = tempincludepath;
+   
     for(int i=0; zscripparsertrules[i]!=-1; i++)
     {
+	    //This loop ignores trying to set bits in quest_rules, if the option is on the global settings tab.
+	    //These settings are stored in zquest.cfg, not in the quest file. -ZoriaRPG (3rd April, 2019 )
+	    for ( int q = 0; q < (sizeof(compiler_tab_list_global)/4); q++ ) //Only if the bit is quest-based, in quest_rules.
+	    {
+		if ( compiler_tab_list_global[q] == i ) continue;
+		    
+	    }
         zscript_parser_dlg[i+6].flags = get_bit(quest_rules,zscripparsertrules[i]) ? D_SELECTED : 0;
     }
+    
+ 
     
     int ret = zc_popup_dialog(zscript_parser_dlg,4);
     
@@ -19905,6 +20070,16 @@ int onZScriptCompilerSettings()
         {
             set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
         }
+	al_trace("Current include path string: %s\n", tempincludepath);
+	memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
+	strcpy(FFCore.includePathString,tempincludepath);
+	//set_config_string("Compiler","include_path",FFCore.includePathString);
+	set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
+	set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+	set_config_int("Compiler","number_of_include_paths",zscript_parser_dlg[19].d1);
+	save_config_file();
+	FFCore.updateIncludePaths();
+        memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
     }
     
     return D_O_K;
@@ -24813,6 +24988,7 @@ int main(int argc,char **argv)
     time(&auto_save_time_start);
     
     FFCore.init();
+	memcpy(ZQincludePaths, FFCore.includePaths, sizeof(ZQincludePaths));
     
     while(!quit)
     {
@@ -25799,6 +25975,7 @@ int save_config_file()
     chop_path(tmusicpath2);
     
 	set_config_string("ZCMODULE","current_module",moduledata.module_name);
+	set_config_string("Compiler","include_path",FFCore.includePathString);
 	
     set_config_string("zquest",data_path_name,datapath2);
     set_config_string("zquest",midi_path_name,midipath2);
@@ -26537,6 +26714,23 @@ void FFScript::init()
 	kb_typing_mode = false;
 	initIncludePaths();
 	
+}
+
+void FFScript::updateIncludePaths()
+{
+	memset(includePaths,0,sizeof(includePaths));
+	int pos = 0; int dest = 0; int pathnumber = 0;
+	for ( int q = 0; q < MAX_INCLUDE_PATHS; q++ )
+	{
+		while(includePathString[pos] != ';' && includePathString[pos] != '\0' )
+		{
+			includePaths[q][dest] = includePathString[pos];
+			pos++;
+			dest++;
+		}
+		++pos;
+		dest = 0;
+	}
 }
 
 void FFScript::initIncludePaths()
@@ -27558,7 +27752,7 @@ void ZModule::init(bool d) //bool default
 		    "cSTEP", "cSTEPSAME", "cSTEPALL", "cSTEPCOPY", "cNOENEMY", "cBLOCKARROW1", "cBLOCKARROW2",
 		    "cBLOCKARROW3", "cBLOCKBRANG1", "cBLOCKBRANG2", "cBLOCKBRANG3", "cBLOCKSBEAM", "cBLOCKALL",
 		    "cBLOCKFIREBALL", "cDAMAGE5", "cDAMAGE6", "cDAMAGE7", "cCHANGE", "cSPINTILE1", "cSPINTILE2",
-		    "cSCREENFREEZE", "cSCREENFREEZEFF", "cNOGROUNDENEMY", "cSLASHNEXT", "cSLASHNEXTITEM", "cBUSHNEXT"
+		    "cSCREENFREEZE", "cSCREENFREEZEFF", "cNOGROUNDENEMY", "cSLASHNEXT", "cSLASHNEXTITEM", "cBUSHNEXT",
 		    "cSLASHTOUCHY", "cSLASHITEMTOUCHY", "cBUSHTOUCHY", "cFLOWERSTOUCHY", "cTALLGRASSTOUCHY",
 		    "cSLASHNEXTTOUCHY", "cSLASHNEXTITEMTOUCHY", "cBUSHNEXTTOUCHY", "cEYEBALL_4", "cTALLGRASSNEXT",
 		    "cSCRIPT1", "cSCRIPT2", "cSCRIPT3", "cSCRIPT4", "cSCRIPT5",

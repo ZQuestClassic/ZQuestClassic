@@ -108,6 +108,7 @@ public:
     signed char scriptflip;
     byte do_animation;
     int rotation;
+    int scale; 
     
     sprite();
     sprite(sprite const & other);

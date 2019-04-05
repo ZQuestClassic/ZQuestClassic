@@ -1806,6 +1806,12 @@ script_variable variable_list[]=
 	{"ITEMROTATION", ITEMROTATION, 0, 0 },
 	{"LINKROTATION", LINKROTATION, 0, 0 },
 	
+	{"LWPNSCALE", LWPNSCALE, 0, 0 },
+	{"EWPNSCALE", EWPNSCALE, 0, 0 },
+	{"NPCSCALE", NPCSCALE, 0, 0 },
+	{"ITEMSCALE", ITEMSCALE, 0, 0 },
+	{"LINKSCALE", LINKSCALE, 0, 0 },
+	
 	
 	{ " ",                       -1,             0,             0 }
 };

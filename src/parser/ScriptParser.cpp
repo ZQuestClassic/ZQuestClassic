@@ -21,6 +21,8 @@
 #include "ZScript.h"
 using namespace std;
 using namespace ZScript;
+
+extern char ZQincludePaths[MAX_INCLUDE_PATHS][512];
 //#define PARSER_DEBUG
 
 ScriptsData* compile(string const& filename);
@@ -139,7 +141,41 @@ bool ScriptParser::preprocess(ASTFile* root, int reclimit)
 		ASTImportDecl& importDecl = **it;
 
 		// Parse the imported file.
-		string filename = prepareFilename(importDecl.getFilename());
+		string* fname = NULL;
+		string includePath;
+		if(importDecl.isInclude())
+		{
+			string importname = importDecl.getFilename();
+			int importfound = importname.find_first_not_of("/\\");
+			if(importfound != string::npos) //If the import is not just `/`'s and `\`'s...
+			{
+				if(importfound != 0)
+					importname = importname.substr(importfound); //Remove leading `/` and `\`
+				//Convert the include string to a proper import path
+				for ( int q = 0; q < MAX_INCLUDE_PATHS && !fname; ++q ) //Loop through all include paths, or until valid file is found
+				{
+					if( ZQincludePaths[q][0] != '\0' )
+					{
+						includePath = &*ZQincludePaths[q];
+						//Add a `/` to the end of the include path, if it is missing
+						int lastnot = includePath.find_last_not_of("/\\");
+						int last = includePath.find_last_of("/\\");
+						if(lastnot != string::npos)
+						{
+							if(last == string::npos || last < lastnot)
+								includePath += "/";
+						}
+						includePath = prepareFilename(includePath + importname);
+						FILE* f = fopen(includePath.c_str(), "r");
+						if(!f) continue;
+						fclose(f);
+						fname = &includePath;
+					}
+				}
+			}
+			//Now just run it as though it were an import!
+		}
+		string filename = fname ? *fname : prepareFilename(importDecl.getFilename());
 		auto_ptr<ASTFile> imported(parseFile(filename));
 		if (!imported.get())
 		{
@@ -497,7 +533,7 @@ vector<Opcode*> ScriptParser::assembleOne(
 	return rval;
 }
 
-pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
+pair<long,bool> ScriptParser::parseLong(pair<string, string> parts, Scope* scope)
 {
 	// Not sure if this should really check for negative numbers;
 	// in most contexts, that's checked beforehand. parts only
@@ -505,6 +541,7 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	bool negative=false;
 	pair<long, bool> rval;
 	rval.second=true;
+	bool intOneLarger = *lookupOption(*scope, CompileOption::OPT_MAX_INT_ONE_LARGER) != 0;
     
 	if(parts.first.data()[0]=='-')
 	{
@@ -525,8 +562,20 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	}
     
 	int firstpart = atoi(parts.first.c_str());
-    
-	if(firstpart > 214747)
+    bool noDec = false;
+	if(intOneLarger) //MAX_INT should be 214748, but if that is the value, there should be no float component. -V
+	{
+		if(firstpart > 214748)
+		{
+			firstpart = 214748;
+			rval.second = false;
+		}
+		else if(firstpart == 214748)
+		{
+			noDec = true;
+		}
+	}
+	else if(firstpart > 214747)
 	{
 		firstpart = 214747;
 		rval.second = false;
@@ -536,15 +585,16 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	//add fractional part; tricky!
 	int fpart = 0;
     
+	
 	while(parts.second.length() < 4)
 		parts.second += "0";
-        
+		
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		fpart *= 10;
 		fpart += parts.second[i] - '0';
 	}
-    
+	
 	/*for(unsigned int i=0; i<4; i++)
 	  {
 	  fpart*=10;
@@ -553,6 +603,13 @@ pair<long,bool> ScriptParser::parseLong(pair<string, string> parts)
 	  tmp[1] = 0;
 	  fpart += atoi(tmp);
 	  }*/
+	  
+	if(fpart && noDec)
+	{
+		fpart = 0;
+		rval.second = false;
+	}
+	
 	rval.first = intval + fpart;
 	if(negative)
 		rval.first = -rval.first;

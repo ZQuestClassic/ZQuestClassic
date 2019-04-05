@@ -1,6 +1,7 @@
 #ifndef _FFSCRIPT_H_
 #define _FFSCRIPT_H_
 #include "zdefs.h"
+#include "parser/parserDefs.h"
 #include <utility>
 #include <string>
 #include <list>
@@ -164,6 +165,7 @@ void lweaponScriptEngine();
 void eweaponScriptEngine();
 bool newScriptEngine();
 void initIncludePaths();
+void updateIncludePaths();
 
 /*
 long getQuestHeaderInfo(int type)
@@ -3213,11 +3215,20 @@ enum ASM_DEFINE
 #define SKIPF6 		0x133C
 #define LWPNUSEWEAPON 		0x133D
 #define LWPNUSEDEFENCE 		0x133E
+
+//Sprite Rotation
 #define LWPNROTATION 		0x133F
 #define EWPNROTATION 		0x1340
 #define NPCROTATION 		0x1341
 #define ITEMROTATION 		0x1342
 #define LINKROTATION 		0x1343
+
+//Sprite Scaling
+#define LWPNSCALE 		0x1344
+#define EWPNSCALE 		0x1345
+#define NPCSCALE 		0x1346
+#define ITEMSCALE 		0x1347
+#define LINKSCALE 		0x1348
 
 //bytecode
 
@@ -3225,7 +3236,7 @@ enum ASM_DEFINE
 //#define DMAPDATAJUMPLAYER 	//unimplemented
 //end vars
 
-#define NUMVARIABLES         0x1344
+#define NUMVARIABLES         0x1349
 
 
 // Script types

@@ -104,7 +104,7 @@ namespace ZScript
 		static void assemble(IntermediateData* id);
 		static void initialize();
 		static std::pair<long,bool> parseLong(
-				std::pair<std::string,std::string> parts);
+				std::pair<std::string,std::string> parts, Scope* scope);
 
 		static int const recursionLimit = 30;
 	private:
