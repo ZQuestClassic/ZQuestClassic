@@ -2680,6 +2680,11 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	set_bit(extra_rules, er_BITMAPOFFSET, 0);
 	set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
     }
+    //optimise fast drawing for older versions.
+    if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 42) )
+    {
+	set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);    
+    }
     //Sideview spikes in 2.50.0
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<27)) //2.50.1RC3
     {

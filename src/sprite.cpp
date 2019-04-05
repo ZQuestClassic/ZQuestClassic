@@ -19,11 +19,12 @@
 #include "precompiled.h" //always first
 
 #include "zdefs.h"
+#include "zsys.h"
 #include "sprite.h"
 #include "tiles.h"
 #include "particles.h"
 extern sprite_list particles;
-
+extern byte                quest_rules[QUESTRULES_NEW_SIZE];
 extern bool get_debug();
 extern bool halt;
 extern bool show_sprites;
@@ -456,12 +457,11 @@ void sprite::move(fix s)
 //To quote Jeff Goldblum, 'That is one big pile opf shit!'. -Z (5th April, 2019)
 void sprite::draw(BITMAP* dest)
 {
-	
 	if(!show_sprites)
 	{
 		return;
 	}
-    
+	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) ) drawzcboss(dest);
 	int sx = real_x(x+xofs);
 	int sy = real_y(y+yofs)-real_z(z+zofs);
 	BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
