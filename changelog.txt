@@ -2,6 +2,9 @@
 
 //Alpha 17
 
+Cleaned up the structure of sprite::draw() and added logic comments to it.
+Partially re-wrote sprite:draw() to ensure that all extend values
+	and all flip types support Rotate and Scale.
 Added Sprite Scaling to all sprite types, in ZScript:
 	float lweapon->Scale;
 	float eweapon->Scale;
