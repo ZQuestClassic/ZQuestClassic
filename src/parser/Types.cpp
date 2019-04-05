@@ -133,14 +133,14 @@ DataTypeSimple DataType::FLOAT(ZVARTYPEID_FLOAT, "float", &CFLOAT);
 DataTypeSimple DataType::BOOL(ZVARTYPEID_BOOL, "bool", &CBOOL);
 DataTypeArray DataType::STRING(FLOAT);
 //Classes: Global Pointer
-DataTypeClass DataType::GAME(ZCLASSID_GAME, "Game", NULL);
-DataTypeClass DataType::LINK(ZCLASSID_LINK, "Link", NULL);
-DataTypeClass DataType::SCREEN(ZCLASSID_SCREEN, "Screen", NULL);
-DataTypeClass DataType::AUDIO(ZCLASSID_AUDIO, "Audio", NULL);
-DataTypeClass DataType::DEBUG(ZCLASSID_DEBUG, "Debug", NULL);
-DataTypeClass DataType::GRAPHICS(ZCLASSID_GRAPHICS, "Graphics", NULL);
-DataTypeClass DataType::INPUT(ZCLASSID_INPUT, "Input", NULL);
-DataTypeClass DataType::TEXT(ZCLASSID_TEXT, "Text", NULL);
+DataTypeClassConst DataType::GAME(ZCLASSID_GAME, "Game");
+DataTypeClassConst DataType::LINK(ZCLASSID_LINK, "Link");
+DataTypeClassConst DataType::SCREEN(ZCLASSID_SCREEN, "Screen");
+DataTypeClassConst DataType::AUDIO(ZCLASSID_AUDIO, "Audio");
+DataTypeClassConst DataType::DEBUG(ZCLASSID_DEBUG, "Debug");
+DataTypeClassConst DataType::GRAPHICS(ZCLASSID_GRAPHICS, "Graphics");
+DataTypeClassConst DataType::INPUT(ZCLASSID_INPUT, "Input");
+DataTypeClassConst DataType::TEXT(ZCLASSID_TEXT, "Text");
 //Class: Types
 DataTypeClassConst DataType::CBITMAP(ZCLASSID_BITMAP, "const Bitmap");
 DataTypeClassConst DataType::CCHEATS(ZCLASSID_CHEATS, "const Cheats");

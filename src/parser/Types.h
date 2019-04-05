@@ -180,14 +180,14 @@ namespace ZScript
 		static DataTypeSimple BOOL;
 		static DataTypeArray STRING;
 		//Classes: Global Pointer
-		static DataTypeClass GAME;
-		static DataTypeClass LINK;
-		static DataTypeClass SCREEN;
-		static DataTypeClass AUDIO;
-		static DataTypeClass DEBUG;
-		static DataTypeClass GRAPHICS;
-		static DataTypeClass INPUT;
-		static DataTypeClass TEXT;
+		static DataTypeClassConst GAME;
+		static DataTypeClassConst LINK;
+		static DataTypeClassConst SCREEN;
+		static DataTypeClassConst AUDIO;
+		static DataTypeClassConst DEBUG;
+		static DataTypeClassConst GRAPHICS;
+		static DataTypeClassConst INPUT;
+		static DataTypeClassConst TEXT;
 		//Class: Types
 		static DataTypeClassConst CBITMAP;
 		static DataTypeClassConst CCHEATS;
