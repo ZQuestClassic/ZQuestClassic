@@ -803,69 +803,41 @@ void sprite::draw(BITMAP* dest)
             default:
 		{
 			if(e) break; //Don't draw if the sprite is extended. We already drew it. 
-			BITMAP* sprBMP = create_bitmap_ex(8,16,16);
-			BITMAP* sprBMP3 = create_bitmap_ex(8,256,256);
-			clear_bitmap(sprBMP);
+			BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
 			//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+			clear_bitmap(sprBMP);
 			clear_bitmap(sprBMP2);
-			clear_bitmap(sprBMP3);
+			if(drawstyle==0 || drawstyle==3)
+				overtile16(sprBMP,tile,0,0,cs,flip);
+			else if(drawstyle==1)
+				overtiletranslucent16(sprBMP,tile,0,0,cs,flip,128);
+			else if(drawstyle==2)
+				overtilecloaked16(sprBMP,tile,0,0,flip);
 			
 			if ( rotation )
-			{
-				clear_bitmap(sprBMP);
-				clear_bitmap(sprBMP3);
-				if(drawstyle==0 || drawstyle==3)
-					overtile16(sprBMP,tile,0,0,cs,flip);
-				else if(drawstyle==1)
-					overtiletranslucent16(sprBMP,tile,0,0,cs,flip,128);
-				else if(drawstyle==2)
-					overtilecloaked16(sprBMP,tile,0,0,flip);
-				if ( scale != 0 ) 
 				{
-					double new_scale = scale / 100.0;
 					
-					rotate_scaled_sprite(sprBMP3, sprBMP, 0, 0, 0,ftofix(new_scale));
-					//al_trace("Sprite scale is %f\n",new_scale);
-					rotate_scaled_sprite(sprBMP3, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
-					
-				}
-				else rotate_sprite(sprBMP3, sprBMP, 0, 0, deg_to_fixed(rotation));
-				draw_sprite(dest, sprBMP3, x, y+playing_field_offset);
-			}
-			
-			else
-			{
-			
-				if ( scale != 0 )
-				{
-					if(drawstyle==0 || drawstyle==3)
-						overtile16(sprBMP,tile,0,0,cs,flip);
-					else if(drawstyle==1)
-						overtiletranslucent16(sprBMP,tile,0,0,cs,flip,128);
-					else if(drawstyle==2)
-						overtilecloaked16(sprBMP,tile,0,0,flip);
-				
-					double new_scale = scale / 100.0;
-					
-					rotate_scaled_sprite(sprBMP3, sprBMP, 0, 0, 0,ftofix(new_scale));
-					
-					draw_sprite(dest, sprBMP3, x, y+playing_field_offset);
-					
+					if ( scale ) 
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
+					}
+					else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+					draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
 					
 				}
 				else
 				{
-					if(drawstyle==0 || drawstyle==3)
-					    overtile16(dest,tile,sx,sy,cs,flip);
-					else if(drawstyle==1)
-					    overtiletranslucent16(dest,tile,sx,sy,cs,flip,128);
-					else if(drawstyle==2)
-					    overtilecloaked16(dest,tile,sx,sy,flip);
+					if ( scale ) 
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
+						draw_sprite(dest, sprBMP2, x, y+playing_field_offset);
+					}
+					else draw_sprite(dest, sprBMP, x, y+playing_field_offset);
 				}
-			}
 			destroy_bitmap(sprBMP);
 			destroy_bitmap(sprBMP2);
-			destroy_bitmap(sprBMP3);
 			break;
 		}
             }
