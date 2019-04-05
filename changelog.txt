@@ -2,6 +2,10 @@
 
 //Alpha 17
 
+Added sprite::drawzcboss() to use for drawing Z1 bosses.
+	Most do not play well as-is with the revised sprite::draw(), and thus they
+	do not at present support scaling or rotation. 
+
 Added a quest rule to Compatibility Rules for pre-2.50.2
 	DrawBitmap() offsets behaviour, and patched quest loader to most-approprately
 	auto-set this bit.

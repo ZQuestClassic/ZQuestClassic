@@ -2689,7 +2689,7 @@ void enemy::drawblock(BITMAP *dest,int mask)
     switch(mask)
     {
     case 1:
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         break;
         
     case 3:
@@ -2697,10 +2697,10 @@ void enemy::drawblock(BITMAP *dest,int mask)
             zc_swap(t1,t2);
             
         tile=t1;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         tile=t2;
         yofs+=16;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         yofs-=16;
         break;
         
@@ -2711,10 +2711,10 @@ void enemy::drawblock(BITMAP *dest,int mask)
             zc_swap(t1,t2);
             
         tile=t1;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         tile=t2;
         xofs+=16;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         xofs-=16;
         break;
         
@@ -2732,17 +2732,17 @@ void enemy::drawblock(BITMAP *dest,int mask)
         }
         
         tile=t1;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         tile=t2;
         yofs+=16;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         yofs-=16;
         tile=t3;
         xofs+=16;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         tile=t4;
         yofs+=16;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         xofs-=16;
         yofs-=16;
         break;
@@ -9155,18 +9155,18 @@ void eDodongo::draw(BITMAP *dest)
     
     if(clk<0)
     {
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         return;
     }
     
     update_enemy_frame();
-    enemy::draw(dest);
+    enemy::drawzcboss(dest);
     
     if(dummy_int[1]!=0)  //additional tiles
     {
         tile+=dummy_int[1]; //second tile is previous tile
         xofs-=16;           //new xofs change
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         xofs+=16;
     }
     
@@ -9283,18 +9283,18 @@ void eDodongo2::draw(BITMAP *dest)
 {
     if(clk<0)
     {
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         return;
     }
     
     int tempx=xofs;
     int tempy=yofs;
     update_enemy_frame();
-    enemy::draw(dest);
+    enemy::drawzcboss(dest);
     tile+=dummy_int[1]; //second tile change
     xofs+=dummy_int[2]; //new xofs change
     yofs+=dummy_int[3]; //new yofs change
-    enemy::draw(dest);
+    enemy::drawzcboss(dest);
     xofs=tempx;
     yofs=tempy;
 }
@@ -9680,7 +9680,7 @@ void eGohma::draw(BITMAP *dest)
     
     if(clk<0 || dying)
     {
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         return;
     }
     
@@ -9694,14 +9694,14 @@ void eGohma::draw(BITMAP *dest)
         //      if(clk&16) tile=180;
         //      else { tile=182; flip=1; }
         tile+=(3*((clk&48)>>4));
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         
         // right side
         xofs=16;
         //      tile=(180+182)-tile;
         tile=o_tile;
         tile+=(3*((clk&48)>>4))+2;
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         
         // body
         xofs=0;
@@ -9717,7 +9717,7 @@ void eGohma::draw(BITMAP *dest)
         else
             tile+=((clk3-132)&24)?4:1;
             
-        enemy::draw(dest);
+        enemy::drawzcboss(dest);
         
     }
     else
