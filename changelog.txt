@@ -2,6 +2,10 @@
 
 //Alpha 17
 
+Added a quest rule to Compatibility Rules for pre-2.50.2
+	DrawBitmap() offsets behaviour, and patched quest loader to most-approprately
+	auto-set this bit.
+
 Added a QR bit to allow r/w of Link->X, Y, and Z to be floating
 	point ZScript values. This does not yet work properly.
 	I added the setting to the ZScript Settings dialogue.

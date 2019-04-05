@@ -18280,7 +18280,8 @@ int FFScript::do_getpixel()
 	int xoff = 0; int yoff = 0; //IDR where these are normally read off-hand. 
 	//Sticking this here to do initial tests. Will fix later. 
 	//They're for the subscreen offsets. 
-	const bool brokenOffset=get_bit(extra_rules, er_BITMAPOFFSET)!=0;
+	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
+    
 	//bool isTargetOffScreenBmp = false;
 	//al_trace("Getpixel: The current bitmap ID is: %d /n",ri->bitmapref);
 	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->bitmapref);

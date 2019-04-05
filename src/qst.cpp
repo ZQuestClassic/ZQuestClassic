@@ -2658,6 +2658,27 @@ int readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
     {
         set_bit(extra_rules, er_BITMAPOFFSET, 1);
+        set_bit(quest_rules, qr_BITMAPOFFSETFIX, 1);
+    }
+    //required because quest templates also used this bit, although
+    //it never did anything, before. -Z
+    if ( tempheader.zelda_version == 0x250 )
+    {
+	    if( tempheader.build == 29 || tempheader.build == 30 || tempheader.build == 31 )
+	    {
+		set_bit(extra_rules, er_BITMAPOFFSET, 0);
+		set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
+	    }
+    }
+    if ( tempheader.zelda_version == 0x254 )
+    {
+	set_bit(extra_rules, er_BITMAPOFFSET, 0);
+	set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
+    }
+    if ( tempheader.zelda_version == 0x255 && tempheader.build < 42 ) //QR was added to 255 in this build.
+    {
+	set_bit(extra_rules, er_BITMAPOFFSET, 0);
+	set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
     }
     //Sideview spikes in 2.50.0
     if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<27)) //2.50.1RC3
