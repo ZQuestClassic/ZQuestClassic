@@ -20018,15 +20018,17 @@ static int zscripparsertrules[] =
 	qr_PARSER_NO_LOGGING,
 	qr_PARSER_SHORT_CIRCUIT,
 	qr_PARSER_RELOP_DECIMAL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
 	qr_PARSER_MAX_INT_ONE_LARGER,
+	NULL, //this dialogue index is used by global settings
+	NULL, //this dialogue index is used by global settings
     -1
 };
 
