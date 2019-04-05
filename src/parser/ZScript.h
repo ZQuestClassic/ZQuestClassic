@@ -345,7 +345,7 @@ namespace ZScript
 
 		ASTFuncDecl* node;
 		FunctionScope* internalScope;
-		BuiltinVariable* thisVar;
+		Datum* thisVar;
 
 		// Get the opcodes.
 		std::vector<Opcode*> const& getCode() const {return ownedCode;}
